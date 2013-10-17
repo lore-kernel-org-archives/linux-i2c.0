@@ -1,143 +1,57 @@
-From: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+From: srinivas kandagatla <srinivas.kandagatla@st.com>
 Subject: Re: [PATCH v5 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Thu, 17 Oct 2013 09:27:25 +0200
-Message-ID: <525F915D.9020501@st.com>
+Date: Thu, 17 Oct 2013 10:33:33 +0100
+Message-ID: <525FAEED.7030207@st.com>
 References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com>
  <1381754813-4679-2-git-send-email-maxime.coquelin@st.com>
- <20131016151419.GA14104@ns203013.ovh.net>
+ <20131016151419.GA14104@ns203013.ovh.net> <525F915D.9020501@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131016151419.GA14104-HVbc7XotTAhnXn40ka+A6Q@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Srinivas KANDAGATLA <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stuart MENEFY <stuart.menefy-qxv4g6HH51o@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stephen GALLIMORE <stephen.gallimore-qxv4g6HH51o@public.gmane.org>, Gabriel FERNANDEZ <gabriel.fernandez-qxv4g6HH51o@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <525F915D.9020501@st.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Maxime COQUELIN <maxime.coquelin@st.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Russell King <linux@arm.linux.org.uk>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean-Christophe,
+On 17/10/13 08:27, Maxime COQUELIN wrote:
+> ...
+>>> >> +
+>>> >> +static struct of_device_id st_i2c_match[] = {
+>>> >> +     { .compatible = "st,comms-ssc-i2c", },
+>> > the rules is to put the first soc that use the ip in the compatible
+>> > as st,sti7100-scc-i2c
+> Ok. There are no plans to upstream the SH4 platforms, it will only 
+> remains in stlinux.com.
+> Maybe I can set the first ARM platform (STiH415)?
+> That would give st,stih415-ssc-i2c.
+NAK, for st,stih415-ssc-i2c naming.
 
-On 10/16/2013 05:14 PM, Jean-Christophe PLAGNIOL-VILLARD wrote:
+IMO, this makes sense when the same IP integration done on different SOC
+changes slightly/very differently.
+
+But in this case the "comms" IP remains unchanged across all the SOCs.
+
+I would still prefer "st,comms-ssc-i2c", allowing a single device driver
+to match against several SoCs. ST "comms" IP it is integrated across all
+the STi series of SoCs, so we don't want to add new entry in compatible
+for every new SOC.
 
 
-...
->> +
->> +static inline void st_i2c_set_bits(void __iomem *reg, u32 mask)
->> +{
->> +     writel(readl(reg) | mask, reg);
->> +}
->> +
->> +static inline void st_i2c_clr_bits(void __iomem *reg, u32 mask)
->> +{
->> +     writel(readl(reg) & ~mask, reg);
-> use set_bit api and use relaxed version
-Using the set_bit api here does not match with the purpose of these 
-functions.
-We want to be able to set/clear multiple bits, and AFAICS the set_bit 
-api does not
-provide this possibility.
+Thanks,
+srini
 
-I took example on i2c-nomadik for these functions.
-
->> +}
->> +
->> +/* From I2C Specifications v0.5 */
->> +static struct st_i2c_timings i2c_timings[] = {
->> +     [I2C_MODE_STANDARD] = {
->> +             .rate                   = 100000,
->> +             .rep_start_hold         = 4000,
->> +             .rep_start_setup        = 4700,
->> +             .start_hold             = 4000,
->> +             .data_setup_time        = 250,
->> +             .stop_setup_time        = 4000,
->> +             .bus_free_time          = 4700,
->> +     },
->> +     [I2C_MODE_FAST] = {
->> +             .rate                   = 400000,
->> +             .rep_start_hold         = 600,
->> +             .rep_start_setup        = 600,
->> +             .start_hold             = 600,
->> +             .data_setup_time        = 100,
->> +             .stop_setup_time        = 600,
->> +             .bus_free_time          = 1300,
->> +     },
->> +};
-> so how do you plane to support other rate that 100k and 400k?
-The SSC IP only supports Standard and Fast modes.
-There are no plans to support faster modes.
->> +
->> +static void st_i2c_flush_rx_fifo(struct st_i2c_dev *i2c_dev)
->> +{
->> +     int count, i;
->> +
->> +     /*
->> +      * Counter only counts up to 7 but fifo size is 8...
->> +      * When fifo is full, counter is 0 and RIR bit of status register is
->> +      * set
->> +      */
->> +     if (readl(i2c_dev->base + SSC_STA) & SSC_STA_RIR)
->> +             count = SSC_RXFIFO_SIZE;
->> +     else
->> +             count = readl(i2c_dev->base + SSC_RX_FSTAT) &
->> +                     SSC_RX_FSTAT_STATUS;
->> +
->> +     for (i = 0; i < count; i++)
->> +             readl(i2c_dev->base + SSC_RBUF);
-> use readsl
-Since the read content is flushed, I prefer keeping it as it is instead 
-of allocating
-a buffer of the FIFO's size.
->
-> use relaxed version as much as possible
-I was not comfortable with the different possibilities (_raw_readl, 
-readl_relaxed, readl...).
-I found this interresting discussion: 
-_http://comments.gmane.org/gmane.linux.ports.arm.kernel/117626
- From what I understood, you are right, I should be able to use 
-readl_relaxed everywhere.
-
-Maybe I should perform a readl on the interrupt mask register before 
-returning from the interrupt handler,
-in order to ensure that the write to the IEN register is effective 
-before the IRQ for the device is re-enabled at GIC level.
-Maybe this could avoid the few spurious interrupts I face sometimes, I 
-will have a try.
-
->> +}
->> +
-...
->> +
->> +static int st_i2c_wait_free_bus(struct st_i2c_dev *i2c_dev)
->> +{
->> +     u32 sta;
->> +     int i;
->> +
->> +     for (i = 0; i < 10; i++) {
->> +             sta = readl(i2c_dev->base + SSC_STA);
->> +             if (!(sta & SSC_STA_BUSY))
->> +                     return 0;
->> +
->> +             usleep_range(2000, 4000);
-> can not use interrupt?
-Sadly, no.
-There is no interrupt linked to the busy bit.
->> +     }
->> +
-...
->> +
->> +static struct of_device_id st_i2c_match[] = {
->> +     { .compatible = "st,comms-ssc-i2c", },
-> the rules is to put the first soc that use the ip in the compatible
-> as st,sti7100-scc-i2c
-Ok. There are no plans to upstream the SH4 platforms, it will only 
-remains in stlinux.com.
-Maybe I can set the first ARM platform (STiH415)?
-That would give st,stih415-ssc-i2c.
-
-Thanks for the review,
-Maxime
-
->
-> Best Regards,
-> J.
+> 
+> Thanks for the review,
+> Maxime
+> 
+>> >
