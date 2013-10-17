@@ -1,64 +1,88 @@
-From: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Subject: Re: [PATCH 2/8] [media] exynos4-is: Don't use i2c_client->driver
-Date: Thu, 17 Oct 2013 14:46:04 -0300
-Message-ID: <20131017144604.1d649988@samsung.com>
-References: <1380444666-12019-1-git-send-email-lars@metafoo.de>
- <1380444666-12019-3-git-send-email-lars@metafoo.de>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: getting rid of subsys_initcall usage? (was: Re: [PATCH RESEND]
+ i2c: designware: use module_platform_driver)
+Date: Thu, 17 Oct 2013 16:34:59 -0700
+Message-ID: <20131017233459.GH15154@atomide.com>
+References: <1376987548-12366-1-git-send-email-zhangfei.gao@linaro.org>
+ <20130828095706.GH4086@katana>
+ <CACRpkdb1p1=3a0PM+r2ZrMN+ECv5BAZFdv2omDK5npaer4ddcw@mail.gmail.com>
+ <CAMj5BkhQkwb+T9VepN7UrWNRSgtv=Dw-Sa-gv0orOANo55iqNw@mail.gmail.com>
+ <20130830054858.GR7656@atomide.com>
+ <CAMj5BkiDExikXi3JcVhO7RN8_82eGYhq3i6oPf5Wbipy=N+iHQ@mail.gmail.com>
+ <20130830082712.GT7656@atomide.com>
+ <20131008205304.GA29121@katana>
+ <20131008221056.GW8313@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1380444666-12019-3-git-send-email-lars@metafoo.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Kyungmin Park <kyungmin.park@samsung.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20131008221056.GW8313-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Em Sun, 29 Sep 2013 10:51:00 +0200
-Lars-Peter Clausen <lars@metafoo.de> escreveu:
-
-> The 'driver' field of the i2c_client struct is redundant and is going to be
-> removed. The results of the expressions 'client->driver.driver->field' and
-> 'client->dev.driver->field' are identical, so replace all occurrences of the
-> former with the later.
+* Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> [131008 15:19]:
+> * Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> [131008 14:01]:
+> > On Fri, Aug 30, 2013 at 01:27:13AM -0700, Tony Lindgren wrote:
+> > > * zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [130829 23:36]:
+> > > > What about concerns from Wolfram:
+> > > > " Other people might be
+> > > > depending on subsys_initcall to get I2C active before they want to
+> > > > activate, say, PMICs. So, I fear regressions, since deferred probing
+> > > > might not be available in the needed places to avoid these regressions."
+> > > 
+> > > There should not be any reason to get a PMIC activated
+> > > early on. The system should be booting already at that point,
+> > > and the PMIC related init can be done later on.
+> > 
+> > Okay, here is a more concrete example:
+> > 
+> > Consider the amplifier driver 'sound/soc/codecs/max9768.c'. Back then, unaware
+> > of deferred probing, I wrote the following code to get the GPIOs (which are
+> > optional):
+> > 
+> > 	err = gpio_request_one(pdata->mute_gpio, GPIOF_INIT_HIGH, "MAX9768 Mute");
+> > 	max9768->mute_gpio = err ?: pdata->mute_gpio;
+> > 
+> > And later in the process:
+> > 
+> >         if (gpio_is_valid(max9768->mute_gpio)) {
+> >                 ret = snd_soc_add_codec_controls(codec, max9768_mute,
+> >                                 ARRAY_SIZE(max9768_mute));
+> >                 if (ret)
+> >                         return ret;
+> >         }
+> > 
+> > So, the mute control will only be added if the gpio_request succeeded. On that
+> > particular board, the mute GPIO was wired to an I2C GPIO controller. If I now
+> > change the I2C (or GPIO) driver from subsys_initcall to module_init, then the
+> > gpio_request in the amplifier driver could hit -EPROBE_DEFER and the mute
+> > control will then disappear. Yes, the driver can be fixed easily, yet I fear a
+> > number of regressions like this. Instead of people digging into why things
+> > disappear after a kernel update, I wonder if there is a way to guide users if
+> > this happens. I didn't have time for that, though, sadly. Still, it makes me
+> > wonder how easily we could shift from subsys_initcall to module_init, although
+> > I'd really love to get away from subsys_initcall in device drivers.
 > 
-> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-> Cc: Kyungmin Park <kyungmin.park@samsung.com>
-> Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-
-Acked-by: Mauro Carvalho Chehab <m.chehab@samsung.com>
-
-> ---
->  drivers/media/platform/exynos4-is/media-dev.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> Well it should be pretty trivial to update drivers to use deferred
+> probing. Maybe some spatch to check for that in driver probes would
+> help getting an idea how many might be affected?
 > 
-> diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-> index a835112..7a4ee4c 100644
-> --- a/drivers/media/platform/exynos4-is/media-dev.c
-> +++ b/drivers/media/platform/exynos4-is/media-dev.c
-> @@ -411,8 +411,8 @@ static int fimc_md_of_add_sensor(struct fimc_md *fmd,
->  
->  	device_lock(&client->dev);
->  
-> -	if (!client->driver ||
-> -	    !try_module_get(client->driver->driver.owner)) {
-> +	if (!client->dev.driver ||
-> +	    !try_module_get(client->dev.driver->owner)) {
->  		ret = -EPROBE_DEFER;
->  		v4l2_info(&fmd->v4l2_dev, "No driver found for %s\n",
->  						node->full_name);
-> @@ -442,7 +442,7 @@ static int fimc_md_of_add_sensor(struct fimc_md *fmd,
->  	fmd->num_sensors++;
->  
->  mod_put:
-> -	module_put(client->driver->driver.owner);
-> +	module_put(client->dev.driver->owner);
->  dev_put:
->  	device_unlock(&client->dev);
->  	put_device(&client->dev);
+> Anyways, it should be fixed as otherwise we'll just dig ourselves
+> deeper into the mess of things not working as loadable modules.
 
+BTW, another place where things can go wrong is if there's an irqchip
+driver that is being set up at module_init time. If an interrupt client
+driver does irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0), the
+resources may not have been initialize for the DT case as those are
+populated triggered by of_platform_populate().
 
--- 
+The fix there is to use irq = irq_of_parse_and_map(pdev->dev.of_node, 0)
+instead. Or somehow make of_platform_populate() support -EPROBE_DEFER.
 
-Cheers,
-Mauro
+Just FYI,
+
+Tony
+
+Tony
