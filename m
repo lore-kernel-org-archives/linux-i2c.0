@@ -1,92 +1,143 @@
-From: Christian Daudt <bcm@fixthebug.org>
-Subject: Re: [RESEND PATCH 3/4] ARM: dts: bcm281xx: Add i2c busses
-Date: Wed, 16 Oct 2013 21:32:51 -0700
-Message-ID: <CAEPRUYqqxLevwM6dRpGUnfCgF2qZ_NVTDYTzKoFg+zbOPggfMQ@mail.gmail.com>
-References: <1381960909-1735-1-git-send-email-tim.kryger@linaro.org>
-	<1381960909-1735-4-git-send-email-tim.kryger@linaro.org>
+From: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH v5 1/4] i2c: busses: i2c-st: Add ST I2C controller
+Date: Thu, 17 Oct 2013 09:27:25 +0200
+Message-ID: <525F915D.9020501@st.com>
+References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com>
+ <1381754813-4679-2-git-send-email-maxime.coquelin@st.com>
+ <20131016151419.GA14104@ns203013.ovh.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1381960909-1735-4-git-send-email-tim.kryger@linaro.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Tim Kryger <tim.kryger@linaro.org>
-Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20131016151419.GA14104-HVbc7XotTAhnXn40ka+A6Q@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Srinivas KANDAGATLA <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stuart MENEFY <stuart.menefy-qxv4g6HH51o@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stephen GALLIMORE <stephen.gallimore-qxv4g6HH51o@public.gmane.org>, Gabriel FERNANDEZ <gabriel.fernandez-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Tim,
- This patch does not work as it relies on the yet-unmerged clock code
-for bcm11351. This patch does not apply to -rc, and when tweaked it
-does not compile as it references  non-existent bsc_clks.
- Has the clk patches been submitted yet ? Applying this will have to
-wait until those have been accepted.
+Hi Jean-Christophe,
 
- thanks,
-   csd
+On 10/16/2013 05:14 PM, Jean-Christophe PLAGNIOL-VILLARD wrote:
 
 
-On Wed, Oct 16, 2013 at 3:01 PM, Tim Kryger <tim.kryger@linaro.org> wrote:
-> Add the DTS nodes for all the i2c busses in the SoC.
+...
+>> +
+>> +static inline void st_i2c_set_bits(void __iomem *reg, u32 mask)
+>> +{
+>> +     writel(readl(reg) | mask, reg);
+>> +}
+>> +
+>> +static inline void st_i2c_clr_bits(void __iomem *reg, u32 mask)
+>> +{
+>> +     writel(readl(reg) & ~mask, reg);
+> use set_bit api and use relaxed version
+Using the set_bit api here does not match with the purpose of these 
+functions.
+We want to be able to set/clear multiple bits, and AFAICS the set_bit 
+api does not
+provide this possibility.
+
+I took example on i2c-nomadik for these functions.
+
+>> +}
+>> +
+>> +/* From I2C Specifications v0.5 */
+>> +static struct st_i2c_timings i2c_timings[] = {
+>> +     [I2C_MODE_STANDARD] = {
+>> +             .rate                   = 100000,
+>> +             .rep_start_hold         = 4000,
+>> +             .rep_start_setup        = 4700,
+>> +             .start_hold             = 4000,
+>> +             .data_setup_time        = 250,
+>> +             .stop_setup_time        = 4000,
+>> +             .bus_free_time          = 4700,
+>> +     },
+>> +     [I2C_MODE_FAST] = {
+>> +             .rate                   = 400000,
+>> +             .rep_start_hold         = 600,
+>> +             .rep_start_setup        = 600,
+>> +             .start_hold             = 600,
+>> +             .data_setup_time        = 100,
+>> +             .stop_setup_time        = 600,
+>> +             .bus_free_time          = 1300,
+>> +     },
+>> +};
+> so how do you plane to support other rate that 100k and 400k?
+The SSC IP only supports Standard and Fast modes.
+There are no plans to support faster modes.
+>> +
+>> +static void st_i2c_flush_rx_fifo(struct st_i2c_dev *i2c_dev)
+>> +{
+>> +     int count, i;
+>> +
+>> +     /*
+>> +      * Counter only counts up to 7 but fifo size is 8...
+>> +      * When fifo is full, counter is 0 and RIR bit of status register is
+>> +      * set
+>> +      */
+>> +     if (readl(i2c_dev->base + SSC_STA) & SSC_STA_RIR)
+>> +             count = SSC_RXFIFO_SIZE;
+>> +     else
+>> +             count = readl(i2c_dev->base + SSC_RX_FSTAT) &
+>> +                     SSC_RX_FSTAT_STATUS;
+>> +
+>> +     for (i = 0; i < count; i++)
+>> +             readl(i2c_dev->base + SSC_RBUF);
+> use readsl
+Since the read content is flushed, I prefer keeping it as it is instead 
+of allocating
+a buffer of the FIFO's size.
 >
-> Signed-off-by: Tim Kryger <tim.kryger@linaro.org>
-> Reviewed-by: Christian Daudt <csd@broadcom.com>
-> Reviewed-by: Matt Porter <matt.porter@linaro.org>
-> Reviewed-by: Markus Mayer <markus.mayer@linaro.org>
-> ---
->  arch/arm/boot/dts/bcm11351.dtsi | 40 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 40 insertions(+)
+> use relaxed version as much as possible
+I was not comfortable with the different possibilities (_raw_readl, 
+readl_relaxed, readl...).
+I found this interresting discussion: 
+_http://comments.gmane.org/gmane.linux.ports.arm.kernel/117626
+ From what I understood, you are right, I should be able to use 
+readl_relaxed everywhere.
+
+Maybe I should perform a readl on the interrupt mask register before 
+returning from the interrupt handler,
+in order to ensure that the write to the IEN register is effective 
+before the IRQ for the device is re-enabled at GIC level.
+Maybe this could avoid the few spurious interrupts I face sometimes, I 
+will have a try.
+
+>> +}
+>> +
+...
+>> +
+>> +static int st_i2c_wait_free_bus(struct st_i2c_dev *i2c_dev)
+>> +{
+>> +     u32 sta;
+>> +     int i;
+>> +
+>> +     for (i = 0; i < 10; i++) {
+>> +             sta = readl(i2c_dev->base + SSC_STA);
+>> +             if (!(sta & SSC_STA_BUSY))
+>> +                     return 0;
+>> +
+>> +             usleep_range(2000, 4000);
+> can not use interrupt?
+Sadly, no.
+There is no interrupt linked to the busy bit.
+>> +     }
+>> +
+...
+>> +
+>> +static struct of_device_id st_i2c_match[] = {
+>> +     { .compatible = "st,comms-ssc-i2c", },
+> the rules is to put the first soc that use the ip in the compatible
+> as st,sti7100-scc-i2c
+Ok. There are no plans to upstream the SH4 platforms, it will only 
+remains in stlinux.com.
+Maybe I can set the first ARM platform (STiH415)?
+That would give st,stih415-ssc-i2c.
+
+Thanks for the review,
+Maxime
+
 >
-> diff --git a/arch/arm/boot/dts/bcm11351.dtsi b/arch/arm/boot/dts/bcm11351.dtsi
-> index 1246885..4bfd7e3 100644
-> --- a/arch/arm/boot/dts/bcm11351.dtsi
-> +++ b/arch/arm/boot/dts/bcm11351.dtsi
-> @@ -146,6 +146,46 @@
->                 status = "disabled";
->         };
->
-> +       i2c@3e016000 {
-> +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
-> +               reg = <0x3e016000 0x80>;
-> +               interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
-> +               clocks = <&bsc1_clk>;
-> +               status = "disabled";
-> +       };
-> +
-> +       i2c@3e017000 {
-> +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
-> +               reg = <0x3e017000 0x80>;
-> +               interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>;
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
-> +               clocks = <&bsc2_clk>;
-> +               status = "disabled";
-> +       };
-> +
-> +       i2c@3e018000 {
-> +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
-> +               reg = <0x3e018000 0x80>;
-> +               interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
-> +               clocks = <&bsc3_clk>;
-> +               status = "disabled";
-> +       };
-> +
-> +       i2c@3500d000 {
-> +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
-> +               reg = <0x3500d000 0x80>;
-> +               interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
-> +               clocks = <&pmu_bsc_clk>;
-> +               status = "disabled";
-> +       };
-> +
->         clocks {
->                 bsc1_clk: bsc1 {
->                         compatible = "fixed-clock";
-> --
-> 1.8.0.1
->
->
+> Best Regards,
+> J.
