@@ -1,57 +1,102 @@
-From: srinivas kandagatla <srinivas.kandagatla@st.com>
-Subject: Re: [PATCH v5 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Thu, 17 Oct 2013 10:33:33 +0100
-Message-ID: <525FAEED.7030207@st.com>
-References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com>
- <1381754813-4679-2-git-send-email-maxime.coquelin@st.com>
- <20131016151419.GA14104@ns203013.ovh.net> <525F915D.9020501@st.com>
+From: Matt Porter <matt.porter@linaro.org>
+Subject: Re: [RESEND PATCH 3/4] ARM: dts: bcm281xx: Add i2c busses
+Date: Thu, 17 Oct 2013 08:14:54 -0400
+Message-ID: <20131017121454.GZ2721@beef>
+References: <1381960909-1735-1-git-send-email-tim.kryger@linaro.org>
+ <1381960909-1735-4-git-send-email-tim.kryger@linaro.org>
+ <CAEPRUYqqxLevwM6dRpGUnfCgF2qZ_NVTDYTzKoFg+zbOPggfMQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <525F915D.9020501@st.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Maxime COQUELIN <maxime.coquelin@st.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Russell King <linux@arm.linux.org.uk>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAEPRUYqqxLevwM6dRpGUnfCgF2qZ_NVTDYTzKoFg+zbOPggfMQ@mail.gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Christian Daudt <bcm@fixthebug.org>
+Cc: Tim Kryger <tim.kryger@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, linux-i2c@vger.kernel.org, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 17/10/13 08:27, Maxime COQUELIN wrote:
-> ...
->>> >> +
->>> >> +static struct of_device_id st_i2c_match[] = {
->>> >> +     { .compatible = "st,comms-ssc-i2c", },
->> > the rules is to put the first soc that use the ip in the compatible
->> > as st,sti7100-scc-i2c
-> Ok. There are no plans to upstream the SH4 platforms, it will only 
-> remains in stlinux.com.
-> Maybe I can set the first ARM platform (STiH415)?
-> That would give st,stih415-ssc-i2c.
-NAK, for st,stih415-ssc-i2c naming.
+On Wed, Oct 16, 2013 at 09:32:51PM -0700, Christian Daudt wrote:
+> Hi Tim,
+>  This patch does not work as it relies on the yet-unmerged clock code
+> for bcm11351. This patch does not apply to -rc, and when tweaked it
+> does not compile as it references  non-existent bsc_clks.
+>  Has the clk patches been submitted yet ? Applying this will have to
+> wait until those have been accepted.
 
-IMO, this makes sense when the same IP integration done on different SOC
-changes slightly/very differently.
+Hi Christian, Tim mentioned the dependencies in the cover letter.
+Sebastian's series, for which the pull request is already sent, and then
+Tim's own fixed clock series that is pending some review.
 
-But in this case the "comms" IP remains unchanged across all the SOCs.
+-Matt
 
-I would still prefer "st,comms-ssc-i2c", allowing a single device driver
-to match against several SoCs. ST "comms" IP it is integrated across all
-the STi series of SoCs, so we don't want to add new entry in compatible
-for every new SOC.
-
-
-Thanks,
-srini
-
+> On Wed, Oct 16, 2013 at 3:01 PM, Tim Kryger <tim.kryger@linaro.org> wrote:
+> > Add the DTS nodes for all the i2c busses in the SoC.
+> >
+> > Signed-off-by: Tim Kryger <tim.kryger@linaro.org>
+> > Reviewed-by: Christian Daudt <csd@broadcom.com>
+> > Reviewed-by: Matt Porter <matt.porter@linaro.org>
+> > Reviewed-by: Markus Mayer <markus.mayer@linaro.org>
+> > ---
+> >  arch/arm/boot/dts/bcm11351.dtsi | 40 ++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 40 insertions(+)
+> >
+> > diff --git a/arch/arm/boot/dts/bcm11351.dtsi b/arch/arm/boot/dts/bcm11351.dtsi
+> > index 1246885..4bfd7e3 100644
+> > --- a/arch/arm/boot/dts/bcm11351.dtsi
+> > +++ b/arch/arm/boot/dts/bcm11351.dtsi
+> > @@ -146,6 +146,46 @@
+> >                 status = "disabled";
+> >         };
+> >
+> > +       i2c@3e016000 {
+> > +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
+> > +               reg = <0x3e016000 0x80>;
+> > +               interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+> > +               #address-cells = <1>;
+> > +               #size-cells = <0>;
+> > +               clocks = <&bsc1_clk>;
+> > +               status = "disabled";
+> > +       };
+> > +
+> > +       i2c@3e017000 {
+> > +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
+> > +               reg = <0x3e017000 0x80>;
+> > +               interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>;
+> > +               #address-cells = <1>;
+> > +               #size-cells = <0>;
+> > +               clocks = <&bsc2_clk>;
+> > +               status = "disabled";
+> > +       };
+> > +
+> > +       i2c@3e018000 {
+> > +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
+> > +               reg = <0x3e018000 0x80>;
+> > +               interrupts = <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
+> > +               #address-cells = <1>;
+> > +               #size-cells = <0>;
+> > +               clocks = <&bsc3_clk>;
+> > +               status = "disabled";
+> > +       };
+> > +
+> > +       i2c@3500d000 {
+> > +               compatible = "brcm,bcm11351-i2c", "brcm,kona-i2c";
+> > +               reg = <0x3500d000 0x80>;
+> > +               interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+> > +               #address-cells = <1>;
+> > +               #size-cells = <0>;
+> > +               clocks = <&pmu_bsc_clk>;
+> > +               status = "disabled";
+> > +       };
+> > +
+> >         clocks {
+> >                 bsc1_clk: bsc1 {
+> >                         compatible = "fixed-clock";
+> > --
+> > 1.8.0.1
+> >
+> >
 > 
-> Thanks for the review,
-> Maxime
-> 
->> >
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
