@@ -1,65 +1,80 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+From: Maxime COQUELIN <maxime.coquelin@st.com>
 Subject: Re: [PATCH v5 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Thu, 17 Oct 2013 18:09:46 +0200
-Message-ID: <20131017160946.GF14104@ns203013.ovh.net>
+Date: Thu, 17 Oct 2013 18:48:35 +0200
+Message-ID: <526014E3.70505@st.com>
 References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com>
  <1381754813-4679-2-git-send-email-maxime.coquelin@st.com>
  <20131016151419.GA14104@ns203013.ovh.net> <525F915D.9020501@st.com>
- <525FAEED.7030207@st.com> <20131017141957.GE14104@ns203013.ovh.net>
- <20131017155308.GQ19112@lee--X1>
+ <20131017141627.GD14104@ns203013.ovh.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20131017155308.GQ19112@lee--X1>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Russell King <linux@arm.linux.org.uk>, Pawel Moll <pawel.moll@arm.com>, Wolfram Sang <wsa@the-dreams.de>, srinivas kandagatla <srinivas.kandagatla@st.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Stephen GALLIMORE <stephen.gallimore@st.com>, Grant Likely <grant.likely@linaro.org>, Stuart MENEFY <stuart.menefy@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Landley <rob@landley.net>, Stephen Warren <swarren@wwwdotorg.org>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Maxime COQUELIN <maxime.coquelin@st.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20131017141627.GD14104@ns203013.ovh.net>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stuart MENEFY <stuart.menefy@st.com>, Lee Jones <lee.jones@linaro.org>, Stephen GALLIMORE <stephen.gallimore@st.com>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMTY6NTMgVGh1IDE3IE9jdCAgICAgLCBMZWUgSm9uZXMgd3JvdGU6Cj4gT24gVGh1LCAxNyBP
-Y3QgMjAxMywgSmVhbi1DaHJpc3RvcGhlIFBMQUdOSU9MLVZJTExBUkQgd3JvdGU6Cj4gCj4gPiBP
-biAxMDozMyBUaHUgMTcgT2N0ICAgICAsIHNyaW5pdmFzIGthbmRhZ2F0bGEgd3JvdGU6Cj4gPiA+
-IE9uIDE3LzEwLzEzIDA4OjI3LCBNYXhpbWUgQ09RVUVMSU4gd3JvdGU6Cj4gPiA+ID4gLi4uCj4g
-PiA+ID4+PiA+PiArCj4gPiA+ID4+PiA+PiArc3RhdGljIHN0cnVjdCBvZl9kZXZpY2VfaWQgc3Rf
-aTJjX21hdGNoW10gPSB7Cj4gPiA+ID4+PiA+PiArICAgICB7IC5jb21wYXRpYmxlID0gInN0LGNv
-bW1zLXNzYy1pMmMiLCB9LAo+ID4gPiA+PiA+IHRoZSBydWxlcyBpcyB0byBwdXQgdGhlIGZpcnN0
-IHNvYyB0aGF0IHVzZSB0aGUgaXAgaW4gdGhlIGNvbXBhdGlibGUKPiA+ID4gPj4gPiBhcyBzdCxz
-dGk3MTAwLXNjYy1pMmMKPiA+ID4gPiBPay4gVGhlcmUgYXJlIG5vIHBsYW5zIHRvIHVwc3RyZWFt
-IHRoZSBTSDQgcGxhdGZvcm1zLCBpdCB3aWxsIG9ubHkgCj4gPiA+ID4gcmVtYWlucyBpbiBzdGxp
-bnV4LmNvbS4KPiA+ID4gPiBNYXliZSBJIGNhbiBzZXQgdGhlIGZpcnN0IEFSTSBwbGF0Zm9ybSAo
-U1RpSDQxNSk/Cj4gPiA+ID4gVGhhdCB3b3VsZCBnaXZlIHN0LHN0aWg0MTUtc3NjLWkyYy4KPiA+
-ID4gTkFLLCBmb3Igc3Qsc3RpaDQxNS1zc2MtaTJjIG5hbWluZy4KPiA+ID4gCj4gPiA+IElNTywg
-dGhpcyBtYWtlcyBzZW5zZSB3aGVuIHRoZSBzYW1lIElQIGludGVncmF0aW9uIGRvbmUgb24gZGlm
-ZmVyZW50IFNPQwo+ID4gPiBjaGFuZ2VzIHNsaWdodGx5L3ZlcnkgZGlmZmVyZW50bHkuCj4gPiA+
-IAo+ID4gPiBCdXQgaW4gdGhpcyBjYXNlIHRoZSAiY29tbXMiIElQIHJlbWFpbnMgdW5jaGFuZ2Vk
-IGFjcm9zcyBhbGwgdGhlIFNPQ3MuCj4gPiA+IAo+ID4gPiBJIHdvdWxkIHN0aWxsIHByZWZlciAi
-c3QsY29tbXMtc3NjLWkyYyIsIGFsbG93aW5nIGEgc2luZ2xlIGRldmljZSBkcml2ZXIKPiA+ID4g
-dG8gbWF0Y2ggYWdhaW5zdCBzZXZlcmFsIFNvQ3MuIFNUICJjb21tcyIgSVAgaXQgaXMgaW50ZWdy
-YXRlZCBhY3Jvc3MgYWxsCj4gPiA+IHRoZSBTVGkgc2VyaWVzIG9mIFNvQ3MsIHNvIHdlIGRvbid0
-IHdhbnQgdG8gYWRkIG5ldyBlbnRyeSBpbiBjb21wYXRpYmxlCj4gPiA+IGZvciBldmVyeSBuZXcg
-U09DLgo+ID4gCj4gPiB5b3UgbmV2ZXIgbmVlZCB0aGlzIHlvdSBhbHdheXMgdGhlIGZpcnN0IFNv
-QyB0aGF0J3MgYWxsCj4gPiAKPiA+IHNlZSBvdGhlciBiaW5kaW5ncyBvbiBhdDkxIGFzIGV4YW1w
-bGUgc29ycnkgTkFDSwo+IAo+IEknbSBndWVzc2luZyB0aGF0IHVzaW5nIHRoZSBmaXJzdCBTb0Mg
-aXMgYW4gSTJDJ2lzdW0uCj4gCj4gR3V5cywgaWYgeW91IGRvbid0IHdhbnQgdG8gYmUgdG9vIHNw
-ZWNpZmljLCBqdXN0IG1ha2UgaXQgYXMgZ2VuZXJpYyBhcwo+IHBvc3NpYmxlIHdoaWxlc3Qgc3Rp
-bGwgdXNpbmcgdGhlIFNvQyBhcyBhIFBPUjogc3Qsc3RpaDQxeC1zc2MtaTJjIHdpbGwKPiBkbyBm
-b3Igbm93LCBhcyBpdCBjb3ZlcnMgYWxsIGN1cnJlbnQgYmFzZXMuCgpleGNlcHQgdGhpcyBpcyB3
-cm9uZyB0aGUgSVAgaXMgdXNlZCBvbiBtdWNoIG9sZGVyIFNvQyB0aGFuIHRoZSByZWNlbnQgQVJN
-IG9uZXMKCmFuZCB0aGUgRFQgc28gcGxlYXNlIHJlc3BlY3QgdGhlIHJ1bGUgZmlyc3QgU29DIHVz
-ZWQgb24KCkJlc3QgUmVnYXJkcywKSi4KPiAKPiAtLSAKPiBMZWUgSm9uZXMKPiBMaW5hcm8gU1RN
-aWNyb2VsZWN0cm9uaWNzIExhbmRpbmcgVGVhbSBMZWFkCj4gTGluYXJvLm9yZyDilIIgT3BlbiBz
-b3VyY2Ugc29mdHdhcmUgZm9yIEFSTSBTb0NzCj4gRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBU
-d2l0dGVyIHwgQmxvZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0
-cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGlu
-Zm8vbGludXgtYXJtLWtlcm5lbAo=
+
+On 10/17/2013 04:16 PM, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> On 09:27 Thu 17 Oct     , Maxime COQUELIN wrote:
+>> Hi Jean-Christophe,
+>>
+>> On 10/16/2013 05:14 PM, Jean-Christophe PLAGNIOL-VILLARD wrote:
+>>
+>>
+>> ...
+>>>> +
+>>>> +static inline void st_i2c_set_bits(void __iomem *reg, u32 mask)
+>>>> +{
+>>>> +     writel(readl(reg) | mask, reg);
+>>>> +}
+>>>> +
+>>>> +static inline void st_i2c_clr_bits(void __iomem *reg, u32 mask)
+>>>> +{
+>>>> +     writel(readl(reg) & ~mask, reg);
+>>> use set_bit api and use relaxed version
+>> Using the set_bit api here does not match with the purpose of these
+>> functions.
+>> We want to be able to set/clear multiple bits, and AFAICS the set_bit
+>> api does not
+>> provide this possibility.
+>>
+>> I took example on i2c-nomadik for these functions.
+>>
+> so factorize the code not copy and paste
+I won't create a new API for this.
+If this is blocking for you, then I will just remove this functions.
+
+>>>> +}
+>>>> +
+>>>> +/* From I2C Specifications v0.5 */
+>>>> +static struct st_i2c_timings i2c_timings[] = {
+>>>> use readsl
+>> Since the read content is flushed, I prefer keeping it as it is instead
+>> of allocating
+>> a buffer of the FIFO's size.
+> keep point is to speedup the bus
+I meant I will use readl_relaxed, not readl.
+
+>>> use relaxed version as much as possible
+>> I was not comfortable with the different possibilities (_raw_readl,
+>> readl_relaxed, readl...).
+>> I found this interresting discussion:
+>> _http://comments.gmane.org/gmane.linux.ports.arm.kernel/117626
+>>   From what I understood, you are right, I should be able to use
+>> readl_relaxed everywhere.
+>>
+>> Maybe I should perform a readl on the interrupt mask register before
+>> returning from the interrupt handler,
+>> in order to ensure that the write to the IEN register is effective
+>> before the IRQ for the device is re-enabled at GIC level.
+>> Maybe this could avoid the few spurious interrupts I face sometimes, I
+>> will have a try.
+> ok
+I failed to reproduce the spurious interrupt without the patch, so I 
+can't say
+whether performing a readl at this stage helps.
+>>>> +}
