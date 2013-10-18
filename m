@@ -1,8 +1,8 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: getting rid of subsys_initcall usage? (was: Re: [PATCH RESEND]
  i2c: designware: use module_platform_driver)
-Date: Thu, 17 Oct 2013 16:34:59 -0700
-Message-ID: <20131017233459.GH15154@atomide.com>
+Date: Fri, 18 Oct 2013 08:32:10 +0100
+Message-ID: <20131018073210.GA3059@katana>
 References: <1376987548-12366-1-git-send-email-zhangfei.gao@linaro.org>
  <20130828095706.GH4086@katana>
  <CACRpkdb1p1=3a0PM+r2ZrMN+ECv5BAZFdv2omDK5npaer4ddcw@mail.gmail.com>
@@ -13,76 +13,55 @@ References: <1376987548-12366-1-git-send-email-zhangfei.gao@linaro.org>
  <20131008205304.GA29121@katana>
  <20131008221056.GW8313@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
 In-Reply-To: <20131008221056.GW8313-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 Cc: zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org> [131008 15:19]:
-> * Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> [131008 14:01]:
-> > On Fri, Aug 30, 2013 at 01:27:13AM -0700, Tony Lindgren wrote:
-> > > * zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [130829 23:36]:
-> > > > What about concerns from Wolfram:
-> > > > " Other people might be
-> > > > depending on subsys_initcall to get I2C active before they want to
-> > > > activate, say, PMICs. So, I fear regressions, since deferred probing
-> > > > might not be available in the needed places to avoid these regressions."
-> > > 
-> > > There should not be any reason to get a PMIC activated
-> > > early on. The system should be booting already at that point,
-> > > and the PMIC related init can be done later on.
-> > 
-> > Okay, here is a more concrete example:
-> > 
-> > Consider the amplifier driver 'sound/soc/codecs/max9768.c'. Back then, unaware
-> > of deferred probing, I wrote the following code to get the GPIOs (which are
-> > optional):
-> > 
-> > 	err = gpio_request_one(pdata->mute_gpio, GPIOF_INIT_HIGH, "MAX9768 Mute");
-> > 	max9768->mute_gpio = err ?: pdata->mute_gpio;
-> > 
-> > And later in the process:
-> > 
-> >         if (gpio_is_valid(max9768->mute_gpio)) {
-> >                 ret = snd_soc_add_codec_controls(codec, max9768_mute,
-> >                                 ARRAY_SIZE(max9768_mute));
-> >                 if (ret)
-> >                         return ret;
-> >         }
-> > 
-> > So, the mute control will only be added if the gpio_request succeeded. On that
-> > particular board, the mute GPIO was wired to an I2C GPIO controller. If I now
-> > change the I2C (or GPIO) driver from subsys_initcall to module_init, then the
-> > gpio_request in the amplifier driver could hit -EPROBE_DEFER and the mute
-> > control will then disappear. Yes, the driver can be fixed easily, yet I fear a
-> > number of regressions like this. Instead of people digging into why things
-> > disappear after a kernel update, I wonder if there is a way to guide users if
-> > this happens. I didn't have time for that, though, sadly. Still, it makes me
-> > wonder how easily we could shift from subsys_initcall to module_init, although
-> > I'd really love to get away from subsys_initcall in device drivers.
-> 
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+
 > Well it should be pretty trivial to update drivers to use deferred
 > probing. Maybe some spatch to check for that in driver probes would
 > help getting an idea how many might be affected?
-> 
-> Anyways, it should be fixed as otherwise we'll just dig ourselves
-> deeper into the mess of things not working as loadable modules.
 
-BTW, another place where things can go wrong is if there's an irqchip
-driver that is being set up at module_init time. If an interrupt client
-driver does irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0), the
-resources may not have been initialize for the DT case as those are
-populated triggered by of_platform_populate().
+That's what I am trying to say. It surely is easy to fix the drivers,
+once we know there is something in need of fixing. My question was if
+there is common sense to simply risk breaking things and fix them later
+(then I'd apply patches switching from subsys_initcall to module_init
+right away), or if we can gather ideas how to minimize the impact of
+regressions (before applying such patches).
 
-The fix there is to use irq = irq_of_parse_and_map(pdev->dev.of_node, 0)
-instead. Or somehow make of_platform_populate() support -EPROBE_DEFER.
 
-Just FYI,
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Tony
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
 
-Tony
+iQIcBAEBAgAGBQJSYOP6AAoJEBQN5MwUoCm2l/0P/3JGDetqhSLUtGqf14VWfqp8
+c8AUu21PAoP909opAgqysMjLK5D9Jua/+rljnJfDBxehUCO6nQZpMX3PpXfLSNTb
+9jOqOBaP+ENoeqOdIKMS/ozuIFjQf+MVg7lRdpprenlPUUkHrd+89IptQqh7xodR
+W8ycjpuRzerFO1Lv6gkhi6eS1PQsE1AUPt+2wNkaUX0bB/TyY5X7VrHcjihdawyO
+4qW5Yig3abFdVscQ4wIeNyvtNyUKhb6ErHbm7Qy5CDGJl2aolKKgPJwn59fP6p25
++NH3bnjJEG2JMkp+dsBFAuCsPx8EZkogIdPVqAbtETAnsm3Fld1bDdxSLeuCQdl8
+6WGpCIeLGi05FYPB4VAqppzBxT9Dzw/YiiD1dILw95Q/4h4Y+gXOmzllwXeWQZfR
+nhuEHubIx8H0pGNjFFnB95EY+g9aBH0VzppT2Gb0vKEgr5Ls9j8o7xGLjWLDizIR
+sD3IPZ2pFyzD4U1Qh2IEFaiBvX/AL80bcjaWogx3PhZypnIVeGZMe/40344rwryw
+JEO4jIkluMO6eE9e5sQemprqk10onljBSaOBlCnBBLUJZeQ2VWFFnajGBXi2NyBJ
+PKBPcY8K5zSzsjZSQPYm67CNEIs9X8quKuEp+g347asROIRfiq/PEyIXQFQeuZoe
+i/XEWbm0pleW9Cfx8X2d
+=I7Rr
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--
