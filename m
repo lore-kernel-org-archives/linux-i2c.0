@@ -1,77 +1,34 @@
-From: Benson Leung <bleung@chromium.org>
-Subject: [PATCH v2 1/2] i2c-designware-pci: Add Haswell ULT device IDs
-Date: Mon, 21 Oct 2013 08:05:43 -0700
-Message-ID: <1382367944-3005-2-git-send-email-bleung@chromium.org>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-designware-pci: Index Haswell ULT bus names from
+ 0
+Date: Mon, 21 Oct 2013 19:12:48 +0300
+Message-ID: <20131021161248.GH3521@intel.com>
 References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
- <1382367944-3005-1-git-send-email-bleung@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1382367944-3005-1-git-send-email-bleung@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, mika.westerberg@linux.intel.com, khali@linux-fr.org, andriy.shevchenko@linux.intel.com, jacmet@sunsite.dk, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dlaurie@chromium.org, bleung@chromium.org
+ <1382326010-4554-3-git-send-email-bleung@chromium.org>
+ <20131021065804.GX3521@intel.com>
+ <CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Duncan Laurie <dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Duncan Laurie <dlaurie@chromium.org>
+On Mon, Oct 21, 2013 at 07:20:33AM -0700, Benson Leung wrote:
+> On Sun, Oct 20, 2013 at 11:58 PM, Mika Westerberg
+> <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> > Is there any real value in having names like "i2c-designware-pci-0"
+> > available? I would just drop the whole naming dance instead...
+> 
+> I'd like some way of distinguishing between the two busses by name. It
+> seems sensible to name them 0 and 1 since that's how they are referred
+> to on schematics.
+> 
+> In the chromeos_laptop driver, I do by-name matching of i2c busses to
+> find busses and instantiate devices, so there is value to have each
+> named something predictable.
 
-Add the necessary PCI Device IDs to use the Haswell ULT
-I2C controller in PCI mode.
-
-Set the bus numbers to -1 so it will use dynamic assignment
-rather than hardcoded.
-
-Signed-off-by: Duncan Laurie <dlaurie@chromium.org>
-Signed-off-by: Benson Leung <bleung@chromium.org>
----
-v2: Changed Haswell bus_clk to 100Mhz, thanks Mika Westerberg.
-v1: Initial
----
- drivers/i2c/busses/i2c-designware-pcidrv.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index f6ed06c..816cbd1 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -54,6 +54,9 @@ enum dw_pci_ctl_id_t {
- 	medfield_3,
- 	medfield_4,
- 	medfield_5,
-+
-+	haswell_0,
-+	haswell_1,
- };
- 
- struct dw_pci_controller {
-@@ -132,6 +135,20 @@ static struct  dw_pci_controller  dw_pci_controllers[] = {
- 		.rx_fifo_depth = 32,
- 		.clk_khz      = 25000,
- 	},
-+	[haswell_0] = {
-+		.bus_num     = -1,
-+		.bus_cfg   = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_STD,
-+		.tx_fifo_depth = 32,
-+		.rx_fifo_depth = 32,
-+		.clk_khz      = 100000,
-+	},
-+	[haswell_1] = {
-+		.bus_num     = -1,
-+		.bus_cfg   = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_STD,
-+		.tx_fifo_depth = 32,
-+		.rx_fifo_depth = 32,
-+		.clk_khz      = 100000,
-+	},
- };
- static struct i2c_algorithm i2c_dw_algo = {
- 	.master_xfer	= i2c_dw_xfer,
-@@ -321,6 +338,9 @@ static DEFINE_PCI_DEVICE_TABLE(i2_designware_pci_ids) = {
- 	{ PCI_VDEVICE(INTEL, 0x082C), medfield_0 },
- 	{ PCI_VDEVICE(INTEL, 0x082D), medfield_1 },
- 	{ PCI_VDEVICE(INTEL, 0x082E), medfield_2 },
-+	/* Haswell ULT */
-+	{ PCI_VDEVICE(INTEL, 0x9c61), haswell_0 },
-+	{ PCI_VDEVICE(INTEL, 0x9c62), haswell_1 },
- 	{ 0,}
- };
- MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
--- 
-1.8.3.2
+OK
