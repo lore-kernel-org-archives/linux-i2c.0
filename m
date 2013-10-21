@@ -1,7 +1,7 @@
 From: Benson Leung <bleung@chromium.org>
-Subject: [PATCH v2 2/2] i2c-designware-pci: Index Haswell ULT bus names from 0
-Date: Mon, 21 Oct 2013 08:05:44 -0700
-Message-ID: <1382367944-3005-3-git-send-email-bleung@chromium.org>
+Subject: [PATCH v2 1/2] i2c-designware-pci: Add Haswell ULT device IDs
+Date: Mon, 21 Oct 2013 08:05:43 -0700
+Message-ID: <1382367944-3005-2-git-send-email-bleung@chromium.org>
 References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
  <1382367944-3005-1-git-send-email-bleung@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,53 +11,67 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com, khali@linux-fr.org, andr
 Cc: dlaurie@chromium.org, bleung@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-Rather than having the bus names be "i2c-designware-pci--1" because
-we have set the .bus_num to -1 to force dynamic allocation, lets have
-the busses named "i2c-designware-pci-0" and "i2c-designware-pci-1"
-to correspond to the correct names of these busses.
+From: Duncan Laurie <dlaurie@chromium.org>
 
-The adapter number will still be dynamically assigned.
+Add the necessary PCI Device IDs to use the Haswell ULT
+I2C controller in PCI mode.
 
+Set the bus numbers to -1 so it will use dynamic assignment
+rather than hardcoded.
+
+Signed-off-by: Duncan Laurie <dlaurie@chromium.org>
 Signed-off-by: Benson Leung <bleung@chromium.org>
 ---
-v2: Fixed warning.
+v2: Changed Haswell bus_clk to 100Mhz, thanks Mika Westerberg.
 v1: Initial
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 816cbd1..0c6771d 100644
+index f6ed06c..816cbd1 100644
 --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
 +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -229,7 +229,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- {
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
--	int r;
-+	int r, adapter_num;
- 	struct  dw_pci_controller *controller;
- 
- 	if (id->driver_data >= ARRAY_SIZE(dw_pci_controllers)) {
-@@ -287,8 +287,18 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	adap->algo = &i2c_dw_algo;
- 	adap->dev.parent = &pdev->dev;
- 	adap->nr = controller->bus_num;
+@@ -54,6 +54,9 @@ enum dw_pci_ctl_id_t {
+ 	medfield_3,
+ 	medfield_4,
+ 	medfield_5,
 +
-+	switch (id->driver_data) {
-+	case haswell_0:
-+	case haswell_1:
-+		adapter_num = id->driver_data - haswell_0;
-+		break;
-+	default:
-+		adapter_num = adap->nr;
-+		break;
-+	}
- 	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci-%d",
--		adap->nr);
-+		 adapter_num);
++	haswell_0,
++	haswell_1,
+ };
  
- 	r = devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr, IRQF_SHARED,
- 			adap->name, dev);
+ struct dw_pci_controller {
+@@ -132,6 +135,20 @@ static struct  dw_pci_controller  dw_pci_controllers[] = {
+ 		.rx_fifo_depth = 32,
+ 		.clk_khz      = 25000,
+ 	},
++	[haswell_0] = {
++		.bus_num     = -1,
++		.bus_cfg   = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_STD,
++		.tx_fifo_depth = 32,
++		.rx_fifo_depth = 32,
++		.clk_khz      = 100000,
++	},
++	[haswell_1] = {
++		.bus_num     = -1,
++		.bus_cfg   = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_STD,
++		.tx_fifo_depth = 32,
++		.rx_fifo_depth = 32,
++		.clk_khz      = 100000,
++	},
+ };
+ static struct i2c_algorithm i2c_dw_algo = {
+ 	.master_xfer	= i2c_dw_xfer,
+@@ -321,6 +338,9 @@ static DEFINE_PCI_DEVICE_TABLE(i2_designware_pci_ids) = {
+ 	{ PCI_VDEVICE(INTEL, 0x082C), medfield_0 },
+ 	{ PCI_VDEVICE(INTEL, 0x082D), medfield_1 },
+ 	{ PCI_VDEVICE(INTEL, 0x082E), medfield_2 },
++	/* Haswell ULT */
++	{ PCI_VDEVICE(INTEL, 0x9c61), haswell_0 },
++	{ PCI_VDEVICE(INTEL, 0x9c62), haswell_1 },
+ 	{ 0,}
+ };
+ MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
 -- 
 1.8.3.2
