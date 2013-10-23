@@ -1,27 +1,20 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 0/2] i2c-designware-pci: Add Haswell ULT device support
-Date: Mon, 21 Oct 2013 19:14:28 +0300
-Message-ID: <20131021161428.GI3521@intel.com>
-References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
- <1382367944-3005-1-git-send-email-bleung@chromium.org>
+From: =?iso-8859-5?Q?=C1=E2=D5=DF=D0=DD_=B0=DB=D5=DA=E1=D0=DD?=
+	 =?iso-8859-5?Q?=D4=E0=DE=D2=D8=E7__?= <mark_o-FA7XS7WY68JPjkqDcDtGVgC/G2K4zDHf@public.gmane.org>
+Subject: =?iso-8859-5?Q?=D2=EB=DF=E0=D0=D2=EC=E2=D5_=D7=E0=D5=DD?=
+	=?iso-8859-5?Q?=D8=D5_=D1=D5=D7_=DE=DF=D5=E0=D0=E6=D8=DE?=
+	=?iso-8859-5?Q?=DD=DD=EB=DC_=E1=DF=DE=E1=DE=D1=DE=DC?=
+Date: Wed, 23 Oct 2013 12:38:00 +0200
+Message-ID: <A8B7E60D33B84BE98345EF150C32C99C@xohen>
+Reply-To: =?iso-8859-5?Q?=C1=E2=D5=DF=D0=DD_=B0=DB=D5=DA=E1=D0=DD?=
+	   =?iso-8859-5?Q?=D4=E0=DE=D2=D8=E7__?= <rgrg1978-OfppCuUFkUX10XsdtD+oqA@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-5
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1382367944-3005-1-git-send-email-bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+To: bladekeeper-k+OT61UuxXo@public.gmane.org, kazennov.i-klgjhpPfR3AvJsYlp49lxw@public.gmane.org, kate2254-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, school-I5mXYNmPHSDYtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 21, 2013 at 08:05:42AM -0700, Benson Leung wrote:
-> Fixed 25Mhz clock instead of 100Mhz clock in 1/2 and a warning in 2/2.
-> 
-> [PATCH v2 1/2] i2c-designware-pci: Add Haswell ULT device IDs
-> [PATCH v2 2/2] i2c-designware-pci: Index Haswell ULT bus names from 0
-
-Both patches,
-
-Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-
-Thanks.
+=B2=D0=E8=D8 =D3=DB=D0=D7=D8=DA=D8 =DC=DE=D3=E3=E2 =E0=D0=D7=DB=D8=E7=D0=
+=E2=EC =D4=DE=E1=E2=DE=D9=DD=D5=D9 http://www.udt-technika.ru/modules/m=
+od_ya/hmscb.htm
