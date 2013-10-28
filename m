@@ -1,97 +1,57 @@
-From: Maxime Coquelin <maxime.coquelin@st.com>
-Subject: Re: [PATCH v5 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Mon, 28 Oct 2013 16:02:36 +0100
-Message-ID: <526E7C8C.8080603@st.com>
-References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com>
- <1381754813-4679-2-git-send-email-maxime.coquelin@st.com>
- <20131016151419.GA14104@ns203013.ovh.net> <525F915D.9020501@st.com>
- <525FAEED.7030207@st.com> <20131017141957.GE14104@ns203013.ovh.net>
- <525FF498.3060202@st.com> <1382021369.4093.44.camel@weser.hi.pengutronix.de>
- <5260EFDC.804@st.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [RFC 1/2] i2c: Use stable dev_name for ACPI enumerated I2C slaves
+Date: Mon, 28 Oct 2013 09:10:01 -0700
+Message-ID: <20131028161001.GB13643@sirena.org.uk>
+References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <98785510.yWYAtabkbj@vostro.rjw.lan>
+ <526A726F.1030407@linux.intel.com>
+ <2889412.bEKBLJtgSW@vostro.rjw.lan>
+ <526E636D.3070005@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <5260EFDC.804@st.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Lucas Stach <l.stach@pengutronix.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Landley <rob@landley.net>, Stephen Warren <swarren@wwwdotorg.org>, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Grant Likely <grant.likely@linaro.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <526E636D.3070005@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ck9uIDEwLzE4LzIwMTMgMTA6MjIgQU0sIFNyaW5pdmFzIEtBTkRBR0FUTEEgd3JvdGU6Cj4gT24g
-MTcvMTAvMTMgMTU6NDksIEx1Y2FzIFN0YWNoIHdyb3RlOgo+PiBBbSBEb25uZXJzdGFnLCBkZW4g
-MTcuMTAuMjAxMywgMTU6MzAgKzAxMDAgc2NocmllYiBzcmluaXZhcyBrYW5kYWdhdGxhOgo+PiBb
-Li4uXQo+Pj4gU29ycnkgdG8gYXNrIHRoaXMgYnV0LCBXaGVyZSBpcyB0aGlzIHJlcXVpcmVtZW50
-IGNvbWluZyBmcm9tPwo+Pj4gSSBoYXZlIG5vdCBzcG90dGVkIGFueSB0aGluZyBhcyBzdWNoIGlu
-IGVQQVBSIHNwZWNzLgo+Pj4KPj4+Cj4+PiBBbGwgdGhlIHNwZWMgc2F5cyBpcy4KPj4+ID09PQo+
-Pj4gVGhlIGNvbXBhdGlibGUgcHJvcGVydHkgdmFsdWUgY29uc2lzdHMgb2Ygb25lIG9yIG1vcmUg
-c3RyaW5ncyB0aGF0Cj4+PiBkZWZpbmUgdGhlIHNwZWNpZmljIHByb2dyYW1taW5nIG1vZGVsIGZv
-ciB0aGUgZGV2aWNlLiBUaGlzIGxpc3Qgb2YKPj4+IHN0cmluZ3Mgc2hvdWxkIGJlIHVzZWQgYnkg
-YSBjbGllbnQgcHJvZ3JhbSBmb3IgZGV2aWNlIGRyaXZlciBzZWxlY3Rpb24uCj4+PiBUaGUgcHJv
-cGVydHkgdmFsdWUgY29uc2lzdHMgb2YgYSBjb25jYXRlbmF0ZWQgbGlzdCBvZiBudWxsIHRlcm1p
-bmF0ZWQKPj4+IHN0cmluZ3MsICpmcm9tIG1vc3Qgc3BlY2lmaWMgdG8gbW9zdCBnZW5lcmFsLiog
-VGhleSBhbGxvdyBhIGRldmljZSB0bwo+Pj4gZXhwcmVzcyBpdHMgY29tcGF0aWJpbGl0eSB3aXRo
-IGEgZmFtaWx5IG9mIHNpbWlsYXIgZGV2aWNlcywgcG90ZW50aWFsbHkKPj4+IGFsbG93aW5nIGEg
-c2luZ2xlIGRldmljZSBkcml2ZXIgdG8gbWF0Y2ggYWdhaW5zdCBzZXZlcmFsIGRldmljZXMuCj4+
-PiBUaGUgcmVjb21tZW5kZWQgZm9ybWF0IGlzIOKAnG1hbnVmYWN0dXJlcixtb2RlbOKAnSwgd2hl
-cmUgbWFudWZhY3R1cmVyIGlzIGEKPj4+IHN0cmluZyBkZXNjcmliaW5nIHRoZSBuYW1lIG9mIHRo
-ZSBtYW51ZmFjdHVyZXIgKHN1Y2ggYXMgYW4gT1VJKSwgYW5kCj4+PiBtb2RlbCBzcGVjaWZpZXMg
-dGhlIG1vZGVsIG51bWJlci4KPj4+Cj4+PiBFeGFtcGxlOgo+Pj4gY29tcGF0aWJsZSA9IOKAnGZz
-bCxtcGM4NjQxLXVhcnTigJ0sIOKAnG5zMTY1NTAiOwo+Pj4gSW4gdGhpcyBleGFtcGxlLCBhbiBv
-cGVyYXRpbmcgc3lzdGVtIHdvdWxkIGZpcnN0IHRyeSB0byBsb2NhdGUgYSBkZXZpY2UKPj4+IGRy
-aXZlciB0aGF0IHN1cHBvcnRlZCBmc2wsbXBjODY0MS11YXJ0LiBJZiBhIGRyaXZlciB3YXMgbm90
-IGZvdW5kLCBpdAo+Pj4gd291bGQgdGhlbiB0cnkgdG8gbG9jYXRlIGEgZHJpdmVyIHRoYXQgc3Vw
-cG9ydGVkIHRoZSBtb3JlIGdlbmVyYWwKPj4+IG5zMTY1NTAgZGV2aWNlIHR5cGUuCj4+PiA9PT0K
-Pj4+Cj4+PiBUaGUgbW9yZSBnZW5lcmFsIGNvbXBhdGlibGUgc3RyaW5nIGluIHRoaXMgY2FzZSBp
-cyAic3QsY29tbXMtc3NjLWkyYyIsCj4+PiByYXRoZXIgdGhhbiB0aGUgZmlyc3Qgc29jIG5hbWUu
-Cj4+PiBIb3cgY2FuIGEgZmlyc3QgU09DIG5hbWUgYmUgbW9yZSBnZW5lcmFsPwo+Pj4KPj4+IEFz
-IHRoaXMgZHJpdmVyIGlzIG5vdCB2ZXJ5IHNwZWNpZmljIHRvIFN0aUg0MTUsIGl0IGlzIGdlbmVy
-aWMgZHJpdmVyIGZvcgo+Pj4gU1QgY29tbXMtc3NjLWkyYyBibG9jay4KPj4+Cj4+IFlvdSBqdXN0
-IGNhbid0IGtub3cgaWYgc29tZW9uZSBpbiB0aGUgZnV0dXJlIGRlY2lkZXMgdG8gc3VidGx5IGNo
-YW5nZQo+PiB0aGUgcmVnaXN0ZXIgbGF5b3V0IG9yIG1ha2Ugc29tZSBvdGhlciBpbmNvbXBhdGli
-bGUgY2hhbmdlIHRvIHRoZQo+PiBjb21tcy1zc2MtaTJjIGJsb2NrLgo+Pgo+IFRoaXMgaXMgbm90
-IHRoZSBjYXNlIGZvciBjb21tcy1zc2MtaTJjIGJsb2NrLCBUaGlzIElQIGlzIGtpbmQgb2YgcmV1
-c2VkCj4gZnJvbSBwYXN0IDEwKyB5ZWFycyhJIHRoaW5rISEpLiBBbSBub3QgcHJlZGljdGluZyB0
-aGUgZnV0dXJlIGhlcmUsIGJ1dCBJCj4gYW0gbWFraW5nIGEgaW5mb3JtZWQgZ3Vlc3MgZnJvbSBw
-YXN0IGV4cGVyaWVuY2UgdGhhdCB0aGlzIElQIHdvdWxkIG5vdAo+IGNoYW5nZSBpbiBmdXR1cmUu
-CkhhdmluZyBkaXNjdXNzZWQgd2l0aCBIVyBkZXNpZ24gdGVhbSBpbiBjaGFyZ2Ugb2YgdGhpcyBJ
-UCwKSSBhbHNvIGJldCB0aGF0IHRoaXMgSVAgd29uJ3QgY2hhbmdlIGluIHRoZSBmdXR1cmUuCgo+
-Cj4gQW0gc3RpbGwgbm90IGhhcHB5IHdpdGggdGhlIGlkZWEgb2YgdXNpbmcgZmlyc3QgU29DIGZv
-ciB0aGUgY29tcGF0aWJsZQo+IGZvciBmb2xsb3dpbmcgcmVhc29uczoKPgo+IDE+IEdlbmVyaWMg
-SVBzIGNhbiBiZSBpbnRlZ3JhdGVkIGludG8gdmFyaW91cyB2ZW5kb3IgU29Dcy4gRm9yIGV4YW1w
-bGUKPiBzeW5vcHNpcyBJUCBjYW4gYmUgaW50ZWdyYXRlZCBieSBTVCBwYXJ0cyBhbmQgb3RoZXIg
-bm9uLVNUIHBhcnRzLiBXaGF0Cj4gd291bGQgYmUgdGhlIGZpcnN0IFNvQyBuYW1lIGluIHRoaXMg
-Y2FzZT8KPgo+IDI+IExvb2tpbmcgYXQgZXhhbXBsZSBsaWtlICJhcm0scGwzMTAtY2FjaGUiLCAi
-YXJtLGwyMjAtY2FjaGUiLi4uIG9yIGFueQo+IG90aGVyIGdlbmVyaWMgaXBzLCB3aHkgYXJlIHRo
-ZXNlIElQcyBub3QgZW5jb2RpbmcgdGhlIGZpcnN0IFNvQyBuYW1lIGluCj4gdGhlcmUgY29tcGF0
-aWJsZSBzdHJpbmc/IEkgdGhpbmsgdGhlIGFuc3dlciBpcyBnZW5lcmljIElQLgo+Cj4gMz4gSU1I
-TywgdGhlIGlkZWEgb2YgZmlyc3QgU29DIG1pZ2h0IHNvbHZlIHRoZSBwcm9ibGVtIHlvdSBkZXNj
-cmliZWQsCj4gYnV0IHdoeSB3b3VsZCBzb21lIG9uZSBrbm93IGFib3V0IHRoZSBmaXJzdCBTb0Mg
-d2hlbiB0aGlzIHdhcyBhdmFpbGFibGUuCj4gSW4gdGhpcyBjYXNlIHRoaXMgSVAgd2FzIGF2YWls
-YWJsZSBtYXkgYmUgMTArIHllYXJzIGJhY2sgb24gYW4gU1Q0MAo+IHBsYXRmb3JtLiBIYXZpbmcg
-c3VjaCBvbGQgU29DIG5hbWVzIGluIGNvbXBhdGlibGUgc3RyaW5ncyBpbiB0aGUgZGV2aWNlCj4g
-dHJlZXMgZm9yIGEgbW9kZXJuIGNoaXAgbG9va3MgYml0IGNvbmZ1c2luZy4KPgo+IDQ+IFNUIGdl
-bmVyaWMgZHJpdmVycyB3aGljaCBhcmUgaW4ga2VybmVsIHN0aWxsIHVzZSBzdCw8SVA+IG5hbWUs
-IHNvIEkKPiB3b3VsZCBsaWtlIHRoaXMgY29uc2lzdGVuY3kgYWNyb3NzIGFsbCB0aGUgc3QgZHJp
-dmVycyAoYXQgbGVhc3QgdGhlIG9uZXMKPiB3aGljaCBhcmUgZ29pbmcgdG8gYmUgdXNlZCBieSBt
-YWNoLXN0aSBwbGF0Zm9ybXMpLgo+Cj4gNT4gZVBBUFIgc3BlYyBjbGVhcmx5IHNheXMgdGhhdCBj
-b21wYXRpYmxlIHN0cmluZyBzaG91bGQgY29udGFpbiAibW9zdAo+IHNwZWNpZmljIHRvIG1vc3Qg
-Z2VuZXJhbCIgbmFtZXMuIEluIHRoaXMgY2FzZSB1c2luZyBtb3JlIGdlbmVyaWMgbmFtZQo+IG1h
-a2VzIG1vcmUgc2Vuc2UgdGhhbiBoYXZpbmcgYSBzcGVjaWZpYyBuYW1lIGJlY2F1c2UgaXRzIGdl
-bmVyaWMgSVAuCj4gQWxsb3dpbmcgYSBzaW5nbGUgZGV2aWNlIGRyaXZlciB0byBtYXRjaCBhZ2Fp
-bnN0IHNldmVyYWwgZGV2aWNlcy4KPgo+IDY+IElNSE8sIHRoZSBjb21wYXRpYmxlIHN0cmluZyBz
-aG91bGQgYmUgInZlbmRvciw8SVAtbmFtZT4tPElQLXZlcnNpb24+Igo+IHJhdGhlciB0aGFuIGZp
-cnN0IFNvQy4KSSBhZ3JlZS4KSW4gdGhpcyBjYXNlLCB3ZSBhZGQgc3VwcG9ydCB0byByZXZpc2lv
-biA0IG9mIFNTQyBJUC4KCklzICJzdCxjb21tcy1zc2MtdjQiIG9rYXk/CgoKVGhhbmtzLApNYXhp
-bWUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4
-LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFk
-Lm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFy
-bS1rZXJuZWwK
+
+--JYK4vJDZwFMowpUq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Oct 28, 2013 at 03:15:25PM +0200, Jarkko Nikula wrote:
+
+> One possible thing to do is to let structure definitions to be
+> available for non-ACPI builds. Then compiler won't fail on structure
+> access which will be anyway optimized away by later compiler stages.
+
+You could also have inline accessor functions which can be stubbed out
+when not needed.
+
+--JYK4vJDZwFMowpUq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSboxWAAoJELSic+t+oim9pXUQAI5P5ya2dgyxtn0txqAnDsQb
+CkW5YVgj59iCWUseYSgZsceO+EpJGuVmNLc+aL1ksCghMMjiOljLmkRzVdFw9Aya
+JZw3H3i4irieReNUr00rWfLBIoz8MawzBFmAhwY1ukGqWwvMhO1naIgGgCoTmHGC
+QVHkEJblnjtmD2T480pAkEZSY17t9n0ZuVOIOaXYCcu7AXfET8NNDtL8NVY/ovJj
+fbw8eIVr/u1dBqzk8vEEC05Wwi3L27c6ss2qjoFyQeJB5s4tBh7BIJsC5oYJ3KWr
+YYwAf4Sqcbz08z/ryUfOZNwIGSiO4kT1ipx6+2tigclDgvDDAnp9jpEYoPYfyQt1
+Zhuu2am6oo3DJQ/qt4ZjLCkbEbBPbImT74h8cAybZs+z4kUyfKTekvAp4ok8QWjv
+SkM2XUHF5C1fJPY/SqEcQrl6FybbRsV+8hNmfogeC7Y5KP8Ah+u5J/DzEUYy+gjP
+uO2pHhgPY0g/rcKoxyEfO6uxvWZBmpYPVtk3IBLESa9jz6W0uQjnOhJPZeCxCuoK
+ddZoZFP3s2Ld9BV7hLJue47BAIm5dyBfI7w5DR8ED9AhcUhpjz/wa63v82ayb6p3
+Y30ad5FZaE5ZyvMmXDy+kdIbA7aDDFpqxe170bnjx7SdU+48nN++LwxM/c6iCMy+
+FJFP82sE3Bwxk9QD3Cwr
+=H4BM
+-----END PGP SIGNATURE-----
+
+--JYK4vJDZwFMowpUq--
