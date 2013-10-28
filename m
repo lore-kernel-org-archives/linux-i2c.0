@@ -1,127 +1,26 @@
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Subject: [PATCH 00/19] Enable various Renesas drivers on all ARM platforms
-Date: Tue, 29 Oct 2013 00:46:48 +0100
-Message-ID: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: "vtanita" <staz-k3vGJxnj84M@public.gmane.org>
+Subject: =?windows-1251?B?xO7h8O7j7iDC4Owg5O3/?=
+Date: Mon, 28 Oct 2013 22:27:02 +0100
+Message-ID: <D1FDF6AD0150467D90B09CD2A78BFD41@rmtxh>
+Reply-To: "vtanita" <omnevayasy-Tvz0LtCZ0GY@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
-To: linux-sh@vger.kernel.org
-Cc: linux-fbdev@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>, Joerg Roedel <joro@8bytes.org>, Magnus Damm <magnus.damm@gmail.com>, Eduardo Valentin <eduardo.valentin@ti.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Chris Ball <cjb@laptop.org>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, Samuel Ortiz <samuel@sortiz.org>, linux-pm@vger.kernel.org, Ian Molton <ian@mnementh.co.uk>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, Sergei Shtylyov <sergei.shtyly>
+Content-Type: text/plain; charset=windows-1251
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, crystl-IdSsYpb6mdPDqw+mUdwCgCjHesifYMBh@public.gmane.org, sales-hfqFcM0PIJD3fQ9qLvQP4Q@public.gmane.org, basingstoke.shop@magnet, hello-gomR8KXnF2JhwkJyTqrwMYdd74u8MsAO@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
-
-This patch series, based on v3.12-rc7, prepares various Renesas drivers
-for migration to multiplatform kernels by enabling their compilation or
-otherwise fixing them on all ARM platforms. The patches are pretty
-straightforward and are described in their commit message.
-
-I'd like to get all these patches merged in v3.14. As they will need to go
-through their respective subsystems' trees, I would appreciate if all
-maintainers involved could notify me when they merge patches from this series
-in their tree to help me tracking the merge status. I don't plan to send pull
-requests individually for these patches, and I will repost patches
-individually if changes are requested during review.
-
-If you believe the issue should be solved in a different way (for instance by
-removing the architecture dependency completely) please reply to the cover
-letter to let other maintainers chime in.
-
-Cc: Chris Ball <cjb@laptop.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: dmaengine@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Eduardo Valentin <eduardo.valentin@ti.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
-Cc: Ian Molton <ian@mnementh.co.uk>
-Cc: iommu@lists.linux-foundation.org
-Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-fbdev@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: linux-mmc@vger.kernel.org
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-pm@vger.kernel.org
-Cc: linux-pwm@vger.kernel.org
-Cc: linux-serial@vger.kernel.org
-Cc: linux-spi@vger.kernel.org
-Cc: Magnus Damm <magnus.damm@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: netdev@vger.kernel.org
-Cc: Samuel Ortiz <samuel@sortiz.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: Vinod Koul <vinod.koul@intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Zhang Rui <rui.zhang@intel.com>
-
-Laurent Pinchart (19):
-  serial: sh-sci: Enable the driver on all ARM platforms
-  DMA: shdma: Enable the driver on all ARM platforms
-  i2c: sh_mobile: Enable the driver on all ARM platforms
-  input: sh_keysc: Enable the driver on all ARM platforms
-  iommu: shmobile: Enable the driver on all ARM platforms
-  i2c: rcar: Enable the driver on all ARM platforms
-  v4l: sh_vou: Enable the driver on all ARM platforms
-  mmc: sdhi: Enable the driver on all ARM platforms
-  mmc: sh_mmcif: Enable the driver on all ARM platforms
-  mtd: sh_flctl: Enable the driver on all ARM platforms
-  net: sh_eth: Set receive alignment correctly on all ARM platforms
-  irda: sh_irda: Enable the driver on all ARM platforms
-  pinctrl: sh-pfc: Enable the driver on all ARM platforms
-  pwm: pwm-renesas-tpu: Enable the driver on all ARM platforms
-  sh: intc: Enable the driver on all ARM platforms
-  spi: sh_msiof: Enable the driver on all ARM platforms
-  spi: sh_hspi: Enable the driver on all ARM platforms
-  thermal: rcar-thermal: Enable the driver on all ARM platforms
-  fbdev: sh-mobile-lcdcfb: Enable the driver on all ARM platforms
-
- drivers/dma/sh/Kconfig                | 2 +-
- drivers/dma/sh/shdmac.c               | 6 +++---
- drivers/i2c/busses/Kconfig            | 4 ++--
- drivers/input/keyboard/Kconfig        | 2 +-
- drivers/iommu/Kconfig                 | 2 +-
- drivers/media/platform/Kconfig        | 2 +-
- drivers/mmc/host/Kconfig              | 4 ++--
- drivers/mmc/host/tmio_mmc_dma.c       | 2 +-
- drivers/mtd/nand/Kconfig              | 2 +-
- drivers/net/ethernet/renesas/sh_eth.c | 2 +-
- drivers/net/ethernet/renesas/sh_eth.h | 2 +-
- drivers/net/irda/Kconfig              | 2 +-
- drivers/pinctrl/Makefile              | 2 +-
- drivers/pinctrl/sh-pfc/Kconfig        | 2 +-
- drivers/pwm/Kconfig                   | 2 +-
- drivers/sh/intc/Kconfig               | 2 +-
- drivers/spi/Kconfig                   | 4 ++--
- drivers/thermal/Kconfig               | 2 +-
- drivers/tty/serial/Kconfig            | 2 +-
- drivers/video/Kconfig                 | 6 +++---
- 20 files changed, 27 insertions(+), 27 deletions(-)
-
--- 
-Regards,
-
-Laurent Pinchart
-
-
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
+=C2=FB =ED=E0=F7=ED=E5=F2=E5 =EE=E1=F9=E0=F2=FC=F1=FF =ED=E0 =E0=EC=E5=F0=
+=E8=EA=E0=ED=F1=EA=EE=EC =ED=E5=EF=EE=F1=F0=E5=E4=F1=F2=E2=E5=ED=ED=EE =
+=E4=E0=EB=E5=E5 =E4=E5=E1=FE=F2=ED=EE=E3=EE =E7=E0=ED=FF=F2=E8=FF. =D3=E1=
+=FB=F1=F2=F0=E5=ED=ED=EE=E5 =E8=E7=F3=F7=E5=ED=E8=E5. =C2=E8=E4=E5=EE=EA=
+=F3=F0=F1 =E4=EB=FF =ED=E5=EF=EE=E4=E3=EE=F2=EE=E2=EB=E5=ED=ED=FB=F5 =E8=
+ =EF=F0=EE=E4=E2=E8=ED=F3=F2=FB=F5. =CF=EE=E4=ED=FF=F2=FC =EB=E8=F7=ED=F3=
+=FE =F1=F2=EE=E8=EC=EE=F1=F2=FC =ED=E0 =EF=EE=EF=F0=E8=F9=E5 =F2=F0=F3=E4=
+=E0. =E7=E0=EF=EE=EB=FB=F5=E0=F2=FC =F0=E0=E7=E2=E8=F2=E8=E5=EC, =EF=EE=
+=F2=F0=E5=ED=E8=F0=EE=E2=E0=F2=FC =EF=E0=EC=FF=F2=FC. =CB=EE=E3=E8=F7=ED=
+=E0=FF =EA=EE=EC=EF=EE=ED=EE=E2=EA=E0 =F3=F7=E8=EC=EE=E3=EE =F3=F7=E5=E1=
+=ED=EE=E3=EE =EC=E0=F2=E5=F0=E8=E0=EB=E0 - =ED=E0=F6=E5=EB=E8=E2=E0=ED=E8=
+=E5 =ED=E0 =FD=F4=F4=E5=EA=F2. =DD=EB=E5=EA=F2=F0=EE=ED=ED=FB=E9 =E0=E4=
+=F0=E5=F1: http://munailybolnica.kz/modules/mod_backup2/zfiam.htm .
