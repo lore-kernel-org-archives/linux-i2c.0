@@ -1,92 +1,85 @@
-From: Kumar Gala <galak@codeaurora.org>
-Subject: Re: [PATCH v5 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Mon, 28 Oct 2013 14:25:04 -0500
-Message-ID: <40E3A029-C7E8-41DA-9218-3FB7ED97B707@codeaurora.org>
-References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com> <1381754813-4679-2-git-send-email-maxime.coquelin@st.com>
-Mime-Version: 1.0 (Apple Message framework v1283)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1381754813-4679-2-git-send-email-maxime.coquelin@st.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Maxime COQUELIN <maxime.coquelin@st.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, stephen.gallimore@st.com, stuart.menefy@st.com, Lee Jones <lee.jones@linaro.org>, gabriel.fernandez@st.com
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Subject: [PATCH 00/12] Prepare various SH/R Mobile/Car drivers for CCF migration
+Date: Mon, 28 Oct 2013 23:49:17 +0100
+Message-ID: <1383000569-8916-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-sh@vger.kernel.org, Mike Turquette <mturquette@linaro.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Chris Ball <cjb@laptop.org>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, linux-mmc@vger.kernel.org, Felipe Balbi <balbi@ti.com>, linux-usb@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello,
 
-On Oct 14, 2013, at 7:46 AM, Maxime COQUELIN wrote:
+This patch series, based on v3.12-rc7, prepares various Renesas SH-Mobile,
+R-Mobile and R-Car drivers for migration to CCF by adding clock prepare and
+unprepare support.
 
-> This patch adds support to SSC (Synchronous Serial Controller)
-> I2C driver. This IP also supports SPI protocol, but this is not
-> the aim of this driver.
-> 
-> This IP is embedded in all ST SoCs for Set-top box platorms, and
-> supports I2C Standard and Fast modes.
-> 
-> Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
-> ---
-> Documentation/devicetree/bindings/i2c/i2c-st.txt |   38 +
-> drivers/i2c/busses/Kconfig                       |   10 +
-> drivers/i2c/busses/Makefile                      |    1 +
-> drivers/i2c/busses/i2c-st.c                      |  867 ++++++++++++++++++++++
-> 4 files changed, 916 insertions(+)
-> create mode 100644 Documentation/devicetree/bindings/i2c/i2c-st.txt
-> create mode 100644 drivers/i2c/busses/i2c-st.c
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-st.txt b/Documentation/devicetree/bindings/i2c/i2c-st.txt
-> new file mode 100644
-> index 0000000..8b2fd0b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-st.txt
-> @@ -0,0 +1,38 @@
-> +ST SSC binding, for I2C mode operation
-> +
-> +Required properties :
-> +- compatible : Must be "st,comms-i2c"
-> +- reg : Offset and length of the register set for the device
-> +- interrupts : the interrupt specifier
-> +- clock-names: Must contain "ssc".
-> +- clocks: Must contain an entry for each name in clock-names. See the common
-> +  clock bindings.
-> +- A pinctrl state named "default" must be defined, using the bindings in
-> +  ../pinctrl/pinctrl-binding.txt
-> +
-> +Optional properties :
-> +- clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
-> +  the default 100 kHz frequency will be used. As only Normal and Fast modes
-> +  are supported, possible values are 100000 and 400000.
-> +- i2c-min-scl-pulse-width-us : The minimum valid SCL pulse width that is
-> +  allowed through the deglitch circuit. In units of us.
-> +- i2c-min-sda-pulse-width-us : The minimum valid SDA pulse width that is
-> +  allowed through the deglitch circuit. In units of us.
+The patches are pretty straightforward. Most of the drivers called
+clk_enable and clk_disable in sleepable context, I've thus just converted them
+to clk_prepare_enable and clk_disable_unprepare.
 
-i2c-min... should be vendor prefixed, st,i2c-min...
+The clocksource drivers were slightly more complex to handle as clk_enable and
+clk_disable were called in non-sleepable context. As the clocksource framework
+architecture doesn't provide any sleepable callback in which clocks could be
+prepared and unprepared, I've added clk_prepare and clk_unprepare calls in the
+probe and suspend/resume handlers (clocksources can't be removed so the remove
+handler doesn't need a clk_unprepare call).
 
-> +- A pinctrl state named "sleep" could be defined, using the bindings in
-> +  ../pinctrl/pinctrl-binding.txt
+I'd like to get all these patches merged in v3.14. As they will need to go
+through their respective subsystems' trees, I would appreciate if all
+maintainers involved could notify me when they merge patches from this series
+in their tree to help me tracking the merge status. I don't plan to send pull
+requests individually for these patches, and I will repost patches
+individually if changes are requested during review.
 
-I don't see any reference to "sleep" in pinctrl-binding.txt
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: Tejun Heo <tj@kernel.org>
+Cc: linux-ide@vger.kernel.org
+Cc: David Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.freedesktop.org
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
+Cc: Chris Ball <cjb@laptop.org>
+Cc: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+Cc: linux-mmc@vger.kernel.org
+Cc: Felipe Balbi <balbi@ti.com>
+Cc: linux-usb@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: linux-fbdev@vger.kernel.org
 
-> +
-> +
-> +Example :
-> +
-> +i2c0: i2c@fed40000 {
-> +	compatible	= "st,comms-ssc-i2c";
-> +	reg		= <0xfed40000 0x110>;
-> +	interrupts	=  <GIC_SPI 187 IRQ_TYPE_EDGE_RISING>;
-> +	clocks		= <&CLK_S_ICN_REG_0>;
-> +	clock-names	= "ssc";
-> +	clock-frequency = <400000>;
-> +	pinctrl-names	= "default";
-> +	pinctrl-0	= <&pinctrl_i2c0_default>;
-> +	i2c-min-scl-pulse-width-us = <0>;
-> +	i2c-min-sda-pulse-width-us = <5>;
-> +};
+Laurent Pinchart (12):
+  clocksource: sh_cmt: Add clk_prepare/unprepare support
+  clocksource: sh_mtu2: Add clk_prepare/unprepare support
+  clocksource: sh_tmu: Add clk_prepare/unprepare support
+  sata_rcar: Convert to clk_prepare/unprepare
+  drm: shmob_drm: Convert to clk_prepare/unprepare
+  i2c: sh_mobile: Convert to clk_prepare/unprepare
+  mmc: sh_mmcif: Convert to clk_prepare/unprepare
+  mmc: sh_mobile_sdhi: Convert to clk_prepare/unprepare
+  usb: gadget: r8a66597-udc: Convert to clk_prepare/unprepare
+  usb: r8a66597-hcd: Convert to clk_prepare/unprepare
+  fbdev: shmobile-hdmi: Convert to clk_prepare/unprepare
+  fbdev: shmobile-lcdcfb: Convert to clk_prepare/unprepare
 
-- k
+ drivers/ata/sata_rcar.c                   | 10 +++++-----
+ drivers/clocksource/sh_cmt.c              | 20 ++++++++++++++++----
+ drivers/clocksource/sh_mtu2.c             | 16 ++++++++++++++--
+ drivers/clocksource/sh_tmu.c              | 20 +++++++++++++++++---
+ drivers/gpu/drm/shmobile/shmob_drm_crtc.c |  4 ++--
+ drivers/i2c/busses/i2c-sh_mobile.c        |  8 ++++----
+ drivers/mmc/host/sh_mmcif.c               | 12 ++++++------
+ drivers/mmc/host/sh_mobile_sdhi.c         |  4 ++--
+ drivers/usb/gadget/r8a66597-udc.c         |  6 +++---
+ drivers/usb/host/r8a66597-hcd.c           |  4 ++--
+ drivers/video/sh_mobile_hdmi.c            |  6 +++---
+ drivers/video/sh_mobile_lcdcfb.c          |  4 ++--
+ 12 files changed, 76 insertions(+), 38 deletions(-)
 
 -- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
+Regards,
 
+Laurent Pinchart
