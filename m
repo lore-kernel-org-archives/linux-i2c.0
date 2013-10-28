@@ -1,85 +1,64 @@
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Subject: [PATCH 00/12] Prepare various SH/R Mobile/Car drivers for CCF migration
-Date: Mon, 28 Oct 2013 23:49:17 +0100
-Message-ID: <1383000569-8916-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: linux-sh@vger.kernel.org, Mike Turquette <mturquette@linaro.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>, linux-ide@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Chris Ball <cjb@laptop.org>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, linux-mmc@vger.kernel.org, Felipe Balbi <balbi@ti.com>, linux-usb@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org
+From: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: [PATCH 06/12] i2c: sh_mobile: Convert to clk_prepare/unprepare
+Date: Mon, 28 Oct 2013 23:49:23 +0100
+Message-ID: <1383000569-8916-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+References: <1383000569-8916-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1383000569-8916-1-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Turn clk_enable() and clk_disable() calls into clk_prepare_enable() and
+clk_disable_unprepare() to get ready for the migration to the common
+clock framework.
 
-This patch series, based on v3.12-rc7, prepares various Renesas SH-Mobile,
-R-Mobile and R-Car drivers for migration to CCF by adding clock prepare and
-unprepare support.
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-sh_mobile.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-The patches are pretty straightforward. Most of the drivers called
-clk_enable and clk_disable in sleepable context, I've thus just converted them
-to clk_prepare_enable and clk_disable_unprepare.
-
-The clocksource drivers were slightly more complex to handle as clk_enable and
-clk_disable were called in non-sleepable context. As the clocksource framework
-architecture doesn't provide any sleepable callback in which clocks could be
-prepared and unprepared, I've added clk_prepare and clk_unprepare calls in the
-probe and suspend/resume handlers (clocksources can't be removed so the remove
-handler doesn't need a clk_unprepare call).
-
-I'd like to get all these patches merged in v3.14. As they will need to go
-through their respective subsystems' trees, I would appreciate if all
-maintainers involved could notify me when they merge patches from this series
-in their tree to help me tracking the merge status. I don't plan to send pull
-requests individually for these patches, and I will repost patches
-individually if changes are requested during review.
-
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: linux-kernel@vger.kernel.org
-Cc: Tejun Heo <tj@kernel.org>
-Cc: linux-ide@vger.kernel.org
-Cc: David Airlie <airlied@linux.ie>
-Cc: dri-devel@lists.freedesktop.org
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
-Cc: Chris Ball <cjb@laptop.org>
-Cc: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
-Cc: linux-mmc@vger.kernel.org
-Cc: Felipe Balbi <balbi@ti.com>
-Cc: linux-usb@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: linux-fbdev@vger.kernel.org
-
-Laurent Pinchart (12):
-  clocksource: sh_cmt: Add clk_prepare/unprepare support
-  clocksource: sh_mtu2: Add clk_prepare/unprepare support
-  clocksource: sh_tmu: Add clk_prepare/unprepare support
-  sata_rcar: Convert to clk_prepare/unprepare
-  drm: shmob_drm: Convert to clk_prepare/unprepare
-  i2c: sh_mobile: Convert to clk_prepare/unprepare
-  mmc: sh_mmcif: Convert to clk_prepare/unprepare
-  mmc: sh_mobile_sdhi: Convert to clk_prepare/unprepare
-  usb: gadget: r8a66597-udc: Convert to clk_prepare/unprepare
-  usb: r8a66597-hcd: Convert to clk_prepare/unprepare
-  fbdev: shmobile-hdmi: Convert to clk_prepare/unprepare
-  fbdev: shmobile-lcdcfb: Convert to clk_prepare/unprepare
-
- drivers/ata/sata_rcar.c                   | 10 +++++-----
- drivers/clocksource/sh_cmt.c              | 20 ++++++++++++++++----
- drivers/clocksource/sh_mtu2.c             | 16 ++++++++++++++--
- drivers/clocksource/sh_tmu.c              | 20 +++++++++++++++++---
- drivers/gpu/drm/shmobile/shmob_drm_crtc.c |  4 ++--
- drivers/i2c/busses/i2c-sh_mobile.c        |  8 ++++----
- drivers/mmc/host/sh_mmcif.c               | 12 ++++++------
- drivers/mmc/host/sh_mobile_sdhi.c         |  4 ++--
- drivers/usb/gadget/r8a66597-udc.c         |  6 +++---
- drivers/usb/host/r8a66597-hcd.c           |  4 ++--
- drivers/video/sh_mobile_hdmi.c            |  6 +++---
- drivers/video/sh_mobile_lcdcfb.c          |  4 ++--
- 12 files changed, 76 insertions(+), 38 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 55110dd..1d79585 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -235,7 +235,7 @@ static void sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+ 	int offset;
+ 
+ 	/* Get clock rate after clock is enabled */
+-	clk_enable(pd->clk);
++	clk_prepare_enable(pd->clk);
+ 	i2c_clk_khz = clk_get_rate(pd->clk) / 1000;
+ 	i2c_clk_khz /= pd->clks_per_count;
+ 
+@@ -270,14 +270,14 @@ static void sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+ 		pd->icic &= ~ICIC_ICCHB8;
+ 
+ out:
+-	clk_disable(pd->clk);
++	clk_disable_unprepare(pd->clk);
+ }
+ 
+ static void activate_ch(struct sh_mobile_i2c_data *pd)
+ {
+ 	/* Wake up device and enable clock */
+ 	pm_runtime_get_sync(pd->dev);
+-	clk_enable(pd->clk);
++	clk_prepare_enable(pd->clk);
+ 
+ 	/* Enable channel and configure rx ack */
+ 	iic_set_clr(pd, ICCR, ICCR_ICE, 0);
+@@ -300,7 +300,7 @@ static void deactivate_ch(struct sh_mobile_i2c_data *pd)
+ 	iic_set_clr(pd, ICCR, 0, ICCR_ICE);
+ 
+ 	/* Disable clock and mark device as idle */
+-	clk_disable(pd->clk);
++	clk_disable_unprepare(pd->clk);
+ 	pm_runtime_put_sync(pd->dev);
+ }
+ 
 -- 
-Regards,
-
-Laurent Pinchart
+1.8.1.5
