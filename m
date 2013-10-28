@@ -1,7 +1,7 @@
 From: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: [PATCH 06/19] i2c: rcar: Enable the driver on all ARM platforms
-Date: Tue, 29 Oct 2013 00:46:54 +0100
-Message-ID: <1383004027-25036-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Subject: [PATCH 03/19] i2c: sh_mobile: Enable the driver on all ARM platforms
+Date: Tue, 29 Oct 2013 00:46:51 +0100
+Message-ID: <1383004027-25036-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 References: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
@@ -15,9 +15,6 @@ multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
 driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
 and ARCH_SHMOBILE_MULTI and increase build testing coverage.
 
-Remove the explicit I2C dependency as the configuration option is
-already unavailable when I2C support is disabled.
-
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
@@ -26,17 +23,17 @@ Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 6adce91..468c28a 100644
+index cdcbd83..6adce91 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -768,7 +768,7 @@ config I2C_XLR
+@@ -665,7 +665,7 @@ config I2C_SH7760
  
- config I2C_RCAR
- 	tristate "Renesas R-Car I2C Controller"
--	depends on ARCH_SHMOBILE && I2C
-+	depends on ARM
+ config I2C_SH_MOBILE
+ 	tristate "SuperH Mobile I2C Controller"
+-	depends on SUPERH || ARCH_SHMOBILE
++	depends on SUPERH || ARM
  	help
  	  If you say yes to this option, support will be included for the
- 	  R-Car I2C controller.
+ 	  built-in I2C interface on the Renesas SH-Mobile processor.
 -- 
 1.8.1.5
