@@ -1,63 +1,100 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 06/19] i2c: rcar: Enable the driver on all ARM platforms
-Date: Tue, 29 Oct 2013 06:03:49 +0100
-Message-ID: <20131029050349.GC2643@katana>
-References: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1383004027-25036-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH resend] i2c: rcar: fixup rcar type naming
+Date: Tue, 29 Oct 2013 14:48:11 +0900
+Message-ID: <20131029054809.GB5638@verge.net.au>
+References: <87ob75zgn2.wl%kuninori.morimoto.gx@renesas.com>
+ <87ppqzaw37.wl%kuninori.morimoto.gx@renesas.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1383004027-25036-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+In-Reply-To: <87ppqzaw37.wl%kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Oct 21, 2013 at 01:04:32AM -0700, Kuninori Morimoto wrote:
+> b720423a2627f045133bec39a31fe2bc0dab86f3
+> (i2c: rcar: add rcar-H2 support)
+> added R-Car H2 support on i2c-rcar.
+> 
+> The R-Car I2C type is based on SoC generation
+> (Gen1 = E1/M1/H1, Gen2 = E2/M2/H2),
+> but added naming was H1/H2 instead of Gen1/Gen2.
+> Gen1/Gen2 is better naming on this driver.
+> 
+> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 
---c3bfwLpm8qysLVxt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks Morimoto-san, this looks good to me.
 
-On Tue, Oct 29, 2013 at 12:46:54AM +0100, Laurent Pinchart wrote:
-> Renesas ARM platforms are transitioning from single-platform to
-> multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
-> driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
-> and ARCH_SHMOBILE_MULTI and increase build testing coverage.
->=20
-> Remove the explicit I2C dependency as the configuration option is
-> already unavailable when I2C support is disabled.
->=20
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
-m>
+Acked-by: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Wolfram, please consider applying this change.
 
-
---c3bfwLpm8qysLVxt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSb0G1AAoJEBQN5MwUoCm2yMcP/0wG5MWVFr1oe8cR3fZBCYzd
-2frWtA1dhtxCRhMWfjne/hsiMumv348FYjEc6bYWMm8TYMHNIzLO5zmUmeJyi3OU
-aznVuUJiDeWTCwkk1EYAGJgT1/CZDjCuO5ED2BneEJ7hoU4Un3xW5t69nS+5ZVio
-wAWS4SMkNhlzzUBuszemIxYNOssw/nAoIW5EGXyIFWUQkwzX1BMj6S2DIj96MxXv
-fAB6ibUX1RSkOsEMyfwv4C0q6D1oAKxkGUK8SkQ+NSodAH3qVFXqEHAM03/60YOx
-Eqj6jwKJQxbIbR87eoyRtJp6j97yXSIhT10wAn8KXZnS7WmwB13/Gr2KLnCTGn0Y
-9p0KleqHQxBXE370m35thn8V48SR0sDXtXXiBs08iaa5UQSbWKsafyvw2yxMAONr
-3a28B6UpCGVS+KDLh3kPKQc53qsv38TZhr/j9S/b0xQ5tjZEC7gBmQNxiRxDkY0N
-zKvSwiQkQsIcDEjHMfOolCrq6Ipzm+YpRa9L1Tiw+gpUJuhqRWVxTJeEQgIr9CME
-ZvdfBhj6vNhocRiM/DfKXVv27WqTOfrLNpYnp0idtteG1YA4WjpnCc6gaY4A7NFg
-bvRhztP7t8I2r9tEwg1MrLF2UllmneuCBzTcbNTO3S5A9OXzWTldoyzVWJ/mlMUU
-VGLJesmJ2Jcp5nzpqtsU
-=qpOF
------END PGP SIGNATURE-----
-
---c3bfwLpm8qysLVxt--
+> ---
+> resend
+>  - exchanged Wolfram's email address
+> 
+>  drivers/i2c/busses/i2c-rcar.c |   22 +++++++++++-----------
+>  1 file changed, 11 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index 8603f5e..2c2fd7c 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -103,8 +103,8 @@ enum {
+>  #define ID_NACK		(1 << 4)
+>  
+>  enum rcar_i2c_type {
+> -	I2C_RCAR_H1,
+> -	I2C_RCAR_H2,
+> +	I2C_RCAR_GEN1,
+> +	I2C_RCAR_GEN2,
+>  };
+>  
+>  struct rcar_i2c_priv {
+> @@ -240,10 +240,10 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+>  	}
+>  
+>  	switch (priv->devtype) {
+> -	case I2C_RCAR_H1:
+> +	case I2C_RCAR_GEN1:
+>  		cdf_width = 2;
+>  		break;
+> -	case I2C_RCAR_H2:
+> +	case I2C_RCAR_GEN2:
+>  		cdf_width = 3;
+>  		break;
+>  	default:
+> @@ -640,10 +640,10 @@ static const struct i2c_algorithm rcar_i2c_algo = {
+>  };
+>  
+>  static const struct of_device_id rcar_i2c_dt_ids[] = {
+> -	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_H1 },
+> -	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_H1 },
+> -	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_H1 },
+> -	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_H2 },
+> +	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },
+> +	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
+> +	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
+> +	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
+> @@ -731,9 +731,9 @@ static int rcar_i2c_remove(struct platform_device *pdev)
+>  }
+>  
+>  static struct platform_device_id rcar_i2c_id_table[] = {
+> -	{ "i2c-rcar",		I2C_RCAR_H1 },
+> -	{ "i2c-rcar_h1",	I2C_RCAR_H1 },
+> -	{ "i2c-rcar_h2",	I2C_RCAR_H2 },
+> +	{ "i2c-rcar",		I2C_RCAR_GEN1 },
+> +	{ "i2c-rcar_gen1",	I2C_RCAR_GEN1 },
+> +	{ "i2c-rcar_gen2",	I2C_RCAR_GEN2 },
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(platform, rcar_i2c_id_table);
+> -- 
+> 1.7.9.5
+> 
