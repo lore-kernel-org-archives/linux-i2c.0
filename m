@@ -1,26 +1,59 @@
-From: "vtanita" <staz-k3vGJxnj84M@public.gmane.org>
-Subject: =?windows-1251?B?xO7h8O7j7iDC4Owg5O3/?=
-Date: Mon, 28 Oct 2013 22:27:02 +0100
-Message-ID: <D1FDF6AD0150467D90B09CD2A78BFD41@rmtxh>
-Reply-To: "vtanita" <omnevayasy-Tvz0LtCZ0GY@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 06/12] i2c: sh_mobile: Convert to clk_prepare/unprepare
+Date: Tue, 29 Oct 2013 06:02:24 +0100
+Message-ID: <20131029050224.GA2643@katana>
+References: <1383000569-8916-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1383000569-8916-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1383000569-8916-7-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, crystl-IdSsYpb6mdPDqw+mUdwCgCjHesifYMBh@public.gmane.org, sales-hfqFcM0PIJD3fQ9qLvQP4Q@public.gmane.org, basingstoke.shop@magnet, hello-gomR8KXnF2JhwkJyTqrwMYdd74u8MsAO@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-=C2=FB =ED=E0=F7=ED=E5=F2=E5 =EE=E1=F9=E0=F2=FC=F1=FF =ED=E0 =E0=EC=E5=F0=
-=E8=EA=E0=ED=F1=EA=EE=EC =ED=E5=EF=EE=F1=F0=E5=E4=F1=F2=E2=E5=ED=ED=EE =
-=E4=E0=EB=E5=E5 =E4=E5=E1=FE=F2=ED=EE=E3=EE =E7=E0=ED=FF=F2=E8=FF. =D3=E1=
-=FB=F1=F2=F0=E5=ED=ED=EE=E5 =E8=E7=F3=F7=E5=ED=E8=E5. =C2=E8=E4=E5=EE=EA=
-=F3=F0=F1 =E4=EB=FF =ED=E5=EF=EE=E4=E3=EE=F2=EE=E2=EB=E5=ED=ED=FB=F5 =E8=
- =EF=F0=EE=E4=E2=E8=ED=F3=F2=FB=F5. =CF=EE=E4=ED=FF=F2=FC =EB=E8=F7=ED=F3=
-=FE =F1=F2=EE=E8=EC=EE=F1=F2=FC =ED=E0 =EF=EE=EF=F0=E8=F9=E5 =F2=F0=F3=E4=
-=E0. =E7=E0=EF=EE=EB=FB=F5=E0=F2=FC =F0=E0=E7=E2=E8=F2=E8=E5=EC, =EF=EE=
-=F2=F0=E5=ED=E8=F0=EE=E2=E0=F2=FC =EF=E0=EC=FF=F2=FC. =CB=EE=E3=E8=F7=ED=
-=E0=FF =EA=EE=EC=EF=EE=ED=EE=E2=EA=E0 =F3=F7=E8=EC=EE=E3=EE =F3=F7=E5=E1=
-=ED=EE=E3=EE =EC=E0=F2=E5=F0=E8=E0=EB=E0 - =ED=E0=F6=E5=EB=E8=E2=E0=ED=E8=
-=E5 =ED=E0 =FD=F4=F4=E5=EA=F2. =DD=EB=E5=EA=F2=F0=EE=ED=ED=FB=E9 =E0=E4=
-=F0=E5=F1: http://munailybolnica.kz/modules/mod_backup2/zfiam.htm .
+
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Oct 28, 2013 at 11:49:23PM +0100, Laurent Pinchart wrote:
+> Turn clk_enable() and clk_disable() calls into clk_prepare_enable() and
+> clk_disable_unprepare() to get ready for the migration to the common
+> clock framework.
+>=20
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnhk3lzF8UVTdg@public.gmane.org=
+m>
+
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+
+--OXfL5xGRrasGEqWY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSb0FgAAoJEBQN5MwUoCm2AMIP/1oLhhO+LyjodG9rA0wXbZh0
+YYNf8eplyyiBRKnv5bN8R4xL0MvwQZyauXD9iJmgcE8r2aRelhd96yGsMSJgTsYt
+C1qRSlerzZmUI1I/masyHlJpPZtaK5imaSVGyX/RFL84huTLPvBjvDinTpYRe/e/
+MJBJV6zAtrIoEdCvxfVhSZFUc2sN809cBdbVIgTQFxgRVqqafKWY6TabEAelP/5i
+73aB9MmSg/NYRELBTCebqu9MUj6Rg/8Wa0TorGTTEH77bSPfDcJC0v8A7TANuCrK
+W6MHj91p/8NANIJCJzGjaHF39pj0rYJr2lEz6AE1SSx8DakbgSABDy/6es9pifra
+z9+dqapAGtnGs2BCLbBnbmQ5ZvhEgmBNWpeqImfwnys+FmeaqqvjcqAmmJbXwPHx
+rOqjWAqC30W2cQPMbKukWuFevyiCaZvkvPHnDMAAS3JhsDae36JW++tevXxDG9CB
+PSv+sPDyNU5JMkxPH+XIfEoZCoA8RiHGI0s9wAIz1rZ5PP6p8refNdTxazJPF44+
+nEMFu065pk78dVjxDmfXHZ62cxad/kUyNk7LUon+rtq6NMfFipPRckrkbaw8fobj
+zA20G9SJ60EJ3sNJM7pYR/CL8ybZXPjnVMiFN4tnAS21Em+t6aNk1R5scZqhe6Hb
+EasBqyr3lQWW2YLKshN9
+=6rOF
+-----END PGP SIGNATURE-----
+
+--OXfL5xGRrasGEqWY--
