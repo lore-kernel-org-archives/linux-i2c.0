@@ -1,63 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 03/19] i2c: sh_mobile: Enable the driver on all ARM
- platforms
-Date: Tue, 29 Oct 2013 06:03:37 +0100
-Message-ID: <20131029050337.GB2643@katana>
+Subject: Re: [PATCH 06/19] i2c: rcar: Enable the driver on all ARM platforms
+Date: Tue, 29 Oct 2013 06:03:49 +0100
+Message-ID: <20131029050349.GC2643@katana>
 References: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1383004027-25036-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1383004027-25036-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
+	protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1383004027-25036-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+In-Reply-To: <1383004027-25036-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Sender: linux-sh-owner@vger.kernel.org
 To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---E39vaYmALEf/7YXx
+--c3bfwLpm8qysLVxt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 29, 2013 at 12:46:51AM +0100, Laurent Pinchart wrote:
+On Tue, Oct 29, 2013 at 12:46:54AM +0100, Laurent Pinchart wrote:
 > Renesas ARM platforms are transitioning from single-platform to
 > multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
 > driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
 > and ARCH_SHMOBILE_MULTI and increase build testing coverage.
+>=20
+> Remove the explicit I2C dependency as the configuration option is
+> already unavailable when I2C support is disabled.
 >=20
 > Cc: Wolfram Sang <wsa@the-dreams.de>
 > Cc: linux-i2c@vger.kernel.org
 > Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
 m>
 
-I wonder if those two Kconfig patches couldn't be squashed, but other
-than that:
-
 Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
---E39vaYmALEf/7YXx
+
+--c3bfwLpm8qysLVxt
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSb0GpAAoJEBQN5MwUoCm2qsAP/j1P8JqMfRLQBzym+XBcvCBC
-lbdQ3pYEJH+tvVOsKV026h+yBlwKOKa2tWokwFzxCk8xmzOH84Js93UeAaOkBXza
-stGIffpl1kvnwISUV14OYogCl2TOiC0dcTMwUDeyDkVd7B3aTu98iq4zh5ykqaqi
-in9GTJ3/pLFHKDezzOId1cIaSfWEQQBLXzP6y9/gLd8Q7XZg66ao25Eyw7tccToh
-JquE1CtIArPjKm4q5j7CBeyEKBi3wpVU/06vBTOelN7onjIAe/n6MQqiFlgT2pJy
-/B73RTkg5jK9rccwaij9U2SOz7udgN+CyPDimnktdlGBqBOs3NYa2OyjnpUxaIjz
-cM/Y/KhWXmOgDj5pAaOIoLF/caOTSBaYGT8ULVoNY4tQusw8J41s5oy/yjkbxvRg
-fevbVCsmayUbcSFItJjS3LBejFcNEnZy217nJwmCs1J9Yoc98RrvI4736KLtmNEL
-xRpCMWf+ZlABxzNGCj1I2vVpJgkC/NAWYRTflFL8MMdfFtI9XwXILafyuJxr3EEj
-R7JR+/67GrfBRVeFCDnxVebmmapP2Q7RACsAbFoLCU3NA0YOTs4n5E9alLCgNcS2
-RWQ5wSqJRrMySujUKE2jx7XHuywWjJbEzkg7CHSnVh4B0P2NUgZQ8oP0dzoMQCFJ
-W8wOL00zPIDt0jhVq4yB
-=dMA+
+iQIcBAEBAgAGBQJSb0G1AAoJEBQN5MwUoCm2yMcP/0wG5MWVFr1oe8cR3fZBCYzd
+2frWtA1dhtxCRhMWfjne/hsiMumv348FYjEc6bYWMm8TYMHNIzLO5zmUmeJyi3OU
+aznVuUJiDeWTCwkk1EYAGJgT1/CZDjCuO5ED2BneEJ7hoU4Un3xW5t69nS+5ZVio
+wAWS4SMkNhlzzUBuszemIxYNOssw/nAoIW5EGXyIFWUQkwzX1BMj6S2DIj96MxXv
+fAB6ibUX1RSkOsEMyfwv4C0q6D1oAKxkGUK8SkQ+NSodAH3qVFXqEHAM03/60YOx
+Eqj6jwKJQxbIbR87eoyRtJp6j97yXSIhT10wAn8KXZnS7WmwB13/Gr2KLnCTGn0Y
+9p0KleqHQxBXE370m35thn8V48SR0sDXtXXiBs08iaa5UQSbWKsafyvw2yxMAONr
+3a28B6UpCGVS+KDLh3kPKQc53qsv38TZhr/j9S/b0xQ5tjZEC7gBmQNxiRxDkY0N
+zKvSwiQkQsIcDEjHMfOolCrq6Ipzm+YpRa9L1Tiw+gpUJuhqRWVxTJeEQgIr9CME
+ZvdfBhj6vNhocRiM/DfKXVv27WqTOfrLNpYnp0idtteG1YA4WjpnCc6gaY4A7NFg
+bvRhztP7t8I2r9tEwg1MrLF2UllmneuCBzTcbNTO3S5A9OXzWTldoyzVWJ/mlMUU
+VGLJesmJ2Jcp5nzpqtsU
+=qpOF
 -----END PGP SIGNATURE-----
 
---E39vaYmALEf/7YXx--
+--c3bfwLpm8qysLVxt--
