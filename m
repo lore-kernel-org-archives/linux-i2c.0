@@ -1,59 +1,63 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 06/12] i2c: sh_mobile: Convert to clk_prepare/unprepare
-Date: Tue, 29 Oct 2013 06:02:24 +0100
-Message-ID: <20131029050224.GA2643@katana>
-References: <1383000569-8916-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1383000569-8916-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 03/19] i2c: sh_mobile: Enable the driver on all ARM
+ platforms
+Date: Tue, 29 Oct 2013 06:03:37 +0100
+Message-ID: <20131029050337.GB2643@katana>
+References: <1383004027-25036-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1383004027-25036-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1383000569-8916-7-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1383004027-25036-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---OXfL5xGRrasGEqWY
+--E39vaYmALEf/7YXx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 28, 2013 at 11:49:23PM +0100, Laurent Pinchart wrote:
-> Turn clk_enable() and clk_disable() calls into clk_prepare_enable() and
-> clk_disable_unprepare() to get ready for the migration to the common
-> clock framework.
+On Tue, Oct 29, 2013 at 12:46:51AM +0100, Laurent Pinchart wrote:
+> Renesas ARM platforms are transitioning from single-platform to
+> multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
+> driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
+> and ARCH_SHMOBILE_MULTI and increase build testing coverage.
 >=20
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnhk3lzF8UVTdg@public.gmane.org=
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
 m>
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+I wonder if those two Kconfig patches couldn't be squashed, but other
+than that:
 
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
---OXfL5xGRrasGEqWY
+--E39vaYmALEf/7YXx
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSb0FgAAoJEBQN5MwUoCm2AMIP/1oLhhO+LyjodG9rA0wXbZh0
-YYNf8eplyyiBRKnv5bN8R4xL0MvwQZyauXD9iJmgcE8r2aRelhd96yGsMSJgTsYt
-C1qRSlerzZmUI1I/masyHlJpPZtaK5imaSVGyX/RFL84huTLPvBjvDinTpYRe/e/
-MJBJV6zAtrIoEdCvxfVhSZFUc2sN809cBdbVIgTQFxgRVqqafKWY6TabEAelP/5i
-73aB9MmSg/NYRELBTCebqu9MUj6Rg/8Wa0TorGTTEH77bSPfDcJC0v8A7TANuCrK
-W6MHj91p/8NANIJCJzGjaHF39pj0rYJr2lEz6AE1SSx8DakbgSABDy/6es9pifra
-z9+dqapAGtnGs2BCLbBnbmQ5ZvhEgmBNWpeqImfwnys+FmeaqqvjcqAmmJbXwPHx
-rOqjWAqC30W2cQPMbKukWuFevyiCaZvkvPHnDMAAS3JhsDae36JW++tevXxDG9CB
-PSv+sPDyNU5JMkxPH+XIfEoZCoA8RiHGI0s9wAIz1rZ5PP6p8refNdTxazJPF44+
-nEMFu065pk78dVjxDmfXHZ62cxad/kUyNk7LUon+rtq6NMfFipPRckrkbaw8fobj
-zA20G9SJ60EJ3sNJM7pYR/CL8ybZXPjnVMiFN4tnAS21Em+t6aNk1R5scZqhe6Hb
-EasBqyr3lQWW2YLKshN9
-=6rOF
+iQIcBAEBAgAGBQJSb0GpAAoJEBQN5MwUoCm2qsAP/j1P8JqMfRLQBzym+XBcvCBC
+lbdQ3pYEJH+tvVOsKV026h+yBlwKOKa2tWokwFzxCk8xmzOH84Js93UeAaOkBXza
+stGIffpl1kvnwISUV14OYogCl2TOiC0dcTMwUDeyDkVd7B3aTu98iq4zh5ykqaqi
+in9GTJ3/pLFHKDezzOId1cIaSfWEQQBLXzP6y9/gLd8Q7XZg66ao25Eyw7tccToh
+JquE1CtIArPjKm4q5j7CBeyEKBi3wpVU/06vBTOelN7onjIAe/n6MQqiFlgT2pJy
+/B73RTkg5jK9rccwaij9U2SOz7udgN+CyPDimnktdlGBqBOs3NYa2OyjnpUxaIjz
+cM/Y/KhWXmOgDj5pAaOIoLF/caOTSBaYGT8ULVoNY4tQusw8J41s5oy/yjkbxvRg
+fevbVCsmayUbcSFItJjS3LBejFcNEnZy217nJwmCs1J9Yoc98RrvI4736KLtmNEL
+xRpCMWf+ZlABxzNGCj1I2vVpJgkC/NAWYRTflFL8MMdfFtI9XwXILafyuJxr3EEj
+R7JR+/67GrfBRVeFCDnxVebmmapP2Q7RACsAbFoLCU3NA0YOTs4n5E9alLCgNcS2
+RWQ5wSqJRrMySujUKE2jx7XHuywWjJbEzkg7CHSnVh4B0P2NUgZQ8oP0dzoMQCFJ
+W8wOL00zPIDt0jhVq4yB
+=dMA+
 -----END PGP SIGNATURE-----
 
---OXfL5xGRrasGEqWY--
+--E39vaYmALEf/7YXx--
