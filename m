@@ -1,56 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [patch] i2c-scmi: remove some bogus NULL checks
-Date: Thu, 31 Oct 2013 12:57:49 +0100
-Message-ID: <20131031115749.GC3431@katana>
-References: <20131019084622.GA9312@longonot.mountain>
+Subject: Re: [PATCH] i2c: rcar: fixup rcar type naming
+Date: Thu, 31 Oct 2013 13:02:42 +0100
+Message-ID: <20131031120242.GD3431@katana>
+References: <87ob75zgn2.wl%kuninori.morimoto.gx@renesas.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lCAWRPmW1mITcIfM"
-Return-path: <kernel-janitors-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="FFoLq8A0u+X9iRU8"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20131019084622.GA9312@longonot.mountain>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Jiang Liu <jiang.liu@huawei.com>, Toshi Kani <toshi.kani@hp.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Yinghai Lu <yinghai@kernel.org>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org
+In-Reply-To: <87ob75zgn2.wl%kuninori.morimoto.gx@renesas.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Simon <horms@verge.net.au>, Linux-SH <linux-sh@vger.kernel.org>, Linux-I2C <linux-i2c@vger.kernel.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---lCAWRPmW1mITcIfM
+--FFoLq8A0u+X9iRU8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Oct 19, 2013 at 11:46:22AM +0300, Dan Carpenter wrote:
-> "obj" can't be NULL here.
+On Thu, Oct 03, 2013 at 11:36:52PM -0700, Kuninori Morimoto wrote:
+> b720423a2627f045133bec39a31fe2bc0dab86f3
+> (i2c: rcar: add rcar-H2 support)
+> added R-Car H2 support on i2c-rcar.
+> But the added i2c type naming was H1/H2,
+> instead of Gen1/Gen2 (Generation 1/2)
+> Gen1/Gen2 is better naming on this driver.
 >=20
-> We already know that "pkg->package.elements" gives us a valid pointer
-> so the next pointer after that is also non-NULL.
+> This patch exchanges rcar_i2c_id_table[],
+> but it still can keep compatible, since still there is no user
+> for i2c-rcar_h1/h2 at this point.
 >=20
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-Applied to for-next, thanks!
+OK, since the driver is relatively new: Applied to for-next, thanks!
 
 
---lCAWRPmW1mITcIfM
+--FFoLq8A0u+X9iRU8
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSckW8AAoJEBQN5MwUoCm2zb8P/ja1eD7gaDcs9zslq1ndaZXe
-vB/mz7ZKvyCxCmI35jz1zJxARS7/yGXEFGqptn99PcXizVXkVlDBLxJTw20sYAUD
-o20aJuqs7tzt3ksgjBnfAUzxczIGUxHtvIZ1idUx0u4Uklm0sIJ9PYgqWqNVTO58
-1WBZ+gZgF4lzVcUFECOa/Lj6PjLHVblF3JatgpXOAS0Pw3mQFxqLsmBzmshYBspX
-znjvPAgGPpT64HgNhrMoFUv+NUKnFP0o1oBpeKrd0/bHxY2S8kfcAO0mVnM4IP59
-MWAUKC/imRai5Gy5Ln4zbyYSFrh5HLEOxT0YMZSoa15eWG6Uyzt6ABxWqlZ41WGX
-9PFjDetkmtdhZqQJYrgn6a6TvvuZngBjBNRmHfIV7cg0136VhI9T+OKulysar968
-654QWniAsS+9ktdadgLOfWwblolRkBl5GA38/KBIRvDlLwNH7tVK2U4BKxqgPqPn
-GgdgF0lB5WKdRSYEJUoONRZgdYLrsKwAd6GaPRM59W56XLsVe0pzGM42EDTwbril
-odtuCwOcgwnljBte26x8arfnioW/JttqKEa9rJtEnuaymFHOgrkcoFq9FdD37P7r
-zES4eNFt31jJhh1c6JMSRRXBAeo4p701Th8qAR8HVmgGU9OB4PfjAVgZhgiCLWAI
-ZWRQMlLGmWRqlbBf7b3g
-=P6HC
+iQIcBAEBAgAGBQJSckbiAAoJEBQN5MwUoCm2YbkP/RRmvwlezK2ozUUoUIv2uuXa
+Bl/6nxbk6Cn6irtgSFcMilGHBGfwPsQJDt4jgBQTcw0oZ3hi2vgh5bEbxGvYBiRY
+tj8cviUrcQPShOhk6mhENP+u7bg/TDDUmsc0sKXPwld1m3o0uhM9UtxktVTjGGQm
+CyQ2WzMgXYdGqK78pFegBGDRxZAyEnifv70wqiWMfWCYrx4mRXq+WJTdzWEBmFgs
+vcsCxQ70wrkgv6Kuf/3not1wKeHdfuz2kE6I3Rie2VIo+H5Yq805xwKoHFTu969e
+BP9bb7qNOZck6bAaUN2kPRIdlelfLuEnY3g+4q7Z5i/wW//ZWm5cU9OkGbAMwaHg
+SyIAtgv1mX59BIfwSZo8xUTayuTGfv+F6KlzkoR6dHoQjmebm52qsZxra890xeFg
+scJUEKMROOZSppHLbpxhE+93F5MGouhk+vAJ9H5on39uAXtn5bGpNIQ2M9U9j1B8
+kS6C7YaBZcZ7Q/rAK5+xqoosLfq3mYLhKW5TcvbjKU5uOf6a/6T2Nkcwgdet0UnL
+rRIw8yQqmkxZy4QSzXldpzFUUcL6/aMR7jS1i3JTqppOr+OHu75S2KXdTxdTDN/V
+YKMa4SHYB42EQovbb6H5ZLM3+Fl9IcgU3DEAEyn5TGRVnvfbhBEFM4QtKsGodwB+
+SKMS+BaJxvXSKVWjPJSm
+=IXEM
 -----END PGP SIGNATURE-----
 
---lCAWRPmW1mITcIfM--
+--FFoLq8A0u+X9iRU8--
