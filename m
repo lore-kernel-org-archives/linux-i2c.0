@@ -1,59 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 06/12] i2c: sh_mobile: Convert to clk_prepare/unprepare
-Date: Thu, 31 Oct 2013 12:49:38 +0100
-Message-ID: <20131031114937.GA3431@katana>
-References: <1383000569-8916-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1383000569-8916-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Subject: Re: [PATCH v2 03/19] i2c: sh_mobile: Enable the driver on all ARM
+ platforms
+Date: Thu, 31 Oct 2013 12:50:01 +0100
+Message-ID: <20131031115001.GB3431@katana>
+References: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1383086274-11049-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1383000569-8916-7-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+In-Reply-To: <1383086274-11049-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Sender: linux-sh-owner@vger.kernel.org
 To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org, Mike Turquette <mturquette@linaro.org>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---YiEDa0DAkWCtVeE4
+--tjCHc7DPkfUGtrlw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 28, 2013 at 11:49:23PM +0100, Laurent Pinchart wrote:
-> Turn clk_enable() and clk_disable() calls into clk_prepare_enable() and
-> clk_disable_unprepare() to get ready for the migration to the common
-> clock framework.
+On Tue, Oct 29, 2013 at 11:37:38PM +0100, Laurent Pinchart wrote:
+> Renesas ARM platforms are transitioning from single-platform to
+> multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
+> driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
+> and ARCH_SHMOBILE_MULTI, and increase build testing coverage with
+> COMPILE_TEST.
 >=20
 > Cc: Wolfram Sang <wsa@the-dreams.de>
 > Cc: linux-i2c@vger.kernel.org
 > Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
 m>
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
-Applied to for-next, thanks!
+Both i2c patches squashed and applied to for-next, thanks!
 
 
---YiEDa0DAkWCtVeE4
+--tjCHc7DPkfUGtrlw
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSckPRAAoJEBQN5MwUoCm2DPwP/1jnvjIfbtXmPQsC/wgY7XJd
-qhUt/41sgRHFK4gKKBcj0wSANC664L7iM9RUyw/yFDpTz3UT44My3Yne+1I5lLFN
-wes0u4lxhfoT1n0j3k3Rs0YKUKx6gP43UT/ZhIqFngr1TuAQ4/dOwdya5ymRLs1X
-cJSoyEeRol1awShgeVKNdmMTp8Rzvagp2SsN10mHpgQMyphVoF6tWqvw40ozBTVS
-AfWCN27gueeu46psT8+f3/EP/7d7AuBWtMQwx6ViSLN2RExFn4kmy5gQ3h+5N+YX
-PvAktLUfBvwHU+bJVNGC/yhbsOpu2YN9140pfDNKoF8zf53EoLtZ9vS/wwwKRinS
-Cal0Axwer1zBAlBKb6rmWTEdb98ITH5sSsxjHtg6blFPnhGTtCvWA5TkQVVxyagW
-wdBm3eTprJjsSDQxZbWOl3QBUGi/sHTRjthk/IuF2SLAzwErNCpeBfMduEPvjlI1
-x/5qoel6gh6lo3Dh9EOjSZ9NTTcgKQ5BKxvGRtVlARgQDAyxYeYUIXZ+7weZGDHr
-c9QZrcGQTcwC034xzTArYhRg2L7nWgbLrVBRaj+YVS69c+5IaDn5llMJ2cqJFeSt
-Wdv1WEvk5/XmLvUC8GJ5hxorDafd8CSAXZ8z8yEcHoUK8DoaFKDvkiyMB8G1QnxU
-d8Pla84o60Msi9HbkalZ
-=eGA2
+iQIcBAEBAgAGBQJSckPpAAoJEBQN5MwUoCm2BcoQAJIfbTEwVm2O7KbY/v+DOFeA
+lmAzm4KZKMQiCwJsdNk11bo9e0kw/big87ijY/COCKnjnbFYCYWZN9PI8iRjul5y
+MCZ8eUsrR6j0DVS1NKzghTsYqRnu6PYwSIysfkc9A7bQ6/kwwUfPaUSqeFSLr3Rl
+f18TCzw7xxrKokgHhi2P6v31hQ+qDwetY8GOZQ7wfKypNJE/V351+INrQ+NI15or
+w5xXlJ0TFNBktB3fGlv4MNbUHEnK/XubLxGmYytZAKoZui/AksrSFtMZ9NYj1aTh
+Hn7vjq3pfMY6H9l+rL2NRgV8SClf991yNc77spN7q888SSBeDF2UJmLfRr/Ckp8e
+Hp0A50gVMxFDbPKr/sI1ysc/ZWknPx02H2i+4Sm6YIq8ElcxzAiut/GfzscSXbuD
+pz5v9xyS2UK5poCkwCgcr8SMydCdBRLFGl8GKlPGDqanP6aeA2KX0oG7Tuxfmfi/
+cntQcvPOnSTiy0Gmk/0IkWQID1mHXt3NQInn3T5QynHhXyI4vd3GZQVw7DYMTVen
+tVztMfrG0IhBUOk31WSiNw8C0HoltHFBZ6u0SBTxTJTeGT2pKiYU+avSw9DJjK7E
+EGNii+rFp82BxMHd3xdWy9sdS4gxl3JVva6pqzpdBD6LPWPGaEkOwTOXO/RDw3/U
+vh5G+9SK6M+3k1UMXi1b
+=JmO6
 -----END PGP SIGNATURE-----
 
---YiEDa0DAkWCtVeE4--
+--tjCHc7DPkfUGtrlw--
