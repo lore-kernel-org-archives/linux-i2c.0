@@ -1,63 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 03/19] i2c: sh_mobile: Enable the driver on all ARM
- platforms
-Date: Thu, 31 Oct 2013 12:50:01 +0100
-Message-ID: <20131031115001.GB3431@katana>
-References: <1383086274-11049-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1383086274-11049-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Subject: Re: [patch] i2c-scmi: remove some bogus NULL checks
+Date: Thu, 31 Oct 2013 12:57:49 +0100
+Message-ID: <20131031115749.GC3431@katana>
+References: <20131019084622.GA9312@longonot.mountain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="lCAWRPmW1mITcIfM"
+Return-path: <kernel-janitors-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1383086274-11049-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+In-Reply-To: <20131019084622.GA9312@longonot.mountain>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Jiang Liu <jiang.liu@huawei.com>, Toshi Kani <toshi.kani@hp.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Yinghai Lu <yinghai@kernel.org>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---tjCHc7DPkfUGtrlw
+--lCAWRPmW1mITcIfM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 29, 2013 at 11:37:38PM +0100, Laurent Pinchart wrote:
-> Renesas ARM platforms are transitioning from single-platform to
-> multi-platform kernels using the new ARCH_SHMOBILE_MULTI. Make the
-> driver available on all ARM platforms to enable it on both ARCH_SHMOBILE
-> and ARCH_SHMOBILE_MULTI, and increase build testing coverage with
-> COMPILE_TEST.
+On Sat, Oct 19, 2013 at 11:46:22AM +0300, Dan Carpenter wrote:
+> "obj" can't be NULL here.
 >=20
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
-m>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> We already know that "pkg->package.elements" gives us a valid pointer
+> so the next pointer after that is also non-NULL.
+>=20
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Both i2c patches squashed and applied to for-next, thanks!
+Applied to for-next, thanks!
 
 
---tjCHc7DPkfUGtrlw
+--lCAWRPmW1mITcIfM
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSckPpAAoJEBQN5MwUoCm2BcoQAJIfbTEwVm2O7KbY/v+DOFeA
-lmAzm4KZKMQiCwJsdNk11bo9e0kw/big87ijY/COCKnjnbFYCYWZN9PI8iRjul5y
-MCZ8eUsrR6j0DVS1NKzghTsYqRnu6PYwSIysfkc9A7bQ6/kwwUfPaUSqeFSLr3Rl
-f18TCzw7xxrKokgHhi2P6v31hQ+qDwetY8GOZQ7wfKypNJE/V351+INrQ+NI15or
-w5xXlJ0TFNBktB3fGlv4MNbUHEnK/XubLxGmYytZAKoZui/AksrSFtMZ9NYj1aTh
-Hn7vjq3pfMY6H9l+rL2NRgV8SClf991yNc77spN7q888SSBeDF2UJmLfRr/Ckp8e
-Hp0A50gVMxFDbPKr/sI1ysc/ZWknPx02H2i+4Sm6YIq8ElcxzAiut/GfzscSXbuD
-pz5v9xyS2UK5poCkwCgcr8SMydCdBRLFGl8GKlPGDqanP6aeA2KX0oG7Tuxfmfi/
-cntQcvPOnSTiy0Gmk/0IkWQID1mHXt3NQInn3T5QynHhXyI4vd3GZQVw7DYMTVen
-tVztMfrG0IhBUOk31WSiNw8C0HoltHFBZ6u0SBTxTJTeGT2pKiYU+avSw9DJjK7E
-EGNii+rFp82BxMHd3xdWy9sdS4gxl3JVva6pqzpdBD6LPWPGaEkOwTOXO/RDw3/U
-vh5G+9SK6M+3k1UMXi1b
-=JmO6
+iQIcBAEBAgAGBQJSckW8AAoJEBQN5MwUoCm2zb8P/ja1eD7gaDcs9zslq1ndaZXe
+vB/mz7ZKvyCxCmI35jz1zJxARS7/yGXEFGqptn99PcXizVXkVlDBLxJTw20sYAUD
+o20aJuqs7tzt3ksgjBnfAUzxczIGUxHtvIZ1idUx0u4Uklm0sIJ9PYgqWqNVTO58
+1WBZ+gZgF4lzVcUFECOa/Lj6PjLHVblF3JatgpXOAS0Pw3mQFxqLsmBzmshYBspX
+znjvPAgGPpT64HgNhrMoFUv+NUKnFP0o1oBpeKrd0/bHxY2S8kfcAO0mVnM4IP59
+MWAUKC/imRai5Gy5Ln4zbyYSFrh5HLEOxT0YMZSoa15eWG6Uyzt6ABxWqlZ41WGX
+9PFjDetkmtdhZqQJYrgn6a6TvvuZngBjBNRmHfIV7cg0136VhI9T+OKulysar968
+654QWniAsS+9ktdadgLOfWwblolRkBl5GA38/KBIRvDlLwNH7tVK2U4BKxqgPqPn
+GgdgF0lB5WKdRSYEJUoONRZgdYLrsKwAd6GaPRM59W56XLsVe0pzGM42EDTwbril
+odtuCwOcgwnljBte26x8arfnioW/JttqKEa9rJtEnuaymFHOgrkcoFq9FdD37P7r
+zES4eNFt31jJhh1c6JMSRRXBAeo4p701Th8qAR8HVmgGU9OB4PfjAVgZhgiCLWAI
+ZWRQMlLGmWRqlbBf7b3g
+=P6HC
 -----END PGP SIGNATURE-----
 
---tjCHc7DPkfUGtrlw--
+--lCAWRPmW1mITcIfM--
