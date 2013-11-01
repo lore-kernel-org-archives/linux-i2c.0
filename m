@@ -1,62 +1,46 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v12] i2c: exynos5: add High Speed I2C controller driver
-Date: Fri, 1 Nov 2013 12:35:09 +0100
-Message-ID: <20131101113509.GA6734@katana>
-References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
- <1381901442-29222-1-git-send-email-ch.naveen@samsung.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1381901442-29222-1-git-send-email-ch.naveen@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Cc: linux-i2c@vger.kernel.org, sjg@chromium.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org, grant.likely@secretlab.ca, broonie@kernel.org, dianders@chromium.org, cpgs@samsung.com
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCHv2 0/3] I2C and SPI dev_name change for ACPI enumerated slaves
+Date: Fri,  1 Nov 2013 14:35:53 +0200
+Message-ID: <1383309356-25430-1-git-send-email-jarkko.nikula@linux.intel.com>
+References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Second version of the set that changes I2C and SPI slave device names
+to be generated from stable ACPI device names on ACPI 5 based systems
+instead of using bus numbers which could change.
 
-On Wed, Oct 16, 2013 at 11:00:42AM +0530, Naveen Krishna Chatradhi wrote:
-> Adds support for High Speed I2C driver found in Exynos5 and
-> later SoCs from Samsung.
->=20
-> Driver only supports Device Tree method.
->=20
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-> Signed-off-by: Taekgyun Ko <taeggyun.ko@samsung.com>
-> Reviewed-by: Simon Glass <sjg@google.com>
-> Tested-by: Andrew Bresticker <abrestic@google.com>
-> Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
-> Signed-off-by: Andrew Bresticker <abrestic@google.com>
+Slave device name change goes as
 
-Rebased to v3.12-rc4 and Applied to for-next, thanks!
+	"x-00yz" -> "i2c-INTABCD:ij"
+	"spix.y" -> "spi-INTABCD:ij"
 
+This version adds patch to include/acpi/acpi_bus.h that allow us to
+remove #if IS_ENABLED(CONFIG_ACPI) checks that were added in the
+first version.
 
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Set goes on top linux-pm/linux-next commit e56b4d2.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+First version here:
+http://mailman.alsa-project.org/pipermail/alsa-devel/2013-October/067737.html
 
-iQIcBAEBAgAGBQJSc5HtAAoJEBQN5MwUoCm2G+wQAKOUy1Box1K1WRim36Z0LZfA
-35OE0VmGBlO/YcviO4IXApuPZ8SKZI6HAE5V5fvpJtwu+LZDZshuh/XVOZTgeH6i
-SDowmDAVkBKRo3odCQXEuoNOM0adtUDDunP492YBmnuSRdXBt59rQcSDlDsmRYg9
-ftp+dTJBnwGjN/tYsAyVx51+f4KeEFEgX/Tf790cSYySHNVc0EKeObJN+vBVXP1u
-Xd/PDfkYArCWaEOEMtvNHdUCAmk6JrtHdYJ0+BUdEN03W8iA6v9UhAn1E2cuccAl
-odXS8rKzUFYW3wzoLSKunJDiVk8LuPpRZm90wPfLHIlP1n12BeYkIM1MabtKYTtw
-QBDndkVHSbaOXotLaiGqSEb0ARmT86tH1sKC1PODytDrpi+OHrwKt2o6QngWRMXR
-fxq1rhYwOtMTxbbYCsZmlb7ylt04YGGeh7HiZH/TneuqwvVOtN+ZZLhdwHsQtbuN
-qKNjTV452Ep69PixwMELdgQ8tAp/kfRyAIlImjIVtFYS55NEIqvCalG/OLRmxj2H
-hux+QcRTqS4g6EuNe4DWN+tnW/zWj7HsmFIebTnNyAzBICbOWt5r0u0Xd4iXUl93
-oV7agsOeFkgIPvWxUVgadT+ui3XNz8jOzPOdJRz2y+/wVgniRahz/lhdlwPb6H6s
-NASfvrkJi6nUe0/Wq+rQ
-=Vpe6
------END PGP SIGNATURE-----
+Jarkko Nikula (3):
+  ACPI: Expose struct acpi_device and acpi_bus_get_device() to non-ACPI
+    builds
+  i2c: Use stable dev_name for ACPI enumerated I2C slaves
+  spi: Use stable dev_name for ACPI enumerated SPI slaves
 
---+QahgC5+KEYLbs62--
+ drivers/i2c/i2c-core.c  | 24 ++++++++++++++++++++----
+ drivers/spi/spi.c       | 20 +++++++++++++++++---
+ include/acpi/acpi_bus.h |  9 +++++++--
+ 3 files changed, 44 insertions(+), 9 deletions(-)
+
+-- 
+1.8.4.rc3
+
