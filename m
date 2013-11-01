@@ -1,54 +1,40 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCHv2 3/3] spi: Use stable dev_name for ACPI enumerated SPI
- slaves
-Date: Fri, 1 Nov 2013 11:03:50 -0700
-Message-ID: <20131101180350.GZ2493@sirena.org.uk>
-References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1383309356-25430-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1383309356-25430-4-git-send-email-jarkko.nikula@linux.intel.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCHv2 0/3] I2C and SPI dev_name change for ACPI enumerated slaves
+Date: Fri, 01 Nov 2013 23:58:45 +0100
+Message-ID: <3989164.GAoLSa6qzM@vostro.rjw.lan>
+References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com> <20131101132048.GD6734@katana> <5273B046.1030204@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oUI2l+Vq7ILP1REU"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1383309356-25430-4-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <5273B046.1030204@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Friday, November 01, 2013 03:44:38 PM Jarkko Nikula wrote:
+> On 11/01/2013 03:20 PM, Wolfram Sang wrote:
+> > On Fri, Nov 01, 2013 at 02:18:06PM +0100, Rafael J. Wysocki wrote:
+> >>
+> >> Looks good to me.  If there are no objections, I can merge these through my tree.
+> > Which is basically fine with me. Do you want to have it in 3.13 already?
+> > I mean renaming the devices could lead to regressions, so I'd rather be
+> > conservative and aim for 3.14.
+> >
+> Valid concern. Quick grep below doesn't reveal any obvious device name 
+> matching outside of sound/soc/ but of course it doesn't prove it to be 
+> impossible.
+> 
+> git grep '[0-9]\-00' |grep name
+> git grep 'spi[0-9].[0-9]' |grep name
 
---oUI2l+Vq7ILP1REU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Well, if any breakage is caught in 3.13-rc, it should be easy enough to revert
+these changes and try again during the next cycle.  I honestly don't see any
+benefit from waiting for the next cycle "just in case".
 
-On Fri, Nov 01, 2013 at 02:35:56PM +0200, Jarkko Nikula wrote:
-> Current spi bus_num.chip_select "spix.y" based device naming scheme may not
-> be stable enough to be used in name based matching, for instance within
-> ALSA SoC subsystem.
+Thanks!
 
-Acked-by: Mark Brown <broonie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
---oUI2l+Vq7ILP1REU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSc+0DAAoJELSic+t+oim9pjUP/A3CU3qwzt7SqqNPap12rnmU
-qDODftHjvUe5f3t94baKnezoHkVEscYMFbNLRAjW4KRB5t45oNmzDhPyQ/ATPnKR
-qWa2FYG25o/hWSlvg18m9tIam62A8LpQaub0y1Wf6Kpob2T5aPsSTj7NBg/NY96O
-/pW8ZSc4ZTZA/cVp8jtEx+SDfmJ7g4oBu/7L0NLFJYq4dI0uPzZTzPVJIyXVMO1M
-CsGvTtctnqzoIJHTXeT2yAzDhVN4wsyaBOIRsmxlRRqpTcM3PGJE1UbjfjADDNo9
-O7+65zkNNV+mXXLjzuK1x+W8sVhFM6KqpFiEp963fft7nFjN1BaZrYqV++rh8qx4
-XQtl3sCbi8iHkMGKdNhp2As7zP6d1ohXPpJ5VDZOtJJ72Q5zqfgmegPJQa07eI3s
-aETW7vmIk/h4UZAX1h4WrJeUMXPtCtip6cFmZGd0ZLIC1itrPJDIemR98kx9Jw7o
-4wTILL5Ae5cfWpOmIN+ZnKhwsYWIucNUHSNd6Z2OSF+vLZX69JSimsfq5DOWCU7m
-eh9D1Y78vA5GS0ZLnhwzdjsORdiXJVkxwTGT/phhrWCD/UOEey0ZsSahxDbxns0r
-EEEBcptqyWtyWbAihNqVbqDgBn9F9AfniefNHxil0iBmEJrahWJB1oasRV0609L9
-BYHohzPZp0unq+mF6mC8
-=7XG3
------END PGP SIGNATURE-----
-
---oUI2l+Vq7ILP1REU--
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
