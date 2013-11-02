@@ -1,73 +1,195 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCHv2 2/3] i2c: Use stable dev_name for ACPI enumerated I2C
- slaves
-Date: Sat, 2 Nov 2013 01:15:33 +0100
-Message-ID: <20131102001533.GB2633@katana>
-References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1383309356-25430-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1383309356-25430-3-git-send-email-jarkko.nikula@linux.intel.com>
+From: Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [RESEND PATCH 1/4] i2c: i2c-bcm-kona: Introduce Broadcom I2C Driver
+Date: Fri, 1 Nov 2013 17:32:42 -0700
+Message-ID: <CAAYSxho8nd3TOsJ8LGfs94pHxoFYDxyZL0xjPA-CqVKVf7Nafw@mail.gmail.com>
+References: <1381960909-1735-1-git-send-email-tim.kryger@linaro.org>
+	<1381960909-1735-2-git-send-email-tim.kryger@linaro.org>
+	<20131101124958.GB6734@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1383309356-25430-3-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20131101124958.GB6734@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Device Tree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Nov 1, 2013 at 5:49 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Wed, Oct 16, 2013 at 03:01:46PM -0700, Tim Kryger wrote:
+>> Introduce support for Broadcom Serial Controller (BSC) I2C bus found
+>> in the Kona family of Mobile SoCs.  FIFO hardware is utilized but only
+>> standard mode (100kHz), fast mode (400kHz), and fast mode plus (1MHz)
+>> bus speeds are supported.
+>>
+>> Signed-off-by: Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> Reviewed-by: Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> Reviewed-by: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>
+> Looks mostly good, some remarks:
+>
+>> +struct bcm_kona_i2c_dev {
+>> +     /* Pointer to linux device struct */
+>> +     struct device *device;
+>> +
+>> +     /* Virtual address where registers are mapped */
+>> +     void __iomem *base;
+>> +
+>> +     /* Interrupt */
+>> +     int irq;
+>> +
+>> +     /* Standard Speed configuration */
+>> +     const struct bus_speed_cfg *std_cfg;
+>> +
+>> +     /* Linux I2C adapter struct */
+>> +     struct i2c_adapter adapter;
+>> +
+>> +     /* Lock for the I2C device */
+>> +     struct mutex i2c_bcm_lock;
+>> +
+>> +     /* Completion to signal an operation finished */
+>> +     struct completion done;
+>> +
+>> +     /* Handle for external clock */
+>> +     struct clk *external_clk;
+>> +};
+>
+> IMO most of the comments could go. Kind of stating the obvious :)
 
---0eh6TmSyL6TZE2Uz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure thing.
 
-On Fri, Nov 01, 2013 at 02:35:55PM +0200, Jarkko Nikula wrote:
-> Current I2C adapter id - client address "x-00yy" based device naming sche=
-me
-> is not always stable enough to be used in name based matching, for instan=
-ce
-> within ALSA SoC subsystem.
->=20
-> This is problematic in PC kind of platforms where I2C adapter numbers can
-> change due variable amount of bus controllers, probe order, add-on cards =
-or
-> just because of BIOS settings.
->=20
-> This patch addresses the problem by using the ACPI device name with
-> "i2c-" prefix for ACPI enumerated I2C slaves. For them device name
-> "x-00yz" becomes "i2c-INTABCD:ij" after this patch.
->=20
-> Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>
+>> +/* Read any amount of data using the RX FIFO from the i2c bus */
+>> +static int bcm_kona_i2c_read_fifo(struct bcm_kona_i2c_dev *dev,
+>> +                               struct i2c_msg *msg)
+>> +{
+>> +     unsigned int bytes_to_read = MAX_RX_FIFO_SIZE;
+>> +     unsigned int last_byte_nak = 0;
+>> +     unsigned int bytes_read = 0;
+>> +     unsigned int rc;
+>
+> Should be signed.
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Absolutely.  Thanks for catching this one.
 
+>
+>> +/* Write any amount of data using TX FIFO to the i2c bus */
+>> +static int bcm_kona_i2c_write_fifo(struct bcm_kona_i2c_dev *dev,
+>> +                                struct i2c_msg *msg)
+>> +{
+>> +     unsigned int bytes_to_write = MAX_TX_FIFO_SIZE;
+>> +     unsigned int bytes_written = 0;
+>> +     unsigned int rc;
+>
+> Ditto signed.
 
---0eh6TmSyL6TZE2Uz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+I shall fix it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+>
+>> +/* Master transfer function */
+>> +static int bcm_kona_i2c_xfer(struct i2c_adapter *adapter,
+>> +                          struct i2c_msg msgs[], int num)
+>> +{
+>> +     struct bcm_kona_i2c_dev *dev = i2c_get_adapdata(adapter);
+>> +     struct i2c_msg *pmsg;
+>> +     int rc = 0;
+>> +     int i;
+>> +
+>> +     mutex_lock(&dev->i2c_bcm_lock);
+>
+> Huh? Why do you need that? The core has locks per bus.
 
-iQIcBAEBAgAGBQJSdEQlAAoJEBQN5MwUoCm29boP/iSQ7kOx/lPxOUtB6owqtJB9
-5Rb4lNSRvZpY1fCMGmhOgPqja6+zL7W/AKWdn0oERXZwbiG88cVoE6Gwu1FKQjWm
-XJqczleIOE4j4HGE88VdDViZn2M5zdlliMR2csSyR7S84TsO8K3XrfJHsesigKAs
-NkzrznipksfjpaEp0htggJMqqD5Z2Lb/eAPUglFtZBRVCkMHgUAmTwfb9XIUfFzE
-vH3pNWx5ghJL//gDlW9qsglyiX3d7cDhUSaNe0mPh71N3BJ7HIOt40qZFjoSg7X2
-Btc9C1lZicR1YyRp42xCPp1YGAsqrOFW6qipqhup05nfkvqVK5aQYpSd8OHoo3e7
-gx1M8gyRy8DlfDhRWXa6MYDtP0I/T3HjA9Rm38vR7rKcPlcmmDXzZ8ofIOl6ODVM
-RrZPwfVHJYQMy2hRkfiNuDo2BY5WvoCFl0eEE19wDQocjcAk2VnvMiXZGzt92kzs
-pXrJruzBf5W5LQzF3aPvnnbEzNZRiAxD+K3zSvZLmKde4TZKw71slIjLOrjB0G91
-fAhYtdCZrLZ60fFcqVRqSqzOEK74EWqTJX+u4oj+Ifbgf4FBSjL+nEXhYscP8uRo
-qHwCyS6uVO0TBZWvbeBbTeEE/TFWRdtU4aPFIzCtu9ofy8jM7Hgg1FgszDgqA2Nf
-4E4uZjBYwL8n5MhB7ixT
-=7Vkr
------END PGP SIGNATURE-----
+In that case, I will remove the local mutex.
 
---0eh6TmSyL6TZE2Uz--
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> +static int bcm_kona_i2c_assign_bus_speed(struct bcm_kona_i2c_dev *dev)
+>> +{
+>> +     unsigned int bus_speed;
+>> +     int ret = of_property_read_u32(dev->device->of_node, "clock-frequency",
+>> +                                    &bus_speed);
+>> +     if (ret < 0) {
+>> +             dev_err(dev->device, "missing clock-frequency property\n");
+>> +             return -ENODEV;
+>> +     }
+>> +
+>> +     switch (bus_speed) {
+>> +     case 100000:
+>> +             dev->std_cfg = &std_cfg_table[BCM_SPD_100K];
+>> +             break;
+>> +     case 400000:
+>> +             dev->std_cfg = &std_cfg_table[BCM_SPD_400K];
+>> +             break;
+>> +     case 1000000:
+>> +             dev->std_cfg = &std_cfg_table[BCM_SPD_1MHZ];
+>> +             break;
+>> +     default:
+>> +             pr_err("%d hz bus speed not supported\n", bus_speed);
+>> +             return -EINVAL;
+>> +     };
+>
+> Unneeded semicolon.
+>
+
+Sure.  It will be removed.
+
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static int bcm_kona_i2c_probe(struct platform_device *pdev)
+>> +{
+>> +     int rc = 0;
+>> +     struct bcm_kona_i2c_dev *dev;
+>> +     struct i2c_adapter *adap;
+>> +     struct resource *iomem;
+>> +
+>> +     /* Allocate memory for private data structure */
+>> +     dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+>> +     if (!dev) {
+>> +             rc = -ENOMEM;
+>> +             goto probe_return;
+>
+> I'd prefer simply return -Esomething. The printout at probe_return is
+> also available via driver core.
+
+Agreed.
+
+> ...
+>
+>> +     /* Add the i2c adapter */
+>> +     adap = &dev->adapter;
+>> +     i2c_set_adapdata(adap, dev);
+>> +     adap->owner = THIS_MODULE;
+>> +     adap->class = UINT_MAX; /* can be used by any I2C device */
+>
+> Why do you need class based instantiation. It will most likely cost
+> boot-time and you have devicetree means for doing instantiation.
+>
+>
+
+Agreed.
+
+>> +     strlcpy(adap->name, "Broadcom I2C adapter", sizeof(adap->name));
+>> +     adap->algo = &bcm_algo;
+>> +     adap->dev.parent = &pdev->dev;
+>> +     adap->nr = pdev->id;
+>> +     adap->dev.of_node = pdev->dev.of_node;
+>> +
+>> +     rc = i2c_add_numbered_adapter(adap);
+>
+> Maybe you want simply i2c_add_adapter here since the core has no
+> built-in support for of aliases?
+>
+
+Okay.  I will switch to i2c_add_adapter and remove the adap->nr assignment.
+
+>> +
+>> +MODULE_AUTHOR("Broadcom");
+>
+> Some email address please.
+>
+>> +MODULE_DESCRIPTION("Broadcom Kona I2C Driver");
+>> +MODULE_LICENSE("GPL v2");
+>
+> Thanks,
+>
+>    Wolfram
+>
