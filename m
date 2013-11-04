@@ -1,74 +1,41 @@
-From: James Ralston <james.d.ralston@intel.com>
-Subject: [PATCH 3/4] i2c-i801: Add Device IDs for Intel Wildcat Point-LP PCH
-Date: Mon,  4 Nov 2013 09:29:48 -0800
-Message-ID: <1383586188-4717-1-git-send-email-james.d.ralston@intel.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Heasley <seth.heasley@intel.com>, James Ralston <james.d.ralston@intel.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCHv2 1/3] ACPI: Expose struct acpi_device and
+ acpi_bus_get_device() to non-ACPI builds
+Date: Mon, 4 Nov 2013 23:15:59 +0200
+Message-ID: <20131104211559.GA12144@mylly>
+References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com>
+ <1383309356-25430-2-git-send-email-jarkko.nikula@linux.intel.com>
+ <3858838.4tAO673dDi@vostro.rjw.lan>
+ <5990097.jCz86Yqdpc@vostro.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5990097.jCz86Yqdpc@vostro.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the SMBus Device IDs for the Intel Wildcat Point-LP PCH.
+On Mon, Nov 04, 2013 at 02:00:45AM +0100, Rafael J. Wysocki wrote:
+> On Saturday, November 02, 2013 11:18:31 PM Rafael J. Wysocki wrote:
+> > This turns out the cause build problems to happen on some architectures.
+> > 
+> > I guess it's sufficient to simply define a stub struct acpi_device as
+> > 
+> > struct acpi_device {
+> > 	struct device dev;
+> > };
+> > 
+> > for !CONFIG_ACPI instead.
+> 
+> Generally, it is a bad idea to #include acpi_bus.h for !CONFIG_ACPI.
+> 
+Ouch, indeed.
 
-Signed-off-by: James Ralston <james.d.ralston@intel.com>
----
- Documentation/i2c/busses/i2c-i801 | 1 +
- drivers/i2c/busses/Kconfig        | 1 +
- drivers/i2c/busses/i2c-i801.c     | 3 +++
- 3 files changed, 5 insertions(+)
+> The appended patch works for me, sorry for stealing part of your changelog.
+> 
+No problem. Thanks for fixing this up.
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index d29dea0..7b0dcdb 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -25,6 +25,7 @@ Supported adapters:
-   * Intel Avoton (SOC)
-   * Intel Wellsburg (PCH)
-   * Intel Coleto Creek (PCH)
-+  * Intel Wildcat Point-LP (PCH)
-    Datasheets: Publicly available at the Intel website
- 
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index cdcbd83..a83ef0f 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -109,6 +109,7 @@ config I2C_I801
- 	    Avoton (SOC)
- 	    Wellsburg (PCH)
- 	    Coleto Creek (PCH)
-+	    Wildcat Point-LP (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 4296d17..737e298 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -59,6 +59,7 @@
-   Wellsburg (PCH) MS    0x8d7e     32     hard     yes     yes     yes
-   Wellsburg (PCH) MS    0x8d7f     32     hard     yes     yes     yes
-   Coleto Creek (PCH)    0x23b0     32     hard     yes     yes     yes
-+  Wildcat Point-LP (PCH)   0x9ca2     32     hard     yes     yes     yes
- 
-   Features supported by this driver:
-   Software PEC                     no
-@@ -177,6 +178,7 @@
- #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1	0x8d7e
- #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2	0x8d7f
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS	0x9c22
-+#define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
- 
- struct i801_mux_config {
- 	char *gpio_chip;
-@@ -819,6 +821,7 @@ static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
- 	{ 0, }
- };
- 
 -- 
-1.8.3.1
-
+Jarkko
