@@ -1,96 +1,223 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PATCHv2 1/3] ACPI: Expose struct acpi_device and acpi_bus_get_device() to non-ACPI builds
-Date: Mon, 04 Nov 2013 02:00:45 +0100
-Message-ID: <5990097.jCz86Yqdpc@vostro.rjw.lan>
-References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com> <1383309356-25430-2-git-send-email-jarkko.nikula@linux.intel.com> <3858838.4tAO673dDi@vostro.rjw.lan>
+From: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH v5 1/4] i2c: busses: i2c-st: Add ST I2C controller
+Date: Mon, 4 Nov 2013 15:28:23 +0100
+Message-ID: <5277AF07.7060100@st.com>
+References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com> <1381754813-4679-2-git-send-email-maxime.coquelin@st.com> <20131101111645.GA4260@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <3858838.4tAO673dDi-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20131101111645.GA4260@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: srinivas.kandagatla-qxv4g6HH51o@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stephen.gallimore-qxv4g6HH51o@public.gmane.org, stuart.menefy-qxv4g6HH51o@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, gabriel.fernandez-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday, November 02, 2013 11:18:31 PM Rafael J. Wysocki wrote:
-> On Friday, November 01, 2013 02:35:54 PM Jarkko Nikula wrote:
-> > We may find use for struct acpi_device and acpi_bus_get_device() in generic
-> > code without wanting to add #if IS_ENABLED(CONFIG_ACPI) churn there.
-> > 
-> > Code can use ACPI_HANDLE() test to let compiler optimize out code blocks
-> > that are not used in !CONFIG_ACPI builds but structure definitions and
-> > function stubs must be available.
-> > 
-> > This patch moves CONFIG_ACPI test so that struct acpi_device definition
-> > is available for all builds that include acpi_bus.h and provides a stub for
-> > acpi_bus_get_device().
-> > 
-> > Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> 
-> This turns out the cause build problems to happen on some architectures.
-> 
-> I guess it's sufficient to simply define a stub struct acpi_device as
-> 
-> struct acpi_device {
-> 	struct device dev;
-> };
-> 
-> for !CONFIG_ACPI instead.
+Hi Wolfram,
 
-Generally, it is a bad idea to #include acpi_bus.h for !CONFIG_ACPI.
+On 11/01/2013 12:16 PM, Wolfram Sang wrote:
+> Hi,
+>
+...
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-st.txt b/Documentation/devicetree/bindings/i2c/i2c-st.txt
+>> new file mode 100644
+>> index 0000000..8b2fd0b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-st.txt
+>> @@ -0,0 +1,38 @@
+>> +ST SSC binding, for I2C mode operation
+>> +
+>> +Required properties :
+>> +- compatible : Must be "st,comms-i2c"
+>
+> I personally don't care about naming here. Has there been a solution
+> now?
 
-The appended patch works for me, sorry for stealing part of your changelog.
+Srini proposes to add 2 compatible strings, as the IP is compatible with 
+two SSC IPs:
+"st,comms-ssc-i2c"
+"st,comms-ssc4-i2c"
+
+>> +
+>> +Optional properties :
+>> +- clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
+>> +  the default 100 kHz frequency will be used. As only Normal and Fast modes
+>> +  are supported, possible values are 100000 and 400000.
+>> +- i2c-min-scl-pulse-width-us : The minimum valid SCL pulse width that is
+>> +  allowed through the deglitch circuit. In units of us.
+>> +- i2c-min-sda-pulse-width-us : The minimum valid SDA pulse width that is
+>> +  allowed through the deglitch circuit. In units of us.
+>
+> Okay, so we had lots of dt bindings discussions at kernel summit. Since
+> we don't have unstable bindings yet, I have been convinced that it is
+> okay two have one or two vendor specific bindings before introducing a
+> generic one. That will create a little bit of cruft, but increases
+> chances that the generic bindings are proper. So, really sorry for going
+> back and forth, but it was important for the process. Vendor binding is
+> it now. Period.
+>
+> ...
+No problem wolfram! Thanks for clarifying this thing.
+
+>
+>> +/**
+>> + * struct st_i2c_deglitch - Anti-glitch filter configuration
+>> + * @scl_min_width_us: SCL line minimum pulse width in ns
+>> + * @sda_min_width_us: SDA line minimum pulse width in ns
+>> + */
+>> +struct st_i2c_deglitch {
+>> +	u32	scl_min_width_us;
+>> +	u32	sda_min_width_us;
+>> +};
+>
+> Minor: Why a seperate struct?
+This not needed, I will move its fields into st_i2c_dev struct.
+
+>
+>> +/**
+>> + * st_i2c_handle_write() - Handle FIFO enmpty interrupt in case of read
+>> + * @i2c_dev: Controller's private data
+>> + */
+>> +static void st_i2c_handle_read(struct st_i2c_dev *i2c_dev)
+>> +{
+>> +	struct st_i2c_client *c = &i2c_dev->client;
+>> +	u32 ien;
+>> +
+>> +	/* Trash the address read back */
+>> +	if (!c->xfered) {
+>> +		readl(i2c_dev->base + SSC_RBUF);
+>> +		st_i2c_clr_bits(i2c_dev->base + SSC_I2C, SSC_I2C_TXENB);
+>> +	} else
+>> +		st_i2c_read_rx_fifo(i2c_dev);
+>
+> Braces around else branch.
+Okay
+>
+>> +
+>> +	if (!c->count) {
+>> +		/* End of xfer, send stop or repstart */
+>> +		st_i2c_terminate_xfer(i2c_dev);
+>> +	} else if (c->count == 1) {
+>> +		/* Penultimate byte to xfer, disable ACK gen. */
+>> +		st_i2c_clr_bits(i2c_dev->base + SSC_I2C, SSC_I2C_ACKG);
+>> +
+>> +		/* Last received byte is to be handled by NACK interrupt */
+>> +		ien = SSC_IEN_NACKEN | SSC_IEN_ARBLEN;
+>> +		writel(ien, i2c_dev->base + SSC_IEN);
+>> +
+>> +		st_i2c_rd_fill_tx_fifo(i2c_dev, c->count);
+>> +	} else
+>> +		st_i2c_rd_fill_tx_fifo(i2c_dev, c->count - 1);
+>
+> Braces around else branch.
+Ditto
+>
+>> +}
+>> +static int st_i2c_probe(struct platform_device *pdev)
+>> +{
+>> +	struct device_node *np = pdev->dev.of_node;
+>> +	struct st_i2c_dev *i2c_dev;
+>> +	struct resource *res;
+>> +	u32 clk_rate;
+>> +	struct i2c_adapter *adap;
+>> +	int ret;
+>> +
+>> +	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+>> +	if (!i2c_dev)
+>> +		return -ENOMEM;
+>> +
+>> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +	i2c_dev->base = devm_ioremap_resource(&pdev->dev, res);
+>> +	if (IS_ERR(i2c_dev->base))
+>> +		return PTR_ERR(i2c_dev->base);
+>> +
+>> +	i2c_dev->irq = irq_of_parse_and_map(np, 0);
+>> +	if (!i2c_dev->irq) {
+>> +		dev_err(&pdev->dev, "IRQ missing or invalid\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	i2c_dev->clk = of_clk_get_by_name(np, "ssc");
+>> +	if (IS_ERR(i2c_dev->clk)) {
+>> +		dev_err(&pdev->dev, "Unable to request clock\n");
+>> +		return PTR_ERR(i2c_dev->clk);
+>> +	}
+>> +
+>> +	i2c_dev->mode = I2C_MODE_STANDARD;
+>> +	ret = of_property_read_u32(np, "clock-frequency", &clk_rate);
+>> +	if ((!ret) && (clk_rate == 400000))
+>> +		i2c_dev->mode = I2C_MODE_FAST;
+>> +
+>> +	i2c_dev->dev = &pdev->dev;
+>> +
+>> +	ret = devm_request_irq(&pdev->dev, i2c_dev->irq, st_i2c_isr, 0,
+>> +			pdev->name, i2c_dev);
+>
+> Suggestion: Maybe threaded irq since you do fifo handling in the isr?
+That's a good point, I will switch to threaded irq.
+
+>
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
+>> +		return ret;
+>> +	}
+>> +
+>> +	pinctrl_pm_select_default_state(i2c_dev->dev);
+>> +	/* In case idle state available, select it */
+>> +	pinctrl_pm_select_idle_state(i2c_dev->dev);
+>> +
+>> +	ret = st_i2c_of_get_deglitch(np, i2c_dev);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	adap = &i2c_dev->adap;
+>> +	i2c_set_adapdata(adap, i2c_dev);
+>> +	snprintf(adap->name, sizeof(adap->name), "ST I2C(0x%08x)", res->start);
+>
+> resource_size_t can also be 64 bit.
+Okay, I will change to 0x%x
+>
+>> +	adap->owner = THIS_MODULE;
+>> +	adap->timeout = 2 * HZ;
+>> +	adap->retries = 0;
+>> +	adap->class = I2C_CLASS_HWMON | I2C_CLASS_DDC | I2C_CLASS_SPD;
+>
+> This question is still open:
+> Why do you need class based instantiation. It will most likely cost
+> boot-time and you have devicetree means for doing instantiation.
+Sorry, I missed to take your remark into account last time...
+This is indeed useless and adds a cost at boot time, it will be removed 
+in next series.
+
+>
+>> +	adap->algo = &st_i2c_algo;
+>> +	adap->dev.parent = &pdev->dev;
+>> +	adap->dev.of_node = pdev->dev.of_node;
+>> +
+>> +	init_completion(&i2c_dev->complete);
+>> +
+>> +	ret = i2c_add_adapter(adap);
+>> +	if (ret) {
+>> +		dev_err(&pdev->dev, "Failed to add adapter\n");
+>> +		return ret;
+>> +	}
+>> +
+>> +	platform_set_drvdata(pdev, i2c_dev);
+>> +
+>> +	dev_info(i2c_dev->dev, "%s initialized\n", adap->name);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>
+> Rest looks good! We are mostly ready to go.
+Perfect! :)
+I will try to send a new series this week.
 
 Thanks,
-Rafael
-
-
----
-From: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: ACPI: Define struct acpi_device for CONFIG_ACPI unset
-
-We may find use for struct acpi_device and acpi_bus_get_device() in
-generic code without wanting to add #if IS_ENABLED(CONFIG_ACPI) churn
-there.
-
-Code can use ACPI_HANDLE() test to let compiler optimize out code
-blocks that are not used in !CONFIG_ACPI builds but structure
-definitions and function stubs must be available.
-
-Define a stub struct acpi_device for CONFIG_ACPI unset containing dev
-as the only member and a stub acpi_bus_get_device() always returning
-an error code.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- include/linux/acpi.h |   10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-Index: linux-pm/include/linux/acpi.h
-===================================================================
---- linux-pm.orig/include/linux/acpi.h
-+++ linux-pm/include/linux/acpi.h
-@@ -472,7 +472,17 @@ static inline bool acpi_driver_match_dev
- }
- 
- #define ACPI_PTR(_ptr)	(NULL)
-+typedef void * acpi_handle;
- 
-+struct acpi_device {
-+	struct device dev;
-+};
-+
-+static inline int acpi_bus_get_device(acpi_handle handle,
-+				      struct acpi_device **device)
-+{
-+	return -ENODEV;
-+}
- #endif	/* !CONFIG_ACPI */
- 
- #ifdef CONFIG_ACPI
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Maxime
+>
+> Thanks,
+>
+>     Wolfram
+>
