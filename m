@@ -1,41 +1,37 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCHv2 1/3] ACPI: Expose struct acpi_device and
- acpi_bus_get_device() to non-ACPI builds
-Date: Mon, 4 Nov 2013 23:15:59 +0200
-Message-ID: <20131104211559.GA12144@mylly>
-References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1383309356-25430-2-git-send-email-jarkko.nikula@linux.intel.com>
- <3858838.4tAO673dDi@vostro.rjw.lan>
- <5990097.jCz86Yqdpc@vostro.rjw.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5990097.jCz86Yqdpc@vostro.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org
+From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/1] i2c: exynos5: Use reinit_completion instead of INIT_COMPLETION
+Date: Tue,  5 Nov 2013 14:57:10 +0530
+Message-ID: <1383643630-5036-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 04, 2013 at 02:00:45AM +0100, Rafael J. Wysocki wrote:
-> On Saturday, November 02, 2013 11:18:31 PM Rafael J. Wysocki wrote:
-> > This turns out the cause build problems to happen on some architectures.
-> > 
-> > I guess it's sufficient to simply define a stub struct acpi_device as
-> > 
-> > struct acpi_device {
-> > 	struct device dev;
-> > };
-> > 
-> > for !CONFIG_ACPI instead.
-> 
-> Generally, it is a bad idea to #include acpi_bus.h for !CONFIG_ACPI.
-> 
-Ouch, indeed.
+INIT_COMPLETION was replaced by reinit_completion vide commit 2c9627cca471
+("tree-wide: use reinit_completion instead of INIT_COMPLETION"). Use it to
+avoid the following build error:
+drivers/i2c/busses/i2c-exynos5.c:538:9: error:
+undefined identifier 'INIT_COMPLETION'
 
-> The appended patch works for me, sorry for stealing part of your changelog.
-> 
-No problem. Thanks for fixing this up.
+Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-exynos5.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index aca3991b7636..d4193000643d 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -535,7 +535,7 @@ static int exynos5_i2c_xfer_msg(struct exynos5_i2c *i2c,
+ 	i2c->msg_ptr = 0;
+ 	i2c->trans_done = 0;
+ 
+-	INIT_COMPLETION(i2c->msg_complete);
++	reinit_completion(&i2c->msg_complete);
+ 
+ 	exynos5_i2c_message_start(i2c, stop);
+ 
 -- 
-Jarkko
+1.7.9.5
