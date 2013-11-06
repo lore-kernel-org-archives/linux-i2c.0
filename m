@@ -1,146 +1,79 @@
-From: Maxime COQUELIN <maxime.coquelin@st.com>
-Subject: [PATCH v6 3/4] ARM: STi: Supply I2C configuration to STiH415 SoC
-Date: Wed,  6 Nov 2013 09:25:14 +0100
-Message-ID: <1383726315-27534-4-git-send-email-maxime.coquelin@st.com>
-References: <1383726315-27534-1-git-send-email-maxime.coquelin@st.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1383726315-27534-1-git-send-email-maxime.coquelin@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Cc: stephen.gallimore@st.com, stuart.menefy@st.com, Lee Jones <lee.jones@linaro.org>, gabriel.fernandez@st.com
+From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/1] i2c: exynos5: Remove incorrect clk_disable_unprepare
+Date: Wed,  6 Nov 2013 15:09:18 +0530
+Message-ID: <1383730758-1771-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch supplies I2C configuration to STiH415 SoC.
+clk_disable_unprepare in remove causes an imbalance and hence gives
+the below crash on module remove. While at it also remove some
+duplicate code from probe.
 
-Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
+/ $ rmmod i2c-exynos5
+[    6.996374] ------------[ cut here ]------------
+[    6.999523] WARNING: CPU: 2 PID: 1137 at drivers/clk/clk.c:842 clk_disable+0x18/0x24()
+[    7.007403] Modules linked in: i2c_exynos5(-)
+[    7.011747] CPU: 2 PID: 1137 Comm: rmmod Not tainted 3.12.0-next-20131105-00083-g16f4799-dirty #21
+[    7.020696] [<c0014e0c>] (unwind_backtrace+0x0/0xf4) from [<c0011784>] (show_stack+0x10/0x14)
+[    7.029190] [<c0011784>] (show_stack+0x10/0x14) from [<c037acd4>] (dump_stack+0x7c/0xb0)
+[    7.037255] [<c037acd4>] (dump_stack+0x7c/0xb0) from [<c001e0ac>] (warn_slowpath_common+0x6c/0x88)
+[    7.046190] [<c001e0ac>] (warn_slowpath_common+0x6c/0x88) from [<c001e164>] (warn_slowpath_null+0x1c/0x24)
+[    7.055818] [<c001e164>] (warn_slowpath_null+0x1c/0x24) from [<c02dcde4>] (clk_disable+0x18/0x24)
+[    7.064670] [<c02dcde4>] (clk_disable+0x18/0x24) from [<bf0002d4>] (exynos5_i2c_remove+0x1c/0x34 [i2c_exynos5])
+[    7.074736] [<bf0002d4>] (exynos5_i2c_remove+0x1c/0x34 [i2c_exynos5]) from [<c02274a8>] (__device_release_driver+0x58/0xb0)
+[    7.085836] [<c02274a8>] (__device_release_driver+0x58/0xb0) from [<c0227b88>] (driver_detach+0xac/0xb0)
+[    7.095291] [<c0227b88>] (driver_detach+0xac/0xb0) from [<c02271c0>] (bus_remove_driver+0x4c/0xa0)
+[    7.104227] [<c02271c0>] (bus_remove_driver+0x4c/0xa0) from [<c00725dc>] (SyS_delete_module+0x124/0x194)
+[    7.113682] [<c00725dc>] (SyS_delete_module+0x124/0x194) from [<c000e2e0>] (ret_fast_syscall+0x0/0x30)
+[    7.122957] ---[ end trace 23bb6e4e0bf52196 ]---
+[    7.127591] ------------[ cut here ]------------
+[    7.132187] WARNING: CPU: 2 PID: 1137 at drivers/clk/clk.c:751 clk_unprepare+0x14/0x1c()
+[    7.140259] Modules linked in: i2c_exynos5(-)
+[    7.144560] CPU: 2 PID: 1137 Comm: rmmod Tainted: G        W    3.12.0-next-20131105-00083-g16f4799-dirty #21
+[    7.154493] [<c0014e0c>] (unwind_backtrace+0x0/0xf4) from [<c0011784>] (show_stack+0x10/0x14)
+[    7.163006] [<c0011784>] (show_stack+0x10/0x14) from [<c037acd4>] (dump_stack+0x7c/0xb0)
+[    7.171052] [<c037acd4>] (dump_stack+0x7c/0xb0) from [<c001e0ac>] (warn_slowpath_common+0x6c/0x88)
+[    7.179984] [<c001e0ac>] (warn_slowpath_common+0x6c/0x88) from [<c001e164>] (warn_slowpath_null+0x1c/0x24)
+[    7.189616] [<c001e164>] (warn_slowpath_null+0x1c/0x24) from [<c02ddcc4>] (clk_unprepare+0x14/0x1c)
+[    7.198639] [<c02ddcc4>] (clk_unprepare+0x14/0x1c) from [<bf0002dc>] (exynos5_i2c_remove+0x24/0x34 [i2c_exynos5])
+[    7.208876] [<bf0002dc>] (exynos5_i2c_remove+0x24/0x34 [i2c_exynos5]) from [<c02274a8>] (__device_release_driver+0x58/0xb0)
+[    7.219978] [<c02274a8>] (__device_release_driver+0x58/0xb0) from [<c0227b88>] (driver_detach+0xac/0xb0)
+[    7.229434] [<c0227b88>] (driver_detach+0xac/0xb0) from [<c02271c0>] (bus_remove_driver+0x4c/0xa0)
+[    7.238369] [<c02271c0>] (bus_remove_driver+0x4c/0xa0) from [<c00725dc>] (SyS_delete_module+0x124/0x194)
+[    7.247824] [<c00725dc>] (SyS_delete_module+0x124/0x194) from [<c000e2e0>] (ret_fast_syscall+0x0/0x30)
+[    7.257104] ---[ end trace 23bb6e4e0bf52197 ]---
+
+Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- arch/arm/boot/dts/stih415-pinctrl.dtsi |   36 ++++++++++++++++++++++
- arch/arm/boot/dts/stih415.dtsi         |   53 ++++++++++++++++++++++++++++++++
- 2 files changed, 89 insertions(+)
+ drivers/i2c/busses/i2c-exynos5.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stih415-pinctrl.dtsi b/arch/arm/boot/dts/stih415-pinctrl.dtsi
-index 1d322b2..e56449d 100644
---- a/arch/arm/boot/dts/stih415-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/stih415-pinctrl.dtsi
-@@ -86,6 +86,24 @@
- 					};
- 				};
- 			};
-+
-+			sbc_i2c0 {
-+				pinctrl_sbc_i2c0_default: sbc_i2c0-default {
-+					st,pins {
-+						sda = <&PIO4 6 ALT1 BIDIR>;
-+						scl = <&PIO4 5 ALT1 BIDIR>;
-+					};
-+				};
-+			};
-+
-+			sbc_i2c1 {
-+				pinctrl_sbc_i2c1_default: sbc_i2c1-default {
-+					st,pins {
-+						sda = <&PIO3 2 ALT2 BIDIR>;
-+						scl = <&PIO3 1 ALT2 BIDIR>;
-+					};
-+				};
-+			};
- 		};
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index d419300..c1ef228 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -702,10 +702,6 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
  
- 		pin-controller-front {
-@@ -143,6 +161,24 @@
- 				reg		= <0x7000 0x100>;
- 				st,bank-name	= "PIO12";
- 			};
-+
-+			i2c0 {
-+				pinctrl_i2c0_default: i2c0-default {
-+					st,pins {
-+						sda = <&PIO9 3 ALT1 BIDIR>;
-+						scl = <&PIO9 2 ALT1 BIDIR>;
-+					};
-+				};
-+			};
-+
-+			i2c1 {
-+				pinctrl_i2c1_default: i2c1-default {
-+					st,pins {
-+						sda = <&PIO12 1 ALT1 BIDIR>;
-+						scl = <&PIO12 0 ALT1 BIDIR>;
-+					};
-+				};
-+			};
- 		};
+ 	platform_set_drvdata(pdev, i2c);
  
- 		pin-controller-rear {
-diff --git a/arch/arm/boot/dts/stih415.dtsi b/arch/arm/boot/dts/stih415.dtsi
-index 74ab8de..d9c7dd1 100644
---- a/arch/arm/boot/dts/stih415.dtsi
-+++ b/arch/arm/boot/dts/stih415.dtsi
-@@ -9,6 +9,7 @@
- #include "stih41x.dtsi"
- #include "stih415-clock.dtsi"
- #include "stih415-pinctrl.dtsi"
-+#include <dt-bindings/interrupt-controller/arm-gic.h>
- / {
+-	clk_disable_unprepare(i2c->clk);
+-
+-	return 0;
+-
+  err_clk:
+ 	clk_disable_unprepare(i2c->clk);
+ 	return ret;
+@@ -716,7 +712,6 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
+ 	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
  
- 	L2: cache-controller {
-@@ -83,5 +84,57 @@
- 			pinctrl-names 	= "default";
- 			pinctrl-0	= <&pinctrl_sbc_serial1>;
- 		};
-+
-+		i2c@fed40000 {
-+			compatible	= "st,comms-ssc4-i2c";
-+			reg		= <0xfed40000 0x110>;
-+			interrupts	= <GIC_SPI 187 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks		= <&CLKS_ICN_REG_0>;
-+			clock-names	= "ssc";
-+			clock-frequency = <400000>;
-+			pinctrl-names	= "default";
-+			pinctrl-0	= <&pinctrl_i2c0_default>;
-+
-+			status		= "disabled";
-+		};
-+
-+		i2c@fed41000 {
-+			compatible	= "st,comms-ssc4-i2c";
-+			reg		= <0xfed41000 0x110>;
-+			interrupts	= <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks		= <&CLKS_ICN_REG_0>;
-+			clock-names	= "ssc";
-+			clock-frequency = <400000>;
-+			pinctrl-names	= "default";
-+			pinctrl-0	= <&pinctrl_i2c1_default>;
-+
-+			status		= "disabled";
-+		};
-+
-+		i2c@fe540000 {
-+			compatible	= "st,comms-ssc4-i2c";
-+			reg		= <0xfe540000 0x110>;
-+			interrupts	= <GIC_SPI 206 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks		= <&CLK_SYSIN>;
-+			clock-names	= "ssc";
-+			clock-frequency = <400000>;
-+			pinctrl-names	= "default";
-+			pinctrl-0	= <&pinctrl_sbc_i2c0_default>;
-+
-+			status		= "disabled";
-+		};
-+
-+		i2c@fe541000 {
-+			compatible	= "st,comms-ssc4-i2c";
-+			reg		= <0xfe541000 0x110>;
-+			interrupts	= <GIC_SPI 207 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks		= <&CLK_SYSIN>;
-+			clock-names	= "ssc";
-+			clock-frequency = <400000>;
-+			pinctrl-names	= "default";
-+			pinctrl-0	= <&pinctrl_sbc_i2c1_default>;
-+
-+			status		= "disabled";
-+		};
- 	};
- };
+ 	i2c_del_adapter(&i2c->adap);
+-	clk_disable_unprepare(i2c->clk);
+ 
+ 	return 0;
+ }
 -- 
 1.7.9.5
