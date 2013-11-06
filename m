@@ -1,79 +1,197 @@
-From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/1] i2c: exynos5: Remove incorrect clk_disable_unprepare
-Date: Wed,  6 Nov 2013 15:09:18 +0530
-Message-ID: <1383730758-1771-1-git-send-email-sachin.kamat@linaro.org>
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: Re: [PATCH] of: i2c: Export single device registration method
+Date: Wed, 06 Nov 2013 16:32:12 +0100
+Message-ID: <527A60FC.6080301@nsn.com>
+References: <1383674240-29491-1-git-send-email-panto@antoniou-consulting.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1383674240-29491-1-git-send-email-panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: ext Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-clk_disable_unprepare in remove causes an imbalance and hence gives
-the below crash on module remove. While at it also remove some
-duplicate code from probe.
+Hi!
 
-/ $ rmmod i2c-exynos5
-[    6.996374] ------------[ cut here ]------------
-[    6.999523] WARNING: CPU: 2 PID: 1137 at drivers/clk/clk.c:842 clk_disable+0x18/0x24()
-[    7.007403] Modules linked in: i2c_exynos5(-)
-[    7.011747] CPU: 2 PID: 1137 Comm: rmmod Not tainted 3.12.0-next-20131105-00083-g16f4799-dirty #21
-[    7.020696] [<c0014e0c>] (unwind_backtrace+0x0/0xf4) from [<c0011784>] (show_stack+0x10/0x14)
-[    7.029190] [<c0011784>] (show_stack+0x10/0x14) from [<c037acd4>] (dump_stack+0x7c/0xb0)
-[    7.037255] [<c037acd4>] (dump_stack+0x7c/0xb0) from [<c001e0ac>] (warn_slowpath_common+0x6c/0x88)
-[    7.046190] [<c001e0ac>] (warn_slowpath_common+0x6c/0x88) from [<c001e164>] (warn_slowpath_null+0x1c/0x24)
-[    7.055818] [<c001e164>] (warn_slowpath_null+0x1c/0x24) from [<c02dcde4>] (clk_disable+0x18/0x24)
-[    7.064670] [<c02dcde4>] (clk_disable+0x18/0x24) from [<bf0002d4>] (exynos5_i2c_remove+0x1c/0x34 [i2c_exynos5])
-[    7.074736] [<bf0002d4>] (exynos5_i2c_remove+0x1c/0x34 [i2c_exynos5]) from [<c02274a8>] (__device_release_driver+0x58/0xb0)
-[    7.085836] [<c02274a8>] (__device_release_driver+0x58/0xb0) from [<c0227b88>] (driver_detach+0xac/0xb0)
-[    7.095291] [<c0227b88>] (driver_detach+0xac/0xb0) from [<c02271c0>] (bus_remove_driver+0x4c/0xa0)
-[    7.104227] [<c02271c0>] (bus_remove_driver+0x4c/0xa0) from [<c00725dc>] (SyS_delete_module+0x124/0x194)
-[    7.113682] [<c00725dc>] (SyS_delete_module+0x124/0x194) from [<c000e2e0>] (ret_fast_syscall+0x0/0x30)
-[    7.122957] ---[ end trace 23bb6e4e0bf52196 ]---
-[    7.127591] ------------[ cut here ]------------
-[    7.132187] WARNING: CPU: 2 PID: 1137 at drivers/clk/clk.c:751 clk_unprepare+0x14/0x1c()
-[    7.140259] Modules linked in: i2c_exynos5(-)
-[    7.144560] CPU: 2 PID: 1137 Comm: rmmod Tainted: G        W    3.12.0-next-20131105-00083-g16f4799-dirty #21
-[    7.154493] [<c0014e0c>] (unwind_backtrace+0x0/0xf4) from [<c0011784>] (show_stack+0x10/0x14)
-[    7.163006] [<c0011784>] (show_stack+0x10/0x14) from [<c037acd4>] (dump_stack+0x7c/0xb0)
-[    7.171052] [<c037acd4>] (dump_stack+0x7c/0xb0) from [<c001e0ac>] (warn_slowpath_common+0x6c/0x88)
-[    7.179984] [<c001e0ac>] (warn_slowpath_common+0x6c/0x88) from [<c001e164>] (warn_slowpath_null+0x1c/0x24)
-[    7.189616] [<c001e164>] (warn_slowpath_null+0x1c/0x24) from [<c02ddcc4>] (clk_unprepare+0x14/0x1c)
-[    7.198639] [<c02ddcc4>] (clk_unprepare+0x14/0x1c) from [<bf0002dc>] (exynos5_i2c_remove+0x24/0x34 [i2c_exynos5])
-[    7.208876] [<bf0002dc>] (exynos5_i2c_remove+0x24/0x34 [i2c_exynos5]) from [<c02274a8>] (__device_release_driver+0x58/0xb0)
-[    7.219978] [<c02274a8>] (__device_release_driver+0x58/0xb0) from [<c0227b88>] (driver_detach+0xac/0xb0)
-[    7.229434] [<c0227b88>] (driver_detach+0xac/0xb0) from [<c02271c0>] (bus_remove_driver+0x4c/0xa0)
-[    7.238369] [<c02271c0>] (bus_remove_driver+0x4c/0xa0) from [<c00725dc>] (SyS_delete_module+0x124/0x194)
-[    7.247824] [<c00725dc>] (SyS_delete_module+0x124/0x194) from [<c000e2e0>] (ret_fast_syscall+0x0/0x30)
-[    7.257104] ---[ end trace 23bb6e4e0bf52197 ]---
+On 05/11/13 18:57, ext Pantelis Antoniou wrote:
+> Dynamically inserting i2c client device nodes requires the use
+> of a single device registration method. Rework and export it.
+> 
+> Don't be put off by the weird patch format, it's a simple move
+> of the operations applied on each device to a function.
+> 
+> Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 
-Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-exynos5.c |    5 -----
- 1 file changed, 5 deletions(-)
+We use the "same" patch since kernel 3.10.0, so:
+Acked-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Tested-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index d419300..c1ef228 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -702,10 +702,6 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, i2c);
- 
--	clk_disable_unprepare(i2c->clk);
--
--	return 0;
--
-  err_clk:
- 	clk_disable_unprepare(i2c->clk);
- 	return ret;
-@@ -716,7 +712,6 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
- 	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
- 
- 	i2c_del_adapter(&i2c->adap);
--	clk_disable_unprepare(i2c->clk);
- 
- 	return 0;
- }
+> ---
+>  drivers/i2c/i2c-core.c | 99 +++++++++++++++++++++++++++-----------------------
+>  include/linux/i2c.h    | 10 +++++
+>  2 files changed, 64 insertions(+), 45 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 3be58f8..9be6803 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -49,6 +49,7 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/acpi.h>
+>  #include <asm/uaccess.h>
+> +#include <linux/err.h>
+>  
+>  #include "i2c-core.h"
+>  
+> @@ -963,63 +964,71 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
+>  /* OF support code */
+>  
+>  #if IS_ENABLED(CONFIG_OF)
+> -static void of_i2c_register_devices(struct i2c_adapter *adap)
+> +struct i2c_client *
+> +of_i2c_register_device(struct i2c_adapter *adap,
+> +		struct device_node *node)
+>  {
+> -	void *result;
+> -	struct device_node *node;
+> +	struct i2c_client *result;
+> +	struct i2c_board_info info = {};
+> +	struct dev_archdata dev_ad = {};
+> +	const __be32 *addr;
+> +	int len;
+>  
+> -	/* Only register child devices if the adapter has a node pointer set */
+> -	if (!adap->dev.of_node)
+> -		return;
+> +	dev_dbg(&adap->dev, "of_i2c: register %s\n", node->full_name);
+>  
+> -	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
+> +	if (of_modalias_node(node, info.type, sizeof(info.type)) < 0) {
+> +		dev_err(&adap->dev, "of_i2c: modalias failure on %s\n",
+> +			node->full_name);
+> +		return ERR_PTR(-EINVAL);
+> +	}
+>  
+> -	for_each_available_child_of_node(adap->dev.of_node, node) {
+> -		struct i2c_board_info info = {};
+> -		struct dev_archdata dev_ad = {};
+> -		const __be32 *addr;
+> -		int len;
+> +	addr = of_get_property(node, "reg", &len);
+> +	if (!addr || (len < sizeof(int))) {
+> +		dev_err(&adap->dev, "of_i2c: invalid reg on %s\n",
+> +			node->full_name);
+> +		return ERR_PTR(-EINVAL);
+> +	}
+>  
+> -		dev_dbg(&adap->dev, "of_i2c: register %s\n", node->full_name);
+> +	info.addr = be32_to_cpup(addr);
+> +	if (info.addr > (1 << 10) - 1) {
+> +		dev_err(&adap->dev, "of_i2c: invalid addr=%x on %s\n",
+> +			info.addr, node->full_name);
+> +		return ERR_PTR(-EINVAL);
+> +	}
+>  
+> -		if (of_modalias_node(node, info.type, sizeof(info.type)) < 0) {
+> -			dev_err(&adap->dev, "of_i2c: modalias failure on %s\n",
+> -				node->full_name);
+> -			continue;
+> -		}
+> +	info.irq = irq_of_parse_and_map(node, 0);
+> +	info.of_node = of_node_get(node);
+> +	info.archdata = &dev_ad;
+>  
+> -		addr = of_get_property(node, "reg", &len);
+> -		if (!addr || (len < sizeof(int))) {
+> -			dev_err(&adap->dev, "of_i2c: invalid reg on %s\n",
+> -				node->full_name);
+> -			continue;
+> -		}
+> +	if (of_get_property(node, "wakeup-source", NULL))
+> +		info.flags |= I2C_CLIENT_WAKE;
+>  
+> -		info.addr = be32_to_cpup(addr);
+> -		if (info.addr > (1 << 10) - 1) {
+> -			dev_err(&adap->dev, "of_i2c: invalid addr=%x on %s\n",
+> -				info.addr, node->full_name);
+> -			continue;
+> -		}
+> +	request_module("%s%s", I2C_MODULE_PREFIX, info.type);
+>  
+> -		info.irq = irq_of_parse_and_map(node, 0);
+> -		info.of_node = of_node_get(node);
+> -		info.archdata = &dev_ad;
+> +	result = i2c_new_device(adap, &info);
+> +	if (result == NULL) {
+> +		dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
+> +			node->full_name);
+> +		of_node_put(node);
+> +		irq_dispose_mapping(info.irq);
+> +		return ERR_PTR(-EINVAL);
+> +	}
+> +	return result;
+> +}
+> +EXPORT_SYMBOL(of_i2c_register_device);
+>  
+> -		if (of_get_property(node, "wakeup-source", NULL))
+> -			info.flags |= I2C_CLIENT_WAKE;
+> +static void of_i2c_register_devices(struct i2c_adapter *adap)
+> +{
+> +	struct device_node *node;
+>  
+> -		request_module("%s%s", I2C_MODULE_PREFIX, info.type);
+> +	/* Only register child devices if the adapter has a node pointer set */
+> +	if (!adap->dev.of_node)
+> +		return;
+>  
+> -		result = i2c_new_device(adap, &info);
+> -		if (result == NULL) {
+> -			dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
+> -				node->full_name);
+> -			of_node_put(node);
+> -			irq_dispose_mapping(info.irq);
+> -			continue;
+> -		}
+> -	}
+> +	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
+> +
+> +	for_each_available_child_of_node(adap->dev.of_node, node)
+> +		of_i2c_register_device(adap, node);
+>  }
+>  
+>  static int of_dev_node_match(struct device *dev, void *data)
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 2ab11dc..10bcf86 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -545,6 +545,9 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
+>  #endif /* I2C */
+>  
+>  #if IS_ENABLED(CONFIG_OF)
+> +struct i2c_client *
+> +of_i2c_register_device(struct i2c_adapter *adap, struct device_node *node);
+> +
+>  /* must call put_device() when done with returned i2c_client device */
+>  extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
+>  
+> @@ -553,6 +556,13 @@ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+>  
+>  #else
+>  
+> +static inline struct i2c_client *
+> +of_i2c_register_device(struct i2c_adapter *adap,
+> +		struct device_node *node)
+> +{
+> +	return ERR_PTR(-ENODEV);
+> +}
+> +
+>  static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+>  {
+>  	return NULL;
+> 
+
 -- 
-1.7.9.5
+Best regards,
+Alexander Sverdlin.
