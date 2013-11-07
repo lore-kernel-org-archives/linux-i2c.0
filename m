@@ -1,54 +1,51 @@
-From: Dan Carpenter <dan.carpenter-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Subject: re: i2c: pxa: add OF support
-Date: Wed, 6 Nov 2013 19:12:17 +0300
-Message-ID: <20131106161217.GB15603@elgon.mountain>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCHv2 1/3] ACPI: Expose struct acpi_device and acpi_bus_get_device() to non-ACPI builds
+Date: Thu, 07 Nov 2013 14:34:35 +0100
+Message-ID: <2770367.Lf1YV0Qxh5@vostro.rjw.lan>
+References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com> <5990097.jCz86Yqdpc@vostro.rjw.lan> <20131104211559.GA12144@mylly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20131104211559.GA12144@mylly>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Haojian Zhuang,
+On Monday, November 04, 2013 11:15:59 PM Jarkko Nikula wrote:
+> On Mon, Nov 04, 2013 at 02:00:45AM +0100, Rafael J. Wysocki wrote:
+> > On Saturday, November 02, 2013 11:18:31 PM Rafael J. Wysocki wrote:
+> > > This turns out the cause build problems to happen on some architectures.
+> > > 
+> > > I guess it's sufficient to simply define a stub struct acpi_device as
+> > > 
+> > > struct acpi_device {
+> > > 	struct device dev;
+> > > };
+> > > 
+> > > for !CONFIG_ACPI instead.
+> > 
+> > Generally, it is a bad idea to #include acpi_bus.h for !CONFIG_ACPI.
+> > 
+> Ouch, indeed.
+> 
+> > The appended patch works for me, sorry for stealing part of your changelog.
+> > 
+> No problem. Thanks for fixing this up.
 
-This is a semi-automatic email about new static checker warnings.
+Well, unfortunately, this breaks builds for allnoconfig, because <acpi/acpi.h>
+is included directly from some header files (not under a CONFIG_ACPI ifdef) and
+duplicates the acpi_handle typedef.
 
-The patch 63fe122bce06: "i2c: pxa: add OF support" from Mar 1, 2012, 
-leads to the following Smatch complaint:
+So, we'll need to go through the headers, see which ones do that and
+replace <acpi/acpi.h> with <linux/acpi.h> (along with adding the stub
+definitions for !CONFIG_ACPI).
 
-drivers/i2c/busses/i2c-pxa.c:1272 i2c_pxa_probe()
-	 error: we previously assumed 'res' could be null (see line 1161)
+I'm deferring the patchset for after 3.13-rc1 for this reason.
 
-drivers/i2c/busses/i2c-pxa.c
-  1160		irq = platform_get_irq(dev, 0);
-  1161		if (res == NULL || irq < 0) {
-                    ^^^^^^^^^^^
-Patch introduces a new error path.
+Thanks!
 
-  1162			ret = -ENODEV;
-  1163			goto eclk;
-  1164		}
-  1165	
-
-[snip]
-
-  1267  eremap:
-  1268          clk_put(i2c->clk);
-  1269  eclk:
-  1270          kfree(i2c);
-  1271	emalloc:
-  1272		release_mem_region(res->start, resource_size(res));
-                                   ^^^^^^^^^^  ^^^^^^^^^^^^^^^^^
-Null dereferences.
-
-Obviously the unwind needs to be fixed so it's a mirror reflection of
-the allocation order.  Also the labels are crap.  Label names should be
-based on the label location and not the goto location(s).
-
-  1273		return ret;
-  1274	}
-
-regards,
-dan carpenter
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
