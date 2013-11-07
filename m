@@ -1,51 +1,45 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCHv2 1/3] ACPI: Expose struct acpi_device and acpi_bus_get_device() to non-ACPI builds
-Date: Thu, 07 Nov 2013 14:34:35 +0100
-Message-ID: <2770367.Lf1YV0Qxh5@vostro.rjw.lan>
-References: <1382703540-3769-1-git-send-email-jarkko.nikula@linux.intel.com> <5990097.jCz86Yqdpc@vostro.rjw.lan> <20131104211559.GA12144@mylly>
+From: Tim Kryger <tim.kryger@linaro.org>
+Subject: Re: [RESEND PATCH 2/4] i2c: i2c-bcm-kona: Add support for high-speed mode
+Date: Thu, 7 Nov 2013 11:57:57 -0800
+Message-ID: <CAAYSxhrrkSvOJpYPz7txVsot1you3fFzkXJ6fqaS4OgRM0Z2gA@mail.gmail.com>
+References: <1381960909-1735-1-git-send-email-tim.kryger@linaro.org>
+	<1381960909-1735-3-git-send-email-tim.kryger@linaro.org>
+	<20131101130835.GC6734@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20131104211559.GA12144@mylly>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20131101130835.GC6734@katana>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Christian Daudt <bcm@fixthebug.org>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, Device Tree List <devicetree@vger.kernel.org>, linux-doc@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, ARM Kernel List <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, November 04, 2013 11:15:59 PM Jarkko Nikula wrote:
-> On Mon, Nov 04, 2013 at 02:00:45AM +0100, Rafael J. Wysocki wrote:
-> > On Saturday, November 02, 2013 11:18:31 PM Rafael J. Wysocki wrote:
-> > > This turns out the cause build problems to happen on some architectures.
-> > > 
-> > > I guess it's sufficient to simply define a stub struct acpi_device as
-> > > 
-> > > struct acpi_device {
-> > > 	struct device dev;
-> > > };
-> > > 
-> > > for !CONFIG_ACPI instead.
-> > 
-> > Generally, it is a bad idea to #include acpi_bus.h for !CONFIG_ACPI.
-> > 
-> Ouch, indeed.
-> 
-> > The appended patch works for me, sorry for stealing part of your changelog.
-> > 
-> No problem. Thanks for fixing this up.
+On Fri, Nov 1, 2013 at 6:08 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Wed, Oct 16, 2013 at 03:01:47PM -0700, Tim Kryger wrote:
+>> Add support for I2C high-speed mode (3.4 MHz).
+>>
+>> Signed-off-by: Tim Kryger <tim.kryger@linaro.org>
+>> Reviewed-by: Matt Porter <matt.porter@linaro.org>
+>> Reviewed-by: Markus Mayer <markus.mayer@linaro.org>
+>
+> Mostly good as well:
+>
+>> +enum hs_bus_speed_index {
+>> +     BCM_SPD_3P4MHZ = 0,
+>> +};
+>
+> I just realized that you should update both patches to add the supported
+> bus speeds to the binding documentation.
 
-Well, unfortunately, this breaks builds for allnoconfig, because <acpi/acpi.h>
-is included directly from some header files (not under a CONFIG_ACPI ifdef) and
-duplicates the acpi_handle typedef.
+While the bus speed property is really a configuration parameter (and
+not a true description of of the hardware) it seems improper to put
+driver specific details into the binding document.
 
-So, we'll need to go through the headers, see which ones do that and
-replace <acpi/acpi.h> with <linux/acpi.h> (along with adding the stub
-definitions for !CONFIG_ACPI).
+Please let me know how you would like me to proceed.
 
-I'm deferring the patchset for after 3.13-rc1 for this reason.
+I should mention that I plan to break out the binding into its own
+patch as this seems to be the latest best practice just in case that
+influences your decision.
 
-Thanks!
-
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Thanks,
+Tim Kryger
