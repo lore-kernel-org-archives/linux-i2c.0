@@ -1,17 +1,41 @@
-From: "juliaws" <Chuck-UNU8HAtfQRCSe5ORCPIMD9BPR1lH4CV8@public.gmane.org>
-Subject: =?koi8-r?Q?=EF=C2=C5=DD=C1=CE=CE=D9=CA_=D0=D5=D4=D8_=CF?=
-	=?koi8-r?Q?=CB=C1=DA=C1=D4=D8=D3=D1_=CE=C1=C9=CC=D5=DE=DB?=
-	=?koi8-r?Q?=C9=CD_=D0=C1=D2=D4=CE=C5=D2=CF=CD?=
-Date: Fri,  8 Nov 2013 09:50:30 -0500 (EST)
-Message-ID: <20131108145030.195572102D@mx.myinboxmail.com>
-Reply-To: "juliaws" <dalshe.ateveaeva-mE73ZBmKVKRL9jVzuh4AOg@public.gmane.org>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH] I2C: BCM2835: Linking platform nodes to adapter nodes
+Date: Fri, 08 Nov 2013 09:59:28 -0700
+Message-ID: <527D1870.8080302@wwwdotorg.org>
+References: <527CB3A1.7050808@koalo.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r";
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <527CB3A1.7050808-oZ8rN/sblLk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?koi8-r?Q?=F3=C5=D2=C7=C5=CA_=E1=CE=C1=D4=CF=CC=D8=C5=D7?= =?koi8-r?Q?=C9=DE__?= <55r6gv1v-cpI+UMyWUv9BDgjK7y7TUQ@public.gmane.org>
+To: Florian Meier <florian.meier-oZ8rN/sblLk@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-48XOwSBodHRwOi8vZ29vLmdsL3hUU1pLViBqd3l3THV1bFMNCg==
+On 11/08/2013 02:49 AM, Florian Meier wrote:
+> In order to find I2C devices in the device tree, the platform nodes
+> have to be known by the I2C core. Analogous to the i2c-omap driver
+> this requires setting the dev.of_node parameter of the adapter.
+
+(CCing the I2C maintainers...)
+
+> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+
+> @@ -299,6 +299,7 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+>  	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
+>  	adap->algo = &bcm2835_i2c_algo;
+>  	adap->dev.parent = &pdev->dev;
+> +	adap->dev.of_node = pdev->dev.of_node;
+
+Ah, that makes sense. Thinking about it now, I'd only ever used i2cget
+etc. to access I2C devices, rather than instantiating drivers from DT.
+
+That all said, I wonder if the I2C core shouldn't do something like the
+following inside i2c_add_adapter():
+
+if (!adap->dev.of_node && adap->dev.parent)
+	adap->dev.of_node = adap->dev.parent->of_node;
+
+That would save every single I2C driver from having to set up this field
+manually.
