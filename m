@@ -1,63 +1,184 @@
-From: Martin Vogt <mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: GPF in i2cdev_release with i2c_tiny_usb
-Date: Sat, 9 Nov 2013 15:30:15 +0100
-Message-ID: <CAOE8yMA4RSnY0=PhB4qf0d5f9QF8n5pLozdM3wFiaoAb=9bt0Q@mail.gmail.com>
-References: <CAOE8yMAKrU3zFe9VU7sFdjRK_0_Kj4gT6_APptabsJ4t+w=U1w@mail.gmail.com>
-	<CAOE8yMBDtvcXMVqWatrSaW+873-ezF2GYt4ttvd-8oQbuYgYvg@mail.gmail.com>
-Reply-To: mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAOE8yMBDtvcXMVqWatrSaW+873-ezF2GYt4ttvd-8oQbuYgYvg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Yuvaraj Kumar C D <yuvaraj.cd@gmail.com>
+Subject: [PATCH V2] i2c: s3c2410 : Add polling mode support
+Date: Mon, 11 Nov 2013 16:50:20 +0530
+Message-ID: <1384168820-2986-1-git-send-email-yuvaraj.cd@samsung.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: wsa@the-dreams.de, ben-linux@fluff.org, kgene.kim@samsung.com, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, rob.herring@calxeda.com, ks.giri@samsung.com, aditya.ps@samsung.com
+Cc: mark.rutland@arm.com, swarren@wwwdotorg.org, linux-arm-kernel@lists.infradead.org, Vasanth Ananthan <vasanthananthan@gmail.com>, Vasanth Ananthan <vasanth.a@samsung.com>, Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+From: Vasanth Ananthan <vasanthananthan@gmail.com>
 
-On Sat, Nov 9, 2013 at 1:52 PM, Martin Vogt <mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> No. I think the GPF only happens if an application has an open
-> file descriptor.
-> Just tested ~5 dis/reconnect USB without problem,
-> started an application which opens i2c-7 USB disconnect->crash.
+This patch adds polling mode support for i2c-s3c2410 driver.The
+SATA PHY controller's CMU and TRSV block's are of I2C register
+map in exynos5250.These blocks can be configured using i2c.
 
-I have modified i2cdev_release in i2c-dev.c to:
+But i2c controller instance on which these block's sits lacks an
+interrupt line.Also the current i2c-s3c2410 driver is only interrupt
+driven, thus a polling mode support is required in the driver for
+supporting this controller. This patch adds this support to the driver.
 
-static int i2cdev_release(struct inode *inode, struct file *file)
-{
-        struct i2c_client *client = file->private_data;
-        pr_debug("i2c-dev: i2cdev_release -1:%p\n",client);
-        pr_debug("i2c-dev: i2cdev_release -1a:%p\n",client->adapter);
-        return 0;       // DO NOTHING
+Changes from V1:
+	1.Changed the is_ack() to have even period b/w polls and
+	  used usleep_range() instead of udelay().
 
-        i2c_put_adapter(client->adapter);
-        pr_debug("i2c-dev: i2cdev_release -2\n");
-        kfree(client);
-        file->private_data = NULL;
-        pr_debug("i2c-dev: i2cdev_release -3\n");
-        return 0;
-}
+Signed-off-by: Vasanth Ananthan <vasanth.a@samsung.com>
+Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+---
+ .../devicetree/bindings/i2c/i2c-s3c2410.txt        |    2 +
+ drivers/i2c/busses/i2c-s3c2410.c                   |   66 +++++++++++++++++---
+ 2 files changed, 58 insertions(+), 10 deletions(-)
 
-with this the kernel crash is gone.
-Thus not calling i2c_put_adapter(client->adapter); helps.
-Both pointers (client,client->adapter) are not NULL, but I cannot
-say if they contain anything still valid.
-But even doing the call to i2c_put_adapter and modifing it to:
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
+index 296eb45..278de8e 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
+@@ -10,6 +10,8 @@ Required properties:
+           inside HDMIPHY block found on several samsung SoCs
+       (d) "samsung, exynos5440-i2c", for s3c2440-like i2c used
+ 	   on EXYNOS5440 which does not need GPIO configuration.
++      (e) "samsung, exynos5-sata-phy-i2c", for s3c2440-like i2c used as
++	   a host to SATA PHY controller on an internal bus.
+   - reg: physical base address of the controller and length of memory mapped
+     region.
+   - interrupts: interrupt number to the cpu.
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 3747b9b..08ed126 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -85,6 +85,7 @@
+ #define QUIRK_S3C2440		(1 << 0)
+ #define QUIRK_HDMIPHY		(1 << 1)
+ #define QUIRK_NO_GPIO		(1 << 2)
++#define QUIRK_POLL		(1 << 3)
+ 
+ /* Max time to wait for bus to become idle after a xfer (in us) */
+ #define S3C2410_IDLE_TIMEOUT	5000
+@@ -141,6 +142,8 @@ static struct platform_device_id s3c24xx_driver_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
+ 
++static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat);
++
+ #ifdef CONFIG_OF
+ static const struct of_device_id s3c24xx_i2c_match[] = {
+ 	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
+@@ -149,6 +152,8 @@ static const struct of_device_id s3c24xx_i2c_match[] = {
+ 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
+ 	{ .compatible = "samsung,exynos5440-i2c",
+ 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
++	{ .compatible = "samsung,exynos5-sata-phy-i2c",
++	  .data = (void *)(QUIRK_S3C2440 | QUIRK_POLL | QUIRK_NO_GPIO) },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
+@@ -187,7 +192,8 @@ static inline void s3c24xx_i2c_master_complete(struct s3c24xx_i2c *i2c, int ret)
+ 	if (ret)
+ 		i2c->msg_idx = ret;
+ 
+-	wake_up(&i2c->wait);
++	if (!(i2c->quirks & QUIRK_POLL))
++		wake_up(&i2c->wait);
+ }
+ 
+ static inline void s3c24xx_i2c_disable_ack(struct s3c24xx_i2c *i2c)
+@@ -224,6 +230,22 @@ static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
+ 	writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
+ }
+ 
++static bool is_ack(struct s3c24xx_i2c *i2c)
++{
++	int tries;
++
++	for (tries = 50; tries; --tries) {
++		if (readl(i2c->regs + S3C2410_IICCON)
++			& S3C2410_IICCON_IRQPEND) {
++			if (!(readl(i2c->regs + S3C2410_IICSTAT)
++				& S3C2410_IICSTAT_LASTBIT))
++				return true;
++		}
++		usleep_range(1000, 2000);
++	}
++	dev_err(i2c->dev, "ack was not recieved\n");
++	return false;
++}
+ 
+ /* s3c24xx_i2c_message_start
+  *
+@@ -268,6 +290,16 @@ static void s3c24xx_i2c_message_start(struct s3c24xx_i2c *i2c,
+ 
+ 	stat |= S3C2410_IICSTAT_START;
+ 	writel(stat, i2c->regs + S3C2410_IICSTAT);
++
++	if (i2c->quirks & QUIRK_POLL) {
++		while ((i2c->msg_num != 0) && is_ack(i2c)) {
++			i2c_s3c_irq_nextbyte(i2c, stat);
++			stat = readl(i2c->regs + S3C2410_IICSTAT);
++
++			if (stat & S3C2410_IICSTAT_ARBITR)
++				dev_err(i2c->dev, "deal with arbitration loss\n");
++		}
++	}
+ }
+ 
+ static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c *i2c, int ret)
+@@ -675,6 +707,15 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
+ 	s3c24xx_i2c_enable_irq(i2c);
+ 	s3c24xx_i2c_message_start(i2c, msgs);
+ 
++	if (i2c->quirks & QUIRK_POLL) {
++		ret = i2c->msg_idx;
++
++		if (ret != num)
++			dev_dbg(i2c->dev, "incomplete xfer (%d)\n", ret);
++
++		goto out;
++	}
++
+ 	timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
+ 
+ 	ret = i2c->msg_idx;
+@@ -820,6 +861,9 @@ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
+ 	if (div1 == 512)
+ 		iiccon |= S3C2410_IICCON_TXDIV_512;
+ 
++	if (i2c->quirks & QUIRK_POLL)
++		iiccon |= S3C2410_IICCON_SCALE(2);
++
+ 	writel(iiccon, i2c->regs + S3C2410_IICCON);
+ 
+ 	if (i2c->quirks & QUIRK_S3C2440) {
+@@ -1117,18 +1161,20 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	 * ensure no current IRQs pending
+ 	 */
+ 
+-	i2c->irq = ret = platform_get_irq(pdev, 0);
+-	if (ret <= 0) {
+-		dev_err(&pdev->dev, "cannot find IRQ\n");
+-		return ret;
+-	}
++	if (!(i2c->quirks & QUIRK_POLL)) {
++		i2c->irq = ret = platform_get_irq(pdev, 0);
++		if (ret <= 0) {
++			dev_err(&pdev->dev, "cannot find IRQ\n");
++			return ret;
++		}
+ 
+ 	ret = devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
+-			       dev_name(&pdev->dev), i2c);
++				dev_name(&pdev->dev), i2c);
+ 
+-	if (ret != 0) {
+-		dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
+-		return ret;
++		if (ret != 0) {
++			dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
++			return ret;
++		}
+ 	}
+ 
+ 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+-- 
+1.7.9.5
 
-void i2c_put_adapter(struct i2c_adapter *adap)
-{
-        pr_debug("i2c-dev: i2c_put_adapter:\n");
-        //module_put(adap->owner);
-}
-
-crashes the kernel. which is strange because its a NOP.
-
-
-Btw: if the crash occurs a reboot is not necessary.
-For testing I have removed the i2c-dev module with:
-
-rmmod -f i2c-dev
-
-regards,
-
-Martin
