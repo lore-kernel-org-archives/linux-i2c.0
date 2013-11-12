@@ -1,33 +1,45 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c: designware: add new ACPI IDs
-Date: Tue, 12 Nov 2013 11:57:30 +0200
-Message-ID: <1384250250-10643-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Andreas Werner <wernerandy@gmx.de>
+Subject: [PATCH] I2C: busses: Do not print error message in syslog if no ACK received
+Date: Tue, 12 Nov 2013 18:45:36 +0100
+Message-ID: <1384278336-3694-1-git-send-email-wernerandy@gmx.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: jacmet@sunsite.dk, marex@denx.de, baohua.song@csr.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, wernerandy@gmx.de
 List-Id: linux-i2c@vger.kernel.org
 
-Newer Intel PCHs with LPSS have the same Designware I2C controllers than
-Haswell but the ACPI IDs differ. Add these IDs to the driver list.
+Using the i2c-eg20t driver and call i2cdetect or probe on the bus,
+the driver will print a lot of error messages if there was no ACK
+received.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+i2cdetect normally print a table with all the available devices. If there
+is no device on the address, the table will be empty.
+Currently with the i2c-eg20t driver, the table is not visible because
+the error messages destroy the table.
+
+Error message: pch_i2c_getack return -71
+
+This patch prevent the driver to print the messages to syslog if debug is not set.
+
+Tested on Intel Atom E6xx and Eg20t Chipset.
+
+Signed-off-by: Andreas Werner <wernerandy@gmx.de>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-eg20t.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0aa01136f8d9..d0bdac0498ce 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -103,6 +103,8 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "INT33C2", 0 },
- 	{ "INT33C3", 0 },
-+	{ "INT3432", 0 },
-+	{ "INT3433", 0 },
- 	{ "80860F41", 0 },
- 	{ }
- };
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index 0f37529..b10c651 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -322,7 +322,7 @@ static s32 pch_i2c_getack(struct i2c_algo_pch_data *adap)
+ 	reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
+ 
+ 	if (reg_val != 0) {
+-		pch_err(adap, "return%d\n", -EPROTO);
++		pch_dbg(adap, "return%d\n", -EPROTO);
+ 		return -EPROTO;
+ 	}
+ 
 -- 
-1.8.4.2
+1.8.4
