@@ -1,35 +1,33 @@
-From: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH -next] tree-wide: add missing clk_disable_unprepare() on error
- in wmt_i2c_reset_hardware()
-Date: Mon, 11 Nov 2013 22:23:50 +0800
-Message-ID: <CAPgLHd-j19gkcuBEVUm5EkUkqXbqZBZ9i74p1WXth89rEaDpJw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c: designware: add new ACPI IDs
+Date: Tue, 12 Nov 2013 11:57:30 +0200
+Message-ID: <1384250250-10643-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org
-Cc: yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+Newer Intel PCHs with LPSS have the same Designware I2C controllers than
+Haswell but the ACPI IDs differ. Add these IDs to the driver list.
 
-Add the missing clk_disable_unprepare() before return
-from wmt_i2c_reset_hardware() in the error handling case.
-
-Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-wmt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-index 31395fa..2c8a3e4 100644
---- a/drivers/i2c/busses/i2c-wmt.c
-+++ b/drivers/i2c/busses/i2c-wmt.c
-@@ -349,6 +349,7 @@ static int wmt_i2c_reset_hardware(struct wmt_i2c_dev *i2c_dev)
- 	err = clk_set_rate(i2c_dev->clk, 20000000);
- 	if (err) {
- 		dev_err(i2c_dev->dev, "failed to set clock = 20Mhz\n");
-+		clk_disable_unprepare(i2c_dev->clk);
- 		return err;
- 	}
- 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0aa01136f8d9..d0bdac0498ce 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -103,6 +103,8 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "INT33C2", 0 },
+ 	{ "INT33C3", 0 },
++	{ "INT3432", 0 },
++	{ "INT3433", 0 },
+ 	{ "80860F41", 0 },
+ 	{ }
+ };
+-- 
+1.8.4.2
