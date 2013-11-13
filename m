@@ -1,16 +1,102 @@
-From: ''Fredrick Loan Investment''
-	<cocacola0021-SM90AbKqYR5H2czpAKCXEeVHTGEOqg1L0E9HWUfgJXw@public.gmane.org>
-Subject: Xmas Loan ...Apply Now
-Date: Wed, 13 Nov 2013 14:24:45 +0530
-Message-ID: <3be1501d-03d5-4a48-a7ea-0e84c55d9b9f__40630.9778606102$1384333222$gmane$org@HKXPR02MB215.apcprd02.prod.outlook.com>
-Reply-To: <fredrickplc-9uewiaClKEY@public.gmane.org>
+From: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH] I2C: busses: Do not print error message in syslog if no
+ ACK received
+Date: Wed, 13 Nov 2013 19:24:15 +0100
+Message-ID: <20131113182415.GA1458@thinkpad.fritz.box>
+References: <1384278336-3694-1-git-send-email-wernerandy@gmx.de>
+ <201311121900.59305.marex@denx.de>
+ <20131112182344.GA5012@thinkpad.fritz.box>
+ <201311121933.41038.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Description: Mail message body
+Content-Disposition: inline
+In-Reply-To: <201311121933.41038.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Recipients <cocacola0021-SM90AbKqYR5H2czpAKCXEeVHTGEOqg1L0E9HWUfgJXw@public.gmane.org>
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, baohua.song-kQvG35nSl+M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Do you need a loan ? if yes contact fredrickplc-9uewiaClKEY@public.gmane.org for more.
+On Tue, Nov 12, 2013 at 07:33:40PM +0100, Marek Vasut wrote:
+> Dear Andreas Werner,
+> 
+> > On Tue, Nov 12, 2013 at 07:00:59PM +0100, Marek Vasut wrote:
+> > > Dear Andreas Werner,
+> > > 
+> > > > Using the i2c-eg20t driver and call i2cdetect or probe on the bus,
+> > > > the driver will print a lot of error messages if there was no ACK
+> > > > received.
+> > > > 
+> > > > i2cdetect normally print a table with all the available devices. If
+> > > > there is no device on the address, the table will be empty.
+> > > > Currently with the i2c-eg20t driver, the table is not visible because
+> > > > the error messages destroy the table.
+> > > > 
+> > > > Error message: pch_i2c_getack return -71
+> > > > 
+> > > > This patch prevent the driver to print the messages to syslog if debug
+> > > > is not set.
+> > > > 
+> > > > Tested on Intel Atom E6xx and Eg20t Chipset.
+> > > > 
+> > > > Signed-off-by: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
+> > > > ---
+> > > > 
+> > > >  drivers/i2c/busses/i2c-eg20t.c | 2 +-
+> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/i2c/busses/i2c-eg20t.c
+> > > > b/drivers/i2c/busses/i2c-eg20t.c index 0f37529..b10c651 100644
+> > > > --- a/drivers/i2c/busses/i2c-eg20t.c
+> > > > +++ b/drivers/i2c/busses/i2c-eg20t.c
+> > > > @@ -322,7 +322,7 @@ static s32 pch_i2c_getack(struct i2c_algo_pch_data
+> > > > *adap) reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
+> > > > 
+> > > >  	if (reg_val != 0) {
+> > > > 
+> > > > -		pch_err(adap, "return%d\n", -EPROTO);
+> > > > +		pch_dbg(adap, "return%d\n", -EPROTO);
+> > > > 
+> > > >  		return -EPROTO;
+> > > >  	
+> > > >  	}
+> > > 
+> > > I'd just kill the pch_err() line altogether:
+> >   But why? I think there a few pch_err message which are interesting to
+> > have in syslog, without building the dbg driver.
+> 
+> See below for explanation why this one particular pch_err() line can go. Sorry 
+> if I was not clear enough, I meant only this one particular pch_err() line, NOT 
+> all of them.
+> 
+> > 
+> > > if (reg_val)
+> > > 
+> > > 	return -EPROTO;
+> > > 
+> > > That is because if you look at the only caller of this function, which is
+> > > pch_i2c_wait_for_check_xfer(), you will see that at the only place where
+> > > pch_i2c_getack() is called there is already pch_dbg():
+> > > 
+> > > 369         if (pch_i2c_getack(adap)) {
+> > > 370                 pch_dbg(adap, "Receive NACK for slave address"
+> > > 371                         "setting\n");
+> > > 372                 return -EIO;
+> > > 373         }
+> > >
+Sorry i misunderstood that. You are absolutly right, thats the best solution for that.
+Remove the pch_err at getack so that only the pch_dbg get printed where getack is called.
+This should be enough information.
+
+ 
+> > > btw. (idea for subsequent patch) this pch_dbg() should be fixed to be a
+> > > one- liner /wrt the text so we can grep for the error messages. Such
+> > > text arg should never be split in multiple lines in kernel.
+> > 
+> >   Ok i will wait a few days for further comments to this patch and then
+> >   i will resend the patch with a one liner message.
+> 
+> Sure, wait at least for Wolfram's consent on this please ;-)
+> 
+> Best regards,
+> Marek Vasut
