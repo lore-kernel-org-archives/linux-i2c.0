@@ -1,55 +1,92 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/4] i2c-i801: Add Device IDs for Intel Wildcat Point-LP
- PCH
-Date: Thu, 14 Nov 2013 18:29:01 +0100
-Message-ID: <20131114172901.GE11022@katana>
-References: <1383586188-4717-1-git-send-email-james.d.ralston@intel.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 4/8] i2c: omap: Fix missing device tree flags for omap2
+Date: Thu, 14 Nov 2013 09:30:57 -0800
+Message-ID: <20131114173057.GE10317@atomide.com>
+References: <1384396537-3486-1-git-send-email-tony@atomide.com>
+ <1384396537-3486-5-git-send-email-tony@atomide.com>
+ <20131114110721.GE16396@e106331-lin.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xJK8B5Wah2CMJs8h"
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1383586188-4717-1-git-send-email-james.d.ralston@intel.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: James Ralston <james.d.ralston@intel.com>
-Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Seth Heasley <seth.heasley@intel.com>
+In-Reply-To: <20131114110721.GE16396@e106331-lin.cambridge.arm.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
+* Mark Rutland <mark.rutland@arm.com> [131114 03:08]:
+> 
+> Please update Documentation/devicetree/bindings/i2c/i2c-omap.txt
+> 
+> Otherwise, this is fine.
 
---xJK8B5Wah2CMJs8h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here's this one with updated documentation.
 
-On Mon, Nov 04, 2013 at 09:29:48AM -0800, James Ralston wrote:
-> This patch adds the SMBus Device IDs for the Intel Wildcat Point-LP PCH.
->=20
-> Signed-off-by: James Ralston <james.d.ralston@intel.com>
+Regards,
 
-Applied to for-next, thanks! Please ensure that the introductory message
-also goes to the relevant mailing lists.
+Tony
 
 
---xJK8B5Wah2CMJs8h
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+From: Tony Lindgren <tony@atomide.com>
+Date: Wed, 13 Nov 2013 16:36:37 -0800
+Subject: [PATCH] i2c: omap: Fix missing device tree flags for omap2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+As we claim to support device tree for mach-omap2, we
+should have the necessary flags in the driver to make it
+usable.
 
-iQIcBAEBAgAGBQJShQhdAAoJEBQN5MwUoCm2OzUP/0FjZIrhK2ETBSPYTjLEIn0o
-MHqg8G8fafIqk2iNTVPwRFvsSFzqHAwHvvaU2bnzDz3Q0SIQKCbF1kL5fQXNKS4L
-bgwTvO15zp6cz9mwxYoDuwPA+QGi0pLf98JYzM8zFK74i76hxSqP2XbSGa+bTUuI
-gkZLT8TeVrBFb/26yhvid6w8jGndSGE0Z42wsxZSEa4OCHZ2ImQkSifDMNcP9cFD
-9uuYiFjzuIjyGw1cdLhjJw+HWPDWyF2DFfgsS6GHfaLPUjj2eKo8O661B89UDKA3
-381AsrnNuA7Nbi/6F8df73C3KCTsoAzW8pnVVXHijTFx2cE0UzFMAs/OjH/xfwLA
-gL3TPIJiYJGzUzGySFOuVwZyUjjAgiEDk1INsLLdOuLcUTVnNnCyOG37c55XjGKF
-c7HTTX/CGGd5fWQNcCPDVzq/et1FVtgnf0XXlIC0wRbAaZVZIAARvwC4k+q5PbRp
-uaGq7NfZSwh5i6gmhk1OMo7sLXF7SNTl21m/htz/1pWD2chfltJupDAHQ0gdTC0/
-2BDWt4srLfW3ThMmbGppmPjaaqyBPNlUtiERR0oNrLDZtASlzF2H5O6NeLAJWKKf
-Nk8HpCVoQ8JCbrOH29ibgrdqzhl8moDA+f6CJ9Mf1FfaMAIgOJWq1K+VI/k1fGk8
-jptK2IxDtSFSvnREBw/G
-=6qu0
------END PGP SIGNATURE-----
+Cc: linux-i2c@vger.kernel.org
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 
---xJK8B5Wah2CMJs8h--
+--- a/Documentation/devicetree/bindings/i2c/i2c-omap.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-omap.txt
+@@ -1,7 +1,8 @@
+ I2C for OMAP platforms
+ 
+ Required properties :
+-- compatible : Must be "ti,omap3-i2c" or "ti,omap4-i2c"
++- compatible : Must be "ti,omap2420-i2c", "ti,omap2430-i2c", "ti,omap3-i2c"
++  or "ti,omap4-i2c"
+ - ti,hwmods : Must be "i2c<n>", n being the instance number (1-based)
+ - #address-cells = <1>;
+ - #size-cells = <0>;
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1037,6 +1037,20 @@ static const struct i2c_algorithm omap_i2c_algo = {
+ };
+ 
+ #ifdef CONFIG_OF
++static struct omap_i2c_bus_platform_data omap2420_pdata = {
++	.rev = OMAP_I2C_IP_VERSION_1,
++	.flags = OMAP_I2C_FLAG_NO_FIFO |
++			OMAP_I2C_FLAG_SIMPLE_CLOCK |
++			OMAP_I2C_FLAG_16BIT_DATA_REG |
++			OMAP_I2C_FLAG_BUS_SHIFT_2,
++};
++
++static struct omap_i2c_bus_platform_data omap2430_pdata = {
++	.rev = OMAP_I2C_IP_VERSION_1,
++	.flags = OMAP_I2C_FLAG_BUS_SHIFT_2 |
++			OMAP_I2C_FLAG_FORCE_19200_INT_CLK,
++};
++
+ static struct omap_i2c_bus_platform_data omap3_pdata = {
+ 	.rev = OMAP_I2C_IP_VERSION_1,
+ 	.flags = OMAP_I2C_FLAG_BUS_SHIFT_2,
+@@ -1055,6 +1069,14 @@ static const struct of_device_id omap_i2c_of_match[] = {
+ 		.compatible = "ti,omap3-i2c",
+ 		.data = &omap3_pdata,
+ 	},
++	{
++		.compatible = "ti,omap2430-i2c",
++		.data = &omap2430_pdata,
++	},
++	{
++		.compatible = "ti,omap2420-i2c",
++		.data = &omap2420_pdata,
++	},
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, omap_i2c_of_match);
