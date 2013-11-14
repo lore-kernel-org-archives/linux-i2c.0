@@ -1,65 +1,48 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 4/8] i2c: omap: Fix missing device tree flags for omap2
-Date: Thu, 14 Nov 2013 07:58:30 +0100
-Message-ID: <20131114065830.GA2738@katana>
-References: <1384396537-3486-1-git-send-email-tony@atomide.com>
- <1384396537-3486-5-git-send-email-tony@atomide.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1384396537-3486-5-git-send-email-tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCHv3 0/3] I2C and SPI dev_name change for ACPI enumerated slaves
+Date: Thu, 14 Nov 2013 11:00:58 +0200
+Message-ID: <1384419661-28293-1-git-send-email-jarkko.nikula@linux.intel.com>
+References: <1383309356-25430-1-git-send-email-jarkko.nikula@linux.intel.com>
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1383309356-25430-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Third version of the set that changes I2C and SPI slave device names
+to be generated from stable ACPI device names on ACPI 5 based systems
+instead of using bus numbers which could change.
 
-On Wed, Nov 13, 2013 at 06:35:33PM -0800, Tony Lindgren wrote:
-> As we claim to support device tree for mach-omap2, we
-> should have the necessary flags in the driver to make it
-> usable.
->=20
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Slave device name change goes as
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+	"x-00yz" -> "i2c-INTABCD:ij"
+	"spix.y" -> "spi-INTABCD:ij"
 
-It would have been helpful if the message "PATCH [0/x]" would have been
-sent to the i2c-list also.
+This version is actually a bit cleaner thanks to Rafael's
+"ACPI / driver core: Store an ACPI device pointer in struct acpi_dev_node"
+in git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm
 
-Thanks,
+Set goes on top of linux-pm/linux-next due dependency to 1/3. As we are now
+in merge-window I'm fine if 1/3 goes in first and I queue 2-3/3 later
+to i2c and spi trees.
 
-   Wolfram
+Jarkko Nikula (3):
+  ACPI: Provide struct acpi_device stub for !CONFIG_ACPI builds
+  i2c: Use stable dev_name for ACPI enumerated I2C slaves
+  spi: Use stable dev_name for ACPI enumerated SPI slaves
 
+ drivers/i2c/i2c-core.c | 21 +++++++++++++++++----
+ drivers/spi/spi.c      | 17 ++++++++++++++---
+ include/linux/acpi.h   |  4 ++++
+ 3 files changed, 35 insertions(+), 7 deletions(-)
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+-- 
+1.8.4.2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJShHSWAAoJEBQN5MwUoCm2WdMP/2CZFsdWejDNztwI/yOJ6V8j
-Yl2yQ7mac1Pqyp1Wo00DNjkFNsFO+UrinAMtERml48jsWTHJGBTV7nfq65LS7zTr
-scQLe0raDwh5dx/txd+IVIspoM1FRUwx0eJNp7EbrtTAEj7pwpBq4dg6uvsnO958
-BSNtQchWnsdQcjIhw35Q4bJpweBHVw5iAiiyLCy8qPff48kTkFTP7s+YJy5IvC92
-uIVNwvO6sulbp7OLvDaXXTzCJkPGGbgWOsBUMCYSRa3tvYXqsN+Jjw8NdvJqMpN5
-HR1Aub9AfyVcGCVb1naO7w6U2aVL6QjuGGAQIC+VJhOdaEdIhoTOB+B+IMjXgS5G
-9hZp6Fk/fbRLqgaWhjpL/pxUiJc4cSa+W0I0GWEP5hP1k/ZkA0Ehlhfq10YQRdIY
-LNo22WwcLPMuQ6180YO1WqcCibl3VudXC7xa21JE4V/5k3h87IVPdk0XRFbYqB5q
-mnKC5IoJgCyNUeOKw0Gvaq10fCbqUW0aOy7tMbQwuYvBb36UImQgDf+dpewTeeLb
-SmT4rdziLVdTuUcqGWL8mWd1T7ZDM2ueJ68G1jBiEM7TrLtvUSdoNOIPy6wPf317
-cu/U2MwheMdgTDtl0ij/wWXX7hfsy+q1a+XEaimMGKFWQHd+fY0pkMWwIWQ6uffg
-9EU2V4I0FP8V7AsaAz0w
-=Dk6h
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
