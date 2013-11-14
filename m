@@ -1,54 +1,51 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCHv3 3/3] spi: Use stable dev_name for ACPI enumerated SPI
- slaves
-Date: Thu, 14 Nov 2013 10:10:22 +0000
-Message-ID: <20131114101022.GD26614@sirena.org.uk>
-References: <1383309356-25430-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1384419661-28293-1-git-send-email-jarkko.nikula@linux.intel.com>
- <1384419661-28293-4-git-send-email-jarkko.nikula@linux.intel.com>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH 4/8] i2c: omap: Fix missing device tree flags for omap2
+Date: Thu, 14 Nov 2013 11:07:21 +0000
+Message-ID: <20131114110721.GE16396@e106331-lin.cambridge.arm.com>
+References: <1384396537-3486-1-git-send-email-tony@atomide.com>
+ <1384396537-3486-5-git-send-email-tony@atomide.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VV4b6MQE+OnNyhkM"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1384419661-28293-4-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <1384396537-3486-5-git-send-email-tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Nov 14, 2013 at 02:35:33AM +0000, Tony Lindgren wrote:
+> As we claim to support device tree for mach-omap2, we
+> should have the necessary flags in the driver to make it
+> usable.
+> 
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> ---
+> 
+> If this looks OK, I'd like to merge this as a fix via arm-soc tree
+> along with the other patches in this series as my later patches
+> depend on patches in this series.
+> 
+> ---
+>  drivers/i2c/busses/i2c-omap.c | 22 ++++++++++++++++++++++
+>  1 file changed, 22 insertions(+)
 
---VV4b6MQE+OnNyhkM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[...]
 
-On Thu, Nov 14, 2013 at 11:01:01AM +0200, Jarkko Nikula wrote:
-> Current spi bus_num.chip_select "spix.y" based device naming scheme may not
-> be stable enough to be used in name based matching, for instance within
-> ALSA SoC subsystem.
+> +	{
+> +		.compatible = "ti,omap2430-i2c",
+> +		.data = &omap2430_pdata,
+> +	},
+> +	{
+> +		.compatible = "ti,omap2420-i2c",
+> +		.data = &omap2420_pdata,
 
-Acked-by: Mark Brown <broonie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Please update Documentation/devicetree/bindings/i2c/i2c-omap.txt
 
---VV4b6MQE+OnNyhkM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Otherwise, this is fine.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJShKGLAAoJELSic+t+oim9r/wP/0fwpqZAHy+j4Nc0mWkxxzvx
-bzNVcn2T55pxN5oRr6Dq2PIS/iEPq7Jnsjwp0HIUvser06Z9TyCpulNOC3JdBar7
-MP4ydZ++uTCQclTosY/Rp0yxFL34zZXTM9OBHfzTtyC0+rZMdRDe1TPSZGcng+Cx
-XkQpxLHhiGH3zreGtPFprkIGJvpY+ifEU+zMqOumw/Zwp6zlP/trDmZRY08WYqMV
-bd+PxVbx3+2nvi3Hw4pj2yfNpKaVd2ks7+fCi31/GuVJ06ys//0PFktAelQHwG+y
-/3ozto/11RIU+cfoXcwRFScv4pamzMgCHKeZ1j0ibysAG4leLyFQpE8RiX/86wiL
-XlFWs9uDW3qPVdGkxUMKI9f960TfjOaCTKmrwSf31P8yRb1f+pDIHPVPEqcgmf5X
-a4G36+zSJafbjLe3WgFvdToPcHW6uwrBDE6FHR3lNxsr+HyTfDUf6e162EVkKMVt
-QLxyJzwVM0eX1afvw8CM74JD5kiB4Gu23IkS/NFGWqGwafTlvZAsU0s4SXRz+yVo
-JS1Y3oMqxEwQgkAyr6mqXOAiSHafz+4B4CY1WxWZmJlWgPX5Pku8CS3AoWWrJEDd
-yOBe9LLhrLGpTsb/J3dXGQX0abr34pHuff6eSehL2eWsCkUSgUZqhd6cpaHu+6Ax
-WKmY1n5by9XDazWrHG4i
-=FLVO
------END PGP SIGNATURE-----
-
---VV4b6MQE+OnNyhkM--
+Thanks,
+Mark.
