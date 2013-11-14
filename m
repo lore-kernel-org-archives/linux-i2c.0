@@ -1,57 +1,52 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-designware-pci: Index Haswell ULT bus names from
- 0
-Date: Thu, 14 Nov 2013 19:05:38 +0100
-Message-ID: <20131114180538.GK11022@katana>
-References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
- <1382326010-4554-3-git-send-email-bleung@chromium.org>
- <20131021065804.GX3521@intel.com>
- <CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw@mail.gmail.com>
+From: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH] I2C: busses: Do not print error message in syslog if no
+ ACK received
+Date: Thu, 14 Nov 2013 19:26:09 +0100
+Message-ID: <20131114182609.GB2133@thinkpad.fritz.box>
+References: <1384278336-3694-1-git-send-email-wernerandy@gmx.de>
+ <201311121933.41038.marex@denx.de>
+ <20131113182415.GA1458@thinkpad.fritz.box>
+ <201311132024.06853.marex@denx.de>
+ <1384436392.15774.2.camel@joe-AO722>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rwbb4r/vLufKlfJs"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1384436392.15774.2.camel@joe-AO722>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Duncan Laurie <dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, baohua.song-kQvG35nSl+M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Nov 14, 2013 at 05:39:52AM -0800, Joe Perches wrote:
+> On Wed, 2013-11-13 at 20:24 +0100, Marek Vasut wrote:
+> > > On Tue, Nov 12, 2013 at 07:33:40PM +0100, Marek Vasut wrote:
+> > > > > > That is because if you look at the only caller of this function,
+> > > > > > which is pch_i2c_wait_for_check_xfer(), you will see that at the
+> > > > > > only place where pch_i2c_getack() is called there is already
+> > > > > > pch_dbg():
+> > > > > > 
+> > > > > > 369         if (pch_i2c_getack(adap)) {
+> > > > > > 370                 pch_dbg(adap, "Receive NACK for slave address"
+> > > > > > 371                         "setting\n");
+> > > > > > 372                 return -EIO;
+> > > > > > 373         }
+> > > 
+> > > Sorry i misunderstood that. You are absolutly right, thats the best
+> > > solution for that. Remove the pch_err at getack so that only the pch_dbg
+> > > get printed where getack is called. This should be enough information.
+> > 
+> > No problem ;-)
+> 
+> If this is the approach taken, please coalesce the format.
+> As is there's a missing space between address and setting.
+> This should be:
+> 
+> 		pch_dbg(adap, "Received NACK for slave address setting\n");
+> 
+> 
+Hi,
+yes you are right, i will also add it and resand the patch in a few days.
 
---rwbb4r/vLufKlfJs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> In the chromeos_laptop driver, I do by-name matching of i2c busses to
-> find busses and instantiate devices, so there is value to have each
-> named something predictable.
-
-Any why don't you use fixed bus numbers which you can attach the devices
-to?
-
-
---rwbb4r/vLufKlfJs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJShRDyAAoJEBQN5MwUoCm2CBwP/0a1exmWGyB60VLyp8W6+dLa
-XZKZfPfx8ogv0LfCjrfOiyxs0nzmKH2l9nd7ab6PbDdJgbvzYZ+IvmRh+J9wH/A4
-kOFnAGSwF3xOIx+RLil+e/J6MZ7auaNYIhMKD0orBAkoVoIv0xP3rL68MibQ6N52
-W0CJTWFCaj3XhzOLOtu0FakkPzhzAF1ZoP/B/sBgjs0TVWVn43MbfdtklpOEEtJK
-APvgb/oG7cCTTPF17IrquEVRFIWbewvsNJHxt/wr9CSKvWPobKvIsloQ5u5B0Ys7
-n4rhiI+rjckUW3YWIeiqe1+SHdMFpbypWjWXXRi30YQTIF3mWjiNBxYTODzvAyu3
-pzU+cmTovS6csbXRWLlh5Y2OMGkoQbJeQk/DuezNEkfCxZQbZLfBFu/n5MC0n/mT
-rinu8ddHSG89UDI7EatISGYxfMEgg5l3DLQrUbMlovCMCxxP+n7GXwx8H0scoS86
-zKedbQy/Rfh4lxLXVksgiNyJbe8oUtZ5rPFT60ew1dxWtWFHTjIB2G4YrvRQjpEd
-IFahtezYutzzzB3xuhtY+lEqxevKlRROZcH/1pdT/rvs8wXgZL/R2B42AqFtg+Up
-oq7QitIepFGovD4dz62JWDQWan0QJf7i+7WY4hLxUm0hTpgHV+57INGkLIpQF2xm
-6vCDDlU2H4ij5QP3dcc/
-=yv6l
------END PGP SIGNATURE-----
-
---rwbb4r/vLufKlfJs--
+regards 
+Andy
