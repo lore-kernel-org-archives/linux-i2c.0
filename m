@@ -1,92 +1,54 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 4/8] i2c: omap: Fix missing device tree flags for omap2
-Date: Thu, 14 Nov 2013 09:30:57 -0800
-Message-ID: <20131114173057.GE10317@atomide.com>
-References: <1384396537-3486-1-git-send-email-tony@atomide.com>
- <1384396537-3486-5-git-send-email-tony@atomide.com>
- <20131114110721.GE16396@e106331-lin.cambridge.arm.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware: add new ACPI IDs
+Date: Thu, 14 Nov 2013 18:33:34 +0100
+Message-ID: <20131114173334.GG11022@katana>
+References: <1384250250-10643-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0qt3EE9wi45a2ZFX"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20131114110721.GE16396@e106331-lin.cambridge.arm.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+In-Reply-To: <1384250250-10643-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Mark Rutland <mark.rutland@arm.com> [131114 03:08]:
-> 
-> Please update Documentation/devicetree/bindings/i2c/i2c-omap.txt
-> 
-> Otherwise, this is fine.
 
-Here's this one with updated documentation.
+--0qt3EE9wi45a2ZFX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
+On Tue, Nov 12, 2013 at 11:57:30AM +0200, Mika Westerberg wrote:
+> Newer Intel PCHs with LPSS have the same Designware I2C controllers than
+> Haswell but the ACPI IDs differ. Add these IDs to the driver list.
+>=20
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Tony
+Applied to for-next, thanks!
 
 
-From: Tony Lindgren <tony@atomide.com>
-Date: Wed, 13 Nov 2013 16:36:37 -0800
-Subject: [PATCH] i2c: omap: Fix missing device tree flags for omap2
+--0qt3EE9wi45a2ZFX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-As we claim to support device tree for mach-omap2, we
-should have the necessary flags in the driver to make it
-usable.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
 
-Cc: linux-i2c@vger.kernel.org
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+iQIcBAEBAgAGBQJShQluAAoJEBQN5MwUoCm2OQQQAKVOCsDMjSzo5P4I7j+jk1E1
+QXsi8DEMp2mPZf/kFddLZYlot2RaYkTV+swzqb3t+pCNpIBnPVqxVk1AgNed8EaT
+RnvNw/TSNwtVQQlgwwW92BKZvY0WCQk0PD2+xvmW33sRMUHqgrbeMor7Bx0ouup2
+A76MiD6S97DeTS//WyD2QEzEf1JYz9ECjwp7kA2Uqv/o5muC/7NvkWCdZ83oSBnr
+4iYFiN+mwmrjJ69OHaHGiwSSb34bAtf+LEtS7snTboxlB3oe2MCd/U/Fx2JDE/Oy
+yHS565Lcp0WlM9HxHGXtjSs0VbzSRKVANIKpRe1RTiJxOe01tcGPQw71l1R2yGb+
+DfaEHANzxrGupfbZj9oZem/1ugdT8Jc943qrw/MEBGlGM7cb6C3Sh8B00k+2aMKi
+8j6MjlzPwSxxt8tYuVwV0kWuuv2o/4LsQsc1adEcI3Tfbx84H/INHjkPnkd0gAol
+NhaLFgp1FBNJ9gj/3SmkwUYCNMb/H3SIYc1sA4YYOrJeI06VEgj4K9xzd3T+7Fim
+1PdSOjbLrqwudNqbmVF8GQYF6hUopMWtf88hVfdzc1NLr10yNNr2NMBz7Qrt5Xjt
+cSSTt4OlXPd5GdhPoXe+OFb6AdecYzHzcyDGqVigpiTzuGC2X+PHUbC8XFinix0f
+gdQGwgBhB+DKkRj/Eln1
+=cUp6
+-----END PGP SIGNATURE-----
 
---- a/Documentation/devicetree/bindings/i2c/i2c-omap.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-omap.txt
-@@ -1,7 +1,8 @@
- I2C for OMAP platforms
- 
- Required properties :
--- compatible : Must be "ti,omap3-i2c" or "ti,omap4-i2c"
-+- compatible : Must be "ti,omap2420-i2c", "ti,omap2430-i2c", "ti,omap3-i2c"
-+  or "ti,omap4-i2c"
- - ti,hwmods : Must be "i2c<n>", n being the instance number (1-based)
- - #address-cells = <1>;
- - #size-cells = <0>;
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1037,6 +1037,20 @@ static const struct i2c_algorithm omap_i2c_algo = {
- };
- 
- #ifdef CONFIG_OF
-+static struct omap_i2c_bus_platform_data omap2420_pdata = {
-+	.rev = OMAP_I2C_IP_VERSION_1,
-+	.flags = OMAP_I2C_FLAG_NO_FIFO |
-+			OMAP_I2C_FLAG_SIMPLE_CLOCK |
-+			OMAP_I2C_FLAG_16BIT_DATA_REG |
-+			OMAP_I2C_FLAG_BUS_SHIFT_2,
-+};
-+
-+static struct omap_i2c_bus_platform_data omap2430_pdata = {
-+	.rev = OMAP_I2C_IP_VERSION_1,
-+	.flags = OMAP_I2C_FLAG_BUS_SHIFT_2 |
-+			OMAP_I2C_FLAG_FORCE_19200_INT_CLK,
-+};
-+
- static struct omap_i2c_bus_platform_data omap3_pdata = {
- 	.rev = OMAP_I2C_IP_VERSION_1,
- 	.flags = OMAP_I2C_FLAG_BUS_SHIFT_2,
-@@ -1055,6 +1069,14 @@ static const struct of_device_id omap_i2c_of_match[] = {
- 		.compatible = "ti,omap3-i2c",
- 		.data = &omap3_pdata,
- 	},
-+	{
-+		.compatible = "ti,omap2430-i2c",
-+		.data = &omap2430_pdata,
-+	},
-+	{
-+		.compatible = "ti,omap2420-i2c",
-+		.data = &omap2420_pdata,
-+	},
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, omap_i2c_of_match);
+--0qt3EE9wi45a2ZFX--
