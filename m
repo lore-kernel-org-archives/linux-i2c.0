@@ -1,59 +1,54 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v6 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Thu, 14 Nov 2013 18:00:26 +0100
-Message-ID: <20131114170026.GA11022@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 2/4] ARM: STi: Supply I2C configuration to STiH416 SoC
+Date: Thu, 14 Nov 2013 18:03:03 +0100
+Message-ID: <20131114170303.GB11022@katana>
 References: <1383726315-27534-1-git-send-email-maxime.coquelin@st.com>
- <1383726315-27534-2-git-send-email-maxime.coquelin@st.com>
+ <1383726315-27534-3-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1383726315-27534-2-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Cc: srinivas.kandagatla-qxv4g6HH51o@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stephen.gallimore-qxv4g6HH51o@public.gmane.org, stuart.menefy-qxv4g6HH51o@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, gabriel.fernandez-qxv4g6HH51o@public.gmane.org
+In-Reply-To: <1383726315-27534-3-git-send-email-maxime.coquelin@st.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Maxime COQUELIN <maxime.coquelin@st.com>
+Cc: srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, stephen.gallimore@st.com, stuart.menefy@st.com, Lee Jones <lee.jones@linaro.org>, gabriel.fernandez@st.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---VbJkn9YxBvnuCH5J
+--qcHopEYAB45HaUaB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 06, 2013 at 09:25:12AM +0100, Maxime COQUELIN wrote:
-> This patch adds support to SSC (Synchronous Serial Controller)
-> I2C driver. This IP also supports SPI protocol, but this is not
-> the aim of this driver.
+On Wed, Nov 06, 2013 at 09:25:13AM +0100, Maxime COQUELIN wrote:
+> This patch supplies I2C configuration to STiH416 SoC.
 >=20
-> This IP is embedded in all ST SoCs for Set-top box platorms, and
-> supports I2C Standard and Fast modes.
->=20
-> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+> Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
 
-Applied to for-next, thanks!
+I suppose the dts patches go via arm-soc.
 
 
---VbJkn9YxBvnuCH5J
+--qcHopEYAB45HaUaB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJShQGqAAoJEBQN5MwUoCm2SCMP/3HI6SSjFtrYRq1xwkMg2T1E
-VObiP9YJI3LNUtfCRp/eIfZrcvRYgJ6Iju3g12ww4eU1aHwDe8UFSYv8XooeosgA
-fJNPEJduVesX6gPZT5Ji5gWMxYkP20BsQG8tSKC5211oGfcMCklo2896LqGFUHjG
-8rMGVoKc1/GdzNEoFQbphelQLo5D5P0haSgpRWh79sON6mb+PY1+WgKoeD6GXCOR
-Rx+0iCcvtykfgxlNa0vOkVMtCfjM9vOXS4ueo5q10jSuk6Z9R7pRpy+8hjCWHcnm
-KVFFs9RaR0Iz8KInsLzbDNnGs98HO+2KOqaVteyc8POox9EpB1In4OIxG6bzBOli
-41MHkxtMDw+HiCH2BhlQHjJRS1nie5yh+NKR4dxCsUo4VL7M8uEJEMoMnIQEHaWK
-ZRF5zCUHBa2yfpD6ltplnOFgm2MoErzszMIvGF/C4i/9md3UiVppAwaY5Z+fNSKD
-M2OZexTIISJS1wJc6bHPgLuptYMWy6vXsCBW0KszZLb8E2aOc6ODdDnEJ0vdq7Ot
-mHWZwjD2X8JFeUwK29J7jHe1ZwWR/c6BCLeA/o6VDYosmVIQGjaqjmB9YMy8Uwr9
-1B7FO1uugAzm7CyoHN/FjddBIjFPc9CcnjE+CmYvWKmR5Rl+hfju1e4b3YTeJLdZ
-xpf9EAF8HPSoF2FViZM7
-=2wDJ
+iQIcBAEBAgAGBQJShQJHAAoJEBQN5MwUoCm2bw8P/jDuNafMkqOCMsjaGlqKHF72
+TLckqq8EXEHmAghIjRTmV5zkslj3nYKEwdKYUbk8I3dtyvP/3/pAhv1mOE35IFWj
+gT0JarW8EDtAXBLbRBPIcfVSAgCAWI/y5+gzkK+ssjKu+Qa4X6NsbCT35Kcz0DcD
+Y67ozGzfM8Vs8NAYdWp/X4MccOG3157DqmUoK1q1klw/XqHy8CAVq2bQY8xrAXgb
+bta1/rGI7sesgDrFtB4YWo9STTHbPeGX5EcmzQYsqu+F2/La7+8lbSzLJS05hLr3
+vHLvNO+9/c07kSFaiuVlwkBYWUGxUEGTG2GE7Mh77uTfRXKjnq4KWqH/RI7YVpa5
+PNEIKiEzoxb34iAN9iRC5t22B/LapgbMi2h0MQmphfyeSzWcU9nmPTNq/dngyWQs
+Ab9kL2P4qccD0DsbCMB4ieIDjGwCvComgCiEY1d56kBbt0Cx5OiYE8cimDqEVIZs
+FSRVnjcFmSCTBnBd0bYfz/cn9WFvX2kikPP519pptNzimJUo14mtEuqYdPXo1nx6
+n3McrRQjX3x1p3MPeijLLFXsIeCJj3Wfu2zvQzLSWvzi0z/pqJUJbRNwoMsZdsS2
++bsTPUEu5xqVP8e+d1CO4DDWlJK+kLqorng6gA1Yt7VUy+cbQk+3HaPSLVgrVaNe
+NbA0zxWJChniX8J3N6k1
+=EfLW
 -----END PGP SIGNATURE-----
 
---VbJkn9YxBvnuCH5J--
+--qcHopEYAB45HaUaB--
