@@ -1,61 +1,57 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 4/8] i2c: omap: Fix missing device tree flags for omap2
-Date: Thu, 14 Nov 2013 09:53:45 -0800
-Message-ID: <20131114175344.GI10317@atomide.com>
-References: <1384396537-3486-1-git-send-email-tony@atomide.com>
- <1384396537-3486-5-git-send-email-tony@atomide.com>
- <20131114065830.GA2738@katana> <20131114173429.GF10317@atomide.com>
- <20131114174913.GJ11022@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-designware-pci: Index Haswell ULT bus names from
+ 0
+Date: Thu, 14 Nov 2013 19:05:38 +0100
+Message-ID: <20131114180538.GK11022@katana>
+References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
+ <1382326010-4554-3-git-send-email-bleung@chromium.org>
+ <20131021065804.GX3521@intel.com>
+ <CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rwbb4r/vLufKlfJs"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20131114174913.GJ11022@katana>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Duncan Laurie <dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Wolfram Sang <wsa@the-dreams.de> [131114 09:49]:
-> 
-> > > It would have been helpful if the message "PATCH [0/x]" would have been
-> > > sent to the i2c-list also.
-> > 
-> > Thanks, next time I'll try check the cc list in the cover letter
-> > manually after running git format patch. I guess there's no way
-> > to deal with that in an automated way.
-> 
-> I use this hackish script as --cc-cmd with git:
-> 
-> #! /bin/sh
-> #
-> # cocci_cc - send cover letter to all mailing lists referenced in a patch series
-> # done by Wolfram Sang in 2012 - WTFPLv2
-> 
-> name=${1##*/}
-> num=${name%%-*}
-> 
-> if [ "$num" = "0000" ]; then
-> 	dir=${1%/*}
-> 	for f in $dir/*; do
-> 		patchname=${f##*/}
-> 		[ "${patchname%%-*}" = "0000" ] && continue
-> 		scripts/get_maintainer.pl --no-m $f
-> 	done | sort -u
-> else
-> 	scripts/get_maintainer.pl $1
-> fi
-> 
 
-Cool thanks :) I'll give it a try next time.
+--rwbb4r/vLufKlfJs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Tony
+
+> In the chromeos_laptop driver, I do by-name matching of i2c busses to
+> find busses and instantiate devices, so there is value to have each
+> named something predictable.
+
+Any why don't you use fixed bus numbers which you can attach the devices
+to?
+
+
+--rwbb4r/vLufKlfJs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJShRDyAAoJEBQN5MwUoCm2CBwP/0a1exmWGyB60VLyp8W6+dLa
+XZKZfPfx8ogv0LfCjrfOiyxs0nzmKH2l9nd7ab6PbDdJgbvzYZ+IvmRh+J9wH/A4
+kOFnAGSwF3xOIx+RLil+e/J6MZ7auaNYIhMKD0orBAkoVoIv0xP3rL68MibQ6N52
+W0CJTWFCaj3XhzOLOtu0FakkPzhzAF1ZoP/B/sBgjs0TVWVn43MbfdtklpOEEtJK
+APvgb/oG7cCTTPF17IrquEVRFIWbewvsNJHxt/wr9CSKvWPobKvIsloQ5u5B0Ys7
+n4rhiI+rjckUW3YWIeiqe1+SHdMFpbypWjWXXRi30YQTIF3mWjiNBxYTODzvAyu3
+pzU+cmTovS6csbXRWLlh5Y2OMGkoQbJeQk/DuezNEkfCxZQbZLfBFu/n5MC0n/mT
+rinu8ddHSG89UDI7EatISGYxfMEgg5l3DLQrUbMlovCMCxxP+n7GXwx8H0scoS86
+zKedbQy/Rfh4lxLXVksgiNyJbe8oUtZ5rPFT60ew1dxWtWFHTjIB2G4YrvRQjpEd
+IFahtezYutzzzB3xuhtY+lEqxevKlRROZcH/1pdT/rvs8wXgZL/R2B42AqFtg+Up
+oq7QitIepFGovD4dz62JWDQWan0QJf7i+7WY4hLxUm0hTpgHV+57INGkLIpQF2xm
+6vCDDlU2H4ij5QP3dcc/
+=yv6l
+-----END PGP SIGNATURE-----
+
+--rwbb4r/vLufKlfJs--
