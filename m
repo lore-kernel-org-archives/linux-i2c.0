@@ -1,54 +1,39 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: add new ACPI IDs
-Date: Thu, 14 Nov 2013 18:33:34 +0100
-Message-ID: <20131114173334.GG11022@katana>
-References: <1384250250-10643-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 4/8] i2c: omap: Fix missing device tree flags for omap2
+Date: Thu, 14 Nov 2013 09:34:29 -0800
+Message-ID: <20131114173429.GF10317@atomide.com>
+References: <1384396537-3486-1-git-send-email-tony@atomide.com>
+ <1384396537-3486-5-git-send-email-tony@atomide.com>
+ <20131114065830.GA2738@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0qt3EE9wi45a2ZFX"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1384250250-10643-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20131114065830.GA2738@katana>
+Sender: linux-omap-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+* Wolfram Sang <wsa@the-dreams.de> [131113 22:59]:
+> On Wed, Nov 13, 2013 at 06:35:33PM -0800, Tony Lindgren wrote:
+> > As we claim to support device tree for mach-omap2, we
+> > should have the necessary flags in the driver to make it
+> > usable.
+> > 
+> > Cc: Wolfram Sang <wsa@the-dreams.de>
+> > Cc: linux-i2c@vger.kernel.org
+> > Signed-off-by: Tony Lindgren <tony@atomide.com>
+> 
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> 
+> It would have been helpful if the message "PATCH [0/x]" would have been
+> sent to the i2c-list also.
 
---0qt3EE9wi45a2ZFX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks, next time I'll try check the cc list in the cover letter
+manually after running git format patch. I guess there's no way
+to deal with that in an automated way.
 
-On Tue, Nov 12, 2013 at 11:57:30AM +0200, Mika Westerberg wrote:
-> Newer Intel PCHs with LPSS have the same Designware I2C controllers than
-> Haswell but the ACPI IDs differ. Add these IDs to the driver list.
->=20
-> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Here's a link to the whole thread for reference:
 
-Applied to for-next, thanks!
-
-
---0qt3EE9wi45a2ZFX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJShQluAAoJEBQN5MwUoCm2OQQQAKVOCsDMjSzo5P4I7j+jk1E1
-QXsi8DEMp2mPZf/kFddLZYlot2RaYkTV+swzqb3t+pCNpIBnPVqxVk1AgNed8EaT
-RnvNw/TSNwtVQQlgwwW92BKZvY0WCQk0PD2+xvmW33sRMUHqgrbeMor7Bx0ouup2
-A76MiD6S97DeTS//WyD2QEzEf1JYz9ECjwp7kA2Uqv/o5muC/7NvkWCdZ83oSBnr
-4iYFiN+mwmrjJ69OHaHGiwSSb34bAtf+LEtS7snTboxlB3oe2MCd/U/Fx2JDE/Oy
-yHS565Lcp0WlM9HxHGXtjSs0VbzSRKVANIKpRe1RTiJxOe01tcGPQw71l1R2yGb+
-DfaEHANzxrGupfbZj9oZem/1ugdT8Jc943qrw/MEBGlGM7cb6C3Sh8B00k+2aMKi
-8j6MjlzPwSxxt8tYuVwV0kWuuv2o/4LsQsc1adEcI3Tfbx84H/INHjkPnkd0gAol
-NhaLFgp1FBNJ9gj/3SmkwUYCNMb/H3SIYc1sA4YYOrJeI06VEgj4K9xzd3T+7Fim
-1PdSOjbLrqwudNqbmVF8GQYF6hUopMWtf88hVfdzc1NLr10yNNr2NMBz7Qrt5Xjt
-cSSTt4OlXPd5GdhPoXe+OFb6AdecYzHzcyDGqVigpiTzuGC2X+PHUbC8XFinix0f
-gdQGwgBhB+DKkRj/Eln1
-=cUp6
------END PGP SIGNATURE-----
-
---0qt3EE9wi45a2ZFX--
+http://www.spinics.net/lists/arm-kernel/msg286246.html
