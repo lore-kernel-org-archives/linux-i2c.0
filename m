@@ -1,70 +1,45 @@
-From: "Tim Kryger" <tim.kryger@linaro.org>
-Subject: [PATCH v2 1/5] Documentation: dt: Add i2c-bcm-kona binding
-Date: Thu, 14 Nov 2013 13:02:12 -0800
-Message-ID: <1384462936-7906-2-git-send-email-tim.kryger@linaro.org>
-References: <1384462936-7906-1-git-send-email-tim.kryger@linaro.org>
+From: "Tim Kryger" <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2 0/5] Add-Broadcom-Kona-I2C-Support
+Date: Thu, 14 Nov 2013 13:02:11 -0800
+Message-ID: <1384462936-7906-1-git-send-email-tim.kryger@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1384462936-7906-1-git-send-email-tim.kryger@linaro.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Christian Daudt <bcm@fixthebug.org>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>
-Cc: Tim Kryger <tim.kryger@linaro.org>, Device Tree List <devicetree@vger.kernel.org>, Linux Doc List <linux-doc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux I2C List <linux-i2c@vger.kernel.org>, Linux ARM Kernel List <linux-arm-kernel@lists.infradead.org>, Linaro Patches List <patches@linaro.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Device Tree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Doc List <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linaro Patches List <patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add the binding description for the i2c-bcm-kona block found on
-Broadcom's mobile SoCs.
+This series adds support for the Kona I2C bus found on Broadcom mobile
+SoCs like the bcm11351 (aka bcm281xx) and enables it on the bcm28155-ap
+board.
 
-Signed-off-by: Tim Kryger <tim.kryger@linaro.org>
-Reviewed-by: Matt Porter <matt.porter@linaro.org>
----
- .../devicetree/bindings/i2c/i2c-bcm-kona.txt       | 35 ++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+It depends upon the following commit:
+  http://lkml.indiana.edu/hypermail/linux/kernel/1311.1/03583.html
+
+Tim Kryger (5):
+  Documentation: dt: Add i2c-bcm-kona binding
+  i2c: i2c-bcm-kona: Introduce Broadcom I2C Driver
+  i2c: i2c-bcm-kona: Add support for high-speed mode
+  ARM: dts: bcm281xx: Add i2c busses
+  ARM: dts: bcm28155-ap: Enable all the i2c busses
+
+ .../devicetree/bindings/i2c/i2c-bcm-kona.txt       |  35 +
+ arch/arm/boot/dts/bcm11351.dtsi                    |  40 +
+ arch/arm/boot/dts/bcm28155-ap.dts                  |  20 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-bcm-kona.c                  | 908 +++++++++++++++++++++
+ 6 files changed, 1014 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-bcm-kona.txt
+ create mode 100644 drivers/i2c/busses/i2c-bcm-kona.c
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-bcm-kona.txt b/Documentation/devicetree/bindings/i2c/i2c-bcm-kona.txt
-new file mode 100644
-index 0000000..1b87b74
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-bcm-kona.txt
-@@ -0,0 +1,35 @@
-+Broadcom Kona Family I2C
-+=========================
-+
-+This I2C controller is used in the following Broadcom SoCs:
-+
-+  BCM11130
-+  BCM11140
-+  BCM11351
-+  BCM28145
-+  BCM28155
-+
-+Required Properties
-+-------------------
-+- compatible: "brcm,bcm11351-i2c", "brcm,kona-i2c"
-+- reg: Physical base address and length of controller registers
-+- interrupts: The interrupt number used by the controller
-+- clocks: clock specifier for the kona i2c external clock
-+- clock-frequency: The I2C bus frequency in Hz
-+- #address-cells: Should be <1>
-+- #size-cells: Should be <0>
-+
-+Refer to clocks/clock-bindings.txt for generic clock consumer
-+properties.
-+
-+Example:
-+
-+i2c@3e016000 {
-+	compatible = "brcm,bcm11351-i2c","brcm,kona-i2c";
-+	reg = <0x3e016000 0x80>;
-+	interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
-+	clocks = <&bsc1_clk>;
-+	clock-frequency = <400000>;
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+};
 -- 
 1.8.0.1
 
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
