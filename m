@@ -1,63 +1,37 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Subject: Re: [PATCH v2 0/5] Add-Broadcom-Kona-I2C-Support
-Date: Fri, 15 Nov 2013 23:52:34 +0100
-Message-ID: <20131115225234.GC2672@katana>
+Date: Fri, 15 Nov 2013 15:30:06 -0800
+Message-ID: <CAAYSxhrk6qgfy3TUdme3ge98d8Db7e=aW3LG8VfsJgjfuHAS3A@mail.gmail.com>
 References: <1384462936-7906-1-git-send-email-tim.kryger@linaro.org>
+	<20131115225234.GC2672@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gr/z0/N6AeWAPJVB"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1384462936-7906-1-git-send-email-tim.kryger@linaro.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Tim Kryger <tim.kryger@linaro.org>
-Cc: Christian Daudt <bcm@fixthebug.org>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, Device Tree List <devicetree@vger.kernel.org>, Linux Doc List <linux-doc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux I2C List <linux-i2c@vger.kernel.org>, Linux ARM Kernel List <linux-arm-kernel@lists.infradead.org>, Linaro Patches List <patches@linaro.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20131115225234.GC2672@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Device Tree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Doc List <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linaro Patches List <patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Nov 15, 2013 at 2:52 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
 
---gr/z0/N6AeWAPJVB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Fixed Kconfig sorting, squashed broken out patches 1-3 into one and
+> applied to for-next, thanks! Let me know if I should take patches 4-5
+> also, but usually they go via arm-soc. Also, please provide a "Changes
+> since V1" log which will speed up reviewing.
 
-On Thu, Nov 14, 2013 at 01:02:11PM -0800, Tim Kryger wrote:
-> This series adds support for the Kona I2C bus found on Broadcom mobile
-> SoCs like the bcm11351 (aka bcm281xx) and enables it on the bcm28155-ap
-> board.
->=20
-> It depends upon the following commit:
->   http://lkml.indiana.edu/hypermail/linux/kernel/1311.1/03583.html
+Thanks.  It appears that when I updated the dependencies, I
+accidentally removed the change list I had planned to send.  This is
+what should have appeared in my cover letter:
 
-Fixed Kconfig sorting, squashed broken out patches 1-3 into one and
-applied to for-next, thanks! Let me know if I should take patches 4-5
-also, but usually they go via arm-soc. Also, please provide a "Changes
-since V1" log which will speed up reviewing.
+Changes in v2:
+  - Binding documentation is in its own patch
+  - Minor cosmetic changes
+  - Fixed bug related to improper signedness
+  - Removed superflous mutex
+  - Simplified probe function
 
-Thanks,
+I think it would be best for the DTS changes (patches 4 and 5) to go
+through Christian's tree.
 
-   Wolfram
-
-
---gr/z0/N6AeWAPJVB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJShqWyAAoJEBQN5MwUoCm29OgQAIaT+x3Kn4hRankq0+PVqnjB
-PAiCLkq1zJMq5ne6mZ8YQzg0cDnHmN3o9liVMV+kZKgiveizSpEhrWTlH1XzOUxE
-EkRUnVQWWrjZnKzmY8pEIYWn0MMG+ThkjN9PydG7T3ZFoNjlQXeoBUl2Y1r6wRJx
-xGYgB1ZmZRrBx+RIjrCiVQ8RmSCae7bFODCZC1ADMRi5N46mANSf1XazifbuUasd
-Rm6u00JAFHoPDOPhPj5B6NTy0piJmC2zvZcqUHLq2rdCCjBI8TZsfwoI/CgVMo12
-e+v/VZQlxFC4Jr9QNqb+cSpMmIcGj4ahCaHk2jOraXuuhBzF8lIzF3BILDWfQnay
-htTGFqId38gLaXx8W/vxEh9o+p3BRzzU+sjVDazFRqCFi+jw9Q6yzwN45hoDnCiQ
-EcWA8Jyf/ry/0zbt1OaepNet5uq6kyzNUkfLxw0ztn/1W/cwE6LQeotI3yZthdSQ
-GE0Twov3LV11Jpo5PmUY8uvNLRw4voaqvUIah+4bbo+w/i/hwYlMfL6L4t0djjqU
-3nTOEx6ODRv18CxGEA6KmgsdPqSmp5x/BGV7/yMFaX2qNTLpHF7ioQj3L342xBuC
-FQL36DeBfqCPxJLfuz4MP1jPZlteoh6IMxuegHealNlXtYd3ei8zogqLAT+MGnzG
-VetCw+10ADyinFSqDWBq
-=3CHQ
------END PGP SIGNATURE-----
-
---gr/z0/N6AeWAPJVB--
+-Tim
