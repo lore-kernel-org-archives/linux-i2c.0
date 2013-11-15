@@ -1,78 +1,38 @@
-From: robert.valiquette-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-Subject: [PATCH 1/1] i2c-ismt: add the support of the
- I2C_SMBUS_I2C_BLOCK_DATA transaction type
-Date: Thu, 14 Nov 2013 19:52:30 -0500
-Message-ID: <5285704e.jwiZWyk8R3ZEoySS%robert.valiquette@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: [PATCH 1/2] i2c: i2c-tiny-usb: Remove RobotFuzz USB vendor:product ID
+Date: Fri, 15 Nov 2013 11:08:13 +0100
+Message-ID: <1384510094-9664-1-git-send-email-andrew@lunn.ch>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-Cc: robert.valiquette-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>, Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the support of the I2C_SMBUS_I2C_BLOCK_DATA transaction type for the iSMT SMBus Controller.
+The RobotFuzz device is not compatible with i2c-tiny-usb. Remove its
+entry from the USB table so that the new correct driver can be used.
 
-Signed-off-by: Robert Valiquette <robert.valiquette-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+CC: Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>
+CC: Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
---- a/drivers/i2c/busses/i2c-ismt.c	2013-11-14 11:36:15.830322000 -0500
-+++ b/drivers/i2c/busses/i2c-ismt.c	2013-11-14 16:01:56.532356000 -0500
-@@ -344,6 +344,7 @@
- 			data->word = dma_buffer[0] | (dma_buffer[1] << 8);
- 			break;
- 		case I2C_SMBUS_BLOCK_DATA:
-+		case I2C_SMBUS_I2C_BLOCK_DATA:
- 			memcpy(&data->block[1], dma_buffer, desc->rxbytes);
- 			data->block[0] = desc->rxbytes;
- 			break;
-@@ -509,6 +510,41 @@
- 		}
- 		break;
+
+FYI: I'm away from the net for the next two weeks. So please take your time
+with reviewing.
+
+ drivers/i2c/busses/i2c-tiny-usb.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index e7d3b755af3b..0ed77eeff31e 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -162,7 +162,6 @@ static const struct i2c_algorithm usb_algorithm = {
+ static const struct usb_device_id i2c_tiny_usb_table[] = {
+ 	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
+ 	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
+-	{ USB_DEVICE(0x1964, 0x0001) },   /* Robofuzz OSIF */
+ 	{ }                               /* Terminating entry */
+ };
  
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		/* Make sure the lenght is valid */
-+		if (data->block[0] < 1)
-+			data->block[0] = 1;
-+
-+		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+			data->block[0] = I2C_SMBUS_BLOCK_MAX;
-+
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			/* i2c Block Write */
-+			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:  WRITE\n");
-+			dma_size = data->block[0] + 1;
-+			dma_direction = DMA_TO_DEVICE;
-+			desc->wr_len_cmd = dma_size;
-+			desc->control |= ISMT_DESC_I2C;
-+			priv->dma_buffer[0] = command;
-+			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size);
-+		} else {
-+			/* i2c Block Read */
-+			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:  READ\n");
-+			dma_size = data->block[0];
-+			dma_direction = DMA_FROM_DEVICE;
-+			desc->rd_len = dma_size;
-+			desc->wr_len_cmd = command;
-+			desc->control |= (ISMT_DESC_I2C | ISMT_DESC_CWRL);
-+			/*
-+			 * Per the "Table 15-15. I2C Commands",
-+			 * in the External Design Specification (EDS),
-+			 * (Document Number: 508084, Revision: 2.0),
-+			 * the _rw bit must be 0
-+			 */
-+			desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, 0);
-+		}
-+		break;
-+
- 	default:
- 		dev_err(dev, "Unsupported transaction %d\n",
- 			size);
-@@ -582,6 +618,7 @@
- 	       I2C_FUNC_SMBUS_WORD_DATA		|
- 	       I2C_FUNC_SMBUS_PROC_CALL		|
- 	       I2C_FUNC_SMBUS_BLOCK_DATA	|
-+	       I2C_FUNC_SMBUS_I2C_BLOCK		|
- 	       I2C_FUNC_SMBUS_PEC;
- }
- 
+-- 
+1.8.4.rc3
