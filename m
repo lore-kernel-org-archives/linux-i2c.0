@@ -1,37 +1,61 @@
-From: Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 0/5] Add-Broadcom-Kona-I2C-Support
-Date: Fri, 15 Nov 2013 15:30:06 -0800
-Message-ID: <CAAYSxhrk6qgfy3TUdme3ge98d8Db7e=aW3LG8VfsJgjfuHAS3A@mail.gmail.com>
-References: <1384462936-7906-1-git-send-email-tim.kryger@linaro.org>
-	<20131115225234.GC2672@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Taras Kondratiuk <taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [RFC 05/23] i2c: omap: raw read and write endian fix
+Date: Sat, 16 Nov 2013 02:01:08 +0200
+Message-ID: <1384560086-11994-6-git-send-email-taras.kondratiuk@linaro.org>
+References: <1384560086-11994-1-git-send-email-taras.kondratiuk@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131115225234.GC2672@katana>
+In-Reply-To: <1384560086-11994-1-git-send-email-taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Device Tree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Doc List <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linaro Patches List <patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linaro-networking-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Victor Kamensky <victor.kamensky-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 15, 2013 at 2:52 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+From: Victor Kamensky <victor.kamensky-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-> Fixed Kconfig sorting, squashed broken out patches 1-3 into one and
-> applied to for-next, thanks! Let me know if I should take patches 4-5
-> also, but usually they go via arm-soc. Also, please provide a "Changes
-> since V1" log which will speed up reviewing.
+All OMAP IP blocks expect LE data, but CPU may operate in BE mode.
+Need to use endian neutral functions to read/write h/w registers.
+I.e instead of __raw_read[lw] and __raw_write[lw] functions code
+need to use read[lw]_relaxed and write[lw]_relaxed functions.
+If the first simply reads/writes register, the second will byteswap
+it if host operates in BE mode.
 
-Thanks.  It appears that when I updated the dependencies, I
-accidentally removed the change list I had planned to send.  This is
-what should have appeared in my cover letter:
+Changes are trivial sed like replacement of __raw_xxx functions
+with xxx_relaxed variant.
 
-Changes in v2:
-  - Binding documentation is in its own patch
-  - Minor cosmetic changes
-  - Fixed bug related to improper signedness
-  - Removed superflous mutex
-  - Simplified probe function
+Signed-off-by: Victor Kamensky <victor.kamensky-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Taras Kondratiuk <taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-I think it would be best for the DTS changes (patches 4 and 5) to go
-through Christian's tree.
-
--Tim
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 9967a6f..d69826e 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -266,13 +266,13 @@ static const u8 reg_map_ip_v2[] = {
+ static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
+ 				      int reg, u16 val)
+ {
+-	__raw_writew(val, i2c_dev->base +
++	writew_relaxed(val, i2c_dev->base +
+ 			(i2c_dev->regs[reg] << i2c_dev->reg_shift));
+ }
+ 
+ static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
+ {
+-	return __raw_readw(i2c_dev->base +
++	return readw_relaxed(i2c_dev->base +
+ 				(i2c_dev->regs[reg] << i2c_dev->reg_shift));
+ }
+ 
+@@ -1142,7 +1142,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	 * Also since the omap_i2c_read_reg uses reg_map_ip_* a
+ 	 * raw_readw is done.
+ 	 */
+-	rev = __raw_readw(dev->base + 0x04);
++	rev = readw_relaxed(dev->base + 0x04);
+ 
+ 	dev->scheme = OMAP_I2C_SCHEME(rev);
+ 	switch (dev->scheme) {
+-- 
+1.7.9.5
