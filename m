@@ -1,88 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Andreas Werner <wernerandy@gmx.de>
 Subject: Re: [PATCH v2] I2C: busses: i2c-eg20t Do not print error message in
  syslog if no ACK received
-Date: Sun, 17 Nov 2013 18:08:38 +0100
-Message-ID: <20131117170838.GA8577@katana>
+Date: Sun, 17 Nov 2013 18:16:23 +0100
+Message-ID: <20131117171623.GA3947@thinkpad.fritz.box>
 References: <1384678731-10399-1-git-send-email-wernerandy@gmx.de>
  <20131117110846.GA3093@katana>
  <20131117123902.GA3834@awedesk.fritz.box>
  <20131117121809.GC3093@katana>
  <20131117165329.GA1562@thinkpad.fritz.box>
+ <20131117170838.GA8577@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20131117165329.GA1562-Zv899e0YUSYXU02nzanrWNbf9cGiqdzd@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20131117170838.GA8577@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: khali@linux-fr.org, jacmet@sunsite.dk, hskinnemoen@gmail.com, dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Sun, Nov 17, 2013 at 06:08:38PM +0100, Wolfram Sang wrote:
+> On Sun, Nov 17, 2013 at 05:53:29PM +0100, Andreas Werner wrote:
+> > On Sun, Nov 17, 2013 at 01:18:09PM +0100, Wolfram Sang wrote:
+> > > 
+> > > > Is there another reason why pch_i2c_getack returned EPROTO?
+> > > > May be ENXIO was introduced later?
+> > > 
+> > > Imperfect review :)
+> > > 
+> > > > I think we can just replace the -EIO with -ENXIO or do you want to pick up the return
+> > > > vale of pch_i2c_getack and return that ?
+> > > 
+> > > The latter. As a rule of thumb, it is usually more sustainable to pass
+> > > through error codes. Overloading them should only be done when really
+> > > necessary IMO.
+> > > 
+> > Ok, if that will be ok in pch_i2c_wait_for_check_xfer i will resend 
+> > the patch.
+> > 
+> >         ret = pch_i2c_getack(adap);
+> > 
+> >         if (ret)
+> >                 pch_dbg(adap, "Receive NACK for slave address setting\n");
+> > 
+> >         return (int)ret;
+> 
+> Hmm, the cast looks ugly. Looking at the driver more closely, my
+> preferred solution would be to elimiate the getack function and just do
+> that directly in wait_for_check_xfer:
+> 
+> 	if (ioread32(adap->pch_base_address + PCH_I2CSR) & PCH_GETACK) {
+> 		pch_dbg ...
+> 		return -ENXIO;
+> 	}
+> 
+> Something like that...
+> 
+Sometimes its really usfull to look closely :-)
+I agree you, because the function is just called one time, so
+we can really delete this function.
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Nov 17, 2013 at 05:53:29PM +0100, Andreas Werner wrote:
-> On Sun, Nov 17, 2013 at 01:18:09PM +0100, Wolfram Sang wrote:
-> >=20
-> > > Is there another reason why pch_i2c_getack returned EPROTO?
-> > > May be ENXIO was introduced later?
-> >=20
-> > Imperfect review :)
-> >=20
-> > > I think we can just replace the -EIO with -ENXIO or do you want to pi=
-ck up the return
-> > > vale of pch_i2c_getack and return that ?
-> >=20
-> > The latter. As a rule of thumb, it is usually more sustainable to pass
-> > through error codes. Overloading them should only be done when really
-> > necessary IMO.
-> >=20
-> Ok, if that will be ok in pch_i2c_wait_for_check_xfer i will resend=20
-> the patch.
->=20
->         ret =3D pch_i2c_getack(adap);
->=20
->         if (ret)
->                 pch_dbg(adap, "Receive NACK for slave address setting\n");
->=20
->         return (int)ret;
-
-Hmm, the cast looks ugly. Looking at the driver more closely, my
-preferred solution would be to elimiate the getack function and just do
-that directly in wait_for_check_xfer:
-
-	if (ioread32(adap->pch_base_address + PCH_I2CSR) & PCH_GETACK) {
-		pch_dbg ...
-		return -ENXIO;
-	}
-
-Something like that...
-
-
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSiPgWAAoJEBQN5MwUoCm2AREP/3ZPVUCfuOL+s7hcoHnhVLFo
-LloXtt5ZLDiwBmXOI8tQs1+07eUPvETtAEBGXQN1L5WioMhjLePyLaX/UiXBQZjk
-yoIjl4yJhGppzhqgbIIelOgooHrhgcAxxOPRwBb4VDcfbRIargwknm8Hp2cEEgbZ
-2Sd7WK3gj8fA8Y/mE96dapt5vD7U14oMlVqDe73AAUAWOELUcZedijljfLYwsCKs
-OliNYc0ov8vdfK76JbJ5ldmFWR5VSk5ZZNBWgUYP6JwCi24BOiFLAN/P0BXgy/6H
-3JKebudlfwEKF/yFzg03HmTlCVoDaT5blVGPP01QMuEvDosDzfaMjSv3ULixsglE
-8OniQpPEE7peiVnLMZHvrlIgBgzeaP/gIZ/pSkOY/WBN57LXEepeyz95RaQmhfP1
-ooEYtFrC1TcetdPddLfmbwNGJh52jjDgClEZ7Gzx6tP7hfvOQglhbRefI7+JCaLo
-XU3IOcCAWjSqXTRT6jEMEJvJQzgTvh3D07g6JcNLn/cqGpf+meuToBSAFYf/ufZo
-gfwCaZCKU616Kjpvdcnee67zEVYQuj1gSx+aDrgN9xFY5bRul3zgppQOjzwyxSQu
-edSxkT/mqHEhQ8Woq2RHRoPo8JjXGYGSaxQggRH/Ni4UBKBshPR5AxWFU/06cFNu
-N1FvInMiifUDTnK5DK6p
-=oFJf
------END PGP SIGNATURE-----
-
---9amGYk9869ThD9tj--
+regards
+Andy
