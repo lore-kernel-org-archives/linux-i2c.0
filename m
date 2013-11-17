@@ -1,100 +1,75 @@
-From: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
-Subject: [PATCH v3] I2C: busses: i2c-eg20t Do not print error message in syslog if no ACK received
-Date: Sun, 17 Nov 2013 18:46:20 +0100
-Message-ID: <1384710380-5976-1-git-send-email-wernerandy@gmx.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3] I2C: busses: i2c-eg20t Do not print error message in
+ syslog if no ACK received
+Date: Sun, 17 Nov 2013 19:31:03 +0100
+Message-ID: <20131117183103.GC8577@katana>
+References: <1384710380-5976-1-git-send-email-wernerandy@gmx.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="L6iaP+gRLNZHKoI4"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1384710380-5976-1-git-send-email-wernerandy-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wernerandy-Mmb7MZpHnFY@public.gmane.org
+To: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
+Cc: jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Using the i2c-eg20t driver and call i2cdetect or probe on the bus,
-the driver will print a lot of error messages if there was no ACK
-received.
 
-i2cdetect normally print a table with all the available devices. If there
-is no device on the address, the table will be empty.
-Currently with the i2c-eg20t driver, the table is not visible because
-the error messages destroy the table.
+--L6iaP+gRLNZHKoI4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Error message: pch_i2c_getack return -71
+On Sun, Nov 17, 2013 at 06:46:20PM +0100, Andreas Werner wrote:
+> Using the i2c-eg20t driver and call i2cdetect or probe on the bus,
+> the driver will print a lot of error messages if there was no ACK
+> received.
+>=20
+> i2cdetect normally print a table with all the available devices. If there
+> is no device on the address, the table will be empty.
+> Currently with the i2c-eg20t driver, the table is not visible because
+> the error messages destroy the table.
+>=20
+> Error message: pch_i2c_getack return -71
+>=20
+> This patch prevent the driver to print the messages to syslog.
+> The pch_i2c_wait_for_check_xfer function is the only one who is
+> calling pch_i2c_getack, so we can delete the function and add the
+> read to pch_i2c_wait_for_check_xfer.
+> If no ACK is received, the Message will be printed as a dbg
+> message.
+>=20
+> Fixed print message to be a one liner so we can grep for the
+> error message.
+>=20
+> Tested on Intel Atom E6xx and Eg20t Chipset.
+>=20
+> Signed-off-by: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
 
-This patch prevent the driver to print the messages to syslog.
-The pch_i2c_wait_for_check_xfer function is the only one who is
-calling pch_i2c_getack, so we can delete the function and add the
-read to pch_i2c_wait_for_check_xfer.
-If no ACK is received, the Message will be printed as a dbg
-message.
+Applied to for-next, thanks!
 
-Fixed print message to be a one liner so we can grep for the
-error message.
 
-Tested on Intel Atom E6xx and Eg20t Chipset.
+--L6iaP+gRLNZHKoI4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Signed-off-by: Andreas Werner <wernerandy-Mmb7MZpHnFY@public.gmane.org>
----
-Revision 2:
-        - delete the pch_err completly instead of changing to pch_dbg
-          because there is already a pch_dbg at the function who calls
-          pch_i2c_getack.
-        - Fixed message line issue
-Revision 3:
-        - delete the pch_i2c_getack function and add the ACK read to
-          pch_i2c_wait_for_check_xfer.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
 
- drivers/i2c/busses/i2c-eg20t.c | 26 ++++----------------------
- 1 file changed, 4 insertions(+), 22 deletions(-)
+iQIcBAEBAgAGBQJSiQtmAAoJEBQN5MwUoCm2ib4QAIBOkEpjaML9eHUh18g22GBU
+40Lk+Xudn8NEKYrMWVXQSjTdwL7eck5SKgelvuesH3Y0rnx3irChMRQjZnz9TB80
+lk51njEiqRg7rOn9Dp1Ab/6wYW6MSdKLOFt3R7VY0rwEc02z0s1NwOjMMxawPoVy
+ci3BXfu/9iUHlSzd5KyAmvyEFTASt2PySqeO2ohEbEav1p846pxpPHyTk458C1GI
+6TXY4fQSNG4Dz2KEyUdENfLfsvXuU9739w0yn4cAj8J/wYqCbayGrNohJsNdqXuN
+iIagb0tsNYrjTV7wTFU9jJe7Hq10bAe9H/u6ItKdshQYKxE1N3ioAmI6UBUMVTi4
+2CeR9wOo5iNcSKr6O14CR8PVAmKchMlb24kBsEMXPfTRbZR7peTE4P7pPJcP5sGi
+W1W8t8piGoglgPFZOsSwRhSwEk/j3b0IcksS2z3PYy2NIX3zdJyW4AlYrGEkDeWP
+9EOaZFY80rnmrCdu3qCamz2bHVuvWGsu9ZiKmBTKw+skL4IFA2xlB2pGLX5StrSn
+LG7W+q0c8K6rPeirEKBIPbU57wASuOHSfLVETW1Sg7Unoh6vMHkl3WxpEBZc24IU
+os4pvohTqm1IKP+l64JHCEeWxnM6D7PdJFWW4H/EKP4VCa8mDF/xSJrY9KKMDqdp
+1yLOEZzfkRqP3LyP9Gp8
+=uXQG
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 0f37529..ff15ae9 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -312,24 +312,6 @@ static void pch_i2c_start(struct i2c_algo_pch_data *adap)
- }
- 
- /**
-- * pch_i2c_getack() - to confirm ACK/NACK
-- * @adap:	Pointer to struct i2c_algo_pch_data.
-- */
--static s32 pch_i2c_getack(struct i2c_algo_pch_data *adap)
--{
--	u32 reg_val;
--	void __iomem *p = adap->pch_base_address;
--	reg_val = ioread32(p + PCH_I2CSR) & PCH_GETACK;
--
--	if (reg_val != 0) {
--		pch_err(adap, "return%d\n", -EPROTO);
--		return -EPROTO;
--	}
--
--	return 0;
--}
--
--/**
-  * pch_i2c_stop() - generate stop condition in normal mode.
-  * @adap:	Pointer to struct i2c_algo_pch_data.
-  */
-@@ -344,6 +326,7 @@ static void pch_i2c_stop(struct i2c_algo_pch_data *adap)
- static int pch_i2c_wait_for_check_xfer(struct i2c_algo_pch_data *adap)
- {
- 	long ret;
-+	void __iomem *p = adap->pch_base_address;
- 
- 	ret = wait_event_timeout(pch_event,
- 			(adap->pch_event_flag != 0), msecs_to_jiffies(1000));
-@@ -366,10 +349,9 @@ static int pch_i2c_wait_for_check_xfer(struct i2c_algo_pch_data *adap)
- 
- 	adap->pch_event_flag = 0;
- 
--	if (pch_i2c_getack(adap)) {
--		pch_dbg(adap, "Receive NACK for slave address"
--			"setting\n");
--		return -EIO;
-+	if (ioread32(p + PCH_I2CSR) & PCH_GETACK) {
-+		pch_dbg(adap, "Receive NACK for slave address setting\n");
-+		return -ENXIO;
- 	}
- 
- 	return 0;
--- 
-1.8.4.2
+--L6iaP+gRLNZHKoI4--
