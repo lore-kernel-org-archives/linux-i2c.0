@@ -1,36 +1,75 @@
-From: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH -next] i2c: bcm-kona: fix error return code in bcm_kona_i2c_probe()
-Date: Mon, 18 Nov 2013 21:03:08 +0800
-Message-ID: <CAPgLHd8vdQL5Uyypjj_L9qg=abQEXoGc6ZBKwrF-5D9x2YNm-Q@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Problem with multiple i2c multiplexers on one bus, and mux bus
+  naming
+Date: Mon, 18 Nov 2013 15:14:41 +0100
+Message-ID: <20131118151441.0ad2b5d8@endymion.delvare>
+References: <5287B9E4.1020107@roeck-us.net>
+	<20131116214116.3d035b76@endymion.delvare>
+	<20131116214318.1d101d35@endymion.delvare>
+	<20131117185624.GA23639@roeck-us.net>
+	<20131117214102.236ae09a@endymion.delvare>
+	<52893187.3000600@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <52893187.3000600-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
-Cc: yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+Hi Guenter,
 
-Fix to return a negative error code from the bus speed parse
-error handling case instead of 0.
+On Sun, 17 Nov 2013 13:13:43 -0800, Guenter Roeck wrote:
+> On 11/17/2013 12:41 PM, Jean Delvare wrote:
+> > On Sun, 17 Nov 2013 10:56:24 -0800, Guenter Roeck wrote:
+> >> This retains the old mux name if the mux is not an i2c device, and adds
+> >> the i2c device address if it is. This solves the problem for me.
+> >>
+> >> Comments ?
+> >
+> > This "for me" worries me a bit. You basically restored the uniqueness
+> > for the multiple I2C-based multiplexer case. But for multiple
+> > GPIO-based multiplexers, for example, the name confusion still exists.
+> 
+> Only if some genius connects multiple separate gpio based multiplexers
+> to the same bus.
 
-Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
----
- drivers/i2c/busses/i2c-bcm-kona.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+This is totally possible, for a variety of reasons, including physical
+location of the GPIO pins and bus segment ends, but also economical
+(using the same chips on several boards.)
 
-diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c-bcm-kona.c
-index 865e5dd..036cf03 100644
---- a/drivers/i2c/busses/i2c-bcm-kona.c
-+++ b/drivers/i2c/busses/i2c-bcm-kona.c
-@@ -792,7 +792,8 @@ static int bcm_kona_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	/* Parse bus speed */
--	if (bcm_kona_i2c_assign_bus_speed(dev))
-+	rc = bcm_kona_i2c_assign_bus_speed(dev);
-+	if (rc)
- 		goto probe_disable_clk;
- 
- 	/* Enable internal clocks */
+> In practice, though, that can be modeled as single
+> gpio mux with more pins, so I didn't think that is that much of a problem.
+
+I admit I had not considered this. But would it work if the different
+GPIO pins are on different chips (say south bridge and Super-I/O for
+example)? The i2c-mux-gpio driver assumes a single chip, at least when
+passed by name.
+
+> > If we are going to address this problem, I believe we should do so in a
+> > way which doesn't need revisiting in a couple months. You are changing
+> > adapter names people or tools may be relying on, we really don't want
+> > to do this too often.
+>
+> Good point. One possible solution might be to add the mux type into the name.
+> 	i2c-2-mux-i2c-76 (chan_id 0)
+> 	i2c-2-mux-gpio-77 (chan_id 0)
+
+Yes, that's pretty much what I had in mind.
+
+> We could add an additional parameter to the API, such as
+> 	const char *qualifier
+> to provide the "i2c-76" or "gpio-77" string. If the qualifier is NULL,
+> the name would revert to the old naming scheme. Would that make sense ?
+
+Yes, although your first draft gave me some hope that i2c-mux could do
+some magic to guess the type and identifier automatically. But maybe
+it's not that clean to have to touch i2c-mux for every new i2c-mux-*
+driver. Not that I expect too many of them... so it's mostly a matter
+of principle. An explicit qualifier as you suggest above might be
+cleaner.
+
+-- 
+Jean Delvare
