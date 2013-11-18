@@ -1,29 +1,28 @@
-From: srinivas kandagatla <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH v6 2/4] ARM: STi: Supply I2C configuration to STiH416
+From: srinivas kandagatla <srinivas.kandagatla@st.com>
+Subject: Re: [PATCH v6 3/4] ARM: STi: Supply I2C configuration to STiH415
  SoC
-Date: Mon, 18 Nov 2013 11:35:07 +0000
-Message-ID: <5289FB6B.9000400@st.com>
-References: <1383726315-27534-1-git-send-email-maxime.coquelin@st.com> <1383726315-27534-3-git-send-email-maxime.coquelin@st.com>
+Date: Mon, 18 Nov 2013 11:36:05 +0000
+Message-ID: <5289FBA5.6070102@st.com>
+References: <1383726315-27534-1-git-send-email-maxime.coquelin@st.com> <1383726315-27534-4-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1383726315-27534-3-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stephen.gallimore-qxv4g6HH51o@public.gmane.org, stuart.menefy-qxv4g6HH51o@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, gabriel.fernandez-qxv4g6HH51o@public.gmane.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1383726315-27534-4-git-send-email-maxime.coquelin@st.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Maxime COQUELIN <maxime.coquelin@st.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, stephen.gallimore@st.com, stuart.menefy@st.com, Lee Jones <lee.jones@linaro.org>, gabriel.fernandez@st.com
 List-Id: linux-i2c@vger.kernel.org
 
 On 06/11/13 08:25, Maxime COQUELIN wrote:
-> This patch supplies I2C configuration to STiH416 SoC.
+> This patch supplies I2C configuration to STiH415 SoC.
 > 
-> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+> Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
 > ---
->  arch/arm/boot/dts/stih416-pinctrl.dtsi |   35 +++++++++++++++++++++
->  arch/arm/boot/dts/stih416.dtsi         |   53 ++++++++++++++++++++++++++++++++
->  2 files changed, 88 insertions(+)
-
-Acked-by: Srinivas Kandagatla <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>
+>  arch/arm/boot/dts/stih415-pinctrl.dtsi |   36 ++++++++++++++++++++++
+>  arch/arm/boot/dts/stih415.dtsi         |   53 ++++++++++++++++++++++++++++++++
+>  2 files changed, 89 insertions(+)
+Acked-by: Srinivas Kandagatla <srinivas.kandagatla@st.com>
 
 Thanks,
 srini
