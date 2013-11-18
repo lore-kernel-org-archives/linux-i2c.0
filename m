@@ -1,72 +1,29 @@
-From: =?UTF-8?B?VGVyamUgQmVyZ3N0csO2bQ==?= <tbergstrom@nvidia.com>
-Subject: Re: [PATCH 00/31] ARM: tegra: use common reset and DMA bindings
-Date: Mon, 18 Nov 2013 10:24:26 +0200
-Message-ID: <5289CEBA.3070502@nvidia.com>
-References: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
+From: srinivas kandagatla <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH v6 2/4] ARM: STi: Supply I2C configuration to STiH416
+ SoC
+Date: Mon, 18 Nov 2013 11:35:07 +0000
+Message-ID: <5289FB6B.9000400@st.com>
+References: <1383726315-27534-1-git-send-email-maxime.coquelin@st.com> <1383726315-27534-3-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Marc Dietrich <marvin24@gmx.de>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "ac100@lists.launchpad.net" <ac100@lists.launchpad.net>, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, Stephen Warren <swarren@nvidia.com>, Alan Stern <stern@rowland.harvard.edu>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Thierry Reding <treding@nvidia.com>, devicetree@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1383726315-27534-3-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stephen.gallimore-qxv4g6HH51o@public.gmane.org, stuart.menefy-qxv4g6HH51o@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, gabriel.fernandez-qxv4g6HH51o@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 15.11.2013 22:53, Stephen Warren wrote:
-> From: Stephen Warren <swarren@nvidia.com>
+On 06/11/13 08:25, Maxime COQUELIN wrote:
+> This patch supplies I2C configuration to STiH416 SoC.
 > 
-> This series implements a common reset framework driver for Tegra, and
-> updates all relevant Tegra drivers to use it. It also removes the custom
-> DMA bindings and replaced them with the standard DMA DT bindings.
-> 
-> Historically, the Tegra clock driver has exported a custom API for module
-> reset. This series removes that API, and transitions DT and drivers to
-> the new reset framework.
-> 
-> The custom API used a "struct clk" to identify which module to reset, and
-> consequently some DT bindings and drivers required clocks to be provided
-> where they really needed just a reset identifier instead. Due to this
-> known deficiency, I have always considered most Tegra bindings to be
-> unstable. This series removes this excuse for instability, although I
-> still consider some Tegra bindings unstable due to the need to convert to
-> the common DMA bindings.
-> 
-> Historically, Tegra DMA channels have been represented in DT using a
-> custom nvidia,dma-request-selector property. Now that standard DMA DT
-> bindings exist, convert all Tegra bindings, DTs, and drivers to use the
-> standard instead.
-> 
-> This series makes a DT-ABI-incompatible change to:
-> - Require reset specifiers in DT where relevant.
-> - Require standard DMA specifiers.
-> - Remove clock specifiers from DT where they were only needed for reset.
-> - Remove legacy DMA specifier properties.
-> 
-> I anticipate merging this whole series into the Tegra and arm-soc trees
-> as its own branch, due to internal dependencies. This branch will be
-> stable and can then be merged into any other subsystem trees should any
-> conflicts arise.
-> 
-> This series depends on Peter's Tegra clock driver rework, available at
-> git://nv-tegra.nvidia.com/user/pdeschrijver/linux tegra-clk-tegra124-0
-> (or whatever version of that gets included in 3.14)
+> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/stih416-pinctrl.dtsi |   35 +++++++++++++++++++++
+>  arch/arm/boot/dts/stih416.dtsi         |   53 ++++++++++++++++++++++++++++++++
+>  2 files changed, 88 insertions(+)
 
-Overall, a good change. For host1x part:
+Acked-by: Srinivas Kandagatla <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>
 
-Acked-By: Terje Bergstrom <tbergstrom@nvidia.com>
-
-This patch does not change the behavior, but we have in original code
-the problem that we don't flush the MC queue when resetting an engine.
-This can cause some memory writes to not hit memory. There was an
-earlier discussion on that, but we seem to have lost track of the issue.
-
-Terje
+Thanks,
+srini
