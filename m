@@ -1,35 +1,88 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PULL REQUEST] i2c for 3.13
-Date: Tue, 19 Nov 2013 01:11:25 +0100
-Message-ID: <3690707.5664qBQcL8@vostro.rjw.lan>
-References: <20131118193802.GA14925@katana> <CA+55aFxZaC=beR+dN36Sv==6fjY7SdOdwXaSHU+wnk+-oDJp4g@mail.gmail.com>
+From: "Heasley, Seth" <seth.heasley@intel.com>
+Subject: RE: [PATCH 1/1] i2c-ismt: add the support of the
+ I2C_SMBUS_I2C_BLOCK_DATA transaction type
+Date: Tue, 19 Nov 2013 00:09:08 +0000
+Message-ID: <DEC3922D1904474A8862C7BFF516EA9A865BF201@ORSMSX101.amr.corp.intel.com>
+References: <5285704e.jwiZWyk8R3ZEoySS%robert.valiquette@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+55aFxZaC=beR+dN36Sv==6fjY7SdOdwXaSHU+wnk+-oDJp4g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5285704e.jwiZWyk8R3ZEoySS%robert.valiquette@intel.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Valiquette, Robert" <robert.valiquette@intel.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "nhorman@tuxdriver.com" <nhorman@tuxdriver.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Ralston, James D" <james.d.ralston@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, November 18, 2013 03:46:34 PM Linus Torvalds wrote:
-> On Mon, Nov 18, 2013 at 11:38 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> >
-> > here is the pull request from the i2c subsystem for 3.13:
+> This patch adds the support of the I2C_SMBUS_I2C_BLOCK_DATA
+> transaction type for the iSMT SMBus Controller.
 > 
-> So while resolving some fairly trivial conflicts here, I noticed that
-> commit a76e9bd89ae7 ("i2c: attach/detach I2C client device to the ACPI
-> power domain") that I got earlier through the ACPI/PM tree calls
-> acpi_dev_pm_detach() even when the device "->remove()" function fails.
-> But it only sets clientdata to NULL if it succeeds.
+> Signed-off-by: Robert Valiquette <robert.valiquette@intel.com>
+> ---
+> --- a/drivers/i2c/busses/i2c-ismt.c	2013-11-14 11:36:15.830322000 -0500
+> +++ b/drivers/i2c/busses/i2c-ismt.c	2013-11-14 16:01:56.532356000 -0500
+> @@ -344,6 +344,7 @@
+>  			data->word = dma_buffer[0] | (dma_buffer[1] << 8);
+>  			break;
+>  		case I2C_SMBUS_BLOCK_DATA:
+> +		case I2C_SMBUS_I2C_BLOCK_DATA:
+>  			memcpy(&data->block[1], dma_buffer, desc-
+> >rxbytes);
+>  			data->block[0] = desc->rxbytes;
+>  			break;
+> @@ -509,6 +510,41 @@
+>  		}
+>  		break;
 > 
-> That looks a bit odd.
+> +	case I2C_SMBUS_I2C_BLOCK_DATA:
+> +		/* Make sure the lenght is valid */
+> +		if (data->block[0] < 1)
+> +			data->block[0] = 1;
+> +
+> +		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+> +			data->block[0] = I2C_SMBUS_BLOCK_MAX;
+> +
+> +		if (read_write == I2C_SMBUS_WRITE) {
+> +			/* i2c Block Write */
+> +			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:
+> WRITE\n");
+> +			dma_size = data->block[0] + 1;
+> +			dma_direction = DMA_TO_DEVICE;
+> +			desc->wr_len_cmd = dma_size;
+> +			desc->control |= ISMT_DESC_I2C;
+> +			priv->dma_buffer[0] = command;
+> +			memcpy(&priv->dma_buffer[1], &data->block[1],
+> dma_size);
+> +		} else {
+> +			/* i2c Block Read */
+> +			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:
+> READ\n");
+> +			dma_size = data->block[0];
+> +			dma_direction = DMA_FROM_DEVICE;
+> +			desc->rd_len = dma_size;
+> +			desc->wr_len_cmd = command;
+> +			desc->control |= (ISMT_DESC_I2C |
+> ISMT_DESC_CWRL);
+> +			/*
+> +			 * Per the "Table 15-15. I2C Commands",
+> +			 * in the External Design Specification (EDS),
+> +			 * (Document Number: 508084, Revision: 2.0),
+> +			 * the _rw bit must be 0
+> +			 */
+> +			desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, 0);
+> +		}
+> +		break;
+> +
+>  	default:
+>  		dev_err(dev, "Unsupported transaction %d\n",
+>  			size);
+> @@ -582,6 +618,7 @@
+>  	       I2C_FUNC_SMBUS_WORD_DATA		|
+>  	       I2C_FUNC_SMBUS_PROC_CALL		|
+>  	       I2C_FUNC_SMBUS_BLOCK_DATA	|
+> +	       I2C_FUNC_SMBUS_I2C_BLOCK		|
+>  	       I2C_FUNC_SMBUS_PEC;
+>  }
 > 
-> I didn't try to fix it, though. I just thought I'd point out the oddity.
-
-Well, given that the driver core doesn't even check the return value of
-dev->bus->remove(dev), I think doing the unconditional acpi_dev_pm_detach()
-is actually correct and clientdata should be cleared unconditionally too.
-
-Rafael
+Acked-by: Seth Heasley <seth.heasley@intel.com>
