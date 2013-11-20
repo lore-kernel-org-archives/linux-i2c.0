@@ -1,47 +1,49 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 00/31] ARM: tegra: use common reset and DMA bindings
-Date: Wed, 20 Nov 2013 10:23:50 -0700
-Message-ID: <528CF026.5020309@wwwdotorg.org>
-References: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
- <201311201637.36733.arnd@arndb.de> <528CE71D.5090300@wwwdotorg.org>
- <201311201803.58393.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <201311201803.58393.arnd@arndb.de>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: driverdev-devel-bounces@linuxdriverproject.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, Bjorn Helgaas <bhelgaas@google.com>, linux-i2c@vger.kernel.org, ac100@lists.launchpad.net, devel@driverdev.osuosl.org, Stephen Warren <swarren@nvidia.com>, Mike Turquette <mturquette@linaro.org>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, treding@nvidia.com, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <rob.herring@calxeda.com>, Mark Brown <broonie@kernel.org>, linux-tegra@vger.kernel.org, =?UTF-8?B?VGVyamUgQmVyZ3N0csO2bQ==?= <tbergstrom@nvidia.com>, Dan Williams <dan.j.williams@intel.com>, linux-arm-kernel@li
+From: Taras Kondratiuk <taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c: davinci: raw read and write endian fix
+Date: Wed, 20 Nov 2013 20:23:44 +0200
+Message-ID: <1384971824-7707-1-git-send-email-taras.kondratiuk@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linaro-networking-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linaro-kernel-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/20/2013 10:03 AM, Arnd Bergmann wrote:
-> On Wednesday 20 November 2013, Stephen Warren wrote:
->>> +- #iommu-cells : Must be <1>. This dictates the length of DMA specifiers in
->>> +  client nodes' dmas properties. The specifier represents the DMA request
->>> +  select value for the peripheral. For more details, consult the Tegra TRM's
->>> +  documentation of the APB DMA channel control register REQ_SEL field.
->>>  
->>>  Examples:
->>>  
->>> @@ -36,4 +40,5 @@ apbdma: dma@6000a000 {
->>>       clocks = <&tegra_car 34>;
->>>       resets = <&tegra_car 34>;
->>>       reset-names = "dma";
->>> +     #iommu-cells = <1>;
-> 
-> 
-> s/iommu/dma/
-> 
-> Otherwise looks good. The dts files are correct, so I guess it's just
-> a typo here.
+I2C IP block expect LE data, but CPU may operate in BE mode.
+Need to use endian neutral functions to read/write h/w registers.
+I.e instead of __raw_read[lw] and __raw_write[lw] functions code
+need to use read[lw]_relaxed and write[lw]_relaxed functions.
+If the first simply reads/writes register, the second will byteswap
+it if host operates in BE mode.
 
-Thanks, fixed locally.
+Changes are trivial sed like replacement of __raw_xxx functions
+with xxx_relaxed variant.
+
+Signed-off-by: Taras Kondratiuk <taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+Based on Linus' master tip (b4789b8).
+Tested on Keystone2 EVM.
+
+ drivers/i2c/busses/i2c-davinci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 132369f..a629447 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -125,12 +125,12 @@ static struct davinci_i2c_platform_data davinci_i2c_platform_data_default = {
+ static inline void davinci_i2c_write_reg(struct davinci_i2c_dev *i2c_dev,
+ 					 int reg, u16 val)
+ {
+-	__raw_writew(val, i2c_dev->base + reg);
++	writew_relaxed(val, i2c_dev->base + reg);
+ }
+ 
+ static inline u16 davinci_i2c_read_reg(struct davinci_i2c_dev *i2c_dev, int reg)
+ {
+-	return __raw_readw(i2c_dev->base + reg);
++	return readw_relaxed(i2c_dev->base + reg);
+ }
+ 
+ /* Generate a pulse on the i2c clock pin. */
+-- 
+1.7.9.5
