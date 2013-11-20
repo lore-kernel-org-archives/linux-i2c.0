@@ -1,60 +1,46 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PULL REQUEST] i2c for 3.13
-Date: Tue, 19 Nov 2013 16:56:46 +0100
-Message-ID: <20131119155646.GA2569@katana>
-References: <20131118193802.GA14925@katana>
- <CA+55aFxZaC=beR+dN36Sv==6fjY7SdOdwXaSHU+wnk+-oDJp4g@mail.gmail.com>
- <3690707.5664qBQcL8@vostro.rjw.lan>
- <20131119150001.GM2281@intel.com>
+From: Benson Leung <bleung@chromium.org>
+Subject: Re: [PATCH 2/2] i2c-designware-pci: Index Haswell ULT bus names from 0
+Date: Tue, 19 Nov 2013 18:14:18 -0800
+Message-ID: <CANLzEksP1nRfBaQ3-sSouOYL4C+oLKiE75eHfFdEzLmrQKn3dQ@mail.gmail.com>
+References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
+	<1382326010-4554-3-git-send-email-bleung@chromium.org>
+	<20131021065804.GX3521@intel.com>
+	<CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw@mail.gmail.com>
+	<20131114180538.GK11022@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20131119150001.GM2281-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20131114180538.GK11022@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, khali@linux-fr.org, andriy.shevchenko@linux.intel.com, jacmet@sunsite.dk, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Duncan Laurie <dlaurie@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Nov 14, 2013 at 10:05 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>> In the chromeos_laptop driver, I do by-name matching of i2c busses to
+>> find busses and instantiate devices, so there is value to have each
+>> named something predictable.
+>
+> Any why don't you use fixed bus numbers which you can attach the devices
+> to?
+
+On this particular set of systems, there are two other classes of i2c
+adapters that use dynamically assigned bus numbers, specifically the
+i915 gmbus adapters, and the i801_smbus adapter. This is why
+chromeos_laptop uses the name matching, as some of the boards that it
+supports have devices on those dynamic busses.
+
+I can't guarantee that these other busses will always have the same
+bus numbers, nor can I guarantee that this driver
+(i2c_designware_pcidrv) is loaded before or after the others, so it
+seemed the right thing to do to to make sure that the names of each of
+the adapters correspond to how they are referred to on various
+schematics and datasheets.
 
 
-> Actually, can we remove the whole clientdata setting there?
->=20
-> Commit 0998d0631001 (device-core: Ensure drvdata =3D NULL when no driver =
-is
-> bound) modified the driver core to always clear out that field. Same seems
-> to apply if driver probe fails.
-
-Oh, nice, missed that commit. That indeed should help cleaning up the i2c
-core a little. I will prepare something.
-
-
---vkogqOf2sHV7VnPd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSi4o+AAoJEBQN5MwUoCm2dDIQAJJAuFfAzmhcYrK1Ns8Y/K3y
-BhiBkbqdOKoyAVbdSCiqO7kNDGO+nVp+V9TiELLuJg3d74D4Sq7Ml9qRbIhWiH6E
-APoRjmgYC+c4XZ9/o57SGPmcBoFckx1KZaT9AI/W9/lL6FAnKIgrDLDcrwZOV4+V
-/F9OIbXKaDkDsIkDhPw7Yj89WGNKy+LAIlngUKLl6bYfq+Xa5Ympfr13z25qbh+y
-zZ9A5bM3ruImEAkdqtSH/d7Yop5LlRLDmwrGOZt620r/OYjJzfYbsvESCagetxrX
-uA0wrufem5shuON4zem8FgEHitnCzX8StkxZvGLWtUBOxNsnny+EV1uYWWpLCYdH
-pTaDCRdH0C7jVlAy9sLP96KAQDVCcTW3M5QKBevEs5NVom71P2oIufAwcuef5JTK
-t+oPuco1W2E0UNmaDh8CZmrXmtrS9WadUd1ubuTpkRrJhB4ec0cq/N03WCADapsg
-CjUZsm6+ve4osvVMmdPrkdcKBm2mjDSaY3V4m2LhgYSfijwzweklSMJgtejx2B7I
-7thHRh54xJ4btmq+HEDRck3t4ZKcMn77zp/ofdwqPIjuO29ub6VtM25M/8MCqLmc
-pZ0mwDXTiwjpIzSXEm0unpWrXzYuB3vWBfkwC5t2Iqmeegu6sBhmheTJ99xpxgXf
-0iMZf+Wis0ru1uhypHRh
-=aeJ0
------END PGP SIGNATURE-----
-
---vkogqOf2sHV7VnPd--
+-- 
+Benson Leung
+Software Engineer, Chrom* OS
+bleung@chromium.org
