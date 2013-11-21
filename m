@@ -1,43 +1,61 @@
-From: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH -next] i2c: bcm-kona: remove duplicated include from i2c-bcm-kona.c
-Date: Thu, 21 Nov 2013 11:18:46 -0800
-Message-ID: <CAPdLdqn3dHtwOGGmkQZcch+=JCw3=23H4JKT=Zh-KBKrqDB+hg@mail.gmail.com>
-References: <CAPgLHd_Qe5m940n=-233S0-d7e9dmbz1mc0owL18jZR7g6cP2g@mail.gmail.com>
+From: Ian Pilcher <arequipeno-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Find i801 i2c_adapter in other module
+Date: Thu, 21 Nov 2013 14:43:07 -0600
+Message-ID: <l6lr8p$mlr$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAPgLHd_Qe5m940n=-233S0-d7e9dmbz1mc0owL18jZR7g6cP2g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 20 November 2013 18:58, Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
->
-> Remove duplicated include.
->
-> Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-bcm-kona.c | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c-bcm-kona.c
-> index 865e5dd..1d74da5 100644
-> --- a/drivers/i2c/busses/i2c-bcm-kona.c
-> +++ b/drivers/i2c/busses/i2c-bcm-kona.c
-> @@ -20,7 +20,6 @@
->  #include <linux/platform_device.h>
->  #include <linux/clk.h>
->  #include <linux/io.h>
-> -#include <linux/clk.h>
->  #include <linux/slab.h>
->
->  /* Hardware register offsets and field defintions */
->
+I have a Thecus N5550 NAS, on which I run CentOS 6.4.  I have created a
+"board info" module which sets up the system's GPIOs and LEDs.
 
-Reviewed-by: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+  https://github.com/ipilcher/n5550/blob/master/modules/n5550_board.c
+
+Some of the LEDs are driven by a couple of NXP PCA9532 dimmers, which
+are connected to the i801 SMBus.  I am currently hardcoding the bus
+number, which is fragile.  If the drivers are loaded in a different
+order, as they are on Debian, the bus gets a different number, and the
+module doesn't work.
+
+#define N5550_PCA9532_I2C_BUS		5
+
+static int __init n5550_pca9532_setup(void)
+{
+	struct i2c_adapter *adapter;
+
+	adapter = i2c_get_adapter(N5550_PCA9532_I2C_BUS);
+	if (adapter == NULL) {
+		return -ENOMEM;
+	}
+
+	n5550_pca9532_0_client = i2c_new_device(adapter, &n5550_pca9532_0_info);
+	if (n5550_pca9532_0_client == NULL) {
+		i2c_put_adapter(adapter);
+		return -ENOMEM;
+	}
+
+	n5550_pca9532_1_client = i2c_new_device(adapter, &n5550_pca9532_1_info);
+	if (n5550_pca9532_1_client == NULL) {
+		i2c_unregister_device(n5550_pca9532_0_client);
+		i2c_put_adapter(adapter);
+		return -ENOMEM;
+	}
+
+	i2c_put_adapter(adapter);
+	return 0;
+}
+
+What is the best way to get the correct i2c_adapter, either by driver
+name or PCI address?
+
+Thanks!
 
 -- 
-Markus Mayer
-Broadcom Landing Team
+========================================================================
+Ian Pilcher                                         arequipeno-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+           Sent from the cloud -- where it's already tomorrow
+========================================================================
