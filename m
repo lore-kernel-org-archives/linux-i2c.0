@@ -1,73 +1,61 @@
-From: boris brezillon <b.brezillon@overkiz.com>
-Subject: Re: [PATCH] ARM: at91: sama5d3: reduce TWI internal clock frequency
-Date: Fri, 22 Nov 2013 16:01:17 +0100
-Message-ID: <528F71BD.2080407@overkiz.com>
-References: <1385129228-11225-1-git-send-email-ludovic.desroches@atmel.com>
+From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2] ARM: at91: sama5d3: reduce TWI internal clock frequency
+Date: Fri, 22 Nov 2013 17:08:43 +0100
+Message-ID: <1385136523-11962-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1385129228-11225-1-git-send-email-ludovic.desroches@atmel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: ludovic.desroches@atmel.com, linux-arm-kernel@lists.infradead.org
-Cc: nicolas.ferre@atmel.com, plagnioj@jcrosoft.com, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ludovic,
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-On 22/11/2013 15:07, ludovic.desroches@atmel.com wrote:
-> From: Ludovic Desroches <ludovic.desroches@atmel.com>
->
-> There are still I2C unexpected behaviors which are solved by reducing TWI
-> internal frequency.
+With some devices, transfer hangs during I2C frame transmission. This issue
+disappears when reducing the internal frequency of the TWI IP. Even if it is
+indicated that internal clock max frequency is 66MHz, it seems we have
+oversampling on I2C signals making TWI believe that a transfer in progress
+is done.
 
-I guess I should do the same for the dt version of sama5 clks.
-Nicolas, what do you think ?
+This fix has no impact on the I2C bus frequency.
 
-Best Regards,
+Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org> #3.10+
+Acked-by: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+---
 
-Boris
+v2: update commit message
 
->
-> Cc: <stable@vger.kernel.org> #3.10+
-> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> ---
->   arch/arm/mach-at91/sama5d3.c |    6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/arch/arm/mach-at91/sama5d3.c b/arch/arm/mach-at91/sama5d3.c
-> index 4012797..4ee0de5 100644
-> --- a/arch/arm/mach-at91/sama5d3.c
-> +++ b/arch/arm/mach-at91/sama5d3.c
-> @@ -95,19 +95,19 @@ static struct clk twi0_clk = {
->   	.name		= "twi0_clk",
->   	.pid		= SAMA5D3_ID_TWI0,
->   	.type		= CLK_TYPE_PERIPHERAL,
-> -	.div		= AT91_PMC_PCR_DIV2,
-> +	.div		= AT91_PMC_PCR_DIV8,
->   };
->   static struct clk twi1_clk = {
->   	.name		= "twi1_clk",
->   	.pid		= SAMA5D3_ID_TWI1,
->   	.type		= CLK_TYPE_PERIPHERAL,
-> -	.div		= AT91_PMC_PCR_DIV2,
-> +	.div		= AT91_PMC_PCR_DIV8,
->   };
->   static struct clk twi2_clk = {
->   	.name		= "twi2_clk",
->   	.pid		= SAMA5D3_ID_TWI2,
->   	.type		= CLK_TYPE_PERIPHERAL,
-> -	.div		= AT91_PMC_PCR_DIV2,
-> +	.div		= AT91_PMC_PCR_DIV8,
->   };
->   static struct clk mmc0_clk = {
->   	.name		= "mci0_clk",
->
+ arch/arm/mach-at91/sama5d3.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-at91/sama5d3.c b/arch/arm/mach-at91/sama5d3.c
+index 4012797..4ee0de5 100644
+--- a/arch/arm/mach-at91/sama5d3.c
++++ b/arch/arm/mach-at91/sama5d3.c
+@@ -95,19 +95,19 @@ static struct clk twi0_clk = {
+ 	.name		= "twi0_clk",
+ 	.pid		= SAMA5D3_ID_TWI0,
+ 	.type		= CLK_TYPE_PERIPHERAL,
+-	.div		= AT91_PMC_PCR_DIV2,
++	.div		= AT91_PMC_PCR_DIV8,
+ };
+ static struct clk twi1_clk = {
+ 	.name		= "twi1_clk",
+ 	.pid		= SAMA5D3_ID_TWI1,
+ 	.type		= CLK_TYPE_PERIPHERAL,
+-	.div		= AT91_PMC_PCR_DIV2,
++	.div		= AT91_PMC_PCR_DIV8,
+ };
+ static struct clk twi2_clk = {
+ 	.name		= "twi2_clk",
+ 	.pid		= SAMA5D3_ID_TWI2,
+ 	.type		= CLK_TYPE_PERIPHERAL,
+-	.div		= AT91_PMC_PCR_DIV2,
++	.div		= AT91_PMC_PCR_DIV8,
+ };
+ static struct clk mmc0_clk = {
+ 	.name		= "mci0_clk",
+-- 
+1.7.9.5
