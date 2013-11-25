@@ -1,61 +1,119 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Fallback to of_node of parent
-Date: Mon, 25 Nov 2013 09:46:28 +0100
-Message-ID: <20131125084628.GD2705@katana>
-References: <528791EF.9060505@koalo.de>
- <20131116160601.GA8723@katana>
- <CABDT8WzUoPmPzDnjD3w+Oj=jUVcMf91+toWDS+hK6CrXLveCFg@mail.gmail.com>
- <5287A463.6020307@koalo.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SFyWQ0h3ruR435lw"
+From: Mike Looijmans <mike.looijmans@topic.nl>
+Subject: [PATCH] i2c-mux-pca954x: Disable mux after 200ms timeout
+Date: Mon, 25 Nov 2013 14:43:57 +0100
+Message-ID: <1385387037-3710-1-git-send-email-mike.looijmans@topic.nl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5287A463.6020307@koalo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Florian Meier <florian.meier@koalo.de>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-rpi-kernel <linux-rpi-kernel@lists.infradead.org>, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Looijmans <mike.looijmans@topic.nl>
 List-Id: linux-i2c@vger.kernel.org
 
+Leaving the mux enabled causes needless I2C traffic on the downstream
+bus. De-selecting after every request causes excess I2C traffic and
+switching.
 
---SFyWQ0h3ruR435lw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch implements a hybrid solution: After 200ms of inactivity,
+the mux is disabled.
 
-On Sat, Nov 16, 2013 at 05:59:15PM +0100, Florian Meier wrote:
-> I have looked through all bus drivers and in most
-> cases they have a corresponding line that could be removed.
->=20
-> Although, this patch would break i2c-powermac, because it
-> relies on the fact that of_node stays NULL.
->=20
-> Any idea how to handle that?
+Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+---
+ drivers/i2c/muxes/i2c-mux-pca954x.c |   45 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 42 insertions(+), 3 deletions(-)
 
-You are right, yet I don't have the time to look into that. If you have
-an idea, please go ahead.
-
-
---SFyWQ0h3ruR435lw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSkw5kAAoJEBQN5MwUoCm2UbsQAJ8VoKZN54O5v8yuc9Aw7tTz
-4KyDLYz6h0TRv4Csg/yyACx92jhfi8zknWM+Vh4z7bTU/FdIx1GAb6AjPHXNKn0j
-+2S0vm8BL6OI2HyphWG+X/2BYRlot24lsZ3YhPPv6ghXLpfDsptO8oOpE4xux5fW
-ynqaATQariqLRV6pPpWA3OO7ooFZOxSqdraWMRa5kWQVeYtWnvE5wKAmlPkGiezv
-LBHi4AaI4/3kTRNEan7aN6s11XK11N2YnLiNgwg4jT3HLdQk+LcvyexcL6vggOGL
-2BpjXBlgRBnpz3YJG+0Qbd2tpN2eypZE3NshN8AHoZIXc7fXnSSzYAB2qTjMmIoY
-j3FBM6dbUZtwEDAtiJbzKZpnlT5sewYQM0rDL50uNSJO7nzbE8xQ5voBwH1Bxi60
-SIPPoVjA/hMPJT16FMtpWbbgD7rYBrDOsjomQFNHpO27gI6NtyQHM//dpTOkpEtC
-Lnbv9Djc/QDzFo/fVLWZlG/U2hFVvjBOqETD9/lBxaR3rcDGuBKzpcNkwMtC6y8F
-VMSBKvipfZ69fuMCUKLoLJbez1BSKoRnTvgaIzF0nsuheEBnfgzstwNVSwNmFj4x
-cine4fKKedUQXRXZ6viExHQI4p6CQPlZ2zY0DLOUlllSv+ai08T/vRATYWPINjpq
-N9RWopmYr3URVmQVZhkF
-=OA7v
------END PGP SIGNATURE-----
-
---SFyWQ0h3ruR435lw--
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index a531d80..1241c97 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -41,6 +41,7 @@
+ #include <linux/device.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
++#include <linux/workqueue.h>
+ 
+ #include <linux/i2c/pca954x.h>
+ 
+@@ -60,7 +61,8 @@ enum pca_type {
+ struct pca954x {
+ 	enum pca_type type;
+ 	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
+-
++	struct i2c_client *client;
++	struct delayed_work deselect_work;
+ 	u8 last_chan;		/* last register value */
+ };
+ 
+@@ -168,11 +170,43 @@ static int pca954x_select_chan(struct i2c_adapter *adap,
+ 	return ret;
+ }
+ 
+-static int pca954x_deselect_mux(struct i2c_adapter *adap,
++static void pca954x_deselect_work(struct work_struct *work)
++{
++	struct pca954x *data = container_of(
++				work, struct pca954x, deselect_work.work);
++	/* Use the adapter lock as a mutex because any method that changes
++	 * the mux state will also hold this mutex. If the bus is in use,
++	 * the lock will assure that at least that transaction will
++	 * complete. */
++	i2c_lock_adapter(data->client->adapter);
++	if (data->last_chan != 0) {
++		int res;
++		/* Disable mux */
++		dev_dbg(&client->dev, "deselecting mux\n");
++		data->last_chan = 0;
++		res = pca954x_reg_write(data->client->adapter,
++				data->client, data->last_chan);
++		if (res < 0)
++			dev_err(&client->dev,
++				"%s: pca954x_reg_write failed: %d\n",
++				__func__, res);
++	}
++	i2c_unlock_adapter(data->client->adapter);
++}
++
++static int pca954x_deselect_mux_delayed(struct i2c_adapter *adap,
+ 				void *client, u32 chan)
+ {
+ 	struct pca954x *data = i2c_get_clientdata(client);
++	/* Setup timer to disable at a later interval */
++	schedule_delayed_work(&data->deselect_work, msecs_to_jiffies(200));
++	return 0;
++}
+ 
++static int pca954x_deselect_mux_immediate(struct i2c_adapter *adap,
++				void *client, u32 chan)
++{
++	struct pca954x *data = i2c_get_clientdata(client);
+ 	/* Deselect active channel */
+ 	data->last_chan = 0;
+ 	return pca954x_reg_write(adap, client, data->last_chan);
+@@ -212,6 +246,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 
+ 	data->type = id->driver_data;
+ 	data->last_chan = 0;		   /* force the first selection */
++	data->client = client;
++	INIT_DELAYED_WORK(&data->deselect_work, pca954x_deselect_work);
+ 
+ 	/* Now create an adapter for each channel */
+ 	for (num = 0; num < chips[data->type].nchans; num++) {
+@@ -231,7 +267,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 			i2c_add_mux_adapter(adap, &client->dev, client,
+ 				force, num, class, pca954x_select_chan,
+ 				(pdata && pdata->modes[num].deselect_on_exit)
+-					? pca954x_deselect_mux : NULL);
++					? pca954x_deselect_mux_immediate
++					: pca954x_deselect_mux_delayed);
+ 
+ 		if (data->virt_adaps[num] == NULL) {
+ 			ret = -ENODEV;
+@@ -264,6 +301,8 @@ static int pca954x_remove(struct i2c_client *client)
+ 	const struct chip_desc *chip = &chips[data->type];
+ 	int i;
+ 
++	cancel_delayed_work_sync(&data->deselect_work);
++
+ 	for (i = 0; i < chip->nchans; ++i)
+ 		if (data->virt_adaps[i]) {
+ 			i2c_del_mux_adapter(data->virt_adaps[i]);
+-- 
+1.7.9.5
