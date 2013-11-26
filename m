@@ -1,69 +1,60 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH -next] i2c: bcm-kona: remove duplicated include from
- i2c-bcm-kona.c
-Date: Tue, 26 Nov 2013 13:48:03 +0100
-Message-ID: <20131126124803.GE7427@katana>
-References: <CAPgLHd_Qe5m940n=-233S0-d7e9dmbz1mc0owL18jZR7g6cP2g@mail.gmail.com>
- <CAPdLdqn3dHtwOGGmkQZcch+=JCw3=23H4JKT=Zh-KBKrqDB+hg@mail.gmail.com>
+Subject: Re: [PATCH 1/1] i2c: i2c-diolan-u2c: different usb endpoints for
+ DLN-2-U2C
+Date: Tue, 26 Nov 2013 13:51:40 +0100
+Message-ID: <20131126125140.GF7427@katana>
+References: <1385305043-23626-1-git-send-email-mvogt1@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ILuaRSyQpoVaJ1HG"
+	protocol="application/pgp-signature"; boundary="sDKAb4OeUBrWWL6P"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAPdLdqn3dHtwOGGmkQZcch+=JCw3=23H4JKT=Zh-KBKrqDB+hg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1385305043-23626-1-git-send-email-mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Martin Vogt <mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ILuaRSyQpoVaJ1HG
+--sDKAb4OeUBrWWL6P
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c=
--bcm-kona.c
-> > index 865e5dd..1d74da5 100644
-> > --- a/drivers/i2c/busses/i2c-bcm-kona.c
-> > +++ b/drivers/i2c/busses/i2c-bcm-kona.c
-> > @@ -20,7 +20,6 @@
-> >  #include <linux/platform_device.h>
-> >  #include <linux/clk.h>
-> >  #include <linux/io.h>
-> > -#include <linux/clk.h>
-> >  #include <linux/slab.h>
-> >
-> >  /* Hardware register offsets and field defintions */
-> >
+On Sun, Nov 24, 2013 at 03:57:23PM +0100, Martin Vogt wrote:
+> The previous diolan adapter uses other out/in endpoints than
+> the current DLN-2-U2C in compatibility mode.
+> They changed from 0x2/0x84 to 0x3/0x83.
+> This patch gets the endpoints from the usb interface, instead
+> of hardcode them in the driver.
 >=20
-> Reviewed-by: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> This was tested on a current DLN-2-U2C board.
+>=20
+> Signed-off-by: Martin Vogt <mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-IMO such trivial patches are rather acks than reviews. Mileages do vary,
-I know.
+Applied to for-current, thanks!
 
 
---ILuaRSyQpoVaJ1HG
+--sDKAb4OeUBrWWL6P
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSlJiDAAoJEBQN5MwUoCm2o6gP/i1chjQEkiXYBRNeeM7vUKNp
-NAqyrA6SFXXA5evaCStvr6VCjBu29FLyh5h1QRXWKz6Gnt/VK5015+aXWP5m6A2O
-FUmiyQC9IgGukTKmiMWx2GgXhexP+icQGHBcLMHXXuA+Eg79MJdeD9eT86iXGFdz
-LWuJEdQGPXsaMYKCp4UV0pEjplgbvY9PyOCAt7L0bIclo37Emb/i4s1HLvfH4xU8
-4okXSlhO5CcZ8yjkxMyIhYXncSKKQfQQBOUwietlvWf/OcTgwOfg4GpsaxZwIrM2
-IsUEZkkdsB5083kXxwuAtnR7ipjhykg4OKrqkkqFu983EpotlMQ3xERT9JdstgSr
-w1UbycmANsIAeKea60lISbsDKkAdA6k4xnN5aIzvtI4PlG1IRUWLrmc8YVb7J7Ds
-6x+Q/OPWNhVKvhBiIxXtpGXbYwu4tUIeBlrvKKxv8L1inf1GB1xkS8m1OtUZv3um
-OOTBCJelmR3it8DJpleTrMOP7nHlkUZC+PrjNp/qMA77yka4ca9P/gjWkqKT1BI4
-3foUUwGcxpLh0NA4/e2soFMFn5k9YxDUefx0XJvFI1ToWZzRlolmZiLfBhf+Lfbp
-CL5ogPtwkAq/+hNir1iZrC3mg/iivJ5Cl73oAZZozPZhxaFUF7hrqWxCoMUa/BZx
-uMtB6ZkHgdBff0+15Wdi
-=pce2
+iQIcBAEBAgAGBQJSlJlbAAoJEBQN5MwUoCm2kHcQAIDcdI3aiAr4bVDSYmli0TCL
+R+RDA0eINSxvhq+cQhg4pu1u7sSIlP76nBNyQLQfPoU3mkRqtIvKoZVlh43Sp6fS
+jU4/K23pW247t2uVQEVe20vOCkIdlBbliCHUf0JZ4waLalL3WMqDLcyta7UHxzLy
+E/uLMoBOACOtzhNVZlNKTIIf1afhDBMuc1OBg5LBmH4mKelHYoFYsYuiIs721w3a
+QZHH1XqmMuzd6d3FRmO8JcZ45+6pA2+4Mk5DF8dkUakM85J4nN+ftb4+hwRqNvdU
+JPqXuI/PnLPfPCjXsAgp9YnUuKucYqepf5xNnMzqhPYQ6qbNg/9RD87WFa9cyLkA
+R67lRJP19brus/Df4DWMRH7Ymt1cn7xyy6UGICWUvwe/h/aKY1F3JZLIvfd50RwB
+w2JO27FXelqbrof/fQnoNRHeGSDccBlqEbBuWdFkNhS3eH1BNmsfrdd5nU0nDitz
+QKIFP+m8nEnbrzysNBTs+vmZUwq5A1iXsJOVfMWp15TD3ldQZo2egeVDm49Zns/R
+13YVocav/Z0OZprM/Ycmq7q+HUjhsKFaWb7RTjtmfYMwYLOWzETlEmaaGK69VIRm
+iyqdf5J7flhN0oMEMvv9p/di2r4JemxE2LmL6zdFsphlgcLToEiQGtk8RbholGLx
+3qEFNrNdcuurqiV67pS3
+=HLir
 -----END PGP SIGNATURE-----
 
---ILuaRSyQpoVaJ1HG--
+--sDKAb4OeUBrWWL6P--
