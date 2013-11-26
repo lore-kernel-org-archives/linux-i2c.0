@@ -1,89 +1,99 @@
-From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
-Subject: Re: [PATCH 1/2 v2] i2c: exynos5: add support for HSI2C on Exynos5260 SoC
-Date: Tue, 26 Nov 2013 17:23:56 +0530
-Message-ID: <CAHfPSqACobcw-qEA+Pa2KTG3vJN6hPhS=ond3z4L6=BABbh8TQ@mail.gmail.com>
-References: <1385100726-32165-1-git-send-email-ch.naveen@samsung.com>
- <1385439977-19077-1-git-send-email-ch.naveen@samsung.com> <CAK9yfHz1HL65megQ9vDZovZr9oBo8UsrgGS+umWiT9FmHrnK3Q@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c-mux-pca954x: Disable mux after 200ms timeout
+Date: Tue, 26 Nov 2013 13:28:18 +0100
+Message-ID: <20131126122818.GA7427@katana>
+References: <1385447520-3306-1-git-send-email-mike.looijmans@topic.nl>
+ <20131126090639.GA2568@katana>
+ <52946BA6.3080308@topic.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <CAK9yfHz1HL65megQ9vDZovZr9oBo8UsrgGS+umWiT9FmHrnK3Q@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, sjg@chromium.org, LKML <linux-kernel@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Mark Brown <broonie@kernel.org>, Doug Anderson <dianders@chromium.org>, cpgs@samsung.com, Tomasz Figa <t.figa@samsung.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <52946BA6.3080308@topic.nl>
+Sender: linux-pm-owner@vger.kernel.org
+To: Mike Looijmans <mike.looijmans@topic.nl>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Sachin,
 
-On 26 November 2013 16:59, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> On 26 November 2013 09:56, Naveen Krishna Chatradhi
-> <ch.naveen@samsung.com> wrote:
->> This patch adds new compatible to support HSI2C module on Exynos5260
->> HSI2C module on Exynos5260 needs to be reset during during initialization.
->>
->> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-> [snip]
->>
->>  Required properties:
->>    - compatible: value should be.
->> -      -> "samsung,exynos5-hsi2c", for i2c compatible with exynos5 hsi2c.
->> +       -> "samsung,exynos5-hsi2c", for i2c compatible with HSI2C available on
->> +                               Exynos5250/5420 SoCs.
-The first HSI2C module is available on Exynos5 SoCs from Samsung.
-Hence, "samsung,exynos5-hsi2c"
-HSI2C Module on  Exynos5250 and Exynos5420 was exactly similar
-
-HSI2C Module on Exynos5260 differs in hardware.
-Hence, "samsung,exynos5260-hsi2c".
-
-And as the new variants come we use "samsung,exynosXXX-hsi2c"
-or we can go by "samsung,exynos5-hsi2c-v2"
-
-Changing an existing compatible needs modification in the DT nodes as well.
-
-I will change the compatible string, if anyone else also thinks its wise.
->
-> This string could be made more specific ("samsung,exynos5250-hsi2c")
-> now that we have variants for this.
->
->> +       -> "samsung,exynos5260-hsi2c", for i2c compatible with HSI2C available
->> +                               on Exynos5260 SoCs.
->> +
->>    - reg: physical base address of the controller and length of memory mapped
->>      region.
->>    - interrupts: interrupt number to the cpu.
->> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
->> index da39ff0..497ff91 100644
->> --- a/drivers/i2c/busses/i2c-exynos5.c
->> +++ b/drivers/i2c/busses/i2c-exynos5.c
->> @@ -184,14 +184,35 @@ struct exynos5_i2c {
->>          * 2. Fast speed upto 1Mbps
->>          */
->>         int                     speed_mode;
->> +
->> +       /* Version of HS-I2C Hardware */
->> +       unsigned int            version;
->> +};
->> +
->> +enum hsi2c_version {
->> +       EXYNOS_5,
->
-> ditto.
->
->> +       EXYNOS_5260
->>  };
->>
->
-> --
-> With warm regards,
-> Sachin
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
+CCing linux-pm, maybe they know more...
 
--- 
-Shine bright,
-(: Nav :)
+> The extra I2C traffic consumes extra power. If the bus is terminated
+> using 2k resistors, approximately 1mA of current (assuming ~2V
+> signals) is flowing when the bus is pulled low. On low power
+> designs, this extra power consumption is noticable. There is no way
+> to turn the mux "off" from either user or kernel space. The signals
+> going through the mux to a place where no I2C device is actually
+> listening are only wasting power.
+
+I only have an overview of current linux pm mechanisms. I wonder if
+those can't be used somehow. Like if devices on the multiplexed bus are
+idle (well, only regarding transfers), then we can switch off the muxer.
+
+> The I2C signals are used to control sensitive codecs. When looking
+> at the sampled data, the I2C traffic is visible in the captured
+> analog signal. To prevent this from happening, the mux can be
+
+I wonder: Is this really a feature of sensitive codecs or an issue of
+the board design?
+
+> disabled whenever not communicating with the codec. This could be
+> accomplished with the "deselect_on_exit" boolean, but because audio
+> driver sends the codec parameters in dozens of small transactions,
+> this will result in a lot more needless I2C traffic, constantly
+> switching the mux for each codec setting.
+
+Has this been looked at? ASoC supports grouping of tranfers IIRC. Maybe
+your I2C driver is only missing I2C_M_NOSTART?.
+
+> Would it be acceptable if I made the timeout optional, by making the
+> "deselect_on_exit" boolean into a three-state value (off, on,
+> timeout)? Or, alternatively, implement "deselect_on_exit" using the
+> timeout scheme (probably with a very short timeout)?
+
+I have a number of concerns designwise. First, if we do something like
+shutting-down-a-bus-if-there-are-no-transfers-expected, it definately
+should be in the core, not the driver. As said before, I have the
+assumption it should even be connected to the runtime pm core via some
+callback. And if we have that for I2C, we surely want that for other
+buses as well, at least SPI. Also, the timeout thing sounds too
+heuristic to me. Later, people might want to change the timeout value
+depending on workloads or so, and then a governor, etc... No, thanks.
+
+BTW is it feasible to shut down the whole I2C bus at controller level
+after transfers? No needless transfers and maybe even more power
+savings.
+
+Anyway, thanks for letting me know about your requirements (they should
+have been in the original commit message, though ;))
+
+
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSlJPiAAoJEBQN5MwUoCm2WaAP/jEQxpzpkCRv30ek392aaFSH
+oR+BKUv02Kt/pcbjlGfAX6e0gN1cCVgPMKXU0nf0nb2s+gNQBJWQvWxwLLvhtwu4
+fGbrrfgt2hIxXbdjy+/cTN5r/KkmmJp9bYJyEnDy/bx+H2RVLGB2gyNDlWXRmWIP
++GVs4NO5GgDz5KaBVKhNxfK4K98+2NFY70xZZqCTZEbgTJhCwU+8dbFz9kMkPSrG
+PyHJ13DhLkM6Rwc60PCPcLpFny2lb27kPa1vbnrEphEWvV5uzi3LI7LArD7j6mPk
+iBwU0kayze/wGUgPCAsA1qTeT9SSC7siB2e7RfeglG2xeB0f/z9dT8mbeJPKBDRO
+HxVC6A9nMQelX2V/WsGFcuiKb7Xd7t9+qisvRkqtvB+XF8xIgZWKrXmSXl1pMs/+
+SAyNVbTQK2lLOHdGNVBeFVaZkeqwAQIfK5fqyQmbRbhF5UQHj6CNUHf3ILjmxg55
+Ud0Z0R4ow2ZbOToi5bn96wuYQbFbQyPisb+V9rXnDzAFyHIxzjRFP+5C9NER4gYi
+fAQrTkS1g0fr9erX+58wzDAUZcO8Ue12mmXZnwXpJlEfSwnu/8Zq26sHqsBMeqfE
+sH6ua1yCNAJx/zubQaUtkd/Ot8MGs/3bZvdrGPx14Er9t1lka6fGQQaNZNxMVLFk
+5z0Rv2w6q/iMK9LCvbno
+=8bpp
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--
