@@ -1,70 +1,63 @@
-From: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Subject: Re: [PATCH] i2c-mux-pca954x: Disable mux after 200ms timeout
-Date: Tue, 26 Nov 2013 10:36:38 +0100
-Message-ID: <52946BA6.3080308@topic.nl>
-References: <1385447520-3306-1-git-send-email-mike.looijmans@topic.nl> <20131126090639.GA2568@katana>
+From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/2 v2] i2c: exynos5: add support for HSI2C on Exynos5260 SoC
+Date: Tue, 26 Nov 2013 16:59:42 +0530
+Message-ID: <CAK9yfHz1HL65megQ9vDZovZr9oBo8UsrgGS+umWiT9FmHrnK3Q@mail.gmail.com>
+References: <1385100726-32165-1-git-send-email-ch.naveen@samsung.com>
+	<1385439977-19077-1-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131126090639.GA2568@katana>
+In-Reply-To: <1385439977-19077-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/26/2013 10:06 AM, Wolfram Sang wrote:
-> On Tue, Nov 26, 2013 at 07:32:00AM +0100, Mike Looijmans wrote:
->> Leaving the mux enabled causes needless I2C traffic on the downstream
->> bus. De-selecting after every request causes excess I2C traffic and
->> switching.
->>
->> This patch implements a hybrid solution: After 200ms of inactivity,
->> the mux is disabled.
->>
->> Signed-off-by: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+On 26 November 2013 09:56, Naveen Krishna Chatradhi
+<ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
+> This patch adds new compatible to support HSI2C module on Exynos5260
+> HSI2C module on Exynos5260 needs to be reset during during initialization.
 >
-> You still haven't answered my initial question. Also, please don't
-> resend without saying what changed since the last version.
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+[snip]
+>
+>  Required properties:
+>    - compatible: value should be.
+> -      -> "samsung,exynos5-hsi2c", for i2c compatible with exynos5 hsi2c.
+> +       -> "samsung,exynos5-hsi2c", for i2c compatible with HSI2C available on
+> +                               Exynos5250/5420 SoCs.
 
-Sorry, I never received the patch mail nor any replies into my own mailbox, so 
-I assumed the message was never actually sent (probably our mail server 
-considered it spam). I found it online though, so I'll try to answer your 
-questions now.
+This string could be made more specific ("samsung,exynos5250-hsi2c")
+now that we have variants for this.
 
-Michael Lawnick:
- > Have you checked against behavior on cascaded muxes?
+> +       -> "samsung,exynos5260-hsi2c", for i2c compatible with HSI2C available
+> +                               on Exynos5260 SoCs.
+> +
+>    - reg: physical base address of the controller and length of memory mapped
+>      region.
+>    - interrupts: interrupt number to the cpu.
+> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+> index da39ff0..497ff91 100644
+> --- a/drivers/i2c/busses/i2c-exynos5.c
+> +++ b/drivers/i2c/busses/i2c-exynos5.c
+> @@ -184,14 +184,35 @@ struct exynos5_i2c {
+>          * 2. Fast speed upto 1Mbps
+>          */
+>         int                     speed_mode;
+> +
+> +       /* Version of HS-I2C Hardware */
+> +       unsigned int            version;
+> +};
+> +
+> +enum hsi2c_version {
+> +       EXYNOS_5,
 
-No, I didn't even realize it was at all possible to cascade muxes. And you're 
-right, this patch will break those.
+ditto.
 
-Would it be acceptable if I made the timeout optional, by making the 
-"deselect_on_exit" boolean into a three-state value (off, on, timeout)? Or, 
-alternatively, implement "deselect_on_exit" using the timeout scheme (probably 
-with a very short timeout)?
+> +       EXYNOS_5260
+>  };
+>
 
-
-Wolfram Sang:
- > This is a bus. Why is this bad?
-
-My customer has two reasons for wanting this change:
-
-The extra I2C traffic consumes extra power. If the bus is terminated using 2k 
-resistors, approximately 1mA of current (assuming ~2V signals) is flowing when 
-the bus is pulled low. On low power designs, this extra power consumption is 
-noticable. There is no way to turn the mux "off" from either user or kernel 
-space. The signals going through the mux to a place where no I2C device is 
-actually listening are only wasting power.
-
-The I2C signals are used to control sensitive codecs. When looking at the 
-sampled data, the I2C traffic is visible in the captured analog signal. To 
-prevent this from happening, the mux can be disabled whenever not 
-communicating with the codec. This could be accomplished with the 
-"deselect_on_exit" boolean, but because audio driver sends the codec 
-parameters in dozens of small transactions, this will result in a lot more 
-needless I2C traffic, constantly switching the mux for each codec setting.
-
-
-Kind regards,
-
-Mike.
+-- 
+With warm regards,
+Sachin
