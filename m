@@ -1,99 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-mux-pca954x: Disable mux after 200ms timeout
-Date: Tue, 26 Nov 2013 13:28:18 +0100
-Message-ID: <20131126122818.GA7427@katana>
-References: <1385447520-3306-1-git-send-email-mike.looijmans@topic.nl>
- <20131126090639.GA2568@katana>
- <52946BA6.3080308@topic.nl>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: davinci: raw read and write endian fix
+Date: Tue, 26 Nov 2013 13:39:34 +0100
+Message-ID: <20131126123934.GB7427@katana>
+References: <1384971824-7707-1-git-send-email-taras.kondratiuk@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
-Return-path: <linux-pm-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="i9LlY+UWpKt15+FH"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52946BA6.3080308@topic.nl>
-Sender: linux-pm-owner@vger.kernel.org
-To: Mike Looijmans <mike.looijmans@topic.nl>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org
+In-Reply-To: <1384971824-7707-1-git-send-email-taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Taras Kondratiuk <taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linaro-networking-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linaro-kernel-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---sdtB3X0nJg68CQEu
+--i9LlY+UWpKt15+FH
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Nov 20, 2013 at 08:23:44PM +0200, Taras Kondratiuk wrote:
+> I2C IP block expect LE data, but CPU may operate in BE mode.
+> Need to use endian neutral functions to read/write h/w registers.
+> I.e instead of __raw_read[lw] and __raw_write[lw] functions code
+> need to use read[lw]_relaxed and write[lw]_relaxed functions.
+> If the first simply reads/writes register, the second will byteswap
+> it if host operates in BE mode.
+>=20
+> Changes are trivial sed like replacement of __raw_xxx functions
+> with xxx_relaxed variant.
+>=20
+> Signed-off-by: Taras Kondratiuk <taras.kondratiuk-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+Applied to for-current, thanks!
 
 
-CCing linux-pm, maybe they know more...
-
-> The extra I2C traffic consumes extra power. If the bus is terminated
-> using 2k resistors, approximately 1mA of current (assuming ~2V
-> signals) is flowing when the bus is pulled low. On low power
-> designs, this extra power consumption is noticable. There is no way
-> to turn the mux "off" from either user or kernel space. The signals
-> going through the mux to a place where no I2C device is actually
-> listening are only wasting power.
-
-I only have an overview of current linux pm mechanisms. I wonder if
-those can't be used somehow. Like if devices on the multiplexed bus are
-idle (well, only regarding transfers), then we can switch off the muxer.
-
-> The I2C signals are used to control sensitive codecs. When looking
-> at the sampled data, the I2C traffic is visible in the captured
-> analog signal. To prevent this from happening, the mux can be
-
-I wonder: Is this really a feature of sensitive codecs or an issue of
-the board design?
-
-> disabled whenever not communicating with the codec. This could be
-> accomplished with the "deselect_on_exit" boolean, but because audio
-> driver sends the codec parameters in dozens of small transactions,
-> this will result in a lot more needless I2C traffic, constantly
-> switching the mux for each codec setting.
-
-Has this been looked at? ASoC supports grouping of tranfers IIRC. Maybe
-your I2C driver is only missing I2C_M_NOSTART?.
-
-> Would it be acceptable if I made the timeout optional, by making the
-> "deselect_on_exit" boolean into a three-state value (off, on,
-> timeout)? Or, alternatively, implement "deselect_on_exit" using the
-> timeout scheme (probably with a very short timeout)?
-
-I have a number of concerns designwise. First, if we do something like
-shutting-down-a-bus-if-there-are-no-transfers-expected, it definately
-should be in the core, not the driver. As said before, I have the
-assumption it should even be connected to the runtime pm core via some
-callback. And if we have that for I2C, we surely want that for other
-buses as well, at least SPI. Also, the timeout thing sounds too
-heuristic to me. Later, people might want to change the timeout value
-depending on workloads or so, and then a governor, etc... No, thanks.
-
-BTW is it feasible to shut down the whole I2C bus at controller level
-after transfers? No needless transfers and maybe even more power
-savings.
-
-Anyway, thanks for letting me know about your requirements (they should
-have been in the original commit message, though ;))
-
-
---sdtB3X0nJg68CQEu
+--i9LlY+UWpKt15+FH
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSlJPiAAoJEBQN5MwUoCm2WaAP/jEQxpzpkCRv30ek392aaFSH
-oR+BKUv02Kt/pcbjlGfAX6e0gN1cCVgPMKXU0nf0nb2s+gNQBJWQvWxwLLvhtwu4
-fGbrrfgt2hIxXbdjy+/cTN5r/KkmmJp9bYJyEnDy/bx+H2RVLGB2gyNDlWXRmWIP
-+GVs4NO5GgDz5KaBVKhNxfK4K98+2NFY70xZZqCTZEbgTJhCwU+8dbFz9kMkPSrG
-PyHJ13DhLkM6Rwc60PCPcLpFny2lb27kPa1vbnrEphEWvV5uzi3LI7LArD7j6mPk
-iBwU0kayze/wGUgPCAsA1qTeT9SSC7siB2e7RfeglG2xeB0f/z9dT8mbeJPKBDRO
-HxVC6A9nMQelX2V/WsGFcuiKb7Xd7t9+qisvRkqtvB+XF8xIgZWKrXmSXl1pMs/+
-SAyNVbTQK2lLOHdGNVBeFVaZkeqwAQIfK5fqyQmbRbhF5UQHj6CNUHf3ILjmxg55
-Ud0Z0R4ow2ZbOToi5bn96wuYQbFbQyPisb+V9rXnDzAFyHIxzjRFP+5C9NER4gYi
-fAQrTkS1g0fr9erX+58wzDAUZcO8Ue12mmXZnwXpJlEfSwnu/8Zq26sHqsBMeqfE
-sH6ua1yCNAJx/zubQaUtkd/Ot8MGs/3bZvdrGPx14Er9t1lka6fGQQaNZNxMVLFk
-5z0Rv2w6q/iMK9LCvbno
-=8bpp
+iQIcBAEBAgAGBQJSlJaGAAoJEBQN5MwUoCm2RkQP/ivFJqKxoUQg6fHiZQ7/Gx8j
+qhe4XrmwSAhK6IrfztgRTDyrzB5kNa11Uj0mcX63dSnRUllOPsnGnn6XMNbQzu/a
+QZqztrlB9QF5PEgddLn48I04ARm5xKlMp9iS9RM8+sh/qpcWc5aNGmoQdGtPfRgB
+vqF72XFvNjrlpO7omo3oT5Lvcc6dpNP//RWeYB6t68GvNxzbaXLMtCVV4YOLGU6z
+0K6TKkpQVZ4h8VURHObnqV3CygP4XfU36/9OInQAjtWS/KwPCvFoDEnyP4kWWXIz
+ElDvFiBoVY9WK+tFty00+1vBRvSdn8sVhy+uIafaLsBkAc/KQa6ooewLmM/I/mLq
+S3RcLL773AKrxMttCVvORwheUiScLmSHRBJcfPJjW0gIk3Pk/Lnlq6S/VwnUjs+C
+Ov30LMjnWs6UpGtUVt9whmlwoOy0E3lnpp/5k+fnOd3A7lzvBYavtWINPTGqHnWX
+Te37PVTHf41Ihk7cEIkpAir7K1oHoN/037jxxFdKMQbL/u1F1M6Dg9wRiXH8HHm9
+QS/wsPPnTtZqjwTO3YWfHWH2NMAEaXoTBagxwhIFf4xcMg2mrVEt1cDWGDgb6p0s
+Vse74Y/oH3w5AIYiwaiXnnkEzvC3ckWMCeHuMVJsHKcs5m1nSUtlcEjbfJt1KejB
+Hw6gXSqTCtPJ5YDDSqSb
+=kyNw
 -----END PGP SIGNATURE-----
 
---sdtB3X0nJg68CQEu--
+--i9LlY+UWpKt15+FH--
