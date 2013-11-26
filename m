@@ -1,114 +1,119 @@
-From: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Subject: [PATCH 2/2 v2] i2c: exynos5: configure fifo_depth based on HSI2C
- module version
-Date: Tue, 26 Nov 2013 09:56:39 +0530
-Message-ID: <1385439999-19123-1-git-send-email-ch.naveen@samsung.com>
-References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: sjg@chromium.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, wsa@the-dreams.de, ben-linux@fluff.org, grant.likely@secretlab.ca, broonie@kernel.org, dianders@chromium.org, cpgs@samsung.com, t.figa@samsung.com
+From: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Subject: [PATCH] i2c-mux-pca954x: Disable mux after 200ms timeout
+Date: Tue, 26 Nov 2013 07:32:00 +0100
+Message-ID: <1385447520-3306-1-git-send-email-mike.looijmans@topic.nl>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-fifo_depth of the HSI2C is not constant
-Exynos5420 and Exynos5250 supports fifo_depth of 64bytes
-Exynos5260 supports fifo_depth of 16bytes
+Leaving the mux enabled causes needless I2C traffic on the downstream
+bus. De-selecting after every request causes excess I2C traffic and
+switching.
 
-This patch configures the fifo_depth based on HSI2C modules version.
+This patch implements a hybrid solution: After 200ms of inactivity,
+the mux is disabled.
 
-Signed-off-by: Naveen Krishna Chatradhi <ich.naveen@samsung.com>
-[For finding out the difference and initial contribution]
-Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+Signed-off-by: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
 ---
-Changes since v1:
-Added missed out Signed-off-by line for initial contribution
-Also rebasing on linux-i2c for-next
+ drivers/i2c/muxes/i2c-mux-pca954x.c |   45 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 42 insertions(+), 3 deletions(-)
 
- drivers/i2c/busses/i2c-exynos5.c |   29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index 497ff91..a3fdcd8 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -77,12 +77,6 @@
- #define HSI2C_RXFIFO_TRIGGER_LEVEL(x)		((x) << 4)
- #define HSI2C_TXFIFO_TRIGGER_LEVEL(x)		((x) << 16)
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index a531d80..1241c97 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -41,6 +41,7 @@
+ #include <linux/device.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
++#include <linux/workqueue.h>
  
--/* As per user manual FIFO max depth is 64bytes */
--#define HSI2C_FIFO_MAX				0x40
--/* default trigger levels for Tx and Rx FIFOs */
--#define HSI2C_DEF_TXFIFO_LVL			(HSI2C_FIFO_MAX - 0x30)
--#define HSI2C_DEF_RXFIFO_LVL			(HSI2C_FIFO_MAX - 0x10)
+ #include <linux/i2c/pca954x.h>
+ 
+@@ -60,7 +61,8 @@ enum pca_type {
+ struct pca954x {
+ 	enum pca_type type;
+ 	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
 -
- /* I2C_TRAILING_CTL Register bits */
- #define HSI2C_TRAILING_COUNT			(0xf)
- 
-@@ -187,6 +181,9 @@ struct exynos5_i2c {
- 
- 	/* Version of HS-I2C Hardware */
- 	unsigned int		version;
-+
-+	/* FIFO depth */
-+	unsigned int		fifo_depth;
++	struct i2c_client *client;
++	struct delayed_work deselect_work;
+ 	u8 last_chan;		/* last register value */
  };
  
- enum hsi2c_version {
-@@ -437,7 +434,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
- 		fifo_status = readl(i2c->regs + HSI2C_FIFO_STATUS);
- 		fifo_level = HSI2C_TX_FIFO_LVL(fifo_status);
+@@ -168,11 +170,43 @@ static int pca954x_select_chan(struct i2c_adapter *adap,
+ 	return ret;
+ }
  
--		len = HSI2C_FIFO_MAX - fifo_level;
-+		len = i2c->fifo_depth - fifo_level;
- 		if (len > (i2c->msg->len - i2c->msg_ptr))
- 			len = i2c->msg->len - i2c->msg_ptr;
- 
-@@ -505,6 +502,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 	u32 i2c_auto_conf = 0;
- 	u32 fifo_ctl;
- 	unsigned long flags;
-+	unsigned short trig_lvl;
- 
- 	i2c_ctl = readl(i2c->regs + HSI2C_CTL);
- 	i2c_ctl &= ~(HSI2C_TXCHON | HSI2C_RXCHON);
-@@ -515,13 +513,19 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 
- 		i2c_auto_conf = HSI2C_READ_WRITE;
- 
--		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(HSI2C_DEF_TXFIFO_LVL);
-+		trig_lvl = (i2c->msg->len > i2c->fifo_depth) ?
-+			(i2c->fifo_depth * 3/4) : i2c->msg->len;
-+		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(trig_lvl);
-+
- 		int_en |= (HSI2C_INT_RX_ALMOSTFULL_EN |
- 			HSI2C_INT_TRAILING_EN);
- 	} else {
- 		i2c_ctl |= HSI2C_TXCHON;
- 
--		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(HSI2C_DEF_RXFIFO_LVL);
-+		trig_lvl = (i2c->msg->len > i2c->fifo_depth) ?
-+			(i2c->fifo_depth * 1/4) : i2c->msg->len;
-+		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(trig_lvl);
-+
- 		int_en |= HSI2C_INT_TX_ALMOSTEMPTY_EN;
- 	}
- 
-@@ -716,10 +720,13 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
- 	i2c->version = exynos5_i2c_get_version(pdev);
- 
- 	/* The HS-I2C core on Exynos5260 needs a reset to start with */
--	if (i2c->version == EXYNOS_5260)
-+	if (i2c->version == EXYNOS_5260) {
-+		i2c->fifo_depth = 16;
- 		exynos5_i2c_reset(i2c);
--	else
-+	} else {
-+		i2c->fifo_depth = 64;
- 		exynos5_i2c_init(i2c);
+-static int pca954x_deselect_mux(struct i2c_adapter *adap,
++static void pca954x_deselect_work(struct work_struct *work)
++{
++	struct pca954x *data = container_of(
++				work, struct pca954x, deselect_work.work);
++	/* Use the adapter lock as a mutex because any method that changes
++	 * the mux state will also hold this mutex. If the bus is in use,
++	 * the lock will assure that at least that transaction will
++	 * complete. */
++	i2c_lock_adapter(data->client->adapter);
++	if (data->last_chan != 0) {
++		int res;
++		/* Disable mux */
++		dev_dbg(&client->dev, "deselecting mux\n");
++		data->last_chan = 0;
++		res = pca954x_reg_write(data->client->adapter,
++				data->client, data->last_chan);
++		if (res < 0)
++			dev_err(&client->dev,
++				"%s: pca954x_reg_write failed: %d\n",
++				__func__, res);
 +	}
++	i2c_unlock_adapter(data->client->adapter);
++}
++
++static int pca954x_deselect_mux_delayed(struct i2c_adapter *adap,
+ 				void *client, u32 chan)
+ {
+ 	struct pca954x *data = i2c_get_clientdata(client);
++	/* Setup timer to disable at a later interval */
++	schedule_delayed_work(&data->deselect_work, msecs_to_jiffies(200));
++	return 0;
++}
  
- 	ret = i2c_add_adapter(&i2c->adap);
- 	if (ret < 0) {
++static int pca954x_deselect_mux_immediate(struct i2c_adapter *adap,
++				void *client, u32 chan)
++{
++	struct pca954x *data = i2c_get_clientdata(client);
+ 	/* Deselect active channel */
+ 	data->last_chan = 0;
+ 	return pca954x_reg_write(adap, client, data->last_chan);
+@@ -212,6 +246,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 
+ 	data->type = id->driver_data;
+ 	data->last_chan = 0;		   /* force the first selection */
++	data->client = client;
++	INIT_DELAYED_WORK(&data->deselect_work, pca954x_deselect_work);
+ 
+ 	/* Now create an adapter for each channel */
+ 	for (num = 0; num < chips[data->type].nchans; num++) {
+@@ -231,7 +267,8 @@ static int pca954x_probe(struct i2c_client *client,
+ 			i2c_add_mux_adapter(adap, &client->dev, client,
+ 				force, num, class, pca954x_select_chan,
+ 				(pdata && pdata->modes[num].deselect_on_exit)
+-					? pca954x_deselect_mux : NULL);
++					? pca954x_deselect_mux_immediate
++					: pca954x_deselect_mux_delayed);
+ 
+ 		if (data->virt_adaps[num] == NULL) {
+ 			ret = -ENODEV;
+@@ -264,6 +301,8 @@ static int pca954x_remove(struct i2c_client *client)
+ 	const struct chip_desc *chip = &chips[data->type];
+ 	int i;
+ 
++	cancel_delayed_work_sync(&data->deselect_work);
++
+ 	for (i = 0; i < chip->nchans; ++i)
+ 		if (data->virt_adaps[i]) {
+ 			i2c_del_mux_adapter(data->virt_adaps[i]);
 -- 
-1.7.10.4
+1.7.9.5
