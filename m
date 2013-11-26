@@ -1,119 +1,59 @@
-From: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Subject: [PATCH] i2c-mux-pca954x: Disable mux after 200ms timeout
-Date: Tue, 26 Nov 2013 07:32:00 +0100
-Message-ID: <1385447520-3306-1-git-send-email-mike.looijmans@topic.nl>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-mux-pca954x: Disable mux after 200ms timeout
+Date: Tue, 26 Nov 2013 10:06:39 +0100
+Message-ID: <20131126090639.GA2568@katana>
+References: <1385447520-3306-1-git-send-email-mike.looijmans@topic.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1385447520-3306-1-git-send-email-mike.looijmans-Oq418RWZeHk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Leaving the mux enabled causes needless I2C traffic on the downstream
-bus. De-selecting after every request causes excess I2C traffic and
-switching.
 
-This patch implements a hybrid solution: After 200ms of inactivity,
-the mux is disabled.
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c |   45 ++++++++++++++++++++++++++++++++---
- 1 file changed, 42 insertions(+), 3 deletions(-)
+On Tue, Nov 26, 2013 at 07:32:00AM +0100, Mike Looijmans wrote:
+> Leaving the mux enabled causes needless I2C traffic on the downstream
+> bus. De-selecting after every request causes excess I2C traffic and
+> switching.
+>=20
+> This patch implements a hybrid solution: After 200ms of inactivity,
+> the mux is disabled.
+>=20
+> Signed-off-by: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index a531d80..1241c97 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -41,6 +41,7 @@
- #include <linux/device.h>
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
-+#include <linux/workqueue.h>
- 
- #include <linux/i2c/pca954x.h>
- 
-@@ -60,7 +61,8 @@ enum pca_type {
- struct pca954x {
- 	enum pca_type type;
- 	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
--
-+	struct i2c_client *client;
-+	struct delayed_work deselect_work;
- 	u8 last_chan;		/* last register value */
- };
- 
-@@ -168,11 +170,43 @@ static int pca954x_select_chan(struct i2c_adapter *adap,
- 	return ret;
- }
- 
--static int pca954x_deselect_mux(struct i2c_adapter *adap,
-+static void pca954x_deselect_work(struct work_struct *work)
-+{
-+	struct pca954x *data = container_of(
-+				work, struct pca954x, deselect_work.work);
-+	/* Use the adapter lock as a mutex because any method that changes
-+	 * the mux state will also hold this mutex. If the bus is in use,
-+	 * the lock will assure that at least that transaction will
-+	 * complete. */
-+	i2c_lock_adapter(data->client->adapter);
-+	if (data->last_chan != 0) {
-+		int res;
-+		/* Disable mux */
-+		dev_dbg(&client->dev, "deselecting mux\n");
-+		data->last_chan = 0;
-+		res = pca954x_reg_write(data->client->adapter,
-+				data->client, data->last_chan);
-+		if (res < 0)
-+			dev_err(&client->dev,
-+				"%s: pca954x_reg_write failed: %d\n",
-+				__func__, res);
-+	}
-+	i2c_unlock_adapter(data->client->adapter);
-+}
-+
-+static int pca954x_deselect_mux_delayed(struct i2c_adapter *adap,
- 				void *client, u32 chan)
- {
- 	struct pca954x *data = i2c_get_clientdata(client);
-+	/* Setup timer to disable at a later interval */
-+	schedule_delayed_work(&data->deselect_work, msecs_to_jiffies(200));
-+	return 0;
-+}
- 
-+static int pca954x_deselect_mux_immediate(struct i2c_adapter *adap,
-+				void *client, u32 chan)
-+{
-+	struct pca954x *data = i2c_get_clientdata(client);
- 	/* Deselect active channel */
- 	data->last_chan = 0;
- 	return pca954x_reg_write(adap, client, data->last_chan);
-@@ -212,6 +246,8 @@ static int pca954x_probe(struct i2c_client *client,
- 
- 	data->type = id->driver_data;
- 	data->last_chan = 0;		   /* force the first selection */
-+	data->client = client;
-+	INIT_DELAYED_WORK(&data->deselect_work, pca954x_deselect_work);
- 
- 	/* Now create an adapter for each channel */
- 	for (num = 0; num < chips[data->type].nchans; num++) {
-@@ -231,7 +267,8 @@ static int pca954x_probe(struct i2c_client *client,
- 			i2c_add_mux_adapter(adap, &client->dev, client,
- 				force, num, class, pca954x_select_chan,
- 				(pdata && pdata->modes[num].deselect_on_exit)
--					? pca954x_deselect_mux : NULL);
-+					? pca954x_deselect_mux_immediate
-+					: pca954x_deselect_mux_delayed);
- 
- 		if (data->virt_adaps[num] == NULL) {
- 			ret = -ENODEV;
-@@ -264,6 +301,8 @@ static int pca954x_remove(struct i2c_client *client)
- 	const struct chip_desc *chip = &chips[data->type];
- 	int i;
- 
-+	cancel_delayed_work_sync(&data->deselect_work);
-+
- 	for (i = 0; i < chip->nchans; ++i)
- 		if (data->virt_adaps[i]) {
- 			i2c_del_mux_adapter(data->virt_adaps[i]);
--- 
-1.7.9.5
+You still haven't answered my initial question. Also, please don't
+resend without saying what changed since the last version.
+
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSlGSeAAoJEBQN5MwUoCm2+FsP/Ay72uYokHZl9LlYzQsua0fi
+amxhg0hHx9aVV0JnK3mURp+T9725y/zYOXkijPiT/rMEvDpd5jYUPsWvdB/gbSL9
+CyGyeYUr6G0gUFE/pjP7VFpEMfDo/6lsDWSWFc0grsiN8nJS1pMqGxp75J5i7d3U
+53k4brLxkDKgq2LzeIJ4YaJ+6zlkC2Cuk6sC8LDAtABCjERPfxn8WZ5V5/Uq1Avh
+7SDpKyDkoMygJF9hzHcWg5qa4pfRmIyqWIBqdmtZIpCQrExF1gSvqCZw1Bm4Vmab
+vBPkD4tF5aTiiymj71mXQFFTCJqAP5pYgIAV2n8Hp1mSj04+vG8ruBbQtNqsKocJ
+/3wSPQrRDP1diuPbf2RPSroMXDb/fUQ86cd0XMynJO7qeJIpwKwGeEkJ0bqY8A0h
+91ytsulEhodkOyhNhKEdMJeoU7SUhVn6llN0n8xAVMCRRrO2eEIUmdu1TMErRPlI
+fy+u05AS4IH8R+aBEWG8kUWEvx3YHDijtlB6qEvFVEMbR/9qrJF0jWc8y9HVR2OF
+kJG2f9vdtfyDfqcY/ks+H7RVa79MdU5lEYJ69QQyyYVoxNZjUGO9mGWwv02n641T
+1qB4Iw9Rzws2ub5XdVFSkGrU0GXyk+sCNBy95dw4x4koOArCQyVA8MFdpEB4N7LG
+CC+yzaP4AyuTJoNkTgqT
+=pQ6r
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
