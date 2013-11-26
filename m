@@ -1,49 +1,16 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v3] i2c: s3c2410: dont need CPU_FREQ transitions for
- exynos series
-Date: Mon, 25 Nov 2013 15:41:43 -0800
-Message-ID: <CAD=FV=Wu13jiFggjp9FZrnB0ejODR7ix_jSby+waZwpcACLwXA@mail.gmail.com>
-References: <1381490814-20890-1-git-send-email-ch.naveen@samsung.com>
-	<1384841915-8264-1-git-send-email-ch.naveen@samsung.com>
+From: "shumakherr" <alan-Hp07MnWEnFUpAS55Wn97og@public.gmane.org>
+Subject: =?windows-1251?B?wuD46CDz8fLg4vjo5SDj6+Dn4CDh8+Tz8iDC?=
+	=?windows-1251?B?4Owg7/Do5+3g8uXr/O37?=
+Date: Tue, 26 Nov 2013 02:51:47 +0100
+Message-ID: <601510755.20131126034758@zpower.com.au>
+Reply-To: "shumakherr" <alan-Hp07MnWEnFUpAS55Wn97og@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1384841915-8264-1-git-send-email-ch.naveen@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Simon Glass <sjg@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, "broonie@kernel.org" <broonie@kernel.org>, "cpgs ." <cpgs@samsung.com>, Tomasz Figa <t.figa@samsung.com>
+Content-Type: text/plain; charset=windows-1251
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: denis.tekutov-+E2vTyXJBO4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dzamyatin-vutpJTEiXUAox3rIn2DAYQ@public.gmane.org, bileti-pd+8vDHTOa0EXkLx5dDeUA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Naveen,
-
-On Mon, Nov 18, 2013 at 10:18 PM, Naveen Krishna Chatradhi
-<ch.naveen@samsung.com> wrote:
-> For Exynos4 and Exynos5 SoCs from Samsung the i2c clock is based
-> on a fixed 66 MHz peripheral clock, and therefore is completely
-> independent of the cpu frequency.
-> Thus, registering for a CPU freq notifier is very wasteful.
->
-> This patch modifes the code such that, i2c bus registers to
-> cpu_freq_transition only if CONFIG_CPU_FREQ_S3C24XX is enabled.
->
-> This change should save a bunch of cpufreq transitions calls
-> which does not apply to exynos SoCs.
->
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-> Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
-> Reviewed-by: Doug Anderson <dianders@chromium.org>
-> ---
-> Changes since v2:
-> None, Rebased on for-next of linux-i2c git repo.
->
-> Changes since v1:
-> Use CONFIG_CPU_FREQ_S3C24XX instead of (CONFIG_CPU_FREQ & !CONFIG_EXYNOS)
-> As commented by Tomasz
->
->  drivers/i2c/busses/i2c-s3c2410.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-
-Can you please spin this with comments from
-<https://patchwork.kernel.org/patch/3235091/>?  Thanks!
-
--Doug
+http://goo.gl/f2jIYu =CD=E5=F2 , =EF=E5=ED=F1=ED=E5 =E8 =EB=E8=ED=E7=E0=
+=EC
