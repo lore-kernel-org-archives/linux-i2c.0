@@ -1,60 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: i2c-diolan-u2c: different usb endpoints for
- DLN-2-U2C
-Date: Tue, 26 Nov 2013 13:51:40 +0100
-Message-ID: <20131126125140.GF7427@katana>
-References: <1385305043-23626-1-git-send-email-mvogt1@gmail.com>
+Subject: Re: [PATCH] I2C: BCM2835: Linking platform nodes to adapter nodes
+Date: Tue, 26 Nov 2013 13:57:40 +0100
+Message-ID: <20131126125739.GG7427@katana>
+References: <529303EE.4080606@koalo.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sDKAb4OeUBrWWL6P"
+	protocol="application/pgp-signature"; boundary="MrRUTeZlqqNo1jQ9"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1385305043-23626-1-git-send-email-mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <529303EE.4080606-oZ8rN/sblLk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Vogt <mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Florian Meier <florian.meier-oZ8rN/sblLk@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-rpi-kernel <linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---sDKAb4OeUBrWWL6P
+--MrRUTeZlqqNo1jQ9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Nov 24, 2013 at 03:57:23PM +0100, Martin Vogt wrote:
-> The previous diolan adapter uses other out/in endpoints than
-> the current DLN-2-U2C in compatibility mode.
-> They changed from 0x2/0x84 to 0x3/0x83.
-> This patch gets the endpoints from the usb interface, instead
-> of hardcode them in the driver.
+On Mon, Nov 25, 2013 at 09:01:50AM +0100, Florian Meier wrote:
+> In order to find I2C devices in the device tree, the platform nodes
+> have to be known by the I2C core. This requires setting the
+> dev.of_node parameter of the adapter.
 >=20
-> This was tested on a current DLN-2-U2C board.
->=20
-> Signed-off-by: Martin Vogt <mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Florian Meier <florian.meier-oZ8rN/sblLk@public.gmane.org>
 
-Applied to for-current, thanks!
+Malformed patch, please resend.
 
 
---sDKAb4OeUBrWWL6P
+--MrRUTeZlqqNo1jQ9
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSlJlbAAoJEBQN5MwUoCm2kHcQAIDcdI3aiAr4bVDSYmli0TCL
-R+RDA0eINSxvhq+cQhg4pu1u7sSIlP76nBNyQLQfPoU3mkRqtIvKoZVlh43Sp6fS
-jU4/K23pW247t2uVQEVe20vOCkIdlBbliCHUf0JZ4waLalL3WMqDLcyta7UHxzLy
-E/uLMoBOACOtzhNVZlNKTIIf1afhDBMuc1OBg5LBmH4mKelHYoFYsYuiIs721w3a
-QZHH1XqmMuzd6d3FRmO8JcZ45+6pA2+4Mk5DF8dkUakM85J4nN+ftb4+hwRqNvdU
-JPqXuI/PnLPfPCjXsAgp9YnUuKucYqepf5xNnMzqhPYQ6qbNg/9RD87WFa9cyLkA
-R67lRJP19brus/Df4DWMRH7Ymt1cn7xyy6UGICWUvwe/h/aKY1F3JZLIvfd50RwB
-w2JO27FXelqbrof/fQnoNRHeGSDccBlqEbBuWdFkNhS3eH1BNmsfrdd5nU0nDitz
-QKIFP+m8nEnbrzysNBTs+vmZUwq5A1iXsJOVfMWp15TD3ldQZo2egeVDm49Zns/R
-13YVocav/Z0OZprM/Ycmq7q+HUjhsKFaWb7RTjtmfYMwYLOWzETlEmaaGK69VIRm
-iyqdf5J7flhN0oMEMvv9p/di2r4JemxE2LmL6zdFsphlgcLToEiQGtk8RbholGLx
-3qEFNrNdcuurqiV67pS3
-=HLir
+iQIcBAEBAgAGBQJSlJrDAAoJEBQN5MwUoCm27HgP/3H47gv1ZS4LdqjwRyT2APY1
+fpTQB0bvyJzexjMKFpWUoX7s+yNwnbTHe+Lo/gl9fpzytAD456DTPiYIfRAXYvck
+dgFW8+M6B8rEGRVGebqt6heDeY/ca3j70wFOggggxl6sSpSA3ourCloXQizeGjOl
+3ootYQ+g4nTa47xsqIjB6VjQnLJQxYmVtmgg7wzY0CaUlH7pal8hJNSOxgjd3nTN
+OVveem54ZlPY7oovV7by77zo0qMicxWEOwBO7jzPUrzPbDEb+/J9+YivW0d90MLa
+XnStoAPKv/uvH/HIu4oxVSy3M10VVjoVPD2u4zlJB7Csv1iA/MZB1NKZin1sWNs8
+/iWqwtFbZiiY3J2TSD1N0bpWWPY3eUQ2kGxb1C8pYjueqwHKZSVdrvRLhjpZDyLo
+Da0HHf/MYrjeN8ud+R3RnobUbuz40Z4T8ipFLxsG5liOXW2qCkqURPE0GqAmMVq0
+ot3wVRaMp7DlLMCvAZv7sYL29y8Js+ckV6FzhMU+on2MuVTds8HhXN8zvVIhbi1M
+Eq/I70eqoAo1xT3yJPcgFUi6mYmNYIiO7DuSCrMH9YeOXWWzKyw4UqqrAZIZGoqY
+o1f0WjHP4NMLw8t69QHZXY3u7lDaV4lurCwznqb2Co+3e08IotJronDnzKcHkP5U
+YHi2IS3V+hQLkiMlIB1a
+=krvV
 -----END PGP SIGNATURE-----
 
---sDKAb4OeUBrWWL6P--
+--MrRUTeZlqqNo1jQ9--
