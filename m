@@ -1,58 +1,69 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH -next] i2c: bcm-kona: remove duplicated include from
  i2c-bcm-kona.c
-Date: Tue, 26 Nov 2013 13:47:05 +0100
-Message-ID: <20131126124705.GD7427@katana>
+Date: Tue, 26 Nov 2013 13:48:03 +0100
+Message-ID: <20131126124803.GE7427@katana>
 References: <CAPgLHd_Qe5m940n=-233S0-d7e9dmbz1mc0owL18jZR7g6cP2g@mail.gmail.com>
+ <CAPdLdqn3dHtwOGGmkQZcch+=JCw3=23H4JKT=Zh-KBKrqDB+hg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5gxpn/Q6ypwruk0T"
+	protocol="application/pgp-signature"; boundary="ILuaRSyQpoVaJ1HG"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAPgLHd_Qe5m940n=-233S0-d7e9dmbz1mc0owL18jZR7g6cP2g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <CAPdLdqn3dHtwOGGmkQZcch+=JCw3=23H4JKT=Zh-KBKrqDB+hg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---5gxpn/Q6ypwruk0T
+--ILuaRSyQpoVaJ1HG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 21, 2013 at 10:58:46AM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+
+> > diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c=
+-bcm-kona.c
+> > index 865e5dd..1d74da5 100644
+> > --- a/drivers/i2c/busses/i2c-bcm-kona.c
+> > +++ b/drivers/i2c/busses/i2c-bcm-kona.c
+> > @@ -20,7 +20,6 @@
+> >  #include <linux/platform_device.h>
+> >  #include <linux/clk.h>
+> >  #include <linux/io.h>
+> > -#include <linux/clk.h>
+> >  #include <linux/slab.h>
+> >
+> >  /* Hardware register offsets and field defintions */
+> >
 >=20
-> Remove duplicated include.
+> Reviewed-by: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Removed duplicated message (same as subject ;))
-
-> Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
-
-Applied to for-current, thanks!
+IMO such trivial patches are rather acks than reviews. Mileages do vary,
+I know.
 
 
---5gxpn/Q6ypwruk0T
+--ILuaRSyQpoVaJ1HG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSlJhJAAoJEBQN5MwUoCm2ZA0P/jL7jRr5IMB/sApHp4VesziW
-bjPr8GHNPRzv83qjy3oE4eyzoMcixwg3o8oQDCjvwURSMJ9Gu8XPvuDDXI9VgP0b
-ql/FV9KQ2/YCNMGSeJI91hybuT9fGX+7dFa0n2atbyWubRttCrB1l9IIdwZcjgG6
-Gz2czCMETpvBG/VT1HS3xzwZECZjm+6syuwtd0Zj/stIm4XlK32xsGLOiz7zLw9e
-SKzVhmVsOl1aM9MHRBLKAAKD/YCcHbBm4MSsIaW0qd7YUwvkERnjDTUwLJ1+rT6D
-8To+lXG5sDjVxbaPSaXwNa984yOL7+wm/vrxuMuCyj+/PgAFkSGwSQApK2r8aPWA
-ZKZ73Kh+HSu5CVlo9m7cyAvf9va9tjSfPreBY8lRItbS6dm/nfS3mcrdBu7JNjQr
-c+Xnzue26VuyIBOcydUWTVn+6OINYKLTgRbZzlA69Saw6p4m+NBI+QRG8AvQsgAc
-OSFJoSQ01ZleG6zfdBaZQla8HDRRYgKAXIqil2bA5VheXYY8iy6OQW2Dsr8QlyP7
-PMDDdA9XNiXpE1hi0NCG/mw4ybDbc6MqMqnqVAthvAOVloVmb5OMbgRLTHQ1O40Q
-QvQio66vpWzJD+RAKhXbjFIHfh2Dq8IcxpyT2TcjEpR6CX4RFs6vz9hSxnclxDhX
-stixZsw62QmA0XyLHnJ8
-=xPdU
+iQIcBAEBAgAGBQJSlJiDAAoJEBQN5MwUoCm2o6gP/i1chjQEkiXYBRNeeM7vUKNp
+NAqyrA6SFXXA5evaCStvr6VCjBu29FLyh5h1QRXWKz6Gnt/VK5015+aXWP5m6A2O
+FUmiyQC9IgGukTKmiMWx2GgXhexP+icQGHBcLMHXXuA+Eg79MJdeD9eT86iXGFdz
+LWuJEdQGPXsaMYKCp4UV0pEjplgbvY9PyOCAt7L0bIclo37Emb/i4s1HLvfH4xU8
+4okXSlhO5CcZ8yjkxMyIhYXncSKKQfQQBOUwietlvWf/OcTgwOfg4GpsaxZwIrM2
+IsUEZkkdsB5083kXxwuAtnR7ipjhykg4OKrqkkqFu983EpotlMQ3xERT9JdstgSr
+w1UbycmANsIAeKea60lISbsDKkAdA6k4xnN5aIzvtI4PlG1IRUWLrmc8YVb7J7Ds
+6x+Q/OPWNhVKvhBiIxXtpGXbYwu4tUIeBlrvKKxv8L1inf1GB1xkS8m1OtUZv3um
+OOTBCJelmR3it8DJpleTrMOP7nHlkUZC+PrjNp/qMA77yka4ca9P/gjWkqKT1BI4
+3foUUwGcxpLh0NA4/e2soFMFn5k9YxDUefx0XJvFI1ToWZzRlolmZiLfBhf+Lfbp
+CL5ogPtwkAq/+hNir1iZrC3mg/iivJ5Cl73oAZZozPZhxaFUF7hrqWxCoMUa/BZx
+uMtB6ZkHgdBff0+15Wdi
+=pce2
 -----END PGP SIGNATURE-----
 
---5gxpn/Q6ypwruk0T--
+--ILuaRSyQpoVaJ1HG--
