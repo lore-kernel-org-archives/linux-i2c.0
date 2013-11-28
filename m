@@ -1,28 +1,45 @@
-From: Florian Meier <florian.meier@koalo.de>
-Subject: Re: [PATCH] I2C: BCM2835: Linking platform nodes to adapter nodes
-Date: Thu, 28 Nov 2013 09:56:22 +0100
-Message-ID: <52970536.7040709@koalo.de>
-References: <529303EE.4080606@koalo.de> <20131128085017.GC2626@katana>
+From: Helia Correia <helia.correia-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] Documentation: i2c: Remove obsolete example
+Date: Thu, 28 Nov 2013 16:02:41 +0100
+Message-ID: <52975B11.2090006@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20131128085017.GC2626@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-rpi-kernel <linux-rpi-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jerome.blin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "Correia, Helia" <helia.correia-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Thank you very much!
-I am sorry and will try to make it better next time.
+Documentation/i2c/fault-codes illustrates EINVAL error code
+as follows:
 
-On 11/28/2013 09:50 AM, Wolfram Sang wrote:
-> On Mon, Nov 25, 2013 at 09:01:50AM +0100, Florian Meier wrote:
->> In order to find I2C devices in the device tree, the platform nodes
->> have to be known by the I2C core. This requires setting the
->> dev.of_node parameter of the adapter.
->>
->> Signed-off-by: Florian Meier <florian.meier@koalo.de>
-> 
-> Fixed up for you and applied to for-current. But PLEASE fix your mailer!
-> 
+"One example would be a driver trying an SMBus Block Write
+with block size outside the range of 1-32 bytes."
+
+However, the actual implementation of i2c subsystem truncates
+data length to be 32 bytes.
+Hence this example cannot happen anymore, and since it's obsolete,
+let's simply remove it from Documentation/i2c/fault-codes.
+
+Signed-off-by: Helia Correia <helia.correia-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ Documentation/i2c/fault-codes | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/Documentation/i2c/fault-codes b/Documentation/i2c/fault-codes
+index 045765c0b9b5..47c25abb7d52 100644
+--- a/Documentation/i2c/fault-codes
++++ b/Documentation/i2c/fault-codes
+@@ -64,9 +64,6 @@ EINVAL
+ 	detected before any I/O operation was started.  Use a more
+ 	specific fault code when you can.
+
+-	One example would be a driver trying an SMBus Block Write
+-	with block size outside the range of 1-32 bytes.
+-
+ EIO
+ 	This rather vague error means something went wrong when
+ 	performing an I/O operation.  Use a more specific fault
+-- 
+1.8.1.2
