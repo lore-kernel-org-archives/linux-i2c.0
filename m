@@ -1,91 +1,31 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 2/3] i2c: nomadik: remove platform data header
-Date: Thu, 28 Nov 2013 23:12:07 +0100
-Message-ID: <1385676727-15089-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 3/3] i2c: nomadik: factor platform data into state container
+Date: Thu, 28 Nov 2013 23:12:17 +0100
+Message-ID: <1385676737-15127-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The Nomadik I2C is now configured from the device tree on all platforms
-using this controller. Delete the platform data header and move the
-definitions into the driver so it is all contained in one single file.
+Move the former platform data struct nmk_i2c_controller into the
+per-device state container struct i2c_nmk_client, and remove all
+the platform data probe path hacks.
 
 Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c          | 24 +++++++++++++++++++++-
- include/linux/platform_data/i2c-nomadik.h | 34 -------------------------------
- 2 files changed, 23 insertions(+), 35 deletions(-)
- delete mode 100644 include/linux/platform_data/i2c-nomadik.h
+ drivers/i2c/busses/i2c-nomadik.c | 116 +++++++++++++++------------------------
+ 1 file changed, 45 insertions(+), 71 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 51e61d8127cb..4443613514ee 100644
+index 4443613514ee..bc8ba02de2e9 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -22,7 +22,6 @@
- #include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/pm_runtime.h>
--#include <linux/platform_data/i2c-nomadik.h>
- #include <linux/of.h>
- #include <linux/pinctrl/consumer.h>
+@@ -111,22 +111,6 @@ enum i2c_freq_mode {
+ };
  
-@@ -104,6 +103,29 @@
- /* maximum threshold value */
- #define MAX_I2C_FIFO_THRESHOLD	15
- 
-+enum i2c_freq_mode {
-+	I2C_FREQ_MODE_STANDARD,		/* up to 100 Kb/s */
-+	I2C_FREQ_MODE_FAST,		/* up to 400 Kb/s */
-+	I2C_FREQ_MODE_HIGH_SPEED,	/* up to 3.4 Mb/s */
-+	I2C_FREQ_MODE_FAST_PLUS,	/* up to 1 Mb/s */
-+};
-+
-+/**
-+ * struct nmk_i2c_controller - client specific controller configuration
-+ * @clk_freq:	clock frequency for the operation mode
-+ * @tft:	Tx FIFO Threshold in bytes
-+ * @rft:	Rx FIFO Threshold in bytes
-+ * @timeout	Slave response timeout(ms)
-+ * @sm:		speed mode
-+ */
-+struct nmk_i2c_controller {
-+	u32             clk_freq;
-+	unsigned char	tft;
-+	unsigned char	rft;
-+	int timeout;
-+	enum i2c_freq_mode	sm;
-+};
-+
  /**
-  * struct i2c_vendor_data - per-vendor variations
-  * @has_mtdws: variant has the MTDWS bit
-diff --git a/include/linux/platform_data/i2c-nomadik.h b/include/linux/platform_data/i2c-nomadik.h
-deleted file mode 100644
-index 8681893f7b66..000000000000
---- a/include/linux/platform_data/i2c-nomadik.h
-+++ /dev/null
-@@ -1,34 +0,0 @@
--/*
-- * Copyright (C) 2009 ST-Ericsson
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2, as
-- * published by the Free Software Foundation.
-- */
--#ifndef __PDATA_I2C_NOMADIK_H
--#define __PDATA_I2C_NOMADIK_H
--
--enum i2c_freq_mode {
--	I2C_FREQ_MODE_STANDARD,		/* up to 100 Kb/s */
--	I2C_FREQ_MODE_FAST,		/* up to 400 Kb/s */
--	I2C_FREQ_MODE_HIGH_SPEED,	/* up to 3.4 Mb/s */
--	I2C_FREQ_MODE_FAST_PLUS,	/* up to 1 Mb/s */
--};
--
--/**
 - * struct nmk_i2c_controller - client specific controller configuration
 - * @clk_freq:	clock frequency for the operation mode
 - * @tft:	Tx FIFO Threshold in bytes
@@ -101,6 +41,202 @@ index 8681893f7b66..000000000000
 -	enum i2c_freq_mode	sm;
 -};
 -
--#endif	/* __PDATA_I2C_NOMADIK_H */
+-/**
+  * struct i2c_vendor_data - per-vendor variations
+  * @has_mtdws: variant has the MTDWS bit
+  * @fifodepth: variant FIFO depth
+@@ -174,8 +158,12 @@ struct i2c_nmk_client {
+  * @irq: interrupt line for the controller.
+  * @virtbase: virtual io memory area.
+  * @clk: hardware i2c block clock.
+- * @cfg: machine provided controller configuration.
+  * @cli: holder of client specific data.
++ * @clk_freq: clock frequency for the operation mode
++ * @tft: Tx FIFO Threshold in bytes
++ * @rft: Rx FIFO Threshold in bytes
++ * @timeout Slave response timeout (ms)
++ * @sm: speed mode
+  * @stop: stop condition.
+  * @xfer_complete: acknowledge completion for a I2C message.
+  * @result: controller propogated result.
+@@ -188,8 +176,12 @@ struct nmk_i2c_dev {
+ 	int				irq;
+ 	void __iomem			*virtbase;
+ 	struct clk			*clk;
+-	struct nmk_i2c_controller	cfg;
+ 	struct i2c_nmk_client		cli;
++	u32				clk_freq;
++	unsigned char			tft;
++	unsigned char			rft;
++	int				timeout;
++	enum i2c_freq_mode		sm;
+ 	int				stop;
+ 	struct completion		xfer_complete;
+ 	int				result;
+@@ -386,7 +378,7 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 	 * slsu = cycles / (1000000000 / f) + 1
+ 	 */
+ 	ns = DIV_ROUND_UP_ULL(1000000000ULL, i2c_clk);
+-	switch (dev->cfg.sm) {
++	switch (dev->sm) {
+ 	case I2C_FREQ_MODE_FAST:
+ 	case I2C_FREQ_MODE_FAST_PLUS:
+ 		slsu = DIV_ROUND_UP(100, ns); /* Fast */
+@@ -409,7 +401,7 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 	 * 2 whereas it is 3 for fast and fastplus mode of
+ 	 * operation. TODO - high speed support.
+ 	 */
+-	div = (dev->cfg.clk_freq > 100000) ? 3 : 2;
++	div = (dev->clk_freq > 100000) ? 3 : 2;
+ 
+ 	/*
+ 	 * generate the mask for baud rate counters. The controller
+@@ -419,7 +411,7 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 	 * so set brcr1 to 0.
+ 	 */
+ 	brcr1 = 0 << 16;
+-	brcr2 = (i2c_clk/(dev->cfg.clk_freq * div)) & 0xffff;
++	brcr2 = (i2c_clk/(dev->clk_freq * div)) & 0xffff;
+ 
+ 	/* set the baud rate counter register */
+ 	writel((brcr1 | brcr2), dev->virtbase + I2C_BRCR);
+@@ -430,7 +422,7 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 	 * TODO - support for fast mode plus (up to 1Mb/s)
+ 	 * and high speed (up to 3.4 Mb/s)
+ 	 */
+-	if (dev->cfg.sm > I2C_FREQ_MODE_FAST) {
++	if (dev->sm > I2C_FREQ_MODE_FAST) {
+ 		dev_err(&dev->adev->dev,
+ 			"do not support this mode defaulting to std. mode\n");
+ 		brcr2 = i2c_clk/(100000 * 2) & 0xffff;
+@@ -438,11 +430,11 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 		writel(I2C_FREQ_MODE_STANDARD << 4,
+ 				dev->virtbase + I2C_CR);
+ 	}
+-	writel(dev->cfg.sm << 4, dev->virtbase + I2C_CR);
++	writel(dev->sm << 4, dev->virtbase + I2C_CR);
+ 
+ 	/* set the Tx and Rx FIFO threshold */
+-	writel(dev->cfg.tft, dev->virtbase + I2C_TFTR);
+-	writel(dev->cfg.rft, dev->virtbase + I2C_RFTR);
++	writel(dev->tft, dev->virtbase + I2C_TFTR);
++	writel(dev->rft, dev->virtbase + I2C_RFTR);
+ }
+ 
+ /**
+@@ -958,61 +950,35 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+ 	.functionality	= nmk_i2c_functionality
+ };
+ 
+-static struct nmk_i2c_controller u8500_i2c = {
+-	.tft            = 1,      /* Tx FIFO threshold */
+-	.rft            = 8,      /* Rx FIFO threshold */
+-	.clk_freq       = 400000, /* fast mode operation */
+-	.timeout        = 200,    /* Slave response timeout(ms) */
+-	.sm             = I2C_FREQ_MODE_FAST,
+-};
+-
+ static void nmk_i2c_of_probe(struct device_node *np,
+-			struct nmk_i2c_controller *pdata)
++			     struct nmk_i2c_dev *nmk)
+ {
+-	of_property_read_u32(np, "clock-frequency", &pdata->clk_freq);
++	/* Default to 400 kHz if no frequency is given in the node */
++	if (of_property_read_u32(np, "clock-frequency", &nmk->clk_freq))
++		nmk->clk_freq = 400000;
+ 
+ 	/* This driver only supports 'standard' and 'fast' modes of operation. */
+-	if (pdata->clk_freq <= 100000)
+-		pdata->sm = I2C_FREQ_MODE_STANDARD;
++	if (nmk->clk_freq <= 100000)
++		nmk->sm = I2C_FREQ_MODE_STANDARD;
+ 	else
+-		pdata->sm = I2C_FREQ_MODE_FAST;
++		nmk->sm = I2C_FREQ_MODE_FAST;
++	nmk->tft = 1; /* Tx FIFO threshold */
++	nmk->rft = 8; /* Rx FIFO threshold */
++	nmk->timeout = 200; /* Slave response timeout(ms) */
+ }
+ 
+ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+ 	int ret = 0;
+-	struct nmk_i2c_controller *pdata = dev_get_platdata(&adev->dev);
+ 	struct device_node *np = adev->dev.of_node;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+ 	struct i2c_vendor_data *vendor = id->data;
+ 	u32 max_fifo_threshold = (vendor->fifodepth / 2) - 1;
+ 
+-	if (!pdata) {
+-		if (np) {
+-			pdata = devm_kzalloc(&adev->dev, sizeof(*pdata), GFP_KERNEL);
+-			if (!pdata) {
+-				ret = -ENOMEM;
+-				goto err_no_mem;
+-			}
+-			/* Provide the default configuration as a base. */
+-			memcpy(pdata, &u8500_i2c, sizeof(struct nmk_i2c_controller));
+-			nmk_i2c_of_probe(np, pdata);
+-		} else
+-			/* No i2c configuration found, using the default. */
+-			pdata = &u8500_i2c;
+-	}
+-
+-	if (pdata->tft > max_fifo_threshold) {
+-		dev_warn(&adev->dev, "requested TX FIFO threshold %u, adjusted down to %u\n",
+-			pdata->tft, max_fifo_threshold);
+-		pdata->tft = max_fifo_threshold;
+-	}
+-
+-	if (pdata->rft > max_fifo_threshold) {
+-		dev_warn(&adev->dev, "requested RX FIFO threshold %u, adjusted down to %u\n",
+-			pdata->rft, max_fifo_threshold);
+-		pdata->rft = max_fifo_threshold;
++	if (!np) {
++		dev_err(&adev->dev, "no device node\n");
++		return -ENODEV;
+ 	}
+ 
+ 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+@@ -1024,6 +990,20 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 	dev->vendor = vendor;
+ 	dev->busy = false;
+ 	dev->adev = adev;
++	nmk_i2c_of_probe(np, dev);
++
++	if (dev->tft > max_fifo_threshold) {
++		dev_warn(&adev->dev, "requested TX FIFO threshold %u, adjusted down to %u\n",
++			 dev->tft, max_fifo_threshold);
++		dev->tft = max_fifo_threshold;
++	}
++
++	if (dev->rft > max_fifo_threshold) {
++		dev_warn(&adev->dev, "requested RX FIFO threshold %u, adjusted down to %u\n",
++			dev->rft, max_fifo_threshold);
++		dev->rft = max_fifo_threshold;
++	}
++
+ 	amba_set_drvdata(adev, dev);
+ 
+ 	/* Select default pin state */
+@@ -1060,16 +1040,10 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 	adap->owner	= THIS_MODULE;
+ 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->algo	= &nmk_i2c_algo;
+-	adap->timeout	= msecs_to_jiffies(pdata->timeout);
++	adap->timeout	= msecs_to_jiffies(dev->timeout);
+ 	snprintf(adap->name, sizeof(adap->name),
+ 		 "Nomadik I2C at %pR", &adev->res);
+ 
+-	/* fetch the controller configuration from machine */
+-	dev->cfg.clk_freq = pdata->clk_freq;
+-	dev->cfg.tft	= pdata->tft;
+-	dev->cfg.rft	= pdata->rft;
+-	dev->cfg.sm	= pdata->sm;
+-
+ 	i2c_set_adapdata(adap, dev);
+ 
+ 	dev_info(&adev->dev,
 -- 
 1.8.3.1
