@@ -1,53 +1,62 @@
-From: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-Subject: [PATCH] i2c: bcm-kona: fix module device table symbol
-Date: Wed, 27 Nov 2013 23:38:40 +0100
-Message-ID: <1385591920-7714-1-git-send-email-vincent.stehle@laposte.net>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 01/15] i2c: shmobile/rcar: Restrict non-COMPILE_TEST
+ compilation
+Date: Thu, 28 Nov 2013 16:36:21 +0900
+Message-ID: <20131128073621.GC24146@verge.net.au>
+References: <1385515117-23664-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1385515117-23664-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1385515117-23664-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This fixes the following compilation error when compiling in module:
+On Wed, Nov 27, 2013 at 02:18:23AM +0100, Laurent Pinchart wrote:
+> Hardware supported by the i2c sh_mobile and rcar drivers is only found
+> on SUPERH or ARCH_SHMOBILE platforms. Restrict non-COMPILE_TEST
+> compilation to them.
+> 
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-  drivers/i2c/busses/i2c-bcm-kona.c:894:1: error: =E2=80=98__mod_of_dev=
-ice_table=E2=80=99 aliased to undefined symbol =E2=80=98kona_i2c_of_mat=
-ch=E2=80=99
+Acked-by: Simon Horman <horms+renesas@verge.net.au>
 
-Signed-off-by: Vincent Stehl=C3=A9 <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
----
-
-Hi,
-
-Compilation breakage can be seen on mainline with e.g. arm allmodconfig=
-=2E
-
-Best regards,
-
-V.
-
- drivers/i2c/busses/i2c-bcm-kona.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c=
--bcm-kona.c
-index 036cf03..2fefc24 100644
---- a/drivers/i2c/busses/i2c-bcm-kona.c
-+++ b/drivers/i2c/busses/i2c-bcm-kona.c
-@@ -891,7 +891,7 @@ static const struct of_device_id bcm_kona_i2c_of_ma=
-tch[] =3D {
- 	{.compatible =3D "brcm,kona-i2c",},
- 	{},
- };
--MODULE_DEVICE_TABLE(of, kona_i2c_of_match);
-+MODULE_DEVICE_TABLE(of, bcm_kona_i2c_of_match);
-=20
- static struct platform_driver bcm_kona_i2c_driver =3D {
- 	.driver =3D {
---=20
-1.8.4.3
+> ---
+>  drivers/i2c/busses/Kconfig | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 3b26129..92bdcf9 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -683,7 +683,7 @@ config I2C_SH7760
+>  
+>  config I2C_SH_MOBILE
+>  	tristate "SuperH Mobile I2C Controller"
+> -	depends on SUPERH || ARM || COMPILE_TEST
+> +	depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
+>  	help
+>  	  If you say yes to this option, support will be included for the
+>  	  built-in I2C interface on the Renesas SH-Mobile processor.
+> @@ -796,7 +796,7 @@ config I2C_XLR
+>  
+>  config I2C_RCAR
+>  	tristate "Renesas R-Car I2C Controller"
+> -	depends on ARM || COMPILE_TEST
+> +	depends on ARCH_SHMOBILE || COMPILE_TEST
+>  	help
+>  	  If you say yes to this option, support will be included for the
+>  	  R-Car I2C controller.
+> -- 
+> 1.8.3.2
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
