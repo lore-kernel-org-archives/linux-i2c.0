@@ -1,59 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: bcm-kona: fix module device table symbol
-Date: Thu, 28 Nov 2013 08:52:35 +0100
-Message-ID: <20131128075235.GA2626@katana>
-References: <1385591920-7714-1-git-send-email-vincent.stehle@laposte.net>
+Subject: Re: [PATCH] I2C: BCM2835: Linking platform nodes to adapter nodes
+Date: Thu, 28 Nov 2013 09:50:17 +0100
+Message-ID: <20131128085017.GC2626@katana>
+References: <529303EE.4080606@koalo.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+	protocol="application/pgp-signature"; boundary="2JFBq9zoW8cOFH7v"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1385591920-7714-1-git-send-email-vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+In-Reply-To: <529303EE.4080606-oZ8rN/sblLk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vincent =?iso-8859-15?Q?Stehl=E9?= <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Florian Meier <florian.meier-oZ8rN/sblLk@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-rpi-kernel <linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=utf-8
+--2JFBq9zoW8cOFH7v
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 27, 2013 at 11:38:40PM +0100, Vincent Stehl=C3=A9 wrote:
-> This fixes the following compilation error when compiling in module:
+On Mon, Nov 25, 2013 at 09:01:50AM +0100, Florian Meier wrote:
+> In order to find I2C devices in the device tree, the platform nodes
+> have to be known by the I2C core. This requires setting the
+> dev.of_node parameter of the adapter.
 >=20
->   drivers/i2c/busses/i2c-bcm-kona.c:894:1: error: =E2=80=98__mod_of_devic=
-e_table=E2=80=99 aliased to undefined symbol =E2=80=98kona_i2c_of_match=E2=
-=80=99
->=20
-> Signed-off-by: Vincent Stehl=C3=A9 <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+> Signed-off-by: Florian Meier <florian.meier-oZ8rN/sblLk@public.gmane.org>
 
-A fix is in my pull request for Linus today.
+Fixed up for you and applied to for-current. But PLEASE fix your mailer!
 
 
---opJtzjQTFsWo+cga
+--2JFBq9zoW8cOFH7v
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSlvZCAAoJEBQN5MwUoCm29c4P/0ZYVOcVJYJXnfgsxw/GefM8
-5kdIHrjKnKxd1YufjO1SC29FtscaH538zBUErQgDh1k7Tv4Hyp7eTvACxvlu8Bhx
-n8anl5bvB6mV0tjBHnT5Hm5P7oClXFR3TSKRPkUox6He8WH7vXj9zoP/TD31fS6E
-hDQsXnmoLegLcKCOgFHA7iOInzDXChAyQ630ev6N51moPNIlGBOEjdYs9/G3LzON
-uJb8fAXLELxGImKcF3Pbr3+9VQ5igbwofDtWi0uJbEtwqkX9CaZuE+2ylOgvKgh+
-JLmo8gAbNht1D5LVFdB9OuzrB8QJFXK/W5XwEvr3OjWXZEeukBfGC4p9rKHTwSXF
-Ly4L2Kdk9LsPtJJYcWDAlSOn2m2uS9k8eb+MckfSCKg7YLiV5Y4OY8MMDDVcQIsD
-XdSNPF/uY7fDjMy6yKjIwEec1xxwuli/pw9QKBaClRuNoyV053hp0qBvo80He12c
-jTb33UJdrjoH/iKp+7E91FL4Z5nAGT11W9NsLYefCCEpCu3cuu3bjmM/8Z5ZgNNB
-pSaEFz5F1tQagdCxoUjbism0sY5ZCNZr5P+KUlohI6uQq7WOJ0NIPGUQMSOP+Ffk
-LjhS4aEoOdVOqRnmUy2ieeWumXB4lMNWVaB2G5rwolkFKHX4aYTjkDQFzs35+tew
-VXpUazpzz1OfxQz6PV31
-=Go97
+iQIcBAEBAgAGBQJSlwPJAAoJEBQN5MwUoCm2J8QQAKCyUzykyZEV58gQoFIClmjH
+dKB/IUlSwijhEwyC2uMi/a+M0/HgeM1/vgmkfzYBLtHQXz11MBx/PVBBHbHekH/U
+IUYbvRZzKRqEJBqHmC6Dsh8cTtEn3ZhyAIWaiLuK0sDCJnZqUm+JeHWQ+622yi9E
+uu8/AM6wLtge9xhH3Ri5ZNW8QrjF4UoWt14uyUdRFG2FoQZ1j7vI82gSobJJIXDy
+EjVhq/iTNhQKRTN5MXkL9sjCxa1BjeRCbGQXGYZm8PqfRXCjzO/pKNnkX3+fFlzi
+hW3lSZbs4ptoQ/nOH3PFIRU72mvaR/Lbz45bA0OvXLX8/l4f/FJQIwLSL60E720h
+sEi2a8eisjL8XwyzzKtX3OlKHQ9nGMhHLQsk5ggJswSGGcPutzPQrgDzapx2bjIz
+bbU65jTn+oJQlDl6eU9M3fpCbZatpY3i1JUJb9T9TRsNQ1/L8yKjwi/OwyNRBv7d
+oxepaAZYqAMUSTX9OmnTYS2F43DL2dvViGeXgXw2ZAPHYret21tJFYtNdzyrcoNN
+HbbWa0fw8hNwi85QjBAfcxFvimaDEhq75TQj9GJ0UKMZ+9oI+HeCpus1TUbiQLzI
+EP4j3BU2VzBRk9IL9M2ZZZKOJz1+gKb9HIxy2HRcRj6M0ndnrki7eURIdRIiiEyk
+OufzY8PvkfETw2bOLJZg
+=yD/A
 -----END PGP SIGNATURE-----
 
---opJtzjQTFsWo+cga--
+--2JFBq9zoW8cOFH7v--
