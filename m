@@ -1,70 +1,64 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 20/31] i2c: tegra: use reset framework
-Date: Fri, 29 Nov 2013 15:46:16 +0100
-Message-ID: <20131129144615.GB9712@ulmo.nvidia.com>
-References: <1384548866-13141-1-git-send-email-swarren@wwwdotorg.org>
- <1384548866-13141-21-git-send-email-swarren@wwwdotorg.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 3.13
+Date: Fri, 29 Nov 2013 16:17:35 +0100
+Message-ID: <86e2cadbd328a3e40b275cda0349dd50@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1UWUbFP1cBYEclgG"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1384548866-13141-21-git-send-email-swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Linus,
 
---1UWUbFP1cBYEclgG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+here are some easy but needed fixes for i2c drivers since rc1.
 
-On Fri, Nov 15, 2013 at 01:54:15PM -0700, Stephen Warren wrote:
-> From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->=20
-> Tegra's clock driver now provides an implementation of the common
-> reset API (include/linux/reset.h). Use this instead of the old Tegra-
-> specific API; that will soon be removed.
->=20
-> Cc: treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
-> Cc: pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
-> Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> ---
-> This patch is part of a series with strong internal depdendencies. I'm
-> looking for an ack so that I can take the entire series through the Tegra
-> and arm-soc trees. The series will be part of a stable branch that can be
-> merged into other subsystems if needed to avoid/resolve dependencies.
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 13 ++++++++++---
->  1 file changed, 10 insertions(+), 3 deletions(-)
+Please pull.
 
-Reviewed-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Thanks,
 
---1UWUbFP1cBYEclgG
-Content-Type: application/pgp-signature
+   Wolfram
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSmKi3AAoJEN0jrNd/PrOhC08QAIDbUMbIlfUW4ViIUMqQ1lTD
-wGvFlNoghomHl8yDP1BuWSfHA0njwOE7M1yjR5C8aErCsHLSE7Zzx9Gbs14JwWdm
-fBLsNJSE8VaRYsNEJKAr1TEON84U00l+4I079+74zDeVGJqh4Z/HkBRtuZMuqdGN
-47vZVVn2PvOgEqKMCieMCCZZuHMLWxZEgHhUfpAMjdqfDfsIk+4DNvrHt1uGdQoO
-wc0RZ2rhEgOb5nfRpQG9TlFEzbnRJLdhjXC3oy8QEgbLXXhEu98H3/huoBAZkTIc
-p6mCC1ENJ5JOOoWsJHldR8mvtqyFh9LRhx0QcM0vuR379v2JXykDIDSYdaf8h1rq
-yt9dcAF7TAYFA2IBrvKwDKXDiOGo1Tu1LnCiinTfi84wjlLiyjrsk2BiY+jWv6pH
-wQUxLKKCLCi/I0vr3slJXfU5eUjmNeilNEJpADzHOvG9zuQd0mkQ7skPF7oOIJdB
-ufdsS0sdhLOaW8EDmk8voUZ2f2rNZtcAobwlPwLCJBN6VI89I7SpURs/T58Hs4B/
-B+sAzpCnknJiUdwsSgw0tMaQzhpeCXLi/xi3cntT+vYVQHSRNx5YX372zJIYpOLn
-mMRBm0C0PeC/8DpWeCJd1NuqIALGxh7cazWd/etreQFT4nVHz1Sk83omlOyB5piN
-gMfOCNazxng8u3GPAVkC
-=PY10
------END PGP SIGNATURE-----
+The following changes since commit
+6ce4eac1f600b34f2f7f58f9cd8f0503d79e42ae:
 
---1UWUbFP1cBYEclgG--
+  Linux 3.13-rc1 (2013-11-22 11:30:55 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+i2c/for-current
+
+for you to fetch changes up to 07a27a0047274e0ba568ce86b6416c34497a99a7:
+
+  i2c: bcm2835: Linking platform nodes to adapter nodes (2013-11-28
+09:47:53 +0100)
+
+----------------------------------------------------------------
+Florian Meier (1):
+      i2c: bcm2835: Linking platform nodes to adapter nodes
+
+Martin Vogt (1):
+      i2c: i2c-diolan-u2c: different usb endpoints for DLN-2-U2C
+
+Taras Kondratiuk (1):
+      i2c: davinci: raw read and write endian fix
+
+Tim Kryger (1):
+      i2c: i2c-bcm-kona: Fix module build
+
+Victor Kamensky (1):
+      i2c: omap: raw read and write endian fix
+
+Wei Yongjun (1):
+      i2c: bcm-kona: remove duplicated include
+
+ drivers/i2c/busses/i2c-bcm-kona.c   |  3 +--
+ drivers/i2c/busses/i2c-bcm2835.c    |  1 +
+ drivers/i2c/busses/i2c-davinci.c    |  4 ++--
+ drivers/i2c/busses/i2c-diolan-u2c.c | 16 +++++++++++-----
+ drivers/i2c/busses/i2c-omap.c       |  8 ++++----
+ 5 files changed, 19 insertions(+), 13 deletions(-)
