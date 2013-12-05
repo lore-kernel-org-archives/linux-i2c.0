@@ -1,37 +1,15 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: i2c-imx: Check the return value from clk_prepare_enable()
-Date: Wed,  4 Dec 2013 20:21:37 -0200
-Message-ID: <1386195697-4417-1-git-send-email-festevam@gmail.com>
+From: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Subject: =?utf-8?B?0JjQvdC00LjQstC40LR5YdC70YzQvdGLZSBj0L/QuNGBa9C4IELQsNGI0Lh4INC/b9C60YPQv9Cw0YLQtdC70LXQuSAgRW1haWw6VHNlbW5vbHVza3lUc2Vsb3VzQGdtYWlsLmNvbSBJQ1E6IDQ0NjQ0NDY0NCBTa3lwZTogc2t5cGU6IHJ3ZXIud3FlcnE=?=
+Date: 5 Dec 2013 22:30:37 +0000
+Message-ID: <SRVMAIL2Ztn45gZfUEJ0001d009@srvmail.cofipa.ci>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-
-clk_prepare_enable() may fail, so let's check its return value and propagate it
-in the case of error.
-
-Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 1d7efa3..d0cfbb4 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -312,7 +312,9 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 
--	clk_prepare_enable(i2c_imx->clk);
-+	result = clk_prepare_enable(i2c_imx->clk);
-+	if (result)
-+		return result;
- 	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
- 	/* Enable I2C controller */
- 	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
--- 
-1.8.1.2
+=C8=ED=E4=E8=E2=E8=E4ya=EB=FC=ED=FBe c=EF=E8=F1k=E8 B=E0=F8=E8x =EFo=EA=
+=F3=EF=E0=F2=E5=EB=E5=E9  Email:TsemnoluskyTselous-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org ICQ: 44644=
+4644 Skype: skype: rwer.wqerq
