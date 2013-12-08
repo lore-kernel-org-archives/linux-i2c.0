@@ -1,32 +1,39 @@
-From: Ian Molton <ian.molton@codethink.co.uk>
-Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
-Date: Fri, 06 Dec 2013 20:52:38 +0000
-Message-ID: <52A23916.40507@codethink.co.uk>
-References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk> <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk> <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk> <20130905060429.GJ14960@verge.net.au> <20130925044503.GA24243@verge.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20130925044503.GA24243@verge.net.au>
-Sender: linux-sh-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: magnus.damm@gmail.com, grant.likely@linaro.org, rob.herring@calxeda.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, ben.dooks@codethink.co.uk
+From: Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-mux: Inherit retry count from parent controller for muxed bus.
+Date: Sun,  8 Dec 2013 11:48:20 +0100
+Message-ID: <1386499701-5522-2-git-send-email-eliedebrauwer@gmail.com>
+References: <1386499701-5522-1-git-send-email-eliedebrauwer@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1386499701-5522-1-git-send-email-eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 25/09/13 05:45, Simon Horman wrote:
+Today if a mux i2c bus gets created the default retry count of the
+muxed bus is zero. Hence it it possible that you end up with a
+situation where the parent controller sets a default retry count
+which gets applied and used while the muxed bus (using the same
+controller) has a default retry count of zero. This can be solved
+by initializing the retry count of the muxed bus by the retry count
+of the parent at creation time.
 
-> Hi Ian,
->
-> I spoke with Magnus and in turn Ben about this at LinuxCon in New Orleans
-> last week.
->
-> Basically the position of Magnus and I is that any support for this
-> hardware is an incremental improvement on the current situation: no
-> support.
->
-> With this in mind from an shmobile point of view I am happy for this code.
-> And there is no need to wait for a review from Magnus.
+Signed-off-by: Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/i2c-mux.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-Has anyone merged this for upstream yet? If not, where should I send it?
-
--Ian
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 797e311..1f879d8 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -139,6 +139,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 	priv->adap.algo = &priv->algo;
+ 	priv->adap.algo_data = priv;
+ 	priv->adap.dev.parent = &parent->dev;
++	priv->adap.retries = parent->retries;
+ 
+ 	/* Sanity check on class */
+ 	if (i2c_mux_parent_classes(parent) & class)
+-- 
+1.7.10.4
