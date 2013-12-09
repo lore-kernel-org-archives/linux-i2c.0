@@ -1,43 +1,58 @@
-From: Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-mux: Inherit retry count from parent controller for
- muxed bus.
-Date: Mon, 9 Dec 2013 12:26:56 +0100
-Message-ID: <CAGWqfig7L_+WwTC-8EeuU32SKsGGAgmcwRjVe63j13oSjCSKMQ@mail.gmail.com>
-References: <1386499701-5522-1-git-send-email-eliedebrauwer@gmail.com>
-	<1386499701-5522-2-git-send-email-eliedebrauwer@gmail.com>
-	<20131209110810.GA2569@katana>
+From: =?ISO-8859-1?Q?Jos=E9_Miguel_Gon=E7alves?= <jose.goncalves@inov.pt>
+Subject: Problem with a hih6130 sensor in a OMAP I2C bus
+Date: Mon, 09 Dec 2013 11:42:13 +0000
+Message-ID: <52A5AC95.3050803@inov.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131209110810.GA2569@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <lm-sensors-bounces@lm-sensors.org>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
+To: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <khali@linux-fr.org>, Guenter Roeck <linux@roeck-us.net>, lm-sensors@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 9, 2013 at 12:08 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Sun, Dec 08, 2013 at 11:48:20AM +0100, Elie De Brauwer wrote:
->> Today if a mux i2c bus gets created the default retry count of the
->> muxed bus is zero. Hence it it possible that you end up with a
->> situation where the parent controller sets a default retry count
->> which gets applied and used while the muxed bus (using the same
->> controller) has a default retry count of zero. This can be solved
->> by initializing the retry count of the muxed bus by the retry count
->> of the parent at creation time.
->>
->> Signed-off-by: Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->
-> Makes sense. Have you checked the timeout value, too?
->
+Hi,
 
-Point taken, I hadn't bumped into this since i2c_add_mux_adapter() calls
-i2c_add_adapter() which essentially sets is to 1 second if it is zero. But
-it makes sense indeed to also use this value from the parent. I'll post an
-updated version later today.
+While testing an HIH6130 humidity and temperature sensor with I2C =
 
-Thanks
-E.
+interface in a BeagleBone board I've found that I was unable to read it =
 
+because the driver always returned EINVAL. With some debugging I've =
 
--- 
-Elie De Brauwer
+found that the error was due to a test on omap_i2c_xfer_msg() in OMAP =
+
+I2C driver that invalidates zero length writes. The hwmon hih6130 driver =
+
+issues such kind of request in hih6130_update_measurements() to issue a =
+
+measurement request to the sensor.
+
+I was able to get measurements from the sensor by hacking the hih6130 =
+
+driver replacing the following line in hih6130_update_measurements();
+
+         ret =3D i2c_master_send(client, tmp, 0);
+
+by
+
+         tmp[0] =3D 0;
+         ret =3D i2c_master_send(client, tmp, 1);
+
+Is this the correct way to fix this issue, or should the fix be in the =
+
+I2C OMAP driver to accept zero length transfers?
+
+Best regards,
+Jos=E9 Gon=E7alves
+
+_______________________________________________
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
