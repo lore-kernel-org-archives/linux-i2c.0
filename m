@@ -1,88 +1,41 @@
-From: Tomasz Figa <t.figa@samsung.com>
-Subject: Re: [PATCH 2/2] i2c: exynos5: configure fifo_depth based on HSI2C
- module version
-Date: Mon, 09 Dec 2013 17:31:07 +0100
-Message-ID: <1739891.MYO4PRtJOt@amdc1227>
-References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, hs@denx.de, khali@linux-fr.org, ben-linux@fluff.org, naveenkrishna.ch@gmail.com
+From: Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2] i2c-mux: Inherit retry count and timeout from parent for muxed bus.
+Date: Mon,  9 Dec 2013 19:48:28 +0100
+Message-ID: <1386614908-4872-1-git-send-email-eliedebrauwer@gmail.com>
+References: <1386499701-5522-2-git-send-email-eliedebrauwer@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1386499701-5522-2-git-send-email-eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Naveen,
+If a muxed i2c bus gets created the default retry count and
+timeout of the muxed bus is zero. Hence it it possible that you
+end up with a situation where the parent controller sets a default
+retry count and timeout which gets applied and used while the muxed
+bus (using the same controller) has a default retry count of zero
+and a default timeout of 1s (set in i2c_add_adapter()). This can be
+solved by initializing the retry count and timeout of the muxed
+bus with the values used by the the parent at creation time.
 
-On Friday 22 of November 2013 11:44:11 Naveen Krishna Chatradhi wrote:
-> fifo_depth of the HSI2C is not constant
-> Exynos5420 and Exynos5250 supports fifo_depth of 64bytes
-> Exynos5260 supports fifo_depth of 16bytes
-> 
-> This patch configures the fifo_depth based on HSI2C modules version.
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-> ---
->  drivers/i2c/busses/i2c-exynos5.c |   29 ++++++++++++++++++-----------
->  1 file changed, 18 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index cbb49e2..19277d8 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -77,12 +77,6 @@
->  #define HSI2C_RXFIFO_TRIGGER_LEVEL(x)		((x) << 4)
->  #define HSI2C_TXFIFO_TRIGGER_LEVEL(x)		((x) << 16)
->  
-> -/* As per user manual FIFO max depth is 64bytes */
-> -#define HSI2C_FIFO_MAX				0x40
-> -/* default trigger levels for Tx and Rx FIFOs */
-> -#define HSI2C_DEF_TXFIFO_LVL			(HSI2C_FIFO_MAX - 0x30)
-> -#define HSI2C_DEF_RXFIFO_LVL			(HSI2C_FIFO_MAX - 0x10)
-> -
->  /* I2C_TRAILING_CTL Register bits */
->  #define HSI2C_TRAILING_COUNT			(0xf)
->  
-> @@ -187,6 +181,9 @@ struct exynos5_i2c {
->  
->  	/* Version of HS-I2C Hardware */
->  	unsigned int		version;
-> +
-> +	/* FIFO depth */
-> +	unsigned int		fifo_depth;
->  };
->  
->  enum hsi2c_version {
-> @@ -437,7 +434,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
->  		fifo_status = readl(i2c->regs + HSI2C_FIFO_STATUS);
->  		fifo_level = HSI2C_TX_FIFO_LVL(fifo_status);
->  
-> -		len = HSI2C_FIFO_MAX - fifo_level;
-> +		len = i2c->fifo_depth - fifo_level;
->  		if (len > (i2c->msg->len - i2c->msg_ptr))
->  			len = i2c->msg->len - i2c->msg_ptr;
->  
-> @@ -505,6 +502,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
->  	u32 i2c_auto_conf = 0;
->  	u32 fifo_ctl;
->  	unsigned long flags;
-> +	unsigned short trig_lvl;
->  
->  	i2c_ctl = readl(i2c->regs + HSI2C_CTL);
->  	i2c_ctl &= ~(HSI2C_TXCHON | HSI2C_RXCHON);
-> @@ -515,13 +513,19 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
->  
->  		i2c_auto_conf = HSI2C_READ_WRITE;
->  
-> -		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(HSI2C_DEF_TXFIFO_LVL);
-> +		trig_lvl = (i2c->msg->len > i2c->fifo_depth) ?
-> +			(i2c->fifo_depth * 3/4) : i2c->msg->len;
+Signed-off-by: Elie De Brauwer <eliedebrauwer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/i2c-mux.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-This patch changes the fifo trigger level calculation (it's dependent now
-on message length), not just maximum fifo size, as the description says.
-It should be split into two separate patches, explaining why both changes
-are necessary.
-
-Best regards,
-Tomasz
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 797e311..2d0847b 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -139,6 +139,8 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 	priv->adap.algo = &priv->algo;
+ 	priv->adap.algo_data = priv;
+ 	priv->adap.dev.parent = &parent->dev;
++	priv->adap.retries = parent->retries;
++	priv->adap.timeout = parent->timeout;
+ 
+ 	/* Sanity check on class */
+ 	if (i2c_mux_parent_classes(parent) & class)
+-- 
+1.7.10.4
