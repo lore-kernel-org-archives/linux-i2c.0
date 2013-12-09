@@ -1,82 +1,52 @@
-From: =?ISO-8859-1?Q?Jos=E9_Miguel_Gon=E7alves?= <jose.goncalves-ojS98SfuVkU@public.gmane.org>
-Subject: Re: Problem with a hih6130 sensor in a OMAP I2C bus
-Date: Mon, 09 Dec 2013 13:19:48 +0000
-Message-ID: <52A5C374.1040609@inov.pt>
-References: <52A5AC95.3050803@inov.pt> <20131209132239.3c0f6402@endymion.delvare>
+From: Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: s3c2410: dont need CPU_FREQ transitions for exynos
+ series
+Date: Mon, 09 Dec 2013 17:09:19 +0100
+Message-ID: <1750845.YHGrteBMYZ@amdc1227>
+References: <1381490814-20890-1-git-send-email-ch.naveen@samsung.com>
+ <1385439767-18586-1-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131209132239.3c0f6402-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-reply-to: <1385439767-18586-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Hi Naveen,
 
-On 09-12-2013 12:22, Jean Delvare wrote:
-> Hi Jos=E9,
->
-> On Mon, 09 Dec 2013 11:42:13 +0000, Jos=E9 Miguel Gon=E7alves wrote:
->> While testing an HIH6130 humidity and temperature sensor with I2C
->> interface in a BeagleBone board I've found that I was unable to read=
- it
->> because the driver always returned EINVAL. With some debugging I've
->> found that the error was due to a test on omap_i2c_xfer_msg() in OMA=
-P
->> I2C driver that invalidates zero length writes. The hwmon hih6130 dr=
-iver
->> issues such kind of request in hih6130_update_measurements() to issu=
-e a
->> measurement request to the sensor.
->>
->> I was able to get measurements from the sensor by hacking the hih613=
-0
->> driver replacing the following line in hih6130_update_measurements()=
-;
->>
->>           ret =3D i2c_master_send(client, tmp, 0);
->>
->> by
->>
->>           tmp[0] =3D 0;
->>           ret =3D i2c_master_send(client, tmp, 1);
->>
->> Is this the correct way to fix this issue, or should the fix be in t=
-he
->> I2C OMAP driver to accept zero length transfers?
-> Ideally it should be fixed in the i2c-omap bus driver. However, if
-> zero-length transfers are explicitly prohibited, it may mean that the
-> hardware itself can't do it (in which case adding a comment saying so
-> in the source code would be great.) You'll have to check. The driver
-> supports several generations of OMAP chipsets so you'll have to check
-> them all, maybe some can handle zero-length messages and some do not.
->
-> If fixing it in the i2c-omap driver is not possible, then working
-> around it in the hih6130 driver would be acceptable. You'll have to
-> make sure there is no side effect to sending a single byte to the chi=
-p.
-> If performance is a concern, you may have to enable the workaround on=
-ly
-> when zero-byte messages aren't supported. You can check with:
->
-> i2c_get_functionality(i2c_adapter) & I2C_FUNC_SMBUS_QUICK
->
+On Tuesday 26 of November 2013 09:52:46 Naveen Krishna Chatradhi wrote:
+> For Exynos4 and Exynos5 SoCs from Samsung the i2c clock is based
+> on a fixed 66 MHz peripheral clock, and therefore is completely
+> independent of the cpu frequency.
+> Thus, registering for a CPU freq notifier is very wasteful.
+> 
+> This patch modifes the code such that, i2c bus registers to
+> cpu_freq_transition only if CONFIG_CPU_FREQ_S3C24XX is enabled.
+> 
+> This change should save a bunch of cpufreq transitions calls
+> which does not apply to exynos SoCs.
+> 
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Acked-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+> Changes since v3:
+> As per discussion at https://patchwork.kernel.org/patch/3235091/
+> Post f023f8dd59 commit we should be using
+> ARM_S3C24XX_CPUFREQ instead of CPU_FREQ_S3C24XX
+> 
+> upstrea linux kernel and linuxsamsung already has the commit
+> f023f8dd59. Hence, rebasing the patch.
+> 
+>  drivers/i2c/busses/i2c-s3c2410.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-I am by no means an expert on OMAP platforms and/or I2C drivers so, if=20
-anyone else with more knowledge of them has a better suggestion, I will=
-=20
-follow your suggestion and submit my workaround patch for the hih6130=20
-driver with the added check for support of zero-byte messages by the=20
-underlying I2C driver. From my understanding of the technical note for=20
-I2C communication on this chip;
+Reviewed-by: Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-http://www.mouser.com/pdfdocs/I2CCommunications.pdf
-
-I see no problems on writing that dummy byte to it and my tests on a=20
-real hardware also show that.
+Wolfram, are you okay with this patch?
 
 Best regards,
-Jos=E9 Gon=E7alves
+Tomasz
