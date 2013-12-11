@@ -1,24 +1,44 @@
-From: "Membership Authentification Form" <c.care_web-0Kt2UbNys5VAfugRpC6u6w@public.gmane.org>
-Subject: ATTENTION:
-Date: Tue, 10 Dec 2013 07:13:17 +0100
-Message-ID: <20131210061329.A754B4081F__33564.3545877703$1386657163$gmane$org@vmx7.jaringonecloud.my>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
+Date: Wed, 11 Dec 2013 11:09:04 +0900
+Message-ID: <20131211020904.GK19992@verge.net.au>
+References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
+ <20130905060429.GJ14960@verge.net.au>
+ <20130925044503.GA24243@verge.net.au>
+ <52A23916.40507@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Description: Mail message body
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Recipients <c.care_web-0Kt2UbNys5VAfugRpC6u6w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <52A23916.40507@codethink.co.uk>
+Sender: linux-sh-owner@vger.kernel.org
+To: Ian Molton <ian.molton@codethink.co.uk>
+Cc: magnus.damm@gmail.com, grant.likely@linaro.org, rob.herring@calxeda.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, ben.dooks@codethink.co.uk
 List-Id: linux-i2c@vger.kernel.org
 
-ATTENTION:
+On Fri, Dec 06, 2013 at 08:52:38PM +0000, Ian Molton wrote:
+> On 25/09/13 05:45, Simon Horman wrote:
+> 
+> >Hi Ian,
+> >
+> >I spoke with Magnus and in turn Ben about this at LinuxCon in New Orleans
+> >last week.
+> >
+> >Basically the position of Magnus and I is that any support for this
+> >hardware is an incremental improvement on the current situation: no
+> >support.
+> >
+> >With this in mind from an shmobile point of view I am happy for this code.
+> >And there is no need to wait for a review from Magnus.
+> 
+> Has anyone merged this for upstream yet? If not, where should I send it?
 
-Monday 9th of  December 2013 08:16:22 MYT from 41.206.151.183, your account
-was recently accessed with this details, please if you recognize this
-details,ignore this message, or use this web link to reconfirm your
-account details to prevent spammers and unauthorized users to gain access
-to your account;
+I don't believe it has been merged.
 
-http://www.emailmeform.com/builder/form/z7KbBhGaf0YV9X4
+My suggestion is to re-post it with my Ack with
+Wolfram Sang <wsa@the-dreams.de> CCed.
 
-@2013 all right reserve Security Alert! Webmaster Administration.
+Also, I think you need to provide documentation for the bindings in
+Documentation/devicetree/bindings/i2c.
