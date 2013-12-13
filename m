@@ -1,196 +1,263 @@
-From: Yuvaraj Kumar <yuvaraj.cd@gmail.com>
-Subject: Re: [PATCH V2] i2c: s3c2410 : Add polling mode support
-Date: Fri, 13 Dec 2013 14:51:13 +0530
-Message-ID: <CAKuRcOJojN46P2SfGfOQatbFWYuhV9DB6Y7tHNtZXgRzNcB+cA@mail.gmail.com>
-References: <1384168820-2986-1-git-send-email-yuvaraj.cd@samsung.com>
-	<CAKuRcOK3gJiPr3PC2-Vf6w0xeQEuEw6N2c7d0sYZYLuesJC_kQ@mail.gmail.com>
+From: David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c: Add message transfer tracepoints for I2C and SMBUS
+Date: Fri, 13 Dec 2013 14:26:27 +0000
+Message-ID: <20131213142627.4014.42860.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <CAKuRcOK3gJiPr3PC2-Vf6w0xeQEuEw6N2c7d0sYZYLuesJC_kQ@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: wsa@the-dreams.de, ben-linux@fluff.org, "kgene.kim@samsung.com" <kgene.kim@samsung.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-doc@vger.kernel.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, "ks.giri@samsung.com" <ks.giri@samsung.com>, aditya.ps@samsung.com
-Cc: Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Vasanth Ananthan <vasanthananthan@gmail.com>, Vasanth Ananthan <vasanth.a@samsung.com>, Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Wolfram,
- Can you take this into your tree?
+Add tracepoints into the I2C and SMBUS message transfer functions to retrieve
+the message sent or received.  The following config options must be turned on
+to make use of the facility:
 
-On Fri, Nov 22, 2013 at 11:32 AM, Yuvaraj Kumar <yuvaraj.cd@gmail.com> wrote:
-> Any comments on this patch?
->
-> On Mon, Nov 11, 2013 at 4:50 PM, Yuvaraj Kumar C D <yuvaraj.cd@gmail.com> wrote:
->> From: Vasanth Ananthan <vasanthananthan@gmail.com>
->>
->> This patch adds polling mode support for i2c-s3c2410 driver.The
->> SATA PHY controller's CMU and TRSV block's are of I2C register
->> map in exynos5250.These blocks can be configured using i2c.
->>
->> But i2c controller instance on which these block's sits lacks an
->> interrupt line.Also the current i2c-s3c2410 driver is only interrupt
->> driven, thus a polling mode support is required in the driver for
->> supporting this controller. This patch adds this support to the driver.
->>
->> Changes from V1:
->>         1.Changed the is_ack() to have even period b/w polls and
->>           used usleep_range() instead of udelay().
->>
->> Signed-off-by: Vasanth Ananthan <vasanth.a@samsung.com>
->> Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
->> ---
->>  .../devicetree/bindings/i2c/i2c-s3c2410.txt        |    2 +
->>  drivers/i2c/busses/i2c-s3c2410.c                   |   66 +++++++++++++++++---
->>  2 files changed, 58 insertions(+), 10 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
->> index 296eb45..278de8e 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
->> @@ -10,6 +10,8 @@ Required properties:
->>            inside HDMIPHY block found on several samsung SoCs
->>        (d) "samsung, exynos5440-i2c", for s3c2440-like i2c used
->>            on EXYNOS5440 which does not need GPIO configuration.
->> +      (e) "samsung, exynos5-sata-phy-i2c", for s3c2440-like i2c used as
->> +          a host to SATA PHY controller on an internal bus.
->>    - reg: physical base address of the controller and length of memory mapped
->>      region.
->>    - interrupts: interrupt number to the cpu.
->> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
->> index 3747b9b..08ed126 100644
->> --- a/drivers/i2c/busses/i2c-s3c2410.c
->> +++ b/drivers/i2c/busses/i2c-s3c2410.c
->> @@ -85,6 +85,7 @@
->>  #define QUIRK_S3C2440          (1 << 0)
->>  #define QUIRK_HDMIPHY          (1 << 1)
->>  #define QUIRK_NO_GPIO          (1 << 2)
->> +#define QUIRK_POLL             (1 << 3)
->>
->>  /* Max time to wait for bus to become idle after a xfer (in us) */
->>  #define S3C2410_IDLE_TIMEOUT   5000
->> @@ -141,6 +142,8 @@ static struct platform_device_id s3c24xx_driver_ids[] = {
->>  };
->>  MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
->>
->> +static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat);
->> +
->>  #ifdef CONFIG_OF
->>  static const struct of_device_id s3c24xx_i2c_match[] = {
->>         { .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
->> @@ -149,6 +152,8 @@ static const struct of_device_id s3c24xx_i2c_match[] = {
->>           .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
->>         { .compatible = "samsung,exynos5440-i2c",
->>           .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
->> +       { .compatible = "samsung,exynos5-sata-phy-i2c",
->> +         .data = (void *)(QUIRK_S3C2440 | QUIRK_POLL | QUIRK_NO_GPIO) },
->>         {},
->>  };
->>  MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
->> @@ -187,7 +192,8 @@ static inline void s3c24xx_i2c_master_complete(struct s3c24xx_i2c *i2c, int ret)
->>         if (ret)
->>                 i2c->msg_idx = ret;
->>
->> -       wake_up(&i2c->wait);
->> +       if (!(i2c->quirks & QUIRK_POLL))
->> +               wake_up(&i2c->wait);
->>  }
->>
->>  static inline void s3c24xx_i2c_disable_ack(struct s3c24xx_i2c *i2c)
->> @@ -224,6 +230,22 @@ static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
->>         writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
->>  }
->>
->> +static bool is_ack(struct s3c24xx_i2c *i2c)
->> +{
->> +       int tries;
->> +
->> +       for (tries = 50; tries; --tries) {
->> +               if (readl(i2c->regs + S3C2410_IICCON)
->> +                       & S3C2410_IICCON_IRQPEND) {
->> +                       if (!(readl(i2c->regs + S3C2410_IICSTAT)
->> +                               & S3C2410_IICSTAT_LASTBIT))
->> +                               return true;
->> +               }
->> +               usleep_range(1000, 2000);
->> +       }
->> +       dev_err(i2c->dev, "ack was not recieved\n");
->> +       return false;
->> +}
->>
->>  /* s3c24xx_i2c_message_start
->>   *
->> @@ -268,6 +290,16 @@ static void s3c24xx_i2c_message_start(struct s3c24xx_i2c *i2c,
->>
->>         stat |= S3C2410_IICSTAT_START;
->>         writel(stat, i2c->regs + S3C2410_IICSTAT);
->> +
->> +       if (i2c->quirks & QUIRK_POLL) {
->> +               while ((i2c->msg_num != 0) && is_ack(i2c)) {
->> +                       i2c_s3c_irq_nextbyte(i2c, stat);
->> +                       stat = readl(i2c->regs + S3C2410_IICSTAT);
->> +
->> +                       if (stat & S3C2410_IICSTAT_ARBITR)
->> +                               dev_err(i2c->dev, "deal with arbitration loss\n");
->> +               }
->> +       }
->>  }
->>
->>  static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c *i2c, int ret)
->> @@ -675,6 +707,15 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
->>         s3c24xx_i2c_enable_irq(i2c);
->>         s3c24xx_i2c_message_start(i2c, msgs);
->>
->> +       if (i2c->quirks & QUIRK_POLL) {
->> +               ret = i2c->msg_idx;
->> +
->> +               if (ret != num)
->> +                       dev_dbg(i2c->dev, "incomplete xfer (%d)\n", ret);
->> +
->> +               goto out;
->> +       }
->> +
->>         timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
->>
->>         ret = i2c->msg_idx;
->> @@ -820,6 +861,9 @@ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
->>         if (div1 == 512)
->>                 iiccon |= S3C2410_IICCON_TXDIV_512;
->>
->> +       if (i2c->quirks & QUIRK_POLL)
->> +               iiccon |= S3C2410_IICCON_SCALE(2);
->> +
->>         writel(iiccon, i2c->regs + S3C2410_IICCON);
->>
->>         if (i2c->quirks & QUIRK_S3C2440) {
->> @@ -1117,18 +1161,20 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
->>          * ensure no current IRQs pending
->>          */
->>
->> -       i2c->irq = ret = platform_get_irq(pdev, 0);
->> -       if (ret <= 0) {
->> -               dev_err(&pdev->dev, "cannot find IRQ\n");
->> -               return ret;
->> -       }
->> +       if (!(i2c->quirks & QUIRK_POLL)) {
->> +               i2c->irq = ret = platform_get_irq(pdev, 0);
->> +               if (ret <= 0) {
->> +                       dev_err(&pdev->dev, "cannot find IRQ\n");
->> +                       return ret;
->> +               }
->>
->>         ret = devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
->> -                              dev_name(&pdev->dev), i2c);
->> +                               dev_name(&pdev->dev), i2c);
->>
->> -       if (ret != 0) {
->> -               dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
->> -               return ret;
->> +               if (ret != 0) {
->> +                       dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
->> +                       return ret;
->> +               }
->>         }
->>
->>         ret = s3c24xx_i2c_register_cpufreq(i2c);
->> --
->> 1.7.9.5
->>
+	CONFIG_FTRACE
+	CONFIG_ENABLE_DEFAULT_TRACERS
+
+The I2C tracepoint can be enabled thusly:
+
+	echo 1 >/sys/kernel/debug/tracing/events/i2c/i2c_transfer/enable
+
+and will dump messages that can be viewed in /sys/kernel/debug/tracing/trace
+that look like:
+
+        ... i2c_transfer: i2c-5 f=00 a=44 l=6 ret=1 [021433000000]
+
+formatted as:
+
+	i2c-<adapter-nr>
+	f=<flags>
+	a=<addr>
+	l=<datalen>
+	ret=<result>
+	[<data>]
+
+(Bit 0 of the flags is set if this was a read and clear if it was a write).
+
+
+The SMBUS tracepoint can be enabled thusly:
+
+	echo 1 >/sys/kernel/debug/tracing/events/i2c/smbus_transfer/enable
+
+and will dump messages that can be viewed in /sys/kernel/debug/tracing/trace
+that look like:
+
+	... smbus_transfer: i2c-0 f=00 a=51 r=1 c=0 p=2 res=0 [80ff0100000000000000800c693d0088ffffb83aee3b0088ffff0100000000000000]
+
+formatted as:
+
+	i2c-<adapter-nr>
+	f=<flags>
+	a=<addr>
+	r=<read_write>
+	c=<command>
+	p=<protocol>
+	res=<result>
+	[<data-block>]
+
+
+In both cases, the adapters to be traced can be selected by something like:
+
+	echo adapter_nr==1 >/sys/kernel/debug/tracing/events/i2c/{i2c,smbus}_transfer/filter
+
+Signed-off-by: David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Reviewed-by: Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>
+---
+
+ drivers/i2c/i2c-core.c     |   38 ++++++++++++++++--
+ include/trace/events/i2c.h |   95 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 130 insertions(+), 3 deletions(-)
+ create mode 100644 include/trace/events/i2c.h
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d74c0b34248e..2128e106ca97 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -48,10 +48,13 @@
+ #include <linux/rwsem.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/acpi.h>
++#include <linux/jump_label.h>
+ #include <asm/uaccess.h>
+ 
+ #include "i2c-core.h"
+ 
++#define CREATE_TRACE_POINTS
++#include <trace/events/i2c.h>
+ 
+ /* core_lock protects i2c_adapter_idr, and guarantees
+    that device detection, deletion of detected devices, and attach_adapter
+@@ -62,6 +65,18 @@ static DEFINE_IDR(i2c_adapter_idr);
+ static struct device_type i2c_client_type;
+ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
+ 
++static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
++
++void i2c_transfer_trace_reg(void)
++{
++	static_key_slow_inc(&i2c_trace_msg);
++}
++
++void i2c_transfer_trace_unreg(void)
++{
++	static_key_slow_dec(&i2c_trace_msg);
++}
++
+ /* ------------------------------------------------------------------------- */
+ 
+ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+@@ -1680,6 +1695,7 @@ static void __exit i2c_exit(void)
+ 	class_compat_unregister(i2c_adapter_compat_class);
+ #endif
+ 	bus_unregister(&i2c_bus_type);
++	tracepoint_synchronize_unregister();
+ }
+ 
+ /* We must initialize early, because some subsystems register i2c drivers
+@@ -1720,6 +1736,16 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			break;
+ 	}
+ 
++	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
++	 * enabled.  This is an efficient way of keeping the for-loop from
++	 * being executed when not needed.
++	 */
++	if (static_key_false(&i2c_trace_msg)) {
++		int i;
++		for (i = 0; i < num; i++)
++			trace_i2c_transfer(adap, &msgs[i], ret);
++	}
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(__i2c_transfer);
+@@ -2535,15 +2561,21 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 		i2c_unlock_adapter(adapter);
+ 
+ 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
+-			return res;
++			goto trace;
+ 		/*
+ 		 * Fall back to i2c_smbus_xfer_emulated if the adapter doesn't
+ 		 * implement native support for the SMBus operation.
+ 		 */
+ 	}
+ 
+-	return i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
+-				       command, protocol, data);
++	res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
++				      command, protocol, data);
++
++trace:
++	trace_smbus_transfer(adapter, addr, flags, read_write,
++			     command, protocol, data, res);
++
++	return res;
+ }
+ EXPORT_SYMBOL(i2c_smbus_xfer);
+ 
+diff --git a/include/trace/events/i2c.h b/include/trace/events/i2c.h
+new file mode 100644
+index 000000000000..ed366e145c8d
+--- /dev/null
++++ b/include/trace/events/i2c.h
+@@ -0,0 +1,95 @@
++/* I2C message transfer tracepoint
++ *
++ * Copyright (C) 2013 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM i2c
++
++#if !defined(_TRACE_I2C_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_I2C_H
++
++#include <linux/i2c.h>
++#include <linux/tracepoint.h>
++
++/*
++ * drivers/i2c/i2c-core.c
++ */
++extern void i2c_transfer_trace_reg(void);
++extern void i2c_transfer_trace_unreg(void);
++
++TRACE_EVENT_FN(i2c_transfer,
++	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
++			int ret),
++	       TP_ARGS(adap, msg, ret),
++	       TP_STRUCT__entry(
++		       __field(	int,	adapter_nr		)
++		       __field(__u16,	addr			)
++		       __field(__u16,	flags			)
++		       __field(__u16,	len			)
++		       __field(__s16,	ret			)
++		       __dynamic_array(__u8, buf, msg->len)	),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->addr = msg->addr;
++		       __entry->flags = msg->flags;
++		       __entry->len = msg->len;
++		       __entry->ret = ret;
++		       memcpy(__get_dynamic_array(buf), msg->buf, msg->len);
++			      ),
++	       TP_printk("i2c-%d f=%02x a=%02x l=%u ret=%d [%*phN]",
++			 __entry->adapter_nr,
++			 __entry->flags,
++			 __entry->addr,
++			 __entry->len,
++			 __entry->ret,
++			 __entry->len, __get_dynamic_array(buf)
++			 ),
++	       i2c_transfer_trace_reg,
++	       i2c_transfer_trace_unreg);
++
++TRACE_EVENT(smbus_transfer,
++	    TP_PROTO(const struct i2c_adapter *adap,
++		     u16 addr, unsigned short flags,
++		     char read_write, u8 command, int protocol,
++		     const union i2c_smbus_data *data, int res),
++	    TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
++	    TP_STRUCT__entry(
++		    __field(int,	adapter_nr		)
++		    __field(__u16,	addr			)
++		    __field(__u16,	flags			)
++		    __field(__u8,	read_write		)
++		    __field(__u8,	command			)
++		    __field(__s16,	res			)
++		    __field(__u32,	protocol		)
++		    __array(__u8, buf, I2C_SMBUS_BLOCK_MAX + 2)	),
++	    TP_fast_assign(
++		    __entry->adapter_nr = adap->nr;
++		    __entry->addr = addr;
++		    __entry->flags = flags;
++		    __entry->read_write = read_write;
++		    __entry->command = command;
++		    __entry->protocol = protocol;
++		    __entry->res = res;
++		    memcpy(__entry->buf, data->block, I2C_SMBUS_BLOCK_MAX + 2);
++			   ),
++	    TP_printk("i2c-%d f=%02x a=%02x r=%x c=%x p=%x res=%d [%*phN]",
++		      __entry->adapter_nr,
++		      __entry->flags,
++		      __entry->addr,
++		      __entry->read_write,
++		      __entry->command,
++		      __entry->protocol,
++		      __entry->res,
++		      I2C_SMBUS_BLOCK_MAX + 2, __entry->buf
++		      ));
++
++#endif /* _TRACE_I2C_H */
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
