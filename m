@@ -1,43 +1,34 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [lm-sensors] I2C support for AMD Hudson-1
-Date: Tue, 17 Dec 2013 19:53:23 +0100
-Message-ID: <20131217195323.581143a8@endymion.delvare>
-References: <20131217063226.GD25105@phys.ethz.ch>
-	<20131217180131.GB2840@roeck-us.net>
-	<20131217181053.GE7071@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: [RESEND PATCH v1 1/2] i2c: i2c-tiny-usb: Remove RobotFuzz USB vendor:product ID
+Date: Tue, 17 Dec 2013 21:31:47 +0100
+Message-ID: <1387312308-2222-1-git-send-email-andrew@lunn.ch>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131217181053.GE7071@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Herzog <herzog-vpGm2Noi6jeZvKxeG3EEhw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>, Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 17 Dec 2013 19:10:53 +0100, Wolfram Sang wrote:
-> 
-> > > I'm currently beta testing a pretty cool embedded board for router
-> > > applications etc. (http://www.pcengines.ch/apu.htm) that sports a Hudson-1 FCH
-> > > which is pretty similar to the Hudson-2 your module supports but sufficiently
-> > > different so that i2c-piix4 doesn't work.
-> > > I found a patched i2c-piix4 source that adds support for the Hudson-1 and it
-> > > works beautifully: http://www.men.de/products/13SC24-90.html#t=overview
-> > > Now I'm wondering if you would be willing to get this patch into lm-sensors
-> > > and also the kernel.
-> > > If there's anything I can do to help, please let me know.
-> 
-> Can't say anything about the patch since it requires registration to get
-> it :(
-> 
-> What you/someone can do:
-> 
-> * get the patch
-> * port it to a recent kernel and verify it still works
-> * read Documentation/SubmittingPatches
-> * send the patch
+The RobotFuzz device is not compatible with i2c-tiny-usb. Remove its
+entry from the USB table so that the new correct driver can be used.
 
-... with me in Cc, I'll review it.
+Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+CC: Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>
+CC: Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-tiny-usb.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index e7d3b755af3b..0ed77eeff31e 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -162,7 +162,6 @@ static const struct i2c_algorithm usb_algorithm = {
+ static const struct usb_device_id i2c_tiny_usb_table[] = {
+ 	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
+ 	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
+-	{ USB_DEVICE(0x1964, 0x0001) },   /* Robofuzz OSIF */
+ 	{ }                               /* Terminating entry */
+ };
+ 
 -- 
-Jean Delvare
+1.8.5.1
