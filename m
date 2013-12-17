@@ -1,7 +1,7 @@
 From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 11/13] i2c: versatile: Use devm_*() functions
-Date: Tue, 17 Dec 2013 16:00:52 +0900
-Message-ID: <002f01cefaf5$b943e890$2bcbb9b0$%han@samsung.com>
+Subject: [PATCH 12/13] i2c: viperboard: Use devm_kzalloc() functions
+Date: Tue, 17 Dec 2013 16:01:41 +0900
+Message-ID: <003001cefaf5$d6618590$832490b0$%han@samsung.com>
 References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -11,68 +11,56 @@ In-reply-to: <001601cefaf3$940d0040$bc2700c0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.
 Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, 'Lars Poeschel' <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use devm_*() functions to make cleanup paths simpler.
+Use devm_kzalloc() functions to make cleanup paths simpler.
 
 Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-versatile.c |   33 ++++++++-------------------------
- 1 file changed, 8 insertions(+), 25 deletions(-)
+ drivers/i2c/busses/i2c-viperboard.c |   12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-versatile.c b/drivers/i2c/busses/i2c-versatile.c
-index 6bb3a89..6bcd477 100644
---- a/drivers/i2c/busses/i2c-versatile.c
-+++ b/drivers/i2c/busses/i2c-versatile.c
-@@ -71,27 +71,16 @@ static int i2c_versatile_probe(struct platform_device *dev)
+diff --git a/drivers/i2c/busses/i2c-viperboard.c b/drivers/i2c/busses/i2c-viperboard.c
+index c68450c..6976e1c 100644
+--- a/drivers/i2c/busses/i2c-viperboard.c
++++ b/drivers/i2c/busses/i2c-viperboard.c
+@@ -367,7 +367,7 @@ static int vprbrd_i2c_probe(struct platform_device *pdev)
  	int ret;
+ 	int pipe;
  
- 	r = platform_get_resource(dev, IORESOURCE_MEM, 0);
--	if (!r) {
--		ret = -EINVAL;
--		goto err_out;
--	}
-+	if (!r)
-+		return -EINVAL;
+-	vb_i2c = kzalloc(sizeof(*vb_i2c), GFP_KERNEL);
++	vb_i2c = devm_kzalloc(&pdev->dev, sizeof(*vb_i2c), GFP_KERNEL);
+ 	if (vb_i2c == NULL)
+ 		return -ENOMEM;
  
--	if (!request_mem_region(r->start, resource_size(r), "versatile-i2c")) {
--		ret = -EBUSY;
--		goto err_out;
--	}
-+	i2c = devm_kzalloc(&dev->dev, sizeof(struct i2c_versatile), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
- 
--	i2c = kzalloc(sizeof(struct i2c_versatile), GFP_KERNEL);
--	if (!i2c) {
--		ret = -ENOMEM;
--		goto err_release;
--	}
--
--	i2c->base = ioremap(r->start, resource_size(r));
--	if (!i2c->base) {
--		ret = -ENOMEM;
--		goto err_free;
--	}
-+	i2c->base = devm_ioremap_resource(&dev->dev, r);
-+	if (IS_ERR(i2c->base))
-+		return PTR_ERR(i2c->base);
- 
- 	writel(SCL | SDA, i2c->base + I2C_CONTROLS);
- 
-@@ -110,12 +99,6 @@ static int i2c_versatile_probe(struct platform_device *dev)
- 		return 0;
+@@ -394,14 +394,12 @@ static int vprbrd_i2c_probe(struct platform_device *pdev)
+ 	    if (ret != 1) {
+ 		dev_err(&pdev->dev,
+ 			"failure setting i2c_bus_freq to %d\n", i2c_bus_freq);
+-		ret = -EIO;
+-		goto error;
++		return -EIO;
+ 	    }
+ 	} else {
+ 		dev_err(&pdev->dev,
+ 			"invalid i2c_bus_freq setting:%d\n", i2c_bus_freq);
+-		ret = -EIO;
+-		goto error;
++		return -EIO;
  	}
  
--	iounmap(i2c->base);
-- err_free:
--	kfree(i2c);
-- err_release:
--	release_mem_region(r->start, resource_size(r));
-- err_out:
- 	return ret;
+ 	vb_i2c->i2c.dev.parent = &pdev->dev;
+@@ -412,10 +410,6 @@ static int vprbrd_i2c_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, vb_i2c);
+ 
+ 	return 0;
+-
+-error:
+-	kfree(vb_i2c);
+-	return ret;
  }
  
+ static int vprbrd_i2c_remove(struct platform_device *pdev)
 -- 
 1.7.10.4
