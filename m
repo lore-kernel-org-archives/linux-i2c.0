@@ -1,7 +1,7 @@
 From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 05/13] i2c: mv64xxx: Use devm_request_irq()
-Date: Tue, 17 Dec 2013 15:53:17 +0900
-Message-ID: <002901cefaf4$aa582270$ff086750$%han@samsung.com>
+Subject: [PATCH 06/13] i2c: pmcmsp: Use devm_*() functions
+Date: Tue, 17 Dec 2013 15:54:23 +0900
+Message-ID: <002a01cefaf4$d17ae720$7470b560$%han@samsung.com>
 References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -11,53 +11,99 @@ In-reply-to: <001601cefaf3$940d0040$bc2700c0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.
 Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, 'Thierry Reding' <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Gregory CLEMENT' <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use devm_request_irq() to make cleanup paths simpler.
+Use devm_*() functions to make cleanup paths simpler.
 
 Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-mv64xxx.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-pmcmsp.c |   44 +++++++--------------------------------
+ 1 file changed, 7 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 8be7e42..d94ed5a 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -859,8 +859,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- 
- 	mv64xxx_i2c_hw_init(drv_data);
- 
--	rc = request_irq(drv_data->irq, mv64xxx_i2c_intr, 0,
--			 MV64XXX_I2C_CTLR_NAME, drv_data);
-+	rc = devm_request_irq(&pd->dev, drv_data->irq, mv64xxx_i2c_intr, 0,
-+			      MV64XXX_I2C_CTLR_NAME, drv_data);
- 	if (rc) {
- 		dev_err(&drv_data->adapter.dev,
- 			"mv64xxx: Can't register intr handler irq%d: %d\n",
-@@ -869,13 +869,11 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- 	} else if ((rc = i2c_add_numbered_adapter(&drv_data->adapter)) != 0) {
- 		dev_err(&drv_data->adapter.dev,
- 			"mv64xxx: Can't add i2c adapter, rc: %d\n", -rc);
--		goto exit_free_irq;
-+		goto exit_clk;
+diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
+index f6389e2..cfbee76 100644
+--- a/drivers/i2c/busses/i2c-pmcmsp.c
++++ b/drivers/i2c/busses/i2c-pmcmsp.c
+@@ -279,34 +279,19 @@ static int pmcmsptwi_probe(struct platform_device *pldev)
+ 	res = platform_get_resource(pldev, IORESOURCE_MEM, 0);
+ 	if (!res) {
+ 		dev_err(&pldev->dev, "IOMEM resource not found\n");
+-		goto ret_err;
++		return rc;
  	}
  
+-	/* reserve the memory region */
+-	if (!request_mem_region(res->start, resource_size(res),
+-				pldev->name)) {
+-		dev_err(&pldev->dev,
+-			"Unable to get memory/io address region 0x%08x\n",
+-			res->start);
+-		rc = -EBUSY;
+-		goto ret_err;
+-	}
+-
+-	/* remap the memory */
+-	pmcmsptwi_data.iobase = ioremap_nocache(res->start,
+-						resource_size(res));
+-	if (!pmcmsptwi_data.iobase) {
+-		dev_err(&pldev->dev,
+-			"Unable to ioremap address 0x%08x\n", res->start);
+-		rc = -EIO;
+-		goto ret_unreserve;
+-	}
++	pmcmsptwi_data.iobase = devm_ioremap_resource(&pldev->dev, res);
++	if (IS_ERR(pmcmsptwi_data.iobase))
++		return PTR_ERR(pmcmsptwi_data.iobase);
+ 
+ 	/* request the irq */
+ 	pmcmsptwi_data.irq = platform_get_irq(pldev, 0);
+ 	if (pmcmsptwi_data.irq) {
+-		rc = request_irq(pmcmsptwi_data.irq, &pmcmsptwi_interrupt,
+-				 IRQF_SHARED, pldev->name, &pmcmsptwi_data);
++		rc = devm_request_irq(&pldev->dev, pmcmsptwi_data.irq,
++				      &pmcmsptwi_interrupt, IRQF_SHARED,
++				      pldev->name, &pmcmsptwi_data);
+ 		if (rc == 0) {
+ 			/*
+ 			 * Enable 'DONE' interrupt only.
+@@ -352,15 +337,8 @@ ret_unmap:
+ 	if (pmcmsptwi_data.irq) {
+ 		pmcmsptwi_writel(0,
+ 			pmcmsptwi_data.iobase + MSP_TWI_INT_MSK_REG_OFFSET);
+-		free_irq(pmcmsptwi_data.irq, &pmcmsptwi_data);
+ 	}
+ 
+-	iounmap(pmcmsptwi_data.iobase);
+-
+-ret_unreserve:
+-	release_mem_region(res->start, resource_size(res));
+-
+-ret_err:
+ 	return rc;
+ }
+ 
+@@ -369,21 +347,13 @@ ret_err:
+  */
+ static int pmcmsptwi_remove(struct platform_device *pldev)
+ {
+-	struct resource *res;
+-
+ 	i2c_del_adapter(&pmcmsptwi_adapter);
+ 
+ 	if (pmcmsptwi_data.irq) {
+ 		pmcmsptwi_writel(0,
+ 			pmcmsptwi_data.iobase + MSP_TWI_INT_MSK_REG_OFFSET);
+-		free_irq(pmcmsptwi_data.irq, &pmcmsptwi_data);
+ 	}
+ 
+-	iounmap(pmcmsptwi_data.iobase);
+-
+-	res = platform_get_resource(pldev, IORESOURCE_MEM, 0);
+-	release_mem_region(res->start, resource_size(res));
+-
  	return 0;
+ }
  
--exit_free_irq:
--	free_irq(drv_data->irq, drv_data);
- exit_clk:
- #if defined(CONFIG_HAVE_CLK)
- 	/* Not all platforms have a clk */
-@@ -893,7 +891,6 @@ mv64xxx_i2c_remove(struct platform_device *dev)
- 	struct mv64xxx_i2c_data		*drv_data = platform_get_drvdata(dev);
- 
- 	i2c_del_adapter(&drv_data->adapter);
--	free_irq(drv_data->irq, drv_data);
- #if defined(CONFIG_HAVE_CLK)
- 	/* Not all platforms have a clk */
- 	if (!IS_ERR(drv_data->clk)) {
 -- 
 1.7.10.4
