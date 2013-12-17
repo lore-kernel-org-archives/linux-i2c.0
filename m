@@ -1,123 +1,180 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH 1/5] pinctrl: r7s72100: add riic groups
-Date: Tue, 17 Dec 2013 22:48:52 +0100
-Message-ID: <3802769.F4PZtN5om9@avalon>
-References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de> <1387316678-10174-2-git-send-email-wsa@the-dreams.de>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 3/5] arm: shmobile: r7s72100: add nodes for i2c controllers to dtsi
+Date: Tue, 17 Dec 2013 22:55:31 +0100
+Message-ID: <1632121.4oJZuIln5n@avalon>
+References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de> <1387316678-10174-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1387316678-10174-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1387316678-10174-4-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Wolfram,
 
 Thank you for the patch.
 
-On Tuesday 17 December 2013 22:44:34 Wolfram Sang wrote:
-> From: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+On Tuesday 17 December 2013 22:44:36 Wolfram Sang wrote:
+> From: Wolfram Sang <wsa@sang-engineering.com>
 > 
-> Tested RIIC2 on a genmai board. Other riic groups are untested but seem
-> trivial enough to be added.
+> I decided to put the pinmuxing into the dtsi file since there is only
+> one pinmux posiibility which one probably wants to have when using the
+> bus.
 > 
-> Signed-off-by: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> Acked-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+> Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
+> Acked-by: Magnus Damm <damm@opensource.se>
 > ---
+>  arch/arm/boot/dts/r7s72100.dtsi | 102 +++++++++++++++++++++++++++++++++++++
+>  1 file changed, 102 insertions(+)
 > 
-> Note: With the current PFC driver as posted by Magnus, it needs another
-> patch to work. Yet, I think this is a seperate PFC issue which needs to be
-> sorted out seperately and shouldn't affect these declarations. I'll add the
-> needed patch as a response to this mail.
+> diff --git a/arch/arm/boot/dts/r7s72100.dtsi
+> b/arch/arm/boot/dts/r7s72100.dtsi index d396b38..ff0bd6b 100644
+> --- a/arch/arm/boot/dts/r7s72100.dtsi
+> +++ b/arch/arm/boot/dts/r7s72100.dtsi
+> @@ -8,6 +8,8 @@
+>   * kind, whether express or implied.
+>   */
 > 
->  drivers/pinctrl/sh-pfc/pfc-r7s72100.c | 45 ++++++++++++++++++++++++++++++++
->  1 file changed, 45 insertions(+)
+> +#include <dt-bindings/interrupt-controller/irq.h>
+> +
+>  / {
+>  	compatible = "renesas,r7s72100";
+>  	interrupt-parent = <&gic>;
+> @@ -15,6 +17,10 @@
+>  	#size-cells = <1>;
 > 
-> diff --git a/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
-> b/drivers/pinctrl/sh-pfc/pfc-r7s72100.c index a662876..2b716d1 100644
-> --- a/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
-> +++ b/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
-> @@ -229,6 +229,27 @@ SCIF5(RZ_PIN_AND_MUX)
->  SCIF6(RZ_PIN_AND_MUX)
->  SCIF7(RZ_PIN_AND_MUX)
-> 
-> +#define RIIC0(fn)			\
-> +	fn(riic0, scl, 1, 0, 1)		\
-> +	fn(riic0, sda, 1, 1, 1)
+>  	aliases {
+> +		i2c0 = &i2c0;
+> +		i2c1 = &i2c1;
+> +		i2c2 = &i2c2;
+> +		i2c3 = &i2c3;
+>  		gpio0 = &port0;
+>  		gpio1 = &port1;
+>  		gpio2 = &port2;
+> @@ -58,6 +64,26 @@
+>  			  <0xfcfe7b40 0x04>, /* JPMC */
+>  			  <0xfcfe7b90 0x04>, /* JPMCSR */
+>  			  <0xfcfe7f00 0x04>; /* JPIBC */
 > +
-> +#define RIIC1(fn)			\
-> +	fn(riic1, scl, 1, 2, 1)		\
-> +	fn(riic1, sda, 1, 3, 1)
+> +		riic0_pins: i2c0 {
+> +			renesas,groups = "riic0_scl_p1_0", "riic0_sda_p1_1";
+> +			renesas,function = "riic0";
+> +		};
 > +
-> +#define RIIC2(fn)			\
-> +	fn(riic2, scl, 1, 4, 1)		\
-> +	fn(riic2, sda, 1, 5, 1)
+> +		riic1_pins: i2c1 {
+> +			renesas,groups = "riic1_scl_p1_2", "riic1_sda_p1_3";
+> +			renesas,function = "riic1";
+> +		};
 > +
-> +#define RIIC3(fn)			\
-> +	fn(riic3, scl, 1, 6, 1)		\
-> +	fn(riic3, sda, 1, 7, 1)
+> +		riic2_pins: i2c2 {
+> +			renesas,groups = "riic2_scl_p1_4", "riic2_sda_p1_5";
+> +			renesas,function = "riic2";
+> +		};
 > +
-> +RIIC0(RZ_PIN_AND_MUX)
-> +RIIC1(RZ_PIN_AND_MUX)
-> +RIIC2(RZ_PIN_AND_MUX)
-> +RIIC3(RZ_PIN_AND_MUX)
+> +		riic3_pins: i2c3 {
+> +			renesas,groups = "riic3_scl_p1_6", "riic3_sda_p1_7";
+> +			renesas,function = "riic3";
+> +		};
 
-Could you please move this above the SCIF declarations (same comment below) ? 
-The pfc-*.c files tend to grow pretty big, and keeping entries sorted 
-alphabetically helps.
+The SoC allows other options for the I2C pin groups. Instead of declaring all 
+possible groups here, I think we should thus only add the groups that are 
+really used to the board .dts files.
 
-> +
->  static const struct sh_pfc_pin_group pinmux_groups[] = {
->  	SCIF0(RZ_PMX_GROUP)
->  	SCIF1(RZ_PMX_GROUP)
-> @@ -238,6 +259,10 @@ static const struct sh_pfc_pin_group pinmux_groups[] =
-> { SCIF5(RZ_PMX_GROUP)
->  	SCIF6(RZ_PMX_GROUP)
->  	SCIF7(RZ_PMX_GROUP)
-> +	RIIC0(RZ_PMX_GROUP)
-> +	RIIC1(RZ_PMX_GROUP)
-> +	RIIC2(RZ_PMX_GROUP)
-> +	RIIC3(RZ_PMX_GROUP)
->  };
+>  	};
 > 
->  static const char * const scif0_groups[] = {
-> @@ -272,6 +297,22 @@ static const char * const scif7_groups[] = {
->  	SCIF7(RZ_GROUPS)
+>  	port0: gpio@fcfe3100 {
+> @@ -187,4 +213,80 @@
+>  		gpio-controller;
+>  		gpio-ranges = <&pfc 0 192 2>;
+>  	};
+> +
+> +	i2c0: i2c@fcfee000 {
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		compatible = "renesas,riic-r7s72100", "renesas,riic-rz";
+> +		reg = <0xfcfee000 0x44>;
+> +		interrupts = <0 157 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 158 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 159 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 160 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 161 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 162 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 163 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 164 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-0 = <&riic0_pins>;
+> +		pinctrl-names = "default";
+
+These two properties should then be moved to the board .dts files as well.
+
+> +		clock-frequency = <100000>;
+
+Isn't that a board-specific property ?
+
+> +		status = "disabled";
+> +	};
+> +
+> +	i2c1: i2c@fcfee400 {
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		compatible = "renesas,riic-r7s72100", "renesas,riic-rz";
+> +		reg = <0xfcfee400 0x44>;
+> +		interrupts = <0 165 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 166 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 167 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 168 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 169 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 170 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 171 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 172 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-0 = <&riic1_pins>;
+> +		pinctrl-names = "default";
+> +		clock-frequency = <100000>;
+> +		status = "disabled";
+> +	};
+> +
+> +	i2c2: i2c@fcfee800 {
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		compatible = "renesas,riic-r7s72100", "renesas,riic-rz";
+> +		reg = <0xfcfee800 0x44>;
+> +		interrupts = <0 173 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 174 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 175 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 176 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 177 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 178 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 179 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 180 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-0 = <&riic2_pins>;
+> +		pinctrl-names = "default";
+> +		clock-frequency = <100000>;
+> +		status = "disabled";
+> +	};
+> +
+> +	i2c3: i2c@fcfeec00 {
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		compatible = "renesas,riic-r7s72100", "renesas,riic-rz";
+> +		reg = <0xfcfeec00 0x44>;
+> +		interrupts = <0 181 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 182 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 183 IRQ_TYPE_EDGE_RISING>,
+> +			     <0 184 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 185 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 186 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 187 IRQ_TYPE_LEVEL_HIGH>,
+> +			     <0 188 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-0 = <&riic3_pins>;
+> +		pinctrl-names = "default";
+> +		clock-frequency = <100000>;
+> +		status = "disabled";
+> +	};
 >  };
-> 
-> +static const char * const riic0_groups[] = {
-> +	RIIC0(RZ_GROUPS)
-> +};
-> +
-> +static const char * const riic1_groups[] = {
-> +	RIIC1(RZ_GROUPS)
-> +};
-> +
-> +static const char * const riic2_groups[] = {
-> +	RIIC2(RZ_GROUPS)
-> +};
-> +
-> +static const char * const riic3_groups[] = {
-> +	RIIC3(RZ_GROUPS)
-> +};
-> +
->  static const struct sh_pfc_function pinmux_functions[] = {
->  	SH_PFC_FUNCTION(scif0),
->  	SH_PFC_FUNCTION(scif1),
-> @@ -281,6 +322,10 @@ static const struct sh_pfc_function pinmux_functions[]
-> = { SH_PFC_FUNCTION(scif5),
->  	SH_PFC_FUNCTION(scif6),
->  	SH_PFC_FUNCTION(scif7),
-> +	SH_PFC_FUNCTION(riic0),
-> +	SH_PFC_FUNCTION(riic1),
-> +	SH_PFC_FUNCTION(riic2),
-> +	SH_PFC_FUNCTION(riic3),
->  };
-> 
->  #define PFC_REG(idx, name, reg)						\
 -- 
 Regards,
 
 Laurent Pinchart
+
