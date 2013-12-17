@@ -1,47 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/5] arm: shmobile: r7s72100: add native i2c support
-Date: Tue, 17 Dec 2013 22:44:33 +0100
-Message-ID: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 4/5] arm: shmobile: genmai: adapt dts to use native i2c driver
+Date: Tue, 17 Dec 2013 22:44:37 +0100
+Message-ID: <1387316678-10174-5-git-send-email-wsa@the-dreams.de>
+References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-sh@vger.kernel.org
 Cc: linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Simon Horman <horms@verge.net.au>, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Here is a series to support the I2C core of the r7s72100 natively. It has been
-tested with a genmai board where an eeprom is connected. The series can be
-found here:
+From: Wolfram Sang <wsa@sang-engineering.com>
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/riic
+Switch from the gpio-driver to the shiny new native driver. Tested by
+accessing the eeprom on the genmai board.
 
-It is based on the latest r7s72100 topic branch from Simon and the latest patch
-series from Magnus. Note there is one issue with the current PFC driver which
-needs to be sorted out. Check patch 1/5 for details.
+Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
+Acked-by: Magnus Damm <damm@opensource.se>
+---
+ arch/arm/boot/dts/r7s72100-genmai-reference.dts | 29 ++++++++++---------------
+ 1 file changed, 11 insertions(+), 18 deletions(-)
 
-Comments welcome. Thanks,
-
-   Wolfram
-
-
-Wolfram Sang (5):
-  pinctrl: r7s72100: add riic groups
-  arm: shmobile: r7s72100: add i2c clocks
-  arm: shmobile: r7s72100: add nodes for i2c controllers to dtsi
-  arm: shmobile: genmai: adapt dts to use native i2c driver
-  i2c: riic: add driver
-
- Documentation/devicetree/bindings/i2c/i2c-riic.txt |  29 ++
- arch/arm/boot/dts/r7s72100-genmai-reference.dts    |  29 +-
- arch/arm/boot/dts/r7s72100.dtsi                    | 102 +++++
- arch/arm/mach-shmobile/clock-r7s72100.c            |  12 +-
- drivers/i2c/busses/Kconfig                         |  10 +
- drivers/i2c/busses/Makefile                        |   1 +
- drivers/i2c/busses/i2c-riic.c                      | 426 +++++++++++++++++++++
- drivers/pinctrl/sh-pfc/pfc-r7s72100.c              |  45 +++
- 8 files changed, 635 insertions(+), 19 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-riic.txt
- create mode 100644 drivers/i2c/busses/i2c-riic.c
-
+diff --git a/arch/arm/boot/dts/r7s72100-genmai-reference.dts b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
+index ce5da0b..739448a 100644
+--- a/arch/arm/boot/dts/r7s72100-genmai-reference.dts
++++ b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
+@@ -39,24 +39,6 @@
+ 			gpios = <&port4 11 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+-
+-	i2c@0 {
+-		compatible = "i2c-gpio";
+-		gpios = <&port1 5 GPIO_ACTIVE_HIGH /* sda */
+-			 &port1 4 GPIO_ACTIVE_HIGH /* scl */
+-			>;
+-		i2c-gpio,sda-open-drain;
+-		i2c-gpio,scl-open-drain;
+-		i2c-gpio,delay-us = <5>;	/* ~100 kHz */
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		flash@50 {
+-			compatible = "renesas,24c128";
+-			reg = <0x50>;
+-			pagesize = <64>;
+-		};
+-	};
+ };
+ 
+ &pfc {
+@@ -68,3 +50,14 @@
+ 		renesas,function = "scif2";
+ 	};
+ };
++
++&i2c2 {
++	status = "okay";
++	clock-frequency = <400000>;
++
++	eeprom: 24c128@50 {
++		compatible = "renesas,24c128";
++		reg = <0x50>;
++		pagesize = <64>;
++	};
++};
 -- 
 1.8.4.2
 
