@@ -1,67 +1,81 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH V2 04/13] i2c: isch: Use devm_request_region()
-Date: Wed, 18 Dec 2013 08:46:32 +0100
-Message-ID: <20131218084632.166eabd4@endymion.delvare>
-References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
-	<002801cefaf4$69243d70$3b6cb850$%han@samsung.com>
-	<007501cefb93$32ca0df0$985e29d0$%han@samsung.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 5/5] i2c: riic: add driver
+Date: Wed, 18 Dec 2013 09:42:22 +0100
+Message-ID: <CAMuHMdV0X6ZUN4YOnCHOGGFTtMWJ5s1D1fOene04KzbMg+nWFQ@mail.gmail.com>
+References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>
+	<1387316678-10174-6-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <007501cefb93$32ca0df0$985e29d0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1387316678-10174-6-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Simon Horman <horms@verge.net.au>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 18 Dec 2013 10:48:07 +0900, Jingoo Han wrote:
-> Use devm_request_region() to make cleanup paths simpler.
-> 
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+CC devicetree@vger.kernel.org for the bindings part.
+
+On Tue, Dec 17, 2013 at 10:44 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> From: Wolfram Sang <wsa@sang-engineering.com>
+>
+> Tested with a r7s72100 genmai board acessing an eeprom.
+>
+> Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
 > ---
-> Changes since V1:
-> - Remove unnecessary 'res' variable from smbus_sch_remove().
-> 
->  drivers/i2c/busses/i2c-isch.c |    7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
-> index 8c38aaa..af21304 100644
-> --- a/drivers/i2c/busses/i2c-isch.c
-> +++ b/drivers/i2c/busses/i2c-isch.c
-> @@ -275,7 +275,8 @@ static int smbus_sch_probe(struct platform_device *dev)
->  	if (!res)
->  		return -EBUSY;
->  
-> -	if (!request_region(res->start, resource_size(res), dev->name)) {
-> +	if (!devm_request_region(&dev->dev, res->start, resource_size(res),
-> +				 dev->name)) {
->  		dev_err(&dev->dev, "SMBus region 0x%x already in use!\n",
->  			sch_smba);
->  		return -EBUSY;
-> @@ -294,7 +295,6 @@ static int smbus_sch_probe(struct platform_device *dev)
->  	retval = i2c_add_adapter(&sch_adapter);
->  	if (retval) {
->  		dev_err(&dev->dev, "Couldn't register adapter!\n");
-> -		release_region(res->start, resource_size(res));
->  		sch_smba = 0;
->  	}
->  
-> @@ -303,11 +303,8 @@ static int smbus_sch_probe(struct platform_device *dev)
->  
->  static int smbus_sch_remove(struct platform_device *pdev)
->  {
-> -	struct resource *res;
->  	if (sch_smba) {
->  		i2c_del_adapter(&sch_adapter);
-> -		res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-> -		release_region(res->start, resource_size(res));
->  		sch_smba = 0;
->  	}
->  
+>  Documentation/devicetree/bindings/i2c/i2c-riic.txt |  29 ++
+>  drivers/i2c/busses/Kconfig                         |  10 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-riic.c                      | 426 +++++++++++++++++++++
+>  4 files changed, 466 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-riic.txt
+>  create mode 100644 drivers/i2c/busses/i2c-riic.c
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-riic.txt b/Documentation/devicetree/bindings/i2c/i2c-riic.txt
+> new file mode 100644
+> index 0000000..900d129
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-riic.txt
+> @@ -0,0 +1,29 @@
+> +Device tree configuration for i2c-ocores
 
-Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+(e.g.) ... for Renesas RIIC SPI
 
--- 
-Jean Delvare
+> +
+> +Required properties:
+> +- compatible      : "renesas,riic-<soctype>". "renesas,riic-rz" as fallback
+> +- reg             : address start and address range size of device
+> +- interrupts      : 8 interrupts (TEI, RI, TI, SPI, STI, NAKI, ALI, TMOI)
+> +- clock-frequency : frequency of bus clock in Hz
+> +- #address-cells  : should be <1>
+> +- #size-cells     : should be <0>
+> +
+> +Pinctrl properties might be needed, too. See there.
+> +
+> +Example:
+> +
+> +       i2c0: i2c@fcfee000 {
+> +               compatible = "renesas,riic-r7s72100", "renesas,riic-rz";
+> +               reg = <0xfcfee000 0x44>;
+> +               interrupts = <0 157 IRQ_TYPE_LEVEL_HIGH>,
+> +                            <0 158 IRQ_TYPE_EDGE_RISING>,
+> +                            <0 159 IRQ_TYPE_EDGE_RISING>,
+> +                            <0 160 IRQ_TYPE_LEVEL_HIGH>,
+> +                            <0 161 IRQ_TYPE_LEVEL_HIGH>,
+> +                            <0 162 IRQ_TYPE_LEVEL_HIGH>,
+> +                            <0 163 IRQ_TYPE_LEVEL_HIGH>,
+> +                            <0 164 IRQ_TYPE_LEVEL_HIGH>;
+> +               clock-frequency = <100000>;
+> +               #address-cells = <1>;
+> +               #size-cells = <0>;
+> +       };
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
