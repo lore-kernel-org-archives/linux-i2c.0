@@ -1,81 +1,53 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 5/5] i2c: riic: add driver
-Date: Wed, 18 Dec 2013 09:42:22 +0100
-Message-ID: <CAMuHMdV0X6ZUN4YOnCHOGGFTtMWJ5s1D1fOene04KzbMg+nWFQ@mail.gmail.com>
-References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>
-	<1387316678-10174-6-git-send-email-wsa@the-dreams.de>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 2/5] arm: shmobile: r7s72100: add i2c clocks
+Date: Wed, 18 Dec 2013 15:38:19 +0400
+Message-ID: <52B1892B.1020806@cogentembedded.com>
+References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de> <1387316678-10174-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1387316678-10174-6-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1387316678-10174-3-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Simon Horman <horms@verge.net.au>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Simon Horman <horms@verge.net.au>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-CC devicetree@vger.kernel.org for the bindings part.
+Hello.
 
-On Tue, Dec 17, 2013 at 10:44 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+On 18-12-2013 1:44, Wolfram Sang wrote:
+
 > From: Wolfram Sang <wsa@sang-engineering.com>
->
-> Tested with a r7s72100 genmai board acessing an eeprom.
->
+
+> Tested with RIIC2 on a genmai board. Others untested but hopefully
+> trivial enough to be added.
+
 > Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
+> Acked-by: Magnus Damm <damm@opensource.se>
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-riic.txt |  29 ++
->  drivers/i2c/busses/Kconfig                         |  10 +
->  drivers/i2c/busses/Makefile                        |   1 +
->  drivers/i2c/busses/i2c-riic.c                      | 426 +++++++++++++++++++++
->  4 files changed, 466 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-riic.txt
->  create mode 100644 drivers/i2c/busses/i2c-riic.c
+>   arch/arm/mach-shmobile/clock-r7s72100.c | 12 +++++++++++-
+>   1 file changed, 11 insertions(+), 1 deletion(-)
+
+> diff --git a/arch/arm/mach-shmobile/clock-r7s72100.c b/arch/arm/mach-shmobile/clock-r7s72100.c
+> index 7b457ae..770316d 100644
+> --- a/arch/arm/mach-shmobile/clock-r7s72100.c
+> +++ b/arch/arm/mach-shmobile/clock-r7s72100.c
+[...]
+> @@ -173,6 +179,10 @@ static struct clk_lookup lookups[] = {
+>   	CLKDEV_CON_ID("mtu2_fck", &mstp_clks[MSTP33]),
 >
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-riic.txt b/Documentation/devicetree/bindings/i2c/i2c-riic.txt
-> new file mode 100644
-> index 0000000..900d129
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-riic.txt
-> @@ -0,0 +1,29 @@
-> +Device tree configuration for i2c-ocores
+>   	/* ICK */
+> +	CLKDEV_DEV_ID("fcfee000.i2c", &mstp_clks[MSTP97]),
+> +	CLKDEV_DEV_ID("fcfee400.i2c", &mstp_clks[MSTP96]),
+> +	CLKDEV_DEV_ID("fcfee800.i2c", &mstp_clks[MSTP95]),
+> +	CLKDEV_DEV_ID("fcfeec00.i2c", &mstp_clks[MSTP94]),
 
-(e.g.) ... for Renesas RIIC SPI
+    These belong to some other place, the group marked by /* ICK */ is only 
+for CLKDEV_ICK_ID().
 
-> +
-> +Required properties:
-> +- compatible      : "renesas,riic-<soctype>". "renesas,riic-rz" as fallback
-> +- reg             : address start and address range size of device
-> +- interrupts      : 8 interrupts (TEI, RI, TI, SPI, STI, NAKI, ALI, TMOI)
-> +- clock-frequency : frequency of bus clock in Hz
-> +- #address-cells  : should be <1>
-> +- #size-cells     : should be <0>
-> +
-> +Pinctrl properties might be needed, too. See there.
-> +
-> +Example:
-> +
-> +       i2c0: i2c@fcfee000 {
-> +               compatible = "renesas,riic-r7s72100", "renesas,riic-rz";
-> +               reg = <0xfcfee000 0x44>;
-> +               interrupts = <0 157 IRQ_TYPE_LEVEL_HIGH>,
-> +                            <0 158 IRQ_TYPE_EDGE_RISING>,
-> +                            <0 159 IRQ_TYPE_EDGE_RISING>,
-> +                            <0 160 IRQ_TYPE_LEVEL_HIGH>,
-> +                            <0 161 IRQ_TYPE_LEVEL_HIGH>,
-> +                            <0 162 IRQ_TYPE_LEVEL_HIGH>,
-> +                            <0 163 IRQ_TYPE_LEVEL_HIGH>,
-> +                            <0 164 IRQ_TYPE_LEVEL_HIGH>;
-> +               clock-frequency = <100000>;
-> +               #address-cells = <1>;
-> +               #size-cells = <0>;
-> +       };
+>   	CLKDEV_ICK_ID("sci_fck", "sh-sci.0", &mstp_clks[MSTP47]),
+>   	CLKDEV_ICK_ID("sci_fck", "sh-sci.1", &mstp_clks[MSTP46]),
+>   	CLKDEV_ICK_ID("sci_fck", "sh-sci.2", &mstp_clks[MSTP45]),
 
-Gr{oetje,eeting}s,
+WBR, Sergei
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
