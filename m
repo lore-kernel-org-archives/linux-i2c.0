@@ -1,69 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH V2 2/5] arm: shmobile: r7s72100: add i2c clocks
-Date: Wed, 18 Dec 2013 22:31:58 +0100
-Message-ID: <1387402321-21866-3-git-send-email-wsa@the-dreams.de>
-References: <1387402321-21866-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1387402321-21866-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-sh@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Simon Horman <horms@verge.net.au>, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH V2 0/5] arm: shmobile: r7s72100: add native i2c support
+Date: Wed, 18 Dec 2013 22:31:56 +0100
+Message-ID: <1387402321-21866-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa@sang-engineering.com>
+Here is a series to support the I2C core of the r7s72100 natively. It has been
+tested with a genmai board where an eeprom is connected. The series can be
+found here:
 
-Tested with RIIC2 on a genmai board. Others untested but hopefully
-trivial enough to be added.
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/riic
 
-Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
-Acked-by: Magnus Damm <damm@opensource.se>
----
+It is based on the latest r7s72100 topic branch from Simon and the latest patch
+series from Magnus. Note there is one issue with the current PFC driver which
+needs to be sorted out. Check patch 1/5 for details.
 
-V2: adapt to established sorting
+I've addressed all comments from V1. See patches for details.
 
- arch/arm/mach-shmobile/clock-r7s72100.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+Comments welcome. Thanks,
 
-diff --git a/arch/arm/mach-shmobile/clock-r7s72100.c b/arch/arm/mach-shmobile/clock-r7s72100.c
-index 7b457ae..9cda215 100644
---- a/arch/arm/mach-shmobile/clock-r7s72100.c
-+++ b/arch/arm/mach-shmobile/clock-r7s72100.c
-@@ -27,6 +27,7 @@
- #define FRQCR2		0xfcfe0014
- #define STBCR3		0xfcfe0420
- #define STBCR4		0xfcfe0424
-+#define STBCR9		0xfcfe0438
- 
- #define PLL_RATE 30
- 
-@@ -144,10 +145,15 @@ struct clk div4_clks[DIV4_NR] = {
- 					| CLK_ENABLE_ON_INIT),
- };
- 
--enum { MSTP47, MSTP46, MSTP45, MSTP44, MSTP43, MSTP42, MSTP41, MSTP40,
-+enum {	MSTP97, MSTP96, MSTP95, MSTP94,
-+	MSTP47, MSTP46, MSTP45, MSTP44, MSTP43, MSTP42, MSTP41, MSTP40,
- 	MSTP33,	MSTP_NR };
- 
- static struct clk mstp_clks[MSTP_NR] = {
-+	[MSTP97] = SH_CLK_MSTP8(&peripheral0_clk, STBCR9, 7, 0), /* RIIC0 */
-+	[MSTP96] = SH_CLK_MSTP8(&peripheral0_clk, STBCR9, 6, 0), /* RIIC1 */
-+	[MSTP95] = SH_CLK_MSTP8(&peripheral0_clk, STBCR9, 5, 0), /* RIIC2 */
-+	[MSTP94] = SH_CLK_MSTP8(&peripheral0_clk, STBCR9, 4, 0), /* RIIC3 */
- 	[MSTP47] = SH_CLK_MSTP8(&peripheral1_clk, STBCR4, 7, 0), /* SCIF0 */
- 	[MSTP46] = SH_CLK_MSTP8(&peripheral1_clk, STBCR4, 6, 0), /* SCIF1 */
- 	[MSTP45] = SH_CLK_MSTP8(&peripheral1_clk, STBCR4, 5, 0), /* SCIF2 */
-@@ -170,6 +176,10 @@ static struct clk_lookup lookups[] = {
- 	CLKDEV_CON_ID("cpu_clk", &div4_clks[DIV4_I]),
- 
- 	/* MSTP clocks */
-+	CLKDEV_DEV_ID("fcfee000.i2c", &mstp_clks[MSTP97]),
-+	CLKDEV_DEV_ID("fcfee400.i2c", &mstp_clks[MSTP96]),
-+	CLKDEV_DEV_ID("fcfee800.i2c", &mstp_clks[MSTP95]),
-+	CLKDEV_DEV_ID("fcfeec00.i2c", &mstp_clks[MSTP94]),
- 	CLKDEV_CON_ID("mtu2_fck", &mstp_clks[MSTP33]),
- 
- 	/* ICK */
+   Wolfram
+
+
+Wolfram Sang (5):
+  pinctrl: r7s72100: add riic groups
+  arm: shmobile: r7s72100: add i2c clocks
+  arm: shmobile: r7s72100: add nodes for i2c controllers to dtsi
+  arm: shmobile: genmai: adapt dts to use native i2c driver
+  i2c: riic: add driver
+
+ Documentation/devicetree/bindings/i2c/i2c-riic.txt |  29 ++
+ arch/arm/boot/dts/r7s72100-genmai-reference.dts    |  29 +-
+ arch/arm/boot/dts/r7s72100.dtsi                    | 102 +++++
+ arch/arm/mach-shmobile/clock-r7s72100.c            |  12 +-
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-riic.c                      | 426 +++++++++++++++++++++
+ drivers/pinctrl/sh-pfc/pfc-r7s72100.c              |  45 +++
+ 8 files changed, 635 insertions(+), 19 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-riic.txt
+ create mode 100644 drivers/i2c/busses/i2c-riic.c
+
 -- 
 1.8.4.2
-
