@@ -1,72 +1,96 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH V2 4/5] arm: shmobile: genmai: adapt dts to use native i2c driver
-Date: Wed, 18 Dec 2013 22:32:00 +0100
-Message-ID: <1387402321-21866-5-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH V2 1/5] pinctrl: r7s72100: add riic groups
+Date: Wed, 18 Dec 2013 22:49:44 +0100
+Message-ID: <20131218214943.GC18645@katana>
 References: <1387402321-21866-1-git-send-email-wsa@the-dreams.de>
+ <1387402321-21866-2-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZmUaFz6apKcXQszQ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1387402321-21866-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1387402321-21866-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Switch from the gpio-driver to the shiny new native driver. Tested by
-accessing the eeprom on the genmai board.
+--ZmUaFz6apKcXQszQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Acked-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+On Wed, Dec 18, 2013 at 10:31:57PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+>=20
+> Tested RIIC2 on a genmai board. Other riic groups are untested but seem
+> trivial enough to be added.
+>=20
+> Signed-off-by: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> Acked-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+> ---
+>=20
+> V2: keep sorting alphabetical
+>=20
+> Note: With the current PFC driver as posted by Magnus, it needs another p=
+atch
+> to work. Yet, I think this is a seperate PFC issue which needs to be sort=
+ed out
+> seperately and shouldn't affect these declarations. I'll add the needed p=
+atch
+> as a response to this mail.
+
+=46rom: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH] HACK: make magnus new driver work
+
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
+ drivers/pinctrl/sh-pfc/pfc-r7s72100.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-V2: fixed the eeprom label
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r7s72100.c b/drivers/pinctrl/sh-pfc=
+/pfc-r7s72100.c
+index 00f67e8..a662876 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
+@@ -68,11 +68,11 @@ enum {
+ #define _P_GPIO(bank, _pin, _name, sfx) _GP_GPIO(16, bank, _pin, _name, sf=
+x)
+=20
+ #define _P_DATA(bank, pin, name, sfx)					\
+-	PINMUX_DATA(name##_DATA, name##_PMC_0, name##_PIPC_0,		\
++	PINMUX_DATA(name##_DATA, name##_PMC_0,		\
+ 		    name##_PIBC_1, name##_PBDC_1)
+=20
+ #define _P_FN(n, fn, pfcae, pfce, pfc)					\
+-	PINMUX_DATA(n##_MARK_FN##fn, n##_PMC_1,	n##_PIPC_1,		\
++	PINMUX_DATA(n##_MARK_FN##fn, n##_PMC_1,		\
+ 		    n##_PFCAE_##pfcae, n##_PFCE_##pfce, n##_PFC_##pfc)
+=20
+ #define _P_MARK_FN1(bank, pin, name, sfx) _P_FN(name, 1, 0, 0, 0)
 
- arch/arm/boot/dts/r7s72100-genmai-reference.dts | 29 ++++++++++---------------
- 1 file changed, 11 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm/boot/dts/r7s72100-genmai-reference.dts b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
-index ce5da0b..5e9f41d 100644
---- a/arch/arm/boot/dts/r7s72100-genmai-reference.dts
-+++ b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
-@@ -39,24 +39,6 @@
- 			gpios = <&port4 11 GPIO_ACTIVE_LOW>;
- 		};
- 	};
--
--	i2c@0 {
--		compatible = "i2c-gpio";
--		gpios = <&port1 5 GPIO_ACTIVE_HIGH /* sda */
--			 &port1 4 GPIO_ACTIVE_HIGH /* scl */
--			>;
--		i2c-gpio,sda-open-drain;
--		i2c-gpio,scl-open-drain;
--		i2c-gpio,delay-us = <5>;	/* ~100 kHz */
--		#address-cells = <1>;
--		#size-cells = <0>;
--
--		flash@50 {
--			compatible = "renesas,24c128";
--			reg = <0x50>;
--			pagesize = <64>;
--		};
--	};
- };
- 
- &pfc {
-@@ -68,3 +50,14 @@
- 		renesas,function = "scif2";
- 	};
- };
-+
-+&i2c2 {
-+	status = "okay";
-+	clock-frequency = <400000>;
-+
-+	eeprom@50 {
-+		compatible = "renesas,24c128";
-+		reg = <0x50>;
-+		pagesize = <64>;
-+	};
-+};
--- 
-1.8.4.2
+--ZmUaFz6apKcXQszQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSshh3AAoJEBQN5MwUoCm2IhIP/jlWEyUpo5GAvLLjGMBNcwPx
+g5WtgnsUDqVt8EVuXocqRF8+nCBviEWsqUopm/Gg7RFj0ARwsV+s3O4TNq5Tl4xV
+3LzWnYbN+xNulVhMAdjmcewEDkUWLhN+lqAT3Ven4W2d9hW8zhx8g7OQ5YBC07fx
+bfKema0r51ws5zzRvR/xelfPL+qMNQXiGUl2BhlNRCQQYXPbO/XngIoCNr0qs5D3
+l3fBJwBHDKkjRwK6FUZ61ZDblLXnUfhUe8hoOnwKhMQ+mA9x0vfZi3FuAyAs75/K
+Bvag2eKmr0FbxeUq14WG1XXtOcFbiCdbeAGWurTpYhdjH+OblJUbdhIXBKEWHLIr
+frYeI6zt0Nnspqde3RK4n6MkNHTzxf23Z+R26RVJ1BTkPiNeVIzwX1keLcm0SWrb
+iTfql8OuirfWKqdLRBFKfZZpdVDEiMEXmrWQMnKG4XOdMPRv+TrpRRtmY8DtRGrn
+teW/EAzFSTuiT728imYCnIn/3Ahqa4U74layws8+mLNJKlZGBtRqe4H/ztta/sG0
+vXfTK0I9QuCRG/aez/feS0Ly3jX06TQeqzxOl5IR8HA3+FIklxREDE2R6sHteAvJ
+Qee4OL6IVS51q34KIO4LtTwQoCarNy8UauB2QZ3RYdlJ5HR+uo2CfPiBGAb4cQwF
+GNGut3wZNZPl0Wc/l2Ei
+=mbxq
+-----END PGP SIGNATURE-----
+
+--ZmUaFz6apKcXQszQ--
