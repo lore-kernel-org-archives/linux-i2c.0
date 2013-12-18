@@ -1,82 +1,63 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH 4/5] arm: shmobile: genmai: adapt dts to use native i2c
- driver
-Date: Wed, 18 Dec 2013 15:41:38 +0400
-Message-ID: <52B189F2.3080604@cogentembedded.com>
-References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de> <1387316678-10174-5-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 2/5] arm: shmobile: r7s72100: add i2c clocks
+Date: Wed, 18 Dec 2013 12:43:51 +0100
+Message-ID: <20131218114351.GD3314@katana>
+References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>
+ <1387316678-10174-3-git-send-email-wsa@the-dreams.de>
+ <52B1892B.1020806@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1387316678-10174-5-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Simon Horman <horms@verge.net.au>, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X3gaHHMYHkYqP6yf"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52B1892B.1020806-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
 
-On 18-12-2013 1:44, Wolfram Sang wrote:
+--X3gaHHMYHkYqP6yf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> From: Wolfram Sang <wsa@sang-engineering.com>
 
-> Switch from the gpio-driver to the shiny new native driver. Tested by
-> accessing the eeprom on the genmai board.
+> >@@ -173,6 +179,10 @@ static struct clk_lookup lookups[] =3D {
+> >  	CLKDEV_CON_ID("mtu2_fck", &mstp_clks[MSTP33]),
+> >
+> >  	/* ICK */
+> >+	CLKDEV_DEV_ID("fcfee000.i2c", &mstp_clks[MSTP97]),
+> >+	CLKDEV_DEV_ID("fcfee400.i2c", &mstp_clks[MSTP96]),
+> >+	CLKDEV_DEV_ID("fcfee800.i2c", &mstp_clks[MSTP95]),
+> >+	CLKDEV_DEV_ID("fcfeec00.i2c", &mstp_clks[MSTP94]),
+>=20
+>    These belong to some other place, the group marked by /* ICK */
+> is only for CLKDEV_ICK_ID().
 
-> Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
-> Acked-by: Magnus Damm <damm@opensource.se>
-> ---
->   arch/arm/boot/dts/r7s72100-genmai-reference.dts | 29 ++++++++++---------------
->   1 file changed, 11 insertions(+), 18 deletions(-)
+So, I'll create a /* DEV */ prefix?
 
-> diff --git a/arch/arm/boot/dts/r7s72100-genmai-reference.dts b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
-> index ce5da0b..739448a 100644
-> --- a/arch/arm/boot/dts/r7s72100-genmai-reference.dts
-> +++ b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
-> @@ -39,24 +39,6 @@
->   			gpios = <&port4 11 GPIO_ACTIVE_LOW>;
->   		};
->   	};
-> -
-> -	i2c@0 {
-> -		compatible = "i2c-gpio";
-> -		gpios = <&port1 5 GPIO_ACTIVE_HIGH /* sda */
-> -			 &port1 4 GPIO_ACTIVE_HIGH /* scl */
-> -			>;
-> -		i2c-gpio,sda-open-drain;
-> -		i2c-gpio,scl-open-drain;
-> -		i2c-gpio,delay-us = <5>;	/* ~100 kHz */
-> -		#address-cells = <1>;
-> -		#size-cells = <0>;
-> -
-> -		flash@50 {
-> -			compatible = "renesas,24c128";
-> -			reg = <0x50>;
-> -			pagesize = <64>;
-> -		};
-> -	};
->   };
->
->   &pfc {
-> @@ -68,3 +50,14 @@
->   		renesas,function = "scif2";
->   	};
->   };
-> +
-> +&i2c2 {
-> +	status = "okay";
-> +	clock-frequency = <400000>;
-> +
-> +	eeprom: 24c128@50 {
 
-    The node was called "flash@50" for a reason: according to ePAPR spec,  for 
-node names the generic device names should be used, not chip-specific.
+--X3gaHHMYHkYqP6yf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> +		compatible = "renesas,24c128";
-> +		reg = <0x50>;
-> +		pagesize = <64>;
-> +	};
-> +};
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-WBR, Sergei
+iQIcBAEBAgAGBQJSsYp3AAoJEBQN5MwUoCm2HgcQAIP+HmSC++wJZEzIIgswyERG
+e9IhI3B1oo22km/V9wYlD0iWJYXbjJigYYRF3oVPjKlR0cM7OSFPdLxL1vinqzxi
+n+V1qNRE7NtE9mfQcqtYExdnm3BeNVOjIv2RjovQaEIz8t07C1E8JV1hPKj+qOtQ
+cSDAIaLNYObkw9x9njCKktid2ZmyS5JJqo/nWLowk7HCRGOri24CzNOT8SDsEN2K
+DgQnoFADpydtu1YXUA/wPrrSFm/byV/K+hkL8fCU3f8S6cge/7yulAbxKN9XYu7f
+mqTLymxcnrf69pi3c5n/9z5OrNfXC7yQp0b6k2NK8xjaVVMRR399tguaX7yInbJC
+5R6vi4PWuuLEvPFWLtLfudpbGucwOTm87cCacGq18VJid36zE2JnuLWuWeHLDzkN
+FFlTK/MOaWCUPcZF8g0f0ZV641R+LQox+yvdvdDbKUUoy1sVnK8cP6ICsfwEkdsa
+EQBe9fxQm9EM3C4v+G4/egIryll9z4UuYKVqdlmO8qhLdxJ87FgoTJ1ts6WIk1qm
+OkWsVjKcypEX3WBY6CXoaTJdRhk6UdbS/rTsWnvpw0dwvV5gn3zhgFMsdNk8gXXm
+anDZ8bUccnb0aHFfyI4RFUd3aJ17PuyI/FKp6Vb51UElp1Mvr2oE9cyTM5mSFloP
+VjGnX/QkSF595w3i1fDt
+=DurW
+-----END PGP SIGNATURE-----
 
+--X3gaHHMYHkYqP6yf--
