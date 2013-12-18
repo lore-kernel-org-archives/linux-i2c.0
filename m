@@ -1,72 +1,120 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH 2/5] arm: shmobile: r7s72100: add i2c clocks
-Date: Wed, 18 Dec 2013 19:13:18 +0400
-Message-ID: <52B1BB8E.9000008@cogentembedded.com>
-References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>	<1387316678-10174-3-git-send-email-wsa@the-dreams.de>	<52B1892B.1020806@cogentembedded.com>	<20131218114351.GD3314@katana>	<52B18CC9.8090200@cogentembedded.com>	<20131218121541.GE3314@katana>	<20131218134914.GA32664@verge.net.au>	<52B1AAE6.2020400@cogentembedded.com> <CANqRtoQ953DA-=DFXvkuLMJ6SBvobQdg5LByScPb+x84TJKkCA@mail.gmail.com>
+From: Tomasz Figa <t.figa@samsung.com>
+Subject: Re: [PATCH 2/2] i2c: exynos5: configure fifo_depth based on HSI2C
+ module version
+Date: Wed, 18 Dec 2013 16:21:02 +0100
+Message-ID: <2845697.u7ZX4ij9vS@amdc1227>
+References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
+ <1739891.MYO4PRtJOt@amdc1227>
+ <CAHfPSqCQZiMuH3S1eK2gqKShVjc+-BFZ8kkigTRDQyyETiPkQA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <CANqRtoQ953DA-=DFXvkuLMJ6SBvobQdg5LByScPb+x84TJKkCA@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, SH-Linux <linux-sh@vger.kernel.org>, linux-i2c@vger.kernel.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <CAHfPSqCQZiMuH3S1eK2gqKShVjc+-BFZ8kkigTRDQyyETiPkQA@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, hs@denx.de, khali@linux-fr.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
+On Tuesday 10 of December 2013 10:26:40 Naveen Krishna Ch wrote:
+> Hello Tomasz,
+> 
+> 
+> On 9 December 2013 22:01, Tomasz Figa <t.figa@samsung.com> wrote:
+> >
+> > Hi Naveen,
+> >
+> > On Friday 22 of November 2013 11:44:11 Naveen Krishna Chatradhi wrote:
+> > > fifo_depth of the HSI2C is not constant
+> > > Exynos5420 and Exynos5250 supports fifo_depth of 64bytes
+> > > Exynos5260 supports fifo_depth of 16bytes
+> > >
+> > > This patch configures the fifo_depth based on HSI2C modules version.
+> > > Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+> > > ---
+> > >  drivers/i2c/busses/i2c-exynos5.c |   29 ++++++++++++++++++-----------
+> > >  1 file changed, 18 insertions(+), 11 deletions(-)
+> > >
+> > > diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+> > > index cbb49e2..19277d8 100644
+> > > --- a/drivers/i2c/busses/i2c-exynos5.c
+> > > +++ b/drivers/i2c/busses/i2c-exynos5.c
+> > > @@ -77,12 +77,6 @@
+> > >  #define HSI2C_RXFIFO_TRIGGER_LEVEL(x)                ((x) << 4)
+> > >  #define HSI2C_TXFIFO_TRIGGER_LEVEL(x)                ((x) << 16)
+> > >
+> > > -/* As per user manual FIFO max depth is 64bytes */
+> > > -#define HSI2C_FIFO_MAX                               0x40
+> > > -/* default trigger levels for Tx and Rx FIFOs */
+> > > -#define HSI2C_DEF_TXFIFO_LVL                 (HSI2C_FIFO_MAX - 0x30)
+> > > -#define HSI2C_DEF_RXFIFO_LVL                 (HSI2C_FIFO_MAX - 0x10)
+> > > -
+> > >  /* I2C_TRAILING_CTL Register bits */
+> > >  #define HSI2C_TRAILING_COUNT                 (0xf)
+> > >
+> > > @@ -187,6 +181,9 @@ struct exynos5_i2c {
+> > >
+> > >       /* Version of HS-I2C Hardware */
+> > >       unsigned int            version;
+> > > +
+> > > +     /* FIFO depth */
+> > > +     unsigned int            fifo_depth;
+> > >  };
+> > >
+> > >  enum hsi2c_version {
+> > > @@ -437,7 +434,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+> > >               fifo_status = readl(i2c->regs + HSI2C_FIFO_STATUS);
+> > >               fifo_level = HSI2C_TX_FIFO_LVL(fifo_status);
+> > >
+> > > -             len = HSI2C_FIFO_MAX - fifo_level;
+> > > +             len = i2c->fifo_depth - fifo_level;
+> > >               if (len > (i2c->msg->len - i2c->msg_ptr))
+> > >                       len = i2c->msg->len - i2c->msg_ptr;
+> > >
+> > > @@ -505,6 +502,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+> > >       u32 i2c_auto_conf = 0;
+> > >       u32 fifo_ctl;
+> > >       unsigned long flags;
+> > > +     unsigned short trig_lvl;
+> > >
+> > >       i2c_ctl = readl(i2c->regs + HSI2C_CTL);
+> > >       i2c_ctl &= ~(HSI2C_TXCHON | HSI2C_RXCHON);
+> > > @@ -515,13 +513,19 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+> > >
+> > >               i2c_auto_conf = HSI2C_READ_WRITE;
+> > >
+> > > -             fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(HSI2C_DEF_TXFIFO_LVL);
+> > > +             trig_lvl = (i2c->msg->len > i2c->fifo_depth) ?
+> > > +                     (i2c->fifo_depth * 3/4) : i2c->msg->len;
+> >
+> > This patch changes the fifo trigger level calculation (it's dependent now
+> > on message length), not just maximum fifo size, as the description says.
+> Actually, message->length need not be involved in this calculation.
+> Involving msg->len
+> will raise another interrupt for every small transactions. It better be avoided.
+> > It should be split into two separate patches, explaining why both changes
+> > are necessary.
+> I will split the fifo_depth configuration code along with comments addressed on
+> https://lkml.org/lkml/2013/11/22/31
 
-On 18-12-2013 18:44, Magnus Damm wrote:
+OK.
 
->>>>>>>> @@ -173,6 +179,10 @@ static struct clk_lookup lookups[] = {
->>>>>>>>          CLKDEV_CON_ID("mtu2_fck", &mstp_clks[MSTP33]),
+> 
+> I can think of 3 ways to address the h/w version changes
+> 1. Compatible string as i implemented
+> 2. Varient struct
+> 3. Passing the information via device tree
+> How about passing fifo_depth from device tree information.
 
->>>>>>>>          /* ICK */
->>>>>>>> +       CLKDEV_DEV_ID("fcfee000.i2c", &mstp_clks[MSTP97]),
->>>>>>>> +       CLKDEV_DEV_ID("fcfee400.i2c", &mstp_clks[MSTP96]),
->>>>>>>> +       CLKDEV_DEV_ID("fcfee800.i2c", &mstp_clks[MSTP95]),
->>>>>>>> +       CLKDEV_DEV_ID("fcfeec00.i2c", &mstp_clks[MSTP94]),
+I believe a combination of 1 and 2 is the recommended option, which is
+a variant struct pointed by an entry in OF match table.
 
->>>>>>>      These belong to some other place, the group marked by /* ICK */
->>>>>>> is only for CLKDEV_ICK_ID().
+> 
+> Currently, HSI2C Module on Exynso5260 is not another H/W version.
+> It only defer in fifo_depth and init sequence needs a reset.
 
->>>>>> So, I'll create a /* DEV */ prefix?
+Well, this implies that it's another H/W version from kernel point of
+view, as it needs different handling.
 
->>>>>      I really don't know. Other places have /* MSTP */ comment in this
->>>>> case despite all clocks, CLKDEV_DEV_ID() and CLKDEV_ICK_ID() are
->>>>> really MSTP clocks. I considered the idea of separating
->>>>> CLKDEV_ICK_ID() under /* ICK */ comment silly from the very start
->>>>> but Simon didn't listen to me.
-
->>>> I am puzzled, too. ICK is a type of registration and not a clock domain.
->>>> Also, there is 'mtu2_fck' which is under ICK as well as MSTP? Looks
->>>> wrong. From what I understand now, removing the /* ICK */ comment would
->>>> be easiest and proper?
-
->>> I'm not sure that I really understand what all the fuss is about.
-
->>> As I understand things the convention that prevails for
->>> MSTP clocks under mach-shmobile is as follows:
-
->>> 1. Clocks not registered by CLKDEV_ICK_ID() are grouped together
->>>      under /* MSTP */ followed by:
->>> 2. Clocks registered using CLKDEV_ICK_ID() are grouped together
->>>      under /* ICK */
-
->>> I am unsure of the historical reason for this
-
->>     Recent patches by Morimoto-san.
-
->>> but it does seem to be consistent.
-
->>     No, it doesn't. These comments are *clearly* not consistent and should be
->> removed at least.
-
-> Feel free to contribute patches!
-
-    Of course, in my copious free time. I was against these ICKy comments (and 
-the patches introducing them) in the first place but my opinion didn't count. 
-I'm not sure it will count if I go and submit the patches (but the time will 
-be lost).
-
-WBR, Sergei
-
+Best regards,
+Tomasz
