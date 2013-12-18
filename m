@@ -1,94 +1,72 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH 3/5] arm: shmobile: r7s72100: add nodes for i2c controllers to dtsi
-Date: Tue, 17 Dec 2013 23:16:31 +0100
-Message-ID: <1626395.klZkGtWWeG@avalon>
-References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de> <1632121.4oJZuIln5n@avalon> <20131217221309.GD1196@katana>
+From: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
+Subject: [PATCH] i2c: fix a potential kmemleak of adapter device
+Date: Wed, 18 Dec 2013 09:18:08 +0800
+Message-ID: <52B0F7D0.2020506@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2561529.evHK9WVSGK"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131217221309.GD1196@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+When running with the latest kernel, we get the following kmemleak message:
+unreferenced object 0xffff8800c2a36100 (size 256):
+  comm "modprobe", pid 629, jiffies 4294676002 (age 1531.115s)
+  hex dump (first 32 bytes):
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+    ff ff ff ff ff ff ff ff 78 21 85 82 ff ff ff ff  ........x!......
+  backtrace:
+    [<ffffffff815449ce>] kmemleak_alloc+0x73/0x98
+    [<ffffffff8113fa2b>] slab_post_alloc_hook+0x28/0x2a
+    [<ffffffff81142004>] __kmalloc+0x12c/0x158
+    [<ffffffff8134c60b>] kzalloc.constprop.6+0xe/0x10
+    [<ffffffff8134cb71>] device_private_init+0x18/0x66
+    [<ffffffff8134f1e8>] dev_set_drvdata+0x1e/0x34
+    [<ffffffffa01e643e>] i801_probe+0x5d/0x447 [i2c_i801]
+    [<ffffffff812a78be>] local_pci_probe+0x41/0x84
+    [<ffffffff812a7feb>] pci_device_probe+0xdf/0x10c
+    [<ffffffff8134f90d>] driver_probe_device+0x12f/0x2ee
+    [<ffffffff8134fb2b>] __driver_attach+0x5f/0x83
+    [<ffffffff8134de28>] bus_for_each_dev+0x64/0x90
+    [<ffffffff8134f36b>] driver_attach+0x1e/0x20
+    [<ffffffff8134ef34>] bus_add_driver+0xf2/0x1f0
+    [<ffffffff8135013e>] driver_register+0x8c/0xc3
+    [<ffffffff812a7bb4>] __pci_register_driver+0x62/0x67
+According to the backtrace, it seems that we do not release the
+device_private field of adapter device in the fail path of i801_probe
+or the flow of i2c_del_adapter, so add the cleanup step to fix it.
 
---nextPart2561529.evHK9WVSGK
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Signed-off-by: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-i801.c |    1 +
+ drivers/i2c/i2c-core.c        |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
-Hi Wolfram,
-
-On Tuesday 17 December 2013 23:13:09 Wolfram Sang wrote:
-> On Tue, Dec 17, 2013 at 10:55:31PM +0100, Laurent Pinchart wrote:
-> > On Tuesday 17 December 2013 22:44:36 Wolfram Sang wrote:
-> > > From: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> > > 
-> > > I decided to put the pinmuxing into the dtsi file since there is only
-> > > one pinmux posiibility which one probably wants to have when using the
-> > > bus.
-> 
-> I tried to explain here why the pin-groups are in the dtsi.
-> 
-> > > +		riic0_pins: i2c0 {
-> > > +			renesas,groups = "riic0_scl_p1_0", "riic0_sda_p1_1";
-> > > +			renesas,function = "riic0";
-> > > +		};
-> > > +
-> > > +		riic1_pins: i2c1 {
-> > > +			renesas,groups = "riic1_scl_p1_2", "riic1_sda_p1_3";
-> > > +			renesas,function = "riic1";
-> > > +		};
-> > > +
-> > > +		riic2_pins: i2c2 {
-> > > +			renesas,groups = "riic2_scl_p1_4", "riic2_sda_p1_5";
-> > > +			renesas,function = "riic2";
-> > > +		};
-> > > +
-> > > +		riic3_pins: i2c3 {
-> > > +			renesas,groups = "riic3_scl_p1_6", "riic3_sda_p1_7";
-> > > +			renesas,function = "riic3";
-> > > +		};
-> > 
-> > The SoC allows other options for the I2C pin groups. Instead of declaring
-> > all possible groups here, I think we should thus only add the groups that
-> > are really used to the board .dts files.
-> 
-> Really? Couldn't find any. This is why I included it here: since it is
-> the only option, people probably want to use it when they activate the
-> bus.
-
-My bad, sorry, I've misread patch 1/5 and spoke too fast :-/ I thus makes 
-sense to add the groups here.
-
-> > > +		clock-frequency = <100000>;
-> > 
-> > Isn't that a board-specific property ?
-> 
-> It is meant as a sane default. Can be overridden.
-
-OK.
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 737e298..4bd4fba 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1246,6 +1246,7 @@ exit_free_irq:
+ exit_release:
+ 	pci_release_region(dev, SMBBAR);
+ exit:
++	kfree(priv->adapter.dev.p);
+ 	kfree(priv);
+ 	return err;
+ }
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d74c0b3..a7bab9a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1491,6 +1491,7 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+ 	idr_remove(&i2c_adapter_idr, adap->nr);
+ 	mutex_unlock(&core_lock);
+ 
++	kfree(adap->dev.p);
+ 	/* Clear the device structure in case this adapter is ever going to be
+ 	   added again */
+ 	memset(&adap->dev, 0, sizeof(adap->dev));
 -- 
-Regards,
-
-Laurent Pinchart
-
---nextPart2561529.evHK9WVSGK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQEcBAABAgAGBQJSsM1EAAoJEIkPb2GL7hl1nE4H/36Iv81tO/6ddmltjRmEkqb3
-RiUBYRbadv2UCuAmHHFo3zNTt3IgSy0sHGGluGXVL6gLCFN86JrKC9KGmoX12lBU
-dm8uX5r8kH4dmpXv9942/+qhM9BAYpc4COMaTENjJpt/MJ158iqv8LlDdPSi7Of3
-dGHm8HoOpffPehtOLJPgHYTyRBTfEjZwCsdN+B+kGZNOKdaUa+iNIvbjTkwIsnx4
-dXbLz4KCWO0gSSKiOMrAneRwLA0RuaTcDNiPD8WYEVa2ZeqJlEPHKIGbqqe/CKa6
-tf70ShJEBpwTU3hTd0LpXMHpodY+lFCWxJ3+c80JBGLZLsvDsYgY7yOqoJ0zxIw=
-=CrPs
------END PGP SIGNATURE-----
-
---nextPart2561529.evHK9WVSGK--
+1.7.7
