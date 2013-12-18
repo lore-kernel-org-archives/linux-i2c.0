@@ -1,13 +1,14 @@
 From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH 2/5] arm: shmobile: r7s72100: add i2c clocks
-Date: Wed, 18 Dec 2013 15:38:19 +0400
-Message-ID: <52B1892B.1020806@cogentembedded.com>
-References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de> <1387316678-10174-3-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH 4/5] arm: shmobile: genmai: adapt dts to use native i2c
+ driver
+Date: Wed, 18 Dec 2013 15:41:38 +0400
+Message-ID: <52B189F2.3080604@cogentembedded.com>
+References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de> <1387316678-10174-5-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1387316678-10174-3-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1387316678-10174-5-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org
 Cc: linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Simon Horman <horms@verge.net.au>, linux-arm-kernel@lists.infradead.org
@@ -19,35 +20,63 @@ On 18-12-2013 1:44, Wolfram Sang wrote:
 
 > From: Wolfram Sang <wsa@sang-engineering.com>
 
-> Tested with RIIC2 on a genmai board. Others untested but hopefully
-> trivial enough to be added.
+> Switch from the gpio-driver to the shiny new native driver. Tested by
+> accessing the eeprom on the genmai board.
 
 > Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
 > Acked-by: Magnus Damm <damm@opensource.se>
 > ---
->   arch/arm/mach-shmobile/clock-r7s72100.c | 12 +++++++++++-
->   1 file changed, 11 insertions(+), 1 deletion(-)
+>   arch/arm/boot/dts/r7s72100-genmai-reference.dts | 29 ++++++++++---------------
+>   1 file changed, 11 insertions(+), 18 deletions(-)
 
-> diff --git a/arch/arm/mach-shmobile/clock-r7s72100.c b/arch/arm/mach-shmobile/clock-r7s72100.c
-> index 7b457ae..770316d 100644
-> --- a/arch/arm/mach-shmobile/clock-r7s72100.c
-> +++ b/arch/arm/mach-shmobile/clock-r7s72100.c
-[...]
-> @@ -173,6 +179,10 @@ static struct clk_lookup lookups[] = {
->   	CLKDEV_CON_ID("mtu2_fck", &mstp_clks[MSTP33]),
+> diff --git a/arch/arm/boot/dts/r7s72100-genmai-reference.dts b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
+> index ce5da0b..739448a 100644
+> --- a/arch/arm/boot/dts/r7s72100-genmai-reference.dts
+> +++ b/arch/arm/boot/dts/r7s72100-genmai-reference.dts
+> @@ -39,24 +39,6 @@
+>   			gpios = <&port4 11 GPIO_ACTIVE_LOW>;
+>   		};
+>   	};
+> -
+> -	i2c@0 {
+> -		compatible = "i2c-gpio";
+> -		gpios = <&port1 5 GPIO_ACTIVE_HIGH /* sda */
+> -			 &port1 4 GPIO_ACTIVE_HIGH /* scl */
+> -			>;
+> -		i2c-gpio,sda-open-drain;
+> -		i2c-gpio,scl-open-drain;
+> -		i2c-gpio,delay-us = <5>;	/* ~100 kHz */
+> -		#address-cells = <1>;
+> -		#size-cells = <0>;
+> -
+> -		flash@50 {
+> -			compatible = "renesas,24c128";
+> -			reg = <0x50>;
+> -			pagesize = <64>;
+> -		};
+> -	};
+>   };
 >
->   	/* ICK */
-> +	CLKDEV_DEV_ID("fcfee000.i2c", &mstp_clks[MSTP97]),
-> +	CLKDEV_DEV_ID("fcfee400.i2c", &mstp_clks[MSTP96]),
-> +	CLKDEV_DEV_ID("fcfee800.i2c", &mstp_clks[MSTP95]),
-> +	CLKDEV_DEV_ID("fcfeec00.i2c", &mstp_clks[MSTP94]),
+>   &pfc {
+> @@ -68,3 +50,14 @@
+>   		renesas,function = "scif2";
+>   	};
+>   };
+> +
+> +&i2c2 {
+> +	status = "okay";
+> +	clock-frequency = <400000>;
+> +
+> +	eeprom: 24c128@50 {
 
-    These belong to some other place, the group marked by /* ICK */ is only 
-for CLKDEV_ICK_ID().
+    The node was called "flash@50" for a reason: according to ePAPR spec,  for 
+node names the generic device names should be used, not chip-specific.
 
->   	CLKDEV_ICK_ID("sci_fck", "sh-sci.0", &mstp_clks[MSTP47]),
->   	CLKDEV_ICK_ID("sci_fck", "sh-sci.1", &mstp_clks[MSTP46]),
->   	CLKDEV_ICK_ID("sci_fck", "sh-sci.2", &mstp_clks[MSTP45]),
+> +		compatible = "renesas,24c128";
+> +		reg = <0x50>;
+> +		pagesize = <64>;
+> +	};
+> +};
 
 WBR, Sergei
 
