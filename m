@@ -1,56 +1,110 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/5] arm: shmobile: r7s72100: add i2c clocks
-Date: Wed, 18 Dec 2013 22:00:28 +0100
-Message-ID: <20131218210028.GA18645@katana>
-References: <1387316678-10174-1-git-send-email-wsa@the-dreams.de>
- <1387316678-10174-3-git-send-email-wsa@the-dreams.de>
- <52B1892B.1020806@cogentembedded.com>
- <20131218114351.GD3314@katana>
- <52B18CC9.8090200@cogentembedded.com>
- <20131218121541.GE3314@katana>
- <20131218134914.GA32664@verge.net.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20131218134914.GA32664@verge.net.au>
-Sender: linux-sh-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-arm-kernel@lists.infradead.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH V2 1/5] pinctrl: r7s72100: add riic groups
+Date: Wed, 18 Dec 2013 22:31:57 +0100
+Message-ID: <1387402321-21866-2-git-send-email-wsa@the-dreams.de>
+References: <1387402321-21866-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1387402321-21866-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Tested RIIC2 on a genmai board. Other riic groups are untested but seem
+trivial enough to be added.
 
-> I am unsure of the historical reason for this but it does
-> seem to be consistent.
+Signed-off-by: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Acked-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+---
 
-Okay, I'll follow that.
+V2: keep sorting alphabetical
 
+Note: With the current PFC driver as posted by Magnus, it needs another patch
+to work. Yet, I think this is a seperate PFC issue which needs to be sorted out
+seperately and shouldn't affect these declarations. I'll add the needed patch
+as a response to this mail.
 
---MGYHOYXEY6WxJCY8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+ drivers/pinctrl/sh-pfc/pfc-r7s72100.c | 45 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSsgzsAAoJEBQN5MwUoCm2ohoQALSPa6Q3wujMvR9P1VGGs4Ag
-TdVQVD0xBRMQ7xtEN6M+m/lhqtqOG0+nlpV/ZUgXZFQScXUlnv6lqgPf/s3fhNf4
-uBBQxzPALj6PPIqc46bCxAxfusAEdOAImu9NfY/1k3LErJRymBkh+j8UJiY9hHQt
-syK4VyFwbevoqosoZGhjLsp+uq6Q2TyxwPOsWPsXOl/NOR7OaPzvpO9IZnAWDnil
-1vteM35+ms/2zhEsn4F8hkBgMeF4OB+zbqQ9+PFGxVUSAsTOjD21kkVVnOdJ6RWp
-MQcO/2COylSJXz7PQRWK43myt8ZsDeIekDHVdCrC4ElECMRbZ9/EJla6ghbwIKKI
-aTYNgnvRDKbeKKSIym4j2LeT7vU0bUBc6U6tc0yNBL1oCptA3rRb2jU+uVBKPkd1
-cC1BXfpiBfjZ5k9R7NIPlLZS2EMtha1D5oY6S3QZ3Mf4HvsKX67DR9qD6v+8UM4J
-SinPGhLXvAM+y42ku6AIXZTjpwb1R8GPclz7WikZQ7+nuE6E7lw8EGUfq/0TJct2
-/LDDnuO4N4vghbWM0OsAEs0gnjZOV7vkzQWkgz9TOvIwqr9rJBDcZdnF3/p8fpID
-2m1xr419EGMkpq/8THT6Fj4X3c4FyxWQR2adBSfDazwho3OaOcp8QGQOi1TJfeo7
-SGW42AVXTJd53vWkR224
-=q0yh
------END PGP SIGNATURE-----
-
---MGYHOYXEY6WxJCY8--
+diff --git a/drivers/pinctrl/sh-pfc/pfc-r7s72100.c b/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
+index a662876..7ee0442 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
++++ b/drivers/pinctrl/sh-pfc/pfc-r7s72100.c
+@@ -117,6 +117,27 @@ static const unsigned int __RZ_STR(pfx, hw, bank, pin, _mux)[] = {	\
+ #define RZ_GROUPS(pfx, hw, bank, pin, fn) \
+ 	__RZ_GROUPS(pfx##_##hw##_p##bank##_##pin),
+ 
++#define RIIC0(fn)			\
++	fn(riic0, scl, 1, 0, 1)		\
++	fn(riic0, sda, 1, 1, 1)
++
++#define RIIC1(fn)			\
++	fn(riic1, scl, 1, 2, 1)		\
++	fn(riic1, sda, 1, 3, 1)
++
++#define RIIC2(fn)			\
++	fn(riic2, scl, 1, 4, 1)		\
++	fn(riic2, sda, 1, 5, 1)
++
++#define RIIC3(fn)			\
++	fn(riic3, scl, 1, 6, 1)		\
++	fn(riic3, sda, 1, 7, 1)
++
++RIIC0(RZ_PIN_AND_MUX)
++RIIC1(RZ_PIN_AND_MUX)
++RIIC2(RZ_PIN_AND_MUX)
++RIIC3(RZ_PIN_AND_MUX)
++
+ #define SCIF0(fn)			\
+ 	fn(scif0, clk, 2, 13, 6)	\
+ 	fn(scif0, txd, 2, 14, 6)	\
+@@ -230,6 +251,10 @@ SCIF6(RZ_PIN_AND_MUX)
+ SCIF7(RZ_PIN_AND_MUX)
+ 
+ static const struct sh_pfc_pin_group pinmux_groups[] = {
++	RIIC0(RZ_PMX_GROUP)
++	RIIC1(RZ_PMX_GROUP)
++	RIIC2(RZ_PMX_GROUP)
++	RIIC3(RZ_PMX_GROUP)
+ 	SCIF0(RZ_PMX_GROUP)
+ 	SCIF1(RZ_PMX_GROUP)
+ 	SCIF2(RZ_PMX_GROUP)
+@@ -240,6 +265,22 @@ static const struct sh_pfc_pin_group pinmux_groups[] = {
+ 	SCIF7(RZ_PMX_GROUP)
+ };
+ 
++static const char * const riic0_groups[] = {
++	RIIC0(RZ_GROUPS)
++};
++
++static const char * const riic1_groups[] = {
++	RIIC1(RZ_GROUPS)
++};
++
++static const char * const riic2_groups[] = {
++	RIIC2(RZ_GROUPS)
++};
++
++static const char * const riic3_groups[] = {
++	RIIC3(RZ_GROUPS)
++};
++
+ static const char * const scif0_groups[] = {
+ 	SCIF0(RZ_GROUPS)
+ };
+@@ -273,6 +314,10 @@ static const char * const scif7_groups[] = {
+ };
+ 
+ static const struct sh_pfc_function pinmux_functions[] = {
++	SH_PFC_FUNCTION(riic0),
++	SH_PFC_FUNCTION(riic1),
++	SH_PFC_FUNCTION(riic2),
++	SH_PFC_FUNCTION(riic3),
+ 	SH_PFC_FUNCTION(scif0),
+ 	SH_PFC_FUNCTION(scif1),
+ 	SH_PFC_FUNCTION(scif2),
+-- 
+1.8.4.2
