@@ -1,82 +1,147 @@
-From: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v5 2/3] i2c: xilinx: Do not enable irq before irq handler
-Date: Thu, 19 Dec 2013 16:05:05 +0100
-Message-ID: <b07282b4ed686555ad76b4c3a1ccac4db973b180.1387465488.git.michal.simek@xilinx.com>
-References: <c220f51fd2ee7a5d65afa805a62582bd23e4d599.1387465488.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-14312-1387465518-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <c220f51fd2ee7a5d65afa805a62582bd23e4d599.1387465488.git.michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-In-Reply-To: <c220f51fd2ee7a5d65afa805a62582bd23e4d599.1387465488.git.michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-References: <c220f51fd2ee7a5d65afa805a62582bd23e4d599.1387465488.git.michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org
-Cc: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH V2 5/5] i2c: riic: add driver
+Date: Thu, 19 Dec 2013 16:33:41 +0100
+Message-ID: <2069590.SA4Ef3s3BZ@avalon>
+References: <1387402321-21866-1-git-send-email-wsa@the-dreams.de> <1407973.m5fTNuo5v5@avalon> <20131219120646.GA2563@katana>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPart1498558.lIVJJMM6eP"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20131219120646.GA2563@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
 
---=_mimegpg-monstr-desktop-14312-1387465518-0001
+--nextPart1498558.lIVJJMM6eP
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 
-IRQ handler has to be register first before IRQ
-is enabled in xiic_reinit().
+Hi Wolfram,
 
-Signed-off-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+On Thursday 19 December 2013 13:06:47 Wolfram Sang wrote:
+> Hi Laurent,
+> 
+> thanks for the review!
+> 
+> > > +/*
+> > > + * This i2c core has a lot of interrupts, namely 8. We use their
+> > > chaining as some kind of state machine.
+> > 
+> > I have mixed feelings about this. Wouldn't it be more efficient to have an
+> > internal state machine (which you partially have already, using
+> > RIIC_INIT_MSG for instance) instead of relying on enabling/disabling
+> > interrupts ? The latter has a larger overhead.
+> 
+> I am not sure I get you here. I need the interrupts anyhow. For example,
+> after the last byte has been written to the 1-byte-FIFO in the
+> transmission_irq, I need to wait for the transmission_end_irq to ensure the
+> bits are already on the wire before I mark the message completed.
+> 
+> Polling for that condition is more overhead than just enabling the proper
+> interrupt (one write to ICIER). I don't need to switch ISR since all the
+> interrupts are seperate and have dedicated ISR.
 
----
+I haven't expressed myself clearly. Polling is of course a bad option. My 
+point was that I understood your comment as meaning that you enable and 
+disable interrupts at runtime and use that as a state machine, while I was 
+wondering whether it wouldn't be simpler to keep all interrupts enabled at all 
+time and handle the synchronization explicitly.
 
-Changes in v5: None
-Changes in v4: None
-Changes in v3:
-- New patch in this patchset based on my discussion with Wolfram
-  https://lkml.org/lkml/2013/10/4/148
+Please scratch the comment about the larger overhead though, that was a 
+mistake due to reading the code too fast.
 
-Changes in v2: None
+> > > +static int riic_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+> > > int num)
+> > > +{
+> > > +	struct riic_dev *riic = i2c_get_adapdata(adap);
+> > > +	int i, ret;
+> > 
+> > One of my favorite bikeshedding comments is to ask for unsigned int when
+> > the variable can't be negative :-)
+> 
+> OK.
+> 
+> > > +	/*
+> > > +	 * TODO: Implement formula to calculate the timing values depending 
+on
+> > > +	 * variable parent clock rate and arbitrary bus speed
+> > > +	 */
+> > > +	rate = clk_get_rate(riic->clk);
+> > > +	if (rate != 33325000) {
+> > > +		dev_err(&riic->adapter.dev,
+> > > +			"invalid parent clk (%lu). Must be 33325000Hz\n", rate);
+> > 
+> > What about a "goto done;" here and below to avoid repeating the
+> > clk_disable_unprepare() call ?
+> 
+> Yeah, can be argued that way. I was fine with both.
+> 
+> > > +		clk_disable_unprepare(riic->clk);
+> > > +		return -EINVAL;
+> > > +	}
+> > > +
+> > > +	/* Changing the order of accessing IICRST and ICE may break things! 
+*/
+> > > +	writeb(ICCR1_IICRST | ICCR1_SOWP, riic->base + RIIC_ICCR1);
+> > > +	riic_clear_set_bit(riic, 0, ICCR1_ICE, RIIC_ICCR1);
+> > > +
+> > > +	switch (spd) {
+> > > +	case 100000:
+> > > +		writeb(ICMR1_CKS(3), riic->base + RIIC_ICMR1);
+> > > +		writeb(ICBRH_SP100K, riic->base + RIIC_ICBRH);
+> > > +		writeb(ICBRL_SP100K, riic->base + RIIC_ICBRL);
+> > > +		break;
+> > > +	case 400000:
+> > > +		writeb(ICMR1_CKS(1), riic->base + RIIC_ICMR1);
+> > > +		writeb(ICBRH_SP400K, riic->base + RIIC_ICBRH);
+> > > +		writeb(ICBRL_SP400K, riic->base + RIIC_ICBRL);
+> > 
+> > Couldn't you compute the ICMR1, ICBRH and ICBRL values at runtime instead
+> > ?
+> 
+> As mentioned in the TODO above, this is scheduled for an incremental
+> update to this driver.
 
- drivers/i2c/busses/i2c-xiic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Nice :-)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 5e5fae7..2d55989 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -731,8 +731,6 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = pdev->dev.of_node;
+> > > +	of_property_read_u32(np, "clock-frequency", &bus_rate);
+> > 
+> > As the property is mandatory, shouldn't you check the return value of this
+> > function ? Another option would be to make the clock-frequency property
+> > optional and use a default value. What do the other I2C bus drivers
+> > usually do ?
+> 
+> bus_rate is initialized to 0 and if read_u32 fails, it will stay this
+> way. Then, the call to riic_init_hw() will fail and report the error.
 
--	xiic_reinit(i2c);
--
- 	spin_lock_init(&i2c->lock);
- 	init_waitqueue_head(&i2c->wait);
- 	ret = request_irq(irq, xiic_isr, 0, pdev->name, i2c);
-@@ -741,6 +739,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 		goto request_irq_failed;
- 	}
+That's the part I wasn't sure to like, but it will be reworked when making 
+clock speed computation dynamic anyway, so we can keep it as-is for now.
 
-+	xiic_reinit(i2c);
-+
- 	/* add i2c adapter to i2c tree */
- 	ret = i2c_add_adapter(&i2c->adap);
- 	if (ret) {
---
-1.8.2.3
+> There is no standard behaviour (use sane default or fail) yet. It is
+> somewhere on the I2C todo list :/
 
+-- 
+Regards,
 
---=_mimegpg-monstr-desktop-14312-1387465518-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
+Laurent Pinchart
+
+--nextPart1498558.lIVJJMM6eP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-iEYEABECAAYFAlKzCy4ACgkQykllyylKDCFlUACeMoVWMIfNTNZ7setMQ1xPWX7Y
-RzwAn1nyUcfbZvtLNtDlQCef4xK4vYR5
-=rNCD
+iQEcBAABAgAGBQJSsxHVAAoJEIkPb2GL7hl1KzcH/jEt/5JudOUN+xGqF9s1Mbfk
+fjNTkLfKjbx7+ngxiM4cAhXE5BDCIpnggZEIQtePnqS3Cj9RJGlOJrWmSRxLxEDs
+WVmR82+HwBG7yYAW3dzJcgbG7C0KaDuymcLxAgRmC/3IxO8o91Ei/9t0QqZMjw0K
+6MZKBBbh3FrWweZq7RxzbWEOUaxbxib81gIOkNf+qEjuAlXC/uG9HBAyFzVvrJdv
+T5XhKxe0tg82jd6u9bNrlXw6u+zAWQS6vVfNTBPH/M1exSK2YURY+LFrHIV8ATbs
+35MZ2BCUJMELId2cEAbQ+klQp9v70TnqsxS7gg/RpBcfklZsKTxvNTJ2qWfBQYs=
+=w1/L
 -----END PGP SIGNATURE-----
 
---=_mimegpg-monstr-desktop-14312-1387465518-0001--
+--nextPart1498558.lIVJJMM6eP--
+
