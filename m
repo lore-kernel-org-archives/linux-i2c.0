@@ -1,66 +1,116 @@
-From: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
-Subject: Re: [PATCH 12/13] i2c: viperboard: Use devm_kzalloc() functions
-Date: Thu, 19 Dec 2013 14:05:30 +0100
-Message-ID: <3612987.gi31cGl19L@lem-wkst-02>
-References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com> <003001cefaf5$d6618590$832490b0$%han@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <003001cefaf5$d6618590$832490b0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH v5 1/3] i2c: xilinx: Fix i2c checkpatch warnings
+Date: Thu, 19 Dec 2013 16:05:04 +0100
+Message-ID: <c220f51fd2ee7a5d65afa805a62582bd23e4d599.1387465488.git.michal.simek@xilinx.com>
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-monstr-desktop-14292-1387465506-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, monstr@monstr.eu, wsa@the-dreams.de, joe@perches.com
+Cc: Kedareswara rao Appana <appana.durga.rao@xilinx.com>, Jingoo Han <jg1.han@samsung.com>, Jean Delvare <khali@linux-fr.org>, Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am Dienstag, 17. Dezember 2013, 16:01:41 schrieb Jingoo Han:
-> Use devm_kzalloc() functions to make cleanup paths simpler.
-> 
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-viperboard.c |   12 +++---------
->  1 file changed, 3 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-viperboard.c
-> b/drivers/i2c/busses/i2c-viperboard.c index c68450c..6976e1c 100644
-> --- a/drivers/i2c/busses/i2c-viperboard.c
-> +++ b/drivers/i2c/busses/i2c-viperboard.c
-> @@ -367,7 +367,7 @@ static int vprbrd_i2c_probe(struct platform_device
-> *pdev) int ret;
->  	int pipe;
-> 
-> -	vb_i2c = kzalloc(sizeof(*vb_i2c), GFP_KERNEL);
-> +	vb_i2c = devm_kzalloc(&pdev->dev, sizeof(*vb_i2c), GFP_KERNEL);
->  	if (vb_i2c == NULL)
->  		return -ENOMEM;
-> 
-> @@ -394,14 +394,12 @@ static int vprbrd_i2c_probe(struct platform_device
-> *pdev) if (ret != 1) {
->  		dev_err(&pdev->dev,
->  			"failure setting i2c_bus_freq to %d\n", i2c_bus_freq);
-> -		ret = -EIO;
-> -		goto error;
-> +		return -EIO;
->  	    }
->  	} else {
->  		dev_err(&pdev->dev,
->  			"invalid i2c_bus_freq setting:%d\n", i2c_bus_freq);
-> -		ret = -EIO;
-> -		goto error;
-> +		return -EIO;
->  	}
-> 
->  	vb_i2c->i2c.dev.parent = &pdev->dev;
-> @@ -412,10 +410,6 @@ static int vprbrd_i2c_probe(struct platform_device
-> *pdev) platform_set_drvdata(pdev, vb_i2c);
-> 
->  	return 0;
-> -
-> -error:
-> -	kfree(vb_i2c);
-> -	return ret;
->  }
-> 
->  static int vprbrd_i2c_remove(struct platform_device *pdev)
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
+The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
+To open this message correctly you will need to install E-mail or Usenet
+software that supports modern Internet standards.
 
-Acked-by: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
+--=_mimegpg-monstr-desktop-14292-1387465506-0001
+
+From: Kedareswara rao Appana <appana.durga.rao@xilinx.com>
+
+Code changes to fix checkpatch warnings listed below.
+- WARNING: please, no space before tabs
+- WARNING: quoted string split across lines
+
+Signed-off-by: Kedareswara rao Appana <appanad@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+
+Changes in v5: None
+Changes in v4:
+- Get back full dev_dbg message
+
+Changes in v3: None
+Changes in v2:
+- It is checkpatch warnings not sparse
+- Extend patch description with checkpatch warnings
+
+Tested by:
+./scripts/checkpatch.pl -f drivers/i2c/busses/i2c-xiic.c
+
+---
+ drivers/i2c/busses/i2c-xiic.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index fc2716a..5e5fae7 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -69,7 +69,7 @@ struct xiic_i2c {
+ 	struct i2c_adapter	adap;
+ 	struct i2c_msg		*tx_msg;
+ 	spinlock_t		lock;
+-	unsigned int 		tx_pos;
++	unsigned int		tx_pos;
+ 	unsigned int		nmsgs;
+ 	enum xilinx_i2c_state	state;
+ 	struct i2c_msg		*rx_msg;
+@@ -272,8 +272,8 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
+
+ 	bytes_in_fifo = xiic_getreg8(i2c, XIIC_RFO_REG_OFFSET) + 1;
+
+-	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d"
+-		", SR: 0x%x, CR: 0x%x\n",
++	dev_dbg(i2c->adap.dev.parent,
++		"%s entry, bytes in fifo: %d, msg: %d, SR: 0x%x, CR: 0x%x\n",
+ 		__func__, bytes_in_fifo, xiic_rx_space(i2c),
+ 		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+ 		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
+@@ -340,9 +340,10 @@ static void xiic_process(struct xiic_i2c *i2c)
+ 	ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
+ 	pend = isr & ier;
+
+-	dev_dbg(i2c->adap.dev.parent, "%s entry, IER: 0x%x, ISR: 0x%x, "
+-		"pend: 0x%x, SR: 0x%x, msg: %p, nmsgs: %d\n",
+-		__func__, ier, isr, pend, xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
++	dev_dbg(i2c->adap.dev.parent, "%s: IER: 0x%x, ISR: 0x%x, pend: 0x%x\n",
++		__func__, ier, isr, pend);
++	dev_dbg(i2c->adap.dev.parent, "%s: SR: 0x%x, msg: %p, nmsgs: %d\n",
++		__func__, xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+ 		i2c->tx_msg, i2c->nmsgs);
+
+ 	/* Do not processes a devices interrupts if the device has no
+@@ -542,9 +543,10 @@ static void xiic_start_send(struct xiic_i2c *i2c)
+
+ 	xiic_irq_clr(i2c, XIIC_INTR_TX_ERROR_MASK);
+
+-	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, len: %d, "
+-		"ISR: 0x%x, CR: 0x%x\n",
+-		__func__, msg, msg->len, xiic_getreg32(i2c, XIIC_IISR_OFFSET),
++	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, len: %d",
++		__func__, msg, msg->len);
++	dev_dbg(i2c->adap.dev.parent, "%s entry, ISR: 0x%x, CR: 0x%x\n",
++		__func__, xiic_getreg32(i2c, XIIC_IISR_OFFSET),
+ 		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
+
+ 	if (!(msg->flags & I2C_M_NOSTART)) {
+--
+1.8.2.3
+
+
+--=_mimegpg-monstr-desktop-14292-1387465506-0001
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEABECAAYFAlKzCyIACgkQykllyylKDCE7XACffb1EJed/tm7wuN8gIKSJMMsW
+h0QAoIYrsM1qdB+5mt/ICppY5iP8zg5T
+=SmHk
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-monstr-desktop-14292-1387465506-0001--
