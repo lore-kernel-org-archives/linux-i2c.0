@@ -1,112 +1,110 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: fix a potential kmemleak of adapter device
-Date: Fri, 20 Dec 2013 18:31:44 +0100
-Message-ID: <20131220173144.GA9997@katana>
-References: <52B0F7D0.2020506@cn.fujitsu.com>
+Subject: Re: [PATCH -next] i2c: imx: add missing clk_disable_unprepare() on
+ error path
+Date: Fri, 20 Dec 2013 18:40:06 +0100
+Message-ID: <20131220174006.GB9997@katana>
+References: <CAPgLHd-zvCacvi5gN-PSqow5-NujhwtXa2RcnNQvorMmAEucrw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52B0F7D0.2020506-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
+In-Reply-To: <CAPgLHd-zvCacvi5gN-PSqow5-NujhwtXa2RcnNQvorMmAEucrw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---yrj/dFKFPuw6o+aM
+--oLBj+sq0vYjzfsbl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 18, 2013 at 09:18:08AM +0800, Gu Zheng wrote:
-> When running with the latest kernel, we get the following kmemleak messag=
-e:
-> unreferenced object 0xffff8800c2a36100 (size 256):
->   comm "modprobe", pid 629, jiffies 4294676002 (age 1531.115s)
->   hex dump (first 32 bytes):
->     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
->     ff ff ff ff ff ff ff ff 78 21 85 82 ff ff ff ff  ........x!......
->   backtrace:
->     [<ffffffff815449ce>] kmemleak_alloc+0x73/0x98
->     [<ffffffff8113fa2b>] slab_post_alloc_hook+0x28/0x2a
->     [<ffffffff81142004>] __kmalloc+0x12c/0x158
->     [<ffffffff8134c60b>] kzalloc.constprop.6+0xe/0x10
->     [<ffffffff8134cb71>] device_private_init+0x18/0x66
->     [<ffffffff8134f1e8>] dev_set_drvdata+0x1e/0x34
->     [<ffffffffa01e643e>] i801_probe+0x5d/0x447 [i2c_i801]
->     [<ffffffff812a78be>] local_pci_probe+0x41/0x84
->     [<ffffffff812a7feb>] pci_device_probe+0xdf/0x10c
->     [<ffffffff8134f90d>] driver_probe_device+0x12f/0x2ee
->     [<ffffffff8134fb2b>] __driver_attach+0x5f/0x83
->     [<ffffffff8134de28>] bus_for_each_dev+0x64/0x90
->     [<ffffffff8134f36b>] driver_attach+0x1e/0x20
->     [<ffffffff8134ef34>] bus_add_driver+0xf2/0x1f0
->     [<ffffffff8135013e>] driver_register+0x8c/0xc3
->     [<ffffffff812a7bb4>] __pci_register_driver+0x62/0x67
-> According to the backtrace, it seems that we do not release the
-> device_private field of adapter device in the fail path of i801_probe
-> or the flow of i2c_del_adapter, so add the cleanup step to fix it.
+On Sat, Dec 14, 2013 at 10:26:10PM +0800, Wei Yongjun wrote:
+> From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
 >=20
-> Signed-off-by: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
-
-? Why should we free something we don't have allocated? The fix must be
-somewhere else probably...
-
+> Add the missing clk_disable_unprepare() before return in
+> the error handling cases.
+>=20
+> Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-i801.c |    1 +
->  drivers/i2c/i2c-core.c        |    1 +
->  2 files changed, 2 insertions(+), 0 deletions(-)
+>  drivers/i2c/busses/i2c-imx.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
 >=20
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 737e298..4bd4fba 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1246,6 +1246,7 @@ exit_free_irq:
->  exit_release:
->  	pci_release_region(dev, SMBBAR);
->  exit:
-> +	kfree(priv->adapter.dev.p);
->  	kfree(priv);
->  	return err;
->  }
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index d74c0b3..a7bab9a 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1491,6 +1491,7 @@ void i2c_del_adapter(struct i2c_adapter *adap)
->  	idr_remove(&i2c_adapter_idr, adap->nr);
->  	mutex_unlock(&core_lock);
-> =20
-> +	kfree(adap->dev.p);
->  	/* Clear the device structure in case this adapter is ever going to be
->  	   added again */
->  	memset(&adap->dev, 0, sizeof(adap->dev));
-> --=20
-> 1.7.7
->=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index d0cfbb4..e62f3be 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -328,8 +328,10 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_=
+imx)
+>  	temp |=3D I2CR_MSTA;
+>  	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+>  	result =3D i2c_imx_bus_busy(i2c_imx, 1);
+> -	if (result)
+> +	if (result) {
+> +		clk_disable_unprepare(i2c_imx->clk);
+>  		return result;
+> +	}
+>  	i2c_imx->stopped =3D 0;
 
---yrj/dFKFPuw6o+aM
+Nice catch, but that is not enough. The logic between i2x_imx_start and
+*_stop is still broken. *_start may return with clocks enabled or not
+while stop will unconditionally disables them.
+
+
+> =20
+>  	temp |=3D I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+> @@ -654,7 +656,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  				pdev->name, i2c_imx);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+> -		return ret;
+> +		goto err_out;
+>  	}
+> =20
+>  	/* Init queue */
+> @@ -680,7 +682,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  	ret =3D i2c_add_numbered_adapter(&i2c_imx->adapter);
+>  	if (ret < 0) {
+>  		dev_err(&pdev->dev, "registration failed\n");
+> -		return ret;
+> +		goto err_out;
+>  	}
+> =20
+>  	/* Set up platform driver data */
+> @@ -697,6 +699,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+> =20
+>  	return 0;   /* Return OK */
+> +err_out:
+> +	clk_disable_unprepare(i2c_imx->clk);
+> +	return ret;
+
+Why not just enabling the clocks around the small codeblock that needs
+them?
+
+
+--oLBj+sq0vYjzfsbl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJStH8AAAoJEBQN5MwUoCm27tAP/3oXKQ2XL0aVL7rZ5YJTq5ND
-yAmxWqrKpexHb2jkgOkjeDi0AyLDeRV5NvfB5fBTkFQg6Trp6fDRMJr44my7H3kf
-h2Me8CjI9NqdEC6ZfvGa5iYeJb3WuvB72CokptLm2/wZtcwdn6wpFhkcFbH6nWXE
-eTAhdtZH5c9HnIv7x9hrcJgIcf0Zxhxw9Fp2odOVG0tJ00ZAvmF55PRvc6Msk8Zc
-NTOshVpI9JShCr8H8GYJUeVtdmhM7kXNrNivE+s8uDOVOmlhrccjJxtqY0pybDqp
-nifQGoD+9KEIWbJYwy2Es8Vkbm/69G4Jp6JmrSosjY/3tmyUiSZB9VHQk7PYWZnx
-qalZ+/miLJOdIyjMO5e0AzXl5NFXAjm99ozwoBubrLjlQm7PhETD+QtYKQX7SDyf
-4kvd0EhINFWSSw5eZQC4VFwIPNlv03nBfWxMEXRk7Y5OiDqRwqwh8YDKEP3CaoR+
-dP2LMZpO4Tfmk8b9ZfvySrT1fgi2Q9F8385anDEHin0f4MS5+DQsKUCzHUSC8i9k
-t3MKzWcVaa7aLFaK9POB+QM3Xs2ved9UxZJecfC/R0YNZpx+bhEj4UbW89o5lQQm
-eYrXhQzNLB7Ri1TQy+C8aHfaovJZP3+WLvbxXT69kvQ2TCZheD4loCEZHVWbumIE
-mWRxCR2AtpLBGVYENP9a
-=kV3/
+iQIcBAEBAgAGBQJStID2AAoJEBQN5MwUoCm24iUP/12TzwuLUt77EfuGlxf6MAkJ
+Y+gNohbxI+smU8x+6QtiDXv1rgNFXTXIeF9Lzt/BaAnllGCtSDRVxcSq25HhLTp8
+Q7yHJ9lm/6d0nlR+OoKOdf36anYbEDBUKjPXc1dksNchZSkNgIerMkglUlCsZi4e
+BuVxanGhHBfLv3+riscY4LRqvuIIiCuk8OJlwdsFnLIjtng0BANlZroI8oAx6Ob7
+k98HKupVF1rPuvG0/c1OFJTZfXS1OoattKDcseeszSw03YC5bJwl2gHfE2QyuNuY
+R24+2amr8moIiW6lyhWSYqf1zeEnC0Imr493ZTLHhncDWDh2gQxgLOzWQUJE9wM2
+wz9vxLUG7stD1qbCceJZC5oSAX2XsPFoML5xUT3du+zrdN0INnrC7VgoAnRHsS6u
+ySkeh0Zt6B3A9k9hvYpEB5ASxvwIGyG+3CA3by5/3fD1ZPKMoyhlQexMUCnfc4RT
+nhj5v6PbG/3GYqlRzkTobmAIVC7dKFThCOWIB7A1rp52tze7mYn3UvzxAu1xGr/F
+xqvU28BqtFdYp8qIm7uaLXIaIpvA4CBgXPT/x9MY1wug3CVcBsXxoYAvqwsPA84m
+4kreqNLWHbrOvgtvASb1vgrLsjvyBREo/iUCTqkjoCltYn4VGzVCr6xWvXlxpdoa
+LlKsMaJF3rTRaosR/03u
+=cqo5
 -----END PGP SIGNATURE-----
 
---yrj/dFKFPuw6o+aM--
+--oLBj+sq0vYjzfsbl--
