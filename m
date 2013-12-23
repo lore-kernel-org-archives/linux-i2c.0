@@ -1,92 +1,91 @@
-From: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
-Subject: Re: [PATCH] i2c: fix a potential kmemleak of adapter device
-Date: Mon, 23 Dec 2013 09:47:09 +0800
-Message-ID: <52B7961D.2050505@cn.fujitsu.com>
-References: <52B0F7D0.2020506@cn.fujitsu.com> <20131220173144.GA9997@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Peter Wu <lekensteyn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: i801: fix memleak on probe error
+Date: Mon, 23 Dec 2013 10:39:38 +0100
+Message-ID: <1387791578-1372-1-git-send-email-lekensteyn@gmail.com>
+References: <20130123174204.00463f98@endymion.delvare>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131220173144.GA9997@katana>
+In-Reply-To: <20130123174204.00463f98-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Wu <lekensteyn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-On 12/21/2013 01:31 AM, Wolfram Sang wrote:
+The driver-specific data for i801 was only set for the device on
+success, that led to a memory leak on error paths (for instance, when
+there is a resource conflict with ACPI). (The driver core clears the
+driver data (if set) if the probe routine fails).
 
-> On Wed, Dec 18, 2013 at 09:18:08AM +0800, Gu Zheng wrote:
->> When running with the latest kernel, we get the following kmemleak message:
->> unreferenced object 0xffff8800c2a36100 (size 256):
->>   comm "modprobe", pid 629, jiffies 4294676002 (age 1531.115s)
->>   hex dump (first 32 bytes):
->>     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
->>     ff ff ff ff ff ff ff ff 78 21 85 82 ff ff ff ff  ........x!......
->>   backtrace:
->>     [<ffffffff815449ce>] kmemleak_alloc+0x73/0x98
->>     [<ffffffff8113fa2b>] slab_post_alloc_hook+0x28/0x2a
->>     [<ffffffff81142004>] __kmalloc+0x12c/0x158
->>     [<ffffffff8134c60b>] kzalloc.constprop.6+0xe/0x10
->>     [<ffffffff8134cb71>] device_private_init+0x18/0x66
->>     [<ffffffff8134f1e8>] dev_set_drvdata+0x1e/0x34
->>     [<ffffffffa01e643e>] i801_probe+0x5d/0x447 [i2c_i801]
->>     [<ffffffff812a78be>] local_pci_probe+0x41/0x84
->>     [<ffffffff812a7feb>] pci_device_probe+0xdf/0x10c
->>     [<ffffffff8134f90d>] driver_probe_device+0x12f/0x2ee
->>     [<ffffffff8134fb2b>] __driver_attach+0x5f/0x83
->>     [<ffffffff8134de28>] bus_for_each_dev+0x64/0x90
->>     [<ffffffff8134f36b>] driver_attach+0x1e/0x20
->>     [<ffffffff8134ef34>] bus_add_driver+0xf2/0x1f0
->>     [<ffffffff8135013e>] driver_register+0x8c/0xc3
->>     [<ffffffff812a7bb4>] __pci_register_driver+0x62/0x67
->> According to the backtrace, it seems that we do not release the
->> device_private field of adapter device in the fail path of i801_probe
->> or the flow of i2c_del_adapter, so add the cleanup step to fix it.
->>
->> Signed-off-by: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
-> 
-> ? Why should we free something we don't have allocated? The fix must be
-> somewhere else probably...
+Fix it by setting the driver data right after successful memory
+allocation, before reaching any error paths.
 
-We do allocate the device_private in device_private_init() when calling
-dev_set_drvdata() to set adapter data in probe flow, and the calltrace
-also shows this. Am I missing something?
+References: http://lkml.org/lkml/2013/1/23/191
+Reported-by: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
+Tested-by: Peter Wu <lekensteyn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [ACPI conflict error path]
+Signed-off-by: Peter Wu <lekensteyn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+Hi Jean,
+
+This memleak issue is still present in v3.13-rc4-256-gb7000ad.
+>From kmemleak:
+
+unreferenced object 0xffff88022f501a00 (size 256):
+  comm "systemd-udevd", pid 209, jiffies 4294896115 (age 2872.520s)
+  hex dump (first 32 bytes):
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+    ff ff ff ff ff ff ff ff f4 e2 53 82 ff ff ff ff  ..........S.....
+  backtrace:
+    [<ffffffff815d29ce>] kmemleak_alloc+0x4e/0xb0
+    [<ffffffff8116ea5a>] kmem_cache_alloc_trace+0xfa/0x1e0
+    [<ffffffff813efc63>] device_private_init+0x23/0x80
+    [<ffffffff813f2b49>] dev_set_drvdata+0x39/0x50
+    [<ffffffffa0294539>] i801_probe+0x59/0x528 [i2c_i801]
+    [<ffffffff81332d95>] local_pci_probe+0x45/0xa0
+    [<ffffffff81333be9>] pci_device_probe+0xd9/0x130
+    [<ffffffff813f30e7>] driver_probe_device+0x87/0x390
+    [<ffffffff813f34c3>] __driver_attach+0x93/0xa0
+    [<ffffffff813f102b>] bus_for_each_dev+0x6b/0xb0
+    [<ffffffff813f2b0e>] driver_attach+0x1e/0x20
+    [<ffffffff813f26e8>] bus_add_driver+0x188/0x260
+    [<ffffffff813f3b04>] driver_register+0x64/0xf0
+    [<ffffffff81332930>] __pci_register_driver+0x60/0x70
+    [<ffffffffa02990af>] 0xffffffffa02990af
+    [<ffffffff81000312>] do_one_initcall+0xf2/0x1a0
+
+The dmesg for this laptop also contains a resource conflict message,
+just like the reporter (Martin Mokrejs):
+
+    [   15.409772] ACPI Warning: 0x0000000000001840-0x000000000000185f SystemIO conflicts with Region \_SB_.PCI0.SBUS.SMBI 1 (20131115/utaddress-251)
+    [   15.413439] ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
+
+With this patch applied on top of almost 3.13-rc5 (v3.13-rc4-256-gb7000ad),
+the memleak is gone.
 
 Regards,
-Gu
- 
+Peter
+---
+ drivers/i2c/busses/i2c-i801.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> 
->> ---
->>  drivers/i2c/busses/i2c-i801.c |    1 +
->>  drivers/i2c/i2c-core.c        |    1 +
->>  2 files changed, 2 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
->> index 737e298..4bd4fba 100644
->> --- a/drivers/i2c/busses/i2c-i801.c
->> +++ b/drivers/i2c/busses/i2c-i801.c
->> @@ -1246,6 +1246,7 @@ exit_free_irq:
->>  exit_release:
->>  	pci_release_region(dev, SMBBAR);
->>  exit:
->> +	kfree(priv->adapter.dev.p);
->>  	kfree(priv);
->>  	return err;
->>  }
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> index d74c0b3..a7bab9a 100644
->> --- a/drivers/i2c/i2c-core.c
->> +++ b/drivers/i2c/i2c-core.c
->> @@ -1491,6 +1491,7 @@ void i2c_del_adapter(struct i2c_adapter *adap)
->>  	idr_remove(&i2c_adapter_idr, adap->nr);
->>  	mutex_unlock(&core_lock);
->>  
->> +	kfree(adap->dev.p);
->>  	/* Clear the device structure in case this adapter is ever going to be
->>  	   added again */
->>  	memset(&adap->dev, 0, sizeof(adap->dev));
->> -- 
->> 1.7.7
->>
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 737e298..a7096bf 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1117,6 +1117,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
++	pci_set_drvdata(dev, priv);
+ 	i2c_set_adapdata(&priv->adapter, priv);
+ 	priv->adapter.owner = THIS_MODULE;
+ 	priv->adapter.class = i801_get_adapter_class(priv);
+@@ -1236,8 +1237,6 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	/* We ignore errors - multiplexing is optional */
+ 	i801_add_mux(priv);
+ 
+-	pci_set_drvdata(dev, priv);
+-
+ 	return 0;
+ 
+ exit_free_irq:
+-- 
+1.8.5.2
