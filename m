@@ -1,99 +1,111 @@
-From: Peter Wu <lekensteyn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Subject: Re: How should dev_[gs]et_drvdata be used?
-Date: Tue, 24 Dec 2013 01:18:03 +0100
-Message-ID: <1716344.EUMSGCAAKK@al>
-References: <20130123174204.00463f98@endymion.delvare> <2690400.fFjCFlrrIR@al> <1387820241.30327.105.camel@bling.home>
+Date: Mon, 23 Dec 2013 18:51:09 -0700
+Message-ID: <1387849869.30327.201.camel@bling.home>
+References: <20130123174204.00463f98@endymion.delvare>
+	 <2690400.fFjCFlrrIR@al> <1387820241.30327.105.camel@bling.home>
+	 <1716344.EUMSGCAAKK@al>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1387820241.30327.105.camel-xdHQ/5r00wBBDLzU/O5InQ@public.gmane.org>
+In-Reply-To: <1716344.EUMSGCAAKK@al>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+To: Peter Wu <lekensteyn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 23 December 2013 10:37:21 Alex Williamson wrote:
-> On Mon, 2013-12-23 at 16:49 +0100, Peter Wu wrote:
-[..]
+On Tue, 2013-12-24 at 01:18 +0100, Peter Wu wrote:
+> On Monday 23 December 2013 10:37:21 Alex Williamson wrote:
+> > On Mon, 2013-12-23 at 16:49 +0100, Peter Wu wrote:
+> [..]
+> > > 
+> > > There is still one thing I do not fully understand, how should
+> > > dev_set_drvdata and dev_get_drvdata be used? For the devices passed
+> > > to probe functions, the core takes care of setting to NULL on error.
+> > > Then device_unregister frees the memory, right?
+> > > 
+> > > Now, what if the dev_set_drvdata (or aliases such as pci_set_drvdata,
+> > > i2c_set_adapinfo, etc.) are manually called outside probe functions?
+> > > Or inside the probe function, but not for the device that is being
+> > > probed (such as is the case with the i801 i2c driver)?
+> > > 
+> > > The VFIO driver also does something odd, it clears the driver data,
+> > > but the device holding it is freed using kfree():
+> > > 
+> > >     static void vfio_device_release(struct kref *kref) {
+> > >         struct vfio_device *device = container_of(kref,
+> > >                                                   struct vfio_device, kref);
+> > >         struct vfio_group *group = device->group;
+> > > 
+> > >         list_del(&device->group_next);
+> > >         mutex_unlock(&group->device_lock);
+> > > 
+> > >         dev_set_drvdata(device->dev, NULL);
+> > > 
+> > >         kfree(device);
+> > > 
+> > > Is a memory leak also present here since dev_set_drvdata() always tries to
+> > > allocate memory?
 > > 
-> > There is still one thing I do not fully understand, how should
-> > dev_set_drvdata and dev_get_drvdata be used? For the devices passed
-> > to probe functions, the core takes care of setting to NULL on error.
-> > Then device_unregister frees the memory, right?
+> > But it doesn't:
 > > 
-> > Now, what if the dev_set_drvdata (or aliases such as pci_set_drvdata,
-> > i2c_set_adapinfo, etc.) are manually called outside probe functions?
-> > Or inside the probe function, but not for the device that is being
-> > probed (such as is the case with the i801 i2c driver)?
+> > int dev_set_drvdata(struct device *dev, void *data)
+> > {
+> >         int error;
 > > 
-> > The VFIO driver also does something odd, it clears the driver data,
-> > but the device holding it is freed using kfree():
-> > 
-> >     static void vfio_device_release(struct kref *kref) {
-> >         struct vfio_device *device = container_of(kref,
-> >                                                   struct vfio_device, kref);
-> >         struct vfio_group *group = device->group;
-> > 
-> >         list_del(&device->group_next);
-> >         mutex_unlock(&group->device_lock);
-> > 
-> >         dev_set_drvdata(device->dev, NULL);
-> > 
-> >         kfree(device);
-> > 
-> > Is a memory leak also present here since dev_set_drvdata() always tries to
-> > allocate memory?
+> >         if (!dev->p) {
+> >                 error = device_private_init(dev);
+> >                 if (error)
+> >                         return error;
+> >         }
+> >         dev->p->driver_data = data;
+> >         return 0;
+> > }
 > 
-> But it doesn't:
+> It does:
 > 
-> int dev_set_drvdata(struct device *dev, void *data)
+> int device_private_init(struct device *dev)
 > {
->         int error;
-> 
->         if (!dev->p) {
->                 error = device_private_init(dev);
->                 if (error)
->                         return error;
->         }
->         dev->p->driver_data = data;
+>         dev->p = kzalloc(sizeof(*dev->p), GFP_KERNEL);
+>         if (!dev->p)
+>                 return -ENOMEM;
+>         dev->p->device = dev; 
+>         klist_init(&dev->p->klist_children, klist_children_get,
+>                    klist_children_put);
+>         INIT_LIST_HEAD(&dev->p->deferred_probe);
 >         return 0;
 > }
+> 
+> and if it doesn't, then I must be missing something in this non-obvious
+> code. I scanned the interwebs and Documentation/, but could not really
+> find a great example on how this is supposed to work. The dev_set_drvdata
+> function existed since Linus moved to git.
 
-It does:
+You're missing that device_private_init() is only called if (!dev->p).
+It's a one time initializer and after that we only set the driver_data.
 
-int device_private_init(struct device *dev)
-{
-        dev->p = kzalloc(sizeof(*dev->p), GFP_KERNEL);
-        if (!dev->p)
-                return -ENOMEM;
-        dev->p->device = dev; 
-        klist_init(&dev->p->klist_children, klist_children_get,
-                   klist_children_put);
-        INIT_LIST_HEAD(&dev->p->deferred_probe);
-        return 0;
-}
-
-and if it doesn't, then I must be missing something in this non-obvious
-code. I scanned the interwebs and Documentation/, but could not really
-find a great example on how this is supposed to work. The dev_set_drvdata
-function existed since Linus moved to git.
-
-> Also, the code referenced is kfree'ing a struct vfio_device, not the
-> struct device.  VFIO uses the drvdata to provide a back pointer to the
-> vfio specific structure, which also includes a pointer to the struct
-> device.  We obviously want to clear drvdata when the vfio specific
-> structure is being released.
-
-Ah, I see. "device->dev" is not freed, but "device". And the data is
-cleared for "device->dev". Thanks for correcting.
-
-Clear examples of how to use dev_{s,g}et_drvdata correctly in i2c is
-still wanted. I stepped in it yesterday, i2c seems to have its own
-way to register new devices. More specifically, how can the memory
-associated with dev_set_drvdata be free'd on error paths if the
-device is not registered with device_register (as is done in the
-probe function of the i801 i2c driver)?
-
-Regards,
-Peter
+> > Also, the code referenced is kfree'ing a struct vfio_device, not the
+> > struct device.  VFIO uses the drvdata to provide a back pointer to the
+> > vfio specific structure, which also includes a pointer to the struct
+> > device.  We obviously want to clear drvdata when the vfio specific
+> > structure is being released.
+> 
+> Ah, I see. "device->dev" is not freed, but "device". And the data is
+> cleared for "device->dev". Thanks for correcting.
+> 
+> Clear examples of how to use dev_{s,g}et_drvdata correctly in i2c is
+> still wanted. I stepped in it yesterday, i2c seems to have its own
+> way to register new devices. More specifically, how can the memory
+> associated with dev_set_drvdata be free'd on error paths if the
+> device is not registered with device_register (as is done in the
+> probe function of the i801 i2c driver)?
+> 
+> Regards,
+> Peter
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
