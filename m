@@ -1,45 +1,63 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH V2 2/5] arm: shmobile: r7s72100: add i2c clocks
-Date: Fri, 27 Dec 2013 11:01:26 +0900
-Message-ID: <20131227020126.GA9184@verge.net.au>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH V2 3/5] arm: shmobile: r7s72100: add nodes for i2c
+ controllers to dtsi
+Date: Fri, 27 Dec 2013 05:27:47 +0100
+Message-ID: <20131227042747.GB6161@katana>
 References: <1387402321-21866-1-git-send-email-wsa@the-dreams.de>
- <1387402321-21866-3-git-send-email-wsa@the-dreams.de>
- <20131224024855.GC22401@verge.net.au>
- <CAMuHMdWPZjeF7+nEjXR3vL4HgSEVEk-uf-qQ68ZnFA=+Y_Q8tQ@mail.gmail.com>
- <20131226212539.GA2561@katana>
- <CAMuHMdXF6WmS_j4pC1U5jL3SK-ck7N=EA+-45duXdRZP1cOJkw@mail.gmail.com>
- <CAMuHMdXP4DAF1_DPtNfwCyP8WHFU03=zgM7i8FW9n6tcJpAHHQ@mail.gmail.com>
+ <1387402321-21866-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdXP4DAF1_DPtNfwCyP8WHFU03=zgM7i8FW9n6tcJpAHHQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1387402321-21866-4-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 26, 2013 at 10:51:34PM +0100, Geert Uytterhoeven wrote:
-> On Thu, Dec 26, 2013 at 10:34 PM, Geert Uytterhoeven
-> <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org> wrote:
-> >>> Note that after dropping these lines:
-> >>>
-> >>>        CLKDEV_DEV_ID("fcfee000.i2c", &mstp_clks[MSTP97]),
-> >>>        CLKDEV_DEV_ID("fcfee400.i2c", &mstp_clks[MSTP96]),
-> >>>        CLKDEV_DEV_ID("fcfee800.i2c", &mstp_clks[MSTP95]),
-> >>>        CLKDEV_DEV_ID("fcfeec00.i2c", &mstp_clks[MSTP94]),
-> >>>
-> >>> i2c stopped working.
-> >>
-> >> ??? Why do you want to drop these lines?
-> >
-> > Your v2 dropped them, presumably in response to Sergei's ICKy comments.
-> > And that's what Simon committed...
-> 
-> Upon checking again, your v2 did contain them, but gmail tried to smart
-> me out by not showing those few lines.
-> So it must have been Simon who dropped them, or lost them during rebase?
 
-Yes, it seems so. Sorry about that!
+--R3G7APHDIzY6R/pk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Wolfram, could you post the these missing clocks as an incremental patch?
+On Wed, Dec 18, 2013 at 10:31:59PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+>=20
+> I decided to put the pinmuxing into the dtsi file since there is only
+> one pinmux posiibility which one probably wants to have when using the
+> bus.
+>=20
+> Signed-off-by: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> Acked-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+
+Simon, I think you could pull in these patches, too. My series does not
+really depend on the pinctrl stuff. I2C pins are function group 1 and
+thus activated by default if the bootloader doesn't do weird things.
+Actually, I coded the PFC stuff after the driver was finished :)
+
+
+--R3G7APHDIzY6R/pk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSvQHDAAoJEBQN5MwUoCm2YyUP/3HIgyhvn0UXF+KD5lxmkGPQ
+g8Jkn/xeEMLGXPJfEr9z3IZpyUGHzcYbYWnUypW3MpTaWyJnWYESTbH4ueenaeWt
+WrT/SkBMtUWeDoMsgQmIOTL3J224lNVV9d1nCLYH4+20S1Qvn3+5Wmg+eN50n8vY
+sUSsBnT1jbxwBetsnopKNhQiNv18OAlpfGS+Of+ZzMetfAn6AjNGk1xYj+X/tP31
+BIRseh/UguBcDg9boJw7pNlU1Gi+kEE+Dz9ZmCbrTfr/caKbgjzu5liTQcoc4uyH
+kFxkJuJ9RXfAdzOa9c8R1qtJPITglrjsBy/fSeGVWbjOmBSRtoxjMfuP3LzCqfdh
+o637t4sLb845GlWMr1ktxGeSAW0vg6cuUFOk8VPEmNN/4huOWC3LrndE6Fvom4mx
+s+o5tRiEOPkDZiquN3Wcl/p4uIVrle8sWP+IuZhaYrJM2tDwYHryXVGO0PSmpOai
+/oPrcE0RTIikWjXic96z/VxOPR5Yke2iwzedM1jIKGM36I5juNHBwZip6nz/DIK7
+OlS0vUQ/wdTa6cOwVe7O4fDxmWWkczOTKBFZxvfsI7hNKsYF+AJ+si0I6KjWyqOD
+GeF+GZRmQPAVVHDFWx/Rfx66ZKTrOd3dJ1lUxvOlprLms9s/PvGh8NTLoQNFVLN0
+G9ayCG21MV8wmn82rhFq
+=QBzm
+-----END PGP SIGNATURE-----
+
+--R3G7APHDIzY6R/pk--
