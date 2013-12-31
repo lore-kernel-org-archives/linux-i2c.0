@@ -1,46 +1,44 @@
-From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: Openblocks AX3-4 i2c bus lockup
-Date: Tue, 31 Dec 2013 17:13:57 +0100
-Message-ID: <20131231171357.2b23febf@skate>
-References: <20131221164151.GF20115@lunn.ch>
-	<CADx9zJDbzUmgHCRn9K=8m_d_uiSAYoW3y_NVfLFiDq4WzS3C0A@mail.gmail.com>
-	<52C2A5C8.7040201@free-electrons.com>
-	<52C2B889.4030903@free-electrons.com>
-	<52C2BD9A.9080303@gmail.com>
-	<20131231133333.GV19878@titan.lakedaemon.net>
-	<52C2D36C.8020905@free-electrons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [RFC PATCH 0/3]  Fix i2c bus hang on A0 version of the Armada XP SoCs
+Date: Tue, 31 Dec 2013 17:44:50 +0100
+Message-ID: <1388508293-9141-1-git-send-email-gregory.clement@free-electrons.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <52C2D36C.8020905-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux ARM <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Gregory CLEMENT,
+Hi,
 
-On Tue, 31 Dec 2013 15:23:40 +0100, Gregory CLEMENT wrote:
+This series is an RFC to fix the i2c bus hang on A0 version of the
+Armada XP SoCs. It occured on the the eraly release of the OpenBlocks
+AX3-4 bords. Indeed the first variants of Armada XP SoCs (A0 stepping)
+have issues related to the i2c controller which prevent to use the
+offload mechanism and lead to a kernel hang during boot.
 
-> My plan is:
-> 
-> First introducing a new compatible string and handle it in the driver.
-> Theses patches will be simple and small enough to be applied on the
-> current rc kernel and the stable kernels. I will also add a new dts
-> file: armada-xp-a0-openblocks-ax3-4.dts (and maybe introduce adding
-> also a armada-xp-common-openblocks-ax3-4.dtsi file). A0 SoCs are no
-> more shipped, that's why I try to provide a solution which uses the B0
-> SoC by default and which makes the A0 the exception.
+The best solution will be to detect the SoCs version at runtime and
+use it in the driver, but I chosed to submit this version in case CPU
+version detection feature takes more time than expected (and we
+already reached the rc6 kernel).
 
-I personally don't think it's worth spending time on doing a separate
-DT for this, and that we should go directly to the solution that
-runtime detects the SoC revision instead.
+Thanks,
 
-Best regards,
+Gregory
 
-Thomas
+
+Gregory CLEMENT (3):
+  arm: mvebu: add new dts file for old variant of Openblocks AX3-4
+  i2c: mv64xxx: Fix bus hang on A0 version of the Armada XP SoCs
+  i2c: mv64xxx: Document the newly introduced Armada XP A0 compatible
+
+ .../devicetree/bindings/i2c/i2c-mv64xxx.txt        |   2 +-
+ .../arm/boot/dts/armada-xp-a0-openblocks-ax3-4.dts |  40 +++++
+ .../dts/armada-xp-common-openblocks-ax3-4.dtsi     | 177 +++++++++++++++++++++
+ arch/arm/boot/dts/armada-xp-openblocks-ax3-4.dts   | 164 +------------------
+ drivers/i2c/busses/i2c-mv64xxx.c                   |   8 +
+ 5 files changed, 227 insertions(+), 164 deletions(-)
+ create mode 100644 arch/arm/boot/dts/armada-xp-a0-openblocks-ax3-4.dts
+ create mode 100644 arch/arm/boot/dts/armada-xp-common-openblocks-ax3-4.dtsi
+
 -- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.8.1.2
