@@ -1,441 +1,59 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [RFC PATCH 1/3] arm: mvebu: add new dts file for old variant of Openblocks AX3-4
-Date: Tue, 31 Dec 2013 17:44:51 +0100
-Message-ID: <1388508293-9141-2-git-send-email-gregory.clement@free-electrons.com>
-References: <1388508293-9141-1-git-send-email-gregory.clement@free-electrons.com>
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: Re: Openblocks AX3-4 i2c bus lockup
+Date: Tue, 31 Dec 2013 23:21:24 +0100
+Message-ID: <20131231222124.GJ32537@lunn.ch>
+References: <20131221164151.GF20115@lunn.ch>
+ <CADx9zJDbzUmgHCRn9K=8m_d_uiSAYoW3y_NVfLFiDq4WzS3C0A@mail.gmail.com>
+ <52C2A5C8.7040201@free-electrons.com>
+ <52C2B889.4030903@free-electrons.com>
+ <52C2BD9A.9080303@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1388508293-9141-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52C2BD9A.9080303-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux ARM <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The first variants of Openblocks AX3-4 used the revision A0 of the
-Armada XP SoCs. These early variants have issues related to the i2c
-controller which prevent to use the offload mechanism and lead to a
-kernel hang during boot.
+> >We can have this information in the same way that it is currently done
+> >by the other mvebu SoC: accessing the PCIE_DEV_REV_OFF register. In
+> >arch/arm/plat-orion/pcie.c there were functions named
+> >orion_pcie_dev_id() and orion_pcie_dev_id() to retrieve information
+> >about the CPU variant and its version.
+> 
+> Depending on running pcie when calling is tricky, as it can be clock
+> gated. Maybe we should have some mach code to get the SoC revision
+> early for all SoCs. That should look for a pcie controller node,
+> enable the clock, store the revision once, and disable the clock
+> again. The callback can then return the stored value.
 
-The new dts file uses the compatible string marvell,mv78230-a0-i2c for
-the i2c controller, thanks to this the driver disable the offload
-mechanism and the kernel no more hangs on these boards.
+I think this is something we need, not just for this i2c problem, but
+for other issues, in particular, helping userspace get the right DT
+file.
 
-Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- .../arm/boot/dts/armada-xp-a0-openblocks-ax3-4.dts |  40 +++++
- .../dts/armada-xp-common-openblocks-ax3-4.dtsi     | 177 +++++++++++++++++++++
- arch/arm/boot/dts/armada-xp-openblocks-ax3-4.dts   | 164 +------------------
- 3 files changed, 218 insertions(+), 163 deletions(-)
- create mode 100644 arch/arm/boot/dts/armada-xp-a0-openblocks-ax3-4.dts
- create mode 100644 arch/arm/boot/dts/armada-xp-common-openblocks-ax3-4.dtsi
+We already have kirkwood-ts219-6281.dts and kirkwood-ts219-6282.dts,
+different QNAP 21X variants which differ by SoC. I will soon be adding
+kirkwood-ts419-6281.dts and kirkwood-ts419-6282.dts, once testing is
+complete.
 
-diff --git a/arch/arm/boot/dts/armada-xp-a0-openblocks-ax3-4.dts b/arch/arm/boot/dts/armada-xp-a0-openblocks-ax3-4.dts
-new file mode 100644
-index 000000000000..b3ea65255c19
---- /dev/null
-+++ b/arch/arm/boot/dts/armada-xp-a0-openblocks-ax3-4.dts
-@@ -0,0 +1,40 @@
-+/*
-+ * Device Tree file for OpenBlocks AX3-4 board with A0 SoC
-+ *
-+ * Copyright (C) 2012 Marvell
-+ *
-+ * Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2.  This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+/dts-v1/;
-+#include "armada-xp-common-openblocks-ax3-4.dtsi"
-+
-+/ {
-+	model = "PlatHome OpenBlocks AX3-4 board (A0 SoC)";
-+	compatible = "plathome,openblocks-ax3-4", "marvell,armadaxp-mv78260", "marvell,armadaxp", "marvell,armada-370-xp";
-+
-+	chosen {
-+		bootargs = "console=ttyS0,115200 earlyprintk";
-+	};
-+
-+	memory {
-+		device_type = "memory";
-+		reg = <0 0x00000000 0 0xC0000000>; /* 3 GB */
-+	};
-+
-+	soc {
-+
-+		internal-regs {
-+			i2c@11000 {
-+				compatible = "marvell,mv78230-a0-i2c", "marvell,mv64xxx-i2c";
-+			};
-+			i2c@11100 {
-+				compatible = "marvell,mv78230-a0-i2c", "marvell,mv64xxx-i2c";
-+			};
-+		};
-+	};
-+};
-diff --git a/arch/arm/boot/dts/armada-xp-common-openblocks-ax3-4.dtsi b/arch/arm/boot/dts/armada-xp-common-openblocks-ax3-4.dtsi
-new file mode 100644
-index 000000000000..0d452b07baf5
---- /dev/null
-+++ b/arch/arm/boot/dts/armada-xp-common-openblocks-ax3-4.dtsi
-@@ -0,0 +1,177 @@
-+/*
-+ * Device Tree file for OpenBlocks AX3-4 board
-+ *
-+ * Copyright (C) 2012 Marvell
-+ *
-+ * Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2.  This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+#include "armada-xp-mv78260.dtsi"
-+
-+/ {
-+	soc {
-+		ranges = <MBUS_ID(0xf0, 0x01) 0 0 0xd0000000 0x100000
-+			  MBUS_ID(0x01, 0x1d) 0 0 0xfff00000 0x100000
-+			  MBUS_ID(0x01, 0x2f) 0 0 0xf0000000 0x8000000>;
-+
-+		devbus-bootcs {
-+			status = "okay";
-+
-+			/* Device Bus parameters are required */
-+
-+			/* Read parameters */
-+			devbus,bus-width    = <8>;
-+			devbus,turn-off-ps  = <60000>;
-+			devbus,badr-skew-ps = <0>;
-+			devbus,acc-first-ps = <124000>;
-+			devbus,acc-next-ps  = <248000>;
-+			devbus,rd-setup-ps  = <0>;
-+			devbus,rd-hold-ps   = <0>;
-+
-+			/* Write parameters */
-+			devbus,sync-enable = <0>;
-+			devbus,wr-high-ps  = <60000>;
-+			devbus,wr-low-ps   = <60000>;
-+			devbus,ale-wr-ps   = <60000>;
-+
-+			/* NOR 128 MiB */
-+			nor@0 {
-+				compatible = "cfi-flash";
-+				reg = <0 0x8000000>;
-+				bank-width = <2>;
-+			};
-+		};
-+
-+		pcie-controller {
-+			status = "okay";
-+			/* Internal mini-PCIe connector */
-+			pcie@1,0 {
-+				/* Port 0, Lane 0 */
-+				status = "okay";
-+			};
-+		};
-+
-+		internal-regs {
-+			serial@12000 {
-+				clock-frequency = <250000000>;
-+				status = "okay";
-+			};
-+			serial@12100 {
-+				clock-frequency = <250000000>;
-+				status = "okay";
-+			};
-+			pinctrl {
-+				led_pins: led-pins-0 {
-+					marvell,pins = "mpp49", "mpp51", "mpp53";
-+					marvell,function = "gpio";
-+				};
-+			};
-+			leds {
-+				compatible = "gpio-leds";
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&led_pins>;
-+
-+				red_led {
-+					label = "red_led";
-+					gpios = <&gpio1 17 1>;
-+					default-state = "off";
-+				};
-+
-+				yellow_led {
-+					label = "yellow_led";
-+					gpios = <&gpio1 19 1>;
-+					default-state = "off";
-+				};
-+
-+				green_led {
-+					label = "green_led";
-+					gpios = <&gpio1 21 1>;
-+					default-state = "off";
-+					linux,default-trigger = "heartbeat";
-+				};
-+			};
-+
-+			gpio_keys {
-+				compatible = "gpio-keys";
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+
-+				button@1 {
-+					label = "Init Button";
-+					linux,code = <116>;
-+					gpios = <&gpio1 28 0>;
-+				};
-+			};
-+
-+			mdio {
-+				phy0: ethernet-phy@0 {
-+					reg = <0>;
-+				};
-+
-+				phy1: ethernet-phy@1 {
-+					reg = <1>;
-+				};
-+
-+				phy2: ethernet-phy@2 {
-+					reg = <2>;
-+				};
-+
-+				phy3: ethernet-phy@3 {
-+					reg = <3>;
-+				};
-+			};
-+
-+			ethernet@70000 {
-+				status = "okay";
-+				phy = <&phy0>;
-+				phy-mode = "sgmii";
-+			};
-+			ethernet@74000 {
-+				status = "okay";
-+				phy = <&phy1>;
-+				phy-mode = "sgmii";
-+			};
-+			ethernet@30000 {
-+				status = "okay";
-+				phy = <&phy2>;
-+				phy-mode = "sgmii";
-+			};
-+			ethernet@34000 {
-+				status = "okay";
-+				phy = <&phy3>;
-+				phy-mode = "sgmii";
-+			};
-+			i2c@11000 {
-+				status = "okay";
-+				clock-frequency = <400000>;
-+			};
-+			i2c@11100 {
-+				status = "okay";
-+				clock-frequency = <400000>;
-+
-+				s35390a: s35390a@30 {
-+					compatible = "s35390a";
-+					reg = <0x30>;
-+				};
-+			};
-+			sata@a0000 {
-+				nr-ports = <2>;
-+				status = "okay";
-+			};
-+
-+			/* Front side USB 0 */
-+			usb@50000 {
-+				status = "okay";
-+			};
-+
-+			/* Front side USB 1 */
-+			usb@51000 {
-+				status = "okay";
-+			};
-+		};
-+	};
-+};
-diff --git a/arch/arm/boot/dts/armada-xp-openblocks-ax3-4.dts b/arch/arm/boot/dts/armada-xp-openblocks-ax3-4.dts
-index 5695afcc04bf..1983de77c3ff 100644
---- a/arch/arm/boot/dts/armada-xp-openblocks-ax3-4.dts
-+++ b/arch/arm/boot/dts/armada-xp-openblocks-ax3-4.dts
-@@ -11,7 +11,7 @@
-  */
- 
- /dts-v1/;
--#include "armada-xp-mv78260.dtsi"
-+#include "armada-xp-common-openblocks-ax3-4.dtsi"
- 
- / {
- 	model = "PlatHome OpenBlocks AX3-4 board";
-@@ -25,166 +25,4 @@
- 		device_type = "memory";
- 		reg = <0 0x00000000 0 0xC0000000>; /* 3 GB */
- 	};
--
--	soc {
--		ranges = <MBUS_ID(0xf0, 0x01) 0 0 0xd0000000 0x100000
--			  MBUS_ID(0x01, 0x1d) 0 0 0xfff00000 0x100000
--			  MBUS_ID(0x01, 0x2f) 0 0 0xf0000000 0x8000000>;
--
--		devbus-bootcs {
--			status = "okay";
--
--			/* Device Bus parameters are required */
--
--			/* Read parameters */
--			devbus,bus-width    = <8>;
--			devbus,turn-off-ps  = <60000>;
--			devbus,badr-skew-ps = <0>;
--			devbus,acc-first-ps = <124000>;
--			devbus,acc-next-ps  = <248000>;
--			devbus,rd-setup-ps  = <0>;
--			devbus,rd-hold-ps   = <0>;
--
--			/* Write parameters */
--			devbus,sync-enable = <0>;
--			devbus,wr-high-ps  = <60000>;
--			devbus,wr-low-ps   = <60000>;
--			devbus,ale-wr-ps   = <60000>;
--
--			/* NOR 128 MiB */
--			nor@0 {
--				compatible = "cfi-flash";
--				reg = <0 0x8000000>;
--				bank-width = <2>;
--			};
--		};
--
--		pcie-controller {
--			status = "okay";
--			/* Internal mini-PCIe connector */
--			pcie@1,0 {
--				/* Port 0, Lane 0 */
--				status = "okay";
--			};
--		};
--
--		internal-regs {
--			serial@12000 {
--				clock-frequency = <250000000>;
--				status = "okay";
--			};
--			serial@12100 {
--				clock-frequency = <250000000>;
--				status = "okay";
--			};
--			pinctrl {
--				led_pins: led-pins-0 {
--					marvell,pins = "mpp49", "mpp51", "mpp53";
--					marvell,function = "gpio";
--				};
--			};
--			leds {
--				compatible = "gpio-leds";
--				pinctrl-names = "default";
--				pinctrl-0 = <&led_pins>;
--
--				red_led {
--					label = "red_led";
--					gpios = <&gpio1 17 1>;
--					default-state = "off";
--				};
--
--				yellow_led {
--					label = "yellow_led";
--					gpios = <&gpio1 19 1>;
--					default-state = "off";
--				};
--
--				green_led {
--					label = "green_led";
--					gpios = <&gpio1 21 1>;
--					default-state = "off";
--					linux,default-trigger = "heartbeat";
--				};
--			};
--
--			gpio_keys {
--				compatible = "gpio-keys";
--				#address-cells = <1>;
--				#size-cells = <0>;
--
--				button@1 {
--					label = "Init Button";
--					linux,code = <116>;
--					gpios = <&gpio1 28 0>;
--				};
--			};
--
--			mdio {
--				phy0: ethernet-phy@0 {
--					reg = <0>;
--				};
--
--				phy1: ethernet-phy@1 {
--					reg = <1>;
--				};
--
--				phy2: ethernet-phy@2 {
--					reg = <2>;
--				};
--
--				phy3: ethernet-phy@3 {
--					reg = <3>;
--				};
--			};
--
--			ethernet@70000 {
--				status = "okay";
--				phy = <&phy0>;
--				phy-mode = "sgmii";
--			};
--			ethernet@74000 {
--				status = "okay";
--				phy = <&phy1>;
--				phy-mode = "sgmii";
--			};
--			ethernet@30000 {
--				status = "okay";
--				phy = <&phy2>;
--				phy-mode = "sgmii";
--			};
--			ethernet@34000 {
--				status = "okay";
--				phy = <&phy3>;
--				phy-mode = "sgmii";
--			};
--			i2c@11000 {
--				status = "okay";
--				clock-frequency = <400000>;
--			};
--			i2c@11100 {
--				status = "okay";
--				clock-frequency = <400000>;
--
--				s35390a: s35390a@30 {
--					compatible = "s35390a";
--					reg = <0x30>;
--				};
--			};
--			sata@a0000 {
--				nr-ports = <2>;
--				status = "okay";
--			};
--
--			/* Front side USB 0 */
--			usb@50000 {
--				status = "okay";
--			};
--
--			/* Front side USB 1 */
--			usb@51000 {
--				status = "okay";
--			};
--		};
--	};
- };
--- 
-1.8.1.2
+It would be nice if the Debian installer can figure out which variant
+is needed. I don't think we currently reliably export this information
+to user space. We do print it at boot time, but there is no guarantee
+it will still be there later. lspci does not seem to show it, and that
+assumes PCIe devices are actually enabled in the DT, which for
+ts219-6181 they are not.
+
+At the moment, PCI_MVEBU is a bool in Kconfig. It is either built in,
+or not available. That helps a little, but not too much. It could be
+the i2c driver gets probed before PCI. Also, for Dove, PCI is
+optional, since things like CuBox does not have any use of PCI.  
+
+So maybe some mach code would be best, which directly peeks the PCIe
+registers, and twiddles the clocks as needed. We can hard code the
+addresses, and use dt_compat to determine which set of addresses to
+use, and do it from init_machine, so we don't need to worry about what
+the PCIe and clock drivers are doing.
+
+    Andrew
