@@ -1,59 +1,51 @@
 From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Subject: Re: Openblocks AX3-4 i2c bus lockup
-Date: Tue, 31 Dec 2013 23:21:24 +0100
-Message-ID: <20131231222124.GJ32537@lunn.ch>
-References: <20131221164151.GF20115@lunn.ch>
- <CADx9zJDbzUmgHCRn9K=8m_d_uiSAYoW3y_NVfLFiDq4WzS3C0A@mail.gmail.com>
- <52C2A5C8.7040201@free-electrons.com>
- <52C2B889.4030903@free-electrons.com>
- <52C2BD9A.9080303@gmail.com>
+Subject: Re: [RFC PATCH 0/3]  Fix i2c bus hang on A0 version of the Armada XP
+ SoCs
+Date: Wed, 1 Jan 2014 20:28:16 +0100
+Message-ID: <20140101192816.GP32537@lunn.ch>
+References: <1388508293-9141-1-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52C2BD9A.9080303-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1388508293-9141-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux ARM <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> >We can have this information in the same way that it is currently done
-> >by the other mvebu SoC: accessing the PCIE_DEV_REV_OFF register. In
-> >arch/arm/plat-orion/pcie.c there were functions named
-> >orion_pcie_dev_id() and orion_pcie_dev_id() to retrieve information
-> >about the CPU variant and its version.
+On Tue, Dec 31, 2013 at 05:44:50PM +0100, Gregory CLEMENT wrote:
+> Hi,
 > 
-> Depending on running pcie when calling is tricky, as it can be clock
-> gated. Maybe we should have some mach code to get the SoC revision
-> early for all SoCs. That should look for a pcie controller node,
-> enable the clock, store the revision once, and disable the clock
-> again. The callback can then return the stored value.
+> This series is an RFC to fix the i2c bus hang on A0 version of the
+> Armada XP SoCs. It occured on the the eraly release of the OpenBlocks
+> AX3-4 bords. Indeed the first variants of Armada XP SoCs (A0 stepping)
+> have issues related to the i2c controller which prevent to use the
+> offload mechanism and lead to a kernel hang during boot.
+> 
+> The best solution will be to detect the SoCs version at runtime and
+> use it in the driver, but I chosed to submit this version in case CPU
+> version detection feature takes more time than expected (and we
+> already reached the rc6 kernel).
+> 
+> Thanks,
+> 
+> Gregory
 
-I think this is something we need, not just for this i2c problem, but
-for other issues, in particular, helping userspace get the right DT
-file.
+Hi Gregory
 
-We already have kirkwood-ts219-6281.dts and kirkwood-ts219-6282.dts,
-different QNAP 21X variants which differ by SoC. I will soon be adding
-kirkwood-ts419-6281.dts and kirkwood-ts419-6282.dts, once testing is
-complete.
+Thanks for these RFC patches. I can confirm they work on my Openblocks
+device with an A0 stepping SoC. I can now access the RTC.
 
-It would be nice if the Debian installer can figure out which variant
-is needed. I don't think we currently reliably export this information
-to user space. We do print it at boot time, but there is no guarantee
-it will still be there later. lspci does not seem to show it, and that
-assumes PCIe devices are actually enabled in the DT, which for
-ts219-6181 they are not.
+You missed adding the new DTS file to the Makefile. Depending on how
+the discussion goes about auto detecting stepping or not, i would of
+used different filenames, probably:
 
-At the moment, PCI_MVEBU is a bool in Kconfig. It is either built in,
-or not available. That helps a little, but not too much. It could be
-the i2c driver gets probed before PCI. Also, for Dove, PCI is
-optional, since things like CuBox does not have any use of PCI.  
+armada-xp-openblocks-ax3-4.dts
+armada-xp-openblocks-ax3-4-a0.dts
+armada-xp-openblocks-ax3-4-common.dts
 
-So maybe some mach code would be best, which directly peeks the PCIe
-registers, and twiddles the clocks as needed. We can hard code the
-addresses, and use dt_compat to determine which set of addresses to
-use, and do it from init_machine, so we don't need to worry about what
-the PCIe and clock drivers are doing.
+Keeps all the files together when listed alphabetically
 
-    Andrew
+Thanks
+	Andrew
