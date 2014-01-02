@@ -1,69 +1,28 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: Openblocks AX3-4 i2c bus lockup
-Date: Thu, 02 Jan 2014 17:44:46 +0100
-Message-ID: <52C5977E.7000008@free-electrons.com>
-References: <20131221164151.GF20115@lunn.ch> <CADx9zJDbzUmgHCRn9K=8m_d_uiSAYoW3y_NVfLFiDq4WzS3C0A@mail.gmail.com> <52C2A5C8.7040201@free-electrons.com> <52C2B889.4030903@free-electrons.com> <52C2BD9A.9080303@gmail.com> <20131231222124.GJ32537@lunn.ch>
+From: Mrs Stacy Russell <stacyrusse-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Dearest Friend
+Date: Fri, 3 Jan 2014 01:20:57 +0700
+Message-ID: <4e411e7d-61bd-4525-b1ce-d438849e196a@COSEXCH10.lsi.com>
+Reply-To: <stacyrussel0000-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="Windows-1251"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20131231222124.GJ32537-g2DYL2Zd6BY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux ARM <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andrew,
+Dear Beloved,
 
-On 31/12/2013 23:21, Andrew Lunn wrote:
->>> We can have this information in the same way that it is currently done
->>> by the other mvebu SoC: accessing the PCIE_DEV_REV_OFF register. In
->>> arch/arm/plat-orion/pcie.c there were functions named
->>> orion_pcie_dev_id() and orion_pcie_dev_id() to retrieve information
->>> about the CPU variant and its version.
->>
->> Depending on running pcie when calling is tricky, as it can be clock
->> gated. Maybe we should have some mach code to get the SoC revision
->> early for all SoCs. That should look for a pcie controller node,
->> enable the clock, store the revision once, and disable the clock
->> again. The callback can then return the stored value.
-> 
-> I think this is something we need, not just for this i2c problem, but
-> for other issues, in particular, helping userspace get the right DT
-> file.
-> 
-> We already have kirkwood-ts219-6281.dts and kirkwood-ts219-6282.dts,
-> different QNAP 21X variants which differ by SoC. I will soon be adding
-> kirkwood-ts419-6281.dts and kirkwood-ts419-6282.dts, once testing is
-> complete.
-> 
-> It would be nice if the Debian installer can figure out which variant
-> is needed. I don't think we currently reliably export this information
-> to user space. We do print it at boot time, but there is no guarantee
-> it will still be there later. lspci does not seem to show it, and that
+I am Mrs. Stacy Russell.I am writing you this email from my sick bed, I know my message will come to you as a surprise But don't worry. When I heard from the doctor that my condition has become so critical, I had to reach out to a Christian sister, who assisted me in searching for your contact in order to help me utilize this wealth the way I am going to instruct herein, and even the sister that helped me in this regard doesn't know the purpose for which I intend to use it I have prayed about it and it has been revealed to me that you can make judicious use of the resources for its intended purpose.
 
-I also think it could be useful to have a way to know the SoC ID and its
-revision. But I don't know where to export it, in /proc/cpuinfo there is a
-filed named Revision but I think it refers the board itself. There is also
-the /sys/bus/platform/devices/soc.0/ directory which would be a good candidate
-to export the SoC ID and revision.
+My husband earned these funds, (TEN MILLION EIGHT HUNDRED THOUSAND) but he died in a plane crash and left everything behind for me and I will join him soon due to my ill health. Due to my infertility resulting from medical problems I became barren. God has a reason for everything. I would want you to contact my lawyer; he will inform you on what to do. Reply to this email and email my Lawyer:
 
-> assumes PCIe devices are actually enabled in the DT, which for
-> ts219-6181 they are not.
-> 
-> At the moment, PCI_MVEBU is a bool in Kconfig. It is either built in,
-> or not available. That helps a little, but not too much. It could be
-> the i2c driver gets probed before PCI. Also, for Dove, PCI is
-> optional, since things like CuBox does not have any use of PCI.  
-> 
-> So maybe some mach code would be best, which directly peeks the PCIe
-> registers, and twiddles the clocks as needed. We can hard code the
-> addresses, and use dt_compat to determine which set of addresses to
-> use, and do it from init_machine, so we don't need to worry about what
-> the PCIe and clock drivers are doing.
+SINA HOK CHAMBERS 
+PHNOM PENH
+Barrister Sina HOK
+Email: (llb.sina-P8rxVYcc0RBBDgjK7y7TUQ@public.gmane.org)
 
-I have just written something like that:
-http://www.spinics.net/lists/arm-kernel/msg297642.html
+Ensure to use a greater portion of the funds for its purpose in fulfillment of my last wish. Furthermore you will never have any problem with the law as far as my lawyer is in concern. The most major part you will use to bless Helpless and Needy Children all over the world
 
+May God Keep you alive and bless you as you help.
 
-Gregory
+Mrs Stacy
