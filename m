@@ -1,78 +1,44 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 01/15] i2c: shmobile/rcar: Restrict non-COMPILE_TEST compilation
-Date: Thu, 02 Jan 2014 16:05:50 +0100
-Message-ID: <1798320.lHX29KN0J4@avalon>
-References: <1385515117-23664-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <20131128073621.GC24146@verge.net.au> <1786644.MDElX0sS53@avalon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1786644.MDElX0sS53@avalon>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms@verge.net.au>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: [PATCH 0/2]  Fix i2c bus hang on A0 version of the Armada XP SoCs
+Date: Thu,  2 Jan 2014 17:01:14 +0100
+Message-ID: <1388678476-12875-1-git-send-email-gregory.clement@free-electrons.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi,
 
-On Wednesday 11 December 2013 13:47:34 Laurent Pinchart wrote:
-> Hi Wolfram,
-> 
-> Could you please pick this patch up for v3.14 ?
+This series is a better approach to fix the i2c bus hang on A0 version
+of the Armada XP SoCs. It occurred on the early release of the
+OpenBlocks AX3-4 boards. Indeed the first variants of Armada XP SoCs
+(A0 stepping) have issues related to the i2c controller which prevent
+to use the offload mechanism and lead to a kernel hang during boot.
 
-Ping ?
+The first patch add a mean to detect the SoCs version at run-time and
+the second one use this feature in the driver.
 
-> On Thursday 28 November 2013 16:36:21 Simon Horman wrote:
-> > On Wed, Nov 27, 2013 at 02:18:23AM +0100, Laurent Pinchart wrote:
-> > > Hardware supported by the i2c sh_mobile and rcar drivers is only found
-> > > on SUPERH or ARCH_SHMOBILE platforms. Restrict non-COMPILE_TEST
-> > > compilation to them.
-> > > 
-> > > Cc: Wolfram Sang <wsa@the-dreams.de>
-> > > Cc: linux-i2c@vger.kernel.org
-> > > Signed-off-by: Laurent Pinchart
-> > > <laurent.pinchart+renesas@ideasonboard.com>
-> > 
-> > Acked-by: Simon Horman <horms+renesas@verge.net.au>
-> > 
-> > > ---
-> > > 
-> > >  drivers/i2c/busses/Kconfig | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> > > index 3b26129..92bdcf9 100644
-> > > --- a/drivers/i2c/busses/Kconfig
-> > > +++ b/drivers/i2c/busses/Kconfig
-> > > @@ -683,7 +683,7 @@ config I2C_SH7760
-> > > 
-> > >  config I2C_SH_MOBILE
-> > >  
-> > >  	tristate "SuperH Mobile I2C Controller"
-> > > 
-> > > -	depends on SUPERH || ARM || COMPILE_TEST
-> > > +	depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
-> > > 
-> > >  	help
-> > >  	
-> > >  	  If you say yes to this option, support will be included for the
-> > >  	  built-in I2C interface on the Renesas SH-Mobile processor.
-> > > 
-> > > @@ -796,7 +796,7 @@ config I2C_XLR
-> > > 
-> > >  config I2C_RCAR
-> > >  
-> > >  	tristate "Renesas R-Car I2C Controller"
-> > > 
-> > > -	depends on ARM || COMPILE_TEST
-> > > +	depends on ARCH_SHMOBILE || COMPILE_TEST
-> > > 
-> > >  	help
-> > >  	
-> > >  	  If you say yes to this option, support will be included for the
-> > >  	  R-Car I2C controller.
+These 2 patches should be applied on 3.13-rc and on stable kernel 3.12
+as it fixes a regression introduce by the commit 930ab3d403ae "i2c:
+mv64xxx: Add I2C Transaction Generator support".
+
+The first patch could be latter be extend to also be used with dove,
+kirkwood, orion5x and mv78x00 when there will be merged in mvebu.
+
+Thanks,
+
+Gregory CLEMENT (2):
+  ARM: mvebu: Add support to get the ID and the revision of a SoC
+  i2c: mv64xxx: Fix bus hang on A0 version of the Armada XP SoCs
+
+ arch/arm/mach-mvebu/Makefile       |   2 +-
+ arch/arm/mach-mvebu/mvebu-soc-id.c | 111 +++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-mv64xxx.c   |  11 +++-
+ include/linux/mvebu-soc-id.h       |  32 +++++++++++
+ 4 files changed, 154 insertions(+), 2 deletions(-)
+ create mode 100644 arch/arm/mach-mvebu/mvebu-soc-id.c
+ create mode 100644 include/linux/mvebu-soc-id.h
+
 -- 
-Regards,
-
-Laurent Pinchart
-
+1.8.1.2
