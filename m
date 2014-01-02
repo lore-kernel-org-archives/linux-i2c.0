@@ -1,28 +1,69 @@
-From: Mrs Stacy Russell <stacyrusse-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Dearest Friend
-Date: Fri, 3 Jan 2014 01:20:57 +0700
-Message-ID: <4e411e7d-61bd-4525-b1ce-d438849e196a@COSEXCH10.lsi.com>
-Reply-To: <stacyrussel0000-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+From: Jason Cooper <jason@lakedaemon.net>
+Subject: Re: [PATCH 2/2] i2c: mv64xxx: Fix bus hang on A0 version of the
+ Armada XP SoCs
+Date: Thu, 2 Jan 2014 13:28:22 -0500
+Message-ID: <20140102182822.GI19878@titan.lakedaemon.net>
+References: <1388678476-12875-1-git-send-email-gregory.clement@free-electrons.com>
+ <1388678476-12875-3-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1388678476-12875-3-git-send-email-gregory.clement@free-electrons.com>
+Sender: stable-owner@vger.kernel.org
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>, Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Beloved,
+Wolfram,
 
-I am Mrs. Stacy Russell.I am writing you this email from my sick bed, I know my message will come to you as a surprise But don't worry. When I heard from the doctor that my condition has become so critical, I had to reach out to a Christian sister, who assisted me in searching for your contact in order to help me utilize this wealth the way I am going to instruct herein, and even the sister that helped me in this regard doesn't know the purpose for which I intend to use it I have prayed about it and it has been revealed to me that you can make judicious use of the resources for its intended purpose.
+On Thu, Jan 02, 2014 at 05:01:16PM +0100, Gregory CLEMENT wrote:
+> The first variants of Armada XP SoCs (A0 stepping) have issues related
+> to the i2c controller which prevent to use the offload mechanism and
+> lead to a kernel hang during boot.
+> 
+> The driver now check the revision of the SoC. If the revision is not
+> more recent than the A0 or if the driver can't get the SoC revision
+> then it disables the offload mechanism.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+> ---
+>  drivers/i2c/busses/i2c-mv64xxx.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index 8be7e42aa4de..089a3663ad86 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -24,6 +24,7 @@
+>  #include <linux/clk.h>
+>  #include <linux/err.h>
+>  #include <linux/delay.h>
+> +#include <linux/mvebu-soc-id.h>
+>  
+>  #define MV64XXX_I2C_ADDR_ADDR(val)			((val & 0x7f) << 1)
+>  #define MV64XXX_I2C_BAUD_DIV_N(val)			(val & 0x7)
+> @@ -779,8 +780,16 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+>  	 * Transaction Generator support and the errata fix.
+>  	 */
+>  	if (of_device_is_compatible(np, "marvell,mv78230-i2c")) {
+> -		drv_data->offload_enabled = true;
+> +		u32 dev, rev;
+> +
+>  		drv_data->errata_delay = true;
+> +		/*
+> +		 * Only revison more recent than A0 support offload
+> +		 * mechanism. In case we can't get the SoC revision
+> +		 * weplay safe and we don't enable it
+> +		 */
+> +		if (!mvebu_get_soc_id(&rev, &dev) && (dev > MV78XX0_A0_REV))
+> +			drv_data->offload_enabled = true;
 
-My husband earned these funds, (TEN MILLION EIGHT HUNDRED THOUSAND) but he died in a plane crash and left everything behind for me and I will join him soon due to my ill health. Due to my infertility resulting from medical problems I became barren. God has a reason for everything. I would want you to contact my lawyer; he will inform you on what to do. Reply to this email and email my Lawyer:
+Since this depends on arch-specific code in the previous patch, I'd like
+to keep the two of them together in a topic branch.  Would you prefer to
+take both with my Ack, or vice-versa?  I'm fine either way.
 
-SINA HOK CHAMBERS 
-PHNOM PENH
-Barrister Sina HOK
-Email: (llb.sina-P8rxVYcc0RBBDgjK7y7TUQ@public.gmane.org)
+thx,
 
-Ensure to use a greater portion of the funds for its purpose in fulfillment of my last wish. Furthermore you will never have any problem with the law as far as my lawyer is in concern. The most major part you will use to bless Helpless and Needy Children all over the world
-
-May God Keep you alive and bless you as you help.
-
-Mrs Stacy
+Jason.
