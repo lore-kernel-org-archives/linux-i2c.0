@@ -1,254 +1,55 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
- revision of a SoC
-Date: Fri, 03 Jan 2014 16:13:44 +0100
-Message-ID: <52C6D3A8.4010801@free-electrons.com>
-References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com> <20140103144712.GA22597@lunn.ch> <52C6CE7E.5010800@free-electrons.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c: nomadik: factor platform data into state
+ container
+Date: Fri, 3 Jan 2014 16:35:54 +0100
+Message-ID: <20140103153553.GD7132@katana>
+References: <1385676737-15127-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="W5WqUoFLvi1M7tJE"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <52C6CE7E.5010800-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1385676737-15127-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andrew,
 
-On 03/01/2014 15:51, Gregory CLEMENT wrote:
-> On 03/01/2014 15:47, Andrew Lunn wrote:
->> On Fri, Jan 03, 2014 at 10:59:44AM +0100, Gregory CLEMENT wrote:
->>> All the mvebu SoCs have information related to their variant and
->>> revision that can be read from the PCI control register.
->>>
->>> This patch adds support for Armada XP and Armada 370. This reading of
->>> the revision and the ID are done before the PCI initialization to
->>> avoid any conflicts. Once these data are retrieved, the resources are
->>> freed to let the PCI subsystem use it.
->>>
->>> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->>> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
->>> ---
->>>  arch/arm/mach-mvebu/Makefile       |   2 +-
->>>  arch/arm/mach-mvebu/mvebu-soc-id.c | 111 +++++++++++++++++++++++++++++++++++++
->>>  include/linux/mvebu-soc-id.h       |  32 +++++++++++
->>>  3 files changed, 144 insertions(+), 1 deletion(-)
->>>  create mode 100644 arch/arm/mach-mvebu/mvebu-soc-id.c
->>>  create mode 100644 include/linux/mvebu-soc-id.h
->>>
->>> diff --git a/arch/arm/mach-mvebu/Makefile b/arch/arm/mach-mvebu/Makefile
->>> index 2d04f0e21870..878aebe98dcc 100644
->>> --- a/arch/arm/mach-mvebu/Makefile
->>> +++ b/arch/arm/mach-mvebu/Makefile
->>> @@ -3,7 +3,7 @@ ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include \
->>>  
->>>  AFLAGS_coherency_ll.o		:= -Wa,-march=armv7-a
->>>  
->>> -obj-y				 += system-controller.o
->>> +obj-y				 += system-controller.o mvebu-soc-id.o
->>>  obj-$(CONFIG_MACH_ARMADA_370_XP) += armada-370-xp.o
->>>  obj-$(CONFIG_ARCH_MVEBU)	 += coherency.o coherency_ll.o pmsu.o
->>>  obj-$(CONFIG_SMP)                += platsmp.o headsmp.o
->>> diff --git a/arch/arm/mach-mvebu/mvebu-soc-id.c b/arch/arm/mach-mvebu/mvebu-soc-id.c
->>> new file mode 100644
->>> index 000000000000..86c901be284c
->>> --- /dev/null
->>> +++ b/arch/arm/mach-mvebu/mvebu-soc-id.c
->>> @@ -0,0 +1,111 @@
->>> +/*
->>> + * Variant and revision information for mvebu SoCs
->>> + *
->>> + * Copyright (C) 2014 Marvell
->>> + *
->>> + * Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
->>> + *
->>> + * This file is licensed under the terms of the GNU General Public
->>> + * License version 2.  This program is licensed "as is" without any
->>> + * warranty of any kind, whether express or implied.
->>> + *
->>> + * All the mvebu SoCs have information related to their variant and
->>> + * revision that can be read from the PCI control register. This is
->>> + * done before the PCI initialization to avoid any conflict. Once the
->>> + * ID and revision are retrieved, the mapping is freed.
->>> + */
->>> +
->>> +#include <linux/clk.h>
->>> +#include <linux/init.h>
->>> +#include <linux/io.h>
->>> +#include <linux/kernel.h>
->>> +#include <linux/mvebu-soc-id.h>
->>> +#include <linux/of.h>
->>> +#include <linux/of_address.h>
->>> +
->>> +#define PCIE_DEV_ID_OFF		0x0
->>> +#define PCIE_DEV_REV_OFF	0x8
->>> +
->>> +#define SOC_ID_MASK	    0xFFFF0000
->>> +#define SOC_REV_MASK	    0xFF
->>> +
->>> +static u32 soc_dev_id;
->>> +static u32 soc_rev;
->>> +static bool is_id_valid;
->>> +
->>> +static const struct of_device_id mvebu_pcie_of_match_table[] = {
->>> +	{ .compatible = "marvell,armada-xp-pcie", },
->>> +	{ .compatible = "marvell,armada-370-pcie", },
->>> +	{},
->>> +};
->>> +
->>> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
->>> +{
->>> +	if (is_id_valid) {
->>> +		*dev = soc_dev_id;
->>> +		*rev = soc_rev;
->>> +		return 0;
->>> +	} else
->>> +		return -1;
->>> +}
->>> +
->>> +EXPORT_SYMBOL(mvebu_get_soc_id);
->>> +
->>> +static int __init mvebu_soc_id_init(void)
->>> +{
->>> +	struct device_node *np;
->>> +	int ret = 0;
->>> +
->>> +	np = of_find_matching_node(NULL, mvebu_pcie_of_match_table);
->>> +	if (np) {
->>> +		void __iomem *pci_base;
->>> +		struct clk *clk;
->>> +		/*
->>> +		 * ID and revision are available from any port, so we
->>> +		 * just pick the first one
->>> +		 */
->>> +		struct device_node *child = of_get_next_child(np, NULL);
->>
->> Hi Gregory
->>
->> I'm away from my hardware at the moment. 
->>
->> Does this work when all the PCIe ports have status = "disabled";? We
->> have many kirkwood devices in NAS boxes which don't use PCIe, so all
->> the ports are disabled. But they still exist in the SoC, so we can
->> read the IDs from them. I just don't know if of_get_next_child() will
->> only return enabled children?
-> 
-> There is a function named of_get_next_available_child, so I assumed that
-> of_get_next_child() will return all the children. But I can test it to
-> be sure of it.
-> 
-
-I have just removed all the PCIe part in the
-armada-xp-openblocks-ax3-4.dts file (PCie is disable by default in the
-dtsi file) and it worled as expected! :)
-
-by the way waht do you think of adding this line in at the end of the
-mvebu_soc_id_init() function:
-
-pr_info("MVEBU SoC ID=0x%X, Rev=0x%X\n", soc_dev_id, soc_rev);
-
-Also keep in mind that currently you can't use it for kirkwood because
-the build of the file depend on CONFIG_ARCH_MVEBU. But as kirkwood
-will soon joined the mach-mvebu directory, it won't be a problem then.
-
-Gregory
-
->>
->> Thanks
->> 	Andrew
->>
->>> +
->>> +		clk = of_clk_get_by_name(child, NULL);
->>> +		if (IS_ERR(clk)) {
->>> +			pr_err("%s: cannot get clock\n", __func__);
->>> +			ret = -ENOMEM;
->>> +			goto clk_err;
->>> +		}
->>> +
->>> +		ret = clk_prepare_enable(clk);
->>> +		if (ret) {
->>> +			pr_err("%s: cannot enable clock\n", __func__);
->>> +			goto clk_err;
->>> +		}
->>> +
->>> +		pci_base = of_iomap(child, 0);
->>> +		if (IS_ERR(pci_base)) {
->>> +			pr_err("%s: cannot map registers\n",  __func__);
->>> +			ret = -ENOMEM;
->>> +			goto res_ioremap;
->>> +		}
->>> +
->>> +		/* SoC ID */
->>> +		soc_dev_id = __raw_readl(pci_base + PCIE_DEV_ID_OFF) >> 16;
->>> +
->>> +		/* SoC revision */
->>> +		soc_rev = __raw_readl(pci_base + PCIE_DEV_REV_OFF)
->>> +			& SOC_REV_MASK;
->>> +
->>> +		is_id_valid = true;
->>> +
->>> +		iounmap(pci_base);
->>> +
->>> +res_ioremap:
->>> +		clk_disable_unprepare(clk);
->>> +
->>> +clk_err:
->>> +		of_node_put(child);
->>> +		of_node_put(np);
->>> +	}
->>> +
->>> +	return ret;
->>> +}
->>> +arch_initcall(mvebu_soc_id_init);
->>> +
->>> diff --git a/include/linux/mvebu-soc-id.h b/include/linux/mvebu-soc-id.h
->>> new file mode 100644
->>> index 000000000000..602ce1c50d1d
->>> --- /dev/null
->>> +++ b/include/linux/mvebu-soc-id.h
->>> @@ -0,0 +1,32 @@
->>> +/*
->>> + * Marvell EBU SoC ID and revision definitions.
->>> + *
->>> + * Copyright (C) 2014 Marvell Semiconductor
->>> + *
->>> + * This file is licensed under the terms of the GNU General Public
->>> + * License version 2.  This program is licensed "as is" without any
->>> + * warranty of any kind, whether express or implied.
->>> + */
->>> +
->>> +#ifndef __LINUX_MVEBU_SOC_ID_H
->>> +#define __LINUX_MVEBU_SOC_ID_H
->>> +
->>> +/* Armada XP ID */
->>> +#define MV78230_DEV_ID	    0x7823
->>> +#define MV78260_DEV_ID	    0x7826
->>> +#define MV78460_DEV_ID	    0x7846
->>> +
->>> +/* Armada XP Revision */
->>> +#define MV78XX0_A0_REV	    0x1
->>> +#define MV78XX0_B0_REV	    0x2
->>> +
->>> +#ifdef CONFIG_ARCH_MVEBU
->>> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
->>> +#else
->>> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
->>> +{
->>> +	return -1;
->>> +}
->>> +#endif
->>> +
->>> +#endif /* __LINUX_MVEBU_SOC_ID_H */
->>> -- 
->>> 1.8.1.2
->>>
-> 
-> 
+--W5WqUoFLvi1M7tJE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+> +	if (!np) {
+> +		dev_err(&adev->dev, "no device node\n");
+> +		return -ENODEV;
+
+Can this really happen? How should driver and device match otherwise?
+
+Rest is looking good.
+
+
+--W5WqUoFLvi1M7tJE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSxtjZAAoJEBQN5MwUoCm2bogP/ROkIyXHZjPiVw9SaDOsXBDL
+2fWdJ8kR2vN1Kt8Xa/K0dtlwfSp/yIPsxIxaCu896H9gGhAJLjKhkmStBt2obzhv
+HKPMAu2lvNF1g+pOKxC8/rd3PWIueJVPZhVk7Z/UrI0s5wR4PDg5aUyGpcz5c4Ad
+NxsMdI7tY3RTMN62owhWaL+kK+C0EQ3O/6689xDSj0Wg1HwnKC4/kmO/PwkGrqge
+io4rlXb5O52CeMejqn1gUNBj41QgNMP7HfKQk9mlv7qaSavofa1p3OVD9eY6ZobZ
+bfm7DX38NXRkKCWt+xVoK7u1sMUhVybAYuoZNMhITxH2OI/CBL4yZynRj1jODHbD
+iq938SX1vqv44flieMVm9yjhiyBJvhI94kq9qP8flSRpQ2k+5FcpXINb/8BOmV0m
+kQvIGnh9Am79kI9q0jhvS6xkylrGL1D/Mi+rasJbOzuJD8uj9uMOroyzEqUpdqrf
+IhwiwCwNFf3fBKn/Yze/WLVoJCQ18GgyzJXxxpr2e7u09+8E8eV4Cm9soAXiWNZ3
+7wWBvM6pdEbw47pnw2R7+D69+xq8O8Sn+RQLKOrRzX4GAB2wCHkTVwVNQqVuUJsr
+kWO2YNFOURiern2uvo7ddpNttmzqHxeBxqYebXOPiaht0QLAyVVCBlJFb6pgYNNj
+9bytOJF2xA5pzTcDvhAf
+=+nOa
+-----END PGP SIGNATURE-----
+
+--W5WqUoFLvi1M7tJE--
