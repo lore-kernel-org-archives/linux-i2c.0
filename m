@@ -1,66 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: s3c2410: dont need CPU_FREQ transitions for
- exynos series
-Date: Fri, 3 Jan 2014 17:23:52 +0100
-Message-ID: <20140103162351.GI7132@katana>
-References: <1381490814-20890-1-git-send-email-ch.naveen@samsung.com>
- <1385439767-18586-1-git-send-email-ch.naveen@samsung.com>
+Subject: Re: [PATCH] i2c: imx: propagate irq error code in probe
+Date: Fri, 3 Jan 2014 17:38:28 +0100
+Message-ID: <20140103163828.GJ7132@katana>
+References: <1386885091-23188-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VaKJWhUROU/xPxjb"
+	protocol="application/pgp-signature"; boundary="QxN5xOWGsmh5a4wb"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1385439767-18586-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1386885091-23188-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---VaKJWhUROU/xPxjb
+--QxN5xOWGsmh5a4wb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 26, 2013 at 09:52:46AM +0530, Naveen Krishna Chatradhi wrote:
-> For Exynos4 and Exynos5 SoCs from Samsung the i2c clock is based
-> on a fixed 66 MHz peripheral clock, and therefore is completely
-> independent of the cpu frequency.
-> Thus, registering for a CPU freq notifier is very wasteful.
+On Thu, Dec 12, 2013 at 10:51:31PM +0100, Wolfram Sang wrote:
+> smatch rightfully says:
+> drivers/i2c/busses/i2c-imx.c:610 i2c_imx_probe() info: why not propagate =
+'irq' from platform_get_irq() instead of (-2)?
 >=20
-> This patch modifes the code such that, i2c bus registers to
-> cpu_freq_transition only if CONFIG_CPU_FREQ_S3C24XX is enabled.
->=20
-> This change should save a bunch of cpufreq transitions calls
-> which does not apply to exynos SoCs.
->=20
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Acked-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---VaKJWhUROU/xPxjb
+--QxN5xOWGsmh5a4wb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSxuQXAAoJEBQN5MwUoCm23DgP+wTf3YlfmOrh7G+lpYvsgqxQ
-r16o7AOEnjZbJkOE1sN6LNcrCiH/4jAJE756ZBZZGTSzQh6FAb0UPi8abUp18Rzq
-wpsndT//AyhoZKaO6E4qnj67089jqZc2C83+xZrvHJjxXokIz4kfB7yVfHJEsViK
-Wpxtgt7mOxDSF/FAul+ayEw+lSblTBT3y+xF1oLcLPvgl8iMpdzwLSuXkFmrQALO
-4hvOLEh1hfeYafwN8AYMcvgZAttJBrpjDjy4dVScGdQd4RdB0zUCFcSSdonCsBlb
-Hj8ZOSirqN45S6LO7njJL7nImcYmU/r0+atdKHiHKSpayqJBi74OURNciaUmSSSX
-lBFDg0e5Mw41QYryqSmxfbXO7VaF+SNZ9KzApk64MHCFbTNaYrhaColOsFHMu0Xx
-1fB4wQJD2xFhTQP7Da9uZEpytoq4Vay5TBEMGYiPwQ/u/+Z8E5giZYjoMzgzP2Ki
-4zzlSiGEd0NiZLa7OuIvA7eIrZmEKrWD7rEesSCm5OEO7MHZnRcKEn7bdOlRgGsL
-8yAjyKCiSLeCmepG4MlR99obIPuK4cp4oEm622orV/Yc2kaMUXRMrGzSYIbtlrBH
-g6hIJQRTaZdqAsqS/kSm1ShjoXwj/QhpXBnpwXWKbmBc3rprkfx+mUEEDuLBEEHZ
-btRMTWVtR7dL+YSPOpBU
-=+/YN
+iQIcBAEBAgAGBQJSxueEAAoJEBQN5MwUoCm2UhYP/0tleH82MVP+jOuJIDneBcFd
+gnpbS+UFLoCTPv27haNFo5bbuaolaF9yDg+0V23kB1t1F9rZGYklTlYGJBSZLWi3
+QsE0+ZYVRxUYtn0KcB6L1ntRSCMbzMGi83kWOuCcBqejZtrkMPOugcZeB2cbxNeF
+3mVLmKkfNBBtY8/d3x6+q8QWdeWharWHNECMKpqPCceyvfI84BBVHJgSmD8Tswu1
+aAIRaFfaYTQQgwOqDppST6SgE2GqudBCNhjatf2ecpcfQ3X0Xr/xDkuy7hTif/hJ
+i+So/D1zU8nql4+3GESbqUgHQ5c9QsFk21LQi3goq6+yj0mIUFrqcLAvAAwCTG65
+1OpDfAokCSzp7qH5xmTc8HYuLGT0ekOYIJWjmR7+p9IYblp8Y3e0AnnwpIs2SUv+
+SwHsLqVJFNCFPtYv5oM6vA7X6jWu2T7SbcR3iKhJDotGFFzPNJhKQkLgHt0o6ZiO
+WZlNU9/lU+D8rJwGc7NkxQW18u1UpgMwfa6GFMQIycQe16iirrRHA7vjPuxkrUaZ
+OvK6ZVumdFNPnkWJ052z9e2BTqfol6Qhrt2wgtVzU2QzNLDD/3koTBwaI1D0/VAj
+LzpPV85XfUclSW3XSxN7QVvAnYzzMZKnxIBksk180iKae8lLkxZEE0bkeqjP1U0B
+1qdsY2TxpszLwTBgy7km
+=wQbo
 -----END PGP SIGNATURE-----
 
---VaKJWhUROU/xPxjb--
+--QxN5xOWGsmh5a4wb--
