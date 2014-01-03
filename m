@@ -1,78 +1,65 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 REPOST 3/4] i2c: i2c-ibm-iic: Implements transfer
- abortion
-Date: Fri, 3 Jan 2014 16:09:48 +0100
-Message-ID: <20140103150948.GB7132@katana>
+Subject: Re: [PATCH v3 REPOST 4/4] i2c: i2c-ibm-iic: Implements a polling mode
+Date: Fri, 3 Jan 2014 16:13:10 +0100
+Message-ID: <20140103151310.GC7132@katana>
 References: <1387552376-12986-1-git-send-email-jjhiblot@traphandler.com>
- <1387552376-12986-4-git-send-email-jjhiblot@traphandler.com>
+ <1387552376-12986-5-git-send-email-jjhiblot@traphandler.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
+	protocol="application/pgp-signature"; boundary="XWOWbaMNXpFDWE00"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1387552376-12986-4-git-send-email-jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>
+In-Reply-To: <1387552376-12986-5-git-send-email-jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: jean-jacques hiblot <jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, jean-jacques hiblot <jjhiblot-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---/WwmFnJnmDyWGHa4
+--XWOWbaMNXpFDWE00
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 20, 2013 at 04:12:55PM +0100, jean-jacques hiblot wrote:
+On Fri, Dec 20, 2013 at 04:12:56PM +0100, jean-jacques hiblot wrote:
 > From: jean-jacques hiblot <jjhiblot-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 >=20
-> Clean-up properly when a transfer fails for whatever reason.
-> Cancel the transfer when the process is signaled.
-
-Please describe what you do a little. I wonder how you can remove so
-much code while keeping the functionality?
-
+> When no valid interrupt is defined for the controller, use polling to han=
+dle
+> the transfers.
+> The polling mode can also be forced with the "iic_force_poll" module para=
+meter.
 >=20
 > Signed-off-by: jean-jacques hiblot <jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>
 
-> -	out_8(&iic->cntl, CNTL_HMT);
-> +	DBG(dev, "aborting transfer\n");
-> +	/* transfer should be aborted within 10ms */
-> +	end =3D jiffies + 10;
+Do I understand correctly: Polling was not available after patch 2 until pa=
+tch 4?
 
-Eeks, msecs_to_jiffies() macro please!
-
-And please consider running checkpatch and sparse over your code. Sparse
-gives, for example:
-
-drivers/i2c/busses/i2c-ibm_iic.c:418:24: warning: incorrect type in argumen=
-t 1 (different address spaces)
-drivers/i2c/busses/i2c-ibm_iic.c:418:24:    expected unsigned char const vo=
-latile [noderef] [usertype] <asn:2>*addr
-drivers/i2c/busses/i2c-ibm_iic.c:418:24:    got unsigned char *<noident>
-
-(This probably due to patch 1 or 2, I'd guess)
+Has the signal handling been tested extensively? Most drivers do not
+handle signals because it is usually cumbersome to cancel a transfer
+gracefully. That being said, it might work well for you here.
 
 
---/WwmFnJnmDyWGHa4
+--XWOWbaMNXpFDWE00
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSxtK7AAoJEBQN5MwUoCm2J1IP+gPkpDEWsHziU/ItdOWM7Yr0
-OeYoSiKU4pYjND9rsS0oCi/gyQ/pEYDQVUq8K+M+Igj2OBdfZZaDn3BlGikYfB2s
-yuqV/hA9QysQiKqo0lv/SmJALdd7fAjlpLmbdEXFUwhAlcOw3U/sVpqh9cVlQsZl
-KCxRoai5Det/9S9x290xg0LeXQZnL9iPoQXzXH2oR8K2Crp0L17st/EPBP/vNEQI
-3tfmzMQSe9IqaujZryP6d//S8HTqqE3bLqaTBKWKAHepuVBO9U6qQ3FEWsSWDCjn
-KBG3ZylK6a01j3oOAcgz7CLAUEF1eKfzGe9dxXhxDHR8OEFtPocJwFb6TulCYV2c
-qHnuoPZ/IQHVI2DGi6iYsswJMa1TegYijK3yjHsZElraICNPMrgyWZVlp7509A1W
-3kWgI/z2oMnb70KUDUvTFP2r2iCm10Gsgy4XLo6ZezJt2Opxz75dGFqBqtyguVE/
-0Wv1JXuGXfufTANXzNyeHUjQKGMqS/81KyG4BsIU+ECsT72vALc6X3VGtwC9mrZq
-qiiNGx8R0SaAj9dfuAaMnmO6twlS4szKIr4TeIpoVCVTxgLr5ggRPYV7CIbZqbsA
-AQPdGKZ3yfrQR/OTED09+JQzLckdNEZ9WTStVkvqz/4kQcEKJZ0zeHEbcOA0htJ3
-hQACLqildJ4gVcAN9qyP
-=EI+K
+iQIcBAEBAgAGBQJSxtOGAAoJEBQN5MwUoCm2u9cP/3k4DwrNZV3awmjXU5eSvPSB
+gswi2Ucch2+fcXiY9rgizYJKFaNSE1enddnrehHfZ/QMbVgIBN5qB8dLrih6abgc
+JwueQchUMhaw2ULbYGQfIGEG3+LvJMdwuG1HlFrapzSbKXkhYQ1ob3qpga4FRhRL
+tyHTDzfqDblCfEBIezqCmUgSP1HcwdvR5kqOLqt/f+WUF2PvQ8usZPflfnXiAdu/
+gK83Z40zQLMkxN1dgNcv0XZWCvn3Bb5TUQNOZd/Q5JxFnBa3UQgtZ4kGiLZ0pb6u
+qKOjORT6LINvb8aQaUSwa58PFgGHkI+V8iUL9jGxU+bTqKDyahix4jo9qwkrrifs
+C2TDEK3OZPpXnF3YN02pICmbgHfWoGN5eyZJGZ2gmcpiqYmFBDNTmaTTGGrjWVTV
+omltb7HMwEdXQxsh9V1brqQhRVZP184SL3bsyfEC1lFZA9m/Sz1yf0sj6IbboSa1
+QYmcNhNxy0pLvE1qU4BS8E/YMmz+zfKuiNnRPLwHN+sOH4QfLn14DpDUGcRJuq3K
+cef2Wv7mtWB8IAiopRd8dPidCLuMbWfte7R/4hEWWcaX2FOUbzNNkKP0yCxv8rwi
+qKUcs0qwoYxHjzg7IFLisRMbEJZkrfNCFxlBr0Hpt8TFadqwuHTvSes676F9MO/+
+Wb2Yvsh8e2Z8mHrxRd51
+=nWFh
 -----END PGP SIGNATURE-----
 
---/WwmFnJnmDyWGHa4--
+--XWOWbaMNXpFDWE00--
