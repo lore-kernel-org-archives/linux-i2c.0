@@ -1,56 +1,60 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/4] (Repost) Add reset GPIO support to the pca954x I2C
- mux
-Date: Fri, 3 Jan 2014 16:42:47 +0100
-Message-ID: <20140103154247.GE7132@katana>
-References: <1385686285-23780-1-git-send-email-laurent.pinchart@ideasonboard.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 01/15] i2c: shmobile/rcar: Restrict non-COMPILE_TEST
+ compilation
+Date: Fri, 3 Jan 2014 16:47:58 +0100
+Message-ID: <20140103154758.GF7132@katana>
+References: <1385515117-23664-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1385515117-23664-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="JcvBIhDvR6w3jUPA"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1385686285-23780-1-git-send-email-laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1385515117-23664-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: linux-sh@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---lkTb+7nhmha7W+c3
+--JcvBIhDvR6w3jUPA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 29, 2013 at 01:51:21AM +0100, Laurent Pinchart wrote:
-> Hello,
+On Wed, Nov 27, 2013 at 02:18:23AM +0100, Laurent Pinchart wrote:
+> Hardware supported by the i2c sh_mobile and rcar drivers is only found
+> on SUPERH or ARCH_SHMOBILE platforms. Restrict non-COMPILE_TEST
+> compilation to them.
 >=20
-> This patch set adds DT support for a reset GPIO to the pca954x I2C mux. It
-> starts by two cleanup patches for the driver, adds missing DT bindings
-> documentation and finally adds support for the reset GPIO.
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.co=
+m>
 
-Applied series to for-next, thanks!
+Applied to for-next, thanks!
 
 
---lkTb+7nhmha7W+c3
+--JcvBIhDvR6w3jUPA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSxtp3AAoJEBQN5MwUoCm2cxkP/j514/j5xEbt2spOV69epnpJ
-Cc3AalAJtpPYHkaG1YmAVRNSPbNvmZDqrSdCk2tkCpqdsr0b4PWBf01CDZoLdxFq
-kLAOPFfhCluqZoeKnBKHS75Pia1pN+IAwlxTeoLc6WctdRhjuOgLWpNqvj+Uikrd
-m8QTmlLOBPsYiNdzqZzSNUOx2JGkvA3vNQcPkt6oIu9R8MtLt2ytcWB+jYHrRQwM
-XtkYZyJRKDaQGaXSvJrufNl0tXUm2PAnScyTi1Ub6YDBjRlt8GCLCSnaISKkdS9k
-x5BjiUadozYErKkgEYSoffXXHu/Ii42RtBJwbLgLpSz5xTpnF/D7X+N75tzwJdpA
-hZzmqtDZ8ZxVHjHfsQ6+nnf5sjdRqReHg8CMeZ3syxZ+wf/k1HrZFiJdwlK2Ka2u
-Pgqx/5vt1bG2PQ1WGgnGzilqYnlcDbGtZEEyDmzEkL2RfIQ7qaga7FSKZ0BLekZi
-xCvx6df2EwPt8ffRW23I6YKMsMrBX2tBJAncmYMiDo1OZ1JmCEGZmHIMeDC7vUam
-Fh3egMFOmMeBP2iybz9sLaiugpmm123uu6XwRNM1pYXYn8apxx2H6oZZMYbDBLmF
-iyaZocbPJUHygfadFMjQ/kIEK5yMUDxPJxZzoUrFMa0VAfT/TnweKGDbxRDGYCe2
-+Knj7O8qvr7cqAzAZ2W5
-=Vtvc
+iQIcBAEBAgAGBQJSxtuuAAoJEBQN5MwUoCm2ldIP/RbDAXHnGtRtBe35brJ0rvGV
+qKPd5y6LtjdJaRdMnh4+5x43gmQzdy7vruBeaaS6b/N3ft3YlymeFOr/Gz/UICNZ
+TCdW+MHAq7SiIS6b9NtmWP0Cu4RDqSx7bXq8Oqcviyra0WS9MI3p0lojGMDQ6wNw
+fc6zEdxsuRMe7kqNkEGBG7fLghwxh5+t+s6XTp/HJyynJ7Do1EgB0Gr+fyE6m1x5
+9EiqykZRpDDv0o9zDvTFBIHcG6gxoGdm/jMRkAuYofmhgm1B5QYIGAd5uZ1Ga/vQ
+KFNPp998fqT7BhUChN5M5Ib5gl+gysxVnayD6s5dbyNdFweymq4/Yfk248J4275z
+rzSBN/eXlUqE9Ta96dOkcUKJ+SJb9sp4RZVbQoh2zE76B3V79wx7StGVI63vPVEU
+FRvNQXQFCvMVLJY4nPvDFBw+sdgc37zBYvGfouMKEFpjM5NsRtr0OHnnvgJddjvX
+1/eCtgEb8HuSHBpF2qzhoxXIvQCnJB6Ii599VAUtRsvXSEvoUu7NKk6Vpke2LK5n
+CymemXkYvLi7zdacf0ArMPxuqoqMwNfDoA3q2kidf2V0xwWGz30ijU4Un7ROJToK
+/gK3uV9rC3YKoYIRq4i6WREO9YP333VPQe7Cdij7KNSzgWaYX1INyyanDNUzpLil
+kdphQqEkykftG855fbgi
+=PJhw
 -----END PGP SIGNATURE-----
 
---lkTb+7nhmha7W+c3--
+--JcvBIhDvR6w3jUPA--
