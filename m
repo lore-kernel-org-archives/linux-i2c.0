@@ -1,233 +1,123 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
- revision of a SoC
-Date: Fri, 03 Jan 2014 15:51:42 +0100
-Message-ID: <52C6CE7E.5010800@free-electrons.com>
-References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com> <20140103144712.GA22597@lunn.ch>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3 REPOST 2/4] i2c: i2c-ibm-iic: perform the transfer in
+ the interrupt handler
+Date: Fri, 3 Jan 2014 16:04:16 +0100
+Message-ID: <20140103150416.GA7132@katana>
+References: <1387552376-12986-1-git-send-email-jjhiblot@traphandler.com>
+ <1387552376-12986-3-git-send-email-jjhiblot@traphandler.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20140103144712.GA22597@lunn.ch>
-Sender: stable-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1387552376-12986-3-git-send-email-jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jean-jacques hiblot <jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, jean-jacques hiblot <jjhiblot-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/01/2014 15:47, Andrew Lunn wrote:
-> On Fri, Jan 03, 2014 at 10:59:44AM +0100, Gregory CLEMENT wrote:
->> All the mvebu SoCs have information related to their variant and
->> revision that can be read from the PCI control register.
->>
->> This patch adds support for Armada XP and Armada 370. This reading of
->> the revision and the ID are done before the PCI initialization to
->> avoid any conflicts. Once these data are retrieved, the resources are
->> freed to let the PCI subsystem use it.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
->> ---
->>  arch/arm/mach-mvebu/Makefile       |   2 +-
->>  arch/arm/mach-mvebu/mvebu-soc-id.c | 111 +++++++++++++++++++++++++++++++++++++
->>  include/linux/mvebu-soc-id.h       |  32 +++++++++++
->>  3 files changed, 144 insertions(+), 1 deletion(-)
->>  create mode 100644 arch/arm/mach-mvebu/mvebu-soc-id.c
->>  create mode 100644 include/linux/mvebu-soc-id.h
->>
->> diff --git a/arch/arm/mach-mvebu/Makefile b/arch/arm/mach-mvebu/Makefile
->> index 2d04f0e21870..878aebe98dcc 100644
->> --- a/arch/arm/mach-mvebu/Makefile
->> +++ b/arch/arm/mach-mvebu/Makefile
->> @@ -3,7 +3,7 @@ ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include \
->>  
->>  AFLAGS_coherency_ll.o		:= -Wa,-march=armv7-a
->>  
->> -obj-y				 += system-controller.o
->> +obj-y				 += system-controller.o mvebu-soc-id.o
->>  obj-$(CONFIG_MACH_ARMADA_370_XP) += armada-370-xp.o
->>  obj-$(CONFIG_ARCH_MVEBU)	 += coherency.o coherency_ll.o pmsu.o
->>  obj-$(CONFIG_SMP)                += platsmp.o headsmp.o
->> diff --git a/arch/arm/mach-mvebu/mvebu-soc-id.c b/arch/arm/mach-mvebu/mvebu-soc-id.c
->> new file mode 100644
->> index 000000000000..86c901be284c
->> --- /dev/null
->> +++ b/arch/arm/mach-mvebu/mvebu-soc-id.c
->> @@ -0,0 +1,111 @@
->> +/*
->> + * Variant and revision information for mvebu SoCs
->> + *
->> + * Copyright (C) 2014 Marvell
->> + *
->> + * Gregory CLEMENT <gregory.clement@free-electrons.com>
->> + *
->> + * This file is licensed under the terms of the GNU General Public
->> + * License version 2.  This program is licensed "as is" without any
->> + * warranty of any kind, whether express or implied.
->> + *
->> + * All the mvebu SoCs have information related to their variant and
->> + * revision that can be read from the PCI control register. This is
->> + * done before the PCI initialization to avoid any conflict. Once the
->> + * ID and revision are retrieved, the mapping is freed.
->> + */
->> +
->> +#include <linux/clk.h>
->> +#include <linux/init.h>
->> +#include <linux/io.h>
->> +#include <linux/kernel.h>
->> +#include <linux/mvebu-soc-id.h>
->> +#include <linux/of.h>
->> +#include <linux/of_address.h>
->> +
->> +#define PCIE_DEV_ID_OFF		0x0
->> +#define PCIE_DEV_REV_OFF	0x8
->> +
->> +#define SOC_ID_MASK	    0xFFFF0000
->> +#define SOC_REV_MASK	    0xFF
->> +
->> +static u32 soc_dev_id;
->> +static u32 soc_rev;
->> +static bool is_id_valid;
->> +
->> +static const struct of_device_id mvebu_pcie_of_match_table[] = {
->> +	{ .compatible = "marvell,armada-xp-pcie", },
->> +	{ .compatible = "marvell,armada-370-pcie", },
->> +	{},
->> +};
->> +
->> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
->> +{
->> +	if (is_id_valid) {
->> +		*dev = soc_dev_id;
->> +		*rev = soc_rev;
->> +		return 0;
->> +	} else
->> +		return -1;
->> +}
->> +
->> +EXPORT_SYMBOL(mvebu_get_soc_id);
->> +
->> +static int __init mvebu_soc_id_init(void)
->> +{
->> +	struct device_node *np;
->> +	int ret = 0;
->> +
->> +	np = of_find_matching_node(NULL, mvebu_pcie_of_match_table);
->> +	if (np) {
->> +		void __iomem *pci_base;
->> +		struct clk *clk;
->> +		/*
->> +		 * ID and revision are available from any port, so we
->> +		 * just pick the first one
->> +		 */
->> +		struct device_node *child = of_get_next_child(np, NULL);
-> 
-> Hi Gregory
-> 
-> I'm away from my hardware at the moment. 
-> 
-> Does this work when all the PCIe ports have status = "disabled";? We
-> have many kirkwood devices in NAS boxes which don't use PCIe, so all
-> the ports are disabled. But they still exist in the SoC, so we can
-> read the IDs from them. I just don't know if of_get_next_child() will
-> only return enabled children?
 
-There is a function named of_get_next_available_child, so I assumed that
-of_get_next_child() will return all the children. But I can test it to
-be sure of it.
-
-> 
-> Thanks
-> 	Andrew
-> 
->> +
->> +		clk = of_clk_get_by_name(child, NULL);
->> +		if (IS_ERR(clk)) {
->> +			pr_err("%s: cannot get clock\n", __func__);
->> +			ret = -ENOMEM;
->> +			goto clk_err;
->> +		}
->> +
->> +		ret = clk_prepare_enable(clk);
->> +		if (ret) {
->> +			pr_err("%s: cannot enable clock\n", __func__);
->> +			goto clk_err;
->> +		}
->> +
->> +		pci_base = of_iomap(child, 0);
->> +		if (IS_ERR(pci_base)) {
->> +			pr_err("%s: cannot map registers\n",  __func__);
->> +			ret = -ENOMEM;
->> +			goto res_ioremap;
->> +		}
->> +
->> +		/* SoC ID */
->> +		soc_dev_id = __raw_readl(pci_base + PCIE_DEV_ID_OFF) >> 16;
->> +
->> +		/* SoC revision */
->> +		soc_rev = __raw_readl(pci_base + PCIE_DEV_REV_OFF)
->> +			& SOC_REV_MASK;
->> +
->> +		is_id_valid = true;
->> +
->> +		iounmap(pci_base);
->> +
->> +res_ioremap:
->> +		clk_disable_unprepare(clk);
->> +
->> +clk_err:
->> +		of_node_put(child);
->> +		of_node_put(np);
->> +	}
->> +
->> +	return ret;
->> +}
->> +arch_initcall(mvebu_soc_id_init);
->> +
->> diff --git a/include/linux/mvebu-soc-id.h b/include/linux/mvebu-soc-id.h
->> new file mode 100644
->> index 000000000000..602ce1c50d1d
->> --- /dev/null
->> +++ b/include/linux/mvebu-soc-id.h
->> @@ -0,0 +1,32 @@
->> +/*
->> + * Marvell EBU SoC ID and revision definitions.
->> + *
->> + * Copyright (C) 2014 Marvell Semiconductor
->> + *
->> + * This file is licensed under the terms of the GNU General Public
->> + * License version 2.  This program is licensed "as is" without any
->> + * warranty of any kind, whether express or implied.
->> + */
->> +
->> +#ifndef __LINUX_MVEBU_SOC_ID_H
->> +#define __LINUX_MVEBU_SOC_ID_H
->> +
->> +/* Armada XP ID */
->> +#define MV78230_DEV_ID	    0x7823
->> +#define MV78260_DEV_ID	    0x7826
->> +#define MV78460_DEV_ID	    0x7846
->> +
->> +/* Armada XP Revision */
->> +#define MV78XX0_A0_REV	    0x1
->> +#define MV78XX0_B0_REV	    0x2
->> +
->> +#ifdef CONFIG_ARCH_MVEBU
->> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
->> +#else
->> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
->> +{
->> +	return -1;
->> +}
->> +#endif
->> +
->> +#endif /* __LINUX_MVEBU_SOC_ID_H */
->> -- 
->> 1.8.1.2
->>
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+Hi,
+
+thanks for the submission!
+
+> --- a/drivers/i2c/busses/i2c-ibm_iic.c
+> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
+> @@ -58,6 +58,8 @@ static bool iic_force_fast;
+>  module_param(iic_force_fast, bool, 0);
+>  MODULE_PARM_DESC(iic_force_fast, "Force fast mode (400 kHz)");
+> =20
+> +#define FIFO_FLUSH_TIMEOUT 100
+
+100 what? The unit is missing.
+
+> @@ -167,8 +170,8 @@ static void iic_dev_init(struct ibm_iic_private* dev)
+>  	/* Clear control register */
+>  	out_8(&iic->cntl, 0);
+> =20
+> -	/* Enable interrupts if possible */
+> -	iic_interrupt_mode(dev, dev->irq >=3D 0);
+> +	/* Start with each individual interrupt masked*/
+
+Space at the end of comment missing
+
+>  static irqreturn_t iic_handler(int irq, void *dev_id)
+>  {
+> -	struct ibm_iic_private* dev =3D (struct ibm_iic_private*)dev_id;
+> -	struct iic_regs __iomem *iic =3D dev->vaddr;
+> -
+> -	DBG2(dev, "irq handler, STS =3D 0x%02x, EXTSTS =3D 0x%02x\n",
+> -	     in_8(&iic->sts), in_8(&iic->extsts));
+> -
+> -	/* Acknowledge IRQ and wakeup iic_wait_for_tc */
+> -	out_8(&iic->sts, STS_IRQA | STS_SCMP);
+> -	wake_up_interruptible(&dev->wq);
+> -
+> +	struct ibm_iic_private *dev =3D (struct ibm_iic_private *) dev_id;
+> +	iic_xfer_bytes(dev);
+
+Is iic_xfer_bytes later used when polling, too? Otherwise it could be
+simply inserted here.
+
+
+> +	if ((status & STS_ERR) ||
+> +	    (ext_status & (EXTSTS_LA | EXTSTS_ICT | EXTSTS_XFRA))) {
+> +		DBG(dev, "status 0x%x\n", status);
+> +		DBG(dev, "extended status 0x%x\n", ext_status);
+> +		if (status & STS_ERR)
+> +			ERR(dev, "Error detected\n");
+> +		if (ext_status & EXTSTS_LA)
+> +			DBG(dev, "Lost arbitration\n");
+> +		if (ext_status & EXTSTS_ICT)
+> +			ERR(dev, "Incomplete transfer\n");
+> +		if (ext_status & EXTSTS_XFRA)
+> +			ERR(dev, "Transfer aborted\n");
+> +
+> +		dev->status =3D -EIO;
+
+You could consider returning different fault codes for the different
+states. See Documentation/i2c/fault-codes for a guide.
+
+> +	if (dev->msgs =3D=3D NULL) {
+> +		DBG(dev, "spurious !!!!!\n");
+> +		dev->status =3D -EINVAL;
+> +		return dev->status;
+> +	}
+
+Does that really happen?
+
+And it introduces a build warning:
+
+drivers/i2c/busses/i2c-ibm_iic.c:410:12: warning: 'iic_wait_for_tc' defined=
+ but not used [-Wunused-function]
+
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSxtFwAAoJEBQN5MwUoCm2JawP/RmKkHkt42bBdrgHMUHJGK/G
+4kHlCIcmBBe8DDMl6EmKWBzM33A8gyrNTolszKjziqDNgQkp+fU13/y1fwupiYQZ
+eHQGwmIpj+4CGnilI1thtayvA/tIt80vHU6ZId3SOmNcoD5yUtcDy9WpJmeMTKbC
+9F2yQrjUgPfTHqpcF0UBxuhG61Y6VEBr1CLjoQKGB9RJZuPl41vTJZZ2r1LKGDr4
+5C/dJTcI9Xb4n1Qtg4OA2OSKOvAY1dQVETVCV7iCKtRhi2s1AlGqgxrcktiUc7+1
+1hb0sIOFfVc8M5JNAlVKiPYQYKJ/CRaRW9Eg4RmJjJLMX0cot4zQb80/t0AuZx6C
+T+2KYxF8nHc3SoGgSO400tzCha0y+i4u1J2I19bmoRUpIAtYYqTreDp26w+RsOJ8
+o29sdlLIx5m4OX4kfON5Y4O/IWvtcKz+W9SudSS7Va8P9os+fYQPfjOscYL60A7M
+92ppRO9T7cMgNS+DfTQ52Kj0h0W60uWeqp1MQYdg9yiyxlo1Vs/298hVxJQhvEkG
+IEGO+Dit5R/Du4pKqAl0mWfLRvP9SbvgwH2IqYe9FpIj0psGSaaY/ypwqcHCklQ0
+n0+bWvRcEhkKGaGZTGkrSt20DDYZIMwUI4gCRtQa5Fccz7dYZn/GldzsYJhCixBu
+CQfdw2aiVXQcaM62TnZY
+=pQPj
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--
