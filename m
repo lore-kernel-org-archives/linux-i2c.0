@@ -1,75 +1,69 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V2] i2c: s3c2410 : Add polling mode support
-Date: Fri, 3 Jan 2014 17:10:12 +0100
-Message-ID: <20140103161012.GH7132@katana>
-References: <1384168820-2986-1-git-send-email-yuvaraj.cd@samsung.com>
+From: Jean-Jacques Hiblot <jjhiblot@traphandler.com>
+Subject: Re: [PATCH v3 REPOST 3/4] i2c: i2c-ibm-iic: Implements transfer
+ abortion
+Date: Fri, 3 Jan 2014 17:14:32 +0100
+Message-ID: <CACh+v5NZWW=y377_-B7tpDCMzbnNMhz4vT1EhuRZhnj3oxBjxg@mail.gmail.com>
+References: <1387552376-12986-1-git-send-email-jjhiblot@traphandler.com>
+ <1387552376-12986-4-git-send-email-jjhiblot@traphandler.com>
+ <20140103150948.GB7132@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LiQwW4YX+w4axhAx"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1384168820-2986-1-git-send-email-yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yuvaraj Kumar C D <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, ks.giri-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, aditya.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Vasanth Ananthan <vasanthananthan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Vasanth Ananthan <vasanth.a-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20140103150948.GB7132@katana>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>, linuxppc-dev@lists.ozlabs.org, jean-jacques hiblot <jjhiblot@traphandler.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+2014/1/3 Wolfram Sang <wsa@the-dreams.de>:
+> On Fri, Dec 20, 2013 at 04:12:55PM +0100, jean-jacques hiblot wrote:
+>> From: jean-jacques hiblot <jjhiblot@gmail.com>
+>>
+>> Clean-up properly when a transfer fails for whatever reason.
+>> Cancel the transfer when the process is signaled.
+>
+> Please describe what you do a little. I wonder how you can remove so
+> much code while keeping the functionality?
 
---LiQwW4YX+w4axhAx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-On Mon, Nov 11, 2013 at 04:50:20PM +0530, Yuvaraj Kumar C D wrote:
-> From: Vasanth Ananthan <vasanthananthan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->=20
-> This patch adds polling mode support for i2c-s3c2410 driver.The
-> SATA PHY controller's CMU and TRSV block's are of I2C register
-> map in exynos5250.These blocks can be configured using i2c.
->=20
-> But i2c controller instance on which these block's sits lacks an
-> interrupt line.Also the current i2c-s3c2410 driver is only interrupt
-> driven, thus a polling mode support is required in the driver for
-> supporting this controller. This patch adds this support to the driver.
->=20
-> Changes from V1:
-> 	1.Changed the is_ack() to have even period b/w polls and
-> 	  used usleep_range() instead of udelay().
-
-Mileages vary, but I'd like to see revision changes after the "---".
-
->  	ret =3D devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
-> -			       dev_name(&pdev->dev), i2c);
-> +				dev_name(&pdev->dev), i2c);
-
-Unrelated change.
-
-Rest looks good, so I'll fix up the things for you and apply to
-for-next, thanks!
+Well there are 2 reasons why so much code went away.
+1) The iic_wait_for_tc() function wasn't used anymore (it should have
+disappeared in an earlier patch but the diff was terrible to read)
+2) the whole abortion scheme is different. It's now done as a part of
+the data transfer. The reason is that the controller doesn't react
+properly to abortion when it's not done at the right moment.
+The idea here is to abort the transfer right after sending the next
+byte to keep the controller happy. If the abortion is asked at the
+wrong moment, the controller may not set the abortion complete flag
+and the next transfer may fail.
 
 
---LiQwW4YX+w4axhAx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSxuDjAAoJEBQN5MwUoCm2SLUP/1Q8BcJlMMfSyfORTR+34WlF
-507zNPJcyrNobOULiYp5Y6Ud5cgjEOsQOJwOdX4TAYAhMX4Ydpqp7Y8+YHZ4lEQu
-61U3qSanrUpqdyOSt8gk5ZkFO7M5jqXkMNf1SMFdGZG0cuCNC/05uMk9NB0ImyDN
-3JzuBuDBImzKUbvhQonsYtGKonZYX01jYJ5MH3UWpCrBHjD67XahH5Ut94roRMjm
-spjUG67V6cV6QNcqGfmPdQn0FdSfIoBW2JLXMfyI9SLYetiZ3mG0YsQ4qR58CEqg
-Cc4ABFhQhvOe1qfL7OMyafjgBaMIjH9DJ0fssHgV8xyPhQpjhl9Ew1dcTs7/6TqI
-a30RLhUX91VvmOPy7mMSv4UTT2ev6den1KdcJdMdCbVyn27i8nxFOweemQi0LFIF
-mReAByF1SfQQs5ViFDxQt2+nr2LChYBS9HWTXFbOrCzGawW3M54tf6y5IR73hIfI
-lkNztNi1CdtLp+fQyf/XJMG/qr+xgexs4EJq+TL9t8gsiWep8nnR4Jjt6Yo7f6Hc
-KwDArTbRsv1Hk5p9GbrV4oswN80gQLPpSLOlk6wsL1c5Yf8WhUaqTSvJuLpVMLnK
-x0rXM8d4cByBfnrAa1/0t8amj5X4DuFpeaFtlMO4QblmC25s4n48U2cPj7lNLPmZ
-KDwu6qzlN0AKXvwp3OKc
-=rOkk
------END PGP SIGNATURE-----
-
---LiQwW4YX+w4axhAx--
+>
+>>
+>> Signed-off-by: jean-jacques hiblot <jjhiblot@traphandler.com>
+>
+>> -     out_8(&iic->cntl, CNTL_HMT);
+>> +     DBG(dev, "aborting transfer\n");
+>> +     /* transfer should be aborted within 10ms */
+>> +     end = jiffies + 10;
+>
+> Eeks, msecs_to_jiffies() macro please!
+>
+> And please consider running checkpatch and sparse over your code. Sparse
+> gives, for example:
+>
+> drivers/i2c/busses/i2c-ibm_iic.c:418:24: warning: incorrect type in argument 1 (different address spaces)
+> drivers/i2c/busses/i2c-ibm_iic.c:418:24:    expected unsigned char const volatile [noderef] [usertype] <asn:2>*addr
+> drivers/i2c/busses/i2c-ibm_iic.c:418:24:    got unsigned char *<noident>
+>
+> (This probably due to patch 1 or 2, I'd guess)
+>
