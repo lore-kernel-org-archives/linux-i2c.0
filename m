@@ -1,65 +1,49 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
- revision of a SoC
-Date: Fri, 03 Jan 2014 20:30:10 +0100
-Message-ID: <52C70FC2.20400@free-electrons.com>
-References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com> <20140103144712.GA22597@lunn.ch> <52C6CE7E.5010800@free-electrons.com> <52C6D3A8.4010801@free-electrons.com> <20140103164108.GA23714@lunn.ch>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] i2c: mv64xxx: Fix bus hang on A0 version of the
+ Armada XP SoCs
+Date: Fri, 03 Jan 2014 20:31:57 +0100
+Message-ID: <52C7102D.60401@free-electrons.com>
+References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-3-git-send-email-gregory.clement@free-electrons.com> <20140103194929.706f93c6@skate>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20140103164108.GA23714@lunn.ch>
-Sender: stable-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140103194929.706f93c6@skate>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/01/2014 17:41, Andrew Lunn wrote:
->>>> Hi Gregory
->>>>
->>>> I'm away from my hardware at the moment. 
->>>>
->>>> Does this work when all the PCIe ports have status = "disabled";? We
->>>> have many kirkwood devices in NAS boxes which don't use PCIe, so all
->>>> the ports are disabled. But they still exist in the SoC, so we can
->>>> read the IDs from them. I just don't know if of_get_next_child() will
->>>> only return enabled children?
->>>
->>> There is a function named of_get_next_available_child, so I assumed that
->>> of_get_next_child() will return all the children. But I can test it to
->>> be sure of it.
->>>
->>
->> I have just removed all the PCIe part in the
->> armada-xp-openblocks-ax3-4.dts file (PCie is disable by default in the
->> dtsi file) and it worled as expected! :)
+On 03/01/2014 19:49, Thomas Petazzoni wrote:
+> Dear Gregory CLEMENT,
 > 
-> Great, thanks for testing.
->  
->> by the way waht do you think of adding this line in at the end of the
->> mvebu_soc_id_init() function:
->>
->> pr_info("MVEBU SoC ID=0x%X, Rev=0x%X\n", soc_dev_id, soc_rev);
+> On Fri,  3 Jan 2014 10:59:45 +0100, Gregory CLEMENT wrote:
 > 
-> Kirkwood prints actual strings, not numbers. More readable.
-
-With this number we are sure to have always an information even if the
-SoC ID or version was unknown by the kernel.
-
->  
->> Also keep in mind that currently you can't use it for kirkwood because
->> the build of the file depend on CONFIG_ARCH_MVEBU. But as kirkwood
->> will soon joined the mach-mvebu directory, it won't be a problem then.
+>> +		/*
+>> +		 * Only revison more recent than A0 support offload
 > 
-> I think it is possible to do ../mach-mvebu/soc_id.o sort of thing in
-> the Makefile. Ugly, but might work until we move.
-
-Yes it is doable, but then we also need to update the mvebu_pcie_of_match_table.
-However I would prefer doing this as a separate patch because this one is
-for fixing a bug. Later we can improve the kernel.
-
+> revison -> revisions
 > 
->     Andrew
+> offload mechanism -> the offload mechanism
+> 
+>> +		 * mechanism. In case we can't get the SoC revision
+>> +		 * weplay safe and we don't enable it
+> 
+> weplay -> we play
+> 
+>> +		 */
+>> +		if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
+>> +			drv_data->offload_enabled = true;
+>>  	}
+>>  
+>>  out:
+> 
+
+These typos will be fixed in the next version.
+
+> Thanks!
+> 
+> Thomas
 > 
 
 
