@@ -1,55 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: imx: propagate irq error code in probe
-Date: Fri, 3 Jan 2014 17:38:28 +0100
-Message-ID: <20140103163828.GJ7132@katana>
-References: <1386885091-23188-1-git-send-email-wsa@the-dreams.de>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
+ revision of a SoC
+Date: Fri, 3 Jan 2014 17:41:08 +0100
+Message-ID: <20140103164108.GA23714@lunn.ch>
+References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com>
+ <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com>
+ <20140103144712.GA22597@lunn.ch>
+ <52C6CE7E.5010800@free-electrons.com>
+ <52C6D3A8.4010801@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QxN5xOWGsmh5a4wb"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1386885091-23188-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <52C6D3A8.4010801@free-electrons.com>
+Sender: stable-owner@vger.kernel.org
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+> >> Hi Gregory
+> >>
+> >> I'm away from my hardware at the moment. 
+> >>
+> >> Does this work when all the PCIe ports have status = "disabled";? We
+> >> have many kirkwood devices in NAS boxes which don't use PCIe, so all
+> >> the ports are disabled. But they still exist in the SoC, so we can
+> >> read the IDs from them. I just don't know if of_get_next_child() will
+> >> only return enabled children?
+> > 
+> > There is a function named of_get_next_available_child, so I assumed that
+> > of_get_next_child() will return all the children. But I can test it to
+> > be sure of it.
+> > 
+> 
+> I have just removed all the PCIe part in the
+> armada-xp-openblocks-ax3-4.dts file (PCie is disable by default in the
+> dtsi file) and it worled as expected! :)
 
---QxN5xOWGsmh5a4wb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Great, thanks for testing.
+ 
+> by the way waht do you think of adding this line in at the end of the
+> mvebu_soc_id_init() function:
+> 
+> pr_info("MVEBU SoC ID=0x%X, Rev=0x%X\n", soc_dev_id, soc_rev);
 
-On Thu, Dec 12, 2013 at 10:51:31PM +0100, Wolfram Sang wrote:
-> smatch rightfully says:
-> drivers/i2c/busses/i2c-imx.c:610 i2c_imx_probe() info: why not propagate =
-'irq' from platform_get_irq() instead of (-2)?
->=20
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Kirkwood prints actual strings, not numbers. More readable.
+ 
+> Also keep in mind that currently you can't use it for kirkwood because
+> the build of the file depend on CONFIG_ARCH_MVEBU. But as kirkwood
+> will soon joined the mach-mvebu directory, it won't be a problem then.
 
-Applied to for-next, thanks!
+I think it is possible to do ../mach-mvebu/soc_id.o sort of thing in
+the Makefile. Ugly, but might work until we move.
 
-
---QxN5xOWGsmh5a4wb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSxueEAAoJEBQN5MwUoCm2UhYP/0tleH82MVP+jOuJIDneBcFd
-gnpbS+UFLoCTPv27haNFo5bbuaolaF9yDg+0V23kB1t1F9rZGYklTlYGJBSZLWi3
-QsE0+ZYVRxUYtn0KcB6L1ntRSCMbzMGi83kWOuCcBqejZtrkMPOugcZeB2cbxNeF
-3mVLmKkfNBBtY8/d3x6+q8QWdeWharWHNECMKpqPCceyvfI84BBVHJgSmD8Tswu1
-aAIRaFfaYTQQgwOqDppST6SgE2GqudBCNhjatf2ecpcfQ3X0Xr/xDkuy7hTif/hJ
-i+So/D1zU8nql4+3GESbqUgHQ5c9QsFk21LQi3goq6+yj0mIUFrqcLAvAAwCTG65
-1OpDfAokCSzp7qH5xmTc8HYuLGT0ekOYIJWjmR7+p9IYblp8Y3e0AnnwpIs2SUv+
-SwHsLqVJFNCFPtYv5oM6vA7X6jWu2T7SbcR3iKhJDotGFFzPNJhKQkLgHt0o6ZiO
-WZlNU9/lU+D8rJwGc7NkxQW18u1UpgMwfa6GFMQIycQe16iirrRHA7vjPuxkrUaZ
-OvK6ZVumdFNPnkWJ052z9e2BTqfol6Qhrt2wgtVzU2QzNLDD/3koTBwaI1D0/VAj
-LzpPV85XfUclSW3XSxN7QVvAnYzzMZKnxIBksk180iKae8lLkxZEE0bkeqjP1U0B
-1qdsY2TxpszLwTBgy7km
-=wQbo
------END PGP SIGNATURE-----
-
---QxN5xOWGsmh5a4wb--
+    Andrew
