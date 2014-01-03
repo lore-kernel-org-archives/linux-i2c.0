@@ -1,49 +1,49 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: mv64xxx: Fix bus hang on A0 version of the
- Armada XP SoCs
-Date: Fri, 03 Jan 2014 20:31:57 +0100
-Message-ID: <52C7102D.60401@free-electrons.com>
-References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-3-git-send-email-gregory.clement@free-electrons.com> <20140103194929.706f93c6@skate>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
+ revision of a SoC
+Date: Fri, 03 Jan 2014 20:35:27 +0100
+Message-ID: <52C710FF.7000901@free-electrons.com>
+References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com> <20140103185907.GD12098@obsidianresearch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140103194929.706f93c6@skate>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20140103185907.GD12098@obsidianresearch.com>
+Sender: stable-owner@vger.kernel.org
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/01/2014 19:49, Thomas Petazzoni wrote:
-> Dear Gregory CLEMENT,
+On 03/01/2014 19:59, Jason Gunthorpe wrote:
+> On Fri, Jan 03, 2014 at 10:59:44AM +0100, Gregory CLEMENT wrote:
 > 
-> On Fri,  3 Jan 2014 10:59:45 +0100, Gregory CLEMENT wrote:
+>> +		/* SoC ID */
+>> +		soc_dev_id = __raw_readl(pci_base + PCIE_DEV_ID_OFF) >> 16;
+>> +
+>> +		/* SoC revision */
+>> +		soc_rev = __raw_readl(pci_base + PCIE_DEV_REV_OFF)
+>> +			& SOC_REV_MASK;
 > 
->> +		/*
->> +		 * Only revison more recent than A0 support offload
-> 
-> revison -> revisions
-> 
-> offload mechanism -> the offload mechanism
-> 
->> +		 * mechanism. In case we can't get the SoC revision
->> +		 * weplay safe and we don't enable it
-> 
-> weplay -> we play
-> 
->> +		 */
->> +		if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
->> +			drv_data->offload_enabled = true;
->>  	}
->>  
->>  out:
-> 
+> Sort of a minor nit, but I'm not actually sure these registers are
+> read-only :( I know the documentation doesn't describe how to change
+> them, but in PCI-E EndPoint mode they are read by the host so the
+> firmware must be able to change them to reflect the firmware running
+> on the endpoint..
 
-These typos will be fixed in the next version.
+According to the datasheet of the Armada XP and the Armada 370 these
+register are read-only. Moreover they are already use as is for the
+kirkwood, orion5x, dove and mv78x00 in the current kernel and for all
+the mvebu Socs in the internal version of Marvell, so even if it was
+possible to change these values I believe that it never happened.
 
-> Thanks!
 > 
-> Thomas
+> Which is to say, I suppose the bootloader could program them to
+> something else if it wanted to.
+> 
+> That said, in practice obviously they will not be changed, but maybe
+> there is another ID register you can read?
+> 
+> Jason
 > 
 
 
