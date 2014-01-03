@@ -1,112 +1,75 @@
-From: Jean-Jacques Hiblot <jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>
-Subject: Re: [PATCH v3 REPOST 2/4] i2c: i2c-ibm-iic: perform the transfer in
- the interrupt handler
-Date: Fri, 3 Jan 2014 16:57:17 +0100
-Message-ID: <CACh+v5OJoGSZZjbDfeKSnPQ7BHHx6zhdp06=YcMWWfu03FVS+Q@mail.gmail.com>
-References: <1387552376-12986-1-git-send-email-jjhiblot@traphandler.com>
-	<1387552376-12986-3-git-send-email-jjhiblot@traphandler.com>
-	<20140103150416.GA7132@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH V2] i2c: s3c2410 : Add polling mode support
+Date: Fri, 3 Jan 2014 17:10:12 +0100
+Message-ID: <20140103161012.GH7132@katana>
+References: <1384168820-2986-1-git-send-email-yuvaraj.cd@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LiQwW4YX+w4axhAx"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140103150416.GA7132@katana>
+Content-Disposition: inline
+In-Reply-To: <1384168820-2986-1-git-send-email-yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: jean-jacques hiblot <jjhiblot-dLKeG7h1OhBDOHtkgc7UlQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+To: Yuvaraj Kumar C D <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, ks.giri-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, aditya.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Vasanth Ananthan <vasanthananthan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Vasanth Ananthan <vasanth.a-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2014/1/3 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
->
-> Hi,
->
-> thanks for the submission!
-You're welcome :) Thanks for reviewing this.
 
->
->> --- a/drivers/i2c/busses/i2c-ibm_iic.c
->> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
->> @@ -58,6 +58,8 @@ static bool iic_force_fast;
->>  module_param(iic_force_fast, bool, 0);
->>  MODULE_PARM_DESC(iic_force_fast, "Force fast mode (400 kHz)");
->>
->> +#define FIFO_FLUSH_TIMEOUT 100
->
-> 100 what? The unit is missing.
+--LiQwW4YX+w4axhAx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The actual value of this timeout isn't very important. This is used
-only to avoid a never ending loop in case the hardware goes into a
-really bad state.
+Hi,
 
->
->> @@ -167,8 +170,8 @@ static void iic_dev_init(struct ibm_iic_private* dev)
->>       /* Clear control register */
->>       out_8(&iic->cntl, 0);
->>
->> -     /* Enable interrupts if possible */
->> -     iic_interrupt_mode(dev, dev->irq >= 0);
->> +     /* Start with each individual interrupt masked*/
->
-> Space at the end of comment missing
-ok
->
->>  static irqreturn_t iic_handler(int irq, void *dev_id)
->>  {
->> -     struct ibm_iic_private* dev = (struct ibm_iic_private*)dev_id;
->> -     struct iic_regs __iomem *iic = dev->vaddr;
->> -
->> -     DBG2(dev, "irq handler, STS = 0x%02x, EXTSTS = 0x%02x\n",
->> -          in_8(&iic->sts), in_8(&iic->extsts));
->> -
->> -     /* Acknowledge IRQ and wakeup iic_wait_for_tc */
->> -     out_8(&iic->sts, STS_IRQA | STS_SCMP);
->> -     wake_up_interruptible(&dev->wq);
->> -
->> +     struct ibm_iic_private *dev = (struct ibm_iic_private *) dev_id;
->> +     iic_xfer_bytes(dev);
->
-> Is iic_xfer_bytes later used when polling, too? Otherwise it could be
-> simply inserted here.
-Yes it'll be used for polling (implemented in a later patch)
->
->
->> +     if ((status & STS_ERR) ||
->> +         (ext_status & (EXTSTS_LA | EXTSTS_ICT | EXTSTS_XFRA))) {
->> +             DBG(dev, "status 0x%x\n", status);
->> +             DBG(dev, "extended status 0x%x\n", ext_status);
->> +             if (status & STS_ERR)
->> +                     ERR(dev, "Error detected\n");
->> +             if (ext_status & EXTSTS_LA)
->> +                     DBG(dev, "Lost arbitration\n");
->> +             if (ext_status & EXTSTS_ICT)
->> +                     ERR(dev, "Incomplete transfer\n");
->> +             if (ext_status & EXTSTS_XFRA)
->> +                     ERR(dev, "Transfer aborted\n");
->> +
->> +             dev->status = -EIO;
->
-> You could consider returning different fault codes for the different
-> states. See Documentation/i2c/fault-codes for a guide.
-I'll have a look at it.
+On Mon, Nov 11, 2013 at 04:50:20PM +0530, Yuvaraj Kumar C D wrote:
+> From: Vasanth Ananthan <vasanthananthan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>=20
+> This patch adds polling mode support for i2c-s3c2410 driver.The
+> SATA PHY controller's CMU and TRSV block's are of I2C register
+> map in exynos5250.These blocks can be configured using i2c.
+>=20
+> But i2c controller instance on which these block's sits lacks an
+> interrupt line.Also the current i2c-s3c2410 driver is only interrupt
+> driven, thus a polling mode support is required in the driver for
+> supporting this controller. This patch adds this support to the driver.
+>=20
+> Changes from V1:
+> 	1.Changed the is_ack() to have even period b/w polls and
+> 	  used usleep_range() instead of udelay().
 
->
->> +     if (dev->msgs == NULL) {
->> +             DBG(dev, "spurious !!!!!\n");
->> +             dev->status = -EINVAL;
->> +             return dev->status;
->> +     }
->
-> Does that really happen?
-Not in my test cases (going through i2c dev). But it could if the data
-passed to i2c_transfer is malformed.
-Should I remove this ?
+Mileages vary, but I'd like to see revision changes after the "---".
 
->
-> And it introduces a build warning:
->
-> drivers/i2c/busses/i2c-ibm_iic.c:410:12: warning: 'iic_wait_for_tc' defined but not used [-Wunused-function]
->
-I posted this some time ago, but I believe I kept this in to help git
-produce a diff readable by a human.
-It's removed in a later patch
+>  	ret =3D devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
+> -			       dev_name(&pdev->dev), i2c);
+> +				dev_name(&pdev->dev), i2c);
 
-Jean-Jacques
+Unrelated change.
+
+Rest looks good, so I'll fix up the things for you and apply to
+for-next, thanks!
+
+
+--LiQwW4YX+w4axhAx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSxuDjAAoJEBQN5MwUoCm2SLUP/1Q8BcJlMMfSyfORTR+34WlF
+507zNPJcyrNobOULiYp5Y6Ud5cgjEOsQOJwOdX4TAYAhMX4Ydpqp7Y8+YHZ4lEQu
+61U3qSanrUpqdyOSt8gk5ZkFO7M5jqXkMNf1SMFdGZG0cuCNC/05uMk9NB0ImyDN
+3JzuBuDBImzKUbvhQonsYtGKonZYX01jYJ5MH3UWpCrBHjD67XahH5Ut94roRMjm
+spjUG67V6cV6QNcqGfmPdQn0FdSfIoBW2JLXMfyI9SLYetiZ3mG0YsQ4qR58CEqg
+Cc4ABFhQhvOe1qfL7OMyafjgBaMIjH9DJ0fssHgV8xyPhQpjhl9Ew1dcTs7/6TqI
+a30RLhUX91VvmOPy7mMSv4UTT2ev6den1KdcJdMdCbVyn27i8nxFOweemQi0LFIF
+mReAByF1SfQQs5ViFDxQt2+nr2LChYBS9HWTXFbOrCzGawW3M54tf6y5IR73hIfI
+lkNztNi1CdtLp+fQyf/XJMG/qr+xgexs4EJq+TL9t8gsiWep8nnR4Jjt6Yo7f6Hc
+KwDArTbRsv1Hk5p9GbrV4oswN80gQLPpSLOlk6wsL1c5Yf8WhUaqTSvJuLpVMLnK
+x0rXM8d4cByBfnrAa1/0t8amj5X4DuFpeaFtlMO4QblmC25s4n48U2cPj7lNLPmZ
+KDwu6qzlN0AKXvwp3OKc
+=rOkk
+-----END PGP SIGNATURE-----
+
+--LiQwW4YX+w4axhAx--
