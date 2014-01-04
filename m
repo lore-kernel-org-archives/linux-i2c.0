@@ -1,54 +1,60 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
- revision of a SoC
-Date: Fri, 03 Jan 2014 20:35:27 +0100
-Message-ID: <52C710FF.7000901@free-electrons.com>
-References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com> <20140103185907.GD12098@obsidianresearch.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 01/13] i2c: bcm2835: Use devm_request_irq()
+Date: Sat, 4 Jan 2014 22:06:45 +0100
+Message-ID: <20140104210645.GA3150@katana>
+References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
+ <001d01cefaf3$b743e4c0$25cbae40$%han@samsung.com>
+ <52B10691.2010105@wwwdotorg.org>
+ <000601cefba7$d13450e0$739cf2a0$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20140103185907.GD12098@obsidianresearch.com>
-Sender: stable-owner@vger.kernel.org
-To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <000601cefba7$d13450e0$739cf2a0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: 'Stephen Warren' <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/01/2014 19:59, Jason Gunthorpe wrote:
-> On Fri, Jan 03, 2014 at 10:59:44AM +0100, Gregory CLEMENT wrote:
-> 
->> +		/* SoC ID */
->> +		soc_dev_id = __raw_readl(pci_base + PCIE_DEV_ID_OFF) >> 16;
->> +
->> +		/* SoC revision */
->> +		soc_rev = __raw_readl(pci_base + PCIE_DEV_REV_OFF)
->> +			& SOC_REV_MASK;
-> 
-> Sort of a minor nit, but I'm not actually sure these registers are
-> read-only :( I know the documentation doesn't describe how to change
-> them, but in PCI-E EndPoint mode they are read by the host so the
-> firmware must be able to change them to reflect the firmware running
-> on the endpoint..
 
-According to the datasheet of the Armada XP and the Armada 370 these
-register are read-only. Moreover they are already use as is for the
-kirkwood, orion5x, dove and mv78x00 in the current kernel and for all
-the mvebu Socs in the internal version of Marvell, so even if it was
-possible to change these values I believe that it never happened.
-
-> 
-> Which is to say, I suppose the bootloader could program them to
-> something else if it wanted to.
-> 
-> That said, in practice obviously they will not be changed, but maybe
-> there is another ID register you can read?
-> 
-> Jason
-> 
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+> If there is possible side effect, the patch should not be
+> merged.
+>=20
+> Wolfram Sang,
+> Please ignore this patch. Thank you.
+
+Even more so, I will ignore this series unless there is someone having
+actually tested the patch on real HW. Thanks for your effort, yet I need
+to be sure it really works on the actual HW.
+
+
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSyHflAAoJEBQN5MwUoCm2Uv4P/1JsfFLmmgz0/J79Riheabiz
+Ua5hfW648ZGQczEw3qofR5mEJh+4bQ1/00l7saucGggYPqanCuFJgDknWVFWb63x
+vyKOmO4fW+9Tlrgg/uPQsm40ElrHWF7RwG4DKg2AzbkK2LxbmuNM/8cOJoJ4ouUc
+EwklGrtK5fvs4M0RgfDVry8txqDCjBSXTcMZHw99gwD1iJjWKsTqgYDHGOFkLFDG
+4eJhJ0rEW7wC9ENTPYwI85KQ5frhtHUZDupQ50WfWRKFCai8786eztChLQzVTzsB
+09G0KhnwYw/8uJXJLPUiybHCjX08fz+cvcEb5QazvS6UsLMW8oAQ3jY7qqsWnWdH
+O9hTtTBYzVaTb4PRK4QT5rJi9/OCPNFIHEbyygfYSmwQGTuxzP6FKYRaIN9sTecG
+7+uvjgRJeY5EfYu5hNm+1gd/bWVGwwGWvXlKI8tzEwu4Cs2rD8QOeLg6QAhUhPbO
+sXPnc98EAmw/0SK540aEZRPbZDAYEbkg3Yu6VydOoZbeCBNDSPZCdOW+u8aAHzGL
+NEFGOgkjeiaSRHjDHRFU6qb/oE6SkW/R+oKRh8/utdRZB4ONHenW9EiR00OzWpbW
+JWulNFJGxYMqnxo32LFI7k9ZhW9omGaZ0rMeRdxnteRVGanmUhDEyS8BKiND29tt
+VZGtzwpKHFon+4xzG1+b
+=Fkis
+-----END PGP SIGNATURE-----
+
+--cNdxnHkX5QqsyA0e--
