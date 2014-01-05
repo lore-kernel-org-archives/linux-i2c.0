@@ -1,31 +1,34 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the revision of a SoC
-Date: Sun, 5 Jan 2014 20:17:10 +0100
-Message-ID: <201401052017.10982.arnd@arndb.de>
-References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <201401051525.52459.arnd@arndb.de> <20140105154023.GA2048@lunn.ch>
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
+ revision of a SoC
+Date: Sun, 5 Jan 2014 16:07:46 -0700
+Message-ID: <20140105230746.GB11280@obsidianresearch.com>
+References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com>
+ <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com>
+ <201401051525.52459.arnd@arndb.de>
+ <20140105154023.GA2048@lunn.ch>
+ <20140105172756.GA11280@obsidianresearch.com>
+ <52C99851.70806@gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140105154023.GA2048-g2DYL2Zd6BY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <52C99851.70806@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Jason Cooper <jason@lakedaemon.net>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Gregory CLEMENT <gregory.clement@free-electrons.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sunday 05 January 2014, Andrew Lunn wrote:
-> That would be rather odd. These nodes are in the top level SoC dtsi
-> file. When they are not used, they have status = "disabled" and are in
-> the dtb blob with this state.
-> 
-> The only reason i can think of them not being present at all is if
-> somebody adds an optimizer to dtc which removed disabled nodes. What
-> does the device tree spec say about that? Are we relying on undefined
-> dtc behavior?
+On Sun, Jan 05, 2014 at 06:37:21PM +0100, Sebastian Hesselbarth wrote:
 
-There is no requirement to use the include files. If someone decides
-to ship a default dtb file in their boot loader, it wouldn't be
-a bug to leave the nodes out entirely.
+> If you mean clock-gated with "powered down", the code is safe. It
+> enables the clock gate prior reading from the controller. Or is there
+> another way to power down the controller, so you cannot read from the
+> controller registers?
 
-	Arn
+There is a clock gate and a power down on kirkwood at least, Linux has
+no code for controlling the powerdown
+
+In any event, I think processing a disabled DT node is not great..
+
+Jason
