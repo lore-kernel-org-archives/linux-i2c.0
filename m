@@ -1,44 +1,74 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: remove HAVE_CLK build dependecy
-Date: Sun, 5 Jan 2014 07:04:10 +0200
-Message-ID: <20140105050410.GA5316@tarshish>
-References: <f3ebead75d45623e4b649c7a8d0112584ffd1788.1388392279.git.baruch@tkos.co.il>
- <20140104224846.GH3150@katana>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the revision of a SoC
+Date: Sun, 5 Jan 2014 15:25:52 +0100
+Message-ID: <201401051525.52459.arnd@arndb.de>
+References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140104224846.GH3150@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com>
+Sender: stable-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Sat, Jan 04, 2014 at 11:48:46PM +0100, Wolfram Sang wrote:
-> On Mon, Dec 30, 2013 at 10:31:19AM +0200, Baruch Siach wrote:
-> > Since 93abe8e4 (clk: add non CONFIG_HAVE_CLK routines) code using clk.h need
-> > not depend on HAVE_CLK. Also, remove a redundant clk.h include from core driver
-> > file.
-> > 
-> > Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+On Friday 03 January 2014, Gregory CLEMENT wrote:
+> All the mvebu SoCs have information related to their variant and
+> revision that can be read from the PCI control register.
 > 
-> Is the patch description correct? The core driver simply does not need
-> clk.h and thus the dependency. No redundancy here, or?
+> This patch adds support for Armada XP and Armada 370. This reading of
+> the revision and the ID are done before the PCI initialization to
+> avoid any conflicts. Once these data are retrieved, the resources are
+> freed to let the PCI subsystem use it.
 
-The platform code (i2c-designware-platform.c) uses the clk API, but the 
-Kconfig dependency on HAVE_CLK is not needed anymore. The core code 
-(i2c-designware-core.c) doesn't use clk. Originally the driver was in a single 
-file, including the clk handling. This code has been moved to the platform 
-file, so the core file doesn't need the clk.h include.
+I like the idea of identifying the soc version for any number of
+reasons, but I would hope there was some way of doing this that didn't
+involve probing the PCI device. I know this is the traditional way
+on orion/kirkwood/dove/... but it always felt wrong to me.
 
-Logically, these are two separate issues. But I'm not sure it is worth 
-splitting into two patches. What do you think?
+> +static u32 soc_dev_id;
+> +static u32 soc_rev;
+> +static bool is_id_valid;
 
-baruch
+Would it be reasonable to reuse the global "system_rev" variable for this
+rather than a platform specific exported function?
 
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
+> +static const struct of_device_id mvebu_pcie_of_match_table[] = {
+> +	{ .compatible = "marvell,armada-xp-pcie", },
+> +	{ .compatible = "marvell,armada-370-pcie", },
+> +	{},
+> +};
+> +
+> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
+> +{
+> +	if (is_id_valid) {
+> +		*dev = soc_dev_id;
+> +		*rev = soc_rev;
+> +		return 0;
+> +	} else
+> +		return -1;
+> +}
+> +
+> +EXPORT_SYMBOL(mvebu_get_soc_id);
+
+Maybe EXPORT_SYMBOL_GPL, out of principle?
+
+> +static int __init mvebu_soc_id_init(void)
+> +{
+> +	struct device_node *np;
+> +	int ret = 0;
+> +
+> +	np = of_find_matching_node(NULL, mvebu_pcie_of_match_table);
+> +	if (np) {
+> +		void __iomem *pci_base;
+> +		struct clk *clk;
+> +		/*
+> +		 * ID and revision are available from any port, so we
+> +		 * just pick the first one
+> +		 */
+> +		struct device_node *child = of_get_next_child(np, NULL);
+
+I guess all this will fail if for some reason the PCIe node is not
+present on machines that don't use PCIe.
