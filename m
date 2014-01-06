@@ -1,67 +1,95 @@
 From: Gregory CLEMENT <gregory.clement@free-electrons.com>
 Subject: Re: [PATCH v2 1/2] ARM: mvebu: Add support to get the ID and the
  revision of a SoC
-Date: Mon, 06 Jan 2014 11:10:41 +0100
-Message-ID: <52CA8121.2020105@free-electrons.com>
-References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com> <201401051525.52459.arnd@arndb.de> <20140105154023.GA2048@lunn.ch> <20140105172756.GA11280@obsidianresearch.com> <52C99851.70806@gmail.com> <20140105230746.GB11280@obsidianresearch.com> <52C9E6D0.3000406@gmail.com> <20140105234009.GC11280@obsidianresearch.com> <52C9F32D.5080007@gmail.com> <20140106001709.GD4093@lunn.ch> <52CA7D87.9070606@free-electrons.com>
+Date: Mon, 06 Jan 2014 11:28:11 +0100
+Message-ID: <52CA853B.5010200@free-electrons.com>
+References: <1388743185-24822-1-git-send-email-gregory.clement@free-electrons.com> <1388743185-24822-2-git-send-email-gregory.clement@free-electrons.com> <201401051525.52459.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <52CA7D87.9070606@free-electrons.com>
+In-Reply-To: <201401051525.52459.arnd@arndb.de>
 Sender: stable-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Jason Cooper <jason@lakedaemon.net>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, Jason Gunthorpe <jgunthorpe@obsidianresearch.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/01/2014 10:55, Gregory CLEMENT wrote:
-> Hi Andrew,
-> 
-> On 06/01/2014 01:17, Andrew Lunn wrote:
->>>>> Does that power down really disable reading from PCIe controller
->>>>> registers or is it just PHY power down?
->>>>
->>>> I haven't experimented with it, but every block that has a clock gate
->>>> has a power down, so I doubt it is just a phy power down.
->>>
->>> Ok, I see. But it isn't documented in the public FS, is it? If there is
->>> an extra powerdown register for each ip block, I guess it will also
->>> break reading from its registers.
+On 05/01/2014 15:25, Arnd Bergmann wrote:
+> On Friday 03 January 2014, Gregory CLEMENT wrote:
+>> All the mvebu SoCs have information related to their variant and
+>> revision that can be read from the PCI control register.
 >>
->> Hi Sebastian
->>
->> The public Kirkwood FS has a memory power management control register,
->> Offset 0x20118. It is unclear what it actually does, and if you can
->> still access registers when it is off. We would have to poke it and
->> see.
+>> This patch adds support for Armada XP and Armada 370. This reading of
+>> the revision and the ID are done before the PCI initialization to
+>> avoid any conflicts. Once these data are retrieved, the resources are
+>> freed to let the PCI subsystem use it.
 > 
-> Interesting, this registers is mentioned under the section "Core Clock
-> Power Saving" in the kirkwood datasheet, so maybe we should add this
-> register to the gating clock
-> 
-> I found similar registers for Armada XP/370, I am going to test what happen
-> if the PCxy  Memory Power Down are down.
+> I like the idea of identifying the soc version for any number of
+> reasons, but I would hope there was some way of doing this that didn't
+> involve probing the PCI device. I know this is the traditional way
+> on orion/kirkwood/dove/... but it always felt wrong to me.
 
-So I have just put all the  Memory Power Down for all the PCIe
-slot and I still managed to read the ID so it won't be an issue
-(at least on Armada XP)
+Unfortunately there is no other way to get this ID. It is not a
+"traditional" way of doing it, it just the only way to get this
+information given the design of the hardware
 
 > 
+>> +static u32 soc_dev_id;
+>> +static u32 soc_rev;
+>> +static bool is_id_valid;
 > 
-> Thanks,
+> Would it be reasonable to reuse the global "system_rev" variable for this
+> rather than a platform specific exported function?
 > 
-> Gregory
+>> +static const struct of_device_id mvebu_pcie_of_match_table[] = {
+>> +	{ .compatible = "marvell,armada-xp-pcie", },
+>> +	{ .compatible = "marvell,armada-370-pcie", },
+>> +	{},
+>> +};
+>> +
+>> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
+>> +{
+>> +	if (is_id_valid) {
+>> +		*dev = soc_dev_id;
+>> +		*rev = soc_rev;
+>> +		return 0;
+>> +	} else
+>> +		return -1;
+>> +}
+>> +
+>> +EXPORT_SYMBOL(mvebu_get_soc_id);
 > 
+> Maybe EXPORT_SYMBOL_GPL, out of principle?
 > 
+>> +static int __init mvebu_soc_id_init(void)
+>> +{
+>> +	struct device_node *np;
+>> +	int ret = 0;
+>> +
+>> +	np = of_find_matching_node(NULL, mvebu_pcie_of_match_table);
+>> +	if (np) {
+>> +		void __iomem *pci_base;
+>> +		struct clk *clk;
+>> +		/*
+>> +		 * ID and revision are available from any port, so we
+>> +		 * just pick the first one
+>> +		 */
+>> +		struct device_node *child = of_get_next_child(np, NULL);
 > 
->>
->> 	Andrew
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
+> I guess all this will fail if for some reason the PCIe node is not
+> present on machines that don't use PCIe.
+
+yes it fails but then this function exits with an error (a more accurate
+error in the next version). It will be the responsibility of the code which
+need this information to check that this function won't fail. For the i2c
+driver, for instance, we will switch on the safe mode and it won(y use
+the offload mechanism.
+
 > 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
 
 
