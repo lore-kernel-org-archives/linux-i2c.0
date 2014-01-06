@@ -1,52 +1,39 @@
-From: Yuvaraj Cd <yuvaraj.lkml@gmail.com>
-Subject: Re: [PATCH V2] i2c: s3c2410 : Add polling mode support
-Date: Mon, 6 Jan 2014 09:30:20 +0530
-Message-ID: <CA+NduCDr4am5+Vyr9NTAzFGjg_zRLjYVRTM2Bj0Wxd0VBEzCpw@mail.gmail.com>
-References: <1384168820-2986-1-git-send-email-yuvaraj.cd@samsung.com>
-	<20140103161012.GH7132@katana>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH V2 3/5] arm: shmobile: r7s72100: add nodes for i2c
+ controllers to dtsi
+Date: Mon, 6 Jan 2014 14:22:47 +0900
+Message-ID: <20140106052247.GB24653@verge.net.au>
+References: <1387402321-21866-1-git-send-email-wsa@the-dreams.de>
+ <1387402321-21866-4-git-send-email-wsa@the-dreams.de>
+ <20131227042747.GB6161@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20140103161012.GH7132@katana>
-Sender: linux-doc-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20131227042747.GB6161@katana>
+Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Yuvaraj Kumar C D <yuvaraj.cd@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, linux-doc@vger.kernel.org, "ks.giri@samsung.com" <ks.giri@samsung.com>, Stephen Warren <swarren@wwwdotorg.org>, Vasanth Ananthan <vasanth.a@samsung.com>, Rob Herring <rob.herring@calxeda.com>, aditya.ps@samsung.com, Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, ben-linux@fluff.org, Vasanth Ananthan <vasanthananthan@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 3, 2014 at 9:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Hi,
->
-> On Mon, Nov 11, 2013 at 04:50:20PM +0530, Yuvaraj Kumar C D wrote:
->> From: Vasanth Ananthan <vasanthananthan@gmail.com>
->>
->> This patch adds polling mode support for i2c-s3c2410 driver.The
->> SATA PHY controller's CMU and TRSV block's are of I2C register
->> map in exynos5250.These blocks can be configured using i2c.
->>
->> But i2c controller instance on which these block's sits lacks an
->> interrupt line.Also the current i2c-s3c2410 driver is only interrupt
->> driven, thus a polling mode support is required in the driver for
->> supporting this controller. This patch adds this support to the driver.
->>
->> Changes from V1:
->>       1.Changed the is_ack() to have even period b/w polls and
->>         used usleep_range() instead of udelay().
->
-> Mileages vary, but I'd like to see revision changes after the "---".
->
->>       ret = devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
->> -                            dev_name(&pdev->dev), i2c);
->> +                             dev_name(&pdev->dev), i2c);
->
-> Unrelated change.
->
-> Rest looks good, so I'll fix up the things for you and apply to
-> for-next, thanks!
-Thanks Wolfram.
->
->
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
->
+On Fri, Dec 27, 2013 at 05:27:47AM +0100, Wolfram Sang wrote:
+> On Wed, Dec 18, 2013 at 10:31:59PM +0100, Wolfram Sang wrote:
+> > From: Wolfram Sang <wsa@sang-engineering.com>
+> > 
+> > I decided to put the pinmuxing into the dtsi file since there is only
+> > one pinmux posiibility which one probably wants to have when using the
+> > bus.
+> > 
+> > Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
+> > Acked-by: Magnus Damm <damm@opensource.se>
+> 
+> Simon, I think you could pull in these patches, too. My series does not
+> really depend on the pinctrl stuff. I2C pins are function group 1 and
+> thus activated by default if the bootloader doesn't do weird things.
+> Actually, I coded the PFC stuff after the driver was finished :)
+
+That seems reasonable.
+
+Could you send a series which contains the patches you would like
+queued up? Please base it on the latest devel tag, currently
+renesas-devel-v3.13-rc5-20131230, without other patches applied.
