@@ -1,71 +1,31 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v4 2/3] ARM: mvebu: Add quirk for i2c
-Date: Tue,  7 Jan 2014 17:35:03 +0100
-Message-ID: <1389112504-9931-3-git-send-email-gregory.clement@free-electrons.com>
-References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c: nomadik: factor platform data into state container
+Date: Tue, 7 Jan 2014 19:04:01 +0100
+Message-ID: <CACRpkdYcbjSHM1+nzhec37FNn3uiwdmmO5CXbA2zvhFd_XFirQ@mail.gmail.com>
+References: <1385676737-15127-1-git-send-email-linus.walleij@linaro.org>
+	<20140103153553.GD7132@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1389112504-9931-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <20140103153553.GD7132@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The first variants of Armada XP SoCs (A0 stepping) have issues related
-to the i2c controller which prevent to use the offload mechanism and
-lead to a kernel hang during boot.
+On Fri, Jan 3, 2014 at 4:35 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>
+>> +     if (!np) {
+>> +             dev_err(&adev->dev, "no device node\n");
+>> +             return -ENODEV;
+>
+> Can this really happen? How should driver and device match otherwise?
 
-This commit add quirk in the mvebu platform code to check the SoC
-version and then add the "offload-broken" property for the i2c
-controller according to the revision of the SoC.
+Nah. I'll fix.
 
-Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- arch/arm/mach-mvebu/armada-370-xp.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+> Rest is looking good.
 
-diff --git a/arch/arm/mach-mvebu/armada-370-xp.c b/arch/arm/mach-mvebu/armada-370-xp.c
-index e2acff98e750..c93ac68779e0 100644
---- a/arch/arm/mach-mvebu/armada-370-xp.c
-+++ b/arch/arm/mach-mvebu/armada-370-xp.c
-@@ -21,6 +21,7 @@
- #include <linux/clocksource.h>
- #include <linux/dma-mapping.h>
- #include <linux/mbus.h>
-+#include <linux/mvebu-soc-id.h>
- #include <asm/hardware/cache-l2x0.h>
- #include <asm/mach/arch.h>
- #include <asm/mach/map.h>
-@@ -45,8 +46,31 @@ static void __init armada_370_xp_timer_and_clk_init(void)
- #endif
- }
- 
-+static struct property i2c_offload_broken = {
-+	.name = "offload-broken",
-+};
-+
-+static void __init i2c_quirk(void)
-+{
-+	struct device_node *np;
-+	u32 dev, rev;
-+
-+	/*
-+	 * Only revisons more recent than A0 support the offload
-+	 * mechanism. We can exit only if we are sure that we can
-+	 * get the SoC revision and it is more recent than A0.
-+	 */
-+	if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
-+		return;
-+
-+	for_each_compatible_node(np, NULL, "marvell,mv78230-i2c")
-+		of_add_property(np, &i2c_offload_broken);
-+	return;
-+}
-+
- static void __init armada_370_xp_dt_init(void)
- {
-+	i2c_quirk();
- 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
- }
- 
--- 
-1.8.1.2
+Does this mean that you applied patch 1/3 and 2/3?
+
+Yours,
+Linus Walleij
