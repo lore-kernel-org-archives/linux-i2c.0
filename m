@@ -1,56 +1,82 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: nomadik: factor platform data into state
- container
-Date: Wed, 8 Jan 2014 00:02:28 +0100
-Message-ID: <20140107230227.GA2592@katana>
-References: <1385676737-15127-1-git-send-email-linus.walleij@linaro.org>
- <20140103153553.GD7132@katana>
- <CACRpkdYcbjSHM1+nzhec37FNn3uiwdmmO5CXbA2zvhFd_XFirQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 2/3] ARM: mvebu: Add quirk for i2c
+Date: Wed, 8 Jan 2014 00:06:10 +0100
+Message-ID: <20140107230610.GB2592@katana>
+References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com>
+ <1389112504-9931-3-git-send-email-gregory.clement@free-electrons.com>
+ <20140107183853.GE4227@obsidianresearch.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdYcbjSHM1+nzhec37FNn3uiwdmmO5CXbA2zvhFd_XFirQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20140107183853.GE4227@obsidianresearch.com>
+Sender: stable-owner@vger.kernel.org
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Qxx1br4bt0+wmkIi
+--GRPZ8SYKNexpdSJ7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > Rest is looking good.
+On Tue, Jan 07, 2014 at 11:38:53AM -0700, Jason Gunthorpe wrote:
+> On Tue, Jan 07, 2014 at 05:35:03PM +0100, Gregory CLEMENT wrote:
+> > +static struct property i2c_offload_broken =3D {
+> > +	.name =3D "offload-broken",
+> > +};
+> > +
+> > +static void __init i2c_quirk(void)
+> > +{
+> > +	struct device_node *np;
+> > +	u32 dev, rev;
+> > +
+> > +	/*
+> > +	 * Only revisons more recent than A0 support the offload
+> > +	 * mechanism. We can exit only if we are sure that we can
+> > +	 * get the SoC revision and it is more recent than A0.
+> > +	 */
+> > +	if (mvebu_get_soc_id(&rev, &dev) =3D=3D 0 && dev > MV78XX0_A0_REV)
+> > +		return;
+> > +
+> > +	for_each_compatible_node(np, NULL, "marvell,mv78230-i2c")
+> > +		of_add_property(np, &i2c_offload_broken);
 >=20
-> Does this mean that you applied patch 1/3 and 2/3?
+> I like this approach.
 
-I wanted to, but I forgot :( Just send 3/3 V2 and I'll pick them up.
+Sorry, but I don't.
+
+> However, when I first read this I thought it should be a -a0 specific
+> compatible string, not a 'offload-broken' property - any idea what the
+> DT consensus is here? I've seen both approach in use ..
+
+I prefer the replacement of the compatible string. If it should really
+be a seperate property, then it should be a vendor specific property. It
+is not generic, at all.
 
 
---Qxx1br4bt0+wmkIi
+--GRPZ8SYKNexpdSJ7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSzIeDAAoJEBQN5MwUoCm2LpEQAIDSamHSkMyvWZgdA/ckeupt
-SxK5Auh9rIEzqbEOcvhB2+REgq2LkR80rxuiaAYPbJR64gFvqxla1/7BPqhYrtbw
-U3VNVSu1ITAQcy/jfCpnkYWg+GoaLI62g3tsaKjq0yZAoLJ0iAbDrVJbtwb8uAjC
-gNRjusW2XUd6F1SV0OAqkqmGOsi/vHbi0pf3bZtAm+ukj6C4LsFCdUc8WxpiVgl7
-1tTd6CJIONVS3O2VinFdBMdfxIw3K60YqBuDJiAuBmZtsP2I4i+LWpRnZ/sAjQFH
-eWzc83bPURrOqzWFtRjp8chT+jE8gYvYMPhuSnAWsEbmbsupWNtytWXJT6wLajwK
-fCcmekKf6xX9bv84WuNFUiPAs1WRfKTXt7dz2p0CpGUh/PvfJNFiHDzJWwl1hk9Z
-jAQGp9CHw+25VFAjLBlSXZn+rfqhw8/QX5FP9HHGy07+FywzLgLwAegDE4sbrYEv
-bJsC+7EVavzU/OsYJ7lMUOfKJJ8Q95n+/eWzV5cnpewufL2bYspqunp512kej/na
-oygZaF4NdvnZgtPFJd+Yovt96WFTh+qlwscWw1xyn/IN9kFHO18oaFCWBr1BiUHv
-gg31jtNZxBDssL7ewYQj5DAJZ/4gx3yfohuvcNyrpSVT8PtNfxdOp+1SAq1DNq5Q
-DkoXn5/OYdNQzpWpF2Wn
-=WS/d
+iQIcBAEBAgAGBQJSzIhiAAoJEBQN5MwUoCm24oMQALKaX7ZWRSw3vvT4S+oG2zXA
+DhCC31oUODLEk8SznY5MvQdcUT3nWlOuCLa9RFg2VliLBPnddvEs4aJ5OR544yFA
+KXoni0g1319yTJ0XiyahsO483YusOD1ai//6hSUmhYL3OcMxjHJxNhWDa1mNj+5n
+nilrS5LlNz3Ajc9/eAWZg6foy5FuK2v2P9WOnwDViZZtdiYVHka3VrxwkSvY+UWu
+IPCJYtMzgRnzvqqSGwj5xIEnmkFv9sL9A4sPPHByTTGk3WI1ONKESr2tgAJNkQs4
+53SIx7zIwlnVE1a/QMrDsM7y9ki3SvfsNY6LTslVA8z+CGRpStTN+pTdq3vgTfvV
+wEfXM/jvEMyJxygrlmRJ/afk6jsJ17uHpkl/YOGOdCurW3ZyO+IWt0+Vu1UTmIWc
+xIU4pQt5aj69lraWdR9ph96cKZwYs5Y1CBFdUTsKp/9DDCPXppd4g1unqqAAOE6D
+SC3FS6JNQfgbPDk9PXcDqh3xG0SZyWW7bMe7vShlrQom+DnNLGtElOwxa46W6Qra
+3qYsfPDNrX1dl5sVkU76GPcLmnStKXEed7vDY4k+ThYDcVZCgQT2EZrE21wd7Ojv
+C620+XUwKkntr67fSAIZ+0Q9og3ZIga7RLNmNNT+Pr3vKa6+yZjZrVlIfoKVOiJ/
+NNM0pEn5JLAOdX5LDof6
+=EX3S
 -----END PGP SIGNATURE-----
 
---Qxx1br4bt0+wmkIi--
+--GRPZ8SYKNexpdSJ7--
