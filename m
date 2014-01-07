@@ -1,31 +1,44 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: nomadik: factor platform data into state container
-Date: Tue, 7 Jan 2014 19:04:01 +0100
-Message-ID: <CACRpkdYcbjSHM1+nzhec37FNn3uiwdmmO5CXbA2zvhFd_XFirQ@mail.gmail.com>
-References: <1385676737-15127-1-git-send-email-linus.walleij@linaro.org>
-	<20140103153553.GD7132@katana>
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Subject: Re: [PATCH v4 2/3] ARM: mvebu: Add quirk for i2c
+Date: Tue, 7 Jan 2014 11:38:53 -0700
+Message-ID: <20140107183853.GE4227@obsidianresearch.com>
+References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com>
+ <1389112504-9931-3-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140103153553.GD7132@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1389112504-9931-3-git-send-email-gregory.clement@free-electrons.com>
+Sender: stable-owner@vger.kernel.org
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 3, 2014 at 4:35 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->
->> +     if (!np) {
->> +             dev_err(&adev->dev, "no device node\n");
->> +             return -ENODEV;
->
-> Can this really happen? How should driver and device match otherwise?
+On Tue, Jan 07, 2014 at 05:35:03PM +0100, Gregory CLEMENT wrote:
+> +static struct property i2c_offload_broken = {
+> +	.name = "offload-broken",
+> +};
+> +
+> +static void __init i2c_quirk(void)
+> +{
+> +	struct device_node *np;
+> +	u32 dev, rev;
+> +
+> +	/*
+> +	 * Only revisons more recent than A0 support the offload
+> +	 * mechanism. We can exit only if we are sure that we can
+> +	 * get the SoC revision and it is more recent than A0.
+> +	 */
+> +	if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
+> +		return;
+> +
+> +	for_each_compatible_node(np, NULL, "marvell,mv78230-i2c")
+> +		of_add_property(np, &i2c_offload_broken);
 
-Nah. I'll fix.
+I like this approach.
 
-> Rest is looking good.
+However, when I first read this I thought it should be a -a0 specific
+compatible string, not a 'offload-broken' property - any idea what the
+DT consensus is here? I've seen both approach in use ..
 
-Does this mean that you applied patch 1/3 and 2/3?
-
-Yours,
-Linus Walleij
+Jason
