@@ -1,55 +1,208 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v4 1/3] ARM: mvebu: Add support to get the ID and the
- revision of a SoC
-Date: Wed, 08 Jan 2014 15:16:37 +0100
-Message-ID: <52CD5DC5.2030305@free-electrons.com>
-References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com> <1389112504-9931-2-git-send-email-gregory.clement@free-electrons.com> <201401081355.38293.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <201401081355.38293.arnd@arndb.de>
-Sender: stable-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v5 1/4] ARM: mvebu: Add support to get the ID and the revision of a SoC
+Date: Wed,  8 Jan 2014 16:06:26 +0100
+Message-ID: <1389193589-18485-2-git-send-email-gregory.clement@free-electrons.com>
+References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1389193589-18485-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/01/2014 13:55, Arnd Bergmann wrote:
-> On Tuesday 07 January 2014, Gregory CLEMENT wrote:
->> diff --git a/include/linux/mvebu-soc-id.h b/include/linux/mvebu-soc-id.h
->> new file mode 100644
->> index 000000000000..31654252fe35
->> --- /dev/null
->> +++ b/include/linux/mvebu-soc-id.h
->> +#ifdef CONFIG_ARCH_MVEBU
->> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
->> +#else
->> +static inline int mvebu_get_soc_id(u32 *dev, u32 *rev)
->> +{
->> +	return -1;
->> +}
->> +#endif
->> +
->> +#endif /* __LINUX_MVEBU_SOC_ID_H */
-> 
-> With the quirk handling in patch 3, I think we should remove the public interface
-> and EXPORT_SYMBOL(), as well as move this header file into mach-mvebu.
-> 
-> That said, we may want to add support for the soc_bus later on (not as part of the
-> stable bug fix) to make it possible to query the soc version from user space through
-> the standard sysfs files.
+All the mvebu SoCs have information related to their variant and
+revision that can be read from the PCI control register.
 
-We could do it later indeed. For having a more acceptable patch for stable I will move
-this header file into mach-mvebu.
+This patch adds support for Armada XP and Armada 370. This reading of
+the revision and the ID are done before the PCI initialization to
+avoid any conflicts. Once these data are retrieved, the resources are
+freed to let the PCI subsystem use it.
 
+Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ arch/arm/mach-mvebu/Makefile       |   2 +-
+ arch/arm/mach-mvebu/mvebu-soc-id.c | 119 +++++++++++++++++++++++++++++++++++++
+ arch/arm/mach-mvebu/mvebu-soc-id.h |  32 ++++++++++
+ 3 files changed, 152 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/mach-mvebu/mvebu-soc-id.c
+ create mode 100644 arch/arm/mach-mvebu/mvebu-soc-id.h
 
-Thanks,
-
-Gregory
-
-
+diff --git a/arch/arm/mach-mvebu/Makefile b/arch/arm/mach-mvebu/Makefile
+index 2d04f0e21870..878aebe98dcc 100644
+--- a/arch/arm/mach-mvebu/Makefile
++++ b/arch/arm/mach-mvebu/Makefile
+@@ -3,7 +3,7 @@ ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/$(src)/include \
+ 
+ AFLAGS_coherency_ll.o		:= -Wa,-march=armv7-a
+ 
+-obj-y				 += system-controller.o
++obj-y				 += system-controller.o mvebu-soc-id.o
+ obj-$(CONFIG_MACH_ARMADA_370_XP) += armada-370-xp.o
+ obj-$(CONFIG_ARCH_MVEBU)	 += coherency.o coherency_ll.o pmsu.o
+ obj-$(CONFIG_SMP)                += platsmp.o headsmp.o
+diff --git a/arch/arm/mach-mvebu/mvebu-soc-id.c b/arch/arm/mach-mvebu/mvebu-soc-id.c
+new file mode 100644
+index 000000000000..fe4fc1cbdfaf
+--- /dev/null
++++ b/arch/arm/mach-mvebu/mvebu-soc-id.c
+@@ -0,0 +1,119 @@
++/*
++ * ID and revision information for mvebu SoCs
++ *
++ * Copyright (C) 2014 Marvell
++ *
++ * Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ *
++ * All the mvebu SoCs have information related to their variant and
++ * revision that can be read from the PCI control register. This is
++ * done before the PCI initialization to avoid any conflict. Once the
++ * ID and revision are retrieved, the mapping is freed.
++ */
++
++#define pr_fmt(fmt) "mvebu-soc-id: " fmt
++
++#include <linux/clk.h>
++#include <linux/init.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include "mvebu-soc-id.h"
++
++#define PCIE_DEV_ID_OFF		0x0
++#define PCIE_DEV_REV_OFF	0x8
++
++#define SOC_ID_MASK	    0xFFFF0000
++#define SOC_REV_MASK	    0xFF
++
++static u32 soc_dev_id;
++static u32 soc_rev;
++static bool is_id_valid;
++
++static const struct of_device_id mvebu_pcie_of_match_table[] = {
++	{ .compatible = "marvell,armada-xp-pcie", },
++	{ .compatible = "marvell,armada-370-pcie", },
++	{},
++};
++
++int mvebu_get_soc_id(u32 *dev, u32 *rev)
++{
++	if (is_id_valid) {
++		*dev = soc_dev_id;
++		*rev = soc_rev;
++		return 0;
++	} else
++		return -1;
++}
++
++static int __init mvebu_soc_id_init(void)
++{
++	struct device_node *np;
++	int ret = 0;
++	void __iomem *pci_base;
++	struct clk *clk;
++	struct device_node *child;
++
++	np = of_find_matching_node(NULL, mvebu_pcie_of_match_table);
++	if (!np)
++		return ret;
++
++	/*
++	 * ID and revision are available from any port, so we
++	 * just pick the first one
++	 */
++	child = of_get_next_child(np, NULL);
++	if (child == NULL) {
++		pr_err("cannot get pci node\n");
++		ret = -ENOMEM;
++		goto clk_err;
++	}
++
++	clk = of_clk_get_by_name(child, NULL);
++	if (IS_ERR(clk)) {
++		pr_err("cannot get clock\n");
++		ret = -ENOMEM;
++		goto clk_err;
++	}
++
++	ret = clk_prepare_enable(clk);
++	if (ret) {
++		pr_err("cannot enable clock\n");
++		goto clk_err;
++	}
++
++	pci_base = of_iomap(child, 0);
++	if (IS_ERR(pci_base)) {
++		pr_err("cannot map registers\n");
++		ret = -ENOMEM;
++		goto res_ioremap;
++	}
++
++	/* SoC ID */
++	soc_dev_id = readl(pci_base + PCIE_DEV_ID_OFF) >> 16;
++
++	/* SoC revision */
++	soc_rev = readl(pci_base + PCIE_DEV_REV_OFF) & SOC_REV_MASK;
++
++	is_id_valid = true;
++
++	pr_info("MVEBU SoC ID=0x%X, Rev=0x%X\n", soc_dev_id, soc_rev);
++
++	iounmap(pci_base);
++
++res_ioremap:
++	clk_disable_unprepare(clk);
++
++clk_err:
++	of_node_put(child);
++	of_node_put(np);
++
++	return ret;
++}
++core_initcall(mvebu_soc_id_init);
++
+diff --git a/arch/arm/mach-mvebu/mvebu-soc-id.h b/arch/arm/mach-mvebu/mvebu-soc-id.h
+new file mode 100644
+index 000000000000..31654252fe35
+--- /dev/null
++++ b/arch/arm/mach-mvebu/mvebu-soc-id.h
+@@ -0,0 +1,32 @@
++/*
++ * Marvell EBU SoC ID and revision definitions.
++ *
++ * Copyright (C) 2014 Marvell Semiconductor
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#ifndef __LINUX_MVEBU_SOC_ID_H
++#define __LINUX_MVEBU_SOC_ID_H
++
++/* Armada XP ID */
++#define MV78230_DEV_ID	    0x7823
++#define MV78260_DEV_ID	    0x7826
++#define MV78460_DEV_ID	    0x7846
++
++/* Armada XP Revision */
++#define MV78XX0_A0_REV	    0x1
++#define MV78XX0_B0_REV	    0x2
++
++#ifdef CONFIG_ARCH_MVEBU
++int mvebu_get_soc_id(u32 *dev, u32 *rev);
++#else
++static inline int mvebu_get_soc_id(u32 *dev, u32 *rev)
++{
++	return -1;
++}
++#endif
++
++#endif /* __LINUX_MVEBU_SOC_ID_H */
 -- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+1.8.1.2
