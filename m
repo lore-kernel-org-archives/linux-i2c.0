@@ -1,135 +1,50 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v5 0/4] Fix i2c bus hang on A0 version of the Armada XP
- SoCs
-Date: Wed, 08 Jan 2014 17:46:17 +0100
-Message-ID: <52CD80D9.8000301@free-electrons.com>
-References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com>
+From: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
+Subject: Re: [PATCH] i2c: viperboard: remove superfluous assignment
+Date: Wed, 08 Jan 2014 18:00:34 +0100
+Message-ID: <1646720.ZFo3jWjium@lem-wkst-02>
+References: <1388870493-6523-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com>
-Sender: stable-owner@vger.kernel.org
-To: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Gregory CLEMENT <gregory.clement@free-electrons.com>, Arnd Bergmann <arnd@arndb.de>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1388870493-6523-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/01/2014 16:06, Gregory CLEMENT wrote:
-> Hi,
+On Wednesday 08 January 2014 22:21:33, Wolfram Sang wrote:
+> cppcheck rightfully says:
 > 
-> Here come the 5th version of the series fixing the i2c bus hang on A0
-> version of the Armada XP SoCs. It occurred on the early release of the
-> OpenBlocks AX3-4 boards. Indeed the first variants of Armada XP SoCs
-> (A0 stepping) have issues related to the i2c controller which prevent
-> to use the offload mechanism and lead to a kernel hang during boot.
+> drivers/i2c/busses/i2c-viperboard.c:169: style: Variable 'bytes_xfer' is
+> assigned a value that is never used.
 > 
-> The main change are the use of marvell,mv78230-a0-i2c and that the
-> function mvebu_get_soc_id() is now local to mach-mvebu.
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-viperboard.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> The first patch add a mean to detect the SoCs version at run-time and
-> the second one use this feature in the driver.
+> diff --git a/drivers/i2c/busses/i2c-viperboard.c
+> b/drivers/i2c/busses/i2c-viperboard.c index 6976e1c..7533fa3 100644
+> --- a/drivers/i2c/busses/i2c-viperboard.c
+> +++ b/drivers/i2c/busses/i2c-viperboard.c
+> @@ -118,8 +118,7 @@ static int vprbrd_i2c_addr(struct usb_device *usb_dev,
+>  static int vprbrd_i2c_read(struct vprbrd *vb, struct i2c_msg *msg)
+>  {
+>  	int ret;
+> -	u16 remain_len, bytes_xfer, len1, len2,
+> -		start = 0x0000;
+> +	u16 remain_len, len1, len2, start = 0x0000;
+>  	struct vprbrd_i2c_read_msg *rmsg =
+>  		(struct vprbrd_i2c_read_msg *)vb->buf;
 > 
-> The 3 first patches should be applied on 3.13-rc and on stable kernel
-> 3.12 as it fixes a regression introduce by the commit 930ab3d403ae
-> "i2c: mv64xxx: Add I2C Transaction Generator support".
-> 
-> The first patch could be latter be extend to also be used with dove,
-> kirkwood, orion5x and mv78x00 when there will be merged in mvebu and
-> even expose the SoC ID and revision to userspace.
-> 
-> Jason, do you still agree to take the series once Wolfram have given
-> his acked-by?
+> @@ -166,7 +165,6 @@ static int vprbrd_i2c_read(struct vprbrd *vb, struct
+> i2c_msg *msg) rmsg->header.len3 = remain_len - 512;
+>  			rmsg->header.len4 = 0x00;
+>  			rmsg->header.len5 = 0x00;
+> -			bytes_xfer = remain_len;
+>  			remain_len = 0;
+>  		} else if (remain_len <= 1022) {
+>  			len1 = 512;
 
-Jason,
-
-if it can help you I have just pull my branch at:
-https://github.com/MISL-EBU-System-SW/mainline-public/tree/i2c-mv64xxx-3.13-rc6-fixes-v6
-
-git@github.com:MISL-EBU-System-SW/mainline-public.git
-
-I also taken into account the two comments and added the acked-by from Wolfram and
-Arnd on the appropriate commit.
-
-
-Thanks,
-
-Gregory
-
-> 
-> Thanks,
-> 
-> Gregory
-> 
-> Changelog:
-> v4 -> v5:
-> 
-> - use the marvell,mv78230-a0-i2c compatible string instead of the
->   offload-broken property.
-> 
-> - move the mvebu-soc-id.h file into mach-mvebu
-> 
-> - no more export the mvebu_get_soc_id() function
-> 
-> - enable the quirk only on machines that we know may be affected, i.e.
-> OpenBlocks AX3-4.
-> 
-> v3 -> v4:
-> 
-> - checked the offload-broken property instead of calling the
->   mvebu_get_soc_id() function in the mv64xxx_of_config() function.
-> 
-> - added the second patch to manage the quirk and update the device
->   node with the offload-broken if needed.
-> 
-> - removed the acked-by from Wolfram as the code have change in the 3rd
->   patch
-> 
-> In mvebu-soc-id.c:
->  - used EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL
-> 
->  - used core_initcall instead of arch_initcall to be called earlier
->    enough.
-> 
-> v2 -> v3:
-> 
-> - fixed typo in the comments added in i2c-mv64xxx.c
-> 
-> - used pr_fmt instead of %s __func__ in all the pr_* functions
-> 
-> - added a check on the pointer returned by of_get_next_child()
-> 
-> - added a return immediately after the 1st check to be able to get rid
->   of indenting the entire function code inside the if { ... } block.
-> 
-> v1 -> v2:
-> 
-> - Changed the way to test the return of the function mvebu_get_soc_id
->   in order to make it clearer.
-> 
-> - Removed the superfluous parentheses
-> 
-> - Added Wolfram's acked-by on the 2nd patch
-> 
-> Gregory CLEMENT (4):
->   ARM: mvebu: Add support to get the ID and the revision of a SoC
->   ARM: mvebu: Add quirk for i2c for the OpenBlocks AX3-4 board
->   i2c: mv64xxx: Fix bus hang on A0 version of the Armada XP SoCs
->   i2c: mv64xxx: Document the newly introduced Armada XP A0 compatible
-> 
->  .../devicetree/bindings/i2c/i2c-mv64xxx.txt        |   2 +-
->  arch/arm/mach-mvebu/Makefile                       |   2 +-
->  arch/arm/mach-mvebu/armada-370-xp.c                |  32 ++++++
->  arch/arm/mach-mvebu/mvebu-soc-id.c                 | 119 +++++++++++++++++++++
->  arch/arm/mach-mvebu/mvebu-soc-id.h                 |  32 ++++++
->  drivers/i2c/busses/i2c-mv64xxx.c                   |   8 ++
->  6 files changed, 193 insertions(+), 2 deletions(-)
->  create mode 100644 arch/arm/mach-mvebu/mvebu-soc-id.c
->  create mode 100644 arch/arm/mach-mvebu/mvebu-soc-id.h
-> 
-
-
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+Acked-by: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
