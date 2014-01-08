@@ -1,56 +1,37 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH v4 2/3] ARM: mvebu: Add quirk for i2c
-Date: Wed, 08 Jan 2014 14:42:45 +0100
-Message-ID: <52CD55D5.6020703@free-electrons.com>
-References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com> <1389112504-9931-3-git-send-email-gregory.clement@free-electrons.com> <201401081352.57361.arnd@arndb.de>
+Date: Wed, 08 Jan 2014 14:44:24 +0100
+Message-ID: <5524929.csF5lYbH6h@wuerfel>
+References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com>
+ <201401081352.57361.arnd@arndb.de> <52CD55D5.6020703@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201401081352.57361.arnd-r2nGTMty4D4@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <52CD55D5.6020703@free-electrons.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/01/2014 13:52, Arnd Bergmann wrote:
-> On Tuesday 07 January 2014, Gregory CLEMENT wrote:
+On Wednesday 08 January 2014 14:42:45 Gregory CLEMENT wrote:
+> You means something like the following code ?
 > 
->>  static void __init armada_370_xp_dt_init(void)
->>  {
->> +       i2c_quirk();
->>         of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
->>  }
-> 
-> I'd prefer to enable the quirk only on machines that we know may be affected, i.e.
-> OpenBlocks AX3-4. That would make it easier in the future for everyone to figure
-> out whether they need to include the quirk in their kernels or not, depending
-> on whether they want to support these machines. Just a precaution in case we
-> end up having lots of quirks in the long run.
+> static void __init armada_370_xp_dt_init(void)
+>  {
+> +       if (of_machine_is_compatible("plathome,openblocks-ax3-4"))
+> +               i2c_quirk();
+>         of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+>  }
 
-You means something like the following code ?
+Yes, that looks like a good way to do it.
 
-static void __init armada_370_xp_dt_init(void)
- {
-+       if (of_machine_is_compatible("plathome,openblocks-ax3-4"))
-+               i2c_quirk();
-        of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
- }
-
-
-
-
-> 
-> 	Arnd
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
-
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+	Arnd
