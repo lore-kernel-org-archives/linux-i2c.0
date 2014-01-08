@@ -1,88 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 3/4] i2c: mv64xxx: Fix bus hang on A0 version of the
- Armada XP SoCs
-Date: Wed, 8 Jan 2014 16:21:39 +0100
-Message-ID: <20140108152139.GB15182@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5 2/4] ARM: mvebu: Add quirk for i2c for the OpenBlocks
+ AX3-4 board
+Date: Wed, 8 Jan 2014 16:22:24 +0100
+Message-ID: <20140108152224.GC15182@katana>
 References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com>
- <1389193589-18485-4-git-send-email-gregory.clement@free-electrons.com>
+ <1389193589-18485-3-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
-Return-path: <stable-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="TiqCXmo5T1hvSQQg"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1389193589-18485-4-git-send-email-gregory.clement@free-electrons.com>
-Sender: stable-owner@vger.kernel.org
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+In-Reply-To: <1389193589-18485-3-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---7iMSBzlTiPOCCT2k
+--TiqCXmo5T1hvSQQg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 08, 2014 at 04:06:28PM +0100, Gregory CLEMENT wrote:
-> The first variants of Armada XP SoCs (A0 stepping) have issues related
-> to the i2c controller which prevent to use the offload mechanism and
-> lead to a kernel hang during boot.
->=20
-> The commit introduces a new the compatible string
-> marvell,mv78230-a0-i2c for the i2c controller. When this compatible
-> string is used the driver disables the offload mechanism and the
-> kernel no more hangs on these SoCs.
->=20
-> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
-> Reported-by: Andrew Lunn <andrew@lunn.ch>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/i2c/busses/i2c-mv64xxx.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv=
-64xxx.c
-> index 8be7e42aa4de..f424c0f89946 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -692,6 +692,10 @@ static const struct of_device_id mv64xxx_i2c_of_matc=
-h_table[] =3D {
->  	{ .compatible =3D "allwinner,sun4i-i2c", .data =3D &mv64xxx_i2c_regs_su=
-n4i},
->  	{ .compatible =3D "marvell,mv64xxx-i2c", .data =3D &mv64xxx_i2c_regs_mv=
-64xxx},
->  	{ .compatible =3D "marvell,mv78230-i2c", .data =3D &mv64xxx_i2c_regs_mv=
-64xxx},
-> +	{
-> +		.compatible =3D "marvell,mv78230-a0-i2c",
-> +		.data =3D &mv64xxx_i2c_regs_mv64xxx
-> +	},
+> +		new_compat->name =  kstrdup("compatible", GFP_KERNEL);
+> +		new_compat->length =  sizeof("marvell,mv78230-a0-i2c");
+> +		new_compat->value =  kstrdup("marvell,mv78230-a0-i2c",
+> +						GFP_KERNEL);
+> +
 
-I think a oneliner entry like the entries above is easier to read, but
-that is very minor...
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Very minor again: Strange whitespacing after "="
 
 
---7iMSBzlTiPOCCT2k
+--TiqCXmo5T1hvSQQg
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSzW0DAAoJEBQN5MwUoCm2emkP/3Mt1rGpURsY3wA8qXJ97bQC
-djXE2BrZ2TQHLjDRX8OftGTU8P2Oh/1Y0x2WBon3OD8dBs1aia3AFMcLLMmajVBf
-Z/Tqa+t3XHsSbcKW6di3GkIYAFFAbu017G9oQPU80f7iQHprVHtMxykfFNRTRpdr
-AgEnRUAbRbLtCsUE83F4/Ycp6zDp7viGBOXzSFb9e8xPnKRb/lLJ8XgG3NwkWYz6
-1dnE4oDd5w7+yoi5NDHfGXCM53Xuil3qU0YwTSAwwxQA8BApOEZlEsGSXIcT3fQm
-qnww+XeFL8yuYQcDoco1ao/ngAgdPCY50kB0ys/Mz+lC0fiqWyiv3yMO/CnUfC1v
-fGqyTpxt1se5+KvHXFIjhljFLmYjSAHc+RhAkMTha9sxUm9Lxnso+NUfkrvMUVEm
-tIgh8jTi00d+0RSEYuaT0R/RopX256zG/qegZOtjitzzgDbx5ILYxuB1TWipU3X/
-8FJmcNq80OStM8K/I8j1BEktdQIMTy5z+te8FVHSf7oMimsg8Uowf9yfJ3O3WpEg
-Y+qrNLVVpNfHWbJk9Ozy90Ji5MZYf7YasxTCr3kub6R8nzh8Ml3NuHYgNS4RBjVQ
-O1qstLgItwuYX8byUgDFwcPVyo6RUkVnhyTpvCxC7AIxrB359vEz5bbzAuPsw4+9
-Z7CRq7fcuUqKW6ETeN7b
-=dUwZ
+iQIcBAEBAgAGBQJSzW0wAAoJEBQN5MwUoCm2rxUP/iCm/g0Y4SnEDWGH3v24BCDL
++ScEBgt6G2fLcBdmgg16H+qWqx+7vOV6LnllHQdPXTZsMChcuhNeup1OnunoGqTT
+jJcqZ5U+Vf3z76aRrcGynpRPer6UsKeK7CIPqqQRrgekeWJHPqDsAiCe+sccWWNd
+vmAvtdPzYCZgusJfKSh5LDsqFusjyqCIPp72FSvHo97nmoPQDV1xQ765vgJA8qfT
+r4mAUlq28k3dektQ+KKweqUqfgzxMQ59NJMPclMKBEDtkUwyN8tg7hvm+WuJxqwy
+zzvTE9iX4M8hfZsKK0pf5LTpW5n2beC3DVR395K9mj7/ERexoHiAKI8Y87D3rw+v
+CswM4srWNSUhSrkuxJipDuwv82Uq3Smiq8pC7ICwfsi2S9Ii9CjdO3K5Kf2Ai4cm
+w6u/N1RjfjRes+AmJpN/4kwkauX2QpiphJU8HKcQjirFi6z2kaHSgccJ9StfnRg2
+BUttqJcMQowl8bI66eOe86swzuvq6DQW+/JgmL1Pu2o4Bt52iH0hhSMeN6/o2Ovk
+645QEFBoeRIDhZTZ3PZHFPVH0gJn22nycNsYsvaEjogkQPxItr+b+QJIXQ8+HqQH
+9BHoSxnKLDpYKCO2W1ugQ5Y2brfxGdqDWlnXMF9JyJdRd5zcAx2ZyCLaQ8GnjyBh
+icAZcQ5xOiQc5/FWk5LF
+=nf7T
 -----END PGP SIGNATURE-----
 
---7iMSBzlTiPOCCT2k--
+--TiqCXmo5T1hvSQQg--
