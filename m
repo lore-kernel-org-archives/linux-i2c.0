@@ -1,50 +1,45 @@
-From: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
-Subject: Re: [PATCH] i2c: viperboard: remove superfluous assignment
-Date: Wed, 08 Jan 2014 18:00:34 +0100
-Message-ID: <1646720.ZFo3jWjium@lem-wkst-02>
-References: <1388870493-6523-1-git-send-email-wsa@the-dreams.de>
+From: "Dr. Musa Hamed" <drmusahamed01-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: I have a very lucrative Business
+Date: Wed, 8 Jan 2014 21:47:31 +0100
+Message-ID: <CALS90i9nMs6jMoH2O5S68sPF=juYOV2sfMAwaBekL8ccz3eSOQ__46585.7949377552$1389215523$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1388870493-6523-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 08 January 2014 22:21:33, Wolfram Sang wrote:
-> cppcheck rightfully says:
-> 
-> drivers/i2c/busses/i2c-viperboard.c:169: style: Variable 'bytes_xfer' is
-> assigned a value that is never used.
-> 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-viperboard.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-viperboard.c
-> b/drivers/i2c/busses/i2c-viperboard.c index 6976e1c..7533fa3 100644
-> --- a/drivers/i2c/busses/i2c-viperboard.c
-> +++ b/drivers/i2c/busses/i2c-viperboard.c
-> @@ -118,8 +118,7 @@ static int vprbrd_i2c_addr(struct usb_device *usb_dev,
->  static int vprbrd_i2c_read(struct vprbrd *vb, struct i2c_msg *msg)
->  {
->  	int ret;
-> -	u16 remain_len, bytes_xfer, len1, len2,
-> -		start = 0x0000;
-> +	u16 remain_len, len1, len2, start = 0x0000;
->  	struct vprbrd_i2c_read_msg *rmsg =
->  		(struct vprbrd_i2c_read_msg *)vb->buf;
-> 
-> @@ -166,7 +165,6 @@ static int vprbrd_i2c_read(struct vprbrd *vb, struct
-> i2c_msg *msg) rmsg->header.len3 = remain_len - 512;
->  			rmsg->header.len4 = 0x00;
->  			rmsg->header.len5 = 0x00;
-> -			bytes_xfer = remain_len;
->  			remain_len = 0;
->  		} else if (remain_len <= 1022) {
->  			len1 = 512;
+ATTN: Dear,
 
-Acked-by: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
+I am Dr. Musa Hamed Executive Director of the Bank of Africa
+Plc B.O.A,Cotonou Benin Rep. I have a very lucrative Business proposal
+worth of 21,500,000.00 USD.
+
+An Iraqi named Hamadi Hashem a business man made a fixed deposit of
+21,500,000.00 USD . Upon maturity several notices was sent to him,
+even during the war,eleven years ago (2003) up till this date. Again
+after the war another notification was sent and still no response came
+from him. it has been found out that Hamadi Hashem and his family had
+been killed during the war in bomb blast that hit their home at
+Mukaradeeb where his personal oil well was. I am prepared to split the
+funds with you 50%:50%.By placing you as the NEXT OF KIN to his
+deposit.
+
+Should you be interested in doing this deal with me, please send me
+the following information:
+
+(1) Your Name
+(2) Resident Address
+(3) Your Occupation
+(4) Your Phone Number
+(5) Date of Birth
+(6) Resident Country
+
+And I will prefer you to reach me privately and securely on my personal
+email address: dr.musahamed30-Qt13gs6zZMY@public.gmane.org
+Tel: +229-988-400-97
+
+I will provide you with further information as soon as I hear
+positively from you.
+
+Regards,
+Dr. Musa Hamed
