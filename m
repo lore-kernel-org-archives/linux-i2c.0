@@ -1,41 +1,131 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v4 1/3] ARM: mvebu: Add support to get the ID and the revision of a SoC
-Date: Wed, 8 Jan 2014 13:55:37 +0100
-Message-ID: <201401081355.38293.arnd@arndb.de>
-References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com> <1389112504-9931-2-git-send-email-gregory.clement@free-electrons.com>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v4 2/3] ARM: mvebu: Add quirk for i2c
+Date: Wed, 08 Jan 2014 14:03:58 +0100
+Message-ID: <52CD4CBE.6010902@free-electrons.com>
+References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com> <1389112504-9931-3-git-send-email-gregory.clement@free-electrons.com> <20140107183853.GE4227@obsidianresearch.com> <20140107230610.GB2592@katana> <52CD2529.6090206@free-electrons.com> <20140108112926.GB2669@katana>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1389112504-9931-2-git-send-email-gregory.clement@free-electrons.com>
+In-Reply-To: <20140108112926.GB2669@katana>
 Sender: stable-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>, stable@vger.kernel.org, Jason Gunthorpe <jgunthorpe@obsidianresearch.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 07 January 2014, Gregory CLEMENT wrote:
-> diff --git a/include/linux/mvebu-soc-id.h b/include/linux/mvebu-soc-id.h
-> new file mode 100644
-> index 000000000000..31654252fe35
-> --- /dev/null
-> +++ b/include/linux/mvebu-soc-id.h
-> +#ifdef CONFIG_ARCH_MVEBU
-> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
-> +#else
-> +static inline int mvebu_get_soc_id(u32 *dev, u32 *rev)
-> +{
-> +	return -1;
-> +}
-> +#endif
-> +
-> +#endif /* __LINUX_MVEBU_SOC_ID_H */
+On 08/01/2014 12:29, Wolfram Sang wrote:
+> On Wed, Jan 08, 2014 at 11:15:05AM +0100, Gregory CLEMENT wrote:
+>> Hi Wolfram,
+>>
+>> On 08/01/2014 00:06, Wolfram Sang wrote:
+>>> On Tue, Jan 07, 2014 at 11:38:53AM -0700, Jason Gunthorpe wrote:
+>>>> On Tue, Jan 07, 2014 at 05:35:03PM +0100, Gregory CLEMENT wrote:
+>>>>> +static struct property i2c_offload_broken = {
+>>>>> +	.name = "offload-broken",
+>>>>> +};
+>>>>> +
+>>>>> +static void __init i2c_quirk(void)
+>>>>> +{
+>>>>> +	struct device_node *np;
+>>>>> +	u32 dev, rev;
+>>>>> +
+>>>>> +	/*
+>>>>> +	 * Only revisons more recent than A0 support the offload
+>>>>> +	 * mechanism. We can exit only if we are sure that we can
+>>>>> +	 * get the SoC revision and it is more recent than A0.
+>>>>> +	 */
+>>>>> +	if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
+>>>>> +		return;
+>>>>> +
+>>>>> +	for_each_compatible_node(np, NULL, "marvell,mv78230-i2c")
+>>>>> +		of_add_property(np, &i2c_offload_broken);
+>>>>
+>>>> I like this approach.
+>>>
+>>> Sorry, but I don't.
+>>>
+>>>> However, when I first read this I thought it should be a -a0 specific
+>>>> compatible string, not a 'offload-broken' property - any idea what the
+>>>> DT consensus is here? I've seen both approach in use ..
+>>>
+>>> I prefer the replacement of the compatible string. If it should really
+>>> be a seperate property, then it should be a vendor specific property. It
+>>> is not generic, at all.
+>>
+>> Something like "marvell,offload-broken" would be acceptable?
+> 
+> A tad more, yes. Still, since this is a feature/quirk of the IP core
+> revision, it should be deduced from the compatible property IMO. It
+> cannot be configured anywhere, so it doesn't change on board level.
 
-With the quirk handling in patch 3, I think we should remove the public interface
-and EXPORT_SYMBOL(), as well as move this header file into mach-mvebu.
+So you would prefer using the "marvell,mv78230-a0-i2c" comaptible string and
+updating it with the follwing piece of code?
 
-That said, we may want to add support for the soc_bus later on (not as part of the
-stable bug fix) to make it possible to query the soc version from user space through
-the standard sysfs files.
+diff --git a/arch/arm/mach-mvebu/armada-370-xp.c b/arch/arm/mach-mvebu/armada-370-xp.c
+index e2acff98e750..8c4ecf987e82 100644
+--- a/arch/arm/mach-mvebu/armada-370-xp.c
++++ b/arch/arm/mach-mvebu/armada-370-xp.c
+@@ -21,6 +21,8 @@
+ #include <linux/clocksource.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/mbus.h>
++#include <linux/mvebu-soc-id.h>
++#include <linux/slab.h>
+ #include <asm/hardware/cache-l2x0.h>
+ #include <asm/mach/arch.h>
+ #include <asm/mach/map.h>
+@@ -45,8 +47,38 @@ static void __init armada_370_xp_timer_and_clk_init(void)
+ #endif
+ }
 
-	Arnd
++static void __init i2c_quirk(void)
++{
++       struct device_node *np;
++       u32 dev, rev;
++       int i = 0;
++
++       /*
++        * Only revisons more recent than A0 support the offload
++        * mechanism. We can exit only if we are sure that we can
++        * get the SoC revision and it is more recent than A0.
++        */
++       if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
++               return;
++
++       for_each_compatible_node(np, NULL, "marvell,mv78230-i2c") {
++               struct property *new_compat;
++
++               new_compat = kzalloc(sizeof(*new_compat), GFP_KERNEL);
++
++               new_compat->name =  kstrdup("compatible", GFP_KERNEL);
++               new_compat->length =  sizeof("marvell,mv78230-a0-i2c");
++               new_compat->value =  kstrdup("marvell,mv78230-a0-i2c",
++                                               GFP_KERNEL);
++
++               of_update_property(np, new_compat);
++       }
++       return;
++}
++
+ static void __init armada_370_xp_dt_init(void)
+ {
++       i2c_quirk();
+        of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+ }
+
+
+> 
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
+
+
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
