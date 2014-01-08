@@ -1,53 +1,52 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 2/3] ARM: mvebu: Add quirk for i2c
-Date: Wed, 08 Jan 2014 15:10:29 +0100
-Message-ID: <52CD5C55.9090007@free-electrons.com>
-References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com> <52CD4CBE.6010902@free-electrons.com> <20140108133958.GA15182@katana> <3195222.U7OZJLz9Y4@wuerfel>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v4 1/3] ARM: mvebu: Add support to get the ID and the
+ revision of a SoC
+Date: Wed, 08 Jan 2014 15:16:37 +0100
+Message-ID: <52CD5DC5.2030305@free-electrons.com>
+References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com> <1389112504-9931-2-git-send-email-gregory.clement@free-electrons.com> <201401081355.38293.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <3195222.U7OZJLz9Y4@wuerfel>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <201401081355.38293.arnd@arndb.de>
+Sender: stable-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, stable@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/01/2014 14:45, Arnd Bergmann wrote:
-> On Wednesday 08 January 2014 14:39:59 Wolfram Sang wrote:
->>>>>>> However, when I first read this I thought it should be a -a0 specific
->>>>>>> compatible string, not a 'offload-broken' property - any idea what the
->>>>>>> DT consensus is here? I've seen both approach in use ..
->>>>>>
->>>>>> I prefer the replacement of the compatible string. If it should really
->>>>>> be a seperate property, then it should be a vendor specific property. It
->>>>>> is not generic, at all.
->>>>>
->>>>> Something like "marvell,offload-broken" would be acceptable?
->>>>
->>>> A tad more, yes. Still, since this is a feature/quirk of the IP core
->>>> revision, it should be deduced from the compatible property IMO. It
->>>> cannot be configured anywhere, so it doesn't change on board level.
->>>
->>> So you would prefer using the "marvell,mv78230-a0-i2c" comaptible string and
->>> updating it with the follwing piece of code?
->>
->> This is the approach I favour, yes. Can't say much about the
->> implementation. Looks OK, but dunno if this is minimal...
->>
+On 08/01/2014 13:55, Arnd Bergmann wrote:
+> On Tuesday 07 January 2014, Gregory CLEMENT wrote:
+>> diff --git a/include/linux/mvebu-soc-id.h b/include/linux/mvebu-soc-id.h
+>> new file mode 100644
+>> index 000000000000..31654252fe35
+>> --- /dev/null
+>> +++ b/include/linux/mvebu-soc-id.h
+>> +#ifdef CONFIG_ARCH_MVEBU
+>> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
+>> +#else
+>> +static inline int mvebu_get_soc_id(u32 *dev, u32 *rev)
+>> +{
+>> +	return -1;
+>> +}
+>> +#endif
+>> +
+>> +#endif /* __LINUX_MVEBU_SOC_ID_H */
 > 
-> I would prefer the separate property in this case, but only because it's
-> easier to add in the quirk than to change the compatible string, but it's
-> not a strong preference and I don't mind getting overruled if you all
-> favor the alternative.
+> With the quirk handling in patch 3, I think we should remove the public interface
+> and EXPORT_SYMBOL(), as well as move this header file into mach-mvebu.
+> 
+> That said, we may want to add support for the soc_bus later on (not as part of the
+> stable bug fix) to make it possible to query the soc version from user space through
+> the standard sysfs files.
 
-Great, all the different part seems to be validated, I can now send the last
-version.
+We could do it later indeed. For having a more acceptable patch for stable I will move
+this header file into mach-mvebu.
 
 
 Thanks,
 
 Gregory
+
 
 -- 
 Gregory Clement, Free Electrons
