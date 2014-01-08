@@ -1,43 +1,32 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v5 3/4] i2c: mv64xxx: Fix bus hang on A0 version of the Armada XP SoCs
-Date: Wed, 8 Jan 2014 16:28:20 +0100
-Message-ID: <201401081628.21299.arnd@arndb.de>
-References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com> <20140108152139.GB15182@katana> <52CD6E1E.5040409@free-electrons.com>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v5 2/4] ARM: mvebu: Add quirk for i2c for the OpenBlocks
+ AX3-4 board
+Date: Wed, 08 Jan 2014 16:28:34 +0100
+Message-ID: <52CD6EA2.1020107@free-electrons.com>
+References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com> <1389193589-18485-3-git-send-email-gregory.clement@free-electrons.com> <20140108152224.GC15182@katana>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <52CD6E1E.5040409@free-electrons.com>
+In-Reply-To: <20140108152224.GC15182@katana>
 Sender: stable-owner@vger.kernel.org
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 08 January 2014, Gregory CLEMENT wrote:
-> On 08/01/2014 16:21, Wolfram Sang wrote:
-
-> >> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> >> index 8be7e42aa4de..f424c0f89946 100644
-> >> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> >> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> >> @@ -692,6 +692,10 @@ static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
-> >>      { .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
-> >>      { .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
-> >>      { .compatible = "marvell,mv78230-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
-> >> +    {
-> >> +            .compatible = "marvell,mv78230-a0-i2c",
-> >> +            .data = &mv64xxx_i2c_regs_mv64xxx
-> >> +    },
-> > 
-> > I think a oneliner entry like the entries above is easier to read, but
-> > that is very minor...
+On 08/01/2014 16:22, Wolfram Sang wrote:
+>> +		new_compat->name =  kstrdup("compatible", GFP_KERNEL);
+>> +		new_compat->length =  sizeof("marvell,mv78230-a0-i2c");
+>> +		new_compat->value =  kstrdup("marvell,mv78230-a0-i2c",
+>> +						GFP_KERNEL);
+>> +
 > 
-> By using one line we would break the 80 character rule,
-> hat why I did in this way.
+> Very minor again: Strange whitespacing after "="
 > 
+arg I missed it :(
 
-It's more a guideline than a strict rule. I agree that one line would
-be better here, but it's not important.
-
-	Arnd
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
