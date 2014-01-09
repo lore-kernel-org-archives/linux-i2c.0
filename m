@@ -1,59 +1,51 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 2/3] ARM: mvebu: Add quirk for i2c
-Date: Thu, 09 Jan 2014 15:39:59 +0100
-Message-ID: <52CEB4BF.4040108@free-electrons.com>
-References: <1389112504-9931-1-git-send-email-gregory.clement@free-electrons.com> <1389112504-9931-3-git-send-email-gregory.clement@free-electrons.com> <20140107183853.GE4227@obsidianresearch.com> <20140107230610.GB2592@katana> <52CD2529.6090206@free-electrons.com> <20140108112926.GB2669@katana> <52CD4CBE.6010902@free-electrons.com> <20140108133958.GA15182@katana> <52CD5BBA.4080600@free-electrons.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH 0/5] ARM: sun6i: Add support for the A31 I2C controller
+Date: Thu,  9 Jan 2014 18:19:58 +0100
+Message-ID: <1389288003-23187-1-git-send-email-maxime.ripard@free-electrons.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <52CD5BBA.4080600-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRB35WXOLAKGQE6YDMFLA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, duanmintao-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/01/2014 15:07, Gregory CLEMENT wrote:
-> Hi Wolfram,
-> 
-> On 08/01/2014 14:39, Wolfram Sang wrote:
->>
->>>>>>> However, when I first read this I thought it should be a -a0 specific
->>>>>>> compatible string, not a 'offload-broken' property - any idea what the
->>>>>>> DT consensus is here? I've seen both approach in use ..
->>>>>>
->>>>>> I prefer the replacement of the compatible string. If it should really
->>>>>> be a seperate property, then it should be a vendor specific property. It
->>>>>> is not generic, at all.
->>>>>
->>>>> Something like "marvell,offload-broken" would be acceptable?
->>>>
->>>> A tad more, yes. Still, since this is a feature/quirk of the IP core
->>>> revision, it should be deduced from the compatible property IMO. It
->>>> cannot be configured anywhere, so it doesn't change on board level.
->>>
->>> So you would prefer using the "marvell,mv78230-a0-i2c" comaptible string and
->>> updating it with the follwing piece of code?
->>
->> This is the approach I favour, yes. Can't say much about the
->> implementation. Looks OK, but dunno if this is minimal...
-> 
-> Allocating memory in each loop could seem convoluted. In my first approach
-> I just used a static struct but I got warning during boot about duplicated
-> node. It seems we can use the same property struct for two different nodes.
+Hi everyone,
 
-Oh! I just meant the opposite: " It seems  we can NOT use the same property
-struct for two different nodes."
+This patchset adds support the A31 i2c controller. This is mostly the
+same controller as the one found in the other Allwinner SoCs, except
+for the interrupts acking.
 
+On the other SoCs using this driver, the interrupts are acked by
+clearing the INT_FLAG bit in the control register, while on the A31,
+the interrupt is acked by writing that bit into the control register.
 
-> 
->>
-> 
-> 
+The other difference is that the I2C IP is maintained in reset by a
+reset controller, so we're adding optionnal support for the reset
+framework in the driver to deassert the device from reset.
 
+Thanks!
+Maxime
+
+Maxime Ripard (5):
+  i2c: mv64xxx: Add reset deassert call
+  i2c: mv64xxx: Add support for the Allwinner A31 I2C driver
+  ARM: sun6i: Enable the I2C controllers
+  ARM: sun6i: Enable the I2C muxing options
+  ARM: sun6i: colombus: Enable the I2C controllers
+
+ .../devicetree/bindings/i2c/i2c-mv64xxx.txt        |  1 +
+ arch/arm/boot/dts/sun6i-a31-colombus.dts           | 18 +++++++
+ arch/arm/boot/dts/sun6i-a31.dtsi                   | 61 ++++++++++++++++++++++
+ drivers/i2c/busses/Kconfig                         |  1 +
+ drivers/i2c/busses/i2c-mv64xxx.c                   | 16 ++++++
+ 5 files changed, 97 insertions(+)
 
 -- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+1.8.4.2
