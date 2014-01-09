@@ -1,59 +1,219 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V2 07/13] i2c: pnx: Use devm_*() functions
-Date: Thu, 9 Jan 2014 22:24:22 +0100
-Message-ID: <20140109212422.GB3866@katana>
-References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
- <002b01cefaf4$fa737d40$ef5a77c0$%han@samsung.com>
- <008b01cf0a88$85df55f0$919e01d0$%han@samsung.com>
+Subject: Re: [PATCH 2/2] i2c: Add bus driver for for OSIF USB i2c device.
+Date: Thu, 9 Jan 2014 22:49:30 +0100
+Message-ID: <20140109214930.GC3866@katana>
+References: <20140104222842.GF3150@katana>
+ <1388980536-7588-1-git-send-email-andrew@lunn.ch>
+ <1388980536-7588-2-git-send-email-andrew@lunn.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="98e8jtXdkpgskNou"
+	protocol="application/pgp-signature"; boundary="V88s5gaDVPzZ0KCq"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <008b01cf0a88$85df55f0$919e01d0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1388980536-7588-2-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Vitaly Wool' <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Roland Stigge' <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>, Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---98e8jtXdkpgskNou
+--V88s5gaDVPzZ0KCq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 06, 2014 at 11:39:29AM +0900, Jingoo Han wrote:
-> Use devm_*() functions to make cleanup paths simpler.
+On Mon, Jan 06, 2014 at 04:55:36AM +0100, Andrew Lunn wrote:
+> OSIF, Open Source InterFace, is a USB based i2c bus master.  The
+> origional design was based on i2c-tiny-usb, but more modern versions
+> of the firmware running on the MegaAVR microcontroller use a different
+> protocol over the USB. This code is based on Barry Carter
+> <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> driver.
 >=20
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
-> Changes since V1:
-> - Use devm_ioremap_resource() to make the code simpler, per Wolfram Sang.
+> Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
 
-Yes, you used this function but you did not remove all the stuff which
-can go now since you use this function.
+We are getting close...
 
 
---98e8jtXdkpgskNou
+> +#define OSIFI2C_READ		20 /* Read from i2c bus */
+> +#define OSIFI2C_WRITE		21 /* Write to i2c bus */
+> +#define OSIFI2C_STOP		22 /* Send stop condition */
+> +#define OSIFI2C_STATUS		23 /* Get status from i2c action */
+> +#define OSIFI2C_SET_BIT_RATE	24 /* Set the bit rate & prescaler */
+
+Comments could be seen as obvious, too. I'll leave the decision to you.
+
+> +struct priv {
+
+Namespace: 'osif_priv' please.
+
+> +	struct usb_device *usb_dev;
+> +	struct usb_interface *interface;
+> +	struct i2c_adapter adapter;
+> +	unsigned char status;
+> +};
+> +
+> +static int usb_read(struct i2c_adapter *adapter, int cmd,
+
+Namespace: 'osif_usb_read'.
+
+> +		    int value, int index, void *data, int len)
+> +{
+> +	struct priv *priv =3D (struct priv *)adapter->algo_data;
+
+No need to cast a void*.
+
+> +
+> +	return usb_control_msg(priv->usb_dev, usb_rcvctrlpipe(priv->usb_dev, 0),
+> +			       cmd, USB_TYPE_VENDOR | USB_RECIP_INTERFACE |
+> +			       USB_DIR_IN, value, index, data, len, 2000);
+> +}
+> +
+> +static int usb_write(struct i2c_adapter *adapter, int cmd,
+
+Namespace
+
+> +		    int value, int index, void *data, int len)
+> +{
+> +
+> +	struct priv *priv =3D (struct priv *)adapter->algo_data;
+
+no cast.
+
+> +
+> +	return usb_control_msg(priv->usb_dev, usb_sndctrlpipe(priv->usb_dev, 0),
+> +			       cmd, USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
+> +			       value, index, data, len, 2000);
+> +}
+> +
+> +static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, i=
+nt num)
+
+namespace
+
+> +{
+> +	struct priv *priv =3D (struct priv *)adapter->algo_data;
+
+no cast
+
+> +	struct i2c_msg *pmsg;
+> +	int ret =3D 0;
+> +	int i, cmd;
+> +
+> +	for (i =3D 0; ret >=3D 0 && i < num; i++) {
+> +		pmsg =3D &msgs[i];
+> +
+> +		if (pmsg->flags & I2C_M_RD) {
+> +			cmd =3D OSIFI2C_READ;
+> +
+> +			ret =3D usb_read(adapter, cmd, pmsg->flags, pmsg->addr,
+> +				       pmsg->buf, pmsg->len);
+> +			if (ret !=3D pmsg->len) {
+> +				dev_err(&adapter->dev,
+> +					"failure reading data\n");
+
+One line is more readable IMO. 80 chars is not a hard limit.
+
+> +				return -EREMOTEIO;
+> +			}
+> +		} else {
+> +			cmd =3D OSIFI2C_WRITE;
+> +
+> +			ret =3D usb_write(adapter, cmd, pmsg->flags, pmsg->addr,
+> +					pmsg->buf, pmsg->len);
+> +			if (ret !=3D pmsg->len) {
+> +				dev_err(&adapter->dev,
+> +					"failure writing data\n");
+
+ditto
+
+> +				return -EREMOTEIO;
+> +			}
+> +		}
+> +
+> +		ret =3D usb_read(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
+> +		if (ret !=3D 0) {
+
+'if (ret)' is enough
+
+> +			dev_err(&adapter->dev, "failure sending STOP\n");
+> +			return -EREMOTEIO;
+> +		}
+> +
+> +		/* read status */
+> +		ret =3D usb_read(adapter, OSIFI2C_STATUS, 0, 0, &priv->status, 1);
+> +		if (ret !=3D 1) {
+> +			dev_err(&adapter->dev, "failure reading status\n");
+> +			return -EREMOTEIO;
+> +		}
+> +
+> +		if (priv->status !=3D STATUS_ADDRESS_ACK) {
+> +			dev_dbg(&adapter->dev, "status =3D %d\n", priv->status);
+> +			return -EREMOTEIO;
+> +		}
+> +	}
+> +
+> +	return i;
+> +}
+> +
+> +static u32 usb_func(struct i2c_adapter *adapter)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+
+Have you tried SMBUS_QUICK by the way?
+
+> +}
+> +
+> +static struct i2c_algorithm usb_algorithm =3D {
+> +	.master_xfer	=3D usb_xfer,
+> +	.functionality	=3D usb_func,
+> +};
+> +
+> +#define USB_OSIF_VENDOR_ID	0x1964
+> +#define USB_OSIF_PRODUCT_ID	0x0001
+> +
+> +static struct usb_device_id osif_table[] =3D {
+> +	{ USB_DEVICE(USB_OSIF_VENDOR_ID, USB_OSIF_PRODUCT_ID) },
+> +	{ }
+> +};
+> +
+
+Empty line can go.
+
+> +MODULE_DEVICE_TABLE(usb, osif_table);
+> +
+> +static int osif_probe(struct usb_interface *interface,
+> +			     const struct usb_device_id *id)
+> +{
+> +	int retval;
+
+maybe just 'ret' for consistency? Very minor nit, though...
+
+> +	struct priv *priv;
+> +	u16 version;
+
+Rest looks ready to go!
+
+
+--V88s5gaDVPzZ0KCq
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSzxOGAAoJEBQN5MwUoCm2t4gP/iOgTu8N6G+eg4yV6HKOuhVc
-eswdQcdQVl57YnKpEDyiLDBjlMFYg9IcV4gTvHK4aoi+po4tSWOgW6XqTg4vVplw
-76R6Xpjdm/Q4HhoGE2LjSSC7oCeTAZwqO0+oqQlgUA3pFTTnPAeS2igvo7V0SmfW
-RbLtCr7miQLn+dRsOX9dg2/Fh2AW4XhuksZPhfrWLfTtMuj1lQE0PamLAoZHLXPb
-bWsm6JOGz9317N//6hESUy2iJEQ5Ogv+xB+LAaW5Vg0Y6ADBPYCzBM3WVnPPM1ZA
-WehxOpUd8qQFdr0u3/zx/cHMdAYo/7bce0BEENtyEMkvXjD40iL7bhWb4Y5v5JMR
-Y1ftaJhYd2/ij9i1gnN3uOWPDy1OPSkvE/p0SDYuKAVDVBHzgtrT1cxh31sE5gfK
-FaF7vASCeM4rwZb4sZ8OPxciHd68DPBh0O9fxnECsMx7DtJQf2qRrTZWyJ91SwsU
-QO2rfEu/DyWZkkXH5ZC4xp8esduw2PJ/EAlY5uZiepvaFzGdtd2srjClhEATcNiD
-iViZGW9w7JLeHvamLwXjYXink7TO4/bhHP9dtBl0L78Bp/Pebtno7IoCWGT8IXWe
-XiXL+RKuOS7AN4HqLLSgxMcNuDODh+eeXA2aLte1QXRC08r7JAQiGCdHpXPg+ZfJ
-Uf1y5rXBG3vf6J/1muGM
-=gxxL
+iQIcBAEBAgAGBQJSzxlqAAoJEBQN5MwUoCm28vwQALBP9KSrcbhA3lRirfHv+MD5
+nGICValKl8t0g6A0VPoHHZ9ctQ70ZwCIyWmPIhCjuatNIpnCxL5IjR/GPMvEbz/a
+QB9YvS6Tfg3zSxxIzLyH9F6bK/JeegcTzyCcu3Zr8TI4QixOHEkn0n9Kwmb6vw02
+tXMT9TSj6MJ02t83izGSLpIaPFZJVJfXrCIJacVa1Sm8FGRb3XyEYYxgS68p8+Mm
+cCnQ3o1cCqr33LiN1zt/9E2WCG605Mjmvz8B5a43qgh6eGPcVT67QF2RACpWVzSb
+3PfYpiQJeclef87URMMwaaeURQcvipj1rPc5BGZzxJ0jB0eRhM6vmsQpQZKt+9cz
+hdBKxPJewKiVRgm6SX0Y1itKSC5zyVWrj3pmu8YBw9RBMZImM8xTVL0+X7TU7aV4
+8HSN67SCXV+oXW0AYT5jNKVWjfZxXkkxo97g8/qVbk3KpM6IB1zk2FxXLO22gArq
+Vnpm/74W8JqcRnnSZ2bcbO0BvOQXSQDB3IqEAsZGbjl7aMnW8t9b53NrVzw99pC5
+APpwoSL1NEESfHSrBcfmBfEKLKJoSXn/Ooi7/dzyb8CBNnNO1mhO075pUqGwTDYC
+Ze7AA88KPpQuu3O9b5r9on2oKYWoV2QK4W2uzZRvb0uNjZDXYylskKyPawmSYxtH
+C4KKmM4KYMOxWg3gCMH9
+=IcTC
 -----END PGP SIGNATURE-----
 
---98e8jtXdkpgskNou--
+--V88s5gaDVPzZ0KCq--
