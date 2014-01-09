@@ -1,339 +1,65 @@
-From: David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 2/2] i2c: Add message transfer tracepoints for SMBUS
-Date: Thu, 09 Jan 2014 21:50:02 +0000
-Message-ID: <20140109215002.25590.51609.stgit@warthog.procyon.org.uk>
-References: <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] Documentation: i2c: Remove obsolete example
+Date: Thu, 9 Jan 2014 23:00:27 +0100
+Message-ID: <20140109220027.GD3866@katana>
+References: <52975B11.2090006@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UfEAyuTBtIjiZzX6"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140109214954.25590.73057.stgit-S6HVgzuS8uM4Awkfq6JHfwNdhmdF6hFW@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52975B11.2090006-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Helia Correia <helia.correia-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jerome.blin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "Correia, Helia" <helia.correia-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The SMBUS tracepoints can be enabled thusly:
 
-	echo 1 >/sys/kernel/debug/tracing/events/i2c/enable
+--UfEAyuTBtIjiZzX6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-and will dump messages that can be viewed in /sys/kernel/debug/tracing/trace
-that look like:
+On Thu, Nov 28, 2013 at 04:02:41PM +0100, Helia Correia wrote:
+> Documentation/i2c/fault-codes illustrates EINVAL error code
+> as follows:
+>=20
+> "One example would be a driver trying an SMBus Block Write
+> with block size outside the range of 1-32 bytes."
+>=20
+> However, the actual implementation of i2c subsystem truncates
+> data length to be 32 bytes.
+> Hence this example cannot happen anymore, and since it's obsolete,
+> let's simply remove it from Documentation/i2c/fault-codes.
+>=20
+> Signed-off-by: Helia Correia <helia.correia-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> ---
 
-         ... smbus_read: i2c-0 a=51 f=00 c=fa BYTE_DATA
-         ... smbus_reply: i2c-0 a=51 f=00 c=fa BYTE_DATA l=1 [39]
-         ... smbus_result: i2c-0 a=51 f=00 c=fa BYTE_DATA rd res=0
-
-formatted as:
-
-	i2c-<adapter-nr>
-	a=<addr>
-	f=<flags>
-	c=<command>
-	<protocol-name>
-	<rd|wr>
-	res=<result>
-	l=<data-len>
-	[<data-block>]
+Applied to for-next, thanks! Although, it can still happen that length
+is 0... we should probably check for this in the core, too. Anyway, the
+example is not the best, so it can go.
 
 
-The adapters to be traced can be selected by something like:
+--UfEAyuTBtIjiZzX6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-	echo adapter_nr==1 >/sys/kernel/debug/tracing/events/i2c/filter
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-Note that this shares the same filter and enablement as i2c.
+iQIcBAEBAgAGBQJSzxv6AAoJEBQN5MwUoCm2xlMP/2/2xd498TEkqeMNNqezsbO8
+ieJdFcXDkZi/dMQBIw4QydywiHgZhCBbTC2U36oLkB3NlClIJKaLhn1isUyqkP9p
+R+nHMSOgKD/CwbKt21+kD96Q6JFPdh4Wk1b+TDjswPITfR6MtGKuKUonkrVK7D2/
+/0seHSku21rNuKZPW91vHHXellCtYMGHs3T4mxCzNfyqWF04v4j8g3wE/Zg3cJZh
+CVrvzbNMjBlySdAJvTZ3Ff4N3Lcwns1HA5uv4LcpP2lg1mTubOzgN2ko0nDkJs3P
+wubFgU3uAuxphQpyWsyHx47lEzJ/FMW0sWE5rXdUxDF2cnA6pJC9d8ayXmFwxDdg
+mxsuVaKU0vy1A28mldDGylqEb5QINKr7ahDZvPEesO1RnMJGdRyoztw91Y4CH5t/
+lBlTal9LaSYB6zcJlCC+Jd01Xy/eLUnhKhOGzCJ+JlGYQQSC5u2iVLdoKL46Frui
+KrCsTNZgQ+IdVDKn51otNvj2NswuY88NgGOkYqUKFRhy5JMc8K8ZbvYo3HvvOQP5
+g2RMlsolqxmYI0W1UW0zQXPR1w8dGZ6CAkPFfKPqBpcSRlvtyqZIFYhvkBN0y1yJ
+3TpwjO3iWvgvF3Nyh40+mgo024Hl47uh2DPOs+62jI9u+ZcDzrHj1kZQG+gOf23r
+ognWtcjyEcLrOGCSh4vG
+=EbfL
+-----END PGP SIGNATURE-----
 
-Signed-off-by: David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Reviewed-by: Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>
----
-
- drivers/i2c/i2c-core.c     |   23 ++++-
- include/trace/events/i2c.h |  224 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 243 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c8b97490461d..619910632d26 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2552,6 +2552,14 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 	int try;
- 	s32 res;
- 
-+	/* If enabled, the following two tracepoints are conditional on
-+	 * read_write and protocol.
-+	 */
-+	trace_smbus_write(adapter, addr, flags, read_write,
-+			  command, protocol, data);
-+	trace_smbus_read(adapter, addr, flags, read_write,
-+			 command, protocol);
-+
- 	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
- 
- 	if (adapter->algo->smbus_xfer) {
-@@ -2572,15 +2580,24 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 		i2c_unlock_adapter(adapter);
- 
- 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
--			return res;
-+			goto trace;
- 		/*
- 		 * Fall back to i2c_smbus_xfer_emulated if the adapter doesn't
- 		 * implement native support for the SMBus operation.
- 		 */
- 	}
- 
--	return i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
--				       command, protocol, data);
-+	res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
-+				      command, protocol, data);
-+
-+trace:
-+	/* If enabled, the reply tracepoint is conditional on read_write. */
-+	trace_smbus_reply(adapter, addr, flags, read_write,
-+			  command, protocol, data);
-+	trace_smbus_result(adapter, addr, flags, read_write,
-+			   command, protocol, res);
-+
-+	return res;
- }
- EXPORT_SYMBOL(i2c_smbus_xfer);
- 
-diff --git a/include/trace/events/i2c.h b/include/trace/events/i2c.h
-index d30f008527b2..222aae9c6e3d 100644
---- a/include/trace/events/i2c.h
-+++ b/include/trace/events/i2c.h
-@@ -1,4 +1,4 @@
--/* I2C message transfer tracepoints
-+/* I2C and SMBUS message transfer tracepoints
-  *
-  * Copyright (C) 2013 Red Hat, Inc. All Rights Reserved.
-  * Written by David Howells (dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org)
-@@ -144,6 +144,228 @@ TRACE_EVENT_FN(i2c_result,
- 	       i2c_transfer_trace_reg,
- 	       i2c_transfer_trace_unreg);
- 
-+/*
-+ * i2c_smbus_xfer() write data or procedure call request
-+ */
-+TRACE_EVENT_CONDITION(smbus_write,
-+	TP_PROTO(const struct i2c_adapter *adap,
-+		 u16 addr, unsigned short flags,
-+		 char read_write, u8 command, int protocol,
-+		 const union i2c_smbus_data *data),
-+	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
-+	TP_CONDITION(read_write == I2C_SMBUS_WRITE ||
-+		     protocol == I2C_SMBUS_PROC_CALL ||
-+		     protocol == I2C_SMBUS_BLOCK_PROC_CALL),
-+	TP_STRUCT__entry(
-+		__field(int,	adapter_nr		)
-+		__field(__u16,	addr			)
-+		__field(__u16,	flags			)
-+		__field(__u8,	command			)
-+		__field(__u8,	len			)
-+		__field(__u32,	protocol		)
-+		__array(__u8, buf, I2C_SMBUS_BLOCK_MAX + 2)	),
-+	TP_fast_assign(
-+		__entry->adapter_nr = adap->nr;
-+		__entry->addr = addr;
-+		__entry->flags = flags;
-+		__entry->command = command;
-+		__entry->protocol = protocol;
-+
-+		switch (protocol) {
-+		case I2C_SMBUS_BYTE_DATA:
-+			__entry->len = 1;
-+			goto copy;
-+		case I2C_SMBUS_WORD_DATA:
-+		case I2C_SMBUS_PROC_CALL:
-+			__entry->len = 2;
-+			goto copy;
-+		case I2C_SMBUS_BLOCK_DATA:
-+		case I2C_SMBUS_BLOCK_PROC_CALL:
-+		case I2C_SMBUS_I2C_BLOCK_DATA:
-+			__entry->len = data->block[0] + 1;
-+		copy:
-+			memcpy(__entry->buf, data->block, __entry->len);
-+			break;
-+		case I2C_SMBUS_QUICK:
-+		case I2C_SMBUS_BYTE:
-+		case I2C_SMBUS_I2C_BLOCK_BROKEN:
-+		default:
-+			__entry->len = 0;
-+		}
-+		       ),
-+	TP_printk("i2c-%d a=%02x f=%02x c=%x %s l=%u [%*phN]",
-+		  __entry->adapter_nr,
-+		  __entry->addr,
-+		  __entry->flags,
-+		  __entry->command,
-+		  __print_symbolic(__entry->protocol,
-+				   { I2C_SMBUS_QUICK,		"QUICK"	},
-+				   { I2C_SMBUS_BYTE,		"BYTE"	},
-+				   { I2C_SMBUS_BYTE_DATA,		"BYTE_DATA" },
-+				   { I2C_SMBUS_WORD_DATA,		"WORD_DATA" },
-+				   { I2C_SMBUS_PROC_CALL,		"PROC_CALL" },
-+				   { I2C_SMBUS_BLOCK_DATA,		"BLOCK_DATA" },
-+				   { I2C_SMBUS_I2C_BLOCK_BROKEN,	"I2C_BLOCK_BROKEN" },
-+				   { I2C_SMBUS_BLOCK_PROC_CALL,	"BLOCK_PROC_CALL" },
-+				   { I2C_SMBUS_I2C_BLOCK_DATA,	"I2C_BLOCK_DATA" }),
-+		  __entry->len,
-+		  __entry->len, __entry->buf
-+		  ));
-+
-+/*
-+ * i2c_smbus_xfer() read data request
-+ */
-+TRACE_EVENT_CONDITION(smbus_read,
-+	TP_PROTO(const struct i2c_adapter *adap,
-+		 u16 addr, unsigned short flags,
-+		 char read_write, u8 command, int protocol),
-+	TP_ARGS(adap, addr, flags, read_write, command, protocol),
-+	TP_CONDITION(!(read_write == I2C_SMBUS_WRITE ||
-+		       protocol == I2C_SMBUS_PROC_CALL ||
-+		       protocol == I2C_SMBUS_BLOCK_PROC_CALL)),
-+	TP_STRUCT__entry(
-+		__field(int,	adapter_nr		)
-+		__field(__u16,	addr			)
-+		__field(__u16,	flags			)
-+		__field(__u8,	command			)
-+		__field(__u32,	protocol		)
-+		__array(__u8, buf, I2C_SMBUS_BLOCK_MAX + 2)	),
-+	TP_fast_assign(
-+		__entry->adapter_nr = adap->nr;
-+		__entry->addr = addr;
-+		__entry->flags = flags;
-+		__entry->command = command;
-+		__entry->protocol = protocol;
-+		       ),
-+	TP_printk("i2c-%d a=%02x f=%02x c=%x %s",
-+		  __entry->adapter_nr,
-+		  __entry->addr,
-+		  __entry->flags,
-+		  __entry->command,
-+		  __print_symbolic(__entry->protocol,
-+				   { I2C_SMBUS_QUICK,		"QUICK"	},
-+				   { I2C_SMBUS_BYTE,		"BYTE"	},
-+				   { I2C_SMBUS_BYTE_DATA,		"BYTE_DATA" },
-+				   { I2C_SMBUS_WORD_DATA,		"WORD_DATA" },
-+				   { I2C_SMBUS_PROC_CALL,		"PROC_CALL" },
-+				   { I2C_SMBUS_BLOCK_DATA,		"BLOCK_DATA" },
-+				   { I2C_SMBUS_I2C_BLOCK_BROKEN,	"I2C_BLOCK_BROKEN" },
-+				   { I2C_SMBUS_BLOCK_PROC_CALL,	"BLOCK_PROC_CALL" },
-+				   { I2C_SMBUS_I2C_BLOCK_DATA,	"I2C_BLOCK_DATA" })
-+		  ));
-+
-+/*
-+ * i2c_smbus_xfer() read data or procedure call reply
-+ */
-+TRACE_EVENT_CONDITION(smbus_reply,
-+	TP_PROTO(const struct i2c_adapter *adap,
-+		 u16 addr, unsigned short flags,
-+		 char read_write, u8 command, int protocol,
-+		 const union i2c_smbus_data *data),
-+	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
-+	TP_CONDITION(read_write == I2C_SMBUS_READ),
-+	TP_STRUCT__entry(
-+		__field(int,	adapter_nr		)
-+		__field(__u16,	addr			)
-+		__field(__u16,	flags			)
-+		__field(__u8,	command			)
-+		__field(__u8,	len			)
-+		__field(__u32,	protocol		)
-+		__array(__u8, buf, I2C_SMBUS_BLOCK_MAX + 2)	),
-+	TP_fast_assign(
-+		__entry->adapter_nr = adap->nr;
-+		__entry->addr = addr;
-+		__entry->flags = flags;
-+		__entry->command = command;
-+		__entry->protocol = protocol;
-+
-+		switch (protocol) {
-+		case I2C_SMBUS_BYTE:
-+		case I2C_SMBUS_BYTE_DATA:
-+			__entry->len = 1;
-+			goto copy;
-+		case I2C_SMBUS_WORD_DATA:
-+		case I2C_SMBUS_PROC_CALL:
-+			__entry->len = 2;
-+			goto copy;
-+		case I2C_SMBUS_BLOCK_DATA:
-+		case I2C_SMBUS_BLOCK_PROC_CALL:
-+		case I2C_SMBUS_I2C_BLOCK_DATA:
-+			__entry->len = data->block[0] + 1;
-+		copy:
-+			memcpy(__entry->buf, data->block, __entry->len);
-+			break;
-+		case I2C_SMBUS_QUICK:
-+		case I2C_SMBUS_I2C_BLOCK_BROKEN:
-+		default:
-+			__entry->len = 0;
-+		}
-+		       ),
-+	TP_printk("i2c-%d a=%02x f=%02x c=%x %s l=%u [%*phN]",
-+		  __entry->adapter_nr,
-+		  __entry->addr,
-+		  __entry->flags,
-+		  __entry->command,
-+		  __print_symbolic(__entry->protocol,
-+				   { I2C_SMBUS_QUICK,		"QUICK"	},
-+				   { I2C_SMBUS_BYTE,		"BYTE"	},
-+				   { I2C_SMBUS_BYTE_DATA,		"BYTE_DATA" },
-+				   { I2C_SMBUS_WORD_DATA,		"WORD_DATA" },
-+				   { I2C_SMBUS_PROC_CALL,		"PROC_CALL" },
-+				   { I2C_SMBUS_BLOCK_DATA,		"BLOCK_DATA" },
-+				   { I2C_SMBUS_I2C_BLOCK_BROKEN,	"I2C_BLOCK_BROKEN" },
-+				   { I2C_SMBUS_BLOCK_PROC_CALL,	"BLOCK_PROC_CALL" },
-+				   { I2C_SMBUS_I2C_BLOCK_DATA,	"I2C_BLOCK_DATA" }),
-+		  __entry->len,
-+		  __entry->len, __entry->buf
-+		  ));
-+
-+/*
-+ * i2c_smbus_xfer() result
-+ */
-+TRACE_EVENT(smbus_result,
-+	    TP_PROTO(const struct i2c_adapter *adap,
-+		     u16 addr, unsigned short flags,
-+		     char read_write, u8 command, int protocol,
-+		     int res),
-+	    TP_ARGS(adap, addr, flags, read_write, command, protocol, res),
-+	    TP_STRUCT__entry(
-+		    __field(int,	adapter_nr		)
-+		    __field(__u16,	addr			)
-+		    __field(__u16,	flags			)
-+		    __field(__u8,	read_write		)
-+		    __field(__u8,	command			)
-+		    __field(__s16,	res			)
-+		    __field(__u32,	protocol		)
-+			     ),
-+	    TP_fast_assign(
-+		    __entry->adapter_nr = adap->nr;
-+		    __entry->addr = addr;
-+		    __entry->flags = flags;
-+		    __entry->read_write = read_write;
-+		    __entry->command = command;
-+		    __entry->protocol = protocol;
-+		    __entry->res = res;
-+			   ),
-+	    TP_printk("i2c-%d a=%02x f=%02x c=%x %s %s res=%d",
-+		      __entry->adapter_nr,
-+		      __entry->addr,
-+		      __entry->flags,
-+		      __entry->command,
-+		      __print_symbolic(__entry->protocol,
-+				       { I2C_SMBUS_QUICK,		"QUICK"	},
-+				       { I2C_SMBUS_BYTE,		"BYTE"	},
-+				       { I2C_SMBUS_BYTE_DATA,		"BYTE_DATA" },
-+				       { I2C_SMBUS_WORD_DATA,		"WORD_DATA" },
-+				       { I2C_SMBUS_PROC_CALL,		"PROC_CALL" },
-+				       { I2C_SMBUS_BLOCK_DATA,		"BLOCK_DATA" },
-+				       { I2C_SMBUS_I2C_BLOCK_BROKEN,	"I2C_BLOCK_BROKEN" },
-+				       { I2C_SMBUS_BLOCK_PROC_CALL,	"BLOCK_PROC_CALL" },
-+				       { I2C_SMBUS_I2C_BLOCK_DATA,	"I2C_BLOCK_DATA" }),
-+		      __entry->read_write == I2C_SMBUS_WRITE ? "wr" : "rd",
-+		      __entry->res
-+		      ));
-+
- #endif /* _TRACE_I2C_H */
- 
- /* This part must be outside protection */
+--UfEAyuTBtIjiZzX6--
