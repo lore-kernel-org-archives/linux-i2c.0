@@ -1,219 +1,299 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: Add bus driver for for OSIF USB i2c device.
-Date: Thu, 9 Jan 2014 22:49:30 +0100
-Message-ID: <20140109214930.GC3866@katana>
-References: <20140104222842.GF3150@katana>
- <1388980536-7588-1-git-send-email-andrew@lunn.ch>
- <1388980536-7588-2-git-send-email-andrew@lunn.ch>
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 1/2] i2c: Add message transfer tracepoints for I2C
+Date: Thu, 09 Jan 2014 21:49:54 +0000
+Message-ID: <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="V88s5gaDVPzZ0KCq"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1388980536-7588-2-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>, Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wolfram@the-dreams.de
+Cc: khali@linux-fr.org, dhowells@redhat.com, linux-i2c@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Add tracepoints into the I2C message transfer function to retrieve the message
+sent or received.  The following config options must be turned on to make use
+of the facility:
 
---V88s5gaDVPzZ0KCq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	CONFIG_FTRACE
+	CONFIG_ENABLE_DEFAULT_TRACERS
 
-On Mon, Jan 06, 2014 at 04:55:36AM +0100, Andrew Lunn wrote:
-> OSIF, Open Source InterFace, is a USB based i2c bus master.  The
-> origional design was based on i2c-tiny-usb, but more modern versions
-> of the firmware running on the MegaAVR microcontroller use a different
-> protocol over the USB. This code is based on Barry Carter
-> <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> driver.
->=20
-> Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+The I2C tracepoint can be enabled thusly:
 
-We are getting close...
+	echo 1 >/sys/kernel/debug/tracing/events/i2c/i2c_transfer/enable
 
+and will dump messages that can be viewed in /sys/kernel/debug/tracing/trace
+that look like:
 
-> +#define OSIFI2C_READ		20 /* Read from i2c bus */
-> +#define OSIFI2C_WRITE		21 /* Write to i2c bus */
-> +#define OSIFI2C_STOP		22 /* Send stop condition */
-> +#define OSIFI2C_STATUS		23 /* Get status from i2c action */
-> +#define OSIFI2C_SET_BIT_RATE	24 /* Set the bit rate & prescaler */
+	... i2c_write: i2c-5 #0 f=00 a=44 l=2 [0214]
+	... i2c_read: i2c-5 #1 f=01 a=44 l=4
+	... i2c_reply: i2c-5 #1 f=01 a=44 l=4 [33000000]
+	... i2c_result: i2c-5 n=2 ret=2
 
-Comments could be seen as obvious, too. I'll leave the decision to you.
+formatted as:
 
-> +struct priv {
+	i2c-<adapter-nr>
+	#<message-array-index>
+	f=<flags>
+	a=<addr>
+	l=<datalen>
+	n=<message-array-size>
+	ret=<result>
+	[<data>]
 
-Namespace: 'osif_priv' please.
+The operation is done between the i2c_write/i2c_read lines and the i2c_reply
+and i2c_result lines so that if the hardware hangs, the trace buffer can be
+consulted to determine the problematic operation.
 
-> +	struct usb_device *usb_dev;
-> +	struct usb_interface *interface;
-> +	struct i2c_adapter adapter;
-> +	unsigned char status;
-> +};
-> +
-> +static int usb_read(struct i2c_adapter *adapter, int cmd,
+The adapters to be traced can be selected by something like:
 
-Namespace: 'osif_usb_read'.
+	echo adapter_nr==1 >/sys/kernel/debug/tracing/events/i2c/filter
 
-> +		    int value, int index, void *data, int len)
-> +{
-> +	struct priv *priv =3D (struct priv *)adapter->algo_data;
+These changes are based on code from Steven Rostedt.
 
-No need to cast a void*.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Steven Rostedt <rostedt@goodmis.org>
+---
 
-> +
-> +	return usb_control_msg(priv->usb_dev, usb_rcvctrlpipe(priv->usb_dev, 0),
-> +			       cmd, USB_TYPE_VENDOR | USB_RECIP_INTERFACE |
-> +			       USB_DIR_IN, value, index, data, len, 2000);
-> +}
-> +
-> +static int usb_write(struct i2c_adapter *adapter, int cmd,
+ drivers/i2c/i2c-core.c     |   37 +++++++++++
+ include/trace/events/i2c.h |  150 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 187 insertions(+)
+ create mode 100644 include/trace/events/i2c.h
 
-Namespace
-
-> +		    int value, int index, void *data, int len)
-> +{
-> +
-> +	struct priv *priv =3D (struct priv *)adapter->algo_data;
-
-no cast.
-
-> +
-> +	return usb_control_msg(priv->usb_dev, usb_sndctrlpipe(priv->usb_dev, 0),
-> +			       cmd, USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
-> +			       value, index, data, len, 2000);
-> +}
-> +
-> +static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, i=
-nt num)
-
-namespace
-
-> +{
-> +	struct priv *priv =3D (struct priv *)adapter->algo_data;
-
-no cast
-
-> +	struct i2c_msg *pmsg;
-> +	int ret =3D 0;
-> +	int i, cmd;
-> +
-> +	for (i =3D 0; ret >=3D 0 && i < num; i++) {
-> +		pmsg =3D &msgs[i];
-> +
-> +		if (pmsg->flags & I2C_M_RD) {
-> +			cmd =3D OSIFI2C_READ;
-> +
-> +			ret =3D usb_read(adapter, cmd, pmsg->flags, pmsg->addr,
-> +				       pmsg->buf, pmsg->len);
-> +			if (ret !=3D pmsg->len) {
-> +				dev_err(&adapter->dev,
-> +					"failure reading data\n");
-
-One line is more readable IMO. 80 chars is not a hard limit.
-
-> +				return -EREMOTEIO;
-> +			}
-> +		} else {
-> +			cmd =3D OSIFI2C_WRITE;
-> +
-> +			ret =3D usb_write(adapter, cmd, pmsg->flags, pmsg->addr,
-> +					pmsg->buf, pmsg->len);
-> +			if (ret !=3D pmsg->len) {
-> +				dev_err(&adapter->dev,
-> +					"failure writing data\n");
-
-ditto
-
-> +				return -EREMOTEIO;
-> +			}
-> +		}
-> +
-> +		ret =3D usb_read(adapter, OSIFI2C_STOP, 0, 0, NULL, 0);
-> +		if (ret !=3D 0) {
-
-'if (ret)' is enough
-
-> +			dev_err(&adapter->dev, "failure sending STOP\n");
-> +			return -EREMOTEIO;
-> +		}
-> +
-> +		/* read status */
-> +		ret =3D usb_read(adapter, OSIFI2C_STATUS, 0, 0, &priv->status, 1);
-> +		if (ret !=3D 1) {
-> +			dev_err(&adapter->dev, "failure reading status\n");
-> +			return -EREMOTEIO;
-> +		}
-> +
-> +		if (priv->status !=3D STATUS_ADDRESS_ACK) {
-> +			dev_dbg(&adapter->dev, "status =3D %d\n", priv->status);
-> +			return -EREMOTEIO;
-> +		}
-> +	}
-> +
-> +	return i;
-> +}
-> +
-> +static u32 usb_func(struct i2c_adapter *adapter)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-
-Have you tried SMBUS_QUICK by the way?
-
-> +}
-> +
-> +static struct i2c_algorithm usb_algorithm =3D {
-> +	.master_xfer	=3D usb_xfer,
-> +	.functionality	=3D usb_func,
-> +};
-> +
-> +#define USB_OSIF_VENDOR_ID	0x1964
-> +#define USB_OSIF_PRODUCT_ID	0x0001
-> +
-> +static struct usb_device_id osif_table[] =3D {
-> +	{ USB_DEVICE(USB_OSIF_VENDOR_ID, USB_OSIF_PRODUCT_ID) },
-> +	{ }
-> +};
-> +
-
-Empty line can go.
-
-> +MODULE_DEVICE_TABLE(usb, osif_table);
-> +
-> +static int osif_probe(struct usb_interface *interface,
-> +			     const struct usb_device_id *id)
-> +{
-> +	int retval;
-
-maybe just 'ret' for consistency? Very minor nit, though...
-
-> +	struct priv *priv;
-> +	u16 version;
-
-Rest looks ready to go!
-
-
---V88s5gaDVPzZ0KCq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSzxlqAAoJEBQN5MwUoCm28vwQALBP9KSrcbhA3lRirfHv+MD5
-nGICValKl8t0g6A0VPoHHZ9ctQ70ZwCIyWmPIhCjuatNIpnCxL5IjR/GPMvEbz/a
-QB9YvS6Tfg3zSxxIzLyH9F6bK/JeegcTzyCcu3Zr8TI4QixOHEkn0n9Kwmb6vw02
-tXMT9TSj6MJ02t83izGSLpIaPFZJVJfXrCIJacVa1Sm8FGRb3XyEYYxgS68p8+Mm
-cCnQ3o1cCqr33LiN1zt/9E2WCG605Mjmvz8B5a43qgh6eGPcVT67QF2RACpWVzSb
-3PfYpiQJeclef87URMMwaaeURQcvipj1rPc5BGZzxJ0jB0eRhM6vmsQpQZKt+9cz
-hdBKxPJewKiVRgm6SX0Y1itKSC5zyVWrj3pmu8YBw9RBMZImM8xTVL0+X7TU7aV4
-8HSN67SCXV+oXW0AYT5jNKVWjfZxXkkxo97g8/qVbk3KpM6IB1zk2FxXLO22gArq
-Vnpm/74W8JqcRnnSZ2bcbO0BvOQXSQDB3IqEAsZGbjl7aMnW8t9b53NrVzw99pC5
-APpwoSL1NEESfHSrBcfmBfEKLKJoSXn/Ooi7/dzyb8CBNnNO1mhO075pUqGwTDYC
-Ze7AA88KPpQuu3O9b5r9on2oKYWoV2QK4W2uzZRvb0uNjZDXYylskKyPawmSYxtH
-C4KKmM4KYMOxWg3gCMH9
-=IcTC
------END PGP SIGNATURE-----
-
---V88s5gaDVPzZ0KCq--
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d74c0b34248e..c8b97490461d 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -48,10 +48,13 @@
+ #include <linux/rwsem.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/acpi.h>
++#include <linux/jump_label.h>
+ #include <asm/uaccess.h>
+ 
+ #include "i2c-core.h"
+ 
++#define CREATE_TRACE_POINTS
++#include <trace/events/i2c.h>
+ 
+ /* core_lock protects i2c_adapter_idr, and guarantees
+    that device detection, deletion of detected devices, and attach_adapter
+@@ -62,6 +65,18 @@ static DEFINE_IDR(i2c_adapter_idr);
+ static struct device_type i2c_client_type;
+ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
+ 
++static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
++
++void i2c_transfer_trace_reg(void)
++{
++	static_key_slow_inc(&i2c_trace_msg);
++}
++
++void i2c_transfer_trace_unreg(void)
++{
++	static_key_slow_dec(&i2c_trace_msg);
++}
++
+ /* ------------------------------------------------------------------------- */
+ 
+ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+@@ -1680,6 +1695,7 @@ static void __exit i2c_exit(void)
+ 	class_compat_unregister(i2c_adapter_compat_class);
+ #endif
+ 	bus_unregister(&i2c_bus_type);
++	tracepoint_synchronize_unregister();
+ }
+ 
+ /* We must initialize early, because some subsystems register i2c drivers
+@@ -1710,6 +1726,19 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	unsigned long orig_jiffies;
+ 	int ret, try;
+ 
++	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
++	 * enabled.  This is an efficient way of keeping the for-loop from
++	 * being executed when not needed.
++	 */
++	if (static_key_false(&i2c_trace_msg)) {
++		int i;
++		for (i = 0; i < num; i++)
++			if (msgs[i].flags & I2C_M_RD)
++				trace_i2c_read(adap, &msgs[i], i);
++			else
++				trace_i2c_write(adap, &msgs[i], i);
++	}
++
+ 	/* Retry automatically on arbitration loss */
+ 	orig_jiffies = jiffies;
+ 	for (ret = 0, try = 0; try <= adap->retries; try++) {
+@@ -1720,6 +1749,14 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			break;
+ 	}
+ 
++	if (static_key_false(&i2c_trace_msg)) {
++		int i;
++		for (i = 0; i < ret; i++)
++			if (msgs[i].flags & I2C_M_RD)
++				trace_i2c_reply(adap, &msgs[i], i);
++		trace_i2c_result(adap, i, ret);
++	}
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(__i2c_transfer);
+diff --git a/include/trace/events/i2c.h b/include/trace/events/i2c.h
+new file mode 100644
+index 000000000000..d30f008527b2
+--- /dev/null
++++ b/include/trace/events/i2c.h
+@@ -0,0 +1,150 @@
++/* I2C message transfer tracepoints
++ *
++ * Copyright (C) 2013 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM i2c
++
++#if !defined(_TRACE_I2C_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_I2C_H
++
++#include <linux/i2c.h>
++#include <linux/tracepoint.h>
++
++/*
++ * drivers/i2c/i2c-core.c
++ */
++extern void i2c_transfer_trace_reg(void);
++extern void i2c_transfer_trace_unreg(void);
++
++/*
++ * __i2c_transfer() write request
++ */
++TRACE_EVENT_FN(i2c_write,
++	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
++			int num),
++	       TP_ARGS(adap, msg, num),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	msg_nr			)
++		       __field(__u16,	addr			)
++		       __field(__u16,	flags			)
++		       __field(__u16,	len			)
++		       __dynamic_array(__u8, buf, msg->len)	),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->msg_nr = num;
++		       __entry->addr = msg->addr;
++		       __entry->flags = msg->flags;
++		       __entry->len = msg->len;
++		       memcpy(__get_dynamic_array(buf), msg->buf, msg->len);
++			      ),
++	       TP_printk("i2c-%d #%u f=%02x a=%02x l=%u [%*phN]",
++			 __entry->adapter_nr,
++			 __entry->msg_nr,
++			 __entry->flags,
++			 __entry->addr,
++			 __entry->len,
++			 __entry->len, __get_dynamic_array(buf)
++			 ),
++	       i2c_transfer_trace_reg,
++	       i2c_transfer_trace_unreg);
++
++/*
++ * __i2c_transfer() read request
++ */
++TRACE_EVENT_FN(i2c_read,
++	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
++			int num),
++	       TP_ARGS(adap, msg, num),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	msg_nr			)
++		       __field(__u16,	addr			)
++		       __field(__u16,	flags			)
++		       __field(__u16,	len			)
++				),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->msg_nr = num;
++		       __entry->addr = msg->addr;
++		       __entry->flags = msg->flags;
++		       __entry->len = msg->len;
++			      ),
++	       TP_printk("i2c-%d #%u f=%02x a=%02x l=%u",
++			 __entry->adapter_nr,
++			 __entry->msg_nr,
++			 __entry->flags,
++			 __entry->addr,
++			 __entry->len
++			 ),
++	       i2c_transfer_trace_reg,
++		       i2c_transfer_trace_unreg);
++
++/*
++ * __i2c_transfer() read reply
++ */
++TRACE_EVENT_FN(i2c_reply,
++	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
++			int num),
++	       TP_ARGS(adap, msg, num),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	msg_nr			)
++		       __field(__u16,	addr			)
++		       __field(__u16,	flags			)
++		       __field(__u16,	len			)
++		       __dynamic_array(__u8, buf, msg->len)	),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->msg_nr = num;
++		       __entry->addr = msg->addr;
++		       __entry->flags = msg->flags;
++		       __entry->len = msg->len;
++		       memcpy(__get_dynamic_array(buf), msg->buf, msg->len);
++			      ),
++	       TP_printk("i2c-%d #%u f=%02x a=%02x l=%u [%*phN]",
++			 __entry->adapter_nr,
++			 __entry->msg_nr,
++			 __entry->flags,
++			 __entry->addr,
++			 __entry->len,
++			 __entry->len, __get_dynamic_array(buf)
++			 ),
++	       i2c_transfer_trace_reg,
++	       i2c_transfer_trace_unreg);
++
++/*
++ * __i2c_transfer() result
++ */
++TRACE_EVENT_FN(i2c_result,
++	       TP_PROTO(const struct i2c_adapter *adap, int num, int ret),
++	       TP_ARGS(adap, num, ret),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	nr_msgs			)
++		       __field(__s16,	ret			)
++				),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->nr_msgs = num;
++		       __entry->ret = ret;
++			      ),
++	       TP_printk("i2c-%d n=%u ret=%d",
++			 __entry->adapter_nr,
++			 __entry->nr_msgs,
++			 __entry->ret
++			 ),
++	       i2c_transfer_trace_reg,
++	       i2c_transfer_trace_unreg);
++
++#endif /* _TRACE_I2C_H */
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
