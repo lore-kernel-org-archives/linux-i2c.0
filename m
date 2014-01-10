@@ -1,54 +1,50 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: Add bus driver for for OSIF USB i2c device.
-Date: Fri, 10 Jan 2014 20:25:46 +0100
-Message-ID: <20140110192546.GA2649@katana>
-References: <20140104222842.GF3150@katana>
- <1388980536-7588-1-git-send-email-andrew@lunn.ch>
- <1388980536-7588-2-git-send-email-andrew@lunn.ch>
- <20140109214930.GC3866@katana>
- <20140110180154.GK9681@lunn.ch>
- <20140110181647.GA3186@katana>
- <20140110192148.GN9681@lunn.ch>
+From: Jason Cooper <jason@lakedaemon.net>
+Subject: Re: [PATCH v5 2/4] ARM: mvebu: Add quirk for i2c for the
+ OpenBlocks AX3-4 board
+Date: Fri, 10 Jan 2014 14:45:50 -0500
+Message-ID: <20140110194550.GT19878@titan.lakedaemon.net>
+References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com>
+ <1389193589-18485-3-git-send-email-gregory.clement@free-electrons.com>
+ <20140110182240.GK19878@titan.lakedaemon.net>
+ <20140110190521.GI18269@obsidianresearch.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140110192148.GN9681-g2DYL2Zd6BY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>, Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20140110190521.GI18269@obsidianresearch.com>
+Sender: stable-owner@vger.kernel.org
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Gregory CLEMENT <gregory.clement@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Jan 10, 2014 at 12:05:21PM -0700, Jason Gunthorpe wrote:
+> On Fri, Jan 10, 2014 at 01:22:40PM -0500, Jason Cooper wrote:
+> 
+> > Do we create new compatible strings to indicate errata, or to indicate
+> > 'from this version forward there are new features'?  The former would
+> > indicate as Gregory has written '...-a0-i2c', the latter would warrant
+> > '...-b0-i2c' and disabling offloading if we don't see '...-b0-i2c'.
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+s/-b0-i2c'./-b0-i2c' or newer./
 
-> O.K, i will double check and then add this to functions.
+> IMHO the compatible string should represent a specific HW/SW ABI. So
+> you need a unique compatible string for every variation of that ABI.
 
-It's default on :)
+My concern is that we tend to do things like "marvell,orion-sata" for
+the first version of the IP block we can work with.  orion5x, kirkwood,
+dove, and armada 370/xp all use that compatible string to refer to that
+IP block.
 
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Given that we look at it as 'and newer', '...-a0-i2c' would mean no
+offloading until we introduce '-b0-i2c'.  Or am I mis-understanding what
+you're saying?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+> We already have a compatible string defined for the ABI that B0
+> presents.
 
-iQIcBAEBAgAGBQJS0Ek6AAoJEBQN5MwUoCm2TH8P/1oZY3J6VcmiBocCm4F50wBa
-gUrIaMNA1UxkkbO6C9s3Cut2e5SnzHeFrgap8U3A25z+7ZCSv8br+Op2O/CErF0s
-nvSrH2Tv1q2qbv1NKdBOV4E9H/kYsoeu6HRd3mfoEmRmL6BejQZDLIAlyYuyKqGQ
-rouVRqxGuVq94F/sclNI9gOvFh0bV4Ex+9HD/ieD/BUKU6c7IfXYCKOfWSQFPajm
-SWmRqlhOVycjCdj57Yw4XK1gYmvsdBmvccFSdQBMDvgSbJe7kcLfNLwtWrbMh4q7
-ZmAerlWW7FdcB6Y3Akkb6Qc14LK7MceX2PlzAux7ZCkoqdMgPVtxINw1WBm5ziq4
-4EW4ahjq6W/2gLgViAD03bEPf4wS1qQRNxQvuwF/pWON9YQKzjZA7aXX104vJbpJ
-6EsiDPWYCacKQmdkvfPtRQmBdsKB+KPZiU/mY/nvgTAsfUdAeLOXZb1JplcIKr/N
-GuJ8uvTUFOG35An2sG10tS9AP9XW8HYOSIhPlxdulpuvbuxYVOSt+Fq32cyV3IA7
-ElV14FOhMT/DThmBJUxGNXQy+QRpHOvrTH3rh9IQa8Rj7dtcIeDCsfmK6pxjnH2w
-ASb34sRRC/n+KDKEIdv3UJVf+2Jq0jU7mxAfQsUA5GMV/xhwhteqCtmPor5+LUGk
-7Tdn14UuBbVH6sno4zk3
-=MPxV
------END PGP SIGNATURE-----
+So 'mv78230-i2c' is newer than 'mv78230-a0-i2c', or are you referring to
+something else?
 
---/9DWx/yDrRhgMJTb--
+thx,
+
+Jason.
