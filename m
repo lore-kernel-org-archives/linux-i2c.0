@@ -1,120 +1,32 @@
-From: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
-Subject: Re: [PATCH v5 2/4] ARM: mvebu: Add quirk for i2c for the
- OpenBlocks AX3-4 board
-Date: Fri, 10 Jan 2014 13:22:40 -0500
-Message-ID: <20140110182240.GK19878@titan.lakedaemon.net>
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Subject: Re: [PATCH v5 2/4] ARM: mvebu: Add quirk for i2c for the OpenBlocks
+ AX3-4 board
+Date: Fri, 10 Jan 2014 12:05:21 -0700
+Message-ID: <20140110190521.GI18269@obsidianresearch.com>
 References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com>
  <1389193589-18485-3-git-send-email-gregory.clement@free-electrons.com>
+ <20140110182240.GK19878@titan.lakedaemon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1389193589-18485-3-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20140110182240.GK19878@titan.lakedaemon.net>
+Sender: stable-owner@vger.kernel.org
+To: Jason Cooper <jason@lakedaemon.net>
+Cc: Gregory CLEMENT <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Gregory, Arnd,
+On Fri, Jan 10, 2014 at 01:22:40PM -0500, Jason Cooper wrote:
 
-On Wed, Jan 08, 2014 at 04:06:27PM +0100, Gregory CLEMENT wrote:
-> The first variants of Armada XP SoCs (A0 stepping) have issues related
-> to the i2c controller which prevent to use the offload mechanism and
-> lead to a kernel hang during boot.
-> 
-> This commit add quirk in the mvebu platform code to check the SoC
-> version and then update the compatible string for the i2c controller
-> according to the revision of the SoC. Currently only some OpenBlocks
-> AX3-4 boards are known to use an A0 revision so the check is done only
-> for these boards.
-> 
-> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> ---
->  arch/arm/mach-mvebu/armada-370-xp.c | 32 ++++++++++++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
-> 
-> diff --git a/arch/arm/mach-mvebu/armada-370-xp.c b/arch/arm/mach-mvebu/armada-370-xp.c
-> index e2acff98e750..0f61a4f22fb5 100644
-> --- a/arch/arm/mach-mvebu/armada-370-xp.c
-> +++ b/arch/arm/mach-mvebu/armada-370-xp.c
-> @@ -21,6 +21,7 @@
->  #include <linux/clocksource.h>
->  #include <linux/dma-mapping.h>
->  #include <linux/mbus.h>
-> +#include <linux/slab.h>
->  #include <asm/hardware/cache-l2x0.h>
->  #include <asm/mach/arch.h>
->  #include <asm/mach/map.h>
-> @@ -28,6 +29,7 @@
->  #include "armada-370-xp.h"
->  #include "common.h"
->  #include "coherency.h"
-> +#include "mvebu-soc-id.h"
->  
->  static void __init armada_370_xp_map_io(void)
->  {
-> @@ -45,8 +47,38 @@ static void __init armada_370_xp_timer_and_clk_init(void)
->  #endif
->  }
->  
-> +static void __init i2c_quirk(void)
-> +{
-> +	struct device_node *np;
-> +	u32 dev, rev;
-> +
-> +	/*
-> +	 * Only revisons more recent than A0 support the offload
-> +	 * mechanism. We can exit only if we are sure that we can
-> +	 * get the SoC revision and it is more recent than A0.
-> +	 */
-> +	if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
-> +		return;
-> +
-> +	for_each_compatible_node(np, NULL, "marvell,mv78230-i2c") {
-> +		struct property *new_compat;
-> +
-> +		new_compat = kzalloc(sizeof(*new_compat), GFP_KERNEL);
-> +
-> +		new_compat->name =  kstrdup("compatible", GFP_KERNEL);
-> +		new_compat->length =  sizeof("marvell,mv78230-a0-i2c");
-> +		new_compat->value =  kstrdup("marvell,mv78230-a0-i2c",
-> +						GFP_KERNEL);
+> Do we create new compatible strings to indicate errata, or to indicate
+> 'from this version forward there are new features'?  The former would
+> indicate as Gregory has written '...-a0-i2c', the latter would warrant
+> '...-b0-i2c' and disabling offloading if we don't see '...-b0-i2c'.
 
-I'm still having some trouble with this compatible string choice...  But
-I have refined the problem :)
+IMHO the compatible string should represent a specific HW/SW ABI. So
+you need a unique compatible string for every variation of that ABI.
 
-Do we create new compatible strings to indicate errata, or to indicate
-'from this version forward there are new features'?  The former would
-indicate as Gregory has written '...-a0-i2c', the latter would warrant
-'...-b0-i2c' and disabling offloading if we don't see '...-b0-i2c'.
+We already have a compatible string defined for the ABI that B0
+presents.
 
-I can see Gregory's approach if he were still using the property
-'offload-broken', but I suspect the compatible strings should be handled
-differently.
-
-thx,
-
-Jason.
-
-> +
-> +		of_update_property(np, new_compat);
-> +	}
-> +	return;
-> +}
-> +
->  static void __init armada_370_xp_dt_init(void)
->  {
-> +	if (of_machine_is_compatible("plathome,openblocks-ax3-4"))
-> +		i2c_quirk();
->  	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
->  }
->  
-> -- 
-> 1.8.1.2
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+Jason
