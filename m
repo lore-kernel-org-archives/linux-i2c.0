@@ -1,61 +1,120 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: Add bus driver for for OSIF USB i2c device.
-Date: Fri, 10 Jan 2014 19:16:47 +0100
-Message-ID: <20140110181647.GA3186@katana>
-References: <20140104222842.GF3150@katana>
- <1388980536-7588-1-git-send-email-andrew@lunn.ch>
- <1388980536-7588-2-git-send-email-andrew@lunn.ch>
- <20140109214930.GC3866@katana>
- <20140110180154.GK9681@lunn.ch>
+From: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+Subject: Re: [PATCH v5 2/4] ARM: mvebu: Add quirk for i2c for the
+ OpenBlocks AX3-4 board
+Date: Fri, 10 Jan 2014 13:22:40 -0500
+Message-ID: <20140110182240.GK19878@titan.lakedaemon.net>
+References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com>
+ <1389193589-18485-3-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140110180154.GK9681-g2DYL2Zd6BY@public.gmane.org>
+In-Reply-To: <1389193589-18485-3-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>, Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Gregory, Arnd,
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Wed, Jan 08, 2014 at 04:06:27PM +0100, Gregory CLEMENT wrote:
+> The first variants of Armada XP SoCs (A0 stepping) have issues related
+> to the i2c controller which prevent to use the offload mechanism and
+> lead to a kernel hang during boot.
+> 
+> This commit add quirk in the mvebu platform code to check the SoC
+> version and then update the compatible string for the i2c controller
+> according to the revision of the SoC. Currently only some OpenBlocks
+> AX3-4 boards are known to use an A0 revision so the check is done only
+> for these boards.
+> 
+> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> ---
+>  arch/arm/mach-mvebu/armada-370-xp.c | 32 ++++++++++++++++++++++++++++++++
+>  1 file changed, 32 insertions(+)
+> 
+> diff --git a/arch/arm/mach-mvebu/armada-370-xp.c b/arch/arm/mach-mvebu/armada-370-xp.c
+> index e2acff98e750..0f61a4f22fb5 100644
+> --- a/arch/arm/mach-mvebu/armada-370-xp.c
+> +++ b/arch/arm/mach-mvebu/armada-370-xp.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/clocksource.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/mbus.h>
+> +#include <linux/slab.h>
+>  #include <asm/hardware/cache-l2x0.h>
+>  #include <asm/mach/arch.h>
+>  #include <asm/mach/map.h>
+> @@ -28,6 +29,7 @@
+>  #include "armada-370-xp.h"
+>  #include "common.h"
+>  #include "coherency.h"
+> +#include "mvebu-soc-id.h"
+>  
+>  static void __init armada_370_xp_map_io(void)
+>  {
+> @@ -45,8 +47,38 @@ static void __init armada_370_xp_timer_and_clk_init(void)
+>  #endif
+>  }
+>  
+> +static void __init i2c_quirk(void)
+> +{
+> +	struct device_node *np;
+> +	u32 dev, rev;
+> +
+> +	/*
+> +	 * Only revisons more recent than A0 support the offload
+> +	 * mechanism. We can exit only if we are sure that we can
+> +	 * get the SoC revision and it is more recent than A0.
+> +	 */
+> +	if (mvebu_get_soc_id(&rev, &dev) == 0 && dev > MV78XX0_A0_REV)
+> +		return;
+> +
+> +	for_each_compatible_node(np, NULL, "marvell,mv78230-i2c") {
+> +		struct property *new_compat;
+> +
+> +		new_compat = kzalloc(sizeof(*new_compat), GFP_KERNEL);
+> +
+> +		new_compat->name =  kstrdup("compatible", GFP_KERNEL);
+> +		new_compat->length =  sizeof("marvell,mv78230-a0-i2c");
+> +		new_compat->value =  kstrdup("marvell,mv78230-a0-i2c",
+> +						GFP_KERNEL);
 
-Hi,
+I'm still having some trouble with this compatible string choice...  But
+I have refined the problem :)
 
-> Hi Wolfgang
+Do we create new compatible strings to indicate errata, or to indicate
+'from this version forward there are new features'?  The former would
+indicate as Gregory has written '...-a0-i2c', the latter would warrant
+'...-b0-i2c' and disabling offloading if we don't see '...-b0-i2c'.
 
-Wolfram
+I can see Gregory's approach if he were still using the property
+'offload-broken', but I suspect the compatible strings should be handled
+differently.
 
-> So is this a zero byte transfer? Is that not what i2cdetect does?
+thx,
 
-Yes, you can enforce it with -q. It will do it for some addresses
-automatically and complain if it is not available. So, seems to work,
-great!
+Jason.
 
-
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJS0DkPAAoJEBQN5MwUoCm2CnoQAKMiI+szaqk99+Fwk90KiwAj
-cCeMGuc3UcZXcNnGIdNj/W44Pv8kb2Ii0svMSbHdzpiPvnRbwsChRSCkHtGSx08G
-hUOF7VPQU3ui4TP47V8+jMbV7dlLRbsn/sy8eh0qpYOR0BePIkrk2xZDiEFGt1Bf
-8QMk8sarowubk2ZOGDXTl26/rvnvuVlXoUO3aua/Izgzje/gaeZkM4oAejMMCzVG
-ULYEtUTr2LZAcrtURO7NtkZldQpD1ahC7Eryb7M6Zuyp98428FV+ZCyfevz81yD2
-Gtcj+4wdQEqabq/nYaZdAc2ZL0xaBmCwYJAXfpUdp/Xyf1dHYUtjz0uujLr6tj/9
-N58Ca/437woM8TgRqq2gxkVBF1nfHY5sVLEi7UpY+2198TrZ/jiqf7qZk/adn5ob
-Uv6krHkD//QDuqsR6Wk+HbhSPArRCwL36R2h1t6iz46Bu2J7CIi8LAWCmC+OoOVN
-Y8/5Hsz5+OPj8DuiNK0UHVLk6KJyM3eaTZVRvUtuTppeDrjUL+PXN+fPUV69zM2O
-1fKrguC2XO5rguQDdB77bjPinL8o+KL+BOkX9So3Uw8xyMXrxMJSsMTNVuAWFmMn
-fVnBQA7ybNC+wnMEIQUF4hz7E3TV8aMblYOdZMHhDk1txi7xFiZo9WPUhSF6+0MV
-mwqNrhlxVvktdXrEbqJs
-=t8HL
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--
+> +
+> +		of_update_property(np, new_compat);
+> +	}
+> +	return;
+> +}
+> +
+>  static void __init armada_370_xp_dt_init(void)
+>  {
+> +	if (of_machine_is_compatible("plathome,openblocks-ax3-4"))
+> +		i2c_quirk();
+>  	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+>  }
+>  
+> -- 
+> 1.8.1.2
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
