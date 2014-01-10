@@ -1,82 +1,36 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v5 4/4] i2c: mv64xxx: Document the newly introduced Armada
- XP A0 compatible
-Date: Sat, 11 Jan 2014 00:04:34 +0100
-Message-ID: <52D07C82.2010106@free-electrons.com>
-References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com> <1389193589-18485-5-git-send-email-gregory.clement@free-electrons.com> <20140110215526.GB19878@titan.lakedaemon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: [PATCH v3 1/2] i2c: i2c-tiny-usb: Remove RobotFuzz USB vendor:product ID
+Date: Sat, 11 Jan 2014 00:23:58 +0100
+Message-ID: <1389396239-21026-1-git-send-email-andrew@lunn.ch>
+References: <20140109214930.GC3866@katana>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140110215526.GB19878-u4khhh1J0LxI1Ri9qeTfzeTW4wlIGRCZ@public.gmane.org>
+In-Reply-To: <20140109214930.GC3866@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>, Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/01/2014 22:55, Jason Cooper wrote:
-> Gregory,
-> 
-> On Wed, Jan 08, 2014 at 04:06:29PM +0100, Gregory CLEMENT wrote:
->> The first variants of Armada XP SoCs (A0 stepping) have issues related
->> to the i2c controller which prevent to use the offload mechanism and
->> ead to a kernel hang during boot.
-> 
-> I'll fixup s/ead/lead/ here.
-> 
->>
->> The commit introduces a new the compatible string
->> marvell,mv78230-a0-i2c for the i2c controller.
->>
->> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
->> cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> ---
->>  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> index 82e8f6f17179..9410ed72ec45 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> @@ -5,7 +5,7 @@ Required properties :
->>  
->>   - reg             : Offset and length of the register set for the device
->>   - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-i2c"
->> -                     or "marvell,mv78230-i2c"
->> +                     or "marvell,mv78230-i2c" or "marvell,mv78230-a0-i2c"
-> 
-> If it's ok with you Gregory, I'll amend this hunk as follows:
-> 
-> 			or "marvell,mv78230-i2c" or "marvell,mv78230-a0-i2c"
-> 			Only use "marvell,mv78230-a0-i2c" for a very
-> 			rare, initial version of the SoC which had
-> 			broken offload support.  Linux auto-detects this
-> 			and sets it appropriately.
-> 
-Hi Jason,
+The RobotFuzz device is not compatible with i2c-tiny-usb. Remove its
+entry from the USB table so that the new correct driver can be used.
 
-I agree with your changes
+Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+CC: Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>
+CC: Barry Carter <barry.carter-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-tiny-usb.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Thanks,
-
-Gregory
-
-> 
->>   - interrupts      : The interrupt number
->>  
->>  Optional properties :
->> -- 
->> 1.8.1.2
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
-
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index e7d3b755af3b..0ed77eeff31e 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -162,7 +162,6 @@ static const struct i2c_algorithm usb_algorithm = {
+ static const struct usb_device_id i2c_tiny_usb_table[] = {
+ 	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
+ 	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
+-	{ USB_DEVICE(0x1964, 0x0001) },   /* Robofuzz OSIF */
+ 	{ }                               /* Terminating entry */
+ };
+ 
 -- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+1.8.5.1
