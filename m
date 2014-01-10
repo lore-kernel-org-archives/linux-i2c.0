@@ -1,46 +1,65 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH V2 07/13] i2c: pnx: Use devm_*() functions
-Date: Fri, 10 Jan 2014 09:34:06 +0900
-Message-ID: <001f01cf0d9b$aba03910$02e0ab30$%han@samsung.com>
-References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
- <002b01cefaf4$fa737d40$ef5a77c0$%han@samsung.com>
- <008b01cf0a88$85df55f0$919e01d0$%han@samsung.com>
- <20140109212422.GB3866@katana>
+From: Pankaj Dubey <pankaj.dubey@samsung.com>
+Subject: [PATCH 1/1] drivers: i2c: silence a compile warning in i2c-s3c2410.c
+Date: Fri, 10 Jan 2014 12:03:45 +0900
+Message-ID: <1389323025-4478-1-git-send-email-pankaj.dubey@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20140109212422.GB3866@katana>
-Content-language: ko
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Vitaly Wool' <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Roland Stigge' <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Pankaj Dubey <pankaj.dubey@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, January 10, 2014 6:24 AM, Wolfram Sang wrote:
-> On Mon, Jan 06, 2014 at 11:39:29AM +0900, Jingoo Han wrote:
-> > Use devm_*() functions to make cleanup paths simpler.
-> >
-> > Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > ---
-> > Changes since V1:
-> > - Use devm_ioremap_resource() to make the code simpler, per Wolfram Sang.
-> 
-> Yes, you used this function but you did not remove all the stuff which
-> can go now since you use this function.
+If used 64 bit compiler GCC warns that:
 
-Hi Wolfram,
+drivers/i2c/busses/i2c-s3c2410.c: In function =E2=80=98s3c24xx_get_devi=
+ce_quirks=E2=80=99:
+drivers/i2c/busses/i2c-s3c2410.c:168:10: warning: cast from pointer to =
+integer
+of different size [-Wpointer-to-int-cast]
 
-Which thing do I have to remove additionally?
-You mean the following?
+This patch fixes this by converting "unsigned int" to "unsigned long".
 
-res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-if (!res) {
-	dev_err(&pdev->dev, "Unable to get mem resource.\n");
+CC: Kukjin Kim <kgene.kim@samsung.com>
+CC: Wolfram Sang <wsa@the-dreams.de>
+CC: linux-i2c@vger.kernel.org
+Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-I think that this error message is not necessary. So, I will
-remove it. Please let me know additional things to be remove.
-Thank you.
-
-Best regards,
-Jingoo Han
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-=
+s3c2410.c
+index bf8fb94..447dd98 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -101,7 +101,7 @@ enum s3c24xx_i2c_state {
+=20
+ struct s3c24xx_i2c {
+ 	wait_queue_head_t	wait;
+-	unsigned int            quirks;
++	unsigned long            quirks;
+ 	unsigned int		suspended:1;
+=20
+ 	struct i2c_msg		*msg;
+@@ -160,12 +160,13 @@ MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
+  * Get controller type either from device tree or platform device vari=
+ant.
+ */
+=20
+-static inline unsigned int s3c24xx_get_device_quirks(struct platform_d=
+evice *pdev)
++static inline unsigned long
++	s3c24xx_get_device_quirks(struct platform_device *pdev)
+ {
+ 	if (pdev->dev.of_node) {
+ 		const struct of_device_id *match;
+ 		match =3D of_match_node(s3c24xx_i2c_match, pdev->dev.of_node);
+-		return (unsigned int)match->data;
++		return (unsigned long)match->data;
+ 	}
+=20
+ 	return platform_get_device_id(pdev)->driver_data;
+--=20
+1.7.10.4
