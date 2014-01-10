@@ -1,101 +1,52 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: mv64xxx: Add reset deassert call
-Date: Fri, 10 Jan 2014 13:48:41 +0800
-Message-ID: <CAGb2v6663ARKwmJ4Ypzi=m-J7UMvUFRq1=qLbqgQ0vrN_gC18w@mail.gmail.com>
-References: <1389288003-23187-1-git-send-email-maxime.ripard@free-electrons.com>
- <1389288003-23187-2-git-send-email-maxime.ripard@free-electrons.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-designware-pci: Index Haswell ULT bus names
+ from 0
+Date: Fri, 10 Jan 2014 08:59:39 +0100
+Message-ID: <20140110085939.3d96c7e6@endymion.delvare>
+References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
+	<1382326010-4554-3-git-send-email-bleung@chromium.org>
+	<20131021065804.GX3521@intel.com>
+	<CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw@mail.gmail.com>
+	<20131114180538.GK11022@katana>
+	<CANLzEksP1nRfBaQ3-sSouOYL4C+oLKiE75eHfFdEzLmrQKn3dQ@mail.gmail.com>
+	<20131126130959.GI7427@katana>
+	<20140103155217.GG7132@katana>
+	<CANLzEkvgYQtkEyOMNpPcS9BeYzX3zJn7hvtsyhFzbDpViS8-2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBCMILY6JWQBBBTUTX2LAKGQEP2TMZFY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1389288003-23187-2-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, duanmintao-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANLzEkvgYQtkEyOMNpPcS9BeYzX3zJn7hvtsyhFzbDpViS8-2Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Duncan Laurie <dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Thu, 9 Jan 2014 16:12:14 -0800, Benson Leung wrote:
+> Our devices and our platforms have some other requirements which
+> turned me away from using i2c_register_board_info.
+> 
+> i2c_register_board_info looks to create predeclarations for a specific
+> i2c bus... However, right now, the chromeos_laptop driver is
+> structured to do explicit declaration (using i2c_new_probed_device)
+> *after* the busses have come up.
+> 
+> Specifically, we have a class of atmel_mxt i2c touchpad/touchscreen
+> devices that may appear at different addresses depending on whether
+> the touch device is in bootloader mode or operational mode.
+> 
+> For that reason, the chromeos_laptop driver uses i2c_new_probed_device
+> with a list of possible addresses when dealing with the atmel touch
+> device.
+> 
+> You can see the driver here :
+> drivers/platform/chrome/chromeos_laptop.c
+> 
+> Is there some way of getting the "probe" behavior while using
+> i2c_register_board_info?
 
-On Fri, Jan 10, 2014 at 1:19 AM, Maxime Ripard
-<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
-> The Allwinner A31 SoC using that IP has a reset controller maintaining
-> it reset unless told otherwise.
->
-> Add some optional reset support to the driver.
->
-> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 1 +
->  drivers/i2c/busses/Kconfig                            | 1 +
->  drivers/i2c/busses/i2c-mv64xxx.c                      | 6 ++++++
->  3 files changed, 8 insertions(+)
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> index 82e8f6f..603003a 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> @@ -12,6 +12,7 @@ Optional properties :
->
->   - clock-frequency : Desired I2C bus clock frequency in Hz. If not set the
->  default frequency is 100kHz
-> + - resets          : phandle to the parent reset controller
->
->  Examples:
->
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 3b26129..69aa599 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -528,6 +528,7 @@ config I2C_MPC
->  config I2C_MV64XXX
->         tristate "Marvell mv64xxx I2C Controller"
->         depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
-> +       select RESET_CONTROLLER
->         help
->           If you say yes to this option, support will be included for the
->           built-in I2C interface on the Marvell 64xxx line of host bridges.
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> index 8be7e42..d4e2f32 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -17,6 +17,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/mv643xx_i2c.h>
->  #include <linux/platform_device.h>
-> +#include <linux/reset.h>
->  #include <linux/io.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> @@ -743,6 +744,7 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
->  #else
->         const struct of_device_id *device;
->         struct device_node *np = dev->of_node;
-> +       struct reset_control *rstc;
->         u32 bus_freq, tclk;
->         int rc = 0;
->
-> @@ -763,6 +765,10 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
->         }
->         drv_data->irq = irq_of_parse_and_map(np, 0);
->
-> +       rstc = devm_reset_control_get(dev, NULL);
-> +       if (!IS_ERR(rstc))
-> +               reset_control_deassert(rstc);
-> +
+No, i2c_register_board_info works only for devices which are always
+present at a known address.
 
-Do we need to handle -EPROBE_DEFER here?
-Also no reset_control_assert() in the exit path?
-I'm asking because I have similar code in my stmmac patches.
-
-Thanks
-
-ChenYu
-
->         /* Its not yet defined how timeouts will be specified in device tree.
->          * So hard code the value to 1 second.
->          */
+-- 
+Jean Delvare
