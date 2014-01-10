@@ -1,65 +1,101 @@
-From: Pankaj Dubey <pankaj.dubey@samsung.com>
-Subject: [PATCH 1/1] drivers: i2c: silence a compile warning in i2c-s3c2410.c
-Date: Fri, 10 Jan 2014 12:03:45 +0900
-Message-ID: <1389323025-4478-1-git-send-email-pankaj.dubey@samsung.com>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [PATCH 1/5] i2c: mv64xxx: Add reset deassert call
+Date: Fri, 10 Jan 2014 13:48:41 +0800
+Message-ID: <CAGb2v6663ARKwmJ4Ypzi=m-J7UMvUFRq1=qLbqgQ0vrN_gC18w@mail.gmail.com>
+References: <1389288003-23187-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1389288003-23187-2-git-send-email-maxime.ripard@free-electrons.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Pankaj Dubey <pankaj.dubey@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBTUTX2LAKGQEP2TMZFY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1389288003-23187-2-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, duanmintao-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If used 64 bit compiler GCC warns that:
+Hi,
 
-drivers/i2c/busses/i2c-s3c2410.c: In function =E2=80=98s3c24xx_get_devi=
-ce_quirks=E2=80=99:
-drivers/i2c/busses/i2c-s3c2410.c:168:10: warning: cast from pointer to =
-integer
-of different size [-Wpointer-to-int-cast]
+On Fri, Jan 10, 2014 at 1:19 AM, Maxime Ripard
+<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+> The Allwinner A31 SoC using that IP has a reset controller maintaining
+> it reset unless told otherwise.
+>
+> Add some optional reset support to the driver.
+>
+> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 1 +
+>  drivers/i2c/busses/Kconfig                            | 1 +
+>  drivers/i2c/busses/i2c-mv64xxx.c                      | 6 ++++++
+>  3 files changed, 8 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> index 82e8f6f..603003a 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> @@ -12,6 +12,7 @@ Optional properties :
+>
+>   - clock-frequency : Desired I2C bus clock frequency in Hz. If not set the
+>  default frequency is 100kHz
+> + - resets          : phandle to the parent reset controller
+>
+>  Examples:
+>
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 3b26129..69aa599 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -528,6 +528,7 @@ config I2C_MPC
+>  config I2C_MV64XXX
+>         tristate "Marvell mv64xxx I2C Controller"
+>         depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
+> +       select RESET_CONTROLLER
+>         help
+>           If you say yes to this option, support will be included for the
+>           built-in I2C interface on the Marvell 64xxx line of host bridges.
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index 8be7e42..d4e2f32 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/mv643xx_i2c.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/reset.h>
+>  #include <linux/io.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> @@ -743,6 +744,7 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+>  #else
+>         const struct of_device_id *device;
+>         struct device_node *np = dev->of_node;
+> +       struct reset_control *rstc;
+>         u32 bus_freq, tclk;
+>         int rc = 0;
+>
+> @@ -763,6 +765,10 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+>         }
+>         drv_data->irq = irq_of_parse_and_map(np, 0);
+>
+> +       rstc = devm_reset_control_get(dev, NULL);
+> +       if (!IS_ERR(rstc))
+> +               reset_control_deassert(rstc);
+> +
 
-This patch fixes this by converting "unsigned int" to "unsigned long".
+Do we need to handle -EPROBE_DEFER here?
+Also no reset_control_assert() in the exit path?
+I'm asking because I have similar code in my stmmac patches.
 
-CC: Kukjin Kim <kgene.kim@samsung.com>
-CC: Wolfram Sang <wsa@the-dreams.de>
-CC: linux-i2c@vger.kernel.org
-Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
----
- drivers/i2c/busses/i2c-s3c2410.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Thanks
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-=
-s3c2410.c
-index bf8fb94..447dd98 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -101,7 +101,7 @@ enum s3c24xx_i2c_state {
-=20
- struct s3c24xx_i2c {
- 	wait_queue_head_t	wait;
--	unsigned int            quirks;
-+	unsigned long            quirks;
- 	unsigned int		suspended:1;
-=20
- 	struct i2c_msg		*msg;
-@@ -160,12 +160,13 @@ MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
-  * Get controller type either from device tree or platform device vari=
-ant.
- */
-=20
--static inline unsigned int s3c24xx_get_device_quirks(struct platform_d=
-evice *pdev)
-+static inline unsigned long
-+	s3c24xx_get_device_quirks(struct platform_device *pdev)
- {
- 	if (pdev->dev.of_node) {
- 		const struct of_device_id *match;
- 		match =3D of_match_node(s3c24xx_i2c_match, pdev->dev.of_node);
--		return (unsigned int)match->data;
-+		return (unsigned long)match->data;
- 	}
-=20
- 	return platform_get_device_id(pdev)->driver_data;
---=20
-1.7.10.4
+ChenYu
+
+>         /* Its not yet defined how timeouts will be specified in device tree.
+>          * So hard code the value to 1 second.
+>          */
