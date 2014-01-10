@@ -1,52 +1,51 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-designware-pci: Index Haswell ULT bus names
- from 0
-Date: Fri, 10 Jan 2014 08:59:39 +0100
-Message-ID: <20140110085939.3d96c7e6@endymion.delvare>
-References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
-	<1382326010-4554-3-git-send-email-bleung@chromium.org>
-	<20131021065804.GX3521@intel.com>
-	<CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw@mail.gmail.com>
-	<20131114180538.GK11022@katana>
-	<CANLzEksP1nRfBaQ3-sSouOYL4C+oLKiE75eHfFdEzLmrQKn3dQ@mail.gmail.com>
-	<20131126130959.GI7427@katana>
-	<20140103155217.GG7132@katana>
-	<CANLzEkvgYQtkEyOMNpPcS9BeYzX3zJn7hvtsyhFzbDpViS8-2Q@mail.gmail.com>
+From: franklinbuthelezi1-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
+Subject: =?UTF-8?Q?DiePresse.com_Mein_Freund,_der_Fahrradh=C3=A4ndler?=
+Date: Fri, 10 Jan 2014 13:33:49 +0100 (CET)
+Message-ID: <2104568051.1389357230822.JavaMail.root@dpoportal4.diepresse.apa.net>
+Reply-To: franklinbuthelezi1-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANLzEkvgYQtkEyOMNpPcS9BeYzX3zJn7hvtsyhFzbDpViS8-2Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Duncan Laurie <dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 9 Jan 2014 16:12:14 -0800, Benson Leung wrote:
-> Our devices and our platforms have some other requirements which
-> turned me away from using i2c_register_board_info.
-> 
-> i2c_register_board_info looks to create predeclarations for a specific
-> i2c bus... However, right now, the chromeos_laptop driver is
-> structured to do explicit declaration (using i2c_new_probed_device)
-> *after* the busses have come up.
-> 
-> Specifically, we have a class of atmel_mxt i2c touchpad/touchscreen
-> devices that may appear at different addresses depending on whether
-> the touch device is in bootloader mode or operational mode.
-> 
-> For that reason, the chromeos_laptop driver uses i2c_new_probed_device
-> with a list of possible addresses when dealing with the atmel touch
-> device.
-> 
-> You can see the driver here :
-> drivers/platform/chrome/chromeos_laptop.c
-> 
-> Is there some way of getting the "probe" behavior while using
-> i2c_register_board_info?
+=46olgender Artikel auf http://diepresse.com wird Ihnen von Franklin Bu=
+thelezi empfohlen:
 
-No, i2c_register_board_info works only for devices which are always
-present at a known address.
+Mein Freund, der Fahrradh=C3=A4ndler
+Manche Dinge ver=C3=A4ndern sich =C3=BCber die langen Wintermonate hinw=
+eg.=20
 
--- 
-Jean Delvare
+http://diepresse.com/home/leben/mode/kolumnezumtag/548717/index.do
+
+Notiz:
+Dear friend,
+=20
+I am the international operations manager of ABSA bank South Africa. My=
+ name is Franklin Buthelezi. I have a sensitive and private offer from =
+the top executive to seek your partnership in re-profiling some offshor=
+e investment funds worth 11.5M U.S.D (Eleven Million five hundred thous=
+and United States Dollars) I am constrained however to withhold most of=
+ the details for now. This is a legitimate transaction.=20
+=20
+If we agree on the terms you will be given 15% of the total funds, if y=
+ou are interested please write back via email providing me your persona=
+l details and phone number for further directives.
+=20
+If you are interested and willing to render your assistance please resp=
+ond via my private email address stated below.
+=20
+I look forward to your response.
+=20
+Best regards
+=46ranklin Buthelezi
+Email: franklinbuthelezi1-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
+
+
+------------------------------------
+DiePresse.com =C3=BCbernimmt keine Haftung f=C3=BCr den Inhalt der pers=
+=C3=B6nlichen Nachricht.
+
+=C2=A9 DiePresse.com - http://diepresse.com
