@@ -1,89 +1,61 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 1/2] ARM: mvebu: Add support to get the ID and the revision
- of a SoC
-Date: Sun, 12 Jan 2014 18:45:21 +0100
-Message-ID: <52D2D4B1.1080709@free-electrons.com>
-References: <1388678476-12875-1-git-send-email-gregory.clement@free-electrons.com>	 <1388678476-12875-2-git-send-email-gregory.clement@free-electrons.com> <1389499027.3720.42.camel@deadeye.wl.decadent.org.uk>
+From: Ben Hutchings <ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org>
+Subject: Re: [PATCH 1/2] ARM: mvebu: Add support to get the ID and the
+ revision of a SoC
+Date: Sun, 12 Jan 2014 18:03:24 +0000
+Message-ID: <1389549804.3720.80.camel@deadeye.wl.decadent.org.uk>
+References: <1388678476-12875-1-git-send-email-gregory.clement@free-electrons.com>
+		 <1388678476-12875-2-git-send-email-gregory.clement@free-electrons.com>
+	 <1389499027.3720.42.camel@deadeye.wl.decadent.org.uk>
+	 <52D2D4B1.1080709@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-ZGzNLeZ+ECXsfukC2OQp"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1389499027.3720.42.camel-nDn/Rdv9kqW9Jme8/bJn5UCKIB8iOfG2tUK59QYPAWc@public.gmane.org>
+In-Reply-To: <52D2D4B1.1080709-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Hutchings <ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
 
-On 12/01/2014 04:57, Ben Hutchings wrote:
-> On Thu, 2014-01-02 at 17:01 +0100, Gregory CLEMENT wrote:
->> All the mvebu SoCs have information related to their variant and
->> revision that can be read from the PCI control register.
->>
->> This patch adds support for Armada XP and Armada 370. This reading of
->> the revision and the ID are done before the PCI initialization to
->> avoid any conflicts. Once these data are retrieved, the resources are
->> freed to let the PCI subsystem use it.
-> [...]
->> --- /dev/null
->> +++ b/include/linux/mvebu-soc-id.h
->> @@ -0,0 +1,32 @@
->> +/*
->> + * Marvell EBU SoC ID and revision definitions.
->> + *
->> + * Copyright (C) 2014 Marvell Semiconductor
->> + *
->> + * This file is licensed under the terms of the GNU General Public
->> + * License version 2.  This program is licensed "as is" without any
->> + * warranty of any kind, whether express or implied.
->> + */
->> +
->> +#ifndef __LINUX_MVEBU_SOC_ID_H
->> +#define __LINUX_MVEBU_SOC_ID_H
->> +
->> +/* Armada XP ID */
->> +#define MV78230_DEV_ID	    0x7823
->> +#define MV78260_DEV_ID	    0x7826
->> +#define MV78460_DEV_ID	    0x7846
->> +
->> +/* Armada XP Revision */
->> +#define MV78XX0_A0_REV	    0x1
->> +#define MV78XX0_B0_REV	    0x2
->> +
->> +#ifdef CONFIG_ARCH_MVEBU
->> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
->> +#else
->> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
-> 
-> This definition needs to be static inline, assuming anything will
-> actually include this header when !defined(CONFIG_ARCH_MVEBU).
-> 
+--=-ZGzNLeZ+ECXsfukC2OQp
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Your review is appreciate, however there was 4 more version sent
-since this one. And this issue was already pointed and then fixed
-in the 3rd version.
+On Sun, 2014-01-12 at 18:45 +0100, Gregory CLEMENT wrote:
+[...]
+> Your review is appreciate, however there was 4 more version sent
+> since this one. And this issue was already pointed and then fixed
+> in the 3rd version.
 
+Yes, sorry about that - I'm some way behind on reading the stable list.
 
-Thanks,
+Ben.
 
-Gregory
+--=20
+Ben Hutchings
+Quantity is no substitute for quality, but it's the only one we've got.
 
+--=-ZGzNLeZ+ECXsfukC2OQp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-> Ben.
-> 
->> +{
->> +	return -1;
->> +}
->> +#endif
->> +
->> +#endif /* __LINUX_MVEBU_SOC_ID_H */
-> 
+iQIVAwUAUtLY7Oe/yOyVhhEJAQqSmA/+LDVjxA/pdEUfGYMPNk7VwpbfGdw187G1
+S5Gck7o+mJvKIb27HthOsatjVb17yTgn7dMfv1oGlrxgzqSnaWEncK4IgUHM7yMA
+mbHqdRK7ZcfiXgZnhaEQAXfgSmU5FuRGHOUEh/IrkMuYfSK9bM3JLnGBkFvxmgvO
+YXnNYCMlQlJ9anjvZTDlznVRJ6NBhHfzFqWyuKYrdVyUmAASR/1ax2esDDVsKajB
+BnpJBsFWBvNZG9Nco0uwyivn5/evrcbIIsjWgidSAh9nYJLuVluCvCkNo2Y9Vpzf
+ozYf2Sf4CBpi7etd6SpGIfcZrrWfms68H6N1rHiWrxg8r5gKaX67xml4gMLezbXR
+P0IMv02cOYS5e3tpDEqp6+YHI8zbiBsvWTMFIEXgpB2UL91FJIQbFvysbuy4bGGM
+70TnkxHLTXvhS4ZgU7HKMTbTJJrWfoFabEwT+E7hmibHwvfS27nFmbMC6DVPgtO/
+lBeIH3KfkTzSlHcuuyI/TxHCqLffSOl7j/p4keQz+rsI2jVRCMH6REekMO2+T8I1
+i643zpXHh+bUYlLhcRZgOgkGnaDcpsO5EeTPn/WFpm9Phrz8noKWij9ZE1eP+DJ5
+q21z3rccxZ+svVygiNO7ed51uNvfqErMfCKUBcexbdDFpbo7XFDu93Jv+0ys1WpI
+9AG9lFwuS4s=
+=VA8i
+-----END PGP SIGNATURE-----
 
-
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+--=-ZGzNLeZ+ECXsfukC2OQp--
