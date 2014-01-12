@@ -1,100 +1,89 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: Re: [PATCH 1/2] ARM: mvebu: Add support to get the ID and the
- revision of a SoC
-Date: Sun, 12 Jan 2014 03:57:07 +0000
-Message-ID: <1389499027.3720.42.camel@deadeye.wl.decadent.org.uk>
-References: <1388678476-12875-1-git-send-email-gregory.clement@free-electrons.com>
-	 <1388678476-12875-2-git-send-email-gregory.clement@free-electrons.com>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 1/2] ARM: mvebu: Add support to get the ID and the revision
+ of a SoC
+Date: Sun, 12 Jan 2014 18:45:21 +0100
+Message-ID: <52D2D4B1.1080709@free-electrons.com>
+References: <1388678476-12875-1-git-send-email-gregory.clement@free-electrons.com>	 <1388678476-12875-2-git-send-email-gregory.clement@free-electrons.com> <1389499027.3720.42.camel@deadeye.wl.decadent.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-NRxYPK52gyGgxvRj4QD3"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1388678476-12875-2-git-send-email-gregory.clement@free-electrons.com>
-Sender: stable-owner@vger.kernel.org
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1389499027.3720.42.camel-nDn/Rdv9kqW9Jme8/bJn5UCKIB8iOfG2tUK59QYPAWc@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Hutchings <ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Ben,
 
---=-NRxYPK52gyGgxvRj4QD3
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On 12/01/2014 04:57, Ben Hutchings wrote:
+> On Thu, 2014-01-02 at 17:01 +0100, Gregory CLEMENT wrote:
+>> All the mvebu SoCs have information related to their variant and
+>> revision that can be read from the PCI control register.
+>>
+>> This patch adds support for Armada XP and Armada 370. This reading of
+>> the revision and the ID are done before the PCI initialization to
+>> avoid any conflicts. Once these data are retrieved, the resources are
+>> freed to let the PCI subsystem use it.
+> [...]
+>> --- /dev/null
+>> +++ b/include/linux/mvebu-soc-id.h
+>> @@ -0,0 +1,32 @@
+>> +/*
+>> + * Marvell EBU SoC ID and revision definitions.
+>> + *
+>> + * Copyright (C) 2014 Marvell Semiconductor
+>> + *
+>> + * This file is licensed under the terms of the GNU General Public
+>> + * License version 2.  This program is licensed "as is" without any
+>> + * warranty of any kind, whether express or implied.
+>> + */
+>> +
+>> +#ifndef __LINUX_MVEBU_SOC_ID_H
+>> +#define __LINUX_MVEBU_SOC_ID_H
+>> +
+>> +/* Armada XP ID */
+>> +#define MV78230_DEV_ID	    0x7823
+>> +#define MV78260_DEV_ID	    0x7826
+>> +#define MV78460_DEV_ID	    0x7846
+>> +
+>> +/* Armada XP Revision */
+>> +#define MV78XX0_A0_REV	    0x1
+>> +#define MV78XX0_B0_REV	    0x2
+>> +
+>> +#ifdef CONFIG_ARCH_MVEBU
+>> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
+>> +#else
+>> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
+> 
+> This definition needs to be static inline, assuming anything will
+> actually include this header when !defined(CONFIG_ARCH_MVEBU).
+> 
 
-On Thu, 2014-01-02 at 17:01 +0100, Gregory CLEMENT wrote:
-> All the mvebu SoCs have information related to their variant and
-> revision that can be read from the PCI control register.
->=20
-> This patch adds support for Armada XP and Armada 370. This reading of
-> the revision and the ID are done before the PCI initialization to
-> avoid any conflicts. Once these data are retrieved, the resources are
-> freed to let the PCI subsystem use it.
-[...]
-> --- /dev/null
-> +++ b/include/linux/mvebu-soc-id.h
-> @@ -0,0 +1,32 @@
-> +/*
-> + * Marvell EBU SoC ID and revision definitions.
-> + *
-> + * Copyright (C) 2014 Marvell Semiconductor
-> + *
-> + * This file is licensed under the terms of the GNU General Public
-> + * License version 2.  This program is licensed "as is" without any
-> + * warranty of any kind, whether express or implied.
-> + */
-> +
-> +#ifndef __LINUX_MVEBU_SOC_ID_H
-> +#define __LINUX_MVEBU_SOC_ID_H
-> +
-> +/* Armada XP ID */
-> +#define MV78230_DEV_ID	    0x7823
-> +#define MV78260_DEV_ID	    0x7826
-> +#define MV78460_DEV_ID	    0x7846
-> +
-> +/* Armada XP Revision */
-> +#define MV78XX0_A0_REV	    0x1
-> +#define MV78XX0_B0_REV	    0x2
-> +
-> +#ifdef CONFIG_ARCH_MVEBU
-> +int mvebu_get_soc_id(u32 *dev, u32 *rev);
-> +#else
-> +int mvebu_get_soc_id(u32 *dev, u32 *rev)
+Your review is appreciate, however there was 4 more version sent
+since this one. And this issue was already pointed and then fixed
+in the 3rd version.
 
-This definition needs to be static inline, assuming anything will
-actually include this header when !defined(CONFIG_ARCH_MVEBU).
 
-Ben.
+Thanks,
 
-> +{
-> +	return -1;
-> +}
-> +#endif
-> +
-> +#endif /* __LINUX_MVEBU_SOC_ID_H */
+Gregory
 
---=20
-Ben Hutchings
-Quantity is no substitute for quality, but it's the only one we've got.
 
---=-NRxYPK52gyGgxvRj4QD3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+> Ben.
+> 
+>> +{
+>> +	return -1;
+>> +}
+>> +#endif
+>> +
+>> +#endif /* __LINUX_MVEBU_SOC_ID_H */
+> 
 
-iQIVAwUAUtISlOe/yOyVhhEJAQqPrg//Y7cxjsqoJ+IZobuPQGnPosZ+uIkZek7A
-84jvPFFq/9FOHBWuJm6UVqAr+gqZyHJz8AqYQnC38sJjiccAgH8Qb14XpDeYMsYD
-27xsi5RfqreoZVrmGC8qaRXQRZmNjIQIb9bMU5D5uYFCQUdNX1ys0+OdwvWMYgto
-pHbDcltDIhQfJV1xS89sJSldPTeXMI09CyKUEp7vlo7BeZra8iWSQNRApO1gsr6Q
-eqv+ggSySVGtb5a/HC7VjDbbopWmoEOUjOndkBs8nFCJIgsj4zJeok8vk6IPnrmu
-jMKcapAYBx/2Dd70Qh01c040UZSM247RkKMby7G4UNiOtoNT8KGMAnSU0jL9cLyG
-jsaU9gG/zY5ft8Sfl6av+037Oac3F6F3FVdr6/g4Y1hxShlZnvesez/X1RC5IN3l
-/geeoiBgZa+95JCPhsWlpkGfVeVHQ2ufpQSyfEYAH2rCpNeFuLaGLPNHTcxtZeeM
-UR0TqKVcUyKY8s4PHQV9weezJM/N4IpfUCrSy6cEVgaZbWfYOHRn6R0RO4LFFdAJ
-D62h/0tjQqUZn6pLpngMlD7unEBDWzmQQvmNo3tP5iEyGRU/ZRWVuUwPecRu3Dh9
-a4VAR0/mYmTr2PN8gcoVCJaeNG8f8uO1COilfQtoQIKFoWIHCduf/txkjSIsOlX2
-wn59lCUAkDk=
-=Sepb
------END PGP SIGNATURE-----
 
---=-NRxYPK52gyGgxvRj4QD3--
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
