@@ -1,60 +1,48 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v2 5/5] ARM: sun6i: colombus: Enable the I2C controllers
-Date: Mon, 13 Jan 2014 11:34:53 +0100
-Message-ID: <1389609293-2824-6-git-send-email-maxime.ripard@free-electrons.com>
-References: <1389609293-2824-1-git-send-email-maxime.ripard@free-electrons.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware: remove HAVE_CLK build dependecy
+Date: Mon, 13 Jan 2014 14:18:06 +0200
+Message-ID: <20140113121806.GO4944@tarshish>
+References: <f3ebead75d45623e4b649c7a8d0112584ffd1788.1388392279.git.baruch@tkos.co.il>
+ <20140104224846.GH3150@katana>
+ <20140105050410.GA5316@tarshish>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBCUFZ6LAKGQE5OSQL4Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1389609293-2824-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140105050410.GA5316@tarshish>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, duanmintao-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The A31 Colombus board has 3 I2C controllers that should be usable. However,
-the first one is not working for some reason on the hardware I have been able
-to test it on, while it should really be the same controller. Enable the i2c1
-and i2c2 busses, and mark i2c0 as in failure in the DT.
+Hi Wolfram,
 
-Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- arch/arm/boot/dts/sun6i-a31-colombus.dts | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+Ping?
 
-diff --git a/arch/arm/boot/dts/sun6i-a31-colombus.dts b/arch/arm/boot/dts/sun6i-a31-colombus.dts
-index e5adae3..3898a7b 100644
---- a/arch/arm/boot/dts/sun6i-a31-colombus.dts
-+++ b/arch/arm/boot/dts/sun6i-a31-colombus.dts
-@@ -28,5 +28,23 @@
- 			pinctrl-0 = <&uart0_pins_a>;
- 			status = "okay";
- 		};
-+
-+		i2c0: i2c@01c2ac00 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c0_pins_a>;
-+			status = "fail";
-+		};
-+
-+		i2c1: i2c@01c2b000 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c1_pins_a>;
-+			status = "okay";
-+		};
-+
-+		i2c2: i2c@01c2b400 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c2_pins_a>;
-+			status = "okay";
-+		};
- 	};
- };
+On Sun, Jan 05, 2014 at 07:04:10AM +0200, Baruch Siach wrote:
+> On Sat, Jan 04, 2014 at 11:48:46PM +0100, Wolfram Sang wrote:
+> > On Mon, Dec 30, 2013 at 10:31:19AM +0200, Baruch Siach wrote:
+> > > Since 93abe8e4 (clk: add non CONFIG_HAVE_CLK routines) code using clk.h need
+> > > not depend on HAVE_CLK. Also, remove a redundant clk.h include from core driver
+> > > file.
+> > > 
+> > > Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+> > 
+> > Is the patch description correct? The core driver simply does not need
+> > clk.h and thus the dependency. No redundancy here, or?
+> 
+> The platform code (i2c-designware-platform.c) uses the clk API, but the 
+> Kconfig dependency on HAVE_CLK is not needed anymore. The core code 
+> (i2c-designware-core.c) doesn't use clk. Originally the driver was in a single 
+> file, including the clk handling. This code has been moved to the platform 
+> file, so the core file doesn't need the clk.h include.
+> 
+> Logically, these are two separate issues. But I'm not sure it is worth 
+> splitting into two patches. What do you think?
+
+baruch
+
 -- 
-1.8.4.2
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
