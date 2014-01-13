@@ -1,125 +1,62 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v5 2/4] ARM: mvebu: Add quirk for i2c for the OpenBlocks
- AX3-4 board
-Date: Mon, 13 Jan 2014 16:02:06 +0100
-Message-ID: <52D3FFEE.3080107@free-electrons.com>
-References: <1389193589-18485-1-git-send-email-gregory.clement@free-electrons.com> <1389193589-18485-3-git-send-email-gregory.clement@free-electrons.com> <20140110182240.GK19878@titan.lakedaemon.net> <20140110190521.GI18269@obsidianresearch.com> <20140110194550.GT19878@titan.lakedaemon.net> <20140110200813.GV19878@titan.lakedaemon.net> <52D05439.7040905@free-electrons.com> <20140110211417.GX19878@titan.lakedaemon.net> <52D06459.5000403@free-electrons.com> <20140110213752.GA19878@titan.lakedaemon.net> <52D06B8D.9060901@free-electrons.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c-ismt: add the support of the
+ I2C_SMBUS_I2C_BLOCK_DATA transaction type
+Date: Mon, 13 Jan 2014 17:46:52 +0100
+Message-ID: <20140113164652.GA14602@katana>
+References: <5285704e.jwiZWyk8R3ZEoySS%robert.valiquette@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <52D06B8D.9060901@free-electrons.com>
-Sender: stable-owner@vger.kernel.org
-To: Jason Cooper <jason@lakedaemon.net>
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, Jason Gunthorpe <jgunthorpe@obsidianresearch.com>, linux-i2c@vger.kernel.org, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5285704e.jwiZWyk8R3ZEoySS%robert.valiquette-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: robert.valiquette-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Cc: nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/01/2014 22:52, Gregory CLEMENT wrote:
-> On 10/01/2014 22:37, Jason Cooper wrote:
->> On Fri, Jan 10, 2014 at 10:21:29PM +0100, Gregory CLEMENT wrote:
->>> On 10/01/2014 22:14, Jason Cooper wrote:
->>>> On Fri, Jan 10, 2014 at 09:12:41PM +0100, Gregory CLEMENT wrote:
->>>>> Jason,
->>>>> On 10/01/2014 21:08, Jason Cooper wrote:
->>>>>> On Fri, Jan 10, 2014 at 02:45:50PM -0500, Jason Cooper wrote:
->>>>>>> On Fri, Jan 10, 2014 at 12:05:21PM -0700, Jason Gunthorpe wrote:
->>>>>>>> On Fri, Jan 10, 2014 at 01:22:40PM -0500, Jason Cooper wrote:
->>>>>>>>
->>>>>>>>> Do we create new compatible strings to indicate errata, or to indicate
->>>>>>>>> 'from this version forward there are new features'?  The former would
->>>>>>>>> indicate as Gregory has written '...-a0-i2c', the latter would warrant
->>>>>>>>> '...-b0-i2c' and disabling offloading if we don't see '...-b0-i2c'.
->>>>>>>
->>>>>>> s/-b0-i2c'./-b0-i2c' or newer./
->>>>>>>
->>>>>>>> IMHO the compatible string should represent a specific HW/SW ABI. So
->>>>>>>> you need a unique compatible string for every variation of that ABI.
->>>>>>>
->>>>>>> My concern is that we tend to do things like "marvell,orion-sata" for
->>>>>>> the first version of the IP block we can work with.  orion5x, kirkwood,
->>>>>>> dove, and armada 370/xp all use that compatible string to refer to that
->>>>>>> IP block.
->>>>>>>
->>>>>>> Given that we look at it as 'and newer', '...-a0-i2c' would mean no
->>>>>>> offloading until we introduce '-b0-i2c'.  Or am I mis-understanding what
->>>>>>> you're saying?
->>>>>>>
->>>>>>>> We already have a compatible string defined for the ABI that B0
->>>>>>>> presents.
->>>>>>>
->>>>>>> So 'mv78230-i2c' is newer than 'mv78230-a0-i2c', or are you referring to
->>>>>>> something else?
->>>>>>
->>>>>> I think the crux of it is:  Is mv78230-i2c the first, or the default?
->>>>>
->>>>> Here it's clearly the default
->>>>
->>>> So we should default to no offloading when we see it?  Since it has been
->>>> deployed referring to -a0 revision i2c IP blocks?
->>>>
->>>
->>> But this assumption is wrong as I already wrote few days ago, mv78230-i2c
->>> has been deployed referring to -b0 revision i2c IP blocks since the begining.
->>
->> Ok, sorry.  As I wrote on irc last week, I've been on travel and haven't
->> been able to fully digest everything coming in.  My re-read of all the
->> threads regarding this this morning didn't catch it.
-> 
-> No problem there was a lot of email just for this simple fix!
-> 
->>
->>> It was developed on and for B0 version, and this compatible was created for
->>> this specific version. It was latter that we realized that it was not fully
->>> compatible with A0. But for sure:
->>>
->>> mv78230-i2c == I2C IP running on Armada XP B0 (or latter)
->>
->> Ok, this still feels counter-intuitive, and folks not familiar with the
->> development process might assume the opposite.  So I'll reply to 4/4
->> with a reword to make your above statement an explicit part of the
->> binding documentation.  No need to do another patch version.  I'll fix
->> it up when I pull it in if you're ok with it.
-> 
-> Please use my branch because as I wrote you:
-> https://github.com/MISL-EBU-System-SW/mainline-public/tree/i2c-mv64xxx-3.13-rc6-fixes-v6
-> 
-> I took into account the last minor review from Arnd and Wolfram, and I
-> also updated all the flags acked-by and reported-by. But if you prefer
-> I can just sent a 6th version on the mailing list.
 
-Hi Jason,
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Finally 3.13 was not released but the 3.13-rc8 instead.
-Do you consider to pull this series and then push it this week,
-before the final release of 3.13?
+On Thu, Nov 14, 2013 at 07:52:30PM -0500, robert.valiquette-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org wrote:
+> This patch adds the support of the I2C_SMBUS_I2C_BLOCK_DATA transaction t=
+ype for the iSMT SMBus Controller.
 
-Thanks,
+Wrap the long line next time, please.
 
-Gregory
+>=20
+> Signed-off-by: Robert Valiquette <robert.valiquette-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> ---
+
+> +		/* Make sure the lenght is valid */
+
+Fixed the typo and applied to for-next, thanks!
 
 
-> 
-> Thanks,
-> 
-> Gregory
-> 
-> 
->>
->> thx,
->>
->> Jason.
->>
->> _______________________________________________
->> linux-arm-kernel mailing list
->> linux-arm-kernel@lists.infradead.org
->> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
->>
-> 
-> 
 
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJS1Bh7AAoJEBQN5MwUoCm2978P/RCSrZSRzk6XI+kRIowwJzg2
+q2Htk88WpdP/wUC1Tousp+6NZzO5Af6KVKxtZ9ad7kEPLHuDrdw0wIpxUiKEf3X1
+wYHOaJGKqQvdm33RAlrBH4eNjb2swX3q74v441uaued4yXLu0PmYfd3u+eHqOqUQ
+MBKQa1b/qeaAhx5NoY5YQLh2AO/yS5bkWlGx58INsLrimlJyu5NJctsbE5p/16jm
+UD9Bm5z+L9ah04Eyh7C1lYif33ExtMx1kPSSr5ZqLss9WJvWEUl0F7iXnIZHKaea
+Ii25tOnHLOly+yNBRlOK35M37pWfFx38zAq2SOOgRf3rPbDY51pYzQrkLsqlK3mI
+eLLOhaVr+/z4iMmxa+30P3xCRNU6AjcaN4sRW+x2bXkvLx9iB2ufU7icKoGBFAeq
+rbRQAazOkDOdUiGLAWS0B0H80SpGeGSsBM6WUgijLW95SWJH4efnlJxdCbedDKd3
+QtnteoJvDL3k3/yYqr3oXaCg4oCddrWEN90elzieNB5t/GIFZRpU9ZpuLnYXYC20
+OE8A0RmZWMpQ78RLBCg5WOMxbwMpurHP2vTGYt0GjZcjzXu92/GrKwASQl8ZWA6Z
+YuQacuhLeokZsg1mTtFfqxYLYQrSTy6uadyKPIfkFXXNXgwZCZ3qHMnIDMBeFKv1
+DwS3mkyZRoCm1U1skRhN
+=8hXC
+-----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--
