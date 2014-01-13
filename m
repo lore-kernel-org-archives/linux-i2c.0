@@ -1,58 +1,81 @@
-From: Ben Gamari <bgamari.foss-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] dt: Update I2C trivial devices list
-Date: Mon, 13 Jan 2014 12:26:47 -0500
-Message-ID: <87ob3flrmw.fsf@gmail.com>
-References: <1387239151-19226-1-git-send-email-bgamari.foss@gmail.com> <52B07870.6070809@wwwdotorg.org> <87a9fztofc.fsf@gmail.com> <20140113125128.GE2586@katana> <87r48cklgj.fsf@gmail.com> <52D41B14.6060701@wwwdotorg.org>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/4] fix module autoloading for ACPI enumerated devices
+Date: Mon, 13 Jan 2014 17:35:25 +0000
+Message-ID: <20140113173525.GF29039@sirena.org.uk>
+References: <1389620911-3890-1-git-send-email-rui.zhang@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Oaap7OtF9SpYl9KE"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <52D41B14.6060701-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1389620911-3890-1-git-send-email-rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+To: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
 
-Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> writes:
+--Oaap7OtF9SpYl9KE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> On 01/13/2014 07:25 AM, Ben Gamari wrote:
->> Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
->>> What about putting this into a seperate paragraph prefixed with "Current
->>> Linux specific implementation:"?
->>>
->> This would address my concern quite nicely.
->
-> The text should go into Documentation/ not the DT binding.
->
-The problem here is that as it stands DT is quite daunting to pick
-up. My needs are pretty minimal yet I had to spend many hours sifting
-through source, blogs, and Documentation/* to get something that more or
-less worked. The bindings are generally well-documented, but there is no
-"start here" document in the tree giving conventions and an overview of
-how Linux in particular uses DT.
+On Mon, Jan 13, 2014 at 09:48:31PM +0800, Zhang Rui wrote:
+> ACPI enumerated devices has ACPI style _HID and _CID strings,
+> all of these strings can be used for both driver loading and matching.
 
-The closest thing I know of is Documentation/devicetree/usage-model.txt.
-Perhaps this is where the language Wolfram suggested should be placed.
+> But currently, in Platform, I2C and SPI bus, only the ACPI style
+> driver matching is supported by invoking acpi_driver_match_device()
+> in bus .match() callback.
 
-Cheers,
+I don't understand what this means, sorry.  As far as I can tell "ACPI
+style _HID and _CID strings" are something different to "ACPI style
+driver matching" but what that actually means is not at all clear to me
+so I don't know what problem this is intended to fix.
 
-- Ben
+Please also always remember to CC maintainers on patches.
 
---=-=-=
-Content-Type: application/pgp-signature
+> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+> index 349ebba..ab70eda 100644
+> --- a/drivers/spi/spi.c
+> +++ b/drivers/spi/spi.c
+> @@ -58,6 +58,11 @@ static ssize_t
+>  modalias_show(struct device *dev, struct device_attribute *a, char *buf)
+>  {
+>  	const struct spi_device	*spi =3D to_spi_device(dev);
+> +	int len;
+> +
+> +	len =3D acpi_device_modalias(dev, buf, PAGE_SIZE);
+> +	if (len !=3D -ENODEV)
+> +		return len;
+> =20
+>  	return sprintf(buf, "%s%s\n", SPI_MODULE_PREFIX, spi->modalias);
+>  }
+
+What does this do and why can't acpi_driver_match_device() handle this
+like it does for other ACPI devices?  We don't need to add such code for
+other firmware interfaces...
+
+--Oaap7OtF9SpYl9KE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQEcBAEBAgAGBQJS1CHXAAoJEErkyLZmeNiDjJwH/RIvVaEN9geH5GXI4X7Y2X2u
-6PgeRboCcxv+9a2BoZt1Poq/6HkskO4G0gmElUrJb1dQBQhEc7a25m5Gcc7Sh9SR
-gjU2pJUZmMGq7py2GPmrRmlDkDtvjN3+jG3HEDxuDxmaOE/zwPO+SEU0FQbBZhaH
-C07QSuy8cHuaKEXnBGqBxfjfqwKWh2V9BGWQsFjocma8Gh5A5PMtPwp8Lh4Yvpcs
-GHPE5yrnAJzNOonKaNVzh2wYIrG5JgLPyyfVQ5hx1E5DftyUsiaPHA7i2vpPNEej
-ZkAjKU5UAyY6gBeyJyVnlN9SdMwLlWmN89SfKKkORyDGzy1rhz/Qig8h63Un6SA=
-=rg6N
+iQIcBAEBAgAGBQJS1CPZAAoJELSic+t+oim9SoYP/RYp4eAn4U/DgMOpKnEJevUI
+4syEAhXA0USolseyLUdyI7WpLsII+xvPkAUzYDrpBDm8takZY8rlGhejT9CGmeAO
+KXq5fQM6MLcYw8i7R5f3LrwHDaqgqudQK5eEsz2p+MKqGHl2DhGgbr+UaxT33UiN
+XYWH/kDfeGgNCkF4crJcthbCiuNCXrjyx4KbrzJJNO9E62WCDetltf185fXt9nhl
+TtiufrH3K4IgBEDcZ47ITdWz+vv0ciEJsX+trVCB35XsCfBws6150vdIwyXEhpgG
+2qHZIru84pNp1g3je7+DSfbuyTSesdIB5T6lh5M6sgc/JEEj2F0hx7jS4L8+SZcP
+8O3E6v+UIFFx8tz5WJIqvJmMWZMrPbxhc83uthOf5ZFNZkqCr9JcPDB8JVGFGVMb
+BdUa89+9AJn7z1qELCrIZkuV/DGmp0E4eDwanx9+fpNTMJpAzPi+KksFW6aZDhme
+dn1qGvXpuk2fCU5995P9DGfd7juv3LiInPxTg0D5YP1a5rFzsZNTzXdulxCq2Hi4
+gy5vhYnTuc+R6PVyZyWRsN/zUy587zoqxLMck54pJbzzd4f5cgd1+HzkpR6tLvkR
+6Rnjx3oeeQcT7/whsDW9dFeL9oXQdaQ+bt/Yf3MWZJw3CxLySFApyGnbp7LaFPxY
+wpMoKiKrA+y6hGzh+bNJ
+=tMHc
 -----END PGP SIGNATURE-----
---=-=-=--
+
+--Oaap7OtF9SpYl9KE--
