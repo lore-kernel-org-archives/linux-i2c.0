@@ -1,73 +1,69 @@
-From: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 4/4] OF: introduce OF style 'modalias' support for platform bus.
-Date: Mon, 13 Jan 2014 21:48:36 +0800
-Message-ID: <1389620916-3923-1-git-send-email-rui.zhang@intel.com>
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Ben Gamari <bgamari.foss-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] dt: Update I2C trivial devices list
+Date: Mon, 13 Jan 2014 09:25:32 -0500
+Message-ID: <87r48cklgj.fsf@gmail.com>
+References: <1387239151-19226-1-git-send-email-bgamari.foss@gmail.com> <52B07870.6070809@wwwdotorg.org> <87a9fztofc.fsf@gmail.com> <20140113125128.GE2586@katana>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140113125128.GE2586@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Fix a problem that, the platform bus supports the OF style modalias
-in .uevent() call, but not in its device' "modalias" sysfs attribute.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- drivers/base/platform.c   |    4 ++++
- drivers/of/device.c       |    3 +++
- include/linux/of_device.h |    6 ++++++
- 3 files changed, 13 insertions(+)
+Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 2f4aea2..bc78848 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -679,6 +679,10 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
- 	struct platform_device	*pdev = to_platform_device(dev);
- 	int len;
- 
-+	len = of_device_get_modalias(dev, buf, PAGE_SIZE -1);
-+	if (len != -ENODEV)
-+		return len;
-+
- 	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
- 	if (len != -ENODEV)
- 		return len;
-diff --git a/drivers/of/device.c b/drivers/of/device.c
-index f685e55..dafb973 100644
---- a/drivers/of/device.c
-+++ b/drivers/of/device.c
-@@ -85,6 +85,9 @@ ssize_t of_device_get_modalias(struct device *dev, char *str, ssize_t len)
- 	int cplen, i;
- 	ssize_t tsize, csize, repend;
- 
-+	if ((!dev) || (!dev->of_node))
-+		return -ENODEV;
-+
- 	/* Name & Type */
- 	csize = snprintf(str, len, "of:N%sT%s", dev->of_node->name,
- 			 dev->of_node->type);
-diff --git a/include/linux/of_device.h b/include/linux/of_device.h
-index 82ce324..8d7dd67 100644
---- a/include/linux/of_device.h
-+++ b/include/linux/of_device.h
-@@ -64,6 +64,12 @@ static inline int of_driver_match_device(struct device *dev,
- static inline void of_device_uevent(struct device *dev,
- 			struct kobj_uevent_env *env) { }
- 
-+static inline int of_device_get_modalias(struct device *dev,
-+				   char *str, ssize_t len)
-+{
-+	return -ENODEV;
-+}
-+
- static inline int of_device_uevent_modalias(struct device *dev,
- 				   struct kobj_uevent_env *env)
- {
--- 
-1.7.9.5
+> On Tue, Dec 17, 2013 at 11:47:19AM -0500, Ben Gamari wrote:
+>> Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> writes:
+>>=20
+>> > On 12/16/2013 05:12 PM, Ben Gamari wrote:
+>> >
+>> >> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.tx=
+t b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+>> >
+>> >>  This is a list of trivial i2c devices that have simple device tree
+>> >>  bindings, consisting only of a compatible field, an address and
+>> >> -possibly an interrupt line.
+>> >> +possibly an interrupt line. The compatible field is used to lookup t=
+he
+>> >> +modalias of the driver which will handle the device. The compatible
+>> >> +string may begin with a manufacturer prefix (separated from the
+>> >> +modalias by a comma) which will be stripped off during lookup.
+>> >
+>> > This part of the patch described Linux-specific behaviour, whereas DT
+>> > bindings should be OS-agnostic.
+>> >
+>> I see your point but it would be nice to have language like this
+>> somewhere. One of the biggest challenges in diving in to writing a
+>> devicetree is figuring out details like this.
+>
+> What about putting this into a seperate paragraph prefixed with "Current
+> Linux specific implementation:"?
+>
+This would address my concern quite nicely.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+
+=2D Ben
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQEcBAEBAgAGBQJS0/dcAAoJEErkyLZmeNiDRwMH/irA5DSn95+PVa/75JktBuYn
+ff1oZHvOj5GDalFkeIWamIpLbG+Hm3Mq0FPGA9JwuJDeRI3rDEeQYGnR+177+nII
+HGSLDYZsGiWvaWDUDKsuUoDrnjmCtfU7tMyZCfrGzbWlHcMebEjz0Ozvj58bAOTF
+lZ7d9cgl9TQYVMAP4sX2EQwdNR+X+gwK30LT4cNEYkuGFur5jTk99ByNY1rfd9RV
+SKARbOnHzmxTefnaxn2VSudRTgnsfTG3jyV8OP427fqP5zUF3yfqSMu2wKyyPdsS
+6lyA8TXhAYJAlQiQKws2oWt0+zhgRhjxFenshujwkLY/RK9iUingQUuYE//lQBQ=
+=swlV
+-----END PGP SIGNATURE-----
+--=-=-=--
