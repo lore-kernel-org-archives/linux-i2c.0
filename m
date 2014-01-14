@@ -1,61 +1,92 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: i2c-core: fix paranthesis coding style issue
- in, i2c-core.c
-Date: Tue, 14 Jan 2014 19:32:31 +0100
-Message-ID: <20140114183231.GB10340@katana>
-References: <525C0C02.7030404@gmail.com>
+Subject: Re: [PATCH 2/3] i2c: i2c-core: fix coding style issues in i2c-core.c
+Date: Tue, 14 Jan 2014 19:37:02 +0100
+Message-ID: <20140114183702.GC10340@katana>
+References: <525C0C5B.6040703@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
+	protocol="application/pgp-signature"; boundary="mvpLiMfbWzRoNl4x"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <525C0C02.7030404-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <525C0C5B.6040703-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: RAGHAVENDRA GANIGA <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---uQr8t48UFsdbeI+V
+--mvpLiMfbWzRoNl4x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 14, 2013 at 08:51:38PM +0530, RAGHAVENDRA GANIGA wrote:
-> From 46aed97f5e5a434e8ec24c14e085a138958ba559 Mon Sep 17 00:00:00 2001
+On Mon, Oct 14, 2013 at 08:53:07PM +0530, RAGHAVENDRA GANIGA wrote:
+> From b21e6a52aa9c36e8c01173cff13bbfd2a380d0bd Mon Sep 17 00:00:00 2001
 > From: Raghavendra Ganiga <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Date: Sun, 13 Oct 2013 19:13:46 +0530
-> Subject: [PATCH 1/3] i2c: i2c-core: fix paranthesis coding style issue in
->  i2c-core.c
+> Date: Mon, 14 Oct 2013 00:29:08 +0530
+> Subject: [PATCH 2/3] i2c: i2c-core: fix coding style issues in i2c-core.c
 >=20
-> This is a patch to the i2c-core.c file that fixes the paranthesis
-> warning found by the checkpatch.pl tool
->=20
-> Signed-off-by: Raghavendra Chandra Ganiga <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> This is a patch to the i2c-core.c file that fixes up warnings and
+> the code indent error reported by the checkpatch.pl tool
 
-Merge that into 2/3, please.
+Please describe which warnings.
+
+> @@ -1737,9 +1735,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct =
+i2c_msg *msgs, int num)
+>  	if (adap->algo->master_xfer) {
+>  #ifdef DEBUG
+>  		for (ret =3D 0; ret < num; ret++) {
+> -			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=3D0x%02x, "
+> -				"len=3D%d%s\n", ret, (msgs[ret].flags & I2C_M_RD)
+> -				? 'R' : 'W', msgs[ret].addr, msgs[ret].len,
+> +			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=3D0x%02x, len=3D%d%s\n",
+> +				ret,
+> +				((msgs[ret].flags & I2C_M_RD) ? 'R' : 'W'),
+> +				msgs[ret].addr, msgs[ret].len,
+>  				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
+
+You added some extra paranthesis here? No need to. Also ret doesn't need
+to be in a seperate line.
+
+>  		}
+>  #endif
+> @@ -1905,8 +1904,9 @@ static int i2c_detect_address(struct i2c_client *te=
+mp_client,
+> =20
+>  	/* Consistency check */
+>  	if (info.type[0] =3D=3D '\0') {
+> -		dev_err(&adapter->dev, "%s detection function provided "
+> -			"no name for 0x%x\n", driver->driver.name,
+> +		dev_err(&adapter->dev,
+> +			"%s detection function provided no name for 0x%x\n",
+> +			driver->driver.name,
+>  			addr);
+
+'addr' is dangling.
+
+And merge 1/3 into it.
 
 
---uQr8t48UFsdbeI+V
+--mvpLiMfbWzRoNl4x
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS1YK/AAoJEBQN5MwUoCm2JS8P/1ZpdUIUbw64Uksu7i3mEzN8
-YG7FqUd16IaL0f9R987StHGcSXgzGWhlDel4BJAjTBXhrmm5kIrY1zoAJWVOrG1z
-Zu0fL0blmtNC9HWFQKFq8vFrkLqbt7haWPrxWUqYM/V0HM2GrNOLRYT7CidyqnhK
-iNREbhxdthdZIRgUyTKvdVfZuXGKSMxapea0R1dumTuPbZZtbAJfAwOQJYCBdqzj
-xEw6ZXkh8c8HvRHzFXmeD5QB+yT/hQJYSmKXueB/aC+FvnQkhX3d70Bi825vnyen
-BNK6NW3nNnkJU+3bdwKJ807u3PInLVC5BTfJNLI25b4XACN5XDw+PQ4bGUWADZks
-c5vdNZzZg0qc12+slw+/JeQjMLH1S7gx5TvU4Ysv8Ca+D6KxQHPDa+Kw/vL8Cl2Q
-mx/QsVnUUDog3r0mPw57WeRpn/EdNypxRGslEs6o4Lpc1uTxaalZUETkLTaYfhiU
-i34i+h9SQvL2TepLGlxYGLBhXvcQeftU1oDMbXk6+/g8sDeu6ZgpgBeAKXDwEfTh
-wPq08H/sN/2gW5+OabP77+gXoanRhC7HRvRSWb3Cao0gzgh81AVjVnJj78UEvNuJ
-G6tdY6O9JX1vcoBWJlEjYr/lz7OvUpFDZn1U5EpbZMEWCfcS+DZihfKnPAnoQe6J
-WpxxjTzK+wXImTxc6t5Z
-=hKYg
+iQIcBAEBAgAGBQJS1YPOAAoJEBQN5MwUoCm2XPgP+QEnqHQlOqVRr1NoUR5l7iXr
+t+9oPXEBmnxqtcWjzINpK6O6zK8ZITwSiT09TAuPBJgobwHM9MW92nEydkDhPsGr
+WRqOv5LbXzKmZrdguvq9nQ8zU8XXQnx0hrtQhsxW0fuqnfQj02XXT4jMmARN/dnb
+PpsbVxJlCwCBznYmQUvPWHJTMF2byLxvB+8ks7wL0j0jCOf81LDehGA74eMnZxF6
+z7Cz1wqvv12ozC/V1DUGHnjZROMLrWB6V8o6jdQu8tbL5PNPNKCEG3fVsxSAUuj3
+Z0UiArlKRuKbHv8knixmsvXu3F6nppc5Sh1K5s9WG4g2wc/4DJ+0icZK+Yf+kRkJ
+EtNCaGIrIDQfImmas+6r13ere4zFowN/vbrC2GvQwiMdm8ydV0E6CZKjKj1P5Ds+
+7sgONGAD2JMZgVTmP/gOywUZyDZKe4HhdCkR3QbepldIVzvY78MYNbl2/kUDjXC9
+kxvhExJ8RTnHnYzAXHUF+HVQ/coW9E+iHnFkc/vjvdcuV4gJzgEguKMXONLwKkho
+Nma0OJ0fJ/JHMSO8vIXAW4/rdAPD2CIkI+bqj0YzcLklMTcTt7+kqHRoKJ0dbw97
+p9Z+bK5+IIEB5JiSKhPg9nHK2xvS8Wc2QSxF6mx4eovTHciGHN0rzcQKEGrC5ZwO
+sO32SbpfjqeMxS2zKu/E
+=hBjp
 -----END PGP SIGNATURE-----
 
---uQr8t48UFsdbeI+V--
+--mvpLiMfbWzRoNl4x--
