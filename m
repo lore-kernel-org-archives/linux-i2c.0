@@ -1,69 +1,112 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 3/3] i2c: i2c-core: fix coding style issues in i2c-core.c
-Date: Tue, 14 Jan 2014 11:06:37 -0800
-Message-ID: <1389726397.24849.47.camel@joe-AO722>
-References: <525C0CDB.6020305@gmail.com> <20140114183845.GD10340@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/1] drivers: i2c: silence a compile warning in
+ i2c-s3c2410.c
+Date: Tue, 14 Jan 2014 20:09:10 +0100
+Message-ID: <20140114190910.GE10340@katana>
+References: <1389323025-4478-1-git-send-email-pankaj.dubey@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140114183845.GD10340@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: RAGHAVENDRA GANIGA <ravi23ganiga@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="19uQFt6ulqmgNgg1"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1389323025-4478-1-git-send-email-pankaj.dubey@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Pankaj Dubey <pankaj.dubey@samsung.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Kukjin Kim <kgene.kim@samsung.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2014-01-14 at 19:38 +0100, Wolfram Sang wrote:
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -1737,9 +1737,9 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-> >  		for (ret = 0; ret < num; ret++) {
-> >  			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, len=%d%s\n",
-> >  				ret,
-> > -				((msgs[ret].flags & I2C_M_RD) ? 'R' : 'W'),
-> > +				msgs[ret].flags & I2C_M_RD ? 'R' : 'W',
-> >  				msgs[ret].addr, msgs[ret].len,
-> > -				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
-> > +				msgs[ret].flags & I2C_M_RECV_LEN ? "+" : "");
-> 
-> Don't spend time changing too much here like the paranthesis. It will
-> probably be removed soon in favour of the tracing approach.
 
-That'd be good.  There are a lot of function tracing style
-dev_dbg uses in i2c-core that can be removed.
+--19uQFt6ulqmgNgg1
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Just an fyi not to Raghavendra:
+On Fri, Jan 10, 2014 at 12:03:45PM +0900, Pankaj Dubey wrote:
+> If used 64 bit compiler GCC warns that:
+>=20
+> drivers/i2c/busses/i2c-s3c2410.c: In function =E2=80=98s3c24xx_get_device=
+_quirks=E2=80=99:
+> drivers/i2c/busses/i2c-s3c2410.c:168:10: warning: cast from pointer to in=
+teger
+> of different size [-Wpointer-to-int-cast]
+>=20
+> This patch fixes this by converting "unsigned int" to "unsigned long".
 
-This sort of loop could have been further modified removing
-the unnecessary #if DEBUG/#endif too
+Maybe switch to kernel_ulong_t? Since this is used in mod_devicetable.h
+all over.
 
-Also, reusing ret for a loop index is efficient, but a bit odd.
+>=20
+> CC: Kukjin Kim <kgene.kim@samsung.com>
+> CC: Wolfram Sang <wsa@the-dreams.de>
+> CC: linux-i2c@vger.kernel.org
+> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |    7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3=
+c2410.c
+> index bf8fb94..447dd98 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -101,7 +101,7 @@ enum s3c24xx_i2c_state {
+> =20
+>  struct s3c24xx_i2c {
+>  	wait_queue_head_t	wait;
+> -	unsigned int            quirks;
+> +	unsigned long            quirks;
 
-Maybe something like:
+The indentation is corrupted.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index d74c0b3..5ca078e 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1758,14 +1758,13 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	 */
- 
- 	if (adap->algo->master_xfer) {
--#ifdef DEBUG
--		for (ret = 0; ret < num; ret++) {
--			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, "
--				"len=%d%s\n", ret, (msgs[ret].flags & I2C_M_RD)
--				? 'R' : 'W', msgs[ret].addr, msgs[ret].len,
--				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
--		}
--#endif
-+		int i;
-+
-+		for (i = 0; i < num; i++)
-+			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, len=%d%s\n",
-+				ret, msgs[i].flags & I2C_M_RD ? 'R' : 'W',
-+				msgs[i].addr, msgs[i].len,
-+				msgs[i].flags & I2C_M_RECV_LEN ? "+" : "");
- 
- 		if (in_atomic() || irqs_disabled()) {
- 			ret = i2c_trylock_adapter(adap);
+>  	unsigned int		suspended:1;
+> =20
+>  	struct i2c_msg		*msg;
+> @@ -160,12 +160,13 @@ MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
+>   * Get controller type either from device tree or platform device varian=
+t.
+>  */
+> =20
+> -static inline unsigned int s3c24xx_get_device_quirks(struct platform_dev=
+ice *pdev)
+> +static inline unsigned long
+> +	s3c24xx_get_device_quirks(struct platform_device *pdev)
+
+Keep it one line please, ignoring the 80 char thing.
+
+>  {
+>  	if (pdev->dev.of_node) {
+>  		const struct of_device_id *match;
+>  		match =3D of_match_node(s3c24xx_i2c_match, pdev->dev.of_node);
+> -		return (unsigned int)match->data;
+> +		return (unsigned long)match->data;
+>  	}
+> =20
+>  	return platform_get_device_id(pdev)->driver_data;
+
+The last line also returns kernel_ulong_t. No real difference, but using
+it is a little more consistent.
+
+
+--19uQFt6ulqmgNgg1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJS1YtWAAoJEBQN5MwUoCm2/YYP/R+AVyRHMb9QK4dzzMQuz9uB
+G4i6aSRmlGs27BBZsGXdOBRiY1M8/5GjCq6lwKRkvFuwktovjt2fNrLNdb9zv72b
+YhO2X62qhDygNv3nYcSimB+4UAh1qckBNoM5FcigpoM3KVOpYsSwGL/GqMM5ArjT
+2gGhGBNQPIw1JldJIhgIi0B2Pp+p1zNB1mcTdIduQxnDUsgIJkz0o1IzsGmxF8TK
+t13GuUlr4e/ADVcnp7lAXJEpzz6HUBbYdOHyHAZxdz5vKkuiwoz8FSI5zMggSP7N
+vx3VjVpvHzKlKQ/8HrgMU3ol/if7rir0C6DqpwVU9XSKz4BP9+2853WAqfF35Me+
+QL2MsEDeDPQTcxCRy5NL2aW52TWLvLusBOKCzdisJ65aDh5yJkzhk1FN8iVCdfSr
+QXSducMvIdrUaKF1jyT0dDOt1ZqbeZnb1KqgeY80hGCGEv88vaD33Ve5cfNh78vI
+rVswZfY8kJOMVxtx4tTrvk1i3VMqdhNxPdCFEc6M+EOItFIsd6XH5BmTihlU4Zss
+NnkwWNaRxbJYeuZl7wOWC7x/9TPOiQPehCzPAEJytqlF66wZ6TXEmIqs32W8DMqN
+QiqJgADGmNXbdL2y20ne6O1mFg+ML6HopHYm/pNmqq/S7dMKxisqaYGg3sywRKLx
+yZJiTAleTNImyJWh2329
+=X3TG
+-----END PGP SIGNATURE-----
+
+--19uQFt6ulqmgNgg1--
