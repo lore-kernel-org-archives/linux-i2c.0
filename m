@@ -1,167 +1,84 @@
-From: Zhang Rui <rui.zhang@intel.com>
-Subject: [PATCH 2/4] ACPI: add module autoloading support for ACPI enumerated devices
-Date: Tue, 14 Jan 2014 16:46:36 +0800
-Message-ID: <1389689198-2641-3-git-send-email-rui.zhang@intel.com>
-References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org
-Cc: wsa@the-dreams.de, broonie@linaro.org, gregkh@linuxfoundation.org, rafael.j.wysocki@intel.com, grant.likely@linaro.org, rob.herring@calxeda.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com, Zhang Rui <rui.zhang@intel.com>
+From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Subject: Re: [PATCH v2 1/2] i2c: qup: Add device tree bindings information
+Date: Tue, 14 Jan 2014 10:57:21 +0200
+Message-ID: <1389689841.2794.8.camel@iivanov-dev.int.mm-sol.com>
+References: <1389659437-16406-1-git-send-email-bjorn.andersson@sonymobile.com>
+	 <1389659437-16406-2-git-send-email-bjorn.andersson@sonymobile.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <1389659437-16406-2-git-send-email-bjorn.andersson@sonymobile.com>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, James Ralston <james.d.ralston@intel.com>, Bill Brown <bill.e.brown@intel.com>, Matt Porter <matt.porter@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-An ACPI enumerated device may have its compatible id strings.
 
-To support the compatible ACPI ids (acpi_device->pnp.ids),
-we introduced acpi_driver_match_device() to match
-the driver->acpi_match_table and acpi_device->pnp.ids.
+Thanks Bjorn, 
 
-For those drivers, MODULE_DEVICE_TABLE(acpi, xxx) is used to
-exports the driver module alias in the format of
-"acpi:device_compatible_ids".
-But in the mean time, the current code does not export the
-ACPI compatible strings as part of the module_alias for the
-ACPI enumerated devices, which will break the module autoloading.
+I have prepared second version, but never send it out :-).
+One thing suggested by Mark was missed in this version.
 
-Take the following piece of code for example,
-static const struct acpi_device_id xxx_acpi_match[] = {
-        { "INTABCD", 0 },
-        { }
-};
-MODULE_DEVICE_TABLE(acpi, xxx_acpi_match);
 
-If this piece of code is used in a platform driver for
-an ACPI enumerated platform device, the platform driver module_alias
-is "acpi:INTABCD", but the uevent attribute of its platform device node
-is "platform:INTABCD:00" (PREFIX:platform_device->name).
-If this piece of code is used in an i2c driver for an ACPI enumerated
-i2c device, the i2c driver module_alias is "acpi:INTABCD", but
-the uevent of its i2c device node is "i2c:INTABCD:00" (PREFIX:i2c_client->name).
-If this piece of code is used in an spi driver for an ACPI enumerated
-spi device, the spi driver module_alias is "acpi:INTABCD", but
-the uevent of its spi device node is "spi:INTABCD" (PREFIX:spi_device->modalias).
+On Mon, 2014-01-13 at 16:30 -0800, Bjorn Andersson wrote: 
+> From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+> 
+> The Qualcomm Universal Peripherial (QUP) wraps I2C mini-core and
+> provide input and output FIFO's for it. I2C controller can operate
+> as master with supported bus speeds of 100Kbps and 400Kbps.
+> 
+> Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
+> [bjorn: reformulated part of binding description and cleaned up example]
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+> ---
+>  .../devicetree/bindings/i2c/qcom,i2c-qup.txt       | 41 ++++++++++++++++++++++
+>  1 file changed, 41 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+> new file mode 100644
+> index 0000000..a99711b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+> @@ -0,0 +1,41 @@
+> +Qualcomm Universal Peripheral (QUP) I2C controller
+> +
+> +Required properties:
+> + - compatible: Should be "qcom,i2c-qup".
+> + - reg: Should contain QUP register address and length.
+> + - interrupts: Should contain I2C interrupt.
+> +
+> + - clocks: Should contain the core clock and the AHB clock.
 
-The reason why the module autoloading is not broken for now is that
-the uevent file of the ACPI device node is "acpi:INTABCD".
-Thus it is the ACPI device node creation that loads the platform/i2c/spi driver.
++ - clocks: a list of phandle + clock-specifier pairs for each entry in
++           clock-names
 
-So this is a problem that will affect us the day when the ACPI bus
-is removed from device model.
+> + - clock-names: Should be "core" for the core clock and "iface" for the
+> +                AHB clock.
+> +
+> + - #address-cells: Should be <1> Address cells for i2c device address
+> + - #size-cells: Should be <0> as i2c addresses have no size component
+> +
+> +Optional properties:
+> + - clock-frequency: Should specify the desired i2c bus clock frequency in Hz,
+> +                    default is 100kHz if omitted.
+> +
+> +Child nodes should conform to i2c bus binding.
+> +
+> +Example:
+> +
+> + i2c2: i2c@f9924000 {
+> + 	compatible = "qcom,i2c-qup";
+> + 	reg = <0xf9924000 0x1000>;
+> + 	interrupts = <0 96 0>;
+> +
+> + 	clocks = <&gcc_blsp1_qup2_i2c_apps_clk>, <&gcc_blsp1_ahb_clk>;
 
-This patch introduces two new APIs,
-one for exporting ACPI ids in uevent MODALIAS field,
-and another for exporting ACPI ids in device' modalias sysfs attribute.
+In the light of the latest patches from Stephen, this could be 
 
-For any bus that supports ACPI enumerated devices, it needs to invoke
-these two functions for their uevent and modalias attribute.
++ 	clocks = <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>, <&gcc GCC_BLSP1_AHB_CLK>;
 
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/acpi/scan.c  |   57 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/acpi.h |   15 +++++++++++++
- 2 files changed, 72 insertions(+)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index c925321..680bb56 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -116,6 +116,63 @@ static int create_modalias(struct acpi_device *acpi_dev, char *modalias,
- 	return len;
- }
- 
-+/*
-+ * Creates uevent modalias field for ACPI enumerated devices.
-+ * Because the other buses does not support ACPI HIDs & CIDs.
-+ * e.g. for a device with hid:IBM0001 and cid:ACPI0001 you get:
-+ * "acpi:IBM0001:ACPI0001"
-+ */
-+int acpi_device_uevent_modalias(struct device *dev, struct kobj_uevent_env *env)
-+{
-+	struct acpi_device *acpi_dev;
-+	int len;
-+
-+	acpi_dev = ACPI_COMPANION(dev);
-+	if (!acpi_dev)
-+		return -ENODEV;
-+
-+	/* Fall back to bus specific way of modalias exporting */
-+	if (list_empty(&acpi_dev->pnp.ids))
-+		return -ENODEV;
-+
-+	if (add_uevent_var(env, "MODALIAS="))
-+		return -ENOMEM;
-+	len = create_modalias(acpi_dev, &env->buf[env->buflen - 1],
-+				sizeof(env->buf) - env->buflen);
-+	if (len <= 0)
-+		return len;
-+	env->buflen += len;
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(acpi_device_uevent_modalias);
-+
-+/*
-+ * Creates modalias sysfs attribute for ACPI enumerated devices.
-+ * Because the other buses does not support ACPI HIDs & CIDs.
-+ * e.g. for a device with hid:IBM0001 and cid:ACPI0001 you get:
-+ * "acpi:IBM0001:ACPI0001"
-+ */
-+int acpi_device_modalias(struct device *dev, char *buf, int size)
-+{
-+	struct acpi_device *acpi_dev;
-+	int len;
-+
-+	acpi_dev = ACPI_COMPANION(dev);
-+	if (!acpi_dev)
-+		return -ENODEV;
-+
-+	/* Fall back to bus specific way of modalias exporting */
-+	if (list_empty(&acpi_dev->pnp.ids))
-+		return -ENODEV;
-+
-+	len = create_modalias(acpi_dev, buf, size -1);
-+	if (len <= 0)
-+		return len;
-+	buf[len++] = '\n';
-+	return len;
-+}
-+EXPORT_SYMBOL_GPL(acpi_device_modalias);
-+
- static ssize_t
- acpi_device_modalias_show(struct device *dev, struct device_attribute *attr, char *buf) {
- 	struct acpi_device *acpi_dev = to_acpi_device(dev);
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index d9099b1..22325ed 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -409,6 +409,9 @@ static inline bool acpi_driver_match_device(struct device *dev,
- 	return !!acpi_match_device(drv->acpi_match_table, dev);
- }
- 
-+int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
-+int acpi_device_modalias(struct device *, char *, int);
-+
- #define ACPI_PTR(_ptr)	(_ptr)
- 
- #else	/* !CONFIG_ACPI */
-@@ -488,6 +491,18 @@ static inline bool acpi_driver_match_device(struct device *dev,
- 	return false;
- }
- 
-+static inline int acpi_device_uevent_modalias(struct device *dev,
-+				struct kobj_uevent_env *env)
-+{
-+	return -ENODEV;
-+}
-+
-+static inline int acpi_device_modalias(struct device *dev,
-+				char *buf, int size)
-+{
-+	return -ENODEV;
-+}
-+
- #define ACPI_PTR(_ptr)	(NULL)
- 
- #endif	/* !CONFIG_ACPI */
--- 
-1.7.9.5
+Regards,
+Ivan
