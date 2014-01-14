@@ -1,75 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Re-instate body of i2c_parent_is_i2c_adapter()
-Date: Tue, 14 Jan 2014 17:12:54 +0100
-Message-ID: <20140114161254.GA6442@katana>
-References: <1389648544-4201-1-git-send-email-swarren@wwwdotorg.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: i2c-core: fix paranthesis coding style issue
+ in, i2c-core.c
+Date: Tue, 14 Jan 2014 19:32:31 +0100
+Message-ID: <20140114183231.GB10340@katana>
+References: <525C0C02.7030404@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1389648544-4201-1-git-send-email-swarren@wwwdotorg.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Stephen Warren <swarren@nvidia.com>, Phil Carmody <phil.carmody@partner.samsung.com>, stable@vger.kernel.org
+In-Reply-To: <525C0C02.7030404-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: RAGHAVENDRA GANIGA <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---opJtzjQTFsWo+cga
+--uQr8t48UFsdbeI+V
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 13, 2014 at 02:29:04PM -0700, Stephen Warren wrote:
-> From: Stephen Warren <swarren@nvidia.com>
+On Mon, Oct 14, 2013 at 08:51:38PM +0530, RAGHAVENDRA GANIGA wrote:
+> From 46aed97f5e5a434e8ec24c14e085a138958ba559 Mon Sep 17 00:00:00 2001
+> From: Raghavendra Ganiga <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Date: Sun, 13 Oct 2013 19:13:46 +0530
+> Subject: [PATCH 1/3] i2c: i2c-core: fix paranthesis coding style issue in
+>  i2c-core.c
 >=20
-> The body of i2c_parent_is_i2c_adapter() is currently guarded by
-> CONFIG_I2C_MUX instead.
-
-This paragraph sounds strange to me. I'll update it a little. After that
-I'll go looking for a brown paper bag...
-
-> Among potentially other problems, this resulted in i2c_lock_adapter()
-> only locking I2C mux child adapters, and not the parent adapter. In
-> turn, this could allow inter-mingling of mux child selection and I2C
-> transactions, which could result in I2C transactions being directed to
-> the wrong I2C bus, and possibly even switching between busses in the
-> middle of a transaction.
+> This is a patch to the i2c-core.c file that fixes the paranthesis
+> warning found by the checkpatch.pl tool
 >=20
-> One concrete issue caused by this bug was corrupted HDMI EDID reads
-> during boot on the NVIDIA Tegra Seaboard system, although this only
-> became apparent in recent linux-next, when the boot timing was changed
-> just enough to trigger the race condition.
->=20
-> Fixes: 3923172b3d70 ("i2c: reduce parent checking to a NOOP in non-I2C_MU=
-X case")
-> Cc: Phil Carmody <phil.carmody@partner.samsung.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Stephen Warren <swarren@nvidia.com>
+> Signed-off-by: Raghavendra Chandra Ganiga <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Applied to for-current, thanks for catching this one!
+Merge that into 2/3, please.
 
 
---opJtzjQTFsWo+cga
+--uQr8t48UFsdbeI+V
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS1WIGAAoJEBQN5MwUoCm2fgIP/jxjNkl/nRcy5JSZvcJ0DDLb
-eJl1ZXZXM12ZNLsJrhzo2Vwu5JoKhRaozJjdsSjMHfqa4w11i6QOT362hN22iHeD
-fphck/Gf5HoLwAlTtWNXwFq48TdyYz8eW13OsbonkVeYegLxvsX8k+l0i2hcOgcF
-L1zHIR0rLLyEt/ID7kafkSckv8jgd7KXgKmodHyr6UzcDBE7730ZexMMryLavTvo
-K2N+mTRYdCsU4/W76quiXck5cBsx/2zbRahEafZaQEKSdPFJvqontZ/L011TxgvH
-qowj7ejKUJS5sxeoEp38NWCIqSNJh7U+u4U8tCP6y7sij1fGLhO7bzT81TQR0Qwe
-nrZ3eoXZwA9Ej9F6ARk+p028WC9SdWUzI72grpIUWja2QFdePqlFTzTVvVl2dUAI
-QtxsIbfmX3CxhKx4CnYeyvanDMp4ga9faNioiyBQXCJCOKOS+hvS+G+LNnbuRU3A
-GryB0ZvmfLGuo6aXJfJr5MlZnszU3KO9Jw5Ae6AFipTpiIwR9nebcJxz+ea4ruUt
-oo+RNPf8v/h/imcAZcjMYSJNH2DlEjCaYsHR3gLF9yupXT7mpFZZraWbDnMyvGtO
-hgIyNJLD2Px7cp05Ak9JRyFf1tmiNrOeqSuvd9eXt4CSkDCEyyTDrdTk2v/is+Hd
-Y9pJokwq0a5/2kkebe4M
-=gq0B
+iQIcBAEBAgAGBQJS1YK/AAoJEBQN5MwUoCm2JS8P/1ZpdUIUbw64Uksu7i3mEzN8
+YG7FqUd16IaL0f9R987StHGcSXgzGWhlDel4BJAjTBXhrmm5kIrY1zoAJWVOrG1z
+Zu0fL0blmtNC9HWFQKFq8vFrkLqbt7haWPrxWUqYM/V0HM2GrNOLRYT7CidyqnhK
+iNREbhxdthdZIRgUyTKvdVfZuXGKSMxapea0R1dumTuPbZZtbAJfAwOQJYCBdqzj
+xEw6ZXkh8c8HvRHzFXmeD5QB+yT/hQJYSmKXueB/aC+FvnQkhX3d70Bi825vnyen
+BNK6NW3nNnkJU+3bdwKJ807u3PInLVC5BTfJNLI25b4XACN5XDw+PQ4bGUWADZks
+c5vdNZzZg0qc12+slw+/JeQjMLH1S7gx5TvU4Ysv8Ca+D6KxQHPDa+Kw/vL8Cl2Q
+mx/QsVnUUDog3r0mPw57WeRpn/EdNypxRGslEs6o4Lpc1uTxaalZUETkLTaYfhiU
+i34i+h9SQvL2TepLGlxYGLBhXvcQeftU1oDMbXk6+/g8sDeu6ZgpgBeAKXDwEfTh
+wPq08H/sN/2gW5+OabP77+gXoanRhC7HRvRSWb3Cao0gzgh81AVjVnJj78UEvNuJ
+G6tdY6O9JX1vcoBWJlEjYr/lz7OvUpFDZn1U5EpbZMEWCfcS+DZihfKnPAnoQe6J
+WpxxjTzK+wXImTxc6t5Z
+=hKYg
 -----END PGP SIGNATURE-----
 
---opJtzjQTFsWo+cga--
+--uQr8t48UFsdbeI+V--
