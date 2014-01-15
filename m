@@ -1,97 +1,249 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 3/4] fix module autoloading for ACPI enumerated devices
-Date: Wed, 15 Jan 2014 17:08:34 +0200
-Message-ID: <20140115150834.GX2494@intel.com>
-References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
- <1389689198-2641-4-git-send-email-rui.zhang@intel.com>
+From: Stephen Boyd <sboyd@codeaurora.org>
+Subject: Re: [PATCH v2 2/2] i2c: New bus driver for the QUP I2C controller
+Date: Wed, 15 Jan 2014 08:46:04 -0800
+Message-ID: <20140115164604.GI14405@codeaurora.org>
+References: <1389659437-16406-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1389659437-16406-3-git-send-email-bjorn.andersson@sonymobile.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1389689198-2641-4-git-send-email-rui.zhang@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Zhang Rui <rui.zhang@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, wsa@the-dreams.de, broonie@linaro.org, gregkh@linuxfoundation.org, rafael.j.wysocki@intel.com, grant.likely@linaro.org, rob.herring@calxeda.com, jarkko.nikula@linux.intel.com
+In-Reply-To: <1389659437-16406-3-git-send-email-bjorn.andersson@sonymobile.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, James Ralston <james.d.ralston@intel.com>, Bill Brown <bill.e.brown@intel.com>, Matt Porter <matt.porter@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 14, 2014 at 04:46:37PM +0800, Zhang Rui wrote:
-> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-> index 3a94b79..2f4aea2 100644
-> --- a/drivers/base/platform.c
-> +++ b/drivers/base/platform.c
-> @@ -677,7 +677,13 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
->  			     char *buf)
->  {
->  	struct platform_device	*pdev = to_platform_device(dev);
-> -	int len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
-> +	int len;
-> +
-> +	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
+On 01/13, Bjorn Andersson wrote:
+> +/*
+> + * QUP driver for Qualcomm MSM platforms
+> + *
+> + */
 
-Here you have PAGE_SIZE -1...
+This comment seems redundant, we know what file we're looking at.
 
-> +	if (len != -ENODEV)
-> +		return len;
 > +
-> +	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
->  
->  	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
->  }
-> @@ -699,6 +705,10 @@ static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
->  	if (rc != -ENODEV)
->  		return rc;
->  
-> +	rc = acpi_device_uevent_modalias(dev, env);
-> +	if (rc != -ENODEV)
-> +		return rc;
-> +
->  	add_uevent_var(env, "MODALIAS=%s%s", PLATFORM_MODULE_PREFIX,
->  			pdev->name);
->  	return 0;
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index d74c0b3..c4c5588 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -104,6 +104,11 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
->  static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
->  {
->  	struct i2c_client	*client = to_i2c_client(dev);
-> +	int rc;
-> +
-> +	rc = acpi_device_uevent_modalias(dev, env);
-> +	if (rc != -ENODEV)
-> +		return rc;
->  
->  	if (add_uevent_var(env, "MODALIAS=%s%s",
->  			   I2C_MODULE_PREFIX, client->name))
-> @@ -409,6 +414,12 @@ static ssize_t
->  show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	int len;
-> +
-> +	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
+> +struct qup_i2c_dev {
+> +	struct device		*dev;
+> +	void __iomem		*base;
+> +	struct pinctrl		*pctrl;
 
-and here
+This is unused.
 
-> +	if (len != -ENODEV)
-> +		return len;
+> +	int			irq;
+> +	struct clk		*clk;
+> +	struct clk		*pclk;
+> +	struct i2c_adapter	adap;
 > +
->  	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
->  }
->  
-> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-> index 349ebba..ab70eda 100644
-> --- a/drivers/spi/spi.c
-> +++ b/drivers/spi/spi.c
-> @@ -58,6 +58,11 @@ static ssize_t
->  modalias_show(struct device *dev, struct device_attribute *a, char *buf)
->  {
->  	const struct spi_device	*spi = to_spi_device(dev);
-> +	int len;
+> +	int			clk_freq;
+
+This is only ever used in probe, so why do we need to store it
+away?
+
+> +	int			clk_ctl;
+> +	int			one_bit_t;
+> +	int			out_fifo_sz;
+> +	int			in_fifo_sz;
+> +	int			out_blk_sz;
+> +	int			in_blk_sz;
+> +	unsigned long		xfer_time;
+> +	unsigned long		wait_idle;
 > +
-> +	len = acpi_device_modalias(dev, buf, PAGE_SIZE);
+> +	struct i2c_msg		*msg;
+> +	/* Current possion in user message buffer */
 
-but here it is PAGE_SIZE.
+s/possion/position/?
 
-Perhaps it should be PAGE_SIZE in all sites?
+> +	int			pos;
+> +	/* Keep number of bytes left to be transmitted */
+> +	int			cnt;
+> +	/* I2C protocol errors */
+> +	u32			bus_err;
+> +	/* QUP core errors */
+> +	u32			qup_err;
+> +	/*
+> +	 * maximum bytes that could be send (per iterration). could be
+
+s/iterration/iteration/?
+
+> +	 * equal of fifo size or block size (in block mode)
+> +	 */
+> +	int			chunk_sz;
+> +	struct completion	xfer;
+> +};
+> +
+> +static irqreturn_t qup_i2c_interrupt(int irq, void *dev)
+> +{
+> +	struct qup_i2c_dev *qup = dev;
+> +	u32 bus_err;
+> +	u32 qup_err;
+> +	u32 opflags;
+> +
+[...]
+> +
+> +	if (opflags & QUP_OUT_SVC_FLAG)
+> +		writel(QUP_OUT_SVC_FLAG, qup->base + QUP_OPERATIONAL);
+> +
+> +	if (!(qup->msg->flags == I2C_M_RD))
+
+Should this be?
+
+	if (!(qup->msg->flags & I2C_M_RD))
+
+Otherwise it should be
+
+	if (qup->msg->flags != I2C_M_RD)
+
+> +		return IRQ_HANDLED;
+> +
+> +	if ((opflags & QUP_MX_INPUT_DONE) || (opflags & QUP_IN_SVC_FLAG))
+> +		writel(QUP_IN_SVC_FLAG, qup->base + QUP_OPERATIONAL);
+> +
+> +done:
+> +	qup->qup_err = qup_err;
+> +	qup->bus_err = bus_err;
+> +	complete(&qup->xfer);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int
+> +qup_i2c_poll_state(struct qup_i2c_dev *qup, u32 req_state, bool only_valid)
+> +{
+> +	int retries = 0;
+> +	u32 state;
+> +
+> +	do {
+> +		state = readl(qup->base + QUP_STATE);
+> +
+> +		/*
+> +		 * If only valid bit needs to be checked, requested state is
+> +		 * 'don't care'
+> +		 */
+
+It looks like req_state == 0 means only_valid == true. Can we
+drop the only_valid argument to this function?
+
+> +		if (state & QUP_STATE_VALID) {
+> +			if (only_valid)
+> +				return 0;
+> +			if ((req_state & QUP_I2C_MAST_GEN)
+> +			    && (state & QUP_I2C_MAST_GEN))
+> +				return 0;
+> +			if ((state & QUP_STATE_MASK) == req_state)
+> +				return 0;
+> +		}
+> +
+> +		if (retries++ == 1000)
+> +			udelay(100);
+> +
+> +	} while (retries != 2000);
+
+Please makes #defines for 1000 and 2000.
+
+> +
+> +	return -ETIMEDOUT;
+> +}
+> +
+[...]
+> +static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+> +{
+> +	u32 addr = msg->addr << 1;
+> +	u32 val, qup_tag;
+> +	int idx, entries;
+> +
+> +	if (qup->pos == 0) {
+> +		val = QUP_OUT_START | addr;
+> +	} else {
+> +		/*
+> +		 * Avoid setup time issue by adding 1 NOP when number of bytes
+> +		 * are more than FIFO/BLOCK size. setup time issue can't appear
+> +		 * otherwise since next byte to be written will always be ready
+> +		 */
+> +		val = (QUP_OUT_NOP | 1);
+> +	}
+> +
+> +	entries = qup->cnt + 1;
+> +
+> +	if (entries > qup->chunk_sz)
+> +		entries = qup->chunk_sz;
+> +
+> +	qup_tag = QUP_OUT_DATA;
+> +
+> +	/* Reserve one entry for STOP */
+> +	for (idx = 1; idx < (entries - 1); idx++, qup->pos++) {
+
+Unnecessary () here around entries.
+
+> +
+> +		if (idx & 1) {
+> +			val |= (qup_tag | msg->buf[qup->pos]) << QUP_MSW_SHIFT;
+> +			writel(val, qup->base + QUP_OUT_FIFO_BASE);
+> +		} else {
+> +			val = qup_tag | msg->buf[qup->pos];
+> +		}
+[...]
+> +
+> +#ifdef CONFIG_PM
+
+This ifdef is probably wrong considering that you can disable
+CONFIG_PM_RUNTIME without disabling CONFIG_PM and then these
+runtime PM functions would be unused.
+
+> +static int qup_i2c_pm_suspend_runtime(struct device *device)
+> +{
+> +	struct qup_i2c_dev *qup = dev_get_drvdata(device);
+> +
+> +	dev_dbg(device, "pm_runtime: suspending...\n");
+> +	qup_i2c_disable_clocks(qup);
+> +	return 0;
+> +}
+> +
+> +static int qup_i2c_pm_resume_runtime(struct device *device)
+> +{
+> +	struct qup_i2c_dev *qup = dev_get_drvdata(device);
+> +
+> +	dev_dbg(device, "pm_runtime: resuming...\n");
+> +	qup_i2c_enable_clocks(qup);
+> +	return 0;
+> +}
+> +
+> +static int qup_i2c_suspend(struct device *device)
+> +{
+> +	dev_dbg(device, "system suspend");
+> +	qup_i2c_pm_suspend_runtime(device);
+> +	return 0;
+> +}
+> +
+> +static int qup_i2c_resume(struct device *device)
+> +{
+> +	dev_dbg(device, "system resume");
+> +	qup_i2c_pm_resume_runtime(device);
+> +	pm_runtime_mark_last_busy(device);
+> +	pm_request_autosuspend(device);
+> +	return 0;
+> +}
+> +#endif /* CONFIG_PM */
+> +
+> +static const struct dev_pm_ops qup_i2c_qup_pm_ops = {
+> +	SET_SYSTEM_SLEEP_PM_OPS(
+> +		qup_i2c_suspend,
+> +		qup_i2c_resume)
+> +	SET_RUNTIME_PM_OPS(
+> +		qup_i2c_pm_suspend_runtime,
+> +		qup_i2c_pm_resume_runtime,
+> +		NULL)
+> +};
+> +
+> +static struct of_device_id qup_i2c_dt_match[] = {
+
+const?
+
+> +	{.compatible = "qcom,i2c-qup"},
+> +	{}
+> +};
+
+MODULE_DEVICE_TABLE(of, qup_i2c_dt_match)?
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
