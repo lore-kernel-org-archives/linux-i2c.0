@@ -1,43 +1,75 @@
-From: Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [PATCH 3/4] fix module autoloading for ACPI enumerated devices
-Date: Wed, 15 Jan 2014 09:16:43 +0800
-Message-ID: <1389748603.2336.9.camel@rzhang1-mobl4>
-References: <1389686417.3309.8.camel@rzhang1-mobl4>
-	 <20140114144155.GQ15567@sirena.org.uk>
+From: y@samsung.com
+Subject: [PATCH v2] drivers: i2c: silence a compile warning in i2c-s3c2410.c
+Date: Wed, 15 Jan 2014 10:42:42 +0900
+Message-ID: <1389750162-5765-1-git-send-email-y@samsung.com>
+References: <20140114190910.GE10340@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140114144155.GQ15567@sirena.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, rjw@rjwysocki.net, grant.likely@secretlab.ca, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <20140114190910.GE10340@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2014-01-14 at 14:41 +0000, Mark Brown wrote:
-> On Tue, Jan 14, 2014 at 04:00:17PM +0800, Zhang Rui wrote:
-> > On Mon, 2014-01-13 at 17:35 +0000, Mark Brown wrote:
-> > > On Mon, Jan 13, 2014 at 09:48:31PM +0800, Zhang Rui wrote:
-> > > > ACPI enumerated devices has ACPI style _HID and _CID strings,
-> > > > all of these strings can be used for both driver loading and matching.
-> 
-> > If this piece of code is used in an *SPI* driver for an ACPI enumerated
-> > spi device, the spi driver module_alias is "acpi:INTABCD", but
-> > the uevent of its spi device node is
-> > "spi:INTABCD" (PREFIX:spi_device->modalias).
-> 
-> OK that makes sense, but what does this have to do with the _HID and
-> _CID methods?
+=46rom: Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-If an ACPI enumerated SPI device has a _HID and a _CID,
-both of them need to be exposed in 'uevent', so that a driver that
-matches _CID can also have a chance to be probed. This can not be done
-by the current code, thus we need special handling of ACPI enumerated
-SPI devices.
+If used 64 bit compiler GCC warns that:
 
->   Surely we're just replacing spi: with acpi: in the uevent?
+drivers/i2c/busses/i2c-s3c2410.c: In function =E2=80=98s3c24xx_get_devi=
+ce_quirks=E2=80=99:
+drivers/i2c/busses/i2c-s3c2410.c:168:10: warning: cast from pointer to =
+integer
+of different size [-Wpointer-to-int-cast]
 
-yes.
+This patch fixes this by converting "unsigned int" to "kernel_ulong_t".
 
-thanks,
-rui
+CC: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+
+Changes since v1:
+    - using "kernel_ulong_t" instead of "unsigned long" for consistency=
+=2E
+    - take care of formatting issues as pointed by Wolfram Sang.
+
+ drivers/i2c/busses/i2c-s3c2410.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-=
+s3c2410.c
+index bf8fb94..168de17 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -101,7 +101,7 @@ enum s3c24xx_i2c_state {
+=20
+ struct s3c24xx_i2c {
+ 	wait_queue_head_t	wait;
+-	unsigned int            quirks;
++	kernel_ulong_t		quirks;
+ 	unsigned int		suspended:1;
+=20
+ 	struct i2c_msg		*msg;
+@@ -160,12 +160,12 @@ MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
+  * Get controller type either from device tree or platform device vari=
+ant.
+ */
+=20
+-static inline unsigned int s3c24xx_get_device_quirks(struct platform_d=
+evice *pdev)
++static inline kernel_ulong_t s3c24xx_get_device_quirks(struct platform=
+_device *pdev)
+ {
+ 	if (pdev->dev.of_node) {
+ 		const struct of_device_id *match;
+ 		match =3D of_match_node(s3c24xx_i2c_match, pdev->dev.of_node);
+-		return (unsigned int)match->data;
++		return (kernel_ulong_t)match->data;
+ 	}
+=20
+ 	return platform_get_device_id(pdev)->driver_data;
+--=20
+1.7.10.4
