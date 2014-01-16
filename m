@@ -1,126 +1,107 @@
-From: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
-Subject: [PATCH RESEND] i2c-piix4: AMD new SMBus base address location changed
-Date: Wed, 15 Jan 2014 23:34:28 -0800
-Message-ID: <1389857668-4428-1-git-send-email-shane.huang@amd.com>
+From: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 3/4] fix module autoloading for ACPI enumerated devices
+Date: Thu, 16 Jan 2014 16:04:35 +0800
+Message-ID: <1389859475.3010.5.camel@rzhang1-mobl4>
+References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
+	 <1389689198-2641-4-git-send-email-rui.zhang@intel.com>
+	 <20140115150834.GX2494@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140115150834.GX2494-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch is to support AMD new SMBus with different base address location.
+On Wed, 2014-01-15 at 17:08 +0200, Mika Westerberg wrote:
+> On Tue, Jan 14, 2014 at 04:46:37PM +0800, Zhang Rui wrote:
+> > diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+> > index 3a94b79..2f4aea2 100644
+> > --- a/drivers/base/platform.c
+> > +++ b/drivers/base/platform.c
+> > @@ -677,7 +677,13 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+> >  			     char *buf)
+> >  {
+> >  	struct platform_device	*pdev = to_platform_device(dev);
+> > -	int len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
+> > +	int len;
+> > +
+> > +	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
+> 
+> Here you have PAGE_SIZE -1...
+> 
+> > +	if (len != -ENODEV)
+> > +		return len;
+> > +
+> > +	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
+> >  
+> >  	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
+> >  }
+> > @@ -699,6 +705,10 @@ static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
+> >  	if (rc != -ENODEV)
+> >  		return rc;
+> >  
+> > +	rc = acpi_device_uevent_modalias(dev, env);
+> > +	if (rc != -ENODEV)
+> > +		return rc;
+> > +
+> >  	add_uevent_var(env, "MODALIAS=%s%s", PLATFORM_MODULE_PREFIX,
+> >  			pdev->name);
+> >  	return 0;
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index d74c0b3..c4c5588 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -104,6 +104,11 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+> >  static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+> >  {
+> >  	struct i2c_client	*client = to_i2c_client(dev);
+> > +	int rc;
+> > +
+> > +	rc = acpi_device_uevent_modalias(dev, env);
+> > +	if (rc != -ENODEV)
+> > +		return rc;
+> >  
+> >  	if (add_uevent_var(env, "MODALIAS=%s%s",
+> >  			   I2C_MODULE_PREFIX, client->name))
+> > @@ -409,6 +414,12 @@ static ssize_t
+> >  show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
+> >  {
+> >  	struct i2c_client *client = to_i2c_client(dev);
+> > +	int len;
+> > +
+> > +	len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
+> 
+> and here
+> 
+> > +	if (len != -ENODEV)
+> > +		return len;
+> > +
+> >  	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
+> >  }
+> >  
+> > diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+> > index 349ebba..ab70eda 100644
+> > --- a/drivers/spi/spi.c
+> > +++ b/drivers/spi/spi.c
+> > @@ -58,6 +58,11 @@ static ssize_t
+> >  modalias_show(struct device *dev, struct device_attribute *a, char *buf)
+> >  {
+> >  	const struct spi_device	*spi = to_spi_device(dev);
+> > +	int len;
+> > +
+> > +	len = acpi_device_modalias(dev, buf, PAGE_SIZE);
+> 
+> but here it is PAGE_SIZE.
+> 
+good catch.
 
-Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
----
- drivers/i2c/busses/i2c-piix4.c | 39 +++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+> Perhaps it should be PAGE_SIZE in all sites?
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index a028617..44d5ebe 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -230,12 +230,13 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
- 	return piix4_smba;
- }
- 
--static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
--			     const struct pci_device_id *id, u8 aux)
-+static int piix4_setup_amd(struct pci_dev *PIIX4_dev,
-+			   const struct pci_device_id *id, u8 aux)
- {
- 	unsigned short piix4_smba;
- 	unsigned short smba_idx = 0xcd6;
--	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en;
-+	u8 smba_en_lo, smba_en_hi, smb_en, smb_en_status;
-+	u8 i2ccfg, i2ccfg_offset = 0x10;
- 
- 	/* SB800 and later SMBus does not support forcing address */
- 	if (force || force_addr) {
-@@ -245,7 +246,11 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	}
- 
- 	/* Determine the address of the SMBus areas */
--	smb_en = (aux) ? 0x28 : 0x2c;
-+	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
-+	    PIIX4_dev->revision >= 0x41)
-+		smb_en = 0;
-+	else
-+		smb_en = (aux) ? 0x28 : 0x2c;
- 
- 	if (!request_region(smba_idx, 2, "smba_idx")) {
- 		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
-@@ -258,13 +263,23 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	smba_en_hi = inb_p(smba_idx + 1);
- 	release_region(smba_idx, 2);
- 
--	if ((smba_en_lo & 1) == 0) {
-+	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
-+	    PIIX4_dev->revision >= 0x41) {
-+		smb_en_status = smba_en_lo & 0x10;
-+		piix4_smba = smba_en_hi << 8;
-+		if (aux)
-+			piix4_smba |= 0x20;
-+	} else {
-+		smb_en_status = smba_en_lo & 1;
-+		piix4_smba = ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
-+	}
-+
-+	if (!smb_en_status) {
- 		dev_err(&PIIX4_dev->dev,
- 			"Host SMBus controller not enabled!\n");
- 		return -ENODEV;
- 	}
- 
--	piix4_smba = ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
- 	if (acpi_check_region(piix4_smba, SMBIOSIZE, piix4_driver.name))
- 		return -ENODEV;
- 
-@@ -277,7 +292,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	/* Aux SMBus does not support IRQ information */
- 	if (aux) {
- 		dev_info(&PIIX4_dev->dev,
--			 "SMBus Host Controller at 0x%x\n", piix4_smba);
-+			 "Auxiliary SMBus controller at 0x%x\n", piix4_smba);
- 		return piix4_smba;
- 	}
- 
-@@ -297,7 +312,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus.\n");
- 
- 	dev_info(&PIIX4_dev->dev,
--		 "SMBus Host Controller at 0x%x, revision %d\n",
-+		 "SMBus controller at 0x%x, revision %d\n",
- 		 piix4_smba, i2ccfg >> 4);
- 
- 	return piix4_smba;
-@@ -605,8 +620,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
- 	     dev->revision >= 0x40) ||
- 	    dev->vendor == PCI_VENDOR_ID_AMD)
--		/* base address location etc changed in SB800 */
--		retval = piix4_setup_sb800(dev, id, 0);
-+		/* base address location etc changed from SB800 */
-+		retval = piix4_setup_amd(dev, id, 0);
- 	else
- 		retval = piix4_setup(dev, id);
- 
-@@ -628,13 +643,13 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 			retval = piix4_setup_aux(dev, id, 0x58);
- 		} else {
- 			/* SB800 added aux bus too */
--			retval = piix4_setup_sb800(dev, id, 1);
-+			retval = piix4_setup_amd(dev, id, 1);
- 		}
- 	}
- 
- 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
- 	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
--		retval = piix4_setup_sb800(dev, id, 1);
-+		retval = piix4_setup_amd(dev, id, 1);
- 	}
- 
- 	if (retval > 0) {
--- 
-1.8.3.2
+dev_attr_show() will give a warning message if modalias_show() returns
+PAGE_SIZE, thus I'd prefer to use PAGE_SIZE - 1 for all sites.
+
+thanks,
+rui
