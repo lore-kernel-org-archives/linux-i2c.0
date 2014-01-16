@@ -1,45 +1,55 @@
-From: Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-designware-pci: Index Haswell ULT bus names from 0
-Date: Thu, 16 Jan 2014 12:14:22 -0800
-Message-ID: <CANLzEksAQmzTCTTm-Tx198i7+sDmast5Lcn6fvYZddwNbwvLkQ@mail.gmail.com>
-References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
-	<1382326010-4554-3-git-send-email-bleung@chromium.org>
-	<20131021065804.GX3521@intel.com>
-	<CANLzEksGqD30Cefh3r2urH-ToxWzkxAnTJZiY07yX2Py58FQPw@mail.gmail.com>
-	<20131114180538.GK11022@katana>
-	<CANLzEksP1nRfBaQ3-sSouOYL4C+oLKiE75eHfFdEzLmrQKn3dQ@mail.gmail.com>
-	<20131126130959.GI7427@katana>
-	<20140103155217.GG7132@katana>
-	<CANLzEkvgYQtkEyOMNpPcS9BeYzX3zJn7hvtsyhFzbDpViS8-2Q@mail.gmail.com>
-	<20140116195115.GD4127@katana>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH 4/4] OF: introduce OF style 'modalias' support for
+ platform bus.
+Date: Thu, 16 Jan 2014 15:21:12 -0600
+Message-ID: <CAL_Jsq+uVs=pHqSaQcQY-TQNnkFJ1MWkZxfE1B3Oxjby7uqrmw@mail.gmail.com>
+References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
+	<1389689198-2641-5-git-send-email-rui.zhang@intel.com>
+	<CAL_JsqJFRQ+27N_9AwZXpx4V=g8HKn84WdVKtQ_Br_8SQTXY7g@mail.gmail.com>
+	<744357E9AAD1214791ACBA4B0B909263011CE77F@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140116195115.GD4127@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Duncan Laurie <dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <744357E9AAD1214791ACBA4B0B909263011CE77F@SHSMSX101.ccr.corp.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Zhang, Rui" <rui.zhang@intel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Mark Brown <broonie@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Thu, Jan 16, 2014 at 11:51 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+On Thu, Jan 16, 2014 at 1:04 AM, Zhang, Rui <rui.zhang@intel.com> wrote:
 >
-> > Our devices and our platforms have some other requirements which
-> > turned me away from using i2c_register_board_info.
 >
-> Okay, so I'll drop these patches.
+>> -----Original Message-----
+>> From: Rob Herring [mailto:robherring2@gmail.com]
+>> Sent: Wednesday, January 15, 2014 9:45 PM
+>> To: Zhang, Rui
+>> Cc: linux-kernel@vger.kernel.org; linux-acpi@vger.kernel.org; linux-
+>> i2c@vger.kernel.org; linux-spi@vger.kernel.org; wsa@the-dreams.de; Mark
+>> Brown; Greg Kroah-Hartman; Wysocki, Rafael J; Grant Likely; Rob Herring;
+>> jarkko.nikula@linux.intel.com; mika.westerberg@linux.intel.com;
+>> devicetree@vger.kernel.org
+>> Subject: Re: [PATCH 4/4] OF: introduce OF style 'modalias' support for
+>> platform bus.
+>> Importance: High
+>>
+>> On Tue, Jan 14, 2014 at 2:46 AM, Zhang Rui <rui.zhang@intel.com> wrote:
+>> > Fix a problem that, the platform bus supports the OF style modalias
+>> in
+>> > .uevent() call, but not in its device 'modalias' sysfs attribute.
+>> >
+>> > cc: devicetree@vger.kernel.org
+>> > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+>>
+>> Acked-by: Rob Herring <robh@kernel.org>
+>>
+>> As there doesn't appear any dependency with the rest of this series, I
+>> can take this.
+>>
+> Thanks.
+>
 
+Looks like there is actually a dependency in modalias_show, and the
+comment about PAGE_SIZE would apply here too I think. So the whole
+series should be taken together.
 
-Sorry if I was unclear, but I am not able to use
-i2c_register_board_info for these devices because of the requirement
-to use "probe."
-
-Currently, I am doing explicit instantiation of devices using
-i2c_new_probed_device.
-
-
--- 
-Benson Leung
-Software Engineer, Chrom* OS
-bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Rob
