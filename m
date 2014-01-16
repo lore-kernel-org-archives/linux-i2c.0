@@ -1,87 +1,60 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c designware add support of I2C standard mode
-Date: Thu, 16 Jan 2014 20:33:45 +0100
-Message-ID: <20140116193345.GB4127@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c designware make SCL and SDA falling time
+ configurable
+Date: Thu, 16 Jan 2014 20:43:03 +0100
+Message-ID: <20140116194303.GC4127@katana>
 References: <20130828153429.GB7066@ab42.lan>
- <1381244455-3836-2-git-send-email-romainba@abilis.com>
+ <1381244455-3836-1-git-send-email-romainba@abilis.com>
+ <20131009075538.GQ3521@intel.com>
+ <5255FAB5.7080803@gmail.com>
+ <525A85D6.3090608@pobox.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
-Return-path: <linux-doc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1381244455-3836-2-git-send-email-romainba@abilis.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Romain Baeriswyl <Romain.Baeriswyl@abilis.com>
-Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Pierrick Hascoet <pierrick.hascoet@abilis.com>, Vineet Gupta <vgupta@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Chiau Ee Chew <chiau.ee.chew@intel.com>, Shinya Kuribayashi <skuribay@pobox.com>, Jean Delvare <khali@linux-fr.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Romain Baeriswyl <romainba@abilis.com>
+In-Reply-To: <525A85D6.3090608-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
+Cc: rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---l76fUT7nc3MelDdI
+--da4uJneut+ArUgXk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 08, 2013 at 05:00:55PM +0200, Romain Baeriswyl wrote:
-> Some legacy devices support ony I2C standard mode at 100kHz.=20
-> This patch allows to select the standard mode through the DTS=20
-> with the use of the existing clock-frequency parameter.
+
+> >You can also use the gcc-ism, which is a bit more concise:
+> >
+> >	sda_falling_time =3D dev->sda_falling_time ?: 300;
 >=20
-> When clock-frequency parameter is not set, the fast mode is selected.
-> Only when the parameter is set at 100000, the standard mode is selected.
->=20
-> Signed-off-by: Romain Baeriswyl <romainba@abilis.com>
-> Reviewed-by: Christian Ruppert <christian.ruppert@abilis.com>
+> +1
 
-Pretty much OK. One change needed, though:
-
-> ---
->  .../devicetree/bindings/i2c/i2c-designware.txt     |    1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c        |   17 ++++++++++++++=
-+--
->  2 files changed, 16 insertions(+), 2 deletions(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/D=
-ocumentation/devicetree/bindings/i2c/i2c-designware.txt
-> index 5199b0c..16d0bef 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> @@ -9,6 +9,7 @@ Required properties :
->  Recommended properties :
-> =20
->   - clock-frequency : desired I2C bus clock frequency in Hz.
-> +   Only standard mode at 100kHz and fast mode at 400kHz are supported.
-
-This should not go the bindings doc, since this is a linux specific
-detail. It should go...
-
-> +		if (clk_freq !=3D 100000 && clk_freq !=3D 400000)
-> +			return -EINVAL;
-
-=2E.. here as an dev_err message "Only x and y supported".
-
-Rest looks good, thanks!
+ditto
 
 
---l76fUT7nc3MelDdI
+--da4uJneut+ArUgXk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS2DQZAAoJEBQN5MwUoCm2kmsQALLJAM6Xk0o0t1UK4lBSwt4k
-0JqR+ny1S48lMjcezUcr4ZKnTZ+q89ZUPYLbj67L0Su1WNz2JOe8x9FVphFscHo1
-wNGlQhps04iY/fXchmKVBId6geg+obby00LZMHo/rCYgkF2JMXJA+MM1Qzo7EIkM
-fORdk4R3FNySd3mAgSW367CMnmhTzQaQd8Zs+WkNjVOnrw6nWEFXXsf77jt8zWWX
-b7asf3mAJanLVTap4wgdl91Z6y4fQ9M+wbnztUYLDE74gCNmpQ/6iSRR7k7h8Zok
-yc+jGN6VuPaazURkUysQ/0k9Qcx02alkX7V30pnTBv+T59DRque8ZOoRbyqAno8L
-rCPuJxAKGuWQep+JUl+wTiBM7jl+/WY2wzoE8K8RxGYme+iVM1DWtZRVHZbvtouc
-J+WRepfbqsBPoYsItB24XQgYj3P3vDxhs9V7OdJNOwyqwY3/rXJIfwD/tWddUlmj
-W5y/o/KXGtYH+BV17IcwiOxMeSuEzQgdLfIJS1KhiQz7YvMShVNVZXIevhyNgjpI
-iY+AuYsNX3+OKkO1OWAXAuh6ynFrjkwFAuFGgycLNxTL4A++FLQE+cU+f+joFY5r
-fKc9j+Kfw8hyhiNVllW88lAhW05JCFVmpZoA4MRjFLz/YoFfu63wh2z3PUwdwdfe
-sUccSJhXdCNydh/E1VDk
-=AQCa
+iQIcBAEBAgAGBQJS2DZHAAoJEBQN5MwUoCm2qmMP/i30l5qC0IveqNude9EHHU2i
+GdLGveQ6xKL5rvqytQ/u13psjSWf+ba+gnUv8+tY2ExlH9s2tNEdwWtBfU+tVhhw
+GImF3z+Lau8NA0bOA5VBkLQUnEmFKb2N9IJ29uEi6CGFAWdvRcQfT8ohvjvGC99J
+UChSq9LJeo28BNp2lOR86TM0UzoWvzAS+Qzb7q55VJxgYvmg+LZWJhb0AKm8Za5w
+5hInrXOLPd6m4yNj17Tl/V2nGES46n28D7ZPYjp02Tf4Xkjpcx0/A9xIhDl3gq2h
+3uJk65kq6iyqgHYgv2B7C092zF8YjSBp3r8vAWCOACx90rKdYKkeRzRRDfCc/FP4
+7HqWK33kXHAcBJYBz6mp1Vjt05plaF498OF0Wp+ONn+SSxtlSvUFwhAKx6Qu2cg+
+M+tiuuAvFmTB+w4+cALNeoE7uRCyXUzcNP+J8LBcnatcdBzoyEDVCgsSKY+fgLXW
+xchSNFMh8h4Bla2yef9vJjZhHI+5C5VBvpCUfRFCu+EPhNGamiymuDA4vw/jhUk6
+7LdDj1ElTQgdaNnbxEPo9uTsBuyud3qHOgbdhXvsXPWxkPoHy2uZWk4e92KqHmzk
+GTL9lPcx80lkSWm40ntB/jyjXOy7B6nkd+Ba1D2XCjZc5Mcd2I1k+OysMrqqe+4c
+JSZjPYBNI2zYIPiuoZN8
+=kRrR
 -----END PGP SIGNATURE-----
 
---l76fUT7nc3MelDdI--
+--da4uJneut+ArUgXk--
