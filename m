@@ -1,114 +1,126 @@
-From: "Zhang, Rui" <rui.zhang@intel.com>
-Subject: RE: [PATCH 4/4] OF: introduce OF style 'modalias' support for
- platform bus.
-Date: Thu, 16 Jan 2014 07:04:19 +0000
-Message-ID: <744357E9AAD1214791ACBA4B0B909263011CE77F@SHSMSX101.ccr.corp.intel.com>
-References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
-	<1389689198-2641-5-git-send-email-rui.zhang@intel.com>
- <CAL_JsqJFRQ+27N_9AwZXpx4V=g8HKn84WdVKtQ_Br_8SQTXY7g@mail.gmail.com>
+From: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+Subject: [PATCH RESEND] i2c-piix4: AMD new SMBus base address location changed
+Date: Wed, 15 Jan 2014 23:34:28 -0800
+Message-ID: <1389857668-4428-1-git-send-email-shane.huang@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL_JsqJFRQ+27N_9AwZXpx4V=g8HKn84WdVKtQ_Br_8SQTXY7g@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robherring2@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Mark Brown <broonie@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch is to support AMD new SMBus with different base address location.
 
+Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-piix4.c | 39 +++++++++++++++++++++++++++------------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-> -----Original Message-----
-> From: Rob Herring [mailto:robherring2@gmail.com]
-> Sent: Wednesday, January 15, 2014 9:45 PM
-> To: Zhang, Rui
-> Cc: linux-kernel@vger.kernel.org; linux-acpi@vger.kernel.org; linux-
-> i2c@vger.kernel.org; linux-spi@vger.kernel.org; wsa@the-dreams.de; Mark
-> Brown; Greg Kroah-Hartman; Wysocki, Rafael J; Grant Likely; Rob Herring;
-> jarkko.nikula@linux.intel.com; mika.westerberg@linux.intel.com;
-> devicetree@vger.kernel.org
-> Subject: Re: [PATCH 4/4] OF: introduce OF style 'modalias' support for
-> platform bus.
-> Importance: High
-> 
-> On Tue, Jan 14, 2014 at 2:46 AM, Zhang Rui <rui.zhang@intel.com> wrote:
-> > Fix a problem that, the platform bus supports the OF style modalias
-> in
-> > .uevent() call, but not in its device 'modalias' sysfs attribute.
-> >
-> > cc: devicetree@vger.kernel.org
-> > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
-> 
-> As there doesn't appear any dependency with the rest of this series, I
-> can take this.
-> 
-Thanks.
-
--rui
-> One minor nit below.
-> 
-> > ---
-> >  drivers/base/platform.c   |    4 ++++
-> >  drivers/of/device.c       |    3 +++
-> >  include/linux/of_device.h |    6 ++++++
-> >  3 files changed, 13 insertions(+)
-> >
-> > diff --git a/drivers/base/platform.c b/drivers/base/platform.c index
-> > 2f4aea2..bc78848 100644
-> > --- a/drivers/base/platform.c
-> > +++ b/drivers/base/platform.c
-> > @@ -679,6 +679,10 @@ static ssize_t modalias_show(struct device *dev,
-> struct device_attribute *a,
-> >         struct platform_device  *pdev = to_platform_device(dev);
-> >         int len;
-> >
-> > +       len = of_device_get_modalias(dev, buf, PAGE_SIZE -1);
-> > +       if (len != -ENODEV)
-> > +               return len;
-> > +
-> >         len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
-> >         if (len != -ENODEV)
-> >                 return len;
-> > diff --git a/drivers/of/device.c b/drivers/of/device.c index
-> > f685e55..dafb973 100644
-> > --- a/drivers/of/device.c
-> > +++ b/drivers/of/device.c
-> > @@ -85,6 +85,9 @@ ssize_t of_device_get_modalias(struct device *dev,
-> char *str, ssize_t len)
-> >         int cplen, i;
-> >         ssize_t tsize, csize, repend;
-> >
-> > +       if ((!dev) || (!dev->of_node))\
-> 
-> Don't need the parentheses here.
-> 
-> > +               return -ENODEV;
-> > +
-> >         /* Name & Type */
-> >         csize = snprintf(str, len, "of:N%sT%s", dev->of_node->name,
-> >                          dev->of_node->type); diff --git
-> > a/include/linux/of_device.h b/include/linux/of_device.h index
-> > 82ce324..8d7dd67 100644
-> > --- a/include/linux/of_device.h
-> > +++ b/include/linux/of_device.h
-> > @@ -64,6 +64,12 @@ static inline int of_driver_match_device(struct
-> > device *dev,  static inline void of_device_uevent(struct device *dev,
-> >                         struct kobj_uevent_env *env) { }
-> >
-> > +static inline int of_device_get_modalias(struct device *dev,
-> > +                                  char *str, ssize_t len) {
-> > +       return -ENODEV;
-> > +}
-> > +
-> >  static inline int of_device_uevent_modalias(struct device *dev,
-> >                                    struct kobj_uevent_env *env)  {
-> > --
-> > 1.7.9.5
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe devicetree"
-> > in the body of a message to majordomo@vger.kernel.org More majordomo
-> > info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index a028617..44d5ebe 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -230,12 +230,13 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
+ 	return piix4_smba;
+ }
+ 
+-static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+-			     const struct pci_device_id *id, u8 aux)
++static int piix4_setup_amd(struct pci_dev *PIIX4_dev,
++			   const struct pci_device_id *id, u8 aux)
+ {
+ 	unsigned short piix4_smba;
+ 	unsigned short smba_idx = 0xcd6;
+-	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en;
++	u8 smba_en_lo, smba_en_hi, smb_en, smb_en_status;
++	u8 i2ccfg, i2ccfg_offset = 0x10;
+ 
+ 	/* SB800 and later SMBus does not support forcing address */
+ 	if (force || force_addr) {
+@@ -245,7 +246,11 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	}
+ 
+ 	/* Determine the address of the SMBus areas */
+-	smb_en = (aux) ? 0x28 : 0x2c;
++	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
++	    PIIX4_dev->revision >= 0x41)
++		smb_en = 0;
++	else
++		smb_en = (aux) ? 0x28 : 0x2c;
+ 
+ 	if (!request_region(smba_idx, 2, "smba_idx")) {
+ 		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
+@@ -258,13 +263,23 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	smba_en_hi = inb_p(smba_idx + 1);
+ 	release_region(smba_idx, 2);
+ 
+-	if ((smba_en_lo & 1) == 0) {
++	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
++	    PIIX4_dev->revision >= 0x41) {
++		smb_en_status = smba_en_lo & 0x10;
++		piix4_smba = smba_en_hi << 8;
++		if (aux)
++			piix4_smba |= 0x20;
++	} else {
++		smb_en_status = smba_en_lo & 1;
++		piix4_smba = ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
++	}
++
++	if (!smb_en_status) {
+ 		dev_err(&PIIX4_dev->dev,
+ 			"Host SMBus controller not enabled!\n");
+ 		return -ENODEV;
+ 	}
+ 
+-	piix4_smba = ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
+ 	if (acpi_check_region(piix4_smba, SMBIOSIZE, piix4_driver.name))
+ 		return -ENODEV;
+ 
+@@ -277,7 +292,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	/* Aux SMBus does not support IRQ information */
+ 	if (aux) {
+ 		dev_info(&PIIX4_dev->dev,
+-			 "SMBus Host Controller at 0x%x\n", piix4_smba);
++			 "Auxiliary SMBus controller at 0x%x\n", piix4_smba);
+ 		return piix4_smba;
+ 	}
+ 
+@@ -297,7 +312,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus.\n");
+ 
+ 	dev_info(&PIIX4_dev->dev,
+-		 "SMBus Host Controller at 0x%x, revision %d\n",
++		 "SMBus controller at 0x%x, revision %d\n",
+ 		 piix4_smba, i2ccfg >> 4);
+ 
+ 	return piix4_smba;
+@@ -605,8 +620,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+ 	     dev->revision >= 0x40) ||
+ 	    dev->vendor == PCI_VENDOR_ID_AMD)
+-		/* base address location etc changed in SB800 */
+-		retval = piix4_setup_sb800(dev, id, 0);
++		/* base address location etc changed from SB800 */
++		retval = piix4_setup_amd(dev, id, 0);
+ 	else
+ 		retval = piix4_setup(dev, id);
+ 
+@@ -628,13 +643,13 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 			retval = piix4_setup_aux(dev, id, 0x58);
+ 		} else {
+ 			/* SB800 added aux bus too */
+-			retval = piix4_setup_sb800(dev, id, 1);
++			retval = piix4_setup_amd(dev, id, 1);
+ 		}
+ 	}
+ 
+ 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
+ 	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
+-		retval = piix4_setup_sb800(dev, id, 1);
++		retval = piix4_setup_amd(dev, id, 1);
+ 	}
+ 
+ 	if (retval > 0) {
+-- 
+1.8.3.2
