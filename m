@@ -1,55 +1,54 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V3] i2c: pnx: Use devm_*() functions
-Date: Thu, 16 Jan 2014 11:13:07 +0100
-Message-ID: <20140116101307.GB2617@katana>
-References: <002201cf10be$4ac30840$e04918c0$%han@samsung.com>
+Subject: Re: [PATCH v2] drivers: i2c: silence a compile warning in
+ i2c-s3c2410.c
+Date: Thu, 16 Jan 2014 11:21:13 +0100
+Message-ID: <20140116102113.GC2617@katana>
+References: <20140114190910.GE10340@katana>
+ <1389750162-5765-1-git-send-email-y@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NMuMz9nt05w80d4+"
+	protocol="application/pgp-signature"; boundary="lMM8JwqTlfDpEaS6"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <002201cf10be$4ac30840$e04918c0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1389750162-5765-1-git-send-email-y-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Vitaly Wool' <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Roland Stigge' <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+To: y@samsung.com
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---NMuMz9nt05w80d4+
+--lMM8JwqTlfDpEaS6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 14, 2014 at 09:19:30AM +0900, Jingoo Han wrote:
-> Use devm_*() functions to make cleanup paths simpler,
-> and remove redundant return value check of platform_get_resource()
-> because the value is checked by devm_ioremap_resource().
->=20
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+On Wed, Jan 15, 2014 at 10:42:42AM +0900, y@samsung.com wrote:
 
-Applied to for-next, thanks!
+Note that your email address is wrong here. I also fixed the description
+to "i2c: s3c2410: fix quirk usage for 64-bit" which is more apropriate.
+
+Other than that: Applied to for-next, thanks!
 
 
---NMuMz9nt05w80d4+
+--lMM8JwqTlfDpEaS6
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS17CzAAoJEBQN5MwUoCm2qyoP/RybosxOPYceql3WQXIRa6CI
-vdQEVU5OQjJqFBWsn3geh1ErzYYLjE0GlBuyqVyxSudOTs1fUlH+Fc3/b7QChKV8
-Wjis/dWQ2ioLEW79QMMg7glLNcTkPpOzYgbB3/3pv5rrAg8gX+OgdkSKjqXQjwd2
-l2R0MLE8LWZoUwp+M1VZ2/O/cBtCGgfW3y7Q4AGCaw19HpoXm3nGEXoOQfS+oirU
-xwxOhMLYQkBedLx137qh1PNqAkLXtK8lOORd82/oX3jXDqvmuyEoKOB6pCQfMOb1
-1QH2QnBkQuiIyzm1jX6nyb2rMJJn3MIMneQQ2KRBBLot4AK66lNc65aFlquRuLBZ
-uLbh9g5EU/W31lh+HKU+AsLSxp293RZlZCLaW2MMoqMIm82Ap3pX44RcR5py33TY
-3rpadFmRzxiqD12Y4IqX9jk28N/3MMwnPR2EE42M/TtK7QXFXN01LYbZwZ1Ql+ye
-gxT9Hq9aJIoanU8hf7R7Se+Wk1/aO9pbbArYyLQ/kMX7p1ppaAEcp1v4Kqkduzfe
-YGVi6lnc7DTZvXVm+m88jLoH6H81bUhePaN4wOvk1YwjZdjcQ/JG12PkCAACTLY0
-7NsiAQgy4qx2XMnNUxLeqfdzjakcnsK2yj2ejnZGyEoUhXvYUODaa1OzBeWyutuY
-BzfK/oryXYsFZlHjhaE8
-=Gego
+iQIcBAEBAgAGBQJS17KZAAoJEBQN5MwUoCm2kJAQAJxwxlv9WXYS0zPI3kl2B+3U
+f43O9LGlaZtAMHNO15SwHoblvReaFszQSbidIoL99ftUxAVhhoE+oZAPyxHohisb
+n48pEe6C+i/yFp5nPYYLaxJiQ88THqSN33XtA+5VTCSt1wD5KdoV/7ShR4Y8Q60r
+zYqj2a+cppC6jJHTOXsQSMdy2oMeT7+hsLVJZnfqZ5xEocKFEUvxj8Z9Vv2j59ts
+Bn1qXZuopd5Et+SCJoDA0B/+RiW56MBazrNh2zBoylykRrlrCoC/Rod9pcGActrR
+bK5wAjWFMgNjrgE/JaJF+E0gmuF4ImqlGjgOI4unmAOZgwjVNTG17MlkGeHcJcvX
+BSDYsK+hWPGfwrZyGqRtV/3GUGFQmaswyCG3+IQH1keHOf3mPNYucCzx4qWnYQEf
+TdwYDF8f2MP0kyQJJspkMT/dBgxjt4wvsZO7LACXpDUVbxinQleGVfPzgetyWt6q
+YXRG/Ja2P2G/OK//KpJwZNbzWuOJ83tUcrn7avJQgMwwZPLFmbDAdceMsfHhJ+yP
+WeKGEqGOX+OHiYs8LkZzKvtNsTFMrmF2l3pYcGkvVqErShDoQLhNJJ044X4n+8bL
+I13Ao8MZ+HgL8bkuUxVFiF7ODtV3NiG/vubY0um1N2/gqQMgREeK989Imc1GrSeN
+P5MlDHYCtEAqr8waFjT4
+=rP4+
 -----END PGP SIGNATURE-----
 
---NMuMz9nt05w80d4+--
+--lMM8JwqTlfDpEaS6--
