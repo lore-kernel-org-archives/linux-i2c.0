@@ -1,249 +1,106 @@
-From: Stephen Boyd <sboyd@codeaurora.org>
-Subject: Re: [PATCH v2 2/2] i2c: New bus driver for the QUP I2C controller
-Date: Wed, 15 Jan 2014 08:46:04 -0800
-Message-ID: <20140115164604.GI14405@codeaurora.org>
-References: <1389659437-16406-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1389659437-16406-3-git-send-email-bjorn.andersson@sonymobile.com>
+From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Subject: Re: [PATCH 4/4] OF: introduce OF style 'modalias' support for platform bus.
+Date: Thu, 16 Jan 2014 02:09:55 +0100
+Message-ID: <77231285.q8OGi4Gmjj@vostro.rjw.lan>
+References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com> <1389689198-2641-5-git-send-email-rui.zhang@intel.com> <CAL_JsqJFRQ+27N_9AwZXpx4V=g8HKn84WdVKtQ_Br_8SQTXY7g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1389659437-16406-3-git-send-email-bjorn.andersson@sonymobile.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, James Ralston <james.d.ralston@intel.com>, Bill Brown <bill.e.brown@intel.com>, Matt Porter <matt.porter@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL_JsqJFRQ+27N_9AwZXpx4V=g8HKn84WdVKtQ_Br_8SQTXY7g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Mark Brown <broonie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 01/13, Bjorn Andersson wrote:
-> +/*
-> + * QUP driver for Qualcomm MSM platforms
-> + *
-> + */
+On Wednesday, January 15, 2014 07:45:18 AM Rob Herring wrote:
+> On Tue, Jan 14, 2014 at 2:46 AM, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> > Fix a problem that, the platform bus supports the OF style modalias
+> > in .uevent() call, but not in its device 'modalias' sysfs attribute.
+> >
+> > cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Signed-off-by: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> 
+> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> 
+> As there doesn't appear any dependency with the rest of this series, I
+> can take this.
 
-This comment seems redundant, we know what file we're looking at.
+Please do, thanks!
 
-> +
-> +struct qup_i2c_dev {
-> +	struct device		*dev;
-> +	void __iomem		*base;
-> +	struct pinctrl		*pctrl;
-
-This is unused.
-
-> +	int			irq;
-> +	struct clk		*clk;
-> +	struct clk		*pclk;
-> +	struct i2c_adapter	adap;
-> +
-> +	int			clk_freq;
-
-This is only ever used in probe, so why do we need to store it
-away?
-
-> +	int			clk_ctl;
-> +	int			one_bit_t;
-> +	int			out_fifo_sz;
-> +	int			in_fifo_sz;
-> +	int			out_blk_sz;
-> +	int			in_blk_sz;
-> +	unsigned long		xfer_time;
-> +	unsigned long		wait_idle;
-> +
-> +	struct i2c_msg		*msg;
-> +	/* Current possion in user message buffer */
-
-s/possion/position/?
-
-> +	int			pos;
-> +	/* Keep number of bytes left to be transmitted */
-> +	int			cnt;
-> +	/* I2C protocol errors */
-> +	u32			bus_err;
-> +	/* QUP core errors */
-> +	u32			qup_err;
-> +	/*
-> +	 * maximum bytes that could be send (per iterration). could be
-
-s/iterration/iteration/?
-
-> +	 * equal of fifo size or block size (in block mode)
-> +	 */
-> +	int			chunk_sz;
-> +	struct completion	xfer;
-> +};
-> +
-> +static irqreturn_t qup_i2c_interrupt(int irq, void *dev)
-> +{
-> +	struct qup_i2c_dev *qup = dev;
-> +	u32 bus_err;
-> +	u32 qup_err;
-> +	u32 opflags;
-> +
-[...]
-> +
-> +	if (opflags & QUP_OUT_SVC_FLAG)
-> +		writel(QUP_OUT_SVC_FLAG, qup->base + QUP_OPERATIONAL);
-> +
-> +	if (!(qup->msg->flags == I2C_M_RD))
-
-Should this be?
-
-	if (!(qup->msg->flags & I2C_M_RD))
-
-Otherwise it should be
-
-	if (qup->msg->flags != I2C_M_RD)
-
-> +		return IRQ_HANDLED;
-> +
-> +	if ((opflags & QUP_MX_INPUT_DONE) || (opflags & QUP_IN_SVC_FLAG))
-> +		writel(QUP_IN_SVC_FLAG, qup->base + QUP_OPERATIONAL);
-> +
-> +done:
-> +	qup->qup_err = qup_err;
-> +	qup->bus_err = bus_err;
-> +	complete(&qup->xfer);
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int
-> +qup_i2c_poll_state(struct qup_i2c_dev *qup, u32 req_state, bool only_valid)
-> +{
-> +	int retries = 0;
-> +	u32 state;
-> +
-> +	do {
-> +		state = readl(qup->base + QUP_STATE);
-> +
-> +		/*
-> +		 * If only valid bit needs to be checked, requested state is
-> +		 * 'don't care'
-> +		 */
-
-It looks like req_state == 0 means only_valid == true. Can we
-drop the only_valid argument to this function?
-
-> +		if (state & QUP_STATE_VALID) {
-> +			if (only_valid)
-> +				return 0;
-> +			if ((req_state & QUP_I2C_MAST_GEN)
-> +			    && (state & QUP_I2C_MAST_GEN))
-> +				return 0;
-> +			if ((state & QUP_STATE_MASK) == req_state)
-> +				return 0;
-> +		}
-> +
-> +		if (retries++ == 1000)
-> +			udelay(100);
-> +
-> +	} while (retries != 2000);
-
-Please makes #defines for 1000 and 2000.
-
-> +
-> +	return -ETIMEDOUT;
-> +}
-> +
-[...]
-> +static void qup_i2c_issue_write(struct qup_i2c_dev *qup, struct i2c_msg *msg)
-> +{
-> +	u32 addr = msg->addr << 1;
-> +	u32 val, qup_tag;
-> +	int idx, entries;
-> +
-> +	if (qup->pos == 0) {
-> +		val = QUP_OUT_START | addr;
-> +	} else {
-> +		/*
-> +		 * Avoid setup time issue by adding 1 NOP when number of bytes
-> +		 * are more than FIFO/BLOCK size. setup time issue can't appear
-> +		 * otherwise since next byte to be written will always be ready
-> +		 */
-> +		val = (QUP_OUT_NOP | 1);
-> +	}
-> +
-> +	entries = qup->cnt + 1;
-> +
-> +	if (entries > qup->chunk_sz)
-> +		entries = qup->chunk_sz;
-> +
-> +	qup_tag = QUP_OUT_DATA;
-> +
-> +	/* Reserve one entry for STOP */
-> +	for (idx = 1; idx < (entries - 1); idx++, qup->pos++) {
-
-Unnecessary () here around entries.
-
-> +
-> +		if (idx & 1) {
-> +			val |= (qup_tag | msg->buf[qup->pos]) << QUP_MSW_SHIFT;
-> +			writel(val, qup->base + QUP_OUT_FIFO_BASE);
-> +		} else {
-> +			val = qup_tag | msg->buf[qup->pos];
-> +		}
-[...]
-> +
-> +#ifdef CONFIG_PM
-
-This ifdef is probably wrong considering that you can disable
-CONFIG_PM_RUNTIME without disabling CONFIG_PM and then these
-runtime PM functions would be unused.
-
-> +static int qup_i2c_pm_suspend_runtime(struct device *device)
-> +{
-> +	struct qup_i2c_dev *qup = dev_get_drvdata(device);
-> +
-> +	dev_dbg(device, "pm_runtime: suspending...\n");
-> +	qup_i2c_disable_clocks(qup);
-> +	return 0;
-> +}
-> +
-> +static int qup_i2c_pm_resume_runtime(struct device *device)
-> +{
-> +	struct qup_i2c_dev *qup = dev_get_drvdata(device);
-> +
-> +	dev_dbg(device, "pm_runtime: resuming...\n");
-> +	qup_i2c_enable_clocks(qup);
-> +	return 0;
-> +}
-> +
-> +static int qup_i2c_suspend(struct device *device)
-> +{
-> +	dev_dbg(device, "system suspend");
-> +	qup_i2c_pm_suspend_runtime(device);
-> +	return 0;
-> +}
-> +
-> +static int qup_i2c_resume(struct device *device)
-> +{
-> +	dev_dbg(device, "system resume");
-> +	qup_i2c_pm_resume_runtime(device);
-> +	pm_runtime_mark_last_busy(device);
-> +	pm_request_autosuspend(device);
-> +	return 0;
-> +}
-> +#endif /* CONFIG_PM */
-> +
-> +static const struct dev_pm_ops qup_i2c_qup_pm_ops = {
-> +	SET_SYSTEM_SLEEP_PM_OPS(
-> +		qup_i2c_suspend,
-> +		qup_i2c_resume)
-> +	SET_RUNTIME_PM_OPS(
-> +		qup_i2c_pm_suspend_runtime,
-> +		qup_i2c_pm_resume_runtime,
-> +		NULL)
-> +};
-> +
-> +static struct of_device_id qup_i2c_dt_match[] = {
-
-const?
-
-> +	{.compatible = "qcom,i2c-qup"},
-> +	{}
-> +};
-
-MODULE_DEVICE_TABLE(of, qup_i2c_dt_match)?
+> One minor nit below.
+> 
+> > ---
+> >  drivers/base/platform.c   |    4 ++++
+> >  drivers/of/device.c       |    3 +++
+> >  include/linux/of_device.h |    6 ++++++
+> >  3 files changed, 13 insertions(+)
+> >
+> > diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+> > index 2f4aea2..bc78848 100644
+> > --- a/drivers/base/platform.c
+> > +++ b/drivers/base/platform.c
+> > @@ -679,6 +679,10 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+> >         struct platform_device  *pdev = to_platform_device(dev);
+> >         int len;
+> >
+> > +       len = of_device_get_modalias(dev, buf, PAGE_SIZE -1);
+> > +       if (len != -ENODEV)
+> > +               return len;
+> > +
+> >         len = acpi_device_modalias(dev, buf, PAGE_SIZE -1);
+> >         if (len != -ENODEV)
+> >                 return len;
+> > diff --git a/drivers/of/device.c b/drivers/of/device.c
+> > index f685e55..dafb973 100644
+> > --- a/drivers/of/device.c
+> > +++ b/drivers/of/device.c
+> > @@ -85,6 +85,9 @@ ssize_t of_device_get_modalias(struct device *dev, char *str, ssize_t len)
+> >         int cplen, i;
+> >         ssize_t tsize, csize, repend;
+> >
+> > +       if ((!dev) || (!dev->of_node))\
+> 
+> Don't need the parentheses here.
+> 
+> > +               return -ENODEV;
+> > +
+> >         /* Name & Type */
+> >         csize = snprintf(str, len, "of:N%sT%s", dev->of_node->name,
+> >                          dev->of_node->type);
+> > diff --git a/include/linux/of_device.h b/include/linux/of_device.h
+> > index 82ce324..8d7dd67 100644
+> > --- a/include/linux/of_device.h
+> > +++ b/include/linux/of_device.h
+> > @@ -64,6 +64,12 @@ static inline int of_driver_match_device(struct device *dev,
+> >  static inline void of_device_uevent(struct device *dev,
+> >                         struct kobj_uevent_env *env) { }
+> >
+> > +static inline int of_device_get_modalias(struct device *dev,
+> > +                                  char *str, ssize_t len)
+> > +{
+> > +       return -ENODEV;
+> > +}
+> > +
+> >  static inline int of_device_uevent_modalias(struct device *dev,
+> >                                    struct kobj_uevent_env *env)
+> >  {
+> > --
+> > 1.7.9.5
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
