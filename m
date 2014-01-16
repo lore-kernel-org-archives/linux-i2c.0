@@ -1,60 +1,70 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [lm-sensors] I2C support for AMD Hudson-1
-Date: Thu, 16 Jan 2014 12:45:44 +0100
-Message-ID: <20140116124544.763415dd@endymion.delvare>
-References: <20131217063226.GD25105@phys.ethz.ch>
-	<20131217180131.GB2840@roeck-us.net>
-	<20131217181053.GE7071@katana>
-	<20131217195323.581143a8@endymion.delvare>
-	<20140106123105.GN25105@phys.ethz.ch>
-	<20140106140522.14e83454@endymion.delvare>
-	<20140109162421.GF25105@phys.ethz.ch>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 3/4] fix module autoloading for ACPI enumerated devices
+Date: Thu, 16 Jan 2014 13:27:04 +0100
+Message-ID: <20140116122704.GD2617@katana>
+References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
+ <1389689198-2641-4-git-send-email-rui.zhang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140109162421.GF25105-vpGm2Noi6jeZvKxeG3EEhw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Herzog <herzog-vpGm2Noi6jeZvKxeG3EEhw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kvUQC+jR9YzypDnK"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1389689198-2641-4-git-send-email-rui.zhang@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Zhang Rui <rui.zhang@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, broonie@linaro.org, gregkh@linuxfoundation.org, rafael.j.wysocki@intel.com, grant.likely@linaro.org, rob.herring@calxeda.com, jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Christian,
 
-On Thu, 9 Jan 2014 17:24:22 +0100, Christian Herzog wrote:
-> sorry to bother you again, but this might save you some work: I just compiled
-> 3.13.0-rc7 on the apu board and i2c works out of the box. I'm pretty stumped
-> as I'm pretty sure it didn't work OOTB on -rc3, but now it does.. Are you
-> aware of any Hudson-1 specific changes recently?
+--kvUQC+jR9YzypDnK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I am not aware of anything related to Hudson-1. I don't even know the
-PCI IDs for that device.
 
-The git history tells that there was no change to the i2c-piix4 driver
-since kernel version 3.12-rc1. This is when support for secondary SMBus
-on AMD SB800 and AMD FCH chipsets was added. I think FCH and Hudson-2
-are the same thing, not sure how Hudson-1 fits into the picture.
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index d74c0b3..c4c5588 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -104,6 +104,11 @@ static int i2c_device_match(struct device *dev, stru=
+ct device_driver *drv)
+>  static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env =
+*env)
+>  {
+>  	struct i2c_client	*client =3D to_i2c_client(dev);
+> +	int rc;
+> +
+> +	rc =3D acpi_device_uevent_modalias(dev, env);
+> +	if (rc !=3D -ENODEV)
+> +		return rc;
+> =20
+>  	if (add_uevent_var(env, "MODALIAS=3D%s%s",
+>  			   I2C_MODULE_PREFIX, client->name))
 
-Are you certain that the kernel version change fixed it? A BIOS update
-could have helped as well, or even just changing some BIOS settings.
+I wonder why we don't have/need that with CONFIG_OF? Because probably
+nobody is using modules with i2c devices there?
 
-Another possibility is that some PCI or architecture quirk was added
-meanwhile. However a quick search did not reveal anything between
-3.13-rc3 and 3.13-rc7.
 
-If you are really sure that 3.13-rc3 didn't work and 3.13-rc7 does
-work, and you really want to understand why, then you can bisect the
-git kernel tree between both points and it'll point you to the commit
-that fixed it.
+--kvUQC+jR9YzypDnK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-As for me, if things work for you now, I see no point in investigating
-further. As Wolfram already pointed out, your contribution came in a
-format we can't do anything with. The patch is huge, reversed, based on
-a source file which had indentation changes, mixes actual changes with
-(mostly unjustified) white-space changes, etc. If you ever need to get
-changes into the kernel, please follow the rules listed in
-Documentation/SubmittingPatches, otherwise nobody will review your
-work, no matter how needed you think it is.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
 
--- 
-Jean Delvare
+iQIcBAEBAgAGBQJS19AXAAoJEBQN5MwUoCm2swEP/3NZJ6MKIWsmni+iwXU/rxbW
+0yfkQondx3rLkk/OgdfEavkCvqqXF78ZYPJmxHsIGU1xVeRKzKMrDVWzpxCc7OS8
+QiHjbYMJCyzO3SAqIi0kFqsbcb8wIWJI9kTSbOsLyjD+euZJZGSgapBH+HfpkzRQ
+mbQLlUlBJoNUDs7B5iKlimUQj8AZyb4NXVLQqgxU1JCDFdAfi5iPi2OljHTJIX9Z
+Dy5gsOYYAYHMs8vYqwz90lBZO7Zuwo7a5R/o/itemi3wrkEGj6TMsMAknlSPG/3h
+AmxoWjaiQiOiSL6n+8o9dRERG0bhJdFQDBIsq/iv1gJYJLPTRz1R2PYfJsPJCowK
+Bx7fwzZ4V0QAHckIYu23gA1HiQGgjhd7jytUnizLuhndXLo9QH8tgruaES2FxzyE
+eYmUUQoswb4wu4/mVgJNFsQ9aN5DM1Ihws4fZhisooPVfv0NKyHDVJQ/61FgBLoe
+z1ZHe6SybkbQ36WpX4KjqZH2inMyU9fMI3k8ePOe5vssizYk4sNGSOLDLMJ4iqjX
+kuMlkcu1xpAYVCFFAfXypxdgMtZFrtqwN3Z7tTwSv8+WRtv1mzLar5wn3/3sa6Iw
+afmlsNy36tf89Ocl1FVFR1G//Zz+9BaRZXcnWQygCqVJES75Di2cnaHkVbhvOi+j
+3btR/rN/jtcJNPutc9Jm
+=XqOA
+-----END PGP SIGNATURE-----
+
+--kvUQC+jR9YzypDnK--
