@@ -1,55 +1,82 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH 4/4] OF: introduce OF style 'modalias' support for
- platform bus.
-Date: Thu, 16 Jan 2014 15:21:12 -0600
-Message-ID: <CAL_Jsq+uVs=pHqSaQcQY-TQNnkFJ1MWkZxfE1B3Oxjby7uqrmw@mail.gmail.com>
-References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
-	<1389689198-2641-5-git-send-email-rui.zhang@intel.com>
-	<CAL_JsqJFRQ+27N_9AwZXpx4V=g8HKn84WdVKtQ_Br_8SQTXY7g@mail.gmail.com>
-	<744357E9AAD1214791ACBA4B0B909263011CE77F@SHSMSX101.ccr.corp.intel.com>
+From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Subject: Re: [PATCH v2 1/2] i2c: qup: Add device tree bindings information
+Date: Thu, 16 Jan 2014 15:20:48 -0800
+Message-ID: <20140116232047.GK30911@sonymobile.com>
+References: <1389659437-16406-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1389659437-16406-2-git-send-email-bjorn.andersson@sonymobile.com>
+ <1389689841.2794.8.camel@iivanov-dev.int.mm-sol.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <744357E9AAD1214791ACBA4B0B909263011CE77F@SHSMSX101.ccr.corp.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Zhang, Rui" <rui.zhang@intel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Mark Brown <broonie@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, "jarkko.nikula@linux.intel.com" <jarkko.nikula@linux.intel.com>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1389689841.2794.8.camel@iivanov-dev.int.mm-sol.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, James Ralston <james.d.ralston@intel.com>, Bill Brown <bill.e.brown@intel.com>, Matt Porter <matt.porter@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 16, 2014 at 1:04 AM, Zhang, Rui <rui.zhang@intel.com> wrote:
->
->
->> -----Original Message-----
->> From: Rob Herring [mailto:robherring2@gmail.com]
->> Sent: Wednesday, January 15, 2014 9:45 PM
->> To: Zhang, Rui
->> Cc: linux-kernel@vger.kernel.org; linux-acpi@vger.kernel.org; linux-
->> i2c@vger.kernel.org; linux-spi@vger.kernel.org; wsa@the-dreams.de; Mark
->> Brown; Greg Kroah-Hartman; Wysocki, Rafael J; Grant Likely; Rob Herring;
->> jarkko.nikula@linux.intel.com; mika.westerberg@linux.intel.com;
->> devicetree@vger.kernel.org
->> Subject: Re: [PATCH 4/4] OF: introduce OF style 'modalias' support for
->> platform bus.
->> Importance: High
->>
->> On Tue, Jan 14, 2014 at 2:46 AM, Zhang Rui <rui.zhang@intel.com> wrote:
->> > Fix a problem that, the platform bus supports the OF style modalias
->> in
->> > .uevent() call, but not in its device 'modalias' sysfs attribute.
->> >
->> > cc: devicetree@vger.kernel.org
->> > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
->>
->> Acked-by: Rob Herring <robh@kernel.org>
->>
->> As there doesn't appear any dependency with the rest of this series, I
->> can take this.
->>
-> Thanks.
->
+On Tue 14 Jan 00:57 PST 2014, Ivan T. Ivanov wrote:
 
-Looks like there is actually a dependency in modalias_show, and the
-comment about PAGE_SIZE would apply here too I think. So the whole
-series should be taken together.
+> 
+> Thanks Bjorn, 
+> 
+> I have prepared second version, but never send it out :-).
+> One thing suggested by Mark was missed in this version.
 
-Rob
+Yeah, Mattew told me you we're assigned to other things and asked me to send
+out an update as I had gotten it to work on our boards.
+
+I did modify the wording of most of these to match how it is written in the
+other Qualcomm definitions.
+
+@Mark, would you rather have me change this to your suggested wording?
+
+> 
+> 
+> On Mon, 2014-01-13 at 16:30 -0800, Bjorn Andersson wrote: 
+> > From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+> > 
+[snip]
+> > + - clocks: Should contain the core clock and the AHB clock.
+> 
+> + - clocks: a list of phandle + clock-specifier pairs for each entry in
+> +           clock-names
+> 
+
+This is in line with how it's written in other drivers, so if the DT
+maintainers doesn't disagree I would like to keep phandles out of the
+description. This specific line is a verbatime copy of the msm_serial
+documentation (same block, different mode)...
+
+> > + - clock-names: Should be "core" for the core clock and "iface" for the
+> > +                AHB clock.
+> > +
+> > + - #address-cells: Should be <1> Address cells for i2c device address
+> > + - #size-cells: Should be <0> as i2c addresses have no size component
+> > +
+> > +Optional properties:
+> > + - clock-frequency: Should specify the desired i2c bus clock frequency in Hz,
+> > +                    default is 100kHz if omitted.
+> > +
+> > +Child nodes should conform to i2c bus binding.
+> > +
+> > +Example:
+> > +
+> > + i2c2: i2c@f9924000 {
+> > + 	compatible = "qcom,i2c-qup";
+> > + 	reg = <0xf9924000 0x1000>;
+> > + 	interrupts = <0 96 0>;
+> > +
+> > + 	clocks = <&gcc_blsp1_qup2_i2c_apps_clk>, <&gcc_blsp1_ahb_clk>;
+> 
+> In the light of the latest patches from Stephen, this could be 
+> 
+> + 	clocks = <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>, <&gcc GCC_BLSP1_AHB_CLK>;
+
+Yes, that's exactly what I have in my dts. However as this is just an example
+I didn't feel it was worth tainting the documentation with all those capital
+letters ;)
+So unless DT maintainers disagree I would like to just keep it as an example.
+
+Regards,
+Bjorn
