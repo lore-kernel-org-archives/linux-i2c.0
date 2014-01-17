@@ -1,122 +1,45 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: More GPIO madness on iMX6 - and the crappy ARM port of Linux
-Date: Fri, 17 Jan 2014 23:43:27 +0100
-Message-ID: <CACRpkdaRQRD85-0wUmip=j1SHzti6Nb69JEUXznYTkrxGvky=A@mail.gmail.com>
-References: <20140117184731.GE15937@n2100.arm.linux.org.uk>
-	<52D98712.3070103@wwwdotorg.org>
-	<20140117202405.GF15937@n2100.arm.linux.org.uk>
-	<52D995C4.80104@wwwdotorg.org>
-	<20140117205346.GH15937@n2100.arm.linux.org.uk>
+From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Subject: [PATCH v3 0/2] Qualcomm Universal Peripheral (QUP) I2C controller
+Date: Fri, 17 Jan 2014 15:03:37 -0800
+Message-ID: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20140117205346.GH15937@n2100.arm.linux.org.uk>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>, Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Shawn Guo <shawn.guo@linaro.org>, Sascha Hauer <kernel@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, James Ralston <james.d.ralston@intel.com>, Bill Brown <bill.e.brown@intel.com>, Matt Porter <matt.porter@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 17, 2014 at 9:53 PM, Russell King - ARM Linux
-<linux@arm.linux.org.uk> wrote:
-> On Fri, Jan 17, 2014 at 01:42:44PM -0700, Stephen Warren wrote:
+Continuing on Ivans i2c-qup series.
 
->> I believe you want gpio_get_value() to return either the driven or
->> actual pin value where it can on the current HW, but just e.g. hard-code
->> 0 on other HW. That would introduce a core feature that works some
->> places but not others, and hence make drivers that relied on the feature
->> less portable between HW with different actual features.
->
-> I can buy that argument, but there's an issue which stands squarely in
-> its way, and that is open-drain GPIOs.
->
-> These are modelled just as any other GPIO, mainly so that both
-> gpio_set_value(gpio, 1) and gpio_direction_input(gpio) both result in
-> the signal being high.  The only combination which results in the
-> signal being driven low is outputting zero - and the state of the signal
-> can aways be read back.
->
-> The problem here is that such gpios are implemented in things like the
-> I2C driver such that they're _always_ outputs, and gpio_set_value() is
-> used to pull the signal down.  gpio_get_value() is used to read its
-> current state.
->
-> So, if we say that gpio_get_value() is undefined, we force such
-> subsystems to always jump through the non-open-drain paths (using
-> gpio_direction_input() to set the line high and
-> gpio_direction_output(gpio, 0) to drive it low.)
+Changes from v2:
+ - Removed unused variables and includes
+ - Corrected read logic in irq handler
+ - Made the polling loop in qup_i2c_poll_state() less arbitrary
+ - Only building suspend/resume if CONFIG_PM_SLEEP
 
-Incidentally that is what gpiolib is doing internally in
-gpiod_direction_output().
+Changes from v1:
+ - Cleaned up device tree binding example.
+ - Refrased device tree bindings.
+ - Following changes in the i2c framework.
+ - Use the core clock to calculate divider for the bus clock, instead of
+   explicitly setting it.
+ - Remove explicit pinctrl settting.
+ - Split/renamed qup_i2c_enable(bool) into enable/disable functions.
+ - Return value was overwritten on error in write_one/read_one.
+ - Initialize the i2c core every time, so that we actually can execute
+   more than 1 transmission per xfer.
 
-You're absolutely right that it makes no sense to have open
-drain (or open source) unless the signal can be read back from
-the hardware.
+Ivan T. Ivanov (2):
+  i2c: qup: Add device tree bindings information
+  i2c: New bus driver for the QUP I2C controller
 
-I'm thinking something like if the driver manages to obtain a
-GPIO with
+ .../devicetree/bindings/i2c/qcom,i2c-qup.txt       |  41 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-qup.c                       | 894 +++++++++++++++++++++
+ 4 files changed, 946 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+ create mode 100644 drivers/i2c/busses/i2c-qup.c
 
-gpio_request_one(gpio, GPIOF_OPEN_DRAIN |
-                     GPIOF_OUT_INIT_HIGH);
-
-As the I2C core does, and then when that call succeeds, it can
-expect that whatever comes back from gpio_get_value() is
-always what is actually on the line. If the driver cannot determine
-this it should not have allowed that flag to succeed in the first
-place, so this might be something we want to enforce.
-
-There are two white spots on the map here:
-
-1. Today this OPEN_DRAIN flag is not even passed down to
-the driver so how could it say anything about it :-( it's a pure gpiolib
-internal flag. We don't know if the hardware can actually even
-do open drain, we just assume it can.
-
-What it should really do - in the best of worlds - is to check if
-it can cross-reference the GPIO line to a pin in the pin control
-subsystem, and if that is possible, then ask the pin if it
-is supporting open drain and set it. It currently has no such
-cross-calls, it is just assumed that the configuration is consistent,
-and the actual pin is set up as open drain. But it would make
-sense to add more cross-calls here, since GPIO is accepting
-these flags (OPEN_DRAIN/OPEN_SOURCE).
-
-Like:
-int pinctrl_gpio_set_flags(unsigned gpio, unsigned long flags);
-
-Where the pinctrl subsystem would attempt to cross reference
-and set the flag, and the pin controller backend will then have
-the option to return an error code.
-
-We could atleast support that for the select pin controllers
-that use generic pin config. i.MX is another story, but I'm open
-to compromises.
-
-2. In the new descriptor API this open drain setting would
-be set from the lookup table and be a property on the line,
-meaning this flag is not requested explicitly by the consumer,
-and the consumer needs to inspect the obtained descriptor
-to figure out if it is set to open drain.
-
-Alexandre: do you have plans for how to handle a dynamic
-consumer passing flags to its gpio request in the gpiod API?
-I noticed that API missing now, there is exactly one user in the
-entire kernel, in drivers/i2c/i2c-core.c but a very important one.
-
-I guess to switch the I2C core over to descriptors I could
-think of an API like this:
-
-int gpiod_get_flags(const struct gpio_desc *desc);
-
-If the OPEN_DRAIN flag is set on that descriptor we should
-always be able to read the input. But as this is not really what the
-I2C core wants to know (it really would prefer not to bother with
-such GPIO flag details) so is it better if we add a special call to
-figure out if the input can be read? Like:
-
-bool gpiod_input_always_valid(const struct gpio_desc *desc);
-
-And leave it up to the core to look at flags, driver characteristics
-etc and determine whether the input can be trusted?
-
-Yours,
-Linus Walleij
+-- 
+1.8.2.2
