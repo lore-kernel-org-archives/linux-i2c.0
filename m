@@ -1,100 +1,62 @@
-From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Subject: Re: [PATCH v2 1/2] i2c: qup: Add device tree bindings information
-Date: Fri, 17 Jan 2014 09:40:45 +0200
-Message-ID: <1389944445.2794.48.camel@iivanov-dev.int.mm-sol.com>
-References: <1389659437-16406-1-git-send-email-bjorn.andersson@sonymobile.com>
-	 <1389659437-16406-2-git-send-email-bjorn.andersson@sonymobile.com>
-	 <1389689841.2794.8.camel@iivanov-dev.int.mm-sol.com>
-	 <20140116232047.GK30911@sonymobile.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/4] fix module autoloading for ACPI enumerated devices
+Date: Fri, 17 Jan 2014 15:57:08 +0000
+Message-ID: <20140117155708.GS17314@sirena.org.uk>
+References: <1389689198-2641-1-git-send-email-rui.zhang@intel.com>
+ <1389689198-2641-4-git-send-email-rui.zhang@intel.com>
+ <20140116122704.GD2617@katana>
+ <1389877509.3010.15.camel@rzhang1-mobl4>
+ <20140116194651.GO17314@sirena.org.uk>
+ <52D8DDD4.10704@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20140116232047.GK30911@sonymobile.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Bill Brown <bill.e.brown@intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Landley <rob@landley.net>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Matt Porter <matt.porter@linaro.org>, James Ralston <james.d.ralston@intel.com>, Martin Schwidefsky <schwid>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZmeoGP/RI+eIV+cU"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52D8DDD4.10704-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-Hi, 
+--ZmeoGP/RI+eIV+cU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 2014-01-16 at 15:20 -0800, Bjorn Andersson wrote: 
-> On Tue 14 Jan 00:57 PST 2014, Ivan T. Ivanov wrote:
-> 
-> > 
-> > Thanks Bjorn, 
-> > 
-> > I have prepared second version, but never send it out :-).
-> > One thing suggested by Mark was missed in this version.
-> 
-> Yeah, Mattew told me you we're assigned to other things and asked me to send
-> out an update as I had gotten it to work on our boards.
-> 
-> I did modify the wording of most of these to match how it is written in the
-> other Qualcomm definitions.
-> 
-> @Mark, would you rather have me change this to your suggested wording?
-> 
-> > 
-> > 
-> > On Mon, 2014-01-13 at 16:30 -0800, Bjorn Andersson wrote: 
-> > > From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-> > > 
-> [snip]
-> > > + - clocks: Should contain the core clock and the AHB clock.
-> > 
-> > + - clocks: a list of phandle + clock-specifier pairs for each entry in
-> > +           clock-names
-> > 
-> 
-> This is in line with how it's written in other drivers, so if the DT
-> maintainers doesn't disagree I would like to keep phandles out of the
-> description. This specific line is a verbatime copy of the msm_serial
-> documentation (same block, different mode)...
-> 
-> > > + - clock-names: Should be "core" for the core clock and "iface" for the
-> > > +                AHB clock.
-> > > +
-> > > + - #address-cells: Should be <1> Address cells for i2c device address
-> > > + - #size-cells: Should be <0> as i2c addresses have no size component
-> > > +
-> > > +Optional properties:
-> > > + - clock-frequency: Should specify the desired i2c bus clock frequency in Hz,
-> > > +                    default is 100kHz if omitted.
-> > > +
-> > > +Child nodes should conform to i2c bus binding.
-> > > +
-> > > +Example:
-> > > +
-> > > + i2c2: i2c@f9924000 {
-> > > + 	compatible = "qcom,i2c-qup";
-> > > + 	reg = <0xf9924000 0x1000>;
-> > > + 	interrupts = <0 96 0>;
-> > > +
-> > > + 	clocks = <&gcc_blsp1_qup2_i2c_apps_clk>, <&gcc_blsp1_ahb_clk>;
-> > 
-> > In the light of the latest patches from Stephen, this could be 
-> > 
-> > + 	clocks = <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>, <&gcc GCC_BLSP1_AHB_CLK>;
-> 
-> Yes, that's exactly what I have in my dts. However as this is just an example
-> I didn't feel it was worth tainting the documentation with all those capital
-> letters ;)
-> So unless DT maintainers disagree I would like to just keep it as an example.
+On Fri, Jan 17, 2014 at 09:37:56AM +0200, Jarkko Nikula wrote:
+> On 01/16/2014 09:46 PM, Mark Brown wrote:
 
-Until, we get some meaningful board DTS files for Qualcomm platforms, it
-is easy for people which will like to test or use drivers to just copy
-and paste these definitions.
+> >This is needed for ACPI because we rewrite the device names to give us
+> >stable names.  With OF for I2C and SPI nothing bus specific is done that
+> >affects this stuff so the default behaviour works.
 
-Regards,
-Ivan
+> Sidenote: actually this modalias/module loading issue is different
+> and not related to stable ACPI i2c/spi slave device names.
 
-> 
-> Regards,
-> Bjorn
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+Oh, I'd been under the impression that it was the rewrite that was
+triggering this?
+
+--ZmeoGP/RI+eIV+cU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJS2VLQAAoJELSic+t+oim9/IoP/jwV9eQlcNzANS8xR3W2qTzP
+F44eYYTUYbgUffFQkSi1KrJZrCgn6x9/tqBj8+fwUMuahcIy+PIQX4GoPvvcpSh7
+6lZZF6av22aPhecIkYN+NA/MdDS1WB8EJzWULruq8G7nCpiywTcZRkQDk295m/oR
+cFMCpYq0PbqqXPrLWbsL+cCPuA4wv4vYwVHyIPTj5DKc66nFl6TOXOJxeL4V3ZMR
+sdaYUudgn4YOxxVSeb6wS72EehecyXaP0ufOCgTyMpUzx7DF4icmhqkBrrfzuGqC
+4R6Tojn+SJlZG9AN8iLFpsXyizGS2tnViPewN7ilgletimPelAnPisdwHI7ujPUp
+mUbp8pSVW0DEJ6omD6tZo/UECfaWFpmlgJga+t+nzr6sq/KMcycxC2hl3f7HdSFI
+Dzt8VZd4TAfA586nDTwJUaRsmLYv7oNJYeth+y0TodUWXLHmA7K6jbiJ0U1xp3r6
+V9+zFnz3DFo0lFu35i3Cn7BZlmg3BVdz/aSFv+8jCHiNSamkQ47OrZNW96BTjLEh
+5XZdm102m/l7of3WUV0UHxUkAk3kI7KkA3JzFvtOw0kEIi4hX2OVmIvvt7ucexhT
+kPeiUXjbTXcnVXe9VdNk3+W4PL/c8pZd7vSveUeaoU6BhR2gqcJKVp+Vgavl6EsY
+mxuJhPk0NehTlEiyVzjo
+=FIsn
+-----END PGP SIGNATURE-----
+
+--ZmeoGP/RI+eIV+cU--
