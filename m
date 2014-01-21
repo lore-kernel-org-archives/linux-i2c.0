@@ -1,183 +1,587 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH RESEND] i2c-piix4: AMD new SMBus base address location
- changed
-Date: Tue, 21 Jan 2014 22:22:43 +0100
-Message-ID: <20140121222243.3d1597f5@endymion.delvare>
-References: <1389857668-4428-1-git-send-email-shane.huang@amd.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH 51/73] drivers/i2c: delete non-required instances of include <linux/init.h>
+Date: Tue, 21 Jan 2014 16:22:54 -0500
+Message-ID: <1390339396-3479-52-git-send-email-paul.gortmaker@windriver.com>
+References: <1390339396-3479-1-git-send-email-paul.gortmaker@windriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1389857668-4428-1-git-send-email-shane.huang-5C7GfCeVMHo@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1390339396-3479-1-git-send-email-paul.gortmaker@windriver.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-arch@vger.kernel.org, Paul Gortmaker <paul.gortmaker@windriver.com>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shane,
+None of these files are actually using any __init type directives
+and hence don't need to include <linux/init.h>.  Most are just a
+left over from __devinit and __cpuinit removal, or simply due to
+code getting copied from one driver to the next.
 
-Sorry for the late review. Here we go...
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+---
+ drivers/i2c/algos/i2c-algo-bit.c           | 1 -
+ drivers/i2c/algos/i2c-algo-pca.c           | 1 -
+ drivers/i2c/algos/i2c-algo-pcf.c           | 1 -
+ drivers/i2c/busses/i2c-ali1535.c           | 1 -
+ drivers/i2c/busses/i2c-ali1563.c           | 1 -
+ drivers/i2c/busses/i2c-ali15x3.c           | 1 -
+ drivers/i2c/busses/i2c-amd756.c            | 1 -
+ drivers/i2c/busses/i2c-amd8111.c           | 1 -
+ drivers/i2c/busses/i2c-au1550.c            | 1 -
+ drivers/i2c/busses/i2c-cbus-gpio.c         | 1 -
+ drivers/i2c/busses/i2c-cpm.c               | 1 -
+ drivers/i2c/busses/i2c-eg20t.c             | 1 -
+ drivers/i2c/busses/i2c-exynos5.c           | 1 -
+ drivers/i2c/busses/i2c-highlander.c        | 1 -
+ drivers/i2c/busses/i2c-hydra.c             | 1 -
+ drivers/i2c/busses/i2c-ibm_iic.c           | 1 -
+ drivers/i2c/busses/i2c-iop3xx.c            | 1 -
+ drivers/i2c/busses/i2c-isch.c              | 1 -
+ drivers/i2c/busses/i2c-ismt.c              | 1 -
+ drivers/i2c/busses/i2c-mpc.c               | 1 -
+ drivers/i2c/busses/i2c-nforce2.c           | 1 -
+ drivers/i2c/busses/i2c-ocores.c            | 1 -
+ drivers/i2c/busses/i2c-octeon.c            | 1 -
+ drivers/i2c/busses/i2c-pca-platform.c      | 1 -
+ drivers/i2c/busses/i2c-piix4.c             | 1 -
+ drivers/i2c/busses/i2c-pmcmsp.c            | 1 -
+ drivers/i2c/busses/i2c-powermac.c          | 1 -
+ drivers/i2c/busses/i2c-puv3.c              | 1 -
+ drivers/i2c/busses/i2c-rcar.c              | 1 -
+ drivers/i2c/busses/i2c-scmi.c              | 1 -
+ drivers/i2c/busses/i2c-sh7760.c            | 1 -
+ drivers/i2c/busses/i2c-simtec.c            | 1 -
+ drivers/i2c/busses/i2c-sis630.c            | 1 -
+ drivers/i2c/busses/i2c-sis96x.c            | 1 -
+ drivers/i2c/busses/i2c-via.c               | 1 -
+ drivers/i2c/busses/i2c-xiic.c              | 1 -
+ drivers/i2c/busses/i2c-xlr.c               | 1 -
+ drivers/i2c/busses/scx200_i2c.c            | 1 -
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c | 1 -
+ drivers/i2c/muxes/i2c-mux-gpio.c           | 1 -
+ drivers/i2c/muxes/i2c-mux-pca9541.c        | 1 -
+ drivers/i2c/muxes/i2c-mux-pca954x.c        | 1 -
+ drivers/i2c/muxes/i2c-mux-pinctrl.c        | 1 -
+ 43 files changed, 43 deletions(-)
 
-On Wed, 15 Jan 2014 23:34:28 -0800, Shane Huang wrote:
-> This patch is to support AMD new SMBus with different base address location.
-
-This description is too vague. Which "new SMBus"? The patch doesn't add
-any new PCI device ID. What devices (and revisions) are we talking
-about here?
-
-> 
-> Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-piix4.c | 39 +++++++++++++++++++++++++++------------
->  1 file changed, 27 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index a028617..44d5ebe 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -230,12 +230,13 @@ static int piix4_setup(struct pci_dev *PIIX4_dev,
->  	return piix4_smba;
->  }
->  
-> -static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
-> -			     const struct pci_device_id *id, u8 aux)
-> +static int piix4_setup_amd(struct pci_dev *PIIX4_dev,
-> +			   const struct pci_device_id *id, u8 aux)
-
-Please avoid renaming functions, especially in a patch which you intend
-to have backported to stable kernel branches and/or distribution
-kernels. The larger the patch, the less likely it is to be accepted, so
-you want to focus on the functional changes that fix the bug.
-
-Anyway I really see no problem with the current name
-"piix4_setup_sb800". Here "sb800" means "SB800 or compatible", it's
-rather common. "piix4_setup_amd" would actually be confusing, given
-that the SB800 was originally presented as an ATI chipset.
-
->  {
->  	unsigned short piix4_smba;
->  	unsigned short smba_idx = 0xcd6;
-> -	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en;
-> +	u8 smba_en_lo, smba_en_hi, smb_en, smb_en_status;
-> +	u8 i2ccfg, i2ccfg_offset = 0x10;
->  
->  	/* SB800 and later SMBus does not support forcing address */
->  	if (force || force_addr) {
-> @@ -245,7 +246,11 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  	}
->  
->  	/* Determine the address of the SMBus areas */
-> -	smb_en = (aux) ? 0x28 : 0x2c;
-> +	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
-> +	    PIIX4_dev->revision >= 0x41)
-
-Checking for the device revision without checking for the device ID
-seems risky. This assumes that any future AMD chipset supported by this
-driver will be revision numbering-compatible. Does AMD commit to this?
-
-> +		smb_en = 0;
-
-If this is a real register offset, you'd rather write it "0x00".
-
-> +	else
-> +		smb_en = (aux) ? 0x28 : 0x2c;
->  
->  	if (!request_region(smba_idx, 2, "smba_idx")) {
->  		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
-> @@ -258,13 +263,23 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  	smba_en_hi = inb_p(smba_idx + 1);
->  	release_region(smba_idx, 2);
->  
-> -	if ((smba_en_lo & 1) == 0) {
-> +	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
-> +	    PIIX4_dev->revision >= 0x41) {
-> +		smb_en_status = smba_en_lo & 0x10;
-> +		piix4_smba = smba_en_hi << 8;
-> +		if (aux)
-> +			piix4_smba |= 0x20;
-> +	} else {
-> +		smb_en_status = smba_en_lo & 1;
-
-For consistency this should be written "& 0x01".
-
-> +		piix4_smba = ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
-> +	}
-> +
-> +	if (!smb_en_status) {
->  		dev_err(&PIIX4_dev->dev,
->  			"Host SMBus controller not enabled!\n");
->  		return -ENODEV;
->  	}
->  
-> -	piix4_smba = ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
->  	if (acpi_check_region(piix4_smba, SMBIOSIZE, piix4_driver.name))
->  		return -ENODEV;
->  
-> @@ -277,7 +292,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  	/* Aux SMBus does not support IRQ information */
->  	if (aux) {
->  		dev_info(&PIIX4_dev->dev,
-> -			 "SMBus Host Controller at 0x%x\n", piix4_smba);
-> +			 "Auxiliary SMBus controller at 0x%x\n", piix4_smba);
->  		return piix4_smba;
->  	}
->  
-> @@ -297,7 +312,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus.\n");
->  
->  	dev_info(&PIIX4_dev->dev,
-> -		 "SMBus Host Controller at 0x%x, revision %d\n",
-> +		 "SMBus controller at 0x%x, revision %d\n",
->  		 piix4_smba, i2ccfg >> 4);
-
-These two log message changes don't belong to this patch. I can
-understand that you want different messages for the main and auxiliary
-SMBus controllers, but this change is unrelated to the base address
-location fix. By putting these changes in a separate patch, you can
-describe them properly, and you give backporters the possibility to
-pick what they want to backport. Stable kernel branches will take the
-bug fixes but not the minor log message changes, for example. If
-everything is mixed into a single patch, they won't take anything :(
-
->  
->  	return piix4_smba;
-> @@ -605,8 +620,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
->  	     dev->revision >= 0x40) ||
->  	    dev->vendor == PCI_VENDOR_ID_AMD)
-> -		/* base address location etc changed in SB800 */
-> -		retval = piix4_setup_sb800(dev, id, 0);
-> +		/* base address location etc changed from SB800 */
-
-This comment change also adds no value.
-
-> +		retval = piix4_setup_amd(dev, id, 0);
->  	else
->  		retval = piix4_setup(dev, id);
->  
-> @@ -628,13 +643,13 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  			retval = piix4_setup_aux(dev, id, 0x58);
->  		} else {
->  			/* SB800 added aux bus too */
-> -			retval = piix4_setup_sb800(dev, id, 1);
-> +			retval = piix4_setup_amd(dev, id, 1);
->  		}
->  	}
->  
->  	if (dev->vendor == PCI_VENDOR_ID_AMD &&
->  	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
-> -		retval = piix4_setup_sb800(dev, id, 1);
-> +		retval = piix4_setup_amd(dev, id, 1);
->  	}
->  
->  	if (retval > 0) {
-
-Functionally, the main changes in this patch look correct, even though
-I can't test them. But please send a cleaned-up version of the patch
-with only the needed changes, so that it can go to stable branches. The
-log message changes should go to a separate patch, and the function
-rename should be dropped IMHO.
-
-Thanks,
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index fad22b0..8c29f36 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -25,7 +25,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/sched.h>
+ #include <linux/i2c.h>
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index f892a42..8b10f88 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -24,7 +24,6 @@
+ #include <linux/moduleparam.h>
+ #include <linux/delay.h>
+ #include <linux/jiffies.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-pca.h>
+diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
+index 5c23795..3437009 100644
+--- a/drivers/i2c/algos/i2c-algo-pcf.c
++++ b/drivers/i2c/algos/i2c-algo-pcf.c
+@@ -30,7 +30,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-pcf.h>
+diff --git a/drivers/i2c/busses/i2c-ali1535.c b/drivers/i2c/busses/i2c-ali1535.c
+index 3f49181..7d60d3a 100644
+--- a/drivers/i2c/busses/i2c-ali1535.c
++++ b/drivers/i2c/busses/i2c-ali1535.c
+@@ -58,7 +58,6 @@
+ #include <linux/delay.h>
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+ 
+diff --git a/drivers/i2c/busses/i2c-ali1563.c b/drivers/i2c/busses/i2c-ali1563.c
+index 84ccd94..4611e47 100644
+--- a/drivers/i2c/busses/i2c-ali1563.c
++++ b/drivers/i2c/busses/i2c-ali1563.c
+@@ -20,7 +20,6 @@
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
+ #include <linux/pci.h>
+-#include <linux/init.h>
+ #include <linux/acpi.h>
+ 
+ #define ALI1563_MAX_TIMEOUT	500
+diff --git a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
+index 26bcc61..4823206 100644
+--- a/drivers/i2c/busses/i2c-ali15x3.c
++++ b/drivers/i2c/busses/i2c-ali15x3.c
+@@ -65,7 +65,6 @@
+ #include <linux/ioport.h>
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+ 
+diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
+index e13e2aa..819d3c1 100644
+--- a/drivers/i2c/busses/i2c-amd756.c
++++ b/drivers/i2c/busses/i2c-amd756.c
+@@ -41,7 +41,6 @@
+ #include <linux/stddef.h>
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+ 
+diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+index a44e6e7..f3d4d79 100644
+--- a/drivers/i2c/busses/i2c-amd8111.c
++++ b/drivers/i2c/busses/i2c-amd8111.c
+@@ -13,7 +13,6 @@
+ #include <linux/kernel.h>
+ #include <linux/stddef.h>
+ #include <linux/ioport.h>
+-#include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/delay.h>
+ #include <linux/acpi.h>
+diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
+index b5b8923..8762458 100644
+--- a/drivers/i2c/busses/i2c-au1550.c
++++ b/drivers/i2c/busses/i2c-au1550.c
+@@ -31,7 +31,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
+ #include <linux/slab.h>
+diff --git a/drivers/i2c/busses/i2c-cbus-gpio.c b/drivers/i2c/busses/i2c-cbus-gpio.c
+index ce7ffba..bdf040f 100644
+--- a/drivers/i2c/busses/i2c-cbus-gpio.c
++++ b/drivers/i2c/busses/i2c-cbus-gpio.c
+@@ -19,7 +19,6 @@
+ #include <linux/io.h>
+ #include <linux/i2c.h>
+ #include <linux/gpio.h>
+-#include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/errno.h>
+diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+index 3e5ea2c..be7f0a2 100644
+--- a/drivers/i2c/busses/i2c-cpm.c
++++ b/drivers/i2c/busses/i2c-cpm.c
+@@ -33,7 +33,6 @@
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+-#include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/errno.h>
+ #include <linux/stddef.h>
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index ff15ae9..e08e458 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -18,7 +18,6 @@
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/delay.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
+ #include <linux/fs.h>
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index 044f85b..9fd711c 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -12,7 +12,6 @@
+ #include <linux/module.h>
+ 
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/time.h>
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>
+diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
+index 436b0f2..512fcfa 100644
+--- a/drivers/i2c/busses/i2c-highlander.c
++++ b/drivers/i2c/busses/i2c-highlander.c
+@@ -12,7 +12,6 @@
+  * of this archive for more details.
+  */
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/i2c.h>
+ #include <linux/platform_device.h>
+diff --git a/drivers/i2c/busses/i2c-hydra.c b/drivers/i2c/busses/i2c-hydra.c
+index 79c3d90..e248257 100644
+--- a/drivers/i2c/busses/i2c-hydra.c
++++ b/drivers/i2c/busses/i2c-hydra.c
+@@ -27,7 +27,6 @@
+ #include <linux/types.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
+-#include <linux/init.h>
+ #include <linux/io.h>
+ #include <asm/hydra.h>
+ 
+diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+index f744410..274312c 100644
+--- a/drivers/i2c/busses/i2c-ibm_iic.c
++++ b/drivers/i2c/busses/i2c-ibm_iic.c
+@@ -36,7 +36,6 @@
+ #include <linux/ioport.h>
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+-#include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <asm/irq.h>
+ #include <linux/io.h>
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+index dd24aa0..3d16c2f 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -34,7 +34,6 @@
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c.h>
+diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
+index af21304..cf99dbf 100644
+--- a/drivers/i2c/busses/i2c-isch.c
++++ b/drivers/i2c/busses/i2c-isch.c
+@@ -33,7 +33,6 @@
+ #include <linux/stddef.h>
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/io.h>
+ #include <linux/acpi.h>
+ 
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index bb132ea..8ce4f51 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -62,7 +62,6 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/kernel.h>
+ #include <linux/stddef.h>
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index b6a741c..f539163 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -16,7 +16,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/sched.h>
+-#include <linux/init.h>
+ #include <linux/of_address.h>
+ #include <linux/of_irq.h>
+ #include <linux/of_platform.h>
+diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+index ac88f40..0038c45 100644
+--- a/drivers/i2c/busses/i2c-nforce2.c
++++ b/drivers/i2c/busses/i2c-nforce2.c
+@@ -51,7 +51,6 @@
+ #include <linux/kernel.h>
+ #include <linux/stddef.h>
+ #include <linux/ioport.h>
+-#include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/delay.h>
+ #include <linux/dmi.h>
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index c61f37a..80e06fa 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -15,7 +15,6 @@
+ #include <linux/err.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c.h>
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index b929ba2..81042b0 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -18,7 +18,6 @@
+ #include <linux/delay.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+-#include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index 39e2755..845f125 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -12,7 +12,6 @@
+  */
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/jiffies.h>
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index a028617..66eaed9 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -38,7 +38,6 @@
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+ #include <linux/slab.h>
+-#include <linux/init.h>
+ #include <linux/dmi.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
+index f6389e2..8564768 100644
+--- a/drivers/i2c/busses/i2c-pmcmsp.c
++++ b/drivers/i2c/busses/i2c-pmcmsp.c
+@@ -26,7 +26,6 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
+index 8c87f4a..01e9677 100644
+--- a/drivers/i2c/busses/i2c-powermac.c
++++ b/drivers/i2c/busses/i2c-powermac.c
+@@ -24,7 +24,6 @@
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/device.h>
+ #include <linux/platform_device.h>
+ #include <linux/of_irq.h>
+diff --git a/drivers/i2c/busses/i2c-puv3.c b/drivers/i2c/busses/i2c-puv3.c
+index ac80199..c83fc3c 100644
+--- a/drivers/i2c/busses/i2c-puv3.c
++++ b/drivers/i2c/busses/i2c-puv3.c
+@@ -17,7 +17,6 @@
+ #include <linux/types.h>
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/clk.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 2c2fd7c..4f5be21 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -26,7 +26,6 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/err.h>
+-#include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/i2c.h>
+diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
+index 5992355..dfc98df 100644
+--- a/drivers/i2c/busses/i2c-scmi.c
++++ b/drivers/i2c/busses/i2c-scmi.c
+@@ -12,7 +12,6 @@
+ #include <linux/slab.h>
+ #include <linux/kernel.h>
+ #include <linux/stddef.h>
+-#include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/acpi.h>
+ 
+diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
+index 5e8f136..d76f3d9 100644
+--- a/drivers/i2c/busses/i2c-sh7760.c
++++ b/drivers/i2c/busses/i2c-sh7760.c
+@@ -11,7 +11,6 @@
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/ioport.h>
+ #include <linux/platform_device.h>
+diff --git a/drivers/i2c/busses/i2c-simtec.c b/drivers/i2c/busses/i2c-simtec.c
+index 4fc87e7..294c80f 100644
+--- a/drivers/i2c/busses/i2c-simtec.c
++++ b/drivers/i2c/busses/i2c-simtec.c
+@@ -20,7 +20,6 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/delay.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-sis630.c
+index 36a9556..19b8505 100644
+--- a/drivers/i2c/busses/i2c-sis630.c
++++ b/drivers/i2c/busses/i2c-sis630.c
+@@ -45,7 +45,6 @@
+ #include <linux/delay.h>
+ #include <linux/pci.h>
+ #include <linux/ioport.h>
+-#include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+diff --git a/drivers/i2c/busses/i2c-sis96x.c b/drivers/i2c/busses/i2c-sis96x.c
+index b9faf9b..f8aa0c2 100644
+--- a/drivers/i2c/busses/i2c-sis96x.c
++++ b/drivers/i2c/busses/i2c-sis96x.c
+@@ -36,7 +36,6 @@
+ #include <linux/stddef.h>
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+-#include <linux/init.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+ 
+diff --git a/drivers/i2c/busses/i2c-via.c b/drivers/i2c/busses/i2c-via.c
+index be66251..49d7f14 100644
+--- a/drivers/i2c/busses/i2c-via.c
++++ b/drivers/i2c/busses/i2c-via.c
+@@ -22,7 +22,6 @@
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/ioport.h>
+-#include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
+ #include <linux/io.h>
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 6f9918f..2810750 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -30,7 +30,6 @@
+  */
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/err.h>
+ #include <linux/delay.h>
+diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
+index 7945b05..17f7352 100644
+--- a/drivers/i2c/busses/i2c-xlr.c
++++ b/drivers/i2c/busses/i2c-xlr.c
+@@ -11,7 +11,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+-#include <linux/init.h>
+ #include <linux/ioport.h>
+ #include <linux/delay.h>
+ #include <linux/errno.h>
+diff --git a/drivers/i2c/busses/scx200_i2c.c b/drivers/i2c/busses/scx200_i2c.c
+index ae1258b..8eadf0f4 100644
+--- a/drivers/i2c/busses/scx200_i2c.c
++++ b/drivers/i2c/busses/scx200_i2c.c
+@@ -26,7 +26,6 @@
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+-#include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-bit.h>
+ #include <linux/io.h>
+diff --git a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+index c58e093..69afffa 100644
+--- a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
++++ b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+@@ -19,7 +19,6 @@
+ #include <linux/kernel.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+-#include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/of_gpio.h>
+ #include <linux/platform_device.h>
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index 8a8c56f..d8989c8 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -12,7 +12,6 @@
+ #include <linux/i2c-mux.h>
+ #include <linux/i2c-mux-gpio.h>
+ #include <linux/platform_device.h>
+-#include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/gpio.h>
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index c4f08ad..cb77277 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -17,7 +17,6 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/jiffies.h>
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index e835304..c5ac5f8 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -40,7 +40,6 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+ #include <linux/i2c/pca954x.h>
+-#include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/of_gpio.h>
+ #include <linux/slab.h>
+diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+index d7978dc..4ff0ef3 100644
+--- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+@@ -18,7 +18,6 @@
+ 
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+-#include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/pinctrl/consumer.h>
+ #include <linux/i2c-mux-pinctrl.h>
 -- 
-Jean Delvare
+1.8.4.1
