@@ -1,65 +1,63 @@
-From: alejandra70515-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org
-Subject: RE: LOCAL MAP OPTIMIZATION FOR : mail-archive.com (Less Than
- $99/Month)
-Date: Tue, 21 Jan 2014 17:31:44 +0530
-Message-ID: <52de61a6.0ac5440a.3139.1c08@mx.google.com>
-Reply-To: Lova43432-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH] i2c: rely on driver core when sanitizing devices
+Date: Tue, 21 Jan 2014 17:48:34 +0100
+Message-ID: <1390322914-14191-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Good Morning Sir / Mam
+Commit 0998d0631001 (device-core: Ensure drvdata = NULL when no driver
+is bound) modified the driver core to always clear .driver and .drvdata
+on remove or probe error. No need for the I2C core to do it.
 
-Is your business ranking in local maps shown on PAGE 1 of google ? With new
-google policies they have specifically asked local business owners to
-optimize their website for local maps rather than JUST organics. Do you know
-the reason why you are not ranked well on google MAPs or why there is drop
-in your website rankings? Prime reason for bad rankings for a busniess is
-lack of local presence and local citations ie getting your business listed
-on directories like YELP, MANTA & Many more. These websites not just give
-your business a push but also help you Maintain a good Online Reputation.
+Reported-by: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Reported-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-Why you need to optimize your website for local MAP Listings ?
-
-- MAP listings get 10 times more clicks than organic listings
-- Increased conversions because of real reviews posted on your Google Plus
-Page
-- Every year there is 30% increase in searches for local keywords
-- Increases legitimacy of a Business
-
-We will help you get your website ranked well on google for the related
-keywords in your niche. We specialize in LOCAL SEARCH ENGINE OPTIMIZATION
-increasing visibility for small businesses by ranking them for
-geographically-related keywords. Say for eg-: you want to search a plumber
-in your city, You will be typing in keywords like Plumbers + City Or
-Plumbers + IN + City. We make sure your website comes in google MAP listings
-shown on page 1 for each such keyword.
-
-Now Google believes in - BE ORIGINAL, HAVE ORIGINAL AND GIVE ORIGINAL which
-means that google wants to end up that frustrating experience of users who
-are searching for Service Or Product and seeing the results that are not
-even close to what they are looking for. Google only wants to give their
-user original and relevant results. This makes it even more important that
-we showcase our business in the best possible way and make sure our website
-in valued high by google.
-
-We at TheLOCALIST will make google feel the importance of your business by
-following their guidelines thus ranking your website higher in serach
-results. We are presently offering LOCAL OPTIMIZATION to more than 400
-websites and they all rank page 1 for all possible keywords !!! Each month
-your website is submitted to more than 50 citations and social presence is
-controlled by posting videos and blogs all over the web.
-
-Email us back with your website & phone number so we can discuss this
-further with you. Our Packages start from as low as 99$/month.
-
-
-Thanks For Taking Time To Read Our Email
-
-Polly Martin
-Local SEO Manager ( THE Localist )
-Address : 24 ST Suite 32 Downtown Provo Utah
-
--------------------
-NOT INTERESTED ? REPLY WITH NOT INTERESTED IN THE SUBJECT LINE 
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d74c0b3..dd3a4db 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -256,10 +256,9 @@ static int i2c_device_probe(struct device *dev)
+ 
+ 	acpi_dev_pm_attach(&client->dev, true);
+ 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+-	if (status) {
+-		i2c_set_clientdata(client, NULL);
++	if (status)
+ 		acpi_dev_pm_detach(&client->dev, true);
+-	}
++
+ 	return status;
+ }
+ 
+@@ -267,7 +266,7 @@ static int i2c_device_remove(struct device *dev)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+ 	struct i2c_driver	*driver;
+-	int			status;
++	int status = 0;
+ 
+ 	if (!client || !dev->driver)
+ 		return 0;
+@@ -276,12 +275,8 @@ static int i2c_device_remove(struct device *dev)
+ 	if (driver->remove) {
+ 		dev_dbg(dev, "remove\n");
+ 		status = driver->remove(client);
+-	} else {
+-		dev->driver = NULL;
+-		status = 0;
+ 	}
+-	if (status == 0)
+-		i2c_set_clientdata(client, NULL);
++
+ 	acpi_dev_pm_detach(&client->dev, true);
+ 	return status;
+ }
+-- 
+1.8.5.1
