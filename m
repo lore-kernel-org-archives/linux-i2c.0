@@ -1,124 +1,65 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: More GPIO madness on iMX6 - and the crappy ARM port of Linux
-Date: Tue, 21 Jan 2014 10:26:29 +0100
-Message-ID: <CACRpkdZ-V=caNsR=WsMM1ZV+toydLpFD5ridszwRxz1ay-9RHw@mail.gmail.com>
-References: <20140117184731.GE15937@n2100.arm.linux.org.uk>
-	<52D98712.3070103@wwwdotorg.org>
-	<20140117202405.GF15937@n2100.arm.linux.org.uk>
-	<52D995C4.80104@wwwdotorg.org>
-	<20140117205346.GH15937@n2100.arm.linux.org.uk>
-	<CACRpkdaRQRD85-0wUmip=j1SHzti6Nb69JEUXznYTkrxGvky=A@mail.gmail.com>
-	<CAAVeFuJhYv_vKqgyyaw7LOzRvErjf4u=5jJCvpoEgA0ZsMj-1Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: alejandra70515-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org
+Subject: RE: LOCAL MAP OPTIMIZATION FOR : mail-archive.com (Less Than
+ $99/Month)
+Date: Tue, 21 Jan 2014 17:31:44 +0530
+Message-ID: <52de61a6.0ac5440a.3139.1c08@mx.google.com>
+Reply-To: Lova43432-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAAVeFuJhYv_vKqgyyaw7LOzRvErjf4u=5jJCvpoEgA0ZsMj-1Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Heikki Krogerus <heikki.krogerus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 21, 2014 at 3:55 AM, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Sat, Jan 18, 2014 at 7:43 AM, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+Good Morning Sir / Mam
 
->> 1. Today this OPEN_DRAIN flag is not even passed down to
->> the driver so how could it say anything about it :-( it's a pure gpiolib
->> internal flag. We don't know if the hardware can actually even
->> do open drain, we just assume it can.
->>
->> What it should really do - in the best of worlds - is to check if
->> it can cross-reference the GPIO line to a pin in the pin control
->> subsystem, and if that is possible, then ask the pin if it
->> is supporting open drain and set it. It currently has no such
->> cross-calls, it is just assumed that the configuration is consistent,
->> and the actual pin is set up as open drain. But it would make
->> sense to add more cross-calls here, since GPIO is accepting
->> these flags (OPEN_DRAIN/OPEN_SOURCE).
->
-> This would definitely work in the case of pinctrl-backed GPIOs, but
-> would not cover all GPIO chips. If we want to cover all cases we
-> should give drivers a way to way to report or enforce this capability,
-> and make the pinctrl cross-reference one of its implementations where
-> it can be done.
+Is your business ranking in local maps shown on PAGE 1 of google ? With new
+google policies they have specifically asked local business owners to
+optimize their website for local maps rather than JUST organics. Do you know
+the reason why you are not ranked well on google MAPs or why there is drop
+in your website rankings? Prime reason for bad rankings for a busniess is
+lack of local presence and local citations ie getting your business listed
+on directories like YELP, MANTA & Many more. These websites not just give
+your business a push but also help you Maintain a good Online Reputation.
 
-It can never be done in all cases, since in some cases the
-open drain config is just a property of the line and not controlled
-by software at all, and the datasheet just says this line is open
-drain.
+Why you need to optimize your website for local MAP Listings ?
 
-But we should cover the cases where we deal with pure
-SW-controlled configs as far as possible.
+- MAP listings get 10 times more clicks than organic listings
+- Increased conversions because of real reviews posted on your Google Plus
+Page
+- Every year there is 30% increase in searches for local keywords
+- Increases legitimacy of a Business
 
->> Alexandre: do you have plans for how to handle a dynamic
->> consumer passing flags to its gpio request in the gpiod API?
->
-> Do you mean like passing OPEN_DRAIN or OPEN_SOURCE flags to
-> gpiod_get(), similarly to what is done for e.g. gpio_request_one()?
+We will help you get your website ranked well on google for the related
+keywords in your niche. We specialize in LOCAL SEARCH ENGINE OPTIMIZATION
+increasing visibility for small businesses by ranking them for
+geographically-related keywords. Say for eg-: you want to search a plumber
+in your city, You will be typing in keywords like Plumbers + City Or
+Plumbers + IN + City. We make sure your website comes in google MAP listings
+shown on page 1 for each such keyword.
 
-Yes...
+Now Google believes in - BE ORIGINAL, HAVE ORIGINAL AND GIVE ORIGINAL which
+means that google wants to end up that frustrating experience of users who
+are searching for Service Or Product and seeing the results that are not
+even close to what they are looking for. Google only wants to give their
+user original and relevant results. This makes it even more important that
+we showcase our business in the best possible way and make sure our website
+in valued high by google.
 
-> In the case of the gpiod API I would rather see these flags defined in
-> the GPIO mapping if possible. For platform data it is already possible
-> to specify open drain/open source, for DT this is trivial to add.
+We at TheLOCALIST will make google feel the importance of your business by
+following their guidelines thus ranking your website higher in serach
+results. We are presently offering LOCAL OPTIMIZATION to more than 400
+websites and they all rank page 1 for all possible keywords !!! Each month
+your website is submitted to more than 50 citations and social presence is
+controlled by posting videos and blogs all over the web.
 
-I figured so much. But we have a consumer in i2c-core.c doing
-this for a valid reason.
+Email us back with your website & phone number so we can discuss this
+further with you. Our Packages start from as low as 99$/month.
 
-> ACPI
-> would be more of a problem here, but I'm not sure whether the problem
-> is relevant for ACPI GPIOs.
 
-ACPI has an open drain/source flag for some GPIO lines IIRC.
+Thanks For Taking Time To Read Our Email
 
-> 1) GPIO drivers' request() function get an extra flags argument that
-> is passed by the GPIO core with the flags of the mapping. There we can
-> define all the range of properties that gpio_request_one() supported.
-> The driver's request() will fail it if cannot satisfy these
-> properties. That's where the pinctrl cross-reference would take place.
+Polly Martin
+Local SEO Manager ( THE Localist )
+Address : 24 ST Suite 32 Downtown Provo Utah
 
-I think this doesn't need to go all the way down into the driver
-actually. We can call to pinctrl in the gpiolib core and
-keep the gpiochip API simple. The GPIO driver doesn't even need
-to know this.
-
-> 2) All properties accepted by gpio_request_one() can also be passed
-> through GPIO mappings. That is, probably platform_data and DT. I don't
-> know if we ever get to use open drain GPIOs provided by ACPI, if we do
-> then this might be a problem.
-
-I think we need that.
-
->> Like:
->>
->> bool gpiod_input_always_valid(const struct gpio_desc *desc);
->>
->> And leave it up to the core to look at flags, driver characteristics
->> etc and determine whether the input can be trusted?
->
-> I am personally a little bit scared by the number of exported
-> functions in the GPIO framework. It is a pretty large number for
-> something that is supposed to be simple, so I'd like to avoid adding
-> more. :)
-
-I objected already when the OPEN_DRAIN et al were added,
-but to no avail...
-
-> How about the following:
->
-> 1) GPIOs configured as output without the open drain or open source
-> flag either return -EINVAL on gpiod_get_value(), or a cached value
-> tracked by gpiolib for consistency (probably the latter).
-
-Make sense.
-
-> 2) GPIOs configured as open drain or open source report the actual
-> value read on the pin, like i2c-core needs. This requires that, for
-> each GPIO that can be set open drain or open source,
-> gpiod_input_always_valid() == true.
-
-Yeah, but as seen from the I2C core, the algorithm there needs
-to know if the input is always valid or not, and take different
-execution paths depending on that. :-/
-
-Yours,
-Linus Walleij
+-------------------
+NOT INTERESTED ? REPLY WITH NOT INTERESTED IN THE SUBJECT LINE 
