@@ -1,390 +1,478 @@
 From: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH 2/2] Add at24 based EEPROMs to the eeprom_dev hardware class
-Date: Wed, 22 Jan 2014 09:47:35 -0800
-Message-ID: <1390412855-2927-2-git-send-email-curt@cumulusnetworks.com>
+Subject: [PATCH 1/2] Create eeprom_dev hardware class for EEPROM devices
+Date: Wed, 22 Jan 2014 09:47:34 -0800
+Message-ID: <1390412855-2927-1-git-send-email-curt@cumulusnetworks.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-During device instantiation have the at24 driver add the new device to
-the eeprom_dev hardware class.  The functionality is enabled by
-CONFIG_EEPROM_CLASS.
+Create a new hardware class under /sys/class/eeprom_dev
+
+EEPROM drivers can register their devices with the eeprom_dev class
+during instantiation.
+
+The registered devices show up as:
+
+  /sys/class/eeprom_dev/eeprom0
+  /sys/class/eeprom_dev/eeprom1
+  ...
+  /sys/class/eeprom_dev/eeprom[N]
+
+Each member of the eeprom class exports a sysfs file called "label",
+containing the label property from the corresponding device tree node.
+
+Example:
+
+  /sys/class/eeprom_dev/eeprom0/label
+
+If the device tree node property "label" does not exist the value
+"unknown" is used.
+
+Userspace can use the label to identify what the EEPROM is for.
+
+The real device is available from the class device via the "device"
+link:
+
+  /sys/class/eeprom_dev/eeprom0/device
 
 Signed-off-by: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 ---
- drivers/misc/eeprom/at24.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ Documentation/misc-devices/eeprom_hw_class.txt |   81 ++++++++++++
+ drivers/misc/eeprom/Kconfig                    |   11 ++
+ drivers/misc/eeprom/Makefile                   |    1 +
+ drivers/misc/eeprom/eeprom_class.c             |  159 ++++++++++++++++++++++++
+ include/linux/eeprom_class.h                   |   35 ++++++
+ 5 files changed, 287 insertions(+)
+ create mode 100644 Documentation/misc-devices/eeprom_hw_class.txt
+ create mode 100644 drivers/misc/eeprom/eeprom_class.c
+ create mode 100644 include/linux/eeprom_class.h
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index d87f77f..07782ea 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -1,170 +1,177 @@
- /*
-  * at24.c - handle most I2C EEPROMs
-  *
-  * Copyright (C) 2005-2007 David Brownell
-  * Copyright (C) 2008 Wolfram Sang, Pengutronix
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or
-  * (at your option) any later version.
-  */
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/mutex.h>
- #include <linux/sysfs.h>
- #include <linux/mod_devicetable.h>
- #include <linux/log2.h>
- #include <linux/bitops.h>
- #include <linux/jiffies.h>
- #include <linux/of.h>
- #include <linux/i2c.h>
- #include <linux/platform_data/at24.h>
+diff --git a/Documentation/misc-devices/eeprom_hw_class.txt b/Documentation/misc-devices/eeprom_hw_class.txt
+new file mode 100644
+index 0000000..b5cbc35
+--- /dev/null
++++ b/Documentation/misc-devices/eeprom_hw_class.txt
+@@ -0,0 +1,81 @@
++EEPROM Device Hardware Class
++============================
++
++This feature is enabled by CONFIG_EEPROM_CLASS.
++
++The original problem:
++
++We work on several different switching platforms, each of which has
++about 64 EEPROMs, one for each of the 10G SFP+ modules.  In addition
++the systems typically have a board info EEPROM, SPD and power supply
++EEPROMs.  It is difficult to map the device tree entries for the
++EEPROMs to the appropriate sysfs device needed for I/O in a generic
++way.
++
++Also mappings are further complicated by some systems using custom i2c
++buses implemented in FPGAs.
++
++The solution is two fold:
++
++1. Create an EEPROM class for all EEPROM devices.  Each EEPROM driver,
++at24 for example, would register with the class during probe().
++
++2. Create a mapping in the .dts file by adding a property called
++'label' to each EEPROM entry.  The EEPROM class will expose this label
++property for all EEPROMs.
++
++For example, for all the EEPROM devices in the system you would see
++directories in sysfs like:
++
++  /sys/class/eeprom_dev/eeprom0
++  /sys/class/eeprom_dev/eeprom1
++  /sys/class/eeprom_dev/eeprom2
++  ...
++  /sys/class/eeprom_dev/eeprom<N>
++
++Within each eepromN directory you would find:
++
++  root@switch:/sys/class/eeprom_dev# ls -l eeprom2/
++  total 0
++  lrwxrwxrwx 1 root root    0 Sep  3 22:08 device -> ../../../1-0050
++  -r--r--r-- 1 root root 4096 Sep  3 22:08 label
++  lrwxrwxrwx 1 root root    0 Sep  4 17:18 subsystem ->  ../../../../../../../class/eeprom_dev
++
++device -- this is a symlink to the physical device.  For example to
++dump the EEPROM data of eeprom2 you could do:
++
++  hexdump -C /sys/class/eeprom_dev/eeprom2/device/eeprom
++
++As an example the device tree entry corresponding to eeprom2 could
++look like:
++
++	sfp_eeprom@50 {
++		compatible = "at,24c04";
++		reg = <0x50>;
++		label = "port6";
++	};
++
++From the original problem, imagine 64 similar entries for all the
++other ports.  Plus a few more entries for board EEPROM and power
++supply EEPROMs.
++
++From user space if I wanted to know the device corresponding to port6
++I could do something as simple as:
++
++root@switch:~# grep port6 /sys/class/eeprom_dev/eeprom*/label
++/sys/class/eeprom_dev/eeprom2/label:port6
++
++Then I could access the information via
++/sys/class/eeprom_dev/eeprom2/device/eeprom.
++
++It is nice that it keeps the mapping all in one place, in the .dts
++file.  It is not spread around in the device tree and some other
++platform specific configuration file.
++
++Note: For devices without a 'label' property the label file is still
++created, however, its contents would be set to 'unknown'.
++
++Note2: The class cannot be called 'eeprom' as that is the name of the
++I/O file created by the driver.  The class name appears as a
++sub-directory within the main device directory.  Hence the class name
++'eeprom_dev'.
+diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
+index 9536852f..be6b727 100644
+--- a/drivers/misc/eeprom/Kconfig
++++ b/drivers/misc/eeprom/Kconfig
+@@ -1,102 +1,113 @@
+ menu "EEPROM support"
  
-+#ifdef CONFIG_EEPROM_CLASS
++config EEPROM_CLASS
++	tristate "EEPROM Hardware Class support"
++	depends on SYSFS
++	default y
++	help
++	  Creates a hardware class in sysfs called "eeprom_dev",
++	  providing a common place to register EEPROM devices.
++
++	  This support can also be built as a module.  If so, the module
++	  will be called eeprom_class.
++
+ config EEPROM_AT24
+ 	tristate "I2C EEPROMs / RAMs / ROMs from most vendors"
+ 	depends on I2C && SYSFS
+ 	help
+ 	  Enable this driver to get read/write support to most I2C EEPROMs
+ 	  and compatible devices like FRAMs, SRAMs, ROMs etc. After you
+ 	  configure the driver to know about each chip on your target
+ 	  board.  Use these generic chip names, instead of vendor-specific
+ 	  ones like at24c64, 24lc02 or fm24c04:
+ 
+ 	     24c00, 24c01, 24c02, spd (readonly 24c02), 24c04, 24c08,
+ 	     24c16, 24c32, 24c64, 24c128, 24c256, 24c512, 24c1024
+ 
+ 	  Unless you like data loss puzzles, always be sure that any chip
+ 	  you configure as a 24c32 (32 kbit) or larger is NOT really a
+ 	  24c16 (16 kbit) or smaller, and vice versa. Marking the chip
+ 	  as read-only won't help recover from this. Also, if your chip
+ 	  has any software write-protect mechanism you may want to review the
+ 	  code to make sure this driver won't turn it on by accident.
+ 
+ 	  If you use this with an SMBus adapter instead of an I2C adapter,
+ 	  full functionality is not available.  Only smaller devices are
+ 	  supported (24c16 and below, max 4 kByte).
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called at24.
+ 
+ config EEPROM_AT25
+ 	tristate "SPI EEPROMs from most vendors"
+ 	depends on SPI && SYSFS
+ 	help
+ 	  Enable this driver to get read/write support to most SPI EEPROMs,
+ 	  after you configure the board init code to know about each eeprom
+ 	  on your target board.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called at25.
+ 
+ config EEPROM_LEGACY
+ 	tristate "Old I2C EEPROM reader"
+ 	depends on I2C && SYSFS
+ 	help
+ 	  If you say yes here you get read-only access to the EEPROM data
+ 	  available on modern memory DIMMs and Sony Vaio laptops via I2C. Such
+ 	  EEPROMs could theoretically be available on other devices as well.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called eeprom.
+ 
+ config EEPROM_MAX6875
+ 	tristate "Maxim MAX6874/5 power supply supervisor"
+ 	depends on I2C
+ 	help
+ 	  If you say yes here you get read-only support for the user EEPROM of
+ 	  the Maxim MAX6874/5 EEPROM-programmable, quad power-supply
+ 	  sequencer/supervisor.
+ 
+ 	  All other features of this chip should be accessed via i2c-dev.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called max6875.
+ 
+ 
+ config EEPROM_93CX6
+ 	tristate "EEPROM 93CX6 support"
+ 	help
+ 	  This is a driver for the EEPROM chipsets 93c46 and 93c66.
+ 	  The driver supports both read as well as write commands.
+ 
+ 	  If unsure, say N.
+ 
+ config EEPROM_93XX46
+ 	tristate "Microwire EEPROM 93XX46 support"
+ 	depends on SPI && SYSFS
+ 	help
+ 	  Driver for the microwire EEPROM chipsets 93xx46x. The driver
+ 	  supports both read and write commands and also the command to
+ 	  erase the whole EEPROM.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called eeprom_93xx46.
+ 
+ 	  If unsure, say N.
+ 
+ config EEPROM_DIGSY_MTC_CFG
+ 	bool "DigsyMTC display configuration EEPROMs device"
+ 	depends on GPIO_MPC5200 && SPI_GPIO
+ 	help
+ 	  This option enables access to display configuration EEPROMs
+ 	  on digsy_mtc board. You have to additionally select Microwire
+ 	  EEPROM 93XX46 driver. sysfs entries will be created for that
+ 	  EEPROM allowing to read/write the configuration data or to
+ 	  erase the whole EEPROM.
+ 
+ 	  If unsure, say N.
+ 
+ config EEPROM_SUNXI_SID
+ 	tristate "Allwinner sunxi security ID support"
+ 	depends on ARCH_SUNXI && SYSFS
+ 	help
+diff --git a/drivers/misc/eeprom/Makefile b/drivers/misc/eeprom/Makefile
+index 9507aec..d2369ca 100644
+--- a/drivers/misc/eeprom/Makefile
++++ b/drivers/misc/eeprom/Makefile
+@@ -1,8 +1,9 @@
++obj-$(CONFIG_EEPROM_CLASS)	+= eeprom_class.o
+ obj-$(CONFIG_EEPROM_AT24)	+= at24.o
+ obj-$(CONFIG_EEPROM_AT25)	+= at25.o
+ obj-$(CONFIG_EEPROM_LEGACY)	+= eeprom.o
+ obj-$(CONFIG_EEPROM_MAX6875)	+= max6875.o
+ obj-$(CONFIG_EEPROM_93CX6)	+= eeprom_93cx6.o
+ obj-$(CONFIG_EEPROM_93XX46)	+= eeprom_93xx46.o
+ obj-$(CONFIG_EEPROM_SUNXI_SID)	+= sunxi_sid.o
+ obj-$(CONFIG_EEPROM_DIGSY_MTC_CFG) += digsy_mtc_eeprom.o
+diff --git a/drivers/misc/eeprom/eeprom_class.c b/drivers/misc/eeprom/eeprom_class.c
+new file mode 100644
+index 0000000..c934ba6e
+--- /dev/null
++++ b/drivers/misc/eeprom/eeprom_class.c
+@@ -0,0 +1,159 @@
++/*
++ * eeprom_class.c
++ *
++ * This file defines the sysfs class "eeprom", for use by EEPROM
++ * drivers.
++ *
++ * Copyright (C) 2013 Cumulus Networks, Inc.
++ * Author: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
++ *
++ * Ideas and structure graciously borrowed from the hwmon class:
++ * Copyright (C) 2005 Mark M. Hoffman <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/err.h>
++#include <linux/kdev_t.h>
++#include <linux/idr.h>
 +#include <linux/eeprom_class.h>
-+#endif
++#include <linux/gfp.h>
++#include <linux/spinlock.h>
++#include <linux/pci.h>
 +
- /*
-  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-  * Differences between different vendor product lines (like Atmel AT24C or
-  * MicroChip 24LC, etc) won't much matter for typical read/write access.
-  * There are also I2C RAM chips, likewise interchangeable. One example
-  * would be the PCF8570, which acts like a 24c02 EEPROM (256 bytes).
-  *
-  * However, misconfiguration can lose data. "Set 16-bit memory address"
-  * to a part with 8-bit addressing will overwrite data. Writing with too
-  * big a page size also loses data. And it's not safe to assume that the
-  * conventional addresses 0x50..0x57 only hold eeproms; a PCF8563 RTC
-  * uses 0x51, for just one example.
-  *
-  * Accordingly, explicit board-specific configuration data should be used
-  * in almost all cases. (One partial exception is an SMBus used to access
-  * "SPD" data for DRAM sticks. Those only use 24c02 EEPROMs.)
-  *
-  * So this driver uses "new style" I2C driver binding, expecting to be
-  * told what devices exist. That may be in arch/X/mach-Y/board-Z.c or
-  * similar kernel-resident tables; or, configuration data coming from
-  * a bootloader.
-  *
-  * Other than binding model, current differences from "eeprom" driver are
-  * that this one handles write access and isn't restricted to 24c02 devices.
-  * It also handles larger devices (32 kbit and up) with two-byte addresses,
-  * which won't work on pure SMBus systems.
-  */
- 
- struct at24_data {
- 	struct at24_platform_data chip;
- 	struct memory_accessor macc;
- 	int use_smbus;
- 
- 	/*
- 	 * Lock protects against activities from other Linux tasks,
- 	 * but not from changes by other I2C masters.
- 	 */
- 	struct mutex lock;
- 	struct bin_attribute bin;
- 
- 	u8 *writebuf;
- 	unsigned write_max;
- 	unsigned num_addresses;
- 
-+#ifdef CONFIG_EEPROM_CLASS
++/* Root eeprom "class" object (corresponds to '/<sysfs>/class/eeprom_dev/') */
++static struct class *eeprom_class;
++
++#define EEPROM_CLASS_NAME "eeprom_dev"
++#define EEPROM_ID_PREFIX "eeprom"
++#define EEPROM_ID_FORMAT EEPROM_ID_PREFIX "%d"
++
++static DEFINE_IDA(eeprom_ida);
++
++/**
++ * eeprom_device_register - register w/ eeprom class
++ * @dev: the device to register
++ *
++ * eeprom_device_unregister() must be called when the device is no
++ * longer needed.
++ *
++ * Creates a new eeprom class device that is a child of @dev.  Also
++ * creates a symlink in /<sysfs>/class/eeprom_dev/eeprom[N] pointing
++ * to the new device.
++ *
++ * Returns the pointer to the new device.
++ */
++struct device *eeprom_device_register(struct device *dev)
++{
 +	struct device *eeprom_dev;
-+#endif
- 	/*
- 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
- 	 * them for us, and we'll use them with SMBus calls.
- 	 */
- 	struct i2c_client *client[];
- };
- 
- /*
-  * This parameter is to help this driver avoid blocking other drivers out
-  * of I2C for potentially troublesome amounts of time. With a 100 kHz I2C
-  * clock, one 256 byte read takes about 1/43 second which is excessive;
-  * but the 1/170 second it takes at 400 kHz may be quite reasonable; and
-  * at 1 MHz (Fm+) a 1/430 second delay could easily be invisible.
-  *
-  * This value is forced to be a power of two so that writes align on pages.
-  */
- static unsigned io_limit = 128;
- module_param(io_limit, uint, 0);
- MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
- 
- /*
-  * Specs often allow 5 msec for a page write, sometimes 20 msec;
-  * it's important to recover from write timeouts.
-  */
- static unsigned write_timeout = 25;
- module_param(write_timeout, uint, 0);
- MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
- #define AT24_SIZE_BYTELEN 5
- #define AT24_SIZE_FLAGS 8
- 
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
- /* create non-zero magic value for given eeprom parameters */
- #define AT24_DEVICE_MAGIC(_len, _flags) 		\
- 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
- 	    << AT24_SIZE_BYTELEN | ilog2(_len))
- 
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
- 	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
- 	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
- 	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
- 	/* spd is a 24c02 in memory DIMMs */
- 	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
- 		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
- 	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
- 	/* 24rf08 quirk is handled at i2c-core */
- 	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
- 	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
- 	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
- 	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
- 	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
- 	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
- 	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
- 	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
- 	{ "at24", 0 },
- 	{ /* END OF LIST */ }
- };
- MODULE_DEVICE_TABLE(i2c, at24_ids);
- 
- /*-------------------------------------------------------------------------*/
- 
- /*
-  * This routine supports chips which consume multiple I2C addresses. It
-  * computes the addressing information to be used for a given r/w request.
-  * Assumes that sanity checks for offset happened at sysfs-layer.
-  */
- static struct i2c_client *at24_translate_offset(struct at24_data *at24,
- 		unsigned *offset)
- {
- 	unsigned i;
- 
- 	if (at24->chip.flags & AT24_FLAG_ADDR16) {
- 		i = *offset >> 16;
- 		*offset &= 0xffff;
- 	} else {
- 		i = *offset >> 8;
- 		*offset &= 0xff;
- 	}
- 
- 	return at24->client[i];
- }
- 
- static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 		unsigned offset, size_t count)
- {
- 	struct i2c_msg msg[2];
- 	u8 msgbuf[2];
- 	struct i2c_client *client;
- 	unsigned long timeout, read_time;
- 	int status, i;
- 
- 	memset(msg, 0, sizeof(msg));
- 
- 	/*
- 	 * REVISIT some multi-address chips don't rollover page reads to
- 	 * the next slave address, so we may need to truncate the count.
- 	 * Those chips might need another quirk flag.
-@@ -524,173 +531,186 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return -EINVAL;
- 	}
- 	if (!is_power_of_2(chip.page_size))
- 		dev_warn(&client->dev,
- 			"page_size looks suspicious (no power of 2)!\n");
- 
- 	/* Use I2C operations unless we're stuck with SMBus extensions. */
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		if (chip.flags & AT24_FLAG_ADDR16)
- 			return -EPFNOSUPPORT;
- 
- 		if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
- 			use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
- 		} else if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_READ_WORD_DATA)) {
- 			use_smbus = I2C_SMBUS_WORD_DATA;
- 		} else if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
- 			use_smbus = I2C_SMBUS_BYTE_DATA;
- 		} else {
- 			return -EPFNOSUPPORT;
- 		}
- 	}
- 
- 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
- 		num_addresses = 8;
- 	else
- 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
- 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
- 
- 	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
- 		num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);
- 	if (!at24)
- 		return -ENOMEM;
- 
- 	mutex_init(&at24->lock);
- 	at24->use_smbus = use_smbus;
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
- 
- 	/*
- 	 * Export the EEPROM bytes through sysfs, since that's convenient.
- 	 * By default, only root should see the data (maybe passwords etc)
- 	 */
- 	sysfs_bin_attr_init(&at24->bin);
- 	at24->bin.attr.name = "eeprom";
- 	at24->bin.attr.mode = chip.flags & AT24_FLAG_IRUGO ? S_IRUGO : S_IRUSR;
- 	at24->bin.read = at24_bin_read;
- 	at24->bin.size = chip.byte_len;
- 
- 	at24->macc.read = at24_macc_read;
- 
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
- 	if (writable) {
- 		if (!use_smbus || i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
- 
- 			unsigned write_max = chip.page_size;
- 
- 			at24->macc.write = at24_macc_write;
- 
- 			at24->bin.write = at24_bin_write;
- 			at24->bin.attr.mode |= S_IWUSR;
- 
- 			if (write_max > io_limit)
- 				write_max = io_limit;
- 			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
- 				write_max = I2C_SMBUS_BLOCK_MAX;
- 			at24->write_max = write_max;
- 
- 			/* buffer (data + address at the beginning) */
- 			at24->writebuf = devm_kzalloc(&client->dev,
- 				write_max + 2, GFP_KERNEL);
- 			if (!at24->writebuf)
- 				return -ENOMEM;
- 		} else {
- 			dev_warn(&client->dev,
- 				"cannot write due to controller restrictions.");
- 		}
- 	}
- 
- 	at24->client[0] = client;
- 
- 	/* use dummy devices for multiple-address chips */
- 	for (i = 1; i < num_addresses; i++) {
- 		at24->client[i] = i2c_new_dummy(client->adapter,
- 					client->addr + i);
- 		if (!at24->client[i]) {
- 			dev_err(&client->dev, "address 0x%02x unavailable\n",
- 					client->addr + i);
- 			err = -EADDRINUSE;
- 			goto err_clients;
- 		}
- 	}
- 
- 	err = sysfs_create_bin_file(&client->dev.kobj, &at24->bin);
- 	if (err)
- 		goto err_clients;
- 
-+#ifdef CONFIG_EEPROM_CLASS
-+	at24->eeprom_dev = eeprom_device_register(&client->dev);
-+	if (IS_ERR(at24->eeprom_dev)) {
-+		dev_err(&client->dev, "error registering eeprom device.\n");
-+		err = PTR_ERR(at24->eeprom_dev);
-+		goto err_clients;
++	int id;
++
++	id = ida_simple_get(&eeprom_ida, 0, 0, GFP_KERNEL);
++	if (id < 0)
++		return ERR_PTR(id);
++
++	eeprom_dev = device_create(eeprom_class, dev, MKDEV(0, 0), NULL,
++				   EEPROM_ID_FORMAT, id);
++
++	if (IS_ERR(eeprom_dev))
++		ida_simple_remove(&eeprom_ida, id);
++
++	return eeprom_dev;
++}
++
++/**
++ * eeprom_device_unregister - removes the previously registered class device
++ *
++ * @dev: the class device to destroy
++ */
++void eeprom_device_unregister(struct device *dev)
++{
++	int id;
++
++	if (likely(sscanf(dev_name(dev), EEPROM_ID_FORMAT, &id) == 1)) {
++		device_unregister(dev);
++		ida_simple_remove(&eeprom_ida, id);
++	} else
++		dev_dbg(dev->parent,
++			"eeprom_device_unregister() failed: bad class ID!\n");
++}
++
++/**
++ * Each member of the eeprom class exports a sysfs file called
++ * "label", containing the label property from the corresponding
++ * device tree node.
++ *
++ *  Userspace can use the label to identify what the EEPROM is for.
++ */
++static ssize_t label_show(struct device *dev,
++			  struct device_attribute *attr,
++			  char *buf)
++{
++	const char* cp = NULL;
++	int len = 0;
++
++	/*
++	 * The class device is a child of the original device,
++	 * i.e. dev->parent points to the original device.
++	 */
++	if (dev->parent && dev->parent->of_node)
++		cp = of_get_property(dev->parent->of_node, "label", &len);
++
++	if ((cp == NULL) || (len == 0)) {
++		cp = "unknown";
++		len = strlen(cp) + 1;
 +	}
-+#endif
 +
- 	i2c_set_clientdata(client, at24);
- 
- 	dev_info(&client->dev, "%zu byte %s EEPROM, %s, %u bytes/write\n",
- 		at24->bin.size, client->name,
- 		writable ? "writable" : "read-only", at24->write_max);
- 	if (use_smbus == I2C_SMBUS_WORD_DATA ||
- 	    use_smbus == I2C_SMBUS_BYTE_DATA) {
- 		dev_notice(&client->dev, "Falling back to %s reads, "
- 			   "performance will suffer\n", use_smbus ==
- 			   I2C_SMBUS_WORD_DATA ? "word" : "byte");
- 	}
- 
- 	/* export data to kernel code */
- 	if (chip.setup)
- 		chip.setup(&at24->macc, chip.context);
- 
- 	return 0;
- 
- err_clients:
- 	for (i = 1; i < num_addresses; i++)
- 		if (at24->client[i])
- 			i2c_unregister_device(at24->client[i]);
- 
- 	return err;
- }
- 
- static int at24_remove(struct i2c_client *client)
- {
- 	struct at24_data *at24;
- 	int i;
- 
- 	at24 = i2c_get_clientdata(client);
- 	sysfs_remove_bin_file(&client->dev.kobj, &at24->bin);
- 
- 	for (i = 1; i < at24->num_addresses; i++)
- 		i2c_unregister_device(at24->client[i]);
- 
-+#ifdef CONFIG_EEPROM_CLASS
-+	eeprom_device_unregister(at24->eeprom_dev);
-+#endif
++	strncpy(buf, cp, len - 1);
++	buf[len - 1] = '\n';
++	buf[len] = '\0';
 +
- 	return 0;
- }
- 
- /*-------------------------------------------------------------------------*/
- 
- static struct i2c_driver at24_driver = {
- 	.driver = {
- 		.name = "at24",
- 		.owner = THIS_MODULE,
- 	},
- 	.probe = at24_probe,
- 	.remove = at24_remove,
- 	.id_table = at24_ids,
- };
- 
- static int __init at24_init(void)
- {
- 	if (!io_limit) {
- 		pr_err("at24: io_limit must not be 0!\n");
- 		return -EINVAL;
- 	}
- 
- 	io_limit = rounddown_pow_of_two(io_limit);
- 	return i2c_add_driver(&at24_driver);
- }
- module_init(at24_init);
- 
- static void __exit at24_exit(void)
- {
- 	i2c_del_driver(&at24_driver);
- }
- module_exit(at24_exit);
- 
- MODULE_DESCRIPTION("Driver for most I2C EEPROMs");
- MODULE_AUTHOR("David Brownell and Wolfram Sang");
- MODULE_LICENSE("GPL");
++	return len;
++}
++
++struct device_attribute eeprom_class_dev_attrs[] = {
++	__ATTR_RO(label),
++	__ATTR_NULL,
++};
++
++static int __init eeprom_init(void)
++{
++	eeprom_class = class_create(THIS_MODULE, EEPROM_CLASS_NAME);
++	if (IS_ERR(eeprom_class)) {
++		pr_err("couldn't create sysfs class\n");
++		return PTR_ERR(eeprom_class);
++	}
++
++	eeprom_class->dev_attrs = eeprom_class_dev_attrs;
++
++	return 0;
++}
++
++static void __exit eeprom_exit(void)
++{
++	class_destroy(eeprom_class);
++}
++
++subsys_initcall(eeprom_init);
++module_exit(eeprom_exit);
++
++EXPORT_SYMBOL_GPL(eeprom_device_register);
++EXPORT_SYMBOL_GPL(eeprom_device_unregister);
++
++MODULE_AUTHOR("Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>");
++MODULE_DESCRIPTION("eeprom sysfs/class support");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/eeprom_class.h b/include/linux/eeprom_class.h
+new file mode 100644
+index 0000000..389ac16
+--- /dev/null
++++ b/include/linux/eeprom_class.h
+@@ -0,0 +1,35 @@
++/*
++ * eeprom_class.c
++ *
++ * This file exports interface functions for the sysfs class "eeprom",
++ * for use by EEPROM drivers.
++ *
++ * Copyright (C) 2013 Cumulus Networks, Inc.
++ * Author: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#ifndef EEPROM_CLASS_H__
++#define EEPROM_CLASS_H__
++
++#include <linux/device.h>
++#include <linux/err.h>
++
++struct device *eeprom_device_register(struct device *dev);
++
++void eeprom_device_unregister(struct device *dev);
++
++#endif /* EEPROM_CLASS_H__ */
 -- 
 1.7.10.4
