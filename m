@@ -1,104 +1,69 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: Add message transfer tracepoints for I2C
-Date: Wed, 22 Jan 2014 20:09:06 +0100
-Message-ID: <20140122190906.GA2608@katana>
-References: <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
+From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Subject: Re: [PATCH 1/2] Create eeprom_dev hardware class for EEPROM devices
+Date: Wed, 22 Jan 2014 11:32:24 -0800
+Message-ID: <52E01CC8.4020709@amacapital.net>
+References: <1390412855-2927-1-git-send-email-curt@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Howells <dhowells@redhat.com>
-Cc: wolfram@the-dreams.de, khali@linux-fr.org, linux-i2c@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1390412855-2927-1-git-send-email-curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 01/22/2014 09:47 AM, Curt Brune wrote:
+> Create a new hardware class under /sys/class/eeprom_dev
+> 
+> EEPROM drivers can register their devices with the eeprom_dev class
+> during instantiation.
+> 
+> The registered devices show up as:
+> 
+>   /sys/class/eeprom_dev/eeprom0
+>   /sys/class/eeprom_dev/eeprom1
+>   ...
+>   /sys/class/eeprom_dev/eeprom[N]
+> 
+> Each member of the eeprom class exports a sysfs file called "label",
+> containing the label property from the corresponding device tree node.
+> 
+> Example:
+> 
+>   /sys/class/eeprom_dev/eeprom0/label
+> 
+> If the device tree node property "label" does not exist the value
+> "unknown" is used.
+> 
+> Userspace can use the label to identify what the EEPROM is for.
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I will be using the at24 driver (most likely -- the SPD protocol is so
+simple that it may be easier to use the raw SMBUS API) to talk to
+NV-DIMMs.  For this purpose, I really need to know that a given EEPROM
+is the EEPROM attached to a particular DIMM.  I wrote some code (search
+for "DIMM bus", in limbo) that kind of solves this problem, but it's not
+pretty.
 
-On Thu, Jan 09, 2014 at 09:49:54PM +0000, David Howells wrote:
-> Add tracepoints into the I2C message transfer function to retrieve the me=
-ssage
-> sent or received.  The following config options must be turned on to make=
- use
-> of the facility:
->=20
-> 	CONFIG_FTRACE
-> 	CONFIG_ENABLE_DEFAULT_TRACERS
->=20
-> The I2C tracepoint can be enabled thusly:
->=20
-> 	echo 1 >/sys/kernel/debug/tracing/events/i2c/i2c_transfer/enable
->=20
-> and will dump messages that can be viewed in /sys/kernel/debug/tracing/tr=
-ace
-> that look like:
->=20
-> 	... i2c_write: i2c-5 #0 f=3D00 a=3D44 l=3D2 [0214]
-> 	... i2c_read: i2c-5 #1 f=3D01 a=3D44 l=3D4
-> 	... i2c_reply: i2c-5 #1 f=3D01 a=3D44 l=3D4 [33000000]
-> 	... i2c_result: i2c-5 n=3D2 ret=3D2
->=20
-> formatted as:
->=20
-> 	i2c-<adapter-nr>
-> 	#<message-array-index>
-> 	f=3D<flags>
-> 	a=3D<addr>
-> 	l=3D<datalen>
-> 	n=3D<message-array-size>
-> 	ret=3D<result>
-> 	[<data>]
->=20
-> The operation is done between the i2c_write/i2c_read lines and the i2c_re=
-ply
-> and i2c_result lines so that if the hardware hangs, the trace buffer can =
-be
-> consulted to determine the problematic operation.
->=20
-> The adapters to be traced can be selected by something like:
->=20
-> 	echo adapter_nr=3D=3D1 >/sys/kernel/debug/tracing/events/i2c/filter
->=20
-> These changes are based on code from Steven Rostedt.
->=20
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> Reviewed-by: Steven Rostedt <rostedt@goodmis.org>
+In general, I suspect this will have the issue that EDID, SPD, etc.
+eeprom devices will get all confused.
 
-Thanks for doing this, much appreciated. One of the first things I'll
-review (and play with) next. But hey, has nobody else checked this out
-by now? Tested-by or acks very welcome.
+Ideally there would be a way to express the logical topology.  In the
+case of NV-DIMMs there's a DIMM.  That DIMM exposes some memory (which
+isn't really part of the driver model), some temperature sensors, an
+SPD, and some other stuff.  The DIMM as a whole lives in a DIMM slot.
 
-Thanks,
+Unfortunately, the kernel has no real awareness of what's going on.  The
+arch code just sees it as memory (without really associating it with a
+DIMM) and the EDAC driver and things like dmidecode do their own thing.
 
-   Wolfram
+The same issue shows up when sensors-detect offers to scan all the i2c
+busses on the ports on my graphics card for things like motherboard
+voltage sensors.
+
+Unfortunately, I don't think that using a device tree label really helps
+here, especially because none of the machines I care about use (or are
+likely to ever use) device trees.
 
 
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJS4BdSAAoJEBQN5MwUoCm2rggP/R/BwlZesLXaDae//yHYXz1S
-3FcONL/jZEkDcaQlBj+kVFM7pvriWFLxVGLQqiqrD8ZJbJkqAHLFnCuLgeip5HcB
-e8YT1+bivMr9AMEUfMP4T9CQeELV35l1k/BfPBatrHP9xSCWVopZc90LmOVmQBDZ
-mqaAVsBkKbMILwZ1K1zocnGwqo0QzpvEjKSKYC0q1dKnijZ4KhbPV0AfamkQVO4Y
-oAmNfNvrk+/iwD5tE5dLf6y+f5R1o8BfYVQwewCwymXaKOgbfzLfcstqer0ckcnp
-NXIepVg8jf1/ZhdxOvUy0fLWzze9gNKtbgphuZSrpg5ri2ojymG2WfCHpJwnWeKG
-HfBAOAYYzvlVRCuXqoZ83rBL5/sX6YZggKBZG5lsSoz+kMOBOMTmz6K7lFJR2tob
-5aCPLOmQ3f7YCxa0/RdR2YEk1rwz6SONrZzTEBj0SCA41HHYFxtcQh7bRf5UHcq8
-i7xI/ygzEp/zu4fqM0ZgtRrP4DniNrFQNiAKA3fxg2uVDgcb1e8e9+3gMiJw1xUx
-9CL1SCgqxeqIe70mvYoNoM8K4KXYW4Up/BpgFcsuRpNSSLPZUQrf0ijdDbfSDfoF
-1jUw86z5CcqN668jJOXC01vfZyGE3PSdOhzcL5w/T38ULKspjqsuUIdqUwuWn7rj
-l7Y2sucWho6HSBdoEZH2
-=ZEa/
------END PGP SIGNATURE-----
-
---h31gzZEtNLTqOjlF--
+--Andy
