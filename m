@@ -1,57 +1,116 @@
-From: Curt Brune <curt@cumulusnetworks.com>
-Subject: Re: [PATCH 2/2] Add at24 based EEPROMs to the eeprom_dev hardware
- class
-Date: Thu, 23 Jan 2014 11:10:36 -0800
-Message-ID: <20140123191036.GK29955@cumulusnetworks.com>
-References: <CAOMwXhMVgcVVWiUYbEgGcM+K5bZmKA3LO0=jZCEsyJak1TbTSA@mail.gmail.com>
- <20140123172534.GA2665@katana>
- <CAOMwXhPqnSNWtPMo7Qrr-O3qAqtjju7au7Mudckp7kN50yQW3A@mail.gmail.com>
- <20140123181537.GA3756@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140123181537.GA3756@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Laszlo Papp <lpapp@kde.org>, Thomas De Schampheleire <patrickdepinguin@gmail.com>, gregkh@linuxfoundation.org, Shrijeet Mukherjee <shm@cumulusnetworks.com>, wolfram@the-dreams.de, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+From: Matthew Locke <mlocke@codeaurora.org>
+Subject: Re: [PATCH v3 1/2] i2c: qup: Add device tree bindings information
+Date: Thu, 23 Jan 2014 13:11:50 -0600
+Message-ID: <174308F1-FFD2-4CB3-AEA2-C423F90FB133@codeaurora.org>
+References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1389999819-10648-2-git-send-email-bjorn.andersson@sonymobile.com>
+ <CAL_JsqJBEu8iLzE8-dXniZFytr6cQsprBYiYnJeXS2-80iy1Mw@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v1085)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAL_JsqJBEu8iLzE8-dXniZFytr6cQsprBYiYnJeXS2-80iy1Mw@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Rob Herring <robherring2@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-k
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu Jan 23 19:15, Wolfram Sang wrote:
+Rob,
+
+On Jan 20, 2014, at 8:10 AM, Rob Herring wrote:
+
+> On Fri, Jan 17, 2014 at 5:03 PM, Bjorn Andersson
+> <bjorn.andersson@sonymobile.com> wrote:
+>> From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+>> 
+>> The Qualcomm Universal Peripherial (QUP) wraps I2C mini-core and
+>> provide input and output FIFO's for it. I2C controller can operate
+>> as master with supported bus speeds of 100Kbps and 400Kbps.
+>> 
+>> Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
+>> [bjorn: reformulated part of binding description and cleaned up example]
+>> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+>> ---
 > 
-> > Well, it is not the Copyrights section, or you are saying the same
-> > people should go to MODULE_AUTHOR as in the Copyrights section, even
-> > if it is potentially several names? I thought this would be the name
-> > of the person who put the file together even if from existing sources.
+> Patch history?
 > 
-> You may be right that the two can be viewed differently. Nonetheless,
-> adding 10 lines to an existing driver already upstream does not count
-> for both.
+>> .../devicetree/bindings/i2c/qcom,i2c-qup.txt       | 41 ++++++++++++++++++++++
+>> 1 file changed, 41 insertions(+)
+>> create mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+>> 
+>> diff --git a/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+>> new file mode 100644
+>> index 0000000..a99711b
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+>> @@ -0,0 +1,41 @@
+>> +Qualcomm Universal Peripheral (QUP) I2C controller
+>> +
+>> +Required properties:
+>> + - compatible: Should be "qcom,i2c-qup".
+> 
+> Seems a bit generic. All versions of the IP are exactly the same?
+> "qcom,<chip>-i2c-qup" would be better.
 
-Apologies for the confusion resulting from a using a lot of context in
-my patch.  My small changes does not warrant changing any copyright or
-author notices in this file.
+The QUP IP block is the same across chips.  Its possible there could be different versions of the IP block but its pretty stable now. 
 
 > 
-> > >> PS.: Fixing the broken i2c mailing list typo, and updating Wolfram's
-> > >> address from the broken (obsolete?) version.
-> > >
-> > > It came through to the i2c list? What was wrong?
-> > 
-> > Yes, it did, _after_ fixing the typo in the mailing list address.
-> > Check the original mailing list address typed for details.
+>> + - reg: Should contain QUP register address and length.
+>> + - interrupts: Should contain I2C interrupt.
+>> +
+>> + - clocks: Should contain the core clock and the AHB clock.
+>> + - clock-names: Should be "core" for the core clock and "iface" for the
+>> +                AHB clock.
+>> +
+>> + - #address-cells: Should be <1> Address cells for i2c device address
+>> + - #size-cells: Should be <0> as i2c addresses have no size component
+>> +
+>> +Optional properties:
+>> + - clock-frequency: Should specify the desired i2c bus clock frequency in Hz,
+>> +                    default is 100kHz if omitted.
+>> +
+>> +Child nodes should conform to i2c bus binding.
+>> +
+>> +Example:
+>> +
+>> + i2c2: i2c@f9924000 {
+>> +       compatible = "qcom,i2c-qup";
+>> +       reg = <0xf9924000 0x1000>;
+>> +       interrupts = <0 96 0>;
+>> +
+>> +       clocks = <&gcc_blsp1_qup2_i2c_apps_clk>, <&gcc_blsp1_ahb_clk>;
+>> +       clock-names = "core", "iface";
+>> +
+>> +       clock-frequency = <355000>;
+>> +
+>> +       #address-cells = <1>;
+>> +       #size-cells = <0>;
+>> +
+>> +       dummy@60 {
+>> +               compatible = "dummy";
+>> +               reg = <0x60>;
+>> +       };
+>> + };
+>> +
+>> --
+>> 1.8.2.2
+>> 
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-> I did. That's why I asked :) Plus, since I got the original mail, it
-> must have come via i2c-list since my pengutronix address was in deed
-> wrong.
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
-Again apologies:  Indeed I had the i2c-list mailing address wrong on
-my initial submission, which Laszlo fixed up and resent.
-
-I will be submitting a new version of the patch set that:
-
-1. reduces the context lines
-2. clarifies a few points in the commit message
-
-Cheers,
-Curt
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
