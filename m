@@ -1,53 +1,41 @@
-From: Bjorn Andersson <bjorn@kryo.se>
-Subject: Re: [PATCH v3 1/2] i2c: qup: Add device tree bindings information
-Date: Thu, 23 Jan 2014 12:22:12 -0800
-Message-ID: <CAJAp7OhvFdC2OR_YO5Gh6x1q8TPWEDY58d-BQ5jw=B=31i5V2w@mail.gmail.com>
-References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1389999819-10648-2-git-send-email-bjorn.andersson@sonymobile.com>
- <CAL_JsqJBEu8iLzE8-dXniZFytr6cQsprBYiYnJeXS2-80iy1Mw@mail.gmail.com>
- <174308F1-FFD2-4CB3-AEA2-C423F90FB133@codeaurora.org>
+From: "Huang, Shane" <Shane.Huang-5C7GfCeVMHo@public.gmane.org>
+Subject: RE: [PATCH 1/2] i2c-piix4: Add support for AMD ML and CZ SMBus
+ changes
+Date: Thu, 23 Jan 2014 22:26:49 +0000
+Message-ID: <43EB3AB3EEFE8D43B525F4D2EAF507E1090ADBB0@SCYBEXDAG01.amd.com>
+References: <1390428346-2235-1-git-send-email-shane.huang@amd.com>
+ <20140123132740.122c0f8a@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <174308F1-FFD2-4CB3-AEA2-C423F90FB133@codeaurora.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Matthew Locke <mlocke@codeaurora.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Landley <rob@landley.net>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>linu
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140123132740.122c0f8a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Peng, Carl" <Carl.Peng-5C7GfCeVMHo@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Huang, Shane" <Shane.Huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 23, 2014 at 11:11 AM, Matthew Locke <mlocke@codeaurora.org> wrote:
-> Rob,
->
-> On Jan 20, 2014, at 8:10 AM, Rob Herring wrote:
->
->> On Fri, Jan 17, 2014 at 5:03 PM, Bjorn Andersson
-[...]
->>> +Required properties:
->>> + - compatible: Should be "qcom,i2c-qup".
->>
->> Seems a bit generic. All versions of the IP are exactly the same?
->> "qcom,<chip>-i2c-qup" would be better.
->
-> The QUP IP block is the same across chips.  Its possible there could be different versions of the IP block but its pretty stable now.
+Hi Jean,
 
-I have not been able to find any differences in this block between
-8960 and 8074 and I have successfully tested the driver on both
-platforms.
+> As the mask used for smb_en_status doesn't depend on the value of
+> "aux", this implies that on the Hudson-2, a single bit controls if both
+> SMBus controllers are enabled. It's not possible to enable one and
+> disable the other. Is it correct, or is it an overlook?
 
-So the reason for making it more specific would be to handle any
-future crazyness. Not sure what to do about this though, I have never
-heard about the version numbers Stephen gave us and I can't find them
-in the documentation available to us, so I wouldn't know which of the
-two to select...
+Good question. This is the current design, not an overlook.
 
-Regards,
-Bjorn
+> BTW it would be really great if we could have access to the
+> documentation for these new AMD chipsets. I looked for both Hudson and
+> FCH at http://developer.amd.com/ but these searches returned nothing. I
+> could help better if I had access to the documentation / datasheets.
+
+I don't know who is the website maintainer but forwarded your question
+to our FCH datasheet maintainer, and he will follow up. I hope that it will
+be improved in near future. :-)
+
+BTW, will this patch appear from kernel 3.14-rc1 ?
+
+
+Thanks,
+Shane
