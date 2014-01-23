@@ -1,49 +1,30 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-piix4: Use different message for AMD Auxiliary
- SMBus Controller
-Date: Thu, 23 Jan 2014 13:43:38 +0100
-Message-ID: <20140123134338.0ea83d94@endymion.delvare>
-References: <1390428412-2269-1-git-send-email-shane.huang@amd.com>
+From: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH 1/2] Create eeprom_dev hardware class for EEPROM devices
+Date: Thu, 23 Jan 2014 06:54:34 -0800
+Message-ID: <20140123145434.GG29955@cumulusnetworks.com>
+References: <CAOMwXhNYtzsDDrLfp7AYT=YhewPqkJ841pPyKeNGVA9-quh6=g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1390428412-2269-1-git-send-email-shane.huang-5C7GfCeVMHo@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAOMwXhNYtzsDDrLfp7AYT=YhewPqkJ841pPyKeNGVA9-quh6=g@mail.gmail.com>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Carl Peng <carl.peng-5C7GfCeVMHo@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Laszlo Papp <lpapp-RoXCvvDuEio@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thomas De Schampheleire <patrickdepinguin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Shrijeet Mukherjee <shm-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 22 Jan 2014 14:06:52 -0800, Shane Huang wrote:
-> Same messages for AMD main and auxiliary SMBus controllers lead to confusion,
-> this patch is to remove confusion and keep consistent with non-AMD products.
-> 
-> Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-piix4.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index f71b4d3..d82b8ab 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -295,7 +295,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  	/* Aux SMBus does not support IRQ information */
->  	if (aux) {
->  		dev_info(&PIIX4_dev->dev,
-> -			 "SMBus Host Controller at 0x%x\n", piix4_smba);
-> +			 "Auxiliary SMBus Host Controller at 0x%x\n",
-> +			 piix4_smba);
->  		return piix4_smba;
->  	}
->  
+On Thu Jan 23 07:34, Laszlo Papp wrote:
+> On Thu, Jan 23, 2014 at 7:31 AM, Laszlo Papp <lpapp-RoXCvvDuEio@public.gmane.org> wrote:
+> > On Wed, Jan 22, 2014 at 5:23 PM, Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
+> >> Create a new hardware class under /sys/class/eeprom_dev
+> >
+> > I would also explain why it is called "eeprom_dev", and not "eeprom"
+> > as it would naturally sound at first. I think you wrote this before on
+> > the mailing list with your explanation, but it would be nice to record
+> > it in the commit message as well for the posterity reading git log.
 
-I like it very much, as it makes all these messages consistent across
-devices. And this allows string re-use for a small gain in size.
+ACK, will put the reasoning in the git log.  The patch also adds the
+reasoning in Documentation/misc-devices/eeprom_hw_class.txt
 
-Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-Wolfram, please apply.
-
--- 
-Jean Delvare
+Cheers,
+Curt
