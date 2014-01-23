@@ -1,89 +1,33 @@
-From: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH v2 2/2] Add at24 based EEPROMs to the eeprom_dev hardware class
-Date: Thu, 23 Jan 2014 11:16:02 -0800
-Message-ID: <1390504562-20333-2-git-send-email-curt@cumulusnetworks.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Laszlo Papp <lpapp-RoXCvvDuEio@public.gmane.org>
-Cc: Thomas De Schampheleire <patrickdepinguin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Shrijeet Mukherjee <shm-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3 1/2] i2c: qup: Add device tree bindings information
+Date: Thu, 23 Jan 2014 20:50:24 +0100
+Message-ID: <201401232050.25134.arnd@arndb.de>
+References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <CAL_JsqJBEu8iLzE8-dXniZFytr6cQsprBYiYnJeXS2-80iy1Mw@mail.gmail.com>
+ <174308F1-FFD2-4CB3-AEA2-C423F90FB133@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <174308F1-FFD2-4CB3-AEA2-C423F90FB133@codeaurora.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Mark Rutland <mark.rutland@arm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, Matthew Locke <mlocke@codeaurora.org>, Wolfram Sang <wsa@the-dreams.de>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Landley <rob@landley.net>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@>
 List-Id: linux-i2c@vger.kernel.org
 
-During device instantiation have the at24 driver add the new device to
-the eeprom_dev hardware class.  The functionality is enabled by
-CONFIG_EEPROM_CLASS.
+On Thursday 23 January 2014, Matthew Locke wrote:
+> The QUP IP block is the same across chips.  Its possible there could be different versions of the IP block but its pretty stable now. 
 
-Signed-off-by: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
----
- drivers/misc/eeprom/at24.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+Do you know the version numbers of the IP block? That would be the ideal case. We just
+fall back to using the SoC name in most cases because that's all that is publically
+known.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index d87f77f..07782ea 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -22,10 +22,14 @@
- #include <linux/jiffies.h>
- #include <linux/of.h>
- #include <linux/i2c.h>
- #include <linux/platform_data/at24.h>
- 
-+#ifdef CONFIG_EEPROM_CLASS
-+#include <linux/eeprom_class.h>
-+#endif
-+
- /*
-  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-  * Differences between different vendor product lines (like Atmel AT24C or
-  * MicroChip 24LC, etc) won't much matter for typical read/write access.
-  * There are also I2C RAM chips, likewise interchangeable. One example
-@@ -66,10 +70,13 @@ struct at24_data {
- 
- 	u8 *writebuf;
- 	unsigned write_max;
- 	unsigned num_addresses;
- 
-+#ifdef CONFIG_EEPROM_CLASS
-+	struct device *eeprom_dev;
-+#endif
- 	/*
- 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
- 	 * them for us, and we'll use them with SMBus calls.
- 	 */
- 	struct i2c_client *client[];
-@@ -619,10 +626,19 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	err = sysfs_create_bin_file(&client->dev.kobj, &at24->bin);
- 	if (err)
- 		goto err_clients;
- 
-+#ifdef CONFIG_EEPROM_CLASS
-+	at24->eeprom_dev = eeprom_device_register(&client->dev);
-+	if (IS_ERR(at24->eeprom_dev)) {
-+		dev_err(&client->dev, "error registering eeprom device.\n");
-+		err = PTR_ERR(at24->eeprom_dev);
-+		goto err_clients;
-+	}
-+#endif
-+
- 	i2c_set_clientdata(client, at24);
- 
- 	dev_info(&client->dev, "%zu byte %s EEPROM, %s, %u bytes/write\n",
- 		at24->bin.size, client->name,
- 		writable ? "writable" : "read-only", at24->write_max);
-@@ -656,10 +672,14 @@ static int at24_remove(struct i2c_client *client)
- 	sysfs_remove_bin_file(&client->dev.kobj, &at24->bin);
- 
- 	for (i = 1; i < at24->num_addresses; i++)
- 		i2c_unregister_device(at24->client[i]);
- 
-+#ifdef CONFIG_EEPROM_CLASS
-+	eeprom_device_unregister(at24->eeprom_dev);
-+#endif
-+
- 	return 0;
- }
- 
- /*-------------------------------------------------------------------------*/
- 
--- 
-1.7.10.4
+	Arnd
