@@ -1,30 +1,56 @@
-From: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH 1/2] Create eeprom_dev hardware class for EEPROM devices
-Date: Thu, 23 Jan 2014 06:54:34 -0800
-Message-ID: <20140123145434.GG29955@cumulusnetworks.com>
-References: <CAOMwXhNYtzsDDrLfp7AYT=YhewPqkJ841pPyKeNGVA9-quh6=g@mail.gmail.com>
+From: Curt Brune <curt@cumulusnetworks.com>
+Subject: Re: [PATCH 2/2] Add at24 based EEPROMs to the eeprom_dev hardware
+ class
+Date: Thu, 23 Jan 2014 07:05:24 -0800
+Message-ID: <20140123150524.GH29955@cumulusnetworks.com>
+References: <CAOMwXhMVgcVVWiUYbEgGcM+K5bZmKA3LO0=jZCEsyJak1TbTSA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAOMwXhNYtzsDDrLfp7AYT=YhewPqkJ841pPyKeNGVA9-quh6=g@mail.gmail.com>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laszlo Papp <lpapp-RoXCvvDuEio@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thomas De Schampheleire <patrickdepinguin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Shrijeet Mukherjee <shm-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <CAOMwXhMVgcVVWiUYbEgGcM+K5bZmKA3LO0=jZCEsyJak1TbTSA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Laszlo Papp <lpapp@kde.org>
+Cc: Thomas De Schampheleire <patrickdepinguin@gmail.com>, gregkh@linuxfoundation.org, Shrijeet Mukherjee <shm@cumulusnetworks.com>, wolfram@the-dreams.de, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu Jan 23 07:34, Laszlo Papp wrote:
-> On Thu, Jan 23, 2014 at 7:31 AM, Laszlo Papp <lpapp-RoXCvvDuEio@public.gmane.org> wrote:
-> > On Wed, Jan 22, 2014 at 5:23 PM, Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
-> >> Create a new hardware class under /sys/class/eeprom_dev
-> >
-> > I would also explain why it is called "eeprom_dev", and not "eeprom"
-> > as it would naturally sound at first. I think you wrote this before on
-> > the mailing list with your explanation, but it would be nice to record
-> > it in the commit message as well for the posterity reading git log.
+On Thu Jan 23 07:44, Laszlo Papp wrote:
+> On Wed, Jan 22, 2014 at 5:23 PM, Curt Brune <curt@cumulusnetworks.com> wrote:
+> > During device instantiation have the at24 driver add the new device to
+> > the eeprom_dev hardware class.  The functionality is enabled by
+> > CONFIG_EEPROM_CLASS.
+[snip]
+> >  static void __exit at24_exit(void)
+> >  {
+> >         i2c_del_driver(&at24_driver);
+> >  }
+> >  module_exit(at24_exit);
+> 
+> Couldn't you use module_i2c_driver() instead of this?
 
-ACK, will put the reasoning in the git log.  The patch also adds the
-reasoning in Documentation/misc-devices/eeprom_hw_class.txt
+I'm not sure what you mean.
+
+Do you mean should the class registration/unregistration be put in
+module_i2c_driver()?  That would not work as not all i2c devices are
+eeproms.
+
+> 
+> >  MODULE_DESCRIPTION("Driver for most I2C EEPROMs");
+> >  MODULE_AUTHOR("David Brownell and Wolfram Sang");
+> 
+> I would personally put your name in here if I were you, otherwise
+> David and Wolfram might get contacted by some people instead of you
+> (at least based on this).
+
+Hmmm.   I don't know.  I didn't change the driver very much, just
+added about 10 lines to a perfectly fine driver.  git-blame would
+point right at me for anything to do with this patch.
+
+> 
+> PS.: Fixing the broken i2c mailing list typo, and updating Wolfram's
+> address from the broken (obsolete?) version.
+
+Thanks for fixing that.
 
 Cheers,
 Curt
