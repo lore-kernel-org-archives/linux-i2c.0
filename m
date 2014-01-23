@@ -1,56 +1,72 @@
-From: Curt Brune <curt@cumulusnetworks.com>
-Subject: Re: [PATCH 2/2] Add at24 based EEPROMs to the eeprom_dev hardware
- class
-Date: Thu, 23 Jan 2014 07:05:24 -0800
-Message-ID: <20140123150524.GH29955@cumulusnetworks.com>
-References: <CAOMwXhMVgcVVWiUYbEgGcM+K5bZmKA3LO0=jZCEsyJak1TbTSA@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-i801: Standardize log messages
+Date: Thu, 23 Jan 2014 16:59:38 +0100
+Message-ID: <20140123165938.493ea62c@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAOMwXhMVgcVVWiUYbEgGcM+K5bZmKA3LO0=jZCEsyJak1TbTSA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laszlo Papp <lpapp@kde.org>
-Cc: Thomas De Schampheleire <patrickdepinguin@gmail.com>, gregkh@linuxfoundation.org, Shrijeet Mukherjee <shm@cumulusnetworks.com>, wolfram@the-dreams.de, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu Jan 23 07:44, Laszlo Papp wrote:
-> On Wed, Jan 22, 2014 at 5:23 PM, Curt Brune <curt@cumulusnetworks.com> wrote:
-> > During device instantiation have the at24 driver add the new device to
-> > the eeprom_dev hardware class.  The functionality is enabled by
-> > CONFIG_EEPROM_CLASS.
-[snip]
-> >  static void __exit at24_exit(void)
-> >  {
-> >         i2c_del_driver(&at24_driver);
-> >  }
-> >  module_exit(at24_exit);
-> 
-> Couldn't you use module_i2c_driver() instead of this?
+Use exactly the same log messages in the legacy setup function and the
+SB800+ setup function. This way strings can be reused, which saves
+some bytes in the generated binary.
 
-I'm not sure what you mean.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+---
+Inspired by Shane's recent patch, on top of which it applies.
 
-Do you mean should the class registration/unregistration be put in
-module_i2c_driver()?  That would not work as not all i2c devices are
-eeproms.
+ drivers/i2c/busses/i2c-piix4.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-> 
-> >  MODULE_DESCRIPTION("Driver for most I2C EEPROMs");
-> >  MODULE_AUTHOR("David Brownell and Wolfram Sang");
-> 
-> I would personally put your name in here if I were you, otherwise
-> David and Wolfram might get contacted by some people instead of you
-> (at least based on this).
+--- linux-3.13.orig/drivers/i2c/busses/i2c-piix4.c	2014-01-23 13:35:43.684040390 +0100
++++ linux-3.13/drivers/i2c/busses/i2c-piix4.c	2014-01-23 13:54:55.462751999 +0100
+@@ -208,16 +208,16 @@ static int piix4_setup(struct pci_dev *P
+ 				   "WARNING: SMBus interface has been FORCEFULLY ENABLED!\n");
+ 		} else {
+ 			dev_err(&PIIX4_dev->dev,
+-				"Host SMBus controller not enabled!\n");
++				"SMBus Host Controller not enabled!\n");
+ 			release_region(piix4_smba, SMBIOSIZE);
+ 			return -ENODEV;
+ 		}
+ 	}
+ 
+ 	if (((temp & 0x0E) == 8) || ((temp & 0x0E) == 2))
+-		dev_dbg(&PIIX4_dev->dev, "Using Interrupt 9 for SMBus.\n");
++		dev_dbg(&PIIX4_dev->dev, "Using IRQ for SMBus\n");
+ 	else if ((temp & 0x0E) == 0)
+-		dev_dbg(&PIIX4_dev->dev, "Using Interrupt SMI# for SMBus.\n");
++		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus\n");
+ 	else
+ 		dev_err(&PIIX4_dev->dev, "Illegal Interrupt configuration "
+ 			"(or code out of date)!\n");
+@@ -279,7 +279,7 @@ static int piix4_setup_sb800(struct pci_
+ 
+ 	if (!smb_en_status) {
+ 		dev_err(&PIIX4_dev->dev,
+-			"Host SMBus controller not enabled!\n");
++			"SMBus Host Controller not enabled!\n");
+ 		return -ENODEV;
+ 	}
+ 
+@@ -311,9 +311,9 @@ static int piix4_setup_sb800(struct pci_
+ 	release_region(piix4_smba + i2ccfg_offset, 1);
+ 
+ 	if (i2ccfg & 1)
+-		dev_dbg(&PIIX4_dev->dev, "Using IRQ for SMBus.\n");
++		dev_dbg(&PIIX4_dev->dev, "Using IRQ for SMBus\n");
+ 	else
+-		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus.\n");
++		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus\n");
+ 
+ 	dev_info(&PIIX4_dev->dev,
+ 		 "SMBus Host Controller at 0x%x, revision %d\n",
 
-Hmmm.   I don't know.  I didn't change the driver very much, just
-added about 10 lines to a perfectly fine driver.  git-blame would
-point right at me for anything to do with this patch.
 
-> 
-> PS.: Fixing the broken i2c mailing list typo, and updating Wolfram's
-> address from the broken (obsolete?) version.
-
-Thanks for fixing that.
-
-Cheers,
-Curt
+-- 
+Jean Delvare
