@@ -1,57 +1,57 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-piix4: Use different message for AMD Auxiliary
- SMBus Controller
-Date: Fri, 24 Jan 2014 17:48:08 +0100
-Message-ID: <20140124164808.GB2629@katana>
-References: <1390428412-2269-1-git-send-email-shane.huang@amd.com>
+Subject: Re: [PATCH] i2c-i801: Standardize log messages
+Date: Fri, 24 Jan 2014 17:51:54 +0100
+Message-ID: <20140124165154.GC2629@katana>
+References: <20140123165938.493ea62c@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+nBD6E3TurpgldQp"
+	protocol="application/pgp-signature"; boundary="eqp4TxRxnD4KrmFZ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1390428412-2269-1-git-send-email-shane.huang-5C7GfCeVMHo@public.gmane.org>
+In-Reply-To: <20140123165938.493ea62c-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Carl Peng <carl.peng-5C7GfCeVMHo@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---+nBD6E3TurpgldQp
+--eqp4TxRxnD4KrmFZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 22, 2014 at 02:06:52PM -0800, Shane Huang wrote:
-> Same messages for AMD main and auxiliary SMBus controllers lead to confus=
-ion,
-> this patch is to remove confusion and keep consistent with non-AMD produc=
-ts.
+On Thu, Jan 23, 2014 at 04:59:38PM +0100, Jean Delvare wrote:
+> Use exactly the same log messages in the legacy setup function and the
+> SB800+ setup function. This way strings can be reused, which saves
+> some bytes in the generated binary.
 >=20
-> Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
 
-Applied to for-current, thanks!
+Subject is wrong. This is about piix4, not i801.
+Fixed and applied to for-current, thanks!
 
 
---+nBD6E3TurpgldQp
+--eqp4TxRxnD4KrmFZ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS4plIAAoJEBQN5MwUoCm2RJQP/RDDtUOJZeV3tKhMFOST2mFh
-nS/MI8MuNQvSK4H5nqi6vax2MbqWIy7IqZdtvSy36WnwLTphTmejxl8wNlGgNFiE
-Jb43XVhbKimqYhFSx0TL8UMTevCaZO09Mu9WdRwvPCbhYPogP7hQ1COttTMZBg8v
-PZ+UR2MzwNFRy2hTnxizQOEhyw36EoYRQV4OdcMCusaZywxNP0GvsH8YPBUH+0JR
-5W8Q0dyAKPsx3R5X5NcD3KGo6DDjx00uWnotBcHO6SQCQulWhI41q4RTOpSBwpJa
-3rHU3Jy10SzNttOnp5lxrlMMyZCbM7I4yHrgjbaOXguPBIqTz1ETNWXAChXfMbp/
-UiZ8fogTtfl3bcX1dsXrXiz9WkjWDfbuR/NwZvPaX93xMhovNDzI3k82O5Ygb8Rb
-6chUOTR098ZghzkYkbFQpA00uARH+zGqoWmCxljl+QZh9ohWGEwHYUuV2DC6S4nL
-yY9WZTNRbMp68QPjCQ19DZasKXuLYxQ9Xg4YNNHz5qF0fbJzofBuL9+wbtUCqZjl
-ocbdR76gf1tZj4y/baE3yztR+UYuFjLaSr6w6FBL3e1O1+tfZK/RqPG+ClX4M3ah
-zNtZuo6xnYiXJokwruSN0OROGGU3c20dr3ESCFmcNs/IMSUNSggjxttEaARKpZf5
-iJXPPyd3p7Mw69gWzQiA
-=Q8i7
+iQIcBAEBAgAGBQJS4poqAAoJEBQN5MwUoCm2BXwQAJFa6wxZ4SsbUkBsMakJr+s9
+8LnREMdQ3KzSaDUi2tjI7xa+7raG3IW6iDtXlyjHMKV93NWLBek6cq+qFyrGLhVt
+madQgneQ5Kc0VV5exx0/Y5k/wYqAVng7N5aF1Riecdjh8DSBuix27Ycow7tD90hH
+goiR3FO0tmoyJi6wAxMLGuOCJBc/Wc5/Hg/+RHwCtPUwY1udvsNuxVhq5U10YDVH
+XuqhEpAruQG3t8Df8jCWCC4g6PPJukFfTdEWHZB25zN6z6Hnkx75dn6YDjvDRN67
+qD7dXYVEH9CYZ8DuB8iaBJjgzooS/iJoADs2O7HaOXGeYmmHVGvkGsYIsrA6V6xQ
+fsmgMKnJUaH+pOJIAyLKLyCRXETYGqojBSPYe6WgltXaNruhJcaGAgwPWWgIgtVR
+cLdORMfJjbKZ5KgV86HIWSoMmFD2+StdPfjiIZhV+doh0T6DFbT/GkmgOGloccrb
+JPFUH/V2qKqLJxsJlNYjNd0cI2Tdcz+z2Z/rTDFiSTKtzdfyGEKDcl1j26wYqDI/
+0ITQYsv2ka51ocpL/7+cfBo+nNh6+zuefN1DgJz4KwSJEr6gVN3YLjgYw8xMWyJ7
+DBjEWOBQkIzmoudKL9DShN8DiOf3emM1UxU940DVzUv0MnXgxoA0DLC2ALnrV1Ix
+IaQYqu8adkrs70DBJxYY
+=g8/z
 -----END PGP SIGNATURE-----
 
---+nBD6E3TurpgldQp--
+--eqp4TxRxnD4KrmFZ--
