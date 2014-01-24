@@ -1,64 +1,63 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 4/4] i2c: rcar: use devm_clk_get to ensure clock is
- properly ref-counted
-Date: Fri, 24 Jan 2014 18:12:54 +0100
-Message-ID: <20140124171254.GE2629@katana>
-References: <1389982298-23143-1-git-send-email-ben.dooks@codethink.co.uk>
- <1389982298-23143-5-git-send-email-ben.dooks@codethink.co.uk>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 30/73] drivers/i2c: busses/i2c-acorn.c is tristate and
+ should use module.h
+Date: Fri, 24 Jan 2014 18:26:14 +0100
+Message-ID: <20140124172614.GF2629@katana>
+References: <1390339396-3479-1-git-send-email-paul.gortmaker@windriver.com>
+ <1390339396-3479-31-git-send-email-paul.gortmaker@windriver.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QNDPHrPUIc00TOLW"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="QWpDgw58+k1mSFBj"
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1389982298-23143-5-git-send-email-ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Cc: linux-kernel-81qHHgoATdFT9dQujB1mzip2UmYkHbXO@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1390339396-3479-31-git-send-email-paul.gortmaker@windriver.com>
+Sender: linux-arch-owner@vger.kernel.org
+To: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---QNDPHrPUIc00TOLW
+--QWpDgw58+k1mSFBj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 17, 2014 at 06:11:38PM +0000, Ben Dooks wrote:
-> The current i2c-rcar driver does clk_get() without a corresponding
-> clk_put(). Add the clk to the driver private data and then get it
-> with the devm functions so that it is released when the driver is
-> unbound.
+On Tue, Jan 21, 2014 at 04:22:33PM -0500, Paul Gortmaker wrote:
+> This file is controlled by a tristate Kconfig option, and hence
+> needs to include module.h so that it can get module_init() once
+> we relocate it from init.h into module.h in the future.
 >=20
+> Note that module_exit() appears to be missing from the driver, so
+> it is questionable whether it would actually work for a removal
+> and reload cycle if it was configured for a modular build.
+>=20
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
 
-> =20
-> +	priv->clk =3D devm_clk_get(dev, NULL);
-> +	if (IS_ERR(priv->clk)) {
-> +		dev_err(dev, "cannot get clock\n");
-> +		return -ENOENT;
-> +	}
-
-Return the error here?
+Applied to for-current, thanks!
 
 
---QNDPHrPUIc00TOLW
+--QWpDgw58+k1mSFBj
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS4p8WAAoJEBQN5MwUoCm26A8QALU2GTJBY8Hoyl3rF7cbV+WP
-t3946sfgdBh9HTeetqljSqzcG549t3oOUpHk3K9cBbGlgH+r9Gev6B5haPthuDDN
-9jLmLMxua+HzUdU0qbcnX/mmWdMlpm03+Z3he+g/c25KwPsSD1sfbr7xPzW6/Mu3
-SYZugF3d7BKqYXBCbagbuSeG4Fw0tlikEK1k4571lYyU9HRAYISH9FFX+MYNORJi
-Dy07zJXWfXJgDjkQx79yMf7X/S/VO8hO443N72I424XdthA5IQuBJ4GlXJE4WC2S
-p0QMAesFHlLjImvk6ygV28P9FEEDLYj/Uk4NTbTXYGECeiuxq4EqrEVfValtfR5/
-eEhF3WwW35UYY/RXlTPSl8bAmLupsVqnRpmSXVmKLX0IBc1nLpRwE1Kcqn1+XydC
-+fgqNUD+4LqaLVln2eyeb7gAobBWP3UR07CIxn3n0UQMEyT4SiuddQv4Y7ILG/6l
-/55WnSrT8FXE/5eTqVdrTD/HWRRt2cTJWdZ4Mg30a0CCamvXU5C4nYXOU2fpHDE4
-1aGX9ufRp6VNK1VKdVQjXQxuv54ib1h+2mfyMwZvsx1p/62upHm7pcj37+e4Ar9x
-HTms39XAcRmn5sQ5GoMUDWTyTY+1rgSmjJRuwi+uSYd8Yg4kCLELljXUgCHwOpPz
-LmQeeguUNkC/LSI6aJvE
-=JRwL
+iQIcBAEBAgAGBQJS4qI2AAoJEBQN5MwUoCm21F4P/iFLNsmv4M04KPpGQH1jpge1
+indr5iiLLHnD3L6HwyswYTRBMlV3nIBWro78Dq6ct48bH3+b2EmZOOw0wvUNvyJd
+GwRbxACDd3jKLVneCyONj3d+BOQxwt1XwQn222dREZJ47pNq6mAHz8GVQO0oOFLX
+xS08rvqnlwak+eB0AcVA9CisG/x33Ia9YV8zMq9EK7nCYaIpLNbwcOAD8slFBO9f
+2SaOEu7l5eVtDDTki/XMM3VrNXTctQyxinqkA0A+ebcltqrpKy+ni1hLPCaz4ckP
+Ex9lCYUsSsSVFeRGLSE5gei6T9JFsFXt6d58rmxsOcof6GGVXSFRP22otgTYzbPo
+1TmZeKSccFF5Ers/xSTIUGWkif1WIhc9OiNB3fQ855A4wcExCZAy2M2oED+GV9LU
+pvGsyu+v+Rrfact/MgW5t/KNo2WJxX4XazYEHOXWeut5g8XA2XwzG9iiC1ANNkim
+114Txym+qjdIyKFQVrHsad0FPFv+jbC7zyOg3VI/kLvQtqRNQI9xhccLjusYxEjF
+fjnvRekcZJNkPUb+dy37CQT5fdjsLh0Dr5f3/9ezDPOoLeIm2Q4jUo9LFGH75GlL
+1ormRtQp71CRY6O39HdkcpfUhMZaI39vhhOoZy7SHyIJB5qIfOT6eqUInWDpWbNd
+QeuFcPlHHvPtjUVMzzyj
+=SPf3
 -----END PGP SIGNATURE-----
 
---QNDPHrPUIc00TOLW--
+--QWpDgw58+k1mSFBj--
