@@ -1,82 +1,61 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 51/73] drivers/i2c: delete non-required instances of
- include <linux/init.h>
-Date: Fri, 24 Jan 2014 18:09:39 +0100
-Message-ID: <20140124180939.167e31a4@endymion.delvare>
-References: <1390339396-3479-1-git-send-email-paul.gortmaker@windriver.com>
-	<1390339396-3479-52-git-send-email-paul.gortmaker@windriver.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 3/4] i2c: rcar: do not print error if device nacks
+ transfer
+Date: Fri, 24 Jan 2014 18:11:12 +0100
+Message-ID: <20140124171112.GD2629@katana>
+References: <1389982298-23143-1-git-send-email-ben.dooks@codethink.co.uk>
+ <1389982298-23143-4-git-send-email-ben.dooks@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1390339396-3479-52-git-send-email-paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="N1GIdlSm9i+YlY4t"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1389982298-23143-4-git-send-email-ben.dooks@codethink.co.uk>
+Sender: linux-sh-owner@vger.kernel.org
+To: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: linux-kernel@lists.codethink.co.uk, linux-sh@vger.kernel.org, horms+renesas@verge.net.au, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Paul,
 
-On Tue, 21 Jan 2014 16:22:54 -0500, Paul Gortmaker wrote:
-> None of these files are actually using any __init type directives
-> and hence don't need to include <linux/init.h>.  Most are just a
-> left over from __devinit and __cpuinit removal, or simply due to
-> code getting copied from one driver to the next.
-> 
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-> ---
->  drivers/i2c/algos/i2c-algo-bit.c           | 1 -
->  drivers/i2c/algos/i2c-algo-pca.c           | 1 -
->  drivers/i2c/algos/i2c-algo-pcf.c           | 1 -
->  drivers/i2c/busses/i2c-ali1535.c           | 1 -
->  drivers/i2c/busses/i2c-ali1563.c           | 1 -
->  drivers/i2c/busses/i2c-ali15x3.c           | 1 -
->  drivers/i2c/busses/i2c-amd756.c            | 1 -
->  drivers/i2c/busses/i2c-amd8111.c           | 1 -
->  drivers/i2c/busses/i2c-au1550.c            | 1 -
->  drivers/i2c/busses/i2c-cbus-gpio.c         | 1 -
->  drivers/i2c/busses/i2c-cpm.c               | 1 -
->  drivers/i2c/busses/i2c-eg20t.c             | 1 -
->  drivers/i2c/busses/i2c-exynos5.c           | 1 -
->  drivers/i2c/busses/i2c-highlander.c        | 1 -
->  drivers/i2c/busses/i2c-hydra.c             | 1 -
->  drivers/i2c/busses/i2c-ibm_iic.c           | 1 -
->  drivers/i2c/busses/i2c-iop3xx.c            | 1 -
->  drivers/i2c/busses/i2c-isch.c              | 1 -
->  drivers/i2c/busses/i2c-ismt.c              | 1 -
->  drivers/i2c/busses/i2c-mpc.c               | 1 -
->  drivers/i2c/busses/i2c-nforce2.c           | 1 -
->  drivers/i2c/busses/i2c-ocores.c            | 1 -
->  drivers/i2c/busses/i2c-octeon.c            | 1 -
->  drivers/i2c/busses/i2c-pca-platform.c      | 1 -
->  drivers/i2c/busses/i2c-piix4.c             | 1 -
->  drivers/i2c/busses/i2c-pmcmsp.c            | 1 -
->  drivers/i2c/busses/i2c-powermac.c          | 1 -
->  drivers/i2c/busses/i2c-puv3.c              | 1 -
->  drivers/i2c/busses/i2c-rcar.c              | 1 -
->  drivers/i2c/busses/i2c-scmi.c              | 1 -
->  drivers/i2c/busses/i2c-sh7760.c            | 1 -
->  drivers/i2c/busses/i2c-simtec.c            | 1 -
->  drivers/i2c/busses/i2c-sis630.c            | 1 -
->  drivers/i2c/busses/i2c-sis96x.c            | 1 -
->  drivers/i2c/busses/i2c-via.c               | 1 -
->  drivers/i2c/busses/i2c-xiic.c              | 1 -
->  drivers/i2c/busses/i2c-xlr.c               | 1 -
->  drivers/i2c/busses/scx200_i2c.c            | 1 -
->  drivers/i2c/muxes/i2c-arb-gpio-challenge.c | 1 -
->  drivers/i2c/muxes/i2c-mux-gpio.c           | 1 -
->  drivers/i2c/muxes/i2c-mux-pca9541.c        | 1 -
->  drivers/i2c/muxes/i2c-mux-pca954x.c        | 1 -
->  drivers/i2c/muxes/i2c-mux-pinctrl.c        | 1 -
->  43 files changed, 43 deletions(-)
-> (...)
+--N1GIdlSm9i+YlY4t
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Looks good to me, thanks for doing this.
+On Fri, Jan 17, 2014 at 06:11:37PM +0000, Ben Dooks wrote:
+> The i2c-rcar driver currently prints an error message if the master_xfer
+> callback fails. However if the bus is being probed then lots of NAKs
+> will be generated, causing the output of a number of errors printed.
+>=20
+> To solve this, disable the print if the error is not -EREMOTEIO.
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Basically OK. Yet, according to 'fault-codes" it should be -ENXIO. May
+be a good time to fix this as well.
 
--- 
-Jean Delvare
+Also, you might want to print for -EIO only? Or do you want to see
+-EAGAIN, too?
+
+
+--N1GIdlSm9i+YlY4t
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJS4p6wAAoJEBQN5MwUoCm2qdIP/2LExIrt+9GbGt0rvEAps+Ho
+JmAXCkEpbSTfJde9kKRRjU0p/qxL14uHLlfxaqP3rR5nBNBrXlVVNJThpFEy5IMu
+Lcc6/J8RZAso6o456lo3MTAVl0+BijF6q+25cnUxmP6Cr9TSQS7iOdYd+2XKEAv9
+14jdU/TjKlq6IRpEbmSONmA34+uIY0iairapJ/Vo5lZ/mKvgR1LxN9ufSSR0sv1p
+SfuUZLMhiRAxc7ZJ/0JN4f+DrJK/dUrCDQXEErt2IGiQaVKtzaZ2E7TpECQVFF1l
+uwLrNYgjAlTS6HGnfqMITfpbwIzJaDZQdCvQuIh4pT591ejMO+HFWSCHrzUULoB5
+USlxvF9e4S/lM4TfdQx+hzVxvuoNHJDtbGEHNIY2fgM1w3tfMnLB9guQL4Koxtm6
+tru/+hwT78+zLTm83SG+n1dLQeyslDK9h932Fjq2vKUURXTnGZG6u9LCnAexi7Bf
+il9RTJWvhsThpONHkRsRRvr0RNJBEOtiZ50aeMqwPVIV930mTL8TUocHo54uOtk6
+Ovv1YfHAMBwnlROSjeesx6MDFGDFSr9sDR14+TLy3Ba2/wx7DF40hCaciw9s+xWl
+qohiLuZ/XeMc2O7aUE6NhAquucveF3IUWOcl76WLiAr9SN3Bs9M/E3Tpvuk2J6gi
+aNB3neV9dMLXayh2/XbQ
+=nnRC
+-----END PGP SIGNATURE-----
+
+--N1GIdlSm9i+YlY4t--
