@@ -1,57 +1,77 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rely on driver core when sanitizing devices
-Date: Fri, 24 Jan 2014 19:53:48 +0100
-Message-ID: <20140124185348.GA26225@katana>
-References: <1390322914-14191-1-git-send-email-wsa@the-dreams.de>
+From: Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] Create eeprom_dev hardware class for EEPROM
+ devices
+Date: Fri, 24 Jan 2014 11:27:42 -0800
+Message-ID: <20140124192742.GU29955@cumulusnetworks.com>
+References: <1390504562-20333-1-git-send-email-curt@cumulusnetworks.com>
+ <CAOMwXhMfd8uw8n2Oa_BKW8UGzrUttD1L3=ATUGyDJMFy3kPUjQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1390322914-14191-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+In-Reply-To: <CAOMwXhMfd8uw8n2Oa_BKW8UGzrUttD1L3=ATUGyDJMFy3kPUjQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laszlo Papp <lpapp-RoXCvvDuEio@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Thomas De Schampheleire <patrickdepinguin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Shrijeet Mukherjee <shm-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri Jan 24 18:42, Laszlo Papp wrote:
+> > Note: The class cannot be called 'eeprom' as that is the name of the
+> > I/O file created by the driver.  The class name appears as a
+> > sub-directory within the main device directory.  Hence the class name
+> > 'eeprom_dev'.
+> 
+> I am not sure I follow the reasoning here, but it is possibly because
+> I lack some knowledge. Could you please describe bad thing would
+> happen if "/sys/class/eeprom/eeprom0/label" would be used as opposed
+> to "/sys/class/eeprom_dev/eeprom0/label"?
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+By way of example -- let's say I have an at24 device on i2c bus 2,
+with address 0x54.  In sysfs the device can be found by its bus
+address as:
 
-On Tue, Jan 21, 2014 at 05:48:34PM +0100, Wolfram Sang wrote:
-> Commit 0998d0631001 (device-core: Ensure drvdata =3D NULL when no driver
-> is bound) modified the driver core to always clear .driver and .drvdata
-> on remove or probe error. No need for the I2C core to do it.
->=20
-> Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Reported-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+  $ cd /sys/bus/i2c/devices/2-0054
+  $ ls -l
 
-Applied to for-current, thanks!
+  total 0
+  lrwxrwxrwx 1 root root    0 Jan 24 19:11 driver ->  ../../../../../../bus/i2c/drivers/at24
+  -rw------- 1 root root  256 Jan 23 23:33 eeprom
+  drwxr-xr-x 3 root root    0 Jan 23 23:33 eeprom_dev
+  -r--r--r-- 1 root root 4096 Jan 24 19:11 modalias
+  -r--r--r-- 1 root root 4096 Jan 24 19:11 name
+  lrwxrwxrwx 1 root root    0 Jan 24 19:11 subsystem ->  ../../../../../../bus/i2c
+  -rw-r--r-- 1 root root 4096 Jan 24 19:11 uevent
 
+The file "/sys/bus/i2c/devices/2-0054/eeprom" comes from the at24
+driver.  That is the file name the EEPROM driver exports for I/O to
+the device.  User space applications read/write this file to
+read/write the physical EEPROM via the at24 driver.
 
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+The directory "/sys/bus/i2c/devices/2-0054/eeprom_dev" comes from the
+sysfs class name "eeprom_dev".  All sysfs class names appear as
+directories with the corresponding device directory.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+See the conflict?  If the class was also called "eeprom" it would
+clash with the existing "eeprom" file.  There cannot be two things
+named /sys/bus/i2c/devices/2-0054/eeprom.
 
-iQIcBAEBAgAGBQJS4ra8AAoJEBQN5MwUoCm2YC4P/3GE3uMNoOqncPabTxAhoPn3
-Vll4PHi3W5rr9ch1TI+XgnNU+yCRkKalW6dLdA4Vfr6rU7LFqoV+slaS5MxfmPg6
-d/K9IJ3Qm8YLEVm9oZjs8LPGuGcot55Veefrf8e+qg4QmhORX74ZuZeoNXAf4sFB
-z6SB8dnOW0IzoImmSucbCa33rWTvKMLwkpKUJflP1kEbgVe//FefRpDdhju0M8gR
-c/76TRn+CrNL+lhr92UDkW4CyJnm/0VFIN29biLJ1ZuU1HnWj4M6/6QsXVmDC0Vd
-q/5/sLL4hBCAs/LaGWkmacDdgTpcAQjwQldJsk9Tsv1ZK2QNeBnyxPJ4H0XXc+Dc
-LRioADSebYwTzS2KuTP//cfBPYnXiFm9EZNrJrPZrF0wSLrC0sA8p+hO3Px8X7Kh
-sy8G7b9vSMvR53wKwAL6b4h2myFt6xojoMjtvLb672SFrwlugj8HmOIjoRoKT+o8
-tTPUfpBLCeh5dd8l5bEjzeSReIehnyA6ShH/CRkFeXNzkF0d1lmgURcqLhQcgJZ1
-+omB8aqbJrpLisH2lVyGHtg7W2Zc0P4j+aZlQfbfgqtphOr0VvMydIdJq38GhwFg
-XoFStAo4QEKIj24ReZnJ2rECPBOtyZiiswjBkQdQOifLxQiZKxdsCOs5SZnOOYWa
-EW0y5Y7T4CWFk6s/NJ3u
-=rI7L
------END PGP SIGNATURE-----
+The files under /sys/class/eeprom_dev are symlinks to the "eeprom_dev"
+directories of the physical devices.  For this example:
 
---qMm9M+Fa2AknHoGS--
+  $ cd /sys/class/eeprom_dev
+  $ ls -l eeprom0
+  lrwxrwxrwx 1 root root 0 Jan 23 23:33 eeprom0 -> ../../devices/soc.0/ffe03000.i2c/i2c-0/i2c-2/2-0054/eeprom_dev/eeprom0
+
+Believe me I wanted to use "eeprom" as the class name originally, as
+it makes a lot of sense.  But the sysfs file creation failed due to
+the duplicate name.
+
+I was not about to change the at24 driver as user space expects the
+"eeprom" name.
+
+Hence the class name is eeprom_dev.
+
+Hope that helps.
+
+Cheers,
+Curt
