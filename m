@@ -1,61 +1,64 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/4] i2c: rcar: do not print error if device nacks
- transfer
-Date: Fri, 24 Jan 2014 18:11:12 +0100
-Message-ID: <20140124171112.GD2629@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 4/4] i2c: rcar: use devm_clk_get to ensure clock is
+ properly ref-counted
+Date: Fri, 24 Jan 2014 18:12:54 +0100
+Message-ID: <20140124171254.GE2629@katana>
 References: <1389982298-23143-1-git-send-email-ben.dooks@codethink.co.uk>
- <1389982298-23143-4-git-send-email-ben.dooks@codethink.co.uk>
+ <1389982298-23143-5-git-send-email-ben.dooks@codethink.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="N1GIdlSm9i+YlY4t"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="QNDPHrPUIc00TOLW"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1389982298-23143-4-git-send-email-ben.dooks@codethink.co.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-kernel@lists.codethink.co.uk, linux-sh@vger.kernel.org, horms+renesas@verge.net.au, linux-i2c@vger.kernel.org
+In-Reply-To: <1389982298-23143-5-git-send-email-ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Cc: linux-kernel-81qHHgoATdFT9dQujB1mzip2UmYkHbXO@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---N1GIdlSm9i+YlY4t
+--QNDPHrPUIc00TOLW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 17, 2014 at 06:11:37PM +0000, Ben Dooks wrote:
-> The i2c-rcar driver currently prints an error message if the master_xfer
-> callback fails. However if the bus is being probed then lots of NAKs
-> will be generated, causing the output of a number of errors printed.
+On Fri, Jan 17, 2014 at 06:11:38PM +0000, Ben Dooks wrote:
+> The current i2c-rcar driver does clk_get() without a corresponding
+> clk_put(). Add the clk to the driver private data and then get it
+> with the devm functions so that it is released when the driver is
+> unbound.
 >=20
-> To solve this, disable the print if the error is not -EREMOTEIO.
 
-Basically OK. Yet, according to 'fault-codes" it should be -ENXIO. May
-be a good time to fix this as well.
+> =20
+> +	priv->clk =3D devm_clk_get(dev, NULL);
+> +	if (IS_ERR(priv->clk)) {
+> +		dev_err(dev, "cannot get clock\n");
+> +		return -ENOENT;
+> +	}
 
-Also, you might want to print for -EIO only? Or do you want to see
--EAGAIN, too?
+Return the error here?
 
 
---N1GIdlSm9i+YlY4t
+--QNDPHrPUIc00TOLW
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS4p6wAAoJEBQN5MwUoCm2qdIP/2LExIrt+9GbGt0rvEAps+Ho
-JmAXCkEpbSTfJde9kKRRjU0p/qxL14uHLlfxaqP3rR5nBNBrXlVVNJThpFEy5IMu
-Lcc6/J8RZAso6o456lo3MTAVl0+BijF6q+25cnUxmP6Cr9TSQS7iOdYd+2XKEAv9
-14jdU/TjKlq6IRpEbmSONmA34+uIY0iairapJ/Vo5lZ/mKvgR1LxN9ufSSR0sv1p
-SfuUZLMhiRAxc7ZJ/0JN4f+DrJK/dUrCDQXEErt2IGiQaVKtzaZ2E7TpECQVFF1l
-uwLrNYgjAlTS6HGnfqMITfpbwIzJaDZQdCvQuIh4pT591ejMO+HFWSCHrzUULoB5
-USlxvF9e4S/lM4TfdQx+hzVxvuoNHJDtbGEHNIY2fgM1w3tfMnLB9guQL4Koxtm6
-tru/+hwT78+zLTm83SG+n1dLQeyslDK9h932Fjq2vKUURXTnGZG6u9LCnAexi7Bf
-il9RTJWvhsThpONHkRsRRvr0RNJBEOtiZ50aeMqwPVIV930mTL8TUocHo54uOtk6
-Ovv1YfHAMBwnlROSjeesx6MDFGDFSr9sDR14+TLy3Ba2/wx7DF40hCaciw9s+xWl
-qohiLuZ/XeMc2O7aUE6NhAquucveF3IUWOcl76WLiAr9SN3Bs9M/E3Tpvuk2J6gi
-aNB3neV9dMLXayh2/XbQ
-=nnRC
+iQIcBAEBAgAGBQJS4p8WAAoJEBQN5MwUoCm26A8QALU2GTJBY8Hoyl3rF7cbV+WP
+t3946sfgdBh9HTeetqljSqzcG549t3oOUpHk3K9cBbGlgH+r9Gev6B5haPthuDDN
+9jLmLMxua+HzUdU0qbcnX/mmWdMlpm03+Z3he+g/c25KwPsSD1sfbr7xPzW6/Mu3
+SYZugF3d7BKqYXBCbagbuSeG4Fw0tlikEK1k4571lYyU9HRAYISH9FFX+MYNORJi
+Dy07zJXWfXJgDjkQx79yMf7X/S/VO8hO443N72I424XdthA5IQuBJ4GlXJE4WC2S
+p0QMAesFHlLjImvk6ygV28P9FEEDLYj/Uk4NTbTXYGECeiuxq4EqrEVfValtfR5/
+eEhF3WwW35UYY/RXlTPSl8bAmLupsVqnRpmSXVmKLX0IBc1nLpRwE1Kcqn1+XydC
++fgqNUD+4LqaLVln2eyeb7gAobBWP3UR07CIxn3n0UQMEyT4SiuddQv4Y7ILG/6l
+/55WnSrT8FXE/5eTqVdrTD/HWRRt2cTJWdZ4Mg30a0CCamvXU5C4nYXOU2fpHDE4
+1aGX9ufRp6VNK1VKdVQjXQxuv54ib1h+2mfyMwZvsx1p/62upHm7pcj37+e4Ar9x
+HTms39XAcRmn5sQ5GoMUDWTyTY+1rgSmjJRuwi+uSYd8Yg4kCLELljXUgCHwOpPz
+LmQeeguUNkC/LSI6aJvE
+=JRwL
 -----END PGP SIGNATURE-----
 
---N1GIdlSm9i+YlY4t--
+--QNDPHrPUIc00TOLW--
