@@ -1,190 +1,81 @@
-From: Philip Elcan <pelcan@codeaurora.org>
-Subject: Re: [PATCH v3 2/2] i2c: New bus driver for the QUP I2C controller
-Date: Thu, 23 Jan 2014 20:25:57 -0500
-Message-ID: <52E1C125.9090708@codeaurora.org>
-References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com> <1389999819-10648-3-git-send-email-bjorn.andersson@sonymobile.com>
+From: Andy Gross <agross@codeaurora.org>
+Subject: Re: [PATCH v3 1/2] i2c: qup: Add device tree bindings information
+Date: Fri, 24 Jan 2014 01:18:41 -0600
+Message-ID: <20140124071841.GA6113@qualcomm.com>
+References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1389999819-10648-2-git-send-email-bjorn.andersson@sonymobile.com>
+ <CAL_JsqJBEu8iLzE8-dXniZFytr6cQsprBYiYnJeXS2-80iy1Mw@mail.gmail.com>
+ <20140121024007.GE13785@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1389999819-10648-3-git-send-email-bjorn.andersson@sonymobile.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, James Ralston <james.d.ralston@intel.com>, Bill Brown <bill.e.brown@intel.com>, Matt Porter <matt.porter@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20140121024007.GE13785@codeaurora.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stephen Boyd <sboyd@codeaurora.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Landley <rob@landley.net>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vg
 List-Id: linux-i2c@vger.kernel.org
 
-On 01/17/2014 06:03 PM, Bjorn Andersson wrote:
-> From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+On Mon, Jan 20, 2014 at 06:40:07PM -0800, Stephen Boyd wrote:
+> On 01/20, Rob Herring wrote:
+> > On Fri, Jan 17, 2014 at 5:03 PM, Bjorn Andersson
+> > <bjorn.andersson@sonymobile.com> wrote:
+> > 
+> > >  .../devicetree/bindings/i2c/qcom,i2c-qup.txt       | 41 ++++++++++++++++++++++
+> > >  1 file changed, 41 insertions(+)
+> > >  create mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+> > >
+> > > diff --git a/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+> > > new file mode 100644
+> > > index 0000000..a99711b
+> > > --- /dev/null
+> > > +++ b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+> > > @@ -0,0 +1,41 @@
+> > > +Qualcomm Universal Peripheral (QUP) I2C controller
+> > > +
+> > > +Required properties:
+> > > + - compatible: Should be "qcom,i2c-qup".
+> > 
+> > Seems a bit generic. All versions of the IP are exactly the same?
+> > "qcom,<chip>-i2c-qup" would be better.
+> > 
 > 
-> This bus driver supports the QUP i2c hardware controller in the Qualcomm
-> MSM SOCs.  The Qualcomm Universal Peripheral Engine (QUP) is a general
-> purpose data path engine with input/output FIFOs and an embedded i2c
-> mini-core. The driver supports FIFO mode (for low bandwidth	applications)
-> and block mode (interrupt generated for each block-size data transfer).
-> The driver currently does not support DMA transfers.
+> There are different versions of the IP in different SoCs. The
+> versions for platforms supported upstream are:
 > 
-> Shamelessly based on codeaurora version of the driver.
+> 	1.1.1 (MSM8660, MSM8960)
+> 	2.2.1 (MSM8974v2)
 > 
-> Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
-> [bjorn: updated to reflect i2c framework changes
->         splited up qup_i2c_enable() in enable/disable
->         don't overwrite ret value on error in xfer functions
->         initilize core for each transfer
->         remove explicit pinctrl selection
->         use existing clock instead of setting new core clock]
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> ---
-
-<snip>
-
-> +
-> +	io_mode = readl(qup->base + QUP_IO_MODE);
-> +
-> +	size = QUP_OUTPUT_BLOCK_SIZE(io_mode);
-> +	if (size)
-> +		qup->out_blk_sz = size * 16;
-> +	else
-> +		qup->out_blk_sz = 16;
-> +
-> +	size = QUP_INPUT_BLOCK_SIZE(io_mode);
-> +	if (size)
-> +		qup->in_blk_sz = size * 16;
-> +	else
-> +		qup->in_blk_sz = 16;
-> +
-> +	qup->xfer_time = msecs_to_jiffies(qup->out_fifo_sz);
-
-qup->xfer_time should be set after you calculate qup->out_fifo_sz below.
-
-> +
-> +	/*
-> +	 * The block/fifo size w.r.t. 'actual data' is 1/2 due to 'tag'
-> +	 * associated with each byte written/received
-> +	 */
-> +	qup->out_blk_sz /= 2;
-> +	qup->in_blk_sz /= 2;
-> +
-> +	size = QUP_OUTPUT_FIFO_SIZE(io_mode);
-> +	qup->out_fifo_sz = qup->out_blk_sz * (2 << size);
-> +
-> +	size = QUP_INPUT_FIFO_SIZE(io_mode);
-> +	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
-> +
-> +	/*
-> +	 * Wait for FIFO number of bytes to be absolutely sure
-> +	 * that I2C write state machine is not idle. Each byte
-> +	 * takes 9 clock cycles. (8 bits + 1 ack)
-> +	 */
-> +	qup->wait_idle = qup->one_bit_t * 9;
-> +	qup->wait_idle *= qup->out_fifo_sz;
-> +
-> +	dev_info(qup->dev, "IN:block:%d, fifo:%d, OUT:block:%d, fifo:%d\n",
-> +		qup->in_blk_sz, qup->in_fifo_sz,
-> +		qup->out_blk_sz, qup->out_fifo_sz);
-> +
-> +	i2c_set_adapdata(&qup->adap, qup);
-> +	qup->adap.algo = &qup_i2c_algo;
-> +	qup->adap.nr = pdev->id;
-> +	qup->adap.dev.parent = qup->dev;
-> +	qup->adap.dev.of_node = pdev->dev.of_node;
-> +	strlcpy(qup->adap.name, "QUP I2C adapter", sizeof(qup->adap.name));
-> +
-> +	ret = i2c_add_numbered_adapter(&qup->adap);
-> +	if (!ret) {
-> +		pm_runtime_set_autosuspend_delay(qup->dev, MSEC_PER_SEC);
-> +		pm_runtime_use_autosuspend(qup->dev);
-> +		pm_runtime_enable(qup->dev);
-> +		return 0;
-> +	}
-> +fail:
-> +	qup_i2c_disable_clocks(qup);
-> +	return ret;
-> +}
-> +
-> +static int qup_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct qup_i2c_dev *qup = platform_get_drvdata(pdev);
-> +
-> +	disable_irq(qup->irq);
-> +	qup_i2c_disable_clocks(qup);
-> +	i2c_del_adapter(&qup->adap);
-> +	pm_runtime_disable(qup->dev);
-> +	pm_runtime_set_suspended(qup->dev);
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int qup_i2c_pm_suspend_runtime(struct device *device)
-> +{
-> +	struct qup_i2c_dev *qup = dev_get_drvdata(device);
-> +
-> +	dev_dbg(device, "pm_runtime: suspending...\n");
-> +	qup_i2c_disable_clocks(qup);
-> +	return 0;
-> +}
-> +
-> +static int qup_i2c_pm_resume_runtime(struct device *device)
-> +{
-> +	struct qup_i2c_dev *qup = dev_get_drvdata(device);
-> +
-> +	dev_dbg(device, "pm_runtime: resuming...\n");
-> +	qup_i2c_enable_clocks(qup);
-> +	return 0;
-> +}
-> +#endif
-> +
-> +#ifdef CONFIG_PM_SLEEP
-> +static int qup_i2c_suspend(struct device *device)
-> +{
-> +	dev_dbg(device, "system suspend");
-> +	qup_i2c_pm_suspend_runtime(device);
-> +	return 0;
-> +}
-> +
-> +static int qup_i2c_resume(struct device *device)
-> +{
-> +	dev_dbg(device, "system resume");
-> +	qup_i2c_pm_resume_runtime(device);
-> +	pm_runtime_mark_last_busy(device);
-> +	pm_request_autosuspend(device);
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static const struct dev_pm_ops qup_i2c_qup_pm_ops = {
-> +	SET_SYSTEM_SLEEP_PM_OPS(
-> +		qup_i2c_suspend,
-> +		qup_i2c_resume)
-> +	SET_RUNTIME_PM_OPS(
-> +		qup_i2c_pm_suspend_runtime,
-> +		qup_i2c_pm_resume_runtime,
-> +		NULL)
-> +};
-> +
-> +static const struct of_device_id qup_i2c_dt_match[] = {
-> +	{.compatible = "qcom,i2c-qup"},
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(of, qup_i2c_dt_match);
-> +
-> +static struct platform_driver qup_i2c_driver = {
-> +	.probe  = qup_i2c_probe,
-> +	.remove = qup_i2c_remove,
-> +	.driver = {
-> +		.name = "i2c_qup",
-> +		.owner = THIS_MODULE,
-> +		.pm = &qup_i2c_qup_pm_ops,
-> +		.of_match_table = qup_i2c_dt_match,
-> +	},
-> +};
-> +
-> +module_platform_driver(qup_i2c_driver);
-> +
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("platform:i2c_qup");
+> so how about one of "qcom,i2c-qup-v1.1.1" or
+> "qcom,i2c-qup-v2.2.1" should be specified as more specific
+> compatible strings in addition to "qcom,i2c-qup"?
 > 
 
+This definitely needs two compatible tags.  The v1.1.1 supports the FIFO, block,
+and data mover modes.  The v2.2.1 supports FIFO, block, and BAM DMA.
+
+The BAM patches are currently in review and ideally BAM support can be added to
+the I2C.  We'll need a way to differentiate so BAM can be used.
+
+Otherwise, the register interfaces are interchangeable except for BAM specific
+fields in the registers.
+
+
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
 -- 
-The Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
 hosted by The Linux Foundation
