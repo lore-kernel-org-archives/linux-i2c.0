@@ -1,37 +1,35 @@
 From: Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: Re: [PATCH 4/4] i2c: rcar: use devm_clk_get to ensure clock is properly
- ref-counted
-Date: Sun, 26 Jan 2014 15:33:05 +0000
-Message-ID: <52E52AB1.7070309@codethink.co.uk>
-References: <1389982298-23143-1-git-send-email-ben.dooks@codethink.co.uk> <1389982298-23143-5-git-send-email-ben.dooks@codethink.co.uk> <20140124171254.GE2629@katana>
+Subject: Re: [PATCH 3/4] i2c: rcar: do not print error if device nacks transfer
+Date: Sun, 26 Jan 2014 15:57:42 +0000
+Message-ID: <52E53076.9020504@codethink.co.uk>
+References: <1389982298-23143-1-git-send-email-ben.dooks@codethink.co.uk> <1389982298-23143-4-git-send-email-ben.dooks@codethink.co.uk> <20140124171112.GD2629@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20140124171254.GE2629@katana>
+In-Reply-To: <20140124171112.GD2629@katana>
 Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@lists.codethink.co.uk, linux-sh@vger.kernel.org, horms+renesas@verge.net.au, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 24/01/14 17:12, Wolfram Sang wrote:
-> On Fri, Jan 17, 2014 at 06:11:38PM +0000, Ben Dooks wrote:
->> The current i2c-rcar driver does clk_get() without a corresponding
->> clk_put(). Add the clk to the driver private data and then get it
->> with the devm functions so that it is released when the driver is
->> unbound.
+On 24/01/14 17:11, Wolfram Sang wrote:
+> On Fri, Jan 17, 2014 at 06:11:37PM +0000, Ben Dooks wrote:
+>> The i2c-rcar driver currently prints an error message if the master_xfer
+>> callback fails. However if the bus is being probed then lots of NAKs
+>> will be generated, causing the output of a number of errors printed.
 >>
+>> To solve this, disable the print if the error is not -EREMOTEIO.
 >
->>
->> +	priv->clk = devm_clk_get(dev, NULL);
->> +	if (IS_ERR(priv->clk)) {
->> +		dev_err(dev, "cannot get clock\n");
->> +		return -ENOENT;
->> +	}
+> Basically OK. Yet, according to 'fault-codes" it should be -ENXIO. May
+> be a good time to fix this as well.
 >
-> Return the error here?
+> Also, you might want to print for -EIO only? Or do you want to see
+> -EAGAIN, too.
 
-Yes, will change this to be PTR_ERR(priv->clk) and re-send
+I'm not sure, I've not seen any EAGAIN replies from the driver.
+I will leave this for a future patch.
+
 
 -- 
 Ben Dooks				http://www.codethink.co.uk/
