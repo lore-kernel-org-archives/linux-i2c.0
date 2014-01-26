@@ -1,80 +1,60 @@
-From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/4] i2c: rename Blackfin TWI I2C driver to i2c-adi-twi.c
-Date: Sun, 26 Jan 2014 15:16:44 +0800
-Message-ID: <1390720607-447-1-git-send-email-sonic.adi@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c: rename Blackfin TWI I2C driver to i2c-adi-twi.c
+Date: Sun, 26 Jan 2014 11:28:59 +0100
+Message-ID: <20140126102859.GA2579@katana>
+References: <1390720607-447-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1390720607-447-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Rename twi arch header as well.
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
----
- arch/blackfin/include/asm/{bfin_twi.h => twi.h}      |  0
- drivers/i2c/busses/Kconfig                           | 14 +++++++-------
- drivers/i2c/busses/Makefile                          |  2 +-
- drivers/i2c/busses/{i2c-bfin-twi.c => i2c-adi-twi.c} |  0
- 4 files changed, 8 insertions(+), 8 deletions(-)
- rename arch/blackfin/include/asm/{bfin_twi.h => twi.h} (100%)
- rename drivers/i2c/busses/{i2c-bfin-twi.c => i2c-adi-twi.c} (100%)
+On Sun, Jan 26, 2014 at 03:16:44PM +0800, Sonic Zhang wrote:
+> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>=20
+> Rename twi arch header as well.
 
-diff --git a/arch/blackfin/include/asm/bfin_twi.h b/arch/blackfin/include/asm/twi.h
-similarity index 100%
-rename from arch/blackfin/include/asm/bfin_twi.h
-rename to arch/blackfin/include/asm/twi.h
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 6bcdea5..1ff862f 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -356,19 +356,19 @@ config I2C_BCM_KONA
- 
- 	  If you do not need KONA I2C inteface, say N.
- 
--config I2C_BLACKFIN_TWI
--	tristate "Blackfin TWI I2C support"
-+config I2C_ADI_TWI
-+	tristate "ADI TWI I2C support"
- 	depends on BLACKFIN
- 	depends on !BF561 && !BF531 && !BF532 && !BF533
- 	help
--	  This is the I2C bus driver for Blackfin on-chip TWI interface.
-+	  This is the I2C bus driver for ADI processors' TWI interface.
- 
- 	  This driver can also be built as a module.  If so, the module
--	  will be called i2c-bfin-twi.
-+	  will be called i2c-adi-twi.
- 
--config I2C_BLACKFIN_TWI_CLK_KHZ
--	int "Blackfin TWI I2C clock (kHz)"
--	depends on I2C_BLACKFIN_TWI
-+config I2C_ADI_TWI_CLK_KHZ
-+	int "ADI TWI I2C clock (kHz)"
-+	depends on I2C_ADI_TWI
- 	range 21 400
- 	default 50
- 	help
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index a08931f..9bb2e13 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -32,7 +32,7 @@ obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
- obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
- obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
- obj-$(CONFIG_I2C_BCM2835)	+= i2c-bcm2835.o
--obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
-+obj-$(CONFIG_I2C_ADI_TWI)	+= i2c-adi-twi.o
- obj-$(CONFIG_I2C_CBUS_GPIO)	+= i2c-cbus-gpio.o
- obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
- obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-adi-twi.c
-similarity index 100%
-rename from drivers/i2c/busses/i2c-bfin-twi.c
-rename to drivers/i2c/busses/i2c-adi-twi.c
--- 
-1.8.2.3
+You describe what you do, yet the commit message should describe WHY the
+change is needed. This applies for the other patches as well.
+
+>=20
+> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+
+What is the difference between the two versions you sent? Please always
+describe that.
+
+
+--BOKacYhQ+x31HxR3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJS5ONqAAoJEBQN5MwUoCm2S9AQAKnkTeSgN4isVclF2D1f5QRB
+wz1+Bl2p0edGu0yQ28FFSp8di+FJpj47Ej4PAvn00/C1P4inp2GzDf3//YX9sEIR
+Acv4V8R+hDgZSkt4EtrOZfIHI2pOgImif2Zqxd1eeSQ5pceYcjBVPNzQ0j4N/Sr1
+dPrH3aap9NOMxaGAtna3M/lwAVlnLtoM4qyPt61f2pEAn2HJgdBlImDQuCjD90Ly
+FJuBqaX4nDzlfw9CawLsvErl3a+PA+3BLVFhV3KXHzuR3FrDBdNm+owjfh5UlKB9
+Ztbt7fveaFoel+5pKA1vp3emn9noD5LLlvJcmUU74V1Vns4o8l6tv8hOaywYWa2d
+lb+SEgfbCy1aQ73eQsOk9HG3WHpO6Ql7g3HUMXpLFf09ueh0Hw5aXuzWfjcNblmj
+ZP+fHZms1x8/nYppnOu2AhwA4fCEgR7W4vnPveeD+Lbpj2/T3MIEDG+uiDhW+arj
+Eov/X51lUFojrCY/xTbBMpvdV4bUppqvutK9eeKyXrrjV5kmDd5Og+/bJoGvwXfA
+iK5yq+VDrznJAJcGSXf0Rj//Ui0Qg0NDLErXplDK1XOT1EVV3ZTaq9FlIIOEW8yx
+w965x83ZcxTR8kj9Niu/il/vSVJZdqKph+/3jYRmTt1leuPtGRv2AOI1Gf9EN2sM
+lpyZD8wvBetGlkEhHcLy
+=3yui
+-----END PGP SIGNATURE-----
+
+--BOKacYhQ+x31HxR3--
