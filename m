@@ -1,100 +1,53 @@
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: [PATCH 4/6] i2c: rcar: use devm_clk_get to ensure clock is properly ref-counted
-Date: Sun, 26 Jan 2014 16:05:35 +0000
-Message-ID: <1390752337-22386-5-git-send-email-ben.dooks@codethink.co.uk>
+From: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Subject: [PATCH 3/6] i2c: rcar: do not print error if device nacks transfer
+Date: Sun, 26 Jan 2014 16:05:34 +0000
+Message-ID: <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk>
 References: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-kernel@lists.codethink.co.uk
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>, Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1390752337-22386-1-git-send-email-ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-81qHHgoATdFT9dQujB1mzip2UmYkHbXO@public.gmane.org
+Cc: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The current i2c-rcar driver does clk_get() without a corresponding
-clk_put(). Add the clk to the driver private data and then get it
-with the devm functions so that it is released when the driver is
-unbound.
+The i2c-rcar driver currently prints an error message if the master_xfer
+callback fails. However if the bus is being probed then lots of NAKs
+will be generated, causing the output of a number of errors printed.
 
-Note, we do not call clk_prepare_enable() at this point due to the
-very possible magic that is being done by the pm_runtime system
-underneath the driver.
+To solve this, disable the print if the error is not -EREMOTEIO.
 
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+An example of running i2cdetect:
 
+10: i2c-rcar e6530000.i2c: error -121 : 15
+-- i2c-rcar e6530000.i2c: error -121 : 15
+-- 12 i2c-rcar e6530000.i2c: error -121 : 15
+-- i2c-rcar e6530000.i2c: error -121 : 15
+-- i2c-rcar e6530000.i2c: error -121 : 15
+-- i2c-rcar e6530000.i2c: error -121 : 15
+-- i2c-rcar e6530000.i2c: error -121 : 15
+-- i2c-rcar e6530000.i2c: error -121 : 15
+
+Cc: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 ---
-Changes since v1:
-	- use PTR_ERR() if devm_clk_get() fails
-
-Cc: Simon Horman <horms+renesas@verge.net.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
----
- drivers/i2c/busses/i2c-rcar.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 0d25104..dc8c224 100644
+index 2c2fd7c..0d25104 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -111,6 +111,7 @@ struct rcar_i2c_priv {
- 	void __iomem *io;
- 	struct i2c_adapter adap;
- 	struct i2c_msg	*msg;
-+	struct clk *clk;
+@@ -623,7 +623,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
  
- 	spinlock_t lock;
- 	wait_queue_head_t wait;
-@@ -227,18 +228,12 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 				    u32 bus_speed,
- 				    struct device *dev)
- {
--	struct clk *clkp = clk_get(dev, NULL);
- 	u32 scgd, cdf;
- 	u32 round, ick;
- 	u32 scl;
- 	u32 cdf_width;
- 	unsigned long rate;
+ 	pm_runtime_put(dev);
  
--	if (IS_ERR(clkp)) {
--		dev_err(dev, "couldn't get clock\n");
--		return PTR_ERR(clkp);
--	}
--
- 	switch (priv->devtype) {
- 	case I2C_RCAR_GEN1:
- 		cdf_width = 2;
-@@ -266,7 +261,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
- 	 */
--	rate = clk_get_rate(clkp);
-+	rate = clk_get_rate(priv->clk);
- 	cdf = rate / 20000000;
- 	if (cdf >= 1 << cdf_width) {
- 		dev_err(dev, "Input clock %lu too high\n", rate);
-@@ -308,7 +303,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+-	if (ret < 0)
++	if (ret < 0 && ret != -EREMOTEIO)
+ 		dev_err(dev, "error %d : %x\n", ret, priv->flags);
  
- scgd_find:
- 	dev_dbg(dev, "clk %d/%d(%lu), round %u, CDF:0x%x, SCGD: 0x%x\n",
--		scl, bus_speed, clk_get_rate(clkp), round, cdf, scgd);
-+		scl, bus_speed, clk_get_rate(priv->clk), round, cdf, scgd);
- 
- 	/*
- 	 * keep icccr value
-@@ -664,6 +659,12 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
-+	priv->clk = devm_clk_get(dev, NULL);
-+	if (IS_ERR(priv->clk)) {
-+		dev_err(dev, "cannot get clock\n");
-+		return PTR_ERR(priv->clk);
-+	}
-+
- 	bus_speed = 100000; /* default 100 kHz */
- 	ret = of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
- 	if (ret < 0 && pdata && pdata->bus_speed)
+ 	return ret;
 -- 
 1.8.5.2
-
