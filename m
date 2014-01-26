@@ -1,7 +1,7 @@
-From: Abdul Nasser <nasser500-TIpE5U3ByZhUD6l512u9tw@public.gmane.org>
+From: Abdul Nasser <abdulnas500-TIpE5U3ByZhUD6l512u9tw@public.gmane.org>
 Subject: Kind Regards
-Date: Sun, 26 Jan 2014 21:30:33 +0000
-Message-ID: <SECEXCHANGEzHkggHwE0000385e@mail.standardelectronics.com>
+Date: Sun, 26 Jan 2014 21:51:55 +0000
+Message-ID: <SECEXCHANGE8Kyg8COS00003f89@mail.standardelectronics.com>
 Reply-To: s.abdulnasser-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -9,7 +9,7 @@ Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Description: Mail message body
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Recipients <nasser500-TIpE5U3ByZhUD6l512u9tw@public.gmane.org>
+To: Recipients <abdulnas500-TIpE5U3ByZhUD6l512u9tw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Greetings,
