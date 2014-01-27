@@ -1,79 +1,41 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 0/5] ARM: sun6i: Add support for the A31
- I2C controller
-Date: Mon, 27 Jan 2014 16:03:12 +0100
-Message-ID: <20140127150312.GN3867@lukather>
-References: <1389609293-2824-1-git-send-email-maxime.ripard@free-electrons.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: "Huang, Shane" <Shane.Huang-5C7GfCeVMHo@public.gmane.org>
+Subject: RE: [PATCH 1/2] i2c-piix4: Add support for AMD ML and CZ SMBus
+  changes
+Date: Mon, 27 Jan 2014 19:38:09 +0000
+Message-ID: <43EB3AB3EEFE8D43B525F4D2EAF507E1090B0F04@SCYBEXDAG01.amd.com>
+References: <1390428346-2235-1-git-send-email-shane.huang@amd.com>
+	<20140123132740.122c0f8a@endymion.delvare>
+	<43EB3AB3EEFE8D43B525F4D2EAF507E1090ADBB0@SCYBEXDAG01.amd.com>
+ <20140124084717.74da09ff@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JvUS8mwutKMHKosv"
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBIHLTGLQKGQEXO233DQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1389609293-2824-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, duanmintao-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140124084717.74da09ff-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Peng, Carl" <Carl.Peng-5C7GfCeVMHo@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Huang, Shane" <Shane.Huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Jean,
 
---JvUS8mwutKMHKosv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > BTW it would be really great if we could have access to the
+> > > documentation for these new AMD chipsets. I looked for both Hudson and
+> > > FCH at http://developer.amd.com/ but these searches returned nothing. I
+> > > could help better if I had access to the documentation / datasheets.
+> > 
+> > I don't know who is the website maintainer but forwarded your question
+> > to our FCH datasheet maintainer, and he will follow up. I hope that it will
+> > be improved in near future. :-)
+> 
+> Thanks!
 
-Hi Wolfram,
+AMD Kabini integrated FCH data sheet can be found in the BKDG (page 611),
+which is almost same as Hudson-2. The data sheet of ML is not released.
 
-On Mon, Jan 13, 2014 at 11:34:48AM +0100, Maxime Ripard wrote:
-> Hi everyone,
->=20
-> This patchset adds support the A31 i2c controller. This is mostly the
-> same controller as the one found in the other Allwinner SoCs, except
-> for the interrupts acking.
->=20
-> On the other SoCs using this driver, the interrupts are acked by
-> clearing the INT_FLAG bit in the control register, while on the A31,
-> the interrupt is acked by writing that bit into the control register.
->=20
-> The other difference is that the I2C IP is maintained in reset by a
-> reset controller, so we're adding optionnal support for the reset
-> framework in the driver to deassert the device from reset.
+http://developer.amd.com/wordpress/media/2012/10/48751_BKDG_Fam_16h_Mod_00h-0Fh.pdf
 
-Do you have any comments on this?
 
 Thanks,
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---JvUS8mwutKMHKosv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJS5nUwAAoJEBx+YmzsjxAgGIYP/RHxCNpVg7r2Qy9UbOvLEvFu
-gzkLldapzghjhrNfC/2FiCD/dIJ9EOLekfzTU8t3A1zxqfGZPx3WzfzJCcBpdVjR
-SQpEiaukvrptBZygBC0fkXVA9dp59uUpVhSmvJmyIyAFXO00CUR+BwgO5ZiDnRin
-mrrX8KwqGGyladk+uF4uIBLKxll8HYnKjX2h73uhZlWF9qmqRMjEa6vh6nCrMwSo
-+Pb38clOCvCls2Nh7KFQUFdJi95InTgPSNcNYYlVaKznCy+oIyAiV6gHuHh753a8
-+0aXpTFmJBIBMOAHbQ1F2rp8Gy7UKTvAczCaCs21Y2ZvUtMH3dRJNOH1GkyS9nvY
-6TbgsgvXJR87huRAhexvhT6lAdW4J7NHizfnRV+se+4FwpjnFncj6uBKQ4597eW2
-RrBcIDzTIEg724XznJv2SnhbffxHFK42D61kt/Mgc5nuEtUg8HJGDRIUEMQFxVlt
-4TW5Q8Luj6g2xFdAmYPhwZSRMaxXRiqw3GsKBw7EDlsM5l8Lx/W7nz3djhrv+OUo
-wELg+1M6kMWXYnmMrRtQA2rSnGC3Id8bQLiHAOwZydggzMEGpJqB+IEsr3/IGN2Y
-fIjmF6ND2Wi7IPA4kWTFtD8IkzmD4D7bQ6GoZ0u6/rGEmc4Fdety8+En4npCZDAr
-6PvWerTb3uPjvFAcWWF0
-=a4a4
------END PGP SIGNATURE-----
-
---JvUS8mwutKMHKosv--
+Shane
