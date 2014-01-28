@@ -1,44 +1,87 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-piix4: Add support for AMD ML and CZ SMBus  
- changes
-Date: Tue, 28 Jan 2014 10:35:42 +0100
-Message-ID: <20140128103542.5e0ba473@endymion.delvare>
-References: <1390428346-2235-1-git-send-email-shane.huang@amd.com>
-	<20140123132740.122c0f8a@endymion.delvare>
-	<43EB3AB3EEFE8D43B525F4D2EAF507E1090ADBB0@SCYBEXDAG01.amd.com>
-	<20140124084717.74da09ff@endymion.delvare>
-	<43EB3AB3EEFE8D43B525F4D2EAF507E1090B0F04@SCYBEXDAG01.amd.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware-pcidrv: fix the incorrect return of idle
+ callback
+Date: Tue, 28 Jan 2014 19:30:35 +0100
+Message-ID: <20140128183035.GC20789@katana>
+References: <52E744AC.2050606@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eRtJSFbw+EEWtPj3"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <43EB3AB3EEFE8D43B525F4D2EAF507E1090B0F04-7mPiUsE5EJ+PLz/DIDN4AEEOCMrvLtNR@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52E744AC.2050606-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Huang, Shane" <Shane.Huang-5C7GfCeVMHo@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Peng, Carl" <Carl.Peng-5C7GfCeVMHo@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: "xinhui.pan" <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, yanmin_zhang-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, bo.he-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 27 Jan 2014 19:38:09 +0000, Huang, Shane wrote:
-> Hi Jean,
-> 
-> > > > BTW it would be really great if we could have access to the
-> > > > documentation for these new AMD chipsets. I looked for both Hudson and
-> > > > FCH at http://developer.amd.com/ but these searches returned nothing. I
-> > > > could help better if I had access to the documentation / datasheets.
-> > > 
-> > > I don't know who is the website maintainer but forwarded your question
-> > > to our FCH datasheet maintainer, and he will follow up. I hope that it will
-> > > be improved in near future. :-)
-> > 
-> > Thanks!
-> 
-> AMD Kabini integrated FCH data sheet can be found in the BKDG (page 611),
-> which is almost same as Hudson-2. The data sheet of ML is not released.
-> 
-> http://developer.amd.com/wordpress/media/2012/10/48751_BKDG_Fam_16h_Mod_00h-0Fh.pdf
 
-Thanks Shane, this is very useful. I had not realized that the SMBus
-controller was now part of the CPU itself.
+--eRtJSFbw+EEWtPj3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jean Delvare
+On Tue, Jan 28, 2014 at 01:48:28PM +0800, xinhui.pan wrote:
+> From: "xinhui.pan" <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>=20
+> i2c_dw_pci_runtime_idle should return -EBUSY rather than zero if it do su=
+ccess.
+
+I don't understand...
+
+> Otherwise rpm_idle will call pm_suspend again and that may cause pm_sched=
+ule_suspend delay invalidate.
+> =09
+> Signed-off-by: bo.he <bo.he-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: xinhui.pan <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/bus=
+ses/i2c-designware-pcidrv.c
+> index f6ed06c..96e81f6 100644
+> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> @@ -190,8 +190,8 @@ static int i2c_dw_pci_runtime_idle(struct device *dev)
+>  	int err =3D pm_schedule_suspend(dev, 500);
+>  	dev_dbg(dev, "runtime_idle called\n");
+> =20
+> -	if (err !=3D 0)
+> -		return 0;
+> +	if (err)
+> +		return err;
+>  	return -EBUSY;
+
+=2E.. it does return EBUSY when pm_schedule_suspend() succeeds? It only
+returns 0 if it does not succeed (for which I don't know if this is an
+apropriate behaviour). Mika?
+
+>  }
+> =20
+> --=20
+> 1.7.9.5
+
+--eRtJSFbw+EEWtPj3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJS5/dLAAoJEBQN5MwUoCm2az8QAJtnTG+xdMODTFr0NnxbpXY/
+BAFEmeZvUe3Mw2/NmLI6Tu6KPU9g1cSdHqNCBcjGW78rgVwGJ0KSg2zr/CrvBwXy
+bJ8js6hRZmB0CQEPFvgPClvbxy5rTkzhNdXU04hqoS4DFERf/TllUiic92Z81tgx
+xqtLqGyomcz3dlVXs3xCAfObqgPKSfMV3NNL6wMcjD1gUuE9LTB+/aLejWtxHVbH
+vl4MgjM6vY+EBXMKeYIxit7bPZjyDUgCVgk9x+RpECxf0MqIdZZnTgksv5BE7/PR
+gyrqMkmRL55nN7XknwG7LHmFirJt/Z/td8MDgpUq425lMOWEcE21w76Zk8Ntwq0b
+O02DIW+znbW0v2GM5kTkM5dWcDVZjZw2hrqXgbK0G+L72b+F9A9TGZlUhUsXApR/
+qi3x8A/5lbt1xNwcWrP5SQFCsbWKSaSpQ0OfodLogpISuBwBiym4lH6EVMCWeWlD
+fc3s6byZ0dmINv/mraurF9DQd4IpbhiTMzQLOXQZRiw5uTawvm3OaHja0g9irwFT
+dVpDXsnelzxpiE9l6mqXFblUVfV9G23/qHfXUAeyzfxqw0OJoVzNXd6JoNcuzW57
+sxQ/PAo2icqSdYkUbyppRNUqurLPugl1YgVL3I6qv3fXcZXEdBzTgcJx2YqVrweM
+55uoD1JDdQwlVC4RknCy
+=2Dno
+-----END PGP SIGNATURE-----
+
+--eRtJSFbw+EEWtPj3--
