@@ -1,41 +1,41 @@
-From: "Huang, Shane" <Shane.Huang-5C7GfCeVMHo@public.gmane.org>
-Subject: RE: [PATCH 1/2] i2c-piix4: Add support for AMD ML and CZ SMBus
-  changes
-Date: Mon, 27 Jan 2014 19:38:09 +0000
-Message-ID: <43EB3AB3EEFE8D43B525F4D2EAF507E1090B0F04@SCYBEXDAG01.amd.com>
-References: <1390428346-2235-1-git-send-email-shane.huang@amd.com>
-	<20140123132740.122c0f8a@endymion.delvare>
-	<43EB3AB3EEFE8D43B525F4D2EAF507E1090ADBB0@SCYBEXDAG01.amd.com>
- <20140124084717.74da09ff@endymion.delvare>
+From: "xinhui.pan" <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-designware-pcidrv: fix the incorrect return of idle callback
+Date: Tue, 28 Jan 2014 13:48:28 +0800
+Message-ID: <52E744AC.2050606@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140124084717.74da09ff-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Peng, Carl" <Carl.Peng-5C7GfCeVMHo@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Huang, Shane" <Shane.Huang-5C7GfCeVMHo@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, yanmin_zhang-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, bo.he-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+From: "xinhui.pan" <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-> > > BTW it would be really great if we could have access to the
-> > > documentation for these new AMD chipsets. I looked for both Hudson and
-> > > FCH at http://developer.amd.com/ but these searches returned nothing. I
-> > > could help better if I had access to the documentation / datasheets.
-> > 
-> > I don't know who is the website maintainer but forwarded your question
-> > to our FCH datasheet maintainer, and he will follow up. I hope that it will
-> > be improved in near future. :-)
-> 
-> Thanks!
+i2c_dw_pci_runtime_idle should return -EBUSY rather than zero if it do success.
+Otherwise rpm_idle will call pm_suspend again and that may cause pm_schedule_suspend delay invalidate.
+	
+Signed-off-by: bo.he <bo.he-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: xinhui.pan <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-AMD Kabini integrated FCH data sheet can be found in the BKDG (page 611),
-which is almost same as Hudson-2. The data sheet of ML is not released.
-
-http://developer.amd.com/wordpress/media/2012/10/48751_BKDG_Fam_16h_Mod_00h-0Fh.pdf
-
-
-Thanks,
-Shane
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index f6ed06c..96e81f6 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -190,8 +190,8 @@ static int i2c_dw_pci_runtime_idle(struct device *dev)
+ 	int err = pm_schedule_suspend(dev, 500);
+ 	dev_dbg(dev, "runtime_idle called\n");
+ 
+-	if (err != 0)
+-		return 0;
++	if (err)
++		return err;
+ 	return -EBUSY;
+ }
+ 
+-- 
+1.7.9.5
