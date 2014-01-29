@@ -1,136 +1,74 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.14
-Date: Wed, 29 Jan 2014 13:46:21 +0100
-Message-ID: <20140129124614.GA8314@katana>
+From: Bjorn Andersson <bjorn@kryo.se>
+Subject: Re: [PATCH v3 0/2] Qualcomm Universal Peripheral (QUP) I2C controller
+Date: Wed, 29 Jan 2014 08:32:49 -0800
+Message-ID: <CAJAp7Oj_D1QvG9nBWTVrW1QVEpqi2cTTc9c6Um25DDzidCjW1w@mail.gmail.com>
+References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1390983246.28998.24.camel@iivanov-dev.int.mm-sol.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1390983246.28998.24.camel@iivanov-dev.int.mm-sol.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>"linux-kernel@vger.kernel.org" <linux>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Jan 29, 2014 at 12:14 AM, Ivan T. Ivanov <iivanov@mm-sol.com> wrote:
+>
+> Hi Bjorn,
+>
+> On Fri, 2014-01-17 at 15:03 -0800, Bjorn Andersson wrote:
+>> Continuing on Ivans i2c-qup series.
+>>
+>
+> Do you plan to send v4 of this driver? I would like to address
+> the remaining errors and suggestions and send a new version.
+>
+Hi Ivan,
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes I'm planning to send out a new revision of the patch set.
 
-Linus,
+I've incorporated fixes from the review comments here and my colleague
+concluded through some testing that block read did not work, so we've
+fixed that as well.
 
-another pull request from the i2c subsystem. Mostly bugfixes, small but
-wanted cleanups, and Paul's init.h removal applied. Please pull.
+What have been holding me from submitting a new patchset is the 3
+functions that does polling of state and status updates;
+* qup_i2c_poll_state() reads the state register up to 1000 times,
+hoping we reach the expected state, will delay 100uS and then continue
+with 1000 more retries.
+  According to the data sheet a state transition is supposed to take
+up to 2 bus cycles. Only time I can see that this would take longer
+time are all error states, but the data sheet is not very clear
+regarding this.
 
-Thanks,
+* qup_i2c_wait_idle() reads the status register up to 1000 times,
+hoping the fifo gets drained and the bus go idle, if that fails it
+sleeps for the time we expect it to take to drain a full fifo and then
+loops another 1000 times. This waits for the fifo to have drained and
+the bus to go idle. On a read we get to this state if we issue the
+write and then hit the error state, so we would reset the entire
+block. On write we will only wait for the buffer not to be full before
+returning.
 
-   Wolfram
+* qup_i2c_wait_clock_ready() waits up to 300 bus-clocks for the i2c
+bus to go idle or forced low, I don't know why it retries 300 times.
+This is called at the end of a write, possibly to wait for the fifo to
+drain.
 
 
-The following changes since commit 3aacd625f20129f5a41ea3ff3b5353b0e4dabd01:
+All three loops are in line with how it's been in codeaurora since the
+beginning of time, but I at least need to figure out some good names
+for those "magic numbers".
 
-  Merge branch 'akpm' (incoming from Andrew) (2014-01-23 19:11:50 -0800)
-
-are available in the git repository at:
-
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 6ff4b105163223741f5a82804f9695221017ae42:
-
-  i2c: rcar: fix NACK error code (2014-01-26 22:48:36 +0100)
-
-----------------------------------------------------------------
-Ben Dooks (4):
-      i2c: rcar: do not print error if device nacks transfer
-      i2c: rcar: use devm_clk_get to ensure clock is properly ref-counted
-      i2c: update i2c_algorithm documentation
-      i2c: rcar: fix NACK error code
-
-Jean Delvare (1):
-      i2c: piix4: Standardize log messages
-
-Paul Gortmaker (2):
-      i2c: acorn: is tristate and should use module.h
-      i2c: delete non-required instances of include <linux/init.h>
-
-Shane Huang (2):
-      i2c: piix4: Add support for AMD ML and CZ SMBus changes
-      i2c: piix4: Use different message for AMD Auxiliary SMBus Controller
-
-Wolfram Sang (1):
-      i2c: rely on driver core when sanitizing devices
-
- Documentation/i2c/busses/i2c-piix4         |  2 +-
- drivers/i2c/algos/i2c-algo-bit.c           |  1 -
- drivers/i2c/algos/i2c-algo-pca.c           |  1 -
- drivers/i2c/algos/i2c-algo-pcf.c           |  1 -
- drivers/i2c/busses/Kconfig                 |  1 +
- drivers/i2c/busses/i2c-acorn.c             |  2 +-
- drivers/i2c/busses/i2c-ali1535.c           |  1 -
- drivers/i2c/busses/i2c-ali1563.c           |  1 -
- drivers/i2c/busses/i2c-ali15x3.c           |  1 -
- drivers/i2c/busses/i2c-amd756.c            |  1 -
- drivers/i2c/busses/i2c-amd8111.c           |  1 -
- drivers/i2c/busses/i2c-au1550.c            |  1 -
- drivers/i2c/busses/i2c-cbus-gpio.c         |  1 -
- drivers/i2c/busses/i2c-cpm.c               |  1 -
- drivers/i2c/busses/i2c-eg20t.c             |  1 -
- drivers/i2c/busses/i2c-exynos5.c           |  1 -
- drivers/i2c/busses/i2c-highlander.c        |  1 -
- drivers/i2c/busses/i2c-hydra.c             |  1 -
- drivers/i2c/busses/i2c-ibm_iic.c           |  1 -
- drivers/i2c/busses/i2c-iop3xx.c            |  1 -
- drivers/i2c/busses/i2c-isch.c              |  1 -
- drivers/i2c/busses/i2c-ismt.c              |  1 -
- drivers/i2c/busses/i2c-mpc.c               |  1 -
- drivers/i2c/busses/i2c-nforce2.c           |  1 -
- drivers/i2c/busses/i2c-ocores.c            |  1 -
- drivers/i2c/busses/i2c-octeon.c            |  1 -
- drivers/i2c/busses/i2c-pca-platform.c      |  1 -
- drivers/i2c/busses/i2c-piix4.c             | 44 +++++++++++++++++++++---------
- drivers/i2c/busses/i2c-pmcmsp.c            |  1 -
- drivers/i2c/busses/i2c-powermac.c          |  1 -
- drivers/i2c/busses/i2c-puv3.c              |  1 -
- drivers/i2c/busses/i2c-rcar.c              | 22 +++++++--------
- drivers/i2c/busses/i2c-scmi.c              |  1 -
- drivers/i2c/busses/i2c-sh7760.c            |  1 -
- drivers/i2c/busses/i2c-simtec.c            |  1 -
- drivers/i2c/busses/i2c-sis630.c            |  1 -
- drivers/i2c/busses/i2c-sis96x.c            |  1 -
- drivers/i2c/busses/i2c-via.c               |  1 -
- drivers/i2c/busses/i2c-xiic.c              |  1 -
- drivers/i2c/busses/i2c-xlr.c               |  1 -
- drivers/i2c/busses/scx200_i2c.c            |  1 -
- drivers/i2c/i2c-core.c                     | 13 +++------
- drivers/i2c/muxes/i2c-arb-gpio-challenge.c |  1 -
- drivers/i2c/muxes/i2c-mux-gpio.c           |  1 -
- drivers/i2c/muxes/i2c-mux-pca9541.c        |  1 -
- drivers/i2c/muxes/i2c-mux-pca954x.c        |  1 -
- drivers/i2c/muxes/i2c-mux-pinctrl.c        |  1 -
- include/linux/i2c.h                        | 16 ++++++++++-
- 48 files changed, 64 insertions(+), 77 deletions(-)
-
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJS6PgWAAoJEBQN5MwUoCm2VKsQAKXmRnTE+bYC1BMP0LaAOojH
-fCE2gRZhTnircj2Gh/gapLeiE0lUJACBwHWgfAw6S+Ax3DTcvXRzVB/wA5nHOeph
-Yahq2gpe40da9/8wJQV8zIo9fgZcQE8tCshHTHLc1VJkPjej/stXlzcRynSNip0Y
-YdY9WkplDAQBNU9trrxKzxPz6KWicd0Wilbp3BJlV2+YsA9VqgVqj5HZrbR2msVw
-fZdpNuAbN+EEHIIiZ9GmPBV/3ZiAEXbYJtJRghiPSfVqlqAjqVOvOjpwAPo30kjz
-33mAYOKHINB0pf5U7+LckNrn1OeDNpXvZe2AxqgNBWb3sHwrLPb+Dvf4336tkrB5
-d6O0LSyVufNdFr9kMby6/Hd8tRkrixyDYvmSZkDXIVb/WQC+oazighnbNr0z47iB
-3KE3y9V/gl7EcCQy9DCEBC9Qt2Yutqb4oL0nQflgGQN5UEBwGTV8Bpomuq5hJKuo
-TJNsT+qhDS649FTt/0q+4UT3UalmYQ9f+Un0dhcUhVcRoDeycBgnPTFuNFDpsEFD
-m00P3aG54C71SwQ8uac16eqNir7u5u1XVJ5erlN9QWcikxsZiHy4VyfRBKXfp6cZ
-wB7tjhzJZAIscuK0yaINTEYFX2w6h0T9+D6F55vooy4SS8nPe+FjRyiriZl4ggB/
-uSy3z8IJlNBpeMgQzrC1
-=mjtK
------END PGP SIGNATURE-----
-
---0F1p//8PRICkK4MW--
+Regards,
+Bjorn
