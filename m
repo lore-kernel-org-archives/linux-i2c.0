@@ -1,114 +1,136 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware-pcidrv: fix the incorrect return of idle
- callback
-Date: Wed, 29 Jan 2014 12:38:13 +0200
-Message-ID: <20140129103813.GN18029@intel.com>
-References: <52E744AC.2050606@intel.com>
- <20140128183035.GC20789@katana>
- <20140129083548.GG18029@intel.com>
- <52E8D13A.1060100@intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 3.14
+Date: Wed, 29 Jan 2014 13:46:21 +0100
+Message-ID: <20140129124614.GA8314@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52E8D13A.1060100-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "xinhui.pan" <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, yanmin_zhang-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, bo.he-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 29, 2014 at 06:00:26PM +0800, xinhui.pan wrote:
->=20
->=20
-> =E4=BA=8E 2014=E5=B9=B401=E6=9C=8829=E6=97=A5 16:35, Mika Westerberg =
-=E5=86=99=E9=81=93:
-> > On Tue, Jan 28, 2014 at 07:30:35PM +0100, Wolfram Sang wrote:
-> >> On Tue, Jan 28, 2014 at 01:48:28PM +0800, xinhui.pan wrote:
-> >>> From: "xinhui.pan" <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> >>>
-> >>> i2c_dw_pci_runtime_idle should return -EBUSY rather than zero if =
-it do success.
-> >>
-> >> I don't understand...
-> >>
-> >>> Otherwise rpm_idle will call pm_suspend again and that may cause =
-pm_schedule_suspend delay invalidate.
-> >>> =09
-> >>> Signed-off-by: bo.he <bo.he-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> >>> Signed-off-by: xinhui.pan <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> >>> ---
-> >>>  drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++--
-> >>>  1 file changed, 2 insertions(+), 2 deletions(-)
-> >>>
-> >>> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers=
-/i2c/busses/i2c-designware-pcidrv.c
-> >>> index f6ed06c..96e81f6 100644
-> >>> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> >>> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> >>> @@ -190,8 +190,8 @@ static int i2c_dw_pci_runtime_idle(struct dev=
-ice *dev)
-> >>>  	int err =3D pm_schedule_suspend(dev, 500);
-> >>>  	dev_dbg(dev, "runtime_idle called\n");
-> >>> =20
-> >>> -	if (err !=3D 0)
-> >>> -		return 0;
-> >>> +	if (err)
-> >>> +		return err;
-> >>>  	return -EBUSY;
-> >>
-> >> ... it does return EBUSY when pm_schedule_suspend() succeeds? It o=
-nly
-> >> returns 0 if it does not succeed (for which I don't know if this i=
-s an
-> >> apropriate behaviour). Mika?
-> >=20
-> > If I understand correctly, pm_schedule_suspend(dev, 500) is there b=
-ecause
-> > we want to runtime suspend in 500 ms. It then returns -EBUSY to pre=
-vent PM
-> > runtime from carrying on suspend on it's own. However, I have no id=
-ea where
-> > this magical 500 ms requirement comes from.
-> >=20
-> > If we fail to schedule suspend we let the PM core to do whatever it=
- thinks
-> > suitable (in this case I suppose it suspends the device).
-> >=20
->=20
-> Hi ,Mika
->   If the callback returns 0,it means pm_schedule_suspend fails,
-> also means rpm_check_suspend_allowed(pm_schedule_suspend calls it)=20
-> returns nonzero value.As a result,rpm_suspend will be called by rpm_i=
-dle.
->   However in rpm_idle, rpm_check_suspend_allowed is called at first,t=
-oo.
-> and the return value is treated as it is.But rpm_idle just returns=20
-> without doing anything(rpm_suspend is not called).=20
->   in both case above,why goes in different ways? I am confused.
 
-To be honest, I don't know ;-)
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > I think the whole idle dance could be replaced with a use of runtim=
-e PM
-> > autosuspend, just like we do in the platform version of the driver.
-> >=20
-> > Xinghui,
-> >=20
-> > Is this a real problem that you are trying to solve?
-> >=20
->=20
-> To be honest,we got many panic when testing.
-> But is not caused by this driver I think.
-> while checking problems,we found these confusing codes by accident.
+Linus,
 
-OK, so if this is not a problem, I would suggest keeping the code as is=
- for
-now as someone who introduced the pm_schedule_suspend() thing probably
-tested it and it worked then.
+another pull request from the i2c subsystem. Mostly bugfixes, small but
+wanted cleanups, and Paul's init.h removal applied. Please pull.
 
-In fact, I think that the PCI part of that driver needs an audit since =
-it
-does some PCI power management magic itself which drivers aren't suppos=
-ed
-to do anymore.
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 3aacd625f20129f5a41ea3ff3b5353b0e4dabd01:
+
+  Merge branch 'akpm' (incoming from Andrew) (2014-01-23 19:11:50 -0800)
+
+are available in the git repository at:
+
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 6ff4b105163223741f5a82804f9695221017ae42:
+
+  i2c: rcar: fix NACK error code (2014-01-26 22:48:36 +0100)
+
+----------------------------------------------------------------
+Ben Dooks (4):
+      i2c: rcar: do not print error if device nacks transfer
+      i2c: rcar: use devm_clk_get to ensure clock is properly ref-counted
+      i2c: update i2c_algorithm documentation
+      i2c: rcar: fix NACK error code
+
+Jean Delvare (1):
+      i2c: piix4: Standardize log messages
+
+Paul Gortmaker (2):
+      i2c: acorn: is tristate and should use module.h
+      i2c: delete non-required instances of include <linux/init.h>
+
+Shane Huang (2):
+      i2c: piix4: Add support for AMD ML and CZ SMBus changes
+      i2c: piix4: Use different message for AMD Auxiliary SMBus Controller
+
+Wolfram Sang (1):
+      i2c: rely on driver core when sanitizing devices
+
+ Documentation/i2c/busses/i2c-piix4         |  2 +-
+ drivers/i2c/algos/i2c-algo-bit.c           |  1 -
+ drivers/i2c/algos/i2c-algo-pca.c           |  1 -
+ drivers/i2c/algos/i2c-algo-pcf.c           |  1 -
+ drivers/i2c/busses/Kconfig                 |  1 +
+ drivers/i2c/busses/i2c-acorn.c             |  2 +-
+ drivers/i2c/busses/i2c-ali1535.c           |  1 -
+ drivers/i2c/busses/i2c-ali1563.c           |  1 -
+ drivers/i2c/busses/i2c-ali15x3.c           |  1 -
+ drivers/i2c/busses/i2c-amd756.c            |  1 -
+ drivers/i2c/busses/i2c-amd8111.c           |  1 -
+ drivers/i2c/busses/i2c-au1550.c            |  1 -
+ drivers/i2c/busses/i2c-cbus-gpio.c         |  1 -
+ drivers/i2c/busses/i2c-cpm.c               |  1 -
+ drivers/i2c/busses/i2c-eg20t.c             |  1 -
+ drivers/i2c/busses/i2c-exynos5.c           |  1 -
+ drivers/i2c/busses/i2c-highlander.c        |  1 -
+ drivers/i2c/busses/i2c-hydra.c             |  1 -
+ drivers/i2c/busses/i2c-ibm_iic.c           |  1 -
+ drivers/i2c/busses/i2c-iop3xx.c            |  1 -
+ drivers/i2c/busses/i2c-isch.c              |  1 -
+ drivers/i2c/busses/i2c-ismt.c              |  1 -
+ drivers/i2c/busses/i2c-mpc.c               |  1 -
+ drivers/i2c/busses/i2c-nforce2.c           |  1 -
+ drivers/i2c/busses/i2c-ocores.c            |  1 -
+ drivers/i2c/busses/i2c-octeon.c            |  1 -
+ drivers/i2c/busses/i2c-pca-platform.c      |  1 -
+ drivers/i2c/busses/i2c-piix4.c             | 44 +++++++++++++++++++++---------
+ drivers/i2c/busses/i2c-pmcmsp.c            |  1 -
+ drivers/i2c/busses/i2c-powermac.c          |  1 -
+ drivers/i2c/busses/i2c-puv3.c              |  1 -
+ drivers/i2c/busses/i2c-rcar.c              | 22 +++++++--------
+ drivers/i2c/busses/i2c-scmi.c              |  1 -
+ drivers/i2c/busses/i2c-sh7760.c            |  1 -
+ drivers/i2c/busses/i2c-simtec.c            |  1 -
+ drivers/i2c/busses/i2c-sis630.c            |  1 -
+ drivers/i2c/busses/i2c-sis96x.c            |  1 -
+ drivers/i2c/busses/i2c-via.c               |  1 -
+ drivers/i2c/busses/i2c-xiic.c              |  1 -
+ drivers/i2c/busses/i2c-xlr.c               |  1 -
+ drivers/i2c/busses/scx200_i2c.c            |  1 -
+ drivers/i2c/i2c-core.c                     | 13 +++------
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c |  1 -
+ drivers/i2c/muxes/i2c-mux-gpio.c           |  1 -
+ drivers/i2c/muxes/i2c-mux-pca9541.c        |  1 -
+ drivers/i2c/muxes/i2c-mux-pca954x.c        |  1 -
+ drivers/i2c/muxes/i2c-mux-pinctrl.c        |  1 -
+ include/linux/i2c.h                        | 16 ++++++++++-
+ 48 files changed, 64 insertions(+), 77 deletions(-)
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJS6PgWAAoJEBQN5MwUoCm2VKsQAKXmRnTE+bYC1BMP0LaAOojH
+fCE2gRZhTnircj2Gh/gapLeiE0lUJACBwHWgfAw6S+Ax3DTcvXRzVB/wA5nHOeph
+Yahq2gpe40da9/8wJQV8zIo9fgZcQE8tCshHTHLc1VJkPjej/stXlzcRynSNip0Y
+YdY9WkplDAQBNU9trrxKzxPz6KWicd0Wilbp3BJlV2+YsA9VqgVqj5HZrbR2msVw
+fZdpNuAbN+EEHIIiZ9GmPBV/3ZiAEXbYJtJRghiPSfVqlqAjqVOvOjpwAPo30kjz
+33mAYOKHINB0pf5U7+LckNrn1OeDNpXvZe2AxqgNBWb3sHwrLPb+Dvf4336tkrB5
+d6O0LSyVufNdFr9kMby6/Hd8tRkrixyDYvmSZkDXIVb/WQC+oazighnbNr0z47iB
+3KE3y9V/gl7EcCQy9DCEBC9Qt2Yutqb4oL0nQflgGQN5UEBwGTV8Bpomuq5hJKuo
+TJNsT+qhDS649FTt/0q+4UT3UalmYQ9f+Un0dhcUhVcRoDeycBgnPTFuNFDpsEFD
+m00P3aG54C71SwQ8uac16eqNir7u5u1XVJ5erlN9QWcikxsZiHy4VyfRBKXfp6cZ
+wB7tjhzJZAIscuK0yaINTEYFX2w6h0T9+D6F55vooy4SS8nPe+FjRyiriZl4ggB/
+uSy3z8IJlNBpeMgQzrC1
+=mjtK
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--
