@@ -1,14 +1,15 @@
-From: Bjorn Andersson <bjorn@kryo.se>
+From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
 Subject: Re: [PATCH v3 0/2] Qualcomm Universal Peripheral (QUP) I2C controller
-Date: Wed, 29 Jan 2014 08:32:49 -0800
-Message-ID: <CAJAp7Oj_D1QvG9nBWTVrW1QVEpqi2cTTc9c6Um25DDzidCjW1w@mail.gmail.com>
+Date: Thu, 30 Jan 2014 17:30:11 +0200
+Message-ID: <1391095811.3275.17.camel@iivanov-dev>
 References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
  <1390983246.28998.24.camel@iivanov-dev.int.mm-sol.com>
+ <CAJAp7Oj_D1QvG9nBWTVrW1QVEpqi2cTTc9c6Um25DDzidCjW1w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1390983246.28998.24.camel@iivanov-dev.int.mm-sol.com>
+In-Reply-To: <CAJAp7Oj_D1QvG9nBWTVrW1QVEpqi2cTTc9c6Um25DDzidCjW1w@mail.gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,57 +19,73 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>"linux-kernel@vger.kernel.org" <linux>
+To: Bjorn Andersson <bjorn@kryo.se>
+Cc: Mark Rutland <mark.rutland@arm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vge>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 29, 2014 at 12:14 AM, Ivan T. Ivanov <iivanov@mm-sol.com> wrote:
->
-> Hi Bjorn,
->
-> On Fri, 2014-01-17 at 15:03 -0800, Bjorn Andersson wrote:
->> Continuing on Ivans i2c-qup series.
->>
->
-> Do you plan to send v4 of this driver? I would like to address
-> the remaining errors and suggestions and send a new version.
->
-Hi Ivan,
 
-Yes I'm planning to send out a new revision of the patch set.
+Hi Bjorn,
 
-I've incorporated fixes from the review comments here and my colleague
-concluded through some testing that block read did not work, so we've
-fixed that as well.
+On Wed, 2014-01-29 at 08:32 -0800, Bjorn Andersson wrote: 
+> On Wed, Jan 29, 2014 at 12:14 AM, Ivan T. Ivanov <iivanov@mm-sol.com> wrote:
+> >
+> > Hi Bjorn,
+> >
+> > On Fri, 2014-01-17 at 15:03 -0800, Bjorn Andersson wrote:
+> >> Continuing on Ivans i2c-qup series.
+> >>
+> >
+> > Do you plan to send v4 of this driver? I would like to address
+> > the remaining errors and suggestions and send a new version.
+> >
+> Hi Ivan,
+> 
+> Yes I'm planning to send out a new revision of the patch set.
+> 
+> I've incorporated fixes from the review comments here and my colleague
+> concluded through some testing that block read did not work, so we've
+> fixed that as well.
 
-What have been holding me from submitting a new patchset is the 3
-functions that does polling of state and status updates;
-* qup_i2c_poll_state() reads the state register up to 1000 times,
-hoping we reach the expected state, will delay 100uS and then continue
-with 1000 more retries.
-  According to the data sheet a state transition is supposed to take
-up to 2 bus cycles. Only time I can see that this would take longer
-time are all error states, but the data sheet is not very clear
-regarding this.
+Busted. I have not test it.
 
-* qup_i2c_wait_idle() reads the status register up to 1000 times,
-hoping the fifo gets drained and the bus go idle, if that fails it
-sleeps for the time we expect it to take to drain a full fifo and then
-loops another 1000 times. This waits for the fifo to have drained and
-the bus to go idle. On a read we get to this state if we issue the
-write and then hit the error state, so we would reset the entire
-block. On write we will only wait for the buffer not to be full before
-returning.
+> 
+> What have been holding me from submitting a new patchset is the 3
+> functions that does polling of state and status updates;
+> * qup_i2c_poll_state() reads the state register up to 1000 times,
+> hoping we reach the expected state, will delay 100uS and then continue
+> with 1000 more retries.
+>   According to the data sheet a state transition is supposed to take
+> up to 2 bus cycles. Only time I can see that this would take longer
+> time are all error states, but the data sheet is not very clear
+> regarding this.
+> 
+> * qup_i2c_wait_idle() reads the status register up to 1000 times,
+> hoping the fifo gets drained and the bus go idle, if that fails it
+> sleeps for the time we expect it to take to drain a full fifo and then
+> loops another 1000 times. This waits for the fifo to have drained and
+> the bus to go idle. On a read we get to this state if we issue the
+> write and then hit the error state, so we would reset the entire
+> block. On write we will only wait for the buffer not to be full before
+> returning.
+> 
+> * qup_i2c_wait_clock_ready() waits up to 300 bus-clocks for the i2c
+> bus to go idle or forced low, I don't know why it retries 300 times.
+> This is called at the end of a write, possibly to wait for the fifo to
+> drain.
+> 
+> 
+> All three loops are in line with how it's been in codeaurora since the
+> beginning of time, but I at least need to figure out some good names
+> for those "magic numbers".
 
-* qup_i2c_wait_clock_ready() waits up to 300 bus-clocks for the i2c
-bus to go idle or forced low, I don't know why it retries 300 times.
-This is called at the end of a write, possibly to wait for the fifo to
-drain.
+
+Sure. I have keep them this way, just because I don't have information
+for internal trickery of the block.
+
+Thanks, 
+Ivan
 
 
-All three loops are in line with how it's been in codeaurora since the
-beginning of time, but I at least need to figure out some good names
-for those "magic numbers".
-
-Regards,
-Bjorn
+> 
+> Regards,
+> Bjorn
