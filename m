@@ -1,91 +1,104 @@
-From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Subject: Re: [PATCH v3 0/2] Qualcomm Universal Peripheral (QUP) I2C controller
-Date: Thu, 30 Jan 2014 17:30:11 +0200
-Message-ID: <1391095811.3275.17.camel@iivanov-dev>
-References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1390983246.28998.24.camel@iivanov-dev.int.mm-sol.com>
- <CAJAp7Oj_D1QvG9nBWTVrW1QVEpqi2cTTc9c6Um25DDzidCjW1w@mail.gmail.com>
+From: Josh Boyer <jwboyer@fedoraproject.org>
+Subject: kernfs oops with i915+i2c_core in 3.14 merge window
+Date: Thu, 30 Jan 2014 14:03:18 -0500
+Message-ID: <CA+5PVA4Oj7XOZSEYqXGE7ZPVVK1oEHEc-w_DniCediWGVhrmhQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAJAp7Oj_D1QvG9nBWTVrW1QVEpqi2cTTc9c6Um25DDzidCjW1w@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Bjorn Andersson <bjorn@kryo.se>
-Cc: Mark Rutland <mark.rutland@arm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vge>
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/intel-gfx>,
+	<mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+	<mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Sender: intel-gfx-bounces@lists.freedesktop.org
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+To: Daniel Vetter <daniel.vetter@ffwll.ch>, Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@linux.ie>, Wolfram Sang <wsa@the-dreams.de>, Tejun Heo <tj@kernel.org>
+Cc: intel-gfx@lists.freedesktop.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, DRI mailing list <dri-devel@lists.freedesktop.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi All,
 
-Hi Bjorn,
+I'm seeing the oops below on my MacBookPro 10,2 machine using i915
+graphics.  It's after the DRM merge for 3.14 ( v3.13-10094-g9b0cd30) ,
+but we seem to have one report[1] of this happening well before that,
+in v3.13-3260-g03d11a0 as well.  Does anyone have a clue what is going
+on here?
 
-On Wed, 2014-01-29 at 08:32 -0800, Bjorn Andersson wrote: 
-> On Wed, Jan 29, 2014 at 12:14 AM, Ivan T. Ivanov <iivanov@mm-sol.com> wrote:
-> >
-> > Hi Bjorn,
-> >
-> > On Fri, 2014-01-17 at 15:03 -0800, Bjorn Andersson wrote:
-> >> Continuing on Ivans i2c-qup series.
-> >>
-> >
-> > Do you plan to send v4 of this driver? I would like to address
-> > the remaining errors and suggestions and send a new version.
-> >
-> Hi Ivan,
-> 
-> Yes I'm planning to send out a new revision of the patch set.
-> 
-> I've incorporated fixes from the review comments here and my colleague
-> concluded through some testing that block read did not work, so we've
-> fixed that as well.
+https://bugzilla.redhat.com/show_bug.cgi?id=1055105
 
-Busted. I have not test it.
+josh
 
-> 
-> What have been holding me from submitting a new patchset is the 3
-> functions that does polling of state and status updates;
-> * qup_i2c_poll_state() reads the state register up to 1000 times,
-> hoping we reach the expected state, will delay 100uS and then continue
-> with 1000 more retries.
->   According to the data sheet a state transition is supposed to take
-> up to 2 bus cycles. Only time I can see that this would take longer
-> time are all error states, but the data sheet is not very clear
-> regarding this.
-> 
-> * qup_i2c_wait_idle() reads the status register up to 1000 times,
-> hoping the fifo gets drained and the bus go idle, if that fails it
-> sleeps for the time we expect it to take to drain a full fifo and then
-> loops another 1000 times. This waits for the fifo to have drained and
-> the bus to go idle. On a read we get to this state if we issue the
-> write and then hit the error state, so we would reset the entire
-> block. On write we will only wait for the buffer not to be full before
-> returning.
-> 
-> * qup_i2c_wait_clock_ready() waits up to 300 bus-clocks for the i2c
-> bus to go idle or forced low, I don't know why it retries 300 times.
-> This is called at the end of a write, possibly to wait for the fifo to
-> drain.
-> 
-> 
-> All three loops are in line with how it's been in codeaurora since the
-> beginning of time, but I at least need to figure out some good names
-> for those "magic numbers".
-
-
-Sure. I have keep them this way, just because I don't have information
-for internal trickery of the block.
-
-Thanks, 
-Ivan
-
-
-> 
-> Regards,
-> Bjorn
+[    6.058198] INFO: trying to register non-static key.
+[    6.058203] the code is fine but needs lockdep annotation.
+[    6.058206] turning off the locking correctness validator.
+[    6.058210] CPU: 2 PID: 225 Comm: systemd-udevd Not tainted
+3.14.0-0.rc0.git17.1.fc21.x86_64 #1
+[    6.058214] Hardware name: Apple Inc.
+MacBookPro10,2/Mac-AFD8A9D944EA4843, BIOS
+MBP102.88Z.0106.B03.1211161133 11/16/2012
+[    6.058219]  0000000000000000 000000008b5190d0 ffff88025cc67460
+ffffffff817cdb1f
+[    6.058225]  0000000000000002 ffff88025cc67470 ffffffff817c8aa9
+ffff88025cc67550
+[    6.058230]  ffffffff810fa886 0000000000000002 ffff88025cc66000
+ffff88025cc67500
+[    6.058236] Call Trace:
+[    6.058242]  [<ffffffff817cdb1f>] dump_stack+0x4d/0x66
+[    6.058247]  [<ffffffff817c8aa9>] register_lock_class.part.26+0x38/0x3c
+[    6.058253]  [<ffffffff810fa886>] __lock_acquire+0x1776/0x1c40
+[    6.058258]  [<ffffffff810f8b09>] ? mark_held_locks+0xb9/0x140
+[    6.058262]  [<ffffffff810feb91>] ? __raw_spin_lock_init+0x21/0x60
+[    6.058267]  [<ffffffff810f626c>] ? lockdep_init_map+0xac/0x4a0
+[    6.058271]  [<ffffffff810fb542>] lock_acquire+0xa2/0x1d0
+[    6.058275]  [<ffffffff812beeb8>] ? kernfs_addrm_finish+0x38/0x60
+[    6.058279]  [<ffffffff812be0de>] kernfs_deactivate+0x13e/0x1a0
+[    6.058283]  [<ffffffff812beeb8>] ? kernfs_addrm_finish+0x38/0x60
+[    6.058287]  [<ffffffff810f8b09>] ? mark_held_locks+0xb9/0x140
+[    6.058291]  [<ffffffff810f8b09>] ? mark_held_locks+0xb9/0x140
+[    6.058295]  [<ffffffff812beeb8>] kernfs_addrm_finish+0x38/0x60
+[    6.058299]  [<ffffffff812bf150>] kernfs_remove_by_name_ns+0x60/0xc0
+[    6.058304]  [<ffffffff812bcc81>] remove_files.isra.1+0x41/0x80
+[    6.058308]  [<ffffffff812bcf77>] sysfs_remove_group+0x47/0xa0
+[    6.058312]  [<ffffffff812bd0a3>] sysfs_remove_groups+0x33/0x50
+[    6.058318]  [<ffffffff814f391e>] device_remove_attrs+0x5e/0x80
+[    6.058322]  [<ffffffff814f455e>] device_del+0x12e/0x1d0
+[    6.058325]  [<ffffffff814f461e>] device_unregister+0x1e/0x60
+[    6.058331]  [<ffffffffa000d407>] i2c_del_adapter+0x267/0x3b0 [i2c_core]
+[    6.058354]  [<ffffffffa00df8de>] intel_sdvo_init+0x20e/0x8c0 [i915]
+[    6.058359]  [<ffffffff810f8c95>] ? trace_hardirqs_on_caller+0x105/0x1d0
+[    6.058363]  [<ffffffff810f8d6d>] ? trace_hardirqs_on+0xd/0x10
+[    6.058381]  [<ffffffffa00fb952>] ? gen6_read32+0x52/0x1c0 [i915]
+[    6.058398]  [<ffffffffa00c7922>] intel_modeset_init+0xb62/0xff0 [i915]
+[    6.058414]  [<ffffffffa00ea6b8>] ?
+intel_power_domains_init_hw+0xa8/0x110 [i915]
+[    6.058429]  [<ffffffffa008b38c>] i915_driver_load+0xccc/0xec0 [i915]
+[    6.058440]  [<ffffffffa00264cd>] ? drm_get_minor+0x1ad/0x200 [drm]
+[    6.058447]  [<ffffffffa002659d>] drm_dev_register+0x7d/0x180 [drm]
+[    6.058455]  [<ffffffffa0028d10>] drm_get_pci_dev+0xa0/0x220 [drm]
+[    6.058468]  [<ffffffffa008770b>] i915_pci_probe+0x3b/0x60 [i915]
+[    6.058473]  [<ffffffff8140c605>] local_pci_probe+0x45/0xa0
+[    6.058477]  [<ffffffff8140d8b5>] ? pci_match_device+0xc5/0xd0
+[    6.058481]  [<ffffffff8140d9f9>] pci_device_probe+0xf9/0x150
+[    6.058486]  [<ffffffff814f8b95>] driver_probe_device+0x125/0x3a0
+[    6.058490]  [<ffffffff814f8ee3>] __driver_attach+0x93/0xa0
+[    6.058494]  [<ffffffff814f8e50>] ? __device_attach+0x40/0x40
+[    6.058498]  [<ffffffff814f68d3>] bus_for_each_dev+0x73/0xc0
+[    6.058502]  [<ffffffff814f851e>] driver_attach+0x1e/0x20
+[    6.058505]  [<ffffffff814f80c8>] bus_add_driver+0x188/0x260
+[    6.058509]  [<ffffffffa0154000>] ? 0xffffffffa0153fff
+[    6.058513]  [<ffffffff814f9584>] driver_register+0x64/0xf0
+[    6.058516]  [<ffffffffa0154000>] ? 0xffffffffa0153fff
+[    6.058520]  [<ffffffff8140bfa0>] __pci_register_driver+0x60/0x70
+[    6.058527]  [<ffffffffa0028faa>] drm_pci_init+0x11a/0x130 [drm]
+[    6.058531]  [<ffffffffa0154000>] ? 0xffffffffa0153fff
+[    6.058543]  [<ffffffffa015406a>] i915_init+0x6a/0x6c [i915]
+[    6.058548]  [<ffffffff8100214a>] do_one_initcall+0xfa/0x1b0
+[    6.058552]  [<ffffffff810640a3>] ? set_memory_nx+0x43/0x50
+[    6.058557]  [<ffffffff81131d63>] load_module+0x1eb3/0x26e0
+[    6.058560]  [<ffffffff8112cc70>] ? store_uevent+0x70/0x70
+[    6.058565]  [<ffffffff81238710>] ? kernel_read+0x50/0x80
+[    6.058569]  [<ffffffff81132766>] SyS_finit_module+0xa6/0xd0
+[    6.058574]  [<ffffffff817e19a9>] system_call_fastpath+0x16/0x1b
