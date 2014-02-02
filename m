@@ -1,167 +1,56 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH 2/2] ARM: sunxi: dt: Convert to the new i2c compatibles
-Date: Sun,  2 Feb 2014 14:39:47 +0100
-Message-ID: <1391348387-9577-2-git-send-email-maxime.ripard@free-electrons.com>
-References: <1391348387-9577-1-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH 1/2] i2c: sunxi: Add new i2c compatibles
+Date: Sun,  2 Feb 2014 14:39:46 +0100
+Message-ID: <1391348387-9577-1-git-send-email-maxime.ripard@free-electrons.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1391348387-9577-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Switch the device tree to the new compatibles introduced in the i2c drivers
-to have a common pattern accross all Allwinner SoCs.
+The Allwinner A10 compatibles were following a slightly different compatible
+patterns than the rest of the SoCs for historical reasons. Add compatibles
+matching the other pattern to the i2c driver for consistency, and keep the
+older one for backward compatibility.
 
 Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi  |  6 +++---
- arch/arm/boot/dts/sun5i-a10s.dtsi |  6 +++---
- arch/arm/boot/dts/sun5i-a13.dtsi  |  6 +++---
- arch/arm/boot/dts/sun7i-a20.dtsi  | 10 +++++-----
- 4 files changed, 14 insertions(+), 14 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 4 ++--
+ drivers/i2c/busses/i2c-mv64xxx.c                      | 5 ++++-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 040bb0e..9508fb7 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -512,7 +512,7 @@
- 		};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+index 82e8f6f..bd08d67 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+@@ -4,8 +4,8 @@
+ Required properties :
  
- 		i2c0: i2c@01c2ac00 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2ac00 0x400>;
- 			interrupts = <7>;
- 			clocks = <&apb1_gates 0>;
-@@ -521,7 +521,7 @@
- 		};
+  - reg             : Offset and length of the register set for the device
+- - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-i2c"
+-                     or "marvell,mv78230-i2c"
++ - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-a10-i2c"
++                     or "marvell,mv78230-i2c" (Deprecated "allwinner,sun4i-i2c")
+  - interrupts      : The interrupt number
  
- 		i2c1: i2c@01c2b000 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b000 0x400>;
- 			interrupts = <8>;
- 			clocks = <&apb1_gates 1>;
-@@ -530,7 +530,7 @@
- 		};
- 
- 		i2c2: i2c@01c2b400 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b400 0x400>;
- 			interrupts = <9>;
- 			clocks = <&apb1_gates 2>;
-diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
-index ea16054..0d1a3bf 100644
---- a/arch/arm/boot/dts/sun5i-a10s.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
-@@ -431,7 +431,7 @@
- 		i2c0: i2c@01c2ac00 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2ac00 0x400>;
- 			interrupts = <7>;
- 			clocks = <&apb1_gates 0>;
-@@ -442,7 +442,7 @@
- 		i2c1: i2c@01c2b000 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b000 0x400>;
- 			interrupts = <8>;
- 			clocks = <&apb1_gates 1>;
-@@ -453,7 +453,7 @@
- 		i2c2: i2c@01c2b400 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b400 0x400>;
- 			interrupts = <9>;
- 			clocks = <&apb1_gates 2>;
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index 320335a..9e6f031 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -372,7 +372,7 @@
- 		};
- 
- 		i2c0: i2c@01c2ac00 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2ac00 0x400>;
- 			interrupts = <7>;
- 			clocks = <&apb1_gates 0>;
-@@ -381,7 +381,7 @@
- 		};
- 
- 		i2c1: i2c@01c2b000 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b000 0x400>;
- 			interrupts = <8>;
- 			clocks = <&apb1_gates 1>;
-@@ -390,7 +390,7 @@
- 		};
- 
- 		i2c2: i2c@01c2b400 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b400 0x400>;
- 			interrupts = <9>;
- 			clocks = <&apb1_gates 2>;
-diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
-index 119f066..0a368d2 100644
---- a/arch/arm/boot/dts/sun7i-a20.dtsi
-+++ b/arch/arm/boot/dts/sun7i-a20.dtsi
-@@ -549,7 +549,7 @@
- 		};
- 
- 		i2c0: i2c@01c2ac00 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2ac00 0x400>;
- 			interrupts = <0 7 4>;
- 			clocks = <&apb1_gates 0>;
-@@ -558,7 +558,7 @@
- 		};
- 
- 		i2c1: i2c@01c2b000 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b000 0x400>;
- 			interrupts = <0 8 4>;
- 			clocks = <&apb1_gates 1>;
-@@ -567,7 +567,7 @@
- 		};
- 
- 		i2c2: i2c@01c2b400 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b400 0x400>;
- 			interrupts = <0 9 4>;
- 			clocks = <&apb1_gates 2>;
-@@ -576,7 +576,7 @@
- 		};
- 
- 		i2c3: i2c@01c2b800 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2b800 0x400>;
- 			interrupts = <0 88 4>;
- 			clocks = <&apb1_gates 3>;
-@@ -585,7 +585,7 @@
- 		};
- 
- 		i2c4: i2c@01c2bc00 {
--			compatible = "allwinner,sun4i-i2c";
-+			compatible = "allwinner,sun4i-a10-i2c";
- 			reg = <0x01c2bc00 0x400>;
- 			interrupts = <0 89 4>;
- 			clocks = <&apb1_gates 15>;
+ Optional properties :
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 8be7e42..e37a042 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -689,9 +689,12 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
+  *****************************************************************************
+  */
+ static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
+-	{ .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
++	{ .compatible = "allwinner,sun4i-a10-i2c", .data = &mv64xxx_i2c_regs_sun4i},
+ 	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+ 	{ .compatible = "marvell,mv78230-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
++
++	/* Deprecated */
++	{ .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
 -- 
 1.8.4.2
