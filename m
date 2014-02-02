@@ -1,95 +1,167 @@
-From: Bjorn Andersson <bjorn@kryo.se>
-Subject: Re: [PATCH v3 0/2] Qualcomm Universal Peripheral (QUP) I2C controller
-Date: Thu, 30 Jan 2014 15:27:16 -0800
-Message-ID: <CAJAp7OgEttDsM=FH2n3yvVwQ8X1__F3jLF=snF6Kr7EiE5w9oQ@mail.gmail.com>
-References: <1389999819-10648-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1390983246.28998.24.camel@iivanov-dev.int.mm-sol.com>
- <CAJAp7Oj_D1QvG9nBWTVrW1QVEpqi2cTTc9c6Um25DDzidCjW1w@mail.gmail.com>
- <1391095811.3275.17.camel@iivanov-dev>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1391095811.3275.17.camel@iivanov-dev>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Grant Likely <grant.likely@linaro.org>, James Ralston <james.d.ralston@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bill Brown <bill.e.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vge>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH 2/2] ARM: sunxi: dt: Convert to the new i2c compatibles
+Date: Sun,  2 Feb 2014 14:39:47 +0100
+Message-ID: <1391348387-9577-2-git-send-email-maxime.ripard@free-electrons.com>
+References: <1391348387-9577-1-git-send-email-maxime.ripard@free-electrons.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1391348387-9577-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 30, 2014 at 7:30 AM, Ivan T. Ivanov <iivanov@mm-sol.com> wrote:
->
-> Hi Bjorn,
->
-> On Wed, 2014-01-29 at 08:32 -0800, Bjorn Andersson wrote:
->> On Wed, Jan 29, 2014 at 12:14 AM, Ivan T. Ivanov <iivanov@mm-sol.com> wrote:
->> >
->> > Hi Bjorn,
->> >
->> > On Fri, 2014-01-17 at 15:03 -0800, Bjorn Andersson wrote:
->> >> Continuing on Ivans i2c-qup series.
->> >>
->> >
->> > Do you plan to send v4 of this driver? I would like to address
->> > the remaining errors and suggestions and send a new version.
->> >
->> Hi Ivan,
->>
->> Yes I'm planning to send out a new revision of the patch set.
->>
->> I've incorporated fixes from the review comments here and my colleague
->> concluded through some testing that block read did not work, so we've
->> fixed that as well.
->
-> Busted. I have not test it.
+Switch the device tree to the new compatibles introduced in the i2c drivers
+to have a common pattern accross all Allwinner SoCs.
 
-No worries, I'm glad you did the major cleanup from codeaurora!
+Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ arch/arm/boot/dts/sun4i-a10.dtsi  |  6 +++---
+ arch/arm/boot/dts/sun5i-a10s.dtsi |  6 +++---
+ arch/arm/boot/dts/sun5i-a13.dtsi  |  6 +++---
+ arch/arm/boot/dts/sun7i-a20.dtsi  | 10 +++++-----
+ 4 files changed, 14 insertions(+), 14 deletions(-)
 
->
->>
->> What have been holding me from submitting a new patchset is the 3
->> functions that does polling of state and status updates;
->> * qup_i2c_poll_state() reads the state register up to 1000 times,
->> hoping we reach the expected state, will delay 100uS and then continue
->> with 1000 more retries.
->>   According to the data sheet a state transition is supposed to take
->> up to 2 bus cycles. Only time I can see that this would take longer
->> time are all error states, but the data sheet is not very clear
->> regarding this.
->>
->> * qup_i2c_wait_idle() reads the status register up to 1000 times,
->> hoping the fifo gets drained and the bus go idle, if that fails it
->> sleeps for the time we expect it to take to drain a full fifo and then
->> loops another 1000 times. This waits for the fifo to have drained and
->> the bus to go idle. On a read we get to this state if we issue the
->> write and then hit the error state, so we would reset the entire
->> block. On write we will only wait for the buffer not to be full before
->> returning.
->>
->> * qup_i2c_wait_clock_ready() waits up to 300 bus-clocks for the i2c
->> bus to go idle or forced low, I don't know why it retries 300 times.
->> This is called at the end of a write, possibly to wait for the fifo to
->> drain.
->>
->>
->> All three loops are in line with how it's been in codeaurora since the
->> beginning of time, but I at least need to figure out some good names
->> for those "magic numbers".
->
->
-> Sure. I have keep them this way, just because I don't have information
-> for internal trickery of the block.
-
-I'll continue to talk to the Qualcomm guys to see if we can figure out
-anything regarding the expected timings of those operations and I'll
-send out a new version when we have something saner.
-
-Regards,
-Bjorn
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index 040bb0e..9508fb7 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -512,7 +512,7 @@
+ 		};
+ 
+ 		i2c0: i2c@01c2ac00 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2ac00 0x400>;
+ 			interrupts = <7>;
+ 			clocks = <&apb1_gates 0>;
+@@ -521,7 +521,7 @@
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b000 0x400>;
+ 			interrupts = <8>;
+ 			clocks = <&apb1_gates 1>;
+@@ -530,7 +530,7 @@
+ 		};
+ 
+ 		i2c2: i2c@01c2b400 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b400 0x400>;
+ 			interrupts = <9>;
+ 			clocks = <&apb1_gates 2>;
+diff --git a/arch/arm/boot/dts/sun5i-a10s.dtsi b/arch/arm/boot/dts/sun5i-a10s.dtsi
+index ea16054..0d1a3bf 100644
+--- a/arch/arm/boot/dts/sun5i-a10s.dtsi
++++ b/arch/arm/boot/dts/sun5i-a10s.dtsi
+@@ -431,7 +431,7 @@
+ 		i2c0: i2c@01c2ac00 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2ac00 0x400>;
+ 			interrupts = <7>;
+ 			clocks = <&apb1_gates 0>;
+@@ -442,7 +442,7 @@
+ 		i2c1: i2c@01c2b000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b000 0x400>;
+ 			interrupts = <8>;
+ 			clocks = <&apb1_gates 1>;
+@@ -453,7 +453,7 @@
+ 		i2c2: i2c@01c2b400 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b400 0x400>;
+ 			interrupts = <9>;
+ 			clocks = <&apb1_gates 2>;
+diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
+index 320335a..9e6f031 100644
+--- a/arch/arm/boot/dts/sun5i-a13.dtsi
++++ b/arch/arm/boot/dts/sun5i-a13.dtsi
+@@ -372,7 +372,7 @@
+ 		};
+ 
+ 		i2c0: i2c@01c2ac00 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2ac00 0x400>;
+ 			interrupts = <7>;
+ 			clocks = <&apb1_gates 0>;
+@@ -381,7 +381,7 @@
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b000 0x400>;
+ 			interrupts = <8>;
+ 			clocks = <&apb1_gates 1>;
+@@ -390,7 +390,7 @@
+ 		};
+ 
+ 		i2c2: i2c@01c2b400 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b400 0x400>;
+ 			interrupts = <9>;
+ 			clocks = <&apb1_gates 2>;
+diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i-a20.dtsi
+index 119f066..0a368d2 100644
+--- a/arch/arm/boot/dts/sun7i-a20.dtsi
++++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+@@ -549,7 +549,7 @@
+ 		};
+ 
+ 		i2c0: i2c@01c2ac00 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2ac00 0x400>;
+ 			interrupts = <0 7 4>;
+ 			clocks = <&apb1_gates 0>;
+@@ -558,7 +558,7 @@
+ 		};
+ 
+ 		i2c1: i2c@01c2b000 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b000 0x400>;
+ 			interrupts = <0 8 4>;
+ 			clocks = <&apb1_gates 1>;
+@@ -567,7 +567,7 @@
+ 		};
+ 
+ 		i2c2: i2c@01c2b400 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b400 0x400>;
+ 			interrupts = <0 9 4>;
+ 			clocks = <&apb1_gates 2>;
+@@ -576,7 +576,7 @@
+ 		};
+ 
+ 		i2c3: i2c@01c2b800 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2b800 0x400>;
+ 			interrupts = <0 88 4>;
+ 			clocks = <&apb1_gates 3>;
+@@ -585,7 +585,7 @@
+ 		};
+ 
+ 		i2c4: i2c@01c2bc00 {
+-			compatible = "allwinner,sun4i-i2c";
++			compatible = "allwinner,sun4i-a10-i2c";
+ 			reg = <0x01c2bc00 0x400>;
+ 			interrupts = <0 89 4>;
+ 			clocks = <&apb1_gates 15>;
+-- 
+1.8.4.2
