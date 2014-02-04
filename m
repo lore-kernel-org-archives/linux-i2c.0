@@ -1,195 +1,56 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 3/6] mfd: add bcm59056 pmu driver
-Date: Tue, 4 Feb 2014 13:29:51 +0000
-Message-ID: <20140204132951.GE13529@lee--X1>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 0/6] BCM59056 PMU regulator support
+Date: Tue, 4 Feb 2014 13:40:43 +0000
+Message-ID: <20140204134043.GG13529@lee--X1>
 References: <1391516352-32359-1-git-send-email-mporter@linaro.org>
- <1391516352-32359-4-git-send-email-mporter@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1391516352-32359-4-git-send-email-mporter@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matt Porter <mporter@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Tim Kryger <tim.kryger@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Christian Daudt <bcm@fixthebug.org>, Devicetree List <devicetree@vger.kernel.org>, Linux I2C List <linux-i2c@vger.kernel.org>, Linux ARM Kernel List <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1391516352-32359-1-git-send-email-mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> Add a driver for the BCM59056 PMU multi-function device. The driver
-> initially supports regmap initialization and instantiation of the
-> voltage regulator device function of the PMU.
+> The BCM59056 is a multi-function power management unit used with the
+> BCM281xx family of SoCs. This series adds an MFD and voltage regulato=
+r
+> driver to support the BCM59056. The bcm28155-ap DT support is updated
+> to enable use of regulators on the otg and sdhci peripherals.
 >=20
-> Signed-off-by: Matt Porter <mporter@linaro.org>
-> Reviewed-by: Tim Kryger <tim.kryger@linaro.org>
-> Reviewed-by: Markus Mayer <markus.mayer@linaro.org>
-> ---
->  drivers/mfd/Kconfig          |   8 +++
->  drivers/mfd/Makefile         |   1 +
->  drivers/mfd/bcm59056.c       | 119 +++++++++++++++++++++++++++++++++=
+> Matt Porter (6):
+>   i2c: bcm-kona: register with subsys_initcall
+>   regulator: add bcm59056 pmu DT binding
+>   mfd: add bcm59056 pmu driver
+>   regulator: add bcm59056 regulator driver
+>   ARM: configs: bcm_defconfig: enable bcm59056 regulator support
+>   ARM: dts: add bcm59056 pmu support and enable for bcm28155-ap
+>=20
+>  .../devicetree/bindings/regulator/bcm59056.txt     |  37 ++
+>  arch/arm/boot/dts/bcm28155-ap.dts                  |  41 ++
+>  arch/arm/boot/dts/bcm59056.dtsi                    | 158 ++++++++
+>  arch/arm/configs/bcm_defconfig                     |   7 +
+>  drivers/i2c/busses/i2c-bcm-kona.c                  |  14 +-
+>  drivers/mfd/Kconfig                                |   8 +
+>  drivers/mfd/Makefile                               |   1 +
+>  drivers/mfd/bcm59056.c                             | 119 ++++++
+>  drivers/regulator/Kconfig                          |   8 +
+>  drivers/regulator/Makefile                         |   1 +
+>  drivers/regulator/bcm59056-regulator.c             | 445 +++++++++++=
 ++++++++++
->  include/linux/mfd/bcm59056.h |  35 +++++++++++++
->  4 files changed, 163 insertions(+)
+>  include/linux/mfd/bcm59056.h                       |  35 ++
+>  12 files changed, 873 insertions(+), 1 deletion(-)
+>  create mode 100644 Documentation/devicetree/bindings/regulator/bcm59=
+056.txt
+>  create mode 100644 arch/arm/boot/dts/bcm59056.dtsi
 >  create mode 100644 drivers/mfd/bcm59056.c
+>  create mode 100644 drivers/regulator/bcm59056-regulator.c
 >  create mode 100644 include/linux/mfd/bcm59056.h
 
-<snip>
-
-> +static struct mfd_cell bcm59056s[] =3D {
-> +	{
-> +		.name =3D "bcm59056-pmu",
-
-If you plan to use *->of_node in the PMU driver, which it looks like
-you do, you should set the compatible string here.
-
-> +	},
-> +};
-> +
-> +static const struct regmap_config bcm59056_regmap_config =3D {
-> +	.reg_bits	=3D 8,
-> +	.val_bits	=3D 8,
-> +	.max_register	=3D BCM59056_MAX_REGISTER - 1,
-
-If you've just set this manually i.e. it's not part of an enum table,
-can't you set it a value you don't need to do math on? It's not used
-anywhere else is it?
-
-> +	.cache_type	=3D REGCACHE_RBTREE,
-> +};
-> +
-> +static int bcm59056_i2c_probe(struct i2c_client *i2c,
-> +			      const struct i2c_device_id *id)
-> +{
-> +	struct bcm59056 *bcm59056;
-> +	int chip_id =3D id->driver_data;
-
-I thought this was a DT only driver? If so, you probably want to use
-of_match_device() instead.
-
-> +	int ret =3D 0;
-> +
-> +	bcm59056 =3D devm_kzalloc(&i2c->dev, sizeof(*bcm59056), GFP_KERNEL)=
-;
-> +	if (!bcm59056)
-> +		return -ENOMEM;
-> +
-> +	i2c_set_clientdata(i2c, bcm59056);
-> +	bcm59056->dev =3D &i2c->dev;
-> +	bcm59056->i2c_client =3D i2c;
-> +	bcm59056->id =3D chip_id;
-> +
-> +	bcm59056->regmap =3D devm_regmap_init_i2c(i2c, &bcm59056_regmap_con=
-fig);
-> +	if (IS_ERR(bcm59056->regmap)) {
-> +		ret =3D PTR_ERR(bcm59056->regmap);
-> +		dev_err(&i2c->dev, "regmap initialization failed: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret =3D mfd_add_devices(bcm59056->dev, -1,
-> +			      bcm59056s, ARRAY_SIZE(bcm59056s),
-> +			      NULL, 0, NULL);
-
-Are you sure you need all of your #includes?
-
-I notice that irqdomain is there, but you don't actually have one?
-
-> +	if (ret < 0)
-> +		dev_err(&i2c->dev, "mfd_add_devices failed: %d\n", ret);
-
-What if we change the name of the function? Probably better to say
-something like "device registration failed" or thelike.
-
-> +	return ret;
-> +}
-> +
-> +static int bcm59056_i2c_remove(struct i2c_client *i2c)
-> +{
-> +	struct bcm59056 *bcm59056 =3D i2c_get_clientdata(i2c);
-> +
-> +	mfd_remove_devices(bcm59056->dev);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id bcm59056_of_match[] =3D {
-> +	{ .compatible =3D "brcm,bcm59056", .data =3D (void *)BCM59056 },
-
-You've gone to the trouble of setting a device version here, but you
-don't seem to use it?
-
-> +	{ }
-> +};
-> +
-> +static const struct i2c_device_id bcm59056_i2c_id[] =3D {
-> +	{ "bcm59056", BCM59056 },
-> +	{ }
-> +};
-
-Ah, I guess this is where id->driver comes from.
-
-It's pretty silly that the I2C subsystem demands the presence of this
-table, despite not using it if an of_device_id table is present.
-
-> +MODULE_DEVICE_TABLE(i2c, bcm59056_i2c_id);
-> +
-> +static struct i2c_driver bcm59056_i2c_driver =3D {
-> +	.driver =3D {
-> +		   .name =3D "bcm59056",
-> +		   .owner =3D THIS_MODULE,
-> +		   .of_match_table =3D of_match_ptr(bcm59056_of_match),
-
-No need to use of_match_ptr() here.
-
-> +	},
-> +	.probe =3D bcm59056_i2c_probe,
-> +	.remove =3D bcm59056_i2c_remove,
-> +	.id_table =3D bcm59056_i2c_id,
-
-*grumble*
-
-> +};
-> +
-> +static int __init bcm59056_init(void)
-> +{
-> +	return i2c_add_driver(&bcm59056_i2c_driver);
-> +}
-> +subsys_initcall(bcm59056_init);
-
-Really? :(
-
-Maybe you'll want to comment this, in case people do not know the back
-ground and attempts to clean it up.
-
-> +static void __exit bcm59056_exit(void)
-> +{
-> +	i2c_del_driver(&bcm59056_i2c_driver);
-> +}
-> +module_exit(bcm59056_exit);
-
-<snip>
-
-> +/* chip id */
-> +#define BCM59056		0
-
-Lonely, oh so lonely!
-
-> +/* max register address */
-> +#define BCM59056_MAX_REGISTER	0xe8
-
-Don't you have a table of registers which you care about?
-
-> +/* bcm59056 chip access */
-
-Superfluous comment? Don't we all know what these containers do?
-
-> +struct bcm59056 {
-> +	struct device *dev;
-> +	struct i2c_client *i2c_client;
-> +	struct regmap *regmap;
-> +	unsigned int id;
-> +};
-> +
-> +#endif /*  __LINUX_MFD_BCM59056_H */
+=46YI: Mark's email address is not correct. Not sure where you pulled
+this one up from, but he doesn't have access to it anymore.
 
 --=20
 Lee Jones
