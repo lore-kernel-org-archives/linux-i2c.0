@@ -1,77 +1,56 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c: designware-pci: Add Baytrail PCI IDs
-Date: Tue,  4 Feb 2014 16:31:19 +0200
-Message-ID: <1391524279-23409-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 0/6] BCM59056 PMU regulator support
+Date: Tue, 4 Feb 2014 09:34:09 -0500
+Message-ID: <20140204143409.GB4627@beef>
+References: <1391516352-32359-1-git-send-email-mporter@linaro.org>
+ <20140204134043.GG13529@lee--X1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140204134043.GG13529@lee--X1>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Intel Baytrail I2C controllers can be enumerated from PCI as well as from
-ACPI. In order to support this add the Baytrail PCI IDs to the driver.
+On Tue, Feb 04, 2014 at 01:40:43PM +0000, Lee Jones wrote:
+> > The BCM59056 is a multi-function power management unit used with the
+> > BCM281xx family of SoCs. This series adds an MFD and voltage regulator
+> > driver to support the BCM59056. The bcm28155-ap DT support is updated
+> > to enable use of regulators on the otg and sdhci peripherals.
+> > 
+> > Matt Porter (6):
+> >   i2c: bcm-kona: register with subsys_initcall
+> >   regulator: add bcm59056 pmu DT binding
+> >   mfd: add bcm59056 pmu driver
+> >   regulator: add bcm59056 regulator driver
+> >   ARM: configs: bcm_defconfig: enable bcm59056 regulator support
+> >   ARM: dts: add bcm59056 pmu support and enable for bcm28155-ap
+> > 
+> >  .../devicetree/bindings/regulator/bcm59056.txt     |  37 ++
+> >  arch/arm/boot/dts/bcm28155-ap.dts                  |  41 ++
+> >  arch/arm/boot/dts/bcm59056.dtsi                    | 158 ++++++++
+> >  arch/arm/configs/bcm_defconfig                     |   7 +
+> >  drivers/i2c/busses/i2c-bcm-kona.c                  |  14 +-
+> >  drivers/mfd/Kconfig                                |   8 +
+> >  drivers/mfd/Makefile                               |   1 +
+> >  drivers/mfd/bcm59056.c                             | 119 ++++++
+> >  drivers/regulator/Kconfig                          |   8 +
+> >  drivers/regulator/Makefile                         |   1 +
+> >  drivers/regulator/bcm59056-regulator.c             | 445 +++++++++++++++++++++
+> >  include/linux/mfd/bcm59056.h                       |  35 ++
+> >  12 files changed, 873 insertions(+), 1 deletion(-)
+> >  create mode 100644 Documentation/devicetree/bindings/regulator/bcm59056.txt
+> >  create mode 100644 arch/arm/boot/dts/bcm59056.dtsi
+> >  create mode 100644 drivers/mfd/bcm59056.c
+> >  create mode 100644 drivers/regulator/bcm59056-regulator.c
+> >  create mode 100644 include/linux/mfd/bcm59056.h
+> 
+> FYI: Mark's email address is not correct. Not sure where you pulled
+> this one up from, but he doesn't have access to it anymore.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+Thanks, I already updated (it was a stale .mutt/aliases entry here) it
+after the bounces.
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index c0a87a5eb63e..0c13dc1b28ef 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -54,6 +54,8 @@ enum dw_pci_ctl_id_t {
- 	medfield_3,
- 	medfield_4,
- 	medfield_5,
-+
-+	baytrail,
- };
- 
- struct dw_pci_controller {
-@@ -132,6 +134,13 @@ static struct  dw_pci_controller  dw_pci_controllers[] = {
- 		.rx_fifo_depth = 32,
- 		.clk_khz      = 25000,
- 	},
-+	[baytrail] = {
-+		.bus_num = -1,
-+		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
-+		.tx_fifo_depth = 32,
-+		.rx_fifo_depth = 32,
-+		.clk_khz = 100000,
-+	},
- };
- static struct i2c_algorithm i2c_dw_algo = {
- 	.master_xfer	= i2c_dw_xfer,
-@@ -226,8 +235,12 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	adap->algo = &i2c_dw_algo;
- 	adap->dev.parent = &pdev->dev;
- 	adap->nr = controller->bus_num;
--	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci-%d",
--		adap->nr);
-+
-+	if (adap->nr < 0)
-+		snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci");
-+	else
-+		snprintf(adap->name, sizeof(adap->name),
-+			 "i2c-designware-pci-%d", adap->nr);
- 
- 	r = devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr, IRQF_SHARED,
- 			adap->name, dev);
-@@ -278,6 +291,14 @@ static DEFINE_PCI_DEVICE_TABLE(i2_designware_pci_ids) = {
- 	{ PCI_VDEVICE(INTEL, 0x082C), medfield_0 },
- 	{ PCI_VDEVICE(INTEL, 0x082D), medfield_1 },
- 	{ PCI_VDEVICE(INTEL, 0x082E), medfield_2 },
-+	/* Baytrail */
-+	{ PCI_VDEVICE(INTEL, 0x0F41), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F42), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F43), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F44), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F45), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F46), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F47), baytrail },
- 	{ 0,}
- };
- MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
--- 
-1.8.5.2
+-Matt
