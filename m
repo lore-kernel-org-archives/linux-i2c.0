@@ -1,131 +1,198 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c: designware-pci: Cleanup driver power management
-Date: Tue,  4 Feb 2014 14:37:07 +0200
-Message-ID: <1391517427-16204-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 3/6] mfd: add bcm59056 pmu driver
+Date: Tue, 4 Feb 2014 13:29:51 +0000
+Message-ID: <20140204132951.GE13529@lee--X1>
+References: <1391516352-32359-1-git-send-email-mporter@linaro.org>
+ <1391516352-32359-4-git-send-email-mporter@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1391516352-32359-4-git-send-email-mporter@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matt Porter <mporter@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Tim Kryger <tim.kryger@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Christian Daudt <bcm@fixthebug.org>, Devicetree List <devicetree@vger.kernel.org>, Linux I2C List <linux-i2c@vger.kernel.org>, Linux ARM Kernel List <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The PCI part of the DesignWare I2C driver does a lot of things that are=
- not
-required anymore. For example drivers aren't supposed to handle PCI sta=
-te
-transitions themselves. This is all provided by the PCI bus core alread=
-y.
+> Add a driver for the BCM59056 PMU multi-function device. The driver
+> initially supports regmap initialization and instantiation of the
+> voltage regulator device function of the PMU.
+>=20
+> Signed-off-by: Matt Porter <mporter@linaro.org>
+> Reviewed-by: Tim Kryger <tim.kryger@linaro.org>
+> Reviewed-by: Markus Mayer <markus.mayer@linaro.org>
+> ---
+>  drivers/mfd/Kconfig          |   8 +++
+>  drivers/mfd/Makefile         |   1 +
+>  drivers/mfd/bcm59056.c       | 119 +++++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/mfd/bcm59056.h |  35 +++++++++++++
+>  4 files changed, 163 insertions(+)
+>  create mode 100644 drivers/mfd/bcm59056.c
+>  create mode 100644 include/linux/mfd/bcm59056.h
 
-In addition to that there is no point scheduling RPM suspend on driver'=
-s
-idle hook but instead we can use RPM autosuspend for this (which is ena=
-bled
-in the driver already).
+<snip>
 
-As a bonus, this patch also fixes following compile warning which is
-emitted when the driver was compiled without CONFIG_PM_RUNTIME set:
+> +static struct mfd_cell bcm59056s[] =3D {
+> +	{
+> +		.name =3D "bcm59056-pmu",
 
-drivers/i2c/busses/i2c-designware-pcidrv.c:245:12: warning: =E2=80=98i2=
-c_dw_pci_runtime_idle=E2=80=99 defined but not used [-Wunused-function]
+If you plan to use *->of_node in the PMU driver, which it looks like
+you do, you should set the compatible string here.
 
-Reported-by: xinhui.pan <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Reported-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c | 57 ++++------------------=
---------
- 1 file changed, 7 insertions(+), 50 deletions(-)
+> +	},
+> +};
+> +
+> +static const struct regmap_config bcm59056_regmap_config =3D {
+> +	.reg_bits	=3D 8,
+> +	.val_bits	=3D 8,
+> +	.max_register	=3D BCM59056_MAX_REGISTER - 1,
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/b=
-usses/i2c-designware-pcidrv.c
-index f6ed06c966ee..c0a87a5eb63e 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -138,69 +138,25 @@ static struct i2c_algorithm i2c_dw_algo =3D {
- 	.functionality	=3D i2c_dw_func,
- };
-=20
-+#ifdef CONFIG_PM
- static int i2c_dw_pci_suspend(struct device *dev)
- {
- 	struct pci_dev *pdev =3D container_of(dev, struct pci_dev, dev);
--	struct dw_i2c_dev *i2c =3D pci_get_drvdata(pdev);
--	int err;
--
--
--	i2c_dw_disable(i2c);
--
--	err =3D pci_save_state(pdev);
--	if (err) {
--		dev_err(&pdev->dev, "pci_save_state failed\n");
--		return err;
--	}
--
--	err =3D pci_set_power_state(pdev, PCI_D3hot);
--	if (err) {
--		dev_err(&pdev->dev, "pci_set_power_state failed\n");
--		return err;
--	}
-=20
-+	i2c_dw_disable(pci_get_drvdata(pdev));
- 	return 0;
- }
-=20
- static int i2c_dw_pci_resume(struct device *dev)
- {
- 	struct pci_dev *pdev =3D container_of(dev, struct pci_dev, dev);
--	struct dw_i2c_dev *i2c =3D pci_get_drvdata(pdev);
--	int err;
--	u32 enabled;
--
--	enabled =3D i2c_dw_is_enabled(i2c);
--	if (enabled)
--		return 0;
--
--	err =3D pci_set_power_state(pdev, PCI_D0);
--	if (err) {
--		dev_err(&pdev->dev, "pci_set_power_state() failed\n");
--		return err;
--	}
-=20
--	pci_restore_state(pdev);
--
--	i2c_dw_init(i2c);
--	return 0;
-+	return i2c_dw_init(pci_get_drvdata(pdev));
- }
-+#endif
-=20
--static int i2c_dw_pci_runtime_idle(struct device *dev)
--{
--	int err =3D pm_schedule_suspend(dev, 500);
--	dev_dbg(dev, "runtime_idle called\n");
--
--	if (err !=3D 0)
--		return 0;
--	return -EBUSY;
--}
--
--static const struct dev_pm_ops i2c_dw_pm_ops =3D {
--	.resume         =3D i2c_dw_pci_resume,
--	.suspend        =3D i2c_dw_pci_suspend,
--	SET_RUNTIME_PM_OPS(i2c_dw_pci_suspend, i2c_dw_pci_resume,
--			   i2c_dw_pci_runtime_idle)
--};
-+static UNIVERSAL_DEV_PM_OPS(i2c_dw_pm_ops, i2c_dw_pci_suspend,
-+			    i2c_dw_pci_resume, NULL);
-=20
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- {
-@@ -290,6 +246,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
-=20
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
- 	pm_runtime_use_autosuspend(&pdev->dev);
-+	pm_runtime_put_autosuspend(&pdev->dev);
- 	pm_runtime_allow(&pdev->dev);
-=20
- 	return 0;
+If you've just set this manually i.e. it's not part of an enum table,
+can't you set it a value you don't need to do math on? It's not used
+anywhere else is it?
+
+> +	.cache_type	=3D REGCACHE_RBTREE,
+> +};
+> +
+> +static int bcm59056_i2c_probe(struct i2c_client *i2c,
+> +			      const struct i2c_device_id *id)
+> +{
+> +	struct bcm59056 *bcm59056;
+> +	int chip_id =3D id->driver_data;
+
+I thought this was a DT only driver? If so, you probably want to use
+of_match_device() instead.
+
+> +	int ret =3D 0;
+> +
+> +	bcm59056 =3D devm_kzalloc(&i2c->dev, sizeof(*bcm59056), GFP_KERNEL)=
+;
+> +	if (!bcm59056)
+> +		return -ENOMEM;
+> +
+> +	i2c_set_clientdata(i2c, bcm59056);
+> +	bcm59056->dev =3D &i2c->dev;
+> +	bcm59056->i2c_client =3D i2c;
+> +	bcm59056->id =3D chip_id;
+> +
+> +	bcm59056->regmap =3D devm_regmap_init_i2c(i2c, &bcm59056_regmap_con=
+fig);
+> +	if (IS_ERR(bcm59056->regmap)) {
+> +		ret =3D PTR_ERR(bcm59056->regmap);
+> +		dev_err(&i2c->dev, "regmap initialization failed: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	ret =3D mfd_add_devices(bcm59056->dev, -1,
+> +			      bcm59056s, ARRAY_SIZE(bcm59056s),
+> +			      NULL, 0, NULL);
+
+Are you sure you need all of your #includes?
+
+I notice that irqdomain is there, but you don't actually have one?
+
+> +	if (ret < 0)
+> +		dev_err(&i2c->dev, "mfd_add_devices failed: %d\n", ret);
+
+What if we change the name of the function? Probably better to say
+something like "device registration failed" or thelike.
+
+> +	return ret;
+> +}
+> +
+> +static int bcm59056_i2c_remove(struct i2c_client *i2c)
+> +{
+> +	struct bcm59056 *bcm59056 =3D i2c_get_clientdata(i2c);
+> +
+> +	mfd_remove_devices(bcm59056->dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id bcm59056_of_match[] =3D {
+> +	{ .compatible =3D "brcm,bcm59056", .data =3D (void *)BCM59056 },
+
+You've gone to the trouble of setting a device version here, but you
+don't seem to use it?
+
+> +	{ }
+> +};
+> +
+> +static const struct i2c_device_id bcm59056_i2c_id[] =3D {
+> +	{ "bcm59056", BCM59056 },
+> +	{ }
+> +};
+
+Ah, I guess this is where id->driver comes from.
+
+It's pretty silly that the I2C subsystem demands the presence of this
+table, despite not using it if an of_device_id table is present.
+
+> +MODULE_DEVICE_TABLE(i2c, bcm59056_i2c_id);
+> +
+> +static struct i2c_driver bcm59056_i2c_driver =3D {
+> +	.driver =3D {
+> +		   .name =3D "bcm59056",
+> +		   .owner =3D THIS_MODULE,
+> +		   .of_match_table =3D of_match_ptr(bcm59056_of_match),
+
+No need to use of_match_ptr() here.
+
+> +	},
+> +	.probe =3D bcm59056_i2c_probe,
+> +	.remove =3D bcm59056_i2c_remove,
+> +	.id_table =3D bcm59056_i2c_id,
+
+*grumble*
+
+> +};
+> +
+> +static int __init bcm59056_init(void)
+> +{
+> +	return i2c_add_driver(&bcm59056_i2c_driver);
+> +}
+> +subsys_initcall(bcm59056_init);
+
+Really? :(
+
+Maybe you'll want to comment this, in case people do not know the back
+ground and attempts to clean it up.
+
+> +static void __exit bcm59056_exit(void)
+> +{
+> +	i2c_del_driver(&bcm59056_i2c_driver);
+> +}
+> +module_exit(bcm59056_exit);
+
+<snip>
+
+> +/* chip id */
+> +#define BCM59056		0
+
+Lonely, oh so lonely!
+
+> +/* max register address */
+> +#define BCM59056_MAX_REGISTER	0xe8
+
+Don't you have a table of registers which you care about?
+
+> +/* bcm59056 chip access */
+
+Superfluous comment? Don't we all know what these containers do?
+
+> +struct bcm59056 {
+> +	struct device *dev;
+> +	struct i2c_client *i2c_client;
+> +	struct regmap *regmap;
+> +	unsigned int id;
+> +};
+> +
+> +#endif /*  __LINUX_MFD_BCM59056_H */
+
 --=20
-1.8.5.2
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
