@@ -1,253 +1,77 @@
-From: Matt Porter <mporter@linaro.org>
-Subject: Re: [PATCH 3/6] mfd: add bcm59056 pmu driver
-Date: Tue, 4 Feb 2014 09:31:19 -0500
-Message-ID: <20140204143119.GA4627@beef>
-References: <1391516352-32359-1-git-send-email-mporter@linaro.org>
- <1391516352-32359-4-git-send-email-mporter@linaro.org>
- <20140204132951.GE13529@lee--X1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140204132951.GE13529@lee--X1>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Tim Kryger <tim.kryger@linaro.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Samuel Ortiz <sameo@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Christian Daudt <bcm@fixthebug.org>, Devicetree List <devicetree@vger.kernel.org>, Linux I2C List <linux-i2c@vger.kernel.org>, Linux ARM Kernel List <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c: designware-pci: Add Baytrail PCI IDs
+Date: Tue,  4 Feb 2014 16:31:19 +0200
+Message-ID: <1391524279-23409-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 04, 2014 at 01:29:51PM +0000, Lee Jones wrote:
-> > Add a driver for the BCM59056 PMU multi-function device. The driver
-> > initially supports regmap initialization and instantiation of the
-> > voltage regulator device function of the PMU.
-> >=20
-> > Signed-off-by: Matt Porter <mporter@linaro.org>
-> > Reviewed-by: Tim Kryger <tim.kryger@linaro.org>
-> > Reviewed-by: Markus Mayer <markus.mayer@linaro.org>
-> > ---
-> >  drivers/mfd/Kconfig          |   8 +++
-> >  drivers/mfd/Makefile         |   1 +
-> >  drivers/mfd/bcm59056.c       | 119 +++++++++++++++++++++++++++++++=
-++++++++++++
-> >  include/linux/mfd/bcm59056.h |  35 +++++++++++++
-> >  4 files changed, 163 insertions(+)
-> >  create mode 100644 drivers/mfd/bcm59056.c
-> >  create mode 100644 include/linux/mfd/bcm59056.h
->=20
-> <snip>
->=20
-> > +static struct mfd_cell bcm59056s[] =3D {
-> > +	{
-> > +		.name =3D "bcm59056-pmu",
->=20
-> If you plan to use *->of_node in the PMU driver, which it looks like
-> you do, you should set the compatible string here.
+Intel Baytrail I2C controllers can be enumerated from PCI as well as from
+ACPI. In order to support this add the Baytrail PCI IDs to the driver.
 
-Ok. I missed that..I'll split bindings to reflect this as well. There's
-an error in that the regulator properties are all defined in the base
-compatible of brcm,bcm59056 atm and they'll need to be in
-brcm,bcm59056-pmu's binding.
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-> > +	},
-> > +};
-> > +
-> > +static const struct regmap_config bcm59056_regmap_config =3D {
-> > +	.reg_bits	=3D 8,
-> > +	.val_bits	=3D 8,
-> > +	.max_register	=3D BCM59056_MAX_REGISTER - 1,
->=20
-> If you've just set this manually i.e. it's not part of an enum table,
-> can't you set it a value you don't need to do math on? It's not used
-> anywhere else is it?
-
-Yes, I'll update this. It's not used elsewhere.
-
->=20
-> > +	.cache_type	=3D REGCACHE_RBTREE,
-> > +};
-> > +
-> > +static int bcm59056_i2c_probe(struct i2c_client *i2c,
-> > +			      const struct i2c_device_id *id)
-> > +{
-> > +	struct bcm59056 *bcm59056;
-> > +	int chip_id =3D id->driver_data;
->=20
-> I thought this was a DT only driver? If so, you probably want to use
-> of_match_device() instead.
-
-Correct, I'll use of_match_device()
-
-> > +	int ret =3D 0;
-> > +
-> > +	bcm59056 =3D devm_kzalloc(&i2c->dev, sizeof(*bcm59056), GFP_KERNE=
-L);
-> > +	if (!bcm59056)
-> > +		return -ENOMEM;
-> > +
-> > +	i2c_set_clientdata(i2c, bcm59056);
-> > +	bcm59056->dev =3D &i2c->dev;
-> > +	bcm59056->i2c_client =3D i2c;
-> > +	bcm59056->id =3D chip_id;
-> > +
-> > +	bcm59056->regmap =3D devm_regmap_init_i2c(i2c, &bcm59056_regmap_c=
-onfig);
-> > +	if (IS_ERR(bcm59056->regmap)) {
-> > +		ret =3D PTR_ERR(bcm59056->regmap);
-> > +		dev_err(&i2c->dev, "regmap initialization failed: %d\n", ret);
-> > +		return ret;
-> > +	}
-> > +
-> > +	ret =3D mfd_add_devices(bcm59056->dev, -1,
-> > +			      bcm59056s, ARRAY_SIZE(bcm59056s),
-> > +			      NULL, 0, NULL);
->=20
-> Are you sure you need all of your #includes?
->=20
-> I notice that irqdomain is there, but you don't actually have one?
-
-Right, I'll do a sweep on them. In that particular case, I don't yet
-have a need to implement interrupt support so it needs to go.
-
->=20
-> > +	if (ret < 0)
-> > +		dev_err(&i2c->dev, "mfd_add_devices failed: %d\n", ret);
->=20
-> What if we change the name of the function? Probably better to say
-> something like "device registration failed" or thelike.
-
-Will do.
-
->=20
-> > +	return ret;
-> > +}
-> > +
-> > +static int bcm59056_i2c_remove(struct i2c_client *i2c)
-> > +{
-> > +	struct bcm59056 *bcm59056 =3D i2c_get_clientdata(i2c);
-> > +
-> > +	mfd_remove_devices(bcm59056->dev);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static const struct of_device_id bcm59056_of_match[] =3D {
-> > +	{ .compatible =3D "brcm,bcm59056", .data =3D (void *)BCM59056 },
->=20
-> You've gone to the trouble of setting a device version here, but you
-> don't seem to use it?
-
-I'll drop the device version
-
-> > +	{ }
-> > +};
-> > +
-> > +static const struct i2c_device_id bcm59056_i2c_id[] =3D {
-> > +	{ "bcm59056", BCM59056 },
-> > +	{ }
-> > +};
->=20
-> Ah, I guess this is where id->driver comes from.
->=20
-> It's pretty silly that the I2C subsystem demands the presence of this
-> table, despite not using it if an of_device_id table is present.
-
-It does make it very difficult to follow DT enabled I2C client drivers
-:( I'll drop the BCM59056 too.
-
-> > +MODULE_DEVICE_TABLE(i2c, bcm59056_i2c_id);
-> > +
-> > +static struct i2c_driver bcm59056_i2c_driver =3D {
-> > +	.driver =3D {
-> > +		   .name =3D "bcm59056",
-> > +		   .owner =3D THIS_MODULE,
-> > +		   .of_match_table =3D of_match_ptr(bcm59056_of_match),
->=20
-> No need to use of_match_ptr() here.
-
-Will remove.
-
-> > +	},
-> > +	.probe =3D bcm59056_i2c_probe,
-> > +	.remove =3D bcm59056_i2c_remove,
-> > +	.id_table =3D bcm59056_i2c_id,
->=20
-> *grumble*
-
-:) Yes, unavoidable for now.
-
-> > +};
-> > +
-> > +static int __init bcm59056_init(void)
-> > +{
-> > +	return i2c_add_driver(&bcm59056_i2c_driver);
-> > +}
-> > +subsys_initcall(bcm59056_init);
->=20
-> Really? :(
->=20
-> Maybe you'll want to comment this, in case people do not know the bac=
-k
-> ground and attempts to clean it up.
-
-I'll add a comment. This is the old problem of needing regulators reall=
-y
-early. It's exasperated by the fact that the USB gadget framework
-drivers do not use driver probing. This means that they can not be
-deferred after i2c/mfd/regulator init...the problem is particularly
-noticeable when building in a gadget driver for nfsroot purposes.
-
-Because of this I have the regulator, MFD, and i2c drivers all using
-subsys_initcall() in this series. FWIW, there's some discussion about
-how to resolve the USB gadget driver case but it's going to take a
-while.
-
-> > +static void __exit bcm59056_exit(void)
-> > +{
-> > +	i2c_del_driver(&bcm59056_i2c_driver);
-> > +}
-> > +module_exit(bcm59056_exit);
->=20
-> <snip>
->=20
-> > +/* chip id */
-> > +#define BCM59056		0
->=20
-> Lonely, oh so lonely!
-
-Understood. Will remove.
-
-> > +/* max register address */
-> > +#define BCM59056_MAX_REGISTER	0xe8
->=20
-> Don't you have a table of registers which you care about?
-
-I placed the register defs that I actually use in the regulator driver
-itself since that is the only place they are used. I notice most MFD
-drivers centralize this in linux/mfd/*.h. However, generally chunk
-of register defs are only used in one subdriver and not shared. If
-it's preferred to move all register defs centrally I can do that.
-
-> > +/* bcm59056 chip access */
->=20
-> Superfluous comment? Don't we all know what these containers do?
-
-Indeed, will remove.
-
-Thanks for reviewing.
-
--Matt
-
-> > +struct bcm59056 {
-> > +	struct device *dev;
-> > +	struct i2c_client *i2c_client;
-> > +	struct regmap *regmap;
-> > +	unsigned int id;
-> > +};
-> > +
-> > +#endif /*  __LINUX_MFD_BCM59056_H */
->=20
-> --=20
-> Lee Jones
-> Linaro STMicroelectronics Landing Team Lead
-> Linaro.org =E2=94=82 Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index c0a87a5eb63e..0c13dc1b28ef 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -54,6 +54,8 @@ enum dw_pci_ctl_id_t {
+ 	medfield_3,
+ 	medfield_4,
+ 	medfield_5,
++
++	baytrail,
+ };
+ 
+ struct dw_pci_controller {
+@@ -132,6 +134,13 @@ static struct  dw_pci_controller  dw_pci_controllers[] = {
+ 		.rx_fifo_depth = 32,
+ 		.clk_khz      = 25000,
+ 	},
++	[baytrail] = {
++		.bus_num = -1,
++		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
++		.tx_fifo_depth = 32,
++		.rx_fifo_depth = 32,
++		.clk_khz = 100000,
++	},
+ };
+ static struct i2c_algorithm i2c_dw_algo = {
+ 	.master_xfer	= i2c_dw_xfer,
+@@ -226,8 +235,12 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	adap->algo = &i2c_dw_algo;
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->nr = controller->bus_num;
+-	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci-%d",
+-		adap->nr);
++
++	if (adap->nr < 0)
++		snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci");
++	else
++		snprintf(adap->name, sizeof(adap->name),
++			 "i2c-designware-pci-%d", adap->nr);
+ 
+ 	r = devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr, IRQF_SHARED,
+ 			adap->name, dev);
+@@ -278,6 +291,14 @@ static DEFINE_PCI_DEVICE_TABLE(i2_designware_pci_ids) = {
+ 	{ PCI_VDEVICE(INTEL, 0x082C), medfield_0 },
+ 	{ PCI_VDEVICE(INTEL, 0x082D), medfield_1 },
+ 	{ PCI_VDEVICE(INTEL, 0x082E), medfield_2 },
++	/* Baytrail */
++	{ PCI_VDEVICE(INTEL, 0x0F41), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x0F42), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x0F43), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x0F44), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x0F45), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x0F46), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x0F47), baytrail },
+ 	{ 0,}
+ };
+ MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
+-- 
+1.8.5.2
