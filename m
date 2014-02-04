@@ -1,68 +1,54 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/6] mfd: add bcm59056 pmu driver
-Date: Tue, 4 Feb 2014 15:20:56 +0000
-Message-ID: <20140204152056.GB3154@lee--X1>
-References: <1391516352-32359-1-git-send-email-mporter@linaro.org>
- <1391516352-32359-4-git-send-email-mporter@linaro.org>
- <20140204132951.GE13529@lee--X1>
- <20140204143119.GA4627@beef>
- <20140204144731.GA3154@lee--X1>
- <20140204150156.GC4627@beef>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140204150156.GC4627@beef>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 00/17] amba: PM fixups for amba bus and some amba drivers
+Date: Tue,  4 Feb 2014 16:58:41 +0100
+Message-ID: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> > ... then you'll still need this.
->=20
-> Yes, I was far too vague..I'm going to stop explicitly populating the
-> data field.
->=20
-> static const struct of_device_id bcm59056_of_match[] =3D {
-> 	{ .compatible =3D "brcm,bcm59056"},
-> 	{ }
-> };
+This patchset fixes the PM problems you yet when combining CONFIG_PM_SLEEP and
+CONFIG_PM_RUNTIME. In principle these drivers did not manage to put it's devices
+into low power state at system suspend, which then this patchset intend to fix.
 
-+1
+Both the drivers and the amba bus converts to the new SET_PM_RUNTIME_PM_OPS
+macro while setting up the runtime PM callbacks, which is intended to be used
+for solving these kind of issues.
 
-> > And I don't think you can drop this, as the I2C subsystem still
-> > insists on it.
->=20
-> Agreed. I'm just dropping explicit population of the driver_data fiel=
-d
-> here.
->=20
-> static const struct i2c_device_id bcm59056_i2c_id[] =3D {
-> 	{ "bcm59056" },
-> 	{ }
-> };
+The fixes for the amba bus needs to be merged prior to the other, thus I think
+it could make sense to merge this complete patchset through Russell's tree,
+if he and the other maintainers think this is okay.
 
-+1
+Ulf Hansson (17):
+  amba: Let runtime PM callbacks be available for CONFIG_PM
+  amba: Add late and early PM callbacks
+  mmc: mmci: Mask IRQs for all variants during runtime suspend
+  mmc: mmci: Let runtime PM callbacks be available for CONFIG_PM
+  mmc: mmci: Put the device into low power state at system suspend
+  spi: pl022: Let runtime PM callbacks be available for CONFIG_PM
+  spi: pl022: Don't ignore power domain and amba bus at system suspend
+  spi: pl022: Fully gate clocks at request inactivity
+  spi: pl022: Simplify clock handling
+  spi: pl022: Remove redundant pinctrl to default state in probe
+  i2c: nomadik: Convert to devm functions
+  i2c: nomadik: Remove redundant call to pm_runtime_disable
+  i2c: nomadik: Leave probe with the device in active state
+  i2c: nomadik: Fixup deployment of runtime PM
+  i2c: nomadik: Convert to late and early system PM callbacks
+  i2c: nomadik: Remove busy check for transfers at suspend late
+  i2c: nomadik: Fixup system suspend
 
-> > I think you need to keep this to supply the silly I2C ID table.
-> >=20
-> > I would just omit the '.data =3D (void *) VERSION' from the
-> > of_match_table until you require it.=20
->=20
-> Well, it's not even necessary for I2C ID table. the I2C subsystem is
-> happy with just a matching entry on the i2c_device_id name field and
-> NULL driver_data. palmas is implemented in this manner.
+ drivers/amba/bus.c               |   10 ++-
+ drivers/i2c/busses/i2c-nomadik.c |  146 ++++++++++++++++++--------------------
+ drivers/mmc/host/mmci.c          |   72 ++++++++++---------
+ drivers/spi/spi-pl022.c          |   95 +++++++++++--------------
+ 4 files changed, 159 insertions(+), 164 deletions(-)
 
-Guess what? +1 :)
+-- 
+1.7.9.5
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
