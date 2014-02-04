@@ -1,53 +1,44 @@
-From: 'Mika Westerberg' <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware-pci: Add CONFIG_PM_RUNTIME to
- i2c_dw_pci_runtime_idle()
-Date: Tue, 4 Feb 2014 12:05:26 +0200
-Message-ID: <20140204100526.GZ18029@intel.com>
-References: <000301cf216d$0d08b4e0$271a1ea0$%han@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 0/6] BCM59056 PMU regulator support
+Date: Tue,  4 Feb 2014 07:19:06 -0500
+Message-ID: <1391516352-32359-1-git-send-email-mporter@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <000301cf216d$0d08b4e0$271a1ea0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Andy Shevchenko' <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>
+Cc: Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 04, 2014 at 02:50:46PM +0900, Jingoo Han wrote:
-> Add CONFIG_PM_RUNTIME to i2c_dw_pci_runtime_idle() to fix the
-> build warning when CONFIG_PM_RUNTIME is not selected. This is
-> because runtime PM callbacks defined by SET_RUNTIME_PM_OPS are
-> only used when the CONFIG_PM_RUNTIME is enabled.
-> 
-> drivers/i2c/busses/i2c-designware-pcidrv.c:188:12: warning: 'i2c_dw_pci_runtime_idle' defined but not used [-Wunused-function]
-> 
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-designware-pcidrv.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> index f6ed06c..2b5d3a6 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -185,6 +185,7 @@ static int i2c_dw_pci_resume(struct device *dev)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_PM_RUNTIME
->  static int i2c_dw_pci_runtime_idle(struct device *dev)
->  {
->  	int err = pm_schedule_suspend(dev, 500);
-> @@ -194,6 +195,7 @@ static int i2c_dw_pci_runtime_idle(struct device *dev)
->  		return 0;
->  	return -EBUSY;
->  }
-> +#endif
+The BCM59056 is a multi-function power management unit used with the
+BCM281xx family of SoCs. This series adds an MFD and voltage regulator
+driver to support the BCM59056. The bcm28155-ap DT support is updated
+to enable use of regulators on the otg and sdhci peripherals.
 
-While this fixes the compilation warning, I would like to get rid of the
-whole runtime idle hook along with the PCI D-state management in the
-driver.
+Matt Porter (6):
+  i2c: bcm-kona: register with subsys_initcall
+  regulator: add bcm59056 pmu DT binding
+  mfd: add bcm59056 pmu driver
+  regulator: add bcm59056 regulator driver
+  ARM: configs: bcm_defconfig: enable bcm59056 regulator support
+  ARM: dts: add bcm59056 pmu support and enable for bcm28155-ap
 
-I have a patch for this but I haven't been able to test it yet (hopefully I
-can get it tested today).
+ .../devicetree/bindings/regulator/bcm59056.txt     |  37 ++
+ arch/arm/boot/dts/bcm28155-ap.dts                  |  41 ++
+ arch/arm/boot/dts/bcm59056.dtsi                    | 158 ++++++++
+ arch/arm/configs/bcm_defconfig                     |   7 +
+ drivers/i2c/busses/i2c-bcm-kona.c                  |  14 +-
+ drivers/mfd/Kconfig                                |   8 +
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/bcm59056.c                             | 119 ++++++
+ drivers/regulator/Kconfig                          |   8 +
+ drivers/regulator/Makefile                         |   1 +
+ drivers/regulator/bcm59056-regulator.c             | 445 +++++++++++++++++++++
+ include/linux/mfd/bcm59056.h                       |  35 ++
+ 12 files changed, 873 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/regulator/bcm59056.txt
+ create mode 100644 arch/arm/boot/dts/bcm59056.dtsi
+ create mode 100644 drivers/mfd/bcm59056.c
+ create mode 100644 drivers/regulator/bcm59056-regulator.c
+ create mode 100644 include/linux/mfd/bcm59056.h
+
+-- 
+1.8.4
