@@ -1,56 +1,131 @@
-From: Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/6] i2c: bcm-kona: register with subsys_initcall
-Date: Tue,  4 Feb 2014 07:19:07 -0500
-Message-ID: <1391516352-32359-2-git-send-email-mporter@linaro.org>
-References: <1391516352-32359-1-git-send-email-mporter@linaro.org>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1391516352-32359-1-git-send-email-mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>
-Cc: Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c: designware-pci: Cleanup driver power management
+Date: Tue,  4 Feb 2014 14:37:07 +0200
+Message-ID: <1391517427-16204-1-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Voltage regulators are needed very early due to deferred probe
-being incompatible with built-in USB gadget drivers. In order to
-have the PMU driver available before USB UDC, make i2c available
-during subsys_initcall.
+The PCI part of the DesignWare I2C driver does a lot of things that are=
+ not
+required anymore. For example drivers aren't supposed to handle PCI sta=
+te
+transitions themselves. This is all provided by the PCI bus core alread=
+y.
 
-Signed-off-by: Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Reviewed-by: Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Reviewed-by: Markus Mayer <markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In addition to that there is no point scheduling RPM suspend on driver'=
+s
+idle hook but instead we can use RPM autosuspend for this (which is ena=
+bled
+in the driver already).
+
+As a bonus, this patch also fixes following compile warning which is
+emitted when the driver was compiled without CONFIG_PM_RUNTIME set:
+
+drivers/i2c/busses/i2c-designware-pcidrv.c:245:12: warning: =E2=80=98i2=
+c_dw_pci_runtime_idle=E2=80=99 defined but not used [-Wunused-function]
+
+Reported-by: xinhui.pan <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Reported-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bcm-kona.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 57 ++++------------------=
+--------
+ 1 file changed, 7 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c-bcm-kona.c
-index 18a74a6..bfd4056 100644
---- a/drivers/i2c/busses/i2c-bcm-kona.c
-+++ b/drivers/i2c/busses/i2c-bcm-kona.c
-@@ -901,7 +901,19 @@ static struct platform_driver bcm_kona_i2c_driver = {
- 	.probe = bcm_kona_i2c_probe,
- 	.remove = bcm_kona_i2c_remove,
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/b=
+usses/i2c-designware-pcidrv.c
+index f6ed06c966ee..c0a87a5eb63e 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -138,69 +138,25 @@ static struct i2c_algorithm i2c_dw_algo =3D {
+ 	.functionality	=3D i2c_dw_func,
  };
--module_platform_driver(bcm_kona_i2c_driver);
-+
-+static int __init bcm_kona_i2c_init_driver(void)
-+{
-+	return platform_driver_register(&bcm_kona_i2c_driver);
-+}
-+/* PMU access is needed early so use subsys init */
-+subsys_initcall(bcm_kona_i2c_init_driver);
-+
-+static void __exit bcm_kona_i2c_exit_driver(void)
-+{
-+	platform_driver_unregister(&bcm_kona_i2c_driver);
-+}
-+module_exit(bcm_kona_i2c_exit_driver);
- 
- MODULE_AUTHOR("Tim Kryger <tkryger-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>");
- MODULE_DESCRIPTION("Broadcom Kona I2C Driver");
--- 
-1.8.4
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+=20
++#ifdef CONFIG_PM
+ static int i2c_dw_pci_suspend(struct device *dev)
+ {
+ 	struct pci_dev *pdev =3D container_of(dev, struct pci_dev, dev);
+-	struct dw_i2c_dev *i2c =3D pci_get_drvdata(pdev);
+-	int err;
+-
+-
+-	i2c_dw_disable(i2c);
+-
+-	err =3D pci_save_state(pdev);
+-	if (err) {
+-		dev_err(&pdev->dev, "pci_save_state failed\n");
+-		return err;
+-	}
+-
+-	err =3D pci_set_power_state(pdev, PCI_D3hot);
+-	if (err) {
+-		dev_err(&pdev->dev, "pci_set_power_state failed\n");
+-		return err;
+-	}
+=20
++	i2c_dw_disable(pci_get_drvdata(pdev));
+ 	return 0;
+ }
+=20
+ static int i2c_dw_pci_resume(struct device *dev)
+ {
+ 	struct pci_dev *pdev =3D container_of(dev, struct pci_dev, dev);
+-	struct dw_i2c_dev *i2c =3D pci_get_drvdata(pdev);
+-	int err;
+-	u32 enabled;
+-
+-	enabled =3D i2c_dw_is_enabled(i2c);
+-	if (enabled)
+-		return 0;
+-
+-	err =3D pci_set_power_state(pdev, PCI_D0);
+-	if (err) {
+-		dev_err(&pdev->dev, "pci_set_power_state() failed\n");
+-		return err;
+-	}
+=20
+-	pci_restore_state(pdev);
+-
+-	i2c_dw_init(i2c);
+-	return 0;
++	return i2c_dw_init(pci_get_drvdata(pdev));
+ }
++#endif
+=20
+-static int i2c_dw_pci_runtime_idle(struct device *dev)
+-{
+-	int err =3D pm_schedule_suspend(dev, 500);
+-	dev_dbg(dev, "runtime_idle called\n");
+-
+-	if (err !=3D 0)
+-		return 0;
+-	return -EBUSY;
+-}
+-
+-static const struct dev_pm_ops i2c_dw_pm_ops =3D {
+-	.resume         =3D i2c_dw_pci_resume,
+-	.suspend        =3D i2c_dw_pci_suspend,
+-	SET_RUNTIME_PM_OPS(i2c_dw_pci_suspend, i2c_dw_pci_resume,
+-			   i2c_dw_pci_runtime_idle)
+-};
++static UNIVERSAL_DEV_PM_OPS(i2c_dw_pm_ops, i2c_dw_pci_suspend,
++			    i2c_dw_pci_resume, NULL);
+=20
+ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ {
+@@ -290,6 +246,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+=20
+ 	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
++	pm_runtime_put_autosuspend(&pdev->dev);
+ 	pm_runtime_allow(&pdev->dev);
+=20
+ 	return 0;
+--=20
+1.8.5.2
