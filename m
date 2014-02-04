@@ -1,87 +1,59 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 3/6] mfd: add bcm59056 pmu driver
-Date: Tue, 4 Feb 2014 17:11:23 +0000
-Message-ID: <20140204171123.GE22609@sirena.org.uk>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/6] regulator: add bcm59056 pmu DT binding
+Date: Tue, 4 Feb 2014 17:23:09 +0000
+Message-ID: <20140204172309.GG22609@sirena.org.uk>
 References: <1391516352-32359-1-git-send-email-mporter@linaro.org>
- <1391516352-32359-4-git-send-email-mporter@linaro.org>
- <20140204132951.GE13529@lee--X1> <20140204143119.GA4627@beef>
- <20140204165906.GC22609@sirena.org.uk>
- <20140204170832.GA5196@lee--X1>
+ <1391516352-32359-3-git-send-email-mporter@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2538897853512396489=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20140204170832.GA5196@lee--X1>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Devicetree List <devicetree@vger.kernel.org>, Christian Daudt <bcm@fixthebug.org>, Samuel Ortiz <sameo@linux.intel.com>, Pawel Moll <pawel.moll@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Tim Kryger <tim.kryger@linaro.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Liam Girdwood <lgirdwood@gmail.com>, Matt Porter <mporter@linaro.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Linux I2C List <linux-i2c@vger.kernel.org>, Kumar Gala <galak@codeaurora.org>, Linux ARM Kernel List <linux-arm-kernel@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PfY+OYVI0N/4DRLF"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1391516352-32359-3-git-send-email-mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Kryger <tim.kryger-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Devicetree List <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============2538897853512396489==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CQL2Jiu9fsaVZZPj"
-Content-Disposition: inline
-
-
---CQL2Jiu9fsaVZZPj
+--PfY+OYVI0N/4DRLF
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Feb 04, 2014 at 05:08:32PM +0000, Lee Jones wrote:
+On Tue, Feb 04, 2014 at 07:19:08AM -0500, Matt Porter wrote:
+> Add a DT binding for the BCM59056 PMU. The binding inherits from
+> the generic regulator bindings.
 
-> > What using of_match_ptr() should do is allow the compiler to figure out
-> > that the table isn't used when DT is disabled and discard it without
-> > ifdefs.  Not sure if that actually works yet but that's the idea.
+Is this really only a regulator - does the chip have no other functions?
 
-> Right, but I'm guessing that as there is no support for platform data
-> then this device(s) is going to be DT only? If that's the case perhaps
-> a 'depends OF' might be in order. If that's not the case then I'm more
-> than happy to leave the of_match_ptr() in.
+> +- regulators: This is the list of child nodes that specify the regulator
+> +  initialization data for defined regulators.  Generic regulator bindings
+> +  are described in regulator/regulator.txt.
 
-Hey, we'll all be using ACPI soon!  :P
+The regulators property should always be optional, the driver should be
+able to start up and read back the hardware state without any further
+configuration.
 
---CQL2Jiu9fsaVZZPj
+--PfY+OYVI0N/4DRLF
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS8R84AAoJELSic+t+oim973cP/2Uc/Z3YyzkxqCeoburvzFCP
-z5c6+YK4bTojchdvKgzo5NVjvlnzQE8KlFLKOsTnApPmMRc+HghsHdbOOS4lKDA0
-36kdOUTb1o2vxWq2iAvaJjKASNE48N29NTo5PmgcM/Z0rwUvg12tt1fPonBzmDbL
-mSV7tEyDXBN2vFa3gTNgAPISg0sAfolIhN/ZxNHj2BRA12tYTEXO8AeQ5uocw6d4
-UrJ4VrFV6Wt/FiTY7lXIIsaD2SA2557g6SQOxwbOfZDLySRDUtNSI/6sYdVVQd/o
-KFGwq7F2daKsEPoH3agg1gsQhZgrCMFw2G/1xVtJ7JkR+yyPoh/m2MYxG5Ewfwfi
-WAiaCF/ks3IE0lO9LzIWHIltVzwUrRl04OZQL+8c1NvETw+qPbJA3PQXfoYil5WG
-l5XVWLVL46eHKfsbt3FeMtNp3OFwtTlffQ0cWxv+BZr8EPLhYGM8ZKLdJoykPJil
-ZISXj+y3KXDWWOKHVAL4aa/W+ULcjn1V5irw/a24W01roVDyYVrd3IZFC4polLeJ
-YW9OLVZsGtx1h/RB76bXWAe7z/1Lgi27WmMruTCpZF8sWnNuaK/IXctdLm8nzwHO
-7B8OsHJs4vlggEtzxqJmIeAgwIBOdN2Sg/cj9WEF7YG6i8Gz9w/MPv0HHvjFxE0O
-xStEuhAGKuhsm6snSEGl
-=ScuA
+iQIcBAEBAgAGBQJS8SH6AAoJELSic+t+oim9rsYP/1L1zj3GN9KmZgnHe+QCaAtu
+6WqNIr5o73Yird56+njBW2CXcIWh4eK1MzAiX7ahmqeBebQY5M08Zqff0kOklZZg
+JIua3A4HWFjFw9yPwc5AI/5tCwAedRVIkj/+FoMJRDuWiUb4PdzzjB9LL+U3+A14
+tIWGNDN09pp1iZQpAVUipYaI6yY2Yk4d8MkTEqBAn+wH/gxmoYzLz0CCb4oFQ++W
+MWAy+EwT/uIL3Yn9f0rGZ9PjTGhP7ZWKgMg+Ol+V7KXbLm8FnW+8DRX9kV6N1QTp
+hFqRdBUWQf8kD2hVsPAW0FrpvlSJRBoRDpGVkHq4AzO4HpLavncr0tehxfON2Uth
+OSpSr8NoaCo+hh+CfXTLB3dMJFk3zcWjdMisE4IWDBMAh8LIox8IGwPyTAMzvhSr
+scBy/oAZP9QEuxj2JG/HHS/w77cb+WkpeL2+WOmb8nFJyCisNowiXqstGv/sRecT
+Md/2DjumZSGquXl6gvtTKobdsohr938KFowsqlxvoIdBkZbqESv+61Tq8OuBYH28
+qF2ohti6LAORm4cz+CBZ2vrPxLVOOZdEJtg6TEbTaP3263iQvXWf+bUDvph02CC3
+sP/nM+dwnCTOMuPnjhARwnNklM8+4u4lQOYwFqcbW5sMCX1MMHEQZnK9GGb1cQVb
+aD3UAjGRs9AAfG5VnPoa
+=IlGD
 -----END PGP SIGNATURE-----
 
---CQL2Jiu9fsaVZZPj--
-
-
---===============2538897853512396489==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============2538897853512396489==--
+--PfY+OYVI0N/4DRLF--
