@@ -1,90 +1,111 @@
-From: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] ARM: DTS: exynos5420: Rename hsi2c compatible to
- exynos5250-hsi2c
-Date: Thu, 06 Feb 2014 17:37:57 +0530
-Message-ID: <1391688477-8124-1-git-send-email-ch.naveen@samsung.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+From: Tomasz Figa <t.figa@samsung.com>
+Subject: Re: [PATCH 1/2 v3] i2c: exynos5: add support for HSI2C on Exynos5260
+ SoC
+Date: Thu, 06 Feb 2014 14:31:16 +0100
+Message-ID: <52F38EA4.10805@samsung.com>
+References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
+ <1391688408-8077-1-git-send-email-ch.naveen@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <1391688408-8077-1-git-send-email-ch.naveen@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org, naveenkrishna.ch@gmail.com, kgene.kim@samsung.com, grant.likely@secretlab.ca, w.sang@pengutronix.de, linux-kernel@vger.kernel.org, taeggyun.ko@samsung.com, balbi@ti.com, cpgs@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
-As per the changes submitted for the i2c-exynos5.c driver with the
-compatible string being named after the first SoC it is observed on.
-This patch modifes the existing hsi2c compatible strings in
-arch/arm/boot/dts.
+Hi Naveen,
 
-Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- arch/arm/boot/dts/exynos5420.dtsi |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+On 06.02.2014 13:06, Naveen Krishna Chatradhi wrote:
+> This patch implements a variant struct to handle the differences
+> (like fifo_depths) in the HSI2C modules across SoCs.
+>
+> Adds a new compatible to support HSI2C module on Exynos5260.
+> Also resets the module as an init sequence (Needed by Exynos5260).
+>
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+> ---
+> Changes since v2:
+> 1. Used variant struct as suggested by Tomasz Figa.
+> 2. Change compatible strings from samsung,exynos5-hsi2c to
+>     samsung,exynos5250-hsi2c based on the first SoC to see the feature.
+> 3. Using reset as init sequences.
+> 4. Merged the 2 patches into one.
+>
+>   .../devicetree/bindings/i2c/i2c-exynos5.txt        |    8 ++-
+>   drivers/i2c/busses/i2c-exynos5.c                   |   64 ++++++++++++++++----
+>   2 files changed, 58 insertions(+), 14 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt b/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt
+> index 056732c..5bc4998 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt
+> @@ -5,7 +5,11 @@ at various speeds ranging from 100khz to 3.4Mhz.
+>
+>   Required properties:
+>     - compatible: value should be.
+> -      -> "samsung,exynos5-hsi2c", for i2c compatible with exynos5 hsi2c.
 
-diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
-index 11dd202..c5187d1 100644
---- a/arch/arm/boot/dts/exynos5420.dtsi
-+++ b/arch/arm/boot/dts/exynos5420.dtsi
-@@ -486,7 +486,7 @@
- 	};
- 
- 	hsi2c_4: i2c@12CA0000 {
--		compatible = "samsung,exynos5-hsi2c";
-+		compatible = "samsung,exynos5250-hsi2c";
- 		reg = <0x12CA0000 0x1000>;
- 		interrupts = <0 60 0>;
- 		#address-cells = <1>;
-@@ -499,7 +499,7 @@
- 	};
- 
- 	hsi2c_5: i2c@12CB0000 {
--		compatible = "samsung,exynos5-hsi2c";
-+		compatible = "samsung,exynos5250-hsi2c";
- 		reg = <0x12CB0000 0x1000>;
- 		interrupts = <0 61 0>;
- 		#address-cells = <1>;
-@@ -512,7 +512,7 @@
- 	};
- 
- 	hsi2c_6: i2c@12CC0000 {
--		compatible = "samsung,exynos5-hsi2c";
-+		compatible = "samsung,exynos5250-hsi2c";
- 		reg = <0x12CC0000 0x1000>;
- 		interrupts = <0 62 0>;
- 		#address-cells = <1>;
-@@ -525,7 +525,7 @@
- 	};
- 
- 	hsi2c_7: i2c@12CD0000 {
--		compatible = "samsung,exynos5-hsi2c";
-+		compatible = "samsung,exynos5250-hsi2c";
- 		reg = <0x12CD0000 0x1000>;
- 		interrupts = <0 63 0>;
- 		#address-cells = <1>;
-@@ -538,7 +538,7 @@
- 	};
- 
- 	hsi2c_8: i2c@12E00000 {
--		compatible = "samsung,exynos5-hsi2c";
-+		compatible = "samsung,exynos5250-hsi2c";
- 		reg = <0x12E00000 0x1000>;
- 		interrupts = <0 87 0>;
- 		#address-cells = <1>;
-@@ -551,7 +551,7 @@
- 	};
- 
- 	hsi2c_9: i2c@12E10000 {
--		compatible = "samsung,exynos5-hsi2c";
-+		compatible = "samsung,exynos5250-hsi2c";
- 		reg = <0x12E10000 0x1000>;
- 		interrupts = <0 88 0>;
- 		#address-cells = <1>;
-@@ -564,7 +564,7 @@
- 	};
- 
- 	hsi2c_10: i2c@12E20000 {
--		compatible = "samsung,exynos5-hsi2c";
-+		compatible = "samsung,exynos5250-hsi2c";
- 		reg = <0x12E20000 0x1000>;
- 		interrupts = <0 203 0>;
- 		#address-cells = <1>;
--- 
-1.7.9.5
+Device tree bindings need to be backwards compatible, so you need to 
+keep this compatible string supported, just marked as (DEPRECATED).
+
+Driver-wise, it will use the same driver data / variant struct as 
+"samsung,exynos5250-hsi2c", just one more entry in OF match table is needed.
+
+> +	-> "samsung,exynos5250-hsi2c", for i2c compatible with HSI2C available
+> +				on Exynos5250 and Exynos5420 SoCs.
+> +	-> "samsung,exynos5260-hsi2c", for i2c compatible with HSI2C available
+> +				on Exynos5260 SoCs.
+> +
+>     - reg: physical base address of the controller and length of memory mapped
+>       region.
+>     - interrupts: interrupt number to the cpu.
+> @@ -26,7 +30,7 @@ Optional properties:
+>   Example:
+>
+>   hsi2c@12ca0000 {
+> -	compatible = "samsung,exynos5-hsi2c";
+> +	compatible = "samsung,exynos5250-hsi2c";
+>   	reg = <0x12ca0000 0x100>;
+>   	interrupts = <56>;
+>   	clock-frequency = <100000>;
+
+[snip]
+
+> @@ -483,6 +514,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+>   	u32 i2c_auto_conf = 0;
+>   	u32 fifo_ctl;
+>   	unsigned long flags;
+> +	unsigned short trig_lvl;
+>
+>   	i2c_ctl = readl(i2c->regs + HSI2C_CTL);
+>   	i2c_ctl &= ~(HSI2C_TXCHON | HSI2C_RXCHON);
+> @@ -493,13 +525,19 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+>
+>   		i2c_auto_conf = HSI2C_READ_WRITE;
+>
+> -		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(HSI2C_DEF_TXFIFO_LVL);
+> +		trig_lvl = (i2c->msg->len > i2c->variant->fifo_depth) ?
+> +			(i2c->variant->fifo_depth * 3/4) : i2c->msg->len;
+> +		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(trig_lvl);
+> +
+
+This is a rather serious semantic change, that doesn't look to belong to 
+this patch. If this is needed, it should be done in a separate patch.
+
+>   		int_en |= (HSI2C_INT_RX_ALMOSTFULL_EN |
+>   			HSI2C_INT_TRAILING_EN);
+>   	} else {
+>   		i2c_ctl |= HSI2C_TXCHON;
+>
+> -		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(HSI2C_DEF_RXFIFO_LVL);
+> +		trig_lvl = (i2c->msg->len > i2c->variant->fifo_depth) ?
+> +			(i2c->variant->fifo_depth * 1/4) : i2c->msg->len;
+> +		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(trig_lvl);
+> +
+
+Ditto.
+
+Best regards,
+Tomasz
