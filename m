@@ -1,35 +1,50 @@
-From: Kevin Hilman <khilman@linaro.org>
-Subject: Re: [PATCH 05/17] mmc: mmci: Put the device into low power state at system suspend
-Date: Wed, 05 Feb 2014 12:08:38 -0800
-Message-ID: <87ob2ls4op.fsf@paris.lan>
-References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
-	<1391529538-21685-6-git-send-email-ulf.hansson@linaro.org>
-	<8738jyu1h9.fsf@paris.lan>
-	<CACRpkdZt5+t7b0_a__2kJP4V9PS2cyXmguWrST+fzbKCnosi7g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZt5+t7b0_a__2kJP4V9PS2cyXmguWrST+fzbKCnosi7g@mail.gmail.com>
-	(Linus Walleij's message of "Wed, 5 Feb 2014 13:49:49 +0100")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Mark Brown <broonie@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-spi@vger.kernel.org, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v2 1/2] i2c: sunxi: Change i2c compatibles
+Date: Thu,  6 Feb 2014 10:51:24 +0100
+Message-ID: <1391680285-16668-2-git-send-email-maxime.ripard@free-electrons.com>
+References: <1391680285-16668-1-git-send-email-maxime.ripard@free-electrons.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1391680285-16668-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Linus Walleij <linus.walleij@linaro.org> writes:
+The Allwinner A10 compatibles were following a slightly different compatible
+patterns than the rest of the SoCs for historical reasons. Move to the other
+pattern for consistency across all Allwinner Socs.
 
-> On Tue, Feb 4, 2014 at 8:22 PM, Kevin Hilman <khilman@linaro.org> wrote:
->> Ulf Hansson <ulf.hansson@linaro.org> writes:
->>
->>> Due to the available runtime PM callbacks, we are now able to put our
->>> device into low power state at system suspend.
-> (...)
->> I'm trying to thing of a good reason to not make PM_SLEEP depend on
->> PM_RUNTIME for platforms like this.
->
-> Isn't the typical Android platform using PM_SLEEP without using
-> PM_RUNTIME?
+Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 2 +-
+ drivers/i2c/busses/i2c-mv64xxx.c                      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-No, most Android platforms that I'm aware of use both extensively.
-
-Kevin
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+index 582b465..5f4c0c8 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+@@ -4,7 +4,7 @@
+ Required properties :
+ 
+  - reg             : Offset and length of the register set for the device
+- - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-i2c"
++ - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-a10-i2c"
+                      or "marvell,mv78230-i2c" or "marvell,mv78230-a0-i2c"
+                      Note: Only use "marvell,mv78230-a0-i2c" for a very rare,
+                      initial version of the SoC which had broken offload
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index b8c5187..eb72301 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -689,7 +689,7 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
+  *****************************************************************************
+  */
+ static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
+-	{ .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
++	{ .compatible = "allwinner,sun4i-a10-i2c", .data = &mv64xxx_i2c_regs_sun4i},
+ 	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+ 	{ .compatible = "marvell,mv78230-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+ 	{ .compatible = "marvell,mv78230-a0-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+-- 
+1.8.4.2
