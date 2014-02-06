@@ -1,76 +1,180 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: mv64xxx: I2C bus locked when scanning absent devices on Armada XP
-Date: Thu, 06 Feb 2014 11:03:15 +0100
-Message-ID: <52F35DE3.8060503@free-electrons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 1/2 v3] i2c: exynos5: add support for HSI2C on Exynos5260 SoC
+Date: Thu, 06 Feb 2014 17:36:48 +0530
+Message-ID: <1391688408-8077-1-git-send-email-ch.naveen@samsung.com>
+References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <1385100851-32254-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+This patch implements a variant struct to handle the differences
+(like fifo_depths) in the HSI2C modules across SoCs.
 
-I write this email mainly to let you know that there are some issues
-on i2c on the Armada XP (rev A0 and B0) based boards.
+Adds a new compatible to support HSI2C module on Exynos5260.
+Also resets the module as an init sequence (Needed by Exynos5260).
 
-What we observed was that if the i2c driver try to access an address
-where the device is absent, then the bus is locked. After the timeout
-the driver give up, but if we have a lot of i2c client registered,
-then the kernel spend a lot of time trying to scan all the
-addresses. It is noticeable when using the multiv7_defconfig where
-many i2c clients are registered, whereas with mvebu_defconfig we have
-fewer i2c clients, and most of them are present on the boards.
+Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+Changes since v2:
+1. Used variant struct as suggested by Tomasz Figa.
+2. Change compatible strings from samsung,exynos5-hsi2c to
+   samsung,exynos5250-hsi2c based on the first SoC to see the feature.
+3. Using reset as init sequences.
+4. Merged the 2 patches into one.
 
-Here is an extract of what you can see during a boot:
+ .../devicetree/bindings/i2c/i2c-exynos5.txt        |    8 ++-
+ drivers/i2c/busses/i2c-exynos5.c                   |   64 ++++++++++++++++----
+ 2 files changed, 58 insertions(+), 14 deletions(-)
 
-[    4.127648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[    4.137338] rtc-s35390a 1-0030: rtc core: registered rtc-s35390a as rtc0
-[    6.137649] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[    8.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   10.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   12.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   14.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   16.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   18.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   20.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   22.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   24.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   26.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   28.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   30.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   32.137649] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   34.137648] i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   36.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   38.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   40.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   42.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   44.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   46.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   48.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   50.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   52.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   54.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   56.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   58.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   60.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   62.137648] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-[   62.144403] sdhci: Secure Digital Host Controller Interface driver
-
-Then the kernel continue to boot. and except this very annoying delay,
-everything else is working on i2c.
-
-If anyone have an idea of the cause of this issue, I would be glad to
-have any input.
-
-I continue to investigate it, and for the record v3.12 was not
-affected but v3.13 was. So now I am going to bisect.
-
-Gregory
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt b/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt
+index 056732c..5bc4998 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-exynos5.txt
+@@ -5,7 +5,11 @@ at various speeds ranging from 100khz to 3.4Mhz.
+ 
+ Required properties:
+   - compatible: value should be.
+-      -> "samsung,exynos5-hsi2c", for i2c compatible with exynos5 hsi2c.
++	-> "samsung,exynos5250-hsi2c", for i2c compatible with HSI2C available
++				on Exynos5250 and Exynos5420 SoCs.
++	-> "samsung,exynos5260-hsi2c", for i2c compatible with HSI2C available
++				on Exynos5260 SoCs.
++
+   - reg: physical base address of the controller and length of memory mapped
+     region.
+   - interrupts: interrupt number to the cpu.
+@@ -26,7 +30,7 @@ Optional properties:
+ Example:
+ 
+ hsi2c@12ca0000 {
+-	compatible = "samsung,exynos5-hsi2c";
++	compatible = "samsung,exynos5250-hsi2c";
+ 	reg = <0x12ca0000 0x100>;
+ 	interrupts = <56>;
+ 	clock-frequency = <100000>;
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index 9fd711c..5052e8f 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -76,12 +76,6 @@
+ #define HSI2C_RXFIFO_TRIGGER_LEVEL(x)		((x) << 4)
+ #define HSI2C_TXFIFO_TRIGGER_LEVEL(x)		((x) << 16)
+ 
+-/* As per user manual FIFO max depth is 64bytes */
+-#define HSI2C_FIFO_MAX				0x40
+-/* default trigger levels for Tx and Rx FIFOs */
+-#define HSI2C_DEF_TXFIFO_LVL			(HSI2C_FIFO_MAX - 0x30)
+-#define HSI2C_DEF_RXFIFO_LVL			(HSI2C_FIFO_MAX - 0x10)
+-
+ /* I2C_TRAILING_CTL Register bits */
+ #define HSI2C_TRAILING_COUNT			(0xf)
+ 
+@@ -183,14 +177,51 @@ struct exynos5_i2c {
+ 	 * 2. Fast speed upto 1Mbps
+ 	 */
+ 	int			speed_mode;
++
++	/* Version of HS-I2C Hardware */
++	struct exynos_hsi2c_variant	*variant;
++};
++
++/**
++ * struct exynos_hsi2c_variant - platform specific HSI2C driver data
++ * @fifo_depth: the fifo depth supported by the HSI2C module
++ *
++ * Specifies platform specific configuration of HSI2C module.
++ * Note: A structure for driver specific platform data is used for future
++ * expansion of its usage.
++ */
++struct exynos_hsi2c_variant {
++	unsigned int		    fifo_depth;
++};
++
++static const struct exynos_hsi2c_variant exynos5250_hsi2c_data = {
++	.fifo_depth	= 64,
++};
++
++static const struct exynos_hsi2c_variant exynos5260_hsi2c_data = {
++	.fifo_depth	= 16,
+ };
+ 
+ static const struct of_device_id exynos5_i2c_match[] = {
+-	{ .compatible = "samsung,exynos5-hsi2c" },
+-	{},
++	{
++		.compatible = "samsung,exynos5250-hsi2c",
++		.data = &exynos5250_hsi2c_data
++	}, {
++		.compatible = "samsung,exynos5260-hsi2c",
++		.data = &exynos5260_hsi2c_data
++	}, {},
+ };
+ MODULE_DEVICE_TABLE(of, exynos5_i2c_match);
+ 
++static inline struct exynos_hsi2c_variant *exynos5_i2c_get_variant
++					(struct platform_device *pdev)
++{
++	const struct of_device_id *match;
++
++	match = of_match_node(exynos5_i2c_match, pdev->dev.of_node);
++	return (struct exynos_hsi2c_variant *)match->data;
++}
++
+ static void exynos5_i2c_clr_pend_irq(struct exynos5_i2c *i2c)
+ {
+ 	writel(readl(i2c->regs + HSI2C_INT_STATUS),
+@@ -415,7 +446,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+ 		fifo_status = readl(i2c->regs + HSI2C_FIFO_STATUS);
+ 		fifo_level = HSI2C_TX_FIFO_LVL(fifo_status);
+ 
+-		len = HSI2C_FIFO_MAX - fifo_level;
++		len = i2c->variant->fifo_depth - fifo_level;
+ 		if (len > (i2c->msg->len - i2c->msg_ptr))
+ 			len = i2c->msg->len - i2c->msg_ptr;
+ 
+@@ -483,6 +514,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+ 	u32 i2c_auto_conf = 0;
+ 	u32 fifo_ctl;
+ 	unsigned long flags;
++	unsigned short trig_lvl;
+ 
+ 	i2c_ctl = readl(i2c->regs + HSI2C_CTL);
+ 	i2c_ctl &= ~(HSI2C_TXCHON | HSI2C_RXCHON);
+@@ -493,13 +525,19 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+ 
+ 		i2c_auto_conf = HSI2C_READ_WRITE;
+ 
+-		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(HSI2C_DEF_TXFIFO_LVL);
++		trig_lvl = (i2c->msg->len > i2c->variant->fifo_depth) ?
++			(i2c->variant->fifo_depth * 3/4) : i2c->msg->len;
++		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(trig_lvl);
++
+ 		int_en |= (HSI2C_INT_RX_ALMOSTFULL_EN |
+ 			HSI2C_INT_TRAILING_EN);
+ 	} else {
+ 		i2c_ctl |= HSI2C_TXCHON;
+ 
+-		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(HSI2C_DEF_RXFIFO_LVL);
++		trig_lvl = (i2c->msg->len > i2c->variant->fifo_depth) ?
++			(i2c->variant->fifo_depth * 1/4) : i2c->msg->len;
++		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(trig_lvl);
++
+ 		int_en |= HSI2C_INT_TX_ALMOSTEMPTY_EN;
+ 	}
+ 
+@@ -691,7 +729,9 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_clk;
+ 
+-	exynos5_i2c_init(i2c);
++	i2c->variant = exynos5_i2c_get_variant(pdev);
++
++	exynos5_i2c_reset(i2c);
+ 
+ 	ret = i2c_add_adapter(&i2c->adap);
+ 	if (ret < 0) {
 -- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+1.7.9.5
