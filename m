@@ -1,130 +1,60 @@
-From: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Subject: [PATCH] i2c-s3c2410: Leave the bus disabled unless it is in use
-Date: Fri, 07 Feb 2014 14:24:09 +0530
-Message-ID: <1391763249-28964-1-git-send-email-ch.naveen@samsung.com>
-References: <1354165536-18529-2-git-send-email-ch.naveen@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1354165536-18529-2-git-send-email-ch.naveen@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, naveenkrishna.ch@gmail.com, wsa@the-dreams.de, ben-linux@fluff.org, cpgs@samsung.com, sjg@chromium.org, grundler@chromium.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2 v3] i2c: exynos5: add support for HSI2C on Exynos5260
+ SoC
+Date: Fri, 7 Feb 2014 11:17:47 +0100
+Message-ID: <20140207101747.GA2621@katana>
+References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
+ <1391688408-8077-1-git-send-email-ch.naveen@samsung.com>
+ <52F38EA4.10805@samsung.com>
+ <52F3933B.9090202@samsung.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52F3933B.9090202-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Simon Glass <sjg@chromium.org>
 
-There is a rather odd feature of the exynos i2c controller that if it
-is left enabled, it can lock itself up with the clk line held low.
-This makes the bus unusable.
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Unfortunately, the s3c24xx_i2c_set_master() function does not notice
-this, and reports a timeout. From then on the bus cannot be used until
-the AP is rebooted.
+On Thu, Feb 06, 2014 at 02:50:51PM +0100, Tomasz Figa wrote:
+> Also, please use correct addresses of DT ML and Wolfram's e-mail
+> (fixed in this message).
 
-The problem happens when any sort of interrupt occurs (e.g. due to a
-bus transition) when we are not in the middle of a transaction. We
-have seen many instances of this when U-Boot leaves the bus apparently
-happy, but Linux cannot access it.
+And please don't use In-Reply-To when sending new versions of patches.
+The message threading became hard to read here...
 
-The current code is therefore pretty fragile.
 
-This fixes things by leaving the bus disabled unless we are actually
-in a transaction. We enable the bus at the start of the transaction and
-disable it at the end. That way we won't get interrupts and will not
-lock up the bus.
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-It might be possible to clear pending interrupts on start-up, but this
-seems to be a more robust solution. We can't service interrupts when
-we are not in a transaction, and anyway would rather not lock up the
-bus while we try.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-Signed-off-by: Simon Glass <sjg@chromium.org>
-Cc: Grant Grundler <grundler@chromium.org>
-Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
----
- drivers/i2c/busses/i2c-s3c2410.c |   37 +++++++++++++++++++++++++++++++++----
- 1 file changed, 33 insertions(+), 4 deletions(-)
+iQIcBAEBAgAGBQJS9LLLAAoJEBQN5MwUoCm21ekP/jYag6sGAh6ZUTFoYhzmMI0d
+4hbI6KtaFabFCEheAYZTAvx+xoP7SWK/IsvzI320xQCZalVEZKU+NwjEnOH/jTkX
+DTK4WtRFIMpwmllVx/xr1oURu4LwPN/u1F4BQeLmf0/FvevMMgv8hKs6Yak77kKF
+KHlljlFfGlZPjR1r7iQ/ijcCz/V5KG06F5BbgDNvMPcEf1SkokR1o0lXzti3MAPl
+HFiCVDgcCgcxHdQ+01moSVKDm/8QJGl77HrwIbMw/AWgfGUKQ+6hu4J/77Fl6PGr
+IyGyAw93efuIExhFIdRA4S5iCk11pY46gwxVBqMWnIRT3RG4zzvFNz5THSy453cH
+P/2bdVPbJ7PCjo614zxsBFFztfu9QjIDvmtudUFlSX01sSO4VdRx4thzgQsXL7No
+mbq0C+GLYZ/ZE+CtPIJRDJKxuZUw7OrmMYhkgTlNp0OZBYZIa0jfiMu87vvkvo59
++IWDJWDe6vKwlTWgw7/xV6HtN7IpbMLOGa4TTI9/Nxa8SVbu7FV8N5oUCUyHz9WU
+WzcrnbLDNb3iYud9NxoMkhiLsD+WGjg3rM6q4Br43i04n7g6N20vOJZn2WSiPxmR
+JISqCkj5uyC/6AJYeNhC7aYZOaOjxahCIiM0HNtIeRCpcknQlm4D246R9sAnIvj7
+6iHs/PssiGk9pLcx0YzA
+=X9JG
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 684d21e..9d39511 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -601,6 +601,31 @@ static irqreturn_t s3c24xx_i2c_irq(int irqno, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+/*
-+ * Disable the bus so that we won't get any interrupts from now on, or try
-+ * to drive any lines. This is the default state when we don't have
-+ * anything to send/receive.
-+ *
-+ * If there is an event on the bus, or we have a pre-existing event at
-+ * kernel boot time, we may not notice the event and the I2C controller
-+ * will lock the bus with the I2C clock line low indefinitely.
-+ */
-+static inline void s3c24xx_i2c_disable_bus(struct s3c24xx_i2c *i2c)
-+{
-+	unsigned long tmp;
-+
-+	/* Stop driving the I2C pins */
-+	tmp = readl(i2c->regs + S3C2410_IICSTAT);
-+	tmp &= ~S3C2410_IICSTAT_TXRXEN;
-+	writel(tmp, i2c->regs + S3C2410_IICSTAT);
-+
-+	/* We don't expect any interrupts now, and don't want send acks */
-+	tmp = readl(i2c->regs + S3C2410_IICCON);
-+	tmp &= ~(S3C2410_IICCON_IRQEN | S3C2410_IICCON_IRQPEND |
-+		S3C2410_IICCON_ACKEN);
-+	writel(tmp, i2c->regs + S3C2410_IICCON);
-+}
-+
- 
- /* s3c24xx_i2c_set_master
-  *
-@@ -735,7 +760,11 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
- 
- 	s3c24xx_i2c_wait_idle(i2c);
- 
-+	s3c24xx_i2c_disable_bus(i2c);
-+
-  out:
-+	i2c->state = STATE_IDLE;
-+
- 	return ret;
- }
- 
-@@ -1004,7 +1033,6 @@ static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
- 
- static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
- {
--	unsigned long iicon = S3C2410_IICCON_IRQEN | S3C2410_IICCON_ACKEN;
- 	struct s3c2410_platform_i2c *pdata;
- 	unsigned int freq;
- 
-@@ -1018,12 +1046,12 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
- 
- 	dev_info(i2c->dev, "slave address 0x%02x\n", pdata->slave_addr);
- 
--	writel(iicon, i2c->regs + S3C2410_IICCON);
-+	writel(0, i2c->regs + S3C2410_IICCON);
-+	writel(0, i2c->regs + S3C2410_IICSTAT);
- 
- 	/* we need to work out the divisors for the clock... */
- 
- 	if (s3c24xx_i2c_clockrate(i2c, &freq) != 0) {
--		writel(0, i2c->regs + S3C2410_IICCON);
- 		dev_err(i2c->dev, "cannot meet bus frequency required\n");
- 		return -EINVAL;
- 	}
-@@ -1031,7 +1059,8 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
- 	/* todo - check that the i2c lines aren't being dragged anywhere */
- 
- 	dev_info(i2c->dev, "bus frequency set to %d KHz\n", freq);
--	dev_dbg(i2c->dev, "S3C2410_IICCON=0x%02lx\n", iicon);
-+	dev_dbg(i2c->dev, "S3C2410_IICCON=0x%02x\n",
-+		readl(i2c->regs + S3C2410_IICCON));
- 
- 	return 0;
- }
--- 
-1.7.9.5
+--VbJkn9YxBvnuCH5J--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
