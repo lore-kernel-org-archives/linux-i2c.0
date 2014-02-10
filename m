@@ -1,35 +1,38 @@
-From: Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>
-Subject: Re: [PATCH 11/17] i2c: i2c-ocores: deprecate class based instantiation
-Date: Mon, 10 Feb 2014 11:14:47 +0100
-Message-ID: <8738jr1dgo.fsf@dell.be.48ers.dk>
-References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
-	<1392026654-5343-12-git-send-email-wsa@the-dreams.de>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 14/17] i2c: nomadik: Fixup deployment of runtime PM
+Date: Mon, 10 Feb 2014 11:16:53 +0100
+Message-ID: <CAPDyKFphK8Zo1i7=w-n-VbGWpmLvUZs_U2Ekq0NCeqVxZ7VKvw@mail.gmail.com>
+References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
+	<1391529538-21685-15-git-send-email-ulf.hansson@linaro.org>
+	<CAOMZO5CzUuQrmbk6FpFGR56jHBtW-1d_AGcdgB2xyMG0Nkf+Fw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1392026654-5343-12-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> (Wolfram
-	Sang's message of "Mon, 10 Feb 2014 11:04:05 +0100")
+In-Reply-To: <CAOMZO5CzUuQrmbk6FpFGR56jHBtW-1d_AGcdgB2xyMG0Nkf+Fw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Wolfram" == Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
+On 5 February 2014 15:45, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Tue, Feb 4, 2014 at 1:58 PM, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>
+>> +static int nmk_i2c_runtime_resume(struct device *dev)
+>> +{
+>> +       struct amba_device *adev = to_amba_device(dev);,
+>> +       struct nmk_i2c_dev *nmk_i2c = amba_get_drvdata(adev);
+>> +
+>> +       clk_prepare_enable(nmk_i2c->clk);
+>
+> Previously the code was checking the return value from
+> clk_prepare_enable(). You should keep the check here.
 
- > Warn users that class based instantiation is going away soon in favour
- > of more robust probing and faster bootup times.
+Will fix in v2! Thanks for reviewing!
 
- > Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
- > Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
- > ---
+Kind regards
+Ulf Hansson
 
- > This patch is a suggestion. Looking for an ack by someone who actually uses
- > the driver.
-
-It's been some time since I last used it, but I never needed the class
-based probing, so:
-
-Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-
--- 
-Bye, Peter Korsgaard
+>
+> Regards,
+>
+> Fabio Estevam
