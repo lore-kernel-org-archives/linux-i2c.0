@@ -1,37 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 04/17] i2c: i2c-at91: deprecate class based instantiation
-Date: Mon, 10 Feb 2014 11:03:58 +0100
-Message-ID: <1392026654-5343-5-git-send-email-wsa@the-dreams.de>
-References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Ludovic Desroches <ludovic.desroches@atmel.com>, linux-kernel@vger.kernel.org
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 14/17] i2c: nomadik: Fixup deployment of runtime PM
+Date: Mon, 10 Feb 2014 11:14:46 +0100
+Message-ID: <CAPDyKFrWgB8z1rtWxU7AYvVsmNj_pfGbsozwgP_FzLODpmGRwQ@mail.gmail.com>
+References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
+	<1391529538-21685-15-git-send-email-ulf.hansson@linaro.org>
+	<CACRpkdZwoXf5ovmQEAN6Ugvz91+_i5uGqStR3MGXQeJGHitj3Q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CACRpkdZwoXf5ovmQEAN6Ugvz91+_i5uGqStR3MGXQeJGHitj3Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Warn users that class based instantiation is going away soon in favour
-of more robust probing and faster bootup times.
+On 5 February 2014 15:34, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On Tue, Feb 4, 2014 at 4:58 PM, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>
+>> Since the device is active while a successful probe has been completed,
+>> the reference counting for the clock will be screwed up and never reach
+>> zero.
+>>
+>> The issue is resolved by implementing runtime PM callbacks and let them
+>> handle the resources accordingly, including the clock.
+>>
+>> Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
+>> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+>> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>
+> Hm do I read it right as patch 13 breaks runtime PM by leaving
+> the device active after probe() and this patch
+> 14 fixes it again? Maybe these two patches should be squashed
+> then.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: Ludovic Desroches <ludovic.desroches@atmel.com>
----
+You are right; but the driver will still be working, you just don't
+get the benefit from inactivating the device at request inactivity -
+as you pointed out.
 
- drivers/i2c/busses/i2c-at91.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The reason for why I wanted to do this as separate steps was to make
+it easier for reviewing, otherwise the patch(es) would have been quite
+big and messy. I am for sure open to  adopt to your proposal, but just
+wanted to give you some more background, before I go ahead and send a
+v2.
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 8edba9d..4babcdb 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -759,7 +759,7 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
- 	i2c_set_adapdata(&dev->adapter, dev);
- 	dev->adapter.owner = THIS_MODULE;
--	dev->adapter.class = I2C_CLASS_HWMON;
-+	dev->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
- 	dev->adapter.algo = &at91_twi_algorithm;
- 	dev->adapter.dev.parent = dev->dev;
- 	dev->adapter.nr = pdev->id;
--- 
-1.8.5.1
+Kind regards
+Ulf Hansson
+
+>
+> Yours,
+> Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
