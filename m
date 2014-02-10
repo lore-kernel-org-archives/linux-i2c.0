@@ -1,138 +1,64 @@
 From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 05/17] mmc: mmci: Put the device into low power state at
- system suspend
-Date: Mon, 10 Feb 2014 12:11:24 +0100
-Message-ID: <CAPDyKFo4QG+D0wKnSEXR=2TW93HKUAbb1EUqGk_U56rS339B3Q@mail.gmail.com>
+Subject: Re: [PATCH 07/17] spi: pl022: Don't ignore power domain and amba bus
+ at system suspend
+Date: Mon, 10 Feb 2014 13:33:50 +0100
+Message-ID: <CAPDyKFqNdw-6R12cUOre8UOTOnB-PpxHD5rPAMCwuS3i--Sesg@mail.gmail.com>
 References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
-	<1391529538-21685-6-git-send-email-ulf.hansson@linaro.org>
-	<8738jyu1h9.fsf@paris.lan>
+	<1391529538-21685-8-git-send-email-ulf.hansson@linaro.org>
+	<20140204191609.GU22609@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <8738jyu1h9.fsf@paris.lan>
+In-Reply-To: <20140204191609.GU22609@sirena.org.uk>
 Sender: linux-mmc-owner@vger.kernel.org
-To: Kevin Hilman <khilman@linaro.org>
-Cc: Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Mark Brown <broonie@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, linux-mmc <linux-mmc@vger.kernel.org>
+To: Mark Brown <broonie@kernel.org>
+Cc: Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, linux-mmc <linux-mmc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 4 February 2014 20:22, Kevin Hilman <khilman@linaro.org> wrote:
-> Ulf Hansson <ulf.hansson@linaro.org> writes:
+On 4 February 2014 20:16, Mark Brown <broonie@kernel.org> wrote:
+> On Tue, Feb 04, 2014 at 04:58:48PM +0100, Ulf Hansson wrote:
 >
->> Due to the available runtime PM callbacks, we are now able to put our
->> device into low power state at system suspend.
+>> @@ -2328,8 +2300,23 @@ static int pl022_suspend(struct device *dev)
+>>               return ret;
+>>       }
 >>
->> Earlier we could not accomplish this without trusting a power domain
->> for the device to take care of it. Now we are able to cope with
->> scenarios both with and without a power domain.
->>
->> Cc: Russell King <linux@arm.linux.org.uk>
->> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
->> ---
->>  drivers/mmc/host/mmci.c |   45 +++++++++++++++++++++++++--------------------
->>  1 file changed, 25 insertions(+), 20 deletions(-)
->>
->> diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
->> index c88da1c..074e0cb 100644
->> --- a/drivers/mmc/host/mmci.c
->> +++ b/drivers/mmc/host/mmci.c
->> @@ -1723,33 +1723,38 @@ static int mmci_remove(struct amba_device *dev)
->>       return 0;
->>  }
->>
->> -#ifdef CONFIG_SUSPEND
->> -static int mmci_suspend(struct device *dev)
->> +#ifdef CONFIG_PM_SLEEP
->> +static int mmci_suspend_late(struct device *dev)
->>  {
->> -     struct amba_device *adev = to_amba_device(dev);
->> -     struct mmc_host *mmc = amba_get_drvdata(adev);
->> +     int ret = 0;
->>
->> -     if (mmc) {
->> -             struct mmci_host *host = mmc_priv(mmc);
->> -             pm_runtime_get_sync(dev);
->> -             writel(0, host->base + MMCIMASK0);
->> -     }
->> +     if (pm_runtime_status_suspended(dev))
->> +             return 0;
->>
->> -     return 0;
->> +     if (dev->pm_domain && dev->pm_domain->ops.runtime_suspend)
->> +             ret = dev->pm_domain->ops.runtime_suspend(dev);
->> +     else
->> +             ret = dev->bus->pm->runtime_suspend(dev);
+>> -     pm_runtime_get_sync(dev);
+>> -     pl022_suspend_resources(pl022, false);
+>> +     pm_runtime_disable(dev);
 >> +
->> +     if (!ret)
+>> +     if (!pm_runtime_status_suspended(dev)) {
+>> +             if (dev->pm_domain && dev->pm_domain->ops.runtime_suspend)
+>> +                     ret = dev->pm_domain->ops.runtime_suspend(dev);
+>> +             else
+>> +                     ret = dev->bus->pm->runtime_suspend(dev);
+>> +
+>> +             if (ret) {
+>> +                     pm_runtime_enable(dev);
+>> +                     return ret;
+>> +             }
+>> +
 >> +             pm_runtime_set_suspended(dev);
+>> +     }
 >
-> Isn't this basically open-coding pm_runtime_suspend()...
-
-It is similar, but with once big difference.
-
-Since the PM core prevents pm_runtime_suspend() from invoking our
-->runtime_suspend callback during system suspend (it does so by
-invoking pm_runtime_get_sync() before starting the suspend sequence),
-we then need to make the driver handle that by itself.
-
+> This seems like a fairly hideous thing to be having to open code in an
+> individual driver, it all looks generic and like something that most if
+> not all devices ought to be doing and it looks very vulnerable to being
+> broken by changes in the core.  At the very least I would expect this to
+> be done in a helper function, though it would be even nicer if the
+> driver core were figuring this stuff out for us based on the device
+> level callback so that drivers didn't need to worry about being in power
+> domains or manually calling bus level callbacks.
 >
->> +     return ret;
->>  }
->>
->> -static int mmci_resume(struct device *dev)
->> +static int mmci_resume_early(struct device *dev)
->>  {
->> -     struct amba_device *adev = to_amba_device(dev);
->> -     struct mmc_host *mmc = amba_get_drvdata(adev);
->> +     int ret = 0;
->>
->> -     if (mmc) {
->> -             struct mmci_host *host = mmc_priv(mmc);
->> -             writel(MCI_IRQENABLE, host->base + MMCIMASK0);
->> -             pm_runtime_put(dev);
->> -     }
->> +     if (pm_runtime_status_suspended(dev))
->> +             return 0;
->>
->> -     return 0;
->> +     if (dev->pm_domain && dev->pm_domain->ops.runtime_resume)
->> +             ret = dev->pm_domain->ops.runtime_resume(dev);
->> +     else
->> +             ret = dev->bus->pm->runtime_resume(dev);
->> +
->> +     return ret;
->
-> ...and this is pm_runtime_resume()? (though both terribly simplified.)
+> Putting it in a helper would at least mean that it's easier for the
+> mechanics to be transferred to the core proper later on.
 
-Correct, but again with a big difference. See comment above.
+I agree, a helper function would be nice. I have earlier sent a patch
+to the PM core, that is similar to the code above, though it was
+rejected in it's current form. Let me follow up on this again.
 
->
-> This is starting to show that building with PM_SLEEP but not PM_RUNTIME
-> is going to force open-coding a lot of stuff that the runtime PM
-> framework already provides.  So either we need some helper functions so
-> we're not sprinkling manual calls to bus/pm_domain callbacks all over
-
-I have send a patch a while ago for the PM core, that tried to
-implement something similar like this, I wasn't accepted. I will
-follow up on that asap.
-
-Still, do you think we could go ahead with this patch? If/when we can
-get an acceptance for a PM runtime helper function in the PM core, we
-can easily convert to use it later on.
-
-> the place, or maybe where we need to go is have a way for platforms that
-> really are "runtime PM centric" to declare that even PM_SLEEP depends on
-> PM_RUNTIME.
->
-> I'm trying to thing of a good reason to not make PM_SLEEP depend on
-> PM_RUNTIME for platforms like this.
-
-This wont help. The PM core will still prevent the runtime_suspend
-callback from being invoked during system suspend.
-
+At this point, would a way forward be to still go ahead with this
+patch and then convert to, when/if, the helper function from the PM
+core becomes available?
 
 Kind regards
 Ulf Hansson
-
->
-> Kevin
->
