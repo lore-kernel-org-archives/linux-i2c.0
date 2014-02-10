@@ -1,43 +1,61 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: Re: [PATCH 02/28] Remove OF_I2C
-Date: Sun, 09 Feb 2014 20:58:54 +0100
-Message-ID: <1391975934.25855.14.camel@x220>
-References: <1391971686-9517-1-git-send-email-richard@nod.at>
-	 <1391971686-9517-3-git-send-email-richard@nod.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1391971686-9517-3-git-send-email-richard@nod.at>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Richard Weinberger <richard@nod.at>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 02/17] i2c: add deprecation warning for class based instantiation
+Date: Mon, 10 Feb 2014 11:03:56 +0100
+Message-ID: <1392026654-5343-3-git-send-email-wsa@the-dreams.de>
+References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1392026654-5343-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 2014-02-09 at 19:47 +0100, Richard Weinberger wrote:
-> The symbol is an orphan, get rid of it.
-> 
-> Signed-off-by: Richard Weinberger <richard@nod.at>
-> ---
->  drivers/i2c/busses/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index f5ed031..de17c55 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -387,7 +387,7 @@ config I2C_CBUS_GPIO
->  
->  config I2C_CPM
->  	tristate "Freescale CPM1 or CPM2 (MPC8xx/826x)"
-> -	depends on (CPM1 || CPM2) && OF_I2C
-> +	depends on CPM1 || CPM2
->  	help
->  	  This supports the use of the I2C interface on Freescale
->  	  processors with CPM1 or CPM2.
+Class based instantiation can cause noticeable delays when booting. This
+mechanism is used when it is not possible to describe slaves on I2C
+busses. As we do have other mechanisms, most embedded I2C will not need
+classes and for embedded it is explicitly not recommended to use them. Add
+a deprecation warning for drivers which want to disable class based
+instantiation in the near future to gain boot-up time, so users relying
+on this technique can switch to something better. They really should.
 
-This needs testing. Since when is OF_I2C orphaned? Ie, when was the last
-time it was possible to set I2C_CPM?
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+---
 
+ drivers/i2c/i2c-core.c | 7 +++++++
+ include/linux/i2c.h    | 1 +
+ 2 files changed, 8 insertions(+)
 
-Paul Bolle
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d74c0b3..42fcc59 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1935,6 +1935,13 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+ 		struct i2c_client *client;
+ 
+ 		/* Detection succeeded, instantiate the device */
++		if (adapter->class & I2C_CLASS_DEPRECATED)
++			dev_warn(&adapter->dev,
++				"This adapter will soon drop class based instantiation of devices. "
++				"Please make sure client 0x%02x gets instantiated by other means. "
++				"Check 'Documentation/i2c/instantiating-devices' for details.\n",
++				info.addr);
++
+ 		dev_dbg(&adapter->dev, "Creating %s at 0x%02x\n",
+ 			info.type, info.addr);
+ 		client = i2c_new_device(adapter, &info);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index d9c8dbd3..b9e1707 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -473,6 +473,7 @@ void i2c_unlock_adapter(struct i2c_adapter *);
+ #define I2C_CLASS_HWMON		(1<<0)	/* lm_sensors, ... */
+ #define I2C_CLASS_DDC		(1<<3)	/* DDC bus on graphics adapters */
+ #define I2C_CLASS_SPD		(1<<7)	/* Memory modules */
++#define I2C_CLASS_DEPRECATED	(1<<8)	/* Warn users that adapter will stop using classes */
+ 
+ /* Internal numbers to terminate lists */
+ #define I2C_CLIENT_END		0xfffeU
+-- 
+1.8.5.1
