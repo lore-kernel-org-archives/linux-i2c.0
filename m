@@ -1,84 +1,69 @@
-From: Kevin Hilman <khilman@linaro.org>
-Subject: Re: [PATCH 05/17] mmc: mmci: Put the device into low power state at system suspend
-Date: Mon, 10 Feb 2014 10:03:57 -0800
-Message-ID: <7hmwhyalpu.fsf@paris.lan>
-References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
-	<1391529538-21685-6-git-send-email-ulf.hansson@linaro.org>
-	<8738jyu1h9.fsf@paris.lan>
-	<CAPDyKFo4QG+D0wKnSEXR=2TW93HKUAbb1EUqGk_U56rS339B3Q@mail.gmail.com>
+From: linux@roeck-us.net
+Subject: Re: [PATCH 01/17] Documentation: i2c: describe devicetree method
+ for instantiating devices
+Date: Mon, 10 Feb 2014 12:21:19 -0600
+Message-ID: <20140210122119.115858a7ntu4lr40@67.228.131.205>
+References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
+ <1392026654-5343-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPDyKFo4QG+D0wKnSEXR=2TW93HKUAbb1EUqGk_U56rS339B3Q@mail.gmail.com>
-	(Ulf Hansson's message of "Mon, 10 Feb 2014 12:11:24 +0100")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Mark Brown <broonie@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, linux-mmc <linux-mmc@vger.kernel.org>
+Content-Type: text/plain;
+ charset=ISO-8859-1;
+ DelSp="Yes";
+ format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1392026654-5343-2-git-send-email-wsa@the-dreams.de>
+Content-Disposition: inline
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Rob Landley <rob@landley.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ulf Hansson <ulf.hansson@linaro.org> writes:
+Quoting Wolfram Sang <wsa@the-dreams.de>:
 
-> On 4 February 2014 20:22, Kevin Hilman <khilman@linaro.org> wrote:
->> Ulf Hansson <ulf.hansson@linaro.org> writes:
->>
->>> Due to the available runtime PM callbacks, we are now able to put our
->>> device into low power state at system suspend.
->>>
->>> Earlier we could not accomplish this without trusting a power domain
->>> for the device to take care of it. Now we are able to cope with
->>> scenarios both with and without a power domain.
->>>
->>> Cc: Russell King <linux@arm.linux.org.uk>
->>> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
->>> ---
->>>  drivers/mmc/host/mmci.c |   45 +++++++++++++++++++++++++--------------------
->>>  1 file changed, 25 insertions(+), 20 deletions(-)
->>>
->>> diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
->>> index c88da1c..074e0cb 100644
->>> --- a/drivers/mmc/host/mmci.c
->>> +++ b/drivers/mmc/host/mmci.c
->>> @@ -1723,33 +1723,38 @@ static int mmci_remove(struct amba_device *dev)
->>>       return 0;
->>>  }
->>>
->>> -#ifdef CONFIG_SUSPEND
->>> -static int mmci_suspend(struct device *dev)
->>> +#ifdef CONFIG_PM_SLEEP
->>> +static int mmci_suspend_late(struct device *dev)
->>>  {
->>> -     struct amba_device *adev = to_amba_device(dev);
->>> -     struct mmc_host *mmc = amba_get_drvdata(adev);
->>> +     int ret = 0;
->>>
->>> -     if (mmc) {
->>> -             struct mmci_host *host = mmc_priv(mmc);
->>> -             pm_runtime_get_sync(dev);
->>> -             writel(0, host->base + MMCIMASK0);
->>> -     }
->>> +     if (pm_runtime_status_suspended(dev))
->>> +             return 0;
->>>
->>> -     return 0;
->>> +     if (dev->pm_domain && dev->pm_domain->ops.runtime_suspend)
->>> +             ret = dev->pm_domain->ops.runtime_suspend(dev);
->>> +     else
->>> +             ret = dev->bus->pm->runtime_suspend(dev);
->>> +
->>> +     if (!ret)
->>> +             pm_runtime_set_suspended(dev);
->>
->> Isn't this basically open-coding pm_runtime_suspend()...
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Cc: devicetree@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> ---
 >
-> It is similar, but with once big difference.
+>  Documentation/i2c/instantiating-devices | 34  
+> +++++++++++++++++++++++++++++++--
+>  1 file changed, 32 insertions(+), 2 deletions(-)
 >
-> Since the PM core prevents pm_runtime_suspend() from invoking our
-> ->runtime_suspend callback during system suspend (it does so by
-> invoking pm_runtime_get_sync() before starting the suspend sequence),
-> we then need to make the driver handle that by itself.
+> diff --git a/Documentation/i2c/instantiating-devices  
+> b/Documentation/i2c/instantiating-devices
+> index c70e7a7..6df095a 100644
+> --- a/Documentation/i2c/instantiating-devices
+> +++ b/Documentation/i2c/instantiating-devices
+> @@ -8,8 +8,8 @@ reason, the kernel code must instantiate I2C devices  
+> explicitly. There are
+>  several ways to achieve this, depending on the context and requirements.
+>
+>
+> -Method 1: Declare the I2C devices by bus number
+> ------------------------------------------------
+> +Method 1a: Declare the I2C devices by bus number
+> +------------------------------------------------
+>
+>  This method is appropriate when the I2C bus is a system bus as is the case
+>  for many embedded systems. On such systems, each I2C bus has a number
+> @@ -51,6 +51,36 @@ The devices will be automatically unbound and  
+> destroyed when the I2C bus
+>  they sit on goes away (if ever.)
+>
+>
+> +Method 1b: Declare the I2C devices via devicetree
+> +-------------------------------------------------
+> +
 
-Yeah, I still think we need to allow a bus/pm_domain to override that
-behavior.
+Hi Wolfram,
 
+There is now also a means to instantiate I2C devices through
+ACPI. This is documented in Documentation/acpi/enumeration.txt.
 
-Kevin
+Might be worthwhile to reference it from instantiating-devices.
+I guess that would be a separate patch though.
+
+Thanks,
+Guenter
+
