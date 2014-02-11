@@ -1,52 +1,67 @@
-From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 06/17] i2c: i2c-bfin-twi: deprecate class based instantiation
-Date: Tue, 11 Feb 2014 17:02:58 +0800
-Message-ID: <CAJxxZ0NWWfDOsK36_5oHD2-Ujdz1Wjhaqg0m9wbqACx6WfeTJQ@mail.gmail.com>
-References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
-	<1392026654-5343-7-git-send-email-wsa@the-dreams.de>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 1/2] i2c: bcm2835: Use devm_ioremap_resource()
+Date: Tue, 11 Feb 2014 22:02:36 +0900
+Message-ID: <001101cf2729$890d5b10$9b281130$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1392026654-5343-7-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, 'Stephen Warren' <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, 'Florian Meier' <florian.meier-oZ8rN/sblLk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Acked-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Use devm_ioremap_resource() in order to make the code simpler,
+and remove redundant return value check of platform_get_resource()
+because the value is checked by devm_ioremap_resource().
 
-On Mon, Feb 10, 2014 at 6:04 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> Warn users that class based instantiation is going away soon in favour
-> of more robust probing and faster bootup times.
->
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> ---
->
-> This patch is a suggestion. Looking for an ack by someone who actually uses
-> the driver.
->
->  drivers/i2c/busses/i2c-bfin-twi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-> index 3b9bd9a..c75f0e9 100644
-> --- a/drivers/i2c/busses/i2c-bfin-twi.c
-> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-> @@ -669,7 +669,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->         strlcpy(p_adap->name, pdev->name, sizeof(p_adap->name));
->         p_adap->algo = &bfin_twi_algorithm;
->         p_adap->algo_data = iface;
-> -       p_adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-> +       p_adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD | I2C_CLASS_DEPRECATED;
->         p_adap->dev.parent = &pdev->dev;
->         p_adap->timeout = 5 * HZ;
->         p_adap->retries = 3;
-> --
-> 1.8.5.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-bcm2835.c |   24 ++++--------------------
+ 1 file changed, 4 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 77df97b..13b7ed5 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -219,7 +219,7 @@ static const struct i2c_algorithm bcm2835_i2c_algo = {
+ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct bcm2835_i2c_dev *i2c_dev;
+-	struct resource *mem, *requested, *irq;
++	struct resource *mem, *irq;
+ 	u32 bus_clk_rate, divider;
+ 	int ret;
+ 	struct i2c_adapter *adap;
+@@ -234,25 +234,9 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	init_completion(&i2c_dev->completion);
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!mem) {
+-		dev_err(&pdev->dev, "No mem resource\n");
+-		return -ENODEV;
+-	}
+-
+-	requested = devm_request_mem_region(&pdev->dev, mem->start,
+-					    resource_size(mem),
+-					    dev_name(&pdev->dev));
+-	if (!requested) {
+-		dev_err(&pdev->dev, "Could not claim register region\n");
+-		return -EBUSY;
+-	}
+-
+-	i2c_dev->regs = devm_ioremap(&pdev->dev, mem->start,
+-				     resource_size(mem));
+-	if (!i2c_dev->regs) {
+-		dev_err(&pdev->dev, "Could not map registers\n");
+-		return -ENOMEM;
+-	}
++	i2c_dev->regs = devm_ioremap_resource(&pdev->dev, mem);
++	if (IS_ERR(i2c_dev->regs))
++		return PTR_ERR(i2c_dev->regs);
+ 
+ 	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(i2c_dev->clk)) {
+-- 
+1.7.10.4
