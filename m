@@ -1,64 +1,48 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 2/2] i2c: mxs: Use devm_ioremap_resource()
-Date: Tue, 11 Feb 2014 22:04:55 +0900
-Message-ID: <001a01cf2729$dc23cd70$946b6850$%han@samsung.com>
-References: <001101cf2729$890d5b10$9b281130$%han@samsung.com>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 04/17] i2c: i2c-at91: deprecate class based instantiation
+Date: Tue, 11 Feb 2014 14:33:39 +0100
+Message-ID: <20140211133338.GB1114@ldesroches-Latitude-E6320>
+References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
+ <1392026654-5343-5-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <001101cf2729$890d5b10$9b281130$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Content-language: ko
+Content-Disposition: inline
+In-Reply-To: <1392026654-5343-5-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, 'Marek Vasut' <marex-ynQEQJNshbs@public.gmane.org>, 'Shawn Guo' <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, 'Sascha Hauer' <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use devm_ioremap_resource() in order to make the code simpler,
-and remove redundant return value check of platform_get_resource()
-because the value is checked by devm_ioremap_resource().
+On Mon, Feb 10, 2014 at 11:03:58AM +0100, Wolfram Sang wrote:
+> Warn users that class based instantiation is going away soon in favour
+> of more robust probing and faster bootup times.
+> 
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-mxs.c |   16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 0cde4e6..9585b90 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -806,7 +806,6 @@ static int mxs_i2c_probe(struct platform_device *pdev)
- 	struct mxs_i2c_dev *i2c;
- 	struct i2c_adapter *adap;
- 	struct resource *res;
--	resource_size_t res_size;
- 	int err, irq;
- 
- 	i2c = devm_kzalloc(dev, sizeof(struct mxs_i2c_dev), GFP_KERNEL);
-@@ -819,19 +818,14 @@ static int mxs_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	irq = platform_get_irq(pdev, 0);
-+	i2c->regs = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(i2c->regs))
-+		return PTR_ERR(i2c->regs);
- 
--	if (!res || irq < 0)
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
- 		return -ENOENT;
- 
--	res_size = resource_size(res);
--	if (!devm_request_mem_region(dev, res->start, res_size, res->name))
--		return -EBUSY;
--
--	i2c->regs = devm_ioremap_nocache(dev, res->start, res_size);
--	if (!i2c->regs)
--		return -EBUSY;
--
- 	err = devm_request_irq(dev, irq, mxs_i2c_isr, 0, dev_name(dev), i2c);
- 	if (err)
- 		return err;
--- 
-1.7.10.4
+Thanks
+
+> ---
+> 
+>  drivers/i2c/busses/i2c-at91.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 8edba9d..4babcdb 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -759,7 +759,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+>  	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+>  	i2c_set_adapdata(&dev->adapter, dev);
+>  	dev->adapter.owner = THIS_MODULE;
+> -	dev->adapter.class = I2C_CLASS_HWMON;
+> +	dev->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
+>  	dev->adapter.algo = &at91_twi_algorithm;
+>  	dev->adapter.dev.parent = dev->dev;
+>  	dev->adapter.nr = pdev->id;
+> -- 
+> 1.8.5.1
+> 
