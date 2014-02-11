@@ -1,69 +1,52 @@
-From: linux@roeck-us.net
-Subject: Re: [PATCH 01/17] Documentation: i2c: describe devicetree method
- for instantiating devices
-Date: Mon, 10 Feb 2014 12:21:19 -0600
-Message-ID: <20140210122119.115858a7ntu4lr40@67.228.131.205>
+From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 06/17] i2c: i2c-bfin-twi: deprecate class based instantiation
+Date: Tue, 11 Feb 2014 17:02:58 +0800
+Message-ID: <CAJxxZ0NWWfDOsK36_5oHD2-Ujdz1Wjhaqg0m9wbqACx6WfeTJQ@mail.gmail.com>
 References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
- <1392026654-5343-2-git-send-email-wsa@the-dreams.de>
+	<1392026654-5343-7-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=ISO-8859-1;
- DelSp="Yes";
- format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1392026654-5343-2-git-send-email-wsa@the-dreams.de>
-Content-Disposition: inline
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Rob Landley <rob@landley.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1392026654-5343-7-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Quoting Wolfram Sang <wsa@the-dreams.de>:
+Acked-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Cc: devicetree@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
+On Mon, Feb 10, 2014 at 6:04 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> Warn users that class based instantiation is going away soon in favour
+> of more robust probing and faster bootup times.
+>
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > ---
 >
->  Documentation/i2c/instantiating-devices | 34  
-> +++++++++++++++++++++++++++++++--
->  1 file changed, 32 insertions(+), 2 deletions(-)
+> This patch is a suggestion. Looking for an ack by someone who actually uses
+> the driver.
 >
-> diff --git a/Documentation/i2c/instantiating-devices  
-> b/Documentation/i2c/instantiating-devices
-> index c70e7a7..6df095a 100644
-> --- a/Documentation/i2c/instantiating-devices
-> +++ b/Documentation/i2c/instantiating-devices
-> @@ -8,8 +8,8 @@ reason, the kernel code must instantiate I2C devices  
-> explicitly. There are
->  several ways to achieve this, depending on the context and requirements.
+>  drivers/i2c/busses/i2c-bfin-twi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
+> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+> index 3b9bd9a..c75f0e9 100644
+> --- a/drivers/i2c/busses/i2c-bfin-twi.c
+> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
+> @@ -669,7 +669,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+>         strlcpy(p_adap->name, pdev->name, sizeof(p_adap->name));
+>         p_adap->algo = &bfin_twi_algorithm;
+>         p_adap->algo_data = iface;
+> -       p_adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> +       p_adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD | I2C_CLASS_DEPRECATED;
+>         p_adap->dev.parent = &pdev->dev;
+>         p_adap->timeout = 5 * HZ;
+>         p_adap->retries = 3;
+> --
+> 1.8.5.1
 >
-> -Method 1: Declare the I2C devices by bus number
-> ------------------------------------------------
-> +Method 1a: Declare the I2C devices by bus number
-> +------------------------------------------------
->
->  This method is appropriate when the I2C bus is a system bus as is the case
->  for many embedded systems. On such systems, each I2C bus has a number
-> @@ -51,6 +51,36 @@ The devices will be automatically unbound and  
-> destroyed when the I2C bus
->  they sit on goes away (if ever.)
->
->
-> +Method 1b: Declare the I2C devices via devicetree
-> +-------------------------------------------------
-> +
-
-Hi Wolfram,
-
-There is now also a means to instantiate I2C devices through
-ACPI. This is documented in Documentation/acpi/enumeration.txt.
-
-Might be worthwhile to reference it from instantiating-devices.
-I guess that would be a separate patch though.
-
-Thanks,
-Guenter
-
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
