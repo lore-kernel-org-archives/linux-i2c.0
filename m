@@ -1,28 +1,33 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: mxs: Use devm_ioremap_resource()
-Date: Wed, 12 Feb 2014 08:36:49 +0100
-Message-ID: <201402120836.49437.marex@denx.de>
-References: <001101cf2729$890d5b10$9b281130$%han@samsung.com> <001a01cf2729$dc23cd70$946b6850$%han@samsung.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 01/13] i2c: sirf: update copyright years to 2014
+Date: Wed, 12 Feb 2014 20:46:45 +0800
+Message-ID: <1392209205-24486-1-git-send-email-21cnbao@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <001a01cf2729$dc23cd70$946b6850$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Shawn Guo' <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, 'Sascha Hauer' <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: workgroup.linux-kQvG35nSl+M@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, February 11, 2014 at 02:04:55 PM, Jingoo Han wrote:
-> Use devm_ioremap_resource() in order to make the code simpler,
-> and remove redundant return value check of platform_get_resource()
-> because the value is checked by devm_ioremap_resource().
-> 
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
+From: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 
-Acked-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-sirf.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-Best regards,
-Marek Vasut
+diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+index 6784f7f..dce2100 100644
+--- a/drivers/i2c/busses/i2c-sirf.c
++++ b/drivers/i2c/busses/i2c-sirf.c
+@@ -1,7 +1,8 @@
+ /*
+  * I2C bus driver for CSR SiRFprimaII
+  *
+- * Copyright (c) 2011 Cambridge Silicon Radio Limited, a CSR plc group company.
++ * Copyright (c) 2011 - 2014 Cambridge Silicon Radio Limited, a CSR plc group
++ * company.
+  *
+  * Licensed under GPLv2 or later.
+  */
+-- 
+1.7.5.4
