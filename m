@@ -1,122 +1,106 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] ARM: sunxi: dt: Convert to the new i2c compatibles
-Date: Thu, 13 Feb 2014 23:52:48 +0100
-Message-ID: <20140213225248.GB15350@lukather>
-References: <1391680285-16668-1-git-send-email-maxime.ripard@free-electrons.com>
- <1391680285-16668-3-git-send-email-maxime.ripard@free-electrons.com>
- <20140213082630.GA3119@katana>
+From: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] ARM: DTS: exynos5420: Rename hsi2c compatible to exynos5250-hsi2c
+Date: Fri, 14 Feb 2014 08:40:34 +0900
+Message-ID: <52FD57F2.8@samsung.com>
+References: <1391688477-8124-1-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DKU6Jbt7q3WqK7+M"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140213082630.GA3119@katana>
+In-Reply-To: <1391688477-8124-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 02/06/14 21:07, Naveen Krishna Chatradhi wrote:
+> As per the changes submitted for the i2c-exynos5.c driver with the
+> compatible string being named after the first SoC it is observed on.
+> This patch modifes the existing hsi2c compatible strings in
+> arch/arm/boot/dts.
+>
+> Signed-off-by: Naveen Krishna Chatradhi<ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> ---
+>   arch/arm/boot/dts/exynos5420.dtsi |   14 +++++++-------
+>   1 file changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+> index 11dd202..c5187d1 100644
+> --- a/arch/arm/boot/dts/exynos5420.dtsi
+> +++ b/arch/arm/boot/dts/exynos5420.dtsi
+> @@ -486,7 +486,7 @@
+>   	};
+>
+>   	hsi2c_4: i2c@12CA0000 {
+> -		compatible = "samsung,exynos5-hsi2c";
+> +		compatible = "samsung,exynos5250-hsi2c";
+>   		reg =<0x12CA0000 0x1000>;
+>   		interrupts =<0 60 0>;
+>   		#address-cells =<1>;
+> @@ -499,7 +499,7 @@
+>   	};
+>
+>   	hsi2c_5: i2c@12CB0000 {
+> -		compatible = "samsung,exynos5-hsi2c";
+> +		compatible = "samsung,exynos5250-hsi2c";
+>   		reg =<0x12CB0000 0x1000>;
+>   		interrupts =<0 61 0>;
+>   		#address-cells =<1>;
+> @@ -512,7 +512,7 @@
+>   	};
+>
+>   	hsi2c_6: i2c@12CC0000 {
+> -		compatible = "samsung,exynos5-hsi2c";
+> +		compatible = "samsung,exynos5250-hsi2c";
+>   		reg =<0x12CC0000 0x1000>;
+>   		interrupts =<0 62 0>;
+>   		#address-cells =<1>;
+> @@ -525,7 +525,7 @@
+>   	};
+>
+>   	hsi2c_7: i2c@12CD0000 {
+> -		compatible = "samsung,exynos5-hsi2c";
+> +		compatible = "samsung,exynos5250-hsi2c";
+>   		reg =<0x12CD0000 0x1000>;
+>   		interrupts =<0 63 0>;
+>   		#address-cells =<1>;
+> @@ -538,7 +538,7 @@
+>   	};
+>
+>   	hsi2c_8: i2c@12E00000 {
+> -		compatible = "samsung,exynos5-hsi2c";
+> +		compatible = "samsung,exynos5250-hsi2c";
+>   		reg =<0x12E00000 0x1000>;
+>   		interrupts =<0 87 0>;
+>   		#address-cells =<1>;
+> @@ -551,7 +551,7 @@
+>   	};
+>
+>   	hsi2c_9: i2c@12E10000 {
+> -		compatible = "samsung,exynos5-hsi2c";
+> +		compatible = "samsung,exynos5250-hsi2c";
+>   		reg =<0x12E10000 0x1000>;
+>   		interrupts =<0 88 0>;
+>   		#address-cells =<1>;
+> @@ -564,7 +564,7 @@
+>   	};
+>
+>   	hsi2c_10: i2c@12E20000 {
+> -		compatible = "samsung,exynos5-hsi2c";
+> +		compatible = "samsung,exynos5250-hsi2c";
+>   		reg =<0x12E20000 0x1000>;
+>   		interrupts =<0 203 0>;
+>   		#address-cells =<1>;
 
---DKU6Jbt7q3WqK7+M
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Naveen,
 
-On Thu, Feb 13, 2014 at 09:26:30AM +0100, Wolfram Sang wrote:
->=20
-> Why is the devicetree list not on CC? (Added now)
->=20
-> On Thu, Feb 06, 2014 at 10:51:25AM +0100, Maxime Ripard wrote:
-> > Switch the device tree to the new compatibles introduced in the i2c dri=
-vers
-> > to have a common pattern accross all Allwinner SoCs.
-> >=20
-> > Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > ---
-> >  arch/arm/boot/dts/sun4i-a10.dtsi  |  6 +++---
-> >  arch/arm/boot/dts/sun5i-a10s.dtsi |  6 +++---
-> >  arch/arm/boot/dts/sun5i-a13.dtsi  |  6 +++---
-> >  arch/arm/boot/dts/sun7i-a20.dtsi  | 10 +++++-----
-> >  4 files changed, 14 insertions(+), 14 deletions(-)
-> >=20
-> > diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i=
--a10.dtsi
-> > index 28273f9..ac65c8a 100644
-> > --- a/arch/arm/boot/dts/sun4i-a10.dtsi
-> > +++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-> > @@ -518,7 +518,7 @@
-> >  		};
-> > =20
-> >  		i2c0: i2c@01c2ac00 {
-> > -			compatible =3D "allwinner,sun4i-i2c";
-> > +			compatible =3D "allwinner,sun4i-a10-i2c";
->=20
-> Can't we have:
->=20
-> 	compatible =3D "allwinner,sun4i-a10-i2c", "allwinner,sun4i-i2c";
->=20
-> ? And keep the old "allwinner,sun4i-i2c" and extend it with a SoC
-> specific a10 compatible entry when a distinction is needed?
+Please don't post separately for one series. It's hard to find to look 
+at regarding patches.
 
-Actually, the two are exactly equivalent. The point is that the
-compatible naming scheme doesn't follow what we are using (which is
-<family>-<soc>-i2c), so we wan't to get rid of the old naming scheme
-all together.
+And please post regarding binding doc together. Additionally if you run 
+checkpatch, you can see see below complaining.
 
-> > diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i=
--a13.dtsi
-> > index 6de40b6..537072c 100644
-> > --- a/arch/arm/boot/dts/sun5i-a13.dtsi
-> > +++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-> > @@ -377,7 +377,7 @@
-> >  		};
-> > =20
-> >  		i2c0: i2c@01c2ac00 {
-> > -			compatible =3D "allwinner,sun4i-i2c";
-> > +			compatible =3D "allwinner,sun4i-a10-i2c";
->=20
-> For non-a10, That should be at least
->=20
-> 	compatible =3D "allwinner,sun4i-a13-i2c", "allwinner,sun4i-a10-i2c";
->=20
-> or
->=20
-> 	compatible =3D "allwinner,sun4i-a13-i2c", "allwinner,sun4i-i2c";
->=20
-> depending on the outcome above.
->=20
-> Or is my knowledge outdated already?
->=20
+"WARNING: DT compatible string "samsung,exynos5250-hsi2c" appears 
+un-documented -- check ./Documentation/devicetree/bindings/"
 
-Since they are strictly compatible, we don't need to introduce any
-different compatible string here.
-
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---DKU6Jbt7q3WqK7+M
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJS/UzAAAoJEBx+YmzsjxAgWqMP/2thalPTiivRYDtS1jiNsAxx
-RRf6cbCB8c2CI19YU4juNwRjy2IOoRZaeDW8aW7O3Coj7oBb+KGwOBDyU0Ldj1v7
-Nz/KOE8vikJjiBIEIhpkpPoau8JWrX8QkQvj8fgt7ZXwxRo4VEnIw6rx+wN4XsdL
-mxQEDvV7mYhGqD9JjlxRdq62Gnb5uWGvjqeIthWVshD1foyzDfSfzdEGu1YlVNcW
-sxlWfpCayD9lUrHB6CAc58xExpQwhQaEn3rwckotN8RhRezvV1abAIHZLOIg5aGL
-oWbWqeUjiS0Z7Ja6M56tuIdUIR8MkBqJBvYRKnZcDVRW7Lsv6y4pXczJNNg1yEX9
-dHlUwJ3HhT45CpMx8a/oI9VNMyeIg74JR6Tm/FLRyBc1F6QQfv9bEN3eHjAINvlu
-SI01rqd7UQ8wUksxtzPUM5QStMZCYeoVI42UKHpFG56dhuIBlkkRAAhOaE2jwVLd
-l4uFbSbnz8jOo9kOHnFStMoE52kjkuwcGIUx/4z9PUsnj3xfMg+NWPUpmoK/kPxC
-S7nbApYtYbwlIrhbeiABvaEvk115TTfVL4gplYTtPYkRSA6pfiZH/sTkGw3MvnzD
-HX7zLGMeJ6hGl5HSwNDSmkeZkcP+HffxMoXP46dAOcQ9eFnjnhJ+c6ddd4jqVxlV
-tw6GXJVR+cVgpNImJmTU
-=7c0p
------END PGP SIGNATURE-----
-
---DKU6Jbt7q3WqK7+M--
+- Kukjin
