@@ -1,62 +1,71 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 14/17] i2c: nomadik: Fixup deployment of runtime PM
-Date: Thu, 13 Feb 2014 15:12:49 +0100
-Message-ID: <CAPDyKFq_k7dRjuf+XW=DDkM1K2EJ_4vAAs0tTrd+WbUxqxP-tw@mail.gmail.com>
-References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
-	<1391529538-21685-15-git-send-email-ulf.hansson@linaro.org>
-	<CACRpkdZwoXf5ovmQEAN6Ugvz91+_i5uGqStR3MGXQeJGHitj3Q@mail.gmail.com>
-	<CAPDyKFrWgB8z1rtWxU7AYvVsmNj_pfGbsozwgP_FzLODpmGRwQ@mail.gmail.com>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix locked bus when offload is selected
+ but not used on a message
+Date: Thu, 13 Feb 2014 15:23:47 +0100
+Message-ID: <52FCD573.8070805@free-electrons.com>
+References: <1391770588-1344-1-git-send-email-gregory.clement@free-electrons.com> <20140213094117.GA3934@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <CAPDyKFrWgB8z1rtWxU7AYvVsmNj_pfGbsozwgP_FzLODpmGRwQ@mail.gmail.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Mark Brown <broonie@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20140213094117.GA3934@katana>
+Sender: stable-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, Kevin Hilman <khilman@linaro.org>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10 February 2014 11:14, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> On 5 February 2014 15:34, Linus Walleij <linus.walleij@linaro.org> wrote:
->> On Tue, Feb 4, 2014 at 4:58 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+Hi Wolfram,
+
+Thanks for you review,
+
+
+On 13/02/2014 10:41, Wolfram Sang wrote:
+>> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+>> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+>> @@ -461,8 +461,15 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+>>  	case MV64XXX_I2C_ACTION_OFFLOAD_SEND_START:
+>>  		if (!mv64xxx_i2c_offload_msg(drv_data))
+>>  			break;
+>> -		else
+>> +		else {
+> 
+> Here you break the coding style...
+> 
+>>  			drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
+>> +			/*
+>> +			 * Switch to the standard path, so we finally need to
+>> +			 * prepare the io that have not been done in
+>> +			 * mv64xxx_i2c_execute_msg
+>> +			 */
+>> +			mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
+>> +		}
+> 
+> ... but more importantly, NACK. The code is already hard to follow which
+> is the cause for this bug. This snipplet makes the code even harder to
+> read, so it needs some simplification IMO. I'll fire up a counterpatch
+> in a minute to explain what I mean.
+
+OK, as long as we have a fix for this issue.
+
+I am waiting for your patch.
+
+Thanks,
+
+Gregory
+
+
+
+> 
+>>  		/* FALLTHRU */
+>>  	case MV64XXX_I2C_ACTION_SEND_START:
+>>  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_START,
+>> -- 
+>> 1.8.1.2
 >>
->>> Since the device is active while a successful probe has been completed,
->>> the reference counting for the clock will be screwed up and never reach
->>> zero.
->>>
->>> The issue is resolved by implementing runtime PM callbacks and let them
->>> handle the resources accordingly, including the clock.
->>>
->>> Cc: Alessandro Rubini <rubini@unipv.it>
->>> Cc: Linus Walleij <linus.walleij@linaro.org>
->>> Cc: Wolfram Sang <wsa@the-dreams.de>
->>> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
->>
->> Hm do I read it right as patch 13 breaks runtime PM by leaving
->> the device active after probe() and this patch
->> 14 fixes it again? Maybe these two patches should be squashed
->> then.
 
-In v2 I have now squashed patch 13 into this patch 14.
 
-That means patch13 shall be dropped from this patchset.
-
-Kind regards
-Uffe
-
->
-> You are right; but the driver will still be working, you just don't
-> get the benefit from inactivating the device at request inactivity -
-> as you pointed out.
->
-> The reason for why I wanted to do this as separate steps was to make
-> it easier for reviewing, otherwise the patch(es) would have been quite
-> big and messy. I am for sure open to  adopt to your proposal, but just
-> wanted to give you some more background, before I go ahead and send a
-> v2.
->
-> Kind regards
-> Ulf Hansson
->
->>
->> Yours,
->> Linus Walleij
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
