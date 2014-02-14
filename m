@@ -1,97 +1,47 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 3/5] i2c: mv64xxx: refactor send_start
-Date: Fri, 14 Feb 2014 12:42:28 +0100
-Message-ID: <52FE0124.6090808@free-electrons.com>
-References: <20140213094117.GA3934@katana> <1392323793-4125-1-git-send-email-wsa@the-dreams.de> <1392323793-4125-4-git-send-email-wsa@the-dreams.de>
+From: "Dr.William Davies" <purchase-iWkfCuf1Dv8t08DiuWRmVZ/QNRX+jHPU@public.gmane.org>
+Subject: Re: Instructions to release your payment.
+Date: Fri, 14 Feb 2014 18:06:49 +0530
+Message-ID: <05850bfa675129882bc42edd957194c7__47624.988485086$1392389488$gmane$org@127.0.0.1>
+Reply-To: williamdavies54-/E1597aS9LT10XsdtD+oqA@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1392323793-4125-4-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 13/02/2014 21:36, Wolfram Sang wrote:
-> For start and restart, we are doing the same thing. Let's consolidate
-> that.
-> 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Attention
 
-With my first tests it continue to work with this change,
-but I want to have a closer look on it
+Sir,
 
-Thanks,
+Following an application brought, seeking the release of your due payment
+through British bank, I am directed to inform you that the application has
+been approved and Natwest bank of London has been mandated to make transfer
+of your payment to the bank account you will nominate. Please kindly reply
+for immediate release of your US$6.2 Million to you nominates account.
 
-Gregory
+Sir, for the avoidance of doubts, reconfirm the following information to
+me to enable us forward same to Natwest bank to contact you for your
+payment.
 
+Name:
 
-> ---
->  drivers/i2c/busses/i2c-mv64xxx.c | 30 ++++++++++++++++--------------
->  1 file changed, 16 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> index d52d849..9c37b59 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -419,6 +419,17 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
->  	}
->  }
->  
-> +static void mv64xxx_i2c_send_start(struct mv64xxx_i2c_data *drv_data)
-> +{
-> +	/* Can we offload this msg ? */
-> +	if (mv64xxx_i2c_offload_msg(drv_data) < 0) {
-> +		/* No, switch to standard path */
-> +		mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
-> +		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_START,
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
-> +	}
-> +}
-> +
->  static void
->  mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
->  {
-> @@ -435,14 +446,11 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
->  
->  		drv_data->msgs++;
->  		drv_data->num_msgs--;
-> -		if (mv64xxx_i2c_offload_msg(drv_data) < 0) {
-> -			drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
-> -			writel(drv_data->cntl_bits,
-> -			drv_data->reg_base + drv_data->reg_offsets.control);
-> +		// CHECKME: Does it work? Order of writel and prepare_for_io is
-> +		// exchanged. Also, do we need to change cntl_bits in drv_data
-> +		// with |= MV64XXX_I2C_REG_CONTROL_START?
-> +		mv64xxx_i2c_send_start(drv_data);
->  
-> -			/* Setup for the next message */
-> -			mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
-> -		}
->  		if (drv_data->errata_delay)
->  			udelay(5);
->  
-> @@ -460,13 +468,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_SEND_START:
-> -		/* Can we offload this msg ? */
-> -		if (mv64xxx_i2c_offload_msg(drv_data) < 0) {
-> -			/* No, switch to standard path */
-> -			mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
-> -			writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_START,
-> -				drv_data->reg_base + drv_data->reg_offsets.control);
-> -		}
-> +		mv64xxx_i2c_send_start(drv_data);
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_SEND_ADDR_1:
-> 
+Address:
 
+Tel/Fax No.:
 
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+Nationality:
+
+Occupation:
+
+Date of birth: 
+
+As soon as I received the above information, I will forward them to
+Natwest bank to contact you for your approved payment. Please see in the
+attachment, letter I wrote to Natwest bank informing them of the
+transaction
+
+Yours faithfully
+
+Dr.William Davies
+Chairman,British Banking Regulatory Board.
