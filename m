@@ -1,106 +1,57 @@
-From: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] ARM: DTS: exynos5420: Rename hsi2c compatible to exynos5250-hsi2c
-Date: Fri, 14 Feb 2014 08:40:34 +0900
-Message-ID: <52FD57F2.8@samsung.com>
-References: <1391688477-8124-1-git-send-email-ch.naveen@samsung.com>
+From: Robert Johnson <rjohnson-8rzVundTyvFXXTqwWWvqD0EOCMrvLtNR@public.gmane.org>
+Subject: Is there anyway to write consecutive back-to-back bytes to an 8 bit
+ I2C device from userspace?
+Date: Fri, 14 Feb 2014 00:07:54 +0000
+Message-ID: <70fea12797ce4ab9ae910c75eabf7fb5@SPIEXCHMAIL01.sierraphotonics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1391688477-8124-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/06/14 21:07, Naveen Krishna Chatradhi wrote:
-> As per the changes submitted for the i2c-exynos5.c driver with the
-> compatible string being named after the first SoC it is observed on.
-> This patch modifes the existing hsi2c compatible strings in
-> arch/arm/boot/dts.
->
-> Signed-off-by: Naveen Krishna Chatradhi<ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
->   arch/arm/boot/dts/exynos5420.dtsi |   14 +++++++-------
->   1 file changed, 7 insertions(+), 7 deletions(-)
->
-> diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
-> index 11dd202..c5187d1 100644
-> --- a/arch/arm/boot/dts/exynos5420.dtsi
-> +++ b/arch/arm/boot/dts/exynos5420.dtsi
-> @@ -486,7 +486,7 @@
->   	};
->
->   	hsi2c_4: i2c@12CA0000 {
-> -		compatible = "samsung,exynos5-hsi2c";
-> +		compatible = "samsung,exynos5250-hsi2c";
->   		reg =<0x12CA0000 0x1000>;
->   		interrupts =<0 60 0>;
->   		#address-cells =<1>;
-> @@ -499,7 +499,7 @@
->   	};
->
->   	hsi2c_5: i2c@12CB0000 {
-> -		compatible = "samsung,exynos5-hsi2c";
-> +		compatible = "samsung,exynos5250-hsi2c";
->   		reg =<0x12CB0000 0x1000>;
->   		interrupts =<0 61 0>;
->   		#address-cells =<1>;
-> @@ -512,7 +512,7 @@
->   	};
->
->   	hsi2c_6: i2c@12CC0000 {
-> -		compatible = "samsung,exynos5-hsi2c";
-> +		compatible = "samsung,exynos5250-hsi2c";
->   		reg =<0x12CC0000 0x1000>;
->   		interrupts =<0 62 0>;
->   		#address-cells =<1>;
-> @@ -525,7 +525,7 @@
->   	};
->
->   	hsi2c_7: i2c@12CD0000 {
-> -		compatible = "samsung,exynos5-hsi2c";
-> +		compatible = "samsung,exynos5250-hsi2c";
->   		reg =<0x12CD0000 0x1000>;
->   		interrupts =<0 63 0>;
->   		#address-cells =<1>;
-> @@ -538,7 +538,7 @@
->   	};
->
->   	hsi2c_8: i2c@12E00000 {
-> -		compatible = "samsung,exynos5-hsi2c";
-> +		compatible = "samsung,exynos5250-hsi2c";
->   		reg =<0x12E00000 0x1000>;
->   		interrupts =<0 87 0>;
->   		#address-cells =<1>;
-> @@ -551,7 +551,7 @@
->   	};
->
->   	hsi2c_9: i2c@12E10000 {
-> -		compatible = "samsung,exynos5-hsi2c";
-> +		compatible = "samsung,exynos5250-hsi2c";
->   		reg =<0x12E10000 0x1000>;
->   		interrupts =<0 88 0>;
->   		#address-cells =<1>;
-> @@ -564,7 +564,7 @@
->   	};
->
->   	hsi2c_10: i2c@12E20000 {
-> -		compatible = "samsung,exynos5-hsi2c";
-> +		compatible = "samsung,exynos5250-hsi2c";
->   		reg =<0x12E20000 0x1000>;
->   		interrupts =<0 203 0>;
->   		#address-cells =<1>;
+My Freescale P2020 based embedded single board computer (SBC) uses an NXP PCA9670 I2C 8 line GPIO Expander.  I would like to create an active low pulse (idle high, toggle line low and then immediately back high as fast as possible) on one of the GPIO lines that has a stable and consistent pulse width.  The PCA9670 uses 8 bit data and supports multiple consecutive data bytes following the address.  My thought was that if I could get my system to output the I2C address and two data bytes all consecutively back-to-back, then the pulse width should be stable and consistent.  I have tried using i2c-tools i2c-dev.h as shown below both using a write() call and alternatively using a call to i2c_smbus_write_byte_data().  I did not really see a difference between these two options.  In both cases, t
+ he pulse width varies quite a bit from about 100 usec to about 3 msec.  So it appears that the bytes are not all going out the I2C master back-to-back consecutively but one at a time with the chance that the CPU gets busy servicing interrupts, etc. between bytes.
 
-Naveen,
+The Gentoo Linux distribution for my SBC uses a 3.0.4 kernel.
 
-Please don't post separately for one series. It's hard to find to look 
-at regarding patches.
+Please let me know if there is any way to get multiple data bytes to go out on the I2C bus consecutively back-to-back from userspace.  If this is not possible from userspace, what other options would work as desired.
 
-And please post regarding binding doc together. Additionally if you run 
-checkpatch, you can see see below complaining.
+NOTE: the header file i2c-dev.h used was from i2c-tools version 3.1.0
 
-"WARNING: DT compatible string "samsung,exynos5250-hsi2c" appears 
-un-documented -- check ./Documentation/devicetree/bindings/"
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include "i2c-dev.h"
 
-- Kukjin
+#define I2CDEV          "/dev/i2c-0"
+#define I2CADDR         0x27
+
+int main(void)
+{
+        int fd;
+        char buf[2] = {0xf7, 0xff};
+
+        if ((fd = open(I2CDEV, O_WRONLY)) < 0)
+        {
+                printf("ERROR: unable to open I2C device %s\n", I2CDEV);
+                exit(-1);
+        }
+        if (ioctl(fd, I2C_SLAVE_FORCE, I2CADDR) < 0)
+        {
+                printf("ERROR: ioctl call failed, errno=0x%x\n", errno);
+                exit(-1);
+        }
+        while (1)
+        {
+	// write(fd, buf, 2);
+                i2c_smbus_write_byte_data(fd, buf[0], buf[1]);
+                sleep(1);
+        }
+}
