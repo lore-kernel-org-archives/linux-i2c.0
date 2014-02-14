@@ -1,31 +1,53 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: nomadik: factor platform data into state container
-Date: Fri, 14 Feb 2014 12:03:17 +0100
-Message-ID: <CACRpkdZcrzkcPNoun5FqQV8ZM2Rm22SobXfbdAb4yJ8XMY90fQ@mail.gmail.com>
-References: <1391423246-32410-1-git-send-email-linus.walleij@linaro.org>
+From: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: use {readl|writel}_relaxed instead of readl/writel in
+ i2c-designware-core ?
+Date: Fri, 14 Feb 2014 19:14:47 +0800
+Message-ID: <20140214191447.7b283568@xhacker>
+References: <20140214155438.4f749a79@xhacker>
+	<8705989.qzo882Ldx0@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1391423246-32410-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <8705989.qzo882Ldx0@wuerfel>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 3, 2014 at 11:27 AM, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+Dear Arnd,
 
-> Move the former platform data struct nmk_i2c_controller into the
-> per-device state container struct i2c_nmk_client, and remove all
-> the platform data probe path hacks.
->
-> Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
-> ChangeLog v1->v2:
-> - Drop pointless check for np, as the device can only probe from
->   the device tree now.
+On Fri, 14 Feb 2014 01:09:44 -0800
+Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
 
-Wolfram, ping on this!
+> On Friday 14 February 2014 15:54:38 Jisheng Zhang wrote:
+> > Hi all,
+> > 
+> > The writel/readl is too expensive especially on Cortex A9 w/ outer L2
+> > cache. This introduce i2c read/write error on Marvell Berlin SoCs when
+> > there are L2 cache maintenance operations at the same time.
+> > 
+> > In our internal berlin bsp, we just replaced readl/writel with the relaxed
+> > version. But AFAIK, the "relaxed" version doesn't exist on all
+> > architectures. How to handle this issue? 
+> 
+> In case of i2c-designware, this is safe because that driver does not perform
+> DMA. In other drivers, you may have to be more careful, to ensure that all
+> MMIO is serialized with DMA operations performed by the driver.
+> 
+> > Any suggestions are appreciated.
+> 
+> I would definitely welcome a patch that adds a default  _relaxed
+> implementation to include/linux/io.h, like this:
+> 
+> #ifndef readb_relaxed
+> #define readb_relaxed(p) readb(p)
+> #endif
+> 
+> and then adds "#define readb_relaxed(p) readb_relaxed(p)" etc. to all
+> architectures that have a non-macro definition for readb.
 
-Yours,
-Linus Walleij
+Thanks for the suggestions. I'll try to send out one RFC patch.
+
+Thanks,
+Jisheng
