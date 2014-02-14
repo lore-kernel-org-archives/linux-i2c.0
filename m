@@ -1,27 +1,48 @@
-From: Jisheng Zhang <jszhang@marvell.com>
-Subject: use {readl|writel}_relaxed instead of readl/writel in
- i2c-designware-core ?
-Date: Fri, 14 Feb 2014 15:54:38 +0800
-Message-ID: <20140214155438.4f749a79@xhacker>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: use {readl|writel}_relaxed instead of readl/writel in i2c-designware-core ?
+Date: Fri, 14 Feb 2014 10:09:44 +0100
+Message-ID: <8705989.qzo882Ldx0@wuerfel>
+References: <20140214155438.4f749a79@xhacker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140214155438.4f749a79@xhacker>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Jisheng Zhang <jszhang@marvell.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+On Friday 14 February 2014 15:54:38 Jisheng Zhang wrote:
+> Hi all,
+> 
+> The writel/readl is too expensive especially on Cortex A9 w/ outer L2 cache. This
+> introduce i2c read/write error on Marvell Berlin SoCs when there are L2 cache
+> maintenance operations at the same time.
+> 
+> In our internal berlin bsp, we just replaced readl/writel with the relaxed
+> version. But AFAIK, the "relaxed" version doesn't exist on all architectures. How
+> to handle this issue? 
 
-The writel/readl is too expensive especially on Cortex A9 w/ outer L2 cache. This
-introduce i2c read/write error on Marvell Berlin SoCs when there are L2 cache
-maintenance operations at the same time.
+In case of i2c-designware, this is safe because that driver does not perform
+DMA. In other drivers, you may have to be more careful, to ensure that all MMIO
+is serialized with DMA operations performed by the driver.
 
-In our internal berlin bsp, we just replaced readl/writel with the relaxed
-version. But AFAIK, the "relaxed" version doesn't exist on all architectures. How
-to handle this issue? 
+> Any suggestions are appreciated.
 
-Any suggestions are appreciated.
+I would definitely welcome a patch that adds a default  _relaxed implementation
+to include/linux/io.h, like this:
 
-Thanks in advance,
-Jisheng
+#ifndef readb_relaxed
+#define readb_relaxed(p) readb(p)
+#endif
+
+and then adds "#define readb_relaxed(p) readb_relaxed(p)" etc. to all
+architectures that have a non-macro definition for readb.
+
+Alternatively, we could have a CONFIG_ARCH_MMIO_RELAXED configuration
+symbol that gets selected by any architecture that provides the _relaxed
+accessors, and get linux/io.h to define all of them for the other
+architectures.
+
+	Arnd
