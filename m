@@ -1,83 +1,68 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] ARM: sunxi: dt: Convert to the new i2c compatibles
-Date: Fri, 14 Feb 2014 21:36:29 +0100
-Message-ID: <20140214203629.GE15350@lukather>
-References: <1391680285-16668-1-git-send-email-maxime.ripard@free-electrons.com>
- <1391680285-16668-3-git-send-email-maxime.ripard@free-electrons.com>
- <20140213082630.GA3119@katana>
- <20140213225248.GB15350@lukather>
- <20140214074407.GA2569@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 2/5] i2c: mv64xxx: refactor message start to ensure
+ proper initialization
+Date: Sat, 15 Feb 2014 15:44:53 +0100
+Message-ID: <20140215144453.GB2579@katana>
+References: <20140213094117.GA3934@katana>
+ <1392323793-4125-1-git-send-email-wsa@the-dreams.de>
+ <1392323793-4125-3-git-send-email-wsa@the-dreams.de>
+ <52FE0056.2030706@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pY3vCvL1qV+PayAL"
+	protocol="application/pgp-signature"; boundary="98e8jtXdkpgskNou"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140214074407.GA2569@katana>
+In-Reply-To: <52FE0056.2030706-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---pY3vCvL1qV+PayAL
+--98e8jtXdkpgskNou
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 14, 2014 at 08:44:07AM +0100, Wolfram Sang wrote:
->=20
-> > > For non-a10, That should be at least
-> > >=20
-> > > 	compatible =3D "allwinner,sun4i-a13-i2c", "allwinner,sun4i-a10-i2c";
-> > >=20
-> > > or
-> > >=20
-> > > 	compatible =3D "allwinner,sun4i-a13-i2c", "allwinner,sun4i-i2c";
-> > >=20
-> > > depending on the outcome above.
-> > >=20
-> > > Or is my knowledge outdated already?
-> > >=20
+On Fri, Feb 14, 2014 at 12:39:02PM +0100, Gregory CLEMENT wrote:
+> On 13/02/2014 21:36, Wolfram Sang wrote:
+> > Because the offload mechanism can fall back to a standard transfer,
+> > having two seperate initialization states is unfortunate. Let's just
+> > have one state which does things consistently. This fixes a bug where
+> > some preparation was missing when the fallback happened. And it makes
+> > the code much easier to follow.
 > >=20
-> > Since they are strictly compatible, we don't need to introduce any
-> > different compatible string here.
+> > Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 >=20
-> You never know all errata in advance. From what I know, one should
-> always use the specfic naming first, and then the generic fallback. So,
-> in case a distinction is needed later (think errata), then one doesn't
-> need to change the devicetrees.
 >=20
+> Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+>=20
+> With this one the bug we observed was fixed.
 
-And adding a A13-specific compatible wouldn't change anything, because
-it does work on at least one revision of them, so if you'd have to
-deal with an errata, you'd have to introduce a new compatible for this
-revision only anyway.
+I squashed patches 1+2 (easier handling for stable) and applied to
+for-current, thanks!
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
 
---pY3vCvL1qV+PayAL
+--98e8jtXdkpgskNou
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS/n5MAAoJEBx+YmzsjxAgvgEP/jrMIukfhVaVsB1DprslgOzU
-61BunqOcoLwrgfzldncHKkYwrSwqfm6ZPPqcHBbExOBLIeSEEXDPDOcT3VtM1KHz
-NGaQVbqFYKTVebkEfKw/4obg3SG1G/3RTh+asKXOGs0LoN0/vbTK8BxSbxy5vdcF
-ifSkqCfYC20ehRGpIDea/s3JItqryxWJ0qyIlNk0FH/ZaQGPXYU223U6fqHoALJt
-bSGFAJ8N64kSoVUYmHlMiP8Z3+mA6PoXyqp1dbLmzSQZiUh/GU0BV4KsR36UrRW/
-yPi87f59lGZoavX1zz6RHV0nxi/ln/+AB9rccpYjaho7OmzuSWgvDpMQmAJuP4A5
-/eaLMScRXJ6z7Zxt2QZj/JT22l0EQjcrnOOl/5TNdACe4IInqq7XE4d8p1AVtnJW
-SaffYW0VUjzFVCbGZ/Dq4P9/7OD9+t1S7RjgtYoDuvTm8yTUJUKi+3hAF7a9IspD
-35qryHO+79LyUSlY54PxDBps8AwIsjBa+nz0vFKto1BzbAcIULv6eOqjCHzzEgyX
-u/bpn23mtszOZ9y6ZSmOpJKAiU5xa3MpuubJ0ejL8wUPHbLhmt9jzWLUFJl63Vlp
-w/1LF4nhxCjD6DLWQ9CIGB3wt3r+oEuukZJCZBdcvLzs+OGmUBKiDmnFonGpFY6j
-JHecunF1ykJDA8ah38To
-=R/tH
+iQIcBAEBAgAGBQJS/31lAAoJEBQN5MwUoCm2KPQP/jCGIcbY5iaPvThIg9Oz2Bwg
+3TVvfIeC5NiVx7Oa5vgOfogGq2eArLyda2AIpwo4YdagAJw8l8YZuPCAsKS+BXbY
+mQC+27rqB7r4EE565lVie/ZmbmDQHTsDhGxJiwOthTw7jL2ej2Sh9X3r2ATsd9jg
+vHvoXlTkM4ZgeoMdrtXaFOhJWPido8Q62CKre15CnQV4niKECBtqasNFfYqp2c9q
+4nInx8GNyYaU4lJzTK5B6nWHjTc1RsA5V8fkq5CbZ/uE4+ZBlq+yz9h21rcdHtxl
+4GmT6STAIX7DeQGSGgS/6iFs5Hk77mehgslSmpDyHpwyGKD7x47mwpbtqrHNWF6l
+A0NTG1Y3vaKkh4ihqFohjnjgvnd6F3/xtWcrEj/7aqCAEnX2+qBi12t/EcbEJUeP
+jt3npg4c0rHf9361QZNIvbw5jzU9PFlWlrX0/JrEVMxMwV3rV/AEAh/1GHdAhhD5
+Qm/NTxaQpa1EZrCcdTcVcD7vpm5QsHvEygRjj8pc+Ienl9Wmdq9qZTzR2JxYBp6w
+nMGNKs2cNZxvQ0uLdURpizldP1AZ0jfZWguFse4GBu9vcVO0JX7M8PmmZV+7eQl8
+7rLyuVrZhxxJCTasEBdlV4I+HOVXnE/+avGWrrOw5MSLRC4yTlUNLLBsn068LE3E
+4uvTWivcmcOauiR1ckSS
+=9JkQ
 -----END PGP SIGNATURE-----
 
---pY3vCvL1qV+PayAL--
+--98e8jtXdkpgskNou--
