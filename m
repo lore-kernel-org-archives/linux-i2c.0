@@ -1,71 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V2 11/17] i2c: nomadik: Convert to devm functions
-Date: Sat, 15 Feb 2014 16:03:45 +0100
-Message-ID: <20140215150345.GD2579@katana>
-References: <1392300547-23365-1-git-send-email-ulf.hansson@linaro.org>
+Subject: Re: [PATCH] i2c: s3c2410: do not put a default class for the adapter
+Date: Sat, 15 Feb 2014 16:10:39 +0100
+Message-ID: <20140215151039.GE2579@katana>
+References: <1391761795-28384-1-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UfEAyuTBtIjiZzX6"
-Return-path: <linux-mmc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="jKBxcB1XkHIR0Eqt"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1392300547-23365-1-git-send-email-ulf.hansson@linaro.org>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org, Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@linaro.org>, Chris Ball <chris@printf.net>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-mmc@vger.kernel.org
+In-Reply-To: <1391761795-28384-1-git-send-email-ch.naveen@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, naveenkrishna.ch@gmail.com, ben-linux@fluff.org, cpgs@samsung.com, broonie@kernel.org, Vincent Palatin <vpalatin@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---UfEAyuTBtIjiZzX6
+--jKBxcB1XkHIR0Eqt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 13, 2014 at 03:09:02PM +0100, Ulf Hansson wrote:
-> Use devm_* functions to simplify code and error handling.
+On Fri, Feb 07, 2014 at 01:59:55PM +0530, Naveen Krishna Chatradhi wrote:
+> From: Vincent Palatin <vpalatin@chromium.org>
 >=20
-> Cc: Alessandro Rubini <rubini@unipv.it>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
+> Avoid adding I2C_CLASS_HWMON and I2C_CLASS_SPD class flags to all
+> Samsung I2C adapters when the I2C mappings are defined in a device tree.
+> So the drivers doing an auto-detection by probing busses won't mess-up
+> sensitive I2C devices or trigger long timeouts on non-functional busses.
 >=20
-> Changes in v2:
-> 	Rebased on top of latest i2c-nomadik branch.
+> Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+> Reviewed-by: Olof Johansson <olofj@chromium.org>
+> Tested-by: Vincent Palatin <vpalatin@chromium.org>
+> Reviewed-by: Doug Anderson <dianders@chromium.org>
 
-Since this depends on Linus' patch already, I think it would be cleaner
-if I pick this kinda unrelated (but wanted) devm patch, and ack the
-PM stuff. If this for some reason makes things more complicated, I can
-also simply ack this one.
+I'd prefer to drop it in favour of this series:
 
-> -	dev->virtbase =3D ioremap(adev->res.start, resource_size(&adev->res));
-> +	dev->virtbase =3D devm_ioremap(&adev->dev, adev->res.start,
-> +				resource_size(&adev->res));
->  	if (!dev->virtbase) {
->  		ret =3D -ENOMEM;
-
-IS_ERR()!
+http://lkml.org/lkml/2014/2/10/836
 
 
---UfEAyuTBtIjiZzX6
+--jKBxcB1XkHIR0Eqt
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS/4HRAAoJEBQN5MwUoCm2hX0P/1ygDFrGGiJ9tcvMf+SOs7L5
-UcIYvKRC3pl4MRXiYiPaMnO7fCltAd4RRcyfwWL1qSptFhQJ261nSWjPyx/md2mI
-0KG8F/zDaDd1DTRkWRf/CrI4Te6mjUklG48sBab/c+lqMu2uQLqHtWsAMtUGg/C4
-O+FqbSv8jakTXOmo3+y6siJCfyf/3GdjzibcDKCRAcZ1X3hnUYjqJEhSLyF60u3M
-ZOrhCjDRyrX5xG2YOYEa8wQ1noiymwRFf2QGvLUPWEbFI0HS7ubNfgaRm9boiBRO
-uf6xGrfuLWW06247l6pkaBiAB0rEpKZCDgtWeiMHmnYXv8h5IdK6ZsFowPOFscK9
-5aKrVxvHZrwxeXD9jd68k55r4GX8RlTooL5NWcGswsAw/bKoG8aEVkxr581OTxVo
-CJA4ewILDlolS+WPUHB+OpWMXLJP2Vkswq7RINLWOeo+k1RvcaXoR7rMWFZH/Zd4
-lkMtx6co/qBfC9wv45iOwRxgk7E/RYW6e8CKhvy7qjwPsHD0+09gL0VMJGuGfaKP
-i7c82YPf0SN3WKy8IrpUb5VyVwcwYkj5vQFB0AJJ8vn553MTONPxB8jauSAAEwWT
-Q50DzHsKvnYZWdJPrmp4ODEEDX7yy4LluUu60l88xzr0eJ4Zziey61LiHh/lH0MT
-MA3CUAAsiL1MXGLZ0lCj
-=6Yuc
+iQIcBAEBAgAGBQJS/4NuAAoJEBQN5MwUoCm2zkgQAI223Br8FLGO+UjZx6lpkIPJ
+BtQMnfChcCqiRF58tgX6PD7k1tq/XesWAuud/DWpSEu3XYv6IXkw1GWm5+CcQKcx
+BArwffntzdq0q8/2Ol1JSRg7BB98ImH0yCksxfMAzrC86CcNBNT3mfWQFMAQRUmG
+KImEV41ymVRf4AGdoNoy69sTrXHR9ZwTwd4YIN4fRZxY6oZqYzD2u6C7ZuOGyIaX
+7scT7GXMxC0okVyh4RtZqOpX1KyXtOrZQIrtqB9uIcd1h+uOo5WXCG95jUXp5AUJ
+8FytC1QO/alJuNilXY6H4+uvnfLM147ExetfLkz44vAm4o4m5ztnVvE6Xdxdqoai
+zeZ6NhET8OsYIvUDeRrg+uMThO5FonWmNTg/PnNuSoN0mZ27o5CQnYGoy5ZNWsqo
+d+PECdrwXyV8NXQZdLq8UhCdAbKp7JEVbtGeYB/VHD+ARBVB98JWdEf/dmmFBcPH
+njjkTfDHqWe6BfOa3Ur+1qv/NVL3XiQt1oTavyenBzJwNvDO0zbhOdU1o+6HgbJ8
+LOaYVqjwQ4gmaTWSBwb9pHvviEFtzLjxGlVTiE4qZacsqzMBLn23OAK9RtTr2Uik
+RUjdAwY2INzvQz62ynX7nQMhWcx4DJii71itftNNK1xtGlCdm719vvch+HFuU93e
+Jc81DWLfXmpwWpiFB44Q
+=MqSk
 -----END PGP SIGNATURE-----
 
---UfEAyuTBtIjiZzX6--
+--jKBxcB1XkHIR0Eqt--
