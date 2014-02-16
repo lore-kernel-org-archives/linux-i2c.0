@@ -1,73 +1,61 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.14
-Date: Sat, 15 Feb 2014 21:36:14 +0100
-Message-ID: <20140215203610.GA20244@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 3/6] i2c: rcar: do not print error if device nacks
+ transfer
+Date: Sun, 16 Feb 2014 10:46:56 +0100
+Message-ID: <20140216094655.GA2644@katana>
+References: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk>
+ <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk>
+Sender: linux-sh-owner@vger.kernel.org
+To: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: linux-kernel@lists.codethink.co.uk, Simon Horman <horms+renesas@verge.net.au>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---J2SCkAp4GZ/dPZZf
+--9amGYk9869ThD9tj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Sun, Jan 26, 2014 at 04:05:34PM +0000, Ben Dooks wrote:
+> The i2c-rcar driver currently prints an error message if the master_xfer
+> callback fails. However if the bus is being probed then lots of NAKs
+> will be generated, causing the output of a number of errors printed.
+>=20
+> To solve this, disable the print if the error is not -EREMOTEIO.
+>=20
+> An example of running i2cdetect:
 
-i2c has a bugfix and documentation improvements for you. Please pull.
-
-Thanks,
-
-   Wolfram
+So, after this patch i2cdetect runs fine for you? I assume you are
+working with the lager/r8a7790 board? With koelsch/r8a7791, it stalls
+the bus :(
 
 
-The following changes since commit b28a960c42fcd9cfc987441fa6d1c1a471f0f9ed:
-
-  Linux 3.14-rc2 (2014-02-09 18:15:47 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to fde1e418ab2c4269035f7f576e678b6ad3117d7d:
-
-  Documentation: i2c: mention ACPI method for instantiating devices (2014-02-15 19:46:34 +0100)
-
-----------------------------------------------------------------
-Wolfram Sang (3):
-      i2c: mv64xxx: refactor message start to ensure proper initialization
-      Documentation: i2c: describe devicetree method for instantiating devices
-      Documentation: i2c: mention ACPI method for instantiating devices
-
- Documentation/i2c/instantiating-devices | 41 +++++++++++++++++++++++++++++++--
- drivers/i2c/busses/i2c-mv64xxx.c        | 33 +++++++++++---------------
- 2 files changed, 53 insertions(+), 21 deletions(-)
-
---J2SCkAp4GZ/dPZZf
+--9amGYk9869ThD9tj
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJS/8+6AAoJEBQN5MwUoCm2ngsP/iL9fPbWZoeLIm7GSCAqwPMO
-0Ej4okTvrGBBmLHsfe3EqirKsomH1T9J4LKy2kzLRHcmiWQP4THKkzqmvyGVFzFo
-xM6PGGelf/tpguFYnBUtewBd+JWTkRZ1CbRIa5qgTVE8pRIJbMs7gli1TBuneHbv
-LxSk3/NV/LgVH5GY2JiQXnWaUEX/FCpFq8Oq6QPSWCEZSEbsWh9xOsaGYtQdheLR
-Nx0RI5A+H3h5DaAh9THDV314VGiMgaqQuD7DipGbKFY2Hf3YMTHBV7RUOvnL3Hs5
-A+MsANbxCbRQz9thgNwvSoh6o+zcLKwMnu/1i2WTbh7+f2sJlkQD+6DbK8s+TQZ7
-Y2oXV5IvJ5hVWqooPaykzdeMYPnYWhJt7laZ9B0KFXB2gPJAKExqQbY2jPfMb94o
-ctk7IqlRKOpiaiBP8dW1zCqzp+qBTzDWMmc4xPmwK8bip7TzG4OtBJ7pBq5lrBdP
-5/dNkB0ivAjvB+sBuXsXngN2eHCciqrmAoDKFhtLtwFpnxWZ4YXC8UvlDDrP5IeZ
-EHho4hfsCtcAIbbJIgYJn6VV40iRJQM63hDWdhdhQ+oByb975U8zFTqAW+BtPX0p
-1PG+06Tuo2MptGaPhqVjEBXIviPCYCfzdOlz1u8xUjPZEKhRX7elOZwstf6wivUw
-I5T4wufH+CWAZBjJphq3
-=J1Ho
+iQIcBAEBAgAGBQJTAIkPAAoJEBQN5MwUoCm26N0P/0gFvdCruIGrjAFzGCiuB/CE
+vjmMbe6UpzfXg7Wn58nj8gRkWMqIbymAcAp4Q61Gz4tpbCdCSkA4L9QxtDC6Z1vf
+bcQ0Ct27crq49Mz30V08naeEUYz8X/j7Z3ZJtJgFPRHV49g/k7xbn0853xfIBxTh
+umcMS741mtx0XZQUUJaWH8dUdD1LIKI3hAAnZaKr8jySTsviz3Ng1IUANrtx1piX
+pYXg2aM6rGbuBE/DvbRsxX2J9Rkv6Au3cM5tEouEOV0eGYwY9iO5IANPb8v/Brj8
+kDgwWwjs/T0cmKtMrCtFtfmIY2B1QBK7p9XVGBVJ4QF7CHVZxhZwxI6vpUzKeCI7
+fGNR/Ag4fzOq6Q3yG6EVkG8aSVsQn4RHYID4nuIvwf0muHaxXimXaXutjzAWxnDM
+51jY/XUzVehJE+U6+XBlKY3ZbUGCQOPf7HiFfrVqRWJYlZH0p0DLcKNzXMRNvZF8
++1775YaD1mWkTssB7chcSR0E/HvKbkAT3WePl9Hbx2c9aTaUeq2RuWO5DL/vRgac
+E040hJA/zdsUqxLOSL7BGEON9swGqzvYBNhIFQL4MSRD5/mqZcFMtVDZTsgf4h7n
+RecFZJOpmJiCEHqcK+qoRaXDowwna1sHXMVFyIGFjqt3oIEpcfvtxQwb6Vo3sf/i
+N4BZinRepZLLjQEYDAjy
+=Qh5Y
 -----END PGP SIGNATURE-----
 
---J2SCkAp4GZ/dPZZf--
+--9amGYk9869ThD9tj--
