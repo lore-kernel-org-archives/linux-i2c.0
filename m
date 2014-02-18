@@ -1,42 +1,33 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH V3 11/17] i2c: nomadik: Convert to devm functions
-Date: Tue, 18 Feb 2014 12:43:22 +0100
-Message-ID: <CAPDyKFpRaAAer00dqcXR-qOT9S8-SDTnaMUHRwWCZ93w-wnTDA@mail.gmail.com>
-References: <1392650418-14820-1-git-send-email-ulf.hansson@linaro.org>
- <20140218110109.GA18768@katana>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCH 03/17] mmc: mmci: Mask IRQs for all variants during
+	runtime suspend
+Date: Tue, 18 Feb 2014 16:05:42 +0000
+Message-ID: <20140218160542.GH21483@n2100.arm.linux.org.uk>
+References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org> <1391529538-21685-4-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20140218110109.GA18768@katana>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Russell King <linux@arm.linux.org.uk>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1391529538-21685-4-git-send-email-ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18 February 2014 12:01, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Mon, Feb 17, 2014 at 04:20:18PM +0100, Ulf Hansson wrote:
->> Use devm_* functions to simplify code and error handling.
->>
->> Cc: Alessandro Rubini <rubini@unipv.it>
->> Cc: Linus Walleij <linus.walleij@linaro.org>
->> Cc: Wolfram Sang <wsa@the-dreams.de>
->> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
->
-> What has changed in V3? I didn't get the cover letter.
+On Tue, Feb 04, 2014 at 04:58:44PM +0100, Ulf Hansson wrote:
+> In runtime suspended state, we are not expecting IRQs and thus we can
+> safely mask them, not only for pwrreg_nopower variants but for all.
+> 
+> Obviously we then also need to make sure we restore the IRQ mask while
+> becoming runtime resumed.
 
-I added the IS_ERR, check as you suggested. That caused a rebase of
-the other patches as well.
+So, what happens when this patch is applied, and a SDIO card is attached
+which expects to receive interrupts at any moment?
 
-Sorry if it was unclear.
+Given that I've run into this during the last week with a SDHCI controller,
+I'm not that thrilled with other interfaces doing the same broken thing.
 
-Kind regards
-Uffe
+-- 
+FTTC broadband for 0.8mile line: 5.8Mbps down 500kbps up.  Estimation
+in database were 13.1 to 19Mbit for a good line, about 7.5+ for a bad.
+Estimate before purchase was "up to 13.2Mbit".
