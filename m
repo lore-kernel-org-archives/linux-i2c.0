@@ -1,57 +1,121 @@
 From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V3 11/17] i2c: nomadik: Convert to devm functions
-Date: Tue, 18 Feb 2014 23:02:09 +0100
-Message-ID: <CAPDyKFqtXz8wiF7X4eZ_rPUOwgVQ6poXWhNnNxjKMmdF5jztTA@mail.gmail.com>
-References: <1392650418-14820-1-git-send-email-ulf.hansson@linaro.org>
-	<20140218110109.GA18768@katana>
-	<CAPDyKFpRaAAer00dqcXR-qOT9S8-SDTnaMUHRwWCZ93w-wnTDA@mail.gmail.com>
-	<20140218184327.GF18768@katana>
-	<CAPDyKFrBPy+QxgU-PpcGsvy8n=GLEWZHA+0FLfhnV780tt8YWQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH V4 11/17] i2c: nomadik: Convert to devm functions
+Date: Tue, 18 Feb 2014 23:20:22 +0100
+Message-ID: <1392762022-10871-1-git-send-email-ulf.hansson@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAPDyKFrBPy+QxgU-PpcGsvy8n=GLEWZHA+0FLfhnV780tt8YWQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+To: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 18 February 2014 21:50, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 18 February 2014 19:43, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->>
->>> I added the IS_ERR, check as you suggested. That caused a rebase of
->>> the other patches as well.
->>>
->>> Sorry if it was unclear.
->>
->> No problem. I am about to apply all patches except 17 as you suggested.
->> It fails here, however, although I applied Linus' patch first. What
->> exactly is your base? Any chance to publish your branch?
->>
->
-> I have several branches. :-)
->
-> My patches applies on top 3.14-rc1 + Linus' patch.
->
-> It also applies on
-> "git://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-nomadik.git"
-> on the i2c-nomadik, which already holds Linus's patch. This is what I
-> thought was important due what's stated in the MAINATAINERS file.
->
-> Now, I guess I should use your tree instead,
-> "git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git". Any
-> particular branch I should use?  Maybe it's also better if I just
-> resend the patches in a new patchset, once I rebased them towards your
-> tree?
+Use devm_* functions to simplify code and error handling.
 
-Sorry, I have taken Linus v1 patch as base, it should have been v2 of
-course. Sorry for wasting your time.
+Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
 
-I will rebase and send v4 patches asap.
+Changes in v4:
+	Rebased on top of Linus Walleij's v2 patch:
+	"i2c: nomadik: factor platform data into state container"
 
-Kind regards
-Uffe
+	Note, only this patch needed to be rebased in the patchset.
+	
+---
+ drivers/i2c/busses/i2c-nomadik.c |   36 +++++++++++++++---------------------
+ 1 file changed, 15 insertions(+), 21 deletions(-)
 
->
-> Kind regards
-> Uffe
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index b0b9390..cd15c03 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -976,7 +976,12 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 	struct i2c_vendor_data *vendor = id->data;
+ 	u32 max_fifo_threshold = (vendor->fifodepth / 2) - 1;
+ 
+-	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
++	if (!np) {
++		dev_err(&adev->dev, "no device node\n");
++		return -ENODEV;
++	}
++
++	dev = devm_kzalloc(&adev->dev, sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		dev_err(&adev->dev, "cannot allocate memory\n");
+ 		ret = -ENOMEM;
+@@ -1006,27 +1011,28 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 	/* If possible, let's go to idle until the first transfer */
+ 	pinctrl_pm_select_idle_state(&adev->dev);
+ 
+-	dev->virtbase = ioremap(adev->res.start, resource_size(&adev->res));
+-	if (!dev->virtbase) {
++	dev->virtbase = devm_ioremap(&adev->dev, adev->res.start,
++				resource_size(&adev->res));
++	if (IS_ERR(dev->virtbase)) {
+ 		ret = -ENOMEM;
+-		goto err_no_ioremap;
++		goto err_no_mem;
+ 	}
+ 
+ 	dev->irq = adev->irq[0];
+-	ret = request_irq(dev->irq, i2c_irq_handler, 0,
++	ret = devm_request_irq(&adev->dev, dev->irq, i2c_irq_handler, 0,
+ 				DRIVER_NAME, dev);
+ 	if (ret) {
+ 		dev_err(&adev->dev, "cannot claim the irq %d\n", dev->irq);
+-		goto err_irq;
++		goto err_no_mem;
+ 	}
+ 
+ 	pm_suspend_ignore_children(&adev->dev, true);
+ 
+-	dev->clk = clk_get(&adev->dev, NULL);
++	dev->clk = devm_clk_get(&adev->dev, NULL);
+ 	if (IS_ERR(dev->clk)) {
+ 		dev_err(&adev->dev, "could not get i2c clock\n");
+ 		ret = PTR_ERR(dev->clk);
+-		goto err_no_clk;
++		goto err_no_mem;
+ 	}
+ 
+ 	adap = &dev->adap;
+@@ -1048,21 +1054,13 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 	ret = i2c_add_adapter(adap);
+ 	if (ret) {
+ 		dev_err(&adev->dev, "failed to add adapter\n");
+-		goto err_add_adap;
++		goto err_no_mem;
+ 	}
+ 
+ 	pm_runtime_put(&adev->dev);
+ 
+ 	return 0;
+ 
+- err_add_adap:
+-	clk_put(dev->clk);
+- err_no_clk:
+-	free_irq(dev->irq, dev);
+- err_irq:
+-	iounmap(dev->virtbase);
+- err_no_ioremap:
+-	kfree(dev);
+  err_no_mem:
+ 
+ 	return ret;
+@@ -1079,13 +1077,9 @@ static int nmk_i2c_remove(struct amba_device *adev)
+ 	clear_all_interrupts(dev);
+ 	/* disable the controller */
+ 	i2c_clr_bit(dev->virtbase + I2C_CR, I2C_CR_PE);
+-	free_irq(dev->irq, dev);
+-	iounmap(dev->virtbase);
+ 	if (res)
+ 		release_mem_region(res->start, resource_size(res));
+-	clk_put(dev->clk);
+ 	pm_runtime_disable(&adev->dev);
+-	kfree(dev);
+ 
+ 	return 0;
+ }
+-- 
+1.7.9.5
