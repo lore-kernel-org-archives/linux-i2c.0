@@ -1,71 +1,57 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: Add message transfer tracepoints for SMBUS
-Date: Tue, 18 Feb 2014 21:54:18 +0100
-Message-ID: <20140218205418.GH18768@katana>
-References: <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
- <20140109215002.25590.51609.stgit@warthog.procyon.org.uk>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V3 11/17] i2c: nomadik: Convert to devm functions
+Date: Tue, 18 Feb 2014 23:02:09 +0100
+Message-ID: <CAPDyKFqtXz8wiF7X4eZ_rPUOwgVQ6poXWhNnNxjKMmdF5jztTA@mail.gmail.com>
+References: <1392650418-14820-1-git-send-email-ulf.hansson@linaro.org>
+	<20140218110109.GA18768@katana>
+	<CAPDyKFpRaAAer00dqcXR-qOT9S8-SDTnaMUHRwWCZ93w-wnTDA@mail.gmail.com>
+	<20140218184327.GF18768@katana>
+	<CAPDyKFrBPy+QxgU-PpcGsvy8n=GLEWZHA+0FLfhnV780tt8YWQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bygAmIonOAIqBxQB"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140109215002.25590.51609.stgit-S6HVgzuS8uM4Awkfq6JHfwNdhmdF6hFW@public.gmane.org>
+In-Reply-To: <CAPDyKFrBPy+QxgU-PpcGsvy8n=GLEWZHA+0FLfhnV780tt8YWQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 18 February 2014 21:50, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On 18 February 2014 19:43, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>>
+>>> I added the IS_ERR, check as you suggested. That caused a rebase of
+>>> the other patches as well.
+>>>
+>>> Sorry if it was unclear.
+>>
+>> No problem. I am about to apply all patches except 17 as you suggested.
+>> It fails here, however, although I applied Linus' patch first. What
+>> exactly is your base? Any chance to publish your branch?
+>>
+>
+> I have several branches. :-)
+>
+> My patches applies on top 3.14-rc1 + Linus' patch.
+>
+> It also applies on
+> "git://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-nomadik.git"
+> on the i2c-nomadik, which already holds Linus's patch. This is what I
+> thought was important due what's stated in the MAINATAINERS file.
+>
+> Now, I guess I should use your tree instead,
+> "git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git". Any
+> particular branch I should use?  Maybe it's also better if I just
+> resend the patches in a new patchset, once I rebased them towards your
+> tree?
 
---bygAmIonOAIqBxQB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sorry, I have taken Linus v1 patch as base, it should have been v2 of
+course. Sorry for wasting your time.
 
+I will rebase and send v4 patches asap.
 
-> +	TP_printk("i2c-%d a=%02x f=%02x c=%x %s l=%u [%*phN]",
+Kind regards
+Uffe
 
-Although SMBus has no 10-bit addresses, we probably should also use %03x
-there for consistency reasons?
-
-Also, the I2C tracing has first 'f' then 'a', that should be consistent,
-too.
-
-'flags' should be %04x again and I'd prefer %*ph (or %*phD) for the buffer.
-
-
-> +		  __print_symbolic(__entry->protocol,
-> +				   { I2C_SMBUS_QUICK,		"QUICK"	},
-> +				   { I2C_SMBUS_BYTE,		"BYTE"	},
-> +				   { I2C_SMBUS_BYTE_DATA,		"BYTE_DATA" },
-> +				   { I2C_SMBUS_WORD_DATA,		"WORD_DATA" },
-> +				   { I2C_SMBUS_PROC_CALL,		"PROC_CALL" },
-> +				   { I2C_SMBUS_BLOCK_DATA,		"BLOCK_DATA" },
-> +				   { I2C_SMBUS_I2C_BLOCK_BROKEN,	"I2C_BLOCK_BROKEN" },
-> +				   { I2C_SMBUS_BLOCK_PROC_CALL,	"BLOCK_PROC_CALL" },
-> +				   { I2C_SMBUS_I2C_BLOCK_DATA,	"I2C_BLOCK_DATA" }),
-
-Can we have something like this for 'flags'?
-
-
---bygAmIonOAIqBxQB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTA8h6AAoJEBQN5MwUoCm2SyYP+gNwnURGdvvxBjg8CCKGd3bQ
-E8I8WI38dha8WabEfEDY1dqdWhFMoziFHmZf3ZCV380+CSsF1f8xPW1VEF0WCJvO
-Ot37VdfStMqGZHYA/G08nm3I1Oi8VoJmlo+9EHXSSswntfbqkK2rsHjOeHc08CVb
-aiMgkmdcEt4nYRgbbtwRK6XCFFitAEB7wHkgDz2Lt759ZL/XLfk1smRaUlsVTWsr
-FcknrjjFcZExsRF8Fj6YrUipMtXRkPusoh9sXOUvYMenRjgjWX2sIKtFqKgaZIcb
-GbFXD0GrWNRmmvq3SAEDLvVA+eAzBxjVm4paVgPlE0agtdY8fHmt2Kt2QhWEFQuz
-S5ZrKyX07xXH+azkEzUmVxCVQWs94SpKOsLqLHS401aOcqHk2V8QVB7GXuR38Uih
-1rhd5Z4EkiOl5ps+Tsl30Tlrh9hAzJWqEH7hMGAmoVaWUtMFOzsOhX18xLwEuGLJ
-wzV3EpPfkRSC/pPcdOaZ9830R2a6DKVJQ9dlfh6jg+wIvvJVidfhBGbk7Y8Yyml5
-6j+RyhZIYhhf3eHqm9Vkw3LCwYZDvONIkDH9oB8jjmHfbQySN4ixy8LttiITdp35
-j/QSLSNQe16sNgNBDTjYvAry/f37Ly5HvljYfk9bVSP4LgnSD8Ui3pMNyXk2gBMM
-SWVx9PK4WjmkzQM+nWUb
-=waza
------END PGP SIGNATURE-----
-
---bygAmIonOAIqBxQB--
+>
+> Kind regards
+> Uffe
