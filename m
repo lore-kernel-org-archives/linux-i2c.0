@@ -1,61 +1,87 @@
 From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 01/17] amba: Let runtime PM callbacks be available for CONFIG_PM
-Date: Wed, 19 Feb 2014 12:40:39 +0100
-Message-ID: <CAPDyKFqaS1H0vT8KJgmhm35X4dB9dUHsqMXee9Eg3V3t6Dn+uQ@mail.gmail.com>
-References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
-	<1391529538-21685-2-git-send-email-ulf.hansson@linaro.org>
-	<20140219094037.GQ21483@n2100.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140219094037.GQ21483-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Subject: [PATCH V4 16/17] i2c: nomadik: Remove busy check for transfers at suspend late
+Date: Wed, 19 Feb 2014 13:27:47 +0100
+Message-ID: <1392812867-19212-1-git-send-email-ulf.hansson@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 19 February 2014 10:40, Russell King - ARM Linux
-<linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org> wrote:
-> On Tue, Feb 04, 2014 at 04:58:42PM +0100, Ulf Hansson wrote:
->> Convert to the SET_PM_RUNTIME_PM macro while defining the runtime PM
->> callbacks. This means the callbacks becomes available for both
->> CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME, which is needed by drivers and
->> power domains.
->
-> This patch is wrong, because it causes build errors:
->
-> drivers/amba/bus.c:126:18: error: 'pm_generic_suspend_late' undeclared here (not in a function)
-> drivers/amba/bus.c:127:18: error: 'pm_generic_resume_early' undeclared here (not in a function)
-> drivers/amba/bus.c:128:17: error: 'pm_generic_freeze_late' undeclared here (not in a function)
-> drivers/amba/bus.c:129:16: error: 'pm_generic_thaw_early' undeclared here (not in a function)
-> drivers/amba/bus.c:130:19: error: 'pm_generic_poweroff_late' undeclared here (not in a function)
-> drivers/amba/bus.c:131:19: error: 'pm_generic_restore_early' undeclared here (not in a function)
->
-> The failing configuration is:
->
-> # CONFIG_SUSPEND is not set
-> CONFIG_PM_RUNTIME=y
-> CONFIG_PM=y
->
+We should never be busy performing transfers at suspend late, thus
+there are no reason to check for it.
 
-Thanks for spotting this! I thought I had tested all the various
-combinations, but obvisouly not.
+Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
 
-Anyway to add some more clarify; it is not this patch that causes the
-issue. It's patch 2, which introduces the late/early callbacks.
+Changes in v4:
+	Fixed compiler warning.
 
-Though the problem need to be fixed in the PM core,
-pm_generic_suspend_late etc is not set to NULL for !CONFIG_PM_SLEEP,
-they should. I guess we should put patch 2 on hold until, right?
+---
+ drivers/i2c/busses/i2c-nomadik.c |   13 -------------
+ 1 file changed, 13 deletions(-)
 
-Kind regards
-Ulf Hansson
-
-> --
-> FTTC broadband for 0.8mile line: 5.8Mbps down 500kbps up.  Estimation
-> in database were 13.1 to 19Mbit for a good line, about 7.5+ for a bad.
-> Estimate before purchase was "up to 13.2Mbit".
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 66e8662..8082f5c 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -167,7 +167,6 @@ struct i2c_nmk_client {
+  * @stop: stop condition.
+  * @xfer_complete: acknowledge completion for a I2C message.
+  * @result: controller propogated result.
+- * @busy: Busy doing transfer.
+  */
+ struct nmk_i2c_dev {
+ 	struct i2c_vendor_data		*vendor;
+@@ -185,7 +184,6 @@ struct nmk_i2c_dev {
+ 	int				stop;
+ 	struct completion		xfer_complete;
+ 	int				result;
+-	bool				busy;
+ };
+ 
+ /* controller's abort causes */
+@@ -671,8 +669,6 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
+ 	int j;
+ 
+-	dev->busy = true;
+-
+ 	pm_runtime_get_sync(&dev->adev->dev);
+ 
+ 	/* Attempt three times to send the message queue */
+@@ -697,8 +693,6 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 
+ 	pm_runtime_put_sync(&dev->adev->dev);
+ 
+-	dev->busy = false;
+-
+ 	/* return the no. messages processed */
+ 	if (status)
+ 		return status;
+@@ -885,12 +879,6 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ #ifdef CONFIG_PM_SLEEP
+ static int nmk_i2c_suspend_late(struct device *dev)
+ {
+-	struct amba_device *adev = to_amba_device(dev);
+-	struct nmk_i2c_dev *nmk_i2c = amba_get_drvdata(adev);
+-
+-	if (nmk_i2c->busy)
+-		return -EBUSY;
+-
+ 	pinctrl_pm_select_sleep_state(dev);
+ 
+ 	return 0;
+@@ -992,7 +980,6 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 		goto err_no_mem;
+ 	}
+ 	dev->vendor = vendor;
+-	dev->busy = false;
+ 	dev->adev = adev;
+ 	nmk_i2c_of_probe(np, dev);
+ 
+-- 
+1.7.9.5
