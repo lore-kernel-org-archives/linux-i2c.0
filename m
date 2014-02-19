@@ -1,76 +1,57 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v2] i2c: designware-pci: Add Baytrail PCI IDs
-Date: Wed, 19 Feb 2014 16:10:29 +0200
-Message-ID: <1392819029-6438-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH 07/17] spi: pl022: Don't ignore power domain and amba bus
+ at system suspend
+Date: Wed, 19 Feb 2014 15:15:06 +0100
+Message-ID: <CAPDyKFqDdoya2+_3b+6SD5r1qXu+o4CVQfXFEHPRA5xr+xg8nQ@mail.gmail.com>
+References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
+	<1391529538-21685-8-git-send-email-ulf.hansson@linaro.org>
+	<20140204191609.GU22609@sirena.org.uk>
+	<CAPDyKFqNdw-6R12cUOre8UOTOnB-PpxHD5rPAMCwuS3i--Sesg@mail.gmail.com>
+	<20140210125113.GZ1757@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140210125113.GZ1757@sirena.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Russell King <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, linux-mmc <linux-mmc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Intel Baytrail I2C controllers can be enumerated from PCI as well as from
-ACPI. In order to support this add the Baytrail PCI IDs to the driver.
+On 10 February 2014 13:51, Mark Brown <broonie@kernel.org> wrote:
+> On Mon, Feb 10, 2014 at 01:33:50PM +0100, Ulf Hansson wrote:
+>> On 4 February 2014 20:16, Mark Brown <broonie@kernel.org> wrote:
+>
+>> > This seems like a fairly hideous thing to be having to open code in an
+>> > individual driver, it all looks generic and like something that most if
+>
+> ...
+>
+>> > Putting it in a helper would at least mean that it's easier for the
+>> > mechanics to be transferred to the core proper later on.
+>
+>> I agree, a helper function would be nice. I have earlier sent a patch
+>> to the PM core, that is similar to the code above, though it was
+>> rejected in it's current form. Let me follow up on this again.
+>
+>> At this point, would a way forward be to still go ahead with this
+>> patch and then convert to, when/if, the helper function from the PM
+>> core becomes available?
+>
+> It's definitely *a* way forward, but I'm not convinced it's a good way
+> forward.  Since it's something that I'd expect us to be doing in all
+> drivers we'd want to replicate it all over the place which is obviously
+> not good, or conversely if there are issues that prevented the code
+> being added to the PM core then presumably we're just adding problematic
+> code to the driver (you've not mentioned what the problems were with
+> doing this in the PM core).
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
-Changes to previous version:
- * Removed "-%d" from the adapter name.
+I have posted a patch which adds a runtime PM helper function to the
+PM core, I am hoping to get some comments soon.
+http://marc.info/?l=linux-pm&m=139228211505423&w=2
 
- drivers/i2c/busses/i2c-designware-pcidrv.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+So I agree, let's put this patch on hold until we sorted out how to
+proceed. Though I will rebase and send a v2 of it, just to keep it as
+a reference for later use.
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index c0a87a5eb63e..80c3b5e0a5c8 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -54,6 +54,8 @@ enum dw_pci_ctl_id_t {
- 	medfield_3,
- 	medfield_4,
- 	medfield_5,
-+
-+	baytrail,
- };
- 
- struct dw_pci_controller {
-@@ -132,6 +134,13 @@ static struct  dw_pci_controller  dw_pci_controllers[] = {
- 		.rx_fifo_depth = 32,
- 		.clk_khz      = 25000,
- 	},
-+	[baytrail] = {
-+		.bus_num = -1,
-+		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
-+		.tx_fifo_depth = 32,
-+		.rx_fifo_depth = 32,
-+		.clk_khz = 100000,
-+	},
- };
- static struct i2c_algorithm i2c_dw_algo = {
- 	.master_xfer	= i2c_dw_xfer,
-@@ -226,8 +235,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	adap->algo = &i2c_dw_algo;
- 	adap->dev.parent = &pdev->dev;
- 	adap->nr = controller->bus_num;
--	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci-%d",
--		adap->nr);
-+
-+	snprintf(adap->name, sizeof(adap->name), "i2c-designware-pci");
- 
- 	r = devm_request_irq(&pdev->dev, pdev->irq, i2c_dw_isr, IRQF_SHARED,
- 			adap->name, dev);
-@@ -278,6 +287,14 @@ static DEFINE_PCI_DEVICE_TABLE(i2_designware_pci_ids) = {
- 	{ PCI_VDEVICE(INTEL, 0x082C), medfield_0 },
- 	{ PCI_VDEVICE(INTEL, 0x082D), medfield_1 },
- 	{ PCI_VDEVICE(INTEL, 0x082E), medfield_2 },
-+	/* Baytrail */
-+	{ PCI_VDEVICE(INTEL, 0x0F41), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F42), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F43), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F44), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F45), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F46), baytrail },
-+	{ PCI_VDEVICE(INTEL, 0x0F47), baytrail },
- 	{ 0,}
- };
- MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
--- 
-1.9.0.rc3
+Kind regards
+Uffe
