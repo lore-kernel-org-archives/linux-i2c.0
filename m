@@ -1,282 +1,81 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v6 3/4] i2c_imc: New driver for Intel's iMC, found on
- LGA2011 chips
-Date: Wed, 19 Feb 2014 09:10:03 -0800
-Message-ID: <CALCETrWj-4T3r14L3xUvvg6G-piexL2-LCAqQ+nXsJFkhG51sw@mail.gmail.com>
-References: <cover.1387588711.git.luto@amacapital.net> <5508fef38f88601de1973d4252bc7aa98b54ea53.1387588711.git.luto@amacapital.net>
- <20140219153850.GB13973@katana>
+From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Subject: Re: [PATCH v6 4/4] i2c, i2c_imc: Add DIMM bus code
+Date: Wed, 19 Feb 2014 09:30:46 -0800
+Message-ID: <CALCETrVBPzGqaXbZVgUZMw7D5U5YnUMJOEsw1r=TceLYjJ39JA@mail.gmail.com>
+References: <cover.1387588711.git.luto@amacapital.net> <15eccfa508fd0f55230c4274e3e968f91a123b73.1387588711.git.luto@amacapital.net>
+ <20140219151626.GA13973@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140219153850.GB13973@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Guenter Roeck <linux@roeck-us.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Rui Wang <ruiv.wang@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140219151626.GA13973@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Rui Wang <ruiv.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 19, 2014 at 7:38 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+On Wed, Feb 19, 2014 at 7:16 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Fri, Dec 20, 2013 at 05:45:13PM -0800, Andy Lutomirski wrote:
+>> Add i2c_scan_dimm_bus to declare that a particular i2c_adapter
+>> contains DIMMs.  This will probe (and autoload modules!) for useful
+>> SMBUS devices that live on DIMMs.  i2c_imc calls it.
 >
->> +config I2C_IMC
->> +     tristate "Intel iMC (LGA 2011) SMBus Controller"
->> +     depends on PCI && X86
->> +     select I2C_DIMM_BUS
->> +     help
->> +       If you say yes to this option, support will be included for the Intel
->> +       Integrated Memory Controller SMBus host controller interface.  This
->> +       controller is found on LGA 2011 Xeons and Core i7 Extremes.
->> +
->> +       It is possibly, although unlikely, that the use of this driver will
->> +       interfere with your platform's RAM thermal management.
->
-> This sounds scary and thus needs some more detail :) How does that show?
-> What can happen? Anything to take care of?
+> Hmm, after thinking about it for a while and a couple of times, I get
+> the impression that the functionality of i2c_scan_dimm_bus() should
+> better be in userspace, i.e. a udev helper. I could imagine introducing
+> a new functionality macro I2C_FUNC_DIMM_BUS which can be detected in
+> userspace via i2c-dev. Based on that, the helper can do whatever
+> necessary. What do you think?
 >
 
-Here's how this works, as far as I can figure it out:
+Hmm.  So there would be udev rules that detect an I2C_FUNC_DIMM_BUS
+driver and probe it appropriately.
 
-The Sandy Bridge (and presumably Ivy Bridge) platforms make some
-effort to avoid overheating system DRAM, and they can dynamically
-adjust the refresh interval depending on DIMM temperature.  This
-happens in one of a few modes:
+I'm not sure I like it.  It would mean that any future kernel code
+that wants to use things hanging off the dimm bus would need to stay
+in sync with the udev rules, and it would make things like sticking
+platform_data into the probed devices complicated or impossible.
 
-CLTT (closed loop thermal throttling):  the memory controller
-(presumably via the magic, barely documented "P-code") will
-periodically poll the TSOD (Temperature Sensor on DIMM) over i2c.  In
-this mode the SMBUS registers are, IMO sensibly, locked*, and the
-worse that can happen is that the driver will confuse itself.  For
-sanity, the driver will just refuse to load in this case.
+This seems to be a somewhat common problem with i2c code.  For
+example, lots of graphics drivers provide i2c busses, and those busses
+often contain eeproms, and, in theory, things should know that the
+eeprom is associated with a particular graphics port, for example.
+Unfortunately, the i2c core does not know that, things like
+decode-dimms will try to decode it, sensors-detect will scan graphics
+ports for motherboard sensors, etc.
 
-OLTT (open loop thermal throttling):  the memory controller will
-estimate recent heat output based on access patterns and will adjust
-accordingly.  There are lots of registers related to this in the
-public docs, but the overall algorithm and purpose is not described
-anywhere that I've looked.  In this mode, something (SMI? P-code?) can
-still poll the TSOD, but it respects the POLL_EN bit.
+It would be great if there was a generic way to tag an i2c bus as
+serving a particular purpose.  Code that knew the purpose could probe
+appropriately, and code that wants to find things like eeproms on a
+particular port could look for the i2c bus that's tagged as belonging
+to the port and read its eeprom.
 
-Thermal throttling off: the memory controller pays no attention.  I
-suspect that we can't cause any real harm in this case even if we
-tried.
+Is this something that could be done using something like kobject
+symlinks?  For example, suppose there were a new class device
+"i2c_port".  A driver could instantiate this class and tell the i2c
+core (perhaps as part of i2c_register_adapter or in struct
+i2c_adapter?) that a given i2c_adapter that a certain range of
+addresses on the i2c_adapter belong to the port.  The i2c core could
+create symlinks between the i2c_port and the i2c_adapter.
 
-The interesting case is OLTT.  If we fail to twiddle the POLL_EN bit
-correctly, then, in principle, we could cause a problem.  I don't know
-what that problem would be -- the memory controller's P-code could
-malfunction with unknown results.  I've abused a test system quite a
-bit, and I've been completely unable to cause a problem, though.
+For extra fun, there could be drivers for different types of i2c_port.
+ One of them could be the "DIMM bus" driver, which would know how to
+probe the i2c adapter associated with a DIMM port.  Another could be
+the graphics port driver, which (maybe with some extra configuration
+hints from the graphics driver) could look for EDID-related things.
 
-There may be other modes, too, but, if so, I can't find them.  Maybe
-some day there will be CLTT with i2c access.  If so, presumably the
-driver will need updating.
+This could result in (after a bunch of extra code gets written) an
+actual struct device for a DIMM slot, which would have a class device
+for its i2c_port that claims all the the DIMM addresses with the slot
+number bits set appropriately for that port.  In the even more distant
+future, maybe the EDAC devices would also hang off of that DIMM slot.
 
-In some sense, this is no worse than other i2c drivers -- there are
-plenty of ways that a badly behaving i2c driver can cause something to
-blow up.
+I wonder if this would fit in well with the device tree stuff, too --
+DT has ways to say "this node links to that one", right?
 
-* This is not documented at all AFAIK.  I figured it out by trial and error.
+*sigh*.  The driver model wasn't really designed for a world where the
+logical device topology is completely unrelated to the physical bus
+topology.
 
->> @@ -15,6 +15,7 @@ obj-$(CONFIG_I2C_AMD8111)   += i2c-amd8111.o
->>  obj-$(CONFIG_I2C_I801)               += i2c-i801.o
->>  obj-$(CONFIG_I2C_ISCH)               += i2c-isch.o
->>  obj-$(CONFIG_I2C_ISMT)               += i2c-ismt.o
->> +obj-$(CONFIG_I2C_IMC)                += i2c-imc.o
->
-> This is not perfectly sorted.
->
->>  obj-$(CONFIG_I2C_NFORCE2)    += i2c-nforce2.o
->>  obj-$(CONFIG_I2C_NFORCE2_S4985)      += i2c-nforce2-s4985.o
->>  obj-$(CONFIG_I2C_PIIX4)              += i2c-piix4.o
->> diff --git a/drivers/i2c/busses/i2c-imc.c b/drivers/i2c/busses/i2c-imc.c
->> new file mode 100644
->> index 0000000..c846077
->> --- /dev/null
->> +++ b/drivers/i2c/busses/i2c-imc.c
->> @@ -0,0 +1,559 @@
->> +/*
->> + * Copyright (c) 2013 Andrew Lutomirski <luto@amacapital.net>
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License version 2
->> + * as published by the Free Software Foundation.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->> + *
->> + * You should have received a copy of the GNU General Public License
->> + * along with this program; if not, write to the Free Software
->> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
->
-> Please skip the address. And run checkpatch.pl --strict! It would have
-> warned you about this and other stuff:
-
-Will do.  That's the first time I've heard of --strict :)
-
-
->
->> +/* Register offsets (in PCI configuration space) */
->> +#define SMBSTAT(i)                   (0x180 + 0x10*i)
->> +#define SMBCMD(i)                    (0x184 + 0x10*i)
->> +#define SMBCNTL(i)                   (0x188 + 0x10*i)
->> +#define SMB_TSOD_POLL_RATE_CNTR(i)   (0x18C + 0x10*i)
->> +#define SMB_TSOD_POLL_RATE           (0x1A8)
->
-> Spaces around operators!
-
-Will do.
-
->
->> +     int i;
->> +     for (i = 0; i < 50; i++) {
->> +             pci_read_config_dword(priv->pci_dev, SMBSTAT(chan), stat);
->> +             if (!(*stat & SMBSTAT_SMB_BUSY))
->> +                     return 0;
->> +             udelay(70);
->
-> usleep_range?
-
-No -- see the comment just above this excerpt.  There's an erratum
-(which I can trigger on occasion but not reliably) that causes the i2c
-hardware to return bogus results if the system enters a sufficiently
-deep sleep while a transaction is running.  udelay prevents that.
-It's a bit ugly, but 70us isn't very long, and pm_qos doesn't seem to
-be a good alternative (there's no way to tell pm_qos to keep at least
-one logical thread out of C2 and lower).  I'll change the code to
-udelay(70); /* don't sleep -- see above */ to make it more obvious.
-Better ideas welcome.
-
->
->> +     }
->> +
->> +     return -ETIMEDOUT;
->> +}
->> +
->
-> ...
->
->> +static s32 imc_smbus_xfer(struct i2c_adapter *adap, u16 addr,
->> +                       unsigned short flags, char read_write, u8 command,
->> +                       int size, union i2c_smbus_data *data)
->> +{
->> +     int ret, chan;
->> +     u32 cmd = 0, cntl, final_cmd, final_cntl, stat;
->> +     struct imc_channel *ch;
->> +     struct imc_priv *priv = i2c_get_adapdata(adap);
->> +
->> +     if (atomic_read(&imc_raced))
->> +             return -EIO;  /* Minimize damage. */
->> +
->> +     chan = (adap == &priv->channels[0].adapter ? 0 : 1);
->> +     ch = &priv->channels[chan];
->> +
->> +     if (addr > 0x7f)
->> +             return -EOPNOTSUPP;  /* No large address support */
->
-> Unneeded. The core checks for that...
->
->> +     if (flags)
->> +             return -EOPNOTSUPP;  /* No PEC */
->
-> ... and your code would bail out if I2C_M_TEN was set.
-
-I'll take another look at the core code and try to get this more correct :)
-
->
->> +     if (size != I2C_SMBUS_BYTE_DATA && size != I2C_SMBUS_WORD_DATA)
->> +             return -EOPNOTSUPP;
->> +
->> +     /* Encode CMD part of addresses and access size */
->> +     cmd  |= ((u32)addr & 0x7) << SMBCMD_SA_SHIFT;
->> +     cmd |= ((u32)command) << SMBCMD_BA_SHIFT;
->> +     if (size == I2C_SMBUS_WORD_DATA)
->> +             cmd |= SMBCMD_WORD_ACCESS;
->> +
->> +     /* Encode read/write and data to write */
->> +     if (read_write == I2C_SMBUS_READ) {
->> +             cmd |= SMBCMD_TYPE_READ;
->> +     } else {
->> +             cmd |= SMBCMD_TYPE_WRITE;
->> +             cmd |= (size == I2C_SMBUS_WORD_DATA
->> +                         ? swab16(data->word)
->> +                         : data->byte);
->> +     }
->> +
->> +     mutex_lock(&ch->mutex);
->
-> Why is the per-adapter lock not sufficient?
-
-Is there a per-adapter lock in the core that I didn't notice?
-i2c_lock_adapter seems to be optional, and I don't want to blow up if
-two threads try to hit the same channel at the same time.
-
-There's nothing wrong with accessing both channels on an adapter at
-once, though -- AFAICT they are completely independent.
-
->
->> +
->> +     ret = imc_channel_claim(priv, chan);
->> +     if (ret)
->> +             goto out_unlock;
->> +
->> +     pci_read_config_dword(priv->pci_dev, SMBCNTL(chan), &cntl);
->> +     cntl &= ~SMBCNTL_DTI_MASK;
->> +     cntl |= ((u32)addr >> 3) << SMBCNTL_DTI_SHIFT;
->> +     pci_write_config_dword(priv->pci_dev, SMBCNTL(chan), cntl);
->> +
->> +     /*
->> +      * This clears SMBCMD_PNTR_SEL.  We leave it cleared so that we don't
->> +      * need to think about keeping the TSOD pointer state consistent with
->> +      * the hardware's expectation.  This probably has some miniscule
->> +      * power cost, as TSOD polls will take 9 extra cycles.
->> +      */
->> +     cmd |= SMBCMD_TRIGGER;
->> +     pci_write_config_dword(priv->pci_dev, SMBCMD(chan), cmd);
->> +
->> +     if (imc_wait_not_busy(priv, chan, &stat) != 0) {
->> +             /* Timeout.  TODO: Reset the controller? */
->> +             ret = -EIO;
->> +             dev_err(&priv->pci_dev->dev, "controller is wedged\n");
->> +             goto out_release;
->> +     }
->> +
->> +     /*
->> +      * Be paranoid: try to detect races.  This will only detect races
->> +      * against BIOS, not against hardware.  (I've never seen this happen.)
->> +      */
->> +     pci_read_config_dword(priv->pci_dev, SMBCMD(chan), &final_cmd);
->> +     pci_read_config_dword(priv->pci_dev, SMBCNTL(chan), &final_cntl);
->> +     if (((cmd ^ final_cmd) & SMBCMD_OUR_BITS) ||
->> +         ((cntl ^ final_cntl) & SMBCNTL_OUR_BITS)) {
->> +             WARN(1, "iMC SMBUS raced against firmware");
->> +             dev_emerg(&priv->pci_dev->dev,
->> +                       "Access to channel %d raced: cmd 0x%08X->0x%08X, cntl 0x%08X->0x%08X\n",
->> +                       chan, cmd, final_cmd, cntl, final_cntl);
->
-> Ehrm, do we need WARN and dev_emerg? And the error message should be
-> updated. It should tell what the user should do next to handle the
-> emergency.
-
-I tried for a while, and I can't trigger this race.  The code is here
-out of paranoia -- it should, in theory, detect a case where BIOS or
-P-code fails to respect the TSOD_EN bit and conflicts with us.  If
-this happens, the driver shuts itself down.
-
-The outcome I want is that anyone who manages to trigger this will
-email me and the linux-i2c list so that we can fix it.  The WARN will
-cause abrt to notice, and the dev_emerg (which could be downgraded,
-given the WARN) will supply useful information.  I could add an extra
-line saying "Please contact luto@amacapital.net and
-linux-i2c@vger.kernel.org".
-
-Suggestions welcome :)
-
-It would be awesome if an Intel engineer with access to better docs or
-architectural insight could chime in -- I'm pretty sure that Intel is
-funding NV-DIMM work, so they need this driver, and the old NDAed imc
-smbus driver is almost certainly far less safe, less correct, and less
-comprehensible than my driver. :)
-
-TBH, the fact that, in CLTT mode, the SMBUS registers are all locked
-makes me a lot more comfortable with this driver.  That's the mode in
-which it would be easy to cause problems.
+OK, enough rambling for now. :)
 
 --Andy
