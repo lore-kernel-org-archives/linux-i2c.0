@@ -1,58 +1,248 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v6 4/4] i2c, i2c_imc: Add DIMM bus code
-Date: Wed, 19 Feb 2014 16:16:26 +0100
-Message-ID: <20140219151626.GA13973@katana>
+Subject: Re: [PATCH v6 3/4] i2c_imc: New driver for Intel's iMC, found on
+ LGA2011 chips
+Date: Wed, 19 Feb 2014 16:38:50 +0100
+Message-ID: <20140219153850.GB13973@katana>
 References: <cover.1387588711.git.luto@amacapital.net>
- <15eccfa508fd0f55230c4274e3e968f91a123b73.1387588711.git.luto@amacapital.net>
+ <5508fef38f88601de1973d4252bc7aa98b54ea53.1387588711.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+	protocol="application/pgp-signature"; boundary="+g7M9IMkV8truYOl"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <15eccfa508fd0f55230c4274e3e968f91a123b73.1387588711.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+In-Reply-To: <5508fef38f88601de1973d4252bc7aa98b54ea53.1387588711.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Rui Wang <ruiv.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---pf9I7BMVVzbSWLtt
+--+g7M9IMkV8truYOl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Dec 20, 2013 at 05:45:13PM -0800, Andy Lutomirski wrote:
-> Add i2c_scan_dimm_bus to declare that a particular i2c_adapter
-> contains DIMMs.  This will probe (and autoload modules!) for useful
-> SMBUS devices that live on DIMMs.  i2c_imc calls it.
 
-Hmm, after thinking about it for a while and a couple of times, I get
-the impression that the functionality of i2c_scan_dimm_bus() should
-better be in userspace, i.e. a udev helper. I could imagine introducing
-a new functionality macro I2C_FUNC_DIMM_BUS which can be detected in
-userspace via i2c-dev. Based on that, the helper can do whatever
-necessary. What do you think?
+> +config I2C_IMC
+> +	tristate "Intel iMC (LGA 2011) SMBus Controller"
+> +	depends on PCI && X86
+> +	select I2C_DIMM_BUS
+> +	help
+> +	  If you say yes to this option, support will be included for the Intel
+> +	  Integrated Memory Controller SMBus host controller interface.  This
+> +	  controller is found on LGA 2011 Xeons and Core i7 Extremes.
+> +
+> +	  It is possibly, although unlikely, that the use of this driver will
+> +	  interfere with your platform's RAM thermal management.
+
+This sounds scary and thus needs some more detail :) How does that show?
+What can happen? Anything to take care of?
+
+> @@ -15,6 +15,7 @@ obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
+>  obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
+>  obj-$(CONFIG_I2C_ISCH)		+= i2c-isch.o
+>  obj-$(CONFIG_I2C_ISMT)		+= i2c-ismt.o
+> +obj-$(CONFIG_I2C_IMC)		+= i2c-imc.o
+
+This is not perfectly sorted.
+
+>  obj-$(CONFIG_I2C_NFORCE2)	+= i2c-nforce2.o
+>  obj-$(CONFIG_I2C_NFORCE2_S4985)	+= i2c-nforce2-s4985.o
+>  obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
+> diff --git a/drivers/i2c/busses/i2c-imc.c b/drivers/i2c/busses/i2c-imc.c
+> new file mode 100644
+> index 0000000..c846077
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-imc.c
+> @@ -0,0 +1,559 @@
+> +/*
+> + * Copyright (c) 2013 Andrew Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2
+> + * as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+Please skip the address. And run checkpatch.pl --strict! It would have
+warned you about this and other stuff:
+
+total: 1 errors, 3 warnings, 2 checks, 587 lines checked
 
 
---pf9I7BMVVzbSWLtt
+> +/*
+> + * The datasheet can be found here, for example:
+> + * http://www.intel.com/content/dam/www/public/us/en/documents/datasheets/xeon-e5-1600-2600-vol-2-datasheet.pdf
+> + *
+> + * There seem to be quite a few bugs or spec errors, though:
+
+Kudos for the useful comments!
+
+> +/* Register offsets (in PCI configuration space) */
+> +#define SMBSTAT(i)			(0x180 + 0x10*i)
+> +#define SMBCMD(i)			(0x184 + 0x10*i)
+> +#define SMBCNTL(i)			(0x188 + 0x10*i)
+> +#define SMB_TSOD_POLL_RATE_CNTR(i)	(0x18C + 0x10*i)
+> +#define SMB_TSOD_POLL_RATE		(0x1A8)
+
+Spaces around operators!
+
+> +	int i;
+> +	for (i = 0; i < 50; i++) {
+> +		pci_read_config_dword(priv->pci_dev, SMBSTAT(chan), stat);
+> +		if (!(*stat & SMBSTAT_SMB_BUSY))
+> +			return 0;
+> +		udelay(70);
+
+usleep_range?
+
+> +	}
+> +
+> +	return -ETIMEDOUT;
+> +}
+> +
+
+...
+
+> +static s32 imc_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+> +			  unsigned short flags, char read_write, u8 command,
+> +			  int size, union i2c_smbus_data *data)
+> +{
+> +	int ret, chan;
+> +	u32 cmd = 0, cntl, final_cmd, final_cntl, stat;
+> +	struct imc_channel *ch;
+> +	struct imc_priv *priv = i2c_get_adapdata(adap);
+> +
+> +	if (atomic_read(&imc_raced))
+> +		return -EIO;  /* Minimize damage. */
+> +
+> +	chan = (adap == &priv->channels[0].adapter ? 0 : 1);
+> +	ch = &priv->channels[chan];
+> +
+> +	if (addr > 0x7f)
+> +		return -EOPNOTSUPP;  /* No large address support */
+
+Unneeded. The core checks for that...
+
+> +	if (flags)
+> +		return -EOPNOTSUPP;  /* No PEC */
+
+... and your code would bail out if I2C_M_TEN was set.
+
+> +	if (size != I2C_SMBUS_BYTE_DATA && size != I2C_SMBUS_WORD_DATA)
+> +		return -EOPNOTSUPP;
+> +
+> +	/* Encode CMD part of addresses and access size */
+> +	cmd  |= ((u32)addr & 0x7) << SMBCMD_SA_SHIFT;
+> +	cmd |= ((u32)command) << SMBCMD_BA_SHIFT;
+> +	if (size == I2C_SMBUS_WORD_DATA)
+> +		cmd |= SMBCMD_WORD_ACCESS;
+> +
+> +	/* Encode read/write and data to write */
+> +	if (read_write == I2C_SMBUS_READ) {
+> +		cmd |= SMBCMD_TYPE_READ;
+> +	} else {
+> +		cmd |= SMBCMD_TYPE_WRITE;
+> +		cmd |= (size == I2C_SMBUS_WORD_DATA
+> +			    ? swab16(data->word)
+> +			    : data->byte);
+> +	}
+> +
+> +	mutex_lock(&ch->mutex);
+
+Why is the per-adapter lock not sufficient?
+
+> +
+> +	ret = imc_channel_claim(priv, chan);
+> +	if (ret)
+> +		goto out_unlock;
+> +
+> +	pci_read_config_dword(priv->pci_dev, SMBCNTL(chan), &cntl);
+> +	cntl &= ~SMBCNTL_DTI_MASK;
+> +	cntl |= ((u32)addr >> 3) << SMBCNTL_DTI_SHIFT;
+> +	pci_write_config_dword(priv->pci_dev, SMBCNTL(chan), cntl);
+> +
+> +	/*
+> +	 * This clears SMBCMD_PNTR_SEL.  We leave it cleared so that we don't
+> +	 * need to think about keeping the TSOD pointer state consistent with
+> +	 * the hardware's expectation.  This probably has some miniscule
+> +	 * power cost, as TSOD polls will take 9 extra cycles.
+> +	 */
+> +	cmd |= SMBCMD_TRIGGER;
+> +	pci_write_config_dword(priv->pci_dev, SMBCMD(chan), cmd);
+> +
+> +	if (imc_wait_not_busy(priv, chan, &stat) != 0) {
+> +		/* Timeout.  TODO: Reset the controller? */
+> +		ret = -EIO;
+> +		dev_err(&priv->pci_dev->dev, "controller is wedged\n");
+> +		goto out_release;
+> +	}
+> +
+> +	/*
+> +	 * Be paranoid: try to detect races.  This will only detect races
+> +	 * against BIOS, not against hardware.  (I've never seen this happen.)
+> +	 */
+> +	pci_read_config_dword(priv->pci_dev, SMBCMD(chan), &final_cmd);
+> +	pci_read_config_dword(priv->pci_dev, SMBCNTL(chan), &final_cntl);
+> +	if (((cmd ^ final_cmd) & SMBCMD_OUR_BITS) ||
+> +	    ((cntl ^ final_cntl) & SMBCNTL_OUR_BITS)) {
+> +		WARN(1, "iMC SMBUS raced against firmware");
+> +		dev_emerg(&priv->pci_dev->dev,
+> +			  "Access to channel %d raced: cmd 0x%08X->0x%08X, cntl 0x%08X->0x%08X\n",
+> +			  chan, cmd, final_cmd, cntl, final_cntl);
+
+Ehrm, do we need WARN and dev_emerg? And the error message should be
+updated. It should tell what the user should do next to handle the
+emergency.
+
+
+...
+
+> +	if (!imc_channel_can_claim(priv, i)) {
+> +		dev_warn(&priv->pci_dev->dev,
+> +			 "iMC channel %d: we cannot control the HW.  Is CLTT on?\n",
+> +			 i);
+
+That should go on the previous line IMO. The 80 char limit may be broken
+for readability reasons.
+
+> +MODULE_AUTHOR("Andrew Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>");
+> +MODULE_DESCRIPTION("iMC SMBus driver");
+> +MODULE_LICENSE("GPL");
+
+GPL v2 according to header.
+
+Thanks,
+
+   Wolfram
+
+
+--+g7M9IMkV8truYOl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTBMrKAAoJEBQN5MwUoCm2j/QP/RweNaFTpVw9nI/LU07tolwU
-/W202vUpU6lVGxLRS6WSDfjO4DvzAp7rXUdMWioxvfr3i8t+bCVkFDvm/dcpnToS
-ts67v5Wq5vPYEDxrBvsQ/+IHJmKc+i1hjE8FkD+iqUN+ri/c1Xvb6YaVNsVjZ0wK
-Tdm95w26cy7rcUyBvvJU8xjO0hE/T2N8mE/B7ZUpmhKEEONPv5LqEPGPPjGYJnXa
-KeoqdabLmdgrQa1GfAyZ99qklDWxZ6zs4IvjonaD3cJqLnRwa/dU/kRKFYtOewNA
-kUnlqSZ8Hf5F+nnBFL8Q949cv0SH5uK3WxK/0iaVMQyjJuk1bfHhIReuU2WSW1g6
-gg1ZCrTQbccBv/pj76u+4JbZ235lYmOXcj+QkptyAnrmnDIg/ZneH1FT5DumQzka
-VZ0WC071EmGfPGe2MZ3ZcMgzC0OzqbkaeHoVDAa+19YNjKQfKzdYxxv0kz4S/bKC
-+BEiAD/7u8yH6rKiN9A9KFhvNZo5iqfNJrO62l2xcnN+GVEfUFt3ZRKkOHBT2NBt
-ZLVcTEM+uAZsLPylr/hXhEQeML4qaolHiWbLalcgrmnTthiYRcktrht5MS5tsUBX
-+jT+MXE25YiqazfXQ1SX/jFi/34xfcE8dGKjw/TLNGil2j2mV+hXI6eyTBkWGQOl
-6zaBJWf4EhbrBLsaxnwX
-=wrrz
+iQIcBAEBAgAGBQJTBNAKAAoJEBQN5MwUoCm2AkYP/R/ZrPrsKZz3VKuL9rkUl55O
+oLcVYoII/v+FVcRWWJL9H1kVsbbQ0ru6LPfHP+DOSLiCAmmrNxr+IRJKYPjSZ3Sd
+8ZeUKserBPLDpez3XEAj1Qh4po87BGoihU8IzAA6/aD1v5h8ZsrPLN8x7esWPHmH
+mJKyKaHuXw7LSYgiIndwqwX8HYuVYejkGXtqGMkCDbeCUAosRKBKIpYWNFfgzCuV
+7Hbst76orys2PV0zpp08IXdYiVRL43o/9KauRgxHd/Ig0IxKaDYbGkr2ii6wgHg2
+PjaGT6xO0mZfS/RarzDBDMMM9abicdQPPDWAeCcGVc5XrLuNssScEw3eblgIDcpV
+bl40Izv0KVVfRckq15uDoqm3UXMHngv4W5jIteCtk78W3n59OmfZxwkWdof7waH0
+R7IFhwAHQ5kczoWC6IlbNPQ4VQeyzEC2tCOfMUAeud1dwR0kzNybRCejt7wh3yZN
+NmlHMi4IpdEzeBxJWj2LBsaiHnpqGUbzbqU/vOUjQuA8bs5DqAAuqzUz86aan7Es
+IHIynXnS2wo9yxq9Jx7d/W/2lI4TiDk5bKcp1mueZWODk4Z5dN5lagPOOrMQT0LI
+1dm0J8eN3WlRL/05RgUF2qm1Ga2uyqDk8wH7KyDlhGLnAkYsr8KrJBQAblxokJp8
+I1JOjvgu29czP3ManVPk
+=kp7H
 -----END PGP SIGNATURE-----
 
---pf9I7BMVVzbSWLtt--
+--+g7M9IMkV8truYOl--
