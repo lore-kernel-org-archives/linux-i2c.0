@@ -1,47 +1,36 @@
-From: "Luck, Tony" <tony.luck-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH v6 4/4] i2c, i2c_imc: Add DIMM bus code
-Date: Thu, 20 Feb 2014 16:42:09 +0000
-Message-ID: <3908561D78D1C84285E8C5FCA982C28F31DCD1E1@ORSMSX106.amr.corp.intel.com>
-References: <cover.1387588711.git.luto@amacapital.net>
- <15eccfa508fd0f55230c4274e3e968f91a123b73.1387588711.git.luto@amacapital.net>
- <20140219151626.GA13973@katana>
- <CALCETrVBPzGqaXbZVgUZMw7D5U5YnUMJOEsw1r=TceLYjJ39JA@mail.gmail.com>
- <20140220035128.14da0f79.m.chehab@samsung.com>
- <3908561D78D1C84285E8C5FCA982C28F31DCC6F8@ORSMSX106.amr.corp.intel.com>
- <CALCETrVwSj3KGcPqQD2Kd9W5FCHyPWLukCVr0BZLdQc_Fgz4qA@mail.gmail.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: I2C dummy adapter driver ?
+Date: Thu, 20 Feb 2014 09:49:48 -0700
+Message-ID: <5306322C.8030703@wwwdotorg.org>
+References: <5305382E.9050902@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CALCETrVwSj3KGcPqQD2Kd9W5FCHyPWLukCVr0BZLdQc_Fgz4qA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <5305382E.9050902-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Cc: Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rui Wang <ruiv.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> NV-DIMM control registers are exposed via i2c, presumably because
-> trying to access them through the memory pins would be a giant mess.
-> So, one way or another, something needs to be able to initiate
-> transactions to access those registers.  BIOS will do some initial
-> setup, but the OS will need to poke at these registers, too.  (The
-> actual docs are covered by NDA.  I suspect that this will change if
-> the manufacturers ever want these things to be widely used, though,
-> since these things really want a full-featured kernel driver so that
-> things like pmfs will work cleanly.)
->
-> As a secondary benefit, having access to the TSOD and SPD is nice,
-> albeit far from critical.
->
-> AFAICT Intel actively working on NV-DIMM-related things, so maybe
-> Intel will contribute an engineer who help :)
+On 02/19/2014 04:03 PM, Sylwester Nawrocki wrote:
+> Hi All,
+> 
+> I was wondering whether it would be reasonable to create a generic
+> Linux dummy I2C bus controller driver. The rationale behind it is
+> there might be hardware configurations where I2C communication is
+> handled by firmware but still it is useful to have I2C slave devices
+             ^^^^^^^^
 
-Yes - we have people looking at pmfs and NV-DIMMs.  I don't know
-the internal details ... to keep these accesses safe may require letting
-the platform BIOS code perform them (via some ACPI thingy) ... messy
-and slow - but probably workable if these registers are only required
-for some maintenance/configuration usage patterns.  Not so good if
-they are in the high frequency read/write path (but I2C in the critical
-path sounds like a recipe for failure).
+That doesn't sound like a dummy driver. Rather, it sounds like a driver
+for the firmware(?) interface that's used to do the I2C transactions.
 
--Tony
+> instantiated by a Linux I2C bus adapter driver.
+> It would be useful to have the common devicetree I2C binding scheme
+> working regardless of where the I2C communication is handled - in
+> firmware or by the host CPU.
+> 
+> Currently we have a somewhat dummy I2C adapter driver at drivers/media/
+> platform/exynos4-is/fimc-is-i2c.c. But it is going to be needed by
+> multiple SoCs and I thought about separating it or creating a generic
+> dummy I2C adapter driver.
