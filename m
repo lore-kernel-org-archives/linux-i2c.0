@@ -1,69 +1,29 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH V2] i2c: rcar: add compatible entry for r8a7791
-Date: Thu, 20 Feb 2014 09:03:20 +0100
-Message-ID: <1392883400-4396-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@sang-engineering.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: i2c-tools 3.1.1 has been released
+Date: Thu, 20 Feb 2014 15:41:11 +0100
+Message-ID: <20140220154111.637f2838@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa@sang-engineering.com>
+Hi all,
 
-While we are here, also brush up the devicetree binding documentation.
-The example was an inappropriate copy from the sh_mobile driver.
+More than 2 years after the previous release, i2c-tools 3.1.1 is finally
+available. It is based on the stable branch, so it only contains fixes,
+minor improvements and documentation updates, nothing fancy.
 
-Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
----
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 14 ++++++++++----
- drivers/i2c/busses/i2c-rcar.c                      |  1 +
- 2 files changed, 11 insertions(+), 4 deletions(-)
+The most visible changes are as follow:
+ * Manual pages were added for decode-dimms, decode-vaio, eeprog,
+   eeprom and eepromer (thanks to Jaromir Capik)
+ * decode-dimms was improved, in particular DDR3 support but also SDR
+   and DDR2 support
+ * i2c-stub-from-dump tolerance on input dump format was improved
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-index 897cfcd5..dd8b2dd 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-@@ -6,6 +6,7 @@ Required properties:
- 	"renesas,i2c-r8a7778"
- 	"renesas,i2c-r8a7779"
- 	"renesas,i2c-r8a7790"
-+	"renesas,i2c-r8a7791"
- - reg: physical base address of the controller and length of memory mapped
-   region.
- - interrupts: interrupt specifier.
-@@ -13,11 +14,16 @@ Required properties:
- Optional properties:
- - clock-frequency: desired I2C bus clock frequency in Hz. The absence of this
-   propoerty indicates the default frequency 100 kHz.
-+- clocks: clock specifier.
- 
- Examples :
- 
--i2c0: i2c@e6500000 {
--	compatible = "renesas,i2c-rcar-h2";
--	reg = <0 0xe6500000 0 0x428>;
--	interrupts = <0 174 0x4>;
-+i2c0: i2c@e6508000 {
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+	compatible = "renesas,i2c-r8a7791";
-+	reg = <0 0xe6508000 0 0x40>;
-+	interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
-+	clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
-+	clock-frequency = <400000>;
- };
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 0282d4d..cc60bc6 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -638,6 +638,7 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
- 	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
- 	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
- 	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
-+	{ .compatible = "renesas,i2c-r8a7791", .data = (void *)I2C_RCAR_GEN2 },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
+Enjoy,
 -- 
-1.8.5.1
-
+Jean Delvare
+Suse L3 Support
