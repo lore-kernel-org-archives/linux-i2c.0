@@ -1,59 +1,45 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH v3 2/2] i2c: New bus driver for the Qualcomm QUP I2C
- controller
-Date: Fri, 21 Feb 2014 11:06:37 +0000
-Message-ID: <20140221110637.GG7541@e106331-lin.cambridge.arm.com>
-References: <1392943090-30556-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1392943090-30556-3-git-send-email-bjorn.andersson@sonymobile.com>
+From: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: I2C dummy adapter driver ?
+Date: Fri, 21 Feb 2014 12:26:43 +0100
+Message-ID: <530737F3.5050102@samsung.com>
+References: <5305382E.9050902@gmail.com> <5306322C.8030703@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1392943090-30556-3-git-send-email-bjorn.andersson@sonymobile.com>
-Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Andy Gross <agross@codeaurora.org>, Stephen Boyd <sboyd@codeaurora.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <5306322C.8030703-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jassi Brar <jassisinghbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 21, 2014 at 12:38:10AM +0000, Bjorn Andersson wrote:
-> This bus driver supports the QUP i2c hardware controller in the Qualcomm SOCs.
-> The Qualcomm Universal Peripheral Engine (QUP) is a general purpose data path
-> engine with input/output FIFOs and an embedded i2c mini-core. The driver
-> supports FIFO mode (for low bandwidth applications) and block mode (interrupt
-> generated for each block-size data transfer).
->
-> Cc: Andy Gross <agross@codeaurora.org>
-> Cc: Stephen Boyd <sboyd@codeaurora.org>
-> Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> ---
->  drivers/i2c/busses/Kconfig   |   10 +
->  drivers/i2c/busses/Makefile  |    1 +
->  drivers/i2c/busses/i2c-qup.c |  772 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 783 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-qup.c
->
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index f5ed031..403e196 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -648,6 +648,16 @@ config I2C_PXA_SLAVE
->           is necessary for systems where the PXA may be a target on the
->           I2C bus.
-
+On 20/02/14 17:49, Stephen Warren wrote:
+> On 02/19/2014 04:03 PM, Sylwester Nawrocki wrote:
 [...]
+>> I was wondering whether it would be reasonable to create a generic
+>> Linux dummy I2C bus controller driver. The rationale behind it is
+>> there might be hardware configurations where I2C communication is
+>> handled by firmware but still it is useful to have I2C slave devices
+>              ^^^^^^^^
+> 
+> That doesn't sound like a dummy driver. Rather, it sounds like a driver
+> for the firmware(?) interface that's used to do the I2C transactions.
 
-> +static const struct of_device_id qup_i2c_dt_match[] = {
-> +       { .compatible = "qcom,i2c-qup-v1.1.1" },
-> +       { .compatible = "qcom,i2c-qup-v2.1.1" },
-> +       { .compatible = "qcom,i2c-qup-v2.2.1" },
+Hmm, I think you're right. Just to clarify a bit, as the I2C slave device
+is part of a more complex data processing chain, it is not exposed by
+the firmware on a I2C read/write like command interface.
+So the only thing the Linux I2C client does currently is to enable some
+voltage regulators and driver reset pin through a GPIO. 
 
-The all seem to be handled the same.
+However it depends on the firmware for the MCU controlling the whole
+camera data processing chain, currently the I2C slave control transactions
+are being handled in an opaque way by the firmware, it just exposes (very 
+few) high level commands specifically related to the I2C slave.
+It could be also that the firmware leaves out the I2C bus controller and
+I2C slave handling solely to the host CPU. In such case a regular I2C
+bus controller driver is needed. Hence the exact role of the I2C bus 
+controller driver highly depends on the firmware loaded.
 
-Are they all compatible with the "qcom,i2c-qup-v1.1.1" programming
-model, such that it could be used as a fallback in the compatible list
-(and the driver would only need to look for it for now)?
-
-Cheers,
-Mark.
+I assume the "driver for the firmware interface" is a good definition.
+I'm just not sure what best location of such an I2C bus driver, supposedly
+drivers/media/i2c would be a good fit, rather than drivers/i2c/busses.
