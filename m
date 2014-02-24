@@ -1,52 +1,88 @@
-From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Subject: Re: [PATCH v3 2/2] i2c: New bus driver for the Qualcomm QUP I2C
- controller
-Date: Mon, 24 Feb 2014 12:33:10 +0200
-Message-ID: <1393237990.6481.15.camel@iivanov-dev>
-References: <1392943090-30556-1-git-send-email-bjorn.andersson@sonymobile.com>
-	 <1392943090-30556-3-git-send-email-bjorn.andersson@sonymobile.com>
-	 <92B0AE30-5CDF-43FC-8588-EEF0C5F86266@codeaurora.org>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c:at91: Add device tree property to set clock-frequency
+Date: Mon, 24 Feb 2014 11:44:35 +0100
+Message-ID: <20140224104435.GB5087@ldesroches-Latitude-E6320>
+References: <1393143540-627-1-git-send-email-mark.roszko@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <92B0AE30-5CDF-43FC-8588-EEF0C5F86266@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Kumar Gala <galak@codeaurora.org>
-Cc: Bjorn Andersson <bjorn.andersson@sonymobile.com>, Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Rob Landley <rob@landley.net>, Andy Gross <agross@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Stephen Boyd <sboyd@codeaurora.org>, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1393143540-627-1-git-send-email-mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, 
+Thanks for removing this hard coding bus frequency.
 
-On Fri, 2014-02-21 at 09:35 -0600, Kumar Gala wrote: 
-> On Feb 20, 2014, at 6:38 PM, Bjorn Andersson <bjorn.andersson@sonymobile.com> wrote:
+On Sun, Feb 23, 2014 at 03:19:00AM -0500, Marek Roszko wrote:
+> This adds the ability to set "clock-frequency" in the device tree for the i2c bus following
+> the naming of other i2c bus implementations. If the property is not set, the clock
+> frequency will default to the previously used define of 100KHz.
 > 
-> > This bus driver supports the QUP i2c hardware controller in the Qualcomm SOCs.
-> > The Qualcomm Universal Peripheral Engine (QUP) is a general purpose data path
-> > engine with input/output FIFOs and an embedded i2c mini-core. The driver
-> > supports FIFO mode (for low bandwidth applications) and block mode (interrupt
-> > generated for each block-size data transfer).
-> > 
-> > Cc: Andy Gross <agross@codeaurora.org>
-> > Cc: Stephen Boyd <sboyd@codeaurora.org>
-> > Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
-> > Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> > ---
+> Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-<snip>
-
-> > 
-> > +config I2C_QUP
-> > +	tristate "Qualcomm QUP based I2C controller"
-> > +	depends on ARCH_MSM
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-at91.txt |    2 ++
+>  drivers/i2c/busses/i2c-at91.c                      |   10 ++++++++--
+>  2 files changed, 10 insertions(+), 2 deletions(-)
 > 
-> ARCH_QCOM
-
-There is no such symbol, still.
-
-Regards,
-Ivan 
-
-
-> - k
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> index 4fade84..388f0a2 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> @@ -12,6 +12,7 @@ Required properties :
+>  - clocks: phandles to input clocks.
+>  
+>  Optional properties:
+> +- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000
+>  - Child nodes conforming to i2c bus binding
+>  
+>  Examples :
+> @@ -23,6 +24,7 @@ i2c0: i2c@fff84000 {
+>  	#address-cells = <1>;
+>  	#size-cells = <0>;
+>  	clocks = <&twi0_clk>;
+> +	clock-frequency = <400000>;
+>  
+>  	24c512@50 {
+>  		compatible = "24c512";
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 843d012..8e0871e 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -32,7 +32,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/platform_data/dma-atmel.h>
+>  
+> -#define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
+> +#define DEFAULT_TWI_CLK_HZ		100000		/* max 400 Kbits/s */
+>  #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
+>  #define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
+>  
+> @@ -711,6 +711,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+>  	struct resource *mem;
+>  	int rc;
+>  	u32 phy_addr;
+> +	int bus_clk_rate;
+>  
+>  	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+>  	if (!dev)
+> @@ -756,7 +757,12 @@ static int at91_twi_probe(struct platform_device *pdev)
+>  			dev->use_dma = true;
+>  	}
+>  
+> -	at91_calc_twi_clock(dev, TWI_CLK_HZ);
+> +	ret = of_property_read_u32(dev->dev->of_node, "clock-frequency",
+> +			&bus_clk_rate);
+> +	if (ret < 0)
+> +		bus_clk_rate = DEFAULT_TWI_CLK_HZ;
+> +
+> +	at91_calc_twi_clock(dev, bus_clk_rate);
+>  	at91_init_twi_bus(dev);
+>  
+>  	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+> -- 
+> 1.7.10.4
 > 
