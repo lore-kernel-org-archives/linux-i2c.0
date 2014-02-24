@@ -1,42 +1,37 @@
-From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH] i2c: nomadik: Silence compiler warning
-Date: Sun, 23 Feb 2014 17:42:06 +0100
-Message-ID: <1393173726-29479-1-git-send-email-ulf.hansson@linaro.org>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: nomadik: factor platform data into state container
+Date: Mon, 24 Feb 2014 09:57:05 +0100
+Message-ID: <CACRpkdZULnOmRL7Qv-3Y_R4Cxo1A3CtgUBLmUKjsaehEZHur2w@mail.gmail.com>
+References: <1391423246-32410-1-git-send-email-linus.walleij@linaro.org>
+	<20140218183539.GE18768@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140218183539.GE18768@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Commit "i2c: nomadik: Fixup deployment of runtime PM" introduced a
-compiler warning for !CONFIG_PM. Let's fix it here.
+On Tue, Feb 18, 2014 at 7:35 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
 
-Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
+>> -     of_property_read_u32(np, "clock-frequency", &pdata->clk_freq);
+>> +     /* Default to 400 kHz if no frequency is given in the node */
+>> +     if (of_property_read_u32(np, "clock-frequency", &nmk->clk_freq))
+>> +             nmk->clk_freq = 400000;
+>
+> I can't really recommend this. 100kHz is something all devices support,
+> but, although common, 400 kHz is already an extension of the standard.
+>
+> Let me know if I should fix this up for you.
 
-Wolfram, currently one of the queued patches for i2c nomadik introduced a
-compiler warning. I decided to add a fixup patch on top of these instead of
-you dropping them and me resending new versions of the already applied patches.
+I think this is done like this because all devices on all Nomadik variants
+out there (Nomadik, Ux500) support 400kHz.
 
-If you think it's better to drop the queued patches and to resend new verions,
-please tell me.
+Buit change it if you prefer, nothing will break, it will just get slower :-)
 
----
- drivers/i2c/busses/i2c-nomadik.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I can easily fix that up ipso facto by modifying the device trees to
+state 400kHz for them.
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 8082f5c..5f47454 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -895,7 +895,7 @@ static int nmk_i2c_resume_early(struct device *dev)
- }
- #endif
- 
--#if CONFIG_PM
-+#ifdef CONFIG_PM
- static int nmk_i2c_runtime_suspend(struct device *dev)
- {
- 	struct amba_device *adev = to_amba_device(dev);
--- 
-1.7.9.5
+Yours,
+Linus Walleij
