@@ -1,55 +1,66 @@
-From: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
+From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
 Subject: Re: [PATCH v3 2/2] i2c: New bus driver for the Qualcomm QUP I2C
  controller
-Date: Mon, 24 Feb 2014 09:51:52 -0800
-Message-ID: <20140224175152.GB32621@sonymobile.com>
+Date: Mon, 24 Feb 2014 10:00:41 -0800
+Message-ID: <20140224180040.GC32621@sonymobile.com>
 References: <1392943090-30556-1-git-send-email-bjorn.andersson@sonymobile.com>
  <1392943090-30556-3-git-send-email-bjorn.andersson@sonymobile.com>
- <1392943934.2594.14.camel@joe-AO722>
+ <5306BFC4.5000005@elopez.com.ar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1392943934.2594.14.camel@joe-AO722>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <5306BFC4.5000005@elopez.com.ar>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Emilio L?pez <emilio@elopez.com.ar>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Stephen Boyd <sboyd@codeaurora.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, Andy Gross <agross@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu 20 Feb 16:52 PST 2014, Joe Perches wrote:
+On Thu 20 Feb 18:53 PST 2014, Emilio L?pez wrote:
 
-> On Thu, 2014-02-20 at 16:38 -0800, Bjorn Andersson wrote:
-> > This bus driver supports the QUP i2c hardware controller in the Qualcomm SOCs.
-> > The Qualcomm Universal Peripheral Engine (QUP) is a general purpose data path
-> > engine with input/output FIFOs and an embedded i2c mini-core. The driver
-> > supports FIFO mode (for low bandwidth applications) and block mode (interrupt
-> > generated for each block-size data transfer).
-> 
-> trivia:
-> 
-> > diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-> []
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int qup_i2c_suspend(struct device *device)
-> > +{
-> > +	dev_dbg(device, "system suspend");
-> > +	qup_i2c_pm_suspend_runtime(device);
-> > +	return 0;
-> > +}
+> Hi Bjorn,
+>=20
+> El 20/02/14 21:38, Bjorn Andersson escribi=F3:
+[...]
+> > +	clk_freq =3D 100000;
+> > +	if (!of_property_read_u32(node, "clock-frequency", &val))
+> > +		clk_freq =3D val;
+>=20
+> val will be modified only if no error occurs, so you may rewrite this=
+=20
+> bit as
+>=20
+> +	u32 clk_freq =3D 100000;
+> ...
+> +	of_property_read_u32(node, "clock-frequency", &clk_freq)
+
+Seems the two conventions used in the kernel is either your proposal or=
+ "if
+fail the assign default". So I'll change this.
+
+>=20
 > > +
-> > +static int qup_i2c_resume(struct device *device)
-> > +{
-> > +	dev_dbg(device, "system resume");
-> > +	qup_i2c_pm_resume_runtime(device);
-> > +	pm_runtime_mark_last_busy(device);
-> > +	pm_request_autosuspend(device);
-> > +	return 0;
-> > +}
-> > +#endif
-> 
-> Missing terminating newlines for dev_dbg statements.
+> > +	/* We support frequencies up to FAST Mode (400KHz) */
+> > +	if (clk_freq <=3D 0 || clk_freq > 400000) {
+>=20
+> And you can drop the < check when it's unsigned.
 
-Thanks Joe, missed those.
+Indeed!
 
-Regards,
+>=20
+> > +		dev_err(qup->dev, "clock frequency not supported %d\n",
+> > +			clk_freq);
+> > +		return -EIO;
+>=20
+> EIO?
+
+EINVAL
+
+>=20
+> Cheers,
+>=20
+> Emilio
+
+Thanks,
 Bjorn
