@@ -1,78 +1,66 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: nomadik: factor platform data into state
- container
-Date: Mon, 24 Feb 2014 10:13:42 +0100
-Message-ID: <20140224091311.GB2617@katana>
-References: <1391423246-32410-1-git-send-email-linus.walleij@linaro.org>
- <20140218183539.GE18768@katana>
- <CACRpkdZULnOmRL7Qv-3Y_R4Cxo1A3CtgUBLmUKjsaehEZHur2w@mail.gmail.com>
+Subject: Re: [PATCH] i2c: nomadik: Silence compiler warning
+Date: Mon, 24 Feb 2014 10:14:52 +0100
+Message-ID: <20140224091452.GC2617@katana>
+References: <1393173726-29479-1-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
+	protocol="application/pgp-signature"; boundary="ALfTUftag+2gvp1h"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdZULnOmRL7Qv-3Y_R4Cxo1A3CtgUBLmUKjsaehEZHur2w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1393173726-29479-1-git-send-email-ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---oLBj+sq0vYjzfsbl
+--ALfTUftag+2gvp1h
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 24, 2014 at 09:57:05AM +0100, Linus Walleij wrote:
-> On Tue, Feb 18, 2014 at 7:35 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+On Sun, Feb 23, 2014 at 05:42:06PM +0100, Ulf Hansson wrote:
+> Commit "i2c: nomadik: Fixup deployment of runtime PM" introduced a
+> compiler warning for !CONFIG_PM. Let's fix it here.
 >=20
-> >> -     of_property_read_u32(np, "clock-frequency", &pdata->clk_freq);
-> >> +     /* Default to 400 kHz if no frequency is given in the node */
-> >> +     if (of_property_read_u32(np, "clock-frequency", &nmk->clk_freq))
-> >> +             nmk->clk_freq =3D 400000;
-> >
-> > I can't really recommend this. 100kHz is something all devices support,
-> > but, although common, 400 kHz is already an extension of the standard.
-> >
-> > Let me know if I should fix this up for you.
+> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
 >=20
-> I think this is done like this because all devices on all Nomadik variants
-> out there (Nomadik, Ux500) support 400kHz.
+> Wolfram, currently one of the queued patches for i2c nomadik introduced a
+> compiler warning. I decided to add a fixup patch on top of these instead =
+of
+> you dropping them and me resending new versions of the already applied pa=
+tches.
 >=20
-> Buit change it if you prefer, nothing will break, it will just get slower=
- :-)
+> If you think it's better to drop the queued patches and to resend new ver=
+ions,
+> please tell me.
 
-OK, then I'll change it. There is this idea of parsing "clock-frequency" in
-the core somewhen and if so, 100kHz would be the default, for sure.
-
-> I can easily fix that up ipso facto by modifying the device trees to
-> state 400kHz for them.
-
-Then lets do it this way.
-
-Thanks!
+I'll fold it into the causing patch since I haven't pushed out yet. I
+was waiting for Linus response to the bus speed question.
 
 
---oLBj+sq0vYjzfsbl
+--ALfTUftag+2gvp1h
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTCw0mAAoJEBQN5MwUoCm2Gs0QAKlNATO37KtgF5VxDEZwGY9e
-59ZFn2nTu7BK1TvRNpzCmyKYtt32N/RMHzpUBKb8OAN0lGkrWX7D8F6tLRh7QVX8
-JokoaBFIDwP+PAN+oiqRZuLcRZicKRBLshLnGgGEM1LzXIpWVK8gr4ja99SD4/rN
-DH3hUolBuajZz8+gPAFGENr6LRmpjB6A7Y835QNquAjyiD7ZZgPlh63CPVzdz0G4
-0ITOtRSsO2V+N6ChcSnvqzPg1RRr5e1Fd4IbUEaoOyqqrCmeikD6k8CJUycxjhFw
-uqDDgN8OwkNqzumuYwmHQNuAFXZ/v1AlKuvnSe3egMKPTMLWWnnfc0jX1+AmhkZU
-qKL3e0n4CIFzrIdjm2hvXcDem26J56ZGPUPE9ZvUcyPSkxwTK2vH8HhYIzGZk6y+
-z2pqv832quEBLkJtOdOrZURo627+G+dpCbE5XHnu9GGeL7ak7SUApu3w4rugnibs
-1lsqEYqRkCYQpnxQQrYwkCYftmTP1ZJ0tChYpjhujLEfSZW/oDt6kXo67q69B4RT
-+jRX3gk2t5ppZm+uCOl65Wab0V+Od+d3BpWYm2qiXNX+s/Gy8sdGTw/TVb7oV2ie
-bluksKemb+YUCl/f+lRMRSvXEnATDZL2t97Utc/Yiu/HKkpjBoLJfSe8IX/x08JM
-ZyTEm3cQkBfG8opAQISU
-=JcXk
+iQIcBAEBAgAGBQJTCw2MAAoJEBQN5MwUoCm2r+8P+wY099CiQQv0QnS+gCUtZ8Yq
+vRDt2qIra+9nmJz5VYj0G7puiwX2aOoBxejiPl+mxwoKzKaEXgsLOTQHyXJPsxY/
+h2YOyXzm6R0D6YABrUTFl3nnhZFRmVnc2Ymh02FQbUVRoFjAxee2MXonEofZ9b3e
+LdfGShoCT7zrt1cbVliKf+FlRpOZ7I5fzjYKPfLgGnu5/5stgoe5KgLR2xmNnd/X
+aVyA2dlmZ3ZE3Qb13YbqUbWnAncQ+z3Q5iEq+l6inGVtByXrx1UEPVaDlaLZvQI2
+N8/okg1Fs8MQryx4vVmkR5FvzKXnR5XyCVm/yUxjDKzle7VrBgrNaAwD7+Ih/MOf
+rSVACQzGXYpbhvND1ndCgN3ecv+6lMEjEPZSp/oDI6eZY/7Fck3I3vEgQNBCb6Us
+Bt3wY6FhjjRYqiW+wd3CMRNm9I1YmqsgtUV2BaLjsPdsVsiBXczjBLA9UdIo33ep
+Ya/UUu4pnbjlI1V0NEsmxrYrJ1LJy7lvKoo72KpEVSGHjKoAsDgbAmr6698yqr+0
+VDgIETvrelm/WtoJ/QTvBUUtieYYpdy37BVAoiAeSQdtITiuKpD29be+tZbpSc+k
+Enz6hmB7lsbWEhcS7dbPGgd0JPFYjDtRLhnYv2Dip/zxeFLeWADE5BPJv4sF6NPb
+NVeV78v8kTCoAlDZG6Fh
+=ONTd
 -----END PGP SIGNATURE-----
 
---oLBj+sq0vYjzfsbl--
+--ALfTUftag+2gvp1h--
