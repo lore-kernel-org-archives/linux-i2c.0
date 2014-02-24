@@ -1,59 +1,53 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 03/17] mmc: mmci: Mask IRQs for all variants during
- runtime suspend
-Date: Mon, 24 Feb 2014 15:54:10 +0100
-Message-ID: <CACRpkdYF4sR4SJ_jZsVLY2tNV0xDfR2GG63bF5e=bkthpDsDGQ@mail.gmail.com>
-References: <1391529538-21685-1-git-send-email-ulf.hansson@linaro.org>
-	<1391529538-21685-4-git-send-email-ulf.hansson@linaro.org>
-	<20140218160542.GH21483@n2100.arm.linux.org.uk>
-	<CAPDyKFq3uAoo7p-7hZgBmMJ4jf9A7dC0aUZJYUE0z1Qq5W=0bw@mail.gmail.com>
+From: Josh Cartwright <joshc@codeaurora.org>
+Subject: Re: [PATCH v3 2/2] i2c: New bus driver for the Qualcomm QUP I2C
+ controller
+Date: Mon, 24 Feb 2014 11:40:21 -0600
+Message-ID: <20140224174021.GA18563@joshc.qualcomm.com>
+References: <1392943090-30556-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1392943090-30556-3-git-send-email-bjorn.andersson@sonymobile.com>
+ <92B0AE30-5CDF-43FC-8588-EEF0C5F86266@codeaurora.org>
+ <1393237990.6481.15.camel@iivanov-dev>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <CAPDyKFq3uAoo7p-7hZgBmMJ4jf9A7dC0aUZJYUE0z1Qq5W=0bw@mail.gmail.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Alessandro Rubini <rubini@unipv.it>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Mark Brown <broonie@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, linux-mmc <linux-mmc@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1393237990.6481.15.camel@iivanov-dev>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Cc: Kumar Gala <galak@codeaurora.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Rob Landley <rob@landley.net>, Andy Gross <agross@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Stephen Boyd <sboyd@codeaurora.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 18, 2014 at 5:36 PM, Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> On 18 February 2014 17:05, Russell King - ARM Linux
-> <linux@arm.linux.org.uk> wrote:
->> On Tue, Feb 04, 2014 at 04:58:44PM +0100, Ulf Hansson wrote:
->>> In runtime suspended state, we are not expecting IRQs and thus we can
->>> safely mask them, not only for pwrreg_nopower variants but for all.
->>>
->>> Obviously we then also need to make sure we restore the IRQ mask while
->>> becoming runtime resumed.
->>
->> So, what happens when this patch is applied, and a SDIO card is attached
->> which expects to receive interrupts at any moment?
->
-> Currently, no variant implements SDIO irq.
->
-> The SDIO irq polling mode from the sdio core will still be functional,
-> as of today. So, this patch will not break SDIO.
->
->>
->> Given that I've run into this during the last week with a SDHCI controller,
->> I'm not that thrilled with other interfaces doing the same broken thing.
->
-> If we add SDIO irq support to mmci in future; parts of that
-> implementation includes a re-route of DAT1 to a GPIO irq when entering
-> runtime suspend state. The mmci HW will in runtime suspend state, not
-> be responsible for handling irqs, which is the same as of today.
+On Mon, Feb 24, 2014 at 12:33:10PM +0200, Ivan T. Ivanov wrote:
+> On Fri, 2014-02-21 at 09:35 -0600, Kumar Gala wrote: 
+> > On Feb 20, 2014, at 6:38 PM, Bjorn Andersson <bjorn.andersson@sonymobile.com> wrote:
+> > 
+> > > This bus driver supports the QUP i2c hardware controller in the Qualcomm SOCs.
+> > > The Qualcomm Universal Peripheral Engine (QUP) is a general purpose data path
+> > > engine with input/output FIFOs and an embedded i2c mini-core. The driver
+> > > supports FIFO mode (for low bandwidth applications) and block mode (interrupt
+> > > generated for each block-size data transfer).
+> > > 
+> > > Cc: Andy Gross <agross@codeaurora.org>
+> > > Cc: Stephen Boyd <sboyd@codeaurora.org>
+> > > Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
+> > > Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+> > > ---
+> > > +config I2C_QUP
+> > > +	tristate "Qualcomm QUP based I2C controller"
+> > > +	depends on ARCH_MSM
+> > 
+> > ARCH_QCOM
+> 
+> There is no such symbol, still.
 
-[Just smalltalk]
+For what it's worth, the rename/split is in linux-next, and will land in
+3.15 (as part of arm-soc cleanups).
 
-Switching DAT1 to "gpio mode" (which is something of a fallacy, see
-explanation in Documentation/pinctrl.txt) is not at all possible in all
-implementations of the PL18x, as it depends on exploiting properties
-on an assumed pin controller.
+Is the (short-term) problem of the lack of the symbol a problem?  Worse
+case, this driver lands before the ARCH_QCOM rename lands, and the
+driver is just not selectable.  Only when both are in place can the
+driver be selected.
 
-Systems that don't have such wakeup features on their pins are
-unlikely to support deepsleep in any capacity, and if they do they are
-ill-designed from the top level as this needs to be taken into account
-when devising the hardware :-/
-
-Yours,
-Linus Walleij
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by The Linux Foundation
