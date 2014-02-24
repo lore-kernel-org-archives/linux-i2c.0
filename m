@@ -1,53 +1,55 @@
-From: Josh Cartwright <joshc@codeaurora.org>
+From: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
 Subject: Re: [PATCH v3 2/2] i2c: New bus driver for the Qualcomm QUP I2C
  controller
-Date: Mon, 24 Feb 2014 11:40:21 -0600
-Message-ID: <20140224174021.GA18563@joshc.qualcomm.com>
+Date: Mon, 24 Feb 2014 09:51:52 -0800
+Message-ID: <20140224175152.GB32621@sonymobile.com>
 References: <1392943090-30556-1-git-send-email-bjorn.andersson@sonymobile.com>
  <1392943090-30556-3-git-send-email-bjorn.andersson@sonymobile.com>
- <92B0AE30-5CDF-43FC-8588-EEF0C5F86266@codeaurora.org>
- <1393237990.6481.15.camel@iivanov-dev>
+ <1392943934.2594.14.camel@joe-AO722>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1393237990.6481.15.camel@iivanov-dev>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: Kumar Gala <galak@codeaurora.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Rob Landley <rob@landley.net>, Andy Gross <agross@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Stephen Boyd <sboyd@codeaurora.org>, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <1392943934.2594.14.camel@joe-AO722>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 24, 2014 at 12:33:10PM +0200, Ivan T. Ivanov wrote:
-> On Fri, 2014-02-21 at 09:35 -0600, Kumar Gala wrote: 
-> > On Feb 20, 2014, at 6:38 PM, Bjorn Andersson <bjorn.andersson@sonymobile.com> wrote:
-> > 
-> > > This bus driver supports the QUP i2c hardware controller in the Qualcomm SOCs.
-> > > The Qualcomm Universal Peripheral Engine (QUP) is a general purpose data path
-> > > engine with input/output FIFOs and an embedded i2c mini-core. The driver
-> > > supports FIFO mode (for low bandwidth applications) and block mode (interrupt
-> > > generated for each block-size data transfer).
-> > > 
-> > > Cc: Andy Gross <agross@codeaurora.org>
-> > > Cc: Stephen Boyd <sboyd@codeaurora.org>
-> > > Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
-> > > Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> > > ---
-> > > +config I2C_QUP
-> > > +	tristate "Qualcomm QUP based I2C controller"
-> > > +	depends on ARCH_MSM
-> > 
-> > ARCH_QCOM
+On Thu 20 Feb 16:52 PST 2014, Joe Perches wrote:
+
+> On Thu, 2014-02-20 at 16:38 -0800, Bjorn Andersson wrote:
+> > This bus driver supports the QUP i2c hardware controller in the Qualcomm SOCs.
+> > The Qualcomm Universal Peripheral Engine (QUP) is a general purpose data path
+> > engine with input/output FIFOs and an embedded i2c mini-core. The driver
+> > supports FIFO mode (for low bandwidth applications) and block mode (interrupt
+> > generated for each block-size data transfer).
 > 
-> There is no such symbol, still.
+> trivia:
+> 
+> > diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> []
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int qup_i2c_suspend(struct device *device)
+> > +{
+> > +	dev_dbg(device, "system suspend");
+> > +	qup_i2c_pm_suspend_runtime(device);
+> > +	return 0;
+> > +}
+> > +
+> > +static int qup_i2c_resume(struct device *device)
+> > +{
+> > +	dev_dbg(device, "system resume");
+> > +	qup_i2c_pm_resume_runtime(device);
+> > +	pm_runtime_mark_last_busy(device);
+> > +	pm_request_autosuspend(device);
+> > +	return 0;
+> > +}
+> > +#endif
+> 
+> Missing terminating newlines for dev_dbg statements.
 
-For what it's worth, the rename/split is in linux-next, and will land in
-3.15 (as part of arm-soc cleanups).
+Thanks Joe, missed those.
 
-Is the (short-term) problem of the lack of the symbol a problem?  Worse
-case, this driver lands before the ARCH_QCOM rename lands, and the
-driver is just not selectable.  Only when both are in place can the
-driver be selected.
-
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+Regards,
+Bjorn
