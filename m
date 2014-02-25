@@ -1,43 +1,44 @@
-From: Andy Gross <agross@codeaurora.org>
-Subject: Re: [PATCH v3 2/2] i2c: New bus driver for the Qualcomm QUP I2C
- controller
-Date: Tue, 25 Feb 2014 10:56:07 -0600
-Message-ID: <20140225165607.GA5723@qualcomm.com>
-References: <1392943090-30556-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1392943090-30556-3-git-send-email-bjorn.andersson@sonymobile.com>
- <20140221110637.GG7541@e106331-lin.cambridge.arm.com>
- <CAJAp7OhGkr04smJv3iizBBjz7k4Oik=uxUdC_JD2+0D6VDSybg@mail.gmail.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v6 4/4] i2c, i2c_imc: Add DIMM bus code
+Date: Tue, 25 Feb 2014 11:54:20 -0800
+Message-ID: <CALCETrXhJPHyWP7NAujbshJc_fBYsGxp_MK752G4Nt8r9yMEmg@mail.gmail.com>
+References: <cover.1387588711.git.luto@amacapital.net> <15eccfa508fd0f55230c4274e3e968f91a123b73.1387588711.git.luto@amacapital.net>
+ <20140219151626.GA13973@katana> <CALCETrVBPzGqaXbZVgUZMw7D5U5YnUMJOEsw1r=TceLYjJ39JA@mail.gmail.com>
+ <20140219192646.1a62521d@alan.etchedpixels.co.uk> <CALCETrWEexCqH5486Qfyt22i5+MZjpETJEMTyg6FO6xOwXuraQ@mail.gmail.com>
+ <20140221153239.20dbb8c2@alan.etchedpixels.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJAp7OhGkr04smJv3iizBBjz7k4Oik=uxUdC_JD2+0D6VDSybg@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn@kryo.se>
-Cc: Mark Rutland <mark.rutland@arm.com>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Stephen Boyd <sboyd@codeaurora.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140221153239.20dbb8c2@alan.etchedpixels.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>, Guenter Roeck <linux@roeck-us.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Rui Wang <ruiv.wang@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 25, 2014 at 08:07:13AM -0800, Bjorn Andersson wrote:
+On Fri, Feb 21, 2014 at 7:32 AM, One Thousand Gnomes
+<gnomes@lxorguk.ukuu.org.uk> wrote:
+>> I'm suggesting identifying a range of addresses on a bus with a "port"
+>> (or whatever it should be called).  Multiple ports could claim
+>> non-overlapping ranges on the same bus.
+>
+> Which is fine until you meant a mux or a device that can be moved about
+> by writing to it, or has a wide range of addresses determined by
+> strapping.
 
-[snip]
+For muxes: isn't there already a system in place for dealing with them?
 
-> The v2 model will get BAM (DMAEngine) support soon, v1 uses an
-> older DMA core. So there's a difference. I'm not aware what differences
-> there are between 2.1.1 and 2.2.1.
+For things with addresses determined by strapping: my vague proposal
+is explicitly intended to support them.  (DIMMs are such a device.)
+Whoever instantiates the i2c "ports" is supposed to *know* the
+topology, including which straps are set where.  In some cases, that
+data could come from ACPI or DT.  In other cases, it's enumerated
+directly.  The idea would be to allow the code that figures out the
+topology (both physical connectivity and straps) to be separated from
+the code that talks to the i2c endpoints.
 
-Difference between 2.1.1 and 2.2.1:
- - high speed support, up to 3.4MHz
- - reconfiguration during run state
- - READ_AND_NACK, STOP tag support
- - some h/w bug fixes that don't involve software changes.
+Just specifying the address ranges might be insufficient for things
+that are more flexible than DIMMs, though -- it might be necessary to
+say "this port has these addresses and this kind of device lives at
+this address".
 
- 
-> Question is if next change will be called v3, as we then could skip the
-> reset of the version.
-
-Next version is 2.4.
-
--- 
-sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+--Andy
