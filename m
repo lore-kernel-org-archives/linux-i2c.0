@@ -1,81 +1,369 @@
-From: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] i2c:at91: Add device tree property to set clock-frequency
-Date: Mon, 24 Feb 2014 20:50:45 -0500
-Message-ID: <1393293045-31849-1-git-send-email-mark.roszko@gmail.com>
+From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: move bits macros and structs in blackfin twi
+ header from arch include to generic include
+Date: Tue, 25 Feb 2014 11:25:38 +0800
+Message-ID: <CAJxxZ0MEV+buC_+1Wc3X9CxWGZDDdKDgGT8mWXu1BJjH6vrBOg@mail.gmail.com>
+References: <1390899322-1184-1-git-send-email-sonic.adi@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1390899322-1184-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This adds the ability to set "clock-frequency" in the device tree for the i2c bus following
-the naming of other i2c bus implementations. If the property is not set, the clock
-frequency will default to the previously used define of 100KHz.
+Hi Wolfram,
 
-Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-v2:
-	-fixed return code usage and check to not compare agaisnt less than zero
+Could you comment these 2 patches to make bfin i2c driver generic?
 
----
- Documentation/devicetree/bindings/i2c/i2c-at91.txt |    2 ++
- drivers/i2c/busses/i2c-at91.c                      |   10 ++++++++--
- 2 files changed, 10 insertions(+), 2 deletions(-)
+Thanks
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-index 4fade84..388f0a2 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-@@ -12,6 +12,7 @@ Required properties :
- - clocks: phandles to input clocks.
- 
- Optional properties:
-+- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000
- - Child nodes conforming to i2c bus binding
- 
- Examples :
-@@ -23,6 +24,7 @@ i2c0: i2c@fff84000 {
- 	#address-cells = <1>;
- 	#size-cells = <0>;
- 	clocks = <&twi0_clk>;
-+	clock-frequency = <400000>;
- 
- 	24c512@50 {
- 		compatible = "24c512";
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 843d012..a407050 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -32,7 +32,7 @@
- #include <linux/slab.h>
- #include <linux/platform_data/dma-atmel.h>
- 
--#define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
-+#define DEFAULT_TWI_CLK_HZ		100000		/* max 400 Kbits/s */
- #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
- #define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
- 
-@@ -711,6 +711,7 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	struct resource *mem;
- 	int rc;
- 	u32 phy_addr;
-+	int bus_clk_rate;
- 
- 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
-@@ -756,7 +757,12 @@ static int at91_twi_probe(struct platform_device *pdev)
- 			dev->use_dma = true;
- 	}
- 
--	at91_calc_twi_clock(dev, TWI_CLK_HZ);
-+	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
-+			&bus_clk_rate);
-+	if (rc)
-+		bus_clk_rate = DEFAULT_TWI_CLK_HZ;
-+
-+	at91_calc_twi_clock(dev, bus_clk_rate);
- 	at91_init_twi_bus(dev);
- 
- 	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
--- 
-1.7.10.4
+Sonic Zhang
+
+On Tue, Jan 28, 2014 at 4:55 PM, Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>
+> The ADI TWI peripheral is not binding to the Blackfin processor only.
+> The bits macros and structs should be put in the generic include header.
+> And update head file path in drivers accordingly.
+>
+> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+> ---
+>  arch/blackfin/include/asm/bfin_twi.h | 126 +-----------------------------
+>  arch/blackfin/kernel/debug-mmrs.c    |   1 +
+>  drivers/i2c/busses/i2c-bfin-twi.c    |   4 +-
+>  include/linux/i2c/bfin_twi.h         | 145 +++++++++++++++++++++++++++++++++++
+>  4 files changed, 149 insertions(+), 127 deletions(-)
+>  create mode 100644 include/linux/i2c/bfin_twi.h
+>
+> diff --git a/arch/blackfin/include/asm/bfin_twi.h b/arch/blackfin/include/asm/bfin_twi.h
+> index 90c3c00..34cc395 100644
+> --- a/arch/blackfin/include/asm/bfin_twi.h
+> +++ b/arch/blackfin/include/asm/bfin_twi.h
+> @@ -9,60 +9,7 @@
+>  #ifndef __ASM_BFIN_TWI_H__
+>  #define __ASM_BFIN_TWI_H__
+>
+> -#include <linux/types.h>
+> -#include <linux/i2c.h>
+> -
+> -/*
+> - * All Blackfin system MMRs are padded to 32bits even if the register
+> - * itself is only 16bits.  So use a helper macro to streamline this.
+> - */
+> -#define __BFP(m) u16 m; u16 __pad_##m
+> -
+> -/*
+> - * bfin twi registers layout
+> - */
+> -struct bfin_twi_regs {
+> -       __BFP(clkdiv);
+> -       __BFP(control);
+> -       __BFP(slave_ctl);
+> -       __BFP(slave_stat);
+> -       __BFP(slave_addr);
+> -       __BFP(master_ctl);
+> -       __BFP(master_stat);
+> -       __BFP(master_addr);
+> -       __BFP(int_stat);
+> -       __BFP(int_mask);
+> -       __BFP(fifo_ctl);
+> -       __BFP(fifo_stat);
+> -       u32 __pad[20];
+> -       __BFP(xmt_data8);
+> -       __BFP(xmt_data16);
+> -       __BFP(rcv_data8);
+> -       __BFP(rcv_data16);
+> -};
+> -
+> -#undef __BFP
+> -
+> -struct bfin_twi_iface {
+> -       int                     irq;
+> -       spinlock_t              lock;
+> -       char                    read_write;
+> -       u8                      command;
+> -       u8                      *transPtr;
+> -       int                     readNum;
+> -       int                     writeNum;
+> -       int                     cur_mode;
+> -       int                     manual_stop;
+> -       int                     result;
+> -       struct i2c_adapter      adap;
+> -       struct completion       complete;
+> -       struct i2c_msg          *pmsg;
+> -       int                     msg_num;
+> -       int                     cur_msg;
+> -       u16                     saved_clkdiv;
+> -       u16                     saved_control;
+> -       struct bfin_twi_regs __iomem *regs_base;
+> -};
+> +#include <asm/blackfin.h>
+>
+>  #define DEFINE_TWI_REG(reg_name, reg) \
+>  static inline u16 read_##reg_name(struct bfin_twi_iface *iface) \
+> @@ -113,75 +60,4 @@ static inline u16 read_RCV_DATA16(struct bfin_twi_iface *iface)
+>  }
+>  #endif
+>
+> -
+> -/*  ********************  TWO-WIRE INTERFACE (TWI) MASKS  ***********************/
+> -/* TWI_CLKDIV Macros (Use: *pTWI_CLKDIV = CLKLOW(x)|CLKHI(y);  )                               */
+> -#define        CLKLOW(x)       ((x) & 0xFF)    /* Periods Clock Is Held Low                    */
+> -#define CLKHI(y)       (((y)&0xFF)<<0x8)       /* Periods Before New Clock Low                 */
+> -
+> -/* TWI_PRESCALE Masks                                                                                                                  */
+> -#define        PRESCALE        0x007F  /* SCLKs Per Internal Time Reference (10MHz)    */
+> -#define        TWI_ENA         0x0080  /* TWI Enable                                                                   */
+> -#define        SCCB            0x0200  /* SCCB Compatibility Enable                                    */
+> -
+> -/* TWI_SLAVE_CTL Masks                                                                                                                 */
+> -#define        SEN                     0x0001  /* Slave Enable                                                                 */
+> -#define        SADD_LEN        0x0002  /* Slave Address Length                                                 */
+> -#define        STDVAL          0x0004  /* Slave Transmit Data Valid                                    */
+> -#define        NAK                     0x0008  /* NAK/ACK* Generated At Conclusion Of Transfer */
+> -#define        GEN                     0x0010  /* General Call Address Matching Enabled                */
+> -
+> -/* TWI_SLAVE_STAT Masks                                                                                                                        */
+> -#define        SDIR            0x0001  /* Slave Transfer Direction (Transmit/Receive*) */
+> -#define GCALL          0x0002  /* General Call Indicator                                               */
+> -
+> -/* TWI_MASTER_CTL Masks                                                                                                        */
+> -#define        MEN                     0x0001  /* Master Mode Enable                                           */
+> -#define        MADD_LEN        0x0002  /* Master Address Length                                        */
+> -#define        MDIR            0x0004  /* Master Transmit Direction (RX/TX*)           */
+> -#define        FAST            0x0008  /* Use Fast Mode Timing Specs                           */
+> -#define        STOP            0x0010  /* Issue Stop Condition                                         */
+> -#define        RSTART          0x0020  /* Repeat Start or Stop* At End Of Transfer     */
+> -#define        DCNT            0x3FC0  /* Data Bytes To Transfer                                       */
+> -#define        SDAOVR          0x4000  /* Serial Data Override                                         */
+> -#define        SCLOVR          0x8000  /* Serial Clock Override                                        */
+> -
+> -/* TWI_MASTER_STAT Masks                                                                                                               */
+> -#define        MPROG           0x0001  /* Master Transfer In Progress                                  */
+> -#define        LOSTARB         0x0002  /* Lost Arbitration Indicator (Xfer Aborted)    */
+> -#define        ANAK            0x0004  /* Address Not Acknowledged                                             */
+> -#define        DNAK            0x0008  /* Data Not Acknowledged                                                */
+> -#define        BUFRDERR        0x0010  /* Buffer Read Error                                                    */
+> -#define        BUFWRERR        0x0020  /* Buffer Write Error                                                   */
+> -#define        SDASEN          0x0040  /* Serial Data Sense                                                    */
+> -#define        SCLSEN          0x0080  /* Serial Clock Sense                                                   */
+> -#define        BUSBUSY         0x0100  /* Bus Busy Indicator                                                   */
+> -
+> -/* TWI_INT_SRC and TWI_INT_ENABLE Masks                                                */
+> -#define        SINIT           0x0001  /* Slave Transfer Initiated     */
+> -#define        SCOMP           0x0002  /* Slave Transfer Complete      */
+> -#define        SERR            0x0004  /* Slave Transfer Error         */
+> -#define        SOVF            0x0008  /* Slave Overflow                       */
+> -#define        MCOMP           0x0010  /* Master Transfer Complete     */
+> -#define        MERR            0x0020  /* Master Transfer Error        */
+> -#define        XMTSERV         0x0040  /* Transmit FIFO Service        */
+> -#define        RCVSERV         0x0080  /* Receive FIFO Service         */
+> -
+> -/* TWI_FIFO_CTRL Masks                                                                                         */
+> -#define        XMTFLUSH        0x0001  /* Transmit Buffer Flush                        */
+> -#define        RCVFLUSH        0x0002  /* Receive Buffer Flush                         */
+> -#define        XMTINTLEN       0x0004  /* Transmit Buffer Interrupt Length     */
+> -#define        RCVINTLEN       0x0008  /* Receive Buffer Interrupt Length      */
+> -
+> -/* TWI_FIFO_STAT Masks                                                                                                                 */
+> -#define        XMTSTAT         0x0003  /* Transmit FIFO Status                                                 */
+> -#define        XMT_EMPTY       0x0000  /*              Transmit FIFO Empty                                             */
+> -#define        XMT_HALF        0x0001  /*              Transmit FIFO Has 1 Byte To Write               */
+> -#define        XMT_FULL        0x0003  /*              Transmit FIFO Full (2 Bytes To Write)   */
+> -
+> -#define        RCVSTAT         0x000C  /* Receive FIFO Status                                                  */
+> -#define        RCV_EMPTY       0x0000  /*              Receive FIFO Empty                                              */
+> -#define        RCV_HALF        0x0004  /*              Receive FIFO Has 1 Byte To Read                 */
+> -#define        RCV_FULL        0x000C  /*              Receive FIFO Full (2 Bytes To Read)             */
+> -
+>  #endif
+> diff --git a/arch/blackfin/kernel/debug-mmrs.c b/arch/blackfin/kernel/debug-mmrs.c
+> index 01232a1..947ad08 100644
+> --- a/arch/blackfin/kernel/debug-mmrs.c
+> +++ b/arch/blackfin/kernel/debug-mmrs.c
+> @@ -10,6 +10,7 @@
+>  #include <linux/fs.h>
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+> +#include <linux/i2c/bfin_twi.h>
+>
+>  #include <asm/blackfin.h>
+>  #include <asm/gpio.h>
+> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+> index 3b9bd9a..fd0696e 100644
+> --- a/drivers/i2c/busses/i2c-bfin-twi.c
+> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
+> @@ -21,10 +21,10 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/delay.h>
+> +#include <linux/i2c/bfin_twi.h>
+>
+> -#include <asm/blackfin.h>
+> -#include <asm/portmux.h>
+>  #include <asm/irq.h>
+> +#include <asm/portmux.h>
+>  #include <asm/bfin_twi.h>
+>
+>  /* SMBus mode*/
+> diff --git a/include/linux/i2c/bfin_twi.h b/include/linux/i2c/bfin_twi.h
+> new file mode 100644
+> index 0000000..135a4e0
+> --- /dev/null
+> +++ b/include/linux/i2c/bfin_twi.h
+> @@ -0,0 +1,145 @@
+> +/*
+> + * i2c-bfin-twi.h - interface to ADI TWI controller
+> + *
+> + * Copyright 2005-2014 Analog Devices Inc.
+> + *
+> + * Licensed under the GPL-2 or later.
+> + */
+> +
+> +#ifndef __I2C_BFIN_TWI_H__
+> +#define __I2C_BFIN_TWI_H__
+> +
+> +#include <linux/types.h>
+> +#include <linux/i2c.h>
+> +
+> +/*
+> + * ADI twi registers layout
+> + */
+> +struct bfin_twi_regs {
+> +       u16 clkdiv;
+> +       u16 dummy1;
+> +       u16 control;
+> +       u16 dummy2;
+> +       u16 slave_ctl;
+> +       u16 dummy3;
+> +       u16 slave_stat;
+> +       u16 dummy4;
+> +       u16 slave_addr;
+> +       u16 dummy5;
+> +       u16 master_ctl;
+> +       u16 dummy6;
+> +       u16 master_stat;
+> +       u16 dummy7;
+> +       u16 master_addr;
+> +       u16 dummy8;
+> +       u16 int_stat;
+> +       u16 dummy9;
+> +       u16 int_mask;
+> +       u16 dummy10;
+> +       u16 fifo_ctl;
+> +       u16 dummy11;
+> +       u16 fifo_stat;
+> +       u16 dummy12;
+> +       u32 __pad[20];
+> +       u16 xmt_data8;
+> +       u16 dummy13;
+> +       u16 xmt_data16;
+> +       u16 dummy14;
+> +       u16 rcv_data8;
+> +       u16 dummy15;
+> +       u16 rcv_data16;
+> +       u16 dummy16;
+> +};
+> +
+> +struct bfin_twi_iface {
+> +       int                     irq;
+> +       spinlock_t              lock;
+> +       char                    read_write;
+> +       u8                      command;
+> +       u8                      *transPtr;
+> +       int                     readNum;
+> +       int                     writeNum;
+> +       int                     cur_mode;
+> +       int                     manual_stop;
+> +       int                     result;
+> +       struct i2c_adapter      adap;
+> +       struct completion       complete;
+> +       struct i2c_msg          *pmsg;
+> +       int                     msg_num;
+> +       int                     cur_msg;
+> +       u16                     saved_clkdiv;
+> +       u16                     saved_control;
+> +       struct bfin_twi_regs __iomem *regs_base;
+> +};
+> +
+> +/*  ********************  TWO-WIRE INTERFACE (TWI) MASKS  ********************/
+> +/* TWI_CLKDIV Macros (Use: *pTWI_CLKDIV = CLKLOW(x)|CLKHI(y);  ) */
+> +#define        CLKLOW(x)       ((x) & 0xFF)    /* Periods Clock Is Held Low */
+> +#define CLKHI(y)       (((y)&0xFF)<<0x8) /* Periods Before New Clock Low */
+> +
+> +/* TWI_PRESCALE Masks */
+> +#define        PRESCALE        0x007F  /* SCLKs Per Internal Time Reference (10MHz) */
+> +#define        TWI_ENA         0x0080  /* TWI Enable */
+> +#define        SCCB            0x0200  /* SCCB Compatibility Enable */
+> +
+> +/* TWI_SLAVE_CTL Masks */
+> +#define        SEN             0x0001  /* Slave Enable */
+> +#define        SADD_LEN        0x0002  /* Slave Address Length */
+> +#define        STDVAL          0x0004  /* Slave Transmit Data Valid */
+> +#define        NAK             0x0008  /* NAK Generated At Conclusion Of Transfer */
+> +#define        GEN             0x0010  /* General Call Address Matching Enabled */
+> +
+> +/* TWI_SLAVE_STAT Masks        */
+> +#define        SDIR            0x0001  /* Slave Transfer Direction (RX/TX*) */
+> +#define GCALL          0x0002  /* General Call Indicator */
+> +
+> +/* TWI_MASTER_CTL Masks        */
+> +#define        MEN             0x0001  /* Master Mode Enable          */
+> +#define        MADD_LEN        0x0002  /* Master Address Length       */
+> +#define        MDIR            0x0004  /* Master Transmit Direction (RX/TX*) */
+> +#define        FAST            0x0008  /* Use Fast Mode Timing Specs  */
+> +#define        STOP            0x0010  /* Issue Stop Condition        */
+> +#define        RSTART          0x0020  /* Repeat Start or Stop* At End Of Transfer */
+> +#define        DCNT            0x3FC0  /* Data Bytes To Transfer      */
+> +#define        SDAOVR          0x4000  /* Serial Data Override        */
+> +#define        SCLOVR          0x8000  /* Serial Clock Override       */
+> +
+> +/* TWI_MASTER_STAT Masks */
+> +#define        MPROG           0x0001  /* Master Transfer In Progress */
+> +#define        LOSTARB         0x0002  /* Lost Arbitration Indicator (Xfer Aborted) */
+> +#define        ANAK            0x0004  /* Address Not Acknowledged    */
+> +#define        DNAK            0x0008  /* Data Not Acknowledged       */
+> +#define        BUFRDERR        0x0010  /* Buffer Read Error           */
+> +#define        BUFWRERR        0x0020  /* Buffer Write Error          */
+> +#define        SDASEN          0x0040  /* Serial Data Sense           */
+> +#define        SCLSEN          0x0080  /* Serial Clock Sense          */
+> +#define        BUSBUSY         0x0100  /* Bus Busy Indicator          */
+> +
+> +/* TWI_INT_SRC and TWI_INT_ENABLE Masks        */
+> +#define        SINIT           0x0001  /* Slave Transfer Initiated    */
+> +#define        SCOMP           0x0002  /* Slave Transfer Complete     */
+> +#define        SERR            0x0004  /* Slave Transfer Error        */
+> +#define        SOVF            0x0008  /* Slave Overflow              */
+> +#define        MCOMP           0x0010  /* Master Transfer Complete    */
+> +#define        MERR            0x0020  /* Master Transfer Error       */
+> +#define        XMTSERV         0x0040  /* Transmit FIFO Service       */
+> +#define        RCVSERV         0x0080  /* Receive FIFO Service        */
+> +
+> +/* TWI_FIFO_CTRL Masks */
+> +#define        XMTFLUSH        0x0001  /* Transmit Buffer Flush                 */
+> +#define        RCVFLUSH        0x0002  /* Receive Buffer Flush                  */
+> +#define        XMTINTLEN       0x0004  /* Transmit Buffer Interrupt Length      */
+> +#define        RCVINTLEN       0x0008  /* Receive Buffer Interrupt Length       */
+> +
+> +/* TWI_FIFO_STAT Masks */
+> +#define        XMTSTAT         0x0003  /* Transmit FIFO Status                  */
+> +#define        XMT_EMPTY       0x0000  /* Transmit FIFO Empty                   */
+> +#define        XMT_HALF        0x0001  /* Transmit FIFO Has 1 Byte To Write     */
+> +#define        XMT_FULL        0x0003  /* Transmit FIFO Full (2 Bytes To Write) */
+> +
+> +#define        RCVSTAT         0x000C  /* Receive FIFO Status                   */
+> +#define        RCV_EMPTY       0x0000  /* Receive FIFO Empty                    */
+> +#define        RCV_HALF        0x0004  /* Receive FIFO Has 1 Byte To Read       */
+> +#define        RCV_FULL        0x000C  /* Receive FIFO Full (2 Bytes To Read)   */
+> +
+> +#endif
+> --
+> 1.8.2.3
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
