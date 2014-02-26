@@ -1,44 +1,153 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v6 4/4] i2c, i2c_imc: Add DIMM bus code
-Date: Tue, 25 Feb 2014 11:54:20 -0800
-Message-ID: <CALCETrXhJPHyWP7NAujbshJc_fBYsGxp_MK752G4Nt8r9yMEmg@mail.gmail.com>
-References: <cover.1387588711.git.luto@amacapital.net> <15eccfa508fd0f55230c4274e3e968f91a123b73.1387588711.git.luto@amacapital.net>
- <20140219151626.GA13973@katana> <CALCETrVBPzGqaXbZVgUZMw7D5U5YnUMJOEsw1r=TceLYjJ39JA@mail.gmail.com>
- <20140219192646.1a62521d@alan.etchedpixels.co.uk> <CALCETrWEexCqH5486Qfyt22i5+MZjpETJEMTyg6FO6xOwXuraQ@mail.gmail.com>
- <20140221153239.20dbb8c2@alan.etchedpixels.co.uk>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v2 1/5] i2c: mv64xxx: Add reset deassert call
+Date: Wed, 26 Feb 2014 10:44:35 +0100
+Message-ID: <530DB783.2060509@free-electrons.com>
+References: <1389609293-2824-1-git-send-email-maxime.ripard@free-electrons.com> <1389609293-2824-2-git-send-email-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140221153239.20dbb8c2@alan.etchedpixels.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>, Guenter Roeck <linux@roeck-us.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Rui Wang <ruiv.wang@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1389609293-2824-2-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, duanmintao-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 21, 2014 at 7:32 AM, One Thousand Gnomes
-<gnomes@lxorguk.ukuu.org.uk> wrote:
->> I'm suggesting identifying a range of addresses on a bus with a "port"
->> (or whatever it should be called).  Multiple ports could claim
->> non-overlapping ranges on the same bus.
->
-> Which is fine until you meant a mux or a device that can be moved about
-> by writing to it, or has a wide range of addresses determined by
-> strapping.
+Hi Maxime,
 
-For muxes: isn't there already a system in place for dealing with them?
+On 13/01/2014 11:34, Maxime Ripard wrote:
+> The Allwinner A31 SoC using that IP has a reset controller maintaining
+> it reset unless told otherwise.
+> 
+> Add some optional reset support to the driver.
+> 
+> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+>  .../devicetree/bindings/i2c/i2c-mv64xxx.txt         |  1 +
+>  drivers/i2c/busses/Kconfig                          |  1 +
+>  drivers/i2c/busses/i2c-mv64xxx.c                    | 21 +++++++++++++++++++--
+>  3 files changed, 21 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> index 82e8f6f..603003a 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> @@ -12,6 +12,7 @@ Optional properties :
+>  
+>   - clock-frequency : Desired I2C bus clock frequency in Hz. If not set the
+>  default frequency is 100kHz
+> + - resets          : phandle to the parent reset controller
+>  
+>  Examples:
+>  
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 3b26129..69aa599 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -528,6 +528,7 @@ config I2C_MPC
+>  config I2C_MV64XXX
+>  	tristate "Marvell mv64xxx I2C Controller"
+>  	depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
+> +	select RESET_CONTROLLER
 
-For things with addresses determined by strapping: my vague proposal
-is explicitly intended to support them.  (DIMMs are such a device.)
-Whoever instantiates the i2c "ports" is supposed to *know* the
-topology, including which straps are set where.  In some cases, that
-data could come from ACPI or DT.  In other cases, it's enumerated
-directly.  The idea would be to allow the code that figures out the
-topology (both physical connectivity and straps) to be separated from
-the code that talks to the i2c endpoints.
+This one could maybe just depend on ARCH_SUNXI with something like:
 
-Just specifying the address ranges might be insufficient for things
-that are more flexible than DIMMs, though -- it might be necessary to
-say "this port has these addresses and this kind of device lives at
-this address".
+select RESET_CONTROLLER if ARCH_SUNXI
 
---Andy
+>  	help
+>  	  If you say yes to this option, support will be included for the
+>  	  built-in I2C interface on the Marvell 64xxx line of host bridges.
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index 8be7e42..0f6dde5 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -17,6 +17,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/mv643xx_i2c.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/reset.h>
+>  #include <linux/io.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> @@ -149,6 +150,7 @@ struct mv64xxx_i2c_data {
+>  	bool			offload_enabled;
+>  /* 5us delay in order to avoid repeated start timing violation */
+>  	bool			errata_delay;
+> +	struct reset_control	*rstc;
+>  };
+>  
+>  static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
+> @@ -763,6 +765,16 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+>  	}
+>  	drv_data->irq = irq_of_parse_and_map(np, 0);
+>  
+> +	drv_data->rstc = devm_reset_control_get(dev, NULL);
+
+Hum ok, you need RESET_CONTROLLER in all case to use it here.
+As most of the architecture also use RESET_CONTROLLER it is not
+a big deal to unable it then.
+
+> +	if (IS_ERR(drv_data->rstc)) {
+> +		if (PTR_ERR(drv_data->rstc) == -EPROBE_DEFER) {
+> +			rc = -EPROBE_DEFER;
+> +			goto out;
+> +		}
+> +	} else {
+> +		reset_control_deassert(drv_data->rstc);
+> +	}
+> +
+>  	/* Its not yet defined how timeouts will be specified in device tree.
+>  	 * So hard code the value to 1 second.
+>  	 */
+> @@ -845,7 +857,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+>  	}
+>  	if (drv_data->irq < 0) {
+>  		rc = -ENXIO;
+> -		goto exit_clk;
+> +		goto exit_reset;
+>  	}
+>  
+>  	drv_data->adapter.dev.parent = &pd->dev;
+> @@ -865,7 +877,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+>  		dev_err(&drv_data->adapter.dev,
+>  			"mv64xxx: Can't register intr handler irq%d: %d\n",
+>  			drv_data->irq, rc);
+> -		goto exit_clk;
+> +		goto exit_reset;
+>  	} else if ((rc = i2c_add_numbered_adapter(&drv_data->adapter)) != 0) {
+>  		dev_err(&drv_data->adapter.dev,
+>  			"mv64xxx: Can't add i2c adapter, rc: %d\n", -rc);
+> @@ -876,6 +888,9 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+>  
+>  exit_free_irq:
+>  	free_irq(drv_data->irq, drv_data);
+> +exit_reset:
+> +	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
+> +		reset_control_assert(drv_data->rstc);
+>  exit_clk:
+>  #if defined(CONFIG_HAVE_CLK)
+>  	/* Not all platforms have a clk */
+> @@ -894,6 +909,8 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+>  
+>  	i2c_del_adapter(&drv_data->adapter);
+>  	free_irq(drv_data->irq, drv_data);
+> +	if (dev->dev.of_node && !IS_ERR(drv_data->rstc))
+> +		reset_control_assert(drv_data->rstc);
+>  #if defined(CONFIG_HAVE_CLK)
+>  	/* Not all platforms have a clk */
+>  	if (!IS_ERR(drv_data->clk)) {
+> 
+
+Everything else looks sensible, I also tested in on an Armada 370.
+You can add my
+
+Reviewed-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+
+Gregory
+
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
