@@ -1,13 +1,14 @@
 From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v2 1/5] i2c: mv64xxx: Add reset deassert call
-Date: Wed, 26 Feb 2014 10:44:35 +0100
-Message-ID: <530DB783.2060509@free-electrons.com>
-References: <1389609293-2824-1-git-send-email-maxime.ripard@free-electrons.com> <1389609293-2824-2-git-send-email-maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v2 2/5] i2c: mv64xxx: Add support for the Allwinner A31
+ I2C driver
+Date: Wed, 26 Feb 2014 10:54:35 +0100
+Message-ID: <530DB9DB.50606@free-electrons.com>
+References: <1389609293-2824-1-git-send-email-maxime.ripard@free-electrons.com> <1389609293-2824-3-git-send-email-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1389609293-2824-2-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1389609293-2824-3-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, duanmintao-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
@@ -16,135 +17,99 @@ List-Id: linux-i2c@vger.kernel.org
 Hi Maxime,
 
 On 13/01/2014 11:34, Maxime Ripard wrote:
-> The Allwinner A31 SoC using that IP has a reset controller maintaining
-> it reset unless told otherwise.
-> 
-> Add some optional reset support to the driver.
-> 
-> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-mv64xxx.txt         |  1 +
->  drivers/i2c/busses/Kconfig                          |  1 +
->  drivers/i2c/busses/i2c-mv64xxx.c                    | 21 +++++++++++++++++++--
->  3 files changed, 21 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> index 82e8f6f..603003a 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> @@ -12,6 +12,7 @@ Optional properties :
->  
->   - clock-frequency : Desired I2C bus clock frequency in Hz. If not set the
->  default frequency is 100kHz
-> + - resets          : phandle to the parent reset controller
->  
->  Examples:
->  
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 3b26129..69aa599 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -528,6 +528,7 @@ config I2C_MPC
->  config I2C_MV64XXX
->  	tristate "Marvell mv64xxx I2C Controller"
->  	depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
-> +	select RESET_CONTROLLER
+> The Allwinner A31 I2C controller is almost identical to the one used in the
+> other Allwinner SoCs, except for the fact that it needs to clear the interrupt
+> by setting the INT_FLAGS bit in the control register, instead of clearing it.
 
-This one could maybe just depend on ARCH_SUNXI with something like:
+This patch doesn't apply on v3.14-rc4. Even by reducing the context the part
+on i2c-mv64xxx.txt failed to be applied. I removed this part and I reduced the
+context to one to be able to apply the part in the driver, it allowed me to
+test it on Armada 370, and then you can also add my:
 
-select RESET_CONTROLLER if ARCH_SUNXI
-
->  	help
->  	  If you say yes to this option, support will be included for the
->  	  built-in I2C interface on the Marvell 64xxx line of host bridges.
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> index 8be7e42..0f6dde5 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -17,6 +17,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/mv643xx_i2c.h>
->  #include <linux/platform_device.h>
-> +#include <linux/reset.h>
->  #include <linux/io.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
-> @@ -149,6 +150,7 @@ struct mv64xxx_i2c_data {
->  	bool			offload_enabled;
->  /* 5us delay in order to avoid repeated start timing violation */
->  	bool			errata_delay;
-> +	struct reset_control	*rstc;
->  };
->  
->  static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
-> @@ -763,6 +765,16 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
->  	}
->  	drv_data->irq = irq_of_parse_and_map(np, 0);
->  
-> +	drv_data->rstc = devm_reset_control_get(dev, NULL);
-
-Hum ok, you need RESET_CONTROLLER in all case to use it here.
-As most of the architecture also use RESET_CONTROLLER it is not
-a big deal to unable it then.
-
-> +	if (IS_ERR(drv_data->rstc)) {
-> +		if (PTR_ERR(drv_data->rstc) == -EPROBE_DEFER) {
-> +			rc = -EPROBE_DEFER;
-> +			goto out;
-> +		}
-> +	} else {
-> +		reset_control_deassert(drv_data->rstc);
-> +	}
-> +
->  	/* Its not yet defined how timeouts will be specified in device tree.
->  	 * So hard code the value to 1 second.
->  	 */
-> @@ -845,7 +857,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
->  	}
->  	if (drv_data->irq < 0) {
->  		rc = -ENXIO;
-> -		goto exit_clk;
-> +		goto exit_reset;
->  	}
->  
->  	drv_data->adapter.dev.parent = &pd->dev;
-> @@ -865,7 +877,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
->  		dev_err(&drv_data->adapter.dev,
->  			"mv64xxx: Can't register intr handler irq%d: %d\n",
->  			drv_data->irq, rc);
-> -		goto exit_clk;
-> +		goto exit_reset;
->  	} else if ((rc = i2c_add_numbered_adapter(&drv_data->adapter)) != 0) {
->  		dev_err(&drv_data->adapter.dev,
->  			"mv64xxx: Can't add i2c adapter, rc: %d\n", -rc);
-> @@ -876,6 +888,9 @@ mv64xxx_i2c_probe(struct platform_device *pd)
->  
->  exit_free_irq:
->  	free_irq(drv_data->irq, drv_data);
-> +exit_reset:
-> +	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
-> +		reset_control_assert(drv_data->rstc);
->  exit_clk:
->  #if defined(CONFIG_HAVE_CLK)
->  	/* Not all platforms have a clk */
-> @@ -894,6 +909,8 @@ mv64xxx_i2c_remove(struct platform_device *dev)
->  
->  	i2c_del_adapter(&drv_data->adapter);
->  	free_irq(drv_data->irq, drv_data);
-> +	if (dev->dev.of_node && !IS_ERR(drv_data->rstc))
-> +		reset_control_assert(drv_data->rstc);
->  #if defined(CONFIG_HAVE_CLK)
->  	/* Not all platforms have a clk */
->  	if (!IS_ERR(drv_data->clk)) {
-> 
-
-Everything else looks sensible, I also tested in on an Armada 370.
-You can add my
 
 Reviewed-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
+
 Gregory
+
+> 
+> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt |  9 ++++++---
+>  drivers/i2c/busses/i2c-mv64xxx.c                      | 10 ++++++++++
+>  2 files changed, 16 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> index 603003a..2763225 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> @@ -4,15 +4,18 @@
+>  Required properties :
+>  
+>   - reg             : Offset and length of the register set for the device
+> - - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-i2c"
+> -                     or "marvell,mv78230-i2c"
+> + - compatible      : Should be "marvell,mv64xxx-i2c", "allwinner,sun4i-i2c",
+> +                     "marvell,mv78230-i2c" or "allwinner,sun6i-a31-i2c"
+>   - interrupts      : The interrupt number
+>  
+>  Optional properties :
+>  
+>   - clock-frequency : Desired I2C bus clock frequency in Hz. If not set the
+>  default frequency is 100kHz
+> - - resets          : phandle to the parent reset controller
+> +
+> + - resets          : phandle to the parent reset controller. Mandatory
+> +                     whenever you're using the "allwinner,sun6i-a31-i2c"
+> +                     compatible.
+>  
+>  Examples:
+>  
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index 0f6dde5..12ecf4b 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -151,6 +151,7 @@ struct mv64xxx_i2c_data {
+>  /* 5us delay in order to avoid repeated start timing violation */
+>  	bool			errata_delay;
+>  	struct reset_control	*rstc;
+> +	bool			irq_clear_inverted;
+>  };
+>  
+>  static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
+> @@ -568,6 +569,11 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
+>  		status = readl(drv_data->reg_base + drv_data->reg_offsets.status);
+>  		mv64xxx_i2c_fsm(drv_data, status);
+>  		mv64xxx_i2c_do_action(drv_data);
+> +
+> +		if (drv_data->irq_clear_inverted)
+> +			writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_IFLG,
+> +			       drv_data->reg_base + drv_data->reg_offsets.control);
+> +
+>  		rc = IRQ_HANDLED;
+>  	}
+>  	spin_unlock_irqrestore(&drv_data->lock, flags);
+> @@ -692,6 +698,7 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
+>   */
+>  static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
+>  	{ .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
+> +	{ .compatible = "allwinner,sun6i-a31-i2c", .data = &mv64xxx_i2c_regs_sun4i},
+>  	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+>  	{ .compatible = "marvell,mv78230-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+>  	{}
+> @@ -795,6 +802,9 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+>  		drv_data->errata_delay = true;
+>  	}
+>  
+> +	if (of_device_is_compatible(np, "allwinner,sun6i-a31-i2c"))
+> +		drv_data->irq_clear_inverted = true;
+> +
+>  out:
+>  	return rc;
+>  #endif
+> 
+
 
 -- 
 Gregory Clement, Free Electrons
