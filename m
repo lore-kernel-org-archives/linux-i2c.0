@@ -1,64 +1,62 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [PATCH v6 4/4] i2c, i2c_imc: Add DIMM bus code
-Date: Fri, 28 Feb 2014 12:14:22 -0800
-Message-ID: <CALCETrVjnUwbVDKGx1=VAhrQSw=fXg8Fh90s3yc7vDeBqj=cgg@mail.gmail.com>
-References: <cover.1387588711.git.luto@amacapital.net> <15eccfa508fd0f55230c4274e3e968f91a123b73.1387588711.git.luto@amacapital.net>
- <20140219151626.GA13973@katana> <CALCETrVBPzGqaXbZVgUZMw7D5U5YnUMJOEsw1r=TceLYjJ39JA@mail.gmail.com>
- <20140220035128.14da0f79.m.chehab@samsung.com> <3908561D78D1C84285E8C5FCA982C28F31DCC6F8@ORSMSX106.amr.corp.intel.com>
- <CALCETrVwSj3KGcPqQD2Kd9W5FCHyPWLukCVr0BZLdQc_Fgz4qA@mail.gmail.com> <20140228161506.62889d46@samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: Add message transfer tracepoints for I2C
+Date: Fri, 28 Feb 2014 22:17:58 +0100
+Message-ID: <20140228211758.GB2517@katana>
+References: <20140218203346.GG18768@katana>
+ <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
+ <10892.1393506444@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140228161506.62889d46@samsung.com>
+Content-Disposition: inline
+In-Reply-To: <10892.1393506444@warthog.procyon.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <m.chehab@samsung.com>
-Cc: Jean Delvare <khali@linux-fr.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rui Wang <ruiv.wang@gmail.com>, "Luck, Tony" <tony.luck@intel.com>, Guenter Roeck <linux@roeck-us.net>
+To: David Howells <dhowells@redhat.com>
+Cc: wolfram@the-dreams.de, khali@linux-fr.org, linux-i2c@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Feb 28, 2014 11:15 AM, "Mauro Carvalho Chehab" <m.chehab@samsung.com> wrote:
->
-> Em Wed, 19 Feb 2014 17:39:07 -0800
-> Andy Lutomirski <luto@amacapital.net> escreveu:
->
-> > On Wed, Feb 19, 2014 at 11:03 AM, Luck, Tony <tony.luck@intel.com> wrote:
-> > >> (I'm c/c Tony here, as he also shared the same concern that I had on a
-> > >> previous feedback about using I2C to talk with the DIMM).
-> > >
-> > > Correct - I've heard the same issues that reads on I2C can be misinterpreted
-> > > as writes ... and oops, you have a brick.
-> >
-> > Is this true on DDR3 DIMMs, i.e. anything that's compatible with
-> > LGA2011?  If you plug a DIMM into an LGA2011 board's memory slot,
-> > then, one way or another, it's very likely that there will be TSOD
-> > traffic, if for no other purpose than to determine that there is no
-> > TSOD present.  TSOD traffic consists of reads and writes, both with
-> > and without register numbers.  (Sorry, I can never remember the smbus
-> > terminology here -- the relevant transactions are two-byte reads and
-> > two-byte writes, both with a command specified and without one.  One
-> > of the bits in the iMC SMBUS registers tells the controller which kind
-> > of read to use to probe the thermometer.)
->
-> An update on that: I double-checked with a DIMM manufacturer.
-> I was told that some DIMM models have write protect circuits but
-> others don't.
->
-> So, yeah, accessing it could eventually brick the DIMM, depending
-> on the DIMM model, if such driver won't block I2C write ops or
-> if the BIOS is also trying to access the bus at the same time.
 
-I'm not sure I buy the argument about blocking writes -- as far as I
-know, i2c-i801 on desktop platforms has exactly the same issue.  Or
-maybe I'm misunderstanding you.
+--l76fUT7nc3MelDdI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd be okay with adding code to block writes to SPD addresses, but I'm
-not sure I see the point.  If root wants to brick a DIMM, I'm sure
-root can find a way.
 
-On the other hand, racing with BIOS is a real problem.  I'd like to
-know how Intel plans to handle this.  I suspect that POLL_EN is the
-right bit to use, but the docs are vague, and there could be strange
-BIOSes out there.
+> > And for the buffer: %*phN is difficult to read IMO. What about %*ph? Or
+> > %*phD at least?
+>=20
+> My problem with that is that it increases the length of the output by 50%=
+ and
+> there's a hard limit on how much output we may produce.
 
-(Grr.  Everything would be saner if SMM didn't exist.)
+Is it PAGE_SIZE? How is this handled when the buffer is so big that the
+limit will be reached anyhow? Note that it is really uncommon to
+transfer kilobytes in one go via i2c. Usually, big transfers are split
+up into smaller fragments, say 128-256 byte. So, for readability, I'd
+still favour %*ph.
 
---Andy
+
+--l76fUT7nc3MelDdI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTEP0FAAoJEBQN5MwUoCm2N8QQAJwcR8oQtE8665iDc3n9GSvr
+dNf2LeaMc9glfRZmHXDW6rVFe7duP/ZdBKLklmFLhNEIUALvtDywUpjEn/yFwI4Q
+eGDte13BVq12VgHk9Z56HWxNkLUB+emWl80W3B3eVL5HX4oNopaFlPhcQEIKUln3
+7Lg2pyxAaSgzjmD3Cjq0/gSM7jJqwQR84vqp2FtdUfJ2BcmnGYN6imYgMMpshyyx
+QWrBI4TJE/ZQOIeFYK5/vuEumjX3vsgcbYoC83W7vceNx8B7EVxtV6Qj8FMfXZzL
+bIlJGvGSeHHh96AS3L1itflmthsuFh1inF/Q2qKZB/7oCgP9jrS7s2LMOgHylSz+
+lkVCT8irweisW6vSAymXJlBz5lQiZrl24Zs0u6nP9wPY6Qz6LwqFE4HX5IWWtl94
+rFlwiRN7X/Z4y+MRX6WbalVaRLa74qELN+rhe88dACIgsmrwmYeSTsxqmEXnL+6w
+WDF6HjL2foEdinQaYS9jqUECNY7zOILyRshug8T0rhPxo557qJ9QkVVqA+ai3jmU
+nCXmOPtWihktGzUj7SVDs8MtBXlqGCatwFdJ5Yio13Eol+XD3TanswIXD9uYfm6R
+iNFzg+RTF0ZaM9F7ychKWFuZGIlQPOo2m+20CASlpRq+oKCd7l3fbJjeSsBhzdb6
+rlj+g2jsrt/IL3UsHgXm
+=Yiah
+-----END PGP SIGNATURE-----
+
+--l76fUT7nc3MelDdI--
