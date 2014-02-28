@@ -1,54 +1,76 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: I2C dummy adapter driver ?
-Date: Fri, 28 Feb 2014 15:07:28 +0900
-Message-ID: <20140228060728.GB29849@sirena.org.uk>
-References: <5305382E.9050902@gmail.com>
- <CAJe_ZhcMMVRTErH3ctbnZyn30_cp9XXjEfUZXdWaVWUHqs4CRw@mail.gmail.com>
- <53073C51.5010401@samsung.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <53073C51.5010401-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Jassi Brar <jaswinder.singh-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+From: Chew Chiau Ee <chiau.ee.chew@intel.com>
+Subject: [PATCH] i2c: i801: enable Intel BayTrail SMBUS
+Date: Sat,  1 Mar 2014 00:03:56 +0800
+Message-ID: <1393603436-3494-1-git-send-email-chiau.ee.chew@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Chew Kean Ho <kean.ho.chew@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+From: Chew, Kean ho <kean.ho.chew@intel.com>
 
---9zSXsLTf0vkW971A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Add Device ID of Intel BayTrail SMBus Controller.
 
-On Fri, Feb 21, 2014 at 12:45:21PM +0100, Sylwester Nawrocki wrote:
+Signed-off-by: Chew, Kean ho <kean.ho.chew@intel.com>
+Signed-off-by: Chew, Chiau Ee <chiau.ee.chew@intel.com>
+---
+ Documentation/i2c/busses/i2c-i801 |    1 +
+ drivers/i2c/busses/Kconfig        |    1 +
+ drivers/i2c/busses/i2c-i801.c     |    3 +++
+ 3 files changed, 5 insertions(+), 0 deletions(-)
 
-> The I2C bus driver with empty i2c_algorithm.master_xfer() helps WRT to
-> using standard DT binding and v4l2_subdev interface.
-
-Wouldn't a platform device do just as well here if there's no actual
-control?
-
---9zSXsLTf0vkW971A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTECedAAoJELSic+t+oim9tvIP/2ujn2cEbEw0+ijnFU3JPgfQ
-ZSyE/cb1cahfPIrejIUjYn0GZXcZJ72WrVrFOkutfeNHO98FngO8ikFZUnaxItDO
-Dgnrgm4LiaLjrW9j6eLxeSOFCCWbb6xrlJZ9EoC4WHzo+NlgaxO3p9J0zZbq/W6c
-noaMAXbqt6nn3xDV8avF37m2XTEwJfagsinpOI5ZMA2hiSEXIOKM+qf52MC1XfIR
-7qSmkmGsOrfl0WedhOjvIYIfFqXtxss3UetHDwsHTUaLjlEQUtO8YgKwkngoCcP8
-niWJ9WkZtG8GIe+1mM9P+oq7oEpCpTARPv5Ue04tc+pJDBspqQY2jZiiuAUW1KLn
-tpUa86cg2dGOqRGAgaYS0RLahf6pUQCcmQzo6sMalfrqU31M2rZR+GDT1GYOQuOO
-oItOYST2nB+NLHtCVLW8nA8DFRZsP0U23RaYEHJ5/04Be+LpMowTtRSSUZSF5Y3R
-q06RM6iFvF5dTuv+/XtX0E0aEy8LAE1879nImnW0L25fE8pJFL9+fgYV2XpuIwfr
-GtdNnTdsjy2Hxis9xArsMXb9gX5o2y7UJWuVMNSz1OV3evvCcVLZSD8ekW1DlOR8
-A864jPPHPVWL9jm1FIs+yjkvFX2o2Fhn/saDFbAs4ZKSpeYg/ahNwVGSawUPcvy/
-chWt7xuqLh5gyhLutR3g
-=H5Se
------END PGP SIGNATURE-----
-
---9zSXsLTf0vkW971A--
+diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+index aaaf0693..adf5e33 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -26,6 +26,7 @@ Supported adapters:
+   * Intel Wellsburg (PCH)
+   * Intel Coleto Creek (PCH)
+   * Intel Wildcat Point-LP (PCH)
++  * Intel BayTrail (SOC)
+    Datasheets: Publicly available at the Intel website
+ 
+ On Intel Patsburg and later chipsets, both the normal host SMBus controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index f5ed031..f23da0e 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -110,6 +110,7 @@ config I2C_I801
+ 	    Wellsburg (PCH)
+ 	    Coleto Creek (PCH)
+ 	    Wildcat Point-LP (PCH)
++	    BayTrail (SOC)
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 349c2d3..899f559 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -60,6 +60,7 @@
+   Wellsburg (PCH) MS    0x8d7f     32     hard     yes     yes     yes
+   Coleto Creek (PCH)    0x23b0     32     hard     yes     yes     yes
+   Wildcat Point-LP (PCH)   0x9ca2     32     hard     yes     yes     yes
++  BayTrail (SOC)        0x0f12     32     hard     yes     yes     yes
+ 
+   Features supported by this driver:
+   Software PEC                     no
+@@ -161,6 +162,7 @@
+ 				 STATUS_ERROR_FLAGS)
+ 
+ /* Older devices have their ID defined in <linux/pci_ids.h> */
++#define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS	0x0f12
+ #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS	0x1d22
+ /* Patsburg also has three 'Integrated Device Function' SMBus controllers */
+@@ -822,6 +824,7 @@ static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
+ 	{ 0, }
+ };
+ 
+-- 
+1.7.4.4
