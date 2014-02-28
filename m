@@ -1,49 +1,37 @@
-From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
-Date: Fri, 28 Feb 2014 11:36:01 +0000
-Message-ID: <3d65fc9a0c5444b485c93de4087634e0@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com>
- <201402272139.36076.marex@denx.de>
- <3f58a8abdda74100b4f7b14d0c31c90e@BL2PR03MB338.namprd03.prod.outlook.com>
- <201402281004.10238.marex@denx.de>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
+Date: Fri, 28 Feb 2014 13:00:30 +0100
+Message-ID: <201402281300.30907.marex@denx.de>
+References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com> <201402281004.10238.marex@denx.de> <20140228115925.5fe07693@ipc1.ka-ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201402281004.10238.marex-ynQEQJNshbs@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <20140228115925.5fe07693-VjFSrY7JcPWvSplVBqRQBQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Lothar =?iso-8859-1?q?Wa=DFmann?= <LW-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+Cc: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgTWFyZWssDQo+IE9uIEZyaWRheSwgRmVicnVhcnkgMjgsIDIwMTQgYXQgMDY6MTk6MTggQU0s
-IFlhbyBZdWFuIHdyb3RlOg0KPiANCj4gWy4uLl0NCj4gDQo+ID4gPiA+IEBAIC0yMTMsNiArMjM4
-LDcgQEAgc3RhdGljIHN0cnVjdCBpbXhfaTJjX2h3ZGF0YSB2ZjYxMF9pMmNfaHdkYXRhDQo+ID4g
-PiA+ID0gew0KPiA+ID4gPg0KPiA+ID4gPiAgCS5uZGl2cwkJCT0gQVJSQVlfU0laRSh2ZjYxMF9p
-MmNfY2xrX2RpdiksDQo+ID4gPiA+ICAJLmkyc3JfY2xyX29wY29kZQk9IEkyU1JfQ0xSX09QQ09E
-RV9XMUMsDQo+ID4gPiA+ICAJLmkyY3JfaWVuX29wY29kZQk9IEkyQ1JfSUVOX09QQ09ERV8wLA0K
-PiA+ID4gPg0KPiA+ID4gPiArCS5oYXNfZG1hX3N1cHBvcnQJPSB0cnVlLA0KPiA+ID4NCj4gPiA+
-IFNvIHdoeSBleGFjdGx5IGRvbid0IHdlIGhhdmUgYSBEVCBwcm9wIGZvciBkZXRlcm1pbmluZyB3
-aGV0aGVyIHRoZQ0KPiA+ID4gY29udHJvbGxlciBoYXMgRE1BIHN1cHBvcnQgPw0KPiA+ID4NCj4g
-PiA+IFdoYXQgYWJvdXQgdGhlIG90aGVyIGNvbnRyb2xsZXJzLCBkbyB0aGV5IG5vdCBzdXBwb3J0
-IERNQSBmb3Igc29tZQ0KPiA+ID4gc3BlY2lmaWMgcmVhc29uPyBQbGVhc2UgZWxhYm9yYXRlIG9u
-IHRoYXQsIHRoYW5rIHlvdSAhDQo+ID4NCj4gPiBTb3JyeSBmb3IgbXkgZmF1bHQuIEkgd2lsbCBt
-b2RpZnkgaXQuDQo+IA0KPiBJIHdvdWxkIHByZWZlciBpZiB5b3UgY291bGQgZXhwbGFpbiB3aHkg
-b3RoZXIgY29udHJvbGxlcnMgZG8gaGF2ZSBETUENCj4gZGlzYWJsZWQgZXZlbiBpZiB0aGUgaGFy
-ZHdhcmUgZG9lcyBzdXBwb3J0IHRoZSBETUEgb3BlcmF0aW9uLg0KPiANCg0KV2VsbCwgQmVjYXVz
-ZSBvZiB0aGUgSTJDIGluIEkuTVggaGFyZHdhcmUgZG9uJ3Qgc3VwcG9ydCB0aGUgRE1BIG9wZXJh
-dGlvbi4gDQpCdXQgaGVyZSBJIGFsc28gdGhpbmsgaGFzX2RtYV9zdXBwb3J0IGlzbid0IG5lY2Vz
-c2FyeS4NCg0KPiA+ID4gQWxzbywgY2FuIHRoZSBETUEgbm90IGRvIGZ1bGwtZHVwbGV4IG9wZXJh
-dGlvbiA/IFdoYXQgSSBzZWUgaGVyZSBpcw0KPiA+ID4ganVzdA0KPiA+ID4gaGFsZi0gZHVwbGV4
-IG9wZXJhdGlvbnMgLCBvbmUgZm9yIFJYIGFuZCB0aGUgb3RoZXIgb25lIGZvciBUWCAuDQo+ID4N
-Cj4gPiBZZXMsIGhlcmUgaGF2ZSB0d28gZG1hIGNoYW5uZWxzLCBvbmUgZm9yIFJYIGFuZCB0aGUg
-b3RoZXIgb25lIGZvciBUWC4NCj4gPiBXaGVuIHdlIHJlcXVlc3QgdGhlIGNoYW5uZWwgd2Ugc2hv
-dWxkIGRldGVybWluZSBpdCBmb3IgVFggb3IgUlguDQo+IA0KPiBTb3JyeSwgSSBkb24ndCBxdWl0
-ZSB1bmRlcnN0YW5kIHRoaXMuIElmIHlvdSBoYXZlIHR3byBETUEgY2hhbm5lbHMsIGNhbg0KPiB5
-b3Ugbm90IHVzZSB0aGVtIGJvdGggdG8gZG8gZnVsbC1kdXBsZXggU1BJIHRyYW5zZmVyID8NCj4g
-DQoNClNvcnJ5LCBUaGVyZSBhcmUgYWxzbyBoYXJkIGZvciBtZS4gSSBkb24ndCB1bmRlcnN0YW5k
-IHdoYXQgaXMgZnVsbC1kdXBsZXggZm9yIGRtYT8gDQpBIERNQSBlbmdpbmUgY2FuIG9ubHkgcmVh
-ZCBvciB3cml0ZSBhdCB0aGUgc2FtZSB0aW1lLiBBbmQgYSBkbWEgY2hhbm5lbCByZXF1ZXN0IGZv
-ciBvbmx5IERNQV9NRU1fVE9fREVWIG9yIERNQV9ERVZfVE9fTUVNIGFsbW9zdC4NCkFsc28gaTJj
-IGlzIGEgaGFsZi1kdXBsZXggYnVzLg0K
+On Friday, February 28, 2014 at 11:59:25 AM, Lothar Wa=DFmann wrote:
+> Hi,
+>=20
+> Marek Vasut wrote:
+> > On Friday, February 28, 2014 at 06:19:18 AM, Yao Yuan wrote:
+> >=20
+> > [...]
+> >=20
+> > > Yes, here have two dma channels, one for RX and the other one for=
+ TX.
+> > > When we request the channel we should determine it for TX or RX.
+> >=20
+> > Sorry, I don't quite understand this. If you have two DMA channels,=
+ can
+> > you not use them both to do full-duplex SPI transfer ?
+>=20
+> SPI !=3D I2C
+
+You got me, sorry.
+
+Best regards,
+Marek Vasut
