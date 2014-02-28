@@ -1,66 +1,33 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
-Date: Fri, 28 Feb 2014 13:03:52 +0100
-Message-ID: <201402281303.52962.marex@denx.de>
-References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com> <201402281004.10238.marex@denx.de> <3d65fc9a0c5444b485c93de4087634e0@BL2PR03MB338.namprd03.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3d65fc9a0c5444b485c93de4087634e0@BL2PR03MB338.namprd03.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yao Yuan <yao.yuan@freescale.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+From: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH] drivers: i2c: i2c-st: Fix return in case of arbitration lost
+Date: Fri, 28 Feb 2014 13:52:56 +0100
+Message-ID: <1393591976-10771-1-git-send-email-maxime.coquelin@st.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.kandagatla-qxv4g6HH51o@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, February 28, 2014 at 12:36:01 PM, Yao Yuan wrote:
-> Hi Marek,
-> 
-> > On Friday, February 28, 2014 at 06:19:18 AM, Yao Yuan wrote:
-> > 
-> > [...]
-> > 
-> > > > > @@ -213,6 +238,7 @@ static struct imx_i2c_hwdata vf610_i2c_hwdata
-> > > > > = {
-> > > > > 
-> > > > >  	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
-> > > > >  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
-> > > > >  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
-> > > > > 
-> > > > > +	.has_dma_support	= true,
-> > > > 
-> > > > So why exactly don't we have a DT prop for determining whether the
-> > > > controller has DMA support ?
-> > > > 
-> > > > What about the other controllers, do they not support DMA for some
-> > > > specific reason? Please elaborate on that, thank you !
-> > > 
-> > > Sorry for my fault. I will modify it.
-> > 
-> > I would prefer if you could explain why other controllers do have DMA
-> > disabled even if the hardware does support the DMA operation.
-> 
-> Well, Because of the I2C in I.MX hardware don't support the DMA operation.
-> But here I also think has_dma_support isn't necessary.
+This patch fixes the error returned to the i2c_transfer function
+to -EAGAIN in case of arbitratin lost, so that the retry mechanism
+can be used.
 
-OK, got it now. Thanks!
+Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-st.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > > > Also, can the DMA not do full-duplex operation ? What I see here is
-> > > > just
-> > > > half- duplex operations , one for RX and the other one for TX .
-> > > 
-> > > Yes, here have two dma channels, one for RX and the other one for TX.
-> > > When we request the channel we should determine it for TX or RX.
-> > 
-> > Sorry, I don't quite understand this. If you have two DMA channels, can
-> > you not use them both to do full-duplex SPI transfer ?
-> 
-> Sorry, There are also hard for me. I don't understand what is full-duplex
-> for dma?
-
-Sorry, nevermind. I was confused by this and some SPI patches review. Like 
-Lothar (thanks!) pointed out, using only half-duplex operation is OK.
-
-Best regards,
-Marek Vasut
+diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
+index 9cf715d..8720161 100644
+--- a/drivers/i2c/busses/i2c-st.c
++++ b/drivers/i2c/busses/i2c-st.c
+@@ -574,7 +574,7 @@ static irqreturn_t st_i2c_isr_thread(int irq, void *data)
+ 		writel_relaxed(it, i2c_dev->base + SSC_IEN);
+ 
+ 		st_i2c_set_bits(i2c_dev->base + SSC_I2C, SSC_I2C_STOPG);
+-		c->result = -EIO;
++		c->result = -EAGAIN;
+ 		break;
+ 
+ 	default:
+-- 
+1.9.0
