@@ -1,46 +1,98 @@
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
-Date: Fri, 28 Feb 2014 11:59:25 +0100
-Message-ID: <20140228115925.5fe07693@ipc1.ka-ro>
-References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com>
-	<201402272139.36076.marex@denx.de>
-	<3f58a8abdda74100b4f7b14d0c31c90e@BL2PR03MB338.namprd03.prod.outlook.com>
-	<201402281004.10238.marex@denx.de>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c:at91: Add device tree property to set
+ clock-frequency
+Date: Fri, 28 Feb 2014 12:05:06 +0100
+Message-ID: <20140228110506.GF11192@ldesroches-Latitude-E6320>
+References: <1393293045-31849-1-git-send-email-mark.roszko@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201402281004.10238.marex-ynQEQJNshbs@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1393293045-31849-1-git-send-email-mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Mon, Feb 24, 2014 at 08:50:45PM -0500, Marek Roszko wrote:
+> This adds the ability to set "clock-frequency" in the device tree for the i2c bus following
+> the naming of other i2c bus implementations. If the property is not set, the clock
+> frequency will default to the previously used define of 100KHz.
+> 
+> Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Marek Vasut wrote:
-> On Friday, February 28, 2014 at 06:19:18 AM, Yao Yuan wrote:
->=20
-> [...]
-> > Yes, here have two dma channels, one for RX and the other one for T=
-X.
-> > When we request the channel we should determine it for TX or RX.
->=20
-> Sorry, I don't quite understand this. If you have two DMA channels, c=
-an you not=20
-> use them both to do full-duplex SPI transfer ?
->=20
-SPI !=3D I2C
+Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
+Thanks
 
-Lothar Wa=C3=9Fmann
---=20
-___________________________________________________________
-
-Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
-
-www.karo-electronics.de | info-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org
-___________________________________________________________
+> ---
+> v2:
+> 	-fixed return code usage and check to not compare agaisnt less than zero
+> 
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-at91.txt |    2 ++
+>  drivers/i2c/busses/i2c-at91.c                      |   10 ++++++++--
+>  2 files changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> index 4fade84..388f0a2 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+> @@ -12,6 +12,7 @@ Required properties :
+>  - clocks: phandles to input clocks.
+>  
+>  Optional properties:
+> +- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000
+>  - Child nodes conforming to i2c bus binding
+>  
+>  Examples :
+> @@ -23,6 +24,7 @@ i2c0: i2c@fff84000 {
+>  	#address-cells = <1>;
+>  	#size-cells = <0>;
+>  	clocks = <&twi0_clk>;
+> +	clock-frequency = <400000>;
+>  
+>  	24c512@50 {
+>  		compatible = "24c512";
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 843d012..a407050 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -32,7 +32,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/platform_data/dma-atmel.h>
+>  
+> -#define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
+> +#define DEFAULT_TWI_CLK_HZ		100000		/* max 400 Kbits/s */
+>  #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
+>  #define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
+>  
+> @@ -711,6 +711,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+>  	struct resource *mem;
+>  	int rc;
+>  	u32 phy_addr;
+> +	int bus_clk_rate;
+>  
+>  	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+>  	if (!dev)
+> @@ -756,7 +757,12 @@ static int at91_twi_probe(struct platform_device *pdev)
+>  			dev->use_dma = true;
+>  	}
+>  
+> -	at91_calc_twi_clock(dev, TWI_CLK_HZ);
+> +	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
+> +			&bus_clk_rate);
+> +	if (rc)
+> +		bus_clk_rate = DEFAULT_TWI_CLK_HZ;
+> +
+> +	at91_calc_twi_clock(dev, bus_clk_rate);
+>  	at91_init_twi_bus(dev);
+>  
+>  	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+> -- 
+> 1.7.10.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
