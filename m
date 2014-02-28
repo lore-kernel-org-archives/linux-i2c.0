@@ -1,76 +1,132 @@
-From: Chew Chiau Ee <chiau.ee.chew@intel.com>
-Subject: [PATCH] i2c: i801: enable Intel BayTrail SMBUS
-Date: Sat,  1 Mar 2014 00:03:56 +0800
-Message-ID: <1393603436-3494-1-git-send-email-chiau.ee.chew@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Chew Kean Ho <kean.ho.chew@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
+Date: Fri, 28 Feb 2014 10:04:10 +0100
+Message-ID: <201402281004.10238.marex@denx.de>
+References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com> <201402272139.36076.marex@denx.de> <3f58a8abdda74100b4f7b14d0c31c90e@BL2PR03MB338.namprd03.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <3f58a8abdda74100b4f7b14d0c31c90e-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Chew, Kean ho <kean.ho.chew@intel.com>
+On Friday, February 28, 2014 at 06:19:18 AM, Yao Yuan wrote:
 
-Add Device ID of Intel BayTrail SMBus Controller.
+[...]
 
-Signed-off-by: Chew, Kean ho <kean.ho.chew@intel.com>
-Signed-off-by: Chew, Chiau Ee <chiau.ee.chew@intel.com>
----
- Documentation/i2c/busses/i2c-i801 |    1 +
- drivers/i2c/busses/Kconfig        |    1 +
- drivers/i2c/busses/i2c-i801.c     |    3 +++
- 3 files changed, 5 insertions(+), 0 deletions(-)
+> > > @@ -213,6 +238,7 @@ static struct imx_i2c_hwdata vf610_i2c_hwdata = {
+> > > 
+> > >  	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
+> > >  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
+> > >  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
+> > > 
+> > > +	.has_dma_support	= true,
+> > 
+> > So why exactly don't we have a DT prop for determining whether the
+> > controller has DMA support ?
+> > 
+> > What about the other controllers, do they not support DMA for some
+> > specific reason? Please elaborate on that, thank you !
+> 
+> Sorry for my fault. I will modify it.
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index aaaf0693..adf5e33 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -26,6 +26,7 @@ Supported adapters:
-   * Intel Wellsburg (PCH)
-   * Intel Coleto Creek (PCH)
-   * Intel Wildcat Point-LP (PCH)
-+  * Intel BayTrail (SOC)
-    Datasheets: Publicly available at the Intel website
+I would prefer if you could explain why other controllers do have DMA disabled 
+even if the hardware does support the DMA operation.
  
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index f5ed031..f23da0e 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -110,6 +110,7 @@ config I2C_I801
- 	    Wellsburg (PCH)
- 	    Coleto Creek (PCH)
- 	    Wildcat Point-LP (PCH)
-+	    BayTrail (SOC)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 349c2d3..899f559 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -60,6 +60,7 @@
-   Wellsburg (PCH) MS    0x8d7f     32     hard     yes     yes     yes
-   Coleto Creek (PCH)    0x23b0     32     hard     yes     yes     yes
-   Wildcat Point-LP (PCH)   0x9ca2     32     hard     yes     yes     yes
-+  BayTrail (SOC)        0x0f12     32     hard     yes     yes     yes
- 
-   Features supported by this driver:
-   Software PEC                     no
-@@ -161,6 +162,7 @@
- 				 STATUS_ERROR_FLAGS)
- 
- /* Older devices have their ID defined in <linux/pci_ids.h> */
-+#define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS	0x0f12
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
- #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS	0x1d22
- /* Patsburg also has three 'Integrated Device Function' SMBus controllers */
-@@ -822,6 +824,7 @@ static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
- 	{ 0, }
- };
- 
--- 
-1.7.4.4
+> > [...]
+> > 
+> > > +static void i2c_imx_dma_tx_callback(void *arg)
+> > 
+> > [...]
+> > 
+> > > +static int i2c_imx_dma_tx(struct imx_i2c_struct *i2c_imx, struct
+> > > +i2c_msg
+> > > *msgs) +{
+> > 
+> > [...]
+> > 
+> > > +static void i2c_imx_dma_rx_callback(void *arg)
+> > 
+> > [...]
+> > 
+> > > +static int i2c_imx_dma_rx(struct imx_i2c_struct *i2c_imx, struct
+> > > +i2c_msg
+> > > *msgs) +{
+> > 
+> > [...]
+> > 
+> > Looks like there's quite a bit of code duplication in the four functions
+> > above, can you not unify them ?
+> 
+> Yes, There's looks like quite a bit of code duplication in the four
+> functions above. I also hate quite a bit of code duplication.
+> But there are many differences in fact.
+> If unify them we should add many conditional statements and auxiliary
+> variable. I think it's superfluous and will damage the readability.
+> So, I am very confused. And if you think unify them will be better I will
+> modify it. Thanks for your suggestion and looking forward to hearing from
+> you.
+
+I'd say try it, the RX and TX callback look almost the same. So does the 
+i2c_imx_dma_rx() and i2c_imx_dma_tx() .
+
+> > Also, can the DMA not do full-duplex operation ? What I see here is just
+> > half- duplex operations , one for RX and the other one for TX .
+> 
+> Yes, here have two dma channels, one for RX and the other one for TX.
+> When we request the channel we should determine it for TX or RX.
+
+Sorry, I don't quite understand this. If you have two DMA channels, can you not 
+use them both to do full-duplex SPI transfer ?
+
+> > > +static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx) {
+> > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
+> > > +	struct dma_chan *dma_chan;
+> > > +
+> > > +	dma_chan = dma->chan_tx;
+> > > +	dma->chan_tx = NULL;
+> > > +	dma->buf_tx = 0;
+> > > +	dma->len_tx = 0;
+> > > +	dma_release_channel(dma_chan);
+> > > +
+> > > +	dma_chan = dma->chan_rx;
+> > > +	dma->chan_tx = NULL;
+> > > +	dma->buf_rx = 0;
+> > > +	dma->len_rx = 0;
+> > > +	dma_release_channel(dma_chan);
+> > 
+> > You must make _DEAD_ _SURE_ this function is not ever called while the
+> > DMA is still active. In your case, I have a feeling that's not handled.
+> 
+> I think this function will not called while the DMA is still
+> active because of the Linux synchronization mechanism - completion.
+> I used it in the dma function.
+
+This doesn't check whether the completion is actually finished anywhere. I don't 
+quite understand how this is safe .
+
+[...]
+
+> > > +static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+> > > +							struct i2c_msg *msgs)
+> > > +{
+> > 
+> > Looks like almost an duplication as well...
+> 
+> Considering the symmetric with them i2c_imx_dma_write.
+> i2c_imx_dma_write and i2c_imx_pio_write have many differences. So I
+> separate them. But i2c_imx_dma_read and i2c_imx_pio_read is the same at
+> first part. I may should unify them. But it's will not symmetric with them
+> i2c_imx_dma_write if unified them. So I don't know which will be better?
+> Looking forward to hearing from you.
+
+The dma_read() looks almost like dma_write(), so I'd also try merging them 
+together.
+
+> > Besides, full-duplex DMA operation is missing, please explain why.
+> > 
+> > THanks!
