@@ -1,62 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: Add message transfer tracepoints for I2C
-Date: Fri, 28 Feb 2014 22:17:58 +0100
-Message-ID: <20140228211758.GB2517@katana>
-References: <20140218203346.GG18768@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: Add message transfer tracepoints for SMBUS
+Date: Fri, 28 Feb 2014 22:21:35 +0100
+Message-ID: <20140228212134.GC2517@katana>
+References: <20140218205418.GH18768@katana>
  <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
- <10892.1393506444@warthog.procyon.org.uk>
+ <20140109215002.25590.51609.stgit@warthog.procyon.org.uk>
+ <11165.1393507178@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <10892.1393506444@warthog.procyon.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Howells <dhowells@redhat.com>
-Cc: wolfram@the-dreams.de, khali@linux-fr.org, linux-i2c@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <11165.1393507178-S6HVgzuS8uM4Awkfq6JHfwNdhmdF6hFW@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---l76fUT7nc3MelDdI
+--da4uJneut+ArUgXk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
-> > And for the buffer: %*phN is difficult to read IMO. What about %*ph? Or
-> > %*phD at least?
+> > Also, the I2C tracing has first 'f' then 'a', that should be consistent,
+> > too.
 >=20
-> My problem with that is that it increases the length of the output by 50%=
- and
-> there's a hard limit on how much output we may produce.
+> Flags first or address first?  Do you have a preference (for both)?
 
-Is it PAGE_SIZE? How is this handled when the buffer is so big that the
-limit will be reached anyhow? Note that it is really uncommon to
-transfer kilobytes in one go via i2c. Usually, big transfers are split
-up into smaller fragments, say 128-256 byte. So, for readability, I'd
-still favour %*ph.
+I'd say address first, yet no strong preference.
+
+> > Can we have something like this for 'flags'?
+>=20
+> There's a __print_flags() which should work.  One thing I'm concerned abo=
+ut
+> there is how do we handle more flags being added - does that count as an =
+ABI
+> break if the printed format changes?
+
+Not sure, I mean, this is debug output, no?
+
+> SMBus flags are basically the same as I2C flags, right?
+
+Basically, yes.
+
+Thanks,
+
+   Wolfram
 
 
---l76fUT7nc3MelDdI
+--da4uJneut+ArUgXk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTEP0FAAoJEBQN5MwUoCm2N8QQAJwcR8oQtE8665iDc3n9GSvr
-dNf2LeaMc9glfRZmHXDW6rVFe7duP/ZdBKLklmFLhNEIUALvtDywUpjEn/yFwI4Q
-eGDte13BVq12VgHk9Z56HWxNkLUB+emWl80W3B3eVL5HX4oNopaFlPhcQEIKUln3
-7Lg2pyxAaSgzjmD3Cjq0/gSM7jJqwQR84vqp2FtdUfJ2BcmnGYN6imYgMMpshyyx
-QWrBI4TJE/ZQOIeFYK5/vuEumjX3vsgcbYoC83W7vceNx8B7EVxtV6Qj8FMfXZzL
-bIlJGvGSeHHh96AS3L1itflmthsuFh1inF/Q2qKZB/7oCgP9jrS7s2LMOgHylSz+
-lkVCT8irweisW6vSAymXJlBz5lQiZrl24Zs0u6nP9wPY6Qz6LwqFE4HX5IWWtl94
-rFlwiRN7X/Z4y+MRX6WbalVaRLa74qELN+rhe88dACIgsmrwmYeSTsxqmEXnL+6w
-WDF6HjL2foEdinQaYS9jqUECNY7zOILyRshug8T0rhPxo557qJ9QkVVqA+ai3jmU
-nCXmOPtWihktGzUj7SVDs8MtBXlqGCatwFdJ5Yio13Eol+XD3TanswIXD9uYfm6R
-iNFzg+RTF0ZaM9F7ychKWFuZGIlQPOo2m+20CASlpRq+oKCd7l3fbJjeSsBhzdb6
-rlj+g2jsrt/IL3UsHgXm
-=Yiah
+iQIcBAEBAgAGBQJTEP3dAAoJEBQN5MwUoCm2n6kP/RTSBe8QE3nBjDQIl5D3Dvsq
+3UJRi1j657xk1PzIRwDxlexhKoqamnB/d2D13deOJVM52CCcvGa7XF5B64e2NNwl
+DoaiCCGmzLSJAUUaFnnKGC+5LvBLspnSADHHgruRUiXTmITkkmpTIcaDKFkCKbJl
+wKpyC/UXv4KAqdjzhVoDkd/+IWAMHrBdf0LfysB8C3b/+34mIMYZa+s8rrsBcpq+
+HM4ABbI0s7rtfcf0QSGq34o5DT1IRsKV31+6AoxF+jkGAK+PDRaK5MNZLTLP9jEA
+xVAYQn1gKA+79coHcxadD3i+OuHwBp+SKVnILtJSktVJmRfusAJcZ+qDSloMCKrt
+st0V0KWOoCOA6TcsKMZo03OT8ONrivMmQaoI883o5VCjpFxxmIOtmy1eVoRRdrUB
+gNNDd/xNnaZnW0+ihwmhfMCTJPnC87QuRVs61ABwMV/ekqJWTL9f0N2Wjb1+eFog
+bs9Hz4H2d5vk9JWDXglyEU+I7Q57k1CaHaSXnEWwozeY5N7GqSDbJ+KdMf3faIsw
+v2/MAhrKGlbXEKGCKfZJC9SOJCaumsbhgqca3p844JBSDkLi7HWTnfXCUqBD1rrV
+KMm5gZmOgx2ER0chgrkfTQyzhwOTnLpC0Dep4iosc8bkFLukV0rO+3UbSCnqvCjY
+uBogJ8qKXTFhAmLbJZq+
+=IYV6
 -----END PGP SIGNATURE-----
 
---l76fUT7nc3MelDdI--
+--da4uJneut+ArUgXk--
