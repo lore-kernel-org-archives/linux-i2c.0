@@ -1,190 +1,56 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+From: Shawn Guo <shawn.guo@linaro.org>
 Subject: Re: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
-Date: Thu, 27 Feb 2014 21:39:35 +0100
-Message-ID: <201402272139.36076.marex@denx.de>
-References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com> <1393481115-22136-2-git-send-email-yao.yuan@freescale.com>
+Date: Fri, 28 Feb 2014 10:13:02 +0800
+Message-ID: <20140228021300.GJ13537@S2101-09.ap.freescale.net>
+References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com>
+ <1393481115-22136-2-git-send-email-yao.yuan@freescale.com>
+ <201402272139.36076.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1393481115-22136-2-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <201402272139.36076.marex@denx.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Marek Vasut <marex@denx.de>
+Cc: mark.rutland@arm.com, wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Yuan Yao <yao.yuan@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, February 27, 2014 at 07:05:14 AM, Yuan Yao wrote:
-
-[...]
-
-> *****/ @@ -63,6 +68,9 @@
->  /* Default value */
->  #define IMX_I2C_BIT_RATE	100000	/* 100kHz */
+On Thu, Feb 27, 2014 at 09:39:35PM +0100, Marek Vasut wrote:
+> > @@ -193,6 +216,7 @@ static const struct imx_i2c_hwdata imx1_i2c_hwdata  = {
+> >  	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+> >  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+> >  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+> > +	.has_dma_support	= false,
+> > 
+> >  };
+> > 
+> > @@ -203,6 +227,7 @@ static const struct imx_i2c_hwdata imx21_i2c_hwdata  =
+> > { .ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+> >  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+> >  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+> > +	.has_dma_support	= false,
+> > 
+> >  };
+> > 
+> > @@ -213,6 +238,7 @@ static struct imx_i2c_hwdata vf610_i2c_hwdata = {
+> >  	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
+> >  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
+> >  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
+> > +	.has_dma_support	= true,
 > 
-> +/* enable DMA if transfer size is bigger than this threshold */
-> +#define IMX_I2C_DMA_THRESHOLD	16
+> So why exactly don't we have a DT prop for determining whether the controller 
+> has DMA support ?
 
-So what's the unit here , potatoes or beers or what ? I suppose it's bytes , but 
-please make it explicit in the comment ...
+Using DMA or PIO is a decision that should be made by driver on its own,
+not device tree.
 
-[...]
-
->  static const struct imx_i2c_hwdata imx1_i2c_hwdata  = {
-> @@ -193,6 +216,7 @@ static const struct imx_i2c_hwdata imx1_i2c_hwdata  = {
->  	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
->  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
->  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
-> +	.has_dma_support	= false,
-> 
->  };
-> 
-> @@ -203,6 +227,7 @@ static const struct imx_i2c_hwdata imx21_i2c_hwdata  =
-> { .ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
->  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
->  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
-> +	.has_dma_support	= false,
-> 
->  };
-> 
-> @@ -213,6 +238,7 @@ static struct imx_i2c_hwdata vf610_i2c_hwdata = {
->  	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
->  	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
->  	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
-> +	.has_dma_support	= true,
-
-So why exactly don't we have a DT prop for determining whether the controller 
-has DMA support ?
-
-What about the other controllers, do they not support DMA for some specific 
-reason? Please elaborate on that, thank you !
-[...]
-
-> +static void i2c_imx_dma_tx_callback(void *arg)
-[...]
-> +static int i2c_imx_dma_tx(struct imx_i2c_struct *i2c_imx, struct i2c_msg
-> *msgs) +{
-[...]
-> +static void i2c_imx_dma_rx_callback(void *arg)
-[...]
-> +static int i2c_imx_dma_rx(struct imx_i2c_struct *i2c_imx, struct i2c_msg
-> *msgs) +{
-[...]
-
-Looks like there's quite a bit of code duplication in the four functions above, 
-can you not unify them ?
-
-Also, can the DMA not do full-duplex operation ? What I see here is just half-
-duplex operations , one for RX and the other one for TX .
-
-> +static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> +	struct dma_chan *dma_chan;
-> +
-> +	dma_chan = dma->chan_tx;
-> +	dma->chan_tx = NULL;
-> +	dma->buf_tx = 0;
-> +	dma->len_tx = 0;
-> +	dma_release_channel(dma_chan);
-> +
-> +	dma_chan = dma->chan_rx;
-> +	dma->chan_tx = NULL;
-> +	dma->buf_rx = 0;
-> +	dma->len_rx = 0;
-> +	dma_release_channel(dma_chan);
-
-You must make _DEAD_ _SURE_ this function is not ever called while the DMA is 
-still active. In your case, I have a feeling that's not handled.
-
-> +}
->  /** Functions for IMX I2C adapter driver
-> ***************************************
-> **************************************************************************
-> *****/
-> 
-> @@ -425,7 +600,8 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
->  	return IRQ_NONE;
->  }
-> 
-> -static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg
-> *msgs) +static int i2c_imx_pio_write(struct imx_i2c_struct *i2c_imx,
-> +							struct i2c_msg *msgs)
->  {
->  	int i, result;
-> 
-> @@ -458,7 +634,56 @@ static int i2c_imx_write(struct imx_i2c_struct
-> *i2c_imx, struct i2c_msg *msgs) return 0;
->  }
-> 
-> -static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg
-> *msgs) +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> +							struct i2c_msg *msgs)
-> +{
-> +	int result, timeout=1000;
-> +	unsigned int temp = 0;
-> +
-> +	reinit_completion(&i2c_imx->dma->cmd_complete);
-> +	result = i2c_imx_dma_tx(i2c_imx, msgs);
-> +	if(result)
-> +		return result;
-> +
-> +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +	temp |= I2CR_DMAEN;
-> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +	/* write slave address */
-> +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> +	result = wait_for_completion_interruptible_timeout(
-> +						&i2c_imx->dma->cmd_complete,
-> +						msecs_to_jiffies(1000));
-
-Pull the magic constant of 1000 out and #define it as some I2C_IMX_DMA_TIMEOUT 
-please .
-
-> +	if (result == 0)
-> +		return  -ETIMEDOUT;
-> +
-> +	/* waiting for Transfer complete. */
-> +	while(timeout--) {
-> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +		if (temp & 0x80)
-> +			break;
-> +		udelay(10);
-> +	}
-> +
-> +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +	temp &= ~I2CR_DMAEN;
-> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +	/* write the last byte */
-> +	imx_i2c_write_reg(msgs->buf[msgs->len-1], i2c_imx, IMX_I2C_I2DR);
-> +	result = i2c_imx_trx_complete(i2c_imx);
-> +	if (result)
-> +		return result;
-> +
-> +	result = i2c_imx_acked(i2c_imx);
-> +	if (result)
-> +		return result;
-> +
-> +	return 0;
-> +}
-> +
-> +static int i2c_imx_pio_read(struct imx_i2c_struct *i2c_imx,
-> +							struct i2c_msg *msgs)
->  {
->  	int i, result;
->  	unsigned int temp;
-> @@ -518,6 +743,80 @@ static int i2c_imx_read(struct imx_i2c_struct
-> *i2c_imx, struct i2c_msg *msgs) return 0;
->  }
-> 
-> +static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
-> +							struct i2c_msg *msgs)
-> +{
-
-Looks like almost an duplication as well...
-
-Besides, full-duplex DMA operation is missing, please explain why.
-
-THanks!
+Shawn
