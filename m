@@ -1,63 +1,50 @@
 From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
-Subject: Re: [PATCH 2/2] ARM: zynq: dt: Add I2C nodes to Zynq device tree
-Date: Fri, 28 Feb 2014 18:28:34 -0800
-Message-ID: <ce5fbea5-de6e-4a29-9807-cccf0f59f654@CO9EHSMHS021.ehs.local>
+Subject: Re: [PATCH 1/2] i2c: Add driver for Cadence I2C controller
+Date: Fri, 28 Feb 2014 19:06:29 -0800
+Message-ID: <8af0e222-6337-4ec4-b718-099a9decc5ec@TX2EHSMHS034.ehs.local>
 References: <1393632046-20062-1-git-send-email-soren.brinkmann@xilinx.com>
- <1393632046-20062-2-git-send-email-soren.brinkmann@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1393632046-20062-2-git-send-email-soren.brinkmann@xilinx.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+In-Reply-To: <1393632046-20062-1-git-send-email-soren.brinkmann@xilinx.com>
+Sender: linux-doc-owner@vger.kernel.org
 To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Michal Simek <michal.simek@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: devicetree@vger.kernel.org, Harini Katakam <harinik@xilinx.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Harini Katakam <harinik@xilinx.com>, =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gRnJpLCAyMDE0LTAyLTI4IGF0IDA0OjAwUE0gLTA4MDAsIFNvcmVuIEJyaW5rbWFubiB3cm90
-ZToKPiBTaWduZWQtb2ZmLWJ5OiBTb3JlbiBCcmlua21hbm4gPHNvcmVuLmJyaW5rbWFubkB4aWxp
-bnguY29tPgo+IC0tLQo+ICBhcmNoL2FybS9ib290L2R0cy96eW5xLTcwMDAuZHRzaSB8IDIyICsr
-KysrKysrKysrKwo+ICBhcmNoL2FybS9ib290L2R0cy96eW5xLXpjNzAyLmR0cyB8IDc2ICsrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPiAgYXJjaC9hcm0vYm9vdC9kdHMv
-enlucS16YzcwNi5kdHMgfCA2OCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+
-ICAzIGZpbGVzIGNoYW5nZWQsIDE2NiBpbnNlcnRpb25zKCspCj4gClsuLi5dCj4gZGlmZiAtLWdp
-dCBhL2FyY2gvYXJtL2Jvb3QvZHRzL3p5bnEtemM3MDIuZHRzIGIvYXJjaC9hcm0vYm9vdC9kdHMv
-enlucS16YzcwMi5kdHMKPiBpbmRleCBjOTEzZjc3YTIxZWIuLjkxYTNhNTYwZjAzYiAxMDA2NDQK
-PiAtLS0gYS9hcmNoL2FybS9ib290L2R0cy96eW5xLXpjNzAyLmR0cwo+ICsrKyBiL2FyY2gvYXJt
-L2Jvb3QvZHRzL3p5bnEtemM3MDIuZHRzClsuLi5dCj4gKwo+ICsJCWkyY0A3IHsKPiArCQkJI2Fk
-ZHJlc3MtY2VsbHMgPSA8MT47Cj4gKwkJCSNzaXplLWNlbGxzID0gPDA+Owo+ICsJCQlyZWcgPSA8
-Nz47Cj4gKwkJCWh3bW9uQDUyIHsKPiArCQkJCWNvbXBhdGlibGUgPSAicG1idXMsdWNkOTI0OCI7
-Cj4gKwkJCQlyZWcgPSA8NTI+Owo+ICsJCQl9Owo+ICsJCQlod21vbkA1MyB7Cj4gKwkJCQljb21w
-YXRpYmxlID0gInBtYnVzLHVjZDkyNDgiOwo+ICsJCQkJcmVnID0gPDUzPjsKPiArCQkJfTsKPiAr
-CQkJaHdtb25ANTQgewo+ICsJCQkJY29tcGF0aWJsZSA9ICJwbWJ1cyx1Y2Q5MjQ4IjsKQWxsIHRo
-ZXNlIG9jY3VycmVuY2VzIG9mICdwbWJ1cycgc2hvdWxkIHJhdGhlciBiZSByZXBsYWNlZCB3aXRo
-ICd0aScuCkkgd2Fzbid0IGF3YXJlIG9mIGhvdyB0aGlzIERUIG5vZGUgdG8gSTJDIHByb2Jpbmcg
-d29ya3MgLSBhbmQgc3RpbGwKaGF2ZW4ndCBmdWxseSB1bmRlcnN0b29kIGl0IC0gYnV0IHRoZSB2
-ZW5kb3IgcHJlZml4IGlzIGFwcGFyZW50bHkgYQpkb24ndCBjYXJlIGFuZCB3ZSBjb3VsZCBzaW1w
-bHkgdXNlIHRoZSBjb3JyZWN0IG9uZSBoZXJlLgpJIGhhdmUgbm8gaWRlYSBob3cgSSBjYW1lIHVw
-IHdpdGggdGhlIGRlc2NyaXB0aW9uIHVzaW5nICdwbWJ1cycgKHdlCmNhcnJ5IHRoaXMgaW4gb3Vy
-IHZlbmRvciB0cmVlIGZvciBxdWl0ZSBhIHdoaWxlIGFscmVhZHkpLgpJcyB0aGVyZSBhbnkgZG9j
-dW1lbnQgZGVzY3JpYmluZyBob3cgYSBEVCBub2RlIGlzIG1hdGNoZWQgdG8gYW4KYXBwcm9wcmlh
-dGUgZHJpdmVyPyBUaGVzZSBJMkMgZHJpdmVycyB1c3VhbGx5IGRvbid0IGhhdmUgdGhlIGNvbW1v
-bgonc3RydWN0IG9mX2RldmljZV9pZCcuIEhlbmNlIG15IHByZWZlcnJlZCB3YXkgb2Ygc2ltcGx5
-IGdyZXBwaW5nIHRocm91Z2gKdGhlIGtlcm5lbCBmb3IgdGhlIGNvbXBhdGliaWxpdHkgc3RyaW5n
-IGRvZXMgbm90IHdvcmsuCgpbLi4uXQo+IGRpZmYgLS1naXQgYS9hcmNoL2FybS9ib290L2R0cy96
-eW5xLXpjNzA2LmR0cyBiL2FyY2gvYXJtL2Jvb3QvZHRzL3p5bnEtemM3MDYuZHRzCj4gaW5kZXgg
-ODhmNjJjNTAzODJlLi5kYWIzMGY4MGQ1YjAgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9hcm0vYm9vdC9k
-dHMvenlucS16YzcwNi5kdHMKPiArKysgYi9hcmNoL2FybS9ib290L2R0cy96eW5xLXpjNzA2LmR0
-cwpbLi4uXQo+ICsJCWkyY0A3IHsKPiArCQkJI2FkZHJlc3MtY2VsbHMgPSA8MT47Cj4gKwkJCSNz
-aXplLWNlbGxzID0gPDA+Owo+ICsJCQlyZWcgPSA8Nz47Cj4gKwkJCXVjZDkwMTIwQDY1IHsKPiAr
-CQkJCWNvbXBhdGlibGUgPSAicG1idXMsdWNkOTAxMjAiOwpzYW1lIGhlcmUKCglTw7ZyZW4KCgoK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJt
-LWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3Jn
-Cmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtl
-cm5lbAo=
+On Fri, 2014-02-28 at 04:00PM -0800, Soren Brinkmann wrote:
+> Add a driver for the Cadence I2C controller. This controller is for
+> example found in Xilinx Zynq.
+>=20
+> Signed-off-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
+> ---
+>  .../devicetree/bindings/i2c/i2c-cadence.txt        |  21 +
+>  MAINTAINERS                                        |   1 +
+>  drivers/i2c/busses/Kconfig                         |   7 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-cadence.c                   | 901 +++++++++++=
+++++++++++
+>  5 files changed, 931 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cadence=
+=2Etxt
+>  create mode 100644 drivers/i2c/busses/i2c-cadence.c
+>=20
+[...]
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index f5ed03164d86..7806c1654068 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -375,6 +375,13 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
+>  	help
+>  	  The unit of the TWI clock is kHz.
+> =20
+> +config I2C_CADENCE
+> +	tristate "Cadence I2C Controller"
+> +	depends on ARCH_ZYNQ
+This can be reduced to a dependency on COMMON_CLK only, I think.
+
+	S=C3=B6ren
+
+
