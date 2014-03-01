@@ -1,220 +1,63 @@
-From: Soren Brinkmann <soren.brinkmann@xilinx.com>
-Subject: [PATCH 2/2] ARM: zynq: dt: Add I2C nodes to Zynq device tree
-Date: Fri, 28 Feb 2014 16:00:46 -0800
-Message-ID: <1393632046-20062-2-git-send-email-soren.brinkmann@xilinx.com>
+From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
+Subject: Re: [PATCH 2/2] ARM: zynq: dt: Add I2C nodes to Zynq device tree
+Date: Fri, 28 Feb 2014 18:28:34 -0800
+Message-ID: <ce5fbea5-de6e-4a29-9807-cccf0f59f654@CO9EHSMHS021.ehs.local>
 References: <1393632046-20062-1-git-send-email-soren.brinkmann@xilinx.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1393632046-20062-1-git-send-email-soren.brinkmann@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
+ <1393632046-20062-2-git-send-email-soren.brinkmann@xilinx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1393632046-20062-2-git-send-email-soren.brinkmann@xilinx.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Michal Simek <michal.simek@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Harini Katakam <harinik@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>
+Cc: devicetree@vger.kernel.org, Harini Katakam <harinik@xilinx.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
----
- arch/arm/boot/dts/zynq-7000.dtsi | 22 ++++++++++++
- arch/arm/boot/dts/zynq-zc702.dts | 76 ++++++++++++++++++++++++++++++++++++++++
- arch/arm/boot/dts/zynq-zc706.dts | 68 +++++++++++++++++++++++++++++++++++
- 3 files changed, 166 insertions(+)
-
-diff --git a/arch/arm/boot/dts/zynq-7000.dtsi b/arch/arm/boot/dts/zynq-7000.dtsi
-index 8b67b19392ec..fb1e1e7cae8f 100644
---- a/arch/arm/boot/dts/zynq-7000.dtsi
-+++ b/arch/arm/boot/dts/zynq-7000.dtsi
-@@ -48,6 +48,28 @@
- 		interrupt-parent = <&intc>;
- 		ranges;
- 
-+		i2c0: zynq-i2c@e0004000 {
-+			compatible = "cdns,i2c-r1p10";
-+			status = "disabled";
-+			clocks = <&clkc 38>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <0 25 4>;
-+			reg = <0xE0004000 0x1000>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c1: zynq-i2c@e0005000 {
-+			compatible = "cdns,i2c-r1p10";
-+			status = "disabled";
-+			clocks = <&clkc 39>;
-+			interrupt-parent = <&intc>;
-+			interrupts = <0 48 4>;
-+			reg = <0xE0005000 0x1000>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
- 		intc: interrupt-controller@f8f01000 {
- 			compatible = "arm,cortex-a9-gic";
- 			#interrupt-cells = <3>;
-diff --git a/arch/arm/boot/dts/zynq-zc702.dts b/arch/arm/boot/dts/zynq-zc702.dts
-index c913f77a21eb..91a3a560f03b 100644
---- a/arch/arm/boot/dts/zynq-zc702.dts
-+++ b/arch/arm/boot/dts/zynq-zc702.dts
-@@ -34,6 +34,82 @@
- 	phy-mode = "rgmii";
- };
- 
-+&i2c0 {
-+	status = "okay";
-+	clock-frequency = <400000>;
-+
-+	i2cswitch@74 {
-+		compatible = "nxp,pca9548";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x74>;
-+
-+		i2c@0 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0>;
-+			si570: clock-generator@5d {
-+				#clock-cells = <0>;
-+				compatible = "silabs,si570";
-+				temperature-stability = <50>;
-+				reg = <0x5d>;
-+				factory-fout = <156250000>;
-+				clock-frequency = <148500000>;
-+			};
-+		};
-+
-+		i2c@2 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <2>;
-+			eeprom@54 {
-+				compatible = "at,24c08";
-+				reg = <0x54>;
-+			};
-+		};
-+
-+		i2c@3 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <3>;
-+			gpio@21 {
-+				compatible = "ti,tca6416";
-+				reg = <0x21>;
-+				gpio-controller;
-+				#gpio-cells = <2>;
-+			};
-+		};
-+
-+		i2c@4 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <4>;
-+			rtc@51 {
-+				compatible = "nxp,pcf8563";
-+				reg = <0x51>;
-+			};
-+		};
-+
-+		i2c@7 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <7>;
-+			hwmon@52 {
-+				compatible = "pmbus,ucd9248";
-+				reg = <52>;
-+			};
-+			hwmon@53 {
-+				compatible = "pmbus,ucd9248";
-+				reg = <53>;
-+			};
-+			hwmon@54 {
-+				compatible = "pmbus,ucd9248";
-+				reg = <54>;
-+			};
-+		};
-+	};
-+};
-+
- &sdhci0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/zynq-zc706.dts b/arch/arm/boot/dts/zynq-zc706.dts
-index 88f62c50382e..dab30f80d5b0 100644
---- a/arch/arm/boot/dts/zynq-zc706.dts
-+++ b/arch/arm/boot/dts/zynq-zc706.dts
-@@ -35,6 +35,74 @@
- 	phy-mode = "rgmii";
- };
- 
-+&i2c0 {
-+	status = "okay";
-+	clock-frequency = <400000>;
-+
-+	i2cswitch@74 {
-+		compatible = "nxp,pca9548";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reg = <0x74>;
-+
-+		i2c@0 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0>;
-+			si570: clock-generator@5d {
-+				#clock-cells = <0>;
-+				compatible = "silabs,si570";
-+				temperature-stability = <50>;
-+				reg = <0x5d>;
-+				factory-fout = <156250000>;
-+				clock-frequency = <148500000>;
-+			};
-+		};
-+
-+		i2c@2 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <2>;
-+			eeprom@54 {
-+				compatible = "at,24c08";
-+				reg = <0x54>;
-+			};
-+		};
-+
-+		i2c@3 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <3>;
-+			gpio@21 {
-+				compatible = "ti,tca6416";
-+				reg = <0x21>;
-+				gpio-controller;
-+				#gpio-cells = <2>;
-+			};
-+		};
-+
-+		i2c@4 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <4>;
-+			rtc@51 {
-+				compatible = "nxp,pcf8563";
-+				reg = <0x51>;
-+			};
-+		};
-+
-+		i2c@7 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <7>;
-+			ucd90120@65 {
-+				compatible = "pmbus,ucd90120";
-+				reg = <0x65>;
-+			};
-+		};
-+	};
-+};
-+
- &sdhci0 {
- 	status = "okay";
- };
--- 
-1.9.0.1.g4196000
+T24gRnJpLCAyMDE0LTAyLTI4IGF0IDA0OjAwUE0gLTA4MDAsIFNvcmVuIEJyaW5rbWFubiB3cm90
+ZToKPiBTaWduZWQtb2ZmLWJ5OiBTb3JlbiBCcmlua21hbm4gPHNvcmVuLmJyaW5rbWFubkB4aWxp
+bnguY29tPgo+IC0tLQo+ICBhcmNoL2FybS9ib290L2R0cy96eW5xLTcwMDAuZHRzaSB8IDIyICsr
+KysrKysrKysrKwo+ICBhcmNoL2FybS9ib290L2R0cy96eW5xLXpjNzAyLmR0cyB8IDc2ICsrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPiAgYXJjaC9hcm0vYm9vdC9kdHMv
+enlucS16YzcwNi5kdHMgfCA2OCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+
+ICAzIGZpbGVzIGNoYW5nZWQsIDE2NiBpbnNlcnRpb25zKCspCj4gClsuLi5dCj4gZGlmZiAtLWdp
+dCBhL2FyY2gvYXJtL2Jvb3QvZHRzL3p5bnEtemM3MDIuZHRzIGIvYXJjaC9hcm0vYm9vdC9kdHMv
+enlucS16YzcwMi5kdHMKPiBpbmRleCBjOTEzZjc3YTIxZWIuLjkxYTNhNTYwZjAzYiAxMDA2NDQK
+PiAtLS0gYS9hcmNoL2FybS9ib290L2R0cy96eW5xLXpjNzAyLmR0cwo+ICsrKyBiL2FyY2gvYXJt
+L2Jvb3QvZHRzL3p5bnEtemM3MDIuZHRzClsuLi5dCj4gKwo+ICsJCWkyY0A3IHsKPiArCQkJI2Fk
+ZHJlc3MtY2VsbHMgPSA8MT47Cj4gKwkJCSNzaXplLWNlbGxzID0gPDA+Owo+ICsJCQlyZWcgPSA8
+Nz47Cj4gKwkJCWh3bW9uQDUyIHsKPiArCQkJCWNvbXBhdGlibGUgPSAicG1idXMsdWNkOTI0OCI7
+Cj4gKwkJCQlyZWcgPSA8NTI+Owo+ICsJCQl9Owo+ICsJCQlod21vbkA1MyB7Cj4gKwkJCQljb21w
+YXRpYmxlID0gInBtYnVzLHVjZDkyNDgiOwo+ICsJCQkJcmVnID0gPDUzPjsKPiArCQkJfTsKPiAr
+CQkJaHdtb25ANTQgewo+ICsJCQkJY29tcGF0aWJsZSA9ICJwbWJ1cyx1Y2Q5MjQ4IjsKQWxsIHRo
+ZXNlIG9jY3VycmVuY2VzIG9mICdwbWJ1cycgc2hvdWxkIHJhdGhlciBiZSByZXBsYWNlZCB3aXRo
+ICd0aScuCkkgd2Fzbid0IGF3YXJlIG9mIGhvdyB0aGlzIERUIG5vZGUgdG8gSTJDIHByb2Jpbmcg
+d29ya3MgLSBhbmQgc3RpbGwKaGF2ZW4ndCBmdWxseSB1bmRlcnN0b29kIGl0IC0gYnV0IHRoZSB2
+ZW5kb3IgcHJlZml4IGlzIGFwcGFyZW50bHkgYQpkb24ndCBjYXJlIGFuZCB3ZSBjb3VsZCBzaW1w
+bHkgdXNlIHRoZSBjb3JyZWN0IG9uZSBoZXJlLgpJIGhhdmUgbm8gaWRlYSBob3cgSSBjYW1lIHVw
+IHdpdGggdGhlIGRlc2NyaXB0aW9uIHVzaW5nICdwbWJ1cycgKHdlCmNhcnJ5IHRoaXMgaW4gb3Vy
+IHZlbmRvciB0cmVlIGZvciBxdWl0ZSBhIHdoaWxlIGFscmVhZHkpLgpJcyB0aGVyZSBhbnkgZG9j
+dW1lbnQgZGVzY3JpYmluZyBob3cgYSBEVCBub2RlIGlzIG1hdGNoZWQgdG8gYW4KYXBwcm9wcmlh
+dGUgZHJpdmVyPyBUaGVzZSBJMkMgZHJpdmVycyB1c3VhbGx5IGRvbid0IGhhdmUgdGhlIGNvbW1v
+bgonc3RydWN0IG9mX2RldmljZV9pZCcuIEhlbmNlIG15IHByZWZlcnJlZCB3YXkgb2Ygc2ltcGx5
+IGdyZXBwaW5nIHRocm91Z2gKdGhlIGtlcm5lbCBmb3IgdGhlIGNvbXBhdGliaWxpdHkgc3RyaW5n
+IGRvZXMgbm90IHdvcmsuCgpbLi4uXQo+IGRpZmYgLS1naXQgYS9hcmNoL2FybS9ib290L2R0cy96
+eW5xLXpjNzA2LmR0cyBiL2FyY2gvYXJtL2Jvb3QvZHRzL3p5bnEtemM3MDYuZHRzCj4gaW5kZXgg
+ODhmNjJjNTAzODJlLi5kYWIzMGY4MGQ1YjAgMTAwNjQ0Cj4gLS0tIGEvYXJjaC9hcm0vYm9vdC9k
+dHMvenlucS16YzcwNi5kdHMKPiArKysgYi9hcmNoL2FybS9ib290L2R0cy96eW5xLXpjNzA2LmR0
+cwpbLi4uXQo+ICsJCWkyY0A3IHsKPiArCQkJI2FkZHJlc3MtY2VsbHMgPSA8MT47Cj4gKwkJCSNz
+aXplLWNlbGxzID0gPDA+Owo+ICsJCQlyZWcgPSA8Nz47Cj4gKwkJCXVjZDkwMTIwQDY1IHsKPiAr
+CQkJCWNvbXBhdGlibGUgPSAicG1idXMsdWNkOTAxMjAiOwpzYW1lIGhlcmUKCglTw7ZyZW4KCgoK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJt
+LWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3Jn
+Cmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtl
+cm5lbAo=
