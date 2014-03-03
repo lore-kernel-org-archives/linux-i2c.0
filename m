@@ -1,57 +1,31 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
-Date: Mon, 3 Mar 2014 12:14:12 +0100
-Message-ID: <201403031214.12605.marex@denx.de>
-References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com> <201402272139.36076.marex@denx.de> <3bbad0af0bc74f04bc386b141dadedb3@BL2PR03MB338.namprd03.prod.outlook.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [RFC PATCH] i2c: new bus driver for efm32
+Date: Mon, 3 Mar 2014 12:20:05 +0100
+Message-ID: <20140303112005.GC17249@pengutronix.de>
+References: <1392027598-29015-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <3bbad0af0bc74f04bc386b141dadedb3-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1392027598-29015-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, March 03, 2014 at 11:23:33 AM, Yao Yuan wrote:
-> Hi, Marek
-> 
-> Marek Vasut wrote:
-> > On Thursday, February 27, 2014 at 07:05:14 AM, Yuan Yao wrote:
-> > 
-> > [...]
-> > 
-> > > +static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx) {
-> > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> > > +	struct dma_chan *dma_chan;
-> > > +
-> > > +	dma_chan = dma->chan_tx;
-> > > +	dma->chan_tx = NULL;
-> > > +	dma->buf_tx = 0;
-> > > +	dma->len_tx = 0;
-> > > +	dma_release_channel(dma_chan);
-> > > +
-> > > +	dma_chan = dma->chan_rx;
-> > > +	dma->chan_tx = NULL;
-> > > +	dma->buf_rx = 0;
-> > > +	dma->len_rx = 0;
-> > > +	dma_release_channel(dma_chan);
-> > 
-> > You must make _DEAD_ _SURE_ this function is not ever called while the
-> > DMA is still active. In your case, I have a feeling that's not handled.
-> 
-> Thanks for your attention.
-> This few days I look up the code for the realization of
-> dma_release_channel(). I found that it will disable the dma request first.
-> So it's may safe. And drivers hadn't check whether dma is still active
-> before dma_release_channel() as a usually usage. Because it will be
-> disabled automatic.
-> 
-> The only problem is that, it will be forced to cancel the transfer which
-> was not yet completed. Looking forward to hearing from you.
+On Mon, Feb 10, 2014 at 11:19:58AM +0100, Uwe Kleine-K=F6nig wrote:
+> This was tested on a EFM32GG-DK3750 devboard that has a temperature
+> sensor and an eeprom on its i2c bus.
+>=20
+> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+still no reply :-(
 
-OK
+Uwe
 
-Best regards,
-Marek Vasut
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
