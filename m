@@ -1,40 +1,57 @@
-From: Yao Yuan <yao.yuan@freescale.com>
-Subject: RE: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
-Date: Mon, 3 Mar 2014 10:23:33 +0000
-Message-ID: <3bbad0af0bc74f04bc386b141dadedb3@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com>
- <1393481115-22136-2-git-send-email-yao.yuan@freescale.com>
- <201402272139.36076.marex@denx.de>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: add DMA support for freescale i2c driver
+Date: Mon, 3 Mar 2014 12:14:12 +0100
+Message-ID: <201403031214.12605.marex@denx.de>
+References: <1393481115-22136-1-git-send-email-yao.yuan@freescale.com> <201402272139.36076.marex@denx.de> <3bbad0af0bc74f04bc386b141dadedb3@BL2PR03MB338.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201402272139.36076.marex@denx.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marek Vasut <marex@denx.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <3bbad0af0bc74f04bc386b141dadedb3-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGksIE1hcmVrDQoNCk1hcmVrIFZhc3V0IHdyb3RlOg0KPiBPbiBUaHVyc2RheSwgRmVicnVhcnkg
-MjcsIDIwMTQgYXQgMDc6MDU6MTQgQU0sIFl1YW4gWWFvIHdyb3RlOg0KPiANCj4gWy4uLl0NCj4g
-DQo+ID4gK3N0YXRpYyB2b2lkIGkyY19pbXhfZG1hX2ZyZWUoc3RydWN0IGlteF9pMmNfc3RydWN0
-ICppMmNfaW14KSB7DQo+ID4gKwlzdHJ1Y3QgaW14X2kyY19kbWEgKmRtYSA9IGkyY19pbXgtPmRt
-YTsNCj4gPiArCXN0cnVjdCBkbWFfY2hhbiAqZG1hX2NoYW47DQo+ID4gKw0KPiA+ICsJZG1hX2No
-YW4gPSBkbWEtPmNoYW5fdHg7DQo+ID4gKwlkbWEtPmNoYW5fdHggPSBOVUxMOw0KPiA+ICsJZG1h
-LT5idWZfdHggPSAwOw0KPiA+ICsJZG1hLT5sZW5fdHggPSAwOw0KPiA+ICsJZG1hX3JlbGVhc2Vf
-Y2hhbm5lbChkbWFfY2hhbik7DQo+ID4gKw0KPiA+ICsJZG1hX2NoYW4gPSBkbWEtPmNoYW5fcng7
-DQo+ID4gKwlkbWEtPmNoYW5fdHggPSBOVUxMOw0KPiA+ICsJZG1hLT5idWZfcnggPSAwOw0KPiA+
-ICsJZG1hLT5sZW5fcnggPSAwOw0KPiA+ICsJZG1hX3JlbGVhc2VfY2hhbm5lbChkbWFfY2hhbik7
-DQo+IA0KPiBZb3UgbXVzdCBtYWtlIF9ERUFEXyBfU1VSRV8gdGhpcyBmdW5jdGlvbiBpcyBub3Qg
-ZXZlciBjYWxsZWQgd2hpbGUgdGhlDQo+IERNQSBpcyBzdGlsbCBhY3RpdmUuIEluIHlvdXIgY2Fz
-ZSwgSSBoYXZlIGEgZmVlbGluZyB0aGF0J3Mgbm90IGhhbmRsZWQuDQo+DQoNClRoYW5rcyBmb3Ig
-eW91ciBhdHRlbnRpb24uDQpUaGlzIGZldyBkYXlzIEkgbG9vayB1cCB0aGUgY29kZSBmb3IgdGhl
-IHJlYWxpemF0aW9uIG9mIGRtYV9yZWxlYXNlX2NoYW5uZWwoKS4gDQpJIGZvdW5kIHRoYXQgaXQg
-d2lsbCBkaXNhYmxlIHRoZSBkbWEgcmVxdWVzdCBmaXJzdC4gU28gaXQncyBtYXkgc2FmZS4gDQpB
-bmQgZHJpdmVycyBoYWRuJ3QgY2hlY2sgd2hldGhlciBkbWEgaXMgc3RpbGwgYWN0aXZlIGJlZm9y
-ZSBkbWFfcmVsZWFzZV9jaGFubmVsKCkgYXMgYSB1c3VhbGx5IHVzYWdlLg0KQmVjYXVzZSBpdCB3
-aWxsIGJlIGRpc2FibGVkIGF1dG9tYXRpYy4NCg0KVGhlIG9ubHkgcHJvYmxlbSBpcyB0aGF0LCBp
-dCB3aWxsIGJlIGZvcmNlZCB0byBjYW5jZWwgdGhlIHRyYW5zZmVyIHdoaWNoIHdhcyBub3QgeWV0
-IGNvbXBsZXRlZC4NCkxvb2tpbmcgZm9yd2FyZCB0byBoZWFyaW5nIGZyb20geW91Lg0KDQpCZXN0
-IHJlZ2FyZHMsDQpZdWFuIFlhbw0K
+On Monday, March 03, 2014 at 11:23:33 AM, Yao Yuan wrote:
+> Hi, Marek
+> 
+> Marek Vasut wrote:
+> > On Thursday, February 27, 2014 at 07:05:14 AM, Yuan Yao wrote:
+> > 
+> > [...]
+> > 
+> > > +static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx) {
+> > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
+> > > +	struct dma_chan *dma_chan;
+> > > +
+> > > +	dma_chan = dma->chan_tx;
+> > > +	dma->chan_tx = NULL;
+> > > +	dma->buf_tx = 0;
+> > > +	dma->len_tx = 0;
+> > > +	dma_release_channel(dma_chan);
+> > > +
+> > > +	dma_chan = dma->chan_rx;
+> > > +	dma->chan_tx = NULL;
+> > > +	dma->buf_rx = 0;
+> > > +	dma->len_rx = 0;
+> > > +	dma_release_channel(dma_chan);
+> > 
+> > You must make _DEAD_ _SURE_ this function is not ever called while the
+> > DMA is still active. In your case, I have a feeling that's not handled.
+> 
+> Thanks for your attention.
+> This few days I look up the code for the realization of
+> dma_release_channel(). I found that it will disable the dma request first.
+> So it's may safe. And drivers hadn't check whether dma is still active
+> before dma_release_channel() as a usually usage. Because it will be
+> disabled automatic.
+> 
+> The only problem is that, it will be forced to cancel the transfer which
+> was not yet completed. Looking forward to hearing from you.
+
+OK
+
+Best regards,
+Marek Vasut
