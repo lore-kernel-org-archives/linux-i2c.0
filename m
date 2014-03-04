@@ -1,34 +1,134 @@
-From: Thomas De Schampheleire <patrickdepinguin+linuxi2c-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c-tools-4: timeline?
-Date: Tue, 4 Mar 2014 16:42:11 +0100
-Message-ID: <CAAXf6LX1-0k91sUQ5CpZQ1J37hNt-JQWJrDukHYo26kLa-9yyA@mail.gmail.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v3 1/5] i2c: mv64xxx: Add reset deassert call
+Date: Tue,  4 Mar 2014 17:28:37 +0100
+Message-ID: <1393950521-4173-2-git-send-email-maxime.ripard@free-electrons.com>
+References: <1393950521-4173-1-git-send-email-maxime.ripard@free-electrons.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org
-Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBIUA3CMAKGQEHH4MVPI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1393950521-4173-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean, all,
+The Allwinner A31 SoC using that IP has a reset controller maintaining
+it reset unless told otherwise.
 
-Wiki page 'Plan for i2c-tools 4' [1] describes four steps to fix the
-'i2c-dev.h' problem:
+Add some optional reset support to the driver.
 
-Step 1: Cleaning up i2c-dev.h
-Step 2: Creating a library for i2c_smbus_* functions
-Step 3: Extending the library
-Step 4: Documentation
+Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Reviewed-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-mv64xxx.txt         |  1 +
+ drivers/i2c/busses/Kconfig                          |  1 +
+ drivers/i2c/busses/i2c-mv64xxx.c                    | 21 +++++++++++++++++++--
+ 3 files changed, 21 insertions(+), 2 deletions(-)
 
-According to this page, some of these steps have already been
-implemented in several commits. These changes date from April 2012.
-Very recently (February 2014), i2c-tools-3.1.1 has been released, but
-these changes are not part of that release.
-
-My question is: is there any update regarding i2c-tools 4? Do you have
-an approximate timeframe in which we could expect this release?
-
-Thanks a lot,
-Thomas
-
-[1] http://www.lm-sensors.org/wiki/I2CTools_4_Plan
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+index 582b465..21062bc 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+@@ -16,6 +16,7 @@ Optional properties :
+ 
+  - clock-frequency : Desired I2C bus clock frequency in Hz. If not set the
+ default frequency is 100kHz
++ - resets          : phandle to the parent reset controller
+ 
+ Examples:
+ 
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index f5ed031..70bcad9 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -528,6 +528,7 @@ config I2C_MPC
+ config I2C_MV64XXX
+ 	tristate "Marvell mv64xxx I2C Controller"
+ 	depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
++	select RESET_CONTROLLER
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Marvell 64xxx line of host bridges.
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index d52d849..1bb69b6 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -17,6 +17,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/mv643xx_i2c.h>
+ #include <linux/platform_device.h>
++#include <linux/reset.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+@@ -148,6 +149,7 @@ struct mv64xxx_i2c_data {
+ 	bool			offload_enabled;
+ /* 5us delay in order to avoid repeated start timing violation */
+ 	bool			errata_delay;
++	struct reset_control	*rstc;
+ };
+ 
+ static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
+@@ -759,6 +761,16 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 	}
+ 	drv_data->irq = irq_of_parse_and_map(np, 0);
+ 
++	drv_data->rstc = devm_reset_control_get(dev, NULL);
++	if (IS_ERR(drv_data->rstc)) {
++		if (PTR_ERR(drv_data->rstc) == -EPROBE_DEFER) {
++			rc = -EPROBE_DEFER;
++			goto out;
++		}
++	} else {
++		reset_control_deassert(drv_data->rstc);
++	}
++
+ 	/* Its not yet defined how timeouts will be specified in device tree.
+ 	 * So hard code the value to 1 second.
+ 	 */
+@@ -845,7 +857,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ 	}
+ 	if (drv_data->irq < 0) {
+ 		rc = -ENXIO;
+-		goto exit_clk;
++		goto exit_reset;
+ 	}
+ 
+ 	drv_data->adapter.dev.parent = &pd->dev;
+@@ -865,7 +877,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ 		dev_err(&drv_data->adapter.dev,
+ 			"mv64xxx: Can't register intr handler irq%d: %d\n",
+ 			drv_data->irq, rc);
+-		goto exit_clk;
++		goto exit_reset;
+ 	} else if ((rc = i2c_add_numbered_adapter(&drv_data->adapter)) != 0) {
+ 		dev_err(&drv_data->adapter.dev,
+ 			"mv64xxx: Can't add i2c adapter, rc: %d\n", -rc);
+@@ -876,6 +888,9 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ 
+ exit_free_irq:
+ 	free_irq(drv_data->irq, drv_data);
++exit_reset:
++	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
++		reset_control_assert(drv_data->rstc);
+ exit_clk:
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+@@ -894,6 +909,8 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 
+ 	i2c_del_adapter(&drv_data->adapter);
+ 	free_irq(drv_data->irq, drv_data);
++	if (dev->dev.of_node && !IS_ERR(drv_data->rstc))
++		reset_control_assert(drv_data->rstc);
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+ 	if (!IS_ERR(drv_data->clk)) {
+-- 
+1.9.0
