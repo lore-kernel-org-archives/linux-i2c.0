@@ -1,60 +1,21 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v3 0/5] ARM: sun6i: Add support for the A31 I2C controller
-Date: Tue,  4 Mar 2014 17:28:36 +0100
-Message-ID: <1393950521-4173-1-git-send-email-maxime.ripard@free-electrons.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
+Subject: Re: [PATCH 1/2] i2c: Add driver for Cadence I2C controller
+Date: Tue, 4 Mar 2014 08:39:02 -0800
+Message-ID: <72781836-c65f-4edd-b4e4-13b0dc22edef@TX2EHSMHS044.ehs.local>
+References: <1393632046-20062-1-git-send-email-soren.brinkmann@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBQEA3CMAKGQEZ4LPZPY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1393632046-20062-1-git-send-email-soren.brinkmann@xilinx.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Michal Simek <michal.simek@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Harini Katakam <harinik@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi everyone,
+I'll send a v2 with the mentioned updates.
 
-This patchset adds support the A31 i2c controller. This is mostly the
-same controller as the one found in the other Allwinner SoCs, except
-for the interrupts acking.
+	S=C3=B6ren
 
-On the other SoCs using this driver, the interrupts are acked by
-clearing the INT_FLAG bit in the control register, while on the A31,
-the interrupt is acked by writing that bit into the control register.
 
-The other difference is that the I2C IP is maintained in reset by a
-reset controller, so we're adding optionnal support for the reset
-framework in the driver to deassert the device from reset.
-
-Thanks!
-Maxime
-
-Changes from v2:
-  - Rebased on top of v3.14-rc5
-  - Added Gregory Clement's Reviewed-by and Tested-by tags
-
-Changes from v1:
-  - Handle EPROBE_DEFER from the reset framework
-  - Put the device back in reset at remove/failed probe
-  - Document the newly introduced compatible string
-
-Maxime Ripard (5):
-  i2c: mv64xxx: Add reset deassert call
-  i2c: mv64xxx: Add support for the Allwinner A31 I2C driver
-  ARM: sun6i: Enable the I2C controllers
-  ARM: sun6i: Enable the I2C muxing options
-  ARM: sun6i: colombus: Enable the I2C controllers
-
- .../devicetree/bindings/i2c/i2c-mv64xxx.txt        | 20 ++++---
- arch/arm/boot/dts/sun6i-a31-colombus.dts           | 18 +++++++
- arch/arm/boot/dts/sun6i-a31.dtsi                   | 61 ++++++++++++++++++++++
- drivers/i2c/busses/Kconfig                         |  1 +
- drivers/i2c/busses/i2c-mv64xxx.c                   | 32 +++++++++++-
- 5 files changed, 124 insertions(+), 8 deletions(-)
-
--- 
-1.9.0
