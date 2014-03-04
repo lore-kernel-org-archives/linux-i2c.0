@@ -1,13 +1,12 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v3 2/5] i2c: mv64xxx: Add support for the
- Allwinner A31 I2C driver
-Date: Tue,  4 Mar 2014 17:28:38 +0100
-Message-ID: <1393950521-4173-3-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCH v3 4/5] ARM: sun6i: Enable the I2C muxing options
+Date: Tue,  4 Mar 2014 17:28:40 +0100
+Message-ID: <1393950521-4173-5-git-send-email-maxime.ripard@free-electrons.com>
 References: <1393950521-4173-1-git-send-email-maxime.ripard@free-electrons.com>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBK4A3CMAKGQEQD4C2OA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBNMA3CMAKGQE4Y2BUXI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 In-Reply-To: <1393950521-4173-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,98 +18,45 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The Allwinner A31 I2C controller is almost identical to the one used in the
-other Allwinner SoCs, except for the fact that it needs to clear the interrupt
-by setting the INT_FLAGS bit in the control register, instead of clearing it.
+The i2c controllers have a few muxing options on the A31. Enable the
+ones found in the A31 Colombus board.
 
 Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Reviewed-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Tested-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- .../devicetree/bindings/i2c/i2c-mv64xxx.txt         | 21 ++++++++++++++-------
- drivers/i2c/busses/i2c-mv64xxx.c                    | 11 +++++++++++
- 2 files changed, 25 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/sun6i-a31.dtsi | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-index 21062bc..befd4fb 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-@@ -4,19 +4,26 @@
- Required properties :
- 
-  - reg             : Offset and length of the register set for the device
-- - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-i2c"
--                     or "marvell,mv78230-i2c" or "marvell,mv78230-a0-i2c"
--                     Note: Only use "marvell,mv78230-a0-i2c" for a very rare,
--                     initial version of the SoC which had broken offload
--                     support.  Linux auto-detects this and sets it
--                     appropriately.
-+ - compatible      : Should be either:
-+                     - "allwinner,sun4i-i2c"
-+                     - "allwinner,sun6i-a31-i2c"
-+                     - "marvell,mv64xxx-i2c"
-+                     - "marvell,mv78230-i2c"
-+                     - "marvell,mv78230-a0-i2c"
-+                       * Note: Only use "marvell,mv78230-a0-i2c" for a
-+                         very rare, initial version of the SoC which
-+                         had broken offload support.  Linux
-+                         auto-detects this and sets it appropriately.
-  - interrupts      : The interrupt number
- 
- Optional properties :
- 
-  - clock-frequency : Desired I2C bus clock frequency in Hz. If not set the
- default frequency is 100kHz
-- - resets          : phandle to the parent reset controller
+diff --git a/arch/arm/boot/dts/sun6i-a31.dtsi b/arch/arm/boot/dts/sun6i-a31.dtsi
+index 22d3eae..8d3ea29 100644
+--- a/arch/arm/boot/dts/sun6i-a31.dtsi
++++ b/arch/arm/boot/dts/sun6i-a31.dtsi
+@@ -257,6 +257,27 @@
+ 				allwinner,drive = <0>;
+ 				allwinner,pull = <0>;
+ 			};
 +
-+ - resets          : phandle to the parent reset controller. Mandatory
-+                     whenever you're using the "allwinner,sun6i-a31-i2c"
-+                     compatible.
++			i2c0_pins_a: i2c0@0 {
++				allwinner,pins = "PH14", "PH15";
++				allwinner,function = "i2c0";
++				allwinner,drive = <0>;
++				allwinner,pull = <0>;
++			};
++
++			i2c1_pins_a: i2c1@0 {
++				allwinner,pins = "PH16", "PH17";
++				allwinner,function = "i2c1";
++				allwinner,drive = <0>;
++				allwinner,pull = <0>;
++			};
++
++			i2c2_pins_a: i2c2@0 {
++				allwinner,pins = "PH18", "PH19";
++				allwinner,function = "i2c2";
++				allwinner,drive = <0>;
++				allwinner,pull = <0>;
++			};
+ 		};
  
- Examples:
- 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 1bb69b6..203a548 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -150,6 +150,7 @@ struct mv64xxx_i2c_data {
- /* 5us delay in order to avoid repeated start timing violation */
- 	bool			errata_delay;
- 	struct reset_control	*rstc;
-+	bool			irq_clear_inverted;
- };
- 
- static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
-@@ -568,6 +569,11 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
- 		status = readl(drv_data->reg_base + drv_data->reg_offsets.status);
- 		mv64xxx_i2c_fsm(drv_data, status);
- 		mv64xxx_i2c_do_action(drv_data);
-+
-+		if (drv_data->irq_clear_inverted)
-+			writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_IFLG,
-+			       drv_data->reg_base + drv_data->reg_offsets.control);
-+
- 		rc = IRQ_HANDLED;
- 	}
- 	spin_unlock_irqrestore(&drv_data->lock, flags);
-@@ -687,6 +693,7 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
-  */
- static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
- 	{ .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
-+	{ .compatible = "allwinner,sun6i-a31-i2c", .data = &mv64xxx_i2c_regs_sun4i},
- 	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
- 	{ .compatible = "marvell,mv78230-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
- 	{ .compatible = "marvell,mv78230-a0-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
-@@ -795,6 +802,10 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 		drv_data->offload_enabled = false;
- 		drv_data->errata_delay = true;
- 	}
-+
-+	if (of_device_is_compatible(np, "allwinner,sun6i-a31-i2c"))
-+		drv_data->irq_clear_inverted = true;
-+
- out:
- 	return rc;
- #endif
+ 		ahb1_rst: reset@01c202c0 {
 -- 
 1.9.0
