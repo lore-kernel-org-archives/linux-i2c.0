@@ -1,67 +1,82 @@
-From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
-Subject: Re: [PATCH 1/2] i2c: Add driver for Cadence I2C controller
-Date: Tue, 4 Mar 2014 09:20:17 -0800
-Message-ID: <a6082008-e1c8-45cd-9bd0-6727dd087633@TX2EHSMHS041.ehs.local>
-References: <1393632046-20062-1-git-send-email-soren.brinkmann@xilinx.com>
- <8af0e222-6337-4ec4-b718-099a9decc5ec@TX2EHSMHS034.ehs.local>
- <20140304170401.GA18529@joshc.qualcomm.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: I2C dummy adapter driver ?
+Date: Wed, 5 Mar 2014 09:15:30 +0800
+Message-ID: <20140305011530.GN13126@sirena.org.uk>
+References: <5305382E.9050902@gmail.com>
+ <CAJe_ZhcMMVRTErH3ctbnZyn30_cp9XXjEfUZXdWaVWUHqs4CRw@mail.gmail.com>
+ <53073C51.5010401@samsung.com>
+ <20140228060728.GB29849@sirena.org.uk>
+ <5315BB34.8080803@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6yHiY5vv/BiPjcMt"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140304170401.GA18529@joshc.qualcomm.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Josh Cartwright <joshc@codeaurora.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Michal Simek <michal.simek@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Harini Katakam <harinik@xilinx.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <5315BB34.8080803-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Jassi Brar <jaswinder.singh-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Josh,
 
-On Tue, 2014-03-04 at 11:04AM -0600, Josh Cartwright wrote:
-> On Fri, Feb 28, 2014 at 07:06:29PM -0800, S?ren Brinkmann wrote:
-> > On Fri, 2014-02-28 at 04:00PM -0800, Soren Brinkmann wrote:
-> > > Add a driver for the Cadence I2C controller. This controller is f=
-or
-> > > example found in Xilinx Zynq.
-> > >=20
-> > > Signed-off-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
-> > > ---
-> > >  .../devicetree/bindings/i2c/i2c-cadence.txt        |  21 +
-> > >  MAINTAINERS                                        |   1 +
-> > >  drivers/i2c/busses/Kconfig                         |   7 +
-> > >  drivers/i2c/busses/Makefile                        |   1 +
-> > >  drivers/i2c/busses/i2c-cadence.c                   | 901 +++++++=
-++++++++++++++
-> > >  5 files changed, 931 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cad=
-ence.txt
-> > >  create mode 100644 drivers/i2c/busses/i2c-cadence.c
-> > >=20
-> > [...]
-> > > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kcon=
-fig
-> > > index f5ed03164d86..7806c1654068 100644
-> > > --- a/drivers/i2c/busses/Kconfig
-> > > +++ b/drivers/i2c/busses/Kconfig
-> > > @@ -375,6 +375,13 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
-> > >  	help
-> > >  	  The unit of the TWI clock is kHz.
-> > > =20
-> > > +config I2C_CADENCE
-> > > +	tristate "Cadence I2C Controller"
-> > > +	depends on ARCH_ZYNQ
-> > This can be reduced to a dependency on COMMON_CLK only, I think.
->=20
-> Do you really need to depend on COMMON_CLK?  Most of the clk_* API's =
-are
-> properly stubbed when !HAVE_CLK.
-I do. clk_register_notifier() is only available with COMMON_CLK.
-Alternatively those #ifdefs could go into the driver, but that wouldn't
-look nice :)
+--6yHiY5vv/BiPjcMt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There is v2 on the list already, let's move the discussion there.
+On Tue, Mar 04, 2014 at 12:38:28PM +0100, Sylwester Nawrocki wrote:
+> On 28/02/14 07:07, Mark Brown wrote:
+> > On Fri, Feb 21, 2014 at 12:45:21PM +0100, Sylwester Nawrocki wrote:
 
-	S=C3=B6ren
+> >> The I2C bus driver with empty i2c_algorithm.master_xfer() helps WRT to
+> >> using standard DT binding and v4l2_subdev interface.
 
+> > Wouldn't a platform device do just as well here if there's no actual
+> > control?
 
+> Then the I2C client devices would have to be instantiated manually,=20
+> I think it's more trouble.
+
+I2C is not that much more enumerable than platform bus, I don't see the
+difference here?  To the extent I2C is enumerable a dummy adaptor isn't
+going to support that.
+
+> I could as well create custom I2C client drivers per ISP, but then the=20
+> I2C devices would have to be represented somehow in DT, to pass stuff=20
+> like voltage regulators and GPIOs. Anyway, it's not something could be=20
+> done in mainline.
+
+Why not?
+
+> Even if there is no actual I2C communication on the host CPU side, the=20
+> power up/down sequence is handled there. The intention is to keep this=20
+> common per an I2C client, regardless of whether I2C communication is=20
+> done by firmware or the host the CPU.
+
+The way you're talking it sounds like your code is very hard coded to
+use I2C here.  What happens if someone uses SPI or some other bus to
+control an ISP?
+
+--6yHiY5vv/BiPjcMt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTFnqrAAoJELSic+t+oim9P2wP/R3XbXD1/WLl4d0MSbfpj82M
+vdHhtNyPMXBxSxXcZ0Vl8mctcHHfSOElTC/HMgOKNLpykxSc1v0JV31lbnDAf+Ze
+x1RQjPNkAvdjd9PKdE3kefqyhOCv64cfNV3VZfOSCm6Wpt+YbtddC5Ey8Z5MvLz9
+Z+2w5n1lLEt+t0gig9PVIJ43Vy4fjuS12ufwwXzGseM/mt9tldH0cEsl8w5FmAIQ
+ZI3Q/vB0qVx3jip8wXeNkxRsTOOJ+p2ApzFdJC52AxzMWHZ4APl8oDc4nnefbQir
+d/js9Zgmsk/dybFq/TREy/b1cs/gsqdOCQuCNhfBu3hSPUAlo6XzPT27Y7nQVyMZ
+4I1Gd170iKwU/PVsL3VS4ggFGjMn0ERkfhtTsfb5SechSrznD5LUb+p82GEXZyXC
+T1qQTY/ZZwcE4I8scmCljYE0WgvRFwppDQmKFQFOUvZtipvZ1BUkUcBEa0Nb1gWv
+2mbQc2e/urMEnDlPl5Gf8U0DBCA+sAEkjSuB/xeiInJaqrH6tJAIpCdjcyvJA/KB
+FJ1crDxTlgMnbyDq0VaoBmzGGDVdzCZ7hqcyh96Y4UR79vShXwhExfQ6PzgqFNp2
+vVxG8aDuQeid6Om3x4/xNDhXknllz8dvrDXb4JqkWrmHc3GQ1VHqz/cuCVy39OIH
+tz+nNIkbOrFkyTNZMRmr
+=48oO
+-----END PGP SIGNATURE-----
+
+--6yHiY5vv/BiPjcMt--
