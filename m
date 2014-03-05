@@ -1,49 +1,38 @@
-From: Yuan Yao <yao.yuan@freescale.com>
-Subject: [PATCH v2 2/2] Documentation:add DMA support for freescale i2c driver
-Date: Wed, 5 Mar 2014 14:52:32 +0800
-Message-ID: <1394002352-8380-3-git-send-email-yao.yuan@freescale.com>
-References: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com>
+From: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Subject: i2c-mpc.c clock/speed
+Date: Wed, 05 Mar 2014 10:29:28 +0100
+Message-ID: <5316EE78.2080808@antcom.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, marex@denx.de
-Cc: mark.rutland@arm.com, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: gsi-ynQEQJNshbs@public.gmane.org, agust-ynQEQJNshbs@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c dts node properties for eDMA support, them depend on the eDMA driver.
+Hi,
 
-Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
----
- Documentation/devicetree/bindings/i2c/i2c-imx.txt | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+in mpc_i2c_get_fdr_8xxx(), we have:
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-index 4a8513e..52d37fd 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-@@ -11,6 +11,8 @@ Required properties:
- Optional properties:
- - clock-frequency : Constains desired I2C/HS-I2C bus clock frequency in Hz.
-   The absence of the propoerty indicates the default frequency 100 kHz.
-+- dmas: A list of two dma specifiers, one for each entry in dma-names.
-+- dma-names: should contain "tx" and "rx".
- 
- Examples:
- 
-@@ -26,3 +28,12 @@ i2c@70038000 { /* HS-I2C on i.MX51 */
- 	interrupts = <64>;
- 	clock-frequency = <400000>;
- };
-+
-+i2c0: i2c@40066000 { /* i2c0 on vf610 */
-+	compatible = "fsl,vf610-i2c";
-+	reg = <0x40066000 0x1000>;
-+	interrupts =<0 71 0x04>;
-+	dmas = <&edma0 0 50>,
-+		<&edma0 0 51>;
-+	dma-names = "rx","tx";
-+};
--- 
-1.8.4
+...
+if (of_device_is_compatible(node, "fsl,mpc8544-i2c"))
+	prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
+if (!prescaler)
+	prescaler = 1;
+...
+
+By restricting to "fsl,mpc8544-i2c", measured I2C speed on fsl p2020 is
+only half as fast as configured (w/ prescaler = 1).
+
+In DT (arch/powerpc/boot/dts/fsl/pq3-i2c-0.dtsi), we have "fsl-i2c"
+(i.e., generic), for Freescale boards.
+
+What would be the best solution here? Additional "compatible" strings,
+e.g. "fsl,p1020-i2c" and adjusting i2c-mpc.c and DT? Or removing the
+restriction to "fsl,mpc8544-i2c", i.e. calling
+mpc_i2c_get_sec_cfg_8xxx() unconditionally?
+
+Thanks in advance,
+
+Roland.
