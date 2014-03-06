@@ -1,59 +1,38 @@
-From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH v2 1/2] i2c: add DMA support for freescale i2c driver
-Date: Thu, 6 Mar 2014 05:02:03 +0000
-Message-ID: <50e0997786a0459eb08c9d92813253f9@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com>
- <201403060339.45611.marex@denx.de>
- <1c0c5f2ce69849d4bf482601ac431da6@BL2PR03MB338.namprd03.prod.outlook.com>
- <201403060541.21665.marex@denx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201403060541.21665.marex-ynQEQJNshbs@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: mv64xxx: fix circular Kconfig dependency
+Date: Thu,  6 Mar 2014 10:19:13 +0100
+Message-ID: <1394097553-5804-1-git-send-email-wsa@the-dreams.de>
+References: <20140306135016.2f026cd81b41cd2474c99124@canb.auug.org.au>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140306135016.2f026cd81b41cd2474c99124@canb.auug.org.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVGh1LCBNYXJjaCAwNiwgMjAxNCBhdCAxMjo0NDoxNCBQTSwgTWFyZWsgVmFzdXQgd3JvdGU6
-DQo+IE9uIFRodXJzZGF5LCBNYXJjaCAwNiwgMjAxNCBhdCAwNTozNjoxNCBBTSwgWWFvIFl1YW4g
-d3JvdGU6DQo+ID4gT24gVGh1LCBNYXJjaCAwNiwgMjAxNCBhdCAxMToyMzo1MCBBTSwgTWFyZWsg
-VmFzdXQgd3JvdGU6DQo+ID4gPiBPbiBXZWRuZXNkYXksIE1hcmNoIDA1LCAyMDE0IGF0IDA3OjUy
-OjMxIEFNLCBZdWFuIFlhbyB3cm90ZToNCj4gPiA+ID4gQWRkIGRtYSBzdXBwb3J0IGZvciBpMmMu
-IFRoaXMgZnVuY3Rpb24gZGVwZW5kIG9uIERNQSBkcml2ZXIuDQo+ID4gPiA+IFlvdSBjYW4gdHVy
-biBvbiBpdCBieSB3cml0ZSBib3RoIHRoZSBkbWFzIGFuZCBkbWEtbmFtZSBwcm9wZXJ0aWVzDQo+
-ID4gPiA+IGluIGR0cyBub2RlLg0KPiA+ID4gPg0KPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBZdWFu
-IFlhbyA8eWFvLnl1YW5AZnJlZXNjYWxlLmNvbT4NCj4gPiA+ID4gLS0tDQo+ID4gPg0KPiA+ID4g
-Wy4uLl0NCj4gPiA+DQo+ID4gPiA+IEBAIC02MDEsNiArODI2LDcgQEAgc3RhdGljIGludCBpMmNf
-aW14X3Byb2JlKHN0cnVjdA0KPiA+ID4gPiBwbGF0Zm9ybV9kZXZpY2UNCj4gPiA+DQo+ID4gPiAq
-cGRldikNCj4gPiA+DQo+ID4gPiA+ICAJdm9pZCBfX2lvbWVtICpiYXNlOw0KPiA+ID4gPiAgCWlu
-dCBpcnEsIHJldDsNCj4gPiA+ID4gIAl1MzIgYml0cmF0ZTsNCj4gPiA+ID4NCj4gPiA+ID4gKwl1
-MzIgcGh5X2FkZHI7DQo+ID4gPiA+DQo+ID4gPiA+ICAJZGV2X2RiZygmcGRldi0+ZGV2LCAiPCVz
-PlxuIiwgX19mdW5jX18pOw0KPiA+ID4gPg0KPiA+ID4gPiBAQCAtNjExLDYgKzgzNyw3IEBAIHN0
-YXRpYyBpbnQgaTJjX2lteF9wcm9iZShzdHJ1Y3QNCj4gPiA+ID4gcGxhdGZvcm1fZGV2aWNlDQo+
-ID4gPg0KPiA+ID4gKnBkZXYpDQo+ID4gPg0KPiA+ID4gPiAgCX0NCj4gPiA+ID4NCj4gPiA+ID4g
-IAlyZXMgPSBwbGF0Zm9ybV9nZXRfcmVzb3VyY2UocGRldiwgSU9SRVNPVVJDRV9NRU0sIDApOw0K
-PiA+ID4gPg0KPiA+ID4gPiArCXBoeV9hZGRyID0gcmVzLT5zdGFydDsNCj4gPiA+DQo+ID4gPiBV
-aCAuLi4gU2hhd24sIEkgcmVhbGx5IHRoaW5rIEkgYW0gbG9zdCBoZXJlLiBEb24ndCB5b3UgbmVl
-ZCB0byBtYXANCj4gPiA+IHRoaXMgbWVtb3J5IGJlZm9yZSB5b3UgY2FuIHVzZSBpdCBmb3IgRE1B
-ID8gVGhlIERNQSBtYXBwaW5nIGZ1bmN0aW9uDQo+ID4gPiBzaG91bGQgZ2l2ZSB5b3UgdGhlIHBo
-eXNpY2FsIGFkZHJlc3MgYW5kIGlzIHRoZSByaWdodCB3YXkgdG8gZ28NCj4gPiA+IGFib3V0IHRo
-aXMgaW5zdGVhZCBvZiBwdWxsaW5nIHRoZSBhZGRyZXNzIGZyb20gaGVyZSwgbm8gPw0KPiA+ID4N
-Cj4gPiA+IEkgbWlnaHQgYmUgd3JvbmcgaGVyZSwgSSBhbSByYXRoZXIgdW5jZXJ0YWluLCBzbyBw
-bGVhc2UgaGVscCBtZSBvdXQuDQo+ID4gPiBUaGFua3MhDQo+ID4NCj4gPiBIaSwgTWFyZWssIFRo
-YW5rcyBmb3IgeW91ciBzdWdnZXN0aW9uLg0KPiA+IEhlcmUgeW91IGNhbiByZXZpZXcgdGhlIGNv
-ZGUgaW4gaW5jbHVkZS9saW51eC9pb3BvcnQuaCBUaGUNCj4gPiByZXNvdXJjZS0+c3RhcnQgZGVz
-Y3JpYmVzIHRoZSBlbnRpdHkgb24gdGhlIENQVSBidXMgYXMgYSBzdGFydGluZw0KPiA+IHBoeXNp
-Y2FsIGFkZHJlc3MuIFNvIEkgdGhpbmtzIGl0IGNhbiB1c2VkIGZvciBkbWEgZGlyZWN0bHkuDQo+
-IA0KPiBUaGlzIGRvZXNuJ3QgZmVlbCByaWdodCBmb3Igc29tZSByZWFzb24uIElmIHRoaXMgaXMg
-YSByZWdpc3RlciBhcmVhLCB5b3UNCj4gc2hvdWxkDQo+IGlvcmVtYXAoKSBpdC4gSWYgaXQncyBh
-IG1lbW9yeSBhcmVhIHlvdSBkbyBETUEgdG8vZnJvbSwgeW91IG5lZWQgdG8gbWFrZQ0KPiBzdXJl
-IHlvdSBjb3JyZWN0bHkgZmx1c2gvaW52YWxpZGF0ZSBjYWNoZXMgYW5kIHByb3Blcmx5IGhhbmRs
-ZSB0aGUNCj4gZWZmZWN0cyB0aGUgd3JpdGUgYnVmZmVyIG1pZ2h0IGhhdmUuIEJ1dCBJIGhhdmUg
-YSBmZWVsaW5nIHlvdSBhY3R1YWxseSBkbw0KPiBETUEgdG8vZnJvbSByZWdpc3RlciBzcGFjZSBo
-ZXJlID8NCj4gDQpZZXMsIEl0J3MgYSByZWdpc3RlciBhcmVhLiBCdXQgSSBkb24ndCBrbm93IHdo
-eSBJIHNob3VsZCBpb3JlbWFwKCkgaXQ/IEl0J3MgYSBidXMgYWRkcmVzcyBhbmQgRE1BIGNhbiB1
-c2UgaXQgZGlyZWN0bHkuDQpJcyB0aGVyZSBzb21lIHByb2JsZW0gZm9yIG15IHVuZGVyc3RhbmRp
-bmcgPw0K
+Commit 370136bc67c3 ("i2c: mv64xxx: Add reset deassert call")
+introduced:
+
+drivers/video/Kconfig:42:error: recursive dependency detected!
+
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 70bcad9..ce0de47 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -527,8 +527,7 @@ config I2C_MPC
+ 
+ config I2C_MV64XXX
+ 	tristate "Marvell mv64xxx I2C Controller"
+-	depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
+-	select RESET_CONTROLLER
++	depends on MV64X60 || PLAT_ORION || (ARCH_SUNXI && RESET_CONTROLLER)
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Marvell 64xxx line of host bridges.
+-- 
+1.9.0
