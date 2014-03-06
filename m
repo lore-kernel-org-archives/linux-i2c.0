@@ -1,74 +1,299 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: Add message transfer tracepoints for SMBUS
-Date: Thu, 6 Mar 2014 14:17:29 +0100
-Message-ID: <20140306131729.GB10657@katana>
-References: <11165.1393507178@warthog.procyon.org.uk>
- <20140218205418.GH18768@katana>
- <20140109214954.25590.73057.stgit@warthog.procyon.org.uk>
- <20140109215002.25590.51609.stgit@warthog.procyon.org.uk>
- <19542.1394111635@warthog.procyon.org.uk>
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 1/2] i2c: Add message transfer tracepoints for I2C [ver #2]
+Date: Thu, 06 Mar 2014 13:35:59 +0000
+Message-ID: <20140306133559.29345.61422.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <19542.1394111635-S6HVgzuS8uM4Awkfq6JHfwNdhmdF6hFW@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Steven Rostedt <rostedt-nx8X9YLhiw1AfugRpC6u6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wolfram@the-dreams.de
+Cc: khali@linux-fr.org, dhowells@redhat.com, linux-i2c@vger.kernel.org, rostedt@goodmis.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Add tracepoints into the I2C message transfer function to retrieve the message
+sent or received.  The following config options must be turned on to make use
+of the facility:
 
---tjCHc7DPkfUGtrlw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	CONFIG_FTRACE
+	CONFIG_ENABLE_DEFAULT_TRACERS
 
-On Thu, Mar 06, 2014 at 01:13:55PM +0000, David Howells wrote:
-> David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
->=20
-> > > Can we have something like this for 'flags'?
-> >=20
-> > There's a __print_flags() which should work.  One thing I'm concerned a=
-bout
-> > there is how do we handle more flags being added - does that count as a=
-n ABI
-> > break if the printed format changes?
-> >=20
-> > SMBus flags are basically the same as I2C flags, right?
->=20
-> Hmmm... __print_flags() seems to append a string if a flag is set, and do=
-esn't
-> if it isn't set.  It places a separator between each string.  I would pre=
-fer
-> something that emits a single char per flag or a dash if it isn't present.
-> Are you okay with that?
+The I2C tracepoint can be enabled thusly:
 
-Yes, that's good, too!
+	echo 1 >/sys/kernel/debug/tracing/events/i2c/i2c_transfer/enable
 
-Thanks!
+and will dump messages that can be viewed in /sys/kernel/debug/tracing/trace
+that look like:
 
+	... i2c_write: i2c-5 #0 a=044 f=0000 l=2 [02-14]
+	... i2c_read: i2c-5 #1 a=044 f=0001 l=4
+	... i2c_reply: i2c-5 #1 a=044 f=0001 l=4 [33-00-00-00]
+	... i2c_result: i2c-5 n=2 ret=2
 
---tjCHc7DPkfUGtrlw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+formatted as:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+	i2c-<adapter-nr>
+	#<message-array-index>
+	a=<addr>
+	f=<flags>
+	l=<datalen>
+	n=<message-array-size>
+	ret=<result>
+	[<data>]
 
-iQIcBAEBAgAGBQJTGHVpAAoJEBQN5MwUoCm2iYAP/jERFdR2Loh6n0FTty4AMJ+2
-qjT9/0YD5efux/5zkSh6MofepKtOOooJFKeWrygbQF80vXLMGKklXCO1h01oWN56
-qWxOdlFs6oT/bQ94U6XPmR4i5qA+FgJEeHeDZS8pZAuptu2q9B2Xr0SI2EhS5gzl
-53PoxIOpA/O4vVpwoMhF9Q1Bqy9nCtqA6x5sc2jgNEAuWXPxTShKKsAht4T6S/rs
-/UqJBLX28MWTINsFELauJFZ6hbb1ATEiGXC8Itv2PEkmiTEYyVEV5Qy1w6syOSyT
-wKM+Oudlfx45W2nbdTt2/KPg+/8xbgdc5UA3ZR9I0263sztnovwyRzktfslbsZqR
-LmZ3PTKOM45PnJSh3bmcskTWddMATwnftpJwJJbSw6tMhXlqxaExEsI9V9Btjnpo
-8NoFhCx4bKqgIW6J0RUf6HJzmX25LVjs+IDklIGTiJGsFKHpLhBz4JVzmbN00sgo
-w0mOpedMB0sJ3l1has3xc+ZRzNvyd1UkeT57YEV43nK7W9CBMgHlTMDr9/EPnSfi
-g8NIVs9os/agseT+nm6e0KZ5kzIpNciChyipgA8x7BwqPyOrVEte5J1YUit22YQQ
-Y8UG/hEwOQJvkbuksHVbhbL6J6M2f2bq1i0PIzB2k9taeMzCbfRYsfj9OUTqdZ8n
-CEDvsLZ5a5KgZ+L2K4jO
-=GYRK
------END PGP SIGNATURE-----
+The operation is done between the i2c_write/i2c_read lines and the i2c_reply
+and i2c_result lines so that if the hardware hangs, the trace buffer can be
+consulted to determine the problematic operation.
 
---tjCHc7DPkfUGtrlw--
+The adapters to be traced can be selected by something like:
+
+	echo adapter_nr==1 >/sys/kernel/debug/tracing/events/i2c/filter
+
+These changes are based on code from Steven Rostedt.
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Steven Rostedt <rostedt@goodmis.org>
+---
+
+ drivers/i2c/i2c-core.c     |   37 +++++++++++
+ include/trace/events/i2c.h |  150 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 187 insertions(+)
+ create mode 100644 include/trace/events/i2c.h
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d74c0b34248e..c8b97490461d 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -48,10 +48,13 @@
+ #include <linux/rwsem.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/acpi.h>
++#include <linux/jump_label.h>
+ #include <asm/uaccess.h>
+ 
+ #include "i2c-core.h"
+ 
++#define CREATE_TRACE_POINTS
++#include <trace/events/i2c.h>
+ 
+ /* core_lock protects i2c_adapter_idr, and guarantees
+    that device detection, deletion of detected devices, and attach_adapter
+@@ -62,6 +65,18 @@ static DEFINE_IDR(i2c_adapter_idr);
+ static struct device_type i2c_client_type;
+ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
+ 
++static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
++
++void i2c_transfer_trace_reg(void)
++{
++	static_key_slow_inc(&i2c_trace_msg);
++}
++
++void i2c_transfer_trace_unreg(void)
++{
++	static_key_slow_dec(&i2c_trace_msg);
++}
++
+ /* ------------------------------------------------------------------------- */
+ 
+ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+@@ -1680,6 +1695,7 @@ static void __exit i2c_exit(void)
+ 	class_compat_unregister(i2c_adapter_compat_class);
+ #endif
+ 	bus_unregister(&i2c_bus_type);
++	tracepoint_synchronize_unregister();
+ }
+ 
+ /* We must initialize early, because some subsystems register i2c drivers
+@@ -1710,6 +1726,19 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	unsigned long orig_jiffies;
+ 	int ret, try;
+ 
++	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
++	 * enabled.  This is an efficient way of keeping the for-loop from
++	 * being executed when not needed.
++	 */
++	if (static_key_false(&i2c_trace_msg)) {
++		int i;
++		for (i = 0; i < num; i++)
++			if (msgs[i].flags & I2C_M_RD)
++				trace_i2c_read(adap, &msgs[i], i);
++			else
++				trace_i2c_write(adap, &msgs[i], i);
++	}
++
+ 	/* Retry automatically on arbitration loss */
+ 	orig_jiffies = jiffies;
+ 	for (ret = 0, try = 0; try <= adap->retries; try++) {
+@@ -1720,6 +1749,14 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			break;
+ 	}
+ 
++	if (static_key_false(&i2c_trace_msg)) {
++		int i;
++		for (i = 0; i < ret; i++)
++			if (msgs[i].flags & I2C_M_RD)
++				trace_i2c_reply(adap, &msgs[i], i);
++		trace_i2c_result(adap, i, ret);
++	}
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL(__i2c_transfer);
+diff --git a/include/trace/events/i2c.h b/include/trace/events/i2c.h
+new file mode 100644
+index 000000000000..4800207269a2
+--- /dev/null
++++ b/include/trace/events/i2c.h
+@@ -0,0 +1,150 @@
++/* I2C message transfer tracepoints
++ *
++ * Copyright (C) 2013 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM i2c
++
++#if !defined(_TRACE_I2C_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_I2C_H
++
++#include <linux/i2c.h>
++#include <linux/tracepoint.h>
++
++/*
++ * drivers/i2c/i2c-core.c
++ */
++extern void i2c_transfer_trace_reg(void);
++extern void i2c_transfer_trace_unreg(void);
++
++/*
++ * __i2c_transfer() write request
++ */
++TRACE_EVENT_FN(i2c_write,
++	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
++			int num),
++	       TP_ARGS(adap, msg, num),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	msg_nr			)
++		       __field(__u16,	addr			)
++		       __field(__u16,	flags			)
++		       __field(__u16,	len			)
++		       __dynamic_array(__u8, buf, msg->len)	),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->msg_nr = num;
++		       __entry->addr = msg->addr;
++		       __entry->flags = msg->flags;
++		       __entry->len = msg->len;
++		       memcpy(__get_dynamic_array(buf), msg->buf, msg->len);
++			      ),
++	       TP_printk("i2c-%d #%u a=%03x f=%04x l=%u [%*phD]",
++			 __entry->adapter_nr,
++			 __entry->msg_nr,
++			 __entry->addr,
++			 __entry->flags,
++			 __entry->len,
++			 __entry->len, __get_dynamic_array(buf)
++			 ),
++	       i2c_transfer_trace_reg,
++	       i2c_transfer_trace_unreg);
++
++/*
++ * __i2c_transfer() read request
++ */
++TRACE_EVENT_FN(i2c_read,
++	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
++			int num),
++	       TP_ARGS(adap, msg, num),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	msg_nr			)
++		       __field(__u16,	addr			)
++		       __field(__u16,	flags			)
++		       __field(__u16,	len			)
++				),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->msg_nr = num;
++		       __entry->addr = msg->addr;
++		       __entry->flags = msg->flags;
++		       __entry->len = msg->len;
++			      ),
++	       TP_printk("i2c-%d #%u a=%03x f=%04x l=%u",
++			 __entry->adapter_nr,
++			 __entry->msg_nr,
++			 __entry->addr,
++			 __entry->flags,
++			 __entry->len
++			 ),
++	       i2c_transfer_trace_reg,
++		       i2c_transfer_trace_unreg);
++
++/*
++ * __i2c_transfer() read reply
++ */
++TRACE_EVENT_FN(i2c_reply,
++	       TP_PROTO(const struct i2c_adapter *adap, const struct i2c_msg *msg,
++			int num),
++	       TP_ARGS(adap, msg, num),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	msg_nr			)
++		       __field(__u16,	addr			)
++		       __field(__u16,	flags			)
++		       __field(__u16,	len			)
++		       __dynamic_array(__u8, buf, msg->len)	),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->msg_nr = num;
++		       __entry->addr = msg->addr;
++		       __entry->flags = msg->flags;
++		       __entry->len = msg->len;
++		       memcpy(__get_dynamic_array(buf), msg->buf, msg->len);
++			      ),
++	       TP_printk("i2c-%d #%u a=%03x f=%04x l=%u [%*phD]",
++			 __entry->adapter_nr,
++			 __entry->msg_nr,
++			 __entry->addr,
++			 __entry->flags,
++			 __entry->len,
++			 __entry->len, __get_dynamic_array(buf)
++			 ),
++	       i2c_transfer_trace_reg,
++	       i2c_transfer_trace_unreg);
++
++/*
++ * __i2c_transfer() result
++ */
++TRACE_EVENT_FN(i2c_result,
++	       TP_PROTO(const struct i2c_adapter *adap, int num, int ret),
++	       TP_ARGS(adap, num, ret),
++	       TP_STRUCT__entry(
++		       __field(int,	adapter_nr		)
++		       __field(__u16,	nr_msgs			)
++		       __field(__s16,	ret			)
++				),
++	       TP_fast_assign(
++		       __entry->adapter_nr = adap->nr;
++		       __entry->nr_msgs = num;
++		       __entry->ret = ret;
++			      ),
++	       TP_printk("i2c-%d n=%u ret=%d",
++			 __entry->adapter_nr,
++			 __entry->nr_msgs,
++			 __entry->ret
++			 ),
++	       i2c_transfer_trace_reg,
++	       i2c_transfer_trace_unreg);
++
++#endif /* _TRACE_I2C_H */
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
