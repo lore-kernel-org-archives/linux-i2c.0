@@ -1,67 +1,38 @@
-From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: =?big5?B?tarOYDogW1BBVENIIHYyIDEvMl0gaTJjOiBhZGQgRE1BIHN1cHBvcnQgZm9yIGZy?=
- =?big5?Q?eescale_i2c_driver?=
-Date: Thu, 6 Mar 2014 13:55:09 +0000
-Message-ID: <cee5c8cc0e7543ee89ee7dbb7cd94a3d@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com>
- <201403060541.21665.marex@denx.de>
- <50e0997786a0459eb08c9d92813253f9@BL2PR03MB338.namprd03.prod.outlook.com>,<201403061257.42755.marex@denx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="big5"
-Content-Transfer-Encoding: base64
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH V2] i2c: mv64xxx: fix circular Kconfig dependency
+Date: Thu,  6 Mar 2014 21:32:55 +0100
+Message-ID: <1394137975-3903-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201403061257.42755.marex-ynQEQJNshbs@public.gmane.org>
-Content-Language: zh-CN
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVGh1cnNkYXksIE1hcmNoIDA2LCAyMDE0IGF0IDA5OjQ2OjAzIFBNLCBNYXJlayBWYXN1dCB3
-cm90ZToKPk9uIFRodXJzZGF5LCBNYXJjaCAwNiwgMjAxNCBhdCAwNjowMjowMyBBTSwgWWFvIFl1
-YW4gd3JvdGU6Cj4gPiBPbiBUaHUsIE1hcmNoIDA2LCAyMDE0IGF0IDEyOjQ0OjE0IFBNLCBNYXJl
-ayBWYXN1dCB3cm90ZToKPiA+ID4gT24gVGh1cnNkYXksIE1hcmNoIDA2LCAyMDE0IGF0IDA1OjM2
-OjE0IEFNLCBZYW8gWXVhbiB3cm90ZToKPiA+ID4gPiBPbiBUaHUsIE1hcmNoIDA2LCAyMDE0IGF0
-IDExOjIzOjUwIEFNLCBNYXJlayBWYXN1dCB3cm90ZToKPiA+ID4gPiA+IE9uIFdlZG5lc2RheSwg
-TWFyY2ggMDUsIDIwMTQgYXQgMDc6NTI6MzEgQU0sIFl1YW4gWWFvIHdyb3RlOgo+ID4gPiA+ID4g
-PiBBZGQgZG1hIHN1cHBvcnQgZm9yIGkyYy4gVGhpcyBmdW5jdGlvbiBkZXBlbmQgb24gRE1BIGRy
-aXZlci4KPiA+ID4gPiA+ID4gWW91IGNhbiB0dXJuIG9uIGl0IGJ5IHdyaXRlIGJvdGggdGhlIGRt
-YXMgYW5kIGRtYS1uYW1lIHByb3BlcnRpZXMKPiA+ID4gPiA+ID4gaW4gZHRzIG5vZGUuCj4gPiA+
-ID4gPiA+Cj4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFl1YW4gWWFvIDx5YW8ueXVhbkBmcmVl
-c2NhbGUuY29tPgo+ID4gPiA+ID4gPiAtLS0KPiA+ID4gPiA+Cj4gPiA+ID4gPiBbLi4uXQo+ID4g
-PiA+ID4KPiA+ID4gPiA+ID4gQEAgLTYwMSw2ICs4MjYsNyBAQCBzdGF0aWMgaW50IGkyY19pbXhf
-cHJvYmUoc3RydWN0Cj4gPiA+ID4gPiA+IHBsYXRmb3JtX2RldmljZQo+ID4gPiA+ID4KPiA+ID4g
-PiA+ICpwZGV2KQo+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAgICAgdm9pZCBfX2lvbWVtICpiYXNl
-Owo+ID4gPiA+ID4gPiAgICAgICBpbnQgaXJxLCByZXQ7Cj4gPiA+ID4gPiA+ICAgICAgIHUzMiBi
-aXRyYXRlOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPisgICAgIHUzMiBwaHlfYWRkcjsKPiA+ID4g
-PiA+ID4KPiA+ID4gPiA+ID4gICAgICAgZGV2X2RiZygmcGRldi0+ZGV2LCAiPCVzPlxuIiwgX19m
-dW5jX18pOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBAQCAtNjExLDYgKzgzNyw3IEBAIHN0YXRp
-YyBpbnQgaTJjX2lteF9wcm9iZShzdHJ1Y3QKPiA+ID4gPiA+ID4gcGxhdGZvcm1fZGV2aWNlCj4g
-PiA+ID4gPgo+ID4gPiA+ID4gKnBkZXYpCj4gPiA+ID4gPgo+ID4gPiA+ID4gPiAgICAgICB9Cj4g
-PiA+ID4gPiA+Cj4gPiA+ID4gPiA+ICAgICAgIHJlcyA9IHBsYXRmb3JtX2dldF9yZXNvdXJjZShw
-ZGV2LCBJT1JFU09VUkNFX01FTSwgMCk7Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ICsgICAgIHBo
-eV9hZGRyID0gcmVzLT5zdGFydDsKPiA+ID4gPiA+Cj4gPiA+ID4gPiBVaCAuLi4gU2hhd24sIEkg
-cmVhbGx5IHRoaW5rIEkgYW0gbG9zdCBoZXJlLiBEb24ndCB5b3UgbmVlZCB0byBtYXAKPiA+ID4g
-PiA+IHRoaXMgbWVtb3J5IGJlZm9yZSB5b3UgY2FuIHVzZSBpdCBmb3IgRE1BID8gVGhlIERNQSBt
-YXBwaW5nIGZ1bmN0aW9uCj4gPiA+ID4gPiBzaG91bGQgZ2l2ZSB5b3UgdGhlIHBoeXNpY2FsIGFk
-ZHJlc3MgYW5kIGlzIHRoZSByaWdodCB3YXkgdG8gZ28KPiA+ID4gPiA+IGFib3V0IHRoaXMgaW5z
-dGVhZCBvZiBwdWxsaW5nIHRoZSBhZGRyZXNzIGZyb20gaGVyZSwgbm8gPwo+ID4gPiA+ID4KPiA+
-ID4gPiA+IEkgbWlnaHQgYmUgd3JvbmcgaGVyZSwgSSBhbSByYXRoZXIgdW5jZXJ0YWluLCBzbyBw
-bGVhc2UgaGVscCBtZSBvdXQuCj4gPiA+ID4gPiBUaGFua3MhCj4gPiA+ID4KPiA+ID4gPiBIaSwg
-TWFyZWssIFRoYW5rcyBmb3IgeW91ciBzdWdnZXN0aW9uLgo+ID4gPiA+IEhlcmUgeW91IGNhbiBy
-ZXZpZXcgdGhlIGNvZGUgaW4gaW5jbHVkZS9saW51eC9pb3BvcnQuaCBUaGUKPiA+ID4gPiByZXNv
-dXJjZS0+c3RhcnQgZGVzY3JpYmVzIHRoZSBlbnRpdHkgb24gdGhlIENQVSBidXMgYXMgYSBzdGFy
-dGluZwo+ID4gPiA+IHBoeXNpY2FsIGFkZHJlc3MuIFNvIEkgdGhpbmtzIGl0IGNhbiB1c2VkIGZv
-ciBkbWEgZGlyZWN0bHkuCj4gPiA+Cj4gPiA+IFRoaXMgZG9lc24ndCBmZWVsIHJpZ2h0IGZvciBz
-b21lIHJlYXNvbi4gSWYgdGhpcyBpcyBhIHJlZ2lzdGVyIGFyZWEsIHlvdQo+ID4gPiBzaG91bGQK
-PiA+ID4gaW9yZW1hcCgpIGl0LiBJZiBpdCdzIGEgbWVtb3J5IGFyZWEgeW91IGRvIERNQSB0by9m
-cm9tLCB5b3UgbmVlZCB0byBtYWtlCj4gPiA+IHN1cmUgeW91IGNvcnJlY3RseSBmbHVzaC9pbnZh
-bGlkYXRlIGNhY2hlcyBhbmQgcHJvcGVybHkgaGFuZGxlIHRoZQo+ID4gPiBlZmZlY3RzIHRoZSB3
-cml0ZSBidWZmZXIgbWlnaHQgaGF2ZS4gQnV0IEkgaGF2ZSBhIGZlZWxpbmcgeW91IGFjdHVhbGx5
-IGRvCj4gPiA+IERNQSB0by9mcm9tIHJlZ2lzdGVyIHNwYWNlIGhlcmUgPwo+ID4KPiA+IFllcywg
-SXQncyBhIHJlZ2lzdGVyIGFyZWEuIEJ1dCBJIGRvbid0IGtub3cgd2h5IEkgc2hvdWxkIGlvcmVt
-YXAoKSBpdD8gSXQncwo+ID4gYSBidXMgYWRkcmVzcyBhbmQgRE1BIGNhbiB1c2UgaXQgZGlyZWN0
-bHkuIElzIHRoZXJlIHNvbWUgcHJvYmxlbSBmb3IgbXkKPiA+IHVuZGVyc3RhbmRpbmcgPwo+Cj4g
-SSBhbSBub3QgdG9vIHN1cmUgaGVyZSwgdGh1cyBJIGFtIHBva2luZyBzb21lb25lIHdobyBjYW4g
-Y2xlYXJseSBhbnN3ZXIgdGhpcy4KCk9LLCBhbmQgdGhhbmsgeW91IGZvciBwb2ludGluZyBvdXQg
-bWFueSB1Z2x5IGNvZGUgaW4gbXkgcGF0Y2guIEl0J3MgdmVyeSB1c2VmdWwgZm9yIG1lLiA=
+Commit 370136bc67c3 ("i2c: mv64xxx: Add reset deassert call")
+introduced:
+
+drivers/video/Kconfig:42:error: recursive dependency detected!
+
+ARCH_SUNXI selects RESET_CONTROLLER anyhow.
+
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 70bcad941657..f8162441576f 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -527,8 +527,7 @@ config I2C_MPC
+ 
+ config I2C_MV64XXX
+ 	tristate "Marvell mv64xxx I2C Controller"
+-	depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
+-	select RESET_CONTROLLER
++	depends on MV64X60 || PLAT_ORION || ARCH_SUNXI
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Marvell 64xxx line of host bridges.
+-- 
+1.9.0
