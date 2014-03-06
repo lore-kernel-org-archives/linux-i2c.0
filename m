@@ -1,105 +1,67 @@
-From: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c:at91: Add device tree property to set clock-frequency
-Date: Thu, 6 Mar 2014 08:48:33 -0500
-Message-ID: <CAJjB1qLXnO-Zkte3vg_X5ktXmj1=tG+p5BcLX9vbCgzyfg_rWA@mail.gmail.com>
-References: <1393293045-31849-1-git-send-email-mark.roszko@gmail.com> <20140228110506.GF11192@ldesroches-Latitude-E6320>
+From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: =?big5?B?tarOYDogW1BBVENIIHYyIDEvMl0gaTJjOiBhZGQgRE1BIHN1cHBvcnQgZm9yIGZy?=
+ =?big5?Q?eescale_i2c_driver?=
+Date: Thu, 6 Mar 2014 13:55:09 +0000
+Message-ID: <cee5c8cc0e7543ee89ee7dbb7cd94a3d@BL2PR03MB338.namprd03.prod.outlook.com>
+References: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com>
+ <201403060541.21665.marex@denx.de>
+ <50e0997786a0459eb08c9d92813253f9@BL2PR03MB338.namprd03.prod.outlook.com>,<201403061257.42755.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="big5"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140228110506.GF11192@ldesroches-Latitude-E6320>
+In-Reply-To: <201403061257.42755.marex-ynQEQJNshbs@public.gmane.org>
+Content-Language: zh-CN
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-CCing the subsystem maintainer because I left him out on the initial send.
-
-On Fri, Feb 28, 2014 at 6:05 AM, Ludovic Desroches
-<ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org> wrote:
-> On Mon, Feb 24, 2014 at 08:50:45PM -0500, Marek Roszko wrote:
->> This adds the ability to set "clock-frequency" in the device tree for the i2c bus following
->> the naming of other i2c bus implementations. If the property is not set, the clock
->> frequency will default to the previously used define of 100KHz.
->>
->> Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->
-> Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
->
-> Thanks
->
->> ---
->> v2:
->>       -fixed return code usage and check to not compare agaisnt less than zero
->>
->> ---
->>  Documentation/devicetree/bindings/i2c/i2c-at91.txt |    2 ++
->>  drivers/i2c/busses/i2c-at91.c                      |   10 ++++++++--
->>  2 files changed, 10 insertions(+), 2 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
->> index 4fade84..388f0a2 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
->> @@ -12,6 +12,7 @@ Required properties :
->>  - clocks: phandles to input clocks.
->>
->>  Optional properties:
->> +- clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000
->>  - Child nodes conforming to i2c bus binding
->>
->>  Examples :
->> @@ -23,6 +24,7 @@ i2c0: i2c@fff84000 {
->>       #address-cells = <1>;
->>       #size-cells = <0>;
->>       clocks = <&twi0_clk>;
->> +     clock-frequency = <400000>;
->>
->>       24c512@50 {
->>               compatible = "24c512";
->> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
->> index 843d012..a407050 100644
->> --- a/drivers/i2c/busses/i2c-at91.c
->> +++ b/drivers/i2c/busses/i2c-at91.c
->> @@ -32,7 +32,7 @@
->>  #include <linux/slab.h>
->>  #include <linux/platform_data/dma-atmel.h>
->>
->> -#define TWI_CLK_HZ           100000                  /* max 400 Kbits/s */
->> +#define DEFAULT_TWI_CLK_HZ           100000          /* max 400 Kbits/s */
->>  #define AT91_I2C_TIMEOUT     msecs_to_jiffies(100)   /* transfer timeout */
->>  #define AT91_I2C_DMA_THRESHOLD       8                       /* enable DMA if transfer size is bigger than this threshold */
->>
->> @@ -711,6 +711,7 @@ static int at91_twi_probe(struct platform_device *pdev)
->>       struct resource *mem;
->>       int rc;
->>       u32 phy_addr;
->> +     int bus_clk_rate;
->>
->>       dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
->>       if (!dev)
->> @@ -756,7 +757,12 @@ static int at91_twi_probe(struct platform_device *pdev)
->>                       dev->use_dma = true;
->>       }
->>
->> -     at91_calc_twi_clock(dev, TWI_CLK_HZ);
->> +     rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
->> +                     &bus_clk_rate);
->> +     if (rc)
->> +             bus_clk_rate = DEFAULT_TWI_CLK_HZ;
->> +
->> +     at91_calc_twi_clock(dev, bus_clk_rate);
->>       at91_init_twi_bus(dev);
->>
->>       snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
->> --
->> 1.7.10.4
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-
--- 
-Mark
+T24gVGh1cnNkYXksIE1hcmNoIDA2LCAyMDE0IGF0IDA5OjQ2OjAzIFBNLCBNYXJlayBWYXN1dCB3
+cm90ZToKPk9uIFRodXJzZGF5LCBNYXJjaCAwNiwgMjAxNCBhdCAwNjowMjowMyBBTSwgWWFvIFl1
+YW4gd3JvdGU6Cj4gPiBPbiBUaHUsIE1hcmNoIDA2LCAyMDE0IGF0IDEyOjQ0OjE0IFBNLCBNYXJl
+ayBWYXN1dCB3cm90ZToKPiA+ID4gT24gVGh1cnNkYXksIE1hcmNoIDA2LCAyMDE0IGF0IDA1OjM2
+OjE0IEFNLCBZYW8gWXVhbiB3cm90ZToKPiA+ID4gPiBPbiBUaHUsIE1hcmNoIDA2LCAyMDE0IGF0
+IDExOjIzOjUwIEFNLCBNYXJlayBWYXN1dCB3cm90ZToKPiA+ID4gPiA+IE9uIFdlZG5lc2RheSwg
+TWFyY2ggMDUsIDIwMTQgYXQgMDc6NTI6MzEgQU0sIFl1YW4gWWFvIHdyb3RlOgo+ID4gPiA+ID4g
+PiBBZGQgZG1hIHN1cHBvcnQgZm9yIGkyYy4gVGhpcyBmdW5jdGlvbiBkZXBlbmQgb24gRE1BIGRy
+aXZlci4KPiA+ID4gPiA+ID4gWW91IGNhbiB0dXJuIG9uIGl0IGJ5IHdyaXRlIGJvdGggdGhlIGRt
+YXMgYW5kIGRtYS1uYW1lIHByb3BlcnRpZXMKPiA+ID4gPiA+ID4gaW4gZHRzIG5vZGUuCj4gPiA+
+ID4gPiA+Cj4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFl1YW4gWWFvIDx5YW8ueXVhbkBmcmVl
+c2NhbGUuY29tPgo+ID4gPiA+ID4gPiAtLS0KPiA+ID4gPiA+Cj4gPiA+ID4gPiBbLi4uXQo+ID4g
+PiA+ID4KPiA+ID4gPiA+ID4gQEAgLTYwMSw2ICs4MjYsNyBAQCBzdGF0aWMgaW50IGkyY19pbXhf
+cHJvYmUoc3RydWN0Cj4gPiA+ID4gPiA+IHBsYXRmb3JtX2RldmljZQo+ID4gPiA+ID4KPiA+ID4g
+PiA+ICpwZGV2KQo+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAgICAgdm9pZCBfX2lvbWVtICpiYXNl
+Owo+ID4gPiA+ID4gPiAgICAgICBpbnQgaXJxLCByZXQ7Cj4gPiA+ID4gPiA+ICAgICAgIHUzMiBi
+aXRyYXRlOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPisgICAgIHUzMiBwaHlfYWRkcjsKPiA+ID4g
+PiA+ID4KPiA+ID4gPiA+ID4gICAgICAgZGV2X2RiZygmcGRldi0+ZGV2LCAiPCVzPlxuIiwgX19m
+dW5jX18pOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBAQCAtNjExLDYgKzgzNyw3IEBAIHN0YXRp
+YyBpbnQgaTJjX2lteF9wcm9iZShzdHJ1Y3QKPiA+ID4gPiA+ID4gcGxhdGZvcm1fZGV2aWNlCj4g
+PiA+ID4gPgo+ID4gPiA+ID4gKnBkZXYpCj4gPiA+ID4gPgo+ID4gPiA+ID4gPiAgICAgICB9Cj4g
+PiA+ID4gPiA+Cj4gPiA+ID4gPiA+ICAgICAgIHJlcyA9IHBsYXRmb3JtX2dldF9yZXNvdXJjZShw
+ZGV2LCBJT1JFU09VUkNFX01FTSwgMCk7Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ICsgICAgIHBo
+eV9hZGRyID0gcmVzLT5zdGFydDsKPiA+ID4gPiA+Cj4gPiA+ID4gPiBVaCAuLi4gU2hhd24sIEkg
+cmVhbGx5IHRoaW5rIEkgYW0gbG9zdCBoZXJlLiBEb24ndCB5b3UgbmVlZCB0byBtYXAKPiA+ID4g
+PiA+IHRoaXMgbWVtb3J5IGJlZm9yZSB5b3UgY2FuIHVzZSBpdCBmb3IgRE1BID8gVGhlIERNQSBt
+YXBwaW5nIGZ1bmN0aW9uCj4gPiA+ID4gPiBzaG91bGQgZ2l2ZSB5b3UgdGhlIHBoeXNpY2FsIGFk
+ZHJlc3MgYW5kIGlzIHRoZSByaWdodCB3YXkgdG8gZ28KPiA+ID4gPiA+IGFib3V0IHRoaXMgaW5z
+dGVhZCBvZiBwdWxsaW5nIHRoZSBhZGRyZXNzIGZyb20gaGVyZSwgbm8gPwo+ID4gPiA+ID4KPiA+
+ID4gPiA+IEkgbWlnaHQgYmUgd3JvbmcgaGVyZSwgSSBhbSByYXRoZXIgdW5jZXJ0YWluLCBzbyBw
+bGVhc2UgaGVscCBtZSBvdXQuCj4gPiA+ID4gPiBUaGFua3MhCj4gPiA+ID4KPiA+ID4gPiBIaSwg
+TWFyZWssIFRoYW5rcyBmb3IgeW91ciBzdWdnZXN0aW9uLgo+ID4gPiA+IEhlcmUgeW91IGNhbiBy
+ZXZpZXcgdGhlIGNvZGUgaW4gaW5jbHVkZS9saW51eC9pb3BvcnQuaCBUaGUKPiA+ID4gPiByZXNv
+dXJjZS0+c3RhcnQgZGVzY3JpYmVzIHRoZSBlbnRpdHkgb24gdGhlIENQVSBidXMgYXMgYSBzdGFy
+dGluZwo+ID4gPiA+IHBoeXNpY2FsIGFkZHJlc3MuIFNvIEkgdGhpbmtzIGl0IGNhbiB1c2VkIGZv
+ciBkbWEgZGlyZWN0bHkuCj4gPiA+Cj4gPiA+IFRoaXMgZG9lc24ndCBmZWVsIHJpZ2h0IGZvciBz
+b21lIHJlYXNvbi4gSWYgdGhpcyBpcyBhIHJlZ2lzdGVyIGFyZWEsIHlvdQo+ID4gPiBzaG91bGQK
+PiA+ID4gaW9yZW1hcCgpIGl0LiBJZiBpdCdzIGEgbWVtb3J5IGFyZWEgeW91IGRvIERNQSB0by9m
+cm9tLCB5b3UgbmVlZCB0byBtYWtlCj4gPiA+IHN1cmUgeW91IGNvcnJlY3RseSBmbHVzaC9pbnZh
+bGlkYXRlIGNhY2hlcyBhbmQgcHJvcGVybHkgaGFuZGxlIHRoZQo+ID4gPiBlZmZlY3RzIHRoZSB3
+cml0ZSBidWZmZXIgbWlnaHQgaGF2ZS4gQnV0IEkgaGF2ZSBhIGZlZWxpbmcgeW91IGFjdHVhbGx5
+IGRvCj4gPiA+IERNQSB0by9mcm9tIHJlZ2lzdGVyIHNwYWNlIGhlcmUgPwo+ID4KPiA+IFllcywg
+SXQncyBhIHJlZ2lzdGVyIGFyZWEuIEJ1dCBJIGRvbid0IGtub3cgd2h5IEkgc2hvdWxkIGlvcmVt
+YXAoKSBpdD8gSXQncwo+ID4gYSBidXMgYWRkcmVzcyBhbmQgRE1BIGNhbiB1c2UgaXQgZGlyZWN0
+bHkuIElzIHRoZXJlIHNvbWUgcHJvYmxlbSBmb3IgbXkKPiA+IHVuZGVyc3RhbmRpbmcgPwo+Cj4g
+SSBhbSBub3QgdG9vIHN1cmUgaGVyZSwgdGh1cyBJIGFtIHBva2luZyBzb21lb25lIHdobyBjYW4g
+Y2xlYXJseSBhbnN3ZXIgdGhpcy4KCk9LLCBhbmQgdGhhbmsgeW91IGZvciBwb2ludGluZyBvdXQg
+bWFueSB1Z2x5IGNvZGUgaW4gbXkgcGF0Y2guIEl0J3MgdmVyeSB1c2VmdWwgZm9yIG1lLiA=
