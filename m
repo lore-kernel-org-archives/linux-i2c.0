@@ -1,38 +1,82 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: mv64xxx: fix circular Kconfig dependency
-Date: Thu,  6 Mar 2014 10:19:13 +0100
-Message-ID: <1394097553-5804-1-git-send-email-wsa@the-dreams.de>
-References: <20140306135016.2f026cd81b41cd2474c99124@canb.auug.org.au>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140306135016.2f026cd81b41cd2474c99124@canb.auug.org.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: add DMA support for freescale i2c driver
+Date: Thu, 6 Mar 2014 12:57:42 +0100
+Message-ID: <201403061257.42755.marex@denx.de>
+References: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com> <201403060541.21665.marex@denx.de> <50e0997786a0459eb08c9d92813253f9@BL2PR03MB338.namprd03.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <50e0997786a0459eb08c9d92813253f9-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Commit 370136bc67c3 ("i2c: mv64xxx: Add reset deassert call")
-introduced:
+On Thursday, March 06, 2014 at 06:02:03 AM, Yao Yuan wrote:
+> On Thu, March 06, 2014 at 12:44:14 PM, Marek Vasut wrote:
+> > On Thursday, March 06, 2014 at 05:36:14 AM, Yao Yuan wrote:
+> > > On Thu, March 06, 2014 at 11:23:50 AM, Marek Vasut wrote:
+> > > > On Wednesday, March 05, 2014 at 07:52:31 AM, Yuan Yao wrote:
+> > > > > Add dma support for i2c. This function depend on DMA driver.
+> > > > > You can turn on it by write both the dmas and dma-name properties
+> > > > > in dts node.
+> > > > > 
+> > > > > Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > > > ---
+> > > > 
+> > > > [...]
+> > > > 
+> > > > > @@ -601,6 +826,7 @@ static int i2c_imx_probe(struct
+> > > > > platform_device
+> > > > 
+> > > > *pdev)
+> > > > 
+> > > > >  	void __iomem *base;
+> > > > >  	int irq, ret;
+> > > > >  	u32 bitrate;
+> > > > > 
+> > > > > +	u32 phy_addr;
+> > > > > 
+> > > > >  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
+> > > > > 
+> > > > > @@ -611,6 +837,7 @@ static int i2c_imx_probe(struct
+> > > > > platform_device
+> > > > 
+> > > > *pdev)
+> > > > 
+> > > > >  	}
+> > > > >  	
+> > > > >  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > > > > 
+> > > > > +	phy_addr = res->start;
+> > > > 
+> > > > Uh ... Shawn, I really think I am lost here. Don't you need to map
+> > > > this memory before you can use it for DMA ? The DMA mapping function
+> > > > should give you the physical address and is the right way to go
+> > > > about this instead of pulling the address from here, no ?
+> > > > 
+> > > > I might be wrong here, I am rather uncertain, so please help me out.
+> > > > Thanks!
+> > > 
+> > > Hi, Marek, Thanks for your suggestion.
+> > > Here you can review the code in include/linux/ioport.h The
+> > > resource->start describes the entity on the CPU bus as a starting
+> > > physical address. So I thinks it can used for dma directly.
+> > 
+> > This doesn't feel right for some reason. If this is a register area, you
+> > should
+> > ioremap() it. If it's a memory area you do DMA to/from, you need to make
+> > sure you correctly flush/invalidate caches and properly handle the
+> > effects the write buffer might have. But I have a feeling you actually do
+> > DMA to/from register space here ?
+> 
+> Yes, It's a register area. But I don't know why I should ioremap() it? It's
+> a bus address and DMA can use it directly. Is there some problem for my
+> understanding ?
 
-drivers/video/Kconfig:42:error: recursive dependency detected!
+I am not too sure here, thus I am poking someone who can clearly answer this.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/busses/Kconfig | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 70bcad9..ce0de47 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -527,8 +527,7 @@ config I2C_MPC
- 
- config I2C_MV64XXX
- 	tristate "Marvell mv64xxx I2C Controller"
--	depends on (MV64X60 || PLAT_ORION || ARCH_SUNXI)
--	select RESET_CONTROLLER
-+	depends on MV64X60 || PLAT_ORION || (ARCH_SUNXI && RESET_CONTROLLER)
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  built-in I2C interface on the Marvell 64xxx line of host bridges.
--- 
-1.9.0
+Best regards,
+Marek Vasut
