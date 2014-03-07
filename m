@@ -1,80 +1,80 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: Fix circular dependencies warning and
- compilation breakage
-Date: Fri, 7 Mar 2014 15:48:44 +0100
-Message-ID: <20140307144844.GS607@lukather>
-References: <20140307111858.GB12274@katana>
- <1394199795-5516-1-git-send-email-maxime.ripard@free-electrons.com>
- <20140307142405.GB28943@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zLyS04J6vPP3Ub3W"
+Subject: [PATCH] i2c: mv64xxx: Fix compilation breakage
+Date: Fri,  7 Mar 2014 15:59:30 +0100
+Message-ID: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140307142405.GB28943@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Commit 370136bc67c3 ("i2c: mv64xxx: Add reset deassert call"), introduced a
+recursive dependency, which was fixed by commit 80c69915e5fb ("i2c: mv64xxx:
+fix circular Kconfig dependency", that in turn, by dropping the dependency on
+RESET_CONTROLLER, introduced a compilation breakage whenever this option wasn't
+set.
 
---zLyS04J6vPP3Ub3W
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+drivers/i2c/busses/i2c-mv64xxx.c:924: undefined reference to `reset_control_assert'
+drivers/i2c/busses/i2c-mv64xxx.c:904: undefined reference to `reset_control_assert'
+drivers/i2c/busses/i2c-mv64xxx.c:771: undefined reference to `devm_reset_control_get'
+drivers/i2c/busses/i2c-mv64xxx.c:778: undefined reference to `reset_control_deassert'
 
-On Fri, Mar 07, 2014 at 03:24:05PM +0100, Wolfram Sang wrote:
->=20
-> New patch -> new thread, please.
->=20
-> > This patch fixes the circular dependency introduced by commit 370136bc6=
-7c3
-> > ("i2c: mv64xxx: Add reset deassert call"):
-> >=20
-> > drivers/video/Kconfig:42:error: recursive dependency detected!
->=20
-> Please base it on i2c-next. I already applied my patch.
-> Your patch fixes the build error discovered by it.
+Since the reset framework doesn't define dummy stubs whenever
+CONFIG_RESET_CONTROLLER is not defined, protect the reset framework calls by
+IS_ENABLED tests to make sure it won't be compiled in.
 
-I didn't realise that. I will.
+Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-> > Since the reset framework doesn't define dummy stubs whenever
-> > CONFIG_RESET_CONTROLLER is not defined, it's the only sane way to have =
-a driver
-> > that compiles in any cases.
->=20
-> Paragraph needs reformat. And please drop "sane". #ifdefs are not sane.
-> Fixing the reset framework would be sane.
-
-Ok..
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---zLyS04J6vPP3Ub3W
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTGdxMAAoJEBx+YmzsjxAgYMkQAIMO1TZWN9/Y13I67W877Ppa
-IXxzpP/jTUBMpegE7wZNBleUjHT26wd06p5FbuFJkewQbSDk4h0ooKnupJfrEaj5
-+oEkb430vFKxK5f+8b2soKW7sZJoJ2zYDn6k+jLT0FhOJtbWYo++SicAe24kYosP
-E92nDXdOid4dOH/ed5Jam3ySyk7oR57I/LHs/kEu9M931uIgU2oNUl9uRk3HfHkP
-Ub40HCiq+xOCoeXvPMFfbJfSbK1Jrt6/8A3JoU4y2g4ZmAkqm4FWlICE5ttF8cZ7
-mobdVoMtFt3uvnp4HEXC6H91TLsReChjXYHWVe/Vrzl4hZQZcVM0ATBwsA1VTe5e
-mIs/K9RcgL7uRPjU++4PoMCK6PxKm880yBRzJlRCggfuEFDcQ99GRp4RnQ61M1kk
-Oj9ek81dbZT3v4LGuBQ0ZLxeeMbdL4rTZqh3iDx3c/Y4wdNRQL4oyG9CjSwqD3DR
-BlKIKGWoEvFUzwMPyQePMHopOpoh6cEK490q2Qlqu4+oFP71/ecDgKhskNdC0D2m
-jULHwBVZFRxGMUiQxCTZ86+gqA9PNs2dcaSo2NBrReonWqUcj/GO8cdltVvcRzhz
-G4jOhwRVyDMUGLy2TNj571A4XXxUjW80Rvd/VFuCUDoyw8lgw8WiKRqVLkwJmRtC
-xi7f7PggIlZ33vx8ujb0
-=vane
------END PGP SIGNATURE-----
-
---zLyS04J6vPP3Ub3W--
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 203a548..a1dc99b 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -768,14 +768,16 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 	}
+ 	drv_data->irq = irq_of_parse_and_map(np, 0);
+ 
+-	drv_data->rstc = devm_reset_control_get(dev, NULL);
+-	if (IS_ERR(drv_data->rstc)) {
+-		if (PTR_ERR(drv_data->rstc) == -EPROBE_DEFER) {
+-			rc = -EPROBE_DEFER;
+-			goto out;
++	if (IS_ENABLED(CONFIG_RESET_CONTROLLER)) {
++		drv_data->rstc = devm_reset_control_get(dev, NULL);
++		if (IS_ERR(drv_data->rstc)) {
++			if (PTR_ERR(drv_data->rstc) == -EPROBE_DEFER) {
++				rc = -EPROBE_DEFER;
++				goto out;
++			}
++		} else {
++			reset_control_deassert(drv_data->rstc);
+ 		}
+-	} else {
+-		reset_control_deassert(drv_data->rstc);
+ 	}
+ 
+ 	/* Its not yet defined how timeouts will be specified in device tree.
+@@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ exit_free_irq:
+ 	free_irq(drv_data->irq, drv_data);
+ exit_reset:
+-	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
++	if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
++	    !IS_ERR(drv_data->rstc))
+ 		reset_control_assert(drv_data->rstc);
+ exit_clk:
+ #if defined(CONFIG_HAVE_CLK)
+@@ -920,7 +923,8 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 
+ 	i2c_del_adapter(&drv_data->adapter);
+ 	free_irq(drv_data->irq, drv_data);
+-	if (dev->dev.of_node && !IS_ERR(drv_data->rstc))
++	if (dev->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
++	    !IS_ERR(drv_data->rstc))
+ 		reset_control_assert(drv_data->rstc);
+ #if defined(CONFIG_HAVE_CLK)
+ 	/* Not all platforms have a clk */
+-- 
+1.9.0
