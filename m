@@ -1,73 +1,66 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
-Date: Fri, 7 Mar 2014 18:19:32 +0100
-Message-ID: <20140307171932.GU607@lukather>
+Date: Fri, 7 Mar 2014 18:29:49 +0100
+Message-ID: <20140307172949.GL28943@katana>
 References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
  <20140307160836.GM21483@n2100.arm.linux.org.uk>
+ <20140307171932.GU607@lukather>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fD6GIi1NIioU6454"
+	protocol="application/pgp-signature"; boundary="xjamM5M9kpPM/bcu"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140307160836.GM21483@n2100.arm.linux.org.uk>
+In-Reply-To: <20140307171932.GU607@lukather>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, zhuzhenhua@allwinnertech.com
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, zhuzhenhua@allwinnertech.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---fD6GIi1NIioU6454
+--xjamM5M9kpPM/bcu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wrote:
-> On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
-> > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
-> >  exit_free_irq:
-> >  	free_irq(drv_data->irq, drv_data);
-> >  exit_reset:
-> > -	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
-> > +	if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
-> > +	    !IS_ERR(drv_data->rstc))
-> >  		reset_control_assert(drv_data->rstc);
+
+> > Another question is... why do we need to check pd->dev.of_node here?
+> > If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
+> > controller node, so drv_data->rstc is either going to be a valid
+> > pointer, or it's going to be an error pointer - neither
+> > reset_control_get() nor devm_reset_control_get return NULL.
 >=20
-> Another question is... why do we need to check pd->dev.of_node here?
-> If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
-> controller node, so drv_data->rstc is either going to be a valid
-> pointer, or it's going to be an error pointer - neither
-> reset_control_get() nor devm_reset_control_get return NULL.
+> Hmmm, right. I'll fix this in a later version.
+>=20
+> Wolfram, do you want me to respin the patch making use of
+> reset_get_optional introduced by Philip in its other mail?
 
-Hmmm, right. I'll fix this in a later version.
+I think I'd prefer both issues fixed with one patch like in "fixing up
+reset controller handling".
 
-Wolfram, do you want me to respin the patch making use of
-reset_get_optional introduced by Philip in its other mail?
+And you might want to give a Tested- or Reviewed-by tag to Philipp's
+patch if you are going to use it.
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
 
---fD6GIi1NIioU6454
+--xjamM5M9kpPM/bcu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTGf+kAAoJEBx+YmzsjxAgAJEQAIOnt/7f51rWaEgzUZElG95Y
-6e+Sn5jqDrq+FbGHXf58CzVrad6w/3vH1NhhfP4NOSMP2UakzopatsU6DOAf7zk+
-d2dNGQJACXRG6Wr54ZDpPkkQ9MQ1A6W6ATocJd/tydyB7Xu17h7oljfKc6ckrBzT
-7NLF4UoTmAUg0VnxKnyN3dcQ46hWK7GiSKtJ/l27V4/9Fq/O5oXDT+8h278PuXOc
-8GLQwKkONa1bmxIPQgBeF+KQEFgy1f840bvB7tE5QkDYx1D+reHkgyDgFW6U/Ogm
-oCw5dL9uex4xLFAmM6XOFDz2dN9RoL/B66UUMHIYc6+V1VGyjEVTVKU0RLMagZpj
-nwDTckb9YZvbnJceag0hpYu/OMLcf/wCcH6yiNKsh8M7ln62GkSuGl8SGskGv4ef
-Kje9FN7HVcP0aNf8zajp2juEiqxFOrfSuL+VqKti2RWv3iZ1appascikipLNd25U
-8ed3GsDvjqW8dxbcRa0h6/UBzQDWc9R8GlnWQ0COvRm9BMxrE2le2R8w+BG0vTbY
-/E9N9ZvShblfVUW1K9yKuCf9zqmWBDMwdj2MSaMTlih5c8CJ9DafEq99WeJIJNw9
-ybYQ8HnVLYSiCK+GCSA/Nrxy5G790vAoy3Ri6GPkSwWG6isjGcAeGCrMFE4O9foS
-7d+jM7V91qlACNv48PzI
-=Lts2
+iQIcBAEBAgAGBQJTGgINAAoJEBQN5MwUoCm2BNYP/RDKi/NN9cXVrxTXi/wtuXU6
+acD/7rFzVmF/C+uGEnYTx8Gck5R/um1WG/p9XXxms5D4zfeXqlzwJDuYHAXaR8pm
+onlfPvQ3I4rFkD/wLl4nmpJGSs2CO23xZbSSvZFMBX4e8ckMNBkT5QHEE50Zsz/H
+Gg/Kp3ykLcYK2QQKJZ5qHRMyGgCESi1/cYcWQFKO4GSNCiyboP+uDyTS7cHmEczx
+awuG1U9A66Jnhak51LonOWKMDPvYwUC+GG8BFe32DzxTbWQTLkNHhDoOTI+NRXtr
+Kzp6bYvyhbzLXpZrMeOr+hr9SRgvA2WF0zrRimYQsMfQA6rVU7Wmhty3ycKfXXw7
+PyBRpG9fgrnDB9mePhWmzuectsizdgwxkWnlhULvXuRdEsdW+ZyIr5XGeszVJ1Cf
+nCMTBd0ADdShsIJJ8XyaPtL65nVQ8t2BaRmBU6FyCIIyswiiFaQZ9VWFtEAvY2Wz
+wGmU6F+NpB8iFZFdnWLW6J4cU5hxrqlisuQH7LRvhh2guSekpWAEHTFpeI1gfpIm
+RSKeu6flBtuXz2nBLTnoxy7jj6AZ3Yykto4jveNED4hVB34jaD4Z+BPkT4ng/BBr
+jpoNODuySLROhFglyExTLaLn4fkCNutJBaItwQvW+UzxpcljM/VMuCJucA/YHpDO
+2z9QVJJZqX+Ralypdrye
+=V+vU
 -----END PGP SIGNATURE-----
 
---fD6GIi1NIioU6454--
+--xjamM5M9kpPM/bcu--
