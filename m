@@ -1,73 +1,78 @@
-From: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: I2C dummy adapter driver ?
-Date: Fri, 07 Mar 2014 14:49:32 +0100
-Message-ID: <5319CE6C.2020001@samsung.com>
-References: <5305382E.9050902@gmail.com>
- <CAJe_ZhcMMVRTErH3ctbnZyn30_cp9XXjEfUZXdWaVWUHqs4CRw@mail.gmail.com>
- <53073C51.5010401@samsung.com> <20140228060728.GB29849@sirena.org.uk>
- <5315BB34.8080803@samsung.com> <20140305011530.GN13126@sirena.org.uk>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix circular dependencies warning and
+ compilation breakage
+Date: Fri, 7 Mar 2014 15:24:05 +0100
+Message-ID: <20140307142405.GB28943@katana>
+References: <20140307111858.GB12274@katana>
+ <1394199795-5516-1-git-send-email-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20140305011530.GN13126-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1394199795-5516-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Jassi Brar <jaswinder.singh-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/03/14 02:15, Mark Brown wrote:
-> On Tue, Mar 04, 2014 at 12:38:28PM +0100, Sylwester Nawrocki wrote:
->> On 28/02/14 07:07, Mark Brown wrote:
->>> On Fri, Feb 21, 2014 at 12:45:21PM +0100, Sylwester Nawrocki wrote:
-> 
->>>> The I2C bus driver with empty i2c_algorithm.master_xfer() helps WRT to
->>>> using standard DT binding and v4l2_subdev interface.
-> 
->>> Wouldn't a platform device do just as well here if there's no actual
->>> control?
-> 
->> Then the I2C client devices would have to be instantiated manually, 
->> I think it's more trouble.
-> 
-> I2C is not that much more enumerable than platform bus, I don't see the
-> difference here?  To the extent I2C is enumerable a dummy adaptor isn't
-> going to support that.
 
-Yes, it won't be enumerable, I just meant allocating client devices 
-would need to be taken care of, rather that having this handled entirely 
-by, e.g. i2c-core. 
+--kORqDWCi7qDJ0mEj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> I could as well create custom I2C client drivers per ISP, but then the 
->> I2C devices would have to be represented somehow in DT, to pass stuff 
->> like voltage regulators and GPIOs. Anyway, it's not something could be 
->> done in mainline.
-> 
-> Why not?
 
-Well, my concern was that existing sub-device drivers would need to be
-extended to handle other bus types, like the platform bus.
+New patch -> new thread, please.
 
-And since that very same device could be controlled by the host CPU or
-not, it just depends what host interface/SoC it is linked to, such
-a complication may not be justified.  It's like introducing bridge/host 
-details to the client drivers. In general the sub-devices should be
-host-agnostic.
+> This patch fixes the circular dependency introduced by commit 370136bc67c3
+> ("i2c: mv64xxx: Add reset deassert call"):
+>=20
+> drivers/video/Kconfig:42:error: recursive dependency detected!
 
->> Even if there is no actual I2C communication on the host CPU side, the 
->> power up/down sequence is handled there. The intention is to keep this 
->> common per an I2C client, regardless of whether I2C communication is 
->> done by firmware or the host the CPU.
-> 
-> The way you're talking it sounds like your code is very hard coded to
-> use I2C here.  What happens if someone uses SPI or some other bus to
-> control an ISP?
+Please base it on i2c-next. I already applied my patch.
+Your patch fixes the build error discovered by it.
 
-The other busses, like SPI, are also handled the V4L2 subdev in 
-a standard way.  The host just need to be aware on what control bus 
-a subdev is located on, to get hold of it.
+> Since the reset framework doesn't define dummy stubs whenever
+> CONFIG_RESET_CONTROLLER is not defined, it's the only sane way to have a =
+driver
+> that compiles in any cases.
 
-Let me add that for image sensors I2C is used as a control bus in 
-majority of cases.  An I2C-compatible (CCI) bus is specified as 
-a control bus by the MIPI CSI-2 specification. With newer version 
-of the standard we may need to create a MIPI CSI (control) bus.
+Paragraph needs reformat. And please drop "sane". #ifdefs are not sane.
+Fixing the reset framework would be sane.
+
+> @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+>  exit_free_irq:
+>  	free_irq(drv_data->irq, drv_data);
+>  exit_reset:
+> -	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
+> +	if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
+> +	    !IS_ERR(drv_data->rstc))
+
+Why don't you simply set rstc to some ERR_PTR above if not
+RESET_CONTROLLER?
+
+
+--kORqDWCi7qDJ0mEj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTGdaFAAoJEBQN5MwUoCm2IWkP/0Br+9EdpPTwXb6yBDl8Zt7g
+qcbGp2cw7D9+n2FN0vKfCw89TZFYRDp2YrUAtRE4i/Fa9mAGbc45jyhjSekHmUOY
+D6hcSNxN2wvuwUo1JkJdoqcEMBoH1gDCvtxUFdmKuyoCnb+TnO7B9q4EHqfs2SqV
+Fxpq41tyPdH26zvpcfPp9OazBTT/etNWTffefURHb+szUmtIw9ZVownP6n0weGr8
+CixgDhELp8Ka4A2rZIJI3EDZb9TtMGf21uEIcqZq8paMiFKYEC4RLfV9OU0IEKAM
+YRmOi+6Nex1tSGcICaqGGmRR9gZNrc7Tkw4W+39J9eUQWSq6DR8S+0LV+3HjO2Yh
+7Vsot+Tf8+Bn/uwe+dv5slY5t5Ab/sUcJIED6WXG6zbfurGUQRQX8GfQjJsmDWrY
+RqKMUQ66jrWjm8St1mejZMX8XrIFfTALaPKFNan2CAhehpx45/ntoqE2gAJcPi7N
+iP/wty1Vhd1emLxRHvFIkAz6VGbe+F0HWWXdBCORhzp+3QT/ljjZDdvdPJWg8gBf
+IAjW1WMeHRjusPqkE3Hsk1QtTg1uyOpL9mttaZY9geesxHNlyCMtUuVVOGBcTxu7
+hoRBuW7h3SqzMdjCNXCsp+EPHUWIclcS/HlbuZSkmOvhyPNBGTUuAKD/DpnB8LCn
+vIC9865B1zjQ94Uk3ztJ
+=h30J
+-----END PGP SIGNATURE-----
+
+--kORqDWCi7qDJ0mEj--
