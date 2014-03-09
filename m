@@ -1,77 +1,56 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-davinci: Implement a bus recovery that actually works
-Date: Sun, 9 Mar 2014 21:28:41 +0100
-Message-ID: <20140309202841.GB2835@katana>
-References: <1393583525-9555-1-git-send-email-mike.looijmans@topic.nl>
+Subject: Re: [PATCH] i2c: i801: enable Intel BayTrail SMBUS
+Date: Sun, 9 Mar 2014 21:41:25 +0100
+Message-ID: <20140309204125.GC2835@katana>
+References: <1393603436-3494-1-git-send-email-chiau.ee.chew@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+	protocol="application/pgp-signature"; boundary="gr/z0/N6AeWAPJVB"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1393583525-9555-1-git-send-email-mike.looijmans-Oq418RWZeHk@public.gmane.org>
+In-Reply-To: <1393603436-3494-1-git-send-email-chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: mike.looijmans-Oq418RWZeHk@public.gmane.org
-Cc: nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+To: Chew Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Chew Kean Ho <kean.ho.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---IrhDeMKUP4DT/M7F
+--gr/z0/N6AeWAPJVB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 28, 2014 at 11:32:05AM +0100, mike.looijmans-Oq418RWZeHk@public.gmane.org wrote:
-> From: Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+On Sat, Mar 01, 2014 at 12:03:56AM +0800, Chew Chiau Ee wrote:
+> From: Chew, Kean ho <kean.ho.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 >=20
-> Having a board where the I2C bus locks up occasionally made it clear
-> that the bus recovery in the i2c-davinci driver will only work on
-> some boards, because on regular boards, this will only toggle GPIO
-> lines that aren't muxed to the actual pins.
+> Add Device ID of Intel BayTrail SMBus Controller.
 >=20
-> The I2C controller has the built-in capability to bit-bang its lines.
-> Use this to implement a generic recovery routine that puts the
-> controller in GPIO mode and pulse the clk lines until both SDA and
-> SCL return to a high state.
->=20
-> Because the controller must be held in reset while doing so, the
-> recovery routine must re-init the controller. Since this was already
-> being done after each call to i2c_recover_bus, move that call into
-> the recovery routine as well.
->=20
-> Tested on a custom board with OMAP-L138, and after this change, the
-> board can recover from chips keeping SDA low.
->=20
-> Note: This is an adapted port from 2.6.37 code, and was only tested
-> with that kernel.
+> Signed-off-by: Chew, Kean ho <kean.ho.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-What about using struct i2c_bus_recovery_info, so the actual recovery
-logic is taken from the core?
-
-Thanks,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
---IrhDeMKUP4DT/M7F
+--gr/z0/N6AeWAPJVB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTHM75AAoJEBQN5MwUoCm2kpUP/2snT2tnUth7+KbQVXZZHNs4
-DcO8sqd22PDF3fmPCPM23MOO43rUk8g7bw0tw4/G+Hk1pUpc9KgOVmvCHvv9jB5D
-v9DuYZ7WMTktobhFTpa4B74eId5jalkuZCi4fPAHdz+FobKeJAD33kWyIRPrp2LY
-ryDm7NuMsHNo1AEKKSFiwnojC6RqC1ANzcPuZqk4D9+UtfT1xt0U58sSBG1Zj/lQ
-Q5ZaQs/3cIbl7Pp5hY3wQ+/WTQwI63quguTz7cUD69Otij4cqq90e/cCsVZzHJ/b
-waT71oXZlrlkbuL8wbrLr9viExX4lZkqDbBAgqjREvBiHixTa1nd2OFVvo8Dp7Wz
-mU4iJlU0fgwDkfau8oYfx1S2yc1lXCRvNjjGkNmXwnmC7ajay5IrDqmTPQu+hZQA
-wu2YwKz0WnoP5pqT//o1KvqqGVfHp8BjQBh5/sCRRJa3tIhuNXylztwVc+m0CSxA
-RZVYjZxiC/22fg6WCWknGXu9UIp7rHcjy+hAsqDVXKqb1UqDloKK+stzGDiETLfr
-87Xi2R9kPJrOdN8fEYI0JKsSorNQ3Eg2jQpGCafqEN8S7CcDnU4MLPS9FsXTACu4
-REORcMoTuf1MDvSifx/Y4MIswMGEHsDshL8MQPEr+v6kKxYeLgei4BP5hAyyeEAw
-qrwrDeq8iUbwFIixNuxO
-=xCOP
+iQIcBAEBAgAGBQJTHNH1AAoJEBQN5MwUoCm22owP/RDxRLvQtbpHj6jEffDSHdiy
+tpCNBqyfBoeC8uDm3POwSS3Iszq1epDk5aHGonZxxZyck1zcBrr4pnmfByC3iTpq
+w1vF+Nz/TSNGYYWufYIy/feqzzgg1gtxzENZUUWWflz/rUWitIfX7L5/aznSGOSZ
+OhB1VKHJ9O1gJtyLaGHlhjE4zTpBj5ZtMX2JCbLnJJVtqoBO+qc4xsXYM6MWuRzf
+hLpPrfh4lBM0uZuBO/qAKcW9DL7mGrYcfQL+aN5hRDPrDXRUS73f6AAFZ5BK9qw0
+iE9iIwrvR8A17/4CK50nBZZjTauhOrx0hw6j02Z1mC2je/YXU60DafONTvoggQaW
+ZLfNct8VbnxZlqHI1+/Q+Xg/s9vmW/W4egGu2IlgUoQqffVwfmEKOYjg+arWcd6n
+pC8BoSyJcqG3/KQOKfZGZRhqxVfYBm06Fvz73+JNBudg1Mx73sZnNw9KrY5gG4uq
+pgfcqrz9ELgW4sBv9feZmHMUgV9BtfA4h84v6POFkBjUho4G/TJ7JHAf7HPGqI8P
+coAiTlFmnuM8MGACqD70lhtNI/tpht21IPrmlFBwd+dJXgPOcyWVok2Vfka+fg8g
+uRy0hzZSDsnbRCExVVM5tcMQCSxSPUhGmRUDOV8cgoP+qgFkkw9u5Ywvj7nYU/4a
+ueGNdgfywfU2JrCUgqqj
+=f30Y
 -----END PGP SIGNATURE-----
 
---IrhDeMKUP4DT/M7F--
+--gr/z0/N6AeWAPJVB--
