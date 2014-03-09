@@ -1,71 +1,72 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: i2c-tools-4: timeline?
-Date: Sun, 9 Mar 2014 23:06:57 +0100
-Message-ID: <20140309230657.15fd4139@endymion.delvare>
-References: <CAAXf6LX1-0k91sUQ5CpZQ1J37hNt-JQWJrDukHYo26kLa-9yyA@mail.gmail.com>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V2] i2c: mxs: Use devm_ioremap_resource()
+Date: Mon, 10 Mar 2014 08:34:10 +0900
+Message-ID: <006501cf3bf0$12411a40$36c34ec0$%han@samsung.com>
+References: <001101cf2729$890d5b10$9b281130$%han@samsung.com>
+ <001a01cf2729$dc23cd70$946b6850$%han@samsung.com>
+ <20140309204714.GE2835@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAAXf6LX1-0k91sUQ5CpZQ1J37hNt-JQWJrDukHYo26kLa-9yyA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-reply-to: <20140309204714.GE2835@katana>
+Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas De Schampheleire <patrickdepinguin+linuxi2c-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Marek Vasut' <marex-ynQEQJNshbs@public.gmane.org>, 'Shawn Guo' <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, 'Sascha Hauer' <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Thomas,
+Use devm_ioremap_resource() in order to make the code simpler,
+and remove redundant return value check of platform_get_resource()
+because the value is checked by devm_ioremap_resource().
 
-On Tue, 4 Mar 2014 16:42:11 +0100, Thomas De Schampheleire wrote:
-> Hi Jean, all,
-> 
-> Wiki page 'Plan for i2c-tools 4' [1] describes four steps to fix the
-> 'i2c-dev.h' problem:
-> 
-> Step 1: Cleaning up i2c-dev.h
-> Step 2: Creating a library for i2c_smbus_* functions
-> Step 3: Extending the library
-> Step 4: Documentation
-> 
-> According to this page, some of these steps have already been
-> implemented in several commits. These changes date from April 2012.
+Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Acked-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+---
+Changes since v1:
+- Replace 'return -ENOENT' with 'return irq' when returning error
+  values from platform_get_irq(), per Wolfram Sang
 
-Indeed, steps 1 and 2 are done. I started step 3 but I didn't go far
-enough to commit it.
+ drivers/i2c/busses/i2c-mxs.c |   18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-> Very recently (February 2014), i2c-tools-3.1.1 has been released, but
-> these changes are not part of that release.
-
-No, release 3.1.1 was only a bug fix release on top of 3.1.0. I decided
-to do that because 3.1.0 was getting old and a few important fixes had
-accumulated over time. This is essentially unrelated to the i2c-tools 4
-plan.
-
-> My question is: is there any update regarding i2c-tools 4? Do you have
-> an approximate timeframe in which we could expect this release?
-
-No time frame I'm afraid. This is on my to-do list, and it has been for
-a long time now. However it's rather far away from the top, so I really
-have no idea when I will be able to work on it again.
-
-I was wondering if anyone was actually paying attention to my work on
-i2c-tools 4. I'm glad to finally see some interest in it. Apparently
-you are waiting for it to be done and released? Are you writing some
-tool or application that would benefit from libi2c?
-
-In case you are interested, the patches I currently have for step 3 of
-the plan are available here:
-  http://jdelvare.nerim.net/devel/i2c/libi2c/
-
-Basically the idea is to move the code that was common to i2cdump,
-i2cset, i2cget and i2cdetect to libi2c, under the assumption that it
-would probably be useful for other tools and applications and would
-thus make libi2c more valuable. However this would make these functions
-before part of the library's API, so some care must be taken to only
-include what's really needed, that the naming and parameters are right,
-etc. That's what I did not have enough time for until now. If you want
-to help with that, that would be great.
-
-Thanks,
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 0cde4e6..7170fc8 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -806,7 +806,6 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 	struct mxs_i2c_dev *i2c;
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+-	resource_size_t res_size;
+ 	int err, irq;
+ 
+ 	i2c = devm_kzalloc(dev, sizeof(struct mxs_i2c_dev), GFP_KERNEL);
+@@ -819,18 +818,13 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	irq = platform_get_irq(pdev, 0);
+-
+-	if (!res || irq < 0)
+-		return -ENOENT;
++	i2c->regs = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(i2c->regs))
++		return PTR_ERR(i2c->regs);
+ 
+-	res_size = resource_size(res);
+-	if (!devm_request_mem_region(dev, res->start, res_size, res->name))
+-		return -EBUSY;
+-
+-	i2c->regs = devm_ioremap_nocache(dev, res->start, res_size);
+-	if (!i2c->regs)
+-		return -EBUSY;
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
+ 
+ 	err = devm_request_irq(dev, irq, mxs_i2c_isr, 0, dev_name(dev), i2c);
+ 	if (err)
 -- 
-Jean Delvare
-SUSE L3 Support
+1.7.10.4
