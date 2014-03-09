@@ -1,64 +1,69 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] i2c designware make SCL and SDA falling time
- configurable
-Date: Sun, 9 Mar 2014 09:20:32 +0100
-Message-ID: <20140309082032.GD2575@katana>
-References: <20140116194303.GC4127@katana>
- <1390236223-22584-1-git-send-email-romainba@abilis.com>
+Subject: Re: [PATCH] i2c: designware-pci: Cleanup driver power management
+Date: Sun, 9 Mar 2014 09:30:13 +0100
+Message-ID: <20140309083013.GA2579@katana>
+References: <1391517427-16204-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yudcn1FV7Hsu/q59"
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1390236223-22584-1-git-send-email-romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1391517427-16204-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---yudcn1FV7Hsu/q59
-Content-Type: text/plain; charset=us-ascii
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 20, 2014 at 05:43:43PM +0100, Romain Baeriswyl wrote:
-> This patch allows to set independantly SCL and SDA falling times.
-> The tLOW period is computed by taking into account the SCL falling time.
-> The tHIGH period is computed by taking into account the SDA falling time.
+On Tue, Feb 04, 2014 at 02:37:07PM +0200, Mika Westerberg wrote:
+> The PCI part of the DesignWare I2C driver does a lot of things that are n=
+ot
+> required anymore. For example drivers aren't supposed to handle PCI state
+> transitions themselves. This is all provided by the PCI bus core already.
 >=20
-> For instance in case the margin on tLOW is considered too small, it can
-> be increased by increasing the SCL falling time which is by default set
-> at 300ns.
+> In addition to that there is no point scheduling RPM suspend on driver's
+> idle hook but instead we can use RPM autosuspend for this (which is enabl=
+ed
+> in the driver already).
 >=20
-> The same applies for tHIGH period with the help of SDA falling time.
+> As a bonus, this patch also fixes following compile warning which is
+> emitted when the driver was compiled without CONFIG_PM_RUNTIME set:
 >=20
-> Signed-off-by: Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-> Reviewed-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+> drivers/i2c/busses/i2c-designware-pcidrv.c:245:12: warning: =E2=80=98i2c_=
+dw_pci_runtime_idle=E2=80=99 defined but not used [-Wunused-function]
+>=20
+> Reported-by: xinhui.pan <xinhuix.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Reported-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---yudcn1FV7Hsu/q59
+--qMm9M+Fa2AknHoGS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTHCRQAAoJEBQN5MwUoCm2FJUP/17E0J+WUwcZkB4MWPXkGE/e
-rs4EgmrjtGNIm52Xfvu/UYXe79t4i7ySxrPW5gz1VoBzGXg937i4BG8Piva+b7Z9
-OFE59Nh4KpCEdBLyi8Wu/FfoCmDAwULK4qIk6fo1ofrAlA2KuAgSdSSXjY+y5MWL
-S2tmBGmXcsBERbIYobcY9fAapbzE6f8TNutG5zARJOliievWjB21AW8lK2mxFKla
-isoHEJQMPu/EnqvhCcDK2RfjmelrJyAZvulOkIicYeVY113vIn0QA+UBRiSQ0It0
-I2bdlhGvuIzDlPRZAfcesCFQxPs1eXN7BzbsY2dFNJgJSf+CUB7EMQ7sx/OJ6GuW
-ynU+mkwfLV8nNCOyVar5IH2VNMY4L+IBbmoE7ULKtLig4UNheFnZ8AKxEiIEYD5c
-5OnlCCfxC8F9iKRrKGM8ttgM/V2tuP4GQWhMUttrLxh5KbS0jnpF4VJnPK7mXDUa
-uF4Mcs+Bz09lj3FGl8MWAXyF/o4NdFHpZftwzL1i2yil5/jMFjILSA/UtL19JQWQ
-Ka+dLf+yhEkY5zwUZ2kQU6vVekO4Zk1YVcKFc4tfIEQWznz35MnVAgo7vmjc2Y7K
-89R2MM9b9C9waWgGNFZA+Dn3CiqHDV6ceYF6plp9DY7cD3fzKU7orE3oBqMFlyp0
-omYfG2va9Sb1GM4sL3Xi
-=iloF
+iQIcBAEBAgAGBQJTHCaVAAoJEBQN5MwUoCm2QQcP/Ap6b8PlZxbuFR+DoYFsqjIN
+TUTy/UXJSsQJZzec4ix5f4rjgA6WB3pQTTaS+PlDMMKd8I4DYI/zzZzX7apArbCm
+Jgwt/wqd75EWTK1IhsMRrUTXBuLiOyZOm0gBANwH64648zlhvSw9byG1T4pHTbK9
+qBajGkqDn68PKvUPB3CgzXZBwD/+8cTneTuVD4gXqxt9qcbPVb0EDE4aTZVr3BTB
+EWjW1tKRy+JWbef8iCtywK8AY1YFVee6Nzehf2pFuKdZCsfDZMpHgJ4OY8+jpZ4I
+b+BTY7PemDpxJfhBMxyTRiW8G/FcqGbnYyUedbuJTqx+3x1uoO73Psv+Otto7YIB
+H7MuIvYYo+ccgmfeTdZ6yh3o5zvJaVkh9ULpuzgman/uyuYsNsh3tBrv5w0HmXes
+cWJk85MNhHPKiXF+oGeZGK/v/R80bvtwZeSDZwjjW9SBk6z4kTCuSi7BSkeAtwd7
+Eza9b20Dke7jnktiYp8UqNX2v04xBRbZsTVGY6tH+SiQ6+IiDmfPoSnT+92qqUCM
+GhueU6QEJBO/PVzCvVSLGUjkxpUFKHmiCfKlcmEFoEAqSd5RciCyXxgZsfvu78fh
+kJiNMTsi96RefzuWBAptIjy1H2CnWvhW6s4b5I5Xzd7c0rnEnus6hfJT5SB41106
+agg0a87OesKXxiupwZGt
+=6qdw
 -----END PGP SIGNATURE-----
 
---yudcn1FV7Hsu/q59--
+--qMm9M+Fa2AknHoGS--
