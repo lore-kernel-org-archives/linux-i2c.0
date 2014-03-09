@@ -1,68 +1,88 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and SDA
- hold time value
-Date: Sun, 9 Mar 2014 10:03:39 +0100
-Message-ID: <20140309090339.GB4695@katana>
-References: <1394201571-11681-1-git-send-email-chiau.ee.chew@intel.com>
- <1394201571-11681-3-git-send-email-chiau.ee.chew@intel.com>
+Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
+Date: Sun, 9 Mar 2014 21:21:07 +0100
+Message-ID: <20140309202107.GA2835@katana>
+References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1394201571-11681-3-git-send-email-chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chew Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============1295960731=="
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1389265885-26777-1-git-send-email-mike.looijmans-Oq418RWZeHk@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Cc: khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+--===============1295960731==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Content-Disposition: inline
 
---tjCHc7DPkfUGtrlw
+--SLDf9lqlvOQaIe6s
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 07, 2014 at 10:12:51PM +0800, Chew Chiau Ee wrote:
-> From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+On Thu, Jan 09, 2014 at 12:11:25PM +0100, Mike Looijmans wrote:
+> When a signal is caught while the i2c-davinci bus driver is transferring,
+> the drive just "abandons" the transfer and leaves the controller to fend
+> for itself. The next I2C transaction will find the controller in an
+> undefined state and often results in a stream of "initiating i2c bus reco=
+very"
+> messages until the controller arrives in a defined state. This behaviour
+> also sends out "half" or possibly even mixed messages to I2C client
+> devices which may put them in an undesired state as well.
 >=20
-> On Intel BayTrail, there was case whereby the resulting fast mode
-> bus speed becomes slower (~20% slower compared to expected speed)
-> if using the HCNT/LCNT calculated in the core layer. Thus, this
-> patch is added to allow pci glue layer to pass in optimal
-> HCNT/LCNT/SDA hold time values to core layer since the core
-> layer supports cofigurable HCNT/LCNT/SDA hold time values now.
->=20
-> Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> This patch fixes this issue by always attempting to finish the current
+> transaction, and then check on a pending signal. It either reports
+> success if all data has been transferred, or it returns failure when
+> the transaction was aborted. This keeps the controller in a defined
+> state, and is also much friendlier towards client devices, because
+> it will only send complete messages.
 
-Can you make use of those instead?
-
-        u32                     sda_falling_time;
-        u32                     scl_falling_time;
-
-This is more consistent with using sda_hold_time and lets them have a
-common (and more readable) unit.
+Even more, you should complete the whole transfer. There are devices
+where things can really go wrong if you send a half-complete command and
+then start with the next one. So, not checking signals at all is the way
+to go for I2C drivers. There is some cruft left, so I am happy about
+patches fixing that, with testing on real HW. Like yours here.
 
 
---tjCHc7DPkfUGtrlw
+--SLDf9lqlvOQaIe6s
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTHC5rAAoJEBQN5MwUoCm2KaIP/1S/CKW9OKuq80kcEmTgzaGn
-LD8fUdOxEfkdbL75g0MRSiEwaLUWKL4tjIpp+SUvru8K9zZTrTiej3Ji+rETil/Q
-Qmwyzghr0TormD+yCrySrdx4LHp5BfG2OSSPugmMGDHAH8a9miXm6CX3IUNnGH17
-Uwpqhibb5aYQZ388y51EToTuntV1zHfCuHmSjebOJSLazHXmk6KFBnyayLlZKNQK
-aw0sAbkcPPb5WVsP6fIRYGk3sddJgxxqKbjLF1Q79mlKe2PIFDva9/NBWP/feXk7
-vWtsasBx3sauOY3BVZHTOucwhdyq/A+pKb/htQb6Wwq9xyD8mbcU0DngCGMHof9n
-nrynXXAmjpYaiDvakWFDZJm0d38NehIIDsyk7zITLEz4AA08Ui0M+O7BYVDhYM3K
-5Q+JOlVomaTuE+HgiJuOC14B7V04+Py4/9LiquF/roXYL7MSM596kpIgwuqoC97x
-gT7VA+x9kufKuvA6KYczZstt0oikGM4B1LjNrwCrn8+ZvGVdO5ImVfMCQZyzMZzU
-wnic65YEtMp/XQVC+sRkeoMbMiJFV40iGYxlaMdIuG9EDeESzvJF8VNa/te93BOl
-KVKR+85FNrSVzZhKx7NtizqWROeR+DK6PO41C+0xKm2juCGqCedKmeoWg5tz3Kh+
-eFY/BC7HCsoIeE3z+bPr
-=Dct6
+iQIcBAEBAgAGBQJTHM0zAAoJEBQN5MwUoCm2owMQAIwH+1ONRQ+4QYjubu020Agg
+zzlbzOfBgKkIQ9KdsfBlZX9G5NJBKTAPZgGELllq5DfNbN9z332MPtddhGgW7Q+M
+FJBw99w/b+b/zVODXMQzH5gjj0AojeIOJj3JV86lK8KnCf1Tl2K3iTyQNzw+3NTl
+539dmZqfBwDq2lovR/MIdi09Q04nZez+N5oU7+tDhKyb/T6SSERtkFZdZQ/rnji4
+BdYs7QTWKfCMnVpMlSzZWHPLTH2f2obqgZFlEkLalbXLhs6LnO1ytEivW1K8FqZ7
+zYF7W8zuwDFPlqkV2wHdudcNPsm1bV6lFpZW4BXBpOjmGGZk5lwGpUa6eJiUOBhL
+lx5ecjhQUmctJMj8OYBHUjk5yt5ZC2S/uqaUW/AMBllC69BzteKip2BUKXr08SHd
+NuC/WQOQCB/0QSomviUf6mNm6+D/a+sL8SobUdbk1GU6VL7ApKZQqQanlZUOaKle
+Dp+U78oHlTrEp1rj0dK0PM1QzM6nF10lRex06jetSGq31iMLvQp1x2vtFlDnt7fG
+nasli1qrmdjyJD4gM8fgtdOSJIdmhGrTeJ8KNudpFs8rApFsuqTvoAa6xFQ1GKdM
+iSMBXT2TBrBvf33mj+twqthc1xtadgAeu1BfCXgeIsctNqdZBUgEa2BJk7HaX+Pz
+kvxZ7cQOdanuO8oBIJq2
+=ux7p
 -----END PGP SIGNATURE-----
 
---tjCHc7DPkfUGtrlw--
+--SLDf9lqlvOQaIe6s--
+
+--===============1295960731==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+--===============1295960731==--
