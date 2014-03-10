@@ -1,62 +1,53 @@
-From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: s3c2410: Trivial cleanup in header file
-Date: Mon, 10 Mar 2014 20:55:40 +0530
-Message-ID: <CAK9yfHzuLE2tfPQXs9ypcsNBhMvjj7bOyhHvvCpbOj1W3+Cd6A@mail.gmail.com>
-References: <1392359490-9834-1-git-send-email-sachin.kamat@linaro.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 0/5] mv64xxx updates
+Date: Mon, 10 Mar 2014 17:25:03 +0100
+Message-ID: <20140310162503.GE11592@katana>
+References: <20140213094117.GA3934@katana>
+ <1392323793-4125-1-git-send-email-wsa@the-dreams.de>
+ <52FD2E0C.10609@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="phCU5ROyZO6kBE05"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1392359490-9834-1-git-send-email-sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52FD2E0C.10609-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jiri Kosina <trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 14 February 2014 12:01, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Commit 436d42c61c3e ("ARM: samsung: move platform_data definitions")
-> moved the files to the current location but forgot to remove the pointer
-> to its previous location. Clean it up. While at it also change the header
-> file protection macros appropriately.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  include/linux/platform_data/i2c-s3c2410.h |    9 ++++-----
->  1 file changed, 4 insertions(+), 5 deletions(-)
->
-> diff --git a/include/linux/platform_data/i2c-s3c2410.h b/include/linux/platform_data/i2c-s3c2410.h
-> index 2a50048c1c44..05af66b840b9 100644
-> --- a/include/linux/platform_data/i2c-s3c2410.h
-> +++ b/include/linux/platform_data/i2c-s3c2410.h
-> @@ -1,5 +1,4 @@
-> -/* arch/arm/plat-s3c/include/plat/iic.h
-> - *
-> +/*
->   * Copyright 2004-2009 Simtec Electronics
->   *     Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
->   *
-> @@ -10,8 +9,8 @@
->   * published by the Free Software Foundation.
->  */
->
-> -#ifndef __ASM_ARCH_IIC_H
-> -#define __ASM_ARCH_IIC_H __FILE__
-> +#ifndef __I2C_S3C2410_H
-> +#define __I2C_S3C2410_H __FILE__
->
->  #define S3C_IICFLG_FILTER      (1<<0)  /* enable s3c2440 filter */
->
-> @@ -76,4 +75,4 @@ extern void s3c_i2c7_cfg_gpio(struct platform_device *dev);
->
->  extern struct s3c2410_platform_i2c default_i2c_data;
->
-> -#endif /* __ASM_ARCH_IIC_H */
-> +#endif /* __I2C_S3C2410_H */
-> --
-> 1.7.9.5
->
 
- Ping..
+--phCU5ROyZO6kBE05
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
-With warm regards,
-Sachin
+
+> I will test it tomorrow and let you know if it fixed the bug.
+> I will also take time to review the RFC patches.
+
+I applied the other three patches now.
+
+
+--phCU5ROyZO6kBE05
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTHedfAAoJEBQN5MwUoCm2zKsQAJcYh8f3gG3eNtSUwFvrH7Ut
+L3+i0YWAThjIX7GiFMgXShPac6952gT70wQHaqXiF3ptKVzSfNfi6rVG6RbV+VuW
+tAMBwtJ+r2lf6me0G0pU/dhE3MZQeDvgALbJ1yExLYe9zMQbWeLDM529P+KptvyP
+CIJcQDStsJVMSwd9+bvk93VPu8K+U49vOdTFL7PFYuxXhHo5UwCaAcMdXLeTLQlZ
+yOnNV5N8mSHTzoQ/H7CVdVhXm447diYv6sHKtGH06SSm50NeLE6xjoQszJs2/4Q6
+/qEWHbc0gqrXFwfDaphC+EX93sPmjXlaVEtEvWPLvm6GoJ4PS23VC5kZs13njDAN
+ILaIY/znnxnAiOsribI7OZSkM8E+51kvwQJs9bMZ5bDh3D0e64cBbNuSndEt1fIz
+B5AN7CqSUOVLFXGSEILWPdVMTQOXt+/uhH2M181FQ5HtHttwQUOsyYGMKTphORSN
+FSCN0BfO9Dfaq1RDvFMrAGSVB2YxdwaizWVppBS0X0Gj46iqLHJfcYli8Gq7/ZzH
+JWemTfwRP3geO9I0foGE55bG9wh2t/PqAd9CE8vVzJHMsHEAKIeyDeQ8zBRo6Twj
+khmc8abC++dS9t9UJhimutME5xtJ+t2c0AzwI6PXPq2l2A3Ewd8xFyn2aUlSfIwJ
+xk1L4UoIGng8gfYKU4Ba
+=1GnI
+-----END PGP SIGNATURE-----
+
+--phCU5ROyZO6kBE05--
