@@ -1,67 +1,47 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH] i2c: mv64xxx: Fix reset controller handling
-Date: Mon, 10 Mar 2014 12:12:10 +0100
-Message-ID: <1394449930-29696-1-git-send-email-maxime.ripard@free-electrons.com>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
+Date: Mon, 10 Mar 2014 11:29:29 +0000
+Message-ID: <20140310112929.GY21483@n2100.arm.linux.org.uk>
+References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com> <20140307160836.GM21483@n2100.arm.linux.org.uk> <20140310105808.GE2815@lukather>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140310105808.GE2815@lukather>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The reset framework recently gained optional stubs when CONFIG_RESET_CONTROLLER
-is not selected. It also introduced a function reset_get_optional, that is also
-dummy-defined whenever the framework isn't enabled, for drivers that needs an
-optional reset controller.
+On Mon, Mar 10, 2014 at 11:58:08AM +0100, Maxime Ripard wrote:
+> On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wrote:
+> > On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
+> > > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+> > >  exit_free_irq:
+> > >  	free_irq(drv_data->irq, drv_data);
+> > >  exit_reset:
+> > > -	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
+> > > +	if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
+> > > +	    !IS_ERR(drv_data->rstc))
+> > >  		reset_control_assert(drv_data->rstc);
+> > 
+> > Another question is... why do we need to check pd->dev.of_node here?
+> > If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
+> > controller node, so drv_data->rstc is either going to be a valid
+> > pointer, or it's going to be an error pointer - neither
+> > reset_control_get() nor devm_reset_control_get return NULL.
+> 
+> Following back on this as I was doing the patch, actually,
+> drv_data->rstc will be NULL if we're not probed by DT, and hence never
+> call reset_control_get, that would set an error pointer.
+> 
+> But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
 
-Switch to this function, since the mv64xxx driver is in this case. This also
-fixes a compilation breakage whenever the reset framework wasn't selected:
+I think you can also move the devm_reset_control_get() into the main
+probe function: you're only checking for -EPROBE_DEFER from it to fail,
+allowing other errors to continue with the driver init.  This means
+that on non-OF, devm_reset_control_get() will fail with -ENOENT.
 
-drivers/i2c/busses/i2c-mv64xxx.c:771:2: error: implicit declaration of function 'devm_reset_control_get'
-
-While we're at it, remove the redundant test on dev.of_node surrounding the
-calls to reset framework functions, since it will either be a valid pointer, an
-error pointer in the case where we called reset_get_optional without an of_node
-pointer or if it failed, or NULL if we're not loaded through DT.
-
-Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
-
-Obviously, this patch depends on Philipp Zabel's "reset: Add optional resets
-and stubs" patch that he merged and will send a pull request for.
-
- drivers/i2c/busses/i2c-mv64xxx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 203a5482a866..a09af20342ed 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -768,7 +768,7 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 	}
- 	drv_data->irq = irq_of_parse_and_map(np, 0);
- 
--	drv_data->rstc = devm_reset_control_get(dev, NULL);
-+	drv_data->rstc = devm_reset_control_get_optional(dev, NULL);
- 	if (IS_ERR(drv_data->rstc)) {
- 		if (PTR_ERR(drv_data->rstc) == -EPROBE_DEFER) {
- 			rc = -EPROBE_DEFER;
-@@ -900,7 +900,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- exit_free_irq:
- 	free_irq(drv_data->irq, drv_data);
- exit_reset:
--	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
-+	if (!IS_ERR_OR_NULL(drv_data->rstc))
- 		reset_control_assert(drv_data->rstc);
- exit_clk:
- #if defined(CONFIG_HAVE_CLK)
-@@ -920,7 +920,7 @@ mv64xxx_i2c_remove(struct platform_device *dev)
- 
- 	i2c_del_adapter(&drv_data->adapter);
- 	free_irq(drv_data->irq, drv_data);
--	if (dev->dev.of_node && !IS_ERR(drv_data->rstc))
-+	if (!IS_ERR_OR_NULL(drv_data->rstc))
- 		reset_control_assert(drv_data->rstc);
- #if defined(CONFIG_HAVE_CLK)
- 	/* Not all platforms have a clk */
 -- 
-1.9.0
+FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
+improving, and getting towards what was expected from it.
