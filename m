@@ -1,42 +1,64 @@
-From: "=?utf-8?B?57O757uf566h55CG5ZGYwq4=?=" <perioncl-+OoA8B9cYRx9nmWX13WWKA@public.gmane.org>
-Subject: =?utf-8?B?5oKo55qE55S15a2Q6YKu5Lu25biQ5oi35oCl6L+r?=
-	=?utf-8?B?5ZKM6YeN6KaB5rOo5oSP5LqL6aG5?=
-Date: Mon, 10 Mar 2014 18:48:45 +0800 (CST)
-Message-ID: <1394448516.7294.perioncl@ncl.edu.tw>
-Reply-To: "=?utf-8?B?57O757uf566h55CG5ZGYwq4=?=" <euroraffle-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
+Date: Mon, 10 Mar 2014 11:59:52 +0100
+Message-ID: <20140310105952.GA7227@katana>
+References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
+ <20140309202107.GA2835@katana>
+ <531D92F7.7080509@topic.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <531D92F7.7080509-Oq418RWZeHk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-=E4=BA=B2=E7=88=B1=E7=9A=84=E7=94=A8=E6=88=B7=E7=9A=84Webmail=20
 
-=E6=84=9F=E8=B0=A2=E6=82=A8=E8=AE=A2=E9=98=85=E6=88=91=E4=BB=AC=E7=9A=84=
-=E4=BC=81=E4=B8=9A=E9=82=AE=E5=B1=80=E6=9C=8D=E5=8A=A1=E3=80=82=E9=9A=8F=
-=E7=9D=80=E6=88=91=E4=BB=AC=E7=9A=84=E4=B8=8D=E6=96=AD=E5=8A=AA=E5=8A=9B=
-=EF=BC=8C=E6=8F=90=E4=BE=9B=E6=9B=B4=E9=AB=98=E7=9A=84=E6=9C=8D=E5=8A=A1=
-=E6=B0=B4=E5=B9=B3=E7=9A=84=E4=B8=80=E9=83=A8=E5=88=86=EF=BC=8C=E6=88=91=
-=E4=BB=AC=E5=BE=88=E9=AB=98=E5=85=B4=E5=9C=B0=E9=80=9A=E7=9F=A5=E4=BD=A0=
-=EF=BC=8C=E6=88=91=E4=BB=AC=E5=B7=B2=E7=BB=8F=E5=8D=87=E7=BA=A7=E4=BA=86=
-=E6=82=A8=E7=9A=84=E7=94=B5=E5=AD=90=E9=82=AE=E4=BB=B6=E5=B8=90=E6=88=B7=
-=EF=BC=8C=E6=82=A8=E9=9C=80=E8=A6=81=E6=BF=80=E6=B4=BB=E6=82=A8=E7=9A=84=
-=E5=B8=90=E5=8F=B7=EF=BC=8C=E4=B8=BA=E4=BA=86=E6=96=B9=E4=BE=BF=E6=82=A8=
-=E7=9A=84=E5=B8=90=E5=8F=B7=E6=BF=80=E6=B4=BB=E4=B8=8E=E6=88=91=E4=BB=AC=
-=E5=90=88=E4=BD=9C=EF=BC=8C=E6=82=A8=E5=8F=AF=E4=BB=A5=E9=80=9A=E8=BF=87=
-=E7=82=B9=E5=87=BBverifiy /=E4=BD=BF=E7=94=A8=E4=B8=8B=E9=9D=A2=E7=9A=84=
-=E9=93=BE=E6=8E=A5=EF=BC=9A=20
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-=E7=82=B9=E5=87=BB=E8=BF=99=E9=87=8C=EF=BC=9Ahttp://chinnnawebmails.0ad=
-=2Einfo/=20
 
-=E6=88=91=E4=BB=AC=E7=9C=9F=E8=AF=9A=E5=9C=B0=E9=81=93=E6=AD=89=E8=BF=99=
-=E7=A7=8D=E4=B8=8D=E4=BE=BF=E3=80=82=20
+> >Even more, you should complete the whole transfer. There are devices
+> >where things can really go wrong if you send a half-complete command and
+> >then start with the next one. So, not checking signals at all is the way
+> >to go for I2C drivers. There is some cruft left, so I am happy about
+> >patches fixing that, with testing on real HW. Like yours here.
+>=20
+> I agree.
+>=20
+> I know the Zynq (using a cadence controller) also lets signals
+> interrupt I2C transfers, so I'll propose a patch to Xilinx and CC to
+> you and linux-i2c to completely remove signal handling from that
+> driver as well.
 
-=E7=9C=9F=E8=AF=9A=E7=9A=84=EF=BC=8C=20
-IT=E6=9C=8D=E5=8A=A1=EF=BC=81=20
-=E7=B3=BB=E7=BB=9F=E7=AE=A1=E7=90=86=E5=91=98=C2=AE=20
-=E5=8D=87=E7=BA=A7=E6=82=A8=E7=9A=84=E5=B8=90=E6=88=B7=EF=BC=81=20
-=C2=A9=E7=89=88=E6=9D=83=E6=89=80=E6=9C=892014=E5=B9=B4=E4=BC=81=E4=B8=9A=
-=E9=82=AE=E5=B1=80
+Cool, thanks!
+
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTHZsoAAoJEBQN5MwUoCm2pkAQAJzc2MNUaTFcdCLghtuilnSx
+qlQ00rRZmvBlZwUvE+Sb09sJ0hC38/n3gQuW7NDU0/9WWr5doMaCjzI1ySuR5XFQ
+Ec2JZ/j8sqbosMXB9REjuWeJOho0qADN5xA8O8Da2IZ4YgguvG8K6Ks/TwD1Z90V
+FAQgbkxR4g1fxLj0PkK6UmOvpa+ExfM6d8Pw6G5k0U5DtZxkeWQq/NelaiFzamcM
+dPJnrZGjPETALHf0RLWJLf4sidoRx//FeZTpfw5N9IQwUdVH8U6dU4uqlV1DfVmg
+KPlC5WwE402r+bBcDixAPrQ2stFwLzJxQZ+QE74ThAuIUEV3MH1N3g408dVPEQIO
+Mh5fniK6a7WovHuzFl4BF8TgKIusrrxgNsFDIN9uWAcyfeW898lf33qdCmsswaIK
+6p3HToIt+2JInGh6msf8Q+WViLMS7OwlbqE8iqsoC6rqsQJs9+4AKWPan460ty66
+M+3Xi1hntFbIQVyU20GHZoGIeWyUZWFf9+DzmKuOsal0gXMIMlJGPeOr7QHPxffn
+AglsA4klqL7idRWeYNeS12OLHxpzmSiqKDDdgXlzeJjrN+wmEeTssyGx6Dh0rZZv
+5SWFSwc/iEcgGe/fHTzp41B/JTd4fp+34LDPSIok3r8nW6Yin6RlqlJSLSM2vMqa
+YUI3dSd09awnigXUIqRF
+=jEz2
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--
