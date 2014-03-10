@@ -1,56 +1,91 @@
-From: "Chew, Chiau Ee" <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and SDA
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and SDA
  hold time value
-Date: Mon, 10 Mar 2014 11:34:49 +0000
-Message-ID: <604BF5F4C5D71041942BC7E84ED659EA0155D5C4@PGSMSX103.gar.corp.intel.com>
+Date: Mon, 10 Mar 2014 16:15:24 +0100
+Message-ID: <20140310151524.GA11592@katana>
 References: <1394201571-11681-1-git-send-email-chiau.ee.chew@intel.com>
  <1394201571-11681-3-git-send-email-chiau.ee.chew@intel.com>
  <20140309090339.GB4695@katana>
+ <604BF5F4C5D71041942BC7E84ED659EA0155D5C4@PGSMSX103.gar.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140309090339.GB4695@katana>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <604BF5F4C5D71041942BC7E84ED659EA0155D5C4@PGSMSX103.gar.corp.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Chew, Chiau Ee" <chiau.ee.chew@intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
-> Sent: Sunday, March 09, 2014 5:04 PM
-> To: Chew, Chiau Ee
-> Cc: Mika Westerberg; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Re: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and SDA
-> hold time value
-> 
-> On Fri, Mar 07, 2014 at 10:12:51PM +0800, Chew Chiau Ee wrote:
-> > From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> >
-> > On Intel BayTrail, there was case whereby the resulting fast mode bus
-> > speed becomes slower (~20% slower compared to expected speed) if using
-> > the HCNT/LCNT calculated in the core layer. Thus, this patch is added
-> > to allow pci glue layer to pass in optimal HCNT/LCNT/SDA hold time
-> > values to core layer since the core layer supports cofigurable
-> > HCNT/LCNT/SDA hold time values now.
-> >
-> > Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> 
-> Can you make use of those instead?
-> 
->         u32                     sda_falling_time;
->         u32                     scl_falling_time;
-> 
-> This is more consistent with using sda_hold_time and lets them have a common
-> (and more readable) unit.
+On Mon, Mar 10, 2014 at 11:34:49AM +0000, Chew, Chiau Ee wrote:
+>=20
+>=20
+> > -----Original Message-----
+> > From: Wolfram Sang [mailto:wsa@the-dreams.de]
+> > Sent: Sunday, March 09, 2014 5:04 PM
+> > To: Chew, Chiau Ee
+> > Cc: Mika Westerberg; linux-i2c@vger.kernel.org; linux-kernel@vger.kerne=
+l.org
+> > Subject: Re: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and =
+SDA
+> > hold time value
+> >=20
+> > On Fri, Mar 07, 2014 at 10:12:51PM +0800, Chew Chiau Ee wrote:
+> > > From: Chew, Chiau Ee <chiau.ee.chew@intel.com>
+> > >
+> > > On Intel BayTrail, there was case whereby the resulting fast mode bus
+> > > speed becomes slower (~20% slower compared to expected speed) if using
+> > > the HCNT/LCNT calculated in the core layer. Thus, this patch is added
+> > > to allow pci glue layer to pass in optimal HCNT/LCNT/SDA hold time
+> > > values to core layer since the core layer supports cofigurable
+> > > HCNT/LCNT/SDA hold time values now.
+> > >
+> > > Signed-off-by: Chew, Chiau Ee <chiau.ee.chew@intel.com>
+> >=20
+> > Can you make use of those instead?
+> >=20
+> >         u32                     sda_falling_time;
+> >         u32                     scl_falling_time;
+> >=20
+> > This is more consistent with using sda_hold_time and lets them have a c=
+ommon
+> > (and more readable) unit.
+>=20
+> Would like to clarify on your statement above. So you are suggesting to c=
+hange the following=20
+> variable name in the code? As in:
 
-Would like to clarify on your statement above. So you are suggesting to change the following 
-variable name in the code? As in:
-"u32 ss_hcnt;"   to  "u32 ss_scl_rising_time"
-"u32 fs_hcnt;"   to  "u32 fs_scl_rising_time"
-"u32 ss_lcnt;"    to   "u32 ss_scl_falling_time"
-"u32 fs_lcnt;"     to " u32 fs_scl_falling_time"
-"u32 sda_hold;"  to  "u32 sda_hold_time"
+Nope. But I had a look and it doesn't make sense to use the above. So,
+just forget it :) Will send a second review.
+
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTHdcMAAoJEBQN5MwUoCm2qqcP/2Dn2J/aWSh9xwvNF5+kKw4t
+Sz7sNOp8V09BGzGD5VpA2VRrqB2UsMAhEZtASwLpFXruvZ4TSu9OGSLaeeEwgQnj
+nNLxx7twBEdFMfizd1va6TfJcXGbAIdBXVIX0HF64c0C7ohoqhxJ7oIKnz+sYtFf
+Y6tISLQNP+by7OZw++Q7Z0Xm4COPJlPvcYPvG83aKsZP7SbAh0Qi2Z5AFWyDDLgs
+Z8hQZVyzGBa46d/D/yB5GDIPlw4KrRK+/CU1rm9y7F+N78Zkcd3TPqsBlkdcBAkG
+w4bqZTFdiPgDBVMa5gD2V3fmPvkIPxwkn7pKWzUus3qc8WUG2UBmbLC0vPpTxk9j
+cV1yw0yrFD3us25XeDNzW4RMaUbic+Cx2f/odOjYBcjyxqvHM1mqfKZ6UrfoEpDr
+pZCrE/VOAVoG7QOZPChmMM6O562n0HeBUDXdT99mBpMmcVTxsM8TYXq0zXia5dXE
++x4xxatdVxBBpJp+8eXwIGDn7px1CyhyoxoJ6OFiBSEt66eEjDbuPea1+DhFIBR1
+u94anrvVWSb6CMl2FqMATadDtuTCqTJOR+VPa9oA/VvDPvpkcEYXl9O4LEm19nAg
+EMVy8oImQ75M/03kNPQ37kSoDDbU8siwfkwoHDgNl5WyQ+8QbXQ+vbRzCixXE8n4
+VGtJe4qKtTGvRtWA6Fm7
+=WHK7
+-----END PGP SIGNATURE-----
+
+--NzB8fVQJ5HfG6fxh--
