@@ -1,70 +1,42 @@
-From: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
-Date: Mon, 10 Mar 2014 11:24:55 +0100
-Message-ID: <531D92F7.7080509@topic.nl>
-References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl> <20140309202107.GA2835@katana>
+From: "=?utf-8?B?57O757uf566h55CG5ZGYwq4=?=" <perioncl-+OoA8B9cYRx9nmWX13WWKA@public.gmane.org>
+Subject: =?utf-8?B?5oKo55qE55S15a2Q6YKu5Lu25biQ5oi35oCl6L+r?=
+	=?utf-8?B?5ZKM6YeN6KaB5rOo5oSP5LqL6aG5?=
+Date: Mon, 10 Mar 2014 18:48:45 +0800 (CST)
+Message-ID: <1394448516.7294.perioncl@ncl.edu.tw>
+Reply-To: "=?utf-8?B?57O757uf566h55CG5ZGYwq4=?=" <euroraffle-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140309202107.GA2835@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-=EF=BB=BFOn 03/09/2014 09:21 PM, Wolfram Sang wrote:
-> On Thu, Jan 09, 2014 at 12:11:25PM +0100, Mike Looijmans wrote:
->> When a signal is caught while the i2c-davinci bus driver is transfer=
-ring,
->> the drive just "abandons" the transfer and leaves the controller to =
-fend
->> for itself. The next I2C transaction will find the controller in an
->> undefined state and often results in a stream of "initiating i2c bus=
- recovery"
->> messages until the controller arrives in a defined state. This behav=
-iour
->> also sends out "half" or possibly even mixed messages to I2C client
->> devices which may put them in an undesired state as well.
->>
->> This patch fixes this issue by always attempting to finish the curre=
-nt
->> transaction, and then check on a pending signal. It either reports
->> success if all data has been transferred, or it returns failure when
->> the transaction was aborted. This keeps the controller in a defined
->> state, and is also much friendlier towards client devices, because
->> it will only send complete messages.
->
-> Even more, you should complete the whole transfer. There are devices
-> where things can really go wrong if you send a half-complete command =
-and
-> then start with the next one. So, not checking signals at all is the =
-way
-> to go for I2C drivers. There is some cruft left, so I am happy about
-> patches fixing that, with testing on real HW. Like yours here.
+=E4=BA=B2=E7=88=B1=E7=9A=84=E7=94=A8=E6=88=B7=E7=9A=84Webmail=20
 
-I agree.
+=E6=84=9F=E8=B0=A2=E6=82=A8=E8=AE=A2=E9=98=85=E6=88=91=E4=BB=AC=E7=9A=84=
+=E4=BC=81=E4=B8=9A=E9=82=AE=E5=B1=80=E6=9C=8D=E5=8A=A1=E3=80=82=E9=9A=8F=
+=E7=9D=80=E6=88=91=E4=BB=AC=E7=9A=84=E4=B8=8D=E6=96=AD=E5=8A=AA=E5=8A=9B=
+=EF=BC=8C=E6=8F=90=E4=BE=9B=E6=9B=B4=E9=AB=98=E7=9A=84=E6=9C=8D=E5=8A=A1=
+=E6=B0=B4=E5=B9=B3=E7=9A=84=E4=B8=80=E9=83=A8=E5=88=86=EF=BC=8C=E6=88=91=
+=E4=BB=AC=E5=BE=88=E9=AB=98=E5=85=B4=E5=9C=B0=E9=80=9A=E7=9F=A5=E4=BD=A0=
+=EF=BC=8C=E6=88=91=E4=BB=AC=E5=B7=B2=E7=BB=8F=E5=8D=87=E7=BA=A7=E4=BA=86=
+=E6=82=A8=E7=9A=84=E7=94=B5=E5=AD=90=E9=82=AE=E4=BB=B6=E5=B8=90=E6=88=B7=
+=EF=BC=8C=E6=82=A8=E9=9C=80=E8=A6=81=E6=BF=80=E6=B4=BB=E6=82=A8=E7=9A=84=
+=E5=B8=90=E5=8F=B7=EF=BC=8C=E4=B8=BA=E4=BA=86=E6=96=B9=E4=BE=BF=E6=82=A8=
+=E7=9A=84=E5=B8=90=E5=8F=B7=E6=BF=80=E6=B4=BB=E4=B8=8E=E6=88=91=E4=BB=AC=
+=E5=90=88=E4=BD=9C=EF=BC=8C=E6=82=A8=E5=8F=AF=E4=BB=A5=E9=80=9A=E8=BF=87=
+=E7=82=B9=E5=87=BBverifiy /=E4=BD=BF=E7=94=A8=E4=B8=8B=E9=9D=A2=E7=9A=84=
+=E9=93=BE=E6=8E=A5=EF=BC=9A=20
 
-I know the Zynq (using a cadence controller) also lets signals interrup=
-t I2C=20
-transfers, so I'll propose a patch to Xilinx and CC to you and linux-i2=
-c to=20
-completely remove signal handling from that driver as well.
+=E7=82=B9=E5=87=BB=E8=BF=99=E9=87=8C=EF=BC=9Ahttp://chinnnawebmails.0ad=
+=2Einfo/=20
 
-Mike
+=E6=88=91=E4=BB=AC=E7=9C=9F=E8=AF=9A=E5=9C=B0=E9=81=93=E6=AD=89=E8=BF=99=
+=E7=A7=8D=E4=B8=8D=E4=BE=BF=E3=80=82=20
 
-
-Met vriendelijke groet / kind regards,
-
-Mike Looijmans
-
-TOPIC Embedded Systems
-Eindhovenseweg 32-C, NL-5683 KH Best
-Postbus 440, NL-5680 AK Best
-Telefoon: (+31) (0) 499 33 69 79
-Telefax:  (+31) (0) 499 33 69 70
-E-mail: mike.looijmans-Oq418RWZeHk@public.gmane.org
-Website: www.topic.nl
-
-Please consider the environment before printing this e-mail
+=E7=9C=9F=E8=AF=9A=E7=9A=84=EF=BC=8C=20
+IT=E6=9C=8D=E5=8A=A1=EF=BC=81=20
+=E7=B3=BB=E7=BB=9F=E7=AE=A1=E7=90=86=E5=91=98=C2=AE=20
+=E5=8D=87=E7=BA=A7=E6=82=A8=E7=9A=84=E5=B8=90=E6=88=B7=EF=BC=81=20
+=C2=A9=E7=89=88=E6=9D=83=E6=89=80=E6=9C=892014=E5=B9=B4=E4=BC=81=E4=B8=9A=
+=E9=82=AE=E5=B1=80
