@@ -1,74 +1,53 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
-Date: Mon, 10 Mar 2014 11:58:08 +0100
-Message-ID: <20140310105808.GE2815@lukather>
-References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
- <20140307160836.GM21483@n2100.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140307160836.GM21483@n2100.arm.linux.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, zhuzhenhua@allwinnertech.com
+From: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Subject: [PATCH] i2c-cadence: Do not let signals interrupt I2C transfers
+Date: Mon, 10 Mar 2014 12:12:34 +0100
+Message-ID: <1394449954-10797-1-git-send-email-mike.looijmans@topic.nl>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: git-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Pressing CTRL-C while communicating with an I2C device leads to erratic
+behaviour. The cause is that the controller will interrupt the I2C transfer
+in progress, and leave the client device in an undefined state. Many
+drivers do not handle error return codes on I2C transfers. The calling driver
+has no way of telling how much of the transfer has actually completed, so
+it cannot reliably determine the device's state.
 
---lkTb+7nhmha7W+c3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The best solution here is to not handle signals in the I2C bus driver at all,
+but always complete a transaction before returning control.
 
-On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wrote:
-> On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
-> > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
-> >  exit_free_irq:
-> >  	free_irq(drv_data->irq, drv_data);
-> >  exit_reset:
-> > -	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
-> > +	if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
-> > +	    !IS_ERR(drv_data->rstc))
-> >  		reset_control_assert(drv_data->rstc);
->=20
-> Another question is... why do we need to check pd->dev.of_node here?
-> If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
-> controller node, so drv_data->rstc is either going to be a valid
-> pointer, or it's going to be an error pointer - neither
-> reset_control_get() nor devm_reset_control_get return NULL.
+See for a related patch and discussion on this topic:
+http://lkml.org/lkml/2014/1/9/246
+---
+ drivers/i2c/busses/i2c-cadence.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-Following back on this as I was doing the patch, actually,
-drv_data->rstc will be NULL if we're not probed by DT, and hence never
-call reset_control_get, that would set an error pointer.
-
-But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---lkTb+7nhmha7W+c3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTHZrAAAoJEBx+YmzsjxAgtKoP+gPIHQvDYHj7s6kLT/4VfQeu
-j6EcPSnKVm6erU1QBKt0scd4gEbxREuUIgt5NFnA20pxZj1u77+XGB6T9MQ+WIqT
-AVAfgkcKBtg3CFSXyVl5JGjDo+VWNysqK7D4ZHR8l3WjivDGE86YHQl+kLGZ6rBg
-x4Ns7DMD2DmzzfjleSnEyAH4ZdUjcrFgcydGYHUfafS3ovRB7HWCez0szSXfWf8R
-mtd6GBM7rte0zMEYbv03k+anGE6NnJug4sDmqgj34ciLA3dMkkyVrfdO6IFVBj0t
-np3vClEEKnlQwPXjcCgbb2IZTWLqIYAC9L9diefKXoBaSl8Aqfv2rgtEYE+GLf9T
-8IE4zByiG8LYriyU3fF6JMX0nYn/QVYKQiV4UOzVBN//mrLVHeEQxNwZZ6VpbCz3
-RzFmAiBn7xD660+Keo/QvEAv8K44M/zZNkMdia5xXWOFGltXr22P/OkPU0HDVgF4
-PEZyrm/SC/a+OcwGeATYGvYvQ9R3oe1r3gCEPuBrtaAj4Mt3brMJF6Ow7ms4y5Pp
-UAxFNSH275YPl1auwq8BWMJK0efIxTVfT15JtJuYpZfMuFo46QVGOXz1IvJdAtSi
-o7HY3Y7+P+3ykVMlz6YpUUX8sbtJi01Jx7I6RC60Jht3eBLrfvts8WzCNjQdp2v/
-qQOycr5FOfnrpTNUQGdX
-=Ovt0
------END PGP SIGNATURE-----
-
---lkTb+7nhmha7W+c3--
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 86713d6..32ce2ee 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -452,16 +452,12 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 			cdns_i2c_msend(id);
+ 
+ 		/* Wait for the signal of completion */
+-		ret = wait_for_completion_interruptible_timeout(
+-							&id->xfer_done, HZ);
+-		if (ret < 1) {
++		ret = wait_for_completion_timeout(&id->xfer_done, HZ);
++		if (ret == 0) {
+ 			cdns_i2c_master_reset(adap);
+-			if (!ret) {
+-				dev_err(id->adap.dev.parent,
++			dev_err(id->adap.dev.parent,
+ 					"timeout waiting on completion\n");
+-				return -ETIMEDOUT;
+-			}
+-			return ret;
++			return -ETIMEDOUT;
+ 		}
+ 		cdns_i2c_writereg(CDNS_I2C_IXR_ALL_INTR_MASK,
+ 				  CDNS_I2C_IDR_OFFSET);
+-- 
+1.7.9.5
