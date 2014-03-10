@@ -1,47 +1,56 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
-Date: Mon, 10 Mar 2014 11:29:29 +0000
-Message-ID: <20140310112929.GY21483@n2100.arm.linux.org.uk>
-References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com> <20140307160836.GM21483@n2100.arm.linux.org.uk> <20140310105808.GE2815@lukather>
+From: "Chew, Chiau Ee" <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and SDA
+ hold time value
+Date: Mon, 10 Mar 2014 11:34:49 +0000
+Message-ID: <604BF5F4C5D71041942BC7E84ED659EA0155D5C4@PGSMSX103.gar.corp.intel.com>
+References: <1394201571-11681-1-git-send-email-chiau.ee.chew@intel.com>
+ <1394201571-11681-3-git-send-email-chiau.ee.chew@intel.com>
+ <20140309090339.GB4695@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140310105808.GE2815@lukather>
+In-Reply-To: <20140309090339.GB4695@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 10, 2014 at 11:58:08AM +0100, Maxime Ripard wrote:
-> On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wrote:
-> > On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
-> > > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
-> > >  exit_free_irq:
-> > >  	free_irq(drv_data->irq, drv_data);
-> > >  exit_reset:
-> > > -	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
-> > > +	if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
-> > > +	    !IS_ERR(drv_data->rstc))
-> > >  		reset_control_assert(drv_data->rstc);
-> > 
-> > Another question is... why do we need to check pd->dev.of_node here?
-> > If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
-> > controller node, so drv_data->rstc is either going to be a valid
-> > pointer, or it's going to be an error pointer - neither
-> > reset_control_get() nor devm_reset_control_get return NULL.
-> 
-> Following back on this as I was doing the patch, actually,
-> drv_data->rstc will be NULL if we're not probed by DT, and hence never
-> call reset_control_get, that would set an error pointer.
-> 
-> But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
 
-I think you can also move the devm_reset_control_get() into the main
-probe function: you're only checking for -EPROBE_DEFER from it to fail,
-allowing other errors to continue with the driver init.  This means
-that on non-OF, devm_reset_control_get() will fail with -ENOENT.
 
--- 
-FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
-improving, and getting towards what was expected from it.
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
+> Sent: Sunday, March 09, 2014 5:04 PM
+> To: Chew, Chiau Ee
+> Cc: Mika Westerberg; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and SDA
+> hold time value
+> 
+> On Fri, Mar 07, 2014 at 10:12:51PM +0800, Chew Chiau Ee wrote:
+> > From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> >
+> > On Intel BayTrail, there was case whereby the resulting fast mode bus
+> > speed becomes slower (~20% slower compared to expected speed) if using
+> > the HCNT/LCNT calculated in the core layer. Thus, this patch is added
+> > to allow pci glue layer to pass in optimal HCNT/LCNT/SDA hold time
+> > values to core layer since the core layer supports cofigurable
+> > HCNT/LCNT/SDA hold time values now.
+> >
+> > Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> 
+> Can you make use of those instead?
+> 
+>         u32                     sda_falling_time;
+>         u32                     scl_falling_time;
+> 
+> This is more consistent with using sda_hold_time and lets them have a common
+> (and more readable) unit.
+
+Would like to clarify on your statement above. So you are suggesting to change the following 
+variable name in the code? As in:
+"u32 ss_hcnt;"   to  "u32 ss_scl_rising_time"
+"u32 fs_hcnt;"   to  "u32 fs_scl_rising_time"
+"u32 ss_lcnt;"    to   "u32 ss_scl_falling_time"
+"u32 fs_lcnt;"     to " u32 fs_scl_falling_time"
+"u32 sda_hold;"  to  "u32 sda_hold_time"
