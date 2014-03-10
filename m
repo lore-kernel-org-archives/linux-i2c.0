@@ -1,53 +1,68 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/5] mv64xxx updates
-Date: Mon, 10 Mar 2014 17:25:03 +0100
-Message-ID: <20140310162503.GE11592@katana>
-References: <20140213094117.GA3934@katana>
- <1392323793-4125-1-git-send-email-wsa@the-dreams.de>
- <52FD2E0C.10609@free-electrons.com>
+Subject: Re: [PATCH v2] i2c:at91: Add device tree property to set
+ clock-frequency
+Date: Mon, 10 Mar 2014 17:29:55 +0100
+Message-ID: <20140310162955.GF11592@katana>
+References: <1393293045-31849-1-git-send-email-mark.roszko@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="phCU5ROyZO6kBE05"
+	protocol="application/pgp-signature"; boundary="s5/bjXLgkIwAv6Hi"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52FD2E0C.10609-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1393293045-31849-1-git-send-email-mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---phCU5ROyZO6kBE05
+--s5/bjXLgkIwAv6Hi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> I will test it tomorrow and let you know if it fixed the bug.
-> I will also take time to review the RFC patches.
+> @@ -711,6 +711,7 @@ static int at91_twi_probe(struct platform_device *pde=
+v)
+>  	struct resource *mem;
+>  	int rc;
+>  	u32 phy_addr;
+> +	int bus_clk_rate;
+> =20
+>  	dev =3D devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+>  	if (!dev)
+> @@ -756,7 +757,12 @@ static int at91_twi_probe(struct platform_device *pd=
+ev)
+>  			dev->use_dma =3D true;
+>  	}
+> =20
+> -	at91_calc_twi_clock(dev, TWI_CLK_HZ);
+> +	rc =3D of_property_read_u32(dev->dev->of_node, "clock-frequency",
+> +			&bus_clk_rate);
 
-I applied the other three patches now.
+The function is named read_u32, so the variable used should be u32.
 
 
---phCU5ROyZO6kBE05
+--s5/bjXLgkIwAv6Hi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTHedfAAoJEBQN5MwUoCm2zKsQAJcYh8f3gG3eNtSUwFvrH7Ut
-L3+i0YWAThjIX7GiFMgXShPac6952gT70wQHaqXiF3ptKVzSfNfi6rVG6RbV+VuW
-tAMBwtJ+r2lf6me0G0pU/dhE3MZQeDvgALbJ1yExLYe9zMQbWeLDM529P+KptvyP
-CIJcQDStsJVMSwd9+bvk93VPu8K+U49vOdTFL7PFYuxXhHo5UwCaAcMdXLeTLQlZ
-yOnNV5N8mSHTzoQ/H7CVdVhXm447diYv6sHKtGH06SSm50NeLE6xjoQszJs2/4Q6
-/qEWHbc0gqrXFwfDaphC+EX93sPmjXlaVEtEvWPLvm6GoJ4PS23VC5kZs13njDAN
-ILaIY/znnxnAiOsribI7OZSkM8E+51kvwQJs9bMZ5bDh3D0e64cBbNuSndEt1fIz
-B5AN7CqSUOVLFXGSEILWPdVMTQOXt+/uhH2M181FQ5HtHttwQUOsyYGMKTphORSN
-FSCN0BfO9Dfaq1RDvFMrAGSVB2YxdwaizWVppBS0X0Gj46iqLHJfcYli8Gq7/ZzH
-JWemTfwRP3geO9I0foGE55bG9wh2t/PqAd9CE8vVzJHMsHEAKIeyDeQ8zBRo6Twj
-khmc8abC++dS9t9UJhimutME5xtJ+t2c0AzwI6PXPq2l2A3Ewd8xFyn2aUlSfIwJ
-xk1L4UoIGng8gfYKU4Ba
-=1GnI
+iQIcBAEBAgAGBQJTHeiDAAoJEBQN5MwUoCm2hmEP/0Tq8Neh7Q5F+bMFkpyYxnFb
+s3GfL67JjqWc9OXTzQ6s8NMmfFQ3qtyu736GfZQBj5zB+xMnyerdtNyjsBBmEHBz
+xp+Cj/o4TAhGB9Q7iJf76GBGLq8t8sLGhqE8R9r9nSNqwv0eQS9jbgNdSA5ULEgy
+tJH13MSxj3gczfwZVg4QuTyUuBB7sFj9+IYaJzkQ0NrPWByuJDmTJYKsC9dm87gG
+5hRnuz+3jqUuHTB556C+sxBfVzX1kzGkD6XKfHXmHgOGRSaAe8PXaG6zg5+4MLEh
+T0RV89m+H5tK/UOymqWaTSv86xgwjRRGi58IJvGusvdkujcorbRmnG3M2LXD3tSy
+6/LfkeN0kQO36p/RmRV+uDOWNv9DwnVsSV+/FUjaNPfUbIoXcfKhVyjATSZKIQMC
+KOvaQ9m6H6nw5cyzmejnhxJQ6uN0yclzxO+0JcNLdERVtn0CbFVazodxObuYfREm
+wYKW/04SFijXPlj+KgGXQrufl+FbjnIqH3TXRq00Ht1ipKj+zjNBHiQQTZr7kXsW
+1ugHyHUuL/6WuyhzNrlNSYvOgeAgER4NiPl8ea44BRq3vTn+WjW5zYWQ4/FRABLA
+Bc4pjq456SIuxBjFNjnP4QG9NnYM+4rZUmaiVy2Ei+cWesMDKAbYSqzFU/ACami4
+APm2aXrjjJBYhroWWj2w
+=2q/V
 -----END PGP SIGNATURE-----
 
---phCU5ROyZO6kBE05--
+--s5/bjXLgkIwAv6Hi--
