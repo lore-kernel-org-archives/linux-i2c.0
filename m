@@ -1,64 +1,74 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
-Date: Mon, 10 Mar 2014 11:59:52 +0100
-Message-ID: <20140310105952.GA7227@katana>
-References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
- <20140309202107.GA2835@katana>
- <531D92F7.7080509@topic.nl>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
+Date: Mon, 10 Mar 2014 11:58:08 +0100
+Message-ID: <20140310105808.GE2815@lukather>
+References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
+ <20140307160836.GM21483@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <531D92F7.7080509-Oq418RWZeHk@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+In-Reply-To: <20140307160836.GM21483@n2100.arm.linux.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, zhuzhenhua@allwinnertech.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---xHFwDpU9dbj6ez1V
+--lkTb+7nhmha7W+c3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> >Even more, you should complete the whole transfer. There are devices
-> >where things can really go wrong if you send a half-complete command and
-> >then start with the next one. So, not checking signals at all is the way
-> >to go for I2C drivers. There is some cruft left, so I am happy about
-> >patches fixing that, with testing on real HW. Like yours here.
+On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wrote:
+> On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
+> > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+> >  exit_free_irq:
+> >  	free_irq(drv_data->irq, drv_data);
+> >  exit_reset:
+> > -	if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
+> > +	if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
+> > +	    !IS_ERR(drv_data->rstc))
+> >  		reset_control_assert(drv_data->rstc);
 >=20
-> I agree.
->=20
-> I know the Zynq (using a cadence controller) also lets signals
-> interrupt I2C transfers, so I'll propose a patch to Xilinx and CC to
-> you and linux-i2c to completely remove signal handling from that
-> driver as well.
+> Another question is... why do we need to check pd->dev.of_node here?
+> If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
+> controller node, so drv_data->rstc is either going to be a valid
+> pointer, or it's going to be an error pointer - neither
+> reset_control_get() nor devm_reset_control_get return NULL.
 
-Cool, thanks!
+Following back on this as I was doing the patch, actually,
+drv_data->rstc will be NULL if we're not probed by DT, and hence never
+call reset_control_get, that would set an error pointer.
 
+But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
 
---xHFwDpU9dbj6ez1V
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--lkTb+7nhmha7W+c3
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTHZsoAAoJEBQN5MwUoCm2pkAQAJzc2MNUaTFcdCLghtuilnSx
-qlQ00rRZmvBlZwUvE+Sb09sJ0hC38/n3gQuW7NDU0/9WWr5doMaCjzI1ySuR5XFQ
-Ec2JZ/j8sqbosMXB9REjuWeJOho0qADN5xA8O8Da2IZ4YgguvG8K6Ks/TwD1Z90V
-FAQgbkxR4g1fxLj0PkK6UmOvpa+ExfM6d8Pw6G5k0U5DtZxkeWQq/NelaiFzamcM
-dPJnrZGjPETALHf0RLWJLf4sidoRx//FeZTpfw5N9IQwUdVH8U6dU4uqlV1DfVmg
-KPlC5WwE402r+bBcDixAPrQ2stFwLzJxQZ+QE74ThAuIUEV3MH1N3g408dVPEQIO
-Mh5fniK6a7WovHuzFl4BF8TgKIusrrxgNsFDIN9uWAcyfeW898lf33qdCmsswaIK
-6p3HToIt+2JInGh6msf8Q+WViLMS7OwlbqE8iqsoC6rqsQJs9+4AKWPan460ty66
-M+3Xi1hntFbIQVyU20GHZoGIeWyUZWFf9+DzmKuOsal0gXMIMlJGPeOr7QHPxffn
-AglsA4klqL7idRWeYNeS12OLHxpzmSiqKDDdgXlzeJjrN+wmEeTssyGx6Dh0rZZv
-5SWFSwc/iEcgGe/fHTzp41B/JTd4fp+34LDPSIok3r8nW6Yin6RlqlJSLSM2vMqa
-YUI3dSd09awnigXUIqRF
-=jEz2
+iQIcBAEBAgAGBQJTHZrAAAoJEBx+YmzsjxAgtKoP+gPIHQvDYHj7s6kLT/4VfQeu
+j6EcPSnKVm6erU1QBKt0scd4gEbxREuUIgt5NFnA20pxZj1u77+XGB6T9MQ+WIqT
+AVAfgkcKBtg3CFSXyVl5JGjDo+VWNysqK7D4ZHR8l3WjivDGE86YHQl+kLGZ6rBg
+x4Ns7DMD2DmzzfjleSnEyAH4ZdUjcrFgcydGYHUfafS3ovRB7HWCez0szSXfWf8R
+mtd6GBM7rte0zMEYbv03k+anGE6NnJug4sDmqgj34ciLA3dMkkyVrfdO6IFVBj0t
+np3vClEEKnlQwPXjcCgbb2IZTWLqIYAC9L9diefKXoBaSl8Aqfv2rgtEYE+GLf9T
+8IE4zByiG8LYriyU3fF6JMX0nYn/QVYKQiV4UOzVBN//mrLVHeEQxNwZZ6VpbCz3
+RzFmAiBn7xD660+Keo/QvEAv8K44M/zZNkMdia5xXWOFGltXr22P/OkPU0HDVgF4
+PEZyrm/SC/a+OcwGeATYGvYvQ9R3oe1r3gCEPuBrtaAj4Mt3brMJF6Ow7ms4y5Pp
+UAxFNSH275YPl1auwq8BWMJK0efIxTVfT15JtJuYpZfMuFo46QVGOXz1IvJdAtSi
+o7HY3Y7+P+3ykVMlz6YpUUX8sbtJi01Jx7I6RC60Jht3eBLrfvts8WzCNjQdp2v/
+qQOycr5FOfnrpTNUQGdX
+=Ovt0
 -----END PGP SIGNATURE-----
 
---xHFwDpU9dbj6ez1V--
+--lkTb+7nhmha7W+c3--
