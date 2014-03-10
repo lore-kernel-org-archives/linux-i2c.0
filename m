@@ -1,69 +1,62 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
-Date: Mon, 10 Mar 2014 16:24:06 +0100
-Message-ID: <20140310152406.GD11592@katana>
-References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
- <20140309202107.GA2835@katana>
- <531D92F7.7080509@topic.nl>
- <20140310105952.GA7227@katana>
+From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: s3c2410: Trivial cleanup in header file
+Date: Mon, 10 Mar 2014 20:55:40 +0530
+Message-ID: <CAK9yfHzuLE2tfPQXs9ypcsNBhMvjj7bOyhHvvCpbOj1W3+Cd6A@mail.gmail.com>
+References: <1392359490-9834-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6WlEvdN9Dv0WHSBl"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140310105952.GA7227@katana>
+In-Reply-To: <1392359490-9834-1-git-send-email-sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jiri Kosina <trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 14 February 2014 12:01, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> Commit 436d42c61c3e ("ARM: samsung: move platform_data definitions")
+> moved the files to the current location but forgot to remove the pointer
+> to its previous location. Clean it up. While at it also change the header
+> file protection macros appropriately.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  include/linux/platform_data/i2c-s3c2410.h |    9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+>
+> diff --git a/include/linux/platform_data/i2c-s3c2410.h b/include/linux/platform_data/i2c-s3c2410.h
+> index 2a50048c1c44..05af66b840b9 100644
+> --- a/include/linux/platform_data/i2c-s3c2410.h
+> +++ b/include/linux/platform_data/i2c-s3c2410.h
+> @@ -1,5 +1,4 @@
+> -/* arch/arm/plat-s3c/include/plat/iic.h
+> - *
+> +/*
+>   * Copyright 2004-2009 Simtec Electronics
+>   *     Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+>   *
+> @@ -10,8 +9,8 @@
+>   * published by the Free Software Foundation.
+>  */
+>
+> -#ifndef __ASM_ARCH_IIC_H
+> -#define __ASM_ARCH_IIC_H __FILE__
+> +#ifndef __I2C_S3C2410_H
+> +#define __I2C_S3C2410_H __FILE__
+>
+>  #define S3C_IICFLG_FILTER      (1<<0)  /* enable s3c2440 filter */
+>
+> @@ -76,4 +75,4 @@ extern void s3c_i2c7_cfg_gpio(struct platform_device *dev);
+>
+>  extern struct s3c2410_platform_i2c default_i2c_data;
+>
+> -#endif /* __ASM_ARCH_IIC_H */
+> +#endif /* __I2C_S3C2410_H */
+> --
+> 1.7.9.5
+>
 
---6WlEvdN9Dv0WHSBl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ Ping..
 
-
-> > >Even more, you should complete the whole transfer. There are devices
-> > >where things can really go wrong if you send a half-complete command a=
-nd
-> > >then start with the next one. So, not checking signals at all is the w=
-ay
-> > >to go for I2C drivers. There is some cruft left, so I am happy about
-> > >patches fixing that, with testing on real HW. Like yours here.
-> >=20
-> > I agree.
-> >=20
-> > I know the Zynq (using a cadence controller) also lets signals
-> > interrupt I2C transfers, so I'll propose a patch to Xilinx and CC to
-> > you and linux-i2c to completely remove signal handling from that
-> > driver as well.
->=20
-> Cool, thanks!
-
-Are you going to update the davinci patch as well?
-
-
---6WlEvdN9Dv0WHSBl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTHdkWAAoJEBQN5MwUoCm2VT0P/3F5lD+Yiw+m2x17QxLIQaNc
-uC9dkimWVbgnRZAZL4VBRHcO0xIRV1U+OMA116Ab/AwGUluTJsornmGa2Q/Z0IKr
-rNwHxr+VfMp6T3YSNpKCxwOp2Jim8qBSJlWcwTRUwzqmSrozb2ZKlU3yjl3fa5Q7
-DrFqPKtbn5FABVYXqj7vrXRLkLtWK6rvScWNOLHRXcit4W4g1fNOVRdDQ5pvF4qD
-ierRoiMX0CMJOFK8xi+T3H1zSKHAF5l4KY1ebKUhAV1cPmtJhcvpsYuKRZYOrltW
-uzMVxEOuNuIpfMI677MNT90D99pokIxMMx+772u5Q/HZqqhk6fpuEkYonSDRJAjN
-/dSP9Cfm3qfFKPxEUbhIR8hZRHC0yim92ySuss0kXv+qkuowbYAjrPat53xle29s
-U0DXEmNz4VYsohrBe4SpBALLshZmRWt7QrYgXjCjibU2SRbnh6x/ZGq0WcYnm/3l
-qi1XfJP0GEL43Kd/fnYN+eRwI7RnlmsBk3esn8A5lfgL9JtuIfy+co3rTfCVCMhG
-7/Jq3ZJlOCgEIY0Ko8t2x3YLdgZhkRZzlrZ4FNvWFZoEA0L32akHiIPWcl8gAf2H
-pPrl7s+BhPdVK/P9grc/GgQSnHRMPMgGOTZ3D8fqX25TzPluZzZ/Ra8nXO9PY4t1
-P0JnNkWXOdsaPF7jQiLl
-=0ucm
------END PGP SIGNATURE-----
-
---6WlEvdN9Dv0WHSBl--
+-- 
+With warm regards,
+Sachin
