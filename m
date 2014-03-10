@@ -1,56 +1,56 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: s3c2410: Trivial cleanup in header file
-Date: Mon, 10 Mar 2014 17:33:03 +0100
-Message-ID: <20140310163303.GG11592@katana>
-References: <1392359490-9834-1-git-send-email-sachin.kamat@linaro.org>
+Subject: Re: [PATCH] drivers: i2c: i2c-st: Fix return in case of arbitration
+ lost
+Date: Mon, 10 Mar 2014 17:34:35 +0100
+Message-ID: <20140310163435.GH11592@katana>
+References: <1393591976-10771-1-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sClP8c1IaQxyux9v"
+	protocol="application/pgp-signature"; boundary="uAgJxtfIS94j9H4T"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1392359490-9834-1-git-send-email-sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1393591976-10771-1-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, trivial-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.kandagatla-qxv4g6HH51o@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---sClP8c1IaQxyux9v
+--uAgJxtfIS94j9H4T
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 14, 2014 at 12:01:30PM +0530, Sachin Kamat wrote:
-> Commit 436d42c61c3e ("ARM: samsung: move platform_data definitions")
-> moved the files to the current location but forgot to remove the pointer
-> to its previous location. Clean it up. While at it also change the header
-> file protection macros appropriately.
+On Fri, Feb 28, 2014 at 01:52:56PM +0100, Maxime COQUELIN wrote:
+> This patch fixes the error returned to the i2c_transfer function
+> to -EAGAIN in case of arbitratin lost, so that the retry mechanism
+> can be used.
 >=20
-> Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---sClP8c1IaQxyux9v
+--uAgJxtfIS94j9H4T
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTHek/AAoJEBQN5MwUoCm2cg8P/0RfslEocRxyfUwMxoyUqfXh
-KvZFo7Av51qrWerKvouUJK9z1HA3JZcc9R51L18tAeqPPEcPDfNha/ghw7EWlvPl
-Z7z9I2l4lndluRTHC/qTAtVe6r3Gh+Qg4WbjFDsoVZm/p1yGZE/n31cuTnuMqiTC
-vTZFax9enLfEj++HHEMdrJoO2n9VBGT8xzuHKL4qHab6gN/6HzQIFmsFh0tLvyTl
-oVv9/cXC9Tls8sFi2x7RZnknvjShBi+j5dQDhpAidrE5L7DsCyedEGpoxbBXSLQg
-n1jpINOHKYTpNeskclvyOucoO8xFcpA3GZAGsrJMcjTIyzNV47+f86McG0Oknru5
-/8czrp6H6+WRn7NqCLOVnl/WWYlRqZRrsRQmHq9wNoLflkxUnNEOJqQCoPQJzUZC
-ivdUS8J03RQxL3rZ5glba0Pk5s8Bm3ZAT9MfQytk6DL51fGn/lyIo77fDf1PuQIE
-LbSOUokDNFlqS4q7QKMh1f3cTiNzeSdtTI/ClpgiVT9DS4P3RqtDQpI0vUTLpUXd
-1komD2UozEfy15FCOcz40luUClYzB+D4yHt9C2MaAQ5P7G/zu2g7+ZBDXw5I21Hj
-XlZmj+ZE6PYLVAkoJ7DANirSqN97NzcygQWrzkXOrV1JA6USVCvFkj1OYcw+fGs6
-cL8xZTyJuZSL9OSZ1sRy
-=13rH
+iQIcBAEBAgAGBQJTHembAAoJEBQN5MwUoCm2KC0P/jExj86oqGhV6DDEA5sUAUyS
+NiHePCfaoWOdZpqDdoonjSxtKhJoU5GxAij0UvabmCh/cnMfn5hfviFExwgwA45q
+IK2TLjPjVO3SNAu1+O5uyAv57aZRyFtaKCAe95+pvN7IvHOGYCdUMiezrV8sLCVq
+oGunhKEQqN5SRHsqMKUjAVq1MgfOrnqD5LKc/KvDEMyy0Fp67J8VlthnlxCXKKTl
+x/cGwxz7T8yc74+OXwvS+dhuQtzfEYruPgslXExwMpmOgo86yQD3FpQab2pQ8iTh
+1vo3r+qtZYmMph5BgnabG/RheNtAoqUb3HtotVpCK73pCXj22qd5zXnaymVZqzi7
+UmIrMPSolpGlwmZzocEweOky5R81CTyKfD78qxARpH0nTMbXyThh8Cf/0YjOm5Wm
+0RjhKuvuYI6c3sStywFL2LkMmL8OJEwFaMmEqchMEwZjSLLYYI3xzPs3DTkfqfDd
+vfQ3fBfW6EJjYAHV4+bjSuYyokv6RR0of4iN5SLDI0ZtAhSy8oYo6qF2B4b6UU9l
+hoHnVohgDeaAR2jOIVCY5Z2H8yqDfH0an13oLehOvNySFm7kiJcE/O/EJD8RKjnJ
+7FTVu00HRILafpX9+ghV2kv7WElgQujl8KX4vmuRiwGdmXoPA7IHUuf9rgjD/Cfg
+8vDvK8G4OT9gVTh5l+eL
+=qF2t
 -----END PGP SIGNATURE-----
 
---sClP8c1IaQxyux9v--
+--uAgJxtfIS94j9H4T--
