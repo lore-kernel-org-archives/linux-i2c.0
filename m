@@ -1,56 +1,73 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] drivers: i2c: i2c-st: Fix return in case of arbitration
- lost
-Date: Mon, 10 Mar 2014 17:34:35 +0100
-Message-ID: <20140310163435.GH11592@katana>
-References: <1393591976-10771-1-git-send-email-maxime.coquelin@st.com>
+From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
+Subject: Re: [PATCH] i2c-cadence: Do not let signals interrupt I2C transfers
+Date: Mon, 10 Mar 2014 14:59:52 -0700
+Message-ID: <7e690272-651a-4170-8559-cc8dc8014251@AM1EHSMHS013.ehs.local>
+References: <1394449954-10797-1-git-send-email-mike.looijmans@topic.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uAgJxtfIS94j9H4T"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1393591976-10771-1-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.kandagatla-qxv4g6HH51o@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org
+In-Reply-To: <1394449954-10797-1-git-send-email-mike.looijmans@topic.nl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Looijmans <mike.looijmans@topic.nl>, Michal Simek <michal.simek@xilinx.com>
+Cc: git@xilinx.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Mike,
 
---uAgJxtfIS94j9H4T
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The cadence driver is not in mainline yet. I think for our vendor tree
+we can pretty much take it this way.
+Regarding getting this into mainline, I'll send another iteration of th=
+e
+change set and include these changes.
 
-On Fri, Feb 28, 2014 at 01:52:56PM +0100, Maxime COQUELIN wrote:
-> This patch fixes the error returned to the i2c_transfer function
-> to -EAGAIN in case of arbitratin lost, so that the retry mechanism
-> can be used.
+On Mon, 2014-03-10 at 12:12PM +0100, Mike Looijmans wrote:
+> Pressing CTRL-C while communicating with an I2C device leads to errat=
+ic
+> behaviour. The cause is that the controller will interrupt the I2C tr=
+ansfer
+> in progress, and leave the client device in an undefined state. Many
+> drivers do not handle error return codes on I2C transfers. The callin=
+g driver
+> has no way of telling how much of the transfer has actually completed=
+, so
+> it cannot reliably determine the device's state.
 >=20
-> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+> The best solution here is to not handle signals in the I2C bus driver=
+ at all,
+> but always complete a transaction before returning control.
+>=20
+> See for a related patch and discussion on this topic:
+> http://lkml.org/lkml/2014/1/9/246
 
-Applied to for-next, thanks!
+Can we get your Signed-off-by, please?
+
+> ---
+>  drivers/i2c/busses/i2c-cadence.c |   12 ++++--------
+>  1 file changed, 4 insertions(+), 8 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2=
+c-cadence.c
+> index 86713d6..32ce2ee 100644
+> --- a/drivers/i2c/busses/i2c-cadence.c
+> +++ b/drivers/i2c/busses/i2c-cadence.c
+> @@ -452,16 +452,12 @@ static int cdns_i2c_process_msg(struct cdns_i2c=
+ *id, struct i2c_msg *msg,
+>  			cdns_i2c_msend(id);
+> =20
+>  		/* Wait for the signal of completion */
+> -		ret =3D wait_for_completion_interruptible_timeout(
+> -							&id->xfer_done, HZ);
+> -		if (ret < 1) {
+> +		ret =3D wait_for_completion_timeout(&id->xfer_done, HZ);
+> +		if (ret =3D=3D 0) {
+
+To match the style used throughout the file this should just be
+	if (!ret) {
 
 
---uAgJxtfIS94j9H4T
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Acked-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTHembAAoJEBQN5MwUoCm2KC0P/jExj86oqGhV6DDEA5sUAUyS
-NiHePCfaoWOdZpqDdoonjSxtKhJoU5GxAij0UvabmCh/cnMfn5hfviFExwgwA45q
-IK2TLjPjVO3SNAu1+O5uyAv57aZRyFtaKCAe95+pvN7IvHOGYCdUMiezrV8sLCVq
-oGunhKEQqN5SRHsqMKUjAVq1MgfOrnqD5LKc/KvDEMyy0Fp67J8VlthnlxCXKKTl
-x/cGwxz7T8yc74+OXwvS+dhuQtzfEYruPgslXExwMpmOgo86yQD3FpQab2pQ8iTh
-1vo3r+qtZYmMph5BgnabG/RheNtAoqUb3HtotVpCK73pCXj22qd5zXnaymVZqzi7
-UmIrMPSolpGlwmZzocEweOky5R81CTyKfD78qxARpH0nTMbXyThh8Cf/0YjOm5Wm
-0RjhKuvuYI6c3sStywFL2LkMmL8OJEwFaMmEqchMEwZjSLLYYI3xzPs3DTkfqfDd
-vfQ3fBfW6EJjYAHV4+bjSuYyokv6RR0of4iN5SLDI0ZtAhSy8oYo6qF2B4b6UU9l
-hoHnVohgDeaAR2jOIVCY5Z2H8yqDfH0an13oLehOvNySFm7kiJcE/O/EJD8RKjnJ
-7FTVu00HRILafpX9+ghV2kv7WElgQujl8KX4vmuRiwGdmXoPA7IHUuf9rgjD/Cfg
-8vDvK8G4OT9gVTh5l+eL
-=qF2t
------END PGP SIGNATURE-----
-
---uAgJxtfIS94j9H4T--
+	Thanks,
+	S=C3=B6ren
