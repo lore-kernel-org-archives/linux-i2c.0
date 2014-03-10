@@ -1,112 +1,69 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: designware-pci: set ideal HCNT, LCNT and SDA
- hold time value
-Date: Mon, 10 Mar 2014 16:21:10 +0100
-Message-ID: <20140310152110.GC11592@katana>
-References: <1394201571-11681-1-git-send-email-chiau.ee.chew@intel.com>
- <1394201571-11681-3-git-send-email-chiau.ee.chew@intel.com>
+Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
+Date: Mon, 10 Mar 2014 16:24:06 +0100
+Message-ID: <20140310152406.GD11592@katana>
+References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
+ <20140309202107.GA2835@katana>
+ <531D92F7.7080509@topic.nl>
+ <20140310105952.GA7227@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aT9PWwzfKXlsBJM1"
+	protocol="application/pgp-signature"; boundary="6WlEvdN9Dv0WHSBl"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1394201571-11681-3-git-send-email-chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20140310105952.GA7227@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chew Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---aT9PWwzfKXlsBJM1
+--6WlEvdN9Dv0WHSBl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 07, 2014 at 10:12:51PM +0800, Chew Chiau Ee wrote:
-> From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+
+> > >Even more, you should complete the whole transfer. There are devices
+> > >where things can really go wrong if you send a half-complete command a=
+nd
+> > >then start with the next one. So, not checking signals at all is the w=
+ay
+> > >to go for I2C drivers. There is some cruft left, so I am happy about
+> > >patches fixing that, with testing on real HW. Like yours here.
+> >=20
+> > I agree.
+> >=20
+> > I know the Zynq (using a cadence controller) also lets signals
+> > interrupt I2C transfers, so I'll propose a patch to Xilinx and CC to
+> > you and linux-i2c to completely remove signal handling from that
+> > driver as well.
 >=20
-> On Intel BayTrail, there was case whereby the resulting fast mode
-> bus speed becomes slower (~20% slower compared to expected speed)
-> if using the HCNT/LCNT calculated in the core layer. Thus, this
-> patch is added to allow pci glue layer to pass in optimal
-> HCNT/LCNT/SDA hold time values to core layer since the core
-> layer supports cofigurable HCNT/LCNT/SDA hold time values now.
->=20
-> Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-designware-pcidrv.c |   34 ++++++++++++++++++++++=
-++++++
->  1 files changed, 34 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/bus=
-ses/i2c-designware-pcidrv.c
-> index 87f2fc4..96417ca 100644
-> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> @@ -58,6 +58,14 @@ enum dw_pci_ctl_id_t {
->  	baytrail,
->  };
-> =20
-> +struct scl_sda_cfg {
-> +	u32 ss_hcnt;
-> +	u32 fs_hcnt;
-> +	u32 ss_lcnt;
-> +	u32 fs_lcnt;
-> +	u32 sda_hold;
-> +};
+> Cool, thanks!
 
-'dw_' prefix for this struct name, please.
-
->  #define INTEL_MID_STD_CFG  (DW_IC_CON_MASTER |			\
-> @@ -77,6 +86,21 @@ struct dw_pci_controller {
->  					I2C_FUNC_SMBUS_WORD_DATA |	\
->  					I2C_FUNC_SMBUS_I2C_BLOCK)
-> =20
-> +/* BayTrail HCNT/LCNT/SDA_HOLD */
-> +#define BYT_STD_MODE_HCNT	0x200
-> +#define BYT_STD_MODE_LCNT	BYT_STD_MODE_HCNT
-> +#define BYT_FAST_MODE_HCNT	0x55
-> +#define BYT_FAST_MODE_LCNT	0x99
-> +#define BYT_SDA_HOLD		0x6
-
-I'd think you can use these values directly in the struct. They are not
-supposed to be used outside anyhow.
-
-> +static struct scl_sda_cfg byt_config =3D {
-> +	.ss_hcnt	=3D BYT_STD_MODE_HCNT,
-> +	.fs_hcnt	=3D BYT_FAST_MODE_HCNT,
-> +	.ss_lcnt	=3D BYT_STD_MODE_LCNT,
-> +	.fs_lcnt	=3D BYT_FAST_MODE_LCNT,
-> +	.sda_hold	=3D BYT_SDA_HOLD,
-> +};
-
-I'd prefer no tabs before "=3D", just one space.
-
-Thanks,
-
-   Wolfram
+Are you going to update the davinci patch as well?
 
 
---aT9PWwzfKXlsBJM1
+--6WlEvdN9Dv0WHSBl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTHdhmAAoJEBQN5MwUoCm2To8P/1LZO245IaBq79+gyzzKgeMW
-Nsd3djYuv87QJvsspjYAYdyLZ751OXmymFaVW2r5QoMf3JqWrWWTNgwfGdCSaYR2
-Pb+w0g15OG8Yu5DvUCv5ByHXlWFf46zJGU77DW+lmV4juGwTJBcF0uEo66O86Rcz
-+ZEIwcjuLc+5VXs8VldK6czPUDVPN8wSWFgSE2NoyqrHbim75fFv/e7XIYRYvHNd
-C30i7li+FB0Lq/xJp4mvYhtpNiYNey5pLLIV/tdBUP4o2gajlZSTDGgRpC8sijg6
-iqTF/DaXFFi6aqWYSSpZqn5fvJFhO4AagIUdCeyu82Z7eU5AK0G2s/UU6wnM/2ix
-uVNuo1ptc4R2jPQRqjT9iAgV3+IDNP7A0zBAPG1gA/zpVm/zyMM0dYawqMa1a1zG
-cy+y2TQI6nbJ07m+EHlNz/k/Dd5QDu+ntYo55IowyrMhDyCJNV0jARygkokn4DW7
-crAovwqRZ3x0uiE0QQukgL1fk8eM+U9UWEIPeXPcO3J3MCHIwKRDMgpmdOeeyupU
-tJM9wwC5YjTPSgg7dRxWZfXlxuk4EM+ZYe+CYIpaqNpK59Kfx6Au9B+JknRuAbTQ
-C2ubQ96OapCj8X3FQNeK+ZTLfKjy1PhApaA+zYT/OLx8fRc4nbN+HdTkocrNekIT
-KxsFGe6RbRhak2elHxmq
-=bp7w
+iQIcBAEBAgAGBQJTHdkWAAoJEBQN5MwUoCm2VT0P/3F5lD+Yiw+m2x17QxLIQaNc
+uC9dkimWVbgnRZAZL4VBRHcO0xIRV1U+OMA116Ab/AwGUluTJsornmGa2Q/Z0IKr
+rNwHxr+VfMp6T3YSNpKCxwOp2Jim8qBSJlWcwTRUwzqmSrozb2ZKlU3yjl3fa5Q7
+DrFqPKtbn5FABVYXqj7vrXRLkLtWK6rvScWNOLHRXcit4W4g1fNOVRdDQ5pvF4qD
+ierRoiMX0CMJOFK8xi+T3H1zSKHAF5l4KY1ebKUhAV1cPmtJhcvpsYuKRZYOrltW
+uzMVxEOuNuIpfMI677MNT90D99pokIxMMx+772u5Q/HZqqhk6fpuEkYonSDRJAjN
+/dSP9Cfm3qfFKPxEUbhIR8hZRHC0yim92ySuss0kXv+qkuowbYAjrPat53xle29s
+U0DXEmNz4VYsohrBe4SpBALLshZmRWt7QrYgXjCjibU2SRbnh6x/ZGq0WcYnm/3l
+qi1XfJP0GEL43Kd/fnYN+eRwI7RnlmsBk3esn8A5lfgL9JtuIfy+co3rTfCVCMhG
+7/Jq3ZJlOCgEIY0Ko8t2x3YLdgZhkRZzlrZ4FNvWFZoEA0L32akHiIPWcl8gAf2H
+pPrl7s+BhPdVK/P9grc/GgQSnHRMPMgGOTZ3D8fqX25TzPluZzZ/Ra8nXO9PY4t1
+P0JnNkWXOdsaPF7jQiLl
+=0ucm
 -----END PGP SIGNATURE-----
 
---aT9PWwzfKXlsBJM1--
+--6WlEvdN9Dv0WHSBl--
