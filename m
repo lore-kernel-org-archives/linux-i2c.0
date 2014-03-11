@@ -1,57 +1,36 @@
-From: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Subject: [PATCH] i2c-cadence: Do not let signals interrupt I2C transfers
-Date: Tue, 11 Mar 2014 08:07:35 +0100
-Message-ID: <1394521655-3444-1-git-send-email-mike.looijmans@topic.nl>
-References: <1394449954-10797-1-git-send-email-mike.looijmans@topic.nl>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1394449954-10797-1-git-send-email-mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: git-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH trivial 09/16] i2c: Spelling s/than/that/
+Date: Tue, 11 Mar 2014 11:23:43 +0100
+Message-ID: <1394533430-4746-9-git-send-email-geert@linux-m68k.org>
+References: <1394533430-4746-1-git-send-email-geert@linux-m68k.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1394533430-4746-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <trivial@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Pressing CTRL-C while communicating with an I2C device leads to erratic
-behaviour. The cause is that the controller will interrupt the I2C transfer
-in progress, and leave the client device in an undefined state. Many
-drivers do not handle error return codes on I2C transfers. The calling driver
-has no way of telling how much of the transfer has actually completed, so
-it cannot reliably determine the device's state.
+From: Geert Uytterhoeven <geert+renesas@linux-m68k.org>
 
-The best solution here is to not handle signals in the I2C bus driver at all,
-but always complete a transaction before returning control.
-
-See for a related patch and discussion on this topic:
-http://lkml.org/lkml/2014/1/9/246
-
-Signed-off-by: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@linux-m68k.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
 ---
- drivers/i2c/busses/i2c-cadence.c |   12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ Documentation/i2c/functionality |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 86713d6..c61c3c9 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -452,16 +452,12 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 			cdns_i2c_msend(id);
+diff --git a/Documentation/i2c/functionality b/Documentation/i2c/functionality
+index b0ff2ab596ce..4556a3eb87c4 100644
+--- a/Documentation/i2c/functionality
++++ b/Documentation/i2c/functionality
+@@ -46,7 +46,7 @@ A few combinations of the above flags are also defined for your convenience:
+                                   and write_block_data commands
+   I2C_FUNC_SMBUS_I2C_BLOCK        Handles the SMBus read_i2c_block_data
+                                   and write_i2c_block_data commands
+-  I2C_FUNC_SMBUS_EMUL             Handles all SMBus commands than can be
++  I2C_FUNC_SMBUS_EMUL             Handles all SMBus commands that can be
+                                   emulated by a real I2C adapter (using
+                                   the transparent emulation layer)
  
- 		/* Wait for the signal of completion */
--		ret = wait_for_completion_interruptible_timeout(
--							&id->xfer_done, HZ);
--		if (ret < 1) {
-+		ret = wait_for_completion_timeout(&id->xfer_done, HZ);
-+		if (!ret) {
- 			cdns_i2c_master_reset(adap);
--			if (!ret) {
--				dev_err(id->adap.dev.parent,
-+			dev_err(id->adap.dev.parent,
- 					"timeout waiting on completion\n");
--				return -ETIMEDOUT;
--			}
--			return ret;
-+			return -ETIMEDOUT;
- 		}
- 		cdns_i2c_writereg(CDNS_I2C_IXR_ALL_INTR_MASK,
- 				  CDNS_I2C_IDR_OFFSET);
 -- 
 1.7.9.5
