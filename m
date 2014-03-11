@@ -1,41 +1,107 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 2/2] i2c: exynos5: remove unnecessary cast of void pointer
-Date: Tue, 11 Mar 2014 10:22:59 +0900
-Message-ID: <000601cf3cc8$70627460$51275d20$%han@samsung.com>
-References: <000501cf3cc8$4b7f8d90$e27ea8b0$%han@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Chew Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2] i2c: designware-pci: set ideal HCNT, LCNT and SDA hold time value
+Date: Tue, 11 Mar 2014 18:50:28 +0800
+Message-ID: <1394535028-23108-1-git-send-email-chiau.ee.chew@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <000501cf3cc8$4b7f8d90$e27ea8b0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Naveen Krishna Ch' <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, 'Taekgyun Ko' <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lim Lee Booi <lee.booi.lim-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Remove unnecessary cast of void pointer, because 'algo_data' of
-'struct i2c_adapter' is a void pointer. Casting the void pointer
-is redundant. The conversion from void pointer to any other
-pointer type is guaranteed by the C programming language.
+From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+On Intel BayTrail, there was case whereby the resulting fast mode
+bus speed becomes slower (~20% slower compared to expected speed)
+if using the HCNT/LCNT calculated in the core layer. Thus, this
+patch is added to allow pci glue layer to pass in optimal
+HCNT/LCNT/SDA hold time values to core layer since the core
+layer supports cofigurable HCNT/LCNT/SDA hold time values now.
+
 ---
- drivers/i2c/busses/i2c-exynos5.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+v2 changelog:
+ * Add 'dw_' prefix to struct scl_sda_cfg
+ * Add Baytrail HCNT/LCNT/SDA hold time values directly in the
+   struct instead of using macro definition
+ * Replace tab before "=" with space in struct
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index 60601ef..00af0a0 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -566,7 +566,7 @@ static int exynos5_i2c_xfer_msg(struct exynos5_i2c *i2c,
- static int exynos5_i2c_xfer(struct i2c_adapter *adap,
- 			struct i2c_msg *msgs, int num)
- {
--	struct exynos5_i2c *i2c = (struct exynos5_i2c *)adap->algo_data;
-+	struct exynos5_i2c *i2c = adap->algo_data;
- 	int i = 0, ret = 0, stop = 0;
+Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c |   28 ++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 094509bc..91d468f 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -58,6 +58,14 @@ enum dw_pci_ctl_id_t {
+ 	baytrail,
+ };
  
- 	if (i2c->suspended) {
++struct dw_scl_sda_cfg {
++	u32 ss_hcnt;
++	u32 fs_hcnt;
++	u32 ss_lcnt;
++	u32 fs_lcnt;
++	u32 sda_hold;
++};
++
+ struct dw_pci_controller {
+ 	u32 bus_num;
+ 	u32 bus_cfg;
+@@ -65,6 +73,7 @@ struct dw_pci_controller {
+ 	u32 rx_fifo_depth;
+ 	u32 clk_khz;
+ 	u32 functionality;
++	struct dw_scl_sda_cfg *scl_sda_cfg;
+ };
+ 
+ #define INTEL_MID_STD_CFG  (DW_IC_CON_MASTER |			\
+@@ -77,6 +86,15 @@ struct dw_pci_controller {
+ 					I2C_FUNC_SMBUS_WORD_DATA |	\
+ 					I2C_FUNC_SMBUS_I2C_BLOCK)
+ 
++/* BayTrail HCNT/LCNT/SDA hold time */
++static struct dw_scl_sda_cfg byt_config = {
++	.ss_hcnt = 0x200,
++	.fs_hcnt = 0x55,
++	.ss_lcnt = 0x200,
++	.fs_lcnt = 0x99,
++	.sda_hold = 0x6,
++};
++
+ static struct  dw_pci_controller  dw_pci_controllers[] = {
+ 	[moorestown_0] = {
+ 		.bus_num     = 0,
+@@ -148,6 +166,7 @@ static struct  dw_pci_controller  dw_pci_controllers[] = {
+ 		.rx_fifo_depth = 32,
+ 		.clk_khz = 100000,
+ 		.functionality = I2C_FUNC_10BIT_ADDR,
++		.scl_sda_cfg = &byt_config,
+ 	},
+ };
+ static struct i2c_algorithm i2c_dw_algo = {
+@@ -187,6 +206,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	struct i2c_adapter *adap;
+ 	int r;
+ 	struct  dw_pci_controller *controller;
++	struct dw_scl_sda_cfg *cfg;
+ 
+ 	if (id->driver_data >= ARRAY_SIZE(dw_pci_controllers)) {
+ 		dev_err(&pdev->dev, "%s: invalid driver data %ld\n", __func__,
+@@ -224,6 +244,14 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 				DW_DEFAULT_FUNCTIONALITY;
+ 
+ 	dev->master_cfg =  controller->bus_cfg;
++	if (controller->scl_sda_cfg) {
++		cfg = controller->scl_sda_cfg;
++		dev->ss_hcnt = cfg->ss_hcnt;
++		dev->fs_hcnt = cfg->fs_hcnt;
++		dev->ss_lcnt = cfg->ss_lcnt;
++		dev->fs_lcnt = cfg->fs_lcnt;
++		dev->sda_hold_time = cfg->sda_hold;
++	}
+ 
+ 	pci_set_drvdata(pdev, dev);
+ 
 -- 
-1.7.10.4
+1.7.4.4
