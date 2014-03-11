@@ -1,80 +1,130 @@
-From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH v2 1/2] i2c: add DMA support for freescale i2c driver
-Date: Tue, 11 Mar 2014 05:27:39 +0000
-Message-ID: <1d35d91fd0f1414587edf47ab03e20ae@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com>
- <201403060541.21665.marex@denx.de>
- <50e0997786a0459eb08c9d92813253f9@BL2PR03MB338.namprd03.prod.outlook.com>
- <201403061257.42755.marex@denx.de>
- <20140310020051.GA15218@S2101-09.ap.freescale.net>
+From: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Subject: Re: [PATCH] i2c-cadence: Do not let signals interrupt I2C transfers
+Date: Tue, 11 Mar 2014 07:59:16 +0100
+Message-ID: <531EB444.4090406@topic.nl>
+References: <1394449954-10797-1-git-send-email-mike.looijmans@topic.nl> <20140310215952.GF13293@xsjandreislx> <b6f0755f-cfc9-4962-851f-5eeac767e93e@AM1EHSMHS008.ehs.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140310020051.GA15218-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <b6f0755f-cfc9-4962-851f-5eeac767e93e-dAX9Bq04yCSsiP+nND6G/7jjLBE8jN/0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Suneel Garapati <suneel.garapati-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Soren Brinkmann <sorenb-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Michal Simek <michals-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: git <git-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVGh1LCBNYXIgMTAsIDIwMTQgYXQgMTA6MDE6NDIgQU0sIE1hcmVrIFZhc3V0IHdyb3RlOg0K
-PiBPbiBUaHUsIE1hciAwNiwgMjAxNCBhdCAxMjo1Nzo0MlBNICswMTAwLCBNYXJlayBWYXN1dCB3
-cm90ZToNCj4gPiBPbiBUaHVyc2RheSwgTWFyY2ggMDYsIDIwMTQgYXQgMDY6MDI6MDMgQU0sIFlh
-byBZdWFuIHdyb3RlOg0KPiA+ID4gT24gVGh1LCBNYXJjaCAwNiwgMjAxNCBhdCAxMjo0NDoxNCBQ
-TSwgTWFyZWsgVmFzdXQgd3JvdGU6DQo+ID4gPiA+IE9uIFRodXJzZGF5LCBNYXJjaCAwNiwgMjAx
-NCBhdCAwNTozNjoxNCBBTSwgWWFvIFl1YW4gd3JvdGU6DQo+ID4gPiA+ID4gT24gVGh1LCBNYXJj
-aCAwNiwgMjAxNCBhdCAxMToyMzo1MCBBTSwgTWFyZWsgVmFzdXQgd3JvdGU6DQo+ID4gPiA+ID4g
-PiBPbiBXZWRuZXNkYXksIE1hcmNoIDA1LCAyMDE0IGF0IDA3OjUyOjMxIEFNLCBZdWFuIFlhbyB3
-cm90ZToNCj4gPiA+ID4gPiA+ID4gQWRkIGRtYSBzdXBwb3J0IGZvciBpMmMuIFRoaXMgZnVuY3Rp
-b24gZGVwZW5kIG9uIERNQSBkcml2ZXIuDQo+ID4gPiA+ID4gPiA+IFlvdSBjYW4gdHVybiBvbiBp
-dCBieSB3cml0ZSBib3RoIHRoZSBkbWFzIGFuZCBkbWEtbmFtZQ0KPiA+ID4gPiA+ID4gPiBwcm9w
-ZXJ0aWVzIGluIGR0cyBub2RlLg0KPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gPiBTaWduZWQt
-b2ZmLWJ5OiBZdWFuIFlhbyA8eWFvLnl1YW5AZnJlZXNjYWxlLmNvbT4NCj4gPiA+ID4gPiA+ID4g
-LS0tDQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gWy4uLl0NCj4gPiA+ID4gPiA+DQo+ID4gPiA+
-ID4gPiA+IEBAIC02MDEsNiArODI2LDcgQEAgc3RhdGljIGludCBpMmNfaW14X3Byb2JlKHN0cnVj
-dA0KPiA+ID4gPiA+ID4gPiBwbGF0Zm9ybV9kZXZpY2UNCj4gPiA+ID4gPiA+DQo+ID4gPiA+ID4g
-PiAqcGRldikNCj4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiA+ICAJdm9pZCBfX2lvbWVtICpiYXNl
-Ow0KPiA+ID4gPiA+ID4gPiAgCWludCBpcnEsIHJldDsNCj4gPiA+ID4gPiA+ID4gIAl1MzIgYml0
-cmF0ZTsNCj4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4gKwl1MzIgcGh5X2FkZHI7DQo+ID4g
-PiA+ID4gPiA+DQo+ID4gPiA+ID4gPiA+ICAJZGV2X2RiZygmcGRldi0+ZGV2LCAiPCVzPlxuIiwg
-X19mdW5jX18pOw0KPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gPiBAQCAtNjExLDYgKzgzNyw3
-IEBAIHN0YXRpYyBpbnQgaTJjX2lteF9wcm9iZShzdHJ1Y3QNCj4gPiA+ID4gPiA+ID4gcGxhdGZv
-cm1fZGV2aWNlDQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gKnBkZXYpDQo+ID4gPiA+ID4gPg0K
-PiA+ID4gPiA+ID4gPiAgCX0NCj4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4gIAlyZXMgPSBw
-bGF0Zm9ybV9nZXRfcmVzb3VyY2UocGRldiwgSU9SRVNPVVJDRV9NRU0sIDApOw0KPiA+ID4gPiA+
-ID4gPg0KPiA+ID4gPiA+ID4gPiArCXBoeV9hZGRyID0gcmVzLT5zdGFydDsNCj4gPiA+ID4gPiA+
-DQo+ID4gPiA+ID4gPiBVaCAuLi4gU2hhd24sIEkgcmVhbGx5IHRoaW5rIEkgYW0gbG9zdCBoZXJl
-LiBEb24ndCB5b3UgbmVlZCB0bw0KPiA+ID4gPiA+ID4gbWFwIHRoaXMgbWVtb3J5IGJlZm9yZSB5
-b3UgY2FuIHVzZSBpdCBmb3IgRE1BID8gVGhlIERNQQ0KPiA+ID4gPiA+ID4gbWFwcGluZyBmdW5j
-dGlvbiBzaG91bGQgZ2l2ZSB5b3UgdGhlIHBoeXNpY2FsIGFkZHJlc3MgYW5kIGlzDQo+ID4gPiA+
-ID4gPiB0aGUgcmlnaHQgd2F5IHRvIGdvIGFib3V0IHRoaXMgaW5zdGVhZCBvZiBwdWxsaW5nIHRo
-ZSBhZGRyZXNzDQo+IGZyb20gaGVyZSwgbm8gPw0KPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+IEkg
-bWlnaHQgYmUgd3JvbmcgaGVyZSwgSSBhbSByYXRoZXIgdW5jZXJ0YWluLCBzbyBwbGVhc2UgaGVs
-cCBtZQ0KPiBvdXQuDQo+ID4gPiA+ID4gPiBUaGFua3MhDQo+ID4gPiA+ID4NCj4gPiA+ID4gPiBI
-aSwgTWFyZWssIFRoYW5rcyBmb3IgeW91ciBzdWdnZXN0aW9uLg0KPiA+ID4gPiA+IEhlcmUgeW91
-IGNhbiByZXZpZXcgdGhlIGNvZGUgaW4gaW5jbHVkZS9saW51eC9pb3BvcnQuaCBUaGUNCj4gPiA+
-ID4gPiByZXNvdXJjZS0+c3RhcnQgZGVzY3JpYmVzIHRoZSBlbnRpdHkgb24gdGhlIENQVSBidXMg
-YXMgYQ0KPiA+ID4gPiA+IHJlc291cmNlLT5zdGFydGluZw0KPiA+ID4gPiA+IHBoeXNpY2FsIGFk
-ZHJlc3MuIFNvIEkgdGhpbmtzIGl0IGNhbiB1c2VkIGZvciBkbWEgZGlyZWN0bHkuDQo+ID4gPiA+
-DQo+ID4gPiA+IFRoaXMgZG9lc24ndCBmZWVsIHJpZ2h0IGZvciBzb21lIHJlYXNvbi4gSWYgdGhp
-cyBpcyBhIHJlZ2lzdGVyDQo+ID4gPiA+IGFyZWEsIHlvdSBzaG91bGQNCj4gPiA+ID4gaW9yZW1h
-cCgpIGl0LiBJZiBpdCdzIGEgbWVtb3J5IGFyZWEgeW91IGRvIERNQSB0by9mcm9tLCB5b3UgbmVl
-ZA0KPiA+ID4gPiB0byBtYWtlIHN1cmUgeW91IGNvcnJlY3RseSBmbHVzaC9pbnZhbGlkYXRlIGNh
-Y2hlcyBhbmQgcHJvcGVybHkNCj4gPiA+ID4gaGFuZGxlIHRoZSBlZmZlY3RzIHRoZSB3cml0ZSBi
-dWZmZXIgbWlnaHQgaGF2ZS4gQnV0IEkgaGF2ZSBhDQo+ID4gPiA+IGZlZWxpbmcgeW91IGFjdHVh
-bGx5IGRvIERNQSB0by9mcm9tIHJlZ2lzdGVyIHNwYWNlIGhlcmUgPw0KPiA+ID4NCj4gPiA+IFll
-cywgSXQncyBhIHJlZ2lzdGVyIGFyZWEuIEJ1dCBJIGRvbid0IGtub3cgd2h5IEkgc2hvdWxkIGlv
-cmVtYXAoKQ0KPiA+ID4gaXQ/IEl0J3MgYSBidXMgYWRkcmVzcyBhbmQgRE1BIGNhbiB1c2UgaXQg
-ZGlyZWN0bHkuIElzIHRoZXJlIHNvbWUNCj4gPiA+IHByb2JsZW0gZm9yIG15IHVuZGVyc3RhbmRp
-bmcgPw0KPiA+DQo+ID4gSSBhbSBub3QgdG9vIHN1cmUgaGVyZSwgdGh1cyBJIGFtIHBva2luZyBz
-b21lb25lIHdobyBjYW4gY2xlYXJseSBhbnN3ZXINCj4gdGhpcy4NCj4gDQo+IFRoZXJlIGlzIGFs
-cmVhZHkgYSBkZXZtX2lvcmVtYXBfcmVzb3VyY2UoKSBjYWxsIGluIHRoZSBleGlzdGluZyBjb2Rl
-IGZvcg0KPiBDUFUgdG8gYWNjZXNzIHJlZ2lzdGVycyBpbiB2aXJ0dWFsIGFkZHJlc3MuICBBbmQg
-bXkgdW5kZXJzdGFuZGluZyBvbg0KPiBZdWFuJ3MgcGF0Y2ggaXMgdGhhdCBoZSBuZWVkcyB0aGUg
-cGh5c2ljYWwgYWRkcmVzcyBvZiBJMkMgREFUQSByZWdpc3Rlcg0KPiBmb3IgRE1BIGZyb20vdG8g
-dGhlIGNvbnRyb2xsZXIuDQo+IA0KPiBTaGF3bg0KDQpUaGFua3MgeW91IFNoYXduLiBZZXMsIGl0
-IGlzLiBETUEgbmVlZCB0aGUgcGh5c2ljYWwgYWRkcmVzcyB3aGljaCByZXNvdXJjZS0+c3RhcnQg
-aXMuDQoNCkFuZCBIaSBNYXJlaywgSG93IGFib3V0IHlvdT8gSXMgdGhlcmUgc29tZW9uZSB3aG8g
-Y2FuIGNsZWFybHkgYW5zd2VyIHRoaXMgc29tZSBhbmQgc2hvdWxkIEkgc2VuZCB0aGUgbmV4dCB2
-ZXJzaW9uPyANCg0K
+=EF=BB=BFOn 03/11/2014 05:49 AM, Suneel Garapati wrote:
+> Hi Mike/Soren,
+>
+>>=20
+
+Met vriendelijke groet / kind regards,
+
+Mike Looijmans
+
+TOPIC Embedded Systems
+Eindhovenseweg 32-C, NL-5683 KH Best
+Postbus 440, NL-5680 AK Best
+Telefoon: (+31) (0) 499 33 69 79
+Telefax:  (+31) (0) 499 33 69 70
+E-mail: mike.looijmans-Oq418RWZeHk@public.gmane.org
+Website: www.topic.nl
+
+Please consider the environment before printing this e-mail
+
+-----Original Message-----
+>> From: S=C3=B6ren Brinkmann [mailto:soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org]
+>> Sent: Tuesday, March 11, 2014 03:30
+>> To: Mike Looijmans; Michal Simek
+>> Cc: git; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+>> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> Subject: Re: [PATCH] i2c-cadence: Do not let signals interrupt I2C t=
+ransfers
+>>
+>> Hi Mike,
+>>
+>> The cadence driver is not in mainline yet. I think for our vendor tr=
+ee we can
+>> pretty much take it this way.
+>> Regarding getting this into mainline, I'll send another iteration of=
+ the change
+>> set and include these changes.
+>>
+>> On Mon, 2014-03-10 at 12:12PM +0100, Mike Looijmans wrote:
+>>> Pressing CTRL-C while communicating with an I2C device leads to
+>>> erratic behaviour. The cause is that the controller will interrupt =
+the
+>>> I2C transfer in progress, and leave the client device in an undefin=
+ed
+>>> state. Many drivers do not handle error return codes on I2C transfe=
+rs.
+>>> The calling driver has no way of telling how much of the transfer h=
+as
+>>> actually completed, so it cannot reliably determine the device's st=
+ate.
+>>>
+>>> The best solution here is to not handle signals in the I2C bus driv=
+er
+>>> at all, but always complete a transaction before returning control.
+>>>
+>>> See for a related patch and discussion on this topic:
+>>> http://lkml.org/lkml/2014/1/9/246
+>>
+>> Can we get your Signed-off-by, please?
+
+Sure, I forgot the -s, will add it in the next version.
+
+>>
+>>> ---
+>>>   drivers/i2c/busses/i2c-cadence.c |   12 ++++--------
+>>>   1 file changed, 4 insertions(+), 8 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-cadence.c
+>>> b/drivers/i2c/busses/i2c-cadence.c
+>>> index 86713d6..32ce2ee 100644
+>>> --- a/drivers/i2c/busses/i2c-cadence.c
+>>> +++ b/drivers/i2c/busses/i2c-cadence.c
+>>> @@ -452,16 +452,12 @@ static int cdns_i2c_process_msg(struct cdns_i=
+2c
+>> *id, struct i2c_msg *msg,
+>>>                      cdns_i2c_msend(id);
+>>>
+>>>              /* Wait for the signal of completion */
+>>> -           ret =3D wait_for_completion_interruptible_timeout(
+>>> -                                                   &id->xfer_done,=
+ HZ);
+>>> -           if (ret < 1) {
+>>> +           ret =3D wait_for_completion_timeout(&id->xfer_done, HZ)=
+;
+>>> +           if (ret =3D=3D 0) {
+>>
+>> To match the style used throughout the file this should just be
+>>        if (!ret) {
+
+Will do.
+
+> Instead of discarding Ctrl+C, Can we wait until the current msg trans=
+fer completes
+> [to avoid client undefined state or re-init the host to a known state=
+]
+>
+> I see da-vinci driver handling in a similar way.
+
+My patch for the davinci should have completely ignored the signals too=
+=2E I=20
+haven't come across a driver that actually calls the xfer function with=
+ more=20
+than one item anyway. If drivers check the result of the xfer at all, t=
+hey=20
+usually don't have a clue how to handle partial transfers. Many drivers=
+ just=20
+ignore the return code completely and don't even report failure.
+
+The gain is a stable I2C system. The loss here is something like <1ms m=
+ore=20
+latency to interrupt a process in the case it was just transferring I2C=
+ data.=20
+ From experience I can tell that the gain far outweighs that loss.
+
+Mike.
