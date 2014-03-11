@@ -1,106 +1,45 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] i2c: add DMA support for freescale i2c driver
-Date: Tue, 11 Mar 2014 11:40:43 +0100
-Message-ID: <201403111140.44044.marex@denx.de>
-References: <1394002352-8380-1-git-send-email-yao.yuan@freescale.com> <20140310020051.GA15218@S2101-09.ap.freescale.net> <1d35d91fd0f1414587edf47ab03e20ae@BL2PR03MB338.namprd03.prod.outlook.com>
+From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] i2c-cadence: Do not let signals interrupt I2C transfers
+Date: Tue, 11 Mar 2014 09:00:44 -0700
+Message-ID: <99d075e3-1694-4132-bdc8-22ea0a6e3521@VA3EHSMHS014.ehs.local>
+References: <1394449954-10797-1-git-send-email-mike.looijmans@topic.nl>
+ <1394521655-3444-1-git-send-email-mike.looijmans@topic.nl>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1d35d91fd0f1414587edf47ab03e20ae-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1394521655-3444-1-git-send-email-mike.looijmans-Oq418RWZeHk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Cc: git-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, March 11, 2014 at 06:27:39 AM, Yao Yuan wrote:
-> On Thu, Mar 10, 2014 at 10:01:42 AM, Marek Vasut wrote:
-> > On Thu, Mar 06, 2014 at 12:57:42PM +0100, Marek Vasut wrote:
-> > > On Thursday, March 06, 2014 at 06:02:03 AM, Yao Yuan wrote:
-> > > > On Thu, March 06, 2014 at 12:44:14 PM, Marek Vasut wrote:
-> > > > > On Thursday, March 06, 2014 at 05:36:14 AM, Yao Yuan wrote:
-> > > > > > On Thu, March 06, 2014 at 11:23:50 AM, Marek Vasut wrote:
-> > > > > > > On Wednesday, March 05, 2014 at 07:52:31 AM, Yuan Yao wrote:
-> > > > > > > > Add dma support for i2c. This function depend on DMA driver.
-> > > > > > > > You can turn on it by write both the dmas and dma-name
-> > > > > > > > properties in dts node.
-> > > > > > > > 
-> > > > > > > > Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > > > > > > ---
-> > > > > > > 
-> > > > > > > [...]
-> > > > > > > 
-> > > > > > > > @@ -601,6 +826,7 @@ static int i2c_imx_probe(struct
-> > > > > > > > platform_device
-> > > > > > > 
-> > > > > > > *pdev)
-> > > > > > > 
-> > > > > > > >  	void __iomem *base;
-> > > > > > > >  	int irq, ret;
-> > > > > > > >  	u32 bitrate;
-> > > > > > > > 
-> > > > > > > > +	u32 phy_addr;
-> > > > > > > > 
-> > > > > > > >  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
-> > > > > > > > 
-> > > > > > > > @@ -611,6 +837,7 @@ static int i2c_imx_probe(struct
-> > > > > > > > platform_device
-> > > > > > > 
-> > > > > > > *pdev)
-> > > > > > > 
-> > > > > > > >  	}
-> > > > > > > >  	
-> > > > > > > >  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > > > > > > > 
-> > > > > > > > +	phy_addr = res->start;
-> > > > > > > 
-> > > > > > > Uh ... Shawn, I really think I am lost here. Don't you need to
-> > > > > > > map this memory before you can use it for DMA ? The DMA
-> > > > > > > mapping function should give you the physical address and is
-> > > > > > > the right way to go about this instead of pulling the address
-> > 
-> > from here, no ?
-> > 
-> > > > > > > I might be wrong here, I am rather uncertain, so please help me
-> > 
-> > out.
-> > 
-> > > > > > > Thanks!
-> > > > > > 
-> > > > > > Hi, Marek, Thanks for your suggestion.
-> > > > > > Here you can review the code in include/linux/ioport.h The
-> > > > > > resource->start describes the entity on the CPU bus as a
-> > > > > > resource->starting
-> > > > > > physical address. So I thinks it can used for dma directly.
-> > > > > 
-> > > > > This doesn't feel right for some reason. If this is a register
-> > > > > area, you should
-> > > > > ioremap() it. If it's a memory area you do DMA to/from, you need
-> > > > > to make sure you correctly flush/invalidate caches and properly
-> > > > > handle the effects the write buffer might have. But I have a
-> > > > > feeling you actually do DMA to/from register space here ?
-> > > > 
-> > > > Yes, It's a register area. But I don't know why I should ioremap()
-> > > > it? It's a bus address and DMA can use it directly. Is there some
-> > > > problem for my understanding ?
-> > > 
-> > > I am not too sure here, thus I am poking someone who can clearly answer
-> > 
-> > this.
-> > 
-> > There is already a devm_ioremap_resource() call in the existing code for
-> > CPU to access registers in virtual address.  And my understanding on
-> > Yuan's patch is that he needs the physical address of I2C DATA register
-> > for DMA from/to the controller.
-> > 
-> > Shawn
-> 
-> Thanks you Shawn. Yes, it is. DMA need the physical address which
-> resource->start is.
-> 
-> And Hi Marek, How about you? Is there someone who can clearly answer this
-> some and should I send the next version?
+Hi Mike,
 
-While I don't quite understand what Shawn wanted to say by the above, please go 
-ahead and send V2 .
+On Tue, 2014-03-11 at 08:07AM +0100, Mike Looijmans wrote:
+> Pressing CTRL-C while communicating with an I2C device leads to errat=
+ic
+> behaviour. The cause is that the controller will interrupt the I2C tr=
+ansfer
+> in progress, and leave the client device in an undefined state. Many
+> drivers do not handle error return codes on I2C transfers. The callin=
+g driver
+> has no way of telling how much of the transfer has actually completed=
+, so
+> it cannot reliably determine the device's state.
+>=20
+> The best solution here is to not handle signals in the I2C bus driver=
+ at all,
+> but always complete a transaction before returning control.
+>=20
+> See for a related patch and discussion on this topic:
+> http://lkml.org/lkml/2014/1/9/246
+>=20
+> Signed-off-by: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Acked-by: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+
+Thanks for the update. I'll take these changes and resubmit the driver
+to LKML as well.
+
+	S=C3=B6ren
