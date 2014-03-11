@@ -1,11 +1,11 @@
 From: Chew Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] i2c: designware-pci: set ideal HCNT, LCNT and SDA hold time value
-Date: Tue, 11 Mar 2014 18:50:28 +0800
-Message-ID: <1394535028-23108-1-git-send-email-chiau.ee.chew@intel.com>
+Subject: [PATCHv2 RESEND] i2c: designware-pci: set ideal HCNT, LCNT and SDA hold time value
+Date: Tue, 11 Mar 2014 19:33:45 +0800
+Message-ID: <1394537625-27205-1-git-send-email-chiau.ee.chew@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lim Lee Booi <lee.booi.lim-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lim Lee Booi <lee.booi.lim-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Chew Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
@@ -17,15 +17,14 @@ patch is added to allow pci glue layer to pass in optimal
 HCNT/LCNT/SDA hold time values to core layer since the core
 layer supports cofigurable HCNT/LCNT/SDA hold time values now.
 
----
-v2 changelog:
- * Add 'dw_' prefix to struct scl_sda_cfg
- * Add Baytrail HCNT/LCNT/SDA hold time values directly in the
-   struct instead of using macro definition
- * Replace tab before "=" with space in struct
-
 Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 ---
+v2 changelog:
+* Add 'dw_' prefix to struct scl_sda_cfg
+* Add Baytrail HCNT/LCNT/SDA hold time values directly in the
+  struct instead of using macro definition
+* Replace tab before "=" with space in struct
+
  drivers/i2c/busses/i2c-designware-pcidrv.c |   28 ++++++++++++++++++++++++++++
  1 files changed, 28 insertions(+), 0 deletions(-)
 
