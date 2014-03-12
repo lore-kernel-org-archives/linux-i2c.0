@@ -1,61 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: rcar-i2c: always reads a byte
-Date: Tue, 11 Mar 2014 18:46:51 +0100
-Message-ID: <20140311174651.GD1179@katana>
-References: <531F3686.7050808@codethink.co.uk>
- <20140311164043.GA1179@katana>
- <20140311172421.GC1179@katana>
- <531F488F.10309@codethink.co.uk>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCHv2 RESEND] i2c: designware-pci: set ideal HCNT, LCNT and
+ SDA hold time value
+Date: Wed, 12 Mar 2014 08:16:05 +0100
+Message-ID: <20140312071605.GA2756@katana>
+References: <1394537625-27205-1-git-send-email-chiau.ee.chew@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="g7w8+K/95kPelPD2"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <531F488F.10309@codethink.co.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>
+In-Reply-To: <1394537625-27205-1-git-send-email-chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Chew Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lim Lee Booi <lee.booi.lim-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---g7w8+K/95kPelPD2
+--T4sUOijqQbZv57TR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 11, 2014 at 05:31:59PM +0000, Ben Dooks wrote:
-> On 11/03/14 17:24, Wolfram Sang wrote:
-> >>or you wait until I posted my IIC enablement series for Lager.
-> >
-> >I'll post it this evening, forgot to mention that.
+On Tue, Mar 11, 2014 at 07:33:45PM +0800, Chew Chiau Ee wrote:
+> From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 >=20
-> erm, I already posted patches for i2c on lager.
+> On Intel BayTrail, there was case whereby the resulting fast mode
+> bus speed becomes slower (~20% slower compared to expected speed)
+> if using the HCNT/LCNT calculated in the core layer. Thus, this
+> patch is added to allow pci glue layer to pass in optimal
+> HCNT/LCNT/SDA hold time values to core layer since the core
+> layer supports cofigurable HCNT/LCNT/SDA hold time values now.
+>=20
+> Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Yes, for busses 0-3. I'll send patches for busses 4-7. And those two
-cores share the same pinmuxing, so you can switch from the current i2c
-(rcar) core n to the IIC (sh_mobile) core n+4 easily.
+Applied to for-next, thanks!
 
 
---g7w8+K/95kPelPD2
+--T4sUOijqQbZv57TR
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTH0wLAAoJEBQN5MwUoCm23KsP/0xG3AH2uJuUgJhsFIigL48w
-AoDXlizqBuNL2eeVZpXviEeNBOrF//vw3jX1g9tQSypWEz9Yrm9L46Pp/bn98sOi
-i+sJeY3yEwvGLddJ7nJK4CrJ5ixlt+pUqeDScatpHJQ+8wZj8l2vwqegyIS+xMnH
-zx1Q332hHhUYr1u0+mJcUkMb/lPpS2cadPqXCzvF1PXV9h1HP58dKOpOBXs+PhRZ
-CxTrHLiAIu9rU/tTSUo1SeP9YWG//MoJdo5wEZaHBMFHXSFh/a2ZusAx7sbNyRaJ
-nbWER12eNB+zx5+GS4PB4wMy7gPPEKAnVBkY39jWktnRZitnAkoC8SjKZR7kDpXG
-iCXyw4f262u2JWRIQAu9TKhjkejjzfWARQc2doAE72eOUOzu3v3flzAmNySqnMEI
-TxxmVTWsvKjoXJL7cktwx7+IFA6mcKzNqo9z/kxmK8Ns5ZmMxxj5PVXXN7rpMkIq
-saBAxisBLL4i5gTlavJwnqGxqM5qy1npmDIIU7RQmI6KjcwNBOL/RNEZF3Wt3mQK
-bToVMvMlK6Noy1A3LVt5fFsTKM8dXZ4Wpnn+FALHwcKd1v3zMwCzyrNxeqnFgBcJ
-3wg668XlA6GGp/jC/Xqf1Y0mplJtfNk8zajb5XFGKYaJlCUwKyu6sBtX1BOwW1G6
-AWD/0kOFXSsPr7cpGwdS
-=IVnB
+iQIcBAEBAgAGBQJTIAm1AAoJEBQN5MwUoCm2Z9YQAJ2OVkWwPt98Dc9jTQNn2oCq
+anVEFNneh7S0pc1KPT14ur5rENyUulHOFfUMAvovj3Rtrb/m7Gm4il5Ng3gNoELv
+8Y0aflcg/6f9BcHocvMnt5FV73Q4DP9fQUQ0Ob0f1huYQ9OPPk6iQLwJ0xvprbs5
+hpNxi1KFBTKU4gbCd+C4MzbUzM2Y/psR5xpT89xBR8ZZdwDbBDqnEA9p/8vLN/MC
+VjRmQqII8KvNdwE7IKFMsoRyfzAOKMp77V03K/I6JckOyDYCvYWAwybRMJj5wdvv
+Umud/4kn38iOU4S0sobpGtUypRxixSM1rm0ccbHTBTkBu6zJ9rduBNrdxfs5clSO
+XVAG89OHPlL3/rvyAMAVtFCYHfIe8qbdxKHdocaFRJZY0X+SSxpRns2nUFNQcIyc
+Qn1m6LRUEsPfURyFh+eRgmaF4vowpJ+ZFEw7fXQpXalU/8ZfSr80dIbym/WPpdPH
+SEwme9gBviIGs7bPaUFegSwmZUjpw6lG+lFaFnx5HWkRzdyv2HO5RZHsBqXErsZt
+y3ih7Myr4Z0/vmbH/GL5KVNZlif2bV4fuaHU16shUAOyRbkKwR6W43vwIgLCLV9s
+A6nHZjka1b55WN++m1EOHdeEMT8fNp2txLs7tK6Ut7PPkgS7O+EQK++0QBLpWv4j
+Obs4nmKPpaDBSLF2ryp+
+=wfh1
 -----END PGP SIGNATURE-----
 
---g7w8+K/95kPelPD2--
+--T4sUOijqQbZv57TR--
