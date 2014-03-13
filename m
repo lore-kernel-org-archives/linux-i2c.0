@@ -1,61 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 02/28] Remove OF_I2C
-Date: Thu, 13 Mar 2014 22:39:12 +0100
-Message-ID: <20140313213912.GG2696@katana>
-References: <1391971686-9517-1-git-send-email-richard@nod.at>
- <1391971686-9517-3-git-send-email-richard@nod.at>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 3.14
+Date: Thu, 13 Mar 2014 22:41:46 +0100
+Message-ID: <20140313214136.GA12161@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iJXiJc/TAIT2rh2r"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1391971686-9517-3-git-send-email-richard-/L3Ra7n9ekc@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>
-Cc: "open list:I2C SUBSYSTEM" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, open list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---iJXiJc/TAIT2rh2r
+--+QahgC5+KEYLbs62
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Feb 09, 2014 at 07:47:40PM +0100, Richard Weinberger wrote:
-> The symbol is an orphan, get rid of it.
->=20
-> Signed-off-by: Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>
+Linus,
 
-BTW I updated the commit message to be more proper IMO (you didn't
-actually remove the symbol, no?)
+here is a Kconfig fix for the I2C subsystem. Please pull.
 
-=3D=3D=3D
+Thanks,
 
-i2c: Remove usage of orphaned symbol OF_I2C
-
-The symbol is an orphan, don't depend on it anymore.
+   Wolfram
 
 
---iJXiJc/TAIT2rh2r
+The following changes since commit fa389e220254c69ffae0d403eac4146171062d08:
+
+  Linux 3.14-rc6 (2014-03-09 19:41:57 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 62c19c9d29e65086e5ae76df371ed2e6b23f00cd:
+
+  i2c: Remove usage of orphaned symbol OF_I2C (2014-03-13 22:33:44 +0100)
+
+----------------------------------------------------------------
+Richard Weinberger (1):
+      i2c: Remove usage of orphaned symbol OF_I2C
+
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--+QahgC5+KEYLbs62
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTIiWAAAoJEBQN5MwUoCm2zPAP/RONybCvGyGGTGtYtG9upL1F
-rMmZmycu8Pwgin4yZhof86eknUqY86wFDRlanZRAIwBuzJeHIiXlihyWID1CXjeO
-tzO0hZadvQYv6iP23Fxt1y8tSr8FKiSDDgyHbxCyyVi9i4sSd+WO+Ek3PX9K9OIm
-Xcf1HhWGpp4j4/mE7DVXzfDS3aRfKzH/feRvbCwCLkwzs/oRj+JNuGjPwT6iAOoP
-aACAf247zv0DSgD4yOsyxd4SZNCDYZycAcy2DUpYcY/JkLntfiy9fG7d+jeOclvt
-pQuXrlffj2AdmiJojZHAPYxtyHHLXJBA+Tw8WRiH6MGjRsJDEEmy5dnLfgTLtEaq
-m3HuDyrM5GvFQSlC1yO1+aIKVrdDl/3mbMrZXSwd9QU5QGSqa3OypiaM+QoGscuk
-Icwq995uJzoVQZsDmqjJLKjSP8f/Yosz0oAon+fIKm/XrwGnTolbsKWB+OHYYfPN
-wqJe6GQ4k097/0D59DG+hDx8QjQWL/Lcpkcfj490mLNXv6MfYX6X2E12j9aWkNqS
-Mcxwi2wJAwvcH0OeY37xNeywYkATQDD0J+/oKRiWujkLxS2EBsIxOHHAfDzAaHOq
-ivaDsKTnkMf12h12JCTrsoJPT8CwaX6jYidfXCaqEwxfZqAWHp2LkooRr1/Y/X+3
-XwJZtPuZw4kX6NkchYo4
-=+iB9
+iQIcBAEBAgAGBQJTIiYQAAoJEBQN5MwUoCm2ucQP/jVO7xub0KMO1AkHtoxHCLFw
+dScq/2ICdHaoUCryoJ0BVZBlvTIZNO7Z0DGPcTbLwDtg4p041GAosvHqtBGqvCtG
+78M2a+OY7RDNsNcddPuVNjl79DH51nSqlRukJ89+AqbHQ/DLgPH5OWBtsrKqMD/2
+ShvCJwGV1NfiLO5OhXQHNfr2ieXvfiV/VkC9T6Q/5lalU6mQAosI0PJBN/IJddOK
+NdoMioCKeiAuRD/G5GDURieNWJ3xfjp7NHt0dPbBPBVV3Ftosu1hvLYQJyi6xSdG
+whZTQU5ieBL+JWwjMOZq+tpwVT4cP7AMcnef4SHVRno7gSzDbIC9g6cOYOtDo9lB
+zKKN0sjlaes4BZjSSomyfUTaPmdaAl9W2heR7d3jmU0UtIuTnzoV0NK7DsSRbbWM
+iPjK17mreEJ/pN5ipCVeaGZFw9OLUMsmUFm4NLSqAU/GYAwmGUb5bV2soETa9Pz3
+COojosAKd4WYfj82whnwj9gC6u+vj4zftNrXogreB5WVYL1bV3/Bw+e151N2akxW
+w+hn1mIjqYvELmFp9LwQP+m4SDryPhhYSqbkABKL6idhGVRImY+1Pb72c0jkVbAP
+RTUVcNQJq6/jH06O8vJIMat9lPJbDlf0tscebuKeZmomurKmKo/Hd3CAhIiuEvmn
+uTFs8KLm2O60GhfkLmPZ
+=djEv
 -----END PGP SIGNATURE-----
 
---iJXiJc/TAIT2rh2r--
+--+QahgC5+KEYLbs62--
