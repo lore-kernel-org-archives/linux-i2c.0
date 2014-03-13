@@ -1,59 +1,62 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-gpio: OF gpio code does not handle defered probe case
-Date: Thu, 13 Mar 2014 22:17:31 +0100
-Message-ID: <20140313211731.GC2696@katana>
-References: <1394721458-23585-1-git-send-email-ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH 1/2] i2c: exynos5: add CONFIG_PM_SLEEP to suspend/resume
+ functions
+Date: Thu, 13 Mar 2014 22:20:56 +0100
+Message-ID: <20140313212056.GD2696@katana>
+References: <000501cf3cc8$4b7f8d90$e27ea8b0$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qbvjkv9qwOGw/5Fx"
+	protocol="application/pgp-signature"; boundary="P+33d92oIH25kiaB"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1394721458-23585-1-git-send-email-ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+In-Reply-To: <000501cf3cc8$4b7f8d90$e27ea8b0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-81qHHgoATdFT9dQujB1mzip2UmYkHbXO@public.gmane.org, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Naveen Krishna Ch' <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, 'Taekgyun Ko' <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Qbvjkv9qwOGw/5Fx
+--P+33d92oIH25kiaB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 13, 2014 at 02:37:38PM +0000, Ben Dooks wrote:
-> When using device-tree and the i2c-gpio driver is called before the
-> GPIO node has been probed then it needs to correctly defer the probe
-> instead of returning a permanent error that the gpio numbers are not
-> valid.
+On Tue, Mar 11, 2014 at 10:21:57AM +0900, Jingoo Han wrote:
+> Add CONFIG_PM_SLEEP to suspend/resume functions to fix the following
+> build warning when CONFIG_PM_SLEEP is not selected. This is because
+> sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
+> the CONFIG_PM_SLEEP is enabled.
 >=20
-> This fixes the following error:
-> 	/i2c@2: invalid GPIO pins, sda=3D-517/scl=3D-517
+>   warning: 'exynos5_i2c_suspend_noirq' defined but not used [-Wunused-fun=
+ction]
+>   warning: 'exynos5_i2c_resume_noirq' defined but not used [-Wunused-func=
+tion]
 >=20
-> Signed-off-by: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---Qbvjkv9qwOGw/5Fx
+--P+33d92oIH25kiaB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTIiBrAAoJEBQN5MwUoCm2v6IQAK04BxhWQamfU1Xcpb5P4aq3
-NDsATcoDlXkpoaNck0IU8c35pPPtHYg1EjAhGCq6dxfspYkcKJ71ZFMJ4IeZG6pu
-OzJEbWUElK1uwiDJKnExhffbMFdCWssOllEoFkME1WGC1r8VcWjZL1QWmbPefqw2
-MaLDt7UDwiC6DTGeRahog5XVVI45SlfPXJ9ZZ9nIbEsMlB64uLCYI0HvA3aE6cgI
-K9U8gLGLm/s1xDr0nJxOkfdDSs0U5ZeBLWbbl7EtiboVvwJzEUo/dEa3UJ4XgC0K
-HlBA1+RfAg5s73l/4qIaw8da0jR2izZ7DA8Ev+MHJhCJb30EEGNUEsBc1xOtVv7s
-HEDB+NyokPgeVCLVR8P8zxtmPsC7+6M0sDPy3UbuMl+3FQg4cualGR8TDoC+Greb
-8fsYUM2WU2Y6CjQ6mIu9eHT7k2MP/5IG2OV2IvPv7HuUHhp6HHZYfZMLaMdB7vMR
-Z9hrr0Ut7zWi+qsMq37oh8cu0Ge51X+EZRQRKz7UIOIxkXE81f+NwbGID64EtWi0
-3x0LcUeO/DJRg/TpUilb69Er1Xr3+iNRAfN1apbxxqLUgqzw10H2IN3Nm+hAzFZ2
-DSrjjsK668+aph622curq0GpHPK13r+u21Ab4DLQrXt2rT0zpILZb3K+vLKyYeP5
-1rr47IKUzaNzcvXds3pe
-=rf52
+iQIcBAEBAgAGBQJTIiE4AAoJEBQN5MwUoCm2+4oQAIZbWt7cXH7T9Qzuc6hXpelB
+rMcj8EHc+kabgNI9HtGjtQSLi0B3+b/wv2fzM7Zznc/hOlOdMARldOF9ykrxJa7U
+H3wN7MG9Fg4b0EHydxtBKj9kFVeQ1v1NbmhRa+LiBO8MFE3PPSf2CGv3JY9tUZRv
+AYgjpGE1SmfdkCmWYA2tZhOrh6saPKqGTmjfF/GsasDgrkPvHmoaDcVmsGwK8oDF
+X7TSLN/lzg8G10JtS1Ac80BoXJEPy0hqt4jFQJZdEERLr6IP+s8TvkJog5RTWVw5
+ZIylV94/GMk8XnmMoilkHE98lCqRIwpBhvsywltLeCboXI9nnKir/h4x+b38Th1+
+MviG0xl/AnNRjimu0PXgGy5cg0laww3iIz5oME1poFVV8sB+6bMZPsTyGJpWNSAQ
+v8/3il/HJFquWYMpOgkVrIbfsnvnZpUcnsJSOg+XV1HMmBZmKTCsXF1FrzmMuHyX
+AYgVE0mgl2GNnvlkVPitQ/P2BRO0nxy0D9ODN+q3u6E+/xV/rySJN33xzOOn0G/B
+5LD4jKw3o1SUUxuVGzrZ+j3701hqrgn68/gxD/XomfssP5Z5MKgSrchR6X+t8BBN
+J+QlJgoD8JA3zJtlkbCwBdCm00zADPE/EtzxF9+IiZJQlzbnrDOQ9UXG8siM79GC
+SoiNx81gCmVphm9+1ZpR
+=EVMp
 -----END PGP SIGNATURE-----
 
---Qbvjkv9qwOGw/5Fx--
+--P+33d92oIH25kiaB--
