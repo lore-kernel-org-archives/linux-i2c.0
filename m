@@ -1,50 +1,39 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v3 1/2] i2c: sunxi: Change i2c compatibles
-Date: Thu, 13 Mar 2014 12:37:22 +0100
-Message-ID: <1394710643-3411-2-git-send-email-maxime.ripard@free-electrons.com>
-References: <1394710643-3411-1-git-send-email-maxime.ripard@free-electrons.com>
+From: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Subject: [PATCH] i2c-gpio: OF gpio code does not handle defered probe case
+Date: Thu, 13 Mar 2014 14:37:38 +0000
+Message-ID: <1394721458-23585-1-git-send-email-ben.dooks@codethink.co.uk>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1394710643-3411-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-81qHHgoATdFT9dQujB1mzip2UmYkHbXO@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The Allwinner A10 compatibles were following a slightly different compatible
-patterns than the rest of the SoCs for historical reasons. Move to the other
-pattern for consistency across all Allwinner Socs.
+When using device-tree and the i2c-gpio driver is called before the
+GPIO node has been probed then it needs to correctly defer the probe
+instead of returning a permanent error that the gpio numbers are not
+valid.
 
-Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+This fixes the following error:
+	/i2c@2: invalid GPIO pins, sda=-517/scl=-517
+
+Signed-off-by: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 2 +-
- drivers/i2c/busses/i2c-mv64xxx.c                      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-gpio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-index befd4fb4764f..5c30026921ae 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-@@ -5,7 +5,7 @@ Required properties :
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index d9f7e18..02d2d4a 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -94,6 +94,9 @@ static int of_i2c_gpio_get_pins(struct device_node *np,
+ 	*sda_pin = of_get_gpio(np, 0);
+ 	*scl_pin = of_get_gpio(np, 1);
  
-  - reg             : Offset and length of the register set for the device
-  - compatible      : Should be either:
--                     - "allwinner,sun4i-i2c"
-+                     - "allwinner,sun4i-a10-i2c"
-                      - "allwinner,sun6i-a31-i2c"
-                      - "marvell,mv64xxx-i2c"
-                      - "marvell,mv78230-i2c"
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 203a5482a866..2f817b0978a2 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -692,7 +692,7 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
-  *****************************************************************************
-  */
- static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
--	{ .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
-+	{ .compatible = "allwinner,sun4i-a10-i2c", .data = &mv64xxx_i2c_regs_sun4i},
- 	{ .compatible = "allwinner,sun6i-a31-i2c", .data = &mv64xxx_i2c_regs_sun4i},
- 	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
- 	{ .compatible = "marvell,mv78230-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
++	if (*sda_pin == -EPROBE_DEFER || *scl_pin == -EPROBE_DEFER)
++		return -EPROBE_DEFER;
++
+ 	if (!gpio_is_valid(*sda_pin) || !gpio_is_valid(*scl_pin)) {
+ 		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
+ 		       np->full_name, *sda_pin, *scl_pin);
 -- 
 1.9.0
