@@ -1,88 +1,84 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [RFC PATCH] i2c: new bus driver for efm32
-Date: Fri, 14 Mar 2014 00:19:25 +0100
-Message-ID: <20140313231925.GC15674@pengutronix.de>
-References: <1392027598-29015-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <20140310075558.GD2571@katana>
- <20140313212613.GB15674@pengutronix.de>
- <20140313221433.GI2696@katana>
+From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Subject: [PATCH v5 1/2] i2c: qup: Add device tree bindings information
+Date: Thu, 13 Mar 2014 19:07:42 -0700
+Message-ID: <1394762863-12154-2-git-send-email-bjorn.andersson@sonymobile.com>
+References: <1394762863-12154-1-git-send-email-bjorn.andersson@sonymobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140313221433.GI2696@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1394762863-12154-1-git-send-email-bjorn.andersson@sonymobile.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: "Ivan T. Ivanov" <iivanov@mm-sol.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
 
-On Thu, Mar 13, 2014 at 11:14:33PM +0100, Wolfram Sang wrote:
-> > > Huh? Is this an accepted binding? Doesn't look like it because of=
- a
-> > > generic name and IMO a specific use-case. BTW the binding documen=
-tation
-> > > for this driver is missing.
-> > Regarding the generic name: I don't care much, but I don't have a
-> > problem with it. IMHO it's implicitly name-spaced by the compatible
-> > string which starts with "efm32," and so is fine. I'd like to have =
-the
-> > same property name for all efm32 device drivers and "location" matc=
-hes
-> > the hardware reference manual (apart from capitalization).
->=20
-> I would in deed have expected a binding like "efm32,location" to
-> emphasize this is an efm32 specific thing. I know vendor-specific
-> "setup" bindings from elsewhere. Since it has been accepted already i=
-n
-> other places, we should keep it likes this.
-Assuming you know the dt stuff better than me (and noone objects) I'd
-fix the intree drivers to use efm32,location, too.
+The Qualcomm Universal Peripherial (QUP) wraps I2C mini-core and
+provide input and output FIFO's for it. I2C controller can operate
+as master with supported bus speeds of 100Kbps and 400Kbps.
 
-> > > > +	if (resource_size(res) < 0x42) {
-> > > > +		dev_err(&pdev->dev, "memory resource too small\n");
-> > > > +		return -EINVAL;
-> > > > +	}
-> > >=20
-> > > I'd drop this check since, but I won't force you to.
-> > I'd understand your sentence with s/since//, not sure about it as i=
-s.
-> > Anyhow, I like this check.
->=20
-> A leftover. I was about to write "since the check is somewhat heurist=
-ic
-> and does not proof much". But then I decided it is not worth spending
-> too much discussion on it :)
-I'd say it's heuristic to *not* check the boundary. It doesn't apply
-here, but consider a driver using a register space > PAGE_SIZE on an MM=
-U
-platform. It accesses base + PAGE_SIZE + 0x42 even if dt only gave a
-register range of PAGE_SIZE / 2. It's like gets(3).
+Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
+[bjorn: reformulated part of binding description
+        added version to compatible
+        cleaned up example]
+Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+---
+ .../devicetree/bindings/i2c/qcom,i2c-qup.txt       |   46 ++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
 
-> > > > +	clkdiv =3D DIV_ROUND_UP(rate, 8 * ddata->pdata.frequency) - 1=
-;
-> > > > +	if (clkdiv >=3D 0x200) {
-> > > > +		dev_err(&pdev->dev,
-> > > > +				"input clock too fast (%lu) to divide down to bus freq (%l=
-u)",
-> > > > +				rate, ddata->pdata.frequency);
-> > > > +		ret =3D -EIO;
-> > > > +		goto err_disable_clk;
-> > > > +	}
-> > >=20
-> > > -EIO for clocks errors? Is this common?
-> > Changed to ENODEV. Ok?
->=20
-> Nope, then the driver core will silent drop the error. -EINVAL?
-agreed
-
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+diff --git a/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+new file mode 100644
+index 0000000..32ef64e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/qcom,i2c-qup.txt
+@@ -0,0 +1,46 @@
++Qualcomm Universal Peripheral (QUP) I2C controller
++
++Required properties:
++ - compatible: Should be:
++   * "qcom,i2c-qup-v1.1.1" for 8660, 8960 and 8064.
++   * "qcom,i2c-qup-v2.1.1" for 8974 v1.
++   * "qcom,i2c-qup-v2.2.1" for 8974 v2 and later.
++ - reg: Should contain QUP register address and length.
++ - interrupts: Should contain I2C interrupt.
++
++ - clocks: A list of phandles + clock-specifiers, one for each entry in
++   clock-names.
++ - clock-names: Should contain:
++   * "core" for the core clock
++   * "iface" for the AHB clock
++
++ - #address-cells: Should be <1> Address cells for i2c device address
++ - #size-cells: Should be <0> as i2c addresses have no size component
++
++Optional properties:
++ - clock-frequency: Should specify the desired i2c bus clock frequency in Hz,
++                    defaults to 100kHz if omitted.
++
++Child nodes should conform to i2c bus binding.
++
++Example:
++
++ i2c@f9924000 {
++ 	compatible = "qcom,i2c-qup-v2.2.1";
++ 	reg = <0xf9924000 0x1000>;
++ 	interrupts = <0 96 0>;
++
++ 	clocks = <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>, <&gcc GCC_BLSP1_AHB_CLK>;
++ 	clock-names = "core", "iface";
++
++ 	clock-frequency = <355000>;
++
++ 	#address-cells = <1>;
++ 	#size-cells = <0>;
++
++ 	dummy@60 {
++ 		compatible = "dummy";
++ 		reg = <0x60>;
++ 	};
++ };
++
+-- 
+1.7.9.5
