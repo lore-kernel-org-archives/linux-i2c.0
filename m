@@ -1,99 +1,48 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [RFC Patch 2/2] i2c/ACPI: Don't ignore IRQ flags
-Date: Tue, 18 Mar 2014 13:59:21 -0700
-Message-ID: <1395176361-3956-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-References: <1395176361-3956-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1395176361-3956-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org
+From: Scott Wood <scottwood@freescale.com>
+Subject: [PATCH] i2c-cpm: Fix build by adding of_address.h and of_irq.h
+Date: Tue, 18 Mar 2014 16:10:24 -0500
+Message-ID: <1395177024-5178-1-git-send-email-scottwood@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+To: Jochen Friedrich <jochen@scram.de>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Richard Weinberger <richard@nod.at>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-i2c@vger.kernel.org, Scott Wood <scottwood@freescale.com>, linuxppc-dev@lists.ozlabs.org, stable@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Currently irq flags from IRQ resources are ignored. They have important
-IRQ configuration for level, trigger and sharable.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/i2c-core.c | 7 ++++++-
- include/linux/i2c.h    | 4 ++++
- 2 files changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 2d9b4bd..6217d80 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -675,6 +675,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	client->flags = info->flags;
- 	client->addr = info->addr;
- 	client->irq = info->irq;
-+	client->irq_flags = info->irq_flags;
- 	client->comp_addr_count = info->comp_addr_count;
- 	client->comp_addrs = info->comp_addrs;
- 
-@@ -1120,6 +1121,7 @@ struct i2c_resource_info {
- 	struct i2c_comp_address addrs[MAX_CRS_ELEMENTS];
- 	int count;
- 	int common_irq;
-+	unsigned long irq_flags;
- };
- 
- static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
-@@ -1143,8 +1145,10 @@ static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
- 	} else if (rcs_info->common_irq < 0) {
- 		struct resource r;
- 
--		if (acpi_dev_resource_interrupt(ares, 0, &r))
-+		if (acpi_dev_resource_interrupt(ares, 0, &r)) {
- 			rcs_info->common_irq = r.start;
-+			rcs_info->irq_flags = r.flags;
-+		}
- 	}
- 
- 	/* Tell the ACPI core to skip this resource */
-@@ -1184,6 +1188,7 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 
- 	adev->power.flags.ignore_parent = true;
- 	info.irq = rcs_info.common_irq;
-+	info.irq_flags = rcs_info.irq_flags;
- 	info.comp_addr_count = rcs_info.count;
- 	for (i = 0; i < rcs_info.count; ++i) {
- 		if (!rcs_info.addrs[i].addr)
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 4197a0d..63b511b 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -225,6 +225,7 @@ struct i2c_comp_address {
-  * @comp_addr_count: Number of addresses in comp_addrs pointer
-  * @comp_addrs: Pointer to companion list of i2c addresses and
-  *	associated flags.
-+ * @irq_flags: indicates the IRQ flags (format: IORESOURCE_IRQ_XXXX)
-  *
-  * An i2c_client identifies a single device (i.e. chip) connected to an
-  * i2c bus. The behaviour exposed to Linux is defined by the driver
-@@ -242,6 +243,7 @@ struct i2c_client {
- 	struct list_head detected;
- 	int comp_addr_count;
- 	struct i2c_comp_address *comp_addrs;
-+	unsigned long irq_flags;
- };
- #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
- 
-@@ -277,6 +279,7 @@ static inline void i2c_set_clientdata(struct i2c_client *dev, void *data)
-  * @comp_addr_count: Number of addresses in comp_addrs pointer
-  * @comp_addrs: Pointer to companion list of i2c addresses and
-  *	associated flags.
-+ * @irq_flags: indicates the IRQ flags (format: IORESOURCE_IRQ_XXXX)
-  *
-  * I2C doesn't actually support hardware probing, although controllers and
-  * devices may be able to use I2C_SMBUS_QUICK to tell whether or not there's
-@@ -300,6 +303,7 @@ struct i2c_board_info {
- 	int		irq;
- 	int comp_addr_count;
- 	struct i2c_comp_address *comp_addrs;
-+	unsigned long irq_flags;
- };
- 
- /**
--- 
-1.8.3.2
+Rml4ZXMgYSBidWlsZCBicmVhayBkdWUgdG8gdGhlIHVuZGVjbGFyZWQgdXNlIG9mIGlycV9vZl9w
+YXJzZV9hbmRfbWFwKCkKYW5kIG9mX2lvbWFwKCkuICBUaGlzIGJ1aWxkIGJyZWFrIHdhcyBhcHBh
+cmVudGx5IGludHJvZHVjZWQgd2hpbGUgdGhlCmRyaXZlciB3YXMgdW5idWlsZGFibGUgZHVlIHRv
+IHRoZSBidWcgZml4ZWQgYnkKNjJjMTljOWQyOWU2NTA4NmU1YWU3NmRmMzcxZWQyZTZiMjNmMDBj
+ZCAoImkyYzogUmVtb3ZlIHVzYWdlIG9mCm9ycGhhbmVkIHN5bWJvbCBPRl9JMkMiKS4gIFdoZW4g
+NjJjMTljIHdhcyBhZGRlZCBpbiB2My4xNC1yYzcsCnRoZSBkcml2ZXIgd2FzIGVuYWJsZWQgYWdh
+aW4sIGJyZWFraW5nIHRoZSBwb3dlcnBjIG1wYzg1eHhfZGVmY29uZmlnCmFuZCBtcGM4NXh4X3Nt
+cF9kZWZjb25maWcuCgo2MmMxOWMgaXMgbWFya2VkIGZvciBzdGFibGUsIHNvIHRoaXMgc2hvdWxk
+IGdvIHRoZXJlIGFzIHdlbGwuCgpTaWduZWQtb2ZmLWJ5OiBTY290dCBXb29kIDxzY290dHdvb2RA
+ZnJlZXNjYWxlLmNvbT4KUmVwb3J0ZWQtYnk6IEdlZXJ0IFV5dHRlcmhvZXZlbiA8Z2VlcnRAbGlu
+dXgtbTY4ay5vcmc+CkNjOiBSaWNoYXJkIFdlaW5iZXJnZXIgPHJpY2hhcmRAbm9kLmF0PgpDYzog
+c3RhYmxlQGtlcm5lbC5vcmcKLS0tClRoZXJlIGFyZSBzdGlsbCB3YXJuaW5ncyBpbiB0aGlzIGRy
+aXZlciB0aGF0IHN1Z2dlc3QgaXQgaXMgYnJva2VuIHdpdGgKQ09ORklHX1BIWVNfNjRCSVQsIGJ1
+dCB0aGF0IHBhcnQgZG9lcyBub3QgYXBwZWFyIHRvIGJlIGEgcmVncmVzc2lvbi4KCiBkcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLWNwbS5jIHwgMiArKwogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9u
+cygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtY3BtLmMgYi9kcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLWNwbS5jCmluZGV4IGJlN2YwYTIuLmYzYjg5YTQgMTAwNjQ0Ci0tLSBh
+L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtY3BtLmMKKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1jcG0uYwpAQCAtMzksNyArMzksOSBAQAogI2luY2x1ZGUgPGxpbnV4L2kyYy5oPgogI2luY2x1
+ZGUgPGxpbnV4L2lvLmg+CiAjaW5jbHVkZSA8bGludXgvZG1hLW1hcHBpbmcuaD4KKyNpbmNsdWRl
+IDxsaW51eC9vZl9hZGRyZXNzLmg+CiAjaW5jbHVkZSA8bGludXgvb2ZfZGV2aWNlLmg+CisjaW5j
+bHVkZSA8bGludXgvb2ZfaXJxLmg+CiAjaW5jbHVkZSA8bGludXgvb2ZfcGxhdGZvcm0uaD4KICNp
+bmNsdWRlIDxzeXNkZXYvZnNsX3NvYy5oPgogI2luY2x1ZGUgPGFzbS9jcG0uaD4KLS0gCjEuOC4z
+LjIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkxpbnV4
+cHBjLWRldiBtYWlsaW5nIGxpc3QKTGludXhwcGMtZGV2QGxpc3RzLm96bGFicy5vcmcKaHR0cHM6
+Ly9saXN0cy5vemxhYnMub3JnL2xpc3RpbmZvL2xpbnV4cHBjLWRldg==
