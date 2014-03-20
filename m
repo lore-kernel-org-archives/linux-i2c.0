@@ -1,36 +1,41 @@
-From: Andy Gross <agross@codeaurora.org>
-Subject: Re: [PATCH v5 2/2] i2c: New bus driver for the Qualcomm QUP I2C
- controller
-Date: Thu, 20 Mar 2014 00:04:37 -0500
-Message-ID: <20140320050437.GA29449@qualcomm.com>
-References: <1394762863-12154-1-git-send-email-bjorn.andersson@sonymobile.com>
- <1394762863-12154-3-git-send-email-bjorn.andersson@sonymobile.com>
+From: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v3 1/2] i2c: Add driver for Cadence I2C controller
+Date: Thu, 20 Mar 2014 12:34:23 +0100
+Message-ID: <96ea5cd7-0873-4352-b835-5c5a0dbad685@TX2EHSMHS037.ehs.local>
+References: <1394556613-11692-1-git-send-email-soren.brinkmann@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1394762863-12154-3-git-send-email-bjorn.andersson@sonymobile.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Stephen Boyd <sboyd@codeaurora.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1394556613-11692-1-git-send-email-soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 13, 2014 at 07:07:43PM -0700, Bjorn Andersson wrote:
-> This bus driver supports the QUP i2c hardware controller in the Qualcomm SOCs.
-> The Qualcomm Universal Peripheral Engine (QUP) is a general purpose data path
-> engine with input/output FIFOs and an embedded i2c mini-core. The driver
-> supports FIFO mode (for low bandwidth applications) and block mode (interrupt
-> generated for each block-size data transfer).
+On 03/11/2014 05:50 PM, Soren Brinkmann wrote:
+> Add a driver for the Cadence I2C controller. This controller is for
+> example found in Xilinx Zynq.
 > 
+> Signed-off-by: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> ---
+> v3:
+>  - incorporate signal handling changes from Mike Looijmans
+>    <mike.looijmans-Oq418RWZeHk@public.gmane.org> (https://lkml.org/lkml/2014/3/11/64)
+> v2:
+>  - make driver depend on COMMON_CLK instead of ARCH_ZYNQ
+> ---
+>  .../devicetree/bindings/i2c/i2c-cadence.txt        |  21 +
+>  MAINTAINERS                                        |   1 +
+>  drivers/i2c/busses/Kconfig                         |   7 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-cadence.c                   | 898 +++++++++++++++++++++
+>  5 files changed, 928 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+>  create mode 100644 drivers/i2c/busses/i2c-cadence.c
 
-<snip>
+For boot test on zynq zc702 3.14.0-rc6.
+Tested-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
-
-Looks good.
-
-Reviewed-by: Andy Gross <agross@codeaurora.org>
-
--- 
-sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+Thanks,
+Michal
