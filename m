@@ -1,105 +1,61 @@
-From: Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
-Date: Fri, 21 Mar 2014 11:49:59 -0400
-Message-ID: <CAP=VYLqCmG6fRmPPABoW4xg_tFgGh2pji=f5ML=cBgCu4zZocg@mail.gmail.com>
-References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
- <20140307160836.GM21483@n2100.arm.linux.org.uk> <20140310105808.GE2815@lukather>
- <20140310112929.GY21483@n2100.arm.linux.org.uk>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: platform_data in i2c device drivers
+Date: Fri, 21 Mar 2014 17:01:20 +0100
+Message-ID: <3083300.Xj9oJdUK5O@avalon>
+References: <532A1B12.8080400@yahoo.com> <2925352.e7jTXf8P58@avalon> <532C60EC.3060405@yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140310112929.GY21483-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+In-Reply-To: <532C60EC.3060405-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, "linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Frank Bormann <fbormann-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 10, 2014 at 7:29 AM, Russell King - ARM Linux
-<linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org> wrote:
-> On Mon, Mar 10, 2014 at 11:58:08AM +0100, Maxime Ripard wrote:
->> On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wrote:
->> > On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
->> > > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
->> > >  exit_free_irq:
->> > >   free_irq(drv_data->irq, drv_data);
->> > >  exit_reset:
->> > > - if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
->> > > + if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
->> > > +     !IS_ERR(drv_data->rstc))
->> > >           reset_control_assert(drv_data->rstc);
->> >
->> > Another question is... why do we need to check pd->dev.of_node here?
->> > If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
->> > controller node, so drv_data->rstc is either going to be a valid
->> > pointer, or it's going to be an error pointer - neither
->> > reset_control_get() nor devm_reset_control_get return NULL.
->>
->> Following back on this as I was doing the patch, actually,
->> drv_data->rstc will be NULL if we're not probed by DT, and hence never
->> call reset_control_get, that would set an error pointer.
->>
->> But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
->
-> I think you can also move the devm_reset_control_get() into the main
-> probe function: you're only checking for -EPROBE_DEFER from it to fail,
-> allowing other errors to continue with the driver init.  This means
-> that on non-OF, devm_reset_control_get() will fail with -ENOENT.
+Hi Frank,
 
-Looping linux-next into the CC since this is the cause of the failure
-in orion5x_defconfig there, and no point in anyone else re-doing the
-same bisect.
+On Friday 21 March 2014 11:55:24 Frank Bormann wrote:
+> Hi Laurent,
+> 
+> Thank you again for explaining. One last question if that's okay.
+> 
+> If I have i2c_board_info being passed in to the probe function through the
+> platform_data pointer and I also have the same, similar or maybe even
+> conflicting configuration information in the DTB, is there any of the two
+> that is supposed to take precedence or should that be an error case?
 
-Paul.
---
+That shouldn't happen (except in very special cases using OF_DEV_AUXDATA, but 
+you really should think twice before going that way). If the I2C device is 
+instantiated in board code with i2c_board_info then there will be no DT node 
+corresponding to the device (client->dev.of_node will be NULL). If the device 
+is instead instantiated from DT there will be no platform data (client-
+>dev.platform_data will be NULL).
 
-Bisecting: 0 revisions left to test after this (roughly 0 steps)
-[80c69915e5fbe6493119d87eee2a2a6a7115c74c] i2c: mv64xxx: fix circular
-Kconfig dependency
-running ./x
-#
-# configuration written to .config
-#
-drivers/built-in.o: In function `mv64xxx_i2c_remove':
-/home/paul/git/linux-head/drivers/i2c/busses/i2c-mv64xxx.c:924:
-undefined reference to `reset_control_assert'
-drivers/built-in.o: In function `mv64xxx_i2c_probe':
-/home/paul/git/linux-head/drivers/i2c/busses/i2c-mv64xxx.c:904:
-undefined reference to `reset_control_assert'
-drivers/built-in.o: In function `mv64xxx_of_config':
-/home/paul/git/linux-head/drivers/i2c/busses/i2c-mv64xxx.c:771:
-undefined reference to `devm_reset_control_get'
-/home/paul/git/linux-head/drivers/i2c/busses/i2c-mv64xxx.c:778:
-undefined reference to `reset_control_deassert'
-make: *** [vmlinux] Error 1
-80c69915e5fbe6493119d87eee2a2a6a7115c74c is the first bad commit
-commit 80c69915e5fbe6493119d87eee2a2a6a7115c74c
-Author: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Date:   Thu Mar 6 10:08:50 2014 +0100
+> On 20/03/14 01:51 PM, Laurent Pinchart wrote:
+> > On Thursday 20 March 2014 13:16:35 Frank Bormann wrote:
+> >> Hi Ben,
+> >> 
+> >>> I think client->dev should be avoided if at-all possible. Many
+> >>> drivers keep their own local copy of platform data or the pointer
+> >>> to it in their driver private information.
+> >> 
+> >> I was thinking about that. But then again, I'd either have to copy the
+> >> client->dev.platform_data pointer over to the private data, if it is
+> >> non-null, or I would have to use some variation of
+> >> 
+> >> pdata = client->dev.platform_data ? client->dev.platform_data : priv_pd;
+> >> 
+> >> every time I want to access the configuration. Guess, that's not so bad
+> >> though.
+> > 
+> > Most drivers store a pointer to the platform data or a copy of the
+> > platform data in a per-device driver private structure. They populate that
+> > pointer or copy from the platform data pointer (in the legacy case) or
+> > from the device tree content. Outside of the probe function the driver
+> > thus only accesses its private pointer or copy.
 
-    i2c: mv64xxx: fix circular Kconfig dependency
+-- 
+Regards,
 
-    Commit 370136bc67c3 ("i2c: mv64xxx: Add reset deassert call")
-    introduced:
-
-    drivers/video/Kconfig:42:error: recursive dependency detected!
-
-    ARCH_SUNXI selects RESET_CONTROLLER anyhow.
-
-    Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-:040000 040000 533a0ca6b40f2dd1d0b3bb434e6ed13ff4796953
-cfd47b9ad19651148a2d0d4fa3a4df0b8cbbe1df M    drivers
-bisect run success
-
-
-
-
->
-> --
-> FTTC broadband for 0.8mile line: now at 9.7Mbps down 460kbps up... slowly
-> improving, and getting towards what was expected from it.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Laurent Pinchart
