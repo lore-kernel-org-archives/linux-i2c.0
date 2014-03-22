@@ -1,97 +1,78 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
-Date: Fri, 21 Mar 2014 20:17:39 +0100
-Message-ID: <20140321191739.GT27873@lukather>
+Date: Sat, 22 Mar 2014 12:11:24 +0100
+Message-ID: <4177769.XedaQsoUgV@wuerfel>
 References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
- <20140307160836.GM21483@n2100.arm.linux.org.uk>
- <20140310105808.GE2815@lukather>
- <20140310112929.GY21483@n2100.arm.linux.org.uk>
  <CAP=VYLqCmG6fRmPPABoW4xg_tFgGh2pji=f5ML=cBgCu4zZocg@mail.gmail.com>
+ <20140321191739.GT27873@lukather>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CV9cI//wlcIKC9rG"
-Return-path: <linux-next-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAP=VYLqCmG6fRmPPABoW4xg_tFgGh2pji=f5ML=cBgCu4zZocg@mail.gmail.com>
-Sender: linux-next-owner@vger.kernel.org
-To: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, LKML <linux-kernel@vger.kernel.org>, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, zhuzhenhua@allwinnertech.com, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20140321191739.GT27873@lukather>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Wolfram Sang <wsa@the-dreams.de>, LKML <linux-kernel@vger.kernel.org>, zhuzhenhua@allwinnertech.com, Paul Gortmaker <paul.gortmaker@windriver.com>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, Maxime Ripard <maxime.ripard@free-electrons.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Friday 21 March 2014 20:17:39 Maxime Ripard wrote:
+> On Fri, Mar 21, 2014 at 11:49:59AM -0400, Paul Gortmaker wrote:
+> > On Mon, Mar 10, 2014 at 7:29 AM, Russell King - ARM Linux
+> > <linux@arm.linux.org.uk> wrote:
+> > > On Mon, Mar 10, 2014 at 11:58:08AM +0100, Maxime Ripard wrote:
+> > >> On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wrote:
+> > >> > On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
+> > >> > > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+> > >> > >  exit_free_irq:
+> > >> > >   free_irq(drv_data->irq, drv_data);
+> > >> > >  exit_reset:
+> > >> > > - if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
+> > >> > > + if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
+> > >> > > +     !IS_ERR(drv_data->rstc))
+> > >> > >           reset_control_assert(drv_data->rstc);
+> > >> >
+> > >> > Another question is... why do we need to check pd->dev.of_node here?
+> > >> > If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
+> > >> > controller node, so drv_data->rstc is either going to be a valid
+> > >> > pointer, or it's going to be an error pointer - neither
+> > >> > reset_control_get() nor devm_reset_control_get return NULL.
+> > >>
+> > >> Following back on this as I was doing the patch, actually,
+> > >> drv_data->rstc will be NULL if we're not probed by DT, and hence never
+> > >> call reset_control_get, that would set an error pointer.
+> > >>
+> > >> But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
+> > >
+> > > I think you can also move the devm_reset_control_get() into the main
+> > > probe function: you're only checking for -EPROBE_DEFER from it to fail,
+> > > allowing other errors to continue with the driver init.  This means
+> > > that on non-OF, devm_reset_control_get() will fail with -ENOENT.
+> > 
+> > Looping linux-next into the CC since this is the cause of the failure
+> > in orion5x_defconfig there, and no point in anyone else re-doing the
+> > same bisect.
+> 
+> I sent a fix for this that hasn't been picked up yet:
+> http://lists.infradead.org/pipermail/linux-arm-kernel/2014-March/239069.html
+> 
+> IIRC, Wolfram's away until Monday, so I guess it will be merged some
+> time next week.
 
---CV9cI//wlcIKC9rG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think there is something wrong with an interface that makes you use
+IS_ERR_OR_NULL(). If you are calling reset_control_get_optional(), that'
+should not return an error when there is no reset controller listed
+in the device tree. We should still have a way to propagate -EPROBE_DEFER,
+or bail out if there is a reset controller but there is something wrong
+with it, but otherwise I'd suggest just leaving NULL as a valid pointer
+in drv_data->rstc and making sure that the reset controller functions
+can just deal with a NULL argument, so you never have to check it again.
 
-On Fri, Mar 21, 2014 at 11:49:59AM -0400, Paul Gortmaker wrote:
-> On Mon, Mar 10, 2014 at 7:29 AM, Russell King - ARM Linux
-> <linux@arm.linux.org.uk> wrote:
-> > On Mon, Mar 10, 2014 at 11:58:08AM +0100, Maxime Ripard wrote:
-> >> On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux wro=
-te:
-> >> > On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
-> >> > > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *pd)
-> >> > >  exit_free_irq:
-> >> > >   free_irq(drv_data->irq, drv_data);
-> >> > >  exit_reset:
-> >> > > - if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
-> >> > > + if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
-> >> > > +     !IS_ERR(drv_data->rstc))
-> >> > >           reset_control_assert(drv_data->rstc);
-> >> >
-> >> > Another question is... why do we need to check pd->dev.of_node here?
-> >> > If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
-> >> > controller node, so drv_data->rstc is either going to be a valid
-> >> > pointer, or it's going to be an error pointer - neither
-> >> > reset_control_get() nor devm_reset_control_get return NULL.
-> >>
-> >> Following back on this as I was doing the patch, actually,
-> >> drv_data->rstc will be NULL if we're not probed by DT, and hence never
-> >> call reset_control_get, that would set an error pointer.
-> >>
-> >> But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
-> >
-> > I think you can also move the devm_reset_control_get() into the main
-> > probe function: you're only checking for -EPROBE_DEFER from it to fail,
-> > allowing other errors to continue with the driver init.  This means
-> > that on non-OF, devm_reset_control_get() will fail with -ENOENT.
->=20
-> Looping linux-next into the CC since this is the cause of the failure
-> in orion5x_defconfig there, and no point in anyone else re-doing the
-> same bisect.
-
-I sent a fix for this that hasn't been picked up yet:
-http://lists.infradead.org/pipermail/linux-arm-kernel/2014-March/239069.html
-
-IIRC, Wolfram's away until Monday, so I guess it will be merged some
-time next week.
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---CV9cI//wlcIKC9rG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTLJBTAAoJEBx+YmzsjxAgH6gP/jKtHBpq3INeEpd7SkNLUmEx
-HehCiSx8kJZXH29suIjw/O2BP8TuOh6sXfMmwRQdGgSTgf4mztCPW2wyzQSMWw23
-so0nO52DBAEA0Hn+VRags2/rIb7K9aEarZ/j1cJPLO1E7guzwT+QZAJRr68xKo1P
-dGBFbW21KtwU4GNWzSCntp1HFmHr66XNFxAflHJkxOV6FW9MnSx/Pl4Ql91r5nFu
-88CCcJ7YlKYwXF+Vd9SSRALhAicyKBgfiU85vofy36ZiljZgvTRHCnYS26MrZM/V
-AIh+Q3Tyv5YVmaM+Vg+BN90i/+W/HPJkgkp9VAUJT6sYw5n+Z7eucagwgNElD+vm
-WCB8kuXSrtcu/GlWGsX0Sqi/aFtzbNRf2eZSQKadtn2DuJSaNufccJHn8uemSOPJ
-9SljO+XWSOWS6a7sVhdmzbhM8KoKPHM+K9r+59flGlukBEYATeiAeaSZMgxR1MfD
-UGH76k38c0KYlxuFGlT7P33P4EzTl7PL3dQ6smfOSp5T9HI+kqI5xx8JKexPTYM+
-GKQ9aiP3EFL3LcC7RNa9dSuPzH1h/bHkvfdacKz5g2xo/J0qXgwtEuBm7lQJNVUS
-dAVAWW/hwHpFl+YGTFAAwgcTigLlw5ENdcYlbM/dGjXQHYOMdml0Boc6grHj03w3
-WI+L+TpsisyrrgJ8J0QS
-=WB5f
------END PGP SIGNATURE-----
-
---CV9cI//wlcIKC9rG--
+	Arnd
