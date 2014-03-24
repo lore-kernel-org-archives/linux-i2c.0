@@ -1,50 +1,119 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
-Date: Mon, 24 Mar 2014 15:03:19 +0100
-Message-ID: <53303B27.2040201@free-electrons.com>
-References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com> <20140307160836.GM21483@n2100.arm.linux.org.uk> <20140310105808.GE2815@lukather> <20140310112929.GY21483@n2100.arm.linux.org.uk> <CAP=VYLqCmG6fRmPPABoW4xg_tFgGh2pji=f5ML=cBgCu4zZocg@mail.gmail.com> <20140321191739.GT27873@lukather> <20140324133349.GA2631@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
+Date: Mon, 24 Mar 2014 17:14:32 +0100
+Message-ID: <20140324161432.GA7524@katana>
+References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
+ <1394779348-4084-1-git-send-email-mike.looijmans@topic.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140324133349.GA2631@katana>
+Content-Disposition: inline
+In-Reply-To: <1394779348-4084-1-git-send-email-mike.looijmans-Oq418RWZeHk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, "linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Arnd, Olof, Kevin,
 
-On 24/03/2014 14:33, Wolfram Sang wrote:
-> 
->>> Looping linux-next into the CC since this is the cause of the failure
->>> in orion5x_defconfig there, and no point in anyone else re-doing the
->>> same bisect.
->>
->> I sent a fix for this that hasn't been picked up yet:
->> http://lists.infradead.org/pipermail/linux-arm-kernel/2014-March/239069.html
->>
->> IIRC, Wolfram's away until Monday, so I guess it will be merged some
->> time next week.
-> 
-> I'd love to apply the fix but the reset framework update is not in
-> linux-next yet.
-> 
-
-I saw the there was a pull request resent last week. Is there any
-reason to not have pulled it, yet?
-http://www.spinics.net/lists/arm-kernel/msg316518.html
-
-I would really like that it was sorted out, because all the build using
-the mvebu related defconfig fails since two weeks because of it now.
-
-I am ready to help if you need it.
-
-Thanks!
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-da=
+vinci.c
+> index af0b583..254d897 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -372,9 +372,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct=
+ i2c_msg *msg, int stop)
+>  		flag |=3D DAVINCI_I2C_MDR_STP;
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> =20
+> -	r =3D wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+> +	r =3D wait_for_completion_timeout(&dev->cmd_complete,
+>  						      dev->adapter.timeout);
+> -	if (r =3D=3D 0) {
+> +	if (unlikely(r =3D=3D 0)) {
+
+Not really needed, but well yeah...
+
+>  		dev_err(dev->dev, "controller timed out\n");
+>  		davinci_i2c_recover_bus(dev);
+>  		i2c_davinci_init(dev);
+> @@ -384,7 +384,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct=
+ i2c_msg *msg, int stop)
+>  	if (dev->buf_len) {
+>  		/* This should be 0 if all bytes were transferred
+>  		 * or dev->cmd_err denotes an error.
+> -		 * A signal may have aborted the transfer.
+>  		 */
+>  		if (r >=3D 0) {
+>  			dev_err(dev->dev, "abnormal termination buf_len=3D%i\n",
+> @@ -436,22 +435,24 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i=
+2c_msg msgs[], int num)
+>  	ret =3D i2c_davinci_wait_bus_not_busy(dev, 1);
+>  	if (ret < 0) {
+>  		dev_warn(dev->dev, "timeout waiting for bus ready\n");
+> -		return ret;
+> +		goto error;
+
+You are fixing the error path here to include the completion? This is a
+seperate patch IMO.
+
+>  	}
+> =20
+>  	for (i =3D 0; i < num; i++) {
+>  		ret =3D i2c_davinci_xfer_msg(adap, &msgs[i], (i =3D=3D (num - 1)));
+> -		dev_dbg(dev->dev, "%s [%d/%d] ret: %d\n", __func__, i + 1, num,
+> -			ret);
+> +		dev_dbg(dev->dev, "%s [%d/%d] %#x ret: %d\n", __func__, i + 1,
+> +				num, msgs[i].addr, ret);
+
+No need for this change. We have other debug output/tracing already. But
+no need to clean up either.
+
+>  		if (ret < 0)
+> -			return ret;
+> +			goto error;
+>  	}
+> +	ret =3D num;
+> =20
+> +error:
+>  #ifdef CONFIG_CPU_FREQ
+>  	complete(&dev->xfr_complete);
+>  #endif
+> =20
+> -	return num;
+> +	return ret;
+
+Thanks,
+
+   Wolfram
+
+
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTMFnoAAoJEBQN5MwUoCm2VmcQAJMQjRI4+dR3vpiOfNXapkO0
+NX63qR4m8TPg/r1LdS1MfC6Pey1GT/xZ1d7ofeSAn/QMekucrRpgpVmGWA8JKXiv
+ZEN9R1A/Df4HoIKPrPw17ArWoN1/RqOFvQZrfHRaBvz0/jBzFf8EufbjhrmYBlhV
+B8VANxj+18aNgI/YhjDsgAWROgAsn6nvhWnnuCxopm9gkDOpXtSHLYQ2eSPoKWaH
+hWaqzSxRip+hX4c88Gc7gjnQgqlqofZCe/D14n725/o40t5KGO5Q3NOOJ2/42O9e
+tB/a9/VKoq4CpSR04jIIK1UGu2muCqZJFD6J7m3hpqSOdk6EU9ntfudCwYWiuGeI
+nvyBU7pgEwYsnPoYW80Tm8sCvUch9ljenxmfPTXFX6L+HBpdlRTV8JTy5qpisitB
+nQtvDFcVtqWToy78V48pLIXSH7PLrvePqtrnJphJEiiIeDthTEodf2q0bXHno4Kg
+7lK/oYyD6Sfb3DofCUNOaIf8ifvGbDKNX/OkEBy/3TPdQ7vaDhTXoWrKTXI9omOa
+H7t2FUvu6VFQ/STRFo9El22nhNYJbA6K6tckODXdn6cHic7SE0ycEkzFHsYMQXxw
+jq9Fe9lizXgRVHxARFUty8lMZwuT4E2Rpm99InrjLZTqQVdtLyK/UqNjcecJo0cx
+aeY16RvoNDqR3hOC25xQ
+=F7yK
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--
