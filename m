@@ -1,174 +1,121 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH v3 1/2] i2c: add DMA support for freescale i2c driver
-Date: Sun, 23 Mar 2014 04:49:51 +0100
-Message-ID: <201403230449.51515.marex@denx.de>
-References: <1394675277-24913-1-git-send-email-yao.yuan@freescale.com> <1394675277-24913-2-git-send-email-yao.yuan@freescale.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
+Date: Mon, 24 Mar 2014 10:41:37 +0100
+Message-ID: <20140324094137.GB5416@lukather>
+References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
+ <CAP=VYLqCmG6fRmPPABoW4xg_tFgGh2pji=f5ML=cBgCu4zZocg@mail.gmail.com>
+ <20140321191739.GT27873@lukather>
+ <4177769.XedaQsoUgV@wuerfel>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1394675277-24913-2-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4177769.XedaQsoUgV@wuerfel>
+Sender: linux-next-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arm-kernel@lists.infradead.org, Paul Gortmaker <paul.gortmaker@windriver.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, Wolfram Sang <wsa@the-dreams.de>, LKML <linux-kernel@vger.kernel.org>, zhuzhenhua@allwinnertech.com, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, March 13, 2014 at 02:47:56 AM, Yuan Yao wrote:
-> Add dma support for i2c. This function depend on DMA driver.
-> You can turn on it by write both the dmas and dma-name properties in dts
-> node.
-> 
-> Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 354
-> +++++++++++++++++++++++++++++++++++++------ 1 file changed, 306
-> insertions(+), 48 deletions(-)
 
-Changelog is missing.
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[...]
+On Sat, Mar 22, 2014 at 12:11:24PM +0100, Arnd Bergmann wrote:
+> On Friday 21 March 2014 20:17:39 Maxime Ripard wrote:
+> > On Fri, Mar 21, 2014 at 11:49:59AM -0400, Paul Gortmaker wrote:
+> > > On Mon, Mar 10, 2014 at 7:29 AM, Russell King - ARM Linux
+> > > <linux@arm.linux.org.uk> wrote:
+> > > > On Mon, Mar 10, 2014 at 11:58:08AM +0100, Maxime Ripard wrote:
+> > > >> On Fri, Mar 07, 2014 at 04:08:36PM +0000, Russell King - ARM Linux=
+ wrote:
+> > > >> > On Fri, Mar 07, 2014 at 03:59:30PM +0100, Maxime Ripard wrote:
+> > > >> > > @@ -900,7 +902,8 @@ mv64xxx_i2c_probe(struct platform_device *=
+pd)
+> > > >> > >  exit_free_irq:
+> > > >> > >   free_irq(drv_data->irq, drv_data);
+> > > >> > >  exit_reset:
+> > > >> > > - if (pd->dev.of_node && !IS_ERR(drv_data->rstc))
+> > > >> > > + if (pd->dev.of_node && IS_ENABLED(CONFIG_RESET_CONTROLLER) &&
+> > > >> > > +     !IS_ERR(drv_data->rstc))
+> > > >> > >           reset_control_assert(drv_data->rstc);
+> > > >> >
+> > > >> > Another question is... why do we need to check pd->dev.of_node h=
+ere?
+> > > >> > If CONFIG_RESET_CONTROLLER is set, we always try to get the reset
+> > > >> > controller node, so drv_data->rstc is either going to be a valid
+> > > >> > pointer, or it's going to be an error pointer - neither
+> > > >> > reset_control_get() nor devm_reset_control_get return NULL.
+> > > >>
+> > > >> Following back on this as I was doing the patch, actually,
+> > > >> drv_data->rstc will be NULL if we're not probed by DT, and hence n=
+ever
+> > > >> call reset_control_get, that would set an error pointer.
+> > > >>
+> > > >> But then, we can use IS_ERR_OR_NULL on drv_data->rstc.
+> > > >
+> > > > I think you can also move the devm_reset_control_get() into the main
+> > > > probe function: you're only checking for -EPROBE_DEFER from it to f=
+ail,
+> > > > allowing other errors to continue with the driver init.  This means
+> > > > that on non-OF, devm_reset_control_get() will fail with -ENOENT.
+> > >=20
+> > > Looping linux-next into the CC since this is the cause of the failure
+> > > in orion5x_defconfig there, and no point in anyone else re-doing the
+> > > same bisect.
+> >=20
+> > I sent a fix for this that hasn't been picked up yet:
+> > http://lists.infradead.org/pipermail/linux-arm-kernel/2014-March/239069=
+=2Ehtml
+> >=20
+> > IIRC, Wolfram's away until Monday, so I guess it will be merged some
+> > time next week.
+>=20
+> I think there is something wrong with an interface that makes you use
+> IS_ERR_OR_NULL(). If you are calling reset_control_get_optional(), that'
+> should not return an error when there is no reset controller listed
+> in the device tree. We should still have a way to propagate -EPROBE_DEFER,
+> or bail out if there is a reset controller but there is something wrong
+> with it, but otherwise I'd suggest just leaving NULL as a valid pointer
+> in drv_data->rstc and making sure that the reset controller functions
+> can just deal with a NULL argument, so you never have to check it again.
 
-> +/* Functions for DMA support */
-> +static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
-> +						dma_addr_t phy_addr)
-> +{
-> +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> +	struct dma_slave_config dma_sconfig;
-> +	struct device *dev = &i2c_imx->adapter.dev;
-> +	int ret;
-> +
-> +	dma->chan_tx = dma_request_slave_channel(dev, "tx");
-> +	if (!dma->chan_tx) {
-> +		dev_err(dev, "Dma tx channel request failed!\n");
+Actually, it's not the reset framework but the driver itself that
+needs this. The framework will always return an error pointer here,
+but we won't ever call reset_control_get_optional if we are not probed
+with DT, and in that case, we will have NULL is data->rstc, hence why
+we need to use IS_ERR_OR_NULL.
 
-DMA is written in all caps, it's an abbrev. for Direct Memory Access . Please 
-fix globally.
+We should probably fix the reset functions, but maybe that can come
+later so that we have marvell's defconfig fixed?
 
-[...]
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
->  static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg
-> *msgs) {
+--s/l3CgOIzMHHjg/5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-[...]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
 
-> -	/* write data */
-> -	for (i = 0; i < msgs->len; i++) {
-> -		dev_dbg(&i2c_imx->adapter.dev,
-> -			"<%s> write byte: B%d=0x%X\n",
-> -			__func__, i, msgs->buf[i]);
-> -		imx_i2c_write_reg(msgs->buf[i], i2c_imx, IMX_I2C_I2DR);
-> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +		temp |= I2CR_DMAEN;
-> +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +		/* write slave address */
-> +		imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> +		result = wait_for_completion_interruptible_timeout(
-> +					&i2c_imx->dma->cmd_complete,
-> +					msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-> +		if (result <= 0) {
-> +			dmaengine_terminate_all(dma->chan_using);
-> +			if (result)
-> +				return result;
-> +			else
-> +				return -ETIMEDOUT;
-> +		}
-> +
-> +		/* waiting for Transfer complete. */
-> +		while (timeout--) {
-> +			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +			if (temp & I2SR_ICF)
-> +				break;
-> +			udelay(10);
-> +		}
+iQIcBAEBAgAGBQJTL/3QAAoJEBx+YmzsjxAgY6AP/1uVSOM5/sF088hQkuuMLrjh
+dV8Vh5aqe2PuOk7tm/HT+f2lMzmyPs9YC5loLKdd+z+klbLV83wVU+74U8WTc9Fw
+AiQ5jI6v7pvAnaFHPiHf5xW1EylL+sHji2iI5wcpFvJbcRHZjU2Gmy8pBssc+xLd
+9tWysgAhTBpyZZKvWPFvWjJu+f74LrbKWkWW4cuXBBXcdGssQi93e1irIN3vuPRw
+4SP3FupRI5GrpRc3JvG3XTi6j2xqgyW5SFtPzUwW712supAzheRXM75G6gomLsgK
+hxtRp+1pO6zhzGVrxRWm2HdMSd6YJZ4iSeGVopn0uBLkrYai+eXUR929eaUOidIR
+9pJ2j4l1zS4L7f0ddURsk4NL5Tyxq+tCYHicaW7ri/14LNRZmJz4EQ0Z3ViVstHp
+NEdm1YNQRCtBFenDpZ+LlCPdL9ZfR4N28BfwvOsQqTbQmJeVnClAAvqKgyXat8EX
+7SyKZyj62k/N7B2qcVE/E+VQRDaFNnqdheRE3yEgtFy0f/OH/brDaZTBfxlUS944
+lMtyhQ3wBaPG+EgpY4KUSJhQwbv9+2ZHxV7QiY6BIQWDRNGF0vMQcvqxMNYiHvc1
+oF2okBLecmXeUUX7Tek42GUDho47I7+YojdBiTJMzJztKrK2AQwgr97q/ecnkxJe
+Il438A3MLIo/pcaxDHw2
+=EADx
+-----END PGP SIGNATURE-----
 
-Do you ever check if this really timed out and handle such case at all ? I don't 
-see it , but I might be wrong ...
-
-> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +		temp &= ~I2CR_DMAEN;
-> +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +		/* write the last byte */
-> +		imx_i2c_write_reg(msgs->buf[msgs->len-1],
-> +					i2c_imx, IMX_I2C_I2DR);
->  		result = i2c_imx_trx_complete(i2c_imx);
->  		if (result)
->  			return result;
-> +
->  		result = i2c_imx_acked(i2c_imx);
->  		if (result)
->  			return result;
-> +	} else {
-> +		/* write slave address */
-> +		imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> +		result = i2c_imx_trx_complete(i2c_imx);
-> +		if (result)
-> +			return result;
-> +
-> +		result = i2c_imx_acked(i2c_imx);
-> +		if (result)
-> +			return result;
-> +
-> +		dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
-> +
-> +		/* write data */
-> +		for (i = 0; i < msgs->len; i++) {
-> +			dev_dbg(&i2c_imx->adapter.dev,
-> +				"<%s> write byte: B%d=0x%X\n",
-> +				__func__, i, msgs->buf[i]);
-
-Can you not just have a variable $dev here and avoid having such a long noodle 
-in the dev_dbg() call ?
-
-> +			imx_i2c_write_reg(msgs->buf[i], i2c_imx, IMX_I2C_I2DR);
-> +			result = i2c_imx_trx_complete(i2c_imx);
-> +			if (result)
-> +				return result;
-> +			result = i2c_imx_acked(i2c_imx);
-> +			if (result)
-> +				return result;
-> +		}
->  	}
->  	return 0;
->  }
-[...]
-
-> +		/* waiting for Transfer complete. */
-> +		while (timeout--) {
-> +			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +			if (temp & I2SR_ICF)
-> +				break;
-> +			udelay(10);
-> +		}
-
-Timeout handling here as well ...
-
-[...]
-
-> @@ -696,6 +936,21 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  		i2c_imx->adapter.name);
->  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
-> 
-> +	/* Init DMA config if support*/
-> +	i2c_imx->dma = devm_kzalloc(&pdev->dev, sizeof(struct imx_i2c_dma),
-> +					GFP_KERNEL);
-> +	if (!i2c_imx->dma) {
-> +		dev_info(&pdev->dev,
-> +				"can't allocate dma struct faild use dma.\n");
-
-Or just have $dev variable and you won't have to break the line at all ...
-
-> +		i2c_imx->use_dma = false;
-> +	} else if (i2c_imx_dma_request(i2c_imx, (dma_addr_t)phy_addr)) {
-> +		dev_info(&pdev->dev,
-> +				"can't request dma chan, faild use dma.\n");
-> +		i2c_imx->use_dma = false;
-> +	} else {
-> +		i2c_imx->use_dma = true;
-> +	}
-
-Can you not just check if i2c_imx->dma is valid pointer or NULL pointer ? Then 
-you won't need a separate variable, for this purpose ... right ?
-[...]
+--s/l3CgOIzMHHjg/5--
