@@ -1,60 +1,76 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: new bus driver for efm32
-Date: Mon, 24 Mar 2014 20:08:56 +0100
-Message-ID: <20140324190856.GA11532@katana>
-References: <1395414236-22647-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <20140324170131.GB7524@katana>
- <20140324184114.GK23076@pengutronix.de>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] ARM: sunxi: dt: Convert to the new i2c compatibles
+Date: Mon, 24 Mar 2014 15:39:18 +0100
+Message-ID: <20140324143918.GJ5416@lukather>
+References: <1394710643-3411-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1394710643-3411-3-git-send-email-maxime.ripard@free-electrons.com>
+ <20140313212725.GF2696@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+	protocol="application/pgp-signature"; boundary="5VuzLDXibKSJvVYD"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140324184114.GK23076-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20140313212725.GF2696@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---jRHKVT23PllUwdXP
+--5VuzLDXibKSJvVYD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Thu, Mar 13, 2014 at 10:27:25PM +0100, Wolfram Sang wrote:
+> > diff --git a/arch/arm/boot/dts/sun7i-a20.dtsi b/arch/arm/boot/dts/sun7i=
+-a20.dtsi
+> > index 4cc2f5f2ecad..c1fd510fd2c4 100644
+> > --- a/arch/arm/boot/dts/sun7i-a20.dtsi
+> > +++ b/arch/arm/boot/dts/sun7i-a20.dtsi
+> > @@ -762,7 +762,7 @@
+> >  		};
+> > =20
+> >  		i2c0: i2c@01c2ac00 {
+> > -			compatible =3D "allwinner,sun4i-i2c";
+> > +			compatible =3D "allwinner,sun4i-a10-i2c";
+>=20
+> I still wonder why there is no "allwinner,sun4i-a20-i2c" entry first
+> (even if there is no similar entry in the driver *yet*).=20
 
-> > > +config I2C_EFM32
-> > > +	tristate "EFM32 I2C controller"
-> > > +	depends on OF && (ARCH_EFM32 || COMPILE_TEST)
-> >=20
-> > Is EFM32 DT only? Do we need the dependency on OF?
-> yes, efm32 is DT only. Still for the COMPILE_TEST branch the OF is
-> needed.
+Ahh, I didn't understand it like that in your previous mail. Yes, it
+makes sense.
 
-Really? of_* functions should have empty templates if OF is not
-selected, I'd think.
+I'll update the patches and resend.
 
+Thanks,
+Maxime
 
---jRHKVT23PllUwdXP
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--5VuzLDXibKSJvVYD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTMILIAAoJEBQN5MwUoCm2zuQP/jKBuBTWQvOs0YUsKA+waaBh
-a0bgblGdxmD6w/C+Nfc179zz/Ujt6PEH9gxfFLZcoAYeG023PfeRZ/v0cYBr2AIl
-zC+ehPW9r/R06fbJIfMdDUNN1PjY8/JdeKy2haknF+cvythDcP3A9K6QNjIMZFEb
-yd3/u3hrK3Mi+GGvT7JZueR0NNVARCFiaScjFOuv9tGT73DU5Zp+Kb4YV3NaoxGV
-ZuKxjFAUTev24Q7eNtb6bw2sRL1URyRQEHvB7Ixy31WQpVvLBhRjaPmizrK3XGYJ
-xzf3zJNI2dppFJJAGbzyzuHeW2kSlsDZClYtDAT2VSA29Y9i0VlAKZ/H8goGgBz8
-pk1c/v2y0KGzzzfDNBfvlPrBvCokoTZL7TGO15tMg+UkYJtUXLwd6lxTLPqjLcXo
-4ZA6rPj+NkftTwCdSYLMzz8h/83Ux99ITo01m7kjZAxySqSJJIq+yTaRKZ9R94IM
-XiAE3POtiXQS5J9byhxn6NA47aNauSni1igtgEGrKIMvlYHciJ9wQ5pNn3hzlV1J
-rCKgyfdIgHj64AkFVEr8d/RlWenSPW3xRnOE3tCK+HlRgHmbw9ej+iTEmVapDuTy
-lpES1vZz1wFnJH26W2vWlex63fDerj9nwHecbXKfsFgUIN26dEbHV1h5bbiSx5ww
-1TRjm/a4mM3jrjB5Bvm0
-=lBJN
+iQIcBAEBAgAGBQJTMEOWAAoJEBx+YmzsjxAgR/MQAMK2+MSfDYqtbSvn2d9HsOHx
+2QET/meVaNdzkhC4ftoGS2Z4mBvKLebsdf2iVsjz1rgFtLgte2OCvInoH2THBOrX
+LletSZKadj2Wg6OFcKDL0bLbnqr626bgFMkRCgIuagjA2ZUGzvXY77jm+6UCbrx4
+xPAFGZPfv8g7TfL7lNgWb3p3NUCWvyWd0N1NaT7NPxbFDklXSHUpCp3VqOILy8BT
+OmOO9pxrrwEANsF4QzkxNMITkFPFq5aCVEq6T4qvs4uIM+F898iiV/4LJcY7CIpG
+5BhPCXD+6WZb0vpzJRsN8yVLgeZk5FIDydJl02EqsWZ9xdCX6YoxKpYt8uuJheaz
+Rgv8klYsYw4wtC1jYY2l4PeZw9RNoUCat83cpRH0F7EVy2LuBY6VxybjPnQt/Z63
+OU6y/3iZRSGTJJtsOzlcXOHFdd/39Wrine0YdplPxxaDHDMuC1pWwee7sYn+CWT2
+XeaP80TI8zR/iVvj4zn65nWj3LqTUF8FvdF9eaTkooO6uFFH18+0iQXl76o7s4yq
+XbK6Y1rqX/cvgR40qEzkDzlFGtpJlfa07bIDYslJDIl+SNjeuJ6l4JA7mxWbaIiH
+168FrpsaIhQsLgtTROcNN/AJTa0lkJZDvwZAmZlaLikYclM+8tnefCxCWBNRjhEx
+TokqLQEwNkG7y8YcmhpI
+=rBu+
 -----END PGP SIGNATURE-----
 
---jRHKVT23PllUwdXP--
+--5VuzLDXibKSJvVYD--
