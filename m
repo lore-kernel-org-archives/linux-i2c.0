@@ -1,70 +1,99 @@
-From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: new bus driver for efm32
-Date: Tue, 25 Mar 2014 07:01:54 -0700
-Message-ID: <1395756114.3010.16.camel@joe-AO722>
-References: <1395414236-22647-1-git-send-email-u.kleine-koenig@pengutronix.de>
-	 <20140324170131.GB7524@katana> <20140325090700.GL23076@pengutronix.de>
-	 <20140325091148.GA2570@katana>
+From: Kaushal Butala <kaushalkernelmailinglist-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [RFC PATCH] imx-i2c: Add smbus block read support to imx i2c bus
+Date: Tue, 25 Mar 2014 16:06:22 +0100
+Message-ID: <1395759982-18559-1-git-send-email-kaushalkernelmailinglist@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140325091148.GA2570@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andy Whitcroft <apw-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>
+To: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kaushal Butala <kaushal.butala-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kaushal Butala <kaushalkernelmailinglist-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2014-03-25 at 10:11 +0100, Wolfram Sang wrote:
-> On Tue, Mar 25, 2014 at 10:07:00AM +0100, Uwe Kleine-K=F6nig wrote:
-> > Hello,
-> >=20
-> > On Mon, Mar 24, 2014 at 06:01:31PM +0100, Wolfram Sang wrote:
-> > > And checkpatch said:
-> > >=20
-> > > WARNING: braces {} are not necessary for any arm of this statemen=
-t
-> > > #345: FILE: drivers/i2c/busses/i2c-efm32.c:239:
-> > > +		if (cur_msg->flags & I2C_M_RD) {
-> > > ...
-> > hmm the whole block reads:
-> >=20
-> >         case REG_STATE_STATE_DATA:
-> >                 if (cur_msg->flags & I2C_M_RD) {
-> >                         efm32_i2c_recv_next_byte(ddata);
-> >                 } else {
-> >                         /* wait for Ack or Nack of slave */
-> >                 }
-> >                 break;
-> >=20
-> > so just removing the braces does the wrong thing. Is this a false
-> > positive checkpatch warning? Andy? Joe?
-> >=20
-> > I can make it:
-> >=20
-> > 		if (cur_msg->flags & I2C_M_RD)
-> > 			efm32_i2c_recv_next_byte(ddata);
-> > 		/* in the write case wait for Ack or Nack of slave */
-> >=20
-> > but I consider the version above more readable.
->=20
-> Well, OK, I let you decide.
+From: Kaushal Butala <kaushal.butala-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-A Semi-Positive I think.
+The smbus block read is not currently supported for imx i2c devices.
+This patchset adds the support to imx i2c bus so that blocks of data
+can be read using SMbus block reads.(using i2c_smbus_read_block_data()
+function from the i2c_core.c.). Tested with 3.10.9 kernel.
 
-I think your first block is more readable myself.
+Signed-off-by: Kaushal Butala <kaushalkernelmailinglist-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-imx.c |   31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
-Adding a semicolon would shut checkpatch up and it's
-debatable whether it might be better too.
-
-	if (foo) {
-		bar();
-	} else {
-		/* single line comment */
-		;
-	}
-
-But please feel free to ignore any checkpatch warning
-where your taste is better than its.
-
-checkpatch is brainless, you're not.
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index db895fb..b6c2c3c 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -462,6 +462,7 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+ {
+ 	int i, result;
+ 	unsigned int temp;
++	int block_data = msgs->flags & I2C_M_RECV_LEN;
+ 
+ 	dev_dbg(&i2c_imx->adapter.dev,
+ 		"<%s> write slave address: addr=0x%x\n",
+@@ -481,7 +482,12 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+ 	/* setup bus to read data */
+ 	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+ 	temp &= ~I2CR_MTX;
+-	if (msgs->len - 1)
++
++	/*
++	 * Reset the I2CR_TXAK flag initially for SMbus block read since the
++	 * length is unknown
++	 */
++	if ((msgs->len - 1) || (block_data))
+ 		temp &= ~I2CR_TXAK;
+ 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
+@@ -490,9 +496,24 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+ 
+ 	/* read data */
+ 	for (i = 0; i < msgs->len; i++) {
++		u8 len = 0;
+ 		result = i2c_imx_trx_complete(i2c_imx);
+ 		if (result)
+ 			return result;
++		/*
++		 * First byte is the length of remaining packet
++		 * in the SMBus block data read. Add it to
++		 * msgs->len.
++		 */
++		if ((!i) && (block_data)) {
++			len = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
++			if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX))
++				return -EPROTO;
++			dev_dbg(&i2c_imx->adapter.dev,
++				"<%s> read length: 0x%X\n",
++				__func__, len);
++			msgs->len += len;
++		}
+ 		if (i == (msgs->len - 1)) {
+ 			/* It must generate STOP before read I2DR to prevent
+ 			   controller from generating another clock cycle */
+@@ -510,7 +531,10 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+ 			temp |= I2CR_TXAK;
+ 			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 		}
+-		msgs->buf[i] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
++		if ((!i) && (block_data))
++			msgs->buf[0] = len;
++		else
++			msgs->buf[i] =  imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+ 		dev_dbg(&i2c_imx->adapter.dev,
+ 			"<%s> read byte: B%d=0x%X\n",
+ 			__func__, i, msgs->buf[i]);
+@@ -583,7 +607,8 @@ fail0:
+ 
+ static u32 i2c_imx_func(struct i2c_adapter *adapter)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
++		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+ }
+ 
+ static struct i2c_algorithm i2c_imx_algo = {
+-- 
+1.7.9.5
