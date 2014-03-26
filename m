@@ -1,99 +1,207 @@
-From: Kaushal Butala <kaushalkernelmailinglist-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH] imx-i2c: Add smbus block read support to imx i2c bus
-Date: Tue, 25 Mar 2014 16:06:22 +0100
-Message-ID: <1395759982-18559-1-git-send-email-kaushalkernelmailinglist@gmail.com>
+From: Yao Yuan <yao.yuan@freescale.com>
+Subject: RE: [PATCH v3 1/2] i2c: add DMA support for freescale i2c driver
+Date: Wed, 26 Mar 2014 03:08:27 +0000
+Message-ID: <1e17ce716618472f9a0146c48f20b976@BL2PR03MB338.namprd03.prod.outlook.com>
+References: <1394675277-24913-1-git-send-email-yao.yuan@freescale.com>
+ <1394675277-24913-2-git-send-email-yao.yuan@freescale.com>
+ <201403230449.51515.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kaushal Butala <kaushal.butala-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kaushal Butala <kaushalkernelmailinglist-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <201403230449.51515.marex@denx.de>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Marek Vasut <marex@denx.de>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Kaushal Butala <kaushal.butala-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+On Sunday, March 23, 2014 @ 11:50:00 AM, Marek Vasut wrote:
+> On Thursday, March 13, 2014 at 02:47:56 AM, Yuan Yao wrote:
+> > Add dma support for i2c. This function depend on DMA driver.
+> > You can turn on it by write both the dmas and dma-name properties in
+> > dts node.
+> >
+> > Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
+> > ---
+> >  drivers/i2c/busses/i2c-imx.c | 354
+> > +++++++++++++++++++++++++++++++++++++------ 1 file changed, 306
+> > insertions(+), 48 deletions(-)
+> 
+> Changelog is missing.
 
-The smbus block read is not currently supported for imx i2c devices.
-This patchset adds the support to imx i2c bus so that blocks of data
-can be read using SMbus block reads.(using i2c_smbus_read_block_data()
-function from the i2c_core.c.). Tested with 3.10.9 kernel.
+Sorry for this, Maybe the changelog is in the junk box. It's named "[PATCH v3 0/2] i2c: add DMA support for freescale i2c driver". 
 
-Signed-off-by: Kaushal Butala <kaushalkernelmailinglist-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c |   31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+> [...]
+> 
+> > +/* Functions for DMA support */
+> > +static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+> > +						dma_addr_t phy_addr)
+> > +{
+> > +	struct imx_i2c_dma *dma = i2c_imx->dma;
+> > +	struct dma_slave_config dma_sconfig;
+> > +	struct device *dev = &i2c_imx->adapter.dev;
+> > +	int ret;
+> > +
+> > +	dma->chan_tx = dma_request_slave_channel(dev, "tx");
+> > +	if (!dma->chan_tx) {
+> > +		dev_err(dev, "Dma tx channel request failed!\n");
+> 
+> DMA is written in all caps, it's an abbrev. for Direct Memory Access .
+> Please fix globally.
+> 
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index db895fb..b6c2c3c 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -462,6 +462,7 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- {
- 	int i, result;
- 	unsigned int temp;
-+	int block_data = msgs->flags & I2C_M_RECV_LEN;
- 
- 	dev_dbg(&i2c_imx->adapter.dev,
- 		"<%s> write slave address: addr=0x%x\n",
-@@ -481,7 +482,12 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- 	/* setup bus to read data */
- 	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 	temp &= ~I2CR_MTX;
--	if (msgs->len - 1)
-+
-+	/*
-+	 * Reset the I2CR_TXAK flag initially for SMbus block read since the
-+	 * length is unknown
-+	 */
-+	if ((msgs->len - 1) || (block_data))
- 		temp &= ~I2CR_TXAK;
- 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
-@@ -490,9 +496,24 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- 
- 	/* read data */
- 	for (i = 0; i < msgs->len; i++) {
-+		u8 len = 0;
- 		result = i2c_imx_trx_complete(i2c_imx);
- 		if (result)
- 			return result;
-+		/*
-+		 * First byte is the length of remaining packet
-+		 * in the SMBus block data read. Add it to
-+		 * msgs->len.
-+		 */
-+		if ((!i) && (block_data)) {
-+			len = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+			if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX))
-+				return -EPROTO;
-+			dev_dbg(&i2c_imx->adapter.dev,
-+				"<%s> read length: 0x%X\n",
-+				__func__, len);
-+			msgs->len += len;
-+		}
- 		if (i == (msgs->len - 1)) {
- 			/* It must generate STOP before read I2DR to prevent
- 			   controller from generating another clock cycle */
-@@ -510,7 +531,10 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- 			temp |= I2CR_TXAK;
- 			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 		}
--		msgs->buf[i] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+		if ((!i) && (block_data))
-+			msgs->buf[0] = len;
-+		else
-+			msgs->buf[i] =  imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
- 		dev_dbg(&i2c_imx->adapter.dev,
- 			"<%s> read byte: B%d=0x%X\n",
- 			__func__, i, msgs->buf[i]);
-@@ -583,7 +607,8 @@ fail0:
- 
- static u32 i2c_imx_func(struct i2c_adapter *adapter)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-+		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
- }
- 
- static struct i2c_algorithm i2c_imx_algo = {
--- 
-1.7.9.5
+Ok, I will fix it globally.
+
+> [...]
+> 
+> >  static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct
+> > i2c_msg
+> > *msgs) {
+> 
+> [...]
+> 
+> > -	/* write data */
+> > -	for (i = 0; i < msgs->len; i++) {
+> > -		dev_dbg(&i2c_imx->adapter.dev,
+> > -			"<%s> write byte: B%d=0x%X\n",
+> > -			__func__, i, msgs->buf[i]);
+> > -		imx_i2c_write_reg(msgs->buf[i], i2c_imx, IMX_I2C_I2DR);
+> > +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > +		temp |= I2CR_DMAEN;
+> > +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +		/* write slave address */
+> > +		imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> > +		result = wait_for_completion_interruptible_timeout(
+> > +					&i2c_imx->dma->cmd_complete,
+> > +					msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> > +		if (result <= 0) {
+> > +			dmaengine_terminate_all(dma->chan_using);
+> > +			if (result)
+> > +				return result;
+> > +			else
+> > +				return -ETIMEDOUT;
+> > +		}
+> > +
+> > +		/* waiting for Transfer complete. */
+> > +		while (timeout--) {
+> > +			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +			if (temp & I2SR_ICF)
+> > +				break;
+> > +			udelay(10);
+> > +		}
+> 
+> Do you ever check if this really timed out and handle such case at all ?
+> I don't see it , but I might be wrong ...
+> 
+
+Oh, It's a bug, Thank you very much.
+
+> > +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > +		temp &= ~I2CR_DMAEN;
+> > +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +		/* write the last byte */
+> > +		imx_i2c_write_reg(msgs->buf[msgs->len-1],
+> > +					i2c_imx, IMX_I2C_I2DR);
+> >  		result = i2c_imx_trx_complete(i2c_imx);
+> >  		if (result)
+> >  			return result;
+> > +
+> >  		result = i2c_imx_acked(i2c_imx);
+> >  		if (result)
+> >  			return result;
+> > +	} else {
+> > +		/* write slave address */
+> > +		imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> > +		result = i2c_imx_trx_complete(i2c_imx);
+> > +		if (result)
+> > +			return result;
+> > +
+> > +		result = i2c_imx_acked(i2c_imx);
+> > +		if (result)
+> > +			return result;
+> > +
+> > +		dev_dbg(&i2c_imx->adapter.dev, "<%s> write data\n", __func__);
+> > +
+> > +		/* write data */
+> > +		for (i = 0; i < msgs->len; i++) {
+> > +			dev_dbg(&i2c_imx->adapter.dev,
+> > +				"<%s> write byte: B%d=0x%X\n",
+> > +				__func__, i, msgs->buf[i]);
+> 
+> Can you not just have a variable $dev here and avoid having such a long
+> noodle in the dev_dbg() call ?
+> 
+
+Ok, And I don't think the dev_dbg() is very helpful here now. 
+
+> > +			imx_i2c_write_reg(msgs->buf[i], i2c_imx, IMX_I2C_I2DR);
+> > +			result = i2c_imx_trx_complete(i2c_imx);
+> > +			if (result)
+> > +				return result;
+> > +			result = i2c_imx_acked(i2c_imx);
+> > +			if (result)
+> > +				return result;
+> > +		}
+> >  	}
+> >  	return 0;
+> >  }
+> [...]
+> 
+> > +		/* waiting for Transfer complete. */
+> > +		while (timeout--) {
+> > +			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +			if (temp & I2SR_ICF)
+> > +				break;
+> > +			udelay(10);
+> > +		}
+> 
+> Timeout handling here as well ...
+> 
+> [...]
+> 
+> > @@ -696,6 +936,21 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+> >  		i2c_imx->adapter.name);
+> >  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+> >
+> > +	/* Init DMA config if support*/
+> > +	i2c_imx->dma = devm_kzalloc(&pdev->dev, sizeof(struct imx_i2c_dma),
+> > +					GFP_KERNEL);
+> > +	if (!i2c_imx->dma) {
+> > +		dev_info(&pdev->dev,
+> > +				"can't allocate dma struct faild use dma.\n");
+> 
+> Or just have $dev variable and you won't have to break the line at all ...
+> 
+> > +		i2c_imx->use_dma = false;
+> > +	} else if (i2c_imx_dma_request(i2c_imx, (dma_addr_t)phy_addr)) {
+> > +		dev_info(&pdev->dev,
+> > +				"can't request dma chan, faild use dma.\n");
+> > +		i2c_imx->use_dma = false;
+> > +	} else {
+> > +		i2c_imx->use_dma = true;
+> > +	}
+> 
+> Can you not just check if i2c_imx->dma is valid pointer or NULL pointer ?
+> Then you won't need a separate variable, for this purpose ... right ?
+
+Sorry and I think what I know is just to check whether it is NULL.
+Then for the second question, maybe there are some other ways, But I think it is more tidy and easier 
+understanding for using a separate variable, for this purpose.
+
+> [...]
+> 
+
+Best regards,
+Yuan Yao
