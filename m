@@ -1,49 +1,92 @@
-From: Yao Yuan <yao.yuan@freescale.com>
-Subject: RE: [PATCH v3 1/2] i2c: add DMA support for freescale i2c driver
-Date: Wed, 26 Mar 2014 07:08:28 +0000
-Message-ID: <8984936f9e914442995d79039543cb58@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1394675277-24913-1-git-send-email-yao.yuan@freescale.com>
- <201403260442.42970.marex@denx.de>
- <cd88de7e04734400b897c0e2bcf07eab@BL2PR03MB338.namprd03.prod.outlook.com>
- <201403260726.36812.marex@denx.de>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH v3 1/2] i2c: add DMA support for freescale i2c driver
+Date: Wed, 26 Mar 2014 08:26:27 +0100
+Message-ID: <201403260826.28114.marex@denx.de>
+References: <1394675277-24913-1-git-send-email-yao.yuan@freescale.com> <201403260726.36812.marex@denx.de> <8984936f9e914442995d79039543cb58@BL2PR03MB338.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201403260726.36812.marex@denx.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <8984936f9e914442995d79039543cb58-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gV2VkbmVzZGF5LCBNYXJjaCAyNiwgMjAxNCBhdCAwMjoyNzo0NiBQTSwgTWFyZWsgVmFzdXQg
-d3JvdGU6DQo+IE9uIFdlZG5lc2RheSwgTWFyY2ggMjYsIDIwMTQgYXQgMDY6NTY6MzQgQU0sIFlh
-byBZdWFuIHdyb3RlOg0KPiA+IE9uIFdlZG5lc2RheSwgTWFyY2ggMjYsIDIwMTQgYXQgMTE6NDM6
-MjcgQU0sIE1hcmVrIFZhc3V0IHdyb3RlOg0KPiA+ID4gT24gV2VkbmVzZGF5LCBNYXJjaCAyNiwg
-MjAxNCBhdCAwNDowODoyNyBBTSwgWWFvIFl1YW4gd3JvdGU6DQo+ID4gPg0KPiA+ID4gWy4uLl0N
-Cj4gPiA+DQo+ID4gPiA+ID4gPiArCQlpMmNfaW14LT51c2VfZG1hID0gZmFsc2U7DQo+ID4gPiA+
-ID4gPiArCX0gZWxzZSBpZiAoaTJjX2lteF9kbWFfcmVxdWVzdChpMmNfaW14LA0KPiA+ID4gPiA+
-ID4gKyhkbWFfYWRkcl90KXBoeV9hZGRyKSkNCj4gPiA+DQo+ID4gPiB7DQo+ID4gPg0KPiA+ID4g
-PiA+ID4gKwkJZGV2X2luZm8oJnBkZXYtPmRldiwNCj4gPiA+ID4gPiA+ICsJCQkJImNhbid0IHJl
-cXVlc3QgZG1hIGNoYW4sIGZhaWxkIHVzZSBkbWEuDQo+IFxuIik7DQo+ID4gPiA+ID4gPiArCQlp
-MmNfaW14LT51c2VfZG1hID0gZmFsc2U7DQo+ID4gPiA+ID4gPiArCX0gZWxzZSB7DQo+ID4gPiA+
-ID4gPiArCQlpMmNfaW14LT51c2VfZG1hID0gdHJ1ZTsNCj4gPiA+ID4gPiA+ICsJfQ0KPiA+ID4g
-PiA+DQo+ID4gPiA+ID4gQ2FuIHlvdSBub3QganVzdCBjaGVjayBpZiBpMmNfaW14LT5kbWEgaXMg
-dmFsaWQgcG9pbnRlciBvciBOVUxMDQo+ID4gPg0KPiA+ID4gcG9pbnRlciA/DQo+ID4gPg0KPiA+
-ID4gPiA+IFRoZW4geW91IHdvbid0IG5lZWQgYSBzZXBhcmF0ZSB2YXJpYWJsZSwgZm9yIHRoaXMg
-cHVycG9zZSAuLi4NCj4gcmlnaHQgPw0KPiA+ID4gPg0KPiA+ID4gPiBTb3JyeSBhbmQgSSB0aGlu
-ayB3aGF0IEkga25vdyBpcyBqdXN0IHRvIGNoZWNrIHdoZXRoZXIgaXQgaXMgTlVMTC4NCj4gPiA+
-ID4gVGhlbiBmb3IgdGhlIHNlY29uZCBxdWVzdGlvbiwgbWF5YmUgdGhlcmUgYXJlIHNvbWUgb3Ro
-ZXIgd2F5cywgQnV0DQo+ID4gPiA+IEkgdGhpbmsgaXQgaXMgbW9yZSB0aWR5IGFuZCBlYXNpZXIg
-dW5kZXJzdGFuZGluZyBmb3IgdXNpbmcgYQ0KPiA+ID4gPiBzZXBhcmF0ZSB2YXJpYWJsZSwgZm9y
-IHRoaXMgcHVycG9zZS4NCj4gPiA+DQo+ID4gPiBZb3UgYXJlIGp1c3Qgd2FzdGluZyBzcGFjZSBh
-bmQgZHVwbGljYXRpbmcgZGF0YSwgdW5sZXNzIEkgYW0gd3JvbmcuDQo+ID4NCj4gPiBXZWxsLCBE
-byB5b3UgaGF2ZSBhIGJldHRlciBpZGVhPyBBbHRob3VnaCBJIHRoaW5rIGl0J3MgbmVjZXNzYXJ5
-Lg0KPiANCj4gSSB0aGluayB3ZSBkaXNjb25uZWN0ZWQgaGVyZSwgc29ycnkuIFdoeSBjYW4geW91
-IG5vdCB1c2UgKGkyY19pbXgtPmRtYSAhPQ0KPiBOVUxMKSBpbnN0ZWFkIG9mIChpMmNfaW14LT51
-c2VfZG1hID09IHRydWUpIHBsZWFzZSA/DQo+IA0KDQpCdXQgdGhlcmUgYXJlIHR3byBqdWRnZSBj
-b25kaXRpb25zLiBCdXQgb25seSB0aGUgImkyY19pbXgtPmRtYSIsIGJ1dCBhbHNvIHdoZXRoZXIg
-ImkyY19pbXhfZG1hX3JlcXVlc3QiIHN1Y2Nlc3MuDQoNCiJpMmNfaW14LT51c2VfZG1hID09IHRy
-dWUiIGJlIGVxdWl2YWxlbnQgdG8gImkyY19pbXgtPmRtYSAhPSBOVUxMICYmICFpMmNfaW14X2Rt
-YV9yZXF1ZXN0KCkiIA0KDQo=
+On Wednesday, March 26, 2014 at 08:08:28 AM, Yao Yuan wrote:
+> On Wednesday, March 26, 2014 at 02:27:46 PM, Marek Vasut wrote:
+> > On Wednesday, March 26, 2014 at 06:56:34 AM, Yao Yuan wrote:
+> > > On Wednesday, March 26, 2014 at 11:43:27 AM, Marek Vasut wrote:
+> > > > On Wednesday, March 26, 2014 at 04:08:27 AM, Yao Yuan wrote:
+> > > > 
+> > > > [...]
+> > > > 
+> > > > > > > +		i2c_imx->use_dma = false;
+> > > > > > > +	} else if (i2c_imx_dma_request(i2c_imx,
+> > > > > > > +(dma_addr_t)phy_addr))
+> > > > 
+> > > > {
+> > > > 
+> > > > > > > +		dev_info(&pdev->dev,
+> > > > > > > +				"can't request dma chan, faild use dma.
+> > 
+> > \n");
+> > 
+> > > > > > > +		i2c_imx->use_dma = false;
+> > > > > > > +	} else {
+> > > > > > > +		i2c_imx->use_dma = true;
+> > > > > > > +	}
+> > > > > > 
+> > > > > > Can you not just check if i2c_imx->dma is valid pointer or NULL
+> > > > 
+> > > > pointer ?
+> > > > 
+> > > > > > Then you won't need a separate variable, for this purpose ...
+> > 
+> > right ?
+> > 
+> > > > > Sorry and I think what I know is just to check whether it is NULL.
+> > > > > Then for the second question, maybe there are some other ways, But
+> > > > > I think it is more tidy and easier understanding for using a
+> > > > > separate variable, for this purpose.
+> > > > 
+> > > > You are just wasting space and duplicating data, unless I am wrong.
+> > > 
+> > > Well, Do you have a better idea? Although I think it's necessary.
+> > 
+> > I think we disconnected here, sorry. Why can you not use (i2c_imx->dma !=
+> > NULL) instead of (i2c_imx->use_dma == true) please ?
+> 
+> But there are two judge conditions. But only the "i2c_imx->dma", but also
+> whether "i2c_imx_dma_request" success.
+> 
+> "i2c_imx->use_dma == true" be equivalent to "i2c_imx->dma != NULL &&
+> !i2c_imx_dma_request()"
+
++       /* Init DMA config if support*/
++       i2c_imx->dma = devm_kzalloc(&pdev->dev, sizeof(struct imx_i2c_dma),
++                                       GFP_KERNEL);
++       if (!i2c_imx->dma) {
++               dev_info(&pdev->dev,
++                               "can't allocate dma struct faild use dma.\n");
++               i2c_imx->use_dma = false;
++       } else if (i2c_imx_dma_request(i2c_imx, (dma_addr_t)phy_addr)) {
++               dev_info(&pdev->dev,
++                               "can't request dma chan, faild use dma.\n");
++               i2c_imx->use_dma = false;
++       } else {
++               i2c_imx->use_dma = true;
++       }
+
+OK, looking at this one more time, why don't you wrap the allocation of i2c_imx-
+>dma into i2c_imx_dma_request() ? Even better, you can allocate *dma as a local 
+variable in i2c_imx_dma_request() and then assign it into i2c_imx->dma only at 
+the end of the i2c_imx_dma_request() function , at the point where you are sure 
+nothing failed. Then you can check i2c_imx->dma != NULL throughout the code to 
+check if the DMA is available, no ?
+
+Shawn, Wolfram, am I talking nonsense or am I just not connecting ?
+
+Best regards,
+Marek Vasut
