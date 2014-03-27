@@ -1,71 +1,54 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.14
-Date: Thu, 27 Mar 2014 18:43:55 +0100
-Message-ID: <20140327174349.GA11698@katana>
+Subject: Re: [PATCH v4] i2c: new bus driver for efm32
+Date: Thu, 27 Mar 2014 18:49:52 +0100
+Message-ID: <20140327174952.GB11379@katana>
+References: <1395744526-3706-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <1395744526-3706-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
+--bCsyhTFzCvuiizWE
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Tue, Mar 25, 2014 at 11:48:46AM +0100, Uwe Kleine-K=F6nig wrote:
+> This was tested on a EFM32GG-DK3750 devboard that has a temperature
+> sensor and an eeprom on its i2c bus.
+>=20
+> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-the build fix from my last request unveiled another build problem which
-is fixed with this patch. Please pull.
-
-Thanks,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
-The following changes since commit dcb99fd9b08cfe1afe426af4d8d3cbc429190f15:
-
-  Linux 3.14-rc7 (2014-03-16 18:51:24 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 5f12c5eca6e6b7aeb4b2028d579f614b4fe7a81f:
-
-  i2c: cpm: Fix build by adding of_address.h and of_irq.h (2014-03-24 14:54:21 +0100)
-
-----------------------------------------------------------------
-Scott Wood (1):
-      i2c: cpm: Fix build by adding of_address.h and of_irq.h
-
- drivers/i2c/busses/i2c-cpm.c | 2 ++
- 1 file changed, 2 insertions(+)
-
---ReaqsoxgOBHFXBhH
+--bCsyhTFzCvuiizWE
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTNGNVAAoJEBQN5MwUoCm2OjEP/3W4bj4Ab+Uxe8knRgqVqujN
-ybK+PcnXjGtPQa2NYbg8Ei5hCMW8J7DXREJ2wJJkQUdrPDI84UkI7z1uscXQEVc+
-WvjfRhxwbpq3JnAnklcRsWX8mRc/Otkwr1vnrG2tbtytoRUwJJC9hF3XLJsfwMzf
-VvBJ1pLsFaFhAyRuBG7SA238rXTpEhyD38JNGiMzjvFfqgZQvf8g5bjO/iktmFd1
-tH6oQmdvO1A1CnvIkGggUNSiRZ1FWKwP3hbZ960S83sjT5t+MbyhCdE9G9zOfzo5
-oYdf6AgJBCZtg4qGY1LS8Wl1xlV3cuxUzC0A1LQ+aZmBdDnME8oYWKlaPhgMlwEl
-w9wynJjEqDPJEkJtSGA66xXEDspvpaNPM2j/l+/ECNCe840ot75g2qD7NR3ZzUVR
-yGyfgV2CuRVqHoj43P5Udd0cZY1tLSde5Vcmfcxw/TwMp8UxjR3xOodvPiKC0Bky
-GDLBjYXPOZMi2xhknC8bqXGvDm9rktgKrHmNHZVNpfRPVObUu1CTmgsozLvrAduh
-DSOTVWkqF0LAPis8+UyXu39YIraoOiHkYVl1xJ6veWdHtshQsjhC9YH6IV+wHzmN
-yP35xzLgpte+rrf4nkduWsSg12rzK21LbmTy7agBZLPMgJe62+iLYtlX+pj8yGHq
-1wH6GtEXehz4FJaJ0aBr
-=NJs2
+iQIcBAEBAgAGBQJTNGTAAAoJEBQN5MwUoCm2fnkP/i1W3vA8EwisxswO/XZK0DYt
++wCGvc8DKDkiYEjiy5Ta9Q83IGGwiXNknVIZo+U94jleNeLBCqg50lBXVnZgVBLn
+zfP/3XjzsyF8tkvWAAYASpRTZ2fRNuqRjTclTqvxSJe35lMvdagsqdaPG+fg+aud
+POTc66mC6wNBFApKg/fjrZtzqz2kKE1NAgP0iOezfm7Ld3WYgmvAA7iVK8pskkJq
+GaGjiU7yLf48TU6Sos7DdgRxDYWVIXzenrQ9RrxG3Es7Th1uWY4+RXnqqxCQAsSF
+37WZGKmA2x/kZjz8dVCJ7d3TUTrmNVOPcaI4RBn+zd29KeCYoyv3R3e1LeTxDq0d
+F+PCluxvZz86eiSTthsWUMsK2u++ax1owtVlpPo30FhUVd0YQR+MkiDKiW0W8VKN
+ldl9kmRXDr+FY5y/wEBSGpuM1+dEEmooYmgufW22105nJ76QArL3aGCWvlMdlCEW
+29dkRjM5vk2tac14hu4vridWNJVvQc1NeuwrE7xZJg4gJsIoQU/obo2JCqjTthr+
+y5u3wYldJqNL5mfbme4r1eF3XKbTX7xR5PmZt0XEQEbmGlWZv0mS5mJIXpGJjKyw
+KmtOHg6EvUEQSVD/czc3StuxZB1LlOa09ogEMhZqSXtRBf5+0wNqNhpPqJR62tgP
+5GDNTSdIkOKOTqC/h98Y
+=axno
 -----END PGP SIGNATURE-----
 
---ReaqsoxgOBHFXBhH--
+--bCsyhTFzCvuiizWE--
