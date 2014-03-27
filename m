@@ -1,54 +1,67 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: new bus driver for efm32
-Date: Thu, 27 Mar 2014 18:49:52 +0100
-Message-ID: <20140327174952.GB11379@katana>
-References: <1395744526-3706-1-git-send-email-u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH] i2c: omap: fix usage of IS_ERR_VALUE with
+ pm_runtime_get_sync
+Date: Thu, 27 Mar 2014 18:52:31 +0100
+Message-ID: <20140327175231.GC11379@katana>
+References: <1395937113-10222-1-git-send-email-nm@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
+	protocol="application/pgp-signature"; boundary="zCKi3GIZzVBPywwA"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1395744526-3706-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1395937113-10222-1-git-send-email-nm-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---bCsyhTFzCvuiizWE
-Content-Type: text/plain; charset=iso-8859-15
+--zCKi3GIZzVBPywwA
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 25, 2014 at 11:48:46AM +0100, Uwe Kleine-K=F6nig wrote:
-> This was tested on a EFM32GG-DK3750 devboard that has a temperature
-> sensor and an eeprom on its i2c bus.
+On Thu, Mar 27, 2014 at 11:18:33AM -0500, Nishanth Menon wrote:
+> we use IS_ERR_VALUE to check for error values of pm_runtime_get_sync,
+> when the value can only be < 0 in the case of err. Replace the
+> check with a simpler < 0 check.
 >=20
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> This fixes the coccicheck warnings:
+> linux-2.6/drivers/i2c/busses/i2c-omap.c:1157:5-24:
+> pm_runtime_get_sync returns < 0 as error. Unecessary IS_ERR_VALUE at
+> line 1158
+> linux-2.6/drivers/i2c/busses/i2c-omap.c:1278:7-26:
+> pm_runtime_get_sync returns < 0 as error. Unecessary IS_ERR_VALUE at
+> line 1279
+> drivers/i2c/busses/i2c-omap.c:638:5-24:
+> pm_runtime_get_sync returns < 0 as error. Unecessary IS_ERR_VALUE at
+> line 639
+>=20
+> Signed-off-by: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---bCsyhTFzCvuiizWE
+--zCKi3GIZzVBPywwA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTNGTAAAoJEBQN5MwUoCm2fnkP/i1W3vA8EwisxswO/XZK0DYt
-+wCGvc8DKDkiYEjiy5Ta9Q83IGGwiXNknVIZo+U94jleNeLBCqg50lBXVnZgVBLn
-zfP/3XjzsyF8tkvWAAYASpRTZ2fRNuqRjTclTqvxSJe35lMvdagsqdaPG+fg+aud
-POTc66mC6wNBFApKg/fjrZtzqz2kKE1NAgP0iOezfm7Ld3WYgmvAA7iVK8pskkJq
-GaGjiU7yLf48TU6Sos7DdgRxDYWVIXzenrQ9RrxG3Es7Th1uWY4+RXnqqxCQAsSF
-37WZGKmA2x/kZjz8dVCJ7d3TUTrmNVOPcaI4RBn+zd29KeCYoyv3R3e1LeTxDq0d
-F+PCluxvZz86eiSTthsWUMsK2u++ax1owtVlpPo30FhUVd0YQR+MkiDKiW0W8VKN
-ldl9kmRXDr+FY5y/wEBSGpuM1+dEEmooYmgufW22105nJ76QArL3aGCWvlMdlCEW
-29dkRjM5vk2tac14hu4vridWNJVvQc1NeuwrE7xZJg4gJsIoQU/obo2JCqjTthr+
-y5u3wYldJqNL5mfbme4r1eF3XKbTX7xR5PmZt0XEQEbmGlWZv0mS5mJIXpGJjKyw
-KmtOHg6EvUEQSVD/czc3StuxZB1LlOa09ogEMhZqSXtRBf5+0wNqNhpPqJR62tgP
-5GDNTSdIkOKOTqC/h98Y
-=axno
+iQIcBAEBAgAGBQJTNGVfAAoJEBQN5MwUoCm2RsIP/3mwwJgWLpQUFnEkgPuGZdus
+53YlHaBF1hBT2ziO+TYQg44/j3oU4uzBN64ImJYKTRZqGwsnT4m9Yj+bkOJFXwKr
+DSqXMMAmojApJr2bXt3iSMUl8vD0AEGKoLWvEY9QClVo+Mb5bHnkoUlBQZSRRquN
+QAH36aLCsJtFz/1iHGzQCY/UAQyESK9x62KghgKFVoRegYNqOcr6HK/ed8OJs4J/
+F7iXe8EVXIcinS250/nqEtpzBbfAcZE8TKd3EOLpFI2785KzK7Q+N+DGp8tsmQJC
+odXXcUPZ4Fk2ZNeQ+lZxl8LCo67wNvGS5LuLrp2SGDJgrEWEWcvMvsfKByZSGqLX
+hc2q//ioYneapURLvBSdYExCstBtlZs2ozsAI94Nsdr8evUgU4ixKlNr9AmyWjhY
+FFHzdGL49MvY/JOSte1HyTH+QgJIEJgxtXPZ1kyEM1YTIMvfBtVX1Q3ecoarkG0v
+OwOUYDV7OJsJgIq1MKl2dKmItjzVzoyJ12K7X82Mze+58m7XQnbssrPllctBlKc0
+9YuxzB8kOBHZWWfxkLtFCAhCkRmw0+Ff9S3QYF2xZCagU/7XfpS6T0wZkY3oT+GR
+0oYu2fpsJZFczxXwnxZJO9jVxkBY+BJ9FLd/B7GEJAaiEtPtx7hAXaBL4MonJcEn
+EuMLcHNripvta3mVE8bb
+=ARtt
 -----END PGP SIGNATURE-----
 
---bCsyhTFzCvuiizWE--
+--zCKi3GIZzVBPywwA--
