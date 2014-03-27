@@ -1,75 +1,54 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [RFC Patch v0 1/3] i2c-smbus: Add poll interface for smbus alert
-Date: Wed, 26 Mar 2014 17:42:10 -0700
-Message-ID: <1395880932-19124-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [RFC Patch v0 2/3] i2c-smbus: Allow building with
+ I2C_HELPER_AUTO support
+Date: Thu, 27 Mar 2014 07:57:12 +0100
+Message-ID: <20140327075712.5121d6ed@endymion.delvare>
+References: <1395880932-19124-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	<1395880932-19124-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1395880932-19124-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The current i2c smbus alert module depends on smbus alert mechanism
-supported by underlying bus drivers. By specifications, these alerts
-can be polled if there is no hardware support.
-Currently multiple drivers who needs smbus alerts are creating
-a new i2c dummy device with address 0x0C (ARA register), by luck
-they don't co-exist. Otherwise i2c device creation will fail.
-Added a poll interface, so that all these driver can call a common
-interface to poll. Even if they polli, all drivers bound to an
-adapater will be notified by their alert callback if ARA register
-read is successful.
+On Wed, 26 Mar 2014 17:42:11 -0700, Srinivas Pandruvada wrote:
+> Currentlty the config is conditional on !I2C_HELPER_AUTO.
+> I don't know their dependency, but without this we can't build.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/i2c-smbus.c   | 23 +++++++++++++++++++++++
- include/linux/i2c-smbus.h |  3 +++
- 2 files changed, 26 insertions(+)
+Nack. Just because you don't understand something and did not bother
+looking into it, is no good reason to break a perfectly working and
+valid mechanism.
 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index fc99f0d..e274f20 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -72,6 +72,29 @@ static int smbus_do_alert(struct device *dev, void *addrp)
- 	return -EBUSY;
- }
- 
-+int i2c_smbus_ara_poll(const struct i2c_client *client)
-+{
-+	union i2c_smbus_data data;
-+	int status;
-+	struct alert_data alert_data;
-+
-+	status = i2c_smbus_xfer(client->adapter, 0x0C, 0,
-+				I2C_SMBUS_READ, 0,
-+				I2C_SMBUS_BYTE, &data);
-+	if (status < 0)
-+		return status;
-+
-+	alert_data.flag = data.byte & 1;
-+	alert_data.addr = data.byte >> 1;
-+
-+	/* Notify driver for the device which issued the alert */
-+	device_for_each_child(&client->adapter->dev, &alert_data,
-+				smbus_do_alert);
-+
-+	return data.byte;
-+}
-+EXPORT_SYMBOL_GPL(i2c_smbus_ara_poll);
-+
- /*
-  * The alert IRQ handler needs to hand work off to a task which can issue
-  * SMBus calls, because those sleeping calls can't be made in IRQ context.
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index 8f1b086..f70755d 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -48,4 +48,7 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
- 					 struct i2c_smbus_alert_setup *setup);
- int i2c_handle_smbus_alert(struct i2c_client *ara);
- 
-+/* Interface to poll smbus alert */
-+int i2c_smbus_ara_poll(const struct i2c_client *client);
-+
- #endif /* _LINUX_I2C_SMBUS_H */
+Just read the Kconfig help text for I2C_HELPER_AUTO and you should be
+able to figure it out. Also grep the kernel tree for "select I2C_SMBUS".
+
+As a summary: any driver which depends on i2c-smbus, should select it
+in Kconfig.
+
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index 7b7ea32..212ed73 100644
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -74,7 +74,7 @@ config I2C_HELPER_AUTO
+>  	  In doubt, say Y.
+>  
+>  config I2C_SMBUS
+> -	tristate "SMBus-specific protocols" if !I2C_HELPER_AUTO
+> +	tristate "SMBus-specific protocols"
+>  	help
+>  	  Say Y here if you want support for SMBus extensions to the I2C
+>  	  specification. At the moment, the only supported extension is
+
+
 -- 
-1.8.3.2
+Jean Delvare
+SUSE L3 Support
