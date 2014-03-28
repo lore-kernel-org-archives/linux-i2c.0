@@ -1,28 +1,46 @@
-From: Alhajii Hassan <uzoeio.momii-ZAlN7GzcyaU@public.gmane.org>
-Subject: Good Day To You,
-Date: Fri, 28 Mar 2014 08:58:15 -0400 (EDT)
-Message-ID: <8D1189C84AC5C26-1CC8-8DF@webmail-va025.sysops.aol.com>
+From: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Subject: Non-blocking driver interface for I2C
+Date: Fri, 28 Mar 2014 14:45:06 -0500
+Message-ID: <5335D142.3030607@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiandi An <anjiandi-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Good Day To You,
+I have been maintaining, for quite some time, changes to the I2C driver
+that allow a non-blocking interface if the lower level driver supports
+it.  Basically, it allows the user of the I2C driver to send a message
+and have the send call immediately return.  The I2C driver calls a
+callback to return the response.  And (what I really care about) the
+driver can be polled and work after a panic occurs.
 
-My Name is Mr. Hassan Alhajii; I am a banker by profession. I am from 
-Ouagadougou, BurkinaFaso, West Africa. My reason for contacting you is 
-to transfer anabandoned fund$10.6M US Dollars to your account if you 
-agree with me.
+I care about this because the IPMI driver has a few functions that are
+designed to work after a panic.  Things like storing panic information
+in the IPMI event log.  To support those on SMBus, I need some way to
+poll the interface when the system can't schedule.
 
-The owner of this fund died since 2004 with his Next Of Kin. I want to 
-present you to the bank as the Next of Kin/beneficiary of this fund.
+The changes aren't small, over 1000 lines of patch for the core driver. 
+Around 900 lines of patch for the i801 driver.  The existing lower level
+drivers and user interface work, so no change to anything else is
+required unless some user needs a non-blocking interface on a system.
 
-Further details of the transaction shall be forward to you as soon as I 
-receive your response indicating your interest in handling this 
-transaction.
+Another option I originally considered was having some way of using the
+current interface and having not sleep if a panic occurs.  Use udelay or
+whatever.  That sounded risky to me, though.  If an operation was in
+progress when the panic occurred, it would have to be aborted somehow,
+and with what I've seen of I2C devices, that's taking a risk that they
+will lock the bus.  So I didn't choose that path.  What I have will
+finish the previous operation.
 
-Have a great day,
-Mr.Hassan Alhajii.
-My  Private E-mail Address At; ( alhajii_hassan9993-DaQTI0RpDDMAvxtiuMwx3w@public.gmane.org )
+Before I post patches, is this something that the I2C maintainers would
+consider?  It would only be for the IPMI driver for now, though perhaps
+other uses might surface.  Like storing panic information in a EEPROM. 
+I might even write a driver for that, it sounds useful.
+
+Thanks,
+
+-corey
