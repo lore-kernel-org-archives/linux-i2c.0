@@ -1,46 +1,86 @@
-From: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: Non-blocking driver interface for I2C
-Date: Fri, 28 Mar 2014 14:45:06 -0500
-Message-ID: <5335D142.3030607@mvista.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 1/2] i2c: qup: Add device tree bindings information
+Date: Fri, 28 Mar 2014 23:44:35 +0100
+Message-ID: <20140328224435.GA29200@katana>
+References: <1394762863-12154-1-git-send-email-bjorn.andersson@sonymobile.com>
+ <1394762863-12154-2-git-send-email-bjorn.andersson@sonymobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiandi An <anjiandi-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1394762863-12154-2-git-send-email-bjorn.andersson@sonymobile.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "Ivan T. Ivanov" <iivanov@mm-sol.com>
 List-Id: linux-i2c@vger.kernel.org
 
-I have been maintaining, for quite some time, changes to the I2C driver
-that allow a non-blocking interface if the lower level driver supports
-it.  Basically, it allows the user of the I2C driver to send a message
-and have the send call immediately return.  The I2C driver calls a
-callback to return the response.  And (what I really care about) the
-driver can be polled and work after a panic occurs.
 
-I care about this because the IPMI driver has a few functions that are
-designed to work after a panic.  Things like storing panic information
-in the IPMI event log.  To support those on SMBus, I need some way to
-poll the interface when the system can't schedule.
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The changes aren't small, over 1000 lines of patch for the core driver. 
-Around 900 lines of patch for the i801 driver.  The existing lower level
-drivers and user interface work, so no change to anything else is
-required unless some user needs a non-blocking interface on a system.
+On Thu, Mar 13, 2014 at 07:07:42PM -0700, Bjorn Andersson wrote:
+> From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+>=20
+> The Qualcomm Universal Peripherial (QUP) wraps I2C mini-core and
+> provide input and output FIFO's for it. I2C controller can operate
+> as master with supported bus speeds of 100Kbps and 400Kbps.
+>=20
+> Signed-off-by: Ivan T. Ivanov <iivanov@mm-sol.com>
+> [bjorn: reformulated part of binding description
+>         added version to compatible
+>         cleaned up example]
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@sonymobile.com>
+> ---
 
-Another option I originally considered was having some way of using the
-current interface and having not sleep if a panic occurs.  Use udelay or
-whatever.  That sounded risky to me, though.  If an operation was in
-progress when the panic occurred, it would have to be aborted somehow,
-and with what I've seen of I2C devices, that's taking a risk that they
-will lock the bus.  So I didn't choose that path.  What I have will
-finish the previous operation.
+=2E..
 
-Before I post patches, is this something that the I2C maintainers would
-consider?  It would only be for the IPMI driver for now, though perhaps
-other uses might surface.  Like storing panic information in a EEPROM. 
-I might even write a driver for that, it sounds useful.
+> + i2c@f9924000 {
+> + 	compatible =3D "qcom,i2c-qup-v2.2.1";
+> + 	reg =3D <0xf9924000 0x1000>;
+> + 	interrupts =3D <0 96 0>;
+> +
+> + 	clocks =3D <&gcc GCC_BLSP1_QUP2_I2C_APPS_CLK>, <&gcc GCC_BLSP1_AHB_CLK=
+>;
+> + 	clock-names =3D "core", "iface";
+> +
+> + 	clock-frequency =3D <355000>;
+> +
+> + 	#address-cells =3D <1>;
+> + 	#size-cells =3D <0>;
+> +
+> + 	dummy@60 {
+> + 		compatible =3D "dummy";
+> + 		reg =3D <0x60>;
+> + 	};
+> + };
 
-Thanks,
+Removed the dummy child node (confusing example) and Applied to
+for-next, thanks!
 
--corey
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTNftTAAoJEBQN5MwUoCm2PuoQAKVx6sddGPno3KxkkSDMXNQL
+JVVQVXxGTpTMlyOYPTNyBzBS+qkJ+2KezoJoee0wpNHLdqchuQvu/Q2Ti+IafwlY
+TGRCmxD4g+cHRTQdCCWOou6bFOCSsOereKh17eqDPS4ETwrnnVeoB+Hf8gNqhFuD
+PAzcb7L3db6h5/30hEeRC1wlf2ahyMJz/PXzWCQ9FPOFG0Pubd0c4aiPlpP7ZOfi
+4p/TboNdIkTdSJN+9W2aqvyqPUsJMtzV9zqV8SDRYzLkIhmIyhYtY7lYlcaxlNiY
+pPTNs9vubmIgofsY4IYBIqb/Lqc/TlvHflaB2G0L/JI27qpmYd2Jj5H5N+DXB52F
+ZfAH1xYFuhHQmiStFdd7Y818i7gngW1yo10FcRU5UMjZnAhzepeckKLMqWsZUP+G
+qTNfVG0/FSRGkO0hyOQrDMFU/0gneItJVWWSHkIrtTCh+sYhzFnwCRtf4SGOLvOB
+qm4Ay9phCEaAcpgmjT8u10VurI+aYwYtuiJ7dUK8d/KMgjTpzblBiPNP6zgKgrzf
+1/8vrx3b2d3XW8zvnBgMkHywOumVLHcdA1DQhQma3TSZ8bsSPdLKxh1tUtsLKkEb
+xuRMs02RQ4CPqE8sGYnFel1ewZvLSYH1Z1PaX7J4a7p5u3RzzZL6ut4n/JuoEr9a
+y299qVSEkuZZwBdNK04w
+=IK9+
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--
