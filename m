@@ -1,67 +1,72 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: fix usage of IS_ERR_VALUE with
- pm_runtime_get_sync
-Date: Thu, 27 Mar 2014 18:52:31 +0100
-Message-ID: <20140327175231.GC11379@katana>
-References: <1395937113-10222-1-git-send-email-nm@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix compilation breakage
+Date: Fri, 28 Mar 2014 08:48:06 +0100
+Message-ID: <20140328074806.GB2708@katana>
+References: <1394204370-22979-1-git-send-email-maxime.ripard@free-electrons.com>
+ <CAP=VYLqCmG6fRmPPABoW4xg_tFgGh2pji=f5ML=cBgCu4zZocg@mail.gmail.com>
+ <20140321191739.GT27873@lukather>
+ <4177769.XedaQsoUgV@wuerfel>
+ <20140324094137.GB5416@lukather>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zCKi3GIZzVBPywwA"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
+Return-path: <linux-next-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1395937113-10222-1-git-send-email-nm-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20140324094137.GB5416@lukather>
+Sender: linux-next-owner@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, Paul Gortmaker <paul.gortmaker@windriver.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, LKML <linux-kernel@vger.kernel.org>, zhuzhenhua@allwinnertech.com, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, kevin.z.m.zh@gmail.com, sunny@allwinnertech.com, shuge@allwinnertech.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---zCKi3GIZzVBPywwA
+--neYutvxvOLaeuPCA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 27, 2014 at 11:18:33AM -0500, Nishanth Menon wrote:
-> we use IS_ERR_VALUE to check for error values of pm_runtime_get_sync,
-> when the value can only be < 0 in the case of err. Replace the
-> check with a simpler < 0 check.
+
+> > I think there is something wrong with an interface that makes you use
+> > IS_ERR_OR_NULL(). If you are calling reset_control_get_optional(), that'
+> > should not return an error when there is no reset controller listed
+> > in the device tree. We should still have a way to propagate -EPROBE_DEF=
+ER,
+> > or bail out if there is a reset controller but there is something wrong
+> > with it, but otherwise I'd suggest just leaving NULL as a valid pointer
+> > in drv_data->rstc and making sure that the reset controller functions
+> > can just deal with a NULL argument, so you never have to check it again.
 >=20
-> This fixes the coccicheck warnings:
-> linux-2.6/drivers/i2c/busses/i2c-omap.c:1157:5-24:
-> pm_runtime_get_sync returns < 0 as error. Unecessary IS_ERR_VALUE at
-> line 1158
-> linux-2.6/drivers/i2c/busses/i2c-omap.c:1278:7-26:
-> pm_runtime_get_sync returns < 0 as error. Unecessary IS_ERR_VALUE at
-> line 1279
-> drivers/i2c/busses/i2c-omap.c:638:5-24:
-> pm_runtime_get_sync returns < 0 as error. Unecessary IS_ERR_VALUE at
-> line 639
+> Actually, it's not the reset framework but the driver itself that
+> needs this. The framework will always return an error pointer here,
+> but we won't ever call reset_control_get_optional if we are not probed
+> with DT, and in that case, we will have NULL is data->rstc, hence why
+> we need to use IS_ERR_OR_NULL.
 >=20
-> Signed-off-by: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+> We should probably fix the reset functions, but maybe that can come
+> later so that we have marvell's defconfig fixed?
 
-Applied to for-next, thanks!
+Yes, let's fix that incrementally.
 
 
---zCKi3GIZzVBPywwA
+--neYutvxvOLaeuPCA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTNGVfAAoJEBQN5MwUoCm2RsIP/3mwwJgWLpQUFnEkgPuGZdus
-53YlHaBF1hBT2ziO+TYQg44/j3oU4uzBN64ImJYKTRZqGwsnT4m9Yj+bkOJFXwKr
-DSqXMMAmojApJr2bXt3iSMUl8vD0AEGKoLWvEY9QClVo+Mb5bHnkoUlBQZSRRquN
-QAH36aLCsJtFz/1iHGzQCY/UAQyESK9x62KghgKFVoRegYNqOcr6HK/ed8OJs4J/
-F7iXe8EVXIcinS250/nqEtpzBbfAcZE8TKd3EOLpFI2785KzK7Q+N+DGp8tsmQJC
-odXXcUPZ4Fk2ZNeQ+lZxl8LCo67wNvGS5LuLrp2SGDJgrEWEWcvMvsfKByZSGqLX
-hc2q//ioYneapURLvBSdYExCstBtlZs2ozsAI94Nsdr8evUgU4ixKlNr9AmyWjhY
-FFHzdGL49MvY/JOSte1HyTH+QgJIEJgxtXPZ1kyEM1YTIMvfBtVX1Q3ecoarkG0v
-OwOUYDV7OJsJgIq1MKl2dKmItjzVzoyJ12K7X82Mze+58m7XQnbssrPllctBlKc0
-9YuxzB8kOBHZWWfxkLtFCAhCkRmw0+Ff9S3QYF2xZCagU/7XfpS6T0wZkY3oT+GR
-0oYu2fpsJZFczxXwnxZJO9jVxkBY+BJ9FLd/B7GEJAaiEtPtx7hAXaBL4MonJcEn
-EuMLcHNripvta3mVE8bb
-=ARtt
+iQIcBAEBAgAGBQJTNSk1AAoJEBQN5MwUoCm2zJIP/2W+h3hcgJycKYPnMACmwGws
+7RmhxR61sGyApSZVYoq0PPnxNHdXPtfqnZFj/Q9Y6/ah0QoT2Qq0oFvC8bCWjrOb
+atNmz0/bAK2oY6aRvjzT3yPadw9EFgz8q45h+Zcq/PDw4qb9kiH6L/2pehW6vEMl
+U++01DgQ06/cidTbujXfC5w5jZnVdBK9utXu2KCarhjoCEC/GGIb192rbQKbE+Tt
+g7X5cLfYTDbqpOfidGar7PspnJfmyMrxlR7SY3yB7ndAHI3HIoCaE8DHMI8+aoxo
+G6JLKLwUMVbW9/4GI/Ng5FHBsu5wjTRu1m+2ggimaLs2OaeYVGhNVLUOdDvgImb1
+gkesUpYhXoD3peYpOOULPhHnM4rCztCKHSV055GduMAeBbmCLkwMenPqfhnUZjky
+cv0vFMKJSGENfn5Cp9PzT5eoyKHOwUILlwTEfcwi2fIUEPPfgi9SAzJsLOMZsGmr
+NP+cK1QkwP1eaqbzV2cDDA+6h58h0l4XUNBMUJewjN5MCJc7Qle5FMqQueF13lkc
+PG/igKBbbLgUfnPUZeGqY/C/ztcf1Df8uL0RsU4A+rdb4nVZQ1USMQb7OJwuzfXq
+6bwQjwmLv0BI1l2iOJPCSdikngugphSB6/rbdltvfs6jZlFGiiDh6XaYNvba87o9
+2nW8KGriaNm/VhmAk5ZO
+=Q2J5
 -----END PGP SIGNATURE-----
 
---zCKi3GIZzVBPywwA--
+--neYutvxvOLaeuPCA--
