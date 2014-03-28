@@ -1,112 +1,83 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 00/17] i2c: deprecate class based instantiation for
- embedded I2C drivers
-Date: Fri, 28 Mar 2014 08:55:49 +0100
-Message-ID: <20140328075548.GD2708@katana>
-References: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix reset controller handling
+Date: Fri, 28 Mar 2014 09:24:06 +0100
+Message-ID: <20140328082406.GO6120@lukather>
+References: <1394449930-29696-1-git-send-email-maxime.ripard@free-electrons.com>
+ <20140328074900.GC2708@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+B+y8wtTXqdUj1xM"
-Return-path: <linux-doc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="hOh8F6DNH/RZBSFD"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1392026654-5343-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: adi-buildroot-devel@lists.sourceforge.net, davinci-linux-open-source@linux.davincidsp.com, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org
+In-Reply-To: <20140328074900.GC2708@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.z.m.zh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, zhuzhenhua-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---+B+y8wtTXqdUj1xM
+--hOh8F6DNH/RZBSFD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 10, 2014 at 11:03:54AM +0100, Wolfram Sang wrote:
-> With I2C, class based instantiation means if a master driver has e.g.
-> I2C_CLASS_HWMON set, all slave drivers with this class will try to probe a
-> device using an array of possible addresses and some heuristics. That cre=
-ates
-> traffic and needs time, even when nothing is connected. This mechanism is
-> needed when you do not have another method to describe the slaves. Embedd=
-ed I2C
-> drivers do not need class based instantiation, since there is i2c_board_i=
-nfo or
-> devicetree description. Some drivers have the class flags set, though, an=
-d it
-> has spread further over the years. We can't remove the flags directly, be=
-cause
-> there might be users out there relying on this feature. So, we add a
-> deprecation warning if a device is instantiated via class attributes. Aft=
-er
-> giving some time to switch over, we can then finally remove the class fla=
-gs and
-> gain boot time.
+On Fri, Mar 28, 2014 at 08:49:00AM +0100, Wolfram Sang wrote:
+> On Mon, Mar 10, 2014 at 12:12:10PM +0100, Maxime Ripard wrote:
+> > The reset framework recently gained optional stubs when CONFIG_RESET_CO=
+NTROLLER
+> > is not selected. It also introduced a function reset_get_optional, that=
+ is also
+> > dummy-defined whenever the framework isn't enabled, for drivers that ne=
+eds an
+> > optional reset controller.
+> >=20
+> > Switch to this function, since the mv64xxx driver is in this case. This=
+ also
+> > fixes a compilation breakage whenever the reset framework wasn't select=
+ed:
+> >=20
+> > drivers/i2c/busses/i2c-mv64xxx.c:771:2: error: implicit declaration of =
+function 'devm_reset_control_get'
+> >=20
+> > While we're at it, remove the redundant test on dev.of_node surrounding=
+ the
+> > calls to reset framework functions, since it will either be a valid poi=
+nter, an
+> > error pointer in the case where we called reset_get_optional without an=
+ of_node
+> > pointer or if it failed, or NULL if we're not loaded through DT.
+> >=20
+> > Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 >=20
-> Patch 1 adds some missing documentation. Patch 2 adds the deprecation fea=
-ture.
-> Patches 3+4 are tested on hardware I need. Patches 5-17 are suggestions f=
-or
-> drivers I think could benefit from that. For those, acks are needed befor=
-e I
-> will apply them to my tree. If you use a different driver which can also
-> benefit from this, just send a patch adding the new DEPRECATED flag.
->=20
-> The series can also be found here:
->=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/deprecate=
-d_class
->=20
-> Thanks,
->=20
->    Wolfram
->=20
->=20
-> Wolfram Sang (17):
->   Documentation: i2c: describe devicetree method for instantiating
->     devices
->   i2c: add deprecation warning for class based instantiation
->   i2c: i2c-omap: deprecate class based instantiation
->   i2c: i2c-at91: deprecate class based instantiation
->   i2c: i2c-bcm2835: deprecate class based instantiation
->   i2c: i2c-bfin-twi: deprecate class based instantiation
->   i2c: i2c-davinci: deprecate class based instantiation
->   i2c: i2c-designware-platdrv: deprecate class based instantiation
->   i2c: i2c-mv64xxx: deprecate class based instantiation
->   i2c: i2c-nomadik: deprecate class based instantiation
->   i2c: i2c-ocores: deprecate class based instantiation
->   i2c: i2c-rcar: deprecate class based instantiation
->   i2c: i2c-s3c2410: deprecate class based instantiation
->   i2c: i2c-sirf: deprecate class based instantiation
->   i2c: i2c-stu300: deprecate class based instantiation
->   i2c: i2c-tegra: deprecate class based instantiation
->   i2c: i2c-xiic: deprecate class based instantiation
+> Applied to for-next, thanks!
 
-I reconsidered and have now applied all patches. That way, all these
-drivers can be converted to no class based instantiation in one go after
-some grace period. If it turns out, one driver actually needs it, there
-is still the grace period left to remove the DEPRECATED flag again.
+Thanks for your patience, and sorry for the mess.
 
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
 
---+B+y8wtTXqdUj1xM
+--hOh8F6DNH/RZBSFD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
+Version: GnuPG v1.4.14 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTNSsEAAoJEBQN5MwUoCm2aPUP/0fNAS8+v21TjZp/oZc/OYXJ
-uPl3yGMTuEjEF6vMpjRZAgLdEEBzp3kY65odh5LzyfcVGw+MxGFsSgyaHlDEvLVI
-8VCGE+09XzaCRqOOq98QFrVZCnvEhxyYAM2paB1E8s0W6Sl4Cx6mhTT4xKt5EShg
-l44GTiG+ce5hqsvzdf4GgKRGOt+jdNL6drojM26HA3osAj3O7FUHbB2kFXB/cR+2
-Bkx5D2vPfMFWdaoy6OWoBLw/Mu8bdTEpKSeAJHSHJfb8MDJbwj3OAnE727c5N9AC
-QyrYNv/ENAizaJXtTpPjGDwWltZf4dGuGqCIp1rGIa+Qb3cu/yM9LvhU9gUvGWxq
-0RgrlfRyNp51Jzc6kLpOrkCirejm6T4m2zg8mwvVE+aCMi4MIY3+GFtlxkvTMqvo
-5fuo3+wHKpE8ThQWhxBq+5g2LU7LIPq8LbfWXSwAH9axLhpSrBrPDS6QuLcsR/3Y
-DZ50lOjdXGkRq+Ts1+yv0nMaoWonjBJZfJ0CzWcz7caJ7/vLQmaP+Ps0FenpgRYQ
-PmDkVkobDhwD35ca2JJpoZd2osqT9W5z1pzrVip0loEvI7fNyfRdHTic22YS4NgK
-hY8qwdWL3wywbGpEaHAajXv2wI8dT4QcF5B1KCmRD3FBbWAPSWWeZidD2rc915My
-kAHhWUihcNGI5n8hFyt9
-=Xl2M
+iQIcBAEBAgAGBQJTNTGmAAoJEBx+YmzsjxAgtvAP/A9YA6oAIPHQNwNHyfseeUPd
+b+71q7br4dBX+SUEHzJTZMGvUWO0ApNE2lMfqOBpNkrZXGtP3CagVdTmSMwo/YzY
+W1LJfG3CGFZ1Gq+9r9sOcOoK03EzxsCykwdCvlOlC+itah7qfU8zAeIaNQDOQ4gp
+FsXHw1vO0vpY5rfip6kklbpP0zi5+gBUJrFdizwgaLsigy+n5cjkEPWUUuS+CA6z
+KEsfFBUtU2yCLuL+dfUWQXwcpPh5mEmPNLzUVPz7wqxfjv7HnA4ev6jt+l2cdNPV
+xguKuYdfT/qzbh/U3veNmIUSLmKtDkF+s5gYzDxXauoGg/CnGhbdRFQtEdLGZTwk
+xJo5LA7J+imgpQinr9xDCQlLVJHpc46l2MST7zjBBKU6S+27crYhJ0WuHOtUr89t
+4KQbcc/Pd0vQMn5HdLYtE4YSnUCq5ROGsMP6Y/ESJVKgMLHoZHZKjQSzs0KYKGcA
+E4ZOJD8ArkO0s+A/xpU0wBilo6n0RvLOsEnWqYTE/SwkMToUHUT/mj1Itg9SwWcK
+8adtwUpbQNEzLtRRLIeqwyuevzwBaX7cAtVpmxbdztzNHtInSX3/OSjcYiYVPJPk
+9LQbnieHwHBphpOdpBBnRgd71QVXhYSmAzYKnEw+kUGCfzJ9mRdq1C5Y9mxiGcXg
+wT0NXFSBl2wQZMYPJmCg
+=sO4j
 -----END PGP SIGNATURE-----
 
---+B+y8wtTXqdUj1xM--
+--hOh8F6DNH/RZBSFD--
