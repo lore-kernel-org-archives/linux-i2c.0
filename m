@@ -1,79 +1,55 @@
-From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: I2C adapters protocol deviation
-Date: Thu, 03 Apr 2014 17:30:09 +0200
-Message-ID: <533D7E81.4050900@redhat.com>
-References: <20140403145528.GA6199@lukather>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v4 1/3] i2c: cadence: Document device tree bindings
+Date: Thu,  3 Apr 2014 10:59:25 -0700
+Message-ID: <1396547967-19260-1-git-send-email-soren.brinkmann@xilinx.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140403145528.GA6199@lukather>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, boris-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+To: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Add device tree binding documentation for the Cadence I2C controller.
 
-On 04/03/2014 04:55 PM, Maxime Ripard wrote:
-> Hi Wolfram,
-> 
-> On the Allwinner A31, the PMIC communicates with the SoC through a bus
-> looking quite similar to I2C, while being pretty different.
-> 
-> The communication starts with the PMIC through the regular I2C
-> protocol, but it's only used to initialize the PMIC, and switch to a
-> mode called "Push/Pull 2 Wire Interface".
-> 
-> That bus is using SDA and SCL, with the start and stop conditions
-> exactly like I2C does, but:
->   - Once the start condition has been issued, the address isn't sent,
->     only a direction bit. Hence, it does not support multiple devices
->     anymore.
->   - Once that direction bit has been sent, the master sends the
->     register it wants to read from/write to, over 8 bits, followed by
->     one parity bit.
->   - Whenever you're writing, the master then sends the data over 8
->     bits, followed once again by a parity bit. Then, and only then, an
->     ACK is issued by the slave.
->   - Whenever you're reading, the master then clocks SDL and the slave
->     drives SDA for 8 bits plus 1 parity bit. If there was some kind of
->     error, the slave will pull SDA up for 9 cycles, resulting in a
->     parity error. Like with I2C though, since it is the only and last
->     byte it's receiving, the master won't issue an ACK.
-> 
-> Obviously, to go ahead with the PMIC support, we need to support this
-> controller and bus first. I can't really decide whether it's within
-> the scope of the allowed protocol deviations of I2C or if we should
-> create a whole new bus for it.
+Signed-off-by: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+---
 
-I've been thinking about this too. In the mean time I have slept quite a
-few nights on this now and swung my opinion from use i2c subsys to do our
-own bus and back again. But since I've actually added support for this
-to u-boot and I now know the device better I believe using the i2c
-subsys is the best solution for this.
+Changes in v4:
+ - moved adding DT docs into this dedicated patch
 
-The PMIC does seem to start in i2c, and then gets switched to this new
-push-pull 2 wire i2c-ish protocol on init. So it does have a slave address,
-but that is used only once, and then the bus is for a single device only.
+Changes in v3: None
+Changes in v2: None
 
-Note there seems to be no way to use the host in a regular i2c mode. It has
-a setup mode where it does a single regular i2c write (or so I believe) and
-then it is in its own custom mode from there on.
+---
+ .../devicetree/bindings/i2c/i2c-cadence.txt         | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cadence.txt
 
-So what we really have is a single slave i2c host sort of. At least
-we could model it like that. The host could be told which address to
-listen to (and which single i2c write to do to init the pmic) through
-devicetree and then all the differences would be hidden in the host
-driver, ie we would check the slave-address and if it is not the single
-one we support, we just return the appropriate error for a device not
-acking, and everything should work as a regular i2c host which
-only supports i2c_smbus_read_byte and i2c_smbus_write_byte.
-
-IOW the i2c_algorithm struct for the host would not set master_xfer,
-only smbus_xfer and its functionality function would return
-I2C_FUNC_SMBUS_BYTE
-
-Regards,
-
-Hans
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-cadence.txt b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+new file mode 100644
+index 000000000000..685adf513111
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+@@ -0,0 +1,21 @@
++Binding for the Cadence I2C controller
++
++Required properties:
++  compatible: Compatibility string. Must be 'cdns,i2c-r1p10'.
++  clocks: From common clock bindings. Phandle to input clock.
++
++Optional properties:
++  clock-frequency: Desired operating frequency, in Hz, of the bus (actual may
++		   be lower). Defaults to 400000 if not specified.
++
++Example:
++
++	i2c@e0004000 {
++		compatible = "cdns,i2c-r1p10";
++		clocks = <&clkc 38>;
++		interrupts = <0 25 4>;
++		reg = <0xE0004000 0x1000>;
++		clock-frequency = <400000>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
+-- 
+1.9.1.1.gbb9f595
