@@ -1,37 +1,102 @@
-From: Dan Carpenter <dan.carpenter-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
-Subject: re: i2c: nomadik: Convert to devm functions
-Date: Wed, 2 Apr 2014 14:14:25 +0300
-Message-ID: <20140402111425.GB23000@mwanda>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/2] i2c: Add driver for Cadence I2C controller
+Date: Thu, 3 Apr 2014 09:10:04 +0200
+Message-ID: <20140403071004.GA2571@katana>
+References: <1394556613-11692-1-git-send-email-soren.brinkmann@xilinx.com>
+ <533CF913.4020308@monstr.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <533CF913.4020308@monstr.eu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Michal Simek <monstr@monstr.eu>
+Cc: Soren Brinkmann <soren.brinkmann@xilinx.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Michal Simek <michal.simek@xilinx.com>, Grant Likely <grant.likely@linaro.org>, Mike Looijmans <mike.looijmans@topic.nl>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Harini Katakam <harinik@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Ulf Hansson,
 
-The patch 9b2b98a3b4de: "i2c: nomadik: Convert to devm functions"
-from Feb 18, 2014, leads to the following static checker warning:
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	drivers/i2c/busses/i2c-nomadik.c:1002 nmk_i2c_probe()
-	warn: 'dev->virtbase' isn't an ERR_PTR
 
-drivers/i2c/busses/i2c-nomadik.c
-   999  
-  1000          dev->virtbase = devm_ioremap(&adev->dev, adev->res.start,
-  1001                                  resource_size(&adev->res));
-  1002          if (IS_ERR(dev->virtbase)) {
-                    ^^^^^^^^^^^^^^^^^^^^
-devm_ioremap() returns a NULL on error the same as ioremap() does.
+Please don't quote large parts of the message f you are not referring to
+it.
 
-  1003                  ret = -ENOMEM;
-  1004                  goto err_no_mem;
-  1005          }
-  1006  
-  1007          dev->irq = adev->irq[0];
+> > +#ifdef CONFIG_PM_SLEEP
+> > +/**
+> > + * cdns_i2c_suspend - Suspend method for the driver
+> > + * @_dev:	Address of the platform_device structure
+> > + * Return: 0 always
+> > + *
+> > + * Put the driver into low power mode.
+> > + */
+> > +static int cdns_i2c_suspend(struct device *_dev)
+> > +{
+> > +	struct platform_device *pdev =3D container_of(_dev,
+> > +			struct platform_device, dev);
+> > +	struct cdns_i2c *xi2c =3D platform_get_drvdata(pdev);
+> > +
+> > +	clk_disable(xi2c->clk);
+> > +	xi2c->suspended =3D 1;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +/**
+> > + * cdns_i2c_resume - Resume from suspend
+> > + * @_dev:	Address of the platform_device structure
+> > + * Return: 0 on success and error value on error
+> > + *
+> > + * Resume operation after suspend.
+> > + */
+> > +static int cdns_i2c_resume(struct device *_dev)
+> > +{
+> > +	struct platform_device *pdev =3D container_of(_dev,
+> > +			struct platform_device, dev);
+> > +	struct cdns_i2c *xi2c =3D platform_get_drvdata(pdev);
+> > +	int ret;
+> > +
+> > +	ret =3D clk_enable(xi2c->clk);
+> > +	if (ret) {
+> > +		dev_err(_dev, "Cannot enable clock.\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	xi2c->suspended =3D 0;
+> > +
+> > +	return 0;
+> > +}
+> > +#endif
+>=20
+> Can you also please remove this #ifdef and use __maybe_used
+> instead? Better not to have any ifdef in the code.
 
-regards,
-dan carpenter
+Is this a new pattern? For PM_SLEEP, #ifdef seems to be quite common.
+
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTPQlMAAoJEBQN5MwUoCm2bfwP/2QR+0NWXZUdp0aCJkqHX89N
+07bsE6M3U72uo4TIX22dDwx98k35H8V5xW9Rwv9xQ9dR4TKkoF4M3sDoOt66HIJ9
+aYOYHu2XxmDihjM8VwqTK3/ha2XAQzQGNHw7H7FSZE4qea6t8ydMQyH7NsRGSW7o
+ladSlAGUB2aU5zs4PbAvzkV6Xwlok78wMn/jwjSyVf9yWDh1zoWFnJQoHrmMmVj4
+REuqgWkQxyfBaeCK10RJtNcMXXCEUkxPnCMOIlQDQGBB4fGMRL+vVfwmyH0zNvWC
+CrtLdGbiJfCevMvGeps3XrmxLjZWYsG2bpQijnq2EdLbajA/n5OK8nyY6CaofOO4
+IpQGUoGry5o7liMCmUe9Pd0pGqt+qMqpPfDsIQ1oRyj1Hjap6xty511LeyUiTOyg
+WAcyBnerCccr4Jjxu8zVBnByLHYhIMf/3MyJw0BmeLC+ezUr18un3Y29lvAbZOGb
++BLUfk++DdMH54BwbJ2gRLtMYSkrc3cUtxqwRgaZ7nRbOsPcDz006pHZjdRTLcrS
+k3wWQVSDwMUszxn8ajH68wgeWkD+cvnZfUGEmFl0HaJrDwR+ukwv+Y3buvSR55tg
+IEGK+n7GF68DG03ZZ0tRuAzRt4hVz0KEtHqXYxR4nh47ewNMm+LuZ964KqSSA8UE
+sf8cvy6ARjYSnk7KqHiu
+=4VTZ
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--
