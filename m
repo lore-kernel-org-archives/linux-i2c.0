@@ -1,72 +1,55 @@
-From: "Du, Wenkai" <wenkai.du@intel.com>
-Subject: [PATCH] i2c-designware: Mask interrupts during i2c controller enable
-Date: Fri, 4 Apr 2014 17:05:23 +0000
-Message-ID: <7286EAF50D3F4E4AADE7FEECEBF8B5A537A70E1F@ORSMSX109.amr.corp.intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v4 1/2] i2c: add DMA support for freescale i2c driver
+Date: Fri, 4 Apr 2014 19:40:11 +0200
+Message-ID: <20140404174011.GA8489@katana>
+References: <1396579272-19542-1-git-send-email-yao.yuan@freescale.com>
+ <1396579272-19542-2-git-send-email-yao.yuan@freescale.com>
+ <201404041628.55471.marex@denx.de>
+ <aab78696ac364d9c832993c08915bad3@BL2PR03MB338.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Westerberg, Mika" <mika.westerberg@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <aab78696ac364d9c832993c08915bad3-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
 
-There were "i2c_designware 80860F41:00: controller timed out" errors
-on a number of Baytrail platforms. They typically occurred during suspend
-resume where some short i2c transfers were exchanged with devices. And they
-mostly occurred when using fast mode, not standard mode.
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The cause of the problem is that interrupts start right away when the
-controller is enabled. There's this comment in __i2c_dw_enable:
+> The ugly is my work or even the ability but not the attitude, I think.
 
-/*
- * Wait 10 times the signaling period of the highest I2C
- * transfer supported by the driver (for 400KHz this is
- * 25us) as described in the DesignWare I2C databook.
- */
+Explaining which tests were done is what I wanted to request more often
+=66rom submitters anyhow. Your leftover (yes, this can happen) just
+reminded me to actually do that :)
 
-The __i2c_dw_enable then does a usleep for 25us to 250us, but since interrupts
-were previously enabled, this wait wasn't being respected by ISR. With
-additional traces, we could see ISR was activated and finished i2c transfer
-while the code was still inside __i2c_dw_enable. At combination of fast
-mode, certain transfer size and device response time, i2c_dw_clear_int was executed 
-and cleared STOP condition flag, which resulted in i2c time out.
 
-static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
-{
-...
-	/* Enable the adapter */
-	__i2c_dw_enable(dev, true);
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-	/* Clear and enable interrupts */
-	i2c_dw_clear_int(dev);
-	dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
-}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-The patch disables interrupts before the controller is enabled to remove this
-race condition.
+iQIcBAEBAgAGBQJTPu57AAoJEBQN5MwUoCm2WoAP/0G6GSOFn46x5qDlXOtkB5WB
+u5LnuEkt+VHkf8rhXoFIZlDdvGukstUnV0Q7ZMBqI2kp8EHiLiIaAYeKfp+SHxdT
+623GmJ0m8omcyeJhGVDOvNtF3OrryxIvP02g/QDouf01oxg56KzTeLY2LcyFNgd7
+zjhMPVpKLbYMuOBNnwbAybVYGasRZuuBf03UVU1iBHa3eop0bT6gGiva9CWBxLlY
+DR3OpP8XVF3OtP0+1fxzWmtKKCztyNQftpt/n/nMpe7CZiVnTxXl5DI6xEZ6o1na
+INA5LnPwEfWmlVhtAQZR/Nd8XQ0KnuPvu4uDuYprrgVFH4OZqaLiNwnQyBVp3Sll
+QATDybeJiAi+mwQFKpsR+5Vrx5/FF041n62ZNhARZ/KfVFBIqGfBMGjNp+g2bfpN
+Kdn+s/3OPmFuo0ubiCPKb4TYikJ/VyIUvfPgc/gQySCn2RGIJ68ophB4qIN4gpTw
+4t46a7Os3xJWxrpq0bBqyl6iYVtgSKMHB3wP2T+F77xX4p3Dtxh8UN5lp2j/546V
+Wwm85RjgFUuvXsH/pbheG0YiROYLIKngzpYUOXGUp6uXKAObeQbIdY4f9tEGiVdq
+sKZUvPlJ7kHpFHaV6ZZ/vpxzU5cNxz2w2gMbDfOcy+mLCdYKdECn3jAkegCBFPOu
+TwGDOzQQtdhHHBLD4InG
+=VQvf
+-----END PGP SIGNATURE-----
 
-Signed-off-by: Wenkai Du <wenkai.du@intel.com>
----
- drivers/i2c/busses/i2c-designware-core.c |    3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 14c4b30..71a3fa9 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -417,6 +417,9 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 	 */
- 	dw_writel(dev, msgs[dev->msg_write_idx].addr | ic_tar, DW_IC_TAR);
- 
-+	/* disable interrupts */
-+	i2c_dw_disable_int(dev);
-+
- 	/* Enable the adapter */
- 	__i2c_dw_enable(dev, true);
- 
--- 
-1.7.9.5
+--+QahgC5+KEYLbs62--
