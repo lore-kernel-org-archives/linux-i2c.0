@@ -1,66 +1,242 @@
 From: Soren Brinkmann <soren.brinkmann@xilinx.com>
-Subject: [PATCH v5 1/3] i2c: cadence: Document device tree bindings
-Date: Fri,  4 Apr 2014 14:27:54 -0700
-Message-ID: <1396646876-27336-1-git-send-email-soren.brinkmann@xilinx.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v5 3/3] ARM: zynq: dt: Add I2C nodes to Zynq device tree
+Date: Fri,  4 Apr 2014 14:27:56 -0700
+Message-ID: <1396646876-27336-3-git-send-email-soren.brinkmann@xilinx.com>
+References: <1396646876-27336-1-git-send-email-soren.brinkmann@xilinx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1396646876-27336-1-git-send-email-soren.brinkmann@xilinx.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Michal Simek <michal.simek@xilinx.com>
-Cc: Mike Looijmans <mike.looijmans@topic.nl>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Harini Katakam <harinik@xilinx.com>, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, =?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann@xilinx.com>, Gerhard Sittig <gsi@denx.de>
+Cc: =?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann@xilinx.com>, Harini Katakam <harinik@xilinx.com>, devicetree@vger.kernel.org, Mike Looijmans <mike.looijmans@topic.nl>, Gerhard Sittig <gsi@denx.de>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add device tree binding documentation for the Cadence I2C controller.
-
 Signed-off-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
+Tested-by: Michal Simek <michal.simek@xilinx.com>
 ---
 
 Changes in v5:
- - Document all properties
- - list clock-names as optional property (driver doesn't use it, though)
  - use lower case hex digits in 'reg' property
- - reword description of 'clocks' property
- - remove implementation specific notes regarding default speed
- - use #defines for interrupt specifier
 
-Changes in v4:
- - moved adding DT docs into this dedicated patch
-
+Changes in v4: None
 Changes in v3: None
-Changes in v2: None
+Changes in v2:
+ - replace 'pmbus' with 'ti' in compatibility strings of UCD devices
 
 ---
- .../devicetree/bindings/i2c/i2c-cadence.txt        | 24 ++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+ arch/arm/boot/dts/zynq-7000.dtsi | 22 ++++++++++++
+ arch/arm/boot/dts/zynq-zc702.dts | 76 ++++++++++++++++++++++++++++++++++++++++
+ arch/arm/boot/dts/zynq-zc706.dts | 68 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 166 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-cadence.txt b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
-new file mode 100644
-index 000000000000..7cb0b5608f49
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
-@@ -0,0 +1,24 @@
-+Binding for the Cadence I2C controller
+diff --git a/arch/arm/boot/dts/zynq-7000.dtsi b/arch/arm/boot/dts/zynq-7000.dtsi
+index 789d0bacc110..7a7da1d45351 100644
+--- a/arch/arm/boot/dts/zynq-7000.dtsi
++++ b/arch/arm/boot/dts/zynq-7000.dtsi
+@@ -54,6 +54,28 @@
+ 		interrupt-parent = <&intc>;
+ 		ranges;
+ 
++		i2c0: zynq-i2c@e0004000 {
++			compatible = "cdns,i2c-r1p10";
++			status = "disabled";
++			clocks = <&clkc 38>;
++			interrupt-parent = <&intc>;
++			interrupts = <0 25 4>;
++			reg = <0xe0004000 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
 +
-+Required properties:
-+  - reg: Physical base address and size of the controller's register area.
-+  - compatible: Compatibility string. Must be 'cdns,i2c-r1p10'.
-+  - clocks: Input clock specifier. Refer to common clock bindings.
-+  - interrupts: Interrupt specifier. Refer to interrupt bindings.
-+  - #address-cells: Should be 1.
-+  - #size-cells: Should be 0.
++		i2c1: zynq-i2c@e0005000 {
++			compatible = "cdns,i2c-r1p10";
++			status = "disabled";
++			clocks = <&clkc 39>;
++			interrupt-parent = <&intc>;
++			interrupts = <0 48 4>;
++			reg = <0xe0005000 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
 +
-+Optional properties:
-+  - clock-frequency: Desired operating frequency, in Hz, of the bus.
-+  - clock-names: Input clock name, should be 'pclk'.
+ 		intc: interrupt-controller@f8f01000 {
+ 			compatible = "arm,cortex-a9-gic";
+ 			#interrupt-cells = <3>;
+diff --git a/arch/arm/boot/dts/zynq-zc702.dts b/arch/arm/boot/dts/zynq-zc702.dts
+index c913f77a21eb..5e09cee33d42 100644
+--- a/arch/arm/boot/dts/zynq-zc702.dts
++++ b/arch/arm/boot/dts/zynq-zc702.dts
+@@ -34,6 +34,82 @@
+ 	phy-mode = "rgmii";
+ };
+ 
++&i2c0 {
++	status = "okay";
++	clock-frequency = <400000>;
 +
-+Example:
-+	i2c@e0004000 {
-+		compatible = "cdns,i2c-r1p10";
-+		clocks = <&clkc 38>;
-+		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
-+		reg = <0xe0004000 0x1000>;
-+		clock-frequency = <400000>;
++	i2cswitch@74 {
++		compatible = "nxp,pca9548";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
++		reg = <0x74>;
++
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++			si570: clock-generator@5d {
++				#clock-cells = <0>;
++				compatible = "silabs,si570";
++				temperature-stability = <50>;
++				reg = <0x5d>;
++				factory-fout = <156250000>;
++				clock-frequency = <148500000>;
++			};
++		};
++
++		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++			eeprom@54 {
++				compatible = "at,24c08";
++				reg = <0x54>;
++			};
++		};
++
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++			gpio@21 {
++				compatible = "ti,tca6416";
++				reg = <0x21>;
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
++		};
++
++		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++			rtc@51 {
++				compatible = "nxp,pcf8563";
++				reg = <0x51>;
++			};
++		};
++
++		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++			hwmon@52 {
++				compatible = "ti,ucd9248";
++				reg = <52>;
++			};
++			hwmon@53 {
++				compatible = "ti,ucd9248";
++				reg = <53>;
++			};
++			hwmon@54 {
++				compatible = "ti,ucd9248";
++				reg = <54>;
++			};
++		};
 +	};
++};
++
+ &sdhci0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/zynq-zc706.dts b/arch/arm/boot/dts/zynq-zc706.dts
+index 88f62c50382e..4cc9913078cd 100644
+--- a/arch/arm/boot/dts/zynq-zc706.dts
++++ b/arch/arm/boot/dts/zynq-zc706.dts
+@@ -35,6 +35,74 @@
+ 	phy-mode = "rgmii";
+ };
+ 
++&i2c0 {
++	status = "okay";
++	clock-frequency = <400000>;
++
++	i2cswitch@74 {
++		compatible = "nxp,pca9548";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x74>;
++
++		i2c@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++			si570: clock-generator@5d {
++				#clock-cells = <0>;
++				compatible = "silabs,si570";
++				temperature-stability = <50>;
++				reg = <0x5d>;
++				factory-fout = <156250000>;
++				clock-frequency = <148500000>;
++			};
++		};
++
++		i2c@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++			eeprom@54 {
++				compatible = "at,24c08";
++				reg = <0x54>;
++			};
++		};
++
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++			gpio@21 {
++				compatible = "ti,tca6416";
++				reg = <0x21>;
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
++		};
++
++		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++			rtc@51 {
++				compatible = "nxp,pcf8563";
++				reg = <0x51>;
++			};
++		};
++
++		i2c@7 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <7>;
++			ucd90120@65 {
++				compatible = "ti,ucd90120";
++				reg = <0x65>;
++			};
++		};
++	};
++};
++
+ &sdhci0 {
+ 	status = "okay";
+ };
 -- 
 1.9.1.1.gbb9f595
