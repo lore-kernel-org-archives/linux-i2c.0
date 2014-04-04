@@ -1,442 +1,122 @@
-From: sourav <sourav.poddar-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v4 1/2] i2c: add DMA support for freescale i2c driver
-Date: Fri, 4 Apr 2014 15:34:12 +0530
-Message-ID: <533E839C.9090500@ti.com>
-References: <1396579272-19542-1-git-send-email-yao.yuan@freescale.com> <1396579272-19542-2-git-send-email-yao.yuan@freescale.com> <533E8033.70904@ti.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: I2C adapters protocol deviation
+Date: Fri, 4 Apr 2014 13:49:11 +0200
+Message-ID: <20140404114911.GE6199@lukather>
+References: <20140403145528.GA6199@lukather>
+ <533D7E81.4050900@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SNIs70sCzqvszXB4"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <533E8033.70904-l0cyMroinI0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <533D7E81.4050900-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, boris-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
->> +
->> +    dma->chan_tx = dma_request_slave_channel(dev, "tx");
->> +    return 0;
+--SNIs70sCzqvszXB4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-To be more clear,
-return here looks to be some leftover.
+On Thu, Apr 03, 2014 at 05:30:09PM +0200, Hans de Goede wrote:
+> Hi,
+>=20
+> On 04/03/2014 04:55 PM, Maxime Ripard wrote:
+> > Hi Wolfram,
+> >=20
+> > On the Allwinner A31, the PMIC communicates with the SoC through a bus
+> > looking quite similar to I2C, while being pretty different.
+> >=20
+> > The communication starts with the PMIC through the regular I2C
+> > protocol, but it's only used to initialize the PMIC, and switch to a
+> > mode called "Push/Pull 2 Wire Interface".
+> >=20
+> > That bus is using SDA and SCL, with the start and stop conditions
+> > exactly like I2C does, but:
+> >   - Once the start condition has been issued, the address isn't sent,
+> >     only a direction bit. Hence, it does not support multiple devices
+> >     anymore.
+> >   - Once that direction bit has been sent, the master sends the
+> >     register it wants to read from/write to, over 8 bits, followed by
+> >     one parity bit.
+> >   - Whenever you're writing, the master then sends the data over 8
+> >     bits, followed once again by a parity bit. Then, and only then, an
+> >     ACK is issued by the slave.
+> >   - Whenever you're reading, the master then clocks SDL and the slave
+> >     drives SDA for 8 bits plus 1 parity bit. If there was some kind of
+> >     error, the slave will pull SDA up for 9 cycles, resulting in a
+> >     parity error. Like with I2C though, since it is the only and last
+> >     byte it's receiving, the master won't issue an ACK.
+> >=20
+> > Obviously, to go ahead with the PMIC support, we need to support this
+> > controller and bus first. I can't really decide whether it's within
+> > the scope of the allowed protocol deviations of I2C or if we should
+> > create a whole new bus for it.
+>=20
+> I've been thinking about this too. In the mean time I have slept quite a
+> few nights on this now and swung my opinion from use i2c subsys to do our
+> own bus and back again. But since I've actually added support for this
+> to u-boot and I now know the device better I believe using the i2c
+> subsys is the best solution for this.
+>=20
+> The PMIC does seem to start in i2c, and then gets switched to this new
+> push-pull 2 wire i2c-ish protocol on init. So it does have a slave addres=
+s,
+> but that is used only once, and then the bus is for a single device only.
+>=20
+> Note there seems to be no way to use the host in a regular i2c mode. It h=
+as
+> a setup mode where it does a single regular i2c write (or so I believe) a=
+nd
+> then it is in its own custom mode from there on.
 
-> ?? Looks to be some leftover?
->> +    if (!dma->chan_tx) {
->> +        dev_info(dev, "DMA tx channel request failed\n");
->> +        ret = -ENODEV;
->> +        goto fail_al;
->> +    }
->> +
->> +    dma_sconfig.dst_addr = phy_addr +
->> +                (IMX_I2C_I2DR<<  i2c_imx->hwdata->regshift);
->> +    dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
->> +    dma_sconfig.dst_maxburst = 1;
->> +    dma_sconfig.direction = DMA_MEM_TO_DEV;
->> +    ret = dmaengine_slave_config(dma->chan_tx,&dma_sconfig);
->> +    if (ret<  0) {
->> +        dev_info(dev, "DMA slave config failed, err = %d\n", ret);
->> +        goto fail_tx;
->> +    }
->> +
->> +    dma->chan_rx = dma_request_slave_channel(dev, "rx");
->> +    if (!dma->chan_rx) {
->> +        dev_info(dev, "DMA rx channel request failed\n");
->> +        ret = -ENODEV;
->> +        goto fail_tx;
->> +    }
->> +
->> +    dma_sconfig.src_addr = phy_addr +
->> +                (IMX_I2C_I2DR<<  i2c_imx->hwdata->regshift);
->> +    dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
->> +    dma_sconfig.src_maxburst = 1;
->> +    dma_sconfig.direction = DMA_DEV_TO_MEM;
->> +    ret = dmaengine_slave_config(dma->chan_rx,&dma_sconfig);
->> +    if (ret<  0) {
->> +        dev_info(dev, "DMA slave config failed, err = %d\n", ret);
->> +        goto fail_rx;
->> +    }
->> +
->> +    i2c_imx->dma = dma;
->> +
->> +    init_completion(&dma->cmd_complete);
->> +
->> +    return 0;
->> +
->> +fail_rx:
->> +    dma_release_channel(dma->chan_rx);
->> +fail_tx:
->> +    dma_release_channel(dma->chan_tx);
->> +fail_al:
->> +    devm_kfree(dev, dma);
->> +
->> +    return ret;
->> +}
->> +
->> +static void i2c_imx_dma_callback(void *arg)
->> +{
->> +    struct imx_i2c_struct *i2c_imx = (struct imx_i2c_struct *)arg;
->> +    struct imx_i2c_dma *dma = i2c_imx->dma;
->> +
->> +    dma_unmap_single(dma->chan_using->device->dev, dma->dma_buf,
->> +            dma->dma_len, dma->dma_data_dir);
->> +    complete(&dma->cmd_complete);
->> +}
->> +
->> +static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
->> +                    struct i2c_msg *msgs)
->> +{
->> +    struct imx_i2c_dma *dma = i2c_imx->dma;
->> +    struct dma_async_tx_descriptor *txdesc;
->> +    struct device *dev =&i2c_imx->adapter.dev;
->> +
->> +    dma->dma_buf = dma_map_single(dma->chan_using->device->dev, 
->> msgs->buf,
->> +                    dma->dma_len, dma->dma_data_dir);
->> +    if (dma_mapping_error(dma->chan_using->device->dev, 
->> dma->dma_buf)) {
->> +        dev_err(dev, "DMA mapping failed\n");
->> +        return -EINVAL;
->> +    }
->> +
->> +    txdesc = dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
->> +                    dma->dma_len, dma->dma_transfer_dir,
->> +                    DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
->> +    if (!txdesc) {
->> +        dev_err(dev, "Not able to get desc for DMA xfer\n");
->> +        dma_unmap_single(dma->chan_using->device->dev, dma->dma_buf,
->> +                    dma->dma_len, dma->dma_data_dir);
->> +        return -EINVAL;
->> +    }
->> +
->> +    txdesc->callback = i2c_imx_dma_callback;
->> +    txdesc->callback_param = i2c_imx;
->> +    dmaengine_submit(txdesc);
->> +    dma_async_issue_pending(dma->chan_using);
->> +
->> +    return 0;
->> +}
->> +
->> +static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
->> +{
->> +    struct imx_i2c_dma *dma = i2c_imx->dma;
->> +
->> +    dma->dma_buf = 0;
->> +    dma->dma_len = 0;
->> +
->> +    dma_release_channel(dma->chan_tx);
->> +    dma->chan_tx = NULL;
->> +
->> +    dma_release_channel(dma->chan_rx);
->> +    dma->chan_rx = NULL;
->> +
->> +    dma->chan_using = NULL;
->> +}
->> +
->>   /** Functions for IMX I2C adapter driver 
->> ***************************************
->>   
->> *******************************************************************************/
->>
->> @@ -334,6 +483,11 @@ static int i2c_imx_start(struct imx_i2c_struct 
->> *i2c_imx)
->>
->>       temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
->>       imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +
->> +    temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> +    temp&= ~I2CR_DMAEN;
->> +    imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +
->>       return result;
->>   }
->>
->> @@ -427,44 +581,101 @@ static irqreturn_t i2c_imx_isr(int irq, void 
->> *dev_id)
->>
->>   static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct 
->> i2c_msg *msgs)
->>   {
->> -    int i, result;
->> +    int i, result, timeout = IMX_I2C_DMA_TIMEOUT;
->> +    unsigned int temp = 0;
->> +    struct imx_i2c_dma *dma = i2c_imx->dma;
->> +    struct device *dev =&i2c_imx->adapter.dev;
->>
->> -    dev_dbg(&i2c_imx->adapter.dev, "<%s>  write slave address: 
->> addr=0x%x\n",
->> +    dev_dbg(dev, "<%s>  write slave address: addr=0x%x\n",
->>           __func__, msgs->addr<<  1);
->> +    if (dma&&  msgs->len>= IMX_I2C_DMA_THRESHOLD) {
->> +        reinit_completion(&i2c_imx->dma->cmd_complete);
->> +        dma->chan_using = dma->chan_tx;
->> +        dma->dma_transfer_dir = DMA_MEM_TO_DEV;
->> +        dma->dma_data_dir = DMA_TO_DEVICE;
->> +        dma->dma_len = msgs->len - 1;
->> +        result = i2c_imx_dma_xfer(i2c_imx, msgs);
->> +        if (result)
->> +            return result;
->>
->> -    /* write slave address */
->> -    imx_i2c_write_reg(msgs->addr<<  1, i2c_imx, IMX_I2C_I2DR);
->> -    result = i2c_imx_trx_complete(i2c_imx);
->> -    if (result)
->> -        return result;
->> -    result = i2c_imx_acked(i2c_imx);
->> -    if (result)
->> -        return result;
->> -    dev_dbg(&i2c_imx->adapter.dev, "<%s>  write data\n", __func__);
->> +        temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> +        temp |= I2CR_DMAEN;
->> +        imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->>
->> -    /* write data */
->> -    for (i = 0; i<  msgs->len; i++) {
->> -        dev_dbg(&i2c_imx->adapter.dev,
->> -            "<%s>  write byte: B%d=0x%X\n",
->> -            __func__, i, msgs->buf[i]);
->> -        imx_i2c_write_reg(msgs->buf[i], i2c_imx, IMX_I2C_I2DR);
->> +        /* write slave address */
->> +        imx_i2c_write_reg(msgs->addr<<  1, i2c_imx, IMX_I2C_I2DR);
->> +        result = wait_for_completion_interruptible_timeout(
->> + &i2c_imx->dma->cmd_complete,
->> +                    msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
->> +        if (result<= 0) {
->> +            dmaengine_terminate_all(dma->chan_using);
->> +            if (result)
->> +                return result;
->> +            else
->> +                return -ETIMEDOUT;
->> +        }
->> +
->> +        /* waiting for Transfer complete. */
->> +        while (timeout--) {
->> +            temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
->> +            if (temp&  I2SR_ICF)
->> +                break;
->> +            udelay(10);
->> +        }
->> +
->> +        if (!timeout)
->> +            return -ETIMEDOUT;
->> +        temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> +        temp&= ~I2CR_DMAEN;
->> +        imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +
->> +        /* write the last byte */
->> +        imx_i2c_write_reg(msgs->buf[msgs->len-1],
->> +                    i2c_imx, IMX_I2C_I2DR);
->>           result = i2c_imx_trx_complete(i2c_imx);
->>           if (result)
->>               return result;
->> +
->> +        result = i2c_imx_acked(i2c_imx);
->> +        if (result)
->> +            return result;
->> +    } else {
->> +        /* write slave address */
->> +        imx_i2c_write_reg(msgs->addr<<  1, i2c_imx, IMX_I2C_I2DR);
->> +        result = i2c_imx_trx_complete(i2c_imx);
->> +        if (result)
->> +            return result;
->> +
->>           result = i2c_imx_acked(i2c_imx);
->>           if (result)
->>               return result;
->> +
->> +        dev_dbg(dev, "<%s>  write data\n", __func__);
->> +
->> +        /* write data */
->> +        for (i = 0; i<  msgs->len; i++) {
->> +            dev_dbg(dev, "<%s>  write byte: B%d=0x%X\n",
->> +                __func__, i, msgs->buf[i]);
->> +            imx_i2c_write_reg(msgs->buf[i], i2c_imx, IMX_I2C_I2DR);
->> +            result = i2c_imx_trx_complete(i2c_imx);
->> +            if (result)
->> +                return result;
->> +            result = i2c_imx_acked(i2c_imx);
->> +            if (result)
->> +                return result;
->> +        }
->>       }
->>       return 0;
->>   }
->>
->>   static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct 
->> i2c_msg *msgs)
->>   {
->> -    int i, result;
->> +    int i, result, timeout = IMX_I2C_DMA_TIMEOUT;
->>       unsigned int temp;
->> +    struct imx_i2c_dma *dma = i2c_imx->dma;
->> +    struct device *dev =&i2c_imx->adapter.dev;
->>
->> -    dev_dbg(&i2c_imx->adapter.dev,
->> -        "<%s>  write slave address: addr=0x%x\n",
->> +    dev_dbg(dev, "<%s>  write slave address: addr=0x%x\n",
->>           __func__, (msgs->addr<<  1) | 0x01);
->>
->>       /* write slave address */
->> @@ -476,7 +687,7 @@ static int i2c_imx_read(struct imx_i2c_struct 
->> *i2c_imx, struct i2c_msg *msgs)
->>       if (result)
->>           return result;
->>
->> -    dev_dbg(&i2c_imx->adapter.dev, "<%s>  setup bus\n", __func__);
->> +    dev_dbg(dev, "<%s>  setup bus\n", __func__);
->>
->>       /* setup bus to read data */
->>       temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> @@ -486,35 +697,81 @@ static int i2c_imx_read(struct imx_i2c_struct 
->> *i2c_imx, struct i2c_msg *msgs)
->>       imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->>       imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
->>
->> -    dev_dbg(&i2c_imx->adapter.dev, "<%s>  read data\n", __func__);
->> +    dev_dbg(dev, "<%s>  read data\n", __func__);
->>
->> -    /* read data */
->> -    for (i = 0; i<  msgs->len; i++) {
->> -        result = i2c_imx_trx_complete(i2c_imx);
->> +    if (dma&&  msgs->len>= IMX_I2C_DMA_THRESHOLD) {
->> +        temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> +        temp |= I2CR_DMAEN;
->> +        imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +
->> +        reinit_completion(&i2c_imx->dma->cmd_complete);
->> +        dma->chan_using = dma->chan_rx;
->> +        dma->dma_transfer_dir = DMA_DEV_TO_MEM;
->> +        dma->dma_data_dir = DMA_FROM_DEVICE;
->> +        dma->dma_len = msgs->len - 2;
->> +        result = i2c_imx_dma_xfer(i2c_imx, msgs);
->>           if (result)
->>               return result;
->> -        if (i == (msgs->len - 1)) {
->> -            /* It must generate STOP before read I2DR to prevent
->> -               controller from generating another clock cycle */
->> -            dev_dbg(&i2c_imx->adapter.dev,
->> -                "<%s>  clear MSTA\n", __func__);
->> -            temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> -            temp&= ~(I2CR_MSTA | I2CR_MTX);
->> -            imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> -            i2c_imx_bus_busy(i2c_imx, 0);
->> -            i2c_imx->stopped = 1;
->> -        } else if (i == (msgs->len - 2)) {
->> -            dev_dbg(&i2c_imx->adapter.dev,
->> -                "<%s>  set TXAK\n", __func__);
->> -            temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> -            temp |= I2CR_TXAK;
->> -            imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +
->> +        result = wait_for_completion_interruptible_timeout(
->> + &i2c_imx->dma->cmd_complete,
->> +                    msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
->> +        if (result<= 0) {
->> +            dmaengine_terminate_all(dma->chan_using);
->> +            if (result)
->> +                return result;
->> +            else
->> +                return -ETIMEDOUT;
->>           }
->> -        msgs->buf[i] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
->> -        dev_dbg(&i2c_imx->adapter.dev,
->> -            "<%s>  read byte: B%d=0x%X\n",
->> -            __func__, i, msgs->buf[i]);
->> +
->> +        /* waiting for Transfer complete. */
->> +        while (timeout--) {
->> +            temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
->> +            if (temp&  I2SR_ICF)
->> +                break;
->> +            udelay(10);
->> +        }
->> +
->> +        if(!timeout)
->> +            return -ETIMEDOUT;
->> +        temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> +        temp&= ~I2CR_DMAEN;
->> +        imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +    } else {
->> +        /* read data */
->> +        for (i = 0; i<  msgs->len - 2; i++) {
->> +            result = i2c_imx_trx_complete(i2c_imx);
->> +            if (result)
->> +                return result;
->> +            msgs->buf[i] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
->> +            dev_dbg(dev, "<%s>  read byte: B%d=0x%X\n",
->> +                __func__, i, msgs->buf[i]);
->> +        }
->> +        result = i2c_imx_trx_complete(i2c_imx);
->>       }
->> +
->> +    /* read n-1 byte data */
->> +    temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> +    temp |= I2CR_TXAK;
->> +    imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +
->> +    msgs->buf[msgs->len-2] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
->> +    /* read n byte data */
->> +    result = i2c_imx_trx_complete(i2c_imx);
->> +    if (result)
->> +        return result;
->> +
->> +    /*
->> +     * It must generate STOP before read I2DR to prevent
->> +     * controller from generating another clock cycle
->> +     */
->> +    temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->> +    temp&= ~(I2CR_MSTA | I2CR_MTX);
->> +    imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->> +    i2c_imx_bus_busy(i2c_imx, 0);
->> +    i2c_imx->stopped = 1;
->> +    msgs->buf[msgs->len-1] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
->> +
->>       return 0;
->>   }
->>
->> @@ -601,6 +858,7 @@ static int i2c_imx_probe(struct platform_device 
->> *pdev)
->>       void __iomem *base;
->>       int irq, ret;
->>       u32 bitrate;
->> +    u32 phy_addr;
->>
->>       dev_dbg(&pdev->dev, "<%s>\n", __func__);
->>
->> @@ -611,6 +869,7 @@ static int i2c_imx_probe(struct platform_device 
->> *pdev)
->>       }
->>
->>       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +    phy_addr = res->start;
->>       base = devm_ioremap_resource(&pdev->dev, res);
->>       if (IS_ERR(base))
->>           return PTR_ERR(base);
->> @@ -696,6 +955,10 @@ static int i2c_imx_probe(struct platform_device 
->> *pdev)
->>           i2c_imx->adapter.name);
->>       dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
->>
->> +    /* Init DMA config if support*/
->> +    if (i2c_imx_dma_request(i2c_imx, (dma_addr_t)phy_addr))
->> +        dev_warn(&pdev->dev, "can't request DMA\n");
->> +
->>       return 0;   /* Return OK */
->>   }
->>
->> @@ -707,6 +970,9 @@ static int i2c_imx_remove(struct platform_device 
->> *pdev)
->>       dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
->>       i2c_del_adapter(&i2c_imx->adapter);
->>
->> +    if (i2c_imx->dma)
->> +        i2c_imx_dma_free(i2c_imx);
->> +
->>       /* setup chip registers to defaults */
->>       imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
->>       imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
->
-> -- 
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Well, in theory, you could. It has a register where you can control
+the levels of SDA and SCL, so you could bitbang the bus using
+them. But I'm not sure we want to do that :)
+
+> So what we really have is a single slave i2c host sort of. At least
+> we could model it like that. The host could be told which address to
+> listen to (and which single i2c write to do to init the pmic) through
+> devicetree and then all the differences would be hidden in the host
+> driver, ie we would check the slave-address and if it is not the single
+> one we support, we just return the appropriate error for a device not
+> acking, and everything should work as a regular i2c host which
+> only supports i2c_smbus_read_byte and i2c_smbus_write_byte.
+>=20
+> IOW the i2c_algorithm struct for the host would not set master_xfer,
+> only smbus_xfer and its functionality function would return
+> I2C_FUNC_SMBUS_BYTE
+
+Yep, it would make sense.
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--SNIs70sCzqvszXB4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTPpw3AAoJEBx+YmzsjxAgcawP/0+0lKWMYaFlFnMqMMrDXicm
+cjAsG0LwYezSpcPTpWM6Ufz5t63lzmXk7IO4g6Aq1BgSQ5zdSNoseW3Apprx3Rzo
+YETaM5+Q85H4cnwwg2COyRXXkmxCnjtJ2dvr1tH7sq88vFUKAvkNhW0TBxFJ7aUe
+yFm6NiIC0uNaZWgM6nYKJyx+vYIX8mg8KgdCd6JfMHnOG/kYgCBya3zOXDv34Wgy
+awb0OMdxzlsem+BorKjxi+pLXXf+L5hsPWcfi05A7RNI5Mm5iTKqGiB3VHzUMOdR
+P/zT4fOlZCJz/90/X1nRrnYLKr5LAA38AovH7J8BMubhcNnO8BqvsMSMTTBzlV2A
+VQ2ncPWObG2fiNiJRfgy9e+G1HyIIUft/u4czodePIbZbqVRUN1SMLrdMtWgNJb9
+z4EjNIGDtFZD1WO9VyadNYIk+VyZHnwUqC8OMf7xFKEtEy+ZfrDnPOKdyINfffJf
+1OzjRPTCAEoRYDZpozRIPbfegy2DFb+ZQg0lvb1lBgwdJeoqv27cmyi/dxg7A8uh
+mSRZmfErK0GBUNX06QjOJrLarotfolmGEqcEk7Rqu/OWFBTbHIiwD7KjoplRdtsV
+lLk1yGrVkSQ94wOgTKeXyADpcIyzQsAeQ2Ve30WaQoOKQA/R9qAMtYW1Fh4F6+NV
+PtNRCjji6uOd0PA/CB1i
+=JvIK
+-----END PGP SIGNATURE-----
+
+--SNIs70sCzqvszXB4--
