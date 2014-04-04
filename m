@@ -1,67 +1,33 @@
-From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
-Subject: Re: [PATCH v4 1/3] i2c: cadence: Document device tree bindings
-Date: Thu, 3 Apr 2014 13:15:52 -0700
-Message-ID: <19eac9d5-7c83-4fca-b3e8-fc225b6559bd@CH1EHSMHS033.ehs.local>
-References: <1396547967-19260-1-git-send-email-soren.brinkmann@xilinx.com>
- <CAL_Jsq+vOHzca_wT9ADHRxhR9dT8FYGP-iTvd5=zKrRVBZz-cw@mail.gmail.com>
+From: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH v4 0/2] i2c: add DMA support for freescale i2c driver
+Date: Fri, 4 Apr 2014 10:41:10 +0800
+Message-ID: <1396579272-19542-1-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAL_Jsq+vOHzca_wT9ADHRxhR9dT8FYGP-iTvd5=zKrRVBZz-cw@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Rob Herring <robherring2@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Michal Simek <michal.simek@xilinx.com>, Mike Looijmans <mike.looijmans@topic.nl>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Harini Katakam <harinik@xilinx.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2014-04-03 at 02:51PM -0500, Rob Herring wrote:
-> On Thu, Apr 3, 2014 at 12:59 PM, Soren Brinkmann
-> <soren.brinkmann@xilinx.com> wrote:
-> > Add device tree binding documentation for the Cadence I2C controlle=
-r.
-> >
-> > Signed-off-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
-> > ---
-> >
-> > Changes in v4:
-> >  - moved adding DT docs into this dedicated patch
-> >
-> > Changes in v3: None
-> > Changes in v2: None
-> >
-> > ---
-> >  .../devicetree/bindings/i2c/i2c-cadence.txt         | 21 +++++++++=
-++++++++++++
-> >  1 file changed, 21 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-caden=
-ce.txt
-> >
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-cadence.txt =
-b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
-> > new file mode 100644
-> > index 000000000000..685adf513111
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
-> > @@ -0,0 +1,21 @@
-> > +Binding for the Cadence I2C controller
-> > +
-> > +Required properties:
-> > +  compatible: Compatibility string. Must be 'cdns,i2c-r1p10'.
-> > +  clocks: From common clock bindings. Phandle to input clock.
-> > +
-> > +Optional properties:
-> > +  clock-frequency: Desired operating frequency, in Hz, of the bus =
-(actual may
-> > +                  be lower). Defaults to 400000 if not specified.
->=20
-> Since not all devices support 400kHz, I would prefer that the default
-> be 100kHz. Also, it would be good if what speed the default is
-> consistent across i2c drivers.
 
-=46ine with me. I'll change this.
+Changed in v4:
+- cancelled "i2c_imx->use_dma".
+- changed "Dma" to "DMA".
+- add timeout handling  for DMA transfer complete.
 
-	Thanks,
-	S=C3=B6ren
+Changed in v3:
+- fix a bug when request the DMA faild.
+- some minor fixes for coding style.
+- other minor fixes.
 
+Changed in v2:
+- remove has_dma_support property
+- unify i2c_imx_dma_rx and i2c_imx_dma_tx
+- unify i2c_imx_dma_read and i2c_imx_pio_read
+- unify i2c_imx_dma_write and i2c_imx_pio_write
 
+Added in v1:
+- Enable DMA if it's support DMA and transfer size bigger than the threshold.
+- Add device tree bindings for i2c eDMA support.
+- Add eDMA support for i2c driver.
