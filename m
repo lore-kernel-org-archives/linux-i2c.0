@@ -1,68 +1,85 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH v4 1/2] i2c: add DMA support for freescale i2c driver
-Date: Fri, 4 Apr 2014 16:28:55 +0200
-Message-ID: <201404041628.55471.marex@denx.de>
-References: <1396579272-19542-1-git-send-email-yao.yuan@freescale.com> <1396579272-19542-2-git-send-email-yao.yuan@freescale.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v4 2/3] i2c: Add driver for Cadence I2C controller
+Date: Fri, 4 Apr 2014 16:38:47 +0200
+Message-ID: <20140404143847.GA5529@katana>
+References: <1396547967-19260-1-git-send-email-soren.brinkmann@xilinx.com>
+ <1396547967-19260-2-git-send-email-soren.brinkmann@xilinx.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1396579272-19542-2-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1396547967-19260-2-git-send-email-soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, April 04, 2014 at 04:41:11 AM, Yuan Yao wrote:
-> Add dma support for i2c. This function depend on DMA driver.
-> You can turn on it by write both the dmas and dma-name properties in dts
-> node.
-> 
-> Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-[...]
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Since you will be fixing that superfluous return 0; (I actually wonder, did you 
-really test the driver at all before submitting it?) ...
+On Thu, Apr 03, 2014 at 10:59:26AM -0700, Soren Brinkmann wrote:
+> Add a driver for the Cadence I2C controller. This controller is for
+> example found in Xilinx Zynq.
+>=20
+> Signed-off-by: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Tested-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Reviewed-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
-> +static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
-> +					struct i2c_msg *msgs)
+Only minor stuff, but since you resend anyhow because of 400kHz issue...
+
+> +static void cdns_i2c_mrecv(struct cdns_i2c *id)
 > +{
-> +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> +	struct dma_async_tx_descriptor *txdesc;
-> +	struct device *dev = &i2c_imx->adapter.dev;
+> +	unsigned int ctrl_reg;
+> +	unsigned int isr_status;
 > +
-> +	dma->dma_buf = dma_map_single(dma->chan_using->device->dev, msgs->buf,
-
-Please fix this "noodle" here too, the chain of pointers is quite long, you can 
-just define a variable for that.
-
-> +					dma->dma_len, dma->dma_data_dir);
-> +	if (dma_mapping_error(dma->chan_using->device->dev, dma->dma_buf)) {
-> +		dev_err(dev, "DMA mapping failed\n");
-> +		return -EINVAL;
-> +	}
+> +	id->p_recv_buf =3D id->p_msg->buf;
+> +	id->recv_count =3D id->p_msg->len;
 > +
-> +	txdesc = dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
-> +					dma->dma_len, dma->dma_transfer_dir,
-> +					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-> +	if (!txdesc) {
-> +		dev_err(dev, "Not able to get desc for DMA xfer\n");
-> +		dma_unmap_single(dma->chan_using->device->dev, dma->dma_buf,
-> +					dma->dma_len, dma->dma_data_dir);
-> +		return -EINVAL;
-> +	}
+> +	/* Put the controller in master receive mode and clear the FIFO */
+> +	ctrl_reg =3D cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+> +	ctrl_reg |=3D CDNS_I2C_CR_RW | CDNS_I2C_CR_CLR_FIFO;
 > +
-> +	txdesc->callback = i2c_imx_dma_callback;
-> +	txdesc->callback_param = i2c_imx;
-> +	dmaengine_submit(txdesc);
-> +	dma_async_issue_pending(dma->chan_using);
-> +
-> +	return 0;
-> +}
-[...]
+> +	if ((id->p_msg->flags & I2C_M_RECV_LEN) =3D=3D I2C_M_RECV_LEN)
 
-Other than those two things,
+'if (id->p_msg->flags & I2C_M_RECV_LEN)' is enough.
 
-Reviewed-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> +		/* Report the other error interrupts to application as EIO */
+> +		if (id->err_status & (CDNS_I2C_IXR_RX_UNF |
+> +				      CDNS_I2C_IXR_TX_OVF |
+> +				      CDNS_I2C_IXR_RX_OVF |
+> +				      CDNS_I2C_IXR_NACK)) {
+> +			cdns_i2c_master_reset(adap);
+> +			return -EIO;
+> +		}
+
+NACK is returned as -ENXIO. Check 'Documentation/i2c/fault-codes' for
+standard patterns. I'd think the rest is EIO, though.
+
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTPsP3AAoJEBQN5MwUoCm2WV4P/39bAkxtCvoj8gUKN3f3hLse
+ykH+NCPg3/G2UekYs27KtwY/+Zp7d+9a3moLwDJJxgjghav33Aryq1jPLBYoequM
+kn9P9vc/QtSWiIOWsHR4c+ZzdXFRfQAD+Xozb26eHup3xOXYmrCJ3I8SK7gzN/F9
+fnLUp3OvkRheB0+iM6NNopuNktvfg1xmvReOEQmsAQCO/t6jsONoNXj+XbBAud7E
+GpKtflVQEk/pqSGZA6OtIcYt4Zj0nch9g4BGlc19vUjTqN/51B1IEEraTUn+Hjwg
+ZIXOztZyT9sBnCRm26XYlKfXeV8c0IGMA99PUxKYbBq4ph8dLH+rylJSLkVIP739
+hu8YwRUMQZascv/VOBmEBguKH15BHNn8NXnYsixFb7rJVkS6fUwKLLSU2qb5y1Ny
+4Q43Q5aLTrbpNylkk9GzmQnJbptWTy9ZrLwu26dXiR0SiPxRL3HD1y2NkNBK23bF
+OBrYosH9GsHbb8s6qOPbC6dT47HBU2wvTf5sCCwQGoqkpsNHfE4z4pdG6c1sY1ij
+aXgw6KOQ3tyVLjBL+eWf9+TqM9SB69QfOKAn4WhqeCw0v6SeBWY5+9xxs0VbU5KX
+Nept3zeKD5d65PS59KpD+nYlCiNqAtVDw0DCgjIlaQb/DnpobXklPJUC8WnqmsZk
+4xcMVytvijLDUqoem3cE
+=QQu0
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--
