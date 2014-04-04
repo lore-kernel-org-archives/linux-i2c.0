@@ -1,49 +1,98 @@
-From: Yao Yuan <yao.yuan@freescale.com>
-Subject: Re: [PATCH v4 1/2] i2c: add DMA support for freescale i2c driver
-Date: Fri, 4 Apr 2014 15:45:15 +0000
-Message-ID: <aab78696ac364d9c832993c08915bad3@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1396579272-19542-1-git-send-email-yao.yuan@freescale.com>
- <1396579272-19542-2-git-send-email-yao.yuan@freescale.com>,<201404041628.55471.marex@denx.de>
+From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v4 2/3] i2c: Add driver for Cadence I2C controller
+Date: Fri, 4 Apr 2014 09:32:32 -0700
+Message-ID: <53e29fb2-2a42-4cbf-9c15-490d81ee0de4@CH1EHSMHS005.ehs.local>
+References: <1396547967-19260-1-git-send-email-soren.brinkmann@xilinx.com>
+ <1396547967-19260-2-git-send-email-soren.brinkmann@xilinx.com>
+ <20140404143847.GA5529@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201404041628.55471.marex@denx.de>
-Content-Language: zh-CN
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140404143847.GA5529@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, April 04, 2014 at 22:29:32 PM, Marek Vasut wrote:
-> On Friday, April 04, 2014 at 04:41:11 AM, Yuan Yao wrote:
-> > Add dma support for i2c. This function depend on DMA driver.
-> > You can turn on it by write both the dmas and dma-name properties in dts
-> > node.
-> >
-> > Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
-
-[...]
-
-> Since you will be fixing that superfluous return 0; (I actually wonder, did you
-> really test the driver at all before submitting it?) ...
-
-I'm sorry for the leftover. It's a serious bug. The support by DMA will be disabled always.
-Thanks for your consideration. But subjective assume may not suitable. Testing is a essential link . 
-But the bug can't be found by normal test . The testing may not be  imperfect, it's my 
-serious fault, but please don't doubt my work attitude.
-The ugly is my work or even the ability but not the attitude, I think.
-
-At last, Thank you for giving me a lot of help, it's very important for me.
-
-> > +static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
-> > +                                     struct i2c_msg *msgs)
+On Fri, 2014-04-04 at 04:38PM +0200, Wolfram Sang wrote:
+> On Thu, Apr 03, 2014 at 10:59:26AM -0700, Soren Brinkmann wrote:
+> > Add a driver for the Cadence I2C controller. This controller is for
+> > example found in Xilinx Zynq.
+> >=20
+> > Signed-off-by: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> > Tested-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> > Reviewed-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+>=20
+> Only minor stuff, but since you resend anyhow because of 400kHz issue=
+=2E..
+>=20
+> > +static void cdns_i2c_mrecv(struct cdns_i2c *id)
 > > +{
-> > +     struct imx_i2c_dma *dma = i2c_imx->dma;
-> > +     struct dma_async_tx_descriptor *txdesc;
-> > +     struct device *dev = &i2c_imx->adapter.dev;
-> +
-> +     dma->dma_buf = dma_map_single(dma->chan_using->device->dev, msgs->buf,
-[...]
+> > +	unsigned int ctrl_reg;
+> > +	unsigned int isr_status;
+> > +
+> > +	id->p_recv_buf =3D id->p_msg->buf;
+> > +	id->recv_count =3D id->p_msg->len;
+> > +
+> > +	/* Put the controller in master receive mode and clear the FIFO *=
+/
+> > +	ctrl_reg =3D cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+> > +	ctrl_reg |=3D CDNS_I2C_CR_RW | CDNS_I2C_CR_CLR_FIFO;
+> > +
+> > +	if ((id->p_msg->flags & I2C_M_RECV_LEN) =3D=3D I2C_M_RECV_LEN)
+>=20
+> 'if (id->p_msg->flags & I2C_M_RECV_LEN)' is enough.
+>=20
+> > +		/* Report the other error interrupts to application as EIO */
+> > +		if (id->err_status & (CDNS_I2C_IXR_RX_UNF |
+> > +				      CDNS_I2C_IXR_TX_OVF |
+> > +				      CDNS_I2C_IXR_RX_OVF |
+> > +				      CDNS_I2C_IXR_NACK)) {
+> > +			cdns_i2c_master_reset(adap);
+> > +			return -EIO;
+> > +		}
+>=20
+> NACK is returned as -ENXIO. Check 'Documentation/i2c/fault-codes' for
+> standard patterns. I'd think the rest is EIO, though.
 
->  Reviewed-by: Marek Vasut <marex@denx.de>
+Okay, I'll put this into the next version:
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-=
+cadence.c
+index 43af8c351c8b..63f3f03ecc9b 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -311,7 +311,7 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+        ctrl_reg =3D cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+        ctrl_reg |=3D CDNS_I2C_CR_RW | CDNS_I2C_CR_CLR_FIFO;
+=20
+-       if ((id->p_msg->flags & I2C_M_RECV_LEN) =3D=3D I2C_M_RECV_LEN)
++       if (id->p_msg->flags & I2C_M_RECV_LEN)
+                id->recv_count =3D I2C_SMBUS_BLOCK_MAX + 1;
+=20
+        /*
+@@ -531,12 +531,13 @@ static int cdns_i2c_master_xfer(struct i2c_adapte=
+r *adap, struct i2c_msg *msgs,
+                if (ret)
+                        return ret;
+=20
+-               /* Report the other error interrupts to application as =
+EIO */
+-               if (id->err_status & (CDNS_I2C_IXR_RX_UNF |
+-                                     CDNS_I2C_IXR_TX_OVF |
+-                                     CDNS_I2C_IXR_RX_OVF |
+-                                     CDNS_I2C_IXR_NACK)) {
++               /* Report the other error interrupts to application */
++               if (id->err_status) {
+                        cdns_i2c_master_reset(adap);
++
++                       if (id->err_status & CDNS_I2C_IXR_NACK)
++                               return -ENXIO;
++
+                        return -EIO;
+                }
+        }
+
+	Thanks,
+	S=C3=B6ren
