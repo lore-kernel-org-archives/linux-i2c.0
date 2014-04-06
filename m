@@ -1,104 +1,57 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: I2C adapters protocol deviation
-Date: Sun, 6 Apr 2014 17:37:29 +0200
-Message-ID: <20140406153728.GB2609@katana>
-References: <20140403145528.GA6199@lukather>
- <533D7E81.4050900@redhat.com>
- <20140404122632.GA3686@katana>
- <53415E50.9000402@redhat.com>
+Subject: Re: [PATCH v5 2/3] i2c: Add driver for Cadence I2C controller
+Date: Sun, 6 Apr 2014 17:51:06 +0200
+Message-ID: <20140406155106.GD2609@katana>
+References: <1396646876-27336-1-git-send-email-soren.brinkmann@xilinx.com>
+ <1396646876-27336-2-git-send-email-soren.brinkmann@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
+	protocol="application/pgp-signature"; boundary="P+33d92oIH25kiaB"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <53415E50.9000402-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1396646876-27336-2-git-send-email-soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, boris-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+To: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---4bRzO86E/ozDv8r1
+--P+33d92oIH25kiaB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Apr 06, 2014 at 04:01:52PM +0200, Hans de Goede wrote:
-> Hi,
+On Fri, Apr 04, 2014 at 02:27:55PM -0700, Soren Brinkmann wrote:
+> Add a driver for the Cadence I2C controller. This controller is for
+> example found in Xilinx Zynq.
 >=20
-> On 04/04/2014 02:26 PM, Wolfram Sang wrote:
-> >=20
-> >> So what we really have is a single slave i2c host sort of. At least
-> >> we could model it like that. The host could be told which address to
-> >> listen to (and which single i2c write to do to init the pmic) through
-> >> devicetree and then all the differences would be hidden in the host
-> >> driver, ie we would check the slave-address and if it is not the single
-> >> one we support, we just return the appropriate error for a device not
-> >> acking, and everything should work as a regular i2c host which
-> >> only supports i2c_smbus_read_byte and i2c_smbus_write_byte.
-> >=20
-> > I'd think we need a new message flag like I2C_M_PUSHPULL which says that
-> > this message has only the direction bit instead of the address and needs
-> > a parity bit afterwards. In addition to that, we need a new
-> > functionality flag I2C_FUNC_PUSHPULL which means the host driver can
-> > handle those messages. So, the PMIC driver could query support for
-> > I2C_FUNC_SMBUS_BYTE | I2C_FUNC_PUSHPULL and if successful send messages
-> > using smbus functions with the new flag set.
->=20
-> Thanks for the input this sounds good, I guess we'll give this a shot
-> when we get around to coding up support for the p2wi block in the A31.
+> Signed-off-by: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Tested-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Reviewed-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
-On a second thought, maybe more granularity is better. Like using
-I2C_M_DROP_ADDRESS and I2C_M_ADD_PARITY and then make
-I2C_CLIENT_PUSHPULL involve I2C_M_DROP_ADDRESS | I2C_M_ADD_PARITY.
-
-> > Not sure about the I2C-to-PushPull switch: Is it 100% host configuration
-> > or does it also depend on the one slave attached?=20
->=20
-> The datasheet we've suggests that it actually influences the one slave
-> attached. Note that u-boot on this machines will likely already have made
-> the switch, but I guess we don't want to count on that.
-
-Can we detect if this switching was already made?
-
-> > Are there some datasheets available?
->=20
-> The AXP221 is documented here:
-> http://linux-sunxi.org/AXP221
-> This is translated by one of our community members from a Chinese datashe=
-et.
->=20
-> The P2WI interface is (somewhat) documented in the A31 datasheet, but we =
-cannot
-> share that in public.
-
-Any chance for me to get it if I sign something?
-
-Regards,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
---4bRzO86E/ozDv8r1
+--P+33d92oIH25kiaB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTQXS4AAoJEBQN5MwUoCm2VN0P/1PKG5HF5NmnHX07UqNfUxVd
-kZxH3E7hWhUHkP3cVFy40TYCDaDmd4+zgpFMLaF8taz/xGbCNu13tBIvhabg3iGB
-NvLa8xZWKWIAn5OcxkAr5+kayGJ4m/yqG8P0ZhmPlKfL20REFgYYV25n3il5Ej94
-KOLN0eShbo1+wdVCgfGQGQsIM2YQvr3gZJiHX3HVWhmMiYjqd8MrIRGUW7iFhLCN
-yh449djbs0BE7q4cww3UTXzmbhdXExnhQ8cQQgSIkTVar0bhG8QhyAi/DMHG8rYk
-u+BRUDgrbK6ZlZe6RtvkYEjiUMw5A/Qbst3TFpNmZYSV8aG2ww/G0EUh19ZKncqy
-T6VnY4BNOGo2msc45rrYnZvUlbYLRnarVMoIoNGC5mJWE1cO0OQns1pt7y3+1oq/
-2YnVqYIhsK9vd2oh0vT8n4w308hNYEY4+gfdmwkNvhFwjuu413hYclq9+iWdmKHH
-SG9KPhhjpkQTdZrXqSKe1k3qsyxV9JuVQn6l8HG46SCAjgTeohvzYXYLLpqh666y
-7ge5qHPFf0PzdnHbBxXJjEVZCHxcHwtbv7kQxv3VlGpGAiIxvWdoGqMgZeBBNv6G
-pYX7SR8U+RRpTfUUOoI6WbtE/QU+8xGYHCBPUyt0yCXL6I7vcdOZ4jMdwb7jUvrD
-2JYt2/k1tEFpWtA36qiC
-=C1os
+iQIcBAEBAgAGBQJTQXfqAAoJEBQN5MwUoCm20jMP/0GpIKkIGjN9cQON/V5RLiMz
+Qb5YwLo61jN0I4X4shJdNgkMmNIJH9emE3UsLp2k0r688mcnwFRHpGMrII9YeLOb
+cPARhwlQP70Lr6LZmE3okdQZ0VAyZZaQIrxzyXXiAF58kK9awr7QSgGll0/N1hy0
+XelfJxORIe7ZLnEVmiKCGWspwBfez3SJKwIZLQmwNaLmsBRoCFoN1Kyi+eI2Z6E2
+d1CNnSVOR3KCn3Xt9LKcewxcTK48cgn2Gn2iPj7iGwu0D84Iv5kQUVaIzN6y5ho3
+P5JVIm3Bm9VyM/UyGqj+ZHLDQfgZP7AhRXaZ3Lsihinr/kFqiWCpWLi/w7FQkwKL
+UExxIM2mfWgD3NrV55fLx+hJ6/oHDSzBBnWNFRqq0HVnZ+lBhmzpKwX+RTBbQA7Z
+GC9KFA07qN8rqmZT2EaqUVnIYM3FjZcrTu56yhe6N72sCl+SBp7d5sk+AjejHtUF
+PgqMooEdyQHLGkDvDt0xHmF0KVeMsqmslYNqhqHgOF+W/mhZIxZS+W4rrEZiuDd7
+uBa6SQAD5nhrXGWBZ+X7JXnbQWRST3Khqzc9x+VmzTUZRliah7yTwNzvY47/Q1D+
+uI/vhb3PdhwStw+GHemYsQjJeqRkMXIQEXL3hnXumFR1MfxanmvyMqpKJcjG4pFp
+4gru24eb/2mpx3IqZ1yu
+=Ryve
 -----END PGP SIGNATURE-----
 
---4bRzO86E/ozDv8r1--
+--P+33d92oIH25kiaB--
