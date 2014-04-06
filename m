@@ -1,57 +1,53 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v5 2/3] i2c: Add driver for Cadence I2C controller
-Date: Sun, 6 Apr 2014 17:51:06 +0200
-Message-ID: <20140406155106.GD2609@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 1/3] i2c: cadence: Document device tree bindings
+Date: Sun, 6 Apr 2014 17:50:58 +0200
+Message-ID: <20140406155058.GC2609@katana>
 References: <1396646876-27336-1-git-send-email-soren.brinkmann@xilinx.com>
- <1396646876-27336-2-git-send-email-soren.brinkmann@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="P+33d92oIH25kiaB"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="Qbvjkv9qwOGw/5Fx"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1396646876-27336-2-git-send-email-soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <1396646876-27336-1-git-send-email-soren.brinkmann@xilinx.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Soren Brinkmann <soren.brinkmann@xilinx.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, Michal Simek <michal.simek@xilinx.com>, Mike Looijmans <mike.looijmans@topic.nl>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Harini Katakam <harinik@xilinx.com>, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Gerhard Sittig <gsi@denx.de>
 List-Id: linux-i2c@vger.kernel.org
 
 
---P+33d92oIH25kiaB
+--Qbvjkv9qwOGw/5Fx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 04, 2014 at 02:27:55PM -0700, Soren Brinkmann wrote:
-> Add a driver for the Cadence I2C controller. This controller is for
-> example found in Xilinx Zynq.
+On Fri, Apr 04, 2014 at 02:27:54PM -0700, Soren Brinkmann wrote:
+> Add device tree binding documentation for the Cadence I2C controller.
 >=20
-> Signed-off-by: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-> Tested-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-> Reviewed-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Soren Brinkmann <soren.brinkmann@xilinx.com>
 
 Applied to for-next, thanks!
 
 
---P+33d92oIH25kiaB
+--Qbvjkv9qwOGw/5Fx
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTQXfqAAoJEBQN5MwUoCm20jMP/0GpIKkIGjN9cQON/V5RLiMz
-Qb5YwLo61jN0I4X4shJdNgkMmNIJH9emE3UsLp2k0r688mcnwFRHpGMrII9YeLOb
-cPARhwlQP70Lr6LZmE3okdQZ0VAyZZaQIrxzyXXiAF58kK9awr7QSgGll0/N1hy0
-XelfJxORIe7ZLnEVmiKCGWspwBfez3SJKwIZLQmwNaLmsBRoCFoN1Kyi+eI2Z6E2
-d1CNnSVOR3KCn3Xt9LKcewxcTK48cgn2Gn2iPj7iGwu0D84Iv5kQUVaIzN6y5ho3
-P5JVIm3Bm9VyM/UyGqj+ZHLDQfgZP7AhRXaZ3Lsihinr/kFqiWCpWLi/w7FQkwKL
-UExxIM2mfWgD3NrV55fLx+hJ6/oHDSzBBnWNFRqq0HVnZ+lBhmzpKwX+RTBbQA7Z
-GC9KFA07qN8rqmZT2EaqUVnIYM3FjZcrTu56yhe6N72sCl+SBp7d5sk+AjejHtUF
-PgqMooEdyQHLGkDvDt0xHmF0KVeMsqmslYNqhqHgOF+W/mhZIxZS+W4rrEZiuDd7
-uBa6SQAD5nhrXGWBZ+X7JXnbQWRST3Khqzc9x+VmzTUZRliah7yTwNzvY47/Q1D+
-uI/vhb3PdhwStw+GHemYsQjJeqRkMXIQEXL3hnXumFR1MfxanmvyMqpKJcjG4pFp
-4gru24eb/2mpx3IqZ1yu
-=Ryve
+iQIcBAEBAgAGBQJTQXfiAAoJEBQN5MwUoCm25koP/R4MPtL/ctRsZoCO75A/13Xi
++j4boYp/IX/fppmnPZ0PTWW6FL1LogbtLJy1/XBf2qgrGjau7MejTe7drtj3RVxV
+gva/ewhdb3kbZllzNYegudkYFxLqiLlsRo7m7BzdPUb1QqUcz6Exh6DajX58obyj
+lasM8Fk8KeWFu1F8Yg2QZF+Pg5JUt8UvWSFp/Tfas64/Gm/w+iTLzvgwpUc4+loD
+7+1jSKD9La8dWzRE6Npb897Sp3DYg9AtS8z0FpyYcACz2uNPvEp3MNgL6DkAwXNh
+yDDW6Rgh/mT+z2Aep2p1I4EWCcgB0tQWPFIuvMhSWWRgDLBhdrswb7fFy50+jAjZ
+CxxIyfdns1FOzTaUECKLQGHF0CDmGiOJKljnPCdgifBw2O6CpCOIhSr6fIekBdx/
+LIAI8L9TvChzaJNjTlBfbwIzh0kqIhmZp7iTT+PjSLF8N/PYrX1m9yFKG9KlIBpl
+yZzpuEH0IhW0tZtphj65NQjXbdNWFGNGsArWPdgUmzlkUxVkcGxuZ4v7kpBRCvyA
+TnKwb8cgldlaRXXm3t4/hsLyoYR9uuwVnsYpI4HVslrhgEmbhYUOtVYdVRRo2UvG
+AD9QwOlPZ0S6BGGU6xVSTCjYNiSTC8jP3OueITnD5zxOBqjKR4XUSXqbgJROZ5Jt
+z/BAE9BT2rlsVE99FXFL
+=eVGH
 -----END PGP SIGNATURE-----
 
---P+33d92oIH25kiaB--
+--Qbvjkv9qwOGw/5Fx--
