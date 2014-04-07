@@ -1,41 +1,102 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 0/2] i2c-designware-pci: Add Haswell ULT device support
-Date: Mon, 7 Apr 2014 12:09:00 +0300
-Message-ID: <20140407090859.GH19349@intel.com>
-References: <1382326010-4554-1-git-send-email-bleung@chromium.org>
- <1382367944-3005-1-git-send-email-bleung@chromium.org>
- <20131021161428.GI3521@intel.com>
- <20140406135424.GA1840@node.dhcp.inet.fi>
- <20140406153104.GA2609@katana>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v2 1/2] Create eeprom_dev hardware class for EEPROM
+ devices
+Date: Mon, 7 Apr 2014 11:09:08 +0200
+Message-ID: <20140407090908.GE3926@lukather>
+References: <1390504562-20333-1-git-send-email-curt@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PPYy/fEw/8QCHSq3"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140406153104.GA2609@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "Kirill A. Shutemov" <kirill-oKw7cIdHH8eLwutG50LtGA@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dlaurie-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+In-Reply-To: <1390504562-20333-1-git-send-email-curt@cumulusnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Curt Brune <curt@cumulusnetworks.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Laszlo Papp <lpapp@kde.org>, Thomas De Schampheleire <patrickdepinguin@gmail.com>, gregkh@linuxfoundation.org, Shrijeet Mukherjee <shm@cumulusnetworks.com>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Apr 06, 2014 at 05:31:04PM +0200, Wolfram Sang wrote:
-> On Sun, Apr 06, 2014 at 04:54:24PM +0300, Kirill A. Shutemov wrote:
-> > On Mon, Oct 21, 2013 at 07:14:28PM +0300, Mika Westerberg wrote:
-> > > On Mon, Oct 21, 2013 at 08:05:42AM -0700, Benson Leung wrote:
-> > > > Fixed 25Mhz clock instead of 100Mhz clock in 1/2 and a warning in 2/2.
-> > > > 
-> > > > [PATCH v2 1/2] i2c-designware-pci: Add Haswell ULT device IDs
-> > > > [PATCH v2 2/2] i2c-designware-pci: Index Haswell ULT bus names from 0
-> > > 
-> > > Both patches,
-> > > 
-> > > Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > 
-> > Guys, any idea why these patches have not upstreamed yet?
-> 
-> Yes, read the discussion of V1 of these patches. AFAIU the patches are
-> obsolete.
 
-Well, we still don't have HSW PCI Ids in the driver.
+--PPYy/fEw/8QCHSq3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Benson, are you still planning to send a patch to add those? I can add them
-as well, if you are fine with that.
+Hi,
+
+On Thu, Jan 23, 2014 at 11:16:01AM -0800, Curt Brune wrote:
+> Create a new hardware class under /sys/class/eeprom_dev
+>=20
+> EEPROM drivers can register their devices with the eeprom_dev class
+> during instantiation.
+>=20
+> The registered devices show up as:
+>=20
+>   /sys/class/eeprom_dev/eeprom0
+>   /sys/class/eeprom_dev/eeprom1
+>   ...
+>   /sys/class/eeprom_dev/eeprom[N]
+>=20
+> Each member of the eeprom class exports a sysfs file called "label",
+> containing the label property from the corresponding device tree node.
+>=20
+> Example:
+>=20
+>   /sys/class/eeprom_dev/eeprom0/label
+>=20
+> If the device tree node property "label" does not exist the value
+> "unknown" is used.
+>=20
+> Note: The class cannot be called 'eeprom' as that is the name of the
+> I/O file created by the driver.  The class name appears as a
+> sub-directory within the main device directory.  Hence the class name
+> 'eeprom_dev'.
+>=20
+> Userspace can use the label to identify what the EEPROM is for.
+>=20
+> The real device is available from the class device via the "device"
+> link:
+>=20
+>   /sys/class/eeprom_dev/eeprom0/device
+
+Sorry for stepping up this late, but I've been working on an eeprom
+framework recently to move all the duplication that exists in the
+eeprom drivers (such as sysfs file creation, in kernel accessors) to
+common code. And part of that work was to create a eeprom class.
+
+The only feature that's missing from your code is the label, but I
+guess it can easily be added, and makes sense.
+
+I'm not quite fond of some of the API yet, particularly on the in
+kernel side, but I guess I can post what I have so far as an RFC and
+get the discussion started.
+
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--PPYy/fEw/8QCHSq3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTQms0AAoJEBx+YmzsjxAg030P/iWxVceoF4i9h61X+ck5R32z
+9bVs1tiXc7DcN9FGjtREQErtlEG6PmAvCfcJ+No+Mdj/FbIajBZFLI3qva4NtQ3f
+yIX6I0KxWiFkzZ7yLYtQ76+nAoCC4Z2vL3PeYWNADYVMfodCyGBVVUGNi82pLl/5
+tYPnKNgHxajIkh3j4UV3FGzqQCfOOKA7D4DewacQ6wgFh4dDPhxr8pdc8LX7jEnZ
+y8xG96PS1Xb8YZnFmczYOmcH/Ig32PYeoMubfThfLhnfHuaqNZoiW5BBPI15323E
+ScjnRHeGOQNKoI5UPI5fIr442eKctp00bhOMxzNs+R/8yP63JEnzYSXlvhblhVXe
+Q0SbJvGWZgsbwTYO6aixbG/rA/BkhqfXOz2b49/R3p9JfNunSQ4wdwzJtu4toy6g
+Z8rxsDmsj1EaEco1T4+OeeAqIcdMtyWCgYusX7SLvQJadM4hbOVNMT14gE5/UUHs
+MM/OLcyUZkV/8P8TR0h6ZE88KmKVWbD/DsWeKeOomSoLUS9+HfaPlADKvWXo0jk6
+v6bdhuiBYsY4EjZepvgSycKP+4Jkl9kWuDxiQw4JrOlLisonBzcAP1DHKQkF0O+9
+7RScc/qFI0PBR6lCKKMRUKM55kp3qThG0ItQNZ29ERT8qFs5e71I/9DGcqtmQI9F
+5WdRRxzXt997C+tZOICI
+=AqjK
+-----END PGP SIGNATURE-----
+
+--PPYy/fEw/8QCHSq3--
