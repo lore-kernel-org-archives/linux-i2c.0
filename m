@@ -1,62 +1,60 @@
-From: "Du, Wenkai" <wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH] i2c-designware: Mask interrupts during i2c controller
- enable
-Date: Mon, 7 Apr 2014 16:48:02 +0000
-Message-ID: <7286EAF50D3F4E4AADE7FEECEBF8B5A537A72207@ORSMSX109.amr.corp.intel.com>
-References: <7286EAF50D3F4E4AADE7FEECEBF8B5A537A70E1F@ORSMSX109.amr.corp.intel.com>
- <20140404181613.GB19349@intel.com>
- <7286EAF50D3F4E4AADE7FEECEBF8B5A537A70F8B@ORSMSX109.amr.corp.intel.com>
- <20140404184232.GC19349@intel.com>
- <7286EAF50D3F4E4AADE7FEECEBF8B5A537A71351@ORSMSX109.amr.corp.intel.com>
- <20140405061316.GF19349@intel.com>
- <20140406185818.3aaca03d@alan.etchedpixels.co.uk>
- <20140407090403.GG19349@intel.com>
- <20140407154252.6b8f0f7e@alan.etchedpixels.co.uk>
- <20140407151107.GL19349@intel.com>
+From: Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Subject: Re: Haswell systems & i801 i2c driver
+Date: Mon, 7 Apr 2014 14:25:56 -0600
+Message-ID: <CAErSpo5jjo0HBeQTtTkiLdqk6vg+K51rXSF+qEbkwmM+QY1Acw@mail.gmail.com>
+References: <5342E7C0.4050209@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140407151107.GL19349-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <5342E7C0.4050209-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Westerberg, Mika" <mika.westerberg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, One Thousand Gnomes <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Prarit Bhargava <prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Janet Morgan <janet.morgan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Janet Morgan <jamorgan-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Myron Stowe <mstowe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Matthew Garrett <matthew.garrett-05XSO3Yj/JvQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Westerberg, Mika
-> Sent: Monday, April 07, 2014 8:11 AM
-> To: One Thousand Gnomes
-> Cc: Du, Wenkai; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Wolfram Sang; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Re: [PATCH] i2c-designware: Mask interrupts during i2c controller enable
-> 
-> 
-> Do you think we can fix it with adding a dummy read right after write to the mask register, like
-> the snippet below?
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-
-> core.c
-> index 14c4b30d4ccc..ff9090381d8b 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -535,6 +535,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
->  		intr_mask = 0;
-> 
->  	dw_writel(dev, intr_mask,  DW_IC_INTR_MASK);
-> +	dw_readl(dev, DW_IC_INTR_MASK);
->  }
-> 
+[+cc Rafael, Matthew, linux-acpi]
 
-I have tried this read back earlier during debugging, it didn't help. You can confirm yourself as well.
+Hi Prarit,
 
-On the ISR code execution path, here is the list to my understanding:
+On Mon, Apr 7, 2014 at 12:00 PM, Prarit Bhargava <prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+> When loading the i801 i2c bus driver on an i5-46xx CPU, and this chipset
+> http://www.intel.com/content/dam/www/public/us/en/documents/datasheets/8-series-chipset-pch-datasheet.pdf
+>
+> I see the following warning:
+>
+> i801_smbus 0000:00:1f.3: PCI INT C -> GSI 18 (level, low) -> IRQ 18
+> ACPI: resource 0000:00:1f.3 [io  0xefa0-0xefbf] conflicts with ACPI region SMBI
+> [io 0xefa0-0xefaf]
+> ACPI: This conflict may cause random problems and system instability
+> ACPI: If an ACPI driver is available for this device, you should use it instead
+> of the native driver
+>
+> It seems like the BIOS/ACPI defines a region, SMBI, which is defined for the
+> SMBus to use, but there is no ACPI driver available for the SMBus (at least
+> AFAICT).
 
-1. TX abort: this path masks all interrupt by writing 0 to interrupt mask register;
-2. RX full: this path doesn't do anything on masking interrupts;
-3. TX empty: this path only mask TX empty under certain conditions; it doesn't mask other interrupt sources;
-4. i2c STOP condition: this path call complete() to finish the transfer; it doesn't do anything on masking interrupts;
+Is this on a production BIOS?  It seems like a BIOS bug to expose a
+PCI device with resources that are used by ACPI.  The spec you pointed
+to does mention an "SMBus Disable" bit (sec 10.1.54) that claims to
+disable PCI config space for this device.  Maybe the BIOS forgot to
+set that?
 
-The above analysis agrees with the debug logs: most of interrupts are left unmasked in original code when i2c core is being enabled.
+If we (the Linux PCI core) discovered this device (00:1f.3), we
+believe we own it and can assign a driver to it and potentially change
+the resources assigned to it.
 
-I think we want all interrupts masked when enabling HW. This will ensure the required 25us core turn on delay being respected. Also there could be spurious interrupts when HW is being turned on that should be ignored.
+Changing the [io  0xefa0-0xefbf] BAR would likely break the SMBI
+opregion because the AML using it wouldn't know about the change.
+
+Assigning a driver, e.g., i801_smbus, seems likely to cause conflicts
+with the AML that uses the SMBI opregion.  These could be difficult to
+reproduce and debug.
+
+If this is on a shipping BIOS, we might need to figure out some way to
+handle it.  I don't remember anything in the ACPI spec that talks
+about issues like this, but maybe we should add something in PCI that
+notices if there's an ACPI device with the same resources and marks
+the PCI device to keep us from moving it or assigning a driver (maybe
+the warning you're seeing already handles the driver part?)
+
+Bjorn
