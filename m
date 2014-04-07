@@ -1,54 +1,95 @@
-From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-Subject: =?UTF-8?B?UmU6IFtQQVRDSF0gaTJjOiBjYWRlbmNlOiBmaXggS2NvbmZpZyBkZXBlbmRl?=
- =?UTF-8?B?bmN5?=
-Date: Mon, 07 Apr 2014 10:37:36 +0400
-Message-ID: <1396852656.682914397@f273.i.mail.ru>
-References: <1396811227-8851-1-git-send-email-wsa@the-dreams.de>
- <20140407063100.GN29751@pengutronix.de>
-Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+From: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
+Subject: Re: [PATCH] i2c: cadence: fix Kconfig dependency
+Date: Mon, 07 Apr 2014 08:39:23 +0200
+Message-ID: <5342481B.6020600@monstr.eu>
+References: <1396811227-8851-1-git-send-email-wsa@the-dreams.de> <20140407063100.GN29751@pengutronix.de>
+Reply-To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20140407063100.GN29751@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, =?UTF-8?B?U29yZW4gQnJpbmttYW5u?= <soren.brinkmann@xilinx.com>, =?UTF-8?B?V29sZnJhbSBTYW5n?= <wsa@the-dreams.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="L93OjK7B1IxhuOG0si4mMPQgpkOSI6HVB"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140407063100.GN29751-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?ISO-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-TW9uLCA3IEFwciAyMDE0IDA4OjMxOjAwICswMjAwINC+0YIgVXdlIEtsZWluZS1Lw7ZuaWcgPHUu
-a2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT46Cj4gSGVsbG8sCj4gCj4gT24gU3VuLCBBcHIg
-MDYsIDIwMTQgYXQgMDk6MDc6MDdQTSArMDIwMCwgV29sZnJhbSBTYW5nIHdyb3RlOgo+ID4gRHVy
-aW5nIGRldmVsb3BtZW50LCB0aGUgZHJpdmVyIGZpcnN0IHJlYWxseSBuZWVkZWQgdG8gZGVwZW5k
-IG9uCj4gPiBDT01NT05fQ0xLIG9ubHkuIExhdGVyLCBpdCB3YXMgc3dpdGNoZWQgdG8gd3JpdGVs
-X3JlbGF4ZWQsIGJ1dCBpdCB3YXMKPiA+IGZvcmdvdHRlbiB0byB1cGRhdGUgdGhlIGRlcGVuZGVu
-Y2llcywgc28gYnVpbGQgZXJyb3JzIG9jY3VyZWQ6Cj4gPiAKPiA+IGNvbmZpZzogbWFrZSBBUkNI
-PWkzODYgYWxseWVzY29uZmlnCj4gPiAKPiA+IEFsbCBlcnJvci93YXJuaW5nczoKPiA+IAo+ID4g
-ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1jYWRlbmNlLmM6IEluIGZ1bmN0aW9uICdjZG5zX2ky
-Y19jbGVhcl9idXNfaG9sZCc6Cj4gPiA+PiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWNhZGVuY2Uu
-YzoxNjg6MzogZXJyb3I6IGltcGxpY2l0IGRlY2xhcmF0aW9uCj4gPiA+PiBvZiBmdW5jdGlvbiAn
-d3JpdGVsX3JlbGF4ZWQnIFstV2Vycm9yPWltcGxpY2l0LWZ1bmN0aW9uLWRlY2xhcmF0aW9uXQo+
-ID4gCj4gPiBVc2UgYSB2ZXJ5IHNhZmUgZGVwZW5kZW5jeSBmb3Igbm93Lgo+ID4gCj4gPiBTaWdu
-ZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1zLmRlPgo+ID4gLS0tCj4gPiAg
-ZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcgfCAyICstCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDEg
-aW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4gPiAKPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L2kyYy9idXNzZXMvS2NvbmZpZyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9LY29uZmlnCj4gPiBpbmRl
-eCA5MzE2NWZmNDUzYWIuLjNkM2I5YjM1NzdjNSAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9LY29uZmlnCj4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvS2NvbmZpZwo+ID4g
-QEAgLTM3OCw3ICszNzgsNyBAQCBjb25maWcgSTJDX0JMQUNLRklOX1RXSV9DTEtfS0haCj4gPiAg
-Cj4gPiAgY29uZmlnIEkyQ19DQURFTkNFCj4gPiAgCXRyaXN0YXRlICJDYWRlbmNlIEkyQyBDb250
-cm9sbGVyIgo+ID4gLQlkZXBlbmRzIG9uIENPTU1PTl9DTEsKPiA+ICsJZGVwZW5kcyBvbiBBUkNI
-X1pZTlEKPiBJJ2Qgc3VnZ2VzdDoKPiAKPiAJZGVwZW5kcyBvbiBBUk0gJiYgKEFSQ0hfWllOQyB8
-fCBDT01QSUxFX1RFU1QpCgpBUkNIX1pZTkMgfHwgKEFSTSAmJiBDT01QSUxFX1RFU1QpCgpTYW1l
-LCBidXQgbW9yZSBjbGVhci4KCi0tLQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtl
-cm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxt
-YW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--L93OjK7B1IxhuOG0si4mMPQgpkOSI6HVB
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+On 04/07/2014 08:31 AM, Uwe Kleine-K=F6nig wrote:
+> Hello,
+>=20
+> On Sun, Apr 06, 2014 at 09:07:07PM +0200, Wolfram Sang wrote:
+>> During development, the driver first really needed to depend on
+>> COMMON_CLK only. Later, it was switched to writel_relaxed, but it was
+>> forgotten to update the dependencies, so build errors occured:
+>>
+>> config: make ARCH=3Di386 allyesconfig
+>>
+>> All error/warnings:
+>>
+>>    drivers/i2c/busses/i2c-cadence.c: In function 'cdns_i2c_clear_bus_h=
+old':
+>>>> drivers/i2c/busses/i2c-cadence.c:168:3: error: implicit declaration
+>>>> of function 'writel_relaxed' [-Werror=3Dimplicit-function-declaratio=
+n]
+>>
+>> Use a very safe dependency for now.
+>>
+>> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/Kconfig | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index 93165ff453ab..3d3b9b3577c5 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -378,7 +378,7 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
+>> =20
+>>  config I2C_CADENCE
+>>  	tristate "Cadence I2C Controller"
+>> -	depends on COMMON_CLK
+>> +	depends on ARCH_ZYNQ
+> I'd suggest:
+>=20
+> 	depends on ARM && (ARCH_ZYNC || COMPILE_TEST)
+>=20
+> This way it's available for compile testing but still it doesn't appear=
+
+> when configuring a kernel for a real machine.
+
+I would suggest to add relaxed IO helper function to asm-generic/io.h
+to be available for all archs. Then we can avoid this type of errors.
+
+Thanks,
+Michal
+
+--=20
+Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
+Maintainer of Linux kernel - Xilinx Zynq ARM architecture
+Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
+
+
+
+--L93OjK7B1IxhuOG0si4mMPQgpkOSI6HVB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlNCSBsACgkQykllyylKDCEArwCdG6ys0qbMSYMFi+QSDFSHUVPn
+ZLsAn2VO4LwJNnB+ohXlH0M6Sr7kDXEU
+=/yPH
+-----END PGP SIGNATURE-----
+
+--L93OjK7B1IxhuOG0si4mMPQgpkOSI6HVB--
