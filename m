@@ -1,14 +1,16 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c: cadence: fix Kconfig dependency
-Date: Mon, 7 Apr 2014 08:31:00 +0200
-Message-ID: <20140407063100.GN29751@pengutronix.de>
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSF0gaTJjOiBjYWRlbmNlOiBmaXggS2NvbmZpZyBkZXBlbmRl?=
+ =?UTF-8?B?bmN5?=
+Date: Mon, 07 Apr 2014 10:37:36 +0400
+Message-ID: <1396852656.682914397@f273.i.mail.ru>
 References: <1396811227-8851-1-git-send-email-wsa@the-dreams.de>
+ <20140407063100.GN29751@pengutronix.de>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1396811227-8851-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <20140407063100.GN29751@pengutronix.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,78 +20,35 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Soren Brinkmann <soren.brinkmann@xilinx.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, =?UTF-8?B?U29yZW4gQnJpbmttYW5u?= <soren.brinkmann@xilinx.com>, =?UTF-8?B?V29sZnJhbSBTYW5n?= <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
-
-On Sun, Apr 06, 2014 at 09:07:07PM +0200, Wolfram Sang wrote:
-> During development, the driver first really needed to depend on
-> COMMON_CLK only. Later, it was switched to writel_relaxed, but it was
-> forgotten to update the dependencies, so build errors occured:
-> =
-
-> config: make ARCH=3Di386 allyesconfig
-> =
-
-> All error/warnings:
-> =
-
->    drivers/i2c/busses/i2c-cadence.c: In function 'cdns_i2c_clear_bus_hold=
-':
-> >> drivers/i2c/busses/i2c-cadence.c:168:3: error: implicit declaration
-> >> of function 'writel_relaxed' [-Werror=3Dimplicit-function-declaration]
-> =
-
-> Use a very safe dependency for now.
-> =
-
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  drivers/i2c/busses/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> =
-
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 93165ff453ab..3d3b9b3577c5 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -378,7 +378,7 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
->  =
-
->  config I2C_CADENCE
->  	tristate "Cadence I2C Controller"
-> -	depends on COMMON_CLK
-> +	depends on ARCH_ZYNQ
-I'd suggest:
-
-	depends on ARM && (ARCH_ZYNC || COMPILE_TEST)
-
-This way it's available for compile testing but still it doesn't appear
-when configuring a kernel for a real machine.
-
-Best regards
-Uwe
-
->  	help
->  	  Say yes here to select Cadence I2C Host Controller. This controller is
->  	  e.g. used by Xilinx Zynq.
-> -- =
-
-> 1.9.1
-> =
-
-> =
-
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> =
-
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+TW9uLCA3IEFwciAyMDE0IDA4OjMxOjAwICswMjAwINC+0YIgVXdlIEtsZWluZS1Lw7ZuaWcgPHUu
+a2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT46Cj4gSGVsbG8sCj4gCj4gT24gU3VuLCBBcHIg
+MDYsIDIwMTQgYXQgMDk6MDc6MDdQTSArMDIwMCwgV29sZnJhbSBTYW5nIHdyb3RlOgo+ID4gRHVy
+aW5nIGRldmVsb3BtZW50LCB0aGUgZHJpdmVyIGZpcnN0IHJlYWxseSBuZWVkZWQgdG8gZGVwZW5k
+IG9uCj4gPiBDT01NT05fQ0xLIG9ubHkuIExhdGVyLCBpdCB3YXMgc3dpdGNoZWQgdG8gd3JpdGVs
+X3JlbGF4ZWQsIGJ1dCBpdCB3YXMKPiA+IGZvcmdvdHRlbiB0byB1cGRhdGUgdGhlIGRlcGVuZGVu
+Y2llcywgc28gYnVpbGQgZXJyb3JzIG9jY3VyZWQ6Cj4gPiAKPiA+IGNvbmZpZzogbWFrZSBBUkNI
+PWkzODYgYWxseWVzY29uZmlnCj4gPiAKPiA+IEFsbCBlcnJvci93YXJuaW5nczoKPiA+IAo+ID4g
+ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1jYWRlbmNlLmM6IEluIGZ1bmN0aW9uICdjZG5zX2ky
+Y19jbGVhcl9idXNfaG9sZCc6Cj4gPiA+PiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWNhZGVuY2Uu
+YzoxNjg6MzogZXJyb3I6IGltcGxpY2l0IGRlY2xhcmF0aW9uCj4gPiA+PiBvZiBmdW5jdGlvbiAn
+d3JpdGVsX3JlbGF4ZWQnIFstV2Vycm9yPWltcGxpY2l0LWZ1bmN0aW9uLWRlY2xhcmF0aW9uXQo+
+ID4gCj4gPiBVc2UgYSB2ZXJ5IHNhZmUgZGVwZW5kZW5jeSBmb3Igbm93Lgo+ID4gCj4gPiBTaWdu
+ZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1zLmRlPgo+ID4gLS0tCj4gPiAg
+ZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcgfCAyICstCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDEg
+aW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4gPiAKPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L2kyYy9idXNzZXMvS2NvbmZpZyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9LY29uZmlnCj4gPiBpbmRl
+eCA5MzE2NWZmNDUzYWIuLjNkM2I5YjM1NzdjNSAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvaTJj
+L2J1c3Nlcy9LY29uZmlnCj4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvS2NvbmZpZwo+ID4g
+QEAgLTM3OCw3ICszNzgsNyBAQCBjb25maWcgSTJDX0JMQUNLRklOX1RXSV9DTEtfS0haCj4gPiAg
+Cj4gPiAgY29uZmlnIEkyQ19DQURFTkNFCj4gPiAgCXRyaXN0YXRlICJDYWRlbmNlIEkyQyBDb250
+cm9sbGVyIgo+ID4gLQlkZXBlbmRzIG9uIENPTU1PTl9DTEsKPiA+ICsJZGVwZW5kcyBvbiBBUkNI
+X1pZTlEKPiBJJ2Qgc3VnZ2VzdDoKPiAKPiAJZGVwZW5kcyBvbiBBUk0gJiYgKEFSQ0hfWllOQyB8
+fCBDT01QSUxFX1RFU1QpCgpBUkNIX1pZTkMgfHwgKEFSTSAmJiBDT01QSUxFX1RFU1QpCgpTYW1l
+LCBidXQgbW9yZSBjbGVhci4KCi0tLQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtl
+cm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxt
+YW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
