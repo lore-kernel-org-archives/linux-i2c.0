@@ -1,102 +1,119 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH v2 1/2] Create eeprom_dev hardware class for EEPROM
- devices
-Date: Mon, 7 Apr 2014 11:09:08 +0200
-Message-ID: <20140407090908.GE3926@lukather>
-References: <1390504562-20333-1-git-send-email-curt@cumulusnetworks.com>
+From: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: I2C adapters protocol deviation
+Date: Mon, 07 Apr 2014 14:06:31 +0200
+Message-ID: <534294C7.3040606@redhat.com>
+References: <20140403145528.GA6199@lukather> <533D7E81.4050900@redhat.com> <20140404122632.GA3686@katana> <53415E50.9000402@redhat.com> <20140406153728.GB2609@katana> <53418C61.6020604@redhat.com> <5342589B.5000600@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PPYy/fEw/8QCHSq3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1390504562-20333-1-git-send-email-curt@cumulusnetworks.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Curt Brune <curt@cumulusnetworks.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Laszlo Papp <lpapp@kde.org>, Thomas De Schampheleire <patrickdepinguin@gmail.com>, gregkh@linuxfoundation.org, Shrijeet Mukherjee <shm@cumulusnetworks.com>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5342589B.5000600-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, boris-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-
-
---PPYy/fEw/8QCHSq3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On Thu, Jan 23, 2014 at 11:16:01AM -0800, Curt Brune wrote:
-> Create a new hardware class under /sys/class/eeprom_dev
->=20
-> EEPROM drivers can register their devices with the eeprom_dev class
-> during instantiation.
->=20
-> The registered devices show up as:
->=20
->   /sys/class/eeprom_dev/eeprom0
->   /sys/class/eeprom_dev/eeprom1
->   ...
->   /sys/class/eeprom_dev/eeprom[N]
->=20
-> Each member of the eeprom class exports a sysfs file called "label",
-> containing the label property from the corresponding device tree node.
->=20
-> Example:
->=20
->   /sys/class/eeprom_dev/eeprom0/label
->=20
-> If the device tree node property "label" does not exist the value
-> "unknown" is used.
->=20
-> Note: The class cannot be called 'eeprom' as that is the name of the
-> I/O file created by the driver.  The class name appears as a
-> sub-directory within the main device directory.  Hence the class name
-> 'eeprom_dev'.
->=20
-> Userspace can use the label to identify what the EEPROM is for.
->=20
-> The real device is available from the class device via the "device"
-> link:
->=20
->   /sys/class/eeprom_dev/eeprom0/device
+On 04/07/2014 09:49 AM, Boris BREZILLON wrote:
+> Hi,
+> 
+> On 06/04/2014 19:18, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 04/06/2014 05:37 PM, Wolfram Sang wrote:
+>>> On Sun, Apr 06, 2014 at 04:01:52PM +0200, Hans de Goede wrote:
+>>>> Hi,
+>>>>
+>>>> On 04/04/2014 02:26 PM, Wolfram Sang wrote:
+>>>>>> So what we really have is a single slave i2c host sort of. At least
+>>>>>> we could model it like that. The host could be told which address to
+>>>>>> listen to (and which single i2c write to do to init the pmic) through
+>>>>>> devicetree and then all the differences would be hidden in the host
+>>>>>> driver, ie we would check the slave-address and if it is not the single
+>>>>>> one we support, we just return the appropriate error for a device not
+>>>>>> acking, and everything should work as a regular i2c host which
+>>>>>> only supports i2c_smbus_read_byte and i2c_smbus_write_byte.
+>>>>> I'd think we need a new message flag like I2C_M_PUSHPULL which says that
+>>>>> this message has only the direction bit instead of the address and needs
+>>>>> a parity bit afterwards. In addition to that, we need a new
+>>>>> functionality flag I2C_FUNC_PUSHPULL which means the host driver can
+>>>>> handle those messages. So, the PMIC driver could query support for
+>>>>> I2C_FUNC_SMBUS_BYTE | I2C_FUNC_PUSHPULL and if successful send messages
+>>>>> using smbus functions with the new flag set.
+>>>> Thanks for the input this sounds good, I guess we'll give this a shot
+>>>> when we get around to coding up support for the p2wi block in the A31.
+> 
+> Hans, I started to work on the p2wi driver, but let me know if you
+> already have a working driver (I'll either rebase my work on yours or
+> let you finish your implementation).
 
-Sorry for stepping up this late, but I've been working on an eeprom
-framework recently to move all the duplication that exists in the
-eeprom drivers (such as sysfs file creation, in kernel accessors) to
-common code. And part of that work was to create a eeprom class.
+I've pushed a working (polling, no irqs) implementation to the u-boot-sunxi
+repository. Other then that I've no code, so if you're working on a kernel
+driver that is great!
 
-The only feature that's missing from your code is the label, but I
-guess it can easily be added, and makes sense.
+> 
+>>> On a second thought, maybe more granularity is better. Like using
+>>> I2C_M_DROP_ADDRESS and I2C_M_ADD_PARITY and then make
+>>> I2C_CLIENT_PUSHPULL involve I2C_M_DROP_ADDRESS | I2C_M_ADD_PARITY.
+> 
+> For the moment I only make use of the I2C_CLIENT_PUSHPULL and
+> I2C_M_PUSHPULL flags, but I can add those flags (and check them in the
+> smbus_xfer callback) if you think this is relevant.
+> 
+>> Hmm, I'm not completely sold on the whole idea of having special
+>> flags, esp. since it seems that ie the AXP221 may operate in normal
+>> i2c mode in some designs too. So ideally we would just hide from
+>> clients that this is something else then plain i2c. So that we can have
+>> an axp221 driver which is not even aware about this weird i2c-variant and
+>> will just work independent on how the axp221 is hooked up.
+> 
+> Hans, can't we use the same PMIC driver but with different i2c flags for
+> the p2wi case.
 
-I'm not quite fond of some of the API yet, particularly on the in
-kernel side, but I guess I can post what I have so far as an RFC and
-get the discussion started.
+Sure, but that would complicate the PMIC code a bit. Anyways just do what
+you think is best and we'll see from there.
 
-Maxime
+> IMHO, the real question here is: do we want to support the p2wi protocol
+> on other i2c bus implementations (like the i2c bitbanging driver) ?
+> If this is the case we definitely need those specific flags.
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+I don't think so. This whole p2wi thing seems like a one-off experiment by
+Allwinner they have already abandoned it for their next SOC.
 
---PPYy/fEw/8QCHSq3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+>> Likewise it would be useful to have the i2cdump utility just work, etc.
+>>
+>> So maybe a flag which is a hint that this is special on the controller,
+>> but I don't think we should be checking for special flags in the messages
+>> on the controller side. Basically the whole p2wi allows reading / writing
+>> byte registers, so I2C_FUNC_SMBUS_BYTE is a 1:1 mapping of the functionality,
+>> as for the address, we can just check it is the one address used to do
+>> the initial setup, and if it is not then just return an error.
+>>
+>>>>> Not sure about the I2C-to-PushPull switch: Is it 100% host configuration
+>>>>> or does it also depend on the one slave attached? 
+>>>> The datasheet we've suggests that it actually influences the one slave
+>>>> attached. Note that u-boot on this machines will likely already have made
+>>>> the switch, but I guess we don't want to count on that.
+>>> Can we detect if this switching was already made?
+>> I don't think we can. But I think doing the switch a second time is ok /
+>> does not result in an error.
+> 
+> AFAICT you cannot detect if the i2c to p2wi switch has already taken
+> place, and re launching the switch process might have unexpected effects:
+> let's say the i2c address you're trying to access maps to a valid PMIC
+> register, as the address should be dropped in p2wi mode, you might write
+> an erroneous value to this register.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
+I think / expect that this is taken care of somehow at the hardware level.
+IE if the SOC gets reset through the watchdog, the PMIC won't know this and
+the bootloader will re-init the P2WI telling it to do the switch. So I think
+that doing the switch twice will be harmless. Actually doing the switch twice
+is exactly what my current u-boot code does more or less. For now we boot the
+A31 using Allwinner's boot0 + boot1 bootloader which then chain-loads u-boot,
+and boot0/boot1 already talk to the PMIC, so has already made the switch, and
+my u-boot code switches it over again.
 
-iQIcBAEBAgAGBQJTQms0AAoJEBx+YmzsjxAg030P/iWxVceoF4i9h61X+ck5R32z
-9bVs1tiXc7DcN9FGjtREQErtlEG6PmAvCfcJ+No+Mdj/FbIajBZFLI3qva4NtQ3f
-yIX6I0KxWiFkzZ7yLYtQ76+nAoCC4Z2vL3PeYWNADYVMfodCyGBVVUGNi82pLl/5
-tYPnKNgHxajIkh3j4UV3FGzqQCfOOKA7D4DewacQ6wgFh4dDPhxr8pdc8LX7jEnZ
-y8xG96PS1Xb8YZnFmczYOmcH/Ig32PYeoMubfThfLhnfHuaqNZoiW5BBPI15323E
-ScjnRHeGOQNKoI5UPI5fIr442eKctp00bhOMxzNs+R/8yP63JEnzYSXlvhblhVXe
-Q0SbJvGWZgsbwTYO6aixbG/rA/BkhqfXOz2b49/R3p9JfNunSQ4wdwzJtu4toy6g
-Z8rxsDmsj1EaEco1T4+OeeAqIcdMtyWCgYusX7SLvQJadM4hbOVNMT14gE5/UUHs
-MM/OLcyUZkV/8P8TR0h6ZE88KmKVWbD/DsWeKeOomSoLUS9+HfaPlADKvWXo0jk6
-v6bdhuiBYsY4EjZepvgSycKP+4Jkl9kWuDxiQw4JrOlLisonBzcAP1DHKQkF0O+9
-7RScc/qFI0PBR6lCKKMRUKM55kp3qThG0ItQNZ29ERT8qFs5e71I/9DGcqtmQI9F
-5WdRRxzXt997C+tZOICI
-=AqjK
------END PGP SIGNATURE-----
+Regards,
 
---PPYy/fEw/8QCHSq3--
+Hans
