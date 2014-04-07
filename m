@@ -1,62 +1,52 @@
-From: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
-Subject: Re: [PATCH] i2c: cadence: fix Kconfig dependency
-Date: Mon, 07 Apr 2014 09:00:01 +0200
-Message-ID: <53424CF1.2040503@monstr.eu>
-References: <1396811227-8851-1-git-send-email-wsa@the-dreams.de> <20140407063100.GN29751@pengutronix.de> <5342481B.6020600@monstr.eu> <20140407065651.GA2609@katana>
-Reply-To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org
+From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work-JGs/UdohzUI@public.gmane.org>
+Subject: =?UTF-8?B?UmU6IFtQQVRDSF0gaTJjOiBjYWRlbmNlOiBmaXggS2NvbmZpZyBkZXBlbmRl?=
+ =?UTF-8?B?bmN5?=
+Date: Mon, 07 Apr 2014 11:02:35 +0400
+Message-ID: <1396854155.872298456@f287.i.mail.ru>
+References: <1396811227-8851-1-git-send-email-wsa@the-dreams.de>
+ <1396852656.682914397@f273.i.mail.ru>
+ <20140407065657.GO29751@pengutronix.de>
+Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work-JGs/UdohzUI@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="9WTUbp2jFevfheAwwMRNMQU91L0t6jiOu"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140407065651.GA2609@katana>
+In-Reply-To: <20140407065657.GO29751-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: =?ISO-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?B?U29yZW4gQnJpbmttYW5u?= <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, =?UTF-8?B?V29sZnJhbSBTYW5n?= <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---9WTUbp2jFevfheAwwMRNMQU91L0t6jiOu
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-On 04/07/2014 08:56 AM, Wolfram Sang wrote:
->=20
->> I would suggest to add relaxed IO helper function to asm-generic/io.h
->> to be available for all archs. Then we can avoid this type of errors.
->=20
-> I favour this, too. For the cadence driver, I needed a quick solution
-> before linux-next breaks, though.
-
-Sure. That's understandable.
-
-Before my comment I have sent this to Russell too.
-http://www.spinics.net/lists/arm-kernel/msg320285.html
-
-Thanks,
-Michal
-
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
-Maintainer of Linux kernel - Xilinx Zynq ARM architecture
-Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
-
-
-
---9WTUbp2jFevfheAwwMRNMQU91L0t6jiOu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlNCTPEACgkQykllyylKDCE00wCePjCR0w4/v8q8coDub8fecfQn
-b5kAoJ3cdbk/Lh2cl9QjNdlakELrj4cf
-=wziW
------END PGP SIGNATURE-----
-
---9WTUbp2jFevfheAwwMRNMQU91L0t6jiOu--
+TW9uLCA3IEFwciAyMDE0IDA4OjU2OjU3ICswMjAwINC+0YIgVXdlIEtsZWluZS1Lw7ZuaWcgPHUu
+a2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT46Cj4gSGVsbG8sCi4uLgo+ID4gPiBPbiBTdW4s
+IEFwciAwNiwgMjAxNCBhdCAwOTowNzowN1BNICswMjAwLCBXb2xmcmFtIFNhbmcgd3JvdGU6Cj4g
+PiA+ID4gRHVyaW5nIGRldmVsb3BtZW50LCB0aGUgZHJpdmVyIGZpcnN0IHJlYWxseSBuZWVkZWQg
+dG8gZGVwZW5kIG9uCj4gPiA+ID4gQ09NTU9OX0NMSyBvbmx5LiBMYXRlciwgaXQgd2FzIHN3aXRj
+aGVkIHRvIHdyaXRlbF9yZWxheGVkLCBidXQgaXQgd2FzCj4gPiA+ID4gZm9yZ290dGVuIHRvIHVw
+ZGF0ZSB0aGUgZGVwZW5kZW5jaWVzLCBzbyBidWlsZCBlcnJvcnMgb2NjdXJlZDoKPiA+ID4gPiAK
+PiA+ID4gPiBjb25maWc6IG1ha2UgQVJDSD1pMzg2IGFsbHllc2NvbmZpZwo+ID4gPiA+IAo+ID4g
+PiA+IEFsbCBlcnJvci93YXJuaW5nczoKPiA+ID4gPiAKPiA+ID4gPiAgICBkcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLWNhZGVuY2UuYzogSW4gZnVuY3Rpb24gJ2NkbnNfaTJjX2NsZWFyX2J1c19ob2xk
+JzoKPiA+ID4gPiA+PiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWNhZGVuY2UuYzoxNjg6MzogZXJy
+b3I6IGltcGxpY2l0IGRlY2xhcmF0aW9uCj4gPiA+ID4gPj4gb2YgZnVuY3Rpb24gJ3dyaXRlbF9y
+ZWxheGVkJyBbLVdlcnJvcj1pbXBsaWNpdC1mdW5jdGlvbi1kZWNsYXJhdGlvbl0KPiA+ID4gPiAK
+PiA+ID4gPiBVc2UgYSB2ZXJ5IHNhZmUgZGVwZW5kZW5jeSBmb3Igbm93Lgo+ID4gPiA+IAo+ID4g
+PiA+IFNpZ25lZC1vZmYtYnk6IFdvbGZyYW0gU2FuZyA8d3NhQHRoZS1kcmVhbXMuZGU+Cj4gPiA+
+ID4gLS0tCj4gPiA+ID4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9LY29uZmlnIHwgMiArLQo+ID4gPiA+
+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPiA+ID4gPiAK
+PiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcgYi9kcml2ZXJz
+L2kyYy9idXNzZXMvS2NvbmZpZwo+ID4gPiA+IGluZGV4IDkzMTY1ZmY0NTNhYi4uM2QzYjliMzU3
+N2M1IDEwMDY0NAo+ID4gPiA+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9LY29uZmlnCj4gPiA+
+ID4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcKPiA+ID4gPiBAQCAtMzc4LDcgKzM3
+OCw3IEBAIGNvbmZpZyBJMkNfQkxBQ0tGSU5fVFdJX0NMS19LSFoKPiA+ID4gPiAgCj4gPiA+ID4g
+IGNvbmZpZyBJMkNfQ0FERU5DRQo+ID4gPiA+ICAJdHJpc3RhdGUgIkNhZGVuY2UgSTJDIENvbnRy
+b2xsZXIiCj4gPiA+ID4gLQlkZXBlbmRzIG9uIENPTU1PTl9DTEsKPiA+ID4gPiArCWRlcGVuZHMg
+b24gQVJDSF9aWU5RCj4gPiA+IEknZCBzdWdnZXN0Ogo+ID4gPiAKPiA+ID4gCWRlcGVuZHMgb24g
+QVJNICYmIChBUkNIX1pZTkMgfHwgQ09NUElMRV9URVNUKQo+ID4gCj4gPiBBUkNIX1pZTkMgfHwg
+KEFSTSAmJiBDT01QSUxFX1RFU1QpCj4gPiAKPiA+IFNhbWUsIGJ1dCBtb3JlIGNsZWFyLgo+ICJt
+b3JlIGNsZWFyIiBtaWdodCBiZSBzdWJqZWN0aXZlLCBhdCBsZWFzdCBmb3IgbWUgSSBkb24ndCBz
+ZWUgYSBiZW5lZml0Cj4gZnJvbSBvbmUgb3ZlciB0aGUgb3RoZXIuCj4gCj4gaG1tLCBjb25zaWRl
+cmluZyBhIChoeXBvdGhldGljYWwpIGRyaXZlciB0aGF0IGRlcGVuZHMgb24gSTJDIGFuZCBpcwo+
+IGF2YWlsYWJsZSBvbiBaeW5jIGJ1dCBjb21waWxlcyBvbiBBUk0sIGl0IHdvdWxkIG5lZWQgZWl0
+aGVyOiAKCk5vLiBMb29rIGF0IGRyaXZlcnMvaTJjL0tjb25maWc6Cgoic291cmNlIGRyaXZlcnMv
+aTJjL2J1c3Nlcy9LY29uZmlnIiBpcyB1bmRlciAiaWYgSTJDIiBhbHJlYWR5LgoKLS0tCgo=
