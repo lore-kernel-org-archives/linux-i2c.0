@@ -1,48 +1,49 @@
-From: Prarit Bhargava <prarit@redhat.com>
+From: Matthew Garrett <matthew.garrett-05XSO3Yj/JvQT0dZR+AlfA@public.gmane.org>
 Subject: Re: [PATCH RFC] i2c algo, Add i2c-algo-i801 driver [v1]
-Date: Wed, 09 Apr 2014 13:02:05 -0400
-Message-ID: <53457D0D.7020805@redhat.com>
-References: <1397060563-30431-1-git-send-email-prarit@redhat.com> <1397061392.5276.11.camel@x230>
+Date: Wed, 9 Apr 2014 17:09:41 +0000
+Message-ID: <1397063381.5276.17.camel@x230>
+References: <1397060563-30431-1-git-send-email-prarit@redhat.com>
+	 <1397061392.5276.11.camel@x230> <53457D0D.7020805@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1397061392.5276.11.camel@x230>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Matthew Garrett <matthew.garrett@nebula.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "seth.heasley@intel.com" <seth.heasley@intel.com>, "khali@linux-fr.org" <khali@linux-fr.org>, "janet.morgan@intel.com" <janet.morgan@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "mstowe@redhat.com" <mstowe@redhat.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <53457D0D.7020805-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Language: en-US
+Content-ID: <EA9D70A78DE0BF4C8316C06AD7022302-HX+pjaQZbrqcE4WynfumptQqCkab/8FMAL8bYrjMMd8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "janet.morgan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <janet.morgan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org" <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "mstowe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <mstowe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On 04/09/2014 12:36 PM, Matthew Garrett wrote:
-> On Wed, 2014-04-09 at 12:22 -0400, Prarit Bhargava wrote:
->> RFC and a work in progress ... I need to go through and do a bunch of error
->> condition checking, more testing, etc.  I'm just throwing this out there to see
->> if anyone has any major concerns about doing something like this.
-> 
-> This isn't really a good approach. These aren't standardised ACPI
-> methods, so you have no guarantee that they exist. The fact that a
-
-I've looked at the ACPI dump across six different systems (3 different vendors,
-and an intel whitebox), and the data appears to be identical.  Could Intel
-change these?  Yes, of course they could, but that's no different from any other
-undocumented driver in the kernel.
-
-> method with one of these names exists is no guarantee that it has the
-> same behaviour as the ones on your board. There's no guarantee that
-> you're not racing against the firmware.
-> 
-
-I think there is -- AFAICT the operations are serialized; if they aren't that is
-an associated risk.  Hopefully someone from Intel will lend a hand here and let
-me know if I'm doing something horrible ;)
-
-> These systems simply don't safely support OS-level i2c access.
-
-Possibly -- my interpretation of the ACPI AML could be wrong but it seems like
-these operations are here for the OS.
-
-I'm not denying there is a lot of risk in doing this...
-
-P.
+T24gV2VkLCAyMDE0LTA0LTA5IGF0IDEzOjAyIC0wNDAwLCBQcmFyaXQgQmhhcmdhdmEgd3JvdGU6
+DQo+IA0KPiBPbiAwNC8wOS8yMDE0IDEyOjM2IFBNLCBNYXR0aGV3IEdhcnJldHQgd3JvdGU6DQo+
+ID4gT24gV2VkLCAyMDE0LTA0LTA5IGF0IDEyOjIyIC0wNDAwLCBQcmFyaXQgQmhhcmdhdmEgd3Jv
+dGU6DQo+ID4+IFJGQyBhbmQgYSB3b3JrIGluIHByb2dyZXNzIC4uLiBJIG5lZWQgdG8gZ28gdGhy
+b3VnaCBhbmQgZG8gYSBidW5jaCBvZiBlcnJvcg0KPiA+PiBjb25kaXRpb24gY2hlY2tpbmcsIG1v
+cmUgdGVzdGluZywgZXRjLiAgSSdtIGp1c3QgdGhyb3dpbmcgdGhpcyBvdXQgdGhlcmUgdG8gc2Vl
+DQo+ID4+IGlmIGFueW9uZSBoYXMgYW55IG1ham9yIGNvbmNlcm5zIGFib3V0IGRvaW5nIHNvbWV0
+aGluZyBsaWtlIHRoaXMuDQo+ID4gDQo+ID4gVGhpcyBpc24ndCByZWFsbHkgYSBnb29kIGFwcHJv
+YWNoLiBUaGVzZSBhcmVuJ3Qgc3RhbmRhcmRpc2VkIEFDUEkNCj4gPiBtZXRob2RzLCBzbyB5b3Ug
+aGF2ZSBubyBndWFyYW50ZWUgdGhhdCB0aGV5IGV4aXN0LiBUaGUgZmFjdCB0aGF0IGENCj4gDQo+
+IEkndmUgbG9va2VkIGF0IHRoZSBBQ1BJIGR1bXAgYWNyb3NzIHNpeCBkaWZmZXJlbnQgc3lzdGVt
+cyAoMyBkaWZmZXJlbnQgdmVuZG9ycywNCj4gYW5kIGFuIGludGVsIHdoaXRlYm94KSwgYW5kIHRo
+ZSBkYXRhIGFwcGVhcnMgdG8gYmUgaWRlbnRpY2FsLiAgQ291bGQgSW50ZWwNCj4gY2hhbmdlIHRo
+ZXNlPyAgWWVzLCBvZiBjb3Vyc2UgdGhleSBjb3VsZCwgYnV0IHRoYXQncyBubyBkaWZmZXJlbnQg
+ZnJvbSBhbnkgb3RoZXINCj4gdW5kb2N1bWVudGVkIGRyaXZlciBpbiB0aGUga2VybmVsLg0KDQpO
+b3QgcmVhbGx5LiBUaGVzZSBhcmUgYW4gaW50ZXJuYWwgaW1wbGVtZW50YXRpb24gZGV0YWlsLCBu
+b3QgYW4gZXhwb3J0ZWQNCmludGVyZmFjZS4gV2UgdHJ5IHRvIHdyaXRlIGRyaXZlcnMgZm9yIGV4
+cG9ydGVkIGludGVyZmFjZXMsIGV2ZW4gaWYNCnRoZXkncmUgbm90IGRvY3VtZW50ZWQuDQoNCj4g
+PiBtZXRob2Qgd2l0aCBvbmUgb2YgdGhlc2UgbmFtZXMgZXhpc3RzIGlzIG5vIGd1YXJhbnRlZSB0
+aGF0IGl0IGhhcyB0aGUNCj4gPiBzYW1lIGJlaGF2aW91ciBhcyB0aGUgb25lcyBvbiB5b3VyIGJv
+YXJkLiBUaGVyZSdzIG5vIGd1YXJhbnRlZSB0aGF0DQo+ID4geW91J3JlIG5vdCByYWNpbmcgYWdh
+aW5zdCB0aGUgZmlybXdhcmUuDQo+ID4gDQo+IA0KPiBJIHRoaW5rIHRoZXJlIGlzIC0tIEFGQUlD
+VCB0aGUgb3BlcmF0aW9ucyBhcmUgc2VyaWFsaXplZDsgaWYgdGhleSBhcmVuJ3QgdGhhdCBpcw0K
+PiBhbiBhc3NvY2lhdGVkIHJpc2suICBIb3BlZnVsbHkgc29tZW9uZSBmcm9tIEludGVsIHdpbGwg
+bGVuZCBhIGhhbmQgaGVyZSBhbmQgbGV0DQo+IG1lIGtub3cgaWYgSSdtIGRvaW5nIHNvbWV0aGlu
+ZyBob3JyaWJsZSA7KQ0KDQpJbWFnaW5lIGFuIGkyYyBjaGlwIHdpdGggaW5kZXhlZCByZWdpc3Rl
+ciBhY2Nlc3MuIFdoYXQgc3RvcHM6DQoNCkNQVTAgKGkyYyk6CQlDUFUxIChBQ1BJKToNClNCV0Ig
+cmVnaXN0ZXIgYWRkcmVzcw0KCQkJU0JXQiByZWdpc3RlciBhZGRyZXNzDQpTQlJCIHJlZ2lzdGVy
+IHZhbHVlDQoJCQlTQlJCIHJlZ2lzdGVyIHZhbHVlDQoNCmFuZCBDUFUwIGdldHRpbmcgYmFjayB0
+aGUgd3JvbmcgdmFsdWU/DQoNCi0tIA0KTWF0dGhldyBHYXJyZXR0IDxtYXR0aGV3LmdhcnJldHRA
+bmVidWxhLmNvbT4NCg==
