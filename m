@@ -1,26 +1,58 @@
-From: Matthew Garrett <matthew.garrett@nebula.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 Subject: Re: [PATCH RFC] i2c algo, Add i2c-algo-i801 driver [v1]
-Date: Wed, 9 Apr 2014 19:05:04 +0000
-Message-ID: <1397070304.5276.26.camel@x230>
+Date: Wed, 9 Apr 2014 21:22:37 +0200
+Message-ID: <20140409212237.377629a2@endymion.delvare>
 References: <1397060563-30431-1-git-send-email-prarit@redhat.com>
-	 <1397061392.5276.11.camel@x230>	<53457D0D.7020805@redhat.com>
-	 <1397063381.5276.17.camel@x230> <20140409210105.330211c9@endymion.delvare>
+	<1397061392.5276.11.camel@x230>
+	<53457D0D.7020805@redhat.com>
+	<1397063381.5276.17.camel@x230>
+	<5345849F.6070909@redhat.com>
+	<1397065034.5276.19.camel@x230>
+	<53458992.4060003@redhat.com>
+	<1397066342.5276.21.camel@x230>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20140409210105.330211c9@endymion.delvare>
-Content-Language: en-US
-Content-ID: <1E150DC2670C964092ECA63A789095FE@namprd05.prod.outlook.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "jdelvare@suse.de" <jdelvare@suse.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "seth.heasley@intel.com" <seth.heasley@intel.com>, "prarit@redhat.com" <prarit@redhat.com>, "janet.morgan@intel.com" <janet.morgan@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "mstowe@redhat.com" <mstowe@redhat.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1397066342.5276.21.camel@x230>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matthew Garrett <matthew.garrett-05XSO3Yj/JvQT0dZR+AlfA@public.gmane.org>
+Cc: prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, janet.morgan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, mstowe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gV2VkLCAyMDE0LTA0LTA5IGF0IDIxOjAxICswMjAwLCBKZWFuIERlbHZhcmUgd3JvdGU6DQoN
-Cj4gQ2VydGFpbmx5IHRoZXJlIGlzIHNvbWUgQUNQSSBsb2NrIHRvIHByZXZlbnQgQUNQSSBmcm9t
-IHJhY2luZyB3aXRoDQo+IGl0c2VsZi4gQ2FuJ3Qgd2UganVzdCB1c2UgaXQgdG9vPw0KDQpUaGVy
-ZSBtYXkgYmUsIGJ1dCBpdCdzIHVwIHRvIHRoZSBmaXJtd2FyZSB2ZW5kb3IgdG8gaW1wbGVtZW50
-IHRoYXQgYW5kDQp0aGVyZSdzIG5vIHN0YW5kYXJkLiBTb21lIHN5c3RlbXMgbWF5IGp1c3Qgc2tp
-cCBpdCBiZWNhdXNlIHRoZXJlJ3Mgb25seQ0KYSBzaW5nbGUgZW50cnkgcG9pbnQuDQoNCi0tIA0K
-TWF0dGhldyBHYXJyZXR0IDxtYXR0aGV3LmdhcnJldHRAbmVidWxhLmNvbT4NCg==
+On Wed, 9 Apr 2014 17:59:03 +0000, Matthew Garrett wrote:
+> On Wed, 2014-04-09 at 13:55 -0400, Prarit Bhargava wrote:
+> > 
+> > On 04/09/2014 01:37 PM, Matthew Garrett wrote:
+> > > Right. It's dangerous, which is why we forbid it by default. How do we
+> > > benefit from having a driver that's no safer?
+> > 
+> > We have yet to see where the existing case exhibits the behaviour of a race.  In
+> > fact, AFAICT, all we've seen is stability.  So it's no safer?  Yep.  It's as
+> > equally not racy as the existing workaround.
+> 
+> So... why add the driver at all? Refusing to permit the kernel to touch
+> these resources is a deliberate design choice, because of the potential
+> for these races. (...)
+
+So it is a deliberate design choice to prevent the user from accessing
+his/her own hardware? I want to be able to read the SPD EEPROMs and the
+temperature sensors on my memory modules, and this requires SMBus
+access.
+
+The ACPI interface to hardware monitoring chips is horribly limited.
+Until the ACPI people come up with something which really exposes most
+of the features of the hardware monitoring chips currently provide,
+native access it required. At the moment, when a full-featured hardware
+monitoring chip monitors 5 to 10 voltage inputs, 5 fans and 3
+temperature sensors, ACPI will show 2 thermal zones at best, not always
+updated in real-time, with limited resolution, and the fans are shown
+without their speed. That simply sucks.
+
+So we need either proper ACPI interfaces to all the useful features, or
+low-level, safe access to the registers through ACPI. Until we have
+that, we are condemned to live dangerously in an hostile world :(
+
+-- 
+Jean Delvare
+SUSE L3 Support
