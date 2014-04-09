@@ -1,27 +1,45 @@
-From: Matthew Garrett <matthew.garrett@nebula.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 Subject: Re: [PATCH RFC] i2c algo, Add i2c-algo-i801 driver [v1]
-Date: Wed, 9 Apr 2014 18:58:12 +0000
-Message-ID: <1397069892.5276.24.camel@x230>
+Date: Wed, 9 Apr 2014 21:01:05 +0200
+Message-ID: <20140409210105.330211c9@endymion.delvare>
 References: <1397060563-30431-1-git-send-email-prarit@redhat.com>
-	 <1397061392.5276.11.camel@x230> <20140409205614.2ee3c25c@endymion.delvare>
+	<1397061392.5276.11.camel@x230>
+	<53457D0D.7020805@redhat.com>
+	<1397063381.5276.17.camel@x230>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20140409205614.2ee3c25c@endymion.delvare>
-Content-Language: en-US
-Content-ID: <0E60C00E84F65540BBD602636B55AE42@namprd05.prod.outlook.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "jdelvare@suse.de" <jdelvare@suse.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "seth.heasley@intel.com" <seth.heasley@intel.com>, "prarit@redhat.com" <prarit@redhat.com>, "janet.morgan@intel.com" <janet.morgan@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "mstowe@redhat.com" <mstowe@redhat.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1397063381.5276.17.camel@x230>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matthew Garrett <matthew.garrett-05XSO3Yj/JvQT0dZR+AlfA@public.gmane.org>
+Cc: prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, janet.morgan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, mstowe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gV2VkLCAyMDE0LTA0LTA5IGF0IDIwOjU2ICswMjAwLCBKZWFuIERlbHZhcmUgd3JvdGU6DQo+
-IEhpIE1hdHRoZXcsDQo+ID4gDQo+ID4gVGhlc2Ugc3lzdGVtcyBzaW1wbHkgZG9uJ3Qgc2FmZWx5
-IHN1cHBvcnQgT1MtbGV2ZWwgaTJjIGFjY2Vzcy4NCj4gDQo+IEJ1dCBwZW9wbGUgbmVlZCB0aGF0
-LiBBbmQgdGhleSBoYXZlIGJlZW4gZm9yIGFsbW9zdCBhIGRlY2FkZS4gSXQncw0KPiBhYm91dCB0
-aW1lIHRoYXQgaGFyZHdhcmUgdmVuZG9ycyByZWFsaXplIHRoYXQuIFllcywgSSBtZWFuIEludGVs
-LA0KPiBhbW9uZ3N0IG90aGVycy4NCg0KVGhlcmUgaXMgbm8gc2FmZSB3YXkgdG8gZG8gaXQuIElm
-IHRoZSB1c2VyIGlzIGhhcHB5IHRvIGFjY2VwdCB0aGUNCmluaGVyZW50IGRhbmdlcnMsIHRoZSB1
-c2VyIGNhbiBwYXNzIHRoZSBrZXJuZWwgcGFyYW1ldGVyLg0KDQotLSANCk1hdHRoZXcgR2FycmV0
-dCA8bWF0dGhldy5nYXJyZXR0QG5lYnVsYS5jb20+DQo=
+On Wed, 9 Apr 2014 17:09:41 +0000, Matthew Garrett wrote:
+> On Wed, 2014-04-09 at 13:02 -0400, Prarit Bhargava wrote:
+> > On 04/09/2014 12:36 PM, Matthew Garrett wrote:
+> > > method with one of these names exists is no guarantee that it has the
+> > > same behaviour as the ones on your board. There's no guarantee that
+> > > you're not racing against the firmware.
+> > 
+> > I think there is -- AFAICT the operations are serialized; if they aren't that is
+> > an associated risk.  Hopefully someone from Intel will lend a hand here and let
+> > me know if I'm doing something horrible ;)
+> 
+> Imagine an i2c chip with indexed register access. What stops:
+> 
+> CPU0 (i2c):		CPU1 (ACPI):
+> SBWB register address
+> 			SBWB register address
+> SBRB register value
+> 			SBRB register value
+> 
+> and CPU0 getting back the wrong value?
+
+Certainly there is some ACPI lock to prevent ACPI from racing with
+itself. Can't we just use it too?
+
+-- 
+Jean Delvare
+SUSE L3 Support
