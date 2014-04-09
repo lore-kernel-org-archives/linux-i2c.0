@@ -1,26 +1,54 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH RFC] i2c algo, Add i2c-algo-i801 driver [v1]
-Date: Wed, 9 Apr 2014 22:27:08 +0200
-Message-ID: <20140409222708.1e4383aa@endymion.delvare>
-References: <1397060563-30431-1-git-send-email-prarit@redhat.com>
-	<20140409183732.5c8f6355@endymion.delvare>
-	<53457C00.1030400@redhat.com>
+From: "Du, Wenkai" <wenkai.du@intel.com>
+Subject: RE: [PATCH] i2c-designware: Mask interrupts during i2c controller
+ enable
+Date: Wed, 9 Apr 2014 23:45:54 +0000
+Message-ID: <7286EAF50D3F4E4AADE7FEECEBF8B5A537A73919@ORSMSX109.amr.corp.intel.com>
+References: <20140404181613.GB19349@intel.com>
+ <7286EAF50D3F4E4AADE7FEECEBF8B5A537A70F8B@ORSMSX109.amr.corp.intel.com>
+ <20140404184232.GC19349@intel.com>
+ <7286EAF50D3F4E4AADE7FEECEBF8B5A537A71351@ORSMSX109.amr.corp.intel.com>
+ <20140405061316.GF19349@intel.com>
+ <20140406185818.3aaca03d@alan.etchedpixels.co.uk>
+ <20140407090403.GG19349@intel.com>
+ <20140407154252.6b8f0f7e@alan.etchedpixels.co.uk>
+ <20140407151107.GL19349@intel.com>
+ <7286EAF50D3F4E4AADE7FEECEBF8B5A537A72207@ORSMSX109.amr.corp.intel.com>
+ <20140408103006.GQ19349@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53457C00.1030400-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Prarit Bhargava <prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Matthew Garrett <matthew.garrett-05XSO3Yj/JvQT0dZR+AlfA@public.gmane.org>, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Janet Morgan <janet.morgan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Myron Stowe <mstowe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140408103006.GQ19349@intel.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Westerberg, Mika" <mika.westerberg@intel.com>
+Cc: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 09 Apr 2014 12:57:36 -0400, Prarit Bhargava wrote:
-> I'll rework the patch with your suggestions.  I may have (possibly dumb)
-> questions and I hope that's okay ..
+> -----Original Message-----
+> From: Westerberg, Mika
+> Sent: Tuesday, April 08, 2014 3:30 AM
+> To: Du, Wenkai
+> Cc: One Thousand Gnomes; linux-i2c@vger.kernel.org; Wolfram Sang; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [PATCH] i2c-designware: Mask interrupts during i2c controller enable
 
-No problem, I'll help as much as I can :)
+> Yes, but only after resume. In normal cases the driver re-programs DW_IC_INTR_TX_EMPTY to
+> the mask (the other 3 flags are already set but they should be harmless as long as the TX fifo is
+> still empty).
+I have sent you failure traces in normal path. None of 4 interrupt sources was masked.  
 
--- 
-Jean Delvare
-SUSE L3 Support
+> Where did you get this 25us required delay? My spec doesn't say anything about that. It does
+> however say that if the state bit is not yet changed, wait 25us (@400kHz) and re-read the bit.
+> So it can be that we don't wait at all once we toggle that bit.
+I believe the delay patch ("i2c-designware: enable/disable the controller properly") was from you? I would be happy to see the patch reverted if these delay are really not needed. 25us-250us delay 3 times (2 disable, 1 enable) at every transfer slow down the bus too much.
+ 
+> All in all, I think we can solve this resume path timeout issue, by moving
+> __i2c_dw_enable() to be last in i2c_dw_xfer_init().
+This will invalidate 2 previous patches from you: " i2c-designware: enable/disable the controller properly" , and "i2c-designware: always clear interrupts before enabling them". Are you sure they can be all reverted?
+
+> In addition we should fix the potential posted-write problem Alan pointed out (as a separate
+> patch). That could actually explain the issue you have seen where timeout occurs during normal
+> operation. Maybe fix here is to mask all interrupts at the end of the ISR and make sure that
+> possible posted writes gets flushed to the hardware before returning?
+But these patches attempt to fix "leaking" as we know of today. In my view, masking interrupts right before enable HW is still the best, which is common practice to most drivers. It is the spirit of the original driver as well: the original driver enables interrupts _after_ core enable. I think the author must have thought the interrupt have been disabled, otherwise why enable them again? Masking interrupts fixes all the known and unknown leaks and is future proof.
