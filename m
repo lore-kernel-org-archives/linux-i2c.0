@@ -1,58 +1,36 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+From: Matthew Garrett <matthew.garrett@nebula.com>
 Subject: Re: [PATCH RFC] i2c algo, Add i2c-algo-i801 driver [v1]
-Date: Wed, 9 Apr 2014 21:22:37 +0200
-Message-ID: <20140409212237.377629a2@endymion.delvare>
+Date: Wed, 9 Apr 2014 19:24:25 +0000
+Message-ID: <1397071465.5276.28.camel@x230>
 References: <1397060563-30431-1-git-send-email-prarit@redhat.com>
-	<1397061392.5276.11.camel@x230>
-	<53457D0D.7020805@redhat.com>
-	<1397063381.5276.17.camel@x230>
-	<5345849F.6070909@redhat.com>
-	<1397065034.5276.19.camel@x230>
-	<53458992.4060003@redhat.com>
-	<1397066342.5276.21.camel@x230>
+	 <1397061392.5276.11.camel@x230>	<53457D0D.7020805@redhat.com>
+	 <1397063381.5276.17.camel@x230>	<5345849F.6070909@redhat.com>
+	 <1397065034.5276.19.camel@x230>	<53458992.4060003@redhat.com>
+	 <1397066342.5276.21.camel@x230> <20140409212237.377629a2@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1397066342.5276.21.camel@x230>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matthew Garrett <matthew.garrett-05XSO3Yj/JvQT0dZR+AlfA@public.gmane.org>
-Cc: prarit-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, janet.morgan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, mstowe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20140409212237.377629a2@endymion.delvare>
+Content-Language: en-US
+Content-ID: <7E864FABE4C1974D99C2271BD967B343@namprd05.prod.outlook.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "jdelvare@suse.de" <jdelvare@suse.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "seth.heasley@intel.com" <seth.heasley@intel.com>, "prarit@redhat.com" <prarit@redhat.com>, "janet.morgan@intel.com" <janet.morgan@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "mstowe@redhat.com" <mstowe@redhat.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 9 Apr 2014 17:59:03 +0000, Matthew Garrett wrote:
-> On Wed, 2014-04-09 at 13:55 -0400, Prarit Bhargava wrote:
-> > 
-> > On 04/09/2014 01:37 PM, Matthew Garrett wrote:
-> > > Right. It's dangerous, which is why we forbid it by default. How do we
-> > > benefit from having a driver that's no safer?
-> > 
-> > We have yet to see where the existing case exhibits the behaviour of a race.  In
-> > fact, AFAICT, all we've seen is stability.  So it's no safer?  Yep.  It's as
-> > equally not racy as the existing workaround.
-> 
-> So... why add the driver at all? Refusing to permit the kernel to touch
-> these resources is a deliberate design choice, because of the potential
-> for these races. (...)
-
-So it is a deliberate design choice to prevent the user from accessing
-his/her own hardware? I want to be able to read the SPD EEPROMs and the
-temperature sensors on my memory modules, and this requires SMBus
-access.
-
-The ACPI interface to hardware monitoring chips is horribly limited.
-Until the ACPI people come up with something which really exposes most
-of the features of the hardware monitoring chips currently provide,
-native access it required. At the moment, when a full-featured hardware
-monitoring chip monitors 5 to 10 voltage inputs, 5 fans and 3
-temperature sensors, ACPI will show 2 thermal zones at best, not always
-updated in real-time, with limited resolution, and the fans are shown
-without their speed. That simply sucks.
-
-So we need either proper ACPI interfaces to all the useful features, or
-low-level, safe access to the registers through ACPI. Until we have
-that, we are condemned to live dangerously in an hostile world :(
-
--- 
-Jean Delvare
-SUSE L3 Support
+T24gV2VkLCAyMDE0LTA0LTA5IGF0IDIxOjIyICswMjAwLCBKZWFuIERlbHZhcmUgd3JvdGU6DQo+
+IE9uIFdlZCwgOSBBcHIgMjAxNCAxNzo1OTowMyArMDAwMCwgTWF0dGhldyBHYXJyZXR0IHdyb3Rl
+Og0KPiA+IFNvLi4uIHdoeSBhZGQgdGhlIGRyaXZlciBhdCBhbGw/IFJlZnVzaW5nIHRvIHBlcm1p
+dCB0aGUga2VybmVsIHRvIHRvdWNoDQo+ID4gdGhlc2UgcmVzb3VyY2VzIGlzIGEgZGVsaWJlcmF0
+ZSBkZXNpZ24gY2hvaWNlLCBiZWNhdXNlIG9mIHRoZSBwb3RlbnRpYWwNCj4gPiBmb3IgdGhlc2Ug
+cmFjZXMuICguLi4pDQo+IA0KPiBTbyBpdCBpcyBhIGRlbGliZXJhdGUgZGVzaWduIGNob2ljZSB0
+byBwcmV2ZW50IHRoZSB1c2VyIGZyb20gYWNjZXNzaW5nDQo+IGhpcy9oZXIgb3duIGhhcmR3YXJl
+PyBJIHdhbnQgdG8gYmUgYWJsZSB0byByZWFkIHRoZSBTUEQgRUVQUk9NcyBhbmQgdGhlDQo+IHRl
+bXBlcmF0dXJlIHNlbnNvcnMgb24gbXkgbWVtb3J5IG1vZHVsZXMsIGFuZCB0aGlzIHJlcXVpcmVz
+IFNNQnVzDQo+IGFjY2Vzcy4NCg0KU3VyZSwgYW5kIGlmIHlvdSBoYXZlIG1hZGUgYSBjb25zY2lv
+dXMgZGVjaXNpb24gdGhhdCBpdCdzIHNhZmUgdG8gZG8gc28NCmluIHlvdXIgc3BlY2lmaWMgdXNl
+IGNhc2UgdGhlbiB5b3UgY2FuIHBhc3MgdGhlIGtlcm5lbCBwYXJhbWV0ZXIgdGhhdA0KYWxsb3dz
+IHlvdSB0by4gQnV0IGl0J3MgdW5zYWZlIGluIHRoZSBnZW5lcmFsIGNhc2UsIGFuZCBzbyB0aGUN
+CmFwcHJvcHJpYXRlIHRoaW5nIGlzIGZvciB0aGUga2VybmVsIHRvIGZvcmJpZCBpdC4NCg0KLS0g
+DQpNYXR0aGV3IEdhcnJldHQgPG1hdHRoZXcuZ2FycmV0dEBuZWJ1bGEuY29tPg0K
