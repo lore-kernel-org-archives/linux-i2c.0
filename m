@@ -1,75 +1,34 @@
 From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH] i2c: nomadik: Fixup system suspend
-Date: Thu, 10 Apr 2014 15:59:36 +0200
-Message-ID: <1397138376-28427-1-git-send-email-ulf.hansson@linaro.org>
+Subject: [PATCH] i2c: nomadik: Don't use IS_ERR for devm_ioremap
+Date: Thu, 10 Apr 2014 16:19:29 +0200
+Message-ID: <1397139569-3906-1-git-send-email-ulf.hansson@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-For !CONFIG_PM_RUNTIME, the device were never put back into active
-state while resuming.
-
-For CONFIG_PM_RUNTIME, we blindly trusted the device to be inactive
-while we were about to handle it at suspend late, which is just too
-optimistic.
-
-Even if the driver uses pm_runtime_put_sync() after each tranfer to
-return it's runtime PM resources, there are no guarantees this will
-actually mean the device will inactivated. The reason is that the PM
-core will prevent runtime suspend during system suspend, and thus when
-a transfer occurs during the early phases of system suspend the device
-will be kept active after the transfer.
-
-To handle both issues above, use pm_runtime_force_suspend|resume() from
-the system suspend|resume callbacks.
+devm_ioremap() returns NULL on error, not an error.
 
 Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
 Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
-
-Do note, this patch were sent during the previous kernel release cycle, as
-a part of another patchset on the PM core. Back then, it provided proof of
-concept, for the new runtime PM helper functions:
-pm_runtime_force_suspend|resume().
-
----
- drivers/i2c/busses/i2c-nomadik.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 28cbe1b..7d27eee 100644
+index 28cbe1b..32c85e9 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -879,19 +879,19 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- #ifdef CONFIG_PM_SLEEP
- static int nmk_i2c_suspend_late(struct device *dev)
- {
--	pinctrl_pm_select_sleep_state(dev);
-+	int ret;
+@@ -999,7 +999,7 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
  
-+	ret = pm_runtime_force_suspend(dev);
-+	if (ret)
-+		return ret;
-+
-+	pinctrl_pm_select_sleep_state(dev);
- 	return 0;
- }
- 
- static int nmk_i2c_resume_early(struct device *dev)
- {
--	/* First go to the default state */
--	pinctrl_pm_select_default_state(dev);
--	/* Then let's idle the pins until the next transfer happens */
--	pinctrl_pm_select_idle_state(dev);
--
--	return 0;
-+	return pm_runtime_force_resume(dev);
- }
- #endif
- 
+ 	dev->virtbase = devm_ioremap(&adev->dev, adev->res.start,
+ 				resource_size(&adev->res));
+-	if (IS_ERR(dev->virtbase)) {
++	if (!dev->virtbase) {
+ 		ret = -ENOMEM;
+ 		goto err_no_mem;
+ 	}
 -- 
 1.7.9.5
