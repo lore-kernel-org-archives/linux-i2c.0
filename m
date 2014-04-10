@@ -1,46 +1,75 @@
-From: sourav <sourav.poddar@ti.com>
-Subject: Re: [PATCHv2] i2c: omap: Disable default probing of i2c devices for
- omap i2c.
-Date: Thu, 10 Apr 2014 19:15:17 +0530
-Message-ID: <5346A06D.1020203@ti.com>
-References: <1397039808-28594-1-git-send-email-sourav.poddar@ti.com> <20140409123702.GA8157@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20140409123702.GA8157@katana>
-Sender: linux-omap-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Nishanth Menon <nm@ti.com>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c: nomadik: Fixup system suspend
+Date: Thu, 10 Apr 2014 15:59:36 +0200
+Message-ID: <1397138376-28427-1-git-send-email-ulf.hansson@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+For !CONFIG_PM_RUNTIME, the device were never put back into active
+state while resuming.
 
-On Wednesday 09 April 2014 06:07 PM, Wolfram Sang wrote:
-> On Wed, Apr 09, 2014 at 04:06:48PM +0530, Sourav Poddar wrote:
->> I2c core supports defualt probing functionality for devices not registered through
->> dt/board files. If there are any client driver registered, i2c core will try to
->> check if there is any device present corresponding to the address supplied by
->> the client driver. If the device is actually present and not registered, core
->> will register it, else the device default probe will fail and we get a omap i2c controller
->> specific timeout messages.
->> For example, Using multi_v7_config on omap5-uevm, CONFIG_SENSORS_LM90 and CONFIG_ICS932S401
->> is the driver which is enabled and gets registered. I2c core tries to find a valid
->> corresponding device on each of the address supplied by registered driver,
->> but could not find anyone. Hence, keep dumping the controller timeout speciic message.
-> This is exactly why I2C_CLASS_DEPRECATED was implemented. So, users
-> which are using classes can migrate away. But this needs time. Given
-> that I2C_CLASS_DEPRECATED is new in 3.15, I'd think setting classes to 0
-> (thus totally disabling them) should not be before 3.17. You don't need
-> to resend, I'll do it for all drivers I added this new class to when I
-> feel it is safe to do.
-OK then, I am dropping this patch, will wait for your patches on it.
-Thanks for the review.
+For CONFIG_PM_RUNTIME, we blindly trusted the device to be inactive
+while we were about to handle it at suspend late, which is just too
+optimistic.
 
-~Sourav
->
-> Thanks,
->
->     Wolfram
->
+Even if the driver uses pm_runtime_put_sync() after each tranfer to
+return it's runtime PM resources, there are no guarantees this will
+actually mean the device will inactivated. The reason is that the PM
+core will prevent runtime suspend during system suspend, and thus when
+a transfer occurs during the early phases of system suspend the device
+will be kept active after the transfer.
 
+To handle both issues above, use pm_runtime_force_suspend|resume() from
+the system suspend|resume callbacks.
+
+Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+
+Do note, this patch were sent during the previous kernel release cycle, as
+a part of another patchset on the PM core. Back then, it provided proof of
+concept, for the new runtime PM helper functions:
+pm_runtime_force_suspend|resume().
+
+---
+ drivers/i2c/busses/i2c-nomadik.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 28cbe1b..7d27eee 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -879,19 +879,19 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ #ifdef CONFIG_PM_SLEEP
+ static int nmk_i2c_suspend_late(struct device *dev)
+ {
+-	pinctrl_pm_select_sleep_state(dev);
++	int ret;
+ 
++	ret = pm_runtime_force_suspend(dev);
++	if (ret)
++		return ret;
++
++	pinctrl_pm_select_sleep_state(dev);
+ 	return 0;
+ }
+ 
+ static int nmk_i2c_resume_early(struct device *dev)
+ {
+-	/* First go to the default state */
+-	pinctrl_pm_select_default_state(dev);
+-	/* Then let's idle the pins until the next transfer happens */
+-	pinctrl_pm_select_idle_state(dev);
+-
+-	return 0;
++	return pm_runtime_force_resume(dev);
+ }
+ #endif
+ 
+-- 
+1.7.9.5
