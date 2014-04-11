@@ -1,54 +1,56 @@
-From: "Westerberg, Mika" <mika.westerberg@intel.com>
-Subject: Re: [PATCH V2] i2c-designware: Mask all interrupts during i2c
- controller enable
-Date: Fri, 11 Apr 2014 12:29:56 +0300
-Message-ID: <20140411092956.GE19349@intel.com>
-References: <7286EAF50D3F4E4AADE7FEECEBF8B5A547FF93E0@ORSMSX110.amr.corp.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: busses: ali1563: fix checkpatch.pl issues
+Date: Fri, 11 Apr 2014 11:21:56 +0200
+Message-ID: <20140411112156.5e7e32c2@endymion.delvare>
+References: <1397150924-7260-1-git-send-email-me@g0hl1n.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <7286EAF50D3F4E4AADE7FEECEBF8B5A547FF93E0@ORSMSX110.amr.corp.intel.com>
+In-Reply-To: <1397150924-7260-1-git-send-email-me@g0hl1n.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Du, Wenkai" <wenkai.du@intel.com>
-Cc: "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, 'Wolfram Sang' <wsa@the-dreams.de>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+To: Richard Leitner <me@g0hl1n.net>
+Cc: r.marek@assembler.cz, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 11, 2014 at 02:03:19AM +0300, Du, Wenkai wrote:
-> Hi all,
-> 
-> Updated problem descriptions from Mika's feedback and new test data: 
-> 
-> There have been "i2c_designware 80860F41:00: controller timed out" errors
-> on a number of Baytrail platforms. The issue is caused by incorrect value in
-> Interrupt Mask Register (DW_IC_INTR_MASK)  when i2c core is being enabled. 
-> This causes call to __i2c_dw_enable() to immediately start the transfer which
-> leads to timeout. There are 3 failure modes observed:
-> 
-> 1. Failure in S0 to S3 resume path
-> 
-> The default value after reset for DW_IC_INTR_MASK is 0x8ff. When we start 
-> the first transaction after resuming from system sleep, TX_EMPTY interrupt 
-> is already unmasked because of the hardware default.
-> 
-> 2. Failure in normal operational path
-> 
-> This failure happens rarely and is hard to reproduce. Debug trace showed that
-> DW_IC_INTR_MASK had value of 0x254 when failure occurred, which meant 
-> TX_EMPTY was unmasked.
-> 
-> 2. Failure in S3 to S0 suspend path
+Hi Richard,
 
-This should probably be 3.
+On Thu, 10 Apr 2014 19:28:44 +0200, Richard Leitner wrote:
+> Fixed most checkpatch.pl issues
 
-> This failure also happens rarely and is hard to reproduce. Adding debug trace
-> that read DW_IC_INTR_MASK made this failure not reproducible. But from ISR 
-> call trace we could conclude TX_EMPTY was unmasked when problem occurred.
-> 
-> 
-> The patch masks all interrupts before the controller is enabled to resolve the
-> faulty DW_IC_INTR_MASK conditions.
-> 
-> Signed-off-by: Wenkai Du <wenkai.du@intel.com>
+Thanks for doing this. Overall it looks good, there are just two
+warnings I would like fixed slightly differently:
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> @@ -268,13 +272,14 @@ static s32 ali1563_access(struct i2c_adapter * a, u16 addr,
+>  	}
+>  
+>  	outb_p(((addr & 0x7f) << 1) | (rw & 0x01), SMB_HST_ADD);
+> -	outb_p((inb_p(SMB_HST_CNTL2) & ~HST_CNTL2_SIZEMASK) | (size << 3), SMB_HST_CNTL2);
+> +	outb_p((inb_p(SMB_HST_CNTL2) & ~HST_CNTL2_SIZEMASK) |
+> +			(size << 3), SMB_HST_CNTL2);
+
+Please align on the opening parenthesis.
+
+> @@ -392,14 +398,15 @@ static struct i2c_adapter ali1563_adapter = {
+>  static int ali1563_probe(struct pci_dev *dev,
+>  			 const struct pci_device_id *id_table)
+>  {
+> -	int error;
+> +	int error = ali1563_setup(dev);
+>  
+> -	if ((error = ali1563_setup(dev)))
+> +	if (error)
+>  		goto exit;
+
+Please leave the variable declaration alone, so that the error check
+can immediately follow the assignment, as was the case before. Anyway
+it is not recommended to run "real code" during variable declaration.
+
+With these changes applied, feel free to add:
+
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
