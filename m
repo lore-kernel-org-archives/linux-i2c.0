@@ -1,73 +1,43 @@
 From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [PATCH 3/9] ACPI: Add acpi_bus_attach_private_data() to facilitate to attach data to ACPI handle
-Date: Wed, 16 Apr 2014 21:24:36 +0800
-Message-ID: <1397654682-7094-4-git-send-email-tianyu.lan@intel.com>
+Subject: [PATCH 4/9] ACPI/Thermal: Use acpi_bus_attach_private_data() to attach private data
+Date: Wed, 16 Apr 2014 21:24:37 +0800
+Message-ID: <1397654682-7094-5-git-send-email-tianyu.lan@intel.com>
 References: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, rjw@rjwysocki.net, lenb@kernel.org, mika.westerberg@linux.intel.com, awilliam@redhat.com, tianyu.lan@intel.com, robert.moore@intel.com, lv.zheng@intel.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, devel@acpica.org
+To: wsa@the-dreams.de, rjw@rjwysocki.net, lenb@kernel.org, mika.westerberg@linux.intel.com, awilliam@redhat.com, tianyu.lan@intel.com, rui.zhang@intel.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-There is already acpi_bus_get_private_data() to get ACPI handle data
-which is associated with acpi_bus_private_data_handler(). This patch
-is to add acpi_bus_attach_private_data() to make a pair and facilitate
-to attach and get data to/from ACPI handle.
+Use acpi_bus_attach_private_data() to attach private data
+instead of acpi_attach_data().
 
 Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
 ---
- drivers/acpi/bus.c      | 18 +++++++++++++++++-
- include/acpi/acpi_bus.h |  1 +
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ drivers/acpi/thermal.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index e7e5844..4ed8d48 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -132,6 +132,22 @@ void acpi_bus_private_data_handler(acpi_handle handle,
- }
- EXPORT_SYMBOL(acpi_bus_private_data_handler);
+diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
+index c1e31a4..7ab9392 100644
+--- a/drivers/acpi/thermal.c
++++ b/drivers/acpi/thermal.c
+@@ -925,13 +925,10 @@ static int acpi_thermal_register_thermal_zone(struct acpi_thermal *tz)
+ 	if (result)
+ 		return result;
  
-+int acpi_bus_attach_private_data(acpi_handle handle, void *data)
-+{
-+	acpi_status status;
-+
-+	status = acpi_attach_data(handle,
-+			acpi_bus_private_data_handler, data);
-+	if (ACPI_FAILURE(status)) {
-+		ACPI_ERROR((AE_INFO, "Error attaching device[%p] data\n",
-+				handle));
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(acpi_bus_attach_private_data);
-+
- int acpi_bus_get_private_data(acpi_handle handle, void **data)
- {
- 	acpi_status status;
-@@ -141,7 +157,7 @@ int acpi_bus_get_private_data(acpi_handle handle, void **data)
- 
- 	status = acpi_get_data(handle, acpi_bus_private_data_handler, data);
- 	if (ACPI_FAILURE(status) || !*data) {
--		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "No context for object [%p]\n",
-+		ACPI_ERROR((AE_INFO, "No context for object [%p]\n",
- 				handle));
+-	status = acpi_attach_data(tz->device->handle,
+-				  acpi_bus_private_data_handler,
+-				  tz->thermal_zone);
+-	if (ACPI_FAILURE(status)) {
+-		pr_err(PREFIX "Error attaching device data\n");
++	status =  acpi_bus_attach_private_data(tz->device->handle,
++					       tz->thermal_zone);
++	if (ACPI_FAILURE(status))
  		return -ENODEV;
- 	}
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 84a2e29..a1f6fec 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -406,6 +406,7 @@ extern struct kobject *acpi_kobj;
- extern int acpi_bus_generate_netlink_event(const char*, const char*, u8, int);
- void acpi_bus_private_data_handler(acpi_handle, void *);
- int acpi_bus_get_private_data(acpi_handle, void **);
-+int acpi_bus_attach_private_data(acpi_handle, void *);
- void acpi_bus_no_hotplug(acpi_handle handle);
- extern int acpi_notifier_call_chain(struct acpi_device *, u32, u32);
- extern int register_acpi_notifier(struct notifier_block *);
+-	}
+ 
+ 	tz->tz_enabled = 1;
+ 
 -- 
 1.8.4.rc0.1.g8f6a3e5.dirty
