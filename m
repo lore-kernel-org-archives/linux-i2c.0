@@ -1,7 +1,7 @@
 From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [PATCH 8/9] I2C/ACPI: Move ACPI related code to i2c-acpi.c
-Date: Wed, 16 Apr 2014 21:24:41 +0800
-Message-ID: <1397654682-7094-9-git-send-email-tianyu.lan@intel.com>
+Subject: [PATCH 5/9] I2C: Add smbus quick read/write helper function
+Date: Wed, 16 Apr 2014 21:24:38 +0800
+Message-ID: <1397654682-7094-6-git-send-email-tianyu.lan@intel.com>
 References: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com>
@@ -10,235 +10,68 @@ To: wsa@the-dreams.de, rjw@rjwysocki.net, lenb@kernel.org, mika.westerberg@linux
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Clean up ACPI related code in the i2c core.
+Add i2c_smbus_quick_write/read() helper function. These will be used
+in the implementation of i2c ACPI address space handler.
 
 Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
 ---
- drivers/i2c/i2c-acpi.c | 89 ++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-core.c | 95 --------------------------------------------------
- include/linux/i2c.h    |  3 ++
- 3 files changed, 92 insertions(+), 95 deletions(-)
+ drivers/i2c/i2c-core.c | 30 ++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |  2 ++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
-index 942abdf..a0ae867 100644
---- a/drivers/i2c/i2c-acpi.c
-+++ b/drivers/i2c/i2c-acpi.c
-@@ -37,6 +37,95 @@ struct gsb_buffer {
- 	};
- } __packed;
- 
-+static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
-+{
-+	struct i2c_board_info *info = data;
-+
-+	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
-+		struct acpi_resource_i2c_serialbus *sb;
-+
-+		sb = &ares->data.i2c_serial_bus;
-+		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-+			info->addr = sb->slave_address;
-+			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
-+				info->flags |= I2C_CLIENT_TEN;
-+		}
-+	} else if (info->irq < 0) {
-+		struct resource r;
-+
-+		if (acpi_dev_resource_interrupt(ares, 0, &r))
-+			info->irq = r.start;
-+	}
-+
-+	/* Tell the ACPI core to skip this resource */
-+	return 1;
-+}
-+
-+static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
-+				       void *data, void **return_value)
-+{
-+	struct i2c_adapter *adapter = data;
-+	struct list_head resource_list;
-+	struct i2c_board_info info;
-+	struct acpi_device *adev;
-+	int ret;
-+
-+	if (acpi_bus_get_device(handle, &adev))
-+		return AE_OK;
-+	if (acpi_bus_get_status(adev) || !adev->status.present)
-+		return AE_OK;
-+
-+	memset(&info, 0, sizeof(info));
-+	info.acpi_node.companion = adev;
-+	info.irq = -1;
-+
-+	INIT_LIST_HEAD(&resource_list);
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     acpi_i2c_add_resource, &info);
-+	acpi_dev_free_resource_list(&resource_list);
-+
-+	if (ret < 0 || !info.addr)
-+		return AE_OK;
-+
-+	adev->power.flags.ignore_parent = true;
-+	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
-+	if (!i2c_new_device(adapter, &info)) {
-+		adev->power.flags.ignore_parent = false;
-+		dev_err(&adapter->dev,
-+			"failed to add I2C device %s from ACPI\n",
-+			dev_name(&adev->dev));
-+	}
-+
-+	return AE_OK;
-+}
-+
-+/**
-+ * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
-+ * @adap: pointer to adapter
-+ *
-+ * Enumerate all I2C slave devices behind this adapter by walking the ACPI
-+ * namespace. When a device is found it will be added to the Linux device
-+ * model and bound to the corresponding ACPI handle.
-+ */
-+void acpi_i2c_register_devices(struct i2c_adapter *adap)
-+{
-+	acpi_handle handle;
-+	acpi_status status;
-+
-+	if (!adap->dev.parent)
-+		return;
-+
-+	handle = ACPI_HANDLE(adap->dev.parent);
-+	if (!handle)
-+		return;
-+
-+	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-+				     acpi_i2c_add_device, NULL,
-+				     adap, NULL);
-+	if (ACPI_FAILURE(status))
-+		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
-+}
-+
- static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
- 		u8 cmd, u8 *data, u8 data_len)
- {
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index bb9dc56..9ca50c8 100644
+index 7c7f4b8..3bf0048 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -1092,101 +1092,6 @@ EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
+@@ -2162,6 +2162,36 @@ static int i2c_smbus_check_pec(u8 cpec, struct i2c_msg *msg)
+ }
  
--/* ACPI support code */
--
--#if IS_ENABLED(CONFIG_ACPI)
--static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
--{
--	struct i2c_board_info *info = data;
--
--	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		struct acpi_resource_i2c_serialbus *sb;
--
--		sb = &ares->data.i2c_serial_bus;
--		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
--			info->addr = sb->slave_address;
--			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
--				info->flags |= I2C_CLIENT_TEN;
--		}
--	} else if (info->irq < 0) {
--		struct resource r;
--
--		if (acpi_dev_resource_interrupt(ares, 0, &r))
--			info->irq = r.start;
--	}
--
--	/* Tell the ACPI core to skip this resource */
--	return 1;
--}
--
--static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
--				       void *data, void **return_value)
--{
--	struct i2c_adapter *adapter = data;
--	struct list_head resource_list;
--	struct i2c_board_info info;
--	struct acpi_device *adev;
--	int ret;
--
--	if (acpi_bus_get_device(handle, &adev))
--		return AE_OK;
--	if (acpi_bus_get_status(adev) || !adev->status.present)
--		return AE_OK;
--
--	memset(&info, 0, sizeof(info));
--	info.acpi_node.companion = adev;
--	info.irq = -1;
--
--	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list,
--				     acpi_i2c_add_resource, &info);
--	acpi_dev_free_resource_list(&resource_list);
--
--	if (ret < 0 || !info.addr)
--		return AE_OK;
--
--	adev->power.flags.ignore_parent = true;
--	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
--	if (!i2c_new_device(adapter, &info)) {
--		adev->power.flags.ignore_parent = false;
--		dev_err(&adapter->dev,
--			"failed to add I2C device %s from ACPI\n",
--			dev_name(&adev->dev));
--	}
--
--	return AE_OK;
--}
--
--/**
-- * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
-- * @adap: pointer to adapter
-- *
-- * Enumerate all I2C slave devices behind this adapter by walking the ACPI
-- * namespace. When a device is found it will be added to the Linux device
-- * model and bound to the corresponding ACPI handle.
-- */
--static void acpi_i2c_register_devices(struct i2c_adapter *adap)
--{
--	acpi_handle handle;
--	acpi_status status;
--
--	if (!adap->dev.parent)
--		return;
--
--	handle = ACPI_HANDLE(adap->dev.parent);
--	if (!handle)
--		return;
--
--	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
--				     acpi_i2c_add_device, NULL,
--				     adap, NULL);
--	if (ACPI_FAILURE(status))
--		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
--}
--#else
--static inline void acpi_i2c_register_devices(struct i2c_adapter *adap) {}
--#endif /* CONFIG_ACPI */
--
- static int i2c_do_add_adapter(struct i2c_driver *driver,
- 			      struct i2c_adapter *adap)
- {
+ /**
++ * i2c_smbus_quick_write - SMBus "quick write" protocol
++ * @client: Handle to slave device
++ *
++ * This executes the SMBus "quick write" protocol, returning negative errno
++ * else zero on success.
++ */
++s32 i2c_smbus_quick_write(const struct i2c_client *client)
++{
++	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++				I2C_SMBUS_WRITE, 0,
++				I2C_SMBUS_QUICK, NULL);
++}
++EXPORT_SYMBOL_GPL(i2c_smbus_quick_write);
++
++/**
++ * i2c_smbus_quick_read - SMBus "quick read" protocol
++ * @client: Handle to slave device
++ *
++ * This executes the SMBus "quick read" protocol, returning negative errno
++ * else zero on success.
++ */
++s32 i2c_smbus_quick_read(const struct i2c_client *client)
++{
++	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++				I2C_SMBUS_READ, 0,
++				I2C_SMBUS_QUICK, NULL);
++}
++EXPORT_SYMBOL_GPL(i2c_smbus_quick_read);
++
++/**
+  * i2c_smbus_read_byte - SMBus "receive byte" protocol
+  * @client: Handle to slave device
+  *
 diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 681e689..fc1ef42 100644
+index b556e0a..3e6ea90 100644
 --- a/include/linux/i2c.h
 +++ b/include/linux/i2c.h
-@@ -586,7 +586,10 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
- #ifdef CONFIG_ACPI
- int acpi_i2c_install_space_handler(struct i2c_adapter *adapter);
- void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter);
-+void acpi_i2c_register_devices(struct i2c_adapter *adap);
- #else
-+static inline void acpi_i2c_register_devices(struct i2c_adapter *adap) {};
-+
- static inline void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter)
- { }
- static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
+@@ -82,6 +82,8 @@ extern s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ /* Now follow the 'nice' access routines. These also document the calling
+    conventions of i2c_smbus_xfer. */
+ 
++extern s32 i2c_smbus_quick_write(const struct i2c_client *client);
++extern s32 i2c_smbus_quick_read(const struct i2c_client *client);
+ extern s32 i2c_smbus_read_byte(const struct i2c_client *client);
+ extern s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value);
+ extern s32 i2c_smbus_read_byte_data(const struct i2c_client *client,
 -- 
 1.8.4.rc0.1.g8f6a3e5.dirty
