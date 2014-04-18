@@ -1,59 +1,66 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH] i2c-mux-pca954x: allow downstream bus numbers to be specified in the dts
-Date: Thu, 17 Apr 2014 22:42:38 +0200
-Message-ID: <8371876.lo7y6gzeI1@avalon>
-References: <532A1B12.8080400@yahoo.com> <1548213.kKeUuTimZc@avalon> <CAE6_GsvJpajY==6MJExo3T7FrVF_LNGcoozq0N5KEBho9y5NWw@mail.gmail.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v4 0/2] i2c: sunxi: Change compatibles pattern
+Date: Fri, 18 Apr 2014 21:07:08 +0200
+Message-ID: <20140418190708.GA24905@lukather>
+References: <1396270498-30703-1-git-send-email-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAE6_GsvJpajY==6MJExo3T7FrVF_LNGcoozq0N5KEBho9y5NWw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1396270498-30703-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Frank Bormann <frankbormann0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Frank,
 
-On Thursday 17 April 2014 16:26:04 Frank Bormann wrote:
-> A user-space application, which is being configured with the first mux bus
-> number, executes i2cget/i2cset commands, specifying the i2c bus number and
-> expecting them to be incremental from the first number.
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I won't venture to comment on whether bus numbering has ever been considered 
-to be a kernel ABI, other people should be able to comment on that. Any chance 
-to fix the application to find the bus numbers dynamically ?
+Hi Wolfram,
 
-> On Thu, Apr 17, 2014 at 4:15 PM, Laurent Pinchart wrote:
-> > On Thursday 17 April 2014 13:54:44 Frank Bormann wrote:
-> > > Hi Laurent,
-> > > 
-> > > I have a pca9546 on one of my i2c buses. This will create four mux buses
-> > > in Linux. One of those mux buses then has a pca9542 connected to it,
-> > > creating another two mux buses on top of the first ones.
-> > > 
-> > > The 3.8 kernel, I was initially using enumerated, this as:
-> > > 
-> > > pca9546: 3, 4, 5, 6
-> > > pca9542: 7, 8
-> > > 
-> > > However, the new 3.12 kernel, I am using now, has changed that
-> > > enumeration to:
-> > > 
-> > > pca9546: 3, 4, 7, 8
-> > > pca9542: 5, 6
-> > > 
-> > > As you may imagine, the pca9542 is connected to bus 4. Apparently,
-> > > previously, it would finish the initalization of pca9546 before dealing
-> > > with the pca9542. Now it seems to do the pca9542 initialization as soon
-> > > as it sees it on mux bus 4. My application however expects the pca9546
-> > > buses to be on incremental bus numbers.
-> > 
-> > I understand that the bus numbers changed, but you still haven't explain
-> > *why* you need to have fixed bus numbers. Why do you need to know the bus
-> > number at all ?
+On Mon, Mar 31, 2014 at 02:54:56PM +0200, Maxime Ripard wrote:
+> Hi,
+>=20
+> This is the fourth version of the i2c compatible changes.
+>=20
+> Changes from v4:
+>   - Added extra per-SoC compatibles to the DT for all SoC but the A10
 
--- 
-Regards,
+I think I've addressed your comments in this version, are you ok with
+these changes?
 
-Laurent Pinchart
+Thanks,
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTUXfcAAoJEBx+YmzsjxAgBMoP/1f7d+S/jDo7+iKmfjgMQcFJ
+MmXwPudisXG4ztqmxlP1ZfpEj0Sdp0dkxs6XeIqAIbYCH83v6MRLFEeb12/eQYLH
+OS6O3GMkaEXZX3C7K597ynmDUG5qflU96A/W0DwneeKRJKxAebVHAZSDO9fxjgMh
+JzXg5aGbJAEwFLUxZBtePnNbTdj83VVDDL0/z7K9BsUFORJjbZagacDTCEA0ZSCT
+OxiAMPXt/8zK1RymL5Irk9AwSlkwTs6FQAtc5qEsi4mdHNZBQSwOwZyEV/N+Bzsk
+kS8N7NhZtkI40hSY07y3qL0YsRiSYkjXVJHaujSNDdq4hqwirFdXEHPwu4x4gcrW
+xQSVhlsxfBoKnoDcJo/GVwnNHapcL3eiVNxsUoJi7Y4LrkY1AIPmyF9yCGVKl6Ps
+kn1cPTDhQKVpDGqmXMJ434qaaZ5iyinuZITD+57Qocp0naWSDCMc2DjYtiLi0TwT
+IOeyDe+1Q7htNsJxylvbpWe1a1a9qmVuwfFalOtyvDZogMny7lGbyw28OUN4sB95
+6Ez2gy3Hd6nCxW2TEw3c9UYJ/md8ugPEiwt+CdLGILwX/+0nkYac1ZWKhLg8VhnW
+AuxggrCrPl0tj0ANIsVgr55UWe20Ec7yIXmTGgg7sTIq1C7yF3raayIqm6wrLRu3
+H6ylDS97slbYrErnM+zv
+=lZfB
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--
