@@ -1,66 +1,56 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 0/2] i2c: sunxi: Change compatibles pattern
-Date: Fri, 18 Apr 2014 21:07:08 +0200
-Message-ID: <20140418190708.GA24905@lukather>
-References: <1396270498-30703-1-git-send-email-maxime.ripard@free-electrons.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [RESEND PATCH 6/7] i2c: ChromeOS EC tunnel driver
+Date: Mon, 21 Apr 2014 11:53:00 -0600
+Message-ID: <53555AFC.5020203@wwwdotorg.org>
+References: <1397759814-3588-1-git-send-email-dianders@chromium.org> <1397759814-3588-7-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1396270498-30703-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1397759814-3588-7-git-send-email-dianders@chromium.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>, lee.jones@linaro.org, swarren@nvidia.com, wsa@the-dreams.de
+Cc: abrestic@chromium.org, dgreid@chromium.org, olof@lixom.net, sjg@chromium.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rdunlap@infradead.org, sameo@linux.intel.com, jdelvare@suse.de, shane.huang@amd.com, maxime.ripard@free-electrons.com, laurent.pinchart+renesas@ideasonboard.com, u.kleine-koenig@pengutronix.de, bjorn.andersson@sonymobile.com, kevin.strasser@linux.intel.com, linux@prisktech.co.nz, andrew@lunn.ch, andriy.shevchenko@linux.intel.com, schwidefsky@de.ibm.com, matt.porter@linaro.org, ch.naveen@samsung.com, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 04/17/2014 12:36 PM, Doug Anderson wrote:
+> On ARM Chromebooks we have a few devices that are accessed by both the
+> AP (the main "Application Processor") and the EC (the Embedded
+> Controller).  These are:
+> * The battery (sbs-battery).
+> * The power management unit tps65090.
+...
+> On the Samsung ARM Chromebook 2 the scheme is changed yet again, now:
+> * The AP/EC comms are now using SPI for faster speeds.
+> * The EC's i2c bus is exposed to the AP through a full i2c tunnel.
+...
+> This driver supports the scheme used by the Samsung ARM Chromebook 2.
+> Future patches to this driver could add support for the battery tunnel
+> on the HP Chromebook 11 (and perhaps could even be used to access
+> tps65090 on the HP Chromebook 11 instead of using a special driver,
+> but I haven't researched that enough).
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
 
-Hi Wolfram,
+> +I2C bus that tunnels through the ChromeOS EC (cros-ec)
+> +======================================================
+> +On some ChromeOS board designs we've got a connection to the EC (embedded
+> +controller) but no direct connection to some devices on the other side of
+> +the EC (like a battery and PMIC).  To get access to those devices we need
+> +to tunnel our i2c commands through the EC.
+> +
+> +The node for this device should be under a cros-ec node like google,cros-ec-spi
+> +or google,cros-ec-i2c.
+> +
+> +
+> +Required properties:
+> +- compatible: google,cros-ec-i2c-tunnel
+> +- google,remote-bus: The EC bus we'd like to talk to.
 
-On Mon, Mar 31, 2014 at 02:54:56PM +0200, Maxime Ripard wrote:
-> Hi,
->=20
-> This is the fourth version of the i2c compatible changes.
->=20
-> Changes from v4:
->   - Added extra per-SoC compatibles to the DT for all SoC but the A10
+It's probably worth mentioning here that the node represents a single
+I2C bus, and hence is expected to contain child nodes representing I2C
+devices. Perhaps:
 
-I think I've addressed your comments in this version, are you ok with
-these changes?
+Optional child nodes:
+- One node per I2C device connected to the tunnelled I2C bus.
 
-Thanks,
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTUXfcAAoJEBx+YmzsjxAgBMoP/1f7d+S/jDo7+iKmfjgMQcFJ
-MmXwPudisXG4ztqmxlP1ZfpEj0Sdp0dkxs6XeIqAIbYCH83v6MRLFEeb12/eQYLH
-OS6O3GMkaEXZX3C7K597ynmDUG5qflU96A/W0DwneeKRJKxAebVHAZSDO9fxjgMh
-JzXg5aGbJAEwFLUxZBtePnNbTdj83VVDDL0/z7K9BsUFORJjbZagacDTCEA0ZSCT
-OxiAMPXt/8zK1RymL5Irk9AwSlkwTs6FQAtc5qEsi4mdHNZBQSwOwZyEV/N+Bzsk
-kS8N7NhZtkI40hSY07y3qL0YsRiSYkjXVJHaujSNDdq4hqwirFdXEHPwu4x4gcrW
-xQSVhlsxfBoKnoDcJo/GVwnNHapcL3eiVNxsUoJi7Y4LrkY1AIPmyF9yCGVKl6Ps
-kn1cPTDhQKVpDGqmXMJ434qaaZ5iyinuZITD+57Qocp0naWSDCMc2DjYtiLi0TwT
-IOeyDe+1Q7htNsJxylvbpWe1a1a9qmVuwfFalOtyvDZogMny7lGbyw28OUN4sB95
-6Ez2gy3Hd6nCxW2TEw3c9UYJ/md8ugPEiwt+CdLGILwX/+0nkYac1ZWKhLg8VhnW
-AuxggrCrPl0tj0ANIsVgr55UWe20Ec7yIXmTGgg7sTIq1C7yF3raayIqm6wrLRu3
-H6ylDS97slbYrErnM+zv
-=lZfB
------END PGP SIGNATURE-----
-
---a8Wt8u1KmwUX3Y2C--
