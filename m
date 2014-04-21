@@ -1,56 +1,196 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [RESEND PATCH 6/7] i2c: ChromeOS EC tunnel driver
-Date: Mon, 21 Apr 2014 11:53:00 -0600
-Message-ID: <53555AFC.5020203@wwwdotorg.org>
-References: <1397759814-3588-1-git-send-email-dianders@chromium.org> <1397759814-3588-7-git-send-email-dianders@chromium.org>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 1/9] ACPICA: Executer: Fix buffer allocation issue for generic_serial_bus region field accesses.
+Date: Mon, 21 Apr 2014 23:38:05 +0200
+Message-ID: <5269843.b915ubdT5E@vostro.rjw.lan>
+References: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com> <1397654682-7094-2-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1397759814-3588-7-git-send-email-dianders@chromium.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>, lee.jones@linaro.org, swarren@nvidia.com, wsa@the-dreams.de
-Cc: abrestic@chromium.org, dgreid@chromium.org, olof@lixom.net, sjg@chromium.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rdunlap@infradead.org, sameo@linux.intel.com, jdelvare@suse.de, shane.huang@amd.com, maxime.ripard@free-electrons.com, laurent.pinchart+renesas@ideasonboard.com, u.kleine-koenig@pengutronix.de, bjorn.andersson@sonymobile.com, kevin.strasser@linux.intel.com, linux@prisktech.co.nz, andrew@lunn.ch, andriy.shevchenko@linux.intel.com, schwidefsky@de.ibm.com, matt.porter@linaro.org, ch.naveen@samsung.com, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1397654682-7094-2-git-send-email-tianyu.lan@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Lan Tianyu <tianyu.lan@intel.com>
+Cc: wsa@the-dreams.de, lenb@kernel.org, mika.westerberg@linux.intel.com, awilliam@redhat.com, robert.moore@intel.com, lv.zheng@intel.com, rafael.j.wysocki@intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, devel@acpica.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/17/2014 12:36 PM, Doug Anderson wrote:
-> On ARM Chromebooks we have a few devices that are accessed by both the
-> AP (the main "Application Processor") and the EC (the Embedded
-> Controller).  These are:
-> * The battery (sbs-battery).
-> * The power management unit tps65090.
-...
-> On the Samsung ARM Chromebook 2 the scheme is changed yet again, now:
-> * The AP/EC comms are now using SPI for faster speeds.
-> * The EC's i2c bus is exposed to the AP through a full i2c tunnel.
-...
-> This driver supports the scheme used by the Samsung ARM Chromebook 2.
-> Future patches to this driver could add support for the battery tunnel
-> on the HP Chromebook 11 (and perhaps could even be used to access
-> tps65090 on the HP Chromebook 11 instead of using a special driver,
-> but I haven't researched that enough).
+Hi,
 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt b/Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
+On Wednesday, April 16, 2014 09:24:34 PM Lan Tianyu wrote:
+> From: Lv Zheng <lv.zheng@intel.com>
+> 
+> The size of the buffer allocated for generic_serial_bus region access
+> is not correct.  This patch introduces acpi_ex_get_serial_access_length()
+> to be invoked to obtain correct data buffer length.  Reported by
+> Lan Tianyu, Fixed by Lv Zheng.
+> 
+> Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
 
-> +I2C bus that tunnels through the ChromeOS EC (cros-ec)
-> +======================================================
-> +On some ChromeOS board designs we've got a connection to the EC (embedded
-> +controller) but no direct connection to some devices on the other side of
-> +the EC (like a battery and PMIC).  To get access to those devices we need
-> +to tunnel our i2c commands through the EC.
+I'm queueing up this patch as a fix for 3.15, but can you please resend the
+whole series with a CC to linux-acpi?
+
+
+> ---
+>  drivers/acpi/acpica/exfield.c | 104 +++++++++++++++++++++++++++++++++++++++---
+>  1 file changed, 97 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/acpi/acpica/exfield.c b/drivers/acpi/acpica/exfield.c
+> index 68d9744..12878e1 100644
+> --- a/drivers/acpi/acpica/exfield.c
+> +++ b/drivers/acpi/acpica/exfield.c
+> @@ -45,10 +45,71 @@
+>  #include "accommon.h"
+>  #include "acdispat.h"
+>  #include "acinterp.h"
+> +#include "amlcode.h"
+>  
+>  #define _COMPONENT          ACPI_EXECUTER
+>  ACPI_MODULE_NAME("exfield")
+>  
+> +/* Local prototypes */
+> +static u32
+> +acpi_ex_get_serial_access_length(u32 accessor_type, u32 access_length);
 > +
-> +The node for this device should be under a cros-ec node like google,cros-ec-spi
-> +or google,cros-ec-i2c.
+> +/*******************************************************************************
+> + *
+> + * FUNCTION:    acpi_get_serial_access_bytes
+> + *
+> + * PARAMETERS:  accessor_type   - The type of the protocol indicated by region
+> + *                                field access attributes
+> + *              access_length   - The access length of the region field
+> + *
+> + * RETURN:      Decoded access length
+> + *
+> + * DESCRIPTION: This routine returns the length of the generic_serial_bus
+> + *              protocol bytes
+> + *
+> + ******************************************************************************/
 > +
+> +static u32
+> +acpi_ex_get_serial_access_length(u32 accessor_type, u32 access_length)
+> +{
+> +	u32 length;
 > +
-> +Required properties:
-> +- compatible: google,cros-ec-i2c-tunnel
-> +- google,remote-bus: The EC bus we'd like to talk to.
+> +	switch (accessor_type) {
+> +	case AML_FIELD_ATTRIB_QUICK:
+> +
+> +		length = 0;
+> +		break;
+> +
+> +	case AML_FIELD_ATTRIB_SEND_RCV:
+> +	case AML_FIELD_ATTRIB_BYTE:
+> +
+> +		length = 1;
+> +		break;
+> +
+> +	case AML_FIELD_ATTRIB_WORD:
+> +	case AML_FIELD_ATTRIB_WORD_CALL:
+> +
+> +		length = 2;
+> +		break;
+> +
+> +	case AML_FIELD_ATTRIB_MULTIBYTE:
+> +	case AML_FIELD_ATTRIB_RAW_BYTES:
+> +	case AML_FIELD_ATTRIB_RAW_PROCESS:
+> +
+> +		length = access_length;
+> +		break;
+> +
+> +	case AML_FIELD_ATTRIB_BLOCK:
+> +	case AML_FIELD_ATTRIB_BLOCK_CALL:
+> +	default:
+> +
+> +		length = ACPI_GSBUS_BUFFER_SIZE;
+> +		break;
+> +	}
+> +
+> +	return (length);
+> +}
+> +
+>  /*******************************************************************************
+>   *
+>   * FUNCTION:    acpi_ex_read_data_from_field
+> @@ -63,8 +124,9 @@ ACPI_MODULE_NAME("exfield")
+>   *              Buffer, depending on the size of the field.
+>   *
+>   ******************************************************************************/
+> +
+>  acpi_status
+> -acpi_ex_read_data_from_field(struct acpi_walk_state *walk_state,
+> +acpi_ex_read_data_from_field(struct acpi_walk_state * walk_state,
+>  			     union acpi_operand_object *obj_desc,
+>  			     union acpi_operand_object **ret_buffer_desc)
+>  {
+> @@ -73,6 +135,7 @@ acpi_ex_read_data_from_field(struct acpi_walk_state *walk_state,
+>  	acpi_size length;
+>  	void *buffer;
+>  	u32 function;
+> +	u16 accessor_type;
+>  
+>  	ACPI_FUNCTION_TRACE_PTR(ex_read_data_from_field, obj_desc);
+>  
+> @@ -116,9 +179,22 @@ acpi_ex_read_data_from_field(struct acpi_walk_state *walk_state,
+>  			    ACPI_READ | (obj_desc->field.attribute << 16);
+>  		} else if (obj_desc->field.region_obj->region.space_id ==
+>  			   ACPI_ADR_SPACE_GSBUS) {
+> -			length = ACPI_GSBUS_BUFFER_SIZE;
+> -			function =
+> -			    ACPI_READ | (obj_desc->field.attribute << 16);
+> +			accessor_type = obj_desc->field.attribute;
+> +			length = acpi_ex_get_serial_access_length(accessor_type,
+> +								  obj_desc->
+> +								  field.
+> +								  access_length);
+> +
+> +			/*
+> +			 * Add additional 2 bytes for modeled generic_serial_bus data buffer:
+> +			 * typedef struct {
+> +			 *     BYTEStatus; // Byte 0 of the data buffer
+> +			 *     BYTELength; // Byte 1 of the data buffer
+> +			 *     BYTE[x-1]Data; // Bytes 2-x of the arbitrary length data buffer,
+> +			 * }
+> +			 */
+> +			length += 2;
+> +			function = ACPI_READ | (accessor_type << 16);
+>  		} else {	/* IPMI */
+>  
+>  			length = ACPI_IPMI_BUFFER_SIZE;
+> @@ -231,6 +307,7 @@ acpi_ex_write_data_to_field(union acpi_operand_object *source_desc,
+>  	void *buffer;
+>  	union acpi_operand_object *buffer_desc;
+>  	u32 function;
+> +	u16 accessor_type;
+>  
+>  	ACPI_FUNCTION_TRACE_PTR(ex_write_data_to_field, obj_desc);
+>  
+> @@ -284,9 +361,22 @@ acpi_ex_write_data_to_field(union acpi_operand_object *source_desc,
+>  			    ACPI_WRITE | (obj_desc->field.attribute << 16);
+>  		} else if (obj_desc->field.region_obj->region.space_id ==
+>  			   ACPI_ADR_SPACE_GSBUS) {
+> -			length = ACPI_GSBUS_BUFFER_SIZE;
+> -			function =
+> -			    ACPI_WRITE | (obj_desc->field.attribute << 16);
+> +			accessor_type = obj_desc->field.attribute;
+> +			length = acpi_ex_get_serial_access_length(accessor_type,
+> +								  obj_desc->
+> +								  field.
+> +								  access_length);
+> +
+> +			/*
+> +			 * Add additional 2 bytes for modeled generic_serial_bus data buffer:
+> +			 * typedef struct {
+> +			 *     BYTEStatus; // Byte 0 of the data buffer
+> +			 *     BYTELength; // Byte 1 of the data buffer
+> +			 *     BYTE[x-1]Data; // Bytes 2-x of the arbitrary length data buffer,
+> +			 * }
+> +			 */
+> +			length += 2;
+> +			function = ACPI_WRITE | (accessor_type << 16);
+>  		} else {	/* IPMI */
+>  
+>  			length = ACPI_IPMI_BUFFER_SIZE;
+> 
 
-It's probably worth mentioning here that the node represents a single
-I2C bus, and hence is expected to contain child nodes representing I2C
-devices. Perhaps:
-
-Optional child nodes:
-- One node per I2C device connected to the tunnelled I2C bus.
-
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
