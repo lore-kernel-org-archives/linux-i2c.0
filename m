@@ -1,63 +1,58 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [Resend Patch 9/9] I2C/ACPI: Add CONFIG_I2C_ACPI config
-Date: Tue, 22 Apr 2014 14:45:10 +0300
-Message-ID: <20140422114510.GM30677@intel.com>
-References: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com>
- <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
- <1398147855-9868-10-git-send-email-tianyu.lan@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1398147855-9868-10-git-send-email-tianyu.lan@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>
-Cc: wsa@the-dreams.de, rjw@rjwysocki.net, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+From: Doug Anderson <dianders@chromium.org>
+Subject: [PATCH v2 0/7] Add cros_ec changes for newer boards
+Date: Tue, 22 Apr 2014 09:45:47 -0700
+Message-ID: <1398185154-19404-1-git-send-email-dianders@chromium.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: lee.jones@linaro.org, swarren@nvidia.com, wsa@the-dreams.de
+Cc: abrestic@chromium.org, dgreid@chromium.org, olof@lixom.net, sjg@chromium.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, Doug Anderson <dianders@chromium.org>, mark.rutland@arm.com, andrew@lunn.ch, swarren@wwwdotorg.org, thierry.reding@gmail.com, linux-i2c@vger.kernel.org, matt.porter@linaro.org, jdelvare@suse.de, laurent.pinchart+renesas@ideasonboard.com, vpalatin@chromium.org, sameo@linux.intel.com, linux-doc@vger.kernel.org, bjorn.andersson@sonymobile.com, u.kleine-koenig@pengutronix.de, kevin.strasser@linux.intel.com, devicetree@vger.kernel.org, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, robh+dt@kernel.org, linux@arm.linux.org.uk, andriy.shevchenko@linux.intel.com, ch.naveen@samsung.com, linux-arm-kernel@lists.infradead.org, shane.huang@amd.com, rdunlap@infradead.org, linux-kernel@vger.kernel.org, linux@prisktech.co.nz, galak@codeaurora
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 22, 2014 at 02:24:15PM +0800, Lan Tianyu wrote:
-> This patch is to add CONFIG_I2C_ACPI. Current there is a race between
-> removing I2C ACPI operation region and ACPI AML code accessing.
-> So make i2c core built-in if CONFIG_I2C_ACPI is set.
-> 
-> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
-> ---
->  drivers/i2c/Kconfig  | 17 ++++++++++++++++-
->  drivers/i2c/Makefile |  2 +-
->  include/linux/i2c.h  |  2 +-
->  3 files changed, 18 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-> index 7b7ea32..c670d49 100644
-> --- a/drivers/i2c/Kconfig
-> +++ b/drivers/i2c/Kconfig
-> @@ -2,7 +2,9 @@
->  # I2C subsystem configuration
->  #
->  
-> -menuconfig I2C
-> +menu "I2C support"
-> +
-> +config I2C
->  	tristate "I2C support"
->  	select RT_MUTEXES
->  	---help---
-> @@ -21,6 +23,17 @@ menuconfig I2C
->  	  This I2C support can also be built as a module.  If so, the module
->  	  will be called i2c-core.
->  
-> +config I2C_ACPI
-> +	bool "I2C ACPI support"
-> +	select I2C
-> +	depends on ACPI
-> +	default y
-> +	help
-> +	  Say Y here if you want to enable I2C ACPI function. ACPI table
-> +	  provides I2C slave devices' information to enumerate these devices.
-> +	  This option also allows ACPI AML code to access I2C slave devices
-> +	  via I2C ACPI operation region to fulfill ACPI method.
-> +
+This series adds the most critical cros_ec changes for newer boards
+using cros_ec.  Specifically:
+* Fixes timing/locking issues with the previously upstreamed (but
+  never used upstream) cros_ec_spi driver.
+* Updates the cros_ec header file to the latest version which allows
+  us to use newer EC features like i2c tunneling.
+* Adds an i2c tunnel driver to allow communication to the EC's i2c
+  devices.
 
-I'm wondering, can we provide some sort of wrapper function from ACPI core
-that is guaranteed to be built in to the kernel image and use it instead of
-adding new Kconfig options?
+This _doesn't_ get the EC driver fully up to speed with what's in the
+current Chromium OS trees.  There are a whole slew of cleanup patches
+there, an addition of an LPC transport mode, and exports of functions
+to userspace.  Once these patches land and we have functionality we
+can continue to pick more cleanup patches.
+
+Changes in v2:
+- Update tunnel binding as per swarren
+- Removed i2c20 alias for i2c tunnel
+
+Bill Richardson (1):
+  mfd: cros_ec: Sync to the latest cros_ec_commands.h from EC sources
+
+David Hendricks (1):
+  mfd: cros_ec: spi: calculate delay between transfers correctly
+
+Doug Anderson (5):
+  mfd: cros_ec: spi: Add mutex to cros_ec_spi
+  mfd: cros_ec: spi: Make the cros_ec_spi timeout more reliable
+  mfd: cros_ec: spi: Increase cros_ec_spi deadline from 5ms to 100ms
+  i2c: ChromeOS EC tunnel driver
+  ARM: tegra: Add the EC i2c tunnel to tegra124-venice2
+
+ .../devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt |   39 +
+ arch/arm/boot/dts/tegra124-venice2.dts             |   26 +
+ drivers/i2c/busses/Kconfig                         |    9 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c            |  304 ++++++
+ drivers/mfd/cros_ec.c                              |    7 +-
+ drivers/mfd/cros_ec_spi.c                          |   67 +-
+ include/linux/mfd/cros_ec.h                        |    4 +-
+ include/linux/mfd/cros_ec_commands.h               | 1128 ++++++++++++++++++--
+ 9 files changed, 1493 insertions(+), 92 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
+ create mode 100644 drivers/i2c/busses/i2c-cros-ec-tunnel.c
+
+-- 
+1.9.1.423.g4596e3a
+
