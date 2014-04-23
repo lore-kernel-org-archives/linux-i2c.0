@@ -1,54 +1,46 @@
-From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: Re: [Resend Patch 7/9] I2C/ACPI: Add i2c ACPI operation region support
-Date: Wed, 23 Apr 2014 15:17:50 +0800
-Message-ID: <5357691E.5020007@intel.com>
-References: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com> <1398147855-9868-1-git-send-email-tianyu.lan@intel.com> <1398147855-9868-8-git-send-email-tianyu.lan@intel.com> <20140422113638.GK30677@intel.com> <53571D11.3070808@intel.com> <20140423072839.GT30677@intel.com>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [PATCH 22/33] ARM: shmobile: Use r8a7740 suffix for i2c, mmcif,
+ fsi2 compat strings
+Date: Wed, 23 Apr 2014 09:26:46 +0200
+Message-ID: <CAMuHMdUBf4ATws9+P6EOvjG2V8povMMWL6xOQeFESC9Wm5xz8g@mail.gmail.com>
+References: <cover.1398216022.git.horms+renesas@verge.net.au>
+	<5c53f50c50badff499568a703467c3c9f23f9bfd.1398216022.git.horms+renesas@verge.net.au>
+	<CAMuHMdUA+wJmgn0P_q38ri7_TAq7zha-ekSUrvdpntG5gFv56Q@mail.gmail.com>
+	<20140423071813.GA2777@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20140423072839.GT30677@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: wsa@the-dreams.de, rjw@rjwysocki.net, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140423071813.GA2777@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ulrich Hecht <ulrich.hecht-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2014=E5=B9=B404=E6=9C=8823=E6=97=A5 15:28, Mika Westerberg wrote:
-> On Wed, Apr 23, 2014 at 09:53:21AM +0800, Lan Tianyu wrote:
->> Hi Mika:
->> 	Thanks a lot for your review.
->>
->> On 2014=E5=B9=B404=E6=9C=8822=E6=97=A5 19:36, Mika Westerberg wrote:
->>>>> +
->>>>> +	client.adapter =3D adapter;
->>>>> +	client.addr =3D sb->slave_address;
->>>>> +	client.flags =3D 0;
->>> I'm not sure if this is the correct way to use struct i2c_client
->>> (allocating it from stack and passing forward to functions that mig=
-ht
->>> expect a real i2c_client structure). It has ->dev and all.
->>
->> I check all i2c_smbus_xxx helper functions and they are simple wrapp=
-ers
->> of i2c_smbus_xfer(). Only adapter, addr and flags of struct client a=
-re
->> used in these functions.
->=20
-> In that case I suppose it is OK to (ab)use the client structure like =
-this.
->=20
-> I think you still want to initialize the whole structure (unused fiel=
-ds
-> with zero) before passing it to the wrappers.
->=20
+Hi Wolfram,
 
-Ok. I will do that.
+On Wed, Apr 23, 2014 at 9:18 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>> > -               compatible = "renesas,rmobile-iic";
+>> > +               compatible = "renesas,iic-r8a7740", "renesas,rmobile-iic";
+>>
+>> I see an opportunity for improvement here: this driver doesn't seem to have
+>> any bindings documented under Documentation/devicetree/bindings/?
+>
+> I am brushing up this driver currently, so consider it done. Just
 
---=20
-Best regards
-Tianyu Lan
+That's great to hear, thanks!
+
+> waiting for a minor email issue to be solved before I can send out
+> patches.
+
+Good luck!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 --
-To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
