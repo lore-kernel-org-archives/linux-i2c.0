@@ -1,83 +1,42 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v2 0/7] Add cros_ec changes for newer boards
-Date: Wed, 23 Apr 2014 09:32:55 -0700
-Message-ID: <CAD=FV=XbjeOR+A-ZVYgOT69gsdp-YrjbkGrjL2Vf4F31ZkGXTA@mail.gmail.com>
-References: <1398185154-19404-1-git-send-email-dianders@chromium.org>
- <20140423123240.GA640@lee--X1> <5357E832.1000806@wwwdotorg.org>
+From: Adam Williamson <awilliam@redhat.com>
+Subject: Re: [Resend Patch 0/9] I2C ACPI operation region handler support
+Date: Wed, 23 Apr 2014 16:03:28 -0700
+Message-ID: <1398294208.2673.11.camel@adam.happyassassin.net>
+References: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com>
+	 <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <5357E832.1000806@wwwdotorg.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, andrew@lunn.ch, Wolfram Sang <wsa@the-dreams.de>, Andrew Bresticker <abrestic@chromium.org>, Russell King <linux@arm.linux.org.uk>, Thierry Reding <thierry.reding@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, Lee Jones <lee.jones@linaro.org>, jdelvare@suse.de, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-doc@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>, u.kleine-koenig@pengutronix.de, kevin.strasser@linux.intel.com, Dylan Reid <dgreid@chromium.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, schwidefsky@de.ibm.com, laurent.pinchart+renesas@ideasonboard.com, linux-tegra@
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Lan Tianyu <tianyu.lan@intel.com>
+Cc: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Tue, 2014-04-22 at 14:24 +0800, Lan Tianyu wrote:
+> ACPI 5.0 spec(5.5.2.4.5) defines GenericSerialBus(i2c, spi, uart) operation
+> region. It allows ACPI aml code able to access such kind of devices to
+> implement some ACPI standard method.
+> 
+> On the Asus T100TA, Bios use GenericSerialBus operation region to access
+> i2c device to get battery info. So battery function depends on the I2C
+> operation region support. Here is the bug link.
+> https://bugzilla.kernel.org/show_bug.cgi?id=69011
+> 
+> This patchset is to add I2C ACPI operation region handler support.
 
-On Wed, Apr 23, 2014 at 9:20 AM, Stephen Warren <swarren@wwwdotorg.org> wrote:
-> On 04/23/2014 06:32 AM, Lee Jones wrote:
->> On Tue, 22 Apr 2014, Doug Anderson wrote:
->>
->>> This series adds the most critical cros_ec changes for newer boards
->>> using cros_ec.  Specifically:
->>> * Fixes timing/locking issues with the previously upstreamed (but
->>>   never used upstream) cros_ec_spi driver.
->>> * Updates the cros_ec header file to the latest version which allows
->>>   us to use newer EC features like i2c tunneling.
->>> * Adds an i2c tunnel driver to allow communication to the EC's i2c
->>>   devices.
->>>
->>> This _doesn't_ get the EC driver fully up to speed with what's in the
->>> current Chromium OS trees.  There are a whole slew of cleanup patches
->>> there, an addition of an LPC transport mode, and exports of functions
->>> to userspace.  Once these patches land and we have functionality we
->>> can continue to pick more cleanup patches.
-> ...
->> Need to wait for the ARM, DT and I2C guys to review, at which point
->> I'll be happy to take in and supply a branch for them to pull from if
->> required. If there are no _true_ dependencies and the MFD changes can
->> be added independently without fear of build breakages, let me know
->> and I'll apply them separately.
->
-> I believe there aren't direct dependencies between the patches. So, the
-> MFD patches can be applied to the MFD tree and the DT patch applied to
-> the Tegra tree. I'm simply waiting for the MFD patches to be applied
-> before applying the DT patch so that I know the DT binding definition is
-> fully accepted before applying a patch that uses it.
+For what it's worth, I've tested this patchset with the exception of
+patch 9/9 - which I leave out because it would require annoying fiddling
+with my kernel builds - and it gives apparently-accurate battery/AC
+information on my Venue 8 Pro.
 
-All of the MFD patches are safe to apply and in pretty much arbitrary
-order.  The strong dependencies in the chain are:
+It doesn't *obviously* cause any other problems, though there are a few
+other issues I'm dealing with ATM. If any of them turn out to be related
+to this patch set, I'll send a follow-up.
+-- 
+Adam Williamson
+Fedora QA Community Monkey
+IRC: adamw | Twitter: AdamW_Fedora | XMPP: adamw AT happyassassin . net
+http://www.happyassassin.net
 
-* We need patch #5 (mfd: cros_ec: Sync to the latest
-cros_ec_commands.h from EC sources) before the i2c tunnel can compile.
-
-* As Stephen says, he shouldn't apply the device tree until we're
-confident that the bindings are right.  However there's no strong
-dependency otherwise.
-
-* Patches #1 #2 and #3 are simply reliability fixes.  Those could land
-at any point in time and will improve other users of cros_ec_spi (like
-the keyboard on tegra124-venice2).
-
-* Patch #4 can apply any time with no issues.  Without it large i2c
-tunnel transfers won't work, but that's not a terrible problem (all
-normal transfers are small).
-
----
-
-All that being said, I'd request that you merge patches #1-#4 as soon
-as you can and make sure you can provide a way that Wolfram can pull
-them (or at least patch #4) into his i2c tree to keep them applying
-when he is ready to land #5.
-
--Doug
