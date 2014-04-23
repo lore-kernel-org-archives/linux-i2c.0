@@ -1,39 +1,47 @@
-From: Frank Bormann <frankbormann0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-mux-pca954x: allow downstream bus numbers to be specified
- in the dts
-Date: Tue, 22 Apr 2014 17:46:04 -0400
-Message-ID: <5356E31C.6000304@gmail.com>
-References: <532A1B12.8080400@yahoo.com> <1511928.3cA2QKoAZt@avalon> <534FF708.7040409@yahoo.com> <1736074.QFiloDzhqn@avalon> <535016B5.7060006@nvidia.com>
+From: Lan Tianyu <tianyu.lan@intel.com>
+Subject: Re: [Resend Patch 7/9] I2C/ACPI: Add i2c ACPI operation region support
+Date: Wed, 23 Apr 2014 09:53:21 +0800
+Message-ID: <53571D11.3070808@intel.com>
+References: <1397654682-7094-1-git-send-email-tianyu.lan@intel.com> <1398147855-9868-1-git-send-email-tianyu.lan@intel.com> <1398147855-9868-8-git-send-email-tianyu.lan@intel.com> <20140422113638.GK30677@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <535016B5.7060006-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Linux I2C List <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20140422113638.GK30677@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: wsa@the-dreams.de, rjw@rjwysocki.net, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 17/04/14 02:00 PM, Laxman Dewangan wrote:
-> Hi Frank,
-> Why not you use aliases on DTS instead of changing driver?
-> You can alias the bus number with the child node name. On the following, the bus
-> will be registerd as 6, 7, 8 and 9.
-> i2c-core already support this.
->
->          aliases {
->                  i2c6 = &pca9546_i2c0;
->                  i2c7 = &pca9546_i2c1;
->                  i2c8 = &pca9546_i2c2;
->                  i2c9 = &pca9546_i2c3;
->          };
+Hi Mika:
+	Thanks a lot for your review.
 
-Well, this seems to work indeed for newer kernels. I was originally working on 
-3.8 that did not yet have this feature. However, this is kind of an hard to find 
-feature. I didn't see any references in the i2c device tree bindings 
-documentation. So, unless you actually read the i2c core code, it is very easy 
-to miss.
+On 2014=E5=B9=B404=E6=9C=8822=E6=97=A5 19:36, Mika Westerberg wrote:
+>> > +
+>> > +	client.adapter =3D adapter;
+>> > +	client.addr =3D sb->slave_address;
+>> > +	client.flags =3D 0;
+> I'm not sure if this is the correct way to use struct i2c_client
+> (allocating it from stack and passing forward to functions that might
+> expect a real i2c_client structure). It has ->dev and all.
 
-Anyway, feel free to disregard my patch.
+I check all i2c_smbus_xxx helper functions and they are simple wrappers
+of i2c_smbus_xfer(). Only adapter, addr and flags of struct client are
+used in these functions.
 
-Frank
+>=20
+> I'm wondering if you can use i2c_transfer() and i2c_smbus_xfer() here
+> instead, passing just the adapter pointer?
+>=20
+
+Yes, I can do that but this needs to copy all codes of i2c_smbus_xxx
+helper function in the i2c-core.c here. This seems duplicated?
+
+--=20
+Best regards
+Tianyu Lan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
