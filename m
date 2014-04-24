@@ -1,59 +1,58 @@
-From: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Subject: [PATCH] i2c: mux: Use subsys_initcall for the i2c-arb-gpio-challenge
-Date: Thu, 24 Apr 2014 20:35:22 +0530
-Message-ID: <1398351922-1647-1-git-send-email-ch.naveen@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: naveenkrishna.ch@gmail.com, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, sjg@chromium.org, grundler@chromium.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, cpgs@samsung.com, broonie@kernel.org, Doug Anderson <dianders@chromium.org>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH] i2c: exynos5: Initialise Samsung High Speed I2C
+ controller early
+Date: Thu, 24 Apr 2014 17:25:58 +0100
+Message-ID: <20140424162558.GB12304@sirena.org.uk>
+References: <1398350916-885-1-git-send-email-ch.naveen@samsung.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QeltdQgz4fvqE4Zk"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1398350916-885-1-git-send-email-ch.naveen@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Cc: linux-i2c@vger.kernel.org, naveenkrishna.ch@gmail.com, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, sjg@chromium.org, grundler@chromium.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, cpgs@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Doug Anderson <dianders@chromium.org>
 
-Since many drivers rely on FETs that live behind this arbitrator, they
-can't successfully probe until after the arbitrator comes up.  They
-ought to handle things properly with EPROBE_DEFER and still work, but
-that has some downsides:
+--QeltdQgz4fvqE4Zk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-1. Those drivers don't come up till later in the boot process.  That
-   really not so nice for the LCD--we want that to init early.
-2. Some drivers have bugs and don't handle EPROBE_DEFER.  Those
-   drivers should be fixed but not all of them have been fixed yet.
-   HDMI is one example since DRM doesn't really have good support for
-   deferring probes.
+On Thu, Apr 24, 2014 at 08:18:36PM +0530, Naveen Krishna Chatradhi wrote:
+> This patch moves initialization code to subsys_initcall() to ensure
+> that the i2c bus is available early so the regulators can be quickly
+> probed and available for other devices on their probe() call.
 
-With this change We end up using the same init level as the main i2c bus.
+> Such solution has been proposed by Mark Brown to fix the problem of
+> the regulators not beeing available on the peripheral device probe():
+> http://lists.infradead.org/pipermail/linux-arm-kernel/2010-March/011971.html
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
-Reviewed-on: https://gerrit.chromium.org/gerrit/57007
-Reviewed-by: Simon Glass <sjg@chromium.org>
-Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
----
- drivers/i2c/muxes/i2c-arb-gpio-challenge.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+What specifically is this needed for?  We *should* be able to use
+deferred probe for most things, but I know that not all subsystems are
+able to yet.
 
-diff --git a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
-index 69afffa..6cf52bb 100644
---- a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
-+++ b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
-@@ -241,7 +241,17 @@ static struct platform_driver i2c_arbitrator_driver = {
- 	},
- };
- 
--module_platform_driver(i2c_arbitrator_driver);
-+static int __init i2c_arbitrator_init(void)
-+{
-+	return platform_driver_register(&i2c_arbitrator_driver);
-+}
-+subsys_initcall(i2c_arbitrator_init);
-+
-+static void __exit i2c_arbitrator_exit(void)
-+{
-+	platform_driver_unregister(&i2c_arbitrator_driver);
-+}
-+module_exit(i2c_arbitrator_exit);
- 
- MODULE_DESCRIPTION("GPIO-based I2C Arbitration");
- MODULE_AUTHOR("Doug Anderson <dianders@chromium.org>");
--- 
-1.7.9.5
+--QeltdQgz4fvqE4Zk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTWTsTAAoJELSic+t+oim9IEYP+gJK9puc8vR5pTCxJdPLCo4J
+rnD+aSHJMTdoIaay5rqaH+ESsmTyskwLF5t8kLleaOa1lZSSaaxBJVJlx1wUnD7O
+wy2quNT8Jxf1A1vvc6R4Pn4wxjlxgSmLhHQJ0wNi9TC7LsNUxglUsoIdE9htjkxy
+vJrbNjbQtRYzCupDfbvV7IlBUg2LRwfZ9ZKGDRlQQBhAvAzYqsNRA3EGokpl16T/
+slseb7kKzghCf0/UF4SPyzziCor9+vDSWSykEBuHzGapSgoK+MSa81BkrkZUnvog
+FBeuGJvYh9RaYl0F0h2rK5NzNoVllPxGPAuHwKjcQV0At3G/Qf+zfZOVivpCDAig
+oo+Xr8b2+IADofb8HNOrcfaHEm1ran1i38Kw6F6uy2I1XFJnWxBuv37fwgg31xiy
+ZhqsUQyu5P0B3DGN1+PT9iSRzvXrg72klwwnOcPCMDKzV/vIM41nf+xCImZ004t1
+o8UwiU54XMN01RiVGPVPhcaUxmgIfDkl8nzGFy+eJZCw5jKsQa0/NEmtQ+sZAhfl
+5fG22Nfmz8oD9kU7aJhHL+sJdUZTSIlwJ85b3JNnMU+IOXiUrcAd/VBztEKiVomc
+6u9UN5JeVGsdgsRtIzNpZ3r0M+SDFUO9brsguTqiL9lx6PBbHlTdDjNhr8OwpL8k
+tpWZaCCPZP3o2S4ZasO8
+=/VdO
+-----END PGP SIGNATURE-----
+
+--QeltdQgz4fvqE4Zk--
