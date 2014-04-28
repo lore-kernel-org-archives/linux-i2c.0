@@ -1,14 +1,13 @@
 From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
-Subject: Re: [PATCH 2/2 v4] i2c: exynos5: configure fifo_depth based on HSI2C
- module variant
-Date: Mon, 28 Apr 2014 12:05:02 +0530
-Message-ID: <CAHfPSqCg-BqezXCTfDjtKwvaD3G8Ej79OCFKAfshfO0uZvyewg@mail.gmail.com>
-References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
- <1391748195-12490-1-git-send-email-ch.naveen@samsung.com> <20140312192037.GC28891@katana>
+Subject: Re: [PATCH 1/2 v4] i2c: exynos5: add support for HSI2C on Exynos5260 SoC
+Date: Mon, 28 Apr 2014 13:45:54 +0530
+Message-ID: <CAHfPSqDAUpJWO3Udnjxim-LRY_hjW4+W2j5eTm+Xuk_Np+jhFA@mail.gmail.com>
+References: <1385100726-32165-1-git-send-email-ch.naveen@samsung.com>
+ <1391748171-12451-1-git-send-email-ch.naveen@samsung.com> <20140312191851.GB28891@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20140312192037.GC28891@katana>
+In-Reply-To: <20140312191851.GB28891@katana>
 Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-kernel@vger.kernel.org
@@ -16,24 +15,31 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hello Wolfram,
 
-On 13 March 2014 00:50, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Fri, Feb 07, 2014 at 10:13:15AM +0530, Naveen Krishna Chatradhi wrote:
->> fifo_depth of the HSI2C is not constant
->> Exynos5420 and Exynos5250 supports fifo_depth of 64bytes
->> Exynos5260 supports fifo_depth of 16bytes.
+On 13 March 2014 00:48, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Fri, Feb 07, 2014 at 10:12:51AM +0530, Naveen Krishna Chatradhi wrote:
+>> This patch adds a new compatible and uses variant struct to support
+>> HSI2C module on Exynos5260. Updates the Documentation dt bindings.
+>> Also resets the module as an init sequence (Needed by Exynos5260).
 >>
->> This patch configures the fifo_depth based on HSI2C modules version.
->>
->> Signed-off-by: Naveen Krishna Chatradhi <ich.naveen@samsung.com>
->> [For finding out the difference and initial contribution]
->> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+>> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
 >
-> I know Tomasz said differently, but I prefer the patches squashed (and
-> the commit message extended).
-Please accept my apologies for coming back late on this CL.
-Will squash and fix the compilation error and submit.
-
-Thanks,
+> This patch has clearly not been tested :( Build failure!
+comma was missing, Not sure, how i missed it.
+Will fix it.
+>
+>> +struct exynos_hsi2c_variant {
+>> +     unsigned int                fifo_depth;
+>> +};
+>
+> Why so many tabs? In general, I'd prefer one space.
+>
+>> -     exynos5_i2c_init(i2c);
+>> +     exynos5_i2c_reset(i2c);
+>
+> Is this a related change?
+Exynos5260 needs the HSI2C module to be reset during the init.
+As per Tomasz's comment on earlier version. We will reset the status
+during init for every SoC.
 >
 
 
