@@ -1,7 +1,7 @@
 From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [Patch V2 4/9] ACPI/Thermal: Use acpi_bus_attach_private_data() to attach private data
-Date: Mon, 28 Apr 2014 22:27:43 +0800
-Message-ID: <1398695268-28645-5-git-send-email-tianyu.lan@intel.com>
+Subject: [Patch V2 6/9] I2C: Add smbus word/block process call helper function
+Date: Mon, 28 Apr 2014 22:27:45 +0800
+Message-ID: <1398695268-28645-7-git-send-email-tianyu.lan@intel.com>
 References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
  <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,35 +11,104 @@ To: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awill
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, tianyu.lan@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-Use acpi_bus_attach_private_data() to attach private data
-instead of acpi_attach_data().
+Add i2c_smbus_word/block_proc_call() helper function. These will be used
+in the implementation of i2c ACPI address space handler.
 
 Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
 ---
- drivers/acpi/thermal.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/i2c/i2c-core.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |  4 ++++
+ 2 files changed, 60 insertions(+)
 
-diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
-index c1e31a4..7ab9392 100644
---- a/drivers/acpi/thermal.c
-+++ b/drivers/acpi/thermal.c
-@@ -925,13 +925,10 @@ static int acpi_thermal_register_thermal_zone(struct acpi_thermal *tz)
- 	if (result)
- 		return result;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 3bf0048..638befd 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -2306,6 +2306,30 @@ s32 i2c_smbus_write_word_data(const struct i2c_client *client, u8 command,
+ EXPORT_SYMBOL(i2c_smbus_write_word_data);
  
--	status = acpi_attach_data(tz->device->handle,
--				  acpi_bus_private_data_handler,
--				  tz->thermal_zone);
--	if (ACPI_FAILURE(status)) {
--		pr_err(PREFIX "Error attaching device data\n");
-+	status =  acpi_bus_attach_private_data(tz->device->handle,
-+					       tz->thermal_zone);
-+	if (ACPI_FAILURE(status))
- 		return -ENODEV;
--	}
+ /**
++ * i2c_smbus_word_proc_call - SMBus "word proc call" protocol
++ * @client: Handle to slave device
++ * @command: Byte interpreted by slave
++ * @value: 16-bit "word" being written
++ *
++ * This executes the SMBus "word proc all" protocol, returning negative errno
++ * else a 16-bit unsigned "word" received from the device.
++ */
++s32 i2c_smbus_word_proc_call(const struct i2c_client *client, u8 command,
++			      u16 value)
++{
++	union i2c_smbus_data data;
++	int status;
++
++	data.word = value;
++	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			      I2C_SMBUS_READ, command,
++			      I2C_SMBUS_PROC_CALL, &data);
++
++	return (status < 0) ? status : data.word;
++}
++EXPORT_SYMBOL(i2c_smbus_word_proc_call);
++
++/**
+  * i2c_smbus_read_block_data - SMBus "block read" protocol
+  * @client: Handle to slave device
+  * @command: Byte interpreted by slave
+@@ -2362,6 +2386,38 @@ s32 i2c_smbus_write_block_data(const struct i2c_client *client, u8 command,
+ }
+ EXPORT_SYMBOL(i2c_smbus_write_block_data);
  
- 	tz->tz_enabled = 1;
++/**
++ * i2c_smbus_block_proc_call - SMBus "block write" protocol
++ * @client: Handle to slave device
++ * @command: Byte interpreted by slave
++ * @length: Size of data block; SMBus allows at most 32 bytes
++ * @values: Byte array which will be written.
++ *
++ * This executes the SMBus "block proc call" protocol, returning negative errno
++ * else the number of read bytes.
++ */
++s32 i2c_smbus_block_proc_call(const struct i2c_client *client, u8 command,
++			       u8 length, u8 *values)
++{
++	union i2c_smbus_data data;
++	int status;
++
++	if (length > I2C_SMBUS_BLOCK_MAX)
++		length = I2C_SMBUS_BLOCK_MAX;
++	data.block[0] = length;
++	memcpy(&data.block[1], values, length);
++	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
++			      I2C_SMBUS_READ, command,
++			      I2C_SMBUS_BLOCK_PROC_CALL, &data);
++
++	if (status < 0)
++		return status;
++
++	memcpy(values, &data.block[1], data.block[0]);
++	return data.block[0];
++}
++EXPORT_SYMBOL(i2c_smbus_block_proc_call);
++
+ /* Returns the number of read bytes */
+ s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client, u8 command,
+ 				  u8 length, u8 *values)
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 3e6ea90..724440a 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -94,6 +94,10 @@ extern s32 i2c_smbus_read_word_data(const struct i2c_client *client,
+ 				    u8 command);
+ extern s32 i2c_smbus_write_word_data(const struct i2c_client *client,
+ 				     u8 command, u16 value);
++extern s32 i2c_smbus_word_proc_call(const struct i2c_client *client,
++				    u8 command, u16 value);
++extern s32 i2c_smbus_block_proc_call(const struct i2c_client *client,
++				u8 command, u8 length, u8 *values);
  
+ static inline s32
+ i2c_smbus_read_word_swapped(const struct i2c_client *client, u8 command)
 -- 
 1.8.3.1
