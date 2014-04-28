@@ -1,66 +1,43 @@
-From: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: add driver for Rockchip RK3xxx SoC I2C adapter
-Date: Mon, 28 Apr 2014 00:39:19 +0200
-Message-ID: <4500103.Z38Pp35WUa@typ>
-References: <1840959.yqLj3D6H4q@typ> <2533407.kJCGHuX10p@diego>
+From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+Subject: Re: [PATCH 2/2 v4] i2c: exynos5: configure fifo_depth based on HSI2C
+ module variant
+Date: Mon, 28 Apr 2014 12:05:02 +0530
+Message-ID: <CAHfPSqCg-BqezXCTfDjtKwvaD3G8Ej79OCFKAfshfO0uZvyewg@mail.gmail.com>
+References: <1385100851-32254-1-git-send-email-ch.naveen@samsung.com>
+ <1391748195-12490-1-git-send-email-ch.naveen@samsung.com> <20140312192037.GC28891@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <2533407.kJCGHuX10p@diego>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140312192037.GC28891@katana>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Heiko,
+Hello Wolfram,
 
-thanks for your comments.
-
-> both the grf as well as the bus-idx are rockchip specific, so they should be
-> prefixed (rockchip,grf, etc) and from my personal taste I would hope we
-> could invest in an "n" and "e", to make it a full bus-index ;-)
-I will change the names to rockchip,grf and rockchip,bus-index.
-
-> the convention seems to be "clock-frequency" for the desired bus speed
-> (checked i2c-sirf, i2c-exynos, i2c-at91and i2c-qup).
-Thanks for looking that up, will change.
-
-> > + * Driver for I2C unit in Rockchip RK3188 SoC
-> 
-> RK3188 -> RK3xxx?
-yes, of course.
-
-> > +static inline void i2c_writel(struct rk3x_i2c *i2c, u32 value,
-> > +			      unsigned int offset)
-> > +{
-> > +	writel(value, i2c->regs + offset);
-> > +}
-> > +
-> > +static inline u32 i2c_readl(struct rk3x_i2c *i2c, unsigned int offset)
-> > +{
-> > +	return readl(i2c->regs + offset);
-> > +}
-> 
-> I'm not sure what the policy here is, but is this indirection really
-> necessary when it's only doing a normal readl/writel?
-I saw that pattern in several device drivers (a quick grep for
-"static inline void .*_writel" turns up quite a bit of those). Obviously, it 
-doesn't hurt performance-wise as they are just inline functions. I personally 
-think that
-
-i2c_writel(i2c, val, REG_CON);
-
-is a bit more concise than
-
-writel(val, i2c->regs + REG_CON);
-
-And it makes tracing easier by giving me a single function were I can trace 
-all register accesses, if needed.
-
-But as you said, there might be some policy I don't know about. If you feel 
-strongly about it or someone else also votes for plain readl/writel, I will 
-happily change it.
+On 13 March 2014 00:50, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Fri, Feb 07, 2014 at 10:13:15AM +0530, Naveen Krishna Chatradhi wrote:
+>> fifo_depth of the HSI2C is not constant
+>> Exynos5420 and Exynos5250 supports fifo_depth of 64bytes
+>> Exynos5260 supports fifo_depth of 16bytes.
+>>
+>> This patch configures the fifo_depth based on HSI2C modules version.
+>>
+>> Signed-off-by: Naveen Krishna Chatradhi <ich.naveen@samsung.com>
+>> [For finding out the difference and initial contribution]
+>> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+>
+> I know Tomasz said differently, but I prefer the patches squashed (and
+> the commit message extended).
+Please accept my apologies for coming back late on this CL.
+Will squash and fix the compilation error and submit.
 
 Thanks,
-  Max
+>
+
+
+
+-- 
+Shine bright,
+(: Nav :)
