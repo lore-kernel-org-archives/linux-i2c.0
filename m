@@ -1,80 +1,75 @@
 From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [Patch V2 5/9] I2C: Add smbus quick read/write helper function
-Date: Mon, 28 Apr 2014 22:27:44 +0800
-Message-ID: <1398695268-28645-6-git-send-email-tianyu.lan@intel.com>
+Subject: [Patch V2 3/9] ACPI: Add acpi_bus_attach_private_data() to facilitate to attach data to ACPI handle
+Date: Mon, 28 Apr 2014 22:27:42 +0800
+Message-ID: <1398695268-28645-4-git-send-email-tianyu.lan@intel.com>
 References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
  <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, tianyu.lan@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c_smbus_quick_write/read() helper function. These will be used
-in the implementation of i2c ACPI address space handler.
+There is already acpi_bus_get_private_data() to get ACPI handle data
+which is associated with acpi_bus_private_data_handler(). This patch
+is to add acpi_bus_attach_private_data() to make a pair and facilitate
+to attach and get data to/from ACPI handle.
 
 Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
 ---
- drivers/i2c/i2c-core.c | 30 ++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  2 ++
- 2 files changed, 32 insertions(+)
+ drivers/acpi/bus.c      | 18 +++++++++++++++++-
+ include/acpi/acpi_bus.h |  1 +
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 7c7f4b8..3bf0048 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2162,6 +2162,36 @@ static int i2c_smbus_check_pec(u8 cpec, struct i2c_msg *msg)
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index e7e5844..4ed8d48 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -132,6 +132,22 @@ void acpi_bus_private_data_handler(acpi_handle handle,
  }
+ EXPORT_SYMBOL(acpi_bus_private_data_handler);
  
- /**
-+ * i2c_smbus_quick_write - SMBus "quick write" protocol
-+ * @client: Handle to slave device
-+ *
-+ * This executes the SMBus "quick write" protocol, returning negative errno
-+ * else zero on success.
-+ */
-+s32 i2c_smbus_quick_write(const struct i2c_client *client)
++int acpi_bus_attach_private_data(acpi_handle handle, void *data)
 +{
-+	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+				I2C_SMBUS_WRITE, 0,
-+				I2C_SMBUS_QUICK, NULL);
-+}
-+EXPORT_SYMBOL_GPL(i2c_smbus_quick_write);
++	acpi_status status;
 +
-+/**
-+ * i2c_smbus_quick_read - SMBus "quick read" protocol
-+ * @client: Handle to slave device
-+ *
-+ * This executes the SMBus "quick read" protocol, returning negative errno
-+ * else zero on success.
-+ */
-+s32 i2c_smbus_quick_read(const struct i2c_client *client)
-+{
-+	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+				I2C_SMBUS_READ, 0,
-+				I2C_SMBUS_QUICK, NULL);
-+}
-+EXPORT_SYMBOL_GPL(i2c_smbus_quick_read);
++	status = acpi_attach_data(handle,
++			acpi_bus_private_data_handler, data);
++	if (ACPI_FAILURE(status)) {
++		ACPI_ERROR((AE_INFO, "Error attaching device[%p] data\n",
++				handle));
++		return -ENODEV;
++	}
 +
-+/**
-  * i2c_smbus_read_byte - SMBus "receive byte" protocol
-  * @client: Handle to slave device
-  *
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index b556e0a..3e6ea90 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -82,6 +82,8 @@ extern s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- /* Now follow the 'nice' access routines. These also document the calling
-    conventions of i2c_smbus_xfer. */
++	return 0;
++}
++EXPORT_SYMBOL(acpi_bus_attach_private_data);
++
+ int acpi_bus_get_private_data(acpi_handle handle, void **data)
+ {
+ 	acpi_status status;
+@@ -141,7 +157,7 @@ int acpi_bus_get_private_data(acpi_handle handle, void **data)
  
-+extern s32 i2c_smbus_quick_write(const struct i2c_client *client);
-+extern s32 i2c_smbus_quick_read(const struct i2c_client *client);
- extern s32 i2c_smbus_read_byte(const struct i2c_client *client);
- extern s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value);
- extern s32 i2c_smbus_read_byte_data(const struct i2c_client *client,
+ 	status = acpi_get_data(handle, acpi_bus_private_data_handler, data);
+ 	if (ACPI_FAILURE(status) || !*data) {
+-		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "No context for object [%p]\n",
++		ACPI_ERROR((AE_INFO, "No context for object [%p]\n",
+ 				handle));
+ 		return -ENODEV;
+ 	}
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 84a2e29..a1f6fec 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -406,6 +406,7 @@ extern struct kobject *acpi_kobj;
+ extern int acpi_bus_generate_netlink_event(const char*, const char*, u8, int);
+ void acpi_bus_private_data_handler(acpi_handle, void *);
+ int acpi_bus_get_private_data(acpi_handle, void **);
++int acpi_bus_attach_private_data(acpi_handle, void *);
+ void acpi_bus_no_hotplug(acpi_handle handle);
+ extern int acpi_notifier_call_chain(struct acpi_device *, u32, u32);
+ extern int register_acpi_notifier(struct notifier_block *);
 -- 
 1.8.3.1
-
