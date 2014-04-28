@@ -1,114 +1,48 @@
-From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [Patch V2 6/9] I2C: Add smbus word/block process call helper function
-Date: Mon, 28 Apr 2014 22:27:45 +0800
-Message-ID: <1398695268-28645-7-git-send-email-tianyu.lan@intel.com>
+From: Adam Williamson <awilliam@redhat.com>
+Subject: Re: [Patch V2 1/9] ACPICA: Executer: Fix buffer allocation issue
+ for generic_serial_bus region field accesses.
+Date: Mon, 28 Apr 2014 11:08:25 -0700
+Message-ID: <1398708505.2843.17.camel@adam.happyassassin.net>
 References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, tianyu.lan@intel.com
+	 <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
+	 <1398695268-28645-2-git-send-email-tianyu.lan@intel.com>
+	 <1398707520.2843.16.camel@adam.happyassassin.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1398707520.2843.16.camel@adam.happyassassin.net>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Lan Tianyu <tianyu.lan@intel.com>
+Cc: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c_smbus_word/block_proc_call() helper function. These will be used
-in the implementation of i2c ACPI address space handler.
+On Mon, 2014-04-28 at 10:52 -0700, Adam Williamson wrote:
+> On Mon, 2014-04-28 at 22:27 +0800, Lan Tianyu wrote:
+> > From: Lv Zheng <lv.zheng@intel.com>
+> > 
+> > The size of the buffer allocated for generic_serial_bus region access
+> > is not correct.  This patch introduces acpi_ex_get_serial_access_length()
+> > to be invoked to obtain correct data buffer length.  Reported by
+> > Lan Tianyu, Fixed by Lv Zheng.
+> > 
+> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+> > Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
+> 
+> Very superficial issue, and sorry I forgot to mention it for v1, but the
+> summary line for this patch (1/9) ends with a period - "...region field
+> accesses." - which I think is not the correct style?
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
----
- drivers/i2c/i2c-core.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  4 ++++
- 2 files changed, 60 insertions(+)
+In fact, it seems this patch already got merged into Linus' tree
+somehow:
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 3bf0048..638befd 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2306,6 +2306,30 @@ s32 i2c_smbus_write_word_data(const struct i2c_client *client, u8 command,
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
- 
- /**
-+ * i2c_smbus_word_proc_call - SMBus "word proc call" protocol
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ * @value: 16-bit "word" being written
-+ *
-+ * This executes the SMBus "word proc all" protocol, returning negative errno
-+ * else a 16-bit unsigned "word" received from the device.
-+ */
-+s32 i2c_smbus_word_proc_call(const struct i2c_client *client, u8 command,
-+			      u16 value)
-+{
-+	union i2c_smbus_data data;
-+	int status;
-+
-+	data.word = value;
-+	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+			      I2C_SMBUS_READ, command,
-+			      I2C_SMBUS_PROC_CALL, &data);
-+
-+	return (status < 0) ? status : data.word;
-+}
-+EXPORT_SYMBOL(i2c_smbus_word_proc_call);
-+
-+/**
-  * i2c_smbus_read_block_data - SMBus "block read" protocol
-  * @client: Handle to slave device
-  * @command: Byte interpreted by slave
-@@ -2362,6 +2386,38 @@ s32 i2c_smbus_write_block_data(const struct i2c_client *client, u8 command,
- }
- EXPORT_SYMBOL(i2c_smbus_write_block_data);
- 
-+/**
-+ * i2c_smbus_block_proc_call - SMBus "block write" protocol
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ * @length: Size of data block; SMBus allows at most 32 bytes
-+ * @values: Byte array which will be written.
-+ *
-+ * This executes the SMBus "block proc call" protocol, returning negative errno
-+ * else the number of read bytes.
-+ */
-+s32 i2c_smbus_block_proc_call(const struct i2c_client *client, u8 command,
-+			       u8 length, u8 *values)
-+{
-+	union i2c_smbus_data data;
-+	int status;
-+
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
-+	data.block[0] = length;
-+	memcpy(&data.block[1], values, length);
-+	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-+			      I2C_SMBUS_READ, command,
-+			      I2C_SMBUS_BLOCK_PROC_CALL, &data);
-+
-+	if (status < 0)
-+		return status;
-+
-+	memcpy(values, &data.block[1], data.block[0]);
-+	return data.block[0];
-+}
-+EXPORT_SYMBOL(i2c_smbus_block_proc_call);
-+
- /* Returns the number of read bytes */
- s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client, u8 command,
- 				  u8 length, u8 *values)
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 3e6ea90..724440a 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -94,6 +94,10 @@ extern s32 i2c_smbus_read_word_data(const struct i2c_client *client,
- 				    u8 command);
- extern s32 i2c_smbus_write_word_data(const struct i2c_client *client,
- 				     u8 command, u16 value);
-+extern s32 i2c_smbus_word_proc_call(const struct i2c_client *client,
-+				    u8 command, u16 value);
-+extern s32 i2c_smbus_block_proc_call(const struct i2c_client *client,
-+				u8 command, u8 length, u8 *values);
- 
- static inline s32
- i2c_smbus_read_word_swapped(const struct i2c_client *client, u8 command)
+https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/drivers/acpi/acpica/exfield.c?id=6273f00e6ecbd60494a979033b7e5271a29a0436
+
+the others do not seem to have been merged yet.
 -- 
-1.8.3.1
+Adam Williamson
+Fedora QA Community Monkey
+IRC: adamw | Twitter: AdamW_Fedora | XMPP: adamw AT happyassassin . net
+http://www.happyassassin.net
+
