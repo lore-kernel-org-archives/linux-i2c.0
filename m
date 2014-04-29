@@ -1,25 +1,70 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [Patch V2 7/9] I2C/ACPI: Add i2c ACPI operation region support
-Date: Tue, 29 Apr 2014 11:02:46 +0300
-Message-ID: <20140429080246.GE1684@lahna.fi.intel.com>
+Subject: Re: [Patch V2 9/9] I2C/ACPI: Add CONFIG_I2C_ACPI config
+Date: Tue, 29 Apr 2014 11:16:09 +0300
+Message-ID: <20140429081609.GF1684@lahna.fi.intel.com>
 References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
  <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-8-git-send-email-tianyu.lan@intel.com>
+ <1398695268-28645-10-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1398695268-28645-8-git-send-email-tianyu.lan@intel.com>
+In-Reply-To: <1398695268-28645-10-git-send-email-tianyu.lan@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lan Tianyu <tianyu.lan@intel.com>
 Cc: wsa@the-dreams.de, rjw@rjwysocki.net, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 28, 2014 at 10:27:46PM +0800, Lan Tianyu wrote:
-> ACPI 5.0 spec(5.5.2.4.5) defines GenericSerialBus(i2c, spi, uart) operation region.
-> It allows ACPI aml code able to access such kind of devices to implement
-> some ACPI standard method.
+On Mon, Apr 28, 2014 at 10:27:48PM +0800, Lan Tianyu wrote:
+> This patch is to add CONFIG_I2C_ACPI. Current there is a race between
+> removing I2C ACPI operation region and ACPI AML code accessing.
+> So make i2c core built-in if CONFIG_I2C_ACPI is set.
+> 
+> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
+> ---
+>  drivers/i2c/Kconfig  | 17 ++++++++++++++++-
+>  drivers/i2c/Makefile |  2 +-
+>  include/linux/i2c.h  |  2 +-
+>  3 files changed, 18 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index 7b7ea32..c670d49 100644
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -2,7 +2,9 @@
+>  # I2C subsystem configuration
+>  #
+>  
+> -menuconfig I2C
+> +menu "I2C support"
+> +
+> +config I2C
+>  	tristate "I2C support"
+>  	select RT_MUTEXES
+>  	---help---
+> @@ -21,6 +23,17 @@ menuconfig I2C
+>  	  This I2C support can also be built as a module.  If so, the module
+>  	  will be called i2c-core.
+>  
+> +config I2C_ACPI
+> +	bool "I2C ACPI support"
+> +	select I2C
+> +	depends on ACPI
+> +	default y
+> +	help
+> +	  Say Y here if you want to enable I2C ACPI function. ACPI table
+> +	  provides I2C slave devices' information to enumerate these devices.
+> +	  This option also allows ACPI AML code to access I2C slave devices
+> +	  via I2C ACPI operation region to fulfill ACPI method.
 
-Looks good to me now,
+I would prefer something like:
+
+Say Y here if you want to enable ACPI I2C support. This includes support
+for automatic enumeration of I2C slave devices and support for ACPI I2C
+Operation Regions. Operation Regions allow firmware (BIOS) code to
+access I2C slave devices, such as smart batteries through an I2C host
+controller driver.
+
+But it is really up to you so,
 
 Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
