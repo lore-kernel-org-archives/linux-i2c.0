@@ -1,70 +1,97 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [Patch V2 9/9] I2C/ACPI: Add CONFIG_I2C_ACPI config
-Date: Tue, 29 Apr 2014 11:16:09 +0300
-Message-ID: <20140429081609.GF1684@lahna.fi.intel.com>
-References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-10-git-send-email-tianyu.lan@intel.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v2 0/7] Add cros_ec changes for newer boards
+Date: Tue, 29 Apr 2014 09:21:46 +0100
+Message-ID: <20140429082146.GE29462@lee--X1>
+References: <1398185154-19404-1-git-send-email-dianders@chromium.org>
+ <20140423123240.GA640@lee--X1> <5357E832.1000806@wwwdotorg.org>
+ <CAD=FV=XbjeOR+A-ZVYgOT69gsdp-YrjbkGrjL2Vf4F31ZkGXTA@mail.gmail.com>
+ <CAD=FV=UWnLLzqzmrt0z=38iDOBSRJJLNAG8PL0GSHt1758ACcg@mail.gmail.com>
+ <20140428091914.GK6264@lee--X1>
+ <CAD=FV=UEwfNX+uf70OV4LB39s=mJyxTkC63g4iYrE7hcvyEdgw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1398695268-28645-10-git-send-email-tianyu.lan@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>
-Cc: wsa@the-dreams.de, rjw@rjwysocki.net, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+In-Reply-To: <CAD=FV=UEwfNX+uf70OV4LB39s=mJyxTkC63g4iYrE7hcvyEdgw@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, andrew@lunn.ch, Wolfram Sang <wsa@the-dreams.de>, Andrew Bresticker <abrestic@chromium.org>, Russell King <linux@arm.linux.org.uk>, Thierry Reding <thierry.reding@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Matt Porter <matt.porter@linaro.org>, jdelvare@suse.de, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, Samuel Ortiz <sameo@linux.intel.com>, linux-doc@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>, u.kleine-koenig@pengutronix.de, kevin.strasser@linux.intel.com, Dylan Reid <dgreid@chromium.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, schwidefsky@de.ibm.com, laurent.pinchart+renesas@ideasonboard.com, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kerne>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 28, 2014 at 10:27:48PM +0800, Lan Tianyu wrote:
-> This patch is to add CONFIG_I2C_ACPI. Current there is a race between
-> removing I2C ACPI operation region and ACPI AML code accessing.
-> So make i2c core built-in if CONFIG_I2C_ACPI is set.
-> 
-> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
-> ---
->  drivers/i2c/Kconfig  | 17 ++++++++++++++++-
->  drivers/i2c/Makefile |  2 +-
->  include/linux/i2c.h  |  2 +-
->  3 files changed, 18 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-> index 7b7ea32..c670d49 100644
-> --- a/drivers/i2c/Kconfig
-> +++ b/drivers/i2c/Kconfig
-> @@ -2,7 +2,9 @@
->  # I2C subsystem configuration
->  #
->  
-> -menuconfig I2C
-> +menu "I2C support"
-> +
-> +config I2C
->  	tristate "I2C support"
->  	select RT_MUTEXES
->  	---help---
-> @@ -21,6 +23,17 @@ menuconfig I2C
->  	  This I2C support can also be built as a module.  If so, the module
->  	  will be called i2c-core.
->  
-> +config I2C_ACPI
-> +	bool "I2C ACPI support"
-> +	select I2C
-> +	depends on ACPI
-> +	default y
-> +	help
-> +	  Say Y here if you want to enable I2C ACPI function. ACPI table
-> +	  provides I2C slave devices' information to enumerate these devices.
-> +	  This option also allows ACPI AML code to access I2C slave devices
-> +	  via I2C ACPI operation region to fulfill ACPI method.
-
-I would prefer something like:
-
-Say Y here if you want to enable ACPI I2C support. This includes support
-for automatic enumeration of I2C slave devices and support for ACPI I2C
-Operation Regions. Operation Regions allow firmware (BIOS) code to
-access I2C slave devices, such as smart batteries through an I2C host
-controller driver.
-
-But it is really up to you so,
-
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+PiA+PiA+Pj4gTmVlZCB0byB3YWl0IGZvciB0aGUgQVJNLCBEVCBhbmQgSTJDIGd1eXMgdG8gcmV2
+aWV3LCBhdCB3aGljaCBwb2ludAo+ID4+ID4+PiBJJ2xsIGJlIGhhcHB5IHRvIHRha2UgaW4gYW5k
+IHN1cHBseSBhIGJyYW5jaCBmb3IgdGhlbSB0byBwdWxsIGZyb20gaWYKPiA+PiA+Pj4gcmVxdWly
+ZWQuIElmIHRoZXJlIGFyZSBubyBfdHJ1ZV8gZGVwZW5kZW5jaWVzIGFuZCB0aGUgTUZEIGNoYW5n
+ZXMgY2FuCj4gPj4gPj4+IGJlIGFkZGVkIGluZGVwZW5kZW50bHkgd2l0aG91dCBmZWFyIG9mIGJ1
+aWxkIGJyZWFrYWdlcywgbGV0IG1lIGtub3cKPiA+PiA+Pj4gYW5kIEknbGwgYXBwbHkgdGhlbSBz
+ZXBhcmF0ZWx5Lgo+ID4+ID4+Cj4gPj4gPj4gSSBiZWxpZXZlIHRoZXJlIGFyZW4ndCBkaXJlY3Qg
+ZGVwZW5kZW5jaWVzIGJldHdlZW4gdGhlIHBhdGNoZXMuIFNvLCB0aGUKPiA+PiA+PiBNRkQgcGF0
+Y2hlcyBjYW4gYmUgYXBwbGllZCB0byB0aGUgTUZEIHRyZWUgYW5kIHRoZSBEVCBwYXRjaCBhcHBs
+aWVkIHRvCj4gPj4gPj4gdGhlIFRlZ3JhIHRyZWUuIEknbSBzaW1wbHkgd2FpdGluZyBmb3IgdGhl
+IE1GRCBwYXRjaGVzIHRvIGJlIGFwcGxpZWQKPiA+PiA+PiBiZWZvcmUgYXBwbHlpbmcgdGhlIERU
+IHBhdGNoIHNvIHRoYXQgSSBrbm93IHRoZSBEVCBiaW5kaW5nIGRlZmluaXRpb24gaXMKPiA+PiA+
+PiBmdWxseSBhY2NlcHRlZCBiZWZvcmUgYXBwbHlpbmcgYSBwYXRjaCB0aGF0IHVzZXMgaXQuCj4g
+Pj4gPgo+ID4+ID4gQWxsIG9mIHRoZSBNRkQgcGF0Y2hlcyBhcmUgc2FmZSB0byBhcHBseSBhbmQg
+aW4gcHJldHR5IG11Y2ggYXJiaXRyYXJ5Cj4gPj4gPiBvcmRlci4gIFRoZSBzdHJvbmcgZGVwZW5k
+ZW5jaWVzIGluIHRoZSBjaGFpbiBhcmU6Cj4gPj4gPgo+ID4+ID4gKiBXZSBuZWVkIHBhdGNoICM1
+IChtZmQ6IGNyb3NfZWM6IFN5bmMgdG8gdGhlIGxhdGVzdAo+ID4+ID4gY3Jvc19lY19jb21tYW5k
+cy5oIGZyb20gRUMgc291cmNlcykgYmVmb3JlIHRoZSBpMmMgdHVubmVsIGNhbiBjb21waWxlLgo+
+ID4+ID4KPiA+PiA+ICogQXMgU3RlcGhlbiBzYXlzLCBoZSBzaG91bGRuJ3QgYXBwbHkgdGhlIGRl
+dmljZSB0cmVlIHVudGlsIHdlJ3JlCj4gPj4gPiBjb25maWRlbnQgdGhhdCB0aGUgYmluZGluZ3Mg
+YXJlIHJpZ2h0LiAgSG93ZXZlciB0aGVyZSdzIG5vIHN0cm9uZwo+ID4+ID4gZGVwZW5kZW5jeSBv
+dGhlcndpc2UuCj4gPj4gPgo+ID4+ID4gKiBQYXRjaGVzICMxICMyIGFuZCAjMyBhcmUgc2ltcGx5
+IHJlbGlhYmlsaXR5IGZpeGVzLiAgVGhvc2UgY291bGQgbGFuZAo+ID4+ID4gYXQgYW55IHBvaW50
+IGluIHRpbWUgYW5kIHdpbGwgaW1wcm92ZSBvdGhlciB1c2VycyBvZiBjcm9zX2VjX3NwaSAobGlr
+ZQo+ID4+ID4gdGhlIGtleWJvYXJkIG9uIHRlZ3JhMTI0LXZlbmljZTIpLgo+ID4+ID4KPiA+PiA+
+ICogUGF0Y2ggIzQgY2FuIGFwcGx5IGFueSB0aW1lIHdpdGggbm8gaXNzdWVzLiAgV2l0aG91dCBp
+dCBsYXJnZSBpMmMKPiA+PiA+IHR1bm5lbCB0cmFuc2ZlcnMgd29uJ3Qgd29yaywgYnV0IHRoYXQn
+cyBub3QgYSB0ZXJyaWJsZSBwcm9ibGVtIChhbGwKPiA+PiA+IG5vcm1hbCB0cmFuc2ZlcnMgYXJl
+IHNtYWxsKS4KPiA+Pgo+ID4+IFBhdGNoICM1IChsYXRlc3QgZWMgY29tbWFuZHMpIGNhbiBhbHNv
+IGFwcGx5IGF0IGFueSB0aW1lIHdpdGggbm8KPiA+PiBpc3N1ZXMsIGJ1dCBpdCdzIG5lZWRlZCBm
+b3IgcGF0Y2ggIzYgKHRoZSB0dW5uZWwpIHRvIGNvbXBpbGUuCj4gPj4KPiA+PiBBbGwgdGhhdCBi
+ZWluZyBzYWlkLCBJJ2QgcmVxdWVzdCB0aGF0IHlvdSBtZXJnZSBwYXRjaGVzICMxLSM1IGFzIHNv
+b24KPiA+PiBhcyB5b3UgY2FuIGFuZCBtYWtlIHN1cmUgeW91IGNhbiBwcm92aWRlIGEgd2F5IHRo
+YXQgV29sZnJhbSBjYW4gcHVsbAo+ID4+IHRoZW0gKG9yIGF0IGxlYXN0IHBhdGNoICM1KSBpbnRv
+IGhpcyBpMmMgdHJlZSB0byBrZWVwIHRoZW0gYXBwbHlpbmcKPiA+PiB3aGVuIGhlIGlzIHJlYWR5
+IHRvIGxhbmQgIzYuCj4gPgo+ID4gVmVyeSB3ZWxsLiBTbyBpZiBJIGNhbiBvYnRhaW4gV29sZnJh
+bSdzIEFjaywgSSBjYW4gYXBwbHkgdGhlIE1GRAo+ID4gY2hhbmdlcyBhbG9uZyB3aXRoIHBhdGNo
+ICM2IGFuZCBzdXBwbHkgaGltIHdpdGggYSBicmFuY2guCj4gCj4gQ2FuIHlvdSBleHBsYWluIHRo
+ZSByZWFzb24gdG8gd2FpdCBmb3IgV29sZnJhbSdzIEFjayBiZWZvcmUgYXBwbHlpbmcKPiAjMSAt
+ICM1PyAgSSB3b3VsZCB0aGluazoKPiAKPiAxLiBDcmVhdGUgYSB0b3BpYyBicmFuY2guCj4gMi4g
+QXBwbHkgcGF0Y2hlcyAxLTUgdG8gdGhlIHRvcGljIGJyYW5jaAo+IDMuIE1lcmdlIHRoZSB0b3Bp
+YyBicmFuY2ggdG8geW91ciBmb3ItbmV4dCBicmFuY2gKPiAKPiBXaGVuIFdvbGZyYW0gd2FudHMg
+dG8gdGFrZSBwYXRjaCAjNiwgaGUgY2FuIGVpdGhlcjoKPiBBLiBQdWxsIHlvdXIgdG9waWMgYnJh
+bmNoCj4gQi4gSWYgaXQncyBiZWVuIGxvbmcgZW5vdWdoLCBwYXRjaGVzIHdpbGwgYWxyZWFkeSBi
+ZSBpbiBUb1QgYW5kIG5vIGV4dHJhIHdvcmsuCj4gCj4gSWYgSSB1bmRlcnN0YW5kIGNvcnJlY3Rs
+eSwgdXNpbmcgYSB0b3BpYyBicmFuY2ggYW5kIGRvaW5nIG1lcmdlcyAvCj4gcHVsbHMgbWVhbnMg
+dGhhdCB5b3UgY2FuIHByb3ZpZGUgV29sZnJhbSB3aXRoIHN0YWJsZSBnaXQgaGFzaGVzIHdoZW4K
+PiBoZSBuZWVkcyB0aGVtIGFuZCB0aGVyZSB3aWxsIGJlIG5vIG1lcmdlIGNvbmZsaWN0cy4KCkkg
+ZG9uJ3QgdXNlIFRCcyBmb3IgTUZEIHlldCwgYXMgSSd2ZSBuZXZlciBzZWVuIHRoZSBuZWVkLiAg
+VGhlIGN1cnJlbnQKV29XIGlzIHRvIG9ubHkgY3JlYXRlIGV4dHJhIGJyYW5jaGVzIHdoZW4gSSBo
+YXZlIHBhdGNoe2VzLCBzZXRzfSB0bwpzaGFyZS4gIElmIEkgc3RhcnQgdXNpbmcgYSBtb3JlIFRC
+IGZvY3VzZWQgbWV0aG9kb2xvZ3kgaXQgd2lsbCBiZQppbnNpbnVhdGVkIHRoYXQgdGhlIGJyYW5j
+aGVzIGFyZSBzdGFibGUgLSBJIGxpa2UgdGhlIGZhY3QgdGhhdCB0aGlzIGlzCl9ub3RfIHRoZSBj
+YXNlLiAgQ3VycmVudGx5IEkgYW0gYWJsZSB0byByZWJhc2UsIHJld29yayBhbmQgcmVvcmRlciB0
+aGUKcmVwbyBhcyBhbmQgd2hlbiBJIHNlZSBmaXQsIGFuZCBkbyByZWd1bGFybHkuIEV4Y2VwdCB0
+aGUgSUJzIG9mIGNvdXJzZS4KCj4gUGF0Y2hlcyAjMSAtICM1IGFyZSBib25hZmlkZSBidWdmaXhl
+cyBpcnJlc3BlY3RpdmUgb2YgdGhlIGkyYyB0dW5uZWwuCgpJIG9ubHkgd2FudCB0byBjcmVhdGUg
+YW4gSUIgaWYgSSBrbm93IGl0J3MgZ29pbmcgdG8gYmUgdXNlZCwgZWxzZSBJJ2QKcHJlZmVyIHRo
+ZSBwYXRjaGVzIHJlbWFpbiB0cmFuc2llbnQuICBXaHkgYXJlIHlvdSBzbyBrZWVuIHRvIHJ1c2gg
+aW50bwpoYXZpbmcgdGhlc2UgcGF0Y2hlcyBhcHBsaWVkPyAgVGhleSBfd2lsbF8gbWFrZSBpdCBp
+bnRvIHYzLjE1LCB3aGV0aGVyCnRoZXkgYXJlIGFwcGxpZWQgaW1tZWRpYXRlbHkgb3IgYWZ0ZXIg
+YSBsZW5ndGggb2YgdGltZSAoaW4gdGhlIGNhc2UKdGhhdCBXb2xmcmFtIGRvZXMgbm90IHJlc3Bv
+bmQpLgoKLS0gCkxlZSBKb25lcwpMaW5hcm8gU1RNaWNyb2VsZWN0cm9uaWNzIExhbmRpbmcgVGVh
+bSBMZWFkCkxpbmFyby5vcmcg4pSCIE9wZW4gc291cmNlIHNvZnR3YXJlIGZvciBBUk0gU29DcwpG
+b2xsb3cgTGluYXJvOiBGYWNlYm9vayB8IFR3aXR0ZXIgfCBCbG9nCgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
+bGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmlu
+ZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
