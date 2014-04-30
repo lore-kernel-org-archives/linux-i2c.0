@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 4/6] i2c: sh_mobile: add devicetree documentation
-Date: Thu,  1 May 2014 00:21:08 +0200
-Message-ID: <1398896470-24663-5-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 6/6] i2c: sh_mobile: devm conversion, irq setup
+Date: Thu,  1 May 2014 00:21:10 +0200
+Message-ID: <1398896470-24663-7-git-send-email-wsa@the-dreams.de>
 References: <1398896470-24663-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1398896470-24663-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
@@ -12,44 +12,126 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Reported-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+This is what devm was made for. No rollback mechanism needed, remove the
+hook parameter from the irq setup function and simplify it. While we are
+here change some variables to proper types.
+
 Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
- .../devicetree/bindings/i2c/i2c-sh_mobile.txt      | 26 ++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+ drivers/i2c/busses/i2c-sh_mobile.c | 56 ++++++++++----------------------------
+ 1 file changed, 15 insertions(+), 41 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-new file mode 100644
-index 000000000000..d2153ce36fa8
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-@@ -0,0 +1,26 @@
-+Device tree configuration for Renesas IIC (sh_mobile) driver
-+
-+Required properties:
-+- compatible      : "renesas,iic-<soctype>". "renesas,rmobile-iic" as fallback
-+- reg             : address start and address range size of device
-+- interrupts      : interrupt of device
-+- clocks          : clock for device
-+- #address-cells  : should be <1>
-+- #size-cells     : should be <0>
-+
-+Optional properties:
-+- clock-frequency : frequency of bus clock in Hz. Default 100kHz if unset.
-+
-+Pinctrl properties might be needed, too. See there.
-+
-+Example:
-+
-+	iic0: i2c@e6500000 {
-+		compatible = "renesas,iic-r8a7790", "renesas,rmobile-iic";
-+		reg = <0 0xe6500000 0 0x425>;
-+		interrupts = <0 174 IRQ_TYPE_LEVEL_HIGH>;
-+		clocks = <&mstp3_clks R8A7790_CLK_IIC0>;
-+		clock-frequency = <400000>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+	};
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index c47d11493b97..ddc9970fd724 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -611,42 +611,25 @@ static struct i2c_algorithm sh_mobile_i2c_algorithm = {
+ 	.master_xfer	= sh_mobile_i2c_xfer,
+ };
+ 
+-static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, int hook)
++static int sh_mobile_i2c_hook_irqs(struct platform_device *dev)
+ {
+ 	struct resource *res;
+-	int ret = -ENXIO;
+-	int n, k = 0;
++	resource_size_t n;
++	int k = 0, ret;
+ 
+ 	while ((res = platform_get_resource(dev, IORESOURCE_IRQ, k))) {
+-		for (n = res->start; hook && n <= res->end; n++) {
+-			if (request_irq(n, sh_mobile_i2c_isr, 0,
+-					dev_name(&dev->dev), dev)) {
+-				for (n--; n >= res->start; n--)
+-					free_irq(n, dev);
+-
+-				goto rollback;
++		for (n = res->start; n <= res->end; n++) {
++			ret = devm_request_irq(&dev->dev, n, sh_mobile_i2c_isr,
++					  0, dev_name(&dev->dev), dev);
++			if (ret) {
++				dev_err(&dev->dev, "cannot request IRQ %pa\n", &n);
++				return ret;
+ 			}
+ 		}
+ 		k++;
+ 	}
+ 
+-	if (hook)
+-		return k > 0 ? 0 : -ENOENT;
+-
+-	ret = 0;
+-
+- rollback:
+-	k--;
+-
+-	while (k >= 0) {
+-		res = platform_get_resource(dev, IORESOURCE_IRQ, k);
+-		for (n = res->start; n <= res->end; n++)
+-			free_irq(n, dev);
+-
+-		k--;
+-	}
+-
+-	return ret;
++	return k > 0 ? 0 : -ENOENT;
+ }
+ 
+ static int sh_mobile_i2c_probe(struct platform_device *dev)
+@@ -668,11 +651,9 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 		return PTR_ERR(pd->clk);
+ 	}
+ 
+-	ret = sh_mobile_i2c_hook_irqs(dev, 1);
+-	if (ret) {
+-		dev_err(&dev->dev, "cannot request IRQ\n");
++	ret = sh_mobile_i2c_hook_irqs(dev);
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	pd->dev = &dev->dev;
+ 	platform_set_drvdata(dev, pd);
+@@ -680,10 +661,8 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+ 
+ 	pd->reg = devm_ioremap_resource(&dev->dev, res);
+-	if (IS_ERR(pd->reg)) {
+-		ret = PTR_ERR(pd->reg);
+-		goto err_irq;
+-	}
++	if (IS_ERR(pd->reg))
++		return PTR_ERR(pd->reg);
+ 
+ 	/* Use platform data bus speed or STANDARD_MODE */
+ 	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
+@@ -735,7 +714,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret < 0) {
+ 		dev_err(&dev->dev, "cannot add numbered adapter\n");
+-		goto err_irq;
++		return ret;
+ 	}
+ 
+ 	dev_info(&dev->dev,
+@@ -743,10 +722,6 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 		 adap->nr, pd->bus_speed, pd->iccl, pd->icch);
+ 
+ 	return 0;
+-
+- err_irq:
+-	sh_mobile_i2c_hook_irqs(dev, 0);
+-	return ret;
+ }
+ 
+ static int sh_mobile_i2c_remove(struct platform_device *dev)
+@@ -754,7 +729,6 @@ static int sh_mobile_i2c_remove(struct platform_device *dev)
+ 	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
+ 
+ 	i2c_del_adapter(&pd->adap);
+-	sh_mobile_i2c_hook_irqs(dev, 0);
+ 	pm_runtime_disable(&dev->dev);
+ 	return 0;
+ }
 -- 
 1.9.2
