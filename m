@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 1/6] i2c: sh_mobile: replace magic hex values with constants
-Date: Thu,  1 May 2014 00:21:05 +0200
-Message-ID: <1398896470-24663-2-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 3/6] i2c: sh_mobile: honor DT bus speed settings
+Date: Thu,  1 May 2014 00:21:07 +0200
+Message-ID: <1398896470-24663-4-git-send-email-wsa@the-dreams.de>
 References: <1398896470-24663-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1398896470-24663-1-git-send-email-wsa@the-dreams.de>
@@ -12,56 +12,34 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-No functional change, binaries are identical.
-
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 1d79585ba4b3..d91625eea6bb 100644
+index d2fa222df3d1..2e481abd50ce 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -316,7 +316,7 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
+@@ -657,6 +657,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	struct resource *res;
+ 	int size;
+ 	int ret;
++	u32 bus_speed;
  
- 	switch (op) {
- 	case OP_START: /* issue start and trigger DTE interrupt */
--		iic_wr(pd, ICCR, 0x94);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_TRS | ICCR_BBSY);
- 		break;
- 	case OP_TX_FIRST: /* disable DTE interrupt and write data */
- 		iic_wr(pd, ICIC, ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
-@@ -327,10 +327,11 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
- 		break;
- 	case OP_TX_STOP: /* write data and issue a stop afterwards */
- 		iic_wr(pd, ICDR, data);
--		iic_wr(pd, ICCR, pd->send_stop ? 0x90 : 0x94);
-+		iic_wr(pd, ICCR, pd->send_stop ? ICCR_ICE | ICCR_TRS
-+					       : ICCR_ICE | ICCR_TRS | ICCR_BBSY);
- 		break;
- 	case OP_TX_TO_RX: /* select read mode */
--		iic_wr(pd, ICCR, 0x81);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_SCP);
- 		break;
- 	case OP_RX: /* just read data */
- 		ret = iic_rd(pd, ICDR);
-@@ -338,13 +339,13 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
- 	case OP_RX_STOP: /* enable DTE interrupt, issue stop */
- 		iic_wr(pd, ICIC,
- 		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
--		iic_wr(pd, ICCR, 0xc0);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
- 		break;
- 	case OP_RX_STOP_DATA: /* enable DTE interrupt, read data, issue stop */
- 		iic_wr(pd, ICIC,
- 		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
- 		ret = iic_rd(pd, ICDR);
--		iic_wr(pd, ICCR, 0xc0);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
- 		break;
+ 	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
+ 	if (pd == NULL) {
+@@ -697,7 +698,9 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
  	}
  
+ 	/* Use platform data bus speed or STANDARD_MODE */
+-	pd->bus_speed = STANDARD_MODE;
++	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
++	pd->bus_speed = ret ? STANDARD_MODE : bus_speed;
++
+ 	if (pdata && pdata->bus_speed)
+ 		pd->bus_speed = pdata->bus_speed;
+ 	pd->clks_per_count = 1;
 -- 
 1.9.2
 
