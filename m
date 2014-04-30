@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 3/6] i2c: sh_mobile: honor DT bus speed settings
-Date: Thu,  1 May 2014 00:21:07 +0200
-Message-ID: <1398896470-24663-4-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 5/6] i2c: sh_mobile: devm conversion, low hanging fruits
+Date: Thu,  1 May 2014 00:21:09 +0200
+Message-ID: <1398896470-24663-6-git-send-email-wsa@the-dreams.de>
 References: <1398896470-24663-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1398896470-24663-1-git-send-email-wsa@the-dreams.de>
@@ -12,34 +12,117 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+Convert the easy parts to devm. irqs will be converted in a seperate
+patch to keep diffs readable.
+
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 41 ++++++++++----------------------------
+ 1 file changed, 10 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index d2fa222df3d1..2e481abd50ce 100644
+index 2e481abd50ce..c47d11493b97 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -657,6 +657,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+@@ -655,45 +655,33 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	struct sh_mobile_i2c_data *pd;
+ 	struct i2c_adapter *adap;
  	struct resource *res;
- 	int size;
+-	int size;
  	int ret;
-+	u32 bus_speed;
+ 	u32 bus_speed;
  
- 	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
- 	if (pd == NULL) {
-@@ -697,7 +698,9 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+-	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
+-	if (pd == NULL) {
+-		dev_err(&dev->dev, "cannot allocate private data\n");
++	pd = devm_kzalloc(&dev->dev, sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
++	if (!pd)
+ 		return -ENOMEM;
+-	}
+ 
+-	pd->clk = clk_get(&dev->dev, NULL);
++	pd->clk = devm_clk_get(&dev->dev, NULL);
+ 	if (IS_ERR(pd->clk)) {
+ 		dev_err(&dev->dev, "cannot get clock\n");
+-		ret = PTR_ERR(pd->clk);
+-		goto err;
++		return PTR_ERR(pd->clk);
  	}
  
- 	/* Use platform data bus speed or STANDARD_MODE */
--	pd->bus_speed = STANDARD_MODE;
-+	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
-+	pd->bus_speed = ret ? STANDARD_MODE : bus_speed;
-+
- 	if (pdata && pdata->bus_speed)
- 		pd->bus_speed = pdata->bus_speed;
- 	pd->clks_per_count = 1;
+ 	ret = sh_mobile_i2c_hook_irqs(dev, 1);
+ 	if (ret) {
+ 		dev_err(&dev->dev, "cannot request IRQ\n");
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	pd->dev = &dev->dev;
+ 	platform_set_drvdata(dev, pd);
+ 
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&dev->dev, "cannot find IO resource\n");
+-		ret = -ENOENT;
+-		goto err_irq;
+-	}
+ 
+-	size = resource_size(res);
+-
+-	pd->reg = ioremap(res->start, size);
+-	if (pd->reg == NULL) {
+-		dev_err(&dev->dev, "cannot map IO\n");
+-		ret = -ENXIO;
++	pd->reg = devm_ioremap_resource(&dev->dev, res);
++	if (IS_ERR(pd->reg)) {
++		ret = PTR_ERR(pd->reg);
+ 		goto err_irq;
+ 	}
+ 
+@@ -710,7 +698,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	/* The IIC blocks on SH-Mobile ARM processors
+ 	 * come with two new bits in ICIC.
+ 	 */
+-	if (size > 0x17)
++	if (resource_size(res) > 0x17)
+ 		pd->flags |= IIC_FLAG_HAS_ICIC67;
+ 
+ 	sh_mobile_i2c_init(pd);
+@@ -747,7 +735,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret < 0) {
+ 		dev_err(&dev->dev, "cannot add numbered adapter\n");
+-		goto err_all;
++		goto err_irq;
+ 	}
+ 
+ 	dev_info(&dev->dev,
+@@ -756,14 +744,8 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 
+ 	return 0;
+ 
+- err_all:
+-	iounmap(pd->reg);
+  err_irq:
+ 	sh_mobile_i2c_hook_irqs(dev, 0);
+- err_clk:
+-	clk_put(pd->clk);
+- err:
+-	kfree(pd);
+ 	return ret;
+ }
+ 
+@@ -772,11 +754,8 @@ static int sh_mobile_i2c_remove(struct platform_device *dev)
+ 	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
+ 
+ 	i2c_del_adapter(&pd->adap);
+-	iounmap(pd->reg);
+ 	sh_mobile_i2c_hook_irqs(dev, 0);
+-	clk_put(pd->clk);
+ 	pm_runtime_disable(&dev->dev);
+-	kfree(pd);
+ 	return 0;
+ }
+ 
 -- 
 1.9.2
 
