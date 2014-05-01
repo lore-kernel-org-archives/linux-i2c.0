@@ -1,70 +1,107 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC] i2c: sh_mobile: WIP! Fix clock calculation for newer SoCs
-Date: Thu, 1 May 2014 18:50:22 +0200
-Message-ID: <20140501165019.GA2602@katana>
-References: <1398945555-12928-1-git-send-email-wsa@the-dreams.de>
- <CAMuHMdUVCP-dwJ-HMD1xHb9qR_qm-n0YTpYVq9w37DvD=E=X=w@mail.gmail.com>
+From: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] i2c: davinci: Add block read functionality for IPMI
+Date: Thu, 1 May 2014 14:49:46 -0400
+Message-ID: <1398970186-12204-1-git-send-email-m-karicheri2@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdUVCP-dwJ-HMD1xHb9qR_qm-n0YTpYVq9w37DvD=E=X=w@mail.gmail.com>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+To: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Intelligent Plaform Management Interface (IPMI) requires I2C driver
+to support block read, where the first byte received from slave is
+the length of following data:-
+ Added length check if the read type is block read (I2C_M_RECV_LEN)
+ Send NACK/STOP bits before last byte is received
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Tested-by: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>
+CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+CC: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+---
+ Tested on a customer board based on K2HK SoC
+ drivers/i2c/busses/i2c-davinci.c |   42 +++++++++++++++++++++++++++++++++-----
+ 1 file changed, 37 insertions(+), 5 deletions(-)
 
-On Thu, May 01, 2014 at 03:26:15PM +0200, Geert Uytterhoeven wrote:
-> Hi Wolfram,
->=20
-> On Thu, May 1, 2014 at 1:59 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> > +static const struct of_device_id sh_mobile_i2c_dt_ids[] =3D {
-> > +       { .compatible =3D "renesas,rmobile-iic", .data =3D (void *)1 },
-> > +       { .compatible =3D "renesas,iic-r8a7790", .data =3D (void *)2 },
-> > +       { .compatible =3D "renesas,iic-r8a7791", .data =3D (void *)2 },
-> > +       {},
-> > +};
-> > +MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
->=20
-> > +               const struct of_device_id *match;
-> > +
-> > +               match =3D of_match_device(sh_mobile_i2c_dt_ids, &dev->d=
-ev);
-> > +               pd->clks_per_count =3D match->data;
->=20
-> Missing cast "(int)match->data"?
-
-"This patch still needs some improvements, but already shows what I am
-aiming for." :)
-
-
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTYntLAAoJEBQN5MwUoCm2XXMQAIGtc24Bid2zkrLhkjb6GPvq
-jNSWS7zsnCF7ZhI9NePzOLbNUAmJiNKORfT7A69bLHuPgIcEUyUCfM8SvrBjnnvF
-AdHFKksubfINa2oV+qG+FrdSjHzLBsl5qTKBfNdTGW+wZWykhg/xxagHerH1ZjQg
-w98usBltw0gGWxRa/75fYAh9edJOLz6EvDso+JMcVNJG/vWlpSQRagh2L66guwaq
-2n8D0sLPDfmpbQTsZi3lHvWLAnAfhhxGCOVPlTkkip/d4rM/wTi1CNlTS3oL9fiQ
-hVTb2Z7hiTayCOEMIlHYyLKHGKXNteGBJH8a0iUDfHjRlKwsKlupu2fsuUMkZ5wA
-cyf1RRS90kE2dAam32HagINrxMQZbGOcFJ9vgz/sazdtwZr/m7I/wVR2dyeEEIUr
-qQYFqG5xdzbnkGYZTPTcTxFpMHhvzIa3Ju1+9cNo/CrMZxXQOAe0U1ShDVnn2zVF
-jxHfQKlxxUJ9/Zh6ZM/WC5oEtAUlLrhLzErugMXitThhDItm0Cc89+8Y/J8SDYRf
-+XBZeKPfqkUkGAwDT9jogmUMUl6gKi+6n4eOOa5tQXmufKPgfoXznNq1ZkY3cjm0
-kCTOjyQQ2/lBgVcBDWH5LLK5mQK4sMvlrHndZ/Q5P2umksrC4jha1DPnjC7nmosh
-Kg3jZ0mNGq8n1LQTZc50
-=kgqS
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 389bc68..cd97920 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -97,6 +97,10 @@
+ #define DAVINCI_I2C_IMR_NACK	BIT(1)
+ #define DAVINCI_I2C_IMR_AL	BIT(0)
+ 
++/* capabilities */
++#define I2C_CAPABILITIES	(I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | \
++				 I2C_FUNC_SMBUS_READ_BLOCK_DATA)
++
+ struct davinci_i2c_dev {
+ 	struct device           *dev;
+ 	void __iomem		*base;
+@@ -318,7 +322,13 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_SAR_REG, msg->addr);
+ 
+ 	dev->buf = msg->buf;
+-	dev->buf_len = msg->len;
++
++	 /* if first received byte is length, set buf_len = 0xffff as flag */
++	if (msg->flags & I2C_M_RECV_LEN)
++		dev->buf_len = 0xffff;
++	else
++		dev->buf_len = msg->len;
++
+ 	dev->stop = stop;
+ 
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
+@@ -456,7 +466,7 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ static u32 i2c_davinci_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++	return I2C_CAPABILITIES;
+ }
+ 
+ static void terminate_read(struct davinci_i2c_dev *dev)
+@@ -528,10 +538,32 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
+ 
+ 		case DAVINCI_I2C_IVR_RDR:
+ 			if (dev->buf_len) {
+-				*dev->buf++ =
+-				    davinci_i2c_read_reg(dev,
+-							 DAVINCI_I2C_DRR_REG);
++				*dev->buf++ = davinci_i2c_read_reg(dev,
++							DAVINCI_I2C_DRR_REG);
++				/*
++				 * check if the first received byte is message
++				 * length, i.e, I2C_M_RECV_LEN
++				 */
++				if (dev->buf_len == 0xffff)
++					dev->buf_len = *(dev->buf - 1) + 1;
++
+ 				dev->buf_len--;
++				/*
++				 * send NACK/STOP bits BEFORE last byte is
++				 * received
++				 */
++				if (dev->buf_len == 1) {
++					w = davinci_i2c_read_reg(dev,
++							DAVINCI_I2C_MDR_REG);
++					w |= DAVINCI_I2C_MDR_NACK;
++					davinci_i2c_write_reg(dev,
++							DAVINCI_I2C_MDR_REG, w);
++
++					w |= DAVINCI_I2C_MDR_STP;
++					davinci_i2c_write_reg(dev,
++							DAVINCI_I2C_MDR_REG, w);
++				}
++
+ 				if (dev->buf_len)
+ 					continue;
+ 
+-- 
+1.7.9.5
