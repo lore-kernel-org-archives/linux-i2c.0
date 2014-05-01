@@ -1,107 +1,38 @@
-From: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] i2c: davinci: Add block read functionality for IPMI
-Date: Thu, 1 May 2014 14:49:46 -0400
-Message-ID: <1398970186-12204-1-git-send-email-m-karicheri2@ti.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH v3 6/7] i2c: ChromeOS EC tunnel driver
+Date: Thu, 01 May 2014 13:05:39 -0600
+Message-ID: <53629B03.6090408@wwwdotorg.org>
+References: <1398879850-9111-1-git-send-email-dianders@chromium.org> <1398879850-9111-7-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1398879850-9111-7-git-send-email-dianders@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>, lee.jones@linaro.org, wsa@the-dreams.de
+Cc: swarren@nvidia.com, abrestic@chromium.org, dgreid@chromium.org, olof@lixom.net, sjg@chromium.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, rdunlap@infradead.org, sameo@linux.intel.com, jdelvare@suse.de, shane.huang@amd.com, maxime.ripard@free-electrons.com, laurent.pinchart+renesas@ideasonboard.com, u.kleine-koenig@pengutronix.de, bjorn.andersson@sonymobile.com, kevin.strasser@linux.intel.com, linux@prisktech.co.nz, andrew@lunn.ch, andriy.shevchenko@linux.intel.com, schwidefsky@de.ibm.com, matt.porter@linaro.org, ch.naveen@samsung.com, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Intelligent Plaform Management Interface (IPMI) requires I2C driver
-to support block read, where the first byte received from slave is
-the length of following data:-
- Added length check if the read type is block read (I2C_M_RECV_LEN)
- Send NACK/STOP bits before last byte is received
+On 04/30/2014 11:44 AM, Doug Anderson wrote:
+> On ARM Chromebooks we have a few devices that are accessed by both the
+> AP (the main "Application Processor") and the EC (the Embedded
+> Controller).  These are:
+> * The battery (sbs-battery).
+> * The power management unit tps65090.
+...
+> On the Samsung ARM Chromebook 2 the scheme is changed yet again, now:
+> * The AP/EC comms are now using SPI for faster speeds.
+> * The EC's i2c bus is exposed to the AP through a full i2c tunnel.
+> 
+> The upstream "tegra124-venice2" uses the same scheme as the Samsung
+> ARM Chromebook 2, though it has a different set of components on the
+> other side of the bus.
+> 
+> This driver supports the scheme used by the Samsung ARM Chromebook 2.
+> Future patches to this driver could add support for the battery tunnel
+> on the HP Chromebook 11 (and perhaps could even be used to access
+> tps65090 on the HP Chromebook 11 instead of using a special driver,
+> but I haven't researched that enough).
 
-Signed-off-by: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Tested-by: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>
-CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-CC: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
----
- Tested on a customer board based on K2HK SoC
- drivers/i2c/busses/i2c-davinci.c |   42 +++++++++++++++++++++++++++++++++-----
- 1 file changed, 37 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 389bc68..cd97920 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -97,6 +97,10 @@
- #define DAVINCI_I2C_IMR_NACK	BIT(1)
- #define DAVINCI_I2C_IMR_AL	BIT(0)
- 
-+/* capabilities */
-+#define I2C_CAPABILITIES	(I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | \
-+				 I2C_FUNC_SMBUS_READ_BLOCK_DATA)
-+
- struct davinci_i2c_dev {
- 	struct device           *dev;
- 	void __iomem		*base;
-@@ -318,7 +322,13 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_SAR_REG, msg->addr);
- 
- 	dev->buf = msg->buf;
--	dev->buf_len = msg->len;
-+
-+	 /* if first received byte is length, set buf_len = 0xffff as flag */
-+	if (msg->flags & I2C_M_RECV_LEN)
-+		dev->buf_len = 0xffff;
-+	else
-+		dev->buf_len = msg->len;
-+
- 	dev->stop = stop;
- 
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len);
-@@ -456,7 +466,7 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- static u32 i2c_davinci_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_CAPABILITIES;
- }
- 
- static void terminate_read(struct davinci_i2c_dev *dev)
-@@ -528,10 +538,32 @@ static irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
- 
- 		case DAVINCI_I2C_IVR_RDR:
- 			if (dev->buf_len) {
--				*dev->buf++ =
--				    davinci_i2c_read_reg(dev,
--							 DAVINCI_I2C_DRR_REG);
-+				*dev->buf++ = davinci_i2c_read_reg(dev,
-+							DAVINCI_I2C_DRR_REG);
-+				/*
-+				 * check if the first received byte is message
-+				 * length, i.e, I2C_M_RECV_LEN
-+				 */
-+				if (dev->buf_len == 0xffff)
-+					dev->buf_len = *(dev->buf - 1) + 1;
-+
- 				dev->buf_len--;
-+				/*
-+				 * send NACK/STOP bits BEFORE last byte is
-+				 * received
-+				 */
-+				if (dev->buf_len == 1) {
-+					w = davinci_i2c_read_reg(dev,
-+							DAVINCI_I2C_MDR_REG);
-+					w |= DAVINCI_I2C_MDR_NACK;
-+					davinci_i2c_write_reg(dev,
-+							DAVINCI_I2C_MDR_REG, w);
-+
-+					w |= DAVINCI_I2C_MDR_STP;
-+					davinci_i2c_write_reg(dev,
-+							DAVINCI_I2C_MDR_REG, w);
-+				}
-+
- 				if (dev->buf_len)
- 					continue;
- 
--- 
-1.7.9.5
+The binding looks reasonable to me, so that part,
+Acked-by: Stephen Warren <swarren@nvidia.com>
