@@ -1,36 +1,50 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 6/6] i2c: sh_mobile: devm conversion, irq setup
-Date: Thu, 1 May 2014 00:44:56 +0200
-Message-ID: <CAMuHMdXZ3OhfLi4Yk7rhA+C2rneoQ+7ouPhdLewgUscUkP5m6g@mail.gmail.com>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH 4/6] i2c: sh_mobile: add devicetree documentation
+Date: Wed, 30 Apr 2014 20:02:10 -0500
+Message-ID: <CAL_JsqKgwKjag2hRSaDwoejuXRDxDgWwtpnS1gijQbVo0h_MjQ@mail.gmail.com>
 References: <1398896470-24663-1-git-send-email-wsa@the-dreams.de>
-	<1398896470-24663-7-git-send-email-wsa@the-dreams.de>
+	<1398896470-24663-5-git-send-email-wsa@the-dreams.de>
+	<CAMuHMdWP8KH=6OKmBbA5UqixV7mdKZdEhFw8Tq_XZLaJCOQ07w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1398896470-24663-7-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <CAMuHMdWP8KH=6OKmBbA5UqixV7mdKZdEhFw8Tq_XZLaJCOQ07w@mail.gmail.com>
 Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 1, 2014 at 12:21 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Wed, Apr 30, 2014 at 5:32 PM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> Hi Wolfram,
 >
-> This is what devm was made for. No rollback mechanism needed, remove the
-> hook parameter from the irq setup function and simplify it. While we are
-> here change some variables to proper types.
+> CC devicetree
 >
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> On Thu, May 1, 2014 at 12:21 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>>
+>> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+>> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>> ---
+>>  .../devicetree/bindings/i2c/i2c-sh_mobile.txt      | 26 ++++++++++++++++++++++
+>>  1 file changed, 26 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+>> new file mode 100644
+>> index 000000000000..d2153ce36fa8
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+>> @@ -0,0 +1,26 @@
+>> +Device tree configuration for Renesas IIC (sh_mobile) driver
+>> +
+>> +Required properties:
+>> +- compatible      : "renesas,iic-<soctype>". "renesas,rmobile-iic" as fallback
+>
+> Please also list all supported values, so checkpatch can validate DTS compatible
+> properties against this binding document.
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+You could add this pattern to checkpatch as well. I really wish
+Renesas would follow normal convention of <vendor>,<chip>-<device>.
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Rob
