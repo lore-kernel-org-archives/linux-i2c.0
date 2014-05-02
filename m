@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH v2 09/10] i2c: sh_mobile: check timing parameters for valid range
-Date: Fri,  2 May 2014 21:15:15 +0200
-Message-ID: <1399058116-7721-10-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 03/10] i2c: sh_mobile: honor DT bus speed settings
+Date: Fri,  2 May 2014 21:15:09 +0200
+Message-ID: <1399058116-7721-4-git-send-email-wsa@the-dreams.de>
 References: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1399058116-7721-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
@@ -12,63 +12,33 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Due to misconfiguration, it can happen that the calculated timing
-parameters are out of range. Bail out if that happens. We can also
-simplify some logic later because of the verified value. Also, make the
-printouts of the values more precise by adding the hex-prefixes.
-
 Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 9f02013eaeeb..b1d399e3e5fc 100644
+index d2fa222df3d1..2e481abd50ce 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -232,6 +232,7 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
- {
- 	unsigned long i2c_clk_khz;
- 	u32 tHIGH, tLOW, tf;
-+	uint16_t max_val;
+@@ -657,6 +657,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	struct resource *res;
+ 	int size;
+ 	int ret;
++	u32 bus_speed;
  
- 	/* Get clock rate after clock is enabled */
- 	clk_prepare_enable(pd->clk);
-@@ -254,15 +255,23 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+ 	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
+ 	if (pd == NULL) {
+@@ -697,7 +698,9 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
  	}
  
- 	pd->iccl = sh_mobile_i2c_iccl(i2c_clk_khz, tLOW, tf);
-+	pd->icch = sh_mobile_i2c_icch(i2c_clk_khz, tHIGH, tf);
+ 	/* Use platform data bus speed or STANDARD_MODE */
+-	pd->bus_speed = STANDARD_MODE;
++	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
++	pd->bus_speed = ret ? STANDARD_MODE : bus_speed;
 +
-+	max_val = pd->flags & IIC_FLAG_HAS_ICIC67 ? 0x1ff : 0xff;
-+	if (pd->iccl > max_val || pd->icch > max_val) {
-+		dev_err(pd->dev, "timing values out of range: L/H=0x%x/0x%x\n",
-+			pd->iccl, pd->icch);
-+		return -EINVAL;
-+	}
-+
- 	/* one more bit of ICCL in ICIC */
--	if ((pd->iccl > 0xff) && (pd->flags & IIC_FLAG_HAS_ICIC67))
-+	if (pd->iccl & 0x100)
- 		pd->icic |= ICIC_ICCLB8;
- 	else
- 		pd->icic &= ~ICIC_ICCLB8;
- 
--	pd->icch = sh_mobile_i2c_icch(i2c_clk_khz, tHIGH, tf);
- 	/* one more bit of ICCH in ICIC */
--	if ((pd->icch > 0xff) && (pd->flags & IIC_FLAG_HAS_ICIC67))
-+	if (pd->icch & 0x100)
- 		pd->icic |= ICIC_ICCHB8;
- 	else
- 		pd->icic &= ~ICIC_ICCHB8;
-@@ -717,7 +726,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 	}
- 
- 	dev_info(&dev->dev,
--		 "I2C adapter %d with bus speed %lu Hz (L/H=%x/%x)\n",
-+		 "I2C adapter %d with bus speed %lu Hz (L/H=0x%x/0x%x)\n",
- 		 adap->nr, pd->bus_speed, pd->iccl, pd->icch);
- 
- 	return 0;
+ 	if (pdata && pdata->bus_speed)
+ 		pd->bus_speed = pdata->bus_speed;
+ 	pd->clks_per_count = 1;
 -- 
 1.9.2
