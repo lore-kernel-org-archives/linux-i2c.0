@@ -1,128 +1,115 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH v2 05/10] i2c: sh_mobile: devm conversion, low hanging fruits
-Date: Fri,  2 May 2014 21:15:11 +0200
-Message-ID: <1399058116-7721-6-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH v2 10/10] i2c: sh_mobile: fix clock calculation for newer SoCs
+Date: Fri,  2 May 2014 21:15:16 +0200
+Message-ID: <1399058116-7721-11-git-send-email-wsa@the-dreams.de>
 References: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1399058116-7721-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Convert the easy parts to devm. irqs will be converted in a seperate
-patch to keep diffs readable.
+Newer SoCs have so fast input clocks that the ICCL/H registers only
+count every second clock to have a meaningful 9-bit range. The driver
+was already prepared for that happening, but didn't use it so far.
+Add the proper DT configuration for SoCs that need it.
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Reviewed-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 41 ++++++++++----------------------------
- 1 file changed, 10 insertions(+), 31 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 48 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 38 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 2e481abd50ce..c47d11493b97 100644
+index b1d399e3e5fc..c29be2bba6ea 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -655,45 +655,33 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 	struct sh_mobile_i2c_data *pd;
- 	struct i2c_adapter *adap;
+@@ -32,6 +32,7 @@
+ #include <linux/clk.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#include <linux/of_device.h>
+ #include <linux/i2c/i2c-sh_mobile.h>
+ 
+ /* Transmit operation:                                                      */
+@@ -139,6 +140,10 @@ struct sh_mobile_i2c_data {
+ 	bool send_stop;
+ };
+ 
++struct sh_mobile_dt_config {
++	int clks_per_count;
++};
++
+ #define IIC_FLAG_HAS_ICIC67	(1 << 0)
+ 
+ #define STANDARD_MODE		100000
+@@ -617,6 +622,22 @@ static struct i2c_algorithm sh_mobile_i2c_algorithm = {
+ 	.master_xfer	= sh_mobile_i2c_xfer,
+ };
+ 
++static const struct sh_mobile_dt_config default_dt_config = {
++	.clks_per_count = 1,
++};
++
++static const struct sh_mobile_dt_config rcar_gen2_dt_config = {
++	.clks_per_count = 2,
++};
++
++static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
++	{ .compatible = "renesas,rmobile-iic", .data = &default_dt_config },
++	{ .compatible = "renesas,iic-r8a7790", .data = &rcar_gen2_dt_config },
++	{ .compatible = "renesas,iic-r8a7791", .data = &rcar_gen2_dt_config },
++	{},
++};
++MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
++
+ static int sh_mobile_i2c_hook_irqs(struct platform_device *dev)
+ {
  	struct resource *res;
--	int size;
- 	int ret;
- 	u32 bus_speed;
+@@ -674,11 +695,24 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
+ 	pd->bus_speed = ret ? STANDARD_MODE : bus_speed;
  
--	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
--	if (pd == NULL) {
--		dev_err(&dev->dev, "cannot allocate private data\n");
-+	pd = devm_kzalloc(&dev->dev, sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
-+	if (!pd)
- 		return -ENOMEM;
--	}
+-	if (pdata && pdata->bus_speed)
+-		pd->bus_speed = pdata->bus_speed;
+ 	pd->clks_per_count = 1;
+-	if (pdata && pdata->clks_per_count)
+-		pd->clks_per_count = pdata->clks_per_count;
++
++	if (dev->dev.of_node) {
++		const struct of_device_id *match;
++
++		match = of_match_device(sh_mobile_i2c_dt_ids, &dev->dev);
++		if (match) {
++			const struct sh_mobile_dt_config *config;
++
++			config = match->data;
++			pd->clks_per_count = config->clks_per_count;
++		}
++	} else {
++		if (pdata && pdata->bus_speed)
++			pd->bus_speed = pdata->bus_speed;
++		if (pdata && pdata->clks_per_count)
++			pd->clks_per_count = pdata->clks_per_count;
++	}
  
--	pd->clk = clk_get(&dev->dev, NULL);
-+	pd->clk = devm_clk_get(&dev->dev, NULL);
- 	if (IS_ERR(pd->clk)) {
- 		dev_err(&dev->dev, "cannot get clock\n");
--		ret = PTR_ERR(pd->clk);
--		goto err;
-+		return PTR_ERR(pd->clk);
- 	}
- 
- 	ret = sh_mobile_i2c_hook_irqs(dev, 1);
- 	if (ret) {
- 		dev_err(&dev->dev, "cannot request IRQ\n");
--		goto err_clk;
-+		return ret;
- 	}
- 
- 	pd->dev = &dev->dev;
- 	platform_set_drvdata(dev, pd);
- 
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
--	if (res == NULL) {
--		dev_err(&dev->dev, "cannot find IO resource\n");
--		ret = -ENOENT;
--		goto err_irq;
--	}
- 
--	size = resource_size(res);
--
--	pd->reg = ioremap(res->start, size);
--	if (pd->reg == NULL) {
--		dev_err(&dev->dev, "cannot map IO\n");
--		ret = -ENXIO;
-+	pd->reg = devm_ioremap_resource(&dev->dev, res);
-+	if (IS_ERR(pd->reg)) {
-+		ret = PTR_ERR(pd->reg);
- 		goto err_irq;
- 	}
- 
-@@ -710,7 +698,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
  	/* The IIC blocks on SH-Mobile ARM processors
  	 * come with two new bits in ICIC.
- 	 */
--	if (size > 0x17)
-+	if (resource_size(res) > 0x17)
- 		pd->flags |= IIC_FLAG_HAS_ICIC67;
+@@ -758,12 +792,6 @@ static const struct dev_pm_ops sh_mobile_i2c_dev_pm_ops = {
+ 	.runtime_resume = sh_mobile_i2c_runtime_nop,
+ };
  
- 	sh_mobile_i2c_init(pd);
-@@ -747,7 +735,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 	ret = i2c_add_numbered_adapter(adap);
- 	if (ret < 0) {
- 		dev_err(&dev->dev, "cannot add numbered adapter\n");
--		goto err_all;
-+		goto err_irq;
- 	}
- 
- 	dev_info(&dev->dev,
-@@ -756,14 +744,8 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 
- 	return 0;
- 
-- err_all:
--	iounmap(pd->reg);
-  err_irq:
- 	sh_mobile_i2c_hook_irqs(dev, 0);
-- err_clk:
--	clk_put(pd->clk);
-- err:
--	kfree(pd);
- 	return ret;
- }
- 
-@@ -772,11 +754,8 @@ static int sh_mobile_i2c_remove(struct platform_device *dev)
- 	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
- 
- 	i2c_del_adapter(&pd->adap);
--	iounmap(pd->reg);
- 	sh_mobile_i2c_hook_irqs(dev, 0);
--	clk_put(pd->clk);
- 	pm_runtime_disable(&dev->dev);
--	kfree(pd);
- 	return 0;
- }
- 
+-static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
+-	{ .compatible = "renesas,rmobile-iic", },
+-	{},
+-};
+-MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
+-
+ static struct platform_driver sh_mobile_i2c_driver = {
+ 	.driver		= {
+ 		.name		= "i2c-sh_mobile",
 -- 
 1.9.2
+
