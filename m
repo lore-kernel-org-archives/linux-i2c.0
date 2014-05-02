@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH v2 02/10] i2c: sh_mobile: improve error handling
-Date: Fri,  2 May 2014 21:15:08 +0200
-Message-ID: <1399058116-7721-3-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH v2 05/10] i2c: sh_mobile: devm conversion, low hanging fruits
+Date: Fri,  2 May 2014 21:15:11 +0200
+Message-ID: <1399058116-7721-6-git-send-email-wsa@the-dreams.de>
 References: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1399058116-7721-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
@@ -12,74 +12,117 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Use standard i2c error codes for i2c failures. Also, don't print
-something on timeout since it happens regularly with i2c. Simplify some,
-logic, too.
+Convert the easy parts to devm. irqs will be converted in a seperate
+patch to keep diffs readable.
 
 Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Reviewed-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 41 ++++++++++----------------------------
+ 1 file changed, 10 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index d91625eea6bb..d2fa222df3d1 100644
+index 2e481abd50ce..c47d11493b97 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -480,7 +480,7 @@ static int start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
- {
- 	if (usr_msg->len == 0 && (usr_msg->flags & I2C_M_RD)) {
- 		dev_err(pd->dev, "Unsupported zero length i2c read\n");
--		return -EIO;
-+		return -EOPNOTSUPP;
- 	}
+@@ -655,45 +655,33 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	struct sh_mobile_i2c_data *pd;
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+-	int size;
+ 	int ret;
+ 	u32 bus_speed;
  
- 	if (do_init) {
-@@ -515,17 +515,12 @@ static int poll_dte(struct sh_mobile_i2c_data *pd)
- 			break;
- 
- 		if (val & ICSR_TACK)
--			return -EIO;
-+			return -ENXIO;
- 
- 		udelay(10);
- 	}
- 
--	if (!i) {
--		dev_warn(pd->dev, "Timeout polling for DTE!\n");
--		return -ETIMEDOUT;
+-	pd = kzalloc(sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
+-	if (pd == NULL) {
+-		dev_err(&dev->dev, "cannot allocate private data\n");
++	pd = devm_kzalloc(&dev->dev, sizeof(struct sh_mobile_i2c_data), GFP_KERNEL);
++	if (!pd)
+ 		return -ENOMEM;
 -	}
+ 
+-	pd->clk = clk_get(&dev->dev, NULL);
++	pd->clk = devm_clk_get(&dev->dev, NULL);
+ 	if (IS_ERR(pd->clk)) {
+ 		dev_err(&dev->dev, "cannot get clock\n");
+-		ret = PTR_ERR(pd->clk);
+-		goto err;
++		return PTR_ERR(pd->clk);
+ 	}
+ 
+ 	ret = sh_mobile_i2c_hook_irqs(dev, 1);
+ 	if (ret) {
+ 		dev_err(&dev->dev, "cannot request IRQ\n");
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	pd->dev = &dev->dev;
+ 	platform_set_drvdata(dev, pd);
+ 
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&dev->dev, "cannot find IO resource\n");
+-		ret = -ENOENT;
+-		goto err_irq;
+-	}
+ 
+-	size = resource_size(res);
 -
--	return 0;
-+	return i ? 0 : -ETIMEDOUT;
+-	pd->reg = ioremap(res->start, size);
+-	if (pd->reg == NULL) {
+-		dev_err(&dev->dev, "cannot map IO\n");
+-		ret = -ENXIO;
++	pd->reg = devm_ioremap_resource(&dev->dev, res);
++	if (IS_ERR(pd->reg)) {
++		ret = PTR_ERR(pd->reg);
+ 		goto err_irq;
+ 	}
+ 
+@@ -710,7 +698,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	/* The IIC blocks on SH-Mobile ARM processors
+ 	 * come with two new bits in ICIC.
+ 	 */
+-	if (size > 0x17)
++	if (resource_size(res) > 0x17)
+ 		pd->flags |= IIC_FLAG_HAS_ICIC67;
+ 
+ 	sh_mobile_i2c_init(pd);
+@@ -747,7 +735,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret < 0) {
+ 		dev_err(&dev->dev, "cannot add numbered adapter\n");
+-		goto err_all;
++		goto err_irq;
+ 	}
+ 
+ 	dev_info(&dev->dev,
+@@ -756,14 +744,8 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 
+ 	return 0;
+ 
+- err_all:
+-	iounmap(pd->reg);
+  err_irq:
+ 	sh_mobile_i2c_hook_irqs(dev, 0);
+- err_clk:
+-	clk_put(pd->clk);
+- err:
+-	kfree(pd);
+ 	return ret;
  }
  
- static int poll_busy(struct sh_mobile_i2c_data *pd)
-@@ -543,20 +538,18 @@ static int poll_busy(struct sh_mobile_i2c_data *pd)
- 		 */
- 		if (!(val & ICSR_BUSY)) {
- 			/* handle missing acknowledge and arbitration lost */
--			if ((val | pd->sr) & (ICSR_TACK | ICSR_AL))
--				return -EIO;
-+			val |= pd->sr;
-+			if (val & ICSR_TACK)
-+				return -ENXIO;
-+			if (val & ICSR_AL)
-+				return -EAGAIN;
- 			break;
- 		}
+@@ -772,11 +754,8 @@ static int sh_mobile_i2c_remove(struct platform_device *dev)
+ 	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
  
- 		udelay(10);
- 	}
- 
--	if (!i) {
--		dev_err(pd->dev, "Polling timed out\n");
--		return -ETIMEDOUT;
--	}
--
--	return 0;
-+	return i ? 0 : -ETIMEDOUT;
+ 	i2c_del_adapter(&pd->adap);
+-	iounmap(pd->reg);
+ 	sh_mobile_i2c_hook_irqs(dev, 0);
+-	clk_put(pd->clk);
+ 	pm_runtime_disable(&dev->dev);
+-	kfree(pd);
+ 	return 0;
  }
  
- static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
 -- 
 1.9.2
