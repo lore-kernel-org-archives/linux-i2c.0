@@ -1,139 +1,74 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 06/10] i2c: sh_mobile: devm conversion, irq setup
-Date: Fri,  2 May 2014 21:15:12 +0200
-Message-ID: <1399058116-7721-7-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH v2 09/10] i2c: sh_mobile: check timing parameters for valid range
+Date: Fri,  2 May 2014 21:15:15 +0200
+Message-ID: <1399058116-7721-10-git-send-email-wsa@the-dreams.de>
 References: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1399058116-7721-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-This is what devm was made for. No rollback mechanism needed, remove the
-hook parameter from the irq setup function and simplify it. While we are
-here change some variables to proper types.
+Due to misconfiguration, it can happen that the calculated timing
+parameters are out of range. Bail out if that happens. We can also
+simplify some logic later because of the verified value. Also, make the
+printouts of the values more precise by adding the hex-prefixes.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 56 ++++++++++----------------------------
- 1 file changed, 15 insertions(+), 41 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index c47d11493b97..ddc9970fd724 100644
+index 9f02013eaeeb..b1d399e3e5fc 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -611,42 +611,25 @@ static struct i2c_algorithm sh_mobile_i2c_algorithm = {
- 	.master_xfer	= sh_mobile_i2c_xfer,
- };
- 
--static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, int hook)
-+static int sh_mobile_i2c_hook_irqs(struct platform_device *dev)
+@@ -232,6 +232,7 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
  {
- 	struct resource *res;
--	int ret = -ENXIO;
--	int n, k = 0;
-+	resource_size_t n;
-+	int k = 0, ret;
+ 	unsigned long i2c_clk_khz;
+ 	u32 tHIGH, tLOW, tf;
++	uint16_t max_val;
  
- 	while ((res = platform_get_resource(dev, IORESOURCE_IRQ, k))) {
--		for (n = res->start; hook && n <= res->end; n++) {
--			if (request_irq(n, sh_mobile_i2c_isr, 0,
--					dev_name(&dev->dev), dev)) {
--				for (n--; n >= res->start; n--)
--					free_irq(n, dev);
--
--				goto rollback;
-+		for (n = res->start; n <= res->end; n++) {
-+			ret = devm_request_irq(&dev->dev, n, sh_mobile_i2c_isr,
-+					  0, dev_name(&dev->dev), dev);
-+			if (ret) {
-+				dev_err(&dev->dev, "cannot request IRQ %pa\n", &n);
-+				return ret;
- 			}
- 		}
- 		k++;
+ 	/* Get clock rate after clock is enabled */
+ 	clk_prepare_enable(pd->clk);
+@@ -254,15 +255,23 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
  	}
  
--	if (hook)
--		return k > 0 ? 0 : -ENOENT;
--
--	ret = 0;
--
-- rollback:
--	k--;
--
--	while (k >= 0) {
--		res = platform_get_resource(dev, IORESOURCE_IRQ, k);
--		for (n = res->start; n <= res->end; n++)
--			free_irq(n, dev);
--
--		k--;
--	}
--
--	return ret;
-+	return k > 0 ? 0 : -ENOENT;
- }
+ 	pd->iccl = sh_mobile_i2c_iccl(i2c_clk_khz, tLOW, tf);
++	pd->icch = sh_mobile_i2c_icch(i2c_clk_khz, tHIGH, tf);
++
++	max_val = pd->flags & IIC_FLAG_HAS_ICIC67 ? 0x1ff : 0xff;
++	if (pd->iccl > max_val || pd->icch > max_val) {
++		dev_err(pd->dev, "timing values out of range: L/H=0x%x/0x%x\n",
++			pd->iccl, pd->icch);
++		return -EINVAL;
++	}
++
+ 	/* one more bit of ICCL in ICIC */
+-	if ((pd->iccl > 0xff) && (pd->flags & IIC_FLAG_HAS_ICIC67))
++	if (pd->iccl & 0x100)
+ 		pd->icic |= ICIC_ICCLB8;
+ 	else
+ 		pd->icic &= ~ICIC_ICCLB8;
  
- static int sh_mobile_i2c_probe(struct platform_device *dev)
-@@ -668,11 +651,9 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 		return PTR_ERR(pd->clk);
- 	}
- 
--	ret = sh_mobile_i2c_hook_irqs(dev, 1);
--	if (ret) {
--		dev_err(&dev->dev, "cannot request IRQ\n");
-+	ret = sh_mobile_i2c_hook_irqs(dev);
-+	if (ret)
- 		return ret;
--	}
- 
- 	pd->dev = &dev->dev;
- 	platform_set_drvdata(dev, pd);
-@@ -680,10 +661,8 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
- 
- 	pd->reg = devm_ioremap_resource(&dev->dev, res);
--	if (IS_ERR(pd->reg)) {
--		ret = PTR_ERR(pd->reg);
--		goto err_irq;
--	}
-+	if (IS_ERR(pd->reg))
-+		return PTR_ERR(pd->reg);
- 
- 	/* Use platform data bus speed or STANDARD_MODE */
- 	ret = of_property_read_u32(dev->dev.of_node, "clock-frequency", &bus_speed);
-@@ -735,7 +714,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 	ret = i2c_add_numbered_adapter(adap);
- 	if (ret < 0) {
- 		dev_err(&dev->dev, "cannot add numbered adapter\n");
--		goto err_irq;
-+		return ret;
+-	pd->icch = sh_mobile_i2c_icch(i2c_clk_khz, tHIGH, tf);
+ 	/* one more bit of ICCH in ICIC */
+-	if ((pd->icch > 0xff) && (pd->flags & IIC_FLAG_HAS_ICIC67))
++	if (pd->icch & 0x100)
+ 		pd->icic |= ICIC_ICCHB8;
+ 	else
+ 		pd->icic &= ~ICIC_ICCHB8;
+@@ -717,7 +726,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
  	}
  
  	dev_info(&dev->dev,
-@@ -743,10 +722,6 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+-		 "I2C adapter %d with bus speed %lu Hz (L/H=%x/%x)\n",
++		 "I2C adapter %d with bus speed %lu Hz (L/H=0x%x/0x%x)\n",
  		 adap->nr, pd->bus_speed, pd->iccl, pd->icch);
  
  	return 0;
--
-- err_irq:
--	sh_mobile_i2c_hook_irqs(dev, 0);
--	return ret;
- }
- 
- static int sh_mobile_i2c_remove(struct platform_device *dev)
-@@ -754,7 +729,6 @@ static int sh_mobile_i2c_remove(struct platform_device *dev)
- 	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
- 
- 	i2c_del_adapter(&pd->adap);
--	sh_mobile_i2c_hook_irqs(dev, 0);
- 	pm_runtime_disable(&dev->dev);
- 	return 0;
- }
 -- 
 1.9.2
-
