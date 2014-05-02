@@ -1,66 +1,95 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH v2 01/10] i2c: sh_mobile: replace magic hex values with constants
-Date: Fri,  2 May 2014 21:15:07 +0200
-Message-ID: <1399058116-7721-2-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH v2 07/10] i2c: sh_mobile: remove superfluous offset parameter
+Date: Fri,  2 May 2014 21:15:13 +0200
+Message-ID: <1399058116-7721-8-git-send-email-wsa@the-dreams.de>
 References: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1399058116-7721-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-No functional change, binaries are identical.
+Following the KISS principle, remove unneeded stuff.
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 1d79585ba4b3..d91625eea6bb 100644
+index ddc9970fd724..9a5b693454e1 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -316,7 +316,7 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
+@@ -194,7 +194,7 @@ static void iic_set_clr(struct sh_mobile_i2c_data *pd, int offs,
+ 	iic_wr(pd, offs, (iic_rd(pd, offs) | set) & ~clr);
+ }
  
- 	switch (op) {
- 	case OP_START: /* issue start and trigger DTE interrupt */
--		iic_wr(pd, ICCR, 0x94);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_TRS | ICCR_BBSY);
- 		break;
- 	case OP_TX_FIRST: /* disable DTE interrupt and write data */
- 		iic_wr(pd, ICIC, ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
-@@ -327,10 +327,11 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
- 		break;
- 	case OP_TX_STOP: /* write data and issue a stop afterwards */
- 		iic_wr(pd, ICDR, data);
--		iic_wr(pd, ICCR, pd->send_stop ? 0x90 : 0x94);
-+		iic_wr(pd, ICCR, pd->send_stop ? ICCR_ICE | ICCR_TRS
-+					       : ICCR_ICE | ICCR_TRS | ICCR_BBSY);
- 		break;
- 	case OP_TX_TO_RX: /* select read mode */
--		iic_wr(pd, ICCR, 0x81);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_SCP);
- 		break;
- 	case OP_RX: /* just read data */
- 		ret = iic_rd(pd, ICDR);
-@@ -338,13 +339,13 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
- 	case OP_RX_STOP: /* enable DTE interrupt, issue stop */
- 		iic_wr(pd, ICIC,
- 		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
--		iic_wr(pd, ICCR, 0xc0);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
- 		break;
- 	case OP_RX_STOP_DATA: /* enable DTE interrupt, read data, issue stop */
- 		iic_wr(pd, ICIC,
- 		       ICIC_DTEE | ICIC_WAITE | ICIC_ALE | ICIC_TACKE);
- 		ret = iic_rd(pd, ICDR);
--		iic_wr(pd, ICCR, 0xc0);
-+		iic_wr(pd, ICCR, ICCR_ICE | ICCR_RACK);
- 		break;
+-static u32 sh_mobile_i2c_iccl(unsigned long count_khz, u32 tLOW, u32 tf, int offset)
++static u32 sh_mobile_i2c_iccl(unsigned long count_khz, u32 tLOW, u32 tf)
+ {
+ 	/*
+ 	 * Conditional expression:
+@@ -206,10 +206,10 @@ static u32 sh_mobile_i2c_iccl(unsigned long count_khz, u32 tLOW, u32 tf, int off
+ 	 * account the fall time of SCL signal (tf).  Default tf value
+ 	 * should be 0.3 us, for safety.
+ 	 */
+-	return (((count_khz * (tLOW + tf)) + 5000) / 10000) + offset;
++	return (((count_khz * (tLOW + tf)) + 5000) / 10000);
+ }
+ 
+-static u32 sh_mobile_i2c_icch(unsigned long count_khz, u32 tHIGH, u32 tf, int offset)
++static u32 sh_mobile_i2c_icch(unsigned long count_khz, u32 tHIGH, u32 tf)
+ {
+ 	/*
+ 	 * Conditional expression:
+@@ -225,14 +225,13 @@ static u32 sh_mobile_i2c_icch(unsigned long count_khz, u32 tHIGH, u32 tf, int of
+ 	 * to take into account the fall time of SDA signal (tf) at START
+ 	 * condition, in order to meet both tHIGH and tHD;STA specs.
+ 	 */
+-	return (((count_khz * (tHIGH + tf)) + 5000) / 10000) + offset;
++	return (((count_khz * (tHIGH + tf)) + 5000) / 10000);
+ }
+ 
+ static void sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+ {
+ 	unsigned long i2c_clk_khz;
+ 	u32 tHIGH, tLOW, tf;
+-	int offset;
+ 
+ 	/* Get clock rate after clock is enabled */
+ 	clk_prepare_enable(pd->clk);
+@@ -243,26 +242,24 @@ static void sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
+ 		tLOW	= 47;	/* tLOW = 4.7 us */
+ 		tHIGH	= 40;	/* tHD;STA = tHIGH = 4.0 us */
+ 		tf	= 3;	/* tf = 0.3 us */
+-		offset	= 0;	/* No offset */
+ 	} else if (pd->bus_speed == FAST_MODE) {
+ 		tLOW	= 13;	/* tLOW = 1.3 us */
+ 		tHIGH	= 6;	/* tHD;STA = tHIGH = 0.6 us */
+ 		tf	= 3;	/* tf = 0.3 us */
+-		offset	= 0;	/* No offset */
+ 	} else {
+ 		dev_err(pd->dev, "unrecognized bus speed %lu Hz\n",
+ 			pd->bus_speed);
+ 		goto out;
  	}
  
+-	pd->iccl = sh_mobile_i2c_iccl(i2c_clk_khz, tLOW, tf, offset);
++	pd->iccl = sh_mobile_i2c_iccl(i2c_clk_khz, tLOW, tf);
+ 	/* one more bit of ICCL in ICIC */
+ 	if ((pd->iccl > 0xff) && (pd->flags & IIC_FLAG_HAS_ICIC67))
+ 		pd->icic |= ICIC_ICCLB8;
+ 	else
+ 		pd->icic &= ~ICIC_ICCLB8;
+ 
+-	pd->icch = sh_mobile_i2c_icch(i2c_clk_khz, tHIGH, tf, offset);
++	pd->icch = sh_mobile_i2c_icch(i2c_clk_khz, tHIGH, tf);
+ 	/* one more bit of ICCH in ICIC */
+ 	if ((pd->icch > 0xff) && (pd->flags & IIC_FLAG_HAS_ICIC67))
+ 		pd->icic |= ICIC_ICCHB8;
 -- 
 1.9.2
+
