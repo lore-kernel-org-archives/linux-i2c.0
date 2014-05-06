@@ -1,53 +1,43 @@
-From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] i2c: nomadik: Fixup system suspend
-Date: Tue, 6 May 2014 11:31:12 +0200
-Message-ID: <CAPDyKFo6K-mbtKcs8wPmc=E-t=Djs-ufi_+SLLpCKej+bEwbDw@mail.gmail.com>
-References: <1397138376-28427-1-git-send-email-ulf.hansson@linaro.org>
-	<CACRpkdb8VJ_Qqype4uP_YJ5=RncJndFUZv_yDxmZwq5S=_yZ2g@mail.gmail.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: [PATCH] i2c-eg20t: Fix Kconfig dependencies
+Date: Tue, 6 May 2014 10:05:21 +0200
+Message-ID: <20140506100521.03861792@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdb8VJ_Qqype4uP_YJ5=RncJndFUZv_yDxmZwq5S=_yZ2g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10 April 2014 20:49, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Thu, Apr 10, 2014 at 3:59 PM, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->
->> For !CONFIG_PM_RUNTIME, the device were never put back into active
->> state while resuming.
->>
->> For CONFIG_PM_RUNTIME, we blindly trusted the device to be inactive
->> while we were about to handle it at suspend late, which is just too
->> optimistic.
->>
->> Even if the driver uses pm_runtime_put_sync() after each tranfer to
->> return it's runtime PM resources, there are no guarantees this will
->> actually mean the device will inactivated. The reason is that the PM
->> core will prevent runtime suspend during system suspend, and thus when
->> a transfer occurs during the early phases of system suspend the device
->> will be kept active after the transfer.
->>
->> To handle both issues above, use pm_runtime_force_suspend|resume() from
->> the system suspend|resume callbacks.
->>
->> Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
->> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
->> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->
-> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: i2c-eg20t: Fix Kconfig dependencies
 
-Hi Wolfram,
+The i2c-eg20t driver is for a companion chip to the Intel Atom E600
+series processors. These are 32-bit x86 processors so the driver is
+only needed on X86_32. Add COMPILE_TEST as an alternative, so that the
+driver can still be build-tested elsewhere.
 
-This patch as has been around for a while (in some other versions as
-well), would you mind picking it up for 3.16?
+Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Kind regards
-Ulf Hansson
+--- linux-3.15-rc4.orig/drivers/i2c/busses/Kconfig	2014-04-14 09:42:29.899075210 +0200
++++ linux-3.15-rc4/drivers/i2c/busses/Kconfig	2014-05-06 09:59:00.175785765 +0200
+@@ -449,7 +449,7 @@ config I2C_EFM32
+ 
+ config I2C_EG20T
+ 	tristate "Intel EG20T PCH/LAPIS Semicon IOH(ML7213/ML7223/ML7831) I2C"
+-	depends on PCI
++	depends on PCI && (X86_32 || COMPILE_TEST)
+ 	help
+ 	  This driver is for PCH(Platform controller Hub) I2C of EG20T which
+ 	  is an IOH(Input/Output Hub) for x86 embedded processor.
 
->
-> Yours,
-> Linus Walleij
+
+-- 
+Jean Delvare
+SUSE L3 Support
