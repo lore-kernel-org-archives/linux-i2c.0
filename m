@@ -1,29 +1,111 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] i2c: nomadik: Don't use IS_ERR for devm_ioremap
-Date: Tue, 6 May 2014 20:48:23 +0200
-Message-ID: <CACRpkdb=CHGn3X5EyrjmDdOiJOD18XZ9EgYUzFJQcvVrdm4tyg@mail.gmail.com>
-References: <1397139569-3906-1-git-send-email-ulf.hansson@linaro.org>
-	<CAPDyKFo30t83UOvbPjH4DQ8JvvN-P290g_DdVq7hcu5cv+O0Zg@mail.gmail.com>
+From: Tomasz Figa <tomasz.figa@gmail.com>
+Subject: Re: [PATCH v2 2/6] ARM: EXYNOS: Move SYS_I2C_CFG register save/restore
+ to i2c driver
+Date: Tue, 06 May 2014 21:04:09 +0200
+Message-ID: <53693229.3080705@gmail.com>
+References: <1399366282-4191-1-git-send-email-pankaj.dubey@samsung.com>
+ <1399366282-4191-3-git-send-email-pankaj.dubey@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAPDyKFo30t83UOvbPjH4DQ8JvvN-P290g_DdVq7hcu5cv+O0Zg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1399366282-4191-3-git-send-email-pankaj.dubey@samsung.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Pankaj Dubey <pankaj.dubey@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: kgene.kim@samsung.com, Russell King <linux@arm.linux.org.uk>, arnd@arndb.de, Wolfram Sang <wsa@the-dreams.de>, t.figa@samsung.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 6, 2014 at 11:32 AM, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 10 April 2014 16:19, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> devm_ioremap() returns NULL on error, not an error.
->>
->> Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
->> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Hi Pankaj,
+
+On 06.05.2014 10:51, Pankaj Dubey wrote:
+> Let's move SYS_I2C_CFG register save/restore during s2r into i2c driver.
+> This will help in removing static iodesc based mapping from exynos.c.
+> Also will help in removing SoC specific checks in pm.c making it
+> more independent of such macros.
 >
-> Linus, Wolfram - ping.
+> CC: Wolfram Sang <wsa@the-dreams.de>
+> CC: Russell King <linux@arm.linux.org.uk>
+> CC: linux-i2c@vger.kernel.org
+> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> ---
+>   arch/arm/mach-exynos/exynos.c           |   12 +-----------
+>   arch/arm/mach-exynos/include/mach/map.h |    3 ---
+>   arch/arm/mach-exynos/pm.c               |   10 ----------
+>   arch/arm/mach-exynos/regs-sys.h         |   22 ----------------------
+>   drivers/i2c/busses/i2c-s3c2410.c        |    8 ++++++++
+>   5 files changed, 9 insertions(+), 46 deletions(-)
+>   delete mode 100644 arch/arm/mach-exynos/regs-sys.h
 
-Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+[snip]
 
-Yours,
-Linus Walleij
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 0420150..2095a01 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -133,6 +133,7 @@ struct s3c24xx_i2c {
+>   	struct notifier_block	freq_transition;
+>   #endif
+>   	struct regmap		*sysreg;
+> +	unsigned int		syc_cfg;
+
+I suspect this is a typo, as the name syc_cfg looks a bit strange. 
+Shouldn't it be sys_i2c_cfg?
+
+>   };
+>
+>   static struct platform_device_id s3c24xx_driver_ids[] = {
+> @@ -1293,6 +1294,9 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+>   	struct platform_device *pdev = to_platform_device(dev);
+>   	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+>
+> +	if (i2c->sysreg)
+
+IS_ERR() should be used.
+
+> +		regmap_read(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, &i2c->syc_cfg);
+
+Aha, so this is where the reference to the regmap gets used outside the 
+probe. I'd say that changes to the i2c driver from this patch should be 
+squashed with previous patch and this patch should contain only arch 
+changes to remove old code.
+
+However, I wonder if this is really the right approach to this, as now 
+you have save and restore duplicated for every instance of s3c24xx-i2c 
+IP block. If there are no bits other than interrupt mux selectors in 
+this registers then I guess this is fine (I can't look it up in the 
+documentation at the moment), but otherwise you can end-up with multiple 
+paths doing read-modify-write to this register in parallel possibly with 
+different values.
+
+Needless to say, this isn't very elegant, but I'm not opposed too much, 
+as I can't really think of anything better right now.
+
+> +
+>   	i2c->suspended = 1;
+>
+>   	return 0;
+> @@ -1304,6 +1308,10 @@ static int s3c24xx_i2c_resume(struct device *dev)
+>   	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+>
+>   	i2c->suspended = 0;
+> +
+> +	if (i2c->sysreg)
+> +		regmap_write(i2c->sysreg, i2c->syc_cfg, EXYNOS5_SYS_I2C_CFG);
+> +
+
+I'd say this should be happening before setting i2c->suspended to 0 to 
+account for possible i2c transfers being requested in parallel. Also see 
+patch [1].
+
+[1] https://lkml.org/lkml/2014/4/11/632
+
+Best regards,
+Tomasz
