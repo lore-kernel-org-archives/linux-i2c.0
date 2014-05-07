@@ -1,127 +1,53 @@
-From: Pankaj Dubey <pankaj.dubey@samsung.com>
-Subject: Re: [PATCH v2 2/6] ARM: EXYNOS: Move SYS_I2C_CFG register save/restore
- to i2c driver
-Date: Wed, 07 May 2014 09:42:25 +0900
-Message-ID: <53698171.9070501@samsung.com>
-References: <1399366282-4191-1-git-send-email-pankaj.dubey@samsung.com>
- <1399366282-4191-3-git-send-email-pankaj.dubey@samsung.com>
- <53693229.3080705@gmail.com>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 00/16] i2c: remove unnecessary OOM messages
+Date: Wed, 07 May 2014 13:14:09 +0900
+Message-ID: <018301cf69aa$cb7987d0$626c9770$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <53693229.3080705@gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Tomasz Figa <tomasz.figa@gmail.com>
-Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kgene.kim@samsung.com, Russell King <linux@arm.linux.org.uk>, arnd@arndb.de, Wolfram Sang <wsa@the-dreams.de>, t.figa@samsung.com, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-language: ko
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/07/2014 04:04 AM, Tomasz Figa wrote:
-> Hi Pankaj,
->
-> On 06.05.2014 10:51, Pankaj Dubey wrote:
->> Let's move SYS_I2C_CFG register save/restore during s2r into i2c driver.
->> This will help in removing static iodesc based mapping from exynos.c.
->> Also will help in removing SoC specific checks in pm.c making it
->> more independent of such macros.
->>
->> CC: Wolfram Sang <wsa@the-dreams.de>
->> CC: Russell King <linux@arm.linux.org.uk>
->> CC: linux-i2c@vger.kernel.org
->> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
->> ---
->>   arch/arm/mach-exynos/exynos.c           |   12 +-----------
->>   arch/arm/mach-exynos/include/mach/map.h |    3 ---
->>   arch/arm/mach-exynos/pm.c               |   10 ----------
->>   arch/arm/mach-exynos/regs-sys.h         |   22 ----------------------
->>   drivers/i2c/busses/i2c-s3c2410.c        |    8 ++++++++
->>   5 files changed, 9 insertions(+), 46 deletions(-)
->>   delete mode 100644 arch/arm/mach-exynos/regs-sys.h
->
-> [snip]
->
->> diff --git a/drivers/i2c/busses/i2c-s3c2410.c 
->> b/drivers/i2c/busses/i2c-s3c2410.c
->> index 0420150..2095a01 100644
->> --- a/drivers/i2c/busses/i2c-s3c2410.c
->> +++ b/drivers/i2c/busses/i2c-s3c2410.c
->> @@ -133,6 +133,7 @@ struct s3c24xx_i2c {
->>       struct notifier_block    freq_transition;
->>   #endif
->>       struct regmap        *sysreg;
->> +    unsigned int        syc_cfg;
->
-> I suspect this is a typo, as the name syc_cfg looks a bit strange. 
-> Shouldn't it be sys_i2c_cfg?
-Oops. Will correct it in next version.
->
->>   };
->>
->>   static struct platform_device_id s3c24xx_driver_ids[] = {
->> @@ -1293,6 +1294,9 @@ static int s3c24xx_i2c_suspend_noirq(struct device 
->> *dev)
->>       struct platform_device *pdev = to_platform_device(dev);
->>       struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
->>
->> +    if (i2c->sysreg)
->
-> IS_ERR() should be used.
->
->> +        regmap_read(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, &i2c->syc_cfg);
->
-> Aha, so this is where the reference to the regmap gets used outside the 
-> probe. I'd say that changes to the i2c driver from this patch should be 
-> squashed with previous patch and this patch should contain only arch 
-> changes to remove old code.
+The site-specific OOM messages are unnecessary, because they
+duplicate the MM subsystem generic OOM message. For example,
+k.alloc and v.alloc failures use dump_stack().
 
-OK, in next version I will update accordingly.
-
->
-> However, I wonder if this is really the right approach to this, as now 
-> you have save and restore duplicated for every instance of s3c24xx-i2c IP 
-> block. If there are no bits other than interrupt mux selectors in this 
-> registers then I guess this is fine (I can't look it up in the 
-> documentation at the moment), but otherwise you can end-up with multiple 
-> paths doing read-modify-write to this register in parallel possibly with 
-> different values.
-
-SYS_I2C_CFG for exynos5250 has only bits for mux selectors for i2c.
-
->
-> Needless to say, this isn't very elegant, but I'm not opposed too much, 
-> as I can't really think of anything better right now.
->
->> +
->>       i2c->suspended = 1;
->>
->>       return 0;
->> @@ -1304,6 +1308,10 @@ static int s3c24xx_i2c_resume(struct device *dev)
->>       struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
->>
->>       i2c->suspended = 0;
->> +
->> +    if (i2c->sysreg)
->> +        regmap_write(i2c->sysreg, i2c->syc_cfg, EXYNOS5_SYS_I2C_CFG);
->> +
->
-> I'd say this should be happening before setting i2c->suspended to 0 to 
-> account for possible i2c transfers being requested in parallel. Also see 
-> patch [1].
->
-> [1] https://lkml.org/lkml/2014/4/11/632
-
-OK, will move this before i2c->suspended = 0.
-
-If possible please review other patches also in this series so that I can 
-update
-whole series with addressing all review comments.
-
->
-> Best regards,
-> Tomasz
->
-
-
--- 
-Best Regards,
-Pankaj Dubey
+Jingoo Han (16):
+      i2c: bcm2835: remove unnecessary OOM messages
+      i2c: diolan-u2c: remove unnecessary OOM messages
+      i2c: efm32: remove unnecessary OOM messages
+      i2c: eg20t: remove unnecessary OOM messages
+      i2c: exynos5: remove unnecessary OOM messages
+      i2c: imx: remove unnecessary OOM messages
+      i2c: omap: remove unnecessary OOM messages
+      i2c: rcar: remove unnecessary OOM messages
+      i2c: s3c2410: remove unnecessary OOM messages
+      i2c: sh_mobile: remove unnecessary OOM messages
+      i2c: simtec: remove unnecessary OOM messages
+      i2c: sirf: remove unnecessary OOM messages
+      i2c: stu300: remove unnecessary OOM messages
+      i2c: tegra: remove unnecessary OOM messages
+      i2c: wmt: remove unnecessary OOM messages
+      i2c: scx200_acb: remove unnecessary OOM messages
+---
+ drivers/i2c/busses/i2c-bcm2835.c    |    4 +---
+ drivers/i2c/busses/i2c-diolan-u2c.c |    1 -
+ drivers/i2c/busses/i2c-efm32.c      |    4 +---
+ drivers/i2c/busses/i2c-eg20t.c      |    4 +---
+ drivers/i2c/busses/i2c-exynos5.c    |    4 +---
+ drivers/i2c/busses/i2c-imx.c        |    4 +---
+ drivers/i2c/busses/i2c-omap.c       |    4 +---
+ drivers/i2c/busses/i2c-rcar.c       |    4 +---
+ drivers/i2c/busses/i2c-s3c2410.c    |    8 ++------
+ drivers/i2c/busses/i2c-sh_mobile.c  |    4 +---
+ drivers/i2c/busses/i2c-simtec.c     |    4 +---
+ drivers/i2c/busses/i2c-sirf.c       |    1 -
+ drivers/i2c/busses/i2c-stu300.c     |    4 +---
+ drivers/i2c/busses/i2c-tegra.c      |    4 +---
+ drivers/i2c/busses/i2c-wmt.c        |    4 +---
+ drivers/i2c/busses/scx200_acb.c     |    4 +---
+ 16 files changed, 15 insertions(+), 47 deletions(-)
