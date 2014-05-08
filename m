@@ -1,29 +1,63 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH 00/22] Random ARM randconfig fixes in drivers
-Date: Thu, 8 May 2014 09:41:57 -0700
-Message-ID: <20140508164157.GA22224@roeck-us.net>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 3/6] i2c: rcar: do not print error if device nacks transfer
+Date: Fri, 09 May 2014 02:03:37 +0400
+Message-ID: <536BFF39.40607@cogentembedded.com>
+References: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk> <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1399560433-1402630-1-git-send-email-arnd-r2nGTMty4D4@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, josh.wu-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, kishon-l0cyMroinI0@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk>
+Sender: linux-sh-owner@vger.kernel.org
+To: Ben Dooks <ben.dooks@codethink.co.uk>, linux-kernel@lists.codethink.co.uk
+Cc: Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 08, 2014 at 04:46:51PM +0200, Arnd Bergmann wrote:
-> These are a bunch of fixes I had to do to get all randconfig
-> configurations on ARM working. Most of these are really old
-> bugs, but there are also some new ones. I don't think any of
-> them require a backport to linux-stable.
-> 
-> I have checked that they are all still required on yesterday's
-> linux-next kernel. Please apply on the appropriate trees unless
-> there are objections.
-> 
-Is this series of patches also going to fix arm:allmodconfig ?
+Hello.
 
-Thanks,
-Guenter
+On 01/26/2014 07:05 PM, Ben Dooks wrote:
+
+> The i2c-rcar driver currently prints an error message if the master_xfer
+> callback fails. However if the bus is being probed then lots of NAKs
+> will be generated, causing the output of a number of errors printed.
+
+> To solve this, disable the print if the error is not -EREMOTEIO.
+
+> An example of running i2cdetect:
+
+> 10: i2c-rcar e6530000.i2c: error -121 : 15
+> -- i2c-rcar e6530000.i2c: error -121 : 15
+> -- 12 i2c-rcar e6530000.i2c: error -121 : 15
+> -- i2c-rcar e6530000.i2c: error -121 : 15
+> -- i2c-rcar e6530000.i2c: error -121 : 15
+> -- i2c-rcar e6530000.i2c: error -121 : 15
+> -- i2c-rcar e6530000.i2c: error -121 : 15
+> -- i2c-rcar e6530000.i2c: error -121 : 15
+
+> Cc: Simon Horman <horms+renesas@verge.net.au>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linux-sh@vger.kernel.org
+> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+> ---
+>   drivers/i2c/busses/i2c-rcar.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index 2c2fd7c..0d25104 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -623,7 +623,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+>
+>   	pm_runtime_put(dev);
+>
+> -	if (ret < 0)
+> +	if (ret < 0 && ret != -EREMOTEIO)
+>   		dev_err(dev, "error %d : %x\n", ret, priv->flags);
+
+    Hm, I'm now getting -EBUSY and -EAGAIN running i2cdetect on R8A7791 base 
+Henninger board. Only when I comment out the above 2 lines, I can get the bus 
+scanned, otherwise I don't see any devices at all.
+
+WBR, Sergei
+
