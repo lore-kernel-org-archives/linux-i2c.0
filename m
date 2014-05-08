@@ -1,66 +1,107 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 0/2] i2c: sunxi: Change compatibles pattern
-Date: Wed, 7 May 2014 22:18:16 -0500
-Message-ID: <20140508031816.GP7047@lukather>
-References: <1396270498-30703-1-git-send-email-maxime.ripard@free-electrons.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+gHRqQ1BTyNna/y8"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1396270498-30703-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 00/22] Random ARM randconfig fixes in drivers
+Date: Thu,  8 May 2014 16:46:51 +0200
+Message-ID: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, bhelgaas@google.com, dwmw2@infradead.org, dmitry.torokhov@gmail.com, balbi@ti.com, gregkh@linuxfoundation.org, plagnioj@jcrosoft.com, jic23@kernel.org, josh.wu@atmel.com, kishon@ti.com, linus.walleij@linaro.org, broonie@kernel.org, mturquette@linaro.org, nicolas.ferre@atmel.com, ohad@wizery.com, linux@arm.linux.org.uk, tony@atomide.com, vinod.koul@intel.com, wim@iguana.be, wsa@the-dreams.de, dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org, linux-ide@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-mtd@lists.infradead.org, linux-pci@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-sh@vger.kernel.org, linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+These are a bunch of fixes I had to do to get all randconfig
+configurations on ARM working. Most of these are really old
+bugs, but there are also some new ones. I don't think any of
+them require a backport to linux-stable.
 
---+gHRqQ1BTyNna/y8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have checked that they are all still required on yesterday's
+linux-next kernel. Please apply on the appropriate trees unless
+there are objections.
 
-Hi Wolfram,
+Patch numbers are per subsystem, which I thought is less confusing
+than numbering them 1-22 when they are all totall independent.
 
-On Mon, Mar 31, 2014 at 02:54:56PM +0200, Maxime Ripard wrote:
-> Hi,
->=20
-> This is the fourth version of the i2c compatible changes.
->=20
-> Changes from v4:
->   - Added extra per-SoC compatibles to the DT for all SoC but the A10
+Arnd Bergmann (22):
+  mdio_bus: fix devm_mdiobus_alloc_size export
+  phy: kona2: use 'select GENERIC_PHY' in Kconfig
+  phy: exynos: fix SATA phy license typo
+  dmaengine: omap: hide filter_fn for built-in drivers
+  dmaengine: sa11x0: remove broken #ifdef
+  mtd/onenand: fix build warning for dma type
+  mtd: orion-nand: fix build error with ARMv4
+  clk/versatile: export symbols for impd1
+  bus/omap_l3: avoid sync initcall for modules
+  bus/arm-cci: add dependency on OF && CPU_V7
+  watchdog: iop_wdt only builds for mach-iop13xx
+  mpilib: use 'static inline' for mpi-inline.h
+  ata: pata_at91 only works on sam9
+  i2c/nuc900: fix ancient build error
+  iio: always select ANON_INODES
+  iio:adc: at91 requires the input subsystem
+  pci: rcar host needs OF
+  input: fix ps2/serio module dependency
+  input: atmel-wm97xx: only build for AVR32
+  misc: atmel_pwm: only build for supported platforms
+  remoteproc: da8xx: don't select CMA on no-MMU
+  regulator: arizona-ldo1: add missing #include
 
-Any chance you merge this for 3.16? I guess I addressed your concerns
-about the DT part.
+ drivers/ata/Kconfig               | 2 +-
+ drivers/bus/Kconfig               | 2 +-
+ drivers/bus/omap_l3_noc.c         | 4 ++++
+ drivers/bus/omap_l3_smx.c         | 4 ++++
+ drivers/clk/versatile/clk-icst.c  | 1 +
+ drivers/clk/versatile/clk-impd1.c | 2 ++
+ drivers/dma/sa11x0-dma.c          | 4 ----
+ drivers/i2c/busses/i2c-nuc900.c   | 2 +-
+ drivers/iio/Kconfig               | 1 +
+ drivers/iio/adc/Kconfig           | 1 +
+ drivers/input/keyboard/Kconfig    | 2 +-
+ drivers/input/mouse/Kconfig       | 2 +-
+ drivers/input/touchscreen/Kconfig | 2 +-
+ drivers/misc/Kconfig              | 3 ++-
+ drivers/mtd/nand/orion_nand.c     | 5 +++++
+ drivers/mtd/onenand/samsung.c     | 8 ++++----
+ drivers/net/phy/mdio_bus.c        | 2 +-
+ drivers/pci/host/Kconfig          | 2 +-
+ drivers/phy/Kconfig               | 2 +-
+ drivers/phy/phy-exynos5250-sata.c | 2 +-
+ drivers/regulator/arizona-ldo1.c  | 1 +
+ drivers/remoteproc/Kconfig        | 2 +-
+ drivers/watchdog/Kconfig          | 2 +-
+ include/linux/omap-dma.h          | 2 +-
+ lib/mpi/mpi-inline.h              | 2 +-
+ lib/mpi/mpi-internal.h            | 8 --------
+ 26 files changed, 39 insertions(+), 31 deletions(-)
 
-Thanks!
-Maxime
+-- 
+1.8.3.2
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---+gHRqQ1BTyNna/y8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTavd3AAoJEBx+YmzsjxAgszMQAL5aG2JC3gkfhSSNIrViyJPR
-vD6rT/IsHX7LyijgB1T8h4esufvAQtEPFaJhWz+cKRbB+anI86mayooU9P1S6/St
-C4DuWYDXg0y6tNaK1ajEDNYu4gvBSJ0FhWwUvDT8pIwekuiYk7hQh8Irgm/HYTH8
-L686lC28/F8fdAJGu4yMdtkH+IBhgJPbEHZC+KCh14oAoN1kXRHIcK89c7ptYBNF
-8gBPGeLJsiixmu8PQrL62GSLyr3QXDpXUoMuL6fI0VcH8qmsrhujOlQFN0/wBbKk
-vm3Txr9QjzkIW1E59t5vVMiKbkG0zB13+Dsr6qDoS3sCFmifcr2OiWIEnEfby/SN
-jyS+a6iCZkaHlj9VzNjCqB6pHJlOSylXwX7w1JGQw+IOiMD+vUf4j1sJq63123Lh
-TOa3WbjST9gE7L/gIlERJpsssuYAcsRa/M+66dgR1QRRz7Q8vJe/xZAXOQt7xxi/
-gDiLuOV0gI58pGQESIwASYGBHpNv2Tn2f4fcIdXe5lEhYP5ajVZwZq+TV5Co5vYv
-a64jSTgiEsefdTORuyHhpWxPymL1+Dsgbv1nm8OIt0uZ4N2w1YVy/LC7SX61xZ/V
-/8oB01ikMsuEXJeEejN2RQBYP0BVoijbibm19CbZdGsHaTTiOVbD+8gv0FxCR7ro
-WCG+oo9PPfw4BmIaZrmA
-=ZXlw
------END PGP SIGNATURE-----
-
---+gHRqQ1BTyNna/y8--
+Cc: bhelgaas@google.com
+Cc: dwmw2@infradead.org
+Cc: dmitry.torokhov@gmail.com
+Cc: balbi@ti.com
+Cc: gregkh@linuxfoundation.org
+Cc: plagnioj@jcrosoft.com
+Cc: jic23@kernel.org
+Cc: josh.wu@atmel.com
+Cc: kishon@ti.com
+Cc: linus.walleij@linaro.org
+Cc: broonie@kernel.org
+Cc: mturquette@linaro.org
+Cc: nicolas.ferre@atmel.com
+Cc: ohad@wizery.com
+Cc: linux@arm.linux.org.uk
+Cc: tony@atomide.com
+Cc: vinod.koul@intel.com
+Cc: wim@iguana.be
+Cc: wsa@the-dreams.de
+Cc: dmaengine@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-ide@vger.kernel.org
+Cc: linux-iio@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-mtd@lists.infradead.org
+Cc: linux-pci@vger.kernel.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: netdev@vger.kernel.org
