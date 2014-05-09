@@ -1,23 +1,76 @@
-From: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c/nuc900: fix ancient build error
-Date: Fri, 9 May 2014 18:23:07 -0400
-Message-ID: <CAJjB1qKWDN8dThK+P6VT40_F1t3b5_EOgfY0PFOCbsQ66XNFXA@mail.gmail.com>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
- <1399560990-1402858-1-git-send-email-arnd@arndb.de> <1399560990-1402858-11-git-send-email-arnd@arndb.de>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 3/6] i2c: rcar: do not print error if device nacks transfer
+Date: Sat, 10 May 2014 02:55:00 +0400
+Message-ID: <536D5CC4.6030209@cogentembedded.com>
+References: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk> <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk> <536BFF39.40607@cogentembedded.com> <536CA0B1.4040300@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1399560990-1402858-11-git-send-email-arnd-r2nGTMty4D4@public.gmane.org>
+In-Reply-To: <536CA0B1.4040300-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: "<linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org> mailing list" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, linux-kernel-81qHHgoATdFT9dQujB1mzip2UmYkHbXO@public.gmane.org
+Cc: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-"[PATCH] NUC900: patch for implement clk_get_rate"
-https://lkml.org/lkml/2010/6/15/147
+Hello.
 
-This patch would have fixed the apbfreq not being a real struct member
-and would also explain why clk_get_rate is called without using it's
-return value in the line above what you have.
+On 05/09/2014 01:32 PM, Ben Dooks wrote:
 
->From 2010, so it got dropped somewhere and ignored/abandoned
+>>> The i2c-rcar driver currently prints an error message if the master_xfer
+>>> callback fails. However if the bus is being probed then lots of NAKs
+>>> will be generated, causing the output of a number of errors printed.
+
+>>> To solve this, disable the print if the error is not -EREMOTEIO.
+
+>>> An example of running i2cdetect:
+
+>>> 10: i2c-rcar e6530000.i2c: error -121 : 15
+>>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>>> -- 12 i2c-rcar e6530000.i2c: error -121 : 15
+>>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>>> -- i2c-rcar e6530000.i2c: error -121 : 15
+
+>>> Cc: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+>>> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+>>> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>>> Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>>> Signed-off-by: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+>>> ---
+>>>   drivers/i2c/busses/i2c-rcar.c | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+
+>>> diff --git a/drivers/i2c/busses/i2c-rcar.c
+>>> b/drivers/i2c/busses/i2c-rcar.c
+>>> index 2c2fd7c..0d25104 100644
+>>> --- a/drivers/i2c/busses/i2c-rcar.c
+>>> +++ b/drivers/i2c/busses/i2c-rcar.c
+>>> @@ -623,7 +623,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter
+>>> *adap,
+>>>
+>>>       pm_runtime_put(dev);
+>>>
+>>> -    if (ret < 0)
+>>> +    if (ret < 0 && ret != -EREMOTEIO)
+>>>           dev_err(dev, "error %d : %x\n", ret, priv->flags);
+
+>>     Hm, I'm now getting -EBUSY and -EAGAIN running i2cdetect on R8A7791
+>> base Henninger board. Only when I comment out the above 2 lines, I can
+>> get the bus scanned, otherwise I don't see any devices at all.
+
+> i2c-detect does not work well on the i2c-rcar due to it insisting
+> on sending or receiving at-least one byte of data.
+
+   I've noticed that it works more or less reliable only the first time I run 
+it, on subsequent runs it only sees devices for which a driver is bound, IIRC.
+
+> I think it
+> is possible that it confuses some of the bus devices.
+
+    Yes, it seems to be the case. However, with these lines commented out, it 
+still works the first time...
+
+WBR, Sergei
