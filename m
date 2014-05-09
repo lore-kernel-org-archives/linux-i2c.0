@@ -1,46 +1,46 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 00/22] Random ARM randconfig fixes in drivers
-Date: Fri, 9 May 2014 13:48:49 +0200
-Message-ID: <201405091348.49713.arnd@arndb.de>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
- <20140508164157.GA22224@roeck-us.net>
+From: Naveen Krishna Ch <naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: exynos5: Initialise Samsung High Speed I2C
+ controller early
+Date: Fri, 9 May 2014 17:50:00 +0530
+Message-ID: <CAHfPSqB5+mLiC07jbEpeUgW63pZVk700SkYGxToO7GRAsFm_nQ@mail.gmail.com>
+References: <1398350916-885-1-git-send-email-ch.naveen@samsung.com> <20140424162558.GB12304@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20140508164157.GA22224@roeck-us.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: wsa@the-dreams.de, tony@atomide.com, linux-pci@vger.kernel.org, linus.walleij@linaro.org, nicolas.ferre@atmel.com, linux-ide@vger.kernel.org, wim@iguana.be, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, mturquette@linaro.org, vinod.koul@intel.com, linux-sh@vger.kernel.org, kishon@ti.com, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, plagnioj@jcrosoft.com, ohad@wizery.com, linux-watchdog@vger.kernel.org, broonie@kernel.org, bhelgaas@google.com, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, balbi@ti.com, josh.wu@atmel.com, netdev@vger.kernel.org, dmaengine@vger.kernel.org, dwmw2@infradead.org, jic23@kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140424162558.GB12304-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 08 May 2014, Guenter Roeck wrote:
-> On Thu, May 08, 2014 at 04:46:51PM +0200, Arnd Bergmann wrote:
-> > These are a bunch of fixes I had to do to get all randconfig
-> > configurations on ARM working. Most of these are really old
-> > bugs, but there are also some new ones. I don't think any of
-> > them require a backport to linux-stable.
-> > 
-> > I have checked that they are all still required on yesterday's
-> > linux-next kernel. Please apply on the appropriate trees unless
-> > there are objections.
-> > 
-> Is this series of patches also going to fix arm:allmodconfig ?
+Hello Mark,
 
-Possibly, I haven't checked in a while. I'm unfortunately sitting on
-about 200 other patches in the same branch, which together fix all
-build errors in any configuration I encountered.
+On 24 April 2014 21:55, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> On Thu, Apr 24, 2014 at 08:18:36PM +0530, Naveen Krishna Chatradhi wrote:
+>> This patch moves initialization code to subsys_initcall() to ensure
+>> that the i2c bus is available early so the regulators can be quickly
+>> probed and available for other devices on their probe() call.
+>
+>> Such solution has been proposed by Mark Brown to fix the problem of
+>> the regulators not beeing available on the peripheral device probe():
+>> http://lists.infradead.org/pipermail/linux-arm-kernel/2010-March/011971.html
+>
+> What specifically is this needed for?  We *should* be able to use
+> deferred probe for most things, but I know that not all subsystems are
+> able to yet.
+DRM related drivers like DP, FIMD, HDMI, Mixer wants to be probed ASAP
+during the boot.
+The real problem comes when, one of these drivers do a regulator_get().
 
-I should really do some allmodconfig/allnoconfig/allyesconfig
-builds without my series again, and prioritize sending out the
-ones required for that.
+If the physical supply  is not enabled/hookedup the regulator_get() call
+assumes that physical supply is present and returns a
+"dummy_regulator" (But, not an error).
 
-	Arnd
+Because of which, Display and several other devices fails to work.
+
+I2C, I2C_TUNNEL, SPI and DMA drivers are required as subsys_initcall()
+for similar reason.
+
+-- 
+Shine bright,
+(: Nav :)
