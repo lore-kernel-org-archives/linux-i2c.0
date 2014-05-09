@@ -1,71 +1,46 @@
-From: Ben Dooks <ben.dooks@codethink.co.uk>
-Subject: Re: [PATCH 3/6] i2c: rcar: do not print error if device nacks transfer
-Date: Fri, 09 May 2014 10:32:33 +0100
-Message-ID: <536CA0B1.4040300@codethink.co.uk>
-References: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk> <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk> <536BFF39.40607@cogentembedded.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 00/22] Random ARM randconfig fixes in drivers
+Date: Fri, 9 May 2014 13:48:49 +0200
+Message-ID: <201405091348.49713.arnd@arndb.de>
+References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
+ <20140508164157.GA22224@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <536BFF39.40607@cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, linux-kernel@lists.codethink.co.uk
-Cc: Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20140508164157.GA22224@roeck-us.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: wsa@the-dreams.de, tony@atomide.com, linux-pci@vger.kernel.org, linus.walleij@linaro.org, nicolas.ferre@atmel.com, linux-ide@vger.kernel.org, wim@iguana.be, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, mturquette@linaro.org, vinod.koul@intel.com, linux-sh@vger.kernel.org, kishon@ti.com, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, plagnioj@jcrosoft.com, ohad@wizery.com, linux-watchdog@vger.kernel.org, broonie@kernel.org, bhelgaas@google.com, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, balbi@ti.com, josh.wu@atmel.com, netdev@vger.kernel.org, dmaengine@vger.kernel.org, dwmw2@infradead.org, jic23@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/05/14 23:03, Sergei Shtylyov wrote:
-> Hello.
->
-> On 01/26/2014 07:05 PM, Ben Dooks wrote:
->
->> The i2c-rcar driver currently prints an error message if the master_xfer
->> callback fails. However if the bus is being probed then lots of NAKs
->> will be generated, causing the output of a number of errors printed.
->
->> To solve this, disable the print if the error is not -EREMOTEIO.
->
->> An example of running i2cdetect:
->
->> 10: i2c-rcar e6530000.i2c: error -121 : 15
->> -- i2c-rcar e6530000.i2c: error -121 : 15
->> -- 12 i2c-rcar e6530000.i2c: error -121 : 15
->> -- i2c-rcar e6530000.i2c: error -121 : 15
->> -- i2c-rcar e6530000.i2c: error -121 : 15
->> -- i2c-rcar e6530000.i2c: error -121 : 15
->> -- i2c-rcar e6530000.i2c: error -121 : 15
->> -- i2c-rcar e6530000.i2c: error -121 : 15
->
->> Cc: Simon Horman <horms+renesas@verge.net.au>
->> Cc: Wolfram Sang <wsa@the-dreams.de>
->> Cc: linux-i2c@vger.kernel.org
->> Cc: linux-sh@vger.kernel.org
->> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
->> ---
->>   drivers/i2c/busses/i2c-rcar.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->
->> diff --git a/drivers/i2c/busses/i2c-rcar.c
->> b/drivers/i2c/busses/i2c-rcar.c
->> index 2c2fd7c..0d25104 100644
->> --- a/drivers/i2c/busses/i2c-rcar.c
->> +++ b/drivers/i2c/busses/i2c-rcar.c
->> @@ -623,7 +623,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter
->> *adap,
->>
->>       pm_runtime_put(dev);
->>
->> -    if (ret < 0)
->> +    if (ret < 0 && ret != -EREMOTEIO)
->>           dev_err(dev, "error %d : %x\n", ret, priv->flags);
->
->     Hm, I'm now getting -EBUSY and -EAGAIN running i2cdetect on R8A7791
-> base Henninger board. Only when I comment out the above 2 lines, I can
-> get the bus scanned, otherwise I don't see any devices at all.
+On Thursday 08 May 2014, Guenter Roeck wrote:
+> On Thu, May 08, 2014 at 04:46:51PM +0200, Arnd Bergmann wrote:
+> > These are a bunch of fixes I had to do to get all randconfig
+> > configurations on ARM working. Most of these are really old
+> > bugs, but there are also some new ones. I don't think any of
+> > them require a backport to linux-stable.
+> > 
+> > I have checked that they are all still required on yesterday's
+> > linux-next kernel. Please apply on the appropriate trees unless
+> > there are objections.
+> > 
+> Is this series of patches also going to fix arm:allmodconfig ?
 
-i2c-detect does not work well on the i2c-rcar due to it insisting
-on sending or receiving at-least one byte of data. I think it
-is possible that it confuses some of the bus devices.
+Possibly, I haven't checked in a while. I'm unfortunately sitting on
+about 200 other patches in the same branch, which together fix all
+build errors in any configuration I encountered.
 
--- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+I should really do some allmodconfig/allnoconfig/allyesconfig
+builds without my series again, and prioritize sending out the
+ones required for that.
+
+	Arnd
