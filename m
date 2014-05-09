@@ -1,65 +1,26 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/6] i2c: rcar: do not print error if device nacks
- transfer
-Date: Fri, 9 May 2014 07:04:46 +0200
-Message-ID: <20140509050446.GA2624@katana>
-References: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk>
- <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk>
- <536BFF39.40607@cogentembedded.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 13/16] i2c: stu300: remove unnecessary OOM messages
+Date: Fri, 9 May 2014 10:56:15 +0200
+Message-ID: <CACRpkdaqMFLxHFCt1jK7iYe3z7Wjv61ACeZgo0S=CMBbyP6qGA@mail.gmail.com>
+References: <018301cf69aa$cb7987d0$626c9770$%han@samsung.com>
+	<019101cf69ac$f7d1ffe0$e775ffa0$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <536BFF39.40607-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <019101cf69ac$f7d1ffe0$e775ffa0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Cc: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, linux-kernel-81qHHgoATdFT9dQujB1mzip2UmYkHbXO@public.gmane.org, Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, May 7, 2014 at 6:29 AM, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The site-specific OOM messages are unnecessary, because they
+> duplicate the MM subsystem generic OOM message.
+>
+> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
+Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-> >-	if (ret < 0)
-> >+	if (ret < 0 && ret !=3D -EREMOTEIO)
-> >  		dev_err(dev, "error %d : %x\n", ret, priv->flags);
->=20
->    Hm, I'm now getting -EBUSY and -EAGAIN running i2cdetect on
-> R8A7791 base Henninger board. Only when I comment out the above 2
-> lines, I can get the bus scanned, otherwise I don't see any devices
-> at all.
-
-Huh, this is only a printout? Do you get those errors as well if you
-remove the printout and add a delay at that place?
-
-And -EAGAIN? This is arbitration lost. Do you have another I2C master on
-the bus?
-
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTbGHuAAoJEBQN5MwUoCm2fT4QAKMdjs3RNvwH2FfO4VamHynI
-gnbTVjmCkiNPVmfBXhHVzeGOIDox0n7cEvAwPpLKlCS27j8mjL3+0631zjTkm1BZ
-u/v61rWWn4r10J5+6rMbKpvYkji849peeIxXSfqMM2UKjlN5tiJ/L3ZUnD4t9PKI
-7v+YKT/14jWzPGy0MQh6HgNjARP3qKV9U3qOiqwik3p3iuQrma0IVSWrRo3uq693
-xla2ufBEOgOp3MHOFJC0S1iGlNaGVu/mqz9f90FRziISe9jvG9pvFE2HJ1mhgtN3
-D5iInhLNTvoDBLu4l4uHkvP1DEzOvNPCS74i1NsCjgBF6rRdGVBZ5DjSQr16AvGi
-KKb1ic7TC0WilR18embFCvjUF7QcTbC9JjT0xqTAxxFRN9E0fszXQ+CeBvQCPnHq
-LPpAEjG+k6rVN1LZBG2Lu86Flh4PpJdyKb46ONAvdD8SEzvgQ+HbyZH3O2MvNp/Z
-221rlx2z3J/gwYKR4xouaTgrFut1X8ZlkqtJcRpD0TaLcEHSSDIQmX+z3oEzFJX1
-QBOmlA/YjwjyrRxotsETRNCbiuXnUEXdK9yUMFn5hLnqAhB8mjAzqkyNDviimvuz
-UnkcvDBzhCHfZeA3RdLSpHF6ZOCWVV8jsW6nnXbh3deyc21GbXfV8ImJUao+jhEH
-bjZA75PbTUQZ6LRTmVMx
-=vshO
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+Yours,
+Linus Walleij
