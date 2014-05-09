@@ -1,26 +1,71 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 13/16] i2c: stu300: remove unnecessary OOM messages
-Date: Fri, 9 May 2014 10:56:15 +0200
-Message-ID: <CACRpkdaqMFLxHFCt1jK7iYe3z7Wjv61ACeZgo0S=CMBbyP6qGA@mail.gmail.com>
-References: <018301cf69aa$cb7987d0$626c9770$%han@samsung.com>
-	<019101cf69ac$f7d1ffe0$e775ffa0$%han@samsung.com>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH 3/6] i2c: rcar: do not print error if device nacks transfer
+Date: Fri, 09 May 2014 10:32:33 +0100
+Message-ID: <536CA0B1.4040300@codethink.co.uk>
+References: <1390752337-22386-1-git-send-email-ben.dooks@codethink.co.uk> <1390752337-22386-4-git-send-email-ben.dooks@codethink.co.uk> <536BFF39.40607@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <019101cf69ac$f7d1ffe0$e775ffa0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <536BFF39.40607@cogentembedded.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, linux-kernel@lists.codethink.co.uk
+Cc: Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 7, 2014 at 6:29 AM, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
-
-> The site-specific OOM messages are unnecessary, because they
-> duplicate the MM subsystem generic OOM message.
+On 08/05/14 23:03, Sergei Shtylyov wrote:
+> Hello.
 >
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> On 01/26/2014 07:05 PM, Ben Dooks wrote:
+>
+>> The i2c-rcar driver currently prints an error message if the master_xfer
+>> callback fails. However if the bus is being probed then lots of NAKs
+>> will be generated, causing the output of a number of errors printed.
+>
+>> To solve this, disable the print if the error is not -EREMOTEIO.
+>
+>> An example of running i2cdetect:
+>
+>> 10: i2c-rcar e6530000.i2c: error -121 : 15
+>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>> -- 12 i2c-rcar e6530000.i2c: error -121 : 15
+>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>> -- i2c-rcar e6530000.i2c: error -121 : 15
+>
+>> Cc: Simon Horman <horms+renesas@verge.net.au>
+>> Cc: Wolfram Sang <wsa@the-dreams.de>
+>> Cc: linux-i2c@vger.kernel.org
+>> Cc: linux-sh@vger.kernel.org
+>> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+>> ---
+>>   drivers/i2c/busses/i2c-rcar.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>> diff --git a/drivers/i2c/busses/i2c-rcar.c
+>> b/drivers/i2c/busses/i2c-rcar.c
+>> index 2c2fd7c..0d25104 100644
+>> --- a/drivers/i2c/busses/i2c-rcar.c
+>> +++ b/drivers/i2c/busses/i2c-rcar.c
+>> @@ -623,7 +623,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter
+>> *adap,
+>>
+>>       pm_runtime_put(dev);
+>>
+>> -    if (ret < 0)
+>> +    if (ret < 0 && ret != -EREMOTEIO)
+>>           dev_err(dev, "error %d : %x\n", ret, priv->flags);
+>
+>     Hm, I'm now getting -EBUSY and -EAGAIN running i2cdetect on R8A7791
+> base Henninger board. Only when I comment out the above 2 lines, I can
+> get the bus scanned, otherwise I don't see any devices at all.
 
-Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+i2c-detect does not work well on the i2c-rcar due to it insisting
+on sending or receiving at-least one byte of data. I think it
+is possible that it confuses some of the bus devices.
 
-Yours,
-Linus Walleij
+-- 
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
