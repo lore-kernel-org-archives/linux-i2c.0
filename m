@@ -1,16 +1,26 @@
-From: y@samsung.com
-Subject: [PATCH v3 1/6] i2c: s3c2410: Handle i2c sys_cfg register in i2c driver
-Date: Sat, 10 May 2014 16:18:02 +0900
-Message-ID: <1399706287-13919-2-git-send-email-y@samsung.com>
-References: <1399706287-13919-1-git-send-email-y@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1399706287-13919-1-git-send-email-y@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: kgene.kim@samsung.com, t.figa@samsung.com, arnd@arndb.de, Pankaj Dubey <pankaj.dubey@samsung.com>, Rob Herring <robh+dt@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Russell King <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
-
 From: Pankaj Dubey <pankaj.dubey@samsung.com>
+Subject: [PATCH v3 1/6] i2c: s3c2410: Handle i2c sys_cfg register in i2c driver
+Date: Sat, 10 May 2014 16:20:14 +0900
+Message-ID: <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
+References: <1399706287-13919-1-git-send-email-y@samsung.com>
+ <1399706419-13976-1-git-send-email-pankaj.dubey@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-reply-to: <1399706419-13976-1-git-send-email-pankaj.dubey@samsung.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: devicetree@vger.kernel.org, kgene.kim@samsung.com, Russell King <linux@arm.linux.org.uk>, arnd@arndb.de, Wolfram Sang <wsa@the-dreams.de>, Pankaj Dubey <pankaj.dubey@samsung.com>, t.figa@samsung.com, Randy Dunlap <rdunlap@infradead.org>, linux-doc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 Let's handle i2c interrupt re-configuration in i2c driver. This will
 help us in removing some soc specific checks from machine files.
