@@ -1,41 +1,56 @@
-From: Arnd Bergmann <arnd@arndb.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH] i2c/nuc900: fix ancient build error
-Date: Wed, 14 May 2014 20:14:23 +0200
-Message-ID: <4944869.eRrWyMmW4d@wuerfel>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de> <1399560990-1402858-11-git-send-email-arnd@arndb.de> <20140514162725.GG12911@katana>
+Date: Wed, 14 May 2014 21:17:49 +0200
+Message-ID: <20140514191749.GA25709@katana>
+References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
+ <1399560990-1402858-11-git-send-email-arnd@arndb.de>
+ <20140514162725.GG12911@katana>
+ <4944869.eRrWyMmW4d@wuerfel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140514162725.GG12911@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Baruch Siach <baruch@tkos.co.il>, Wan ZongShun <mcuos.com@gmail.org>, linux-kernel@vger.kernel.org, Marek Vasut <marek.vasut@gmail.com>, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4944869.eRrWyMmW4d@wuerfel>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 14 May 2014 18:27:25 Wolfram Sang wrote:
-> On Thu, May 08, 2014 at 04:56:22PM +0200, Arnd Bergmann wrote:
-> > As far as I can tell, this driver must have produced this error
-> > for as long as it has been merged into the mainline kernel, but
-> > it was never part of the normal build tests:
-> > 
-> > drivers/i2c/busses/i2c-nuc900.c: In function 'nuc900_i2c_probe':
-> > drivers/i2c/busses/i2c-nuc900.c:601:17: error: request for member 'apbfreq' in something not a structure or union
-> >   ret = (i2c->clk.apbfreq)/(pdata->bus_freq * 5) - 1;
-> >                  ^
-> > 
-> > This is an attempt to get the driver to build and possibly
-> > work correctly, although I do wonder whether we should just
-> > remove it, as it has clearly never worked.
-> 
-> I'd go for removing. For this platform, the last patch which was not a
-> generic cleanup seems to be from late 2011?
 
-Ah, you mean removing the entire platform? I guess we could do that
-as well, but I was really thinking of just removing the i2c driver.
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-For the moment, I'd leave this up to Wan ZongShun. He has in the past
-at least replied to emails about the platform, even though there hasn't
-been any new development.
 
-	Arnd
+> For the moment, I'd leave this up to Wan ZongShun. He has in the past
+> at least replied to emails about the platform, even though there hasn't
+> been any new development.
+
+Agreed. Let's wait for his response. If there is none, I'll think about
+removing the driver.
+
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTc8FdAAoJEBQN5MwUoCm2E9QP/jxPLp8arOPDrRmvM3afFc5j
+tioCbPk11VsNTwWN/eQF+ww4FHk4HXZIhXf1VUShBaVBAox3nSlowvYRjZrvam7E
+Lo/z6bYsw4Zef2I94PgTxVKyvUvHX/csyhdKqaBPJ6AkAhBICDLUr2LSsmJCSZ2C
+KqPdHeX63mdVXx/x8r4xQ9/mEnpDkCkn1fPmBHLcXr4INpp8O5S4SFZEy54rDLFh
+03NR5cPGXRrilJ2D6sk+GLnpheNY8fj/QX/xatI2R4/jwIG3gTsmTwltCd9XUwYG
+L1b2dpGlOwLW90OdCIrqT3PhasSlHyviojAuvaEA0gxiGJSKQuWGTbd3vVH9m/ql
+qxC8s56C51WSl8ZAKwa5XOnIHlJ2NGy/4Rt+wzAj5c7/vAb6jQsS+H3L7NmrvJF7
+L3J8f1STrAJYkCQHt71dq//RBnEoa7o7BPxR04SJWsxqW5ptsHHBaCLSdbfFE6VT
+g4KwGYDoif3YdmxbQgyK7RUZY67j3mbFWLBFFFlnrEc+YUpNlYZxSsehwpmdTvJe
+x2X+ZLVlUTxWt76DGQfra8E0yB9oNzI/UvzNpb4+oAqwVut51kKd3jdYKfRYaQRb
+5ueKuFKqX6V5LL3Df9ZHSXVvJzBoylk/QNqeXolia7zrGGsSuQnqmR1hcxihrXZ9
+RF2qx5fLOe2ONiE+KbR3
+=fvlQ
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--
