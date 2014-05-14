@@ -1,57 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: bail out on zero length transfers
-Date: Wed, 14 May 2014 18:13:30 +0200
-Message-ID: <20140514161330.GF12911@katana>
-References: <1399307781-23614-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c/nuc900: fix ancient build error
+Date: Wed, 14 May 2014 18:27:25 +0200
+Message-ID: <20140514162725.GG12911@katana>
+References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
+ <1399560990-1402858-1-git-send-email-arnd@arndb.de>
+ <1399560990-1402858-11-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pql/uPZNXIm1JCle"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="vSsTm1kUtxIHoa7M"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1399307781-23614-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-sh@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-i2c@vger.kernel.org, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+In-Reply-To: <1399560990-1402858-11-git-send-email-arnd-r2nGTMty4D4@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Pql/uPZNXIm1JCle
+--vSsTm1kUtxIHoa7M
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 05, 2014 at 06:36:21PM +0200, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Thu, May 08, 2014 at 04:56:22PM +0200, Arnd Bergmann wrote:
+> As far as I can tell, this driver must have produced this error
+> for as long as it has been merged into the mainline kernel, but
+> it was never part of the normal build tests:
 >=20
-> This hardware does not support zero length transfers. Instead, the
-> driver does one (random) byte transfers currently with undefined results
-> for the slaves. We now bail out.
+> drivers/i2c/busses/i2c-nuc900.c: In function 'nuc900_i2c_probe':
+> drivers/i2c/busses/i2c-nuc900.c:601:17: error: request for member 'apbfre=
+q' in something not a structure or union
+>   ret =3D (i2c->clk.apbfreq)/(pdata->bus_freq * 5) - 1;
+>                  ^
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> This is an attempt to get the driver to build and possibly
+> work correctly, although I do wonder whether we should just
+> remove it, as it has clearly never worked.
 
-Applied to for-current, thanks!
+I'd go for removing. For this platform, the last patch which was not a
+generic cleanup seems to be from late 2011?
 
 
---Pql/uPZNXIm1JCle
+--vSsTm1kUtxIHoa7M
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTc5YqAAoJEBQN5MwUoCm2EOIP/idHo3wJupbW9uR6fy03z4rq
-j/HKTbZcbvGD4WN0YpTYA+vvEJlx9wDTQkZYVbSl+zbQdlVnj9vD5kncjLUjUjHd
-jKkM9ETkLQhEKg0MrnKNiYLFJLZ0n8MFXHcRu0bVfMvOcl6z2eF+T1q8AHATmgEu
-yOx3VSmo7nnje/Y2//RYeNFysENx0tj/vzEa0IbZ+MpgHgZKptpwWDozu53V+eaM
-7uU2u7k99aZDua9XWvQlvov319CJcVBfOR/bGNHGy8IT/5cFU/kozs68q4o/RnJd
-j+kL6Y1BeX4pdsyRjCsSpXhd8c4T+86+DEVdxTTrypsIKxV36c1OKetNgBeFui4e
-5m7X/hE0f8weiW9p+/+a8u5kriE58IIDnmYdErCYLXMIYk4c4CBZac8U+Is3wh7Q
-uEzOxYHB0TWh+z9sxEd//asIV5EI81FAYagcOd+9bVCkkJEgNALa3TPt6V4p/IaA
-kKHqFxx9WnVUJ7AZan3OtCE1OVwTvlEQ2+ph57F5/7LipEJ2IEQ2h57jg2mDKtvg
-UK7T/E3KVANnEfojPpC7Vd7NOcpeK/tbcXs4beVBRl85tjaf8ifyDgsGSJQwLUOR
-LbWMlTUQjshX7ISKmkkgqRQVmFRH/IWOJtZQuGhCQRvmz4/nSeCgNK20QJSWiH1K
-hwle+CJ+jeazhynSukR/
-=/61M
+iQIcBAEBAgAGBQJTc5ltAAoJEBQN5MwUoCm2PgwP/3OQlPYP7PlfTFovjqujX9i2
+9AnQjjazSvwk2lHbJVQSZI2PrEYq/FuMlaKwKoDmh2j92MEc5ChgCcmOQusVApTQ
+BkhSag2qUSB+Cv4l6BqmsC5XkNWI1+4pYVt7FgsRVyCd5ay5Kv9O4bYZ/EtZlrRH
+lx5Aw8tAkL0bsllrck9VDlNBWDkx65OEQRPBelt45R0jdHEZRwVqYc6ASgvR56dr
+TgXxnclq18ftG67IbeTNzbbGzm5TLbZ/upftz0o39j12JV6AH5vsuv0F7Jv3h3ni
+N3I2wxJN5E670RbGmvGHuV2saVD4NTPEsBVn4r0/hKwzu+HID3nO0OTE3/iGDAAF
+ZxAka2AaSCiDjNTNNapp9SWKv2MzSlPzefektBwI6KZcEVMANAzHhbq4Cn4hbil4
+qpLOGUlkKvKEOoSmFErkgB4gpHJtMJKV6o1KHJs0RfP9rYDzSWW1/IjQEzRJ1/3t
+FInsQV9LFidMirW7pkUVykLnLEDnEsAp5qRbEm1jreai+0dkIyF8hm0cV1Kzv4zT
+SClb16hRTUomQG6CdeftcnxOAV0IaUPUVMayEKWqBbq43khuS4qe7C1EVuYHeOUs
+bkwIIkHiUp2UVCx6pV55b/PtShRh8Y9DHsuj4nyWiUYDMktFkQlZRNziXl1eux35
+hYMlA/xVbT75VQwTJzgt
+=Xm4p
 -----END PGP SIGNATURE-----
 
---Pql/uPZNXIm1JCle--
+--vSsTm1kUtxIHoa7M--
