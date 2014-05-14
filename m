@@ -1,56 +1,99 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c/nuc900: fix ancient build error
-Date: Wed, 14 May 2014 21:17:49 +0200
-Message-ID: <20140514191749.GA25709@katana>
-References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
- <1399560990-1402858-11-git-send-email-arnd@arndb.de>
- <20140514162725.GG12911@katana>
- <4944869.eRrWyMmW4d@wuerfel>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V2] i2c: ocores: Make of_device_id array const
+Date: Thu, 15 May 2014 08:17:33 +0900
+Message-ID: <005801cf6fca$af7fd0e0$0e7f72a0$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4944869.eRrWyMmW4d@wuerfel>
+Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Peter Korsgaard' <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>, 'Maxime COQUELIN' <maxime.coquelin-qxv4g6HH51o@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Make of_device_id array const, because all OF functions
+handle it as const.
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>
+Acked-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+---
+Changes since v1:
+- squashed all patches into a single patch
+- added acked-by
 
+ drivers/i2c/busses/i2c-ocores.c |    2 +-
+ drivers/i2c/busses/i2c-pxa.c    |    2 +-
+ drivers/i2c/busses/i2c-riic.c   |    2 +-
+ drivers/i2c/busses/i2c-st.c     |    2 +-
+ drivers/i2c/busses/i2c-wmt.c    |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-> For the moment, I'd leave this up to Wan ZongShun. He has in the past
-> at least replied to emails about the platform, even though there hasn't
-> been any new development.
-
-Agreed. Let's wait for his response. If there is none, I'll think about
-removing the driver.
-
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTc8FdAAoJEBQN5MwUoCm2E9QP/jxPLp8arOPDrRmvM3afFc5j
-tioCbPk11VsNTwWN/eQF+ww4FHk4HXZIhXf1VUShBaVBAox3nSlowvYRjZrvam7E
-Lo/z6bYsw4Zef2I94PgTxVKyvUvHX/csyhdKqaBPJ6AkAhBICDLUr2LSsmJCSZ2C
-KqPdHeX63mdVXx/x8r4xQ9/mEnpDkCkn1fPmBHLcXr4INpp8O5S4SFZEy54rDLFh
-03NR5cPGXRrilJ2D6sk+GLnpheNY8fj/QX/xatI2R4/jwIG3gTsmTwltCd9XUwYG
-L1b2dpGlOwLW90OdCIrqT3PhasSlHyviojAuvaEA0gxiGJSKQuWGTbd3vVH9m/ql
-qxC8s56C51WSl8ZAKwa5XOnIHlJ2NGy/4Rt+wzAj5c7/vAb6jQsS+H3L7NmrvJF7
-L3J8f1STrAJYkCQHt71dq//RBnEoa7o7BPxR04SJWsxqW5ptsHHBaCLSdbfFE6VT
-g4KwGYDoif3YdmxbQgyK7RUZY67j3mbFWLBFFFlnrEc+YUpNlYZxSsehwpmdTvJe
-x2X+ZLVlUTxWt76DGQfra8E0yB9oNzI/UvzNpb4+oAqwVut51kKd3jdYKfRYaQRb
-5ueKuFKqX6V5LL3Df9ZHSXVvJzBoylk/QNqeXolia7zrGGsSuQnqmR1hcxihrXZ9
-RF2qx5fLOe2ONiE+KbR3
-=fvlQ
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 1f6369f..0e10cc6 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -250,7 +250,7 @@ static struct i2c_adapter ocores_adapter = {
+ 	.algo		= &ocores_algorithm,
+ };
+ 
+-static struct of_device_id ocores_i2c_match[] = {
++static const struct of_device_id ocores_i2c_match[] = {
+ 	{
+ 		.compatible = "opencores,i2c-ocores",
+ 		.data = (void *)TYPE_OCORES,
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index bbe6dfb..be671f7 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1084,7 +1084,7 @@ static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
+ 	.functionality	= i2c_pxa_functionality,
+ };
+ 
+-static struct of_device_id i2c_pxa_dt_ids[] = {
++static const struct of_device_id i2c_pxa_dt_ids[] = {
+ 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
+ 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
+ 	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA2XX },
+diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
+index 9e1f8ba..af3b3d0 100644
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -404,7 +404,7 @@ static int riic_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static struct of_device_id riic_i2c_dt_ids[] = {
++static const struct of_device_id riic_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,riic-rz" },
+ 	{ /* Sentinel */ },
+ };
+diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
+index 8720161..95b94767 100644
+--- a/drivers/i2c/busses/i2c-st.c
++++ b/drivers/i2c/busses/i2c-st.c
+@@ -847,7 +847,7 @@ static int st_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static struct of_device_id st_i2c_match[] = {
++static const struct of_device_id st_i2c_match[] = {
+ 	{ .compatible = "st,comms-ssc-i2c", },
+ 	{ .compatible = "st,comms-ssc4-i2c", },
+ 	{},
+diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
+index 2c8a3e4..924b501 100644
+--- a/drivers/i2c/busses/i2c-wmt.c
++++ b/drivers/i2c/busses/i2c-wmt.c
+@@ -454,7 +454,7 @@ static int wmt_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static struct of_device_id wmt_i2c_dt_ids[] = {
++static const struct of_device_id wmt_i2c_dt_ids[] = {
+ 	{ .compatible = "wm,wm8505-i2c" },
+ 	{ /* Sentinel */ },
+ };
+-- 
+1.7.10.4
