@@ -1,53 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: qup: Fix pm_runtime_get_sync usage
-Date: Wed, 14 May 2014 18:07:14 +0200
-Message-ID: <20140514160714.GE12911@katana>
-References: <1399082069-6666-1-git-send-email-agross@codeaurora.org>
+Subject: Re: [PATCH] i2c: rcar: bail out on zero length transfers
+Date: Wed, 14 May 2014 18:13:30 +0200
+Message-ID: <20140514161330.GF12911@katana>
+References: <1399307781-23614-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ryJZkp9/svQ58syV"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="Pql/uPZNXIm1JCle"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1399082069-6666-1-git-send-email-agross@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Gross <agross@codeaurora.org>
-Cc: linux-i2c@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org
+In-Reply-To: <1399307781-23614-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-sh@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-i2c@vger.kernel.org, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---ryJZkp9/svQ58syV
+--Pql/uPZNXIm1JCle
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 02, 2014 at 08:54:29PM -0500, Andy Gross wrote:
-> This patch corrects the error check on the call to pm_runtime_get_sync.
+On Mon, May 05, 2014 at 06:36:21PM +0200, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Signed-off-by: Andy Gross <agross@codeaurora.org>
+> This hardware does not support zero length transfers. Instead, the
+> driver does one (random) byte transfers currently with undefined results
+> for the slaves. We now bail out.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Applied to for-current, thanks!
 
 
---ryJZkp9/svQ58syV
+--Pql/uPZNXIm1JCle
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTc5SyAAoJEBQN5MwUoCm20O8QAIpN37oNf7hhucLYgB6WHoaG
-4rqezYMo884A3Atx7RUF9yZLUJF1ayKxEjVdnDzcHQ113KJa9TEurhmShKVu9QlG
-2GoPJPf3RYQuhIPwKc4VHlHaBogS+IrBQP2klJnvnaICDSFAz6VkZFGCKBSefR1z
-p/Jj9+SOiQNNG1t7cCw/zfFqMdWuyrfShB8aB8RfUrplX/y8fIhDAKaiVkbPS1c5
-DgQqtOWYOXwlZfQIk/zHiFxGDaBQagJOBXYUnHZ9eUQek9UrSiMPcdIlvFj6Byjx
-ZtVxElJz8uSOGTX5tTVsXcyaAkIzJHcEVxcKmWMcAX0I2lvu2L4kW4kzYaEWQwRf
-0zAFUBdpDo89L1l7ADSltmIT6/0xsuVbhQgp49LySiWNnRcIQ86GxvoWNh/EaKT8
-5r6vh4MlOSGZm15oV5+nqpdzo1EjYUh0KGRa92bylfWAfwOk1qUKCbQTJjf9db3v
-1PRMqQ3xEGDmAd/huh4ibZoOR5G1RNqlSyDxmQAkfGIfBHgRP1+6xdMU2sRmpCxQ
-c5TlBvEwgFsTip8hEZYzaIQ62+OsX4tRUruhJq29N0GXiwDdlM9z5xqzYrLuTlBq
-p+dpzV6SZ7+Rj2hTtyJDdzQQLVxZGD2JBpJbSEL8KLPU7gCK9jwB0biZUAErO2L5
-VE2mQ2jgddzw8NwXOlvp
-=xU3O
+iQIcBAEBAgAGBQJTc5YqAAoJEBQN5MwUoCm2EOIP/idHo3wJupbW9uR6fy03z4rq
+j/HKTbZcbvGD4WN0YpTYA+vvEJlx9wDTQkZYVbSl+zbQdlVnj9vD5kncjLUjUjHd
+jKkM9ETkLQhEKg0MrnKNiYLFJLZ0n8MFXHcRu0bVfMvOcl6z2eF+T1q8AHATmgEu
+yOx3VSmo7nnje/Y2//RYeNFysENx0tj/vzEa0IbZ+MpgHgZKptpwWDozu53V+eaM
+7uU2u7k99aZDua9XWvQlvov319CJcVBfOR/bGNHGy8IT/5cFU/kozs68q4o/RnJd
+j+kL6Y1BeX4pdsyRjCsSpXhd8c4T+86+DEVdxTTrypsIKxV36c1OKetNgBeFui4e
+5m7X/hE0f8weiW9p+/+a8u5kriE58IIDnmYdErCYLXMIYk4c4CBZac8U+Is3wh7Q
+uEzOxYHB0TWh+z9sxEd//asIV5EI81FAYagcOd+9bVCkkJEgNALa3TPt6V4p/IaA
+kKHqFxx9WnVUJ7AZan3OtCE1OVwTvlEQ2+ph57F5/7LipEJ2IEQ2h57jg2mDKtvg
+UK7T/E3KVANnEfojPpC7Vd7NOcpeK/tbcXs4beVBRl85tjaf8ifyDgsGSJQwLUOR
+LbWMlTUQjshX7ISKmkkgqRQVmFRH/IWOJtZQuGhCQRvmz4/nSeCgNK20QJSWiH1K
+hwle+CJ+jeazhynSukR/
+=/61M
 -----END PGP SIGNATURE-----
 
---ryJZkp9/svQ58syV--
+--Pql/uPZNXIm1JCle--
