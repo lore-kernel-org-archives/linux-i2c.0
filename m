@@ -1,36 +1,33 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 2/4] i2c: designware: Disable device on system suspend
-Date: Thu, 15 May 2014 17:37:22 +0300
-Message-ID: <1400164644-3222-3-git-send-email-mika.westerberg@linux.intel.com>
-References: <1400164644-3222-1-git-send-email-mika.westerberg@linux.intel.com>
+Subject: [PATCH 0/4] i2c: designware: Fixes for Asus T100 and Haswell PCI IDs
+Date: Thu, 15 May 2014 17:37:20 +0300
+Message-ID: <1400164644-3222-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1400164644-3222-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Yao Jin <yao.jin@intel.com>, Aubrey Li <aubrey.li@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Userspace can initiate system suspend on arbitrary times which means that
-device drivers must make sure that their device gets quiesced before system
-suspend is entered. Therefore disable the I2C host controller in the driver
-system suspend hook.
+Hi,
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
- 1 file changed, 1 insertion(+)
+Patches 1-3 are needed in order to get runtime PM working properly on Intel
+Baytrail based tablets, like on Asus T100. We need to re-initialize the
+controller on resume.
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 9c7802614342..f72102f389c5 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -253,6 +253,7 @@ static int dw_i2c_suspend(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
-+	i2c_dw_disable(i_dev);
- 	clk_disable_unprepare(i_dev->clk);
- 
- 	return 0;
+Patch 4 adds Haswell PCI IDs to the driver. It is independent of the
+preceding patches but I decided to include it here as well. Haswell based
+chromebooks need this.
+
+Mika Westerberg (4):
+  i2c: designware: No need to disable already disabled controller
+  i2c: designware: Disable device on system suspend
+  i2c: designware: Add runtime PM hooks
+  i2c: designware-pci: Add Haswell PCI IDs
+
+ drivers/i2c/busses/i2c-designware-core.c    |  4 ++++
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 22 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c | 13 ++++++-------
+ 3 files changed, 32 insertions(+), 7 deletions(-)
+
 -- 
 2.0.0.rc2
