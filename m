@@ -1,37 +1,36 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 1/4] i2c: designware: No need to disable already disabled controller
-Date: Thu, 15 May 2014 17:37:21 +0300
-Message-ID: <1400164644-3222-2-git-send-email-mika.westerberg@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 2/4] i2c: designware: Disable device on system suspend
+Date: Thu, 15 May 2014 17:37:22 +0300
+Message-ID: <1400164644-3222-3-git-send-email-mika.westerberg@linux.intel.com>
 References: <1400164644-3222-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1400164644-3222-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Yao Jin <yao.jin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aubrey Li <aubrey.li-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1400164644-3222-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Yao Jin <yao.jin@intel.com>, Aubrey Li <aubrey.li@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-If the controller is already in desired state (enabled/disabled) there is
-no point in setting its state again.
+Userspace can initiate system suspend on arbitrary times which means that
+device drivers must make sure that their device gets quiesced before system
+suspend is entered. Therefore disable the I2C host controller in the driver
+system suspend hook.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index b58ecf19e767..b0792675b970 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -258,6 +258,10 @@ static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
- {
- 	int timeout = 100;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 9c7802614342..f72102f389c5 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -253,6 +253,7 @@ static int dw_i2c_suspend(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
  
-+	/* In case the controller is already in desired state */
-+	if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) == enable)
-+		return;
-+
- 	do {
- 		dw_writel(dev, enable, DW_IC_ENABLE);
- 		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) == enable)
++	i2c_dw_disable(i_dev);
+ 	clk_disable_unprepare(i_dev->clk);
+ 
+ 	return 0;
 -- 
 2.0.0.rc2
