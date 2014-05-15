@@ -1,85 +1,33 @@
-From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Patch V2 0/9] I2C ACPI operation region handler support
-Date: Thu, 15 May 2014 22:49:37 +0800
-Message-ID: <5374D401.2010608@intel.com>
-References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com> <3275231.ERSr3mUlis@devpool02> <53722700.6010001@intel.com> <2676258.HXv5hGZIFG@devpool02>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] i2c: nomadik: Fixup system suspend
+Date: Thu, 15 May 2014 17:36:17 +0200
+Message-ID: <CAPDyKFrgSTwwM591w8czQi5rHQVwdfKTURXmpvEt-uauFeu=oQ@mail.gmail.com>
+References: <1397138376-28427-1-git-send-email-ulf.hansson@linaro.org>
+	<CACRpkdb8VJ_Qqype4uP_YJ5=RncJndFUZv_yDxmZwq5S=_yZ2g@mail.gmail.com>
+	<CAPDyKFo6K-mbtKcs8wPmc=E-t=Djs-ufi_+SLLpCKej+bEwbDw@mail.gmail.com>
+	<CAPDyKFqxa3ZveRUWseT25cSOcn-6vUVBR0q515qsha1z0WfdNQ@mail.gmail.com>
+	<20140515074826.GA2591@katana>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------090301070001020905090202"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <2676258.HXv5hGZIFG@devpool02>
+In-Reply-To: <20140515074826.GA2591@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rolf Eike Beer <eb-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090301070001020905090202
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-On 05/15/2014 03:50 PM, Rolf Eike Beer wrote:
-> Lan Tianyu wrote:
->> On 05/13/2014 09:09 PM, Rolf Eike Beer wrote:
->>> Am Montag, 28. April 2014, 22:27:39 schrieb Lan Tianyu:
->>>> ACPI 5.0 spec(5.5.2.4.5) defines GenericSerialBus(i2c, spi, uart)
->>>> operation
->>>> region. It allows ACPI aml code able to access such kind of devices to
->>>> implement some ACPI standard method.
->>>>
->>>> On the Asus T100TA, Bios use GenericSerialBus operation region to access
->>>> i2c device to get battery info. So battery function depends on the I2C
->>>> operation region support. Here is the bug link.
->>>> https://bugzilla.kernel.org/show_bug.cgi?id=69011
->>>
->>> Hi all,
->>
->>> I have tested this series and got some errors, but no additional
-> functionality:
->> Hi Rolf:
->> 	Thanks for test. Could you attach the output of dmesg and acpidump?
->> Which machine you are testing on?
+On 15 May 2014 09:48, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
 >
-> Hi,
+>> I noticed you merged my other i2c-nomadik patch yesterday - thought I
+>> might remind you about this one as well.
 >
-> this is an Aava Inari 8 tablet (pre-release hardware). Please find the DSDT
-> and the dmesg.log attached.
+> I was working on for-current. I'll start working on for-next these days.
+> I use patchwork, as long as you cc the list, patches won't be forgotten
+> ;)
+
+Thanks Wolfram, sorry for nagging! :-)
+
+Kind regards
+Ulf Hansson
+
 >
-> In case of any further questions don't hesitate to ask, I'll try to be more
-> responsible.
->
-
-Hi Eike:
-	Could you apply the patch in the attachment and attach the output of 	dmesg?
-					
-
-
-> Regards,
->
-> Eike
->
-
-
---------------090301070001020905090202
-Content-Type: text/x-patch;
- name="debug.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="debug.patch"
-
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index 4ed8d48..cc8c132 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -139,8 +139,7 @@ int acpi_bus_attach_private_data(acpi_handle handle, void *data)
- 	status = acpi_attach_data(handle,
- 			acpi_bus_private_data_handler, data);
- 	if (ACPI_FAILURE(status)) {
--		ACPI_ERROR((AE_INFO, "Error attaching device[%p] data\n",
--				handle));
-+		acpi_handle_err(handle, "Error attaching device data %d\n", status);
- 		return -ENODEV;
- 	}
- 
-
---------------090301070001020905090202--
