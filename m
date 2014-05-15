@@ -1,102 +1,57 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V3] i2c: Make of_device_id array const
-Date: Thu, 15 May 2014 15:46:11 +0900
-Message-ID: <000e01cf7009$5bfabf90$13f03eb0$%han@samsung.com>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] i2c: nomadik: Fixup system suspend
+Date: Thu, 15 May 2014 09:15:06 +0200
+Message-ID: <CAPDyKFqxa3ZveRUWseT25cSOcn-6vUVBR0q515qsha1z0WfdNQ@mail.gmail.com>
+References: <1397138376-28427-1-git-send-email-ulf.hansson@linaro.org>
+	<CACRpkdb8VJ_Qqype4uP_YJ5=RncJndFUZv_yDxmZwq5S=_yZ2g@mail.gmail.com>
+	<CAPDyKFo6K-mbtKcs8wPmc=E-t=Djs-ufi_+SLLpCKej+bEwbDw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-language: ko
+In-Reply-To: <CAPDyKFo6K-mbtKcs8wPmc=E-t=Djs-ufi_+SLLpCKej+bEwbDw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Peter Korsgaard' <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>, 'Maxime COQUELIN' <maxime.coquelin-qxv4g6HH51o@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Make of_device_id array const, because all OF functions
-handle it as const.
+On 6 May 2014 11:31, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On 10 April 2014 20:49, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>> On Thu, Apr 10, 2014 at 3:59 PM, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>>
+>>> For !CONFIG_PM_RUNTIME, the device were never put back into active
+>>> state while resuming.
+>>>
+>>> For CONFIG_PM_RUNTIME, we blindly trusted the device to be inactive
+>>> while we were about to handle it at suspend late, which is just too
+>>> optimistic.
+>>>
+>>> Even if the driver uses pm_runtime_put_sync() after each tranfer to
+>>> return it's runtime PM resources, there are no guarantees this will
+>>> actually mean the device will inactivated. The reason is that the PM
+>>> core will prevent runtime suspend during system suspend, and thus when
+>>> a transfer occurs during the early phases of system suspend the device
+>>> will be kept active after the transfer.
+>>>
+>>> To handle both issues above, use pm_runtime_force_suspend|resume() from
+>>> the system suspend|resume callbacks.
+>>>
+>>> Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
+>>> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>>> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+>>> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>>
+>> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>
+> Hi Wolfram,
+>
+> This patch as has been around for a while (in some other versions as
+> well), would you mind picking it up for 3.16?
+>
 
-Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>
-Acked-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
----
-Changes since v2:
-- fixed the subject, per Peter Korsgaard
+Ping.
 
-Changes since v1:
-- squashed all patches into a single patch
-- added acked-by
+I noticed you merged my other i2c-nomadik patch yesterday - thought I
+might remind you about this one as well.
 
- drivers/i2c/busses/i2c-ocores.c |    2 +-
- drivers/i2c/busses/i2c-pxa.c    |    2 +-
- drivers/i2c/busses/i2c-riic.c   |    2 +-
- drivers/i2c/busses/i2c-st.c     |    2 +-
- drivers/i2c/busses/i2c-wmt.c    |    2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 1f6369f..0e10cc6 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -250,7 +250,7 @@ static struct i2c_adapter ocores_adapter = {
- 	.algo		= &ocores_algorithm,
- };
- 
--static struct of_device_id ocores_i2c_match[] = {
-+static const struct of_device_id ocores_i2c_match[] = {
- 	{
- 		.compatible = "opencores,i2c-ocores",
- 		.data = (void *)TYPE_OCORES,
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index bbe6dfb..be671f7 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1084,7 +1084,7 @@ static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
- 	.functionality	= i2c_pxa_functionality,
- };
- 
--static struct of_device_id i2c_pxa_dt_ids[] = {
-+static const struct of_device_id i2c_pxa_dt_ids[] = {
- 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
- 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
- 	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA2XX },
-diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index 9e1f8ba..af3b3d0 100644
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -404,7 +404,7 @@ static int riic_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct of_device_id riic_i2c_dt_ids[] = {
-+static const struct of_device_id riic_i2c_dt_ids[] = {
- 	{ .compatible = "renesas,riic-rz" },
- 	{ /* Sentinel */ },
- };
-diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-index 8720161..95b94767 100644
---- a/drivers/i2c/busses/i2c-st.c
-+++ b/drivers/i2c/busses/i2c-st.c
-@@ -847,7 +847,7 @@ static int st_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct of_device_id st_i2c_match[] = {
-+static const struct of_device_id st_i2c_match[] = {
- 	{ .compatible = "st,comms-ssc-i2c", },
- 	{ .compatible = "st,comms-ssc4-i2c", },
- 	{},
-diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-index 2c8a3e4..924b501 100644
---- a/drivers/i2c/busses/i2c-wmt.c
-+++ b/drivers/i2c/busses/i2c-wmt.c
-@@ -454,7 +454,7 @@ static int wmt_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static struct of_device_id wmt_i2c_dt_ids[] = {
-+static const struct of_device_id wmt_i2c_dt_ids[] = {
- 	{ .compatible = "wm,wm8505-i2c" },
- 	{ /* Sentinel */ },
- };
--- 
-1.7.10.4
+Kind regards
+Ulf Hansson
