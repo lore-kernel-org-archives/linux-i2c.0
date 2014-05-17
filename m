@@ -1,87 +1,68 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.15
-Date: Sat, 17 May 2014 09:19:38 +0200
-Message-ID: <20140517071932.GA3087@katana>
+Subject: Re: [Patch V2 5/9] I2C: Add smbus quick read/write helper function
+Date: Sat, 17 May 2014 11:41:20 +0200
+Message-ID: <20140517094120.GA2602@katana>
+References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
+ <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
+ <1398695268-28645-6-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <1398695268-28645-6-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---qMm9M+Fa2AknHoGS
+--oyUTqETQ0mS9luUI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Mon, Apr 28, 2014 at 10:27:44PM +0800, Lan Tianyu wrote:
+> Add i2c_smbus_quick_write/read() helper function. These will be used
+> in the implementation of i2c ACPI address space handler.
+>=20
+> Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-here are some I2C bugfixes for 3.15. Typical stuff, I'd say. Please
-pull.
+We had such a function once but removed because of no users. Please
+check 67c2e66571c383404a5acd08189194da660da942 what it takes to bring
+them back. Especially missing are documentation updates...
 
-Thanks,
+> +s32 i2c_smbus_quick_write(const struct i2c_client *client)
 
-   Wolfram
+=2E.. and I like the original function much better.
+
+1) It is named *_write_quick which follows other function name patterns
+2) It uses a parameter for the r/w bit. Make sense to me, since this bit
+is the information we send to the device. quick_read doesn't make sense
+to me. We don't receive a bit from the device.
 
 
-The following changes since commit d6d211db37e75de2ddc3a4f979038c40df7cc79c:
-
-  Linux 3.15-rc5 (2014-05-09 13:10:52 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to d7653964c590ba846aa11a8f6edf409773cbc492:
-
-  i2c: rcar: bail out on zero length transfers (2014-05-14 18:59:57 +0200)
-
-----------------------------------------------------------------
-Andy Gross (1):
-      i2c: qup: Fix pm_runtime_get_sync usage
-
-Du, Wenkai (1):
-      i2c: designware: Mask all interrupts during i2c controller enable
-
-Olof Johansson (1):
-      i2c: s3c2410: resume race fix
-
-Ulf Hansson (1):
-      i2c: nomadik: Don't use IS_ERR for devm_ioremap
-
-Wolfram Sang (1):
-      i2c: rcar: bail out on zero length transfers
-
- drivers/i2c/busses/i2c-designware-core.c | 3 +++
- drivers/i2c/busses/i2c-nomadik.c         | 2 +-
- drivers/i2c/busses/i2c-qup.c             | 2 +-
- drivers/i2c/busses/i2c-rcar.c            | 9 ++++++++-
- drivers/i2c/busses/i2c-s3c2410.c         | 2 +-
- 5 files changed, 14 insertions(+), 4 deletions(-)
-
---qMm9M+Fa2AknHoGS
+--oyUTqETQ0mS9luUI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTdw2EAAoJEBQN5MwUoCm2//IP/2DFFyi8tdYxj0CqJgFsaGrH
-E4ub9py4HcP/ibgtpKTv8LETSf5umpd6sF2ZA77s/TVKGFG8ITsK6Dt9IS/pDQoW
-hUnw77USQVfpn8kx0DW4WoVExHrbnv6yLoakZzrEy0yINLxQ0DLQgiXpuvF1IEnc
-WIgdgVtbCwQXRX0BhBebFUx0SoQ2xYnNWcgA3M7B1hf8NwFK0X6lpWR1s7/ReXK5
-G5iGM+a3Aavoo0FzsHHl/VIrNpuIdEpFPv8Xw9th3Iw4wcDURCqK92+sVlTp5phC
-fsb6bf5Nv7Kn2fj7kLFEDiipl2tufzKl40edJY7ywADSThXHpWfZKujHqOjkc0tf
-/wGopO3thCRNchwiRmKUK9/MP36rsAymesfC3YQG11V+RXron/Hlrn9f/Dgu+Dk+
-5jjo6EWqeu0BznM4r+osS558MIKbWjvd+P8xYVcpAhvkTbpwQWEqru8eSVRTFz/W
-1bpKKBFC6LNlJm7pVSGabs8iVWYFFE04XzRAwDZxPqn8IESlktiZiYSCROZuSkET
-Dofof0LmT6qH1ATOlMkHe1ezskWE/Hp9jOYqpgp6OGCsxRzSZE4bEWWT3bLd4gSI
-9Ak3xg3LnKlv0E0UJ7SD/+aBfnXdmDwJnEpFVzU+yauIby1kIsq5vd4AC1+Z/QuJ
-3gL7fMwHS1w2Ij+C58kC
-=J+oH
+iQIcBAEBAgAGBQJTdy7AAAoJEBQN5MwUoCm2NSUP/2EZxG4n2opUpSHD0ZrcWkVY
+KRqmpf0RkmKo49EyPtZvF43kBzqKB4yFSHdVR8J7oAgQkn8v7v7YDcRKy7cPW0jN
+JR9eKSi8ETvoUCO6hyxtyT/C3gYuCk0QAAsWh3Gkn59an4slL3knOKPD0D+yEK7W
+1wmkWP0SuE40a2TikN627uw+Du2Wyh+v+EecRUcctAD6Xbg0SF5jdPK2jH/giHbh
+n0bfX15mPPdkCD4aGh39LnAQZqw7TbV5o/TrYKGLM0MRj0qiEWNd9HctrupTwcMW
+lJydAauSHTNJNZ3FBMSb79Q/fcsf3HzhLpcqBkv1bX/Ldmtb+uXPi460XLorMLaX
+MBPzPvnTIxjwu4GVuKjXxiiFwTpf1T9dSaUaOPKBmEjGcjxNGrEnRukwGqJFbllz
+VPm5YHRTBEeL74Zx8qvC7brqGk0ttBtN9qSKFfjy3YQ2whid96cLEEcq/VA/tYej
+Nngw5ho6zs4X+ReeVZDZJlmuwTWiamTGCXqhf81UBDXbTVwbQJmlH29fSWM8O5m8
+PlH/ZDC1i1kBPlCdqmJYQ5fW2WWu4OqO+R8d6ywNRV4c5o7z+V0iWvgybO58DUQD
+C6cv65MjEMAbn4V5sU5bgiuE0rUewuJgHm7Eec4dZV1ra/e/AjPnqZP1VUa1vTdJ
+L3XtiCzNndwg6onviNfP
+=4bzq
 -----END PGP SIGNATURE-----
 
---qMm9M+Fa2AknHoGS--
+--oyUTqETQ0mS9luUI--
