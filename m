@@ -1,68 +1,135 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [Patch V2 5/9] I2C: Add smbus quick read/write helper function
-Date: Sat, 17 May 2014 11:41:20 +0200
-Message-ID: <20140517094120.GA2602@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [Patch V2 6/9] I2C: Add smbus word/block process call helper
+ function
+Date: Sat, 17 May 2014 12:21:10 +0200
+Message-ID: <20140517102110.GB2602@katana>
 References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
  <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-6-git-send-email-tianyu.lan@intel.com>
+ <1398695268-28645-7-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1398695268-28645-6-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1398695268-28645-7-git-send-email-tianyu.lan@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Lan Tianyu <tianyu.lan@intel.com>
+Cc: rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---oyUTqETQ0mS9luUI
+--9zSXsLTf0vkW971A
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 28, 2014 at 10:27:44PM +0800, Lan Tianyu wrote:
-> Add i2c_smbus_quick_write/read() helper function. These will be used
+On Mon, Apr 28, 2014 at 10:27:45PM +0800, Lan Tianyu wrote:
+> Add i2c_smbus_word/block_proc_call() helper function. These will be used
 > in the implementation of i2c ACPI address space handler.
 >=20
-> Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
+> ---
+>  drivers/i2c/i2c-core.c | 56 ++++++++++++++++++++++++++++++++++++++++++++=
+++++++
+>  include/linux/i2c.h    |  4 ++++
+>  2 files changed, 60 insertions(+)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 3bf0048..638befd 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2306,6 +2306,30 @@ s32 i2c_smbus_write_word_data(const struct i2c_cli=
+ent *client, u8 command,
+>  EXPORT_SYMBOL(i2c_smbus_write_word_data);
+> =20
+>  /**
+> + * i2c_smbus_word_proc_call - SMBus "word proc call" protocol
+> + * @client: Handle to slave device
+> + * @command: Byte interpreted by slave
+> + * @value: 16-bit "word" being written
+> + *
+> + * This executes the SMBus "word proc all" protocol, returning negative =
+errno
+> + * else a 16-bit unsigned "word" received from the device.
+> + */
+> +s32 i2c_smbus_word_proc_call(const struct i2c_client *client, u8 command,
+> +			      u16 value)
+> +{
+> +	union i2c_smbus_data data;
+> +	int status;
+> +
+> +	data.word =3D value;
+> +	status =3D i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+> +			      I2C_SMBUS_READ, command,
+> +			      I2C_SMBUS_PROC_CALL, &data);
+> +
+> +	return (status < 0) ? status : data.word;
+> +}
+> +EXPORT_SYMBOL(i2c_smbus_word_proc_call);
+> +
+> +/**
 
-We had such a function once but removed because of no users. Please
-check 67c2e66571c383404a5acd08189194da660da942 what it takes to bring
-them back. Especially missing are documentation updates...
+Same as smbus_quick function before, documentation updates are missing.
+Also similar, we had such a function before which was removed due to no
+users? It looks very much like the function here, so we should stick to
+the old naming IMO. Is it the old one? Such information would be nice
+since it affects reviewing.
 
-> +s32 i2c_smbus_quick_write(const struct i2c_client *client)
+>   * i2c_smbus_read_block_data - SMBus "block read" protocol
+>   * @client: Handle to slave device
+>   * @command: Byte interpreted by slave
+> @@ -2362,6 +2386,38 @@ s32 i2c_smbus_write_block_data(const struct i2c_cl=
+ient *client, u8 command,
+>  }
+>  EXPORT_SYMBOL(i2c_smbus_write_block_data);
+> =20
+> +/**
+> + * i2c_smbus_block_proc_call - SMBus "block write" protocol
+> + * @client: Handle to slave device
+> + * @command: Byte interpreted by slave
+> + * @length: Size of data block; SMBus allows at most 32 bytes
+> + * @values: Byte array which will be written.
+> + *
+> + * This executes the SMBus "block proc call" protocol, returning negativ=
+e errno
+> + * else the number of read bytes.
+> + */
+> +s32 i2c_smbus_block_proc_call(const struct i2c_client *client, u8 comman=
+d,
+> +			       u8 length, u8 *values)
 
-=2E.. and I like the original function much better.
+Please rename to "i2c_smbus_block_process_call" as the old function was
+named. Needs documentation updates.
 
-1) It is named *_write_quick which follows other function name patterns
-2) It uses a parameter for the r/w bit. Make sense to me, since this bit
-is the information we send to the device. quick_read doesn't make sense
-to me. We don't receive a bit from the device.
+> +	if (length > I2C_SMBUS_BLOCK_MAX)
+> +		length =3D I2C_SMBUS_BLOCK_MAX;
+
+I think we should return an error here.
+
+BTW what were your test scenarios for these functions and smbus quick?
 
 
---oyUTqETQ0mS9luUI
+--9zSXsLTf0vkW971A
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTdy7AAAoJEBQN5MwUoCm2NSUP/2EZxG4n2opUpSHD0ZrcWkVY
-KRqmpf0RkmKo49EyPtZvF43kBzqKB4yFSHdVR8J7oAgQkn8v7v7YDcRKy7cPW0jN
-JR9eKSi8ETvoUCO6hyxtyT/C3gYuCk0QAAsWh3Gkn59an4slL3knOKPD0D+yEK7W
-1wmkWP0SuE40a2TikN627uw+Du2Wyh+v+EecRUcctAD6Xbg0SF5jdPK2jH/giHbh
-n0bfX15mPPdkCD4aGh39LnAQZqw7TbV5o/TrYKGLM0MRj0qiEWNd9HctrupTwcMW
-lJydAauSHTNJNZ3FBMSb79Q/fcsf3HzhLpcqBkv1bX/Ldmtb+uXPi460XLorMLaX
-MBPzPvnTIxjwu4GVuKjXxiiFwTpf1T9dSaUaOPKBmEjGcjxNGrEnRukwGqJFbllz
-VPm5YHRTBEeL74Zx8qvC7brqGk0ttBtN9qSKFfjy3YQ2whid96cLEEcq/VA/tYej
-Nngw5ho6zs4X+ReeVZDZJlmuwTWiamTGCXqhf81UBDXbTVwbQJmlH29fSWM8O5m8
-PlH/ZDC1i1kBPlCdqmJYQ5fW2WWu4OqO+R8d6ywNRV4c5o7z+V0iWvgybO58DUQD
-C6cv65MjEMAbn4V5sU5bgiuE0rUewuJgHm7Eec4dZV1ra/e/AjPnqZP1VUa1vTdJ
-L3XtiCzNndwg6onviNfP
-=4bzq
+iQIcBAEBAgAGBQJTdzgWAAoJEBQN5MwUoCm2DhMP/1eF1Yngua+m5AOI+7+vsm5u
+0IShycGgfu4fLWaE2IChiQbTyx/nBrerUG0M3+i50KWQ7t2BeO8h4xkHVUFmfkEH
+4rBITORQQn6gG+8L7KW3oFjUAfQUQrU/3H+fofAlGNMBEjnVOKJK+KLggJC4Tvyl
+YCwPEZgsAH2UhF+JfpVqyUtDyBosgjEc5JmBurUcbwkDN8B6TxZxG9O8V/4MGrvJ
+3/S3JWyLKq8uShYZrCTqY/zdHaQO7KPqvu19Ox0OnOb/w6dAc6uUeaeHdY8zaFHi
+2NX6WTh+tj1of0Y6YQf+q5g2YHy1NSokxr86CP8pBU+20Qf7uqx1PMK2VASRpK95
+PvftinwG/5RxUmsTgwng+vKQagTynUs7ibJGaQRDzHaV5RtG35ElFWN+pLVsI+GD
+6o9/oawDQlFMXhv63ir+6QPg1DIKw3sMSpJ4dhma7zjqO0DZ1Zy//lIPMZX/ueOD
+ZgqeVpys5WnUw8y+wIbE/tKkI4S2qq8YSWtttkhVfRkG1XIkLLY6p4zb93HzFvR9
+p5RO3ZjNu8f9oMKzJjPMQ1vFF6GNFLWzHYEqlrQ4iXdkwFaWgJi5GgwxoKtx6CSu
+hDmI+Cyn+UHdliZwH9IchJlY9i4xHhcVWydIr49+REh5Z8cwUdCWEJpAQpy4ZUdl
+maND4QFoI7qGpeWWcYpo
+=3bde
 -----END PGP SIGNATURE-----
 
---oyUTqETQ0mS9luUI--
+--9zSXsLTf0vkW971A--
