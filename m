@@ -1,69 +1,65 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V2 5/9] I2C: Add smbus quick read/write helper function
-Date: Sat, 17 May 2014 19:15:56 +0200
-Message-ID: <20140517171555.GA2597@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [Patch V2 6/9] I2C: Add smbus word/block process call helper
+ function
+Date: Sat, 17 May 2014 19:17:59 +0200
+Message-ID: <20140517171759.GB2597@katana>
 References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
  <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-6-git-send-email-tianyu.lan@intel.com>
- <20140517094120.GA2602@katana>
- <5377607F.9010800@intel.com>
+ <1398695268-28645-7-git-send-email-tianyu.lan@intel.com>
+ <20140517102110.GB2602@katana>
+ <53776B32.8010400@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="Bn2rw/3z4jIqBvZU"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5377607F.9010800@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>
-Cc: rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+In-Reply-To: <53776B32.8010400-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---sm4nu43k4a2Rpi4c
+--Bn2rw/3z4jIqBvZU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
-> >2) It uses a parameter for the r/w bit. Make sense to me, since this bit
-> >is the information we send to the device. quick_read doesn't make sense
-> >to me. We don't receive a bit from the device.
+> >BTW what were your test scenarios for these functions and smbus quick?
 > >
 >=20
-> Hi Wolfram:
-> 	Great thanks for your review. Ok. I will follow commit 67c2e665 to
-> bring i2c_smbus_write_quick(struct i2c_client *client, u8 value)
-> back.
->=20
-> BTW, how about i2c_probe_func_quick_read()? Should we replace it
-> with the original i2c_smbus_write_quick()?
+> From ACPI spec, Read/Write quick and Word/Block process call
+> protocol will be used by Bios ACPI code. But so far, I don't find
+> such machines. So these functions has not been tested.
 
-As said above "quick_read doesn't make sense to me. We don't receive a
-bit from the device."
+Uh oh, I have some trouble adding untested code. Can't we add until we
+have a user to verify it?
 
-Start implementing and you will see why we don't need it :)
+BTW I have to review the other patches later, so please wait before
+resending the series.
 
 
---sm4nu43k4a2Rpi4c
+--Bn2rw/3z4jIqBvZU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTd5lLAAoJEBQN5MwUoCm29ocP/0n3kCnsZhboHNy58x9TY6oM
-yHYu7WtSUGREecAOE04gVdSaM2K2/ttfuBujdj2HPzLDAPZV9md4X1mO2VHRJdBJ
-xKhRxpJbfxnh9XqcjNe+jN6ila22zV1Iigp8VMHKNPDzjIhu/upUSomrVvFN80B7
-VHgWQDk8ReySiF2/zwlVlAI5QOPyhEb8GuS1ke0aM5IJKdOAPS5QlcfBVJAH3nbJ
-pvtWcL1PngHuqlYd2OWCUezWe46LpU3jyHslCZuEml+fuXa58cqXHffFR4aufvPa
-nYD5kFFxiC5AEwU5DW+bySXmTWEzOxwNg58tzsf12OLLf3/LvXLipYJBOFdi1/+O
-BsanvqM+qscs1x0w/NcB8p2Ab1g6dcr7dwxRPlw91mTdjPPOXbGMUDtEzhzhavqH
-Y8c78zsSA95AJdNp3XA69aEhutwk2lWh4VX7ra9Hk7Sr64Mk3AaRqO6nJ7vqWw1o
-ABMihCy2uCAn1W3opHno3CWeBVxvGugMuV168mMSO9KH+myYT/0dfQZvybSG63sf
-qjo2NE2hflvMXctoQflEqJtt5fntHn+ckFcz1zE8RmypU+4Y/KwnthQ0XumQy/wK
-Xl2GexRtvMpEkpUzIc/eTw41t8vXZuf2NsEshiNdvBbYMuN2j9fRNlLDZDzS4gVf
-sPIKhACEM5qfTrF74Qss
-=qtS1
+iQIcBAEBAgAGBQJTd5nGAAoJEBQN5MwUoCm2oKsP/AzXQEsPi+RG05UtIYXCkIva
+hFs2MdBOcfqNpLuT5zn742q6+6xo7RUHFcz47aV4o+bvFjccOz1HLhDzpLnp9MV0
+FyNFGLQqp3d72y7UDhlO8x4k8InYTWFoTSEzEIOijXLILKZbdpNwsj2i517epX/p
+273QMKYfn5QhxwD4KmiPSHJviU7ti7cqGzxF1YSHyOxZpoufdjQZ2UPCwHR5532h
+z/RBCMfRGCtACm1uyKLKzhuXvDmbrC7TdpQ+o2NwFMOGEQYi2J1LmVQkl87wWrCg
+niwNRfDWu7dJhw8tzfVWWDRjGVJheZO/LJ0nMa4/iHToYN3IJk077dWdiubapLua
+/eijEiIonXxdJKB2Xu2tv7wE3j6KXCoDWz9tm4h5N9n/T5NOM+bE+p0Ts39ccNTV
+SMKknrt7RUyVXRQbI9fydQfy3Sn2g5GKhnrC4Hu0d0KivU3AQoNU/ZoxneNc+N14
+QIAjOUX3e+d6DJ6QwixiLgJ4VrZEIA/5u2UgVvS6FR2Jrt/yJUwQ3id+9Dn2bvxQ
+mL6KDIwxo6RZN2btrL+FgSdh4AN20xVCsqOI6wW+imfmb3xt4LnNveO8L2+kgQCJ
+WDCLTWU8xZpzqdMrKtuMfds9yd8k+BSzSdkB6/sgU1/vhQjftBLlaKNwy6aBVtIG
+MvFVxhHmw2cl9P+Ojq9s
+=60b/
 -----END PGP SIGNATURE-----
 
---sm4nu43k4a2Rpi4c--
+--Bn2rw/3z4jIqBvZU--
