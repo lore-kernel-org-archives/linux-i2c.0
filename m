@@ -1,85 +1,36 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [Patch V2 9/9] I2C/ACPI: Add CONFIG_I2C_ACPI config
-Date: Mon, 19 May 2014 11:49:44 +0300
-Message-ID: <20140519084944.GH2067@lahna.fi.intel.com>
-References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-1-git-send-email-tianyu.lan@intel.com>
- <1398695268-28645-10-git-send-email-tianyu.lan@intel.com>
- <20140429081609.GF1684@lahna.fi.intel.com>
- <20140517174834.GA2858@katana>
+From: Lan Tianyu <tianyu.lan@intel.com>
+Subject: Re: [Patch V2 6/9] I2C: Add smbus word/block process call helper
+ function
+Date: Mon, 19 May 2014 17:23:29 +0800
+Message-ID: <5379CD91.2080709@intel.com>
+References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com> <1398695268-28645-1-git-send-email-tianyu.lan@intel.com> <1398695268-28645-7-git-send-email-tianyu.lan@intel.com> <20140517102110.GB2602@katana> <53776B32.8010400@intel.com> <20140517171759.GB2597@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140517174834.GA2858@katana>
+In-Reply-To: <20140517171759.GB2597@katana>
 Sender: linux-acpi-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Lan Tianyu <tianyu.lan@intel.com>, rjw@rjwysocki.net, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Cc: rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, May 17, 2014 at 07:48:34PM +0200, Wolfram Sang wrote:
-> On Tue, Apr 29, 2014 at 11:16:09AM +0300, Mika Westerberg wrote:
-> > On Mon, Apr 28, 2014 at 10:27:48PM +0800, Lan Tianyu wrote:
-> > > This patch is to add CONFIG_I2C_ACPI. Current there is a race between
-> > > removing I2C ACPI operation region and ACPI AML code accessing.
-> > > So make i2c core built-in if CONFIG_I2C_ACPI is set.
-> > > 
-> > > Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
-> > > ---
-> > >  drivers/i2c/Kconfig  | 17 ++++++++++++++++-
-> > >  drivers/i2c/Makefile |  2 +-
-> > >  include/linux/i2c.h  |  2 +-
-> > >  3 files changed, 18 insertions(+), 3 deletions(-)
-> > > 
-> > > diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-> > > index 7b7ea32..c670d49 100644
-> > > --- a/drivers/i2c/Kconfig
-> > > +++ b/drivers/i2c/Kconfig
-> > > @@ -2,7 +2,9 @@
-> > >  # I2C subsystem configuration
-> > >  #
-> > >  
-> > > -menuconfig I2C
-> > > +menu "I2C support"
-> > > +
-> > > +config I2C
-> > >  	tristate "I2C support"
-> > >  	select RT_MUTEXES
-> > >  	---help---
-> > > @@ -21,6 +23,17 @@ menuconfig I2C
-> > >  	  This I2C support can also be built as a module.  If so, the module
-> > >  	  will be called i2c-core.
-> > >  
-> > > +config I2C_ACPI
-> > > +	bool "I2C ACPI support"
-> > > +	select I2C
-> > > +	depends on ACPI
-> > > +	default y
-> > > +	help
-> > > +	  Say Y here if you want to enable I2C ACPI function. ACPI table
-> > > +	  provides I2C slave devices' information to enumerate these devices.
-> > > +	  This option also allows ACPI AML code to access I2C slave devices
-> > > +	  via I2C ACPI operation region to fulfill ACPI method.
-> > 
-> > I would prefer something like:
-> > 
-> > Say Y here if you want to enable ACPI I2C support. This includes support
-> > for automatic enumeration of I2C slave devices and support for ACPI I2C
-> > Operation Regions. Operation Regions allow firmware (BIOS) code to
-> > access I2C slave devices, such as smart batteries through an I2C host
-> > controller driver.
-> > 
-> > But it is really up to you so,
-> > 
-> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> 
-> How does this fit into the context of
-> 55e71edb81b2b45273e7b284cce13ff24bde846f ("i2c: move ACPI helpers into
-> the core")?
+On 05/18/2014 01:17 AM, Wolfram Sang wrote:
+>
+>>> BTW what were your test scenarios for these functions and smbus quick?
+>>>
+>>
+>>  From ACPI spec, Read/Write quick and Word/Block process call
+>> protocol will be used by Bios ACPI code. But so far, I don't find
+>> such machines. So these functions has not been tested.
+>
+> Uh oh, I have some trouble adding untested code. Can't we add until we
+> have a user to verify it?
 
-With that commit we moved ACPI code to live inside I2C module (given
-that it was compiled as a module). However, you still can remove that
-module from userspace.
+Ok. I will remove these patches from this patchset since currently there are no 
+users.
 
-With this patch we make sure that the I2C core can't be removed if you
-have ACPI enabled. This prevents the potential race.
+>
+> BTW I have to review the other patches later, so please wait before
+> resending the series.
+>
+
