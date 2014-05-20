@@ -1,308 +1,53 @@
-From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [Patch V3 5/5] I2C/ACPI: Clean up I2C ACPI code and Add CONFIG_I2C_ACPI config
-Date: Tue, 20 May 2014 20:59:24 +0800
-Message-ID: <1400590764-11108-6-git-send-email-tianyu.lan@intel.com>
+From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [Patch V3 3/5] ACPI/Thermal: Use acpi_bus_attach_private_data() to attach private data
+Date: Tue, 20 May 2014 20:59:22 +0800
+Message-ID: <1400590764-11108-4-git-send-email-tianyu.lan@intel.com>
 References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org
-Cc: Lan Tianyu <tianyu.lan@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1400590764-11108-1-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Clean up ACPI related code in the i2c core and add CONFIG_I2C_ACPI
-to enable I2C ACPI code.
+Use acpi_bus_attach_private_data() to attach private data
+instead of acpi_attach_data().
 
-Current there is a race between removing I2C ACPI operation region
-and ACPI AML code accessing. So make i2c core built-in if CONFIG_I2C_ACPI
-is set.
-
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/Kconfig    | 18 +++++++++-
- drivers/i2c/Makefile   |  2 +-
- drivers/i2c/i2c-acpi.c | 89 ++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-core.c | 95 --------------------------------------------------
- include/linux/i2c.h    |  4 ++-
- 5 files changed, 110 insertions(+), 98 deletions(-)
+ drivers/acpi/thermal.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-index 7b7ea32..3e3b680 100644
---- a/drivers/i2c/Kconfig
-+++ b/drivers/i2c/Kconfig
-@@ -2,7 +2,9 @@
- # I2C subsystem configuration
- #
+diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
+index c1e31a4..ae195fd 100644
+--- a/drivers/acpi/thermal.c
++++ b/drivers/acpi/thermal.c
+@@ -925,13 +925,10 @@ static int acpi_thermal_register_thermal_zone(struct acpi_thermal *tz)
+ 	if (result)
+ 		return result;
  
--menuconfig I2C
-+menu "I2C support"
-+
-+config I2C
- 	tristate "I2C support"
- 	select RT_MUTEXES
- 	---help---
-@@ -21,6 +23,18 @@ menuconfig I2C
- 	  This I2C support can also be built as a module.  If so, the module
- 	  will be called i2c-core.
- 
-+config I2C_ACPI
-+	bool "I2C ACPI support"
-+	select I2C
-+	depends on ACPI
-+	default y
-+	help
-+	  Say Y here if you want to enable ACPI I2C support. This includes support
-+	  for automatic enumeration of I2C slave devices and support for ACPI I2C
-+	  Operation Regions. Operation Regions allow firmware (BIOS) code to
-+	  access I2C slave devices, such as smart batteries through an I2C host
-+	  controller driver.
-+
- if I2C
- 
- config I2C_BOARDINFO
-@@ -124,3 +138,5 @@ config I2C_DEBUG_BUS
- 	  on.
- 
- endif # I2C
-+
-+endmenu
-diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-index 80db307..a1f590c 100644
---- a/drivers/i2c/Makefile
-+++ b/drivers/i2c/Makefile
-@@ -3,7 +3,7 @@
- #
- 
- i2ccore-y := i2c-core.o
--i2ccore-$(CONFIG_ACPI)		+= i2c-acpi.o
-+i2ccore-$(CONFIG_I2C_ACPI)	+= i2c-acpi.o
- 
- obj-$(CONFIG_I2C_BOARDINFO)	+= i2c-boardinfo.o
- obj-$(CONFIG_I2C)		+= i2ccore.o
-diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
-index f7f4c89..e8b6196 100644
---- a/drivers/i2c/i2c-acpi.c
-+++ b/drivers/i2c/i2c-acpi.c
-@@ -37,6 +37,95 @@ struct gsb_buffer {
- 	};
- } __packed;
- 
-+static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
-+{
-+	struct i2c_board_info *info = data;
-+
-+	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
-+		struct acpi_resource_i2c_serialbus *sb;
-+
-+		sb = &ares->data.i2c_serial_bus;
-+		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-+			info->addr = sb->slave_address;
-+			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
-+				info->flags |= I2C_CLIENT_TEN;
-+		}
-+	} else if (info->irq < 0) {
-+		struct resource r;
-+
-+		if (acpi_dev_resource_interrupt(ares, 0, &r))
-+			info->irq = r.start;
-+	}
-+
-+	/* Tell the ACPI core to skip this resource */
-+	return 1;
-+}
-+
-+static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
-+				       void *data, void **return_value)
-+{
-+	struct i2c_adapter *adapter = data;
-+	struct list_head resource_list;
-+	struct i2c_board_info info;
-+	struct acpi_device *adev;
-+	int ret;
-+
-+	if (acpi_bus_get_device(handle, &adev))
-+		return AE_OK;
-+	if (acpi_bus_get_status(adev) || !adev->status.present)
-+		return AE_OK;
-+
-+	memset(&info, 0, sizeof(info));
-+	info.acpi_node.companion = adev;
-+	info.irq = -1;
-+
-+	INIT_LIST_HEAD(&resource_list);
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     acpi_i2c_add_resource, &info);
-+	acpi_dev_free_resource_list(&resource_list);
-+
-+	if (ret < 0 || !info.addr)
-+		return AE_OK;
-+
-+	adev->power.flags.ignore_parent = true;
-+	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
-+	if (!i2c_new_device(adapter, &info)) {
-+		adev->power.flags.ignore_parent = false;
-+		dev_err(&adapter->dev,
-+			"failed to add I2C device %s from ACPI\n",
-+			dev_name(&adev->dev));
-+	}
-+
-+	return AE_OK;
-+}
-+
-+/**
-+ * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
-+ * @adap: pointer to adapter
-+ *
-+ * Enumerate all I2C slave devices behind this adapter by walking the ACPI
-+ * namespace. When a device is found it will be added to the Linux device
-+ * model and bound to the corresponding ACPI handle.
-+ */
-+void acpi_i2c_register_devices(struct i2c_adapter *adap)
-+{
-+	acpi_handle handle;
-+	acpi_status status;
-+
-+	if (!adap->dev.parent)
-+		return;
-+
-+	handle = ACPI_HANDLE(adap->dev.parent);
-+	if (!handle)
-+		return;
-+
-+	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-+				     acpi_i2c_add_device, NULL,
-+				     adap, NULL);
+-	status = acpi_attach_data(tz->device->handle,
+-				  acpi_bus_private_data_handler,
+-				  tz->thermal_zone);
+-	if (ACPI_FAILURE(status)) {
+-		pr_err(PREFIX "Error attaching device data\n");
++	status =  acpi_bus_attach_private_data(tz->device->handle,
++					       tz->thermal_zone);
 +	if (ACPI_FAILURE(status))
-+		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
-+}
-+
- static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
- 		u8 cmd, u8 *data, u8 data_len)
- {
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index e25cb84..4ccff11 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1092,101 +1092,6 @@ EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
+ 		return -ENODEV;
+-	}
  
--/* ACPI support code */
--
--#if IS_ENABLED(CONFIG_ACPI)
--static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
--{
--	struct i2c_board_info *info = data;
--
--	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		struct acpi_resource_i2c_serialbus *sb;
--
--		sb = &ares->data.i2c_serial_bus;
--		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
--			info->addr = sb->slave_address;
--			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
--				info->flags |= I2C_CLIENT_TEN;
--		}
--	} else if (info->irq < 0) {
--		struct resource r;
--
--		if (acpi_dev_resource_interrupt(ares, 0, &r))
--			info->irq = r.start;
--	}
--
--	/* Tell the ACPI core to skip this resource */
--	return 1;
--}
--
--static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
--				       void *data, void **return_value)
--{
--	struct i2c_adapter *adapter = data;
--	struct list_head resource_list;
--	struct i2c_board_info info;
--	struct acpi_device *adev;
--	int ret;
--
--	if (acpi_bus_get_device(handle, &adev))
--		return AE_OK;
--	if (acpi_bus_get_status(adev) || !adev->status.present)
--		return AE_OK;
--
--	memset(&info, 0, sizeof(info));
--	info.acpi_node.companion = adev;
--	info.irq = -1;
--
--	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list,
--				     acpi_i2c_add_resource, &info);
--	acpi_dev_free_resource_list(&resource_list);
--
--	if (ret < 0 || !info.addr)
--		return AE_OK;
--
--	adev->power.flags.ignore_parent = true;
--	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
--	if (!i2c_new_device(adapter, &info)) {
--		adev->power.flags.ignore_parent = false;
--		dev_err(&adapter->dev,
--			"failed to add I2C device %s from ACPI\n",
--			dev_name(&adev->dev));
--	}
--
--	return AE_OK;
--}
--
--/**
-- * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
-- * @adap: pointer to adapter
-- *
-- * Enumerate all I2C slave devices behind this adapter by walking the ACPI
-- * namespace. When a device is found it will be added to the Linux device
-- * model and bound to the corresponding ACPI handle.
-- */
--static void acpi_i2c_register_devices(struct i2c_adapter *adap)
--{
--	acpi_handle handle;
--	acpi_status status;
--
--	if (!adap->dev.parent)
--		return;
--
--	handle = ACPI_HANDLE(adap->dev.parent);
--	if (!handle)
--		return;
--
--	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
--				     acpi_i2c_add_device, NULL,
--				     adap, NULL);
--	if (ACPI_FAILURE(status))
--		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
--}
--#else
--static inline void acpi_i2c_register_devices(struct i2c_adapter *adap) {}
--#endif /* CONFIG_ACPI */
--
- static int i2c_do_add_adapter(struct i2c_driver *driver,
- 			      struct i2c_adapter *adap)
- {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index f7a939a..ea50766 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -577,10 +577,12 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
+ 	tz->tz_enabled = 1;
+ 
+@@ -946,7 +943,7 @@ static void acpi_thermal_unregister_thermal_zone(struct acpi_thermal *tz)
+ 	sysfs_remove_link(&tz->thermal_zone->device.kobj, "device");
+ 	thermal_zone_device_unregister(tz->thermal_zone);
+ 	tz->thermal_zone = NULL;
+-	acpi_detach_data(tz->device->handle, acpi_bus_private_data_handler);
++	acpi_bus_detach_private_data(tz->device->handle);
  }
- #endif /* CONFIG_OF */
  
--#ifdef CONFIG_ACPI
-+#ifdef CONFIG_I2C_ACPI
- int acpi_i2c_install_space_handler(struct i2c_adapter *adapter);
- void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter);
-+void acpi_i2c_register_devices(struct i2c_adapter *adap);
- #else
-+static inline void acpi_i2c_register_devices(struct i2c_adapter *adap) { }
- static inline void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter)
- { }
- static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
+ 
 -- 
 1.8.3.1
