@@ -1,54 +1,86 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 02/13] i2c: gpio: Use devm_gpio_request()
-Date: Wed, 21 May 2014 12:59:19 +0200
-Message-ID: <20140521105919.GR2708@katana>
-References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
- <001e01cefaf3$f8b520e0$ea1f62a0$%han@samsung.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
+Date: Wed, 21 May 2014 13:00:19 +0200
+Message-ID: <20140521110019.GS2708@katana>
+References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
+ <CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
+ <CABYn4szejurs2gBVOx_+geOxw13r9KvoShfRiM7OOF5wVvDPLA@mail.gmail.com>
+ <20130221091434.GA22806@the-dreams.de>
+ <CABYn4swuDgTvvyigjnabcg46rcze-DnGhv2Rh7WEFdwkXcHR4Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="soWJpSPh+l8Y6Fy7"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="0blaZc+aUkVqY8MO"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <001e01cefaf3$f8b520e0$ea1f62a0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Haavard Skinnemoen' <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Bo Shen' <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <CABYn4swuDgTvvyigjnabcg46rcze-DnGhv2Rh7WEFdwkXcHR4Q@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Bastian Hecht <hechtb@gmail.com>
+Cc: Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---soWJpSPh+l8Y6Fy7
+--0blaZc+aUkVqY8MO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 17, 2013 at 03:48:19PM +0900, Jingoo Han wrote:
-> Use devm_gpio_request() to make cleanup paths simpler.
+On Thu, Feb 21, 2013 at 08:54:06AM -0600, Bastian Hecht wrote:
+> Hi Wolfram,
 >=20
-> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> oh yes I can gladly do so. To make a realistic estimation it might
+> take a few weeks until I find time for it though. If we can wait so
+> long, count on me.
 
-Applied to for-next, thanks!
+Ping. Still interested?
 
+>=20
+> Best,
+>=20
+>  Bastian
+>=20
+> 2013/2/21 Wolfram Sang <wsa@the-dreams.de>:
+> > Hi Bastian,
+> >
+> >> > Also, do you know the reason why this isn't handled in the i2c layer
+> >> > by default? I ask because your comment mentions that i2c-tegra.c does
+> >> > the same thing and I can't see anything in this patch that is actual=
+ly
+> >> > related to our I2C hardware.
+> >>
+> >> Yes, many drivers have a similar scheme and to me it more looked like
+> >> all drivers need to take care about this case unrelated to different
+> >> hardware. So the question arises if this can't be handled in the core
+> >> - or if I get something wrong here.
+> >
+> > I don't see any reason why this couldn't be handled in the core. If you
+> > want to have a take on this issue (after the other bug is fixed), this
+> > will be highly appreciated.
+> >
+> > Thanks,
+> >
+> >    Wolfram
+> >
 
---soWJpSPh+l8Y6Fy7
+--0blaZc+aUkVqY8MO
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfIcHAAoJEBQN5MwUoCm2yK4P/2Y+2bYjs2WZeEUv6IYDMWBR
-3heWCDB0lxlb3b6mX7AKN4LmQR1iJf3sXhBqFrh0m0KKTxhtpKQbv4QQ0KO+8ehO
-LmaaTaHsjPp7UHHFutWg7bQZYFosqbg/QLRsZ72VgGBX6J/W17FSWy9t54BRKmW+
-Ck6qWx+eqnIlmWySScQ4BoVDjbQr1uOdtcom8fMtqSIeIzwZ35g/XJ3C9BgjEcw0
-o8ff2CgEo6OlbUzuGnMg5BnpBKWwNlG1XcPHKfU5UB956g7Ava24WWYW83QKWmPS
-HbsHN6/G8k3cuQJBLqVoXujUr8XL5x6O01ouKkd7a7vYpR7myPttRj8J+oGHvqWN
-0ZFm4Piyz9b2ZVLWB8xEy9F81woRvBpCLPhGuqMFyj7LKPOKk5ieFWQhHqZjV4rp
-wINM0mdGHUVIAzo0KZ9GkivijqXGQdZFMU8F84gEAs3VKfngMUgMNA0P3kdMLrb1
-Qik0oA7HNhaWaV+Qjz6PKgWlvwK4M/dL+/2kqAbHRurL6DLg7SJ8kxhLh+CGnouJ
-7Ouq3KmiBNOdloNQrgtw+abIU9jZ+nkNHoFfjjHc3cV05CvMtesrVmyWSfvzp7b6
-mvdmOk/ms1GAzd82s+vD6hZsXRofvxZiJ/4zAx8BNKxJGxLJn2puqKoLG7eS/l0K
-UHIgzfhYlPXBRetKUjW2
-=//VF
+iQIcBAEBAgAGBQJTfIdDAAoJEBQN5MwUoCm2ABsP/1CHLgithUJ+bvOdv1kMdpcD
+ZlaxnxNLK69Vw5us2yWE6UR1yl50pH7Z/V1IazTfSYr2owt6wbBZrfvug6ypcd1H
+9okqJIiOGYReaN/QXiywqyCKfUHYHzQI7Jl5dfGNsgJdljoQDDTrVSUfY3FY60q2
+MW/ijbZmVpQT+Gt3+Jp+hKi4kOT6Zw3Z8bNT6pUE+6Owogo/Jr1YPjrH7XRFt+wT
+X7oT4eN3cGhOILF0OQcyl7Jyx7JA3CHwZpP/0i+cDjgpE5cUBJG5DoEWgn4pNHDc
+Z/1Ojb4q5CRdFhudapWP9t/BEEDP8wHu0/RYIARjtZmpiN2ldDHqB3cqwW4NeefJ
+MXOUhxKcOHnZeYoc59XFsqhNr01CW66z2LKGxwzJjhzgkdg3DR6EgzdadTan8K5P
+9b4vwHDK0pv+OGp2yo52PVNlP0zLM8/oTb+YurVNJnZLuF33nKAIZG1kJtB2LH2X
+ch2kDGpHy6OsnrlAJEbCsC8nGKrAz+X8Gb2ylmK116ewkSWukBgFblB/2FFGT5JM
+iQpiPvvs7GGAyzJQcBlyydwgPOYELyXeUv7UmkfHKqexi29gbvAe54B/88Pd2xrL
+kwlY9pVpnkwCziySvf3Fn6V9Z2qYJ+Fb5L+LbJvazTbiTgO+F7vqMGsJEvPlOnQD
+qBLxiTngqVVOmdiNMDw8
+=ZbWS
 -----END PGP SIGNATURE-----
 
---soWJpSPh+l8Y6Fy7--
+--0blaZc+aUkVqY8MO--
