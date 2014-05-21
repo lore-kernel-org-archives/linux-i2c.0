@@ -1,59 +1,78 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 1/2] i2c: add DMA support for freescale i2c driver
-Date: Wed, 21 May 2014 10:00:47 +0200
-Message-ID: <20140521080047.GC2708@katana>
-References: <1396579272-19542-1-git-send-email-yao.yuan@freescale.com>
- <1396579272-19542-2-git-send-email-yao.yuan@freescale.com>
- <201404041628.55471.marex@denx.de>
- <aab78696ac364d9c832993c08915bad3@BL2PR03MB338.namprd03.prod.outlook.com>
- <20140404174011.GA8489@katana>
+Subject: Re: [PATCH] i2c: bfin: turn to Resource-managed API in probe function
+Date: Wed, 21 May 2014 10:05:30 +0200
+Message-ID: <20140521080530.GD2708@katana>
+References: <1394445784-4653-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
+	protocol="application/pgp-signature"; boundary="wULyF7TL5taEdwHz"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140404174011.GA8489@katana>
+In-Reply-To: <1394445784-4653-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---QRj9sO5tAVLaXnSD
+--wULyF7TL5taEdwHz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Apr 04, 2014 at 07:40:11PM +0200, Wolfram Sang wrote:
-> > The ugly is my work or even the ability but not the attitude, I think.
->=20
-> Explaining which tests were done is what I wanted to request more often
-> from submitters anyhow. Your leftover (yes, this can happen) just
-> reminded me to actually do that :)
-
-Ping. Any updates? I think this was pretty close to inclusion?
 
 
---QRj9sO5tAVLaXnSD
+> @@ -646,22 +646,19 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	if (res == NULL) {
+>  		dev_err(&pdev->dev, "Cannot get IORESOURCE_MEM\n");
+> -		rc = -ENOENT;
+> -		goto out_error_get_res;
+> +		return -ENOENT;
+
+You don't need to check the resource. devm_ioremap_resource will do it.
+
+> -	iface->regs_base = ioremap(res->start, resource_size(res));
+> -	if (iface->regs_base == NULL) {
+> +	iface->regs_base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR((void *)iface->regs_base)) {
+>  		dev_err(&pdev->dev, "Cannot map IO\n");
+> -		rc = -ENXIO;
+> -		goto out_error_ioremap;
+> +		return PTR_ERR((void *)iface->regs_base);
+
+Do we need the casts?
+
+> @@ -740,8 +728,6 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
+>  	i2c_del_adapter(&(iface->adap));
+>  	free_irq(iface->irq, iface);
+>  	peripheral_free_list(dev_get_platdata(&pdev->dev));
+> -	iounmap(iface->regs_base);
+> -	kfree(iface);
+
+You missed to remove the free irq.
+
+Have you actually tried unloading the module?
+
+
+--wULyF7TL5taEdwHz
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfF0vAAoJEBQN5MwUoCm2H3kP+QHZ3O6e0335/g+8xijLyoZb
-iEdnRbomnNxqLnikPWooyTte2MWR1yX5BQd/lrprH9lTfu5/gHdtXl5ANoiSiv3y
-5nNbxEj0m/g0oK1nyJ12zCbVB9J/l7+qtfonnd793eG4lfwnfmubXpZmABEgKZKB
-Z8nYIigncPmEJLra9VZwo9qRpHzZt5L7Jap2hNeWIV2liy1RgJtO2iIdLh3DioqD
-CgMtEPAcNVtahkr9+MmXOU6D009ienKes9+/SIpbNTfLF4/l9L/V2I04babyjhW+
-oLs7KUhRNWbGXE4SMhkFNGq5sVmRNZ8WFmfhLijBNeH80dCplYTAlHtTDNHq2qA7
-ZTmiyXUmuFDEG3kFmRpF87sHjN/a6g69NVNZtOW+pW6ctC6Lhu71tfnTGDb7e+V9
-DJ8/f4Ys8v2bOiugpy3KUuZVwy0tiEcTLmjaQ5Wq1uIOtdIkbaJnSaLPqCtqZW4H
-ef7vwJXObwzZ4lxUH6JvdWKkQN9T7tsvXISMi0/iSdWx7HwIhBhmv9mp8RrYqbhO
-N/fsei42pJHF8U39Css42KUzbz0FaEaWFeODZtvb7kP7zs48sUeh6AkuOAayfxEB
-NpRcYjo/bqoWNy5xgbMkxs0OyHpugDeUdvfvHtUEsFoI2b/1H2v+S5PdVeVXXhvt
-KwKBy4AMGGpE2phwHjUA
-=WM6U
+iQIcBAEBAgAGBQJTfF5KAAoJEBQN5MwUoCm2LWIQAKMSDM0JBva5rZK4HVMoZpuX
+M7KYyWbEhEulb9BP7bSzO1MGGDHHfRMohG8K4sWdUzwBtNThTBmz3ZI3VIrs90JN
+3lwx9OCPQFtlExC6SBvKk2XDWrFora1OoqtAaqp5VUoDJAXOhbEjSzazJ1PTmwng
+4gl3EUdlKDwEzuJ9N+SSGKasUPhRWrGbzlfhRLW7DXhNmcOvF3pJUnSdJcsnImTM
+4cdT67ILULNY/UchcYSvQ5Nd4C0ac1rjv6YgUeTRwDAsSsWSZbUS0e6AXTbd2/pk
+NU+uFcgqw2XV8fcHiuVcJnScSPSTLgztYTMc7UDKcCq5GItnx4lmj9Ag6wtKagzP
+YhPumf/TSQRy09KRKho/qN0zqVsnJifUfJsT+EHnL1ZUr8a/dWtrcD4sgfGQFNQU
+hiydrotCLdYVwsrKxDKU7SU+ZK/OFb7g6TmMnfwXdgz2fbNdm8mB6nIzBs1SQ1xs
+j3hYnHFxQjWt08j5IFbHPExZ+RvHXCFV0KsHrOFb2CjDgmhAYhTr2JIoIgQTvowP
+/D+30E05HOZgS/Qf94xlwqr4ULMms+f7jtcvwZsEjF91/lTT7bqKAa0CyQ0UyIjZ
+7hdMgb9fj8q+bOMJeDoaFdWSYOxpSdQTqhMmFTtgrE2xFkj1dpGmeDyJ5bff/fSu
+dHhEbqWc3958puT+FsIw
+=QQE4
 -----END PGP SIGNATURE-----
 
---QRj9sO5tAVLaXnSD--
+--wULyF7TL5taEdwHz--
