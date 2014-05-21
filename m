@@ -1,71 +1,54 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: nomadik: Fixup system suspend
-Date: Wed, 21 May 2014 10:33:44 +0200
-Message-ID: <20140521083344.GH2708@katana>
-References: <1397138376-28427-1-git-send-email-ulf.hansson@linaro.org>
+Subject: Re: [PATCH v2] i2c: busses: ali1563: fix checkpatch.pl issues
+Date: Wed, 21 May 2014 10:36:35 +0200
+Message-ID: <20140521083635.GI2708@katana>
+References: <1397216684-6332-1-git-send-email-me@g0hl1n.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k+G3HLlWI7eRTl+h"
+	protocol="application/pgp-signature"; boundary="PWfwoUCx3AFJRUBq"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1397138376-28427-1-git-send-email-ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1397216684-6332-1-git-send-email-me-M/VWbR8SM2SsTnJN9+BGXg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Richard Leitner <me-M/VWbR8SM2SsTnJN9+BGXg@public.gmane.org>
+Cc: r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---k+G3HLlWI7eRTl+h
+--PWfwoUCx3AFJRUBq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 10, 2014 at 03:59:36PM +0200, Ulf Hansson wrote:
-> For !CONFIG_PM_RUNTIME, the device were never put back into active
-> state while resuming.
+On Fri, Apr 11, 2014 at 01:44:44PM +0200, Richard Leitner wrote:
+> Fixed most checkpatch.pl issues
 >=20
-> For CONFIG_PM_RUNTIME, we blindly trusted the device to be inactive
-> while we were about to handle it at suspend late, which is just too
-> optimistic.
->=20
-> Even if the driver uses pm_runtime_put_sync() after each tranfer to
-> return it's runtime PM resources, there are no guarantees this will
-> actually mean the device will inactivated. The reason is that the PM
-> core will prevent runtime suspend during system suspend, and thus when
-> a transfer occurs during the early phases of system suspend the device
-> will be kept active after the transfer.
->=20
-> To handle both issues above, use pm_runtime_force_suspend|resume() from
-> the system suspend|resume callbacks.
->=20
-> Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
-> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Richard Leitner <me-M/VWbR8SM2SsTnJN9+BGXg@public.gmane.org>
+> Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---k+G3HLlWI7eRTl+h
+--PWfwoUCx3AFJRUBq
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfGToAAoJEBQN5MwUoCm2jqYQAKLMV/TCoReTAdudwC5+iI1k
-wmGQeI9yKGeQyqjxQiCzKXVFaZez4Vd4pbGQwFL1mBxrecWzVVbkpaImnSw3Nho8
-znu7SCSJ7pI5mubp2PxzFxu3Pu/83NvKxHs0tjZVWHFTbL4ccHfm86lc3G8fruDN
-NWVL5jSJxPYPqGclszTbVgzDl2k9OMXtz/+AGiYAAMJZm7em0RsWWBJs/+Ok6GkY
-h7C2ec0FLyjgHL9pJYNNIHkpxXXzvLtptvSY/z7/y+RgmrAiWYnTUDigIj3g3OaQ
-8v83iVIVldiFqN9rwH5hK1XU7TUYDx0hLnraaAhOLJfD5g39lf4sTDvToFMIgq6G
-A5DF0XWDlmTnuULGm8BS/hEn0ltYP1VS3uW9zdwk+SsPg+Pj3rBJPGPJGGVt051l
-/DvZjVn4T4sys1xE0CLaI+KUCVhjbtvfqio1eQ0PZWhYXLCIVAvZYb+bIY6h40py
-GugMoOyIEs2bl3TdLPR17UllPF9I1+a+v0VrQMCpDBdey3y6f7S5XEoLHJ3gLCHp
-jpiYeeYgnSYdIq8ePOq95TtYUfQmJo38kbKCtr8ufLsIR2Mv3e+R7DOxq93G1vjN
-A6c36ZuVVTeLD1WQewWbklePMH5y1n3geYBNgU7F/A6YjFW4x4ED9sNLlPvf/jqd
-Ne8p6wWcHm/+39n/C7TN
-=ViS/
+iQIcBAEBAgAGBQJTfGWTAAoJEBQN5MwUoCm2JBYP/2+UelOQo5WyvHiRXAe2jKDQ
+jtZ82B+8ENQoA7q7LGDGV8t1ARfgz7vS2vKDj+8QNj9H5bQJJ5eQ3Oa3w7k+2Ujt
+rqXVBqNlyiSlY3FHb4BYJXKxvhHxGr4IcOoGUvtQEolZxVHvRBv5PxZ3iEBSubQ4
+TbCNQAuw6+zH+NR41nZs5PMfDjcVBS7saM6CcDampgSfJs11vvX5gpiWHIqqK41g
+1HYeBUsn44+aoNO/EpNYVo8737hlMVwBqi0F/ULz+DzH9NBylf3b2k7KxGDEn0jc
+xNfLlVim0hrioUJofX/O4G3HQq+FRnlAUjxnJyQzHhdPNgc2XsldV6qdtK/DT7Ef
+KhfglAqg2dYwfS1Y4UQeLL4WshoIR7BLbPLgi3ZXOYIjBJa+QoH3dvAJ+C/OBgu7
+VyQcgEa3taU1QMg3Wup4aw9hm6A6mjV+qV8rejX1iUhHigpr/kEd33nnwxBJERHg
+0j9PJXiUhzMtvdik6ryg7uieEFNyCFJPfRQ1K7evBFJqMfM+Khqh9Kh6UJpDNioJ
+LeMW5ozeKupV0Ux1Ag2ucgxSxz+PcT9Xy/87X2tq9xuo91LpxOMXySBpG64E58aa
+jCNZUfCI2xGccNXH7s1OhbgGlzDPpuloBdhln33r7pfoNXaywSE0sNKwL5+5dXrl
+FD+VEVMXoRwv5KBHFHqk
+=Jr9Q
 -----END PGP SIGNATURE-----
 
---k+G3HLlWI7eRTl+h--
+--PWfwoUCx3AFJRUBq--
