@@ -1,80 +1,61 @@
-From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH] i2c: exynos5: Initialise Samsung High Speed I2C
  controller early
-Date: Wed, 21 May 2014 17:34:09 +0530
-Message-ID: <CAHfPSqCOnW4YGPfMfpBMbLSaiSxRN=CHJK6kYdkXMujKvNwAPA@mail.gmail.com>
+Date: Wed, 21 May 2014 15:00:43 +0200
+Message-ID: <20140521130043.GA2628@katana>
 References: <1398350916-885-1-git-send-email-ch.naveen@samsung.com>
- <20140424162558.GB12304@sirena.org.uk> <CAHfPSqB5+mLiC07jbEpeUgW63pZVk700SkYGxToO7GRAsFm_nQ@mail.gmail.com>
- <20140509135153.GM12304@sirena.org.uk> <CAHfPSqDSTyQXPT-NCZ2hE01qpdmaR54tbWCUYC_zSDGFp58+7g@mail.gmail.com>
- <20140509145425.GP12304@sirena.org.uk> <20140521102515.GJ2708@katana>
+ <20140424162558.GB12304@sirena.org.uk>
+ <CAHfPSqB5+mLiC07jbEpeUgW63pZVk700SkYGxToO7GRAsFm_nQ@mail.gmail.com>
+ <20140509135153.GM12304@sirena.org.uk>
+ <CAHfPSqDSTyQXPT-NCZ2hE01qpdmaR54tbWCUYC_zSDGFp58+7g@mail.gmail.com>
+ <20140509145425.GP12304@sirena.org.uk>
+ <20140521102515.GJ2708@katana>
+ <CAHfPSqCOnW4YGPfMfpBMbLSaiSxRN=CHJK6kYdkXMujKvNwAPA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20140521102515.GJ2708@katana>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Brown <broonie@kernel.org>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, sjg@chromium.org, grundler@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAHfPSqCOnW4YGPfMfpBMbLSaiSxRN=CHJK6kYdkXMujKvNwAPA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Naveen Krishna Ch <naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
 
-On 21 May 2014 15:55, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Fri, May 09, 2014 at 03:54:25PM +0100, Mark Brown wrote:
->> On Fri, May 09, 2014 at 08:12:47PM +0530, Naveen Krishna Ch wrote:
->> > On 9 May 2014 19:21, Mark Brown <broonie@kernel.org> wrote:
->> > > On Fri, May 09, 2014 at 05:50:00PM +0530, Naveen Krishna Ch wrote:
->>
->> > >> DRM related drivers like DP, FIMD, HDMI, Mixer wants to be probed ASAP
->> > >> during the boot.
->> > >> The real problem comes when, one of these drivers do a regulator_get().
->>
->> > >> If the physical supply  is not enabled/hookedup the regulator_get() call
->> > >> assumes that physical supply is present and returns a
->> > >> "dummy_regulator" (But, not an error).
->>
->> > >> Because of which, Display and several other devices fails to work.
->>
->> > > These drivers are buggy, if they geniunely expect and handle a missing
->> > > supply then they should be using regulator_get_optional() to request the
->> > > regulator and even if they don't the use of subsys_initcall() is not
->> > > going to fix anything here - if a dummy regulator is going to be
->> > > returned the time things are probed won't make a difference.
->>
->> ...
->>
->> > If all the I2C, SPI, DMA, I2C_TUNNEL, DRM based LCD are all mod_probes()
->> > DRM drivers are probing a head of the PMIC probe. Which is causing the
->> > display drivers to get "dummy_regulators" instead of the real supplies.
->>
->> No, it really won't - I have no idea what you are doing but it's not
->> mainline.  If you are getting dummy regulators then you don't have a
->> supply present at all and probe ordering isn't going to make a blind
->> bit of difference.
->>
->> Please provide a specific technical description of the problem you are
->> seeing in mainline.
->
-> +1 Unless we have a clear understanding that this is the only acceptable
-> solution in mainline, this is really an out-of-tree patch.
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Few of the DRM based devices need regulators during their probe and
-DRM subsystem
-wants to bring up LCD as fast as it could to give a better user experience.
 
-Exynos DRM (few others for that matter) does platform_driver_register()
-of devices in a sequence and finally binds them all together into one
-blob or /dev/dri-0 device.
-Which makes it hard to implement -EPROBE_DEFER. Even if -EPROBE_DEFER is
-implemented in DRM, it adds lot of overhead during the boot up.
+> Kindly, suggest a workable approach for all the subsystems.
 
-I've proposed to make exynos_drm_init() as late_initcall() instead of making
-I2C, SPI, DMA and I2C-arbitrator and I2C-TUNNEL drivers as subsys_initcall()
+Keep this patch out-of-tree? I know that probe ordering causes problems,
+and that it needs major efforts. Yet, I understood that adding more and
+more subsys_initcall to mainline is not going to help the process unless
+essential. Using subsys_initcall has issues, too.
 
-http://www.spinics.net/lists/linux-samsung-soc/msg30858.html
 
-Kindly, suggest a workable approach for all the subsystems.
->
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-Shine bright,
-(: Nav :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTfKN7AAoJEBQN5MwUoCm2hNcP/A+xeI3nO4vZCWuEdMXs2+qa
+KxPBorEF0k0xzIcFFkwRWjJEcm1nq/gkQbe0XJlmdi5uSkWN0FyGKtggY+6jNxCR
+JCpwk50eGKfVtR/0B0KLuzrlkDckqwY13tZG8ySTAuYzcRA8TO6oVMjS8Hdy5Tmo
+fYTNFWiMOVpGa3Nws71oWiEfqSVNXJDN3JOg6kHEiTjZvR1I3UExxxojOyV6PDqe
+uuFFcdXNqNPrwr/9IlzSJKqwOaJp165WQtaSNdjvVK9JNa9xiMwaL6/5lbkAYyVY
+jeAIS/IuLTQwNPQ0bGSzPxjx/RAKvyEfu+GdloaPBjH9I3lhLHd7Wajd8CQlr8aZ
+KDt4hiAQKpyawX2+wElQi6FCwxD3ZatMAGfXDakj4VbzjCIzhuy84wGYjfK01fJU
+m1RHNiqueKTLRdwMuQsck2FtSiXnJWwROb4uy/bo09K79n71/45H9ZMRNz4+mGS/
+6Bj7K4Z5zaM1lVusfmBqbz45vglL472qONZBZGAEMsUGq7hSlgkklfDdMJAIrDAp
+KodVfiNR/S2iuvqXo/68wISDTtX2BLZGPqvqcsuPUfS2vdsvQwYWvLMBDTSxy8my
+IpaW4OlL0p0YIgCRyM4xbRioH/aMDJQElrouL8AEqpHpbHeJTIx14Vc7Ug/t2dMA
+jfk+Ywssv7mOYleBgj7U
+=30LS
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--
