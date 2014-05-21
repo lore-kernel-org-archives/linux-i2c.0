@@ -1,103 +1,61 @@
-From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: Re: [Patch V3 0/5] I2C ACPI operation region handler
-Date: Wed, 21 May 2014 10:16:13 +0800
-Message-ID: <537C0C6D.4030203@intel.com>
-References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com> <6169981.jIBZPeBvRE@vostro.rjw.lan>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v4 1/2] i2c: sunxi: Change i2c compatibles
+Date: Wed, 21 May 2014 09:52:51 +0200
+Message-ID: <20140521075251.GA2708@katana>
+References: <1396270498-30703-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1396270498-30703-2-git-send-email-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <6169981.jIBZPeBvRE@vostro.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1396270498-30703-2-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2014=E5=B9=B405=E6=9C=8821=E6=97=A5 05:25, Rafael J. Wysocki wrote:
-> On Tuesday, May 20, 2014 08:59:19 PM Lan Tianyu wrote:
->> ACPI 5.0 spec(5.5.2.4.5) defines GenericSerialBus(i2c, spi, uart) op=
-eration
->> region. It allows ACPI aml code able to access such kind of devices =
-to
->> implement some ACPI standard method.
->>
->> On the Asus T100TA, Bios use GenericSerialBus operation region to ac=
-cess
->> i2c device to get battery info. So battery function depends on the I=
-2C
->> operation region support. Here is the bug link.
->> https://bugzilla.kernel.org/show_bug.cgi?id=3D69011
->>
->> Change since V2:
->>         Drop patchs of adding I2C smbus quick read/write and word/bl=
-ock
->> process call functions because not find machines supporting such pro=
-tocols
->> so far and can't test these functions.
->>         Merge patchs of "I2C ACPI related code clear up" and "Add CO=
-NFIG_I2C_ACPI
->> config"
->> 	Patch 2: Add acpi_bus_detach_private_data() function to detach data=
- from
->> ACPI handle and replace ACPI_ERROR() with acpi_handle_debug() to avo=
-id some redundant
->> error log. =20
->>
->> Change since V1:
->>        Fix some code style issues. Change prefix i2c_acpi to acpi_i2=
-c.
->> Move ACPI related code in the i2c core to i2c-acpi.c. Add CONFIG_I2C=
-_ACPI
->> and make i2c core built-in when it's set to avoid i2c ACPI operation=
- region
->> being removed.
->>
->> Lan Tianyu (5):
->>   ACPICA: Export acpi_buffer_to_resource symbol
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Mar 31, 2014 at 02:54:57PM +0200, Maxime Ripard wrote:
+> The Allwinner A10 compatibles were following a slightly different compati=
+ble
+> patterns than the rest of the SoCs for historical reasons. Move to the ot=
+her
+> pattern for consistency across all Allwinner Socs.
 >=20
-> Redundant?
+> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
-Yes.
+I still don't prefer the removal of the old binding, but as this has
+been discussed:
 
->=20
->>   ACPI: Add acpi_bus_attach_private_data() to facilitate to attach d=
-ata
->>     to ACPI handle
->>   ACPI/Thermal: Use acpi_bus_attach_private_data() to attach private
->>     data
->=20
-> I can take the above two regardless of the I2C material below I guess=
-?
-
-Yes.
-
->=20
->>   I2C/ACPI: Add i2c ACPI operation region support
->>   I2C/ACPI: Clean up I2C ACPI code and Add CONFIG_I2C_ACPI config
->>
->>  drivers/acpi/acpica/rscreate.c |   1 +
->>  drivers/acpi/bus.c             |  28 +++-
->>  drivers/acpi/thermal.c         |  11 +-
->>  drivers/i2c/Kconfig            |  18 +-
->>  drivers/i2c/Makefile           |   5 +-
->>  drivers/i2c/i2c-acpi.c         | 362 ++++++++++++++++++++++++++++++=
-+++++++++++
->>  drivers/i2c/i2c-core.c         |  97 +----------
->>  include/acpi/acpi_bus.h        |   2 +
->>  include/linux/acpi.h           |  11 ++
->>  include/linux/i2c.h            |  12 ++
->>  10 files changed, 439 insertions(+), 108 deletions(-)
->>  create mode 100644 drivers/i2c/i2c-acpi.c
->>
->>
->=20
+Applied to for-next, thanks!
 
 
---=20
-Best regards
-Tianyu Lan
---
-To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTfFtTAAoJEBQN5MwUoCm23TsP/2Sh0/36gfs91q+oBWF2Zvn7
+KBBub5eLQYwLHJf4By5cvqBU5AUsMCV0SBw+r7U6Xty14GoWIwuAphgmDU+lATmn
+F0nY/hKy6MoBi2nxzNMYapnmnB5bp1f0pTYO1vetFg27e6n7laCgIALVfkVP6bDZ
+rzFS8K+S2PBYr+QJwmOEtyP/EnXI3F0zHtrUzLZXFOwkNNadQz1C5VDHNYwXb7ge
+RxHiFHflzVdJCEisq0DGns9yZxOFtUlFi1feN+n4TpPRbA5jQhG0dZrQoCnkL+3t
+ZVleT6336fYmEXi+7IaCJpt3TT6Di06BDpu1zj1DkI4gANZ9n8fskHA3mb6NGULt
+RScn/MQjuAVMQFhhv7jeaxgtrL5hLzrp+361oMjsDxMQCMvkuvJkkX0VMJ+8fotK
+PwJTbI/eytDR/WohzcAyJfS8qgi3SYjaRISOmYwLAr/CgS11qdSUHwFRK+q1kgY4
+dVOl26NyGy3UCxmNG2lWjX9zdt5PUpn2o+Ge3+bseRy3MPlmqZh7mCJRREHXU+eX
+Y91P2XwhxMJPhurNM2PkhmTmdXlLKDVnVFLeQZB9PkwsNn0M/byxqDyCirhVSJYS
+KkvQ1tZaFzebuMtFuoGUWldpUENdeYxuFO+SmMJ0QaYmDB1lNieoDHsYqidWqSjH
+pI9aI58knl0mJKT6H0u4
+=hK8s
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
