@@ -1,59 +1,80 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] ARM: sunxi: dt: Convert to the new i2c compatibles
-Date: Wed, 21 May 2014 13:35:13 +0200
-Message-ID: <20140521113513.GV2708@katana>
-References: <1396270498-30703-1-git-send-email-maxime.ripard@free-electrons.com>
- <1396270498-30703-3-git-send-email-maxime.ripard@free-electrons.com>
- <20140521075415.GB2708@katana>
- <20140521090424.GQ27329@lukather>
+From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+Subject: Re: [PATCH] i2c: exynos5: Initialise Samsung High Speed I2C
+ controller early
+Date: Wed, 21 May 2014 17:34:09 +0530
+Message-ID: <CAHfPSqCOnW4YGPfMfpBMbLSaiSxRN=CHJK6kYdkXMujKvNwAPA@mail.gmail.com>
+References: <1398350916-885-1-git-send-email-ch.naveen@samsung.com>
+ <20140424162558.GB12304@sirena.org.uk> <CAHfPSqB5+mLiC07jbEpeUgW63pZVk700SkYGxToO7GRAsFm_nQ@mail.gmail.com>
+ <20140509135153.GM12304@sirena.org.uk> <CAHfPSqDSTyQXPT-NCZ2hE01qpdmaR54tbWCUYC_zSDGFp58+7g@mail.gmail.com>
+ <20140509145425.GP12304@sirena.org.uk> <20140521102515.GJ2708@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ptMYGWplstB9CqWP"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140521090424.GQ27329@lukather>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140521102515.GJ2708@katana>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mark Brown <broonie@kernel.org>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, sjg@chromium.org, grundler@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
---ptMYGWplstB9CqWP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 21 May 2014 15:55, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Fri, May 09, 2014 at 03:54:25PM +0100, Mark Brown wrote:
+>> On Fri, May 09, 2014 at 08:12:47PM +0530, Naveen Krishna Ch wrote:
+>> > On 9 May 2014 19:21, Mark Brown <broonie@kernel.org> wrote:
+>> > > On Fri, May 09, 2014 at 05:50:00PM +0530, Naveen Krishna Ch wrote:
+>>
+>> > >> DRM related drivers like DP, FIMD, HDMI, Mixer wants to be probed ASAP
+>> > >> during the boot.
+>> > >> The real problem comes when, one of these drivers do a regulator_get().
+>>
+>> > >> If the physical supply  is not enabled/hookedup the regulator_get() call
+>> > >> assumes that physical supply is present and returns a
+>> > >> "dummy_regulator" (But, not an error).
+>>
+>> > >> Because of which, Display and several other devices fails to work.
+>>
+>> > > These drivers are buggy, if they geniunely expect and handle a missing
+>> > > supply then they should be using regulator_get_optional() to request the
+>> > > regulator and even if they don't the use of subsys_initcall() is not
+>> > > going to fix anything here - if a dummy regulator is going to be
+>> > > returned the time things are probed won't make a difference.
+>>
+>> ...
+>>
+>> > If all the I2C, SPI, DMA, I2C_TUNNEL, DRM based LCD are all mod_probes()
+>> > DRM drivers are probing a head of the PMIC probe. Which is causing the
+>> > display drivers to get "dummy_regulators" instead of the real supplies.
+>>
+>> No, it really won't - I have no idea what you are doing but it's not
+>> mainline.  If you are getting dummy regulators then you don't have a
+>> supply present at all and probe ordering isn't going to make a blind
+>> bit of difference.
+>>
+>> Please provide a specific technical description of the problem you are
+>> seeing in mainline.
+>
+> +1 Unless we have a clear understanding that this is the only acceptable
+> solution in mainline, this is really an out-of-tree patch.
 
+Few of the DRM based devices need regulators during their probe and
+DRM subsystem
+wants to bring up LCD as fast as it could to give a better user experience.
 
-> > I usually don't take dts updates, but I guess it makes sense this time,
-> > because we dropped the old binding?
-> >=20
->=20
-> Either way is fine for me. It would be better to have the two patches
-> in the same tree, but I don't have any issue with merging it.
+Exynos DRM (few others for that matter) does platform_driver_register()
+of devices in a sequence and finally binds them all together into one
+blob or /dev/dri-0 device.
+Which makes it hard to implement -EPROBE_DEFER. Even if -EPROBE_DEFER is
+implemented in DRM, it adds lot of overhead during the boot up.
 
-I took it.
+I've proposed to make exynos_drm_init() as late_initcall() instead of making
+I2C, SPI, DMA and I2C-arbitrator and I2C-TUNNEL drivers as subsys_initcall()
 
+http://www.spinics.net/lists/linux-samsung-soc/msg30858.html
 
---ptMYGWplstB9CqWP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Kindly, suggest a workable approach for all the subsystems.
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTfI9xAAoJEBQN5MwUoCm2v2wP/AyBtdf9JZQyRGN8Ui+WkweT
-sAVVPijN8fMIODo53IoJQ6Yv6a5Rnwg9rr2y84gRvlxofVAUHE53s1S7yNT4vJF/
-eqi9WvqnDg2CqX3fp+XRk4P1oQOa+RMIAsGamJUf/pBd+pdgZGeffsVryd1Hg9Bi
-LMa/Q2svXCqe7bmI3+YBAJX0L92gGt1OtbGWGFCFDyZ2g02c7osO2IDzc8cCWIOD
-YmSBHcXC9Ne9amPcXKQ1VRm33MFuo6XYencUBmxdo493MwTsvWCf1ySe0jfb0Znh
-3EMfvbazUG/PgHqYLmJQRocuOIGp2A9b/mUcm5ERzQY22/nk/m0mxWBzpoYjAPs1
-eslGnAZXEfvsAX524J49KPnvQDg99DFombGQ55r9rOwcdQ0o+2fe1Bbszj10ml2/
-bhcIC7G0HnEkjN4fvj+IldIhCb33hYc3w7jBQjmfC4/ryzdsgPLQSwsZBkE+a6z3
-EncsHR7Z8vXdiq1Jkg/jItjNNWkpMSTu8vOnCxrWdOul417YEYFwmT42ubtsGJWv
-FkhtBdmy7TIvgVUKSuIQzC0ArBQBVpN2pRfdt+6H9Lg5jre12WQZ2IDn0H+u3dvo
-q4Z90sXrsI3ZO9OVcjjoPuyjDZqtSV5+vhPFeP86bjES7wbe1hCb3oZHmE2M7dEJ
-5WCsF0hE908aDmezUAQ5
-=tLL+
------END PGP SIGNATURE-----
-
---ptMYGWplstB9CqWP--
+-- 
+Shine bright,
+(: Nav :)
