@@ -1,60 +1,62 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-eg20t: Fix Kconfig dependencies
-Date: Wed, 21 May 2014 12:48:09 +0200
-Message-ID: <20140521104809.GO2708@katana>
-References: <20140506100521.03861792@endymion.delvare>
+Subject: Re: [PATCH] i2c/nuc900: fix ancient build error
+Date: Wed, 21 May 2014 12:49:30 +0200
+Message-ID: <20140521104929.GP2708@katana>
+References: <1399560433-1402630-1-git-send-email-arnd@arndb.de>
+ <1399560990-1402858-11-git-send-email-arnd@arndb.de>
+ <20140514162725.GG12911@katana>
+ <4944869.eRrWyMmW4d@wuerfel>
+ <20140514191749.GA25709@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UFMLoheMaWcIEZAi"
+	protocol="application/pgp-signature"; boundary="TRkqPRiqIDKgfg/F"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140506100521.03861792-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20140514191749.GA25709@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---UFMLoheMaWcIEZAi
+--TRkqPRiqIDKgfg/F
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 06, 2014 at 10:05:21AM +0200, Jean Delvare wrote:
-> From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Subject: i2c-eg20t: Fix Kconfig dependencies
+On Wed, May 14, 2014 at 09:17:49PM +0200, Wolfram Sang wrote:
 >=20
-> The i2c-eg20t driver is for a companion chip to the Intel Atom E600
-> series processors. These are 32-bit x86 processors so the driver is
-> only needed on X86_32. Add COMPILE_TEST as an alternative, so that the
-> driver can still be build-tested elsewhere.
+> > For the moment, I'd leave this up to Wan ZongShun. He has in the past
+> > at least replied to emails about the platform, even though there hasn't
+> > been any new development.
 >=20
-> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Agreed. Let's wait for his response. If there is none, I'll think about
+> removing the driver.
+>=20
 
-Applied to for-next, thanks!
+Wan ZongShun, final call before this driver gets removed next week.
 
 
---UFMLoheMaWcIEZAi
+--TRkqPRiqIDKgfg/F
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfIRoAAoJEBQN5MwUoCm2I6EP/2su1BbQwVx7rcWbHTKYWNHg
-cWbeaLlbqmwlXZn6whr9c4Y59vQH/fCARbcMl9eTaMTlppKtoDJr6nqxK0XDVvcU
-4n5Nsc1rl1i2k6KzZ/ItAYj8I7q3kjHqXaZEbN9M/Ci9SeEJyiK8wfILSSpYu3jg
-1pfNzjqE/mxEFXAuy9cm+wEAgimUopIqAmCHfyUYpWokWBRSTMkjvS5rLIYBi4Lc
-3tBGN4QD3afQN6Dw4S29uT8wbcWqdo2+qc1uVJ2aBe6IdxSYFl7kZ/+oIiwxLIyP
-H0eRWpcW9Q+LM85Uhbqy2UWqiwp4oYhmjNwR3sha357jwOsy0dVZCHuQufh83WIO
-3GILw8NeCzPFch44maRizhJdbhf6n22W+6dFIZUyMwJI4fTwNHzUuVnVvZurmt2x
-2eUgo6BTZuaLFHXv1OAVorpmsHNkBhPXSp/sq93EVgig8E7SGbVgKZuhLVdNL+l2
-nvqllMb6SQDuEqaMx5+D77q9hlNdRLAExBt2TnDcur8yaATEExPGKG9pNPgzy9A3
-JFUIbIZAZaK+NRPgnCU7br4tw82oe9x5Ukn/NcdIa3e//xxxc8e8T5eQMiZazm3P
-BA8S7Tkj9OKttnbM6EdMknvu0QIyC5drVhNMC8trMXFhDJPcqJfx8C7YtXx+2Jcu
-qmIkjwA3oh/SoaLvb51W
-=cA3p
+iQIcBAEBAgAGBQJTfIS5AAoJEBQN5MwUoCm2wasQAInDYBvfhxgwh6mjTeBXbuWw
+2yEoa7vFMQjN4mPQ3mBGaXF7ub1ZsoBrBG9waGhA4d2VP5GF3A9efji1aqvw49m/
++3tvQqie0yh56M6AISKKY9UNsqzqW9tb7tox6W1VP86KY2OFvDtZMU+RgwZURVV3
+UTqo4lx6rT+Xr/yjOyWT/f7imCZI8pkhJR1sSQIHNUHcMrRieZBQRoURtTydj1Zl
+NsgWWSfbSBAqSIKFTcT7ylPpK9b3/7NVINDQnpLxsadJQZ3GxVWpGsfKur3jFmy0
+Q2/NsYqBXnSZW8ptmAKb+Os1qsaVk07ljZlg2z0G7LbJPlMCfraHradCgAZKojUc
+RHknkXoZqofqhbDDjOTnAuXznmxhVgXoE9Tvfh7RaUSmpy4Vb5CjEM3hsISrfPY+
+Ulv0KDPKZzp2kM5jFh3UwZOEF11FwijtF09Ldt57r/Wv33NaxPpJNrwRGDYcWvLB
+vQPTlFxvVFRE5mnHUoYX91WdaeduGVfaNOcck4N/Z0zyVlsACpqzNFlk3dh2SfHm
+6YbNkuEFzLsDAhXVojGiSvcHLxQhpPtBZbPWwK6vpPoI4FpYqyuW0p9cLFP2stYu
+ta4wbMPkkePT8J1ftL2weBwqpFxCKgZk+FxZiy9iViGBWqZlGQbEuaXY7fSrqFuO
+/SHYjl4r6rbX7sLK027G
+=B0sq
 -----END PGP SIGNATURE-----
 
---UFMLoheMaWcIEZAi--
+--TRkqPRiqIDKgfg/F--
