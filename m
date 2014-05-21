@@ -1,86 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
-Date: Wed, 21 May 2014 13:00:19 +0200
-Message-ID: <20140521110019.GS2708@katana>
-References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
- <CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
- <CABYn4szejurs2gBVOx_+geOxw13r9KvoShfRiM7OOF5wVvDPLA@mail.gmail.com>
- <20130221091434.GA22806@the-dreams.de>
- <CABYn4swuDgTvvyigjnabcg46rcze-DnGhv2Rh7WEFdwkXcHR4Q@mail.gmail.com>
+From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+Subject: Re: [PATCH] i2c: exynos5: add support for HSI2C on Exynos5260 SoC
+Date: Wed, 21 May 2014 16:53:05 +0530
+Message-ID: <CAHfPSqDwg9z27jPHaZohYCvr314dye1Wd6dgYQKP7Ub7=gSVuA@mail.gmail.com>
+References: <1398675598-25991-1-git-send-email-ch.naveen@samsung.com> <20140521103432.GM2708@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0blaZc+aUkVqY8MO"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CABYn4swuDgTvvyigjnabcg46rcze-DnGhv2Rh7WEFdwkXcHR4Q@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Bastian Hecht <hechtb@gmail.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140521103432.GM2708@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, sjg@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com, broonie@kernel.org, t.figa@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
---0blaZc+aUkVqY8MO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 21 May 2014 16:04, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Mon, Apr 28, 2014 at 02:29:58PM +0530, Naveen Krishna Chatradhi wrote:
+>> HSI2C module on Exynos5260 differs from current modules in
+>> following ways:
+>> 1.  HSI2C on Exynos5260 has fifo_depth of 16bytes
+>> 2.  Module needs to be reset as a part of init sequence.
+>>
+>> Hence, Following changes are involved.
+>> 1. Add a new compatible string and Updates the Documentation dt bindings.
+>> 2. Introduce a variant struct to support the changes in H/W
+>> 3. Reset the module during init. Thus, bringing the module back
+>> to default state irrespective of what firmware did with it.
+>>
+>> Signed-off-by: Naveen Krishna Chatradhi <ich.naveen@samsung.com>
+I just realized another typo. Its my email id:  ch.naveen@samsung.com
 
-On Thu, Feb 21, 2013 at 08:54:06AM -0600, Bastian Hecht wrote:
-> Hi Wolfram,
->=20
-> oh yes I can gladly do so. To make a realistic estimation it might
-> take a few weeks until I find time for it though. If we can wait so
-> long, count on me.
+>> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+>> ---
+>
+> ...
+>
+>> -             fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(HSI2C_DEF_TXFIFO_LVL);
+>> +             trig_lvl = (i2c->msg->len > i2c->variant->fifo_depth) ?
+>> +                     (i2c->variant->fifo_depth * 3/4) : i2c->msg->len;
+>> +             fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(trig_lvl);
+>> +
+>
+> Dunno why checkpatch missed the 'space around operator' issue, yet I
+> fixed it here...
+>
+> Applied to for-next, thanks!
+You want me to send another version fixing these nits ?
+>
 
-Ping. Still interested?
 
->=20
-> Best,
->=20
->  Bastian
->=20
-> 2013/2/21 Wolfram Sang <wsa@the-dreams.de>:
-> > Hi Bastian,
-> >
-> >> > Also, do you know the reason why this isn't handled in the i2c layer
-> >> > by default? I ask because your comment mentions that i2c-tegra.c does
-> >> > the same thing and I can't see anything in this patch that is actual=
-ly
-> >> > related to our I2C hardware.
-> >>
-> >> Yes, many drivers have a similar scheme and to me it more looked like
-> >> all drivers need to take care about this case unrelated to different
-> >> hardware. So the question arises if this can't be handled in the core
-> >> - or if I get something wrong here.
-> >
-> > I don't see any reason why this couldn't be handled in the core. If you
-> > want to have a take on this issue (after the other bug is fixed), this
-> > will be highly appreciated.
-> >
-> > Thanks,
-> >
-> >    Wolfram
-> >
 
---0blaZc+aUkVqY8MO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTfIdDAAoJEBQN5MwUoCm2ABsP/1CHLgithUJ+bvOdv1kMdpcD
-ZlaxnxNLK69Vw5us2yWE6UR1yl50pH7Z/V1IazTfSYr2owt6wbBZrfvug6ypcd1H
-9okqJIiOGYReaN/QXiywqyCKfUHYHzQI7Jl5dfGNsgJdljoQDDTrVSUfY3FY60q2
-MW/ijbZmVpQT+Gt3+Jp+hKi4kOT6Zw3Z8bNT6pUE+6Owogo/Jr1YPjrH7XRFt+wT
-X7oT4eN3cGhOILF0OQcyl7Jyx7JA3CHwZpP/0i+cDjgpE5cUBJG5DoEWgn4pNHDc
-Z/1Ojb4q5CRdFhudapWP9t/BEEDP8wHu0/RYIARjtZmpiN2ldDHqB3cqwW4NeefJ
-MXOUhxKcOHnZeYoc59XFsqhNr01CW66z2LKGxwzJjhzgkdg3DR6EgzdadTan8K5P
-9b4vwHDK0pv+OGp2yo52PVNlP0zLM8/oTb+YurVNJnZLuF33nKAIZG1kJtB2LH2X
-ch2kDGpHy6OsnrlAJEbCsC8nGKrAz+X8Gb2ylmK116ewkSWukBgFblB/2FFGT5JM
-iQpiPvvs7GGAyzJQcBlyydwgPOYELyXeUv7UmkfHKqexi29gbvAe54B/88Pd2xrL
-kwlY9pVpnkwCziySvf3Fn6V9Z2qYJ+Fb5L+LbJvazTbiTgO+F7vqMGsJEvPlOnQD
-qBLxiTngqVVOmdiNMDw8
-=ZbWS
------END PGP SIGNATURE-----
-
---0blaZc+aUkVqY8MO--
+-- 
+Shine bright,
+(: Nav :)
