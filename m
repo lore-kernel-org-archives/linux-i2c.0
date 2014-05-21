@@ -1,57 +1,54 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH 02/13] i2c: gpio: Use devm_gpio_request()
-Date: Wed, 21 May 2014 12:56:50 +0200
-Message-ID: <20140521105650.GQ2708@katana>
+Date: Wed, 21 May 2014 12:59:19 +0200
+Message-ID: <20140521105919.GR2708@katana>
 References: <001601cefaf3$940d0040$bc2700c0$%han@samsung.com>
- <5360FA98.3030503@codethink.co.uk>
+ <001e01cefaf3$f8b520e0$ea1f62a0$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ubuMVesmirrCclZT"
+	protocol="application/pgp-signature"; boundary="soWJpSPh+l8Y6Fy7"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5360FA98.3030503-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+In-Reply-To: <001e01cefaf3$f8b520e0$ea1f62a0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Violeta Menendez Gonzalez <violeta.menendez-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Haavard Skinnemoen' <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Bo Shen' <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---ubuMVesmirrCclZT
+--soWJpSPh+l8Y6Fy7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 30, 2014 at 02:28:56PM +0100, Violeta Menendez Gonzalez wrote:
-> Tested on a r8a7790-lager
+On Tue, Dec 17, 2013 at 03:48:19PM +0900, Jingoo Han wrote:
+> Use devm_gpio_request() to make cleanup paths simpler.
 >=20
->     Reviewed-by: Violeta Menendez <violeta.menendez-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
->     Reviewed-by: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
->     Tested-by: Violeta Menendez <violeta.menendez-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-Thanks! Please reply next time to the mail directly, then your tags get
-added automatically.
+Applied to for-next, thanks!
 
 
---ubuMVesmirrCclZT
+--soWJpSPh+l8Y6Fy7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfIZyAAoJEBQN5MwUoCm2jhgP/32dDG+d9A60mx7WHytC87hG
-JhgmDga56AKlVSxxWuV543c95jZJTUYtI1T3qlpFfx52kAfoYz+++3v/V7H1fVFl
-AU+jO+xPSnFZMKzzr22ENvKPANSPqYCXnLwS8eH1V2ZHYVa/yGrgYgR0tCBwMeyq
-pmogZ46wuDXNcxE4NFq6Gt4ai6wvc0btWh/BijZ/JzVz+XKuiOPI0oXa8+1/ADhC
-qAaax1R3PlmYpT3pFhhvjP/Ox3qwmj/aK4mE49votFUW+kh/ShK/DrHHphg1Dz0J
-w1D+GptlGVgjWdLQ2uiSKpWEI+4xRkdnWo/bvAkjwGtrkRSbh/a66bS2G48ZVL6v
-EDOp6K90B8tgEetMK505KPbFZsXzKAhOeq3HACnODMQy/uDixZFE0hXhk9zsF33G
-KwpVgqN3S7q9meIDcll5Mvm9D98E5APfZ7FKPmZGUXXitOvLvJcuDWf9nqpdwoO3
-c565HTV9SiYVYp8BcNYZaJ+jcqDb/2tsA/jczlzVUaw2IuTiU4yGwkLoEzWy4B7M
-Fp5Mf2XVN7VQLFHqUMTrthTcDkXs5WC1Okv5g/sUUg6FJlvUjadbdL9xKPGkLoia
-B0YlugKRzDAv7ASWoYC99o9L7paWelgYNxt26ITyHp7nTAk7mvyN7dr+rZaQC3Ss
-CFLkRBmrzfr8JqnplE0K
-=ax4k
+iQIcBAEBAgAGBQJTfIcHAAoJEBQN5MwUoCm2yK4P/2Y+2bYjs2WZeEUv6IYDMWBR
+3heWCDB0lxlb3b6mX7AKN4LmQR1iJf3sXhBqFrh0m0KKTxhtpKQbv4QQ0KO+8ehO
+LmaaTaHsjPp7UHHFutWg7bQZYFosqbg/QLRsZ72VgGBX6J/W17FSWy9t54BRKmW+
+Ck6qWx+eqnIlmWySScQ4BoVDjbQr1uOdtcom8fMtqSIeIzwZ35g/XJ3C9BgjEcw0
+o8ff2CgEo6OlbUzuGnMg5BnpBKWwNlG1XcPHKfU5UB956g7Ava24WWYW83QKWmPS
+HbsHN6/G8k3cuQJBLqVoXujUr8XL5x6O01ouKkd7a7vYpR7myPttRj8J+oGHvqWN
+0ZFm4Piyz9b2ZVLWB8xEy9F81woRvBpCLPhGuqMFyj7LKPOKk5ieFWQhHqZjV4rp
+wINM0mdGHUVIAzo0KZ9GkivijqXGQdZFMU8F84gEAs3VKfngMUgMNA0P3kdMLrb1
+Qik0oA7HNhaWaV+Qjz6PKgWlvwK4M/dL+/2kqAbHRurL6DLg7SJ8kxhLh+CGnouJ
+7Ouq3KmiBNOdloNQrgtw+abIU9jZ+nkNHoFfjjHc3cV05CvMtesrVmyWSfvzp7b6
+mvdmOk/ms1GAzd82s+vD6hZsXRofvxZiJ/4zAx8BNKxJGxLJn2puqKoLG7eS/l0K
+UHIgzfhYlPXBRetKUjW2
+=//VF
 -----END PGP SIGNATURE-----
 
---ubuMVesmirrCclZT--
+--soWJpSPh+l8Y6Fy7--
