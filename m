@@ -1,55 +1,58 @@
-From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
-Subject: Re: [PATCH] i2c: exynos5: add support for HSI2C on Exynos5260 SoC
-Date: Wed, 21 May 2014 16:53:05 +0530
-Message-ID: <CAHfPSqDwg9z27jPHaZohYCvr314dye1Wd6dgYQKP7Ub7=gSVuA@mail.gmail.com>
-References: <1398675598-25991-1-git-send-email-ch.naveen@samsung.com> <20140521103432.GM2708@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: i2c: removal of s6000 driver
+Date: Wed, 21 May 2014 13:30:29 +0200
+Message-ID: <20140521113029.GT2708@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140521103432.GM2708@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, sjg@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com, broonie@kernel.org, t.figa@samsung.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="N7HXVILz59yg1nI8"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
 
-On 21 May 2014 16:04, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Mon, Apr 28, 2014 at 02:29:58PM +0530, Naveen Krishna Chatradhi wrote:
->> HSI2C module on Exynos5260 differs from current modules in
->> following ways:
->> 1.  HSI2C on Exynos5260 has fifo_depth of 16bytes
->> 2.  Module needs to be reset as a part of init sequence.
->>
->> Hence, Following changes are involved.
->> 1. Add a new compatible string and Updates the Documentation dt bindings.
->> 2. Introduce a variant struct to support the changes in H/W
->> 3. Reset the module during init. Thus, bringing the module back
->> to default state irrespective of what firmware did with it.
->>
->> Signed-off-by: Naveen Krishna Chatradhi <ich.naveen@samsung.com>
-I just realized another typo. Its my email id:  ch.naveen@samsung.com
+--N7HXVILz59yg1nI8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
->> ---
->
-> ...
->
->> -             fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(HSI2C_DEF_TXFIFO_LVL);
->> +             trig_lvl = (i2c->msg->len > i2c->variant->fifo_depth) ?
->> +                     (i2c->variant->fifo_depth * 3/4) : i2c->msg->len;
->> +             fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(trig_lvl);
->> +
->
-> Dunno why checkpatch missed the 'space around operator' issue, yet I
-> fixed it here...
->
-> Applied to for-next, thanks!
-You want me to send another version fixing these nits ?
->
+Hi,
+
+I recently discovered that the I2C core of the S6000 is basically a
+Designware IP core. For the latter we have a frequently used and updated
+i2c driver while the S6000 driver seems to bitrot. My wish is to remove
+the s6000 driver in favor of the DesignWare one. My question is if there
+is someone who could test such a change on real hardware?
+Grepping through sources, it looks to me like the only candidate in
+mainline is the s6105, yet its defconfig doesn't even have I2C
+activated? Can we remove this driver right away? Am I missing something?
+
+Kind regards,
+
+   Wolfram
 
 
+--N7HXVILz59yg1nI8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-Shine bright,
-(: Nav :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTfI5UAAoJEBQN5MwUoCm2UkgP/3UeIgbWf0ALTRqZAcdQ/6wH
+zeDxQp+n3lQxc4tCNxWpk6ffKGSpzPrUg+7sH2kNxkc+QXuRxtbnhK5scK/seFHj
+kdpJ9aBuVFeUzpVTQk8oh7wCmhYbHiyjNmmLf9dKjogKwRPHjkLhXk2lzs/kPWv7
+xQqmjP24f71gVPNiYPsbooPAuMsiSiJpX7Ol3/ncyEdRnu1e/KDzexeyietOQxmX
+XfdHIw+bhcf+Z8l96gUuPFRjEBJjj/V3SjAhXNunpmsfFx8PmMHhfsacbiYwllf0
+sCyWdg3gW/2z9QkIr2tmFsOhmDVbUrMbpXtaixJaXitjtozXU8Ml0LZrtK9qq2Bp
+KEWfbk0UeWu3x5xERIMjvkAGc6b8X0oiE1Jd49FSqij+XNvNvzAhf2I2zwnr0z0F
+KvMl/yn0vF1z1EhauNliXY8wchKJ+Tf+nVdiu+XI5ehyowrpZzeiMDhelAcA/G73
+n/1yfIjP6/8ExSUCJNpgJEOh/CzGwOqnMsYTK2Glv7WCNjJ1iDPfS36iRxLvtkJ5
+52DRF8QMnd3RBKg2apFaHIKPbrM/RbmSpG7UL2AiH8B7bc8kjqGvAS9tDi21jFbQ
++D8tAxKepDgsdUMrbMzLxpse/s+dT2HlmNQzn94Pkmd6wmTHvp+dlQJcs6ZUHSEl
+QEBZVsybrUWmxgIyT6Sy
+=gWdF
+-----END PGP SIGNATURE-----
+
+--N7HXVILz59yg1nI8--
