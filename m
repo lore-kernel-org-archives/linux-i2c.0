@@ -1,69 +1,94 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] ARM: sunxi: dt: Convert to the new i2c compatibles
-Date: Wed, 21 May 2014 11:04:24 +0200
-Message-ID: <20140521090424.GQ27329@lukather>
-References: <1396270498-30703-1-git-send-email-maxime.ripard@free-electrons.com>
- <1396270498-30703-3-git-send-email-maxime.ripard@free-electrons.com>
- <20140521075415.GB2708@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: exynos5: Initialise Samsung High Speed I2C
+ controller early
+Date: Wed, 21 May 2014 12:25:15 +0200
+Message-ID: <20140521102515.GJ2708@katana>
+References: <1398350916-885-1-git-send-email-ch.naveen@samsung.com>
+ <20140424162558.GB12304@sirena.org.uk>
+ <CAHfPSqB5+mLiC07jbEpeUgW63pZVk700SkYGxToO7GRAsFm_nQ@mail.gmail.com>
+ <20140509135153.GM12304@sirena.org.uk>
+ <CAHfPSqDSTyQXPT-NCZ2hE01qpdmaR54tbWCUYC_zSDGFp58+7g@mail.gmail.com>
+ <20140509145425.GP12304@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YzdYn+D7cUqe+VA3"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="pMCBjikF2xGw87uL"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140521075415.GB2708@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <20140509145425.GP12304@sirena.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, sjg@chromium.org, grundler@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---YzdYn+D7cUqe+VA3
+--pMCBjikF2xGw87uL
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 21, 2014 at 09:54:15AM +0200, Wolfram Sang wrote:
-> On Mon, Mar 31, 2014 at 02:54:58PM +0200, Maxime Ripard wrote:
-> > Switch the device tree to the new compatibles introduced in the i2c dri=
-vers
-> > to have a common pattern accross all Allwinner SoCs.
-> >=20
-> > Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+On Fri, May 09, 2014 at 03:54:25PM +0100, Mark Brown wrote:
+> On Fri, May 09, 2014 at 08:12:47PM +0530, Naveen Krishna Ch wrote:
+> > On 9 May 2014 19:21, Mark Brown <broonie@kernel.org> wrote:
+> > > On Fri, May 09, 2014 at 05:50:00PM +0530, Naveen Krishna Ch wrote:
 >=20
-> I usually don't take dts updates, but I guess it makes sense this time,
-> because we dropped the old binding?
+> > >> DRM related drivers like DP, FIMD, HDMI, Mixer wants to be probed AS=
+AP
+> > >> during the boot.
+> > >> The real problem comes when, one of these drivers do a regulator_get=
+().
 >=20
+> > >> If the physical supply  is not enabled/hookedup the regulator_get() =
+call
+> > >> assumes that physical supply is present and returns a
+> > >> "dummy_regulator" (But, not an error).
+>=20
+> > >> Because of which, Display and several other devices fails to work.
+>=20
+> > > These drivers are buggy, if they geniunely expect and handle a missing
+> > > supply then they should be using regulator_get_optional() to request =
+the
+> > > regulator and even if they don't the use of subsys_initcall() is not
+> > > going to fix anything here - if a dummy regulator is going to be
+> > > returned the time things are probed won't make a difference.
+>=20
+> ...
+>=20
+> > If all the I2C, SPI, DMA, I2C_TUNNEL, DRM based LCD are all mod_probes()
+> > DRM drivers are probing a head of the PMIC probe. Which is causing the
+> > display drivers to get "dummy_regulators" instead of the real supplies.
+>=20
+> No, it really won't - I have no idea what you are doing but it's not
+> mainline.  If you are getting dummy regulators then you don't have a
+> supply present at all and probe ordering isn't going to make a blind
+> bit of difference.
+>=20
+> Please provide a specific technical description of the problem you are
+> seeing in mainline.
 
-Either way is fine for me. It would be better to have the two patches
-in the same tree, but I don't have any issue with merging it.
++1 Unless we have a clear understanding that this is the only acceptable
+solution in mainline, this is really an out-of-tree patch.
 
-Maxime
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---YzdYn+D7cUqe+VA3
+--pMCBjikF2xGw87uL
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfGwYAAoJEBx+YmzsjxAgWMoP/RwSEHW/UQBTd6H8IqTNTW6E
-ZrpaQUaA3m+yK3AIUtgXloYLw/ppF+YP/sZJUaEAuIIIf3wKNL0jqAOLZYUwt5kr
-zgZ/a9FVkdCzeHfkKFyTk89q92VCekTsZ+HTAxU7umvQcUJyGOdTiNoMBB9mLULI
-zXDAHFUvB8aeD8oqdY6Q1j1S01f0IM7ntmiEA/hmPY6nsiCeJ/kOLw2Qg4H782KP
-ahv4iUco6k2L1/l6ic/IOc+UfcQGKKI2Hwvlr7d6sjqUN9hf5gtGFAJq8uacadp/
-XeDrl2sz44Bk3IKInBCS4lo8xMXjEzFUBnAVEctyuaML/8Haq+qCil4ffM3AzVW4
-0dOCeox7phJH8uAh4hVk+HeuLcsv7DfNyIYf9Xl5+m/5QTfj8mTqzmEH7Q7WacbH
-Xq1gpveSYfWXo9koneljE8XJ/fA29jEluGiuh88fNOJfn7BQXzsLCGk9RMhaxxjt
-cbB7RrxSj6uqXQxsrKyLX59uG+Wu5rLefhBQ5mobanlZ/ykkijJPJxKqBL2gAm4K
-70KV1eXvqTZ+fMP1X029oLoo2+6cqHF8RT6t1+gm0NLaI9xaGWF+uPQmB3VkCVL9
-ruXKYX5MxYtkSkGCvNWPoZPO1RzwTFuhzxaP7tIWXlhGta6iYG6Y9b8G3F7Cn5aV
-Fd2x0LKaRY/7KqqEekA4
-=QkWP
+iQIcBAEBAgAGBQJTfH8LAAoJEBQN5MwUoCm2ucIQALTUkXNNmgTuuIsPE0Wqrfie
+eJDqbBy5ImwGsGGdAfZBM9Y11kpI9+SHNKMInx0iZCqS5rjodEA0y/cBy+1d6pvZ
+RcWvGoUTFjkQ22XUQhiSFMioaI4tf0HVrhX+N8XYghGYyw7XlaBbpiWh9IPNxBfG
+XJigANkBM50p+Gsme2dKk0nKdOwpat3eQF2MbQX1+W99K4tW6KcTFlm57AjfYfdV
+XESUx1x4JfCNOhag9K9WxANj8kqIg7jwbq6rvpV2xC3z5jLnMlOBbgsGYyB4ATug
+MBgkWm0LjnSWekIXxKP8mrZtwguhKnvj4eNoaSInBauvXHUk12x5t7ZvA+75jQ0S
+F1LEzUmlhCbi/JAbVOEXfBmbb0WddcUOHxcM2HLdzU2MaZfR2XpVAE9yrsAGjzhI
+UT8mMKGhQLmNBULeEuwDtmtA5qbyJst1miHB2WIlTTt3A/azlGzPAhkv+dJDqSqO
+AGHL64lrWjyl30pcd51EWcstBIWSe+HKtUb326gqFGLxZssMP9QQ/3WhZoC2pHbJ
++X+jX9rpxIBOlnNEyDDgnyE5If3zWQR4mSxQtAjoefcO5N5bRRRgq37zXb63YEnt
+7358E29wCEHkVXW0PuAR8QlTzwa+D5YpWudUjdOT2SUC/3QHdsEi8Weg6fps0Y/5
+oo47lcIJY+Rr1TSq6KZa
+=V8vQ
 -----END PGP SIGNATURE-----
 
---YzdYn+D7cUqe+VA3--
+--pMCBjikF2xGw87uL--
