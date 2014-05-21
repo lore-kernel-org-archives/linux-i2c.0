@@ -1,73 +1,60 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 00/10] i2c: sh_mobile: cleanups & bugfixes
-Date: Wed, 21 May 2014 12:44:57 +0200
-Message-ID: <20140521104456.GN2708@katana>
-References: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-eg20t: Fix Kconfig dependencies
+Date: Wed, 21 May 2014 12:48:09 +0200
+Message-ID: <20140521104809.GO2708@katana>
+References: <20140506100521.03861792@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MSd2ShuMixI0uVaZ"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="UFMLoheMaWcIEZAi"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1399058116-7721-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <20140506100521.03861792-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---MSd2ShuMixI0uVaZ
+--UFMLoheMaWcIEZAi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 02, 2014 at 09:15:06PM +0200, Wolfram Sang wrote:
-> Some cleanups and bugfixes for i2c-sh_mobile. Tested on top of
-> renesas-devel-v3.15-rc3-20140429 and with a lager board. Branch is at
+On Tue, May 06, 2014 at 10:05:21AM +0200, Jean Delvare wrote:
+> From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Subject: i2c-eg20t: Fix Kconfig dependencies
 >=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/sh_mo=
-bile-cleanup
+> The i2c-eg20t driver is for a companion chip to the Intel Atom E600
+> series processors. These are 32-bit x86 processors so the driver is
+> only needed on X86_32. Add COMPILE_TEST as an alternative, so that the
+> driver can still be build-tested elsewhere.
 >=20
-> Changes since V1:
-> * added patches to make bus speed calculation more robust
-> * added patch to fix bus speed calculation for rcar-gen2 SoCs
-> * added tags from Geert to patches
->=20
->=20
-> Wolfram Sang (10):
->   i2c: sh_mobile: replace magic hex values with constants
->   i2c: sh_mobile: improve error handling
->   i2c: sh_mobile: honor DT bus speed settings
->   i2c: sh_mobile: add devicetree documentation
->   i2c: sh_mobile: devm conversion, low hanging fruits
->   i2c: sh_mobile: devm conversion, irq setup
->   i2c: sh_mobile: remove superfluous offset parameter
->   i2c: sh_mobile: bail out on errors when initializing
->   i2c: sh_mobile: check timing parameters for valid range
->   i2c: sh_mobile: fix clock calculation for newer SoCs
+> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Applied this series to for-next.
+Applied to for-next, thanks!
 
 
---MSd2ShuMixI0uVaZ
+--UFMLoheMaWcIEZAi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfIOoAAoJEBQN5MwUoCm28KAP/11iuNAU9AEYQMyyOsf8HaCj
-jaP0eA3F4b4tPkRGl9VFqiNLmWOAoV1rxPJ2ig812YqIvtRjWwTNWUOpuG16EkEE
-OOjTDQRQSEX6rAKuM3gFwk0FkiG8+mfByg8ppG9SuamrfaKd65AZfVBCawsVuoMR
-ViBqO7yG5bErXPmEeLvW8+6flMKwiXSbjIfefb20E+wa1CJLZDCcAEjDCv2xP6P9
-CFZ/6AsJmASb6TxRxLdpFbgzb1oCZR1NP5MolCxGlaU8LoZ98Qld1Z5+Q41VMDl0
-4x8/dt3jVif93hqXnGgImpJFT8wg8Fhow7q/VLXKgG1XcRFUYqoKl3l7bRqXVUW1
-kkAhafNWgOxlZmfMSIDzp1YMKNLJT9jvOkYYptucLCde5+GhhH3T6d4acQU3ce1u
-1ITKbB6/O3TLZXHqyqSjp2QPybjqy10IDZORFT6XQnTzHdLg32PEZxw43KHa86yj
-w0XECjOG20/y3V7a0HxyQpowsljDh37eHpGpTlphQwz/nzG9ZJd+7zvX/3/ENTev
-XlQiXIeXss5emdNoxVBJsr4NrHDCT2gngvC0tqZmgU6FZrqz2OWc6/6spBPxsia1
-47uLLoUz6F6/w2DA9O93wr64YVn8ORBrP0lHJXlyXRY0c5HPK+VWXZuBzVLCjjo/
-TGDYHTpYIn3K04CunkFH
-=xU+W
+iQIcBAEBAgAGBQJTfIRoAAoJEBQN5MwUoCm2I6EP/2su1BbQwVx7rcWbHTKYWNHg
+cWbeaLlbqmwlXZn6whr9c4Y59vQH/fCARbcMl9eTaMTlppKtoDJr6nqxK0XDVvcU
+4n5Nsc1rl1i2k6KzZ/ItAYj8I7q3kjHqXaZEbN9M/Ci9SeEJyiK8wfILSSpYu3jg
+1pfNzjqE/mxEFXAuy9cm+wEAgimUopIqAmCHfyUYpWokWBRSTMkjvS5rLIYBi4Lc
+3tBGN4QD3afQN6Dw4S29uT8wbcWqdo2+qc1uVJ2aBe6IdxSYFl7kZ/+oIiwxLIyP
+H0eRWpcW9Q+LM85Uhbqy2UWqiwp4oYhmjNwR3sha357jwOsy0dVZCHuQufh83WIO
+3GILw8NeCzPFch44maRizhJdbhf6n22W+6dFIZUyMwJI4fTwNHzUuVnVvZurmt2x
+2eUgo6BTZuaLFHXv1OAVorpmsHNkBhPXSp/sq93EVgig8E7SGbVgKZuhLVdNL+l2
+nvqllMb6SQDuEqaMx5+D77q9hlNdRLAExBt2TnDcur8yaATEExPGKG9pNPgzy9A3
+JFUIbIZAZaK+NRPgnCU7br4tw82oe9x5Ukn/NcdIa3e//xxxc8e8T5eQMiZazm3P
+BA8S7Tkj9OKttnbM6EdMknvu0QIyC5drVhNMC8trMXFhDJPcqJfx8C7YtXx+2Jcu
+qmIkjwA3oh/SoaLvb51W
+=cA3p
 -----END PGP SIGNATURE-----
 
---MSd2ShuMixI0uVaZ--
+--UFMLoheMaWcIEZAi--
