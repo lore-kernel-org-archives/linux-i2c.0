@@ -1,58 +1,51 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: i2c: removal of s6000 driver
-Date: Wed, 21 May 2014 13:30:29 +0200
-Message-ID: <20140521113029.GT2708@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: exynos5: add support for HSI2C on Exynos5260 SoC
+Date: Wed, 21 May 2014 13:32:29 +0200
+Message-ID: <20140521113229.GU2708@katana>
+References: <1398675598-25991-1-git-send-email-ch.naveen@samsung.com>
+ <20140521103432.GM2708@katana>
+ <CAHfPSqDwg9z27jPHaZohYCvr314dye1Wd6dgYQKP7Ub7=gSVuA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="N7HXVILz59yg1nI8"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="cqG5pBpskktEuCrX"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <CAHfPSqDwg9z27jPHaZohYCvr314dye1Wd6dgYQKP7Ub7=gSVuA@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, sjg@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com, broonie@kernel.org, t.figa@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---N7HXVILz59yg1nI8
+--cqG5pBpskktEuCrX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi,
+> You want me to send another version fixing these nits ?
 
-I recently discovered that the I2C core of the S6000 is basically a
-Designware IP core. For the latter we have a frequently used and updated
-i2c driver while the S6000 driver seems to bitrot. My wish is to remove
-the s6000 driver in favor of the DesignWare one. My question is if there
-is someone who could test such a change on real hardware?
-Grepping through sources, it looks to me like the only candidate in
-mainline is the s6105, yet its defconfig doesn't even have I2C
-activated? Can we remove this driver right away? Am I missing something?
-
-Kind regards,
-
-   Wolfram
+No, did it locally here. Thanks.
 
 
---N7HXVILz59yg1nI8
+--cqG5pBpskktEuCrX
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIcBAEBAgAGBQJTfI5UAAoJEBQN5MwUoCm2UkgP/3UeIgbWf0ALTRqZAcdQ/6wH
-zeDxQp+n3lQxc4tCNxWpk6ffKGSpzPrUg+7sH2kNxkc+QXuRxtbnhK5scK/seFHj
-kdpJ9aBuVFeUzpVTQk8oh7wCmhYbHiyjNmmLf9dKjogKwRPHjkLhXk2lzs/kPWv7
-xQqmjP24f71gVPNiYPsbooPAuMsiSiJpX7Ol3/ncyEdRnu1e/KDzexeyietOQxmX
-XfdHIw+bhcf+Z8l96gUuPFRjEBJjj/V3SjAhXNunpmsfFx8PmMHhfsacbiYwllf0
-sCyWdg3gW/2z9QkIr2tmFsOhmDVbUrMbpXtaixJaXitjtozXU8Ml0LZrtK9qq2Bp
-KEWfbk0UeWu3x5xERIMjvkAGc6b8X0oiE1Jd49FSqij+XNvNvzAhf2I2zwnr0z0F
-KvMl/yn0vF1z1EhauNliXY8wchKJ+Tf+nVdiu+XI5ehyowrpZzeiMDhelAcA/G73
-n/1yfIjP6/8ExSUCJNpgJEOh/CzGwOqnMsYTK2Glv7WCNjJ1iDPfS36iRxLvtkJ5
-52DRF8QMnd3RBKg2apFaHIKPbrM/RbmSpG7UL2AiH8B7bc8kjqGvAS9tDi21jFbQ
-+D8tAxKepDgsdUMrbMzLxpse/s+dT2HlmNQzn94Pkmd6wmTHvp+dlQJcs6ZUHSEl
-QEBZVsybrUWmxgIyT6Sy
-=gWdF
+iQIcBAEBAgAGBQJTfI7NAAoJEBQN5MwUoCm2xsUP/j6VRy2+sFreaM6nKTn3vsxF
+qUF2Qzzya0HvAKxxMzzGxSLyILQMx8YLaovxTRqiSE7liFhmR0EarQNnwF7WARHg
+fCTS7ct8USRqbyq0ZsAP2V6UNDdnUaICRk2p7I6YMkVH0IYqNxTzLmq6bkNg+1xZ
+KQbXMH0C8yR/niAjsAXIf16x1WAdW+VRFc2jX1QbY2MjVq3mjWJ5A9IrjG+4ObMk
+2yxOI1ctwcGQDpCzs5z7jiXlgKi6/H9YJ/ax06ey3Go86DKOMH/i8HgQCnJToKWk
+EjnbWGl1Poss225kZPituI+wPau4UUzVuKAGhIeNcIm+Vso5y6ZE7Dr4fVWCOvAI
+7a+qUWBSrP7qEq4Iws5EX/ypjcIcXdmk8/iY+24oR2QeJQMFo2oSyRRF04agEpee
+YOzK8dotHduD06d6wnscHweIJXRL4vk4m5X/5dHhJgXo0Y3HDwU33/0opeeFJgb2
+naZRedUXHMnSeZcWK+XnjHHeNKBr+dTE36KM08fCDSz7QGAPnE/4I4AWOOHyJGy7
+Kw+FB6GcHwkS43Vfy9TnkplIVDbvM59IBvHZ+4xVOZfoFLBViK/srRcN9Uqjrpcw
+z1Ot1DlOsj1S1msrw1oBI3h7Gq7+ORN0lZDna9QcXfGXNiW/OF0ICXro9BRnBbrW
+0JHhbcE5riGg2PZPfnGC
+=CQVy
 -----END PGP SIGNATURE-----
 
---N7HXVILz59yg1nI8--
+--cqG5pBpskktEuCrX--
