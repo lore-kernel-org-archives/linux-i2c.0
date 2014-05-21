@@ -1,57 +1,71 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: cadence: fix Kconfig dependency
-Date: Wed, 21 May 2014 10:29:17 +0200
-Message-ID: <20140521082917.GG2708@katana>
-References: <1396811227-8851-1-git-send-email-wsa@the-dreams.de>
- <1396852656.682914397@f273.i.mail.ru>
- <20140407065657.GO29751@pengutronix.de>
- <1396854155.872298456@f287.i.mail.ru>
- <4c4d2ba5-f5f6-4589-8a48-6a88d1c16098@VA3EHSMHS046.ehs.local>
+Subject: Re: [PATCH] i2c: nomadik: Fixup system suspend
+Date: Wed, 21 May 2014 10:33:44 +0200
+Message-ID: <20140521083344.GH2708@katana>
+References: <1397138376-28427-1-git-send-email-ulf.hansson@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iAL9S67WQOXgEPD9"
+	protocol="application/pgp-signature"; boundary="k+G3HLlWI7eRTl+h"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4c4d2ba5-f5f6-4589-8a48-6a88d1c16098-+Ck8Kgl/v09cIS6rUbAYerjjLBE8jN/0@public.gmane.org>
+In-Reply-To: <1397138376-28427-1-git-send-email-ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: Alexander Shiyan <shc_work-JGs/UdohzUI@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---iAL9S67WQOXgEPD9
+--k+G3HLlWI7eRTl+h
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I'd propose the below fix. The relaxed IO helpers are currently
-> available on ARM only and the clock notifier used, depends on
-> COMMON_CLK. I2C-related dependencies should be okay due to the location in
-> Kconfig of this option.
+On Thu, Apr 10, 2014 at 03:59:36PM +0200, Ulf Hansson wrote:
+> For !CONFIG_PM_RUNTIME, the device were never put back into active
+> state while resuming.
+>=20
+> For CONFIG_PM_RUNTIME, we blindly trusted the device to be inactive
+> while we were about to handle it at suspend late, which is just too
+> optimistic.
+>=20
+> Even if the driver uses pm_runtime_put_sync() after each tranfer to
+> return it's runtime PM resources, there are no guarantees this will
+> actually mean the device will inactivated. The reason is that the PM
+> core will prevent runtime suspend during system suspend, and thus when
+> a transfer occurs during the early phases of system suspend the device
+> will be kept active after the transfer.
+>=20
+> To handle both issues above, use pm_runtime_force_suspend|resume() from
+> the system suspend|resume callbacks.
+>=20
+> Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>
+> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-If somebody thinks an update is still needed, please resend against
-latest i2c-next. Thanks.
+Applied to for-next, thanks!
 
 
---iAL9S67WQOXgEPD9
+--k+G3HLlWI7eRTl+h
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 
-iQIbBAEBAgAGBQJTfGPdAAoJEBQN5MwUoCm2840P+ISJT7ez6BzEnJaOp+b/67TY
-ji2i5O7CAvnQ/nAIfxVGZMkqBNj4wue8ZYLnUa1ixxfsIeNHE3CWcLZyP2PjIZQu
-3JYFPcXE6y9f7gkb++3vJNblU9nk2MfwXy9aZKLZ09/ADdhbbJ7jBYIZrv8cubAs
-kzekuiz22Rq/s/pbbGWrEQYKncnyElCf/9BII3+8+p3UNdVdwPzfQqmibRhA1H0E
-XTpEHFd8ux0bLk5ddXUrhm5QADIsSsu6O//AEv6dh6GM31vsCvCV/H0CHO7csTGL
-05Us5hY6u4elCKmZd+LlCSnZwjSledlIU/Wd6UbEAMvYz0VVyOlX5JiXB0sJM44F
-Mhyk3NClDIURRQInBABBsCuWEUSts9hNdV+ClcgZoas6EiQhdGzX/F492VABmpkN
-+OPwkAjxPT5t7DoCE4AbmJTYyC0pTpp3HNTGsXNuZCih/FgFcfWLYQycrHqmyuvs
-Ow1D8koJutcztMMg2397VBbwA7YibjaUIUwPSkNkbGWqPmgeP0iavz1WSeqyjji2
-u7/qIpWriKMvQ+bDYwNUbF0fXYH4UbwGOYv5xAt8GP6MN5ciUJ/FYj+zctbTv22L
-443zE+tuT6PA0s/PPE88D7HhU7M0st/MixDGbNkbH1CZ0xuOBMUM2+odtrtKxe3T
-3N7wBPAp7VTB4Bvyhkg=
-=utAo
+iQIcBAEBAgAGBQJTfGToAAoJEBQN5MwUoCm2jqYQAKLMV/TCoReTAdudwC5+iI1k
+wmGQeI9yKGeQyqjxQiCzKXVFaZez4Vd4pbGQwFL1mBxrecWzVVbkpaImnSw3Nho8
+znu7SCSJ7pI5mubp2PxzFxu3Pu/83NvKxHs0tjZVWHFTbL4ccHfm86lc3G8fruDN
+NWVL5jSJxPYPqGclszTbVgzDl2k9OMXtz/+AGiYAAMJZm7em0RsWWBJs/+Ok6GkY
+h7C2ec0FLyjgHL9pJYNNIHkpxXXzvLtptvSY/z7/y+RgmrAiWYnTUDigIj3g3OaQ
+8v83iVIVldiFqN9rwH5hK1XU7TUYDx0hLnraaAhOLJfD5g39lf4sTDvToFMIgq6G
+A5DF0XWDlmTnuULGm8BS/hEn0ltYP1VS3uW9zdwk+SsPg+Pj3rBJPGPJGGVt051l
+/DvZjVn4T4sys1xE0CLaI+KUCVhjbtvfqio1eQ0PZWhYXLCIVAvZYb+bIY6h40py
+GugMoOyIEs2bl3TdLPR17UllPF9I1+a+v0VrQMCpDBdey3y6f7S5XEoLHJ3gLCHp
+jpiYeeYgnSYdIq8ePOq95TtYUfQmJo38kbKCtr8ufLsIR2Mv3e+R7DOxq93G1vjN
+A6c36ZuVVTeLD1WQewWbklePMH5y1n3geYBNgU7F/A6YjFW4x4ED9sNLlPvf/jqd
+Ne8p6wWcHm/+39n/C7TN
+=ViS/
 -----END PGP SIGNATURE-----
 
---iAL9S67WQOXgEPD9--
+--k+G3HLlWI7eRTl+h--
