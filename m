@@ -1,62 +1,190 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: bfin: turn to Resource-managed API in probe
- function
-Date: Thu, 22 May 2014 13:13:00 +0200
-Message-ID: <20140522111300.GC2573@katana>
-References: <1400751219-7943-1-git-send-email-sonic.adi@gmail.com>
+From: "Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH] i2c: imx: update i2c clock divider for each transaction
+Date: Thu, 22 May 2014 13:26:42 +0000
+Message-ID: <b0088428556f41229efdb38ecf91e5a7@BLUPR03MB486.namprd03.prod.outlook.com>
+References: <1400552505-22954-1-git-send-email-b38611@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="L6iaP+gRLNZHKoI4"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1400751219-7943-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1400552505-22954-1-git-send-email-b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---L6iaP+gRLNZHKoI4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 22, 2014 at 05:33:39PM +0800, Sonic Zhang wrote:
-> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->=20
-> No need to free managed resources any more.
->=20
-> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->=20
+> -----Original Message-----
+> From: Fugang Duan [mailto:b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org]
+> Sent: Monday, May 19, 2014 9:22 PM
+> To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; Duan
+> Fugang-B38611; Li Frank-B20596
+> Subject: [PATCH] i2c: imx: update i2c clock divider for each transaction
+> 
+> Since IMX serial SOCs support low bus freq mode, some clocks freq may
+> change to save power. I2C needs to check the clock source and update the
+> divider.
+> 
+> For example:
+> i.MX6SL I2C clk is from IPG_PERCLK which is sourced from IPG_CLK.
+> Under normal operation, IPG_CLK is 66MHz, ipg_perclk is at 22MHz.
+> In low bus freq mode, IPG_CLK is at 12MHz and IPG_PERCLK is down to 4MHz.
+> So the I2C driver must update the divider register for each transaction
+> when the current IPG_PERCLK is not equal to the clock of previous
+> transaction.
+> 
+> Signed-off-by: Fugang Duan  <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+
+Acked by: Frank Li<frank.li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+
 > ---
-> v2-changes:
-> - Remove resource checking. devm_ioremap_resource will do it.
-> - Remove cast of the return value.
-> - Remove free_irq from the module remove function.
-
-How did you test it?
-
-
---L6iaP+gRLNZHKoI4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTfdu8AAoJEBQN5MwUoCm2iVYP/0oojePXQ/sly93HYxlN7KSV
-ZLHXPrJYl1uNkFlyXG9SzBqhm/KGz871fvU6AQ15PEl/ikIp1aKi5l2nSlqk57P4
-3fcSly/lY93loPYmJqXUpJwJ05at74/mhuAZxLcd8yu3DFCBrIwU4RAVwn4anbhZ
-LUuYB5yoNWf/CY1/O5xRETN5XTQ8VCz2QahKezWl92+k1Mst+rLKr3Bwd8JwTERU
-ddzqEu6tjgbQVm1Iy/sy7zf0GQaz0vZfl4HC7jS5NZxidQjoTxpvFPo/stsq8xng
-7k/+HCePyYvUl5HsvD7NFdgXlaBJwLl8BElPt7wP6RQGAMO4s0e0A1aM+O3arZdk
-MblsWERZa1dVfph9zpxmE5twRNkZBuMD6EH3xrJQEtwtdaCtm1A5vCEuixqYMQiK
-r6XQKaYYjw0/E+qiSNkKqUq9Q9hrJfyYAXxpoYoHWzTPKJcA6QA7kxQ5gFV8w5KE
-LPa6rHisjdmlCt3QKMb2byJtBr88lJsqsjk9jyVDmWKSGmfx5sqf75/cy7/abLZC
-3AuBV7zkslZREN4MdwAK2T+C7AWees6XUSU5q+PIEMxLw5ew8f0Cj85GAPATupHy
-oGlMc1LurKQAzvcb2K3Nx7rwqzU7LVmL0tyUij8yptlOoRqnQEK8XIHIkGtKh86g
-lfV/sXOdxzbTKUv0Tis9
-=g7ed
------END PGP SIGNATURE-----
-
---L6iaP+gRLNZHKoI4--
+>  drivers/i2c/busses/i2c-imx.c |   94 ++++++++++++++++++++++---------------
+> ----
+>  1 files changed, 50 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 6c2ac05..2fdff4d 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -183,6 +183,8 @@ struct imx_i2c_struct {
+>  	unsigned int 		disable_delay;
+>  	int			stopped;
+>  	unsigned int		ifdr; /* IMX_I2C_IFDR */
+> +	unsigned int		cur_clk;
+> +	unsigned int		bitrate;
+>  	const struct imx_i2c_hwdata	*hwdata;
+>  };
+> 
+> @@ -305,6 +307,49 @@ static int i2c_imx_acked(struct imx_i2c_struct
+> *i2c_imx)
+>  	return 0;
+>  }
+> 
+> +static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx) {
+> +	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
+> +	unsigned int i2c_clk_rate;
+> +	unsigned int div;
+> +	int i;
+> +
+> +	/* Divider value calculation */
+> +	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
+> +	if (i2c_imx->cur_clk == i2c_clk_rate)
+> +		return;
+> +	else
+> +		i2c_imx->cur_clk = i2c_clk_rate;
+> +
+> +	div = (i2c_clk_rate + i2c_imx->bitrate - 1) / i2c_imx->bitrate;
+> +	if (div < i2c_clk_div[0].div)
+> +		i = 0;
+> +	else if (div > i2c_clk_div[i2c_imx->hwdata->ndivs - 1].div)
+> +		i = i2c_imx->hwdata->ndivs - 1;
+> +	else
+> +		for (i = 0; i2c_clk_div[i].div < div; i++);
+> +
+> +	/* Store divider value */
+> +	i2c_imx->ifdr = i2c_clk_div[i].val;
+> +
+> +	/*
+> +	 * There dummy delay is calculated.
+> +	 * It should be about one I2C clock period long.
+> +	 * This delay is used in I2C bus disable function
+> +	 * to fix chip hardware bug.
+> +	 */
+> +	i2c_imx->disable_delay = (500000U * i2c_clk_div[i].div
+> +		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
+> +
+> +	/* dev_dbg() can't be used, because adapter is not yet registered */
+> +#ifdef CONFIG_I2C_DEBUG_BUS
+> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> I2C_CLK=%d, REQ DIV=%d\n",
+> +		__func__, i2c_clk_rate, div);
+> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
+> +		__func__, i2c_clk_div[i].val, i2c_clk_div[i].div); #endif }
+> +
+>  static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)  {
+>  	unsigned int temp = 0;
+> @@ -312,6 +357,8 @@ static int i2c_imx_start(struct imx_i2c_struct
+> *i2c_imx)
+> 
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+> 
+> +	i2c_imx_set_clk(i2c_imx);
+> +
+>  	result = clk_prepare_enable(i2c_imx->clk);
+>  	if (result)
+>  		return result;
+> @@ -367,45 +414,6 @@ static void i2c_imx_stop(struct imx_i2c_struct
+> *i2c_imx)
+>  	clk_disable_unprepare(i2c_imx->clk);
+>  }
+> 
+> -static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+> -							unsigned int rate)
+> -{
+> -	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
+> -	unsigned int i2c_clk_rate;
+> -	unsigned int div;
+> -	int i;
+> -
+> -	/* Divider value calculation */
+> -	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
+> -	div = (i2c_clk_rate + rate - 1) / rate;
+> -	if (div < i2c_clk_div[0].div)
+> -		i = 0;
+> -	else if (div > i2c_clk_div[i2c_imx->hwdata->ndivs - 1].div)
+> -		i = i2c_imx->hwdata->ndivs - 1;
+> -	else
+> -		for (i = 0; i2c_clk_div[i].div < div; i++);
+> -
+> -	/* Store divider value */
+> -	i2c_imx->ifdr = i2c_clk_div[i].val;
+> -
+> -	/*
+> -	 * There dummy delay is calculated.
+> -	 * It should be about one I2C clock period long.
+> -	 * This delay is used in I2C bus disable function
+> -	 * to fix chip hardware bug.
+> -	 */
+> -	i2c_imx->disable_delay = (500000U * i2c_clk_div[i].div
+> -		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
+> -
+> -	/* dev_dbg() can't be used, because adapter is not yet registered */
+> -#ifdef CONFIG_I2C_DEBUG_BUS
+> -	dev_dbg(&i2c_imx->adapter.dev, "<%s> I2C_CLK=%d, REQ DIV=%d\n",
+> -		__func__, i2c_clk_rate, div);
+> -	dev_dbg(&i2c_imx->adapter.dev, "<%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
+> -		__func__, i2c_clk_div[i].val, i2c_clk_div[i].div);
+> -#endif
+> -}
+> -
+>  static irqreturn_t i2c_imx_isr(int irq, void *dev_id)  {
+>  	struct imx_i2c_struct *i2c_imx = dev_id; @@ -619,7 +627,6 @@ static
+> int i2c_imx_probe(struct platform_device *pdev)
+>  	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+>  	void __iomem *base;
+>  	int irq, ret;
+> -	u32 bitrate;
+> 
+>  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
+> 
+> @@ -683,12 +690,11 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+>  	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
+> 
+>  	/* Set up clock divider */
+> -	bitrate = IMX_I2C_BIT_RATE;
+> +	i2c_imx->bitrate = IMX_I2C_BIT_RATE;
+>  	ret = of_property_read_u32(pdev->dev.of_node,
+> -				   "clock-frequency", &bitrate);
+> +				   "clock-frequency", &i2c_imx->bitrate);
+>  	if (ret < 0 && pdata && pdata->bitrate)
+> -		bitrate = pdata->bitrate;
+> -	i2c_imx_set_clk(i2c_imx, bitrate);
+> +		i2c_imx->bitrate = pdata->bitrate;
+> 
+>  	/* Set up chip registers to defaults */
+>  	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+> --
+> 1.7.8
