@@ -1,52 +1,62 @@
-From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: Add block read functionality for IPMI
-Date: Thu, 22 May 2014 16:21:29 +0530
-Message-ID: <537DD6B1.9010200@ti.com>
-References: <1398970186-12204-1-git-send-email-m-karicheri2@ti.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: bfin: turn to Resource-managed API in probe
+ function
+Date: Thu, 22 May 2014 13:13:00 +0200
+Message-ID: <20140522111300.GC2573@katana>
+References: <1400751219-7943-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="L6iaP+gRLNZHKoI4"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1398970186-12204-1-git-send-email-m-karicheri2-l0cyMroinI0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1400751219-7943-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+To: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 02 May 2014 12:19 AM, Murali Karicheri wrote:
-> Intelligent Plaform Management Interface (IPMI) requires I2C driver
-> to support block read, where the first byte received from slave is
-> the length of following data:-
->  Added length check if the read type is block read (I2C_M_RECV_LEN)
->  Send NACK/STOP bits before last byte is received
-> 
-> Signed-off-by: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>
-> Signed-off-by: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 
-I tested this on a DA850 using i2cdetect and it did not seem to break 
-anything so:
+--L6iaP+gRLNZHKoI4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+On Thu, May 22, 2014 at 05:33:39PM +0800, Sonic Zhang wrote:
+> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>=20
+> No need to free managed resources any more.
+>=20
+> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>=20
+> ---
+> v2-changes:
+> - Remove resource checking. devm_ioremap_resource will do it.
+> - Remove cast of the return value.
+> - Remove free_irq from the module remove function.
 
-There are some checks that were triggered in checkpatch. You may want 
-to fix them up.
+How did you test it?
 
-Thanks,
-Sekhar
 
-CHECK: Alignment should match open parenthesis
-#112: FILE: drivers/i2c/busses/i2c-davinci.c:557:
-+					w = davinci_i2c_read_reg(dev,
-+							DAVINCI_I2C_MDR_REG);
+--L6iaP+gRLNZHKoI4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-CHECK: Alignment should match open parenthesis
-#115: FILE: drivers/i2c/busses/i2c-davinci.c:560:
-+					davinci_i2c_write_reg(dev,
-+							DAVINCI_I2C_MDR_REG, w);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
 
-CHECK: Alignment should match open parenthesis
-#119: FILE: drivers/i2c/busses/i2c-davinci.c:564:
-+					davinci_i2c_write_reg(dev,
-+							DAVINCI_I2C_MDR_REG, w);
+iQIcBAEBAgAGBQJTfdu8AAoJEBQN5MwUoCm2iVYP/0oojePXQ/sly93HYxlN7KSV
+ZLHXPrJYl1uNkFlyXG9SzBqhm/KGz871fvU6AQ15PEl/ikIp1aKi5l2nSlqk57P4
+3fcSly/lY93loPYmJqXUpJwJ05at74/mhuAZxLcd8yu3DFCBrIwU4RAVwn4anbhZ
+LUuYB5yoNWf/CY1/O5xRETN5XTQ8VCz2QahKezWl92+k1Mst+rLKr3Bwd8JwTERU
+ddzqEu6tjgbQVm1Iy/sy7zf0GQaz0vZfl4HC7jS5NZxidQjoTxpvFPo/stsq8xng
+7k/+HCePyYvUl5HsvD7NFdgXlaBJwLl8BElPt7wP6RQGAMO4s0e0A1aM+O3arZdk
+MblsWERZa1dVfph9zpxmE5twRNkZBuMD6EH3xrJQEtwtdaCtm1A5vCEuixqYMQiK
+r6XQKaYYjw0/E+qiSNkKqUq9Q9hrJfyYAXxpoYoHWzTPKJcA6QA7kxQ5gFV8w5KE
+LPa6rHisjdmlCt3QKMb2byJtBr88lJsqsjk9jyVDmWKSGmfx5sqf75/cy7/abLZC
+3AuBV7zkslZREN4MdwAK2T+C7AWees6XUSU5q+PIEMxLw5ew8f0Cj85GAPATupHy
+oGlMc1LurKQAzvcb2K3Nx7rwqzU7LVmL0tyUij8yptlOoRqnQEK8XIHIkGtKh86g
+lfV/sXOdxzbTKUv0Tis9
+=g7ed
+-----END PGP SIGNATURE-----
 
-total: 0 errors, 0 warnings, 3 checks, 67 lines checked
+--L6iaP+gRLNZHKoI4--
