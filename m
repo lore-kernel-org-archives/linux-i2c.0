@@ -1,190 +1,80 @@
-From: "Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH] i2c: imx: update i2c clock divider for each transaction
-Date: Thu, 22 May 2014 13:26:42 +0000
-Message-ID: <b0088428556f41229efdb38ecf91e5a7@BLUPR03MB486.namprd03.prod.outlook.com>
-References: <1400552505-22954-1-git-send-email-b38611@freescale.com>
+From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Patch V2 0/9] I2C ACPI operation region handler support
+Date: Thu, 22 May 2014 23:14:07 +0800
+Message-ID: <537E143F.7060701@intel.com>
+References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com> <53722700.6010001@intel.com> <2676258.HXv5hGZIFG@devpool02> <4867018.HWMf8AlFN3@devpool02>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1400552505-22954-1-git-send-email-b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <4867018.HWMf8AlFN3@devpool02>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Rolf Eike Beer <eb-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 05/20/2014 10:17 PM, Rolf Eike Beer wrote:
+> Rolf Eike Beer wrote:
+>> Lan Tianyu wrote:
+>>> On 05/13/2014 09:09 PM, Rolf Eike Beer wrote:
+>>>> Am Montag, 28. April 2014, 22:27:39 schrieb Lan Tianyu:
+>>>>> ACPI 5.0 spec(5.5.2.4.5) defines GenericSerialBus(i2c, spi, uart)
+>>>>> operation
+>>>>> region. It allows ACPI aml code able to access such kind of devices to
+>>>>> implement some ACPI standard method.
+>>>>>
+>>>>> On the Asus T100TA, Bios use GenericSerialBus operation region to
+>>>>> access
+>>>>> i2c device to get battery info. So battery function depends on the I2C
+>>>>> operation region support. Here is the bug link.
+>>>>> https://bugzilla.kernel.org/show_bug.cgi?id=69011
+>
+>>>> I have tested this series and got some errors, but no additional
+>>>> functionality:
+>
+>> this is an Aava Inari 8 tablet (pre-release hardware). Please find the DSDT
+>> and the dmesg.log attached.
+>
+> It may be that I have taken the wrong ACPI files. This is the result of a
+> fresh run of acpidump, together with the most recent dmesg.log, just in case
+> I messed it up.
+
+Hi Rolf:
+	I have check the log. I2C ACPI operation region targets to I2C controller which 
+has one ACPI node in the ACPI table and is associated with one I2C adapter. 
+Graphic with one ACPI handle registers several I2C adapters. This causes attach 
+data to the ACPI handle with the same handler several time. The ACPICA function 
+will return ALREADY EXIST error code and causes the log you mentioned. There is 
+no I2C ACPI operation region under graphic device node and so not break 
+function. To avoid these noise logs, I make them only appear under dynamic debug 
+mode in the my V3 patchset.
 
 
-> -----Original Message-----
-> From: Fugang Duan [mailto:b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org]
-> Sent: Monday, May 19, 2014 9:22 PM
-> To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; Duan
-> Fugang-B38611; Li Frank-B20596
-> Subject: [PATCH] i2c: imx: update i2c clock divider for each transaction
-> 
-> Since IMX serial SOCs support low bus freq mode, some clocks freq may
-> change to save power. I2C needs to check the clock source and update the
-> divider.
-> 
-> For example:
-> i.MX6SL I2C clk is from IPG_PERCLK which is sourced from IPG_CLK.
-> Under normal operation, IPG_CLK is 66MHz, ipg_perclk is at 22MHz.
-> In low bus freq mode, IPG_CLK is at 12MHz and IPG_PERCLK is down to 4MHz.
-> So the I2C driver must update the divider register for each transaction
-> when the current IPG_PERCLK is not equal to the clock of previous
-> transaction.
-> 
-> Signed-off-by: Fugang Duan  <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-
-Acked by: Frank Li<frank.li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-
-> ---
->  drivers/i2c/busses/i2c-imx.c |   94 ++++++++++++++++++++++---------------
-> ----
->  1 files changed, 50 insertions(+), 44 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 6c2ac05..2fdff4d 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -183,6 +183,8 @@ struct imx_i2c_struct {
->  	unsigned int 		disable_delay;
->  	int			stopped;
->  	unsigned int		ifdr; /* IMX_I2C_IFDR */
-> +	unsigned int		cur_clk;
-> +	unsigned int		bitrate;
->  	const struct imx_i2c_hwdata	*hwdata;
->  };
-> 
-> @@ -305,6 +307,49 @@ static int i2c_imx_acked(struct imx_i2c_struct
-> *i2c_imx)
->  	return 0;
->  }
-> 
-> +static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx) {
-> +	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
-> +	unsigned int i2c_clk_rate;
-> +	unsigned int div;
-> +	int i;
-> +
-> +	/* Divider value calculation */
-> +	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
-> +	if (i2c_imx->cur_clk == i2c_clk_rate)
-> +		return;
-> +	else
-> +		i2c_imx->cur_clk = i2c_clk_rate;
-> +
-> +	div = (i2c_clk_rate + i2c_imx->bitrate - 1) / i2c_imx->bitrate;
-> +	if (div < i2c_clk_div[0].div)
-> +		i = 0;
-> +	else if (div > i2c_clk_div[i2c_imx->hwdata->ndivs - 1].div)
-> +		i = i2c_imx->hwdata->ndivs - 1;
-> +	else
-> +		for (i = 0; i2c_clk_div[i].div < div; i++);
-> +
-> +	/* Store divider value */
-> +	i2c_imx->ifdr = i2c_clk_div[i].val;
-> +
-> +	/*
-> +	 * There dummy delay is calculated.
-> +	 * It should be about one I2C clock period long.
-> +	 * This delay is used in I2C bus disable function
-> +	 * to fix chip hardware bug.
-> +	 */
-> +	i2c_imx->disable_delay = (500000U * i2c_clk_div[i].div
-> +		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
-> +
-> +	/* dev_dbg() can't be used, because adapter is not yet registered */
-> +#ifdef CONFIG_I2C_DEBUG_BUS
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> I2C_CLK=%d, REQ DIV=%d\n",
-> +		__func__, i2c_clk_rate, div);
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
-> +		__func__, i2c_clk_div[i].val, i2c_clk_div[i].div); #endif }
-> +
->  static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)  {
->  	unsigned int temp = 0;
-> @@ -312,6 +357,8 @@ static int i2c_imx_start(struct imx_i2c_struct
-> *i2c_imx)
-> 
->  	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> 
-> +	i2c_imx_set_clk(i2c_imx);
-> +
->  	result = clk_prepare_enable(i2c_imx->clk);
->  	if (result)
->  		return result;
-> @@ -367,45 +414,6 @@ static void i2c_imx_stop(struct imx_i2c_struct
-> *i2c_imx)
->  	clk_disable_unprepare(i2c_imx->clk);
->  }
-> 
-> -static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
-> -							unsigned int rate)
-> -{
-> -	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
-> -	unsigned int i2c_clk_rate;
-> -	unsigned int div;
-> -	int i;
-> -
-> -	/* Divider value calculation */
-> -	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
-> -	div = (i2c_clk_rate + rate - 1) / rate;
-> -	if (div < i2c_clk_div[0].div)
-> -		i = 0;
-> -	else if (div > i2c_clk_div[i2c_imx->hwdata->ndivs - 1].div)
-> -		i = i2c_imx->hwdata->ndivs - 1;
-> -	else
-> -		for (i = 0; i2c_clk_div[i].div < div; i++);
-> -
-> -	/* Store divider value */
-> -	i2c_imx->ifdr = i2c_clk_div[i].val;
-> -
-> -	/*
-> -	 * There dummy delay is calculated.
-> -	 * It should be about one I2C clock period long.
-> -	 * This delay is used in I2C bus disable function
-> -	 * to fix chip hardware bug.
-> -	 */
-> -	i2c_imx->disable_delay = (500000U * i2c_clk_div[i].div
-> -		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
-> -
-> -	/* dev_dbg() can't be used, because adapter is not yet registered */
-> -#ifdef CONFIG_I2C_DEBUG_BUS
-> -	dev_dbg(&i2c_imx->adapter.dev, "<%s> I2C_CLK=%d, REQ DIV=%d\n",
-> -		__func__, i2c_clk_rate, div);
-> -	dev_dbg(&i2c_imx->adapter.dev, "<%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
-> -		__func__, i2c_clk_div[i].val, i2c_clk_div[i].div);
-> -#endif
-> -}
-> -
->  static irqreturn_t i2c_imx_isr(int irq, void *dev_id)  {
->  	struct imx_i2c_struct *i2c_imx = dev_id; @@ -619,7 +627,6 @@ static
-> int i2c_imx_probe(struct platform_device *pdev)
->  	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
->  	void __iomem *base;
->  	int irq, ret;
-> -	u32 bitrate;
-> 
->  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
-> 
-> @@ -683,12 +690,11 @@ static int i2c_imx_probe(struct platform_device
-> *pdev)
->  	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
-> 
->  	/* Set up clock divider */
-> -	bitrate = IMX_I2C_BIT_RATE;
-> +	i2c_imx->bitrate = IMX_I2C_BIT_RATE;
->  	ret = of_property_read_u32(pdev->dev.of_node,
-> -				   "clock-frequency", &bitrate);
-> +				   "clock-frequency", &i2c_imx->bitrate);
->  	if (ret < 0 && pdata && pdata->bitrate)
-> -		bitrate = pdata->bitrate;
-> -	i2c_imx_set_clk(i2c_imx, bitrate);
-> +		i2c_imx->bitrate = pdata->bitrate;
-> 
->  	/* Set up chip registers to defaults */
->  	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
-> --
-> 1.7.8
+>
+> Kernel now is at 60b5f90+some patches:
+>
+> 8e7bd6f pinctrl: baytrail: Register GPIO chip after chip->to_irq is set
+> c4b2230 pinctrl: baytrail: Add back Baytrail-T ACPI ID
+> 32f3364 gpio: Add support for Intel SoC PMIC (Crystal Cove)
+> 088ee81 mfd: intel_soc_pmic: Build files
+> 5315135 mfd: intel_soc_pmic: Crystal Cove support
+> 8b5ed0b mfd: intel_soc_pmic: I2C interface
+> b18979f mfd: intel_soc_pmic: Core driver
+> 5200b75 add debugging
+>    (This is the debug patch Lan Tianyu sent as reply to the previous mail)
+> bd3e6c6 I2C/ACPI: Add CONFIG_I2C_ACPI config
+> 947f0a1 I2C/ACPI: Move ACPI related code to i2c-acpi.c
+> 534f182 I2C/ACPI: Add i2c ACPI operation region support
+> 32384d4 I2C: Add smbus word/block process call helper function
+> aa6459e I2C: Add smbus quick read/write helper function
+> 51825ed ACPI/Thermal: Use acpi_bus_attach_private_data() to attach private data
+> 95e9e92 ACPI: Add acpi_bus_attach_private_data() to facilitate to attach data to ACPI handle
+> cc6fecb ACPICA: Export acpi_buffer_to_resource symbol
+> ad38de6 ACPI / LPSS: custom power domain for LPSS
+> b0caadf ACPI / PM: Export rest of the subsys functions
+> 22a7210 ACPI / platform: add another ID for Broadcom Bluetooth and GPS chips
+>   (this just adds AAM4752 as another platform id)
+> 000627d ACPI / platform: add IDs for Broadcom Bluetooth and GPS chips
+>
+> Eike
+>
