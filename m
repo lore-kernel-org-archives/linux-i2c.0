@@ -1,64 +1,76 @@
-From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: bfin: turn to Resource-managed API in probe function
-Date: Fri, 23 May 2014 10:38:23 +0800
-Message-ID: <CAJxxZ0Pa+t5afj3hS8RNo5ie=SPaAELHY37==v5FVARXLBYfTw@mail.gmail.com>
-References: <1400751219-7943-1-git-send-email-sonic.adi@gmail.com>
-	<20140522111300.GC2573@katana>
+From: Rolf Eike Beer <eb-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Patch V2 0/9] I2C ACPI operation region handler support
+Date: Fri, 23 May 2014 08:55:55 +0200
+Message-ID: <1481506.mZgg6LykyH@devpool02>
+References: <1398147855-9868-1-git-send-email-tianyu.lan@intel.com> <4867018.HWMf8AlFN3@devpool02> <537E143F.7060701@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; boundary="nextPart1922782.EugPuHskmN"; micalg="pgp-sha1"; protocol="application/pgp-signature"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140522111300.GC2573@katana>
+In-Reply-To: <537E143F.7060701-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Thu, May 22, 2014 at 7:13 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Thu, May 22, 2014 at 05:33:39PM +0800, Sonic Zhang wrote:
->> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>
->> No need to free managed resources any more.
->>
->> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>
->> ---
->> v2-changes:
->> - Remove resource checking. devm_ioremap_resource will do it.
->> - Remove cast of the return value.
->> - Remove free_irq from the module remove function.
->
-> How did you test it?
->
+--nextPart1922782.EugPuHskmN
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
 
-root:/> modprobe i2c-bfin-twi
-i2c-bfin-twi i2c-bfin-twi.0: Blackfin on-chip I2C TWI Contoller,
-regs_base@ffc01e00
-i2c-bfin-twi i2c-bfin-twi.1: Blackfin on-chip I2C TWI Contoller,
-regs_base@ffc01f00
-root:/> random: nonblocking pool is initialized
+Lan Tianyu wrote:
+> On 05/20/2014 10:17 PM, Rolf Eike Beer wrote:
 
-root:/> lsmod
-Module                  Size  Used by
-i2c_bfin_twi            4322  0
-root:/> rmmod i2c-bfin-twi
-root:/> lsmod
-Module                  Size  Used by
-root:/>
-root:/> modprobe i2c-bfin-twi
-i2c-bfin-twi i2c-bfin-twi.0: Blackfin on-chip I2C TWI Contoller,
-regs_base@ffc01e00
-i2c-bfin-twi i2c-bfin-twi.1: Blackfin on-chip I2C TWI Contoller,
-regs_base@ffc01f00
-root:/> ls /dev/i2c-*
-/dev/i2c-0  /dev/i2c-1
-root:/> rmmod i2c-bfin-twi
-root:/> ls /dev/i2c-*
-ls: /dev/i2c-*: No such file or directory
-root:/>
+> > It may be that I have taken the wrong ACPI files. This is the resul=
+t of a
+> > fresh run of acpidump, together with the most recent dmesg.log, jus=
+t in
+> > case I messed it up.
+>=20
+> =09I have check the log. I2C ACPI operation region targets to I2C con=
+troller
+> which has one ACPI node in the ACPI table and is associated with one =
+I2C
+> adapter. Graphic with one ACPI handle registers several I2C adapters.=
+ This
+> causes attach data to the ACPI handle with the same handler several t=
+ime.
+> The ACPICA function will return ALREADY EXIST error code and causes t=
+he log
+> you mentioned. There is no I2C ACPI operation region under graphic de=
+vice
+> node and so not break function. To avoid these noise logs, I make the=
+m only
+> appear under dynamic debug mode in the my V3 patchset.
 
+Hi,
 
-Regards,
+thanks for the clarification.
 
-Sonnic
+Greetings,
+
+Eike
+=2D-=20
+Rolf Eike Beer, emlix GmbH, http://www.emlix.com
+Fon +49 551 30664-0, Fax +49 551 30664-11
+Bertha-von-Suttner-Str. 9, 37085 G=F6ttingen, Germany
+Sitz der Gesellschaft: G=F6ttingen, Amtsgericht G=F6ttingen HR B 3160
+Gesch=E4ftsf=FChrung: Dr. Uwe Kracke, Ust-IdNr.: DE 205 198 055
+
+emlix - smart embedded open source
+
+--nextPart1922782.EugPuHskmN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iJwEAAECAAYFAlN+8QAACgkQq+RR+17trfxx1wP8DoKWvPE+OkJHU9GNtZGvMc5O
+QB+oE0ze1TOja0pudZ0Dm1uQsu7tYwriyTf7mmeaVRs7dq4bhN9xKdbJgacKaLdd
+DlvaCU5dtvwpPEiAMdRvce+vDdeymXIMmwN5duuxg/q/bUFkUTjS3RFzTjBj8du1
+IiQakdk/fHAToXf8gMo=
+=xs/A
+-----END PGP SIGNATURE-----
+
+--nextPart1922782.EugPuHskmN--
