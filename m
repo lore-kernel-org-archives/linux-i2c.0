@@ -1,35 +1,31 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 2/2] i2c: sh_mobile: add compatibles for additional SoC
-Date: Tue, 27 May 2014 14:17:32 +0200
-Message-ID: <1401193052-8582-2-git-send-email-wsa@the-dreams.de>
-References: <1401193052-8582-1-git-send-email-wsa@the-dreams.de>
+From: Daniel =?iso-8859-1?Q?Gl=F6ckner?= <daniel-gl-hi6Y0CQ0nG0@public.gmane.org>
+Subject: Re: i2c: removal of s6000 driver
+Date: Wed, 28 May 2014 00:35:57 +0200
+Message-ID: <20140527223557.GA9594@minime.bse>
+References: <20140521113029.GT2708@katana>
+ <20140523131722.GA28143@curry>
+ <537F8652.1090807@zankel.net>
+ <20140524154727.GA20634@curry>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401193052-8582-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140524154727.GA20634@curry>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marc Gauthier <marc-66fqrpuXKgGB+jHODAdFcQ@public.gmane.org>, Daniel =?iso-8859-1?Q?Gl=F6ckner?= <dg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>, Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+On Sat, May 24, 2014 at 03:47:27PM +0000, Oskar Schirmer wrote:
+> On Fri, May 23, 2014 at 10:33:06 -0700, czankel wrote:
+> > I might have asked you before, but do you still have the overlay for the 
+> > S6000 somewhere laying around?
+> 
+> No, but maybe Daniel has?
 
-Signed-off-by: Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
- drivers/i2c/busses/i2c-sh_mobile.c | 3 +++
- 1 file changed, 3 insertions(+)
+At work we still have the overlay as part of the board support package
+we created for the s6105. But I'd prefer to talk to someone at Stretch
+first before handing out copies. Unfortunately I'm on vacation right
+now and will be without internet access from tomorrow to Sunday.
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index c29be2bba6ea..8b5e79cb4468 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -634,6 +634,9 @@ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
- 	{ .compatible = "renesas,rmobile-iic", .data = &default_dt_config },
- 	{ .compatible = "renesas,iic-r8a7790", .data = &rcar_gen2_dt_config },
- 	{ .compatible = "renesas,iic-r8a7791", .data = &rcar_gen2_dt_config },
-+	{ .compatible = "renesas,iic-r8a7792", .data = &rcar_gen2_dt_config },
-+	{ .compatible = "renesas,iic-r8a7793", .data = &rcar_gen2_dt_config },
-+	{ .compatible = "renesas,iic-r8a7794", .data = &rcar_gen2_dt_config },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
--- 
-2.0.0.rc2
+  Daniel
