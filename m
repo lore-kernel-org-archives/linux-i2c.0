@@ -1,46 +1,49 @@
-From: HUSAM AL SAYED <Husamalsayed-NQqDYL4TTn4@public.gmane.org>
-Subject: Your Urgent reply.
-Date: Mon, 26 May 2014 21:58:35 +0400
-Message-ID: <CAKFyHyoTHpnn32KNpU9anhth5_Zt333Zbz3DBz6p7q86tfyVgA__47965.2284797796$1401127139$gmane$org@mail.gmail.com>
-Reply-To: Husamalsayed-NQqDYL4TTn4@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 1/2] i2c: rcar: add compatibles for additional SoC
+Date: Tue, 27 May 2014 14:17:31 +0200
+Message-ID: <1401193052-8582-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Friend,
+From: Wolfram Sang <wsa@sang-engineering.com>
 
+Signed-off-by: Wolfram Sang <wsa@sang-engineering.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 3 +++
+ drivers/i2c/busses/i2c-rcar.c                      | 3 +++
+ 2 files changed, 6 insertions(+)
 
-Compliments of the day.This mail May be a surprise to you Because you
-did not give me the permission to do so and Neither do you know me but
-before I tell you about myself I want you to please forgive me for
-sending this mail without your permission I have been in search of
-someone with this last name so when I saw you online, I was pushed to
-contact you and see how best we can assist each other. I am Mr. Husam
-Al Sayed, a Bank Officer here in U.A.E. I believe it is the wish of
-God for me to come across you now. I am having an important business
-discussion I wish to share with you which I  believe will interest
-you, because it is in connection with your last name and you are going
-to benefit from it.
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index dd8b2dd1edeb..16b3e07aa98f 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -7,6 +7,9 @@ Required properties:
+ 	"renesas,i2c-r8a7779"
+ 	"renesas,i2c-r8a7790"
+ 	"renesas,i2c-r8a7791"
++	"renesas,i2c-r8a7792"
++	"renesas,i2c-r8a7793"
++	"renesas,i2c-r8a7794"
+ - reg: physical base address of the controller and length of memory mapped
+   region.
+ - interrupts: interrupt specifier.
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 06d47aafbb79..467eafa050a6 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -646,6 +646,9 @@ static const struct of_device_id rcar_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
+ 	{ .compatible = "renesas,i2c-r8a7791", .data = (void *)I2C_RCAR_GEN2 },
++	{ .compatible = "renesas,i2c-r8a7792", .data = (void *)I2C_RCAR_GEN2 },
++	{ .compatible = "renesas,i2c-r8a7793", .data = (void *)I2C_RCAR_GEN2 },
++	{ .compatible = "renesas,i2c-r8a7794", .data = (void *)I2C_RCAR_GEN2 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
+-- 
+2.0.0.rc2
 
-One Late peter who was among the death victims in the May 27 2006
-Earthquake disaster in Java, Indonesia that killed over 5,000 people.
-He was in Indonesia on a business trip and that was how he met his
-end. My bank management is yet to know about his death, I knew about
-it because he was my friend and I am his account officer.he did not
-mention any Next of Kin/ Heir when the account was opened, and he was
-not married and no children. Last week my Bank Management requested
-that he should give instructions on what to do about his funds,I know
-this will happen and that is why I have been looking for a means to
-handle the situation,
-
-If you are interested send me your private Email Address so that i can
-send you more details of the transaction,
-Thanks for your understanding
-
-I am waiting for your reply.
-
-Best regards,
-
-Mr. Husam Al Sayed
