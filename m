@@ -1,114 +1,122 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 08/11] i2c: rcar: remove spinlock
-Date: Wed, 28 May 2014 09:44:43 +0200
-Message-ID: <1401263086-13720-9-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 03/11] i2c: rcar: refactor bus state machine
+Date: Wed, 28 May 2014 09:44:38 +0200
+Message-ID: <1401263086-13720-4-git-send-email-wsa@the-dreams.de>
 References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1401263086-13720-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-The i2c core has per-adapter locks, so no need to protect again.
+Remove the seperate functions and use designated constants. As readable
+but less overhead.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 22 ----------------------
- 1 file changed, 22 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 37 ++++++++++---------------------------
+ 1 file changed, 10 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index e82d64b5acef..4b088e67f2fd 100644
+index 88efbf29a182..e0cdab488cc5 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -36,7 +36,6 @@
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
--#include <linux/spinlock.h>
+@@ -79,11 +79,9 @@
+ #define MATE	(1 << 0)	/* address sent irq en */
  
- /* register offsets */
- #define ICSCR	0x00	/* slave ctrl */
-@@ -110,7 +109,6 @@ struct rcar_i2c_priv {
- 	struct i2c_msg	*msg;
- 	struct clk *clk;
  
--	spinlock_t lock;
- 	wait_queue_head_t wait;
+-enum {
+-	RCAR_BUS_PHASE_ADDR,
+-	RCAR_BUS_PHASE_DATA,
+-	RCAR_BUS_PHASE_STOP,
+-};
++#define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
++#define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
++#define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
  
- 	int pos;
-@@ -394,9 +392,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	struct device *dev = rcar_i2c_priv_to_dev(priv);
- 	u32 msr;
- 
--	/*-------------- spin lock -----------------*/
--	spin_lock(&priv->lock);
--
- 	msr = rcar_i2c_read(priv, ICMSR);
- 
- 	/*
-@@ -450,9 +445,6 @@ out:
- 		wake_up(&priv->wait);
- 	}
- 
--	spin_unlock(&priv->lock);
--	/*-------------- spin unlock -----------------*/
--
- 	return IRQ_HANDLED;
+ enum {
+ 	RCAR_IRQ_CLOSE,
+@@ -204,21 +202,6 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 	return -EBUSY;
  }
  
-@@ -462,21 +454,14 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+-static void rcar_i2c_bus_phase(struct rcar_i2c_priv *priv, int phase)
+-{
+-	switch (phase) {
+-	case RCAR_BUS_PHASE_ADDR:
+-		rcar_i2c_write(priv, ICMCR, MDBS | MIE | ESG);
+-		break;
+-	case RCAR_BUS_PHASE_DATA:
+-		rcar_i2c_write(priv, ICMCR, MDBS | MIE);
+-		break;
+-	case RCAR_BUS_PHASE_STOP:
+-		rcar_i2c_write(priv, ICMCR, MDBS | MIE | FSB);
+-		break;
+-	}
+-}
+-
+ /*
+  *		clock function
+  */
+@@ -328,7 +311,7 @@ static int rcar_i2c_recv(struct rcar_i2c_priv *priv)
  {
- 	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
- 	struct device *dev = rcar_i2c_priv_to_dev(priv);
--	unsigned long flags;
- 	int i, ret, timeout;
+ 	rcar_i2c_set_addr(priv, 1);
+ 	rcar_i2c_status_clear(priv);
+-	rcar_i2c_bus_phase(priv, RCAR_BUS_PHASE_ADDR);
++	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+ 	rcar_i2c_irq_mask(priv, RCAR_IRQ_OPEN_FOR_RECV);
  
- 	pm_runtime_get_sync(dev);
+ 	return 0;
+@@ -347,7 +330,7 @@ static int rcar_i2c_send(struct rcar_i2c_priv *priv)
  
--	/*-------------- spin lock -----------------*/
--	spin_lock_irqsave(&priv->lock, flags);
--
- 	rcar_i2c_init(priv);
- 	/* start clock */
- 	rcar_i2c_write(priv, ICCCR, priv->icccr);
+ 	rcar_i2c_set_addr(priv, 0);
+ 	rcar_i2c_status_clear(priv);
+-	rcar_i2c_bus_phase(priv, RCAR_BUS_PHASE_ADDR);
++	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+ 	rcar_i2c_irq_mask(priv, RCAR_IRQ_OPEN_FOR_SEND);
  
--	spin_unlock_irqrestore(&priv->lock, flags);
--	/*-------------- spin unlock -----------------*/
--
- 	ret = rcar_i2c_bus_barrier(priv);
- 	if (ret < 0)
+ 	return 0;
+@@ -376,7 +359,7 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+ 	 * goto data phase.
+ 	 */
+ 	if (msr & MAT)
+-		rcar_i2c_bus_phase(priv, RCAR_BUS_PHASE_DATA);
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	if (priv->pos < msg->len) {
+ 		/*
+@@ -404,7 +387,7 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+ 			 * prepare stop condition here.
+ 			 * ID_DONE will be set on STOP irq.
+ 			 */
+-			rcar_i2c_bus_phase(priv, RCAR_BUS_PHASE_STOP);
++			rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+ 		else
+ 			/*
+ 			 * If current msg is _NOT_ last msg,
+@@ -452,9 +435,9 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 	 * otherwise, go to DATA phase.
+ 	 */
+ 	if (priv->pos + 1 >= msg->len)
+-		rcar_i2c_bus_phase(priv, RCAR_BUS_PHASE_STOP);
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+ 	else
+-		rcar_i2c_bus_phase(priv, RCAR_BUS_PHASE_DATA);
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	rcar_i2c_recv_restart(priv);
+ 
+@@ -502,7 +485,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 		dev_dbg(dev, "Nack\n");
+ 
+ 		/* go to stop phase */
+-		rcar_i2c_bus_phase(priv, RCAR_BUS_PHASE_STOP);
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+ 		rcar_i2c_irq_mask(priv, RCAR_IRQ_OPEN_FOR_STOP);
+ 		rcar_i2c_flags_set(priv, ID_NACK);
  		goto out;
-@@ -488,9 +473,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 			break;
- 		}
- 
--		/*-------------- spin lock -----------------*/
--		spin_lock_irqsave(&priv->lock, flags);
--
- 		/* init each data */
- 		priv->msg	= &msgs[i];
- 		priv->pos	= 0;
-@@ -500,9 +482,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 
- 		ret = rcar_i2c_prepare_msg(priv);
- 
--		spin_unlock_irqrestore(&priv->lock, flags);
--		/*-------------- spin unlock -----------------*/
--
- 		if (ret < 0)
- 			break;
- 
-@@ -611,7 +590,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 
- 	irq = platform_get_irq(pdev, 0);
- 	init_waitqueue_head(&priv->wait);
--	spin_lock_init(&priv->lock);
- 
- 	adap			= &priv->adap;
- 	adap->nr		= pdev->id;
 -- 
 2.0.0.rc2
-
