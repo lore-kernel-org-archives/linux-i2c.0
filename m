@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 10/11] i2c: rcar: janitorial cleanup after refactoring
-Date: Wed, 28 May 2014 09:44:45 +0200
-Message-ID: <1401263086-13720-11-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 11/11] i2c: rcar: update copyright and license information
+Date: Wed, 28 May 2014 09:44:46 +0200
+Message-ID: <1401263086-13720-12-git-send-email-wsa@the-dreams.de>
 References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
@@ -12,153 +12,56 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Remove some obvious comments, remove some superfluous debug output (the
-error code carries the same information), some white space fixing...
+Make clear that the driver is GPL v2 only. Remove FSF address. Remove
+filename in comment. Update copyright information.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 50 +++++--------------------------------------
- 1 file changed, 5 insertions(+), 45 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index d489d54ebc6f..b4cbbc412ca9 100644
+index b4cbbc412ca9..f1ae1a3e187e 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -80,9 +80,6 @@
- #define RCAR_IRQ_ACK_SEND	(~(MAT | MDE))
- #define RCAR_IRQ_ACK_RECV	(~(MAT | MDR))
+@@ -1,7 +1,9 @@
+ /*
+- *  drivers/i2c/busses/i2c-rcar.c
++ * Driver for the Renesas RCar I2C unit
+  *
+- * Copyright (C) 2012 Renesas Solutions Corp.
++ * Copyright (C) 2014 Wolfram Sang <wsa@sang-engineering.com>
++ *
++ * Copyright (C) 2012-14 Renesas Solutions Corp.
+  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+  *
+  * This file is based on the drivers/i2c/busses/i2c-sh7760.c
+@@ -12,16 +14,12 @@
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License
++ * the Free Software Foundation; version 2 of the License.
+  *
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+@@ -605,6 +603,6 @@ static struct platform_driver rcar_i2c_driver = {
  
--/*
-- * flags
-- */
- #define ID_LAST_MSG	(1 << 0)
- #define ID_IOERROR	(1 << 1)
- #define ID_DONE		(1 << 2)
-@@ -105,7 +102,7 @@ struct rcar_i2c_priv {
- 	int pos;
- 	u32 icccr;
- 	u32 flags;
--	enum rcar_i2c_type	devtype;
-+	enum rcar_i2c_type devtype;
- };
+ module_platform_driver(rcar_i2c_driver);
  
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -116,9 +113,7 @@ struct rcar_i2c_priv {
- 
- #define LOOP_TIMEOUT	1024
- 
--/*
-- *		basic functions
-- */
-+
- static void rcar_i2c_write(struct rcar_i2c_priv *priv, int reg, u32 val)
- {
- 	writel(val, priv->io + reg);
-@@ -147,9 +142,6 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
- 	rcar_i2c_write(priv, ICMAR, 0);
- }
- 
--/*
-- *		bus control functions
-- */
- static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
- {
- 	int i;
-@@ -164,9 +156,6 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
- 	return -EBUSY;
- }
- 
--/*
-- *		clock function
-- */
- static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 				    u32 bus_speed,
- 				    struct device *dev)
-@@ -256,10 +245,6 @@ scgd_find:
- 	return 0;
- }
- 
--/*
-- *		status functions
-- */
--
- static int rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
- {
- 	int read = !!rcar_i2c_is_recv(priv);
-@@ -380,40 +365,24 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- {
- 	struct rcar_i2c_priv *priv = ptr;
--	struct device *dev = rcar_i2c_priv_to_dev(priv);
- 	u32 msr;
- 
- 	msr = rcar_i2c_read(priv, ICMSR);
- 
--	/*
--	 * Arbitration lost
--	 */
-+	/* Arbitration lost */
- 	if (msr & MAL) {
--		/*
--		 * CAUTION
--		 *
--		 * When arbitration lost, device become _slave_ mode.
--		 */
--		dev_dbg(dev, "Arbitration Lost\n");
- 		rcar_i2c_flags_set(priv, (ID_DONE | ID_ARBLOST));
- 		goto out;
- 	}
- 
--	/*
--	 * Stop
--	 */
-+	/* Stop */
- 	if (msr & MST) {
--		dev_dbg(dev, "Stop\n");
- 		rcar_i2c_flags_set(priv, ID_DONE);
- 		goto out;
- 	}
- 
--	/*
--	 * Nack
--	 */
-+	/* Nack */
- 	if (msr & MNR) {
--		dev_dbg(dev, "Nack\n");
--
- 		/* go to stop phase */
- 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
- 		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
-@@ -421,9 +390,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 		goto out;
- 	}
- 
--	/*
--	 * recv/send
--	 */
- 	if (rcar_i2c_is_recv(priv))
- 		rcar_i2c_flags_set(priv, rcar_i2c_irq_recv(priv, msr));
- 	else
-@@ -476,9 +442,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 		if (ret < 0)
- 			break;
- 
--		/*
--		 * wait result
--		 */
- 		timeout = wait_event_timeout(priv->wait,
- 					     rcar_i2c_flags_has(priv, ID_DONE),
- 					     5 * HZ);
-@@ -487,9 +450,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 			break;
- 		}
- 
--		/*
--		 * error handling
--		 */
- 		if (rcar_i2c_flags_has(priv, ID_NACK)) {
- 			ret = -ENXIO;
- 			break;
+-MODULE_LICENSE("GPL");
++MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("Renesas R-Car I2C bus driver");
+ MODULE_AUTHOR("Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>");
 -- 
 2.0.0.rc2
 
