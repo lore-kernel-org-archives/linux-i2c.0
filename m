@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 02/11] i2c: rcar: no need to store irq number
-Date: Wed, 28 May 2014 09:44:37 +0200
-Message-ID: <1401263086-13720-3-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 04/11] i2c: rcar: refactor irq state machine
+Date: Wed, 28 May 2014 09:44:39 +0200
+Message-ID: <1401263086-13720-5-git-send-email-wsa@the-dreams.de>
 References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
@@ -12,56 +12,100 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-We use devm, so irq number is only needed during probe.
+Remove the seperate functions and use designated constants. As readable
+but less overhead. Actually, this is even more readable since the old
+function used a mix of "=" and "|=".
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 39 +++++++--------------------------------
+ 1 file changed, 7 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 32df4e1f3738..88efbf29a182 100644
+index e0cdab488cc5..9757adf33f37 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -116,7 +116,6 @@ struct rcar_i2c_priv {
- 	wait_queue_head_t wait;
+@@ -83,12 +83,9 @@
+ #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
+ #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
  
- 	int pos;
--	int irq;
- 	u32 icccr;
- 	u32 flags;
- 	enum rcar_i2c_type	devtype;
-@@ -650,7 +649,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	struct device *dev = &pdev->dev;
- 	u32 bus_speed;
--	int ret;
-+	int irq, ret;
+-enum {
+-	RCAR_IRQ_CLOSE,
+-	RCAR_IRQ_OPEN_FOR_SEND,
+-	RCAR_IRQ_OPEN_FOR_RECV,
+-	RCAR_IRQ_OPEN_FOR_STOP,
+-};
++#define RCAR_IRQ_SEND	(MNRE | MALE | MSTE | MATE | MDEE)
++#define RCAR_IRQ_RECV	(MNRE | MALE | MSTE | MATE | MDRE)
++#define RCAR_IRQ_STOP	(MSTE)
  
- 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
- 	if (!priv) {
-@@ -684,7 +683,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->io))
- 		return PTR_ERR(priv->io);
+ /*
+  * flags
+@@ -158,28 +155,6 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ 	rcar_i2c_write(priv, ICMAR, 0);
+ }
  
--	priv->irq = platform_get_irq(pdev, 0);
-+	irq = platform_get_irq(pdev, 0);
- 	init_waitqueue_head(&priv->wait);
- 	spin_lock_init(&priv->lock);
+-static void rcar_i2c_irq_mask(struct rcar_i2c_priv *priv, int open)
+-{
+-	u32 val = MNRE | MALE | MSTE | MATE; /* default */
+-
+-	switch (open) {
+-	case RCAR_IRQ_OPEN_FOR_SEND:
+-		val |= MDEE; /* default + send */
+-		break;
+-	case RCAR_IRQ_OPEN_FOR_RECV:
+-		val |= MDRE; /* default + read */
+-		break;
+-	case RCAR_IRQ_OPEN_FOR_STOP:
+-		val = MSTE; /* stop irq only */
+-		break;
+-	case RCAR_IRQ_CLOSE:
+-	default:
+-		val = 0; /* all close */
+-		break;
+-	}
+-	rcar_i2c_write(priv, ICMIER, val);
+-}
+-
+ static void rcar_i2c_set_addr(struct rcar_i2c_priv *priv, u32 recv)
+ {
+ 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | recv);
+@@ -312,7 +287,7 @@ static int rcar_i2c_recv(struct rcar_i2c_priv *priv)
+ 	rcar_i2c_set_addr(priv, 1);
+ 	rcar_i2c_status_clear(priv);
+ 	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+-	rcar_i2c_irq_mask(priv, RCAR_IRQ_OPEN_FOR_RECV);
++	rcar_i2c_write(priv, ICMIER, RCAR_IRQ_RECV);
  
-@@ -698,10 +697,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(adap, priv);
- 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
+ 	return 0;
+ }
+@@ -331,7 +306,7 @@ static int rcar_i2c_send(struct rcar_i2c_priv *priv)
+ 	rcar_i2c_set_addr(priv, 0);
+ 	rcar_i2c_status_clear(priv);
+ 	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+-	rcar_i2c_irq_mask(priv, RCAR_IRQ_OPEN_FOR_SEND);
++	rcar_i2c_write(priv, ICMIER, RCAR_IRQ_SEND);
  
--	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0,
-+	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0,
- 			       dev_name(dev), priv);
- 	if (ret < 0) {
--		dev_err(dev, "cannot get irq %d\n", priv->irq);
-+		dev_err(dev, "cannot get irq %d\n", irq);
- 		return ret;
+ 	return 0;
+ }
+@@ -486,7 +461,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 
+ 		/* go to stop phase */
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+-		rcar_i2c_irq_mask(priv, RCAR_IRQ_OPEN_FOR_STOP);
++		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
+ 		rcar_i2c_flags_set(priv, ID_NACK);
+ 		goto out;
  	}
+@@ -501,7 +476,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
  
+ out:
+ 	if (rcar_i2c_flags_has(priv, ID_DONE)) {
+-		rcar_i2c_irq_mask(priv, RCAR_IRQ_CLOSE);
++		rcar_i2c_write(priv, ICMIER, 0);
+ 		rcar_i2c_status_clear(priv);
+ 		wake_up(&priv->wait);
+ 	}
 -- 
 2.0.0.rc2
 
