@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 07/11] i2c: rcar: refactor status bit handling
-Date: Wed, 28 May 2014 09:44:42 +0200
-Message-ID: <1401263086-13720-8-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 10/11] i2c: rcar: janitorial cleanup after refactoring
+Date: Wed, 28 May 2014 09:44:45 +0200
+Message-ID: <1401263086-13720-11-git-send-email-wsa@the-dreams.de>
 References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
@@ -12,84 +12,153 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-The old macros made it harder to see what was actually happening.
-Replace them with something more readable.
+Remove some obvious comments, remove some superfluous debug output (the
+error code carries the same information), some white space fixing...
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 50 +++++--------------------------------------
+ 1 file changed, 5 insertions(+), 45 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index f7b14d049d5c..e82d64b5acef 100644
+index d489d54ebc6f..b4cbbc412ca9 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -87,6 +87,9 @@
- #define RCAR_IRQ_RECV	(MNRE | MALE | MSTE | MATE | MDRE)
- #define RCAR_IRQ_STOP	(MSTE)
+@@ -80,9 +80,6 @@
+ #define RCAR_IRQ_ACK_SEND	(~(MAT | MDE))
+ #define RCAR_IRQ_ACK_RECV	(~(MAT | MDR))
  
-+#define RCAR_IRQ_ACK_SEND	(~(MAT | MDE))
-+#define RCAR_IRQ_ACK_RECV	(~(MAT | MDR))
+-/*
+- * flags
+- */
+ #define ID_LAST_MSG	(1 << 0)
+ #define ID_IOERROR	(1 << 1)
+ #define ID_DONE		(1 << 2)
+@@ -105,7 +102,7 @@ struct rcar_i2c_priv {
+ 	int pos;
+ 	u32 icccr;
+ 	u32 flags;
+-	enum rcar_i2c_type	devtype;
++	enum rcar_i2c_type devtype;
+ };
+ 
+ #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
+@@ -116,9 +113,7 @@ struct rcar_i2c_priv {
+ 
+ #define LOOP_TIMEOUT	1024
+ 
+-/*
+- *		basic functions
+- */
 +
- /*
-  * flags
-  */
-@@ -268,27 +271,18 @@ scgd_find:
-  *		status functions
-  */
+ static void rcar_i2c_write(struct rcar_i2c_priv *priv, int reg, u32 val)
+ {
+ 	writel(val, priv->io + reg);
+@@ -147,9 +142,6 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ 	rcar_i2c_write(priv, ICMAR, 0);
+ }
  
--#define rcar_i2c_status_clear(priv) rcar_i2c_status_bit_clear(priv, 0xffffffff)
--static void rcar_i2c_status_bit_clear(struct rcar_i2c_priv *priv, u32 bit)
--{
--	rcar_i2c_write(priv, ICMSR, ~bit);
--}
+-/*
+- *		bus control functions
+- */
+ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ {
+ 	int i;
+@@ -164,9 +156,6 @@ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ 	return -EBUSY;
+ }
+ 
+-/*
+- *		clock function
+- */
+ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+ 				    u32 bus_speed,
+ 				    struct device *dev)
+@@ -256,10 +245,6 @@ scgd_find:
+ 	return 0;
+ }
+ 
+-/*
+- *		status functions
+- */
 -
  static int rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
  {
  	int read = !!rcar_i2c_is_recv(priv);
+@@ -380,40 +365,24 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+-	struct device *dev = rcar_i2c_priv_to_dev(priv);
+ 	u32 msr;
  
- 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
--	rcar_i2c_status_clear(priv);
-+	rcar_i2c_write(priv, ICMSR, 0);
- 	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
- 	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
+ 	msr = rcar_i2c_read(priv, ICMSR);
  
- 	return 0;
- }
+-	/*
+-	 * Arbitration lost
+-	 */
++	/* Arbitration lost */
+ 	if (msr & MAL) {
+-		/*
+-		 * CAUTION
+-		 *
+-		 * When arbitration lost, device become _slave_ mode.
+-		 */
+-		dev_dbg(dev, "Arbitration Lost\n");
+ 		rcar_i2c_flags_set(priv, (ID_DONE | ID_ARBLOST));
+ 		goto out;
+ 	}
  
--#define rcar_i2c_send_restart(priv) rcar_i2c_status_bit_clear(priv, (MAT | MDE))
--#define rcar_i2c_recv_restart(priv) rcar_i2c_status_bit_clear(priv, (MAT | MDR))
+-	/*
+-	 * Stop
+-	 */
++	/* Stop */
+ 	if (msr & MST) {
+-		dev_dbg(dev, "Stop\n");
+ 		rcar_i2c_flags_set(priv, ID_DONE);
+ 		goto out;
+ 	}
+ 
+-	/*
+-	 * Nack
+-	 */
++	/* Nack */
+ 	if (msr & MNR) {
+-		dev_dbg(dev, "Nack\n");
 -
- /*
-  *		interrupt functions
-  */
-@@ -348,7 +342,7 @@ static int rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
- 			return ID_DONE;
+ 		/* go to stop phase */
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+ 		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
+@@ -421,9 +390,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 		goto out;
  	}
  
--	rcar_i2c_send_restart(priv);
-+	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_SEND);
- 
- 	return 0;
- }
-@@ -389,7 +383,7 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+-	/*
+-	 * recv/send
+-	 */
+ 	if (rcar_i2c_is_recv(priv))
+ 		rcar_i2c_flags_set(priv, rcar_i2c_irq_recv(priv, msr));
  	else
- 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+@@ -476,9 +442,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 		if (ret < 0)
+ 			break;
  
--	rcar_i2c_recv_restart(priv);
-+	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_RECV);
+-		/*
+-		 * wait result
+-		 */
+ 		timeout = wait_event_timeout(priv->wait,
+ 					     rcar_i2c_flags_has(priv, ID_DONE),
+ 					     5 * HZ);
+@@ -487,9 +450,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 			break;
+ 		}
  
- 	return 0;
- }
-@@ -452,7 +446,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- out:
- 	if (rcar_i2c_flags_has(priv, ID_DONE)) {
- 		rcar_i2c_write(priv, ICMIER, 0);
--		rcar_i2c_status_clear(priv);
-+		rcar_i2c_write(priv, ICMSR, 0);
- 		wake_up(&priv->wait);
- 	}
- 
+-		/*
+-		 * error handling
+-		 */
+ 		if (rcar_i2c_flags_has(priv, ID_NACK)) {
+ 			ret = -ENXIO;
+ 			break;
 -- 
 2.0.0.rc2
 
