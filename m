@@ -1,68 +1,84 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 05/11] i2c: rcar: check bus free before first message
-Date: Wed, 28 May 2014 09:44:40 +0200
-Message-ID: <1401263086-13720-6-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 06/11] i2c: rcar: refactor setting up msg
+Date: Wed, 28 May 2014 09:44:41 +0200
+Message-ID: <1401263086-13720-7-git-send-email-wsa@the-dreams.de>
 References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1401263086-13720-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-We should always check if the bus is free, independently if it is a read
-or write. It should be done before the first message, though. After
-that, we ourselves keep the bus busy. Remove a 'ret' assignment which
-only silenced a build warning.
+Setting up a read or write message is similar enough to be done in one
+function. Also, move a helper function into the new function since it is
+only used here.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 30 +++++-------------------------
+ 1 file changed, 5 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 9757adf33f37..a97a14955ddf 100644
+index a97a14955ddf..f7b14d049d5c 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -294,15 +294,6 @@ static int rcar_i2c_recv(struct rcar_i2c_priv *priv)
+@@ -155,11 +155,6 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ 	rcar_i2c_write(priv, ICMAR, 0);
+ }
  
- static int rcar_i2c_send(struct rcar_i2c_priv *priv)
+-static void rcar_i2c_set_addr(struct rcar_i2c_priv *priv, u32 recv)
+-{
+-	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | recv);
+-}
+-
+ /*
+  *		bus control functions
+  */
+@@ -279,25 +274,14 @@ static void rcar_i2c_status_bit_clear(struct rcar_i2c_priv *priv, u32 bit)
+ 	rcar_i2c_write(priv, ICMSR, ~bit);
+ }
+ 
+-/*
+- *		recv/send functions
+- */
+-static int rcar_i2c_recv(struct rcar_i2c_priv *priv)
++static int rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
  {
--	int ret;
+-	rcar_i2c_set_addr(priv, 1);
+-	rcar_i2c_status_clear(priv);
+-	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
+-	rcar_i2c_write(priv, ICMIER, RCAR_IRQ_RECV);
 -
--	/*
--	 * It should check bus status when send case
--	 */
--	ret = rcar_i2c_bus_barrier(priv);
--	if (ret < 0)
--		return ret;
--
- 	rcar_i2c_set_addr(priv, 0);
+-	return 0;
+-}
++	int read = !!rcar_i2c_is_recv(priv);
+ 
+-static int rcar_i2c_send(struct rcar_i2c_priv *priv)
+-{
+-	rcar_i2c_set_addr(priv, 0);
++	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
  	rcar_i2c_status_clear(priv);
  	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
-@@ -508,7 +499,10 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 	spin_unlock_irqrestore(&priv->lock, flags);
- 	/*-------------- spin unlock -----------------*/
+-	rcar_i2c_write(priv, ICMIER, RCAR_IRQ_SEND);
++	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
  
--	ret = -EINVAL;
-+	ret = rcar_i2c_bus_barrier(priv);
-+	if (ret < 0)
-+		goto out;
-+
- 	for (i = 0; i < num; i++) {
- 		/* This HW can't send STOP after address phase */
- 		if (msgs[i].len == 0) {
-@@ -569,7 +563,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 	return 0;
+ }
+@@ -520,11 +504,7 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 		if (priv->msg == &msgs[num - 1])
+ 			rcar_i2c_flags_set(priv, ID_LAST_MSG);
  
- 		ret = i + 1; /* The number of transfer */
- 	}
--
-+out:
- 	pm_runtime_put(dev);
+-		/* start send/recv */
+-		if (rcar_i2c_is_recv(priv))
+-			ret = rcar_i2c_recv(priv);
+-		else
+-			ret = rcar_i2c_send(priv);
++		ret = rcar_i2c_prepare_msg(priv);
  
- 	if (ret < 0 && ret != -ENXIO)
+ 		spin_unlock_irqrestore(&priv->lock, flags);
+ 		/*-------------- spin unlock -----------------*/
 -- 
 2.0.0.rc2
-
