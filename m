@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 09/11] i2c: rcar: reuse status bits as enable bits
-Date: Wed, 28 May 2014 09:44:44 +0200
-Message-ID: <1401263086-13720-10-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 08/11] i2c: rcar: remove spinlock
+Date: Wed, 28 May 2014 09:44:43 +0200
+Message-ID: <1401263086-13720-9-git-send-email-wsa@the-dreams.de>
 References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
@@ -12,54 +12,103 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Status register and enable register are identical regarding their
-layout. Use the bit definitions for both.
+The i2c core has per-adapter locks, so no need to protect again.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 22 ----------------------
+ 1 file changed, 22 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 4b088e67f2fd..d489d54ebc6f 100644
+index e82d64b5acef..4b088e67f2fd 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -59,7 +59,7 @@
- #define FSB	(1 << 1)	/* force stop bit */
- #define ESG	(1 << 0)	/* en startbit gen */
+@@ -36,7 +36,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+-#include <linux/spinlock.h>
  
--/* ICMSR */
-+/* ICMSR (also for ICMIE) */
- #define MNR	(1 << 6)	/* nack received */
- #define MAL	(1 << 5)	/* arbitration lost */
- #define MST	(1 << 4)	/* sent a stop */
-@@ -68,23 +68,14 @@
- #define MDR	(1 << 1)
- #define MAT	(1 << 0)	/* slave addr xfer done */
+ /* register offsets */
+ #define ICSCR	0x00	/* slave ctrl */
+@@ -110,7 +109,6 @@ struct rcar_i2c_priv {
+ 	struct i2c_msg	*msg;
+ 	struct clk *clk;
  
--/* ICMIE */
--#define MNRE	(1 << 6)	/* nack irq en */
--#define MALE	(1 << 5)	/* arblos irq en */
--#define MSTE	(1 << 4)	/* stop irq en */
--#define MDEE	(1 << 3)
--#define MDTE	(1 << 2)
--#define MDRE	(1 << 1)
--#define MATE	(1 << 0)	/* address sent irq en */
+-	spinlock_t lock;
+ 	wait_queue_head_t wait;
+ 
+ 	int pos;
+@@ -394,9 +392,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	struct device *dev = rcar_i2c_priv_to_dev(priv);
+ 	u32 msr;
+ 
+-	/*-------------- spin lock -----------------*/
+-	spin_lock(&priv->lock);
 -
+ 	msr = rcar_i2c_read(priv, ICMSR);
  
- #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
- #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
- #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
+ 	/*
+@@ -450,9 +445,6 @@ out:
+ 		wake_up(&priv->wait);
+ 	}
  
--#define RCAR_IRQ_SEND	(MNRE | MALE | MSTE | MATE | MDEE)
--#define RCAR_IRQ_RECV	(MNRE | MALE | MSTE | MATE | MDRE)
--#define RCAR_IRQ_STOP	(MSTE)
-+#define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
-+#define RCAR_IRQ_RECV	(MNR | MAL | MST | MAT | MDR)
-+#define RCAR_IRQ_STOP	(MST)
+-	spin_unlock(&priv->lock);
+-	/*-------------- spin unlock -----------------*/
+-
+ 	return IRQ_HANDLED;
+ }
  
- #define RCAR_IRQ_ACK_SEND	(~(MAT | MDE))
- #define RCAR_IRQ_ACK_RECV	(~(MAT | MDR))
+@@ -462,21 +454,14 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ {
+ 	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
+ 	struct device *dev = rcar_i2c_priv_to_dev(priv);
+-	unsigned long flags;
+ 	int i, ret, timeout;
+ 
+ 	pm_runtime_get_sync(dev);
+ 
+-	/*-------------- spin lock -----------------*/
+-	spin_lock_irqsave(&priv->lock, flags);
+-
+ 	rcar_i2c_init(priv);
+ 	/* start clock */
+ 	rcar_i2c_write(priv, ICCCR, priv->icccr);
+ 
+-	spin_unlock_irqrestore(&priv->lock, flags);
+-	/*-------------- spin unlock -----------------*/
+-
+ 	ret = rcar_i2c_bus_barrier(priv);
+ 	if (ret < 0)
+ 		goto out;
+@@ -488,9 +473,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 			break;
+ 		}
+ 
+-		/*-------------- spin lock -----------------*/
+-		spin_lock_irqsave(&priv->lock, flags);
+-
+ 		/* init each data */
+ 		priv->msg	= &msgs[i];
+ 		priv->pos	= 0;
+@@ -500,9 +482,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 
+ 		ret = rcar_i2c_prepare_msg(priv);
+ 
+-		spin_unlock_irqrestore(&priv->lock, flags);
+-		/*-------------- spin unlock -----------------*/
+-
+ 		if (ret < 0)
+ 			break;
+ 
+@@ -611,7 +590,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
+-	spin_lock_init(&priv->lock);
+ 
+ 	adap			= &priv->adap;
+ 	adap->nr		= pdev->id;
 -- 
 2.0.0.rc2
 
