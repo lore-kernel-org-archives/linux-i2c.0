@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 01/11] i2c: rcar: not everything needs to be a function
-Date: Wed, 28 May 2014 09:44:36 +0200
-Message-ID: <1401263086-13720-2-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 02/11] i2c: rcar: no need to store irq number
+Date: Wed, 28 May 2014 09:44:37 +0200
+Message-ID: <1401263086-13720-3-git-send-email-wsa@the-dreams.de>
 References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
@@ -12,55 +12,56 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Very basic operations, just called once, can also go to the caller.
+We use devm, so irq number is only needed during probe.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 06d47aafbb79..32df4e1f3738 100644
+index 32df4e1f3738..88efbf29a182 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -312,18 +312,9 @@ scgd_find:
- 	return 0;
- }
+@@ -116,7 +116,6 @@ struct rcar_i2c_priv {
+ 	wait_queue_head_t wait;
  
--static void rcar_i2c_clock_start(struct rcar_i2c_priv *priv)
--{
--	rcar_i2c_write(priv, ICCCR, priv->icccr);
--}
--
- /*
-  *		status functions
-  */
--static u32 rcar_i2c_status_get(struct rcar_i2c_priv *priv)
--{
--	return rcar_i2c_read(priv, ICMSR);
--}
+ 	int pos;
+-	int irq;
+ 	u32 icccr;
+ 	u32 flags;
+ 	enum rcar_i2c_type	devtype;
+@@ -650,7 +649,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	struct device *dev = &pdev->dev;
+ 	u32 bus_speed;
+-	int ret;
++	int irq, ret;
  
- #define rcar_i2c_status_clear(priv) rcar_i2c_status_bit_clear(priv, 0xffffffff)
- static void rcar_i2c_status_bit_clear(struct rcar_i2c_priv *priv, u32 bit)
-@@ -480,7 +471,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	/*-------------- spin lock -----------------*/
- 	spin_lock(&priv->lock);
+ 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
+ 	if (!priv) {
+@@ -684,7 +683,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->io))
+ 		return PTR_ERR(priv->io);
  
--	msr = rcar_i2c_status_get(priv);
-+	msr = rcar_i2c_read(priv, ICMSR);
+-	priv->irq = platform_get_irq(pdev, 0);
++	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
+ 	spin_lock_init(&priv->lock);
  
- 	/*
- 	 * Arbitration lost
-@@ -554,7 +545,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
- 	spin_lock_irqsave(&priv->lock, flags);
+@@ -698,10 +697,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
  
- 	rcar_i2c_init(priv);
--	rcar_i2c_clock_start(priv);
-+	/* start clock */
-+	rcar_i2c_write(priv, ICCCR, priv->icccr);
+-	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0,
++	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0,
+ 			       dev_name(dev), priv);
+ 	if (ret < 0) {
+-		dev_err(dev, "cannot get irq %d\n", priv->irq);
++		dev_err(dev, "cannot get irq %d\n", irq);
+ 		return ret;
+ 	}
  
- 	spin_unlock_irqrestore(&priv->lock, flags);
- 	/*-------------- spin unlock -----------------*/
 -- 
 2.0.0.rc2
 
