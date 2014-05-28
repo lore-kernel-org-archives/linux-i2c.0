@@ -1,31 +1,44 @@
-From: Daniel =?iso-8859-1?Q?Gl=F6ckner?= <daniel-gl-hi6Y0CQ0nG0@public.gmane.org>
-Subject: Re: i2c: removal of s6000 driver
-Date: Wed, 28 May 2014 00:35:57 +0200
-Message-ID: <20140527223557.GA9594@minime.bse>
-References: <20140521113029.GT2708@katana>
- <20140523131722.GA28143@curry>
- <537F8652.1090807@zankel.net>
- <20140524154727.GA20634@curry>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140524154727.GA20634@curry>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marc Gauthier <marc-66fqrpuXKgGB+jHODAdFcQ@public.gmane.org>, Daniel =?iso-8859-1?Q?Gl=F6ckner?= <dg-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>, Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 00/11] i2c: rcar: cleanup series
+Date: Wed, 28 May 2014 09:44:35 +0200
+Message-ID: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, May 24, 2014 at 03:47:27PM +0000, Oskar Schirmer wrote:
-> On Fri, May 23, 2014 at 10:33:06 -0700, czankel wrote:
-> > I might have asked you before, but do you still have the overlay for the 
-> > S6000 somewhere laying around?
-> 
-> No, but maybe Daniel has?
+Here are some patches to let the rcar driver have a diet without losing
+functionality. IMO the code becomes more readable, too, although mileages may
+vary about this or that change. Bus-free handling is improved, too. Tested with
+renesas-devel-v3.15-rc7-20140526 on a Lager and Koelsch board. The git tree can
+be found here, including one proof-of-concept enablement patch:
 
-At work we still have the overlay as part of the board support package
-we created for the s6105. But I'd prefer to talk to someone at Stretch
-first before handing out copies. Unfortunately I'm on vacation right
-now and will be without internet access from tomorrow to Sunday.
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/rcar-cleanup
 
-  Daniel
+Please test, review, comment.
+
+Thanks,
+
+   Wolfram
+
+
+Wolfram Sang (11):
+  i2c: rcar: not everything needs to be a function
+  i2c: rcar: no need to store irq number
+  i2c: rcar: refactor bus state machine
+  i2c: rcar: refactor irq state machine
+  i2c: rcar: check bus free before first message
+  i2c: rcar: refactor setting up msg
+  i2c: rcar: refactor status bit handling
+  i2c: rcar: remove spinlock
+  i2c: rcar: reuse status bits as enable bits
+  i2c: rcar: janitorial cleanup after refactoring
+  i2c: rcar: update copyright and license information
+
+ drivers/i2c/busses/i2c-rcar.c | 252 ++++++++----------------------------------
+ 1 file changed, 48 insertions(+), 204 deletions(-)
+
+-- 
+2.0.0.rc2
+
