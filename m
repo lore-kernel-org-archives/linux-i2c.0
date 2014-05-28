@@ -1,44 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 00/11] i2c: rcar: cleanup series
-Date: Wed, 28 May 2014 09:44:35 +0200
-Message-ID: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 01/11] i2c: rcar: not everything needs to be a function
+Date: Wed, 28 May 2014 09:44:36 +0200
+Message-ID: <1401263086-13720-2-git-send-email-wsa@the-dreams.de>
+References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Here are some patches to let the rcar driver have a diet without losing
-functionality. IMO the code becomes more readable, too, although mileages may
-vary about this or that change. Bus-free handling is improved, too. Tested with
-renesas-devel-v3.15-rc7-20140526 on a Lager and Koelsch board. The git tree can
-be found here, including one proof-of-concept enablement patch:
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/rcar-cleanup
+Very basic operations, just called once, can also go to the caller.
 
-Please test, review, comment.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-Thanks,
-
-   Wolfram
-
-
-Wolfram Sang (11):
-  i2c: rcar: not everything needs to be a function
-  i2c: rcar: no need to store irq number
-  i2c: rcar: refactor bus state machine
-  i2c: rcar: refactor irq state machine
-  i2c: rcar: check bus free before first message
-  i2c: rcar: refactor setting up msg
-  i2c: rcar: refactor status bit handling
-  i2c: rcar: remove spinlock
-  i2c: rcar: reuse status bits as enable bits
-  i2c: rcar: janitorial cleanup after refactoring
-  i2c: rcar: update copyright and license information
-
- drivers/i2c/busses/i2c-rcar.c | 252 ++++++++----------------------------------
- 1 file changed, 48 insertions(+), 204 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 06d47aafbb79..32df4e1f3738 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -312,18 +312,9 @@ scgd_find:
+ 	return 0;
+ }
+ 
+-static void rcar_i2c_clock_start(struct rcar_i2c_priv *priv)
+-{
+-	rcar_i2c_write(priv, ICCCR, priv->icccr);
+-}
+-
+ /*
+  *		status functions
+  */
+-static u32 rcar_i2c_status_get(struct rcar_i2c_priv *priv)
+-{
+-	return rcar_i2c_read(priv, ICMSR);
+-}
+ 
+ #define rcar_i2c_status_clear(priv) rcar_i2c_status_bit_clear(priv, 0xffffffff)
+ static void rcar_i2c_status_bit_clear(struct rcar_i2c_priv *priv, u32 bit)
+@@ -480,7 +471,7 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	/*-------------- spin lock -----------------*/
+ 	spin_lock(&priv->lock);
+ 
+-	msr = rcar_i2c_status_get(priv);
++	msr = rcar_i2c_read(priv, ICMSR);
+ 
+ 	/*
+ 	 * Arbitration lost
+@@ -554,7 +545,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 
+ 	rcar_i2c_init(priv);
+-	rcar_i2c_clock_start(priv);
++	/* start clock */
++	rcar_i2c_write(priv, ICCCR, priv->icccr);
+ 
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+ 	/*-------------- spin unlock -----------------*/
 -- 
 2.0.0.rc2
 
