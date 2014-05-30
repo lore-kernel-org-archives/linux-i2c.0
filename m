@@ -1,8 +1,8 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Subject: Re: [PATCH] i2c: Make I2C ID tables non-mandatory for DT'ed and/or
  ACPI'ed devices
-Date: Fri, 30 May 2014 13:55:43 +0100
-Message-ID: <20140530125543.GA29731@lee--X1>
+Date: Fri, 30 May 2014 14:34:05 +0100
+Message-ID: <20140530133405.GB29731@lee--X1>
 References: <1401452797-29521-1-git-send-email-lee.jones@linaro.org>
  <1401452797-29521-2-git-send-email-lee.jones@linaro.org>
  <20140530123656.GC2742@katana>
@@ -17,9 +17,6 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 30 May 2014, Wolfram Sang wrote:
-
-> On Fri, May 30, 2014 at 01:26:36PM +0100, Lee Jones wrote:
 > > Currently the I2C framework insists on devices supplying an I2C ID
 > > table.  Many of the devices which do so unnecessarily adding quite =
 a
@@ -41,9 +38,15 @@ vice
 > That means we end up with drivers which cannot be used for run-time
 > instantiation via the 'new_device'-file in sysfs. I don't like that.
 
-Would you mind explaining that a little please?  And perhaps point me
-to the code?
+I've found the code and taken a quick look at it.  I'm still not sure
+I understand your point.  The semantics for any device attempting to
+register with an I2C ID table should be unchanged.  The only intended
+difference would be for drivers which do not wish to supply one due
+to the fact that they have other means of matching, namely DT and
+ACPI.
 
+Would you mind telling me what I have changed that affects drivers
+registering via Sysfs?
 --=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
