@@ -1,68 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Subject: Re: [PATCH] i2c: Make I2C ID tables non-mandatory for DT'ed and/or
  ACPI'ed devices
-Date: Fri, 30 May 2014 14:36:57 +0200
-Message-ID: <20140530123656.GC2742@katana>
+Date: Fri, 30 May 2014 13:55:43 +0100
+Message-ID: <20140530125543.GA29731@lee--X1>
 References: <1401452797-29521-1-git-send-email-lee.jones@linaro.org>
  <1401452797-29521-2-git-send-email-lee.jones@linaro.org>
+ <20140530123656.GC2742@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NKoe5XOeduwbEQHU"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1401452797-29521-2-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, grant.likely@linaro.org, linus.walleij@linaro.org, linux-i2c@vger.kernel.org
+In-Reply-To: <20140530123656.GC2742@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, 30 May 2014, Wolfram Sang wrote:
 
---NKoe5XOeduwbEQHU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, May 30, 2014 at 01:26:36PM +0100, Lee Jones wrote:
-> Currently the I2C framework insists on devices supplying an I2C ID
-> table.  Many of the devices which do so unnecessarily adding quite a
-> few wasted lines to kernel code.  This patch allows drivers a means
-> to 'not' supply the aforementioned table and match on either DT
-> and/or ACPI match tables instead.
+> On Fri, May 30, 2014 at 01:26:36PM +0100, Lee Jones wrote:
+> > Currently the I2C framework insists on devices supplying an I2C ID
+> > table.  Many of the devices which do so unnecessarily adding quite =
+a
+> > few wasted lines to kernel code.  This patch allows drivers a means
+> > to 'not' supply the aforementioned table and match on either DT
+> > and/or ACPI match tables instead.
+> >=20
+> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 >=20
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> Sadly, it is not that easy...
+>=20
+> > +	/*
+> > +	 * An I2C ID table is not madatory, if and only if, a suitable De=
+vice
+> > +	 * Tree and/or ACPI match table entry is supplied for the probing
+> > +	 * device.
+> > +	 */
+>=20
+> That means we end up with drivers which cannot be used for run-time
+> instantiation via the 'new_device'-file in sysfs. I don't like that.
 
-Sadly, it is not that easy...
+Would you mind explaining that a little please?  And perhaps point me
+to the code?
 
-> +	/*
-> +	 * An I2C ID table is not madatory, if and only if, a suitable Device
-> +	 * Tree and/or ACPI match table entry is supplied for the probing
-> +	 * device.
-> +	 */
-
-That means we end up with drivers which cannot be used for run-time
-instantiation via the 'new_device'-file in sysfs. I don't like that.
-
-
---NKoe5XOeduwbEQHU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTiHtoAAoJEBQN5MwUoCm2J8IP/jDGkOmDS184FFWYotjvOxE4
-pE1ScJJHRtNbzP0+KCzZIf4GHkyQ2qvzpS4qdfpT3O85CWuYHbfTpNzFoEP4UIsI
-9t8UHakeT/u7v/TvLtIBaGDXhm2D11waEE/Q25YZCbtJdoPOfHrMpYQnkq20H807
-mImBaCBylEoQLIkpLUWR0rtNHp70SuQM4BfJS/ozpUb6SSsiSDKo/ZkOYQNVoMAo
-K0nx3/tJcjvWaKmu5KH0dZlTAgYyzNEq0E8UJDfHU40f73SsolE7XvVqod7K2yFk
-aULjsjix+f6iBRF4FEqozpHFQdfUFE+cZxptBmnvBeFbvfLlp2TGSxJ/9SrBLiPw
-E+h91AHlqN4Co1hcC+xVbztlZGOuYCHCN9+1TQCcgV8YczQXcQSGIIS0fDMPseRp
-zCJLAIV4BJ3db8I3u2GArnihtvNtRGHkpq1Kvgn+EygLWoX3Ucl9SYI1UiNfGArw
-GxejQZGA6/BpMADTnXYGip0rei+rTb2kiljIJAjSpztW1lr5D4kH973xYrZN4Lmt
-kq4N139GybFrgBPp8YHzMLBkJllilnXekjU8y0QuJIlEx7eezTDBMyHF7L/RwTvX
-cd+L13as6JEqsjun9NO/kKC3MTc195xIDQ0UMLQA87pJ7MZBxXofX1NtVYng3gTM
-nQ3p8V2VARCOUNaxi2so
-=H4/b
------END PGP SIGNATURE-----
-
---NKoe5XOeduwbEQHU--
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
