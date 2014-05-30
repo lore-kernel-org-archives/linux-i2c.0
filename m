@@ -1,42 +1,67 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH 00/11] i2c: rcar: cleanup series
-Date: Wed, 28 May 2014 10:26:38 +0200
-Message-ID: <CAMuHMdUq5YxL+JfSuAzPtd4bHkPJXACqMAG+Fc0AFv7TkUDHDg@mail.gmail.com>
-References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
+From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [Patch V3 0/5] I2C ACPI operation region handler
+Date: Fri, 30 May 2014 14:00:39 +0800
+Message-ID: <53881E87.9070706@intel.com>
+References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401263086-13720-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <1400590764-11108-1-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On 05/20/2014 08:59 PM, Lan Tianyu wrote:
+> ACPI 5.0 spec(5.5.2.4.5) defines GenericSerialBus(i2c, spi, uart) operation
+> region. It allows ACPI aml code able to access such kind of devices to
+> implement some ACPI standard method.
+>
+> On the Asus T100TA, Bios use GenericSerialBus operation region to access
+> i2c device to get battery info. So battery function depends on the I2C
+> operation region support. Here is the bug link.
+> https://bugzilla.kernel.org/show_bug.cgi?id=69011
+>
 
-On Wed, May 28, 2014 at 9:44 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> Wolfram Sang (11):
->   i2c: rcar: not everything needs to be a function
->   i2c: rcar: no need to store irq number
->   i2c: rcar: refactor bus state machine
->   i2c: rcar: refactor irq state machine
->   i2c: rcar: check bus free before first message
->   i2c: rcar: refactor setting up msg
->   i2c: rcar: refactor status bit handling
->   i2c: rcar: remove spinlock
->   i2c: rcar: reuse status bits as enable bits
->   i2c: rcar: janitorial cleanup after refactoring
->   i2c: rcar: update copyright and license information
+Hi Wolfram:
+	Since this version resolved all comments, it's ok for you?
 
-Acked-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> Change since V2:
+>          Drop patchs of adding I2C smbus quick read/write and word/block
+> process call functions because not find machines supporting such protocols
+> so far and can't test these functions.
+>          Merge patchs of "I2C ACPI related code clear up" and "Add CONFIG_I2C_ACPI
+> config"
+> 	Patch 2: Add acpi_bus_detach_private_data() function to detach data from
+> ACPI handle and replace ACPI_ERROR() with acpi_handle_debug() to avoid some redundant
+> error log.
+>
+> Change since V1:
+>         Fix some code style issues. Change prefix i2c_acpi to acpi_i2c.
+> Move ACPI related code in the i2c core to i2c-acpi.c. Add CONFIG_I2C_ACPI
+> and make i2c core built-in when it's set to avoid i2c ACPI operation region
+> being removed.
+>
+> Lan Tianyu (5):
+>    ACPICA: Export acpi_buffer_to_resource symbol
+>    ACPI: Add acpi_bus_attach_private_data() to facilitate to attach data
+>      to ACPI handle
+>    ACPI/Thermal: Use acpi_bus_attach_private_data() to attach private
+>      data
+>    I2C/ACPI: Add i2c ACPI operation region support
+>    I2C/ACPI: Clean up I2C ACPI code and Add CONFIG_I2C_ACPI config
+>
+>   drivers/acpi/acpica/rscreate.c |   1 +
+>   drivers/acpi/bus.c             |  28 +++-
+>   drivers/acpi/thermal.c         |  11 +-
+>   drivers/i2c/Kconfig            |  18 +-
+>   drivers/i2c/Makefile           |   5 +-
+>   drivers/i2c/i2c-acpi.c         | 362 +++++++++++++++++++++++++++++++++++++++++
+>   drivers/i2c/i2c-core.c         |  97 +----------
+>   include/acpi/acpi_bus.h        |   2 +
+>   include/linux/acpi.h           |  11 ++
+>   include/linux/i2c.h            |  12 ++
+>   10 files changed, 439 insertions(+), 108 deletions(-)
+>   create mode 100644 drivers/i2c/i2c-acpi.c
+>
