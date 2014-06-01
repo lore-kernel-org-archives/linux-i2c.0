@@ -1,55 +1,82 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
-Date: Sun, 1 Jun 2014 22:11:34 +0200
-Message-ID: <20140601201134.GA3853@katana>
-References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
- <1394779348-4084-1-git-send-email-mike.looijmans@topic.nl>
- <20140324161432.GA7524@katana>
- <20140521081727.GE2708@katana>
- <53808851.7060308@topic.nl>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 00/11] i2c: rcar: cleanup series
+Date: Sun, 1 Jun 2014 22:24:37 +0200
+Message-ID: <20140601202437.GB3853@katana>
+References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="jq0ap7NbKX2Kqbes"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <53808851.7060308-Oq418RWZeHk@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---tKW2IUtsqtDRztdT
+--jq0ap7NbKX2Kqbes
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, May 28, 2014 at 09:44:35AM +0200, Wolfram Sang wrote:
+> Here are some patches to let the rcar driver have a diet without losing
+> functionality. IMO the code becomes more readable, too, although mileages=
+ may
+> vary about this or that change. Bus-free handling is improved, too. Teste=
+d with
+> renesas-devel-v3.15-rc7-20140526 on a Lager and Koelsch board. The git tr=
+ee can
+> be found here, including one proof-of-concept enablement patch:
+>=20
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/rcar-=
+cleanup
+>=20
+> Please test, review, comment.
+>=20
+> Thanks,
+>=20
+>    Wolfram
+>=20
+>=20
+> Wolfram Sang (11):
+>   i2c: rcar: not everything needs to be a function
+>   i2c: rcar: no need to store irq number
+>   i2c: rcar: refactor bus state machine
+>   i2c: rcar: refactor irq state machine
+>   i2c: rcar: check bus free before first message
+>   i2c: rcar: refactor setting up msg
+>   i2c: rcar: refactor status bit handling
+>   i2c: rcar: remove spinlock
+>   i2c: rcar: reuse status bits as enable bits
+>   i2c: rcar: janitorial cleanup after refactoring
+>   i2c: rcar: update copyright and license information
+>=20
+
+Applied to for-next, thanks!
 
 
-> Feel free to adap my patch or comments and commit. Or wait a few weeks for
-> when I have a sponsor to split and update the patch.
-
-OK, I'll hope you can make it for 3.17. Thanks!
-
-
---tKW2IUtsqtDRztdT
+--jq0ap7NbKX2Kqbes
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTi4j2AAoJEBQN5MwUoCm2HKcP/iTqhqkedzQ+fq8xX5H6H4FV
-yfSQ/lGLKaRBON7sAYGgZWyukfSRKZlI5/DWdCxA6RfO8zXgKcwODtNnm0LwvpEe
-6TqiHbjvMX/plVAtmqy+y7QZlZDUBQuzFsyJqqi/m+KwjwF2Zp1OrJ3Z+DUlJSTp
-zDj3aGSIT8vWhp9OEXlO7SETtnKGLHJOqrv6i/SKR0yw8t186iCCKLdyHprfyf5d
-dsf7jprkaAHdYaTgF+7YckEA1W+GYaLzzkaRvimsVv/v6I+pGn0ezrcnWvKOMqwv
-8ND2t30UE6sW/mrZ7dpjoQZpbu9Y4ZAxSYqdCWWe0H1amjCqSNV6ofaFsifuzyBv
-XTreGV9W3nzTQ+92CXX/q15dKtbEBTulp1io4EDgQghOXUDC2Rf/Pv4Vd5SvMs6I
-036cvOJEv/l+vD6MKFtQoeRd6sUWTw1hnP9uiban7ewIIPNxR4fGVLixaNAi+dUn
-WQQnyfcKwaGgJ2K/uq2wGf7AJz8zcu7QPRRNa85/xjBDZCmHawxsZCYpWhD2ZRAb
-pbmaa6FdtDZS/4xv3ijvHPrC2La7NPO0NALQm4LPwsXPnfYg/IQn6vshT7IfeMYZ
-dsdLv2ZSdylyf/oVBX/FV9tEt7ELYbHLDcexAcmuokIIXZIG2jnR9Xoilu/71pt0
-DmLRAVDcLmG1Xa7yp0zk
-=A9v+
+iQIcBAEBAgAGBQJTi4wFAAoJEBQN5MwUoCm2LEkQAJVuVUcxf+uHRKzppzTAarCT
+VHg/odSTp9lNCs0H49dRU8WNabMNU/4c1fa/brFpPyH383XPFvUdYiW4OniaqxTY
+5kVaX+BtmGxC4qXFry5fcrnWVSIJAOfKwzVwC+3vqFfPGP+CyGHgf6+CbXc0JlCC
+g3bBn3EJ6ujPdi6/W8XbMoUoUD/rpVE556gN3wxCXWfnH2kV34f1Awe2LZpcEl9Q
+GIPNLU8MsQlBPw5B3/+ldWUbWMx9FxENFdZ2E5tkk6u8BxJBh3Drcr/FInqh0aXQ
+ge9zTh+UT8d3RwPdrAohdjdUN/sVmIqpeDKVINdeqJf+wxYJf35XVfxcyv61+cBk
+x7GnSdB+xw+gsZpESuXJ2NZ6mrjeH77/ge5mCoY4OdMayaNs/Tp1SVSg5lBkL4Hv
+p/iTqbFGyeVOqH07e2EsxsfhpCZgKBhdF3DM3Xhliy1y0E7AGT6muc/cEs29l9qt
+SrkwdvokgO6qvH6+18M4+g+HLumR8QmfSpoUlqsJd+hG5NB4mOqvZVNPplH5yh4f
++a76gpX8hlCNOkGMLHi/6MQmm+O4LcynzaV/BQM8Hb0LlFRMcvxJ+qhUJ+h7/CV4
+DIGBOdYQS4zxb6nrIZDwxb9ap0IXJB30EzSi2O+BizQ56LytJe2iJ8nv28EM+aS9
+FdJ7g0B5Yve0SSKlTkvr
+=le4Q
 -----END PGP SIGNATURE-----
 
---tKW2IUtsqtDRztdT--
+--jq0ap7NbKX2Kqbes--
