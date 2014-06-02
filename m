@@ -1,74 +1,48 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: Provide 'device type' to 'OF device node'
- look-up
-Date: Mon, 2 Jun 2014 14:57:22 +0100
-Message-ID: <20140602135722.GC4146@lee--X1>
-References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
- <1401716463-23457-2-git-send-email-lee.jones@linaro.org>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH] i2c: Make I2C ID tables non-mandatory for DT'ed and/or
+ ACPI'ed devices
+Date: Mon, 02 Jun 2014 16:29:45 +0200
+Message-ID: <538C8A59.2070907@gmx.de>
+References: <1401452797-29521-1-git-send-email-lee.jones@linaro.org>	<1401452797-29521-2-git-send-email-lee.jones@linaro.org>	<20140530123656.GC2742@katana>	<20140530133405.GB29731@lee--X1>	<20140530174800.GA4917@katana>	<20140530192516.GA4319@lee--X1>	<20140531134805.GA3287@katana> <CACRpkdZvyfA0aaJe3YuevXfA2pTZLRPZ3mQpitL6qD7=qE0Xyg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1401716463-23457-2-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <CACRpkdZvyfA0aaJe3YuevXfA2pTZLRPZ3mQpitL6qD7=qE0Xyg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> We have a problem.  There are lots of I2C device ID tables scattered
-> around the kernel which are redundant in all Device Tree and/or ACPI
-> only supported device drivers.  After recent discussions it has becom=
-e
-> apparent that the only thing blocking the complete removal of these
-> tables is the continued support of 'register an I2C device via sysfs'
-> functionality.  As the sysfs method doesn't know anything about Devic=
-e
-> Tree or ACPI, we can not pass any nodes in.  This patch searches all
-> known Device Tree nodes and attempts to acquire a match from the
-> device name provided via sysfs.  It can not fail, but if found assign=
-s
-> the matching of_node to i2c_board_info prior to registering.
->=20
-> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c | 31 +++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
+Am 02.06.2014 14:16, schrieb Linus Walleij:
+> On Sat, May 31, 2014 at 3:48 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>>
+>>> Right, I read the function which provides the functionality, but my
+>>> point is; I don't think my patch changes the semantics in a way which
+>>> would adversely affect this option.  If you think that it does, can you
+>>> specify how please?
+>>
+>> Currently, if a driver would be DT only and does not provide a seperate
+>> i2c_device_id table, then the driver is unusable with method 4. I don't
+>> like to have some drivers being capable of it and some not.
+>>
+>>> Does the sysfs method create a i2c_device_id table?  If not, how does
+>>> it probe successfully pre-patch?
+>>
+>> The sysfs method creates a device. Its name is matched against
+>> i2c_device_ids only since it does not have a node pointer for DT to be
+>> matched against.
+>
+> Is this really so useful on embedded systems?
+>
+> I was under the impression that this method was something used
+> on say PC desktops with temperature monitors and EEPROMs
+> on some I2C link on the PCB, usage entirely optional and fun
+> for userspace hacks.
+>
+We use it for dynamic instantiating whole subsystems with multiplexers, 
+sensors, controllers in an embedded system. The device list is taken 
+from an I2C eeprom which gets read on hotplug.
 
-[...]
-
-> +static struct device_node *of_i2c_type_to_node(char *type)
-> +{
-> +	struct device_node *np;
-> +	const char *compatible, *name;
-> +	int len;
-> +
-> +	if (!type)
-> +		return NULL;
-> +
-> +	for_each_of_allnodes(np) {
-> +		compatible =3D of_get_property(np, "compatible", &len);
-> +		if (!compatible)
-> +			continue;
-> +
-> +		name =3D strchr(compatible, ',');
-> +		if (!name)
-> +			name =3D compatible;
-> +		else
-> +			name++;
-> +
-> +		if (!strncmp(name, type, len - (name - compatible)))
-> +			return np;
-> +	}
-> +
-> +	return NULL;
-> +}
-
-Ah, this _might_ not work if there are more than one devices of the
-same type.  I guess I need to check the 'reg' property too.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+KR
+Michael
