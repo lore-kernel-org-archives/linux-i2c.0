@@ -1,51 +1,35 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: bfin: turn to Resource-managed API in probe
- function
-Date: Mon, 2 Jun 2014 14:42:46 +0200
-Message-ID: <20140602124246.GC2654@katana>
-References: <1400751219-7943-1-git-send-email-sonic.adi@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] i2c: Make I2C ID tables non-mandatory for DT'ed and/or
+ ACPI'ed devices
+Date: Mon, 2 Jun 2014 15:26:13 +0200
+Message-ID: <CACRpkdbnzy3rSXQ8AFAYmtM93MGKmRj2F566LMvKDhtSw2MLxQ@mail.gmail.com>
+References: <1401452797-29521-1-git-send-email-lee.jones@linaro.org>
+	<1401452797-29521-2-git-send-email-lee.jones@linaro.org>
+	<20140530123656.GC2742@katana>
+	<20140530133405.GB29731@lee--X1>
+	<20140530174800.GA4917@katana>
+	<20140530192516.GA4319@lee--X1>
+	<20140531134805.GA3287@katana>
+	<CACRpkdZvyfA0aaJe3YuevXfA2pTZLRPZ3mQpitL6qD7=qE0Xyg@mail.gmail.com>
+	<20140602123851.GB2654@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0vzXIDBeUiKkjNJl"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1400751219-7943-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140602123851.GB2654@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Grant Likely <grant.likely@linaro.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jun 2, 2014 at 2:38 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
 
---0vzXIDBeUiKkjNJl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Though, I wouldn't mind if compatible entries could be passed to the
+> 'new_device' file, in addition to i2c_device_ids. Yet, this needs some
+> extra handling I haven't found the time for, yet.
 
+Hm that's a way forward then I guess... but passing a compatible
+string to that same file is a bit arbitrarily ambigous. So we'd rather
+add a new instatiation file named new_device_of_compatible or so?
 
-> +	if (IS_ERR((void *)iface->regs_base)) {
-
-You missed this cast.
-
-
---0vzXIDBeUiKkjNJl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIbBAEBAgAGBQJTjHFGAAoJEBQN5MwUoCm2a/QP93gY0CuJQv6VcB9vJNQ6k4P3
-SjT0hNLWRzEiAJWWVT2qLcBRjPpHHY7u4CmIxQMz2RsgbYuqdZjJhWDBlcb9BB+i
-URC40BjxU4d+Tz2pKYWIBLx6lvobja03QR22mwSFLSnLISko3+c5byoQMxj3xq+V
-EQZorJX/peTtpxgXR5rRtt16sJplVAMZEAsPmzwu3ejTVoVSobbPcsM2AFJqKbBW
-Sibf8DwX1gB1KyM05XBAn1mHEF8PUfb+1DzM21qU3BVVLtzdPPDMBO8h0i9pvKRN
-L4qBcEAB4IwjfMzM5tl0dXk/woUTSa0OAA1RixsOtj/HZa3UrNzYF671PwZN+Uye
-AGy75KXgDITecFArzC4kgJu2wWEFXDRKCMDSUINqpSf8qvtihH0CQiPuVYkchtwm
-O0yLM9oZ69HuqMyRKEBMMoIKqMQn1jSFXWIDmqInExVI+7JVK81SW3FkNHYS0sJH
-wYIBc6o9QBaTcn5wG/vZ29rcpJRDhuWzTic78mboxKq2yhckzILGO8/WIf+YpCrh
-FPCBCZ4hDRqGho7OJyK6S2RE1hfIcWEfgD7iBmyeDGguaCoGNVMVdL1+1Dzpa9fN
-2u4p+DCcaz480EKeuFokouUmOrqMMIy4/ncQgEdZMsokwOpEDnPFRiK6Xse5L3OM
-FuqT1Jc8LIEEK2ELaHc=
-=U8LH
------END PGP SIGNATURE-----
-
---0vzXIDBeUiKkjNJl--
+Yours,
+Linus Walleij
