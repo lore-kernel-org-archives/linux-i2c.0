@@ -1,113 +1,75 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] drivers: i2c: i2c-st: Update i2c timings
-Date: Mon, 2 Jun 2014 18:31:03 +0200
-Message-ID: <20140602163103.GJ2654@katana>
-References: <1400254330-2547-1-git-send-email-maxime.coquelin@st.com>
+Subject: Re: [PATCH v3 1/6] i2c: s3c2410: Handle i2c sys_cfg register in i2c
+ driver
+Date: Mon, 2 Jun 2014 19:14:28 +0200
+Message-ID: <20140602171428.GK2654@katana>
+References: <1399706287-13919-1-git-send-email-y@samsung.com>
+ <1399706419-13976-1-git-send-email-pankaj.dubey@samsung.com>
+ <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKy6e3LXpfmanBFM"
+	protocol="application/pgp-signature"; boundary="8kI7hWEHMS8Z+7/0"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1400254330-2547-1-git-send-email-maxime.coquelin@st.com>
+In-Reply-To: <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Maxime COQUELIN <maxime.coquelin@st.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Patrice Chotard <patrice.chotard@st.com>, kernel@stlinux.com
+To: Pankaj Dubey <pankaj.dubey@samsung.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kgene.kim@samsung.com, t.figa@samsung.com, arnd@arndb.de, Rob Herring <robh+dt@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, Russell King <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---tKy6e3LXpfmanBFM
+--8kI7hWEHMS8Z+7/0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 16, 2014 at 05:32:10PM +0200, Maxime COQUELIN wrote:
-> The i2c timing values specified in the driver are the minimun
-> values defined in the I2C specifications.
-> The I2C specification does not specify any default or maximum values.
+On Sat, May 10, 2014 at 04:20:14PM +0900, Pankaj Dubey wrote:
+> Let's handle i2c interrupt re-configuration in i2c driver. This will
+> help us in removing some soc specific checks from machine files.
+> Since only Exynos5250, and Exynos5420 need to do this, added syscon
+> based phandle to i2c device nodes of respective SoC DT files.
+> Also handle saving and restoring of SYS_I2C_CFG register during
+> suspend and resume of i2c driver. This will help in removing soc
+> specific check from mach-exynos/pm.c.
 >=20
-> Some I2C devices are out of spec, and might not work properly with minimum
-> values.
+> CC: Rob Herring <robh+dt@kernel.org>
+> CC: Randy Dunlap <rdunlap@infradead.org>
+> CC: Wolfram Sang <wsa@the-dreams.de>
+> CC: Russell King <linux@arm.linux.org.uk>
+> CC: devicetree@vger.kernel.org
+> CC: linux-doc@vger.kernel.org
+> CC: linux-i2c@vger.kernel.org
+> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
 
-Can you give names here? Would be interesting to know since a few
-drivers implement the minimum timings.
+Shall this go via i2c-tree? Looks to me like it should go with the rest
+of the series? Patch is mostly okay (only reviewed the code, not the
+bindings), one nit:
 
-> This patch adds a 10% margin on all the timings.
+> +	regmap_update_bits(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, BIT(id), val);
 
-Is there a safety margin or do the devices start to work exactly at 10%?
+Hardcode the '0' and drop using 'val'?
 
->=20
-> Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
-> ---
->  drivers/i2c/busses/i2c-st.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-> index 8720161..09142f1 100644
-> --- a/drivers/i2c/busses/i2c-st.c
-> +++ b/drivers/i2c/busses/i2c-st.c
-> @@ -210,21 +210,21 @@ static inline void st_i2c_clr_bits(void __iomem *re=
-g, u32 mask)
->  static struct st_i2c_timings i2c_timings[] =3D {
 
-That needs a comment about the margin, otherwise people will wonder
-where these values come from.
-
->  	[I2C_MODE_STANDARD] =3D {
->  		.rate			=3D 100000,
-> -		.rep_start_hold		=3D 4000,
-> -		.rep_start_setup	=3D 4700,
-> -		.start_hold		=3D 4000,
-> -		.data_setup_time	=3D 250,
-> -		.stop_setup_time	=3D 4000,
-> -		.bus_free_time		=3D 4700,
-> +		.rep_start_hold		=3D 4400,
-> +		.rep_start_setup	=3D 5170,
-> +		.start_hold		=3D 4400,
-> +		.data_setup_time	=3D 275,
-> +		.stop_setup_time	=3D 4400,
-> +		.bus_free_time		=3D 5170,
->  	},
->  	[I2C_MODE_FAST] =3D {
->  		.rate			=3D 400000,
-> -		.rep_start_hold		=3D 600,
-> -		.rep_start_setup	=3D 600,
-> -		.start_hold		=3D 600,
-> -		.data_setup_time	=3D 100,
-> -		.stop_setup_time	=3D 600,
-> -		.bus_free_time		=3D 1300,
-> +		.rep_start_hold		=3D 660,
-> +		.rep_start_setup	=3D 660,
-> +		.start_hold		=3D 660,
-> +		.data_setup_time	=3D 110,
-> +		.stop_setup_time	=3D 660,
-> +		.bus_free_time		=3D 1430,
->  	},
->  };
-> =20
-> --=20
-> 1.9.1
->=20
-
---tKy6e3LXpfmanBFM
+--8kI7hWEHMS8Z+7/0
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTjKbHAAoJEBQN5MwUoCm2ZkoP/0L4BXCqVHrOQXy0DFSnSnun
-plm99XMolqJo0plxcQlx/+0Cj4nFwmgJi/F0M6BMTEdsX0qIsljP4ELi+b4Cc//R
-4BAU1LzVK7IiDewOwAaw3lnjl+skaLiIacAz1mr81QsqoNz7ptNond6q2I3BcgRq
-CLXymFIvf6B2n2+rr6IxJhMEoNhT1Jooxe8WBdZwcVCiX/j9ZswS9ODz1vwhEy+M
-RIsIpG7c1SbZYY6PI4vdaGHJeaem3wbWWmgvhQvj1rvS+dWynuzn94yJlI/SVaOa
-2hlKQJ6+rpErzDrN8VgfyKak8R6mILQtbDdptaRqftjmaQMvyTspmxCChhd/WxSJ
-TPJnPH4icV7iMp7mEVMuJsDo20yiroi29IyYftpJdpjp1ZldN+8ViYMtIxVInJ0t
-F2OAV6cXA1TMiy0eIP/f3BUm76lSxZ6oqOEpRYEGmz7AHE1WETTs9Hs1397F9lpr
-kqpZ4G3Zxvejx5UnopsWvYxaLBL7RsoR70qQmIGoHkrXZYiDGCyDaHuqk9WE77bz
-Fwac5lxZTZkFAfPLugWsKXU8jOvi6Uyq1DDYzq+7Bzv/oLGhKBcIOQFPaL7E0ZVz
-XwNYf333RlWj//rqSDw8orWwFV69aBfb3XbNcd4SKiijpGxPaWeweXuGgjKZseEs
-EOcHL+A2PUmLuq0vyJ39
-=iiZs
+iQIcBAEBAgAGBQJTjLD0AAoJEBQN5MwUoCm2HgcP/A9XZJFA630XxvImjYAFPtk6
+3vql4HguDLoCdDlv+kR7IhGt3SKtMwFeOZDvmOFhX7HMdvBsfhd1b/1suarQtCSZ
+6AHCLmlH77i5LoeaflqLGWmzpxl0I/Frg28dk1aNBWk0fot2IlRzo4XFlqmCV4MT
+DoUbAd9yNZySqAmyFm21y4p8+EJm6aW8eU7e1XbBCgWBlEtQVQlSUFG1/AY1MwOW
+HNoV2f5AlpV3ZeaCDxWFy2H7/5QzZSIW/VseyYL/sAgRtYgdT4SIy/5cNBg+UvUs
+cWH6Hzogu0tew87R1TZi6cSlq4pTZ4ZzhlHfvxzusqnsv6OZD7XKrxbePzQlyI0+
+eNSDeBTqEiuRyw+LjaAMvx8k98TaJXF0MxEyrmtLpH/xrIr8vtfyNIk2TAoZhQmp
+HvhHd5QwgahiHtd3MInQZ44+IUfQJX2E+bwWDLw4DhRpoLIAfIR+1cd+GG9yL0eR
+PKPwsakTasrMCSp12zf5ewdhJgsDSZ5TBqQuaYev3Ff1k+YeQ6TEDIzpS27wtnPv
+oBAVc0F+eyqulHAKjpWlmJOdizeVcF9qBERWeSf+Ca7voRQbUNF2knJph7fXpaW8
+nKi9mP/jaLxI1a79YBQ1d2EoM8ZmDZe2cfOQY34DMyuyLMBs5/9VOfYsuocETMqD
+CRanmYag61F7JjFdQzDP
+=KCHP
 -----END PGP SIGNATURE-----
 
---tKy6e3LXpfmanBFM--
+--8kI7hWEHMS8Z+7/0--
