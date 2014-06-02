@@ -1,70 +1,71 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: imx: update i2c clock divider for each transaction
-Date: Mon, 2 Jun 2014 18:03:45 +0200
-Message-ID: <20140602160345.GE2654@katana>
-References: <1400552505-22954-1-git-send-email-b38611@freescale.com>
+Subject: Re: [PATCH v2] i2c: nuc900: remove driver
+Date: Mon, 2 Jun 2014 18:05:21 +0200
+Message-ID: <20140602160521.GF2654@katana>
+References: <1401654925-20791-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C94crkcyjafcjHxo"
+	protocol="application/pgp-signature"; boundary="m1UC1K4AOz1Ywdkx"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1400552505-22954-1-git-send-email-b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <1401654925-20791-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fugang Duan <b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, B20596-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---C94crkcyjafcjHxo
+--m1UC1K4AOz1Ywdkx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 20, 2014 at 10:21:45AM +0800, Fugang Duan wrote:
-> Since IMX serial SOCs support low bus freq mode, some clocks freq
-> may change to save power. I2C needs to check the clock source and
-> update the divider.
+On Sun, Jun 01, 2014 at 10:35:25PM +0200, Wolfram Sang wrote:
+> Arnd said in another patch:
 >=20
-> For example:
-> i.MX6SL I2C clk is from IPG_PERCLK which is sourced from IPG_CLK.
-> Under normal operation, IPG_CLK is 66MHz, ipg_perclk is at 22MHz.
-> In low bus freq mode, IPG_CLK is at 12MHz and IPG_PERCLK is down
-> to 4MHz. So the I2C driver must update the divider register for
-> each transaction when the current IPG_PERCLK is not equal to the
-> clock of previous transaction.
+> "As far as I can tell, this driver must have produced this
+> error for as long as it has been merged into the mainline kernel, but
+> it was never part of the normal build tests:
 >=20
-> Signed-off-by: Fugang Duan  <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
+> drivers/i2c/busses/i2c-nuc900.c: In function 'nuc900_i2c_probe':
+> drivers/i2c/busses/i2c-nuc900.c:601:17: error: request for member
+> 'apbfreq' in something not a structure or union
+>   ret =3D (i2c->clk.apbfreq)/(pdata->bus_freq * 5) - 1;
+>                  ^
+> This is an attempt to get the driver to build and possibly
+> work correctly, although I do wonder whether we should just
+> remove it, as it has clearly never worked."
+>=20
+> I agree with removing it since nobody showed interest in Arnd's fixup
+> patch.
+>=20
+> Reported-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>
 
 Applied to for-next, thanks!
 
-One change, though:
 
-> +	/* dev_dbg() can't be used, because adapter is not yet registered */
-
-This comment is outdated. I removed it and the __func__ printout.
-
-
---C94crkcyjafcjHxo
+--m1UC1K4AOz1Ywdkx
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTjKBhAAoJEBQN5MwUoCm25i4QAI23fxBasDFHb7nDW84YT1LD
-v5y5Ro5bDrWWkGwRyEmbIImnZ7K7VqSHx6LzSYtNgDRcEWqPpdbDRoW0Fw/BYFzN
-7hBrkLLOoNFgtVvXur00yXdEkpnfjwU5dyJrEHRKuP2ReqsGwLCNdrk1OhGzNJ1k
-1gJeMHPd4jJ6OUJ7K3ViXQgY3LQF01eDYvukEtZxr7JeRXzoS7UsvgYB1j7IHo6S
-pM1v/OvA3i1Akti2Km7XC+vifSMnBkzdXuBxS433Iquy/G1MXOF75lS6EiUubLvB
-Kr8t11+kYclK1JHfLbdT5UNiHkLmKdz5F0cZuNiNACzk42nw/6B2LkGvUUk69Ee3
-lp7xBMOVy4MDcnWHeKGePre41hSwOivPXs2+ocAYZQEornbYlUVCxSWK1nRzIR1/
-HHHVgVTKM8Qq6TuBpJwAYHv5nIx+mnYREDm4cp2XpU34Z5ibKvO7yv6F9v2izO8x
-tvOaxBFNBlJjzJun2xMXVv0M5o6L663BdKqUYM9wfCvminFNp6du89+/wwKXXdaU
-UdgYjhIrgIGps1fJ8Fpm3mQDKTuPr1l3UDFcNcklB7amr5h4oRf0s4zAjcnvAocU
-kV/Sd4eZPj54W2I+8mvx4IfNohTDuxrynpnkIX2q9JHjXLpn5llvdbzUVcJrJB52
-VUUsi8rdUayXlJCAuCkG
-=Mj0v
+iQIcBAEBAgAGBQJTjKDBAAoJEBQN5MwUoCm2bHkP/A5t1KhW3rVzG9mMVuuDJwb0
+axLhUP6sWavimH/OoV1T7cPq4JkhmLRFLhoNOSgTPYTiAfpON/JrCAMah4YTGfJo
+XLx/atktw2Du0vQjCzu9tROApayORjwt4wDaEvNOd1h40iUX2lm4Mk0gy5yntXuY
+sWEUzXVSpAF0MSppUg1alSKol8UqkGPYavQjCcqEii6XsliojMC8P4nWFpCzqryx
+Cx362D/1+NMcHzYgGZ4zehpGwMtJcXcsocSE6+gBJ2mZHKzrTXEAdePIG9S6SbVa
+qpYhH25plY2f2SrMGMiA9B7lKdMiwlOL/D6iJeLP6EtrW5xG+VQEmUrT6CWpKYsH
+y0InvPyjLPyL0FmUjGuwWgi3Nk/a32KIfyLNWKdMqAB6jSilqiNLmnAlRWrjcdWu
+Nf5YUZtcG4m33u58k9CP8q/sLFS0n9uPZ/kA7WUeEf7VRiV4t74I5y0vK0riAb5/
+wqY/HPu3jHLoMnUdBlD3tt9f/nZlbVbEmNbfa8g8GgU/GyqE2O9bPxS0qIybn4In
+ZWMj9ofR7i8EmKyaZr1yb68TzGiAzE0OaW34p2RNIUsAH+ZsK4oLYvpeh+oP2GbZ
+BoturMOkud2TUh7a5zm5OLhbkkVmMHz0S39zcqCkq5SgtEjEmPXBfdCc5kWXBx3e
+GyZQa57csylWtEwLNR5g
+=UZIB
 -----END PGP SIGNATURE-----
 
---C94crkcyjafcjHxo--
+--m1UC1K4AOz1Ywdkx--
