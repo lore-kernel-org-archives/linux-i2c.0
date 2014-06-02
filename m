@@ -1,82 +1,71 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/4] i2c: designware: No need to disable already disabled
- controller
-Date: Mon, 2 Jun 2014 18:12:34 +0200
-Message-ID: <20140602161234.GG2654@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 0/4] i2c: designware: Fixes for Asus T100 and Haswell PCI
+ IDs
+Date: Mon, 2 Jun 2014 18:16:23 +0200
+Message-ID: <20140602161623.GH2654@katana>
 References: <1400164644-3222-1-git-send-email-mika.westerberg@linux.intel.com>
- <1400164644-3222-2-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GdbWtwDHkcXqP16f"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="o71xDhNo7p97+qVi"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1400164644-3222-2-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Yao Jin <yao.jin@intel.com>, Aubrey Li <aubrey.li@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1400164644-3222-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Yao Jin <yao.jin-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aubrey Li <aubrey.li-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---GdbWtwDHkcXqP16f
+--o71xDhNo7p97+qVi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 15, 2014 at 05:37:21PM +0300, Mika Westerberg wrote:
-> If the controller is already in desired state (enabled/disabled) there is
-> no point in setting its state again.
+On Thu, May 15, 2014 at 05:37:20PM +0300, Mika Westerberg wrote:
+> Hi,
 >=20
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> ---
-
-Does it have a side-effect when setting then enable bit again? Otherwise
-it will exit the loop immediately on the first try. Not too bad IMO
-given the additional code saved.
-
->  drivers/i2c/busses/i2c-designware-core.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> Patches 1-3 are needed in order to get runtime PM working properly on Int=
+el
+> Baytrail based tablets, like on Asus T100. We need to re-initialize the
+> controller on resume.
 >=20
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busse=
-s/i2c-designware-core.c
-> index b58ecf19e767..b0792675b970 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -258,6 +258,10 @@ static void __i2c_dw_enable(struct dw_i2c_dev *dev, =
-bool enable)
->  {
->  	int timeout =3D 100;
-> =20
-> +	/* In case the controller is already in desired state */
-> +	if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) =3D=3D enable)
-> +		return;
-> +
->  	do {
->  		dw_writel(dev, enable, DW_IC_ENABLE);
->  		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) =3D=3D enable)
-> --=20
-> 2.0.0.rc2
+> Patch 4 adds Haswell PCI IDs to the driver. It is independent of the
+> preceding patches but I decided to include it here as well. Haswell based
+> chromebooks need this.
 >=20
+> Mika Westerberg (4):
+>   i2c: designware: No need to disable already disabled controller
+>   i2c: designware: Disable device on system suspend
+>   i2c: designware: Add runtime PM hooks
+>   i2c: designware-pci: Add Haswell PCI IDs
+>=20
+>  drivers/i2c/busses/i2c-designware-core.c    |  4 ++++
+>  drivers/i2c/busses/i2c-designware-pcidrv.c  | 22 ++++++++++++++++++++++
 
---GdbWtwDHkcXqP16f
+Patches 2-4 applied to for-next, thanks! Patch 1 leaves a question to
+me.
+
+
+--o71xDhNo7p97+qVi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTjKJxAAoJEBQN5MwUoCm2JwwP/jUWlMJJU92m8Xyj9gTqi0Kw
-ASi+nB+ODGjOt30rI4eGxOvzrJYAHhSP4isO6ZKv73e9nbkQh032NzKitU0cXpS5
-QESfr8r1gKdtNGGqHDYWCz6PC91T1crtS1PxrdHXFekrngzITC3gCUoQSblu6wBS
-rHafasSKIs7FnISvzJqx25roU7oAF7bharfnhkrZkWPnuladv9AyLX+v/DCE0xuY
-c5vPCSXTkGLBJlYWSGI59irVOSjCoPsuaMQrL/H9q+PCDttrhgxCEVIlesBwhosT
-cZvAojYyS0X0VwWHA9lMbrZi+d3iXSW0D38IE7X/ulxpIznrJkoEhJhUdozWCSIx
-WFqEOzKwWlVm+ifqNjJd23zeb3Rw2d5je4Zxf00pV0kCJSks9GeDwCqKHxb1b50X
-Ihpd95PShKTjXHA4i8CkJez3CeF4d2jGP8TExjEYXDcM0S3/KrgNZPkNqNb97brs
-SzZcnlDrlP8vSOdsHDfPwkCSQPjcHLTvH50mhs3nK7erIiAJNKEnaa69eC3Pgk7m
-plabCXQyJ0S9j1IZwHn767yp4goLFOeb2+tRDmOLmp2ZDZM7SEbSKpPm7ENIPvzf
-4Qup/ycnzzOS3/B8LWv00fLJxibmysIcORQr+HmOjH914+s80N3F8V6HINIU0Jxy
-/bwxx79cbAElWVf2crj9
-=FdRx
+iQIcBAEBAgAGBQJTjKNXAAoJEBQN5MwUoCm2kDoP/22Ogi7vGBZPAPmChQUTS2Nu
+k59LAyjLaJpMZ+QkD04DEvN8CKAiWHrEpE07vzUHHH1aezk/2vHBu0oWPA4zaS4D
+9fq7GEoIZpDleBu85im2R88b9l4x6cyghH79MkyU7Y9gxilBcbCSuOLOeMkbME9W
+dT86/ILv3y9hA8Z2eMldl4Z1Jb1N396wTIRFcPMZ0IuO4cEgh0fr4bVPtGC5l+AB
+vNQ0Z8xuimhWLLM7R1A+5JIAs8dS7MCqX92B+I/AXKngBxhwPTTkJjcD1ULqbX8K
+i3dAxNgYRIc9iMGWy+E2IPZq932i9TcfdEzc9hcLcns0lgkGrKe+80NP4HOOIQpY
+pYNnINXOZ8HVabiG1mnkrQjR+IjLSeiY2/O9qozqtU8GMZlwMqBgT8U6hX1RtHej
+R8Bc51BBzqJm6fOo8Xy7Qf2sbcZEyVr5alkj2dX6RUKopzHz1zNg/lRWfgINJ1MQ
+koXbcg/glr2SEcn/tZAp6TIYaqYSLsZPRt53ezDYNJsMd82pOYqVaeKArOq2Dkbc
+ZMSOIoCP6aRG5DZ1GlHdE+aQCHjVeW7VWCQczNqwi75bDHStj7sj7QjXxk/zYWmP
+na/zaZXcxHWyxOH4EEo/1QeRljYectfRxskohf7DBTR1VfFGJJCNu/ySGwPOMCnm
+eQu6ypajm2pp09F+7eXE
+=KFJo
 -----END PGP SIGNATURE-----
 
---GdbWtwDHkcXqP16f--
+--o71xDhNo7p97+qVi--
