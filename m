@@ -1,62 +1,113 @@
-From: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: Add block read functionality for IPMI
-Date: Mon, 2 Jun 2014 12:29:55 -0400
-Message-ID: <538CA683.40108@ti.com>
-References: <1398970186-12204-1-git-send-email-m-karicheri2@ti.com> <537DD6B1.9010200@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] drivers: i2c: i2c-st: Update i2c timings
+Date: Mon, 2 Jun 2014 18:31:03 +0200
+Message-ID: <20140602163103.GJ2654@katana>
+References: <1400254330-2547-1-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <537DD6B1.9010200-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tKy6e3LXpfmanBFM"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1400254330-2547-1-git-send-email-maxime.coquelin@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Maxime COQUELIN <maxime.coquelin@st.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Patrice Chotard <patrice.chotard@st.com>, kernel@stlinux.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 5/22/2014 6:51 AM, Sekhar Nori wrote:
-> On Friday 02 May 2014 12:19 AM, Murali Karicheri wrote:
->> Intelligent Plaform Management Interface (IPMI) requires I2C driver
->> to support block read, where the first byte received from slave is
->> the length of following data:-
->>   Added length check if the read type is block read (I2C_M_RECV_LEN)
->>   Send NACK/STOP bits before last byte is received
->>
->> Signed-off-by: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>
->> Signed-off-by: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-> I tested this on a DA850 using i2cdetect and it did not seem to break
-> anything so:
->
-> Tested-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
->
-> There are some checks that were triggered in checkpatch. You may want
-> to fix them up.
->
-> Thanks,
-> Sekhar
->
-> CHECK: Alignment should match open parenthesis
-> #112: FILE: drivers/i2c/busses/i2c-davinci.c:557:
-> +					w = davinci_i2c_read_reg(dev,
-> +							DAVINCI_I2C_MDR_REG);
->
-> CHECK: Alignment should match open parenthesis
-> #115: FILE: drivers/i2c/busses/i2c-davinci.c:560:
-> +					davinci_i2c_write_reg(dev,
-> +							DAVINCI_I2C_MDR_REG, w);
->
-> CHECK: Alignment should match open parenthesis
-> #119: FILE: drivers/i2c/busses/i2c-davinci.c:564:
-> +					davinci_i2c_write_reg(dev,
-> +							DAVINCI_I2C_MDR_REG, w);
->
-> total: 0 errors, 0 warnings, 3 checks, 67 lines checked
->
-Sekhar,
 
-Thanks for testing this. I have other comments against this patch and 
-will be sending an
-updated patch in few weeks.
+--tKy6e3LXpfmanBFM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks and regards,
+On Fri, May 16, 2014 at 05:32:10PM +0200, Maxime COQUELIN wrote:
+> The i2c timing values specified in the driver are the minimun
+> values defined in the I2C specifications.
+> The I2C specification does not specify any default or maximum values.
+>=20
+> Some I2C devices are out of spec, and might not work properly with minimum
+> values.
 
-Murali
+Can you give names here? Would be interesting to know since a few
+drivers implement the minimum timings.
+
+> This patch adds a 10% margin on all the timings.
+
+Is there a safety margin or do the devices start to work exactly at 10%?
+
+>=20
+> Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
+> ---
+>  drivers/i2c/busses/i2c-st.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
+> index 8720161..09142f1 100644
+> --- a/drivers/i2c/busses/i2c-st.c
+> +++ b/drivers/i2c/busses/i2c-st.c
+> @@ -210,21 +210,21 @@ static inline void st_i2c_clr_bits(void __iomem *re=
+g, u32 mask)
+>  static struct st_i2c_timings i2c_timings[] =3D {
+
+That needs a comment about the margin, otherwise people will wonder
+where these values come from.
+
+>  	[I2C_MODE_STANDARD] =3D {
+>  		.rate			=3D 100000,
+> -		.rep_start_hold		=3D 4000,
+> -		.rep_start_setup	=3D 4700,
+> -		.start_hold		=3D 4000,
+> -		.data_setup_time	=3D 250,
+> -		.stop_setup_time	=3D 4000,
+> -		.bus_free_time		=3D 4700,
+> +		.rep_start_hold		=3D 4400,
+> +		.rep_start_setup	=3D 5170,
+> +		.start_hold		=3D 4400,
+> +		.data_setup_time	=3D 275,
+> +		.stop_setup_time	=3D 4400,
+> +		.bus_free_time		=3D 5170,
+>  	},
+>  	[I2C_MODE_FAST] =3D {
+>  		.rate			=3D 400000,
+> -		.rep_start_hold		=3D 600,
+> -		.rep_start_setup	=3D 600,
+> -		.start_hold		=3D 600,
+> -		.data_setup_time	=3D 100,
+> -		.stop_setup_time	=3D 600,
+> -		.bus_free_time		=3D 1300,
+> +		.rep_start_hold		=3D 660,
+> +		.rep_start_setup	=3D 660,
+> +		.start_hold		=3D 660,
+> +		.data_setup_time	=3D 110,
+> +		.stop_setup_time	=3D 660,
+> +		.bus_free_time		=3D 1430,
+>  	},
+>  };
+> =20
+> --=20
+> 1.9.1
+>=20
+
+--tKy6e3LXpfmanBFM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTjKbHAAoJEBQN5MwUoCm2ZkoP/0L4BXCqVHrOQXy0DFSnSnun
+plm99XMolqJo0plxcQlx/+0Cj4nFwmgJi/F0M6BMTEdsX0qIsljP4ELi+b4Cc//R
+4BAU1LzVK7IiDewOwAaw3lnjl+skaLiIacAz1mr81QsqoNz7ptNond6q2I3BcgRq
+CLXymFIvf6B2n2+rr6IxJhMEoNhT1Jooxe8WBdZwcVCiX/j9ZswS9ODz1vwhEy+M
+RIsIpG7c1SbZYY6PI4vdaGHJeaem3wbWWmgvhQvj1rvS+dWynuzn94yJlI/SVaOa
+2hlKQJ6+rpErzDrN8VgfyKak8R6mILQtbDdptaRqftjmaQMvyTspmxCChhd/WxSJ
+TPJnPH4icV7iMp7mEVMuJsDo20yiroi29IyYftpJdpjp1ZldN+8ViYMtIxVInJ0t
+F2OAV6cXA1TMiy0eIP/f3BUm76lSxZ6oqOEpRYEGmz7AHE1WETTs9Hs1397F9lpr
+kqpZ4G3Zxvejx5UnopsWvYxaLBL7RsoR70qQmIGoHkrXZYiDGCyDaHuqk9WE77bz
+Fwac5lxZTZkFAfPLugWsKXU8jOvi6Uyq1DDYzq+7Bzv/oLGhKBcIOQFPaL7E0ZVz
+XwNYf333RlWj//rqSDw8orWwFV69aBfb3XbNcd4SKiijpGxPaWeweXuGgjKZseEs
+EOcHL+A2PUmLuq0vyJ39
+=iiZs
+-----END PGP SIGNATURE-----
+
+--tKy6e3LXpfmanBFM--
