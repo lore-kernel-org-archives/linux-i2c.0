@@ -1,129 +1,99 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: Provide 'device type' to 'OF device node'
- look-up
-Date: Mon, 2 Jun 2014 17:19:15 +0100
-Message-ID: <20140602161915.GA30879@lee--X1>
-References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
- <1401716463-23457-2-git-send-email-lee.jones@linaro.org>
- <20140602160631.F2F6DC40476@trevor.secretlab.ca>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] I2C: mpc: insert DR read in i2c_fixup()
+Date: Mon, 2 Jun 2014 18:27:20 +0200
+Message-ID: <20140602162719.GI2654@katana>
+References: <1400247398-23778-1-git-send-email-valentin.longchamp@keymile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yzvKDKJiLNESc64M"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140602160631.F2F6DC40476-WNowdnHR2B42iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
+In-Reply-To: <1400247398-23778-1-git-send-email-valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Adrian Cox <adrian-nKrwMtk+6Wm9FHfhHBbuYA@public.gmane.org>, Rainer Boschung <rainer.boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> > We have a problem.  There are lots of I2C device ID tables scattere=
-d
-> > around the kernel which are redundant in all Device Tree and/or ACP=
-I
-> > only supported device drivers.  After recent discussions it has bec=
-ome
-> > apparent that the only thing blocking the complete removal of these
-> > tables is the continued support of 'register an I2C device via sysf=
-s'
-> > functionality.  As the sysfs method doesn't know anything about Dev=
-ice
-> > Tree or ACPI, we can not pass any nodes in.  This patch searches al=
-l
-> > known Device Tree nodes and attempts to acquire a match from the
-> > device name provided via sysfs.  It can not fail, but if found assi=
-gns
-> > the matching of_node to i2c_board_info prior to registering.
+
+--yzvKDKJiLNESc64M
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, May 16, 2014 at 03:36:38PM +0200, Valentin Longchamp wrote:
+> The mpc_i2c_fixup function is called when the bus is not released by a
+> slave. The function generates 9 pulses that should lead the slave
+> to release the bus.
 >=20
-> Ummm... blech!  :-)
+> The sequence that generates the pulses disables/enables the I2C module
+> that controls the blocked bus. We have found out on the P2041 SoC that
+> this could cause the CPU to hang (for a short delay).
 >=20
-> It shouldn't actually be necessary to have a node when instantiating =
-an
-> i2c_device... in fact, there /shouldn't/ be a node if the device is
-> getting instantiated by had via sysfs. If there was a node, then I wo=
-uld
-> expect a device to have been created at the same time.
+> To avoid this, this patch introduces a read to the I2CDR register
+> between the re-enablement of the I2C module in master mode and its
+> returning to the slave mode instead of the delay (the final delay,
+> between the pulses is kept), as proposed in procedure from the P2041
+> reference manual (16.6.2.3).
+>=20
+> Signed-off-by: Rainer Boschung <rainer.boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 
-You're right.  I realised that about 10 mins after I sent the patch!
+Have you checked other manuals if this always has been the proposed
+procedure?
 
-> I think panto's overlays solve the problem where a node actually is
-> required to instantiate the device by actually adding a node and lett=
-ing
-> the i2c subsystem create the associated device automatically.
+> ---
+>=20
+>  drivers/i2c/busses/i2c-mpc.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index f539163..3655af7 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -107,6 +107,7 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+>  static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+>  {
+>  	int k;
+> +	u8 dr;
 
-This looks like it's exactly what I need.  Pulling the code now.
+Looks like we can drop this variable since the value read is not used?
 
-> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > ---
-> >  drivers/i2c/i2c-core.c | 31 +++++++++++++++++++++++++++++++
-> >  1 file changed, 31 insertions(+)
-> >=20
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index 7c7f4b8..2e47641 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -64,6 +64,7 @@ static DEFINE_IDR(i2c_adapter_idr);
-> > =20
-> >  static struct device_type i2c_client_type;
-> >  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driv=
-er *driver);
-> > +static struct device_node *of_i2c_type_to_node(char *type);
-> > =20
-> >  static struct static_key i2c_trace_msg =3D STATIC_KEY_INIT_FALSE;
-> > =20
-> > @@ -863,6 +864,8 @@ i2c_sysfs_new_device(struct device *dev, struct=
- device_attribute *attr,
-> >  		return -EINVAL;
-> >  	}
-> > =20
-> > +	info.of_node =3D of_i2c_type_to_node(info.type);
-> > +
-> >  	client =3D i2c_new_device(adap, &info);
-> >  	if (!client)
-> >  		return -EINVAL;
-> > @@ -1088,8 +1091,36 @@ struct i2c_adapter *of_find_i2c_adapter_by_n=
-ode(struct device_node *node)
-> >  	return i2c_verify_adapter(dev);
-> >  }
-> >  EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
-> > +
-> > +static struct device_node *of_i2c_type_to_node(char *type)
-> > +{
-> > +	struct device_node *np;
-> > +	const char *compatible, *name;
-> > +	int len;
-> > +
-> > +	if (!type)
-> > +		return NULL;
-> > +
-> > +	for_each_of_allnodes(np) {
-> > +		compatible =3D of_get_property(np, "compatible", &len);
-> > +		if (!compatible)
-> > +			continue;
-> > +
-> > +		name =3D strchr(compatible, ',');
-> > +		if (!name)
-> > +			name =3D compatible;
-> > +		else
-> > +			name++;
-> > +
-> > +		if (!strncmp(name, type, len - (name - compatible)))
-> > +			return np;
-> > +	}
-> > +
-> > +	return NULL;
-> > +}
-> >  #else
-> >  static void of_i2c_register_devices(struct i2c_adapter *adap) { }
-> > +static struct device_node *of_i2c_type_to_node(char *type) { retur=
-n NULL; }
-> >  #endif /* CONFIG_OF */
-> > =20
-> >  /* ACPI support code */
+>  	u32 delay_val =3D 1000000 / i2c->real_clk + 1;
+> =20
+>  	if (delay_val < 2)
+> @@ -115,7 +116,7 @@ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+>  	for (k =3D 9; k; k--) {
+>  		writeccr(i2c, 0);
+>  		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
+> -		udelay(delay_val);
+> +		dr =3D readb(i2c->base + MPC_I2C_DR);
+>  		writeccr(i2c, CCR_MEN);
+>  		udelay(delay_val << 1);
+>  	}
+> --=20
+> 1.8.0.1
 >=20
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+--yzvKDKJiLNESc64M
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTjKXnAAoJEBQN5MwUoCm20icP/iHqG2WgGscXQobJcKx84W+G
+3Y/mna8LjW0EwPhquRchQkk93BSajv9rlmB2aUMY+JjBWmbbkCTnPs4LZTRzIqVt
+rtrltLpxItSf85bbZ7QVKAo4Gx3F+gNj7v4hw7UNqCf0Hv8Z7owIxFIJUs1IYzIy
+OnmlEhWo2TUoVw5xICyjWez7nU6WgCw4+og80603WLLljoSkn0nHpShvTcPQxMEA
+eEFESm0Y7egLSpJEOwYioVzAGYaQY+GXKqdDUeDWBrHsUEH/rfyF3zLE+mFioM+c
+8NtwXdMokGeqiDCBAc9XbF+JtVQLh75uwTIxuagOJYCFDLW1VjMPHCa+xB/OILeX
+3V4fP9pBwPG/1ZXh1y0eQRcdbns7gd0Y0MCy/IwkD9BmoQ5EsR1WQu1ld/e40nwF
+viCKw6NayioZpmJfbo6vOyv/Rxjhsf9Ws1PyEPt376e8uG/I9YdMyiaTaRsys4FJ
+p1Zs3pkHA2ZYWHcV5a47rsm2GukUXe9fXwSEYtdIbLo/d1Q7ECkxG9rJfITo1lhQ
+Xoi0/f5x4Kj4cQWYYp1r9ee9JDcSx2GQRFSlGSQiK7GtDfBREzht552VEvHjd6yp
+ArZUH0r8rLaGWjpD+Wk1PiTPulSpWJymlfKK7KNvossAqMCERPlG8yxKwJPaEvtM
+6A9kjjUjCkFABRT8QV1R
+=y+Ma
+-----END PGP SIGNATURE-----
+
+--yzvKDKJiLNESc64M--
