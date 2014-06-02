@@ -1,71 +1,106 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: nuc900: remove driver
-Date: Mon, 2 Jun 2014 18:05:21 +0200
-Message-ID: <20140602160521.GF2654@katana>
-References: <1401654925-20791-1-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="m1UC1K4AOz1Ywdkx"
+From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: Provide 'device type' to 'OF device node'
+ look-up
+Date: Mon, 02 Jun 2014 17:06:31 +0100
+Message-ID: <20140602160631.F2F6DC40476@trevor.secretlab.ca>
+References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
+	<1401716463-23457-2-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1401654925-20791-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <1401716463-23457-2-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon,  2 Jun 2014 14:41:01 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> We have a problem.  There are lots of I2C device ID tables scattered
+> around the kernel which are redundant in all Device Tree and/or ACPI
+> only supported device drivers.  After recent discussions it has become
+> apparent that the only thing blocking the complete removal of these
+> tables is the continued support of 'register an I2C device via sysfs'
+> functionality.  As the sysfs method doesn't know anything about Device
+> Tree or ACPI, we can not pass any nodes in.  This patch searches all
+> known Device Tree nodes and attempts to acquire a match from the
+> device name provided via sysfs.  It can not fail, but if found assigns
+> the matching of_node to i2c_board_info prior to registering.
 
---m1UC1K4AOz1Ywdkx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ummm... blech!  :-)
 
-On Sun, Jun 01, 2014 at 10:35:25PM +0200, Wolfram Sang wrote:
-> Arnd said in another patch:
->=20
-> "As far as I can tell, this driver must have produced this
-> error for as long as it has been merged into the mainline kernel, but
-> it was never part of the normal build tests:
->=20
-> drivers/i2c/busses/i2c-nuc900.c: In function 'nuc900_i2c_probe':
-> drivers/i2c/busses/i2c-nuc900.c:601:17: error: request for member
-> 'apbfreq' in something not a structure or union
->   ret =3D (i2c->clk.apbfreq)/(pdata->bus_freq * 5) - 1;
->                  ^
-> This is an attempt to get the driver to build and possibly
-> work correctly, although I do wonder whether we should just
-> remove it, as it has clearly never worked."
->=20
-> I agree with removing it since nobody showed interest in Arnd's fixup
-> patch.
->=20
-> Reported-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: Wan ZongShun <mcuos.com-wSZih8+RwX/YtjvyW6yDsg@public.gmane.org>
+It shouldn't actually be necessary to have a node when instantiating an
+i2c_device... in fact, there /shouldn't/ be a node if the device is
+getting instantiated by had via sysfs. If there was a node, then I would
+expect a device to have been created at the same time.
 
-Applied to for-next, thanks!
+I think panto's overlays solve the problem where a node actually is
+required to instantiate the device by actually adding a node and letting
+the i2c subsystem create the associated device automatically.
 
+g.
 
---m1UC1K4AOz1Ywdkx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTjKDBAAoJEBQN5MwUoCm2bHkP/A5t1KhW3rVzG9mMVuuDJwb0
-axLhUP6sWavimH/OoV1T7cPq4JkhmLRFLhoNOSgTPYTiAfpON/JrCAMah4YTGfJo
-XLx/atktw2Du0vQjCzu9tROApayORjwt4wDaEvNOd1h40iUX2lm4Mk0gy5yntXuY
-sWEUzXVSpAF0MSppUg1alSKol8UqkGPYavQjCcqEii6XsliojMC8P4nWFpCzqryx
-Cx362D/1+NMcHzYgGZ4zehpGwMtJcXcsocSE6+gBJ2mZHKzrTXEAdePIG9S6SbVa
-qpYhH25plY2f2SrMGMiA9B7lKdMiwlOL/D6iJeLP6EtrW5xG+VQEmUrT6CWpKYsH
-y0InvPyjLPyL0FmUjGuwWgi3Nk/a32KIfyLNWKdMqAB6jSilqiNLmnAlRWrjcdWu
-Nf5YUZtcG4m33u58k9CP8q/sLFS0n9uPZ/kA7WUeEf7VRiV4t74I5y0vK0riAb5/
-wqY/HPu3jHLoMnUdBlD3tt9f/nZlbVbEmNbfa8g8GgU/GyqE2O9bPxS0qIybn4In
-ZWMj9ofR7i8EmKyaZr1yb68TzGiAzE0OaW34p2RNIUsAH+ZsK4oLYvpeh+oP2GbZ
-BoturMOkud2TUh7a5zm5OLhbkkVmMHz0S39zcqCkq5SgtEjEmPXBfdCc5kWXBx3e
-GyZQa57csylWtEwLNR5g
-=UZIB
------END PGP SIGNATURE-----
-
---m1UC1K4AOz1Ywdkx--
+> 
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c | 31 +++++++++++++++++++++++++++++++
+>  1 file changed, 31 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 7c7f4b8..2e47641 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -64,6 +64,7 @@ static DEFINE_IDR(i2c_adapter_idr);
+>  
+>  static struct device_type i2c_client_type;
+>  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
+> +static struct device_node *of_i2c_type_to_node(char *type);
+>  
+>  static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
+>  
+> @@ -863,6 +864,8 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
+>  		return -EINVAL;
+>  	}
+>  
+> +	info.of_node = of_i2c_type_to_node(info.type);
+> +
+>  	client = i2c_new_device(adap, &info);
+>  	if (!client)
+>  		return -EINVAL;
+> @@ -1088,8 +1091,36 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+>  	return i2c_verify_adapter(dev);
+>  }
+>  EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
+> +
+> +static struct device_node *of_i2c_type_to_node(char *type)
+> +{
+> +	struct device_node *np;
+> +	const char *compatible, *name;
+> +	int len;
+> +
+> +	if (!type)
+> +		return NULL;
+> +
+> +	for_each_of_allnodes(np) {
+> +		compatible = of_get_property(np, "compatible", &len);
+> +		if (!compatible)
+> +			continue;
+> +
+> +		name = strchr(compatible, ',');
+> +		if (!name)
+> +			name = compatible;
+> +		else
+> +			name++;
+> +
+> +		if (!strncmp(name, type, len - (name - compatible)))
+> +			return np;
+> +	}
+> +
+> +	return NULL;
+> +}
+>  #else
+>  static void of_i2c_register_devices(struct i2c_adapter *adap) { }
+> +static struct device_node *of_i2c_type_to_node(char *type) { return NULL; }
+>  #endif /* CONFIG_OF */
+>  
+>  /* ACPI support code */
+> -- 
+> 1.8.3.2
+> 
