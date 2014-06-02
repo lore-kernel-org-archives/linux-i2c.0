@@ -1,58 +1,82 @@
-From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: Make I2C ID tables non-mandatory for DT'ed
- and/or ACPI'ed devices
-Date: Mon, 02 Jun 2014 17:08:29 +0100
-Message-ID: <20140602160829.F3519C40476@trevor.secretlab.ca>
-References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
-	<1401716463-23457-4-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401716463-23457-4-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/4] i2c: designware: No need to disable already disabled
+ controller
+Date: Mon, 2 Jun 2014 18:12:34 +0200
+Message-ID: <20140602161234.GG2654@katana>
+References: <1400164644-3222-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1400164644-3222-2-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GdbWtwDHkcXqP16f"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1400164644-3222-2-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Yao Jin <yao.jin@intel.com>, Aubrey Li <aubrey.li@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon,  2 Jun 2014 14:41:03 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Currently the I2C framework insists on devices supplying an I2C ID
-> table.  Many of the devices which do so unnecessarily adding quite a
-> few wasted lines to kernel code.  This patch allows drivers a means
-> to 'not' supply the aforementioned table and match on either DT
-> and/or ACPI match tables instead.
-> 
-> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Looks reasonable.
+--GdbWtwDHkcXqP16f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-g.
-
+On Thu, May 15, 2014 at 05:37:21PM +0300, Mika Westerberg wrote:
+> If the controller is already in desired state (enabled/disabled) there is
+> no point in setting its state again.
+>=20
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 > ---
->  drivers/i2c/i2c-core.c | 13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index d0c7180..811b78f 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -271,7 +271,18 @@ static int i2c_device_probe(struct device *dev)
->  		return 0;
->  
->  	driver = to_i2c_driver(dev->driver);
-> -	if (!driver->probe || !driver->id_table)
-> +	if (!driver->probe)
-> +		return -EINVAL;
+
+Does it have a side-effect when setting then enable bit again? Otherwise
+it will exit the loop immediately on the first try. Not too bad IMO
+given the additional code saved.
+
+>  drivers/i2c/busses/i2c-designware-core.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busse=
+s/i2c-designware-core.c
+> index b58ecf19e767..b0792675b970 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -258,6 +258,10 @@ static void __i2c_dw_enable(struct dw_i2c_dev *dev, =
+bool enable)
+>  {
+>  	int timeout =3D 100;
+> =20
+> +	/* In case the controller is already in desired state */
+> +	if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) =3D=3D enable)
+> +		return;
 > +
-> +	/*
-> +	 * An I2C ID table is not madatory, if and only if, a suitable Device
-> +	 * Tree and/or ACPI match table entry is supplied for the probing
-> +	 * device.
-> +	 *
-> +	 * TODO: Provide 'device type' to 'ACPI node' call and match here.
-> +	 */
-> +	if (!driver->id_table &&
-> +	    !of_match_device(dev->driver->of_match_table, dev))
->  		return -ENODEV;
->  
->  	if (!device_can_wakeup(&client->dev))
-> -- 
-> 1.8.3.2
-> 
+>  	do {
+>  		dw_writel(dev, enable, DW_IC_ENABLE);
+>  		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) =3D=3D enable)
+> --=20
+> 2.0.0.rc2
+>=20
+
+--GdbWtwDHkcXqP16f
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTjKJxAAoJEBQN5MwUoCm2JwwP/jUWlMJJU92m8Xyj9gTqi0Kw
+ASi+nB+ODGjOt30rI4eGxOvzrJYAHhSP4isO6ZKv73e9nbkQh032NzKitU0cXpS5
+QESfr8r1gKdtNGGqHDYWCz6PC91T1crtS1PxrdHXFekrngzITC3gCUoQSblu6wBS
+rHafasSKIs7FnISvzJqx25roU7oAF7bharfnhkrZkWPnuladv9AyLX+v/DCE0xuY
+c5vPCSXTkGLBJlYWSGI59irVOSjCoPsuaMQrL/H9q+PCDttrhgxCEVIlesBwhosT
+cZvAojYyS0X0VwWHA9lMbrZi+d3iXSW0D38IE7X/ulxpIznrJkoEhJhUdozWCSIx
+WFqEOzKwWlVm+ifqNjJd23zeb3Rw2d5je4Zxf00pV0kCJSks9GeDwCqKHxb1b50X
+Ihpd95PShKTjXHA4i8CkJez3CeF4d2jGP8TExjEYXDcM0S3/KrgNZPkNqNb97brs
+SzZcnlDrlP8vSOdsHDfPwkCSQPjcHLTvH50mhs3nK7erIiAJNKEnaa69eC3Pgk7m
+plabCXQyJ0S9j1IZwHn767yp4goLFOeb2+tRDmOLmp2ZDZM7SEbSKpPm7ENIPvzf
+4Qup/ycnzzOS3/B8LWv00fLJxibmysIcORQr+HmOjH914+s80N3F8V6HINIU0Jxy
+/bwxx79cbAElWVf2crj9
+=FdRx
+-----END PGP SIGNATURE-----
+
+--GdbWtwDHkcXqP16f--
