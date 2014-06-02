@@ -1,75 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/6] i2c: s3c2410: Handle i2c sys_cfg register in i2c
- driver
-Date: Mon, 2 Jun 2014 19:14:28 +0200
-Message-ID: <20140602171428.GK2654@katana>
-References: <1399706287-13919-1-git-send-email-y@samsung.com>
- <1399706419-13976-1-git-send-email-pankaj.dubey@samsung.com>
- <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH V2] i2c: remove unnecessary OOM messages
+Date: Mon, 2 Jun 2014 19:27:27 +0200
+Message-ID: <20140602172727.GM2654@katana>
+References: <000d01cf6e4d$ece8ca50$c6ba5ef0$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8kI7hWEHMS8Z+7/0"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="YS7t75H5cNTCpbja"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pankaj Dubey <pankaj.dubey@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kgene.kim@samsung.com, t.figa@samsung.com, arnd@arndb.de, Rob Herring <robh+dt@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, Russell King <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <000d01cf6e4d$ece8ca50$c6ba5ef0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Guenter Roeck' <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, 'Jean Delvare' <jdelvare-l3A5Bk7waGM@public.gmane.org>, 'Uwe =?utf-8?Q?Kleine-K=C3=B6nig'?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, 'Felipe Balbi' <balbi-l0cyMroinI0@public.gmane.org>, 'Laurent Pinchart' <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, 'Linus Walleij' <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---8kI7hWEHMS8Z+7/0
-Content-Type: text/plain; charset=us-ascii
+--YS7t75H5cNTCpbja
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, May 10, 2014 at 04:20:14PM +0900, Pankaj Dubey wrote:
-> Let's handle i2c interrupt re-configuration in i2c driver. This will
-> help us in removing some soc specific checks from machine files.
-> Since only Exynos5250, and Exynos5420 need to do this, added syscon
-> based phandle to i2c device nodes of respective SoC DT files.
-> Also handle saving and restoring of SYS_I2C_CFG register during
-> suspend and resume of i2c driver. This will help in removing soc
-> specific check from mach-exynos/pm.c.
+On Tue, May 13, 2014 at 10:51:58AM +0900, Jingoo Han wrote:
+> The site-specific OOM messages are unnecessary, because they
+> duplicate the MM subsystem generic OOM message. For example,
+> k.alloc and v.alloc failures use dump_stack().
 >=20
-> CC: Rob Herring <robh+dt@kernel.org>
-> CC: Randy Dunlap <rdunlap@infradead.org>
-> CC: Wolfram Sang <wsa@the-dreams.de>
-> CC: Russell King <linux@arm.linux.org.uk>
-> CC: devicetree@vger.kernel.org
-> CC: linux-doc@vger.kernel.org
-> CC: linux-i2c@vger.kernel.org
-> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Acked-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Acked-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> Acked-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Shall this go via i2c-tree? Looks to me like it should go with the rest
-of the series? Patch is mostly okay (only reviewed the code, not the
-bindings), one nit:
-
-> +	regmap_update_bits(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, BIT(id), val);
-
-Hardcode the '0' and drop using 'val'?
+Applied to for-next, thanks!
 
 
---8kI7hWEHMS8Z+7/0
+--YS7t75H5cNTCpbja
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTjLD0AAoJEBQN5MwUoCm2HgcP/A9XZJFA630XxvImjYAFPtk6
-3vql4HguDLoCdDlv+kR7IhGt3SKtMwFeOZDvmOFhX7HMdvBsfhd1b/1suarQtCSZ
-6AHCLmlH77i5LoeaflqLGWmzpxl0I/Frg28dk1aNBWk0fot2IlRzo4XFlqmCV4MT
-DoUbAd9yNZySqAmyFm21y4p8+EJm6aW8eU7e1XbBCgWBlEtQVQlSUFG1/AY1MwOW
-HNoV2f5AlpV3ZeaCDxWFy2H7/5QzZSIW/VseyYL/sAgRtYgdT4SIy/5cNBg+UvUs
-cWH6Hzogu0tew87R1TZi6cSlq4pTZ4ZzhlHfvxzusqnsv6OZD7XKrxbePzQlyI0+
-eNSDeBTqEiuRyw+LjaAMvx8k98TaJXF0MxEyrmtLpH/xrIr8vtfyNIk2TAoZhQmp
-HvhHd5QwgahiHtd3MInQZ44+IUfQJX2E+bwWDLw4DhRpoLIAfIR+1cd+GG9yL0eR
-PKPwsakTasrMCSp12zf5ewdhJgsDSZ5TBqQuaYev3Ff1k+YeQ6TEDIzpS27wtnPv
-oBAVc0F+eyqulHAKjpWlmJOdizeVcF9qBERWeSf+Ca7voRQbUNF2knJph7fXpaW8
-nKi9mP/jaLxI1a79YBQ1d2EoM8ZmDZe2cfOQY34DMyuyLMBs5/9VOfYsuocETMqD
-CRanmYag61F7JjFdQzDP
-=KCHP
+iQIcBAEBAgAGBQJTjLP/AAoJEBQN5MwUoCm2WS4P/j4eDqWa4Klx/6lZledSNEGz
+JkGJv+UMJmHlDBVFJfTldoJ24RzQeZ6HOkouY2jZgKzdYQnq1scLsoGpb7trKF2h
+vx/u8bqy1OywForBxRN6yeRAjKopmkEIEBzN0N+n/wOf5V7BNxq4lzdj/m+1qsFU
+z8kIJ69GmMZmzxVSUHCgKiBT326QcHaDTLw9QS4UqOiN6OaR9bVUIiVbQZXAJRf2
+Xq93I28ko5eAEVHdbBRFxSd3rn7QYFE91/MrCi8cI580A3lC+I52qftKXffZWom/
+yPwFOQQF+FPWBevxzuFJ2e1EtrouE74bSUfI0f/jggzZL95w5s8VYTyLHtTGDgae
+juAhopkORCueGBd959iYW4Ye3OTEhHvLUj5cTPuu6IztHLtwh/Sx09KJRJ0S3pnZ
+nzbxl6CRRZPvwex5SFgmScEkxYtbjuP259pGBjxDDSHc+ZWfXIA58/u8tLyoAq2x
+FRTBvfGHuqQgiXlrJDES4i/BRGdefSVR+bRud0bJdYKQSiTFu+qtf8jHIqeGUttg
+4ViPTTG7sxUiu6hZctaf/pp/u6dTky+L4+yxHFZMPzrcu/JCp2j9AjcbCdqngnMW
+wekqANc8SDKBduA27ThdIWv1VQ+lQF1MFfxncGB0D4zqZ5f35gJdvT9uCQ4OAdIQ
+Lmfqe5f8g4C6HWyWle95
+=g6mw
 -----END PGP SIGNATURE-----
 
---8kI7hWEHMS8Z+7/0--
+--YS7t75H5cNTCpbja--
