@@ -1,111 +1,61 @@
-From: Murali Karicheri <m-karicheri2@ti.com>
+From: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 Subject: Re: [PATCH] i2c: davinci: Add block read functionality for IPMI
-Date: Mon, 2 Jun 2014 12:28:43 -0400
-Message-ID: <538CA63B.6000703@ti.com>
-References: <1398970186-12204-1-git-send-email-m-karicheri2@ti.com> <3E54258959B69E4282D79E01AB1F32B70472F6AC@DFLE11.ent.ti.com> <20140522090041.GA2573@katana>
+Date: Mon, 2 Jun 2014 12:29:55 -0400
+Message-ID: <538CA683.40108@ti.com>
+References: <1398970186-12204-1-git-send-email-m-karicheri2@ti.com> <537DD6B1.9010200@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140522090041.GA2573@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Ding, Garrett" <g-ding@ti.com>, "Nori, Sekhar" <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <537DD6B1.9010200-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 5/22/2014 5:00 AM, Wolfram Sang wrote:
-> Hi,
+On 5/22/2014 6:51 AM, Sekhar Nori wrote:
+> On Friday 02 May 2014 12:19 AM, Murali Karicheri wrote:
+>> Intelligent Plaform Management Interface (IPMI) requires I2C driver
+>> to support block read, where the first byte received from slave is
+>> the length of following data:-
+>>   Added length check if the read type is block read (I2C_M_RECV_LEN)
+>>   Send NACK/STOP bits before last byte is received
+>>
+>> Signed-off-by: Garrett Ding <g-ding-l0cyMroinI0@public.gmane.org>
+>> Signed-off-by: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+> I tested this on a DA850 using i2cdetect and it did not seem to break
+> anything so:
 >
-> thanks for the patch.
+> Tested-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
 >
->>> +/* capabilities */
->>> +#define I2C_CAPABILITIES	(I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | \
->>> +				 I2C_FUNC_SMBUS_READ_BLOCK_DATA)
-> I don't see the need for a seperate define.
+> There are some checks that were triggered in checkpatch. You may want
+> to fix them up.
 >
->>> +
->>> struct davinci_i2c_dev {
->>> 	struct device           *dev;
->>> 	void __iomem		*base;
->>> @@ -318,7 +322,13 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg
->>> *msg, int stop)
->>> 	davinci_i2c_write_reg(dev, DAVINCI_I2C_SAR_REG, msg->addr);
->>>
->>> 	dev->buf = msg->buf;
->>> -	dev->buf_len = msg->len;
->>> +
->>> +	 /* if first received byte is length, set buf_len = 0xffff as flag */
->>> +	if (msg->flags & I2C_M_RECV_LEN)
->>> +		dev->buf_len = 0xffff;
-> a) this magic value should be a define instead of a comment
-> b) i2c messages easily have a 16 bit range, so 0xffff is a troublesome
-> choice.
+> Thanks,
+> Sekhar
 >
->>> +	else
->>> +		dev->buf_len = msg->len;
->>> +
->>> 	dev->stop = stop;
->>>
->>> 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CNT_REG, dev->buf_len); @@ -456,7
->>> +466,7 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->>>
->>> static u32 i2c_davinci_func(struct i2c_adapter *adap)  {
->>> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
->>> +	return I2C_CAPABILITIES;
->>> }
->>>
->>> static void terminate_read(struct davinci_i2c_dev *dev) @@ -528,10 +538,32 @@ static
->>> irqreturn_t i2c_davinci_isr(int this_irq, void *dev_id)
->>>
->>> 		case DAVINCI_I2C_IVR_RDR:
->>> 			if (dev->buf_len) {
->>> -				*dev->buf++ =
->>> -				    davinci_i2c_read_reg(dev,
->>> -							 DAVINCI_I2C_DRR_REG);
->>> +				*dev->buf++ = davinci_i2c_read_reg(dev,
->>> +							DAVINCI_I2C_DRR_REG);
->>> +				/*
->>> +				 * check if the first received byte is message
->>> +				 * length, i.e, I2C_M_RECV_LEN
->>> +				 */
->>> +				if (dev->buf_len == 0xffff)
->>> +					dev->buf_len = *(dev->buf - 1) + 1;
-> Please rework the code to get rid of the '- 1' and '+ 1'. They look
-> hackish and make the code less readable.
+> CHECK: Alignment should match open parenthesis
+> #112: FILE: drivers/i2c/busses/i2c-davinci.c:557:
+> +					w = davinci_i2c_read_reg(dev,
+> +							DAVINCI_I2C_MDR_REG);
 >
->>> +
->>> 				dev->buf_len--;
->>> +				/*
->>> +				 * send NACK/STOP bits BEFORE last byte is
->>> +				 * received
->>> +				 */
->>> +				if (dev->buf_len == 1) {
->>> +					w = davinci_i2c_read_reg(dev,
->>> +							DAVINCI_I2C_MDR_REG);
->>> +					w |= DAVINCI_I2C_MDR_NACK;
->>> +					davinci_i2c_write_reg(dev,
->>> +							DAVINCI_I2C_MDR_REG, w);
->>> +
->>> +					w |= DAVINCI_I2C_MDR_STP;
->>> +					davinci_i2c_write_reg(dev,
->>> +							DAVINCI_I2C_MDR_REG, w);
->>> +				}
->>> +
-> Looks like an unreleated change to me? Why is this I2C_M_RECV_LEN
-> specific?
+> CHECK: Alignment should match open parenthesis
+> #115: FILE: drivers/i2c/busses/i2c-davinci.c:560:
+> +					davinci_i2c_write_reg(dev,
+> +							DAVINCI_I2C_MDR_REG, w);
 >
-> Kind regards,
+> CHECK: Alignment should match open parenthesis
+> #119: FILE: drivers/i2c/busses/i2c-davinci.c:564:
+> +					davinci_i2c_write_reg(dev,
+> +							DAVINCI_I2C_MDR_REG, w);
 >
->     Wolfram
-Wolfram,
+> total: 0 errors, 0 warnings, 3 checks, 67 lines checked
+>
+Sekhar,
 
-Thanks for reviewing the patch. I will review your comments and get back 
-to you. This patch
-is tested on a customer board and thus it might be a while before I can 
-incorporate these changes
-and provide an updated patch to the list. Meanwhile I will be reviewing 
-the comment in the
-next few weeks and get back to you in case I have questions.
+Thanks for testing this. I have other comments against this patch and 
+will be sending an
+updated patch in few weeks.
 
 Thanks and regards,
 
