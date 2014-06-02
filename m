@@ -1,49 +1,74 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 3/3] i2c: Make I2C ID tables non-mandatory for DT'ed and/or ACPI'ed devices
-Date: Mon,  2 Jun 2014 14:41:03 +0100
-Message-ID: <1401716463-23457-4-git-send-email-lee.jones@linaro.org>
+Subject: Re: [PATCH 1/3] i2c: Provide 'device type' to 'OF device node'
+ look-up
+Date: Mon, 2 Jun 2014 14:57:22 +0100
+Message-ID: <20140602135722.GC4146@lee--X1>
 References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
+ <1401716463-23457-2-git-send-email-lee.jones@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401716463-23457-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1401716463-23457-2-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Currently the I2C framework insists on devices supplying an I2C ID
-table.  Many of the devices which do so unnecessarily adding quite a
-few wasted lines to kernel code.  This patch allows drivers a means
-to 'not' supply the aforementioned table and match on either DT
-and/or ACPI match tables instead.
+> We have a problem.  There are lots of I2C device ID tables scattered
+> around the kernel which are redundant in all Device Tree and/or ACPI
+> only supported device drivers.  After recent discussions it has becom=
+e
+> apparent that the only thing blocking the complete removal of these
+> tables is the continued support of 'register an I2C device via sysfs'
+> functionality.  As the sysfs method doesn't know anything about Devic=
+e
+> Tree or ACPI, we can not pass any nodes in.  This patch searches all
+> known Device Tree nodes and attempts to acquire a match from the
+> device name provided via sysfs.  It can not fail, but if found assign=
+s
+> the matching of_node to i2c_board_info prior to registering.
+>=20
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c | 31 +++++++++++++++++++++++++++++++
+>  1 file changed, 31 insertions(+)
 
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/i2c-core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+[...]
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index d0c7180..811b78f 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -271,7 +271,18 @@ static int i2c_device_probe(struct device *dev)
- 		return 0;
- 
- 	driver = to_i2c_driver(dev->driver);
--	if (!driver->probe || !driver->id_table)
-+	if (!driver->probe)
-+		return -EINVAL;
-+
-+	/*
-+	 * An I2C ID table is not madatory, if and only if, a suitable Device
-+	 * Tree and/or ACPI match table entry is supplied for the probing
-+	 * device.
-+	 *
-+	 * TODO: Provide 'device type' to 'ACPI node' call and match here.
-+	 */
-+	if (!driver->id_table &&
-+	    !of_match_device(dev->driver->of_match_table, dev))
- 		return -ENODEV;
- 
- 	if (!device_can_wakeup(&client->dev))
--- 
-1.8.3.2
+> +static struct device_node *of_i2c_type_to_node(char *type)
+> +{
+> +	struct device_node *np;
+> +	const char *compatible, *name;
+> +	int len;
+> +
+> +	if (!type)
+> +		return NULL;
+> +
+> +	for_each_of_allnodes(np) {
+> +		compatible =3D of_get_property(np, "compatible", &len);
+> +		if (!compatible)
+> +			continue;
+> +
+> +		name =3D strchr(compatible, ',');
+> +		if (!name)
+> +			name =3D compatible;
+> +		else
+> +			name++;
+> +
+> +		if (!strncmp(name, type, len - (name - compatible)))
+> +			return np;
+> +	}
+> +
+> +	return NULL;
+> +}
+
+Ah, this _might_ not work if there are more than one devices of the
+same type.  I guess I need to check the 'reg' property too.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
