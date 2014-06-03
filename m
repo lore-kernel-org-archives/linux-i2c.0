@@ -1,77 +1,57 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: Make I2C ID tables non-mandatory for DT'ed
- and/or ACPI'ed devices
-Date: Tue, 3 Jun 2014 09:11:36 +0100
-Message-ID: <20140603081136.GE3060@lee--X1>
-References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
- <1401716463-23457-4-git-send-email-lee.jones@linaro.org>
- <20140602153417.2065c1a5@alan.etchedpixels.co.uk>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3] i2c: bfin: turn to Resource-managed API in probe
+ function
+Date: Tue, 3 Jun 2014 10:29:33 +0200
+Message-ID: <20140603082933.GD2653@katana>
+References: <1401771726-4717-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kvUQC+jR9YzypDnK"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140602153417.2065c1a5-mUKnrFFms3BCCTY1wZZT65JpZx93mCW/@public.gmane.org>
+In-Reply-To: <1401771726-4717-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: One Thousand Gnomes <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 02 Jun 2014, One Thousand Gnomes wrote:
 
-> On Mon,  2 Jun 2014 14:41:03 +0100
-> Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->=20
-> > Currently the I2C framework insists on devices supplying an I2C ID
-> > table.  Many of the devices which do so unnecessarily adding quite =
-a
-> > few wasted lines to kernel code.  This patch allows drivers a means
-> > to 'not' supply the aforementioned table and match on either DT
-> > and/or ACPI match tables instead.
-> >=20
-> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > ---
-> >  drivers/i2c/i2c-core.c | 13 ++++++++++++-
-> >  1 file changed, 12 insertions(+), 1 deletion(-)
-> >=20
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index d0c7180..811b78f 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -271,7 +271,18 @@ static int i2c_device_probe(struct device *dev=
-)
-> >  		return 0;
-> > =20
-> >  	driver =3D to_i2c_driver(dev->driver);
-> > -	if (!driver->probe || !driver->id_table)
-> > +	if (!driver->probe)
-> > +		return -EINVAL;
-> > +
-> > +	/*
-> > +	 * An I2C ID table is not madatory, if and only if, a suitable De=
-vice
->=20
-> typo "madatory"..
->=20
-> > +	 * Tree and/or ACPI match table entry is supplied for the probing
-> > +	 * device.
-> > +	 *
-> > +	 * TODO: Provide 'device type' to 'ACPI node' call and match here=
-=2E
-> > +	 */
-> > +	if (!driver->id_table &&
-> > +	    !of_match_device(dev->driver->of_match_table, dev))
-> >  		return -ENODEV;
-> > =20
->=20
-> Looks sensible to me other than that.
+--kvUQC+jR9YzypDnK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Can I add your Ack once the typo is fixed?
+On Tue, Jun 03, 2014 at 01:02:06PM +0800, Sonic Zhang wrote:
+> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>=20
+> No need to free managed resources any more.
+>=20
+> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>=20
 
-> >  	if (!device_can_wakeup(&client->dev))
+Applied to for-next, thanks!
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+
+--kvUQC+jR9YzypDnK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTjYdtAAoJEBQN5MwUoCm23ysQAKxQ21vdMh6ypl/3G+DGoTjy
+xZZztds8YQ1rll1/20vGGjGXNR1UltEL9QY1WogPCJeg9O7YlJAdh0LSnNdkaGsf
+Hq8K0/RZ2VgCpvQJEaBqfqiNpSRNguQd8NgVQoFlgYbWlit/gXlu7fCWppIhXwNz
+Zp5hU8CGMTcmzaIEc2x7Qspb/+ZsHUORDjnNMWd7+qF3dRX9X/5n6XItHafx/hO8
+FiIDq/dlVfErBOcZx3EP7vW3c+NwQEyAi3D3jFf6P/86PMmYO7eF/WM1VOTLqYGJ
+Vmaq0JFNDkA6N1lzISl7DWaACpi4lQaY8SqsCviEr1elApf+9NTSko09yss6+jdH
+FPZjagB74K70hGp6DbLx//RiL7DzusWHtklVrOen5byDOWK8BPZktjhCx7cieAoq
+coxR2tpmRaLPQqpm5EbSuFb68MG3Su832PK5RHvTKRzf9p12icJyXtvUx12ivv9v
+l0qmkCdLwYL261Cv7prelT9e6Mv9zIlZHnKvW0c4gW7xz9pFBR/NJNkgE2WpQ9Cc
+OOr+yroWsvxIPJwnazQvYgShqLy4Vd9OueKW4QLud6YGYG6Ch7fu54NoJbdUSMxF
+2jy+pdXIM+qBl1hfaQm7Q1rkYderVMMffWJTJgDpxnvxIiCBWS1qpTQyVPRF2Tou
+zLmGqhWLNq7hry9m9LZz
+=K2YK
+-----END PGP SIGNATURE-----
+
+--kvUQC+jR9YzypDnK--
