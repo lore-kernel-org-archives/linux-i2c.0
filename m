@@ -1,136 +1,81 @@
-From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3] i2c: bfin: turn to Resource-managed API in probe function
-Date: Tue, 3 Jun 2014 13:02:06 +0800
-Message-ID: <1401771726-4717-1-git-send-email-sonic.adi@gmail.com>
+From: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] I2C: mpc: insert DR read in i2c_fixup()
+Date: Tue, 03 Jun 2014 08:49:59 +0200
+Message-ID: <538D7017.40908@keymile.com>
+References: <1400247398-23778-1-git-send-email-valentin.longchamp@keymile.com> <20140602162719.GI2654@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140602162719.GI2654@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Adrian Cox <adrian-nKrwMtk+6Wm9FHfhHBbuYA@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On 06/02/2014 06:27 PM, Wolfram Sang wrote:
+> On Fri, May 16, 2014 at 03:36:38PM +0200, Valentin Longchamp wrote:
+>> The mpc_i2c_fixup function is called when the bus is not released by a
+>> slave. The function generates 9 pulses that should lead the slave
+>> to release the bus.
+>>
+>> The sequence that generates the pulses disables/enables the I2C module
+>> that controls the blocked bus. We have found out on the P2041 SoC that
+>> this could cause the CPU to hang (for a short delay).
+>>
+>> To avoid this, this patch introduces a read to the I2CDR register
+>> between the re-enablement of the I2C module in master mode and its
+>> returning to the slave mode instead of the delay (the final delay,
+>> between the pulses is kept), as proposed in procedure from the P2041
+>> reference manual (16.6.2.3).
+>>
+>> Signed-off-by: Rainer Boschung <rainer.boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+>> Signed-off-by: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+> 
+> Have you checked other manuals if this always has been the proposed
+> procedure?
 
-No need to free managed resources any more.
+I have just checked the RMs of the Freescale CPUs I am familiar with, and it is
+the same procedure:
+- MPC8360E (PowerQUICC II Pro family): 15.5.7
+- MPC8548E (PowerQUICC III family): 11.5.6
 
-Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+So I think this is the correct procedure for this module according to several RMs.
 
----
-v3-changes:
-- Remove cast of pointer passed to the IS_ERR macro.
-v2-changes:
-- Remove resource checking. devm_ioremap_resource will do it.
-- Remove cast of the return value.
-- Remove free_irq from the module remove function.
----
- drivers/i2c/busses/i2c-bfin-twi.c | 44 +++++++++++----------------------------
- 1 file changed, 12 insertions(+), 32 deletions(-)
+> 
+>> ---
+>>
+>>  drivers/i2c/busses/i2c-mpc.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+>> index f539163..3655af7 100644
+>> --- a/drivers/i2c/busses/i2c-mpc.c
+>> +++ b/drivers/i2c/busses/i2c-mpc.c
+>> @@ -107,6 +107,7 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+>>  static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+>>  {
+>>  	int k;
+>> +	u8 dr;
+> 
+> Looks like we can drop this variable since the value read is not used?
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index e6d5162..3e271e7 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -620,35 +620,27 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	int rc;
- 	unsigned int clkhilow;
- 
--	iface = kzalloc(sizeof(struct bfin_twi_iface), GFP_KERNEL);
-+	iface = devm_kzalloc(&pdev->dev, sizeof(struct bfin_twi_iface),
-+			GFP_KERNEL);
- 	if (!iface) {
- 		dev_err(&pdev->dev, "Cannot allocate memory\n");
--		rc = -ENOMEM;
--		goto out_error_nomem;
-+		return -ENOMEM;
- 	}
- 
- 	spin_lock_init(&(iface->lock));
- 
- 	/* Find and map our resources */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (res == NULL) {
--		dev_err(&pdev->dev, "Cannot get IORESOURCE_MEM\n");
--		rc = -ENOENT;
--		goto out_error_get_res;
--	}
--
--	iface->regs_base = ioremap(res->start, resource_size(res));
--	if (iface->regs_base == NULL) {
-+	iface->regs_base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(iface->regs_base)) {
- 		dev_err(&pdev->dev, "Cannot map IO\n");
--		rc = -ENXIO;
--		goto out_error_ioremap;
-+		return PTR_ERR(iface->regs_base);
- 	}
- 
- 	iface->irq = platform_get_irq(pdev, 0);
- 	if (iface->irq < 0) {
- 		dev_err(&pdev->dev, "No IRQ specified\n");
--		rc = -ENOENT;
--		goto out_error_no_irq;
-+		return -ENOENT;
- 	}
- 
- 	p_adap = &iface->adap;
-@@ -666,15 +658,15 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 			"i2c-bfin-twi");
- 	if (rc) {
- 		dev_err(&pdev->dev, "Can't setup pin mux!\n");
--		goto out_error_pin_mux;
-+		return -EBUSY;
- 	}
- 
--	rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
-+	rc = devm_request_irq(&pdev->dev, iface->irq, bfin_twi_interrupt_entry,
- 		0, pdev->name, iface);
- 	if (rc) {
- 		dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
- 		rc = -ENODEV;
--		goto out_error_req_irq;
-+		goto out_error;
- 	}
- 
- 	/* Set TWI internal clock as 10MHz */
-@@ -695,7 +687,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	rc = i2c_add_numbered_adapter(p_adap);
- 	if (rc < 0) {
- 		dev_err(&pdev->dev, "Can't add i2c adapter!\n");
--		goto out_error_add_adapter;
-+		goto out_error;
- 	}
- 
- 	platform_set_drvdata(pdev, iface);
-@@ -705,17 +697,8 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--out_error_add_adapter:
--	free_irq(iface->irq, iface);
--out_error_req_irq:
--out_error_no_irq:
-+out_error:
- 	peripheral_free_list(dev_get_platdata(&pdev->dev));
--out_error_pin_mux:
--	iounmap(iface->regs_base);
--out_error_ioremap:
--out_error_get_res:
--	kfree(iface);
--out_error_nomem:
- 	return rc;
- }
- 
-@@ -724,10 +707,7 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
- 	struct bfin_twi_iface *iface = platform_get_drvdata(pdev);
- 
- 	i2c_del_adapter(&(iface->adap));
--	free_irq(iface->irq, iface);
- 	peripheral_free_list(dev_get_platdata(&pdev->dev));
--	iounmap(iface->regs_base);
--	kfree(iface);
- 
- 	return 0;
- }
--- 
-1.8.2.3
+That's correct it is not used. I have added it to make sure that this is not
+"optimized" out but I guess the readb call is enough for this purpose ?
+
+> 
+>>  	u32 delay_val = 1000000 / i2c->real_clk + 1;
+>>  
+>>  	if (delay_val < 2)
+>> @@ -115,7 +116,7 @@ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+>>  	for (k = 9; k; k--) {
+>>  		writeccr(i2c, 0);
+>>  		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
+>> -		udelay(delay_val);
+>> +		dr = readb(i2c->base + MPC_I2C_DR);
+>>  		writeccr(i2c, CCR_MEN);
+>>  		udelay(delay_val << 1);
+>>  	}
+>> -- 
+>> 1.8.0.1
+>>
