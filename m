@@ -1,7 +1,7 @@
 From: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 Subject: Re: i2c/ACPI: Support for multiple serial bus addresses
-Date: Tue, 3 Jun 2014 10:05:43 -0700
-Message-ID: <20140603170543.GC22867@kroah.com>
+Date: Tue, 3 Jun 2014 10:06:59 -0700
+Message-ID: <20140603170659.GD22867@kroah.com>
 References: <538DEF2A.7030506@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,8 +24,8 @@ On Tue, Jun 03, 2014 at 08:52:10AM -0700, Srinivas Pandruvada wrote:
 > 
 > If there is any other better way, then I can rework on this.
 
-It's the middle of the kernel merge window, please come back with
-"proposals" afterwards as I have no time to look at anything for a few
-weeks.
+Wait, this is i2c stuff, why would I care about this?
+
+confused,
 
 greg k-h
