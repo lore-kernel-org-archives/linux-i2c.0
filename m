@@ -1,35 +1,83 @@
-From: Sachin Kamat <sachin.kamat@samsung.com>
-Subject: [PATCH 1/1] i2c: s3c2410: Remove class based instantiation
-Date: Tue,  3 Jun 2014 14:30:22 +0530
-Message-ID: <1401786022-29587-1-git-send-email-sachin.kamat@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, wsa@the-dreams.de, kgene.kim@samsung.com, ch.naveen@samsung.com, spk.linux@gmail.com, Olof Johansson <olof@lixom.net>
+From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c: Make I2C ID tables non-mandatory for DT'ed
+ and/or ACPI'ed devices
+Date: Tue, 03 Jun 2014 10:18:32 +0100
+Message-ID: <20140603091832.15965C40D3B@trevor.secretlab.ca>
+References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
+	<1401716463-23457-4-git-send-email-lee.jones@linaro.org>
+	<20140602160829.F3519C40476@trevor.secretlab.ca>
+	<20140603081109.GD3060@lee--X1>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140603081109.GD3060@lee--X1>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-With multiplatform support enabled for Exynos, class based
-instantiation causes a boot time delay due to I2C_CLASS_HWMON
-triggered probe. Since class based instantiation has been
-deprecated since some time now, remove it for Samsung I2C driver.
+On Tue, 3 Jun 2014 09:11:09 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wro=
+te:
+> On Mon, 02 Jun 2014, Grant Likely wrote:
+> > On Mon,  2 Jun 2014 14:41:03 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org=
+> wrote:
+> > > Currently the I2C framework insists on devices supplying an I2C I=
+D
+> > > table.  Many of the devices which do so unnecessarily adding quit=
+e a
+> > > few wasted lines to kernel code.  This patch allows drivers a mea=
+ns
+> > > to 'not' supply the aforementioned table and match on either DT
+> > > and/or ACPI match tables instead.
+> > >=20
+> > > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> >=20
+> > Looks reasonable.
+>=20
+> Can I add your Ack?
 
-Signed-off-by: Sachin Kamat <sachin.kamat@samsung.com>
-Cc: Olof Johansson <olof@lixom.net>
----
- drivers/i2c/busses/i2c-s3c2410.c |    1 -
- 1 file changed, 1 deletion(-)
+Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index bb3a9964f7e0..6f1706cdd9ba 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -1135,7 +1135,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	i2c->adap.owner   = THIS_MODULE;
- 	i2c->adap.algo    = &s3c24xx_i2c_algorithm;
- 	i2c->adap.retries = 2;
--	i2c->adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD | I2C_CLASS_DEPRECATED;
- 	i2c->tx_setup     = 50;
- 
- 	init_waitqueue_head(&i2c->wait);
--- 
-1.7.9.5
+>=20
+> > g.
+> >=20
+> > > ---
+> > >  drivers/i2c/i2c-core.c | 13 ++++++++++++-
+> > >  1 file changed, 12 insertions(+), 1 deletion(-)
+> > >=20
+> > > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > > index d0c7180..811b78f 100644
+> > > --- a/drivers/i2c/i2c-core.c
+> > > +++ b/drivers/i2c/i2c-core.c
+> > > @@ -271,7 +271,18 @@ static int i2c_device_probe(struct device *d=
+ev)
+> > >  		return 0;
+> > > =20
+> > >  	driver =3D to_i2c_driver(dev->driver);
+> > > -	if (!driver->probe || !driver->id_table)
+> > > +	if (!driver->probe)
+> > > +		return -EINVAL;
+> > > +
+> > > +	/*
+> > > +	 * An I2C ID table is not madatory, if and only if, a suitable =
+Device
+> > > +	 * Tree and/or ACPI match table entry is supplied for the probi=
+ng
+> > > +	 * device.
+> > > +	 *
+> > > +	 * TODO: Provide 'device type' to 'ACPI node' call and match he=
+re.
+> > > +	 */
+> > > +	if (!driver->id_table &&
+> > > +	    !of_match_device(dev->driver->of_match_table, dev))
+> > >  		return -ENODEV;
+> > > =20
+> > >  	if (!device_can_wakeup(&client->dev))
+> >=20
+>=20
+> --=20
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
