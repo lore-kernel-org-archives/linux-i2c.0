@@ -1,80 +1,94 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] I2C: mpc: insert DR read in i2c_fixup()
-Date: Tue, 3 Jun 2014 09:11:14 +0200
-Message-ID: <20140603071114.GA2653@katana>
-References: <1400247398-23778-1-git-send-email-valentin.longchamp@keymile.com>
- <20140602162719.GI2654@katana>
- <538D7017.40908@keymile.com>
+From: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH] drivers: i2c: i2c-st: Update i2c timings
+Date: Tue, 3 Jun 2014 09:32:44 +0200
+Message-ID: <538D7A1C.5040409@st.com>
+References: <1400254330-2547-1-git-send-email-maxime.coquelin@st.com> <20140602163103.GJ2654@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <538D7017.40908-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20140602163103.GJ2654@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Adrian Cox <adrian-nKrwMtk+6Wm9FHfhHBbuYA@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Kandagatla <srinivas.kandagatla-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 06/02/2014 06:31 PM, Wolfram Sang wrote:
+> On Fri, May 16, 2014 at 05:32:10PM +0200, Maxime COQUELIN wrote:
+>> The i2c timing values specified in the driver are the minimun
+>> values defined in the I2C specifications.
+>> The I2C specification does not specify any default or maximum values.
+>>
+>> Some I2C devices are out of spec, and might not work properly with minimum
+>> values.
+>
+> Can you give names here? Would be interesting to know since a few
+> drivers implement the minimum timings.
 
+I don't have the name actually.
+The request to implement this change came from hw guys.
 
-> > Have you checked other manuals if this always has been the proposed
-> > procedure?
->=20
-> I have just checked the RMs of the Freescale CPUs I am familiar with, and=
- it is
-> the same procedure:
-> - MPC8360E (PowerQUICC II Pro family): 15.5.7
-> - MPC8548E (PowerQUICC III family): 11.5.6
->=20
-> So I think this is the correct procedure for this module according to sev=
-eral RMs.
+>
+>> This patch adds a 10% margin on all the timings.
+>
+> Is there a safety margin or do the devices start to work exactly at 10%?
 
-Thanks.
+10% is a safety margin, I don't know what is the limit.
 
-> >> --- a/drivers/i2c/busses/i2c-mpc.c
-> >> +++ b/drivers/i2c/busses/i2c-mpc.c
-> >> @@ -107,6 +107,7 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_=
-id)
-> >>  static void mpc_i2c_fixup(struct mpc_i2c *i2c)
-> >>  {
-> >>  	int k;
-> >> +	u8 dr;
-> >=20
-> > Looks like we can drop this variable since the value read is not used?
->=20
-> That's correct it is not used. I have added it to make sure that this is =
-not
-> "optimized" out but I guess the readb call is enough for this purpose ?
+>
+>>
+>> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+>> ---
+>>   drivers/i2c/busses/i2c-st.c | 24 ++++++++++++------------
+>>   1 file changed, 12 insertions(+), 12 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
+>> index 8720161..09142f1 100644
+>> --- a/drivers/i2c/busses/i2c-st.c
+>> +++ b/drivers/i2c/busses/i2c-st.c
+>> @@ -210,21 +210,21 @@ static inline void st_i2c_clr_bits(void __iomem *reg, u32 mask)
+>>   static struct st_i2c_timings i2c_timings[] = {
+>
+> That needs a comment about the margin, otherwise people will wonder
+> where these values come from.
 
-I'd think so, but it needs your test :)
+Ok, I will add a comment in the v2.
 
-
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTjXUSAAoJEBQN5MwUoCm28pQP/iuFcPloKtwG5XUc0jMEtk6B
-v69o301QCO0Bf9+5KKcuxkjyzLYhYvK585yvlxMD/6s0RD4ZebKX15fT5CVhgMqR
-r/ffqhAkYCfCJm8YEywSIh7bFH6+EJcziOeSkwALdW62EP/xRZzDP7zQfuaMMZht
-XtbcrR9oj/vPYV9LVtMlT+96TmQeQeRzwj4Od4wz9K+jY69kJIgYcAzDC6UGcRkf
-bUcfv7YBqWSvrYW7mkAUnp1VaO6PhdxElgz01A7LiKFHSaBwLZ8wkVREgEyVzpfV
-ZX3T2XsIBpZbGKWJF7qjYm0BwFP7QT4UHXZj38da6v0aCudRz7Cghp/hhwUw3iYK
-MxY1Fh10+fuB3Hkc7DuTzjHs2Xkt2PhPlHyyS1Ubb7eM6+ez3mGVTptM7TKSzJf9
-6mas0iGu0DvNMQCOGAUgESi7cCOwmCx9dqsW2IYulwnmR7mOBBBa1FjrvmuOXswy
-+aw/ZnMHPV8bYLsdTrJd0O1Ou9JUX513iqgxXWjb/nBl5JSEmEsOcE0ULVs76uv3
-OsmZ4XJree57cHr2/bTHLhZuGcBuzEV+HVZ7bkI93z36gIrB8V6wTy2Qfmacuu5n
-7uEH9fRCAdEpge+DTvWqqB6ew+oHTgrwSflMIu9ypZmOpU2Xr8FXjq2/rCYAQ6FL
-S1s96FTf2ZdSkKuGOKuJ
-=G9f4
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+>
+>>   	[I2C_MODE_STANDARD] = {
+>>   		.rate			= 100000,
+>> -		.rep_start_hold		= 4000,
+>> -		.rep_start_setup	= 4700,
+>> -		.start_hold		= 4000,
+>> -		.data_setup_time	= 250,
+>> -		.stop_setup_time	= 4000,
+>> -		.bus_free_time		= 4700,
+>> +		.rep_start_hold		= 4400,
+>> +		.rep_start_setup	= 5170,
+>> +		.start_hold		= 4400,
+>> +		.data_setup_time	= 275,
+>> +		.stop_setup_time	= 4400,
+>> +		.bus_free_time		= 5170,
+>>   	},
+>>   	[I2C_MODE_FAST] = {
+>>   		.rate			= 400000,
+>> -		.rep_start_hold		= 600,
+>> -		.rep_start_setup	= 600,
+>> -		.start_hold		= 600,
+>> -		.data_setup_time	= 100,
+>> -		.stop_setup_time	= 600,
+>> -		.bus_free_time		= 1300,
+>> +		.rep_start_hold		= 660,
+>> +		.rep_start_setup	= 660,
+>> +		.start_hold		= 660,
+>> +		.data_setup_time	= 110,
+>> +		.stop_setup_time	= 660,
+>> +		.bus_free_time		= 1430,
+>>   	},
+>>   };
+>>
+>> --
+>> 1.9.1
+>>
