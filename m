@@ -1,48 +1,31 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] i2c: Make I2C ID tables non-mandatory for DT'ed and/or
- ACPI'ed devices
-Date: Tue, 3 Jun 2014 13:18:15 +0200
-Message-ID: <CACRpkdbo9_xo6j7JBcjiuk6eYkqyaeMYLFsH3VczxotOmVRh1Q@mail.gmail.com>
-References: <1401452797-29521-1-git-send-email-lee.jones@linaro.org>
-	<1401452797-29521-2-git-send-email-lee.jones@linaro.org>
-	<20140530123656.GC2742@katana>
-	<20140530133405.GB29731@lee--X1>
-	<20140530174800.GA4917@katana>
-	<20140530192516.GA4319@lee--X1>
-	<20140531134805.GA3287@katana>
-	<CACRpkdZvyfA0aaJe3YuevXfA2pTZLRPZ3mQpitL6qD7=qE0Xyg@mail.gmail.com>
-	<538C8A59.2070907@gmx.de>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: pca954x: Use the descriptor-based GPIO API
+Date: Tue, 3 Jun 2014 13:19:41 +0200
+Message-ID: <CACRpkdbnQayorTO9H0A7UM3L4NpcpPHkk78fNg-0Ss14-Rp43A@mail.gmail.com>
+References: <1401754973-13274-1-git-send-email-laurent.pinchart@ideasonboard.com>
+	<1401794126-22244-1-git-send-email-laurent.pinchart@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <538C8A59.2070907@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Lawnick <ml.lawnick@gmx.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1401794126-22244-1-git-send-email-laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 2, 2014 at 4:29 PM, Michael Lawnick <ml.lawnick@gmx.de> wrote:
-> Am 02.06.2014 14:16, schrieb Linus Walleij:
+On Tue, Jun 3, 2014 at 1:15 PM, Laurent Pinchart
+<laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org> wrote:
 
->> Is this really so useful on embedded systems?
->>
->> I was under the impression that this method was something used
->> on say PC desktops with temperature monitors and EEPROMs
->> on some I2C link on the PCB, usage entirely optional and fun
->> for userspace hacks.
->>
-> We use it for dynamic instantiating whole subsystems with multiplexers,
-> sensors, controllers in an embedded system. The device list is taken from an
-> I2C eeprom which gets read on hotplug.
+> The ID-based GPIO API pushes handling of GPIO polarity to drivers.
+> Simplify the driver by switching to the descriptor-based GPIO API.
+>
+> This also fixes a mismatch between the pca954x DT bindings that document
+> a "reset-gpios" property and the driver that requests a "reset-gpio"
+> property.
+>
+> Signed-off-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 
-Does this mean that you have stored the names (strings) that are used
-by the Linux kernel for identifying the devices into your EEPROM?
-
-That means that you have made the kernel-internal device driver names
-an ABI which is unfortunate :-/
-
-This is one of the reasons to why we insist on device tree: OS neutral
-hardware description.
+Reviewed-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
 Yours,
 Linus Walleij
