@@ -1,31 +1,39 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: pca954x: Use the descriptor-based GPIO API
-Date: Tue, 3 Jun 2014 13:19:41 +0200
-Message-ID: <CACRpkdbnQayorTO9H0A7UM3L4NpcpPHkk78fNg-0Ss14-Rp43A@mail.gmail.com>
-References: <1401754973-13274-1-git-send-email-laurent.pinchart@ideasonboard.com>
-	<1401794126-22244-1-git-send-email-laurent.pinchart@ideasonboard.com>
+From: Sachin Kamat <sachin.kamat@samsung.com>
+Subject: Re: [PATCH 1/1] i2c: s3c2410: Remove class based instantiation
+Date: Tue, 3 Jun 2014 16:51:14 +0530
+Message-ID: <CAK5sBcEkCy0kDL_bG_RsDJ6nwuqZeAGN0fXpPV-MJkHugxuubw@mail.gmail.com>
+References: <1401786022-29587-1-git-send-email-sachin.kamat@samsung.com>
+	<20140603100546.GA12261@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401794126-22244-1-git-send-email-laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140603100546.GA12261@katana>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com, ch.naveen@samsung.com, Olof Johansson <olof@lixom.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 3, 2014 at 1:15 PM, Laurent Pinchart
-<laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org> wrote:
+Hi Wolfram,
 
-> The ID-based GPIO API pushes handling of GPIO polarity to drivers.
-> Simplify the driver by switching to the descriptor-based GPIO API.
+On Tue, Jun 3, 2014 at 3:35 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Tue, Jun 03, 2014 at 02:30:22PM +0530, Sachin Kamat wrote:
+>> With multiplatform support enabled for Exynos, class based
+>> instantiation causes a boot time delay due to I2C_CLASS_HWMON
+>> triggered probe. Since class based instantiation has been
+>> deprecated since some time now, remove it for Samsung I2C driver.
+>>
+>> Signed-off-by: Sachin Kamat <sachin.kamat@samsung.com>
+>> Cc: Olof Johansson <olof@lixom.net>
 >
-> This also fixes a mismatch between the pca954x DT bindings that document
-> a "reset-gpios" property and the driver that requests a "reset-gpio"
-> property.
->
-> Signed-off-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+> In my book, not long enough. I suggest I will take care of the removal.
+> I'll do it for all class deprecating drivers.
 
-Reviewed-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+The reason for the removal is the boot delay it is causing on Exynos 5250
+based boards by throwing the following errors continuously.
 
-Yours,
-Linus Walleij
+[   55.005300] s3c-i2c 12ce0000.i2c: cannot get bus (error -110)
+[   59.005300] s3c-i2c 12ce0000.i2c: cannot get bus (error -110)
+[   63.005300] s3c-i2c 12ce0000.i2c: cannot get bus (error -110)
+
+Regards,
+Sachin
