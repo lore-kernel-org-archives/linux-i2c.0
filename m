@@ -1,83 +1,58 @@
-From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: Make I2C ID tables non-mandatory for DT'ed
- and/or ACPI'ed devices
-Date: Tue, 03 Jun 2014 10:18:32 +0100
-Message-ID: <20140603091832.15965C40D3B@trevor.secretlab.ca>
-References: <1401716463-23457-1-git-send-email-lee.jones@linaro.org>
-	<1401716463-23457-4-git-send-email-lee.jones@linaro.org>
-	<20140602160829.F3519C40476@trevor.secretlab.ca>
-	<20140603081109.GD3060@lee--X1>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/1] i2c: s3c2410: Remove class based instantiation
+Date: Tue, 3 Jun 2014 12:05:46 +0200
+Message-ID: <20140603100546.GA12261@katana>
+References: <1401786022-29587-1-git-send-email-sachin.kamat@samsung.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140603081109.GD3060@lee--X1>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1401786022-29587-1-git-send-email-sachin.kamat@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Sachin Kamat <sachin.kamat@samsung.com>
+Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com, ch.naveen@samsung.com, spk.linux@gmail.com, Olof Johansson <olof@lixom.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 3 Jun 2014 09:11:09 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wro=
-te:
-> On Mon, 02 Jun 2014, Grant Likely wrote:
-> > On Mon,  2 Jun 2014 14:41:03 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org=
-> wrote:
-> > > Currently the I2C framework insists on devices supplying an I2C I=
-D
-> > > table.  Many of the devices which do so unnecessarily adding quit=
-e a
-> > > few wasted lines to kernel code.  This patch allows drivers a mea=
-ns
-> > > to 'not' supply the aforementioned table and match on either DT
-> > > and/or ACPI match tables instead.
-> > >=20
-> > > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> >=20
-> > Looks reasonable.
->=20
-> Can I add your Ack?
 
-Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Jun 03, 2014 at 02:30:22PM +0530, Sachin Kamat wrote:
+> With multiplatform support enabled for Exynos, class based
+> instantiation causes a boot time delay due to I2C_CLASS_HWMON
+> triggered probe. Since class based instantiation has been
+> deprecated since some time now, remove it for Samsung I2C driver.
 >=20
-> > g.
-> >=20
-> > > ---
-> > >  drivers/i2c/i2c-core.c | 13 ++++++++++++-
-> > >  1 file changed, 12 insertions(+), 1 deletion(-)
-> > >=20
-> > > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > > index d0c7180..811b78f 100644
-> > > --- a/drivers/i2c/i2c-core.c
-> > > +++ b/drivers/i2c/i2c-core.c
-> > > @@ -271,7 +271,18 @@ static int i2c_device_probe(struct device *d=
-ev)
-> > >  		return 0;
-> > > =20
-> > >  	driver =3D to_i2c_driver(dev->driver);
-> > > -	if (!driver->probe || !driver->id_table)
-> > > +	if (!driver->probe)
-> > > +		return -EINVAL;
-> > > +
-> > > +	/*
-> > > +	 * An I2C ID table is not madatory, if and only if, a suitable =
-Device
-> > > +	 * Tree and/or ACPI match table entry is supplied for the probi=
-ng
-> > > +	 * device.
-> > > +	 *
-> > > +	 * TODO: Provide 'device type' to 'ACPI node' call and match he=
-re.
-> > > +	 */
-> > > +	if (!driver->id_table &&
-> > > +	    !of_match_device(dev->driver->of_match_table, dev))
-> > >  		return -ENODEV;
-> > > =20
-> > >  	if (!device_can_wakeup(&client->dev))
-> >=20
->=20
-> --=20
-> Lee Jones
-> Linaro STMicroelectronics Landing Team Lead
-> Linaro.org =E2=94=82 Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
+> Signed-off-by: Sachin Kamat <sachin.kamat@samsung.com>
+> Cc: Olof Johansson <olof@lixom.net>
+
+In my book, not long enough. I suggest I will take care of the removal.
+I'll do it for all class deprecating drivers.
+
+
+--gKMricLos+KVdGMg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTjZ36AAoJEBQN5MwUoCm2bUsP/0QhGDuOWnZ4WYq2u/z74BjT
+4ox6HZyMl5JK2l+XoPVnbXMJWlom/jHGfAS0uYx979+8gFwPvW8rpd+75P+mTjxq
+BgEkfPS1UrY/fes+mCzATx6Jj1jPqRsZCCEMMVGrH1l5EKHdlvAyEc5LVjy9+aG6
+MGhph0Fq/U9dfodnOKZdlzssCXWKLoptEApHNJaIWbkHLwMG4JNvcmaR/JQv/Kaz
+qoZ+vthdnu93SUsenpdrEDtapSBFSsHfRHK0NxWgYr1ykEggvxsvXdSB5BNSuV2I
+kIGAP676ZOQTXQviH6psy+nOZp+wfBkrXA0ImSBDT5JcNclTsgczwWZXWJ3vmwMj
+b5zdR3CNmYHUya5qKfzUqLsQASe1SoXSXHEj0wS8t1rH4X7hrio9iXILsXxVEJFX
+kkyMAyGKJ5uF+T8X7823Rs1mmr4+WNKsR6vjEVbHzygBlyPJ/L8FLnD8VsIbtRL6
+kONiCG/rcQdLgdYosXFDqgLncJdnrXldTurZCljIwKDtF1i9t4jLWxQN2AF/EOv5
+TJimTJFEFedzMhZecuvFrK9qB76YqLAvWqtou7SotYKZXZyXyEInfBFVY0dMqJSC
+CHMbWngYFN2PyxgZvDZHL3APSWUMKM1DCTqX0umxWvMpRDfDBud40kI2Bm2XV2gF
+3drtqJGqALKedKZ6OYxY
+=p7QR
+-----END PGP SIGNATURE-----
+
+--gKMricLos+KVdGMg--
