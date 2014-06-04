@@ -1,67 +1,72 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 6/7] of/device: Allow I2C devices to OF match without supplying an OF node
-Date: Wed,  4 Jun 2014 13:09:55 +0100
-Message-ID: <1401883796-17841-7-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 2/7] i2c: Add pointer dereference protection to i2c_match_id()
+Date: Wed,  4 Jun 2014 13:09:51 +0100
+Message-ID: <1401883796-17841-3-git-send-email-lee.jones@linaro.org>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org, Lee Jones <lee.jones@linaro.org>
+Cc: devicetree@vger.kernel.org, wsa@the-dreams.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, grant.likely@linaro.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The I2C framework supplies a means for devices to be registered without
-the requirement for platform_data, DT or ACPI.  The current solution is
-that every single I2C device in the kernel is forced to supply a
-normally empty/sparse I2C ID table so the I2C subsystem can match to.
-In an effort to a) rid the kernel of these tables and b) generify all
-(OF, ACPI and I2C) matching we need to provide some temporary work
-arounds until we can straighten out the blocking factors.
-
-This change is meant to be temporary and will be stripped out once
-we've converted all I2C device drivers from of_match_device() over
-to the new generic match_device().
+Here we're providing dereference protection for i2c_match_id(), which
+saves us having to do it each time it's called.  We're also stripping
+out the (now) needless check in i2c_device_match().  This patch paves
+the way for other, similar code trimming.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/of/device.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/of/device.c b/drivers/of/device.c
-index dafb973..28913bf 100644
---- a/drivers/of/device.c
-+++ b/drivers/of/device.c
-@@ -1,6 +1,7 @@
- #include <linux/string.h>
- #include <linux/kernel.h>
- #include <linux/of.h>
-+#include <linux/i2c.h>
- #include <linux/of_device.h>
- #include <linux/init.h>
- #include <linux/module.h>
-@@ -21,9 +22,22 @@
- const struct of_device_id *of_match_device(const struct of_device_id *matches,
- 					   const struct device *dev)
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 7c7f4b8..d3802dc 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -82,6 +82,9 @@ void i2c_transfer_trace_unreg(void)
+ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+ 						const struct i2c_client *client)
  {
-+	const struct of_device_id *match;
++	if (!(id && client))
++		return NULL;
 +
- 	if ((!matches) || (!dev->of_node))
- 		return NULL;
--	return of_match_node(matches, dev->of_node);
-+
-+	match = of_match_node(matches, dev->of_node);
-+	if (match)
-+		return match;
-+
-+	/*
-+	 * Low impact workaround, until we can convert all I2C compatible
-+	 * strings over to the correctly specified <vendor>,<device> format.
-+	 */
-+	match = i2c_of_match_device_strip_vendor(matches, (struct device *)dev);
-+
-+	return match;
- }
- EXPORT_SYMBOL(of_match_device);
+ 	while (id->name[0]) {
+ 		if (strcmp(client->name, id->name) == 0)
+ 			return id;
+@@ -95,8 +98,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+ 	struct i2c_driver	*driver;
  
+-	if (!client)
+-		return 0;
+ 
+ 	/* Attempt an OF style match */
+ 	if (of_driver_match_device(dev, drv))
+@@ -107,9 +108,10 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ 		return 1;
+ 
+ 	driver = to_i2c_driver(drv);
+-	/* match on an id table if there is one */
+-	if (driver->id_table)
+-		return i2c_match_id(driver->id_table, client) != NULL;
++
++	/* Finally an I2C match */
++	if (i2c_match_id(driver->id_table, client))
++		return 1;
+ 
+ 	return 0;
+ }
 -- 
 1.8.3.2
