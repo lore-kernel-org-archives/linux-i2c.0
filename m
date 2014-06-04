@@ -1,90 +1,64 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4/7] i2c: Match using traditional OF methods,
- then by vendor-less compatible strings
-Date: Wed,  4 Jun 2014 13:09:53 +0100
-Message-ID: <1401883796-17841-5-git-send-email-lee.jones@linaro.org>
-References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
+From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Subject: Re: [PATCH 1/7] ACPICA: Only include ACPI asm files if ACPI is enabled
+Date: Wed, 04 Jun 2014 14:35:33 +0200
+Message-ID: <3061297.feg5DGUjIt@vostro.rjw.lan>
+References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org> <1401883796-17841-2-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: devicetree@vger.kernel.org, wsa@the-dreams.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, grant.likely@linaro.org, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1401883796-17841-2-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This function provides a single call for all I2C devices which need to
-match firstly using traditional OF means i.e by of_node, then if that
-fails we attempt to match using the supplied I2C client name with a
-list of supplied compatible strings with the '<vendor>,' string
-removed.  The latter is required due to the unruly naming conventions
-used currently by I2C devices.
+On Wednesday, June 04, 2014 01:09:50 PM Lee Jones wrote:
+> Any drivers which support ACPI and Device Tree probing need to include
+> both respective header files.  Without this patch, if a driver is being
+> used on a platform which does not support ACPI and subsequently does not
+> have the config option enabled, but includes linux/acpi.h the build
+> breaks with:
+> 
+>   In file included from ../include/acpi/platform/acenv.h:150:0,
+>                    from ../include/acpi/acpi.h:56,
+>                    from ../include/linux/match.h:2,
+>                    from ../drivers/i2c/i2c-core.c:43:
+>   ../include/acpi/platform/aclinux.h:73:23:
+>    fatal error: asm/acenv.h: No such file or directory
+>    #include <asm/acenv.h>
+>                        ^
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/i2c/i2c-core.c | 13 +++++++++++++
- include/linux/i2c.h    |  9 +++++++++
- 2 files changed, 22 insertions(+)
+Which kernel does this happen with?
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 7dcd5c3..e8c2cba 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1115,6 +1115,19 @@ const struct of_device_id
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(i2c_of_match_device_strip_vendor);
-+
-+const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches, struct device *dev)
-+{
-+	const struct of_device_id *match;
-+
-+	match = of_match_device(matches, dev);
-+	if (match)
-+		return match;
-+
-+	return i2c_of_match_device_strip_vendor(matches, dev);
-+}
-+EXPORT_SYMBOL_GPL(i2c_of_match_device);
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index f7ec75b..ab5866f 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -565,6 +565,9 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
- extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
- 
- extern const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches, struct device *dev);
-+
-+extern const struct of_device_id
- *i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
- 				  struct device *dev);
- #else
-@@ -580,6 +583,12 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
- }
- 
- const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches, struct device *dev)
-+{
-+	return NULL;
-+}
-+
-+const struct of_device_id
- *i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
- 				  struct device *dev)
- {
+> Cc: Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Cc: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Cc: linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  include/acpi/platform/aclinux.h | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/acpi/platform/aclinux.h b/include/acpi/platform/aclinux.h
+> index cd1f052..fdf7663 100644
+> --- a/include/acpi/platform/aclinux.h
+> +++ b/include/acpi/platform/aclinux.h
+> @@ -70,9 +70,10 @@
+>  #ifdef EXPORT_ACPI_INTERFACES
+>  #include <linux/export.h>
+>  #endif
+> -#include <asm/acenv.h>
+>  
+> -#ifndef CONFIG_ACPI
+> +#ifdef CONFIG_ACPI
+> +#include <asm/acenv.h>
+> +#else
+>  
+>  /* External globals for __KERNEL__, stubs is needed */
+>  
+> 
+
 -- 
-1.8.3.2
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
