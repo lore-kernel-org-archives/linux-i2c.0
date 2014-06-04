@@ -1,44 +1,42 @@
-From: Michael Lawnick <ml.lawnick@gmx.de>
-Subject: Re: [PATCH] i2c: Make I2C ID tables non-mandatory for DT'ed and/or
- ACPI'ed devices
-Date: Wed, 04 Jun 2014 08:09:31 +0200
-Message-ID: <538EB81B.3090807@gmx.de>
-References: <1401452797-29521-1-git-send-email-lee.jones@linaro.org>	<1401452797-29521-2-git-send-email-lee.jones@linaro.org>	<20140530123656.GC2742@katana>	<20140530133405.GB29731@lee--X1>	<20140530174800.GA4917@katana>	<20140530192516.GA4319@lee--X1>	<20140531134805.GA3287@katana>	<CACRpkdZvyfA0aaJe3YuevXfA2pTZLRPZ3mQpitL6qD7=qE0Xyg@mail.gmail.com>	<538C8A59.2070907@gmx.de> <CACRpkdbo9_xo6j7JBcjiuk6eYkqyaeMYLFsH3VczxotOmVRh1Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdbo9_xo6j7JBcjiuk6eYkqyaeMYLFsH3VczxotOmVRh1Q@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 0/7] i2c: Relax mandatory I2C ID table passing
+Date: Wed,  4 Jun 2014 13:09:49 +0100
+Message-ID: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am 03.06.2014 13:18, schrieb Linus Walleij:
-> On Mon, Jun 2, 2014 at 4:29 PM, Michael Lawnick <ml.lawnick@gmx.de> wrote:
->> Am 02.06.2014 14:16, schrieb Linus Walleij:
->
->>> Is this really so useful on embedded systems?
->>>
->>> I was under the impression that this method was something used
->>> on say PC desktops with temperature monitors and EEPROMs
->>> on some I2C link on the PCB, usage entirely optional and fun
->>> for userspace hacks.
->>>
->> We use it for dynamic instantiating whole subsystems with multiplexers,
->> sensors, controllers in an embedded system. The device list is taken from an
->> I2C eeprom which gets read on hotplug.
->
-> Does this mean that you have stored the names (strings) that are used
-> by the Linux kernel for identifying the devices into your EEPROM?
->
-> That means that you have made the kernel-internal device driver names
-> an ABI which is unfortunate :-/
->
-> This is one of the reasons to why we insist on device tree: OS neutral
-> hardware description.
+Hi Wolfram,
 
-The eeprom contains a device tree that is dynamically merged.
+As previously discussed I believe it should be okay for an I2C device
+driver _not_ supply an I2C ID table to match to.  The I2C subsystem
+should be able to match via other means, such as via OF and/or ACPI
+tables.  The blocking factor during our previous conversation was
+to keep registering via sysfs up and running.  This set does that.
 
-KR
-Michael
+After thinking more deeply about the problem, it occurred to me that
+any I2C device driver which issues an {of,acpi}_match)_device()
+would also fail their probe().  Bolted on to this set is a new, more
+generic way for these devices to match against any of the tables
+which are present in the kernel today i.e. OF, ACPI and I2C.
+
+NB: ACPI is not fully supported, but OF is.
+
+I hope this ticks all of your boxes.
+
+Kind regards,
+Lee
+
+ drivers/i2c/i2c-core.c          | 65 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-------
+ drivers/of/device.c             | 16 +++++++++++++++-
+ include/acpi/platform/aclinux.h |  5 +++--
+ include/linux/i2c.h             | 19 +++++++++++++++++++
+ include/linux/match.h           | 40 ++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 135 insertions(+), 10 deletions(-)
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
