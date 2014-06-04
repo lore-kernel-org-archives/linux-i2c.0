@@ -1,140 +1,57 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/7] i2c: Add the ability to match device to compatible
- string without an of_node
-Date: Wed, 4 Jun 2014 18:55:52 +0100
-Message-ID: <20140604175552.GB19550@lee--X1>
-References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-4-git-send-email-lee.jones@linaro.org>
- <CAL_JsqJOEipHyjD2NCjQd1BvLumnM3PkVDqUjrMNfXCOmXcNAA@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: pca954x: Fix compilation without CONFIG_GPIOLIB
+Date: Wed, 4 Jun 2014 23:02:09 +0200
+Message-ID: <20140604230209.21182dd3@endymion.delvare>
+References: <CA+r1Zhi9Qd4aZ2WJ02K4Gv=zg7QvG+r=t2VpiXRKXcYRc1vt=A@mail.gmail.com>
+	<1401900992-16581-1-git-send-email-laurent.pinchart@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAL_JsqJOEipHyjD2NCjQd1BvLumnM3PkVDqUjrMNfXCOmXcNAA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1401900992-16581-1-git-send-email-laurent.pinchart@ideasonboard.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-next@vger.kernel.org, wsa@the-dreams.de, linus.walleij@linaro.org, paul.gortmaker@windriver.com, jg1.han@samsung.com, Stephen Rothwell <sfr@canb.auug.org.au>, Jim Davis <jim.epost@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 04 Jun 2014, Rob Herring wrote:
-
-> On Wed, Jun 4, 2014 at 7:09 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrot=
-e:
-> > A great deal of I2C devices are currently matched via DT node name,=
- and
-> > as such the compatible naming convention of '<vendor>,<device>' has=
- gone
-> > somewhat awry - some nodes don't supply one, some supply an arbitra=
-ry
-> > string and others the correct device name with an arbitrary vendor =
-prefix.
-> >
-> > In an effort to correct this problem we have to supply a mechanism =
-to
-> > match a device by compatible string AND by simple device name.  Thi=
-s
-> > function strips off the '<vendor>,' part of a supplied compatible s=
-tring
-> > and attempts to match without it.
-> >
-> > The plan is to remove this function once all of the compatible stri=
-ngs
-> > for each device have been brought into line.
+On Wed,  4 Jun 2014 18:56:32 +0200, Laurent Pinchart wrote:
+> The pca954x driver recently switched to the GPIO descriptor API witho=
+ut
+> including the correct <linux/gpio/consumer.h> header. This breaks
+> compilation without CONFIG_GPIOLIB.
 >=20
-> Then should you add a warning for cases needing to be fixed?
+> drivers/i2c/muxes/i2c-mux-pca954x.c: In function =E2=80=98pca954x_pro=
+be=E2=80=99:
+> drivers/i2c/muxes/i2c-mux-pca954x.c:204:2: error: implicit declaratio=
+n
+> of function =E2=80=98devm_gpiod_get=E2=80=99 [-Werror=3Dimplicit-func=
+tion-declaration]
+>   gpio =3D devm_gpiod_get(&client->dev, "reset");
+>   ^
+> drivers/i2c/muxes/i2c-mux-pca954x.c:204:7: warning: assignment makes
+> pointer from integer without a cast [enabled by default]
+>   gpio =3D devm_gpiod_get(&client->dev, "reset");
+>        ^
+> drivers/i2c/muxes/i2c-mux-pca954x.c:206:3: error: implicit declaratio=
+n
+> of function =E2=80=98gpiod_direction_output=E2=80=99
+> [-Werror=3Dimplicit-function-declaration]
+>    gpiod_direction_output(gpio, 0);
+>    ^
+> cc1: some warnings being treated as errors
+> make[3]: *** [drivers/i2c/muxes/i2c-mux-pca954x.o] Error 1
+>=20
+> Fix it by including the right header.
+>=20
+> Reported-by: Jim Davis <jim.epost@gmail.com>
+> Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> (...)
 
-I was just going to go and fix them all, but I could do that as well?
-
-> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > ---
-> >  drivers/i2c/i2c-core.c | 25 +++++++++++++++++++++++++
-> >  include/linux/i2c.h    | 10 ++++++++++
-> >  2 files changed, 35 insertions(+)
-> >
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index d3802dc..7dcd5c3 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -1090,6 +1090,31 @@ struct i2c_adapter *of_find_i2c_adapter_by_n=
-ode(struct device_node *node)
-> >         return i2c_verify_adapter(dev);
-> >  }
-> >  EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
-> > +
-> > +const struct of_device_id
-> > +*i2c_of_match_device_strip_vendor(const struct of_device_id *match=
-es,
-> > +                                 struct device *dev)
-> > +{
-> > +       const struct i2c_client *client =3D i2c_verify_client(dev);
-> > +       const char *name;
-> > +
-> > +       if (!(client && matches))
-> > +               return NULL;
-> > +
-> > +       for (; matches->compatible[0]; matches++) {
-> > +               name =3D strchr(matches->compatible, ',');
-> > +               if (!name)
-> > +                       name =3D matches->compatible;
-> > +               else
-> > +                       name++;
-> > +
-> > +               if (!strncmp(client->name, name, strlen(client->nam=
-e)))
-> > +                       return matches;
-> > +       }
-> > +
-> > +       return NULL;
-> > +}
-> > +EXPORT_SYMBOL_GPL(i2c_of_match_device_strip_vendor);
-> >  #else
-> >  static void of_i2c_register_devices(struct i2c_adapter *adap) { }
-> >  #endif /* CONFIG_OF */
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index b556e0a..f7ec75b 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -564,6 +564,9 @@ extern struct i2c_client *of_find_i2c_device_by=
-_node(struct device_node *node);
-> >  /* must call put_device() when done with returned i2c_adapter devi=
-ce */
-> >  extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct devi=
-ce_node *node);
-> >
-> > +extern const struct of_device_id
-> > +*i2c_of_match_device_strip_vendor(const struct of_device_id *match=
-es,
-> > +                                 struct device *dev);
-> >  #else
-> >
-> >  static inline struct i2c_client *of_find_i2c_device_by_node(struct=
- device_node *node)
-> > @@ -575,6 +578,13 @@ static inline struct i2c_adapter *of_find_i2c_=
-adapter_by_node(struct device_node
-> >  {
-> >         return NULL;
-> >  }
-> > +
-> > +const struct of_device_id
-> > +*i2c_of_match_device_strip_vendor(const struct of_device_id *match=
-es,
-> > +                                 struct device *dev)
-> > +{
-> > +       return NULL;
-> > +}
-> >  #endif /* CONFIG_OF */
-> >
-> >  #endif /* _LINUX_I2C_H */
-> >
+Acked-by: Jean Delvare <jdelvare@suse.de>
 
 --=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jean Delvare
+SUSE L3 Support
