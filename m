@@ -1,54 +1,97 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 1/7] ACPICA: Only include ACPI asm files if ACPI is enabled
-Date: Wed,  4 Jun 2014 13:09:50 +0100
-Message-ID: <1401883796-17841-2-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 3/7] i2c: Add the ability to match device to compatible string without an of_node
+Date: Wed,  4 Jun 2014 13:09:52 +0100
+Message-ID: <1401883796-17841-4-git-send-email-lee.jones@linaro.org>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org, Lee Jones <lee.jones@linaro.org>, Lv Zheng <lv.zheng@intel.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, devel@acpica.org
+Cc: wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Any drivers which support ACPI and Device Tree probing need to include
-both respective header files.  Without this patch, if a driver is being
-used on a platform which does not support ACPI and subsequently does not
-have the config option enabled, but includes linux/acpi.h the build
-breaks with:
+A great deal of I2C devices are currently matched via DT node name, and
+as such the compatible naming convention of '<vendor>,<device>' has gone
+somewhat awry - some nodes don't supply one, some supply an arbitrary
+string and others the correct device name with an arbitrary vendor prefix.
 
-  In file included from ../include/acpi/platform/acenv.h:150:0,
-                   from ../include/acpi/acpi.h:56,
-                   from ../include/linux/match.h:2,
-                   from ../drivers/i2c/i2c-core.c:43:
-  ../include/acpi/platform/aclinux.h:73:23:
-   fatal error: asm/acenv.h: No such file or directory
-   #include <asm/acenv.h>
-                       ^
-Cc: Lv Zheng <lv.zheng@intel.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: linux-acpi@vger.kernel.org
-Cc: devel@acpica.org
+In an effort to correct this problem we have to supply a mechanism to
+match a device by compatible string AND by simple device name.  This
+function strips off the '<vendor>,' part of a supplied compatible string
+and attempts to match without it.
+
+The plan is to remove this function once all of the compatible strings
+for each device have been brought into line.
+
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- include/acpi/platform/aclinux.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core.c | 25 +++++++++++++++++++++++++
+ include/linux/i2c.h    | 10 ++++++++++
+ 2 files changed, 35 insertions(+)
 
-diff --git a/include/acpi/platform/aclinux.h b/include/acpi/platform/aclinux.h
-index cd1f052..fdf7663 100644
---- a/include/acpi/platform/aclinux.h
-+++ b/include/acpi/platform/aclinux.h
-@@ -70,9 +70,10 @@
- #ifdef EXPORT_ACPI_INTERFACES
- #include <linux/export.h>
- #endif
--#include <asm/acenv.h>
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index d3802dc..7dcd5c3 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1090,6 +1090,31 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ 	return i2c_verify_adapter(dev);
+ }
+ EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
++
++const struct of_device_id
++*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct device *dev)
++{
++	const struct i2c_client *client = i2c_verify_client(dev);
++	const char *name;
++
++	if (!(client && matches))
++		return NULL;
++
++	for (; matches->compatible[0]; matches++) {
++		name = strchr(matches->compatible, ',');
++		if (!name)
++			name = matches->compatible;
++		else
++			name++;
++
++		if (!strncmp(client->name, name, strlen(client->name)))
++			return matches;
++	}
++
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(i2c_of_match_device_strip_vendor);
+ #else
+ static void of_i2c_register_devices(struct i2c_adapter *adap) { }
+ #endif /* CONFIG_OF */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index b556e0a..f7ec75b 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -564,6 +564,9 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
+ /* must call put_device() when done with returned i2c_adapter device */
+ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
  
--#ifndef CONFIG_ACPI
-+#ifdef CONFIG_ACPI
-+#include <asm/acenv.h>
-+#else
++extern const struct of_device_id
++*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct device *dev);
+ #else
  
- /* External globals for __KERNEL__, stubs is needed */
+ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+@@ -575,6 +578,13 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
+ {
+ 	return NULL;
+ }
++
++const struct of_device_id
++*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct device *dev)
++{
++	return NULL;
++}
+ #endif /* CONFIG_OF */
  
+ #endif /* _LINUX_I2C_H */
 -- 
 1.8.3.2
