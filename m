@@ -1,68 +1,61 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [PATCH 1/7] ACPICA: Only include ACPI asm files if ACPI is
- enabled
-Date: Thu, 5 Jun 2014 04:46:31 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E8802621528@SHSMSX101.ccr.corp.intel.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
+ aforementioned systems
+Date: Thu, 5 Jun 2014 11:00:00 +0300
+Message-ID: <20140605080000.GE5214@lahna.fi.intel.com>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-2-git-send-email-lee.jones@linaro.org>
- <3061297.feg5DGUjIt@vostro.rjw.lan> <20140604125137.GA18171@lee--X1>
- <1AE640813FDE7649BE1B193DEA596E880262042C@SHSMSX101.ccr.corp.intel.com>
- <538FEDE9.4010603@linaro.org>
+ <1401883796-17841-8-git-send-email-lee.jones@linaro.org>
+ <5769487.6cMQUCkisu@vostro.rjw.lan>
+ <20140604125141.GB5214@lahna.fi.intel.com>
+ <20140604132820.GA19550@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <538FEDE9.4010603@linaro.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hanjun Guo <hanjun.guo@linaro.org>, Lee Jones <lee.jones@linaro.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linus.walleij@linaro.org" <linus.walleij@linaro.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "devel@acpica.org" <devel@acpica.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140604132820.GA19550@lee--X1>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGksIA0KDQo+IEZyb206IEhhbmp1biBHdW8gW21haWx0bzpoYW5qdW4uZ3VvQGxpbmFyby5vcmdd
-DQo+IFNlbnQ6IFRodXJzZGF5LCBKdW5lIDA1LCAyMDE0IDEyOjExIFBNDQo+IFRvOiBaaGVuZywg
-THY7IExlZSBKb25lczsgUmFmYWVsIEouIFd5c29ja2kNCj4gDQo+IE9uIDIwMTQtNi01IDk6MTQs
-IFpoZW5nLCBMdiB3cm90ZToNCj4gPiBIaSwgTGVlDQo+ID4NCj4gPj4gRnJvbTogTGVlIEpvbmVz
-IFttYWlsdG86bGVlLmpvbmVzQGxpbmFyby5vcmddDQo+ID4+IFNlbnQ6IFdlZG5lc2RheSwgSnVu
-ZSAwNCwgMjAxNCA4OjUyIFBNDQo+ID4+IFRvOiBSYWZhZWwgSi4gV3lzb2NraQ0KPiA+Pg0KPiA+
-PiBPbiBXZWQsIDA0IEp1biAyMDE0LCBSYWZhZWwgSi4gV3lzb2NraSB3cm90ZToNCj4gPj4NCj4g
-Pj4+IE9uIFdlZG5lc2RheSwgSnVuZSAwNCwgMjAxNCAwMTowOTo1MCBQTSBMZWUgSm9uZXMgd3Jv
-dGU6DQo+ID4+Pj4gQW55IGRyaXZlcnMgd2hpY2ggc3VwcG9ydCBBQ1BJIGFuZCBEZXZpY2UgVHJl
-ZSBwcm9iaW5nIG5lZWQgdG8gaW5jbHVkZQ0KPiA+Pj4+IGJvdGggcmVzcGVjdGl2ZSBoZWFkZXIg
-ZmlsZXMuICBXaXRob3V0IHRoaXMgcGF0Y2gsIGlmIGEgZHJpdmVyIGlzIGJlaW5nDQo+ID4+Pj4g
-dXNlZCBvbiBhIHBsYXRmb3JtIHdoaWNoIGRvZXMgbm90IHN1cHBvcnQgQUNQSSBhbmQgc3Vic2Vx
-dWVudGx5IGRvZXMgbm90DQo+ID4+Pj4gaGF2ZSB0aGUgY29uZmlnIG9wdGlvbiBlbmFibGVkLCBi
-dXQgaW5jbHVkZXMgbGludXgvYWNwaS5oIHRoZSBidWlsZA0KPiA+Pj4+IGJyZWFrcyB3aXRoOg0K
-PiA+Pj4+DQo+ID4+Pj4gICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gLi4vaW5jbHVkZS9hY3BpL3Bs
-YXRmb3JtL2FjZW52Lmg6MTUwOjAsDQo+ID4+Pj4gICAgICAgICAgICAgICAgICAgIGZyb20gLi4v
-aW5jbHVkZS9hY3BpL2FjcGkuaDo1NiwNCj4gPj4+PiAgICAgICAgICAgICAgICAgICAgZnJvbSAu
-Li9pbmNsdWRlL2xpbnV4L21hdGNoLmg6MiwNCj4gPj4+PiAgICAgICAgICAgICAgICAgICAgZnJv
-bSAuLi9kcml2ZXJzL2kyYy9pMmMtY29yZS5jOjQzOg0KPiA+Pj4+ICAgLi4vaW5jbHVkZS9hY3Bp
-L3BsYXRmb3JtL2FjbGludXguaDo3MzoyMzoNCj4gPj4+PiAgICBmYXRhbCBlcnJvcjogYXNtL2Fj
-ZW52Lmg6IE5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkNCj4gPj4+PiAgICAjaW5jbHVkZSA8YXNt
-L2FjZW52Lmg+DQo+ID4+Pj4gICAgICAgICAgICAgICAgICAgICAgICBeDQo+ID4NCj4gPiBOb3Rl
-IHRoYXQ6DQo+ID4gSW4gb3VyIHRyZWU6DQo+ID4gPGFzbS9hY2Vudi5oPiBpcyBvbmx5IGluY2x1
-ZGVkIGJ5IDxhY3BpL2FjcGkuaD4uDQo+ID4gQW5kIDxhY3BpL2FjcGkuaD4gaXMgb25seSBpbmNs
-dWRlZCBieQ0KPiA+IDEuIDxsaW51eC9hY3BpLmg+IHdoZW4gQ09ORklHX0FDUEkgZW5hYmxlZA0K
-PiA+IDIuIDxsaW51eC9zZmlfYWNwaS5oPiAtIHRoaXMgaXMgeDg2IHNwZWNpZmljLCB3ZSdsbCBj
-bGVhbiBpdCB1cCBieSBpbXBsZW1lbnRpbmcgc3R1YnMgZm9yIGFsbCBBQ1BJIGV4dGVybmFsIGlu
-dGVyZmFjZXMuDQo+ID4gU28gdGhlcmUgaXMgbm8gY2FzZSB3ZSBuZWVkIHRvIGV4Y2x1ZGUgPGFz
-bS9hY2Vudi5oPiB3aGVuIENPTkZJR19BQ1BJIGlzIG5vdCBlbmFibGVkLg0KPiA+DQo+ID4gSSBj
-YW5ub3QgZmluZCBsaW51eC9tYXRjaC5oIGhlcmUuDQo+ID4gSWYgPGxpbnV4L21hdGNoLmg+IHdh
-bnQgdG8gaW5jbHVkZSBBQ1BJIGZlYXR1cmVzLCBpdCBzaG91bGRuJ3QgaW5jbHVkZSA8YWNwaS9h
-Y3BpLmg+LCBidXQgc2hvdWxkIGluY2x1ZGUgPGxpbnV4L2FjcGkuaD4uDQo+ID4gUGxlYXNlIHJl
-ZmVyIHRvOg0KPiA+IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvY2dpdC9saW51eC9rZXJuZWwvZ2l0
-L3RvcnZhbGRzL2xpbnV4LmdpdC9jb21taXQvP2lkPThiNDg0NjNmDQo+ID4gQW5kIHN0b3AgaW5j
-bHVkaW5nIDxhY3BpL2FjcGkuaD4gZGlyZWN0bHkgaW4gYW55IGNhc2VzLg0KPiANCj4gQWgsIEkg
-YWdyZWUsIHBsZWFzZSBpZ25vcmUgbXkgcHJldmlvdXMgZW1haWwsDQo+IHNvcnJ5IGZvciB0aGUg
-bm9pc2UuDQo+IA0KPiBTaW5jZSBpdCBpcyB2ZXJ5IGltcG9ydGFudCB0byBpbmNsdWRlIDxsaW51
-eC9hY3BpLmg+IGJ1dCBub3QgPGFjcGkvYWNwaS5oPiwNCj4gY2FuIHdlIGRvY3VtZW50IGl0IHNv
-bWV3aGVyZSBhcyB0aGUgZ3VpZGFuY2U/IFRoZW4gcGVvcGxlIHdpbGwgbm90DQo+IG1ha2Ugc3Vj
-aCBtaXN0YWtlIDopDQoNCkFmdGVyIEkgdGVzdCB0aGUgQUNQSUNBIHN0dWJzIGFuZCByZW1vdmUg
-dGhlIG9ubHkgYWJub3JtYWwgZGlyZWN0IDxhY3BpL2FjcGkuaD4gaW5jbHVzaW9uIGZyb20gPGxp
-bnV4L3NmaV9hY3BpLmg+Lg0KV2UgY291bGQgaGF2ZSBhIGNvbW1pdCB0byBhZGQgc29tZXRoaW5n
-IGxpa2U6DQoNCiNpZm5kZWYgX0xJTlVYX0FDUElfSA0KI2Vycm9yIC4uLi4NCiNlbmRpZg0KVG8g
-dGhlIDxhY3BpL3BsYXRmb3JtL2FjbGludXguaD4gKHRoZSBMaW51eCBPU0wgZm9yIEFDUElDQSBo
-ZWFkZXJzLCBpdCBpcyBpbmNsdWRlZCBieSA8YWNwaS9hY3BpLmg+KS4NCkhvcGUgdGhpcyBjYW4g
-YmUgdGhlIGhpbnQgdG8gcHJldmVudCBmdXR1cmUgbWlzdGFrZXMuDQoNClRoYW5rcyBhbmQgYmVz
-dCByZWdhcmRzDQotTHYNCg0KDQo+IA0KPiBUaGFua3MNCj4gSGFuanVuDQoNCg==
+On Wed, Jun 04, 2014 at 02:28:20PM +0100, Lee Jones wrote:
+> On Wed, 04 Jun 2014, Mika Westerberg wrote:
+> > On Wed, Jun 04, 2014 at 02:37:42PM +0200, Rafael J. Wysocki wrote:
+> > > On Wednesday, June 04, 2014 01:09:56 PM Lee Jones wrote:
+> > > > Currently this is a helper function for the I2C subsystem to aid the
+> > > > matching of non-standard compatible strings and devices which use DT
+> > > > and/or ACPI, but do not supply any nodes (see: [1] Method 4).  However,
+> > > > it has been made more generic as it can be used to only make one call
+> > > > for drivers which support any mixture of OF, ACPI and/or I2C matching.
+> > > > 
+> > > > The initial aim is for of_match_device() to be replaced by this call
+> > > > in all I2C device drivers.
+> > > > 
+> > > > [1] Documentation/i2c/instantiating-devices
+> > > > 
+> > > > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > > 
+> > > Mika, can you please have a look at this, please?
+> > 
+> > I don't see any fundamental problems with this wrt. ACPI.
+> > 
+> > That said, I find it kind of weird to have generic function that then
+> > has knowledge of how different buses do their matching.
+> > 
+> > I would rather see something like firmware_device_match(dev) that goes
+> > and matches from DT/ACPI and leave bus specific match to happen internal
+> > to that bus.
+> 
+> Unfortunately that completely defeats the object of the patch.  When a
+> of_match_device() is invoked it solely looks up devices based on OF
+> matching, but I2C is special in that devices can be registered via
+> sysfs, thus will no have device node.  If of_match_device() is called
+> in one of these instances it will fail.  The idea of this patch is to
+> generify the matching into something does has the knowledge to firstly
+> attempt a traditional match, and if that fails will fall back to a
+> special i2c_{of,acpi}_match_device() which knows how to deal with
+> node-less registration.
+
+OK, then but since this is now I2C specific, why call it device_match()
+instead of something like i2c_device_match()? Or do you have plans to
+add there more knowledge about other buses like SPI and PCI to name few?
