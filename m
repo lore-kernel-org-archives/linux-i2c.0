@@ -1,58 +1,88 @@
-From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
  aforementioned systems
-Date: Thu, 5 Jun 2014 16:41:34 +0100
-Message-ID: <CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
+Date: Thu, 5 Jun 2014 16:55:09 +0100
+Message-ID: <20140605155509.GH24240@lee--X1>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-8-git-send-email-lee.jones@linaro.org> <20140605103009.85BE4C40A4D@trevor.secretlab.ca>
+ <1401883796-17841-8-git-send-email-lee.jones@linaro.org>
+ <20140605103009.85BE4C40A4D@trevor.secretlab.ca>
  <20140605103709.GE19550@lee--X1>
+ <CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140605103709.GE19550@lee--X1>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grant Likely <grant.likely@linaro.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 5, 2014 at 11:37 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Thu, 05 Jun 2014, Grant Likely wrote:
->
->> On Wed,  4 Jun 2014 13:09:56 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> > Currently this is a helper function for the I2C subsystem to aid the
->> > matching of non-standard compatible strings and devices which use DT
->> > and/or ACPI, but do not supply any nodes (see: [1] Method 4).  However,
->> > it has been made more generic as it can be used to only make one call
->> > for drivers which support any mixture of OF, ACPI and/or I2C matching.
->> >
->> > The initial aim is for of_match_device() to be replaced by this call
->> > in all I2C device drivers.
->> >
->> > [1] Documentation/i2c/instantiating-devices
->> >
->> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->>
->> I don't like this. It drops all type safety on the match entry
->> and the caller has no idea what it got back.
->
-> Okay, so what's the best way forward?
->
-> Introduce a i2c_of_match_device() call instead?
+On Thu, 05 Jun 2014, Grant Likely wrote:
+> On Thu, Jun 5, 2014 at 11:37 AM, Lee Jones <lee.jones@linaro.org> wro=
+te:
+> > On Thu, 05 Jun 2014, Grant Likely wrote:
+> >
+> >> On Wed,  4 Jun 2014 13:09:56 +0100, Lee Jones <lee.jones@linaro.or=
+g> wrote:
+> >> > Currently this is a helper function for the I2C subsystem to aid=
+ the
+> >> > matching of non-standard compatible strings and devices which us=
+e DT
+> >> > and/or ACPI, but do not supply any nodes (see: [1] Method 4).  H=
+owever,
+> >> > it has been made more generic as it can be used to only make one=
+ call
+> >> > for drivers which support any mixture of OF, ACPI and/or I2C mat=
+ching.
+> >> >
+> >> > The initial aim is for of_match_device() to be replaced by this =
+call
+> >> > in all I2C device drivers.
+> >> >
+> >> > [1] Documentation/i2c/instantiating-devices
+> >> >
+> >> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> >>
+> >> I don't like this. It drops all type safety on the match entry
+> >> and the caller has no idea what it got back.
+> >
+> > Okay, so what's the best way forward?
+> >
+> > Introduce a i2c_of_match_device() call instead?
+>=20
+> I still think the way to do it is to emulate the missing i2c_device_i=
+d
+> when calling the drivers .probe() hook by having a temporary copy on
+> the stack and filling it with data from the OF or ACPI table....
 
-I still think the way to do it is to emulate the missing i2c_device_id
-when calling the drivers .probe() hook by having a temporary copy on
-the stack and filling it with data from the OF or ACPI table....
-Actually I would completely skip trying to get the data from ACPI.
-Since all of this is to continue supporting instantiating devices from
-sysfs, having a fallback to the OF table completely solves that use
-case.
+That's the opposite of what I'm trying to achieve.  I'm trying to get
+rid of unused i2c_device_id tables, rather than reinforce their
+mandatory existence.  I think an i2c_of_match_device() with knowledge
+of how to match via pure DT principles (of_node/compatible) and a
+fall-back, which is able to match on a provided of_device_id table
+alone i.e. without the requirement of an existing of_node.
 
-Anticipating an objection of: "what do we do with drivers that are
-ACPI only?"... That will be an incredibly rare case. If that ever does
-happen then we'll solve it by simply adding an of_device_id table.
+I've also been mulling over the idea of removing the second probe()
+parameter, as suggested by Wolfram.  However, this has quite deep
+ramifications which would require a great deal of driver adaptions.
 
-g.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Actually I would completely skip trying to get the data from ACPI.
+> Since all of this is to continue supporting instantiating devices fro=
+m
+> sysfs, having a fallback to the OF table completely solves that use
+> case.
+
+> Anticipating an objection of: "what do we do with drivers that are
+> ACPI only?"... That will be an incredibly rare case. If that ever doe=
+s
+> happen then we'll solve it by simply adding an of_device_id table.
+
+I'm fine with leaving out ACPI support for now.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
