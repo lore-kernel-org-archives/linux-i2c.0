@@ -1,72 +1,82 @@
-From: "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH 1/7] ACPICA: Only include ACPI asm files if ACPI is
- enabled
-Date: Thu, 5 Jun 2014 01:14:54 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E880262042C@SHSMSX101.ccr.corp.intel.com>
-References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-2-git-send-email-lee.jones@linaro.org>
- <3061297.feg5DGUjIt@vostro.rjw.lan> <20140604125137.GA18171@lee--X1>
+From: Jingoo Han <jg1.han@samsung.com>
+Subject: Re: [PATCH] i2c: pca954x: Fix compilation without CONFIG_GPIOLIB
+Date: Thu, 05 Jun 2014 10:57:41 +0900
+Message-ID: <007001cf8061$89337e30$9b9a7a90$%han@samsung.com>
+References: <CA+r1Zhi9Qd4aZ2WJ02K4Gv=zg7QvG+r=t2VpiXRKXcYRc1vt=A@mail.gmail.com>
+ <1401900992-16581-1-git-send-email-laurent.pinchart@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140604125137.GA18171@lee--X1>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "Wysocki, Rafael J" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org" <devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-next-owner@vger.kernel.org>
+In-reply-to: <1401900992-16581-1-git-send-email-laurent.pinchart@ideasonboard.com>
+Content-language: ko
+Sender: linux-next-owner@vger.kernel.org
+To: 'Laurent Pinchart' <laurent.pinchart@ideasonboard.com>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-next@vger.kernel.org, wsa@the-dreams.de, khali@linux-fr.org, linus.walleij@linaro.org, paul.gortmaker@windriver.com, 'Stephen Rothwell' <sfr@canb.auug.org.au>, 'Jim Davis' <jim.epost@gmail.com>, 'Jingoo Han' <jg1.han@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-SGksIExlZQ0KDQo+IEZyb206IExlZSBKb25lcyBbbWFpbHRvOmxlZS5qb25lc0BsaW5hcm8ub3Jn
-XQ0KPiBTZW50OiBXZWRuZXNkYXksIEp1bmUgMDQsIDIwMTQgODo1MiBQTQ0KPiBUbzogUmFmYWVs
-IEouIFd5c29ja2kNCj4gDQo+IE9uIFdlZCwgMDQgSnVuIDIwMTQsIFJhZmFlbCBKLiBXeXNvY2tp
-IHdyb3RlOg0KPiANCj4gPiBPbiBXZWRuZXNkYXksIEp1bmUgMDQsIDIwMTQgMDE6MDk6NTAgUE0g
-TGVlIEpvbmVzIHdyb3RlOg0KPiA+ID4gQW55IGRyaXZlcnMgd2hpY2ggc3VwcG9ydCBBQ1BJIGFu
-ZCBEZXZpY2UgVHJlZSBwcm9iaW5nIG5lZWQgdG8gaW5jbHVkZQ0KPiA+ID4gYm90aCByZXNwZWN0
-aXZlIGhlYWRlciBmaWxlcy4gIFdpdGhvdXQgdGhpcyBwYXRjaCwgaWYgYSBkcml2ZXIgaXMgYmVp
-bmcNCj4gPiA+IHVzZWQgb24gYSBwbGF0Zm9ybSB3aGljaCBkb2VzIG5vdCBzdXBwb3J0IEFDUEkg
-YW5kIHN1YnNlcXVlbnRseSBkb2VzIG5vdA0KPiA+ID4gaGF2ZSB0aGUgY29uZmlnIG9wdGlvbiBl
-bmFibGVkLCBidXQgaW5jbHVkZXMgbGludXgvYWNwaS5oIHRoZSBidWlsZA0KPiA+ID4gYnJlYWtz
-IHdpdGg6DQo+ID4gPg0KPiA+ID4gICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gLi4vaW5jbHVkZS9h
-Y3BpL3BsYXRmb3JtL2FjZW52Lmg6MTUwOjAsDQo+ID4gPiAgICAgICAgICAgICAgICAgICAgZnJv
-bSAuLi9pbmNsdWRlL2FjcGkvYWNwaS5oOjU2LA0KPiA+ID4gICAgICAgICAgICAgICAgICAgIGZy
-b20gLi4vaW5jbHVkZS9saW51eC9tYXRjaC5oOjIsDQo+ID4gPiAgICAgICAgICAgICAgICAgICAg
-ZnJvbSAuLi9kcml2ZXJzL2kyYy9pMmMtY29yZS5jOjQzOg0KPiA+ID4gICAuLi9pbmNsdWRlL2Fj
-cGkvcGxhdGZvcm0vYWNsaW51eC5oOjczOjIzOg0KPiA+ID4gICAgZmF0YWwgZXJyb3I6IGFzbS9h
-Y2Vudi5oOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5DQo+ID4gPiAgICAjaW5jbHVkZSA8YXNt
-L2FjZW52Lmg+DQo+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgIF4NCg0KTm90ZSB0aGF0Og0K
-SW4gb3VyIHRyZWU6DQo8YXNtL2FjZW52Lmg+IGlzIG9ubHkgaW5jbHVkZWQgYnkgPGFjcGkvYWNw
-aS5oPi4NCkFuZCA8YWNwaS9hY3BpLmg+IGlzIG9ubHkgaW5jbHVkZWQgYnkNCjEuIDxsaW51eC9h
-Y3BpLmg+IHdoZW4gQ09ORklHX0FDUEkgZW5hYmxlZA0KMi4gPGxpbnV4L3NmaV9hY3BpLmg+IC0g
-dGhpcyBpcyB4ODYgc3BlY2lmaWMsIHdlJ2xsIGNsZWFuIGl0IHVwIGJ5IGltcGxlbWVudGluZyBz
-dHVicyBmb3IgYWxsIEFDUEkgZXh0ZXJuYWwgaW50ZXJmYWNlcy4NClNvIHRoZXJlIGlzIG5vIGNh
-c2Ugd2UgbmVlZCB0byBleGNsdWRlIDxhc20vYWNlbnYuaD4gd2hlbiBDT05GSUdfQUNQSSBpcyBu
-b3QgZW5hYmxlZC4NCg0KSSBjYW5ub3QgZmluZCBsaW51eC9tYXRjaC5oIGhlcmUuDQpJZiA8bGlu
-dXgvbWF0Y2guaD4gd2FudCB0byBpbmNsdWRlIEFDUEkgZmVhdHVyZXMsIGl0IHNob3VsZG4ndCBp
-bmNsdWRlIDxhY3BpL2FjcGkuaD4sIGJ1dCBzaG91bGQgaW5jbHVkZSA8bGludXgvYWNwaS5oPi4N
-ClBsZWFzZSByZWZlciB0bzoNCmh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvY2dpdC9saW51eC9rZXJu
-ZWwvZ2l0L3RvcnZhbGRzL2xpbnV4LmdpdC9jb21taXQvP2lkPThiNDg0NjNmDQpBbmQgc3RvcCBp
-bmNsdWRpbmcgPGFjcGkvYWNwaS5oPiBkaXJlY3RseSBpbiBhbnkgY2FzZXMuDQoNClRoYW5rcyBh
-bmQgYmVzdCByZWdhcmRzDQotTHYNCg0KDQo+ID4NCj4gPiBXaGljaCBrZXJuZWwgZG9lcyB0aGlz
-IGhhcHBlbiB3aXRoPw0KPiANCj4gYTBhOTYyZCAodGFnOiByZWZzL3RhZ3MvbmV4dC0yMDE0MDYw
-MiwgcmVmcy9yZW1vdGVzL25leHQvbWFzdGVyKQ0KPiAgIEFkZCBsaW51eC1uZXh0IHNwZWNpZmlj
-IGZpbGVzIGZvciAyMDE0MDYwMg0KPiANCj4gPiA+IENjOiBMdiBaaGVuZyA8bHYuemhlbmdAaW50
-ZWwuY29tPg0KPiA+ID4gQ2M6IFJhZmFlbCBKLiBXeXNvY2tpIDxyYWZhZWwuai53eXNvY2tpQGlu
-dGVsLmNvbT4NCj4gPiA+IENjOiBsaW51eC1hY3BpQHZnZXIua2VybmVsLm9yZw0KPiA+ID4gQ2M6
-IGRldmVsQGFjcGljYS5vcmcNCj4gPiA+IFNpZ25lZC1vZmYtYnk6IExlZSBKb25lcyA8bGVlLmpv
-bmVzQGxpbmFyby5vcmc+DQo+ID4gPiAtLS0NCj4gPiA+ICBpbmNsdWRlL2FjcGkvcGxhdGZvcm0v
-YWNsaW51eC5oIHwgNSArKystLQ0KPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMo
-KyksIDIgZGVsZXRpb25zKC0pDQo+ID4gPg0KPiA+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvYWNw
-aS9wbGF0Zm9ybS9hY2xpbnV4LmggYi9pbmNsdWRlL2FjcGkvcGxhdGZvcm0vYWNsaW51eC5oDQo+
-ID4gPiBpbmRleCBjZDFmMDUyLi5mZGY3NjYzIDEwMDY0NA0KPiA+ID4gLS0tIGEvaW5jbHVkZS9h
-Y3BpL3BsYXRmb3JtL2FjbGludXguaA0KPiA+ID4gKysrIGIvaW5jbHVkZS9hY3BpL3BsYXRmb3Jt
-L2FjbGludXguaA0KPiA+ID4gQEAgLTcwLDkgKzcwLDEwIEBADQo+ID4gPiAgI2lmZGVmIEVYUE9S
-VF9BQ1BJX0lOVEVSRkFDRVMNCj4gPiA+ICAjaW5jbHVkZSA8bGludXgvZXhwb3J0Lmg+DQo+ID4g
-PiAgI2VuZGlmDQo+ID4gPiAtI2luY2x1ZGUgPGFzbS9hY2Vudi5oPg0KPiA+ID4NCj4gPiA+IC0j
-aWZuZGVmIENPTkZJR19BQ1BJDQo+ID4gPiArI2lmZGVmIENPTkZJR19BQ1BJDQo+ID4gPiArI2lu
-Y2x1ZGUgPGFzbS9hY2Vudi5oPg0KPiA+ID4gKyNlbHNlDQo+ID4gPg0KPiA+ID4gIC8qIEV4dGVy
-bmFsIGdsb2JhbHMgZm9yIF9fS0VSTkVMX18sIHN0dWJzIGlzIG5lZWRlZCAqLw0KPiA+ID4NCj4g
-PiA+DQo+ID4NCj4gDQo+IC0tDQo+IExlZSBKb25lcw0KPiBMaW5hcm8gU1RNaWNyb2VsZWN0cm9u
-aWNzIExhbmRpbmcgVGVhbSBMZWFkDQo+IExpbmFyby5vcmcg4pSCIE9wZW4gc291cmNlIHNvZnR3
-YXJlIGZvciBBUk0gU29Dcw0KPiBGb2xsb3cgTGluYXJvOiBGYWNlYm9vayB8IFR3aXR0ZXIgfCBC
-bG9nDQo=
+On Thursday, June 05, 2014 1:57 AM, Laurent Pinchart write/l
+>=20
+> The pca954x driver recently switched to the GPIO descriptor API witho=
+ut
+> including the correct <linux/gpio/consumer.h> header. This breaks
+> compilation without CONFIG_GPIOLIB.
+>=20
+> drivers/i2c/muxes/i2c-mux-pca954x.c: In function =E2=80=98pca954x_pro=
+be=E2=80=99:
+> drivers/i2c/muxes/i2c-mux-pca954x.c:204:2: error: implicit declaratio=
+n
+> of function =E2=80=98devm_gpiod_get=E2=80=99 [-Werror=3Dimplicit-func=
+tion-declaration]
+>   gpio =3D devm_gpiod_get(&client->dev, "reset");
+>   ^
+> drivers/i2c/muxes/i2c-mux-pca954x.c:204:7: warning: assignment makes
+> pointer from integer without a cast [enabled by default]
+>   gpio =3D devm_gpiod_get(&client->dev, "reset");
+>        ^
+> drivers/i2c/muxes/i2c-mux-pca954x.c:206:3: error: implicit declaratio=
+n
+> of function =E2=80=98gpiod_direction_output=E2=80=99
+> [-Werror=3Dimplicit-function-declaration]
+>    gpiod_direction_output(gpio, 0);
+>    ^
+> cc1: some warnings being treated as errors
+> make[3]: *** [drivers/i2c/muxes/i2c-mux-pca954x.o] Error 1
+>=20
+> Fix it by including the right header.
+>=20
+> Reported-by: Jim Davis <jim.epost@gmail.com>
+> Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+Reviewed-by: Jingoo Han <jg1.han@samsung.com>
+
+Best regards,
+Jingoo Han
+
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/=
+i2c-mux-pca954x.c
+> index c2c443f..9bd4212 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -36,12 +36,11 @@
+>   */
+>=20
+>  #include <linux/device.h>
+> -#include <linux/gpio.h>
+> +#include <linux/gpio/consumer.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-mux.h>
+>  #include <linux/i2c/pca954x.h>
+>  #include <linux/module.h>
+> -#include <linux/of_gpio.h>
+>  #include <linux/slab.h>
+>=20
+>  #define PCA954X_MAX_NCHANS 8
+> --
+> Regards,
+>=20
+> Laurent Pinchart
