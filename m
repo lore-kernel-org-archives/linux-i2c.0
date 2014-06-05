@@ -1,98 +1,72 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
- aforementioned systems
-Date: Thu, 5 Jun 2014 09:20:08 +0100
-Message-ID: <20140605082008.GC19550@lee--X1>
+From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 5/7] i2c: Make I2C ID tables non-mandatory for DT'ed
+ and/or ACPI'ed devices
+Date: Thu, 05 Jun 2014 11:27:37 +0100
+Message-ID: <20140605102737.4ED08C40A4D@trevor.secretlab.ca>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-8-git-send-email-lee.jones@linaro.org>
- <5769487.6cMQUCkisu@vostro.rjw.lan>
- <20140604125141.GB5214@lahna.fi.intel.com>
- <20140604132820.GA19550@lee--X1>
- <20140605080000.GE5214@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	<1401883796-17841-6-git-send-email-lee.jones@linaro.org>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140605080000.GE5214-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1401883796-17841-6-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 05 Jun 2014, Mika Westerberg wrote:
-> On Wed, Jun 04, 2014 at 02:28:20PM +0100, Lee Jones wrote:
-> > On Wed, 04 Jun 2014, Mika Westerberg wrote:
-> > > On Wed, Jun 04, 2014 at 02:37:42PM +0200, Rafael J. Wysocki wrote=
-:
-> > > > On Wednesday, June 04, 2014 01:09:56 PM Lee Jones wrote:
-> > > > > Currently this is a helper function for the I2C subsystem to =
-aid the
-> > > > > matching of non-standard compatible strings and devices which=
- use DT
-> > > > > and/or ACPI, but do not supply any nodes (see: [1] Method 4).=
-  However,
-> > > > > it has been made more generic as it can be used to only make =
-one call
-> > > > > for drivers which support any mixture of OF, ACPI and/or I2C =
-matching.
-> > > > >=20
-> > > > > The initial aim is for of_match_device() to be replaced by th=
-is call
-> > > > > in all I2C device drivers.
-> > > > >=20
-> > > > > [1] Documentation/i2c/instantiating-devices
-> > > > >=20
-> > > > > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > > >=20
-> > > > Mika, can you please have a look at this, please?
-> > >=20
-> > > I don't see any fundamental problems with this wrt. ACPI.
-> > >=20
-> > > That said, I find it kind of weird to have generic function that =
-then
-> > > has knowledge of how different buses do their matching.
-> > >=20
-> > > I would rather see something like firmware_device_match(dev) that=
- goes
-> > > and matches from DT/ACPI and leave bus specific match to happen i=
-nternal
-> > > to that bus.
-> >=20
-> > Unfortunately that completely defeats the object of the patch.  Whe=
-n a
-> > of_match_device() is invoked it solely looks up devices based on OF
-> > matching, but I2C is special in that devices can be registered via
-> > sysfs, thus will no have device node.  If of_match_device() is call=
-ed
-> > in one of these instances it will fail.  The idea of this patch is =
-to
-> > generify the matching into something does has the knowledge to firs=
-tly
-> > attempt a traditional match, and if that fails will fall back to a
-> > special i2c_{of,acpi}_match_device() which knows how to deal with
-> > node-less registration.
->=20
-> OK, then but since this is now I2C specific, why call it device_match=
-()
-> instead of something like i2c_device_match()? Or do you have plans to
+On Wed,  4 Jun 2014 13:09:54 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> Currently the I2C framework insists on devices supplying an I2C ID
+> table.  Many of the devices which do so unnecessarily adding quite a
+> few wasted lines to kernel code.  This patch allows drivers a means
+> to 'not' supply the aforementioned table and match on either DT
+> and/or ACPI match tables instead.
+> 
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-So in an early incarnation of the patch I did just that, and it might
-not actually be such a bad idea still - I'm open to other people's
-opinions on this.
+Looks okay to me. I've not applied or tested in any way though.
 
-> add there more knowledge about other buses like SPI and PCI to name f=
-ew?
+Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-=2E.. but yes, this is the new idea - that it can be expanded as requir=
-ed.
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+> ---
+>  drivers/i2c/i2c-core.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index e8c2cba..71970da 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -100,7 +100,7 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+>  
+>  
+>  	/* Attempt an OF style match */
+> -	if (of_driver_match_device(dev, drv))
+> +	if (i2c_of_match_device(drv->of_match_table, dev))
+>  		return 1;
+>  
+>  	/* Then ACPI style match */
+> @@ -268,7 +268,18 @@ static int i2c_device_probe(struct device *dev)
+>  		return 0;
+>  
+>  	driver = to_i2c_driver(dev->driver);
+> -	if (!driver->probe || !driver->id_table)
+> +	if (!driver->probe)
+> +		return -EINVAL;
+> +
+> +	/*
+> +	 * An I2C ID table is not mandatory, if and only if, a suitable Device
+> +	 * Tree and/or ACPI match table entry is supplied for the probing
+> +	 * device.
+> +	 *
+> +	 * TODO: Provide 'device type' to 'ACPI node' call and match here.
+> +	 */
+> +	if (!driver->id_table &&
+> +	    !i2c_of_match_device(dev->driver->of_match_table, dev))
+>  		return -ENODEV;
+>  
+>  	if (!device_can_wakeup(&client->dev))
+> -- 
+> 1.8.3.2
+> 
+
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
