@@ -1,82 +1,76 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: Re: [PATCH] i2c: pca954x: Fix compilation without CONFIG_GPIOLIB
-Date: Thu, 05 Jun 2014 10:57:41 +0900
-Message-ID: <007001cf8061$89337e30$9b9a7a90$%han@samsung.com>
-References: <CA+r1Zhi9Qd4aZ2WJ02K4Gv=zg7QvG+r=t2VpiXRKXcYRc1vt=A@mail.gmail.com>
- <1401900992-16581-1-git-send-email-laurent.pinchart@ideasonboard.com>
+From: Hanjun Guo <hanjun.guo@linaro.org>
+Subject: Re: [PATCH 1/7] ACPICA: Only include ACPI asm files if ACPI is enabled
+Date: Thu, 05 Jun 2014 12:06:43 +0800
+Message-ID: <538FECD3.2000700@linaro.org>
+References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org> <1401883796-17841-2-git-send-email-lee.jones@linaro.org> <1AE640813FDE7649BE1B193DEA596E88026203D0@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-next-owner@vger.kernel.org>
-In-reply-to: <1401900992-16581-1-git-send-email-laurent.pinchart@ideasonboard.com>
-Content-language: ko
-Sender: linux-next-owner@vger.kernel.org
-To: 'Laurent Pinchart' <laurent.pinchart@ideasonboard.com>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-next@vger.kernel.org, wsa@the-dreams.de, khali@linux-fr.org, linus.walleij@linaro.org, paul.gortmaker@windriver.com, 'Stephen Rothwell' <sfr@canb.auug.org.au>, 'Jim Davis' <jim.epost@gmail.com>, 'Jingoo Han' <jg1.han@samsung.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1AE640813FDE7649BE1B193DEA596E88026203D0@SHSMSX101.ccr.corp.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Zheng, Lv" <lv.zheng@intel.com>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linus.walleij@linaro.org" <linus.walleij@linaro.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "devel@acpica.org" <devel@acpica.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, June 05, 2014 1:57 AM, Laurent Pinchart write/l
->=20
-> The pca954x driver recently switched to the GPIO descriptor API witho=
-ut
-> including the correct <linux/gpio/consumer.h> header. This breaks
-> compilation without CONFIG_GPIOLIB.
->=20
-> drivers/i2c/muxes/i2c-mux-pca954x.c: In function =E2=80=98pca954x_pro=
-be=E2=80=99:
-> drivers/i2c/muxes/i2c-mux-pca954x.c:204:2: error: implicit declaratio=
-n
-> of function =E2=80=98devm_gpiod_get=E2=80=99 [-Werror=3Dimplicit-func=
-tion-declaration]
->   gpio =3D devm_gpiod_get(&client->dev, "reset");
->   ^
-> drivers/i2c/muxes/i2c-mux-pca954x.c:204:7: warning: assignment makes
-> pointer from integer without a cast [enabled by default]
->   gpio =3D devm_gpiod_get(&client->dev, "reset");
->        ^
-> drivers/i2c/muxes/i2c-mux-pca954x.c:206:3: error: implicit declaratio=
-n
-> of function =E2=80=98gpiod_direction_output=E2=80=99
-> [-Werror=3Dimplicit-function-declaration]
->    gpiod_direction_output(gpio, 0);
->    ^
-> cc1: some warnings being treated as errors
-> make[3]: *** [drivers/i2c/muxes/i2c-mux-pca954x.o] Error 1
->=20
-> Fix it by including the right header.
->=20
-> Reported-by: Jim Davis <jim.epost@gmail.com>
-> Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Hi Lv,
 
-Reviewed-by: Jingoo Han <jg1.han@samsung.com>
+On 2014-6-5 8:56, Zheng, Lv wrote:
+> Hi, Lee
+> 
+>> From: Lee Jones [mailto:lee.jones@linaro.org]
+>> Sent: Wednesday, June 04, 2014 8:10 PM
+>>
+>> Any drivers which support ACPI and Device Tree probing need to include
+>> both respective header files.  Without this patch, if a driver is being
+>> used on a platform which does not support ACPI and subsequently does not
+>> have the config option enabled, but includes linux/acpi.h the build
+>> breaks with:
+>>
+>>   In file included from ../include/acpi/platform/acenv.h:150:0,
+>>                    from ../include/acpi/acpi.h:56,
+>>                    from ../include/linux/match.h:2,
+>>                    from ../drivers/i2c/i2c-core.c:43:
+>>   ../include/acpi/platform/aclinux.h:73:23:
+>>    fatal error: asm/acenv.h: No such file or directory
+>>    #include <asm/acenv.h>
+>>                        ^
+>> Cc: Lv Zheng <lv.zheng@intel.com>
+>> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>> Cc: linux-acpi@vger.kernel.org
+>> Cc: devel@acpica.org
+>> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+>> ---
+>>  include/acpi/platform/aclinux.h | 5 +++--
+>>  1 file changed, 3 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/include/acpi/platform/aclinux.h b/include/acpi/platform/aclinux.h
+>> index cd1f052..fdf7663 100644
+>> --- a/include/acpi/platform/aclinux.h
+>> +++ b/include/acpi/platform/aclinux.h
+>> @@ -70,9 +70,10 @@
+>>  #ifdef EXPORT_ACPI_INTERFACES
+>>  #include <linux/export.h>
+>>  #endif
+>> -#include <asm/acenv.h>
+>>
+>> -#ifndef CONFIG_ACPI
+>> +#ifdef CONFIG_ACPI
+>> +#include <asm/acenv.h>
+>> +#else
+> 
+> This is exactly what I want to do in the next step.
+> But you are a bit faster here.
+> I believe:
+> The miss-ordered inclusions of <asm/acpi.h> is the culprit of all of the miss-ordered inclusions in arch/x86/include/asm.
+> You should have noted that <asm/acpi.h> was originally unexpected included by some x86 specific headers.
+> Simply doing <asm/acenv.h> exlusion in this way might be able to fix your issue for your architecture, but it could be very likely breaking x86 builds.
+> You might be able to find another way to solve your build issue - for example, creating an empty <asm/acenv.h> for arch/arm.
 
-Best regards,
-Jingoo Han
+Yes, we solve this issue as you suggested for arch/arm64.
+since ARM32 will not support ACPI in the near future,
+we may find another way to fix it.
 
-> ---
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/=
-i2c-mux-pca954x.c
-> index c2c443f..9bd4212 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -36,12 +36,11 @@
->   */
->=20
->  #include <linux/device.h>
-> -#include <linux/gpio.h>
-> +#include <linux/gpio/consumer.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-mux.h>
->  #include <linux/i2c/pca954x.h>
->  #include <linux/module.h>
-> -#include <linux/of_gpio.h>
->  #include <linux/slab.h>
->=20
->  #define PCA954X_MAX_NCHANS 8
-> --
-> Regards,
->=20
-> Laurent Pinchart
+Thanks
+Hanjun
+
