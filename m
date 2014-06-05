@@ -1,78 +1,58 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
+From: "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Subject: RE: [PATCH 1/7] ACPICA: Only include ACPI asm files if ACPI is
  enabled
-Date: Thu, 5 Jun 2014 00:56:51 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E88026203D0@SHSMSX101.ccr.corp.intel.com>
+Date: Thu, 5 Jun 2014 01:01:17 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E88026203F6@SHSMSX101.ccr.corp.intel.com>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-2-git-send-email-lee.jones@linaro.org>
+ <3061297.feg5DGUjIt@vostro.rjw.lan> <20140604125137.GA18171@lee--X1>
+ <1603851.9SBouhvdWS@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1401883796-17841-2-git-send-email-lee.jones@linaro.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1603851.9SBouhvdWS-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
 Content-Language: en-US
-Sender: linux-acpi-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linus.walleij@linaro.org" <linus.walleij@linaro.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "devel@acpica.org" <devel@acpica.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "Wysocki, Rafael J" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org" <devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, Lee
-
-> From: Lee Jones [mailto:lee.jones@linaro.org]
-> Sent: Wednesday, June 04, 2014 8:10 PM
-> 
-> Any drivers which support ACPI and Device Tree probing need to include
-> both respective header files.  Without this patch, if a driver is being
-> used on a platform which does not support ACPI and subsequently does not
-> have the config option enabled, but includes linux/acpi.h the build
-> breaks with:
-> 
->   In file included from ../include/acpi/platform/acenv.h:150:0,
->                    from ../include/acpi/acpi.h:56,
->                    from ../include/linux/match.h:2,
->                    from ../drivers/i2c/i2c-core.c:43:
->   ../include/acpi/platform/aclinux.h:73:23:
->    fatal error: asm/acenv.h: No such file or directory
->    #include <asm/acenv.h>
->                        ^
-> Cc: Lv Zheng <lv.zheng@intel.com>
-> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Cc: linux-acpi@vger.kernel.org
-> Cc: devel@acpica.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  include/acpi/platform/aclinux.h | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/acpi/platform/aclinux.h b/include/acpi/platform/aclinux.h
-> index cd1f052..fdf7663 100644
-> --- a/include/acpi/platform/aclinux.h
-> +++ b/include/acpi/platform/aclinux.h
-> @@ -70,9 +70,10 @@
->  #ifdef EXPORT_ACPI_INTERFACES
->  #include <linux/export.h>
->  #endif
-> -#include <asm/acenv.h>
-> 
-> -#ifndef CONFIG_ACPI
-> +#ifdef CONFIG_ACPI
-> +#include <asm/acenv.h>
-> +#else
-
-This is exactly what I want to do in the next step.
-But you are a bit faster here.
-I believe:
-The miss-ordered inclusions of <asm/acpi.h> is the culprit of all of the miss-ordered inclusions in arch/x86/include/asm.
-You should have noted that <asm/acpi.h> was originally unexpected included by some x86 specific headers.
-Simply doing <asm/acenv.h> exlusion in this way might be able to fix your issue for your architecture, but it could be very likely breaking x86 builds.
-You might be able to find another way to solve your build issue - for example, creating an empty <asm/acenv.h> for arch/arm.
-
-Thanks and best regards
--Lv
-
-> 
->  /* External globals for __KERNEL__, stubs is needed */
-> 
-> --
-> 1.8.3.2
-
+SGksDQoNCj4gRnJvbTogbGludXgtaTJjLW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmxp
+bnV4LWkyYy1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBSYWZhZWwgSi4gV3lz
+b2NraQ0KPiBTZW50OiBUaHVyc2RheSwgSnVuZSAwNSwgMjAxNCA1OjMwIEFNDQo+IA0KPiBPbiBX
+ZWRuZXNkYXksIEp1bmUgMDQsIDIwMTQgMDE6NTE6MzcgUE0gTGVlIEpvbmVzIHdyb3RlOg0KPiA+
+IE9uIFdlZCwgMDQgSnVuIDIwMTQsIFJhZmFlbCBKLiBXeXNvY2tpIHdyb3RlOg0KPiA+DQo+ID4g
+PiBPbiBXZWRuZXNkYXksIEp1bmUgMDQsIDIwMTQgMDE6MDk6NTAgUE0gTGVlIEpvbmVzIHdyb3Rl
+Og0KPiA+ID4gPiBBbnkgZHJpdmVycyB3aGljaCBzdXBwb3J0IEFDUEkgYW5kIERldmljZSBUcmVl
+IHByb2JpbmcgbmVlZCB0byBpbmNsdWRlDQo+ID4gPiA+IGJvdGggcmVzcGVjdGl2ZSBoZWFkZXIg
+ZmlsZXMuICBXaXRob3V0IHRoaXMgcGF0Y2gsIGlmIGEgZHJpdmVyIGlzIGJlaW5nDQo+ID4gPiA+
+IHVzZWQgb24gYSBwbGF0Zm9ybSB3aGljaCBkb2VzIG5vdCBzdXBwb3J0IEFDUEkgYW5kIHN1YnNl
+cXVlbnRseSBkb2VzIG5vdA0KPiA+ID4gPiBoYXZlIHRoZSBjb25maWcgb3B0aW9uIGVuYWJsZWQs
+IGJ1dCBpbmNsdWRlcyBsaW51eC9hY3BpLmggdGhlIGJ1aWxkDQo+ID4gPiA+IGJyZWFrcyB3aXRo
+Og0KPiA+ID4gPg0KPiA+ID4gPiAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSAuLi9pbmNsdWRlL2Fj
+cGkvcGxhdGZvcm0vYWNlbnYuaDoxNTA6MCwNCj4gPiA+ID4gICAgICAgICAgICAgICAgICAgIGZy
+b20gLi4vaW5jbHVkZS9hY3BpL2FjcGkuaDo1NiwNCj4gPiA+ID4gICAgICAgICAgICAgICAgICAg
+IGZyb20gLi4vaW5jbHVkZS9saW51eC9tYXRjaC5oOjIsDQo+ID4gPiA+ICAgICAgICAgICAgICAg
+ICAgICBmcm9tIC4uL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmM6NDM6DQo+ID4gPiA+ICAgLi4vaW5j
+bHVkZS9hY3BpL3BsYXRmb3JtL2FjbGludXguaDo3MzoyMzoNCj4gPiA+ID4gICAgZmF0YWwgZXJy
+b3I6IGFzbS9hY2Vudi5oOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5DQo+ID4gPiA+ICAgICNp
+bmNsdWRlIDxhc20vYWNlbnYuaD4NCj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICBeDQo+
+ID4gPg0KPiA+ID4gV2hpY2gga2VybmVsIGRvZXMgdGhpcyBoYXBwZW4gd2l0aD8NCj4gPg0KPiA+
+IGEwYTk2MmQgKHRhZzogcmVmcy90YWdzL25leHQtMjAxNDA2MDIsIHJlZnMvcmVtb3Rlcy9uZXh0
+L21hc3RlcikNCj4gPiAgIEFkZCBsaW51eC1uZXh0IHNwZWNpZmljIGZpbGVzIGZvciAyMDE0MDYw
+Mg0KPiANCj4gSXQgbG9va3MgbGlrZSB0aGUgcHJvYmxlbSBpcyB3aXRoIGluY2x1ZGUvbGludXgv
+bWF0Y2guaCB0aGF0IHNob3VsZCBub3QNCj4gaW5jbHVkZSBhY3BpL2FjcGkuaCBkaXJlY3RseS4N
+Cg0KVGhpcyBpcyBhbm90aGVyIGV4YW1wbGUgdGhhdCBtYW55IG1pcy1vcmRlcmVkIGluY2x1c2lv
+bnMgYXJlIGNhdXNlZCBieSB0aGUgbWlzLW9yZGVyZWQgPGFzbS9hY3BpLmg+IGluY2x1c2lvbi4N
+Cg0KPiANCj4gQnV0IEkgY2FuJ3QgZmluZCB0aGlzIGZpbGUgaW4gdGhlIExpbnVzJyBuZXh0IGJy
+YW5jaCBldmVuLCBzbyBJIGd1ZXNzIGl0J3MNCj4gb24gaXRzIHdheSB0byB0aGF0IGJyYW5jaD8N
+Cj4gDQoNCkkgZ3Vlc3MsDQpJbiB0aGVpciB0cmVlLCB0aGV5IGhhdmUgQ09ORklHX0FDUEkgZW5h
+YmxlZCBmb3IgQVJNLCBidXQgd2UndmUgY2hhbmdlZCB0byBtYWtlOg0KMS4gPGFzbS9hY2Vudi5o
+PiB0aGUgYXJjaGl0ZWN0dXJlIHNwZWNpZmljIGxheWVyIGZvciBBQ1BJQ0EsIGFuZA0KMi4gPGFz
+bS9hY3BpLmg+IGlzIG5vdyB0aGUgYXJjaGl0ZWN0dXJlIHNwZWNpZmljIGxheWVyIGZvciBMaW51
+eCBBQ1BJLg0KU28gdGhleSBuZWVkIHRvIGZvbGxvdyB0aGlzLg0KDQpUaGFua3MgYW5kIGJlc3Qg
+cmVnYXJkcw0KLUx2DQoNCj4gUmFmYWVsDQo+IA0KPiAtLQ0KPiBUbyB1bnN1YnNjcmliZSBmcm9t
+IHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtaTJjIiBpbg0KPiB0
+aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZw0KPiBNb3Jl
+IG1ham9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21ham9yZG9tby1pbmZv
+Lmh0bWwNCg==
