@@ -1,72 +1,87 @@
 From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 5/7] i2c: Make I2C ID tables non-mandatory for DT'ed
- and/or ACPI'ed devices
-Date: Thu, 05 Jun 2014 11:27:37 +0100
-Message-ID: <20140605102737.4ED08C40A4D@trevor.secretlab.ca>
+Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
+ aforementioned systems
+Date: Thu, 05 Jun 2014 11:30:09 +0100
+Message-ID: <20140605103009.85BE4C40A4D@trevor.secretlab.ca>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
-	<1401883796-17841-6-git-send-email-lee.jones@linaro.org>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1401883796-17841-6-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+	<1401883796-17841-8-git-send-email-lee.jones@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1401883796-17841-8-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed,  4 Jun 2014 13:09:54 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Currently the I2C framework insists on devices supplying an I2C ID
-> table.  Many of the devices which do so unnecessarily adding quite a
-> few wasted lines to kernel code.  This patch allows drivers a means
-> to 'not' supply the aforementioned table and match on either DT
-> and/or ACPI match tables instead.
+On Wed,  4 Jun 2014 13:09:56 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> Currently this is a helper function for the I2C subsystem to aid the
+> matching of non-standard compatible strings and devices which use DT
+> and/or ACPI, but do not supply any nodes (see: [1] Method 4).  However,
+> it has been made more generic as it can be used to only make one call
+> for drivers which support any mixture of OF, ACPI and/or I2C matching.
+> 
+> The initial aim is for of_match_device() to be replaced by this call
+> in all I2C device drivers.
+> 
+> [1] Documentation/i2c/instantiating-devices
 > 
 > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Looks okay to me. I've not applied or tested in any way though.
+I don't like this. It drops all type safety on the match entry
+and the caller has no idea what it got back.
 
-Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+g.
 
 > ---
->  drivers/i2c/i2c-core.c | 15 +++++++++++++--
->  1 file changed, 13 insertions(+), 2 deletions(-)
+>  include/linux/match.h | 40 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 40 insertions(+)
+>  create mode 100644 include/linux/match.h
 > 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index e8c2cba..71970da 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -100,7 +100,7 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
->  
->  
->  	/* Attempt an OF style match */
-> -	if (of_driver_match_device(dev, drv))
-> +	if (i2c_of_match_device(drv->of_match_table, dev))
->  		return 1;
->  
->  	/* Then ACPI style match */
-> @@ -268,7 +268,18 @@ static int i2c_device_probe(struct device *dev)
->  		return 0;
->  
->  	driver = to_i2c_driver(dev->driver);
-> -	if (!driver->probe || !driver->id_table)
-> +	if (!driver->probe)
-> +		return -EINVAL;
+> diff --git a/include/linux/match.h b/include/linux/match.h
+> new file mode 100644
+> index 0000000..20a08e2
+> --- /dev/null
+> +++ b/include/linux/match.h
+> @@ -0,0 +1,40 @@
+> +#include <linux/of.h>
+> +#include <linux/acpi.h>
+> +#include <linux/i2c.h>
 > +
-> +	/*
-> +	 * An I2C ID table is not mandatory, if and only if, a suitable Device
-> +	 * Tree and/or ACPI match table entry is supplied for the probing
-> +	 * device.
-> +	 *
-> +	 * TODO: Provide 'device type' to 'ACPI node' call and match here.
-> +	 */
-> +	if (!driver->id_table &&
-> +	    !i2c_of_match_device(dev->driver->of_match_table, dev))
->  		return -ENODEV;
->  
->  	if (!device_can_wakeup(&client->dev))
+> +static void *device_match(struct device *dev)
+> +{
+> +	struct device_driver *driver = dev->driver;
+> +
+> +	if (!driver)
+> +		return NULL;
+> +
+> +	/* Attempt an OF style match */
+> +	if (IS_ENABLED(CONFIG_OF)) {
+> +		const struct of_device_id *of_match =
+> +			i2c_of_match_device(driver->of_match_table, dev);
+> +		if (of_match)
+> +			return (void *)of_match;
+> +	}
+> +
+> +	/* Then ACPI style match */
+> +	if (IS_ENABLED(CONFIG_ACPI)) {
+> +		const struct acpi_device_id *acpi_match	=
+> +			acpi_match_device(driver->acpi_match_table, dev);
+> +		if (acpi_match)
+> +			return (void *)acpi_match;
+> +	}
+> +
+> +	/* Finally an I2C match */
+> +	if (IS_ENABLED(CONFIG_I2C)) {
+> +		struct i2c_client *client = i2c_verify_client(dev);
+> +		struct i2c_driver *i2c_drv = to_i2c_driver(driver);
+> +		struct i2c_device_id *i2c_match;
+> +
+> +		i2c_match = i2c_match_id(i2c_drv->id_table, client);
+> +		if (i2c_match)
+> +			return (void *)i2c_match;
+> +	}
+> +
+> +	return NULL;
+> +}
 > -- 
 > 1.8.3.2
 > 
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
