@@ -1,86 +1,91 @@
 From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 7/9] of/device: Allow I2C devices to OF match without
- supplying an OF node
-Date: Sat, 07 Jun 2014 00:28:18 +0100
-Message-ID: <20140606232818.8D870C42604@trevor.secretlab.ca>
-References: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
-	<1402069952-28022-8-git-send-email-lee.jones@linaro.org>
+Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
+ aforementioned systems
+Date: Sat, 07 Jun 2014 00:42:53 +0100
+Message-ID: <20140606234253.A4E25C427F0@trevor.secretlab.ca>
+References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
+	<1401883796-17841-8-git-send-email-lee.jones@linaro.org>
+	<20140605103009.85BE4C40A4D@trevor.secretlab.ca>
+	<20140605103709.GE19550@lee--X1>
+	<CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
+	<20140605155509.GH24240@lee--X1> <20140606102446.GK2520@sirena.org.uk>
+	<20140606123653.GP24240@lee--X1>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1402069952-28022-8-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20140606123653.GP24240@lee--X1>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri,  6 Jun 2014 16:52:30 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> The I2C framework supplies a means for devices to be registered without
-> the requirement for platform_data, DT or ACPI.  The current solution is
-> that every single I2C device in the kernel is forced to supply a
-> normally empty/sparse I2C ID table so the I2C subsystem can match to.
-> In an effort to rid the kernel of these tables we need to provide some
-> temporary work arounds until we can straighten out the blocking factors.
-> 
-> This change is meant to be temporary and will be stripped out once
-> we've converted all I2C device drivers from of_match_device() over
-> to the new I2C generic i2c_of_match_device().
+On Fri, 6 Jun 2014 13:36:53 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wro=
+te:
+> On Fri, 06 Jun 2014, Mark Brown wrote:
+>=20
+> > On Thu, Jun 05, 2014 at 04:55:09PM +0100, Lee Jones wrote:
+> > > On Thu, 05 Jun 2014, Grant Likely wrote:
+> >=20
+> > > > I still think the way to do it is to emulate the missing i2c_de=
+vice_id
+> > > > when calling the drivers .probe() hook by having a temporary co=
+py on
+> > > > the stack and filling it with data from the OF or ACPI table...=
+=2E
+> >=20
+> > > That's the opposite of what I'm trying to achieve.  I'm trying to=
+ get
+> > > rid of unused i2c_device_id tables, rather than reinforce their
+> > > mandatory existence.  I think an i2c_of_match_device() with knowl=
+edge
+> > > of how to match via pure DT principles (of_node/compatible) and a
+> > > fall-back, which is able to match on a provided of_device_id tabl=
+e
+> > > alone i.e. without the requirement of an existing of_node.
+> >=20
+> > > I've also been mulling over the idea of removing the second probe=
+()
+> > > parameter, as suggested by Wolfram.  However, this has quite deep
+> > > ramifications which would require a great deal of driver adaption=
+s.
+> >=20
+> > If you're going to do that another option is to refactor the probe(=
+)
+> > function to take the driver_data as an argument and then have the c=
+ore
+> > pass that from whatever table it matched from rather than the entir=
+e
+> > i2c_device_id structure.  That way the driver just needs to supply =
+all
+> > the ID tables mapping binding information to whatever it needs and =
+the
+> > core can pass in the driver data from whatever table it matched aga=
+inst.
+>=20
+> Unfortunately this means we're back to the aforementioned typing
+> issue.  For struct {platform,i2c,spi,acpi,etc}_device_id the driver
+> data is a kernel ulong but the of_device_id's driver data attribute i=
+s
+> a void*.
 
-This change imposes the i2c workaround onto every single caller of
-i2c_of_match_device(), regardless of subsystem, and regardless of the
-desired behaviour. It also prevents an i2c driver from getting the
-correct behavour when it wants it.
+We're actually okay there. Each subsystem defines it's own convention
+about what those values mean. ulong and void* are the same size and
+every user I've seen stuffs the same data into the data field of both
+tables.
 
-So, no, I'm not okay with hooking into the core code to work around the
-subsystem problem. I2C drivers need to call the i2c specific version
-directly. I know that adds a line of change to the driver patches, but I
-think it is necessary.
+> I've just started work on a migration over to a new probe().  I don't
+> think it's all that much work, but if there are any objections I'd
+> prefer to hear them now rather than waste any time.
 
-g.
+I have no problem with that approach.
 
-> 
-> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/of/device.c | 19 ++++++++++++++++++-
->  1 file changed, 18 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/of/device.c b/drivers/of/device.c
-> index dafb973..3b1c8f9 100644
-> --- a/drivers/of/device.c
-> +++ b/drivers/of/device.c
-> @@ -1,6 +1,7 @@
->  #include <linux/string.h>
->  #include <linux/kernel.h>
->  #include <linux/of.h>
-> +#include <linux/i2c.h>
->  #include <linux/of_device.h>
->  #include <linux/init.h>
->  #include <linux/module.h>
-> @@ -21,9 +22,25 @@
->  const struct of_device_id *of_match_device(const struct of_device_id *matches,
->  					   const struct device *dev)
->  {
-> +	const struct of_device_id *match;
-> +
->  	if ((!matches) || (!dev->of_node))
->  		return NULL;
-> -	return of_match_node(matches, dev->of_node);
-> +
-> +	match = of_match_node(matches, dev->of_node);
-> +	if (match)
-> +		return match;
-> +
-> +	/*
-> +	 * Low impact workaround, until we can convert all I2C compatible
-> +	 * strings over to the correctly specified <vendor>,<device> format.
-> +	 */
-> +	match = i2c_of_match_device_strip_vendor(matches, (struct device *)dev);
-> +	if (match)
-> +		dev_warn(dev,
-> +			 "WARNING: Vendor ID missing from compatible string\n");
-> +
-> +	return match;
->  }
->  EXPORT_SYMBOL(of_match_device);
->  
-> -- 
-> 1.8.3.2
-> 
+> I propose to convert a couple of drivers, one which doesn't use the
+> driver_data and one that does, but is DT only and send them for
+> review.  See if Wolfram et. al like the method.
+>=20
+> --=20
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
