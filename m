@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 9/9] mfd: as3722: Rid driver of superfluous I2C device ID structure
-Date: Fri,  6 Jun 2014 16:52:32 +0100
-Message-ID: <1402069952-28022-10-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 8/9] mfd: 88pm860x: Move over to new I2C device .probe() call
+Date: Fri,  6 Jun 2014 16:52:31 +0100
+Message-ID: <1402069952-28022-9-git-send-email-lee.jones@linaro.org>
 References: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
@@ -10,49 +10,37 @@ To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: wsa@the-dreams.de, grant.likely@linaro.org, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Also remove unused second probe() parameter 'i2c_device_id'.
+As part of an effort to rid the mostly unused second parameter for I2C
+related .probe() functions and to conform to other existing frameworks
+we're moving over to a temporary replacement .probe() call-back.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/mfd/as3722.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/mfd/88pm860x-core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
-index 39fa554..cb2fcf9 100644
---- a/drivers/mfd/as3722.c
-+++ b/drivers/mfd/as3722.c
-@@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_client *i2c,
+diff --git a/drivers/mfd/88pm860x-core.c b/drivers/mfd/88pm860x-core.c
+index bcfc9e8..d763f1f 100644
+--- a/drivers/mfd/88pm860x-core.c
++++ b/drivers/mfd/88pm860x-core.c
+@@ -1127,8 +1127,7 @@ static int pm860x_dt_init(struct device_node *np,
  	return 0;
  }
  
--static int as3722_i2c_probe(struct i2c_client *i2c,
--			const struct i2c_device_id *id)
-+static int as3722_i2c_probe(struct i2c_client *i2c)
+-static int pm860x_probe(struct i2c_client *client,
+-				  const struct i2c_device_id *id)
++static int pm860x_probe(struct i2c_client *client)
  {
- 	struct as3722 *as3722;
- 	unsigned long irq_flags;
-@@ -428,21 +427,14 @@ static const struct of_device_id as3722_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, as3722_of_match);
- 
--static const struct i2c_device_id as3722_i2c_id[] = {
--	{ "as3722", 0 },
--	{},
--};
--MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
--
- static struct i2c_driver as3722_i2c_driver = {
- 	.driver = {
- 		.name = "as3722",
- 		.owner = THIS_MODULE,
- 		.of_match_table = as3722_of_match,
+ 	struct pm860x_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct device_node *node = client->dev.of_node;
+@@ -1255,7 +1254,7 @@ static struct i2c_driver pm860x_driver = {
+ 		.pm     = &pm860x_pm_ops,
+ 		.of_match_table	= pm860x_dt_ids,
  	},
--	.probe = as3722_i2c_probe,
-+	.probe2 = as3722_i2c_probe,
- 	.remove = as3722_i2c_remove,
--	.id_table = as3722_i2c_id,
+-	.probe		= pm860x_probe,
++	.probe2		= pm860x_probe,
+ 	.remove		= pm860x_remove,
+ 	.id_table	= pm860x_id_table,
  };
- 
- module_i2c_driver(as3722_i2c_driver);
 -- 
 1.8.3.2
