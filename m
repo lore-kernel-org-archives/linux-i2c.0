@@ -1,122 +1,75 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/7] i2c: Add the ability to match device to compatible
- string without an of_node
-Date: Fri, 6 Jun 2014 09:10:26 +0100
-Message-ID: <20140606081026.GO24240@lee--X1>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
+ aforementioned systems
+Date: Fri, 6 Jun 2014 11:24:46 +0100
+Message-ID: <20140606102446.GK2520@sirena.org.uk>
 References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-4-git-send-email-lee.jones@linaro.org>
- <20140605173620.5BDFBC41CBF@trevor.secretlab.ca>
+ <1401883796-17841-8-git-send-email-lee.jones@linaro.org>
+ <20140605103009.85BE4C40A4D@trevor.secretlab.ca>
+ <20140605103709.GE19550@lee--X1>
+ <CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
+ <20140605155509.GH24240@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HdZAANC5GEQnh8Bp"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140605173620.5BDFBC41CBF-WNowdnHR2B42iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+In-Reply-To: <20140605155509.GH24240@lee--X1>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 05 Jun 2014, Grant Likely wrote:
 
-> On Wed,  4 Jun 2014 13:09:52 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> =
-wrote:
-> > A great deal of I2C devices are currently matched via DT node name,=
- and
-> > as such the compatible naming convention of '<vendor>,<device>' has=
- gone
-> > somewhat awry - some nodes don't supply one, some supply an arbitra=
-ry
-> > string and others the correct device name with an arbitrary vendor =
-prefix.
-> >=20
-> > In an effort to correct this problem we have to supply a mechanism =
-to
-> > match a device by compatible string AND by simple device name.  Thi=
-s
-> > function strips off the '<vendor>,' part of a supplied compatible s=
-tring
-> > and attempts to match without it.
-> >=20
-> > The plan is to remove this function once all of the compatible stri=
-ngs
-> > for each device have been brought into line.
-> >=20
-> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > ---
-> >  drivers/i2c/i2c-core.c | 25 +++++++++++++++++++++++++
-> >  include/linux/i2c.h    | 10 ++++++++++
-> >  2 files changed, 35 insertions(+)
-> >=20
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index d3802dc..7dcd5c3 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -1090,6 +1090,31 @@ struct i2c_adapter *of_find_i2c_adapter_by_n=
-ode(struct device_node *node)
-> >  	return i2c_verify_adapter(dev);
-> >  }
-> >  EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
-> > +
-> > +const struct of_device_id
-> > +*i2c_of_match_device_strip_vendor(const struct of_device_id *match=
-es,
-> > +				  struct device *dev)
-> > +{
-> > +	const struct i2c_client *client =3D i2c_verify_client(dev);
-> > +	const char *name;
-> > +
-> > +	if (!(client && matches))
-> > +		return NULL;
-> > +
-> > +	for (; matches->compatible[0]; matches++) {
-> > +		name =3D strchr(matches->compatible, ',');
-> > +		if (!name)
-> > +			name =3D matches->compatible;
-> > +		else
-> > +			name++;
-> > +
-> > +		if (!strncmp(client->name, name, strlen(client->name)))
-> > +			return matches;
-> > +	}
->=20
-> Is it actually necessary to strip off the vendor name? It would be fi=
-ne
-> to make users include the vendor prefix when creating the device in
-> sysfs. In fact that would be preferrable for new drivers so that vend=
-or
-> prefixes start getting used correctly.
+--HdZAANC5GEQnh8Bp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I see a few issues with this strategy.  Firstly, there are already
-users registering their devices via sysfs, some are taking their
-device names from an EEPROM which would require reprogramming in order
-to prefix the vendor ID.  I'm keen not to break existing systems -
-which not stripping off the vendor name would inevitably do.
-Secondly, I'm not sure how Wolfram would feel about the client->name
-containing a DT compatible string. And finally, other than looking
-at the kernel source, there is no real way for a user to know if the
-device supports ACPI or OF, or neither and if an i2c_device_table is
-supplied or not.
+On Thu, Jun 05, 2014 at 04:55:09PM +0100, Lee Jones wrote:
+> On Thu, 05 Jun 2014, Grant Likely wrote:
 
-Remember that the idea of this set is to remove i2c_device_table's,
-doing so will break any devices which are still registering via sysfs
-with only the model number of the device.  I think the sysfs
-interface should be a black-box.  I think requiring users to have
-kernel knowledge is a sub-optimal idea.
+> > I still think the way to do it is to emulate the missing i2c_device_id
+> > when calling the drivers .probe() hook by having a temporary copy on
+> > the stack and filling it with data from the OF or ACPI table....
 
-> If you're worried about preserving exisiting ABI, then I would make
-> striping the prefix an option that drivers can enable, but by default
-> only match on the full string.
->=20
-> g.
+> That's the opposite of what I'm trying to achieve.  I'm trying to get
+> rid of unused i2c_device_id tables, rather than reinforce their
+> mandatory existence.  I think an i2c_of_match_device() with knowledge
+> of how to match via pure DT principles (of_node/compatible) and a
+> fall-back, which is able to match on a provided of_device_id table
+> alone i.e. without the requirement of an existing of_node.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> I've also been mulling over the idea of removing the second probe()
+> parameter, as suggested by Wolfram.  However, this has quite deep
+> ramifications which would require a great deal of driver adaptions.
+
+If you're going to do that another option is to refactor the probe()
+function to take the driver_data as an argument and then have the core
+pass that from whatever table it matched from rather than the entire
+i2c_device_id structure.  That way the driver just needs to supply all
+the ID tables mapping binding information to whatever it needs and the
+core can pass in the driver data from whatever table it matched against.
+
+--HdZAANC5GEQnh8Bp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTkZbqAAoJELSic+t+oim9/e8P/1ahy4nWy5qhvn708KuMzIIl
+rdqHa3Vz/wGrlvjcMIPIB+4qYmmb1Yy3aRP/QmteZMTcpg6DAhstK7+nxzcSQ01i
+qUncE0YEvuy68T4Smp5zfM4oYBl2NdnO7hG5b0KQhNPyj4TSx+WtUNHoSqwG+TQy
+zNOjUYUjfjB+ZTHDfN6ew4Nj21BpAKODyVY0AqxURxxMcf42S74kXySyDUai+cqd
+ZI//TyfdrsMiHxtLweFjxwFHG9zmQDKGQOSTks2t+l17v117xnQiUamjZLBnBaV+
+8IrC84MYBOhklQypbpSeDnYLui31mj/8rW8CgiM9VfACjqRuImJwxKYwthVXgPd9
+aaGQ3Tcg6+GJgy43rmBdyk9KUfJgTNAUSfrlm/9ZZjA41KKHR1+HtZsxdzPhDJFG
+FqPo1iJ6Rf1aH23wn2qp7O/bUGvlwdoetglpz0Z7iqMOJPwyGgLsyQclelNVwB55
+VMd7whwtD72co2JH0j44k0eUfKcX9FgmSNpMNOGcwYHykjBL95LRJEuN/8lEy0iG
+PgNxKErRQCdzNaS1ViCglBqcoWrgDEcCNytjlmL1xmBOjp7PmDLAAt5duOQdWQDu
+Wjndbz8OgtEDt4qyaihR5JwmIKHMIZf7Izsht523J6lPLMzM3CA/y4eDA7NFNJ8D
+vDneN2im2ZjT9CQsrWsP
+=05Ec
+-----END PGP SIGNATURE-----
+
+--HdZAANC5GEQnh8Bp--
