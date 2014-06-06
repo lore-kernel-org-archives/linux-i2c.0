@@ -1,63 +1,147 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V3 0/5] I2C ACPI operation region handler
-Date: Fri, 6 Jun 2014 14:28:58 +0200
-Message-ID: <20140606122858.GA2810@katana>
-References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com>
- <53881E87.9070706@intel.com>
- <10091506.iBigojlNVE@vostro.rjw.lan>
- <20140530121046.GB2742@katana>
- <53887B77.7060907@intel.com>
+Subject: Re: [PATCH 1/2] i2c/ACPI: Support for multiple serial bus addresses
+Date: Fri, 6 Jun 2014 14:32:14 +0200
+Message-ID: <20140606123214.GB2810@katana>
+References: <1397189717-30657-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <53887B77.7060907@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+In-Reply-To: <1397189717-30657-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 30, 2014 at 08:37:11PM +0800, Lan Tianyu wrote:
-> On 05/30/2014 08:10 PM, Wolfram Sang wrote:
-> >>>Hi Wolfram:
-> >>>	Since this version resolved all comments, it's ok for you?
-> >
-> >Sorry, I misunderstood. I thought a V4 was needed, but it isn't. I'll
-> >try to have a look this weekend.
-> >
-> OK. Thanks.
+On Thu, Apr 10, 2014 at 09:15:16PM -0700, Srinivas Pandruvada wrote:
+> ACPI specification allows multiple i2c addresses defined under one
+> ACPI device object. These addresses are defined using _CRS method.
+> The current implementation will pickup the last entry in _CRS, and
+> create an i2C device, ignoring all other previous entries for addresses.
+>=20
+> The ACPI specification does not define, whether these addresses for one
+> i2c device or for multiple i2c devices, which are defined under the same
+> ACPI device object. We need some appoach where i2c clients can enumerate
+> on each of the i2C address and/or have access to those extra addresses.
+>=20
+> This change addresses both cases:
+> - Create a new i2c device for each i2c address
+> - Allow each i2 client to get addresses of all other devices under
+> the same ACPI device object (companions or siblings)
+>=20
+> Example 1:
+> Here in the following example, there are two i2C address in _CRS.
+> They belong to two different physical chipsets, with two different i2c
+> address but part of a module.
+> Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+> {
+>         Name (RBUF, ResourceTemplate ()
+>         {
+> 		I2cSerialBus (0x0068, ControllerInitiated, 0x00061A80,
+> 			AddressingMode7Bit, "\\_SB.I2C5",
+> 			0x00, ResourceConsumer, ,
+> 		)
+> 		I2cSerialBus (0x000C, ControllerInitiated, 0x00061A80,
+> 			AddressingMode7Bit, "\\_SB.I2C5",
+> 			0x00, ResourceConsumer, ,
+> 		)
+> 		Interrupt (ResourceConsumer, Level, ActiveHigh, Shared, ,, )
+> 		{
+> 			0x00000044,
+> 		}
+> 	})
+> 	Return (RBUF)
+> }
+> This change adds i2c_new_device for each i2c address. Here contents of
+> /sys/bus/i2c/devices will
+> 	i2c-some_acpi_dev_name:00:068
+> 	i2c-some_acpi_dev_name::00:00c
+>=20
+> Example 2
+>=20
+> Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+>                 {
+>                     Name (SBUF, ResourceTemplate ()
+>                     {
+>                         GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, I=
+oRestrictionOutputOnly,
+>                             "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+>                             )
+>                             {   // Pin list
+>                                 0x0018
+>                             }
+>                         I2cSerialBus (0x0010, ControllerInitiated, 0x0006=
+1A80,
+>                             AddressingMode7Bit, "\\_SB.I2C4",
+>                             0x00, ResourceConsumer, ,
+>                             )
+>                         I2cSerialBus (0x000C, ControllerInitiated, 0x0006=
+1A80,
+>                             AddressingMode7Bit, "\\_SB.I2C4",
+>                             0x00, ResourceConsumer, ,
+>                             )
+>                         I2cSerialBus (0x0054, ControllerInitiated, 0x0006=
+1A80,
+>                             AddressingMode7Bit, "\\_SB.I2C4",
+>                             0x00, ResourceConsumer, ,
+>                             )
+>                     })
+>                     Return (SBUF) /* \_SB_.I2C4.CAM1._CRS.SBUF */
+>                 }
+> }
+> Here there are three i2c addresses for this device.
+>=20
+> When there is only I2cSerialBus address is present then there is no
+> change. The device name will not include address. In this way if
+> some device is using hardcoded path, this change will not impact them.
+>=20
+> Here any i2c client driver simply need to add ACPI bindings. They will
+> be probed multiple times, the client will bind to correct i2c device,
+> based on checking its identity and returning error for other.
+> At the same time, any i2c client can call i2c_for_each_acpi_comp_client
+> to get the i2c client instances of companion addresses defined
+> under the same ACPI device.
+>=20
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Sorry, I didn't manage to get a deeper look into this as I wanted. Let
-me assure that your (and the other) ACPI changes have high priority for
-the next release cycle.
+Sorry that I need to postpone the ACPI related stuff to the next release
+cycle (where it has priority). It was simply too much for this one.
+
+Mika: Your review for ACPI specific details would be much appreciated
+here.
+
+Thanks,
+
+   Wolfram
 
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTkbQKAAoJEBQN5MwUoCm2H+EP/0gsdRZ1hTD+u05RlzIR0xXb
-5gqzMK6JTiV+U1O+468pHU1Nzi1DLbDroFrhEfqWlWOYXYl/hlyKdiq2exQYE71r
-1OMBtyYzGYqAFhyjI1eRxJ/pYed5FgUtZWaGQep3JS6sLHLqiWXVgJvOrQPHHkzL
-xQpHARJh4zpzci0uMdHuYZapMbYbMxHMzhInf0lM5X4cTgfBC0StS/sKhEJrYD7l
-/49PUg9U0bUKLJwATCLrUApGpGkxd6/uHh3jt6/0dR3IOjlr2c5YmetwwJ6xZ7IG
-Is7gjWGLUI8ZRJrPyDCYBcyQQGg2aHI8zQk4EJT9tGEbJjaBYdS23jgi5IS/Ttoh
-4OFcCvEHEAYip5vD4tfhjRSV4srRX5rpUyUpkvNnO29QQpO9igAS1QRq6nVkun7t
-9ahzmwYAOSdDJoNBjP1aGMEW2/0xwPXXQ5t+MAizMxk9aZJKs8NW50NORDkQVaps
-yWJ/oegXFVxbbwVFaek6Ws+lmXIgSXXdiVWNWiiDmH4sGsBSpUXePsP7h14oFbx5
-s2r0lPMmoqPgP9A0x5XMmSd7fUSTCr28u8TvbqT206UMGZ2/dLx8e4g+5URwh42r
-8rlM4gya8kivNJ+ritMwfXVbaidV/Y5pfrHyNa3rhC4tVDR6VEyQTmLr7XGeHEWc
-Kq8rj/Klg5SKQDh/G3oP
-=Mezk
+iQIcBAEBAgAGBQJTkbTOAAoJEBQN5MwUoCm2QEMQAKWscKUfNrOil/h3s4Ji4jWn
+8w736GHR0SOIaDvWmiWn1857yJS4mDY7vuVJjCOEKoGqifNUnx3bIFnRl9WJjzRq
+xftvfOMSl35RftIyJ2m9kOH9YYhO9IdAknCpTR1wx2kcRtwcMUgfjJdMW1OT0ynT
+51+LYMJ8Yurn7ECinGyynmot1u+36lqDiwu18YzAAlm8NWW2bLwF4nqUQIPuUeSm
+fAYvlVfqbDwReXQnoJGEi4ssg7MVPXzun+7HSMHH+jBQEe2HIX1w4ZsjTvDP9Zq4
+gHepxHs7VHm+n8ZOEh9Ek+UmQ+wGHsFyA2qHpFsM/hVgHIZmk0SEd59/OC1V+7yj
+9camVXah4m3jBo49iHboNcE2EELqCjohFZo6T8jt+ETEDfbO6kqH+a2W8YSOpTBO
+wzi0cG/9nsKv6CPIiheodEC3i3uYYQ3NvqZ0Mo+dLOEH9VM/Lsx5IZdv1LfYyv21
+ri8KfSovP8X/bJSnivtiHI4fm14/A+qYIjbbnLx2oIPZkJwlqSt9+jeF8cy2/xV8
+wgB5wkr2/tUn2HtHL6MkiExU+LslC12OG27504GAkQfB0uYxHUuHdUjzW8c6hpM1
+x/Xp92CNbBlJp1kfKUVTESS2wMF0gYpgrIVsBKVJwxZHpSTDhQSvLK7UifmK/uMz
+JzPMXR6H8cSlsaAOD6XK
+=6zXu
 -----END PGP SIGNATURE-----
 
---azLHFNyN32YCQGCU--
+--QTprm0S8XgL7H0Dt--
