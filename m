@@ -1,109 +1,69 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 2/9] i2c: Add the ability to match device to compatible string
- without an of_node
-Date: Fri,  6 Jun 2014 16:52:25 +0100
-Message-ID: <1402069952-28022-3-git-send-email-lee.jones@linaro.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 7/9] of/device: Allow I2C devices to OF match without supplying an OF node
+Date: Fri,  6 Jun 2014 16:52:30 +0100
+Message-ID: <1402069952-28022-8-git-send-email-lee.jones@linaro.org>
 References: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: devicetree@vger.kernel.org, wsa@the-dreams.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, grant.likely@linaro.org, Lee Jones <lee.jones@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1402069952-28022-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-A great deal of I2C devices are currently matched via DT node name, and
-as such the compatible naming convention of '<vendor>,<device>' has gone
-somewhat awry - some nodes don't supply one, some supply an arbitrary
-string and others the correct device name with an arbitrary vendor prefix.
+The I2C framework supplies a means for devices to be registered without
+the requirement for platform_data, DT or ACPI.  The current solution is
+that every single I2C device in the kernel is forced to supply a
+normally empty/sparse I2C ID table so the I2C subsystem can match to.
+In an effort to rid the kernel of these tables we need to provide some
+temporary work arounds until we can straighten out the blocking factors.
 
-In an effort to correct this problem we have to supply a mechanism to
-match a device by compatible string AND by simple device name.  This
-function strips off the '<vendor>,' part of a supplied compatible string
-and attempts to match without it.
+This change is meant to be temporary and will be stripped out once
+we've converted all I2C device drivers from of_match_device() over
+to the new I2C generic i2c_of_match_device().
 
-The plan is to remove this function once all of the compatible strings
-for each device have been brought into line.
-
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c | 25 +++++++++++++++++++++++++
- include/linux/i2c.h    | 10 ++++++++++
- 2 files changed, 35 insertions(+)
+ drivers/of/device.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index d3802dc..face8f9 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1090,6 +1090,31 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- 	return i2c_verify_adapter(dev);
- }
- EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
-+
-+const struct of_device_id
-+*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-+				  struct device *dev)
-+{
-+	const struct i2c_client *client = i2c_verify_client(dev);
-+	const char *name;
-+
-+	if (!(client && matches))
-+		return NULL;
-+
-+	for (; matches->compatible[0]; matches++) {
-+		name = strchr(matches->compatible, ',');
-+		if (!name)
-+			name = matches->compatible;
-+		else
-+			name++;
-+
-+		if (!strnicmp(client->name, name, strlen(client->name)))
-+			return matches;
-+	}
-+
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(i2c_of_match_device_strip_vendor);
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index b556e0a..f7ec75b 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -564,6 +564,9 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
- /* must call put_device() when done with returned i2c_adapter device */
- extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
- 
-+extern const struct of_device_id
-+*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-+				  struct device *dev);
- #else
- 
- static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
-@@ -575,6 +578,13 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
+diff --git a/drivers/of/device.c b/drivers/of/device.c
+index dafb973..3b1c8f9 100644
+--- a/drivers/of/device.c
++++ b/drivers/of/device.c
+@@ -1,6 +1,7 @@
+ #include <linux/string.h>
+ #include <linux/kernel.h>
+ #include <linux/of.h>
++#include <linux/i2c.h>
+ #include <linux/of_device.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
+@@ -21,9 +22,25 @@
+ const struct of_device_id *of_match_device(const struct of_device_id *matches,
+ 					   const struct device *dev)
  {
- 	return NULL;
- }
++	const struct of_device_id *match;
 +
-+const struct of_device_id
-+*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-+				  struct device *dev)
-+{
-+	return NULL;
-+}
- #endif /* CONFIG_OF */
+ 	if ((!matches) || (!dev->of_node))
+ 		return NULL;
+-	return of_match_node(matches, dev->of_node);
++
++	match = of_match_node(matches, dev->of_node);
++	if (match)
++		return match;
++
++	/*
++	 * Low impact workaround, until we can convert all I2C compatible
++	 * strings over to the correctly specified <vendor>,<device> format.
++	 */
++	match = i2c_of_match_device_strip_vendor(matches, (struct device *)dev);
++	if (match)
++		dev_warn(dev,
++			 "WARNING: Vendor ID missing from compatible string\n");
++
++	return match;
+ }
+ EXPORT_SYMBOL(of_match_device);
  
- #endif /* _LINUX_I2C_H */
 -- 
 1.8.3.2
