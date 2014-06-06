@@ -1,67 +1,109 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 5/9] i2c: Export i2c_match_id() for direct use by device drivers
-Date: Fri,  6 Jun 2014 16:52:28 +0100
-Message-ID: <1402069952-28022-6-git-send-email-lee.jones@linaro.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 2/9] i2c: Add the ability to match device to compatible string
+ without an of_node
+Date: Fri,  6 Jun 2014 16:52:25 +0100
+Message-ID: <1402069952-28022-3-git-send-email-lee.jones@linaro.org>
 References: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1402069952-28022-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: devicetree@vger.kernel.org, wsa@the-dreams.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, grant.likely@linaro.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When there was no other way to match a I2C device to driver i2c_match_id()
-was exclusively used.  However, now there are other types of tables which
-are commonly supplied, matching on an i2c_device_id table is used less
-frequently.  Instead of _always_ calling i2c_match_id() from within the
-framework, we only need to do so from drivers which have no other way of
-matching.  This patch makes i2c_match_id() available to the aforementioned
-device drivers.
+A great deal of I2C devices are currently matched via DT node name, and
+as such the compatible naming convention of '<vendor>,<device>' has gone
+somewhat awry - some nodes don't supply one, some supply an arbitrary
+string and others the correct device name with an arbitrary vendor prefix.
 
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In an effort to correct this problem we have to supply a mechanism to
+match a device by compatible string AND by simple device name.  This
+function strips off the '<vendor>,' part of a supplied compatible string
+and attempts to match without it.
+
+The plan is to remove this function once all of the compatible strings
+for each device have been brought into line.
+
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/i2c/i2c-core.c | 3 ++-
- include/linux/i2c.h    | 2 ++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core.c | 25 +++++++++++++++++++++++++
+ include/linux/i2c.h    | 10 ++++++++++
+ 2 files changed, 35 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 3507087..3fe8232 100644
+index d3802dc..face8f9 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -79,7 +79,7 @@ void i2c_transfer_trace_unreg(void)
- 
- /* ------------------------------------------------------------------------- */
- 
--static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-+const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 						const struct i2c_client *client)
- {
- 	if (!(id && client))
-@@ -92,6 +92,7 @@ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 	}
- 	return NULL;
+@@ -1090,6 +1090,31 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ 	return i2c_verify_adapter(dev);
  }
-+EXPORT_SYMBOL_GPL(i2c_match_id);
- 
- static int i2c_device_match(struct device *dev, struct device_driver *drv)
- {
+ EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
++
++const struct of_device_id
++*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct device *dev)
++{
++	const struct i2c_client *client = i2c_verify_client(dev);
++	const char *name;
++
++	if (!(client && matches))
++		return NULL;
++
++	for (; matches->compatible[0]; matches++) {
++		name = strchr(matches->compatible, ',');
++		if (!name)
++			name = matches->compatible;
++		else
++			name++;
++
++		if (!strnicmp(client->name, name, strlen(client->name)))
++			return matches;
++	}
++
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(i2c_of_match_device_strip_vendor);
+ #else
+ static void of_i2c_register_devices(struct i2c_adapter *adap) { }
+ #endif /* CONFIG_OF */
 diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index ab5866f..9d36f86 100644
+index b556e0a..f7ec75b 100644
 --- a/include/linux/i2c.h
 +++ b/include/linux/i2c.h
-@@ -229,6 +229,8 @@ struct i2c_client {
+@@ -564,6 +564,9 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
+ /* must call put_device() when done with returned i2c_adapter device */
+ extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
  
- extern struct i2c_client *i2c_verify_client(struct device *dev);
- extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
-+extern const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-+						const struct i2c_client *client);
++extern const struct of_device_id
++*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct device *dev);
+ #else
  
- static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
+ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+@@ -575,6 +578,13 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
  {
+ 	return NULL;
+ }
++
++const struct of_device_id
++*i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
++				  struct device *dev)
++{
++	return NULL;
++}
+ #endif /* CONFIG_OF */
+ 
+ #endif /* _LINUX_I2C_H */
 -- 
 1.8.3.2
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
