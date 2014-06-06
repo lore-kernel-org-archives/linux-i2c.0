@@ -1,91 +1,68 @@
-From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
- aforementioned systems
-Date: Sat, 07 Jun 2014 00:42:53 +0100
-Message-ID: <20140606234253.A4E25C427F0@trevor.secretlab.ca>
-References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
-	<1401883796-17841-8-git-send-email-lee.jones@linaro.org>
-	<20140605103009.85BE4C40A4D@trevor.secretlab.ca>
-	<20140605103709.GE19550@lee--X1>
-	<CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
-	<20140605155509.GH24240@lee--X1> <20140606102446.GK2520@sirena.org.uk>
-	<20140606123653.GP24240@lee--X1>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140606123653.GP24240@lee--X1>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Grant Likely <grant.likely@linaro.org>
+Subject: Re: [PATCH 1/9] i2c: Add pointer dereference protection to
+ i2c_match_id()
+Date: Fri, 06 Jun 2014 23:59:35 +0100
+Message-ID: <20140606225935.7491DC4206E@trevor.secretlab.ca>
+References: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
+	<1402069952-28022-2-git-send-email-lee.jones@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1402069952-28022-2-git-send-email-lee.jones@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: wsa@the-dreams.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 6 Jun 2014 13:36:53 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wro=
-te:
-> On Fri, 06 Jun 2014, Mark Brown wrote:
->=20
-> > On Thu, Jun 05, 2014 at 04:55:09PM +0100, Lee Jones wrote:
-> > > On Thu, 05 Jun 2014, Grant Likely wrote:
-> >=20
-> > > > I still think the way to do it is to emulate the missing i2c_de=
-vice_id
-> > > > when calling the drivers .probe() hook by having a temporary co=
-py on
-> > > > the stack and filling it with data from the OF or ACPI table...=
-=2E
-> >=20
-> > > That's the opposite of what I'm trying to achieve.  I'm trying to=
- get
-> > > rid of unused i2c_device_id tables, rather than reinforce their
-> > > mandatory existence.  I think an i2c_of_match_device() with knowl=
-edge
-> > > of how to match via pure DT principles (of_node/compatible) and a
-> > > fall-back, which is able to match on a provided of_device_id tabl=
-e
-> > > alone i.e. without the requirement of an existing of_node.
-> >=20
-> > > I've also been mulling over the idea of removing the second probe=
-()
-> > > parameter, as suggested by Wolfram.  However, this has quite deep
-> > > ramifications which would require a great deal of driver adaption=
-s.
-> >=20
-> > If you're going to do that another option is to refactor the probe(=
-)
-> > function to take the driver_data as an argument and then have the c=
-ore
-> > pass that from whatever table it matched from rather than the entir=
-e
-> > i2c_device_id structure.  That way the driver just needs to supply =
-all
-> > the ID tables mapping binding information to whatever it needs and =
-the
-> > core can pass in the driver data from whatever table it matched aga=
-inst.
->=20
-> Unfortunately this means we're back to the aforementioned typing
-> issue.  For struct {platform,i2c,spi,acpi,etc}_device_id the driver
-> data is a kernel ulong but the of_device_id's driver data attribute i=
-s
-> a void*.
+On Fri,  6 Jun 2014 16:52:24 +0100, Lee Jones <lee.jones@linaro.org> wrote:
+> Here we're providing dereference protection for i2c_match_id(), which
+> saves us having to do it each time it's called.  We're also stripping
+> out the (now) needless checks in i2c_device_match().  This patch paves
+> the way for other, similar code trimming.
+> 
+> Acked-by: Grant Likely <grant.likely@linaro.org>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/i2c/i2c-core.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 7c7f4b8..d3802dc 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -82,6 +82,9 @@ void i2c_transfer_trace_unreg(void)
+>  static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+>  						const struct i2c_client *client)
+>  {
+> +	if (!(id && client))
+> +		return NULL;
+> +
+>  	while (id->name[0]) {
+>  		if (strcmp(client->name, id->name) == 0)
+>  			return id;
+> @@ -95,8 +98,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+>  	struct i2c_client	*client = i2c_verify_client(dev);
+>  	struct i2c_driver	*driver;
+>  
+> -	if (!client)
+> -		return 0;
+>  
+>  	/* Attempt an OF style match */
+>  	if (of_driver_match_device(dev, drv))
+> @@ -107,9 +108,10 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+>  		return 1;
+>  
+>  	driver = to_i2c_driver(drv);
+> -	/* match on an id table if there is one */
+> -	if (driver->id_table)
+> -		return i2c_match_id(driver->id_table, client) != NULL;
+> +
+> +	/* Finally an I2C match */
+> +	if (i2c_match_id(driver->id_table, client))
+> +		return 1;
+>  
+>  	return 0;
 
-We're actually okay there. Each subsystem defines it's own convention
-about what those values mean. ulong and void* are the same size and
-every user I've seen stuffs the same data into the data field of both
-tables.
+Nit: the above 4 lines can now simply be:
 
-> I've just started work on a migration over to a new probe().  I don't
-> think it's all that much work, but if there are any objections I'd
-> prefer to hear them now rather than waste any time.
+	return (i2c_match_id(driver->id_table, client) != NULL);
 
-I have no problem with that approach.
-
-> I propose to convert a couple of drivers, one which doesn't use the
-> driver_data and one that does, but is DT only and send them for
-> review.  See if Wolfram et. al like the method.
->=20
-> --=20
-> Lee Jones
-> Linaro STMicroelectronics Landing Team Lead
-> Linaro.org =E2=94=82 Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
+g.
