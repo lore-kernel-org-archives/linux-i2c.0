@@ -1,474 +1,98 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [Patch V3 4/5] I2C/ACPI: Add i2c ACPI operation region support
-Date: Sat, 07 Jun 2014 00:48:13 +0200
-Message-ID: <17324514.CZVTFJVpea@vostro.rjw.lan>
-References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com> <1400590764-11108-5-git-send-email-tianyu.lan@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1400590764-11108-5-git-send-email-tianyu.lan@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>, mika.westerberg@linux.intel.com
-Cc: wsa@the-dreams.de, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/9] i2c: Match using traditional OF methods, then by
+ vendor-less compatible strings
+Date: Sat, 07 Jun 2014 00:19:14 +0100
+Message-ID: <20140606231914.2E2FDC4218F@trevor.secretlab.ca>
+References: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
+	<1402069952-28022-4-git-send-email-lee.jones@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1402069952-28022-4-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mika,
-
-Do I believe correctly that you have reviewed this patch already?
-
-Rafael
-
-
-On Tuesday, May 20, 2014 08:59:23 PM Lan Tianyu wrote:
-> ACPI 5.0 spec(5.5.2.4.5) defines GenericSerialBus(i2c, spi, uart) operation region.
-> It allows ACPI aml code able to access such kind of devices to implement
-> some ACPI standard method.
+On Fri,  6 Jun 2014 16:52:26 +0100, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> This function provides a single call for all I2C devices which need to
+> match firstly using traditional OF means i.e by of_node, then if that
+> fails we attempt to match using the supplied I2C client name with a
+> list of supplied compatible strings with the '<vendor>,' string
+> removed.  The latter is required due to the unruly naming conventions
+> used currently by I2C devices.
 > 
-> ACPI Spec defines some access attribute to associate with i2c protocol.
-> AttribQuick 	       	       		Read/Write Quick Protocol
-> AttribSendReceive			Send/Receive Byte Protocol
-> AttribByte 			 	Read/Write Byte Protocol
-> AttribWord				Read/Write Word Protocol
-> AttribBlock				Read/Write Block Protocol
-> AttribBytes				Read/Write N-Bytes Protocol
-> AttribProcessCall			Process Call Protocol
-> AttribBlockProcessCall			Write Block-Read Block Process Call Protocol
-> AttribRawBytes 				Raw Read/Write N-BytesProtocol
-> AttribRawProcessBytes			Raw Process Call Protocol
-> 
-> On the Asus T100TA, Bios use GenericSerialBus operation region to access
-> i2c device to get battery info.
-> 
-> Sample code From Asus T100TA
-> 
->     Scope (_SB.I2C1)
->     {
->         Name (UMPC, ResourceTemplate ()
->         {
->             I2cSerialBus (0x0066, ControllerInitiated, 0x00061A80,
->                 AddressingMode7Bit, "\\_SB.I2C1",
->                 0x00, ResourceConsumer, ,
->                 )
->         })
-> 
-> 	...
-> 
->         OperationRegion (DVUM, GenericSerialBus, Zero, 0x0100)
->         Field (DVUM, BufferAcc, NoLock, Preserve)
->         {
->             Connection (UMPC),
->             Offset (0x81),
->             AccessAs (BufferAcc, AttribBytes (0x3E)),
->             FGC0,   8
->         }
-> 	...
->      }
-> 
->      Device (BATC)
->      {
->          Name (_HID, EisaId ("PNP0C0A"))  // _HID: Hardware ID
->          Name (_UID, One)  // _UID: Unique ID
-> 	 ...
-> 
->             Method (_BST, 0, NotSerialized)  // _BST: Battery Status
->             {
->                 If (LEqual (AVBL, One))
->                 {
->                     Store (FGC0, BFFG)
->                     If (LNotEqual (STAT, One))
->                     {
->                         ShiftRight (CHST, 0x04, Local0)
->                         And (Local0, 0x03, Local0)
->                         If (LOr (LEqual (Local0, One), LEqual (Local0, 0x02)))
->                         {
->                             Store (0x02, Local1)
->                         }
-> 	...
-> 
->     }
-> 
-> The i2c operation region is defined under I2C1 scope. _BST method under
-> battery device BATC read battery status from the field "FCG0". The request
-> would be sent to i2c operation region handler.
-> 
-> This patch is to add i2c ACPI operation region support. Due to there are
-> only "Byte" and "Bytes" protocol access on the Asus T100TA, other protocols
-> have not been tested.
-> 
-> About RawBytes and RawProcessBytes protocol, they needs specific drivers to interpret
-> reference data from AML code according ACPI 5.0 SPEC(5.5.2.4.5.3.9 and 5.5.2.4.5.3.10).
-> So far, not found such case and will add when find real case.
-> 
-> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 > ---
->  drivers/i2c/Makefile   |   5 +-
->  drivers/i2c/i2c-acpi.c | 273 +++++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/i2c/i2c-core.c |   2 +
->  include/linux/acpi.h   |  11 ++
->  include/linux/i2c.h    |  10 ++
->  5 files changed, 300 insertions(+), 1 deletion(-)
->  create mode 100644 drivers/i2c/i2c-acpi.c
+>  drivers/i2c/i2c-core.c | 13 +++++++++++++
+>  include/linux/i2c.h    |  9 +++++++++
+>  2 files changed, 22 insertions(+)
 > 
-> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-> index 1722f50..80db307 100644
-> --- a/drivers/i2c/Makefile
-> +++ b/drivers/i2c/Makefile
-> @@ -2,8 +2,11 @@
->  # Makefile for the i2c core.
->  #
->  
-> +i2ccore-y := i2c-core.o
-> +i2ccore-$(CONFIG_ACPI)		+= i2c-acpi.o
-> +
->  obj-$(CONFIG_I2C_BOARDINFO)	+= i2c-boardinfo.o
-> -obj-$(CONFIG_I2C)		+= i2c-core.o
-> +obj-$(CONFIG_I2C)		+= i2ccore.o
->  obj-$(CONFIG_I2C_SMBUS)		+= i2c-smbus.o
->  obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
->  obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
-> diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
-> new file mode 100644
-> index 0000000..f7f4c89
-> --- /dev/null
-> +++ b/drivers/i2c/i2c-acpi.c
-> @@ -0,0 +1,273 @@
-> +/*
-> + * I2C ACPI code
-> + *
-> + * Copyright (C) 2014 Intel Corp
-> + *
-> + * Author: Lan Tianyu <tianyu.lan@intel.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-> + * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-> + * for more details.
-> + */
-> +#define pr_fmt(fmt) "I2C/ACPI : " fmt
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/err.h>
-> +#include <linux/i2c.h>
-> +#include <linux/acpi.h>
-> +
-> +struct acpi_i2c_handler_data {
-> +	struct acpi_connection_info info;
-> +	struct i2c_adapter *adapter;
-> +};
-> +
-> +struct gsb_buffer {
-> +	u8	status;
-> +	u8	len;
-> +	union {
-> +		u16	wdata;
-> +		u8	bdata;
-> +		u8	data[0];
-> +	};
-> +} __packed;
-> +
-> +static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
-> +		u8 cmd, u8 *data, u8 data_len)
-> +{
-> +
-> +	struct i2c_msg msgs[2];
-> +	int ret;
-> +	u8 *buffer;
-> +
-> +	buffer = kzalloc(data_len, GFP_KERNEL);
-> +	if (!buffer)
-> +		return AE_NO_MEMORY;
-> +
-> +	msgs[0].addr = client->addr;
-> +	msgs[0].flags = client->flags;
-> +	msgs[0].len = 1;
-> +	msgs[0].buf = &cmd;
-> +
-> +	msgs[1].addr = client->addr;
-> +	msgs[1].flags = client->flags | I2C_M_RD;
-> +	msgs[1].len = data_len;
-> +	msgs[1].buf = buffer;
-> +
-> +	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
-> +	if (ret < 0)
-> +		dev_err(&client->adapter->dev, "i2c read failed\n");
-> +	else
-> +		memcpy(data, buffer, data_len);
-> +
-> +	kfree(buffer);
-> +	return ret;
-> +}
-> +
-> +static int acpi_gsb_i2c_write_bytes(struct i2c_client *client,
-> +		u8 cmd, u8 *data, u8 data_len)
-> +{
-> +
-> +	struct i2c_msg msgs[1];
-> +	u8 *buffer;
-> +	int ret = AE_OK;
-> +
-> +	buffer = kzalloc(data_len + 1, GFP_KERNEL);
-> +	if (!buffer)
-> +		return AE_NO_MEMORY;
-> +
-> +	buffer[0] = cmd;
-> +	memcpy(buffer + 1, data, data_len);
-> +
-> +	msgs[0].addr = client->addr;
-> +	msgs[0].flags = client->flags;
-> +	msgs[0].len = data_len + 1;
-> +	msgs[0].buf = buffer;
-> +
-> +	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
-> +	if (ret < 0)
-> +		dev_err(&client->adapter->dev, "i2c write failed\n");
-> +
-> +	kfree(buffer);
-> +	return ret;
-> +}
-> +
-> +static acpi_status
-> +acpi_i2c_space_handler(u32 function, acpi_physical_address command,
-> +			u32 bits, u64 *value64,
-> +			void *handler_context, void *region_context)
-> +{
-> +	struct gsb_buffer *gsb = (struct gsb_buffer *)value64;
-> +	struct acpi_i2c_handler_data *data = handler_context;
-> +	struct acpi_connection_info *info = &data->info;
-> +	struct acpi_resource_i2c_serialbus *sb;
-> +	struct i2c_adapter *adapter = data->adapter;
-> +	struct i2c_client client;
-> +	struct acpi_resource *ares;
-> +	u32 accessor_type = function >> 16;
-> +	u8 action = function & ACPI_IO_MASK;
-> +	acpi_status ret = AE_OK;
-> +	int status;
-> +
-> +	ret = acpi_buffer_to_resource(info->connection, info->length, &ares);
-> +	if (ACPI_FAILURE(ret))
-> +		return ret;
-> +
-> +	if (!value64 || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS) {
-> +		ret = AE_BAD_PARAMETER;
-> +		goto err;
-> +	}
-> +
-> +	sb = &ares->data.i2c_serial_bus;
-> +	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-> +		ret = AE_BAD_PARAMETER;
-> +		goto err;
-> +	}
-> +
-> +	memset(&client, 0, sizeof(client));
-> +	client.adapter = adapter;
-> +	client.addr = sb->slave_address;
-> +	client.flags = 0;
-> +
-> +	if (sb->access_mode == ACPI_I2C_10BIT_MODE)
-> +		client.flags |= I2C_CLIENT_TEN;
-> +
-> +	switch (accessor_type) {
-> +	case ACPI_GSB_ACCESS_ATTRIB_SEND_RCV:
-> +		if (action == ACPI_READ) {
-> +			status = i2c_smbus_read_byte(&client);
-> +			if (status >= 0) {
-> +				gsb->bdata = status;
-> +				status = 0;
-> +			}
-> +		} else {
-> +			status = i2c_smbus_write_byte(&client, gsb->bdata);
-> +		}
-> +		break;
-> +
-> +	case ACPI_GSB_ACCESS_ATTRIB_BYTE:
-> +		if (action == ACPI_READ) {
-> +			status = i2c_smbus_read_byte_data(&client, command);
-> +			if (status >= 0) {
-> +				gsb->bdata = status;
-> +				status = 0;
-> +			}
-> +		} else {
-> +			status = i2c_smbus_write_byte_data(&client, command,
-> +					gsb->bdata);
-> +		}
-> +		break;
-> +
-> +	case ACPI_GSB_ACCESS_ATTRIB_WORD:
-> +		if (action == ACPI_READ) {
-> +			status = i2c_smbus_read_word_data(&client, command);
-> +			if (status >= 0) {
-> +				gsb->wdata = status;
-> +				status = 0;
-> +			}
-> +		} else {
-> +			status = i2c_smbus_write_word_data(&client, command,
-> +					gsb->wdata);
-> +		}
-> +		break;
-> +
-> +	case ACPI_GSB_ACCESS_ATTRIB_BLOCK:
-> +		if (action == ACPI_READ) {
-> +			status = i2c_smbus_read_block_data(&client, command,
-> +					gsb->data);
-> +			if (status >= 0) {
-> +				gsb->len = status;
-> +				status = 0;
-> +			}
-> +		} else {
-> +			status = i2c_smbus_write_block_data(&client, command,
-> +					gsb->len, gsb->data);
-> +		}
-> +		break;
-> +
-> +	case ACPI_GSB_ACCESS_ATTRIB_MULTIBYTE:
-> +		if (action == ACPI_READ) {
-> +			status = acpi_gsb_i2c_read_bytes(&client, command,
-> +					gsb->data, info->access_length);
-> +			if (status > 0)
-> +				status = 0;
-> +		} else {
-> +			status = acpi_gsb_i2c_write_bytes(&client, command,
-> +					gsb->data, info->access_length);
-> +		}
-> +		break;
-> +
-> +	default:
-> +		pr_info("protocol(0x%02x) is not supported.\n", accessor_type);
-> +		ret = AE_BAD_PARAMETER;
-> +		goto err;
-> +	}
-> +
-> +	gsb->status = status;
-> +
-> + err:
-> +	ACPI_FREE(ares);
-> +	return ret;
-> +}
-> +
-> +
-> +int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
-> +{
-> +	acpi_handle handle = ACPI_HANDLE(adapter->dev.parent);
-> +	struct acpi_i2c_handler_data *data;
-> +	acpi_status status;
-> +
-> +	if (!handle)
-> +		return -ENODEV;
-> +
-> +	data = kzalloc(sizeof(struct acpi_i2c_handler_data),
-> +			    GFP_KERNEL);
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	data->adapter = adapter;
-> +	status = acpi_bus_attach_private_data(handle, (void *)data);
-> +	if (ACPI_FAILURE(status)) {
-> +		kfree(data);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	status = acpi_install_address_space_handler(handle,
-> +				ACPI_ADR_SPACE_GSBUS,
-> +				&acpi_i2c_space_handler,
-> +				NULL,
-> +				data);
-> +	if (ACPI_FAILURE(status)) {
-> +		dev_err(&adapter->dev, "Error installing i2c space handler\n");
-> +		acpi_bus_detach_private_data(handle);
-> +		kfree(data);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter)
-> +{
-> +	acpi_handle handle = ACPI_HANDLE(adapter->dev.parent);
-> +	struct acpi_i2c_handler_data *data;
-> +	acpi_status status;
-> +
-> +	if (!handle)
-> +		return;
-> +
-> +	acpi_remove_address_space_handler(handle,
-> +				ACPI_ADR_SPACE_GSBUS,
-> +				&acpi_i2c_space_handler);
-> +
-> +	status = acpi_bus_get_private_data(handle, (void **)&data);
-> +	if (ACPI_SUCCESS(status))
-> +		kfree(data);
-> +
-> +	acpi_bus_detach_private_data(handle);
-> +}
 > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 7c7f4b8..e25cb84 100644
+> index face8f9..80a2f2e 100644
 > --- a/drivers/i2c/i2c-core.c
 > +++ b/drivers/i2c/i2c-core.c
-> @@ -1293,6 +1293,7 @@ exit_recovery:
->  	/* create pre-declared device nodes */
->  	of_i2c_register_devices(adap);
->  	acpi_i2c_register_devices(adap);
-> +	acpi_i2c_install_space_handler(adap);
->  
->  	if (adap->nr < __i2c_first_dynamic_bus_num)
->  		i2c_scan_static_board_info(adap);
-> @@ -1466,6 +1467,7 @@ void i2c_del_adapter(struct i2c_adapter *adap)
->  		return;
->  	}
->  
-> +	acpi_i2c_remove_space_handler(adap);
->  	/* Tell drivers about this removal */
->  	mutex_lock(&core_lock);
->  	bus_for_each_drv(&i2c_bus_type, NULL, adap,
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index 7a8f2cd..ea53b9b 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -361,6 +361,17 @@ extern bool osc_sb_apei_support_acked;
->  #define OSC_PCI_EXPRESS_CAPABILITY_CONTROL	0x00000010
->  #define OSC_PCI_CONTROL_MASKS			0x0000001f
->  
-> +#define ACPI_GSB_ACCESS_ATTRIB_QUICK		0x00000002
-> +#define ACPI_GSB_ACCESS_ATTRIB_SEND_RCV         0x00000004
-> +#define ACPI_GSB_ACCESS_ATTRIB_BYTE		0x00000006
-> +#define ACPI_GSB_ACCESS_ATTRIB_WORD		0x00000008
-> +#define ACPI_GSB_ACCESS_ATTRIB_BLOCK		0x0000000A
-> +#define ACPI_GSB_ACCESS_ATTRIB_MULTIBYTE	0x0000000B
-> +#define ACPI_GSB_ACCESS_ATTRIB_WORD_CALL	0x0000000C
-> +#define ACPI_GSB_ACCESS_ATTRIB_BLOCK_CALL	0x0000000D
-> +#define ACPI_GSB_ACCESS_ATTRIB_RAW_BYTES	0x0000000E
-> +#define ACPI_GSB_ACCESS_ATTRIB_RAW_PROCESS	0x0000000F
+> @@ -1115,6 +1115,19 @@ const struct of_device_id
+>  	return NULL;
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_of_match_device_strip_vendor);
 > +
->  extern acpi_status acpi_pci_osc_control_set(acpi_handle handle,
->  					     u32 *mask, u32 req);
->  
+> +const struct of_device_id
+> +*i2c_of_match_device(const struct of_device_id *matches, struct device *dev)
+
+Should be:
+const struct of_device_id *
+i2c_of_match_device(const struct of_device_id *matches, struct i2c_client *dev)
+
+Since it is only applicable to i2c_client. Don't allow random subsystems
+to call into it with any struct device (even if there is little risk due
+to the name and location of the function). Same comment goes for
+i2c_of_match_device_strip_vendor().
+
+In fact, i2c_of_match_device_strip_vendor() should be rolled directly
+into i2c_of_match_device(). I know you're calling it in patch 7/9, but
+that needs to be removed. I'll comment directly on that patch though.
+
+g.
+
+> +{
+> +	const struct of_device_id *match;
+> +
+> +	match = of_match_device(matches, dev);
+> +	if (match)
+> +		return match;
+> +
+> +	return i2c_of_match_device_strip_vendor(matches, dev);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_of_match_device);
+>  #else
+>  static void of_i2c_register_devices(struct i2c_adapter *adap) { }
+>  #endif /* CONFIG_OF */
 > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index b556e0a..f7a939a 100644
+> index f7ec75b..ab5866f 100644
 > --- a/include/linux/i2c.h
 > +++ b/include/linux/i2c.h
-> @@ -577,4 +577,14 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
->  }
->  #endif /* CONFIG_OF */
+> @@ -565,6 +565,9 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
+>  extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
 >  
-> +#ifdef CONFIG_ACPI
-> +int acpi_i2c_install_space_handler(struct i2c_adapter *adapter);
-> +void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter);
-> +#else
-> +static inline void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter)
-> +{ }
-> +static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
-> +{ return 0; }
-> +#endif
+>  extern const struct of_device_id
+> +*i2c_of_match_device(const struct of_device_id *matches, struct device *dev);
 > +
->  #endif /* _LINUX_I2C_H */
+> +extern const struct of_device_id
+>  *i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
+>  				  struct device *dev);
+>  #else
+> @@ -580,6 +583,12 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
+>  }
+>  
+>  const struct of_device_id
+> +*i2c_of_match_device(const struct of_device_id *matches, struct device *dev)
+> +{
+> +	return NULL;
+> +}
+> +
+> +const struct of_device_id
+>  *i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
+>  				  struct device *dev)
+>  {
+> -- 
+> 1.8.3.2
 > 
-
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
