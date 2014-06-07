@@ -1,91 +1,104 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
- aforementioned systems
-Date: Sat, 7 Jun 2014 10:31:13 +0100
-Message-ID: <20140607093113.GY5099@sirena.org.uk>
-References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
- <1401883796-17841-8-git-send-email-lee.jones@linaro.org>
- <20140605103009.85BE4C40A4D@trevor.secretlab.ca>
- <20140605103709.GE19550@lee--X1>
- <CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
- <20140605155509.GH24240@lee--X1>
- <20140606102446.GK2520@sirena.org.uk>
- <20140606123653.GP24240@lee--X1>
- <20140606234253.A4E25C427F0@trevor.secretlab.ca>
+From: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: add driver for Rockchip RK3xxx SoC I2C adapter
+Date: Sat, 07 Jun 2014 17:32:09 +0200
+Message-ID: <1468105.xYIQWVNzVZ@typ>
+References: <5192968.EzcUiXba22@typ> <1547619.upPdAXDT0W@typ> <20140602120854.GA2654@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6y7Y3jhkIVKgvfoh"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140606234253.A4E25C427F0@trevor.secretlab.ca>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grant Likely <grant.likely@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140602120854.GA2654@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---6y7Y3jhkIVKgvfoh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+thanks for the review!
 
-On Sat, Jun 07, 2014 at 12:42:53AM +0100, Grant Likely wrote:
-> On Fri, 6 Jun 2014 13:36:53 +0100, Lee Jones <lee.jones@linaro.org> wrote:
-> > On Fri, 06 Jun 2014, Mark Brown wrote:
+> > +
+> > +	/* Settings */
+> > +	unsigned int scl_frequency;
+> > +
+> > +	/* Synchronization & notification */
+> > +	spinlock_t lock;
+> 
+> Why the lock? The core has per-adapter locks anyhow.
 
-> > > > I've also been mulling over the idea of removing the second probe()
-> > > > parameter, as suggested by Wolfram.  However, this has quite deep
-> > > > ramifications which would require a great deal of driver adaptions.
+I'm using it to lock the rk3x_i2c struct during interrupts. It's needed there 
+because an operation can timeout, which means the interrupt can occur at any 
+time and possibly conflict with the cleanup I do after a timeout.
 
-> > > If you're going to do that another option is to refactor the probe()
-> > > function to take the driver_data as an argument and then have the core
-> > > pass that from whatever table it matched from rather than the entire
-> > > i2c_device_id structure.  That way the driver just needs to supply all
-> > > the ID tables mapping binding information to whatever it needs and the
-> > > core can pass in the driver data from whatever table it matched against.
+I looked around in i2c-exynos5.c, i2c-pxa.c and others, and they do it the 
+same way. Could you explain in more detail why it's not needed?
 
-> > Unfortunately this means we're back to the aforementioned typing
-> > issue.  For struct {platform,i2c,spi,acpi,etc}_device_id the driver
-> > data is a kernel ulong but the of_device_id's driver data attribute is
-> > a void*.
+> > +static void rk3x_i2c_handle_write(struct rk3x_i2c *i2c, unsigned int ipd)
+> > +{
+> > +	if (!(ipd & REG_INT_MBTF)) {
+> > +		rk3x_i2c_stop(i2c, -ENXIO);
+> > +		dev_err(i2c->dev, "unexpected irq in WRITE: 0x%x\n", ipd);
+> > +		rk3x_i2c_clean_ipd(i2c);
+> > +		return;
+> > +	}
+> > +
+> > +	/* ack interrupt */
+> > +	i2c_writel(i2c, REG_INT_MBTF, REG_IPD);
+> > +
+> > +	/* are we finished? */
+> > +	if (i2c->processed == i2c->msg->len)
+> > +		rk3x_i2c_stop(i2c, i2c->error);
+> > +	else
+> > +		rk3x_i2c_fill_transmit_buf(i2c);
+> 
+> It looks to me that you STOP after every message? You should use
+> REPEATED_START inbetween messages and only stop after the last message
+> of a transfer.
 
-> We're actually okay there. Each subsystem defines it's own convention
-> about what those values mean. ulong and void* are the same size and
-> every user I've seen stuffs the same data into the data field of both
-> tables.
+I had a fight with the hw today and finally got it to issue a REPEATED_START 
+for multiple "boring" messages. Will be included in the next version.
 
-Indeed - if we're going to go with that approach it seems to me like we
-should just pick one and put any casting in the core.
+> > +/**
+> > + * Setup I2C registers for an I2C operation specified by msgs, num.
+> > + *
+> > + * Must be called with i2c->lock held.
+> > + *
+> > + * @msgs: I2C msgs to process
+> > + * @num: Number of msgs
+> > + *
+> > + * returns: Number of I2C msgs processed or negative in case of error
+> > + */
+> > +static int rk3x_i2c_setup(struct rk3x_i2c *i2c, struct i2c_msg *msgs, int
+> > num) +{
+> > +	u32 addr = (msgs[0].addr & 0x7f) << 1;
+> > +	int ret = 0;
+> > +
+> > +	/*
+> > +	 * The I2C adapter can issue a small (len < 4) write packet before
+> > +	 * reading. This speeds up SMBus-style register reads.
+> > +	 * The MRXADDR/MRXRADDR hold the slave address and the slave register
+> > +	 * address in this case.
+> > +	 */
+> > +
+> > +	if (num >= 2 && msgs[0].len < 4
+> > +	    && !(msgs[0].flags & I2C_M_RD)
+> > +	    && (msgs[1].flags & I2C_M_RD)) {
+> > +		u32 reg_addr = 0;
+> > +
+> > +		dev_dbg(i2c->dev, "Combined write/read from addr 0x%x\n",
+> > +			addr >> 1);
+> > +
+> > +		if (msgs[0].len == 0)
+> > +			return -EINVAL;
+> 
+> Can the controller do SMBUS_QUICK (len == 0) in general? For the case it
+> cannot do it only in this multi-packet mode, then you should fall back
+> to the "boring" mode.
 
-> > I've just started work on a migration over to a new probe().  I don't
-> > think it's all that much work, but if there are any objections I'd
-> > prefer to hear them now rather than waste any time.
+Actually, I wasn't aware that (len == 0) is a valid case. The hw supports it 
+in both modes, I just tested that. So the check is going away.
 
-> I have no problem with that approach.
+I'm cleaning up now and you can expect a new version of the patch today.
 
-Converting probe() makes sense to me.  I think I would prefer to see the
-ID lookup handled as an argument to probe() rather than with functions
-in probe() but it's not the end of the world if it isn't.
-
---6y7Y3jhkIVKgvfoh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTktvXAAoJELSic+t+oim9l8wP/1jF0+blOk/7Tly8tDciwRIM
-drLZj2RqQUutNEh62orzIMbkygeH+zlOsLPhyDwOv8ROUJNZ7b5eAknl5olePEgx
-BFT+v00EogShn+QQepggCSTiEAxWLr2YNavzhzGm71m8l/wp6xDxoKeb4ZCubdCr
-97lAb/pB0wIFATZ3nGTCJrm56KOISw3AWkdmAp0NQHFfBxE+zBQ8zQcIfRm8LZVo
-KHsZc+PSlz6tJhJiqaC/aAn+jpRRJWKtaeoEZ9sGB5NWvvXqynnxD+rJPUft4sTC
-e2d/oUQlmp6nicfwOOSqs08afXCnneF6VEfKJl/SRHtlS1O64uiZXsQPCC7bunx0
-YfQ6DVdJIGfWh3eNxpSFaHkpm2snYT5pVosRobo675c1LaFT+QMmdk9cbIvUXYiU
-r9x67MhJCnADRHhYa8GIXT8xtJD/bTVKABvFX1VCRxt6r4Tda2wKr9a2rep7PA1p
-7W3I+0lsLxIW4moujk38lGOPvXE5XYeLUqxMtQkzURq/aIxrHluOjM0gkksozWB1
-Um/l3hf0/wfVTha8s/veQAa/EgkSmjgHzrk5xCpk90UFYObVL0XHZzV5dmkJIm+F
-KkgwbIYiW2Uzpga3EPbEkwox+J7xUzBu7aArG+wkVn6Y0pQhc9Hb/XyFHIwY6/34
-zV8lulsr1d9VQQOIduqC
-=e8OY
------END PGP SIGNATURE-----
-
---6y7Y3jhkIVKgvfoh--
+Cheers,
+  Max
