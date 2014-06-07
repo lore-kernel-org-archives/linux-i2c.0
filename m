@@ -1,16 +1,16 @@
-From: Max Schwarz <max.schwarz@online.de>
+From: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
 Subject: [PATCH v5] i2c: add driver for Rockchip RK3xxx SoC I2C adapter
-Date: Sat, 07 Jun 2014 19:36:19 +0200
-Message-ID: <10794912.fZysmMBNIZ@typ>
+Date: Sat, 07 Jun 2014 19:44:43 +0200
+Message-ID: <1622583.1BSVBxxgia@typ>
 References: <5192968.EzcUiXba22@typ> <1956748.HoDAyYWJMb@typ>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1956748.HoDAyYWJMb@typ>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>, Maxime Ripard <maxime.ripard@free-electrons.com>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, kfx-TNX95d0MmH7DzftRWevZcw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 Driver for the native I2C adapter found in Rockchip RK3xxx SoCs.
@@ -18,8 +18,11 @@ Driver for the native I2C adapter found in Rockchip RK3xxx SoCs.
 Configuration is only possible through devicetree. The driver is
 interrupt driven and supports the I2C_M_IGNORE_NAK mangling bit.
 
-Signed-off-by: Max Schwarz <max.schwarz@online.de>
+Signed-off-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
 ---
+
+Sorry for the resend, I forgot to CC the developers at Rockchip,
+which I promised to do. Patch is unchanged.
 
 The driver cannot be used without a proper clock driver
 supporting rate calculation, such as Heiko St=FCbner's RK3xxx clock
@@ -58,7 +61,7 @@ The dts files needed for testing on Radxa Rock are in my tree at
 
 https://github.com/xqms/linux.git topic/i2c-rk3x-clean-v4
 
-[1]: http://www.spinics.net/lists/arm-kernel/msg329102.html
+[1]: http://www.spinics.net/lists/arm-kernel/msg334495.html
 
  Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |  42 ++
  drivers/i2c/busses/Kconfig                         |  10 +
@@ -167,7 +170,7 @@ index 0000000..7a430f4
 +/*
 + * Driver for I2C adapter in Rockchip RK3xxx SoC
 + *
-+ * Max Schwarz <max.schwarz@online.de>
++ * Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
 + * based on the patches by Rockchip Inc.
 + *
 + * This program is free software; you can redistribute it and/or modif=
@@ -947,7 +950,13 @@ G;
 +module_platform_driver(rk3x_i2c_driver);
 +
 +MODULE_DESCRIPTION("Rockchip RK3xxx I2C Bus driver");
-+MODULE_AUTHOR("Max Schwarz <max.schwarz@online.de>");
++MODULE_AUTHOR("Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>");
 +MODULE_LICENSE("GPL v2");
 --=20
 1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
