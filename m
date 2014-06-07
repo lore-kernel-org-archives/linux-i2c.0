@@ -1,57 +1,91 @@
-From: Grant Likely <grant.likely@linaro.org>
-Subject: Re: [PATCH 0/9] i2c: Relax mandatory I2C ID table passing (+ some
- creep)
-Date: Sat, 07 Jun 2014 00:33:41 +0100
-Message-ID: <20140606233341.D7C75C42771@trevor.secretlab.ca>
-References: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 7/7] OF/ACPI/I2C: Add generic match function for the
+ aforementioned systems
+Date: Sat, 7 Jun 2014 10:31:13 +0100
+Message-ID: <20140607093113.GY5099@sirena.org.uk>
+References: <1401883796-17841-1-git-send-email-lee.jones@linaro.org>
+ <1401883796-17841-8-git-send-email-lee.jones@linaro.org>
+ <20140605103009.85BE4C40A4D@trevor.secretlab.ca>
+ <20140605103709.GE19550@lee--X1>
+ <CACxGe6vLuKygv0E7yq42qe-Lh+nMZ1wrL7PW_TAeoz55wz9q8A@mail.gmail.com>
+ <20140605155509.GH24240@lee--X1>
+ <20140606102446.GK2520@sirena.org.uk>
+ <20140606123653.GP24240@lee--X1>
+ <20140606234253.A4E25C427F0@trevor.secretlab.ca>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6y7Y3jhkIVKgvfoh"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1402069952-28022-1-git-send-email-lee.jones@linaro.org>
+Content-Disposition: inline
+In-Reply-To: <20140606234253.A4E25C427F0@trevor.secretlab.ca>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+To: Grant Likely <grant.likely@linaro.org>
+Cc: Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri,  6 Jun 2014 16:52:23 +0100, Lee Jones <lee.jones@linaro.org> wrote:
-> Hi Wolfram,
->   
-> As previously discussed I believe it should be okay for an I2C device
-> driver _not_ supply an I2C ID table to match to.  The I2C subsystem
-> should be able to match via other means, such as via OF tables.  The
-> blocking factor during our previous conversation was to keep
-> registering via sysfs up and running.  This set does that.
->   
-> After thinking more deeply about the problem, it occurred to me that
-> any I2C device driver which uses the sysfs method and issues an
-> of_match_device() would also fail their probe().  Bolted on to this
-> set is a new, more generic way for these devices to match against
-> either of the I2C/OF tables.
-> 
-> I hope this ticks all of your boxes.
-> 
-> v2:
->   - Removal of ACPI support (this is really an OF issue).
->   - Add a new .probe2( with will seamlessly replace
->   - Supply a warning on devices matching via OF without a suitable compatible
->   - Remove unified match_device() - bad idea as it subverts type-safe behaviour
->   - Provide examples of the kind of clean-up possible after this set.
->     - I already have the full support from the maintainer of these drivers =;-) 
 
-Aside from patch 7/9 and the comment I made about struct device vs.
-struct i2c_client in the API, I think this series looks good. You can
-add my acks to 1-6 and 8-9. Number 7 is nacked.
+--6y7Y3jhkIVKgvfoh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
+On Sat, Jun 07, 2014 at 12:42:53AM +0100, Grant Likely wrote:
+> On Fri, 6 Jun 2014 13:36:53 +0100, Lee Jones <lee.jones@linaro.org> wrote:
+> > On Fri, 06 Jun 2014, Mark Brown wrote:
 
-g.
+> > > > I've also been mulling over the idea of removing the second probe()
+> > > > parameter, as suggested by Wolfram.  However, this has quite deep
+> > > > ramifications which would require a great deal of driver adaptions.
 
-> 
-> Kind regards,
-> Lee
-> 
->  drivers/i2c/i2c-core.c      | 73 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---------
->  drivers/mfd/88pm860x-core.c |  5 ++---
->  drivers/mfd/as3722.c        | 12 ++----------
->  drivers/of/device.c         | 19 ++++++++++++++++++-
->  include/linux/i2c.h         | 29 ++++++++++++++++++++++++++++-
->  5 files changed, 114 insertions(+), 24 deletions(-)
-> 
+> > > If you're going to do that another option is to refactor the probe()
+> > > function to take the driver_data as an argument and then have the core
+> > > pass that from whatever table it matched from rather than the entire
+> > > i2c_device_id structure.  That way the driver just needs to supply all
+> > > the ID tables mapping binding information to whatever it needs and the
+> > > core can pass in the driver data from whatever table it matched against.
+
+> > Unfortunately this means we're back to the aforementioned typing
+> > issue.  For struct {platform,i2c,spi,acpi,etc}_device_id the driver
+> > data is a kernel ulong but the of_device_id's driver data attribute is
+> > a void*.
+
+> We're actually okay there. Each subsystem defines it's own convention
+> about what those values mean. ulong and void* are the same size and
+> every user I've seen stuffs the same data into the data field of both
+> tables.
+
+Indeed - if we're going to go with that approach it seems to me like we
+should just pick one and put any casting in the core.
+
+> > I've just started work on a migration over to a new probe().  I don't
+> > think it's all that much work, but if there are any objections I'd
+> > prefer to hear them now rather than waste any time.
+
+> I have no problem with that approach.
+
+Converting probe() makes sense to me.  I think I would prefer to see the
+ID lookup handled as an argument to probe() rather than with functions
+in probe() but it's not the end of the world if it isn't.
+
+--6y7Y3jhkIVKgvfoh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTktvXAAoJELSic+t+oim9l8wP/1jF0+blOk/7Tly8tDciwRIM
+drLZj2RqQUutNEh62orzIMbkygeH+zlOsLPhyDwOv8ROUJNZ7b5eAknl5olePEgx
+BFT+v00EogShn+QQepggCSTiEAxWLr2YNavzhzGm71m8l/wp6xDxoKeb4ZCubdCr
+97lAb/pB0wIFATZ3nGTCJrm56KOISw3AWkdmAp0NQHFfBxE+zBQ8zQcIfRm8LZVo
+KHsZc+PSlz6tJhJiqaC/aAn+jpRRJWKtaeoEZ9sGB5NWvvXqynnxD+rJPUft4sTC
+e2d/oUQlmp6nicfwOOSqs08afXCnneF6VEfKJl/SRHtlS1O64uiZXsQPCC7bunx0
+YfQ6DVdJIGfWh3eNxpSFaHkpm2snYT5pVosRobo675c1LaFT+QMmdk9cbIvUXYiU
+r9x67MhJCnADRHhYa8GIXT8xtJD/bTVKABvFX1VCRxt6r4Tda2wKr9a2rep7PA1p
+7W3I+0lsLxIW4moujk38lGOPvXE5XYeLUqxMtQkzURq/aIxrHluOjM0gkksozWB1
+Um/l3hf0/wfVTha8s/veQAa/EgkSmjgHzrk5xCpk90UFYObVL0XHZzV5dmkJIm+F
+KkgwbIYiW2Uzpga3EPbEkwox+J7xUzBu7aArG+wkVn6Y0pQhc9Hb/XyFHIwY6/34
+zV8lulsr1d9VQQOIduqC
+=e8OY
+-----END PGP SIGNATURE-----
+
+--6y7Y3jhkIVKgvfoh--
