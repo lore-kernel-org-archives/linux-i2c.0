@@ -1,57 +1,44 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH] i2c: mux: pca954x: fix dependencies
-Date: Mon,  9 Jun 2014 15:11:13 +0200
-Message-ID: <1402319473-14993-1-git-send-email-linus.walleij@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: randconfig build error with next-20140604, in drivers/i2c/muxes/i2c-mux-pca954x.c
+Date: Mon, 9 Jun 2014 15:12:01 +0200
+Message-ID: <CACRpkdZO_vE1VnJ6=gEdX8P-qNADsskJkMOdaRDg-TabTSySCQ@mail.gmail.com>
+References: <CA+r1Zhi9Qd4aZ2WJ02K4Gv=zg7QvG+r=t2VpiXRKXcYRc1vt=A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CA+r1Zhi9Qd4aZ2WJ02K4Gv=zg7QvG+r=t2VpiXRKXcYRc1vt=A@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jim Davis <jim.epost@gmail.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Jingoo Han <jg1.han@samsung.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This driver causes the following randconfig build error:
+On Wed, Jun 4, 2014 at 6:44 PM, Jim Davis <jim.epost@gmail.com> wrote:
 
-drivers/i2c/muxes/i2c-mux-pca954x.c: In function =E2=80=98pca954x_probe=
-=E2=80=99:
-drivers/i2c/muxes/i2c-mux-pca954x.c:204:2: error: implicit declaration
-of function =E2=80=98devm_gpiod_get=E2=80=99 [-Werror=3Dimplicit-functi=
-on-declaration]
-  gpio =3D devm_gpiod_get(&client->dev, "reset");
-  ^
-drivers/i2c/muxes/i2c-mux-pca954x.c:204:7: warning: assignment makes
-pointer from integer without a cast [enabled by default]
-  gpio =3D devm_gpiod_get(&client->dev, "reset");
-       ^
-drivers/i2c/muxes/i2c-mux-pca954x.c:206:3: error: implicit declaration
-of function =E2=80=98gpiod_direction_output=E2=80=99
-[-Werror=3Dimplicit-function-declaration]
-   gpiod_direction_output(gpio, 0);
-   ^
-cc1: some warnings being treated as errors
-make[3]: *** [drivers/i2c/muxes/i2c-mux-pca954x.o] Error 1
+> Building with the attached random configuration file,
+>
+> drivers/i2c/muxes/i2c-mux-pca954x.c: In function =E2=80=98pca954x_pro=
+be=E2=80=99:
+> drivers/i2c/muxes/i2c-mux-pca954x.c:204:2: error: implicit declaratio=
+n
+> of function =E2=80=98devm_gpiod_get=E2=80=99 [-Werror=3Dimplicit-func=
+tion-declaration]
+>   gpio =3D devm_gpiod_get(&client->dev, "reset");
+>   ^
+> drivers/i2c/muxes/i2c-mux-pca954x.c:204:7: warning: assignment makes
+> pointer from integer without a cast [enabled by default]
+>   gpio =3D devm_gpiod_get(&client->dev, "reset");
+>        ^
+> drivers/i2c/muxes/i2c-mux-pca954x.c:206:3: error: implicit declaratio=
+n
+> of function =E2=80=98gpiod_direction_output=E2=80=99
+> [-Werror=3Dimplicit-function-declaration]
+>    gpiod_direction_output(gpio, 0);
+>    ^
+> cc1: some warnings being treated as errors
+> make[3]: *** [drivers/i2c/muxes/i2c-mux-pca954x.o] Error 1
 
-This is because it is getting compiled without gpiolib, so
-introduce an explicit dependency.
+I've sent a patch for this to Wolfram and the i2c discuss list.
 
-Reported-by: Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/muxes/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index f7f9865b8b89..f6d313e528de 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -40,6 +40,7 @@ config I2C_MUX_PCA9541
-=20
- config I2C_MUX_PCA954x
- 	tristate "Philips PCA954x I2C Mux/switches"
-+	depends on GPIOLIB
- 	help
- 	  If you say yes here you get support for the Philips PCA954x
- 	  I2C mux/switch devices.
---=20
-1.9.3
+Yours,
+Linus Walleij
