@@ -1,21 +1,21 @@
 From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c/ACPI: Support for multiple serial bus addresses
-Date: Mon, 9 Jun 2014 10:54:21 +0300
-Message-ID: <20140609075421.GD1657@lahna.fi.intel.com>
-References: <1397189717-30657-1-git-send-email-srinivas.pandruvada@linux.intel.com>
- <20140606123214.GB2810@katana>
+Subject: Re: [Patch V3 4/5] I2C/ACPI: Add i2c ACPI operation region support
+Date: Mon, 9 Jun 2014 10:56:38 +0300
+Message-ID: <20140609075638.GE1657@lahna.fi.intel.com>
+References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com>
+ <1400590764-11108-5-git-send-email-tianyu.lan@intel.com>
+ <17324514.CZVTFJVpea@vostro.rjw.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140606123214.GB2810@katana>
+In-Reply-To: <17324514.CZVTFJVpea-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 06, 2014 at 02:32:14PM +0200, Wolfram Sang wrote:
-> Mika: Your review for ACPI specific details would be much appreciated
-> here.
+On Sat, Jun 07, 2014 at 12:48:13AM +0200, Rafael J. Wysocki wrote:
+> Do I believe correctly that you have reviewed this patch already?
 
-Sure. Srinivas, is this the latest version of the patch series?
+Yes, I did :)
