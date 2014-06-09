@@ -1,58 +1,28 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: randconfig build error with next-20140604, in drivers/i2c/muxes/i2c-mux-pca954x.c
-Date: Mon, 09 Jun 2014 15:31:40 +0200
-Message-ID: <14609786.lXROpz1lS8@avalon>
-References: <CA+r1Zhi9Qd4aZ2WJ02K4Gv=zg7QvG+r=t2VpiXRKXcYRc1vt=A@mail.gmail.com> <CACRpkdZO_vE1VnJ6=gEdX8P-qNADsskJkMOdaRDg-TabTSySCQ@mail.gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c/ACPI: Support for multiple serial bus addresses
+Date: Mon, 09 Jun 2014 10:27:40 -0700
+Message-ID: <5395EE8C.8090305@linux.intel.com>
+References: <1397189717-30657-1-git-send-email-srinivas.pandruvada@linux.intel.com> <20140606123214.GB2810@katana> <20140609075421.GD1657@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdZO_vE1VnJ6=gEdX8P-qNADsskJkMOdaRDg-TabTSySCQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20140609075421.GD1657-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, linux-next <linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 09 June 2014 15:12:01 Linus Walleij wrote:
-> On Wed, Jun 4, 2014 at 6:44 PM, Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote=
-:
-> > Building with the attached random configuration file,
-> >=20
-> > drivers/i2c/muxes/i2c-mux-pca954x.c: In function =E2=80=98pca954x_p=
-robe=E2=80=99:
-> > drivers/i2c/muxes/i2c-mux-pca954x.c:204:2: error: implicit declarat=
-ion
-> > of function =E2=80=98devm_gpiod_get=E2=80=99 [-Werror=3Dimplicit-fu=
-nction-declaration]
-> >=20
-> >   gpio =3D devm_gpiod_get(&client->dev, "reset");
-> >   ^
-> >=20
-> > drivers/i2c/muxes/i2c-mux-pca954x.c:204:7: warning: assignment make=
-s
-> > pointer from integer without a cast [enabled by default]
-> >=20
-> >   gpio =3D devm_gpiod_get(&client->dev, "reset");
-> >  =20
-> >        ^
-> >=20
-> > drivers/i2c/muxes/i2c-mux-pca954x.c:206:3: error: implicit declarat=
-ion
-> > of function =E2=80=98gpiod_direction_output=E2=80=99
-> > [-Werror=3Dimplicit-function-declaration]
-> >=20
-> >    gpiod_direction_output(gpio, 0);
-> >    ^
-> >=20
-> > cc1: some warnings being treated as errors
-> > make[3]: *** [drivers/i2c/muxes/i2c-mux-pca954x.o] Error 1
->=20
-> I've sent a patch for this to Wolfram and the i2c discuss list.
+On 06/09/2014 12:54 AM, Mika Westerberg wrote:
+> On Fri, Jun 06, 2014 at 02:32:14PM +0200, Wolfram Sang wrote:
+>> Mika: Your review for ACPI specific details would be much appreciated
+>> here.
+>
+> Sure. Srinivas, is this the latest version of the patch series?
+>
+Yes.
+http://patchwork.ozlabs.org/patch/338342/
+http://patchwork.ozlabs.org/patch/338341/
 
-https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/commit/?h=3D=
-i2c/for-next&id=3D642653d16a0f8e78b7a25d930b62aa771ebc939c
-
---=20
-Regards,
-
-Laurent Pinchart
+Thanks,
+Srinivas
