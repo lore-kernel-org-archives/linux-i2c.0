@@ -1,21 +1,57 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [Patch V3 4/5] I2C/ACPI: Add i2c ACPI operation region support
-Date: Mon, 9 Jun 2014 10:56:38 +0300
-Message-ID: <20140609075638.GE1657@lahna.fi.intel.com>
-References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com>
- <1400590764-11108-5-git-send-email-tianyu.lan@intel.com>
- <17324514.CZVTFJVpea@vostro.rjw.lan>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c: mux: pca954x: fix dependencies
+Date: Mon,  9 Jun 2014 15:11:13 +0200
+Message-ID: <1402319473-14993-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <17324514.CZVTFJVpea-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jun 07, 2014 at 12:48:13AM +0200, Rafael J. Wysocki wrote:
-> Do I believe correctly that you have reviewed this patch already?
+This driver causes the following randconfig build error:
 
-Yes, I did :)
+drivers/i2c/muxes/i2c-mux-pca954x.c: In function =E2=80=98pca954x_probe=
+=E2=80=99:
+drivers/i2c/muxes/i2c-mux-pca954x.c:204:2: error: implicit declaration
+of function =E2=80=98devm_gpiod_get=E2=80=99 [-Werror=3Dimplicit-functi=
+on-declaration]
+  gpio =3D devm_gpiod_get(&client->dev, "reset");
+  ^
+drivers/i2c/muxes/i2c-mux-pca954x.c:204:7: warning: assignment makes
+pointer from integer without a cast [enabled by default]
+  gpio =3D devm_gpiod_get(&client->dev, "reset");
+       ^
+drivers/i2c/muxes/i2c-mux-pca954x.c:206:3: error: implicit declaration
+of function =E2=80=98gpiod_direction_output=E2=80=99
+[-Werror=3Dimplicit-function-declaration]
+   gpiod_direction_output(gpio, 0);
+   ^
+cc1: some warnings being treated as errors
+make[3]: *** [drivers/i2c/muxes/i2c-mux-pca954x.o] Error 1
+
+This is because it is getting compiled without gpiolib, so
+introduce an explicit dependency.
+
+Reported-by: Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/muxes/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index f7f9865b8b89..f6d313e528de 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -40,6 +40,7 @@ config I2C_MUX_PCA9541
+=20
+ config I2C_MUX_PCA954x
+ 	tristate "Philips PCA954x I2C Mux/switches"
++	depends on GPIOLIB
+ 	help
+ 	  If you say yes here you get support for the Philips PCA954x
+ 	  I2C mux/switch devices.
+--=20
+1.9.3
