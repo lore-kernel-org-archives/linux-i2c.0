@@ -1,207 +1,147 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5] i2c: add driver for Rockchip RK3xxx SoC I2C adapter
-Date: Tue, 10 Jun 2014 21:27:09 +0200
-Message-ID: <20140610192709.GA3122@katana>
-References: <5192968.EzcUiXba22@typ>
- <1956748.HoDAyYWJMb@typ>
- <10794912.fZysmMBNIZ@typ>
+Subject: Re: [PATCH v5 2/2] i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface)
+ controller support
+Date: Tue, 10 Jun 2014 21:45:11 +0200
+Message-ID: <20140610194511.GC3122@katana>
+References: <1402408036-5235-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1402408036-5235-3-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="HG+GLK89HZ1zG0kk"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <10794912.fZysmMBNIZ@typ>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Max Schwarz <max.schwarz@online.de>
-Cc: Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, Maxime Ripard <maxime.ripard@free-electrons.com>
+In-Reply-To: <1402408036-5235-3-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Hans de Goede <hdegoede@redhat.com>, Shuge <shuge@allwinnertech.com>, kevin@allwinnertech.com, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---5mCyUwZo2JvN/JJP
+--HG+GLK89HZ1zG0kk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On Sat, Jun 07, 2014 at 07:36:19PM +0200, Max Schwarz wrote:
-> Driver for the native I2C adapter found in Rockchip RK3xxx SoCs.
->=20
-> Configuration is only possible through devicetree. The driver is
-> interrupt driven and supports the I2C_M_IGNORE_NAK mangling bit.
->=20
-> Signed-off-by: Max Schwarz <max.schwarz@online.de>
+compiling this driver gives me:
 
-Checking if the spinlock is needed would be nice, but we can also fix
-this later. Besides this, my code-checkers say:
+drivers/i2c/busses/i2c-sun6i-p2wi.c: In function 'p2wi_probe':
+drivers/i2c/busses/i2c-sun6i-p2wi.c:272:2: error: implicit declaration of function 'devm_reset_control_get' [-Werror=implicit-function-declaration]
+drivers/i2c/busses/i2c-sun6i-p2wi.c:272:13: warning: assignment makes pointer from integer without a cast [enabled by default]
 
-    CHECKPATCH
-CHECK: Logical continuations should be on the previous line
-#615: FILE: drivers/i2c/busses/i2c-rk3x.c:470:
-+	if (num >=3D 2 && msgs[0].len < 4
-+	    && !(msgs[0].flags & I2C_M_RD)
-
-CHECK: Logical continuations should be on the previous line
-#616: FILE: drivers/i2c/busses/i2c-rk3x.c:471:
-+	    && !(msgs[0].flags & I2C_M_RD)
-+	    && (msgs[1].flags & I2C_M_RD)) {
-
-    SPARSE
-drivers/i2c/busses/i2c-rk3x.c:173:20: warning: Using plain integer as NULL =
-pointer
-drivers/i2c/busses/i2c-rk3x.c:664:45: warning: Using plain integer as NULL =
-pointer
-drivers/i2c/busses/i2c-rk3x.c:735:9: warning: cast removes address space of=
- expression
-    SMATCH
-drivers/i2c/busses/i2c-rk3x.c:592 rk3x_i2c_xfer() error: double unlock 'spi=
-n_lock:&i2c->lock'
-    SPATCH
-drivers/i2c/busses/i2c-rk3x.c:366:1-10: WARNING: Assignment of bool to 0/1
-drivers/i2c/busses/i2c-rk3x.c:187:2-11: WARNING: Assignment of bool to 0/1
-  CC      drivers/i2c/busses/i2c-rk3x.o
-drivers/i2c/busses/i2c-rk3x.c: In function 'rk3x_i2c_irq':
-drivers/i2c/busses/i2c-rk3x.c:336:15: warning: 'val' may be used uninitiali=
-zed in this function [-Wuninitialized]
-drivers/i2c/busses/i2c-rk3x.c:321:15: note: 'val' was declared here
-
-The smatch warning may be a false positive, please check. The gcc warning i=
-s a
-false positive but to prevent people from sending fixup patches, please do
-something like commit a55b44ac3fe0.
-
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+> diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
 > new file mode 100644
-> index 0000000..7a430f4
+> index 0000000..4f7b93f
 > --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -0,0 +1,769 @@
+> +++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> @@ -0,0 +1,356 @@
 > +/*
-> + * Driver for I2C adapter in Rockchip RK3xxx SoC
+> + * P2WI (Push-Pull Two Wire Interface) bus driver.
 > + *
-> + * Max Schwarz <max.schwarz@online.de>
-> + * based on the patches by Rockchip Inc.
+> + * Author: Boris BREZILLON <boris.brezillon@free-electrons.com>
 > + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
+> + * This file is licensed under the terms of the GNU General Public License
+> + * version 2.  This program is licensed "as is" without any warranty of any
+> + * kind, whether express or implied.
+> + *
+> + * The P2WI controller looks like an SMBus controller which only supports byte
+> + * data transfers. But, it differs from standard SMBus protocol on several
+> + * aspects:
+> + * - it supports only one slave device, and thus drop the address field
+> + * - it adds a parity bit every 8bits of data
+> + * - only one read access is required to read a byte (instead of a write
+> + *   followed by a read access in standard SMBus protocol)
+> + * - there's no Ack bit after each byte transfer
+> + *
+> + * This means this bus cannot be used to interface with standard SMBus
+> + * devices (the only known device to support this interface is the AXP221
+> + * PMIC).
+> + *
 > + */
-> +
 > +#include <linux/kernel.h>
+> +#include <linux/slab.h>
 > +#include <linux/module.h>
-> +
+> +#include <linux/spinlock.h>
 
-No empty line here.
+Unneeded. Please check other includes, too.
 
 > +#include <linux/i2c.h>
-> +#include <linux/time.h>
 > +#include <linux/interrupt.h>
-> +#include <linux/delay.h>
-> +#include <linux/errno.h>
-> +#include <linux/err.h>
 > +#include <linux/platform_device.h>
 > +#include <linux/io.h>
-> +#include <linux/of_address.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
 > +#include <linux/of_irq.h>
-> +#include <linux/spinlock.h>
 > +#include <linux/clk.h>
-> +#include <linux/wait.h>
-> +#include <linux/mfd/syscon.h>
-> +#include <linux/regmap.h>
+> +#include <linux/err.h>
+> +#include <linux/delay.h>
+> +#include <linux/clk.h>
+> +#include <linux/reset.h>
+> +
 
-Do you really need delay.h and time.h? Look like leftovers to me.
+...
 
-> +/**
-> + * Generate a START condition, which triggers a REG_INT_START interrupt.
-> + */
-> +static void rk3x_i2c_start(struct rk3x_i2c *i2c)
-> +{
-> +	u32 val;
-> +
-> +	dev_dbg(i2c->dev, "start\n");
-
-I think this debug could go now, or?
-
-> +
-> +	rk3x_i2c_clean_ipd(i2c);
-> +	i2c_writel(i2c, REG_INT_START, REG_IEN);
-> +
-> +	/* enable adapter with correct mode, send START condition */
-> +	val =3D REG_CON_EN | REG_CON_MOD(i2c->mode) | REG_CON_START;
-> +
-> +	/* if we want to react to NACK, set ACTACK bit */
-> +	if (!(i2c->msg->flags & I2C_M_IGNORE_NAK))
-> +		val |=3D REG_CON_ACTACK;
-> +
-> +	i2c_writel(i2c, val, REG_CON);
-> +}
-
-=2E..
-
-> +
-> +static void rk3x_i2c_prepare_read(struct rk3x_i2c *i2c)
-> +{
-> +	unsigned int len =3D i2c->msg->len - i2c->processed;
-> +	u32 con;
-> +
-> +	con =3D i2c_readl(i2c, REG_CON);
-> +
-> +	/*
-> +	 * The hw can read up to 32 bytes at a time. If we need more than one
-> +	 * chunk, send an ACK after the last byte of the current chunk.
-> +	 */
-> +	if (unlikely(len > 32)) {
-> +		len =3D 32;
-> +		con &=3D ~REG_CON_LASTACK;
-> +	} else {
-> +		con |=3D REG_CON_LASTACK;
+> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	p2wi->regs = devm_ioremap_resource(dev, r);
+> +	if (IS_ERR(p2wi->regs)) {
+> +		ret = PTR_ERR(p2wi->regs);
+> +		return ret;
 > +	}
 
-This is a bit confusing also due to the description of this bit:
-"/* 1: do not send ACK after last receive */"
-
-It means not only don't send ACK, but merely do send NACK (to signal end of
-read). I though "not send ack" means clock stretching so I was wondering. M=
-aybe
-needs some rewording.
+return PTR_ERR(...)?
 
 > +
-> +	/* make sure we are in plain RX mode if we read a second chunk */
-> +	if (i2c->processed !=3D 0) {
-> +		con &=3D ~REG_CON_MOD_MASK;
-> +		con |=3D REG_CON_MOD(REG_CON_MOD_RX);
+> +	snprintf(p2wi->adapter.name, sizeof(p2wi->adapter.name), pdev->name);
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq < 0) {
+> +		dev_err(dev, "failed to retrieve irq: %d\n", ret);
+> +		return irq;
 > +	}
 > +
-> +	i2c_writel(i2c, con, REG_CON);
-> +	i2c_writel(i2c, len, REG_MRXCNT);
-> +}
+> +	p2wi->clk = devm_clk_get(dev, NULL);
+> +	if (IS_ERR(p2wi->clk)) {
+> +		ret = PTR_ERR(p2wi->clk);
+> +		dev_err(dev, "failed to retrieve clk: %d\n",
+> +			ret);
+
+dangling ret.
+
+> +		return ret;
+> +	}
 > +
 
-Thanks, I think we're very close to go...
+...
+
+> +MODULE_AUTHOR("Boris BREZILLON <boris.brezillon@free-electrons.com>");
+> +MODULE_DESCRIPTION("Allwinner P2WI driver");
+> +MODULE_LICENSE("GPL");
+
+"GPL v2"
+
+Thanks,
 
    Wolfram
 
-
---5mCyUwZo2JvN/JJP
+--HG+GLK89HZ1zG0kk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTl1wMAAoJEBQN5MwUoCm2D/YQAKPh43T/DiiswA0UVK9Isf+j
-m1/BdVvdP4zJBKmXH13WCazMhkhU15rFl+RxuJCwL3obfLs2mNaMaL68+gFl9lu2
-H4KCJvejZy1DL5BPGSLrCVsI5Pasvo5o7uk8BJwFEhWOHydOdeVyZ/9fyat+ThZn
-tRXv7f7grVL8J4Wg9/0sQ5gYB5oeTq6uXSdIMAGm2mcSTLJa9xqCt3kPWK2FX75D
-g79wJ74FgY5AKpS7zwHk7V/oroBbbmhfUBDMIt66L4hp1zy9wJ89H8z9TlSkpdq3
-aFFyT6WtkgJQgzxfvoko3dXsf/9HgyRQNJ7LfpxR3001nmdluVUVhQ9/eEehWeJV
-vYnovvBWTyAMPKW2od9vNRnwTczNB8U0tni8iM6gxsYsVxUsiu05r82RFeIqQGeO
-TsHqwTjqbo23PWzcPkRkcQLzZjPyag/mHDRDzQBLt7nupj8jq0G2weHPDXhSpQKf
-rUKHDLb1c4di5J/+J+xQjRekZHZT+RSpBZKoRVN6lwD3cQmRVe0x2EpNAQwlpnUu
-82CsZzPh91kSFhrQOsgp97bKFy8pRR00o7PXRHTNEtbkJFgAJjTBjSaN3jTCZsBx
-abMYJVBOXYdQMtglluk+zLKFTzqEbBS3T5KARKPluh+cxCtuQFuDHYaDGyQMomHi
-GUvRr8SYTlkEvg8Ctayv
-=AlKq
+iQIcBAEBAgAGBQJTl2BHAAoJEBQN5MwUoCm2wtkP/3+cULS3I7KVt7Ey5jylyXg5
+jMRr8tOzYmwVpX1qGvNxPZJSgwd+8pVDJ8T4Biwx1CAumbisFopxSV7m3yoGM2gt
+yFPE7qs4DlOlLTrua6p/hafBoTiyGCQhHJKojYd0zDetKuqij9QrtgUsQQr+cwu4
+LxjVUyXKOte6dRBCLCU29pWzQKSZpQ+knHdpZeNKPkGoiVZn0MK1mWhp1R9uwxxI
+oXo1cuB14qeN5QD2rzvIGK3xwYqR+WZBJZq9JVLxdvCvylYD5x+P7cIka0/nSGQy
+HowkB8ax3kDsxN13mFAcp/hxxnfZAbvmW7WF+ZaM13+4FQ6Bo7UKTB6AdkkcewN5
+jhbecPAtZNkJw+UK42QD545JOUDX7Rdy6FqWawrImckwfx99uB2v2lLa07RnoTkg
+DWOjV8/lRSuuFriu9kqhA7p8KFSboh8gnLWnYnqcoRKHYQ/WzebqUrPahZvim45X
+HwGBXH2S1KxOCMNGO0OsgOV7K3OsbHe24Eb+dkHSinsVuiiIKwiQ12jdavaF1L+Q
+qLdzROYlEMzohWRybz2KZ6xujeNxB7CDLhWoCCTIv2oKgHY4ipBnesiHeNFm7t68
+VtbTMtpGaW1VrnaTWbesiXytpiokVw7fkro1mACRO/UgIkaGeIjWKbKnX0ATRu6u
+al39h7tQ8m28fefG6Qki
+=5ZK7
 -----END PGP SIGNATURE-----
 
---5mCyUwZo2JvN/JJP--
+--HG+GLK89HZ1zG0kk--
