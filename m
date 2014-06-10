@@ -1,48 +1,153 @@
-From: Paul Carpenter <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>
-Subject: Re: [RESEND2 PATCH v4 2/2] i2c: sunxi: add P2WI (Push/Pull 2 Wire
- Interface) controller support
-Date: Tue, 10 Jun 2014 09:56:40 +0100
-Message-ID: <5396C848.8020701@pcserviceselectronics.co.uk>
-References: <1401785392-26602-1-git-send-email-boris.brezillon@free-electrons.com> <1401785392-26602-3-git-send-email-boris.brezillon@free-electrons.com> <20140610083850.GB2620@katana>
+From: Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v3 1/6] i2c: s3c2410: Handle i2c sys_cfg register in i2c
+ driver
+Date: Tue, 10 Jun 2014 15:35:16 +0200
+Message-ID: <53970994.8010400@samsung.com>
+References: <1399706287-13919-1-git-send-email-y@samsung.com>
+ <1399706419-13976-1-git-send-email-pankaj.dubey@samsung.com>
+ <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140610083850.GB2620@katana>
+In-reply-to: <1399706419-13976-2-git-send-email-pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Shuge <shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang wrote:
-> On Tue, Jun 03, 2014 at 10:49:52AM +0200, Boris BREZILLON wrote:
->> The P2WI looks like an SMBus controller which only supports byte data
->> transfers. But, it differs from standard SMBus protocol on several
->> aspects:
->> - it supports only one slave device, and thus drop the address field
->> - it adds a parity bit every 8bits of data
->> - only one read access is required to read a byte (instead of a read
->>   followed by a write access in standard SMBus protocol)
+Hi Pankaj,
 
-Minor quibble should be
-"(instead of a write followed by a read access in standard SMBus
-   protocol)"
-
-That being similar to EEPROM and other types of devices write internal
-address followed by read access from internal address.
-
->> - there's no Ack bit after each byte transfer
->>
->> This means this bus cannot be used to interface with standard SMBus
->> devices (the only known device to support this interface is the AXP221
->> PMIC).
+On 10.05.2014 09:20, Pankaj Dubey wrote:
+> Let's handle i2c interrupt re-configuration in i2c driver. This will
+> help us in removing some soc specific checks from machine files.
+> Since only Exynos5250, and Exynos5420 need to do this, added syscon
+> based phandle to i2c device nodes of respective SoC DT files.
+> Also handle saving and restoring of SYS_I2C_CFG register during
+> suspend and resume of i2c driver. This will help in removing soc
+> specific check from mach-exynos/pm.c.
 > 
-> Good description. Should be a comment at the top of the driver to spread
-> the word.
+> CC: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> CC: Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+> CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> CC: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+> CC: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> CC: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> ---
+>  .../devicetree/bindings/arm/samsung/sysreg.txt     |    1 +
+>  arch/arm/boot/dts/exynos5.dtsi                     |    5 +++
+>  arch/arm/boot/dts/exynos5250.dtsi                  |    4 +++
+>  arch/arm/boot/dts/exynos5420.dtsi                  |    4 +++
 
--- 
-Paul Carpenter          | paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
-<http://www.pcserviceselectronics.co.uk/>    PC Services
-<http://www.pcserviceselectronics.co.uk/pi/>  Raspberry Pi Add-ons
-<http://www.pcserviceselectronics.co.uk/fonts/> Timing Diagram Font
-<http://www.badweb.org.uk/> For those web sites you hate
+What about Exynos5410 and Exynos5800?
+
+>  drivers/i2c/busses/i2c-s3c2410.c                   |   32 ++++++++++++++++++++
+>  5 files changed, 46 insertions(+)
+
+[snip]
+
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index ae44910..e707062 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -39,6 +39,8 @@
+>  #include <linux/of.h>
+>  #include <linux/of_gpio.h>
+>  #include <linux/pinctrl/consumer.h>
+> +#include <linux/mfd/syscon.h>
+> +#include <linux/regmap.h>
+>  
+>  #include <asm/irq.h>
+>  
+> @@ -91,6 +93,9 @@
+>  /* Max time to wait for bus to become idle after a xfer (in us) */
+>  #define S3C2410_IDLE_TIMEOUT	5000
+>  
+> +/* Exynos5 Sysreg offset */
+> +#define EXYNOS5_SYS_I2C_CFG	0x0234
+> +
+>  /* i2c controller state */
+>  enum s3c24xx_i2c_state {
+>  	STATE_IDLE,
+> @@ -127,6 +132,8 @@ struct s3c24xx_i2c {
+>  #if defined(CONFIG_ARM_S3C24XX_CPUFREQ)
+>  	struct notifier_block	freq_transition;
+>  #endif
+> +	struct regmap		*sysreg;
+> +	unsigned int		sys_i2s_cfg;
+
+typo: s/i2s/i2c/
+
+>  };
+>  
+>  static struct platform_device_id s3c24xx_driver_ids[] = {
+> @@ -1075,6 +1082,8 @@ static void
+>  s3c24xx_i2c_parse_dt(struct device_node *np, struct s3c24xx_i2c *i2c)
+>  {
+>  	struct s3c2410_platform_i2c *pdata = i2c->pdata;
+> +	u32 val = 0;
+> +	int id;
+>  
+>  	if (!np)
+>  		return;
+> @@ -1084,6 +1093,23 @@ s3c24xx_i2c_parse_dt(struct device_node *np, struct s3c24xx_i2c *i2c)
+>  	of_property_read_u32(np, "samsung,i2c-slave-addr", &pdata->slave_addr);
+>  	of_property_read_u32(np, "samsung,i2c-max-bus-freq",
+>  				(u32 *)&pdata->frequency);
+> +	/*
+> +	 * Exynos5's legacy i2c controller and new high speed i2c
+> +	 * controller have muxed interrupt sources. By default the
+
+What do you mean by "by default"? Is it a setting from the bootloader or
+reset value?
+
+Probably to ensure that the mux is set correctly, same thing should be
+also added to hsi2c driver.
+
+> +	 * interrupts for 4-channel HS-I2C controller are enabled.
+> +	 * If node for first four channels of legacy i2c controller
+> +	 * are available then re-configure the interrupts via the
+> +	 * system register.
+> +	 */
+> +	id = of_alias_get_id(np, "i2c");
+> +	i2c->sysreg = syscon_regmap_lookup_by_phandle(np,
+> +			"samsung,syscon-phandle");
+> +	if (IS_ERR(i2c->sysreg)) {
+> +		/* As this is not compulsory do not return error */
+> +		pr_info("i2c-%d skipping re-configuration of interrutps\n", id);
+> +		return;
+> +	}
+> +	regmap_update_bits(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, BIT(id), val);
+
+As Wolfram pointed, val can be replaced with immediate 0 here.
+
+>  }
+>  #else
+>  static void
+> @@ -1268,6 +1294,9 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+>  
+>  	i2c->suspended = 1;
+>  
+> +	if (!IS_ERR(i2c->sysreg))
+> +		regmap_read(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, &i2c->sys_i2s_cfg);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1276,6 +1305,9 @@ static int s3c24xx_i2c_resume(struct device *dev)
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+>  
+> +	if (!IS_ERR(i2c->sysreg))
+> +		regmap_write(i2c->sysreg, i2c->sys_i2s_cfg, EXYNOS5_SYS_I2C_CFG);
+
+According to include/linux/regmap.h:
+
+int regmap_write(struct regmap *map, unsigned int reg, unsigned int val);
+
+So in your code reg is swapped with val.
+
+Best regards,
+Tomasz
