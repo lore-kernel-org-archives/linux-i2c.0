@@ -1,48 +1,42 @@
-From: Boris BREZILLON <boris.brezillon@free-electrons.com>
-Subject: Re: [RESEND2 PATCH v4 2/2] i2c: sunxi: add P2WI (Push/Pull 2 Wire
- Interface) controller support
-Date: Tue, 10 Jun 2014 15:49:41 +0200
-Message-ID: <53970CF5.50701@free-electrons.com>
-References: <1401785392-26602-1-git-send-email-boris.brezillon@free-electrons.com> <1401785392-26602-3-git-send-email-boris.brezillon@free-electrons.com> <20140610083850.GB2620@katana> <5396C848.8020701@pcserviceselectronics.co.uk>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v5 2/2] i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support
+Date: Tue, 10 Jun 2014 15:54:56 +0200
+Message-ID: <6454089.IP8IFVsofj@wuerfel>
+References: <1402408036-5235-1-git-send-email-boris.brezillon@free-electrons.com> <1402408036-5235-3-git-send-email-boris.brezillon@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <5396C848.8020701@pcserviceselectronics.co.uk>
+In-Reply-To: <1402408036-5235-3-git-send-email-boris.brezillon@free-electrons.com>
 Sender: linux-doc-owner@vger.kernel.org
-To: Paul Carpenter <paul@pcserviceselectronics.co.uk>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Hans de Goede <hdegoede@redhat.com>, Shuge <shuge@allwinnertech.com>, kevin@allwinnertech.com, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Boris BREZILLON <boris.brezillon@free-electrons.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Randy Dunlap <rdunlap@infradead.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Hans de Goede <hdegoede@redhat.com>, Shuge <shuge@allwinnertech.com>, kevin@allwinnertech.com, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Paul,
+On Tuesday 10 June 2014 15:47:16 Boris BREZILLON wrote:
+> 
+> +config I2C_SUN6I_P2WI
+> +       tristate "Allwinner sun6i internal P2WI controller"
+> +       depends on ARCH_SUNXI
+> +       help
+> +         If you say yes to this option, support will be included for the
+> +         P2WI (Push/Pull 2 Wire Interface) controller embedded in some sunxi
+> +         SOCs.
+> +         The P2WI looks like an SMBus controller (which supports only byte
+> +         accesses), except that it only supports one slave device.
+> +         This interface is used to connect to specific PMIC devices (like the
+> +         AXP221).
+> +
 
-On 10/06/2014 10:56, Paul Carpenter wrote:
-> Wolfram Sang wrote:
->> On Tue, Jun 03, 2014 at 10:49:52AM +0200, Boris BREZILLON wrote:
->>> The P2WI looks like an SMBus controller which only supports byte data
->>> transfers. But, it differs from standard SMBus protocol on several
->>> aspects:
->>> - it supports only one slave device, and thus drop the address field
->>> - it adds a parity bit every 8bits of data
->>> - only one read access is required to read a byte (instead of a read
->>>   followed by a write access in standard SMBus protocol)
->
-> Minor quibble should be
-> "(instead of a write followed by a read access in standard SMBus
->   protocol)"
->
+Sorry for the stupid question, but why is this an i2c driver if the
+hardware protocol is completely different?
 
-Fixed.
+I understand that a lot of devices can be driven using either spi or
+i2c, and we have two sets of {directories,maintainers,bus_types,...}
+for them. Your description sounds like this is a separate option
+that isn't any closer to i2c than it is to spi.
 
-Thanks for pointing this out.
+Would it perhaps be better to expose it only as a regmap rather than
+an i2c host?
 
-Best Regards,
-
-Boris
-
-
--- 
-Boris Brezillon, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
+	Arnd
