@@ -1,62 +1,42 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH v6 2/2] i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support
-Date: Wed, 11 Jun 2014 10:47:57 +0200
-Message-ID: <4433415.Jcexj2E6Ru@wuerfel>
-References: <1402475980-15513-1-git-send-email-boris.brezillon@free-electrons.com> <1402475980-15513-3-git-send-email-boris.brezillon@free-electrons.com>
+From: Daniel =?iso-8859-1?Q?Gl=F6ckner?= <daniel-gl-hi6Y0CQ0nG0@public.gmane.org>
+Subject: Re: i2c: removal of s6000 driver
+Date: Wed, 11 Jun 2014 10:51:54 +0200
+Message-ID: <20140611085154.GA9892@minime.bse>
+References: <20140521113029.GT2708@katana>
+ <20140523131722.GA28143@curry>
+ <537F8652.1090807@zankel.net>
+ <20140524154727.GA20634@curry>
+ <20140527223557.GA9594@minime.bse>
+ <20140609220635.GA3329@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1402475980-15513-3-git-send-email-boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140609220635.GA3329@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shuge <shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Chris Zankel <chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marc Gauthier <marc-66fqrpuXKgGB+jHODAdFcQ@public.gmane.org>, Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 11 June 2014 10:39:40 Boris BREZILLON wrote:
-> The P2WI controller looks like an SMBus controller which only supports byte
-> data transfers. But, it differs from standard SMBus protocol on several
-> aspects:
-> - it supports only one slave device, and thus drop the address field
-> - it adds a parity bit every 8bits of data
-> - only one read access is required to read a byte (instead of a write
->   followed by a read access in standard SMBus protocol)
-> - there's no Ack bit after each byte transfer
-> 
-> This means this bus cannot be used to interface with standard SMBus
-> devices (the only known device to support this interface is the AXP221
-> PMIC).
-> However the P2WI protocol is close enough to SMBus to be integrated in
-> the I2C subsystem (see this thread [1] for detailed reasons that led to
-> integrating this driver in the I2C subsystem).
-> 
-> [1] http://www.spinics.net/lists/linux-i2c/msg15066.html
-> 
-> Signed-off-by: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+On Tue, Jun 10, 2014 at 12:06:35AM +0200, Wolfram Sang wrote:
+> On Wed, May 28, 2014 at 12:35:57AM +0200, Daniel Gl=F6ckner wrote:
+> > At work we still have the overlay as part of the board support pack=
+age
+> > we created for the s6105. But I'd prefer to talk to someone at Stre=
+tch
+> > first before handing out copies. Unfortunately I'm on vacation righ=
+t
+> > now and will be without internet access from tomorrow to Sunday.
+>
+> Ping. Is that the only known platform for the s6000?
 
-Acked-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+The only platform we know of.
 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index c94db1c..a6023fe 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -771,6 +771,18 @@ config I2C_STU300
->           This driver can also be built as a module. If so, the module
->           will be called i2c-stu300.
->  
-> +config I2C_SUN6I_P2WI
-> +       tristate "Allwinner sun6i internal P2WI controller"
-> +       depends on MACH_SUN6I && RESET_CONTROLLER
+These chips were showcased as H.264 encoders, so it is more likely
+to find them inside cameras, DVRs, and studio equipment. But there
+is no H.264 IP block inside the chips and their instruction set is
+generic (actually runtime reconfigurable), so they are not restricted
+to video processing.
 
-One very minor comment: I wonder if we should make this 
-
-	depends on RESET_CONTROLLER
-	depends on MACH_SUN6I || COMPILE_TEST
-
-instead so we have better build coverage. I haven't tested if building
-on other architectures works, or if there are additional dependencies.
-
-No need to change this if there are no other comments.
-
-	Arnd
+  Daniel
