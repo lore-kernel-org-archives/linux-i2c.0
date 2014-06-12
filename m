@@ -1,14 +1,14 @@
 From: Puneet Shenoy <puneet-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 Subject: ismt-bus completion wait timed out issue
-Date: Thu, 12 Jun 2014 11:24:04 -0700
-Message-ID: <F4348453-2F39-4EC0-90A9-36DAE8C33335@cumulusnetworks.com>
+Date: Thu, 12 Jun 2014 11:29:02 -0700
+Message-ID: <98891F48-98F3-4E03-B4F7-1B366C602B85@cumulusnetworks.com>
 Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.2\))
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-Cc: Shrijeet Mukherjee <shm-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Shrijeet Mukherjee <shm-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>, Curt Brune <curt-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hey Bill,
