@@ -1,36 +1,53 @@
-From: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v2] i2c: sun6-p2wi: fix call to snprintf
-Date: Fri, 13 Jun 2014 12:23:48 +0200
-Message-ID: <1402655028-6214-1-git-send-email-boris.brezillon@free-electrons.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kees Cook <keescook-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Fengguang Wu <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Shuge <shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+From: Doug Anderson <dianders@google.com>
+Subject: Re: [PATCH 3/3] ARM: dts: Enable audio support for Peach-pi board
+Date: Fri, 13 Jun 2014 10:13:57 -0700
+Message-ID: <CAD=FV=VvkvH1TPiKttm9VXbBRnBo7kmTVK8bZZvexK=bAvaO4Q@mail.gmail.com>
+References: <1402464739-19044-1-git-send-email-tushar.b@samsung.com>
+	<1402464739-19044-4-git-send-email-tushar.b@samsung.com>
+	<CAD=FV=XqqP7+xDOAKCixivzgaO0xvJX7L+CCN+unAEuf-6aUbQ@mail.gmail.com>
+	<20140613170511.GA20112@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140613170511.GA20112@sirena.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Tushar Behera <tushar.b@samsung.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Mike Turquette <mturquette@linaro.org>, Tomasz Figa <t.figa@samsung.com>, Russell King <linux@arm.linux.org.uk>, Kumar Gala <galak@codeaurora.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Mark Rutland <mark.rutland@arm.com>, Pawel Moll <pawel.moll@arm.com>, Rob Herring <robh+dt@kernel.org>, Kukjin Kim <kgene.kim@samsung.com>, Kevin Hilman <khilman@linaro.org>, Tushar Behera <trblinux@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Fixes possible issue in case pdev name contains formatting characters.
+Mark,
 
-Signed-off-by: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Reported-by: Kees Cook <keescook-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
----
-Changes since v1:
-- use strlcpy instead of snprintf
+On Fri, Jun 13, 2014 at 10:05 AM, Mark Brown <broonie@kernel.org> wrote:
+> On Fri, Jun 13, 2014 at 10:03:50AM -0700, Doug Anderson wrote:
+>> On Tue, Jun 10, 2014 at 10:32 PM, Tushar Behera <tushar.b@samsung.com> wrote:
+>
+>> > Peach-pi board has MAX98090 audio codec connected on HSI2C-7 bus.
+>
+>> If you want to be a stickler about it, peach-pi actually has a
+>> max98091.  That requires code changes to the i2c driver, though.
+>> ...and unfortunately listing two compatible strings for i2c devices is
+>> broken.  :(
+>
+> It is?  We should fix that if it's the case...
 
- drivers/i2c/busses/i2c-sun6i-p2wi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yah, I mentioned it to Mark Rutland at the last ELC and he said he
+might take a look at it, but I probably should have posted something
+up to the i2c list.
 
-diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-index 5d2d678..09de4fd 100644
---- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
-+++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-@@ -237,7 +237,7 @@ static int p2wi_probe(struct platform_device *pdev)
- 	if (IS_ERR(p2wi->regs))
- 		return PTR_ERR(p2wi->regs);
- 
--	snprintf(p2wi->adapter.name, sizeof(p2wi->adapter.name), pdev->name);
-+	strlcpy(p2wi->adapter.name, pdev->name, sizeof(p2wi->adapter.name));
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
- 		dev_err(dev, "failed to retrieve irq: %d\n", irq);
--- 
-1.8.3.2
+I made a half-assed attempt to fix it locally in the ChromeOS but
+quickly found that it was going to be a much bigger job than I had
+time for...
+
+https://chromium-review.googlesource.com/#/c/184406/
+
+IIRC i2c_new_device didn't return an error like I thought it would,
+probably trying to deal with the fact that devices might show up at a
+later point in time.
+
+
+Hrm, now that I think about it I wonder if the right answer is just to
+call i2c_new_device for all the compatible strings even if it doesn't
+return an error.  I'd have to go back and try that and re-explore this
+code...
+
+-Doug
