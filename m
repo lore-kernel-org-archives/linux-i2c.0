@@ -1,60 +1,93 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH 0/10] Batch of cleanup patches for cros_ec
-Date: Mon, 16 Jun 2014 14:39:50 -0700
-Message-ID: <1402954800-28215-1-git-send-email-dianders@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Andrew Bresticker <abrestic@chromium.org>, swarren@wwwdotorg.org, olof@lixom.net, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, sjg@chromium.org, Wolfram Sang <wsa@the-dreams.de>, broonie@kernel.org, Doug Anderson <dianders@chromium.org>, vpalatin@chromium.org, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 10/10] mfd: cros_ec: ec_dev->cmd_xfer() returns number of bytes received from EC
+Date: Mon, 16 Jun 2014 14:40:00 -0700
+Message-ID: <1402954800-28215-11-git-send-email-dianders@chromium.org>
+References: <1402954800-28215-1-git-send-email-dianders@chromium.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1402954800-28215-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, Sonny Rao <sonnyrao-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a batch of cleanup patches picked from the ChromeOS 3.8 kernel
-tree and applied to ToT.  Most of these patches were authored by Bill
-Richardson (CCed).  Where appropriate I've squashed patches together,
-though I have erred on the side of keeping patches logically distinct
-rather than squashing into one big cleanup patch.
+From: Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
-There is very little functionality added by this series, but this gets
-us closer to how things look in the ChromeOS tree so we can add more
-patches atop it.  In general I took the oldest patches from our tree
-and stopped picking when I got to a reasonable patch size (10
-patches).  There are about 5 more cleanup patches still in the
-ChromeOS tree, then some more major functionality patches.
+When communicating with the EC, the cmd_xfer() function should return the
+number of bytes it received from the EC, or negative on error.
 
-Note that I didn't take the "cros_ec_dev" userspace inteface, the
-"LPC" implementation, the "vboot context" implementation, and patches
-relating to exynos5250-spring when picking patches.  These bits are
-very separate (and big!) and can be added and debated separately after
-we've got cleanup in.  Whenever patches touched those pieces of the
-code I ignored that part of the patch.  In general I did take cleanup
-code that was intended to make it easier to later add these bits.
+Signed-off-by: Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 2 +-
+ drivers/mfd/cros_ec_i2c.c               | 2 +-
+ drivers/mfd/cros_ec_spi.c               | 2 +-
+ include/linux/mfd/cros_ec.h             | 8 ++++----
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-I have tested basic functionality of these patches on exynos5250-snow
-and exynos5420-peach-pit.
-
-
-Bill Richardson (9):
-  mfd: cros_ec: Fix the comment on cros_ec_remove()
-  mfd: cros_ec: IRQs for cros_ec should be optional
-  mfd: cros_ec: Allow static din/dout buffers with cros_ec_register()
-  mfd: cros_ec: Tweak struct cros_ec_device for clarity
-  mfd: cros_ec: Use struct cros_ec_command to communicate with the EC
-  mfd: cros_ec: cleanup: remove unused fields from struct cros_ec_device
-  mfd: cros_ec: cleanup: Remove EC wrapper functions
-  mfd: cros_ec: Check result code from EC messages
-  mfd: cros_ec: ec_dev->cmd_xfer() returns number of bytes received from
-    EC
-
-Simon Glass (1):
-  mdf: cros_ec: Detect in-progress commands
-
- drivers/i2c/busses/i2c-cros-ec-tunnel.c |  17 ++++--
- drivers/input/keyboard/cros_ec_keyb.c   |  14 ++++-
- drivers/mfd/cros_ec.c                   |  76 +++++++-----------------
- drivers/mfd/cros_ec_i2c.c               |  44 ++++++++------
- drivers/mfd/cros_ec_spi.c               |  43 ++++++++------
- include/linux/mfd/cros_ec.h             | 100 +++++++++++++++-----------------
- 6 files changed, 144 insertions(+), 150 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+index dd07818..05e033c 100644
+--- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
++++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+@@ -228,7 +228,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
+ 	msg.insize = response_len;
+ 
+ 	result = bus->ec->cmd_xfer(bus->ec, &msg);
+-	if (result)
++	if (result < 0)
+ 		goto exit;
+ 
+ 	result = ec_i2c_parse_response(response, i2c_msgs, &num);
+diff --git a/drivers/mfd/cros_ec_i2c.c b/drivers/mfd/cros_ec_i2c.c
+index 2276096..dc0ba29 100644
+--- a/drivers/mfd/cros_ec_i2c.c
++++ b/drivers/mfd/cros_ec_i2c.c
+@@ -120,7 +120,7 @@ static int cros_ec_cmd_xfer_i2c(struct cros_ec_device *ec_dev,
+ 		goto done;
+ 	}
+ 
+-	ret = 0;
++	ret = i2c_msg[1].buf[1];
+  done:
+ 	kfree(in_buf);
+ 	kfree(out_buf);
+diff --git a/drivers/mfd/cros_ec_spi.c b/drivers/mfd/cros_ec_spi.c
+index 4d34f1c..beba1bc 100644
+--- a/drivers/mfd/cros_ec_spi.c
++++ b/drivers/mfd/cros_ec_spi.c
+@@ -333,7 +333,7 @@ static int cros_ec_cmd_xfer_spi(struct cros_ec_device *ec_dev,
+ 		goto exit;
+ 	}
+ 
+-	ret = 0;
++	ret = len;
+ exit:
+ 	mutex_unlock(&ec_spi->lock);
+ 	return ret;
+diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
+index 60c0880..7b65a75 100644
+--- a/include/linux/mfd/cros_ec.h
++++ b/include/linux/mfd/cros_ec.h
+@@ -41,7 +41,7 @@ enum {
+  * @outdata: Outgoing data to EC
+  * @outsize: Outgoing length in bytes
+  * @indata: Where to put the incoming data from EC
+- * @insize: Incoming length in bytes (filled in by EC)
++ * @insize: Max number of bytes to accept from EC
+  * @result: EC's response to the command (separate from communication failure)
+  */
+ struct cros_ec_command {
+@@ -64,9 +64,9 @@ struct cros_ec_command {
+  * sleep at the last suspend
+  * @event_notifier: interrupt event notifier for transport devices
+  * @cmd_xfer: send command to EC and get response
+- *     Returns 0 if the communication succeeded, but that doesn't mean the EC
+- *     was happy with the command it got. Caller should check msg.result for
+- *     the EC's result code.
++ *     Returns the number of bytes received if the communication succeeded, but
++ *     that doesn't mean the EC was happy with the command. The caller
++ *     should check msg.result for the EC's result code.
+  *
+  * @priv: Private data
+  * @irq: Interrupt to use
 -- 
 2.0.0.526.g5318336
