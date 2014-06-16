@@ -1,76 +1,73 @@
-From: Doug Anderson <dianders-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 3/3] ARM: dts: Enable audio support for Peach-pi board
-Date: Fri, 13 Jun 2014 15:50:07 -0700
-Message-ID: <CAD=FV=U06JioDvvSqHyC5BZp_sKppk4i=s7DERCXG7rGHBe=xQ@mail.gmail.com>
-References: <1402464739-19044-1-git-send-email-tushar.b@samsung.com>
-	<1402464739-19044-4-git-send-email-tushar.b@samsung.com>
-	<CAD=FV=XqqP7+xDOAKCixivzgaO0xvJX7L+CCN+unAEuf-6aUbQ@mail.gmail.com>
-	<20140613170511.GA20112@sirena.org.uk>
-	<CAD=FV=VvkvH1TPiKttm9VXbBRnBo7kmTVK8bZZvexK=bAvaO4Q@mail.gmail.com>
-	<CAD=FV=XCk9E-7VPV=LQrdLU5fKsFHviQf79MBmC8va3gsg=Ydw@mail.gmail.com>
-	<20140613220421.GD5099@sirena.org.uk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [iio:testing 25/25] drivers/iio/magnetometer/ak09911.c:301
+ ak09911_probe() error: we previously assumed 'id' could be null (see line
+ 288)
+Date: Mon, 16 Jun 2014 10:24:26 +0300
+Message-ID: <20140616072426.GK5015@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140613220421.GD5099-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Tushar Behera <tushar.b-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Mike Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tushar Behera <trblinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <kbuild-bounces@lists.01.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.01.org/mailman/options/kbuild>,
+ <mailto:kbuild-request@lists.01.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/kbuild/>
+List-Post: <mailto:kbuild@lists.01.org>
+List-Help: <mailto:kbuild-request@lists.01.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/kbuild>,
+ <mailto:kbuild-request@lists.01.org?subject=subscribe>
+Errors-To: kbuild-bounces@lists.01.org
+Sender: "kbuild" <kbuild-bounces@lists.01.org>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, kbuild@01.org
+Cc: linux-i2c@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Mark,
+ak09911_probe() is called from i2c_device_probe() when we do:
 
-On Fri, Jun 13, 2014 at 3:04 PM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> On Fri, Jun 13, 2014 at 02:58:26PM -0700, Doug Anderson wrote:
->
->> Anyway, suffice to say that the i2c core needs to be extended to
->> handle the idea that a single device has more than one "compatible"
->> string.  I'll leave it to an eager reader of this thread to implement
->> this since we can also fix our own problem by just listing "max98091"
->> in "sound/soc/codecs/max98090.c" like has always been done in the
->> past.
->
-> Why do you need to register multiple compatible strings (I guess for
-> fallback purposes?).
+	status = driver->probe(client, i2c_match_id(driver->id_table, client));
 
-I'm no expert, but I think that's part of device tree isn't it?
+The functions which implement driver->probe() are not very consistent
+in how the check for a NULL return from i2c_match_id().
 
-In the case of max98090 and max98091, they are incredibly similar
-pieces of hardware (I think the max98091 simply has more microphones).
-If you've got a driver for a max98090 it will work just fine for a
-max98091 but you just won't get the extra microphones.
+tree:   git://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git testing
+head:   3b60f3cdd600858142daaf8071501cbe72a9e2b9
+commit: 3b60f3cdd600858142daaf8071501cbe72a9e2b9 [25/25] iio: AK09911 : 3 axis compass support
 
-In cases like this then device tree theory says that you should list
-both compatible strings: max98091 and max98090, right?  If your OS has
-a driver for max98091 it will use it.  ...if it doesn't but it has a
-max98090 driver it will try that one.
+drivers/iio/magnetometer/ak09911.c:301 ak09911_probe() error: we previously assumed 'id' could be null (see line 288)
 
-As far as I understand we _shouldn't_ lie and just say that we have a
-max98090 when we really have a max98091.  The device tree is supposed
-to describe the hardware and isn't support to care that the OS has a
-driver for max98090 but not max98091.
+git remote add iio git://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git
+git remote update iio
+git checkout 3b60f3cdd600858142daaf8071501cbe72a9e2b9
+vim +/id +301 drivers/iio/magnetometer/ak09911.c
 
-Ironically in our case we have a driver that supports both the 98090
-and the 98091 via autodetect.  However, it doesn't know about the
-98091 compatible string so if you list yourself as compatible with
-98091 then it won't find the driver.
+3b60f3cd Srinivas Pandruvada 2014-11-06  282  	mutex_init(&data->lock);
+3b60f3cd Srinivas Pandruvada 2014-11-06  283  
+3b60f3cd Srinivas Pandruvada 2014-11-06  284  	ret = ak09911_get_asa(client);
+3b60f3cd Srinivas Pandruvada 2014-11-06  285  	if (ret)
+3b60f3cd Srinivas Pandruvada 2014-11-06  286  		return ret;
+3b60f3cd Srinivas Pandruvada 2014-11-06  287  
+3b60f3cd Srinivas Pandruvada 2014-11-06 @288  	if (id)
+3b60f3cd Srinivas Pandruvada 2014-11-06  289  		name = id->name;
+3b60f3cd Srinivas Pandruvada 2014-11-06  290  	else if (ACPI_HANDLE(&client->dev))
+3b60f3cd Srinivas Pandruvada 2014-11-06  291  		name = dev_name(&client->dev);
+3b60f3cd Srinivas Pandruvada 2014-11-06  292  	else
+3b60f3cd Srinivas Pandruvada 2014-11-06  293  		return -ENODEV;
+3b60f3cd Srinivas Pandruvada 2014-11-06  294  
+3b60f3cd Srinivas Pandruvada 2014-11-06  295  	dev_dbg(&client->dev, "Asahi compass chip %s\n", name);
+3b60f3cd Srinivas Pandruvada 2014-11-06  296  
+3b60f3cd Srinivas Pandruvada 2014-11-06  297  	indio_dev->dev.parent = &client->dev;
+3b60f3cd Srinivas Pandruvada 2014-11-06  298  	indio_dev->channels = ak09911_channels;
+3b60f3cd Srinivas Pandruvada 2014-11-06  299  	indio_dev->num_channels = ARRAY_SIZE(ak09911_channels);
+3b60f3cd Srinivas Pandruvada 2014-11-06  300  	indio_dev->info = &ak09911_info;
+3b60f3cd Srinivas Pandruvada 2014-11-06 @301  	indio_dev->name = id->name;
 
-> A quick fix that is about as good is to take the
-> first compatible only.
+This is obviously a cut and paste bug and the ->name = name two lines
+below is intended.
 
-That's how the code works today, actually.  ...but as per above the
-current 98090 driver doesn't know about the 98091 compatible string,
-so:
+3b60f3cd Srinivas Pandruvada 2014-11-06  302  	indio_dev->modes = INDIO_DIRECT_MODE;
+3b60f3cd Srinivas Pandruvada 2014-11-06  303  	indio_dev->name = name;
+3b60f3cd Srinivas Pandruvada 2014-11-06  304  
 
-compatible = "maxim,max98091", "maxim,max98090";
-
-...won't find the right driver.
-
---
-
-The quick fix is to add max98091 to the max98090 driver and is what
-I'd suggest in this case.  ...but I still think that the above logic
-is valid and eventually the i2c core should be fixed.  Please correct
-me if I'm wrong.
-
--Doug
+---
+0-DAY kernel build testing backend              Open Source Technology Center
+http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
