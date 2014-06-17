@@ -1,78 +1,62 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
-Date: Tue, 17 Jun 2014 11:57:24 +0200
-Message-ID: <20140617095724.GJ2638@katana>
-References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk>
- <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk>
- <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
- <20140218173843.GB18768@katana>
+Subject: Re: I2C Slave monitor mode support
+Date: Tue, 17 Jun 2014 14:19:12 +0200
+Message-ID: <20140617121912.GA2683@katana>
+References: <CAD6G_RRa9C0umBrR6CUF3zb5cSKKfZO7y7UPUKHjJOx41A0aJQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4IYkFBVPN84tP7K"
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140218173843.GB18768@katana>
+In-Reply-To: <CAD6G_RRa9C0umBrR6CUF3zb5cSKKfZO7y7UPUKHjJOx41A0aJQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Cc: magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org
+To: Jagan Teki <jagannadh.teki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---T4IYkFBVPN84tP7K
+--bp/iNruPH9dso1Pn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Feb 18, 2014 at 06:38:43PM +0100, Wolfram Sang wrote:
-> On Tue, Sep 03, 2013 at 05:49:29PM +0100, Ian Molton wrote:
-> > Add a driver for the EMMA mobile I2C block.
-> >=20
-> > The driver supports low and high-speed interrupt driven PIO transfers.
-> >=20
-> > Signed-off-by: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
->=20
-> > --- a/drivers/i2c/busses/Kconfig
-> > +++ b/drivers/i2c/busses/Kconfig
-> > @@ -777,6 +777,16 @@ config I2C_RCAR
-> >  	  This driver can also be built as a module.  If so, the module
-> >  	  will be called i2c-rcar.
-> > =20
-> > +config I2C_EM
-> > +	tristate "EMMA Mobile series I2C adapter"
-> > +	depends on I2C && HAVE_CLK
-> > +	help
-> > +	  If you say yes to this option, support will be included for the
-> > +	  I2C interface on the Renesas Electronics EM/EV family of processors.
-> > +
-> > +	  This driver can also be built as a module.  If so, the module
-> > +	  will be called i2c-em
-> > +
->=20
-> Please keep it sorted.
-
-Ping. Still any interest in this one?
 
 
---T4IYkFBVPN84tP7K
+> Few of the I2C interfaces are [operated] with slave monitor mode, when
+> there is a requirement for
+> a particular slave may need to wait some time to get the ADDR before
+> sending an ACK.
+
+Can you describe an existing scenario? Why can't the slave use clock
+stretching?
+
+> This feature is an optional and defined in few of the controllers, Can
+> anyone tell me is this support is
+> added already in kernel, if yes please point to the respective driver
+> or code link.
+
+None that I know of. The above questions should help me understand why
+it is needed on master driver level at all.
+
+
+--bp/iNruPH9dso1Pn
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJToBEEAAoJEBQN5MwUoCm2SUwP/1EErRQhPdkB7QcsPQ3yCiI4
-SCWyY+LsZVRUOT2VMz+i35TXXMSZM1klfSsf7JFAo1FBjKD+nHT64JKPxnNFPhd+
-01om1iaabNQN2tIhI+udayvyqfsKgUhIEiRcZMKCo7NGoGFfBYTxzEXCikehTOLc
-yxLJHaaUkAMbQi1AXlfm+4acFmjEUVVroF2PP9gr0JssOQs6umztzOfSlVfc7rix
-eQ42Kfrofr9yIfFXqZggqLulzO5gNjlKa/EoKCPU5khz5hIUrEllsF3gKps/gRmC
-Cs8ckfm/5cQHHKIcjD7nxZhdGDBjfiTJcRH2dpSybWobYOBxb1fg4G90erlUenV9
-ODLCA45Y3+rIhu+8vqA4p1aLCawfpaZsG1245uqL5/DOGez9csGFIzJ3PPpsLl5o
-W8WkVMDlro+0/VdshD1LO3zoIrY+63nDsX28+k+wAk5WxOaTiik5heks+jg6wpuP
-RWg9sics9yLDxJyIRMZnWuwuFMjJSTfZmuaZ3B8sJv3f26WrdBc3F069l/EJ9VU8
-np8G+5p+Pabg0RjOGaf3kzwBQ/k4mvXIbO+Ve9bHh9EmP0bv5GBLNpzR9NPoZ14a
-4kMztFutj62aoBvS8+HwkbYsufSAwYyS2iWCKGxug3cU1QoRo0J2fYKDPJ8Kh36v
-Ast0lUpdmFSzwZdTV0Ls
-=QnXc
+iQIcBAEBAgAGBQJToDJAAAoJEBQN5MwUoCm2JuAQALDU6i4qYjK2gT9H5dAltd6S
+K4sHq+HhodND0ogAOufLgD0c8uoZzT4G2ucSp+9Ygjxs1H1hKlSaBJ7+9d0C9CGG
+67ODxaWOFc1IVnPQ/btFVlZMCpHexWsUhVCoLdXkwON54PgNmp1g9EnEPEqZy97w
+t5ZNHPcd030cqmAGhMQ95DJyqvMa9xYa5UQo42BYkFcrw8bDATLdxPSa8It3Or4p
+BA6m6/I1AFmsQf1Mj67GDmG8e9BuN7qNRzO5P9iOc19LH3BYLfXvXkiRF3kfUdG9
+vauS84dhXB3NYV7ZwaEI517dEbMQoLbhgR7RSKtXjFYM6Uj2sfUMUsu0YadjJ52h
+3zCGHe5Rvn0bKCJ6jf0HMPDktqTXKW68dKZ4uZTZEbLAUDcySUMDjl4G3Lq3adsl
+44OBEcwbtstG7+cvOVE5+FioFHRf2rhk1jBxZqdJ0BBWmas84qfBupP+aMP5B8Fi
+jrqHUTNhSHTDHZYTASRxglKd9JV8lCCL1cxugCQjhNKslgzeMehbs0egzXoZ00V7
+LPM2CfOde2H+Hdxpumc/Ij+C6LUCoMv58BTgniI8QQgFWBSAJtYPgbazGNyetcft
+T76NDNisc98qLbb9XUPPu8KN/hnK5nXKAd6dVAByuJ47U/ZEDDeZjBrCAS6Hp2TX
+B2YUZndeqZN7HoDXJgoE
+=PhC+
 -----END PGP SIGNATURE-----
 
---T4IYkFBVPN84tP7K--
+--bp/iNruPH9dso1Pn--
