@@ -1,183 +1,78 @@
-From: Pankaj Dubey <pankaj.dubey@samsung.com>
-Subject: RE: [PATCH v3 1/6] i2c: s3c2410: Handle i2c sys_cfg register in i2c
- driver
-Date: Tue, 17 Jun 2014 09:51:39 +0530
-Message-ID: <000301cf89e3$a43d3550$ecb79ff0$@samsung.com>
-References: <1399706287-13919-1-git-send-email-y@samsung.com>
- <1399706419-13976-1-git-send-email-pankaj.dubey@samsung.com>
- <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
- <53970994.8010400@samsung.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
+Date: Tue, 17 Jun 2014 11:57:24 +0200
+Message-ID: <20140617095724.GJ2638@katana>
+References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
+ <20140218173843.GB18768@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-reply-to: <53970994.8010400@samsung.com>
-Content-language: en-us
-Sender: linux-doc-owner@vger.kernel.org
-To: 'Tomasz Figa' <t.figa@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: kgene.kim@samsung.com, arnd@arndb.de, 'Rob Herring' <robh+dt@kernel.org>, 'Randy Dunlap' <rdunlap@infradead.org>, 'Wolfram Sang' <wsa@the-dreams.de>, 'Russell King' <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4IYkFBVPN84tP7K"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140218173843.GB18768@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Cc: magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Tomasz,
 
-> 
-> Hi Pankaj,
-> 
-> On 10.05.2014 09:20, Pankaj Dubey wrote:
-> > Let's handle i2c interrupt re-configuration in i2c driver. This will
-> > help us in removing some soc specific checks from machine files.
-> > Since only Exynos5250, and Exynos5420 need to do this, added syscon
-> > based phandle to i2c device nodes of respective SoC DT files.
-> > Also handle saving and restoring of SYS_I2C_CFG register during
-> > suspend and resume of i2c driver. This will help in removing soc
-> > specific check from mach-exynos/pm.c.
-> >
-> > CC: Rob Herring <robh+dt@kernel.org>
-> > CC: Randy Dunlap <rdunlap@infradead.org>
-> > CC: Wolfram Sang <wsa@the-dreams.de>
-> > CC: Russell King <linux@arm.linux.org.uk>
-> > CC: devicetree@vger.kernel.org
-> > CC: linux-doc@vger.kernel.org
-> > CC: linux-i2c@vger.kernel.org
-> > Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
-> > ---
-> >  .../devicetree/bindings/arm/samsung/sysreg.txt     |    1 +
-> >  arch/arm/boot/dts/exynos5.dtsi                     |    5 +++
-> >  arch/arm/boot/dts/exynos5250.dtsi                  |    4 +++
-> >  arch/arm/boot/dts/exynos5420.dtsi                  |    4 +++
-> 
-> What about Exynos5410 and Exynos5800?
+--T4IYkFBVPN84tP7K
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, I will check user manuals of these two SoCs and if required will update.
-
-> 
-> >  drivers/i2c/busses/i2c-s3c2410.c                   |   32
-> ++++++++++++++++++++
-> >  5 files changed, 46 insertions(+)
-> 
-> [snip]
-> 
-> > diff --git a/drivers/i2c/busses/i2c-s3c2410.c
-> > b/drivers/i2c/busses/i2c-s3c2410.c
-> > index ae44910..e707062 100644
-> > --- a/drivers/i2c/busses/i2c-s3c2410.c
-> > +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> > @@ -39,6 +39,8 @@
-> >  #include <linux/of.h>
-> >  #include <linux/of_gpio.h>
-> >  #include <linux/pinctrl/consumer.h>
-> > +#include <linux/mfd/syscon.h>
-> > +#include <linux/regmap.h>
-> >
-> >  #include <asm/irq.h>
-> >
-> > @@ -91,6 +93,9 @@
-> >  /* Max time to wait for bus to become idle after a xfer (in us) */
-> >  #define S3C2410_IDLE_TIMEOUT	5000
-> >
-> > +/* Exynos5 Sysreg offset */
-> > +#define EXYNOS5_SYS_I2C_CFG	0x0234
+On Tue, Feb 18, 2014 at 06:38:43PM +0100, Wolfram Sang wrote:
+> On Tue, Sep 03, 2013 at 05:49:29PM +0100, Ian Molton wrote:
+> > Add a driver for the EMMA mobile I2C block.
+> >=20
+> > The driver supports low and high-speed interrupt driven PIO transfers.
+> >=20
+> > Signed-off-by: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+>=20
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -777,6 +777,16 @@ config I2C_RCAR
+> >  	  This driver can also be built as a module.  If so, the module
+> >  	  will be called i2c-rcar.
+> > =20
+> > +config I2C_EM
+> > +	tristate "EMMA Mobile series I2C adapter"
+> > +	depends on I2C && HAVE_CLK
+> > +	help
+> > +	  If you say yes to this option, support will be included for the
+> > +	  I2C interface on the Renesas Electronics EM/EV family of processors.
 > > +
-> >  /* i2c controller state */
-> >  enum s3c24xx_i2c_state {
-> >  	STATE_IDLE,
-> > @@ -127,6 +132,8 @@ struct s3c24xx_i2c {  #if
-> > defined(CONFIG_ARM_S3C24XX_CPUFREQ)
-> >  	struct notifier_block	freq_transition;
-> >  #endif
-> > +	struct regmap		*sysreg;
-> > +	unsigned int		sys_i2s_cfg;
-> 
-> typo: s/i2s/i2c/
-
-Oops, sorry I will correct this. 
-
-> 
-> >  };
-> >
-> >  static struct platform_device_id s3c24xx_driver_ids[] = { @@ -1075,6
-> > +1082,8 @@ static void  s3c24xx_i2c_parse_dt(struct device_node *np,
-> > struct s3c24xx_i2c *i2c)  {
-> >  	struct s3c2410_platform_i2c *pdata = i2c->pdata;
-> > +	u32 val = 0;
-> > +	int id;
-> >
-> >  	if (!np)
-> >  		return;
-> > @@ -1084,6 +1093,23 @@ s3c24xx_i2c_parse_dt(struct device_node *np,
-struct
-> s3c24xx_i2c *i2c)
-> >  	of_property_read_u32(np, "samsung,i2c-slave-addr",
-&pdata->slave_addr);
-> >  	of_property_read_u32(np, "samsung,i2c-max-bus-freq",
-> >  				(u32 *)&pdata->frequency);
-> > +	/*
-> > +	 * Exynos5's legacy i2c controller and new high speed i2c
-> > +	 * controller have muxed interrupt sources. By default the
-> 
-> What do you mean by "by default"? Is it a setting from the bootloader or
-reset value?
-> 
-
-It's a reset value.
-
-> Probably to ensure that the mux is set correctly, same thing should be
-also added to
-> hsi2c driver.
-> 
-> > +	 * interrupts for 4-channel HS-I2C controller are enabled.
-> > +	 * If node for first four channels of legacy i2c controller
-> > +	 * are available then re-configure the interrupts via the
-> > +	 * system register.
-> > +	 */
-> > +	id = of_alias_get_id(np, "i2c");
-> > +	i2c->sysreg = syscon_regmap_lookup_by_phandle(np,
-> > +			"samsung,syscon-phandle");
-> > +	if (IS_ERR(i2c->sysreg)) {
-> > +		/* As this is not compulsory do not return error */
-> > +		pr_info("i2c-%d skipping re-configuration of interrutps\n",
-id);
-> > +		return;
-> > +	}
-> > +	regmap_update_bits(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, BIT(id), val);
-> 
-> As Wolfram pointed, val can be replaced with immediate 0 here.
-
-OK, I will take care as per suggestion.
-
-> 
-> >  }
-> >  #else
-> >  static void
-> > @@ -1268,6 +1294,9 @@ static int s3c24xx_i2c_suspend_noirq(struct
-> > device *dev)
-> >
-> >  	i2c->suspended = 1;
-> >
-> > +	if (!IS_ERR(i2c->sysreg))
-> > +		regmap_read(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, &i2c-
-> >sys_i2s_cfg);
+> > +	  This driver can also be built as a module.  If so, the module
+> > +	  will be called i2c-em
 > > +
-> >  	return 0;
-> >  }
-> >
-> > @@ -1276,6 +1305,9 @@ static int s3c24xx_i2c_resume(struct device *dev)
-> >  	struct platform_device *pdev = to_platform_device(dev);
-> >  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
-> >
-> > +	if (!IS_ERR(i2c->sysreg))
-> > +		regmap_write(i2c->sysreg, i2c->sys_i2s_cfg,
-> EXYNOS5_SYS_I2C_CFG);
-> 
-> According to include/linux/regmap.h:
-> 
-> int regmap_write(struct regmap *map, unsigned int reg, unsigned int val);
-> 
-> So in your code reg is swapped with val.
+>=20
+> Please keep it sorted.
 
-Yes. I will correct this.
+Ping. Still any interest in this one?
 
-> 
-> Best regards,
-> Tomasz
 
+--T4IYkFBVPN84tP7K
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJToBEEAAoJEBQN5MwUoCm2SUwP/1EErRQhPdkB7QcsPQ3yCiI4
+SCWyY+LsZVRUOT2VMz+i35TXXMSZM1klfSsf7JFAo1FBjKD+nHT64JKPxnNFPhd+
+01om1iaabNQN2tIhI+udayvyqfsKgUhIEiRcZMKCo7NGoGFfBYTxzEXCikehTOLc
+yxLJHaaUkAMbQi1AXlfm+4acFmjEUVVroF2PP9gr0JssOQs6umztzOfSlVfc7rix
+eQ42Kfrofr9yIfFXqZggqLulzO5gNjlKa/EoKCPU5khz5hIUrEllsF3gKps/gRmC
+Cs8ckfm/5cQHHKIcjD7nxZhdGDBjfiTJcRH2dpSybWobYOBxb1fg4G90erlUenV9
+ODLCA45Y3+rIhu+8vqA4p1aLCawfpaZsG1245uqL5/DOGez9csGFIzJ3PPpsLl5o
+W8WkVMDlro+0/VdshD1LO3zoIrY+63nDsX28+k+wAk5WxOaTiik5heks+jg6wpuP
+RWg9sics9yLDxJyIRMZnWuwuFMjJSTfZmuaZ3B8sJv3f26WrdBc3F069l/EJ9VU8
+np8G+5p+Pabg0RjOGaf3kzwBQ/k4mvXIbO+Ve9bHh9EmP0bv5GBLNpzR9NPoZ14a
+4kMztFutj62aoBvS8+HwkbYsufSAwYyS2iWCKGxug3cU1QoRo0J2fYKDPJ8Kh36v
+Ast0lUpdmFSzwZdTV0Ls
+=QnXc
+-----END PGP SIGNATURE-----
+
+--T4IYkFBVPN84tP7K--
