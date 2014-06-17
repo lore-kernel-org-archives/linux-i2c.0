@@ -1,198 +1,183 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH 08/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
-Date: Mon, 16 Jun 2014 14:39:58 -0700
-Message-ID: <1402954800-28215-9-git-send-email-dianders@chromium.org>
-References: <1402954800-28215-1-git-send-email-dianders@chromium.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1402954800-28215-1-git-send-email-dianders@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Andrew Bresticker <abrestic@chromium.org>, swarren@wwwdotorg.org, olof@lixom.net, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, sjg@chromium.org, Wolfram Sang <wsa@the-dreams.de>, broonie@kernel.org, Doug Anderson <dianders@chromium.org>, dmitry.torokhov@gmail.com, sameo@linux.intel.com, vpalatin@chromium.org, geert@linux-m68k.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Pankaj Dubey <pankaj.dubey@samsung.com>
+Subject: RE: [PATCH v3 1/6] i2c: s3c2410: Handle i2c sys_cfg register in i2c
+ driver
+Date: Tue, 17 Jun 2014 09:51:39 +0530
+Message-ID: <000301cf89e3$a43d3550$ecb79ff0$@samsung.com>
+References: <1399706287-13919-1-git-send-email-y@samsung.com>
+ <1399706419-13976-1-git-send-email-pankaj.dubey@samsung.com>
+ <1399706419-13976-2-git-send-email-pankaj.dubey@samsung.com>
+ <53970994.8010400@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-reply-to: <53970994.8010400@samsung.com>
+Content-language: en-us
+Sender: linux-doc-owner@vger.kernel.org
+To: 'Tomasz Figa' <t.figa@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: kgene.kim@samsung.com, arnd@arndb.de, 'Rob Herring' <robh+dt@kernel.org>, 'Randy Dunlap' <rdunlap@infradead.org>, 'Wolfram Sang' <wsa@the-dreams.de>, 'Russell King' <linux@arm.linux.org.uk>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bill Richardson <wfrichar@chromium.org>
+Hi Tomasz,
 
-Remove the three wrapper functions that talk to the EC without passing all
-the desired arguments and just use the underlying communication function
-that passes everything in a struct intead.
+> 
+> Hi Pankaj,
+> 
+> On 10.05.2014 09:20, Pankaj Dubey wrote:
+> > Let's handle i2c interrupt re-configuration in i2c driver. This will
+> > help us in removing some soc specific checks from machine files.
+> > Since only Exynos5250, and Exynos5420 need to do this, added syscon
+> > based phandle to i2c device nodes of respective SoC DT files.
+> > Also handle saving and restoring of SYS_I2C_CFG register during
+> > suspend and resume of i2c driver. This will help in removing soc
+> > specific check from mach-exynos/pm.c.
+> >
+> > CC: Rob Herring <robh+dt@kernel.org>
+> > CC: Randy Dunlap <rdunlap@infradead.org>
+> > CC: Wolfram Sang <wsa@the-dreams.de>
+> > CC: Russell King <linux@arm.linux.org.uk>
+> > CC: devicetree@vger.kernel.org
+> > CC: linux-doc@vger.kernel.org
+> > CC: linux-i2c@vger.kernel.org
+> > Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> > ---
+> >  .../devicetree/bindings/arm/samsung/sysreg.txt     |    1 +
+> >  arch/arm/boot/dts/exynos5.dtsi                     |    5 +++
+> >  arch/arm/boot/dts/exynos5250.dtsi                  |    4 +++
+> >  arch/arm/boot/dts/exynos5420.dtsi                  |    4 +++
+> 
+> What about Exynos5410 and Exynos5800?
 
-This is internal code refactoring only. Nothing should change.
+OK, I will check user manuals of these two SoCs and if required will update.
 
-Signed-off-by: Bill Richardson <wfrichar@chromium.org>
-Signed-off-by: Doug Anderson <dianders@chromium.org>
----
- drivers/i2c/busses/i2c-cros-ec-tunnel.c | 15 +++++++++++----
- drivers/input/keyboard/cros_ec_keyb.c   | 14 ++++++++++++--
- drivers/mfd/cros_ec.c                   | 32 --------------------------------
- include/linux/mfd/cros_ec.h             | 19 ++++++-------------
- 4 files changed, 29 insertions(+), 51 deletions(-)
+> 
+> >  drivers/i2c/busses/i2c-s3c2410.c                   |   32
+> ++++++++++++++++++++
+> >  5 files changed, 46 insertions(+)
+> 
+> [snip]
+> 
+> > diff --git a/drivers/i2c/busses/i2c-s3c2410.c
+> > b/drivers/i2c/busses/i2c-s3c2410.c
+> > index ae44910..e707062 100644
+> > --- a/drivers/i2c/busses/i2c-s3c2410.c
+> > +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> > @@ -39,6 +39,8 @@
+> >  #include <linux/of.h>
+> >  #include <linux/of_gpio.h>
+> >  #include <linux/pinctrl/consumer.h>
+> > +#include <linux/mfd/syscon.h>
+> > +#include <linux/regmap.h>
+> >
+> >  #include <asm/irq.h>
+> >
+> > @@ -91,6 +93,9 @@
+> >  /* Max time to wait for bus to become idle after a xfer (in us) */
+> >  #define S3C2410_IDLE_TIMEOUT	5000
+> >
+> > +/* Exynos5 Sysreg offset */
+> > +#define EXYNOS5_SYS_I2C_CFG	0x0234
+> > +
+> >  /* i2c controller state */
+> >  enum s3c24xx_i2c_state {
+> >  	STATE_IDLE,
+> > @@ -127,6 +132,8 @@ struct s3c24xx_i2c {  #if
+> > defined(CONFIG_ARM_S3C24XX_CPUFREQ)
+> >  	struct notifier_block	freq_transition;
+> >  #endif
+> > +	struct regmap		*sysreg;
+> > +	unsigned int		sys_i2s_cfg;
+> 
+> typo: s/i2s/i2c/
 
-diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-index 8e7a714..dd07818 100644
---- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-+++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-@@ -183,6 +183,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
- 	u8 *request = NULL;
- 	u8 *response = NULL;
- 	int result;
-+	struct cros_ec_command msg;
- 
- 	request_len = ec_i2c_count_message(i2c_msgs, num);
- 	if (request_len < 0) {
-@@ -218,9 +219,15 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
- 	}
- 
- 	ec_i2c_construct_message(request, i2c_msgs, num, bus_num);
--	result = bus->ec->command_sendrecv(bus->ec, EC_CMD_I2C_PASSTHRU,
--					   request, request_len,
--					   response, response_len);
-+
-+	msg.version = 0;
-+	msg.command = EC_CMD_I2C_PASSTHRU;
-+	msg.outdata = request;
-+	msg.outsize = request_len;
-+	msg.indata = response;
-+	msg.insize = response_len;
-+
-+	result = bus->ec->cmd_xfer(bus->ec, &msg);
- 	if (result)
- 		goto exit;
- 
-@@ -258,7 +265,7 @@ static int ec_i2c_probe(struct platform_device *pdev)
- 	u32 remote_bus;
- 	int err;
- 
--	if (!ec->command_sendrecv) {
-+	if (!ec->cmd_xfer) {
- 		dev_err(dev, "Missing sendrecv\n");
- 		return -EINVAL;
- 	}
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 4083796..dc37b6b 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -191,8 +191,18 @@ static void cros_ec_keyb_close(struct input_dev *dev)
- 
- static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
- {
--	return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STATE,
--					  kb_state, ckdev->cols);
-+	int ret;
-+	struct cros_ec_command msg = {
-+		.version = 0,
-+		.command = EC_CMD_MKBP_STATE,
-+		.outdata = NULL,
-+		.outsize = 0,
-+		.indata = kb_state,
-+		.insize = ckdev->cols,
-+	};
-+
-+	ret = ckdev->ec->cmd_xfer(ckdev->ec, &msg);
-+	return ret;
- }
- 
- static int cros_ec_keyb_work(struct notifier_block *nb,
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index d242714..6dd91e9 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -44,34 +44,6 @@ int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
- }
- EXPORT_SYMBOL(cros_ec_prepare_tx);
- 
--static int cros_ec_command_sendrecv(struct cros_ec_device *ec_dev,
--		uint16_t cmd, void *out_buf, int out_len,
--		void *in_buf, int in_len)
--{
--	struct cros_ec_command msg;
--
--	msg.version = cmd >> 8;
--	msg.command = cmd & 0xff;
--	msg.outdata = out_buf;
--	msg.outsize = out_len;
--	msg.indata = in_buf;
--	msg.insize = in_len;
--
--	return ec_dev->cmd_xfer(ec_dev, &msg);
--}
--
--static int cros_ec_command_recv(struct cros_ec_device *ec_dev,
--		uint16_t cmd, void *buf, int buf_len)
--{
--	return cros_ec_command_sendrecv(ec_dev, cmd, NULL, 0, buf, buf_len);
--}
--
--static int cros_ec_command_send(struct cros_ec_device *ec_dev,
--		uint16_t cmd, void *buf, int buf_len)
--{
--	return cros_ec_command_sendrecv(ec_dev, cmd, buf, buf_len, NULL, 0);
--}
--
- static irqreturn_t ec_irq_thread(int irq, void *data)
- {
- 	struct cros_ec_device *ec_dev = data;
-@@ -104,10 +76,6 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 
- 	BLOCKING_INIT_NOTIFIER_HEAD(&ec_dev->event_notifier);
- 
--	ec_dev->command_send = cros_ec_command_send;
--	ec_dev->command_recv = cros_ec_command_recv;
--	ec_dev->command_sendrecv = cros_ec_command_sendrecv;
--
- 	if (ec_dev->din_size) {
- 		ec_dev->din = devm_kzalloc(dev, ec_dev->din_size, GFP_KERNEL);
- 		if (!ec_dev->din)
-diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
-index 2b0c598..60c0880 100644
---- a/include/linux/mfd/cros_ec.h
-+++ b/include/linux/mfd/cros_ec.h
-@@ -63,9 +63,10 @@ struct cros_ec_command {
-  * @was_wake_device: true if this device was set to wake the system from
-  * sleep at the last suspend
-  * @event_notifier: interrupt event notifier for transport devices
-- * @command_send: send a command
-- * @command_recv: receive a response
-- * @command_sendrecv: send a command and receive a response
-+ * @cmd_xfer: send command to EC and get response
-+ *     Returns 0 if the communication succeeded, but that doesn't mean the EC
-+ *     was happy with the command it got. Caller should check msg.result for
-+ *     the EC's result code.
-  *
-  * @priv: Private data
-  * @irq: Interrupt to use
-@@ -83,7 +84,6 @@ struct cros_ec_command {
-  * @parent: pointer to parent device (e.g. i2c or spi device)
-  * @wake_enabled: true if this device can wake the system from sleep
-  * @lock: one transaction at a time
-- * @cmd_xfer: low-level channel to the EC
-  */
- struct cros_ec_device {
- 
-@@ -94,13 +94,8 @@ struct cros_ec_device {
- 	bool was_wake_device;
- 	struct class *cros_class;
- 	struct blocking_notifier_head event_notifier;
--	int (*command_send)(struct cros_ec_device *ec,
--			    uint16_t cmd, void *out_buf, int out_len);
--	int (*command_recv)(struct cros_ec_device *ec,
--			    uint16_t cmd, void *in_buf, int in_len);
--	int (*command_sendrecv)(struct cros_ec_device *ec,
--				uint16_t cmd, void *out_buf, int out_len,
--				void *in_buf, int in_len);
-+	int (*cmd_xfer)(struct cros_ec_device *ec,
-+			struct cros_ec_command *msg);
- 
- 	/* These are used to implement the platform-specific interface */
- 	void *priv;
-@@ -112,8 +107,6 @@ struct cros_ec_device {
- 	struct device *parent;
- 	bool wake_enabled;
- 	struct mutex lock;
--	int (*cmd_xfer)(struct cros_ec_device *ec,
--			struct cros_ec_command *msg);
- };
- 
- /**
--- 
-2.0.0.526.g5318336
+Oops, sorry I will correct this. 
+
+> 
+> >  };
+> >
+> >  static struct platform_device_id s3c24xx_driver_ids[] = { @@ -1075,6
+> > +1082,8 @@ static void  s3c24xx_i2c_parse_dt(struct device_node *np,
+> > struct s3c24xx_i2c *i2c)  {
+> >  	struct s3c2410_platform_i2c *pdata = i2c->pdata;
+> > +	u32 val = 0;
+> > +	int id;
+> >
+> >  	if (!np)
+> >  		return;
+> > @@ -1084,6 +1093,23 @@ s3c24xx_i2c_parse_dt(struct device_node *np,
+struct
+> s3c24xx_i2c *i2c)
+> >  	of_property_read_u32(np, "samsung,i2c-slave-addr",
+&pdata->slave_addr);
+> >  	of_property_read_u32(np, "samsung,i2c-max-bus-freq",
+> >  				(u32 *)&pdata->frequency);
+> > +	/*
+> > +	 * Exynos5's legacy i2c controller and new high speed i2c
+> > +	 * controller have muxed interrupt sources. By default the
+> 
+> What do you mean by "by default"? Is it a setting from the bootloader or
+reset value?
+> 
+
+It's a reset value.
+
+> Probably to ensure that the mux is set correctly, same thing should be
+also added to
+> hsi2c driver.
+> 
+> > +	 * interrupts for 4-channel HS-I2C controller are enabled.
+> > +	 * If node for first four channels of legacy i2c controller
+> > +	 * are available then re-configure the interrupts via the
+> > +	 * system register.
+> > +	 */
+> > +	id = of_alias_get_id(np, "i2c");
+> > +	i2c->sysreg = syscon_regmap_lookup_by_phandle(np,
+> > +			"samsung,syscon-phandle");
+> > +	if (IS_ERR(i2c->sysreg)) {
+> > +		/* As this is not compulsory do not return error */
+> > +		pr_info("i2c-%d skipping re-configuration of interrutps\n",
+id);
+> > +		return;
+> > +	}
+> > +	regmap_update_bits(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, BIT(id), val);
+> 
+> As Wolfram pointed, val can be replaced with immediate 0 here.
+
+OK, I will take care as per suggestion.
+
+> 
+> >  }
+> >  #else
+> >  static void
+> > @@ -1268,6 +1294,9 @@ static int s3c24xx_i2c_suspend_noirq(struct
+> > device *dev)
+> >
+> >  	i2c->suspended = 1;
+> >
+> > +	if (!IS_ERR(i2c->sysreg))
+> > +		regmap_read(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, &i2c-
+> >sys_i2s_cfg);
+> > +
+> >  	return 0;
+> >  }
+> >
+> > @@ -1276,6 +1305,9 @@ static int s3c24xx_i2c_resume(struct device *dev)
+> >  	struct platform_device *pdev = to_platform_device(dev);
+> >  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+> >
+> > +	if (!IS_ERR(i2c->sysreg))
+> > +		regmap_write(i2c->sysreg, i2c->sys_i2s_cfg,
+> EXYNOS5_SYS_I2C_CFG);
+> 
+> According to include/linux/regmap.h:
+> 
+> int regmap_write(struct regmap *map, unsigned int reg, unsigned int val);
+> 
+> So in your code reg is swapped with val.
+
+Yes. I will correct this.
+
+> 
+> Best regards,
+> Tomasz
 
