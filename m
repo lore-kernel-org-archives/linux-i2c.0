@@ -1,96 +1,95 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.16
-Date: Wed, 18 Jun 2014 14:21:34 +0200
-Message-ID: <20140618122130.GA3108@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+From: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH/RFC V8 0/1] clk: Default clock parents and rates assigned from
+ DT
+Date: Wed, 18 Jun 2014 17:29:31 +0200
+Message-ID: <1403105372-30403-1-git-send-email-s.nawrocki@samsung.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch adds DT binding documentation for a set of properties
+allowing to specify default parent clocks and clock rates in the device
+tree.  It also adds a helper function to parse the 'assigned-clocks',
+'assigned-clock-parents' and 'assigned-clock-rates' DT properties and
+to set the specified clocks configuration.  The configuration is now
+being done by the platform, I2C and SPI bus before driver probing and
+in the clock core after registering a clock provider.
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Changes since v6:
+ - use a set of separate DT properties to specify the default parent
+   clocks and rates;
+ - the clock defaults setting extended to the I2C and SPI busses;
+ - skipped the first patch from the series already merged upstream.
 
-Linus,
+Changes since v5:
+ - reverted to the DT binding as sugested by Grant, it should now work
+   for both clock suppliers and consumers, similarly as pinctrl hogging;
+ - fixed detecting of null phandles (ENOENT error handling);
+ - the clocks will now also be attempted to be configured right after
+   registering the clock provider, this allows to avoid a call to
+   of_clk_set_defaults() in multiple clock provider drivers;
+ - dropped of_clk_get_by_property() helper, added of_clk_get_by_clkspec.
 
-here is a pull request from i2c hoping for the "new driver" rule.
-Originally, I wanted to send this request during the merge window, but
-code checkers with very recent additions complained, so a few fixups
-were needed. So, some more time went by and I merged rc1 to get a
-stable base. Please pull.
+Changes since v4:
+ - added note explaining how to skip setting parent and rate of a clock,
+ - added missing call to of_node_put(),
+ - moved of_clk_dev_init() calls to the platform bus,
+ - dropped debug traces.
 
-Thanks,
+Changes since v3:
+ - improved documentation of the DT binding,
+ - fixed build errors for !CONFIG_OF, the parsing helpers are only
+   compiled in if CONFIG_OF is set.
 
-   Wolfram
+Changes since v2:
+ - code reordering to ensure there is no build errors, the clock
+   configuration code moved to a separate file,
+ - introduced an 'assigned-clocks' DT node which is supposed to contain
+   clocks, clock-parents, clock-rates properties and be child node
+   a clock provider node, and a code parsing it called from of_clk_init();
+   It's for clocks which are not directly connected to consumer devices.
+   An alternative would be to list such assigned clocks in 'clocks'
+   property, along with "proper" parent clocks, but then there would
+   be phandles in clocks property of a node pointing to itself and it
+   would require proper handling in of_clock_init().
+   I actually tried it but it looked a bit ugly and chose this time to
+   use an extra subnode.
 
+Changes since v1:
+ - updated DT binding documentation,
+ - dropped the platform bus notifier, the clock setup routine is now
+   being called directly from the driver core before a driver probe() call;
+   this has an advantage such as all bus types are handled and any errors
+   are propagated, so that, for instance a driver probe() can be deferred
+   also when resources specified by clock-parents/clock-rates properties
+   are not yet available; an alternative would be to let drivers call
+   of_clk_device_setup() directly,
+ - dropped the patch adding a macro definition for maximum DT property
+   name length for now.
 
-The following changes since commit 7171511eaec5bf23fb06078f59784a3a0626b38f:
+This series has been tested on ARM, on Exynos4412 Odroid U3 board.
+The full git tree can be found at:
+ git://linuxtv.org/snawrocki/samsung.git v3.16-rc1-odroid-sound-clk
 
-  Linux 3.16-rc1 (2014-06-15 17:45:28 -1000)
+and browsed at
+ http://git.linuxtv.org/cgit.cgi/snawrocki/samsung.git/log/?h=v3.16-rc1-odroid-sound-clk
 
-are available in the git repository at:
+Sylwester Nawrocki (1):
+  clk: Support for clock parents and rates assigned from device tree
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+ .../devicetree/bindings/clock/clock-bindings.txt   |   36 +++++
+ drivers/base/platform.c                            |    5 +
+ drivers/clk/Makefile                               |    3 +
+ drivers/clk/clk-conf.c                             |  143 ++++++++++++++++++++
+ drivers/clk/clk.c                                  |   12 +-
+ drivers/i2c/i2c-core.c                             |    5 +
+ drivers/spi/spi.c                                  |    5 +
+ include/linux/clk/clk-conf.h                       |   20 +++
+ 8 files changed, 227 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/clk/clk-conf.c
+ create mode 100644 include/linux/clk/clk-conf.h
 
-for you to fetch changes up to f0b1f6442b5090fed3529cb39f3acf8c91693d3d:
-
-  Merge tag 'v3.16-rc1' into i2c/for-next (2014-06-17 14:37:31 +0200)
-
-----------------------------------------------------------------
-
-Boris BREZILLON (3):
-      i2c: sunxi: add P2WI DT bindings documentation
-      i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support
-      i2c: sun6-p2wi: fix call to snprintf
-
-Dan Carpenter (1):
-      i2c: rk3x: add NULL entry to the end of_device_id array
-
-Max Schwarz (1):
-      i2c: rk3x: add driver for Rockchip RK3xxx SoC I2C adapter
-
-Wolfram Sang (2):
-      i2c: sun6i-p2wi: use proper return value in probe
-      Merge tag 'v3.16-rc1' into i2c/for-next
-
- Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |  42 ++
- .../devicetree/bindings/i2c/i2c-sunxi-p2wi.txt     |  41 ++
- drivers/i2c/busses/Kconfig                         |  23 +
- drivers/i2c/busses/Makefile                        |   2 +
- drivers/i2c/busses/i2c-rk3x.c                      | 763 +++++++++++++++++++++
- drivers/i2c/busses/i2c-sun6i-p2wi.c                | 345 ++++++++++
- 6 files changed, 1216 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sunxi-p2wi.txt
- create mode 100644 drivers/i2c/busses/i2c-rk3x.c
- create mode 100644 drivers/i2c/busses/i2c-sun6i-p2wi.c
-
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJToYRJAAoJEBQN5MwUoCm2WwwP/33wXICImx/rJhow7bXi62T2
-oLvIDcnXo+EdpZTgrBRUTI73xPHU8DEK2suW7uTpCJohbj9pJho/n0OLWq3r36jH
-Gre0ZjeV0PB83CqNZ02D4T70RxA455pEmIHOEBFw++KVOmEfjnxpWtBo9UpGioJL
-3NXtNs4pe/Q30moR3y7TzLAL6V2b2jTwUyvy9qG8DxwWkZ0DLxnodlJ22kWmk/xX
-RCKDLq4pT4TZdEEYlwppC2WBsQiQxhV56PmX33+KInY6XEeD+L4YIh+PTzMKwiud
-3SSTzasGIjHfxESrF0l2mV05mHkb12YICNbN2Wm5Oy/bzMAApaywZhhSOv7ByV9T
-iaSADefdWxOPVPrhfZze2fFWactaX8DD4r7ZMi8KYL6x7Yvvo4Qz2AFbgpR7K2jY
-d0ZK47rrd7ZMKKcSPIUiVHbuDq7EKlaettCLPhUN4Ub1V123OaFX1pPij1hCmniQ
-ETJQrS8FxaMVmctCYTUuM+c+9doNAZAxd/Evv9AV8ZUnETbLFn9wb3xvc623rZPG
-pRUq1LPNd9k9A9Gn/9Eh/Ip/eI34ObujIKGOPbv1LIhlvvjRq0pXVQ0Aig4ZE/Ix
-+We/RDu23uQLReuoVOe/cWVWAneyynWPU075nh4vFP2bCCAUYhuc0x1lyXoUH3XM
-U3Y+rOmuHksanb2frboR
-=2HXT
------END PGP SIGNATURE-----
-
---oyUTqETQ0mS9luUI--
+--
+1.7.9.5
