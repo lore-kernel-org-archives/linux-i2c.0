@@ -1,108 +1,43 @@
 From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH 08/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
-Date: Tue, 17 Jun 2014 21:27:49 -0700
-Message-ID: <CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ@mail.gmail.com>
+Subject: Re: [PATCH 10/10] mfd: cros_ec: ec_dev->cmd_xfer() returns number of
+ bytes received from EC
+Date: Tue, 17 Jun 2014 21:54:03 -0700
+Message-ID: <CAD=FV=W0L_D2GkeRb0+JLZAMk=2m2V3hOS4fFbXDtQHNoYxZvA@mail.gmail.com>
 References: <1402954800-28215-1-git-send-email-dianders@chromium.org>
-	<1402954800-28215-9-git-send-email-dianders@chromium.org>
-	<CAPnjgZ3GhvHog5Pb3_DxYSWF0t4mgR=7HBe2KrfKcsJ=zwmFhQ@mail.gmail.com>
+	<1402954800-28215-11-git-send-email-dianders@chromium.org>
+	<CAPnjgZ1+y6QYpdio9inzLTi9g4Ew7vkco_MU3GO1_gpndp3dxA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <CAPnjgZ3GhvHog5Pb3_DxYSWF0t4mgR=7HBe2KrfKcsJ=zwmFhQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <CAPnjgZ1+y6QYpdio9inzLTi9g4Ew7vkco_MU3GO1_gpndp3dxA@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Simon Glass <sjg@chromium.org>
-Cc: Lee Jones <lee.jones@linaro.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Vincent Palatin <vpalatin@chromium.org>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Vincent Palatin <vpalatin@chromium.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Simon,
 
-On Tue, Jun 17, 2014 at 8:42 PM, Simon Glass <sjg@chromium.org> wrote:
->> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
->> index 4083796..dc37b6b 100644
->> --- a/drivers/input/keyboard/cros_ec_keyb.c
->> +++ b/drivers/input/keyboard/cros_ec_keyb.c
->> @@ -191,8 +191,18 @@ static void cros_ec_keyb_close(struct input_dev *dev)
->>
->>  static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_t *kb_state)
->>  {
->> -       return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STATE,
->> -                                         kb_state, ckdev->cols);
->> +       int ret;
->> +       struct cros_ec_command msg = {
->> +               .version = 0,
->> +               .command = EC_CMD_MKBP_STATE,
->> +               .outdata = NULL,
->> +               .outsize = 0,
->> +               .indata = kb_state,
->> +               .insize = ckdev->cols,
->> +       };
->> +
->> +       ret = ckdev->ec->cmd_xfer(ckdev->ec, &msg);
+On Tue, Jun 17, 2014 at 8:46 PM, Simon Glass <sjg@chromium.org> wrote:
+> Hi,
 >
-> Do we need ret?
-
-No.  If you wish I will spin without it.  Let me know.
-
-Note that locally this code includes a comment between the above and the return:
-  /* FIXME: This assumes msg.result == EC_RES_SUCCESS */
-
-Given that this is not a new problem introduced in this code, that it
-still hasn't been fixed locally in the ChromeOS tree, and that
-generally FIXMEs don't seem to be left in the code upstream, I left it
-out.
-
->> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
->> index 2b0c598..60c0880 100644
->> --- a/include/linux/mfd/cros_ec.h
->> +++ b/include/linux/mfd/cros_ec.h
->> @@ -63,9 +63,10 @@ struct cros_ec_command {
->>   * @was_wake_device: true if this device was set to wake the system from
->>   * sleep at the last suspend
->>   * @event_notifier: interrupt event notifier for transport devices
->> - * @command_send: send a command
->> - * @command_recv: receive a response
->> - * @command_sendrecv: send a command and receive a response
->> + * @cmd_xfer: send command to EC and get response
->> + *     Returns 0 if the communication succeeded, but that doesn't mean the EC
->> + *     was happy with the command it got. Caller should check msg.result for
->> + *     the EC's result code.
->>   *
->>   * @priv: Private data
->>   * @irq: Interrupt to use
->> @@ -83,7 +84,6 @@ struct cros_ec_command {
->>   * @parent: pointer to parent device (e.g. i2c or spi device)
->>   * @wake_enabled: true if this device can wake the system from sleep
->>   * @lock: one transaction at a time
->> - * @cmd_xfer: low-level channel to the EC
->>   */
->>  struct cros_ec_device {
+> On 16 June 2014 14:40, Doug Anderson <dianders@chromium.org> wrote:
+>> From: Bill Richardson <wfrichar@chromium.org>
 >>
->> @@ -94,13 +94,8 @@ struct cros_ec_device {
->>         bool was_wake_device;
->>         struct class *cros_class;
->>         struct blocking_notifier_head event_notifier;
->> -       int (*command_send)(struct cros_ec_device *ec,
->> -                           uint16_t cmd, void *out_buf, int out_len);
->> -       int (*command_recv)(struct cros_ec_device *ec,
->> -                           uint16_t cmd, void *in_buf, int in_len);
->> -       int (*command_sendrecv)(struct cros_ec_device *ec,
->> -                               uint16_t cmd, void *out_buf, int out_len,
->> -                               void *in_buf, int in_len);
->> +       int (*cmd_xfer)(struct cros_ec_device *ec,
->> +                       struct cros_ec_command *msg);
->>
->>         /* These are used to implement the platform-specific interface */
->>         void *priv;
->> @@ -112,8 +107,6 @@ struct cros_ec_device {
->>         struct device *parent;
->>         bool wake_enabled;
->>         struct mutex lock;
->> -       int (*cmd_xfer)(struct cros_ec_device *ec,
->> -                       struct cros_ec_command *msg);
+>> When communicating with the EC, the cmd_xfer() function should return the
+>> number of bytes it received from the EC, or negative on error.
 >
-> Seems odd - maybe this line move of cmd_xfer() should be in an earlier patch?
+> This is just for the I2C tunnel feature, right? If so, I think this
+> should be mentioned here. It seems to be affecting ec_i2c_xfer(), not
+> cmd_xfer().
 
-It got moved from "private" to public.  Bill reorganized all the
-public stuff at the top and the private at the bottom.
+No, the tunnel feature is implemented just fine without this (and is
+already landed and working).  It looks like the (not yet upstreamed)
+ec_i2c_limited_xfer for spring returns this new value directly but I'm
+not convinced that's technicall correct.
+
+Bill can correct me if I'm wrong, but I think this is primarily
+interesting once we add in cros_ec_dev (the userspace API) which needs
+this info.  Until that happens this patch doesn't hurt and just
+returns some extra info.
 
 -Doug
