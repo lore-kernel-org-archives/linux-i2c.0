@@ -1,134 +1,97 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 08/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
-Date: Wed, 18 Jun 2014 08:40:49 +0100
-Message-ID: <20140618074049.GD21030@lee--X1>
-References: <1402954800-28215-1-git-send-email-dianders@chromium.org>
- <1402954800-28215-9-git-send-email-dianders@chromium.org>
- <CAPnjgZ3GhvHog5Pb3_DxYSWF0t4mgR=7HBe2KrfKcsJ=zwmFhQ@mail.gmail.com>
- <CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAD=FV=Ue9OBkXtii4aKrCbKPd--7ZRN_G0pw2ZtX89mcz_hfzQ@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Simon Glass <sjg@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Vincent Palatin <vpalatin@chromium.org>, Geert Uytterhoeven <geert@linux-m68k.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, lk <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+From: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH/RFC V7] clk: Default clock parents and rates assigned from DT
+Date: Wed, 18 Jun 2014 12:47:15 +0200
+Message-ID: <1403088436-29956-1-git-send-email-s.nawrocki@samsung.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> >> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input=
-/keyboard/cros_ec_keyb.c
-> >> index 4083796..dc37b6b 100644
-> >> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> >> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> >> @@ -191,8 +191,18 @@ static void cros_ec_keyb_close(struct input_d=
-ev *dev)
-> >>
-> >>  static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uin=
-t8_t *kb_state)
-> >>  {
-> >> -       return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STAT=
-E,
-> >> -                                         kb_state, ckdev->cols);
-> >> +       int ret;
-> >> +       struct cros_ec_command msg =3D {
-> >> +               .version =3D 0,
-> >> +               .command =3D EC_CMD_MKBP_STATE,
-> >> +               .outdata =3D NULL,
-> >> +               .outsize =3D 0,
-> >> +               .indata =3D kb_state,
-> >> +               .insize =3D ckdev->cols,
-> >> +       };
-> >> +
-> >> +       ret =3D ckdev->ec->cmd_xfer(ckdev->ec, &msg);
-> >
-> > Do we need ret?
->=20
-> No.  If you wish I will spin without it.  Let me know.
->=20
-> Note that locally this code includes a comment between the above and =
-the return:
->   /* FIXME: This assumes msg.result =3D=3D EC_RES_SUCCESS */
->=20
-> Given that this is not a new problem introduced in this code, that it
-> still hasn't been fixed locally in the ChromeOS tree, and that
-> generally FIXMEs don't seem to be left in the code upstream, I left i=
-t
-> out.
+This patch adds DT binding documentation for a set of properties
+allowing to specify default parent clocks and clock rates in the device
+tree.  It also adds a helper function to parse the 'assigned-clocks',
+'assigned-clock-parents' and 'assigned-clock-rates' DT properties and
+to set the specified clocks configuration.  The configuration is now
+being done by the platform, I2C and SPI bus before driver probing and
+in the clock core after registering a clock provider.
 
-As you're re-spinning anyway, please fix this and add my:
-  Acked-by: Lee Jones <lee.jones@linaro.org>
+Changes since v6:
+ - use a set of separate DT properties to specify the default parent
+   clocks and rates;
+ - the clock defaults setting extended to the I2C and SPI busses;
+ - added struct dev_clk_info to struct device so we can prevent multiple
+   calls to clk_dev_set_defaults() in case of deferred probing;
+ - skipped the first patch from the series already merged upstream.
 
-> >> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_=
-ec.h
-> >> index 2b0c598..60c0880 100644
-> >> --- a/include/linux/mfd/cros_ec.h
-> >> +++ b/include/linux/mfd/cros_ec.h
-> >> @@ -63,9 +63,10 @@ struct cros_ec_command {
-> >>   * @was_wake_device: true if this device was set to wake the syst=
-em from
-> >>   * sleep at the last suspend
-> >>   * @event_notifier: interrupt event notifier for transport device=
-s
-> >> - * @command_send: send a command
-> >> - * @command_recv: receive a response
-> >> - * @command_sendrecv: send a command and receive a response
-> >> + * @cmd_xfer: send command to EC and get response
-> >> + *     Returns 0 if the communication succeeded, but that doesn't=
- mean the EC
-> >> + *     was happy with the command it got. Caller should check msg=
-=2Eresult for
-> >> + *     the EC's result code.
-> >>   *
-> >>   * @priv: Private data
-> >>   * @irq: Interrupt to use
-> >> @@ -83,7 +84,6 @@ struct cros_ec_command {
-> >>   * @parent: pointer to parent device (e.g. i2c or spi device)
-> >>   * @wake_enabled: true if this device can wake the system from sl=
-eep
-> >>   * @lock: one transaction at a time
-> >> - * @cmd_xfer: low-level channel to the EC
-> >>   */
-> >>  struct cros_ec_device {
-> >>
-> >> @@ -94,13 +94,8 @@ struct cros_ec_device {
-> >>         bool was_wake_device;
-> >>         struct class *cros_class;
-> >>         struct blocking_notifier_head event_notifier;
-> >> -       int (*command_send)(struct cros_ec_device *ec,
-> >> -                           uint16_t cmd, void *out_buf, int out_l=
-en);
-> >> -       int (*command_recv)(struct cros_ec_device *ec,
-> >> -                           uint16_t cmd, void *in_buf, int in_len=
-);
-> >> -       int (*command_sendrecv)(struct cros_ec_device *ec,
-> >> -                               uint16_t cmd, void *out_buf, int o=
-ut_len,
-> >> -                               void *in_buf, int in_len);
-> >> +       int (*cmd_xfer)(struct cros_ec_device *ec,
-> >> +                       struct cros_ec_command *msg);
-> >>
-> >>         /* These are used to implement the platform-specific inter=
-face */
-> >>         void *priv;
-> >> @@ -112,8 +107,6 @@ struct cros_ec_device {
-> >>         struct device *parent;
-> >>         bool wake_enabled;
-> >>         struct mutex lock;
-> >> -       int (*cmd_xfer)(struct cros_ec_device *ec,
-> >> -                       struct cros_ec_command *msg);
-> >
-> > Seems odd - maybe this line move of cmd_xfer() should be in an earl=
-ier patch?
->=20
-> It got moved from "private" to public.  Bill reorganized all the
-> public stuff at the top and the private at the bottom.
->=20
-> -Doug
+Changes since v5:
+ - reverted to the DT binding as sugested by Grant, it should now work
+   for both clock suppliers and consumers, similarly as pinctrl hogging;
+ - fixed detecting of null phandles (ENOENT error handling);
+ - the clocks will now also be attempted to be configured right after
+   registering the clock provider, this allows to avoid a call to
+   of_clk_set_defaults() in multiple clock provider drivers;
+ - dropped of_clk_get_by_property() helper, added of_clk_get_by_clkspec.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Changes since v4:
+ - added note explaining how to skip setting parent and rate of a clock,
+ - added missing call to of_node_put(),
+ - moved of_clk_dev_init() calls to the platform bus,
+ - dropped debug traces.
+
+Changes since v3:
+ - improved documentation of the DT binding,
+ - fixed build errors for !CONFIG_OF, the parsing helpers are only
+   compiled in if CONFIG_OF is set.
+
+Changes since v2:
+ - code reordering to ensure there is no build errors, the clock
+   configuration code moved to a separate file,
+ - introduced an 'assigned-clocks' DT node which is supposed to contain
+   clocks, clock-parents, clock-rates properties and be child node
+   a clock provider node, and a code parsing it called from of_clk_init();
+   It's for clocks which are not directly connected to consumer devices.
+   An alternative would be to list such assigned clocks in 'clocks'
+   property, along with "proper" parent clocks, but then there would
+   be phandles in clocks property of a node pointing to itself and it
+   would require proper handling in of_clock_init().
+   I actually tried it but it looked a bit ugly and chose this time to
+   use an extra subnode.
+
+Changes since v1:
+ - updated DT binding documentation,
+ - dropped the platform bus notifier, the clock setup routine is now
+   being called directly from the driver core before a driver probe() call;
+   this has an advantage such as all bus types are handled and any errors
+   are propagated, so that, for instance a driver probe() can be deferred
+   also when resources specified by clock-parents/clock-rates properties
+   are not yet available; an alternative would be to let drivers call
+   of_clk_device_setup() directly,
+ - dropped the patch adding a macro definition for maximum DT property
+   name length for now.
+
+This series has been tested on ARM, on Exynos4412 Odroid U3 board.
+The full git tree can be found at:
+ git://linuxtv.org/snawrocki/samsung.git v3.16-rc1-odroid-sound-clk
+
+and browsed at
+ http://git.linuxtv.org/cgit.cgi/snawrocki/samsung.git/log/?h=v3.16-rc1-odroid-sound-clk
+
+Sylwester Nawrocki (1):
+  clk: Support for clock parents and rates assigned from device tree
+
+ .../devicetree/bindings/clock/clock-bindings.txt   |   36 +++++
+ drivers/base/platform.c                            |    5 +
+ drivers/clk/Makefile                               |    3 +
+ drivers/clk/clk-conf.c                             |  154 ++++++++++++++++++++
+ drivers/clk/clk.c                                  |   12 +-
+ drivers/i2c/i2c-core.c                             |    5 +
+ drivers/spi/spi.c                                  |    5 +
+ include/linux/clk/clk-conf.h                       |   33 +++++
+ include/linux/device.h                             |    4 +
+ 9 files changed, 255 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/clk/clk-conf.c
+ create mode 100644 include/linux/clk/clk-conf.h
+
+--
+1.7.9.5
