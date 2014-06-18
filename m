@@ -1,432 +1,68 @@
-From: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH/RFC V8 1/1] clk: Support for clock parents and rates assigned
- from device tree
-Date: Wed, 18 Jun 2014 17:29:32 +0200
-Message-ID: <1403105372-30403-2-git-send-email-s.nawrocki@samsung.com>
-References: <1403105372-30403-1-git-send-email-s.nawrocki@samsung.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <1403105372-30403-1-git-send-email-s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+From: Doug Anderson <dianders@chromium.org>
+Subject: [PATCH v2 0/10] Batch of cleanup patches for cros_ec
+Date: Wed, 18 Jun 2014 11:13:57 -0700
+Message-ID: <1403115247-8853-1-git-send-email-dianders@chromium.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Andrew Bresticker <abrestic@chromium.org>, swarren@wwwdotorg.org, olof@lixom.net, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, sjg@chromium.org, Wolfram Sang <wsa@the-dreams.de>, broonie@kernel.org, Doug Anderson <dianders@chromium.org>, sameo@linux.intel.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds helper functions to configure clock parents and rates
-as specified through 'assigned-clock-parents', 'assigned-clock-rates'
-DT properties for a clock provider or clock consumer device.
-The helpers are now being called by the bus code for the platform, I2C
-and SPI busses, before the driver probing and also in the clock core
-after registration of a clock provider.
+This is a batch of cleanup patches picked from the ChromeOS 3.8 kernel
+tree and applied to ToT.  Most of these patches were authored by Bill
+Richardson (CCed).  Where appropriate I've squashed patches together,
+though I have erred on the side of keeping patches logically distinct
+rather than squashing into one big cleanup patch.
 
-Signed-off-by: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
-Changes since v6:
- - use a set of separate DT properties to specify the default parent
-   clocks and rates;
- - the clock defaults setting extended to the I2C and SPI busses.
+There is very little functionality added by this series, but this gets
+us closer to how things look in the ChromeOS tree so we can add more
+patches atop it.  In general I took the oldest patches from our tree
+and stopped picking when I got to a reasonable patch size (10
+patches).  There are about 5 more cleanup patches still in the
+ChromeOS tree, then some more major functionality patches.
 
-Changes since v5:
- - updated the DT binding description (dropped 'assigned-clocks' node);
- - fixed detecting of null phandles (ENOENT error handling);
- - modified of_clk_init() to account for that the clocks property may now
-   contain a clock specifier with a phandle that points to our node;
+Note that I didn't take the "cros_ec_dev" userspace inteface, the
+"LPC" implementation, the "vboot context" implementation, and patches
+relating to exynos5250-spring when picking patches.  These bits are
+very separate (and big!) and can be added and debated separately after
+we've got cleanup in.  Whenever patches touched those pieces of the
+code I ignored that part of the patch.  In general I did take cleanup
+code that was intended to make it easier to later add these bits.
 
-Changes since v4:
- - added note explaining how to skip setting parent and rate
-   of a clock,
- - moved of_clk_dev_init() calls to the platform bus,
- - added missing call to of_node_put(),
- - dropped debug traces.
+I have tested basic functionality of these patches on exynos5250-snow
+and exynos5420-peach-pit.
 
-Changes since v3:
- - added detailed description of the assigned-clocks subnode,
- - added missing 'static inline' to the function stub definition,
- - clk-conf.c is now excluded when CONFIG_OF is not set,
- - s/of_clk_device_setup/of_clk_device_init.
+Changes in v2:
+- Include example printouts before/after in commit message.
+- Removed unneeded "ret" variable.
+- Added common function to cros_ec.c
+- Changed to dev_dbg() as per http://crosreview.com/66726
+- IRQs should be optional => move EC interrupt to keyboard.
 
-Changes since v2:
- - edited in clock-bindings.txt, added note about 'assigned-clocks'
-   subnode which may be used to specify "global" clocks configuration
-   at a clock provider node,
- - moved of_clk_device_setup() function declaration from clk-provider.h
-   to clk-conf.h so required function stubs are available when
-   CONFIG_COMMON_CLK is not enabled,
+Andrew Bresticker (1):
+  mfd: cros_ec: move EC interrupt to cros_ec_keyb
 
-Changes since v1:
- - the helper function to parse and set assigned clock parents and
-   rates made public so it is available to clock providers to call
-   directly;
- - dropped the platform bus notification and call of_clk_device_setup()
-   is is now called from the driver core, rather than from the
-   notification callback;
- - s/of_clk_get_list_entry/of_clk_get_by_property.
----
- .../devicetree/bindings/clock/clock-bindings.txt   |   36 +++++
- drivers/base/platform.c                            |    5 +
- drivers/clk/Makefile                               |    3 +
- drivers/clk/clk-conf.c                             |  143 ++++++++++++++++++++
- drivers/clk/clk.c                                  |   12 +-
- drivers/i2c/i2c-core.c                             |    5 +
- drivers/spi/spi.c                                  |    5 +
- include/linux/clk/clk-conf.h                       |   20 +++
- 8 files changed, 227 insertions(+), 2 deletions(-)
- create mode 100644 drivers/clk/clk-conf.c
- create mode 100644 include/linux/clk/clk-conf.h
+Bill Richardson (8):
+  mfd: cros_ec: Fix the comment on cros_ec_remove()
+  mfd: cros_ec: Allow static din/dout buffers with cros_ec_register()
+  mfd: cros_ec: Tweak struct cros_ec_device for clarity
+  mfd: cros_ec: Use struct cros_ec_command to communicate with the EC
+  mfd: cros_ec: cleanup: remove unused fields from struct cros_ec_device
+  mfd: cros_ec: cleanup: Remove EC wrapper functions
+  mfd: cros_ec: Check result code from EC messages
+  mfd: cros_ec: ec_dev->cmd_xfer() returns number of bytes received from
+    EC
 
-diff --git a/Documentation/devicetree/bindings/clock/clock-bindings.txt b/Documentation/devicetree/bindings/clock/clock-bindings.txt
-index f1578781..06fc6d5 100644
---- a/Documentation/devicetree/bindings/clock/clock-bindings.txt
-+++ b/Documentation/devicetree/bindings/clock/clock-bindings.txt
-@@ -131,3 +131,39 @@ clock signal, and a UART.
-   ("pll" and "pll-switched").
- * The UART has its baud clock connected the external oscillator and its
-   register clock connected to the PLL clock (the "pll-switched" signal)
-+
-+==Assigned clock parents and rates==
-+
-+Some platforms may require initial configuration of default parent clocks
-+and clock frequencies. Such a configuration can be specified in a device tree
-+node through assigned-clocks, assigned-clock-parents and assigned-clock-rates
-+properties. The assigned-clock-parents property should contain a list of parent
-+clocks in form of phandle and clock specifier pairs, the assigned-clock-parents
-+property the list of assigned clock frequency values - corresponding to clocks
-+listed in the assigned-clocks property.
-+
-+To skip setting parent or rate of a clock its corresponding entry should be
-+set to 0, or can be omitted if it is not followed by any non-zero entry.
-+
-+    uart@a000 {
-+        compatible = "fsl,imx-uart";
-+        reg = <0xa000 0x1000>;
-+        ...
-+        clocks = <&osc 0>, <&pll 1>;
-+        clock-names = "baud", "register";
-+
-+        assigned-clocks = <&clkcon 0>, <&pll 2>;
-+        assigned-clock-parents = <&pll 2>;
-+        assigned-clock-rates = <0>, <460800>;
-+    };
-+
-+In this example the <&pll 2> clock is set as parent of clock <&clkcon 0> and
-+the <&pll 2> clock is assigned a frequency value of 460800 Hz.
-+
-+Configuring a clock's parent and rate through the device node that consumes
-+the clock can be done only for clocks that have a single user. Specifying
-+conflicting parent or rate configuration in multiple consumer nodes for
-+a shared clock is forbidden.
-+
-+Configuration of common clocks, which affect multiple consumer devices can
-+be similarly specified in the clock provider node.
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 5b47210..f622733 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -23,6 +23,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/idr.h>
- #include <linux/acpi.h>
-+#include <linux/clk/clk-conf.h>
+Simon Glass (1):
+  mdf: cros_ec: Detect in-progress commands
 
- #include "base.h"
- #include "power/power.h"
-@@ -486,6 +487,10 @@ static int platform_drv_probe(struct device *_dev)
- 	struct platform_device *dev = to_platform_device(_dev);
- 	int ret;
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c |  17 +++--
+ drivers/input/keyboard/cros_ec_keyb.c   |  70 ++++++++++++--------
+ drivers/mfd/cros_ec.c                   |  97 ++++++++--------------------
+ drivers/mfd/cros_ec_i2c.c               |  37 +++++------
+ drivers/mfd/cros_ec_spi.c               |  36 +++++------
+ include/linux/mfd/cros_ec.h             | 110 +++++++++++++++++---------------
+ 6 files changed, 172 insertions(+), 195 deletions(-)
 
-+	ret = of_clk_set_defaults(_dev->of_node, false);
-+	if (ret < 0)
-+		return ret;
-+
- 	acpi_dev_pm_attach(_dev, true);
-
- 	ret = drv->probe(dev);
-diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
-index b25a1fe..7fe358c 100644
---- a/drivers/clk/Makefile
-+++ b/drivers/clk/Makefile
-@@ -8,6 +8,9 @@ obj-$(CONFIG_COMMON_CLK)	+= clk-fixed-rate.o
- obj-$(CONFIG_COMMON_CLK)	+= clk-gate.o
- obj-$(CONFIG_COMMON_CLK)	+= clk-mux.o
- obj-$(CONFIG_COMMON_CLK)	+= clk-composite.o
-+ifeq ($(CONFIG_OF), y)
-+obj-$(CONFIG_COMMON_CLK)	+= clk-conf.o
-+endif
-
- # hardware specific clock types
- # please keep this section sorted lexicographically by file/directory path name
-diff --git a/drivers/clk/clk-conf.c b/drivers/clk/clk-conf.c
-new file mode 100644
-index 0000000..1f73019
---- /dev/null
-+++ b/drivers/clk/clk-conf.c
-@@ -0,0 +1,143 @@
-+/*
-+ * Copyright (C) 2014 Samsung Electronics Co., Ltd.
-+ * Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/clk-provider.h>
-+#include <linux/clk/clk-conf.h>
-+#include <linux/device.h>
-+#include <linux/of.h>
-+#include <linux/printk.h>
-+#include "clk.h"
-+
-+static int __set_clk_parents(struct device_node *node, bool clk_supplier)
-+{
-+	struct of_phandle_args clkspec;
-+	int index, rc, num_parents;
-+	struct clk *clk, *pclk;
-+
-+	num_parents = of_count_phandle_with_args(node, "assigned-clock-parents",
-+						 "#clock-cells");
-+	if (num_parents == -EINVAL)
-+		pr_err("clk: invalid value of clock-parents property at %s\n",
-+		       node->full_name);
-+
-+	for (index = 0; index < num_parents; index++) {
-+		rc = of_parse_phandle_with_args(node, "assigned-clock-parents",
-+					"#clock-cells",	index, &clkspec);
-+		if (rc < 0) {
-+			/* skip empty (null) phandles */
-+			if (rc == -ENOENT)
-+				continue;
-+			else
-+				return rc;
-+		}
-+		if (clkspec.np == node && !clk_supplier)
-+			return 0;
-+		pclk = of_clk_get_by_clkspec(&clkspec);
-+		if (IS_ERR(pclk)) {
-+			pr_warn("clk: couldn't get parent clock %d for %s\n",
-+				index, node->full_name);
-+			return PTR_ERR(pclk);
-+		}
-+
-+		rc = of_parse_phandle_with_args(node, "assigned-clocks",
-+					"#clock-cells", index, &clkspec);
-+		if (rc < 0)
-+			goto err;
-+		if (clkspec.np == node && !clk_supplier) {
-+			rc = 0;
-+			goto err;
-+		}
-+		clk = of_clk_get_by_clkspec(&clkspec);
-+		if (IS_ERR(pclk)) {
-+			pr_warn("clk: couldn't get parent clock %d for %s\n",
-+				index, node->full_name);
-+			rc = PTR_ERR(pclk);
-+			goto err;
-+		}
-+
-+		rc = clk_set_parent(clk, pclk);
-+		if (rc < 0)
-+			pr_err("clk: failed to reparent %s to %s: %d\n",
-+			       __clk_get_name(clk), __clk_get_name(pclk), rc);
-+		clk_put(clk);
-+		clk_put(pclk);
-+	}
-+	return 0;
-+err:
-+	clk_put(pclk);
-+	return rc;
-+}
-+
-+static int __set_clk_rates(struct device_node *node, bool clk_supplier)
-+{
-+	struct of_phandle_args clkspec;
-+	struct property	*prop;
-+	const __be32 *cur;
-+	int rc, index = 0;
-+	struct clk *clk;
-+	u32 rate;
-+
-+	of_property_for_each_u32(node, "assigned-clock-rates", prop, cur, rate) {
-+		if (rate) {
-+			rc = of_parse_phandle_with_args(node, "assigned-clocks",
-+					"#clock-cells",	index, &clkspec);
-+			if (rc < 0) {
-+				/* skip empty (null) phandles */
-+				if (rc == -ENOENT)
-+					continue;
-+				else
-+					return rc;
-+			}
-+			if (clkspec.np == node && !clk_supplier)
-+				return 0;
-+
-+			clk = of_clk_get_by_clkspec(&clkspec);
-+			if (IS_ERR(clk)) {
-+				pr_warn("clk: couldn't get clock %d for %s\n",
-+					index, node->full_name);
-+				return PTR_ERR(clk);
-+			}
-+
-+			rc = clk_set_rate(clk, rate);
-+			if (rc < 0)
-+				pr_err("clk: couldn't set %s clock rate: %d\n",
-+				       __clk_get_name(clk), rc);
-+			clk_put(clk);
-+		}
-+		index++;
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * of_clk_set_defaults() - parse and set assigned clocks configuration
-+ * @node: device node to apply clock settings for
-+ * @clk_supplier: true if clocks supplied by @node should also be considered
-+ *
-+ * This function parses 'assigned-{clocks/clock-parents/clock-rates}' properties
-+ * and sets any specified clock parents and rates. The @clk_supplier argument
-+ * should be set to true if @node may be also a clock supplier of any clock
-+ * listed in its 'assigned-clocks' or 'assigned-clock-parents' properties.
-+ * If @clk_supplier is false the function exits returnning 0 as soon as it
-+ * determines the @node is also a supplier of any of the clocks.
-+ */
-+int of_clk_set_defaults(struct device_node *node, bool clk_supplier)
-+{
-+	int rc;
-+
-+	if (!node)
-+		return 0;
-+
-+	rc = __set_clk_parents(node, clk_supplier);
-+	if (rc < 0)
-+		return rc;
-+
-+	return __set_clk_rates(node, clk_supplier);
-+}
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 8b73ede..a77af45 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -10,6 +10,7 @@
-  */
-
- #include <linux/clk-private.h>
-+#include <linux/clk/clk-conf.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
- #include <linux/spinlock.h>
-@@ -2414,6 +2415,7 @@ int of_clk_add_provider(struct device_node *np,
- 			void *data)
- {
- 	struct of_clk_provider *cp;
-+	int ret;
-
- 	cp = kzalloc(sizeof(struct of_clk_provider), GFP_KERNEL);
- 	if (!cp)
-@@ -2428,7 +2430,11 @@ int of_clk_add_provider(struct device_node *np,
- 	mutex_unlock(&of_clk_mutex);
- 	pr_debug("Added clock from %s\n", np->full_name);
-
--	return 0;
-+	ret = of_clk_set_defaults(np, true);
-+	if (ret < 0)
-+		of_clk_del_provider(np);
-+
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(of_clk_add_provider);
-
-@@ -2605,7 +2611,10 @@ void __init of_clk_init(const struct of_device_id *matches)
- 		list_for_each_entry_safe(clk_provider, next,
- 					&clk_provider_list, node) {
- 			if (force || parent_ready(clk_provider->np)) {
-+
- 				clk_provider->clk_init_cb(clk_provider->np);
-+				of_clk_set_defaults(clk_provider->np, true);
-+
- 				list_del(&clk_provider->node);
- 				kfree(clk_provider);
- 				is_init_done = true;
-@@ -2620,7 +2629,6 @@ void __init of_clk_init(const struct of_device_id *matches)
- 		 */
- 		if (!is_init_done)
- 			force = true;
--
- 	}
- }
- #endif
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 7c7f4b8..66aa83b 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -42,6 +42,7 @@
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/of_irq.h>
-+#include <linux/clk/clk-conf.h>
- #include <linux/completion.h>
- #include <linux/hardirq.h>
- #include <linux/irqflags.h>
-@@ -274,6 +275,10 @@ static int i2c_device_probe(struct device *dev)
- 					client->flags & I2C_CLIENT_WAKE);
- 	dev_dbg(dev, "probe\n");
-
-+	status = of_clk_set_defaults(dev->of_node, false);
-+	if (status < 0)
-+		return status;
-+
- 	acpi_dev_pm_attach(&client->dev, true);
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
- 	if (status)
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 939edf4..8374620 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -29,6 +29,7 @@
- #include <linux/mutex.h>
- #include <linux/of_device.h>
- #include <linux/of_irq.h>
-+#include <linux/clk/clk-conf.h>
- #include <linux/slab.h>
- #include <linux/mod_devicetable.h>
- #include <linux/spi/spi.h>
-@@ -259,6 +260,10 @@ static int spi_drv_probe(struct device *dev)
- 	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
- 	int ret;
-
-+	ret = of_clk_set_defaults(dev->of_node, false);
-+	if (ret)
-+		return ret;
-+
- 	acpi_dev_pm_attach(dev, true);
- 	ret = sdrv->probe(to_spi_device(dev));
- 	if (ret)
-diff --git a/include/linux/clk/clk-conf.h b/include/linux/clk/clk-conf.h
-new file mode 100644
-index 0000000..f3050e1
---- /dev/null
-+++ b/include/linux/clk/clk-conf.h
-@@ -0,0 +1,20 @@
-+/*
-+ * Copyright (C) 2014 Samsung Electronics Co., Ltd.
-+ * Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+struct device_node;
-+
-+#if defined(CONFIG_OF) && defined(CONFIG_COMMON_CLK)
-+int of_clk_set_defaults(struct device_node *node, bool clk_supplier);
-+#else
-+static inline int of_clk_set_defaults(struct device_node *node,
-+				      bool clk_supplier)
-+{
-+	return 0;
-+}
-+#endif
---
-1.7.9.5
+-- 
+2.0.0.526.g5318336
