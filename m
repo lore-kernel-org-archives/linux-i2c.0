@@ -1,97 +1,49 @@
 From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH v2 09/10] mfd: cros_ec: ec_dev->cmd_xfer() returns number of bytes received from EC
-Date: Wed, 18 Jun 2014 11:14:06 -0700
-Message-ID: <1403115247-8853-10-git-send-email-dianders@chromium.org>
-References: <1403115247-8853-1-git-send-email-dianders@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1403115247-8853-1-git-send-email-dianders@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Andrew Bresticker <abrestic@chromium.org>, swarren@wwwdotorg.org, olof@lixom.net, Sonny Rao <sonnyrao@chromium.org>, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, sjg@chromium.org, Wolfram Sang <wsa@the-dreams.de>, broonie@kernel.org, Doug Anderson <dianders@chromium.org>, sameo@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: s3c2410: resume the I2C controller earlier
+Date: Wed, 18 Jun 2014 21:54:51 -0700
+Message-ID: <1403153691-15606-1-git-send-email-dianders@chromium.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene.kim@samsung.com>, Ben Dooks <ben-linux@fluff.org>
+Cc: Tomasz Figa <tomasz.figa@gmail.com>, javier.martinez@collabora.co.uk, Vincent Palatin <vpalatin@chromium.org>, Doug Anderson <dianders@chromium.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bill Richardson <wfrichar@chromium.org>
+From: Vincent Palatin <vpalatin@chromium.org>
 
-When communicating with the EC, the cmd_xfer() function should return the
-number of bytes it received from the EC, or negative on error.
+When the wake-up is triggered by the PMIC RTC, the RTC driver is trying
+to read the PMIC interrupt status over I2C and fails because the I2C
+controller is not resumed yet.
+Let's resume the I2C controller earlier in the _noirq phase
+(as other hardwares are doing), so we can properly get the wake-up
+condition.
 
-Signed-off-by: Bill Richardson <wfrichar@chromium.org>
+Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
 Signed-off-by: Doug Anderson <dianders@chromium.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
-Changes in v2: None
+ drivers/i2c/busses/i2c-s3c2410.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- drivers/i2c/busses/i2c-cros-ec-tunnel.c | 2 +-
- drivers/mfd/cros_ec_i2c.c               | 2 +-
- drivers/mfd/cros_ec_spi.c               | 2 +-
- include/linux/mfd/cros_ec.h             | 8 ++++----
- 4 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-index dd07818..05e033c 100644
---- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-+++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
-@@ -228,7 +228,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg i2c_msgs[],
- 	msg.insize = response_len;
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index e828a1d..b904132 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1267,7 +1267,7 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+ 	return 0;
+ }
  
- 	result = bus->ec->cmd_xfer(bus->ec, &msg);
--	if (result)
-+	if (result < 0)
- 		goto exit;
+-static int s3c24xx_i2c_resume(struct device *dev)
++static int s3c24xx_i2c_resume_noirq(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+@@ -1285,7 +1285,7 @@ static int s3c24xx_i2c_resume(struct device *dev)
+ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+ #ifdef CONFIG_PM_SLEEP
+ 	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
+-	.resume = s3c24xx_i2c_resume,
++	.resume_noirq = s3c24xx_i2c_resume_noirq,
+ #endif
+ };
  
- 	result = ec_i2c_parse_response(response, i2c_msgs, &num);
-diff --git a/drivers/mfd/cros_ec_i2c.c b/drivers/mfd/cros_ec_i2c.c
-index 189e7d1..fd7a546 100644
---- a/drivers/mfd/cros_ec_i2c.c
-+++ b/drivers/mfd/cros_ec_i2c.c
-@@ -111,7 +111,7 @@ static int cros_ec_cmd_xfer_i2c(struct cros_ec_device *ec_dev,
- 		goto done;
- 	}
- 
--	ret = 0;
-+	ret = i2c_msg[1].buf[1];
-  done:
- 	kfree(in_buf);
- 	kfree(out_buf);
-diff --git a/drivers/mfd/cros_ec_spi.c b/drivers/mfd/cros_ec_spi.c
-index c975087..2ad6815 100644
---- a/drivers/mfd/cros_ec_spi.c
-+++ b/drivers/mfd/cros_ec_spi.c
-@@ -324,7 +324,7 @@ static int cros_ec_cmd_xfer_spi(struct cros_ec_device *ec_dev,
- 		goto exit;
- 	}
- 
--	ret = 0;
-+	ret = len;
- exit:
- 	mutex_unlock(&ec_spi->lock);
- 	return ret;
-diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.h
-index 1f79f16..0ebf26f 100644
---- a/include/linux/mfd/cros_ec.h
-+++ b/include/linux/mfd/cros_ec.h
-@@ -41,7 +41,7 @@ enum {
-  * @outdata: Outgoing data to EC
-  * @outsize: Outgoing length in bytes
-  * @indata: Where to put the incoming data from EC
-- * @insize: Incoming length in bytes (filled in by EC)
-+ * @insize: Max number of bytes to accept from EC
-  * @result: EC's response to the command (separate from communication failure)
-  */
- struct cros_ec_command {
-@@ -64,9 +64,9 @@ struct cros_ec_command {
-  * sleep at the last suspend
-  * @event_notifier: interrupt event notifier for transport devices
-  * @cmd_xfer: send command to EC and get response
-- *     Returns 0 if the communication succeeded, but that doesn't mean the EC
-- *     was happy with the command it got. Caller should check msg.result for
-- *     the EC's result code.
-+ *     Returns the number of bytes received if the communication succeeded, but
-+ *     that doesn't mean the EC was happy with the command. The caller
-+ *     should check msg.result for the EC's result code.
-  *
-  * @priv: Private data
-  * @irq: Interrupt to use
 -- 
 2.0.0.526.g5318336
