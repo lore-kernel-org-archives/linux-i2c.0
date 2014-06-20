@@ -1,65 +1,32 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 3/9] i2c: Add the ability to match device to compatible string without an of_node
-Date: Fri, 20 Jun 2014 13:02:27 +0100
-Message-ID: <1403265753-25851-5-git-send-email-lee.jones@linaro.org>
-References: <1403265753-25851-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1403265753-25851-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org, Lee Jones <lee.jones@linaro.org>
+From: Michael Post <michael_post-S0/GAf8tV78@public.gmane.org>
+Subject: Driver-Support of I2C_M_RECV_LEN
+Date: Fri, 20 Jun 2014 14:03:45 +0200
+Message-ID: <53A42321.5020701@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-A great deal of I2C devices are currently matched via DT node name, and
-as such the compatible naming convention of '<vendor>,<device>' has gone
-somewhat awry - some nodes don't supply one, some supply an arbitrary
-string and others the correct device name with an arbitrary vendor prefix.
+Hello,
 
-In an effort to correct this problem we have to supply a mechanism to
-match a device by compatible string AND by simple device name.  This
-function strips off the '<vendor>,' part of a supplied compatible string
-and attempts to match without it.
+in the documentation i found at
+http://ww2.cs.fsu.edu/~rosentha/linux/2.6.26.5/docs/DocBook/kernel-api/re1222.html
+the following sentence:
 
-The plan is to remove this function once all of the compatible strings
-for each device have been brought into line.
+"Note that using this function requires that the client's adapter
+support the I2C_FUNC_SMBUS_READ_BLOCK_DATA functionality. Not all
+adapter drivers support this; its emulation through I2C messaging relies
+on a specific mechanism (I2C_M_RECV_LEN) which may not be implemented."
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/i2c/i2c-core.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+The second sentence says that the mechanism I2C_M_RECV_LEN is not all
+over implemented.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index d3802dc..8a37745 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1090,6 +1090,27 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- 	return i2c_verify_adapter(dev);
- }
- EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
-+
-+static const struct of_device_id*
-+i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-+				  struct i2c_client *client)
-+{
-+	const char *name;
-+
-+	for (; matches->compatible[0]; matches++) {
-+		name = strchr(matches->compatible, ',');
-+		if (!name)
-+			name = matches->compatible;
-+		else
-+			name++;
-+
-+		if (!strnicmp(client->name, name, strlen(client->name)))
-+			return matches;
-+	}
-+
-+	return NULL;
-+}
-+
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
--- 
-1.8.3.2
+How i can figure out whether this mechanism will be provided of my driver?
+What is the alternative of using the function i2c_smbus_read_block_data?
+
+Thanks a lot for your support,
+
+Michael Post
