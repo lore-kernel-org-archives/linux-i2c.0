@@ -1,83 +1,47 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH] i2c: exynos5: Properly use the "noirq" variants of suspend/resume
-Date: Thu, 19 Jun 2014 15:43:48 -0700
-Message-ID: <CAD=FV=XxNVmF+N5HF4SnZoJRJvkSUkpEx6ct4v2gtmAQ9n28-Q@mail.gmail.com>
-References: <1403155273-1057-1-git-send-email-dianders@chromium.org>
-	<7h8uosyc3k.fsf@paris.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <7h8uosyc3k.fsf@paris.lan>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Kevin Hilman <khilman@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene.kim@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, naveen krishna <ch.naveen@samsung.com>, Jingoo Han <jg1.han@samsung.com>, Jean Delvare <jdelvare@suse.de>, Simon Glass <sjg@google.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, standby24x7@gmail.com, Sachin Kamat <sachin.kamat@linaro.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH v3 0/7] i2c: Relax mandatory I2C ID table passing
+Date: Fri, 20 Jun 2014 13:02:23 +0100
+Message-ID: <1403265753-25851-1-git-send-email-lee.jones@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-Kevin,
+Hi Wolfram,
+ 
+As previously discussed I believe it should be okay for an I2C device
+driver _not_ supply an I2C ID table to match to.  The I2C subsystem
+should be able to match via other means, such as via OF tables.  The
+blocking factor during our previous conversation was to keep
+registering via sysfs up and running.  This set does that.
 
-On Thu, Jun 19, 2014 at 11:43 AM, Kevin Hilman <khilman@linaro.org> wrote:
-> Doug Anderson <dianders@chromium.org> writes:
->
->> The original code for the exynos i2c controller registered for the
->> "noirq" variants.  However during review feedback it was moved to
->> SIMPLE_DEV_PM_OPS without anyone noticing that it meant we were no
->> longer actually "noirq" (despite functions named
->> exynos5_i2c_suspend_noirq and exynos5_i2c_resume_noirq).
->>
->> i2c controllers that might have wakeup sources on them seem to need to
->> resume at noirq time so that the individual drivers can actually read
->> the i2c bus to handle their wakeup.
->
-> I suspect usage of the noirq variants pre-dates the existence of the
-> late/early callbacks in the PM core, but based on the description above,
-> I suspect what you actually want is the late/early callbacks.
+After thinking more deeply about the problem, it occurred to me that
+any I2C device driver which uses the sysfs method and issues an
+of_match_device() would also fail their probe().  Bolted on to this
+set is a new, more generic way for these devices to match against
+either of the I2C/OF tables.
 
-I think it actually really needs noirq.  ;)
+I hope this ticks all of your boxes.
 
-Specifically as soon as IRQs are enabled one of our children might get
-an interrupt.  To respond to that interrupt it might want to do an i2c
-transfer.
+v3:
+  - Insist on passing 'struct i2c_client' instead of 'struct device'
+  - Remove hook from of_match_device()
 
-Here's a snippet from me moving it to "resume early".  You can see
-that max77686 failed pretty much right away (the dummy is just the
-max77686 RTC for various reasons).  Note that the max77686 isn't doing
-anything tricky.  It uses regmap_irq (as per Javier's patches) and
-calls enable_irq_wake() at suspend time.  It uses a simple threaded
-IRQ:
+v2:
+  - Removal of ACPI support (this is really an OF issue).
+  - Add a new .probe2( with will seamlessly replace
+  - Supply a warning on devices matching via OF without a suitable compatible
+  - Remove unified match_device() - bad idea as it subverts type-safe behaviour
+  - Provide examples of the kind of clean-up possible after this set.
+    - I already have the full support from the maintainer of these drivers =;-)
 
-[  117.968055] PM: noirq resume of devices complete after 1.391 msecs
-[  117.968200] max77686 0-0009: Failed to read IRQ status: -5
-[  117.968697] dummy 0-0006: Failed to read IRQ status: -5
-[  117.968793] calling  12c60000.i2c+ @ 5891, parent: none
-[  117.968805] s3c-i2c 12c60000.i2c: slave address 0x00
-[  117.968814] s3c-i2c 12c60000.i2c: bus frequency set to 378 KHz
-[  117.968824] call 12c60000.i2c+ returned 0 after 23 usecs
-[  117.968831] calling  12c70000.i2c+ @ 5891, parent: none
-[  117.968841] s3c-i2c 12c70000.i2c: slave address 0x00
-[  117.968849] s3c-i2c 12c70000.i2c: bus frequency set to 378 KHz
-[  117.968858] call 12c70000.i2c+ returned 0 after 20 usecs
-[  117.968864] calling  12c80000.i2c+ @ 5891, parent: none
-[  117.968874] s3c-i2c 12c80000.i2c: slave address 0x00
-[  117.968882] s3c-i2c 12c80000.i2c: bus frequency set to 65 KHz
-[  117.968891] call 12c80000.i2c+ returned 0 after 20 usecs
-[  117.968897] calling  12c90000.i2c+ @ 5891, parent: none
-[  117.968907] s3c-i2c 12c90000.i2c: slave address 0x00
-[  117.968915] s3c-i2c 12c90000.i2c: bus frequency set to 65 KHz
-[  117.968923] call 12c90000.i2c+ returned 0 after 19 usecs
-[  117.968930] calling  12ca0000.i2c+ @ 5891, parent: none
-[  117.968940] s3c-i2c 12ca0000.i2c: slave address 0x00
-[  117.968948] s3c-i2c 12ca0000.i2c: bus frequency set to 65 KHz
-[  117.968957] call 12ca0000.i2c+ returned 0 after 20 usecs
-[  117.968964] calling  12cb0000.i2c+ @ 5891, parent: none
-[  117.968974] s3c-i2c 12cb0000.i2c: slave address 0x00
-[  117.968982] s3c-i2c 12cb0000.i2c: bus frequency set to 65 KHz
-[  117.968990] call 12cb0000.i2c+ returned 0 after 20 usecs
-[  117.968997] calling  12cd0000.i2c+ @ 5891, parent: none
-[  117.969006] s3c-i2c 12cd0000.i2c: slave address 0x00
-[  117.969014] s3c-i2c 12cd0000.i2c: bus frequency set to 65 KHz
-[  117.969022] call 12cd0000.i2c+ returned 0 after 19 usecs
-[  117.969029] calling  12ce0000.i2c+ @ 5891, parent: none
-[  117.969039] s3c-i2c 12ce0000.i2c: slave address 0x00
-[  117.969048] s3c-i2c 12ce0000.i2c: bus frequency set to 378 KHz
-[  117.969056] call 12ce0000.i2c+ returned 0 after 20 usecs
-[  117.969625] PM: early resume of devices complete after 1.469 msecs
+Kind regards,
+Lee
+
+ arch/arm/configs/multi_v7_defconfig |  1 +
+ drivers/i2c/i2c-core.c              | 72 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---------
+ drivers/mfd/88pm860x-core.c         |  5 ++---
+ drivers/mfd/as3722.c                | 12 ++----------
+ include/linux/i2c.h                 | 22 +++++++++++++++++++++-
+ 5 files changed, 89 insertions(+), 23 deletions(-)
