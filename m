@@ -1,66 +1,62 @@
-From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Subject: Re: [PATCH 5/6] OF: Utility helper functions for dynamic nodes
-Date: Tue, 24 Jun 2014 10:12:52 +0200
-Message-ID: <53A93304.9000604@nsn.com>
-References: <1403430039-15085-1-git-send-email-pantelis.antoniou@konsulko.com> <1403430039-15085-6-git-send-email-pantelis.antoniou@konsulko.com> <53A85549.7040809@nsn.com> <6E91A461-4361-4A18-BE32-CECDD789C114@konsulko.com> <20140623183343.GA10389@heimdall> <78ACBAF6-A73E-4272-8D3A-258C4B10858C@konsulko.com>
+From: Bastian Hecht <hechtb@gmail.com>
+Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
+Date: Tue, 24 Jun 2014 10:14:12 +0200
+Message-ID: <CABYn4syGYn8J+81hNPg61=18g-BmXt+gqtdFBF1Udu4xYLBU6Q@mail.gmail.com>
+References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
+	<CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
+	<CABYn4szejurs2gBVOx_+geOxw13r9KvoShfRiM7OOF5wVvDPLA@mail.gmail.com>
+	<20130221091434.GA22806@the-dreams.de>
+	<CABYn4swuDgTvvyigjnabcg46rcze-DnGhv2Rh7WEFdwkXcHR4Q@mail.gmail.com>
+	<20140521110019.GS2708@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <78ACBAF6-A73E-4272-8D3A-258C4B10858C-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Ioan Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pete Popov <pet>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20140521110019.GS2708@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Magnus Damm <magnus.damm@gmail.com>, Linux-SH <linux-sh@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+Just a quick note - will start next week on it.
 
-On 23/06/14 21:13, ext Pantelis Antoniou wrote:
+Cheers,
 
-[...]
+ Bastian
 
->>> I don't know of any place in the kernel accessing the value if prop->length==0
->>>
+
+2014-05-21 13:00 GMT+02:00 Wolfram Sang <wsa@the-dreams.de>:
+> On Thu, Feb 21, 2013 at 08:54:06AM -0600, Bastian Hecht wrote:
+>> Hi Wolfram,
 >>
->> We have a simple use case. We have an overlay which adds an interrupt controller.
->> If you look in drivers/of/irq.c, in of_irq_parse_raw():
+>> oh yes I can gladly do so. To make a realistic estimation it might
+>> take a few weeks until I find time for it though. If we can wait so
+>> long, count on me.
+>
+> Ping. Still interested?
+>
 >>
->> [...]
->> 	/* Now start the actual "proper" walk of the interrupt tree */
->> 	while (ipar != NULL) {
->> 		/* Now check if cursor is an interrupt-controller and if it is
->> 		 * then we are done
->> 		 */
->> 		if (of_get_property(ipar, "interrupt-controller", NULL) !=
->> 				NULL) {
->> 			pr_debug(" -> got it !\n");
->> 			return 0;
->> 		}
->> [...]
+>> Best,
 >>
->> A node is identified as an interrupt controller if it has a zero-length property
->> called "interrupt-controller" but with a non-NULL value.
+>>  Bastian
 >>
->> My proposed fix for this was to remove the if () condition. propn->value will be
->> allocated with kmalloc(0) which returns ZERO_SIZE_PTR which is != NULL.
->>
-> 
-> If that's the case, the code in irq.c is wrong.
-> 
-> interrupt-controller is a bool property; the correct call to use is of_property_read_bool()
-> which returns true or false when the value is defined.
-
-No, it's not bool... It's an existence of a void property. 
-
-> The use of of_get_property is a bug here. It is perfectly valid for a property to have a
-> NULL value when length = 0.
-
-of_find_property() would be really correct in this particular case...
-
--- 
-Best regards,
-Alexander Sverdlin.
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> 2013/2/21 Wolfram Sang <wsa@the-dreams.de>:
+>> > Hi Bastian,
+>> >
+>> >> > Also, do you know the reason why this isn't handled in the i2c layer
+>> >> > by default? I ask because your comment mentions that i2c-tegra.c does
+>> >> > the same thing and I can't see anything in this patch that is actually
+>> >> > related to our I2C hardware.
+>> >>
+>> >> Yes, many drivers have a similar scheme and to me it more looked like
+>> >> all drivers need to take care about this case unrelated to different
+>> >> hardware. So the question arises if this can't be handled in the core
+>> >> - or if I get something wrong here.
+>> >
+>> > I don't see any reason why this couldn't be handled in the core. If you
+>> > want to have a take on this issue (after the other bug is fixed), this
+>> > will be highly appreciated.
+>> >
+>> > Thanks,
+>> >
+>> >    Wolfram
+>> >
