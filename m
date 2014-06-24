@@ -1,84 +1,57 @@
-From: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] i2c: exynos5: Properly use the "noirq" variants of suspend/resume
-Date: Mon, 23 Jun 2014 16:35:21 -0700
-Message-ID: <7hionrnqrq.fsf@paris.lan>
-References: <1403155273-1057-1-git-send-email-dianders@chromium.org>
-	<7h8uosyc3k.fsf@paris.lan>
-	<CAD=FV=XxNVmF+N5HF4SnZoJRJvkSUkpEx6ct4v2gtmAQ9n28-Q@mail.gmail.com>
-	<7hwqcbs166.fsf@paris.lan>
-	<CAD=FV=Uz9O0i2gmuk2+BHa-Tksvyxv0+MTi2UEjVREAMNCK7Ug@mail.gmail.com>
-	<7h7g4brx6w.fsf@paris.lan>
-	<CAD=FV=VmPMf6tCNmKJ1o5J7PyAXoU8fb6+s+Fkv18FH2WaQp7A@mail.gmail.com>
-	<53A4CADA.4030002@gmail.com>
-	<CAD=FV=VkxA01eEFiXSp+c+GDuVJi7TctAdnyrMggk1gRw6BStQ@mail.gmail.com>
-	<7ha993p8v4.fsf@paris.lan>
-	<CAD=FV=U0P2kyfnxdU2E1Gm8TdD_cFd6brmtQ7-gpajNJuKmWSA@mail.gmail.com>
-	<53A8AAC9.8030407@gmail.com>
+From: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: sun6i-p2wi: Remove duplicate inclusion of module.h
+Date: Tue, 24 Jun 2014 09:17:35 +0530
+Message-ID: <CAK5sBcE98p-6-zx+fT8F_6DOzvaVh8M=OF4AuV6T1B9BaZ=Yqw@mail.gmail.com>
+References: <1403522017-13861-1-git-send-email-sachin.kamat@samsung.com>
+	<53A818CD.40205@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53A8AAC9.8030407-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> (Tomasz Figa's message of "Tue, 24
-	Jun 2014 00:31:37 +0200")
+In-Reply-To: <53A818CD.40205-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, naveen krishna <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Simon Glass <sjg-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Masanari Iida <standby24x7-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c@vger.kernel.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel@vger.kernel.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
-
-> On 24.06.2014 00:27, Doug Anderson wrote:
->> Kevin,
->> 
->> On Mon, Jun 23, 2014 at 3:19 PM, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->>> Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> writes:
->>>
->>> [...]
->>>
->>>> On Fri, Jun 20, 2014 at 4:59 PM, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->>>>>
->>>>> I'm not sure noirq is going to work correctly, at least not with current
->>>>> callbacks. I can see a call to clk_prepare_enable() there which needs to
->>>>> acquire a mutex.
->>>>
->>>> Nice catch, thanks!  :)
->>>>
->>>> OK, looking at that now.  Interestingly this doesn't seem to cause us
->>>> problems in our ChromeOS 3.8 tree.  I just tried enabling:
->>>>   CONFIG_DEBUG_ATOMIC_SLEEP=y
->>>>
->>>> ...and confirmed that I got it on right:
->>>>
->>>> # zgrep -i atomic /proc/config.gz
->>>> CONFIG_DEBUG_ATOMIC_SLEEP=y
->>>>
->>>> I can suspend/resume with no problems.  My bet is that it works fine because:
->>>>
->>>> * resume_noirq is not considered "atomic" in the sense enforced by
->>>> CONFIG_DEBUG_ATOMIC_SLEEP (at least not in 3.8--I haven't tried on
->>>> ToT)
->>>
->>> The reason is because "noirq" in the suspend/resume path actually means
->>> no *device* IRQs for that specific device.
->>>
->>> It's often assumed that the "noirq" callbacks are called with *all*
->>> interrupts disabled, but that's not the case.  Only the IRQs for that
->>> specific device are disabled when its noirq callbacks run.
->> 
->> Ah, so even with my fix of moving to noirq we could still be broken if
->> the system decided to enable interrupts for the device before the i2c
->> controller get resumed then we'd still be SOL.
->> 
->> ...oh, but if it matches probe order then maybe we're guaranteed for
->> that not to happen?  We know that we will probe the i2c bus before the
->> devices on it, right?
+On Mon, Jun 23, 2014 at 5:38 PM, Boris BREZILLON
+<boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
 >
-> If the mentioned device is a child of the I2C controller then the
-> parent-child relation determines the order. Otherwise (e.g. another,
-> non-I2C interrupt source that just triggers some operation on an I2C
-> device like voltage regulator) we're doomed. ;)
+> On 23/06/2014 13:13, Sachin Kamat wrote:
+>> module.h was included twice.
+>>
+>> Signed-off-by: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+>
+>
+>> ---
+>>  drivers/i2c/busses/i2c-sun6i-p2wi.c |    1 -
+>>  1 file changed, 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+>> index 09de4fd12d57..558fd24573b2 100644
+>> --- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
+>> +++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+>> @@ -26,7 +26,6 @@
+>>  #include <linux/i2c.h>
+>>  #include <linux/io.h>
+>>  #include <linux/interrupt.h>
+>> -#include <linux/module.h>
+>
+> Oops, I guess this was introduced when I reordered inclusions in
+> alphabetic order.
+> I'd prefer the other inclusion to be removed instead, so that we could
+> keep it in alphabetic order.
 
-Exactly.  There are lots of dragons hiding here.   
+Sorry, I did not notice that the headers were sorted alphabetically.
+In such situations
+(duplicate inclusions), I generally retain the first entry and delete
+the subsequent ones.
+However, in this case it doesn't make sense to break the order.
 
-Runtime PM is your friend. ;)
+> Other than that you have my:
+>
+> Acked-by: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
-Kevin
+Thanks. I will respin with your ack.
+
+Regards,
+Sachin.
