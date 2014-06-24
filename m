@@ -1,53 +1,106 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] gpio: crystalcove: Fix implicit declaration of function
- 'seq_printf' error
-Date: Tue, 24 Jun 2014 11:26:43 +0100
-Message-ID: <20140624102643.GJ13803@lee--X1>
-References: <1403265753-25851-1-git-send-email-lee.jones@linaro.org>
- <1403265753-25851-3-git-send-email-lee.jones@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1403265753-25851-3-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH 2/6] OF: Add [__]of_find_node_by_full_name
+Date: Tue, 24 Jun 2014 14:55:23 +0100
+Message-ID: <20140624135523.99956C40B84@trevor.secretlab.ca>
+References: <1403430039-15085-1-git-send-email-pantelis.antoniou@konsulko.com>
+	<1403430039-15085-3-git-send-email-pantelis.antoniou@konsulko.com>
+	<53A86ADA.9000903@roeck-us.net>
+	<4F4A55EC-744B-49CC-96FA-811C9483A43D@konsulko.com>
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4F4A55EC-744B-49CC-96FA-811C9483A43D-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pete
 List-Id: linux-i2c@vger.kernel.org
 
-Hmm... a leftover patch in my 'send' directory I feel!
+On Mon, 23 Jun 2014 21:00:39 +0300, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org> wrote:
+> Hi Guenter,
+> 
+> On Jun 23, 2014, at 8:58 PM, Guenter Roeck wrote:
+> 
+> > On 06/22/2014 02:40 AM, Pantelis Antoniou wrote:
+> >> __of_find_node_by_full_name recursively searches for a matching node
+> >> with the given full name without taking any locks.
+> >> 
+> >> of_find_node_by_full_name takes locks and takes a reference on the
+> >> matching node.
+> >> 
+> >> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+> >> ---
+> >>  drivers/of/base.c  | 58 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+> >>  include/linux/of.h |  4 ++++
+> >>  2 files changed, 62 insertions(+)
+> >> 
+> >> diff --git a/drivers/of/base.c b/drivers/of/base.c
+> >> index d3493e1..80fef33 100644
+> >> --- a/drivers/of/base.c
+> >> +++ b/drivers/of/base.c
+> >> @@ -1201,6 +1201,64 @@ static void *of_find_property_value_of_size(const struct device_node *np,
+> >>  }
+> >> 
+> >>  /**
+> >> + * __of_find_node_by_full_name - Find a node with the full name recursively
+> >> + * @node:	Root of the tree to perform the search
+> >> + * @full_name:	Full name of the node to find.
+> >> + *
+> >> + * Find a node with the give full name by recursively following any of
+> >> + * the child node links.
+> >> + * Returns the matching node, or NULL if not found.
+> >> + * Note that the devtree lock is not taken, so this function is only
+> >> + * safe to call on either detached trees, or when devtree lock is already
+> >> + * taken.
+> >> + */
+> >> +struct device_node *__of_find_node_by_full_name(struct device_node *node,
+> >> +		const char *full_name)
+> >> +{
+> >> +	struct device_node *child, *found;
+> >> +
+> >> +	if (node == NULL)
+> >> +		return NULL;
+> >> +
+> >> +	/* check */
+> >> +	if (of_node_cmp(node->full_name, full_name) == 0)
+> >> +		return node;
+> >> +
+> >> +	__for_each_child_of_node(node, child) {
+> >> +		found = __of_find_node_by_full_name(child, full_name);
+> >> +		if (found != NULL)
+> >> +			return found;
+> >> +	}
+> >> +
+> >> +	return NULL;
+> >> +}
+> >> +EXPORT_SYMBOL(__of_find_node_by_full_name);
+> >> +
+> >> +/**
+> >> + * of_find_node_by_full_name - Find a node with the full name recursively
+> >> + * @node:	Root of the tree to perform the search
+> >> + * @full_name:	Full name of the node to find.
+> >> + *
+> >> + * Find a node with the give full name by recursively following any of
+> >> + * the child node links.
+> >> + * Returns the matching node (with a ref taken), or NULL if not found.
+> >> + */
+> >> +struct device_node *of_find_node_by_full_name(struct device_node *node,
+> >> +		const char *full_name)
+> >> +{
+> >> +	unsigned long flags;
+> >> +	struct device_node *np;
+> >> +
+> >> +	raw_spin_lock_irqsave(&devtree_lock, flags);
+> >> +	np = of_find_node_by_full_name(node, full_name);
+> > 
+> > Should this be __of_find_node_by_full_name, or am I missing something ?
+> > 
+> 
+> Ugh, you're not missing something. This slipped through since this is not 
+> used in the current code
 
-Please ignore.
+Then perhaps the function shouldn't exist at all.
 
-> drivers/gpio/gpio-crystalcove.c: In function 'crystalcove_gpio_dbg_sh=
-ow':
-> drivers/gpio/gpio-crystalcove.c:286:3: error: implicit declaration of=
- function 'seq_printf'
->    seq_printf(s, " gpio-%-2d %s %s %s %s ctlo=3D%2x,%s %s %s\n",
->=20
-> Reported-by: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>
-> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/gpio/gpio-crystalcove.c | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/gpio/gpio-crystalcove.c b/drivers/gpio/gpio-crys=
-talcove.c
-> index 5a98499..934462f 100644
-> --- a/drivers/gpio/gpio-crystalcove.c
-> +++ b/drivers/gpio/gpio-crystalcove.c
-> @@ -18,6 +18,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/platform_device.h>
->  #include <linux/gpio.h>
-> +#include <linux/seq_file.h>
->  #include <linux/bitops.h>
->  #include <linux/regmap.h>
->  #include <linux/mfd/intel_soc_pmic.h>
+g.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
