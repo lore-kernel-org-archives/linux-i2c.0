@@ -1,35 +1,34 @@
-From: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v2] i2c: sun6i-p2wi: Remove duplicate inclusion of module.h
-Date: Tue, 24 Jun 2014 09:25:28 +0530
-Message-ID: <1403582128-32562-1-git-send-email-sachin.kamat@samsung.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, spk.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Lan Tianyu <tianyu.lan@intel.com>
+Subject: Re: [Patch V3 0/5] I2C ACPI operation region handler
+Date: Tue, 24 Jun 2014 15:02:04 +0800
+Message-ID: <53A9226C.9020205@intel.com>
+References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com> <53881E87.9070706@intel.com> <10091506.iBigojlNVE@vostro.rjw.lan> <20140530121046.GB2742@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20140530121046.GB2742@katana>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-module.h was included twice.
+On 2014=E5=B9=B405=E6=9C=8830=E6=97=A5 20:10, Wolfram Sang wrote:
+>>> Hi Wolfram:
+>>> 	Since this version resolved all comments, it's ok for you?
+>=20
+> Sorry, I misunderstood. I thought a V4 was needed, but it isn't. I'll
+> try to have a look this weekend.
+>=20
 
-Signed-off-by: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
-Changes since v1:
-* Retained the alphabetical order of header files
----
- drivers/i2c/busses/i2c-sun6i-p2wi.c |    1 -
- 1 file changed, 1 deletion(-)
+Hi Wolfram:
+	Sorry to bother you. Could you have a look at patch 4 and patch 5?
 
-diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-index 09de4fd12d57..4d75d4759709 100644
---- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
-+++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-@@ -22,7 +22,6 @@
-  *
-  */
- #include <linux/clk.h>
--#include <linux/module.h>
- #include <linux/i2c.h>
- #include <linux/io.h>
- #include <linux/interrupt.h>
--- 
-1.7.9.5
+--=20
+Best regards
+Tianyu Lan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
