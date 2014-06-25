@@ -1,44 +1,83 @@
-From: Sachin Kamat <spk.linux@gmail.com>
-Subject: Re: [PATCH 2/2] i2c: exynos5: fix minor styling nits
-Date: Wed, 25 Jun 2014 16:19:32 +0530
-Message-ID: <CAK5sBcEVHYQutEm9Lh3eGX8_6zKLV-m3XfYKtnfPs8CBExpHqg@mail.gmail.com>
-References: <1403692697-7381-1-git-send-email-ch.naveen@samsung.com>
-	<1403692697-7381-2-git-send-email-ch.naveen@samsung.com>
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: RE: [PATCH v2] i2c: exynos5: Properly use the "noirq" variants of
+ suspend/resume
+Date: Wed, 25 Jun 2014 20:13:10 +0900
+Message-ID: <02e701cf9066$7332b280$59981780$@samsung.com>
+References: <1403654093-24134-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1403692697-7381-2-git-send-email-ch.naveen@samsung.com>
+In-reply-to: <1403654093-24134-1-git-send-email-dianders@chromium.org>
+Content-language: ko
 Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Cc: linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, linux-i2c@vger.kernel.org, Naveen Krishna <naveenkrishna.ch@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, sjg@chromium.org, open list <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, cpgs@samsung.com, broonie@kernel.org
+To: 'Doug Anderson' <dianders@chromium.org>, 'Wolfram Sang' <wsa@the-dreams.de>
+Cc: 'Tomasz Figa' <tomasz.figa@gmail.com>, javier.martinez@collabora.co.uk, ch.naveen@samsung.com, jg1.han@samsung.com, jdelvare@suse.de, sjg@google.com, paul.gortmaker@windriver.com, standby24x7@gmail.com, sachin.kamat@linaro.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Naveen,
+Doug Anderson wrote:
+> 
+> The original code for the exynos i2c controller registered for the
+> "noirq" variants.  However during review feedback it was moved to
+> SIMPLE_DEV_PM_OPS without anyone noticing that it meant we were no
+> longer actually "noirq" (despite functions named
+> exynos5_i2c_suspend_noirq and exynos5_i2c_resume_noirq).
+> 
+> i2c controllers that might have wakeup sources on them seem to need to
+> resume at noirq time so that the individual drivers can actually read
+> the i2c bus to handle their wakeup.
+> 
+> NOTE: I took the original review feedback from Wolfram and added
+> poweroff, thaw, freeze, restore.
+> 
+Yeah I'm not sure except .suspend_noirq and .resume_noirq but I'm fine if
+Wolfram suggested ;-)
 
-On Wed, Jun 25, 2014 at 4:08 PM, Naveen Krishna Chatradhi
-<ch.naveen@samsung.com> wrote:
-> This patch removes an extra line and fixes a styling nit
-> in exynos5_i2c_message_start()
->
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+> This patch has only been compile-tested since I don't have all the
+> patches needed to make my machine using this i2c driver actually
+> suspend/resume.
+> 
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
 > ---
->  drivers/i2c/busses/i2c-exynos5.c |    3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index 0d1a7bc..4c2e6f3 100644
+> Changes in v2:
+> - Added missing CONFIG_PM_SLEEP
+> 
+>  drivers/i2c/busses/i2c-exynos5.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-
+> exynos5.c
+> index 63d2292..348b1cd 100644
 > --- a/drivers/i2c/busses/i2c-exynos5.c
 > +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -525,7 +525,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
->         if (i2c->msg->flags & I2C_M_RD) {
->                 i2c_ctl |= HSI2C_RXCHON;
->
-> -               i2c_auto_conf = HSI2C_READ_WRITE;
-> +               i2c_auto_conf |= HSI2C_READ_WRITE;
+> @@ -789,8 +789,16 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
+>  }
+>  #endif
+> 
+> -static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, exynos5_i2c_suspend_noirq,
+> -			 exynos5_i2c_resume_noirq);
+> +const struct dev_pm_ops exynos5_i2c_dev_pm_ops = {
 
-This change looks more than just a styling nit. Please update the commit message
-accordingly.
+Maybe static const struct...?
 
--- 
-Regards,
-Sachin.
+> +#ifdef CONFIG_PM_SLEEP
+> +	.suspend_noirq = exynos5_i2c_suspend_noirq,
+> +	.resume_noirq = exynos5_i2c_resume_noirq,
+> +	.freeze_noirq = exynos5_i2c_suspend_noirq,
+> +	.thaw_noirq = exynos5_i2c_resume_noirq,
+> +	.poweroff_noirq = exynos5_i2c_suspend_noirq,
+> +	.restore_noirq = exynos5_i2c_resume_noirq,
+> +#endif
+> +};
+> 
+>  static struct platform_driver exynos5_i2c_driver = {
+>  	.probe		= exynos5_i2c_probe,
+> --
+> 2.0.0.526.g5318336
+
+Others look good to me,
+
+Acked-by: Kukjin Kim <kgene.kim@samsung.com>
+
+Thanks,
+Kukjin
