@@ -1,58 +1,70 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH 1/1] i2c: Kconfig: Enable HSI2C for Exynos5 platform
-Date: Wed, 25 Jun 2014 10:55:31 -0700
-Message-ID: <CAD=FV=WzPxT4okEur8C2G=FZK=zq3EsyCv9aAJwZ1PDkfoOcpA@mail.gmail.com>
-References: <1403690523-1863-1-git-send-email-sachin.kamat@samsung.com>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH v2] i2c: s3c2410: resume the I2C controller earlier
+Date: Wed, 25 Jun 2014 20:09:42 +0200
+Message-ID: <53AB1066.8000305@collabora.co.uk>
+References: <1403654214-25072-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1403690523-1863-1-git-send-email-sachin.kamat@samsung.com>
+In-Reply-To: <1403654214-25072-1-git-send-email-dianders@chromium.org>
 Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@samsung.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Sachin Kamat <spk.linux@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>, Arnd Bergmann <arnd@arndb.de>
+To: Doug Anderson <dianders@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene.kim@samsung.com>, Ben Dooks <ben-linux@fluff.org>
+Cc: Tomasz Figa <tomasz.figa@gmail.com>, Vincent Palatin <vpalatin@chromium.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Sachin,
+Hello Doug,
 
-On Wed, Jun 25, 2014 at 3:02 AM, Sachin Kamat <sachin.kamat@samsung.com> wrote:
-> All Exynos5 platforms have HSI2C controllers and are needed by
-> various IPs connected to the boards based on these SoCs. Thus
-> select this by default for Exynos5 platforms.
->
-> Signed-off-by: Sachin Kamat <sachin.kamat@samsung.com>
-> Cc: Doug Anderson <dianders@chromium.org>
+On 06/25/2014 01:56 AM, Doug Anderson wrote:
+> From: Vincent Palatin <vpalatin@chromium.org>
+> 
+> When the wake-up is triggered by the PMIC RTC, the RTC driver is trying
+> to read the PMIC interrupt status over I2C and fails because the I2C
+> controller is not resumed yet.
+> Let's resume the I2C controller earlier in the _noirq phase
+> (as other hardwares are doing), so we can properly get the wake-up
+> condition.
+> 
+> Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
 > ---
->  drivers/i2c/busses/Kconfig |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 9f7d5859cf65..c7918cffe790 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -465,9 +465,9 @@ config I2C_EG20T
->  config I2C_EXYNOS5
->         tristate "Exynos5 high-speed I2C driver"
->         depends on ARCH_EXYNOS5 && OF
-> +       default y
->         help
-> -         Say Y here to include support for high-speed I2C controller in the
-> -         Exynos5 based Samsung SoCs.
-> +         High-speed I2C controller on Exynos5 based Samsung SoCs.
->
->  config I2C_GPIO
->         tristate "GPIO-based bitbanging I2C"
-> --
-> 1.7.9.5
+> Changes in v2:
+> - Added missing freeze/thaw/poweroff/restore
+> 
+>  drivers/i2c/busses/i2c-s3c2410.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index e828a1d..ecb389c 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -1267,7 +1267,7 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+>  	return 0;
+>  }
+>  
+> -static int s3c24xx_i2c_resume(struct device *dev)
+> +static int s3c24xx_i2c_resume_noirq(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+> @@ -1285,7 +1285,11 @@ static int s3c24xx_i2c_resume(struct device *dev)
+>  static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+>  #ifdef CONFIG_PM_SLEEP
+>  	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
+> -	.resume = s3c24xx_i2c_resume,
+> +	.resume_noirq = s3c24xx_i2c_resume_noirq,
+> +	.freeze_noirq = s3c24xx_i2c_suspend_noirq,
+> +	.thaw_noirq = s3c24xx_i2c_resume_noirq,
+> +	.poweroff_noirq = s3c24xx_i2c_suspend_noirq,
+> +	.restore_noirq = s3c24xx_i2c_resume_noirq,
+>  #endif
+>  };
+>  
+> 
 
-This seems reasonable to me and I will also take the blame for
-suggesting this.  It's hard to imagine running a real exynos5 system
-without I2C.  One could argue that on an exynos5250 the high speed I2C
-controller is not mandatory (since all the ports can be muxed to use
-the old controller) but on newer exynos5 products you're expected to
-have the main PMIC on one of the i2c ports.  An exynos system without
-access to its PMIC will just sorta limp by.
+Looks good to me.
 
-...but I've added Arnd to this thread as he expressed some
-reservations about this type of thing, so we'll see what he says.
+Reviewed-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 
-Reviewed-by: Doug Anderson <dianders@chromium.org>
+Best regards,
+Javier
