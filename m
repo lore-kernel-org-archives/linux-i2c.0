@@ -1,55 +1,46 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: sun6i-p2wi: Remove duplicate inclusion of
- module.h
-Date: Fri, 27 Jun 2014 14:40:31 +0200
-Message-ID: <20140627124031.GD29156@katana>
-References: <1403582128-32562-1-git-send-email-sachin.kamat@samsung.com>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: cros_ec: Remove EC_I2C_FLAG_10BIT
+Date: Fri, 27 Jun 2014 08:49:15 -0700
+Message-ID: <CAD=FV=WLw2D3sw2LaWt0SJXNEFSBk08eKOCa9O_zt=58UN+MLA@mail.gmail.com>
+References: <1403558406-14519-1-git-send-email-dianders@chromium.org>
+	<20140627123443.GC29156@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n/aVsWSeQ4JHkrmm"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1403582128-32562-1-git-send-email-sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20140627123443.GC29156@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, spk.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dave Jones <davej-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Randall Spangler <rspangler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Wolfram,
 
---n/aVsWSeQ4JHkrmm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Jun 27, 2014 at 5:34 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Mon, Jun 23, 2014 at 02:20:06PM -0700, Doug Anderson wrote:
+>> In <https://lkml.org/lkml/2014/6/10/265> pointed out that the 10-bit
+>> flag in the cros_ec_tunnel was useless.  It went into a 16-bit flags
+>> field but was defined at (1 << 16).
+>>
+>> Since we have no 10-bit i2c devices on the other side of the tunnel on
+>> any known devices this was never a problem.  Until we do it makes
+>> sense to remove this code.  On the EC side the code to handle this
+>> flag was removed in <https://chromium-review.googlesource.com/204162>.
+>>
+>> Reported-by: Dave Jones <davej-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+>> ---
+>> Note that this patch is based atop my current series of posts to
+>> cleanup cros_ec.  It wouldn't be hard to apply it to the current ToT
+>> if someone wants to land this before the others.
+>
+> I could take it into my tree, but I think it makes more sense if we
+> simply append it to your cleanup series?
 
-On Tue, Jun 24, 2014 at 09:25:28AM +0530, Sachin Kamat wrote:
-> module.h was included twice.
->=20
-> Signed-off-by: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Acked-by: Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Thanks, that sounds reasonable to me.  Lee has Acked the whole series
+and Simon Glass has reviewed it too, so I'd imagine that we're just
+waiting on the input subsystem's Ack on a few of the patches.
 
-Applied to for-current, thanks!
+If I happen to send out the other series for some reason I'll tack
+this onto the end of it.
 
-
---n/aVsWSeQ4JHkrmm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTrWY/AAoJEBQN5MwUoCm2yRsP/RsnVq/tQmQhvAnDCpuzXcnz
-brm3btpAME2CZ3DUPzxBT1cHZ1i1v7yTDP1tXBipIkhZ7EQiKgjVE3n98O8Hmm2K
-2WnXClT1nHe3/YN+OQJbLSIjNHASb1Pl54QbCU94NlsE4R81gX0sFJMAoRBlHenc
-9aXQR/IkbhKr+XMvMKpGXLt0tECOG3827AlTlmY8flkE6MOBMwP1cx164ON0hR/2
-BM8efaUNKf6HxQ2gWVGU2UBwCRfEp5NN5KLcQ0iTAtFFy/IKLYB/wCtA2qDgOrD+
-bFrRHVLiks4Ka7BmI/QxVf4+fDevK42PsOGufrs37rG+etDM/G/i0DsPacpmHhbu
-LTMiGRs5NBlfxwU6hKNOqg9Ct1Pq7mHsxpbzG48HNkX5jJAXR78C6mcVMKjOAW2x
-Wro1c9xgbejLu/tO4y8h4eFFZU27Gp5l1aLnn2Msk70rG5TjchxxUve25DSMnv0w
-Ce3c3NeE8mqgWtPJmKRa3OgOihrLrvotznaHNPPcJVSLU2By/wv+lPLHvDLw5cuK
-24P39u2Oxhl7Bd5UyAD8Nl8rdZwwPt/YPjjJCw02/8bBvncrPYxf5qJbNMSOERrU
-+2JFG967XtSbBEtgZM5pOx+GShLquct6U5Njfdy+hubwpzRHUVLH7mGI5lw9mzCs
-mF1yFHRjAM0XkZo6AMnI
-=hQYj
------END PGP SIGNATURE-----
-
---n/aVsWSeQ4JHkrmm--
+-Doug
