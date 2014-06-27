@@ -1,61 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [Patch V3 5/5] I2C/ACPI: Clean up I2C ACPI code and Add
- CONFIG_I2C_ACPI config
-Date: Fri, 27 Jun 2014 13:03:41 +0200
-Message-ID: <20140627110341.GD2641@katana>
-References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com>
- <1400590764-11108-6-git-send-email-tianyu.lan@intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-taos-evm: Use module_serio_driver()
+Date: Fri, 27 Jun 2014 13:25:06 +0200
+Message-ID: <20140627112505.GE2641@katana>
+References: <1402689144-20259-1-git-send-email-christophjaeger@linux.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pQhZXvAqiZgbeUkD"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="47eKBCiAZYFK5l32"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1400590764-11108-6-git-send-email-tianyu.lan@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>
-Cc: rjw@rjwysocki.net, mika.westerberg@linux.intel.com, awilliam@redhat.com, lenb@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+In-Reply-To: <1402689144-20259-1-git-send-email-christophjaeger-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christoph Jaeger <christophjaeger-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org>
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---pQhZXvAqiZgbeUkD
+--47eKBCiAZYFK5l32
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 20, 2014 at 08:59:24PM +0800, Lan Tianyu wrote:
-> Clean up ACPI related code in the i2c core and add CONFIG_I2C_ACPI
-> to enable I2C ACPI code.
+On Fri, Jun 13, 2014 at 09:52:24PM +0200, Christoph Jaeger wrote:
+> Get rid of some boilerplate code by using module_serio_driver().
 >=20
-> Current there is a race between removing I2C ACPI operation region
-> and ACPI AML code accessing. So make i2c core built-in if CONFIG_I2C_ACPI
-> is set.
->=20
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
+> Signed-off-by: Christoph Jaeger <christophjaeger-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---pQhZXvAqiZgbeUkD
+--47eKBCiAZYFK5l32
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTrU+NAAoJEBQN5MwUoCm2UNwP/28XU5KPZ67kX5eUNATY6Ayg
-FGIx9zyFQfApfoZL5qSN0sCqcNpcfwf+LlfIEsh51YuPx3LhKwDtgU5Kz/R1lbgH
-pAgNCIjrZ/S0ezxp/h9Ggb8Vw/jlIt9bCiO7NCFouAabGwPXxCeF0ET+2ClBeM7x
-oW6+/5ej8tzH/Zns8kqzYQ3HlSSq6wCu3fF2JsorIiFb68uv9qRh+a5F8aNrm4Yb
-z261DUH2FMdD2R0YlTorspn2g4nQJut+0V4lxVl7wSFA6kS/7OPHslJCsnm+84mR
-5arO6V4a5AG3llqN7nBWtRiWWkxAYMk7BP/ZzsePT/V4pS5jUjPDAs2nErBzbq/X
-S3qjJ1maYWJues1qVaKAO6UulqPoZShgJ6RmENMPjQK5Qaa1Wl7JG/bLn8pdIwit
-v91IzAOKUoQWuHjpfRuaDGESrJqKUAObM3BebKaekWyfXpMJhRSw3ztmL7UgCS++
-IqEBCFctY4/wuYf5NxUt37EISgiYR9TukAZBaPz0ciYcE/I7/mMMc2u4Gf0UxEJj
-+A2MQ+wxM2xLbZzqHjHAEGakCpOUsDVLhj2d1KYMlOVHvmxbmAAlwIw08kpjfRgl
-nGyyzCNnO1rtNSHc4XoY0mo3aE5bWo5raB5h9qaL3gXwohZnLNmIPd9VxPrR1+2Z
-t7xAjHWZbG5yUUD5Hh2e
-=JWdF
+iQIcBAEBAgAGBQJTrVSRAAoJEBQN5MwUoCm25ucQALAbh/7ybr46ZqfdORPHHqCU
+ofGc0SfGP2ij24F6Bc3voFDBksoyqNe7cVzoa6tgT70Xsp7ACHcuXnSfpHFxkRyy
+6g5zWumeyp2p64WGkPwZ3uXLbxU75fc2USKjFzY24ogsbHjtM9Dj4/um6yV+QAJI
+gabcMQKPhydkdXCj4//1e4U+Cb2JaEhinRVCBq5mviXX/NFeICEJ8uG4UhtlAMEj
+29rLe2/7kc7q02Ny1YlUvK3+lVjq1QEYZNfb3AwSU6nN2HqkLUJb5tvZuxkdSUcC
+owkPPsCoiSSbwYF/ji+baqbPvcpMEoOXBedWIw7On00BXXA1aqWA/pIcPLZqD3nh
+vCeDfOdbvbZeEfw0b/jJeoTAP+KVGVtDGgUXxwOWrXNQy9aaiF9lk2pWdIHOLLOu
+I575LRHkoYAudrfen3ZhiT41GDVjq4Qv73MSYlINU2AuBvyml6F+AccKmt/9k+ga
+6B0N+VQcCS+EsYsKtAz+yqgA8nBnfUyjfeOr1P+r0Q0nW1U+krAwmmeVKvA5ubNL
+i5E42ziJX4no5D4ReZ0jyBxCzk9PtOAt7IYDbjqkysiDw9Zmqgbd2yfTHCC4eBkw
+DNcRJHjRg9tPS1DECyarMCwxX7yJq3tMCu3wdwdXT2c+NLdy73HJQMck5pTR7SFE
+CtdLDpnUJwTvi+LXFONy
+=VuRN
 -----END PGP SIGNATURE-----
 
---pQhZXvAqiZgbeUkD--
+--47eKBCiAZYFK5l32--
