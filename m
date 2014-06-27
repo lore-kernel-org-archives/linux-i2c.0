@@ -1,44 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 07/10] mfd: cros_ec: cleanup: Remove EC wrapper functions
-Date: Fri, 27 Jun 2014 11:47:55 -0700
-Message-ID: <CAKdAkRRuG2sAbwD+WU-w95AkLsHC7CBHmB60+rLn=ZqhSUF+sA@mail.gmail.com>
-References: <1403115247-8853-1-git-send-email-dianders@chromium.org>
-	<1403115247-8853-8-git-send-email-dianders@chromium.org>
-	<20140627123109.GA29156@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20140627123109.GA29156@katana>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Doug Anderson <dianders@chromium.org>, Lee Jones <lee.jones@linaro.org>, Andrew Bresticker <abrestic@chromium.org>, Stephen Warren <swarren@wwwdotorg.org>, Olof Johansson <olof@lixom.net>, Sonny Rao <sonnyrao@chromium.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Javier Martinez Canillas <javier.martinez@collabora.co.uk>, Bill Richardson <wfrichar@chromium.org>, Simon Glass <sjg@chromium.org>, Mark Brown <broonie@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+From: Doug Anderson <dianders@chromium.org>
+Subject: [PATCH 0/3] Add support for limited i2c tunnel for exynos5250-spring
+Date: Fri, 27 Jun 2014 12:56:10 -0700
+Message-ID: <1403898973-19571-1-git-send-email-dianders@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>
+Cc: Vincent Palatin <vpalatin@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Randall Spangler <rspangler@chromium.org>, sjg@chromium.org, afaerber@suse.de, stephan@synkhronix.com, olof@lixom.net, Doug Anderson <dianders@chromium.org>, sameo@linux.intel.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 27, 2014 at 5:31 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Wed, Jun 18, 2014 at 11:14:04AM -0700, Doug Anderson wrote:
->> From: Bill Richardson <wfrichar@chromium.org>
->>
->> Remove the three wrapper functions that talk to the EC without passing all
->> the desired arguments and just use the underlying communication function
->> that passes everything in a struct intead.
->>
->> This is internal code refactoring only. Nothing should change.
->>
->> Signed-off-by: Bill Richardson <wfrichar@chromium.org>
->> Signed-off-by: Doug Anderson <dianders@chromium.org>
->> Acked-by: Lee Jones <lee.jones@linaro.org>
->> Reviewed-by: Simon Glass <sjg@chromium.org>
->
-> For the I2C part:
->
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
->
+This patches series possibly adds support for getting to the battery
+and tps65090 device on exynos5250-spring.  I have simulated things on
+exynos5420-peach-pit and found that this seems to work OK and I can
+talk to both the battery and tps65090.  I have simulated this on
+exynos5250-snow and found that it properly detects that the full I2C
+passhtrough isn't available.  I don't have a Spring (or Skate) setup
+for upstream testing right now but I figured possibly Andreas would be
+interested in testing this.
 
-I'm good with input bits as well.
+As discussed in patch #3 this code path on the EC is not actually
+exercised on production kernels but I think it should be solid and get
+us up and running quickly.  I think this is also a cleaner solution
+than what's in production kernels but possibly folks will be able to
+come up with benefits of and arguments for using the specialized
+regulator and battery commands to talk to the EC.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Someone interested in using this should add the cros ec tunnel to
+their spring device tree and see what happens.  Note that this limited
+tunnel doesn't actually export anything that's useful for i2cdetect to
+use so to test you pretty much just need to add an sbs_battery and see
+if it works.
 
-Thanks.
+I may not have tons of time for spinning this series so possibly
+someone in the community who is interested in getting
+exynos5250-spring supported would be interested in following up with
+any needed review feedback.  I certainly wouldn't be offended.
+
+As is probably obvious this patch series is based atop all of the
+existing posted (and ACKed) cros_ec cleanups that I've sent up.
+
+
+Doug Anderson (3):
+  regmap: cache: regcache_hw_init() should use regmap_bulk_read()
+  mfd: cros_ec: Use the proper size when looking at the cros_ec_i2c
+    result
+  i2c: cros_ec: Support a limited i2c tunnel for exynos5250-spring
+
+ drivers/base/regmap/regcache.c          |  2 +-
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 92 ++++++++++++++++++++++++++++++++-
+ drivers/mfd/cros_ec_i2c.c               | 15 ++++--
+ 3 files changed, 104 insertions(+), 5 deletions(-)
 
 -- 
-Dmitry
+2.0.0.526.g5318336
