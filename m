@@ -1,56 +1,65 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH 3/3] i2c: cros_ec: Support a limited i2c tunnel for exynos5250-spring
-Date: Fri, 27 Jun 2014 14:44:28 -0700
-Message-ID: <CAD=FV=V32sTVEpZAi=3q0rp0J_KP552_9wLUiyuPBxNjDT+tsQ@mail.gmail.com>
-References: <1403898973-19571-1-git-send-email-dianders@chromium.org>
-	<1403898973-19571-4-git-send-email-dianders@chromium.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: busses: i2c-pxa.c: Fix for possible null pointer
+ dereferenc
+Date: Sun, 29 Jun 2014 12:47:22 +0200
+Message-ID: <20140629104721.GA2681@katana>
+References: <1401831034-30255-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+ <20140627122147.GF2641@katana>
+ <CAFo99gZD7GvY+moHbvRZxG_M_n91=2DGvdEaNBMoYBgomAN6BA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1403898973-19571-4-git-send-email-dianders@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>
-Cc: Vincent Palatin <vpalatin@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Randall Spangler <rspangler@chromium.org>, Simon Glass <sjg@chromium.org>, =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, Stephan van Schaik <stephan@synkhronix.com>, Olof Johansson <olof@lixom.net>, Doug Anderson <dianders@chromium.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAFo99gZD7GvY+moHbvRZxG_M_n91=2DGvdEaNBMoYBgomAN6BA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rickard Strandqvist <rickard_strandqvist-IW2WV5XWFqGZkjO+N0TKoMugMpMbD5Xr@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
+
+
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 Hi,
 
-On Fri, Jun 27, 2014 at 12:56 PM, Doug Anderson <dianders@chromium.org> wrote:
-> On exynos5250-spring the battery and tps65090 regulator are sitting on
-> an i2c bus behind the EC (much like on exynos5420-peach-pit).  However
-> on spring we don't have the full EC_CMD_I2C_PASSTHRU command.
->
-> For the production kernel of spring we used a solution like this:
-> - Fork the tps65090 driver and make a version that talks straight to
->   the cros_ec MFD driver and sends special EC commands for talking to
->   the regulator.
-> - Add code into the i2c tunnel to look for i2c transfers and convert
->   them into special EC commands for talking to the battery.
->
-> For reference:
-> * http://crosreview.com/66116
-> * https://chromium.googlesource.com/chromiumos/third_party/kernel/+/chromeos-3.8/drivers/regulator/cros_ec-tps65090.c
->
-> The above solution works great but is a bunch of code.  It appears
-> that we can make do with the limited i2c passthrough commands that
-> actually happened to be present on the exynos5250-spring EC.  Doing
-> this we can present ourselves as supporting a small subset of smbus.
-> We might need to do a few extra transfers here and there but we don't
-> need any extra code.
->
-> Seriss-cc: linux-samsung-soc
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> ---
->  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 92 ++++++++++++++++++++++++++++++++-
->  1 file changed, 91 insertions(+), 1 deletion(-)
+please *always* reply to the list.
 
-I just got done talking to Randall and he suggested that this might
-not actually work on Spring.  :(
+> So how do you want me to change it, or maybe it's not even meant for
+> me to do that?
 
-It looks like in the Spring timeframe I2C EC commands were restricted
-if the write protect screw was in place.  ...so someone will probably
-want to take some of the code referenced above instead of this patch.
+If you want, I'd be happy if you do it. Tests on real hardware would be
+needed, though. Do you have one? Maybe somebody here can help you?
 
-Patches #1 and #2 are probably still valid, though.
+An example is commit 9b2b98a3b4de. More details, including a list of
+available functions, can be found here: Documentation/driver-model/devres.txt
 
--Doug
+Good luck!
+
+   Wolfram
+
+
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTr+65AAoJEBQN5MwUoCm2joYP/0dml3zEJJqROj742ZzoRGKo
+Tlo6XyXWfGOOqy2Go+qHpwd4lLo9Q37aL/6ih3AmNU7t/xyMcrlLmJvtGLDCeJFG
+hDmpf8g+fwil6cgduCJFxyhJjJclefB8jG4N53CcSSWQ8CqC3NvcQ+HHgN+9caNq
+qwZsg172UZC6gOwsVn/SQGhwB+EQzC6QOlTUlju2TAKwXCb8wc2DnC0wxPZBlP2s
+WRY0Yv986VkDCIOhHmK8/cBkVczjyGv1e8CAYdHZbJAScY7WUGsG/Z4QzTlxP5xj
+gCAQRsctZpGzubm0gQvlu2HWxDjGCOKJt0rhFQwulfDTvpX6ejrRjOXsz6UPhpOa
+0W2/bXHjHpcfrhz9bq7ayzMz03LJ0Ppm1OcTsaOfFi2YzKbv8K1HLajswh1ljpzy
+kTeg/QgUN3HgMKMQPB3S4MYejaE6j2Q/TrZpN2+jjX+qj/S80eK/dZzK5N3/WN7v
+vd1g1i9ujIXc0D1sc2HlGLgaU9i0H54QPIakPo3Ff9ofk/Odiz0BMz6a7U82OMnD
+M7RrSuiRbEP8/Emzl68cvERFkWYjyL7ubRT2EUpv3V0Suxswzs1+RBiQP7ePdU56
+v45PI22ZeXRrwJdAh/fkgDcO1JcADi86Z+Svs26ld3A7qQivwz5xLQvT36+tevUW
+DUhQtS7L3rhIoQBUZD8M
+=sqkm
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--
