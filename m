@@ -1,38 +1,69 @@
-From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Patch V3 5/5] I2C/ACPI: Clean up I2C ACPI code and Add CONFIG_I2C_ACPI
- config
-Date: Mon, 30 Jun 2014 09:32:39 +0800
-Message-ID: <53B0BE37.7010103@intel.com>
-References: <1400590764-11108-1-git-send-email-tianyu.lan@intel.com> <1400590764-11108-6-git-send-email-tianyu.lan@intel.com> <20140627110341.GD2641@katana>
+From: Tomasz Figa <t.figa@samsung.com>
+Subject: Re: [PATCH v2] i2c: s3c2410: resume the I2C controller earlier
+Date: Mon, 30 Jun 2014 20:00:52 +0200
+Message-ID: <53B1A5D4.6050904@samsung.com>
+References: <1403654214-25072-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140627110341.GD2641@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, awilliam-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <1403654214-25072-1-git-send-email-dianders@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene.kim@samsung.com>, Ben Dooks <ben-linux@fluff.org>
+Cc: Tomasz Figa <tomasz.figa@gmail.com>, javier.martinez@collabora.co.uk, Vincent Palatin <vpalatin@chromium.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2014=E5=B9=B406=E6=9C=8827=E6=97=A5 19:03, Wolfram Sang wrote:
-> On Tue, May 20, 2014 at 08:59:24PM +0800, Lan Tianyu wrote:
->> Clean up ACPI related code in the i2c core and add CONFIG_I2C_ACPI
->> to enable I2C ACPI code.
->>
->> Current there is a race between removing I2C ACPI operation region
->> and ACPI AML code accessing. So make i2c core built-in if CONFIG_I2C=
-_ACPI
->> is set.
->>
->> Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->=20
-> Applied to for-next, thanks!
->=20
+Hi Doug,
 
-Great. Thanks :)
+On 25.06.2014 01:56, Doug Anderson wrote:
+> From: Vincent Palatin <vpalatin@chromium.org>
+> 
+> When the wake-up is triggered by the PMIC RTC, the RTC driver is trying
+> to read the PMIC interrupt status over I2C and fails because the I2C
+> controller is not resumed yet.
+> Let's resume the I2C controller earlier in the _noirq phase
+> (as other hardwares are doing), so we can properly get the wake-up
+> condition.
+> 
+> Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> ---
+> Changes in v2:
+> - Added missing freeze/thaw/poweroff/restore
+> 
+>  drivers/i2c/busses/i2c-s3c2410.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index e828a1d..ecb389c 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -1267,7 +1267,7 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+>  	return 0;
+>  }
+>  
+> -static int s3c24xx_i2c_resume(struct device *dev)
+> +static int s3c24xx_i2c_resume_noirq(struct device *dev)
+>  {
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+> @@ -1285,7 +1285,11 @@ static int s3c24xx_i2c_resume(struct device *dev)
+>  static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+>  #ifdef CONFIG_PM_SLEEP
+>  	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
+> -	.resume = s3c24xx_i2c_resume,
+> +	.resume_noirq = s3c24xx_i2c_resume_noirq,
+> +	.freeze_noirq = s3c24xx_i2c_suspend_noirq,
+> +	.thaw_noirq = s3c24xx_i2c_resume_noirq,
+> +	.poweroff_noirq = s3c24xx_i2c_suspend_noirq,
+> +	.restore_noirq = s3c24xx_i2c_resume_noirq,
+>  #endif
+>  };
 
+Also fixes certain issues on Exynos4-based boards.
 
---=20
-Best regards
-Tianyu Lan
+Acked-by: Tomasz Figa <t.figa@samsung.com>
+
+--
+Best regards,
+Tomasz
