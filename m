@@ -1,253 +1,235 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: busses: i2c-pxa.c: Fix for possible null pointer
- dereferenc
-Date: Thu, 03 Jul 2014 10:45:47 +0900
-Message-ID: <003601cf9660$83368990$89a39cb0$%han@samsung.com>
-References: <1404084516-901-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
- <1404084516-901-2-git-send-email-rickard_strandqvist@spectrumdigital.se>
- <009301cf93f6$f938a270$eba9e750$%han@samsung.com>
- <CAFo99gY2qEEqwJgu-NQryAe2=o5AsDjL+SFaau6BA7CBMH8Xkg@mail.gmail.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 07/10] mfd: cros_ec: cleanup: Remove EC wrapper
+ functions
+Date: Thu, 3 Jul 2014 08:30:56 +0100
+Message-ID: <20140703073056.GE30534@lee--X1>
+References: <1403115247-8853-1-git-send-email-dianders@chromium.org>
+ <1403115247-8853-8-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <CAFo99gY2qEEqwJgu-NQryAe2=o5AsDjL+SFaau6BA7CBMH8Xkg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-language: ko
+Content-Disposition: inline
+In-Reply-To: <1403115247-8853-8-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Rickard Strandqvist' <rickard_strandqvist-IW2WV5XWFqGZkjO+N0TKoMugMpMbD5Xr@public.gmane.org>
-Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, 'Grant Likely' <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, 'Rob Herring' <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, 'Leilei Shang' <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, 'Peter Korsgaard' <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, Sonny Rao <sonnyrao-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, July 02, 2014 3:26 AM, Rickard Strandqvist wrote:
-> 2014-06-30 2:05 GMT+02:00 Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
-> > On Monday, June 30, 2014 8:29 AM, Rickard Strandqvist wrote:
-> >>
-> >> Fix for possible null pointer dereferenc, and there is a risk for memory leak in when something
-> >> unexpected happens and the function returns.
-> >
-> > Would you split the patch into two patches?
-> >
-> >   [PATCH 1/2] i2c: pxa: Fix for possible null pointer dereference
-> >   [PATCH 2/2] i2c: pxa: Use devm_* functions
-> >
-> >>
-> >> Signed-off-by: Rickard Strandqvist <rickard_strandqvist-IW2WV5XWFqGZkjO+N0TKoMugMpMbD5Xr@public.gmane.org>
-> >> ---
-> >>  drivers/i2c/busses/i2c-pxa.c |   37 ++++++++++++++++---------------------
-> >>  1 file changed, 16 insertions(+), 21 deletions(-)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> >> index be671f7..886877a 100644
-> >> --- a/drivers/i2c/busses/i2c-pxa.c
-> >> +++ b/drivers/i2c/busses/i2c-pxa.c
-> >> @@ -1141,10 +1141,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
-> >>       struct resource *res = NULL;
-> >>       int ret, irq;
-> >>
-> >> -     i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
-> >> +     i2c = devm_kzalloc(&dev->dev, sizeof(struct pxa_i2c), GFP_KERNEL);
-> >>       if (!i2c) {
-> >>               ret = -ENOMEM;
-> >> -             goto emalloc;
-> >> +             goto err_nothing_to_release;
-> >>       }
-> >>
-> >>       /* Default adapter num to device id; i2c_pxa_probe_dt can override. */
-> >> @@ -1154,18 +1154,19 @@ static int i2c_pxa_probe(struct platform_device *dev)
-> >>       if (ret > 0)
-> >>               ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
-> >>       if (ret < 0)
-> >> -             goto eclk;
-> >> +             goto err_nothing_to_release;
-> >>
-> >>       res = platform_get_resource(dev, IORESOURCE_MEM, 0);
-> >>       irq = platform_get_irq(dev, 0);
-> >>       if (res == NULL || irq < 0) {
-> >>               ret = -ENODEV;
-> >> -             goto eclk;
-> >> +             goto err_nothing_to_release;
-> >>       }
-> >>
-> >> -     if (!request_mem_region(res->start, resource_size(res), res->name)) {
-> >> +     if (!devm_request_mem_region(&dev->dev, res->start,
-> >> +                             resource_size(res), res->name)) {
-> >>               ret = -ENOMEM;
-> >> -             goto eclk;
-> >> +             goto emalloc;
-> >>       }
-> >>
-> >>       i2c->adap.owner   = THIS_MODULE;
-> >> @@ -1176,16 +1177,16 @@ static int i2c_pxa_probe(struct platform_device *dev)
-> >>
-> >>       strlcpy(i2c->adap.name, "pxa_i2c-i2c", sizeof(i2c->adap.name));
-> >>
-> >> -     i2c->clk = clk_get(&dev->dev, NULL);
-> >> +     i2c->clk = devm_clk_get(&dev->dev, NULL);
-> >>       if (IS_ERR(i2c->clk)) {
-> >>               ret = PTR_ERR(i2c->clk);
-> >> -             goto eclk;
-> >> +             goto emalloc;
-> >>       }
-> >>
-> >> -     i2c->reg_base = ioremap(res->start, resource_size(res));
-> >> -     if (!i2c->reg_base) {
-> >> +     i2c->reg_base = devm_ioremap(&dev->dev, res->start, resource_size(res));
-> >> +     if (IS_ERR(i2c->reg_base)) {
-> >
-> > Did you check what devm_ioremap() returns?
-> > It returns 'valid addr value' Or NULL as below.
-> > So, IS_ERR() should NOT be used.
-> >
-> > ./lib/devres.c
-> >
-> > void __iomem *devm_ioremap(struct device *dev, resource_size_t offset,
-> >                            unsigned long size)
-> > {
-> >         void __iomem **ptr, *addr;
-> >
-> >         ptr = devres_alloc(devm_ioremap_release, sizeof(*ptr), GFP_KERNEL);
-> >         if (!ptr)
-> >                 return NULL;
-> >
-> >         addr = ioremap(offset, size);
-> >         if (addr) {
-> >                 *ptr = addr;
-> >                 devres_add(dev, ptr);
-> >         } else
-> >                 devres_free(ptr);
-> >
-> >         return addr;
-> > }
-> > EXPORT_SYMBOL(devm_ioremap);
-> >
-> > Best regards,
-> > Jingoo Han
-> >
-> >>               ret = -EIO;
-> >> -             goto eremap;
-> >> +             goto emalloc;
-> >>       }
-> >>
-> >>       i2c->reg_ibmr = i2c->reg_base + pxa_reg_layout[i2c_type].ibmr;
-> >> @@ -1227,10 +1228,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
-> >>               i2c->adap.algo = &i2c_pxa_pio_algorithm;
-> >>       } else {
-> >>               i2c->adap.algo = &i2c_pxa_algorithm;
-> >> -             ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
-> >> -                               dev_name(&dev->dev), i2c);
-> >> +             ret = devm_request_irq(&dev->dev, irq, i2c_pxa_handler,
-> >> +                              IRQF_SHARED, dev_name(&dev->dev), i2c);
-> >>               if (ret)
-> >> -                     goto ereqirq;
-> >> +                     goto emalloc;
-> >>       }
-> >>
-> >>       i2c_pxa_reset(i2c);
-> >> @@ -1261,15 +1262,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
-> >>  eadapt:
-> >>       if (!i2c->use_pio)
-> >>               free_irq(irq, i2c);
-> >> -ereqirq:
-> >> -     clk_disable_unprepare(i2c->clk);
-> >> -     iounmap(i2c->reg_base);
-> >> -eremap:
-> >> -     clk_put(i2c->clk);
-> >> -eclk:
-> >> -     kfree(i2c);
-> >>  emalloc:
-> >>       release_mem_region(res->start, resource_size(res));
-> >> +err_nothing_to_release:
-> >>       return ret;
-> >>  }
-> >>
-> >> --
-> >> 1.7.10.4
-> >
-> 
-> 
-> Hi
-> 
-> Excuse my late reply.
-> 
-> 
-> 1)  A fix of the original error I made in my original patch.
-> But it was completely different from this solution, you have trouble
-> seeing it as something reasonable to do.
-> 
-> My original patch:
-> 
->  eclk:
->         kfree(i2c);
->  emalloc:
-> -       release_mem_region(res->start, resource_size(res));
-> +       if(res)
-> +               release_mem_region(res->start, resource_size(res));
->         return ret;
+On Wed, 18 Jun 2014, Doug Anderson wrote:
+
+> From: Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+>=20
+> Remove the three wrapper functions that talk to the EC without passin=
+g all
+> the desired arguments and just use the underlying communication funct=
+ion
+> that passes everything in a struct intead.
+>=20
+> This is internal code refactoring only. Nothing should change.
+>=20
+> Signed-off-by: Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Reviewed-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+> Changes in v2:
+> - Removed unneeded "ret" variable.
+>=20
+>  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 15 +++++++++++----
+>  drivers/input/keyboard/cros_ec_keyb.c   | 12 ++++++++++--
+>  drivers/mfd/cros_ec.c                   | 32 -----------------------=
+---------
+>  include/linux/mfd/cros_ec.h             | 19 ++++++-------------
+>  4 files changed, 27 insertions(+), 51 deletions(-)
+
+Patch applied with Wolfram and Dmitry's Acks.
+
+Clause: There is a chance that this patch might not be seen in -next
+for ~24-48hrs.  If it's not there by 72hrs, feel free to poke.
+
+> diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/bu=
+sses/i2c-cros-ec-tunnel.c
+> index 8e7a714..dd07818 100644
+> --- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> +++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> @@ -183,6 +183,7 @@ static int ec_i2c_xfer(struct i2c_adapter *adap, =
+struct i2c_msg i2c_msgs[],
+>  	u8 *request =3D NULL;
+>  	u8 *response =3D NULL;
+>  	int result;
+> +	struct cros_ec_command msg;
+> =20
+>  	request_len =3D ec_i2c_count_message(i2c_msgs, num);
+>  	if (request_len < 0) {
+> @@ -218,9 +219,15 @@ static int ec_i2c_xfer(struct i2c_adapter *adap,=
+ struct i2c_msg i2c_msgs[],
+>  	}
+> =20
+>  	ec_i2c_construct_message(request, i2c_msgs, num, bus_num);
+> -	result =3D bus->ec->command_sendrecv(bus->ec, EC_CMD_I2C_PASSTHRU,
+> -					   request, request_len,
+> -					   response, response_len);
+> +
+> +	msg.version =3D 0;
+> +	msg.command =3D EC_CMD_I2C_PASSTHRU;
+> +	msg.outdata =3D request;
+> +	msg.outsize =3D request_len;
+> +	msg.indata =3D response;
+> +	msg.insize =3D response_len;
+> +
+> +	result =3D bus->ec->cmd_xfer(bus->ec, &msg);
+>  	if (result)
+>  		goto exit;
+> =20
+> @@ -258,7 +265,7 @@ static int ec_i2c_probe(struct platform_device *p=
+dev)
+>  	u32 remote_bus;
+>  	int err;
+> =20
+> -	if (!ec->command_sendrecv) {
+> +	if (!ec->cmd_xfer) {
+>  		dev_err(dev, "Missing sendrecv\n");
+>  		return -EINVAL;
+>  	}
+> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/ke=
+yboard/cros_ec_keyb.c
+> index 4083796..b8341ab 100644
+> --- a/drivers/input/keyboard/cros_ec_keyb.c
+> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> @@ -191,8 +191,16 @@ static void cros_ec_keyb_close(struct input_dev =
+*dev)
+> =20
+>  static int cros_ec_keyb_get_state(struct cros_ec_keyb *ckdev, uint8_=
+t *kb_state)
+>  {
+> -	return ckdev->ec->command_recv(ckdev->ec, EC_CMD_MKBP_STATE,
+> -					  kb_state, ckdev->cols);
+> +	struct cros_ec_command msg =3D {
+> +		.version =3D 0,
+> +		.command =3D EC_CMD_MKBP_STATE,
+> +		.outdata =3D NULL,
+> +		.outsize =3D 0,
+> +		.indata =3D kb_state,
+> +		.insize =3D ckdev->cols,
+> +	};
+> +
+> +	return ckdev->ec->cmd_xfer(ckdev->ec, &msg);
 >  }
+> =20
+>  static int cros_ec_keyb_work(struct notifier_block *nb,
+> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> index 49ed8c3..4851ed2 100644
+> --- a/drivers/mfd/cros_ec.c
+> +++ b/drivers/mfd/cros_ec.c
+> @@ -44,34 +44,6 @@ int cros_ec_prepare_tx(struct cros_ec_device *ec_d=
+ev,
+>  }
+>  EXPORT_SYMBOL(cros_ec_prepare_tx);
+> =20
+> -static int cros_ec_command_sendrecv(struct cros_ec_device *ec_dev,
+> -		uint16_t cmd, void *out_buf, int out_len,
+> -		void *in_buf, int in_len)
+> -{
+> -	struct cros_ec_command msg;
+> -
+> -	msg.version =3D cmd >> 8;
+> -	msg.command =3D cmd & 0xff;
+> -	msg.outdata =3D out_buf;
+> -	msg.outsize =3D out_len;
+> -	msg.indata =3D in_buf;
+> -	msg.insize =3D in_len;
+> -
+> -	return ec_dev->cmd_xfer(ec_dev, &msg);
+> -}
+> -
+> -static int cros_ec_command_recv(struct cros_ec_device *ec_dev,
+> -		uint16_t cmd, void *buf, int buf_len)
+> -{
+> -	return cros_ec_command_sendrecv(ec_dev, cmd, NULL, 0, buf, buf_len)=
+;
+> -}
+> -
+> -static int cros_ec_command_send(struct cros_ec_device *ec_dev,
+> -		uint16_t cmd, void *buf, int buf_len)
+> -{
+> -	return cros_ec_command_sendrecv(ec_dev, cmd, buf, buf_len, NULL, 0)=
+;
+> -}
+> -
+>  static irqreturn_t ec_irq_thread(int irq, void *data)
+>  {
+>  	struct cros_ec_device *ec_dev =3D data;
+> @@ -104,10 +76,6 @@ int cros_ec_register(struct cros_ec_device *ec_de=
+v)
+> =20
+>  	BLOCKING_INIT_NOTIFIER_HEAD(&ec_dev->event_notifier);
+> =20
+> -	ec_dev->command_send =3D cros_ec_command_send;
+> -	ec_dev->command_recv =3D cros_ec_command_recv;
+> -	ec_dev->command_sendrecv =3D cros_ec_command_sendrecv;
+> -
+>  	if (ec_dev->din_size) {
+>  		ec_dev->din =3D devm_kzalloc(dev, ec_dev->din_size, GFP_KERNEL);
+>  		if (!ec_dev->din)
+> diff --git a/include/linux/mfd/cros_ec.h b/include/linux/mfd/cros_ec.=
+h
+> index 2b0c598..60c0880 100644
+> --- a/include/linux/mfd/cros_ec.h
+> +++ b/include/linux/mfd/cros_ec.h
+> @@ -63,9 +63,10 @@ struct cros_ec_command {
+>   * @was_wake_device: true if this device was set to wake the system =
+from
+>   * sleep at the last suspend
+>   * @event_notifier: interrupt event notifier for transport devices
+> - * @command_send: send a command
+> - * @command_recv: receive a response
+> - * @command_sendrecv: send a command and receive a response
+> + * @cmd_xfer: send command to EC and get response
+> + *     Returns 0 if the communication succeeded, but that doesn't me=
+an the EC
+> + *     was happy with the command it got. Caller should check msg.re=
+sult for
+> + *     the EC's result code.
+>   *
+>   * @priv: Private data
+>   * @irq: Interrupt to use
+> @@ -83,7 +84,6 @@ struct cros_ec_command {
+>   * @parent: pointer to parent device (e.g. i2c or spi device)
+>   * @wake_enabled: true if this device can wake the system from sleep
+>   * @lock: one transaction at a time
+> - * @cmd_xfer: low-level channel to the EC
+>   */
+>  struct cros_ec_device {
+> =20
+> @@ -94,13 +94,8 @@ struct cros_ec_device {
+>  	bool was_wake_device;
+>  	struct class *cros_class;
+>  	struct blocking_notifier_head event_notifier;
+> -	int (*command_send)(struct cros_ec_device *ec,
+> -			    uint16_t cmd, void *out_buf, int out_len);
+> -	int (*command_recv)(struct cros_ec_device *ec,
+> -			    uint16_t cmd, void *in_buf, int in_len);
+> -	int (*command_sendrecv)(struct cros_ec_device *ec,
+> -				uint16_t cmd, void *out_buf, int out_len,
+> -				void *in_buf, int in_len);
+> +	int (*cmd_xfer)(struct cros_ec_device *ec,
+> +			struct cros_ec_command *msg);
+> =20
+>  	/* These are used to implement the platform-specific interface */
+>  	void *priv;
+> @@ -112,8 +107,6 @@ struct cros_ec_device {
+>  	struct device *parent;
+>  	bool wake_enabled;
+>  	struct mutex lock;
+> -	int (*cmd_xfer)(struct cros_ec_device *ec,
+> -			struct cros_ec_command *msg);
+>  };
+> =20
+>  /**
 
-I see what you wanted. It looks good.
-But, I still think that the patch can be split into two patches. :-)
-Then, it can be more readable.
-
-   [PATCH 1/2] i2c: pxa: Fix for possible null pointer dereference
-   [PATCH 2/2] i2c: pxa: Use devm_* functions
-
-> 
-> 2) Wolfram Sang helped me with a patch example from commit 9b2b98a3b4de
-> It hade this code below. I thought that it seem a little strange, but
-> I trust Wolfram.
-
-I also trust Wolfram. He is one of the most important and active
-person for Linux kernel. However, the mainline kernel code explicitly
-reveals that ioremap() cannot return error values. ioremap() can return
-valid value or NULL. So, IS_ERR() should NOT be used.
-
-Wolfram may mean devm_ioremap_resource(), not devm_ioremap().
-On the contrary, devm_ioremap_resource() can return error values,
-NULL and valid value. So, in the case of devm_ioremap_resource(),
-IS_ERR() can be used, in order to check the return values of
-devm_ioremap_resource().
-
-
-> 
-> -       dev->virtbase = ioremap(adev->res.start, resource_size(&adev->res));
-> -       if (!dev->virtbase) {
-> +       dev->virtbase = devm_ioremap(&adev->dev, adev->res.start,
-> +                               resource_size(&adev->res));
-> +       if (IS_ERR(dev->virtbase)) {
-
-So, please refer to the both cases as below.
-
-1. devm_ioremap_resource(): IS_ERR() can be used.
-
-	dev->virtbase = devm_ioremap_resource(&adev->dev, res));
-	if (IS_ERR(dev->virtbase)) {
-
-2. devm_ioremap(): Only NULL checking is required, not IS_ERR().
-
-	dev->virtbase = devm_ioremap(&adev->dev, adev->res.start,
-				resource_size(&adev->res));
-	if (!dev->virtbase)
-
-Then, if you have time, please refer to the following commit,
-which was already merged a few months ago. According to the patch,
-"devm_ioremap() returns NULL on error, not an error."; thus,
-IS_ERR() should NOT be used.
-
-commit 37e5eb0bae7bb4d98c2153c3c3400b5c00c3cad1
-(i2c: nomadik: Don't use IS_ERR for devm_ioremap)
-
-In addition, this patch was already accepted by Wolfram Sang.
-Thank you.
-
-Best regards,
-Jingoo Han
-
->                 ret = -ENOMEM;
-> -               goto err_no_ioremap;
-> +               goto err_no_mem;
->         }
-> 
-> 
-> Kind regards
-> Rickard Strandqvist
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
