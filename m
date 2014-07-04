@@ -1,60 +1,157 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: Driver-Support of I2C_M_RECV_LEN
-Date: Fri, 4 Jul 2014 09:58:50 +0200
-Message-ID: <20140704075850.GA3492@katana>
-References: <53A42321.5020701@web.de>
+From: Emil Goode <emilgoode@gmail.com>
+Subject: Re: [PATCH v3] i2c: busses: i2c-pxa.c:  Fix for possible null
+ pointer dereferenc
+Date: Fri, 4 Jul 2014 11:10:00 +0200
+Message-ID: <20140704091000.GA4738@lianli>
+References: <1404418756-10550-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+ <1404418756-10550-2-git-send-email-rickard_strandqvist@spectrumdigital.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <53A42321.5020701-S0/GAf8tV78@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Post <michael_post-S0/GAf8tV78@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1404418756-10550-2-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Leilei Shang <shangll@marvell.com>, Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Rickard,
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Since this is a probe function there is also no need to release the devm_*
+resources in the i2c_pxa_remove function, this leads to double free.
 
-Hi,
+Also I have a few nit-pick comments below.
 
-> How i can figure out whether this mechanism will be provided of my driver?
+On Thu, Jul 03, 2014 at 10:19:16PM +0200, Rickard Strandqvist wrote:
+> Fix for possible null pointer dereferenc, and there is a risk for memory leak if something unexpected happens and the function returns.
+> It now use Managed Device Resource instead.
+> 
+> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+> ---
+>  drivers/i2c/busses/i2c-pxa.c |   37 ++++++++++++++++---------------------
+>  1 file changed, 16 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> index be671f7..2edb633 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -1141,10 +1141,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>  	struct resource *res = NULL;
+>  	int ret, irq;
+>  
+> -	i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
+> +	i2c = devm_kzalloc(&dev->dev, sizeof(struct pxa_i2c), GFP_KERNEL);
+>  	if (!i2c) {
+>  		ret = -ENOMEM;
+> -		goto emalloc;
+> +		goto err_nothing_to_release;
 
-Use i2c_get_functionality() and check for
-I2C_FUNC_SMBUS_READ_BLOCK_DATA (or look at the source code).
+Perhaps its a good idea to return directly here, then the label
+err_nothing_to_release can be removed.
 
-> What is the alternative of using the function i2c_smbus_read_block_data?
+>  	}
+>  
+>  	/* Default adapter num to device id; i2c_pxa_probe_dt can override. */
+> @@ -1154,18 +1154,19 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>  	if (ret > 0)
+>  		ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
+>  	if (ret < 0)
+> -		goto eclk;
+> +		goto err_nothing_to_release;
 
-That depends solely on your slave device. Check the documentation what
-transfer types it supports and what alternatives are possible.
+Same here.
 
-Regards,
+>  
+>  	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+>  	irq = platform_get_irq(dev, 0);
+>  	if (res == NULL || irq < 0) {
+>  		ret = -ENODEV;
+> -		goto eclk;
+> +		goto err_nothing_to_release;
 
-   Wolfram
+Same here.
 
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+>  	}
+>  
+> -	if (!request_mem_region(res->start, resource_size(res), res->name)) {
+> +	if (!devm_request_mem_region(&dev->dev, res->start,
+> +				resource_size(res), res->name)) {
+>  		ret = -ENOMEM;
+> -		goto eclk;
+> +		goto emalloc;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+We could also return directly here since the release_mem_region call should
+be removed, as mentioned in Jingoos reply.
 
-iQIcBAEBAgAGBQJTtl66AAoJEBQN5MwUoCm2Xj4P/jqCkxZ8lyVX9XhfcZifjK6v
-5hjSTGtHcksTQZx3WNjyDEr2Z8Bmuw8ScoG1QFsMYx+pU0jyoL8o9McnJzmnbBFv
-13JWP04YBBHBDYvZahB0zY7VtbCr16DZ1VhRNhAIiKptTvMFtv/BhPRCVHXD7xDD
-5+t8mrCJ4kxeaIXRbJ16OyyStZCKfoxuXD65pwlKi0S5RZom/60vtz8dvAtrlPJX
-hdX59d3eNjIoHrO9Gy3pDraZ7xCqjTwvyYqfhRiI+px4xvrztqPZ9HGc/lCe8oJa
-MKf6Ix2KaVLM0E5cw88g6JuwTenvK3UWHN4e9oLruQb+Nhj2fiwgX3cBRIeJ7+Ze
-ibNFYCM4m1o9C/DNbQyDpQgLmcZRGDecqkMWrcLOk94cH8CjdQOer047jZUlWbBm
-+GkyZEJppN1Th4HkoG1Y2cHdmSledFJQ8qJHhObv9Atqmfaj+cwcL7/e/8MUPxll
-aUxmfWW6Dksl1BCMrCMqx26OSaYwi6YWJY47F3C2pDBKQ0KkRa+cBLFf6oIe4PZJ
-/gXXgS9Ome14IaGqdhWRqnrF52UAcKBOstW+gEHD6TijzpLsyOQMheERt3mMOBsM
-BV6g6+I4AGWlibeaAAvXZr19DCU7eyzGBHnEUI6eeOV8/aTB8un/sQ01FU4EbcdF
-276Bji4bjzqlP6nUfGWU
-=tIby
------END PGP SIGNATURE-----
+>  	}
+>  
+>  	i2c->adap.owner   = THIS_MODULE;
+> @@ -1176,16 +1177,16 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>  
+>  	strlcpy(i2c->adap.name, "pxa_i2c-i2c", sizeof(i2c->adap.name));
+>  
+> -	i2c->clk = clk_get(&dev->dev, NULL);
+> +	i2c->clk = devm_clk_get(&dev->dev, NULL);
+>  	if (IS_ERR(i2c->clk)) {
+>  		ret = PTR_ERR(i2c->clk);
+> -		goto eclk;
+> +		goto emalloc;
 
---h31gzZEtNLTqOjlF--
+Same here.
+
+>  	}
+>  
+> -	i2c->reg_base = ioremap(res->start, resource_size(res));
+> -	if (!i2c->reg_base) {
+> +	i2c->reg_base = devm_ioremap_resource(&adev->dev, res));
+> +	if (IS_ERR(i2c->reg_base)) {
+>  		ret = -EIO;
+> -		goto eremap;
+> +		goto emalloc;
+
+Same here.
+
+>  	}
+>  
+>  	i2c->reg_ibmr = i2c->reg_base + pxa_reg_layout[i2c_type].ibmr;
+> @@ -1227,10 +1228,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>  		i2c->adap.algo = &i2c_pxa_pio_algorithm;
+>  	} else {
+>  		i2c->adap.algo = &i2c_pxa_algorithm;
+> -		ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
+> -				  dev_name(&dev->dev), i2c);
+> +		ret = devm_request_irq(&dev->dev, irq, i2c_pxa_handler,
+> +				 IRQF_SHARED, dev_name(&dev->dev), i2c);
+>  		if (ret)
+> -			goto ereqirq;
+> +			goto emalloc;
+
+Same here.
+
+>  	}
+>  
+>  	i2c_pxa_reset(i2c);
+> @@ -1261,15 +1262,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>  eadapt:
+>  	if (!i2c->use_pio)
+>  		free_irq(irq, i2c);
+
+The free_irq() call should also be removed since devm_request_irq() was used.
+
+> -ereqirq:
+> -	clk_disable_unprepare(i2c->clk);
+> -	iounmap(i2c->reg_base);
+> -eremap:
+> -	clk_put(i2c->clk);
+> -eclk:
+> -	kfree(i2c);
+>  emalloc:
+>  	release_mem_region(res->start, resource_size(res));
+> +err_nothing_to_release:
+>  	return ret;
+>  }
+>
+
+Best regards,
+
+Emil Goode
