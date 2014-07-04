@@ -1,142 +1,88 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: busses: i2c-pxa.c:  Fix for possible null pointer
- dereferenc
-Date: Fri, 04 Jul 2014 09:02:07 +0900
-Message-ID: <002401cf971b$32209120$9661b360$%han@samsung.com>
-References: <1404418756-10550-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
- <1404418756-10550-2-git-send-email-rickard_strandqvist@spectrumdigital.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c:at91: add bound checking on smbus block length bytes
+Date: Fri,  4 Jul 2014 03:03:11 -0400
+Message-ID: <1404457391-22330-1-git-send-email-mark.roszko@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <1404418756-10550-2-git-send-email-rickard_strandqvist-IW2WV5XWFqGZkjO+N0TKoMugMpMbD5Xr@public.gmane.org>
-Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Rickard Strandqvist' <rickard_strandqvist-IW2WV5XWFqGZkjO+N0TKoMugMpMbD5Xr@public.gmane.org>
-Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, 'Grant Likely' <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, 'Rob Herring' <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, 'Leilei Shang' <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, 'Peter Korsgaard' <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, July 04, 2014 5:19 AM, Rickard Strandqvist wrote:
-> 
-> Fix for possible null pointer dereferenc, and there is a risk
-> for memory leak if something unexpected
+The driver was not bound checking the recieved length byte to ensure it was less than
+the buffer size that is allocated for smbus blocks. This resulted in buffer overflows
+whenever an invalid byte was recieved.
+It also failed to ensure the byte count was not zero. If it recieved zero, it would end up
+in an infinite loop as the at91_twi_read_next_byte function returned immediately without
+allowing RHR to be read to clear the RXRDY interrupt.
 
-s/dereferenc/dereference
+Tested agaisnt a smbus battery.
 
-The columns of this commit is too long.
-Please keep about 80 columns.
+Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-at91.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-> happens and the function returns.
-> It now use Managed Device Resource instead.
-
-s/use/uses
-
-> 
-> Signed-off-by: Rickard Strandqvist <rickard_strandqvist-IW2WV5XWFqGZkjO+N0TKoMugMpMbD5Xr@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-pxa.c |   37 ++++++++++++++++---------------------
->  1 file changed, 16 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index be671f7..2edb633 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -1141,10 +1141,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
->  	struct resource *res = NULL;
->  	int ret, irq;
-> 
-> -	i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
-> +	i2c = devm_kzalloc(&dev->dev, sizeof(struct pxa_i2c), GFP_KERNEL);
->  	if (!i2c) {
->  		ret = -ENOMEM;
-> -		goto emalloc;
-> +		goto err_nothing_to_release;
->  	}
-> 
->  	/* Default adapter num to device id; i2c_pxa_probe_dt can override. */
-> @@ -1154,18 +1154,19 @@ static int i2c_pxa_probe(struct platform_device *dev)
->  	if (ret > 0)
->  		ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
->  	if (ret < 0)
-> -		goto eclk;
-> +		goto err_nothing_to_release;
-> 
->  	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
->  	irq = platform_get_irq(dev, 0);
->  	if (res == NULL || irq < 0) {
->  		ret = -ENODEV;
-> -		goto eclk;
-> +		goto err_nothing_to_release;
->  	}
-> 
-> -	if (!request_mem_region(res->start, resource_size(res), res->name)) {
-> +	if (!devm_request_mem_region(&dev->dev, res->start,
-> +				resource_size(res), res->name)) {
->  		ret = -ENOMEM;
-> -		goto eclk;
-> +		goto emalloc;
->  	}
-> 
->  	i2c->adap.owner   = THIS_MODULE;
-> @@ -1176,16 +1177,16 @@ static int i2c_pxa_probe(struct platform_device *dev)
-> 
->  	strlcpy(i2c->adap.name, "pxa_i2c-i2c", sizeof(i2c->adap.name));
-> 
-> -	i2c->clk = clk_get(&dev->dev, NULL);
-> +	i2c->clk = devm_clk_get(&dev->dev, NULL);
->  	if (IS_ERR(i2c->clk)) {
->  		ret = PTR_ERR(i2c->clk);
-> -		goto eclk;
-> +		goto emalloc;
->  	}
-> 
-> -	i2c->reg_base = ioremap(res->start, resource_size(res));
-> -	if (!i2c->reg_base) {
-> +	i2c->reg_base = devm_ioremap_resource(&adev->dev, res));
-> +	if (IS_ERR(i2c->reg_base)) {
->  		ret = -EIO;
-> -		goto eremap;
-> +		goto emalloc;
->  	}
-> 
->  	i2c->reg_ibmr = i2c->reg_base + pxa_reg_layout[i2c_type].ibmr;
-> @@ -1227,10 +1228,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
->  		i2c->adap.algo = &i2c_pxa_pio_algorithm;
->  	} else {
->  		i2c->adap.algo = &i2c_pxa_algorithm;
-> -		ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
-> -				  dev_name(&dev->dev), i2c);
-> +		ret = devm_request_irq(&dev->dev, irq, i2c_pxa_handler,
-> +				 IRQF_SHARED, dev_name(&dev->dev), i2c);
->  		if (ret)
-> -			goto ereqirq;
-> +			goto emalloc;
->  	}
-> 
->  	i2c_pxa_reset(i2c);
-> @@ -1261,15 +1262,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
->  eadapt:
->  	if (!i2c->use_pio)
->  		free_irq(irq, i2c);
-> -ereqirq:
-> -	clk_disable_unprepare(i2c->clk);
-> -	iounmap(i2c->reg_base);
-> -eremap:
-> -	clk_put(i2c->clk);
-> -eclk:
-> -	kfree(i2c);
->  emalloc:
->  	release_mem_region(res->start, resource_size(res));
-
-This function can be removed, because devm_request_mem_region()
-is used. So, please remove release_mem_region().
-
-Best regards,
-Jingoo Han
-
-> +err_nothing_to_release:
->  	return ret;
->  }
-> 
-> --
-> 1.7.10.4
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index e95f9ba..ec4ff33 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -101,6 +101,7 @@ struct at91_twi_dev {
+ 	unsigned twi_cwgr_reg;
+ 	struct at91_twi_pdata *pdata;
+ 	bool use_dma;
++	bool recv_len_abort;
+ 	struct at91_twi_dma dma;
+ };
+ 
+@@ -267,12 +268,24 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
+ 	*dev->buf = at91_twi_read(dev, AT91_TWI_RHR) & 0xff;
+ 	--dev->buf_len;
+ 
++	/* return if aborting, we only needed to read RHR to clear RXRDY*/
++	if (dev->recv_len_abort)
++		return;
++
+ 	/* handle I2C_SMBUS_BLOCK_DATA */
+ 	if (unlikely(dev->msg->flags & I2C_M_RECV_LEN)) {
+-		dev->msg->flags &= ~I2C_M_RECV_LEN;
+-		dev->buf_len += *dev->buf;
+-		dev->msg->len = dev->buf_len + 1;
+-		dev_dbg(dev->dev, "received block length %d\n", dev->buf_len);
++		/* ensure length byte is a valid value */
++		if (*dev->buf <= I2C_SMBUS_BLOCK_MAX && *dev->buf > 0) {
++			dev->msg->flags &= ~I2C_M_RECV_LEN;
++			dev->buf_len += *dev->buf;
++			dev->msg->len = dev->buf_len + 1;
++			dev_dbg(dev->dev, "received block length %d\n",
++					 dev->buf_len);
++		} else {
++			/* abort and send the stop by reading one more byte */
++			dev->recv_len_abort = true;
++			dev->buf_len = 1;
++		}
+ 	}
+ 
+ 	/* send stop if second but last byte has been read */
+@@ -444,6 +457,12 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 		ret = -EIO;
+ 		goto error;
+ 	}
++	if (dev->recv_len_abort) {
++		dev_err(dev->dev, "invalid smbus block length recvd\n");
++		ret = -EPROTO;
++		goto error;
++	}
++
+ 	dev_dbg(dev->dev, "transfer complete\n");
+ 
+ 	return 0;
+@@ -500,6 +519,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	dev->buf_len = m_start->len;
+ 	dev->buf = m_start->buf;
+ 	dev->msg = m_start;
++	dev->recv_len_abort = false;
+ 
+ 	ret = at91_do_twi_transfer(dev);
+ 
+-- 
+1.7.10.4
