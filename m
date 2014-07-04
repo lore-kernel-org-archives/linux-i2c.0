@@ -1,88 +1,61 @@
-From: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c:at91: add bound checking on smbus block length bytes
-Date: Fri,  4 Jul 2014 03:03:11 -0400
-Message-ID: <1404457391-22330-1-git-send-email-mark.roszko@gmail.com>
+From: Michael Post <michael_post-S0/GAf8tV78@public.gmane.org>
+Subject: Re: Driver-Support of I2C_M_RECV_LEN
+Date: Fri, 04 Jul 2014 09:38:30 +0200
+Message-ID: <53B659F6.4070005@web.de>
+References: <53A42321.5020701@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <53A42321.5020701-S0/GAf8tV78@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver was not bound checking the recieved length byte to ensure it was less than
-the buffer size that is allocated for smbus blocks. This resulted in buffer overflows
-whenever an invalid byte was recieved.
-It also failed to ensure the byte count was not zero. If it recieved zero, it would end up
-in an infinite loop as the at91_twi_read_next_byte function returned immediately without
-allowing RHR to be read to clear the RXRDY interrupt.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
 
-Tested agaisnt a smbus battery.
+Hello together,
 
-Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c |   28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+Am 20.06.14 14:03, schrieb Michael Post:
+> Hello,
+> 
+> in the documentation i found at 
+> http://ww2.cs.fsu.edu/~rosentha/linux/2.6.26.5/docs/DocBook/kernel-api/re1222.html
+>
+> 
+the following sentence:
+> 
+> "Note that using this function requires that the client's adapter 
+> support the I2C_FUNC_SMBUS_READ_BLOCK_DATA functionality. Not all 
+> adapter drivers support this; its emulation through I2C messaging
+> relies on a specific mechanism (I2C_M_RECV_LEN) which may not be
+> implemented."
+> 
+> The second sentence says that the mechanism I2C_M_RECV_LEN is not
+> all over implemented.
+> 
+> How i can figure out whether this mechanism will be provided of my
+> driver? What is the alternative of using the function
+> i2c_smbus_read_block_data?
+> 
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index e95f9ba..ec4ff33 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -101,6 +101,7 @@ struct at91_twi_dev {
- 	unsigned twi_cwgr_reg;
- 	struct at91_twi_pdata *pdata;
- 	bool use_dma;
-+	bool recv_len_abort;
- 	struct at91_twi_dma dma;
- };
- 
-@@ -267,12 +268,24 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
- 	*dev->buf = at91_twi_read(dev, AT91_TWI_RHR) & 0xff;
- 	--dev->buf_len;
- 
-+	/* return if aborting, we only needed to read RHR to clear RXRDY*/
-+	if (dev->recv_len_abort)
-+		return;
-+
- 	/* handle I2C_SMBUS_BLOCK_DATA */
- 	if (unlikely(dev->msg->flags & I2C_M_RECV_LEN)) {
--		dev->msg->flags &= ~I2C_M_RECV_LEN;
--		dev->buf_len += *dev->buf;
--		dev->msg->len = dev->buf_len + 1;
--		dev_dbg(dev->dev, "received block length %d\n", dev->buf_len);
-+		/* ensure length byte is a valid value */
-+		if (*dev->buf <= I2C_SMBUS_BLOCK_MAX && *dev->buf > 0) {
-+			dev->msg->flags &= ~I2C_M_RECV_LEN;
-+			dev->buf_len += *dev->buf;
-+			dev->msg->len = dev->buf_len + 1;
-+			dev_dbg(dev->dev, "received block length %d\n",
-+					 dev->buf_len);
-+		} else {
-+			/* abort and send the stop by reading one more byte */
-+			dev->recv_len_abort = true;
-+			dev->buf_len = 1;
-+		}
- 	}
- 
- 	/* send stop if second but last byte has been read */
-@@ -444,6 +457,12 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		ret = -EIO;
- 		goto error;
- 	}
-+	if (dev->recv_len_abort) {
-+		dev_err(dev->dev, "invalid smbus block length recvd\n");
-+		ret = -EPROTO;
-+		goto error;
-+	}
-+
- 	dev_dbg(dev->dev, "transfer complete\n");
- 
- 	return 0;
-@@ -500,6 +519,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	dev->buf_len = m_start->len;
- 	dev->buf = m_start->buf;
- 	dev->msg = m_start;
-+	dev->recv_len_abort = false;
- 
- 	ret = at91_do_twi_transfer(dev);
- 
--- 
-1.7.10.4
+does nobody has any clue or hints for me?
+Maybe there is an other mailinglist i can ask?
+
+Thanks a lot,
+
+Michael
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG/MacGPG2 v2.0.22 (Darwin)
+Comment: GPGTools - http://gpgtools.org
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iQEcBAEBCgAGBQJTtln2AAoJEFF6fE6T32A87NkH/3f2pslue7/oYiIiZ8PlKway
+C9hOI02EEX0Z+sxB31ZTMyis2VxGFmZ3VGp4sSpiPv2iK9huMYmeVV0a2a+J0MLg
+wmObCFRUZVN85lLqau+nEuqNMHSVYpYedHovC3Ui3rTHZNDM3pWJSDBy5dFG57d2
+TE6Jae6Q31/hRn8gq106XmRdtYgKmzCfmfjRwYyBt0tYH2vQ43xhJQ3zGZCuKJ5O
+xjY4em5jLWv+oiWi/HAkXFqfC4GskklBcn77K9TDEuw+oXkeF8Re4JPmvOBKxrQA
+O+a246FVyyrKHs7VKXXAORX+Ty/q2QtP+dbFk9M0Uo0M0Xi17QhJ8TsUwQViFV4=
+=gIOJ
+-----END PGP SIGNATURE-----
