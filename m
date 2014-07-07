@@ -1,205 +1,233 @@
-From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Subject: Re: [PATCH v3] i2c: busses: i2c-pxa.c: Fix for possible null pointer dereferenc
-Date: Sat, 5 Jul 2014 14:34:33 +0200
-Message-ID: <CAFo99ga3K7JBLCRTQGLYNGT4aX1N9azfjfosvFzoUViMcdMhmQ@mail.gmail.com>
-References: <1404418756-10550-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
-	<1404418756-10550-2-git-send-email-rickard_strandqvist@spectrumdigital.se>
-	<20140704091000.GA4738@lianli>
-	<CAFo99gYU6v_ohZa6rSfHwUhk6Lw1dCtVWOQsLk3tZ_GRyqExbg@mail.gmail.com>
-	<20140704172457.GA3404@lianli>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [RFC PATCH] i2c: stub: Add support for SMBus block commands
+Date: Sun,  6 Jul 2014 20:55:12 -0700
+Message-ID: <1404705312-27633-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140704172457.GA3404@lianli>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Emil Goode <emilgoode@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Leilei Shang <shangll@marvell.com>, Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Randy Dunlap <rdunlap@infradead.org>, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-i2c@vger.kernel.org
 
-2014-07-04 19:24 GMT+02:00 Emil Goode <emilgoode@gmail.com>:
-> Hello,
->
-> I noticed one more thing.
->
-> On Fri, Jul 04, 2014 at 07:07:48PM +0200, Rickard Strandqvist wrote:
->> 2014-07-04 11:10 GMT+02:00 Emil Goode <emilgoode@gmail.com>:
->> > Hello Rickard,
->> >
->> > Since this is a probe function there is also no need to release the devm_*
->> > resources in the i2c_pxa_remove function, this leads to double free.
->> >
->> > Also I have a few nit-pick comments below.
->> >
->> > On Thu, Jul 03, 2014 at 10:19:16PM +0200, Rickard Strandqvist wrote:
->> >> Fix for possible null pointer dereferenc, and there is a risk for memory leak if something unexpected happens and the function returns.
->> >> It now use Managed Device Resource instead.
->> >>
->> >> Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
->> >> ---
->> >>  drivers/i2c/busses/i2c-pxa.c |   37 ++++++++++++++++---------------------
->> >>  1 file changed, 16 insertions(+), 21 deletions(-)
->> >>
->> >> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
->> >> index be671f7..2edb633 100644
->> >> --- a/drivers/i2c/busses/i2c-pxa.c
->> >> +++ b/drivers/i2c/busses/i2c-pxa.c
->> >> @@ -1141,10 +1141,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
->> >>       struct resource *res = NULL;
->> >>       int ret, irq;
->> >>
->> >> -     i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
->> >> +     i2c = devm_kzalloc(&dev->dev, sizeof(struct pxa_i2c), GFP_KERNEL);
->> >>       if (!i2c) {
->> >>               ret = -ENOMEM;
->> >> -             goto emalloc;
->> >> +             goto err_nothing_to_release;
->> >
->> > Perhaps its a good idea to return directly here, then the label
->> > err_nothing_to_release can be removed.
->> >
->> >>       }
->> >>
->> >>       /* Default adapter num to device id; i2c_pxa_probe_dt can override. */
->> >> @@ -1154,18 +1154,19 @@ static int i2c_pxa_probe(struct platform_device *dev)
->> >>       if (ret > 0)
->> >>               ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
->> >>       if (ret < 0)
->> >> -             goto eclk;
->> >> +             goto err_nothing_to_release;
->> >
->> > Same here.
->> >
->> >>
->> >>       res = platform_get_resource(dev, IORESOURCE_MEM, 0);
->> >>       irq = platform_get_irq(dev, 0);
->> >>       if (res == NULL || irq < 0) {
->> >>               ret = -ENODEV;
->> >> -             goto eclk;
->> >> +             goto err_nothing_to_release;
->> >
->> > Same here.
->> >
->> >>       }
->> >>
->> >> -     if (!request_mem_region(res->start, resource_size(res), res->name)) {
->> >> +     if (!devm_request_mem_region(&dev->dev, res->start,
->> >> +                             resource_size(res), res->name)) {
->> >>               ret = -ENOMEM;
->> >> -             goto eclk;
->> >> +             goto emalloc;
->> >
->> > We could also return directly here since the release_mem_region call should
->> > be removed, as mentioned in Jingoos reply.
->> >
->> >>       }
->> >>
->> >>       i2c->adap.owner   = THIS_MODULE;
->> >> @@ -1176,16 +1177,16 @@ static int i2c_pxa_probe(struct platform_device *dev)
->> >>
->> >>       strlcpy(i2c->adap.name, "pxa_i2c-i2c", sizeof(i2c->adap.name));
->> >>
->> >> -     i2c->clk = clk_get(&dev->dev, NULL);
->> >> +     i2c->clk = devm_clk_get(&dev->dev, NULL);
->> >>       if (IS_ERR(i2c->clk)) {
->> >>               ret = PTR_ERR(i2c->clk);
->> >> -             goto eclk;
->> >> +             goto emalloc;
->> >
->> > Same here.
->> >
->> >>       }
->> >>
->> >> -     i2c->reg_base = ioremap(res->start, resource_size(res));
->> >> -     if (!i2c->reg_base) {
->> >> +     i2c->reg_base = devm_ioremap_resource(&adev->dev, res));
->> >> +     if (IS_ERR(i2c->reg_base)) {
->> >>               ret = -EIO;
->> >> -             goto eremap;
->> >> +             goto emalloc;
->> >
->> > Same here.
->> >
->> >>       }
->> >>
->> >>       i2c->reg_ibmr = i2c->reg_base + pxa_reg_layout[i2c_type].ibmr;
->> >> @@ -1227,10 +1228,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
->> >>               i2c->adap.algo = &i2c_pxa_pio_algorithm;
->> >>       } else {
->> >>               i2c->adap.algo = &i2c_pxa_algorithm;
->> >> -             ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
->> >> -                               dev_name(&dev->dev), i2c);
->> >> +             ret = devm_request_irq(&dev->dev, irq, i2c_pxa_handler,
->> >> +                              IRQF_SHARED, dev_name(&dev->dev), i2c);
->> >>               if (ret)
->> >> -                     goto ereqirq;
->> >> +                     goto emalloc;
->> >
->> > Same here.
->> >
->> >>       }
->> >>
->> >>       i2c_pxa_reset(i2c);
->> >> @@ -1261,15 +1262,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
->> >>  eadapt:
->> >>       if (!i2c->use_pio)
->> >>               free_irq(irq, i2c);
->> >
->> > The free_irq() call should also be removed since devm_request_irq() was used.
->> >
->> >> -ereqirq:
->> >> -     clk_disable_unprepare(i2c->clk);
->
-> I think we should keep the clk_disable_unprepare() call.
->
->> >> -     iounmap(i2c->reg_base);
->> >> -eremap:
->> >> -     clk_put(i2c->clk);
->> >> -eclk:
->> >> -     kfree(i2c);
->> >>  emalloc:
->> >>       release_mem_region(res->start, resource_size(res));
->> >> +err_nothing_to_release:
->> >>       return ret;
->> >>  }
->> >>
->> >
->> > Best regards,
->> >
->> > Emil Goode
->>
->> Hi All!
->>
->> Ok, so there is literally nothing to do release anymore.
->> A good system Devres, I understand you want everyone to use it.
->>
->> I also think it is also better to return directly then.
->> But who decides, Wolfram?
->
-> Yes, Wolfram is the maintainer.
->
-> Personally I would do the devm_* convertion in a second patch.
+SMBus block commands are different to I2C block commands since
+the returned data is not normally accessible with byte or word
+commands on other command offsets. Add linked list of 'block'
+commands to support those commands.
 
-Hi
+Access mechanism is quite simple: Block commands must be written
+before they can be read. The first write selects the block length.
+Subsequent writes can be partial. Block read commands always return
+the number of bytes selected with the first write.
 
-Ok then, Wolfram!
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ Documentation/i2c/i2c-stub |  7 +++-
+ drivers/i2c/i2c-stub.c     | 96 ++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 98 insertions(+), 5 deletions(-)
 
-Keep only:
-
-ereqirq:
-     clk_disable_unprepare(i2c->clk);
-
-And let everyone else just return?
-
-
-And Emil, as I said before, it would in that case the first patch just be:
- emalloc:
--       release_mem_region(res->start, resource_size(res));
-+       if(res)
-+               release_mem_region(res->start, resource_size(res));
-
-It is rather pointless to add something in a patch, to remove it in the next.
-
-
-
-Kind regards
-Rickard Strandqvist
+diff --git a/Documentation/i2c/i2c-stub b/Documentation/i2c/i2c-stub
+index fa4b669..8a112cc 100644
+--- a/Documentation/i2c/i2c-stub
++++ b/Documentation/i2c/i2c-stub
+@@ -2,9 +2,9 @@ MODULE: i2c-stub
+ 
+ DESCRIPTION:
+ 
+-This module is a very simple fake I2C/SMBus driver.  It implements five
++This module is a very simple fake I2C/SMBus driver.  It implements six
+ types of SMBus commands: write quick, (r/w) byte, (r/w) byte data, (r/w)
+-word data, and (r/w) I2C block data.
++word data, (r/w) I2C block data, and (r/w) SMBus block data.
+ 
+ You need to provide chip addresses as a module parameter when loading this
+ driver, which will then only react to SMBus commands to these addresses.
+@@ -19,6 +19,9 @@ A pointer register with auto-increment is implemented for all byte
+ operations.  This allows for continuous byte reads like those supported by
+ EEPROMs, among others.
+ 
++SMBus block commands must be written to configure an SMBus command for
++SMBus block operations. The first SMBus block write selects the block length.
++
+ The typical use-case is like this:
+ 	1. load this module
+ 	2. use i2cset (from the i2c-tools project) to pre-load some data
+diff --git a/drivers/i2c/i2c-stub.c b/drivers/i2c/i2c-stub.c
+index 77e4849..e08aa9d 100644
+--- a/drivers/i2c/i2c-stub.c
++++ b/drivers/i2c/i2c-stub.c
+@@ -27,11 +27,12 @@
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
++#include <linux/list.h>
+ 
+ #define MAX_CHIPS 10
+ #define STUB_FUNC (I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE | \
+ 		   I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA | \
+-		   I2C_FUNC_SMBUS_I2C_BLOCK)
++		   I2C_FUNC_SMBUS_I2C_BLOCK | I2C_FUNC_SMBUS_BLOCK_DATA)
+ 
+ static unsigned short chip_addr[MAX_CHIPS];
+ module_param_array(chip_addr, ushort, NULL, S_IRUGO);
+@@ -42,14 +43,44 @@ static unsigned long functionality = STUB_FUNC;
+ module_param(functionality, ulong, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(functionality, "Override functionality bitfield");
+ 
++struct smbus_block_data {
++	struct list_head node;
++	u8 command;
++	u8 len;
++	u8 block[I2C_SMBUS_BLOCK_MAX];
++};
++
+ struct stub_chip {
+ 	u8 pointer;
+ 	u16 words[256];		/* Byte operations use the LSB as per SMBus
+ 				   specification */
++	struct list_head smbus_blocks;
+ };
+ 
+ static struct stub_chip *stub_chips;
+ 
++static struct smbus_block_data *stub_find_block(struct device *dev,
++						struct stub_chip *chip,
++						u8 command, bool create)
++{
++	struct smbus_block_data *b, *rb = NULL;
++
++	list_for_each_entry(b, &chip->smbus_blocks, node) {
++		if (b->command == command) {
++			rb = b;
++			break;
++		}
++	}
++	if (rb == NULL && create) {
++		rb = devm_kzalloc(dev, sizeof(*b), GFP_KERNEL);
++		if (rb == NULL)
++			return rb;
++		rb->command = command;
++		list_add(&rb->node, &chip->smbus_blocks);
++	}
++	return rb;
++}
++
+ /* Return negative errno on error. */
+ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 	char read_write, u8 command, int size, union i2c_smbus_data *data)
+@@ -57,6 +88,7 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 	s32 ret;
+ 	int i, len;
+ 	struct stub_chip *chip = NULL;
++	struct smbus_block_data *b;
+ 
+ 	/* Search for the right chip */
+ 	for (i = 0; i < MAX_CHIPS && chip_addr[i]; i++) {
+@@ -68,6 +100,8 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 	if (!chip)
+ 		return -ENODEV;
+ 
++	b = stub_find_block(&adap->dev, chip, command, false);
++
+ 	switch (size) {
+ 
+ 	case I2C_SMBUS_QUICK:
+@@ -93,13 +127,20 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 
+ 	case I2C_SMBUS_BYTE_DATA:
+ 		if (read_write == I2C_SMBUS_WRITE) {
++			if (b) {
++				ret = -EINVAL;
++				break;
++			}
+ 			chip->words[command] &= 0xff00;
+ 			chip->words[command] |= data->byte;
+ 			dev_dbg(&adap->dev,
+ 				"smbus byte data - addr 0x%02x, wrote 0x%02x at 0x%02x.\n",
+ 				addr, data->byte, command);
+ 		} else {
+-			data->byte = chip->words[command] & 0xff;
++			if (b)
++				data->byte = b->len;
++			else
++				data->byte = chip->words[command] & 0xff;
+ 			dev_dbg(&adap->dev,
+ 				"smbus byte data - addr 0x%02x, read  0x%02x at 0x%02x.\n",
+ 				addr, data->byte, command);
+@@ -111,12 +152,19 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 
+ 	case I2C_SMBUS_WORD_DATA:
+ 		if (read_write == I2C_SMBUS_WRITE) {
++			if (b) {
++				ret = -EINVAL;
++				break;
++			}
+ 			chip->words[command] = data->word;
+ 			dev_dbg(&adap->dev,
+ 				"smbus word data - addr 0x%02x, wrote 0x%04x at 0x%02x.\n",
+ 				addr, data->word, command);
+ 		} else {
+-			data->word = chip->words[command];
++			if (b)
++				data->word = (b->block[0] << 8) | b->len;
++			else
++				data->word = chip->words[command];
+ 			dev_dbg(&adap->dev,
+ 				"smbus word data - addr 0x%02x, read  0x%04x at 0x%02x.\n",
+ 				addr, data->word, command);
+@@ -148,6 +196,46 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 		ret = 0;
+ 		break;
+ 
++	case I2C_SMBUS_BLOCK_DATA:
++		if (read_write == I2C_SMBUS_WRITE) {
++			len = data->block[0];
++			if (len == 0 || len > I2C_SMBUS_BLOCK_MAX ||
++			    (b && len > b->len)) {
++				ret = -EINVAL;
++				break;
++			}
++			if (b == NULL) {
++				b = stub_find_block(&adap->dev, chip, command,
++						    true);
++				if (b == NULL) {
++					ret = -ENOMEM;
++					break;
++				}
++				/* First write sets block length */
++				b->len = len;
++			}
++			for (i = 0; i < len; i++)
++				b->block[i] = data->block[i + 1];
++			dev_dbg(&adap->dev,
++				"smbus block data - addr 0x%02x, wrote %d bytes at 0x%02x.\n",
++				addr, len, command);
++		} else {
++			if (b == NULL) {
++				ret = -EINVAL;
++				break;
++			}
++			len = b->len;
++			data->block[0] = len;
++			for (i = 0; i < len; i++)
++				data->block[i + 1] = b->block[i];
++			dev_dbg(&adap->dev,
++				"smbus block data - addr 0x%02x, read  %d bytes at 0x%02x.\n",
++				addr, len, command);
++		}
++
++		ret = 0;
++		break;
++
+ 	default:
+ 		dev_dbg(&adap->dev, "Unsupported I2C/SMBus command\n");
+ 		ret = -EOPNOTSUPP;
+@@ -199,6 +287,8 @@ static int __init i2c_stub_init(void)
+ 		pr_err("i2c-stub: Out of memory\n");
+ 		return -ENOMEM;
+ 	}
++	for (i--; i >= 0; i--)
++		INIT_LIST_HEAD(&stub_chips[i].smbus_blocks);
+ 
+ 	ret = i2c_add_adapter(&stub_adapter);
+ 	if (ret)
+-- 
+1.9.1
