@@ -1,223 +1,133 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: [PATCH v2] i2c: stub: Add support for SMBus block commands
-Date: Mon,  7 Jul 2014 07:23:03 -0700
-Message-ID: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
+From: Sanford Rockowitz <rockowitz-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
+Subject: ddc/ci over i2c
+Date: Tue, 08 Jul 2014 03:35:39 -0700
+Message-ID: <53BBC97B.5020805@minsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SMBus block commands are different to I2C block commands since
-the returned data is not normally accessible with byte or word
-commands on other command offsets. Add linked list of 'block'
-commands to support those commands.
+I've been trying to use i2c-dev to read and control monitor settings, 
+using the DDC/CI protocol to communicate with address 0x37 on device 
+/dev/i2c-n.  Things are sort of working (details below), But it's not 
+clear to me to what extent I'm hitting real limits, or if I just don't 
+know what I'm doing.  Perhaps I shouldn't even be trying to use i2c-dev 
+for this application.  Advice appreciated. And if there's a more 
+appropriate place to post this question, I'd appreciate hearing that as 
+well.
 
-Access mechanism is quite simple: Block commands must be written
-before they can be read. The first write selects the block length.
-Subsequent writes can be partial. Block read commands always return
-the number of bytes selected with the first write.
+To review: A monitor is accessed via device /dev/i2c-n, created by the 
+video device driver.  EDID data is found by reading address 0x50.  The 
+monitor's settings are read and written at address 0x37.
 
-Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
----
-v2: Make new functionality only available on request via functionality
-    module parameter
-    Add more details about SMBus block mode support to documentation
-    Use correct sizeof() variable in devm_kzalloc
-    Use stub_find_block() only in SMBus block command itself.
-    Store first word of block data in chip->words[].
-    When writing block data and the written data is longer than
-    the first write, bail out with debug message indicating the reason
-    for the error.
+I can communicate with the monitor if either the open-source nouveau or 
+radeon drivers are loaded.  Both support i2c_smbus_read_i2c_block_data() 
+and i2c_smbus_write_i2c_block_data(), which put the right bytes on the 
+wire and handle the ack and nack bits as per the DDC specification. (See 
+documentation file i2c/smbus-protocol.)
 
- Documentation/i2c/i2c-stub |  9 ++++-
- drivers/i2c/i2c-stub.c     | 99 +++++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 101 insertions(+), 7 deletions(-)
+For the nouveau driver running on Fedora 20, "lsmod | grep i2c" reports:
 
-diff --git a/Documentation/i2c/i2c-stub b/Documentation/i2c/i2c-stub
-index fa4b669..531510b 100644
---- a/Documentation/i2c/i2c-stub
-+++ b/Documentation/i2c/i2c-stub
-@@ -2,9 +2,9 @@ MODULE: i2c-stub
- 
- DESCRIPTION:
- 
--This module is a very simple fake I2C/SMBus driver.  It implements five
-+This module is a very simple fake I2C/SMBus driver.  It implements six
- types of SMBus commands: write quick, (r/w) byte, (r/w) byte data, (r/w)
--word data, and (r/w) I2C block data.
-+word data, (r/w) I2C block data, and (r/w) SMBus block data.
- 
- You need to provide chip addresses as a module parameter when loading this
- driver, which will then only react to SMBus commands to these addresses.
-@@ -19,6 +19,11 @@ A pointer register with auto-increment is implemented for all byte
- operations.  This allows for continuous byte reads like those supported by
- EEPROMs, among others.
- 
-+SMBus block commands must be written to configure an SMBus command for
-+SMBus block operations. The first SMBus block write selects the block length.
-+Subsequent writes can be partial. Block read commands always return
-+the number of bytes selected with the first write.
-+
- The typical use-case is like this:
- 	1. load this module
- 	2. use i2cset (from the i2c-tools project) to pre-load some data
-diff --git a/drivers/i2c/i2c-stub.c b/drivers/i2c/i2c-stub.c
-index 77e4849..4fbe565 100644
---- a/drivers/i2c/i2c-stub.c
-+++ b/drivers/i2c/i2c-stub.c
-@@ -27,29 +27,64 @@
- #include <linux/slab.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-+#include <linux/list.h>
- 
- #define MAX_CHIPS 10
--#define STUB_FUNC (I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE | \
--		   I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA | \
--		   I2C_FUNC_SMBUS_I2C_BLOCK)
-+#define STUB_FUNC_DEFAULT \
-+		(I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE | \
-+		 I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA | \
-+		 I2C_FUNC_SMBUS_I2C_BLOCK)
-+
-+#define STUB_FUNC_ALL \
-+		(STUB_FUNC_DEFAULT | I2C_FUNC_SMBUS_BLOCK_DATA)
- 
- static unsigned short chip_addr[MAX_CHIPS];
- module_param_array(chip_addr, ushort, NULL, S_IRUGO);
- MODULE_PARM_DESC(chip_addr,
- 		 "Chip addresses (up to 10, between 0x03 and 0x77)");
- 
--static unsigned long functionality = STUB_FUNC;
-+static unsigned long functionality = STUB_FUNC_DEFAULT;
- module_param(functionality, ulong, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(functionality, "Override functionality bitfield");
- 
-+struct smbus_block_data {
-+	struct list_head node;
-+	u8 command;
-+	u8 len;
-+	u8 block[I2C_SMBUS_BLOCK_MAX];
-+};
-+
- struct stub_chip {
- 	u8 pointer;
- 	u16 words[256];		/* Byte operations use the LSB as per SMBus
- 				   specification */
-+	struct list_head smbus_blocks;
- };
- 
- static struct stub_chip *stub_chips;
- 
-+static struct smbus_block_data *stub_find_block(struct device *dev,
-+						struct stub_chip *chip,
-+						u8 command, bool create)
-+{
-+	struct smbus_block_data *b, *rb = NULL;
-+
-+	list_for_each_entry(b, &chip->smbus_blocks, node) {
-+		if (b->command == command) {
-+			rb = b;
-+			break;
-+		}
-+	}
-+	if (rb == NULL && create) {
-+		rb = devm_kzalloc(dev, sizeof(*rb), GFP_KERNEL);
-+		if (rb == NULL)
-+			return rb;
-+		rb->command = command;
-+		list_add(&rb->node, &chip->smbus_blocks);
-+	}
-+	return rb;
-+}
-+
- /* Return negative errno on error. */
- static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
- 	char read_write, u8 command, int size, union i2c_smbus_data *data)
-@@ -57,6 +92,7 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
- 	s32 ret;
- 	int i, len;
- 	struct stub_chip *chip = NULL;
-+	struct smbus_block_data *b;
- 
- 	/* Search for the right chip */
- 	for (i = 0; i < MAX_CHIPS && chip_addr[i]; i++) {
-@@ -148,6 +184,57 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
- 		ret = 0;
- 		break;
- 
-+	case I2C_SMBUS_BLOCK_DATA:
-+		b = stub_find_block(&adap->dev, chip, command, false);
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			len = data->block[0];
-+			if (len == 0 || len > I2C_SMBUS_BLOCK_MAX) {
-+				ret = -EINVAL;
-+				break;
-+			}
-+			if (b && len > b->len) {
-+				dev_dbg(&adap->dev,
-+					"Attempt to write more data (%d) than with initial SMBus block write (%d)\n",
-+					len, b->len);
-+				ret = -EINVAL;
-+				break;
-+			}
-+			if (b == NULL) {
-+				b = stub_find_block(&adap->dev, chip, command,
-+						    true);
-+				if (b == NULL) {
-+					ret = -ENOMEM;
-+					break;
-+				}
-+				/* First write sets block length */
-+				b->len = len;
-+			}
-+			for (i = 0; i < len; i++)
-+				b->block[i] = data->block[i + 1];
-+			/* update for byte and word commands */
-+			chip->words[command] = (b->block[0] << 8) | b->len;
-+			dev_dbg(&adap->dev,
-+				"smbus block data - addr 0x%02x, wrote %d bytes at 0x%02x.\n",
-+				addr, len, command);
-+		} else {
-+			if (b == NULL) {
-+				dev_dbg(&adap->dev,
-+					"SMBus block read command without prior block write not supported\n");
-+				ret = -EOPNOTSUPP;
-+				break;
-+			}
-+			len = b->len;
-+			data->block[0] = len;
-+			for (i = 0; i < len; i++)
-+				data->block[i + 1] = b->block[i];
-+			dev_dbg(&adap->dev,
-+				"smbus block data - addr 0x%02x, read  %d bytes at 0x%02x.\n",
-+				addr, len, command);
-+		}
-+
-+		ret = 0;
-+		break;
-+
- 	default:
- 		dev_dbg(&adap->dev, "Unsupported I2C/SMBus command\n");
- 		ret = -EOPNOTSUPP;
-@@ -159,7 +246,7 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
- 
- static u32 stub_func(struct i2c_adapter *adapter)
- {
--	return STUB_FUNC & functionality;
-+	return STUB_FUNC_ALL & functionality;
- }
- 
- static const struct i2c_algorithm smbus_algorithm = {
-@@ -199,6 +286,8 @@ static int __init i2c_stub_init(void)
- 		pr_err("i2c-stub: Out of memory\n");
- 		return -ENOMEM;
- 	}
-+	for (i--; i >= 0; i--)
-+		INIT_LIST_HEAD(&stub_chips[i].smbus_blocks);
- 
- 	ret = i2c_add_adapter(&stub_adapter);
- 	if (ret)
--- 
-1.9.1
+i2c_piix4              22155  0
+i2c_algo_bit           13257  1 nouveau
+i2c_dev                14027  0
+i2c_core               38656  6 
+drm,i2c_dev,i2c_piix4,drm_kms_helper,i2c_algo_bit,nouveau
+
+
+Here's a simplified example (minimal error checking) of how I'm reading 
+the monitor's brightness setting:
+
+    int fh = open("/dev/i2c-0",  O_NONBLOCK|O_RDWR);
+    ioctl(fh, I2C_SLAVE, 0x37);
+
+    unsigned char zeroByte = 0x00;
+    write(fh, &zeroByte, 1);   // seems to be necessary to reset monitor 
+state
+
+    unsigned char ddc_cmd_bytes[] = {
+       0x6e,              // address 0x37, shifted left 1 bit
+       0x51,              // source address
+       0x02 | 0x80,       // number of DDC data bytes, with high bit set
+       0x01,              // DDC Get Feature Command
+       0x10,              // Feature, Luminosity
+       0x00,              // checksum, to be set
+    };
+    ddc_cmd_bytes[5] = ddc_checksum(ddc_cmd_bytes, 5);    // calculate 
+DDC checksum on all bytes
+    i2c_smbus_write_i2c_block_data(fh, ddc_cmd_bytes[1], 
+sizeof(ddc_cmd_bytes)-2, ddc_cmd_bytes+2);
+    // alt: write(fh, ddc_cmd_bytes+1, sizeof(ddc_cmd_bytes)-1); // see 
+below
+    usleep(5000);
+
+    unsigned char ddc_response_bytes[12];
+    unsigned char cmd_byte = 0x00;   // apparently ignored, can be anything
+    i2c_smbus_read_i2c_block_data(fh, cmd_byte, 11, readbuf+1);
+    // alt read(fh, readbuf+1, 11);   // see below
+    ddc_response_bytes[0] = 0x50;     // for proper checksum calculation
+    int calculated_checksum = ddc_checksum(readbuf, 11);
+    assert(readbuf[11] == calculated_checksum);
+    int response_len = ddc_response_bytes[2] & 0x7f;       // always 8 
+for DDC Get Value response
+    // now parse the response data
+
+
+When issuing the DDC get feature command (code 0x01), a fixed data block 
+of 12 data bytes is returned as shown above (as counted from the 
+i2c_cmsbus_read_i2c_block_data() perspective. However, the DDC Get 
+Capabilities request (0xf3), can return up to 39 bytes (fixed DDC data 
+of 7 bytes plus a "fragment" of up to 32 bytes, depending on the monitor 
+being communicated with.).   This is greater than the 32 byte max data 
+size supported by i2c_smbus_read_i2c_block_data() (constant 
+I2C_SMBUS_I2C_BLOCK_MAX in i2c-dev.h).  And indeed, I've seen 
+i2c_smbus_read_i2c_block_data() return truncated responses.
+
+Now things get interesting.
+
+Simply using write() and read() seems to work, when the 
+i2c_smbus_..._i2c_block_data() calls in the above code are replaced by 
+the commented out write() and read() lines.  So apparently apparently 
+write() and read() are handling the algorithm bits (start, top, ack, 
+nack) properly.
+
+
+Now come the key questions:
+
+Am I just getting lucky here, or is the i2c_dev driver (or one of the 
+drivers it calls) really doing the right thing for managing the 
+algorithm bits for the i2c DDC protocol?
+
+Is there a better way to use lower level services in i2c-dev?
+
+Should I really be writing a device driver?
+
+
+Finally, the proprietary video drivers.
+
+The proprietary nvidia driver creates the /dev/i2c-n devices.  I can 
+read the monitor EDID information on bus address 0x50. and get the 
+functionality flags using ioctl I2C_FUNCS.   Functions 
+ic2_smbus_read_i2c_block_data() and is2_smbus_write_i2c_block_data() are 
+not supported (flags I2C_FUNC_SMBUS_READ_I2C_BLOCK and 
+I2C_FUNC_SMBUS_WRITE_I2C_BLOCK are not set).  Attempting to call these 
+functions fails with errno=22 (EINVAL - invalid argument) if module 
+i2c_algo_bit has not been loaded, and errno=5 (EIO - IO Error) if it has.
+
+Trying to use write() and read() as described above also fails. write() 
+appears to succeed, but read() returns invalid data.
+
+Appendix F of the Nvidia driver README discusses i2c support.  It 
+appears to be quite dated, referring to the 2.4 and 2.6 kernels. 
+According to this document, only the following functionality is 
+supported, which would be consistent with what I've seen: I2C_FUNC_I2C, 
+I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_BYTE, I2C_FUNC_SMBUS_BYTE_DATA, 
+I2C_FUNC_SMBUS_WORD_DATA
+
+
+As for the proprietary fglrx driver, it doesn't even create the 
+/dev/i2c-n devices.   End of story.
