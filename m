@@ -1,133 +1,63 @@
-From: Sanford Rockowitz <rockowitz-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
-Subject: ddc/ci over i2c
-Date: Tue, 08 Jul 2014 03:35:39 -0700
-Message-ID: <53BBC97B.5020805@minsoft.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] i2c: stub: Add support for SMBus block commands
+Date: Tue, 8 Jul 2014 21:54:53 +0200
+Message-ID: <20140708215453.0677d3ed@endymion.delvare>
+References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Randy Dunlap <rdunlap@infradead.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I've been trying to use i2c-dev to read and control monitor settings, 
-using the DDC/CI protocol to communicate with address 0x37 on device 
-/dev/i2c-n.  Things are sort of working (details below), But it's not 
-clear to me to what extent I'm hitting real limits, or if I just don't 
-know what I'm doing.  Perhaps I shouldn't even be trying to use i2c-dev 
-for this application.  Advice appreciated. And if there's a more 
-appropriate place to post this question, I'd appreciate hearing that as 
-well.
+Hi Guenter,
 
-To review: A monitor is accessed via device /dev/i2c-n, created by the 
-video device driver.  EDID data is found by reading address 0x50.  The 
-monitor's settings are read and written at address 0x37.
+On Mon,  7 Jul 2014 07:23:03 -0700, Guenter Roeck wrote:
+> SMBus block commands are different to I2C block commands since
+> the returned data is not normally accessible with byte or word
+> commands on other command offsets. Add linked list of 'block'
+> commands to support those commands.
+> 
+> Access mechanism is quite simple: Block commands must be written
+> before they can be read. The first write selects the block length.
+> Subsequent writes can be partial. Block read commands always return
+> the number of bytes selected with the first write.
+> 
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> v2: Make new functionality only available on request via functionality
+>     module parameter
+>     Add more details about SMBus block mode support to documentation
+>     Use correct sizeof() variable in devm_kzalloc
+>     Use stub_find_block() only in SMBus block command itself.
+>     Store first word of block data in chip->words[].
+>     When writing block data and the written data is longer than
+>     the first write, bail out with debug message indicating the reason
+>     for the error.
 
-I can communicate with the monitor if either the open-source nouveau or 
-radeon drivers are loaded.  Both support i2c_smbus_read_i2c_block_data() 
-and i2c_smbus_write_i2c_block_data(), which put the right bytes on the 
-wire and handle the ack and nack bits as per the DDC specification. (See 
-documentation file i2c/smbus-protocol.)
+Looks good, thanks for the quick update.
 
-For the nouveau driver running on Fedora 20, "lsmod | grep i2c" reports:
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-i2c_piix4              22155  0
-i2c_algo_bit           13257  1 nouveau
-i2c_dev                14027  0
-i2c_core               38656  6 
-drm,i2c_dev,i2c_piix4,drm_kms_helper,i2c_algo_bit,nouveau
+Just one thing I have been thinking about while reviewing the updated
+code... You decided to make the first SMBus block write select the
+maximum block length, and you always use that for SMBus block reads.
+However you accept partial writes. The fact that the order in which
+writes are performed has an effect on which writes are accepted is
+somewhat unexpected.
 
+Wouldn't it make more sense to accept all SMBus block writes,
+regardless of the size (as long as it is within the limits of the SMBus
+standard, of course)? Then the only thing left to decide is whether
+SMBus block reads use the maximum size or the size of the most recent
+SMBus block write.
 
-Here's a simplified example (minimal error checking) of how I'm reading 
-the monitor's brightness setting:
+I suspect this would mimic the behavior of real chips better. What do
+you think?
 
-    int fh = open("/dev/i2c-0",  O_NONBLOCK|O_RDWR);
-    ioctl(fh, I2C_SLAVE, 0x37);
-
-    unsigned char zeroByte = 0x00;
-    write(fh, &zeroByte, 1);   // seems to be necessary to reset monitor 
-state
-
-    unsigned char ddc_cmd_bytes[] = {
-       0x6e,              // address 0x37, shifted left 1 bit
-       0x51,              // source address
-       0x02 | 0x80,       // number of DDC data bytes, with high bit set
-       0x01,              // DDC Get Feature Command
-       0x10,              // Feature, Luminosity
-       0x00,              // checksum, to be set
-    };
-    ddc_cmd_bytes[5] = ddc_checksum(ddc_cmd_bytes, 5);    // calculate 
-DDC checksum on all bytes
-    i2c_smbus_write_i2c_block_data(fh, ddc_cmd_bytes[1], 
-sizeof(ddc_cmd_bytes)-2, ddc_cmd_bytes+2);
-    // alt: write(fh, ddc_cmd_bytes+1, sizeof(ddc_cmd_bytes)-1); // see 
-below
-    usleep(5000);
-
-    unsigned char ddc_response_bytes[12];
-    unsigned char cmd_byte = 0x00;   // apparently ignored, can be anything
-    i2c_smbus_read_i2c_block_data(fh, cmd_byte, 11, readbuf+1);
-    // alt read(fh, readbuf+1, 11);   // see below
-    ddc_response_bytes[0] = 0x50;     // for proper checksum calculation
-    int calculated_checksum = ddc_checksum(readbuf, 11);
-    assert(readbuf[11] == calculated_checksum);
-    int response_len = ddc_response_bytes[2] & 0x7f;       // always 8 
-for DDC Get Value response
-    // now parse the response data
-
-
-When issuing the DDC get feature command (code 0x01), a fixed data block 
-of 12 data bytes is returned as shown above (as counted from the 
-i2c_cmsbus_read_i2c_block_data() perspective. However, the DDC Get 
-Capabilities request (0xf3), can return up to 39 bytes (fixed DDC data 
-of 7 bytes plus a "fragment" of up to 32 bytes, depending on the monitor 
-being communicated with.).   This is greater than the 32 byte max data 
-size supported by i2c_smbus_read_i2c_block_data() (constant 
-I2C_SMBUS_I2C_BLOCK_MAX in i2c-dev.h).  And indeed, I've seen 
-i2c_smbus_read_i2c_block_data() return truncated responses.
-
-Now things get interesting.
-
-Simply using write() and read() seems to work, when the 
-i2c_smbus_..._i2c_block_data() calls in the above code are replaced by 
-the commented out write() and read() lines.  So apparently apparently 
-write() and read() are handling the algorithm bits (start, top, ack, 
-nack) properly.
-
-
-Now come the key questions:
-
-Am I just getting lucky here, or is the i2c_dev driver (or one of the 
-drivers it calls) really doing the right thing for managing the 
-algorithm bits for the i2c DDC protocol?
-
-Is there a better way to use lower level services in i2c-dev?
-
-Should I really be writing a device driver?
-
-
-Finally, the proprietary video drivers.
-
-The proprietary nvidia driver creates the /dev/i2c-n devices.  I can 
-read the monitor EDID information on bus address 0x50. and get the 
-functionality flags using ioctl I2C_FUNCS.   Functions 
-ic2_smbus_read_i2c_block_data() and is2_smbus_write_i2c_block_data() are 
-not supported (flags I2C_FUNC_SMBUS_READ_I2C_BLOCK and 
-I2C_FUNC_SMBUS_WRITE_I2C_BLOCK are not set).  Attempting to call these 
-functions fails with errno=22 (EINVAL - invalid argument) if module 
-i2c_algo_bit has not been loaded, and errno=5 (EIO - IO Error) if it has.
-
-Trying to use write() and read() as described above also fails. write() 
-appears to succeed, but read() returns invalid data.
-
-Appendix F of the Nvidia driver README discusses i2c support.  It 
-appears to be quite dated, referring to the 2.4 and 2.6 kernels. 
-According to this document, only the following functionality is 
-supported, which would be consistent with what I've seen: I2C_FUNC_I2C, 
-I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_BYTE, I2C_FUNC_SMBUS_BYTE_DATA, 
-I2C_FUNC_SMBUS_WORD_DATA
-
-
-As for the proprietary fglrx driver, it doesn't even create the 
-/dev/i2c-n devices.   End of story.
+-- 
+Jean Delvare
+SUSE L3 Support
