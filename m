@@ -1,211 +1,346 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: scx200: drop GPIO based i2c driver
-Date: Wed,  9 Jul 2014 16:27:09 +0200
-Message-ID: <1404916029-3319-1-git-send-email-wsa@the-dreams.de>
+From: Sanford Rockowitz <rockowitz-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: ddc/ci over i2c
+Date: Wed, 09 Jul 2014 09:31:29 -0700
+Message-ID: <53BD6E61.8070101@minsoft.com>
+References: <53BBC97B.5020805@minsoft.com> <20140709002017.4c2b332e@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140709002017.4c2b332e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This driver is marked as deprecated since the pre-git era. Any user
-left(?) should really have switched to i2c-gpio meanwhile.
+On 07/08/2014 03:20 PM, Jean Delvare wrote:
+> Hi Sanford,
+>
+> On Tue, 08 Jul 2014 03:35:39 -0700, Sanford Rockowitz wrote:
+>> I've been trying to use i2c-dev to read and control monitor settings,
+>> using the DDC/CI protocol to communicate with address 0x37 on device
+>> /dev/i2c-n.  Things are sort of working (details below), But it's not
+>> clear to me to what extent I'm hitting real limits, or if I just don't
+>> know what I'm doing.  Perhaps I shouldn't even be trying to use i2c-dev
+>> for this application.
+> i2c-dev should work fine for what you're doing.
+Jean,
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- drivers/i2c/busses/Kconfig      |  31 ----------
- drivers/i2c/busses/Makefile     |   1 -
- drivers/i2c/busses/scx200_i2c.c | 129 ----------------------------------------
- 3 files changed, 161 deletions(-)
- delete mode 100644 drivers/i2c/busses/scx200_i2c.c
+Thank you for your detailed reply.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d25dd120c011..0a8a5bba4ef9 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1008,37 +1008,6 @@ config I2C_CROS_EC_TUNNEL
- 	  connected there. This will work whatever the interface used to
- 	  talk to the EC (SPI, I2C or LPC).
- 
--config SCx200_I2C
--	tristate "NatSemi SCx200 I2C using GPIO pins (DEPRECATED)"
--	depends on SCx200_GPIO
--	select I2C_ALGOBIT
--	help
--	  Enable the use of two GPIO pins of a SCx200 processor as an I2C bus.
--
--	  If you don't know what to do here, say N.
--
--	  This support is also available as a module.  If so, the module
--	  will be called scx200_i2c.
--
--	  This driver is deprecated and will be dropped soon. Use i2c-gpio
--	  (or scx200_acb) instead.
--
--config SCx200_I2C_SCL
--	int "GPIO pin used for SCL"
--	depends on SCx200_I2C
--	default "12"
--	help
--	  Enter the GPIO pin number used for the SCL signal.  This value can
--	  also be specified with a module parameter.
--
--config SCx200_I2C_SDA
--	int "GPIO pin used for SDA"
--	depends on SCx200_I2C
--	default "13"
--	help
--	  Enter the GPIO pin number used for the SSA signal.  This value can
--	  also be specified with a module parameter.
--
- config SCx200_ACB
- 	tristate "Geode ACCESS.bus support"
- 	depends on X86_32 && PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 1958b490105e..49bf07e5ef4d 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -100,6 +100,5 @@ obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
- obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
- obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
- obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
--obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
- 
- ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-diff --git a/drivers/i2c/busses/scx200_i2c.c b/drivers/i2c/busses/scx200_i2c.c
-deleted file mode 100644
-index 8eadf0f47ad7..000000000000
---- a/drivers/i2c/busses/scx200_i2c.c
-+++ /dev/null
-@@ -1,129 +0,0 @@
--/* linux/drivers/i2c/busses/scx200_i2c.c
--
--   Copyright (c) 2001,2002 Christer Weinigel <wingel-3fS8vhTtDhfL9ATBNaCtXw@public.gmane.org>
--
--   National Semiconductor SCx200 I2C bus on GPIO pins
--
--   Based on i2c-velleman.c Copyright (C) 1995-96, 2000 Simon G. Vogl
--
--   This program is free software; you can redistribute it and/or modify
--   it under the terms of the GNU General Public License as published by
--   the Free Software Foundation; either version 2 of the License, or
--   (at your option) any later version.
--   
--   This program is distributed in the hope that it will be useful,
--   but WITHOUT ANY WARRANTY; without even the implied warranty of
--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--   GNU General Public License for more details.
--   
--   You should have received a copy of the GNU General Public License
--   along with this program; if not, write to the Free Software
--   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.		     
--*/
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/module.h>
--#include <linux/errno.h>
--#include <linux/kernel.h>
--#include <linux/i2c.h>
--#include <linux/i2c-algo-bit.h>
--#include <linux/io.h>
--
--#include <linux/scx200_gpio.h>
--
--MODULE_AUTHOR("Christer Weinigel <wingel-3fS8vhTtDhfL9ATBNaCtXw@public.gmane.org>");
--MODULE_DESCRIPTION("NatSemi SCx200 I2C Driver");
--MODULE_LICENSE("GPL");
--
--static int scl = CONFIG_SCx200_I2C_SCL;
--static int sda = CONFIG_SCx200_I2C_SDA;
--
--module_param(scl, int, 0);
--MODULE_PARM_DESC(scl, "GPIO line for SCL");
--module_param(sda, int, 0);
--MODULE_PARM_DESC(sda, "GPIO line for SDA");
--
--static void scx200_i2c_setscl(void *data, int state)
--{
--	scx200_gpio_set(scl, state);
--}
--
--static void scx200_i2c_setsda(void *data, int state)
--{
--	scx200_gpio_set(sda, state);
--} 
--
--static int scx200_i2c_getscl(void *data)
--{
--	return scx200_gpio_get(scl);
--}
--
--static int scx200_i2c_getsda(void *data)
--{
--	return scx200_gpio_get(sda);
--}
--
--/* ------------------------------------------------------------------------
-- * Encapsulate the above functions in the correct operations structure.
-- * This is only done when more than one hardware adapter is supported.
-- */
--
--static struct i2c_algo_bit_data scx200_i2c_data = {
--	.setsda		= scx200_i2c_setsda,
--	.setscl		= scx200_i2c_setscl,
--	.getsda		= scx200_i2c_getsda,
--	.getscl		= scx200_i2c_getscl,
--	.udelay		= 10,
--	.timeout	= HZ,
--};
--
--static struct i2c_adapter scx200_i2c_ops = {
--	.owner		   = THIS_MODULE,
--	.class             = I2C_CLASS_HWMON | I2C_CLASS_SPD,
--	.algo_data	   = &scx200_i2c_data,
--	.name	= "NatSemi SCx200 I2C",
--};
--
--static int scx200_i2c_init(void)
--{
--	pr_debug("NatSemi SCx200 I2C Driver\n");
--
--	if (!scx200_gpio_present()) {
--		pr_err("no SCx200 gpio pins available\n");
--		return -ENODEV;
--	}
--
--	pr_debug("SCL=GPIO%02u, SDA=GPIO%02u\n", scl, sda);
--
--	if (scl == -1 || sda == -1 || scl == sda) {
--		pr_err("scl and sda must be specified\n");
--		return -EINVAL;
--	}
--
--	/* Configure GPIOs as open collector outputs */
--	scx200_gpio_configure(scl, ~2, 5);
--	scx200_gpio_configure(sda, ~2, 5);
--
--	if (i2c_bit_add_bus(&scx200_i2c_ops) < 0) {
--		pr_err("adapter %s registration failed\n", scx200_i2c_ops.name);
--		return -ENODEV;
--	}
--	
--	return 0;
--}
--
--static void scx200_i2c_cleanup(void)
--{
--	i2c_del_adapter(&scx200_i2c_ops);
--}
--
--module_init(scx200_i2c_init);
--module_exit(scx200_i2c_cleanup);
--
--/*
--    Local variables:
--        compile-command: "make -k -C ../.. SUBDIRS=drivers/i2c modules"
--        c-basic-offset: 8
--    End:
--*/
--- 
-2.0.0
+First, a description of the DDC/CI protocol, which will probably be 
+clearer than splitting the information up into snippets on individual 
+comments.
+
+The DDC/CI protocol is defined in VESA document DDC/CI Standard 1.1, 
+file name ddcciv1r1.pdf.  An earlier version 1.0, file name ddcciv1.pdf, 
+is less clear, but it does have a number of comments that clarify 
+behaviour of the protocol.  The actual commands that are transmitted 
+over DDC/CI are detailed in the VESA Monitor Control Command Set (MCCS) 
+document, file name mccsV3.pdf.  These files can be a bit hard to 
+locate, but googling the file names finds them readily.
+
+The I2C bus notation used in the DDC/CI specification is as follows:
+
+S         Start bit                    Generated by the master to start 
+communication (bus becomes busy)
+XX       Data byte, hex        Made of 8 data bits, may be sent or 
+received by the master
+a          Acknowledge bit     Sent in the opposite direction of the 
+data bits
+n          Non acknowledge bit   Signals the end of the data transfer, a 
+stop bit should follow
+                               to free the bus.
+P          Stop bit                    Signals the end of the 
+communication, bus becomes free
+CHK     Checksum               XOR of preceding bytes
+CHK'    Checksum               Checksum computed using the 0x50h virtual 
+address
+VCP     VCP code                 Virtual Control Panel feature code (1 
+byte, e.g. 0x10 for Luminosity)
+
+DDC/CI Get VCP Feature and VCP Feature Reply is defined as follows.
+
+The following sequence is written by the host:
+
+S-6Ea-51a-82a-01a-CPa-CHKa-P
+
+Where:
+    6E     Destination address
+    51     Source address
+    82     number of data bytes following (not including checksum) XOR 0x80
+    01     Get VCP Feature opcode
+    CP     VCP Feature code (10h for luminosity)
+
+The display responds with:
+
+S-6Fa-6Ea-88a-02a-RCa-CPa-TPa-MHa-MLa-SHa-SLa-CHK'n-P
+
+Where:
+    6F    Destination address
+    6E    Source address
+    88    number of data bytes following (not including checksum) XOR 0x80
+    02    VCP Feature reply opcode
+    RC    Result code, 00=No Error
+    CP    VCP Feature code from Feature Request message (10h for luminosity)
+    TP     VCP type code (will be 00h for Luminosity)
+    MH   Max value high byte
+    ML    Max value low byte
+    SH    Present value high byte
+    SL     Present Value low byte
+>> Advice appreciated. And if there's a more
+>> appropriate place to post this question, I'd appreciate hearing that as
+>> well.
+>>
+>> To review: A monitor is accessed via device /dev/i2c-n, created by the
+>> video device driver.  EDID data is found by reading address 0x50.  The
+>> monitor's settings are read and written at address 0x37.
+>>
+>> I can communicate with the monitor if either the open-source nouveau or
+>> radeon drivers are loaded.  Both support i2c_smbus_read_i2c_block_data()
+>> and i2c_smbus_write_i2c_block_data(), which put the right bytes on the
+>> wire and handle the ack and nack bits as per the DDC specification. (See
+>> documentation file i2c/smbus-protocol.)
+>>
+>> For the nouveau driver running on Fedora 20, "lsmod | grep i2c" reports:
+>>
+>> i2c_piix4              22155  0
+>> i2c_algo_bit           13257  1 nouveau
+>> i2c_dev                14027  0
+>> i2c_core               38656  6
+>> drm,i2c_dev,i2c_piix4,drm_kms_helper,i2c_algo_bit,nouveau
+>>
+>>
+>> Here's a simplified example (minimal error checking) of how I'm reading
+>> the monitor's brightness setting:
+>>
+>>      int fh = open("/dev/i2c-0",  O_NONBLOCK|O_RDWR);
+> Out of curiosity, why O_NONBLOCK?
+No good reason.  O_NONBLOCK is the result of copy and paste from some 
+blog post when I was first trying to get things to work.  I've 
+eliminated the flag, and program execution is unaffected.
+
+>>      ioctl(fh, I2C_SLAVE, 0x37);
+>>
+>>      unsigned char zeroByte = 0x00;
+>>      write(fh, &zeroByte, 1);   // seems to be necessary to reset monitor state
+>>
+>>      unsigned char ddc_cmd_bytes[] = {
+>>         0x6e,              // address 0x37, shifted left 1 bit
+>>         0x51,              // source address
+>>         0x02 | 0x80,       // number of DDC data bytes, with high bit set
+>>         0x01,              // DDC Get Feature Command
+>>         0x10,              // Feature, Luminosity
+>>         0x00,              // checksum, to be set
+>>      };
+>>      ddc_cmd_bytes[5] = ddc_checksum(ddc_cmd_bytes, 5);    // calculate DDC checksum on all bytes
+>>      i2c_smbus_write_i2c_block_data(fh, ddc_cmd_bytes[1], sizeof(ddc_cmd_bytes)-2, ddc_cmd_bytes+2);
+>>      // alt: write(fh, ddc_cmd_bytes+1, sizeof(ddc_cmd_bytes)-1); // see  below
+> Yes, that would be equivalent, because there is no direction change for
+> I2C block writes.
+>
+>>      usleep(5000);
+>>
+>>      unsigned char ddc_response_bytes[12];
+>>      unsigned char cmd_byte = 0x00;   // apparently ignored, can be anything
+>>      i2c_smbus_read_i2c_block_data(fh, cmd_byte, 11, readbuf+1);
+>>      // alt read(fh, readbuf+1, 11);   // see below
+> I don't know the DDC/CI protocol so I can't tell how you are supposed
+> to read the response, but I can tell you that
+> i2c_smbus_read_i2c_block_data and read are not equivalent.
+> i2c_smbus_read_i2c_block_data first writes a command bytes, then
+> there's a direction change (a.k.a. restart condition in I2C dialect)
+> and then data is read from the chip. read, OTOH, reads data from the
+> chip directly.
+>
+> But the fact that the command byte is ignored, would be compatible with
+> your theory that both are equivalent.
+
+As described in the DDC spec above, a DDC exchange is a write of several 
+bytes, followed by a read of several bytes.  There's no direction change 
+within the read.
+
+I didn't include code for parsing the response because doing it right 
+would just add detail irrelevant to getting the I2C calls right.
+>>      ddc_response_bytes[0] = 0x50;     // for proper checksum calculation
+>>      int calculated_checksum = ddc_checksum(readbuf, 11);
+>>      assert(readbuf[11] == calculated_checksum);
+>>      int response_len = ddc_response_bytes[2] & 0x7f;       // always 8 for DDC Get Value response
+>>      // now parse the response data
+>>
+>>
+>> When issuing the DDC get feature command (code 0x01), a fixed data block
+>> of 12 data bytes is returned as shown above (as counted from the
+>> i2c_cmsbus_read_i2c_block_data() perspective.
+> Your code reads 11 data bytes, not 12.
+
+Correct.  A bit of sloppy exposition.   I had to stand on my head three 
+times over and look sideways to properly mung
+the DDC spec into the i2c-dev calls.  From the DDC perspective, 1 more 
+byte is written and read than are written and read using write(), 
+read(), i2c_smbus_write_i2c_block_data(), etc.  Byte 0 of a DDC request 
+or response is implicit (the result of ioctl(fh, I2C_SLAVE, 0x37);) but 
+from a DDC perspective you need to think of it as being there for the 
+checksums to be properly calculated.
+>
+>> However, the DDC Get
+>> Capabilities request (0xf3), can return up to 39 bytes (fixed DDC data
+>> of 7 bytes plus a "fragment" of up to 32 bytes, depending on the monitor
+>> being communicated with.).   This is greater than the 32 byte max data
+>> size supported by i2c_smbus_read_i2c_block_data() (constant
+>> I2C_SMBUS_I2C_BLOCK_MAX in i2c-dev.h).  And indeed, I've seen
+>> i2c_smbus_read_i2c_block_data() return truncated responses.
+> The 32 bytes limit is inherited from SMBus block limits. In practice,
+> i2c_smbus_read/write_i2c_block_data is useful with SMBus controllers
+> which can't do full I2C but implement these functions. If you need to
+> go beyond this limit then your code won't work on simple SMBus
+> controllers so you shouldn't use i2c_smbus_read_i2c_block_data, instead
+> you should use the I2C_RDRW ioctl. See eepromer/eeprom.c in i2c-tools
+> for an example.
+>
+>> Now things get interesting.
+>>
+>> Simply using write() and read() seems to work, when the
+>> i2c_smbus_..._i2c_block_data() calls in the above code are replaced by
+>> the commented out write() and read() lines.  So apparently apparently
+>> write() and read() are handling the algorithm bits (start, top, ack,
+>> nack) properly.
+> Yes, write and read are fully I2C compliant. What they can't do is
+> direction changes in the middle of a message. Maybe DDC/CI doesn't
+> require that, I don't know. I could never get my hands on the
+> specification.
+
+As noted, a DDC exchange is write/read sequence of 2 separate messages 
+(or in some cases a simple write). Each write or read begins with a 
+start bit and ends with a stop bit.  So if I understand your terminology 
+correctly, there's no direction change within a message.
+
+Spec location noted above.
+>
+>> Now come the key questions:
+>>
+>> Am I just getting lucky here, or is the i2c_dev driver (or one of the
+>> drivers it calls) really doing the right thing for managing the
+>> algorithm bits for the i2c DDC protocol?
+> Well your code looks mostly sane. It's hard for me to tell if it is
+> fully correct without seeing the DDC/CI specification.
+>
+>> Is there a better way to use lower level services in i2c-dev?
+> If DDC/CI needs direction changes inside messages, then you should use
+> the I2C_RDWD ioctl. If not then you're OK with read and write.
+>
+>> Should I really be writing a device driver?
+> You could but then you would have to define a user interface. Which
+> might be good anyway. i2c-dev requires root capabilities while ideally
+> regular users should be able to change the contrast and brightness of
+> the display. But presumably this should all go through X11 anyway.
+
+Some context of why I'm doing this may be appropriate here.  This 
+project came about because of my interest in monitor profiling and 
+calibration.  A monitor calibration is relative to the current monitor 
+settings for luminosity, contrast, color temperature, etc. Setting a 
+profile only makes sense if you know that the monitor settings are 
+unchanged from when you made the profile.  Currently in Linux, the only 
+way to do this is leave the buttons on the monitor untouched.   None of 
+the major profiling tools - dispcal, dispcalGUI, colord, oyranos - 
+record or restore the monitor settings.  At most they can give you 
+advice on how to adjust the physical monitor controls to obtain the 
+desired color temperature. There once was a program to manage monitor 
+settings, ddccontrol, but it hasn't been maintained and has been dropped 
+from distros.  When I enquired about this on the color lists, the gist 
+of the responses was that it was too hard to do because the DDC spec was 
+inconsistently implemented across monitors.  I decided to try to come up 
+with a solution that works for at least MY set of monitors. Basically, 
+at the time of monitor calibration, the program records whatever color 
+related settings exist for the monitor, and can then restore those 
+settings when the profile is set.   Interestingly, the variation among 
+monitor implementations has proven quite manageable.  Almost all the 
+effort has gone into getting DDC over I2C right.  At this point, it 
+appears that the biggest obstacle to a general solution comes from the 
+proprietary drivers.
+>> Finally, the proprietary video drivers.
+>>
+>> The proprietary nvidia driver creates the /dev/i2c-n devices.  I can
+>> read the monitor EDID information on bus address 0x50. and get the
+>> functionality flags using ioctl I2C_FUNCS.   Functions
+>> ic2_smbus_read_i2c_block_data() and is2_smbus_write_i2c_block_data() are
+>> not supported (flags I2C_FUNC_SMBUS_READ_I2C_BLOCK and
+>> I2C_FUNC_SMBUS_WRITE_I2C_BLOCK are not set).  Attempting to call these
+>> functions fails with errno=22 (EINVAL - invalid argument) if module
+>> i2c_algo_bit has not been loaded, and errno=5 (EIO - IO Error) if it has.
+> Hard to comment without seeing the code, and I don't want to see it.
+> But I suppose that the binary driver is taking benefit of hardware I2C
+> controllers inside the graphics chipset, while the open source drivers
+> are doing everything in software using i2c-algo-bit over GPIOs. Hardware
+> implementations are faster and more reliable, but possibly less
+> flexible. It is also possible that the hardware can do more than the
+> drivers allows but Nvidia did not bother implementing full support.
+>
+>> Trying to use write() and read() as described above also fails. write()
+>> appears to succeed, but read() returns invalid data.
+> Again, can't comment on that without seeing the driver code.
+>
+>> Appendix F of the Nvidia driver README discusses i2c support.  It
+>> appears to be quite dated, referring to the 2.4 and 2.6 kernels.
+> That doesn't necessarily mean much, 2.6 == 3.x in many respects.
+>
+>> According to this document, only the following functionality is
+>> supported, which would be consistent with what I've seen: I2C_FUNC_I2C,
+>> I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_BYTE, I2C_FUNC_SMBUS_BYTE_DATA,
+>> I2C_FUNC_SMBUS_WORD_DATA
+> I would trust the output of i2cdetect -F more than the documentation.
+
+With the proprietary nvidia driver loaded,  i2cdetect -F 0 reports:
+
+Functionalities implemented by /dev/i2c-0:
+I2C                              yes
+SMBus Quick Command              yes
+SMBus Send Byte                  yes
+SMBus Receive Byte               yes
+SMBus Write Byte                 yes
+SMBus Read Byte                  yes
+SMBus Write Word                 yes
+SMBus Read Word                  yes
+SMBus Process Call               no
+SMBus Block Write                no
+SMBus Block Read                 no
+SMBus Block Process Call         no
+SMBus PEC                        no
+I2C Block Write                  no
+I2C Block Read                   no
+
+
+This is (unsurprisingly) consistent with what I get calling ioctl I2C_FUNCS.
+
+>
+> This suggests that the driver authors were lazy and/or did something
+> stupid. A driver that can do I2C_FUNC_I2C, can do most SMBus transfers,
+> including I2C block transfers (which despite the name are close to
+> SMBus transfers.)
+>
+> OTOH, if the driver really supports I2C_FUNC_I2C then the I2C_RDWR
+> ioctl should do the trick. But I wouldn't hope too much, because then
+> read and write should also work, when your experiments apparently show
+> they do not.
+As a first test case, I just replaced the write() call with ioctl 
+I2C_RDWR.  It works for nouveau, and fails with errno=5 (EIO) for the 
+proprietary nvidia driver.  I don't think there's any reason to believer 
+other uses of ioctl I2C_RDWR will fare better.
+
+As for the proprietary fglrx driver, it doesn't even create the
+/dev/i2c-n devices.   End of story.
+
+> Correct :(
+>
+
+So I think the bottom line from this exchange is as follows:
+
+1) Use write() and read().  They really are doing the right thing. 
+Forget about i2c_smbus_write/read_block_data().
+
+2) It's time to head over to a nvidia forum to explore why the code 
+doesn't work with the proprietary driver.  Maybe there's a work around, 
+or maybe I can light a fire under the nvidia developers.
+
+Thanks again,
+Sanford
