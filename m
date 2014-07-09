@@ -1,212 +1,575 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: ddc/ci over i2c
-Date: Wed, 9 Jul 2014 00:20:17 +0200
-Message-ID: <20140709002017.4c2b332e@endymion.delvare>
-References: <53BBC97B.5020805@minsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH] i2c: s6000: remove duplicate driver
+Date: Wed,  9 Jul 2014 16:25:23 +0200
+Message-ID: <1404915923-3278-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53BBC97B.5020805-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sanford Rockowitz <rockowitz-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sanford,
+It turned out that the s6000 simply has a designware IP core and should
+use the designated driver for it which is way more maintained and
+feature complete. There are currently no users in tree, and not even a
+toolchain for s6000 seems to be available. So, simply remove this
+duplicate. If someone needs assistance in converting to the designware
+driver, the i2c list will be there to help.
 
-On Tue, 08 Jul 2014 03:35:39 -0700, Sanford Rockowitz wrote:
-> I've been trying to use i2c-dev to read and control monitor settings, 
-> using the DDC/CI protocol to communicate with address 0x37 on device 
-> /dev/i2c-n.  Things are sort of working (details below), But it's not 
-> clear to me to what extent I'm hitting real limits, or if I just don't 
-> know what I'm doing.  Perhaps I shouldn't even be trying to use i2c-dev 
-> for this application.
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig     |  10 -
+ drivers/i2c/busses/Makefile    |   1 -
+ drivers/i2c/busses/i2c-s6000.c | 404 -----------------------------------------
+ drivers/i2c/busses/i2c-s6000.h |  79 --------
+ include/linux/i2c/s6000.h      |  10 -
+ 5 files changed, 504 deletions(-)
+ delete mode 100644 drivers/i2c/busses/i2c-s6000.c
+ delete mode 100644 drivers/i2c/busses/i2c-s6000.h
+ delete mode 100644 include/linux/i2c/s6000.h
 
-i2c-dev should work fine for what you're doing. 
-
-> Advice appreciated. And if there's a more 
-> appropriate place to post this question, I'd appreciate hearing that as 
-> well.
-> 
-> To review: A monitor is accessed via device /dev/i2c-n, created by the 
-> video device driver.  EDID data is found by reading address 0x50.  The 
-> monitor's settings are read and written at address 0x37.
-> 
-> I can communicate with the monitor if either the open-source nouveau or 
-> radeon drivers are loaded.  Both support i2c_smbus_read_i2c_block_data() 
-> and i2c_smbus_write_i2c_block_data(), which put the right bytes on the 
-> wire and handle the ack and nack bits as per the DDC specification. (See 
-> documentation file i2c/smbus-protocol.)
-> 
-> For the nouveau driver running on Fedora 20, "lsmod | grep i2c" reports:
-> 
-> i2c_piix4              22155  0
-> i2c_algo_bit           13257  1 nouveau
-> i2c_dev                14027  0
-> i2c_core               38656  6 
-> drm,i2c_dev,i2c_piix4,drm_kms_helper,i2c_algo_bit,nouveau
-> 
-> 
-> Here's a simplified example (minimal error checking) of how I'm reading 
-> the monitor's brightness setting:
-> 
->     int fh = open("/dev/i2c-0",  O_NONBLOCK|O_RDWR);
-
-Out of curiosity, why O_NONBLOCK?
-
->     ioctl(fh, I2C_SLAVE, 0x37);
-> 
->     unsigned char zeroByte = 0x00;
->     write(fh, &zeroByte, 1);   // seems to be necessary to reset monitor state
-> 
->     unsigned char ddc_cmd_bytes[] = {
->        0x6e,              // address 0x37, shifted left 1 bit
->        0x51,              // source address
->        0x02 | 0x80,       // number of DDC data bytes, with high bit set
->        0x01,              // DDC Get Feature Command
->        0x10,              // Feature, Luminosity
->        0x00,              // checksum, to be set
->     };
->     ddc_cmd_bytes[5] = ddc_checksum(ddc_cmd_bytes, 5);    // calculate DDC checksum on all bytes
->     i2c_smbus_write_i2c_block_data(fh, ddc_cmd_bytes[1], sizeof(ddc_cmd_bytes)-2, ddc_cmd_bytes+2);
->     // alt: write(fh, ddc_cmd_bytes+1, sizeof(ddc_cmd_bytes)-1); // see  below
-
-Yes, that would be equivalent, because there is no direction change for
-I2C block writes.
-
->     usleep(5000);
-> 
->     unsigned char ddc_response_bytes[12];
->     unsigned char cmd_byte = 0x00;   // apparently ignored, can be anything
->     i2c_smbus_read_i2c_block_data(fh, cmd_byte, 11, readbuf+1);
->     // alt read(fh, readbuf+1, 11);   // see below
-
-I don't know the DDC/CI protocol so I can't tell how you are supposed
-to read the response, but I can tell you that
-i2c_smbus_read_i2c_block_data and read are not equivalent.
-i2c_smbus_read_i2c_block_data first writes a command bytes, then
-there's a direction change (a.k.a. restart condition in I2C dialect)
-and then data is read from the chip. read, OTOH, reads data from the
-chip directly.
-
-But the fact that the command byte is ignored, would be compatible with
-your theory that both are equivalent.
-
->     ddc_response_bytes[0] = 0x50;     // for proper checksum calculation
->     int calculated_checksum = ddc_checksum(readbuf, 11);
->     assert(readbuf[11] == calculated_checksum);
->     int response_len = ddc_response_bytes[2] & 0x7f;       // always 8 for DDC Get Value response
->     // now parse the response data
-> 
-> 
-> When issuing the DDC get feature command (code 0x01), a fixed data block 
-> of 12 data bytes is returned as shown above (as counted from the 
-> i2c_cmsbus_read_i2c_block_data() perspective.
-
-Your code reads 11 data bytes, not 12.
-
-> However, the DDC Get 
-> Capabilities request (0xf3), can return up to 39 bytes (fixed DDC data 
-> of 7 bytes plus a "fragment" of up to 32 bytes, depending on the monitor 
-> being communicated with.).   This is greater than the 32 byte max data 
-> size supported by i2c_smbus_read_i2c_block_data() (constant 
-> I2C_SMBUS_I2C_BLOCK_MAX in i2c-dev.h).  And indeed, I've seen 
-> i2c_smbus_read_i2c_block_data() return truncated responses.
-
-The 32 bytes limit is inherited from SMBus block limits. In practice,
-i2c_smbus_read/write_i2c_block_data is useful with SMBus controllers
-which can't do full I2C but implement these functions. If you need to
-go beyond this limit then your code won't work on simple SMBus
-controllers so you shouldn't use i2c_smbus_read_i2c_block_data, instead
-you should use the I2C_RDRW ioctl. See eepromer/eeprom.c in i2c-tools
-for an example.
-
-> Now things get interesting.
-> 
-> Simply using write() and read() seems to work, when the 
-> i2c_smbus_..._i2c_block_data() calls in the above code are replaced by 
-> the commented out write() and read() lines.  So apparently apparently 
-> write() and read() are handling the algorithm bits (start, top, ack, 
-> nack) properly.
-
-Yes, write and read are fully I2C compliant. What they can't do is
-direction changes in the middle of a message. Maybe DDC/CI doesn't
-require that, I don't know. I could never get my hands on the
-specification.
-
-> Now come the key questions:
-> 
-> Am I just getting lucky here, or is the i2c_dev driver (or one of the 
-> drivers it calls) really doing the right thing for managing the 
-> algorithm bits for the i2c DDC protocol?
-
-Well your code looks mostly sane. It's hard for me to tell if it is
-fully correct without seeing the DDC/CI specification.
-
-> Is there a better way to use lower level services in i2c-dev?
-
-If DDC/CI needs direction changes inside messages, then you should use
-the I2C_RDWD ioctl. If not then you're OK with read and write.
-
-> Should I really be writing a device driver?
-
-You could but then you would have to define a user interface. Which
-might be good anyway. i2c-dev requires root capabilities while ideally
-regular users should be able to change the contrast and brightness of
-the display. But presumably this should all go through X11 anyway.
-
-> Finally, the proprietary video drivers.
-> 
-> The proprietary nvidia driver creates the /dev/i2c-n devices.  I can 
-> read the monitor EDID information on bus address 0x50. and get the 
-> functionality flags using ioctl I2C_FUNCS.   Functions 
-> ic2_smbus_read_i2c_block_data() and is2_smbus_write_i2c_block_data() are 
-> not supported (flags I2C_FUNC_SMBUS_READ_I2C_BLOCK and 
-> I2C_FUNC_SMBUS_WRITE_I2C_BLOCK are not set).  Attempting to call these 
-> functions fails with errno=22 (EINVAL - invalid argument) if module 
-> i2c_algo_bit has not been loaded, and errno=5 (EIO - IO Error) if it has.
-
-Hard to comment without seeing the code, and I don't want to see it.
-But I suppose that the binary driver is taking benefit of hardware I2C
-controllers inside the graphics chipset, while the open source drivers
-are doing everything in software using i2c-algo-bit over GPIOs. Hardware
-implementations are faster and more reliable, but possibly less
-flexible. It is also possible that the hardware can do more than the
-drivers allows but Nvidia did not bother implementing full support.
-
-> Trying to use write() and read() as described above also fails. write() 
-> appears to succeed, but read() returns invalid data.
-
-Again, can't comment on that without seeing the driver code.
-
-> Appendix F of the Nvidia driver README discusses i2c support.  It 
-> appears to be quite dated, referring to the 2.4 and 2.6 kernels. 
-
-That doesn't necessarily mean much, 2.6 == 3.x in many respects.
-
-> According to this document, only the following functionality is 
-> supported, which would be consistent with what I've seen: I2C_FUNC_I2C, 
-> I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_BYTE, I2C_FUNC_SMBUS_BYTE_DATA, 
-> I2C_FUNC_SMBUS_WORD_DATA
-
-I would trust the output of i2cdetect -F more than the documentation.
-
-This suggests that the driver authors were lazy and/or did something
-stupid. A driver that can do I2C_FUNC_I2C, can do most SMBus transfers,
-including I2C block transfers (which despite the name are close to
-SMBus transfers.)
-
-OTOH, if the driver really supports I2C_FUNC_I2C then the I2C_RDWR
-ioctl should do the trick. But I wouldn't hope too much, because then
-read and write should also work, when your experiments apparently show
-they do not.
-
-> As for the proprietary fglrx driver, it doesn't even create the 
-> /dev/i2c-n devices.   End of story.
-
-Correct :(
-
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 9f7d5859cf65..d25dd120c011 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -700,16 +700,6 @@ config I2C_S3C2410
+ 	  Say Y here to include support for I2C controller in the
+ 	  Samsung SoCs.
+ 
+-config I2C_S6000
+-	tristate "S6000 I2C support"
+-	depends on XTENSA_VARIANT_S6000
+-	help
+-	  This driver supports the on chip I2C device on the
+-	  S6000 xtensa processor family.
+-
+-	  To compile this driver as a module, choose M here. The module
+-	  will be called i2c-s6000.
+-
+ config I2C_SH7760
+ 	tristate "Renesas SH7760 I2C Controller"
+ 	depends on CPU_SUBTYPE_SH7760
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index dd9a7f8e873f..1958b490105e 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -68,7 +68,6 @@ obj-$(CONFIG_I2C_QUP)		+= i2c-qup.o
+ obj-$(CONFIG_I2C_RIIC)		+= i2c-riic.o
+ obj-$(CONFIG_I2C_RK3X)		+= i2c-rk3x.o
+ obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
+-obj-$(CONFIG_I2C_S6000)		+= i2c-s6000.o
+ obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
+ obj-$(CONFIG_I2C_SH_MOBILE)	+= i2c-sh_mobile.o
+ obj-$(CONFIG_I2C_SIMTEC)	+= i2c-simtec.o
+diff --git a/drivers/i2c/busses/i2c-s6000.c b/drivers/i2c/busses/i2c-s6000.c
+deleted file mode 100644
+index dd186a037684..000000000000
+--- a/drivers/i2c/busses/i2c-s6000.c
++++ /dev/null
+@@ -1,404 +0,0 @@
+-/*
+- * drivers/i2c/busses/i2c-s6000.c
+- *
+- * Description: Driver for S6000 Family I2C Interface
+- * Copyright (c) 2008 emlix GmbH
+- * Author:	Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
+- *
+- * Partially based on i2c-bfin-twi.c driver by <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+- * Copyright (c) 2005-2007 Analog Devices, Inc.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA
+- */
+-
+-#include <linux/clk.h>
+-#include <linux/err.h>
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/delay.h>
+-#include <linux/i2c.h>
+-#include <linux/i2c/s6000.h>
+-#include <linux/timer.h>
+-#include <linux/spinlock.h>
+-#include <linux/completion.h>
+-#include <linux/interrupt.h>
+-#include <linux/platform_device.h>
+-#include <linux/io.h>
+-
+-#include "i2c-s6000.h"
+-
+-#define DRV_NAME "i2c-s6000"
+-
+-#define POLL_TIMEOUT	(2 * HZ)
+-
+-struct s6i2c_if {
+-	u8 __iomem		*reg; /* memory mapped registers */
+-	int			irq;
+-	spinlock_t		lock;
+-	struct i2c_msg		*msgs; /* messages currently handled */
+-	int			msgs_num; /* nb of msgs to do */
+-	int			msgs_push; /* nb of msgs read/written */
+-	int			msgs_done; /* nb of msgs finally handled */
+-	unsigned		push; /* nb of bytes read/written in msg */
+-	unsigned		done; /* nb of bytes finally handled */
+-	int			timeout_count; /* timeout retries left */
+-	struct timer_list	timeout_timer;
+-	struct i2c_adapter	adap;
+-	struct completion	complete;
+-	struct clk		*clk;
+-	struct resource		*res;
+-};
+-
+-static inline u16 i2c_rd16(struct s6i2c_if *iface, unsigned n)
+-{
+-	return readw(iface->reg + (n));
+-}
+-
+-static inline void i2c_wr16(struct s6i2c_if *iface, unsigned n, u16 v)
+-{
+-	writew(v, iface->reg + (n));
+-}
+-
+-static inline u32 i2c_rd32(struct s6i2c_if *iface, unsigned n)
+-{
+-	return readl(iface->reg + (n));
+-}
+-
+-static inline void i2c_wr32(struct s6i2c_if *iface, unsigned n, u32 v)
+-{
+-	writel(v, iface->reg + (n));
+-}
+-
+-static struct s6i2c_if s6i2c_if;
+-
+-static void s6i2c_handle_interrupt(struct s6i2c_if *iface)
+-{
+-	if (i2c_rd16(iface, S6_I2C_INTRSTAT) & (1 << S6_I2C_INTR_TXABRT)) {
+-		i2c_rd16(iface, S6_I2C_CLRTXABRT);
+-		i2c_wr16(iface, S6_I2C_INTRMASK, 0);
+-		complete(&iface->complete);
+-		return;
+-	}
+-	if (iface->msgs_done >= iface->msgs_num) {
+-		dev_err(&iface->adap.dev, "s6i2c: spurious I2C irq: %04x\n",
+-			i2c_rd16(iface, S6_I2C_INTRSTAT));
+-		i2c_wr16(iface, S6_I2C_INTRMASK, 0);
+-		return;
+-	}
+-	while ((iface->msgs_push < iface->msgs_num)
+-	    && (i2c_rd16(iface, S6_I2C_STATUS) & (1 << S6_I2C_STATUS_TFNF))) {
+-		struct i2c_msg *m = &iface->msgs[iface->msgs_push];
+-		if (!(m->flags & I2C_M_RD))
+-			i2c_wr16(iface, S6_I2C_DATACMD, m->buf[iface->push]);
+-		else
+-			i2c_wr16(iface, S6_I2C_DATACMD,
+-				 1 << S6_I2C_DATACMD_READ);
+-		if (++iface->push >= m->len) {
+-			iface->push = 0;
+-			iface->msgs_push += 1;
+-		}
+-	}
+-	do {
+-		struct i2c_msg *m = &iface->msgs[iface->msgs_done];
+-		if (!(m->flags & I2C_M_RD)) {
+-			if (iface->msgs_done < iface->msgs_push)
+-				iface->msgs_done += 1;
+-			else
+-				break;
+-		} else if (i2c_rd16(iface, S6_I2C_STATUS)
+-				& (1 << S6_I2C_STATUS_RFNE)) {
+-			m->buf[iface->done] = i2c_rd16(iface, S6_I2C_DATACMD);
+-			if (++iface->done >= m->len) {
+-				iface->done = 0;
+-				iface->msgs_done += 1;
+-			}
+-		} else{
+-			break;
+-		}
+-	} while (iface->msgs_done < iface->msgs_num);
+-	if (iface->msgs_done >= iface->msgs_num) {
+-		i2c_wr16(iface, S6_I2C_INTRMASK, 1 << S6_I2C_INTR_TXABRT);
+-		complete(&iface->complete);
+-	} else if (iface->msgs_push >= iface->msgs_num) {
+-		i2c_wr16(iface, S6_I2C_INTRMASK, (1 << S6_I2C_INTR_TXABRT) |
+-						 (1 << S6_I2C_INTR_RXFULL));
+-	} else {
+-		i2c_wr16(iface, S6_I2C_INTRMASK, (1 << S6_I2C_INTR_TXABRT) |
+-						 (1 << S6_I2C_INTR_TXEMPTY) |
+-						 (1 << S6_I2C_INTR_RXFULL));
+-	}
+-}
+-
+-static irqreturn_t s6i2c_interrupt_entry(int irq, void *dev_id)
+-{
+-	struct s6i2c_if *iface = dev_id;
+-	if (!(i2c_rd16(iface, S6_I2C_STATUS) & ((1 << S6_I2C_INTR_RXUNDER)
+-					      | (1 << S6_I2C_INTR_RXOVER)
+-					      | (1 << S6_I2C_INTR_RXFULL)
+-					      | (1 << S6_I2C_INTR_TXOVER)
+-					      | (1 << S6_I2C_INTR_TXEMPTY)
+-					      | (1 << S6_I2C_INTR_RDREQ)
+-					      | (1 << S6_I2C_INTR_TXABRT)
+-					      | (1 << S6_I2C_INTR_RXDONE)
+-					      | (1 << S6_I2C_INTR_ACTIVITY)
+-					      | (1 << S6_I2C_INTR_STOPDET)
+-					      | (1 << S6_I2C_INTR_STARTDET)
+-					      | (1 << S6_I2C_INTR_GENCALL))))
+-		return IRQ_NONE;
+-
+-	spin_lock(&iface->lock);
+-	del_timer(&iface->timeout_timer);
+-	s6i2c_handle_interrupt(iface);
+-	spin_unlock(&iface->lock);
+-	return IRQ_HANDLED;
+-}
+-
+-static void s6i2c_timeout(unsigned long data)
+-{
+-	struct s6i2c_if *iface = (struct s6i2c_if *)data;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&iface->lock, flags);
+-	s6i2c_handle_interrupt(iface);
+-	if (--iface->timeout_count > 0) {
+-		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-		add_timer(&iface->timeout_timer);
+-	} else {
+-		complete(&iface->complete);
+-		i2c_wr16(iface, S6_I2C_INTRMASK, 0);
+-	}
+-	spin_unlock_irqrestore(&iface->lock, flags);
+-}
+-
+-static int s6i2c_master_xfer(struct i2c_adapter *adap,
+-				struct i2c_msg *msgs, int num)
+-{
+-	struct s6i2c_if *iface = adap->algo_data;
+-	int i;
+-	if (num == 0)
+-		return 0;
+-	if (i2c_rd16(iface, S6_I2C_STATUS) & (1 << S6_I2C_STATUS_ACTIVITY))
+-		yield();
+-	i2c_wr16(iface, S6_I2C_INTRMASK, 0);
+-	i2c_rd16(iface, S6_I2C_CLRINTR);
+-	for (i = 0; i < num; i++) {
+-		if (msgs[i].flags & I2C_M_TEN) {
+-			dev_err(&adap->dev,
+-				"s6i2c: 10 bits addr not supported\n");
+-			return -EINVAL;
+-		}
+-		if (msgs[i].len == 0) {
+-			dev_err(&adap->dev,
+-				"s6i2c: zero length message not supported\n");
+-			return -EINVAL;
+-		}
+-		if (msgs[i].addr != msgs[0].addr) {
+-			dev_err(&adap->dev,
+-				"s6i2c: multiple xfer cannot change target\n");
+-			return -EINVAL;
+-		}
+-	}
+-
+-	iface->msgs = msgs;
+-	iface->msgs_num = num;
+-	iface->msgs_push = 0;
+-	iface->msgs_done = 0;
+-	iface->push = 0;
+-	iface->done = 0;
+-	iface->timeout_count = 10;
+-	i2c_wr16(iface, S6_I2C_TAR, msgs[0].addr);
+-	i2c_wr16(iface, S6_I2C_ENABLE, 1);
+-	i2c_wr16(iface, S6_I2C_INTRMASK, (1 << S6_I2C_INTR_TXEMPTY) |
+-					 (1 << S6_I2C_INTR_TXABRT));
+-
+-	iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-	add_timer(&iface->timeout_timer);
+-	wait_for_completion(&iface->complete);
+-	del_timer_sync(&iface->timeout_timer);
+-	while (i2c_rd32(iface, S6_I2C_TXFLR) > 0)
+-		schedule();
+-	while (i2c_rd16(iface, S6_I2C_STATUS) & (1 << S6_I2C_STATUS_ACTIVITY))
+-		schedule();
+-
+-	i2c_wr16(iface, S6_I2C_INTRMASK, 0);
+-	i2c_wr16(iface, S6_I2C_ENABLE, 0);
+-	return iface->msgs_done;
+-}
+-
+-static u32 s6i2c_functionality(struct i2c_adapter *adap)
+-{
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+-}
+-
+-static struct i2c_algorithm s6i2c_algorithm = {
+-	.master_xfer   = s6i2c_master_xfer,
+-	.functionality = s6i2c_functionality,
+-};
+-
+-static u16 nanoseconds_on_clk(struct s6i2c_if *iface, u32 ns)
+-{
+-	u32 dividend = ((clk_get_rate(iface->clk) / 1000) * ns) / 1000000;
+-	if (dividend > 0xffff)
+-		return 0xffff;
+-	return dividend;
+-}
+-
+-static int s6i2c_probe(struct platform_device *dev)
+-{
+-	struct s6i2c_if *iface = &s6i2c_if;
+-	struct i2c_adapter *p_adap;
+-	const char *clock;
+-	int bus_num, rc;
+-	spin_lock_init(&iface->lock);
+-	init_completion(&iface->complete);
+-	iface->irq = platform_get_irq(dev, 0);
+-	if (iface->irq < 0) {
+-		rc = iface->irq;
+-		goto err_out;
+-	}
+-	iface->res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	if (!iface->res) {
+-		rc = -ENXIO;
+-		goto err_out;
+-	}
+-	iface->res = request_mem_region(iface->res->start,
+-					resource_size(iface->res),
+-					dev->dev.bus_id);
+-	if (!iface->res) {
+-		rc = -EBUSY;
+-		goto err_out;
+-	}
+-	iface->reg = ioremap_nocache(iface->res->start,
+-				     resource_size(iface->res));
+-	if (!iface->reg) {
+-		rc = -ENOMEM;
+-		goto err_reg;
+-	}
+-
+-	clock = 0;
+-	bus_num = -1;
+-	if (dev_get_platdata(&dev->dev)) {
+-		struct s6_i2c_platform_data *pdata =
+-			dev_get_platdata(&dev->dev);
+-		bus_num = pdata->bus_num;
+-		clock = pdata->clock;
+-	}
+-	iface->clk = clk_get(&dev->dev, clock);
+-	if (IS_ERR(iface->clk)) {
+-		rc = PTR_ERR(iface->clk);
+-		goto err_map;
+-	}
+-	rc = clk_enable(iface->clk);
+-	if (rc < 0)
+-		goto err_clk_put;
+-	init_timer(&iface->timeout_timer);
+-	iface->timeout_timer.function = s6i2c_timeout;
+-	iface->timeout_timer.data = (unsigned long)iface;
+-
+-	p_adap = &iface->adap;
+-	strlcpy(p_adap->name, dev->name, sizeof(p_adap->name));
+-	p_adap->algo = &s6i2c_algorithm;
+-	p_adap->algo_data = iface;
+-	p_adap->nr = bus_num;
+-	p_adap->class = 0;
+-	p_adap->dev.parent = &dev->dev;
+-	i2c_wr16(iface, S6_I2C_INTRMASK, 0);
+-	rc = request_irq(iface->irq, s6i2c_interrupt_entry,
+-			 IRQF_SHARED, dev->name, iface);
+-	if (rc) {
+-		dev_err(&p_adap->dev, "s6i2c: can't get IRQ %d\n", iface->irq);
+-		goto err_clk_dis;
+-	}
+-
+-	i2c_wr16(iface, S6_I2C_ENABLE, 0);
+-	udelay(1);
+-	i2c_wr32(iface, S6_I2C_SRESET, 1 << S6_I2C_SRESET_IC_SRST);
+-	i2c_wr16(iface, S6_I2C_CLRTXABRT, 1);
+-	i2c_wr16(iface, S6_I2C_CON,
+-			(1 << S6_I2C_CON_MASTER) |
+-			(S6_I2C_CON_SPEED_NORMAL << S6_I2C_CON_SPEED) |
+-			(0 << S6_I2C_CON_10BITSLAVE) |
+-			(0 << S6_I2C_CON_10BITMASTER) |
+-			(1 << S6_I2C_CON_RESTARTENA) |
+-			(1 << S6_I2C_CON_SLAVEDISABLE));
+-	i2c_wr16(iface, S6_I2C_SSHCNT, nanoseconds_on_clk(iface, 4000));
+-	i2c_wr16(iface, S6_I2C_SSLCNT, nanoseconds_on_clk(iface, 4700));
+-	i2c_wr16(iface, S6_I2C_FSHCNT, nanoseconds_on_clk(iface, 600));
+-	i2c_wr16(iface, S6_I2C_FSLCNT, nanoseconds_on_clk(iface, 1300));
+-	i2c_wr16(iface, S6_I2C_RXTL, 0);
+-	i2c_wr16(iface, S6_I2C_TXTL, 0);
+-
+-	platform_set_drvdata(dev, iface);
+-	rc = i2c_add_numbered_adapter(p_adap);
+-	if (rc)
+-		goto err_irq_free;
+-	return 0;
+-
+-err_irq_free:
+-	free_irq(iface->irq, iface);
+-err_clk_dis:
+-	clk_disable(iface->clk);
+-err_clk_put:
+-	clk_put(iface->clk);
+-err_map:
+-	iounmap(iface->reg);
+-err_reg:
+-	release_mem_region(iface->res->start,
+-			   resource_size(iface->res));
+-err_out:
+-	return rc;
+-}
+-
+-static int s6i2c_remove(struct platform_device *pdev)
+-{
+-	struct s6i2c_if *iface = platform_get_drvdata(pdev);
+-	i2c_wr16(iface, S6_I2C_ENABLE, 0);
+-	i2c_del_adapter(&iface->adap);
+-	free_irq(iface->irq, iface);
+-	clk_disable(iface->clk);
+-	clk_put(iface->clk);
+-	iounmap(iface->reg);
+-	release_mem_region(iface->res->start,
+-			   resource_size(iface->res));
+-	return 0;
+-}
+-
+-static struct platform_driver s6i2c_driver = {
+-	.probe		= s6i2c_probe,
+-	.remove		= s6i2c_remove,
+-	.driver		= {
+-		.name	= DRV_NAME,
+-		.owner	= THIS_MODULE,
+-	},
+-};
+-
+-static int __init s6i2c_init(void)
+-{
+-	pr_info("I2C: S6000 I2C driver\n");
+-	return platform_driver_register(&s6i2c_driver);
+-}
+-
+-static void __exit s6i2c_exit(void)
+-{
+-	platform_driver_unregister(&s6i2c_driver);
+-}
+-
+-MODULE_DESCRIPTION("I2C-Bus adapter routines for S6000 I2C");
+-MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:" DRV_NAME);
+-
+-subsys_initcall(s6i2c_init);
+-module_exit(s6i2c_exit);
+diff --git a/drivers/i2c/busses/i2c-s6000.h b/drivers/i2c/busses/i2c-s6000.h
+deleted file mode 100644
+index 4936f9f2256f..000000000000
+--- a/drivers/i2c/busses/i2c-s6000.h
++++ /dev/null
+@@ -1,79 +0,0 @@
+-/*
+- * drivers/i2c/busses/i2c-s6000.h
+- *
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- *
+- * Copyright (C) 2008 Emlix GmbH <info-QdrG9jWwCLEAvxtiuMwx3w@public.gmane.org>
+- * Author:	Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
+- */
+-
+-#ifndef __DRIVERS_I2C_BUSSES_I2C_S6000_H
+-#define __DRIVERS_I2C_BUSSES_I2C_S6000_H
+-
+-#define S6_I2C_CON		0x000
+-#define S6_I2C_CON_MASTER		0
+-#define S6_I2C_CON_SPEED		1
+-#define S6_I2C_CON_SPEED_NORMAL			1
+-#define S6_I2C_CON_SPEED_FAST			2
+-#define S6_I2C_CON_SPEED_MASK			3
+-#define S6_I2C_CON_10BITSLAVE		3
+-#define S6_I2C_CON_10BITMASTER		4
+-#define S6_I2C_CON_RESTARTENA		5
+-#define S6_I2C_CON_SLAVEDISABLE		6
+-#define S6_I2C_TAR		0x004
+-#define S6_I2C_TAR_GCORSTART		10
+-#define S6_I2C_TAR_SPECIAL		11
+-#define S6_I2C_SAR		0x008
+-#define S6_I2C_HSMADDR		0x00C
+-#define S6_I2C_DATACMD		0x010
+-#define S6_I2C_DATACMD_READ		8
+-#define S6_I2C_SSHCNT		0x014
+-#define S6_I2C_SSLCNT		0x018
+-#define S6_I2C_FSHCNT		0x01C
+-#define S6_I2C_FSLCNT		0x020
+-#define S6_I2C_INTRSTAT		0x02C
+-#define S6_I2C_INTRMASK		0x030
+-#define S6_I2C_RAWINTR		0x034
+-#define S6_I2C_INTR_RXUNDER		0
+-#define S6_I2C_INTR_RXOVER		1
+-#define S6_I2C_INTR_RXFULL		2
+-#define S6_I2C_INTR_TXOVER		3
+-#define S6_I2C_INTR_TXEMPTY		4
+-#define S6_I2C_INTR_RDREQ		5
+-#define S6_I2C_INTR_TXABRT		6
+-#define S6_I2C_INTR_RXDONE		7
+-#define S6_I2C_INTR_ACTIVITY		8
+-#define S6_I2C_INTR_STOPDET		9
+-#define S6_I2C_INTR_STARTDET		10
+-#define S6_I2C_INTR_GENCALL		11
+-#define S6_I2C_RXTL		0x038
+-#define S6_I2C_TXTL		0x03C
+-#define S6_I2C_CLRINTR		0x040
+-#define S6_I2C_CLRRXUNDER	0x044
+-#define S6_I2C_CLRRXOVER	0x048
+-#define S6_I2C_CLRTXOVER	0x04C
+-#define S6_I2C_CLRRDREQ		0x050
+-#define S6_I2C_CLRTXABRT	0x054
+-#define S6_I2C_CLRRXDONE	0x058
+-#define S6_I2C_CLRACTIVITY	0x05C
+-#define S6_I2C_CLRSTOPDET	0x060
+-#define S6_I2C_CLRSTARTDET	0x064
+-#define S6_I2C_CLRGENCALL	0x068
+-#define S6_I2C_ENABLE		0x06C
+-#define S6_I2C_STATUS		0x070
+-#define S6_I2C_STATUS_ACTIVITY		0
+-#define S6_I2C_STATUS_TFNF		1
+-#define S6_I2C_STATUS_TFE		2
+-#define S6_I2C_STATUS_RFNE		3
+-#define S6_I2C_STATUS_RFF		4
+-#define S6_I2C_TXFLR		0x074
+-#define S6_I2C_RXFLR		0x078
+-#define S6_I2C_SRESET		0x07C
+-#define S6_I2C_SRESET_IC_SRST		0
+-#define S6_I2C_SRESET_IC_MASTER_SRST	1
+-#define S6_I2C_SRESET_IC_SLAVE_SRST	2
+-#define S6_I2C_TXABRTSOURCE	0x080
+-
+-#endif
+diff --git a/include/linux/i2c/s6000.h b/include/linux/i2c/s6000.h
+deleted file mode 100644
+index d9b34bfdae76..000000000000
+--- a/include/linux/i2c/s6000.h
++++ /dev/null
+@@ -1,10 +0,0 @@
+-#ifndef __LINUX_I2C_S6000_H
+-#define __LINUX_I2C_S6000_H
+-
+-struct s6_i2c_platform_data {
+-	const char *clock; /* the clock to use */
+-	int bus_num; /* the bus number to register */
+-};
+-
+-#endif
+-
 -- 
-Jean Delvare
-SUSE L3 Support
+2.0.0
