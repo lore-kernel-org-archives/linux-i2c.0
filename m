@@ -1,13 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 16/16] i2c: i2c-xiic: Drop class based scanning to improve bootup time
-Date: Thu, 10 Jul 2014 13:46:36 +0200
-Message-ID: <1404992799-3705-17-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 12/16] i2c: i2c-s3c2410: Drop class based scanning to improve bootup time
+Date: Thu, 10 Jul 2014 13:46:32 +0200
+Message-ID: <1404992799-3705-13-git-send-email-wsa@the-dreams.de>
 References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 This driver has been flagged to drop class based instantiation. The removal
@@ -20,34 +20,28 @@ such things always break after some time.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-xiic.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 7731f1795869..ade9223912d3 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -677,15 +677,15 @@ static u32 xiic_func(struct i2c_adapter *adap)
- }
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index e828a1dba0e5..6252c051525a 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1128,11 +1128,11 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		s3c24xx_i2c_parse_dt(pdev->dev.of_node, i2c);
  
- static const struct i2c_algorithm xiic_algorithm = {
--	.master_xfer	= xiic_xfer,
--	.functionality	= xiic_func,
-+	.master_xfer = xiic_xfer,
-+	.functionality = xiic_func,
- };
+ 	strlcpy(i2c->adap.name, "s3c2410-i2c", sizeof(i2c->adap.name));
+-	i2c->adap.owner   = THIS_MODULE;
+-	i2c->adap.algo    = &s3c24xx_i2c_algorithm;
++	i2c->adap.owner = THIS_MODULE;
++	i2c->adap.algo = &s3c24xx_i2c_algorithm;
+ 	i2c->adap.retries = 2;
+-	i2c->adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD | I2C_CLASS_DEPRECATED;
+-	i2c->tx_setup     = 50;
++	i2c->adap.class = I2C_CLASS_DEPRECATED;
++	i2c->tx_setup = 50;
  
- static struct i2c_adapter xiic_adapter = {
--	.owner		= THIS_MODULE,
--	.name		= DRIVER_NAME,
--	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD | I2C_CLASS_DEPRECATED,
--	.algo		= &xiic_algorithm,
-+	.owner = THIS_MODULE,
-+	.name = DRIVER_NAME,
-+	.class = I2C_CLASS_DEPRECATED,
-+	.algo = &xiic_algorithm,
- };
- 
+ 	init_waitqueue_head(&i2c->wait);
  
 -- 
 2.0.0
