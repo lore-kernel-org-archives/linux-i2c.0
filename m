@@ -1,75 +1,64 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.16
-Date: Thu, 10 Jul 2014 14:52:28 +0200
-Message-ID: <20140710125223.GA4910@katana>
+Subject: Re: [PATCH 00/16] i2c: drop class based instantiaion for selected
+ drivers
+Date: Thu, 10 Jul 2014 15:13:07 +0200
+Message-ID: <20140710131307.GI2728@katana>
+References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
+ <20140710143837.558c1d07@ipc1.ka-ro>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+	protocol="application/pgp-signature"; boundary="l0l+eSofNeLXHSnY"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <20140710143837.558c1d07-VjFSrY7JcPWvSplVBqRQBQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lothar =?utf-8?Q?Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ikeVEW9yuYc//A+q
+--l0l+eSofNeLXHSnY
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Linus,
 
-here is one buildfix for the i2c subsystem. While here, I decided to add
-the header cleanup as well. Please pull.
+> > +	/* Warn that the adapter lost class based instantiation */
+> > +	if (adapter->class == I2C_CLASS_DEPRECATED) {
+> > +		dev_dbg(&adapter->dev,
+> > +			"This adapter dropped support for I2C classes and "
+> > +			"won't auto-detect %s devices anymore. If you need it, check "
+> > +			"'Documentation/i2c/instantiating-devices' for alternatives.\n",
+> >
+> It's usually a bad idea to split kernel messages across source lines
 
-Thanks,
+Yes, "usually". Not for this message, though, it's specific. The lines
+would have been quite long.
 
-   Wolfram
+> You could at least do the split at the sentence boundary.
+
+OK, this would have been a compromise.
 
 
-The following changes since commit a497c3ba1d97fc69c1e78e7b96435ba8c2cb42ee:
-
-  Linux 3.16-rc2 (2014-06-21 19:02:54 -1000)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 098aebc30292c10b31f6aa58bf4fe2c4b26001f6:
-
-  i2c: sun6i-p2wi: Remove duplicate inclusion of module.h (2014-06-27 14:39:36 +0200)
-
-----------------------------------------------------------------
-Linus Walleij (1):
-      i2c: mux: pca954x: fix dependencies
-
-Sachin Kamat (1):
-      i2c: sun6i-p2wi: Remove duplicate inclusion of module.h
-
- drivers/i2c/busses/i2c-sun6i-p2wi.c | 1 -
- drivers/i2c/muxes/Kconfig           | 1 +
- 2 files changed, 1 insertion(+), 1 deletion(-)
-
---ikeVEW9yuYc//A+q
+--l0l+eSofNeLXHSnY
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTvoyHAAoJEBQN5MwUoCm2GZsP/22INYvNK3XtgfWwnjf4osD1
-gt/1VweuijCJEEIfxIrl0vkAxxiGpkt6KSYRg9c94ZWCdoLbGSZl+0Be5kMykwUK
-ziLKz7y1+kejbAKIifnmv3g1rw+WOP91yC1ZXrEcl8w0aL4KsjSYtpz47XepkXBm
-yS1xFwxzUmlTMaNPQ0McSwnZuq/TkYjno7V3vcmtvI1QN8FfP+QcV0m3fTofMNH1
-c9TKBPXbM6I+JuUzgaeV4kcZ36vhRswonkDKU5Z866eNUWZPJgMeC8Q4bkqBcItU
-bqVDnFW45PKL3QihLSECqNOH/77coUG4lePkjC1YDwBmZYJjqjNK6eN0DOWuV7Ut
-1yaR7k9nyRiv4XrnxD0RMV9JJvs7i0h59nEl27CUB0QsHKQhG98tfyhuq/jCHfB8
-2XJZYKVLHyxtZDxAWPhvoE9QntZC8wbpUNTAJsNOFL0Al/58fAxZjxFMBp+X2tpX
-C3Mi46oTV27f3Ax52jDqAmF+Dny4glNJx8YJKRATdZHti8owVgItEjRLsF6TiCfv
-SIoDhSl3gPsQVhun1c8hyKCpdxfY/uPfAFazAv0usOw0355clYMd2xi5h3+vUShf
-fPgBqloZznWtqdUZ143EbfwuK6tGkQP+NVthUTfB4F7hxp9FvLvkIdPiW/xRXe19
-a6DN/82qZXD895DYl/FC
-=is4R
+iQIcBAEBAgAGBQJTvpFjAAoJEBQN5MwUoCm2kUQQAKG2LIG6MzewzMHuFwCTeoFS
+idHvMdE1d5HF8BUL/GE/IepNikzy9bvTQu1IPBhnaGcQQMQ0wSU9U5K1EClj1zgv
+3s+n9hHLH/d3plLDM5ZRmf00DEjDGkHxX63vFctuyaWw20bRXeD86bvYAvZrc58n
++hed8FyF6KKzDS61jfoWA70LEG39Xssj/QIPDt5+bn3pUPK9OiTX234U1n5M9SV6
+cfi7apgrT+KH2SIUzYsB8n8FXNH/QfrPjdIPIT3c7OZDrNIDzCP6kG68L4MPCT7v
++nET25q1MxMhYkrd1HaXkUNA3RFe4ZV7TuL7zhZCBetHDOe5Pg1NbloNwZiSkw+2
+mMlvNyJBrmeRXVv3Ahbhpczh/WCi0pcLDmmeZEgBykB9Rz3atFQg9iCt5TA38kmf
+xzbAU3h7la9b3FsvgUcfQ2v27g7uO5jv1WEdU59GXceEqDHcIq05Oop3XLBdNLeR
+c1FAsJaMtiIlhsUMrx/o0Ex01NQFRdTdjAKjAzRifaAR7kCtDL93hR+sbdMyvyLq
+2CJ+p/0mwVFkQuajN0zvmL/Rrs4PqF6Rs84Hq2hrqMF1C2PDqE9gBhMRzPCGljOz
+RYauUQq0ZVOrpw5DQziLNF4eIh979umxHcq7EtSEY6D+H0Tai2VprqY1j/bwFAJi
+3GxX/ks54HgF7b9PO+Aw
+=/pKZ
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--l0l+eSofNeLXHSnY--
