@@ -1,45 +1,57 @@
-From: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 15/16] i2c: i2c-tegra: Drop class based scanning to improve
- bootup time
-Date: Thu, 10 Jul 2014 15:34:42 +0300
-Message-ID: <53BE8862.9090908@nvidia.com>
-References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de> <1404992799-3705-16-git-send-email-wsa@the-dreams.de>
+From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+Subject: Re: [PATCH 00/16] i2c: drop class based instantiaion for selected
+ drivers
+Date: Thu, 10 Jul 2014 14:38:37 +0200
+Message-ID: <20140710143837.558c1d07@ipc1.ka-ro>
+References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1404992799-3705-16-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1404992799-3705-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, adi-buildroot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Reviewed-by: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Tested-by: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Hi,
 
-On 10/07/14 14:46, Wolfram Sang wrote:
-> This driver has been flagged to drop class based instantiation. The removal
-> improves boot-up time and is unneeded for embedded controllers. Users have been
-> warned to switch for some time now, so we can actually do the removal. Keep the
-> DEPRECATED flag, so the core can inform users that the behaviour finally
-> changed now. After another transition period, this flag can go, too.
+Wolfram Sang wrote:
+> Some drivers were flagged to remove class based instantiation soon to=
+ improve
+> boot-up time. Originally, I was planning for a longer deprecation tim=
+e so users
+> could switch over to some other kind of instantiation. However, the d=
+emand for
+> the speed up is high enough and class based instantiation is used rar=
+ely, so
+> the removal takes place now. To make up for the deprecation time, ano=
+ther
+> warning is added to the i2c core pointing out that the behaviour has =
+now
+> changed:
+>=20
+> +	/* Warn that the adapter lost class based instantiation */
+> +	if (adapter->class =3D=3D I2C_CLASS_DEPRECATED) {
+> +		dev_dbg(&adapter->dev,
+> +			"This adapter dropped support for I2C classes and "
+> +			"won't auto-detect %s devices anymore. If you need it, check "
+> +			"'Documentation/i2c/instantiating-devices' for alternatives.\n",
 >
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-tegra.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index f1bb2fc06791..87d0371cebb7 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -792,7 +792,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
->
->   	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
->   	i2c_dev->adapter.owner = THIS_MODULE;
-> -	i2c_dev->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
-> +	i2c_dev->adapter.class = I2C_CLASS_DEPRECATED;
->   	strlcpy(i2c_dev->adapter.name, "Tegra I2C adapter",
->   		sizeof(i2c_dev->adapter.name));
->   	i2c_dev->adapter.algo = &tegra_i2c_algo;
->
+It's usually a bad idea to split kernel messages across source lines
+because it makes searching for the corresponding source line for a
+message found in the log difficult.
+You could at least do the split at the sentence boundary.
+
+
+Lothar Wa=C3=9Fmann
+--=20
+___________________________________________________________
+
+Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
+Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
+Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
+Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
+
+www.karo-electronics.de | info-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org
+___________________________________________________________
