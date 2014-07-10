@@ -1,13 +1,25 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 04/16] i2c: i2c-bfin-twi: Drop class based scanning to improve bootup time
-Date: Thu, 10 Jul 2014 13:46:24 +0200
-Message-ID: <1404992799-3705-5-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 05/16] i2c: i2c-davinci: Drop class based scanning to improve
+	bootup time
+Date: Thu, 10 Jul 2014 13:46:25 +0200
+Message-ID: <1404992799-3705-6-git-send-email-wsa@the-dreams.de>
 References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, Sonic Zhang <sonic.zhang@analog.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1404992799-3705-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 This driver has been flagged to drop class based instantiation. The removal
@@ -16,23 +28,23 @@ warned to switch for some time now, so we can actually do the removal. Keep the
 DEPRECATED flag, so the core can inform users that the behaviour finally
 changed now. After another transition period, this flag can go, too.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c | 2 +-
+ drivers/i2c/busses/i2c-davinci.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 3e271e7558d3..067c1615e968 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -648,7 +648,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	strlcpy(p_adap->name, pdev->name, sizeof(p_adap->name));
- 	p_adap->algo = &bfin_twi_algorithm;
- 	p_adap->algo_data = iface;
--	p_adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD | I2C_CLASS_DEPRECATED;
-+	p_adap->class = I2C_CLASS_DEPRECATED;
- 	p_adap->dev.parent = &pdev->dev;
- 	p_adap->timeout = 5 * HZ;
- 	p_adap->retries = 3;
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 389bc68c55ad..4d9614719128 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -712,7 +712,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 	adap = &dev->adapter;
+ 	i2c_set_adapdata(adap, dev);
+ 	adap->owner = THIS_MODULE;
+-	adap->class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
++	adap->class = I2C_CLASS_DEPRECATED;
+ 	strlcpy(adap->name, "DaVinci I2C adapter", sizeof(adap->name));
+ 	adap->algo = &i2c_davinci_algo;
+ 	adap->dev.parent = &pdev->dev;
 -- 
 2.0.0
