@@ -1,38 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 15/16] i2c: i2c-tegra: Drop class based scanning to improve bootup time
-Date: Thu, 10 Jul 2014 13:46:35 +0200
-Message-ID: <1404992799-3705-16-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 01/16] i2c: add debug info when class instantiation was dropped
+Date: Thu, 10 Jul 2014 13:46:21 +0200
+Message-ID: <1404992799-3705-2-git-send-email-wsa@the-dreams.de>
 References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-This driver has been flagged to drop class based instantiation. The removal
-improves boot-up time and is unneeded for embedded controllers. Users have been
-warned to switch for some time now, so we can actually do the removal. Keep the
-DEPRECATED flag, so the core can inform users that the behaviour finally
-changed now. After another transition period, this flag can go, too.
+We have a warning already when support for old-fashioned class based
+instantiation is about to be dropped somewhen soon from a driver. Let's
+have another one when it was actually dropped. This allows to remove the
+cruft a little earlier and still let users know what happened in the
+rare case they are missing devices after the change. However, there is
+enough interest to get rid of class based instantiation rather sooner
+than later because it improves boot up time.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-tegra.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/i2c-core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index f1bb2fc06791..87d0371cebb7 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -792,7 +792,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 4ccff114b147..a1eeb8a5d3f8 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1915,6 +1915,16 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+ 	if (!driver->detect || !address_list)
+ 		return 0;
  
- 	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
- 	i2c_dev->adapter.owner = THIS_MODULE;
--	i2c_dev->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
-+	i2c_dev->adapter.class = I2C_CLASS_DEPRECATED;
- 	strlcpy(i2c_dev->adapter.name, "Tegra I2C adapter",
- 		sizeof(i2c_dev->adapter.name));
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
++	/* Warn that the adapter lost class based instantiation */
++	if (adapter->class == I2C_CLASS_DEPRECATED) {
++		dev_dbg(&adapter->dev,
++			"This adapter dropped support for I2C classes and "
++			"won't auto-detect %s devices anymore. If you need it, check "
++			"'Documentation/i2c/instantiating-devices' for alternatives.\n",
++			driver->driver.name);
++		return 0;
++	}
++
+ 	/* Stop here if the classes do not match */
+ 	if (!(adapter->class & driver->class))
+ 		return 0;
 -- 
 2.0.0
