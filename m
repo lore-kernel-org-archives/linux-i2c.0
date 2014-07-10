@@ -1,75 +1,45 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-stub: Remember the number of emulated chips
-Date: Thu, 10 Jul 2014 05:14:39 -0700
-Message-ID: <53BE83AF.9060006@roeck-us.net>
-References: <20140710124511.05108894@endymion.delvare>
+From: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 15/16] i2c: i2c-tegra: Drop class based scanning to improve
+ bootup time
+Date: Thu, 10 Jul 2014 15:34:42 +0300
+Message-ID: <53BE8862.9090908@nvidia.com>
+References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de> <1404992799-3705-16-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140710124511.05108894-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1404992799-3705-16-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/10/2014 03:45 AM, Jean Delvare wrote:
-> This makes initialization, cleanup and look-up easier.
+Reviewed-by: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Tested-by: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+
+On 10/07/14 14:46, Wolfram Sang wrote:
+> This driver has been flagged to drop class based instantiation. The removal
+> improves boot-up time and is unneeded for embedded controllers. Users have been
+> warned to switch for some time now, so we can actually do the removal. Keep the
+> DEPRECATED flag, so the core can inform users that the behaviour finally
+> changed now. After another transition period, this flag can go, too.
 >
-> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 > ---
-> This applies on top of Guenter's patch "i2c: stub: Add support for
-> SMBus block commands", v2.
-
-Looks good.
-
-Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-
+>   drivers/i2c/busses/i2c-tegra.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 >
->   drivers/i2c/i2c-stub.c |    9 ++++++---
->   1 file changed, 6 insertions(+), 3 deletions(-)
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index f1bb2fc06791..87d0371cebb7 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -792,7 +792,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
 >
-> --- linux-3.16-rc3.orig/drivers/i2c/i2c-stub.c	2014-07-09 12:57:46.383772594 +0200
-> +++ linux-3.16-rc3/drivers/i2c/i2c-stub.c	2014-07-09 13:09:42.982241933 +0200
-> @@ -62,6 +62,7 @@ struct stub_chip {
->   };
->
->   static struct stub_chip *stub_chips;
-> +static int stub_chips_nr;
->
->   static struct smbus_block_data *stub_find_block(struct device *dev,
->   						struct stub_chip *chip,
-> @@ -95,7 +96,7 @@ static s32 stub_xfer(struct i2c_adapter
->   	struct smbus_block_data *b;
->
->   	/* Search for the right chip */
-> -	for (i = 0; i < MAX_CHIPS && chip_addr[i]; i++) {
-> +	for (i = 0; i < stub_chips_nr; i++) {
->   		if (addr == chip_addr[i]) {
->   			chip = stub_chips + i;
->   			break;
-> @@ -281,12 +282,14 @@ static int __init i2c_stub_init(void)
->   	}
->
->   	/* Allocate memory for all chips at once */
-> -	stub_chips = kzalloc(i * sizeof(struct stub_chip), GFP_KERNEL);
-> +	stub_chips_nr = i;
-> +	stub_chips = kcalloc(stub_chips_nr, sizeof(struct stub_chip),
-> +			     GFP_KERNEL);
-
-At some point can use devm_kcalloc ...
-
->   	if (!stub_chips) {
->   		pr_err("i2c-stub: Out of memory\n");
-
-and get rid of this message.
-
->   		return -ENOMEM;
->   	}
-> -	for (i--; i >= 0; i--)
-> +	for (i = 0; i < stub_chips_nr; i++)
->   		INIT_LIST_HEAD(&stub_chips[i].smbus_blocks);
->
->   	ret = i2c_add_adapter(&stub_adapter);
->
+>   	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
+>   	i2c_dev->adapter.owner = THIS_MODULE;
+> -	i2c_dev->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
+> +	i2c_dev->adapter.class = I2C_CLASS_DEPRECATED;
+>   	strlcpy(i2c_dev->adapter.name, "Tegra I2C adapter",
+>   		sizeof(i2c_dev->adapter.name));
+>   	i2c_dev->adapter.algo = &tegra_i2c_algo;
 >
