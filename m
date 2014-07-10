@@ -1,13 +1,25 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 14/16] i2c: i2c-stu300: Drop class based scanning to improve bootup time
-Date: Thu, 10 Jul 2014 13:46:34 +0200
-Message-ID: <1404992799-3705-15-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 02/16] i2c: i2c-at91: Drop class based scanning to improve
+ bootup time
+Date: Thu, 10 Jul 2014 13:46:22 +0200
+Message-ID: <1404992799-3705-3-git-send-email-wsa@the-dreams.de>
 References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org
+Cc: Ludovic Desroches <ludovic.desroches@atmel.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
 This driver has been flagged to drop class based instantiation. The removal
@@ -18,21 +30,21 @@ changed now. After another transition period, this flag can go, too.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-stu300.c | 2 +-
+ drivers/i2c/busses/i2c-at91.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index fefb1c19ec1d..6a44f37798c8 100644
---- a/drivers/i2c/busses/i2c-stu300.c
-+++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -909,7 +909,7 @@ static int stu300_probe(struct platform_device *pdev)
- 	adap = &dev->adapter;
- 	adap->owner = THIS_MODULE;
- 	/* DDC class but actually often used for more generic I2C */
--	adap->class = I2C_CLASS_DDC | I2C_CLASS_DEPRECATED;
-+	adap->class = I2C_CLASS_DEPRECATED;
- 	strlcpy(adap->name, "ST Microelectronics DDC I2C adapter",
- 		sizeof(adap->name));
- 	adap->nr = bus_nr;
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index e95f9ba96790..7033e9166d1f 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -768,7 +768,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+ 	i2c_set_adapdata(&dev->adapter, dev);
+ 	dev->adapter.owner = THIS_MODULE;
+-	dev->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
++	dev->adapter.class = I2C_CLASS_DEPRECATED;
+ 	dev->adapter.algo = &at91_twi_algorithm;
+ 	dev->adapter.dev.parent = dev->dev;
+ 	dev->adapter.nr = pdev->id;
 -- 
 2.0.0
