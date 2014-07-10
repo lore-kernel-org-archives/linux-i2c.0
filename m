@@ -1,7 +1,8 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 01/16] i2c: add debug info when class instantiation was dropped
-Date: Thu, 10 Jul 2014 13:46:21 +0200
-Message-ID: <1404992799-3705-2-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 03/16] i2c: i2c-bcm2835: Drop class based scanning to improve
+ bootup time
+Date: Thu, 10 Jul 2014 13:46:23 +0200
+Message-ID: <1404992799-3705-4-git-send-email-wsa@the-dreams.de>
 References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,39 +22,29 @@ To: linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-We have a warning already when support for old-fashioned class based
-instantiation is about to be dropped somewhen soon from a driver. Let's
-have another one when it was actually dropped. This allows to remove the
-cruft a little earlier and still let users know what happened in the
-rare case they are missing devices after the change. However, there is
-enough interest to get rid of class based instantiation rather sooner
-than later because it improves boot up time.
+This driver has been flagged to drop class based instantiation. The removal
+improves boot-up time and is unneeded for embedded controllers. Users have been
+warned to switch for some time now, so we can actually do the removal. Keep the
+DEPRECATED flag, so the core can inform users that the behaviour finally
+changed now. After another transition period, this flag can go, too.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/i2c-core.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/i2c/busses/i2c-bcm2835.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 4ccff114b147..a1eeb8a5d3f8 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1915,6 +1915,16 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
- 	if (!driver->detect || !address_list)
- 		return 0;
- 
-+	/* Warn that the adapter lost class based instantiation */
-+	if (adapter->class == I2C_CLASS_DEPRECATED) {
-+		dev_dbg(&adapter->dev,
-+			"This adapter dropped support for I2C classes and "
-+			"won't auto-detect %s devices anymore. If you need it, check "
-+			"'Documentation/i2c/instantiating-devices' for alternatives.\n",
-+			driver->driver.name);
-+		return 0;
-+	}
-+
- 	/* Stop here if the classes do not match */
- 	if (!(adapter->class & driver->class))
- 		return 0;
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 214ff9700efe..4b8ecd0b3661 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -277,7 +277,7 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	adap = &i2c_dev->adapter;
+ 	i2c_set_adapdata(adap, i2c_dev);
+ 	adap->owner = THIS_MODULE;
+-	adap->class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
++	adap->class = I2C_CLASS_DEPRECATED;
+ 	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
+ 	adap->algo = &bcm2835_i2c_algo;
+ 	adap->dev.parent = &pdev->dev;
 -- 
 2.0.0
