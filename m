@@ -1,60 +1,55 @@
-From: Sachin Kamat <spk.linux@gmail.com>
-Subject: Re: [PATCH 12/16] i2c: i2c-s3c2410: Drop class based scanning to
- improve bootup time
-Date: Fri, 11 Jul 2014 11:29:46 +0530
-Message-ID: <CAK5sBcG_bWS5frTkTCwUeSEe_oNrVP9QDtFjWzwfhv2KWSN3HQ@mail.gmail.com>
-References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
-	<1404992799-3705-13-git-send-email-wsa@the-dreams.de>
+From: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-st: Use %pa to print 'resource_size_t' type
+Date: Fri, 11 Jul 2014 09:16:35 +0200
+Message-ID: <53BF8F53.1040701@st.com>
+References: <1405034605-21757-1-git-send-email-festevam@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1404992799-3705-13-git-send-email-wsa@the-dreams.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1405034605-21757-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi Fabio,
 
-On Thu, Jul 10, 2014 at 5:16 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> This driver has been flagged to drop class based instantiation. The removal
-> improves boot-up time and is unneeded for embedded controllers. Users have been
-> warned to switch for some time now, so we can actually do the removal. Keep the
-> DEPRECATED flag, so the core can inform users that the behaviour finally
-> changed now. After another transition period, this flag can go, too.
-> While we are here, remove the indentation for the array setup because
-> such things always break after some time.
+On 07/11/2014 01:23 AM, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 >
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> When building multi_v7_defconfig with CONFIG_ARM_LPAE=y the following warning
+> is seen:
+>
+> drivers/i2c/busses/i2c-st.c:818:2: warning: format '%x' expects argument of type
+> 'unsigned int', but argument 4 has type 'resource_size_t' [-Wformat=]
+>
+> Use %pa to print 'resource_size_t' type to fix the warning.
+>
+> Reported-by: Olof's autobuilder <build-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-s3c2410.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> index e828a1dba0e5..6252c051525a 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -1128,11 +1128,11 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
->                 s3c24xx_i2c_parse_dt(pdev->dev.of_node, i2c);
->
->         strlcpy(i2c->adap.name, "s3c2410-i2c", sizeof(i2c->adap.name));
-> -       i2c->adap.owner   = THIS_MODULE;
-> -       i2c->adap.algo    = &s3c24xx_i2c_algorithm;
-> +       i2c->adap.owner = THIS_MODULE;
-> +       i2c->adap.algo = &s3c24xx_i2c_algorithm;
->         i2c->adap.retries = 2;
-> -       i2c->adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD | I2C_CLASS_DEPRECATED;
-> -       i2c->tx_setup     = 50;
-> +       i2c->adap.class = I2C_CLASS_DEPRECATED;
-> +       i2c->tx_setup = 50;
->
->         init_waitqueue_head(&i2c->wait);
->
-> --
+>   drivers/i2c/busses/i2c-st.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 
-Tested on Exynos 5250 boards.
-Tested-by: Sachin Kamat <sachin.kamat@samsung.com>
+You can add my:
+Acked-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
 
--- 
-Regards,
-Sachin.
+Thanks!
+Maxime
+
+>
+> diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
+> index 95b94767..fc767dd 100644
+> --- a/drivers/i2c/busses/i2c-st.c
+> +++ b/drivers/i2c/busses/i2c-st.c
+> @@ -815,7 +815,7 @@ static int st_i2c_probe(struct platform_device *pdev)
+>
+>   	adap = &i2c_dev->adap;
+>   	i2c_set_adapdata(adap, i2c_dev);
+> -	snprintf(adap->name, sizeof(adap->name), "ST I2C(0x%x)", res->start);
+> +	snprintf(adap->name, sizeof(adap->name), "ST I2C(0x%pa)", &res->start);
+>   	adap->owner = THIS_MODULE;
+>   	adap->timeout = 2 * HZ;
+>   	adap->retries = 0;
+>
