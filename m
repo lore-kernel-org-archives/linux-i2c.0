@@ -1,41 +1,48 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: i2c-st: Use %pa to print 'resource_size_t' type
-Date: Thu, 10 Jul 2014 20:23:25 -0300
-Message-ID: <1405034605-21757-1-git-send-email-festevam@gmail.com>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-stub: Add support for banked register ranges
+Date: Thu, 10 Jul 2014 21:27:53 -0700
+Message-ID: <53BF67C9.70406@roeck-us.net>
+References: <20140710124511.05108894@endymion.delvare>	<20140710125659.015f1517@endymion.delvare>	<20140710184036.GA6950@roeck-us.net> <20140710233040.59d1dfea@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140710233040.59d1dfea-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: maxime.coquelin-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+On 07/10/2014 02:30 PM, Jean Delvare wrote:
+> On Thu, 10 Jul 2014 11:40:36 -0700, Guenter Roeck wrote:
+>> On Thu, Jul 10, 2014 at 12:56:59PM +0200, Jean Delvare wrote:
+>>> Some chips implement banked register ranges. This allows implementing
+>>> more registers than the limited 8-bit address space originally allows.
+>>> In order to access a register on these chips, you must first select
+>>> the proper bank. Add support for this mechanism to the i2c-stub driver
+>>> so that such chips can be emulated. All the bank settings are passed
+>>> as module parameters.
+>>>
+>>> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+>>> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+>>> ---
+>>> Tested successfully with:
+>>> http://jdelvare.nerim.net/devel/lm-sensors/dumps/w83793-for-stub.dump
+>>>
+>> Also with NCT7802Y.
+>>
+>> Tested-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+>
+> Thanks.
+>
+>> Would it make sense to use devm_ functions for memory allocations ?
+>> That would simplify cleanup.
+>
+> Sure, no objection from me.
+>
 
-When building multi_v7_defconfig with CONFIG_ARM_LPAE=y the following warning
-is seen:
+If it was that simple :-(. We would have to convert the driver to a platform driver
+to be able to do that, since the allocations happen from the initialization code,
+not from a probe function. Guess we'll have to leave that for another day.
 
-drivers/i2c/busses/i2c-st.c:818:2: warning: format '%x' expects argument of type
-'unsigned int', but argument 4 has type 'resource_size_t' [-Wformat=]
-
-Use %pa to print 'resource_size_t' type to fix the warning.
-
-Reported-by: Olof's autobuilder <build-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/busses/i2c-st.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-index 95b94767..fc767dd 100644
---- a/drivers/i2c/busses/i2c-st.c
-+++ b/drivers/i2c/busses/i2c-st.c
-@@ -815,7 +815,7 @@ static int st_i2c_probe(struct platform_device *pdev)
- 
- 	adap = &i2c_dev->adap;
- 	i2c_set_adapdata(adap, i2c_dev);
--	snprintf(adap->name, sizeof(adap->name), "ST I2C(0x%x)", res->start);
-+	snprintf(adap->name, sizeof(adap->name), "ST I2C(0x%pa)", &res->start);
- 	adap->owner = THIS_MODULE;
- 	adap->timeout = 2 * HZ;
- 	adap->retries = 0;
--- 
-1.8.3.2
+Guenter
