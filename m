@@ -1,77 +1,62 @@
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH v2] i2c: efm32: correct namespacing of location property
-Date: Fri, 11 Jul 2014 10:50:14 +0200
-Message-ID: <1405068614-14279-1-git-send-email-u.kleine-koenig@pengutronix.de>
-References: <1405066940-12919-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: "Daniel M. Weeks" <dan-ZKupHW+dzKzk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH] i2c: piix4: Continue probing for auxiliary SMBus without main
+Date: Fri, 11 Jul 2014 20:06:15 -0400
+Message-ID: <20140712000607.GA25787@turkey.danweeks.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1405066940-12919-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Olof Johansson pointed out that usually the company name is picked as
-namespace prefix to specific properties. So expect "energymicro,locatio=
-n"
-but fall back to the previously introduced name "efm32,location".
+Some BIOS may only allow access to the AMD auxiliary SMBus - reserving
+the main SMBus for system functions only. Probing should continue even
+if the main bus is not available so at least the auxiliary can be added.
 
-Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Signed-off-by: Daniel M. Weeks <dan-ZKupHW+dzKzk1uMJSBkQmQ@public.gmane.org>
 ---
-Changes since (implicit) v1:
- - fix a wrong if condtion
+This patch may warrant some discussion. I ran across this problem on an
+AMD Hudson board where the main SMBus is hard-wired for debugging but
+the auxiliary bus is exposed for expansion. Either purposefully or
+because the BIOS is a little broken, loading this module used to result
+in an ACPI conflict for the main bus and neither was usable. With the
+patch I'm able to use the auxiliary bus regardless of the conflict on
+the main bus. I'm not 100% convinced it's the correct fix - someone with
+more ACPI experience than me is going to need to review this.
 
- Documentation/devicetree/bindings/i2c/i2c-efm32.txt | 4 ++--
- drivers/i2c/busses/i2c-efm32.c                      | 8 +++++++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+drivers/i2c/busses/i2c-piix4.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-efm32.txt b/Docu=
-mentation/devicetree/bindings/i2c/i2c-efm32.txt
-index fc15ac519437..50b25c3da186 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-efm32.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-efm32.txt
-@@ -10,7 +10,7 @@ Required properties :
- Recommended properties :
-=20
-  - clock-frequency : maximal I2C bus clock frequency in Hz.
-- - efm32,location : Decides the location of the USART I/O pins.
-+ - energymicro,location : Decides the location of the USART I/O pins.
-    Allowed range : [0 .. 6]
-=20
- Example:
-@@ -23,7 +23,7 @@ Example:
- 		clocks =3D <&cmu clk_HFPERCLKI2C0>;
- 		clock-frequency =3D <100000>;
- 		status =3D "ok";
--		efm32,location =3D <3>;
-+		energymicro,location =3D <3>;
-=20
- 		eeprom@50 {
- 			compatible =3D "microchip,24c02";
-diff --git a/drivers/i2c/busses/i2c-efm32.c b/drivers/i2c/busses/i2c-ef=
-m32.c
-index f7eccd682de9..10b8323b08d4 100644
---- a/drivers/i2c/busses/i2c-efm32.c
-+++ b/drivers/i2c/busses/i2c-efm32.c
-@@ -370,7 +370,13 @@ static int efm32_i2c_probe(struct platform_device =
-*pdev)
- 		return ret;
- 	}
-=20
--	ret =3D of_property_read_u32(np, "efm32,location", &location);
-+
-+	ret =3D of_property_read_u32(np, "energymicro,location", &location);
-+
-+	if (ret)
-+		/* fall back to wrongly namespaced property */
-+		ret =3D of_property_read_u32(np, "efm32,location", &location);
-+
- 	if (!ret) {
- 		dev_dbg(&pdev->dev, "using location %u\n", location);
- 	} else {
---=20
-2.0.0
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index a6f54ba..d4bac64 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -628,14 +628,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	else
+ 		retval = piix4_setup(dev, id);
+ 
+-	/* If no main SMBus found, give up */
+-	if (retval < 0)
+-		return retval;
+-
+-	/* Try to register main SMBus adapter, give up if we can't */
+-	retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
+-	if (retval < 0)
+-		return retval;
++	/* If no main SMBus found, do not give up
++	 * some BIOS purposely only expose aux bus */
++	if (retval < 0) {
++		dev_info(&dev->dev, "No main SMBus; checking auxiliary\n");
++	} else {
++		/* Try to register main SMBus adapter, give up if we can't */
++		retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
++		if (retval < 0)
++			return retval;
++	}
+ 
+ 	/* Check for auxiliary SMBus on some AMD chipsets */
+ 	retval = -ENODEV;
+-- 
+Daniel M. Weeks
