@@ -1,7 +1,7 @@
 From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Subject: Re: [PATCH v2] i2c: stub: Add support for SMBus block commands
-Date: Sat, 12 Jul 2014 07:26:12 -0700
-Message-ID: <53C14584.3080906@roeck-us.net>
+Date: Sat, 12 Jul 2014 08:05:49 -0700
+Message-ID: <53C14ECD.7050105@roeck-us.net>
 References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>	<20140708215453.0677d3ed@endymion.delvare>	<53BC4F15.9030608@roeck-us.net> <20140712112019.618d8a03@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -13,102 +13,15 @@ To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Jean,
+
 On 07/12/2014 02:20 AM, Jean Delvare wrote:
 > Hi Guenter,
 >
-> On Tue, 08 Jul 2014 13:05:41 -0700, Guenter Roeck wrote:
->> On 07/08/2014 12:54 PM, Jean Delvare wrote:
->>> Just one thing I have been thinking about while reviewing the updated
->>> code... You decided to make the first SMBus block write select the
->>> maximum block length, and you always use that for SMBus block reads.
->>> However you accept partial writes. The fact that the order in which
->>> writes are performed has an effect on which writes are accepted is
->>> somewhat unexpected.
->>>
->>> Wouldn't it make more sense to accept all SMBus block writes,
->>> regardless of the size (as long as it is within the limits of the SMBus
->>> standard, of course)? Then the only thing left to decide is whether
->>> SMBus block reads use the maximum size or the size of the most recent
->>> SMBus block write.
->>>
->>> I suspect this would mimic the behavior of real chips better. What do
->>> you think?
->>
->> Not really sure what the expected behavior is. My original code
->> accepted all writes and returned the most recent write, including
->> the most recent write length. I thought this was untypical, and that
->> it would be more typical for the chip to return a fixed length.
->> But ultimately I don't really know, and I am fine either way.
->
-> I agree that different chips may behave differently and it is not
-> possible for i2c-stub to please everyone. However I do not think that
-> the current implementation mimics any actual chip behavior. So we might
-> as well switch to something more simple and more likely to please at
-> least one device driver:
->
-> From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Subject: i2c-stub: Allow the increasing SMBus block write length
->
-> This is no good reason to not allow SMBus block writes longer than the
-> first one was. Lift this limitation, this makes the code more simple.
->
-> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-> ---
->   Documentation/i2c/i2c-stub |    5 ++---
->   drivers/i2c/i2c-stub.c     |   12 +++---------
->   2 files changed, 5 insertions(+), 12 deletions(-)
->
-> --- linux-3.16-rc4.orig/Documentation/i2c/i2c-stub	2014-07-12 09:41:26.508195718 +0200
-> +++ linux-3.16-rc4/Documentation/i2c/i2c-stub	2014-07-12 10:40:05.064578130 +0200
-> @@ -20,9 +20,8 @@ operations.  This allows for continuous
->   EEPROMs, among others.
->
->   SMBus block commands must be written to configure an SMBus command for
-> -SMBus block operations. The first SMBus block write selects the block length.
-> -Subsequent writes can be partial. Block read commands always return
-> -the number of bytes selected with the first write.
-> +SMBus block operations. Writes can be partial. Block read commands always
-> +return the number of bytes selected with the largest write so far.
->
->   The typical use-case is like this:
->   	1. load this module
-> --- linux-3.16-rc4.orig/drivers/i2c/i2c-stub.c	2014-07-12 09:41:26.508195718 +0200
-> +++ linux-3.16-rc4/drivers/i2c/i2c-stub.c	2014-07-12 11:00:41.472813787 +0200
-> @@ -254,13 +254,6 @@ static s32 stub_xfer(struct i2c_adapter
->   				ret = -EINVAL;
->   				break;
->   			}
-> -			if (b && len > b->len) {
-> -				dev_dbg(&adap->dev,
-> -					"Attempt to write more data (%d) than with initial SMBus block write (%d)\n",
-> -					len, b->len);
-> -				ret = -EINVAL;
-> -				break;
-> -			}
->   			if (b == NULL) {
->   				b = stub_find_block(&adap->dev, chip, command,
->   						    true);
-> @@ -268,9 +261,10 @@ static s32 stub_xfer(struct i2c_adapter
->   					ret = -ENOMEM;
->   					break;
->   				}
-> -				/* First write sets block length */
-> -				b->len = len;
->   			}
-> +			/* Largest write sets read block length */
-> +			if (len > b->len)
-> +				b->len = len;
->   			for (i = 0; i < len; i++)
->   				b->block[i] = data->block[i + 1];
->   			/* update for byte and word commands */
->
-> Would that work for you?
->
 
-Yes, sure, that works fine.
+Something else:
 
-Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Any idea how we could inject errors ? Error path testing would be quite useful.
 
 Thanks,
 Guenter
