@@ -1,109 +1,78 @@
 From: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/5] i2c: Don't start transfers when suspended
-Date: Sat, 12 Jul 2014 13:49:27 +0200
-Message-ID: <1405165771-8732-1-git-send-email-hechtb@gmail.com>
+Subject: [PATCH 5/5] i2c: tegra: Remove suspension check
+Date: Sat, 12 Jul 2014 13:49:31 +0200
+Message-ID: <1405165771-8732-5-git-send-email-hechtb@gmail.com>
+References: <1405165771-8732-1-git-send-email-hechtb@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1405165771-8732-1-git-send-email-hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: Linux-SH <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Taekgyun Ko <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c transfer requests come in very uncontrolled, like from interrupt routines.
-We might be suspended when this happens. To avoid i2c timeouts caused by
-powered down busses we check for suspension.
+We now take care of suspension in the i2c core code. So we can remove this
+check here.
 
 Signed-off-by: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
-I ended up getting i2c timeouts when suspending and provoking touchscreen
-IRQs on an Armadillo board with an sh_mobile i2c bus. Instead of copying
-again the protection mechanism from other bus drivers, we can clean things
-up and move this into the core.
+ drivers/i2c/busses/i2c-tegra.c | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
-I assume that all bus drivers use kzalloc or equivalent for the
-struct i2c_adapter. So adap->suspended can't end up uninitialized,
-right?
-
-We could consider using this scheme for freeze/restore too.
-
-
- drivers/i2c/i2c-core.c | 24 +++++++++++++++++++++++-
- include/linux/i2c.h    |  1 +
- 2 files changed, 24 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 7c7f4b8..9fe9581 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -343,6 +343,13 @@ static int i2c_legacy_resume(struct device *dev)
- static int i2c_device_pm_suspend(struct device *dev)
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index f1bb2fc..c279d85 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -172,7 +172,6 @@ struct tegra_i2c_dev {
+ 	size_t msg_buf_remaining;
+ 	int msg_read;
+ 	u32 bus_clk_rate;
+-	bool is_suspended;
+ };
+ 
+ static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned long reg)
+@@ -628,9 +627,6 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 	int i;
+ 	int ret = 0;
+ 
+-	if (i2c_dev->is_suspended)
+-		return -EBUSY;
+-
+ 	ret = tegra_i2c_clock_enable(i2c_dev);
+ 	if (ret < 0) {
+ 		dev_err(i2c_dev->dev, "Clock enable failed %d\n", ret);
+@@ -817,17 +813,6 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+-static int tegra_i2c_suspend(struct device *dev)
+-{
+-	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+-
+-	i2c_lock_adapter(&i2c_dev->adapter);
+-	i2c_dev->is_suspended = true;
+-	i2c_unlock_adapter(&i2c_dev->adapter);
+-
+-	return 0;
+-}
+-
+ static int tegra_i2c_resume(struct device *dev)
  {
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	struct i2c_adapter *adap = i2c_verify_adapter(dev);
-+
-+	if (adap) {
-+		i2c_lock_adapter(adap);
-+		adap->suspended = true;
-+		i2c_unlock_adapter(adap);
-+	}
- 
- 	if (pm)
- 		return pm_generic_suspend(dev);
-@@ -353,6 +360,13 @@ static int i2c_device_pm_suspend(struct device *dev)
- static int i2c_device_pm_resume(struct device *dev)
- {
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	struct i2c_adapter *adap = i2c_verify_adapter(dev);
-+
-+	if (adap) {
-+		i2c_lock_adapter(adap);
-+		adap->suspended = false;
-+		i2c_unlock_adapter(adap);
-+	}
- 
- 	if (pm)
- 		return pm_generic_resume(dev);
-@@ -1819,7 +1833,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 			i2c_lock_adapter(adap);
- 		}
- 
--		ret = __i2c_transfer(adap, msgs, num);
-+		if (adap->suspended)
-+			ret = -EIO;
-+		else
-+			ret = __i2c_transfer(adap, msgs, num);
- 		i2c_unlock_adapter(adap);
- 
+ 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+@@ -842,14 +827,12 @@ static int tegra_i2c_resume(struct device *dev)
  		return ret;
-@@ -2577,6 +2594,10 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 	}
  
- 	if (adapter->algo->smbus_xfer) {
- 		i2c_lock_adapter(adapter);
-+		if (adapter->suspended) {
-+			res = -EIO;
-+			goto unlock;
-+		}
+-	i2c_dev->is_suspended = false;
+-
+ 	i2c_unlock_adapter(&i2c_dev->adapter);
  
- 		/* Retry automatically on arbitration loss */
- 		orig_jiffies = jiffies;
-@@ -2590,6 +2611,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 				       orig_jiffies + adapter->timeout))
- 				break;
- 		}
-+unlock:
- 		i2c_unlock_adapter(adapter);
+ 	return 0;
+ }
  
- 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index b556e0a..af08c75 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -434,6 +434,7 @@ struct i2c_adapter {
- 	int timeout;			/* in jiffies */
- 	int retries;
- 	struct device dev;		/* the adapter device */
-+	unsigned int suspended:1;
- 
- 	int nr;
- 	char name[48];
+-static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_suspend, tegra_i2c_resume);
++static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_resume);
+ #define TEGRA_I2C_PM	(&tegra_i2c_pm)
+ #else
+ #define TEGRA_I2C_PM	NULL
 -- 
 1.9.1
