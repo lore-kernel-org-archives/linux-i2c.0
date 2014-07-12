@@ -1,82 +1,109 @@
 From: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/5] i2c: eg20t: Remove suspension check
-Date: Sat, 12 Jul 2014 13:49:28 +0200
-Message-ID: <1405165771-8732-2-git-send-email-hechtb@gmail.com>
-References: <1405165771-8732-1-git-send-email-hechtb@gmail.com>
+Subject: [PATCH 1/5] i2c: Don't start transfers when suspended
+Date: Sat, 12 Jul 2014 13:49:27 +0200
+Message-ID: <1405165771-8732-1-git-send-email-hechtb@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1405165771-8732-1-git-send-email-hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: Linux-SH <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Taekgyun Ko <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-We now take care of suspension in the i2c core code. So we can remove this
-check here.
+i2c transfer requests come in very uncontrolled, like from interrupt routines.
+We might be suspended when this happens. To avoid i2c timeouts caused by
+powered down busses we check for suspension.
 
 Signed-off-by: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-eg20t.c | 15 ---------------
- 1 file changed, 15 deletions(-)
+I ended up getting i2c timeouts when suspending and provoking touchscreen
+IRQs on an Armadillo board with an sh_mobile i2c bus. Instead of copying
+again the protection mechanism from other bus drivers, we can clean things
+up and move this into the core.
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index a44ea13..aae0413 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -162,15 +162,12 @@ struct i2c_algo_pch_data {
-  * struct adapter_info - This structure holds the adapter information for the
- 			 PCH i2c controller
-  * @pch_data:		stores a list of i2c_algo_pch_data
-- * @pch_i2c_suspended:	specifies whether the system is suspended or not
-- *			perhaps with more lines and words.
-  * @ch_num:		specifies the number of i2c instance
-  *
-  * pch_data has as many elements as maximum I2C channels
-  */
- struct adapter_info {
- 	struct i2c_algo_pch_data pch_data[PCH_I2C_MAX_DEV];
--	bool pch_i2c_suspended;
- 	int ch_num;
- };
+I assume that all bus drivers use kzalloc or equivalent for the
+struct i2c_adapter. So adap->suspended can't end up uninitialized,
+right?
+
+We could consider using this scheme for freeze/restore too.
+
+
+ drivers/i2c/i2c-core.c | 24 +++++++++++++++++++++++-
+ include/linux/i2c.h    |  1 +
+ 2 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 7c7f4b8..9fe9581 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -343,6 +343,13 @@ static int i2c_legacy_resume(struct device *dev)
+ static int i2c_device_pm_suspend(struct device *dev)
+ {
+ 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++	struct i2c_adapter *adap = i2c_verify_adapter(dev);
++
++	if (adap) {
++		i2c_lock_adapter(adap);
++		adap->suspended = true;
++		i2c_unlock_adapter(adap);
++	}
  
-@@ -677,13 +674,6 @@ static s32 pch_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	if (ret)
+ 	if (pm)
+ 		return pm_generic_suspend(dev);
+@@ -353,6 +360,13 @@ static int i2c_device_pm_suspend(struct device *dev)
+ static int i2c_device_pm_resume(struct device *dev)
+ {
+ 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++	struct i2c_adapter *adap = i2c_verify_adapter(dev);
++
++	if (adap) {
++		i2c_lock_adapter(adap);
++		adap->suspended = false;
++		i2c_unlock_adapter(adap);
++	}
+ 
+ 	if (pm)
+ 		return pm_generic_resume(dev);
+@@ -1819,7 +1833,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			i2c_lock_adapter(adap);
+ 		}
+ 
+-		ret = __i2c_transfer(adap, msgs, num);
++		if (adap->suspended)
++			ret = -EIO;
++		else
++			ret = __i2c_transfer(adap, msgs, num);
+ 		i2c_unlock_adapter(adap);
+ 
  		return ret;
+@@ -2577,6 +2594,10 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
  
--	if (adap->p_adapter_info->pch_i2c_suspended) {
--		mutex_unlock(&pch_mutex);
--		return -EBUSY;
--	}
--
--	pch_dbg(adap, "adap->p_adapter_info->pch_i2c_suspended is %d\n",
--		adap->p_adapter_info->pch_i2c_suspended);
- 	/* transfer not completed */
- 	adap->pch_i2c_xfer_in_progress = true;
+ 	if (adapter->algo->smbus_xfer) {
+ 		i2c_lock_adapter(adapter);
++		if (adapter->suspended) {
++			res = -EIO;
++			goto unlock;
++		}
  
-@@ -786,7 +776,6 @@ static int pch_i2c_probe(struct pci_dev *pdev,
+ 		/* Retry automatically on arbitration loss */
+ 		orig_jiffies = jiffies;
+@@ -2590,6 +2611,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 				       orig_jiffies + adapter->timeout))
+ 				break;
+ 		}
++unlock:
+ 		i2c_unlock_adapter(adapter);
  
- 	for (i = 0; i < adap_info->ch_num; i++) {
- 		pch_adap = &adap_info->pch_data[i].pch_adapter;
--		adap_info->pch_i2c_suspended = false;
+ 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index b556e0a..af08c75 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -434,6 +434,7 @@ struct i2c_adapter {
+ 	int timeout;			/* in jiffies */
+ 	int retries;
+ 	struct device dev;		/* the adapter device */
++	unsigned int suspended:1;
  
- 		adap_info->pch_data[i].p_adapter_info = adap_info;
- 
-@@ -862,8 +851,6 @@ static int pch_i2c_suspend(struct pci_dev *pdev, pm_message_t state)
- 	struct adapter_info *adap_info = pci_get_drvdata(pdev);
- 	void __iomem *p = adap_info->pch_data[0].pch_base_address;
- 
--	adap_info->pch_i2c_suspended = true;
--
- 	for (i = 0; i < adap_info->ch_num; i++) {
- 		while ((adap_info->pch_data[i].pch_i2c_xfer_in_progress)) {
- 			/* Wait until all channel transfers are completed */
-@@ -912,8 +899,6 @@ static int pch_i2c_resume(struct pci_dev *pdev)
- 	for (i = 0; i < adap_info->ch_num; i++)
- 		pch_i2c_init(&adap_info->pch_data[i]);
- 
--	adap_info->pch_i2c_suspended = false;
--
- 	return 0;
- }
- #else
+ 	int nr;
+ 	char name[48];
 -- 
 1.9.1
