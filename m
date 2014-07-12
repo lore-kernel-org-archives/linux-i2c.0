@@ -1,7 +1,7 @@
 From: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 5/5] i2c: tegra: Remove suspension check
-Date: Sat, 12 Jul 2014 13:49:31 +0200
-Message-ID: <1405165771-8732-5-git-send-email-hechtb@gmail.com>
+Subject: [PATCH 3/5] i2c: exynos5: Remove suspension check
+Date: Sat, 12 Jul 2014 13:49:29 +0200
+Message-ID: <1405165771-8732-3-git-send-email-hechtb@gmail.com>
 References: <1405165771-8732-1-git-send-email-hechtb@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1405165771-8732-1-git-send-email-hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
@@ -15,64 +15,65 @@ check here.
 
 Signed-off-by: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-tegra.c | 19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ drivers/i2c/busses/i2c-exynos5.c | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index f1bb2fc..c279d85 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -172,7 +172,6 @@ struct tegra_i2c_dev {
- 	size_t msg_buf_remaining;
- 	int msg_read;
- 	u32 bus_clk_rate;
--	bool is_suspended;
- };
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index 63d2292..a80cf28 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -145,7 +145,6 @@
  
- static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned long reg)
-@@ -628,9 +627,6 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 	int i;
- 	int ret = 0;
+ struct exynos5_i2c {
+ 	struct i2c_adapter	adap;
+-	unsigned int		suspended:1;
  
--	if (i2c_dev->is_suspended)
--		return -EBUSY;
+ 	struct i2c_msg		*msg;
+ 	struct completion	msg_complete;
+@@ -610,11 +609,6 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+ 	struct exynos5_i2c *i2c = adap->algo_data;
+ 	int i = 0, ret = 0, stop = 0;
+ 
+-	if (i2c->suspended) {
+-		dev_err(i2c->dev, "HS-I2C is not initialized.\n");
+-		return -EIO;
+-	}
 -
- 	ret = tegra_i2c_clock_enable(i2c_dev);
- 	if (ret < 0) {
- 		dev_err(i2c_dev->dev, "Clock enable failed %d\n", ret);
-@@ -817,17 +813,6 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ 	clk_prepare_enable(i2c->clk);
+ 
+ 	for (i = 0; i < num; i++, msgs++) {
+@@ -757,16 +751,6 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
  }
  
  #ifdef CONFIG_PM_SLEEP
--static int tegra_i2c_suspend(struct device *dev)
+-static int exynos5_i2c_suspend_noirq(struct device *dev)
 -{
--	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
 -
--	i2c_lock_adapter(&i2c_dev->adapter);
--	i2c_dev->is_suspended = true;
--	i2c_unlock_adapter(&i2c_dev->adapter);
+-	i2c->suspended = 1;
 -
 -	return 0;
 -}
 -
- static int tegra_i2c_resume(struct device *dev)
+ static int exynos5_i2c_resume_noirq(struct device *dev)
  {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-@@ -842,14 +827,12 @@ static int tegra_i2c_resume(struct device *dev)
- 		return ret;
- 	}
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -783,14 +767,12 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
  
--	i2c_dev->is_suspended = false;
--
- 	i2c_unlock_adapter(&i2c_dev->adapter);
+ 	exynos5_i2c_init(i2c);
+ 	clk_disable_unprepare(i2c->clk);
+-	i2c->suspended = 0;
  
  	return 0;
  }
+ #endif
  
--static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_suspend, tegra_i2c_resume);
-+static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_resume);
- #define TEGRA_I2C_PM	(&tegra_i2c_pm)
- #else
- #define TEGRA_I2C_PM	NULL
+-static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, exynos5_i2c_suspend_noirq,
+-			 exynos5_i2c_resume_noirq);
++static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, exynos5_i2c_resume_noirq);
+ 
+ static struct platform_driver exynos5_i2c_driver = {
+ 	.probe		= exynos5_i2c_probe,
 -- 
 1.9.1
