@@ -1,27 +1,55 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-stub: Allow increasing the SMBus block write length
-Date: Sun, 13 Jul 2014 08:09:57 -0700
-Message-ID: <53C2A145.8060904@roeck-us.net>
-References: <20140713092331.67d4f5b3@endymion.delvare>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] i2c: stub: Add support for SMBus block commands
+Date: Sun, 13 Jul 2014 17:13:43 +0200
+Message-ID: <20140713171343.0a4ba58d@endymion.delvare>
+References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
+	<20140708215453.0677d3ed@endymion.delvare>
+	<53BC4F15.9030608@roeck-us.net>
+	<20140712112019.618d8a03@endymion.delvare>
+	<53C14ECD.7050105@roeck-us.net>
+	<20140713092127.4bedfa18@endymion.delvare>
+	<53C2A016.2070906@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140713092331.67d4f5b3-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <53C2A016.2070906@roeck-us.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Randy Dunlap <rdunlap@infradead.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/13/2014 12:23 AM, Jean Delvare wrote:
-> This is no good reason to not allow SMBus block writes longer than the
-> first one was. Lift this limitation, this makes the code more simple.
+On Sun, 13 Jul 2014 08:04:54 -0700, Guenter Roeck wrote:
+> On 07/13/2014 12:21 AM, Jean Delvare wrote:
+> > Hi Guenter,
+> >
+> > On Sat, 12 Jul 2014 08:05:49 -0700, Guenter Roeck wrote:
+> >> Any idea how we could inject errors ? Error path testing would be quite useful.
+> >
+> > Good idea. This should probably be done with a sysfs attribute so that
+> > it can be turned on and off as desired. Off by default, of course. Some
+> > other subsystems already support error injection, you could check how
+> > they are doing it, do that we do not diverge needlessly.
+> >
+> > Do you think there is any value in failing with different error codes,
+> > or just -EIO is enough?
 >
-> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> How about writing the error code to return into the attribute ?
+> Write anything negative, and it is returned as error. Write 0,
+> and the driver works as normal.
 
-Applied to my system and working, so you can also add
+This is smart, I like it :)
 
-Tested-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> > Do you think it should fail all the time when error injection is
+> > enabled, or is there a value in having only a certain % of commands
+> > fail?
+>
+> For my purposes I would want it to fail reliably. We could add some fanciness,
+> though: Provide a second attribute which specifies how many operations should
+> pass before the first failure.
 
-Guenter
+Let's start simple and just implement what you need.
+
+-- 
+Jean Delvare
+SUSE L3 Support
