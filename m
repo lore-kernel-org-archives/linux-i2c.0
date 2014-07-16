@@ -1,95 +1,58 @@
-From: Sanford Rockowitz <rockowitz-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: stub: Add support for SMBus block commands
-Date: Sun, 13 Jul 2014 11:29:19 -0700
-Message-ID: <53C2CFFF.2040508@minsoft.com>
-References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>	<20140708215453.0677d3ed@endymion.delvare>	<53BC4F15.9030608@roeck-us.net>	<20140712112019.618d8a03@endymion.delvare>	<53C14ECD.7050105@roeck-us.net>	<20140713092127.4bedfa18@endymion.delvare>	<53C2A016.2070906@roeck-us.net> <20140713171343.0a4ba58d@endymion.delvare> <53C2A9E1.2080807@roeck-us.net>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: s6000: remove duplicate driver
+Date: Wed, 16 Jul 2014 19:11:52 +0200
+Message-ID: <20140716171152.GA2759@katana>
+References: <1404915923-3278-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53C2A9E1.2080807-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1404915923-3278-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-xtensa-PjhNF2WwrV/0Sa2dR60CXw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Forgive me for jumping in.   I'm a noob at I2C.   But I have built a 
-couple substantial error injection frameworks over the years, one for a 
-mainframe DBMS and one for Java's checked exceptions.   So while I have 
-nothing useful to say about how to inject exceptions here, I have 
-thought a lot about use cases.
 
-Failing all the time is the necessary first step.  It allows for testing 
-error paths without manually inserting a failure and recompiling, and 
-makes it possible to build unit tests.
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Failing randomly (or pseudo-randomly) is important for testing the 
-overall recovery mechanism, particularly where you have an inherently 
-unreliable subsystem like networks or I2C.   By changing the failure 
-rate you can explore, for example, at what point the failure rate of the 
-lower level system becomes so great that it makes the upper level system 
-unreliable.
+On Wed, Jul 09, 2014 at 04:25:23PM +0200, Wolfram Sang wrote:
+> It turned out that the s6000 simply has a designware IP core and should
+> use the designated driver for it which is way more maintained and
+> feature complete. There are currently no users in tree, and not even a
+> toolchain for s6000 seems to be available. So, simply remove this
+> duplicate. If someone needs assistance in converting to the designware
+> driver, the i2c list will be there to help.
+>=20
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-The one use case I would add, and it may be outside the scope here, is 
-data errors.  I've been using the DDC protocol over I2C to communicate 
-with monitors.  The DDC Get Capabilities request entails multiple 
-write/read exchanges, with responses of up to 37 bytes each.   Most of 
-the time this works ok, but I have one monitor that produces a high 
-volume of data errors (double bytes or missing bytes).   This is only 
-detected by examining the data itself (fixed fields and checksum).
-
-Sanford
+Applied to for-next, thanks!
 
 
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-On 07/13/2014 08:46 AM, Guenter Roeck wrote:
-> On 07/13/2014 08:13 AM, Jean Delvare wrote:
->> On Sun, 13 Jul 2014 08:04:54 -0700, Guenter Roeck wrote:
->>> On 07/13/2014 12:21 AM, Jean Delvare wrote:
->>>> Hi Guenter,
->>>>
->>>> On Sat, 12 Jul 2014 08:05:49 -0700, Guenter Roeck wrote:
->>>>> Any idea how we could inject errors ? Error path testing would be 
->>>>> quite useful.
->>>>
->>>> Good idea. This should probably be done with a sysfs attribute so that
->>>> it can be turned on and off as desired. Off by default, of course. 
->>>> Some
->>>> other subsystems already support error injection, you could check how
->>>> they are doing it, do that we do not diverge needlessly.
->>>>
->>>> Do you think there is any value in failing with different error codes,
->>>> or just -EIO is enough?
->>>
->>> How about writing the error code to return into the attribute ?
->>> Write anything negative, and it is returned as error. Write 0,
->>> and the driver works as normal.
->>
->> This is smart, I like it :)
->>
->>>> Do you think it should fail all the time when error injection is
->>>> enabled, or is there a value in having only a certain % of commands
->>>> fail?
->>>
->>> For my purposes I would want it to fail reliably. We could add some 
->>> fanciness,
->>> though: Provide a second attribute which specifies how many 
->>> operations should
->>> pass before the first failure.
->>
->> Let's start simple and just implement what you need.
->>
->
-> I would actually benefit from both. The ability to return an error 
-> unconditionally
-> lets me test the first error path. The ability to return an error 
-> starting with the
-> n-th transfer lets me test the n-th error path.
->
-> Guenter
->
-> -- 
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTxrJYAAoJEBQN5MwUoCm2JGgP/iwjKIS5AUxEY65iZx2+/2hM
+2jtMDQwWnNV98aF8YEhOeyLvrC0umo2bTt2+G7udq3/q14ex9c31EDY2eT8GGefh
+gJHRkdIE/L42uKNT7+k/6MgWmI/S6i1Xk50Nw2HBVR4lTzAMBcn/Z24QtiJyzMhd
+UWfoLGpLiq90HhQO+BKG0lhBumYdv6lDUiKX5gfqdSqzJEpWQfu9oFjGmuNg7qg7
+9tOmDc8VJLbGhH5OIPTMeQHWMfurzxgbwmLC9LquhcG958cWIMuUKqjGwfNaxEvj
+L30dheDl9vK1gGRk9rgpyJutNZXAPrQiaN9130ppXNUibk9Um/Ew6fwHn1ITXbse
+PvDOd91Uikc2FHlt+JzkEISNWEI0StBzvooQ79uSWC4PPiWbR2dxj5mT/bTqgLLK
+TVruTm1a7x7mqH9/tCpnifyAAE76jWHTUFEbK/Kx1QzLOpfS5jx77eslfcqQJD0i
+ols12tYq48wrubGxJ01Qd7gD/hVamYNYYyJbYxLsEc/TcolLE07wECTe0GABxNU7
+8t7E/uMMbNNaUa1D8y06f3vQbEz5JpcpffHteAVO847/WeLyWFpUp5eSHqbg7KyA
+MetoGpq04JSdd67opwxIXsRunCQBCV3B/0mVqyimhuUj86yYFc6MltGx6Kdfmxib
+SmqAliHgOWmsOIJVFJ+K
+=MyaR
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--
