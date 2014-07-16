@@ -1,125 +1,135 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-i801: Add device ID for Intel Wildcat Point PCH
-Date: Wed, 16 Jul 2014 19:42:04 +0200
-Message-ID: <20140716174204.GH2759@katana>
-References: <20140629210054.6a51c91f@endymion.delvare>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 00/16] i2c: drop class based instantiaion for selected
+ drivers
+Date: Wed, 16 Jul 2014 19:46:05 +0200
+Message-ID: <20140716174604.GI2759@katana>
+References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrvsYIebpInmECXG"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140629210054.6a51c91f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/mixed; boundary="===============6301060798827206376=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: davinci-linux-open-source@linux.davincidsp.com, linux-samsung-soc@vger.kernel.org, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---lrvsYIebpInmECXG
+--===============6301060798827206376==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QDIl5R72YNOeCxaP"
+Content-Disposition: inline
+
+
+--QDIl5R72YNOeCxaP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jun 29, 2014 at 09:00:54PM +0200, Jean Delvare wrote:
-> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+On Thu, Jul 10, 2014 at 01:46:20PM +0200, Wolfram Sang wrote:
+> Some drivers were flagged to remove class based instantiation soon to imp=
+rove
+> boot-up time. Originally, I was planning for a longer deprecation time so=
+ users
+> could switch over to some other kind of instantiation. However, the deman=
+d for
+> the speed up is high enough and class based instantiation is used rarely,=
+ so
+> the removal takes place now. To make up for the deprecation time, another
+> warning is added to the i2c core pointing out that the behaviour has now
+> changed:
+>=20
+> +	/* Warn that the adapter lost class based instantiation */
+> +	if (adapter->class =3D=3D I2C_CLASS_DEPRECATED) {
+> +		dev_dbg(&adapter->dev,
+> +			"This adapter dropped support for I2C classes and "
+> +			"won't auto-detect %s devices anymore. If you need it, check "
+> +			"'Documentation/i2c/instantiating-devices' for alternatives.\n",
+> +			driver->driver.name);
+> +		return 0;
+> +	}
+>=20
+> A branch can be found here (with two other cleanups -> driver removals):
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/deprecate=
+_stuff
+>=20
+> I hope this meets all the needs. Please comment, ack, test...
+>=20
+> Thanks,
+>=20
+>    Wolfram
+>=20
+>=20
+> Wolfram Sang (16):
+>   i2c: add debug info when class instantiation was dropped
+>   i2c: i2c-at91: Drop class based scanning to improve bootup time
+>   i2c: i2c-bcm2835: Drop class based scanning to improve bootup time
+>   i2c: i2c-bfin-twi: Drop class based scanning to improve bootup time
+>   i2c: i2c-davinci: Drop class based scanning to improve bootup time
+>   i2c: i2c-designware-platdrv: Drop class based scanning to improve
+>     bootup time
+>   i2c: i2c-mv64xxx: Drop class based scanning to improve bootup time
+>   i2c: i2c-nomadik: Drop class based scanning to improve bootup time
+>   i2c: i2c-ocores: Drop class based scanning to improve bootup time
+>   i2c: i2c-omap: Drop class based scanning to improve bootup time
+>   i2c: i2c-rcar: Drop class based scanning to improve bootup time
+>   i2c: i2c-s3c2410: Drop class based scanning to improve bootup time
+>   i2c: i2c-sirf: Drop class based scanning to improve bootup time
+>   i2c: i2c-stu300: Drop class based scanning to improve bootup time
+>   i2c: i2c-tegra: Drop class based scanning to improve bootup time
+>   i2c: i2c-xiic: Drop class based scanning to improve bootup time
+>=20
+>  drivers/i2c/busses/i2c-at91.c               |  2 +-
+>  drivers/i2c/busses/i2c-bcm2835.c            |  2 +-
+>  drivers/i2c/busses/i2c-bfin-twi.c           |  2 +-
+>  drivers/i2c/busses/i2c-davinci.c            |  2 +-
+>  drivers/i2c/busses/i2c-designware-platdrv.c |  2 +-
+>  drivers/i2c/busses/i2c-mv64xxx.c            |  2 +-
 
-I will likely take this patch, nonetheless an Ack from someone from
-Intel would be much appreciated.
+Applied to for-next, thanks!
 
-> ---
-> Untested, but the datasheet show full compatibility with previous
-> chipsets.
->=20
->  Documentation/i2c/busses/i2c-i801 |    1 +
->  drivers/i2c/busses/Kconfig        |    1 +
->  drivers/i2c/busses/i2c-i801.c     |    3 +++
->  3 files changed, 5 insertions(+)
->=20
-> --- linux-3.16-rc2.orig/Documentation/i2c/busses/i2c-i801	2014-06-16 05:4=
-5:28.000000000 +0200
-> +++ linux-3.16-rc2/Documentation/i2c/busses/i2c-i801	2014-06-29 20:49:27.=
-079679858 +0200
-> @@ -25,6 +25,7 @@ Supported adapters:
->    * Intel Avoton (SOC)
->    * Intel Wellsburg (PCH)
->    * Intel Coleto Creek (PCH)
-> +  * Intel Wildcat Point (PCH)
->    * Intel Wildcat Point-LP (PCH)
->    * Intel BayTrail (SOC)
->     Datasheets: Publicly available at the Intel website
-> --- linux-3.16-rc2.orig/drivers/i2c/busses/Kconfig	2014-06-23 10:45:34.37=
-2425164 +0200
-> +++ linux-3.16-rc2/drivers/i2c/busses/Kconfig	2014-06-29 20:48:02.9040006=
-52 +0200
-> @@ -109,6 +109,7 @@ config I2C_I801
->  	    Avoton (SOC)
->  	    Wellsburg (PCH)
->  	    Coleto Creek (PCH)
-> +	    Wildcat Point (PCH)
->  	    Wildcat Point-LP (PCH)
->  	    BayTrail (SOC)
-> =20
-> --- linux-3.16-rc2.orig/drivers/i2c/busses/i2c-i801.c	2014-06-25 18:19:11=
-=2E531786078 +0200
-> +++ linux-3.16-rc2/drivers/i2c/busses/i2c-i801.c	2014-06-29 20:49:14.0624=
-20369 +0200
-> @@ -59,6 +59,7 @@
->   * Wellsburg (PCH) MS      0x8d7e    32     hard     yes     yes     yes
->   * Wellsburg (PCH) MS      0x8d7f    32     hard     yes     yes     yes
->   * Coleto Creek (PCH)      0x23b0    32     hard     yes     yes     yes
-> + * Wildcat Point (PCH)     0x8ca2    32     hard     yes     yes     yes
->   * Wildcat Point-LP (PCH)  0x9ca2    32     hard     yes     yes     yes
->   * BayTrail (SOC)          0x0f12    32     hard     yes     yes     yes
->   *
-> @@ -175,6 +176,7 @@
->  #define PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS	0x23b0
->  #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
->  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
-> +#define PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS	0x8ca2
->  #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS	0x8d22
->  #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS0	0x8d7d
->  #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1	0x8d7e
-> @@ -823,6 +825,7 @@ static const struct pci_device_id i801_i
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_M=
-S1) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_M=
-S2) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS=
-) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBU=
-S) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_S=
-MBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
->  	{ 0, }
->=20
->=20
-> --=20
-> Jean Delvare
-> SUSE L3 Support
 
---lrvsYIebpInmECXG
+--QDIl5R72YNOeCxaP
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTxrlrAAoJEBQN5MwUoCm2BzoQALHPzs4B6m6tGfPcJgczsVjU
-hbVXzHf/j2S8sjIYEYlDf0k0g+ybZqQFXFt5vA+qRFuVXFpdIrmXaKwtD9yGns0G
-tuGsnS9FQfYwQofoMH8P0VySWfqinWoI6s8+8RCF5znvNno2sMpT7x7Bw2r4JINU
-OvKf/gHEHyXZJj8KbFqBRY84QjoG2rkxivof5hLtphPK6vPO24jiD3zlJ5uI6hxI
-S/W/8MJSrMAIsBAkeO40LfpoEMp8E/FSKdlmBSxDvMCf1I3g9pm2qLQ2r5qe5J94
-4ow3h02alDHddGTNeKd5QiWYj0UwEE0yZnM99DMOC6rzqGLd+80lQVbq7BFg1oSs
-wNslRkOSvlXH/GvenvOMMAtUxsAt+vRnxyD9DXGTyjdV/YgW+yUqXpYfqd76N5FC
-fcK/WlcjLJgZvwlivNxTicLwegTj7VanYrsU4CpQUb2gpcccVnEH+QPPo0ys2XNt
-bhcdauWcSm7HDkklR9KwPMZ6nseQ/7qD5worPcG7noOMt+9D8JpMgbLdibcObXqt
-Lkx3CIZ4cPXsLqgcWjPckVU+/0Ve1dy71HGyefXpbCEMKdHWrRJKmHFxoJh+7xDF
-t0o0EQ4ixo2wlgM4T+OmUSU8Lg/1M70KJAYKAVJb3J2aH1dnBJNyTTvlduF6l1ax
-YF+qAA4sVwbhoBcyJ184
-=MsqJ
+iQIcBAEBAgAGBQJTxrpcAAoJEBQN5MwUoCm2WtEP/i6iS+LXxbARgxhigYAWFkUr
+klsJEY41o723X7V6MWVXK5ud2s+1GWY3Z74PTHS8Y2bY79V1mDdq4Sa+FegKM3Q8
+9aOD5VXJBWWyiEufSsqUsJGxxWSz81eLX5n3b4olGWclu8BYKZ73jAt9PNF7SAP4
+G1i8DFZadoBxUbVW/hXk86IULb7Lmq3GOMmNIHJ1PFykI/dq7rogSo5yLccked9r
+Ho3kvEWIHeumRYdDsnlUqUayysl+yTvaJRhuXN+NrfDyH5ZB2/MY/4ZK+poV/cUM
+HrkhvF7Yok4udMtvpcGWaga/GKo5sLZZdz33uZutV09Iek7ce/guPsOuX4/yP+0t
+gjwPpMblPPGhC95aM7rDEELYZ434nszEpHLlE7amPONcCxbjrSYu8Qkg76ZjC/N+
+qaxq0l0QL6292ZBZOa366SxtlY3e8sg/YCJ4SE2Iw2/1aM60W2Gb5M3sqGkzaDZf
+TQTQiKuQbM8OTxiBXT6xKOM5h1n/hX780mJvuCXLdzWC5CbsUob0GHkDOBoDpY9r
+Jf2VXoJ7NYj0bUPEaXOWrn0k+BhBc8rXKaIET6m6Oi3AqhQPFO3OlCamlywOCozi
+90OHHciXrVxLlvWTPbx3H/tM+swlHGlGt+oKvvDxhAUnE/zMnbfM/sDC11+7Vlko
+q8c/leBJlfax/IyaZ3wv
+=2yuG
 -----END PGP SIGNATURE-----
 
---lrvsYIebpInmECXG--
+--QDIl5R72YNOeCxaP--
+
+
+--===============6301060798827206376==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============6301060798827206376==--
