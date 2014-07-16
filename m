@@ -1,97 +1,125 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: Kconfig: Enable HSI2C for Exynos5 platform
-Date: Wed, 16 Jul 2014 19:40:02 +0200
-Message-ID: <20140716174002.GG2759@katana>
-References: <1403690523-1863-1-git-send-email-sachin.kamat@samsung.com>
- <CAD=FV=WzPxT4okEur8C2G=FZK=zq3EsyCv9aAJwZ1PDkfoOcpA@mail.gmail.com>
+Subject: Re: [PATCH] i2c-i801: Add device ID for Intel Wildcat Point PCH
+Date: Wed, 16 Jul 2014 19:42:04 +0200
+Message-ID: <20140716174204.GH2759@katana>
+References: <20140629210054.6a51c91f@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jt0yj30bxbg11sci"
+	protocol="application/pgp-signature"; boundary="lrvsYIebpInmECXG"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAD=FV=WzPxT4okEur8C2G=FZK=zq3EsyCv9aAJwZ1PDkfoOcpA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20140629210054.6a51c91f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sachin Kamat <spk.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---jt0yj30bxbg11sci
+--lrvsYIebpInmECXG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 25, 2014 at 10:55:31AM -0700, Doug Anderson wrote:
-> Sachin,
->=20
-> On Wed, Jun 25, 2014 at 3:02 AM, Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> =
-wrote:
-> > All Exynos5 platforms have HSI2C controllers and are needed by
-> > various IPs connected to the boards based on these SoCs. Thus
-> > select this by default for Exynos5 platforms.
-> >
-> > Signed-off-by: Sachin Kamat <sachin.kamat-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/Kconfig |    4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> > index 9f7d5859cf65..c7918cffe790 100644
-> > --- a/drivers/i2c/busses/Kconfig
-> > +++ b/drivers/i2c/busses/Kconfig
-> > @@ -465,9 +465,9 @@ config I2C_EG20T
-> >  config I2C_EXYNOS5
-> >         tristate "Exynos5 high-speed I2C driver"
-> >         depends on ARCH_EXYNOS5 && OF
-> > +       default y
-> >         help
-> > -         Say Y here to include support for high-speed I2C controller i=
-n the
-> > -         Exynos5 based Samsung SoCs.
-> > +         High-speed I2C controller on Exynos5 based Samsung SoCs.
-> >
-> >  config I2C_GPIO
-> >         tristate "GPIO-based bitbanging I2C"
-> > --
-> > 1.7.9.5
->=20
-> This seems reasonable to me and I will also take the blame for
-> suggesting this.  It's hard to imagine running a real exynos5 system
-> without I2C.  One could argue that on an exynos5250 the high speed I2C
-> controller is not mandatory (since all the ports can be muxed to use
-> the old controller) but on newer exynos5 products you're expected to
-> have the main PMIC on one of the i2c ports.  An exynos system without
-> access to its PMIC will just sorta limp by.
->=20
-> ...but I've added Arnd to this thread as he expressed some
-> reservations about this type of thing, so we'll see what he says.
+On Sun, Jun 29, 2014 at 09:00:54PM +0200, Jean Delvare wrote:
+> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Ping. Arnd? I have no strong opinion and would take this patch...
+I will likely take this patch, nonetheless an Ack from someone from
+Intel would be much appreciated.
 
+> ---
+> Untested, but the datasheet show full compatibility with previous
+> chipsets.
 >=20
-> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+>  Documentation/i2c/busses/i2c-i801 |    1 +
+>  drivers/i2c/busses/Kconfig        |    1 +
+>  drivers/i2c/busses/i2c-i801.c     |    3 +++
+>  3 files changed, 5 insertions(+)
+>=20
+> --- linux-3.16-rc2.orig/Documentation/i2c/busses/i2c-i801	2014-06-16 05:4=
+5:28.000000000 +0200
+> +++ linux-3.16-rc2/Documentation/i2c/busses/i2c-i801	2014-06-29 20:49:27.=
+079679858 +0200
+> @@ -25,6 +25,7 @@ Supported adapters:
+>    * Intel Avoton (SOC)
+>    * Intel Wellsburg (PCH)
+>    * Intel Coleto Creek (PCH)
+> +  * Intel Wildcat Point (PCH)
+>    * Intel Wildcat Point-LP (PCH)
+>    * Intel BayTrail (SOC)
+>     Datasheets: Publicly available at the Intel website
+> --- linux-3.16-rc2.orig/drivers/i2c/busses/Kconfig	2014-06-23 10:45:34.37=
+2425164 +0200
+> +++ linux-3.16-rc2/drivers/i2c/busses/Kconfig	2014-06-29 20:48:02.9040006=
+52 +0200
+> @@ -109,6 +109,7 @@ config I2C_I801
+>  	    Avoton (SOC)
+>  	    Wellsburg (PCH)
+>  	    Coleto Creek (PCH)
+> +	    Wildcat Point (PCH)
+>  	    Wildcat Point-LP (PCH)
+>  	    BayTrail (SOC)
+> =20
+> --- linux-3.16-rc2.orig/drivers/i2c/busses/i2c-i801.c	2014-06-25 18:19:11=
+=2E531786078 +0200
+> +++ linux-3.16-rc2/drivers/i2c/busses/i2c-i801.c	2014-06-29 20:49:14.0624=
+20369 +0200
+> @@ -59,6 +59,7 @@
+>   * Wellsburg (PCH) MS      0x8d7e    32     hard     yes     yes     yes
+>   * Wellsburg (PCH) MS      0x8d7f    32     hard     yes     yes     yes
+>   * Coleto Creek (PCH)      0x23b0    32     hard     yes     yes     yes
+> + * Wildcat Point (PCH)     0x8ca2    32     hard     yes     yes     yes
+>   * Wildcat Point-LP (PCH)  0x9ca2    32     hard     yes     yes     yes
+>   * BayTrail (SOC)          0x0f12    32     hard     yes     yes     yes
+>   *
+> @@ -175,6 +176,7 @@
+>  #define PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS	0x23b0
+>  #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+>  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
+> +#define PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS	0x8ca2
+>  #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS	0x8d22
+>  #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS0	0x8d7d
+>  #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1	0x8d7e
+> @@ -823,6 +825,7 @@ static const struct pci_device_id i801_i
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_M=
+S1) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_M=
+S2) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS=
+) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBU=
+S) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_S=
+MBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
+>  	{ 0, }
+>=20
+>=20
+> --=20
+> Jean Delvare
+> SUSE L3 Support
 
---jt0yj30bxbg11sci
+--lrvsYIebpInmECXG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTxrjyAAoJEBQN5MwUoCm2Uv4QAKS4r9+/GtEo8fqCOErZjukD
-YSmEj/qOOcX4oHLnk63hi8yGTNE2LfW+IdfpwhHUbionjGot6QyDm8MxcflMTvv0
-4c4eygRUPKrVEAWBOs738OJwIuP/4+4EcfYfO+3lMpTpHf2B9UJnOpMijRJiICb+
-afbqlNcxtiF4OKzUJ+RpdjCjmoKkNLp3qqt9QWhNvTuWa4g2Ixfzi2AxKs2j+T3u
-JCasptoTVvN11EhTlxSX4NOdSs3rBt3RouatNiCxv1/Nx5aQ7LO296n8yfuZGvyv
-2GgnR1RewJ7P9HJ1vbuFxTluqfjP6ggJtdixjjDGE09HycHN1ttTJ87ukU+WghkZ
-3d3DtGrr0gtQxZZYkJNSnSub64wPBSqhcCA0qyxs3+BaS2yIP3LclCS0ZU3terW9
-hmWOeKCXsJhTZhWU0NPyHzPeklNhFXxmw8zJs3us5aaoZw/D+Nj8Ta+Pmc5g/WNY
-+MywQMb6J1bRaGLWFNhsj00qozNGcx1f6CoDIpEjyPAAM55ktcgxMgGWEQaKT80Z
-XseGgAVMJkuza2Qze1hlu5aQpRDDydusG7co9B6z9LgpDB5A1xmQnbRjC67HQC+c
-dIxkAJp0NwfMEnV29LL1kN8EzJ75LXowTR9PyrJ3m7dA0iCwo1TBEZzrIqblLAYx
-96wg8g/IEJUE/zEPGAJ3
-=JyEI
+iQIcBAEBAgAGBQJTxrlrAAoJEBQN5MwUoCm2BzoQALHPzs4B6m6tGfPcJgczsVjU
+hbVXzHf/j2S8sjIYEYlDf0k0g+ybZqQFXFt5vA+qRFuVXFpdIrmXaKwtD9yGns0G
+tuGsnS9FQfYwQofoMH8P0VySWfqinWoI6s8+8RCF5znvNno2sMpT7x7Bw2r4JINU
+OvKf/gHEHyXZJj8KbFqBRY84QjoG2rkxivof5hLtphPK6vPO24jiD3zlJ5uI6hxI
+S/W/8MJSrMAIsBAkeO40LfpoEMp8E/FSKdlmBSxDvMCf1I3g9pm2qLQ2r5qe5J94
+4ow3h02alDHddGTNeKd5QiWYj0UwEE0yZnM99DMOC6rzqGLd+80lQVbq7BFg1oSs
+wNslRkOSvlXH/GvenvOMMAtUxsAt+vRnxyD9DXGTyjdV/YgW+yUqXpYfqd76N5FC
+fcK/WlcjLJgZvwlivNxTicLwegTj7VanYrsU4CpQUb2gpcccVnEH+QPPo0ys2XNt
+bhcdauWcSm7HDkklR9KwPMZ6nseQ/7qD5worPcG7noOMt+9D8JpMgbLdibcObXqt
+Lkx3CIZ4cPXsLqgcWjPckVU+/0Ve1dy71HGyefXpbCEMKdHWrRJKmHFxoJh+7xDF
+t0o0EQ4ixo2wlgM4T+OmUSU8Lg/1M70KJAYKAVJb3J2aH1dnBJNyTTvlduF6l1ax
+YF+qAA4sVwbhoBcyJ184
+=MsqJ
 -----END PGP SIGNATURE-----
 
---jt0yj30bxbg11sci--
+--lrvsYIebpInmECXG--
