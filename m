@@ -1,79 +1,130 @@
 From: Bastian Hecht <hechtb@gmail.com>
-Subject: [PATCH v2 4/5] i2c: sc3c2410: Remove suspension check
-Date: Thu, 17 Jul 2014 16:48:39 +0200
-Message-ID: <1405608520-5644-4-git-send-email-hechtb@gmail.com>
+Subject: Re: [PATCH v2 1/5] i2c: Don't start transfers when suspended
+Date: Thu, 17 Jul 2014 16:58:17 +0200
+Message-ID: <CABYn4swJ5NHyUd5+zCK6jhHex4v9DCMe5Qo-BZqxjPf90JfusQ@mail.gmail.com>
 References: <1405608520-5644-1-git-send-email-hechtb@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-pm-owner@vger.kernel.org>
 In-Reply-To: <1405608520-5644-1-git-send-email-hechtb@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-pm-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Linux-SH <linux-sh@vger.kernel.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, Bastian Hecht <hechtb@gmail.com>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, "moderated list:ARM/SAMSUNG ARM A..." <linux-samsung-soc@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Cc: Linux-SH <linux-sh@vger.kernel.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bastian Hecht <hechtb@gmail.com>, open list <linux-kernel@vger.kernel.org>, linux-pm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-We now take care of suspension in the i2c core code. So we can remove this
-check here.
+I want to add the remark that I can't help further on the patch series
+in the next month about. So this is free to be taken/ignored/modified
+without any approval by my side.
 
-Signed-off-by: Bastian Hecht <hechtb@gmail.com>
----
-same as v1
+Have fun coding,
 
- drivers/i2c/busses/i2c-s3c2410.c | 16 ----------------
- 1 file changed, 16 deletions(-)
+ Bastian
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index e828a1d..568b993 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -103,7 +103,6 @@ enum s3c24xx_i2c_state {
- struct s3c24xx_i2c {
- 	wait_queue_head_t	wait;
- 	kernel_ulong_t		quirks;
--	unsigned int		suspended:1;
- 
- 	struct i2c_msg		*msg;
- 	unsigned int		msg_num;
-@@ -714,9 +713,6 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
- 	unsigned long timeout;
- 	int ret;
- 
--	if (i2c->suspended)
--		return -EIO;
--
- 	ret = s3c24xx_i2c_set_master(i2c);
- 	if (ret != 0) {
- 		dev_err(i2c->dev, "cannot get bus (error %d)\n", ret);
-@@ -1257,16 +1253,6 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
- }
- 
- #ifdef CONFIG_PM_SLEEP
--static int s3c24xx_i2c_suspend_noirq(struct device *dev)
--{
--	struct platform_device *pdev = to_platform_device(dev);
--	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
--
--	i2c->suspended = 1;
--
--	return 0;
--}
--
- static int s3c24xx_i2c_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
-@@ -1275,7 +1261,6 @@ static int s3c24xx_i2c_resume(struct device *dev)
- 	clk_prepare_enable(i2c->clk);
- 	s3c24xx_i2c_init(i2c);
- 	clk_disable_unprepare(i2c->clk);
--	i2c->suspended = 0;
- 
- 	return 0;
- }
-@@ -1284,7 +1269,6 @@ static int s3c24xx_i2c_resume(struct device *dev)
- #ifdef CONFIG_PM
- static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
- #ifdef CONFIG_PM_SLEEP
--	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
- 	.resume = s3c24xx_i2c_resume,
- #endif
- };
--- 
-1.9.1
+
+2014-07-17 16:48 GMT+02:00 Bastian Hecht <hechtb@gmail.com>:
+> i2c transfer requests come in very uncontrolled, like from interrupt routines.
+> We might be suspended when this happens. To avoid i2c timeouts caused by
+> powered down busses we check for suspension.
+>
+> Several bus drivers handle this problem on their own. We can clean things up
+> by moving the protection mechanism into the core.
+>
+> Signed-off-by: Bastian Hecht <hechtb@gmail.com>
+> ---
+> changelog v2:
+>
+> - commit message extended.
+> - initialization added for adap->suspended
+> - swapped branch for increased performance
+>
+>
+>  drivers/i2c/i2c-core.c | 25 ++++++++++++++++++++++++-
+>  include/linux/i2c.h    |  1 +
+>  2 files changed, 25 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 7c7f4b8..b15dc20 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -343,6 +343,13 @@ static int i2c_legacy_resume(struct device *dev)
+>  static int i2c_device_pm_suspend(struct device *dev)
+>  {
+>         const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+> +       struct i2c_adapter *adap = i2c_verify_adapter(dev);
+> +
+> +       if (adap) {
+> +               i2c_lock_adapter(adap);
+> +               adap->suspended = true;
+> +               i2c_unlock_adapter(adap);
+> +       }
+>
+>         if (pm)
+>                 return pm_generic_suspend(dev);
+> @@ -353,6 +360,13 @@ static int i2c_device_pm_suspend(struct device *dev)
+>  static int i2c_device_pm_resume(struct device *dev)
+>  {
+>         const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+> +       struct i2c_adapter *adap = i2c_verify_adapter(dev);
+> +
+> +       if (adap) {
+> +               i2c_lock_adapter(adap);
+> +               adap->suspended = false;
+> +               i2c_unlock_adapter(adap);
+> +       }
+>
+>         if (pm)
+>                 return pm_generic_resume(dev);
+> @@ -1243,6 +1257,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>         dev_set_name(&adap->dev, "i2c-%d", adap->nr);
+>         adap->dev.bus = &i2c_bus_type;
+>         adap->dev.type = &i2c_adapter_type;
+> +       adap->suspended = false;
+>         res = device_register(&adap->dev);
+>         if (res)
+>                 goto out_list;
+> @@ -1819,7 +1834,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>                         i2c_lock_adapter(adap);
+>                 }
+>
+> -               ret = __i2c_transfer(adap, msgs, num);
+> +               if (!adap->suspended)
+> +                       ret = __i2c_transfer(adap, msgs, num);
+> +               else
+> +                       ret = -EIO;
+>                 i2c_unlock_adapter(adap);
+>
+>                 return ret;
+> @@ -2577,6 +2595,10 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>
+>         if (adapter->algo->smbus_xfer) {
+>                 i2c_lock_adapter(adapter);
+> +               if (adapter->suspended) {
+> +                       res = -EIO;
+> +                       goto unlock;
+> +               }
+>
+>                 /* Retry automatically on arbitration loss */
+>                 orig_jiffies = jiffies;
+> @@ -2590,6 +2612,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>                                        orig_jiffies + adapter->timeout))
+>                                 break;
+>                 }
+> +unlock:
+>                 i2c_unlock_adapter(adapter);
+>
+>                 if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index b556e0a..af08c75 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -434,6 +434,7 @@ struct i2c_adapter {
+>         int timeout;                    /* in jiffies */
+>         int retries;
+>         struct device dev;              /* the adapter device */
+> +       unsigned int suspended:1;
+>
+>         int nr;
+>         char name[48];
+> --
+> 1.9.1
+>
