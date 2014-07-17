@@ -1,39 +1,54 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: s3c2410: resume the I2C controller earlier
-Date: Wed, 16 Jul 2014 15:31:54 -0700
-Message-ID: <CAD=FV=W6OCzXOE9gz9qxGggiVeTHiveg7W-1hnF3_-OKy7RLKQ@mail.gmail.com>
-References: <1403654214-25072-1-git-send-email-dianders@chromium.org>
-	<20140716173528.GF2759@katana>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH] i2c-i801: Fix the alignment of the device table
+Date: Thu, 17 Jul 2014 08:29:30 +0200
+Message-ID: <20140717082930.0dcad551@endymion.delvare>
+References: <20140623103658.57df2c14@endymion.delvare>
+	<20140716172309.GD2759@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140716173528.GF2759@katana>
+In-Reply-To: <20140716172309.GD2759@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram,
+Hi Wolfram,
 
-On Wed, Jul 16, 2014 at 10:35 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Tue, Jun 24, 2014 at 04:56:54PM -0700, Doug Anderson wrote:
->> From: Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
->>
->> When the wake-up is triggered by the PMIC RTC, the RTC driver is trying
->> to read the PMIC interrupt status over I2C and fails because the I2C
->> controller is not resumed yet.
->> Let's resume the I2C controller earlier in the _noirq phase
->> (as other hardwares are doing), so we can properly get the wake-up
->> condition.
->>
->> Signed-off-by: Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
->> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
->
-> Applied to for-current (because Tomasz said it fixes issues), thanks! If
-> you think the exynos patch of the same style should also be in current,
-> please let me know...
+On Wed, 16 Jul 2014 19:23:09 +0200, Wolfram Sang wrote:
+> On Mon, Jun 23, 2014 at 10:36:58AM +0200, Jean Delvare wrote:
+> > A long name broke the alignment, shift the columns a bit to fix it and
+> > make the table look nice again. While we're here, switch to the
+> > standard comment style to make checkpatch happy.
+> > 
+> > Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> > Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> 
+> Hmmm, what about giving the names even more space so we have some buffer for the
+> future? And what about replacing spaces with tabs?
 
-Thanks!  I don't think the exynos one needs to go into for-current.
-for-next is enough.  :)
+I considered it, but could not make up my mind.
 
--Doug
+The table already spans to column 74. This does not leave that much
+room for growing (table) columns. I am not sure if we would rather use
+the remaining space to have some margin for the name column, as you
+suggest, or keep it as spare space for an extra column if future
+chipsets ever implement a new feature.
+
+Currently, columns are aligned on 3, 27, 36, 44, 52, 60 and 68. None of
+these values are multiple of 8, so the use of tabs would not help much,
+unless we shift everything first.
+
+One possibility is to switch to tabs and shift all columns (but the
+first) by 4 to the right. This rules out the addition of a column in
+the future, but otherwise fulfills your desire.
+
+To be honest, I don't really care. All I wanted is that columns are
+properly aligned. If the plan above makes you happier then fine with
+me, I'll do that.
+
+-- 
+Jean Delvare
+SUSE L3 Support
