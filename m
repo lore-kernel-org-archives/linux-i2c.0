@@ -1,60 +1,172 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2] i2c: stub: Add support for SMBus block commands
-Date: Thu, 17 Jul 2014 15:40:20 +0200
-Message-ID: <20140717154020.650ad59c@endymion.delvare>
-References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
-	<20140717132135.GI2740@katana>
+From: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/5] i2c: Don't start transfers when suspended
+Date: Thu, 17 Jul 2014 16:34:39 +0200
+Message-ID: <CABYn4swzWs3MvADjJChO701Mao3biFemcSm-3FuB-syt91ng+A@mail.gmail.com>
+References: <1405165771-8732-1-git-send-email-hechtb@gmail.com>
+	<20140717130047.GF2740@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20140717132135.GI2740@katana>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Guenter Roeck <linux@roeck-us.net>, Randy Dunlap <rdunlap@infradead.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140717130047.GF2740@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux-SH <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Taekgyun Ko <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 17 Jul 2014 15:21:35 +0200, Wolfram Sang wrote:
-> On Mon, Jul 07, 2014 at 07:23:03AM -0700, Guenter Roeck wrote:
-> > SMBus block commands are different to I2C block commands since
-> > the returned data is not normally accessible with byte or word
-> > commands on other command offsets. Add linked list of 'block'
-> > commands to support those commands.
-> > 
-> > Access mechanism is quite simple: Block commands must be written
-> > before they can be read. The first write selects the block length.
-> > Subsequent writes can be partial. Block read commands always return
-> > the number of bytes selected with the first write.
-> > 
-> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> > v2: Make new functionality only available on request via functionality
-> >     module parameter
-> >     Add more details about SMBus block mode support to documentation
-> >     Use correct sizeof() variable in devm_kzalloc
-> >     Use stub_find_block() only in SMBus block command itself.
-> >     Store first word of block data in chip->words[].
-> >     When writing block data and the written data is longer than
-> >     the first write, bail out with debug message indicating the reason
-> >     for the error.
-> 
-> Thanks for doing this and thanks to Jean for the thorough review.
+Hi Wolfram,
 
-You're welcome.
+thanks for the review.
 
-> The thing I miss is the documentation that SMBUS_BLOCK must explicitly
-> be activated and the description how to do it. A comment in the driver,
-> above STUB_FUNC_* defines might not hurt as well.
+2014-07-17 15:00 GMT+02:00 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
+> Hi Bastian,
+>
+> On Sat, Jul 12, 2014 at 01:49:27PM +0200, Bastian Hecht wrote:
+>> i2c transfer requests come in very uncontrolled, like from interrupt routines.
+>> We might be suspended when this happens. To avoid i2c timeouts caused by
+>> powered down busses we check for suspension.
+>>
+>> Signed-off-by: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>
+> Thanks for doing this! I add linux-pm to CC because of two questions.
+>
+> And in case of resending, please add at least alkml to the CC list. Or
+> better: use 'get_maintainer.pl' as cc-cmd with git-send-email.
 
-Good point.
+Wow these scripts! So useful - thanks for the hint. I looked up the
+few people I added manually in the drivers.
 
-> Also, I'd prefer to squash Jean's "increasing block length" patch into
-> this one if both of you are fine with that?
+>> ---
+>> I ended up getting i2c timeouts when suspending and provoking touchscreen
+>> IRQs on an Armadillo board with an sh_mobile i2c bus. Instead of copying
+>> again the protection mechanism from other bus drivers, we can clean things
+>> up and move this into the core.
+>
+> This could be part of the commit message IMO.
 
-Yes, I would be perfectly fine with that.
+Ok I added it partly. I didn't include the Armadillo specific part,
+but added the general
+idea to move existing protection schemes to the core.
 
-Guenter, can you please send an updated patch?
+>>
+>> I assume that all bus drivers use kzalloc or equivalent for the
+>> struct i2c_adapter. So adap->suspended can't end up uninitialized,
+>> right?
+>
+> Better safe than sorry, I'd say. Please add the initialization.
 
--- 
-Jean Delvare
-SUSE L3 Support
+Ok done.
+
+>> We could consider using this scheme for freeze/restore too.
+>
+> linux-pm: opinions?
+>
+>>
+>>
+>>  drivers/i2c/i2c-core.c | 24 +++++++++++++++++++++++-
+>>  include/linux/i2c.h    |  1 +
+>>  2 files changed, 24 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+>> index 7c7f4b8..9fe9581 100644
+>> --- a/drivers/i2c/i2c-core.c
+>> +++ b/drivers/i2c/i2c-core.c
+>> @@ -343,6 +343,13 @@ static int i2c_legacy_resume(struct device *dev)
+>>  static int i2c_device_pm_suspend(struct device *dev)
+>>  {
+>>       const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+>> +     struct i2c_adapter *adap = i2c_verify_adapter(dev);
+>> +
+>> +     if (adap) {
+>> +             i2c_lock_adapter(adap);
+>> +             adap->suspended = true;
+>> +             i2c_unlock_adapter(adap);
+>> +     }
+>>
+>>       if (pm)
+>>               return pm_generic_suspend(dev);
+>> @@ -353,6 +360,13 @@ static int i2c_device_pm_suspend(struct device *dev)
+>>  static int i2c_device_pm_resume(struct device *dev)
+>>  {
+>>       const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+>> +     struct i2c_adapter *adap = i2c_verify_adapter(dev);
+>> +
+>> +     if (adap) {
+>> +             i2c_lock_adapter(adap);
+>> +             adap->suspended = false;
+>> +             i2c_unlock_adapter(adap);
+>> +     }
+>>
+>>       if (pm)
+>>               return pm_generic_resume(dev);
+>> @@ -1819,7 +1833,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>>                       i2c_lock_adapter(adap);
+>>               }
+>>
+>> -             ret = __i2c_transfer(adap, msgs, num);
+>> +             if (adap->suspended)
+>> +                     ret = -EIO;
+>> +             else
+>> +                     ret = __i2c_transfer(adap, msgs, num);
+>
+> a) Minor: I'd swap the branches and invert the condition, so that the
+> more expected code path comes first
+
+Oh yes, well seen. I swapped it.
+
+> b) linux-pm: I wonder about the return code. Currently, some drivers
+> return -EIO, some -EBUSY. Do you care which? Since we try to have
+> designated fault codes in the i2c subsystem, I wonder about -ESHUTDOWN?
+> Or is this too much of hijacking fault codes?
+
+I looked up Documentation/i2c/fault-codes and -EIO currently is the
+closest blurrily defined fault code to our problem. I agree that
+-ESHUTDOWN would look clearer, but as well agree that I'm unsure about
+getting too pedantic. I left -EIO for the v2 series for now. If we opt
+for -ESHUTDOWN we shouldn't forget to update the docs too.
+
+I will post v2 now but be on the road for probably a month and can't
+participate further here. If needed feel free to completely modify
+these patches - it's a very basic patchset anyway.
+
+Cheers,
+
+ Bastian
+
+
+>>               i2c_unlock_adapter(adap);
+>>
+>>               return ret;
+>> @@ -2577,6 +2594,10 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>>
+>>       if (adapter->algo->smbus_xfer) {
+>>               i2c_lock_adapter(adapter);
+>> +             if (adapter->suspended) {
+>> +                     res = -EIO;
+>> +                     goto unlock;
+>> +             }
+>>
+>>               /* Retry automatically on arbitration loss */
+>>               orig_jiffies = jiffies;
+>> @@ -2590,6 +2611,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>>                                      orig_jiffies + adapter->timeout))
+>>                               break;
+>>               }
+>> +unlock:
+>>               i2c_unlock_adapter(adapter);
+>>
+>>               if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
+>> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+>> index b556e0a..af08c75 100644
+>> --- a/include/linux/i2c.h
+>> +++ b/include/linux/i2c.h
+>> @@ -434,6 +434,7 @@ struct i2c_adapter {
+>>       int timeout;                    /* in jiffies */
+>>       int retries;
+>>       struct device dev;              /* the adapter device */
+>> +     unsigned int suspended:1;
+>>
+>>       int nr;
+>>       char name[48];
+>> --
+>> 1.9.1
+>>
