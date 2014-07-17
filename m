@@ -1,13 +1,13 @@
 From: Bastian Hecht <hechtb@gmail.com>
-Subject: [PATCH v2 5/5] i2c: tegra: Remove suspension check
-Date: Thu, 17 Jul 2014 16:48:40 +0200
-Message-ID: <1405608520-5644-5-git-send-email-hechtb@gmail.com>
+Subject: [PATCH v3 3/5] i2c: exynos5: Remove suspension check
+Date: Thu, 17 Jul 2014 16:48:38 +0200
+Message-ID: <1405608520-5644-3-git-send-email-hechtb@gmail.com>
 References: <1405608520-5644-1-git-send-email-hechtb@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1405608520-5644-1-git-send-email-hechtb@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Linux-SH <linux-sh@vger.kernel.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, Bastian Hecht <hechtb@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, "open list:TEGRA ARCHITECTUR..." <linux-tegra@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Cc: Linux-SH <linux-sh@vger.kernel.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, Bastian Hecht <hechtb@gmail.com>, Kukjin Kim <kgene.kim@samsung.com>, Naveen Krishna Ch <ch.naveen@samsung.com>, Jingoo Han <jg1.han@samsung.com>, Jean Delvare <jdelvare@suse.de>, Linus Walleij <linus.walleij@linaro.org>, Masanari Iida <standby24x7@gmail.com>, Sachin Kamat <sachin.kamat@linaro.org>, "moderated list:ARM/S5P EXYNOS AR..." <linux-samsung-soc@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 We now take care of suspension in the i2c core code. So we can remove this
@@ -17,64 +17,65 @@ Signed-off-by: Bastian Hecht <hechtb@gmail.com>
 ---
 same as v1
 
- drivers/i2c/busses/i2c-tegra.c | 19 +------------------
- 1 file changed, 1 insertion(+), 18 deletions(-)
+ drivers/i2c/busses/i2c-exynos5.c | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index f1bb2fc..c279d85 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -172,7 +172,6 @@ struct tegra_i2c_dev {
- 	size_t msg_buf_remaining;
- 	int msg_read;
- 	u32 bus_clk_rate;
--	bool is_suspended;
- };
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index 63d2292..a80cf28 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -145,7 +145,6 @@
  
- static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned long reg)
-@@ -628,9 +627,6 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 	int i;
- 	int ret = 0;
+ struct exynos5_i2c {
+ 	struct i2c_adapter	adap;
+-	unsigned int		suspended:1;
  
--	if (i2c_dev->is_suspended)
--		return -EBUSY;
+ 	struct i2c_msg		*msg;
+ 	struct completion	msg_complete;
+@@ -610,11 +609,6 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+ 	struct exynos5_i2c *i2c = adap->algo_data;
+ 	int i = 0, ret = 0, stop = 0;
+ 
+-	if (i2c->suspended) {
+-		dev_err(i2c->dev, "HS-I2C is not initialized.\n");
+-		return -EIO;
+-	}
 -
- 	ret = tegra_i2c_clock_enable(i2c_dev);
- 	if (ret < 0) {
- 		dev_err(i2c_dev->dev, "Clock enable failed %d\n", ret);
-@@ -817,17 +813,6 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ 	clk_prepare_enable(i2c->clk);
+ 
+ 	for (i = 0; i < num; i++, msgs++) {
+@@ -757,16 +751,6 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
  }
  
  #ifdef CONFIG_PM_SLEEP
--static int tegra_i2c_suspend(struct device *dev)
+-static int exynos5_i2c_suspend_noirq(struct device *dev)
 -{
--	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
 -
--	i2c_lock_adapter(&i2c_dev->adapter);
--	i2c_dev->is_suspended = true;
--	i2c_unlock_adapter(&i2c_dev->adapter);
+-	i2c->suspended = 1;
 -
 -	return 0;
 -}
 -
- static int tegra_i2c_resume(struct device *dev)
+ static int exynos5_i2c_resume_noirq(struct device *dev)
  {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-@@ -842,14 +827,12 @@ static int tegra_i2c_resume(struct device *dev)
- 		return ret;
- 	}
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -783,14 +767,12 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
  
--	i2c_dev->is_suspended = false;
--
- 	i2c_unlock_adapter(&i2c_dev->adapter);
+ 	exynos5_i2c_init(i2c);
+ 	clk_disable_unprepare(i2c->clk);
+-	i2c->suspended = 0;
  
  	return 0;
  }
+ #endif
  
--static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_suspend, tegra_i2c_resume);
-+static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_resume);
- #define TEGRA_I2C_PM	(&tegra_i2c_pm)
- #else
- #define TEGRA_I2C_PM	NULL
+-static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, exynos5_i2c_suspend_noirq,
+-			 exynos5_i2c_resume_noirq);
++static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, exynos5_i2c_resume_noirq);
+ 
+ static struct platform_driver exynos5_i2c_driver = {
+ 	.probe		= exynos5_i2c_probe,
 -- 
 1.9.1
