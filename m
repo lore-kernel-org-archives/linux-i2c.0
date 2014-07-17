@@ -1,46 +1,41 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: efm32: correct namespacing of location property
-Date: Thu, 17 Jul 2014 20:42:37 +0200
-Message-ID: <20140717184237.GX11056@pengutronix.de>
-References: <1405066940-12919-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <1405068614-14279-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <20140717134000.GK2740@katana>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH] i2c-stub: Avoid an array overrun on I2C block transfers
+Date: Thu, 17 Jul 2014 20:50:28 +0200
+Message-ID: <20140717205028.76c1bc66@endymion.delvare>
+References: <20140713171717.25497712@endymion.delvare>
+	<20140717172720.GE2901@katana>
+	<20140717175749.GA25303@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140717134000.GK2740@katana>
+In-Reply-To: <20140717175749.GA25303-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 17, 2014 at 03:40:00PM +0200, Wolfram Sang wrote:
-> On Fri, Jul 11, 2014 at 10:50:14AM +0200, Uwe Kleine-K=F6nig wrote:
-> > Olof Johansson pointed out that usually the company name is picked =
-as
-> > namespace prefix to specific properties. So expect "energymicro,loc=
-ation"
-> > but fall back to the previously introduced name "efm32,location".
-> >=20
-> > Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->=20
-> Applied to for-next, thanks! If you think this is better suited in
-> for-current, let me know.
-I'm not in a hurry. If you take it it's fine for me.
+On Thu, 17 Jul 2014 10:57:49 -0700, Guenter Roeck wrote:
+> On Thu, Jul 17, 2014 at 07:27:20PM +0200, Wolfram Sang wrote:
+> > On Sun, Jul 13, 2014 at 05:17:17PM +0200, Jean Delvare wrote:
+> > > I2C block transfers can have a size up to 32 bytes. If starting close
+> > 
+> > Shouldn't that be "256 bytes"? 32 is SMBUS transfer size? Otherwise I
+> > don't understand the patch.
+>
+> If I understand correctly, this is still an SMBus command, which is limited
+> to 32 bytes. Maybe the description should read "SMBus I2C block transfers ...".
 
-(BTW, I'm not sure i fI understand your branch naming. for-next means
-"targeting the next merge window" and for-current means "targeting the
-next release"? So for-next currently means 3.17-rc1?)
+That's correct, "I2C block transfers" despite the name really are
+SMBus-style transfers and the SMBus buffer size limit of 32 bytes thus
+applies.
 
-Thanks
-Uwe
+With this clarified, Wolfram, what is is that you do not understand?
+The start of the block transfer can be anywhere in 0-255, and the size
+can be in 1-32, so without a boundary check, one can attempt to read or
+write up to offset 255 + 32 - 1 = 286, which is way beyond the
+the end of the chip->words array. My patch prevents that from happening.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+-- 
+Jean Delvare
+SUSE L3 Support
