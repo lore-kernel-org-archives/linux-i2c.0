@@ -1,63 +1,79 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/5] i2c: Don't start transfers when suspended
-Date: Thu, 17 Jul 2014 15:04:24 +0200
-Message-ID: <20140717130424.GH2740@katana>
-References: <1405165771-8732-1-git-send-email-hechtb@gmail.com>
- <20140717130047.GF2740@katana>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: [PATCH v2] i2c-i801: Add device ID for Intel Wildcat Point PCH
+Date: Thu, 17 Jul 2014 15:04:41 +0200
+Message-ID: <20140717150441.7e24cd1d@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZFKeWUZP29EKQNE"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140717130047.GF2740@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Bastian Hecht <hechtb@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Linux-SH <linux-sh@vger.kernel.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, Taekgyun Ko <taeggyun.ko@samsung.com>, Ben Dooks <ben@simtec.co.uk>, Magnus Damm <magnus.damm@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+Untested, but the datasheet show full compatibility with previous
+chipsets.
 
---LZFKeWUZP29EKQNE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Changes since v1:
+ * Rebased, no other change
 
-On Thu, Jul 17, 2014 at 03:00:48PM +0200, Wolfram Sang wrote:
-> Hi Bastian,
->=20
-> On Sat, Jul 12, 2014 at 01:49:27PM +0200, Bastian Hecht wrote:
-> > i2c transfer requests come in very uncontrolled, like from interrupt ro=
-utines.
-> > We might be suspended when this happens. To avoid i2c timeouts caused by
-> > powered down busses we check for suspension.
-> >=20
-> > Signed-off-by: Bastian Hecht <hechtb@gmail.com>
->=20
-> Thanks for doing this! I add linux-pm to CC because of two questions.
+ Documentation/i2c/busses/i2c-i801 |    1 +
+ drivers/i2c/busses/Kconfig        |    1 +
+ drivers/i2c/busses/i2c-i801.c     |    3 +++
+ 3 files changed, 5 insertions(+)
 
-And in case of resending, please add at least alkml to the CC list. Or
-better: use 'get_maintainer.pl' as cc-cmd with git-send-email.
+--- linux-3.16-rc4.orig/Documentation/i2c/busses/i2c-i801	2014-07-17 12:59:12.569368248 +0200
++++ linux-3.16-rc4/Documentation/i2c/busses/i2c-i801	2014-07-17 13:02:02.011437148 +0200
+@@ -25,6 +25,7 @@ Supported adapters:
+   * Intel Avoton (SOC)
+   * Intel Wellsburg (PCH)
+   * Intel Coleto Creek (PCH)
++  * Intel Wildcat Point (PCH)
+   * Intel Wildcat Point-LP (PCH)
+   * Intel BayTrail (SOC)
+    Datasheets: Publicly available at the Intel website
+--- linux-3.16-rc4.orig/drivers/i2c/busses/Kconfig	2014-07-17 12:59:12.569368248 +0200
++++ linux-3.16-rc4/drivers/i2c/busses/Kconfig	2014-07-17 13:02:02.011437148 +0200
+@@ -109,6 +109,7 @@ config I2C_I801
+ 	    Avoton (SOC)
+ 	    Wellsburg (PCH)
+ 	    Coleto Creek (PCH)
++	    Wildcat Point (PCH)
+ 	    Wildcat Point-LP (PCH)
+ 	    BayTrail (SOC)
+ 
+--- linux-3.16-rc4.orig/drivers/i2c/busses/i2c-i801.c	2014-07-17 12:59:12.570368267 +0200
++++ linux-3.16-rc4/drivers/i2c/busses/i2c-i801.c	2014-07-17 13:02:02.012437163 +0200
+@@ -59,6 +59,7 @@
+  * Wellsburg (PCH) MS		0x8d7e	32	hard	yes	yes	yes
+  * Wellsburg (PCH) MS		0x8d7f	32	hard	yes	yes	yes
+  * Coleto Creek (PCH)		0x23b0	32	hard	yes	yes	yes
++ * Wildcat Point (PCH)		0x8ca2	32	hard	yes	yes	yes
+  * Wildcat Point-LP (PCH)	0x9ca2	32	hard	yes	yes	yes
+  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
+  *
+@@ -175,6 +176,7 @@
+ #define PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS		0x23b0
+ #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS		0x3b30
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS		0x8c22
++#define PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS		0x8ca2
+ #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS		0x8d22
+ #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS0		0x8d7d
+ #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1		0x8d7e
+@@ -823,6 +825,7 @@ static const struct pci_device_id i801_i
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
+ 	{ 0, }
 
 
---LZFKeWUZP29EKQNE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTx8nYAAoJEBQN5MwUoCm2wTgP/jkzKBKzo5LV8hEahU5TQFcf
-nMLlbmOhXcMktwWGTfljdMDb4t4g40tM+hXB3C5qj981fS2XknBHMK7i8865E+dB
-V1ILt1cHiZU9qBW+MBSxS0XeWlH/tNXyvrWcnzOFrDLF1s8WI5ii+c7DyLl0Ie7/
-3VruFWBuJYg4GLKoWgVQsqZHvGp5e1CA1FWDlZvIgHtQy9tOqe74msNavGUXk6j+
-faMaCnwswQjbZBXFgkxwKdf3ma1YqC8gUQEQFRFklBZl0Fv6hfelUkDQfLajNBZw
-bI/UtsrMFN04zMh6jKltYSQUOFlRhs+ciCyUw1hWKFWjmlFz+/1XfSCh2WrstgO0
-pu2bMuKVqvq6R38aSvdy/XsCgNSbqfgBdSZAKisXntoVOtkYoStkVRO4rPKlV22N
-8NY2/iQDmxDE636T+pyjPDxMVFdS2egPzq+slnpBrE416AVDTjWydunlMPQI8iXv
-yV3rp1Y1eOoyRgPGD9uSDuSHVRb8pbdqaQ3Agt+4+tpr5rulW815c003+neTIR+/
-+ZaEvg4bUZBsc30ttIn+bTosTnanIaqQdqzNczz0kMw6B7PI0tSGeWJadnHTjAQc
-TOgcs3xIyHDAhNfGfMGZG9eLEU59aTlmlfJ/K2L3DJHwy+M8GdOTKEyVeARcyNoi
-W3kdXilhPUeaCn1H4dRr
-=9YrQ
------END PGP SIGNATURE-----
-
---LZFKeWUZP29EKQNE--
+-- 
+Jean Delvare
+SUSE L3 Support
