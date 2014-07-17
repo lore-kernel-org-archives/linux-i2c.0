@@ -1,58 +1,60 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: efm32: correct namespacing of location property
-Date: Thu, 17 Jul 2014 15:40:00 +0200
-Message-ID: <20140717134000.GK2740@katana>
-References: <1405066940-12919-1-git-send-email-u.kleine-koenig@pengutronix.de>
- <1405068614-14279-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] i2c: stub: Add support for SMBus block commands
+Date: Thu, 17 Jul 2014 15:40:20 +0200
+Message-ID: <20140717154020.650ad59c@endymion.delvare>
+References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
+	<20140717132135.GI2740@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Ah40dssYA/cDqAW1"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1405068614-14279-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20140717132135.GI2740@katana>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Guenter Roeck <linux@roeck-us.net>, Randy Dunlap <rdunlap@infradead.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 17 Jul 2014 15:21:35 +0200, Wolfram Sang wrote:
+> On Mon, Jul 07, 2014 at 07:23:03AM -0700, Guenter Roeck wrote:
+> > SMBus block commands are different to I2C block commands since
+> > the returned data is not normally accessible with byte or word
+> > commands on other command offsets. Add linked list of 'block'
+> > commands to support those commands.
+> > 
+> > Access mechanism is quite simple: Block commands must be written
+> > before they can be read. The first write selects the block length.
+> > Subsequent writes can be partial. Block read commands always return
+> > the number of bytes selected with the first write.
+> > 
+> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > ---
+> > v2: Make new functionality only available on request via functionality
+> >     module parameter
+> >     Add more details about SMBus block mode support to documentation
+> >     Use correct sizeof() variable in devm_kzalloc
+> >     Use stub_find_block() only in SMBus block command itself.
+> >     Store first word of block data in chip->words[].
+> >     When writing block data and the written data is longer than
+> >     the first write, bail out with debug message indicating the reason
+> >     for the error.
+> 
+> Thanks for doing this and thanks to Jean for the thorough review.
 
---Ah40dssYA/cDqAW1
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You're welcome.
 
-On Fri, Jul 11, 2014 at 10:50:14AM +0200, Uwe Kleine-K=C3=B6nig wrote:
-> Olof Johansson pointed out that usually the company name is picked as
-> namespace prefix to specific properties. So expect "energymicro,location"
-> but fall back to the previously introduced name "efm32,location".
->=20
-> Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-> Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> The thing I miss is the documentation that SMBUS_BLOCK must explicitly
+> be activated and the description how to do it. A comment in the driver,
+> above STUB_FUNC_* defines might not hurt as well.
 
-Applied to for-next, thanks! If you think this is better suited in
-for-current, let me know.
+Good point.
 
+> Also, I'd prefer to squash Jean's "increasing block length" patch into
+> this one if both of you are fine with that?
 
---Ah40dssYA/cDqAW1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Yes, I would be perfectly fine with that.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Guenter, can you please send an updated patch?
 
-iQIcBAEBAgAGBQJTx9IwAAoJEBQN5MwUoCm26vYP/2Bp7QzcJiZpEpfNwhNGOjW8
-xZB8+B9m2e75F+XJRcnZTNrPOXRTVZ43VB63mTGDXCGZKYD3g/rCfOsErK4dQwY9
-vzdVVeCXAKA7+X5qxP/0uOycSF3NGzFXHSUabP7BHvAg68I2exnE47OrKXSsGr87
-DQyMXKFJIpXhJIkA50gzNo+x3rx7ceg3oe1RR2axKOOixRIGIQV7m/Zt8qpYxmkx
-PvMWX74l59jlbg5lqYy7dPXPKjoKyywDhnoq/w6J0Y6LuGsdIijw7AWsSvHO2pLY
-Pq6pmK1Lqf27ugqabcfU+UbIQRbj2sXHG6Mv314BwuMXlGuEgWOg5U1VZYSkHbPo
-QEBlhdLewu0+EUXVwhCvdNWgHvYTj6pcXTkWhSNk0jarEJbWwtJrPmZQZyZcUXF1
-wprF5CNGvvrfqNw1IrTJT02RxwJsO6GJC3BzZTH95YQgJDxPChBNwSywaM4Qnxmc
-xHvTEfbojCTt4i+Xr03W3Rs4U36KnbN0xwuRKOTQt1oHjdhl6fAYxQILAELK5Bbq
-O6If3zaLqS1NualuZaZlZKXMF3w1NKeEhOajZm3Qt0nSx6AKKXV2ZBpI772ooAjy
-CzeAQDj9xEIgNuKPOCiUfej6musAfsw+0DTUhIGy+CAyprwqA7GL7A6TUH0zcEzK
-WGdU6N8SmT32aB/X8yxl
-=VSPe
------END PGP SIGNATURE-----
-
---Ah40dssYA/cDqAW1--
+-- 
+Jean Delvare
+SUSE L3 Support
