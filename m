@@ -1,58 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/5] i2c: Don't start transfers when suspended
-Date: Thu, 17 Jul 2014 17:09:59 +0200
-Message-ID: <20140717150958.GA2901@katana>
-References: <1405608520-5644-1-git-send-email-hechtb@gmail.com>
- <CABYn4swJ5NHyUd5+zCK6jhHex4v9DCMe5Qo-BZqxjPf90JfusQ@mail.gmail.com>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH 02/16] i2c: i2c-at91: Drop class based scanning to
+ improve bootup time
+Date: Thu, 17 Jul 2014 17:27:23 +0200
+Message-ID: <20140717152723.GF2323@ldesroches-Latitude-E6320>
+References: <1404992799-3705-1-git-send-email-wsa@the-dreams.de>
+ <1404992799-3705-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
-Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CABYn4swJ5NHyUd5+zCK6jhHex4v9DCMe5Qo-BZqxjPf90JfusQ@mail.gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Bastian Hecht <hechtb@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Linux-SH <linux-sh@vger.kernel.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, open list <linux-kernel@vger.kernel.org>, linux-pm@vger.kernel.org
+In-Reply-To: <1404992799-3705-3-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ludovic Desroches <ludovic.desroches@atmel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Jul 10, 2014 at 01:46:22PM +0200, Wolfram Sang wrote:
+> This driver has been flagged to drop class based instantiation. The removal
+> improves boot-up time and is unneeded for embedded controllers. Users have been
+> warned to switch for some time now, so we can actually do the removal. Keep the
+> DEPRECATED flag, so the core can inform users that the behaviour finally
+> changed now. After another transition period, this flag can go, too.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Ludovic Desroches <ludovic.desroches@atmel.com>
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks
 
-On Thu, Jul 17, 2014 at 04:58:17PM +0200, Bastian Hecht wrote:
-> I want to add the remark that I can't help further on the patch series
-> in the next month about. So this is free to be taken/ignored/modified
-> without any approval by my side.
-
-Good to know. I'd like to get some Tested-by tags before applying to
-make sure we have no regressions. So, with you being away, let's just
-schedule this for 3.18 and we have all the time we need. Thanks for
-finishing this code before you left. Have a great month!
-
-   Wolfram
-
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJTx+dGAAoJEBQN5MwUoCm2kTAQAILjCU9YgdSrBzIrZlErvV7j
-RCjYBuvlZObzxxkWsCmqkhWT0erU+UsBHzkVITCctnDYdgYJdE2fdJMiogOcxzHw
-jjrj2P/+OWFuWtjaUnsCw5WaYWx5g8xnlirSmslEgw0M4iefKolRPnxYzvnSj2SN
-6ldW/xomnMKtfUmq6havxHieGkC7LOwoIw9r3oEUmP6hyLfsAFOvHUrrL3Zw3XSh
-0RG6hGEUYoX9CJUBQXPVoyntnHD7ehoYafrakXuiiBpOgIkXF/W54E5a6XFNViGd
-XT6zQnmxK7kJ27qMGvEsGQGfKmNy5yLCCuwFnjIxpEu/FnODT+ZhHbNc1YPDkSf8
-iU4HSymPE8Sfr5JOU2FACpFImOFqjXOWrhY0lLv0aA5xh2uyE2xmo62sI6jIl/5R
-KUhJNnRClqCKLzZPz+z3KzCBLnJlSs5L9qiqo6tjsdemy0Sk1FJ+Zhu9GsOc85Xa
-9M6KaANDmRRtUC2A0PRHRlUYLr7uBWCf148oX9RPDtxWOCp5xihbGtZ320uHtyOR
-nj63qouwnwa/FHJDem97Dc+ujJViSBWC+FxiZoBgGtLhKdjzhZI7xlNBJ5S0zvJn
-YTVdU2BPqddqFurC3Mc9l3Ub0w88+ZpposbRKVqxusxU8BIbTA1CEYkdctUoQkiX
-Va2fWKGUdV3IcImsAwbA
-=8ugv
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--
+> ---
+>  drivers/i2c/busses/i2c-at91.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index e95f9ba96790..7033e9166d1f 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -768,7 +768,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+>  	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+>  	i2c_set_adapdata(&dev->adapter, dev);
+>  	dev->adapter.owner = THIS_MODULE;
+> -	dev->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
+> +	dev->adapter.class = I2C_CLASS_DEPRECATED;
+>  	dev->adapter.algo = &at91_twi_algorithm;
+>  	dev->adapter.dev.parent = dev->dev;
+>  	dev->adapter.nr = pdev->id;
+> -- 
+> 2.0.0
+> 
