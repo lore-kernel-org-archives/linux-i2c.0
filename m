@@ -1,46 +1,55 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] i2c-i801: Fix the alignment of the device table
-Date: Thu, 17 Jul 2014 12:00:39 +0200
-Message-ID: <20140717120039.0889a3fa@endymion.delvare>
-References: <20140623103658.57df2c14@endymion.delvare>
-	<20140716172309.GD2759@katana>
-	<20140717082930.0dcad551@endymion.delvare>
-	<20140717084157.GA2740@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2 v2] i2c: exynos5: remove an unnecessary read of
+ FIFO_STATUS register
+Date: Thu, 17 Jul 2014 12:02:36 +0200
+Message-ID: <20140717100235.GB2740@katana>
+References: <1403759698-15624-1-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140717084157.GA2740@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/NkBOFFp2J2Af1nK"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1403759698-15624-1-git-send-email-ch.naveen@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, naveenkrishna.ch@gmail.com, linux-arm-kernel@lists.infradead.org, sjg@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com, broonie@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 17 Jul 2014 10:41:57 +0200, Wolfram Sang wrote:
+
+--/NkBOFFp2J2Af1nK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jun 26, 2014 at 10:44:57AM +0530, Naveen Krishna Chatradhi wrote:
+> This patch removes an extra read of FIFO_STATUS register in the interrrupt
+> service routine. Which is read again before the actual use.
 >=20
-> > One possibility is to switch to tabs and shift all columns (but the
-> > first) by 4 to the right. This rules out the addition of a column i=
-n
-> > the future, but otherwise fulfills your desire.
->=20
-> I'd like that. Plus, I am not so strict with the 80 char limit. If th=
-ere
-> is another feature, then be it on column 80+. I don't think the table
-> will grow to 100+ chars in the future. If so, we probably need to
-> redesign it anyhow.
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
 
-Agreed.
+Applied to for-next, thanks!
 
-> > To be honest, I don't really care. All I wanted is that columns are
-> > properly aligned. If the plan above makes you happier then fine wit=
-h
-> > me, I'll do that.
->=20
-> Please do. And thanks for doing annoying whitespace work.
 
-No problem. Above 30=B0C that's about all my brain is good at anyway ;-=
-)
+--/NkBOFFp2J2Af1nK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
---=20
-Jean Delvare
-SUSE L3 Support
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJTx587AAoJEBQN5MwUoCm2NakP/2SHmIRNVYzhGZnt5ExXLyq1
+kpKycVraGSvQ4B3+X4bILSHltQuo2ZP5IhfokCSGv7yF2PdHQ/BUmeaA8gyxOHSb
+SlRyRDQhVLoDccVGKQfy1sCsiPrF+kZN612KBJEjXqtwhY/fbDDCwBpbxOFlUg81
+K+JB90b1ta/vns5eqa7nF+4mbZSqgHINm+4xVLR9Y2cdnId3kQ3vCnyaGiOKmYHx
+GcL82oHzdwyai4PqYMJ2QThYC/57ErfPuSSmclY81H2m4ZaJ4SVvPZEGGo6qDgJw
+w6A87Xvalv8Nf5eMxmp6L46C/PJQkWAM5QtjEztR/RWsofX2l7MFTCUKtiiSAyCz
+c76UOPtmAAbm8vDrhfM8LjBp9H9NlXZG72EPS9lWsrUuGNK6d86A5rDZBO/hqWz3
+jw8zvClt1BluCw/qjG3ya59V8dzHy4WTEQTeq5zUHJyYIVPGGUgaVMMGqurxrotJ
+ezXVM5hncFG9AQp5tu+0UsM6sEjrBrNdiM9EGNTX1kNj0pyK3E/BddrIXmre7D/E
+GWOFtsbVF1Aj1gEmQAr2Zy4ghmW3rYhmcKceBwWGQsNN/gaaodnLxKm9gBQ+A5eo
+HO72FBxwfNoyJuEonDZfceJefF0mlDEHiavWxKLdcilsjVy/P7V3WNulBPSlcHHc
+Ta9nsBZ/wwajUn7A3ynO
+=q1w0
+-----END PGP SIGNATURE-----
+
+--/NkBOFFp2J2Af1nK--
