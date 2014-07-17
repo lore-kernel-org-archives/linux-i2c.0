@@ -1,102 +1,236 @@
-From: Bastian Hecht <hechtb@gmail.com>
-Subject: Re: [PATCH v3 3/5] i2c: exynos5: Remove suspension check
-Date: Thu, 17 Jul 2014 18:54:10 +0200
-Message-ID: <CABYn4swJfYhTbXA0zYG4Mncm2xSGjL8CQPyeEB_piQWE+wUyTA@mail.gmail.com>
-References: <1405608520-5644-1-git-send-email-hechtb@gmail.com>
- <1405608520-5644-3-git-send-email-hechtb@gmail.com>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH v3] i2c: stub: Add support for SMBus block commands
+Date: Thu, 17 Jul 2014 09:56:03 -0700
+Message-ID: <20140717165603.GA16408@roeck-us.net>
+References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
+ <20140717132135.GI2740@katana>
+ <20140717154020.650ad59c@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1405608520-5644-3-git-send-email-hechtb@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: Jingoo Han <jg1.han@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Linux-SH <linux-sh@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>, open list <linux-kernel@vger.kernel.org>, Masanari Iida <standby24x7@gmail.com>, Bastian Hecht <hechtb@gmail.com>, "moderated list:ARM/S5P EXYNOS AR..." <linux-samsung-soc@vger.kernel.org>, Jean Delvare <jdelvare@suse.de>, Naveen Krishna Ch <ch.naveen@samsung.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Sachin Kamat <sachin.kamat@linaro.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140717154020.650ad59c-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2014-07-17 16:48 GMT+02:00 Bastian Hecht <hechtb@gmail.com>:
-> We now take care of suspension in the i2c core code. So we can remove this
-> check here.
->
-> Signed-off-by: Bastian Hecht <hechtb@gmail.com>
-> ---
-> same as v1
->
->  drivers/i2c/busses/i2c-exynos5.c | 20 +-------------------
->  1 file changed, 1 insertion(+), 19 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index 63d2292..a80cf28 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -145,7 +145,6 @@
->
->  struct exynos5_i2c {
->         struct i2c_adapter      adap;
-> -       unsigned int            suspended:1;
->
->         struct i2c_msg          *msg;
->         struct completion       msg_complete;
-> @@ -610,11 +609,6 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
->         struct exynos5_i2c *i2c = adap->algo_data;
->         int i = 0, ret = 0, stop = 0;
->
-> -       if (i2c->suspended) {
-> -               dev_err(i2c->dev, "HS-I2C is not initialized.\n");
-> -               return -EIO;
-> -       }
-> -
->         clk_prepare_enable(i2c->clk);
->
->         for (i = 0; i < num; i++, msgs++) {
-> @@ -757,16 +751,6 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
->  }
->
->  #ifdef CONFIG_PM_SLEEP
-> -static int exynos5_i2c_suspend_noirq(struct device *dev)
-> -{
-> -       struct platform_device *pdev = to_platform_device(dev);
-> -       struct exynos5_i2c *i2c = platform_get_drvdata(pdev);
-> -
-> -       i2c->suspended = 1;
-> -
-> -       return 0;
-> -}
-> -
->  static int exynos5_i2c_resume_noirq(struct device *dev)
->  {
->         struct platform_device *pdev = to_platform_device(dev);
-> @@ -783,14 +767,12 @@ static int exynos5_i2c_resume_noirq(struct device *dev)
->
->         exynos5_i2c_init(i2c);
->         clk_disable_unprepare(i2c->clk);
-> -       i2c->suspended = 0;
->
->         return 0;
->  }
->  #endif
->
-> -static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, exynos5_i2c_suspend_noirq,
-> -                        exynos5_i2c_resume_noirq);
-> +static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, exynos5_i2c_resume_noirq);
+SMBus block commands are different to I2C block commands since
+the returned data is not normally accessible with byte or word
+commands on other command offsets. Add linked list of 'block'
+commands to support those commands.
 
-This should be
+Access mechanism is quite simple: Block commands must be written
+before they can be read. Subsequent writes can be partial. Block
+read commands always return the number of bytes associated with
+the longest previous write.
 
-+static SIMPLE_DEV_PM_OPS(exynos5_i2c_dev_pm_ops, NULL,
-exynos5_i2c_resume_noirq);
+Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+---
+v3: Document that SMBus block commands are by default disabled and how
+    to enable them.
+    Merge Jean's "increasing block length" patch into this one.
+v2: Make new functionality only available on request via functionality
+    module parameter.
+    Add more details about SMBus block mode support to documentation.
+    Use correct sizeof() variable in devm_kzalloc.
+    Use stub_find_block() only in SMBus block command itself.
+    Store first word of block data in chip->words[].
+    When writing block data and the written data is longer than
+    the first write, bail out with debug message indicating the reason
+    for the error.
 
-And this is v2, not v3.
+ Documentation/i2c/i2c-stub | 12 +++++-
+ drivers/i2c/i2c-stub.c     | 99 +++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 104 insertions(+), 7 deletions(-)
 
->  static struct platform_driver exynos5_i2c_driver = {
->         .probe          = exynos5_i2c_probe,
-> --
-> 1.9.1
->
+diff --git a/Documentation/i2c/i2c-stub b/Documentation/i2c/i2c-stub
+index fa4b669..a0fe7a0 100644
+--- a/Documentation/i2c/i2c-stub
++++ b/Documentation/i2c/i2c-stub
+@@ -2,9 +2,9 @@ MODULE: i2c-stub
+ 
+ DESCRIPTION:
+ 
+-This module is a very simple fake I2C/SMBus driver.  It implements five
++This module is a very simple fake I2C/SMBus driver.  It implements six
+ types of SMBus commands: write quick, (r/w) byte, (r/w) byte data, (r/w)
+-word data, and (r/w) I2C block data.
++word data, (r/w) I2C block data, and (r/w) SMBus block data.
+ 
+ You need to provide chip addresses as a module parameter when loading this
+ driver, which will then only react to SMBus commands to these addresses.
+@@ -19,6 +19,14 @@ A pointer register with auto-increment is implemented for all byte
+ operations.  This allows for continuous byte reads like those supported by
+ EEPROMs, among others.
+ 
++SMBus block command support is disabled by default, and must be enabled
++explicitly by setting the respective bits (0x03000000) in the functionality
++module parameter.
++
++SMBus block commands must be written to configure an SMBus command for
++SMBus block operations. Writes can be partial. Block read commands always
++return the number of bytes selected with the largest write so far.
++
+ The typical use-case is like this:
+ 	1. load this module
+ 	2. use i2cset (from the i2c-tools project) to pre-load some data
+diff --git a/drivers/i2c/i2c-stub.c b/drivers/i2c/i2c-stub.c
+index 77e4849..e0bb465 100644
+--- a/drivers/i2c/i2c-stub.c
++++ b/drivers/i2c/i2c-stub.c
+@@ -27,29 +27,70 @@
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+ #include <linux/i2c.h>
++#include <linux/list.h>
+ 
+ #define MAX_CHIPS 10
+-#define STUB_FUNC (I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE | \
+-		   I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA | \
+-		   I2C_FUNC_SMBUS_I2C_BLOCK)
++
++/*
++ * Support for I2C_FUNC_SMBUS_BLOCK_DATA is disabled by default and must
++ * be enabled explicitly by setting the I2C_FUNC_SMBUS_BLOCK_DATA bits
++ * in the 'functionality' module parameter.
++ */
++#define STUB_FUNC_DEFAULT \
++		(I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE | \
++		 I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA | \
++		 I2C_FUNC_SMBUS_I2C_BLOCK)
++
++#define STUB_FUNC_ALL \
++		(STUB_FUNC_DEFAULT | I2C_FUNC_SMBUS_BLOCK_DATA)
+ 
+ static unsigned short chip_addr[MAX_CHIPS];
+ module_param_array(chip_addr, ushort, NULL, S_IRUGO);
+ MODULE_PARM_DESC(chip_addr,
+ 		 "Chip addresses (up to 10, between 0x03 and 0x77)");
+ 
+-static unsigned long functionality = STUB_FUNC;
++static unsigned long functionality = STUB_FUNC_DEFAULT;
+ module_param(functionality, ulong, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(functionality, "Override functionality bitfield");
+ 
++struct smbus_block_data {
++	struct list_head node;
++	u8 command;
++	u8 len;
++	u8 block[I2C_SMBUS_BLOCK_MAX];
++};
++
+ struct stub_chip {
+ 	u8 pointer;
+ 	u16 words[256];		/* Byte operations use the LSB as per SMBus
+ 				   specification */
++	struct list_head smbus_blocks;
+ };
+ 
+ static struct stub_chip *stub_chips;
+ 
++static struct smbus_block_data *stub_find_block(struct device *dev,
++						struct stub_chip *chip,
++						u8 command, bool create)
++{
++	struct smbus_block_data *b, *rb = NULL;
++
++	list_for_each_entry(b, &chip->smbus_blocks, node) {
++		if (b->command == command) {
++			rb = b;
++			break;
++		}
++	}
++	if (rb == NULL && create) {
++		rb = devm_kzalloc(dev, sizeof(*rb), GFP_KERNEL);
++		if (rb == NULL)
++			return rb;
++		rb->command = command;
++		list_add(&rb->node, &chip->smbus_blocks);
++	}
++	return rb;
++}
++
+ /* Return negative errno on error. */
+ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 	char read_write, u8 command, int size, union i2c_smbus_data *data)
+@@ -57,6 +98,7 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 	s32 ret;
+ 	int i, len;
+ 	struct stub_chip *chip = NULL;
++	struct smbus_block_data *b;
+ 
+ 	/* Search for the right chip */
+ 	for (i = 0; i < MAX_CHIPS && chip_addr[i]; i++) {
+@@ -148,6 +190,51 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 		ret = 0;
+ 		break;
+ 
++	case I2C_SMBUS_BLOCK_DATA:
++		b = stub_find_block(&adap->dev, chip, command, false);
++		if (read_write == I2C_SMBUS_WRITE) {
++			len = data->block[0];
++			if (len == 0 || len > I2C_SMBUS_BLOCK_MAX) {
++				ret = -EINVAL;
++				break;
++			}
++			if (b == NULL) {
++				b = stub_find_block(&adap->dev, chip, command,
++						    true);
++				if (b == NULL) {
++					ret = -ENOMEM;
++					break;
++				}
++			}
++			/* Largest write sets read block length */
++			if (len > b->len)
++				b->len = len;
++			for (i = 0; i < len; i++)
++				b->block[i] = data->block[i + 1];
++			/* update for byte and word commands */
++			chip->words[command] = (b->block[0] << 8) | b->len;
++			dev_dbg(&adap->dev,
++				"smbus block data - addr 0x%02x, wrote %d bytes at 0x%02x.\n",
++				addr, len, command);
++		} else {
++			if (b == NULL) {
++				dev_dbg(&adap->dev,
++					"SMBus block read command without prior block write not supported\n");
++				ret = -EOPNOTSUPP;
++				break;
++			}
++			len = b->len;
++			data->block[0] = len;
++			for (i = 0; i < len; i++)
++				data->block[i + 1] = b->block[i];
++			dev_dbg(&adap->dev,
++				"smbus block data - addr 0x%02x, read  %d bytes at 0x%02x.\n",
++				addr, len, command);
++		}
++
++		ret = 0;
++		break;
++
+ 	default:
+ 		dev_dbg(&adap->dev, "Unsupported I2C/SMBus command\n");
+ 		ret = -EOPNOTSUPP;
+@@ -159,7 +246,7 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
+ 
+ static u32 stub_func(struct i2c_adapter *adapter)
+ {
+-	return STUB_FUNC & functionality;
++	return STUB_FUNC_ALL & functionality;
+ }
+ 
+ static const struct i2c_algorithm smbus_algorithm = {
+@@ -199,6 +286,8 @@ static int __init i2c_stub_init(void)
+ 		pr_err("i2c-stub: Out of memory\n");
+ 		return -ENOMEM;
+ 	}
++	for (i--; i >= 0; i--)
++		INIT_LIST_HEAD(&stub_chips[i].smbus_blocks);
+ 
+ 	ret = i2c_add_adapter(&stub_adapter);
+ 	if (ret)
+-- 
+1.9.1
