@@ -1,65 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: stub: Add support for SMBus block commands
-Date: Thu, 17 Jul 2014 19:12:49 +0200
-Message-ID: <20140717171249.GB2901@katana>
-References: <1404742983-27303-1-git-send-email-linux@roeck-us.net>
- <20140717132135.GI2740@katana>
- <20140717154020.650ad59c@endymion.delvare>
- <20140717165603.GA16408@roeck-us.net>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-stub: Remember the number of emulated chips
+Date: Thu, 17 Jul 2014 19:15:37 +0200
+Message-ID: <20140717171537.GC2901@katana>
+References: <20140710124511.05108894@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="hYooF8G/hrfVAmum"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140717165603.GA16408@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jean Delvare <jdelvare@suse.de>, Randy Dunlap <rdunlap@infradead.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20140710124511.05108894-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---JYK4vJDZwFMowpUq
+--hYooF8G/hrfVAmum
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 17, 2014 at 09:56:03AM -0700, Guenter Roeck wrote:
-> SMBus block commands are different to I2C block commands since
-> the returned data is not normally accessible with byte or word
-> commands on other command offsets. Add linked list of 'block'
-> commands to support those commands.
+On Thu, Jul 10, 2014 at 12:45:11PM +0200, Jean Delvare wrote:
+> This makes initialization, cleanup and look-up easier.
 >=20
-> Access mechanism is quite simple: Block commands must be written
-> before they can be read. Subsequent writes can be partial. Block
-> read commands always return the number of bytes associated with
-> the longest previous write.
->=20
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 
-Applied to for-next, thanks! I took the liberty to add Jean's Rev-by tag
-=66rom V2.
+Applied to for-next, thanks!
 
 
---JYK4vJDZwFMowpUq
+--hYooF8G/hrfVAmum
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTyAQRAAoJEBQN5MwUoCm2If4P/R4MuLx1IgodRlrIQBiPrLQ+
-8HK0OjuJUYTOIEYB1PqvKIxpnbyVr+/A2fwphhutgKE4GZwPqyAsS5QO8c2FI+q3
-zJTooXnW76OMscrRtf30KLY4W50hhcWYtuOjgX0FK/AMpU1rVU/YRzXWrxDzjLTk
-fmmK81RKim0IgJnrx+cXryMnefmmGvb/elqdP+1Py0dLTKHIuVoIQhInSr7pcmSp
-Z/wGywUd12zyqHiq0kpYcpyteffv/Zq0pWPyb3XOETQKNSUYVR14eKgvNtJfm1dQ
-qVYcneRauRq9C+TfF9abxrbNvdZS9i6pFgEe6Z8eJLgIJKukV/1GylA0ioERyQ8t
-RgVlGHNWRNpehiLq4WnaF2/F51we/yBnZif8mHU4hbTjfLBIvM9FUrk16w4w4mmh
-XzMHzLzUDxn7q3YJbsxu9dddLCVv02yeci3wK1DUUIw2e1A4PrcwGUTfIjW52qjX
-9r4O97b0wrzpl/iwZnU68wEzZSLLw8r+rneLcbqYZ1WpS0Dbq17o58mg4vFlsBEo
-Ze8GUXiwtjp8gT5dwLiXeD3/U4q88h2zMw7C/sQVvldoSgQoP2Rtb9a75ywAiOQn
-DtfagQoqPrYQpkQ19afDealZDNKAFnRZgvXXg6cOhpx5CCdv4N6jC6YK2fk2VUKT
-6X4KjeGSNZ0dPxOVwsP5
-=Q+5b
+iQIcBAEBAgAGBQJTyAS5AAoJEBQN5MwUoCm2fu4QAJMwQH4iPuuf9uInQkihui51
+GML1c/pUNGy9Lc3/bVQTl1rj+Krgi+SjcGdRuBw7Xad1CVM2XxoIP44qACQPpo+P
+GPGkMY8g/V5ZgRY0J6vaBpQVqvTSPeXhLRrdP1nIydAF/vDaqtxY1/GUgbBaGC/N
+iHDtZ+HHm2ZqI3pT/1cS4uktbAuX9Io/9QH1zJkobJoSYMC+VV9Chdk5oMfl3iHq
+GLKabOA0HpLL860hVscaWmfQIEoh6HXRAP9d6Vbm73kfWyyy755kecRYCMG0NzXr
+NF5Lo/Go7tSCuuzNHHmgzfEsmcWzjkehYcRhaPcA6ovUb2WOfb6QFP2O/eT1QtGZ
+JQWvtEZmwVY3e7TP47Opuwg2ORM1GVERT1j9Xbn3PK7OyuhYlYfJAmVKX7kmNOgN
+xk1j/bf/Ml7ItYHDugvozpWII2U8PXiV5y02gPIw7vbgcp/zbnXzQqqfyzMDHx6f
+wBxwo+Pu/Ho/eTRJzUiP+yldGL9g0Fkb1SlsLdZaFeMh9TevMu5R7aaTF0ow1vwI
+gHdJ9NK3XcpIXaYyBK1lXfzCs1I0cKTE/2Py2DgF7S/8Q/XnltFwaI9v6R7rxfGJ
+0A9T+0DsqLIJBf7dOZvYcwJL7IZQDNUSs/TsJEFt3Nw63muM4q9SqdPObj5FggP7
+bKll2bKuRip1xhnaMc9w
+=ATxh
 -----END PGP SIGNATURE-----
 
---JYK4vJDZwFMowpUq--
+--hYooF8G/hrfVAmum--
