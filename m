@@ -1,82 +1,58 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-stub: Avoid an array overrun on I2C block transfers
-Date: Thu, 17 Jul 2014 19:27:20 +0200
-Message-ID: <20140717172720.GE2901@katana>
-References: <20140713171717.25497712@endymion.delvare>
+Subject: Re: [PATCH v2] i2c-i801: Fix the alignment of the device table
+Date: Thu, 17 Jul 2014 19:52:51 +0200
+Message-ID: <20140717175251.GF2901@katana>
+References: <20140717150324.7f5a27d0@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vmttodhTwj0NAgWp"
+	protocol="application/pgp-signature"; boundary="TeJTyD9hb8KJN2Jy"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140713171717.25497712-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20140717150324.7f5a27d0-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---vmttodhTwj0NAgWp
+--TeJTyD9hb8KJN2Jy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jul 13, 2014 at 05:17:17PM +0200, Jean Delvare wrote:
-> I2C block transfers can have a size up to 32 bytes. If starting close
-
-Shouldn't that be "256 bytes"? 32 is SMBUS transfer size? Otherwise I
-don't understand the patch.
-
-> to the end of the address space, there may not be enough room to write
-> that many bytes (on I2C block writes) or not enough bytes to be read
-> (on I2C block reads.) In that case, we must shorten the transfer so
-> that it does not exceed the address space.
+On Thu, Jul 17, 2014 at 03:03:24PM +0200, Jean Delvare wrote:
+> A long name broke the alignment, shift the columns a bit to fix it and
+> make the table look nice again. While we're here, switch to the
+> standard comment style to make checkpatch happy, and use tabs instead
+> of spaces for column alignment.
 >=20
 > Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 > Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> ---
->  drivers/i2c/i2c-stub.c |    2 ++
->  1 file changed, 2 insertions(+)
->=20
-> --- linux-3.16-rc4.orig/drivers/i2c/i2c-stub.c	2014-07-12 11:56:30.933096=
-483 +0200
-> +++ linux-3.16-rc4/drivers/i2c/i2c-stub.c	2014-07-13 17:01:02.891235856 +=
-0200
-> @@ -220,6 +220,8 @@ static s32 stub_xfer(struct i2c_adapter
->  		 * We ignore banks here, because banked chips don't use I2C
->  		 * block transfers
->  		 */
-> +		if (data->block[0] > 256 - command)	/* Avoid overrun */
-> +			data->block[0] =3D 256 - command;
->  		len =3D data->block[0];
->  		if (read_write =3D=3D I2C_SMBUS_WRITE) {
->  			for (i =3D 0; i < len; i++) {
->=20
->=20
-> --=20
-> Jean Delvare
-> SUSE L3 Support
 
---vmttodhTwj0NAgWp
+Applied to for-next, thanks!
+
+
+--TeJTyD9hb8KJN2Jy
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTyAd4AAoJEBQN5MwUoCm2r1QP/0YFraDPEt+4Xb402gfvhFvi
-uyYB1N9D7cHQMa6oJ7mk+Bx6GM3ZKTUdRg3CRJ6aICB46ek+AEwyMk55v6rTk/gI
-AIoInskuDhlgNlmbsLSPnkcmZ+g5fdG3i4QKABvnYIJxzLf2SJ54EMnjqWrNeH63
-6OZqnk1mBVqKqoFOq+j0mEI4UMQ7jX/ONJb1zzuHAmtIaIyzD9QsAA6wGA+pTta1
-JHw95BcBLWJokolUu126FqfYseR/jKEUvAFBKBWJYItkKH2yxvptQECjXoJFfI1p
-vv9XgHjSZYQJJPvQFeYz0OXwILwxqW0SuTqmqzjSCNLTIK+oax6anhcYZkiNpgC9
-g7kZM7AqsVoh6phfvWnE9o3gIwLo6TI9xbNOvUWKlokmCApwdfKV7X0VwdinXDAt
-x9jajiWLfZnuOt9TVp11Q76MgTbN+U+sEVppl8g4ph0q1UJei4YREbvYc2iqoV/E
-szRI8pkfDWV+MW/NEV7YKnvsMlVIrTkf4qOvXfxbi+vkE8pWfchlivWWU2sG5oVI
-g5gtSLjrkiwsFi86N1w1SXgS4XkYnSyon7UV/WotlJtcc8dqB1n3hB4wCYymN02S
-0UyNyb6Ui/tFytWdLmF1YcY5KVW6v3u8J4+nHI3f5dEkhH2pImsltyetFBwHonbA
-GMZOhLTwKICcJyJdzcNM
-=ZH8Q
+iQIcBAEBAgAGBQJTyA1zAAoJEBQN5MwUoCm2xucP/3Q3sVM5Q4B3pKv6aDI9hR8q
+vHCymhAUtGQiraKAql55wLrjzkddDxjAzcTQ+c3jexpi4AdK/z633Ud6f7jZofgh
+YE3KUEOWOokPOlKoZTRURzeUOnKxMKwhGqaMhKkOwknOHa5AoiRejRhwimCBBkcH
+XyFdgZ3sgmouBW+zpOgKe05AzQ2fYAqXNObhOXERbrEC8qFSV9T/QS1ctGxI58Ze
+vN5HJePJqSncEzdTQ34dOD3aw5Wx8uBa+VpucPco6IjPfjuQ7gmB9/Wt8xcCSMhr
+jfWSOQIGIeeieT0ZOb4/qKRomGLbaqP4HHbnQ25aAXjvfbpSbBR8ceLBVCeFPbsE
+yPfK048dQHvrfKXJQRsJ2dDFewHrrv/iPXj2HeGAyXDcB4W5DwtLqXU0wDi4ky7q
+peEYULeSFNcPVampWhKzxLR7usO9FjP6H2TRumrWJlfOhcAKelqHJd3dEQEZrrji
+0zgtAqFoENapY2OoIVzWg45ptws2CkZOaFCxBB1EoAdseEoISxy1WBunSfM0F8ML
+IbIdQde7ZxXkDlkAKnCaf65AUa6ria74zvzlJ0GyuSTV3T2T7I2QWtt7N0X4ovqB
+iwhMbr9Ue16XhTnOo1ckogI6WchW4Ktsl4PnZj9oWPNGwXpts1QxxAw5Go9I9VCA
+AVRYDIeAwVm63iU3mstx
+=ezHt
 -----END PGP SIGNATURE-----
 
---vmttodhTwj0NAgWp--
+--TeJTyD9hb8KJN2Jy--
