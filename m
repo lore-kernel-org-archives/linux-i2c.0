@@ -1,66 +1,84 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: I2C Slave monitor mode support
-Date: Fri, 18 Jul 2014 14:35:17 +0200
-Message-ID: <20140718123517.GB2731@katana>
-References: <CAD6G_RRa9C0umBrR6CUF3zb5cSKKfZO7y7UPUKHjJOx41A0aJQ@mail.gmail.com>
- <20140617121912.GA2683@katana>
- <CAOZ77ogXPwXPtUxROJKT2wX=2wkZeHeWPZaBhyCnoP0zMxi8mw@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
+Date: Fri, 18 Jul 2014 17:45:49 +0200
+Message-ID: <20140718154549.GC2731@katana>
+References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
+ <20140218173843.GB18768@katana>
+ <20140617095724.GJ2638@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xgyAXRrhYN0wYx8y"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="JgQwtEuHJzHdouWu"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAOZ77ogXPwXPtUxROJKT2wX=2wkZeHeWPZaBhyCnoP0zMxi8mw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Suneel G <suneelgarapati-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jagan Teki <jagannadh.teki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140617095724.GJ2638@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Ian Molton <ian.molton@codethink.co.uk>
+Cc: magnus.damm@gmail.com, grant.likely@linaro.org, rob.herring@calxeda.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, ben.dooks@codethink.co.uk
 List-Id: linux-i2c@vger.kernel.org
 
 
---xgyAXRrhYN0wYx8y
+--JgQwtEuHJzHdouWu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jun 17, 2014 at 11:57:24AM +0200, Wolfram Sang wrote:
+> On Tue, Feb 18, 2014 at 06:38:43PM +0100, Wolfram Sang wrote:
+> > On Tue, Sep 03, 2013 at 05:49:29PM +0100, Ian Molton wrote:
+> > > Add a driver for the EMMA mobile I2C block.
+> > >=20
+> > > The driver supports low and high-speed interrupt driven PIO transfers.
+> > >=20
+> > > Signed-off-by: Ian Molton <ian.molton@codethink.co.uk>
+> >=20
+> > > --- a/drivers/i2c/busses/Kconfig
+> > > +++ b/drivers/i2c/busses/Kconfig
+> > > @@ -777,6 +777,16 @@ config I2C_RCAR
+> > >  	  This driver can also be built as a module.  If so, the module
+> > >  	  will be called i2c-rcar.
+> > > =20
+> > > +config I2C_EM
+> > > +	tristate "EMMA Mobile series I2C adapter"
+> > > +	depends on I2C && HAVE_CLK
+> > > +	help
+> > > +	  If you say yes to this option, support will be included for the
+> > > +	  I2C interface on the Renesas Electronics EM/EV family of processo=
+rs.
+> > > +
+> > > +	  This driver can also be built as a module.  If so, the module
+> > > +	  will be called i2c-em
+> > > +
+> >=20
+> > Please keep it sorted.
+>=20
+> Ping. Still any interest in this one?
+
+I happen to have access to a kzm9d board meanwhile. Do you have the
+board enablement patches still somewhere?
 
 
-> Currently, one would have to put a loop on the address transfer waiting an ack
-> is received in user space.
-
-This is what most i2c master drivers would need to do anyhow. I have
-never heard of hardware support for that. Do you know an IP core which
-does that? And how are timeouts defined/handled?
-
-> This helps the app or the user software to not busy wait considering the slow
-> clk of i2c.
-
-Currently, this is not supported in Linux I2C. It probably could be
-using another I2C_M_* flag, but a number of details need to be designed
-and implemented first. Would you be interested?
-
-Kind regards,
-
-   Wolfram
-
-
---xgyAXRrhYN0wYx8y
+--JgQwtEuHJzHdouWu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJTyRSFAAoJEBQN5MwUoCm2B3EP/3xJ/p83LP2eI3dlxXT90ZLf
-x96emSpiPMwWSkO6GhTuP96D45lCeam5CIiXSohi49WnJVaAo+LMij5VruN+fMFT
-Ky6bZ83+iJIzXg7b/T45hwgqhly3WnN38Ebx1coXINoCuJVzD7kxvcg8eRRJnN/P
-U+UZ2vHevsNtYSqvLAHeteLnprVG4U8gCDyZWjThTectDGTdSS1biALOkxDYdWPj
-pRGvnI5pzPsja/thFdMP9KfBd62XEennWpa6HimOxdqnq+0IZh/E7T0f1r9llbp6
-fGRUoR2LEVfQjoyAcyDvWRdvocP9Y2ANf3aQQQSEZPjXA6e3k1OMSKm9dvzXbcJB
-OpIgyn/Kqcp3CuQVJInOAwi5HoVHuo0uUlWyEnRKxUin1giTeFR1mgLTuZD8tGb4
-Adf953D22+gMxgDyV9BrGS3FDVBy2ls9Y4UekHtNQw6VfD/r0PRraezlynYH0bks
-sdCPT8qvo0gzOBeHRSaukDA3rwpeO5495cSjZqhSp4BOpnFrlC/x4v9b0w2fYjrd
-M2UW4W9490M2Fv1EYZ1SjjI5ugxZk9XMGA/wxTVg8nzu06qW2cG403NbQtlRtb+Y
-3bg658ZYKuuxMkdPGlCeyh/Ra32WiAUGCcVYMNjeisulsEMJRlHh3bIw/LY0R5xz
-KbfW2P29oAR0M/YTVldU
-=l9SZ
+iQIcBAEBAgAGBQJTyUEtAAoJEBQN5MwUoCm2tUUP/R5A5+IsddqxMWW3ejsNpDrS
+zz96FOKdwp3GU3NaszaY185hXxYGppyvflPXG2xNPtD21D/V1eqnvIUrRdcbTQ0q
+fIhngks5NAxoyq6IksfWXGL6dphn17TVa9gieo6a++8lH1h4CAhx5Cmph8PG50zO
+Ioy97ORHPHv2qAGlmM/LukaH+ud8F6mtnBeWI2prjtVEPxWL4zRTVx0wJxA+OZMV
+R0YwrLdcodYzJyRRVxSsHWMTfPFrL3QPl6xHvQ7/N/bnMcQqld9EfUWYshDo5El9
+VzjhZhoh4oB2CN8dRhJ9gV0gqPiYFc7IIUHjK9gj3i+ossG+Uf15aK4F3Z+QnCpD
+8S7IZVxttaWWsn1O9ByCzSt5bsp0xFdfFqV0/6DifHKVgF82d72JkanbPEtAXsq1
+S8J7prPxqU2zlF446+LA/YFPC+IWQeGKLHkPahAn/sfvbOGcjxk4+ns0678To9gd
+Jb/4EtUzxt2ph5knUK/XzJtAWCTW7Jcu5nEwaWuULqbej81Cmol65VhMFE1r/Pyb
+twfXKXdOoTXX7AG7oFerKYpw4FrmOigmzEaBWTvus/EA+OjtzySc9vN0N+A2r1I/
+ndhxUeoqQyYkJMdrxsMIeXn3hIgYsw3U1JnzsUhYJ+8AWDWPH25MhmbiWFKZacxw
+yHgC24JX/RKk6xvDLWbh
+=7Rfj
 -----END PGP SIGNATURE-----
 
---xgyAXRrhYN0wYx8y--
+--JgQwtEuHJzHdouWu--
