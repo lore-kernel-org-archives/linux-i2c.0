@@ -1,43 +1,58 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 1/2] drivers/i2c/busses: use correct type for dma_map/unmap
-Date: Mon, 21 Jul 2014 11:42:03 +0200
-Message-ID: <1405935725-10457-2-git-send-email-wsa@the-dreams.de>
-References: <1405935725-10457-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1405935725-10457-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Maxime Coquelin <maxime.coquelin@st.com>
+Subject: Re: [PATCH] drivers: i2c: i2c-st: Update i2c timings
+Date: Mon, 21 Jul 2014 13:05:16 +0200
+Message-ID: <53CCF3EC.6030904@st.com>
+References: <1400254330-2547-1-git-send-email-maxime.coquelin@st.com> <20140602163103.GJ2654@katana> <538D7A1C.5040409@st.com> <20140603075922.GB2653@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140603075922.GB2653@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Kandagatla <srinivas.kandagatla@gmail.com>, Patrice Chotard <patrice.chotard@st.com>, kernel@stlinux.com
 List-Id: linux-i2c@vger.kernel.org
 
-dma_{un}map_* uses 'enum dma_data_direction' not 'enum dma_transfer_direction'.
+Hi Wolfram,
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 06/03/2014 09:59 AM, Wolfram Sang wrote:
+> 
+>>> Can you give names here? Would be interesting to know since a few
+>>> drivers implement the minimum timings.
+>>
+>> I don't have the name actually.
+>> The request to implement this change came from hw guys.
+> 
+> Can you ask? It feels better to have changes based on facts.
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index e95f9ba96790..83c989382be9 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -210,7 +210,7 @@ static void at91_twi_write_data_dma_callback(void *data)
- 	struct at91_twi_dev *dev = (struct at91_twi_dev *)data;
- 
- 	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg),
--			 dev->buf_len, DMA_MEM_TO_DEV);
-+			 dev->buf_len, DMA_TO_DEVICE);
- 
- 	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
- }
-@@ -289,7 +289,7 @@ static void at91_twi_read_data_dma_callback(void *data)
- 	struct at91_twi_dev *dev = (struct at91_twi_dev *)data;
- 
- 	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg),
--			 dev->buf_len, DMA_DEV_TO_MEM);
-+			 dev->buf_len, DMA_FROM_DEVICE);
- 
- 	/* The last two bytes have to be read without using dma */
- 	dev->buf += dev->buf_len - 2;
--- 
-2.0.0
+Sorry for the late reply, but it took time to get the answer.
+
+Apparently the HDMI link of the Toshiba 19AV600U TV is affected by this.
+I have no references of other devices (if any).
+
+> 
+>>>> This patch adds a 10% margin on all the timings.
+>>>
+>>> Is there a safety margin or do the devices start to work exactly at 10%?
+>>
+>> 10% is a safety margin, I don't know what is the limit.
+> 
+> Which also came from the HW guys? Please ask for details why 10%, too.
+
+This is a safety margin.
+Note that the I2C specification only defines minimal timings.
+
+Is it fine for you?
+Can I re-send a v2, which:
+ - Indicate the Toshiba TV is one of the affected devices in the commit message
+ - Indicate the 10% margin is a safety one in the commit message
+ - Add a comment above the table indicating these are standard timings + 10% margin.
+
+Regards,
+Maxime
+
+> 
+> Thanks,
+> 
+>     Wolfram
+> 
