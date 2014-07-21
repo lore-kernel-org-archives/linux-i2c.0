@@ -1,24 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/2] use correct type for dma_map/unmap
-Date: Mon, 21 Jul 2014 11:42:02 +0200
-Message-ID: <1405935725-10457-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 1/2] drivers/i2c/busses: use correct type for dma_map/unmap
+Date: Mon, 21 Jul 2014 11:42:03 +0200
+Message-ID: <1405935725-10457-2-git-send-email-wsa@the-dreams.de>
+References: <1405935725-10457-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1405935725-10457-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I recently stumbled over the fact that the Atmel I2C driver used a wrong enum
-for mapping dma, so I wrote a hackish coccinelle script to check the rest of the
-kernel. Luckily, only those two were found.
+dma_{un}map_* uses 'enum dma_data_direction' not 'enum dma_transfer_direction'.
 
-Wolfram Sang (2):
-  drivers/i2c/busses: use correct type for dma_map/unmap
-  drivers/tty/serial: use correct type for dma_map/unmap
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-at91.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- drivers/i2c/busses/i2c-at91.c     | 4 ++--
- drivers/tty/serial/atmel_serial.c | 8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index e95f9ba96790..83c989382be9 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -210,7 +210,7 @@ static void at91_twi_write_data_dma_callback(void *data)
+ 	struct at91_twi_dev *dev = (struct at91_twi_dev *)data;
+ 
+ 	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg),
+-			 dev->buf_len, DMA_MEM_TO_DEV);
++			 dev->buf_len, DMA_TO_DEVICE);
+ 
+ 	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
+ }
+@@ -289,7 +289,7 @@ static void at91_twi_read_data_dma_callback(void *data)
+ 	struct at91_twi_dev *dev = (struct at91_twi_dev *)data;
+ 
+ 	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg),
+-			 dev->buf_len, DMA_DEV_TO_MEM);
++			 dev->buf_len, DMA_FROM_DEVICE);
+ 
+ 	/* The last two bytes have to be read without using dma */
+ 	dev->buf += dev->buf_len - 2;
 -- 
 2.0.0
