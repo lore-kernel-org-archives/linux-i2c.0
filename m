@@ -1,54 +1,61 @@
-From: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 1/2] i2c: add DMA support for freescale i2c driver
-Date: Wed, 23 Jul 2014 16:44:59 +0530
-Message-ID: <53CF9933.8030908@gmail.com>
-References: <1406103883-3572-1-git-send-email-yao.yuan@freescale.com>	<1406103883-3572-2-git-send-email-yao.yuan@freescale.com> <20140723114834.411f6bb4@ipc1.ka-ro> <b1778af62e7b42b39381fb2699b34eb1@BL2PR03MB338.namprd03.prod.outlook.com>
+From: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: i2c,designware: add new bindings
+Date: Wed, 23 Jul 2014 13:06:57 +0100
+Message-ID: <1406117217.2895.12.camel@acox1-desk.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <b1778af62e7b42b39381fb2699b34eb1-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, =?UTF-8?B?TG90aGFyIFdhw59tYW5u?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/23/2014 04:41 PM, Yao Yuan wrote:
-> Hi,
->
-> Thanks for your review.
->
-> Lothar Wa=C3=9Fmann wrote:
->> Yuan Yao wrote:
->>> Add dma support for i2c. This function depend on DMA driver.
->>> You can turn on it by write both the dmas and dma-name properties i=
-n dts node.
->>>
->>> Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->>> ---
->>>   drivers/i2c/busses/i2c-imx.c | 377
-> [...]
->>> +
->>> +fail_rx:
->>> +	dma_release_channel(dma->chan_rx);
->>> +fail_tx:
->>> +	dma_release_channel(dma->chan_tx);
->>> +fail_al:
->>> +	devm_kfree(dev, dma);
->>>
->> No need for this one (that's the whole point of using devm_kzalloc()=
-)!
->>
-> When DMA request failed, I2C will switch to PIO mode. So if the faile=
-d reason is just like DMA channel request failed. At this time the DMA =
-should free by devm_kfree(). Is it?
+This may appear as PCI or ACPI depending upon the firmware so we
+have to list both. All share the same ACPI identifier but not
+the same PCI identifier.
 
-If probe failed the memory will be freed automatically because
-we are using devm_kzalloc()...
+Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |    9 +++++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+ 2 files changed, 10 insertions(+)
 
-If we use devm_kzalloc() ,no need to free manually on fail...
-
---=20
-Regards,
-Varka Bhadram.
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 3356f7a..d31d313 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -188,6 +188,7 @@ static struct  dw_pci_controller dw_pci_controllers[] = {
+ 		.scl_sda_cfg = &hsw_config,
+ 	},
+ };
++
+ static struct i2c_algorithm i2c_dw_algo = {
+ 	.master_xfer	= i2c_dw_xfer,
+ 	.functionality	= i2c_dw_func,
+@@ -350,6 +351,14 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
+ 	/* Haswell */
+ 	{ PCI_VDEVICE(INTEL, 0x9c61), haswell },
+ 	{ PCI_VDEVICE(INTEL, 0x9c62), haswell },
++	/* Braswell / Cherrytrail */
++	{ PCI_VDEVICE(INTEL, 0x22C1), baytrail,},
++	{ PCI_VDEVICE(INTEL, 0x22C2), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x22C3), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x22C4), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x22C5), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x22C6), baytrail },
++	{ PCI_VDEVICE(INTEL, 0x22C7), baytrail },
+ 	{ 0,}
+ };
+ MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 402ec39..915ce6c2 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -106,6 +106,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "INT3432", 0 },
+ 	{ "INT3433", 0 },
+ 	{ "80860F41", 0 },
++	{ "808622C1", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
