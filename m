@@ -1,72 +1,79 @@
-From: Alexandre Courbot <gnurou@gmail.com>
-Subject: Re: [PATCH] gpio: extend gpiod_get*() with flags parameter
-Date: Fri, 25 Jul 2014 10:32:45 +0900
-Message-ID: <CAAVeFuLK2qf1n6ipnW1tK_ur2_j7NOWLegMWYAQGwKw85fnwpA@mail.gmail.com>
-References: <1406214298-20062-1-git-send-email-acourbot@nvidia.com>
- <6059032.T3tqvLkWTo@wuerfel>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH] i2c: pca954x: put the mux to disconnected state after
+ resume
+Date: Fri, 25 Jul 2014 09:15:19 +0200
+Message-ID: <20140725091519.4e780494@endymion.delvare>
+References: <1406254559-5615-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <6059032.T3tqvLkWTo@wuerfel>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-wireless <linux-wireless@vger.kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-mmc <linux-mmc@vger.kernel.org>, Chris Ball <chris@printf.net>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Liam Girdwood <lgirdwood@gmail.com>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Pavel Machek <pavel@ucw.cz>, Jiri Slaby <jslaby@suse.cz>, Florian Fainelli <f.fainelli@gmail.com>, Samuel Ortiz <sameo@linux.intel.com>, Alexander Shiyan <shc_work@mail.ru>, Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Paul Handrigan <Paul.Handrigan@cirrus.com>, linux-iio@vger.kernel.org, linux-omap@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, Hans Verkuil <hans.verkuil@cisco.com>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1406254559-5615-1-git-send-email-jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 25, 2014 at 1:10 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Friday 25 July 2014 00:04:58 Alexandre Courbot wrote:
->> I'm not sure how this could be applied harmlessly though - maybe through
->> a dedicated branch for -next? Problem is that a lot of new code is not
->> yet merged into mainline, and conflicts are very likely to occur. Linus,
->> do you have any suggestion as to how this can be done without blood being
->> spilled?
->
-> There is a trick that we sometime use in this situation,
-> though it has to be done carefully:
->
->> diff --git a/Documentation/gpio/consumer.txt b/Documentation/gpio/consumer.txt
->> index 7ff30d2..a3fb1d7 100644
->> --- a/Documentation/gpio/consumer.txt
->> +++ b/Documentation/gpio/consumer.txt
->> @@ -29,13 +29,24 @@ gpiod_get() functions. Like many other kernel subsystems, gpiod_get() takes the
->>  device that will use the GPIO and the function the requested GPIO is supposed to
->>  fulfill:
->>
->> -       struct gpio_desc *gpiod_get(struct device *dev, const char *con_id)
->> +       struct gpio_desc *gpiod_get(struct device *dev, const char *con_id,
->> +                                   enum gpio_flags flags)
->>
->>
->
->
-> -       struct gpio_desc *gpiod_get(struct device *dev, const char *con_id)
-> +       struct gpio_desc *__gpiod_get(struct device *dev, const char *con_id,
-> +                                       enum gpio_flags flags);
+Hi Jisheng Zhang,
+
+On Fri, 25 Jul 2014 10:15:59 +0800, Jisheng Zhang wrote:
+> pca954x may be power lost during suspend, so after resume we also suffer
+> the issue fixed by commit cd823db8b1161ef0d756514d280715a576d65cc3,
+> 
+>  "pca954x power-on default is channel 0 connected. If multiple pca954x
+>  muxes are connected to the same physical I2C bus, the parent bus will
+>  see channel 0 devices behind both muxes by default."
+> 
+> What's more, when resume bootloader may also operate the mux, so the
+> the channel connected after that may not be the one driver thought.
+> 
+> We fix this problem by putting the mux to disconnected state and
+> clearing last_chan in the resume hook.
+> 
+> Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> index 9bd4212..c8c3d58 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -273,9 +273,23 @@ static int pca954x_remove(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_PM_SLEEP
+> +static int pca954x_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +	struct pca954x *data = i2c_get_clientdata(client);
 > +
-> +#define __gpiod_get(dev, con_id, flags, ...) __gpiod_get(dev, con_id, flags)
-> +#define gpiod_get(varargs ...) __gpiod_get(varargs, 0)
->
-> This will allow both variants to be called, and any users of the three-argument
-> version will pass zero as the fourth argument (or whatever you choose there).
->
-> Once the conversion is complete, the macros can be removed.
+> +	data->last_chan = 0;
+> +	return i2c_smbus_write_byte(client, 0);
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(pca954x_pm, NULL, pca954x_resume);
 
-Wow, that works great, thanks! Indeed, this will allow me to send more
-localized patches and to not spam half of the kernel developers. Sorry
-about the noise.
+I think you must include <linux/pm.h> for this.
 
-Let's close this thread, I will submit the gpiolib update with this
-trick first, then update each user before eventually removing the
-macros.
+Other than this, the change looks reasonable, you can add:
 
-Thanks,
-Alex.
+Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+
+(Please note my new e-mail address.)
+
+> +
+>  static struct i2c_driver pca954x_driver = {
+>  	.driver		= {
+>  		.name	= "pca954x",
+> +		.pm	= &pca954x_pm,
+>  		.owner	= THIS_MODULE,
+>  	},
+>  	.probe		= pca954x_probe,
+
+
+-- 
+Jean Delvare
+SUSE L3 Support
