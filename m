@@ -1,79 +1,76 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] i2c: pca954x: put the mux to disconnected state after
- resume
-Date: Fri, 25 Jul 2014 09:15:19 +0200
-Message-ID: <20140725091519.4e780494@endymion.delvare>
-References: <1406254559-5615-1-git-send-email-jszhang@marvell.com>
+From: Sachin Kamat <spk.linux@gmail.com>
+Subject: Re: [PATCH 1/1] i2c: Kconfig: Enable HSI2C for Exynos5 platform
+Date: Fri, 25 Jul 2014 17:06:32 +0530
+Message-ID: <CAK5sBcGoYC5qpwy1C95Nx5+ni6bEqCTFShYoVEAdxQVeekZhtQ@mail.gmail.com>
+References: <1403690523-1863-1-git-send-email-sachin.kamat@samsung.com>
+	<CAD=FV=WzPxT4okEur8C2G=FZK=zq3EsyCv9aAJwZ1PDkfoOcpA@mail.gmail.com>
+	<20140716174002.GG2759@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1406254559-5615-1-git-send-email-jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140716174002.GG2759@katana>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Doug Anderson <dianders@chromium.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Kukjin Kim <kgene.kim@samsung.com>, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jisheng Zhang,
+On Wed, Jul 16, 2014 at 11:10 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Wed, Jun 25, 2014 at 10:55:31AM -0700, Doug Anderson wrote:
+>> Sachin,
+>>
+>> On Wed, Jun 25, 2014 at 3:02 AM, Sachin Kamat <sachin.kamat@samsung.com> wrote:
+>> > All Exynos5 platforms have HSI2C controllers and are needed by
+>> > various IPs connected to the boards based on these SoCs. Thus
+>> > select this by default for Exynos5 platforms.
+>> >
+>> > Signed-off-by: Sachin Kamat <sachin.kamat@samsung.com>
+>> > Cc: Doug Anderson <dianders@chromium.org>
+>> > ---
+>> >  drivers/i2c/busses/Kconfig |    4 ++--
+>> >  1 file changed, 2 insertions(+), 2 deletions(-)
+>> >
+>> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> > index 9f7d5859cf65..c7918cffe790 100644
+>> > --- a/drivers/i2c/busses/Kconfig
+>> > +++ b/drivers/i2c/busses/Kconfig
+>> > @@ -465,9 +465,9 @@ config I2C_EG20T
+>> >  config I2C_EXYNOS5
+>> >         tristate "Exynos5 high-speed I2C driver"
+>> >         depends on ARCH_EXYNOS5 && OF
+>> > +       default y
+>> >         help
+>> > -         Say Y here to include support for high-speed I2C controller in the
+>> > -         Exynos5 based Samsung SoCs.
+>> > +         High-speed I2C controller on Exynos5 based Samsung SoCs.
+>> >
+>> >  config I2C_GPIO
+>> >         tristate "GPIO-based bitbanging I2C"
+>> > --
+>> > 1.7.9.5
+>>
+>> This seems reasonable to me and I will also take the blame for
+>> suggesting this.  It's hard to imagine running a real exynos5 system
+>> without I2C.  One could argue that on an exynos5250 the high speed I2C
+>> controller is not mandatory (since all the ports can be muxed to use
+>> the old controller) but on newer exynos5 products you're expected to
+>> have the main PMIC on one of the i2c ports.  An exynos system without
+>> access to its PMIC will just sorta limp by.
+>>
+>> ...but I've added Arnd to this thread as he expressed some
+>> reservations about this type of thing, so we'll see what he says.
+>
+> Ping. Arnd? I have no strong opinion and would take this patch...
 
-On Fri, 25 Jul 2014 10:15:59 +0800, Jisheng Zhang wrote:
-> pca954x may be power lost during suspend, so after resume we also suffer
-> the issue fixed by commit cd823db8b1161ef0d756514d280715a576d65cc3,
-> 
->  "pca954x power-on default is channel 0 connected. If multiple pca954x
->  muxes are connected to the same physical I2C bus, the parent bus will
->  see channel 0 devices behind both muxes by default."
-> 
-> What's more, when resume bootloader may also operate the mux, so the
-> the channel connected after that may not be the one driver thought.
-> 
-> We fix this problem by putting the mux to disconnected state and
-> clearing last_chan in the resume hook.
-> 
-> Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> ---
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-> 
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> index 9bd4212..c8c3d58 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -273,9 +273,23 @@ static int pca954x_remove(struct i2c_client *client)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_PM_SLEEP
-> +static int pca954x_resume(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct pca954x *data = i2c_get_clientdata(client);
-> +
-> +	data->last_chan = 0;
-> +	return i2c_smbus_write_byte(client, 0);
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(pca954x_pm, NULL, pca954x_resume);
+Wolfram,
 
-I think you must include <linux/pm.h> for this.
+How do you want to proceed with this?
 
-Other than this, the change looks reasonable, you can add:
+>
+>>
+>> Reviewed-by: Doug Anderson <dianders@chromium.org>
 
-Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-
-(Please note my new e-mail address.)
-
-> +
->  static struct i2c_driver pca954x_driver = {
->  	.driver		= {
->  		.name	= "pca954x",
-> +		.pm	= &pca954x_pm,
->  		.owner	= THIS_MODULE,
->  	},
->  	.probe		= pca954x_probe,
 
 
 -- 
-Jean Delvare
-SUSE L3 Support
+Regards,
+Sachin.
