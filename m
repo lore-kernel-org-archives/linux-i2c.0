@@ -1,196 +1,96 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: [PATCH 7/7] Input: cros_ec_keyb: Optimize ghosting algorithm.
-Date: Mon, 28 Jul 2014 14:19:27 +0200
-Message-ID: <1406549967-21291-8-git-send-email-javier.martinez@collabora.co.uk>
-References: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH] i2c: piix4: Continue probing for auxiliary SMBus
+ without main
+Date: Mon, 28 Jul 2014 14:22:09 +0200
+Message-ID: <20140728142209.69246fcc@endymion.delvare>
+References: <20140712000607.GA25787@turkey.danweeks.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140712000607.GA25787-gS7JvH28tD4DdhJ/W92+Z9HuzzzSOjJt@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Daniel M. Weeks" <dan-ZKupHW+dzKzk1uMJSBkQmQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Todd Broch <tbroch@chromium.org>
+Hi Daniel,
 
-Previous algorithm was a bit conservative and complicating with
-respect to identifying key ghosting.  This CL uses the bitops hamming
-weight function (hweight8) to count the number of matching rows for
-colM & colN.  If that number is > 1 ghosting is present.
+On Fri, 11 Jul 2014 20:06:15 -0400, Daniel M. Weeks wrote:
+> Some BIOS may only allow access to the AMD auxiliary SMBus - reserving
+> the main SMBus for system functions only. Probing should continue even
+> if the main bus is not available so at least the auxiliary can be added.
+> 
+> Signed-off-by: Daniel M. Weeks <dan-ZKupHW+dzKzk1uMJSBkQmQ@public.gmane.org>
+> ---
+> This patch may warrant some discussion. I ran across this problem on an
+> AMD Hudson board where the main SMBus is hard-wired for debugging but
+> the auxiliary bus is exposed for expansion. Either purposefully or
+> because the BIOS is a little broken, loading this module used to result
+> in an ACPI conflict for the main bus and neither was usable. With the
+> patch I'm able to use the auxiliary bus regardless of the conflict on
+> the main bus. I'm not 100% convinced it's the correct fix - someone with
+> more ACPI experience than me is going to need to review this.
 
-Additionally it removes NULL keys and our one virtual keypress
-KEY_BATTERY from consideration as these inputs are never physical
-keypresses.
+This is fine. The auxiliary bus setup code has its own ACPI resource
+conflict check, so it is safe to let the driver bind to the auxiliary
+bus even if the main bus is skipped.
 
-Signed-off-by: Todd Broch <tbroch@chromium.org>
-Reviewed-by: Vincent Palatin <vpalatin@chromium.org>
-Reviewed-by: Luigi Semenzato <semenzato@chromium.org>
----
- drivers/input/keyboard/cros_ec_keyb.c | 92 +++++++++++++++++++----------------
- 1 file changed, 49 insertions(+), 43 deletions(-)
+> 
+> drivers/i2c/busses/i2c-piix4.c | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index a6f54ba..d4bac64 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -628,14 +628,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  	else
+>  		retval = piix4_setup(dev, id);
+>  
+> -	/* If no main SMBus found, give up */
+> -	if (retval < 0)
+> -		return retval;
+> -
+> -	/* Try to register main SMBus adapter, give up if we can't */
+> -	retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
+> -	if (retval < 0)
+> -		return retval;
+> +	/* If no main SMBus found, do not give up
+> +	 * some BIOS purposely only expose aux bus */
+> +	if (retval < 0) {
+> +		dev_info(&dev->dev, "No main SMBus; checking auxiliary\n");
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 93111d1..5d773d2 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -22,6 +22,7 @@
-  */
- 
- #include <linux/module.h>
-+#include <linux/bitops.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/interrupt.h>
-@@ -38,6 +39,7 @@
-  * @row_shift: log2 or number of rows, rounded up
-  * @keymap_data: Matrix keymap data used to convert to keyscan values
-  * @ghost_filter: true to enable the matrix key-ghosting filter
-+ * @valid_keys: bitmap of existing keys for each matrix column
-  * @old_kb_state: bitmap of keys pressed last scan
-  * @dev: Device pointer
-  * @idev: Input device
-@@ -49,6 +51,7 @@ struct cros_ec_keyb {
- 	int row_shift;
- 	const struct matrix_keymap_data *keymap_data;
- 	bool ghost_filter;
-+	uint8_t *valid_keys;
- 	uint8_t *old_kb_state;
- 
- 	struct device *dev;
-@@ -57,39 +60,15 @@ struct cros_ec_keyb {
- };
- 
- 
--static bool cros_ec_keyb_row_has_ghosting(struct cros_ec_keyb *ckdev,
--					  uint8_t *buf, int row)
--{
--	int pressed_in_row = 0;
--	int row_has_teeth = 0;
--	int col, mask;
--
--	mask = 1 << row;
--	for (col = 0; col < ckdev->cols; col++) {
--		if (buf[col] & mask) {
--			pressed_in_row++;
--			row_has_teeth |= buf[col] & ~mask;
--			if (pressed_in_row > 1 && row_has_teeth) {
--				/* ghosting */
--				dev_dbg(ckdev->dev,
--					"ghost found at: r%d c%d, pressed %d, teeth 0x%x\n",
--					row, col, pressed_in_row,
--					row_has_teeth);
--				return true;
--			}
--		}
--	}
--
--	return false;
--}
--
- /*
-  * Returns true when there is at least one combination of pressed keys that
-  * results in ghosting.
-  */
- static bool cros_ec_keyb_has_ghosting(struct cros_ec_keyb *ckdev, uint8_t *buf)
- {
--	int row;
-+	int col1, col2, buf1, buf2;
-+	struct device *dev = ckdev->dev;
-+	uint8_t *valid_keys = ckdev->valid_keys;
- 
- 	/*
- 	 * Ghosting happens if for any pressed key X there are other keys
-@@ -103,27 +82,23 @@ static bool cros_ec_keyb_has_ghosting(struct cros_ec_keyb *ckdev, uint8_t *buf)
- 	 *
- 	 * In this case only X, Y, and Z are pressed, but g appears to be
- 	 * pressed too (see Wikipedia).
--	 *
--	 * We can detect ghosting in a single pass (*) over the keyboard state
--	 * by maintaining two arrays.  pressed_in_row counts how many pressed
--	 * keys we have found in a row.  row_has_teeth is true if any of the
--	 * pressed keys for this row has other pressed keys in its column.  If
--	 * at any point of the scan we find that a row has multiple pressed
--	 * keys, and at least one of them is at the intersection with a column
--	 * with multiple pressed keys, we're sure there is ghosting.
--	 * Conversely, if there is ghosting, we will detect such situation for
--	 * at least one key during the pass.
--	 *
--	 * (*) This looks linear in the number of keys, but it's not.  We can
--	 * cheat because the number of rows is small.
- 	 */
--	for (row = 0; row < ckdev->rows; row++)
--		if (cros_ec_keyb_row_has_ghosting(ckdev, buf, row))
--			return true;
-+	for (col1 = 0; col1 < ckdev->cols; col1++) {
-+		buf1 = buf[col1] & valid_keys[col1];
-+		for (col2 = col1 + 1; col2 < ckdev->cols; col2++) {
-+			buf2 = buf[col2] & valid_keys[col2];
-+			if (hweight8(buf1 & buf2) > 1) {
-+				dev_dbg(dev, "ghost found at: B[%02d]:0x%02x & B[%02d]:0x%02x",
-+					col1, buf1, col2, buf2);
-+				return true;
-+			}
-+		}
-+	}
- 
- 	return false;
- }
- 
-+
- /*
-  * Compares the new keyboard state to the old one and produces key
-  * press/release events accordingly.  The keyboard state is 13 bytes (one byte
-@@ -222,6 +197,30 @@ static void cros_ec_keyb_close(struct input_dev *dev)
- 	free_irq(ec->irq, ckdev);
- }
- 
-+/*
-+ * Walks keycodes flipping bit in buffer COLUMNS deep where bit is ROW.  Used by
-+ * ghosting logic to ignore NULL or virtual keys.
-+ */
-+static void cros_ec_keyb_compute_valid_keys(struct cros_ec_keyb *ckdev)
-+{
-+	int row, col;
-+	int row_shift = ckdev->row_shift;
-+	unsigned short *keymap = ckdev->idev->keycode;
-+	unsigned short code;
-+
-+	BUG_ON(ckdev->idev->keycodesize != sizeof(*keymap));
-+
-+	for (col = 0; col < ckdev->cols; col++) {
-+		for (row = 0; row < ckdev->rows; row++) {
-+			code = keymap[MATRIX_SCAN_CODE(row, col, row_shift)];
-+			if (code && (code != KEY_BATTERY))
-+				ckdev->valid_keys[col] |= 1 << row;
-+		}
-+		dev_dbg(ckdev->dev, "valid_keys[%02d] = 0x%02x\n",
-+			col, ckdev->valid_keys[col]);
-+	}
-+}
-+
- static int cros_ec_keyb_probe(struct platform_device *pdev)
- {
- 	struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
-@@ -242,6 +241,11 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
- 					    &ckdev->cols);
- 	if (err)
- 		return err;
-+
-+	ckdev->valid_keys = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
-+	if (!ckdev->valid_keys)
-+		return -ENOMEM;
-+
- 	ckdev->old_kb_state = devm_kzalloc(&pdev->dev, ckdev->cols, GFP_KERNEL);
- 	if (!ckdev->old_kb_state)
- 		return -ENOMEM;
-@@ -285,6 +289,8 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
- 	input_set_capability(idev, EV_MSC, MSC_SCAN);
- 	input_set_drvdata(idev, ckdev);
- 	ckdev->idev = idev;
-+	cros_ec_keyb_compute_valid_keys(ckdev);
-+
- 	err = input_register_device(ckdev->idev);
- 	if (err) {
- 		dev_err(dev, "cannot register input device\n");
+Not sure if this message is really needed, as both parts already print
+relevant message in both success and failure cases.
+
+> +	} else {
+> +		/* Try to register main SMBus adapter, give up if we can't */
+> +		retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
+> +		if (retval < 0)
+> +			return retval;
+> +	}
+>  
+>  	/* Check for auxiliary SMBus on some AMD chipsets */
+>  	retval = -ENODEV;
+
+I'm mostly fine with the change above, but it is insufficient in one
+corner case: if both the main bus and the aux bus probing fails. The
+code does currently not consider both buses equal, in that it never
+returns an error if the aux bus probing fails. The return value only
+stands for the status of the main bus. With your change, if both buses
+fail to register, the piix4_probe function may still returns 0
+(success.)
+
+Your proposed change somehow makes the aux bus an equal of the main
+bus. The probe function should return 0 if either bus was successfully
+registered. It should still return an error if both fail to register.
+Unfortunately we can't report both error codes to the caller. For
+historical reasons I believe we should return the error code for the
+main bus in that case, which means you have to store it in the middle
+of the function for it to be available at the end of the function.
+
+Thanks,
 -- 
-2.0.0.rc2
-
+Jean Delvare
+SUSE L3 Support
