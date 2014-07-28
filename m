@@ -1,82 +1,61 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH v2] i2c: pca954x: put the mux to disconnected state after resume
-Date: Mon, 28 Jul 2014 13:25:03 +0200
-Message-ID: <24682406.bF7Bs0kNf1@avalon>
-References: <1406289466-936-1-git-send-email-jszhang@marvell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1406289466-936-1-git-send-email-jszhang@marvell.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jisheng Zhang <jszhang@marvell.com>
-Cc: wsa@the-dreams.de, khali@linux-fr.org, paul.gortmaker@windriver.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: [PATCH 0/7] Second batch of cleanups for cros_ec
+Date: Mon, 28 Jul 2014 14:19:20 +0200
+Message-ID: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jisheng,
+This is a second batch of cleanups patches for the mfd cros_ec
+driver and its subdevices drivers. The first batch of cleanups
+was posted by Doug Anderson [0] and have already been merged.
+The patches were picked from the ChromeOS 3.8 kernel and after
+these no cleanups patches for cros_ec are left, only commits
+that add cros ec support not yet available in mainline.
 
-Thank you for the patch.
+There is almost no functionality added on this series but the
+idea is to reduce the delta between the mainline drivers and
+the ones in the downstream Chrome OS 3.8 kernel so the missing
+functionality can be added on top once these cleanups patches
+are merged. The missing functionlity currently in mainline is:
 
-On Friday 25 July 2014 19:57:46 Jisheng Zhang wrote:
-> pca954x may be power lost during suspend, so after resume we also suffer
-> the issue fixed by commit cd823db8b1161ef0d756514d280715a576d65cc3,
-> 
->  "pca954x power-on default is channel 0 connected. If multiple pca954x
->  muxes are connected to the same physical I2C bus, the parent bus will
->  see channel 0 devices behind both muxes by default."
-> 
-> What's more, when resume bootloader may also operate the mux, so the
-> the channel connected after that may not be the one driver thought.
-> 
-> We fix this problem by putting the mux to disconnected state and
-> clearing last_chan in the resume hook.
-> 
-> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+- Chrome OS Embedded Controller userspace device interface
+- Chrome OS Embedded Controller Low Pin Count (LPC) inteface
+- Access to vboot context stored on a block device
+- Access to vboot context stored on EC's nvram
 
-Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+The patches in this series are authored by different people
+(all on cc) and consist of the following:
 
-> ---
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 15 +++++++++++++++
->  1 file changed, 15 insertions(+)
-> 
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> b/drivers/i2c/muxes/i2c-mux-pca954x.c index 9bd4212..ec11b40 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -41,6 +41,7 @@
->  #include <linux/i2c-mux.h>
->  #include <linux/i2c/pca954x.h>
->  #include <linux/module.h>
-> +#include <linux/pm.h>
->  #include <linux/slab.h>
-> 
->  #define PCA954X_MAX_NCHANS 8
-> @@ -273,9 +274,23 @@ static int pca954x_remove(struct i2c_client *client)
->  	return 0;
->  }
-> 
-> +#ifdef CONFIG_PM_SLEEP
-> +static int pca954x_resume(struct device *dev)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct pca954x *data = i2c_get_clientdata(client);
-> +
-> +	data->last_chan = 0;
-> +	return i2c_smbus_write_byte(client, 0);
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(pca954x_pm, NULL, pca954x_resume);
-> +
->  static struct i2c_driver pca954x_driver = {
->  	.driver		= {
->  		.name	= "pca954x",
-> +		.pm	= &pca954x_pm,
->  		.owner	= THIS_MODULE,
->  	},
->  	.probe		= pca954x_probe,
+Andrew Bresticker (3):
+  mfd: cros_ec: stop calling ->cmd_xfer() directly
+  mfd: cros_ec: move locking into cros_ec_cmd_xfer
+  mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
 
--- 
-Regards,
+Derek Basehore (1):
+  i2c: i2c-cros-ec-tunnel: Set retries to 3
 
-Laurent Pinchart
+Doug Anderson (1):
+  mfd: cros_ec: Delay for 50ms when we see EC_CMD_REBOOT_EC
+
+Todd Broch (2):
+  mfd: cros_ec: Instantiate sub-devices from device tree
+  Input: cros_ec_keyb: Optimize ghosting algorithm.
+
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c |  5 +-
+ drivers/input/keyboard/cros_ec_keyb.c   | 89 +++++++++++++++++----------------
+ drivers/mfd/cros_ec.c                   | 88 ++++++++++++++++++++++++++++----
+ drivers/mfd/cros_ec_spi.c               | 20 ++++----
+ include/linux/mfd/cros_ec.h             | 24 ++++++---
+ 5 files changed, 154 insertions(+), 72 deletions(-)
+
+The patches should be merged together which means that some of
+them need to be acked by relevant maintainers like patch 02/07
+by the i2c maintainer and patch 07/07 by the input maintainer.
+
+Best regards,
+Javier
+
+[0]: https://lkml.org/lkml/2014/6/16/681
