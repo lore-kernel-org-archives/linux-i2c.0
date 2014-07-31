@@ -1,90 +1,46 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: Re: i2c-davinci.c: CPU FREQ causes lock up due to xfr_complete
-Date: Wed, 30 Jul 2014 17:52:50 +0300
-Message-ID: <53D906C2.9080005@ti.com>
-References: <CADL8D3YchqfT+ikKTCkLNLmwm2HYKDzZy-g4T+mJLYBJ1rC72Q@mail.gmail.com>	<2588C357BB271A4CA8E86BCFF043FA920C4ACE9D@EFJDFWMB01.EFJDFW.local>	<CADL8D3aQ4idMNYZn-sK=8x9+NrVj=4p58C+ir8ZAngDavGB3-A@mail.gmail.com>	<CADL8D3a2gjbGZibENYNfvWrvGun82ZDm7A+i8NJRBKdRvMvgdQ@mail.gmail.com> <53D7DA44.2070108@ti.com> <53D88E4E.3030108@ti.com>
+From: "Zvi Vered" <veredz72-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: i2c_smbus_write_block_data: send 2 bytes (command+size) before data
+Date: Thu, 31 Jul 2014 05:50:05 +0300
+Message-ID: <E16B30BECA974753AA35BBFF9BCFB851@ZviVeredPC>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53D88E4E.3030108-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Jon Cormier <jcormier-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>, Brian Niebuhr <BNiebuhr-0skhLfht8co@public.gmane.org>
-Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, Tim Iskander <tim.iskander-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org >> linux-i2c" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/30/2014 09:18 AM, Sekhar Nori wrote:
-> On Tuesday 29 July 2014 11:00 PM, Grygorii Strashko wrote:
->> Hi Jon,
->>
->> On 07/29/2014 06:53 PM, Jon Cormier wrote:
->>> A slimmer patch suggested by Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
->>
->>
->> Ok. The problem seems to be deeper than at first look.
->> You have sequence (in Mainline kernel):
->> cpufreq:
->>   |- notify CPUFREQ_PRECHANGE
->>      |- i2c-davinci will lock & put I2C in reset
->>   |- cpufreq_driver->target_index
->>      |- davinci_target()
->>         |- pdata->set_voltage() - It will try to use I2C to set new voltage,
->>         while I2C is in reset or locked! Bug!
->>   |- notify CPUFREQ_POSTCHANGE
->>      |- i2c-davinci will re-enable I2C and adjust I2C clock
->
-> Good find. I really wonder how this escaped so far. I can swear cpufreq
-> transitions were tested multiple times. From the description it looks
-> like this should hit every single time there is a voltage adjustment.
->
-> On DA850 which is the only DaVinci implementing cpufreq, I2C0 input
-> frequency will remain constant across cpufreq transitions since it
-> derives from PLL0 AUXCLK which is used pre-multipler/divider. It remains
-> fixed.
->
-> The code seems to have been added for I2C1 which does have a fixed ratio
-> with cpu clock.
->
-> PMIC should usually be put on I2C0 to help prevent these kind of issues.
->
->> I see few possible ways to solve it:
->> 1) use CLK notifier instead of CPUfreq notifiers
->
-> This will require common clock framework, right? We dont have that on
-> mach-davinci.
+Hello,
 
-:( I've forgotten about that.
+>From an Intel's ATOM I want to send an I2C message from SMBus controller to
+a TI's microcontroller configured as an I2C slave.
 
->
->> 2) do smth similar to "61c7cff8 i2c: S3C24XX I2C frequency scaling support"
->>    + "9bcd04bf i2c: s3c2410: grab adapter lock while changing i2c clock"
->
-> This looks promising. Although I wonder if delta_f will always remain
-> zero in s3c24xx_i2c_cpufreq_transition() when the CPUFREQ_PRECHANGE call
-> is made - because clock tree is not updated yet?
+I used the following code:
 
-That's funny - seems PRE/POST notifiers are called twice for s3c24xx :)
-First one from cpufreq core.
-Second time from s3c_cpufreq_target() and, looks like, clock
-freq will be updated at that time.
+handle = fopen ("/dev/i2c-14",O_RDWR); //open SMBUs controller
 
+ioctl (handle, I2C_SLAVE, 0x43);  //set I2C slave destination address
 
->
->> 3) update I2C clock in CPUFREQ_POSTCHANGE - may be unsafe
->
-> Well, even now the I2C clock is only getting updated in POSTCHANGE,
-> right? Also, resetting I2C in PRECHANGE seems excessive. It is only
-> required when changing the prescalar. So you can do:
->
-> 	} else if (val == CPUFREQ_POSTCHANGE) {
-> 		davinci_i2c_reset_ctrl(dev, 0);
-> 		i2c_davinci_calc_clk_dividers(dev);
-> 		davinci_i2c_reset_ctrl(dev, 1);
-> 	}
->
-> So this along with the i2c_lock_adapter() a la
-> s3c24xx_i2c_cpufreq_transition() should be the right fix, I guess.
->
+i2c_smbus_write_block_data (handle, 0x00, 16, buffer); //send 16 bytes
+message, command = 0x00
 
-Regards,
--grygorii
+The message I want to send is: 0xAD, 0x2D, 0xFE, 0xCA, ..... 0x00  (16
+bytes)
+
+I'm using I2C sniffer to see what I sent and what I see is:
+
+0x00, 0x10, 0xAD, 0x2D, 0xFE, 0xCA, .....
+
+It seems the register (command) and length are also sent.
+
+The MCU expect pure data without the 2 bytes: 0x00, 0x10
+
+The above code runs under vanilla linux 3.2.48
+
+Can you help ?
+
+Thanks,
+Z.V
