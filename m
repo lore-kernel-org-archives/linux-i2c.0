@@ -1,65 +1,94 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: pca954x: put the mux to disconnected state after
- resume
-Date: Fri, 1 Aug 2014 19:57:05 +0200
-Message-ID: <20140801175705.GE3277@katana>
-References: <1406289466-936-1-git-send-email-jszhang@marvell.com>
+Subject: Re: [PATCH 2/7] i2c: i2c-cros-ec-tunnel: Set retries to 3
+Date: Fri, 1 Aug 2014 19:59:12 +0200
+Message-ID: <20140801175912.GF3277@katana>
+References: <1406549967-21291-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1406549967-21291-3-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wchHw8dVAp53YPj8"
+	protocol="application/pgp-signature"; boundary="z0eOaCaDLjvTGF2l"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1406289466-936-1-git-send-email-jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1406549967-21291-3-git-send-email-javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Cc: laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---wchHw8dVAp53YPj8
+--z0eOaCaDLjvTGF2l
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 25, 2014 at 07:57:46PM +0800, Jisheng Zhang wrote:
-> pca954x may be power lost during suspend, so after resume we also suffer
-> the issue fixed by commit cd823db8b1161ef0d756514d280715a576d65cc3,
+On Mon, Jul 28, 2014 at 02:19:22PM +0200, Javier Martinez Canillas wrote:
+> From: Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 >=20
->  "pca954x power-on default is channel 0 connected. If multiple pca954x
->  muxes are connected to the same physical I2C bus, the parent bus will
->  see channel 0 devices behind both muxes by default."
+> Since the i2c bus can get wedged on the EC sometimes, set the number of r=
+etries
+> to 3. Since we un-wedge the bus immediately after the wedge happens, this=
+ is the
+> correct fix since only one transfer will fail.
 >=20
-> What's more, when resume bootloader may also operate the mux, so the
-> the channel connected after that may not be the one driver thought.
+> Signed-off-by: Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 3 +++
+>  1 file changed, 3 insertions(+)
 >=20
-> We fix this problem by putting the mux to disconnected state and
-> clearing last_chan in the resume hook.
->=20
-> Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses=
+/i2c-cros-ec-tunnel.c
+> index 05e033c..a4411da 100644
+> --- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> +++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> @@ -16,6 +16,8 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/slab.h>
+> =20
+> +#define I2C_MAX_RETRIES 3
 
-Applied to for-next, thanks!
+I think a define for this is overkill, yet I don't really mind.
 
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
---wchHw8dVAp53YPj8
+I assume this goes via MFD, let me know if I should take it.
+
+> +
+>  /**
+>   * struct ec_i2c_device - Driver data for I2C tunnel
+>   *
+> @@ -290,6 +292,7 @@ static int ec_i2c_probe(struct platform_device *pdev)
+>  	bus->adap.algo_data =3D bus;
+>  	bus->adap.dev.parent =3D &pdev->dev;
+>  	bus->adap.dev.of_node =3D np;
+> +	bus->adap.retries =3D I2C_MAX_RETRIES;
+> =20
+>  	err =3D i2c_add_adapter(&bus->adap);
+>  	if (err) {
+> --=20
+> 2.0.0.rc2
+>=20
+
+--z0eOaCaDLjvTGF2l
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT29TxAAoJEBQN5MwUoCm2smIQAJkf95N1Fep4A/nuyLxOGlLY
-iHlYdI9LzNLWZsXoF7t0r97gfA3lx2ffQBbRlwlJMgJO5ZG8pGBbgCmUHoqMkxTK
-zgXoOWbOoW/9zMHpEbGN5EQvJL+wnFqF1ApRgGQmhL7An2IhId66vv3/XivNDPfg
-7NXwQrxXZOt9pfXvOJYNBhaIqPJt288FVEPPlahHLARnkDpQCz8oUvWHeQ/ATBOr
-LjrYMwQJ4JWgPLMkUgVKv5wRnxlZ8nAkjjYKMUZawPkBd9NZN+JGk00D27a8nCCM
-3O8wMML7/8KFNI4KCSdCxOxUWeMUcwbsc22xBvdmryEXb7JOzSjR3t7VucOdAtjZ
-gj+0kJrW9UhLcJI9ZLF+p7CaWYVuvy88tzZEghYz2FJ62xGMTyeloYO4+i5pXiUu
-lvA5NHHRqJuHksPae/ogFSt4mVp4NVG9UF7VrdIx/Af5w785xyZQNnT/Bm++if95
-ACoZ/TijVg95dV2kOyr9LpoRQRnwfvT6GJh22P41wUTyn36gzL2BcWdkmF30Nhod
-U3+CvNm6U+1ILhSNZes6mcx8tbZpUU5jw2aAmHYTIaU3Ems2Y8BnvTuB/A/gYLgM
-iFxNB43DID9YP+U4ybRQ22k3OfYAs8SX1QZHwnxcW4hI11plFjAXmNB/9VH/o8Gn
-Ps0l2SZ5XpzDYs8XbXtQ
-=BDTs
+iQIcBAEBAgAGBQJT29VvAAoJEBQN5MwUoCm2vBIQAJllHNEd9tmJcxKv5yOZGsaj
+UQANTLa+q/BKlKxEw/YbCuNFXleCIG7LLrwoFE8IA/Ag1bP+WdRG9TaYKaRA6Pcy
+HqbtgssnUrjXLRKObfx7iR4nzHCekRXgcduCaLh/x8UV8ol3wAKEszAE4tGLB5m6
+2CCMKfOqP8TgMs8gkrkyTw1i6fUO65z3YOk7bnwEfunQkxvhRBcVC6dpOupf8oBJ
+DtoQy8Q2r7YCFZho7HZjOlIjmL6FuVbkrXA5UQRYOqLf+CLZ6ed2Kv/bvaCpJ3dM
+Chkhyo6NO8hK0sQI8tN851t2XM7WCNYWXZBsE5gp7HtycOUsEEHvkGpbbfl426u2
+EEa/0iZzDxayJo/HGl1A5RNs8q8GQo1h+dSZIUV3PtJvgGAjjm+sQk1o/Z0myt+w
+e8712MLP1eVH//v5Eplb2HpNiwvwdBh7AF58mLc1OpNPuJOBHE97pi232ceC47dx
+JJctZ79BuNXEwW8P75sX2LXNdvM0YD5AXfbAwlVtzhLij5GkOJOMQPM1gD2JTRsY
+4O/Ha91HPq9OSrW0VOyvhm0HWurJGycdId5acYGM0suzJR6Dq4N30wQbJjs80Oeg
+ilzeSPaGPcvzCM7eW8yv+eH4TvFIDOb13qX+/DvKeifslyfrjaDwj6e4lHPNGteD
+fu0MCXlWzSrL6asjnp0z
+=7BBX
 -----END PGP SIGNATURE-----
 
---wchHw8dVAp53YPj8--
+--z0eOaCaDLjvTGF2l--
