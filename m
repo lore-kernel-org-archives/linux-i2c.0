@@ -1,82 +1,105 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH/RFC V8 1/1] clk: Support for clock parents and rates
- assigned from device tree
-Date: Fri, 1 Aug 2014 18:15:57 +0200
-Message-ID: <20140801161557.GA3277@katana>
-References: <1403105372-30403-1-git-send-email-s.nawrocki@samsung.com>
- <1403105372-30403-2-git-send-email-s.nawrocki@samsung.com>
- <53B59221.5080100@samsung.com>
- <20140725214231.5177.86866@quantum>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/1] i2c: Kconfig: Enable HSI2C for Exynos5 platform
+Date: Fri, 1 Aug 2014 18:17:36 +0200
+Message-ID: <20140801161735.GB3277@katana>
+References: <1403690523-1863-1-git-send-email-sachin.kamat@samsung.com>
+ <CAD=FV=WzPxT4okEur8C2G=FZK=zq3EsyCv9aAJwZ1PDkfoOcpA@mail.gmail.com>
+ <20140716174002.GG2759@katana>
+ <CAK5sBcGoYC5qpwy1C95Nx5+ni6bEqCTFShYoVEAdxQVeekZhtQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="pvezYHf7grwyp3Bc"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140725214231.5177.86866@quantum>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <CAK5sBcGoYC5qpwy1C95Nx5+ni6bEqCTFShYoVEAdxQVeekZhtQ@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Sachin Kamat <spk.linux@gmail.com>
+Cc: Doug Anderson <dianders@chromium.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Kukjin Kim <kgene.kim@samsung.com>, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-i2c@vger.kernel.org
 
 
---UugvWAfsgieZRqgk
+--pvezYHf7grwyp3Bc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 25, 2014 at 02:42:31PM -0700, Mike Turquette wrote:
-> Quoting Sylwester Nawrocki (2014-07-03 10:25:53)
-> > On 18/06/14 17:29, Sylwester Nawrocki wrote:
-> > > This patch adds helper functions to configure clock parents and rates
-> > > as specified through 'assigned-clock-parents', 'assigned-clock-rates'
-> > > DT properties for a clock provider or clock consumer device.
-> > > The helpers are now being called by the bus code for the platform, I2C
-> > > and SPI busses, before the driver probing and also in the clock core
-> > > after registration of a clock provider.
-> > >=20
-> > > Signed-off-by: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > > Acked-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> >=20
-> > Could someone please take a look and review that patch ?
-> > Any further suggestions, ACKs/NAKs ?
+On Fri, Jul 25, 2014 at 05:06:32PM +0530, Sachin Kamat wrote:
+> On Wed, Jul 16, 2014 at 11:10 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> > On Wed, Jun 25, 2014 at 10:55:31AM -0700, Doug Anderson wrote:
+> >> Sachin,
+> >>
+> >> On Wed, Jun 25, 2014 at 3:02 AM, Sachin Kamat <sachin.kamat@samsung.co=
+m> wrote:
+> >> > All Exynos5 platforms have HSI2C controllers and are needed by
+> >> > various IPs connected to the boards based on these SoCs. Thus
+> >> > select this by default for Exynos5 platforms.
+> >> >
+> >> > Signed-off-by: Sachin Kamat <sachin.kamat@samsung.com>
+> >> > Cc: Doug Anderson <dianders@chromium.org>
+> >> > ---
+> >> >  drivers/i2c/busses/Kconfig |    4 ++--
+> >> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >> >
+> >> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> >> > index 9f7d5859cf65..c7918cffe790 100644
+> >> > --- a/drivers/i2c/busses/Kconfig
+> >> > +++ b/drivers/i2c/busses/Kconfig
+> >> > @@ -465,9 +465,9 @@ config I2C_EG20T
+> >> >  config I2C_EXYNOS5
+> >> >         tristate "Exynos5 high-speed I2C driver"
+> >> >         depends on ARCH_EXYNOS5 && OF
+> >> > +       default y
+> >> >         help
+> >> > -         Say Y here to include support for high-speed I2C controlle=
+r in the
+> >> > -         Exynos5 based Samsung SoCs.
+> >> > +         High-speed I2C controller on Exynos5 based Samsung SoCs.
+> >> >
+> >> >  config I2C_GPIO
+> >> >         tristate "GPIO-based bitbanging I2C"
+> >> > --
+> >> > 1.7.9.5
+> >>
+> >> This seems reasonable to me and I will also take the blame for
+> >> suggesting this.  It's hard to imagine running a real exynos5 system
+> >> without I2C.  One could argue that on an exynos5250 the high speed I2C
+> >> controller is not mandatory (since all the ports can be muxed to use
+> >> the old controller) but on newer exynos5 products you're expected to
+> >> have the main PMIC on one of the i2c ports.  An exynos system without
+> >> access to its PMIC will just sorta limp by.
+> >>
+> >> ...but I've added Arnd to this thread as he expressed some
+> >> reservations about this type of thing, so we'll see what he says.
+> >
+> > Ping. Arnd? I have no strong opinion and would take this patch...
 >=20
-> Patch looks good to me. I'm happy to take it.
+> Wolfram,
 >=20
-> >=20
-> > I would appreciate a DT, SPI or the I2C maintainer opinions.
->=20
-> Yes, Acks from SPI and I2C maintainers would be good. I might need to
-> drop those parts of this patch if they don't come through :-(
+> How do you want to proceed with this?
 
-For the I2C part:
-
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Giving Arnd a last chance to speak, otherwise I'll take it.
 
 
---UugvWAfsgieZRqgk
+--pvezYHf7grwyp3Bc
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT2708AAoJEBQN5MwUoCm2aCYP/365qBaTpbuWjzeZ1mlBEwpR
-3/qVH7fE0MfwEHd03BafDmNAf3rV3zTdQjvTyz3w7eH1Tvwf5nWJr3Wgqltkp5iU
-Dcm4FUO6r17Fae+bZLO88By7UOm8WccZtsI8TorQTruGanCVZbavul/AvJdDX7ck
-ffhNzao4AMuQdjFMz3FQr7kkGo3GpveC3tmNhK4aFnDWsleEgNvQ2NvaRLdz6wbe
-OTxk42sIJtG7iKjleKz2xthCp6R/AvhdU1O6SZCKmskpmZW3eHp6107WuCqd0IMr
-ifs9cwEK62iqVAix0cNp5GxmsOpEUBtExk2RAxTQMGCwFePPu4BI5iXYMYuDXbDl
-4xHzLoSr0wbCW8EGl17+Pd3i+llfjgZxvKIi0DUOh6IeuvWtB8sVNA6h1+6w3VTi
-DmUOEBcdbpNR1y0OdszrApcP5CJYbYlFzUYWfVn+MV01nj9lNaAwGB2ynlk2CpMI
-r9u0PbShD9lib5CgbO/rbQqSJfG+o5rjlzP/YtTw+InVZQT+2OQqYh/RxsKVGjcE
-9SHHRKesGwBhiDtLS5oRTI5GakkYjqg5+euIFKcHBshmoTgf54BiWAV4WATKuxwT
-gjcfbiUHdTDJ6+z2klekmIelujnlAMgAoKcksb0toRkMXZbq91bqB/ytak6/wHEG
-YtLYHZZiHTwejG8qi5jm
-=mIbT
+iQIcBAEBAgAGBQJT272fAAoJEBQN5MwUoCm2bSMQAJ1U8Tv5EDDb0vBbv+idcKT/
+3gGaYzUcFJzCZ88axjKYK0vXv7NSWhtWGPvDWOCdkewAmGC9gd01NbgoPZk6H/6Z
+fMupxMlZOl7AU9vODXN096PSHpGGcc/ctxDlQoOXmR0KhE+RQ9iyR7VNBecfJKo9
+SfmY9MLw2hPtelTBen75roDUlyFM/uI7vpOyWZ48V2NZBbX5XdYccnS5PJJj86tK
+ovn/qm5dgJ6RpUR/J9vZIPtEtSV5kE29dPk/QT+I5e0sJMSl7NA4wcCLi2xOzncH
+WCL1BPMyGyatgqikRSN86a54HmO1P8E7QUOGpC4gcnA9xEm4ylIeYYFq8f9otXz+
+RT5/+RrTFnkYHwLKqBGYnb1e3k4mEL3tWW8+82iAOzK/NLR49g7NwCsABU5hl1De
+H0EXha/Ypd1J5bchaiVr/34qk5sTBPMdfKo0/Xgw3ed5hM/xGZ8jmt61ONCqGnfP
+O672uSyDgOeluTqBLKMjdJ4bxbXYL9D8V/HZPncm+rjHQdMAjTOGPIgDIBIRnfLq
+rfLDXqU11RQt1eNqy8dqOL4k3syw+xAsCmqfysK/LcQuExW9RYDgcK/DpQsrTXcD
+WXqRO5fv8diSH/+bfoIRM9uZB1Z6nqUx1DmU5hdL/pXP32s99UdllbyEtOotuUGJ
+IvR8BmC8+TThqVgAgiBk
+=3s/E
 -----END PGP SIGNATURE-----
 
---UugvWAfsgieZRqgk--
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--pvezYHf7grwyp3Bc--
