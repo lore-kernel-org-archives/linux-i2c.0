@@ -1,67 +1,106 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] drivers: i2c: i2c-st: Update i2c timings
-Date: Fri, 1 Aug 2014 19:48:30 +0200
-Message-ID: <20140801174830.GC3277@katana>
-References: <1406130247-19197-1-git-send-email-maxime.coquelin@st.com>
+Subject: Re: i2c,designware: add new bindings
+Date: Fri, 1 Aug 2014 19:52:31 +0200
+Message-ID: <20140801175230.GD3277@katana>
+References: <1406117217.2895.12.camel@acox1-desk.ger.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hOcCNbCCxyk/YU74"
+	protocol="application/pgp-signature"; boundary="BRE3mIcgqKzpedwo"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1406130247-19197-1-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+In-Reply-To: <1406117217.2895.12.camel-wU3TRTJX3O1FGiH78xh5akvbDziVy8sZEvhb3Hwu1Ks@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Kandagatla <srinivas.kandagatla-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Patrice Chotard <patrice.chotard-qxv4g6HH51o@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org
+To: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---hOcCNbCCxyk/YU74
+--BRE3mIcgqKzpedwo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 23, 2014 at 05:44:07PM +0200, Maxime COQUELIN wrote:
-> The i2c timing values specified in the driver are the minimun values defi=
-ned
-> in the I2C specifications.
-> The I2C specification does not specify any default or maximum values.
->=20
-> Some I2C devices are out of spec, such as the HDMI link of the Toshiba 19=
-AV600
-> TV, and might not work properly with minimum values.
->=20
-> This patch adds a 10% margin on all the timings in both Normal and Fast m=
-odes.
->=20
-> Trial and error method have been used to find the minimum margin necessar=
-y to
-> have the out-of-spec device working, and a security margin has been added.
->=20
-> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Hi Alan,
 
-Applied to for-next, thanks!
+On Wed, Jul 23, 2014 at 01:06:57PM +0100, Alan Cox wrote:
+> This may appear as PCI or ACPI depending upon the firmware so we
+> have to list both. All share the same ACPI identifier but not
+> the same PCI identifier.
+>=20
+> Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-pcidrv.c  |    9 +++++++++
+>  drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+>  2 files changed, 10 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/bus=
+ses/i2c-designware-pcidrv.c
+> index 3356f7a..d31d313 100644
+> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> @@ -188,6 +188,7 @@ static struct  dw_pci_controller dw_pci_controllers[]=
+ =3D {
+>  		.scl_sda_cfg =3D &hsw_config,
+>  	},
+>  };
+> +
+>  static struct i2c_algorithm i2c_dw_algo =3D {
+>  	.master_xfer	=3D i2c_dw_xfer,
+>  	.functionality	=3D i2c_dw_func,
+> @@ -350,6 +351,14 @@ static const struct pci_device_id i2_designware_pci_=
+ids[] =3D {
+>  	/* Haswell */
+>  	{ PCI_VDEVICE(INTEL, 0x9c61), haswell },
+>  	{ PCI_VDEVICE(INTEL, 0x9c62), haswell },
+> +	/* Braswell / Cherrytrail */
+> +	{ PCI_VDEVICE(INTEL, 0x22C1), baytrail,},
+> +	{ PCI_VDEVICE(INTEL, 0x22C2), baytrail },
+> +	{ PCI_VDEVICE(INTEL, 0x22C3), baytrail },
+> +	{ PCI_VDEVICE(INTEL, 0x22C4), baytrail },
+> +	{ PCI_VDEVICE(INTEL, 0x22C5), baytrail },
+> +	{ PCI_VDEVICE(INTEL, 0x22C6), baytrail },
+> +	{ PCI_VDEVICE(INTEL, 0x22C7), baytrail },
+>  	{ 0,}
+>  };
+>  MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
+sses/i2c-designware-platdrv.c
+> index 402ec39..915ce6c2 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -106,6 +106,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[=
+] =3D {
+>  	{ "INT3432", 0 },
+>  	{ "INT3433", 0 },
+>  	{ "80860F41", 0 },
+> +	{ "808622C1", 0 },
 
+Why are 22c2 up to 22c7 not added here?
 
---hOcCNbCCxyk/YU74
+Thanks,
+
+   Wolfram
+
+--BRE3mIcgqKzpedwo
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT29LuAAoJEBQN5MwUoCm2yBIQALXNAFBm8alftzfUqqSoXQnu
-SQtn2gQejdYZs+xxr59jSDP75cmXWEV8iPYBMZxToT5oGq/7Bsy6IzDTu7Js+hQ/
-o9lhSwvC9PS0i9CyFDD54ZTAjGAl2E9nWKXppOnIzj47b/6S2PgG8LqP833SZa1p
-CFVBABLqtJiF7ejoQbM85bCorlRQYu1PVYsgpPcb+TJVtOO2Vet+CsFq8amzHH6Y
-3NxMtyiWQ1rweBG6LNmxMMIPvbcfvJuBHTEYUIrUJEo6uwZS4RXUAifqWv3xtNR9
-UbEiRL7Cn3SEP5UxkJhnR8lZ2iwlv6eLrL0Q4Bv4oL5PoZbuguCcbkTnww791r7/
-B5oCFN11Nj/87pPSkCZ9nuRwbZ9GHtBWMihaEIaCf12zXGwKiGJQ0EBslvfr7r8X
-Fwvm4iczq8xfTzhL2dGV0m7dA9sHGihYfAZC9e5vFJlysE5ZvGC5vUG2E9uzv3JD
-yGCRTjBGT+Tw4UFaNqXIIOnyouGlMt278XsOypOyGjJA7VrGmfFjtTOphAcJm14e
-mvmt3czVdlVnOK5Q28Cn+Rd1BU3bdmou7xLhYd+aFLSHmO8wJnQlXxhSEXt+g3n/
-qLrr5hfma+tbjHCx46z8MUd73VGMf3nR4m7BugwEXQj4v/8N7Koh69gzCJjyu3QQ
-CqoPI+hCIbpVBAsXxxcy
-=jQjo
+iQIcBAEBAgAGBQJT29PeAAoJEBQN5MwUoCm2z28QAJmuOkRIKxPjdqZIj3ycwpWF
+8B8p4GV/bPGtZa2pbSUMTtXlrgAAKYDoBrsDXSg07nA8dwJAdMJp5OBtWt22UJAS
+yr+hJB4s6/Rvgncd9bUp1ZMI+MJXoQtIMmGUeNGcd56mYqK06eBJeta/0naCLktV
+VcfExb9+9z96LzeAE/zvsyeu2ab53zkF0upgX/gr5VnVKUBsjwJAsi7BdkI7LTY9
+ZNboNZYev02+be7F19rbuN6j/C+QxjgybUxIuQLYlZzGAVgPIFIWOoWLeMB9DqhZ
+hohDLqPDZecea7DsK/ph6GWnVbpba4GebmjjHs9BniwLpEI7UkFu3UomZ0gNPqjo
+6CSODp30NS5uJBv1e+lu0j4vjLAEgLsqGEYLPS7/etonN35DfIifbLwftLW3V7I1
+8GsE3aIJENZ/M7RyOBDPPY7Q8gfW8C/RMbWfc0cgMTPAlMH/xdmOP7S1O4ilIKfY
+DUHHXFYppGQHNmku+KbRwN2iEg3CYLR13z+jza4XCp3xR0yYTj0hWDn2KdOWbuQF
+hoYvWiZlg6QRJEFGdz7tjG3FexDYdeVx2pCYtyjy0lcZBdwz4y5RVMmuQqsZO+jm
+XnST0h5Dq2Sk08L8agFVjXD+2Zq9GOceJdUa/o44s8jbkIz41ExUDCb/gnl/pKwx
+gTTMB+sl5YvKR60vjI2r
+=RQjg
 -----END PGP SIGNATURE-----
 
---hOcCNbCCxyk/YU74--
+--BRE3mIcgqKzpedwo--
