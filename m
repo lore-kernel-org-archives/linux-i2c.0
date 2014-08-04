@@ -1,21 +1,29 @@
-From: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c:at91: add bound checking on smbus block length bytes
-Date: Mon, 4 Aug 2014 12:29:56 -0400
-Message-ID: <CAJjB1qJvvaO3PtN5dMAAAeABS5YMmRc1VRwKo6G_ZuDuo6L15g@mail.gmail.com>
-References: <1404457391-22330-1-git-send-email-mark.roszko@gmail.com>
+From: dwalker-zu3NM2574RrQT0dZR+AlfA@public.gmane.org
+Subject: Re: i2c-i801: Enable interrupts on ICH5/7/8/9/10
+Date: Mon, 4 Aug 2014 17:56:32 +0000
+Message-ID: <20140804175632.GA5288@fifo99.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1404457391-22330-1-git-send-email-mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "<linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org> mailing list" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ludovic,
 
-Have you had a chance to look? This causes kernel panic in at91 systems in
-noisy environments and/or unreliable smbus slaves if left unfixed.
+Hi,
 
-Regards,
-Mark
+I had an issue with the i2c dev-interface. The executable runs i2c_smbus_write_word_data() and it hangs at
+that point. The issues wasn't present in earlier kernels , so I was able to bisect this to ,
+
+commit 29b608540b030d38a978c972cbe99d40efdb7267
+Author: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Date:   Tue Jul 24 14:13:59 2012 +0200
+ 
+    i2c-i801: Enable interrupts on ICH5/7/8/9/10
+
+
+The system I'm testing on is an ICH9 from and Intel BearLake.
+
+Daniel
