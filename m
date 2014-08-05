@@ -1,196 +1,64 @@
-From: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v6 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Tue, 05 Aug 2014 17:18:40 +0530
-Message-ID: <53E0C498.6070608@gmail.com>
-References: <1407232563-10856-1-git-send-email-yao.yuan@freescale.com> <1407232563-10856-2-git-send-email-yao.yuan@freescale.com>
+From: dwalker-zu3NM2574RrQT0dZR+AlfA@public.gmane.org
+Subject: Re: i2c-i801: Enable interrupts on ICH5/7/8/9/10
+Date: Tue, 5 Aug 2014 17:14:33 +0000
+Message-ID: <20140805171433.GA9589@fifo99.com>
+References: <20140804175632.GA5288@fifo99.com>
+ <20140804203604.02c74b22@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1407232563-10856-2-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140804203604.02c74b22-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org
-Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/05/2014 03:26 PM, Yuan Yao wrote:
+On Mon, Aug 04, 2014 at 08:36:04PM +0200, Jean Delvare wrote:
+> Hi Daniel,
+> 
+> Please note my new e-mail address.
+> 
+> On Mon, 4 Aug 2014 17:56:32 +0000, dwalker-zu3NM2574RrQT0dZR+AlfA@public.gmane.org wrote:
+> > I had an issue with the i2c dev-interface. The executable runs i2c_smbus_write_word_data() and it hangs at
+> > that point. The issues wasn't present in earlier kernels , so I was able to bisect this to ,
+> > 
+> > commit 29b608540b030d38a978c972cbe99d40efdb7267
+> > Author: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > Date:   Tue Jul 24 14:13:59 2012 +0200
+> >  
+> >     i2c-i801: Enable interrupts on ICH5/7/8/9/10
+> > 
+> > 
+> > The system I'm testing on is an ICH9 from and Intel BearLake.
+> 
+> I have had a few reports of problems with interrupts so far but could
+> never find the time to track it down. Maybe now is the time.
 
-(...)
+It's up to you ..
+ 
+> Please provide the output of:
+> # lspci -s 00:1f.3 -vvv
+> # grep i801_smbus /proc/interrupts
 
-> +/* Functions for DMA support */
-> +static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
-> +						dma_addr_t phy_addr)
+00:1f.3 SMBus: Intel Corporation 82801I (ICH9 Family) SMBus Controller (rev 02)
+        Subsystem: Intel Corporation Device 7270
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx-
+        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+        Interrupt: pin C routed to IRQ 18
+        Region 0: Memory at cc227400 (64-bit, non-prefetchable) [size=256]
+        Region 4: I/O ports at 8000 [size=32]
+        Kernel driver in use: i801_smbus
 
-should match open parenthesis...
 
-static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
-			       dma_addr_t phy_addr)
+"grep i801_smbus /proc/interrupts" had no output, might explain something.
 
-> +{
-> +	struct imx_i2c_dma *dma;
-> +	struct dma_slave_config dma_sconfig;
-> +	struct device *dev = &i2c_imx->adapter.dev;
-> +	int ret;
-> +
-> +	dma = devm_kzalloc(dev, sizeof(struct imx_i2c_dma), GFP_KERNEL);
+So because of lack of an interrupt I test on the latest kernel. I was using v3.10 , but there wasn't a large 
+difference in the i801 driver from v3.10 to v3.16. In the latest kernel the interrupt gets allocated, and the
+test application I was using doesn't hang. So the problem is resolved ..
 
-sizeof(*dma) ....?
+However, the ideas you had are valid, like adding the timeout .. Also there was no indication of a failed
+interrupt allocation that I could see. I can see the code is suppose to catch if there's an error
+requesting the interrupt, but I didn't get any of those messages, must have been another issues.
 
-> +	if (!dma)
-> +		return -ENOMEM;
-> +
-> +	dma->chan_tx = dma_request_slave_channel(dev, "tx");
-> +	if (!dma->chan_tx) {
-> +		dev_dbg(dev, "can't request DMA tx channel\n");
-> +		ret = -ENODEV;
-> +		goto fail_al;
-> +	}
-> +
-> +	dma_sconfig.dst_addr = phy_addr +
-> +				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
-> +	dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
-> +	dma_sconfig.dst_maxburst = 1;
-> +	dma_sconfig.direction = DMA_MEM_TO_DEV;
-> +	ret = dmaengine_slave_config(dma->chan_tx, &dma_sconfig);
-> +	if (ret < 0) {
-> +		dev_dbg(dev, "can't configure tx channel\n");
-> +		goto fail_tx;
-> +	}
-> +
-> +	dma->chan_rx = dma_request_slave_channel(dev, "rx");
-> +	if (!dma->chan_rx) {
-> +		dev_dbg(dev, "can't request DMA rx channel\n");
-> +		ret = -ENODEV;
-> +		goto fail_tx;
-> +	}
-> +
-> +	dma_sconfig.src_addr = phy_addr +
-> +				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
-> +	dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
-> +	dma_sconfig.src_maxburst = 1;
-> +	dma_sconfig.direction = DMA_DEV_TO_MEM;
-> +	ret = dmaengine_slave_config(dma->chan_rx, &dma_sconfig);
-> +	if (ret < 0) {
-> +		dev_dbg(dev, "can't configure rx channel\n");
-> +		goto fail_rx;
-> +	}
-> +
-> +	i2c_imx->dma = dma;
-> +	init_completion(&dma->cmd_complete);
-> +	dev_info(dev, "using %s (tx) and %s (rx) for DMA transfers\n",
-> +		dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
-> +
-> +	return 0;
-> +
-> +fail_rx:
-> +	dma_release_channel(dma->chan_rx);
-> +fail_tx:
-> +	dma_release_channel(dma->chan_tx);
-> +fail_al:
-> +	devm_kfree(dev, dma);
-
-no need to use devm_kfree() if we use devm_kzalloc()...
-
-> +	dev_info(dev, "can't use DMA\n");
-> +
-> +	return ret;
-> +}
-> +
-> +static void i2c_imx_dma_callback(void *arg)
-> +{
-> +	struct imx_i2c_struct *i2c_imx = (struct imx_i2c_struct *)arg;
-> +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> +
-> +	dma_unmap_single(dma->chan_using->device->dev, dma->dma_buf,
-> +			dma->dma_len, dma->dma_data_dir);
-> +	complete(&dma->cmd_complete);
-> +}
-> +
-> +static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
-> +					struct i2c_msg *msgs)
-
-static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
-			    struct i2c_msg *msgs)
-
-> +{
-> +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> +	struct dma_async_tx_descriptor *txdesc;
-> +	struct device *dev = &i2c_imx->adapter.dev;
-> +	struct device *chan_dev = dma->chan_using->device->dev;
-> +
-> +	dma->dma_buf = dma_map_single(chan_dev, msgs->buf,
-> +					dma->dma_len, dma->dma_data_dir);
-
-dma_map_single(chan_dev, msgs->buf,
-	       dma->dma_len, dma->dma_data_dir);
-
-> +	if (dma_mapping_error(chan_dev, dma->dma_buf)) {
-> +		dev_err(dev, "DMA mapping failed\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	txdesc = dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
-> +					dma->dma_len, dma->dma_transfer_dir,
-> +					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-
-  dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
-			     dma->dma_len, dma->dma_transfer_dir,
-			     DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-
-> +	if (!txdesc) {
-> +		dev_err(dev, "Not able to get desc for DMA xfer\n");
-> +		dma_unmap_single(chan_dev, dma->dma_buf,
-> +					dma->dma_len, dma->dma_data_dir);
-> +		return -EINVAL;
-> +	}
-> +
-> +	txdesc->callback = i2c_imx_dma_callback;
-> +	txdesc->callback_param = i2c_imx;
-> +	dmaengine_submit(txdesc);
-> +	dma_async_issue_pending(dma->chan_using);
-> +
-> +	return 0;
-> +}
-> +
-> +static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> +
-> +	dma->dma_buf = 0;
-> +	dma->dma_len = 0;
-> +
-> +	dma_release_channel(dma->chan_tx);
-> +	dma->chan_tx = NULL;
-> +
-> +	dma_release_channel(dma->chan_rx);
-> +	dma->chan_rx = NULL;
-> +
-> +	dma->chan_using = NULL;
-> +}
-> +
->   /** Functions for IMX I2C adapter driver ***************************************
->   *******************************************************************************/
->   
-> @@ -379,6 +530,7 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
->   	i2c_imx->stopped = 0;
->   
->   	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
-> +	temp &= ~I2CR_DMAEN;
->   	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->   	return result;
->   }
-> @@ -432,6 +584,160 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
->   	return IRQ_NONE;
->   }
->   
-> +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> +					struct i2c_msg *msgs)
-
-static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-			     struct i2c_msg *msgs)
-
-run checkpatch.pl on this patch...
-
--- 
-Regards,
-Varka Bhadram.
+Daniel
