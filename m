@@ -1,58 +1,54 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v6 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Wed, 6 Aug 2014 09:20:17 +0200
-Message-ID: <20140806072017.GA2730@katana>
-References: <1407232563-10856-1-git-send-email-yao.yuan@freescale.com>
- <1407232563-10856-2-git-send-email-yao.yuan@freescale.com>
- <53E0C498.6070608@gmail.com>
- <30487e0abf4b4564af296d17f5cebf49@BL2PR03MB338.namprd03.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <30487e0abf4b4564af296d17f5cebf49-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>, "LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org" <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Pramod Gurav <pramod.gurav@smartplayin.com>
+Subject: [PATCH] i2c: qup: disable clks and return instead of just returning error
+Date: Wed,  6 Aug 2014 13:18:51 +0530
+Message-ID: <1407311331-15700-1-git-send-email-pramod.gurav@smartplayin.com>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Cc: Pramod Gurav <pramod.gurav@smartplayin.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This fixes a error handling scenario where clocks were not being disabled
+when QUP_OUTPUT_BLOCK_SIZE returns a size greater thanat size of blk_sizes
+array. So this patch adds a statement to jump to err lable to release the
+clocks.
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wolfram Sang <wsa@the-dreams.de>
+Grant Likely <grant.likely@linaro.org>
+Bjorn Andersson <bjorn.andersson@sonymobile.com>
+Andy Gross <agross@codeaurora.org>
+"Ivan T. Ivanov" <iivanov@mm-sol.com>
 
-> > static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> > 			     struct i2c_msg *msgs)
-> >=20
-> > run checkpatch.pl on this patch...
->=20
-> Sorry for my code style. I will match open parenthesis in this case.
+Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+---
+ drivers/i2c/busses/i2c-qup.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-FYI, I am not strict on the open parenthesis thingie.
-
-
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJT4dcxAAoJEBQN5MwUoCm28f8P/1BS5rATojDksbpfftlxquQP
-tU8kND+nhWI5OIamiGfP5+kuTq9wFydRgvm1MM4NVeJ8Er/xwEBKfiOVgcftL+JX
-19kPUo0jBVxtu6zyW9NgTD7YZUzOPXpINHJEGQtwrcsJVXr7Z3ACfuQ4Ys8fbl6F
-ivDSke+6gt7pc6U99t4C67twBNF/uESRjxY3Td+JubXsSbE48Ban4aY6khRt11Jf
-XdbGL0PJO9kHo0RUCrbH9wAoh2m7ZdTPdgCkZgEco9ppZQ/mO39rf1sWKwOKP7TU
-M7qA6xO5sK/t2Zv9mobtK/n9Di4CZxZsV7AyibYTNwjlMo4AYkgiJfHS5OcUMDHI
-K1E4PscAta4Hgg4D33hiDsvfnAM677u1fG3J9B1H0Tc0d5HMrwLR+/Yb4EzvLbUL
-GDfO3dOetosQuLW+1JXyRSBskfuwT5D9bE9rbnWEyY/wlkY+JbnDjkUhftzyhbwM
-GOM16tO8H1T9go0/Dh7D5tQb4c4B7VJB2aexqzNPeYtEzcmVUHL/JsT+yDwlz7sE
-/fi/7kBWDTEaikh7+XwmAix7Cn/cZcsuvIxz/Y7wcn5y64cx5jVPUB8twp/u/WFT
-t2HLZVdjb54X4BFda/PQUjLDY5vbpuKnU+CWNZB9iITt6lFS29MZe3UtA/aumyDk
-9OvkCNzpIHF23ATczoXY
-=mxTY
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 2a5efb5..3a4d64e 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -633,13 +633,17 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 	 * associated with each byte written/received
+ 	 */
+ 	size = QUP_OUTPUT_BLOCK_SIZE(io_mode);
+-	if (size >= ARRAY_SIZE(blk_sizes))
+-		return -EIO;
++	if (size >= ARRAY_SIZE(blk_sizes)) {
++		ret = -EIO;
++		goto fail;
++	}
+ 	qup->out_blk_sz = blk_sizes[size] / 2;
+ 
+ 	size = QUP_INPUT_BLOCK_SIZE(io_mode);
+-	if (size >= ARRAY_SIZE(blk_sizes))
+-		return -EIO;
++	if (size >= ARRAY_SIZE(blk_sizes)) {
++		ret = -EIO;
++		goto fail;
++	}
+ 	qup->in_blk_sz = blk_sizes[size] / 2;
+ 
+ 	size = QUP_OUTPUT_FIFO_SIZE(io_mode);
+-- 
+1.7.9.5
