@@ -1,35 +1,37 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c:at91: add bound checking on smbus block length bytes
-Date: Wed, 6 Aug 2014 13:53:46 +0200
-Message-ID: <20140806115346.GB27338@ldesroches-Latitude-E6320>
-References: <1404457391-22330-1-git-send-email-mark.roszko@gmail.com>
- <CAJjB1qJvvaO3PtN5dMAAAeABS5YMmRc1VRwKo6G_ZuDuo6L15g@mail.gmail.com>
+From: Christopher Covington <cov@codeaurora.org>
+Subject: Re: [PATCH] i2c: qup: disable clks and return instead of just returning
+ error
+Date: Wed, 06 Aug 2014 08:19:31 -0400
+Message-ID: <53E21D53.30606@codeaurora.org>
+References: <1407311602-15751-1-git-send-email-pramod.gurav@smartplayin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAJjB1qJvvaO3PtN5dMAAAeABS5YMmRc1VRwKo6G_ZuDuo6L15g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "<linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org> mailing list" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <1407311602-15751-1-git-send-email-pramod.gurav@smartplayin.com>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Pramod Gurav <pramod.gurav@smartplayin.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Andy Gross <agross@codeaurora.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mark,
+Hi Pramod,
 
-On Mon, Aug 04, 2014 at 12:29:56PM -0400, Mark Roszko wrote:
-> Hi Ludovic,
-> 
-> Have you had a chance to look? This causes kernel panic in at91 systems in
-> noisy environments and/or unreliable smbus slaves if left unfixed.
+Not a big deal, but some typos caught my eye.
 
-Thanks for the reminder, I had totally missed this patch.
+On 08/06/2014 03:53 AM, Pramod Gurav wrote:
+> This fixes a error handling scenario where clocks were not being disabled
+> when QUP_OUTPUT_BLOCK_SIZE returns a size greater thanat size of blk_sizes
 
-Seems good, no objection to include this patch.
+s/thanat/than the/
 
-Only one comment: s/recieved/received otherwise
+> array. So this patch adds a statement to jump to err lable to release the
 
-Acked-By: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+s/err lable/the error label/ or s/err lable/the fail label/
 
-Sorry for the delay.
+Regards,
+Christopher
 
-Ludovic
+-- 
+Employee of Qualcomm Innovation Center, Inc.
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+hosted by the Linux Foundation.
