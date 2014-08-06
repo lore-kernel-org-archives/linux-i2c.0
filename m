@@ -1,33 +1,35 @@
-From: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] i2c: qup: disable clks and return instead of just
- returning error
-Date: Wed, 06 Aug 2014 14:21:01 +0300
-Message-ID: <1407324061.2475.79.camel@iivanov-dev>
-References: <1407311602-15751-1-git-send-email-pramod.gurav@smartplayin.com>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c:at91: add bound checking on smbus block length bytes
+Date: Wed, 6 Aug 2014 13:53:46 +0200
+Message-ID: <20140806115346.GB27338@ldesroches-Latitude-E6320>
+References: <1404457391-22330-1-git-send-email-mark.roszko@gmail.com>
+ <CAJjB1qJvvaO3PtN5dMAAAeABS5YMmRc1VRwKo6G_ZuDuo6L15g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1407311602-15751-1-git-send-email-pramod.gurav-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAJjB1qJvvaO3PtN5dMAAAeABS5YMmRc1VRwKo6G_ZuDuo6L15g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pramod Gurav <pramod.gurav-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+To: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "<linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org> mailing list" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2014-08-06 at 13:23 +0530, Pramod Gurav wrote:
-> This fixes a error handling scenario where clocks were not being disabled
-> when QUP_OUTPUT_BLOCK_SIZE returns a size greater thanat size of blk_sizes
-> array. So this patch adds a statement to jump to err lable to release the
-> clocks.
-> 
-> CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> CC: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> CC: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
-> CC: Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> CC: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
-> 
-> Signed-off-by: Pramod Gurav <pramod.gurav-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
+Hi Mark,
 
-Acked-by: Ivan T. Ivanov <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
+On Mon, Aug 04, 2014 at 12:29:56PM -0400, Mark Roszko wrote:
+> Hi Ludovic,
+> 
+> Have you had a chance to look? This causes kernel panic in at91 systems in
+> noisy environments and/or unreliable smbus slaves if left unfixed.
 
-Thanks.
+Thanks for the reminder, I had totally missed this patch.
+
+Seems good, no objection to include this patch.
+
+Only one comment: s/recieved/received otherwise
+
+Acked-By: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+
+Sorry for the delay.
+
+Ludovic
