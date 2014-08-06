@@ -1,145 +1,69 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: remove unnecessary 'else' after 'return' statement
-Date: Wed, 6 Aug 2014 20:55:40 +0200
-Message-ID: <20140806185539.GA2736@katana>
-References: <1407308765-13869-1-git-send-email-kiran.padwal@smartplayin.com>
+Subject: Re: [PATCHv2] i2c: i2c-imx: Fix format warning for dev_dbg
+Date: Wed, 6 Aug 2014 21:00:55 +0200
+Message-ID: <20140806190055.GB2736@katana>
+References: <1407296708-12563-1-git-send-email-Li.Xiubo@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1407308765-13869-1-git-send-email-kiran.padwal-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
+In-Reply-To: <1407296708-12563-1-git-send-email-Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kiran Padwal <kiran.padwal-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 06, 2014 at 12:36:05PM +0530, Kiran Padwal wrote:
-> Fix the following warning reported by checkpatch.pl:
+On Wed, Aug 06, 2014 at 11:45:08AM +0800, Xiubo Li wrote:
+> drivers/i2c/busses/i2c-imx.c: In function i2c_imx_probe()
+> drivers/i2c/busses/i2c-imx.c:689:2: warning: format 0x%x expects argument
+> of type unsigned int, but argument 4 has type resource_size_t [-Wformat=
+=3D]
+>   dev_dbg(&i2c_imx->adapter.dev, "device resources from 0x%x to 0x%x\n",
+>   ^
+> drivers/i2c/busses/i2c-imx.c:689:2: warning: format 0x%x expects argument
+> of type unsigned int, but argument 5 has type resource_size_t [-Wformat=
+=3D]
 >=20
-> WARNING: else is not generally useful after a break or return
+> drivers/i2c/busses/i2c-imx.c:691:2: warning: format %d expects argument
+> of type int, but argument 4 has type resource_size_t [-Wformat=3D]
+>   dev_dbg(&i2c_imx->adapter.dev, "allocated %d bytes at 0x%x\n",
+>   ^
+> drivers/i2c/busses/i2c-imx.c:691:2: warning: format 0x%x expects argument
+> of type unsigned int, but argument 5 has type resource_size_t [-Wformat=
+=3D]
 >=20
-> Signed-off-by: Kiran Padwal <kiran.padwal-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
+> Signed-off-by: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-Technically true, yet I think the original code is a tad more readable,
-so I'll keep it like it is.
+Applied to for-next, thanks!
 
-> ---
->  drivers/i2c/i2c-core.c |   28 ++++++++++++++--------------
->  1 file changed, 14 insertions(+), 14 deletions(-)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 632057a..228bd04 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -351,8 +351,8 @@ static int i2c_device_pm_suspend(struct device *dev)
-> =20
->  	if (pm)
->  		return pm_generic_suspend(dev);
-> -	else
-> -		return i2c_legacy_suspend(dev, PMSG_SUSPEND);
-> +
-> +	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
->  }
-> =20
->  static int i2c_device_pm_resume(struct device *dev)
-> @@ -361,8 +361,8 @@ static int i2c_device_pm_resume(struct device *dev)
-> =20
->  	if (pm)
->  		return pm_generic_resume(dev);
-> -	else
-> -		return i2c_legacy_resume(dev);
-> +
-> +	return i2c_legacy_resume(dev);
->  }
-> =20
->  static int i2c_device_pm_freeze(struct device *dev)
-> @@ -371,8 +371,8 @@ static int i2c_device_pm_freeze(struct device *dev)
-> =20
->  	if (pm)
->  		return pm_generic_freeze(dev);
-> -	else
-> -		return i2c_legacy_suspend(dev, PMSG_FREEZE);
-> +
-> +	return i2c_legacy_suspend(dev, PMSG_FREEZE);
->  }
-> =20
->  static int i2c_device_pm_thaw(struct device *dev)
-> @@ -381,8 +381,8 @@ static int i2c_device_pm_thaw(struct device *dev)
-> =20
->  	if (pm)
->  		return pm_generic_thaw(dev);
-> -	else
-> -		return i2c_legacy_resume(dev);
-> +
-> +	return i2c_legacy_resume(dev);
->  }
-> =20
->  static int i2c_device_pm_poweroff(struct device *dev)
-> @@ -391,8 +391,8 @@ static int i2c_device_pm_poweroff(struct device *dev)
-> =20
->  	if (pm)
->  		return pm_generic_poweroff(dev);
-> -	else
-> -		return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
-> +
-> +	return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
->  }
-> =20
->  static int i2c_device_pm_restore(struct device *dev)
-> @@ -401,8 +401,8 @@ static int i2c_device_pm_restore(struct device *dev)
-> =20
->  	if (pm)
->  		return pm_generic_restore(dev);
-> -	else
-> -		return i2c_legacy_resume(dev);
-> +
-> +	return i2c_legacy_resume(dev);
->  }
->  #else /* !CONFIG_PM_SLEEP */
->  #define i2c_device_pm_suspend	NULL
-> @@ -622,8 +622,8 @@ static int i2c_trylock_adapter(struct i2c_adapter *ad=
-apter)
-> =20
->  	if (parent)
->  		return i2c_trylock_adapter(parent);
-> -	else
-> -		return rt_mutex_trylock(&adapter->bus_lock);
-> +
-> +	return rt_mutex_trylock(&adapter->bus_lock);
->  }
-> =20
->  /**
-> --=20
-> 1.7.9.5
->=20
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT4norAAoJEBQN5MwUoCm2c/0P/1MS+8W/XMxLbrDNNeNhDj2h
-AMV2v1t2JiFNmfsCKQm3dibKwVxa2qjp8eovzP4BPPXB42WPlNejpIDvPshaVl8b
-BxnDCVD9fijL/4uxSIc5/fpfa0nNTX4YGLrPukK5v3Fxm3twUGytKppzw1NYCly7
-PdQR2Bz6yBpPMvTUhZowImf/Nx6c2TkAbleYvxYSkWITCYvVCu69Dbpt5bgHPAET
-iXit30qGCPGWnkf1+nHwtQ8J1ePvC2BRrM4oGyMopscgYZQrYxuAP/M9w1/xH/DE
-5eHvY6/SHIXsC5rBzZvzDWjiOVsOS591oClUk/9ojanjQF5SvW9shvax/ilPSvmx
-R3ri2Pw86c369u7isyHzuTQf1E+27kqNLIyAJL+BFARbbcukUgk1NSLdhCHYOd76
-Ja26PHSnc1h1CGRPiFyRv7M9lqRp8dnkV2s39EGcXkEk0LWi98XSb49tahz61X/p
-tvwSdLrFXac+98FE7+g8IL2VVjVndc2r9YzVMG3ty9cCkJvnTQZ0WnVPArrDtcx1
-u/ei0s66PMHC83rR7lid2MuiENEfnsW+U4XAfrD+Cc3P+aP1kYwDXaNqLFC4hDyu
-sttq32W1EqUpanHcp2iBhCRkCobncHS9Is2M67qFewK4Ek969d3AFulr6Gcr0Ld0
-P/+w1iqNPNkmkYcVOoDn
-=sCiS
+iQIcBAEBAgAGBQJT4ntnAAoJEBQN5MwUoCm23wkQAJErVwJNW/t1+Yar1qmkhh78
+SEsqGSdnz9nsmxEjfqDhhN9rtvSGQnbd2ZeGbvbMK0UYf+KtMrMf9KlmPZYzMcVA
+GwUNDDGHjNGQ6aFzeRMDEzJ/qgLCU/Xz2JEvdcLeXD/2TXA06LXpz/HbzUuGOGkA
+rO1U7GY7IPvd3D/BMBU1lkKarGWcHwU/oFGIJ5AvdHJg8PC6bZqrleG6Oqbz0F2f
+xny3q4Onog8esSWXj+JrYKUMiImWMYqbtl3vsOFWXJl/xghkuuKDgDHl7CtBa2Bg
+8J2/jmEodfsZoSs0VINCqdyj0KYp9FaEvZn7FjKBCMYqdB7aRt52jnLx7bQSMYHf
+Al4ZDqLL+I5urd/WCJzP+P5+tOUwv8mbnrw+nYQjL8vn9mHEsfwQ+QXJLsc76i+G
+idQCx1YIAowINE2GTv06OlIPLlp+2vCuC7KJZRLdgfxz7w99LAjAdZCRGkotACHG
+GVi3D4EY9G+V1c9uzHD358FKjB3e5QGBef1VEgpBufX0GvhrMEijrSadC7pjz1Xi
+IsfCsnqAdzbcyXzRbcziiVUstbI07myc01RQh0oVnr8StKYe+kO9ovvbJVkh6IiI
+K7j55tAT/qOc9i8UIP7n0zB/V3VGv9QtFahLk2LJYde0mCRfbJY0aD7kUhlmS2kx
+ddUEAOVb+AqPX8HoBQ14
+=JUOy
 -----END PGP SIGNATURE-----
 
---azLHFNyN32YCQGCU--
+--QTprm0S8XgL7H0Dt--
