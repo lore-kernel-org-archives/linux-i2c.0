@@ -1,64 +1,64 @@
-From: dwalker-zu3NM2574RrQT0dZR+AlfA@public.gmane.org
-Subject: Re: i2c-i801: Enable interrupts on ICH5/7/8/9/10
-Date: Tue, 5 Aug 2014 17:14:33 +0000
-Message-ID: <20140805171433.GA9589@fifo99.com>
-References: <20140804175632.GA5288@fifo99.com>
- <20140804203604.02c74b22@endymion.delvare>
+From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH v6 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Wed, 6 Aug 2014 02:26:07 +0000
+Message-ID: <30487e0abf4b4564af296d17f5cebf49@BL2PR03MB338.namprd03.prod.outlook.com>
+References: <1407232563-10856-1-git-send-email-yao.yuan@freescale.com>
+ <1407232563-10856-2-git-send-email-yao.yuan@freescale.com>
+ <53E0C498.6070608@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140804203604.02c74b22-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <53E0C498.6070608-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>
+Cc: "LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org" <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 04, 2014 at 08:36:04PM +0200, Jean Delvare wrote:
-> Hi Daniel,
-> 
-> Please note my new e-mail address.
-> 
-> On Mon, 4 Aug 2014 17:56:32 +0000, dwalker-zu3NM2574RrQT0dZR+AlfA@public.gmane.org wrote:
-> > I had an issue with the i2c dev-interface. The executable runs i2c_smbus_write_word_data() and it hangs at
-> > that point. The issues wasn't present in earlier kernels , so I was able to bisect this to ,
-> > 
-> > commit 29b608540b030d38a978c972cbe99d40efdb7267
-> > Author: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > Date:   Tue Jul 24 14:13:59 2012 +0200
-> >  
-> >     i2c-i801: Enable interrupts on ICH5/7/8/9/10
-> > 
-> > 
-> > The system I'm testing on is an ICH9 from and Intel BearLake.
-> 
-> I have had a few reports of problems with interrupts so far but could
-> never find the time to track it down. Maybe now is the time.
+Thanks for your review.
 
-It's up to you ..
- 
-> Please provide the output of:
-> # lspci -s 00:1f.3 -vvv
-> # grep i801_smbus /proc/interrupts
+Varka Bhadram wrote:
+> On 08/05/2014 03:26 PM, Yuan Yao wrote:
+>=20
+> (...)
+> > +fail_rx:
+> > +	dma_release_channel(dma->chan_rx);
+> > +fail_tx:
+> > +	dma_release_channel(dma->chan_tx);
+> > +fail_al:
+> > +	devm_kfree(dev, dma);
+>=20
+> no need to use devm_kfree() if we use devm_kzalloc()...
+>=20
+We have discussed it before.
+As Lothar Wa=DFmann said:
+"The devm_kfree() is not in the failure path of the driver's probe() fu=
+nction, but in the function that tries to initialize the optional DMA s=
+upport."
+So It seems need to use devm_kfree().
+Do you have some other opinions?
 
-00:1f.3 SMBus: Intel Corporation 82801I (ICH9 Family) SMBus Controller (rev 02)
-        Subsystem: Intel Corporation Device 7270
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
-        Interrupt: pin C routed to IRQ 18
-        Region 0: Memory at cc227400 (64-bit, non-prefetchable) [size=256]
-        Region 4: I/O ports at 8000 [size=32]
-        Kernel driver in use: i801_smbus
+> > +	dev_info(dev, "can't use DMA\n");
+> > +
+> > +	return ret;
+> > +}
+
+(...)
+
+> > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> > +					struct i2c_msg *msgs)
+>=20
+> static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> 			     struct i2c_msg *msgs)
+>=20
+> run checkpatch.pl on this patch...
+
+Sorry for my code style. I will match open parenthesis in this case.
+
+I had run this script before, just one warning.
 
 
-"grep i801_smbus /proc/interrupts" had no output, might explain something.
-
-So because of lack of an interrupt I test on the latest kernel. I was using v3.10 , but there wasn't a large 
-difference in the i801 driver from v3.10 to v3.16. In the latest kernel the interrupt gets allocated, and the
-test application I was using doesn't hang. So the problem is resolved ..
-
-However, the ideas you had are valid, like adding the timeout .. Also there was no indication of a failed
-interrupt allocation that I could see. I can see the code is suppose to catch if there's an error
-requesting the interrupt, but I didn't get any of those messages, must have been another issues.
-
-Daniel
+> --
+> Regards,
+> Varka Bhadram.
