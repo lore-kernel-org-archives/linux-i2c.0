@@ -1,100 +1,74 @@
-From: "Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCHv2] i2c: i2c-imx: Fix format warning for dev_dbg
-Date: Wed, 6 Aug 2014 05:09:21 +0000
-Message-ID: <f4d5bd3b919241a1abcd80419b3b1b51@BY2PR0301MB0613.namprd03.prod.outlook.com>
-References: <1407296708-12563-1-git-send-email-Li.Xiubo@freescale.com>
- <002801cfb12e$36620840$a32618c0$%han@samsung.com>
+From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH v6 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Wed, 6 Aug 2014 07:06:41 +0000
+Message-ID: <14d042bbcfb04308bfb3a1db18e46bec@BL2PR03MB338.namprd03.prod.outlook.com>
+References: <1407232563-10856-1-git-send-email-yao.yuan@freescale.com>
+ <1407232563-10856-2-git-send-email-yao.yuan@freescale.com>
+ <41705e1e4c604240ba96333a03d5c544@BLUPR03MB373.namprd03.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <002801cfb12e$36620840$a32618c0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <41705e1e4c604240ba96333a03d5c544-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
 Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org" <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, "s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jingchang Lu <jingchang.lu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>
+Cc: "LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org" <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jingoo,
+Hi Fugang,
 
-Thanks for your advice.
+Duan Fugang wrote:
+[...]
+>+	dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+>+	dma_sconfig.dst_maxburst = 1;
+> The maxburst is 1 cause very slow efficiency for DMA copy, which system
+> performance even is slower Than cpu mode.
 
-This patch is mainly resolving the warning issue. And some
-thing like : 'i2c: i2c-imx: Fix format warning for dev_db'
-Could be more obvious.
+There is no FIFO for IMX i2c, so the maxburst shoud be 1 for hardware request.
 
-I think adding 'printf extension %pR for struct resource'
-to the commit comment will better.
+[...]
 
-BRs
-Xiubo
- 
+> >+	/* Waiting for Transfer complete. */
+> >+	while (timeout--) {
+> >+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> >+		if (temp & I2SR_ICF)
+> >+			break;
+> >+		udelay(10);
+> >+	}
+> Whether there have better method like interrupt to avoid dead wait here until
+> timeout ?
+
+Can you give me more suggestion? We have discussed it with our team, It seems the short query wait is necessary.
+
+> >+
+> >+	if (!timeout)
+> >+		return -ETIMEDOUT;
+> >+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> >+	temp &= ~I2CR_DMAEN;
+> >+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> >+
+> >+	/* The last data byte must be transferred by the CPU. */
+> >+	imx_i2c_write_reg(msgs->buf[msgs->len-1],
+> >+				i2c_imx, IMX_I2C_I2DR);
+> >+	result = i2c_imx_trx_complete(i2c_imx);
+> >+	if (result)
+> >+		return result;
+> I don't understand why the last data need to be transmited by cpu. I guess you
+> want to get IIF interrupt ?
+
+Yes, we need the interrupt to do some mop-up.
+
+Also follow the hardware request as:
+
+The following flow diagram details exactly the operation for using a DMA controller to
+transmit "n" data bytes to a slave. The first byte (the slave calling address) is always
+transmitted by the CPU. All subsequent data bytes (apart from the last data byte) can be
+transferred by the DMA controller. The last data byte must be transferred by the CPU.
 
 
-
-> -----Original Message-----
-> From: Jingoo Han [mailto:jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org]
-> Sent: Wednesday, August 06, 2014 12:24 PM
-> To: Xiubo Li-B47053
-> Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org;
-> s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; linux-
-> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Lu Jingchang-B35083; 'Jingoo Han'
-> Subject: Re: [PATCHv2] i2c: i2c-imx: Fix format warning for dev_dbg
-> 
-> On Wednesday, August 06, 2014 12:45 PM, Xiubo Li wrote:
-> 
-> The subject of the commit looks too general.
-> How about the following?
-> 
-> i2c: i2c-imx: Use printf extension %pR for struct resource
-> 
-> Best regards,
-> Jingoo Han
-> 
-> >
-> > drivers/i2c/busses/i2c-imx.c: In function i2c_imx_probe()
-> > drivers/i2c/busses/i2c-imx.c:689:2: warning: format 0x%x expects argument
-> > of type unsigned int, but argument 4 has type resource_size_t [-Wformat=]
-> >   dev_dbg(&i2c_imx->adapter.dev, "device resources from 0x%x to 0x%x\n",
-> >   ^
-> > drivers/i2c/busses/i2c-imx.c:689:2: warning: format 0x%x expects argument
-> > of type unsigned int, but argument 5 has type resource_size_t [-Wformat=]
-> >
-> > drivers/i2c/busses/i2c-imx.c:691:2: warning: format %d expects argument
-> > of type int, but argument 4 has type resource_size_t [-Wformat=]
-> >   dev_dbg(&i2c_imx->adapter.dev, "allocated %d bytes at 0x%x\n",
-> >   ^
-> > drivers/i2c/busses/i2c-imx.c:691:2: warning: format 0x%x expects argument
-> > of type unsigned int, but argument 5 has type resource_size_t [-Wformat=]
-> >
-> > Signed-off-by: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > ---
-> >
-> > Change in v2:
-> > - Follow Joe Perches's advice.
-> >
-> >
-> >
-> >
-> >
-> >  drivers/i2c/busses/i2c-imx.c | 5 +----
-> >  1 file changed, 1 insertion(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> > index 1d7efa3..b8a9543 100644
-> > --- a/drivers/i2c/busses/i2c-imx.c
-> > +++ b/drivers/i2c/busses/i2c-imx.c
-> > @@ -686,10 +686,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
-> >  	clk_disable_unprepare(i2c_imx->clk);
-> >
-> >  	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
-> > -	dev_dbg(&i2c_imx->adapter.dev, "device resources from 0x%x to 0x%x\n",
-> > -		res->start, res->end);
-> > -	dev_dbg(&i2c_imx->adapter.dev, "allocated %d bytes at 0x%x\n",
-> > -		resource_size(res), res->start);
-> > +	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
-> >  	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
-> >  		i2c_imx->adapter.name);
-> >  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
-> > --
-> > 1.8.5
+> >+
+> >+	result = i2c_imx_acked(i2c_imx);
+> >+	if (result)
+> >+		return result;
+> >+
