@@ -1,74 +1,102 @@
-From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH v6 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Wed, 6 Aug 2014 07:06:41 +0000
-Message-ID: <14d042bbcfb04308bfb3a1db18e46bec@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1407232563-10856-1-git-send-email-yao.yuan@freescale.com>
- <1407232563-10856-2-git-send-email-yao.yuan@freescale.com>
- <41705e1e4c604240ba96333a03d5c544@BLUPR03MB373.namprd03.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <41705e1e4c604240ba96333a03d5c544-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>
-Cc: "LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org" <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: Kiran Padwal <kiran.padwal@smartplayin.com>
+Subject: [PATCH] i2c: remove unnecessary 'else' after 'return' statement
+Date: Wed,  6 Aug 2014 12:36:05 +0530
+Message-ID: <1407308765-13869-1-git-send-email-kiran.padwal@smartplayin.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: kiran.padwal@smartplayin.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Fugang,
+Fix the following warning reported by checkpatch.pl:
 
-Duan Fugang wrote:
-[...]
->+	dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
->+	dma_sconfig.dst_maxburst = 1;
-> The maxburst is 1 cause very slow efficiency for DMA copy, which system
-> performance even is slower Than cpu mode.
+WARNING: else is not generally useful after a break or return
 
-There is no FIFO for IMX i2c, so the maxburst shoud be 1 for hardware request.
+Signed-off-by: Kiran Padwal <kiran.padwal@smartplayin.com>
+---
+ drivers/i2c/i2c-core.c |   28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-[...]
-
-> >+	/* Waiting for Transfer complete. */
-> >+	while (timeout--) {
-> >+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> >+		if (temp & I2SR_ICF)
-> >+			break;
-> >+		udelay(10);
-> >+	}
-> Whether there have better method like interrupt to avoid dead wait here until
-> timeout ?
-
-Can you give me more suggestion? We have discussed it with our team, It seems the short query wait is necessary.
-
-> >+
-> >+	if (!timeout)
-> >+		return -ETIMEDOUT;
-> >+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> >+	temp &= ~I2CR_DMAEN;
-> >+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> >+
-> >+	/* The last data byte must be transferred by the CPU. */
-> >+	imx_i2c_write_reg(msgs->buf[msgs->len-1],
-> >+				i2c_imx, IMX_I2C_I2DR);
-> >+	result = i2c_imx_trx_complete(i2c_imx);
-> >+	if (result)
-> >+		return result;
-> I don't understand why the last data need to be transmited by cpu. I guess you
-> want to get IIF interrupt ?
-
-Yes, we need the interrupt to do some mop-up.
-
-Also follow the hardware request as:
-
-The following flow diagram details exactly the operation for using a DMA controller to
-transmit "n" data bytes to a slave. The first byte (the slave calling address) is always
-transmitted by the CPU. All subsequent data bytes (apart from the last data byte) can be
-transferred by the DMA controller. The last data byte must be transferred by the CPU.
-
-
-> >+
-> >+	result = i2c_imx_acked(i2c_imx);
-> >+	if (result)
-> >+		return result;
-> >+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 632057a..228bd04 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -351,8 +351,8 @@ static int i2c_device_pm_suspend(struct device *dev)
+ 
+ 	if (pm)
+ 		return pm_generic_suspend(dev);
+-	else
+-		return i2c_legacy_suspend(dev, PMSG_SUSPEND);
++
++	return i2c_legacy_suspend(dev, PMSG_SUSPEND);
+ }
+ 
+ static int i2c_device_pm_resume(struct device *dev)
+@@ -361,8 +361,8 @@ static int i2c_device_pm_resume(struct device *dev)
+ 
+ 	if (pm)
+ 		return pm_generic_resume(dev);
+-	else
+-		return i2c_legacy_resume(dev);
++
++	return i2c_legacy_resume(dev);
+ }
+ 
+ static int i2c_device_pm_freeze(struct device *dev)
+@@ -371,8 +371,8 @@ static int i2c_device_pm_freeze(struct device *dev)
+ 
+ 	if (pm)
+ 		return pm_generic_freeze(dev);
+-	else
+-		return i2c_legacy_suspend(dev, PMSG_FREEZE);
++
++	return i2c_legacy_suspend(dev, PMSG_FREEZE);
+ }
+ 
+ static int i2c_device_pm_thaw(struct device *dev)
+@@ -381,8 +381,8 @@ static int i2c_device_pm_thaw(struct device *dev)
+ 
+ 	if (pm)
+ 		return pm_generic_thaw(dev);
+-	else
+-		return i2c_legacy_resume(dev);
++
++	return i2c_legacy_resume(dev);
+ }
+ 
+ static int i2c_device_pm_poweroff(struct device *dev)
+@@ -391,8 +391,8 @@ static int i2c_device_pm_poweroff(struct device *dev)
+ 
+ 	if (pm)
+ 		return pm_generic_poweroff(dev);
+-	else
+-		return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
++
++	return i2c_legacy_suspend(dev, PMSG_HIBERNATE);
+ }
+ 
+ static int i2c_device_pm_restore(struct device *dev)
+@@ -401,8 +401,8 @@ static int i2c_device_pm_restore(struct device *dev)
+ 
+ 	if (pm)
+ 		return pm_generic_restore(dev);
+-	else
+-		return i2c_legacy_resume(dev);
++
++	return i2c_legacy_resume(dev);
+ }
+ #else /* !CONFIG_PM_SLEEP */
+ #define i2c_device_pm_suspend	NULL
+@@ -622,8 +622,8 @@ static int i2c_trylock_adapter(struct i2c_adapter *adapter)
+ 
+ 	if (parent)
+ 		return i2c_trylock_adapter(parent);
+-	else
+-		return rt_mutex_trylock(&adapter->bus_lock);
++
++	return rt_mutex_trylock(&adapter->bus_lock);
+ }
+ 
+ /**
+-- 
+1.7.9.5
