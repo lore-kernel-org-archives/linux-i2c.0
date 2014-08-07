@@ -1,67 +1,78 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/5] i2c: rcar: add renesas,i2c-rcar-gen1/gen2 in DT
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH 1/5] i2c: rcar: add renesas,i2c-rcar-gen1/gen2 in DT
  compatible
-Date: Wed, 6 Aug 2014 21:04:10 +0200
-Message-ID: <20140806190410.GC2736@katana>
+Date: Thu, 7 Aug 2014 09:18:13 +0900
+Message-ID: <20140807001805.GE32652@verge.net.au>
 References: <87silaw7t2.wl%kuninori.morimoto.gx@gmail.com>
+ <87r40uw7rp.wl%kuninori.morimoto.gx@renesas.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <87silaw7t2.wl%kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <87r40uw7rp.wl%kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Simon <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, Linux-SH <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux-SH <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Aug 05, 2014 at 09:40:12PM -0700, Kuninori Morimoto wrote:
+> From: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> 
+> This patch adds DT compatible for Renesas R-Car Gen1/Gen2.
+> Current driver has SoC level .compatible
+> (r8a7778/r8a7779/r8a7790/r8a7791/r8a7792/r8a7793/r8a7794),
+> but these can be match as generation level.
 
---oTHb8nViIGeoXxdp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Morimoto-san,
 
-On Tue, Aug 05, 2014 at 09:39:27PM -0700, Kuninori Morimoto wrote:
->=20
-> Hi Wolfram, Simon
->=20
-> These patches add R-Car generatoin level
-> DT compatible on i2c-rcar driver and platform.
->=20
-> Kuninori Morimoto (5):
->   i2c: rcar: add renesas,i2c-rcar-gen1/gen2 in DT compatible
->   ARM: shmobile: r8a7778: add generation level compatible for i2c
->   ARM: shmobile: r8a7779: add generation level compatible for i2c
->   ARM: shmobile: r8a7790: add generation level compatible for i2c
->   ARM: shmobile: r8a7791: add generation level compatible for i2c
+is this compatibility explicitly documented somewhere?
 
-All patches:
-
-Acked-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-
-Simon: Shall I take patch 1?
-
-
---oTHb8nViIGeoXxdp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJT4nwqAAoJEBQN5MwUoCm2NEoP+wbA+mzQm1EGd0iki4Axmf5h
-+PO2QzGo6cR0ned++5gd7dnUK25ui45paRLI4b38R3T6He57KQOuwP021lEl17pQ
-B3h1iIsighSVIkD7q1BZNZm0ExPbvH7LX5TFv5CKTVFMnPWEdbVTSZ3mLuJvNxtv
-/xB2tTHAdwRPW3Nvu7U/fcdHF5PZVUDzDwr7JF+UM0jnxde4xsxRVzVZlbowSwmL
-IU6m0AHK+HMxTqjns+MRBv8tG9GoGVljAUQ/5p5sevkrWHbXCYwMzymi08EaBJ8s
-DIFwgL8051PMquYu3e+3DHU9usf2ekDlUqUK7BxncqF/XpvNipIcQipgG9leYme4
-/zaE9trwlRqagryRzCtqzz8HH1zQXelR1MV1QNV1waVSw4gpU85Ie7byx+48Fx0i
-tWqSem/Jsx8GEju1baZLcJPPgs9HDyVnho9RIe2W3pEzGcx26hepZQJADitMm2I3
-D+9xdi1eqBwDEDr7a/ILd5V/txV9RE49BKtpALdC10dy7L3IUgNJlmN0oYryJuwd
-W+Sw7QiTpVa4un4k8NJBLUdaJiNVlgidFAInROmXZASUZvGhm4g1qjT9SDJ+Yd55
-vlt6XtwilgyTJvf0HcttSR2L0hYXXxqNgltI5mQHVrYnBtnWNTpS5oYfpAXo7MAE
-9FpcgBouahzbnhzHs40r
-=fwfc
------END PGP SIGNATURE-----
-
---oTHb8nViIGeoXxdp--
+> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-rcar.txt |    4 +++-
+>  drivers/i2c/busses/i2c-rcar.c                      |    2 ++
+>  2 files changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> index 16b3e07..0f9e812 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> @@ -3,6 +3,8 @@ I2C for R-Car platforms
+>  Required properties:
+>  - compatible: Must be one of
+>  	"renesas,i2c-rcar"
+> +	"renesas,i2c-rcar-gen1"
+> +	"renesas,i2c-rcar-gen2"
+>  	"renesas,i2c-r8a7778"
+>  	"renesas,i2c-r8a7779"
+>  	"renesas,i2c-r8a7790"
+> @@ -24,7 +26,7 @@ Examples :
+>  i2c0: i2c@e6508000 {
+>  	#address-cells = <1>;
+>  	#size-cells = <0>;
+> -	compatible = "renesas,i2c-r8a7791";
+> +	compatible = "renesas,i2c-r8a7791", "renesas,i2c-rcar-gen2";
+>  	reg = <0 0xe6508000 0 0x40>;
+>  	interrupts = <0 287 IRQ_TYPE_LEVEL_HIGH>;
+>  	clocks = <&mstp9_clks R8A7791_CLK_I2C0>;
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index f3c7139..6f805f8 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -487,6 +487,8 @@ static const struct i2c_algorithm rcar_i2c_algo = {
+>  
+>  static const struct of_device_id rcar_i2c_dt_ids[] = {
+>  	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_GEN1 },
+> +	{ .compatible = "renesas,i2c-rcar-gen1", .data = (void *)I2C_RCAR_GEN1 },
+> +	{ .compatible = "renesas,i2c-rcar-gen2", .data = (void *)I2C_RCAR_GEN2 },
+>  	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
+>  	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
+>  	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_GEN2 },
+> -- 
+> 1.7.9.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
