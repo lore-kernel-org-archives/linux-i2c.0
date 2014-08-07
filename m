@@ -1,89 +1,77 @@
-From: Lothar =?UTF-8?B?V2HDn21hbm4=?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Subject: Re: [PATCH v6 1/2] i2c: imx: add DMA support for freescale i2c
- driver
-Date: Thu, 7 Aug 2014 15:18:42 +0200
-Message-ID: <20140807151842.1dddaf24@ipc1.ka-ro>
-References: <1407232563-10856-1-git-send-email-yao.yuan@freescale.com>
-	<1407232563-10856-2-git-send-email-yao.yuan@freescale.com>
-	<41705e1e4c604240ba96333a03d5c544@BLUPR03MB373.namprd03.prod.outlook.com>
-	<14d042bbcfb04308bfb3a1db18e46bec@BL2PR03MB338.namprd03.prod.outlook.com>
-	<31f8f5504fc24d999f5af74338602bed@BLUPR03MB373.namprd03.prod.outlook.com>
-	<c9727eaf22dc40f796793c6b127dfb9e@BL2PR03MB338.namprd03.prod.outlook.com>
-	<6537011f698c4c7faaf5b66b870afbd2@BLUPR03MB373.namprd03.prod.outlook.com>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: i2c-i801 driver quit working in 3.8.11
+Date: Thu, 07 Aug 2014 07:19:05 -0700
+Message-ID: <53E38AD9.5030708@roeck-us.net>
+References: <CANQojO4jbSM=03WfJtw-iSNfexBNSt6GwRLpVSmBx_KrAa0bWQ@mail.gmail.com>	<20130806192228.GB8246@roeck-us.net>	<CANQojO74882h+oFJDrq2dsSC71NZHuyf2sjTzCr4a+VmPMLyVA@mail.gmail.com>	<52026530.2080301@roeck-us.net>	<CANQojO5B+7c+J=fxV-_mT=Y19Uy=4cW-83vnrphPkN5pmgc2YQ@mail.gmail.com>	<20130807174801.GB1862@roeck-us.net>	<CANQojO5QuoGSmmNYxxZ=0MhbZt0mEW-8n6kTxVSWuZ4p6NFw5Q@mail.gmail.com>	<20130807192556.GA31395@roeck-us.net> <20140807101147.34087264@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6537011f698c4c7faaf5b66b870afbd2-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+In-Reply-To: <20140807101147.34087264-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Soren Harward <stharward-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org wrote:
-> From: Yuan Yao-B46683 Data: Thursday, August 07, 2014 4:05 PM
-> >To: Duan Fugang-B38611; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; marex-ynQEQJNshbs@public.gmane.org
-> >Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; shawn.guo@linaro.o=
-rg;
-> >linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; =
-linux-
-> >i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Li Frank-B20596
-> >Subject: RE: [PATCH v6 1/2] i2c: imx: add DMA support for freescale =
-i2c
-> >driver
-> >
-> >Hi Fugang,
-> >
-> >> >> >+	/* Waiting for Transfer complete. */
-> >> >> >+	while (timeout--) {
-> >> >> >+		temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> >> >> >+		if (temp & I2SR_ICF)
-> >> >> >+			break;
-> >> >> >+		udelay(10);
-> >> >> >+	}
-> >> >> Whether there have better method like interrupt to avoid dead w=
-ait
-> >> >> here until timeout ?
-> >> >
-> >> >Can you give me more suggestion? We have discussed it with our te=
-am,
-> >> >It seems the short query wait is necessary.
-> >> >
-> >> At least, you can use schdule_timeout() instead of udelay() ?
-> >
-> >In fact, the waiting time normally is less than 10-50us, but the min=
-imum
-> >time interval for schdule_timeout() is 1 jiffies.
-> >So maybe schdule_timeout() is not very necessary?
-> >
-> Oh, if the waiting time is 10 ~ 50us, you can use usleep_range(10, 50=
-).
+On 08/07/2014 01:11 AM, Jean Delvare wrote:
+> Hi Guenter, Soren,
 >
-The loop is not meant to generate a certain delay, but to wait for some
-HW flag to change within a certain time frame. So usleep_range() is
-rather inadequate here!
+> Sorry for the late reply. Yes, one year, no kidding :(
+>
+> On Wed, 7 Aug 2013 12:25:56 -0700, Guenter Roeck wrote:
+>> On Wed, Aug 07, 2013 at 02:19:42PM -0400, Soren Harward wrote:
+>>> Yeah, that fixed it.  Sensors are working properly now.
+>>>
+>>> My computer is a Lenovo D10, which uses the Intel 5400 chipset.
+>>> Here's the lspci dump for the SMBus controller:
+>>>
+>>> root@jens:~# lspci -vv -s 0000:00:1f.3
+>>> 00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus
+>>> Controller (rev 09)
+>>>          Subsystem: Lenovo Device 101d
+>>>          Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
+>>> ParErr- Stepping- SERR- FastB2B- DisINTx-
+>>>          Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium
+>>>> TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+>>>          Interrupt: pin B routed to IRQ 23
+>>>          Region 4: I/O ports at 1100 [size=32]
+>>>          Kernel driver in use: i801_smbus
+>>>
+>>> So what else can I do to help debug this?
+>>
+>> I copied the i2c mailing list and the i2c maintainer, and also changed the
+>> subject to reflect the real problem. I don't really know what else you cMSIan do.
+>> Maybe Jean has an idea, or someone else on the list.
+>
+> The interrupt code in i2c-i801 has worked for a majority of users and
+> brought up major performance improvements. So I'm not going to revert
+> it. However I really would like to understand the few failure reports
+> we had, and hopefully fix them.
+>
+> Soren, what's the status on your side? Are you still running a kernel
+> with commit 6676a847 reverted? Note that you can also disable interrupt
+> support in i2c-i801 manually by passing option disable_features=0x10 to
+> the driver.
+>
+> Also I had one report of a problem with the same chipset you are using,
+> and the reporter claims that kernel v3.16 no longer has the problem. We
+> don't know why yet, but it might be worth a try.
+>
+>> One possibility is that the driver doesn't enable/use MSI interrupts.
+>> Maybe that is causing trouble with your chipset. Another option might be
+>> that there are subtle differences with this chipset, and the interrupt code
+>> simply does not work with it.
+>
+> Guenter, I can confirm that the i2c-i801 driver only uses regular
+> interrupts. The datasheet does not mention anything about MSI. What
+> makes you think the problem could be related to the lack of MSI support?
+>
 
+Working for a company that does lots of weird and non-standard stuff with PCIe
+creates a state of constant paranoia ;-). For example, INTB / irq23 may be
+used by some other chip and may not be handled properly, masking the interrupt.
+Really, I don't know. I have had instances at work where INTx didn't work
+and I _had_ to use MSI, that is all I can say.
 
-But looking a little closer at the function, the timeout value seems to
-be rather bogus to me. The loop counter 'timeout' is initialized from=20
-the constant IMX_I2C_DMA_TIMEOUT which is also used in
-|wait_for_completion_interruptible_timeout(
-|                               &i2c_imx->dma->cmd_complete,
-|                               msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
- 				                 ^^^^^^^^^^^^^^^^^^^
-as a number of milliseconds to wait for DMA completion.
-
-
-Lothar Wa=C3=9Fmann
---=20
-___________________________________________________________
-
-Ka-Ro electronics GmbH | Pascalstra=C3=9Fe 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Gesch=C3=A4ftsf=C3=BChrer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
-
-www.karo-electronics.de | info-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org
-___________________________________________________________
+Cheers,
+Guenter
