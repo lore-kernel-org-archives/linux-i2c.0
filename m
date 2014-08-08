@@ -1,57 +1,44 @@
-From: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-Subject: Re: [PATCH 1/14] i2c: mpc: delete unneeded test before of_node_put
-Date: Fri, 8 Aug 2014 12:27:03 +0200 (CEST)
-Message-ID: <alpine.DEB.2.10.1408081226400.2348@hadrien>
-References: <1407492475-26283-1-git-send-email-Julia.Lawall@lip6.fr> <20140808102536.GZ1933@pengutronix.de>
+From: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Advice on AT24MAC driver
+Date: Fri, 8 Aug 2014 17:37:58 +0200
+Message-ID: <CA+TH9VnUJM-7d6SmrF67DoFpv_y96d+byKhnnq8B2Jyr0ge4fQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323329-1811163182-1407493623=:2348"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140808102536.GZ1933-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-15?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi List,
 
---8323329-1811163182-1407493623=:2348
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+I'm interested in developing a driver for the AT24MAC EEPROM from
+Atmel. This chip is a strange beast because it integrates two i2c
+devices with two different addresses in the same package.
 
+It has this structure:
 
+* The first part of the chip is a classical AT24 eeprom (2K) with a
+standard address, 0xA radix + 3bits for multiple addressing.
+* The second part contains a 128 bits serial number + a 48/64 bits
+(depending on the model) MAC address (usable for example as ethernet
+mac). The address has 0xB radix + 3bits for multiple addressing.
+While this second eeprom is readable with the standard AT24 i2c
+protocol, the registers are a little bit crazy: the 128 bits serial
+number is in range 80h-8Fh, the 48bits mac is in 9Ah-9Fh, the 64bits
+mac (the other model) is in rage 98h-9Fh.
 
-On Fri, 8 Aug 2014, Uwe Kleine-König wrote:
+The problem here is that you have to know exactly the registers to
+read and their boundaries to get both the numbers, this is driving me
+writing a new kernel driver.
+I think that adding so much complexity to the already complex AT24
+driver is not advisable and writing a fairly basic new driver respect
+better the KISS way.
+Obviously, I will export both serials with a couple of sysfs attributes.
 
-> Hello,
->
-> On Fri, Aug 08, 2014 at 12:07:42PM +0200, Julia Lawall wrote:
-> > From: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
-> >
-> > Of_node_put supports NULL as its argument, so the initial test is not
-> > necessary.
-> >
-> > Suggested by Uwe Kleine-König.
-> Thanks for picking up my suggestion.
->
-> > The semantic patch that fixes this problem is as follows:
-> > (http://coccinelle.lip6.fr/)
-> >
-> > // <smpl>
-> > @@
-> > expression e;
-> > @@
-> >
-> > -if (e)
-> >    of_node_put(e);
-> > // </smpl>
-> >
->
-> I added devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org to Cc. Maybe they want to comment the
-> series? If it's acceptable the logical next step is to add the patch to
-> the collection of semantic patches, right?
+With the right mentoring, I can try to export this 48bits MAC to the
+network layer to be usable by a network card.
 
-Yes, I will do that.
+Have you any advice on this?
 
-julia
---8323329-1811163182-1407493623=:2348--
+-- 
+Profile: http://it.linkedin.com/in/compagnucciangelo
