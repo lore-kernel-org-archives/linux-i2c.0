@@ -1,44 +1,57 @@
-From: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Advice on AT24MAC driver
-Date: Fri, 8 Aug 2014 17:37:58 +0200
-Message-ID: <CA+TH9VnUJM-7d6SmrF67DoFpv_y96d+byKhnnq8B2Jyr0ge4fQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: rk3x: fix interrupt handling issue
+Date: Fri, 8 Aug 2014 18:34:55 +0200
+Message-ID: <20140808163455.GA2847@katana>
+References: <1407490900-4718-1-git-send-email-addy.ke@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1407490900-4718-1-git-send-email-addy.ke@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Addy Ke <addy.ke@rock-chips.com>
+Cc: max.schwarz@online.de, heiko@sntech.de, olof@lixom.net, dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, cf@rock-chips.com, xjq@rock-chips.com, huangtao@rock-chips.com, zyw@rock-chips.com, yzq@rock-chips.com, hj@rock-chips.com, kever.yang@rock-chips.com, hl@rock-chips.com, caesar.wang@rock-chips.com, zhengsq@rock-chips.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi List,
 
-I'm interested in developing a driver for the AT24MAC EEPROM from
-Atmel. This chip is a strange beast because it integrates two i2c
-devices with two different addresses in the same package.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It has this structure:
+On Fri, Aug 08, 2014 at 05:41:40PM +0800, Addy Ke wrote:
+> If slave holds scl, I2C_IPD[7] will be set 1 by controller
+> for debugging. Driver must ignore it.
+>=20
+> [    5.752391] rk3x-i2c ff160000.i2c: unexpected irq in WRITE: 0x80
+> [    5.939027] rk3x-i2c ff160000.i2c: timeout, ipd: 0x80, state: 4
+>=20
+> Signed-off-by: Addy Ke <addy.ke@rock-chips.com>
 
-* The first part of the chip is a classical AT24 eeprom (2K) with a
-standard address, 0xA radix + 3bits for multiple addressing.
-* The second part contains a 128 bits serial number + a 48/64 bits
-(depending on the model) MAC address (usable for example as ethernet
-mac). The address has 0xB radix + 3bits for multiple addressing.
-While this second eeprom is readable with the standard AT24 i2c
-protocol, the registers are a little bit crazy: the 128 bits serial
-number is in range 80h-8Fh, the 48bits mac is in 9Ah-9Fh, the 64bits
-mac (the other model) is in rage 98h-9Fh.
+Applied to for-next and added stable, thanks!
 
-The problem here is that you have to know exactly the registers to
-read and their boundaries to get both the numbers, this is driving me
-writing a new kernel driver.
-I think that adding so much complexity to the already complex AT24
-driver is not advisable and writing a fairly basic new driver respect
-better the KISS way.
-Obviously, I will export both serials with a couple of sysfs attributes.
 
-With the right mentoring, I can try to export this 48bits MAC to the
-network layer to be usable by a network card.
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Have you any advice on this?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
--- 
-Profile: http://it.linkedin.com/in/compagnucciangelo
+iQIcBAEBAgAGBQJT5PwuAAoJEBQN5MwUoCm2ihMP/i9/62UUo9OMrKe4T1sGnZR8
++b1/Efp2o9jnZ3eyq72JMO6GbYL7Tm/a4gtm4s7PQiRMdKKFaCWlSLpQ6kEbIbzl
+EWZr0DzDA+7L8mpN+83dEtbUjJNY98YBPWorfQfXc8irXlRTsdKUNTHZRsnET9gW
+1cmD5kMPyIUh36lB3eLnV+TdQ8EzW2aU5kucYlOL2CEYloQ58Ao0WsskLmUWDfdC
+EzVJ38qlEbrg6RBm2KwkfY7iZhMnnR07BYGSTG4qOtaHDbVCfXz6j9e9RHj4Owl2
+UohdymmVtUOVPvJTFFbQGb+ITPe3bNNzrruBWlxoZEn/Jt8L2EHBGzj73hyZiRiZ
+VE4tTNsWQCTJcipo6qiRl5aHfhBi5lGVHiKbEEgUMpDlA/Q29l2zkFrw/4IN5Fz/
+JdnTgAvWg/KC8f93lb4zMs8hgfAXU6ukHJ/LKxd0vh5tQWkdcINJaJLp4pUZ3kPh
+einr8Ldx0UUFDmovW4bBvsZiJj7lsKKZA+G+servxPOs/Vq74M3OMPU5EZ3vbnO0
+W3yge3dlD7AgDW/7a6vdM3HO9Z017J/99396SOvueS5ebCYjikPcmgTdM4QrKGFn
+3vLuoLHCuQC2QG9ZSa5XkaivSDu4o94aIvbBAFzkTzJ9xzv1fqYEpvqGoBcYBFEs
+ElPhwbX3w2XZJ5nC/O/X
+=IF68
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
