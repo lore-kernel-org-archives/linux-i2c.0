@@ -1,57 +1,71 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rk3x: fix interrupt handling issue
-Date: Fri, 8 Aug 2014 18:34:55 +0200
-Message-ID: <20140808163455.GA2847@katana>
-References: <1407490900-4718-1-git-send-email-addy.ke@rock-chips.com>
+Subject: Re: [PATCH 1/14] i2c: mpc: delete unneeded test before of_node_put
+Date: Fri, 8 Aug 2014 18:50:47 +0200
+Message-ID: <20140808165047.GB2847@katana>
+References: <1407492475-26283-1-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1407490900-4718-1-git-send-email-addy.ke@rock-chips.com>
+In-Reply-To: <1407492475-26283-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Addy Ke <addy.ke@rock-chips.com>
-Cc: max.schwarz@online.de, heiko@sntech.de, olof@lixom.net, dianders@chromium.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, cf@rock-chips.com, xjq@rock-chips.com, huangtao@rock-chips.com, zyw@rock-chips.com, yzq@rock-chips.com, hj@rock-chips.com, kever.yang@rock-chips.com, hl@rock-chips.com, caesar.wang@rock-chips.com, zhengsq@rock-chips.com
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
+--JYK4vJDZwFMowpUq
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 08, 2014 at 05:41:40PM +0800, Addy Ke wrote:
-> If slave holds scl, I2C_IPD[7] will be set 1 by controller
-> for debugging. Driver must ignore it.
+On Fri, Aug 08, 2014 at 12:07:42PM +0200, Julia Lawall wrote:
+> From: Julia Lawall <Julia.Lawall@lip6.fr>
 >=20
-> [    5.752391] rk3x-i2c ff160000.i2c: unexpected irq in WRITE: 0x80
-> [    5.939027] rk3x-i2c ff160000.i2c: timeout, ipd: 0x80, state: 4
+> Of_node_put supports NULL as its argument, so the initial test is not
+> necessary.
 >=20
-> Signed-off-by: Addy Ke <addy.ke@rock-chips.com>
+> Suggested by Uwe Kleine-K=C3=B6nig.
+>=20
+> The semantic patch that fixes this problem is as follows:
+> (http://coccinelle.lip6.fr/)
+>=20
+> // <smpl>
+> @@
+> expression e;
+> @@
+>=20
+> -if (e)
+>    of_node_put(e);
+> // </smpl>
+>=20
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+>=20
 
-Applied to for-next and added stable, thanks!
+Applied to for-next, thanks!
 
 
---T4sUOijqQbZv57TR
+--JYK4vJDZwFMowpUq
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT5PwuAAoJEBQN5MwUoCm2ihMP/i9/62UUo9OMrKe4T1sGnZR8
-+b1/Efp2o9jnZ3eyq72JMO6GbYL7Tm/a4gtm4s7PQiRMdKKFaCWlSLpQ6kEbIbzl
-EWZr0DzDA+7L8mpN+83dEtbUjJNY98YBPWorfQfXc8irXlRTsdKUNTHZRsnET9gW
-1cmD5kMPyIUh36lB3eLnV+TdQ8EzW2aU5kucYlOL2CEYloQ58Ao0WsskLmUWDfdC
-EzVJ38qlEbrg6RBm2KwkfY7iZhMnnR07BYGSTG4qOtaHDbVCfXz6j9e9RHj4Owl2
-UohdymmVtUOVPvJTFFbQGb+ITPe3bNNzrruBWlxoZEn/Jt8L2EHBGzj73hyZiRiZ
-VE4tTNsWQCTJcipo6qiRl5aHfhBi5lGVHiKbEEgUMpDlA/Q29l2zkFrw/4IN5Fz/
-JdnTgAvWg/KC8f93lb4zMs8hgfAXU6ukHJ/LKxd0vh5tQWkdcINJaJLp4pUZ3kPh
-einr8Ldx0UUFDmovW4bBvsZiJj7lsKKZA+G+servxPOs/Vq74M3OMPU5EZ3vbnO0
-W3yge3dlD7AgDW/7a6vdM3HO9Z017J/99396SOvueS5ebCYjikPcmgTdM4QrKGFn
-3vLuoLHCuQC2QG9ZSa5XkaivSDu4o94aIvbBAFzkTzJ9xzv1fqYEpvqGoBcYBFEs
-ElPhwbX3w2XZJ5nC/O/X
-=IF68
+iQIcBAEBAgAGBQJT5P/mAAoJEBQN5MwUoCm23oEP/3xaDlEmZcHGxlguV81zvj3u
+BWLPGXuz5/hZ055G25tTcHifj/GdJCKlx5cGRm8LiYmbmbOyto709UhlEGgYmP8B
+1m9fOM2tHQRSb6IpaGfsHORC1RNLjZuUoZmiAvPk+TDEKuhOxXhq3tXBPuEDfZPO
+uM7ceUeuZPHMaWc1jd20ol0umxEzMMwMJJNG6lZbqbbHrh0FwSyDOkGcrvbulZt7
+q3gUO/ndxL6tx2ob2U6ysxUKQawys0PVG8LI/KGienthaG+d2nDQMm/9eDjv909g
+v1RJqpSX1kf9tg0hG+loW6Lzqxrxm6pteFkFNRrj9IY78D4mWw/3Ur8QD7BJLvSA
+3mAzKZSmcdqE5azxVzJkIRgRV0n9pSsz5Jr2rPo2evGg16+lB1Ok+LCfZ+KTMUpo
+zXVKi+ntWEjj5LV3KbRVwkvPtwic9QznIigM6H3ILAAAFyMlWTAJG4lxyWqHb/Fk
+pRWLakRT00stH698XozvCo9O036laXM2jIiZER0TYcWyN6fBgbde47sg17weYvrZ
+gUTu1OyY5gKjzxCb5O1ekxnH6Ca9HoJoGo5yVa7oTH8O3Jo7oPnga5DPvSDbWDwa
+eu3sgd4NKETNcfsV8JDqk1JmYWlARNL9HK03cjGTROG/+VRJE3wUangM11dDCbrD
+uZs2GF+V8QHJn33NmHBi
+=U1nD
 -----END PGP SIGNATURE-----
 
---T4sUOijqQbZv57TR--
+--JYK4vJDZwFMowpUq--
