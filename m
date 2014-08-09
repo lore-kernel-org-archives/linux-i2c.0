@@ -1,72 +1,135 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: qup: disable clks and return instead of just
- returning error
-Date: Sat, 9 Aug 2014 21:32:26 +0200
-Message-ID: <20140809193225.GA3411@katana>
-References: <1407328405-25170-1-git-send-email-pramod.gurav@smartplayin.com>
+From: Sanford Rockowitz <rockowitz-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: ddc/ci over i2c
+Date: Sat, 09 Aug 2014 14:18:35 -0700
+Message-ID: <53E6902B.9000104@minsoft.com>
+References: <53BBC97B.5020805@minsoft.com>	<20140709002017.4c2b332e@endymion.delvare>	<53BD6E61.8070101@minsoft.com> <20140728125248.5bbc0f89@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1407328405-25170-1-git-send-email-pramod.gurav@smartplayin.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Pramod Gurav <pramod.gurav@smartplayin.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Andy Gross <agross@codeaurora.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140728125248.5bbc0f89-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi John,
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, now it's my turn to be late in replying.    There's been progress.
+
+On 07/28/2014 03:52 AM, Jean Delvare wrote:
+> Hi Sanford,
+>
+> Sorry for the late reply and thanks for the detailed explanation.
+>
+>
+>
+> BTW your test program is only waiting for 5 ms instead of the 40 ms
+> suggested in the specification. Could this explain your problems?
+Just sloppiness in preparing the simplified demo code.  I'm using 50 ms 
+in the actual code whenever the spec calls for 40 ms, and I'm generous 
+in adding delays for retrys.  The problem with the nvidia driver is 
+unrelated to delays (see below).
+> Pardon my ignorance but if color profile managers don't currently set 
+> monitor settings using DDC/CI, then what are they doing? Are they only 
+> doing software color correction? Or asking the graphics card to do so? 
+Basic answer:  the calibration process creates a lookup table that is 
+loaded into the graphics card.  The lookup table translates the color 
+input values into output values that will precisely show the expected 
+color on the screen.
+
+Long winded answer:  What is loosely referred to as "profiling" consists 
+of two pieces, "calibration" and "characterization". Calibration is the 
+process of bringing a monitor into a precisely known state.   That is 
+the function of the lookup table. Characterization is process of 
+describing a monitor's capabilities, e.g. what colors it is capable of 
+displaying.  The characterization tables are used by color managed 
+applications, for example, to appropriately render an image whose colors 
+are beyond the range of what the monitor can show.   Both pieces of 
+information are stored in the profile file.
+
+Very high end monitors, such as the HP Dreamcolor and various EIZOs 
+expose a LUT that can be used for color translation.  While the DDC 
+protocol allows for manipulating the monitor LUT, some of these monitors 
+instead use a special connection, such as USB, and a proprietary 
+protocol.  Very high end LCD monitors will also have separate red, 
+green, and blue LEDs or CCFL tubes, so that the color temperature can be 
+precisely adjusted.  But most flat panel monitors  have just one one 
+type of "white" LED or CCFL tube.
+
+Linux calibration programs, such as Argyllcms, simply take as given 
+whatever state the on screen controls have put the monitor into, and 
+build the lookup table for that state.   dispcalGUI has an optional 
+pre-calibration step which displays the measured color temperature of 
+the display and suggests which physical monitor controls the user should 
+change to achieve the desired color temperature.
+
+There's a school of thought that holds that unless you have a high end 
+monitor, you're actually best off setting all the controls (excepting 
+brightness) on a LCD monitor to the factory defaults. Graeme Gill, 
+create of Argyllcms, has a well considered discussion of this question 
+(http://www.arbyllcms/monitor-controls.html).
+
+>> As for the proprietary fglrx driver, it doesn't even create the
+>> /dev/i2c-n devices.   End of story.
+> I've seen that, yes, that's sad. Well AFAIK the open-source radeon
+> driver is better and more popular than the nouveau driver so the impact
+> is limited, but it would still be good if the fglrx driver would expose
+> the i2c buses.
+
+Well, it turns out that while fglrx doesn't expose /dev/i2c devices, it 
+has a group of APIs for accessing the I2C bus, executing the DDC 
+protocol, reading the EDID, etc.  notably.:
+    ADL_Display_WriteAndReadI2C()
+    ADL_Display_DDCBlockAccess_Get()
+    ADL_Display_EdidData_Get()
+
+After more munging, I'm able to use this API (called ADL) to communicate 
+with monitors using DDC.   The code is actually simpler than the 
+/dev/i2c version, because the API  knows something about the DDC 
+protocol, handles retries, etc.  ( Interestingly, there's ifdef'd code 
+in ddccontrol to use ADL.  Whether it actually works I don't know. )
 
 
-(Ooops, this mail got somehow into my postponed folder. Sending
-anyhow...)
+>
+> Or alternatively, the X11 stack could provide a DDC/CI API which
+> drivers would implement and color profile tools would use. I personally
+> don't care if this happens in X11 or through /dev/i2c* nodes, I'm not
+> familiar enough with the area to tell which approach is the best.
 
-On Wed, Aug 06, 2014 at 06:03:25PM +0530, Pramod Gurav wrote:
-> This fixes a error handling scenario where clocks were not being disabled
-> when QUP_OUTPUT_BLOCK_SIZE returns a size greater than the size of blk_si=
-zes
-> array. So this patch adds a statement to jump to the fail lable to releas=
-e the
-> clocks.
->=20
-> CC: Wolfram Sang <wsa@the-dreams.de>
-> CC: Grant Likely <grant.likely@linaro.org>
-> CC: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-> CC: Andy Gross <agross@codeaurora.org>
-> CC: "Ivan T. Ivanov" <iivanov@mm-sol.com>
->=20
-> Signed-off-by: Pramod Gurav <pramod.gurav@smartplayin.com>
+ From an overall architecture perspective, it seems to me that X11 is 
+the desirable place from a DDC/CI API.   I'm also sure that there are 
+excellent reasons, far beyond my pay grade, why this has not been 
+implemented.   However, there does seem to be discussion of putting 
+support into Wayland.   See, for example, this comment by Richard Hughes 
+(author of colord) on the Wayland list: 
+http://lists.freedesktop.org/archives/wayland-devel/2013-April/008406.html
 
-Applied to for-next with Ivan's ack from V2, thanks!
+>> 2) It's time to head over to a nvidia forum to explore why the code
+>> doesn't work with the proprietary driver.  Maybe there's a work around,
+>> or maybe I can light a fire under the nvidia developers.
+> Good idea, I hope you get somewhere with that. Odds are that this part
+> of the code saw little testing so far, because almost all device
+> drivers use the SMBus command set rather than raw I2C messages.
+>
 
-Please use "[PATCH V3]" and alike in the future to make it more obvious
-which version is the most recent.
+I was able to narrow the nvidia driver problem to just the write() call, 
+so the delay between write() and read() plays no role. Moreover, I only 
+see the problem on my (relatively) new GTX660Ti. write() calls of 1 or 2 
+bytes succeed.   Calling write() for 3 or more bytes fails.   The 
+problem does not occur on an older GT220 card.  So it appears that the 
+driver was not properly upgraded to handle newer cards.   I posted a 
+report along with sample code on the Nvidia developer website ( 
+https://devtalk.nvidia.com/default/topic/760798/linux/ddc-ci-over-i2c-fails-gtx660ti/ 
+).  Other than a comment from one other user who believed that this was 
+the same issue as the known problem of ddccontrol not working for more 
+recent cards, there's been no response.
 
+Lastly, a question.  I have one monitor, a relatively recent 
+"professional" quality Dell P2411H, which has a propensity to return 
+duplicated bytes on read(), .e.g.  0x01020203 instead of 0x010203. The 
+DDC protocol works, but has high retry counts.   Any thoughts on what I 
+might do here as a workaround?
 
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJT5ndJAAoJEBQN5MwUoCm2ZswQALF2sVJlHFitV1wb655BbodX
-R9jD2ysOX+C7IwRLDuH3X4EptUXv2To3Ewav3q3UD5t8tjIdqY8UM4+v9pD4OFMt
-gTZUNes84xOdoPfMBhNPpJCKmvWKhaMSyghXWk0Hrg9xl5h8oWPmE15XH44GLG/Z
-xBKoxFid1DJCCYs1QCJTD7ld1jyLNWcuwDUsKrL6k50H4uS04g4ul6HhmTc7lxNx
-vxJdsHcnWAVfzSHEKdcD2VlwuPOcNFzxJPQgO25Q/D+XfyfWFRgvbZWaRNnFi5Ou
-nWWj2lhCeettP6LMYqs3gGD4GbdoW1JEzaNFPdxR+kFXNtn04Ux5O0Kd/PNP3AjQ
-2U0AFRbnHWf15M0JLcW41JPXrxS3LkUpbECPcZ0JTKQmSNaH8bfLkPG+7MTYhijD
-bEFxQ2oQMSqytLi1V2Mx4bOTAxuDz9hjg6UA+aml4ZyS0+3C0x3d0YywasbxGEyq
-MeGmoFJnfBSbx8SIv60T/OZGddd1g8JIpv0TO9qkBa3HHaQz3caF0GJhrejU220x
-L9orKQQanAm+B0bU+HFdOQdH4EW5KtMFOwN5eM/7JOOXKeq9AEBb2hXCqVt0F5VK
-VbzgQxn3bNTMOOLRitk07Rn0E+eImyhmJkSHtFMc10viqfKxPcpqt2vkEM5RcXyu
-Vxr6d3DFWei5HzPJ0zOm
-=euKv
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
+Regards,
+Sanford
