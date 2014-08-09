@@ -1,71 +1,208 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/14] i2c: mpc: delete unneeded test before of_node_put
-Date: Fri, 8 Aug 2014 18:50:47 +0200
-Message-ID: <20140808165047.GB2847@katana>
-References: <1407492475-26283-1-git-send-email-Julia.Lawall@lip6.fr>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 3.17
+Date: Sat, 9 Aug 2014 15:56:01 +0200
+Message-ID: <20140809135557.GA4837@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1407492475-26283-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---JYK4vJDZwFMowpUq
+--KsGdsel6WgEHnImy
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 08, 2014 at 12:07:42PM +0200, Julia Lawall wrote:
-> From: Julia Lawall <Julia.Lawall@lip6.fr>
->=20
-> Of_node_put supports NULL as its argument, so the initial test is not
-> necessary.
->=20
-> Suggested by Uwe Kleine-K=C3=B6nig.
->=20
-> The semantic patch that fixes this problem is as follows:
-> (http://coccinelle.lip6.fr/)
->=20
-> // <smpl>
-> @@
-> expression e;
-> @@
->=20
-> -if (e)
->    of_node_put(e);
-> // </smpl>
->=20
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
->=20
+Linus,
 
-Applied to for-next, thanks!
+here is the pull request for 3.17 for the I2C subsystem. Highlights:
+
+* class based instantiation finally dropped for most embedded drivers
+  bringing boot up performance gains
+* removed two drivers (one outdated, one a duplicate)
+* ACPI has now operation region support (thanks to Lan Tianyu)
+* the i2c-stub driver got overhauled and gained new features to become
+  more useful when writing i2c client drivers (thanks to Guenter
+  Roeck and Jean Delvare)
+
+The rest is driver bugfixes, added bindings/ids, cleanups, ...
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
---JYK4vJDZwFMowpUq
+The following changes since commit a497c3ba1d97fc69c1e78e7b96435ba8c2cb42ee:
+
+  Linux 3.16-rc2 (2014-06-21 19:02:54 -1000)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-3.17
+
+for you to fetch changes up to ebba48b702ab11bbb76e357a7246bc2f19ad02bc:
+
+  i2c: mpc: delete unneeded test before of_node_put (2014-08-08 18:45:30 +0=
+200)
+
+----------------------------------------------------------------
+Alan Cox (1):
+      i2c: designware: add new bindings
+
+Christoph Jaeger (1):
+      i2c: taos-evm: Use module_serio_driver()
+
+Doug Anderson (1):
+      i2c: exynos5: Properly use the "noirq" variants of suspend/resume
+
+Fabio Estevam (1):
+      i2c: i2c-st: Use %pa to print 'resource_size_t' type
+
+Guenter Roeck (1):
+      i2c: stub: Add support for SMBus block commands
+
+Jean Delvare (6):
+      i2c: stub: Remember the number of emulated chips
+      i2c: stub: Add support for banked register ranges
+      i2c: i801: Fix the alignment of the device table
+      i2c: i801: Add device ID for Intel Wildcat Point PCH
+      i2c: stub: Avoid an array overrun on I2C block transfers
+      i2c: gpio: Drop dead code in i2c_gpio_remove
+
+Jisheng Zhang (1):
+      i2c: pca954x: put the mux to disconnected state after resume
+
+Julia Lawall (1):
+      i2c: mpc: delete unneeded test before of_node_put
+
+Lan Tianyu (2):
+      I2C/ACPI: Add i2c ACPI operation region support
+      I2C/ACPI: Clean up I2C ACPI code and Add CONFIG_I2C_ACPI config
+
+Maxime COQUELIN (1):
+      i2c: st: Update i2c timings
+
+Naveen Krishna Ch (2):
+      i2c: exynos5: remove an unnecessary read of FIFO_STATUS register
+      i2c: exynos5: remove extra line and fix an assignment
+
+Pramod Gurav (1):
+      i2c: qup: disable clks and return instead of just returning error
+
+Sachin Kamat (1):
+      i2c: exynos5: always enable HSI2C
+
+Uwe Kleine-K=C3=B6nig (1):
+      i2c: efm32: correct namespacing of location property
+
+Vincent Palatin (1):
+      i2c: s3c2410: resume the I2C controller earlier
+
+Wolfram Sang (19):
+      i2c: s6000: remove duplicate driver
+      i2c: scx200: drop GPIO based i2c driver
+      i2c: add debug info when class instantiation was dropped
+      i2c: i2c-at91: Drop class based scanning to improve bootup time
+      i2c: i2c-bcm2835: Drop class based scanning to improve bootup time
+      i2c: i2c-bfin-twi: Drop class based scanning to improve bootup time
+      i2c: i2c-davinci: Drop class based scanning to improve bootup time
+      i2c: i2c-designware-platdrv: Drop class based scanning to improve boo=
+tup time
+      i2c: i2c-mv64xxx: Drop class based scanning to improve bootup time
+      i2c: i2c-nomadik: Drop class based scanning to improve bootup time
+      i2c: i2c-ocores: Drop class based scanning to improve bootup time
+      i2c: i2c-omap: Drop class based scanning to improve bootup time
+      i2c: i2c-rcar: Drop class based scanning to improve bootup time
+      i2c: i2c-s3c2410: Drop class based scanning to improve bootup time
+      i2c: i2c-sirf: Drop class based scanning to improve bootup time
+      i2c: i2c-stu300: Drop class based scanning to improve bootup time
+      i2c: i2c-tegra: Drop class based scanning to improve bootup time
+      i2c: i2c-xiic: Drop class based scanning to improve bootup time
+      drivers/i2c/busses: use correct type for dma_map/unmap
+
+Xiubo Li (1):
+      i2c: imx: Fix format warning for dev_dbg
+
+addy ke (1):
+      i2c: rk3x: fix interrupt handling issue
+
+ .../devicetree/bindings/i2c/i2c-efm32.txt          |   4 +-
+ Documentation/i2c/busses/i2c-i801                  |   1 +
+ Documentation/i2c/i2c-stub                         |  23 +-
+ drivers/i2c/Kconfig                                |  18 +-
+ drivers/i2c/Makefile                               |   5 +-
+ drivers/i2c/busses/Kconfig                         |  46 +--
+ drivers/i2c/busses/Makefile                        |   2 -
+ drivers/i2c/busses/i2c-at91.c                      |   6 +-
+ drivers/i2c/busses/i2c-bcm2835.c                   |   2 +-
+ drivers/i2c/busses/i2c-bfin-twi.c                  |   2 +-
+ drivers/i2c/busses/i2c-davinci.c                   |   2 +-
+ drivers/i2c/busses/i2c-designware-pcidrv.c         |   9 +
+ drivers/i2c/busses/i2c-designware-platdrv.c        |   3 +-
+ drivers/i2c/busses/i2c-efm32.c                     |   8 +-
+ drivers/i2c/busses/i2c-exynos5.c                   |  16 +-
+ drivers/i2c/busses/i2c-gpio.c                      |   2 -
+ drivers/i2c/busses/i2c-i801.c                      | 139 +++----
+ drivers/i2c/busses/i2c-imx.c                       |   5 +-
+ drivers/i2c/busses/i2c-mpc.c                       |   3 +-
+ drivers/i2c/busses/i2c-mv64xxx.c                   |   2 +-
+ drivers/i2c/busses/i2c-nomadik.c                   |   8 +-
+ drivers/i2c/busses/i2c-ocores.c                    |  12 +-
+ drivers/i2c/busses/i2c-omap.c                      |   2 +-
+ drivers/i2c/busses/i2c-qup.c                       |  12 +-
+ drivers/i2c/busses/i2c-rcar.c                      |  14 +-
+ drivers/i2c/busses/i2c-rk3x.c                      |   2 +-
+ drivers/i2c/busses/i2c-s3c2410.c                   |  16 +-
+ drivers/i2c/busses/i2c-s6000.c                     | 404 -----------------=
+----
+ drivers/i2c/busses/i2c-s6000.h                     |  79 ----
+ drivers/i2c/busses/i2c-sirf.c                      |   2 +-
+ drivers/i2c/busses/i2c-st.c                        |  34 +-
+ drivers/i2c/busses/i2c-stu300.c                    |   2 +-
+ drivers/i2c/busses/i2c-taos-evm.c                  |  13 +-
+ drivers/i2c/busses/i2c-tegra.c                     |   2 +-
+ drivers/i2c/busses/i2c-xiic.c                      |  12 +-
+ drivers/i2c/busses/scx200_i2c.c                    | 129 -------
+ drivers/i2c/i2c-acpi.c                             | 362 ++++++++++++++++++
+ drivers/i2c/i2c-core.c                             | 107 +-----
+ drivers/i2c/i2c-stub.c                             | 237 +++++++++++-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |  15 +
+ include/linux/acpi.h                               |  11 +
+ include/linux/i2c.h                                |  12 +
+ include/linux/i2c/s6000.h                          |  10 -
+ 43 files changed, 853 insertions(+), 942 deletions(-)
+ delete mode 100644 drivers/i2c/busses/i2c-s6000.c
+ delete mode 100644 drivers/i2c/busses/i2c-s6000.h
+ delete mode 100644 drivers/i2c/busses/scx200_i2c.c
+ create mode 100644 drivers/i2c/i2c-acpi.c
+ delete mode 100644 include/linux/i2c/s6000.h
+
+--KsGdsel6WgEHnImy
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT5P/mAAoJEBQN5MwUoCm23oEP/3xaDlEmZcHGxlguV81zvj3u
-BWLPGXuz5/hZ055G25tTcHifj/GdJCKlx5cGRm8LiYmbmbOyto709UhlEGgYmP8B
-1m9fOM2tHQRSb6IpaGfsHORC1RNLjZuUoZmiAvPk+TDEKuhOxXhq3tXBPuEDfZPO
-uM7ceUeuZPHMaWc1jd20ol0umxEzMMwMJJNG6lZbqbbHrh0FwSyDOkGcrvbulZt7
-q3gUO/ndxL6tx2ob2U6ysxUKQawys0PVG8LI/KGienthaG+d2nDQMm/9eDjv909g
-v1RJqpSX1kf9tg0hG+loW6Lzqxrxm6pteFkFNRrj9IY78D4mWw/3Ur8QD7BJLvSA
-3mAzKZSmcdqE5azxVzJkIRgRV0n9pSsz5Jr2rPo2evGg16+lB1Ok+LCfZ+KTMUpo
-zXVKi+ntWEjj5LV3KbRVwkvPtwic9QznIigM6H3ILAAAFyMlWTAJG4lxyWqHb/Fk
-pRWLakRT00stH698XozvCo9O036laXM2jIiZER0TYcWyN6fBgbde47sg17weYvrZ
-gUTu1OyY5gKjzxCb5O1ekxnH6Ca9HoJoGo5yVa7oTH8O3Jo7oPnga5DPvSDbWDwa
-eu3sgd4NKETNcfsV8JDqk1JmYWlARNL9HK03cjGTROG/+VRJE3wUangM11dDCbrD
-uZs2GF+V8QHJn33NmHBi
-=U1nD
+iQIcBAEBAgAGBQJT5ihtAAoJEBQN5MwUoCm29LIP/RG1oE783HpWdxJakcyf3G0s
+UYf/BLRxdjBRhHCu0PGoT3nnz9fYOAmjhNOgOGsJvarOlpp7zntUtYQHhr2IBPRC
+vnGu9Ye/n3VxjW93BbgT+KzGwAYVVlI4/D1SWmvMTsJj95oB1vi70hHjig3cdZKy
+Ul6PhymvtQdAgHYDmV48OT+YFgtdx27OU/3I+Ze/l8JYU4cunZD5nNwe9jNj1T9i
+q1SBnf2uMn82uCAtsInAGHaWdrQIx9mHc7hBC/cEnhz1SP581hU2KY0QzFN4/AcZ
+tkpbEtdyZlAjIzlpZ88wD0S1Wuqd2NGNmV+l5wieRkNC5i9LQ+bcbnrtbQQz9eJA
+Y+xG84L2RERClvJwfcsXLNWt8usHPgPkb1vxjZk4qnDaOeC4AV4nq1QLO7x8M+XS
+t5ywB0zmvETChhcCOzxWXBNk5hkISWLdaYpGQ639bLxINIw3Oh61A8DbluwXpqMC
+VqCPAe90cPYvJVEUvbXlxC441zb0Dpuxd0SXIacmeXvrfDd/C+DEZvqqlzxq4s10
+FFBitUnhv2w0BJIZG0/JWbE+j/zUqnCmhxKySc4EFu/uzY3oARyY3XMqekoSAjmY
+3ZTEg0kKFRuZJstRwQr5BuMT0ElJ8WKc7PBGWWbJBypnxzQZJlfOc9SPsrDdAyTG
+bT6eFr4SlNAs6fSUojR9
+=jC2Q
 -----END PGP SIGNATURE-----
 
---JYK4vJDZwFMowpUq--
+--KsGdsel6WgEHnImy--
