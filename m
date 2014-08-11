@@ -1,72 +1,61 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: ddc/ci over i2c
-Date: Sun, 10 Aug 2014 21:13:59 +0200
-Message-ID: <20140810211359.5235156f@endymion.delvare>
-References: <53BBC97B.5020805@minsoft.com>
-	<20140709002017.4c2b332e@endymion.delvare>
-	<53BD6E61.8070101@minsoft.com>
-	<20140728125248.5bbc0f89@endymion.delvare>
-	<53E6902B.9000104@minsoft.com>
-	<20140810110528.1b5a825f@endymion.delvare>
-	<53E74487.8020809@minsoft.com>
+From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PULL REQUEST] i2c for 3.17
+Date: Mon, 11 Aug 2014 09:39:11 +0800
+Message-ID: <53E81EBF.5020905@intel.com>
+References: <20140809135557.GA4837@katana> <CA+55aFy0UVY=60pCr85AvhedfO-MEoD-iMGdWmBYt8fKgF7kWA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <53E74487.8020809-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <CA+55aFy0UVY=60pCr85AvhedfO-MEoD-iMGdWmBYt8fKgF7kWA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sanford Rockowitz <rockowitz-9+fK6rGKj7RBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 10 Aug 2014 03:08:07 -0700, Sanford Rockowitz wrote:
-> On 08/10/2014 02:05 AM, Jean Delvare wrote:
-> > I suggest that you verify that the master properly handles clock
-> > stretching (to give the slave the opportunity to slow down the
-> > transfer.) Or simply lower the DDC bus clock speed and see if it helps.
->
-> I'm using write() and read() on /dev/i2c-n to communicate with the 
-> monitor.  Is there some way to control clock stretching or DDC bus clock 
-> speed from userspace?
+On 2014=E5=B9=B408=E6=9C=8810=E6=97=A5 01:34, Linus Torvalds wrote:
+> On Sat, Aug 9, 2014 at 6:56 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrot=
+e:
+>>
+>> here is the pull request for 3.17 for the I2C subsystem. Highlights:
+>=20
+> Lowlight: selecting ACPI support (which used to be the default if ACP=
+I
+> was enabled) now forces i2c to be built-in.
+>=20
+> I've pulled this, but it's broken. You need to fix it someway.
+>=20
+> The reason for this is
+>=20
+>   config I2C
+>          tristate "I2C support"
+>   ...
+>   config I2C_ACPI
+>          bool "I2C ACPI support"
+>          select I2C
+>          depends on ACPI
+>    ...
+>=20
+> where if I2C_APCI is on (y), then that "select I2C" will cause I2C to
+> be upgraded to 'y' as well.
+>=20
+> This seems to be intentional, judging by the commit message, but it's
+> wrong. Distributions etc generally compile i2c as a module, and you'v=
+e
+> now broken that.
+>=20
+> This is a regression. Change the "select I2C" to a "depends on I2C",
+> and test the end result. Don't force people to build things into the
+> kernel.
 
-No, it is handled by the I2C bus driver in the kernel (or i2c-algo-bit
-for bit-banged buses which rely on it.) I2C bus controllers and drivers
-should always handle clock stretching as it is a fundamental part of
-the specification, that's not something you need to be able to switch
-on and off.
+Hi Linus:
+	Sorry about this, I will create a fix patch soon. Thanks.
 
-> I just built a custom kernel (first time in years), with the following 
-> lines in config-local:
-> 
-> CONFIG_I2C_DEBUG_CORE=y
-> CONFIG_I2C_DEBUG_BUS=y
-> CONFIG_I2C_DEBUG_ALGO=y
-> 
-> I was puzzling over why I wasn't seeing any output in /var/log/messages 
-> when your email came in.  I would have thought I'd  be overwhelmed by 
-> output.
+>=20
+>                  Linus
+>=20
 
-Not all code hot paths are verbose in debug mode, most likely you're
-only walking paths where no debugging takes place. Also note that
-CONFIG_I2C_DEBUG_BUS only affects drivers under drivers/i2c/busses and
-drivers/i2c/muxes, so I'm certain it has no effect for anything
-DDC-related.
 
->  But when communicating with the P2411H, I do see repeated lines 
-> of the form:
-> 
-> Aug 10 02:55:34 banner kernel: [ 5006.692794] i2c i2c-0: sendbytes: NAK 
-> bailout.
-
-That one comes from i2c-algo-bit, so your driver is using software
-bit-banging, which can be unreliable if the system is under stress. The
-message above is an error message, not a debug message. A "NAK" from a
-slave in the middle of a write means that somehow the slave did not
-like what it received. It could be that the data was out of the
-expected range, or too long, inconsistent, bad CRC, whatever. But of
-course it could come from some data corruption on the bus, causing the
-display to receive something different from what you sent.
-
--- 
-Jean Delvare
-SUSE L3 Support
+--=20
+Best regards
+Tianyu Lan
