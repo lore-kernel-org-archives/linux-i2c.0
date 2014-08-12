@@ -1,34 +1,70 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: ARM: shmobile: "i2c<m>" vs. "iic<n>" DT nodes and pinmux
-Date: Tue, 12 Aug 2014 15:11:18 +0200
-Message-ID: <CAMuHMdWqnMZQcRURufCxiGpbkK7ocjH8KnECxdWVPcxN-68J4g@mail.gmail.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH] ARM: shmobile: koelsch: Remove non-existent i2c6 pinmux
+Date: Tue, 12 Aug 2014 22:36:22 +0900
+Message-ID: <20140812133622.GC10875@verge.net.au>
+References: <1407848593-23040-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1407848593-23040-1-git-send-email-geert+renesas@glider.be>
 Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Magnus Damm <magnus.damm@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Gaku Inami <gaku.inami.xw@bp.renesas.com>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Tue, Aug 12, 2014 at 03:03:13PM +0200, Geert Uytterhoeven wrote:
+> On r8a7791, i2c6 (aka iic3) doesn't need pinmux, but the koelsch dts
+> refers to non-existent pinmux configuration data:
+> 
+> pinmux core: sh-pfc does not support function i2c6
+> sh-pfc e6060000.pfc: invalid function i2c6 in map table
+> 
+> Remove it to fix this.
+> 
+> Fixes: commit 1d41f36a68c0f4e9b01d563ce33bab5201858b54 ("ARM: shmobile:
+>        koelsch dts: Add VDD MPU regulator for DVFS")
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-On r8a7790, DT device nodes and C/DT pinmux data for IIC<n> are called
-"iic<n>", with DT aliases from "i2c<m>" to the "iic<n>" DT nodes.
-On r8a7791, DT device nodes and C/DT pinmux data for IIC<n> are called
-"i2c<m>", with DT aliases from "i2c<m>" to the "i2c<m>" DT nodes.
+Thanks Geert. Does this manifest as a run-time problem?
 
-In light of the proliferation of other members of the R-Car Gen 2 families, is
-there a plan to make this consistent?
+Regardless, it looks like I should queue this up as
+a fix for v3.17. Is that your thinking too?
 
-Thanks!
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> ---
+>  arch/arm/boot/dts/r8a7791-koelsch.dts | 7 -------
+>  1 file changed, 7 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/r8a7791-koelsch.dts b/arch/arm/boot/dts/r8a7791-koelsch.dts
+> index 7966dace64ce..951a5c55003e 100644
+> --- a/arch/arm/boot/dts/r8a7791-koelsch.dts
+> +++ b/arch/arm/boot/dts/r8a7791-koelsch.dts
+> @@ -275,11 +275,6 @@
+>  		renesas,function = "msiof0";
+>  	};
+>  
+> -	i2c6_pins: i2c6 {
+> -		renesas,groups = "i2c6";
+> -		renesas,function = "i2c6";
+> -	};
+> -
+>  	usb0_pins: usb0 {
+>  		renesas,groups = "usb0";
+>  		renesas,function = "usb0";
+> @@ -477,8 +472,6 @@
+>  };
+>  
+>  &i2c6 {
+> -	pinctrl-names = "default";
+> -	pinctrl-0 = <&i2c6_pins>;
+>  	status = "okay";
+>  	clock-frequency = <100000>;
+>  
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
