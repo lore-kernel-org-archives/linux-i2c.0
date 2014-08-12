@@ -1,54 +1,65 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH] ARM: shmobile: koelsch: Remove non-existent i2c6 pinmux
-Date: Tue, 12 Aug 2014 15:48:12 +0200
-Message-ID: <CAMuHMdXif88Tdo-4doF=B6x5zdrcP8banSLOBVgZd59_EEXspA@mail.gmail.com>
-References: <1407848593-23040-1-git-send-email-geert+renesas@glider.be>
-	<20140812133622.GC10875@verge.net.au>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: ARM: shmobile: "i2c<m>" vs. "iic<n>" DT nodes and pinmux
+Date: Tue, 12 Aug 2014 23:47:30 +0200
+Message-ID: <20140812214723.GA3443@katana>
+References: <CAMuHMdWqnMZQcRURufCxiGpbkK7ocjH8KnECxdWVPcxN-68J4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140812133622.GC10875-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Cc: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Gaku Inami <gaku.inami.xw-kTT6dE0pTRh9uiUsa/gSgQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWqnMZQcRURufCxiGpbkK7ocjH8KnECxdWVPcxN-68J4g@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Linus Walleij <linus.walleij@linaro.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Simon,
 
-On Tue, Aug 12, 2014 at 3:36 PM, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org> wrote:
-> On Tue, Aug 12, 2014 at 03:03:13PM +0200, Geert Uytterhoeven wrote:
->> On r8a7791, i2c6 (aka iic3) doesn't need pinmux, but the koelsch dts
->> refers to non-existent pinmux configuration data:
->>
->> pinmux core: sh-pfc does not support function i2c6
->> sh-pfc e6060000.pfc: invalid function i2c6 in map table
->>
->> Remove it to fix this.
->>
->> Fixes: commit 1d41f36a68c0f4e9b01d563ce33bab5201858b54 ("ARM: shmobile:
->>        koelsch dts: Add VDD MPU regulator for DVFS")
->> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
->
-> Thanks Geert. Does this manifest as a run-time problem?
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't think it causes any harm, despite the error message.
-i2c6 works fine (using a modified version of "ARM: shmobile:
-koelsch-reference: Add restart function" from the BSP).
 
-> Regardless, it looks like I should queue this up as
-> a fix for v3.17. Is that your thinking too?
+On Tue, Aug 12, 2014 at 03:11:18PM +0200, Geert Uytterhoeven wrote:
+> Hi,
+>=20
+> On r8a7790, DT device nodes and C/DT pinmux data for IIC<n> are called
+> "iic<n>", with DT aliases from "i2c<m>" to the "iic<n>" DT nodes.
+> On r8a7791, DT device nodes and C/DT pinmux data for IIC<n> are called
+> "i2c<m>", with DT aliases from "i2c<m>" to the "i2c<m>" DT nodes.
+>=20
+> In light of the proliferation of other members of the R-Car Gen 2 familie=
+s, is
+> there a plan to make this consistent?
 
-The error message is a regression from v3.16, so v3.17 would be
-appropriate. However, if you have no other DTS fixes for v3.17,
-v3.18 is fine for me, too.
+The 'i2c'-prefix describes the IP core handled by the rcar driver. This
+core is named i2c in the datasheets.
 
-Gr{oetje,eeting}s,
+The 'iic'-prefix describes the IP core handled by the sh-mobile-driver.
+This core is named iic(b) in the datasheets.
 
-                        Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJT6otrAAoJEBQN5MwUoCm2y2EP/Aw3qzoOgpITADFCwQSXTgMK
+qG/fPHaNhkqoXamGXLBUnYySvZUwbYLtbh7uCpgEp2kBBKyMaQ8oX/+jjd6RgcZ9
+8KBv4gMqFwlwHkueh6AYQfH/jn4TvW4mJ9AvMkT3Z/BNH2lg5anKK41AOHCGZ6zt
+PsSk/C5i/IwrD5FDdH/Nq3LxmkzCTE7s15tpeA4h8CupPAeFyUFDcrJp4GFzSIns
+PlHCGHyAquem2pmjJNC/A8s8nO7XRsmQNo1a6W6e8rFFEOYa1mxHxAP5sfNyD6kx
+SClSJMbowqpCR1Kp7lqUVuWMqrbd++s+e9+GzmZhuogcowlmlKSUE7vMQfk3ubeo
+a/iLkJBMsiQH247srzEpZINUS46Q1sOsfRVlPO/AtobExUsx0zZrXYcp1c3tcsQO
+C50T2AVRM2W09q6Ed4QJvq6vt3QYa0UWmyeW3/juPp/MFAcuKQVcPnDEHR4q1fI1
+P3FF8kFHM0Cvr61TXhTcBjctWu+KRj9b7Eb4e4yL7VCAD2BvkP3LH5Vo3oBwZWUO
+PdXo5RIFwNOWw9EYuhdTzCNoXtslc+y230ZZj3JQApxIeSI5YwFz7vcqlIAyHBmR
+PzrWJ/NB8Tt16///Uzfehv8PDE3HhJ2JaGLiAww0Ph8FRCHVuI1J40FgcAEEzAyd
+BX8Z6ki19YZtAdQPrfwd
+=z0OX
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--
