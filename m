@@ -1,132 +1,40 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v1 1/2] i2c / ACPI: Create device on a valid first address
-Date: Mon, 11 Aug 2014 14:28:54 -0700
-Message-ID: <1407792535-21681-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-References: <1407792535-21681-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] I2C/ACPI: Fix possible ZERO_SIZE_PTR pointer dereferencing error.
+Date: Tue, 12 Aug 2014 10:33:38 +0800
+Message-ID: <1407810818-33672-1-git-send-email-Li.Xiubo@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1407792535-21681-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The ACPI spec allows multiple I2cSerialBus addresses for a single
-device. The current logic creates a i2c device for the last
-I2cSerialBus address. In many configuration the first address
-is valid not the last one.
-But in some configuration it is possible that the chosen address
-is not valid, so skip to next address and create a device on it.
+Since we cannot make sure the 'data_len' will always be none zero here,
+and then if 'data_len' equals to zero, the kzalloc() will return ZERO_SIZE_PTR,
+which equals to ((void *)16).
 
-Examples:
-1.
-Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-{
-        Name (RBUF, ResourceTemplate ()
-        {
-		I2cSerialBus (0x0068, ControllerInitiated, 0x00061A80,
-			AddressingMode7Bit, "\\_SB.I2C5",
-			0x00, ResourceConsumer, ,
-		)
-		I2cSerialBus (0x000C, ControllerInitiated, 0x00061A80,
-			AddressingMode7Bit, "\\_SB.I2C5",
-			0x00, ResourceConsumer, ,
-		)
-		Interrupt (ResourceConsumer, Level, ActiveHigh, Shared, ,, )
-		{
-			0x00000044,
-		}
-	})
-	Return (RBUF)
-}
-This device is a combo device, where the first address is a valid address
-of the main controller device. So this change will create i2c device
-for 0x068, the first address.
+So this patch fix this with just doing the 'data_len' zero check before calling
+kzalloc().
 
-2.
-Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-{
-	Name (SBUF, ResourceTemplate ()
-	{
-		I2cSerialBus (0x000C, ControllerInitiated, 0x00061A80,
-			AddressingMode7Bit, "\\_SB.I2C3",
-			0x00, ResourceConsumer, ,
-		)
-		I2cSerialBus (0x0048, ControllerInitiated, 0x00061A80,
-			AddressingMode7Bit, "\\_SB.I2C3",
-			0x00, ResourceConsumer, ,
-		)
-		Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive, ,, )
-		{
-			0x00000033,
-		}
-	})
-	Return (SBUF)
-}
-This device is a SMBUS compliant, where 0x0C is address of alert response
-address (ARA). This patch will skip 0x0C, as this is reserved address,
-and will create an i2c device at 0x48.
-
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ drivers/i2c/i2c-acpi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 66aa83b..31b9341 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -543,6 +543,28 @@ static int i2c_check_addr_validity(unsigned short addr)
- 	return 0;
- }
+diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
+index e8b6196..e144c00 100644
+--- a/drivers/i2c/i2c-acpi.c
++++ b/drivers/i2c/i2c-acpi.c
+@@ -134,6 +134,9 @@ static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
+ 	int ret;
+ 	u8 *buffer;
  
-+static int i2c_smbus_match_reserved_addr(unsigned short addr)
-+{
-+	/*
-+	 * Reserved addresses per SMBUS specification
-+	 * in addition to i2c reserved addresses:
-+	 *  0x08	SMBUS Host
-+	 *  0x0C	ARA
-+	 *  0x61	Device default address
-+	 *  0x28	Access bus host
-+	 *  0x37	Access bus default addr
-+	 */
-+	int i;
-+	u8 resvd_addrs[] = {0x08, 0x0C, 0x061, 0x28, 0x37};
++	if (!data_len)
++		return -EINVAL;
 +
-+	for (i = 0; i < ARRAY_SIZE(resvd_addrs); ++i) {
-+		if (resvd_addrs[i] == addr)
-+			return 0;
-+	}
-+
-+	return -EINVAL;
-+}
-+
- static int __i2c_check_addr_busy(struct device *dev, void *addrp)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
-@@ -1109,6 +1131,22 @@ static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
- 
- 		sb = &ares->data.i2c_serial_bus;
- 		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-+			if (info->addr) {
-+				/*
-+				 * We have multiple I2cSerialBus present. Check
-+				 * the validity of last parsed address.
-+				 * i2c device create rejects reserved address
-+				 * for i2C. But if the last address was an
-+				 * invalid i2c address or SMBUS reserved
-+				 * address, skip to next valid address in the
-+				 * list and call i2c_new_device for this
-+				 * address instead.
-+				 */
-+				if (!i2c_check_addr_validity(info->addr) &&
-+					i2c_smbus_match_reserved_addr(
-+								info->addr))
-+					return 1; /* last addr was valid */
-+			}
- 			info->addr = sb->slave_address;
- 			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
- 				info->flags |= I2C_CLIENT_TEN;
+ 	buffer = kzalloc(data_len, GFP_KERNEL);
+ 	if (!buffer)
+ 		return AE_NO_MEMORY;
 -- 
-1.7.11.7
+1.8.5
