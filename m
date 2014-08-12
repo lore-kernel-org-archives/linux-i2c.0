@@ -1,40 +1,36 @@
-From: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH] I2C/ACPI: Fix possible ZERO_SIZE_PTR pointer dereferencing error.
-Date: Tue, 12 Aug 2014 10:33:38 +0800
-Message-ID: <1407810818-33672-1-git-send-email-Li.Xiubo@freescale.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] I2C: Make I2C core able to be module when I2C_ACPI is
+ selected.
+Date: Tue, 12 Aug 2014 12:53:21 +0300
+Message-ID: <20140812095321.GU1657@lahna.fi.intel.com>
+References: <1407740455-21269-1-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1407740455-21269-1-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Since we cannot make sure the 'data_len' will always be none zero here,
-and then if 'data_len' equals to zero, the kzalloc() will return ZERO_SIZE_PTR,
-which equals to ((void *)16).
+On Mon, Aug 11, 2014 at 03:00:55PM +0800, Lan Tianyu wrote:
+> Commit da3c6647(I2C/ACPI: Clean up I2C ACPI code and Add CONFIG_I2C_ACPI
+> config) adds a new kernel config I2C_ACPI and make I2C core built in
+> when the config is selected. This is wrong because distributions
+> etc generally compile I2C as a module and the commit broken that.
+> This patch is to make I2C core able to be a module when I2C_ACPI is
+> selected. Original issue the commit da3c6647 tried to avoid will
+> be fixed in ACPICA and it's rarely triggered during unloading module. 
+> 
+> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-So this patch fix this with just doing the 'data_len' zero check before calling
-kzalloc().
+I wonder if we can do
 
-Signed-off-by: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/i2c-acpi.c | 3 +++
- 1 file changed, 3 insertions(+)
+	depends on I2C=y
 
-diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
-index e8b6196..e144c00 100644
---- a/drivers/i2c/i2c-acpi.c
-+++ b/drivers/i2c/i2c-acpi.c
-@@ -134,6 +134,9 @@ static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
- 	int ret;
- 	u8 *buffer;
- 
-+	if (!data_len)
-+		return -EINVAL;
-+
- 	buffer = kzalloc(data_len, GFP_KERNEL);
- 	if (!buffer)
- 		return AE_NO_MEMORY;
--- 
-1.8.5
+here? If I understand it right, then we only build the ACPI_I2C if I2C
+is compiled into the kernel. That way the problem da3c6647 tried to
+solve doens't re-appear.
+
+We can later on relax this once ACPICA has been fixed. Thoughts?
