@@ -1,58 +1,65 @@
-From: Yuan Yao <yao.yuan@freescale.com>
-Subject: [PATCH v7 2/2] Documentation:add DMA support for freescale i2c driver
-Date: Wed, 13 Aug 2014 17:46:55 +0800
-Message-ID: <1407923215-3749-3-git-send-email-yao.yuan@freescale.com>
-References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, marex@denx.de
-Cc: mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-arm-kernel@lists.infradead.org, LW@KARO-electronics.de
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 1/2] i2c: cadence: Remove .owner field for driver
+Date: Wed, 13 Aug 2014 13:56:51 +0200
+Message-ID: <c076984af7e65c433fdfd3a3b0f8d20da2c18013.1407931005.git.michal.simek@xilinx.com>
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-monstr-desktop-19932-1407931012-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, monstr@monstr.eu
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c dts node properties for eDMA support, them depend on the eDMA driver.
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
+The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
+To open this message correctly you will need to install E-mail or Usenet
+software that supports modern Internet standards.
 
-Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
+--=_mimegpg-monstr-desktop-19932-1407931012-0001
+
+There is no need to init .owner field.
+
+Based on the patch from Peter Griffin <peter.griffin@linaro.org>
+"mmc: remove .owner field for drivers using module_platform_driver"
+
+This patch removes the superflous .owner field for drivers which
+use the module_platform_driver API, as this is overriden in
+platform_driver_register anyway."
+
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-imx.txt | 11 +++++++++++
- 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-index 4a8513e..52d37fd 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-@@ -11,6 +11,8 @@ Required properties:
- Optional properties:
- - clock-frequency : Constains desired I2C/HS-I2C bus clock frequency in Hz.
-   The absence of the propoerty indicates the default frequency 100 kHz.
-+- dmas: A list of two dma specifiers, one for each entry in dma-names.
-+- dma-names: should contain "tx" and "rx".
- 
- Examples:
- 
-@@ -26,3 +28,12 @@ i2c@70038000 { /* HS-I2C on i.MX51 */
- 	interrupts = <64>;
- 	clock-frequency = <400000>;
- };
-+
-+i2c0: i2c@40066000 { /* i2c0 on vf610 */
-+	compatible = "fsl,vf610-i2c";
-+	reg = <0x40066000 0x1000>;
-+	interrupts =<0 71 0x04>;
-+	dmas = <&edma0 0 50>,
-+		<&edma0 0 51>;
-+	dma-names = "rx","tx";
-+};
--- 
-1.8.4
+ drivers/i2c/busses/i2c-cadence.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 63f3f03ecc9b..04d0a7e449ef 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -890,7 +890,6 @@ MODULE_DEVICE_TABLE(of, cdns_i2c_of_match);
+ static struct platform_driver cdns_i2c_drv = {
+ 	.driver = {
+ 		.name  = DRIVER_NAME,
+-		.owner = THIS_MODULE,
+ 		.of_match_table = cdns_i2c_of_match,
+ 		.pm = &cdns_i2c_dev_pm_ops,
+ 	},
+--
+1.8.2.3
+
+
+--=_mimegpg-monstr-desktop-19932-1407931012-0001
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEABECAAYFAlPrUoQACgkQykllyylKDCH4WgCffYU/i71NVwj5bLRMwKTeu9VN
+2KkAnA6/mOpjX0ks8U1P2vSUD+quPV4j
+=YrGZ
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-monstr-desktop-19932-1407931012-0001--
