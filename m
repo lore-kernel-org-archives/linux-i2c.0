@@ -1,68 +1,61 @@
-From: Fugang Duan <b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH] i2c: imx: double check IIF in case interrupt lost
-Date: Thu, 14 Aug 2014 16:29:14 +0800
-Message-ID: <1408004954-29418-1-git-send-email-b38611@freescale.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: i2c access from kernel
+Date: Thu, 14 Aug 2014 04:35:18 -0500
+Message-ID: <20140814093518.GA2824@katana>
+References: <CAJ2oMhK_pz4uM5BipEmajtQT1Q-BvVX0+-98ceb5nbPBuqKq3g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAJ2oMhK_pz4uM5BipEmajtQT1Q-BvVX0+-98ceb5nbPBuqKq3g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: Ran Shalit <ranshalit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-In i2c_imx_read():
-...
-result = i2c_imx_trx_complete(i2c_imx);
-if (result)
-		return result;
-..
 
-If the current byte read complete, "IIF" status is set, and pend
-up one GIC interrupt. In irq handler, wake up the wait queue in
-.i2c_imx_trx_complete().
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-But, for imx6q platform with high bus and cpu loading test cases,
-after long time test, sometime i2c interrupt is lost, but "IIF" is
-set, according to current logic code, i2c_imx_trx_complete() still
-return "-ETIMEDOUT", and then i2c host don't read the rest of data,
-i2c driver stop transmit, disable controller and clock. Thus, i2c
-device cannot wait clock and always drive the SDA line.
+Hi,
 
-So, SDA is pulled down by i2c device, which needs 9 clocks to recovery
-the SDA line.
+> The first argument to i2c_transfer is pointer to struct i2c_adapter,
+> which is very complex struct to fill !!
 
-To avoid the issue, we can double check IIF bit after timeout for waiting
-event in .i2c_imx_trx_complete(), if IIF bit is set, process it in
-normal flow. The patch just to double check IIF in case interrupt lost.
+You should never fill it yourself. This is the job of the i2c-core.
 
-Signed-off-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+> If I know, for example, the exact bus number, is there some way I can
+> get the i2c_adapter pointer to that bus ?
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index aa8bc14..4b63771 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -285,11 +285,17 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
- 
- static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
- {
-+	unsigned int temp;
-+
- 	wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
- 
- 	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
--		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
--		return -ETIMEDOUT;
-+		/* Double check IIF to avoid interrupt lost */
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-+		if (!(temp & I2SR_IIF)) {
-+			dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
-+			return -ETIMEDOUT;
-+		}
- 	}
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
- 	i2c_imx->i2csr = 0;
--- 
-1.7.8
+i2c_get_adapter(bus_number);
+
+Regards,
+
+   Wolfram
+
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJT7ILVAAoJEBQN5MwUoCm2eH8QAJi+2p+vsgJaFW63u2HC8A3L
+nswEuEwmYpr7eQ9HBIQ5BmXeuFOxvh9RTQCTlpJqu7QYd1YURPaR8Ywpg9Lbj41V
+p/iuzZIiDxIe0M7Oc/Zk7TQhzSBZ36AmyHrlhosMY1q/7+dwPvUKgWYzYRUFyVtP
+jikwNT6lkiUCywacBrzTG9MS4ao3aWoME4qxjxsfERlTqs7G0FWbdVYcL0E2B8RQ
+rN2P+Gl49jHHBwiIR/wQH8Qvol+szG/+FZykQJ5DlBrgXmjjV9CRhDpy0hDLCvLq
+JjAE0fLiamse2OyQmhVF8seB78gSFEgpsX+1JwCftxHC9wws6taQ14rcKFWJXQz3
+10Rjof2qXVMy8LZyObgFZzvX1+WKwhStozfJMgnERAz13pVm+GiEWC5wh7P8eZG0
+c82mZTP1Eb4ztlDwFH6NFH5WIwpNZXEmI4494d4/vxuwL+vd30VDrQ3fyPKq7RSf
+/xlW7A/qVe7+6x2B7cNTlTLGj3iviIAe+HWZL7Lfc6plxOW9AQSfgu9sJUAmIaYt
+CZ07E+Q9Muuw7fw9F5YN58qwAV+hSScrzv/Q0fsXOtNljrNrOpbb0RNBiC37Ye1l
+uo0Q413mzdh6CLax919c8VinBkaoybVY5yn3c+/3CC/fSKFEThfN/RjijNIiHu4g
+bMBbkCcesSUjaddQ22tl
+=P6jv
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--
