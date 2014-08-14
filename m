@@ -1,61 +1,67 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: i2c access from kernel
-Date: Thu, 14 Aug 2014 04:35:18 -0500
-Message-ID: <20140814093518.GA2824@katana>
-References: <CAJ2oMhK_pz4uM5BipEmajtQT1Q-BvVX0+-98ceb5nbPBuqKq3g@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] I2C: Make I2C core able to be module when I2C_ACPI is
+ selected.
+Date: Thu, 14 Aug 2014 04:37:44 -0500
+Message-ID: <20140814093743.GB2824@katana>
+References: <1407740455-21269-1-git-send-email-tianyu.lan@intel.com>
+ <20140812095321.GU1657@lahna.fi.intel.com>
+ <20140813020250.GA2853@katana>
+ <53EAD278.2010003@intel.com>
+ <20140813070759.GB1657@lahna.fi.intel.com>
+ <53EB1251.1000401@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAJ2oMhK_pz4uM5BipEmajtQT1Q-BvVX0+-98ceb5nbPBuqKq3g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ran Shalit <ranshalit-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <53EB1251.1000401@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lan Tianyu <tianyu.lan@intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, torvalds@linux-foundation.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---BXVAT5kNtrzKuDFl
+--WYTEVAkct0FjGQmd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+> > True, but only the I2C OpRegion parts needs to have I2C=3Dy. Does it ma=
+ke
+> > sense to name ACPI_I2C to ACPI_I2C_OPREGION (or something like that)
+> > and only enable it when I2C=3Dy? Then we would have ACPI I2C enumeration
+> > still in place.
+> >=20
+>=20
+> Yes, this makes sense to me. I will rewrite the patch.
 
-> The first argument to i2c_transfer is pointer to struct i2c_adapter,
-> which is very complex struct to fill !!
+Ping. I'd like to send the fix to Linus during the merge-window.
 
-You should never fill it yourself. This is the job of the i2c-core.
-
-> If I know, for example, the exact bus number, is there some way I can
-> get the i2c_adapter pointer to that bus ?
-
-i2c_get_adapter(bus_number);
-
-Regards,
+Thanks,
 
    Wolfram
 
 
---BXVAT5kNtrzKuDFl
+--WYTEVAkct0FjGQmd
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT7ILVAAoJEBQN5MwUoCm2eH8QAJi+2p+vsgJaFW63u2HC8A3L
-nswEuEwmYpr7eQ9HBIQ5BmXeuFOxvh9RTQCTlpJqu7QYd1YURPaR8Ywpg9Lbj41V
-p/iuzZIiDxIe0M7Oc/Zk7TQhzSBZ36AmyHrlhosMY1q/7+dwPvUKgWYzYRUFyVtP
-jikwNT6lkiUCywacBrzTG9MS4ao3aWoME4qxjxsfERlTqs7G0FWbdVYcL0E2B8RQ
-rN2P+Gl49jHHBwiIR/wQH8Qvol+szG/+FZykQJ5DlBrgXmjjV9CRhDpy0hDLCvLq
-JjAE0fLiamse2OyQmhVF8seB78gSFEgpsX+1JwCftxHC9wws6taQ14rcKFWJXQz3
-10Rjof2qXVMy8LZyObgFZzvX1+WKwhStozfJMgnERAz13pVm+GiEWC5wh7P8eZG0
-c82mZTP1Eb4ztlDwFH6NFH5WIwpNZXEmI4494d4/vxuwL+vd30VDrQ3fyPKq7RSf
-/xlW7A/qVe7+6x2B7cNTlTLGj3iviIAe+HWZL7Lfc6plxOW9AQSfgu9sJUAmIaYt
-CZ07E+Q9Muuw7fw9F5YN58qwAV+hSScrzv/Q0fsXOtNljrNrOpbb0RNBiC37Ye1l
-uo0Q413mzdh6CLax919c8VinBkaoybVY5yn3c+/3CC/fSKFEThfN/RjijNIiHu4g
-bMBbkCcesSUjaddQ22tl
-=P6jv
+iQIcBAEBAgAGBQJT7INnAAoJEBQN5MwUoCm2tvEP/inMeqMpDs6bwVLqQt/7vrQa
+mGV/ft1O9oVEj980Bs6VZ6/KSfWcDuwvambAbBuCcfrHCSfjjTpteGVFkaPuwCD8
+oN2XKjrCoEfcrvXo1D4/GX9xPXwBUIrk+2ksi2CsF77puZLjTvmebZfrFMxmlo0h
+ub6i21TRxbLdOrNNyL/IUhLAKi7DsIu0lqaEWJ9MD4KuX31LzMVVXO/wjEG2thZa
+fNiXzZEwl7X01lHNgWd24x7Lp5qnnYpSBnkbM4QEpTyCKUmpLS5BLIvrdaRsrq3A
+p6SyNoUQVD7nAppr2f8peiOXILlpAk7+J4i4v0BcJZ4Esdi7ebiMHWXbk5dafFCO
+WPyxrrXD9BzjLNEFPnSVjU096QnhNoyyw6XxK3WQ5J0oeYdNPC9mqkFz8awDQbaY
+HlriAiJeY5rM7sWljvL0VyTuDpOgPV3tCTCHUSpRwxLGKaHneVmKr6rNQTdo++NO
+BB9FnHooBjFGVK7//6EHJP0QVM47LuC3Y9qN/c2M+h2tehyIrX38E/b7hQjNKQIZ
+ouSZ84zL+Y0ixHUWYtWgCD50RSFHCv7+uCB7WugD36VjRCCJ6w3QK2GJw1BPkLU4
+bCKb4ahqfOQuyCzA5+ingrl7We57JGQAcP98AOG9YwQe+zyx9ERC+yesaO6qIzb6
+XkvaOvv2nZNcepR4+j4q
+=RjZf
 -----END PGP SIGNATURE-----
 
---BXVAT5kNtrzKuDFl--
+--WYTEVAkct0FjGQmd--
