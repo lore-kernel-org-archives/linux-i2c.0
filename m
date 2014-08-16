@@ -1,82 +1,133 @@
-From: Peter De Schrijver <pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-tegra: Move clk_prepare/clk_set_rate to probe
-Date: Sat, 16 Aug 2014 01:18:09 +0300
-Message-ID: <20140815221809.GL1626@tbergstrom-lnx.Nvidia.com>
-References: <1408096034-17270-1-git-send-email-mperttunen@nvidia.com>
- <53EE32C7.6000500@wwwdotorg.org>
- <20140815180218.GH1626@tbergstrom-lnx.Nvidia.com>
- <53EE4C45.5080805@wwwdotorg.org>
- <20140815194546.GI1626@tbergstrom-lnx.Nvidia.com>
- <20140815213442.GJ1626@tbergstrom-lnx.Nvidia.com>
- <53EE7FC9.5010509@wwwdotorg.org>
+From: Rickard Strandqvist <rickard_strandqvist-IW2WV5XWFqGZkjO+N0TKoMugMpMbD5Xr@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: busses: i2c-pxa.c: Fix for possible null pointer dereference
+Date: Sat, 16 Aug 2014 23:32:16 +0200
+Message-ID: <CAFo99gb3vASH8k3nhKiQ9+0sST4oeKL=sOK27JjOurAvwWxEJg@mail.gmail.com>
+References: <1405545251-13087-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+ <1405545251-13087-2-git-send-email-rickard_strandqvist@spectrumdigital.se> <20140802113001.GC2739@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <53EE7FC9.5010509-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140802113001.GC2739@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 15, 2014 at 11:46:49PM +0200, Stephen Warren wrote:
-> On 08/15/2014 03:34 PM, Peter De Schrijver wrote:
-> > On Fri, Aug 15, 2014 at 09:45:46PM +0200, Peter De Schrijver wrote:
-> >> On Fri, Aug 15, 2014 at 08:07:01PM +0200, Stephen Warren wrote:
-> >>>>> However, the new code sets the clock rate after the clock is prepared. I
-> >>>>> think the rate should be set first, then the clock prepared. While this
-> >>>>> likely doesn't apply to the Tegra clock controller, prepare() is allowed
-> >>>>> to enable the clock if enable() can't be implemented in an atomic
-> >>>>> fashion (in which case enable/disable would be no-ops), and we should
-> >>>>> make sure that the driver correctly configures the clock before
-> >>>>> potentially enabling it.
-> >>>>>
-> >>>>> I'm not sure if a similar change to our SPI drivers is possible; after
-> >>>>> all, the SPI transfer rate can vary per message, so if clk_set_rate()
-> >>>>> acquires a lock, it seems there's no way to avoid the issue there.
-> >>>>
-> >>>> Even for i2c this could be the case I think if you use the highspeed (3.4Mhz)
-> >>>> mode? From what I remember, a highspeed i2c transaction starts with a lower
-> >>>> speed preamble to make sure non highspeed slaves don't get confused? Which
-> >>>> means you could change the bus speed depending on the slave you're addressing.
-> >>>
-> >>> Since there's no separate chip-select for I2C, I believe all I2C devices
-> >>> need to be able to understand the entire transaction, so the I2C bus
-> >>> speed is fixed.
-> >>>
-> >>
-> >> Does it? I would assume the slave only needs to check if the address matches
-> >> its own address after a START condition and if not can just wait until the
-> >> STOP condition appears on the bus?
-> >>
-> >
-> > http://www.nxp.com/documents/user_manual/UM10204.pdf says you can mix them by
-> > using an interconnect bridge between the highspeed and the non-highspeed
-> > capable slaves. The bridge uses the special preamble to disconnect the non-
-> > highspeed part of the bus when a highspeed transaction is ongoing. It's afaics
-> > transparent to the master.
-> 
-> I expect that works by echoing the slow-speed pre-amble to the 
-> slow-speed bus segment, then emitting a stop and turning off the echo. 
-> For actual slow-speed transactions, the whole thing would be echo'd. 
-> That way the slow-speed devices don't ever see any high-speed pulses.
-> 
+2014-08-02 13:30 GMT+02:00 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
+> Hi,
+>
+>>       res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+>>       irq = platform_get_irq(dev, 0);
+>> -     if (res == NULL || irq < 0) {
+>> -             ret = -ENODEV;
+>> -             goto eclk;
+>> -     }
+>> +     if (res == NULL || irq < 0)
+>> +             return -ENODEV;
+>
+> No need to check for valid 'res' here...
+>
+>>
+>> -     if (!request_mem_region(res->start, resource_size(res), res->name)) {
+>> -             ret = -ENOMEM;
+>> -             goto eclk;
+>> -     }
+>> +     if (!devm_request_mem_region(&dev->dev, res->start,
+>> +                             resource_size(res), res->name))
+>> +             return -ENOMEM;
+>
+> ... and no need to use 'devm_request_mem_region' ...
+>
+>> -     i2c->reg_base = ioremap(res->start, resource_size(res));
+>> -     if (!i2c->reg_base) {
+>> -             ret = -EIO;
+>> -             goto eremap;
+>> -     }
+>> +     i2c->reg_base = devm_ioremap_resource(&adev->dev, res));
+>> +     if (IS_ERR(i2c->reg_base))
+>> +             return -EIO;
+>
+> ... because devm_ioremap_resource does all that for you. Also, don't
+> return -EIO but the PTR_ERR given from the function. Just check other
+> drivers how they do it.
+>
+>>
+>>       i2c->reg_ibmr = i2c->reg_base + pxa_reg_layout[i2c_type].ibmr;
+>>       i2c->reg_idbr = i2c->reg_base + pxa_reg_layout[i2c_type].idbr;
+>> @@ -1227,10 +1218,12 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>>               i2c->adap.algo = &i2c_pxa_pio_algorithm;
+>>       } else {
+>>               i2c->adap.algo = &i2c_pxa_algorithm;
+>> -             ret = request_irq(irq, i2c_pxa_handler, IRQF_SHARED,
+>> -                               dev_name(&dev->dev), i2c);
+>> -             if (ret)
+>> -                     goto ereqirq;
+>> +             ret = devm_request_irq(&dev->dev, irq, i2c_pxa_handler,
+>> +                              IRQF_SHARED, dev_name(&dev->dev), i2c);
+>> +             if (ret) {
+>> +                     clk_disable_unprepare(i2c->clk);
+>> +                     return ret;
+>
+> Maybe you should make a error path with 'goto' out of it...
+>
+>
+>> +             }
+>>       }
+>>
+>>       i2c_pxa_reset(i2c);
+>> @@ -1244,7 +1237,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>>       ret = i2c_add_numbered_adapter(&i2c->adap);
+>>       if (ret < 0) {
+>>               printk(KERN_INFO "I2C: Failed to add bus\n");
+>> -             goto eadapt;
+>> +             return ret;
+>
+> ... since you forgot disable_unprepare here and could simply reuse it.
+>
+>
+>>       }
+>>
+>>       platform_set_drvdata(dev, i2c);
+>> @@ -1257,20 +1250,6 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>>              dev_name(&i2c->adap.dev));
+>>  #endif
+>>       return 0;
+>> -
+>> -eadapt:
+>> -     if (!i2c->use_pio)
+>> -             free_irq(irq, i2c);
+>> -ereqirq:
+>> -     clk_disable_unprepare(i2c->clk);
+>> -     iounmap(i2c->reg_base);
+>> -eremap:
+>> -     clk_put(i2c->clk);
+>> -eclk:
+>> -     kfree(i2c);
+>> -emalloc:
+>> -     release_mem_region(res->start, resource_size(res));
+>> -     return ret;
+>>  }
+>
+> You forgot to cleanup the remove function.
+>
+> BTW I forgot, can you test this patch on real hardware? If not, is there
+> somebody who does?
+>
+> All the best,
+>
+>    Wolfram
 
-Indeed.
 
-> That all said, that does indeed imply that a master supporting the 
-> high-speed transactions would need to emit a varying-speed signal. My 
-> assumption would be that this happens inside the I2C HW, rather than 
-> under SW control though, since the transition would need to happen 
-> mid-protocol. Still, perhaps the selection between low-speed and 
-> high-speed-with-a-slow-preamble might need SW clock programming 
-> depending on the HW though... Who knows.
-> 
 
-That's true if the master wants to do a high-speed transaction. If the master
-wants to do a normal-speed transaction to a slave on the same bus, the master
-will need to select a lower speed clock under software control I think.
+Hi
 
-Cheers,
+I have made a lot of changes on changes to changes, and have really
+tried to ensure that all would be right.
 
-Peter.
+But I feel like that's enough, Wolfram or anyone else may end this.
+
+And no as I replied earlier, I lack this kind of hardware...
+
+
+Kind regards
+Rickard Strandqvist
