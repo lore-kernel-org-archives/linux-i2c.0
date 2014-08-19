@@ -1,41 +1,52 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] I2C/ACPI: Fix possible ZERO_SIZE_PTR pointer
- dereferencing error.
-Date: Tue, 19 Aug 2014 18:48:18 +0300
-Message-ID: <20140819154555.GW1660@lahna.fi.intel.com>
-References: <1407810818-33672-1-git-send-email-Li.Xiubo@freescale.com>
- <20140819150355.GD15371@katana>
- <20140819151604.GU1660@lahna.fi.intel.com>
- <20140819153808.GE15371@katana>
+From: <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Subject: [PATCH 1/2] i2c: designware: device tree bindings for i2c speed mode
+Date: Tue, 19 Aug 2014 13:34:35 -0500
+Message-ID: <1408473276-10847-1-git-send-email-atull@opensource.altera.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140819153808.GE15371@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 19, 2014 at 10:38:08AM -0500, Wolfram Sang wrote:
-> On Tue, Aug 19, 2014 at 06:16:49PM +0300, Mika Westerberg wrote:
-> > On Tue, Aug 19, 2014 at 10:03:55AM -0500, Wolfram Sang wrote:
-> > > On Tue, Aug 12, 2014 at 10:33:38AM +0800, Xiubo Li wrote:
-> > > > Since we cannot make sure the 'data_len' will always be none zero here,
-> > > > and then if 'data_len' equals to zero, the kzalloc() will return ZERO_SIZE_PTR,
-> > > > which equals to ((void *)16).
-> > > 
-> > > I assume the read request with length == 0 comes from a broken BIOS?
-> > 
-> > I'm also interested. Does this trigger in a real system?
-> 
-> Even if not now, we should consider potentially broken BIOSes, or? Which
-> extends the question to: Do we need even more sanity checks when taking
-> broken BIOSes into account?
+From: Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
 
-Typically ACPICA has done this work for us (e.g it fixes things upfront
-so that we get sane data). I'm not sure if it does that for I2C
-Operation Regions, though (that's why I'm asking if it happens in a real
-system or is this more like a theoretical possibility).
+Add "speed-mode" Device Tree property to select between
+standard and fast i2c mode.  Previously, driver was hardwired
+as fast mode.  Default to fast mode if property is not
+present.
 
-Tianyu, any comments?
+Signed-off-by: Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-designware.txt     |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+index 5199b0c..0e4cd21 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+@@ -9,6 +9,8 @@ Required properties :
+ Recommended properties :
+ 
+  - clock-frequency : desired I2C bus clock frequency in Hz.
++ - speed-mode      : 0 = standard (0 - 100Kb/s)
++                   : 1 = fast (<= 400Kb/s) <== default
+ 
+ Optional properties :
+  - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
+@@ -29,6 +31,7 @@ Example :
+ 		reg = <0xf0000 0x1000>;
+ 		interrupts = <11>;
+ 		clock-frequency = <400000>;
++		speed-mode = <0>;
+ 	};
+ 
+ 	i2c@1120000 {
+-- 
+1.7.9.5
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
