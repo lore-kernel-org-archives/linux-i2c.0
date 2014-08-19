@@ -1,78 +1,85 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: imx: double check IIF in case interrupt lost
-Date: Tue, 19 Aug 2014 09:53:52 -0500
-Message-ID: <20140819145352.GC15371@katana>
-References: <1408004954-29418-1-git-send-email-b38611@freescale.com>
- <20140814094204.GW5134@pengutronix.de>
- <96d6e524bc524305904730df24bf878f@BLUPR03MB373.namprd03.prod.outlook.com>
- <20140814192702.GC5134@pengutronix.de>
- <01dba3477e664c88a65e276a1c77c3e2@BLUPR03MB373.namprd03.prod.outlook.com>
- <20140815071814.GD5134@pengutronix.de>
+Subject: Re: [PATCH] I2C/ACPI: Fix possible ZERO_SIZE_PTR pointer
+ dereferencing error.
+Date: Tue, 19 Aug 2014 10:03:55 -0500
+Message-ID: <20140819150355.GD15371@katana>
+References: <1407810818-33672-1-git-send-email-Li.Xiubo@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oJ71EGRlYNjSvfq7"
+	protocol="application/pgp-signature"; boundary="IMjqdzrDRly81ofr"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140815071814.GD5134-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1407810818-33672-1-git-send-email-Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---oJ71EGRlYNjSvfq7
-Content-Type: text/plain; charset=utf-8
+--IMjqdzrDRly81ofr
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 15, 2014 at 09:18:14AM +0200, Uwe Kleine-K=C3=B6nig wrote:
-> Hello,
+On Tue, Aug 12, 2014 at 10:33:38AM +0800, Xiubo Li wrote:
+> Since we cannot make sure the 'data_len' will always be none zero here,
+> and then if 'data_len' equals to zero, the kzalloc() will return ZERO_SIZ=
+E_PTR,
+> which equals to ((void *)16).
+
+I assume the read request with length =3D=3D 0 comes from a broken BIOS?
+
+> So this patch fix this with just doing the 'data_len' zero check before c=
+alling
+> kzalloc().
 >=20
-> On Fri, Aug 15, 2014 at 02:14:15AM +0000, fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org wrote:
-> > I am sorry to tell you I don't have the reproduced platform for the iss=
-ue since the
-> > Issue was found at one platform of customer of freescale, and I debug t=
-he issue with
-> > Customer, at last generate the patch for customer platform, test fine. =
-So I want to
-> Does the customer use the -rt patch?
+> Signed-off-by: Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-Valid question.
+Looks good to me, yet adding ACPI experts to CC for further comments.
 
-> > Submit the patch. In our platforms, it is not easy to reproduce the iss=
-ue.
-> I tend to not want the patch in mainline. IMHO a wrong workaround that
-> fixes the issue only for 95% is worse than an unfixed driver.
+> ---
+>  drivers/i2c/i2c-acpi.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
+> index e8b6196..e144c00 100644
+> --- a/drivers/i2c/i2c-acpi.c
+> +++ b/drivers/i2c/i2c-acpi.c
+> @@ -134,6 +134,9 @@ static int acpi_gsb_i2c_read_bytes(struct i2c_client =
+*client,
+>  	int ret;
+>  	u8 *buffer;
+> =20
+> +	if (!data_len)
+> +		return -EINVAL;
+> +
+>  	buffer =3D kzalloc(data_len, GFP_KERNEL);
+>  	if (!buffer)
+>  		return AE_NO_MEMORY;
+> --=20
+> 1.8.5
+>=20
 
-I agree. Yet, I'd like to keep the information we have so far. Anyone
-cares to send a patch adding a comment to the driver with what is known
-yet?
-
-Thanks,
-
-   Wolfram
-
-
---oJ71EGRlYNjSvfq7
+--IMjqdzrDRly81ofr
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJT82UAAAoJEBQN5MwUoCm2M2IP/Aul3EH8JKdYWaAPv9G/yOol
-2AjAkpRb7q3Y13+bJO94vd0JvP1hHSQbOsAPEmEofL3MtCof3siqWAP1nUas/aOS
-v3H9uxbHS4dn6yJWiO/NGuPTrJYUu7TjfJI/xwElyhSBMQxg/NGqMznjZ2PuVXEL
-nt8LZZvvJvIRplMWKsACKwRO3RC41Mua97v5RjuMsa6asvsyAm7bXLeE4yeo3MBO
-QNxZqVeMtuUshl8ukNgUaoje5/jG0asCS7UBdxDeFogX9BAqilqQWTPh5VHcvEeH
-P0OUiz/P6JEhZ+elobm1svd2CLS/Qo9ECyK5ZwUkelWsVAajdvVhWWta4Hxg+6j6
-aXg4uVlzEBpg01MDHJp3atcnztRV2hjVWAMUEKy+eVGSslE36/Vl0yBf99tW+sjb
-FMh+eQXntOeEgJ4u+WLqHeTrjogxC2sch685jDJOqS2jwwgFDVZr1YJtw7nLpszT
-5GZ+Tr/U5XslrnI+jKKxMHKh0FZQcDwMN3f5stT+fn4ThuoNMrRY2WLO/1ZV61Xo
-INzAA5YSiQ9x8isISwKvN5DlRuH0oYKNkI21QFz5tJGUL5AWaJvJVtrdPpxvROda
-sM2sj2LPVX3CZ2UUpOZWRIA3FdbRg8tZdAHJEqKxAB3lY3sy6s4ytMTaHvqzeUab
-EB+CT18w1/2L9VTmy230
-=kw/R
+iQIcBAEBAgAGBQJT82dbAAoJEBQN5MwUoCm290sP/ik4CvhheCAfyjidId8vJogq
+bJDVxiFY/3qP5D0oyX2HmpNH51Wp4rO5QXNjPPYU1ZFILv5aXzdg57meUnOhHEb0
+pm4mmWrPgm+7/mtOtE4Po1VhHgq51kYtGfjV9p4SBd42IKGriS/iT80jhpccVNUU
+Rwb9ysNU18yztMzwhlHrkS/SWShCbnOI7ZCTNE7KCazcRB2Ts9mmWMWZ/eFGdkcX
+178SFi1yl1Gk0p/Ao6MEvDecFKIPg/uIEEBMwBQU759C/EQLeJTuFabeXiqpYs1i
+ZpAVh7deMDtmvPD9FNrSVyO1Mfay/h09aN+sgGNCDjRxBLsw8K5wPUPQFiXDzx2K
+Ub03BpMedvJgFZ6WqPJ/qmhFGkFh3H/TvpHGVA6mseW8uw5vQI8CC4478F5orRxP
+2nbEQfRHb+nAyRdTYHGTpdjQvtF5mNQNSayBhPJDl0M2sFpZ4+oAyK/YkLH5+ZcS
+V2PNIobY1TYvCrnlI0NNrjcEcJHd+EHwIxm7E67RqyzWDBh06IXhB83vE5BRebFj
++lfO6aS0rJQqkpm/46RcBVA0aalJTm4sopalX9MtWXHPulPaeBEFxUyqLNMr2VrO
+A6AIa4MXCjC2OYzjTT6RWWN4uRYFQhc9tDx4BRL9kuFtiuEhCS88B39mS6440Bmc
+7kkHloNRc1boDZkBj8Ge
+=mMGa
 -----END PGP SIGNATURE-----
 
---oJ71EGRlYNjSvfq7--
+--IMjqdzrDRly81ofr--
