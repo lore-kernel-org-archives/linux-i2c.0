@@ -1,72 +1,47 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Mark Rutland <mark.rutland@arm.com>
 Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree
  setting
-Date: Wed, 20 Aug 2014 07:36:18 -0500
-Message-ID: <20140820123617.GB1373@katana>
+Date: Wed, 20 Aug 2014 13:42:31 +0100
+Message-ID: <20140820124231.GD21734@leverpostej>
 References: <1408479529-24249-1-git-send-email-atull@opensource.altera.com>
  <20140820092257.GA21174@leverpostej>
+ <20140820123617.GB1373@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hQiwHBbRI9kgIhsi"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140820092257.GA21174@leverpostej>
+In-Reply-To: <20140820123617.GB1373@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: "atull@opensource.altera.com" <atull@opensource.altera.com>, "baruch@tkos.co.il" <baruch@tkos.co.il>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "skuribay@pobox.com" <skuribay@pobox.com>, "Romain.Baeriswyl@abilis.com" <Romain.Baeriswyl@abilis.com>, "rafael.j.wysocki@intel.com" <rafael.j.wysocki@intel.com>, "alan@linux.intel.com" <alan@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "delicious.quinoa@gmail.com" <delicious.quinoa@gmail.com>, "dinguyen@opensource.altera.com" <dinguyen@opensource.altera.com>, "yvanderv@opensource.altera.com" <yvanderv@opensource.altera.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Aug 20, 2014 at 01:36:18PM +0100, Wolfram Sang wrote:
+> > > +
+> > > +		ret = of_property_read_u32(pdev->dev.of_node,
+> > > +					   "clock-frequency", &bus_rate);
+> > > +		if (!ret && (bus_rate <= 100000))
+> > > +			speed = DW_IC_CON_SPEED_STD;
+> > 
+> > This looks a bit odd.
+> > 
+> > If the device only supports two particular speeds why do we accept any
+> > other speed in the clock-frequency property?
+> 
+> "clock-frequency" is the default binding for specifying i2c bus speeds
+> today. Some controllers can be programmed to do various speeds, some can
+> only do a set of fixed values.
 
---hQiwHBbRI9kgIhsi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sure. My complaint was that the driver would accept invalid values.
+That wasn't meant to be suggestion to use a property other than the
+standard clock-freqeuncy.
 
-> > +
-> > +		ret =3D of_property_read_u32(pdev->dev.of_node,
-> > +					   "clock-frequency", &bus_rate);
-> > +		if (!ret && (bus_rate <=3D 100000))
-> > +			speed =3D DW_IC_CON_SPEED_STD;
->=20
-> This looks a bit odd.
->=20
-> If the device only supports two particular speeds why do we accept any
-> other speed in the clock-frequency property?
+> > Surely we should at least warn that something was off?
+> 
+> Yes, I was going to say the same until Romain's old patch showed up
+> which does that.
 
-"clock-frequency" is the default binding for specifying i2c bus speeds
-today. Some controllers can be programmed to do various speeds, some can
-only do a set of fixed values.
+Cool. Sounds like we can use Romain's patch to handle this then.
 
-> Surely we should at least warn that something was off?
-
-Yes, I was going to say the same until Romain's old patch showed up
-which does that.
-
-Thanks,
-
-   Wolfram
-
-
---hQiwHBbRI9kgIhsi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJT9JZBAAoJEBQN5MwUoCm22TsQAISfSofiMFAxoAXGsj+R5SPI
-3NPq6TSgjwv/VrrB5PjiSE+qt3qbcaHLxAA1UU33mMA5Zj9QT+1LCFZ0v3Kv6TBl
-XIcUp7JVIQJ343V/XgLiYKPV99uRCM+BulRE5zurF+p2QRjOcV66rUAjdqCYmASW
-ItRNxxEIcvrM4vBGzhWHRDe4iPl4D6J2QNxZaUE9gmdkbUIiTYF3vasf/5+eBaNx
-3YodLSng+HSirXkVKNAi5vCYvaNu3Rc6dTsOHLlI5Bn0xtkiTVI8zvQ49tR+3uJQ
-Ad8VBZuPhzyaALwdqiqM+kDJQW3uYoQtFeQsZJVEZz9SwX/Oo8xRKdB+zP4Pgu67
-HQKo8HmwzazlnfNfQs4LxsiR12RvnmGIlmS+3S3l55dK0J1Jex1qHZH23YT5Cseo
-rO9Jc356lsZK/E2gCgAigw9CuSvuHgg1vgtqMjTBj+64LfphnWFrsUzlrAsza+35
-KfdkROGypxkCMXtjHrOsCWMZ2XY6Of/Qxa76iofV+7bTc5SD5MT56d9o1CJiSkCB
-QrDqDcDwaq0alzJWwNLIHe/OLJolSZi2jyNkYqhH1Xkf+K8JplmkxQe3bHBj++DU
-YS3hfPAe3+XZ6sNrIJaC8vQWCMNkc0rOTztJNLszVIBPoyVCqom0+VqXt4nY39D7
-Z8LLOaVtvFzCoWdSiJe3
-=iqcS
------END PGP SIGNATURE-----
-
---hQiwHBbRI9kgIhsi--
+Cheers,
+Mark.
