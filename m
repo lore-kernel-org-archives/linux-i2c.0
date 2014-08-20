@@ -1,139 +1,76 @@
-From: Romain Baeriswyl <Romain.Baeriswyl@abilis.com>
-Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree
- setting
-Date: Wed, 20 Aug 2014 14:07:57 +0200 (CEST)
-Message-ID: <1757614617.2144.1408536477693.JavaMail.root@abilis.com>
-References: <944257148.1724.1408528177642.JavaMail.root@abilis.com>
+From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: [RESEND PATCH 0/7] Second batch of cleanups for cros_ec
+Date: Wed, 20 Aug 2014 14:13:25 +0200
+Message-ID: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <944257148.1724.1408528177642.JavaMail.root@abilis.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>, atull@opensource.altera.com
-Cc: wsa@the-dreams.de, baruch@tkos.co.il, mika westerberg <mika.westerberg@linux.intel.com>, grant likely <grant.likely@linaro.org>, robh+dt@kernel.org, skuribay@pobox.com, rafael j wysocki <rafael.j.wysocki@intel.com>, alan@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, delicious quinoa <delicious.quinoa@gmail.com>, dinguyen@opensource.altera.com, yvanderv@opensource.altera.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Lee,
 
-Please find below link to these patches:
+This is a resend of a patch series originally sent [0] almost a
+month ago (July, 28). The series add a batch of cleanups patches
+for the mfd cros_ec driver and its subdevices drivers. The first
+batch of cleanups was posted by Doug Anderson [1] and have already
+been merged. The patches were taken from the ChromeOS 3.8 kernel
+and after this series, no cleanups patches for cros_ec are left.
+The remaining commits add support not yet available in mainline.
 
-[PATCH 1/2] i2c designware make SCL and SDA falling time configurable
-https://lkml.org/lkml/2013/10/8/443
+There is almost no functionality added on this series but the
+idea is to reduce the delta between the mainline drivers and
+the ones in the downstream Chrome OS 3.8 kernel so the missing
+functionality can be added on top once these cleanups patches
+are merged. The missing functionlity currently in mainline is:
 
-[PATCH V3 2/2] i2c designware add support of I2C standard mode
-https://lkml.org/lkml/2014/3/25/135
+- Chrome OS Embedded Controller userspace device interface
+- Chrome OS Embedded Controller Low Pin Count (LPC) inteface
+- Access to vboot context stored on a block device
+- Access to vboot context stored on EC's nvram
 
-Are they fine to be included in the mainline ?
+The patches in this series are authored by different people
+(all on cc) and consist of the following:
 
-Romain
+Andrew Bresticker (3):
+  mfd: cros_ec: stop calling ->cmd_xfer() directly
+  mfd: cros_ec: move locking into cros_ec_cmd_xfer
+  mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
 
------ Original Message -----
-From: "Romain Baeriswyl" <Romain.Baeriswyl@abilis.com>
-To: "Mark Rutland" <mark.rutland@arm.com>, atull@opensource.altera.com
-Cc: wsa@the-dreams.de, baruch@tkos.co.il, "mika westerberg" <mika.westerberg@linux.intel.com>, "grant likely" <grant.likely@linaro.org>, robh+dt@kernel.org, skuribay@pobox.com, "rafael j wysocki" <rafael.j.wysocki@intel.com>, alan@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, "delicious quinoa" <delicious.quinoa@gmail.com>, dinguyen@opensource.altera.com, yvanderv@opensource.altera.com
-Sent: Wednesday, August 20, 2014 11:49:37 AM
-Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree setting
+Derek Basehore (1):
+  i2c: i2c-cros-ec-tunnel: Set retries to 3
 
-Hi,
+Doug Anderson (1):
+  mfd: cros_ec: Delay for 50ms when we see EC_CMD_REBOOT_EC
 
-With the patch "i2c designware add support of I2C standard mode" I already proposed:
-- I2C standard mode is selected with 100kHz clock frequency.
-- I2C fast mode is selected with 400kHy clock frequency.
-- EINVAL error is returned if clock frequency is not 100000 and not 400000.
+Todd Broch (2):
+  mfd: cros_ec: Instantiate sub-devices from device tree
+  Input: cros_ec_keyb: Optimize ghosting algorithm.
 
-but this patch seems not available yet.
-What about the other patch "i2c designware make SCL and SDA falling time configurable" ?
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c |  5 +-
+ drivers/input/keyboard/cros_ec_keyb.c   | 89 +++++++++++++++++--------=
+--------
+ drivers/mfd/cros_ec.c                   | 88 +++++++++++++++++++++++++=
++++----
+ drivers/mfd/cros_ec_spi.c               | 20 ++++----
+ include/linux/mfd/cros_ec.h             | 24 ++++++---
+ 5 files changed, 154 insertions(+), 72 deletions(-)
 
-In i2c-designware_platdrv.c the flag DW_IC_CON_SPEED_xxx is well set
-depending on the mode:
+There were no changes on this resend, just picked Acked-by and
+Tested-by tags and also added my own Signed-off-by tag to all
+the patches as suggested by Andreas F=C3=A4rber even when I just
+picked them from downstream and rebased on top of linux-next.
 
-  if (clk_freq == 100000)
-     dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-       DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_STD;
-   else
-     dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-       DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+The patches should be merged together which means that they
+should go through your mfd tree once the relevant acks are
+obtained.
 
+Best regards,
+Javier
 
-So for me everything should be fine if there patches are applied.
-
-Regards,
-
-Romain
-
------ Original Message -----
-From: "Mark Rutland" <mark.rutland@arm.com>
-To: atull@opensource.altera.com
-Cc: wsa@the-dreams.de, baruch@tkos.co.il, "mika westerberg" <mika.westerberg@linux.intel.com>, "grant likely" <grant.likely@linaro.org>, robh+dt@kernel.org, skuribay@pobox.com, "Romain Baeriswyl" <Romain.Baeriswyl@abilis.com>, "rafael j wysocki" <rafael.j.wysocki@intel.com>, alan@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, "delicious quinoa" <delicious.quinoa@gmail.com>, dinguyen@opensource.altera.com, yvanderv@opensource.altera.com
-Sent: Wednesday, August 20, 2014 11:22:57 AM
-Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree setting
-
-On Tue, Aug 19, 2014 at 09:18:49PM +0100, atull@opensource.altera.com wrote:
-> From: Alan Tull <atull@opensource.altera.com>
-> 
-> Use the documented, but unimplemented "clock-frequency"
-> Device Tree setting as a guide on whether to set the speed
-> mode bits in DW_IC_CON to standard or fast i2c mode.
-> 
-> Previously, the driver was hardwired to fast mode.  Default
-> to fast mode if the "clock-frequency" property is not present
-> for backwards compatiblity.
-> 
-> Signed-off-by: Alan Tull <atull@opensource.altera.com>
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c |   10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index bc87733..18cd3d9 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -122,7 +122,8 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  	struct dw_i2c_dev *dev;
->  	struct i2c_adapter *adap;
->  	struct resource *mem;
-> -	int irq, r;
-> +	int irq, r, ret, speed = DW_IC_CON_SPEED_FAST;
-> +	u32 bus_rate;
->  
->  	irq = platform_get_irq(pdev, 0);
->  	if (irq < 0) {
-> @@ -167,6 +168,11 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		of_property_read_u32(pdev->dev.of_node,
->  				     "i2c-scl-falling-time-ns",
->  				     &dev->scl_falling_time);
-> +
-> +		ret = of_property_read_u32(pdev->dev.of_node,
-> +					   "clock-frequency", &bus_rate);
-> +		if (!ret && (bus_rate <= 100000))
-> +			speed = DW_IC_CON_SPEED_STD;
-
-This looks a bit odd.
-
-If the device only supports two particular speeds why do we accept any
-other speed in the clock-frequency property? Surely we should at least
-warn that something was off?
-
-Thanks,
-Mark
-
->  	}
->  
->  	dev->functionality =
-> @@ -177,7 +183,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		I2C_FUNC_SMBUS_WORD_DATA |
->  		I2C_FUNC_SMBUS_I2C_BLOCK;
->  	dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-> -		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
-> +		DW_IC_CON_RESTART_EN | speed;
->  
->  	/* Try first if we can configure the device from ACPI */
->  	r = dw_i2c_acpi_configure(pdev);
-> -- 
-> 1.7.9.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+[0]: https://www.mail-archive.com/linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg11385.=
+html
+[1]: https://lkml.org/lkml/2014/6/16/681
