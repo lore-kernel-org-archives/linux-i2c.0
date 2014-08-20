@@ -1,85 +1,70 @@
-From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree
- setting
-Date: Wed, 20 Aug 2014 10:22:57 +0100
-Message-ID: <20140820092257.GA21174@leverpostej>
-References: <1408479529-24249-1-git-send-email-atull@opensource.altera.com>
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 1/2] i2c: designware: device tree bindings for i2c speed
+ mode
+Date: Wed, 20 Aug 2014 10:34:59 +0100
+Message-ID: <20140820093459.GB21174@leverpostej>
+References: <1408473276-10847-1-git-send-email-atull@opensource.altera.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1408479529-24249-1-git-send-email-atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org" <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org" <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org" <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>, "Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org" <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, "rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org" <dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>, "yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org" <yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+In-Reply-To: <1408473276-10847-1-git-send-email-atull@opensource.altera.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "atull@opensource.altera.com" <atull@opensource.altera.com>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "baruch@tkos.co.il" <baruch@tkos.co.il>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "skuribay@pobox.com" <skuribay@pobox.com>, "Romain.Baeriswyl@abilis.com" <Romain.Baeriswyl@abilis.com>, "rafael.j.wysocki@intel.com" <rafael.j.wysocki@intel.com>, "alan@linux.intel.com" <alan@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "delicious.quinoa@gmail.com" <delicious.quinoa@gmail.com>, "dinguyen@opensource.altera.com" <dinguyen@opensource.altera.com>, "yvanderv@opensource.altera.com" <yvanderv@opensource.altera.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 19, 2014 at 09:18:49PM +0100, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org wrote:
-> From: Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+On Tue, Aug 19, 2014 at 07:34:35PM +0100, atull@opensource.altera.com wrote:
+> From: Alan Tull <atull@opensource.altera.com>
 > 
-> Use the documented, but unimplemented "clock-frequency"
-> Device Tree setting as a guide on whether to set the speed
-> mode bits in DW_IC_CON to standard or fast i2c mode.
+> Add "speed-mode" Device Tree property to select between
+> standard and fast i2c mode.  Previously, driver was hardwired
+> as fast mode.  Default to fast mode if property is not
+> present.
 > 
-> Previously, the driver was hardwired to fast mode.  Default
-> to fast mode if the "clock-frequency" property is not present
-> for backwards compatiblity.
-> 
-> Signed-off-by: Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+> Signed-off-by: Alan Tull <atull@opensource.altera.com>
 > ---
->  drivers/i2c/busses/i2c-designware-platdrv.c |   10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+>  .../devicetree/bindings/i2c/i2c-designware.txt     |    3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index bc87733..18cd3d9 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -122,7 +122,8 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  	struct dw_i2c_dev *dev;
->  	struct i2c_adapter *adap;
->  	struct resource *mem;
-> -	int irq, r;
-> +	int irq, r, ret, speed = DW_IC_CON_SPEED_FAST;
-> +	u32 bus_rate;
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> index 5199b0c..0e4cd21 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> @@ -9,6 +9,8 @@ Required properties :
+>  Recommended properties :
 >  
->  	irq = platform_get_irq(pdev, 0);
->  	if (irq < 0) {
-> @@ -167,6 +168,11 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		of_property_read_u32(pdev->dev.of_node,
->  				     "i2c-scl-falling-time-ns",
->  				     &dev->scl_falling_time);
-> +
-> +		ret = of_property_read_u32(pdev->dev.of_node,
-> +					   "clock-frequency", &bus_rate);
-> +		if (!ret && (bus_rate <= 100000))
-> +			speed = DW_IC_CON_SPEED_STD;
+>   - clock-frequency : desired I2C bus clock frequency in Hz.
+> + - speed-mode      : 0 = standard (0 - 100Kb/s)
+> +                   : 1 = fast (<= 400Kb/s) <== default
 
-This looks a bit odd.
+This is a bit opaque.
 
-If the device only supports two particular speeds why do we accept any
-other speed in the clock-frequency property? Surely we should at least
-warn that something was off?
+Is this a limit on the max bit-rate the device should operate at?
+
+Why not just have an optional boolean property to limit to standard
+speed?
 
 Thanks,
-Mark
+Mark.
 
->  	}
 >  
->  	dev->functionality =
-> @@ -177,7 +183,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		I2C_FUNC_SMBUS_WORD_DATA |
->  		I2C_FUNC_SMBUS_I2C_BLOCK;
->  	dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-> -		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
-> +		DW_IC_CON_RESTART_EN | speed;
+>  Optional properties :
+>   - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
+> @@ -29,6 +31,7 @@ Example :
+>  		reg = <0xf0000 0x1000>;
+>  		interrupts = <11>;
+>  		clock-frequency = <400000>;
+> +		speed-mode = <0>;
+>  	};
 >  
->  	/* Try first if we can configure the device from ACPI */
->  	r = dw_i2c_acpi_configure(pdev);
+>  	i2c@1120000 {
 > -- 
 > 1.7.9.5
 > 
 > --
 > To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
