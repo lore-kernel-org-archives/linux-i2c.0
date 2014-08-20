@@ -1,32 +1,43 @@
-From: atull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: designware: device tree bindings for i2c speed
- mode
-Date: Tue, 19 Aug 2014 15:24:09 -0500
-Message-ID: <alpine.DEB.2.02.1408191519190.22837@atx-linux-37>
-References: <1408473276-10847-1-git-send-email-atull@opensource.altera.com> <20140819191521.GA7306@katana>
+From: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH] i2c: imx: double check IIF in case interrupt lost
+Date: Wed, 20 Aug 2014 01:52:29 +0000
+Message-ID: <8c2e957bab5a42469cb54cde87fc1512@BLUPR03MB373.namprd03.prod.outlook.com>
+References: <1408004954-29418-1-git-send-email-b38611@freescale.com>
+ <20140814094204.GW5134@pengutronix.de>
+ <96d6e524bc524305904730df24bf878f@BLUPR03MB373.namprd03.prod.outlook.com>
+ <20140814192702.GC5134@pengutronix.de>
+ <01dba3477e664c88a65e276a1c77c3e2@BLUPR03MB373.namprd03.prod.outlook.com>
+ <20140815071814.GD5134@pengutronix.de> <20140819145352.GC15371@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140819191521.GA7306@katana>
+In-Reply-To: <20140819145352.GC15371@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, =?utf-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On Tue, 19 Aug 2014, Wolfram Sang wrote:
-
-> On Tue, Aug 19, 2014 at 01:34:35PM -0500, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org wrote:
-> > From: Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
-> > 
-> > Add "speed-mode" Device Tree property to select between
-> > standard and fast i2c mode.  Previously, driver was hardwired
-> > as fast mode.  Default to fast mode if property is not
-> > present.
-> 
-> NACK. This should be deduced from the clock-frequency setting...
-
-I just sent out a new patch that looks at the clock-frequency setting.
-
-Alan
+RnJvbTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4gU2VudDogVHVlc2RheSwgQXVn
+dXN0IDE5LCAyMDE0IDEwOjU0IFBNDQo+VG86IFV3ZSBLbGVpbmUtS8O2bmlnDQo+Q2M6IER1YW4g
+RnVnYW5nLUIzODYxMTsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZw0KPlN1YmplY3Q6IFJlOiBb
+UEFUQ0hdIGkyYzogaW14OiBkb3VibGUgY2hlY2sgSUlGIGluIGNhc2UgaW50ZXJydXB0IGxvc3QN
+Cj4NCj5PbiBGcmksIEF1ZyAxNSwgMjAxNCBhdCAwOToxODoxNEFNICswMjAwLCBVd2UgS2xlaW5l
+LUvDtm5pZyB3cm90ZToNCj4+IEhlbGxvLA0KPj4NCj4+IE9uIEZyaSwgQXVnIDE1LCAyMDE0IGF0
+IDAyOjE0OjE1QU0gKzAwMDAsIGZ1Z2FuZy5kdWFuQGZyZWVzY2FsZS5jb20NCj53cm90ZToNCj4+
+ID4gSSBhbSBzb3JyeSB0byB0ZWxsIHlvdSBJIGRvbid0IGhhdmUgdGhlIHJlcHJvZHVjZWQgcGxh
+dGZvcm0gZm9yIHRoZQ0KPj4gPiBpc3N1ZSBzaW5jZSB0aGUgSXNzdWUgd2FzIGZvdW5kIGF0IG9u
+ZSBwbGF0Zm9ybSBvZiBjdXN0b21lciBvZg0KPj4gPiBmcmVlc2NhbGUsIGFuZCBJIGRlYnVnIHRo
+ZSBpc3N1ZSB3aXRoIEN1c3RvbWVyLCBhdCBsYXN0IGdlbmVyYXRlIHRoZQ0KPj4gPiBwYXRjaCBm
+b3IgY3VzdG9tZXIgcGxhdGZvcm0sIHRlc3QgZmluZS4gU28gSSB3YW50IHRvDQo+PiBEb2VzIHRo
+ZSBjdXN0b21lciB1c2UgdGhlIC1ydCBwYXRjaD8NCj4NCj5WYWxpZCBxdWVzdGlvbi4NCj4NCk5v
+LCBjdXN0b21lciBkb24ndCB1c2UgLXJ0IHBhdGNoLg0KDQo+PiA+IFN1Ym1pdCB0aGUgcGF0Y2gu
+IEluIG91ciBwbGF0Zm9ybXMsIGl0IGlzIG5vdCBlYXN5IHRvIHJlcHJvZHVjZSB0aGUNCj5pc3N1
+ZS4NCj4+IEkgdGVuZCB0byBub3Qgd2FudCB0aGUgcGF0Y2ggaW4gbWFpbmxpbmUuIElNSE8gYSB3
+cm9uZyB3b3JrYXJvdW5kIHRoYXQNCj4+IGZpeGVzIHRoZSBpc3N1ZSBvbmx5IGZvciA5NSUgaXMg
+d29yc2UgdGhhbiBhbiB1bmZpeGVkIGRyaXZlci4NCj4NCj5JIGFncmVlLiBZZXQsIEknZCBsaWtl
+IHRvIGtlZXAgdGhlIGluZm9ybWF0aW9uIHdlIGhhdmUgc28gZmFyLiBBbnlvbmUNCj5jYXJlcyB0
+byBzZW5kIGEgcGF0Y2ggYWRkaW5nIGEgY29tbWVudCB0byB0aGUgZHJpdmVyIHdpdGggd2hhdCBp
+cyBrbm93bg0KPnlldD8NCj4NCj5UaGFua3MsDQo+DQo+ICAgV29sZnJhbQ0KDQpJIGFncmVlIHlv
+dXIgZGVjaXNpb24uDQoNClRoYW5rcywNCkFuZHkNCg==
