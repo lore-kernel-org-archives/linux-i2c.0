@@ -1,66 +1,119 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] I2C/ACPI: Fix possible ZERO_SIZE_PTR pointer
- dereferencing error.
-Date: Wed, 20 Aug 2014 13:18:14 +0300
-Message-ID: <20140820101814.GC1660@lahna.fi.intel.com>
-References: <1407810818-33672-1-git-send-email-Li.Xiubo@freescale.com>
- <20140819150355.GD15371@katana>
- <20140819151604.GU1660@lahna.fi.intel.com>
- <20140819153808.GE15371@katana>
- <20140819154555.GW1660@lahna.fi.intel.com>
- <53F4638F.5070704@intel.com>
+From: Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree
+ setting
+Date: Wed, 20 Aug 2014 11:49:37 +0200 (CEST)
+Message-ID: <944257148.1724.1408528177642.JavaMail.root@abilis.com>
+References: <20140820092257.GA21174@leverpostej>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <53F4638F.5070704-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20140820092257.GA21174@leverpostej>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, mika westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, grant likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, rafael j wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, delicious quinoa <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 20, 2014 at 04:59:59PM +0800, Lan Tianyu wrote:
-> On 08/19/2014 11:48 PM, Mika Westerberg wrote:
-> >On Tue, Aug 19, 2014 at 10:38:08AM -0500, Wolfram Sang wrote:
-> >>On Tue, Aug 19, 2014 at 06:16:49PM +0300, Mika Westerberg wrote:
-> >>>On Tue, Aug 19, 2014 at 10:03:55AM -0500, Wolfram Sang wrote:
-> >>>>On Tue, Aug 12, 2014 at 10:33:38AM +0800, Xiubo Li wrote:
-> >>>>>Since we cannot make sure the 'data_len' will always be none zero
-> >>>>>here, and then if 'data_len' equals to zero, the kzalloc() will
-> >>>>>return ZERO_SIZE_PTR, which equals to ((void *)16).
-> >>>>
-> >>>>I assume the read request with length == 0 comes from a broken BIOS?
-> >>>
-> >>>I'm also interested. Does this trigger in a real system?
-> >>
-> >>Even if not now, we should consider potentially broken BIOSes, or? Which
-> >>extends the question to: Do we need even more sanity checks when taking
-> >>broken BIOSes into account?
-> >
-> >Typically ACPICA has done this work for us (e.g it fixes things upfront so
-> >that we get sane data). I'm not sure if it does that for I2C Operation
-> >Regions, though (that's why I'm asking if it happens in a real system or is
-> >this more like a theoretical possibility).
-> >
-> >Tianyu, any comments?
-> >
-> 
-> Sorry for later response due to leave home today. acpi_gsb_i2c_read_bytes()
-> dedicates for GenericSerialBus Read/Write N Bytes protocol(ACPI Spec
-> 5.5.2.4.5.3.8). Bios wants to read N Bytes when uses this protocol and the
-> length specified by Bios should be greater than 1. If the Bios specified 0
-> bytes, the associated function(E,G read battery info) would be totally unusable.
-> I think such Bios can't pass through Windows certification:). From this point, I
-> think the check is not necessary.
-> 
-> If you still thought this maybe happen, I think it makes more sense to add the
-> check length in the ACPICA. Because ACPICA will allocate a data buffer for I2C
-> ACPI operation region access before call the callback. The buffer length will be
-> result of protocol head length plus data length. If data length is 0 and this
-> means the access will be invalid and ACPICA should ignore it or produce a warning.
-> 
+Hi,
 
-Thanks Tianyu for the clarification.
+With the patch "i2c designware add support of I2C standard mode" I already proposed:
+- I2C standard mode is selected with 100kHz clock frequency.
+- I2C fast mode is selected with 400kHy clock frequency.
+- EINVAL error is returned if clock frequency is not 100000 and not 400000.
 
-So Wolfram, up to you -- in principle this check is not needed but it
-doesn't do any harm either.
+but this patch seems not available yet.
+What about the other patch "i2c designware make SCL and SDA falling time configurable" ?
+
+In i2c-designware_platdrv.c the flag DW_IC_CON_SPEED_xxx is well set
+depending on the mode:
+
+  if (clk_freq == 100000)
+     dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+       DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_STD;
+   else
+     dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+       DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+
+
+So for me everything should be fine if there patches are applied.
+
+Regards,
+
+Romain
+
+----- Original Message -----
+From: "Mark Rutland" <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+To: atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, "mika westerberg" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "grant likely" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, "Romain Baeriswyl" <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, "rafael j wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "delicious quinoa" <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org
+Sent: Wednesday, August 20, 2014 11:22:57 AM
+Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree setting
+
+On Tue, Aug 19, 2014 at 09:18:49PM +0100, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org wrote:
+> From: Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+> 
+> Use the documented, but unimplemented "clock-frequency"
+> Device Tree setting as a guide on whether to set the speed
+> mode bits in DW_IC_CON to standard or fast i2c mode.
+> 
+> Previously, the driver was hardwired to fast mode.  Default
+> to fast mode if the "clock-frequency" property is not present
+> for backwards compatiblity.
+> 
+> Signed-off-by: Alan Tull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c |   10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index bc87733..18cd3d9 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -122,7 +122,8 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  	struct dw_i2c_dev *dev;
+>  	struct i2c_adapter *adap;
+>  	struct resource *mem;
+> -	int irq, r;
+> +	int irq, r, ret, speed = DW_IC_CON_SPEED_FAST;
+> +	u32 bus_rate;
+>  
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq < 0) {
+> @@ -167,6 +168,11 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  		of_property_read_u32(pdev->dev.of_node,
+>  				     "i2c-scl-falling-time-ns",
+>  				     &dev->scl_falling_time);
+> +
+> +		ret = of_property_read_u32(pdev->dev.of_node,
+> +					   "clock-frequency", &bus_rate);
+> +		if (!ret && (bus_rate <= 100000))
+> +			speed = DW_IC_CON_SPEED_STD;
+
+This looks a bit odd.
+
+If the device only supports two particular speeds why do we accept any
+other speed in the clock-frequency property? Surely we should at least
+warn that something was off?
+
+Thanks,
+Mark
+
+>  	}
+>  
+>  	dev->functionality =
+> @@ -177,7 +183,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  		I2C_FUNC_SMBUS_WORD_DATA |
+>  		I2C_FUNC_SMBUS_I2C_BLOCK;
+>  	dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+> -		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+> +		DW_IC_CON_RESTART_EN | speed;
+>  
+>  	/* Try first if we can configure the device from ACPI */
+>  	r = dw_i2c_acpi_configure(pdev);
+> -- 
+> 1.7.9.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
