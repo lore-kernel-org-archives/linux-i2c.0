@@ -1,47 +1,84 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH] i2c: designware: deduce speed mode from device tree
- setting
-Date: Wed, 20 Aug 2014 13:42:31 +0100
-Message-ID: <20140820124231.GD21734@leverpostej>
-References: <1408479529-24249-1-git-send-email-atull@opensource.altera.com>
- <20140820092257.GA21174@leverpostej>
- <20140820123617.GB1373@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140820123617.GB1373@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "atull@opensource.altera.com" <atull@opensource.altera.com>, "baruch@tkos.co.il" <baruch@tkos.co.il>, "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>, "grant.likely@linaro.org" <grant.likely@linaro.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "skuribay@pobox.com" <skuribay@pobox.com>, "Romain.Baeriswyl@abilis.com" <Romain.Baeriswyl@abilis.com>, "rafael.j.wysocki@intel.com" <rafael.j.wysocki@intel.com>, "alan@linux.intel.com" <alan@linux.intel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "delicious.quinoa@gmail.com" <delicious.quinoa@gmail.com>, "dinguyen@opensource.altera.com" <dinguyen@opensource.altera.com>, "yvanderv@opensource.altera.com" <yvanderv@opensource.altera.com>
+From: Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c designware add support of I2C standard mode
+Date: Wed, 20 Aug 2014 16:29:08 +0200
+Message-ID: <1408544948-22339-1-git-send-email-romainba@abilis.com>
+References: <20140820124231.GD21734@leverpostej>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140820124231.GD21734@leverpostej>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org
+Cc: Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 20, 2014 at 01:36:18PM +0100, Wolfram Sang wrote:
-> > > +
-> > > +		ret = of_property_read_u32(pdev->dev.of_node,
-> > > +					   "clock-frequency", &bus_rate);
-> > > +		if (!ret && (bus_rate <= 100000))
-> > > +			speed = DW_IC_CON_SPEED_STD;
-> > 
-> > This looks a bit odd.
-> > 
-> > If the device only supports two particular speeds why do we accept any
-> > other speed in the clock-frequency property?
-> 
-> "clock-frequency" is the default binding for specifying i2c bus speeds
-> today. Some controllers can be programmed to do various speeds, some can
-> only do a set of fixed values.
+From: Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
 
-Sure. My complaint was that the driver would accept invalid values.
-That wasn't meant to be suggestion to use a property other than the
-standard clock-freqeuncy.
+Some legacy devices support ony I2C standard mode at 100kHz.
+This patch allows to select the standard mode through the DTS
+with the use of the existing clock-frequency parameter.
 
-> > Surely we should at least warn that something was off?
-> 
-> Yes, I was going to say the same until Romain's old patch showed up
-> which does that.
+When clock-frequency parameter is not set, the fast mode is selected.
+Only when the parameter is set at 100000, the standard mode is selected.
 
-Cool. Sounds like we can use Romain's patch to handle this then.
+Signed-off-by: Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Reviewed-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c |   23 +++++++++++++++++++++--
+ 1 files changed, 21 insertions(+), 2 deletions(-)
 
-Cheers,
-Mark.
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 402ec39..b543fe1 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -122,6 +122,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	struct i2c_adapter *adap;
+ 	struct resource *mem;
+ 	int irq, r;
++	u32 clk_freq;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+@@ -151,6 +152,9 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(dev->clk);
+ 	clk_prepare_enable(dev->clk);
+ 
++	/* fast mode by default because of legacy reasons */
++	clk_freq = 400000;
++
+ 	if (pdev->dev.of_node) {
+ 		u32 ht = 0;
+ 		u32 ic_clk = dev->get_clk_rate_khz(dev);
+@@ -166,6 +170,17 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		of_property_read_u32(pdev->dev.of_node,
+ 				     "i2c-scl-falling-time-ns",
+ 				     &dev->scl_falling_time);
++
++		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
++				     &clk_freq);
++
++		/* Only standard mode at 100kHz and fast mode at 400kHz
++		 * are supported.
++		 */
++		if (clk_freq != 100000 && clk_freq != 400000) {
++			dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	dev->functionality =
+@@ -175,8 +190,12 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		I2C_FUNC_SMBUS_BYTE_DATA |
+ 		I2C_FUNC_SMBUS_WORD_DATA |
+ 		I2C_FUNC_SMBUS_I2C_BLOCK;
+-	dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+-		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
++	if (clk_freq == 100000)
++		dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
++			DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_STD;
++	else
++		dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
++			DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+ 
+ 	/* Try first if we can configure the device from ACPI */
+ 	r = dw_i2c_acpi_configure(pdev);
+-- 
+1.7.1
