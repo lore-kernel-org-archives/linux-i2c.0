@@ -1,43 +1,49 @@
-From: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH] i2c: imx: double check IIF in case interrupt lost
-Date: Wed, 20 Aug 2014 01:52:29 +0000
-Message-ID: <8c2e957bab5a42469cb54cde87fc1512@BLUPR03MB373.namprd03.prod.outlook.com>
-References: <1408004954-29418-1-git-send-email-b38611@freescale.com>
- <20140814094204.GW5134@pengutronix.de>
- <96d6e524bc524305904730df24bf878f@BLUPR03MB373.namprd03.prod.outlook.com>
- <20140814192702.GC5134@pengutronix.de>
- <01dba3477e664c88a65e276a1c77c3e2@BLUPR03MB373.namprd03.prod.outlook.com>
- <20140815071814.GD5134@pengutronix.de> <20140819145352.GC15371@katana>
+From: "Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH] I2C/ACPI: Fix possible ZERO_SIZE_PTR pointer
+ dereferencing error.
+Date: Wed, 20 Aug 2014 02:37:57 +0000
+Message-ID: <1ff2414e255d4d978705c16339b8a586@BY2PR0301MB0613.namprd03.prod.outlook.com>
+References: <1407810818-33672-1-git-send-email-Li.Xiubo@freescale.com>
+ <20140819150355.GD15371@katana> <20140819151604.GU1660@lahna.fi.intel.com>
+ <20140819153808.GE15371@katana> <20140819154555.GW1660@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140819145352.GC15371@katana>
+In-Reply-To: <20140819154555.GW1660-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, =?utf-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-RnJvbTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4gU2VudDogVHVlc2RheSwgQXVn
-dXN0IDE5LCAyMDE0IDEwOjU0IFBNDQo+VG86IFV3ZSBLbGVpbmUtS8O2bmlnDQo+Q2M6IER1YW4g
-RnVnYW5nLUIzODYxMTsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZw0KPlN1YmplY3Q6IFJlOiBb
-UEFUQ0hdIGkyYzogaW14OiBkb3VibGUgY2hlY2sgSUlGIGluIGNhc2UgaW50ZXJydXB0IGxvc3QN
-Cj4NCj5PbiBGcmksIEF1ZyAxNSwgMjAxNCBhdCAwOToxODoxNEFNICswMjAwLCBVd2UgS2xlaW5l
-LUvDtm5pZyB3cm90ZToNCj4+IEhlbGxvLA0KPj4NCj4+IE9uIEZyaSwgQXVnIDE1LCAyMDE0IGF0
-IDAyOjE0OjE1QU0gKzAwMDAsIGZ1Z2FuZy5kdWFuQGZyZWVzY2FsZS5jb20NCj53cm90ZToNCj4+
-ID4gSSBhbSBzb3JyeSB0byB0ZWxsIHlvdSBJIGRvbid0IGhhdmUgdGhlIHJlcHJvZHVjZWQgcGxh
-dGZvcm0gZm9yIHRoZQ0KPj4gPiBpc3N1ZSBzaW5jZSB0aGUgSXNzdWUgd2FzIGZvdW5kIGF0IG9u
-ZSBwbGF0Zm9ybSBvZiBjdXN0b21lciBvZg0KPj4gPiBmcmVlc2NhbGUsIGFuZCBJIGRlYnVnIHRo
-ZSBpc3N1ZSB3aXRoIEN1c3RvbWVyLCBhdCBsYXN0IGdlbmVyYXRlIHRoZQ0KPj4gPiBwYXRjaCBm
-b3IgY3VzdG9tZXIgcGxhdGZvcm0sIHRlc3QgZmluZS4gU28gSSB3YW50IHRvDQo+PiBEb2VzIHRo
-ZSBjdXN0b21lciB1c2UgdGhlIC1ydCBwYXRjaD8NCj4NCj5WYWxpZCBxdWVzdGlvbi4NCj4NCk5v
-LCBjdXN0b21lciBkb24ndCB1c2UgLXJ0IHBhdGNoLg0KDQo+PiA+IFN1Ym1pdCB0aGUgcGF0Y2gu
-IEluIG91ciBwbGF0Zm9ybXMsIGl0IGlzIG5vdCBlYXN5IHRvIHJlcHJvZHVjZSB0aGUNCj5pc3N1
-ZS4NCj4+IEkgdGVuZCB0byBub3Qgd2FudCB0aGUgcGF0Y2ggaW4gbWFpbmxpbmUuIElNSE8gYSB3
-cm9uZyB3b3JrYXJvdW5kIHRoYXQNCj4+IGZpeGVzIHRoZSBpc3N1ZSBvbmx5IGZvciA5NSUgaXMg
-d29yc2UgdGhhbiBhbiB1bmZpeGVkIGRyaXZlci4NCj4NCj5JIGFncmVlLiBZZXQsIEknZCBsaWtl
-IHRvIGtlZXAgdGhlIGluZm9ybWF0aW9uIHdlIGhhdmUgc28gZmFyLiBBbnlvbmUNCj5jYXJlcyB0
-byBzZW5kIGEgcGF0Y2ggYWRkaW5nIGEgY29tbWVudCB0byB0aGUgZHJpdmVyIHdpdGggd2hhdCBp
-cyBrbm93bg0KPnlldD8NCj4NCj5UaGFua3MsDQo+DQo+ICAgV29sZnJhbQ0KDQpJIGFncmVlIHlv
-dXIgZGVjaXNpb24uDQoNClRoYW5rcywNCkFuZHkNCg==
+> On Tue, Aug 19, 2014 at 10:38:08AM -0500, Wolfram Sang wrote:
+> > On Tue, Aug 19, 2014 at 06:16:49PM +0300, Mika Westerberg wrote:
+> > > On Tue, Aug 19, 2014 at 10:03:55AM -0500, Wolfram Sang wrote:
+> > > > On Tue, Aug 12, 2014 at 10:33:38AM +0800, Xiubo Li wrote:
+> > > > > Since we cannot make sure the 'data_len' will always be none zero here,
+> > > > > and then if 'data_len' equals to zero, the kzalloc() will return
+> ZERO_SIZE_PTR,
+> > > > > which equals to ((void *)16).
+> > > >
+> > > > I assume the read request with length == 0 comes from a broken BIOS?
+> > >
+> > > I'm also interested. Does this trigger in a real system?
+> >
+> > Even if not now, we should consider potentially broken BIOSes, or? Which
+> > extends the question to: Do we need even more sanity checks when taking
+> > broken BIOSes into account?
+> 
+> Typically ACPICA has done this work for us (e.g it fixes things upfront
+> so that we get sane data). I'm not sure if it does that for I2C
+> Operation Regions, though (that's why I'm asking if it happens in a real
+> system or is this more like a theoretical possibility).
+> 
+Yes, it a theoretical potentially risk here for me, but not sure in the future.
+I have encountered many issues of this risk for different codes, which can be
+reproduced very easily mostly.
+
+Thanks,
+
+BRs
+Xiubo
