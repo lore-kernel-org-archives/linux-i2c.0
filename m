@@ -1,39 +1,93 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [RESEND PATCH 4/7] mfd: cros_ec: move locking into cros_ec_cmd_xfer
-Date: Wed, 20 Aug 2014 15:36:01 -0700
-Message-ID: <CAD=FV=WAMKrmDTQbDrjR2XtFcNVUuzJfWspN5a7nE7kLWS9=4A@mail.gmail.com>
-References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>
-	<1408536812-7836-5-git-send-email-javier.martinez@collabora.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1408536812-7836-5-git-send-email-javier.martinez@collabora.co.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>
+From: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2] i2c:at91: add bound checking on SMBus block length bytes
+Date: Wed, 20 Aug 2014 21:39:41 -0400
+Message-ID: <1408585181-10131-1-git-send-email-mark.roszko@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Javier,
+The driver was not bound checking the received length byte to ensure it was within the
+the buffer size that is allocated for SMBus blocks. This resulted in buffer overflows
+whenever an invalid length byte was received.
+It also failed to ensure the length byte was not zero. If it received zero, it would end up
+in an infinite loop as the at91_twi_read_next_byte function returned immediately without
+allowing RHR to be read to clear the RXRDY interrupt.
 
-On Wed, Aug 20, 2014 at 5:13 AM, Javier Martinez Canillas
-<javier.martinez@collabora.co.uk> wrote:
-> From: Andrew Bresticker <abrestic@chromium.org>
->
-> Now that there's a central cros_ec_cmd_xfer(), move the locking
-> out of the SPI and LPC drivers.
+Tested agaisnt a SMBus compliant battery.
 
-Slight nit that the LPC driver doesn't exist upstream.  This is in
-prep for adding the LPC driver, though.
+Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+---
+Change from v1:
+fixed typo in commit message
+reworded message slightly to be specifically say length byte
 
+ drivers/i2c/busses/i2c-at91.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
-> Reviewed-by: Simon Glass <sjg@chromium.org>
-> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-> ---
->  drivers/mfd/cros_ec.c     | 10 +++++++++-
->  drivers/mfd/cros_ec_spi.c | 11 -----------
->  2 files changed, 9 insertions(+), 12 deletions(-)
-
-After comment nitfix:
-
-Reviewed-by: Doug Anderson <dianders@chromium.org>
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index e95f9ba..ec4ff33 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -101,6 +101,7 @@ struct at91_twi_dev {
+ 	unsigned twi_cwgr_reg;
+ 	struct at91_twi_pdata *pdata;
+ 	bool use_dma;
++	bool recv_len_abort;
+ 	struct at91_twi_dma dma;
+ };
+ 
+@@ -267,12 +268,24 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
+ 	*dev->buf = at91_twi_read(dev, AT91_TWI_RHR) & 0xff;
+ 	--dev->buf_len;
+ 
++	/* return if aborting, we only needed to read RHR to clear RXRDY*/
++	if (dev->recv_len_abort)
++		return;
++
+ 	/* handle I2C_SMBUS_BLOCK_DATA */
+ 	if (unlikely(dev->msg->flags & I2C_M_RECV_LEN)) {
+-		dev->msg->flags &= ~I2C_M_RECV_LEN;
+-		dev->buf_len += *dev->buf;
+-		dev->msg->len = dev->buf_len + 1;
+-		dev_dbg(dev->dev, "received block length %d\n", dev->buf_len);
++		/* ensure length byte is a valid value */
++		if (*dev->buf <= I2C_SMBUS_BLOCK_MAX && *dev->buf > 0) {
++			dev->msg->flags &= ~I2C_M_RECV_LEN;
++			dev->buf_len += *dev->buf;
++			dev->msg->len = dev->buf_len + 1;
++			dev_dbg(dev->dev, "received block length %d\n",
++					 dev->buf_len);
++		} else {
++			/* abort and send the stop by reading one more byte */
++			dev->recv_len_abort = true;
++			dev->buf_len = 1;
++		}
+ 	}
+ 
+ 	/* send stop if second but last byte has been read */
+@@ -444,6 +457,12 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 		ret = -EIO;
+ 		goto error;
+ 	}
++	if (dev->recv_len_abort) {
++		dev_err(dev->dev, "invalid smbus block length recvd\n");
++		ret = -EPROTO;
++		goto error;
++	}
++
+ 	dev_dbg(dev->dev, "transfer complete\n");
+ 
+ 	return 0;
+@@ -500,6 +519,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	dev->buf_len = m_start->len;
+ 	dev->buf = m_start->buf;
+ 	dev->msg = m_start;
++	dev->recv_len_abort = false;
+ 
+ 	ret = at91_do_twi_transfer(dev);
+ 
+-- 
+1.7.10.4
