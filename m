@@ -1,93 +1,81 @@
-From: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] i2c:at91: add bound checking on SMBus block length bytes
-Date: Wed, 20 Aug 2014 21:39:41 -0400
-Message-ID: <1408585181-10131-1-git-send-email-mark.roszko@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 2/2] extcon: sm5502: EXTCON_SM5502 should depend on I2C
+Date: Thu, 21 Aug 2014 11:18:56 +0900
+Message-ID: <53F55710.8000702@samsung.com>
+References: <1408270138-29811-1-git-send-email-geert@linux-m68k.org>
+ <1408270138-29811-2-git-send-email-geert@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <1408270138-29811-2-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver was not bound checking the received length byte to ensure it was within the
-the buffer size that is allocated for SMBus blocks. This resulted in buffer overflows
-whenever an invalid length byte was received.
-It also failed to ensure the length byte was not zero. If it received zero, it would end up
-in an infinite loop as the at91_twi_read_next_byte function returned immediately without
-allowing RHR to be read to clear the RXRDY interrupt.
+Hi Geert
 
-Tested agaisnt a SMBus compliant battery.
+Thanks for your report. I already sent a patch[1] to fix this build bre=
+ak
+and I'll send pull request to includec this patch in 3.17-rc2.
 
-Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
-Change from v1:
-fixed typo in commit message
-reworded message slightly to be specifically say length byte
+[1] https://lkml.org/lkml/2014/8/13/761
 
- drivers/i2c/busses/i2c-at91.c |   28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+Best Regards,
+Chanwoo Choi
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index e95f9ba..ec4ff33 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -101,6 +101,7 @@ struct at91_twi_dev {
- 	unsigned twi_cwgr_reg;
- 	struct at91_twi_pdata *pdata;
- 	bool use_dma;
-+	bool recv_len_abort;
- 	struct at91_twi_dma dma;
- };
- 
-@@ -267,12 +268,24 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
- 	*dev->buf = at91_twi_read(dev, AT91_TWI_RHR) & 0xff;
- 	--dev->buf_len;
- 
-+	/* return if aborting, we only needed to read RHR to clear RXRDY*/
-+	if (dev->recv_len_abort)
-+		return;
-+
- 	/* handle I2C_SMBUS_BLOCK_DATA */
- 	if (unlikely(dev->msg->flags & I2C_M_RECV_LEN)) {
--		dev->msg->flags &= ~I2C_M_RECV_LEN;
--		dev->buf_len += *dev->buf;
--		dev->msg->len = dev->buf_len + 1;
--		dev_dbg(dev->dev, "received block length %d\n", dev->buf_len);
-+		/* ensure length byte is a valid value */
-+		if (*dev->buf <= I2C_SMBUS_BLOCK_MAX && *dev->buf > 0) {
-+			dev->msg->flags &= ~I2C_M_RECV_LEN;
-+			dev->buf_len += *dev->buf;
-+			dev->msg->len = dev->buf_len + 1;
-+			dev_dbg(dev->dev, "received block length %d\n",
-+					 dev->buf_len);
-+		} else {
-+			/* abort and send the stop by reading one more byte */
-+			dev->recv_len_abort = true;
-+			dev->buf_len = 1;
-+		}
- 	}
- 
- 	/* send stop if second but last byte has been read */
-@@ -444,6 +457,12 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		ret = -EIO;
- 		goto error;
- 	}
-+	if (dev->recv_len_abort) {
-+		dev_err(dev->dev, "invalid smbus block length recvd\n");
-+		ret = -EPROTO;
-+		goto error;
-+	}
-+
- 	dev_dbg(dev->dev, "transfer complete\n");
- 
- 	return 0;
-@@ -500,6 +519,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 	dev->buf_len = m_start->len;
- 	dev->buf = m_start->buf;
- 	dev->msg = m_start;
-+	dev->recv_len_abort = false;
- 
- 	ret = at91_do_twi_transfer(dev);
- 
--- 
-1.7.10.4
+
+On 08/17/2014 07:08 PM, Geert Uytterhoeven wrote:
+> EXTCON_SM5502 selects REGMAP_I2C, but if I2C=3Dn:
+>=20
+> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_b=
+yte_reg_read=E2=80=99:
+> drivers/base/regmap/regmap-i2c.c:28: error: implicit declaration of f=
+unction =E2=80=98i2c_smbus_read_byte_data=E2=80=99
+> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_b=
+yte_reg_write=E2=80=99:
+> drivers/base/regmap/regmap-i2c.c:46: error: implicit declaration of f=
+unction =E2=80=98i2c_smbus_write_byte_data=E2=80=99
+> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_w=
+ord_reg_read=E2=80=99:
+> drivers/base/regmap/regmap-i2c.c:64: error: implicit declaration of f=
+unction =E2=80=98i2c_smbus_read_word_data=E2=80=99
+> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_w=
+ord_reg_write=E2=80=99:
+> drivers/base/regmap/regmap-i2c.c:82: error: implicit declaration of f=
+unction =E2=80=98i2c_smbus_write_word_data=E2=80=99
+> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_i2c_wri=
+te=E2=80=99:
+> drivers/base/regmap/regmap-i2c.c:96: error: implicit declaration of f=
+unction =E2=80=98i2c_master_send=E2=80=99
+> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_i2c_gat=
+her_write=E2=80=99:
+> drivers/base/regmap/regmap-i2c.c:117: error: implicit declaration of =
+function =E2=80=98i2c_check_functionality=E2=80=99
+> drivers/base/regmap/regmap-i2c.c:130: error: implicit declaration of =
+function =E2=80=98i2c_transfer=E2=80=99
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+> ---
+>  drivers/extcon/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
+> index 6f2f4727de2c..764f3a113e0a 100644
+> --- a/drivers/extcon/Kconfig
+> +++ b/drivers/extcon/Kconfig
+> @@ -72,6 +72,7 @@ config EXTCON_PALMAS
+> =20
+>  config EXTCON_SM5502
+>  	tristate "SM5502 EXTCON support"
+> +	depends on I2C
+>  	select IRQ_DOMAIN
+>  	select REGMAP_I2C
+>  	select REGMAP_IRQ
+>=20
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
