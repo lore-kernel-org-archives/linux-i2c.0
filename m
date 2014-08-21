@@ -1,38 +1,45 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: ARM: shmobile: "i2c<m>" vs. "iic<n>" DT nodes and pinmux
-Date: Fri, 22 Aug 2014 01:32:24 +0400
-Message-ID: <53F66568.6030709@cogentembedded.com>
-References: <CAMuHMdWqnMZQcRURufCxiGpbkK7ocjH8KnECxdWVPcxN-68J4g@mail.gmail.com> <53F643F1.9060409@cogentembedded.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <53F643F1.9060409@cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+From: Addy Ke <addy.ke@rock-chips.com>
+Subject: [PATCH v2] i2c: rk3x: fix bug that cause transfer fails in maste receive mode
+Date: Fri, 22 Aug 2014 05:38:27 +0800
+Message-ID: <1408657107-8715-1-git-send-email-addy.ke@rock-chips.com>
+References: <0001-i2c-rk3x-fix-bug-that-cause-transfer-fails-in-master.patch>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0001-i2c-rk3x-fix-bug-that-cause-transfer-fails-in-master.patch>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, max.schwarz@online.de, heiko@sntech.de, olof@lixom.net, dianders@chromium.org
+Cc: sergei.shtylyov@cogentembedded.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, cf@rock-chips.com, xjq@rock-chips.com, huangtao@rock-chips.com, zyw@rock-chips.com, yzq@rock-chips.com, hj@rock-chips.com, kever.yang@rock-chips.com, hl@rock-chips.com, caesar.wang@rock-chips.com, zhengsq@rock-chips.com, Addy Ke <addy.ke@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
+In rk3x SOC, the I2C controller can receive/transmit up to 32 bytes data
+in one chunk, so the size of data to be write/read to/from TXDATAx/RXDATAx
+must be less than or equal 32 bytes at a time.
 
-On 08/21/2014 11:09 PM, Sergei Shtylyov wrote:
+Tested on rk3288-pinky board, elan receive 158 bytes data.
 
->> "iic<n>", with DT aliases from "i2c<m>" to the "iic<n>" DT nodes.
->> On r8a7791, DT device nodes and C/DT pinmux data for IIC<n> are called
->> "i2c<m>", with DT aliases from "i2c<m>" to the "i2c<m>" DT nodes.
+Acked-by: Max Schwarz <max.schwarz@online.de>
+Signed-off-by: Addy Ke <addy.ke@rock-chips.com>
+---
+Changes in v2:
+- Use cleaner syntax as suggested by Sergei.
+- Update commit message as suggested by Wolfram.
 
->> In light of the proliferation of other members of the R-Car Gen 2 families, is
->> there a plan to make this consistent?
+ drivers/i2c/busses/i2c-rk3x.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
->     I can probably look at this since the SH-Mobile driver (and/or hardware?)
-> is clearly of better quality than R-Car one: I'm constantly getting -ENXIO and
-> -EBUSY from the latter trying to read images from ADV7180 I2C video decoder.
-
-    Indeed, on Lager reading from the same chip seems to work flawlessy. 
-However, I was too optimistic about R8A7791: it doesn't have IIC controller 
-matching I2C2. :-/
-    So the only thing I can do is to fix inconsistent labels in 
-R8A7791/Koelsch DTs if Wolfram won't beat me to it.
-
-WBR, Sergei
-
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 69e1185..806724a 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -323,6 +323,10 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
+ 	/* ack interrupt */
+ 	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
+ 
++	/* Can only handle a maximum of 32 bytes at a time */
++	if (unlikely(len > 32))
++		len  = 32;
++
+ 	/* read the data from receive buffer */
+ 	for (i = 0; i < len; ++i) {
+ 		if (i % 4 == 0)
+-- 
+1.8.3.2
