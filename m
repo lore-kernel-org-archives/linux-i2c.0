@@ -1,81 +1,84 @@
-From: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 2/2] extcon: sm5502: EXTCON_SM5502 should depend on I2C
-Date: Thu, 21 Aug 2014 11:18:56 +0900
-Message-ID: <53F55710.8000702@samsung.com>
-References: <1408270138-29811-1-git-send-email-geert@linux-m68k.org>
- <1408270138-29811-2-git-send-email-geert@linux-m68k.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 3.17
+Date: Wed, 20 Aug 2014 22:25:02 -0500
+Message-ID: <20140821032456.GA3920@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <1408270138-29811-2-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Geert
 
-Thanks for your report. I already sent a patch[1] to fix this build bre=
-ak
-and I'll send pull request to includec this patch in 3.17-rc2.
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-[1] https://lkml.org/lkml/2014/8/13/761
+Linus,
 
-Best Regards,
-Chanwoo Choi
+here is the fixup for the 'lowlight' of my last pull request. I2C is not
+selected anymore by I2C_ACPI. Instead, the code in question now depends
+on I2C=y. Also, Mika has agreed to support me and be the maintainer for
+I2C-ACPI related patches. Finally, a new-ID-patch came along last week.
+
+Please pull,
+
+   Wolfram
 
 
-On 08/17/2014 07:08 PM, Geert Uytterhoeven wrote:
-> EXTCON_SM5502 selects REGMAP_I2C, but if I2C=3Dn:
->=20
-> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_b=
-yte_reg_read=E2=80=99:
-> drivers/base/regmap/regmap-i2c.c:28: error: implicit declaration of f=
-unction =E2=80=98i2c_smbus_read_byte_data=E2=80=99
-> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_b=
-yte_reg_write=E2=80=99:
-> drivers/base/regmap/regmap-i2c.c:46: error: implicit declaration of f=
-unction =E2=80=98i2c_smbus_write_byte_data=E2=80=99
-> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_w=
-ord_reg_read=E2=80=99:
-> drivers/base/regmap/regmap-i2c.c:64: error: implicit declaration of f=
-unction =E2=80=98i2c_smbus_read_word_data=E2=80=99
-> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_smbus_w=
-ord_reg_write=E2=80=99:
-> drivers/base/regmap/regmap-i2c.c:82: error: implicit declaration of f=
-unction =E2=80=98i2c_smbus_write_word_data=E2=80=99
-> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_i2c_wri=
-te=E2=80=99:
-> drivers/base/regmap/regmap-i2c.c:96: error: implicit declaration of f=
-unction =E2=80=98i2c_master_send=E2=80=99
-> drivers/base/regmap/regmap-i2c.c: In function =E2=80=98regmap_i2c_gat=
-her_write=E2=80=99:
-> drivers/base/regmap/regmap-i2c.c:117: error: implicit declaration of =
-function =E2=80=98i2c_check_functionality=E2=80=99
-> drivers/base/regmap/regmap-i2c.c:130: error: implicit declaration of =
-function =E2=80=98i2c_transfer=E2=80=99
->=20
-> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-> ---
->  drivers/extcon/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
-> index 6f2f4727de2c..764f3a113e0a 100644
-> --- a/drivers/extcon/Kconfig
-> +++ b/drivers/extcon/Kconfig
-> @@ -72,6 +72,7 @@ config EXTCON_PALMAS
-> =20
->  config EXTCON_SM5502
->  	tristate "SM5502 EXTCON support"
-> +	depends on I2C
->  	select IRQ_DOMAIN
->  	select REGMAP_I2C
->  	select REGMAP_IRQ
->=20
+The following changes since commit 7d1311b93e58ed55f3a31cc8f94c4b8fe988a2b9:
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  Linux 3.17-rc1 (2014-08-16 10:40:26 -0600)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+
+for you to fetch changes up to 4560d67722816cca4b2f3dfb1d7c5b902fd2075b:
+
+  MAINTAINERS: add maintainer for ACPI parts of I2C (2014-08-19 10:34:08 -0500)
+
+----------------------------------------------------------------
+Alan Cox (1):
+      i2c: i801: Add PCI ID for Intel Braswell
+
+Lan Tianyu (1):
+      i2c: rework kernel config I2C_ACPI
+
+Wolfram Sang (1):
+      MAINTAINERS: add maintainer for ACPI parts of I2C
+
+ MAINTAINERS                   |  7 +++++++
+ drivers/i2c/Kconfig           | 15 ++++++---------
+ drivers/i2c/Makefile          |  2 +-
+ drivers/i2c/busses/i2c-i801.c |  2 ++
+ drivers/i2c/i2c-acpi.c        |  2 ++
+ include/linux/i2c.h           | 12 ++++++++----
+ 6 files changed, 26 insertions(+), 14 deletions(-)
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJT9WaIAAoJEBQN5MwUoCm28eoP/1BNoR2ihREEaZlJPmWS6jIa
+rA5oXmSW28Lzof132LIR5+th8saarmOiCKG6L950GCOUu7nrIzqT9uMpoHQzxP7B
+EgTFoTad4gKrS0/MqXY/qKydEZk3eed0RxKOpRUcRKWMLmpBPqpV8JJoDXTVZMCh
+CTfh7v3RS4/998ru9cz4msAVJt7ACOMuNSlas7lz4zlnexk8imj65akjLnA+bsHy
+pqS799IwjBsRIWdtkBCePCVQl1/QC1cT9DEY22hDYoDa1KrKEk8lpPezTivOh5xW
+7vo4wcCbpzaKx3Mo8hFCGzA3ZJwM63J1gVBAEemc25Qg/jAzq9j8QK81dKX5dwZ8
+8RqyCrT0AX5zW0TN5biK0kqadepkN68h4i7VLzJR63uO5ypHRIodT0dsM9kpFAAj
+G0g8FQRlCfbAK8W691BD3kJZ+GZQHKH9ZYqFcRyecG+W0ENDWpH8+7awfAmP+SnB
+JZKODqkktHuD/nNj29Wo5CLLmvwnzNeeJTeM2Ux0ZY/nbodt/TuqTkJHRC1ZQUSd
+5vVubQl6CVrHzoRAmIj9UnPPZNHP/TTsIIbmufEJr00WE11AVKbEWUsUZitDb2fI
+KjfxHj7rG76ewFIGFEpx3066WzmZfl8K3AE07oAY+uKTQdY0bUGLYT0zD54lya2Y
+UJGZ8G1CgKjg8csXUVMB
+=rAlM
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--
