@@ -1,51 +1,56 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: Re: [RESEND PATCH 4/7] mfd: cros_ec: move locking into cros_ec_cmd_xfer
-Date: Thu, 21 Aug 2014 12:24:53 +0200
-Message-ID: <53F5C8F5.9030100@collabora.co.uk>
-References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>	<1408536812-7836-5-git-send-email-javier.martinez@collabora.co.uk> <CAD=FV=WAMKrmDTQbDrjR2XtFcNVUuzJfWspN5a7nE7kLWS9=4A@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [RESEND PATCH 1/7] mfd: cros_ec: Delay for 50ms when we see
+ EC_CMD_REBOOT_EC
+Date: Thu, 21 Aug 2014 14:37:47 +0100
+Message-ID: <20140821133747.GJ4266@lee--X1>
+References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1408536812-7836-2-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <CAD=FV=WAMKrmDTQbDrjR2XtFcNVUuzJfWspN5a7nE7kLWS9=4A@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, =?UTF-8?B?QW5kcmVhcyBGw6RyYmVy?= <afaerber@suse.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1408536812-7836-2-git-send-email-javier.martinez@collabora.co.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Doug,
+On Wed, 20 Aug 2014, Javier Martinez Canillas wrote:
+> From: Doug Anderson <dianders@chromium.org>
+>=20
+> If someone sends a EC_CMD_REBOOT_EC to the EC, the EC will likely be
+> unresponsive for quite a while.  Add a delay to the end of the comman=
+d
+> to prevent random failures of future commands.
+>=20
+> NOTES:
+> * This could be optimized a bit by simply delaying the next command
+>   sent, but EC_CMD_REBOOT_EC is such a rare command that the extra
+>   complexity doesn't seem worth it.
+> * This is a bit of an "ugly hack" since the SPI driver is effectively
+>   snooping on the communication and making a lot of assumptions.  It
+>   would be nice to architect in some better solution long term.
 
-On 08/21/2014 12:36 AM, Doug Anderson wrote:
-> Javier,
-> 
-> On Wed, Aug 20, 2014 at 5:13 AM, Javier Martinez Canillas
-> <javier.martinez@collabora.co.uk> wrote:
->> From: Andrew Bresticker <abrestic@chromium.org>
->>
->> Now that there's a central cros_ec_cmd_xfer(), move the locking
->> out of the SPI and LPC drivers.
-> 
-> Slight nit that the LPC driver doesn't exist upstream.  This is in
-> prep for adding the LPC driver, though.
-> 
+Are you planning on doing that?
 
-Right, the downstream commit was also touching the LPC driver and I
-stripped that part but forget to update the commit message, sorry about
-that. I'll fix it and do a re-spin.
+> * This same logic probably needs to be applied to the i2c driver.
+>=20
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> Reviewed-by: Randall Spangler <rspangler@chromium.org>
+> Reviewed-by: Vadim Bendebury <vbendeb@chromium.org>
+> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co=
+=2Euk>
+> ---
+>  drivers/mfd/cros_ec_spi.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 
-> 
->> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
->> Reviewed-by: Simon Glass <sjg@chromium.org>
->> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
->> ---
->>  drivers/mfd/cros_ec.c     | 10 +++++++++-
->>  drivers/mfd/cros_ec_spi.c | 11 -----------
->>  2 files changed, 9 insertions(+), 12 deletions(-)
-> 
-> After comment nitfix:
-> 
-> Reviewed-by: Doug Anderson <dianders@chromium.org>
-> 
+I'm willing to accept this as a stand-in.
 
-Thanks and best regards,
-Javier
+Acked-by: Lee Jones <lee.jones@linaro.org>
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
