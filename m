@@ -1,37 +1,51 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+From: addy ke <addy.ke@rock-chips.com>
 Subject: Re: [PATCH v4] i2c: rk3x: fix bug that cause transfer fails in master
  receive mode
-Date: Fri, 22 Aug 2014 11:33:02 -0700
-Message-ID: <CAD=FV=Vof8mOmCHkRyrhjGBewJqJaCu==1RfUZ+8C9Jm+UH50w@mail.gmail.com>
-References: <1408669991-9703-1-git-send-email-addy.ke@rock-chips.com>
-	<1408730452-3552-1-git-send-email-addy.ke@rock-chips.com>
+Date: Sat, 23 Aug 2014 02:47:34 +0800
+Message-ID: <53F79046.5020803@rock-chips.com>
+References: <1408669991-9703-1-git-send-email-addy.ke@rock-chips.com>	<1408730452-3552-1-git-send-email-addy.ke@rock-chips.com>
+ <CAD=FV=Vof8mOmCHkRyrhjGBewJqJaCu==1RfUZ+8C9Jm+UH50w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1408730452-3552-1-git-send-email-addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5aea5pm65oOF?= <yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, han jiang <hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Kever Yang <kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Shunqian Zheng <zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAD=FV=Vof8mOmCHkRyrhjGBewJqJaCu==1RfUZ+8C9Jm+UH50w@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: dianders@chromium.org
+Cc: huangtao@rock-chips.com, dmitry.torokhov@gmail.com, heiko@sntech.de, sergei.shtylyov@cogentembedded.com, wsa@the-dreams.de, yzq@rock-chips.com, zyw@rock-chips.com, max.schwarz@online.de, linux-kernel@vger.kernel.org, kever.yang@rock-chips.com, linux-rockchip@lists.infradead.org, xjq@rock-chips.com, linux-i2c@vger.kernel.org, caesar.wang@rock-chips.com, olof@lixom.net, cf@rock-chips.com, hj@rock-chips.com, zhengsq@rock-chips.com, linux-arm-kernel@lists.infradead.org, hl@rock-chips.com
 List-Id: linux-i2c@vger.kernel.org
 
-Addy,
+> Addy,
+> 
+> On Fri, Aug 22, 2014 at 11:00 AM, Addy Ke <addy.ke@rock-chips.com> wrote:
+>> In rk3x SOC, the I2C controller can receive/transmit up to 32 bytes data
+>> in one chunk, so the size of data to be write/read to/from TXDATAx/RXDATAx
+>> must be less than or equal 32 bytes at a time.
+>>
+>> Tested on rk3288-pinky board, elan receive 158 bytes data.
+>>
+>> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> 
+> You only need a "Suggested-by" if the entire patch was suggested by
+> someone.  If someone provides you review feedback you don't need it.
+> 
+> Said another way: in this case Dmitry didn't suggest that you need to
+> fix the i2c controller to transmit 32 byte chunks (he only provided
+> review feedback), so you shouldn't say this was Suggested-by him.
+> 
+> You also had my reviewed-by on a previous version so you could keep it.
+> 
+> Reviewed-by: Doug Anderson <dianders@chromium.org>
 
-On Fri, Aug 22, 2014 at 11:00 AM, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
-> In rk3x SOC, the I2C controller can receive/transmit up to 32 bytes data
-> in one chunk, so the size of data to be write/read to/from TXDATAx/RXDATAx
-> must be less than or equal 32 bytes at a time.
->
-> Tested on rk3288-pinky board, elan receive 158 bytes data.
->
-> Suggested-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-You only need a "Suggested-by" if the entire patch was suggested by
-someone.  If someone provides you review feedback you don't need it.
-
-Said another way: in this case Dmitry didn't suggest that you need to
-fix the i2c controller to transmit 32 byte chunks (he only provided
-review feedback), so you shouldn't say this was Suggested-by him.
-
-You also had my reviewed-by on a previous version so you could keep it.
-
-Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+so, Do I need repost this patch or post a new one as patch v5?
+> 
+> 
+> 
