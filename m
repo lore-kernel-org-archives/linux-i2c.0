@@ -1,56 +1,125 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
-Date: Thu, 21 Aug 2014 21:57:58 -0500
-Message-ID: <20140822025758.GA1266@katana>
-References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk>
- <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk>
- <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
- <20140218173843.GB18768@katana>
- <20140617095724.GJ2638@katana>
- <20140718154549.GC2731@katana>
+From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: Re: [RESEND PATCH 5/7] mfd: cros_ec: wait for completion of commands
+ that return IN_PROGRESS
+Date: Fri, 22 Aug 2014 13:24:52 +0200
+Message-ID: <53F72884.20801@collabora.co.uk>
+References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk> <1408536812-7836-6-git-send-email-javier.martinez@collabora.co.uk> <20140821142100.GM4266@lee--X1>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140718154549.GC2731@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Ian Molton <ian.molton@codethink.co.uk>
-Cc: magnus.damm@gmail.com, grant.likely@linaro.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, ben.dooks@codethink.co.uk
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140821142100.GM4266@lee--X1>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, =?UTF-8?B?QW5kcmVhcyBGw6RyYmVy?= <afaerber-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Lee,
 
---gBBFr7Ir9EOA20Yy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks a lot for your feedback.
 
+On 08/21/2014 04:21 PM, Lee Jones wrote:
+> On Wed, 20 Aug 2014, Javier Martinez Canillas wrote:
+> 
+>> From: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+>> 
+>> When an EC command returns EC_RES_IN_PROGRESS, we need to query
+>> the state of the EC until it indicates that it is no longer busy.
+>> Do this in cros_ec_cmd_xfer() under the EC's mutex so that other
+>> commands (e.g. keyboard, I2C passtru) aren't issued to the EC while
+>> it is working on the in-progress command.
+>> 
+>> Signed-off-by: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+>> Reviewed-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+>> Signed-off-by: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+>> ---
+>>  drivers/mfd/cros_ec.c | 35 ++++++++++++++++++++++++++++++++++-
+>>  1 file changed, 34 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+>> index c53804a..634c434 100644
+>> --- a/drivers/mfd/cros_ec.c
+>> +++ b/drivers/mfd/cros_ec.c
+>> @@ -23,6 +23,10 @@
+>>  #include <linux/mfd/core.h>
+>>  #include <linux/mfd/cros_ec.h>
+>>  #include <linux/mfd/cros_ec_commands.h>
+>> +#include <linux/delay.h>
+>> +
+>> +#define EC_COMMAND_RETRIES	50
+>> +#define EC_RETRY_DELAY_MS	10
+>>  
+>>  int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
+>>  		       struct cros_ec_command *msg)
+>> @@ -65,10 +69,39 @@ EXPORT_SYMBOL(cros_ec_check_result);
+>>  int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev,
+>>  		     struct cros_ec_command *msg)
+>>  {
+>> -	int ret;
+>> +	int ret, i;
+>>  
+>>  	mutex_lock(&ec_dev->lock);
+>>  	ret = ec_dev->cmd_xfer(ec_dev, msg);
+>> +	if (ret == -EAGAIN && msg->result == EC_RES_IN_PROGRESS) {
+>> +		/*
+>> +		 * Query the EC's status until it's no longer busy or
+>> +		 * we encounter an error.
+>> +		 */
+>> +		for (i = 0; i < EC_COMMAND_RETRIES; i++) {
+>> +			struct cros_ec_command status_msg;
+>> +			struct ec_response_get_comms_status status;
+>> +
+>> +			msleep(EC_RETRY_DELAY_MS);
+>> +
+>> +			status_msg.version = 0;
+>> +			status_msg.command = EC_CMD_GET_COMMS_STATUS;
+>> +			status_msg.outdata = NULL;
+>> +			status_msg.outsize = 0;
+>> +			status_msg.indata = (uint8_t *)&status;
+>> +			status_msg.insize = sizeof(status);
+>> +
+>> +			ret = ec_dev->cmd_xfer(ec_dev, &status_msg);
+>> +			if (ret < 0)
+>> +				break;
+>> +
+>> +			msg->result = status_msg.result;
+>> +			if (status_msg.result != EC_RES_SUCCESS)
+>> +				break;
+>> +			if (!(status.flags & EC_COMMS_STATUS_PROCESSING))
+>> +				break;
+>> +		}
+>> +	}
+> 
+> Wow!  Things just got ugly real fast.
+> 
+> Do the *xfer() calls fiddle with msg passed into cros_ec_cmd_xfer()?
+> If not, why is it necessary to keep populating it?
+> 
 
-> I happen to have access to a kzm9d board meanwhile. Do you have the
-> board enablement patches still somewhere?
+Not really, I see that only struct cros_ec_command .result and .indata
+fields are modified by the cmd_xfer() function handlers so I agree with
+you that these variables can be defined outside of the for loop and
+reused. I think that even zero'ing indata is not needed between calls
+since on success the full sizeof(status) is copied and on failure it
+doesn't matter what is there.
 
-Ping. Did you get this one?
+Will change this when doing the re-spin.
 
+> If all this stuff is necessary (and I really hope that it's not) I
+> think it would be better to have the for() loop as the outer layer.
+> Then we only have one instance of cmd_xfer() invocation and we save a
+> layer of tabbing. 
+> 
 
---gBBFr7Ir9EOA20Yy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Most of this doesn't need to be inside the for loop as you said but there
+is a need for two struct cros_ec_command *msg though, one for the actual
+command made by the caller and other to query the EC if it already
+finished processing the first command.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+>>  	mutex_unlock(&ec_dev->lock);
+>>  
+>>  	return ret;
+> 
 
-iQIcBAEBAgAGBQJT9rG1AAoJEBQN5MwUoCm2ca4QAId1h7xqglrtvMiIfGoKc+ia
-+tXjN5cPL6r7DoINUIDXdSwkzbgZL/iL+JQ6wqUqBgbftBvlBVBOWhdf7tQZfwAk
-j7yVVdYSUDHLl0dhwF87Y6eZpYb4aDiMlP9SaZvf84ez9E+9fRMfhl++ZUnRHySK
-9lBEgZljEnjiQZIgJPYQuwPfPloJ5OxjLcktegn8fT5K2Y3opj1HPHb5xrjL7/tG
-v/fMxSha9MPbgfmMD/NJUh6tRmdl1rMe4NUD5jIks/tIcCE6ngIpybt2sVF2O/g0
-tMjBiiA83ULnNUgzPihAQCnAGX3Q5BsYwsSowt3wZMLwpKltiU4bZDSuFWaw3f/N
-edkdZfHPZjCouJkcWDt+Tyyr3wkDvM6Yd1xvO63Qe1DDfEu7cXqYINdiVTE8kmtq
-oaXgL4K1KzmbfVnzUnpyJs2/WbtriuFcKgVuFlbJ5xCmDcqTPgou7vzEJ3OMBy/W
-v6hvMOHMyzZMd8XV3X8qKj2p5vej+PXS0mcgS3+g4lX7uz0SfFdcGOOzAoyeLfKO
-ZHtoXEqKhvA0cy8D5ndJL8MKAz9tfWhJitsQSbq3pnm04Sd8rKUbw9jmDC/M7iRC
-Pu74QH1HRYTKxbobR0jWuNEjAGrJysDOP2g4rBFd160ezrTRHQ5Z1f4vYd8eM1eA
-BghRLT+uhaeUN7+ttIRT
-=Usf3
------END PGP SIGNATURE-----
-
---gBBFr7Ir9EOA20Yy--
+Best regards,
+Javier
