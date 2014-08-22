@@ -1,74 +1,93 @@
-From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Subject: Re: [RESEND PATCH 6/7] mfd: cros_ec: Instantiate sub-devices from
- device tree
-Date: Fri, 22 Aug 2014 13:27:43 +0200
-Message-ID: <53F7292F.2000705@collabora.co.uk>
-References: <1408536812-7836-1-git-send-email-javier.martinez@collabora.co.uk> <1408536812-7836-7-git-send-email-javier.martinez@collabora.co.uk> <20140821142542.GN4266@lee--X1>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Trickle charging for rtc-bq32k
+Date: Fri, 22 Aug 2014 15:11:50 +0200
+Message-ID: <20140822131150.GA26724@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20140821142542.GN4266@lee--X1>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, =?UTF-8?B?QW5kcmVhcyBGw6RyYmVy?= <afaerber@suse.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Lee,
+Hi!
 
-On 08/21/2014 04:25 PM, Lee Jones wrote:
->>  
->>  static const struct mfd_cell cros_devs[] = {
->> -	{
->> -		.name = "cros-ec-keyb",
->> -		.id = 1,
->> -		.of_compatible = "google,cros-ec-keyb",
->> -	},
->> -	{
->> -		.name = "cros-ec-i2c-tunnel",
->> -		.id = 2,
->> -		.of_compatible = "google,cros-ec-i2c-tunnel",
->> -	},
->>  };
-> 
-> Why are you keeping this round if it's empty?
->
+Here's a patch to enable trickle charging; without it the clock stops
+when power is removed -> not very useful.
 
-Right, I'll just remove it.
+_But_ this should probably be enabled using device tree entry, right?
+Unfortunately, the driver is i2c driver, not platform one, so I don't
+see how to do that easily...
 
->>  	}
->> +#ifdef CONFIG_OF
->> +	/*
->> +	 * Add sub-devices declared in the device tree.  NOTE they should NOT be
->> +	 * declared in cros_devs
->> +	 */
->> +	for_each_child_of_node(dev->of_node, node) {
->> +		char name[128];
->> +		struct mfd_cell cell = {
->> +			.id = 0,
->> +			.name = name,
->> +		};
->> +
->> +		if (of_modalias_node(node, name, sizeof(name)) < 0) {
->> +			dev_err(dev, "modalias failure on %s\n",
->> +				node->full_name);
->> +			continue;
->> +		}
->> +		dev_dbg(dev, "adding MFD sub-device %s\n", node->name);
->> +		cell.of_compatible = of_get_property(node, "compatible", NULL);
->> +		err = mfd_add_devices(dev, ++id, &cell, 1, NULL, ec_dev->irq,
->> +				      NULL);
->> +		if (err)
->> +			dev_err(dev, "fail to add %s\n", node->full_name);
->> +	}
->> +#endif
-> 
-> This is grim!
-> 
-> Why don't you use of_platform_populate()?
->
+Or would module parameter be acceptable?
 
-Indeed, I think it may just work and all these is not needed.
+Thanks,
+								Pavel
 
-Thanks for your feedback and best regards,
-Javier
+commit 00abeaa1197a5ad6400497558891793b6cd880d5
+Author: Pavel <pavel-+ZI9xUNit7I@public.gmane.org>
+Date:   Fri Aug 22 14:58:00 2014 +0200
+
+Enable trickle charging for bq32k.
+
+diff --git a/drivers/rtc/rtc-bq32k.c b/drivers/rtc/rtc-bq32k.c
+index c74bf0d..b6a4dd0 100644
+--- a/drivers/rtc/rtc-bq32k.c
++++ b/drivers/rtc/rtc-bq32k.c
+@@ -2,10 +2,14 @@
+  * Driver for TI BQ32000 RTC.
+  *
+  * Copyright (C) 2009 Semihalf.
++ * Copyright (C) 2014 Pavel Machek <pavel-ynQEQJNshbs@public.gmane.org>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+  * published by the Free Software Foundation.
++ *
++ * You can get hardware description at
++ * http://www.ti.com/lit/ds/symlink/bq32000.pdf
+  */
+ 
+ #include <linux/module.h>
+@@ -27,6 +31,10 @@
+ #define BQ32K_CENT		0x40	/* Century flag */
+ #define BQ32K_CENT_EN		0x80	/* Century flag enable bit */
+ 
++#define BQ32K_CALIBRATION	0x07	/* CAL_CFG1, calibration and control */
++#define BQ32K_TCH2		0x08	/* Trickle charge enable */
++#define BQ32K_CFG2		0x09	/* Trickle charger control */
++
+ struct bq32k_regs {
+ 	uint8_t		seconds;
+ 	uint8_t		minutes;
+@@ -153,6 +161,25 @@ static int bq32k_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	if (0) {
++		/*
++		 * TCHE[3:0] == 0x05, TCH2 == 1, TCFE == 0 (charging
++		 * over diode and 940ohm resistor)
++		 */
++
++		reg = 0x05;
++		error = bq32k_write(dev, &reg, BQ32K_CFG2, 1);
++		if (error)
++			return error;
++
++		reg = 0x20;
++		error = bq32k_write(dev, &reg, BQ32K_TCH2, 1);
++		if (error)
++			return error;
++
++		dev_info(dev, "Enabled trickle RTC battery charge.\n");
++	}
++
+ 	rtc = devm_rtc_device_register(&client->dev, bq32k_driver.driver.name,
+ 						&bq32k_rtc_ops, THIS_MODULE);
+ 	if (IS_ERR(rtc))
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
