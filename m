@@ -1,45 +1,52 @@
-From: Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
-Subject: Implementing bus recovery
-Date: Fri, 22 Aug 2014 21:14:57 +0200
-Message-ID: <53F796B1.2000400@aqwary.com>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v4] i2c: rk3x: fix bug that cause transfer fails in master
+ receive mode
+Date: Fri, 22 Aug 2014 13:04:48 -0700
+Message-ID: <CAD=FV=U9Rsjfnn-2ZxraDEJpOTcXVzJUN7e-67qiaFZFCmG-Sw@mail.gmail.com>
+References: <1408669991-9703-1-git-send-email-addy.ke@rock-chips.com>
+	<1408730452-3552-1-git-send-email-addy.ke@rock-chips.com>
+	<CAD=FV=Vof8mOmCHkRyrhjGBewJqJaCu==1RfUZ+8C9Jm+UH50w@mail.gmail.com>
+	<53F79046.5020803@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <53F79046.5020803@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: addy ke <addy.ke@rock-chips.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, max.schwarz@online.de, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Olof Johansson <olof@lixom.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, sergei.shtylyov@cogentembedded.com, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-rockchip@lists.infradead.org, Eddie Cai <cf@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Tao Huang <huangtao@rock-chips.com>, Chris <zyw@rock-chips.com>, =?UTF-8?B?5aea5pm65oOF?= <yzq@rock-chips.com>, han jiang <hj@rock-chips.com>, Kever Yang <kever.yang@rock-chips.com>, Lin Huang <hl@rock-chips.com>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang@rock-chips.com>, Shunqian Zheng <zhengsq@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
 
-I would like to implement bus recovery support for the at91 driver, but 
-there it is not clear how the core support is supposed to be used, and I 
-could not find an existing adapter implementation using it.
+Addy,
 
-First off, reading the old mailing list discussion here:
-http://thread.gmane.org/gmane.linux.drivers.i2c/10225
+On Fri, Aug 22, 2014 at 11:47 AM, addy ke <addy.ke@rock-chips.com> wrote:
+>> Addy,
+>>
+>> On Fri, Aug 22, 2014 at 11:00 AM, Addy Ke <addy.ke@rock-chips.com> wrote:
+>>> In rk3x SOC, the I2C controller can receive/transmit up to 32 bytes data
+>>> in one chunk, so the size of data to be write/read to/from TXDATAx/RXDATAx
+>>> must be less than or equal 32 bytes at a time.
+>>>
+>>> Tested on rk3288-pinky board, elan receive 158 bytes data.
+>>>
+>>> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>
+>> You only need a "Suggested-by" if the entire patch was suggested by
+>> someone.  If someone provides you review feedback you don't need it.
+>>
+>> Said another way: in this case Dmitry didn't suggest that you need to
+>> fix the i2c controller to transmit 32 byte chunks (he only provided
+>> review feedback), so you shouldn't say this was Suggested-by him.
+>>
+>> You also had my reviewed-by on a previous version so you could keep it.
+>>
+>> Reviewed-by: Doug Anderson <dianders@chromium.org>
+>
+> so, Do I need repost this patch or post a new one as patch v5?
 
-It seems a pinctrl state should be used to switch the pins over to gpio 
-mode. Now, I need a place to put this state switching. The 
-i2c_bus_recovery_info struct looks like this:
+Tags are typically something that the maintainer (Wolfram) can adjust
+when he adds his own.  I think it's OK and he can remove the
+"Suggested-by".  However, if Wolfram responds and asks you to respin
+then you should follow his advice.
 
-struct i2c_bus_recovery_info {
-	int (*recover_bus)(struct i2c_adapter *);
 
-	int (*get_scl)(struct i2c_adapter *);
-	void (*set_scl)(struct i2c_adapter *, int val);
-	int (*get_sda)(struct i2c_adapter *);
-
-	void (*prepare_recovery)(struct i2c_bus_recovery_info *bri);
-	void (*unprepare_recovery)(struct i2c_bus_recovery_info *bri);
-
-	/* gpio recovery */
-	int scl_gpio;
-	int sda_gpio;
-};
-
-There is no usable callback to do this, because {un,}prepare_recovery is 
-only passed the bus recovery info and no driver data is reachable from that.
-
-So next up, I thought I'd wrap i2c_generic_gpio_recovery and do the 
-state switching there. But then I have to fill in the entire info struct 
-by hand which definitely does not seem to be the intention given the 
-special case in i2c_register_adapter. What am I missing?
+-Doug
