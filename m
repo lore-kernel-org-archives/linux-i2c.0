@@ -1,58 +1,65 @@
-From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH 2/3] i2c-rcar: make rcar_i2c_prepare_msg() *void*
-Date: Fri, 22 Aug 2014 18:23:52 +0400
-Message-ID: <4460482.KmaEIVo0yD@wasted.cogentembedded.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: [PATCH 3/3] i2c-rcar: make rcar_i2c_irq_recv() *void*
+Date: Fri, 22 Aug 2014 18:24:50 +0400
+Message-ID: <4284332.dM28a2HONX@wasted.cogentembedded.com>
 References: <32018817.zX4x1fdR4T@wasted.cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <32018817.zX4x1fdR4T-gHKXc3Y1Z8zGSmamagVegGFoWSdPRAKMAL8bYrjMMd8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <32018817.zX4x1fdR4T@wasted.cogentembedded.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-rcar_i2c_prepare_msg() always returns 0, so we can make this function return
-*void* and thus remove the result check in rcar_i2c_master_xfer().
+rcar_i2c_irq_recv() always returns 0, so we can make this function return
+*void* and also remove rcar_i2c_flags_set() invocation in rcar_i2c_irq().
 
-Signed-off-by: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
 ---
- drivers/i2c/busses/i2c-rcar.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 Index: linux/drivers/i2c/busses/i2c-rcar.c
 ===================================================================
 --- linux.orig/drivers/i2c/busses/i2c-rcar.c
 +++ linux/drivers/i2c/busses/i2c-rcar.c
-@@ -243,7 +243,7 @@ scgd_find:
+@@ -317,7 +317,7 @@ static int rcar_i2c_irq_send(struct rcar
  	return 0;
  }
  
--static int rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
-+static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+-static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
++static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
  {
- 	int read = !!rcar_i2c_is_recv(priv);
+ 	struct i2c_msg *msg = priv->msg;
  
-@@ -251,8 +251,6 @@ static int rcar_i2c_prepare_msg(struct r
- 	rcar_i2c_write(priv, ICMSR, 0);
- 	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
- 	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
+@@ -327,7 +327,7 @@ static int rcar_i2c_irq_recv(struct rcar
+ 	 * Do nothing
+ 	 */
+ 	if (!(msr & MDR))
+-		return 0;
++		return;
+ 
+ 	if (msr & MAT) {
+ 		/*
+@@ -354,8 +354,6 @@ static int rcar_i2c_irq_recv(struct rcar
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_RECV);
 -
 -	return 0;
  }
  
- /*
-@@ -435,10 +433,7 @@ static int rcar_i2c_master_xfer(struct i
- 		if (i == num - 1)
- 			rcar_i2c_flags_set(priv, ID_LAST_MSG);
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+@@ -387,7 +385,7 @@ static irqreturn_t rcar_i2c_irq(int irq,
+ 	}
  
--		ret = rcar_i2c_prepare_msg(priv);
--
--		if (ret < 0)
--			break;
-+		rcar_i2c_prepare_msg(priv);
+ 	if (rcar_i2c_is_recv(priv))
+-		rcar_i2c_flags_set(priv, rcar_i2c_irq_recv(priv, msr));
++		rcar_i2c_irq_recv(priv, msr);
+ 	else
+ 		rcar_i2c_flags_set(priv, rcar_i2c_irq_send(priv, msr));
  
- 		timeout = wait_event_timeout(priv->wait,
- 					     rcar_i2c_flags_has(priv, ID_DONE),
+
