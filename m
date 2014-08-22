@@ -1,41 +1,56 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: rk3x: fix bug that cause transfer fails in master
- receive mode
-Date: Thu, 21 Aug 2014 18:15:13 -0700
-Message-ID: <CAD=FV=XY73RU1B4i1NEBffiRTbwMO_0Z9+Lh96-sckQmkH8Ogg@mail.gmail.com>
-References: <1408657107-8715-1-git-send-email-addy.ke@rock-chips.com>
-	<1408669991-9703-1-git-send-email-addy.ke@rock-chips.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
+Date: Thu, 21 Aug 2014 21:57:58 -0500
+Message-ID: <20140822025758.GA1266@katana>
+References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk>
+ <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
+ <20140218173843.GB18768@katana>
+ <20140617095724.GJ2638@katana>
+ <20140718154549.GC2731@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1408669991-9703-1-git-send-email-addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5aea5pm65oOF?= <yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, han jiang <hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Kever Yang <kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Shunqian Zheng <zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140718154549.GC2731@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Ian Molton <ian.molton@codethink.co.uk>
+Cc: magnus.damm@gmail.com, grant.likely@linaro.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, ben.dooks@codethink.co.uk
 List-Id: linux-i2c@vger.kernel.org
 
-Addy,
 
-On Thu, Aug 21, 2014 at 6:13 PM, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
-> In rk3x SOC, the I2C controller can receive/transmit up to 32 bytes data
-> in one chunk, so the size of data to be write/read to/from TXDATAx/RXDATAx
-> must be less than or equal 32 bytes at a time.
->
-> Tested on rk3288-pinky board, elan receive 158 bytes data.
->
-> Acked-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-> Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-> ---
-> Changes in v2:
-> - Use cleaner syntax as suggested by Sergei.
-> - Update commit message as suggested by Wolfram.
->
-> Changes in v3:
-> - fix typo: maste --> master and double spaces after 'len'
->
->  drivers/i2c/busses/i2c-rk3x.c | 4 ++++
->  1 file changed, 4 insertions(+)
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Oops, we collided in the ether.  This looks good to me.
 
-Tested-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> I happen to have access to a kzm9d board meanwhile. Do you have the
+> board enablement patches still somewhere?
+
+Ping. Did you get this one?
+
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJT9rG1AAoJEBQN5MwUoCm2ca4QAId1h7xqglrtvMiIfGoKc+ia
++tXjN5cPL6r7DoINUIDXdSwkzbgZL/iL+JQ6wqUqBgbftBvlBVBOWhdf7tQZfwAk
+j7yVVdYSUDHLl0dhwF87Y6eZpYb4aDiMlP9SaZvf84ez9E+9fRMfhl++ZUnRHySK
+9lBEgZljEnjiQZIgJPYQuwPfPloJ5OxjLcktegn8fT5K2Y3opj1HPHb5xrjL7/tG
+v/fMxSha9MPbgfmMD/NJUh6tRmdl1rMe4NUD5jIks/tIcCE6ngIpybt2sVF2O/g0
+tMjBiiA83ULnNUgzPihAQCnAGX3Q5BsYwsSowt3wZMLwpKltiU4bZDSuFWaw3f/N
+edkdZfHPZjCouJkcWDt+Tyyr3wkDvM6Yd1xvO63Qe1DDfEu7cXqYINdiVTE8kmtq
+oaXgL4K1KzmbfVnzUnpyJs2/WbtriuFcKgVuFlbJ5xCmDcqTPgou7vzEJ3OMBy/W
+v6hvMOHMyzZMd8XV3X8qKj2p5vej+PXS0mcgS3+g4lX7uz0SfFdcGOOzAoyeLfKO
+ZHtoXEqKhvA0cy8D5ndJL8MKAz9tfWhJitsQSbq3pnm04Sd8rKUbw9jmDC/M7iRC
+Pu74QH1HRYTKxbobR0jWuNEjAGrJysDOP2g4rBFd160ezrTRHQ5Z1f4vYd8eM1eA
+BghRLT+uhaeUN7+ttIRT
+=Usf3
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--
