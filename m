@@ -1,7 +1,7 @@
 From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: [PATCH] Revert "i2c-rcar: remove spinlock"
-Date: Sun, 24 Aug 2014 00:42:52 +0400
-Message-ID: <5687273.SAZk4lxXAk@wasted.cogentembedded.com>
+Subject: [PATCH v2] Revert "i2c: rcar: remove spinlock"
+Date: Sun, 24 Aug 2014 00:44:09 +0400
+Message-ID: <1642788.pEhrsPDp4u@wasted.cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
@@ -21,6 +21,9 @@ Cc: stable@vger.kernel.org # 3.16+
 
 ---
 The patch is against Wolfram Sang's 'linux.git' repo.
+
+Changes in version 2:
+- fixed summary.
 
  drivers/i2c/busses/i2c-rcar.c |   22 ++++++++++++++++++++++
  1 file changed, 22 insertions(+)
@@ -115,4 +118,3 @@ Index: linux/drivers/i2c/busses/i2c-rcar.c
  
  	adap = &priv->adap;
  	adap->nr = pdev->id;
-
