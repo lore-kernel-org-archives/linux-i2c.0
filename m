@@ -1,76 +1,74 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH] i2c: mv64xxx: continue probe when clock-frequency is
- missing
-Date: Mon, 25 Aug 2014 18:10:34 +0200
-Message-ID: <20140825161033.GF15297@lukather>
-References: <1408981819-3477-1-git-send-email-wens@csie.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 0/7] Second batch of cleanups for cros_ec
+Date: Mon, 25 Aug 2014 10:05:34 -0700
+Message-ID: <20140825170533.GA29350@core.coreip.homeip.net>
+References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JCYGd/UpHK4EX+A4"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1408981819-3477-1-git-send-email-wens@csie.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Gregory CLEMENT <gregory.clement@free-electrons.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+In-Reply-To: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
+Sender: linux-input-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Aug 25, 2014 at 03:40:01PM +0200, Javier Martinez Canillas wrote:
+> This is a second batch of cleanups patches for the mfd cros_ec
+> driver and its subdevices drivers. The first batch of cleanups
+> was posted by Doug Anderson [0] and have already been merged.
+> The patches were picked from the ChromeOS 3.8 kernel and after
+> these no cleanups patches for cros_ec are left, only commits
+> that add cros ec support not yet available in mainline.
+> 
+> This is a second version of the patch series that addresses
+> issues pointed out by Doug Anderson and Lee Jones on v1 [1].
+> 
+> There is almost no functionality added on this series but the
+> idea is to reduce the delta between the mainline drivers and
+> the ones in the downstream Chrome OS 3.8 kernel so the missing
+> functionality can be added on top once these cleanups patches
+> are merged. The missing functionlity currently in mainline is:
+> 
+> - Chrome OS Embedded Controller userspace device interface
+> - Chrome OS Embedded Controller Low Pin Count (LPC) inteface
+> - Access to vboot context stored on a block device
+> - Access to vboot context stored on EC's nvram
+> 
+> The patches in this series are authored by different people
+> (all on cc) and consist of the following:
+> 
+> Andrew Bresticker (3):
+>   mfd: cros_ec: stop calling ->cmd_xfer() directly
+>   mfd: cros_ec: move locking into cros_ec_cmd_xfer
+>   mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
+> 
+> Derek Basehore (1):
+>   i2c: i2c-cros-ec-tunnel: Set retries to 3
+> 
+> Doug Anderson (1):
+>   mfd: cros_ec: Delay for 50ms when we see EC_CMD_REBOOT_EC
+> 
+> Todd Broch (2):
+>   mfd: cros_ec: Instantiate sub-devices from device tree
+>   Input: cros_ec_keyb: Optimize ghosting algorithm.
+> 
+>  drivers/i2c/busses/i2c-cros-ec-tunnel.c |  5 +-
+>  drivers/input/keyboard/cros_ec_keyb.c   | 94 ++++++++++++++++++---------------
+>  drivers/mfd/cros_ec.c                   | 78 ++++++++++++++++++++-------
+>  drivers/mfd/cros_ec_spi.c               | 20 ++++---
+>  include/linux/mfd/cros_ec.h             | 24 ++++++---
+>  5 files changed, 141 insertions(+), 80 deletions(-)
+> 
+> Patches #1, #2, #6 and #7 do not depend of others so they can be
+> merged independently but patches #3, #4 and #5 have to be merged
+> in that specific order since they depend on the previous one. 
 
---JCYGd/UpHK4EX+A4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+#7 does not apply to my tree (I guess it depends on the 1st batch which I
+expect will go through MFD tree?). Maybe you could rebase it on top of my next
+so it can be applied sooner? Or it really needs parts of patchset #1?
 
-On Mon, Aug 25, 2014 at 11:50:19PM +0800, Chen-Yu Tsai wrote:
-> The "clock-frequency" DT property is listed as optional, However,
-> the current code stores the return value of of_property_read_u32 in
-> the return code of mv64xxx_of_config, but then forgets to clear it
-> after setting the default value of "clock-frequency". It is then
-> passed out to the main probe function, resulting in a probe failure
-> when "clock-frequency" is missing.
->=20
-> This patch checks and then throws away the result of
-> of_property_read_u32, instead of storing it and having to clear it
-> afterwards.
->=20
-> This issue was discovered after the property was removed from all
-> sunxi DTs.
->=20
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-> Cc: stable@vger.kernel.org
+Thanks.
 
-Good catch!
-
-Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-
-Thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---JCYGd/UpHK4EX+A4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJT+1/5AAoJEBx+YmzsjxAgXk4QAIrsDsvevACWgULkDCKbX6GG
-Om+1BX0PnSWgG/36X9316UshKp04C1n36TzZjqWtWsviyZS7wuwo7i+yfwzdmia4
-xGisS+0wq/hyKzBv6NwpOoZaV+Pqsri21LNLGG/I/4h/yN8F77zPtx2DaQig6M/+
-PaNl8Ut3oeXYSQoo9oby38rsu1hccifJUORRidAic5L7sRCp2Cg0UXDtvZpphA5J
-Korn74Fss335PLNR+IQWX0JNLj0iY3Xhshdh9M9Ox0Bdq9C0PPiNf/ySpGeiZVYZ
-v94zuZdgbadTcnIXa9uzD/MYlVVgucFpPjTGWlG2XWk3N12Sb+obfLFBJIJ6ZWLS
-2G1Qno/wNcVIBPV8/FpEJ38rjVdZkObDBCqDCP86zWB/P2UONiSbcRE5uXR5VNIu
-DjlFqtfY5ASAtF6hxVaI6jqg+VKW1PXpTIagn8BsixI+KZwLK3Q21kSkuNU9pUGJ
-lPBj1r4Z9j802jYGCzUxv6Fx1Z6EhyEeVwInqNB/gqIFrlVB4RzgMDqiT6aLH6/Y
-KsRSlbDmXwqLXAEhWAqTcEuexewFljxhHijI1cxGIPtL42LuheG+s3RB4/iG7heH
-DA9M3s56Rh405V+wv+ZjxDy1YRKtLcZre44leOZ/d4h1+Dl6AJHP4HKtU2NAFb1+
-XEh1gbtU1x1juOsiLukX
-=jzml
------END PGP SIGNATURE-----
-
---JCYGd/UpHK4EX+A4--
+-- 
+Dmitry
