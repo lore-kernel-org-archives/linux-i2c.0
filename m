@@ -1,55 +1,46 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] Revert "i2c: rcar: remove spinlock"
-Date: Mon, 25 Aug 2014 16:33:16 +0200
-Message-ID: <20140825143316.GA1285@katana>
-References: <1642788.pEhrsPDp4u@wasted.cogentembedded.com>
- <20140824064520.GA2578@katana>
- <53F9CCE7.3010006@cogentembedded.com>
- <20140825034009.GA2795@katana>
- <53FB1F90.6080704@cogentembedded.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <53FB1F90.6080704-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Chen-Yu Tsai <wens@csie.org>
+Subject: [PATCH] i2c: mv64xxx: continue probe when clock-frequency is missing
+Date: Mon, 25 Aug 2014 23:50:19 +0800
+Message-ID: <1408981819-3477-1-git-send-email-wens@csie.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime.ripard@free-electrons.com>, Gregory CLEMENT <gregory.clement@free-electrons.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+The "clock-frequency" DT property is listed as optional, However,
+the current code stores the return value of of_property_read_u32 in
+the return code of mv64xxx_of_config, but then forgets to clear it
+after setting the default value of "clock-frequency". It is then
+passed out to the main probe function, resulting in a probe failure
+when "clock-frequency" is missing.
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch checks and then throws away the result of
+of_property_read_u32, instead of storing it and having to clear it
+afterwards.
 
->    Ah, I misunderstood you. However, I don't quite understand why you want
-> to combine revert and the mentioned updates...
+This issue was discovered after the property was removed from all
+sunxi DTs.
 
-As I understood from your previous mail, a plain revert is less broken
-but still broken. Applying a correct fix is my preferred way.
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Cc: stable@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJT+0ksAAoJEBQN5MwUoCm239gQAIQznlV3fZxY7sIMruedhqoq
-zJvW2hp3vEEHGMlCOFa7vZzOzd8CeDLafRAdpKw+QXBOC+/VMotBnCJeJCXWtZ7t
-ugr05CskAVmxWON2QPHN0HoTj2LdwodekQXb+DeW0rCYECTAXwguACdNxuIKC4nq
-xh3kJkSCxJPW9tYOVoGruQZhVldXqT8IuyLFAcJQ3VobJvOaGzcfwv/kxw61Oleo
-bmKjvr2YjhtrmkPb1rpZkAoh02et5o0V8diam8vQVznXjnyvk2GL4wmBOgevw5TH
-jEPWROfsNQ/Q1TOpfPCdTAPD1hUImevCgjCUsQZ0lXqDzfVNrgR2L2oQZ6fGUgfG
-TODKQXCc9esJvSsahkyA4D65KhTe7fRK57VPlAELE3nK3TBrmqijumwb2B6gTpM+
-yezn5cfzaPWAvqi57wXP0ziYzkRGQJiNo8FeFugZQhbKkHpfeffcNYRLanUbA55+
-UsQNWemii4FHNCbwvC8PbnhJJk6NtZry8VI6Z+HPFFeLX8vCTRUC1Ro2uX8yhosk
-t0cWjE7kG8zybMHukLoRFVI4Nly7OTOGINBs8LQYsyixakAp/6+ddCHTOK0SVMYg
-G3gtHBde+Nht5B0Mx1sFntblVEncMKPQ56kcVrdfbcvMct1Cg/a6EDBH/XbJgd5v
-L8D/vA2LhEisB66XaFa5
-=Mixq
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 6dc5ded..2f64273 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -746,8 +746,7 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 	}
+ 	tclk = clk_get_rate(drv_data->clk);
+ 
+-	rc = of_property_read_u32(np, "clock-frequency", &bus_freq);
+-	if (rc)
++	if (of_property_read_u32(np, "clock-frequency", &bus_freq))
+ 		bus_freq = 100000; /* 100kHz by default */
+ 
+ 	if (!mv64xxx_find_baud_factors(bus_freq, tclk,
+-- 
+2.1.0
