@@ -1,44 +1,57 @@
-From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Subject: Re: [PATCH v2 0/7] Second batch of cleanups for cros_ec
-Date: Tue, 26 Aug 2014 10:49:03 +0200
-Message-ID: <53FC49FF.4030805@collabora.co.uk>
-References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk> <20140825170533.GA29350@core.coreip.homeip.net> <53FB7221.8090804@collabora.co.uk> <20140825180152.GA31693@core.coreip.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 5/9] i2c: core: Convert to dev_pm_domain_attach|detach()
+Date: Tue, 26 Aug 2014 14:07:13 +0200
+Message-ID: <1409054837-5667-6-git-send-email-ulf.hansson@linaro.org>
+References: <1409054837-5667-1-git-send-email-ulf.hansson@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140825180152.GA31693-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+In-Reply-To: <1409054837-5667-1-git-send-email-ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Dmitry,
+Previously only the ACPI power domain was supported by the i2c bus.
 
-On 08/25/2014 08:01 PM, Dmitry Torokhov wrote:
-> On Mon, Aug 25, 2014 at 07:28:01PM +0200, Javier Martinez Canillas wrote:
->> > 
->> > #7 does not apply to my tree (I guess it depends on the 1st batch which I
->> > expect will go through MFD tree?). Maybe you could rebase it on top of my next
->> > so it can be applied sooner? Or it really needs parts of patchset #1?
->> > 
->> 
->> The first batch sent by Doug did indeed touch this driver and the patches
->> were merged through the MFD tree for 3.17 as you said. I see that your
->> next branch is based on 3.16-rc6 and that is why it does not apply cleanly.
->> 
->> I guess you will rebase your next branch for 3.18 on top of 3.17-rc1
->> anyways which will fix this issue? If not please let me know and I can of
->> course re-spin the patch so it applies cleanly on top of 3.16-rc6.
-> 
-> I normally merge with mainline around -rc3 so please ping me around that time
-> if you do not see the patch in my tree.
->
+Let's convert to the common attach/detach functions for power domains,
+which currently means we are extending the support to include the
+generic power domain as well.
 
-Will do, thanks a lot for your help!
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-> Thanks.
-> 
-
-Best regards,
-Javier
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 66aa83b..7cf7b47 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -279,10 +279,13 @@ static int i2c_device_probe(struct device *dev)
+ 	if (status < 0)
+ 		return status;
+ 
+-	acpi_dev_pm_attach(&client->dev, true);
+-	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+-	if (status)
+-		acpi_dev_pm_detach(&client->dev, true);
++	status = dev_pm_domain_attach(&client->dev, true);
++	if (status != -EPROBE_DEFER) {
++		status = driver->probe(client, i2c_match_id(driver->id_table,
++					client));
++		if (status)
++			dev_pm_domain_detach(&client->dev, true);
++	}
+ 
+ 	return status;
+ }
+@@ -302,7 +305,7 @@ static int i2c_device_remove(struct device *dev)
+ 		status = driver->remove(client);
+ 	}
+ 
+-	acpi_dev_pm_detach(&client->dev, true);
++	dev_pm_domain_detach(&client->dev, true);
+ 	return status;
+ }
+ 
+-- 
+1.9.1
