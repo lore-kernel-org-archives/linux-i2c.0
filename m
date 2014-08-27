@@ -1,48 +1,31 @@
-From: Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c:at91: Fix a race condition during signal handling in at91_do_twi_xfer.
-Date: Tue, 26 Aug 2014 21:13:24 +0200
-Message-ID: <1409080404-19069-1-git-send-email-simon@aqwary.com>
+From: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Implementing bus recovery
+Date: Tue, 26 Aug 2014 23:08:59 -0400
+Message-ID: <CAJjB1qLO86mDntbnMZKWNycmuW4QGDuZVd_EhqB2XSenunzOxQ@mail.gmail.com>
+References: <53F796B1.2000400@aqwary.com> <CAJjB1q+_KbLBKXNMvG6DWHcuVOvmJs3XmT3B8yb-_a0K12ZJtw@mail.gmail.com>
+ <53FB1369.802@aqwary.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <53FB1369.802-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
+To: Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-There is a race condition in at91_do_twi_xfer when signals arrive.
-If a signal is recieved while waiting for a transfer to complete
-wait_for_completion_interruptible_timeout() will return -ERESTARTSYS.
-This is not handled correctly resulting in interrupts still being
-enabled and a transfer being in flight when we return.
+>We are using a sama5d3-based machine which is almost entirely dt based, so passing callbacks to the driver using the platform data seems like a bad fit. >Hard coding these calls in the driver won't really work either (even for a single machine) since not all instances of the adapter exist on the same peripheral. >Ie, one adapter is on peripheral A and the others are on peripheral B for this specific soc.
 
-Symptoms include a range of oopses and bus lockups. Oopses can happen
-when the transfer completes because the interrupt handler will corrupt
-the stack. If a new transfer is started before the interrupt fires
-the controller will start a new transfer in the middle of the old one,
-resulting in confused slaves and a locked bus.
+ I forgot the SAMA5 doesn't keep the TWI peripherals on the same
+pinmux positions. Even more variance with the other Atmel SoCs using
+the same driver. Easiest fix would be to pass the i2c_adapter pointer
+rather than i2c_bus_recovery_info which seems harmless and retains the
+recovery info pointer internally. That way you can grab the at91
+driver struct where you would have saved the pinmux before/after
+config.
 
-To avoid this, use wait_for_completion_io_timeout instead so that we
-don't have to deal with gracefully shutting down the transfer and
-disabling the interrupts.
-
-Signed-off-by: Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 79a6899..ec299ae 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -421,8 +421,8 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		}
- 	}
- 
--	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
--							dev->adapter.timeout);
-+	ret = wait_for_completion_io_timeout(&dev->cmd_complete,
-+					     dev->adapter.timeout);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
- 		at91_init_twi_bus(dev);
--- 
-1.7.9.5
+Btw, side thing, this may help you since you seem to care about your
+SAMA5's i2c functioning.... if you are doing smbus block reads with
+the SAMA5 you may want to pull this patch for yourself:
+https://patchwork.ozlabs.org/patch/381843/. Fixes a kernel panic and
+at91 TWI controller timeout.
