@@ -1,63 +1,47 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 5/8] i2c: Export i2c_match_id() for direct use by device drivers
-Date: Thu, 28 Aug 2014 15:35:35 +0100
-Message-ID: <1409236538-21274-6-git-send-email-lee.jones@linaro.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 7/8] mfd: 88pm860x: Move over to new I2C device .probe() call
+Date: Thu, 28 Aug 2014 15:35:37 +0100
+Message-ID: <1409236538-21274-8-git-send-email-lee.jones@linaro.org>
 References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1409236538-21274-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, kernel@stlinux.com, wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-When there was no other way to match a I2C device to driver i2c_match_id()
-was exclusively used.  However, now there are other types of tables which
-are commonly supplied, matching on an i2c_device_id table is used less
-frequently.  Instead of _always_ calling i2c_match_id() from within the
-framework, we only need to do so from drivers which have no other way of
-matching.  This patch makes i2c_match_id() available to the aforementioned
-device drivers.
+As part of an effort to rid the mostly unused second parameter for I2C
+related .probe() functions and to conform to other existing frameworks
+we're moving over to a temporary replacement .probe() call-back.
 
-Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Acked-by: Grant Likely <grant.likely@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/i2c/i2c-core.c | 3 ++-
- include/linux/i2c.h    | 2 ++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/mfd/88pm860x-core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index c6013cd..7c21f49 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -80,7 +80,7 @@ void i2c_transfer_trace_unreg(void)
- 
- /* ------------------------------------------------------------------------- */
- 
--static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-+const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 						const struct i2c_client *client)
- {
- 	if (!(id && client))
-@@ -93,6 +93,7 @@ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 	}
- 	return NULL;
+diff --git a/drivers/mfd/88pm860x-core.c b/drivers/mfd/88pm860x-core.c
+index 3a26045..3372c47 100644
+--- a/drivers/mfd/88pm860x-core.c
++++ b/drivers/mfd/88pm860x-core.c
+@@ -1134,8 +1134,7 @@ static int pm860x_dt_init(struct device_node *np,
+ 	return 0;
  }
-+EXPORT_SYMBOL_GPL(i2c_match_id);
  
- static int i2c_device_match(struct device *dev, struct device_driver *drv)
+-static int pm860x_probe(struct i2c_client *client,
+-				  const struct i2c_device_id *id)
++static int pm860x_probe(struct i2c_client *client)
  {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index a48eadd..79b674d 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -229,6 +229,8 @@ struct i2c_client {
- 
- extern struct i2c_client *i2c_verify_client(struct device *dev);
- extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
-+extern const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-+						const struct i2c_client *client);
- 
- static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
- {
+ 	struct pm860x_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct device_node *node = client->dev.of_node;
+@@ -1262,7 +1261,7 @@ static struct i2c_driver pm860x_driver = {
+ 		.pm     = &pm860x_pm_ops,
+ 		.of_match_table	= pm860x_dt_ids,
+ 	},
+-	.probe		= pm860x_probe,
++	.probe2		= pm860x_probe,
+ 	.remove		= pm860x_remove,
+ 	.id_table	= pm860x_id_table,
+ };
 -- 
 1.9.1
