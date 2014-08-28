@@ -1,85 +1,59 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 3/8] i2c: Match using traditional OF methods, then by vendor-less compatible strings
-Date: Thu, 28 Aug 2014 15:35:33 +0100
-Message-ID: <1409236538-21274-4-git-send-email-lee.jones@linaro.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 8/8] mfd: as3722: Rid driver of superfluous I2C device ID structure
+Date: Thu, 28 Aug 2014 15:35:38 +0100
+Message-ID: <1409236538-21274-9-git-send-email-lee.jones@linaro.org>
 References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: lee.jones@linaro.org, kernel@stlinux.com, wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1409236538-21274-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This function provides a single call for all I2C devices which need to
-match firstly using traditional OF means i.e by of_node, then if that
-fails we attempt to match using the supplied I2C client name with a
-list of supplied compatible strings with the '<vendor>,' string
-removed.  The latter is required due to the unruly naming conventions
-used currently by I2C devices.
+Also remove unused second probe() parameter 'i2c_device_id'.
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c | 16 ++++++++++++++++
- include/linux/i2c.h    | 12 ++++++++++++
- 2 files changed, 28 insertions(+)
+ drivers/mfd/as3722.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index eb46d15..5728b2e 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1116,6 +1116,22 @@ i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
- 	return NULL;
+diff --git a/drivers/mfd/as3722.c b/drivers/mfd/as3722.c
+index 39fa554..cb2fcf9 100644
+--- a/drivers/mfd/as3722.c
++++ b/drivers/mfd/as3722.c
+@@ -354,8 +354,7 @@ static int as3722_i2c_of_probe(struct i2c_client *i2c,
+ 	return 0;
  }
  
-+const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches,
-+		     struct i2c_client *client)
-+{
-+	const struct of_device_id *match;
-+
-+	if (!(client && matches))
-+		return NULL;
-+
-+	match = of_match_device(matches, &client->dev);
-+	if (match)
-+		return match;
-+
-+	return i2c_of_match_device_strip_vendor(matches, client);
-+}
-+EXPORT_SYMBOL_GPL(i2c_of_match_device);
- #else
- static void of_i2c_register_devices(struct i2c_adapter *adap) { }
- #endif /* CONFIG_OF */
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index a95efeb..a48eadd 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -564,6 +564,10 @@ extern struct i2c_client *of_find_i2c_device_by_node(struct device_node *node);
- /* must call put_device() when done with returned i2c_adapter device */
- extern struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node);
- 
-+extern const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches,
-+		     struct i2c_client *client);
-+
- #else
- 
- static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
-@@ -575,6 +579,14 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
+-static int as3722_i2c_probe(struct i2c_client *i2c,
+-			const struct i2c_device_id *id)
++static int as3722_i2c_probe(struct i2c_client *i2c)
  {
- 	return NULL;
- }
-+
-+const struct of_device_id
-+*i2c_of_match_device(const struct of_device_id *matches,
-+		     struct i2c_client *client)
-+{
-+	return NULL;
-+}
-+
- #endif /* CONFIG_OF */
+ 	struct as3722 *as3722;
+ 	unsigned long irq_flags;
+@@ -428,21 +427,14 @@ static const struct of_device_id as3722_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, as3722_of_match);
  
- #ifdef CONFIG_ACPI
+-static const struct i2c_device_id as3722_i2c_id[] = {
+-	{ "as3722", 0 },
+-	{},
+-};
+-MODULE_DEVICE_TABLE(i2c, as3722_i2c_id);
+-
+ static struct i2c_driver as3722_i2c_driver = {
+ 	.driver = {
+ 		.name = "as3722",
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = as3722_of_match,
+ 	},
+-	.probe = as3722_i2c_probe,
++	.probe2 = as3722_i2c_probe,
+ 	.remove = as3722_i2c_remove,
+-	.id_table = as3722_i2c_id,
+ };
+ 
+ module_i2c_driver(as3722_i2c_driver);
 -- 
 1.9.1
