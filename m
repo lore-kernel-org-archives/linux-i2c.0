@@ -1,62 +1,63 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 1/8] i2c: Add pointer dereference protection to i2c_match_id()
-Date: Thu, 28 Aug 2014 15:35:31 +0100
-Message-ID: <1409236538-21274-2-git-send-email-lee.jones@linaro.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 5/8] i2c: Export i2c_match_id() for direct use by device drivers
+Date: Thu, 28 Aug 2014 15:35:35 +0100
+Message-ID: <1409236538-21274-6-git-send-email-lee.jones@linaro.org>
 References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: lee.jones@linaro.org, kernel@stlinux.com, wsa@the-dreams.de, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1409236538-21274-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Here we're providing dereference protection for i2c_match_id(), which
-saves us having to do it each time it's called.  We're also stripping
-out the (now) needless checks in i2c_device_match().  This patch paves
-the way for other, similar code trimming.
+When there was no other way to match a I2C device to driver i2c_match_id()
+was exclusively used.  However, now there are other types of tables which
+are commonly supplied, matching on an i2c_device_id table is used less
+frequently.  Instead of _always_ calling i2c_match_id() from within the
+framework, we only need to do so from drivers which have no other way of
+matching.  This patch makes i2c_match_id() available to the aforementioned
+device drivers.
 
-Acked-by: Grant Likely <grant.likely@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/i2c/i2c-core.c | 3 ++-
+ include/linux/i2c.h    | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 632057a..d3c8e9f 100644
+index c6013cd..7c21f49 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -83,6 +83,9 @@ void i2c_transfer_trace_unreg(void)
- static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+@@ -80,7 +80,7 @@ void i2c_transfer_trace_unreg(void)
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+-static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
++const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
  						const struct i2c_client *client)
  {
-+	if (!(id && client))
-+		return NULL;
-+
- 	while (id->name[0]) {
- 		if (strcmp(client->name, id->name) == 0)
- 			return id;
-@@ -96,8 +99,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
- 	struct i2c_client	*client = i2c_verify_client(dev);
- 	struct i2c_driver	*driver;
- 
--	if (!client)
--		return 0;
- 
- 	/* Attempt an OF style match */
- 	if (of_driver_match_device(dev, drv))
-@@ -108,9 +109,10 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
- 		return 1;
- 
- 	driver = to_i2c_driver(drv);
--	/* match on an id table if there is one */
--	if (driver->id_table)
--		return i2c_match_id(driver->id_table, client) != NULL;
-+
-+	/* Finally an I2C match */
-+	if (i2c_match_id(driver->id_table, client))
-+		return 1;
- 
- 	return 0;
+ 	if (!(id && client))
+@@ -93,6 +93,7 @@ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+ 	}
+ 	return NULL;
  }
++EXPORT_SYMBOL_GPL(i2c_match_id);
+ 
+ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a48eadd..79b674d 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -229,6 +229,8 @@ struct i2c_client {
+ 
+ extern struct i2c_client *i2c_verify_client(struct device *dev);
+ extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
++extern const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
++						const struct i2c_client *client);
+ 
+ static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
+ {
 -- 
 1.9.1
