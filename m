@@ -1,234 +1,57 @@
-From: Alan <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: [RFC, RESEND] i2c-smbus: smbus alert revisited
-Date: Wed, 27 Aug 2014 16:33:57 +0100
-Message-ID: <20140827153310.8096.72783.stgit@alan.etchedpixels.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2 5/9] i2c: core: Convert to dev_pm_domain_attach|detach()
+Date: Thu, 28 Aug 2014 10:38:58 +0200
+Message-ID: <1409215142-8218-6-git-send-email-ulf.hansson@linaro.org>
+References: <1409215142-8218-1-git-send-email-ulf.hansson@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1409215142-8218-1-git-send-email-ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This follows on from the discussion in late March before Srinivas got
-busy on other things.
+Previously only the ACPI power domain was supported by the i2c bus.
 
-This is just an RFC for a next generation set of patches. The idea is as
-follows
+Let's convert to the common attach/detach functions for power domains,
+which currently means we are extending the support to include the
+generic power domain as well.
 
-- If an adapter knows about its ARA and smbus alerts then the adapter
-  creates its own interrupt handler as before
-
-- If a client knows it needs smbus alerts it calls
-  i2c_require_smbus_alert. This ensures that there is an ARA handler
-  registered and tells the client whether the adapter is handling it
-  anyway or not.
-
-- When the client learns that an ARA event has occurred it calls
-  i2c_smbus_alert_event which uses the existing ARA mechanism to kick
-  things off.
-
-
-Leaving it to the client and introducing that little bit of asymmetry
-means
-
-- we don't have to do expensive polling
-
-- we cope with the case where there isn't a single smbalert line instead
-  each device has a GPIO
-
-- we cope with the case of devices that need to trigger an ARA in other
-  ways (eg with no IRQ or GPIO but discovering a particular bit is set
-  and needing an ARA to unwedge it)
-
-It also gives us a hook from the client so that in future we can
-address the case of adapters that can do SMB alert in hardware but are
-sometimes wired to devices that use the same port and are not wired to the
-alert line.
-
-Just want to know if this is the right direction before actually doing any
-more serious work on it.
-
-Alan
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/i2c-smbus.c   |   88 ++++++++++++++++++++++++++++++++++++++++++---
- include/linux/i2c-smbus.h |    3 +-
- include/linux/i2c.h       |    2 +
- 3 files changed, 87 insertions(+), 6 deletions(-)
+ drivers/i2c/i2c-core.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index fc99f0d..955352c 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -30,7 +30,7 @@
- #include <linux/slab.h>
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 632057a..3cd8f11 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -279,10 +279,13 @@ static int i2c_device_probe(struct device *dev)
+ 	if (status < 0)
+ 		return status;
  
- struct i2c_smbus_alert {
--	unsigned int		alert_edge_triggered:1;
-+	unsigned int		alert_edge_triggered:1, client:1;
- 	int			irq;
- 	struct work_struct	alert;
- 	struct i2c_client	*ara;		/* Alert response address */
-@@ -123,6 +123,29 @@ static void smbus_alert(struct work_struct *work)
- 		enable_irq(alert->irq);
- }
- 
-+/**
-+ *	i2c_smbus_alert_event	-	possible ARA event
-+ *	@client: client which thinks an ARA may have occurred
-+ *
-+ *	Called by i2c clients that have requested ARA support and been
-+ *	advised there is no host adapter interrupt. This may be invoked
-+ *	from a driver specific IRQ, from driver polling or when the 
-+ *	driver discovers by other means that an ARA may be present
-+ */
-+void i2c_smbus_alert_event(struct i2c_client *client)
-+{
-+	struct i2c_adapter *adapter = client->adapter;
-+	struct i2c_client *smbus_ara = adapter->smbus_ara;
-+	struct i2c_smbus_alert *alert;
-+
-+	if (smbus_ara != NULL) {
-+		alert = i2c_get_clientdata(smbus_ara);
-+		if (alert->client)
-+			schedule_work(&alert->alert);
+-	acpi_dev_pm_attach(&client->dev, true);
+-	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+-	if (status)
+-		acpi_dev_pm_detach(&client->dev, true);
++	status = dev_pm_domain_attach(&client->dev, true);
++	if (status != -EPROBE_DEFER) {
++		status = driver->probe(client, i2c_match_id(driver->id_table,
++					client));
++		if (status)
++			dev_pm_domain_detach(&client->dev, true);
 +	}
-+}
-+EXPORT_SYMBOL_GPL(i2c_smbus_alert_event);
-+
- static irqreturn_t smbalert_irq(int irq, void *d)
- {
- 	struct i2c_smbus_alert *alert = d;
-@@ -151,6 +174,7 @@ static int smbalert_probe(struct i2c_client *ara,
  
- 	alert->alert_edge_triggered = setup->alert_edge_triggered;
- 	alert->irq = setup->irq;
-+	alert->client = setup->client;
- 	INIT_WORK(&alert->alert, smbus_alert);
- 	alert->ara = ara;
- 
-@@ -162,8 +186,9 @@ static int smbalert_probe(struct i2c_client *ara,
+ 	return status;
+ }
+@@ -302,7 +305,7 @@ static int i2c_device_remove(struct device *dev)
+ 		status = driver->remove(client);
  	}
  
- 	i2c_set_clientdata(ara, alert);
--	dev_info(&adapter->dev, "supports SMBALERT#, %s trigger\n",
--		 setup->alert_edge_triggered ? "edge" : "level");
-+	if (setup->client == 0)
-+		dev_info(&adapter->dev, "supports SMBALERT#, %s trigger\n",
-+			 setup->alert_edge_triggered ? "edge" : "level");
- 
- 	return 0;
+-	acpi_dev_pm_detach(&client->dev, true);
++	dev_pm_domain_detach(&client->dev, true);
+ 	return status;
  }
-@@ -201,7 +226,9 @@ static struct i2c_driver smbalert_driver = {
-  * Setup handling of the SMBus alert protocol on a given I2C bus segment.
-  *
-  * Handling can be done either through our IRQ handler, or by the
-- * adapter (from its handler, periodic polling, or whatever).
-+ * adapter (from its handler, periodic polling, or whatever), or can
-+ * be configured by a client for cases where we only learn the IRQ from
-+ * later discovery.
-  *
-  * NOTE that if we manage the IRQ, we *MUST* know if it's level or
-  * edge triggered in order to hand it to the workqueue correctly.
-@@ -219,8 +246,11 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
- 		I2C_BOARD_INFO("smbus_alert", 0x0c),
- 		.platform_data = setup,
- 	};
-+	struct i2c_client *ret;
  
--	return i2c_new_device(adapter, &ara_board_info);
-+	ret = i2c_new_device(adapter, &ara_board_info);
-+	adapter->smbus_ara = ret;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(i2c_setup_smbus_alert);
- 
-@@ -246,6 +276,54 @@ EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
- 
- module_i2c_driver(smbalert_driver);
- 
-+/**
-+ * i2c_require_smbus_alert - Client discovered SMBus alert
-+ * @c: client requiring ARA
-+ *
-+ * When a client needs an ARA it calls this method. If the bus adapter
-+ * supports ARA and already knows how to do so then it will already have
-+ * configured for ARA and this is a no-op. If not then we set up an ARA
-+ * on the adapter.
-+ *
-+ * We *cannot* simply register a new IRQ handler for this because we might
-+ * have multiple GPIO interrupts to devices all of which trigger an ARA.
-+ *
-+ * Return:
-+ *	0	- adapter is doing ARA, do nothing
-+ *	1	- adapter is not doing ARA, call the i2c_smbus_alert_event
-+ *		  helper on possible events
-+ *	-1	- ARA handler set up failed (eg a device owns that address)
-+ */
-+
-+int i2c_require_smbus_alert(struct i2c_client *c)
-+{
-+	struct i2c_adapter *adapter = c->adapter;
-+	struct i2c_smbus_alert_setup setup;
-+	struct i2c_client *ara;
-+	struct i2c_smbus_alert *alert;
-+
-+	/* ARA is already known and handled by the adapter (ideal case)
-+	   or another client has specified ARA is needed */
-+	ara = adapter->smbus_ara;
-+
-+	if (ara) {
-+		alert = i2c_get_clientdata(ara);
-+		return alert->client;
-+	}
-+
-+	/* Client driven, do not set up a new IRQ handler */
-+	setup.client = 1;
-+	setup.irq = 0;
-+	setup.alert_edge_triggered = 0;
-+
-+	i2c_setup_smbus_alert(adapter, &setup);
-+	/* Has it all gone horribly wrong ? */
-+	if (adapter->smbus_ara == NULL)
-+		return -1;
-+	return 1;
-+}
-+EXPORT_SYMBOL_GPL(i2c_require_smbus_alert);
-+
- MODULE_AUTHOR("Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>");
- MODULE_DESCRIPTION("SMBus protocol extensions support");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
-index 8f1b086..c9727b9 100644
---- a/include/linux/i2c-smbus.h
-+++ b/include/linux/i2c-smbus.h
-@@ -29,6 +29,7 @@
-  * i2c_smbus_alert_setup - platform data for the smbus_alert i2c client
-  * @alert_edge_triggered: whether the alert interrupt is edge (1) or level (0)
-  *		triggered
-+ * @client: true if the alert is client not adapter created
-  * @irq: IRQ number, if the smbus_alert driver should take care of interrupt
-  *		handling
-  *
-@@ -40,7 +41,7 @@
-  * properly set.
-  */
- struct i2c_smbus_alert_setup {
--	unsigned int		alert_edge_triggered:1;
-+	unsigned int		alert_edge_triggered:1, client:1;
- 	int			irq;
- };
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index ea50766..5c40a91 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -443,6 +443,8 @@ struct i2c_adapter {
- 	struct list_head userspace_clients;
- 
- 	struct i2c_bus_recovery_info *bus_recovery_info;
-+
-+	struct i2c_client *smbus_ara;	/* ARA for SMBUS if present */
- };
- #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
- 
+-- 
+1.9.1
