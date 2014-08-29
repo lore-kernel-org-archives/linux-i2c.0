@@ -1,16 +1,16 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+From: Lars-Peter Clausen <lars@metafoo.de>
 Subject: Re: [PATCH v2 1/2] Allow DT parsing of secondary devices
-Date: Fri, 29 Aug 2014 17:38:50 +0200
-Message-ID: <54009E8A.1050702@metafoo.de>
+Date: Fri, 29 Aug 2014 17:39:58 +0200
+Message-ID: <54009ECE.7070406@metafoo.de>
 References: <1409325303-15906-1-git-send-email-jean-michel.hautbois@vodalys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1409325303-15906-1-git-send-email-jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org, laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1409325303-15906-1-git-send-email-jean-michel.hautbois@vodalys.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>, devicetree@vger.kernel.org, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, hverkuil@xs4all.nl, laurent.pinchart@ideasonboard.com, mark.rutland@arm.com
 List-Id: linux-i2c@vger.kernel.org
 
 On 08/29/2014 05:15 PM, Jean-Michel Hautbois wrote:
@@ -23,7 +23,7 @@ On 08/29/2014 05:15 PM, Jean-Michel Hautbois wrote:
 > This function will create dummy devices io and test
 > with addresses 0x20 and 0x30 respectively.
 >
-> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
 
 This needs a better description explaining the problem and how it is solved. 
 How about
@@ -50,6 +50,9 @@ For now the function only supports look-up of the secondary address from
 devicetree, but it can be extended in the future to for example support 
 board files and/or ACPI.
 """
+
+The patch should also update the I2C devicetree bindings documentation to 
+explain how bindings for devices with multiple addresses work.
 
 > ---
 >   drivers/i2c/i2c-core.c | 20 ++++++++++++++++++++
