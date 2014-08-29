@@ -1,15 +1,14 @@
 From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: [PATCH] i2c-designware: Add support for ACPI i2c device
-Date: Fri, 29 Aug 2014 11:09:12 +0800
-Message-ID: <1409281752-1473-1-git-send-email-carlpeng008@gmail.com>
+Date: Fri, 29 Aug 2014 11:01:53 +0800
+Message-ID: <1409281313-1433-1-git-send-email-carlpeng008@gmail.com>
 References: <carlpeng008@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 AMD platform i2c bus controllers are ACPI devices,
