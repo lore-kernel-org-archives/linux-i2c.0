@@ -1,88 +1,75 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: ARM: shmobile: "i2c<m>" vs. "iic<n>" DT nodes and pinmux
-Date: Fri, 29 Aug 2014 12:20:54 +0200
-Message-ID: <20140829102053.GA3366@katana>
-References: <CAMuHMdWqnMZQcRURufCxiGpbkK7ocjH8KnECxdWVPcxN-68J4g@mail.gmail.com>
- <20140812214723.GA3443@katana>
- <CAMuHMdVVKOS=o-KSx1q05y_sRx5RcOMiUg8mN4fGM=UyGv1uog@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+From: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 1/2] Allow DT parsing of secondary devices
+Date: Fri, 29 Aug 2014 15:28:16 +0200
+Message-ID: <1409318897-12668-1-git-send-email-jean-michel.hautbois@vodalys.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdVVKOS=o-KSx1q05y_sRx5RcOMiUg8mN4fGM=UyGv1uog-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org, laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This is based on reg and reg-names in DT.
+Example:
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+reg = <0x10 0x20 0x30>;
+reg-names = "main", "io", "test";
 
-On Wed, Aug 13, 2014 at 09:19:43AM +0200, Geert Uytterhoeven wrote:
-> Hi Wolfram,
->=20
-> On Tue, Aug 12, 2014 at 11:47 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> > On Tue, Aug 12, 2014 at 03:11:18PM +0200, Geert Uytterhoeven wrote:
-> >> On r8a7790, DT device nodes and C/DT pinmux data for IIC<n> are called
-> >> "iic<n>", with DT aliases from "i2c<m>" to the "iic<n>" DT nodes.
-> >> On r8a7791, DT device nodes and C/DT pinmux data for IIC<n> are called
-> >> "i2c<m>", with DT aliases from "i2c<m>" to the "i2c<m>" DT nodes.
-> >>
-> >> In light of the proliferation of other members of the R-Car Gen 2 fami=
-lies, is
-> >> there a plan to make this consistent?
-> >
-> > The 'i2c'-prefix describes the IP core handled by the rcar driver. This
-> > core is named i2c in the datasheets.
-> >
-> > The 'iic'-prefix describes the IP core handled by the sh-mobile-driver.
-> > This core is named iic(b) in the datasheets.
->=20
-> I know the difference between i2c and iic(b).
->=20
-> However, the DT device nodes and C/DT pinmux data for iic(b) on r8a7791
-> are called i2c, too, instead of iic.
+This function will create dummy devices io and test
+with addresses 0x20 and 0x30 respectively.
 
-Ah, yes, now I remember. They are called like this in the datasheet. If
-we would stick to the IIC ones, it becomes even more confusing, because:
+Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 20 ++++++++++++++++++++
+ include/linux/i2c.h    |  6 ++++++
+ 2 files changed, 26 insertions(+)
 
-IIC3 is I2C6
-IIC0 is I2C7
-IIC1 is I2C8
-
-and there is no IIC2. Plus, in the Koelsch board schematics, the DVFS
-bus is also named I2C6, not IIC3. So, I went for that.
-
-On Lager, I also wanted to go for i2c4-7, yet I was convinced to use iic
-there. I forgot about this inconsistency. And I have to admit, if we
-look at it per-SoC, I think the current solutions make most sense. They
-are just not consistent :(
-
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUAFQFAAoJEBQN5MwUoCm2F/sP/2Zs8FXzSQ7tQhXI7jxz9g5e
-wwxr5ySd064Z5NRoaPL1oWLtOdEBvi6Ax/T3SYs4w/xZbRes/S/Weg+LEWZdxpHJ
-aG9RvpyVamKmYb1wYM0yr5Dith+SiOgMjBadip/0nKjw0TJRTui8jx3OKu8lesHb
-pJtQ5YAHl0QTlrKsRugeqgrh9ceJ/60TSQkrgGsgO2Cn4/o2RI2R93ND6u7o3zU1
-G/8uvn8SyJh7wqMYKABn3Ic+EZO22bF/EjAG9ipRs59mzNwIczWfib+9TNMx8EjB
-1eMhX+l1hHIOiRkGVuCeoEjdJ4QmJUISp0TSsh+zcoj6hvxIx32wq29LocB0oNcf
-sKuoCEkElTqB3lK+YdIJSf64QGcu+5HWc3o5Fl6oVYBnk7G9RsIBCFAlDLiL+nkQ
-crmocZFQJHoRwk26QJYc151WGNWEO7VBdxrJ1t4PRqgjjYsmarpA5OmnGCRGmNvy
-Q+s+QGb+cNjK3ly1Jfc8OM6d1CNOe+qUjkRRrVGabR3QeFD8vUcz6pjAJ5gKoC1v
-GYicEzq/9ByM60ZRqu8ey3OxACgKPAYsipXm4Rd03zYLW+C22CWi1BLcx07fonBj
-7fcgDKRDqRaofncjw+3HhER8v8p7G7MZWc/SZBDLJzp5wNqwgiwkd8lvsnwjcDoQ
-Wu2kPgBIWPSbwkvZCJkV
-=+kYP
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 632057a..5eb414d 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -798,6 +798,26 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_dummy);
+ 
++struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
++						const char *name,
++						u32 default_addr)
++{
++	int i, addr;
++	struct device_node *np;
++
++	np = client->dev.of_node;
++	i = of_property_match_string(np, "reg-names", name);
++	if (i >= 0)
++		of_property_read_u32_index(np, "reg", i, &addr);
++	else
++		addr = default_addr;
++
++	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
++	return i2c_new_dummy(client->adapter, addr);
++}
++EXPORT_SYMBOL_GPL(i2c_new_secondary_device);
++
++
+ /* ------------------------------------------------------------------------- */
+ 
+ /* I2C bus adapters -- one roots each I2C or SMBUS segment */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a95efeb..2d143d7 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -322,6 +322,12 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+ extern struct i2c_client *
+ i2c_new_dummy(struct i2c_adapter *adap, u16 address);
+ 
++/* Use reg/reg-names in DT in order to get extra addresses */
++extern struct i2c_client *
++i2c_new_secondary_device(struct i2c_client *client,
++				const char *name,
++				u32 default_addr);
++
+ extern void i2c_unregister_device(struct i2c_client *);
+ #endif /* I2C */
+ 
+-- 
+2.0.4
