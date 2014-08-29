@@ -1,85 +1,75 @@
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 2/2] adv7604: Use DT parsing in dummy creation
-Date: Fri, 29 Aug 2014 15:25:18 +0100
-Message-ID: <20140829142518.GA27331@leverpostej>
-References: <1409318897-12668-1-git-send-email-jean-michel.hautbois@vodalys.com>
- <1409318897-12668-2-git-send-email-jean-michel.hautbois@vodalys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1409318897-12668-2-git-send-email-jean-michel.hautbois@vodalys.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "lars@metafoo.de" <lars@metafoo.de>, "w.sang@pengutronix.de" <w.sang@pengutronix.de>, "hverkuil@xs4all.nl" <hverkuil@xs4all.nl>, "laurent.pinchart@ideasonboard.com" <laurent.pinchart@ideasonboard.com>
+From: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v2 1/2] Allow DT parsing of secondary devices
+Date: Fri, 29 Aug 2014 17:15:02 +0200
+Message-ID: <1409325303-15906-1-git-send-email-jean-michel.hautbois@vodalys.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org, laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+This is based on reg and reg-names in DT.
+Example:
 
-On Fri, Aug 29, 2014 at 02:28:17PM +0100, Jean-Michel Hautbois wrote:
-> This patch uses DT in order to parse addresses for dummy devices of adv7604.
-> If nothing is defined, it uses default addresses.
-> The main prupose is using two adv76xx on the same i2c bus.
+reg = <0x10 0x20 0x30>;
+reg-names = "main", "io", "test";
 
-This is rather opaque.
+This function will create dummy devices io and test
+with addresses 0x20 and 0x30 respectively.
 
-It seems from the code below that a single adv7611 device has multiple
-I2C addresses at which different registers may be accessed. I guess the
-secondary instances of the unit have different addresses for all of the
-pages?
+Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 20 ++++++++++++++++++++
+ include/linux/i2c.h    |  6 ++++++
+ 2 files changed, 26 insertions(+)
 
-> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
-> ---
->  .../devicetree/bindings/media/i2c/adv7604.txt      |  7 ++-
->  drivers/media/i2c/adv7604.c                        | 56 ++++++++++++++--------
->  2 files changed, 42 insertions(+), 21 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/media/i2c/adv7604.txt b/Documentation/devicetree/bindings/media/i2c/adv7604.txt
-> index c27cede..221b75c 100644
-> --- a/Documentation/devicetree/bindings/media/i2c/adv7604.txt
-> +++ b/Documentation/devicetree/bindings/media/i2c/adv7604.txt
-> @@ -10,6 +10,7 @@ Required Properties:
->  
->    - compatible: Must contain one of the following
->      - "adi,adv7611" for the ADV7611
-> +    - "adi,adv7604" for the ADV7604
->  
->    - reg: I2C slave address
-
-This should be updated, at least to say "address(es)".
-
->  
-> @@ -32,6 +33,8 @@ The digital output port node must contain at least one endpoint.
->  Optional Properties:
->  
->    - reset-gpios: Reference to the GPIO connected to the device's reset pin.
-> +  - reg-names : Names of registers to be reprogrammed.
-
-This doesn't describe _which_ names you expect, and I have no idea what
-is meant by "to be reprogrammed".
-
-> +		Refer to source code for possible values.
-
-Bindings shouldn't say things like this. The binding should describe the
-contract between the DTB and the OS, which this clearly doesn't.
-
-A binding document shouldn't necessitate reading code.
-
->  Optional Endpoint Properties:
->  
-> @@ -50,7 +53,9 @@ Example:
->  
->  	hdmi_receiver@4c {
->  		compatible = "adi,adv7611";
-> -		reg = <0x4c>;
-> +		/* edid page will be accessible @ 0x66 on i2c bus*/
-> +		reg = <0x4c 0x66>;
-> +		reg-names = "main", "edid";
-
-What about the other IDs? Are they accessible or not?
-
-Why didn't we always list the full set of IDs in the first place? That
-would have made this far less painful.
-
-Thanks,
-Mark.
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 632057a..5eb414d 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -798,6 +798,26 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_dummy);
+ 
++struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
++						const char *name,
++						u32 default_addr)
++{
++	int i, addr;
++	struct device_node *np;
++
++	np = client->dev.of_node;
++	i = of_property_match_string(np, "reg-names", name);
++	if (i >= 0)
++		of_property_read_u32_index(np, "reg", i, &addr);
++	else
++		addr = default_addr;
++
++	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
++	return i2c_new_dummy(client->adapter, addr);
++}
++EXPORT_SYMBOL_GPL(i2c_new_secondary_device);
++
++
+ /* ------------------------------------------------------------------------- */
+ 
+ /* I2C bus adapters -- one roots each I2C or SMBUS segment */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a95efeb..2d143d7 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -322,6 +322,12 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+ extern struct i2c_client *
+ i2c_new_dummy(struct i2c_adapter *adap, u16 address);
+ 
++/* Use reg/reg-names in DT in order to get extra addresses */
++extern struct i2c_client *
++i2c_new_secondary_device(struct i2c_client *client,
++				const char *name,
++				u32 default_addr);
++
+ extern void i2c_unregister_device(struct i2c_client *);
+ #endif /* I2C */
+ 
+-- 
+2.0.4
