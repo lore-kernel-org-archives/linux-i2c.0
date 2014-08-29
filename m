@@ -1,41 +1,36 @@
-From: umar akmel <umarakmel102-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: VERY URGENT.
-Date: Fri, 29 Aug 2014 04:38:57 +0000
-Message-ID: <CAPQNgRYiCn2iJb6nDASm=N76aT1hcwCsG6kQB6mUk8Dyz=SHjg@mail.gmail.com>
-Reply-To: umarakmal1960-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 3/3] gpio: add support for the Diolan DLN-2 USB-GPIO driver
+Date: Fri, 29 Aug 2014 09:16:17 +0200
+Message-ID: <CACRpkdaZcpTXiNZNKFeQgESxtYqKC+gR-VYbxoORYrykGUWRVw@mail.gmail.com>
+References: <1408533887-22727-1-git-send-email-daniel.baluta@intel.com>
+	<1408533887-22727-4-git-send-email-daniel.baluta@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1408533887-22727-4-git-send-email-daniel.baluta@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Baluta <daniel.baluta@intel.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "pratyush.anand@st.com" <pratyush.anand@st.com>, Paul Bolle <pebolle@tiscali.nl>, Alan Stern <stern@rowland.harvard.edu>, octavian.purdila@intel.com, matthew@mjdsystems.ca, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, laurentiu.palcu@intel.com, Jean Delvare <jdelvare@suse.de>, Arnd Bergmann <arnd@arndb.de>, Simon Glass <sjg@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-My Dear Good Friend.
+On Wed, Aug 20, 2014 at 1:24 PM, Daniel Baluta <daniel.baluta@intel.com> wrote:
 
-Compliment of the season, how are you and your family? Hope All is
-well. I am Mr Umar Akmel, the accountant general in the accounts unit
-Bank of Africa (BOA-BF) Ouagadougou Burkina Faso. I got your contact
-from the Burkina Faso chambers of commerce have some fund to claim in
-my bank Which will be of benefit to both of us.
+> This patch adds GPIO and IRQ support for the Diolan DLN-2 GPIO module.
+>
+> Information about the USB protocol interface can be found in the
+> Programmer's Reference Manual [1], see section 2.9 for the GPIO
+> module commands and responses.
+>
+> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
+>
+> Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
 
-I want you to be an inheritor of the fund, the fund is in a Doormat
-account and with your bank information and my Documentation certifies
-you as the inheritor/beneficiary Since I am an insider and working in
-the same bank, the Transfer will be processed legally and successfully
-and I will Be coming down to your country for disbursement.
+Major change required: rewrite this driver to not select IRQ_DOMAIN,
+instead select GPIOLIB_IRQCHIP and use the shared infrastructure.
+See other drivers that select GPIOLIB_IRQCHIP or grep the git
+log to see how this works in practice.
 
-The amount of money involved is ($5.6m) which I want you to Claim for
-further transfer out of the country to your bank Account, all to our
-financial benefit. This is very great opportunity as it will take a
-maximum of 7 banking Working days to be concluded.
+You need to use some container_of() operations.
 
-I as an insider will do my duties perfectly well concerning this
-transaction for security reasons. This is confidential for successful
-conclusion and hitch-free transaction. Contact me immediately for
-further details and mutual Relationship and we will decide together on
-how to disburse The funds and percentage as well, my private email
-Address: (umarakmal1960-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org)
-
-I will be waiting to hear from you.
-
-Yours truly.
-Mr Umar Akmel.
+Yours,
+Linus Walleij
