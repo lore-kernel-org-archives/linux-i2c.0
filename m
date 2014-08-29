@@ -1,23 +1,33 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
+From: Mark Rutland <mark.rutland@arm.com>
 Subject: Re: [PATCH 2/2] adv7604: Use DT parsing in dummy creation
-Date: Fri, 29 Aug 2014 16:15:16 +0200
-Message-ID: <54008AF4.9050708@xs4all.nl>
-References: <1409318897-12668-1-git-send-email-jean-michel.hautbois@vodalys.com> <1409318897-12668-2-git-send-email-jean-michel.hautbois@vodalys.com>
+Date: Fri, 29 Aug 2014 15:25:18 +0100
+Message-ID: <20140829142518.GA27331@leverpostej>
+References: <1409318897-12668-1-git-send-email-jean-michel.hautbois@vodalys.com>
+ <1409318897-12668-2-git-send-email-jean-michel.hautbois@vodalys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-media-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1409318897-12668-2-git-send-email-jean-michel.hautbois@vodalys.com>
 Sender: linux-media-owner@vger.kernel.org
-To: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>, devicetree@vger.kernel.org, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: lars@metafoo.de, w.sang@pengutronix.de, laurent.pinchart@ideasonboard.com
+To: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "lars@metafoo.de" <lars@metafoo.de>, "w.sang@pengutronix.de" <w.sang@pengutronix.de>, "hverkuil@xs4all.nl" <hverkuil@xs4all.nl>, "laurent.pinchart@ideasonboard.com" <laurent.pinchart@ideasonboard.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/29/2014 03:28 PM, Jean-Michel Hautbois wrote:
+Hi,
+
+On Fri, Aug 29, 2014 at 02:28:17PM +0100, Jean-Michel Hautbois wrote:
 > This patch uses DT in order to parse addresses for dummy devices of adv7604.
 > If nothing is defined, it uses default addresses.
 > The main prupose is using two adv76xx on the same i2c bus.
-> 
+
+This is rather opaque.
+
+It seems from the code below that a single adv7611 device has multiple
+I2C addresses at which different registers may be accessed. I guess the
+secondary instances of the unit have different addresses for all of the
+pages?
+
 > Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
 > ---
 >  .../devicetree/bindings/media/i2c/adv7604.txt      |  7 ++-
@@ -35,14 +45,26 @@ On 08/29/2014 03:28 PM, Jean-Michel Hautbois wrote:
 > +    - "adi,adv7604" for the ADV7604
 >  
 >    - reg: I2C slave address
+
+This should be updated, at least to say "address(es)".
+
 >  
 > @@ -32,6 +33,8 @@ The digital output port node must contain at least one endpoint.
 >  Optional Properties:
 >  
 >    - reset-gpios: Reference to the GPIO connected to the device's reset pin.
 > +  - reg-names : Names of registers to be reprogrammed.
+
+This doesn't describe _which_ names you expect, and I have no idea what
+is meant by "to be reprogrammed".
+
 > +		Refer to source code for possible values.
->  
+
+Bindings shouldn't say things like this. The binding should describe the
+contract between the DTB and the OS, which this clearly doesn't.
+
+A binding document shouldn't necessitate reading code.
+
 >  Optional Endpoint Properties:
 >  
 > @@ -50,7 +53,9 @@ Example:
@@ -53,119 +75,11 @@ On 08/29/2014 03:28 PM, Jean-Michel Hautbois wrote:
 > +		/* edid page will be accessible @ 0x66 on i2c bus*/
 > +		reg = <0x4c 0x66>;
 > +		reg-names = "main", "edid";
->  
->  		reset-gpios = <&ioexp 0 GPIO_ACTIVE_LOW>;
->  		hpd-gpios = <&ioexp 2 GPIO_ACTIVE_HIGH>;
-> diff --git a/drivers/media/i2c/adv7604.c b/drivers/media/i2c/adv7604.c
-> index d4fa213..4e660a2 100644
-> --- a/drivers/media/i2c/adv7604.c
-> +++ b/drivers/media/i2c/adv7604.c
-> @@ -326,6 +326,22 @@ static const struct adv7604_video_standards adv7604_prim_mode_hdmi_gr[] = {
->  	{ },
->  };
->  
-> +static const char const *adv7604_secondary_names[] = {
-> +	"main", /* ADV7604_PAGE_IO */
-> +	"avlink", /* ADV7604_PAGE_AVLINK */
-> +	"cec", /* ADV7604_PAGE_CEC */
-> +	"infoframe", /* ADV7604_PAGE_INFOFRAME */
-> +	"esdp", /* ADV7604_PAGE_ESDP */
-> +	"dpp", /* ADV7604_PAGE_DPP */
-> +	"afe", /* ADV7604_PAGE_AFE */
-> +	"rep", /* ADV7604_PAGE_REP */
-> +	"edid", /* ADV7604_PAGE_EDID */
-> +	"hdmi", /* ADV7604_PAGE_HDMI */
-> +	"test", /* ADV7604_PAGE_TEST */
-> +	"cp", /* ADV7604_PAGE_CP */
-> +	"vdp" /* ADV7604_PAGE_VDP */
-> +};
-> +
->  /* ----------------------------------------------------------------------- */
->  
->  static inline struct adv7604_state *to_state(struct v4l2_subdev *sd)
-> @@ -2528,13 +2544,27 @@ static void adv7604_unregister_clients(struct adv7604_state *state)
->  }
->  
->  static struct i2c_client *adv7604_dummy_client(struct v4l2_subdev *sd,
-> -							u8 addr, u8 io_reg)
-> +						unsigned int i)
->  {
->  	struct i2c_client *client = v4l2_get_subdevdata(sd);
-> +	struct adv7604_platform_data *pdata = client->dev.platform_data;
-> +	unsigned int io_reg = 0xf2 + i;
-> +	struct i2c_client *new_client;
-> +
-> +	/* Try to find it in DT */
-> +	new_client = i2c_new_secondary_device(client,
-> +			adv7604_secondary_names[i], io_read(sd, io_reg) >> 1);
 
-Does this work if CONFIG_OF isn't set? I suspect not.
+What about the other IDs? Are they accessible or not?
 
->  
-> -	if (addr)
-> -		io_write(sd, io_reg, addr << 1);
-> -	return i2c_new_dummy(client->adapter, io_read(sd, io_reg) >> 1);
-> +	if (!new_client)
-> +		/* if not defined in DT, use default if available */
-> +		if (pdata && pdata->i2c_addresses[i])
-> +			new_client = i2c_new_dummy(client->adapter,
-> +						pdata->i2c_addresses[i]);
+Why didn't we always list the full set of IDs in the first place? That
+would have made this far less painful.
 
-This is not the same as the original code. If pdata->i2c_addresses[i] == 0,
-then it should use io_read(sd, io_reg) >> 1 as the address for i2c_new_dummy.
-
-This would break existing code that uses platform_data (such as on our PCIe
-board).
-
-Regards,
-
-	Hans
-
-> +
-> +	if (new_client)
-> +		io_write(sd, io_reg, new_client->addr << 1);
-> +
-> +	return new_client;
->  }
->  
->  static const struct adv7604_reg_seq adv7604_recommended_settings_afe[] = {
-> @@ -2677,6 +2707,7 @@ MODULE_DEVICE_TABLE(i2c, adv7604_i2c_id);
->  
->  static struct of_device_id adv7604_of_id[] __maybe_unused = {
->  	{ .compatible = "adi,adv7611", .data = &adv7604_chip_info[ADV7611] },
-> +	{ .compatible = "adi,adv7604", .data = &adv7604_chip_info[ADV7604] },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, adv7604_of_id);
-> @@ -2717,20 +2748,6 @@ static int adv7604_parse_dt(struct adv7604_state *state)
->  	/* Disable the interrupt for now as no DT-based board uses it. */
->  	state->pdata.int1_config = ADV7604_INT1_CONFIG_DISABLED;
->  
-> -	/* Use the default I2C addresses. */
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_AVLINK] = 0x42;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_CEC] = 0x40;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_INFOFRAME] = 0x3e;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_ESDP] = 0x38;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_DPP] = 0x3c;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_AFE] = 0x26;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_REP] = 0x32;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_EDID] = 0x36;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_HDMI] = 0x34;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_TEST] = 0x30;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_CP] = 0x22;
-> -	state->pdata.i2c_addresses[ADV7604_PAGE_VDP] = 0x24;
-> -
->  	/* Hardcode the remaining platform data fields. */
->  	state->pdata.disable_pwrdnb = 0;
->  	state->pdata.disable_cable_det_rst = 0;
-> @@ -2891,8 +2908,7 @@ static int adv7604_probe(struct i2c_client *client,
->  			continue;
->  
->  		state->i2c_clients[i] =
-> -			adv7604_dummy_client(sd, state->pdata.i2c_addresses[i],
-> -					     0xf2 + i);
-> +			adv7604_dummy_client(sd, i);
->  		if (state->i2c_clients[i] == NULL) {
->  			err = -ENOMEM;
->  			v4l2_err(sd, "failed to create i2c client %u\n", i);
-> 
+Thanks,
+Mark.
