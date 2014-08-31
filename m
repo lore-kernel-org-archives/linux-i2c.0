@@ -1,578 +1,221 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: [PATCH v2 3/3] gpio: add support for the Diolan DLN-2 USB GPIO driver
-Date: Sat, 30 Aug 2014 01:00:54 +0300
-Message-ID: <1409349654-24841-4-git-send-email-octavian.purdila@intel.com>
-References: <1409349654-24841-1-git-send-email-octavian.purdila@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1409349654-24841-1-git-send-email-octavian.purdila@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org
-Cc: arnd@arndb.de, johan@kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, Octavian Purdila <octavian.purdila@intel.com>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] adv7604: Use DT parsing in dummy creation
+Date: Sun, 31 Aug 2014 20:18:58 +0300
+Message-ID: <2204455.3fKSNVsp04@avalon>
+References: <1409325303-15906-1-git-send-email-jean-michel.hautbois@vodalys.com> <1409325303-15906-2-git-send-email-jean-michel.hautbois@vodalys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1409325303-15906-2-git-send-email-jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, hverkuil-qWit8jRvyhVmR6Xm/wNWPw@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Daniel Baluta <daniel.baluta@intel.com>
+Hi Jean-Michel,
 
-This patch adds GPIO and IRQ support for the Diolan DLN-2 GPIO module.
+Thank you for the patch.
 
-Information about the USB protocol interface can be found in the
-Programmer's Reference Manual [1], see section 2.9 for the GPIO
-module commands and responses.
+On Friday 29 August 2014 17:15:03 Jean-Michel Hautbois wrote:
+> This patch uses DT in order to parse addresses for dummy devices of a=
+dv7604.
+> The ADV7604 has thirteen 256-byte maps that can be accessed via the m=
+ain
+> I=B2C ports. Each map has it own I=B2C address and acts
+> as a standard slave device on the I=B2C bus.
+>=20
+> If nothing is defined, it uses default addresses.
+> The main prupose is using two adv76xx on the same i2c bus.
+>=20
+> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org=
+>
+> ---
+>  .../devicetree/bindings/media/i2c/adv7604.txt      | 17 +++++-
+>  drivers/media/i2c/adv7604.c                        | 60 ++++++++++++=
+-------
+>  2 files changed, 55 insertions(+), 22 deletions(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/media/i2c/adv7604.txt
+> b/Documentation/devicetree/bindings/media/i2c/adv7604.txt index
+> c27cede..8486b5c 100644
+> --- a/Documentation/devicetree/bindings/media/i2c/adv7604.txt
+> +++ b/Documentation/devicetree/bindings/media/i2c/adv7604.txt
+> @@ -10,8 +10,12 @@ Required Properties:
+>=20
+>    - compatible: Must contain one of the following
+>      - "adi,adv7611" for the ADV7611
+> +    - "adi,adv7604" for the ADV7604
 
-[1] https://www.diolan.com/downloads/dln-api-manual.pdf
+Addition of ADV7604 support is unrelated to the subject and needs to be=
+ split=20
+into a separate patch.
 
-Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
----
- drivers/gpio/Kconfig     |  12 ++
- drivers/gpio/Makefile    |   1 +
- drivers/gpio/gpio-dln2.c | 506 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 519 insertions(+)
- create mode 100644 drivers/gpio/gpio-dln2.c
+> -  - reg: I2C slave address
+> +  - reg: I2C slave addresses
+> +    The ADV7604 has thirteen 256-byte maps that can be accessed via =
+the
+> main
+> +    I=B2C ports. Each map has it own I=B2C address and acts
+> +    as a standard slave device on the I=B2C bus.
+>=20
+>    - hpd-gpios: References to the GPIOs that control the HDMI hot-plu=
+g
+>      detection pins, one per HDMI input. The active flag indicates th=
+e GPIO
+> @@ -32,6 +36,12 @@ The digital output port node must contain at least=
+ one
+> endpoint. Optional Properties:
+>=20
+>    - reset-gpios: Reference to the GPIO connected to the device's res=
+et pin.
+> +  - reg-names : Names of maps with programmable addresses.
+> +		It can contain any map needing another address than default one.
+> +		Possible maps names are :
+> +ADV7604 : "main", "avlink", "cec", "infoframe", "esdp", "dpp", "afe"=
+,
+> "rep",
+> +		"edid", "hdmi", "test", "cp", "vdp"
+> +ADV7611 : "main", "cec", "infoframe", "afe", "rep", "edid", "hdmi", =
+"cp"
+>=20
+>  Optional Endpoint Properties:
+>=20
+> @@ -50,7 +60,10 @@ Example:
+>=20
+>  	hdmi_receiver@4c {
+>  		compatible =3D "adi,adv7611";
+> -		reg =3D <0x4c>;
+> +		/* edid page will be accessible @ 0x66 on i2c bus */
+> +		/* other maps keep their default addresses */
+> +		reg =3D <0x4c 0x66>;
+> +		reg-names =3D "main", "edid";
+>=20
+>  		reset-gpios =3D <&ioexp 0 GPIO_ACTIVE_LOW>;
+>  		hpd-gpios =3D <&ioexp 2 GPIO_ACTIVE_HIGH>;
+> diff --git a/drivers/media/i2c/adv7604.c b/drivers/media/i2c/adv7604.=
+c
+> index d4fa213..56037dd 100644
+> --- a/drivers/media/i2c/adv7604.c
+> +++ b/drivers/media/i2c/adv7604.c
+> @@ -326,6 +326,22 @@ static const struct adv7604_video_standards
+> adv7604_prim_mode_hdmi_gr[] =3D { { },
+>  };
+>=20
+> +static const char const *adv7604_secondary_names[] =3D {
+> +	"main", /* ADV7604_PAGE_IO */
+> +	"avlink", /* ADV7604_PAGE_AVLINK */
+> +	"cec", /* ADV7604_PAGE_CEC */
+> +	"infoframe", /* ADV7604_PAGE_INFOFRAME */
+> +	"esdp", /* ADV7604_PAGE_ESDP */
+> +	"dpp", /* ADV7604_PAGE_DPP */
+> +	"afe", /* ADV7604_PAGE_AFE */
+> +	"rep", /* ADV7604_PAGE_REP */
+> +	"edid", /* ADV7604_PAGE_EDID */
+> +	"hdmi", /* ADV7604_PAGE_HDMI */
+> +	"test", /* ADV7604_PAGE_TEST */
+> +	"cp", /* ADV7604_PAGE_CP */
+> +	"vdp" /* ADV7604_PAGE_VDP */
+> +};
+> +
+>  /* -----------------------------------------------------------------=
+------
+> */
+>=20
+>  static inline struct adv7604_state *to_state(struct v4l2_subdev *sd)
+> @@ -2528,13 +2544,31 @@ static void adv7604_unregister_clients(struct
+> adv7604_state *state) }
+>=20
+>  static struct i2c_client *adv7604_dummy_client(struct v4l2_subdev *s=
+d,
+> -							u8 addr, u8 io_reg)
+> +						unsigned int i)
+>  {
+>  	struct i2c_client *client =3D v4l2_get_subdevdata(sd);
+> +	struct adv7604_platform_data *pdata =3D client->dev.platform_data;
+> +	unsigned int io_reg =3D 0xf2 + i;
+> +	unsigned int default_addr =3D io_read(sd, io_reg) >> 1;
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 9de1515..6a9e352 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -897,4 +897,16 @@ config GPIO_VIPERBOARD
-           River Tech's viperboard.h for detailed meaning
-           of the module parameters.
- 
-+config GPIO_DLN2
-+	tristate "Diolan DLN2 GPIO support"
-+	depends on USB && MFD_DLN2
-+	select GPIOLIB_IRQCHIP
-+
-+	help
-+	  Select this option to enable GPIO driver for the Diolan DLN2
-+	  board.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called gpio-dln2.
-+
- endif
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 5d024e3..eaa97a0 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -26,6 +26,7 @@ obj-$(CONFIG_GPIO_CRYSTAL_COVE)	+= gpio-crystalcove.o
- obj-$(CONFIG_GPIO_DA9052)	+= gpio-da9052.o
- obj-$(CONFIG_GPIO_DA9055)	+= gpio-da9055.o
- obj-$(CONFIG_GPIO_DAVINCI)	+= gpio-davinci.o
-+obj-$(CONFIG_GPIO_DLN2)		+= gpio-dln2.o
- obj-$(CONFIG_GPIO_DWAPB)	+= gpio-dwapb.o
- obj-$(CONFIG_GPIO_EM)		+= gpio-em.o
- obj-$(CONFIG_GPIO_EP93XX)	+= gpio-ep93xx.o
-diff --git a/drivers/gpio/gpio-dln2.c b/drivers/gpio/gpio-dln2.c
-new file mode 100644
-index 0000000..bb6cb1e
---- /dev/null
-+++ b/drivers/gpio/gpio-dln2.c
-@@ -0,0 +1,506 @@
-+/*
-+ * Driver for the Diolan DLN-2 USB-GPIO adapter
-+ *
-+ * Copyright (c) 2014 Intel Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation, version 2.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/mutex.h>
-+#include <linux/irqdomain.h>
-+#include <linux/irq.h>
-+#include <linux/irqchip/chained_irq.h>
-+#include <linux/usb.h>
-+#include <linux/gpio.h>
-+#include <linux/gpio/driver.h>
-+#include <linux/ptrace.h>
-+#include <linux/wait.h>
-+#include <linux/platform_device.h>
-+#include <linux/mfd/dln2.h>
-+
-+#define DRIVER_NAME "dln2-gpio"
-+
-+#define DLN2_GPIO_ID			0x01
-+
-+#define DLN2_GPIO_GET_PORT_COUNT	DLN2_CMD(0x00, DLN2_GPIO_ID)
-+#define DLN2_GPIO_GET_PIN_COUNT		DLN2_CMD(0x01, DLN2_GPIO_ID)
-+#define DLN2_GPIO_SET_DEBOUNCE		DLN2_CMD(0x04, DLN2_GPIO_ID)
-+#define DLN2_GPIO_GET_DEBOUNCE		DLN2_CMD(0x05, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PORT_GET_VAL		DLN2_CMD(0x06, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_GET_VAL		DLN2_CMD(0x0B, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_SET_OUT_VAL	DLN2_CMD(0x0C, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_GET_OUT_VAL	DLN2_CMD(0x0D, DLN2_GPIO_ID)
-+#define DLN2_GPIO_CONDITION_MET_EV	DLN2_CMD(0x0F, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_ENABLE		DLN2_CMD(0x10, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_DISABLE		DLN2_CMD(0x11, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_SET_DIRECTION	DLN2_CMD(0x13, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_GET_DIRECTION	DLN2_CMD(0x14, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_SET_EVENT_CFG	DLN2_CMD(0x1E, DLN2_GPIO_ID)
-+#define DLN2_GPIO_PIN_GET_EVENT_CFG	DLN2_CMD(0x1F, DLN2_GPIO_ID)
-+
-+#define DLN2_GPIO_EVENT_NONE		0
-+#define DLN2_GPIO_EVENT_CHANGE		1
-+#define DLN2_GPIO_EVENT_LVL_HIGH	2
-+#define DLN2_GPIO_EVENT_LVL_LOW		3
-+#define DLN2_GPIO_EVENT_CHANGE_RISING	0x11
-+#define DLN2_GPIO_EVENT_CHANGE_FALLING  0x21
-+#define DLN2_GPIO_EVENT_MASK		0x0F
-+
-+#define DLN2_GPIO_MAX_PINS 32
-+
-+struct dln2_irq_work {
-+	struct work_struct work;
-+	struct dln2_gpio *dln2;
-+	int pin, type;
-+};
-+
-+struct dln2_gpio {
-+	struct platform_device *pdev;
-+	struct gpio_chip gpio;
-+
-+	DECLARE_BITMAP(irqs_masked, DLN2_GPIO_MAX_PINS);
-+	DECLARE_BITMAP(irqs_enabled, DLN2_GPIO_MAX_PINS);
-+	DECLARE_BITMAP(irqs_pending, DLN2_GPIO_MAX_PINS);
-+	struct dln2_irq_work irq_work[DLN2_GPIO_MAX_PINS];
-+};
-+
-+struct dln2_gpio_pin {
-+	__le16 pin;
-+} __packed;
-+
-+struct dln2_gpio_pin_val {
-+	__le16 pin;
-+	u8 value;
-+} __packed;
-+
-+static int dln2_gpio_get_pin_count(struct platform_device *pdev)
-+{
-+	__le16 count;
-+	int ret, len = sizeof(count);
-+
-+	ret = dln2_transfer(pdev, DLN2_GPIO_GET_PIN_COUNT, NULL, 0, &count,
-+			    &len);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (len < sizeof(count))
-+		return -EPROTO;
-+
-+	return le16_to_cpu(count);
-+}
-+
-+static int dln2_gpio_pin_cmd(struct dln2_gpio *dln2, int cmd, unsigned pin)
-+{
-+	struct dln2_gpio_pin req = {
-+		.pin = cpu_to_le16(pin),
-+	};
-+
-+	return dln2_transfer(dln2->pdev, cmd, &req, sizeof(req), NULL, NULL);
-+}
-+
-+static int dln2_gpio_pin_val(struct dln2_gpio *dln2, int cmd, unsigned int pin)
-+{
-+	struct dln2_gpio_pin req = {
-+		.pin = cpu_to_le16(pin),
-+	};
-+	struct dln2_gpio_pin_val rsp;
-+	int ret, len = sizeof(rsp);
-+
-+	ret = dln2_transfer(dln2->pdev, cmd, &req, sizeof(req), &rsp, &len);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (len < sizeof(rsp) || req.pin != rsp.pin)
-+		return -EPROTO;
-+
-+	return rsp.value;
-+}
-+
-+static int dln2_gpio_pin_get_in_val(struct dln2_gpio *dln2, unsigned int pin)
-+{
-+	int ret = dln2_gpio_pin_val(dln2, DLN2_GPIO_PIN_GET_VAL, pin);
-+
-+	if (ret < 0)
-+		return ret;
-+	return !!ret;
-+}
-+
-+static int dln2_gpio_pin_get_out_val(struct dln2_gpio *dln2, unsigned int pin)
-+{
-+	int ret = dln2_gpio_pin_val(dln2, DLN2_GPIO_PIN_GET_OUT_VAL, pin);
-+
-+	if (ret < 0)
-+		return ret;
-+	return !!ret;
-+}
-+
-+static void dln2_gpio_pin_set_out_val(struct dln2_gpio *dln2,
-+				      unsigned int pin, int value)
-+{
-+	struct dln2_gpio_pin_val req = {
-+		.pin = cpu_to_le16(pin),
-+		.value = cpu_to_le16(value),
-+	};
-+
-+	dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_SET_OUT_VAL, &req, sizeof(req),
-+		      NULL, NULL);
-+}
-+
-+static int dln2_gpio_request(struct gpio_chip *chip, unsigned offset)
-+{
-+	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-+
-+	return dln2_gpio_pin_cmd(dln2, DLN2_GPIO_PIN_ENABLE, offset);
-+}
-+
-+static void dln2_gpio_free(struct gpio_chip *chip, unsigned offset)
-+{
-+	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-+
-+	dln2_gpio_pin_cmd(dln2, DLN2_GPIO_PIN_DISABLE, offset);
-+}
-+
-+#define DLN2_GPIO_DIRECTION_IN		0
-+#define DLN2_GPIO_DIRECTION_OUT		1
-+
-+static int dln2_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
-+{
-+	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-+	struct dln2_gpio_pin req = {
-+		.pin = cpu_to_le16(offset),
-+	};
-+	struct dln2_gpio_pin_val rsp;
-+	int ret, len = sizeof(rsp);
-+
-+	ret = dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_GET_DIRECTION,
-+			    &req, sizeof(req), &rsp, &len);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (len < sizeof(rsp) || req.pin != rsp.pin)
-+		return -EPROTO;
-+
-+	switch (rsp.value) {
-+	case DLN2_GPIO_DIRECTION_IN:
-+		return 1;
-+	case DLN2_GPIO_DIRECTION_OUT:
-+		return 0;
-+	default:
-+		return -EPROTO;
-+	}
-+}
-+
-+static int dln2_gpio_get(struct gpio_chip *chip, unsigned int offset)
-+{
-+	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-+	int dir = dln2_gpio_get_direction(chip, offset);
-+
-+	if (dir < 0)
-+		return dir;
-+
-+	if (dir)
-+		return dln2_gpio_pin_get_in_val(dln2, offset);
-+
-+	return dln2_gpio_pin_get_out_val(dln2, offset);
-+}
-+
-+static void dln2_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
-+{
-+	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-+
-+	dln2_gpio_pin_set_out_val(dln2, offset, value);
-+}
-+
-+static int dln2_gpio_set_direction(struct gpio_chip *chip, unsigned offset,
-+				   unsigned dir)
-+{
-+	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-+	struct dln2_gpio_pin_val req = {
-+		.pin = cpu_to_le16(offset),
-+		.value = cpu_to_le16(dir),
-+	};
-+
-+	return dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_SET_DIRECTION,
-+			     &req, sizeof(req), NULL, NULL);
-+}
-+
-+static int dln2_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
-+{
-+	return dln2_gpio_set_direction(chip, offset, DLN2_GPIO_DIRECTION_IN);
-+}
-+
-+static int dln2_gpio_direction_output(struct gpio_chip *chip, unsigned offset,
-+				      int value)
-+{
-+	return dln2_gpio_set_direction(chip, offset, DLN2_GPIO_DIRECTION_OUT);
-+}
-+
-+static int dln2_gpio_set_debounce(struct gpio_chip *chip, unsigned offset,
-+				  unsigned debounce)
-+{
-+	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-+	struct {
-+		__le32 duration;
-+	} __packed req = {
-+		.duration = cpu_to_le32(debounce),
-+	};
-+
-+	return dln2_transfer(dln2->pdev, DLN2_GPIO_SET_DEBOUNCE,
-+			     &req, sizeof(req), NULL, NULL);
-+}
-+
-+static int dln2_gpio_set_event_cfg(struct dln2_gpio *dln2, unsigned pin,
-+				   unsigned type, unsigned period)
-+{
-+	struct {
-+		__le16 pin;
-+		u8 type;
-+		__le16 period;
-+	} __packed req = {
-+		.pin = cpu_to_le16(pin),
-+		.type = type,
-+		.period = cpu_to_le16(period),
-+	};
-+
-+	return dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_SET_EVENT_CFG,
-+			     &req, sizeof(req), NULL, NULL);
-+}
-+
-+static void dln2_irq_work(struct work_struct *w)
-+{
-+	struct dln2_irq_work *iw = container_of(w, struct dln2_irq_work, work);
-+	struct dln2_gpio *dln2 = iw->dln2;
-+	u8 type = iw->type & DLN2_GPIO_EVENT_MASK;
-+
-+	/* USB device has been disconnected, bail out */
-+	if (!dln2->pdev)
-+		return;
-+
-+	if (test_bit(iw->pin, dln2->irqs_enabled))
-+		dln2_gpio_set_event_cfg(dln2, iw->pin, type, 0);
-+	else
-+		dln2_gpio_set_event_cfg(dln2, iw->pin, DLN2_GPIO_EVENT_NONE, 0);
-+}
-+
-+static void dln2_irq_enable(struct irq_data *irqd)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
-+	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
-+	int pin = irqd_to_hwirq(irqd);
-+
-+	set_bit(pin, dln2->irqs_enabled);
-+	schedule_work(&dln2->irq_work[pin].work);
-+}
-+
-+static void dln2_irq_disable(struct irq_data *irqd)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
-+	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
-+	int pin = irqd_to_hwirq(irqd);
-+
-+	clear_bit(pin, dln2->irqs_enabled);
-+	schedule_work(&dln2->irq_work[pin].work);
-+}
-+
-+static void dln2_irq_mask(struct irq_data *irqd)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
-+	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
-+	int pin = irqd_to_hwirq(irqd);
-+
-+	set_bit(pin, dln2->irqs_masked);
-+}
-+
-+static void dln2_irq_unmask(struct irq_data *irqd)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
-+	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
-+	int pin = irqd_to_hwirq(irqd);
-+
-+	if (test_and_clear_bit(pin, dln2->irqs_masked))
-+		generic_handle_irq(pin);
-+}
-+
-+static int dln2_irq_set_type(struct irq_data *irqd, unsigned type)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
-+	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
-+	int pin = irqd_to_hwirq(irqd);
-+
-+	switch (type) {
-+	case IRQ_TYPE_LEVEL_HIGH:
-+		dln2->irq_work[pin].type = DLN2_GPIO_EVENT_LVL_HIGH;
-+		break;
-+	case IRQ_TYPE_LEVEL_LOW:
-+		dln2->irq_work[pin].type = DLN2_GPIO_EVENT_LVL_LOW;
-+		break;
-+	case IRQ_TYPE_EDGE_BOTH:
-+		dln2->irq_work[pin].type = DLN2_GPIO_EVENT_CHANGE;
-+		break;
-+	case IRQ_TYPE_EDGE_RISING:
-+		dln2->irq_work[pin].type = DLN2_GPIO_EVENT_CHANGE_RISING;
-+		break;
-+	case IRQ_TYPE_EDGE_FALLING:
-+		dln2->irq_work[pin].type = DLN2_GPIO_EVENT_CHANGE_FALLING;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct irq_chip dln2_gpio_irqchip = {
-+	.name = "dln2-irq",
-+	.irq_enable = dln2_irq_enable,
-+	.irq_disable = dln2_irq_disable,
-+	.irq_mask = dln2_irq_mask,
-+	.irq_unmask = dln2_irq_unmask,
-+	.irq_set_type = dln2_irq_set_type,
-+};
-+
-+static void dln2_gpio_event(struct platform_device *pdev, u16 echo,
-+			    const void *data, int len)
-+{
-+	int pin, irq;
-+	const struct {
-+		__le16 count;
-+		__u8 type;
-+		__le16 pin;
-+		__u8 value;
-+	} __packed *event = data;
-+	struct dln2_gpio *dln2 = platform_get_drvdata(pdev);
-+
-+	pin = le16_to_cpu(event->pin);
-+	irq = irq_find_mapping(dln2->gpio.irqdomain, pin);
-+
-+	if (!irq) {
-+		dev_err(dln2->gpio.dev, "pin %d not mapped to IRQ\n", pin);
-+		return;
-+	}
-+
-+	if (!test_bit(pin, dln2->irqs_enabled) ||
-+	    test_bit(pin, dln2->irqs_masked))
-+		return;
-+
-+	switch (dln2->irq_work[pin].type) {
-+	case DLN2_GPIO_EVENT_CHANGE_RISING:
-+		if (event->value)
-+			generic_handle_irq(irq);
-+		break;
-+	case DLN2_GPIO_EVENT_CHANGE_FALLING:
-+		if (!event->value)
-+			generic_handle_irq(irq);
-+		break;
-+	default:
-+		generic_handle_irq(irq);
-+	}
-+}
-+
-+static int dln2_gpio_probe(struct platform_device *pdev)
-+{
-+	struct dln2_gpio *dln2;
-+	struct device *dev = &pdev->dev;
-+	int pins = dln2_gpio_get_pin_count(pdev), i, ret;
-+
-+	if (pins < 0) {
-+		dev_err(dev, "failed to get pin count: %d\n", pins);
-+		return pins;
-+	}
-+	if (pins > DLN2_GPIO_MAX_PINS)
-+		dev_warn(dev, "clamping pins to %d\n", DLN2_GPIO_MAX_PINS);
-+
-+	dln2 = kzalloc(sizeof(*dln2), GFP_KERNEL);
-+	if (!dln2)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < DLN2_GPIO_MAX_PINS; i++) {
-+		INIT_WORK(&dln2->irq_work[i].work, dln2_irq_work);
-+		dln2->irq_work[i].pin = i;
-+		dln2->irq_work[i].dln2 = dln2;
-+	}
-+
-+	ret = dln2_register_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV,
-+				     dln2_gpio_event);
-+	if (ret) {
-+		kfree(dln2);
-+		return ret;
-+	}
-+
-+	dln2->pdev = pdev;
-+
-+	dln2->gpio.label = "dln2";
-+	dln2->gpio.dev = dev;
-+	dln2->gpio.owner = THIS_MODULE;
-+	dln2->gpio.base = -1;
-+	dln2->gpio.ngpio = pins;
-+	dln2->gpio.exported = 1;
-+	dln2->gpio.set = dln2_gpio_set;
-+	dln2->gpio.get = dln2_gpio_get;
-+	dln2->gpio.request = dln2_gpio_request;
-+	dln2->gpio.free = dln2_gpio_free;
-+	dln2->gpio.get_direction = dln2_gpio_get_direction;
-+	dln2->gpio.direction_input = dln2_gpio_direction_input;
-+	dln2->gpio.direction_output = dln2_gpio_direction_output;
-+	dln2->gpio.set_debounce = dln2_gpio_set_debounce;
-+
-+	ret = gpiochip_add(&dln2->gpio);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to add gpio chip: %d\n", ret);
-+		dln2_unregister_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV);
-+		kfree(dln2);
-+		return ret;
-+	}
-+
-+	ret = gpiochip_irqchip_add(&dln2->gpio, &dln2_gpio_irqchip, 0,
-+				   handle_simple_irq, IRQ_TYPE_NONE);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to add irq chip: %d\n", ret);
-+		dln2_unregister_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV);
-+		gpiochip_remove(&dln2->gpio);
-+		kfree(dln2);
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, dln2);
-+
-+	return 0;
-+}
-+
-+static int dln2_gpio_remove(struct platform_device *pdev)
-+{
-+	struct dln2_gpio *dln2 = platform_get_drvdata(pdev);
-+	int ret;
-+
-+	dln2_unregister_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV);
-+	ret = gpiochip_remove(&dln2->gpio);
-+	if (ret < 0) {
-+		dev_warn(dln2->gpio.dev, "error removing gpio chip: %d\n", ret);
-+		dln2->pdev = NULL;
-+		return ret;
-+	}
-+
-+	kfree(dln2);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver dln2_gpio_driver = {
-+	.driver.name	= DRIVER_NAME,
-+	.driver.owner	= THIS_MODULE,
-+	.probe		= dln2_gpio_probe,
-+	.remove		= dln2_gpio_remove,
-+};
-+
-+module_platform_driver(dln2_gpio_driver);
-+
-+MODULE_AUTHOR("Daniel Baluta <daniel.baluta@intel.com");
-+MODULE_DESCRIPTION(DRIVER_NAME "driver");
-+MODULE_LICENSE("GPL");
--- 
-1.9.1
+This modifies the behaviour of the driver. It previously used fixed def=
+ault=20
+addresses in the DT case, and now defaults to whatever has been program=
+med in=20
+the chip. This might not be an issue in itself, but it should be docume=
+nted in=20
+the commit message (and possibly split to a separate patch).
+
+> +	struct i2c_client *new_client;
+> +
+> +	if (IS_ENABLED(CONFIG_OF)) {
+> +		/* Try to find it in DT */
+> +		new_client =3D i2c_new_secondary_device(client,
+> +			adv7604_secondary_names[i], default_addr);
+> +	} else if (pdata) {
+> +		if (pdata->i2c_addresses[i])
+> +			new_client =3D i2c_new_dummy(client->adapter,
+> +						pdata->i2c_addresses[i]);
+> +		else
+> +			new_client =3D i2c_new_dummy(client->adapter,
+> +						default_addr);
+> +	}
+>=20
+> -	if (addr)
+> -		io_write(sd, io_reg, addr << 1);
+> -	return i2c_new_dummy(client->adapter, io_read(sd, io_reg) >> 1);
+> +	if (new_client)
+> +		io_write(sd, io_reg, new_client->addr << 1);
+> +
+> +	return new_client;
+>  }
+>=20
+>  static const struct adv7604_reg_seq adv7604_recommended_settings_afe=
+[] =3D {
+> @@ -2677,6 +2711,7 @@ MODULE_DEVICE_TABLE(i2c, adv7604_i2c_id);
+>=20
+>  static struct of_device_id adv7604_of_id[] __maybe_unused =3D {
+>  	{ .compatible =3D "adi,adv7611", .data =3D &adv7604_chip_info[ADV76=
+11] },
+> +	{ .compatible =3D "adi,adv7604", .data =3D &adv7604_chip_info[ADV76=
+04] },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(of, adv7604_of_id);
+> @@ -2717,20 +2752,6 @@ static int adv7604_parse_dt(struct adv7604_sta=
+te
+> *state) /* Disable the interrupt for now as no DT-based board uses it=
+=2E */
+> state->pdata.int1_config =3D ADV7604_INT1_CONFIG_DISABLED;
+>=20
+> -	/* Use the default I2C addresses. */
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_AVLINK] =3D 0x42;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_CEC] =3D 0x40;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_INFOFRAME] =3D 0x3e;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_ESDP] =3D 0x38;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_DPP] =3D 0x3c;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_AFE] =3D 0x26;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_REP] =3D 0x32;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_EDID] =3D 0x36;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_HDMI] =3D 0x34;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_TEST] =3D 0x30;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_CP] =3D 0x22;
+> -	state->pdata.i2c_addresses[ADV7604_PAGE_VDP] =3D 0x24;
+> -
+>  	/* Hardcode the remaining platform data fields. */
+>  	state->pdata.disable_pwrdnb =3D 0;
+>  	state->pdata.disable_cable_det_rst =3D 0;
+> @@ -2891,8 +2912,7 @@ static int adv7604_probe(struct i2c_client *cli=
+ent,
+>  			continue;
+>=20
+>  		state->i2c_clients[i] =3D
+> -			adv7604_dummy_client(sd, state->pdata.i2c_addresses[i],
+> -					     0xf2 + i);
+> +			adv7604_dummy_client(sd, i);
+>  		if (state->i2c_clients[i] =3D=3D NULL) {
+>  			err =3D -ENOMEM;
+>  			v4l2_err(sd, "failed to create i2c client %u\n", i);
+
+--=20
+Regards,
+
+Laurent Pinchart
