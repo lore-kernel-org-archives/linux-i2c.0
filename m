@@ -1,112 +1,54 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] mfd: add support for Diolan DLN-2 devices
-Date: Mon, 1 Sep 2014 12:39:49 +0100
-Message-ID: <20140901113949.GP7374@lee--X1>
-References: <1409349654-24841-1-git-send-email-octavian.purdila@intel.com>
- <1409349654-24841-2-git-send-email-octavian.purdila@intel.com>
- <20140901083744.GE7374@lee--X1>
- <CAE1zotK0cddns4f4ay-GJie8O2pjb72+-yYndZvW0hbF0D83HA@mail.gmail.com>
- <20140901095127.GK7374@lee--X1>
- <CAE1zot+T6eq0jrL6_Qh=5nihNOgGEaWe5RCDk7_1XS8ZWaWKqA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: [PATCH v2] i2c: mv64xxx: continue probe when clock-frequency is missing
+Date: Mon,  1 Sep 2014 22:28:13 +0800
+Message-ID: <1409581693-15943-1-git-send-email-wens@csie.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAE1zot+T6eq0jrL6_Qh=5nihNOgGEaWe5RCDk7_1XS8ZWaWKqA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 01 Sep 2014, Octavian Purdila wrote:
+The "clock-frequency" DT property is listed as optional, However,
+the current code stores the return value of of_property_read_u32 in
+the return code of mv64xxx_of_config, but then forgets to clear it
+after setting the default value of "clock-frequency". It is then
+passed out to the main probe function, resulting in a probe failure
+when "clock-frequency" is missing.
 
-> On Mon, Sep 1, 2014 at 12:51 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wro=
-te:
-> > On Mon, 01 Sep 2014, Octavian Purdila wrote:
-> >
-> >> On Mon, Sep 1, 2014 at 11:37 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> =
-wrote:
-> >> > On Sat, 30 Aug 2014, Octavian Purdila wrote:
-> >> >
-> >> >> This patch implements the USB part of the Diolan USB-I2C/SPI/GP=
-IO
-> >> >> Master Adapter DLN-2. Details about the device can be found her=
-e:
-> >> >>
-> >> >> https://www.diolan.com/i2c/i2c_interface.html.
-> >> >>
-> >> >> Information about the USB protocol can be found in the Programm=
-er's
-> >> >> Reference Manual [1], see section 1.7.
-> >> >>
-> >> >> Because the hardware has a single transmit endpoint and a singl=
-e
-> >> >> receive endpoint the communication between the various DLN2 dri=
-vers
-> >> >> and the hardware will be muxed/demuxed by this driver.
-> >> >>
-> >> >> Each DLN2 module will be identified by the handle field within =
-the DLN2
-> >> >> message header. If a DLN2 module issues multiple commands in pa=
-rallel
-> >> >> they will be identified by the echo counter field in the messag=
-e header.
-> >> >>
-> >> >> The DLN2 modules can use the dln2_transfer() function to issue =
-a
-> >> >> command and wait for its response. They can also register a cal=
-lback
-> >> >> that is going to be called when a specific event id is generate=
-d by
-> >> >> the device (e.g. GPIO interrupts). The device uses handle 0 for
-> >> >> sending events.
-> >> >>
-> >> >> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
-> >> >
-> >> > MFD is not a dumping ground for misfit h/w.  Almost all of this =
-code
-> >> > looks like it belongs in drivers/usb.  Please move it there.
-> >> >
-> >>
-> >> We initially submitted this driver as a pure USB driver, with our =
-own
-> >> module registration mechanism, but during the first round of revie=
-ws
-> >> people pointed out that a MFD driver is the better approach, and I
-> >> agree. I also see that there are already a couple of USB drivers
-> >> implemented as MFD drivers.
-> >
-> > Can you link me to your previous submission please?
->=20
-> Sure, here it is:
->=20
-> https://lkml.org/lkml/2014/8/20/228
->=20
-> >
-> >> Do you see a better approach?
-> >
-> > You should have a small MFD driver which controls resources and
-> > registers children.  All other functionality should live in their
-> > respective drivers/X locations i.e. USB functionallity should norma=
-lly
-> > live in drivers/usb.
-> >
->=20
-> OK, that sounds better. I am not sure how to handle the registration
-> part though, since in this case we need to create the children at
-> runtime, from the usb probe routine.
->=20
-> The only solution I see is to move the driver completely to
-> usb/drivers and continue to use the MFD infrastructure. Does that
-> sound OK to you?
+This patch checks and then throws away the return value of
+of_property_read_u32, instead of storing it and having to clear it
+afterwards.
 
-I have no problem with that.  If this is an MFD driver, it _should_
-live in drivers/mfd.  However, all of that USB specific stuff
-defiantly should not.
+This issue was discovered after the property was removed from all
+sunxi DTs.
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Fixes: 4c730a06c19bb ("i2c: mv64xxx: Set bus frequency to 100kHz if clock-frequency is not provided")
+Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Acked-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+Changes in v2:
+
+ - Added Fixes tag, and Acked-bys from Andrew and Maxime.
+ - Slightly refined commit message to be clear what we're throwing away.
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 6dc5ded..2f64273 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -746,8 +746,7 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 	}
+ 	tclk = clk_get_rate(drv_data->clk);
+ 
+-	rc = of_property_read_u32(np, "clock-frequency", &bus_freq);
+-	if (rc)
++	if (of_property_read_u32(np, "clock-frequency", &bus_freq))
+ 		bus_freq = 100000; /* 100kHz by default */
+ 
+ 	if (!mv64xxx_find_baud_factors(bus_freq, tclk,
+-- 
+2.1.0
