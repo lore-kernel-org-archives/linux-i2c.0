@@ -1,69 +1,84 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-rcar: fix MNR interrupt handling
-Date: Tue, 2 Sep 2014 12:28:01 +0200
-Message-ID: <20140902102800.GB1266@katana>
-References: <1843756.qQiZLxsyqD@wasted.cogentembedded.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: mv64xxx: continue probe when
+ clock-frequency is missing
+Date: Tue, 2 Sep 2014 12:39:59 +0200
+Message-ID: <20140902103959.GC1266@katana>
+References: <1409581693-15943-1-git-send-email-wens@csie.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
+Return-path: <linux-sunxi+bncBDP47C6LHEIIDPMWUACRUBDR7Z4E6-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1843756.qQiZLxsyqD@wasted.cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+In-Reply-To: <1409581693-15943-1-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---LpQ9ahxlCli8rRTG
+--DIOMP1UsTsWJauNi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 02, 2014 at 01:15:26AM +0400, Sergei Shtylyov wrote:
-> Sometimes the MNR and MST interrupts happen simultaneously  (stop  automa=
-tically
-> follows NACK, according to the manuals) and in such case the ID_NACK flag=
-  isn't
-> set since the MST interrupt handling precedes MNR and all interrupts are =
-cleared
-> and disabled then, so that MNR interrupt is never noticed -- this causes =
-NACK'ed
-> transfers to be falsely reported as successful. Exchanging MNR and  MST h=
-andlers
-> fixes this issue, however the MNR bit  somehow  gets set again even after=
-  being
-> explicitly cleared, so I decided to completely suppress handling of all d=
-isabled
-> interrupts (which is a good thing anyway)...
+On Mon, Sep 01, 2014 at 10:28:13PM +0800, Chen-Yu Tsai wrote:
+> The "clock-frequency" DT property is listed as optional, However,
+> the current code stores the return value of of_property_read_u32 in
+> the return code of mv64xxx_of_config, but then forgets to clear it
+> after setting the default value of "clock-frequency". It is then
+> passed out to the main probe function, resulting in a probe failure
+> when "clock-frequency" is missing.
 >=20
-> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-> Cc: stable@vger.kernel.org
+> This patch checks and then throws away the return value of
+> of_property_read_u32, instead of storing it and having to clear it
+> afterwards.
 >=20
+> This issue was discovered after the property was removed from all
+> sunxi DTs.
+
+Hmm, I don't like that removal. Probably I should take care that this
+property is not "optional" but "recommended". The default value is
+depending on the driver, mostly because of historic reasons. It is
+definately better to explicitly state it. Despite all that...
+
+>=20
+> Fixes: 4c730a06c19bb ("i2c: mv64xxx: Set bus frequency to 100kHz if clock=
+-frequency is not provided")
+> Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Acked-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+> Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
 Applied to for-current, thanks!
 
 
---LpQ9ahxlCli8rRTG
+--DIOMP1UsTsWJauNi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUBZuwAAoJEBQN5MwUoCm2cJMQAI3Ku8jvgJh/YW2cYQInPjqB
-y8dFYIvD4gZXEaAnl0du7q82ITEBmLEhj8JhKqPGmNBwLFMPMRkEs2fNN3smbxkJ
-u4wyaekdiUDsY6PaqdzV6eldML2XRw420xV03Ncyic0yM9ckz7F7CUfkpdZEI0+/
-ODNuvSgGeol2FVogaEYi+AP38Ss56oyt2aEvex55yknN12HS42nu4tkB/g3JzUGk
-DYptC/G0LkS5cAGDkkan43CGJekzaEEGWMUZzjwqs3dJPqnYP9/1rasJqhCknjeO
-DVrCVlktczuh/FTtrd/5c5P8VYTgL0nZt0+MRHasOMQEkl/XtlumPALO1Zq7aHiT
-tS+IFwW48u0D2rTwyREqblBCb8XVMqn/qZozJtfppAStZ7qFheQp3fcWxUZy7XCX
-USFRCV7zeokLRDA2oW3/UqPiFHpXIWuazYpYZguEinfz0TFkPqBfjtnYm2jCh3QG
-tGABPkAYpaBBV3VxYrI71xDCB3CyXNBwIOYq/JDgQjkgi5FnXz1V4QqrFuMOoiOP
-hy1gPreaPncn+PCOwUY2DaKX2liyvo2uCTu+rAtFXLg4SrTKxvnTjYDsP8uCbqLB
-0+/N6xw+VMg0FIuaWPfZOdUXpXb//CfCfE6o69tqBRdNkEjgdjuPP7I1qk9gnJsZ
-MWWpxWTIY2y+9mN+aE0/
-=Avhx
+iQIcBAEBAgAGBQJUBZ5/AAoJEBQN5MwUoCm20C8P/jMBBZ/8ko6qmQ8OsKJfaY2C
+5zl+S9dKllOcee6xITNDdwZPEhm7whGnJbxgw822CokOpaxtZtRsQlF6d3FLZqiK
+Unrzc7kGGKSBkUNGtTOuwix2YfbJ3EtBkVxPwPX3VpWtQDxY6FrvQbRSIJn84Wqz
+o8byrnuFhxVHYg6f4AjFpv0hM0APjSrLcy4NV8qN18qSap2WEzZmxk/wOcaf0VLb
+h/KkLErzwU9edBVJ4G09PTrElwwGDZ+QbVUNIY6oVw+5dCWbuIFSrYZMjzW21Zq5
++mzQiQXnrIbXsr+d2GtuianbZ6KDXDvFN4FbL7uG+LHlqlWDZZDNNAPUe3K4bQkh
++fKIpXpNX/XRUEmXPVXeOKdhtExE8ZYiPSAVQJ4dpAodbpo5MhOVkYH1e0QQpmmV
+UtB5YYJlsiFzfDncwv897+sM4mTAnYYYE27/SPGjvM7nzc1POdNe/pXUxW5NphJ8
++8jl5kIjiiN4BeuDvWWWdcZi03BUF/RsUsQ7b0Zfn3rVxyhGxV9Tq6McojkORHDd
+EGbfFEfB7FiGxoBqmjdJih0D2upDS/EpwOhLP87u35llFhXpjd9FwGpsSSydZKVO
++tcLkYgmeJXKAYI5QkugDghgiPNATG3P84zP3hYObg1YuxfGWHnACbqXdCyCBFqK
+nbeMjtuBNtYX8obzymRb
+=Aw/R
 -----END PGP SIGNATURE-----
 
---LpQ9ahxlCli8rRTG--
+--DIOMP1UsTsWJauNi--
