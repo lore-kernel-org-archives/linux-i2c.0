@@ -1,84 +1,73 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: mv64xxx: continue probe when
- clock-frequency is missing
-Date: Tue, 2 Sep 2014 12:39:59 +0200
-Message-ID: <20140902103959.GC1266@katana>
-References: <1409581693-15943-1-git-send-email-wens@csie.org>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Subject: Re: [PATCH] i2c: imx: Add arbitration lost check
+Date: Tue, 2 Sep 2014 12:43:24 +0200
+Message-ID: <20140902104323.GD1266@katana>
+References: <1409561920-9939-1-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
-Return-path: <linux-sunxi+bncBDP47C6LHEIIDPMWUACRUBDR7Z4E6-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="jL2BoiuKMElzg3CS"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1409581693-15943-1-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <http://groups.google.com/group/linux-sunxi/subscribe>
-To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1409561920-9939-1-git-send-email-haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---DIOMP1UsTsWJauNi
+--jL2BoiuKMElzg3CS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 01, 2014 at 10:28:13PM +0800, Chen-Yu Tsai wrote:
-> The "clock-frequency" DT property is listed as optional, However,
-> the current code stores the return value of of_property_read_u32 in
-> the return code of mv64xxx_of_config, but then forgets to clear it
-> after setting the default value of "clock-frequency". It is then
-> passed out to the main probe function, resulting in a probe failure
-> when "clock-frequency" is missing.
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -268,6 +268,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i=
+2c_imx, int for_busy)
+> =20
+>  	while (1) {
+>  		temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +
+> +		/** check for arbitration lost **/
+
+One '*' is enough on each side.
+
+> +		if (temp & I2SR_IAL) {
+> +			temp &=3D ~I2SR_IAL;
+> +			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> +			return -EIO;
+
+Documentation/i2c/fault-codes defines 'EAGAIN' for arbitration lost.
+
+> +		}
+> +
+>  		if (for_busy && (temp & I2SR_IBB))
+>  			break;
+>  		if (!for_busy && !(temp & I2SR_IBB))
+> --=20
+> 1.9.1
 >=20
-> This patch checks and then throws away the return value of
-> of_property_read_u32, instead of storing it and having to clear it
-> afterwards.
->=20
-> This issue was discovered after the property was removed from all
-> sunxi DTs.
 
-Hmm, I don't like that removal. Probably I should take care that this
-property is not "optional" but "recommended". The default value is
-depending on the driver, mostly because of historic reasons. It is
-definately better to explicitly state it. Despite all that...
-
->=20
-> Fixes: 4c730a06c19bb ("i2c: mv64xxx: Set bus frequency to 100kHz if clock=
--frequency is not provided")
-> Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Acked-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-> Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-
-Applied to for-current, thanks!
-
-
---DIOMP1UsTsWJauNi
+--jL2BoiuKMElzg3CS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUBZ5/AAoJEBQN5MwUoCm20C8P/jMBBZ/8ko6qmQ8OsKJfaY2C
-5zl+S9dKllOcee6xITNDdwZPEhm7whGnJbxgw822CokOpaxtZtRsQlF6d3FLZqiK
-Unrzc7kGGKSBkUNGtTOuwix2YfbJ3EtBkVxPwPX3VpWtQDxY6FrvQbRSIJn84Wqz
-o8byrnuFhxVHYg6f4AjFpv0hM0APjSrLcy4NV8qN18qSap2WEzZmxk/wOcaf0VLb
-h/KkLErzwU9edBVJ4G09PTrElwwGDZ+QbVUNIY6oVw+5dCWbuIFSrYZMjzW21Zq5
-+mzQiQXnrIbXsr+d2GtuianbZ6KDXDvFN4FbL7uG+LHlqlWDZZDNNAPUe3K4bQkh
-+fKIpXpNX/XRUEmXPVXeOKdhtExE8ZYiPSAVQJ4dpAodbpo5MhOVkYH1e0QQpmmV
-UtB5YYJlsiFzfDncwv897+sM4mTAnYYYE27/SPGjvM7nzc1POdNe/pXUxW5NphJ8
-+8jl5kIjiiN4BeuDvWWWdcZi03BUF/RsUsQ7b0Zfn3rVxyhGxV9Tq6McojkORHDd
-EGbfFEfB7FiGxoBqmjdJih0D2upDS/EpwOhLP87u35llFhXpjd9FwGpsSSydZKVO
-+tcLkYgmeJXKAYI5QkugDghgiPNATG3P84zP3hYObg1YuxfGWHnACbqXdCyCBFqK
-nbeMjtuBNtYX8obzymRb
-=Aw/R
+iQIcBAEBAgAGBQJUBZ9LAAoJEBQN5MwUoCm2JeYP/3JWs8FOTOYcBGMK9nHd0ylX
+XH9WBBLtKpdcPB8knBr311qyC840Gh44LajtD2eSOVHjEMdPA1ePCA8JWcur4mOr
+Dj24pz6qfw0l59k9GrbsKXLZmkn8V0e+gTriUv5MZb0uSvvlRBHiiFZNW2/lPbUQ
+iYcaPHiKAj2k1I4jrDWcF79cZIXiafQ7WPiQFcAcZqeQw6XyKenk7B70pihO3hkM
+IsinjrLSuELX8qnUJNR1nfANbvL4ODBJ8FEJUWIOQLWzbXZBp188AGs86xOksWgO
+pEv4M1kngp2ntNsr+sPiLwppT9QTrkLgtjqnS6EMvfGZv5ih76Pv1CAnw/gUlFOf
+fnHABlldlvqM0KKBUViYVq7WRnKnsDepsCdXXd6nDhfVNqZp9SKhTf7rgRtKLyKD
+xKSECJxU7cHrqg/mSIVROysprQzY7neIBXUmCz2QejgcZeppsga/8clPVSZT/nY0
+fvC1VkshCheq0tUCu6xN/PaBPRzLRU7h9i74UK5YwYkbltiThoJ4r1F/TfeOy+YX
+RHcpN2tHMzjNoEJxW55uN9yZzStKRgvOCCcT/56o2tba7vYkJAtwuEDQTwt7i/Hi
+sUCSHww4hFmFe+NofB2TfUCXDf/knAS9LMR/F0WZFMDMPT1Bz1OYNu2zinGStgSy
+I3lSugtkFDk/pOkg2UGt
+=+quL
 -----END PGP SIGNATURE-----
 
---DIOMP1UsTsWJauNi--
+--jL2BoiuKMElzg3CS--
