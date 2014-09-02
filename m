@@ -1,88 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4] i2c: rk3x: fix bug that cause transfer fails in
- master receive mode
-Date: Tue, 2 Sep 2014 13:01:59 +0200
-Message-ID: <20140902110159.GF1266@katana>
-References: <1408669991-9703-1-git-send-email-addy.ke@rock-chips.com>
- <1408730452-3552-1-git-send-email-addy.ke@rock-chips.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c:at91: Fix a race condition during signal handling in
+ at91_do_twi_xfer.
+Date: Tue, 2 Sep 2014 12:56:23 +0200
+Message-ID: <20140902105623.GE1266@katana>
+References: <1409080404-19069-1-git-send-email-simon@aqwary.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1642549989427065302=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1408730452-3552-1-git-send-email-addy.ke@rock-chips.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Addy Ke <addy.ke@rock-chips.com>
-Cc: huangtao@rock-chips.com, dmitry.torokhov@gmail.com, heiko@sntech.de, sergei.shtylyov@cogentembedded.com, yzq@rock-chips.com, zyw@rock-chips.com, max.schwarz@online.de, dianders@chromium.org, linux-kernel@vger.kernel.org, kever.yang@rock-chips.com, linux-rockchip@lists.infradead.org, xjq@rock-chips.com, linux-i2c@vger.kernel.org, caesar.wang@rock-chips.com, olof@lixom.net, cf@rock-chips.com, hj@rock-chips.com, zhengsq@rock-chips.com, linux-arm-kernel@lists.infradead.org, hl@rock-chips.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SWTRyWv/ijrBap1m"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1409080404-19069-1-git-send-email-simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============1642549989427065302==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VuQYccsttdhdIfIP"
-Content-Disposition: inline
-
-
---VuQYccsttdhdIfIP
+--SWTRyWv/ijrBap1m
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 23, 2014 at 02:00:52AM +0800, Addy Ke wrote:
-> In rk3x SOC, the I2C controller can receive/transmit up to 32 bytes data
-> in one chunk, so the size of data to be write/read to/from TXDATAx/RXDATAx
-> must be less than or equal 32 bytes at a time.
+On Tue, Aug 26, 2014 at 09:13:24PM +0200, Simon Lindgren wrote:
+> There is a race condition in at91_do_twi_xfer when signals arrive.
+> If a signal is recieved while waiting for a transfer to complete
+> wait_for_completion_interruptible_timeout() will return -ERESTARTSYS.
+> This is not handled correctly resulting in interrupts still being
+> enabled and a transfer being in flight when we return.
 >=20
-> Tested on rk3288-pinky board, elan receive 158 bytes data.
+> Symptoms include a range of oopses and bus lockups. Oopses can happen
+> when the transfer completes because the interrupt handler will corrupt
+> the stack. If a new transfer is started before the interrupt fires
+> the controller will start a new transfer in the middle of the old one,
+> resulting in confused slaves and a locked bus.
 >=20
-> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Addy Ke <addy.ke@rock-chips.com>
-> Acked-by: Max Schwarz <max.schwarz@online.de>
+> To avoid this, use wait_for_completion_io_timeout instead so that we
+> don't have to deal with gracefully shutting down the transfer and
+> disabling the interrupts.
+>=20
+> Signed-off-by: Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>
 
-Applied to for-current, thanks! Please don't send new versions of a
-patch as reply-to of a previous version.
+Applied to for-current, thanks!
 
 
---VuQYccsttdhdIfIP
+--SWTRyWv/ijrBap1m
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUBaOnAAoJEBQN5MwUoCm2dMIQAIJTTUnFg+LST4rb9omcbLxI
-gO+HC27P8x2AznVbqPHv8fEOeok2Sjvff58QKpjbQtc3c+86EBCnNAMgRa/QQ5/0
-ZLRuGDYaCqFMqAXwMz3giDYJmeZrwVGKM3ME4Fm5UfnTg+aMKdSUB2V1V5WTYMPE
-5vWVizuWGohhn5rq8OPHUt2c4WFJLn+cDzxwrzl3F/QaOARs7YkELPsYmr8xMpJi
-I+1+y0y+hRcdcM7pnlys+wcQIpgTty6RR/E+2eF/9KsIFhpT57RsvCr0ZeT1tE2L
-60zEwJLPPXUJEPqvcRMNia8LaL9wk1b9q4R8i0B2wKJhb3/T/A7WVmkhFBoynQqi
-RR1rT6XrE7BKdojqaxBzcaMZwH2Kakhz75T/DhSL8gu1oXSVwp/QsqohWoC/X/IH
-rsMi0sOKAJGluYxF3VBngGLZzAi7hhvx2sKhQOpkUNMfdsNZKzqYjJrxdUFvKUwr
-M04ZQmwCAoqUF8ojmKx9KmXMx1rgroVD4wQn3gi64DpuytQ6in+m6caaBAALqxL3
-0/5SEDSy74xOAxOstu868ax654ckonshCH/6smYy/ZJ0846buXJizLdbPEi29mkO
-HZc02FIvww0f9q48HGfSYEJxnhFVOlThOroVPM7i3O5DEhsdOnExy6YEv316LylN
-FFBlhiX4cO7G2c/+3TNx
-=wiRz
+iQIcBAEBAgAGBQJUBaJXAAoJEBQN5MwUoCm2lMAQAKtY21GNyxAPYTmQFYw2xJp/
+e67Pit9TL1d2VqvNkR3YDpTsgmDC6ws0qSB4BnubmigY92Bq8378VYSKZ5Pkpe+4
+UiHy0K0e1VnyDusZm+LnqcnTct3WsR5WLUkphkrlRZnAFnUQtp8M+tw5y9QRXz/u
+H97mianmVfm9JCzyVcxMSBfglcsKZRt4RkB4/7A3L0/Hl2Xb5PQttupZU2kUpRex
+dOuJT/flLI0F2M6FYhX1SLzW5bZCRtBIZBHtPC4Pfn3fH+J34D3kCKToKfMwnala
+PF4axHt3o7cnoTyrRUO5zU24t68Bi/2bZErlOECmTenUkacw7jzYZQz56by8oPIl
+XlPsSNMG0Hq3/4zWXYtveVRSikYZ00tKBtlm10tVjUJ9BBPzU+bskprX+dsHylQM
+TGnEXd6KOp5ebOABGFqeGKLjT6AMAbANn+MqMLaffAlqe47jrhNeOpLO7T8AOcxl
+Y2rLChAJlFFRvyC/1hvq7P5JSIrBgHNZmh9OfQRqrw6pe0hN+S7GsKYlHYM8aUVB
+jJnBxHtC2L0So8S9PAYBVHXx+0WA9DfP+P9ZllLDNURqfv/5WbJoFX8irp9ZXfrq
+HJ+vUXVCzbabpJnin/t8JKF7I9fJ17pK9vOjUy5FESFu1DKTYcVEudezGBeqGgw2
+E58vbjTLqlwvrq2RsSM6
+=Sm5H
 -----END PGP SIGNATURE-----
 
---VuQYccsttdhdIfIP--
-
-
---===============1642549989427065302==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============1642549989427065302==--
+--SWTRyWv/ijrBap1m--
