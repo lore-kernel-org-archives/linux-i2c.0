@@ -1,149 +1,69 @@
-From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] mfd: add support for Diolan DLN-2 devices
-Date: Tue, 2 Sep 2014 11:45:55 +0300
-Message-ID: <CAE1zotJzFL0bZvNo4mHK3+EhURarhTPDE5n+SdNzof8Nc-CFew@mail.gmail.com>
-References: <1409349654-24841-2-git-send-email-octavian.purdila@intel.com>
-	<20140901083744.GE7374@lee--X1>
-	<CAE1zotK0cddns4f4ay-GJie8O2pjb72+-yYndZvW0hbF0D83HA@mail.gmail.com>
-	<20140901095127.GK7374@lee--X1>
-	<CAE1zot+T6eq0jrL6_Qh=5nihNOgGEaWe5RCDk7_1XS8ZWaWKqA@mail.gmail.com>
-	<20140901113949.GP7374@lee--X1>
-	<CAE1zotKNBTEMX8DDYwdwOcq0qZgqxZWazE60TUQeiOmD0a4xbA@mail.gmail.com>
-	<20140901154626.GH8796@lee--X1>
-	<CAE1zotL-cjHqrdymzYhZq24zx+0qGY8-4JnrVZf-TGXDf5Sm3w@mail.gmail.com>
-	<20140901175453.GR4894@localhost>
-	<20140902080010.GD17117@lee--X1>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c-rcar: fix MNR interrupt handling
+Date: Tue, 2 Sep 2014 12:28:01 +0200
+Message-ID: <20140902102800.GB1266@katana>
+References: <1843756.qQiZLxsyqD@wasted.cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140902080010.GD17117@lee--X1>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1843756.qQiZLxsyqD@wasted.cogentembedded.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 2, 2014 at 11:00 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Mon, 01 Sep 2014, Johan Hovold wrote:
->> On Mon, Sep 01, 2014 at 07:22:39PM +0300, Octavian Purdila wrote:
->> > On Mon, Sep 1, 2014 at 6:46 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> > > On Mon, 01 Sep 2014, Octavian Purdila wrote:
->> > >
->> > >> On Mon, Sep 1, 2014 at 2:39 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> > >> > On Mon, 01 Sep 2014, Octavian Purdila wrote:
->> > >> >> On Mon, Sep 1, 2014 at 12:51 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->>
->> > >> >> > You should have a small MFD driver which controls resources and
->> > >> >> > registers children.  All other functionality should live in their
->> > >> >> > respective drivers/X locations i.e. USB functionallity should normally
->> > >> >> > live in drivers/usb.
->> > >> >> >
->> > >> >>
->> > >> >> OK, that sounds better. I am not sure how to handle the registration
->> > >> >> part though, since in this case we need to create the children at
->> > >> >> runtime, from the usb probe routine.
->> > >> >>
->> > >> >> The only solution I see is to move the driver completely to
->> > >> >> usb/drivers and continue to use the MFD infrastructure. Does that
->> > >> >> sound OK to you?
->> > >> >
->> > >> > I have no problem with that.  If this is an MFD driver, it _should_
->> > >> > live in drivers/mfd.  However, all of that USB specific stuff
->> > >> > defiantly should not.
->> > >> >
->> > >> > >> It is a multi-function driver which is using the USB interface, so I
->> > >> am not sure where it belongs. The only driver that calls
->> > >> mfd_add_devices and is not in drivers/mfd is the hid sensor hub
->> > >> driver.
->> > >>
->> > >> BTW, the mfd/viperboard.c driver is very similar with this driver. It
->> > >> has less USB specific stuff because the protocol is simpler, but still
->> > >> has some.
->> > >
->> > > Looking at viperboard.c, it seems to use some basic generic framework
->> > > calls to obtain some information about the device information like
->> > > version numbers.  Your driver is leaps and bounds more USB centric.
->> > >
->> > > Your MFD driver should know about things like; regmap, platform data,
->> > > memory allocation, same-chip devices (children), etc.  Your MFD driver
->> > > should not need to concern itself with; endpoints, slots, URBs, USB
->> > > device IDs and the like.  The later knowledge belongs in drivers/usb.
->> > >
->> > > You should be calling mfd_add_devices() from within the MFD driver.
->> > > At a guess, I would say that you need a new entry for the USB stuff in
->> > > your mfd_cells structure.
->> > >
->> >
->> > Makes sense, thanks for making clearing up what the MFD part of the
->> > driver should do.
->> >
->> > Here is how I think it could work:
->> >
->> >  * keep the usb probe routine in the MFD driver (and keep it a usb driver)
->> >
->> >  * add a new cell for the usb part
->> >
->> >  * pass the usb_interface via platform_data to the USB sub-driver's
->> > platform_device probe routine and continue the USB setup there
->> >
->> > Lee, USB folks, is this acceptable?
->>
->> No, no. USB is not a function of the MFD device, it's the transport.
->> Thus there should be no USB MFD-cell. No subdriver can work without it.
->>
->> And the USB id belongs in the MFD-driver in the same way that an
->> i2c id (address) does.
->>
->> Just like an MFD device with i2c as a transport, this driver would
->> function as an arbiter to a shared resource (i.e. the register space).
->> The reason it seems much more USB-centric than an i2c-mfd driver is that
->> that transport API is simpler and some code have also already been
->> generalised (e.g. regmap), whereas we appear to have only two USB
->> mfd-drivers thus far.
->>
->> The viperboard is perhaps a bad example in so far that it has pushed the
->> transport details down into the subdrivers (and thus into gpio, i2c and
->> iio subsystems) instead of handling it one place.
->
-> Thanks for your explanation.  I take your point about the USB ID and I
-> did say I was guessing that the USB part should exist as a child
-> device.
->
-> So after your comments I decided to do a little investigation.  It
-> appears that this MFD driver is _just_ using the common API which all
-> other devices utilising USB comms are forced to use.  Is that correct?
->
-> If so, I have a question.  Is there no way to hide more of the USB
-> specifics inside a better, simpler API?  It looks like the drivers
-> which use USB are subjected to a lot (too much) of what might be
-> considered internals.  Or is it just that the client has to tinker
-> with too many dials to get anything sensible out? *shudders*
->
 
-Yes, the driver is just using the common USB API to communicate with
-the device.
+--LpQ9ahxlCli8rRTG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It is more complicated then the average USB driver because there is a
-single interface and a single receive endpoint which needs to serve
-multiple drivers and requests, thus the need to multiplex the
-communication.
+On Tue, Sep 02, 2014 at 01:15:26AM +0400, Sergei Shtylyov wrote:
+> Sometimes the MNR and MST interrupts happen simultaneously  (stop  automa=
+tically
+> follows NACK, according to the manuals) and in such case the ID_NACK flag=
+  isn't
+> set since the MST interrupt handling precedes MNR and all interrupts are =
+cleared
+> and disabled then, so that MNR interrupt is never noticed -- this causes =
+NACK'ed
+> transfers to be falsely reported as successful. Exchanging MNR and  MST h=
+andlers
+> fixes this issue, however the MNR bit  somehow  gets set again even after=
+  being
+> explicitly cleared, so I decided to completely suppress handling of all d=
+isabled
+> interrupts (which is a good thing anyway)...
+>=20
+> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+> Cc: stable@vger.kernel.org
+>=20
 
->> I haven't looked at the details of the protocol for the device in
->> question, but it might even be possible to use regmap here (as I
->> mentioned in my comments on v1).
->
-> Obviously that would be preferred.
->
-> Octavian, did you look into that?
->
+Applied to for-current, thanks!
 
-Yes, I did. Since this is the first time I am looking at regmap I may
-be wrong but I don't see a way to use it. The dln2 i2c driver needs to
-be able to send and receive arbitrary size buffers and this does not
-seem possible to do with the regmap API.
 
-(Also creating a regmap class for a particular device seems over
-engineering since nobody else is going to use it)
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--LpQ9ahxlCli8rRTG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUBZuwAAoJEBQN5MwUoCm2cJMQAI3Ku8jvgJh/YW2cYQInPjqB
+y8dFYIvD4gZXEaAnl0du7q82ITEBmLEhj8JhKqPGmNBwLFMPMRkEs2fNN3smbxkJ
+u4wyaekdiUDsY6PaqdzV6eldML2XRw420xV03Ncyic0yM9ckz7F7CUfkpdZEI0+/
+ODNuvSgGeol2FVogaEYi+AP38Ss56oyt2aEvex55yknN12HS42nu4tkB/g3JzUGk
+DYptC/G0LkS5cAGDkkan43CGJekzaEEGWMUZzjwqs3dJPqnYP9/1rasJqhCknjeO
+DVrCVlktczuh/FTtrd/5c5P8VYTgL0nZt0+MRHasOMQEkl/XtlumPALO1Zq7aHiT
+tS+IFwW48u0D2rTwyREqblBCb8XVMqn/qZozJtfppAStZ7qFheQp3fcWxUZy7XCX
+USFRCV7zeokLRDA2oW3/UqPiFHpXIWuazYpYZguEinfz0TFkPqBfjtnYm2jCh3QG
+tGABPkAYpaBBV3VxYrI71xDCB3CyXNBwIOYq/JDgQjkgi5FnXz1V4QqrFuMOoiOP
+hy1gPreaPncn+PCOwUY2DaKX2liyvo2uCTu+rAtFXLg4SrTKxvnTjYDsP8uCbqLB
+0+/N6xw+VMg0FIuaWPfZOdUXpXb//CfCfE6o69tqBRdNkEjgdjuPP7I1qk9gnJsZ
+MWWpxWTIY2y+9mN+aE0/
+=Avhx
+-----END PGP SIGNATURE-----
+
+--LpQ9ahxlCli8rRTG--
