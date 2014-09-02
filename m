@@ -1,64 +1,166 @@
-From: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH] i2c: imx: Add arbitration lost check
-Date: Tue, 2 Sep 2014 02:53:30 +0000
-Message-ID: <41a897c8ddf046a5a1629154711fade8@BLUPR03MB373.namprd03.prod.outlook.com>
-References: <1409561920-9939-1-git-send-email-haibo.chen@freescale.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v2 1/3] mfd: add support for Diolan DLN-2 devices
+Date: Tue, 2 Sep 2014 09:00:10 +0100
+Message-ID: <20140902080010.GD17117@lee--X1>
+References: <1409349654-24841-2-git-send-email-octavian.purdila@intel.com>
+ <20140901083744.GE7374@lee--X1>
+ <CAE1zotK0cddns4f4ay-GJie8O2pjb72+-yYndZvW0hbF0D83HA@mail.gmail.com>
+ <20140901095127.GK7374@lee--X1>
+ <CAE1zot+T6eq0jrL6_Qh=5nihNOgGEaWe5RCDk7_1XS8ZWaWKqA@mail.gmail.com>
+ <20140901113949.GP7374@lee--X1>
+ <CAE1zotKNBTEMX8DDYwdwOcq0qZgqxZWazE60TUQeiOmD0a4xbA@mail.gmail.com>
+ <20140901154626.GH8796@lee--X1>
+ <CAE1zotL-cjHqrdymzYhZq24zx+0qGY8-4JnrVZf-TGXDf5Sm3w@mail.gmail.com>
+ <20140901175453.GR4894@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1409561920-9939-1-git-send-email-haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140901175453.GR4894@localhost>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>
+Cc: Octavian Purdila <octavian.purdila@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org> Sent: Monday, September 01, 2014 4:59 PM
->To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
->Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Duan Fugang-B38611
->Subject: [PATCH] i2c: imx: Add arbitration lost check
->
->According to the i.mx spec, for multimaster mode, if I2C is enabled when
->the bus is busy and asserts start, hardware inhibits the transmission,
->clears MSTA without signaling a stop, generate an interrupt, and set
->I2C_I2SR[IAL] to indicate a failed attempt to engage the bus, which means
->arbitration lost. In this case, we should first test I2C_I2SR[IAL], and
->clear this bit if it is set, and then I2C controller default to slave
->receive mode.
->
->This patch check the IAL bit every time before an I2c transmission.
->if IAL is set, clear it and make I2C controller to default mode.
->
->Signed-off-by: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->---
-> drivers/i2c/busses/i2c-imx.c | 8 ++++++++
-> 1 file changed, 8 insertions(+)
->
->diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
->index 613069b..144b620 100644
->--- a/drivers/i2c/busses/i2c-imx.c
->+++ b/drivers/i2c/busses/i2c-imx.c
->@@ -268,6 +268,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct
->*i2c_imx, int for_busy)
->
-> 	while (1) {
-> 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
->+
->+		/** check for arbitration lost **/
->+		if (temp & I2SR_IAL) {
->+			temp &= ~I2SR_IAL;
->+			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
->+			return -EIO;
->+		}
->+
-> 		if (for_busy && (temp & I2SR_IBB))
-> 			break;
-> 		if (!for_busy && !(temp & I2SR_IBB))
->--
->1.9.1
+On Mon, 01 Sep 2014, Johan Hovold wrote:
+> On Mon, Sep 01, 2014 at 07:22:39PM +0300, Octavian Purdila wrote:
+> > On Mon, Sep 1, 2014 at 6:46 PM, Lee Jones <lee.jones@linaro.org> wr=
+ote:
+> > > On Mon, 01 Sep 2014, Octavian Purdila wrote:
+> > >
+> > >> On Mon, Sep 1, 2014 at 2:39 PM, Lee Jones <lee.jones@linaro.org>=
+ wrote:
+> > >> > On Mon, 01 Sep 2014, Octavian Purdila wrote:
+> > >> >> On Mon, Sep 1, 2014 at 12:51 PM, Lee Jones <lee.jones@linaro.=
+org> wrote:
+>=20
+> > >> >> > You should have a small MFD driver which controls resources=
+ and
+> > >> >> > registers children.  All other functionality should live in=
+ their
+> > >> >> > respective drivers/X locations i.e. USB functionallity shou=
+ld normally
+> > >> >> > live in drivers/usb.
+> > >> >> >
+> > >> >>
+> > >> >> OK, that sounds better. I am not sure how to handle the regis=
+tration
+> > >> >> part though, since in this case we need to create the childre=
+n at
+> > >> >> runtime, from the usb probe routine.
+> > >> >>
+> > >> >> The only solution I see is to move the driver completely to
+> > >> >> usb/drivers and continue to use the MFD infrastructure. Does =
+that
+> > >> >> sound OK to you?
+> > >> >
+> > >> > I have no problem with that.  If this is an MFD driver, it _sh=
+ould_
+> > >> > live in drivers/mfd.  However, all of that USB specific stuff
+> > >> > defiantly should not.
+> > >> >
+> > >> > >> It is a multi-function driver which is using the USB interf=
+ace, so I
+> > >> am not sure where it belongs. The only driver that calls
+> > >> mfd_add_devices and is not in drivers/mfd is the hid sensor hub
+> > >> driver.
+> > >>
+> > >> BTW, the mfd/viperboard.c driver is very similar with this drive=
+r. It
+> > >> has less USB specific stuff because the protocol is simpler, but=
+ still
+> > >> has some.
+> > >
+> > > Looking at viperboard.c, it seems to use some basic generic frame=
+work
+> > > calls to obtain some information about the device information lik=
+e
+> > > version numbers.  Your driver is leaps and bounds more USB centri=
+c.
+> > >
+> > > Your MFD driver should know about things like; regmap, platform d=
+ata,
+> > > memory allocation, same-chip devices (children), etc.  Your MFD d=
+river
+> > > should not need to concern itself with; endpoints, slots, URBs, U=
+SB
+> > > device IDs and the like.  The later knowledge belongs in drivers/=
+usb.
+> > >
+> > > You should be calling mfd_add_devices() from within the MFD drive=
+r.
+> > > At a guess, I would say that you need a new entry for the USB stu=
+ff in
+> > > your mfd_cells structure.
+> > >
+> >=20
+> > Makes sense, thanks for making clearing up what the MFD part of the
+> > driver should do.
+> >=20
+> > Here is how I think it could work:
+> >=20
+> >  * keep the usb probe routine in the MFD driver (and keep it a usb =
+driver)
+> >=20
+> >  * add a new cell for the usb part
+> >=20
+> >  * pass the usb_interface via platform_data to the USB sub-driver's
+> > platform_device probe routine and continue the USB setup there
+> >=20
+> > Lee, USB folks, is this acceptable?
+>=20
+> No, no. USB is not a function of the MFD device, it's the transport.
+> Thus there should be no USB MFD-cell. No subdriver can work without i=
+t.
+>=20
+> And the USB id belongs in the MFD-driver in the same way that an
+> i2c id (address) does.
+>=20
+> Just like an MFD device with i2c as a transport, this driver would
+> function as an arbiter to a shared resource (i.e. the register space)=
+=2E
+> The reason it seems much more USB-centric than an i2c-mfd driver is t=
+hat
+> that transport API is simpler and some code have also already been
+> generalised (e.g. regmap), whereas we appear to have only two USB
+> mfd-drivers thus far.
+>=20
+> The viperboard is perhaps a bad example in so far that it has pushed =
+the
+> transport details down into the subdrivers (and thus into gpio, i2c a=
+nd
+> iio subsystems) instead of handling it one place.
 
-Acked-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Thanks for your explanation.  I take your point about the USB ID and I
+did say I was guessing that the USB part should exist as a child
+device.
 
-Thanks,
-Andy
+So after your comments I decided to do a little investigation.  It
+appears that this MFD driver is _just_ using the common API which all
+other devices utilising USB comms are forced to use.  Is that correct?
+
+If so, I have a question.  Is there no way to hide more of the USB
+specifics inside a better, simpler API?  It looks like the drivers
+which use USB are subjected to a lot (too much) of what might be
+considered internals.  Or is it just that the client has to tinker
+with too many dials to get anything sensible out? *shudders*
+
+> I haven't looked at the details of the protocol for the device in
+> question, but it might even be possible to use regmap here (as I
+> mentioned in my comments on v1).
+
+Obviously that would be preferred.
+
+Octavian, did you look into that?
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
