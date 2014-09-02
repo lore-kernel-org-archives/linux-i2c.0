@@ -1,166 +1,149 @@
-From: Lee Jones <lee.jones@linaro.org>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH v2 1/3] mfd: add support for Diolan DLN-2 devices
-Date: Tue, 2 Sep 2014 09:00:10 +0100
-Message-ID: <20140902080010.GD17117@lee--X1>
+Date: Tue, 2 Sep 2014 11:45:55 +0300
+Message-ID: <CAE1zotJzFL0bZvNo4mHK3+EhURarhTPDE5n+SdNzof8Nc-CFew@mail.gmail.com>
 References: <1409349654-24841-2-git-send-email-octavian.purdila@intel.com>
- <20140901083744.GE7374@lee--X1>
- <CAE1zotK0cddns4f4ay-GJie8O2pjb72+-yYndZvW0hbF0D83HA@mail.gmail.com>
- <20140901095127.GK7374@lee--X1>
- <CAE1zot+T6eq0jrL6_Qh=5nihNOgGEaWe5RCDk7_1XS8ZWaWKqA@mail.gmail.com>
- <20140901113949.GP7374@lee--X1>
- <CAE1zotKNBTEMX8DDYwdwOcq0qZgqxZWazE60TUQeiOmD0a4xbA@mail.gmail.com>
- <20140901154626.GH8796@lee--X1>
- <CAE1zotL-cjHqrdymzYhZq24zx+0qGY8-4JnrVZf-TGXDf5Sm3w@mail.gmail.com>
- <20140901175453.GR4894@localhost>
+	<20140901083744.GE7374@lee--X1>
+	<CAE1zotK0cddns4f4ay-GJie8O2pjb72+-yYndZvW0hbF0D83HA@mail.gmail.com>
+	<20140901095127.GK7374@lee--X1>
+	<CAE1zot+T6eq0jrL6_Qh=5nihNOgGEaWe5RCDk7_1XS8ZWaWKqA@mail.gmail.com>
+	<20140901113949.GP7374@lee--X1>
+	<CAE1zotKNBTEMX8DDYwdwOcq0qZgqxZWazE60TUQeiOmD0a4xbA@mail.gmail.com>
+	<20140901154626.GH8796@lee--X1>
+	<CAE1zotL-cjHqrdymzYhZq24zx+0qGY8-4JnrVZf-TGXDf5Sm3w@mail.gmail.com>
+	<20140901175453.GR4894@localhost>
+	<20140902080010.GD17117@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140901175453.GR4894@localhost>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Octavian Purdila <octavian.purdila@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140902080010.GD17117@lee--X1>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 01 Sep 2014, Johan Hovold wrote:
-> On Mon, Sep 01, 2014 at 07:22:39PM +0300, Octavian Purdila wrote:
-> > On Mon, Sep 1, 2014 at 6:46 PM, Lee Jones <lee.jones@linaro.org> wr=
-ote:
-> > > On Mon, 01 Sep 2014, Octavian Purdila wrote:
-> > >
-> > >> On Mon, Sep 1, 2014 at 2:39 PM, Lee Jones <lee.jones@linaro.org>=
- wrote:
-> > >> > On Mon, 01 Sep 2014, Octavian Purdila wrote:
-> > >> >> On Mon, Sep 1, 2014 at 12:51 PM, Lee Jones <lee.jones@linaro.=
-org> wrote:
->=20
-> > >> >> > You should have a small MFD driver which controls resources=
- and
-> > >> >> > registers children.  All other functionality should live in=
- their
-> > >> >> > respective drivers/X locations i.e. USB functionallity shou=
-ld normally
-> > >> >> > live in drivers/usb.
-> > >> >> >
-> > >> >>
-> > >> >> OK, that sounds better. I am not sure how to handle the regis=
-tration
-> > >> >> part though, since in this case we need to create the childre=
-n at
-> > >> >> runtime, from the usb probe routine.
-> > >> >>
-> > >> >> The only solution I see is to move the driver completely to
-> > >> >> usb/drivers and continue to use the MFD infrastructure. Does =
-that
-> > >> >> sound OK to you?
-> > >> >
-> > >> > I have no problem with that.  If this is an MFD driver, it _sh=
-ould_
-> > >> > live in drivers/mfd.  However, all of that USB specific stuff
-> > >> > defiantly should not.
-> > >> >
-> > >> > >> It is a multi-function driver which is using the USB interf=
-ace, so I
-> > >> am not sure where it belongs. The only driver that calls
-> > >> mfd_add_devices and is not in drivers/mfd is the hid sensor hub
-> > >> driver.
-> > >>
-> > >> BTW, the mfd/viperboard.c driver is very similar with this drive=
-r. It
-> > >> has less USB specific stuff because the protocol is simpler, but=
- still
-> > >> has some.
-> > >
-> > > Looking at viperboard.c, it seems to use some basic generic frame=
-work
-> > > calls to obtain some information about the device information lik=
-e
-> > > version numbers.  Your driver is leaps and bounds more USB centri=
-c.
-> > >
-> > > Your MFD driver should know about things like; regmap, platform d=
-ata,
-> > > memory allocation, same-chip devices (children), etc.  Your MFD d=
-river
-> > > should not need to concern itself with; endpoints, slots, URBs, U=
-SB
-> > > device IDs and the like.  The later knowledge belongs in drivers/=
-usb.
-> > >
-> > > You should be calling mfd_add_devices() from within the MFD drive=
-r.
-> > > At a guess, I would say that you need a new entry for the USB stu=
-ff in
-> > > your mfd_cells structure.
-> > >
-> >=20
-> > Makes sense, thanks for making clearing up what the MFD part of the
-> > driver should do.
-> >=20
-> > Here is how I think it could work:
-> >=20
-> >  * keep the usb probe routine in the MFD driver (and keep it a usb =
-driver)
-> >=20
-> >  * add a new cell for the usb part
-> >=20
-> >  * pass the usb_interface via platform_data to the USB sub-driver's
-> > platform_device probe routine and continue the USB setup there
-> >=20
-> > Lee, USB folks, is this acceptable?
->=20
-> No, no. USB is not a function of the MFD device, it's the transport.
-> Thus there should be no USB MFD-cell. No subdriver can work without i=
-t.
->=20
-> And the USB id belongs in the MFD-driver in the same way that an
-> i2c id (address) does.
->=20
-> Just like an MFD device with i2c as a transport, this driver would
-> function as an arbiter to a shared resource (i.e. the register space)=
-=2E
-> The reason it seems much more USB-centric than an i2c-mfd driver is t=
-hat
-> that transport API is simpler and some code have also already been
-> generalised (e.g. regmap), whereas we appear to have only two USB
-> mfd-drivers thus far.
->=20
-> The viperboard is perhaps a bad example in so far that it has pushed =
-the
-> transport details down into the subdrivers (and thus into gpio, i2c a=
-nd
-> iio subsystems) instead of handling it one place.
+On Tue, Sep 2, 2014 at 11:00 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On Mon, 01 Sep 2014, Johan Hovold wrote:
+>> On Mon, Sep 01, 2014 at 07:22:39PM +0300, Octavian Purdila wrote:
+>> > On Mon, Sep 1, 2014 at 6:46 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>> > > On Mon, 01 Sep 2014, Octavian Purdila wrote:
+>> > >
+>> > >> On Mon, Sep 1, 2014 at 2:39 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>> > >> > On Mon, 01 Sep 2014, Octavian Purdila wrote:
+>> > >> >> On Mon, Sep 1, 2014 at 12:51 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>>
+>> > >> >> > You should have a small MFD driver which controls resources and
+>> > >> >> > registers children.  All other functionality should live in their
+>> > >> >> > respective drivers/X locations i.e. USB functionallity should normally
+>> > >> >> > live in drivers/usb.
+>> > >> >> >
+>> > >> >>
+>> > >> >> OK, that sounds better. I am not sure how to handle the registration
+>> > >> >> part though, since in this case we need to create the children at
+>> > >> >> runtime, from the usb probe routine.
+>> > >> >>
+>> > >> >> The only solution I see is to move the driver completely to
+>> > >> >> usb/drivers and continue to use the MFD infrastructure. Does that
+>> > >> >> sound OK to you?
+>> > >> >
+>> > >> > I have no problem with that.  If this is an MFD driver, it _should_
+>> > >> > live in drivers/mfd.  However, all of that USB specific stuff
+>> > >> > defiantly should not.
+>> > >> >
+>> > >> > >> It is a multi-function driver which is using the USB interface, so I
+>> > >> am not sure where it belongs. The only driver that calls
+>> > >> mfd_add_devices and is not in drivers/mfd is the hid sensor hub
+>> > >> driver.
+>> > >>
+>> > >> BTW, the mfd/viperboard.c driver is very similar with this driver. It
+>> > >> has less USB specific stuff because the protocol is simpler, but still
+>> > >> has some.
+>> > >
+>> > > Looking at viperboard.c, it seems to use some basic generic framework
+>> > > calls to obtain some information about the device information like
+>> > > version numbers.  Your driver is leaps and bounds more USB centric.
+>> > >
+>> > > Your MFD driver should know about things like; regmap, platform data,
+>> > > memory allocation, same-chip devices (children), etc.  Your MFD driver
+>> > > should not need to concern itself with; endpoints, slots, URBs, USB
+>> > > device IDs and the like.  The later knowledge belongs in drivers/usb.
+>> > >
+>> > > You should be calling mfd_add_devices() from within the MFD driver.
+>> > > At a guess, I would say that you need a new entry for the USB stuff in
+>> > > your mfd_cells structure.
+>> > >
+>> >
+>> > Makes sense, thanks for making clearing up what the MFD part of the
+>> > driver should do.
+>> >
+>> > Here is how I think it could work:
+>> >
+>> >  * keep the usb probe routine in the MFD driver (and keep it a usb driver)
+>> >
+>> >  * add a new cell for the usb part
+>> >
+>> >  * pass the usb_interface via platform_data to the USB sub-driver's
+>> > platform_device probe routine and continue the USB setup there
+>> >
+>> > Lee, USB folks, is this acceptable?
+>>
+>> No, no. USB is not a function of the MFD device, it's the transport.
+>> Thus there should be no USB MFD-cell. No subdriver can work without it.
+>>
+>> And the USB id belongs in the MFD-driver in the same way that an
+>> i2c id (address) does.
+>>
+>> Just like an MFD device with i2c as a transport, this driver would
+>> function as an arbiter to a shared resource (i.e. the register space).
+>> The reason it seems much more USB-centric than an i2c-mfd driver is that
+>> that transport API is simpler and some code have also already been
+>> generalised (e.g. regmap), whereas we appear to have only two USB
+>> mfd-drivers thus far.
+>>
+>> The viperboard is perhaps a bad example in so far that it has pushed the
+>> transport details down into the subdrivers (and thus into gpio, i2c and
+>> iio subsystems) instead of handling it one place.
+>
+> Thanks for your explanation.  I take your point about the USB ID and I
+> did say I was guessing that the USB part should exist as a child
+> device.
+>
+> So after your comments I decided to do a little investigation.  It
+> appears that this MFD driver is _just_ using the common API which all
+> other devices utilising USB comms are forced to use.  Is that correct?
+>
+> If so, I have a question.  Is there no way to hide more of the USB
+> specifics inside a better, simpler API?  It looks like the drivers
+> which use USB are subjected to a lot (too much) of what might be
+> considered internals.  Or is it just that the client has to tinker
+> with too many dials to get anything sensible out? *shudders*
+>
 
-Thanks for your explanation.  I take your point about the USB ID and I
-did say I was guessing that the USB part should exist as a child
-device.
+Yes, the driver is just using the common USB API to communicate with
+the device.
 
-So after your comments I decided to do a little investigation.  It
-appears that this MFD driver is _just_ using the common API which all
-other devices utilising USB comms are forced to use.  Is that correct?
+It is more complicated then the average USB driver because there is a
+single interface and a single receive endpoint which needs to serve
+multiple drivers and requests, thus the need to multiplex the
+communication.
 
-If so, I have a question.  Is there no way to hide more of the USB
-specifics inside a better, simpler API?  It looks like the drivers
-which use USB are subjected to a lot (too much) of what might be
-considered internals.  Or is it just that the client has to tinker
-with too many dials to get anything sensible out? *shudders*
+>> I haven't looked at the details of the protocol for the device in
+>> question, but it might even be possible to use regmap here (as I
+>> mentioned in my comments on v1).
+>
+> Obviously that would be preferred.
+>
+> Octavian, did you look into that?
+>
 
-> I haven't looked at the details of the protocol for the device in
-> question, but it might even be possible to use regmap here (as I
-> mentioned in my comments on v1).
+Yes, I did. Since this is the first time I am looking at regmap I may
+be wrong but I don't see a way to use it. The dln2 i2c driver needs to
+be able to send and receive arbitrary size buffers and this does not
+seem possible to do with the regmap API.
 
-Obviously that would be preferred.
-
-Octavian, did you look into that?
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+(Also creating a regmap class for a particular device seems over
+engineering since nobody else is going to use it)
 --
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
