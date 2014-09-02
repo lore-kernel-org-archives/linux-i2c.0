@@ -1,51 +1,72 @@
-From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH] i2c-rcar: fix MNR interrupt handling
-Date: Tue, 02 Sep 2014 22:29:06 +0400
-Message-ID: <54060C72.3010309@cogentembedded.com>
-References: <1843756.qQiZLxsyqD@wasted.cogentembedded.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 08/11] i2c: rcar: remove spinlock
+Date: Wed, 03 Sep 2014 02:10:18 +0400
+Message-ID: <5406404A.7090509@cogentembedded.com>
+References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de> <1401263086-13720-9-git-send-email-wsa@the-dreams.de> <53F7D83A.5030903@cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1843756.qQiZLxsyqD-gHKXc3Y1Z8zGSmamagVegGFoWSdPRAKMAL8bYrjMMd8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <53F7D83A.5030903@cogentembedded.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/02/2014 01:15 AM, Sergei Shtylyov wrote:
+On 08/23/2014 03:54 AM, Sergei Shtylyov wrote:
 
-> Sometimes the MNR and MST interrupts happen simultaneously  (stop  automatically
-> follows NACK, according to the manuals) and in such case the ID_NACK flag  isn't
-> set since the MST interrupt handling precedes MNR and all interrupts are cleared
-> and disabled then, so that MNR interrupt is never noticed -- this causes NACK'ed
-> transfers to be falsely reported as successful. Exchanging MNR and  MST handlers
-> fixes this issue, however the MNR bit  somehow  gets set again even after  being
-> explicitly cleared, so I decided to completely suppress handling of all disabled
-> interrupts (which is a good thing anyway)...
+>> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-> Signed-off-by: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> The i2c core has per-adapter locks, so no need to protect again.
 
-> ---
-> The patch is against Wolfram Sang's 'linux.git' repo.
+>     The core's lock is unable to protect from the IRQs. So I'm proposing to
+> revert this patch. It's a pity I hadn't noticed this issue when the patch was
+> posted.
 
->   drivers/i2c/busses/i2c-rcar.c |   15 +++++++++------
->   1 file changed, 9 insertions(+), 6 deletions(-)
->
-> Index: linux/drivers/i2c/busses/i2c-rcar.c
-> ===================================================================
-> --- linux.orig/drivers/i2c/busses/i2c-rcar.c
-> +++ linux/drivers/i2c/busses/i2c-rcar.c
-> @@ -367,18 +367,15 @@ static irqreturn_t rcar_i2c_irq(int irq,
->
->   	msr = rcar_i2c_read(priv, ICMSR);
->
-> +	/* Only handle interrupts that are currently enabled */
-> +	msr &= rcar_i2c_read(priv, ICMIER);
-> +
+>> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>> ---
+>>   drivers/i2c/busses/i2c-rcar.c | 22 ----------------------
+>>   1 file changed, 22 deletions(-)
+>> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+>> index e82d64b5acef..4b088e67f2fd 100644
+>> --- a/drivers/i2c/busses/i2c-rcar.c
+>> +++ b/drivers/i2c/busses/i2c-rcar.c
+[...]
+>> @@ -462,21 +454,14 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+>>   {
+>>       struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
+>>       struct device *dev = rcar_i2c_priv_to_dev(priv);
+>> -    unsigned long flags;
+>>       int i, ret, timeout;
+>>
+>>       pm_runtime_get_sync(dev);
+>>
+>> -    /*-------------- spin lock -----------------*/
+>> -    spin_lock_irqsave(&priv->lock, flags);
+>> -
+>>       rcar_i2c_init(priv);
+>>       /* start clock */
+>>       rcar_i2c_write(priv, ICCCR, priv->icccr);
+>>
+>> -    spin_unlock_irqrestore(&priv->lock, flags);
+>> -    /*-------------- spin unlock -----------------*/
+>> -
 
-    I think it makes sense to check 'msr' for 0 and return IRQ_NONE in this 
-case. Would you apply such patch (probably to the -next branch)?
+>     I'm afraid this unlock is misplaced, the code continues to access the
+> registers.
+
+>>       ret = rcar_i2c_bus_barrier(priv);
+
+>     Should probably unlock here instead?
+
+    After looking at the code, it looks like it was a false alarm on my side.
+The I2C interrupts are disabled here and other threads should be locked out by 
+the I2C core locks. So it doesn't make sense to hold IRQs disabled during a 
+possibly long polling loop in rcar_i2c_bus_barrier(). So I'll just repost the 
+revert patch (if still needed).
+
+>>       if (ret < 0)
+>>           goto out;
 
 WBR, Sergei
+
