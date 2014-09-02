@@ -1,143 +1,66 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 1/3] WIP: i2c core changes for slave support
-Date: Tue,  2 Sep 2014 20:02:39 +0200
-Message-ID: <1409680961-12632-2-git-send-email-wsa@the-dreams.de>
-References: <1409680961-12632-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1409680961-12632-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH v2] Revert "i2c: rcar: remove spinlock"
+Date: Tue, 02 Sep 2014 22:10:01 +0400
+Message-ID: <540607F9.4060802@cogentembedded.com>
+References: <1642788.pEhrsPDp4u@wasted.cogentembedded.com> <20140824064520.GA2578@katana> <53F9CCE7.3010006@cogentembedded.com> <20140825034009.GA2795@katana> <53FB1F90.6080704@cogentembedded.com> <20140825143316.GA1285@katana> <5405FAD3.90403@cogentembedded.com> <20140902171835.GA10355@katana> <5405FE27.4050909@cogentembedded.com> <20140902174548.GB10355@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20140902174548.GB10355@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+On 09/02/2014 09:45 PM, Wolfram Sang wrote:
 
-Not for upstream yet.
+>>> I don't see why. If we have two patches, the state inbetween them is
+>>> broken.
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
- drivers/i2c/i2c-core.c    | 42 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c-slave.h | 28 ++++++++++++++++++++++++++++
- include/linux/i2c.h       |  5 +++++
- 3 files changed, 75 insertions(+)
- create mode 100644 include/linux/i2c-slave.h
+>>     Even so, it has always been broken, we don't make it more broken by
+>> reverting your change.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 632057a44615..63ea70e5c274 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2536,6 +2536,48 @@ trace:
- }
- EXPORT_SYMBOL(i2c_smbus_xfer);
- 
-+int i2c_slave_register(struct i2c_client *client,
-+		       int (*slave_cb)(struct i2c_client *, enum i2c_slave_event, u8 *))
-+{
-+	u16 addr = client->addr;
-+	int ret;
-+
-+	if (!slave_cb)
-+		return -EINVAL;
-+
-+	ret = i2c_check_addr_validity(addr);
-+	if (ret)
-+		return ret;
-+
-+	if (!client->adapter->algo->reg_slave)
-+		return -EOPNOTSUPP;
-+
-+	client->slave_cb = slave_cb;
-+
-+	ret = client->adapter->algo->reg_slave(client);
-+	if (ret)
-+		client->slave_cb = NULL;
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(i2c_slave_register);
-+
-+int i2c_slave_unregister(struct i2c_client *client)
-+{
-+	int ret;
-+
-+	if (!client->adapter->algo->unreg_slave)
-+		return -EOPNOTSUPP;
-+
-+	ret = client->adapter->algo->unreg_slave(client);
-+
-+	if (ret == 0)
-+		client->slave_cb = NULL;
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(i2c_slave_unregister);
-+
- MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
- MODULE_DESCRIPTION("I2C-Bus main module");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c-slave.h b/include/linux/i2c-slave.h
-new file mode 100644
-index 000000000000..ddc9493cb5e7
---- /dev/null
-+++ b/include/linux/i2c-slave.h
-@@ -0,0 +1,28 @@
-+/*
-+ * i2c-slave.h - Linux I2C slave support
-+ *
-+ * Copyright (C) 2014 by Wolfram Sang
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; version 2 of the License.
-+ */
-+
-+#include <linux/i2c.h>
-+
-+#ifndef _LINUX_I2C_SLAVE_H
-+#define _LINUX_I2C_SLAVE_H
-+
-+enum i2c_slave_event {
-+	I2C_SLAVE_REQ_READ,
-+	I2C_SLAVE_REQ_WRITE,
-+	I2C_SLAVE_STOP,
-+};
-+
-+extern int i2c_slave_register(struct i2c_client *client, int (*slave_cb)(struct i2c_client *, enum i2c_slave_event, u8 *));
-+extern int i2c_slave_unregister(struct i2c_client *client);
-+
-+#define i2c_slave_event(__client, __event, __value) \
-+	client->slave_cb(__client, __event, __value)
-+
-+#endif
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index a95efeb53a8b..8541aa6b0178 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -46,6 +46,7 @@ struct i2c_client;
- struct i2c_driver;
- union i2c_smbus_data;
- struct i2c_board_info;
-+enum i2c_slave_event;
- 
- struct module;
- 
-@@ -224,6 +225,7 @@ struct i2c_client {
- 	struct device dev;		/* the device structure		*/
- 	int irq;			/* irq issued by device		*/
- 	struct list_head detected;
-+	int (*slave_cb)(struct i2c_client *, enum i2c_slave_event, u8 *);
- };
- #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
- 
-@@ -377,6 +379,9 @@ struct i2c_algorithm {
- 
- 	/* To determine what the adapter supports */
- 	u32 (*functionality) (struct i2c_adapter *);
-+
-+	int (*reg_slave)(struct i2c_client *client);
-+	int (*unreg_slave)(struct i2c_client *client);
- };
- 
- /**
--- 
-2.0.0
+> Yes. Still, if I send something to *stable*, less broken is not an
+> option for me, if I know there is a fix possible. And we are at -rc3
+> now, so there is still time for that.
+
+    Not as much time for me since I'm leaving for vacations at the start of 
+the next week. And I have other areas to care about before that.
+
+>>> And we don't have two patches yet, just the revert. So, the
+
+>>     I'm going to consider the spinlock issue ASAP, after I check whether the
+>> I2C clock frequency really has any influence on the unexpected read NACK
+>> issue I've been chasing for several days.
+
+> Good luck with that! Such bugs are truly annoying :(
+
+   Sigh, that whole issue looks like hardware bug to me (the vendor kernel 
+reportedly doesn't have it though)... overall, this hardware seems excessively 
+buggy, despite I2C protocol is not really rocket science.
+
+>>     Your patch removing the spinlock went into 3.16 only but we'd have to
+>> backport the assumed single patch to the -stable kernels older than that.
+>> This means that I'd have to provide the "delta" patch (i.e. the separate
+>> patch that I'd like to provide now atop of the revert) for these kernels
+>> instead since the original single patch wouldn't apply anyway.
+
+> With all my changes in 3.16, I wonder if the patch with your addition to
+> the revert will apply anyhow.
+
+    Resolution of the context issues is different from the patch principally 
+not applying as the changes it has are already there.
+
+> But, okay, you send two patches, and I
+> will decide how I apply them and deal with delta-patches. Okay?
+
+    So you mean that I need to repost the revert? I'm OK with that since the 
+context has most probably changed with my recent patch...
+
+> All the best,
+
+>     Wolfram
+
+WBR, Sergei
+
