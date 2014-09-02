@@ -1,66 +1,51 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH v2] Revert "i2c: rcar: remove spinlock"
-Date: Tue, 02 Sep 2014 22:10:01 +0400
-Message-ID: <540607F9.4060802@cogentembedded.com>
-References: <1642788.pEhrsPDp4u@wasted.cogentembedded.com> <20140824064520.GA2578@katana> <53F9CCE7.3010006@cogentembedded.com> <20140825034009.GA2795@katana> <53FB1F90.6080704@cogentembedded.com> <20140825143316.GA1285@katana> <5405FAD3.90403@cogentembedded.com> <20140902171835.GA10355@katana> <5405FE27.4050909@cogentembedded.com> <20140902174548.GB10355@katana>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] i2c-rcar: fix MNR interrupt handling
+Date: Tue, 02 Sep 2014 22:29:06 +0400
+Message-ID: <54060C72.3010309@cogentembedded.com>
+References: <1843756.qQiZLxsyqD@wasted.cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20140902174548.GB10355@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1843756.qQiZLxsyqD-gHKXc3Y1Z8zGSmamagVegGFoWSdPRAKMAL8bYrjMMd8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/02/2014 09:45 PM, Wolfram Sang wrote:
+On 09/02/2014 01:15 AM, Sergei Shtylyov wrote:
 
->>> I don't see why. If we have two patches, the state inbetween them is
->>> broken.
+> Sometimes the MNR and MST interrupts happen simultaneously  (stop  automatically
+> follows NACK, according to the manuals) and in such case the ID_NACK flag  isn't
+> set since the MST interrupt handling precedes MNR and all interrupts are cleared
+> and disabled then, so that MNR interrupt is never noticed -- this causes NACK'ed
+> transfers to be falsely reported as successful. Exchanging MNR and  MST handlers
+> fixes this issue, however the MNR bit  somehow  gets set again even after  being
+> explicitly cleared, so I decided to completely suppress handling of all disabled
+> interrupts (which is a good thing anyway)...
 
->>     Even so, it has always been broken, we don't make it more broken by
->> reverting your change.
+> Signed-off-by: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 
-> Yes. Still, if I send something to *stable*, less broken is not an
-> option for me, if I know there is a fix possible. And we are at -rc3
-> now, so there is still time for that.
+> ---
+> The patch is against Wolfram Sang's 'linux.git' repo.
 
-    Not as much time for me since I'm leaving for vacations at the start of 
-the next week. And I have other areas to care about before that.
+>   drivers/i2c/busses/i2c-rcar.c |   15 +++++++++------
+>   1 file changed, 9 insertions(+), 6 deletions(-)
+>
+> Index: linux/drivers/i2c/busses/i2c-rcar.c
+> ===================================================================
+> --- linux.orig/drivers/i2c/busses/i2c-rcar.c
+> +++ linux/drivers/i2c/busses/i2c-rcar.c
+> @@ -367,18 +367,15 @@ static irqreturn_t rcar_i2c_irq(int irq,
+>
+>   	msr = rcar_i2c_read(priv, ICMSR);
+>
+> +	/* Only handle interrupts that are currently enabled */
+> +	msr &= rcar_i2c_read(priv, ICMIER);
+> +
 
->>> And we don't have two patches yet, just the revert. So, the
-
->>     I'm going to consider the spinlock issue ASAP, after I check whether the
->> I2C clock frequency really has any influence on the unexpected read NACK
->> issue I've been chasing for several days.
-
-> Good luck with that! Such bugs are truly annoying :(
-
-   Sigh, that whole issue looks like hardware bug to me (the vendor kernel 
-reportedly doesn't have it though)... overall, this hardware seems excessively 
-buggy, despite I2C protocol is not really rocket science.
-
->>     Your patch removing the spinlock went into 3.16 only but we'd have to
->> backport the assumed single patch to the -stable kernels older than that.
->> This means that I'd have to provide the "delta" patch (i.e. the separate
->> patch that I'd like to provide now atop of the revert) for these kernels
->> instead since the original single patch wouldn't apply anyway.
-
-> With all my changes in 3.16, I wonder if the patch with your addition to
-> the revert will apply anyhow.
-
-    Resolution of the context issues is different from the patch principally 
-not applying as the changes it has are already there.
-
-> But, okay, you send two patches, and I
-> will decide how I apply them and deal with delta-patches. Okay?
-
-    So you mean that I need to repost the revert? I'm OK with that since the 
-context has most probably changed with my recent patch...
-
-> All the best,
-
->     Wolfram
+    I think it makes sense to check 'msr' for 0 and return IRQ_NONE in this 
+case. Would you apply such patch (probably to the -next branch)?
 
 WBR, Sergei
-
