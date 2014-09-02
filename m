@@ -1,88 +1,46 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] Revert "i2c: rcar: remove spinlock"
-Date: Tue, 2 Sep 2014 19:45:48 +0200
-Message-ID: <20140902174548.GB10355@katana>
-References: <1642788.pEhrsPDp4u@wasted.cogentembedded.com>
- <20140824064520.GA2578@katana>
- <53F9CCE7.3010006@cogentembedded.com>
- <20140825034009.GA2795@katana>
- <53FB1F90.6080704@cogentembedded.com>
- <20140825143316.GA1285@katana>
- <5405FAD3.90403@cogentembedded.com>
- <20140902171835.GA10355@katana>
- <5405FE27.4050909@cogentembedded.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="V0207lvV8h4k8FAm"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5405FE27.4050909@cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 0/3] WIP: i2c slave support
+Date: Tue,  2 Sep 2014 20:02:38 +0200
+Message-ID: <1409680961-12632-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
---V0207lvV8h4k8FAm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am currently working on the long standing issue of slave support for the I2C
+framework. Here is a very rough first draft, so you can see what path I chose.
+Three big things are still missing: documentation, a driver supporting the
+hooks created here, and testing. So, this is more a draft how the interface
+could look like and will soon get the details when I implement the support for
+the i2c-rcar driver. If you want to comment, that is appreciated. However,
+please focus on high-level comments, not implementation details. There is a lot
+of sloppiness in the details, I do know. If they are still present in the first
+real patches, then you can complain ;)
 
+Since docs are still missing, here is a rough description: A software slave
+driver is a standard I2C driver which will be matched against a standard I2C
+client. The exception is that it requests a slave instance from its adapter via
+i2c_slave_request() in probe. It provides a callback which will be invoked in
+case events happen for this slave.
 
-> >I don't see why. If we have two patches, the state inbetween them is
-> >broken.
->=20
->    Even so, it has always been broken, we don't make it more broken by
-> reverting your change.
+And again: This is a draft, up to now compile tested only.
 
-Yes. Still, if I send something to *stable*, less broken is not an
-option for me, if I know there is a fix possible. And we are at -rc3
-now, so there is still time for that.
+Wolfram Sang (3):
+  WIP: i2c core changes for slave support
+  WIP: sketch of an slave-eeprom simulator
+  WIP: adapt dts for i2c slave use
 
-> >And we don't have two patches yet, just the revert. So, the
->=20
->    I'm going to consider the spinlock issue ASAP, after I check whether t=
-he
-> I2C clock frequency really has any influence on the unexpected read NACK
-> issue I've been chasing for several days.
+ arch/arm/boot/dts/r8a7790-lager.dts |  15 ++--
+ drivers/i2c/i2c-core.c              |  42 +++++++++++
+ drivers/i2c/i2c-slave-eeprom.c      | 140 ++++++++++++++++++++++++++++++++++++
+ include/linux/i2c-slave.h           |  28 ++++++++
+ include/linux/i2c.h                 |   5 ++
+ 5 files changed, 225 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/i2c/i2c-slave-eeprom.c
+ create mode 100644 include/linux/i2c-slave.h
 
-Good luck with that! Such bugs are truly annoying :(
-
->    Your patch removing the spinlock went into 3.16 only but we'd have to
-> backport the assumed single patch to the -stable kernels older than that.
-> This means that I'd have to provide the "delta" patch (i.e. the separate
-> patch that I'd like to provide now atop of the revert) for these kernels
-> instead since the original single patch wouldn't apply anyway.
-
-With all my changes in 3.16, I wonder if the patch with your addition to
-the revert will apply anyhow. But, okay, you send two patches, and I
-will decide how I apply them and deal with delta-patches. Okay?
-
-All the best,
-
-   Wolfram
-
-
---V0207lvV8h4k8FAm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUBgJMAAoJEBQN5MwUoCm2xz0QAJ4Hnk4jvg9+MqWyW4boFMO1
-Zeis0ZbMHBLOnoIlE6FPBUU1tJhCbZ0PNcbrCRiyDwcrsC3dRRIWxC7W1Zz0CNfW
-hPFujc6pOYCLC0XQHFpmy4ylbJ9ASmEhMT3tdDr0izobeXR2tfmupgDpnywKWOgF
-uf9Hc6vuiHVyBjI27Mou5WXblyR/EeyP5ZTPZzjV6a4dAJqJ/TqDg+2j0Z1PVNJg
-Qp0sfb4CjFAs4zaC5BhOf7g6YebDzuMYHIGaikB1JBmHyMutt1ezZ6twZp3MhxoL
-j1T4kGyqR7eK4tNM81Dk8el4aad4m1IvOYmh3/BP1pVEh0EcsqbTY1TjtDgxj3Go
-lHCOUotyakaw76Kup8mckYKXxuDIUe7FK5QMrEwNmWw4+/uyID9rz5FPYq3ZPVld
-y3TEtF2OFm9x1NzWrMWRCMwxCtnrLaIkbyZro+gas4pgYu4MiiY1DBuHNeJrcIuU
-HjTl52vQ6K84sI6gQzT6c96wmB1ajVp+hTsQDXpYL3E33GdKmXZPZaiBlRT7Sp1Z
-OJ8Nn6gj4SznMOVsl5fTq+Bh1Iqm7domf3r8pNc2fH6AlYTWT/3MIkiTOAEWOYu+
-GIwP99Ox6C8AecyMht2x/wRKFDZrNa1v1qZiY/CeC+JodJt9lXZVjhc40TVs4H/2
-+HIVK9TuMRSvxJLMAz9Q
-=FWlS
------END PGP SIGNATURE-----
-
---V0207lvV8h4k8FAm--
+-- 
+2.0.0
