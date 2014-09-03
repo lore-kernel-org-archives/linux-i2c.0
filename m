@@ -1,8 +1,10 @@
 From: Raymond Tan <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 0/1] i2c: designware: Add support for Intel Quark X1000
-Date: Wed,  3 Sep 2014 10:41:37 +0800
-Message-ID: <1409712098-13997-1-git-send-email-raymond.tan@intel.com>
+Subject: [PATCH 1/1] i2c: designware: add support of platform data to set I2C mode
+Date: Wed,  3 Sep 2014 10:41:38 +0800
+Message-ID: <1409712098-13997-2-git-send-email-raymond.tan@intel.com>
+References: <1409712098-13997-1-git-send-email-raymond.tan@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1409712098-13997-1-git-send-email-raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
@@ -10,25 +12,78 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: "Tan, Raymond" <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Hi,
-This patch is for enabling support of Intel Quark X1000 i2c controller. The
-Quark designware i2c controller is registered as a MFD device, and Quark
-exports a single PCI device with both I2C and GPIO functions.
+Use the platform data to set the clk_freq when there is no DT configuration
+available. The clk_freq in turn will determine the I2C speed mode.
 
 In Quark, there is currently no other configuration mechanism other than
-board files to configure the I2C mode for the the controller.
+board files.
 
-This patch is built upon the changes made by Romain Baeriswyl, titled
-[PATCH V3 2/2] i2c designware add support of I2C standard mode, at
-https://lkml.org/lkml/2014/3/25/135
-
-Tan, Raymond (1):
-  i2c: designware: add support of platform data to set I2C mode
-
+Signed-off-by: Raymond Tan <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Reviewed-by: Hock Leong Kweh <hock.leong.kweh-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
  drivers/i2c/busses/i2c-designware-platdrv.c  |    6 ++++++
  include/linux/platform_data/i2c-designware.h |   21 +++++++++++++++++++++
  2 files changed, 27 insertions(+)
  create mode 100644 include/linux/platform_data/i2c-designware.h
 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index b543fe1..ce3f779 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -41,6 +41,7 @@
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
++#include <linux/platform_data/i2c-designware.h>
+ #include "i2c-designware-core.h"
+ 
+ static struct i2c_algorithm i2c_dw_algo = {
+@@ -121,6 +122,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev;
+ 	struct i2c_adapter *adap;
+ 	struct resource *mem;
++	struct dw_i2c_platform_data *pdata;
+ 	int irq, r;
+ 	u32 clk_freq;
+ 
+@@ -181,6 +183,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 			dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
+ 			return -EINVAL;
+ 		}
++	} else {
++		pdata = dev_get_platdata(&pdev->dev);
++		if (pdata)
++			clk_freq = pdata->i2c_scl_freq;
+ 	}
+ 
+ 	dev->functionality =
+diff --git a/include/linux/platform_data/i2c-designware.h b/include/linux/platform_data/i2c-designware.h
+new file mode 100644
+index 0000000..7a61fb2
+--- /dev/null
++++ b/include/linux/platform_data/i2c-designware.h
+@@ -0,0 +1,21 @@
++/*
++ * Copyright(c) 2014 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ */
++
++#ifndef I2C_DESIGNWARE_H
++#define I2C_DESIGNWARE_H
++
++struct dw_i2c_platform_data {
++	unsigned int i2c_scl_freq;
++};
++
++#endif
 -- 
 1.7.9.5
