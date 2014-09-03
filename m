@@ -1,50 +1,40 @@
-From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] mfd: add support for Diolan DLN-2 devices
-Date: Wed, 3 Sep 2014 17:37:07 +0200
-Message-ID: <20140903153707.GC4894@localhost>
-References: <CAE1zot+T6eq0jrL6_Qh=5nihNOgGEaWe5RCDk7_1XS8ZWaWKqA@mail.gmail.com>
- <20140901113949.GP7374@lee--X1>
- <CAE1zotKNBTEMX8DDYwdwOcq0qZgqxZWazE60TUQeiOmD0a4xbA@mail.gmail.com>
- <20140901154626.GH8796@lee--X1>
- <CAE1zotL-cjHqrdymzYhZq24zx+0qGY8-4JnrVZf-TGXDf5Sm3w@mail.gmail.com>
- <20140901175453.GR4894@localhost>
- <20140902080010.GD17117@lee--X1>
- <CAE1zotJzFL0bZvNo4mHK3+EhURarhTPDE5n+SdNzof8Nc-CFew@mail.gmail.com>
- <20140902152311.GY4894@localhost>
- <CAE1zotLnBZ83O23kaDz_xVhhSpPW6YyOQmkaTfZaicmf6MfOdQ@mail.gmail.com>
+From: Husam Al Sayed <oscar55-azLpJcbXd5U@public.gmane.org>
+Subject: FROM: Husam Al Sayed.
+Date: Wed, 3 Sep 2014 20:43:40 +0200 (CEST)
+Message-ID: <1829951288.347196.1409769820371.JavaMail.root@mbox05>
+References: <678469814.347194.1409769794832.JavaMail.root@mbox05>
+Reply-To: "alsayedhusa-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org" <alsayedhusa-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAE1zotLnBZ83O23kaDz_xVhhSpPW6YyOQmkaTfZaicmf6MfOdQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <678469814.347194.1409769794832.JavaMail.root@mbox05>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ppp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mitch-sbE13kky4R3QT0dZR+AlfA@public.gmane.org, mostrows-ihVZJaRskl1bRRN4PJnoQQ@public.gmane.org, jchapman-Bm0nJX+W7e9BDgjK7y7TUQ@public.gmane.org, giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org, linuxpps-fMOxgv769XvBG6Z5cez8fA@public.gmane.org, xeb-JGs/UdohzUI@public.gmane.org, rml-uHNMWV9qC4FeoWH0uzbU5w@public.gmane.org, kpreempt-tech-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, mcgrof-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mikpelinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, geoff-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, jim-XrPbb/hENzg@public.gmane.org, ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, richardcochran-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, roland-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, oleg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, isely-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, pvrusb2-2vzrQ03IO+5eoWH0uzbU5w@public.gmane.org, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, infinipath-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, mdr-sJ/iWh9BUns@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 03, 2014 at 04:39:48PM +0300, Octavian Purdila wrote:
-> On Tue, Sep 2, 2014 at 6:23 PM, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+FROM: Husam Al Sayed.
 
-> > That should be possible using the regmap bus read and write operations.
-> 
-> I took a closer look on the regmap bus read/write operations and I
-> think they are not fit for what we need in the driver. The driver uses
-> a request/response model which, IMHO, does not fit well with a
-> register read/write API. Yes, maybe we can emulate it, but why do
-> that?
-> 
-> >> (Also creating a regmap class for a particular device seems over
-> >> engineering since nobody else is going to use it)
-> >
-> > Possibly, but it would allow subdrivers to be implemented using a
-> > standard interface and also provide register caching for free.
-> 
-> Using a standard interface is nice, but I think that using the right
-> interface type is more important. This hardware does not use registers
-> but a messages to communicate with the OS.
+EMAIL:alsayedhusa-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
+ 
+Hello,
+ 
+I decided to write you this proposal in good faith, believing that you will
+not betray me. I am Mr. Husam Al Sayed, a Bank officer here in U.A.E.
+ 
+One Mr. Peter Adams, a citizen of your country and Crude Oil dealer made a fixed deposit with my bank in 2005 for 108 calendar months, valued at US$30,000,000.00 (Thirty Million United State Dollars) the due date for this deposit contract was last 22nd of January 2014. Sadly Peter was among the death victims in the May 27 2006 Earthquake disaster in Java, Indonesia that killed over 5,000 people. He was in Indonesia on a business trip and that was how he met his untimely end. My bank management is yet to know about his death, I knew about it because he was my friend and I am his Account Officer. Peter did not mention any Next of Kin/ Heir when the account was opened, he was not married and no children. Last week my Bank Management requested that Peter should give instructions on what to do 
+ about his funds, if to renew the contract.
+ 
+I know this will happen and that is why I have been looking for a means to handle the situation, because if my Bank Directors happens to know that Peter is dead and do not have any Heir, they will take the funds for their personal use, so I don't want such to happen. That is why I am seeking your co-operation to present you as the Next of Kin/ Heir to the account, since you are a foreigner and my bank head quarters will release the account to you. There is no risk involved; the transaction will be executed under a legitimate arrangement that will protect us from any breach of law. It is better that we claim the money, than allowing the Bank Directors to take it, they are rich already. I am not a greedy person, so I am suggesting we share the funds in this ratio, 50/50%, equal sharing. Let 
+ me know your mind on this and please do treat this information highly confidential. We shall go over the details once I receive your urgent response. Please Urgently get back to me through this email address as soon as possible:
+ 
+ 
+ 
+Have a nice day and God bless. Anticipating your communication.
+ 
+Regards,
+FROM: Husam Al Sayed.
+EMAIL: alsayedhusa-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
+_____________________________________________________________________
 
-You might be right, and as I mentioned, I haven't looked that closely at
-the protocol yet. I'll take a look at your updated I/O interface and how
-you use it.
-
-Johan
+Hladate spisovny vyraz? http://www.jazykovaporadna.sk
