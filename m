@@ -1,89 +1,54 @@
-From: Raymond Tan <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/1] i2c: designware: add support of platform data to set I2C mode
-Date: Wed,  3 Sep 2014 10:41:38 +0800
-Message-ID: <1409712098-13997-2-git-send-email-raymond.tan@intel.com>
-References: <1409712098-13997-1-git-send-email-raymond.tan@intel.com>
+From: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH v2] i2c: imx: Add arbitration lost check
+Date: Wed, 3 Sep 2014 13:52:07 +0800
+Message-ID: <1409723527-30603-1-git-send-email-haibo.chen@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1409712098-13997-1-git-send-email-raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: "Tan, Raymond" <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+According to the i.mx spec, for multimaster mode, if I2C is
+enabled when the bus is busy and asserts start, hardware inhibits
+the transmission, clears MSTA without signaling a stop, generate
+an interrupt, and set I2C_I2SR[IAL] to indicate a failed attempt
+to engage the bus, which means arbitration lost. In this case,
+we should first test I2C_I2SR[IAL], and clear this bit if it is
+set, and then I2C controller default to slave receive mode.
 
-Use the platform data to set the clk_freq when there is no DT configuration
-available. The clk_freq in turn will determine the I2C speed mode.
+This patch check the IAL bit every time before an I2c transmission.
+if IAL is set, clear it and make I2C controller to default mode.
 
-In Quark, there is currently no other configuration mechanism other than
-board files.
-
-Signed-off-by: Raymond Tan <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Reviewed-by: Hock Leong Kweh <hock.leong.kweh-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Acked-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c  |    6 ++++++
- include/linux/platform_data/i2c-designware.h |   21 +++++++++++++++++++++
- 2 files changed, 27 insertions(+)
- create mode 100644 include/linux/platform_data/i2c-designware.h
+Changes for V2:
+-Use 'EAGAIN' instead of 'EIO' for arbitration lost
+-Modify the comment style
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index b543fe1..ce3f779 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -41,6 +41,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
-+#include <linux/platform_data/i2c-designware.h>
- #include "i2c-designware-core.h"
+ drivers/i2c/busses/i2c-imx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 613069b..ceff87c 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -268,6 +268,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
  
- static struct i2c_algorithm i2c_dw_algo = {
-@@ -121,6 +122,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
- 	struct resource *mem;
-+	struct dw_i2c_platform_data *pdata;
- 	int irq, r;
- 	u32 clk_freq;
- 
-@@ -181,6 +183,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev, "Only 100kHz and 400kHz supported");
- 			return -EINVAL;
- 		}
-+	} else {
-+		pdata = dev_get_platdata(&pdev->dev);
-+		if (pdata)
-+			clk_freq = pdata->i2c_scl_freq;
- 	}
- 
- 	dev->functionality =
-diff --git a/include/linux/platform_data/i2c-designware.h b/include/linux/platform_data/i2c-designware.h
-new file mode 100644
-index 0000000..7a61fb2
---- /dev/null
-+++ b/include/linux/platform_data/i2c-designware.h
-@@ -0,0 +1,21 @@
-+/*
-+ * Copyright(c) 2014 Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms and conditions of the GNU General Public License,
-+ * version 2, as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ */
+ 	while (1) {
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
 +
-+#ifndef I2C_DESIGNWARE_H
-+#define I2C_DESIGNWARE_H
++		/* check for arbitration lost */
++		if (temp & I2SR_IAL) {
++			temp &= ~I2SR_IAL;
++			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++			return -EAGAIN;
++		}
 +
-+struct dw_i2c_platform_data {
-+	unsigned int i2c_scl_freq;
-+};
-+
-+#endif
+ 		if (for_busy && (temp & I2SR_IBB))
+ 			break;
+ 		if (!for_busy && !(temp & I2SR_IBB))
 -- 
-1.7.9.5
+1.9.1
