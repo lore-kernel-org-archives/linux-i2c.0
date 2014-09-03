@@ -1,57 +1,34 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 08/11] i2c: rcar: remove spinlock
-Date: Wed, 3 Sep 2014 00:18:58 +0200
-Message-ID: <20140902221858.GA1267@katana>
-References: <1401263086-13720-1-git-send-email-wsa@the-dreams.de>
- <1401263086-13720-9-git-send-email-wsa@the-dreams.de>
- <53F7D83A.5030903@cogentembedded.com>
- <5406404A.7090509@cogentembedded.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+From: Raymond Tan <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/1] i2c: designware: Add support for Intel Quark X1000
+Date: Wed,  3 Sep 2014 10:41:37 +0800
+Message-ID: <1409712098-13997-1-git-send-email-raymond.tan@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5406404A.7090509-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: "Tan, Raymond" <raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi,
+This patch is for enabling support of Intel Quark X1000 i2c controller. The
+Quark designware i2c controller is registered as a MFD device, and Quark
+exports a single PCI device with both I2C and GPIO functions.
 
+In Quark, there is currently no other configuration mechanism other than
+board files to configure the I2C mode for the the controller.
 
->    After looking at the code, it looks like it was a false alarm on my side.
-> The I2C interrupts are disabled here and other threads should be locked out
-> by the I2C core locks. So it doesn't make sense to hold IRQs disabled during
-> a possibly long polling loop in rcar_i2c_bus_barrier(). So I'll just repost
-> the revert patch (if still needed).
+This patch is built upon the changes made by Romain Baeriswyl, titled
+[PATCH V3 2/2] i2c designware add support of I2C standard mode, at
+https://lkml.org/lkml/2014/3/25/135
 
-Nope. Thanks for looking into it.
+Tan, Raymond (1):
+  i2c: designware: add support of platform data to set I2C mode
 
+ drivers/i2c/busses/i2c-designware-platdrv.c  |    6 ++++++
+ include/linux/platform_data/i2c-designware.h |   21 +++++++++++++++++++++
+ 2 files changed, 27 insertions(+)
+ create mode 100644 include/linux/platform_data/i2c-designware.h
 
---PEIAKu/WMn1b1Hv9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUBkJSAAoJEBQN5MwUoCm227cP/jOC6o1z4waCZRIqCPSC9dq+
-sXDtcJV51rRD9twDNselSXa+shVKEv64r5aIJs4jso4Ts2Vu/zdcBifgfHFoTABe
-4ndruPa4gYtPu0dbrNewOpcleZGTl6CqLW+InjodHlG17jC2j7PzOBEVrmCjEDin
-oySMeBQYjsIl7y/qyqOS4vY9yZsrvWMLFAkFflGRxrXyvVl1vrj22b1ivrymM+p3
-nXSbP9PrFK3cUbusuMdfIcV0mKVuMm0AJZURxm0RTBF7jb2pgjSa35eajx/XZPYd
-M2xX0J8uvNCBID8ut2iV1mM9i3tOgjynRe3plZSgPu3TlSdYwLkm+pSkM3tY9BAO
-4ArnIa2DrmRRye+45M3lCbjQJbfFNccOv0zQGYHKXLPiaUpWC7FVmJnWl8dqXDd5
-M7zsoruqJLe9RiRZoPhdQwshtbk+8HW31+/cz/gaByDhaQQBWODVlscUx8n3aHmB
-n5RCmDJCdeOxY+FvBB3CDvyLSGzwgGLf3kCCm8+YuSE6yqgEy0JnKqaPZBmHLJu7
-VERF442EGHtKbLzcgiRkd/UffLmWArtKquPTQTAHh9ZvmX/6ezSpgtbz5NzARxae
-oDuu+YNpBlkXaLMxy6peWXGIPIVFLt0UDqsNeixImannE5N4U01AgsgN76ZJR6e3
-c3tXDgb/ynLGgYlGZMHk
-=lIZu
------END PGP SIGNATURE-----
-
---PEIAKu/WMn1b1Hv9--
+-- 
+1.7.9.5
