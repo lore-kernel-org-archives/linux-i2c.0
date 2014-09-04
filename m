@@ -1,122 +1,38 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Thu, 4 Sep 2014 16:38:45 +0200
-Message-ID: <201409041638.45537.marex@denx.de>
-References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com> <1407923215-3749-2-git-send-email-yao.yuan@freescale.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] gpio: add support for the Diolan DLN-2 USB GPIO driver
+Date: Thu, 4 Sep 2014 18:32:46 +0200
+Message-ID: <CACRpkdbu+hwXtM=Xqur6_Z4C3UkQRDu_YQviZ4F+xAUvX63q0g@mail.gmail.com>
+References: <1409349654-24841-1-git-send-email-octavian.purdila@intel.com>
+	<1409349654-24841-4-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1407923215-3749-2-git-send-email-yao.yuan@freescale.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yuan Yao <yao.yuan@freescale.com>
-Cc: wsa@the-dreams.de, LW@karo-electronics.de, mark.rutland@arm.com, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1409349654-24841-4-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, August 13, 2014 at 11:46:54 AM, Yuan Yao wrote:
-> Add dma support for i2c. This function depend on DMA driver.
-> You can turn on it by write both the dmas and dma-name properties in dts
-> node. DMA is optional, even DMA request unsuccessfully, i2c can also work
-> well.
-> 
-> Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
+On Sat, Aug 30, 2014 at 12:00 AM, Octavian Purdila
+<octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
 
-[...]
+> From: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>
+> This patch adds GPIO and IRQ support for the Diolan DLN-2 GPIO module.
+>
+> Information about the USB protocol interface can be found in the
+> Programmer's Reference Manual [1], see section 2.9 for the GPIO
+> module commands and responses.
+>
+> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
+>
+> Signed-off-by: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-> +/* Enable DMA if transfer byte size is bigger than this threshold.
-> + * As the hardware request, it must bigger than 4.
+I like this version. I assume you need to funnel it with the
+rest of the patches through the MFD tree so:
 
-The comment is unclear, just by reading it, I have no clue what are the units 
-for this value. I can guess those would be bytes, but it would be a good idea
-to be explicit.
+Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Also, wasn't kernel comment style starting with leading /* , with the text 
-starting only on the next line ?
-
-> + */
-> +#define IMX_I2C_DMA_THRESHOLD	16
-> +#define IMX_I2C_DMA_TIMEOUT	1000
-> +
-
-[...]
-
-> +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> +					struct i2c_msg *msgs)
-> +{
-> +	int result;
-> +	unsigned int temp = 0;
-> +	unsigned long orig_jiffies = jiffies;
-> +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> +	struct device *dev = &i2c_imx->adapter.dev;
-> +
-> +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
-> +		__func__, msgs->addr << 1);
-> +
-> +	reinit_completion(&i2c_imx->dma->cmd_complete);
-> +	dma->chan_using = dma->chan_tx;
-> +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
-> +	dma->dma_data_dir = DMA_TO_DEVICE;
-> +	dma->dma_len = msgs->len - 1;
-> +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
-> +	if (result)
-> +		return result;
-> +
-> +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +	temp |= I2CR_DMAEN;
-> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +	/*
-> +	 * Write slave address.
-> +	 * The first byte muse be transmitted by the CPU.
-> +	 */
-> +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> +	result = wait_for_completion_interruptible_timeout(
-> +				&i2c_imx->dma->cmd_complete,
-> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-> +	if (result <= 0) {
-> +		dmaengine_terminate_all(dma->chan_using);
-> +		if (result)
-> +			return result;
-> +		else
-> +			return -ETIMEDOUT;
-
-Shouldn't you force-disable the DMA here somehow (like unsetting I2CR_DMAEN 
-bit), if it failed or timed out?
-
-> +	}
-> +
-> +	/* Waiting for Transfer complete. */
-> +	while (1) {
-> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +		if (temp & I2SR_ICF)
-> +			break;
-> +		if (time_after(jiffies, orig_jiffies +
-> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
-> +			dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n",
-> +				__func__);
-> +			return -ETIMEDOUT;
-> +		}
-> +		schedule();
-> +	}
-> +
-> +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +	temp &= ~I2CR_DMAEN;
-> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +	/* The last data byte must be transferred by the CPU. */
-> +	imx_i2c_write_reg(msgs->buf[msgs->len-1],
-> +				i2c_imx, IMX_I2C_I2DR);
-> +	result = i2c_imx_trx_complete(i2c_imx);
-> +	if (result)
-> +		return result;
-> +
-> +	result = i2c_imx_acked(i2c_imx);
-> +	if (result)
-> +		return result;
-> +
-> +	return 0;
-> +}
-[...]
-
-Thanks!
+Yours,
+Linus Walleij
