@@ -1,58 +1,122 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH v3 5/9] i2c: core: Convert to dev_pm_domain_attach|detach()
-Date: Thu,  4 Sep 2014 15:52:32 +0200
-Message-ID: <1409838756-31963-6-git-send-email-ulf.hansson@linaro.org>
-References: <1409838756-31963-1-git-send-email-ulf.hansson@linaro.org>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1409838756-31963-1-git-send-email-ulf.hansson@linaro.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-pm@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, Kevin Hilman <khilman@linaro.org>, Alan Stern <stern@rowland.harvard.edu>, Daniel Lezcano <daniel.lezcano@linaro.org>, Tomasz Figa <tomasz.figa@gmail.com>, devicetree@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Boyd <sboyd@codeaurora.org>, Philipp Zabel <philipp.zabel@gmail.com>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Russell King <linux@arm.linux.org.uk>, Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c@vger.kernel.org
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Thu, 4 Sep 2014 16:38:45 +0200
+Message-ID: <201409041638.45537.marex@denx.de>
+References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com> <1407923215-3749-2-git-send-email-yao.yuan@freescale.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1407923215-3749-2-git-send-email-yao.yuan@freescale.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yuan Yao <yao.yuan@freescale.com>
+Cc: wsa@the-dreams.de, LW@karo-electronics.de, mark.rutland@arm.com, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Previously only the ACPI PM domain was supported by the i2c bus.
+On Wednesday, August 13, 2014 at 11:46:54 AM, Yuan Yao wrote:
+> Add dma support for i2c. This function depend on DMA driver.
+> You can turn on it by write both the dmas and dma-name properties in dts
+> node. DMA is optional, even DMA request unsuccessfully, i2c can also work
+> well.
+> 
+> Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
 
-Let's convert to the common attach/detach functions for PM domains,
-which currently means we are extending the support to include the
-generic PM domain as well.
+[...]
 
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
----
- drivers/i2c/i2c-core.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+> +/* Enable DMA if transfer byte size is bigger than this threshold.
+> + * As the hardware request, it must bigger than 4.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 632057a..3cd8f11 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -279,10 +279,13 @@ static int i2c_device_probe(struct device *dev)
- 	if (status < 0)
- 		return status;
- 
--	acpi_dev_pm_attach(&client->dev, true);
--	status = driver->probe(client, i2c_match_id(driver->id_table, client));
--	if (status)
--		acpi_dev_pm_detach(&client->dev, true);
-+	status = dev_pm_domain_attach(&client->dev, true);
-+	if (status != -EPROBE_DEFER) {
-+		status = driver->probe(client, i2c_match_id(driver->id_table,
-+					client));
-+		if (status)
-+			dev_pm_domain_detach(&client->dev, true);
-+	}
- 
- 	return status;
- }
-@@ -302,7 +305,7 @@ static int i2c_device_remove(struct device *dev)
- 		status = driver->remove(client);
- 	}
- 
--	acpi_dev_pm_detach(&client->dev, true);
-+	dev_pm_domain_detach(&client->dev, true);
- 	return status;
- }
- 
--- 
-1.9.1
+The comment is unclear, just by reading it, I have no clue what are the units 
+for this value. I can guess those would be bytes, but it would be a good idea
+to be explicit.
 
+Also, wasn't kernel comment style starting with leading /* , with the text 
+starting only on the next line ?
+
+> + */
+> +#define IMX_I2C_DMA_THRESHOLD	16
+> +#define IMX_I2C_DMA_TIMEOUT	1000
+> +
+
+[...]
+
+> +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> +					struct i2c_msg *msgs)
+> +{
+> +	int result;
+> +	unsigned int temp = 0;
+> +	unsigned long orig_jiffies = jiffies;
+> +	struct imx_i2c_dma *dma = i2c_imx->dma;
+> +	struct device *dev = &i2c_imx->adapter.dev;
+> +
+> +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
+> +		__func__, msgs->addr << 1);
+> +
+> +	reinit_completion(&i2c_imx->dma->cmd_complete);
+> +	dma->chan_using = dma->chan_tx;
+> +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
+> +	dma->dma_data_dir = DMA_TO_DEVICE;
+> +	dma->dma_len = msgs->len - 1;
+> +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
+> +	if (result)
+> +		return result;
+> +
+> +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	temp |= I2CR_DMAEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/*
+> +	 * Write slave address.
+> +	 * The first byte muse be transmitted by the CPU.
+> +	 */
+> +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> +	result = wait_for_completion_interruptible_timeout(
+> +				&i2c_imx->dma->cmd_complete,
+> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> +	if (result <= 0) {
+> +		dmaengine_terminate_all(dma->chan_using);
+> +		if (result)
+> +			return result;
+> +		else
+> +			return -ETIMEDOUT;
+
+Shouldn't you force-disable the DMA here somehow (like unsetting I2CR_DMAEN 
+bit), if it failed or timed out?
+
+> +	}
+> +
+> +	/* Waiting for Transfer complete. */
+> +	while (1) {
+> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +		if (temp & I2SR_ICF)
+> +			break;
+> +		if (time_after(jiffies, orig_jiffies +
+> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
+> +			dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n",
+> +				__func__);
+> +			return -ETIMEDOUT;
+> +		}
+> +		schedule();
+> +	}
+> +
+> +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	temp &= ~I2CR_DMAEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/* The last data byte must be transferred by the CPU. */
+> +	imx_i2c_write_reg(msgs->buf[msgs->len-1],
+> +				i2c_imx, IMX_I2C_I2DR);
+> +	result = i2c_imx_trx_complete(i2c_imx);
+> +	if (result)
+> +		return result;
+> +
+> +	result = i2c_imx_acked(i2c_imx);
+> +	if (result)
+> +		return result;
+> +
+> +	return 0;
+> +}
+[...]
+
+Thanks!
