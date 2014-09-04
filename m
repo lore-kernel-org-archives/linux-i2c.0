@@ -1,38 +1,59 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] gpio: add support for the Diolan DLN-2 USB GPIO driver
-Date: Thu, 4 Sep 2014 18:32:46 +0200
-Message-ID: <CACRpkdbu+hwXtM=Xqur6_Z4C3UkQRDu_YQviZ4F+xAUvX63q0g@mail.gmail.com>
-References: <1409349654-24841-1-git-send-email-octavian.purdila@intel.com>
-	<1409349654-24841-4-git-send-email-octavian.purdila@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] Revert "i2c: rcar: remove spinlock"
+Date: Thu, 4 Sep 2014 20:05:59 +0200
+Message-ID: <20140904180559.GA3754@katana>
+References: <1642788.pEhrsPDp4u@wasted.cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1409349654-24841-4-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1642788.pEhrsPDp4u@wasted.cogentembedded.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Aug 30, 2014 at 12:00 AM, Octavian Purdila
-<octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
 
-> From: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->
-> This patch adds GPIO and IRQ support for the Diolan DLN-2 GPIO module.
->
-> Information about the USB protocol interface can be found in the
-> Programmer's Reference Manual [1], see section 2.9 for the GPIO
-> module commands and responses.
->
-> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
->
-> Signed-off-by: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I like this version. I assume you need to funnel it with the
-rest of the patches through the MFD tree so:
+On Sun, Aug 24, 2014 at 12:44:09AM +0400, Sergei Shtylyov wrote:
+> This reverts commit 150b8be3cda54412ad7b54f5392b513b25c0aaa7.
+>=20
+> The I2C core's per-adapter locks can't protect from IRQs, so the driver s=
+till
+> needs a spinlock to protect the register accesses.
+>=20
+> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+> Cc: stable@vger.kernel.org # 3.16+
+>=20
 
-Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Applied to for-current, thanks!
 
-Yours,
-Linus Walleij
+
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUCKoHAAoJEBQN5MwUoCm2tFEP/2IpyChREeKuSX7HgVVv+TQ9
+O13iv8B501HD3A0/xZ9llfRRNicGKbO5s07mNAyXR5weZQmwodKA5xEatlQBzO1K
+y3riabvJrEpT/9QcOvfrIg4xbcWX8EwIHJh9XC/dmI8W5r8NjvxqVEIgoQCxRzOe
+HThH11gao+xVSDKog9cKY0k9/JXTEl2VXI1+Z2nbfi8t6llzxB6EWYmsYWvPuKex
+qwNa4a+pv8dTctXpDVk6LkO56l458V+H3CIhgQBKU0MKTptRycjA1GkDQOVUzhYB
+jjeFArGwN3Jn6wdG55GAAgTAdtVo4qljY4hFiq/1HzfG9/bh2ZlnQaGDsM+ap59W
+sN1cRco5gJRx/grVsl4BBf5oexz1KiZ753hlPYLZXpl9aXPBLr9ylxzQfTCCqCnD
+TZwkj40E76R5vtEOHozFNLNBtq6sDzOKLauMymLAwGtj9XukfqrhUi5OhNaB07l5
+w4pLjctEb4Xebe8Kz+QKBJxt8mEhZZW2FooHd4SWJafQKSRMz2Lg5ff9WelGh5Yx
+n+tcsgyymJKUonPoYKRUu6PfLx/RE4EQ5XTQ1/CUvjseERrHOQlOlpPmnKhphM7v
+pHO3CGSQfBZJwksrPPdpET/X53Z32+r2X+ChEzj3aTOXrpk+LkkAwc8b0rQeLpar
+P52SITCe6gsJPwR/kUKs
+=zmkX
+-----END PGP SIGNATURE-----
+
+--ZPt4rx8FFjLCG7dd--
