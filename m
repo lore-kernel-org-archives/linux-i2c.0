@@ -1,184 +1,167 @@
-From: carl peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-designware: Add suport for AMD i2c controller
-Date: Fri, 5 Sep 2014 15:19:50 +0800
-Message-ID: <CAC5e1Fppiin2OczBUeyACOijWN3DocUKcRJKw31G+8-zX+mxpg@mail.gmail.com>
-References: <1409833805-1574-1-git-send-email-carlpeng008@gmail.com>
-	<20140904125029.GD3632@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Mikko Perttunen <cyndis-/1wQRMveznE@public.gmane.org>
+Subject: [PATCH v2] i2c: i2c-tegra: Move clk_prepare/clk_set_rate to probe
+Date: Fri,  5 Sep 2014 12:28:18 +0300
+Message-ID: <1409909298-11361-1-git-send-email-cyndis@kapsi.fi>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140904125029.GD3632-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mika,
+From: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Could I consult a problem with you?
+Currently the i2c-tegra bus driver prepares, enables
+and set_rates its clocks separately for each transfer.
+This causes locking problems when doing I2C transfers
+from clock notifiers; see
+http://lists.infradead.org/pipermail/linux-arm-kernel/2014-July/268653.html
 
-As you suggest, there are some samples that add the device clk to the
-clock framework in the acpi_lpss.c. But I encounter some problems when
-add the AMD i2c clk to the clock framework.
-In acpi_lpss.c, as the patch d6ddaaac8f5c37ad84d said, When the
-CONFIG_X86_INTEL_LPSS is not defined, then only add the device ID
-list, but not implement the callbacks like "attach =
-acpi_lpss_create_device" , so if
-CONFIG_X86_INTEL_LPSS is not defined, will not create clk dev.
+This patch moves clk_prepare/unprepare and clk_set_rate calls to
+the probe function, leaving only clk_enable/disable to be
+done on each transfer. This solves the locking issue.
 
-So there will be some problems when I add the AMD i2c clk to the clock
-framework.
-if I do not define CONFIG_X86_INTEL_LPSS, then even though I add the IDs and
-lpss_device_desc struct into the acpi_lpss.c, the AMD i2c clk will
-also can not  be added into the clock framework. But if I add the AMD
-i2c related IDs and struct in the CONFIG_X86_INTEL_LPSS, it may cause
-some misunderstand in the future, it is a AMD device, why is it put
-into the CONFIG_X86_INTEL_LPSS branch.
+Signed-off-by: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+v2: move set_rate before prepare
 
-So, Could you please give some suggestions to me?
-Which should I choose?
-Add the AMD i2c clk IDs and related lpss_device_desc into the
-CONFIG_X86_INTEL_LPSS branch, or re-write a new branch by imitating
-the
-CONFIG_X86_INTEL_LPSS branch  included by CONFIG_AMD_INTEL_LPSS.
+ drivers/i2c/busses/i2c-tegra.c | 57 +++++++++++++++++++++++++++++++++---------
+ 1 file changed, 45 insertions(+), 12 deletions(-)
 
-Thank you,
-Carl
-
-On Thu, Sep 4, 2014 at 8:50 PM, Mika Westerberg
-<mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> On Thu, Sep 04, 2014 at 08:30:05PM +0800, Carl Peng wrote:
->> AMD i2c bus controller is ACPI device, its ACPI ID
->> is "AMD0010". This patch is used to add support for
->> AMD i2c bus controller in the Designware platfrom
->> driver.
->>
->> Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-designware-core.h    |  1 +
->>  drivers/i2c/busses/i2c-designware-platdrv.c | 35 +++++++++++++++++++++++------
->>  2 files changed, 29 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
->> index d66b6cb..7a0a56e 100644
->> --- a/drivers/i2c/busses/i2c-designware-core.h
->> +++ b/drivers/i2c/busses/i2c-designware-core.h
->> @@ -105,6 +105,7 @@ struct dw_i2c_dev {
->>       u16                     ss_lcnt;
->>       u16                     fs_hcnt;
->>       u16                     fs_lcnt;
->> +     u32                     vendor;
->
-> Not needed.
->
->>  };
->>
->>  #define ACCESS_SWAP          0x00000001
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index bc87733..f0556c4 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -43,16 +43,26 @@
->>  #include <linux/acpi.h>
->>  #include "i2c-designware-core.h"
->>
->> +#define AMD_CLK_KHZ          (133 * 1000)
->> +#define AMD_I2C_ACPI_ID              "AMD0010"
->> +#define VENDOR_ID_AMD                0x1022
->> +
->>  static struct i2c_algorithm i2c_dw_algo = {
->>       .master_xfer    = i2c_dw_xfer,
->>       .functionality  = i2c_dw_func,
->>  };
->> +
->
-> Unrelated change.
->
->>  static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
->>  {
->>       return clk_get_rate(dev->clk)/1000;
->>  }
->>
->>  #ifdef CONFIG_ACPI
->> +static u32 i2c_amd_get_clk_rate_khz(struct dw_i2c_dev *dev)
->> +{
->> +     return AMD_CLK_KHZ;
->> +}
->
-> No, use clock framework to pass correct clock rate to the driver.
->
->> +
->>  static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
->>                              u16 *hcnt, u16 *lcnt, u32 *sda_hold)
->>  {
->> @@ -107,6 +117,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
->>       { "INT3433", 0 },
->>       { "80860F41", 0 },
->>       { "808622C1", 0 },
->> +     { AMD_I2C_ACPI_ID, 0 },
->
-> Please use "AMD0010" here.
->
->>       { }
->>  };
->>  MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
->> @@ -134,6 +145,9 @@ static int dw_i2c_probe(struct platform_device *pdev)
->>       if (!dev)
->>               return -ENOMEM;
->>
->> +     if (!strncmp(AMD_I2C_ACPI_ID, pdev->name, strlen(AMD_I2C_ACPI_ID)))
->> +             dev->vendor = VENDOR_ID_AMD;
->> +
->
-> This and rest of the hunks can be then dropped once you pass clocks
-> using clock framework. See how we do it for Intel LPSS devices in
-> drivers/acpi/acpi_lpss.c
->
->>       mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->>       dev->base = devm_ioremap_resource(&pdev->dev, mem);
->>       if (IS_ERR(dev->base))
->> @@ -145,12 +159,15 @@ static int dw_i2c_probe(struct platform_device *pdev)
->>       dev->irq = irq;
->>       platform_set_drvdata(pdev, dev);
->>
->> -     dev->clk = devm_clk_get(&pdev->dev, NULL);
->> -     dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
->> +     if (dev->vendor != VENDOR_ID_AMD) {
->> +             dev->clk = devm_clk_get(&pdev->dev, NULL);
->> +             dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
->>
->> -     if (IS_ERR(dev->clk))
->> -             return PTR_ERR(dev->clk);
->> -     clk_prepare_enable(dev->clk);
->> +             if (IS_ERR(dev->clk))
->> +                     return PTR_ERR(dev->clk);
->> +             clk_prepare_enable(dev->clk);
->> +     } else
->> +             dev->get_clk_rate_khz = i2c_amd_get_clk_rate_khz;
->>
->>       if (pdev->dev.of_node) {
->>               u32 ht = 0;
->> @@ -255,7 +272,9 @@ static int dw_i2c_suspend(struct device *dev)
->>       struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
->>
->>       i2c_dw_disable(i_dev);
->> -     clk_disable_unprepare(i_dev->clk);
->> +
->> +     if (i_dev->vendor != VENDOR_ID_AMD)
->> +             clk_disable_unprepare(i_dev->clk);
->>
->>       return 0;
->>  }
->> @@ -265,7 +284,9 @@ static int dw_i2c_resume(struct device *dev)
->>       struct platform_device *pdev = to_platform_device(dev);
->>       struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
->>
->> -     clk_prepare_enable(i_dev->clk);
->> +     if (i_dev->vendor != VENDOR_ID_AMD)
->> +             clk_prepare_enable(i_dev->clk);
->> +
->>       i2c_dw_init(i_dev);
->>
->>       return 0;
->> --
->> 1.9.1
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 87d0371..efba1eb 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -380,34 +380,33 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
+ {
+ 	int ret;
+ 	if (!i2c_dev->hw->has_single_clk_source) {
+-		ret = clk_prepare_enable(i2c_dev->fast_clk);
++		ret = clk_enable(i2c_dev->fast_clk);
+ 		if (ret < 0) {
+ 			dev_err(i2c_dev->dev,
+ 				"Enabling fast clk failed, err %d\n", ret);
+ 			return ret;
+ 		}
+ 	}
+-	ret = clk_prepare_enable(i2c_dev->div_clk);
++	ret = clk_enable(i2c_dev->div_clk);
+ 	if (ret < 0) {
+ 		dev_err(i2c_dev->dev,
+ 			"Enabling div clk failed, err %d\n", ret);
+-		clk_disable_unprepare(i2c_dev->fast_clk);
++		clk_disable(i2c_dev->fast_clk);
+ 	}
+ 	return ret;
+ }
+ 
+ static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
+ {
+-	clk_disable_unprepare(i2c_dev->div_clk);
++	clk_disable(i2c_dev->div_clk);
+ 	if (!i2c_dev->hw->has_single_clk_source)
+-		clk_disable_unprepare(i2c_dev->fast_clk);
++		clk_disable(i2c_dev->fast_clk);
+ }
+ 
+ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ {
+ 	u32 val;
+ 	int err = 0;
+-	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
+ 	u32 clk_divisor;
+ 
+ 	err = tegra_i2c_clock_enable(i2c_dev);
+@@ -428,9 +427,6 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 	i2c_writel(i2c_dev, val, I2C_CNFG);
+ 	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
+ 
+-	clk_multiplier *= (i2c_dev->hw->clk_divisor_std_fast_mode + 1);
+-	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * clk_multiplier);
+-
+ 	/* Make sure clock divisor programmed correctly */
+ 	clk_divisor = i2c_dev->hw->clk_divisor_hs_mode;
+ 	clk_divisor |= i2c_dev->hw->clk_divisor_std_fast_mode <<
+@@ -712,6 +708,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	void __iomem *base;
+ 	int irq;
+ 	int ret = 0;
++	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	base = devm_ioremap_resource(&pdev->dev, res);
+@@ -777,17 +774,39 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, i2c_dev);
+ 
++	if (!i2c_dev->hw->has_single_clk_source) {
++		ret = clk_prepare(i2c_dev->fast_clk);
++		if (ret < 0) {
++			dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
++			return ret;
++		}
++	}
++
++	clk_multiplier *= (i2c_dev->hw->clk_divisor_std_fast_mode + 1);
++	ret = clk_set_rate(i2c_dev->div_clk,
++			   i2c_dev->bus_clk_rate * clk_multiplier);
++	if (ret) {
++		dev_err(i2c_dev->dev, "Clock rate change failed %d\n", ret);
++		goto unprepare_fast_clk;
++	}
++
++	ret = clk_prepare(i2c_dev->div_clk);
++	if (ret < 0) {
++		dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
++		goto unprepare_fast_clk;
++	}
++
+ 	ret = tegra_i2c_init(i2c_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to initialize i2c controller");
+-		return ret;
++		goto unprepare_div_clk;
+ 	}
+ 
+ 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
+ 			tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
+-		return ret;
++		goto unprepare_div_clk;
+ 	}
+ 
+ 	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
+@@ -803,16 +822,30 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to add I2C adapter\n");
+-		return ret;
++		goto unprepare_div_clk;
+ 	}
+ 
+ 	return 0;
++
++unprepare_div_clk:
++	clk_unprepare(i2c_dev->div_clk);
++
++unprepare_fast_clk:
++	if (!i2c_dev->hw->has_single_clk_source)
++		clk_unprepare(i2c_dev->fast_clk);
++
++	return ret;
+ }
+ 
+ static int tegra_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+ 	i2c_del_adapter(&i2c_dev->adapter);
++
++	clk_unprepare(i2c_dev->div_clk);
++	if (!i2c_dev->hw->has_single_clk_source)
++		clk_unprepare(i2c_dev->fast_clk);
++
+ 	return 0;
+ }
+ 
+-- 
+2.1.0
