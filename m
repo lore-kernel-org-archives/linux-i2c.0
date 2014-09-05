@@ -1,69 +1,110 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Fri, 5 Sep 2014 12:40:44 +0200
-Message-ID: <201409051240.44469.marex@denx.de>
-References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com> <201409041638.45537.marex@denx.de> <c10c1960255e4dbca2a281b995290c6d@BL2PR03MB338.namprd03.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <c10c1960255e4dbca2a281b995290c6d-AZ66ij2kwaZYLYlmg7qx2OO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "LW-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org" <LW-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
+Subject: [PATCH] i2c: Add generic support passing secondary devices addresses
+Date: Fri,  5 Sep 2014 16:02:19 +0200
+Message-ID: <1409925739-28188-1-git-send-email-jean-michel.hautbois@vodalys.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, lars@metafoo.de, Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, September 05, 2014 at 12:32:40 PM, Yao Yuan wrote:
-[...]
-> > > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> > > +					struct i2c_msg *msgs)
-> > > +{
-> > > +	int result;
-> > > +	unsigned int temp = 0;
-> > > +	unsigned long orig_jiffies = jiffies;
-> > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> > > +	struct device *dev = &i2c_imx->adapter.dev;
-> > > +
-> > > +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
-> > > +		__func__, msgs->addr << 1);
-> > > +
-> > > +	reinit_completion(&i2c_imx->dma->cmd_complete);
-> > > +	dma->chan_using = dma->chan_tx;
-> > > +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
-> > > +	dma->dma_data_dir = DMA_TO_DEVICE;
-> > > +	dma->dma_len = msgs->len - 1;
-> > > +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
-> > > +	if (result)
-> > > +		return result;
-> > > +
-> > > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> > > +	temp |= I2CR_DMAEN;
-> > > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> > > +
-> > > +	/*
-> > > +	 * Write slave address.
-> > > +	 * The first byte muse be transmitted by the CPU.
-> > > +	 */
-> > > +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> > > +	result = wait_for_completion_interruptible_timeout(
-> > > +				&i2c_imx->dma->cmd_complete,
-> > > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-> > > +	if (result <= 0) {
-> > > +		dmaengine_terminate_all(dma->chan_using);
-> > > +		if (result)
-> > > +			return result;
-> > > +		else
-> > > +			return -ETIMEDOUT;
-> > 
-> > Shouldn't you force-disable the DMA here somehow (like unsetting
-> > I2CR_DMAEN bit), if it failed or timed out?
-> 
-> [Yuan Yao] Yes, I put the code for force-disable DMA in i2c_imx_start().
-> In order to make sure any DMA error will not effect the I2C.
-> It seems almost the same as put the code here, how about your think?
+Some I2C devices have multiple addresses assigned, for example each address
+corresponding to a different internal register map page of the device.
+So far drivers which need support for this have handled this with a driver
+specific and non-generic implementation, e.g. passing the additional address
+via platform data.
 
-Would that mean that the "crashed" DMA would be running until the next 
-transmission is scheduled ?
+This patch provides a new helper function called i2c_new_secondary_device()
+which is intended to provide a generic way to get the secondary address
+as well as instantiate a struct i2c_client for the secondary address.
 
-[...]
+The function expects a pointer to the primary i2c_client, a name
+for the secondary address and an optional default address. The name is used
+as a handle to specify which secondary address to get.
+
+The default address is used as a fallback in case no secondary address
+was explicitly specified. In case no secondary address and no default
+address were specified the function returns NULL.
+
+For now the function only supports look-up of the secondary address
+from devicetree, but it can be extended in the future
+to for example support board files and/or ACPI.
+
+Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
+---
+ drivers/i2c/i2c-core.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |  8 ++++++++
+ 2 files changed, 48 insertions(+)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 632057a..ef31d6f 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -798,6 +798,46 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter *adapter, u16 address)
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_dummy);
+ 
++/**
++ * i2c_new_secondary_device - Helper to get the instantiated secondary address
++ * @client: Handle to the primary client
++ * @name: Handle to specify which secondary address to get
++ * @default_addr: Used as a fallback if no secondary address was specified
++ * Context: can sleep
++ *
++ * This returns an I2C client bound to the "dummy" driver based on DT parsing.
++ *
++ * This returns the new i2c client, which should be saved for later use with
++ * i2c_unregister_device(); or NULL to indicate an error.
++ */
++struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
++						const char *name,
++						u16 default_addr)
++{
++	int i;
++	u32 addr;
++	struct device_node *np;
++
++	np = client->dev.of_node;
++
++	if (np) {
++		i = of_property_match_string(np, "reg-names", name);
++		if (i >= 0)
++			of_property_read_u32_index(np, "reg", i, &addr);
++		else if (default_addr != 0)
++			addr = default_addr;
++		else
++			addr = NULL;
++	} else {
++		addr = default_addr;
++	}
++
++	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
++	return i2c_new_dummy(client->adapter, addr);
++}
++EXPORT_SYMBOL_GPL(i2c_new_secondary_device);
++
++
+ /* ------------------------------------------------------------------------- */
+ 
+ /* I2C bus adapters -- one roots each I2C or SMBUS segment */
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a95efeb..0f190e6 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -322,6 +322,14 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+ extern struct i2c_client *
+ i2c_new_dummy(struct i2c_adapter *adap, u16 address);
+ 
++/* Helper function providing a generic way to get the secondary address
++ * as well as a client handle to this extra address.
++ */
++extern struct i2c_client *
++i2c_new_secondary_device(struct i2c_client *client,
++				const char *name,
++				u32 default_addr);
++
+ extern void i2c_unregister_device(struct i2c_client *);
+ #endif /* I2C */
+ 
+-- 
+2.0.4
