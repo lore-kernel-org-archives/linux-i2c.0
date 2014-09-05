@@ -1,82 +1,142 @@
-From: addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: fix divisor calculation for SCL frequency
-Date: Fri, 05 Sep 2014 18:17:10 +0800
-Message-ID: <54098DA6.4090704@rock-chips.com>
-References: <1409884333-3544-1-git-send-email-addy.ke@rock-chips.com> <CAD=FV=W3JJM38v-X=pyLUjAzY3Ti88xUgWp9bMsX5dqp1gubpg@mail.gmail.com>
+From: Yao Yuan <yao.yuan@freescale.com>
+Subject: RE: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Fri, 5 Sep 2014 10:32:40 +0000
+Message-ID: <c10c1960255e4dbca2a281b995290c6d@BL2PR03MB338.namprd03.prod.outlook.com>
+References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com>
+ <1407923215-3749-2-git-send-email-yao.yuan@freescale.com>
+ <201409041638.45537.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAD=FV=W3JJM38v-X=pyLUjAzY3Ti88xUgWp9bMsX5dqp1gubpg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <201409041638.45537.marex@denx.de>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Marek Vasut <marex@denx.de>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "LW@karo-electronics.de" <LW@karo-electronics.de>
 List-Id: linux-i2c@vger.kernel.org
 
-> Addy,
+On Thursday, September 04, 2014 10:39 PM, Marek Vasut wrote:
+> On Wednesday, August 13, 2014 at 11:46:54 AM, Yuan Yao wrote:
+> > Add dma support for i2c. This function depend on DMA driver.
+> > You can turn on it by write both the dmas and dma-name properties in
+> > dts node. DMA is optional, even DMA request unsuccessfully, i2c can
+> > also work well.
+> >
+> > Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
 > 
-> On Thu, Sep 4, 2014 at 7:32 PM, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
->> I2C_CLKDIV register descripted in the previous version of
->> RK3x chip manual is incorrect. Plus 1 is required.
->>
->> The correct formula:
->> - T(SCL_HIGH) = T(PCLK) * (CLKDIVH + 1) * 8
->> - T(SCL_LOW) = T(PCLK) * (CLKDIVL + 1) * 8
->> - (SCL Divsor) = 8 * ((CLKDIVL + 1) + (CLKDIVH + 1))
->> - SCL = PCLK / (CLK Divsor)
+> [...]
 > 
-> I'll trust that you tested this with a scope
+> > +/* Enable DMA if transfer byte size is bigger than this threshold.
+> > + * As the hardware request, it must bigger than 4.
 > 
-Yes ,I have tested on RK3188 and RK3288, and confirmed by oscilloscope.
+> The comment is unclear, just by reading it, I have no clue what are the
+> units for this value. I can guess those would be bytes, but it would be a
+> good idea to be explicit.
 > 
->> It will be updated to the latest version of chip manual.
->>
->> Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-rk3x.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
->> index e637c32..76b6604 100644
->> --- a/drivers/i2c/busses/i2c-rk3x.c
->> +++ b/drivers/i2c/busses/i2c-rk3x.c
->> @@ -433,8 +433,8 @@ static void rk3x_i2c_set_scl_rate(struct rk3x_i2c *i2c, unsigned long scl_rate)
->>         unsigned long i2c_rate = clk_get_rate(i2c->clk);
->>         unsigned int div;
->>
->> -       /* SCL rate = (clk rate) / (8 * DIV) */
->> -       div = DIV_ROUND_UP(i2c_rate, scl_rate * 8);
->> +       /* SCL rate = (clk rate) / (8 * (DIV + 2)) */
->> +       div = DIV_ROUND_UP(i2c_rate, scl_rate * 8) - 2;
+> Also, wasn't kernel comment style starting with leading /* , with the
+> text starting only on the next line ?
 > 
-> Given the bug I just fixed in the Rockchip SPI driver, I was a little
-> worried about div becoming -1 (and thus being a really large positive
-> number since div is unsigned).
-> 
-> However, it seems that you get saved by the next statement:
->   div = DIV_ROUND_UP(div, 2);
-> 
-> In the testing I did with the Linux macros, that magically transformed
-> a div of 0xFFFFFFFF (-1) to 0, so it's not technically a bug.  ...but
-> it's very non-obvious.  Can you do something a little cleaner?
 
-The following modifications is reasonable?
+[Yuan Yao] Thanks for your review. I will correct it in the next version.
 
-static void rk3x_i2c_set_scl_rate(struct rk3x_i2c *i2c, unsigned long scl_rate)
-{
-        unsigned long i2c_rate = clk_get_rate(i2c->clk);
-        unsigned int div;
+> > + */
+> > +#define IMX_I2C_DMA_THRESHOLD	16
+> > +#define IMX_I2C_DMA_TIMEOUT	1000
+> > +
+> 
+> [...]
+> 
+> > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> > +					struct i2c_msg *msgs)
+> > +{
+> > +	int result;
+> > +	unsigned int temp = 0;
+> > +	unsigned long orig_jiffies = jiffies;
+> > +	struct imx_i2c_dma *dma = i2c_imx->dma;
+> > +	struct device *dev = &i2c_imx->adapter.dev;
+> > +
+> > +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
+> > +		__func__, msgs->addr << 1);
+> > +
+> > +	reinit_completion(&i2c_imx->dma->cmd_complete);
+> > +	dma->chan_using = dma->chan_tx;
+> > +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
+> > +	dma->dma_data_dir = DMA_TO_DEVICE;
+> > +	dma->dma_len = msgs->len - 1;
+> > +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
+> > +	if (result)
+> > +		return result;
+> > +
+> > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > +	temp |= I2CR_DMAEN;
+> > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +	/*
+> > +	 * Write slave address.
+> > +	 * The first byte muse be transmitted by the CPU.
+> > +	 */
+> > +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> > +	result = wait_for_completion_interruptible_timeout(
+> > +				&i2c_imx->dma->cmd_complete,
+> > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> > +	if (result <= 0) {
+> > +		dmaengine_terminate_all(dma->chan_using);
+> > +		if (result)
+> > +			return result;
+> > +		else
+> > +			return -ETIMEDOUT;
+> 
+> Shouldn't you force-disable the DMA here somehow (like unsetting
+> I2CR_DMAEN bit), if it failed or timed out?
 
-        /* set DIV = DIVH = DIVL
-         * SCL rate = (clk rate) / (8 * (DIVH + 1 + DIVL + 1))
-         *          = (clk rate) / (16 * (DIV + 1))
-         */
-        div = DIV_ROUND_UP(i2c_rate, scl_rate * 16) - 1;
+[Yuan Yao] Yes, I put the code for force-disable DMA in i2c_imx_start().
+In order to make sure any DMA error will not effect the I2C.
+It seems almost the same as put the code here, how about your think?
 
-        i2c_writel(i2c, (div << 16) | (div & 0xffff), REG_CLKDIV);
-}
+Thanks!
+
+> > +	}
+> > +
+> > +	/* Waiting for Transfer complete. */
+> > +	while (1) {
+> > +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +		if (temp & I2SR_ICF)
+> > +			break;
+> > +		if (time_after(jiffies, orig_jiffies +
+> > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
+> > +			dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n",
+> > +				__func__);
+> > +			return -ETIMEDOUT;
+> > +		}
+> > +		schedule();
+> > +	}
+> > +
+> > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > +	temp &= ~I2CR_DMAEN;
+> > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +	/* The last data byte must be transferred by the CPU. */
+> > +	imx_i2c_write_reg(msgs->buf[msgs->len-1],
+> > +				i2c_imx, IMX_I2C_I2DR);
+> > +	result = i2c_imx_trx_complete(i2c_imx);
+> > +	if (result)
+> > +		return result;
+> > +
+> > +	result = i2c_imx_acked(i2c_imx);
+> > +	if (result)
+> > +		return result;
+> > +
+> > +	return 0;
+> > +}
+> [...]
 > 
-> -Doug
-> 
-> 
-> 
+> Thanks!
