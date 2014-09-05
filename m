@@ -1,167 +1,63 @@
-From: Mikko Perttunen <cyndis-/1wQRMveznE@public.gmane.org>
-Subject: [PATCH v2] i2c: i2c-tegra: Move clk_prepare/clk_set_rate to probe
-Date: Fri,  5 Sep 2014 12:28:18 +0300
-Message-ID: <1409909298-11361-1-git-send-email-cyndis@kapsi.fi>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-designware: Add suport for AMD i2c controller
+Date: Fri, 5 Sep 2014 12:36:01 +0300
+Message-ID: <20140905093601.GQ3632@lahna.fi.intel.com>
+References: <1409833805-1574-1-git-send-email-carlpeng008@gmail.com>
+ <20140904125029.GD3632@lahna.fi.intel.com>
+ <CAC5e1Fppiin2OczBUeyACOijWN3DocUKcRJKw31G+8-zX+mxpg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAC5e1Fppiin2OczBUeyACOijWN3DocUKcRJKw31G+8-zX+mxpg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: carl peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+On Fri, Sep 05, 2014 at 03:19:50PM +0800, carl peng wrote:
+> Hi Mika,
+> 
+> Could I consult a problem with you?
 
-Currently the i2c-tegra bus driver prepares, enables
-and set_rates its clocks separately for each transfer.
-This causes locking problems when doing I2C transfers
-from clock notifiers; see
-http://lists.infradead.org/pipermail/linux-arm-kernel/2014-July/268653.html
+Sure.
 
-This patch moves clk_prepare/unprepare and clk_set_rate calls to
-the probe function, leaving only clk_enable/disable to be
-done on each transfer. This solves the locking issue.
+> 
+> As you suggest, there are some samples that add the device clk to the
+> clock framework in the acpi_lpss.c. But I encounter some problems when
+> add the AMD i2c clk to the clock framework.
+> In acpi_lpss.c, as the patch d6ddaaac8f5c37ad84d said, When the
+> CONFIG_X86_INTEL_LPSS is not defined, then only add the device ID
+> list, but not implement the callbacks like "attach =
+> acpi_lpss_create_device" , so if
+> CONFIG_X86_INTEL_LPSS is not defined, will not create clk dev.
+> 
+> So there will be some problems when I add the AMD i2c clk to the clock
+> framework.
+> if I do not define CONFIG_X86_INTEL_LPSS, then even though I add the IDs and
+> lpss_device_desc struct into the acpi_lpss.c, the AMD i2c clk will
+> also can not  be added into the clock framework. But if I add the AMD
+> i2c related IDs and struct in the CONFIG_X86_INTEL_LPSS, it may cause
+> some misunderstand in the future, it is a AMD device, why is it put
+> into the CONFIG_X86_INTEL_LPSS branch.
+> 
+> So, Could you please give some suggestions to me?
+> Which should I choose?
+> Add the AMD i2c clk IDs and related lpss_device_desc into the
+> CONFIG_X86_INTEL_LPSS branch, or re-write a new branch by imitating
+> the
+> CONFIG_X86_INTEL_LPSS branch  included by CONFIG_AMD_INTEL_LPSS.
 
-Signed-off-by: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-v2: move set_rate before prepare
+Since the AMD part is probably too different from Intel LPSS devices, I
+would rather not add it there. So you have two options AFAICT:
 
- drivers/i2c/busses/i2c-tegra.c | 57 +++++++++++++++++++++++++++++++++---------
- 1 file changed, 45 insertions(+), 12 deletions(-)
+ 1) Add the clock in drivers/acpi/acpi_platform.c
+ 2) Create custom i2c_get_clk_rate_khz() in the driver, just like in
+    this patch but drop all the unnecessary vendor etc. dance.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 87d0371..efba1eb 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -380,34 +380,33 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
- {
- 	int ret;
- 	if (!i2c_dev->hw->has_single_clk_source) {
--		ret = clk_prepare_enable(i2c_dev->fast_clk);
-+		ret = clk_enable(i2c_dev->fast_clk);
- 		if (ret < 0) {
- 			dev_err(i2c_dev->dev,
- 				"Enabling fast clk failed, err %d\n", ret);
- 			return ret;
- 		}
- 	}
--	ret = clk_prepare_enable(i2c_dev->div_clk);
-+	ret = clk_enable(i2c_dev->div_clk);
- 	if (ret < 0) {
- 		dev_err(i2c_dev->dev,
- 			"Enabling div clk failed, err %d\n", ret);
--		clk_disable_unprepare(i2c_dev->fast_clk);
-+		clk_disable(i2c_dev->fast_clk);
- 	}
- 	return ret;
- }
- 
- static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
- {
--	clk_disable_unprepare(i2c_dev->div_clk);
-+	clk_disable(i2c_dev->div_clk);
- 	if (!i2c_dev->hw->has_single_clk_source)
--		clk_disable_unprepare(i2c_dev->fast_clk);
-+		clk_disable(i2c_dev->fast_clk);
- }
- 
- static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
- 	int err = 0;
--	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
- 	u32 clk_divisor;
- 
- 	err = tegra_i2c_clock_enable(i2c_dev);
-@@ -428,9 +427,6 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 	i2c_writel(i2c_dev, val, I2C_CNFG);
- 	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
- 
--	clk_multiplier *= (i2c_dev->hw->clk_divisor_std_fast_mode + 1);
--	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * clk_multiplier);
--
- 	/* Make sure clock divisor programmed correctly */
- 	clk_divisor = i2c_dev->hw->clk_divisor_hs_mode;
- 	clk_divisor |= i2c_dev->hw->clk_divisor_std_fast_mode <<
-@@ -712,6 +708,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	void __iomem *base;
- 	int irq;
- 	int ret = 0;
-+	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	base = devm_ioremap_resource(&pdev->dev, res);
-@@ -777,17 +774,39 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, i2c_dev);
- 
-+	if (!i2c_dev->hw->has_single_clk_source) {
-+		ret = clk_prepare(i2c_dev->fast_clk);
-+		if (ret < 0) {
-+			dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
-+			return ret;
-+		}
-+	}
-+
-+	clk_multiplier *= (i2c_dev->hw->clk_divisor_std_fast_mode + 1);
-+	ret = clk_set_rate(i2c_dev->div_clk,
-+			   i2c_dev->bus_clk_rate * clk_multiplier);
-+	if (ret) {
-+		dev_err(i2c_dev->dev, "Clock rate change failed %d\n", ret);
-+		goto unprepare_fast_clk;
-+	}
-+
-+	ret = clk_prepare(i2c_dev->div_clk);
-+	if (ret < 0) {
-+		dev_err(i2c_dev->dev, "Clock prepare failed %d\n", ret);
-+		goto unprepare_fast_clk;
-+	}
-+
- 	ret = tegra_i2c_init(i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to initialize i2c controller");
--		return ret;
-+		goto unprepare_div_clk;
- 	}
- 
- 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
- 			tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
--		return ret;
-+		goto unprepare_div_clk;
- 	}
- 
- 	i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
-@@ -803,16 +822,30 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to add I2C adapter\n");
--		return ret;
-+		goto unprepare_div_clk;
- 	}
- 
- 	return 0;
-+
-+unprepare_div_clk:
-+	clk_unprepare(i2c_dev->div_clk);
-+
-+unprepare_fast_clk:
-+	if (!i2c_dev->hw->has_single_clk_source)
-+		clk_unprepare(i2c_dev->fast_clk);
-+
-+	return ret;
- }
- 
- static int tegra_i2c_remove(struct platform_device *pdev)
- {
- 	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
- 	i2c_del_adapter(&i2c_dev->adapter);
-+
-+	clk_unprepare(i2c_dev->div_clk);
-+	if (!i2c_dev->hw->has_single_clk_source)
-+		clk_unprepare(i2c_dev->fast_clk);
-+
- 	return 0;
- }
- 
--- 
-2.1.0
+For the 2) you could pass the clock rate in ->driver_data and if it is
+non-zero, setup a custom clock rate function that then uses the value
+from ->driver_data or so.
+
+Not sure if Wolfram likes that but we don't have too many places in x86
+world where we can create clocks :-(
