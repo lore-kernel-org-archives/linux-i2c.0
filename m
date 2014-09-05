@@ -1,59 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] Revert "i2c: rcar: remove spinlock"
-Date: Thu, 4 Sep 2014 20:05:59 +0200
-Message-ID: <20140904180559.GA3754@katana>
-References: <1642788.pEhrsPDp4u@wasted.cogentembedded.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1642788.pEhrsPDp4u@wasted.cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+From: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH] i2c: rk3x: fix divisor calculation for SCL frequency
+Date: Fri,  5 Sep 2014 10:32:13 +0800
+Message-ID: <1409884333-3544-1-git-send-email-addy.ke@rock-chips.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+I2C_CLKDIV register descripted in the previous version of
+RK3x chip manual is incorrect. Plus 1 is required.
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The correct formula:
+- T(SCL_HIGH) = T(PCLK) * (CLKDIVH + 1) * 8
+- T(SCL_LOW) = T(PCLK) * (CLKDIVL + 1) * 8
+- (SCL Divsor) = 8 * ((CLKDIVL + 1) + (CLKDIVH + 1))
+- SCL = PCLK / (CLK Divsor)
 
-On Sun, Aug 24, 2014 at 12:44:09AM +0400, Sergei Shtylyov wrote:
-> This reverts commit 150b8be3cda54412ad7b54f5392b513b25c0aaa7.
->=20
-> The I2C core's per-adapter locks can't protect from IRQs, so the driver s=
-till
-> needs a spinlock to protect the register accesses.
->=20
-> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-> Cc: stable@vger.kernel.org # 3.16+
->=20
+It will be updated to the latest version of chip manual.
 
-Applied to for-current, thanks!
+Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-rk3x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
---ZPt4rx8FFjLCG7dd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUCKoHAAoJEBQN5MwUoCm2tFEP/2IpyChREeKuSX7HgVVv+TQ9
-O13iv8B501HD3A0/xZ9llfRRNicGKbO5s07mNAyXR5weZQmwodKA5xEatlQBzO1K
-y3riabvJrEpT/9QcOvfrIg4xbcWX8EwIHJh9XC/dmI8W5r8NjvxqVEIgoQCxRzOe
-HThH11gao+xVSDKog9cKY0k9/JXTEl2VXI1+Z2nbfi8t6llzxB6EWYmsYWvPuKex
-qwNa4a+pv8dTctXpDVk6LkO56l458V+H3CIhgQBKU0MKTptRycjA1GkDQOVUzhYB
-jjeFArGwN3Jn6wdG55GAAgTAdtVo4qljY4hFiq/1HzfG9/bh2ZlnQaGDsM+ap59W
-sN1cRco5gJRx/grVsl4BBf5oexz1KiZ753hlPYLZXpl9aXPBLr9ylxzQfTCCqCnD
-TZwkj40E76R5vtEOHozFNLNBtq6sDzOKLauMymLAwGtj9XukfqrhUi5OhNaB07l5
-w4pLjctEb4Xebe8Kz+QKBJxt8mEhZZW2FooHd4SWJafQKSRMz2Lg5ff9WelGh5Yx
-n+tcsgyymJKUonPoYKRUu6PfLx/RE4EQ5XTQ1/CUvjseERrHOQlOlpPmnKhphM7v
-pHO3CGSQfBZJwksrPPdpET/X53Z32+r2X+ChEzj3aTOXrpk+LkkAwc8b0rQeLpar
-P52SITCe6gsJPwR/kUKs
-=zmkX
------END PGP SIGNATURE-----
-
---ZPt4rx8FFjLCG7dd--
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index e637c32..76b6604 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -433,8 +433,8 @@ static void rk3x_i2c_set_scl_rate(struct rk3x_i2c *i2c, unsigned long scl_rate)
+ 	unsigned long i2c_rate = clk_get_rate(i2c->clk);
+ 	unsigned int div;
+ 
+-	/* SCL rate = (clk rate) / (8 * DIV) */
+-	div = DIV_ROUND_UP(i2c_rate, scl_rate * 8);
++	/* SCL rate = (clk rate) / (8 * (DIV + 2)) */
++	div = DIV_ROUND_UP(i2c_rate, scl_rate * 8) - 2;
+ 
+ 	/* The lower and upper half of the CLKDIV reg describe the length of
+ 	 * SCL low & high periods. */
+-- 
+1.8.3.2
