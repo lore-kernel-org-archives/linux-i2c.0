@@ -1,35 +1,35 @@
-From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 2/3] i2c: add support for Diolan DLN-2 USB-I2C adapter
-Date: Mon, 8 Sep 2014 19:28:39 +0200
-Message-ID: <20140908172839.GA21369@localhost>
-References: <1409930279-1382-1-git-send-email-octavian.purdila@intel.com>
- <1409930279-1382-3-git-send-email-octavian.purdila@intel.com>
- <20140908144447.GD9560@localhost>
- <CAE1zot+R25OAu9d9WB2tOFqO9J9m-Vwo25msn6TD2HxseBTUzQ@mail.gmail.com>
- <20140908163058.GF9560@localhost>
- <CAE1zotJomxwAJA3aXm9MHnHd5Pg9V=K7XaptOPWkArV0jio4DQ@mail.gmail.com>
+From: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+Subject: [PATCH 1/2] i2c-mxs: debug error message: second SELECT -> READ
+Date: Mon, 08 Sep 2014 20:04:22 +0200
+Message-ID: <540DEFA6.9030600@elproma.com.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAE1zotJomxwAJA3aXm9MHnHd5Pg9V=K7XaptOPWkArV0jio4DQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 08, 2014 at 08:15:07PM +0300, Octavian Purdila wrote:
+Signed-off-by: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+---
+  linux-3.14.17/drivers/i2c/busses/i2c-mxs.c | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Just one more question on this subject: is the following allowed:
-> 
-> int ret, len;
-> 
-> or should it be:
-> 
-> int ret;
-> int len;
+diff --git a/linux-3.14.17/drivers/i2c/busses/i2c-mxs.c 
+b/linux-3.14.17/drivers/i2c/busses/i2c-mxs.c
+index 0cde4e6..87ee72d 100644
+--- a/linux-3.14.17/drivers/i2c/busses/i2c-mxs.c
++++ b/linux-3.14.17/drivers/i2c/busses/i2c-mxs.c
+@@ -429,7 +429,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter 
+*adap,
+                 ret = mxs_i2c_pio_wait_xfer_end(i2c);
+                 if (ret) {
+                         dev_err(i2c->dev,
+-                               "PIO: Failed to send SELECT command!\n");
++                               "PIO: Failed to send READ command!\n");
+                         goto cleanup;
+                 }
 
-I try to avoid it, at least unless obviously related such as min/max or
-x/y.
-
-Johan
+--
+1.7.11.3
