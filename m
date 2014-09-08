@@ -1,91 +1,56 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 5/7] mfd: cros_ec: wait for completion of commands
- that return IN_PROGRESS
-Date: Mon, 8 Sep 2014 13:48:11 +0100
-Message-ID: <20140908124811.GD26284@lee--X1>
-References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
- <1408974008-17184-6-git-send-email-javier.martinez@collabora.co.uk>
- <20140904083426.GD8257@lee--X1>
- <540D9577.9000702@collabora.co.uk>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 1/3] mfd: add support for Diolan DLN-2 devices
+Date: Mon, 8 Sep 2014 16:20:34 +0300
+Message-ID: <CAE1zotL3rKb3ayjgp0DbTr-a9xAhEJk6ybdqGEzg3UtuBUKWMw@mail.gmail.com>
+References: <1409930279-1382-1-git-send-email-octavian.purdila@intel.com>
+	<1409930279-1382-2-git-send-email-octavian.purdila@intel.com>
+	<20140908113233.GA9560@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <540D9577.9000702@collabora.co.uk>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140908113233.GA9560@localhost>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 08 Sep 2014, Javier Martinez Canillas wrote:
-> On 09/04/2014 10:34 AM, Lee Jones wrote:
-> > On Mon, 25 Aug 2014, Javier Martinez Canillas wrote:
-> >> From: Andrew Bresticker <abrestic@chromium.org>
-> >>=20
-> >> When an EC command returns EC_RES_IN_PROGRESS, we need to query
-> >> the state of the EC until it indicates that it is no longer busy.
-> >> Do this in cros_ec_cmd_xfer() under the EC's mutex so that other
-> >> commands (e.g. keyboard, I2C passtru) aren't issued to the EC whil=
-e
-> >> it is working on the in-progress command.
-> >>=20
-> >> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
-> >> Reviewed-by: Simon Glass <sjg@chromium.org>
-> >> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora=
-=2Eco.uk>
-> >> ---
-> >>=20
-> >> Changes since v1:
-> >>  - The *xfer() calls don't modify the passed cros_ec_command so th=
-ere is
-> >>    no need to populate it inside the for loop. Suggested by Lee Jo=
-nes.
-> >> ---
-> >>  drivers/mfd/cros_ec.c | 34 +++++++++++++++++++++++++++++++++-
-> >>  1 file changed, 33 insertions(+), 1 deletion(-)
-> >>=20
-> >> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-> >> index c53804a..cd0c93c 100644
-> >> --- a/drivers/mfd/cros_ec.c
-> >> +++ b/drivers/mfd/cros_ec.c
+On Mon, Sep 8, 2014 at 2:32 PM, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+>
+> On Fri, Sep 05, 2014 at 06:17:57PM +0300, Octavian Purdila wrote:
+> > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+> > Master Adapter DLN-2. Details about the device can be found here:
+> >
+<snip>
+>
+> First of all, this is much cleaner than the first non-MFD version. I'll
+> have a look at the subdrivers shortly as well.
+>
 
-[...]
+Hi Johan,
 
-> >>  	mutex_lock(&ec_dev->lock);
-> >>  	ret =3D ec_dev->cmd_xfer(ec_dev, msg);
-> >> +	if (ret =3D=3D -EAGAIN && msg->result =3D=3D EC_RES_IN_PROGRESS)=
- {
-> >=20
-> > Is there ever a time where (ret =3D=3D -EAGAIN) but (msg->result !=3D
-> > EC_RES_IN_PROGRESS) [note the !=3D].  And/or is there ever a time w=
-here
-> > (msg->result =3D=3D EC_RES_IN_PROGRESS) but (ret !=3D -EAGAIN) [aga=
-in, not
-> > the !=3D].
-> >=20
-> > Another way of explaining it.  Can ret be anything other than -EAGA=
-IN
-> > when the result is EC_RES_IN_PROGRESS.  And can the result be anyth=
-ing
-> > other than EC_RES_IN_PROGRESS when ret is -EAGAIN?
+I have addressed all you comments except one, please see bellow. I
+will wait for the review on the subdrivers before submitting a new
+version of the patch set. Thanks for for review !
 
-[...]
+<snip>
+> > +static bool find_free_slot(struct dln2_mod_rx_slots *rxs, int *slot)
+> > +{
+> > +     unsigned long flags;
+> > +
+> > +     spin_lock_irqsave(&rxs->lock, flags);
+> > +
+> > +     *slot = find_first_zero_bit(&rxs->bmap, DLN2_MAX_RX_SLOTS);
+> > +
+> > +     if (*slot < DLN2_MAX_RX_SLOTS) {
+> > +             struct dln2_rx_context *rxc = &rxs->slots[*slot];
+> > +
+> > +             init_completion(&rxc->done);
+>
+> Initialise the completions when you allocate them (and there's no need
+> to re-init here).
+>
 
-> But after looking at all the cros_ec transport drivers it seems to be=
- safe to
-> just check if result is EC_RES_IN_PROGRESS instead of checking also i=
-f ret is
-> -EAGAIN since (at least on all the current transport drivers) the for=
-mer
-> implies the later.
-
-That's exactly what I was getting at.
-
-[...]
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+You are right, but I think we need a reinit_completion(). Technically
+we don't, as we don't use complete_all(), but I feel it is cleaner
+that way. I will move the initialization in probe and add the
+reinit_completion() in free_rx_slot. Is that OK with you?
