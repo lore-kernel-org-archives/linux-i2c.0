@@ -1,69 +1,91 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v3 1/3] mfd: add support for Diolan DLN-2 devices
-Date: Mon, 8 Sep 2014 14:08:20 +0200
-Message-ID: <20140908120820.GB9560@localhost>
-References: <1409930279-1382-1-git-send-email-octavian.purdila@intel.com>
- <1409930279-1382-2-git-send-email-octavian.purdila@intel.com>
- <20140908113233.GA9560@localhost>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v2 5/7] mfd: cros_ec: wait for completion of commands
+ that return IN_PROGRESS
+Date: Mon, 8 Sep 2014 13:48:11 +0100
+Message-ID: <20140908124811.GD26284@lee--X1>
+References: <1408974008-17184-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1408974008-17184-6-git-send-email-javier.martinez@collabora.co.uk>
+ <20140904083426.GD8257@lee--X1>
+ <540D9577.9000702@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140908113233.GA9560@localhost>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <540D9577.9000702@collabora.co.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 08, 2014 at 01:32:33PM +0200, Johan Hovold wrote:
-> On Fri, Sep 05, 2014 at 06:17:57PM +0300, Octavian Purdila wrote:
+On Mon, 08 Sep 2014, Javier Martinez Canillas wrote:
+> On 09/04/2014 10:34 AM, Lee Jones wrote:
+> > On Mon, 25 Aug 2014, Javier Martinez Canillas wrote:
+> >> From: Andrew Bresticker <abrestic@chromium.org>
+> >>=20
+> >> When an EC command returns EC_RES_IN_PROGRESS, we need to query
+> >> the state of the EC until it indicates that it is no longer busy.
+> >> Do this in cros_ec_cmd_xfer() under the EC's mutex so that other
+> >> commands (e.g. keyboard, I2C passtru) aren't issued to the EC whil=
+e
+> >> it is working on the in-progress command.
+> >>=20
+> >> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+> >> Reviewed-by: Simon Glass <sjg@chromium.org>
+> >> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora=
+=2Eco.uk>
+> >> ---
+> >>=20
+> >> Changes since v1:
+> >>  - The *xfer() calls don't modify the passed cros_ec_command so th=
+ere is
+> >>    no need to populate it inside the for loop. Suggested by Lee Jo=
+nes.
+> >> ---
+> >>  drivers/mfd/cros_ec.c | 34 +++++++++++++++++++++++++++++++++-
+> >>  1 file changed, 33 insertions(+), 1 deletion(-)
+> >>=20
+> >> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> >> index c53804a..cd0c93c 100644
+> >> --- a/drivers/mfd/cros_ec.c
+> >> +++ b/drivers/mfd/cros_ec.c
 
-> > +static int _dln2_transfer(struct dln2_dev *dln2, u16 handle, u16 cmd,
-> > +			  void *obuf, int obuf_len, void *ibuf, int *ibuf_len)
-> > +{
+[...]
 
-<snip>
+> >>  	mutex_lock(&ec_dev->lock);
+> >>  	ret =3D ec_dev->cmd_xfer(ec_dev, msg);
+> >> +	if (ret =3D=3D -EAGAIN && msg->result =3D=3D EC_RES_IN_PROGRESS)=
+ {
+> >=20
+> > Is there ever a time where (ret =3D=3D -EAGAIN) but (msg->result !=3D
+> > EC_RES_IN_PROGRESS) [note the !=3D].  And/or is there ever a time w=
+here
+> > (msg->result =3D=3D EC_RES_IN_PROGRESS) but (ret !=3D -EAGAIN) [aga=
+in, not
+> > the !=3D].
+> >=20
+> > Another way of explaining it.  Can ret be anything other than -EAGA=
+IN
+> > when the result is EC_RES_IN_PROGRESS.  And can the result be anyth=
+ing
+> > other than EC_RES_IN_PROGRESS when ret is -EAGAIN?
 
-> > +	/* if we got here we know that the response header has been checked */
-> > +	rsp = rxc->urb->transfer_buffer;
-> > +	result = le16_to_cpu(rsp->result);
-> 
-> Yes, but you haven't verified that rsp->hdr.size > 0, so you may still
-> be reading stale data.
+[...]
 
-I meant that you haven't verified that the payload size > 1 (the header
-size is included in rsp->hdr.size and result is two byte wide).
+> But after looking at all the cros_ec transport drivers it seems to be=
+ safe to
+> just check if result is EC_RES_IN_PROGRESS instead of checking also i=
+f ret is
+> -EAGAIN since (at least on all the current transport drivers) the for=
+mer
+> implies the later.
 
-> > +
-> > +	if (result) {
-> > +		dev_dbg(dev, "%d received response with error %d\n",
-> > +			handle, result);
-> > +		ret = -EREMOTEIO;
-> > +		goto out_free_rx_slot;
-> > +	}
-> > +
-> > +	if (!ibuf) {
-> > +		ret = 0;
-> > +		goto out_free_rx_slot;
-> > +	}
-> > +
-> > +	if (*ibuf_len > rxc->urb->actual_length - sizeof(*rsp))
-> > +		*ibuf_len = rxc->urb->actual_length - sizeof(*rsp);
-> 
-> And then you get an underflow here, although that doesn't seem to cause
-> any troubles in this case.
+That's exactly what I was getting at.
 
-Unless ibuf_len is -1... 
+[...]
 
-> But why isn't ibuf_len unsigned?
->
-> > +
-> > +	memcpy(ibuf, rsp + 1, *ibuf_len);
-> > +
-> > +out_free_rx_slot:
-> > +	free_rx_slot(dln2, rxs, rx_slot);
-> > +
-> > +	return ret;
-> > +}
-
-Johan
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
