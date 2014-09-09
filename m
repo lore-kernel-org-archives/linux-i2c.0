@@ -1,52 +1,94 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 2/4] i2c: slave: add eeprom simulator driver
-Date: Tue, 9 Sep 2014 18:34:15 +0200
-Message-ID: <20140909163415.GA1781@katana>
-References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
- <1410274470-12712-3-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1410274470-12712-3-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: [PATCH v4 0/3] mfd: add support for Diolan DLN-2
+Date: Tue,  9 Sep 2014 22:24:43 +0300
+Message-ID: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org
+Cc: arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch series adds support for Diolan USB-I2C/GPIO Master Adapter
+DLN-2. Details about device can be found here:
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+https://www.diolan.com/i2c/i2c_interface.html.
+
+Changes since v3:
+
+ * Mostly addressing latest review comments from Johan
+
+ * MFD driver: more message size checks for responses, switched to
+   using unsigned for buffer sizes and use const void * for output
+   buffer for the dln2_transfer() API, more codying style cleanups,
+   renamed DLN2_HANDLE_GPIO_EVENT to DLN2_HANDLE_EVENT
+
+ * MFD driver: turns out the RX buf size was too low for certain I2C
+   drivers (I was seeing request up to 257 bytes), so increase it from
+   64 to 512
+
+ * GPIO driver: revert the retry chip remove change, as there are
+   still issues if the gpio if exported to sysfs; coding style
+   cleanups, correctly clamp no pin numbers to 32, use devm_kzalloc
+   and simplify the error path in probe, cache pin direction to save
+   one transfer when reading the pin value
+
+ * I2C driver: add an i2c port parameter in the platform data
+   (although only one port seems to be supported), make frequency a
+   sysfs attribute instead of a module paramter, coding style
+   cleanups, use devm_kzalloc and simplify the error path in probe,
+   move the I2C buffers from the stack to the dln2_i2c structure (it
+   is enough as we can have only one transfer at a time on the i2c
+   adapter)
+
+Changes since v2:
+
+ * MFD driver: fix a few obsolete comments for the DLN2 I/O API
+
+ * GPIO driver: retry the chip remove call if -EBUSY is returned, see
+   the comments in dln2_do_remove for more details; also removed a
+   redundant !dln2->pdev check from dln2_irq_event - we do it in
+   dln2_transfer already
+
+ * I2C driver: add I2C_FUNC_SMBUS_I2C_BLOCK support
+
+Changes since v1:
+
+ * rewrite the drivers as an MFD
+
+ * rewrite the irq part of the gpio driver to use GPIOLIB_IRQCHIP
+
+ * cleanup the I/O interface
+
+ * various fixes and cleanps: check received message sizes before
+   parsing, error handling for usb_submit_urb, check URB status, use
+   single bit manipulation functions instead of bitmap_*, move
+   GFP_KERNEL URB submit away from under lock
 
 
-> +config I2C_SLAVE_EEPROM
-> +	bool "I2C eeprom slave driver"
+Daniel Baluta (1):
+  gpio: add support for the Diolan DLN-2 USB GPIO driver
 
-This should be "tristate". Fixed in my branch.
+Laurentiu Palcu (1):
+  i2c: add support for Diolan DLN-2 USB-I2C adapter
 
+Octavian Purdila (1):
+  mfd: add support for Diolan DLN-2 devices
 
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+ drivers/gpio/Kconfig          |  12 +
+ drivers/gpio/Makefile         |   1 +
+ drivers/gpio/gpio-dln2.c      | 529 ++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/Kconfig    |  10 +
+ drivers/i2c/busses/Makefile   |   1 +
+ drivers/i2c/busses/i2c-dln2.c | 390 ++++++++++++++++++++++++
+ drivers/mfd/Kconfig           |   9 +
+ drivers/mfd/Makefile          |   1 +
+ drivers/mfd/dln2.c            | 681 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/dln2.h      |  71 +++++
+ 10 files changed, 1705 insertions(+)
+ create mode 100644 drivers/gpio/gpio-dln2.c
+ create mode 100644 drivers/i2c/busses/i2c-dln2.c
+ create mode 100644 drivers/mfd/dln2.c
+ create mode 100644 include/linux/mfd/dln2.h
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUDywHAAoJEBQN5MwUoCm2AkQP+wXcw+8bfng9AY654kJpP2f4
-l2rpU2Dy1TUlXeNJnLQc8g5NnB55vTxamBYsLLBVWOC2n6d5Dmd0HvyoPXzAjCPl
-ecUzBxmUtGk9zbDvFRzSpsJB6LbHqmUSrBL6J/7dFpc8FVOI/piURwCdom9uVStw
-67f687huNm2s580A8niRqryWKeSH+dpF85kGhCLF4VYvGgNQhB3fcHvrRkxU5FYy
-qUGTs+kdVRjwn8gSLS1kOiovyRHir/Db8OwlAl7KSW2XZDea8ZNb6w5tuUK4UfKP
-h3Vymbes8k8q5Oguekbbi+ZAWj4EwGydNKdxmeSSv4Cf5IhBXf9O4XdliyfNs06P
-dwWlQvyF9LF0Uy25K8DxjzzeJ4UdV13BljYhxQr99PJDMYvjtEAbmKmYkQiMIxii
-sUgB23AZKl9b8eOGtLB5J2NmMegSZg8uNDGLVfasJ8Qdn8FEETga5dGqQUith7ta
-tht4u0+KGRn8eK6MKoU8o4X5r3jY4U+22OEYKtnVxoZzVnOMvfj0tV4rxwrJIwGB
-7mBAsrO85oFG8EXxZrevnn3y0uXzJq84LpHswfamWvC871o7grQs8djXowc/FfYa
-9p0hS3OZS4ha2tYIA/MtCGARxtDlRAuw5tCSW9K7rMNRh7MP7qq54W8YUyla0MGP
-E1qf9XH5l3B41zkIyMZN
-=Of2l
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--
+-- 
+1.9.1
