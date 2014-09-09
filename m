@@ -1,221 +1,72 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 3/4] i2c: rcar: add slave support
-Date: Tue,  9 Sep 2014 16:54:29 +0200
-Message-ID: <1410274470-12712-4-git-send-email-wsa@the-dreams.de>
-References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
+From: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-mxs: fixed PIO NACK error instead of timeout
+Date: Tue, 09 Sep 2014 17:05:24 +0200
+Message-ID: <540F1734.6090700@elproma.com.pl>
+References: <540DEFA6.9030600@elproma.com.pl> <201409091448.40115.marex@denx.de> <540EFC41.9070106@elproma.com.pl> <201409091559.24900.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201409091559.24900.marex-ynQEQJNshbs@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 122 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 113 insertions(+), 9 deletions(-)
+W dniu 2014-09-09 15:59, Marek Vasut pisze:
+> On Tuesday, September 09, 2014 at 03:10:25 PM, Janusz U=C5=BCycki wro=
+te:
+>> W dniu 2014-09-09 14:48, Marek Vasut pisze:
+>>>>> Shouldn't this check be used only after the 'SELECT' command ?
+>>>> It looks |||mxs_i2c_isr()| for DMA transfer does not differentiate
+>>>> commands also
+>>>> and does not mask irqs for each command.
+>>>>
+>>>> |STAT_GOT_A_NAK|  is a separate bit.|CTRL1_NO_SLAVE_ACK_IRQ can be=
+ set
+>>>>
+>>>> both after SELECT and WRITE command. Should we differentiate?
+>>> What about writes that take long time, will checking this bit not b=
+reak
+>>> them ? (like programming a slow eeprom or such)
+>> No, master clock speed (SCL) decides here.
+>> If slave does not confirm I2C address  (SELECT) using ACK
+>> any timeout doesn't help.
+> The SELECT case is OK in that aspect. But I was talking about WRITEs.
+>
+>> RUN bit is not deasserted.
+>> The same thing is for WRITE cmd. Each byte has to be acked
+>> otherwise STAT_GOT_A_NAK is set.
+> OK
+>
+>> If it is too fast a slave has possibility to inform by setting SCL l=
+ow.
+> Do you mean clock stretching ?
+Yes, I didn't notice it is the same.
+>> However I haven't seen any driver which supports the method.
+>>
+>>>> |Checking CTRL1_NO_SLAVE_ACK_IRQ |bit for SELECT command will incr=
+ease
+>>>>
+>>>> code size only
+>>>> without special profit. Current PIO implementation also gathers al=
+l
+>>>> errors together and reads them on the end by
+>>>> mxs_i2c_pio_check_error_state(). Probably
+>>>> mxs_i2c_pio_check_error_state() call or
+>>>> enabling interrupt masks for PIO could be better than
+>>>> direct |CTRL1_NO_SLAVE_ACK_IRQ |bit checking for clear code.
+>>>> It also could support multimaster for PIO (MASTER_LOSS).
+>>> Actually, the PIO is explicitly IRQ-less and is used only for
+>>> transferring very short amounts of data.
+>> Yes but error service could be more common probably.
+> Feel free to prepare a patch please!
+On the moment the fix is enough for me. I did need i2cdetect to work.
+I looked on 2.6.35 FSL BSP. There both DMA and PIO mode use status inte=
+rrupt
+and cmd_complete. It was changed to speed up?
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 1cc146cfc1f3..fe875d994441 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -48,6 +48,12 @@
- #define ICMAR	0x20	/* master address */
- #define ICRXTX	0x24	/* data port */
- 
-+/* ICSCR */
-+#define SDBS	(1 << 3)	/* slave data buffer select */
-+#define SIE	(1 << 2)	/* slave interface enable */
-+#define GCAE	(1 << 1)	/* general call address enable */
-+#define FNA	(1 << 0)	/* forced non acknowledgement */
-+
- /* ICMCR */
- #define MDBS	(1 << 7)	/* non-fifo mode switch */
- #define FSCL	(1 << 6)	/* override SCL pin */
-@@ -58,6 +64,15 @@
- #define FSB	(1 << 1)	/* force stop bit */
- #define ESG	(1 << 0)	/* en startbit gen */
- 
-+/* ICSSR (also for ICSIER) */
-+#define GCAR	(1 << 6)	/* general call received */
-+#define STM	(1 << 5)	/* slave transmit mode */
-+#define SSR	(1 << 4)	/* stop received */
-+#define SDE	(1 << 3)	/* slave data empty */
-+#define SDT	(1 << 2)	/* slave data transmitted */
-+#define SDR	(1 << 1)	/* slave data received */
-+#define SAR	(1 << 0)	/* slave addr received */
-+
- /* ICMSR (also for ICMIE) */
- #define MNR	(1 << 6)	/* nack received */
- #define MAL	(1 << 5)	/* arbitration lost */
-@@ -103,6 +118,7 @@ struct rcar_i2c_priv {
- 	u32 icccr;
- 	u32 flags;
- 	enum rcar_i2c_type devtype;
-+	struct i2c_client *slave;
- };
- 
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -126,15 +142,6 @@ static u32 rcar_i2c_read(struct rcar_i2c_priv *priv, int reg)
- 
- static void rcar_i2c_init(struct rcar_i2c_priv *priv)
- {
--	/*
--	 * reset slave mode.
--	 * slave mode is not used on this driver
--	 */
--	rcar_i2c_write(priv, ICSIER, 0);
--	rcar_i2c_write(priv, ICSAR, 0);
--	rcar_i2c_write(priv, ICSCR, 0);
--	rcar_i2c_write(priv, ICSSR, 0);
--
- 	/* reset master mode */
- 	rcar_i2c_write(priv, ICMIER, 0);
- 	rcar_i2c_write(priv, ICMCR, 0);
-@@ -362,6 +369,63 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- 	return 0;
- }
- 
-+static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
-+{
-+	u32 ssr_raw, ssr_filtered;
-+	u8 value;
-+
-+	ssr_raw = rcar_i2c_read(priv, ICSSR) & 0xff;
-+	ssr_filtered = ssr_raw & rcar_i2c_read(priv, ICSIER);
-+
-+	if (!ssr_filtered)
-+		return false;
-+
-+	/* address detected */
-+	if (ssr_filtered & SAR) {
-+		/* read or write request */
-+		if (ssr_raw & STM) {
-+			i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_START, &value);
-+			rcar_i2c_write(priv, ICRXTX, value);
-+			rcar_i2c_write(priv, ICSIER, SDE | SSR | SAR);
-+		} else {
-+			i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_START, NULL);
-+			rcar_i2c_read(priv, ICRXTX);	/* dummy read */
-+			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
-+		}
-+
-+		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
-+	}
-+
-+	/* master sent stop */
-+	if (ssr_filtered & SSR) {
-+		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, NULL);
-+		rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
-+	}
-+
-+	/* master wants to write to us */
-+	if (ssr_filtered & SDR) {
-+		int ret;
-+
-+		value = rcar_i2c_read(priv, ICRXTX);
-+		ret = i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_END, &value);
-+		/* Send NACK in case of error */
-+		rcar_i2c_write(priv, ICSCR, SIE | SDBS | (ret < 0 ? FNA : 0));
-+		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_START, NULL);
-+		rcar_i2c_write(priv, ICSSR, ~SDR & 0xff);
-+	}
-+
-+	/* master wants to read from us */
-+	if (ssr_filtered & SDE) {
-+		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_END, NULL);
-+		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_START, &value);
-+		rcar_i2c_write(priv, ICRXTX, value);
-+		rcar_i2c_write(priv, ICSSR, ~SDE & 0xff);
-+	}
-+
-+	return true;
-+}
-+
- static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- {
- 	struct rcar_i2c_priv *priv = ptr;
-@@ -370,6 +434,9 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	/*-------------- spin lock -----------------*/
- 	spin_lock(&priv->lock);
- 
-+	if (rcar_i2c_slave_irq(priv))
-+		goto unlock_out;
-+
- 	msr = rcar_i2c_read(priv, ICMSR);
- 
- 	/* Only handle interrupts that are currently enabled */
-@@ -408,6 +475,7 @@ out:
- 		wake_up(&priv->wait);
- 	}
- 
-+unlock_out:
- 	spin_unlock(&priv->lock);
- 	/*-------------- spin unlock -----------------*/
- 
-@@ -498,6 +566,40 @@ out:
- 	return ret;
- }
- 
-+
-+static int rcar_reg_slave(struct i2c_client *slave)
-+{
-+	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
-+
-+	if (priv->slave)
-+		return -EBUSY;
-+
-+	if (slave->flags & I2C_CLIENT_TEN)
-+		return -EAFNOSUPPORT;
-+
-+	priv->slave = slave;
-+	rcar_i2c_write(priv, ICSAR, slave->addr);
-+	rcar_i2c_write(priv, ICSSR, 0);
-+	rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
-+
-+	return 0;
-+}
-+
-+static int rcar_unreg_slave(struct i2c_client *slave)
-+{
-+	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
-+
-+	WARN_ON(!priv->slave);
-+
-+	rcar_i2c_write(priv, ICSIER, 0);
-+	rcar_i2c_write(priv, ICSCR, 0);
-+
-+	priv->slave = NULL;
-+
-+	return 0;
-+}
-+
- static u32 rcar_i2c_func(struct i2c_adapter *adap)
- {
- 	/* This HW can't do SMBUS_QUICK and NOSTART */
-@@ -507,6 +609,8 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
- static const struct i2c_algorithm rcar_i2c_algo = {
- 	.master_xfer	= rcar_i2c_master_xfer,
- 	.functionality	= rcar_i2c_func,
-+	.reg_slave	= rcar_reg_slave,
-+	.unreg_slave	= rcar_unreg_slave,
- };
- 
- static const struct of_device_id rcar_i2c_dt_ids[] = {
--- 
-2.0.0
+best regards
+Janusz
