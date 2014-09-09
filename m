@@ -1,60 +1,53 @@
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH v4 5/9] i2c: core: Convert to dev_pm_domain_attach|detach()
-Date: Tue,  9 Sep 2014 13:36:06 +0200
-Message-ID: <1410262570-22785-6-git-send-email-ulf.hansson@linaro.org>
-References: <1409838756-31963-1-git-send-email-ulf.hansson@linaro.org>
- <1410262570-22785-1-git-send-email-ulf.hansson@linaro.org>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1410262570-22785-1-git-send-email-ulf.hansson@linaro.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-pm@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, Kevin Hilman <khilman@linaro.org>, Alan Stern <stern@rowland.harvard.edu>, Daniel Lezcano <daniel.lezcano@linaro.org>, Tomasz Figa <tomasz.figa@gmail.com>, devicetree@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Boyd <sboyd@codeaurora.org>, Philipp Zabel <philipp.zabel@gmail.com>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Russell King <linux@arm.linux.org.uk>, Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c@vger.kernel.org
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-mxs: fixed error message in pio transfer
+Date: Tue, 9 Sep 2014 14:36:07 +0200
+Message-ID: <201409091436.08028.marex@denx.de>
+References: <540DEFA6.9030600@elproma.com.pl> <201409082014.07749.marex@denx.de> <540EB762.8090509@elproma.com.pl>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <540EB762.8090509-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Janusz =?utf-8?q?U=C5=BCycki?= <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Previously only the ACPI PM domain was supported by the i2c bus.
+On Tuesday, September 09, 2014 at 10:16:34 AM, Janusz U=C5=BCycki wrote=
+:
+> W dniu 2014-09-08 20:14, Marek Vasut pisze:
+> > On Monday, September 08, 2014 at 08:04:22 PM, Janusz U=C5=BCycki wr=
+ote:
+> >=20
+> > Thanks, but the Subject of the email doesn't make much sense. Also,=
+ a
+> > short commit message exlaining what you did and why you did it woul=
+d be
+> > nice.
+> >=20
+> > While the patch is obvious and obviously correct, can you please fi=
+x
+> > those two minor things ?
+>=20
+> i2c-mxs: fixed error message in pio transfer
+>=20
+> If I2C_M_RD flag is set SELECT command is sent
+> and afterward READ command.
+> The patch fixes READ command to return READ failure error message
+> instead of SELECT failure error message.
+>=20
+> >> Signed-off-by: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+> >> ---
+> >>=20
+> >>    linux-3.14.17/drivers/i2c/busses/i2c-mxs.c | 2 +-
+> >=20
+> > btw. how did this 'linux-3.14.17' get in the path ?
+>=20
+> I have some scripts in my repo and I forgot about longer patch.
 
-Let's convert to the common attach/detach functions for PM domains,
-which currently means we are extending the support to include the
-generic PM domain as well.
+Can you please repost the patches using git send-email ?
 
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Kevin Hilman <khilman@linaro.org>
----
- drivers/i2c/i2c-core.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+Thanks!
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 632057a..3cd8f11 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -279,10 +279,13 @@ static int i2c_device_probe(struct device *dev)
- 	if (status < 0)
- 		return status;
- 
--	acpi_dev_pm_attach(&client->dev, true);
--	status = driver->probe(client, i2c_match_id(driver->id_table, client));
--	if (status)
--		acpi_dev_pm_detach(&client->dev, true);
-+	status = dev_pm_domain_attach(&client->dev, true);
-+	if (status != -EPROBE_DEFER) {
-+		status = driver->probe(client, i2c_match_id(driver->id_table,
-+					client));
-+		if (status)
-+			dev_pm_domain_detach(&client->dev, true);
-+	}
- 
- 	return status;
- }
-@@ -302,7 +305,7 @@ static int i2c_device_remove(struct device *dev)
- 		status = driver->remove(client);
- 	}
- 
--	acpi_dev_pm_detach(&client->dev, true);
-+	dev_pm_domain_detach(&client->dev, true);
- 	return status;
- }
- 
--- 
-1.9.1
-
+Best regards,
+Marek Vasut
