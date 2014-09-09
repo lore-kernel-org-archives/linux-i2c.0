@@ -1,74 +1,56 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-mxs: fixed PIO NACK error instead of timeout
-Date: Tue, 9 Sep 2014 15:59:24 +0200
-Message-ID: <201409091559.24900.marex@denx.de>
-References: <540DEFA6.9030600@elproma.com.pl> <201409091448.40115.marex@denx.de> <540EFC41.9070106@elproma.com.pl>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <540EFC41.9070106-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Janusz =?utf-8?q?U=C5=BCycki?= <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC 0/4] i2c: slave support framework for Linux devices
+Date: Tue,  9 Sep 2014 16:54:26 +0200
+Message-ID: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, September 09, 2014 at 03:10:25 PM, Janusz U=C5=BCycki wrote=
-:
-> W dniu 2014-09-09 14:48, Marek Vasut pisze:
-> >>> Shouldn't this check be used only after the 'SELECT' command ?
-> >>=20
-> >> It looks |||mxs_i2c_isr()| for DMA transfer does not differentiate
-> >> commands also
-> >> and does not mask irqs for each command.
-> >>=20
-> >> |STAT_GOT_A_NAK|  is a separate bit.|CTRL1_NO_SLAVE_ACK_IRQ can be=
- set
-> >>=20
-> >> both after SELECT and WRITE command. Should we differentiate?
-> >=20
-> > What about writes that take long time, will checking this bit not b=
-reak
-> > them ? (like programming a slow eeprom or such)
->=20
-> No, master clock speed (SCL) decides here.
-> If slave does not confirm I2C address  (SELECT) using ACK
-> any timeout doesn't help.
+Finally, here is my take on the often desired feature that Linux can not only
+be an I2C master, but also an I2C slave. Compared to my draft sent out last
+week, this RFC has been tested on hardware (Renesas Lager board) and works \o/
 
-The SELECT case is OK in that aspect. But I was talking about WRITEs.
+One big part still missing is documentation, so brave ones need to "use the
+source". However, this approach turned out to be even less intrusive than
+expected, so that is hopefully a good sign.
 
-> RUN bit is not deasserted.
-> The same thing is for WRITE cmd. Each byte has to be acked
-> otherwise STAT_GOT_A_NAK is set.
+Basically, an I2C slave is a standard I2C client providing a callback function.
+When registering as a slave, the connection to the I2C adapter is made which
+uses the callback when a slave event happens. That splits the HW support
+(enabling slave mode on the adapter) and SW support (here a generic eeprom
+simulator) nicely IMO.
 
-OK
+Besides documentation, there are still some error checks missing and more
+features could also be added (of course). Yet, I think this version is good
+enough to discuss the steps taken here.
 
-> If it is too fast a slave has possibility to inform by setting SCL lo=
-w.
+The patches are based on top of 3.17-rc4, but will easily apply to renesas/devel.
+A git tree can be found here:
 
-Do you mean clock stretching ?
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/slave-support
 
-> However I haven't seen any driver which supports the method.
->=20
-> >> |Checking CTRL1_NO_SLAVE_ACK_IRQ |bit for SELECT command will incr=
-ease
-> >>=20
-> >> code size only
-> >> without special profit. Current PIO implementation also gathers al=
-l
-> >> errors together and reads them on the end by
-> >> mxs_i2c_pio_check_error_state(). Probably
-> >> mxs_i2c_pio_check_error_state() call or
-> >> enabling interrupt masks for PIO could be better than
-> >> direct |CTRL1_NO_SLAVE_ACK_IRQ |bit checking for clear code.
-> >> It also could support multimaster for PIO (MASTER_LOSS).
-> >=20
-> > Actually, the PIO is explicitly IRQ-less and is used only for
-> > transferring very short amounts of data.
->=20
-> Yes but error service could be more common probably.
+Comments welcome! Thanks,
 
-=46eel free to prepare a patch please!
+   Wolfram
 
-Best regards,
-Marek Vasut
+
+Wolfram Sang (4):
+  i2c: core changes for slave support
+  i2c: slave: add eeprom simulator driver
+  i2c: rcar: add slave support
+  ARM: shmobile: r8a7790: adapt DTS for I2C slave support
+
+ arch/arm/boot/dts/r8a7790-lager.dts |  15 ++--
+ drivers/i2c/Kconfig                 |  10 +++
+ drivers/i2c/Makefile                |   1 +
+ drivers/i2c/busses/i2c-rcar.c       | 122 ++++++++++++++++++++++++++---
+ drivers/i2c/i2c-core.c              |  44 +++++++++++
+ drivers/i2c/i2c-slave-eeprom.c      | 152 ++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h                 |  22 ++++++
+ 7 files changed, 352 insertions(+), 14 deletions(-)
+ create mode 100644 drivers/i2c/i2c-slave-eeprom.c
+
+-- 
+2.0.0
