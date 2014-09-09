@@ -1,62 +1,60 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [PATCH v3 3/3] gpio: add support for the Diolan DLN-2 USB GPIO driver
-Date: Tue, 9 Sep 2014 13:27:01 +0300
-Message-ID: <CAE1zotJ8rZTvtSoWAz+upAo64OxWVMGRj-Bivy5QFv57cQ8bJw@mail.gmail.com>
-References: <1409930279-1382-1-git-send-email-octavian.purdila@intel.com>
-	<1409930279-1382-4-git-send-email-octavian.purdila@intel.com>
-	<20140905153835.GC13242@localhost>
-	<CAE1zotK4QkA9PWW=uOmM-j=N=MNuBt1v3CgdA+GXctdFUZ3QKA@mail.gmail.com>
-	<20140909093606.GB2974@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140909093606.GB2974@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH v4 5/9] i2c: core: Convert to dev_pm_domain_attach|detach()
+Date: Tue,  9 Sep 2014 13:36:06 +0200
+Message-ID: <1410262570-22785-6-git-send-email-ulf.hansson@linaro.org>
+References: <1409838756-31963-1-git-send-email-ulf.hansson@linaro.org>
+ <1410262570-22785-1-git-send-email-ulf.hansson@linaro.org>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1410262570-22785-1-git-send-email-ulf.hansson@linaro.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-pm@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, Kevin Hilman <khilman@linaro.org>, Alan Stern <stern@rowland.harvard.edu>, Daniel Lezcano <daniel.lezcano@linaro.org>, Tomasz Figa <tomasz.figa@gmail.com>, devicetree@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Boyd <sboyd@codeaurora.org>, Philipp Zabel <philipp.zabel@gmail.com>, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <chris@printf.net>, Russell King <linux@arm.linux.org.uk>, Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 9, 2014 at 12:36 PM, Johan Hovold <johan@kernel.org> wrote:
-> On Fri, Sep 05, 2014 at 07:04:51PM +0300, Octavian Purdila wrote:
->> On Fri, Sep 5, 2014 at 6:38 PM, Johan Hovold <johan@kernel.org> wrote:
->> > On Fri, Sep 05, 2014 at 06:17:59PM +0300, Octavian Purdila wrote:
->
->> > In general, how well have these patches been tested with disconnect
->> > events? At least gpiolib is known to blow up (sooner or later) when a
->> > gpiochip is removed when having requested gpios.
->>
->> I do disconnect tests regularly. Since switching to the new irq
->> interface the following patch is needed:
->>
->> https://lkml.org/lkml/2014/9/5/408
->>
->> With it and the current patch sets things seems to work well.
->
-> I see no comments from Linus W on that patch?
->
-> And I can confirm that things do blow up.
->
-> After disconnecting while having a gpio exported, I get the familiar
-> OOPS below when reconnecting the device.
->
-> This has also been reported here:
->
->         https://lkml.org/lkml/2014/8/4/303
->
+Previously only the ACPI PM domain was supported by the i2c bus.
 
-Hi Johan,
+Let's convert to the common attach/detach functions for PM domains,
+which currently means we are extending the support to include the
+generic PM domain as well.
 
-I did not test with gpio exported via sysfs, only with an i2c driver
-that requests a gpio irq. That works because when the i2c bus gets
-removed the i2c device gets removed as well and that drops the
-requested irq which frees the gpio.
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Kevin Hilman <khilman@linaro.org>
+---
+ drivers/i2c/i2c-core.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-I do see your point with exporting a gpio via sysfs. So I will drop
-the remove retry from the patch.
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 632057a..3cd8f11 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -279,10 +279,13 @@ static int i2c_device_probe(struct device *dev)
+ 	if (status < 0)
+ 		return status;
+ 
+-	acpi_dev_pm_attach(&client->dev, true);
+-	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+-	if (status)
+-		acpi_dev_pm_detach(&client->dev, true);
++	status = dev_pm_domain_attach(&client->dev, true);
++	if (status != -EPROBE_DEFER) {
++		status = driver->probe(client, i2c_match_id(driver->id_table,
++					client));
++		if (status)
++			dev_pm_domain_detach(&client->dev, true);
++	}
+ 
+ 	return status;
+ }
+@@ -302,7 +305,7 @@ static int i2c_device_remove(struct device *dev)
+ 		status = driver->remove(client);
+ 	}
+ 
+-	acpi_dev_pm_detach(&client->dev, true);
++	dev_pm_domain_detach(&client->dev, true);
+ 	return status;
+ }
+ 
+-- 
+1.9.1
 
-However, I think the above mentioned patch is worth merging as it is
-simple enough and it fixes a couple of issues in the gpio remove path.
-But I guess we can discuss this in that thread, when Linus W gets to
-it.
-
-And thanks a lot for spending so much time on reviewing these patches.
