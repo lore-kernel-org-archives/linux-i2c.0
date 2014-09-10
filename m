@@ -1,90 +1,84 @@
-From: Yao Yuan <yao.yuan@freescale.com>
-Subject: RE: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Wed, 10 Sep 2014 14:48:01 +0000
-Message-ID: <1410360473732.53953@freescale.com>
-References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com>
- <201409041638.45537.marex@denx.de>
- <c10c1960255e4dbca2a281b995290c6d@BL2PR03MB338.namprd03.prod.outlook.com>
- <201409051240.44469.marex@denx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <201409051240.44469.marex@denx.de>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Marek Vasut <marex@denx.de>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "LW@karo-electronics.de" <LW@karo-electronics.de>
+From: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+Subject: [PATCH] i2c-mxs: detect No Slave Ack on SELECT in PIO mode
+Date: Wed, 10 Sep 2014 17:18:06 +0200
+Message-ID: <1410362286-1785-1-git-send-email-j.uzycki@elproma.com.pl>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: marex-ynQEQJNshbs@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday, September 05, 2014 6:41 PM, Marek Vasut wrote:
-> On Friday, September 05, 2014 at 12:32:40 PM, Yao Yuan wrote:
-> [...]
-> > > > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> > > > +					struct i2c_msg *msgs)
-> > > > +{
-> > > > +	int result;
-> > > > +	unsigned int temp = 0;
-> > > > +	unsigned long orig_jiffies = jiffies;
-> > > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> > > > +	struct device *dev = &i2c_imx->adapter.dev;
-> > > > +
-> > > > +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
-> > > > +		__func__, msgs->addr << 1);
-> > > > +
-> > > > +	reinit_completion(&i2c_imx->dma->cmd_complete);
-> > > > +	dma->chan_using = dma->chan_tx;
-> > > > +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
-> > > > +	dma->dma_data_dir = DMA_TO_DEVICE;
-> > > > +	dma->dma_len = msgs->len - 1;
-> > > > +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
-> > > > +	if (result)
-> > > > +		return result;
-> > > > +
-> > > > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> > > > +	temp |= I2CR_DMAEN;
-> > > > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> > > > +
-> > > > +	/*
-> > > > +	 * Write slave address.
-> > > > +	 * The first byte muse be transmitted by the CPU.
-> > > > +	 */
-> > > > +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> > > > +	result = wait_for_completion_interruptible_timeout(
-> > > > +				&i2c_imx->dma->cmd_complete,
-> > > > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-> > > > +	if (result <= 0) {
-> > > > +		dmaengine_terminate_all(dma->chan_using);
-> > > > +		if (result)
-> > > > +			return result;
-> > > > +		else
-> > > > +			return -ETIMEDOUT;
-> > >
-> > > Shouldn't you force-disable the DMA here somehow (like unsetting
-> > > I2CR_DMAEN bit), if it failed or timed out?
-> >
-> > [Yuan Yao] Yes, I put the code for force-disable DMA in i2c_imx_start().
-> > In order to make sure any DMA error will not effect the I2C.
-> > It seems almost the same as put the code here, how about your think?
-> 
-> Would that mean that the "crashed" DMA would be running until the next
-> transmission is scheduled ?
-> 
-[Yuan Yao] No, In fact any DMA timeout will result the failure of I2C transmission
-and then it will turn to report the exception and wait for next transmission.
-The only thing I worried about is I2C may still receive some feedbacks after DMA timeout.
-In this case the feedbacks may lead to abnormal state in PIO mode.But it will be ignored
-in DMA model.
-That's why I tend to delay force-disable DMA until the next transmission begin.
-Could you please give me some suggestion?
+Reported problem:
+i2cdetect scanned i2c bus very slow if address was not occupied by any device.
 
-Thanks & Best regards,
-Yuan Yao
+Solution:
+The patch adds to mxs_i2c_pio_wait_xfer_end() function
+NO_SLAVE_ACK_IRQ bit polling during wait loop (until timeout).
+If the bit is set the function immediately returns ENXIO error
+in order to break the loop and not reset I2C block (it is in idle state then).
+The function is called by mxs_i2c_pio_setup_xfer() to wait for complete xfer
+after sent SELECT, READ or WRITE command.
+If SELECT command is sent and selected slave address is unused by any device
+on the bus I2C block sets NO_SLAVE_ACK_IRQ flag and doesn't deassert CTRL0_RUN.
+Therefore we need to break the timeout loop when the flag is set,
+otherwise the loop continues until long timeout (1000ms).
+The change does not affect READ command because slave does not ack
+any byte then (only the master does ack / or not for the last read byte).
+According to i.MX28 reference manual (quoted below) it is not clear
+if the patch affects WRITE command. However when no acked bytes
+on WRITE command followed after address byte (SELECT command)
+STAT_GOT_A_NAK flag is set rather than NO_SLAVE_ACK_IRQ (no tested).
+Therefore clock stretching shouldn't be affected too.
+It has confirmation in FSL BSP 2.6.35 i2c implementation which
+completes xfer after NO_SLAVE_ACK_IRQ interrupt and scheduled work.
+Registers on NO_SLAVE_ACK_IRQ in PIO mode:
+* STAT: 0xd0000e00
+	MASTER_PRESENT
+	SLAVE_PRESENT
+	GOT_A_NAK !
+	BUS_BUSY
+	CLK_GEN_BUSY
+	DATA_ENGINE_BUSY
+* CTRL0: 0x20230000
+	RUN !
+	RETAIN_CLOCK
+	MASTER_MODE
+	DIRECTION
+* CTRL1: 0x688600a0
+	RD_QUEUE_IRQ
+	WR_QUEUE_IRQ
+	ACK_MODE
+	SLAVE_ADDRESS_BYTE=0b10000110
+	BUS_FREE_IRQ
+	NO_SLAVE_ACK_IRQ !
+
+NO_SLAVE_ACK_IRQ (CTRL1):
+When a start condition is transmitted in master mode, the next byte
+contains an address for a targeted slave. If the targeted slave does not
+acknowledge the address byte, then this interrupt is set, no further I2C
+protocol is processed, and the I2C bus returns to the idle state.
+This bit is set to indicate that an interrupt is requested
+by the I2C controller because the slave addressed
+by a master transfer did not respond with an acknowledge.
+
+Signed-off-by: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mxs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 87ee72d..35ae448 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -307,6 +307,10 @@ static int mxs_i2c_pio_wait_xfer_end(struct mxs_i2c_dev *i2c)
+ 	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+ 
+ 	while (readl(i2c->regs + MXS_I2C_CTRL0) & MXS_I2C_CTRL0_RUN) {
++		if (readl(i2c->regs + MXS_I2C_CTRL1) &
++				MXS_I2C_CTRL1_NO_SLAVE_ACK_IRQ)
++			return -ENXIO;
+ 		if (time_after(jiffies, timeout))
+ 			return -ETIMEDOUT;
+ 		cond_resched();
+-- 
+1.7.11.3
