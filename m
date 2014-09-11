@@ -1,44 +1,75 @@
 From: Marc Dietrich <marvin24@gmx.de>
-Subject: Re: [RFC 0/4] i2c: slave support framework for Linux devices
-Date: Thu, 11 Sep 2014 14:06:06 +0200
-Message-ID: <5110809.ZO3zEWmmzZ@fb07-iapwap2>
-References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [RFC 4/4] ARM: shmobile: r8a7790: adapt DTS for I2C slave support
+Date: Thu, 11 Sep 2014 14:17:16 +0200
+Message-ID: <16809905.2REViph6WO@fb07-iapwap2>
+References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de> <1410274470-12712-5-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7Bit
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1410274470-12712-5-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>, Andrey Danin <danindrey@mail.ru>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>, Andrey Danin <danindrey@mail.ru>, devicetree@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+cc'ing: devicetree
 
-Am Dienstag, 9. September 2014, 16:54:26 schrieb Wolfram Sang:
-> Finally, here is my take on the often desired feature that Linux can not
-> only be an I2C master, but also an I2C slave. Compared to my draft sent out
-> last week, this RFC has been tested on hardware (Renesas Lager board) and
-> works \o/
-
-first, thanks for taking up this job.
-
-> One big part still missing is documentation, so brave ones need to "use the
-> source". However, this approach turned out to be even less intrusive than
-> expected, so that is hopefully a good sign.
+Am Dienstag, 9. September 2014, 16:54:30 schrieb Wolfram Sang:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > 
-> Basically, an I2C slave is a standard I2C client providing a callback
-> function. When registering as a slave, the connection to the I2C adapter is
-> made which uses the callback when a slave event happens. That splits the HW
-> support (enabling slave mode on the adapter) and SW support (here a generic
-> eeprom simulator) nicely IMO.
+> Not for upstream!
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  arch/arm/boot/dts/r8a7790-lager.dts | 15 ++++++++++-----
+>  1 file changed, 10 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/r8a7790-lager.dts
+> b/arch/arm/boot/dts/r8a7790-lager.dts index 856b4236b674..12aa2f21e6fa
+> 100644
+> --- a/arch/arm/boot/dts/r8a7790-lager.dts
+> +++ b/arch/arm/boot/dts/r8a7790-lager.dts
+> @@ -205,9 +205,9 @@
+>  		renesas,function = "msiof1";
+>  	};
+> 
+> -	iic1_pins: iic1 {
+> -		renesas,groups = "iic1";
+> -		renesas,function = "iic1";
+> +	i2c1_pins: i2c1 {
+> +		renesas,groups = "i2c1";
+> +		renesas,function = "i2c1";
+>  	};
+> 
+>  	iic2_pins: iic2 {
+> @@ -356,10 +356,15 @@
+>  	status = "ok";
+>  };
+> 
+> -&iic1	{
+> +&i2c1	{
+>  	status = "ok";
+> -	pinctrl-0 = <&iic1_pins>;
+> +	pinctrl-0 = <&i2c1_pins>;
+>  	pinctrl-names = "default";
+> +
+> +	eeprom@64 {
+> +		compatible = "slave-24c02";
 
->From what I can tell, this approach may also work with our driver 
-(staging/nvec). I especially like the split between the adapter and the client 
-support.
+a "real" compatible value should have vendor,device syntax.
 
-I only have one question so far regarding the device tree representation 
-attached patch 4.
+> +		reg = <0x64>;
+
+we had some discussions in the past how to represent i2c master devices in 
+device tree. The outcome was to use to a special representation to distinguish 
+them from slave devices, e.g. something like reg = <0x1 0x64>, where the 0x1 
+would mean "master" device (0x0 -> slave). If nothing is added, then it's also 
+slave. The adapter address cell would also need to be changed if this 
+extension is used.
+
+An alternative would be to use a special property (e.g. slave address), but 
+that would encode the same value twice (or even three times).
 
 Marc
 
