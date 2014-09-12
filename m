@@ -1,95 +1,68 @@
-From: Marc Dietrich <marvin24@gmx.de>
-Subject: Re: [RFC 4/4] ARM: shmobile: r8a7790: adapt DTS for I2C slave support
-Date: Fri, 12 Sep 2014 11:06:49 +0200
-Message-ID: <7627175.tG5quZH0VN@fb07-iapwap2>
-References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de> <9935938.eKOCvCAtLt@fb07-iapwap2> <20140912083348.GA1289@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC 0/4] i2c: slave support framework for Linux devices
+Date: Fri, 12 Sep 2014 11:12:48 +0200
+Message-ID: <20140912091247.GA1930@katana>
+References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
+ <20140912085836.GS3755@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1587627.2fD0quCvaU"; micalg="pgp-sha1"; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20140912083348.GA1289@katana>
+Content-Disposition: inline
+In-Reply-To: <20140912085836.GS3755@pengutronix.de>
 Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>, Andrey Danin <danindrey@mail.ru>, devicetree@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---nextPart1587627.2fD0quCvaU
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="ISO-8859-1"
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Am Freitag, 12. September 2014, 10:33:48 schrieb Wolfram Sang:
-> > > Why do you want DT to be involved at all?
-> > 
-> > Imagine a device which supports both, slave or master mode. The driver
-> > needs to know in which mode it should operate. This cannot be hard coded,
-> > because on different boards, different modes can be used.
-> 
-> Okay, it sounds weird to me that a device is not able to switch between
-> master and slave, but if you say so. Also, solving this issue would also
-> handle potential weird IP blocks which can be slave only, right?
 
-I didn't said device. I meant the driver (software) needs to know if which 
-mode to operate the device. DT has to provide just enough information to 
-select the right mode depending on the board implementation.
+> - If I understand correctly you cannot register an i2c slave without
+>   also registering a master, right? I don't think this is troubling in
+>   practice, is it?
+>   For abstraction I would prefer to make these different concepts
+>   though.
 
-> What if you use two different adapter drivers or compatibles? One for
-> master-mode, one for slave-mode (slave could leave algo->master_xfer
-> empty, so the slave mode driver cannot send packets). I'm brainstorming
-> here, so while it should work IMO I will probably need a second thought.
-> 
-> So, in the DT you would have a block registering the I2C slave core
-> which binds to a simple driver providing reg_slave/unreg_slave and
-> pass on the slave-event. Then you could instantiate slave clients as
-> said before.
-> 
-> Maybe we need a real world example?
+You need to register an adapter, yes. It does not need to populate the
+callback for sending messages, so it could be slave only. But an adapter
+is needed, because it is the glue between a client and the wired lines.
 
-ok, take our embedded controller driver (in staging/nvec) as an example. It's 
-basicly an MFD connecting keyboard, mouse, power, gpio, and some other stuff 
-to the soc. The MFD operates in master mode while the SOC is the I2C slave. 
-Theoretically, these roles could also switch (but that's not defined in the 
-nvec protocol).
+> - The IMHO most (even only?) useful slave is "i2cslvdev", i.e. a
+>   userspace device. With that you wouldn't need device tree stuff, the
+>   driver would just offer the device if supported. Userspace then could
+>   care about the rest (slave address, functionality, ...).
 
-So the i2c client driver sits in between the adapter (in slave or master mode) 
-and the the MFD children (keyboard, mouse, ...) and provides read/write/cb 
-functions (nvec uses a side channel gpio to be able to initiate writes on its 
-own) to its children. The MFD children don't care about how the i2c 
-communication is done, but the client driver needs to decide in which mode it 
-should talk to the EC. If this is not autodetectable, the mode needs to be 
-provided by the device tree.
+I don't think it is the only useful one. A callback into userspace is
+expensive, so stuff like shared memory (my eeprom simulator) or a shared
+ringbuffer will come in handy, too. That being said, a slave device like
+you described is probably the next user we see using the slave interface
+:)
 
-In this case you cannot use separate drivers for master and slave mode (or you 
-would need another layer to hide the driver multiplexing).
 
-> > The point is, that if we define a dt binding for master device on slave
-> > adapters it will be there forever. So even if it makes no sense for the
-> > example eeprom simulator (or even our embedded controller), it may make
-> > sense for other or future devices.
-> 
-> I don't know what you mean here. Again, an example might help?
-
-I just wanted to say that the discussion here should find a *generic* way to 
-distinguish slave and master clients on the i2c bus by using a proper DT 
-binding.
-
-Marc
-
---nextPart1587627.2fD0quCvaU
+--0F1p//8PRICkK4MW
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
+Version: GnuPG v1
 
-iQEcBAABAgAGBQJUEreqAAoJEKyeR39HFBtohnkIAIYKTkRFpQtlFVC5NojsYh/E
-ylFtmRd1cOXF+SRvBNP++OPcMSyfx07tS/6dheEhmtK7ue3vKzWV2cVGMw7ue2mn
-KfC9damQZj1S2DPbFxXFcV11qqJOh72D7LYcFbI/Vhd0Of5YK9cE8oc6izx6arET
-LDbayFvhd/JyWTqTyxBzd4AQZKS1YL4g23gSanSLt8IqdAf9MM2k9L4SaMp0XvV9
-GbxEJ8H4OvsHwgvGLFxlX0tUYYe6wxu9laGyGskdap5zgb4wIas2v8qn5L4vwr8r
-9vK+xqJOivPKHsZY8Aej/LR3I1KXQ2IrgJ7YbJZw/Qu19Pjx7u8QzE/PwYAuz9Q=
-=AsXP
+iQIcBAEBAgAGBQJUErkPAAoJEBQN5MwUoCm2szUQAIzsM6HalR9QyXoxm1VIsc94
+tZ9vqH0tf4Sow6MDKaWpnFwPXRFKEjgQb+77yRQxoeGHONWyJR9L9yRlQmDMr/bv
+pNkn/9Bj3mb2U+gjy9u/ERaSNCp+jl2TzYs3c52MdVBxwzNwNQgnPIO9BZ4NOZ93
+fSA9Rr64EKHeKapk5aw7E8fRy3pAPDyd/Bn/LUu+k1kmLF2Ln+HNciu5z/9AgQVW
+ayVYVlKqQazJHKuItOFKiGGIWxu8SSUnNXMZsoU1YGmztellCV4cnTT3mVeT96OL
+yn3UdXD0es27clgdQbK1+UEJtuRC+M/0i/1Od7Seqq9LKe3ct4hiXCD8jdTRG6h0
+9Ny2By5bjP3EJ5hHP33H4Cd/KrVlGG3dlXvXY35XpbzhAUuojt9dvlLO86jMpWTB
+oxSZqWRuwosalxmNZd111yUshROIilZhik+0J8afF/Q0YBPnRE/sT1zX61UbMjsD
+1K9Fqyu+FnV+s2OdQmxspHk1zxnfk1bThKzkVXPVswI5fuWsUNb9wlAGwPcENfSN
+T1Q6cgx0Yr/0EY9clyMI+ZgFB3NIARnvHNNO0tf1v8FZ1jdZ7iKrn0hq5ujd6qKk
+25TNcICJvPCyMjcF6aLzy1/omf87fwsMlvN1Ct0Y9+iuvbt8hGJeDCWM4EqqxuaF
+qJutCcjW7LmQweBz/KwC
+=lsjv
 -----END PGP SIGNATURE-----
 
---nextPart1587627.2fD0quCvaU--
-
+--0F1p//8PRICkK4MW--
