@@ -1,86 +1,338 @@
-From: Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH RESEND 0/8] i2c: Relax mandatory I2C ID table passing
-Date: Fri, 12 Sep 2014 19:32:22 +0200
-Message-ID: <CABxcv==OXd+uePcB8zDzB-DDmr9ci6zscHX5TCauWoTO6E4fpg@mail.gmail.com>
-References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
-	<20140912134632.GE1930@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140912134632.GE1930@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+From: "David E. Box" <david.e.box@linux.intel.com>
+Subject: [PATCH] i2c-designware: Intel BayTrail PMIC I2C bus support
+Date: Fri, 12 Sep 2014 10:36:07 -0700
+Message-ID: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: jdelvare@suse.de, arnd@arndb.de, dianders@chromium.org, sjg@chromium.org, laurent.pinchart+renesas@ideasonboard.com, u.kleine-koenig@pengutronix.de, boris.brezillon@free-electrons.com, maxime.coquelin@st.com, max.schwarz@online.de, schwidefsky@de.ibm.com, iivanov@mm-sol.com, jacob.jun.pan@linux.intel.com, soren.brinkmann@xilinx.com, bjorn.andersson@sonymobile.com, andrew@lunn.ch, skuribay@pobox.com, christian.ruppert@abilis.com, Romain.Baeriswyl@abilis.com, mika.westerberg@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-[adding Sjoerd as cc who was the one that raised the module auto-loading issue]
+This patch implements an I2C bus sharing mechanism between the host and platform
+hardware on select Intel BayTrail SoC platforms using the XPower AXP288 PMIC.
 
-Hello,
+On these platforms access to the PMIC must be shared with platform hardware. The
+hardware unit assumes full control of the I2C bus and the host must request
+access through a special semaphore. Hardware control of the bus also makes it
+necessary to disable runtime pm to avoid interfering with hardware transactions.
 
-On Fri, Sep 12, 2014 at 3:46 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->>
->> Placing this firmly back on your plate.  I truly hope we don't miss
->> another merge-window.  This patch-set has the support of some pretty
->> senior kernel maintainers, so I hope acceptance shouldn't be too
->> difficult.
->>
->> As previously discussed I believe it should be okay for an I2C device
->> driver _not_ supply an I2C ID table to match to.  The I2C subsystem
->> should be able to match via other means, such as via OF tables.  The
->> blocking factor during our previous conversation was to keep
->> registering via sysfs up and running.  This set does that.
->
-> As mentioned in another thread, modaliases are one other possible side
-> effect. As Javier correctly mentions, the beaviour does not really
-> change with your patchset. Yet, if we remove i2c_device_id from drivers
-> too carelessly, they might not be bound anymore.
->
+Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+---
+ drivers/i2c/busses/Kconfig                  |  10 +++
+ drivers/i2c/busses/Makefile                 |   1 +
+ drivers/i2c/busses/i2c-designware-core.h    |  14 ++++
+ drivers/i2c/busses/i2c-designware-platdrv.c |  78 +++++++++++++++++++--
+ drivers/i2c/busses/i2c-shared-controller.c  | 101 ++++++++++++++++++++++++++++
+ 5 files changed, 200 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-shared-controller.c
 
-Right, removing the I2C ID table even from drivers that don't really
-need it (e.g: IP blocks only present in DT platforms) will as you said
-break module auto-loading. Probing will work since the OF table is
-used to match the device in i2c_device_match() but is the I2C table
-what is used to fill the valid module aliases with the current
-behavior of i2c_device_uevent(), the aliases filled from the OF table
-are never used.
-
-So what I propose is to do it incrementally:
-
-1) Merge Lee's series since that is definitely a step in the right
-direction to not make an I2C table mandatory (still will be needed for
-module auto loading though).
-
-2) On a follow-up series, make sure that all I2C drivers have a proper
-OF table and that are using the MODULE_DEVICE_TABLE(of,...) macro to
-fill the of:<foo> module aliases. That way the modules will have the
-proper aliases of the form "of:<foo>" besides the "i2c:<foo>" one.
-(even when always i2c:<foo> is reported to user-space currently).
-
-3) Apply the patch I posted [0] that changes the behavior of
-i2c_device_uevent() to report the OF uevent env vars to user-space in
-case of DT probing which after 2) should not regress any driver module
-auto-loading since all drivers should fill the of:<foo> aliases.
-
-After this, DT-only drivers will only need an OF table and legacy
-drivers will only need an I2C table. Drivers that support both will
-still need the two tables though which is a drawback of this approach
-since unnecessary duplication will exist on these drivers and can
-cause issues when both tables are not in sync as we saw on the issue
-reported by Sjoerd on [1].
-
-So an alternate approach could be to do the opposite, just remove the
-OF tables entirely from the I2C drivers and only use the I2C table
-even for DT-only drivers. This is possible since i2c_device_match()
-will succeed even without an OF table because i2c_match_id() matches
-for compatible strings and what is reported as uevent is what is in
-the I2C table anyways. I believe that is what Sjoerd suggested but
-I'll let him comment on that in case I misunderstood.
-
-By the way, the SPI subsystem has the same behavior, I raised the issue on [2].
-
-Best regards,
-Javier
-
-[0]: https://lkml.org/lkml/2014/9/11/269
-[1]: https://lkml.org/lkml/2014/9/9/100
-[2]: https://lkml.org/lkml/2014/9/11/458
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 2ac87fa..672ef23 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -441,6 +441,16 @@ config I2C_DESIGNWARE_PCI
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-designware-pci.
+ 
++config I2C_SHARED_CONTROLLER
++	tristate "Intel Baytrail PMIC shared I2C bus support"
++	depends on ACPI
++	select IOSF_MBI
++	select I2C_DESIGNWARE_CORE
++	help
++	  This driver enables shared access to the PMIC I2C bus on select Intel
++	  BayTrail platforms using the XPower AXP288 PMIC. This driver is
++	  required for host access to the PMIC on these platforms.
++
+ config I2C_EFM32
+ 	tristate "EFM32 I2C controller"
+ 	depends on ARCH_EFM32 || COMPILE_TEST
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 49bf07e..33d62d1 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -41,6 +41,7 @@ obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
+ obj-$(CONFIG_I2C_DESIGNWARE_PLATFORM)	+= i2c-designware-platform.o
+ i2c-designware-platform-objs := i2c-designware-platdrv.o
+ obj-$(CONFIG_I2C_DESIGNWARE_PCI)	+= i2c-designware-pci.o
++obj-$(CONFIG_I2C_SHARED_CONTROLLER)	+= i2c-shared-controller.o
+ i2c-designware-pci-objs := i2c-designware-pcidrv.o
+ obj-$(CONFIG_I2C_EFM32)		+= i2c-efm32.o
+ obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index d66b6cb..a2b72f4 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -65,6 +65,10 @@
+  * @ss_lcnt: standard speed LCNT value
+  * @fs_hcnt: fast speed HCNT value
+  * @fs_lcnt: fast speed LCNT value
++ * @shared_host: if host must share access to adapter with other
++ * firmware/hardware units
++ * @acquire_ownership: function to acquire exclusive use of the controller
++ * @release_ownership: function to release exclusive use of the controller
+  *
+  * HCNT and LCNT parameters can be used if the platform knows more accurate
+  * values than the one computed based only on the input clock frequency.
+@@ -105,6 +109,11 @@ struct dw_i2c_dev {
+ 	u16			ss_lcnt;
+ 	u16			fs_hcnt;
+ 	u16			fs_lcnt;
++#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
++	int			shared_host;
++	int			(*acquire_ownership)(struct device *dev);
++	int			(*release_ownership)(struct device *dev);
++#endif
+ };
+ 
+ #define ACCESS_SWAP		0x00000001
+@@ -123,3 +132,8 @@ extern void i2c_dw_disable(struct dw_i2c_dev *dev);
+ extern void i2c_dw_clear_int(struct dw_i2c_dev *dev);
+ extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
+ extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
++
++#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
++extern int i2c_acquire_ownership(struct device *dev);
++extern int i2c_release_ownership(struct device *dev);
++#endif
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index f9b1dec..f86c285 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -52,6 +52,32 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ 	return clk_get_rate(dev->clk)/1000;
+ }
+ 
++#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
++int i2c_shared_controller_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
++	int num)
++{
++	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
++	int err;
++
++	if (dev->shared_host) {
++		err = dev->acquire_ownership(dev->dev);
++		if (!err) {
++			err = i2c_dw_xfer(adap, msgs, num);
++			dev->release_ownership(dev->dev);
++		} else
++			dev_WARN(dev->dev, "couldnt acquire ownership\n");
++
++		return err;
++	} else
++		return i2c_dw_xfer(adap, msgs, num);
++}
++
++static struct i2c_algorithm i2c_sc_algo = {
++	.master_xfer	= i2c_shared_controller_xfer,
++	.functionality	= i2c_dw_func,
++};
++#endif
++
+ #ifdef CONFIG_ACPI
+ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+ 			       u16 *hcnt, u16 *lcnt, u32 *sda_hold)
+@@ -80,8 +106,11 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+ 	bool fs_mode = dev->master_cfg & DW_IC_CON_SPEED_FAST;
++	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
++	acpi_status status;
++	unsigned long long shared_host = 0;
+ 
+-	if (!ACPI_HANDLE(&pdev->dev))
++	if (!handle)
+ 		return -ENODEV;
+ 
+ 	dev->adapter.nr = -1;
+@@ -97,6 +126,24 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
+ 			   fs_mode ? &dev->sda_hold_time : NULL);
+ 
++#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
++	/*
++	 * For Intel SOC's determine if i2c bus must be shared with PUNIT
++	 * hardware
++	 */
++	status = acpi_evaluate_integer(handle, "_SEM", NULL, &shared_host);
++
++	if (ACPI_SUCCESS(status))
++		dev_info(&pdev->dev, "_SEM=%ld\n", (long)shared_host);
++
++	if (shared_host != 0) {
++		dev_info(&pdev->dev,
++			"Host shares controller with other hardware\n");
++		dev->shared_host = 1;
++		dev->acquire_ownership = i2c_acquire_ownership;
++		dev->release_ownership = i2c_release_ownership;
++	}
++#endif /* CONFIG_I2C_SHARED_CONTROLLER */
+ 	return 0;
+ }
+ 
+@@ -115,7 +162,7 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+ {
+ 	return -ENODEV;
+ }
+-#endif
++#endif /* CONFIG_ACPI */
+ 
+ static int dw_i2c_probe(struct platform_device *pdev)
+ {
+@@ -212,6 +259,25 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 
++#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
++	if (dev->shared_host)
++		adap->algo = &i2c_sc_algo;
++
++	r = i2c_add_numbered_adapter(adap);
++	if (r) {
++		dev_err(&pdev->dev, "failure adding adapter\n");
++		return r;
++	}
++
++	if (dev->shared_host)
++		pm_runtime_forbid(&pdev->dev);
++	else {
++		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
++		pm_runtime_use_autosuspend(&pdev->dev);
++		pm_runtime_set_active(&pdev->dev);
++		pm_runtime_enable(&pdev->dev);
++	}
++#else
+ 	r = i2c_add_numbered_adapter(adap);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure adding adapter\n");
+@@ -222,7 +288,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
+-
++#endif
+ 	return 0;
+ }
+ 
+@@ -268,7 +334,11 @@ static int dw_i2c_resume(struct device *dev)
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
+ 	clk_prepare_enable(i_dev->clk);
+-	i2c_dw_init(i_dev);
++
++#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
++	if (!i_dev->shared_host)
++#endif
++		i2c_dw_init(i_dev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/i2c/busses/i2c-shared-controller.c b/drivers/i2c/busses/i2c-shared-controller.c
+new file mode 100644
+index 0000000..b9119a0
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-shared-controller.c
+@@ -0,0 +1,101 @@
++/*
++ * Intel SOC I2C bus sharing semphore implementation
++ * Copyright (c) 2014, Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ */
++#include <linux/module.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <asm/iosf_mbi.h>
++
++#define PUNIT_SEMAPHORE 0x7
++static unsigned long start_time, end_time;
++
++static int get_sem(struct device *dev, u32 *sem)
++{
++	u32 reg_val;
++	int ret;
++
++	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_READ, PUNIT_SEMAPHORE,
++			    &reg_val);
++	if (ret) {
++		dev_WARN(dev, "iosf failed to read punit semaphore\n");
++		return ret;
++	}
++
++	*sem = reg_val & 0x1;
++
++	return 0;
++}
++
++static void reset_semaphore(struct device *dev)
++{
++	u32 data;
++
++	if (iosf_mbi_read(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_READ,
++				PUNIT_SEMAPHORE, &data)) {
++		dev_err(dev, "iosf failed to reset punit semaphore\n");
++		return;
++	}
++
++	data = data & 0xfffffffe;
++	if (iosf_mbi_write(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_WRITE,
++				 PUNIT_SEMAPHORE, data))
++		dev_err(dev, "iosf failed to reset punit semaphore\n");
++}
++
++int i2c_acquire_ownership(struct device *dev)
++{
++	u32 sem = 0;
++	int ret;
++	int timeout = 100;
++
++	/* host driver writes 0x2 to side band semaphore register */
++	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_WRITE,
++				 PUNIT_SEMAPHORE, 0x2);
++	if (ret) {
++		dev_WARN(dev, "iosf failed to request punit semaphore\n");
++		return ret;
++	}
++
++	/* host driver waits for bit 0 to be set in semaphore register */
++	while (1) {
++		ret = get_sem(dev, &sem);
++		if (!ret && sem) {
++			start_time = jiffies;
++			dev_dbg(dev, "punit semaphore acquired after %d attempts\n",
++				101 - timeout);
++			return 0;
++		}
++
++		usleep_range(1000, 2000);
++		timeout--;
++		if (timeout <= 0) {
++			dev_err(dev, "punit semaphore timed out, resetting\n");
++			reset_semaphore(dev);
++			iosf_mbi_read(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_READ,
++				PUNIT_SEMAPHORE, &sem);
++			dev_err(dev, "PUNIT SEM: %d\n", sem);
++			WARN_ON(1);
++			return -ETIMEDOUT;
++		}
++
++	}
++}
++
++int i2c_release_ownership(struct device *dev)
++{
++	reset_semaphore(dev);
++	end_time = jiffies;
++	dev_dbg(dev, "punit semaphore release call finish, held for %ldms\n",
++		(end_time - start_time) * 1000 / HZ);
++	return 0;
++}
+-- 
+1.9.1
