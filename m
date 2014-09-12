@@ -1,112 +1,106 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/8] i2c: Add the ability to match device to compatible
- string without an of_node
-Date: Fri, 12 Sep 2014 15:46:48 +0200
-Message-ID: <20140912134648.GF1930@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 6/8] i2c: Provide a temporary .probe2() call-back type
+Date: Fri, 12 Sep 2014 15:50:24 +0200
+Message-ID: <20140912135023.GG1930@katana>
 References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
- <1409236538-21274-3-git-send-email-lee.jones@linaro.org>
+ <1409236538-21274-7-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="UTZ8bGhNySVQ9LYl"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1409236538-21274-3-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel@stlinux.com, grant.likely@linaro.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linus.walleij@linaro.org
+In-Reply-To: <1409236538-21274-7-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---0rSojgWGcpz+ezC3
+--UTZ8bGhNySVQ9LYl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 28, 2014 at 03:35:32PM +0100, Lee Jones wrote:
-> A great deal of I2C devices are currently matched via DT node name, and
-> as such the compatible naming convention of '<vendor>,<device>' has gone
-> somewhat awry - some nodes don't supply one, some supply an arbitrary
-> string and others the correct device name with an arbitrary vendor prefix.
->=20
-> In an effort to correct this problem we have to supply a mechanism to
-> match a device by compatible string AND by simple device name.  This
-> function strips off the '<vendor>,' part of a supplied compatible string
-> and attempts to match without it.
->=20
-> The plan is to remove this function once all of the compatible strings
-> for each device have been brought into line.
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 79b674d..c8240e5 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -125,7 +125,8 @@ extern s32 i2c_smbus_write_i2c_block_data(const struc=
+t i2c_client *client,
+>   * struct i2c_driver - represent an I2C device driver
+>   * @class: What kind of i2c device we instantiate (for detect)
+>   * @attach_adapter: Callback for bus addition (deprecated)
+> - * @probe: Callback for device binding
+> + * @probe: Callback for device binding - soon to be deprecated
+> + * @probe2: New callback for device binding
 
-Is this really the plan? I mean, the old matching mechanism has been out
-there for ages and I dunno how many already deployed DTs depend on it.
-I'd think we need to keep this around forever.
+I don't like the naming. What about 'simplified_probe' instead of
+'probe2'? The old 'probe' would be deprecated immediately, I guess.
 
->=20
-> Acked-by: Grant Likely <grant.likely@linaro.org>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  drivers/i2c/i2c-core.c | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index d3c8e9f..eb46d15 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1095,6 +1095,27 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(st=
-ruct device_node *node)
->  	return i2c_verify_adapter(dev);
->  }
->  EXPORT_SYMBOL(of_find_i2c_adapter_by_node);
-> +
-> +static const struct of_device_id*
-> +i2c_of_match_device_strip_vendor(const struct of_device_id *matches,
-> +				  struct i2c_client *client)
-> +{
-> +	const char *name;
-> +
-> +	for (; matches->compatible[0]; matches++) {
-> +		name =3D strchr(matches->compatible, ',');
-> +		if (!name)
-> +			name =3D matches->compatible;
-> +		else
-> +			name++;
-> +
-> +		if (!strnicmp(client->name, name, strlen(client->name)))
+Also, this needs more information in the kernel docs. Come to think of
+it, I'd like to see some more documentation in general. A document in
+Documentation/i2c should explain the differences between the
+probe-functions, the reason why they are there, the intended path to
+migrate over and examples how to convert drivers and what to keep in
+mind doing so.
 
-Are compatible-properties case-independent? I though they were not.
+>   * @remove: Callback for device unbinding
+>   * @shutdown: Callback for device shutdown
+>   * @suspend: Callback for device suspend
+> @@ -170,6 +171,11 @@ struct i2c_driver {
+>  	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+>  	int (*remove)(struct i2c_client *);
+> =20
+> +	/* New driver model interface to aid the seamless removal of the
+> +	 * current probe()'s, more commonly unused than used second parameter.
 
-> +			return matches;
-> +	}
-> +
-> +	return NULL;
-> +}
-> +
->  #else
->  static void of_i2c_register_devices(struct i2c_adapter *adap) { }
->  #endif /* CONFIG_OF */
-> --=20
-> 1.9.1
->=20
+"largely unused second parameter"? Maybe more readable? At least, I
+needed to read this sentence more than once to get it. BTW have you
+measured how often it was used/unused?
 
---0rSojgWGcpz+ezC3
+> +	 */
+> +	int (*probe2)(struct i2c_client *);
+> +
+>  	/* driver model interfaces that don't relate to enumeration  */
+>  	void (*shutdown)(struct i2c_client *);
+>  	int (*suspend)(struct i2c_client *, pm_message_t mesg);
+
+What I like in general: After your series I2C does more like what other
+subsystems (especially SPI) do.
+
+What I dislike about this in general: Putting to the drivers that they
+should find out about the matching. I mean the core already did the
+matching, so why should a driver do that again? Especially since it can
+get very cumbersome to do so with platform_data, DT and ACPI around
+which need to be checked. This is why I stopped my implementation to
+fix this issue. I felt the need for a helper function to assist the
+drivers how they were matched. Ideally by just retrieving the
+information which the subsystem cores already gathered. Making such a
+thing generic was where I stopped working on that.
+
+Has this been discussed somewhere already?
+
+
+--UTZ8bGhNySVQ9LYl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUEvlIAAoJEBQN5MwUoCm2hogP/Rl8a5R+FCyggG3KvPNScrJe
-OOLqeXDYSqPja7DotMMOnxkocpok2hWhr/lvV0cpnLfoDj+ho3XmZOrRnxR4cJ7w
-YhYI3kOqxg4tGdJyJmtdmhjeAKfD3Qs43t+fD+O+gcoCT5BGsVCIM5U85qWFRS4A
-h9CtHNgICfsa/0skhZThUNRbgRkJTUsUtZ7BM+K3CjHfKZUCiPLrIQeS3B8Om8s9
-ouz1lUr6K38hbhXM8Y0kHGzVtz9A23M8U3ve9e2VhVnQVgIeFWlqvXU5OkcmnyYi
-BBLeKi0dZVVEPlnXyV0nKcv60u75RQHTdL+COo1rDtJy1eDqEy00UHk/936pbFJd
-+sbj+JAyasbZGp+K2wrMx0gJnzpgvoRRrTiHdxvKwJCPdUf97E+hKTUHXM218qDe
-AYyjEFpNfgk7jQkPDxahWiMjELiYDLXncQVmwWHk5EjAlkx380oHnMyOAhiHrsqR
-QrNqgpFXpC/KQoH0nkUKo+2PlDizUaBintoyxZCfaMdtA2u/HbYEcuQ5umsmWHNf
-ZunPXFsXzt7utb5Scrf+752Bj+hsLiNWwIy864xoBM/sekOYfy8leJU6idT2dmEy
-TRgnaPkDgmQbmVAJzpLSaiDyyhOp1Igb06bMdzdaWXdQ97/YPvURGbfcEVwbqgD3
-/EW0RJzybz2pRNnz1Svu
-=61ql
+iQIcBAEBAgAGBQJUEvofAAoJEBQN5MwUoCm2UpsQAIVSA5gQVQdOWgc0mtc+wmTC
+Cn1z7wKish11QU60TYYo5H8lcwsvw2SabPmljM6doP6BOdsSe9vuYXgXHEERf+ev
+MxdvPwAzf0kqFFKBX13KyI1Xe+MQ2mZlOE0pJ3H7Ar/qsBo4jOQIpMBTSj7VfHIw
+XnYuTKJ7MdU6RSZhmXBl35iYcItdBI6NIXLjtirdf1LB4mweHP+VuoirkfwGwDmq
+AXO/GcqxeeYYooAPi31sOBYP+51ROvN5o3SdxbpPKVYkN0rPJZbqwzKl27YGrrIk
+88++aalootvegASjApp7YJU5wGL1AoiAkoib/JG2ScTvwlh1bqsOzrlrQsFdUOXq
+95dUFZSRwWpMxRNEC9K1Nl4NUQ6AqPHyUZwHFzce7rMAmIzY1VhYAkgDiPmu3Nur
+ovG7ju8n/9zffp97Ww96b8kZh7T6LEVAQp+/sqqJxbiRlK8vpSjOM/5O/+4lB3hk
+A8L6K9dHArdQmiNMlSZu6lCNcjZbbqMuj5ypfIkVNjZ4H2k6T+QjBUemb+TkzBJ4
+rkBkqf60EedR5zdLhVnfzdosRQoS1vEq5BT41bD4z+GRMYBO5zUd19JKxeL5wEyE
+oG2YeS4O/A1VD63LPPAYC3M4SFkHl+IAflciGr5VShpLaZRZprvbrcxE8WIz/xox
+KQGMqueIgSpC9ARltD1A
+=+NVU
 -----END PGP SIGNATURE-----
 
---0rSojgWGcpz+ezC3--
+--UTZ8bGhNySVQ9LYl--
