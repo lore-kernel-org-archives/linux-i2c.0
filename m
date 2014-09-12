@@ -1,68 +1,114 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 0/4] i2c: slave support framework for Linux devices
-Date: Fri, 12 Sep 2014 11:12:48 +0200
-Message-ID: <20140912091247.GA1930@katana>
+Subject: Re: [RFC 4/4] ARM: shmobile: r8a7790: adapt DTS for I2C slave support
+Date: Fri, 12 Sep 2014 11:58:21 +0200
+Message-ID: <20140912095821.GB1930@katana>
 References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
- <20140912085836.GS3755@pengutronix.de>
+ <9935938.eKOCvCAtLt@fb07-iapwap2>
+ <20140912083348.GA1289@katana>
+ <7627175.tG5quZH0VN@fb07-iapwap2>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140912085836.GS3755@pengutronix.de>
+In-Reply-To: <7627175.tG5quZH0VN@fb07-iapwap2>
 Sender: linux-sh-owner@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org
+To: Marc Dietrich <marvin24@gmx.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Magnus Damm <magnus.damm@gmail.com>, Andrey Danin <danindrey@mail.ru>, devicetree@vger.kernel.org, Stephen Warren <swarren@wwwdotorg.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---0F1p//8PRICkK4MW
+--qlTNgmc+xy1dBmNv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> - If I understand correctly you cannot register an i2c slave without
->   also registering a master, right? I don't think this is troubling in
->   practice, is it?
->   For abstraction I would prefer to make these different concepts
->   though.
+> ok, take our embedded controller driver (in staging/nvec) as an example. =
+It's=20
+> basicly an MFD connecting keyboard, mouse, power, gpio, and some other st=
+uff=20
+> to the soc. The MFD operates in master mode while the SOC is the I2C slav=
+e.=20
+> Theoretically, these roles could also switch (but that's not defined in t=
+he=20
+> nvec protocol).
 
-You need to register an adapter, yes. It does not need to populate the
-callback for sending messages, so it could be slave only. But an adapter
-is needed, because it is the glue between a client and the wired lines.
+I see these cases currently:
 
-> - The IMHO most (even only?) useful slave is "i2cslvdev", i.e. a
->   userspace device. With that you wouldn't need device tree stuff, the
->   driver would just offer the device if supported. Userspace then could
->   care about the rest (slave address, functionality, ...).
+1) my current case
 
-I don't think it is the only useful one. A callback into userspace is
-expensive, so stuff like shared memory (my eeprom simulator) or a shared
-ringbuffer will come in handy, too. That being said, a slave device like
-you described is probably the next user we see using the slave interface
-:)
+The I2C slave is not needed for board bringup, mainly for development or
+playing around. It can have this or that functionality on this or that
+address. -> does not belong into DT, should be done in userspace
+
+2) Slave mode is needed for board bringup
+
+Some other components need a specific I2C slave to be present before
+userspace is available, otherwise the system is unusable. This is IMO
+then a hardware description and justifies DT entries:
+
+DT pseudocode:
+
+	i2c {
+		compatible =3D "nvidia, tegra-i2c";
+
+		ec-slave@42 {
+			compatible =3D "nvidia, ax100-ec-slave";
+			reg =3D <0x42>;
+		};
+	};
+
+Of course, an MFD driver providing "nvidia, ax100-ec-slave" is needed
+which uses the I2C slave mode of the tegra controller.
+
+3) Master + slave mode is needed for board bringup:
+
+Again, IMO a hardware description, so we could use:
+
+	i2c {
+		compatible =3D "nvidia, tegra-i2c";
+
+		ec@64 {
+			compatible =3D "nvidia, ax100-ec";
+			reg =3D <0x64>;
+		};
+	};
+
+This is a standard I2C device driver (using the MFD framework) where
+i2c-tegra would act as a master on the client for 0x64. However, its
+probe function can fill an i2c_board_device (the driver should know the
+slave device address because of the protocol), get a new client using
+i2c_new_device, and register that as a I2C slave client. It then has an
+address where it listens and an address where it can send to. When to do
+what is protocol implementation.
 
 
---0F1p//8PRICkK4MW
+Am I missing something? Board properties can be encoded within the
+compatible entries ("ax100-ec", "ax200-ec"...). I'd think this means
+mostly different protocols, though.
+
+
+--qlTNgmc+xy1dBmNv
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUErkPAAoJEBQN5MwUoCm2szUQAIzsM6HalR9QyXoxm1VIsc94
-tZ9vqH0tf4Sow6MDKaWpnFwPXRFKEjgQb+77yRQxoeGHONWyJR9L9yRlQmDMr/bv
-pNkn/9Bj3mb2U+gjy9u/ERaSNCp+jl2TzYs3c52MdVBxwzNwNQgnPIO9BZ4NOZ93
-fSA9Rr64EKHeKapk5aw7E8fRy3pAPDyd/Bn/LUu+k1kmLF2Ln+HNciu5z/9AgQVW
-ayVYVlKqQazJHKuItOFKiGGIWxu8SSUnNXMZsoU1YGmztellCV4cnTT3mVeT96OL
-yn3UdXD0es27clgdQbK1+UEJtuRC+M/0i/1Od7Seqq9LKe3ct4hiXCD8jdTRG6h0
-9Ny2By5bjP3EJ5hHP33H4Cd/KrVlGG3dlXvXY35XpbzhAUuojt9dvlLO86jMpWTB
-oxSZqWRuwosalxmNZd111yUshROIilZhik+0J8afF/Q0YBPnRE/sT1zX61UbMjsD
-1K9Fqyu+FnV+s2OdQmxspHk1zxnfk1bThKzkVXPVswI5fuWsUNb9wlAGwPcENfSN
-T1Q6cgx0Yr/0EY9clyMI+ZgFB3NIARnvHNNO0tf1v8FZ1jdZ7iKrn0hq5ujd6qKk
-25TNcICJvPCyMjcF6aLzy1/omf87fwsMlvN1Ct0Y9+iuvbt8hGJeDCWM4EqqxuaF
-qJutCcjW7LmQweBz/KwC
-=lsjv
+iQIcBAEBAgAGBQJUEsO9AAoJEBQN5MwUoCm2CX8P/26YJnJi+R06TSHAzWpDOdH4
+A21ApjwG4hruJDHfiXsI9cGoUku4uwnIErkIaWh5rHNFfmNRWmKqAxyVh7Lccv9Z
+rPII8I17sSHEDPIdbg4nHdijrVpD9TPVIZiGiGSeMmFV+iYbaFCMJuajDxxfbMe7
+JpXztCFp6buPAjYUAEbnlYEZpegvI1n3etsyvSkY/SgM5aTE9Ut6WSfa1S0Y9ERj
+I5y7YGv9o30hYe5p+KfPqajFicasiybAfpzRgDpaXtGVORsicr+2NNA7PkLmTpS3
+mOCtDaFNP7+QROgm6M5iK3Ki8gzHGDpC3J6r1eZknmIDLDJNaarXQPJ6dhHX2EEy
+CiO7MsxgBHd0HMilgeApjbzCLt43QcztNurWNTicYtNx7X+t97jHBxXlWwEqXr1W
+vAY9cDDBKIQ/NIrsg0MLoeRXebxkcJYBqx0WAVPLXj691p1+ZzfePfxTBEE8PjTq
+60waT2owTSbE+yPuwjS4o/FmfIQM9DipBcfsn/uK5K4p4YARhcJ3LqHsuWWA66s8
+BYeJdoJVcQoev1mxe/cJXIwD0KcNTWDAV7ufzV2qLTnRu21V7qpHdir0bWakzeSF
+jnyNUijBMdzxwXoTEGnvjtfVQJxQkwWexZQgCrLn4Omd6iU/v3AWtI69V3lXPNdL
+YYKHDXmo/WkzHMC1jnQ2
+=O3vC
 -----END PGP SIGNATURE-----
 
---0F1p//8PRICkK4MW--
+--qlTNgmc+xy1dBmNv--
