@@ -1,101 +1,86 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: piix4: Continue probing for auxiliary SMBus
- without main
-Date: Fri, 12 Sep 2014 17:45:13 +0200
-Message-ID: <20140912174513.5010b4ab@endymion.delvare>
-References: <20140712000607.GA25787@turkey.danweeks.net>
-	<20140728142209.69246fcc@endymion.delvare>
+From: Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH RESEND 0/8] i2c: Relax mandatory I2C ID table passing
+Date: Fri, 12 Sep 2014 19:32:22 +0200
+Message-ID: <CABxcv==OXd+uePcB8zDzB-DDmr9ci6zscHX5TCauWoTO6E4fpg@mail.gmail.com>
+References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
+	<20140912134632.GE1930@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140728142209.69246fcc@endymion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Daniel M. Weeks" <dan@danweeks.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140912134632.GE1930@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linux Kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Daniel, 
+[adding Sjoerd as cc who was the one that raised the module auto-loading issue]
 
-Did you find the time to address my concerns? I think it would be the
-right time to submit an updated patch if you want it to make it
-upstream quickly.
+Hello,
 
-Jean
+On Fri, Sep 12, 2014 at 3:46 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>>
+>> Placing this firmly back on your plate.  I truly hope we don't miss
+>> another merge-window.  This patch-set has the support of some pretty
+>> senior kernel maintainers, so I hope acceptance shouldn't be too
+>> difficult.
+>>
+>> As previously discussed I believe it should be okay for an I2C device
+>> driver _not_ supply an I2C ID table to match to.  The I2C subsystem
+>> should be able to match via other means, such as via OF tables.  The
+>> blocking factor during our previous conversation was to keep
+>> registering via sysfs up and running.  This set does that.
+>
+> As mentioned in another thread, modaliases are one other possible side
+> effect. As Javier correctly mentions, the beaviour does not really
+> change with your patchset. Yet, if we remove i2c_device_id from drivers
+> too carelessly, they might not be bound anymore.
+>
 
-On Mon, 28 Jul 2014 14:22:09 +0200, Jean Delvare wrote:
-> Hi Daniel,
-> 
-> On Fri, 11 Jul 2014 20:06:15 -0400, Daniel M. Weeks wrote:
-> > Some BIOS may only allow access to the AMD auxiliary SMBus - reserving
-> > the main SMBus for system functions only. Probing should continue even
-> > if the main bus is not available so at least the auxiliary can be added.
-> > 
-> > Signed-off-by: Daniel M. Weeks <dan@danweeks.net>
-> > ---
-> > This patch may warrant some discussion. I ran across this problem on an
-> > AMD Hudson board where the main SMBus is hard-wired for debugging but
-> > the auxiliary bus is exposed for expansion. Either purposefully or
-> > because the BIOS is a little broken, loading this module used to result
-> > in an ACPI conflict for the main bus and neither was usable. With the
-> > patch I'm able to use the auxiliary bus regardless of the conflict on
-> > the main bus. I'm not 100% convinced it's the correct fix - someone with
-> > more ACPI experience than me is going to need to review this.
-> 
-> This is fine. The auxiliary bus setup code has its own ACPI resource
-> conflict check, so it is safe to let the driver bind to the auxiliary
-> bus even if the main bus is skipped.
-> 
-> > 
-> > drivers/i2c/busses/i2c-piix4.c | 18 ++++++++++--------
-> >  1 file changed, 10 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> > index a6f54ba..d4bac64 100644
-> > --- a/drivers/i2c/busses/i2c-piix4.c
-> > +++ b/drivers/i2c/busses/i2c-piix4.c
-> > @@ -628,14 +628,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
-> >  	else
-> >  		retval = piix4_setup(dev, id);
-> >  
-> > -	/* If no main SMBus found, give up */
-> > -	if (retval < 0)
-> > -		return retval;
-> > -
-> > -	/* Try to register main SMBus adapter, give up if we can't */
-> > -	retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
-> > -	if (retval < 0)
-> > -		return retval;
-> > +	/* If no main SMBus found, do not give up
-> > +	 * some BIOS purposely only expose aux bus */
-> > +	if (retval < 0) {
-> > +		dev_info(&dev->dev, "No main SMBus; checking auxiliary\n");
-> 
-> Not sure if this message is really needed, as both parts already print
-> relevant message in both success and failure cases.
-> 
-> > +	} else {
-> > +		/* Try to register main SMBus adapter, give up if we can't */
-> > +		retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
-> > +		if (retval < 0)
-> > +			return retval;
-> > +	}
-> >  
-> >  	/* Check for auxiliary SMBus on some AMD chipsets */
-> >  	retval = -ENODEV;
-> 
-> I'm mostly fine with the change above, but it is insufficient in one
-> corner case: if both the main bus and the aux bus probing fails. The
-> code does currently not consider both buses equal, in that it never
-> returns an error if the aux bus probing fails. The return value only
-> stands for the status of the main bus. With your change, if both buses
-> fail to register, the piix4_probe function may still returns 0
-> (success.)
-> 
-> Your proposed change somehow makes the aux bus an equal of the main
-> bus. The probe function should return 0 if either bus was successfully
-> registered. It should still return an error if both fail to register.
-> Unfortunately we can't report both error codes to the caller. For
-> historical reasons I believe we should return the error code for the
-> main bus in that case, which means you have to store it in the middle
-> of the function for it to be available at the end of the function.
+Right, removing the I2C ID table even from drivers that don't really
+need it (e.g: IP blocks only present in DT platforms) will as you said
+break module auto-loading. Probing will work since the OF table is
+used to match the device in i2c_device_match() but is the I2C table
+what is used to fill the valid module aliases with the current
+behavior of i2c_device_uevent(), the aliases filled from the OF table
+are never used.
+
+So what I propose is to do it incrementally:
+
+1) Merge Lee's series since that is definitely a step in the right
+direction to not make an I2C table mandatory (still will be needed for
+module auto loading though).
+
+2) On a follow-up series, make sure that all I2C drivers have a proper
+OF table and that are using the MODULE_DEVICE_TABLE(of,...) macro to
+fill the of:<foo> module aliases. That way the modules will have the
+proper aliases of the form "of:<foo>" besides the "i2c:<foo>" one.
+(even when always i2c:<foo> is reported to user-space currently).
+
+3) Apply the patch I posted [0] that changes the behavior of
+i2c_device_uevent() to report the OF uevent env vars to user-space in
+case of DT probing which after 2) should not regress any driver module
+auto-loading since all drivers should fill the of:<foo> aliases.
+
+After this, DT-only drivers will only need an OF table and legacy
+drivers will only need an I2C table. Drivers that support both will
+still need the two tables though which is a drawback of this approach
+since unnecessary duplication will exist on these drivers and can
+cause issues when both tables are not in sync as we saw on the issue
+reported by Sjoerd on [1].
+
+So an alternate approach could be to do the opposite, just remove the
+OF tables entirely from the I2C drivers and only use the I2C table
+even for DT-only drivers. This is possible since i2c_device_match()
+will succeed even without an OF table because i2c_match_id() matches
+for compatible strings and what is reported as uevent is what is in
+the I2C table anyways. I believe that is what Sjoerd suggested but
+I'll let him comment on that in case I misunderstood.
+
+By the way, the SPI subsystem has the same behavior, I raised the issue on [2].
+
+Best regards,
+Javier
+
+[0]: https://lkml.org/lkml/2014/9/11/269
+[1]: https://lkml.org/lkml/2014/9/9/100
+[2]: https://lkml.org/lkml/2014/9/11/458
