@@ -1,106 +1,101 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 6/8] i2c: Provide a temporary .probe2() call-back type
-Date: Fri, 12 Sep 2014 15:50:24 +0200
-Message-ID: <20140912135023.GG1930@katana>
-References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
- <1409236538-21274-7-git-send-email-lee.jones@linaro.org>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: piix4: Continue probing for auxiliary SMBus
+ without main
+Date: Fri, 12 Sep 2014 17:45:13 +0200
+Message-ID: <20140912174513.5010b4ab@endymion.delvare>
+References: <20140712000607.GA25787@turkey.danweeks.net>
+	<20140728142209.69246fcc@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UTZ8bGhNySVQ9LYl"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1409236538-21274-7-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140728142209.69246fcc@endymion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Daniel M. Weeks" <dan@danweeks.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Daniel, 
 
---UTZ8bGhNySVQ9LYl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Did you find the time to address my concerns? I think it would be the
+right time to submit an updated patch if you want it to make it
+upstream quickly.
 
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 79b674d..c8240e5 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -125,7 +125,8 @@ extern s32 i2c_smbus_write_i2c_block_data(const struc=
-t i2c_client *client,
->   * struct i2c_driver - represent an I2C device driver
->   * @class: What kind of i2c device we instantiate (for detect)
->   * @attach_adapter: Callback for bus addition (deprecated)
-> - * @probe: Callback for device binding
-> + * @probe: Callback for device binding - soon to be deprecated
-> + * @probe2: New callback for device binding
+Jean
 
-I don't like the naming. What about 'simplified_probe' instead of
-'probe2'? The old 'probe' would be deprecated immediately, I guess.
-
-Also, this needs more information in the kernel docs. Come to think of
-it, I'd like to see some more documentation in general. A document in
-Documentation/i2c should explain the differences between the
-probe-functions, the reason why they are there, the intended path to
-migrate over and examples how to convert drivers and what to keep in
-mind doing so.
-
->   * @remove: Callback for device unbinding
->   * @shutdown: Callback for device shutdown
->   * @suspend: Callback for device suspend
-> @@ -170,6 +171,11 @@ struct i2c_driver {
->  	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
->  	int (*remove)(struct i2c_client *);
-> =20
-> +	/* New driver model interface to aid the seamless removal of the
-> +	 * current probe()'s, more commonly unused than used second parameter.
-
-"largely unused second parameter"? Maybe more readable? At least, I
-needed to read this sentence more than once to get it. BTW have you
-measured how often it was used/unused?
-
-> +	 */
-> +	int (*probe2)(struct i2c_client *);
-> +
->  	/* driver model interfaces that don't relate to enumeration  */
->  	void (*shutdown)(struct i2c_client *);
->  	int (*suspend)(struct i2c_client *, pm_message_t mesg);
-
-What I like in general: After your series I2C does more like what other
-subsystems (especially SPI) do.
-
-What I dislike about this in general: Putting to the drivers that they
-should find out about the matching. I mean the core already did the
-matching, so why should a driver do that again? Especially since it can
-get very cumbersome to do so with platform_data, DT and ACPI around
-which need to be checked. This is why I stopped my implementation to
-fix this issue. I felt the need for a helper function to assist the
-drivers how they were matched. Ideally by just retrieving the
-information which the subsystem cores already gathered. Making such a
-thing generic was where I stopped working on that.
-
-Has this been discussed somewhere already?
-
-
---UTZ8bGhNySVQ9LYl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUEvofAAoJEBQN5MwUoCm2UpsQAIVSA5gQVQdOWgc0mtc+wmTC
-Cn1z7wKish11QU60TYYo5H8lcwsvw2SabPmljM6doP6BOdsSe9vuYXgXHEERf+ev
-MxdvPwAzf0kqFFKBX13KyI1Xe+MQ2mZlOE0pJ3H7Ar/qsBo4jOQIpMBTSj7VfHIw
-XnYuTKJ7MdU6RSZhmXBl35iYcItdBI6NIXLjtirdf1LB4mweHP+VuoirkfwGwDmq
-AXO/GcqxeeYYooAPi31sOBYP+51ROvN5o3SdxbpPKVYkN0rPJZbqwzKl27YGrrIk
-88++aalootvegASjApp7YJU5wGL1AoiAkoib/JG2ScTvwlh1bqsOzrlrQsFdUOXq
-95dUFZSRwWpMxRNEC9K1Nl4NUQ6AqPHyUZwHFzce7rMAmIzY1VhYAkgDiPmu3Nur
-ovG7ju8n/9zffp97Ww96b8kZh7T6LEVAQp+/sqqJxbiRlK8vpSjOM/5O/+4lB3hk
-A8L6K9dHArdQmiNMlSZu6lCNcjZbbqMuj5ypfIkVNjZ4H2k6T+QjBUemb+TkzBJ4
-rkBkqf60EedR5zdLhVnfzdosRQoS1vEq5BT41bD4z+GRMYBO5zUd19JKxeL5wEyE
-oG2YeS4O/A1VD63LPPAYC3M4SFkHl+IAflciGr5VShpLaZRZprvbrcxE8WIz/xox
-KQGMqueIgSpC9ARltD1A
-=+NVU
------END PGP SIGNATURE-----
-
---UTZ8bGhNySVQ9LYl--
+On Mon, 28 Jul 2014 14:22:09 +0200, Jean Delvare wrote:
+> Hi Daniel,
+> 
+> On Fri, 11 Jul 2014 20:06:15 -0400, Daniel M. Weeks wrote:
+> > Some BIOS may only allow access to the AMD auxiliary SMBus - reserving
+> > the main SMBus for system functions only. Probing should continue even
+> > if the main bus is not available so at least the auxiliary can be added.
+> > 
+> > Signed-off-by: Daniel M. Weeks <dan@danweeks.net>
+> > ---
+> > This patch may warrant some discussion. I ran across this problem on an
+> > AMD Hudson board where the main SMBus is hard-wired for debugging but
+> > the auxiliary bus is exposed for expansion. Either purposefully or
+> > because the BIOS is a little broken, loading this module used to result
+> > in an ACPI conflict for the main bus and neither was usable. With the
+> > patch I'm able to use the auxiliary bus regardless of the conflict on
+> > the main bus. I'm not 100% convinced it's the correct fix - someone with
+> > more ACPI experience than me is going to need to review this.
+> 
+> This is fine. The auxiliary bus setup code has its own ACPI resource
+> conflict check, so it is safe to let the driver bind to the auxiliary
+> bus even if the main bus is skipped.
+> 
+> > 
+> > drivers/i2c/busses/i2c-piix4.c | 18 ++++++++++--------
+> >  1 file changed, 10 insertions(+), 8 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> > index a6f54ba..d4bac64 100644
+> > --- a/drivers/i2c/busses/i2c-piix4.c
+> > +++ b/drivers/i2c/busses/i2c-piix4.c
+> > @@ -628,14 +628,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+> >  	else
+> >  		retval = piix4_setup(dev, id);
+> >  
+> > -	/* If no main SMBus found, give up */
+> > -	if (retval < 0)
+> > -		return retval;
+> > -
+> > -	/* Try to register main SMBus adapter, give up if we can't */
+> > -	retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
+> > -	if (retval < 0)
+> > -		return retval;
+> > +	/* If no main SMBus found, do not give up
+> > +	 * some BIOS purposely only expose aux bus */
+> > +	if (retval < 0) {
+> > +		dev_info(&dev->dev, "No main SMBus; checking auxiliary\n");
+> 
+> Not sure if this message is really needed, as both parts already print
+> relevant message in both success and failure cases.
+> 
+> > +	} else {
+> > +		/* Try to register main SMBus adapter, give up if we can't */
+> > +		retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
+> > +		if (retval < 0)
+> > +			return retval;
+> > +	}
+> >  
+> >  	/* Check for auxiliary SMBus on some AMD chipsets */
+> >  	retval = -ENODEV;
+> 
+> I'm mostly fine with the change above, but it is insufficient in one
+> corner case: if both the main bus and the aux bus probing fails. The
+> code does currently not consider both buses equal, in that it never
+> returns an error if the aux bus probing fails. The return value only
+> stands for the status of the main bus. With your change, if both buses
+> fail to register, the piix4_probe function may still returns 0
+> (success.)
+> 
+> Your proposed change somehow makes the aux bus an equal of the main
+> bus. The probe function should return 0 if either bus was successfully
+> registered. It should still return an error if both fail to register.
+> Unfortunately we can't report both error codes to the caller. For
+> historical reasons I believe we should return the error code for the
+> main bus in that case, which means you have to store it in the middle
+> of the function for it to be available at the end of the function.
