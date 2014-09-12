@@ -1,88 +1,53 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC 4/4] ARM: shmobile: r8a7790: adapt DTS for I2C slave support
-Date: Fri, 12 Sep 2014 10:33:48 +0200
-Message-ID: <20140912083348.GA1289@katana>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [RFC 0/4] i2c: slave support framework for Linux devices
+Date: Fri, 12 Sep 2014 10:58:36 +0200
+Message-ID: <20140912085836.GS3755@pengutronix.de>
 References: <1410274470-12712-1-git-send-email-wsa@the-dreams.de>
- <1591383.Xdy91rktuP@fb07-iapwap2>
- <20140911145421.GE5149@katana>
- <9935938.eKOCvCAtLt@fb07-iapwap2>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <9935938.eKOCvCAtLt@fb07-iapwap2>
+In-Reply-To: <1410274470-12712-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> > Why do you want DT to be involved at all?
+On Tue, Sep 09, 2014 at 04:54:26PM +0200, Wolfram Sang wrote:
+> Finally, here is my take on the often desired feature that Linux can =
+not only
+> be an I2C master, but also an I2C slave. Compared to my draft sent ou=
+t last
+> week, this RFC has been tested on hardware (Renesas Lager board) and =
+works \o/
 >=20
-> Imagine a device which supports both, slave or master mode. The driver ne=
-eds=20
-> to know in which mode it should operate. This cannot be hard coded, becau=
-se on=20
-> different boards, different modes can be used.
+> One big part still missing is documentation, so brave ones need to "u=
+se the
+> source". However, this approach turned out to be even less intrusive =
+than
+> expected, so that is hopefully a good sign.
+Some thoughts from reading through your patch set:
 
-Okay, it sounds weird to me that a device is not able to switch between
-master and slave, but if you say so. Also, solving this issue would also
-handle potential weird IP blocks which can be slave only, right?
+- If I understand correctly you cannot register an i2c slave without
+  also registering a master, right? I don't think this is troubling in
+  practice, is it?
+  For abstraction I would prefer to make these different concepts
+  though.
 
-What if you use two different adapter drivers or compatibles? One for
-master-mode, one for slave-mode (slave could leave algo->master_xfer
-empty, so the slave mode driver cannot send packets). I'm brainstorming
-here, so while it should work IMO I will probably need a second thought.
+- The IMHO most (even only?) useful slave is "i2cslvdev", i.e. a
+  userspace device. With that you wouldn't need device tree stuff, the
+  driver would just offer the device if supported. Userspace then could
+  care about the rest (slave address, functionality, ...).
 
-So, in the DT you would have a block registering the I2C slave core
-which binds to a simple driver providing reg_slave/unreg_slave and
-pass on the slave-event. Then you could instantiate slave clients as
-said before.
+Best regards
+Uwe
 
-Maybe we need a real world example?
-
-> The point is, that if we define a dt binding for master device on slave=
-=20
-> adapters it will be there forever. So even if it makes no sense for the=
-=20
-> example eeprom simulator (or even our embedded controller), it may make s=
-ense=20
-> for other or future devices.
-
-I don't know what you mean here. Again, an example might help?
-
-Thanks,
-
-   Wolfram
-
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUEq/sAAoJEBQN5MwUoCm2fhQQAKI7BwTUMzwzP7Wm0RjEUm13
-YqFY2XbBIHIbKLeOMltZ0HMtaCuc4VJmlcatpFn3539HpB6XAOjnl9Rce7XxTbgA
-NBaFitahMwyqFv+VBFPdNQHgQc4sVkKqCUzjk+p9S+8J01FcjHZbYFqNc3ci3wj3
-kAl5B8xXJ8QXQRxH1cBSNj5/Ac8WgzOVq/wvvdgzKORDT/o+L8GksFeBTkkbDicv
-FQBSr9EBXBeq1FNkFkkT3jlqXCQsWfqZjXAjB64QBRWE+FjKBKvRZmUMmaCoz3vC
-2jZ5Vp6GxHpWxs1PGxu5yNhgwBUYSCeiTNDS2EKQkVG2UPnZz3R60EbEPisb9qkx
-tdYPBQPbV/pR4XJZV0Z3L/KFP17Ts2bRUovnpMweRsyBbhXUVgtOlLK56p0ahN2Q
-H7u/e/NT4fDKA46dBxxLHZNrGVnw03JeiTluFUdGnLXItAjsO/vvDLpRN42ylb+K
-Yb5Fi37s7Z9OgZALazfpxGDk6wmE9GcVwBS5KwJy9nt2kmYrSIxRWP1ur9XE9RnV
-ALki0WmMVPD1F9Vl5QUxGRw29ESmO2zbfQwH8KqGpndlRmNM1Ml332QeZuROTOuP
-8JvFAFbDgn0QMRfDyOV6Xj47+3T9+Pey2Cl5Ih/z6y+U7GFOt0h6zgv4a9pEW6af
-nQS++k8HsEeFK318YVHv
-=IiNd
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
