@@ -1,68 +1,62 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: [PATCH v2 3/3] i2c-rcar: make rcar_i2c_irq_recv() *void*
-Date: Mon, 15 Sep 2014 00:17:34 +0400
-Message-ID: <19871938.mRdZLUD6Mv@wasted.cogentembedded.com>
-References: <2245366.q99HVYG3pL@wasted.cogentembedded.com>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH] i2c-rcar: check for no IRQ in rcar_i2c_irq()
+Date: Mon, 15 Sep 2014 00:20:19 +0400
+Message-ID: <3921243.2t7X6eKC2i@wasted.cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <2245366.q99HVYG3pL@wasted.cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-rcar_i2c_irq_recv() always returns 0, so we can make this function return
-*void* and also remove rcar_i2c_flags_set() invocation in rcar_i2c_irq().
+Check if the ICMSR register (masked with the ICMIER register) evaluates to 0  in
+the driver's interrupt handler and return IRQ_NONE in that case, like many other
+drivers do.
 
-Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
 
 ---
-Changes in version 2:
-- refreshed patch.
+The patch is against Wolfram Sang's 'linux.git' repo's 'i2c/for-next' branch
+plus 3 cleanup patches just re-posted.
 
- drivers/i2c/busses/i2c-rcar.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Index: linux/drivers/i2c/busses/i2c-rcar.c
+Index: renesas/drivers/i2c/busses/i2c-rcar.c
 ===================================================================
---- linux.orig/drivers/i2c/busses/i2c-rcar.c
-+++ linux/drivers/i2c/busses/i2c-rcar.c
-@@ -319,7 +319,7 @@ static int rcar_i2c_irq_send(struct rcar
- 	return 0;
- }
- 
--static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
-+static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- {
- 	struct i2c_msg *msg = priv->msg;
- 
-@@ -329,7 +329,7 @@ static int rcar_i2c_irq_recv(struct rcar
- 	 * Do nothing
- 	 */
- 	if (!(msr & MDR))
--		return 0;
-+		return;
- 
- 	if (msr & MAT) {
- 		/*
-@@ -356,8 +356,6 @@ static int rcar_i2c_irq_recv(struct rcar
- 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
- 
- 	rcar_i2c_write(priv, ICMSR, RCAR_IRQ_ACK_RECV);
--
--	return 0;
- }
- 
+--- renesas.orig/drivers/i2c/busses/i2c-rcar.c
++++ renesas/drivers/i2c/busses/i2c-rcar.c
+@@ -361,6 +361,7 @@ static void rcar_i2c_irq_recv(struct rca
  static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
-@@ -395,7 +393,7 @@ static irqreturn_t rcar_i2c_irq(int irq,
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
++	irqreturn_t result = IRQ_HANDLED;
+ 	u32 msr;
+ 
+ 	/*-------------- spin lock -----------------*/
+@@ -370,6 +371,10 @@ static irqreturn_t rcar_i2c_irq(int irq,
+ 
+ 	/* Only handle interrupts that are currently enabled */
+ 	msr &= rcar_i2c_read(priv, ICMIER);
++	if (!msr) {
++		result = IRQ_NONE;
++		goto exit;
++	}
+ 
+ 	/* Arbitration lost */
+ 	if (msr & MAL) {
+@@ -404,10 +409,11 @@ out:
+ 		wake_up(&priv->wait);
  	}
  
- 	if (rcar_i2c_is_recv(priv))
--		rcar_i2c_flags_set(priv, rcar_i2c_irq_recv(priv, msr));
-+		rcar_i2c_irq_recv(priv, msr);
- 	else
- 		rcar_i2c_flags_set(priv, rcar_i2c_irq_send(priv, msr));
++exit:
+ 	spin_unlock(&priv->lock);
+ 	/*-------------- spin unlock -----------------*/
  
-
+-	return IRQ_HANDLED;
++	return result;
+ }
+ 
+ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
