@@ -1,64 +1,66 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-designware: Add suport for AMD i2c controller
-Date: Mon, 15 Sep 2014 15:10:31 +0300
-Message-ID: <20140915121031.GR10854@lahna.fi.intel.com>
-References: <1409833805-1574-1-git-send-email-carlpeng008@gmail.com>
- <20140904125029.GD3632@lahna.fi.intel.com>
- <CAC5e1Fppiin2OczBUeyACOijWN3DocUKcRJKw31G+8-zX+mxpg@mail.gmail.com>
- <20140905093601.GQ3632@lahna.fi.intel.com>
- <CAC5e1FoA5g7dGuWbjjafirzXFrk+zCR3eegmgizTmYp2B1tNsQ@mail.gmail.com>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: requesting modules in the i2c-core in case of OF
+Date: Mon, 15 Sep 2014 17:50:04 +0200
+Message-ID: <CAH9NwWd46W-ad_o0T1dCBVTuQYEB7GJCZi=zW340-b=hZNVfCA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAC5e1FoA5g7dGuWbjjafirzXFrk+zCR3eegmgizTmYp2B1tNsQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: carl peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 15, 2014 at 07:58:29PM +0800, carl peng wrote:
-> Hi Mika,
-> 
-> Excuse me, Could I consult one more question with you?
+Hi all.
 
-Sure.
+I spend some time to debug an issue that our touch driver does not get
+loaded even
+if defined in devicetree. I enabled core debug and added a printk to
+kernel/kmod.c
 
-> Could I add the AMD i2c controller private data like clk rate in the
-> platform_driver-->id_table but not in the
-> platform_driver-->acpi_match_table? The cause is as follow:
-> 
-> 
-> As you suggestion, I try to pass the clock rate in the ->driver_data,
-> so I add a line in the
-> dw_i2c_acpi_match[] array (drivers/i2c/busses/i2c-designware-platdrv.c):
-> 
->        static const struct acpi_device_id dw_i2c_acpi_match[] = {
->                       ...
->                       { "AMD0010", (unsigned long)&amd_i2c_config}
->                       ...
->        }
->        define the clock rate as a member of the amd_i2c_config structure.
-> 
-> But I find that I can not pass the clock rate by this way, since when
-> platform device match with with platform driver,
-> The driver_data of platform_driver-->acpi_match_table will not be
-> assigned to pdev->id_entry,
-> just the driver_data of platform_driver-->id_table will be assigned to
-> pdev->id_entry, as you know, AMD i2c controller
-> is a ACPI device, should use platform_driver-->acpi_match_table not
-> platform_driver-->id_table.
-> 
-> platform_match(drivers/base/platform.c)
-> |
-> acpi_driver_match_device(dev, drv)
-> |
-> return !!acpi_match_device(drv->acpi_match_table, dev);
-> |
-> return __acpi_match_device(adev, ids)(drivers/acpi/scan.c)
-> |
-> return id
-> Just return id, but will not assign id to pdev->id_entry.
+[    0.223468] usbcore: registered new interface driver usbfs
+[    0.223558] usbcore: registered new interface driver hub
+[    0.223698] usbcore: registered new device driver usb
+[    0.224557] i2c i2c-1: adapter [21a4000.i2c] registered
+[    0.224583] i2c i2c-1: of_i2c: walking child nodes
+[    0.224596] i2c i2c-1: of_i2c: register
+/soc/aips-bus@02100000/i2c@021a4000/ar1021@4d
+[    0.224628] __request_module: i2c:ar1021_i2c
+[    0.225144] i2c 1-004d: uevent
+[    0.225183] i2c i2c-1: client [ar1021_i2c] registered with bus id 1-004d
+[    0.225198] i2c i2c-1: of_i2c: register
+/soc/aips-bus@02100000/i2c@021a4000/pca9555@20
+[    0.225213] __request_module: i2c:pca9555
+[    0.225519] i2c 1-0010: uevent
+[    0.225577] pca953x 1-0010: probe
+[    0.225602] i2c i2c-1: master_xfer[0] W, addr=0x10, len=1
 
-You can call acpi_match_device(dw_i2c_acpi_match, &pdev->dev) in the
-driver and look up the id->driver_data from the returned pointer.
+
+Now it gets interesting :)
+
+root@OT:/# modinfo ar1021_i2c
+filename:
+/lib/modules/3.14.18/kernel/drivers/input/touchscreen/ar1021_i2c.ko
+license:        GPL
+description:    Microchip AR1021 I2C Driver
+author:         Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+alias:          of:N*T*Cmicrochip,ar1021_i2c*
+alias:          i2c:MICROCHIP_AR1021_I2C
+depends:
+intree:         Y
+vermagic:       3.14.18 SMP preempt mod_unload ARMv7 p2v8
+
+So the ar1021_i2c driver is build as kernel module and at this point
+it is not possible to modprobe/request that module
+as the RFS is not yet mounted and the initramfs does not contain this driver.
+
+Should the i2c-core not load the requested driver in an deferred way?
+Any opinions?
+
+By the way the ar1021_i2c driver can be found here:
+https://www.mail-archive.com/linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg08071.html
+
+Greets
+--
+Christian Gmeiner, MSc
+
+https://soundcloud.com/christian-gmeiner
