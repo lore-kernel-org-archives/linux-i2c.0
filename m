@@ -1,31 +1,116 @@
-From: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH resend 0/2] i2c: hix5hd2: add i2c controller driver
-Date: Tue, 16 Sep 2014 03:56:10 +0800
-Message-ID: <CABQgh9EH=cA-bPWNNZEARzQbvHi6E=UdXfaFU+1sPq8RpuSQsA@mail.gmail.com>
-References: <1409030722-30709-1-git-send-email-zhangfei.gao@linaro.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH RESEND 0/8] i2c: Relax mandatory I2C ID table passing
+Date: Mon, 15 Sep 2014 23:46:21 +0100
+Message-ID: <20140915224621.GG25162@lee--X1>
+References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
+ <20140912134632.GE1930@katana>
+ <CABxcv==OXd+uePcB8zDzB-DDmr9ci6zscHX5TCauWoTO6E4fpg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1409030722-30709-1-git-send-email-zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Haifeng Yan <haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jason Xue <jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CABxcv==OXd+uePcB8zDzB-DDmr9ci6zscHX5TCauWoTO6E4fpg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, kernel@stlinux.com, Linus Walleij <linus.walleij@linaro.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-On 26 August 2014 13:25, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Resend: verified on 3.17-rc1
->
-> Wei Yan (2):
->   i2c: hix5hd2: add devicetree documentation
->   i2c: hix5hd2: add i2c controller driver
->
->  .../devicetree/bindings/i2c/i2c-hix5hd2.txt        |   31 ++
->  drivers/i2c/busses/Kconfig                         |   16 +
->  drivers/i2c/busses/Makefile                        |    1 +
->  drivers/i2c/busses/i2c-hix5hd2.c                   |  576 ++++++++++++++++++++
->  4 files changed, 624 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hix5hd2.txt
->  create mode 100644 drivers/i2c/busses/i2c-hix5hd2.c
->
+On Fri, 12 Sep 2014, Javier Martinez Canillas wrote:
 
-Any comments, thanks a lot.
+> [adding Sjoerd as cc who was the one that raised the module auto-load=
+ing issue]
+>=20
+> Hello,
+>=20
+> On Fri, Sep 12, 2014 at 3:46 PM, Wolfram Sang <wsa@the-dreams.de> wro=
+te:
+> >>
+> >> Placing this firmly back on your plate.  I truly hope we don't mis=
+s
+> >> another merge-window.  This patch-set has the support of some pret=
+ty
+> >> senior kernel maintainers, so I hope acceptance shouldn't be too
+> >> difficult.
+> >>
+> >> As previously discussed I believe it should be okay for an I2C dev=
+ice
+> >> driver _not_ supply an I2C ID table to match to.  The I2C subsyste=
+m
+> >> should be able to match via other means, such as via OF tables.  T=
+he
+> >> blocking factor during our previous conversation was to keep
+> >> registering via sysfs up and running.  This set does that.
+> >
+> > As mentioned in another thread, modaliases are one other possible s=
+ide
+> > effect. As Javier correctly mentions, the beaviour does not really
+> > change with your patchset. Yet, if we remove i2c_device_id from dri=
+vers
+> > too carelessly, they might not be bound anymore.
+> >
+>=20
+> Right, removing the I2C ID table even from drivers that don't really
+> need it (e.g: IP blocks only present in DT platforms) will as you sai=
+d
+> break module auto-loading. Probing will work since the OF table is
+> used to match the device in i2c_device_match() but is the I2C table
+> what is used to fill the valid module aliases with the current
+> behavior of i2c_device_uevent(), the aliases filled from the OF table
+> are never used.
+>=20
+> So what I propose is to do it incrementally:
+>=20
+> 1) Merge Lee's series since that is definitely a step in the right
+> direction to not make an I2C table mandatory (still will be needed fo=
+r
+> module auto loading though).
+>=20
+> 2) On a follow-up series, make sure that all I2C drivers have a prope=
+r
+> OF table and that are using the MODULE_DEVICE_TABLE(of,...) macro to
+> fill the of:<foo> module aliases. That way the modules will have the
+> proper aliases of the form "of:<foo>" besides the "i2c:<foo>" one.
+> (even when always i2c:<foo> is reported to user-space currently).
+>=20
+> 3) Apply the patch I posted [0] that changes the behavior of
+> i2c_device_uevent() to report the OF uevent env vars to user-space in
+> case of DT probing which after 2) should not regress any driver modul=
+e
+> auto-loading since all drivers should fill the of:<foo> aliases.
+
+This sounds resonable.
+
+> After this, DT-only drivers will only need an OF table and legacy
+> drivers will only need an I2C table. Drivers that support both will
+> still need the two tables though which is a drawback of this approach
+> since unnecessary duplication will exist on these drivers and can
+> cause issues when both tables are not in sync as we saw on the issue
+> reported by Sjoerd on [1].
+>=20
+> So an alternate approach could be to do the opposite, just remove the
+> OF tables entirely from the I2C drivers and only use the I2C table
+> even for DT-only drivers. This is possible since i2c_device_match()
+> will succeed even without an OF table because i2c_match_id() matches
+> for compatible strings and what is reported as uevent is what is in
+> the I2C table anyways. I believe that is what Sjoerd suggested but
+> I'll let him comment on that in case I misunderstood.
+
+This would be really bad.  It would go completely against what I have
+working to achieve and OF conventions.
+
+> By the way, the SPI subsystem has the same behavior, I raised the iss=
+ue on [2].
+>=20
+> Best regards,
+> Javier
+>=20
+> [0]: https://lkml.org/lkml/2014/9/11/269
+> [1]: https://lkml.org/lkml/2014/9/9/100
+> [2]: https://lkml.org/lkml/2014/9/11/458
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
