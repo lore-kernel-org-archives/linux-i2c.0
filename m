@@ -1,28 +1,91 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c-designware: Intel BayTrail PMIC I2C bus support
-Date: Tue, 16 Sep 2014 13:58:02 +0300
-Message-ID: <20140916105802.GE10854@lahna.fi.intel.com>
-References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
- <20140916094449.GZ10854@lahna.fi.intel.com>
- <20140916035327.4d3d5555@ultegra>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Tue, 16 Sep 2014 20:17:06 +0200
+Message-ID: <201409162017.06439.marex@denx.de>
+References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com> <201409051240.44469.marex@denx.de> <1410360473732.53953@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140916035327.4d3d5555@ultegra>
+In-Reply-To: <1410360473732.53953@freescale.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: "David E. Box" <david.e.box@linux.intel.com>, wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, dianders@chromium.org, sjg@chromium.org, laurent.pinchart+renesas@ideasonboard.com, u.kleine-koenig@pengutronix.de, boris.brezillon@free-electrons.com, maxime.coquelin@st.com, max.schwarz@online.de, schwidefsky@de.ibm.com, iivanov@mm-sol.com, soren.brinkmann@xilinx.com, bjorn.andersson@sonymobile.com, andrew@lunn.ch, skuribay@pobox.com, christian.ruppert@abilis.com, Romain.Baeriswyl@abilis.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Yao Yuan <yao.yuan@freescale.com>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "LW@karo-electronics.de" <LW@karo-electronics.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 16, 2014 at 03:53:27AM -0700, Jacob Pan wrote:
-> On Tue, 16 Sep 2014 12:44:49 +0300
-> Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
-> 
-> > Is this because we need to access the PMIC from host as well? I mean
-> > from some PMIC driver (which driver btw)?
+On Wednesday, September 10, 2014 at 04:48:01 PM, Yao Yuan wrote:
+> On Friday, September 05, 2014 6:41 PM, Marek Vasut wrote:
+> > On Friday, September 05, 2014 at 12:32:40 PM, Yao Yuan wrote:
+> > [...]
 > > 
-> This is used by the X-Powers PMIC.
-> https://lkml.org/lkml/2014/9/11/1016
+> > > > > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> > > > > +					struct i2c_msg *msgs)
+> > > > > +{
+> > > > > +	int result;
+> > > > > +	unsigned int temp = 0;
+> > > > > +	unsigned long orig_jiffies = jiffies;
+> > > > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
+> > > > > +	struct device *dev = &i2c_imx->adapter.dev;
+> > > > > +
+> > > > > +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
+> > > > > +		__func__, msgs->addr << 1);
+> > > > > +
+> > > > > +	reinit_completion(&i2c_imx->dma->cmd_complete);
+> > > > > +	dma->chan_using = dma->chan_tx;
+> > > > > +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
+> > > > > +	dma->dma_data_dir = DMA_TO_DEVICE;
+> > > > > +	dma->dma_len = msgs->len - 1;
+> > > > > +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
+> > > > > +	if (result)
+> > > > > +		return result;
+> > > > > +
+> > > > > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > > > > +	temp |= I2CR_DMAEN;
+> > > > > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > > > > +
+> > > > > +	/*
+> > > > > +	 * Write slave address.
+> > > > > +	 * The first byte muse be transmitted by the CPU.
+> > > > > +	 */
+> > > > > +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> > > > > +	result = wait_for_completion_interruptible_timeout(
+> > > > > +				&i2c_imx->dma->cmd_complete,
+> > > > > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> > > > > +	if (result <= 0) {
+> > > > > +		dmaengine_terminate_all(dma->chan_using);
+> > > > > +		if (result)
+> > > > > +			return result;
+> > > > > +		else
+> > > > > +			return -ETIMEDOUT;
+> > > > 
+> > > > Shouldn't you force-disable the DMA here somehow (like unsetting
+> > > > I2CR_DMAEN bit), if it failed or timed out?
+> > > 
+> > > [Yuan Yao] Yes, I put the code for force-disable DMA in
+> > > i2c_imx_start(). In order to make sure any DMA error will not effect
+> > > the I2C.
+> > > It seems almost the same as put the code here, how about your think?
+> > 
+> > Would that mean that the "crashed" DMA would be running until the next
+> > transmission is scheduled ?
+> 
+> [Yuan Yao] No, In fact any DMA timeout will result the failure of I2C
+> transmission and then it will turn to report the exception and wait for
+> next transmission.
 
-Ok, thanks Jacob. So just returning -ENODEV is out of the question :-(
+Can you tell when the next transmission will happen? What if I issue a single 
+transmission and that one fails ? Will the DMA run until who knows when ?
+
+> The only thing I worried about is I2C may still receive
+> some feedbacks after DMA timeout. In this case the feedbacks may lead to
+> abnormal state in PIO mode.But it will be ignored in DMA model.
+> That's why I tend to delay force-disable DMA until the next transmission
+> begin. Could you please give me some suggestion?
+
+No, this design just seems flawed to me. You should stop the DMA immediatelly if 
+there is an error to avoid wasting resources and prevent possible other adverse 
+effects.
+
+Best regards,
+Marek Vasut
