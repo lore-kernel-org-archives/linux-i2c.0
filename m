@@ -1,58 +1,146 @@
-From: Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] i2c: meson: add device tree bindings documentation
-Date: Wed, 17 Sep 2014 00:07:57 +0200
-Message-ID: <1410905277-22172-3-git-send-email-b.galvani@gmail.com>
-References: <1410905277-22172-1-git-send-email-b.galvani@gmail.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1410905277-22172-1-git-send-email-b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 1/3] mfd: add support for Diolan DLN-2 devices
+Date: Tue, 16 Sep 2014 16:21:49 -0700
+Message-ID: <20140916232149.GB30918@lee--X1>
+References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
+ <1410290686-6680-2-git-send-email-octavian.purdila@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1410290686-6680-2-git-send-email-octavian.purdila@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add device tree bindings documentation for the I2C controller
-found in Amlogic Meson SoCs.
+On Tue, 09 Sep 2014, Octavian Purdila wrote:
 
-Signed-off-by: Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-meson.txt          | 24 ++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-meson.txt
+> This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+> Master Adapter DLN-2. Details about the device can be found here:
+>=20
+> https://www.diolan.com/i2c/i2c_interface.html.
+>=20
+> Information about the USB protocol can be found in the Programmer's
+> Reference Manual [1], see section 1.7.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-new file mode 100644
-index 0000000..54a6c2c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-@@ -0,0 +1,24 @@
-+* Amlogic Meson I2C controller
-+
-+Required properties:
-+ - compatible: must be "amlogic,meson6-i2c"
-+ - reg: physical address and length of the device register set
-+ - interrupts: a single interrupt specifier
-+ - clocks: clock for the device
-+ - #address-cells: should be <1>
-+ - #size-cells: should be <0>
-+
-+Optional properties:
-+- clock-frequency: the desired I2C bus clock frequency in Hz; in
-+  absence of this property the default value is used (100 kHz).
-+
-+Example:
-+
-+	i2c@c1108500 {
-+		compatible = "amlogic,meson6-i2c";
-+		reg = <0xc1108500 0x20>;
-+		interrupts = <0 21 1>;
-+		clocks = <&clk81>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+	};
--- 
-1.9.1
+This driver really needs a USB Ack before I can accept it.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Because the hardware has a single transmit endpoint and a single
+> receive endpoint the communication between the various DLN2 drivers
+> and the hardware will be muxed/demuxed by this driver.
+>=20
+> Each DLN2 module will be identified by the handle field within the DL=
+N2
+> message header. If a DLN2 module issues multiple commands in parallel
+> they will be identified by the echo counter field in the message head=
+er.
+>=20
+> The DLN2 modules can use the dln2_transfer() function to issue a
+> command and wait for its response. They can also register a callback
+> that is going to be called when a specific event id is generated by
+> the device (e.g. GPIO interrupts). The device uses handle 0 for
+> sending events.
+>=20
+> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
+>=20
+> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> ---
+>  drivers/mfd/Kconfig      |   9 +
+>  drivers/mfd/Makefile     |   1 +
+>  drivers/mfd/dln2.c       | 681 +++++++++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/mfd/dln2.h |  71 +++++
+>  4 files changed, 762 insertions(+)
+>  create mode 100644 drivers/mfd/dln2.c
+>  create mode 100644 include/linux/mfd/dln2.h
+
+[...]
+
+> diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+> new file mode 100644
+> index 0000000..b551b5e
+> --- /dev/null
+> +++ b/drivers/mfd/dln2.c
+> @@ -0,0 +1,681 @@
+> +/*
+> + * Driver for the Diolan DLN-2 USB adapter
+> + *
+> + * Copyright (c) 2014 Intel Corporation
+> + *
+> + * Derived from:
+> + *  i2c-diolan-u2c.c
+> + *  Copyright (c) 2010-2011 Ericsson AB
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation, version 2.
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/errno.h>
+
+What are you using this for?
+
+> +#include <linux/module.h>
+> +#include <linux/types.h>
+> +#include <linux/slab.h>
+> +#include <linux/usb.h>
+> +#include <linux/i2c.h>
+> +#include <linux/mutex.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/dln2.h>
+> +
+> +#define DRIVER_NAME			"usb-dln2"
+
+Don't do this, just use "usb-dln2" where it needs to be used.
+
+[...]
+
+> +static struct usb_driver dln2_driver =3D {
+> +	.name =3D DRIVER_NAME,
+> +	.probe =3D dln2_probe,
+> +	.disconnect =3D dln2_disconnect,
+> +	.id_table =3D dln2_table,
+> +};
+> +
+> +module_usb_driver(dln2_driver);
+> +
+> +MODULE_AUTHOR("Octavian Purdila <octavian.purdila@intel.com>");
+> +MODULE_DESCRIPTION(DRIVER_NAME " driver");
+
+This is not a description.
+
+> +MODULE_LICENSE("GPL");
+
+Header says v2.
+
+> diff --git a/include/linux/mfd/dln2.h b/include/linux/mfd/dln2.h
+> new file mode 100644
+> index 0000000..197565d
+> --- /dev/null
+> +++ b/include/linux/mfd/dln2.h
+> @@ -0,0 +1,71 @@
+> +#ifndef __LINUX_USB_DLN2_H
+> +#define __LINUX_USB_DLN2_H
+> +
+> +#define DLN2_CMD(cmd, id)		((cmd) | ((id) << 8))
+> +
+> +struct dln2_platform_data {
+> +	u16 handle;
+> +	union {
+> +		struct {
+> +			u8 port;
+> +		} i2c;
+> +	};
+> +};
+
+Why this complexity?
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
