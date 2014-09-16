@@ -1,91 +1,35 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Tue, 16 Sep 2014 20:17:06 +0200
-Message-ID: <201409162017.06439.marex@denx.de>
-References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com> <201409051240.44469.marex@denx.de> <1410360473732.53953@freescale.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Beniamino Galvani <b.galvani@gmail.com>
+Subject: [PATCH 0/2] Amlogic Meson I2C driver
+Date: Wed, 17 Sep 2014 00:07:55 +0200
+Message-ID: <1410905277-22172-1-git-send-email-b.galvani@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1410360473732.53953@freescale.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yao Yuan <yao.yuan@freescale.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "LW@karo-electronics.de" <LW@karo-electronics.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Carlo Caione <carlo@caione.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Beniamino Galvani <b.galvani@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, September 10, 2014 at 04:48:01 PM, Yao Yuan wrote:
-> On Friday, September 05, 2014 6:41 PM, Marek Vasut wrote:
-> > On Friday, September 05, 2014 at 12:32:40 PM, Yao Yuan wrote:
-> > [...]
-> > 
-> > > > > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> > > > > +					struct i2c_msg *msgs)
-> > > > > +{
-> > > > > +	int result;
-> > > > > +	unsigned int temp = 0;
-> > > > > +	unsigned long orig_jiffies = jiffies;
-> > > > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> > > > > +	struct device *dev = &i2c_imx->adapter.dev;
-> > > > > +
-> > > > > +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
-> > > > > +		__func__, msgs->addr << 1);
-> > > > > +
-> > > > > +	reinit_completion(&i2c_imx->dma->cmd_complete);
-> > > > > +	dma->chan_using = dma->chan_tx;
-> > > > > +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
-> > > > > +	dma->dma_data_dir = DMA_TO_DEVICE;
-> > > > > +	dma->dma_len = msgs->len - 1;
-> > > > > +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
-> > > > > +	if (result)
-> > > > > +		return result;
-> > > > > +
-> > > > > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> > > > > +	temp |= I2CR_DMAEN;
-> > > > > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> > > > > +
-> > > > > +	/*
-> > > > > +	 * Write slave address.
-> > > > > +	 * The first byte muse be transmitted by the CPU.
-> > > > > +	 */
-> > > > > +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> > > > > +	result = wait_for_completion_interruptible_timeout(
-> > > > > +				&i2c_imx->dma->cmd_complete,
-> > > > > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-> > > > > +	if (result <= 0) {
-> > > > > +		dmaengine_terminate_all(dma->chan_using);
-> > > > > +		if (result)
-> > > > > +			return result;
-> > > > > +		else
-> > > > > +			return -ETIMEDOUT;
-> > > > 
-> > > > Shouldn't you force-disable the DMA here somehow (like unsetting
-> > > > I2CR_DMAEN bit), if it failed or timed out?
-> > > 
-> > > [Yuan Yao] Yes, I put the code for force-disable DMA in
-> > > i2c_imx_start(). In order to make sure any DMA error will not effect
-> > > the I2C.
-> > > It seems almost the same as put the code here, how about your think?
-> > 
-> > Would that mean that the "crashed" DMA would be running until the next
-> > transmission is scheduled ?
-> 
-> [Yuan Yao] No, In fact any DMA timeout will result the failure of I2C
-> transmission and then it will turn to report the exception and wait for
-> next transmission.
+Hi,
 
-Can you tell when the next transmission will happen? What if I issue a single 
-transmission and that one fails ? Will the DMA run until who knows when ?
+this series adds a driver for the I2C controller found on Amlogic
+Meson SoCs. It has been tested on a Tronsmart Vega S89 TV Box, which
+is based on a Meson8 core, but should work also on Meson6 devices. 
 
-> The only thing I worried about is I2C may still receive
-> some feedbacks after DMA timeout. In this case the feedbacks may lead to
-> abnormal state in PIO mode.But it will be ignored in DMA model.
-> That's why I tend to delay force-disable DMA until the next transmission
-> begin. Could you please give me some suggestion?
+A patchset adding support for these SoCs was submitted some days ago
+and can be found here:
 
-No, this design just seems flawed to me. You should stop the DMA immediatelly if 
-there is an error to avoid wasting resources and prevent possible other adverse 
-effects.
+http://thread.gmane.org/gmane.linux.ports.arm.kernel/356685
 
-Best regards,
-Marek Vasut
+Beniamino Galvani (2):
+  i2c: add support for Amlogic Meson I2C controller
+  i2c: meson: add device tree bindings documentation
+
+ .../devicetree/bindings/i2c/i2c-meson.txt          |  24 +
+ drivers/i2c/busses/Kconfig                         |   7 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-meson.c                     | 500 +++++++++++++++++++++
+ 4 files changed, 532 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-meson.txt
+ create mode 100644 drivers/i2c/busses/i2c-meson.c
+
+-- 
+1.9.1
