@@ -1,54 +1,30 @@
-From: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-ismt: use correct length when copy buffer
-Date: Tue, 16 Sep 2014 06:18:59 -0400
-Message-ID: <20140916101859.GC3792@hmsreliant.think-freely.org>
-References: <1410859264-7118-1-git-send-email-fan.du@intel.com>
- <1410859264-7118-3-git-send-email-fan.du@intel.com>
+From: Jacob Pan <jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: Intel BayTrail PMIC I2C bus support
+Date: Tue, 16 Sep 2014 03:53:27 -0700
+Message-ID: <20140916035327.4d3d5555@ultegra>
+References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
+	<20140916094449.GZ10854@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1410859264-7118-3-git-send-email-fan.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20140916094449.GZ10854-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fan Du <fan.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, fengyuleidian0615-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, schwidefsky-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 16, 2014 at 05:21:04PM +0800, Fan Du wrote:
-> In block write mode, when encapsulating dma_buffer, first element is
-> 'command', the rest is data buffer, so only copy actual data buffer
-> starting from block[1] with the size indicating by block[0].
-> 
-> Signed-off-by: Fan Du <fan.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-ismt.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-> index 8a0275c..3f6ecbf 100644
-> --- a/drivers/i2c/busses/i2c-ismt.c
-> +++ b/drivers/i2c/busses/i2c-ismt.c
-> @@ -497,7 +497,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
->  			desc->wr_len_cmd = dma_size;
->  			desc->control |= ISMT_DESC_BLK;
->  			priv->dma_buffer[0] = command;
-> -			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size);
-> +			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
->  		} else {
->  			/* Block Read */
->  			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  READ\n");
-> @@ -525,7 +525,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
->  			desc->wr_len_cmd = dma_size;
->  			desc->control |= ISMT_DESC_I2C;
->  			priv->dma_buffer[0] = command;
-> -			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size);
-> +			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
->  		} else {
->  			/* i2c Block Read */
->  			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:  READ\n");
-> -- 
-> 1.7.9.5
-> 
-> 
+On Tue, 16 Sep 2014 12:44:49 +0300
+Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
 
-Acked-by: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+> Is this because we need to access the PMIC from host as well? I mean
+> from some PMIC driver (which driver btw)?
+> 
+This is used by the X-Powers PMIC.
+https://lkml.org/lkml/2014/9/11/1016
+
+> Otherwise it would be best to just detect _SEM and return -ENODEV.
+
+Thanks,
+
+Jacob
