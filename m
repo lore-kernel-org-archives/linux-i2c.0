@@ -1,126 +1,87 @@
-From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3] i2c: designware: Add support for AMD i2c controller
-Date: Tue, 16 Sep 2014 14:20:58 +0800
-Message-ID: <1410848458-1455-1-git-send-email-carlpeng008@gmail.com>
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH RESEND 0/8] i2c: Relax mandatory I2C ID table passing
+Date: Tue, 16 Sep 2014 10:00:18 +0200
+Message-ID: <CABxcv=nZhBFRTTmafLxopTiX+wrOKtMD5tKf-00ysrWcZ5N5rg@mail.gmail.com>
+References: <1409236538-21274-1-git-send-email-lee.jones@linaro.org>
+	<20140912134632.GE1930@katana>
+	<CABxcv==OXd+uePcB8zDzB-DDmr9ci6zscHX5TCauWoTO6E4fpg@mail.gmail.com>
+	<20140915224621.GG25162@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140915224621.GG25162@lee--X1>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, kernel@stlinux.com, Linus Walleij <linus.walleij@linaro.org>, Linux Kernel <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Sjoerd Simons <sjoerd.simons@collabora.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-AMD i2c bus controller is ACPI device, its ACPI ID
-is "AMD0010". This patch is used to add support for
-AMD i2c bus controller in the Designware platform
-driver.
+Hello Lee,
 
-Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-core.h    |  1 +
- drivers/i2c/busses/i2c-designware-platdrv.c | 46 +++++++++++++++++++++++++----
- 2 files changed, 41 insertions(+), 6 deletions(-)
+On Tue, Sep 16, 2014 at 12:46 AM, Lee Jones <lee.jones@linaro.org> wrote:
+> On Fri, 12 Sep 2014, Javier Martinez Canillas wrote:
+>> So what I propose is to do it incrementally:
+>>
+>> 1) Merge Lee's series since that is definitely a step in the right
+>> direction to not make an I2C table mandatory (still will be needed for
+>> module auto loading though).
+>>
+>> 2) On a follow-up series, make sure that all I2C drivers have a proper
+>> OF table and that are using the MODULE_DEVICE_TABLE(of,...) macro to
+>> fill the of:<foo> module aliases. That way the modules will have the
+>> proper aliases of the form "of:<foo>" besides the "i2c:<foo>" one.
+>> (even when always i2c:<foo> is reported to user-space currently).
+>>
+>> 3) Apply the patch I posted [0] that changes the behavior of
+>> i2c_device_uevent() to report the OF uevent env vars to user-space in
+>> case of DT probing which after 2) should not regress any driver module
+>> auto-loading since all drivers should fill the of:<foo> aliases.
+>
+> This sounds resonable.
+>
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index d66b6cb..c67d4ac 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -105,6 +105,7 @@ struct dw_i2c_dev {
- 	u16			ss_lcnt;
- 	u16			fs_hcnt;
- 	u16			fs_lcnt;
-+	struct	dw_i2c_pdata	*pdata;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index bc87733..8a96e69 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -43,15 +43,31 @@
- #include <linux/acpi.h>
- #include "i2c-designware-core.h"
- 
-+#define AMD_CLK_KHZ		(133 * 1000)
-+
-+struct dw_i2c_pdata {
-+	u32 clk_rate_khz;
-+};
-+
- static struct i2c_algorithm i2c_dw_algo = {
- 	.master_xfer	= i2c_dw_xfer,
- 	.functionality	= i2c_dw_func,
- };
-+
-+static struct dw_i2c_pdata amd_i2c_config = {
-+	.clk_rate_khz = AMD_CLK_KHZ,
-+};
-+
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- {
- 	return clk_get_rate(dev->clk)/1000;
- }
- 
-+static u32 amd_i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
-+{
-+	return dev->pdata->clk_rate_khz;
-+}
-+
- #ifdef CONFIG_ACPI
- static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
- 			       u16 *hcnt, u16 *lcnt, u32 *sda_hold)
-@@ -107,7 +123,8 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "INT3433", 0 },
- 	{ "80860F41", 0 },
- 	{ "808622C1", 0 },
--	{ }
-+	{ "AMD0010", (unsigned long)&amd_i2c_config },
-+	{},
- };
- MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
- #else
-@@ -116,6 +133,17 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- 	return -ENODEV;
- }
- #endif
-+struct dw_i2c_pdata *get_amd_i2c_driver_data(
-+					struct platform_device *pdev)
-+{
-+	const struct acpi_device_id *id;
-+
-+	id = acpi_match_device(dw_i2c_acpi_match, &pdev->dev);
-+	if (id)
-+		return (struct dw_i2c_pdata *)id->driver_data;
-+
-+	return NULL;
-+}
- 
- static int dw_i2c_probe(struct platform_device *pdev)
- {
-@@ -145,12 +173,18 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	dev->irq = irq;
- 	platform_set_drvdata(pdev, dev);
- 
--	dev->clk = devm_clk_get(&pdev->dev, NULL);
--	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
-+	dev->pdata = get_amd_i2c_driver_data(pdev);
-+
-+	if (!dev->pdata) {
-+		dev->clk = devm_clk_get(&pdev->dev, NULL);
-+		dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
-+
-+		if (IS_ERR(dev->clk))
-+			return PTR_ERR(dev->clk);
-+		clk_prepare_enable(dev->clk);
-+	} else
-+		dev->get_clk_rate_khz = amd_i2c_dw_get_clk_rate_khz;
- 
--	if (IS_ERR(dev->clk))
--		return PTR_ERR(dev->clk);
--	clk_prepare_enable(dev->clk);
- 
- 	if (pdev->dev.of_node) {
- 		u32 ht = 0;
--- 
-1.9.1
+Ok, sounds like a plan then.
+
+>> After this, DT-only drivers will only need an OF table and legacy
+>> drivers will only need an I2C table. Drivers that support both will
+>> still need the two tables though which is a drawback of this approach
+>> since unnecessary duplication will exist on these drivers and can
+>> cause issues when both tables are not in sync as we saw on the issue
+>> reported by Sjoerd on [1].
+>>
+>> So an alternate approach could be to do the opposite, just remove the
+>> OF tables entirely from the I2C drivers and only use the I2C table
+>> even for DT-only drivers. This is possible since i2c_device_match()
+>> will succeed even without an OF table because i2c_match_id() matches
+>> for compatible strings and what is reported as uevent is what is in
+>> the I2C table anyways. I believe that is what Sjoerd suggested but
+>> I'll let him comment on that in case I misunderstood.
+>
+> This would be really bad.  It would go completely against what I have
+> working to achieve and OF conventions.
+>
+
+Yes, I was just mentioning the two possible approaches but Sjoerd did
+a much better work on the SPI thread [0].
+
+Another drawback of only using the I2C table is that the vendor prefix
+of the compatible strings are not reported to user-space. So if there
+are two devices with the same name (driven by two different drivers)
+but different vendor, these are going to be probed correctly if
+built-in but module auto-loading will fail since doesn't take into
+account the vendor prefix. This is the current status btw and I guess
+it was never noticed because there isn't two devices with the same
+name today.
+
+The drawback of using the OF based aliases is that many I2C drivers
+probably rely on the current behavior and don't have a proper OF table
+but IMHO that is a bug and has to be fixed anyways.
+
+Of course that doesn't mean that we shouldn't make sure that all
+drivers have a proper OF table (and using MODULE_DEVICE_TABLE) before
+changing i2c_device_uevent(). Hence my proposal to do it in 3 steps as
+explained before.
+
+Best regards,
+Javier
+
+[0]: https://lkml.org/lkml/2014/9/15/70
