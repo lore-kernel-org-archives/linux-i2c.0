@@ -1,100 +1,120 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v4 1/3] mfd: add support for Diolan DLN-2 devices
-Date: Wed, 17 Sep 2014 08:56:15 -0700
-Message-ID: <20140917155615.GG30918@lee--X1>
-References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
- <1410290686-6680-2-git-send-email-octavian.purdila@intel.com>
- <20140916232149.GB30918@lee--X1>
- <CAE1zotJWUnduPUd9C8EgSHHSo-OCgdj7c-sKaT5M2Ajj2CmNWw@mail.gmail.com>
+Subject: Re: [PATCH v3 5/6] mfd: cros_ec: wait for completion of commands
+ that return IN_PROGRESS
+Date: Wed, 17 Sep 2014 09:23:36 -0700
+Message-ID: <20140917162336.GK30918@lee--X1>
+References: <1410428289-18229-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1410428289-18229-6-git-send-email-javier.martinez@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAE1zotJWUnduPUd9C8EgSHHSo-OCgdj7c-sKaT5M2Ajj2CmNWw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Johan Hovold <johan@kernel.org>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1410428289-18229-6-git-send-email-javier.martinez@collabora.co.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, Andreas Faerber <afaerber@suse.de>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 17 Sep 2014, Octavian Purdila wrote:
-> On Wed, Sep 17, 2014 at 2:21 AM, Lee Jones <lee.jones@linaro.org> wro=
-te:
-> >
-> > On Tue, 09 Sep 2014, Octavian Purdila wrote:
-> >
-> > > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
-> > > Master Adapter DLN-2. Details about the device can be found here:
-> > >
-> > > https://www.diolan.com/i2c/i2c_interface.html.
-> > >
-> > > Information about the USB protocol can be found in the Programmer=
-'s
-> > > Reference Manual [1], see section 1.7.
-> > >
-> > > Because the hardware has a single transmit endpoint and a single
-> > > receive endpoint the communication between the various DLN2 drive=
-rs
-> > > and the hardware will be muxed/demuxed by this driver.
-> > >
-> > > Each DLN2 module will be identified by the handle field within th=
-e DLN2
-> > > message header. If a DLN2 module issues multiple commands in para=
-llel
-> > > they will be identified by the echo counter field in the message =
-header.
-> > >
-> > > The DLN2 modules can use the dln2_transfer() function to issue a
-> > > command and wait for its response. They can also register a callb=
-ack
-> > > that is going to be called when a specific event id is generated =
-by
-> > > the device (e.g. GPIO interrupts). The device uses handle 0 for
-> > > sending events.
-> > >
-> > > [1] https://www.diolan.com/downloads/dln-api-manual.pdf
-> > >
-> > > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
-> > > ---
-> > >  drivers/mfd/Kconfig      |   9 +
-> > >  drivers/mfd/Makefile     |   1 +
-> > >  drivers/mfd/dln2.c       | 681 +++++++++++++++++++++++++++++++++=
-++++++++++++++
-> > >  include/linux/mfd/dln2.h |  71 +++++
-> > >  4 files changed, 762 insertions(+)
-> > >  create mode 100644 drivers/mfd/dln2.c
-> > >  create mode 100644 include/linux/mfd/dln2.h
+On Thu, 11 Sep 2014, Javier Martinez Canillas wrote:
 
-[...]
-
-> > > diff --git a/include/linux/mfd/dln2.h b/include/linux/mfd/dln2.h
-> > > new file mode 100644
-> > > index 0000000..197565d
-> > > --- /dev/null
-> > > +++ b/include/linux/mfd/dln2.h
-> > > @@ -0,0 +1,71 @@
-> > > +#ifndef __LINUX_USB_DLN2_H
-> > > +#define __LINUX_USB_DLN2_H
-> > > +
-> > > +#define DLN2_CMD(cmd, id)            ((cmd) | ((id) << 8))
-> > > +
-> > > +struct dln2_platform_data {
-> > > +     u16 handle;
-> > > +     union {
-> > > +             struct {
-> > > +                     u8 port;
-> > > +             } i2c;
-> > > +     };
-> > > +};
-> >
-> > Why this complexity?
+> From: Andrew Bresticker <abrestic@chromium.org>
 >=20
-> There is also an SPI interface on this adapter which will probably th=
-e
-> port information and maybe some additional information. Would you
-> prefer to add the union later, when we add the SPI driver?
+> When an EC command returns EC_RES_IN_PROGRESS, we need to query
+> the state of the EC until it indicates that it is no longer busy.
+> Do this in cros_ec_cmd_xfer() under the EC's mutex so that other
+> commands (e.g. keyboard, I2C passtru) aren't issued to the EC while
+> it is working on the in-progress command.
+>=20
+> The delay in milliseconds and the number of retries are the values
+> that were used by the flashrom tool when retrying commands.
+>=20
+> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+> Reviewed-by: Simon Glass <sjg@chromium.org>
+> Signed-off-by: Javier Martinez Canillas <javier.martinez@collabora.co=
+=2Euk>
+> ---
+>=20
+> Changes since v2:
+>  - Explain in the commit message from where the delay and retry value=
+s come from.
+>    Commented by Andrew Bresticker.
+>  - Move the needed definitions inside the if block. Suggested by Lee =
+Jones.
+>  - Only check if result is EC_RES_IN_PROGRESS instead of checking als=
+o if ret is
+>    -EAGAIN since the former implies the later. Suggested by Lee Jones=
+=2E
+>  - Use usleep_range() instead of msleep() since doesn't handle values=
+ between 1~20.
+>    Suggested by Lee Jones.
+>=20
+> Changes since v1:
+>  - The *xfer() calls don't modify the passed cros_ec_command so there=
+ is
+>    no need to populate it inside the for loop. Suggested by Lee Jones=
+=2E
+>=20
+>  drivers/mfd/cros_ec.c | 34 ++++++++++++++++++++++++++++++++++
+>  1 file changed, 34 insertions(+)
+>=20
+> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> index c53804a..af2fadf 100644
+> --- a/drivers/mfd/cros_ec.c
+> +++ b/drivers/mfd/cros_ec.c
+> @@ -23,6 +23,10 @@
+>  #include <linux/mfd/core.h>
+>  #include <linux/mfd/cros_ec.h>
+>  #include <linux/mfd/cros_ec_commands.h>
+> +#include <linux/delay.h>
+> +
+> +#define EC_COMMAND_RETRIES	50
+> +#define EC_RETRY_DELAY_MS	10
+> =20
+>  int cros_ec_prepare_tx(struct cros_ec_device *ec_dev,
+>  		       struct cros_ec_command *msg)
+> @@ -69,6 +73,36 @@ int cros_ec_cmd_xfer(struct cros_ec_device *ec_dev=
+,
+> =20
+>  	mutex_lock(&ec_dev->lock);
+>  	ret =3D ec_dev->cmd_xfer(ec_dev, msg);
+> +	if (msg->result =3D=3D EC_RES_IN_PROGRESS) {
+> +		int i;
+> +		struct cros_ec_command status_msg;
+> +		struct ec_response_get_comms_status status;
+> +
+> +		status_msg.version =3D 0;
+> +		status_msg.command =3D EC_CMD_GET_COMMS_STATUS;
+> +		status_msg.outdata =3D NULL;
+> +		status_msg.outsize =3D 0;
+> +		status_msg.indata =3D (uint8_t *)&status;
+> +		status_msg.insize =3D sizeof(status);
+> +
+> +		/*
+> +		 * Query the EC's status until it's no longer busy or
+> +		 * we encounter an error.
+> +		 */
+> +		for (i =3D 0; i < EC_COMMAND_RETRIES; i++) {
+> +			usleep_range(EC_RETRY_DELAY_MS, EC_RETRY_DELAY_MS + 1);
 
-Yes please.
+Remove the EC_RETRY_DELAY_MS define and place the values in raw.
+
+You're now sleeping for 10us.  Did you test the changes?
+
+> +			ret =3D ec_dev->cmd_xfer(ec_dev, &status_msg);
+> +			if (ret < 0)
+> +				break;
+> +
+> +			msg->result =3D status_msg.result;
+> +			if (status_msg.result !=3D EC_RES_SUCCESS)
+> +				break;
+> +			if (!(status.flags & EC_COMMS_STATUS_PROCESSING))
+> +				break;
+> +		}
+> +	}
+>  	mutex_unlock(&ec_dev->lock);
+> =20
+>  	return ret;
 
 --=20
 Lee Jones
