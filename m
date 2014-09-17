@@ -1,122 +1,76 @@
-From: Yao Yuan <yao.yuan@freescale.com>
-Subject: RE: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Wed, 17 Sep 2014 14:50:34 +0000
-Message-ID: <1410965416759.91038@freescale.com>
-References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com>
- <201409051240.44469.marex@denx.de> <1410360473732.53953@freescale.com>
- <201409162017.06439.marex@denx.de>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 1/3] mfd: add support for Diolan DLN-2 devices
+Date: Wed, 17 Sep 2014 08:46:53 -0700
+Message-ID: <20140917154653.GF30918@lee--X1>
+References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
+ <1410290686-6680-2-git-send-email-octavian.purdila@intel.com>
+ <20140917091001.GF20727@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <201409162017.06439.marex@denx.de>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Marek Vasut <marex@denx.de>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "LW@karo-electronics.de" <LW@karo-electronics.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140917091001.GF20727@localhost>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, September 17, 2014 2:17 AM, Marek Vasut wrote:
-> On Wednesday, September 10, 2014 at 04:48:01 PM, Yao Yuan wrote:
-> > On Friday, September 05, 2014 6:41 PM, Marek Vasut wrote:
-> > > On Friday, September 05, 2014 at 12:32:40 PM, Yao Yuan wrote:
-> > > [...]
-> > >
-> > > > > > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> > > > > > +					struct i2c_msg *msgs)
-> > > > > > +{
-> > > > > > +	int result;
-> > > > > > +	unsigned int temp = 0;
-> > > > > > +	unsigned long orig_jiffies = jiffies;
-> > > > > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
-> > > > > > +	struct device *dev = &i2c_imx->adapter.dev;
-> > > > > > +
-> > > > > > +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
-> > > > > > +		__func__, msgs->addr << 1);
-> > > > > > +
-> > > > > > +	reinit_completion(&i2c_imx->dma->cmd_complete);
-> > > > > > +	dma->chan_using = dma->chan_tx;
-> > > > > > +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
-> > > > > > +	dma->dma_data_dir = DMA_TO_DEVICE;
-> > > > > > +	dma->dma_len = msgs->len - 1;
-> > > > > > +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
-> > > > > > +	if (result)
-> > > > > > +		return result;
-> > > > > > +
-> > > > > > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> > > > > > +	temp |= I2CR_DMAEN;
-> > > > > > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> > > > > > +
-> > > > > > +	/*
-> > > > > > +	 * Write slave address.
-> > > > > > +	 * The first byte muse be transmitted by the CPU.
-> > > > > > +	 */
-> > > > > > +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> > > > > > +	result = wait_for_completion_interruptible_timeout(
-> > > > > > +				&i2c_imx->dma->cmd_complete,
-> > > > > > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-> > > > > > +	if (result <= 0) {
-> > > > > > +		dmaengine_terminate_all(dma->chan_using);
-> > > > > > +		if (result)
-> > > > > > +			return result;
-> > > > > > +		else
-> > > > > > +			return -ETIMEDOUT;
-> > > > >
-> > > > > Shouldn't you force-disable the DMA here somehow (like unsetting
-> > > > > I2CR_DMAEN bit), if it failed or timed out?
-> > > >
-> > > > [Yuan Yao] Yes, I put the code for force-disable DMA in
-> > > > i2c_imx_start(). In order to make sure any DMA error will not
-> > > > effect the I2C.
-> > > > It seems almost the same as put the code here, how about your think?
-> > >
-> > > Would that mean that the "crashed" DMA would be running until the
-> > > next transmission is scheduled ?
-> >
-> > [Yuan Yao] No, In fact any DMA timeout will result the failure of I2C
-> > transmission and then it will turn to report the exception and wait
-> > for next transmission.
-> 
-> Can you tell when the next transmission will happen? What if I issue a
-> single transmission and that one fails ? Will the DMA run until who knows
-> when ?
+On Wed, 17 Sep 2014, Johan Hovold wrote:
+> On Tue, Sep 09, 2014 at 10:24:44PM +0300, Octavian Purdila wrote:
+> > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+> > Master Adapter DLN-2. Details about the device can be found here:
+> >=20
+> > https://www.diolan.com/i2c/i2c_interface.html.
+> >=20
+> > Information about the USB protocol can be found in the Programmer's
+> > Reference Manual [1], see section 1.7.
+> >=20
+> > Because the hardware has a single transmit endpoint and a single
+> > receive endpoint the communication between the various DLN2 drivers
+> > and the hardware will be muxed/demuxed by this driver.
+> >=20
+> > Each DLN2 module will be identified by the handle field within the =
+DLN2
+> > message header. If a DLN2 module issues multiple commands in parall=
+el
+> > they will be identified by the echo counter field in the message he=
+ader.
+> >=20
+> > The DLN2 modules can use the dln2_transfer() function to issue a
+> > command and wait for its response. They can also register a callbac=
+k
+> > that is going to be called when a specific event id is generated by
+> > the device (e.g. GPIO interrupts). The device uses handle 0 for
+> > sending events.
+> >=20
+> > [1] https://www.diolan.com/downloads/dln-api-manual.pdf
+> >=20
+> > Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > ---
+> >  drivers/mfd/Kconfig      |   9 +
+> >  drivers/mfd/Makefile     |   1 +
+> >  drivers/mfd/dln2.c       | 681 +++++++++++++++++++++++++++++++++++=
+++++++++++++
+> >  include/linux/mfd/dln2.h |  71 +++++
+> >  4 files changed, 762 insertions(+)
+> >  create mode 100644 drivers/mfd/dln2.c
+> >  create mode 100644 include/linux/mfd/dln2.h
 
-[Yuan Yao] 
-Sorry for my unclear description. In fact, During the DMA transmission  if
-an error happened or time out, DMA will stop at once and be disabled.
-I just continue to route the TX and RX request to signal the DMA controller.
-Because the DMA is disabled, it will ignore those signals.
+[...]
 
-In a word, I just want to block the I2C TX, RX and interrupt signal when
-DMA mode failed until the next I2C transmission start.
+> Unless anyone suggests otherwise (e.g. to stick with auto id), I'll a=
+dd
+> a helper function for this and fix up those two drivers.
 
-In fact, the bit "I2CR_DMAEN" is a switch which decide whether I2C route
-the TX, RX and interrupt signal to DMA controller. 
+Appreciated.
 
-> > The only thing I worried about is I2C may still receive some feedbacks
-> > after DMA timeout. In this case the feedbacks may lead to abnormal
-> > state in PIO mode.But it will be ignored in DMA model.
-> > That's why I tend to delay force-disable DMA until the next
-> > transmission begin. Could you please give me some suggestion?
-> 
-> No, this design just seems flawed to me. You should stop the DMA
-> immediatelly if there is an error to avoid wasting resources and prevent
-> possible other adverse effects.
->
-[Yuan Yao] 
-Yes, I have stopped the DMA immediately. However I keep the I2C DMA
-single route.
-
-I don't have the exact evidence to prove that my design is acceptable.
-So if you are sure it's flawed, I will change it in the next version(V8).
-
-Best regards,
-Yuan Yao
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
