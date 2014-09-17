@@ -1,61 +1,122 @@
-From: One Thousand Gnomes <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: Intel BayTrail PMIC I2C bus support
-Date: Wed, 17 Sep 2014 12:02:02 +0100
-Message-ID: <20140917120202.3b9058ae@alan.etchedpixels.co.uk>
-References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
+From: Yao Yuan <yao.yuan@freescale.com>
+Subject: RE: [PATCH v7 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Wed, 17 Sep 2014 14:50:34 +0000
+Message-ID: <1410965416759.91038@freescale.com>
+References: <1407923215-3749-1-git-send-email-yao.yuan@freescale.com>
+ <201409051240.44469.marex@denx.de> <1410360473732.53953@freescale.com>
+ <201409162017.06439.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1410543367-6565-1-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, schwidefsky-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <201409162017.06439.marex@denx.de>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Marek Vasut <marex@denx.de>
+Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "LW@karo-electronics.de" <LW@karo-electronics.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 12 Sep 2014 10:36:07 -0700
-"David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+On Wednesday, September 17, 2014 2:17 AM, Marek Vasut wrote:
+> On Wednesday, September 10, 2014 at 04:48:01 PM, Yao Yuan wrote:
+> > On Friday, September 05, 2014 6:41 PM, Marek Vasut wrote:
+> > > On Friday, September 05, 2014 at 12:32:40 PM, Yao Yuan wrote:
+> > > [...]
+> > >
+> > > > > > +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> > > > > > +					struct i2c_msg *msgs)
+> > > > > > +{
+> > > > > > +	int result;
+> > > > > > +	unsigned int temp = 0;
+> > > > > > +	unsigned long orig_jiffies = jiffies;
+> > > > > > +	struct imx_i2c_dma *dma = i2c_imx->dma;
+> > > > > > +	struct device *dev = &i2c_imx->adapter.dev;
+> > > > > > +
+> > > > > > +	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
+> > > > > > +		__func__, msgs->addr << 1);
+> > > > > > +
+> > > > > > +	reinit_completion(&i2c_imx->dma->cmd_complete);
+> > > > > > +	dma->chan_using = dma->chan_tx;
+> > > > > > +	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
+> > > > > > +	dma->dma_data_dir = DMA_TO_DEVICE;
+> > > > > > +	dma->dma_len = msgs->len - 1;
+> > > > > > +	result = i2c_imx_dma_xfer(i2c_imx, msgs);
+> > > > > > +	if (result)
+> > > > > > +		return result;
+> > > > > > +
+> > > > > > +	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > > > > > +	temp |= I2CR_DMAEN;
+> > > > > > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > > > > > +
+> > > > > > +	/*
+> > > > > > +	 * Write slave address.
+> > > > > > +	 * The first byte muse be transmitted by the CPU.
+> > > > > > +	 */
+> > > > > > +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> > > > > > +	result = wait_for_completion_interruptible_timeout(
+> > > > > > +				&i2c_imx->dma->cmd_complete,
+> > > > > > +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> > > > > > +	if (result <= 0) {
+> > > > > > +		dmaengine_terminate_all(dma->chan_using);
+> > > > > > +		if (result)
+> > > > > > +			return result;
+> > > > > > +		else
+> > > > > > +			return -ETIMEDOUT;
+> > > > >
+> > > > > Shouldn't you force-disable the DMA here somehow (like unsetting
+> > > > > I2CR_DMAEN bit), if it failed or timed out?
+> > > >
+> > > > [Yuan Yao] Yes, I put the code for force-disable DMA in
+> > > > i2c_imx_start(). In order to make sure any DMA error will not
+> > > > effect the I2C.
+> > > > It seems almost the same as put the code here, how about your think?
+> > >
+> > > Would that mean that the "crashed" DMA would be running until the
+> > > next transmission is scheduled ?
+> >
+> > [Yuan Yao] No, In fact any DMA timeout will result the failure of I2C
+> > transmission and then it will turn to report the exception and wait
+> > for next transmission.
+> 
+> Can you tell when the next transmission will happen? What if I issue a
+> single transmission and that one fails ? Will the DMA run until who knows
+> when ?
 
-> +#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
-> +extern int i2c_acquire_ownership(struct device *dev);
-> +extern int i2c_release_ownership(struct device *dev);
-> +#endif
+[Yuan Yao] 
+Sorry for my unclear description. In fact, During the DMA transmission  if
+an error happened or time out, DMA will stop at once and be disabled.
+I just continue to route the TX and RX request to signal the DMA controller.
+Because the DMA is disabled, it will ignore those signals.
 
-You can just have the prototypes anyway - no need for more ifdefs than
-required
+In a word, I just want to block the I2C TX, RX and interrupt signal when
+DMA mode failed until the next I2C transmission start.
 
+In fact, the bit "I2CR_DMAEN" is a switch which decide whether I2C route
+the TX, RX and interrupt signal to DMA controller. 
 
-> +#if IS_ENABLED(CONFIG_I2C_SHARED_CONTROLLER)
-> +int i2c_shared_controller_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
-> +	int num)
-> +{
-> +	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-> +	int err;
-> +
-> +	if (dev->shared_host) {
-> +		err = dev->acquire_ownership(dev->dev);
-> +		if (!err) {
-> +			err = i2c_dw_xfer(adap, msgs, num);
-> +			dev->release_ownership(dev->dev);
-> +		} else
-> +			dev_WARN(dev->dev, "couldnt acquire ownership\n");
-> +
-> +		return err;
-> +	} else
-> +		return i2c_dw_xfer(adap, msgs, num);
-> +}
-> +
-> +static struct i2c_algorithm i2c_sc_algo = {
-> +	.master_xfer	= i2c_shared_controller_xfer,
-> +	.functionality	= i2c_dw_func,
-> +};
-> +#endif
+> > The only thing I worried about is I2C may still receive some feedbacks
+> > after DMA timeout. In this case the feedbacks may lead to abnormal
+> > state in PIO mode.But it will be ignored in DMA model.
+> > That's why I tend to delay force-disable DMA until the next
+> > transmission begin. Could you please give me some suggestion?
+> 
+> No, this design just seems flawed to me. You should stop the DMA
+> immediatelly if there is an error to avoid wasting resources and prevent
+> possible other adverse effects.
+>
+[Yuan Yao] 
+Yes, I have stopped the DMA immediately. However I keep the I2C DMA
+single route.
 
-I think this might be a lot cleaner if you put these pieces as functions
-into i2c-designware-sem.c or a similar file and made the methods NULL
-functions in the header in the case it's not supported ? Most of the
-ifdeffery would then vanish into the extra file and keep the core code
-cleaner ?
+I don't have the exact evidence to prove that my design is acceptable.
+So if you are sure it's flawed, I will change it in the next version(V8).
 
-
-Alan
+Best regards,
+Yuan Yao
