@@ -1,121 +1,155 @@
-From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v4] i2c: designware: Add support for AMD i2c controller
-Date: Wed, 17 Sep 2014 13:14:45 +0800
-Message-ID: <1410930885-1379-1-git-send-email-carlpeng008@gmail.com>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [PATCH v4 1/3] mfd: add support for Diolan DLN-2 devices
+Date: Wed, 17 Sep 2014 10:25:18 +0300
+Message-ID: <CAE1zotJWUnduPUd9C8EgSHHSo-OCgdj7c-sKaT5M2Ajj2CmNWw@mail.gmail.com>
+References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
+	<1410290686-6680-2-git-send-email-octavian.purdila@intel.com>
+	<20140916232149.GB30918@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <20140916232149.GB30918@lee--X1>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>, Johan Hovold <johan@kernel.org>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-AMD i2c bus controller is ACPI device, its ACPI ID
-is "AMD0010". This patch is used to add support for
-AMD i2c bus controller in the Designware platform
-driver.
+On Wed, Sep 17, 2014 at 2:21 AM, Lee Jones <lee.jones@linaro.org> wrote:
+>
+> On Tue, 09 Sep 2014, Octavian Purdila wrote:
+>
+> > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+> > Master Adapter DLN-2. Details about the device can be found here:
+> >
+> > https://www.diolan.com/i2c/i2c_interface.html.
+> >
+> > Information about the USB protocol can be found in the Programmer's
+> > Reference Manual [1], see section 1.7.
+>
+> This driver really needs a USB Ack before I can accept it.
+>
 
-Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 53 +++++++++++++++++++++++------
- 1 file changed, 43 insertions(+), 10 deletions(-)
+Greg, Johan, is the driver acceptable now?
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index bc87733..20015e6 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -43,14 +43,18 @@
- #include <linux/acpi.h>
- #include "i2c-designware-core.h"
- 
-+struct dw_i2c_config {
-+	u32 clk_rate_khz;
-+};
-+
- static struct i2c_algorithm i2c_dw_algo = {
- 	.master_xfer	= i2c_dw_xfer,
- 	.functionality	= i2c_dw_func,
- };
--static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
--{
--	return clk_get_rate(dev->clk)/1000;
--}
-+
-+static struct dw_i2c_config amd_i2c_config = {
-+	.clk_rate_khz = 133 * 1000,
-+};
- 
- #ifdef CONFIG_ACPI
- static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
-@@ -107,7 +111,8 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "INT3433", 0 },
- 	{ "80860F41", 0 },
- 	{ "808622C1", 0 },
--	{ }
-+	{ "AMD0010", (unsigned long)&amd_i2c_config },
-+	{},
- };
- MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
- #else
-@@ -117,12 +122,35 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- }
- #endif
- 
-+static const struct dw_i2c_config *i2c_dw_get_config(
-+					struct dw_i2c_dev *dev)
-+{
-+	const struct acpi_device_id *id;
-+
-+	id = acpi_match_device(dw_i2c_acpi_match, dev->dev);
-+	if (id)
-+		return (const struct dw_i2c_config *)id->driver_data;
-+
-+	return NULL;
-+}
-+
-+static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
-+{
-+	const struct dw_i2c_config *conf = i2c_dw_get_config(dev);
-+
-+	if (conf)
-+		return conf->clk_rate_khz;
-+
-+	return clk_get_rate(dev->clk)/1000;
-+}
-+
- static int dw_i2c_probe(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
- 	struct resource *mem;
- 	int irq, r;
-+	const struct dw_i2c_config *conf;
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
-@@ -145,12 +173,17 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	dev->irq = irq;
- 	platform_set_drvdata(pdev, dev);
- 
--	dev->clk = devm_clk_get(&pdev->dev, NULL);
--	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
-+	conf = i2c_dw_get_config(dev);
-+
-+	if (!conf) {
-+		dev->clk = devm_clk_get(&pdev->dev, NULL);
- 
--	if (IS_ERR(dev->clk))
--		return PTR_ERR(dev->clk);
--	clk_prepare_enable(dev->clk);
-+		if (IS_ERR(dev->clk))
-+			return PTR_ERR(dev->clk);
-+		clk_prepare_enable(dev->clk);
-+	}
-+
-+	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
- 
- 	if (pdev->dev.of_node) {
- 		u32 ht = 0;
--- 
-1.9.1
+> > Because the hardware has a single transmit endpoint and a single
+> > receive endpoint the communication between the various DLN2 drivers
+> > and the hardware will be muxed/demuxed by this driver.
+> >
+> > Each DLN2 module will be identified by the handle field within the DLN2
+> > message header. If a DLN2 module issues multiple commands in parallel
+> > they will be identified by the echo counter field in the message header.
+> >
+> > The DLN2 modules can use the dln2_transfer() function to issue a
+> > command and wait for its response. They can also register a callback
+> > that is going to be called when a specific event id is generated by
+> > the device (e.g. GPIO interrupts). The device uses handle 0 for
+> > sending events.
+> >
+> > [1] https://www.diolan.com/downloads/dln-api-manual.pdf
+> >
+> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+> > ---
+> >  drivers/mfd/Kconfig      |   9 +
+> >  drivers/mfd/Makefile     |   1 +
+> >  drivers/mfd/dln2.c       | 681 +++++++++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/mfd/dln2.h |  71 +++++
+> >  4 files changed, 762 insertions(+)
+> >  create mode 100644 drivers/mfd/dln2.c
+> >  create mode 100644 include/linux/mfd/dln2.h
+>
+> [...]
+>
+> > diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+> > new file mode 100644
+> > index 0000000..b551b5e
+> > --- /dev/null
+> > +++ b/drivers/mfd/dln2.c
+> > @@ -0,0 +1,681 @@
+> > +/*
+> > + * Driver for the Diolan DLN-2 USB adapter
+> > + *
+> > + * Copyright (c) 2014 Intel Corporation
+> > + *
+> > + * Derived from:
+> > + *  i2c-diolan-u2c.c
+> > + *  Copyright (c) 2010-2011 Ericsson AB
+> > + *
+> > + * This program is free software; you can redistribute it and/or
+> > + * modify it under the terms of the GNU General Public License as
+> > + * published by the Free Software Foundation, version 2.
+> > + */
+> > +
+> > +#include <linux/kernel.h>
+> > +#include <linux/errno.h>
+>
+> What are you using this for?
+>
+
+Not needed, I will remove it.
+
+> > +#include <linux/module.h>
+> > +#include <linux/types.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/usb.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/mutex.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/mfd/core.h>
+> > +#include <linux/mfd/dln2.h>
+> > +
+> > +#define DRIVER_NAME                  "usb-dln2"
+>
+> Don't do this, just use "usb-dln2" where it needs to be used.
+>
+
+Will do.
+
+> [...]
+>
+> > +static struct usb_driver dln2_driver = {
+> > +     .name = DRIVER_NAME,
+> > +     .probe = dln2_probe,
+> > +     .disconnect = dln2_disconnect,
+> > +     .id_table = dln2_table,
+> > +};
+> > +
+> > +module_usb_driver(dln2_driver);
+> > +
+> > +MODULE_AUTHOR("Octavian Purdila <octavian.purdila@intel.com>");
+> > +MODULE_DESCRIPTION(DRIVER_NAME " driver");
+>
+> This is not a description.
+>
+> > +MODULE_LICENSE("GPL");
+>
+> Header says v2.
+>
+
+I will change it to GPL v2.
+
+> > diff --git a/include/linux/mfd/dln2.h b/include/linux/mfd/dln2.h
+> > new file mode 100644
+> > index 0000000..197565d
+> > --- /dev/null
+> > +++ b/include/linux/mfd/dln2.h
+> > @@ -0,0 +1,71 @@
+> > +#ifndef __LINUX_USB_DLN2_H
+> > +#define __LINUX_USB_DLN2_H
+> > +
+> > +#define DLN2_CMD(cmd, id)            ((cmd) | ((id) << 8))
+> > +
+> > +struct dln2_platform_data {
+> > +     u16 handle;
+> > +     union {
+> > +             struct {
+> > +                     u8 port;
+> > +             } i2c;
+> > +     };
+> > +};
+>
+> Why this complexity?
+>
+
+There is also an SPI interface on this adapter which will probably the
+port information and maybe some additional information. Would you
+prefer to add the union later, when we add the SPI driver?
