@@ -1,87 +1,121 @@
-From: "Li, Aubrey" <aubrey.li@linux.intel.com>
-Subject: Re: [PATCH] i2c-designware: Intel BayTrail PMIC I2C bus support
-Date: Wed, 17 Sep 2014 12:01:15 +0800
-Message-ID: <5419078B.3050305@linux.intel.com>
-References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com> <20140916094449.GZ10854@lahna.fi.intel.com>
+From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v4] i2c: designware: Add support for AMD i2c controller
+Date: Wed, 17 Sep 2014 13:14:45 +0800
+Message-ID: <1410930885-1379-1-git-send-email-carlpeng008@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140916094449.GZ10854@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, "David E. Box" <david.e.box@linux.intel.com>
-Cc: wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, dianders@chromium.org, sjg@chromium.org, laurent.pinchart+renesas@ideasonboard.com, u.kleine-koenig@pengutronix.de, boris.brezillon@free-electrons.com, maxime.coquelin@st.com, max.schwarz@online.de, schwidefsky@de.ibm.com, iivanov@mm-sol.com, jacob.jun.pan@linux.intel.com, soren.brinkmann@xilinx.com, bjorn.andersson@sonymobile.com, andrew@lunn.ch, skuribay@pobox.com, christian.ruppert@abilis.com, Romain.Baeriswyl@abilis.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2014/9/16 17:44, Mika Westerberg wrote:
-> On Fri, Sep 12, 2014 at 10:36:07AM -0700, David E. Box wrote:
->> This patch implements an I2C bus sharing mechanism between the host and platform
->> hardware on select Intel BayTrail SoC platforms using the XPower AXP288 PMIC.
->>
->> On these platforms access to the PMIC must be shared with platform hardware. The
->> hardware unit assumes full control of the I2C bus and the host must request
->> access through a special semaphore. Hardware control of the bus also makes it
->> necessary to disable runtime pm to avoid interfering with hardware transactions.
-> 
-> Is this because we need to access the PMIC from host as well? I mean
-> from some PMIC driver (which driver btw)?
-> 
-> Otherwise it would be best to just detect _SEM and return -ENODEV.
+AMD i2c bus controller is ACPI device, its ACPI ID
+is "AMD0010". This patch is used to add support for
+AMD i2c bus controller in the Designware platform
+driver.
 
-On some Baytrail platform, one I2C port is shared between CPU and Punit,
-and Punit access is out the control of CPU, so
+Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 53 +++++++++++++++++++++++------
+ 1 file changed, 43 insertions(+), 10 deletions(-)
 
-1. need to keep this shared I2C port always enabled, that is, no runtime
-pm, in case Punit wants to access it.
-
-2. need the semaphore mechanism to access i2c.
-
-> 
->>
->> Signed-off-by: David E. Box <david.e.box@linux.intel.com>
->> ---
->>  drivers/i2c/busses/Kconfig                  |  10 +++
->>  drivers/i2c/busses/Makefile                 |   1 +
->>  drivers/i2c/busses/i2c-designware-core.h    |  14 ++++
->>  drivers/i2c/busses/i2c-designware-platdrv.c |  78 +++++++++++++++++++--
->>  drivers/i2c/busses/i2c-shared-controller.c  | 101 ++++++++++++++++++++++++++++
->>  5 files changed, 200 insertions(+), 4 deletions(-)
->>  create mode 100644 drivers/i2c/busses/i2c-shared-controller.c
->>
->> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> index 2ac87fa..672ef23 100644
->> --- a/drivers/i2c/busses/Kconfig
->> +++ b/drivers/i2c/busses/Kconfig
->> @@ -441,6 +441,16 @@ config I2C_DESIGNWARE_PCI
->>  	  This driver can also be built as a module.  If so, the module
->>  	  will be called i2c-designware-pci.
->>  
->> +config I2C_SHARED_CONTROLLER
->> +	tristate "Intel Baytrail PMIC shared I2C bus support"
->> +	depends on ACPI
->> +	select IOSF_MBI
->> +	select I2C_DESIGNWARE_CORE
->> +	help
->> +	  This driver enables shared access to the PMIC I2C bus on select Intel
->> +	  BayTrail platforms using the XPower AXP288 PMIC. This driver is
->> +	  required for host access to the PMIC on these platforms.
-> 
-> Can't we detect this runtime in the i2c-designware-platdrv.c code so
-> that you look (in the ACPI part of the driver) for _SEM and in that case
-> change the xfer function behaviour a bit to return -EBUSY or whatever?
-> 
-> Without this horrible #ifdeffery.
-
-not necessary to have #ifdef, really.
-
-Thanks,
--Aubrey
-
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index bc87733..20015e6 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -43,14 +43,18 @@
+ #include <linux/acpi.h>
+ #include "i2c-designware-core.h"
+ 
++struct dw_i2c_config {
++	u32 clk_rate_khz;
++};
++
+ static struct i2c_algorithm i2c_dw_algo = {
+ 	.master_xfer	= i2c_dw_xfer,
+ 	.functionality	= i2c_dw_func,
+ };
+-static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+-{
+-	return clk_get_rate(dev->clk)/1000;
+-}
++
++static struct dw_i2c_config amd_i2c_config = {
++	.clk_rate_khz = 133 * 1000,
++};
+ 
+ #ifdef CONFIG_ACPI
+ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+@@ -107,7 +111,8 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "INT3433", 0 },
+ 	{ "80860F41", 0 },
+ 	{ "808622C1", 0 },
+-	{ }
++	{ "AMD0010", (unsigned long)&amd_i2c_config },
++	{},
+ };
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+ #else
+@@ -117,12 +122,35 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+ }
+ #endif
+ 
++static const struct dw_i2c_config *i2c_dw_get_config(
++					struct dw_i2c_dev *dev)
++{
++	const struct acpi_device_id *id;
++
++	id = acpi_match_device(dw_i2c_acpi_match, dev->dev);
++	if (id)
++		return (const struct dw_i2c_config *)id->driver_data;
++
++	return NULL;
++}
++
++static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
++{
++	const struct dw_i2c_config *conf = i2c_dw_get_config(dev);
++
++	if (conf)
++		return conf->clk_rate_khz;
++
++	return clk_get_rate(dev->clk)/1000;
++}
++
+ static int dw_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_dev *dev;
+ 	struct i2c_adapter *adap;
+ 	struct resource *mem;
+ 	int irq, r;
++	const struct dw_i2c_config *conf;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+@@ -145,12 +173,17 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	dev->irq = irq;
+ 	platform_set_drvdata(pdev, dev);
+ 
+-	dev->clk = devm_clk_get(&pdev->dev, NULL);
+-	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
++	conf = i2c_dw_get_config(dev);
++
++	if (!conf) {
++		dev->clk = devm_clk_get(&pdev->dev, NULL);
+ 
+-	if (IS_ERR(dev->clk))
+-		return PTR_ERR(dev->clk);
+-	clk_prepare_enable(dev->clk);
++		if (IS_ERR(dev->clk))
++			return PTR_ERR(dev->clk);
++		clk_prepare_enable(dev->clk);
++	}
++
++	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+ 
+ 	if (pdev->dev.of_node) {
+ 		u32 ht = 0;
+-- 
+1.9.1
