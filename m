@@ -1,51 +1,87 @@
-From: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: I2c modifications for IPMI operations at panic time
-Date: Tue, 16 Sep 2014 19:30:27 -0500
-Message-ID: <5418D623.5010803@mvista.com>
+From: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Subject: Re: [PATCH] i2c-designware: Intel BayTrail PMIC I2C bus support
+Date: Wed, 17 Sep 2014 12:01:15 +0800
+Message-ID: <5419078B.3050305@linux.intel.com>
+References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com> <20140916094449.GZ10854@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140916094449.GZ10854@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, "David E. Box" <david.e.box@linux.intel.com>
+Cc: wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, dianders@chromium.org, sjg@chromium.org, laurent.pinchart+renesas@ideasonboard.com, u.kleine-koenig@pengutronix.de, boris.brezillon@free-electrons.com, maxime.coquelin@st.com, max.schwarz@online.de, schwidefsky@de.ibm.com, iivanov@mm-sol.com, jacob.jun.pan@linux.intel.com, soren.brinkmann@xilinx.com, bjorn.andersson@sonymobile.com, andrew@lunn.ch, skuribay@pobox.com, christian.ruppert@abilis.com, Romain.Baeriswyl@abilis.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I've been carrying along modifications to the I2C subsystem to allow an
-IPMI interface over SMBus (per the IPMI standard).  I have these
-modification because the IPMI driver has functions that it performs at
-panic/shutdown time, like handling poiwer, extending the watchdog on a
-panic, and storing panic information in the IPMI event log.
+On 2014/9/16 17:44, Mika Westerberg wrote:
+> On Fri, Sep 12, 2014 at 10:36:07AM -0700, David E. Box wrote:
+>> This patch implements an I2C bus sharing mechanism between the host and platform
+>> hardware on select Intel BayTrail SoC platforms using the XPower AXP288 PMIC.
+>>
+>> On these platforms access to the PMIC must be shared with platform hardware. The
+>> hardware unit assumes full control of the I2C bus and the host must request
+>> access through a special semaphore. Hardware control of the bus also makes it
+>> necessary to disable runtime pm to avoid interfering with hardware transactions.
+> 
+> Is this because we need to access the PMIC from host as well? I mean
+> from some PMIC driver (which driver btw)?
+> 
+> Otherwise it would be best to just detect _SEM and return -ENODEV.
 
-I haven't really cared much about the SMBus IPMI driver because very few
-systems have one of these.  I've been keeping it up to date and testing
-it periodically, but that's about it.  However, it looks like more
-systems are going to be using this interface, so I need to do something.
+On some Baytrail platform, one I2C port is shared between CPU and Punit,
+and Punit access is out the control of CPU, so
 
-The changes I have are fairly large, but they mainly move code around to
-allow the I2C core to be event driven or polled without duplicating a
-lot of code.  They create an event-driven interface on top of and
-underneath the driver.  You can use the polled interface into the top of
-the driver and talk to a polled or event-driven driver, the I2C core
-takes care of the translation from a polled user to an event-driven
-driver.  You have to have an event-driven driver to use the event-driven
-interface.
+1. need to keep this shared I2C port always enabled, that is, no runtime
+pm, in case Punit wants to access it.
 
-The code is in git://git.code.sf.net/p/openipmi/linux-ipmi
-openipmi-linux-ipmi in the ipmi-i2c branch.  It needs a little work at
-this point, but nothing big.  It has modifications to the i801 and piix4
-drivers to make them event-driven, too.
+2. need the semaphore mechanism to access i2c.
 
-Would such changes be acceptable?  I"m not sure anything else has a use
-for this.  Maybe a driver to store panic information in an I2C EEPROM,
-or anything that would need to get to I2C at panic time.
+> 
+>>
+>> Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+>> ---
+>>  drivers/i2c/busses/Kconfig                  |  10 +++
+>>  drivers/i2c/busses/Makefile                 |   1 +
+>>  drivers/i2c/busses/i2c-designware-core.h    |  14 ++++
+>>  drivers/i2c/busses/i2c-designware-platdrv.c |  78 +++++++++++++++++++--
+>>  drivers/i2c/busses/i2c-shared-controller.c  | 101 ++++++++++++++++++++++++++++
+>>  5 files changed, 200 insertions(+), 4 deletions(-)
+>>  create mode 100644 drivers/i2c/busses/i2c-shared-controller.c
+>>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index 2ac87fa..672ef23 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -441,6 +441,16 @@ config I2C_DESIGNWARE_PCI
+>>  	  This driver can also be built as a module.  If so, the module
+>>  	  will be called i2c-designware-pci.
+>>  
+>> +config I2C_SHARED_CONTROLLER
+>> +	tristate "Intel Baytrail PMIC shared I2C bus support"
+>> +	depends on ACPI
+>> +	select IOSF_MBI
+>> +	select I2C_DESIGNWARE_CORE
+>> +	help
+>> +	  This driver enables shared access to the PMIC I2C bus on select Intel
+>> +	  BayTrail platforms using the XPower AXP288 PMIC. This driver is
+>> +	  required for host access to the PMIC on these platforms.
+> 
+> Can't we detect this runtime in the i2c-designware-platdrv.c code so
+> that you look (in the ACPI part of the driver) for _SEM and in that case
+> change the xfer function behaviour a bit to return -EBUSY or whatever?
+> 
+> Without this horrible #ifdeffery.
 
-I'd prefer to have the full function of the IPMI driver, of course, and
-I need to do something to the I2C code to get this.  I've debated
-different ways, but I haven't come up with anything better.
-
-I could also give up those functions and implement over the I2C driver
-as is.  I'm just looking for the best way to go now.
+not necessary to have #ifdef, really.
 
 Thanks,
+-Aubrey
 
--corey
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
