@@ -1,117 +1,271 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
-Date: Thu, 18 Sep 2014 12:26:07 +0300
-Message-ID: <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com>
-References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1411032367-20274-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH v4 3/3] gpio: add support for the Diolan DLN-2 USB GPIO
+ driver
+Date: Thu, 18 Sep 2014 12:54:58 +0200
+Message-ID: <20140918105458.GA2337@localhost>
+References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
+ <1410290686-6680-4-git-send-email-octavian.purdila@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1410290686-6680-4-git-send-email-octavian.purdila@intel.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+On Tue, Sep 09, 2014 at 10:24:46PM +0300, Octavian Purdila wrote:
 
-Add support for AMD version of the DW I2C host controller. The device is
-enumerated from ACPI namespace with ACPI ID AMD0010. Because the core
-driver needs an input source clock, and this is not an Intel LPSS device
-where clocks are provided through drivers/acpi/acpi_lpss.c, we register the
-clock ourselves if the clock rate is given in ->driver_data.
+<snip>
 
-Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/Kconfig                  |  1 +
- drivers/i2c/busses/i2c-designware-platdrv.c | 27 +++++++++++++++++++++++++++
- 2 files changed, 28 insertions(+)
+> +#define DLN2_GPIO_DIRECTION_IN		0
+> +#define DLN2_GPIO_DIRECTION_OUT		1
+> +
+> +static int dln2_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
+> +{
+> +	int ret;
+> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
+> +	struct dln2_gpio_pin req = {
+> +		.pin = cpu_to_le16(offset),
+> +	};
+> +	struct dln2_gpio_pin_val rsp;
+> +	int len = sizeof(rsp);
+> +
+> +	if (test_bit(offset, dln2->pin_dir_set)) {
+> +		rsp.value = !!test_bit(offset, dln2->pin_dir);
+> +		goto report;
+> +	}
+> +
+> +	ret = dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_GET_DIRECTION,
+> +			    &req, sizeof(req), &rsp, &len);
+> +	if (ret < 0)
+> +		return ret;
+> +	if (len < sizeof(rsp) || req.pin != rsp.pin)
+> +		return -EPROTO;
+> +	set_bit(offset, dln2->pin_dir_set);
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 2ac87fa3058d..9384498ef3c1 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -422,6 +422,7 @@ config I2C_DESIGNWARE_CORE
- 
- config I2C_DESIGNWARE_PLATFORM
- 	tristate "Synopsys DesignWare Platform"
-+	depends on COMMON_CLK
- 	select I2C_DESIGNWARE_CORE
- 	help
- 	  If you say yes to this option, support will be included for the
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 7087b6ee97e2..ecd0215d93c2 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -30,6 +30,7 @@
- #include <linux/delay.h>
- #include <linux/i2c.h>
- #include <linux/clk.h>
-+#include <linux/clk-provider.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/err.h>
-@@ -80,6 +81,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
- 	bool fs_mode = dev->master_cfg & DW_IC_CON_SPEED_FAST;
-+	const struct acpi_device_id *id;
- 
- 	dev->adapter.nr = -1;
- 	dev->tx_fifo_depth = 32;
-@@ -94,9 +96,29 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- 	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
- 			   fs_mode ? &dev->sda_hold_time : NULL);
- 
-+	/*
-+	 * Provide a way for Designware I2C host controllers that are not
-+	 * based on Intel LPSS to specify their input clock frequency via
-+	 * ->driver_data.
-+	 */
-+	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
-+	if (id && id->driver_data)
-+		clk_register_fixed_rate(&pdev->dev, dev_name(&pdev->dev), NULL,
-+					CLK_IS_ROOT, id->driver_data);
-+
- 	return 0;
- }
- 
-+static void dw_i2c_acpi_unconfigure(struct platform_device *pdev)
-+{
-+	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-+	const struct acpi_device_id *id;
-+
-+	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
-+	if (id && id->driver_data)
-+		clk_unregister(dev->clk);
-+}
-+
- static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "INT33C2", 0 },
- 	{ "INT33C3", 0 },
-@@ -104,6 +126,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "INT3433", 0 },
- 	{ "80860F41", 0 },
- 	{ "808622C1", 0 },
-+	{ "AMD0010", 133 * 1000 * 1000 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
-@@ -112,6 +135,7 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- {
- 	return -ENODEV;
- }
-+static inline void dw_i2c_acpi_unconfigure(struct platform_device *pdev) { }
- #endif
- 
- static int dw_i2c_probe(struct platform_device *pdev)
-@@ -235,6 +259,9 @@ static int dw_i2c_remove(struct platform_device *pdev)
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
-+	if (ACPI_COMPANION(&pdev->dev))
-+		dw_i2c_acpi_unconfigure(pdev);
-+
- 	return 0;
- }
- 
--- 
-2.1.0
+You shouldn't set this flag until you've stored the direction.
+
+> +
+> +report:
+> +	switch (rsp.value) {
+> +	case DLN2_GPIO_DIRECTION_IN:
+> +		clear_bit(offset, dln2->pin_dir);
+> +		return 1;
+> +	case DLN2_GPIO_DIRECTION_OUT:
+> +		set_bit(offset, dln2->pin_dir);
+> +		return 0;
+> +	default:
+> +		return -EPROTO;
+> +	}
+> +}
+> +
+> +static int dln2_gpio_get(struct gpio_chip *chip, unsigned int offset)
+> +{
+> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
+> +	int dir;
+> +
+> +	dir = dln2_gpio_get_direction(chip, offset);
+> +	if (dir < 0)
+> +		return dir;
+> +
+> +	if (dir)
+> +		return dln2_gpio_pin_get_in_val(dln2, offset);
+> +
+> +	return dln2_gpio_pin_get_out_val(dln2, offset);
+> +}
+> +
+> +static void dln2_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+> +{
+> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
+> +
+> +	dln2_gpio_pin_set_out_val(dln2, offset, value);
+> +}
+> +
+> +static int dln2_gpio_set_direction(struct gpio_chip *chip, unsigned offset,
+> +				   unsigned dir)
+> +{
+> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
+> +	struct dln2_gpio_pin_val req = {
+> +		.pin = cpu_to_le16(offset),
+> +		.value = cpu_to_le16(dir),
+> +	};
+> +
+> +	set_bit(offset, dln2->pin_dir_set);
+
+Set flag after you store the direction below.
+
+> +	if (dir == DLN2_GPIO_DIRECTION_OUT)
+> +		set_bit(offset, dln2->pin_dir);
+> +	else
+> +		clear_bit(offset, dln2->pin_dir);
+
+Either way, it looks like this could race with get_direction() if you
+get a set_direction() while get_direction() is retrieving the direction
+from the device.
+
+This would break gpio_get().
+
+> +
+> +	return dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_SET_DIRECTION,
+> +			     &req, sizeof(req), NULL, NULL);
+> +}
+
+<snip>
+
+> +static int dln2_gpio_set_event_cfg(struct dln2_gpio *dln2, unsigned pin,
+> +				   unsigned type, unsigned period)
+> +{
+> +	struct {
+> +		__le16 pin;
+> +		u8 type;
+> +		__le16 period;
+> +	} __packed req = {
+> +		.pin = cpu_to_le16(pin),
+> +		.type = type,
+> +		.period = cpu_to_le16(period),
+> +	};
+> +
+> +	return dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_SET_EVENT_CFG,
+> +			     &req, sizeof(req), NULL, NULL);
+> +}
+> +
+> +static void dln2_irq_work(struct work_struct *w)
+> +{
+> +	struct dln2_irq_work *iw = container_of(w, struct dln2_irq_work, work);
+> +	struct dln2_gpio *dln2 = iw->dln2;
+> +	u8 type = iw->type & DLN2_GPIO_EVENT_MASK;
+> +
+> +	if (test_bit(iw->pin, dln2->irqs_enabled))
+> +		dln2_gpio_set_event_cfg(dln2, iw->pin, type, 0);
+> +	else
+> +		dln2_gpio_set_event_cfg(dln2, iw->pin, DLN2_GPIO_EVENT_NONE, 0);
+> +}
+> +
+> +static void dln2_irq_enable(struct irq_data *irqd)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
+> +	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
+> +	int pin = irqd_to_hwirq(irqd);
+> +
+> +	set_bit(pin, dln2->irqs_enabled);
+> +	schedule_work(&dln2->irq_work[pin].work);
+> +}
+> +
+> +static void dln2_irq_disable(struct irq_data *irqd)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
+> +	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
+> +	int pin = irqd_to_hwirq(irqd);
+> +
+> +	clear_bit(pin, dln2->irqs_enabled);
+> +	schedule_work(&dln2->irq_work[pin].work);
+> +}
+
+<snip>
+
+> +static int dln2_gpio_probe(struct platform_device *pdev)
+> +{
+> +	struct dln2_gpio *dln2;
+> +	struct device *dev = &pdev->dev;
+> +	int pins = dln2_gpio_get_pin_count(pdev);
+
+Again, don't do non-trivial intialisations when declaring your variables.
+
+> +	int i, ret;
+> +
+> +	if (pins < 0) {
+> +		dev_err(dev, "failed to get pin count: %d\n", pins);
+> +		return pins;
+> +	}
+> +	if (pins > DLN2_GPIO_MAX_PINS) {
+> +		pins = DLN2_GPIO_MAX_PINS;
+> +		dev_warn(dev, "clamping pins to %d\n", DLN2_GPIO_MAX_PINS);
+> +	}
+> +
+> +	dln2 = devm_kzalloc(&pdev->dev, sizeof(*dln2), GFP_KERNEL);
+> +	if (!dln2)
+> +		return -ENOMEM;
+> +
+> +	for (i = 0; i < DLN2_GPIO_MAX_PINS; i++) {
+> +		INIT_WORK(&dln2->irq_work[i].work, dln2_irq_work);
+> +		dln2->irq_work[i].pin = i;
+> +		dln2->irq_work[i].dln2 = dln2;
+> +	}
+> +
+> +	dln2->pdev = pdev;
+> +
+> +	dln2->gpio.label = "dln2";
+> +	dln2->gpio.dev = dev;
+> +	dln2->gpio.owner = THIS_MODULE;
+> +	dln2->gpio.base = -1;
+> +	dln2->gpio.ngpio = pins;
+> +	dln2->gpio.exported = 1;
+> +	dln2->gpio.set = dln2_gpio_set;
+> +	dln2->gpio.get = dln2_gpio_get;
+> +	dln2->gpio.request = dln2_gpio_request;
+> +	dln2->gpio.free = dln2_gpio_free;
+> +	dln2->gpio.get_direction = dln2_gpio_get_direction;
+> +	dln2->gpio.direction_input = dln2_gpio_direction_input;
+> +	dln2->gpio.direction_output = dln2_gpio_direction_output;
+> +	dln2->gpio.set_debounce = dln2_gpio_set_debounce;
+> +
+> +	platform_set_drvdata(pdev, dln2);
+> +
+> +	ret = gpiochip_add(&dln2->gpio);
+> +	if (ret < 0) {
+> +		dev_err(dev, "failed to add gpio chip: %d\n", ret);
+> +		goto out;
+> +	}
+> +
+> +	ret = gpiochip_irqchip_add(&dln2->gpio, &dln2_gpio_irqchip, 0,
+> +				   handle_simple_irq, IRQ_TYPE_NONE);
+> +	if (ret < 0) {
+> +		dev_err(dev, "failed to add irq chip: %d\n", ret);
+> +		goto out_gpiochip_remove;
+> +	}
+> +
+> +	ret = dln2_register_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV,
+> +				     dln2_gpio_event);
+> +	if (ret) {
+> +		dev_err(dev, "failed to register event cb: %d\n", ret);
+> +		goto out_gpiochip_remove;
+> +	}
+> +
+> +	return 0;
+> +
+> +out_gpiochip_remove:
+> +	gpiochip_remove(&dln2->gpio);
+> +out:
+> +	return ret;
+> +}
+> +
+> +static int dln2_gpio_remove(struct platform_device *pdev)
+> +{
+> +	struct dln2_gpio *dln2 = platform_get_drvdata(pdev);
+> +
+> +	dln2_unregister_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV);
+> +	dln2->pdev = NULL;
+> +	gpiochip_remove(&dln2->gpio);
+
+You probably need to flush all your work structs here.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver dln2_gpio_driver = {
+> +	.driver.name	= DRIVER_NAME,
+> +	.driver.owner	= THIS_MODULE,
+> +	.probe		= dln2_gpio_probe,
+> +	.remove		= dln2_gpio_remove,
+> +};
+> +
+> +module_platform_driver(dln2_gpio_driver);
+> +
+> +MODULE_AUTHOR("Daniel Baluta <daniel.baluta@intel.com");
+> +MODULE_DESCRIPTION(DRIVER_NAME "driver");
+> +MODULE_LICENSE("GPL");
+
+Johan
