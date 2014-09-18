@@ -1,49 +1,37 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [PATCH v4 3/3] gpio: add support for the Diolan DLN-2 USB GPIO driver
-Date: Thu, 18 Sep 2014 18:54:34 +0300
-Message-ID: <CAE1zotK7nb6VVp5a3n2_fnWZQHfizg4hFFy-ZVW5fzyFwmBMcA@mail.gmail.com>
-References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
-	<1410290686-6680-4-git-send-email-octavian.purdila@intel.com>
-	<20140918105458.GA2337@localhost>
-	<CAE1zot+_hX6TVkW-B6H9NzgyLhF54oQJZt+x_xXGjEB6A5dAZA@mail.gmail.com>
-	<20140918124611.GA26817@localhost>
+From: atull <atull@opensource.altera.com>
+Subject: Re: [PATCH] i2c designware add support of I2C standard mode
+Date: Thu, 18 Sep 2014 10:52:24 -0500
+Message-ID: <alpine.DEB.2.02.1409181050190.29539@atx-linux-37>
+References: <20140820124231.GD21734@leverpostej> <1408544948-22339-1-git-send-email-romainba@abilis.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20140918124611.GA26817@localhost>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1408544948-22339-1-git-send-email-romainba@abilis.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Romain Baeriswyl <Romain.Baeriswyl@abilis.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, baruch@tkos.co.il, grant.likely@linaro.org, robh+dt@kernel.org, skuribay@pobox.com, alan@linux.intel.com, devicetree@vger.kernel.org, delicious.quinoa@gmail.com, dinguyen@opensource.altera.com, yvanderv@opensource.altera.com, Romain Baeriswyl <romainba@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 18, 2014 at 3:46 PM, Johan Hovold <johan@kernel.org> wrote:
-> On Thu, Sep 18, 2014 at 03:43:07PM +0300, Octavian Purdila wrote:
->> On Thu, Sep 18, 2014 at 1:54 PM, Johan Hovold <johan@kernel.org> wrote:
->> > On Tue, Sep 09, 2014 at 10:24:46PM +0300, Octavian Purdila wrote:
->
->> > Either way, it looks like this could race with get_direction() if you
->> > get a set_direction() while get_direction() is retrieving the direction
->> > from the device.
->> >
->> > This would break gpio_get().
->> >
->> I don't think gpio_set_direction() and gpio_get() are allowed to race.
->
-> I wrote that set_direction() and get_direction() could race, which in
-> turn would break gpio_get() as you would be caching the wrong
-> direction setting.
->
+On Wed, 20 Aug 2014, Romain Baeriswyl wrote:
 
-OK, I now see the problem. I think doing this in get_direction() will
-fix the issue:
+> From: Romain Baeriswyl <Romain.Baeriswyl@abilis.com>
+> 
+> Some legacy devices support ony I2C standard mode at 100kHz.
+> This patch allows to select the standard mode through the DTS
+> with the use of the existing clock-frequency parameter.
+> 
+> When clock-frequency parameter is not set, the fast mode is selected.
+> Only when the parameter is set at 100000, the standard mode is selected.
+> 
+> Signed-off-by: Romain Baeriswyl <romainba@abilis.com>
+> Reviewed-by: Christian Ruppert <christian.ruppert@abilis.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c |   23 +++++++++++++++++++++--
+>  1 files changed, 21 insertions(+), 2 deletions(-)
+> 
 
-                if (!test_and_set_bit(offset, dln2->pin_dir_set))
-                        set/clear_bit(offset, dln2->pin_dir);
+Hi Wolfram,
 
-because gpiolib calls get_direction() while requesting a pin and
-request cannot race with itself. Which means that get_direction() can
-not race with itself the first time it is called, when the set/clear
-operation will be run.
+This patch is really useful for us.  Is it going to be picked up?
 
-And because we know that get_direction() is called first, we can even
-remove the set/clear operation from set_direction().
+Alan
