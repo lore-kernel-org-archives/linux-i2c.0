@@ -1,101 +1,73 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: About RK3288 i2c scl duty cycle
-Date: Wed, 17 Sep 2014 21:17:18 -0700
-Message-ID: <CAD=FV=WLH_md15gUu0tGXvVE0nTLkgc6hPhMMMQBb9h3qNwptw@mail.gmail.com>
-References: <2014091709302172205233@rock-chips.com>
-	<CAD=FV=VEUVxxZ8ZP89qhSOmvX_LgMvnczNx17qdMTGCapZj3uw@mail.gmail.com>
-	<541A34C3.6000400@rock-chips.com>
+From: "Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH v2] i2c: imx: Add arbitration lost check
+Date: Thu, 18 Sep 2014 06:48:02 +0000
+Message-ID: <7e13bb25c99a4300a6e9a238d45e6420@BY2PR03MB379.namprd03.prod.outlook.com>
+References: <1409723527-30603-1-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <541A34C3.6000400-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+In-Reply-To: <1409723527-30603-1-git-send-email-haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: "Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Haibo.Chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Addy,
+Hi, Wolfram,
 
-On Wed, Sep 17, 2014 at 6:26 PM, addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote=
-:
-> Add public list
->
-> On 2014/9/17 23:17, Doug Anderson wrote:
->> Addy,
->>
->> On Tue, Sep 16, 2014 at 6:30 PM, addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org
->> <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
->>> hi, all
->>
->> Any reason why you didn't add some public lists?  It seems like this
->> is a perfect discussion for linux-i2c.
->>
->>
->>> According to i2c-bus specification(version2.1, page 32, Table5, FAS=
-T-MODE):
->>> The minimum LOW period of the scl clock is <1.3us>, and the minimum=
- HIGH
->>> period of the scl clock is <0.6us>.
->>> T(min_low) : T(min_high)  ~=3D 2 : 1
->>>
->>> If <DIVH =3D DIVL> in fast mode(scl rate =3D 400Khz)
->>> 1=EF=BC=89Under ideal conditions, T(scl_low) =3D T(scl_high) =3D <1=
-=2E25us>
->>> 2=EF=BC=89Our measurement, T(scl_low) =3D <1.3us>, T(scl_high) =3D =
-<1.25us>
->>>
->>> The low period of the scl clock is critical.
->>>
->>> Do we need set <DIVL:DIVH =3D 1 : 2>  to increase T(scl_low)?   // =
-T(scl_low )
->>> : T(scl_High) =3D 2 : 1
->>
->> I can't say I've ever looked at that pat of the i2c spec before, but
->> what you say seems reasonable to me.  ...well for 400kHz, at least.
->> At 100kHz you shouldn't use the same 2:1 ratio.
->
-> Yes, in normal-mode(100K) we can be only used 1:1 ratio.
-> But in FAST-MODE maybe we must use 2:1 ratio.
-> ----
-> In Table 5(Characteristics of the SDA and SCL bus lines for F/S-mode =
-I2C-bus devices)
->
-> 1)FAST-MODE(400K):
->   The minimum LOW period of the scl clock                1.3us
->   the minimum HIGH period of the scl clock               0.6us
->   T(min_low) : T(min_high)  ~=3D 2 : 1
->
->   But I can't see any ratio about In FAST-mode(400k) and Normal-mode(=
-100k).
-> 2)Normal-MODE(100K):
->   The minimum LOW period of the scl clock                4.7us
->   the minimum HIGH period of the scl clock               4.0us
->   T(min_low) : T(min_high)  ~=3D 1 : 1
+From: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org> Sent: Wednesday, September 03, 2014 1:52 PM + 0800
+> To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+> Cc: Duan Fugang-B38611; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: [PATCH v2] i2c: imx: Add arbitration lost check
+> 
+> According to the i.mx spec, for multimaster mode, if I2C is enabled when
+> the bus is busy and asserts start, hardware inhibits the transmission,
+> clears MSTA without signaling a stop, generate an interrupt, and set
+> I2C_I2SR[IAL] to indicate a failed attempt to engage the bus, which means
+> arbitration lost. In this case, we should first test I2C_I2SR[IAL], and
+> clear this bit if it is set, and then I2C controller default to slave
+> receive mode.
+> 
+> This patch check the IAL bit every time before an I2c transmission.
+> if IAL is set, clear it and make I2C controller to default mode.
+> 
+> Signed-off-by: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Acked-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> ---
+> Changes for V2:
+> -Use 'EAGAIN' instead of 'EIO' for arbitration lost -Modify the comment
+> style
+> 
+>  drivers/i2c/busses/i2c-imx.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 613069b..ceff87c 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -268,6 +268,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct
+> *i2c_imx, int for_busy)
+> 
+>  	while (1) {
+>  		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +
+> +		/* check for arbitration lost */
+> +		if (temp & I2SR_IAL) {
+> +			temp &= ~I2SR_IAL;
+> +			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> +			return -EAGAIN;
+> +		}
+> +
+>  		if (for_busy && (temp & I2SR_IBB))
+>  			break;
+>  		if (!for_busy && !(temp & I2SR_IBB))
+> --
+> 1.9.1
+> 
+> --
 
-You might as well do the math all the way correctly.  That is for
-clock > 100kHz use 47 / 87 and 40 / 87.  For clock <=3D 100kHz use 13 /
-19 and 6 / 19
+Can you apply the patch or other comments ?
 
-I think that'll give us a max margin, or (given perfect precision):
-* a low of 5.4us (10 * 47 / 87.) and a high of 4.6us (10 * 40 / 87.) fo=
-r 100kHz
-* a low of 1.7us and a high of .8us for 400kHz
-
-
-> 3) HS-mode(3.4M)
->   ratio of 1 to 2 is required, decribed as follows:
->   Hs-mode master devices generate a serial clock signal with a HIGH t=
-o LOW ratio of 1 to 2
-
-You forgot about Fast Mode Plus!  ;)  You should probably think of
-that before High Speed (IMHO)...
-
-=2E..seriously, though, I think you should send up a patch to do 400kHz
-right first, then worry about fast mode plus and high speed.  I
-haven't read through the whole i2c-rk3x.c driver, but I can't quite
-believe that HS mode is supported right now.  It requires a whole
-bunch of extra negotiation.
-
-
--Doug
+Thanks,
+Haibo
