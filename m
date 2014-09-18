@@ -1,121 +1,92 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v4 2/3] i2c: add support for Diolan DLN-2 USB-I2C adapter
-Date: Thu, 18 Sep 2014 11:13:13 +0200
-Message-ID: <20140918091313.GA1989@localhost>
-References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
- <1410290686-6680-3-git-send-email-octavian.purdila@intel.com>
- <20140917094445.GG20727@localhost>
- <CAE1zotJt+Eq7dCaWgFUV_=tXvHL=nExW-KeL3gzTUEgqu8AX9Q@mail.gmail.com>
- <20140918081959.GH20727@localhost>
- <CAE1zotKB48T9qz4NaxMbMMiuit_v+Zd9wpcdQrVFw7nVCBYX-w@mail.gmail.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: designware: Add support for AMD i2c controller
+Date: Thu, 18 Sep 2014 12:19:10 +0300
+Message-ID: <20140918091910.GE10854@lahna.fi.intel.com>
+References: <1410930885-1379-1-git-send-email-carlpeng008@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAE1zotKB48T9qz4NaxMbMMiuit_v+Zd9wpcdQrVFw7nVCBYX-w@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Johan Hovold <johan@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1410930885-1379-1-git-send-email-carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 18, 2014 at 11:49:19AM +0300, Octavian Purdila wrote:
-> On Thu, Sep 18, 2014 at 11:19 AM, Johan Hovold <johan@kernel.org> wrote:
-> > On Wed, Sep 17, 2014 at 01:07:51PM +0300, Octavian Purdila wrote:
-> >> On Wed, Sep 17, 2014 at 12:44 PM, Johan Hovold <johan@kernel.org> wrote:
-> >>
-> >> <snip>
-> >>
-> >> >> +     /*
-> >> >> +      * Buffer to hold the packet for read or write transfers. One
-> >> >> +      * is enough since we can't have multiple transfers in
-> >> >> +      * parallel on the i2c adapter.
-> >> >> +      */
-> >> >> +     union {
-> >> >> +             struct {
-> >> >> +                     u8 port;
-> >> >> +                     u8 addr;
-> >> >> +                     u8 mem_addr_len;
-> >> >> +                     __le32 mem_addr;
-> >> >> +                     __le16 buf_len;
-> >> >> +                     u8 buf[DLN2_I2C_MAX_XFER_SIZE];
-> >> >> +             } __packed tx;
-> >> >> +             struct {
-> >> >> +                     __le16 buf_len;
-> >> >> +                     u8 buf[DLN2_I2C_MAX_XFER_SIZE];
-> >> >> +             } __packed rx;
-> >> >> +     } buf;
-> >> >
-> >> > While this works in this case due to the extra copy you do in
-> >> > dln2_transfer, allocating buffers that would (generally) be used for DMA
-> >> > transfers as part of a larger structure is a recipe for trouble.
-> >> >
-> >> > It's probably better to allocate separately, if only to prevent people
-> >> > from thinking there might be a bug here.
-> >> >
-> >>
-> >> Just to make sure I understand this, what could the issues be? The
-> >> buffers not being aligned or not allocated in continuous physical
-> >> memory?
-> >
-> > Yes, the buffer (and any subsequent field) would have to be cache-line
-> > aligned to avoid corruption due to cache-line sharing on some systems.
-> >
+On Wed, Sep 17, 2014 at 01:14:45PM +0800, Carl Peng wrote:
+> AMD i2c bus controller is ACPI device, its ACPI ID
+> is "AMD0010". This patch is used to add support for
+> AMD i2c bus controller in the Designware platform
+> driver.
 > 
-> Ah, ok, makes sense now. But is it safe to use kmalloc() in this case?
-> Does kmalloc() prevent cache line sharing?
-
-Yes, it does (as long as you allocate the buffer separately from the
-containing struct).
-
-> >> <snip>
-> >>
-> >> >> +
-> >> >> +     rx_buf_len = le16_to_cpu(dln2->buf.rx.buf_len);
-> >> >> +     if (rx_len < rx_buf_len + sizeof(dln2->buf.rx.buf_len))
-> >> >> +             return -EPROTO;
-> >> >> +
-> >> >> +     if (data_len > rx_buf_len)
-> >> >> +             data_len = rx_buf_len;
-> >> >
-> >> > You're still not checking that the received data does not overflow the
-> >> > supplied buffer as I already commented on v3.
-> >> >
-> >> >> +
-> >> >> +     memcpy(data, dln2->buf.rx.buf, data_len);
-> >> >> +
-> >> >> +     return data_len;
-> >> >> +}
-> >>
-> >> Hmm, perhaps I am missing something, but we never transfer more then
-> >> data_len, where data_len is the size of the buffer supplied by the
-> >> user.
-> >
-> > That is the amount of data you request from the device, but you never
-> > check how much is actually returned.
-> >
+> Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 53 +++++++++++++++++++++++------
+>  1 file changed, 43 insertions(+), 10 deletions(-)
 > 
-> Actually we check the receive buffer size here:
-> 
->     if (data_len > rx_buf_len)
->         data_len = rx_buf_len;
-> 
-> rx_buf_len is the i2c received payload size while rx_len is the length
-> of received message
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index bc87733..20015e6 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -43,14 +43,18 @@
+>  #include <linux/acpi.h>
+>  #include "i2c-designware-core.h"
+>  
+> +struct dw_i2c_config {
+> +	u32 clk_rate_khz;
+> +};
+> +
+>  static struct i2c_algorithm i2c_dw_algo = {
+>  	.master_xfer	= i2c_dw_xfer,
+>  	.functionality	= i2c_dw_func,
+>  };
+> -static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+> -{
+> -	return clk_get_rate(dev->clk)/1000;
+> -}
+> +
+> +static struct dw_i2c_config amd_i2c_config = {
+> +	.clk_rate_khz = 133 * 1000,
+> +};
+>  
+>  #ifdef CONFIG_ACPI
+>  static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+> @@ -107,7 +111,8 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+>  	{ "INT3433", 0 },
+>  	{ "80860F41", 0 },
+>  	{ "808622C1", 0 },
+> -	{ }
+> +	{ "AMD0010", (unsigned long)&amd_i2c_config },
+> +	{},
+>  };
+>  MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+>  #else
+> @@ -117,12 +122,35 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+>  }
+>  #endif
+>  
+> +static const struct dw_i2c_config *i2c_dw_get_config(
+> +					struct dw_i2c_dev *dev)
+> +{
+> +	const struct acpi_device_id *id;
+> +
+> +	id = acpi_match_device(dw_i2c_acpi_match, dev->dev);
 
-Bah, you're right. You never explicitly check for overflow, but also
-never use more than data_len bytes of the returned buffer.
+This fails to compile if !CONFIG_ACPI.
 
-I think you should add explicit checks, and return an error in this case
-rather than silently truncate the data.
+But it doesn't matter because I changed my mind about how this should be
+implemented ;-)
 
-> > You really should clean up the error handling of this function as it is
-> > currently not very readable.
-> >
-> 
-> Perhaps adding some comments similar to the the explanation above would help?
+I think it will be better if we just register the clock in ACPI parts of
+this driver in case of AMD device. That keeps the generic parts of the
+platform driver cleaner.
 
-It's more the logic of this function I find a bit twisted. I think you
-should clean it up and consider adding appropriately named (temporary)
-variables to make it more readable.
+I will send you a new version in a minute. Please let me know what you
+think and if it works on your machine.
 
-Johan
+> +	if (id)
+> +		return (const struct dw_i2c_config *)id->driver_data;
+> +
+> +	return NULL;
+> +}
