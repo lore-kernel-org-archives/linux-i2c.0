@@ -1,271 +1,278 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v4 3/3] gpio: add support for the Diolan DLN-2 USB GPIO
- driver
-Date: Thu, 18 Sep 2014 12:54:58 +0200
-Message-ID: <20140918105458.GA2337@localhost>
+From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 1/3] mfd: add support for Diolan DLN-2 devices
+Date: Thu, 18 Sep 2014 13:31:50 +0200
+Message-ID: <20140918113150.GB2337@localhost>
 References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
- <1410290686-6680-4-git-send-email-octavian.purdila@intel.com>
+ <1410290686-6680-2-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1410290686-6680-4-git-send-email-octavian.purdila@intel.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1410290686-6680-2-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 09, 2014 at 10:24:46PM +0300, Octavian Purdila wrote:
+On Tue, Sep 09, 2014 at 10:24:44PM +0300, Octavian Purdila wrote:
 
-<snip>
-
-> +#define DLN2_GPIO_DIRECTION_IN		0
-> +#define DLN2_GPIO_DIRECTION_OUT		1
-> +
-> +static int dln2_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
+> +static int alloc_rx_slot(struct dln2_mod_rx_slots *rxs)
 > +{
 > +	int ret;
-> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-> +	struct dln2_gpio_pin req = {
-> +		.pin = cpu_to_le16(offset),
-> +	};
-> +	struct dln2_gpio_pin_val rsp;
-> +	int len = sizeof(rsp);
+> +	int slot;
 > +
-> +	if (test_bit(offset, dln2->pin_dir_set)) {
-> +		rsp.value = !!test_bit(offset, dln2->pin_dir);
-> +		goto report;
-> +	}
-> +
-> +	ret = dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_GET_DIRECTION,
-> +			    &req, sizeof(req), &rsp, &len);
+> +	/* No need to timeout here, the wait is bounded by the timeout
+> +	 * in _dln2_transfer
+> +	 */
+> +	ret = wait_event_interruptible(rxs->wq, find_free_slot(rxs, &slot));
 > +	if (ret < 0)
 > +		return ret;
-> +	if (len < sizeof(rsp) || req.pin != rsp.pin)
-> +		return -EPROTO;
-> +	set_bit(offset, dln2->pin_dir_set);
-
-You shouldn't set this flag until you've stored the direction.
-
 > +
-> +report:
-> +	switch (rsp.value) {
-> +	case DLN2_GPIO_DIRECTION_IN:
-> +		clear_bit(offset, dln2->pin_dir);
-> +		return 1;
-> +	case DLN2_GPIO_DIRECTION_OUT:
-> +		set_bit(offset, dln2->pin_dir);
-> +		return 0;
+> +	return slot;
+> +}
+> +
+> +static void free_rx_slot(struct dln2_dev *dln2, struct dln2_mod_rx_slots *rxs,
+> +			 int slot)
+> +{
+> +	struct urb *urb = NULL;
+> +	unsigned long flags;
+> +	struct dln2_rx_context *rxc;
+> +	struct device *dev = &dln2->interface->dev;
+> +	int ret;
+> +
+> +	spin_lock_irqsave(&rxs->lock, flags);
+> +
+> +	clear_bit(slot, &rxs->bmap);
+> +
+> +	rxc = &rxs->slots[slot];
+> +	rxc->connected = false;
+> +	urb = rxc->urb;
+> +	rxc->urb = NULL;
+> +	reinit_completion(&rxc->done);
+> +
+> +	spin_unlock_irqrestore(&rxs->lock, flags);
+> +
+> +	if (urb)  {
+> +		ret = usb_submit_urb(urb, GFP_KERNEL);
+> +		if (ret < 0)
+> +			dev_err(dev, "failed to re-submit RX URB: %d\n", ret);
+> +	}
+> +
+> +	wake_up_interruptible(&rxs->wq);
+> +}
+
+> +static void dln2_rx_transfer(struct dln2_dev *dln2, struct urb *urb,
+> +			     u16 handle, u16 rx_slot)
+> +{
+> +	struct dln2_mod_rx_slots *rxs = &dln2->mod_rx_slots[handle];
+> +	struct dln2_rx_context *rxc;
+> +	struct device *dev = &dln2->interface->dev;
+> +	int err;
+> +
+> +	spin_lock(&rxs->lock);
+> +	rxc = &rxs->slots[rx_slot];
+> +	if (rxc->connected) {
+> +		rxc->urb = urb;
+> +		complete(&rxc->done);
+> +	} else {
+> +		dev_warn(dev, "dropping response %d/%d", handle, rx_slot);
+> +		err = usb_submit_urb(urb, GFP_ATOMIC);
+> +		if (err < 0)
+> +			dev_err(dev, "failed to re-submit RX URB: %d\n", err);
+> +	}
+> +	spin_unlock(&rxs->lock);
+> +}
+
+> +static void dln2_rx(struct urb *urb)
+> +{
+> +	int err;
+> +	struct dln2_dev *dln2 = urb->context;
+> +	struct dln2_header *hdr = urb->transfer_buffer;
+> +	struct device *dev = &dln2->interface->dev;
+> +	u16 id, echo, handle, size;
+> +	u8 *data;
+> +	int len;
+> +
+> +	switch (urb->status) {
+> +	case 0:
+> +		/* success */
+> +		break;
+> +	case -ECONNRESET:
+> +	case -ENOENT:
+> +	case -ESHUTDOWN:
+> +	case -EPIPE:
+> +		/* this urb is terminated, clean up */
+> +		dev_dbg(dev, "urb shutting down with status %d\n", urb->status);
+> +		return;
 > +	default:
-> +		return -EPROTO;
-> +	}
-> +}
-> +
-> +static int dln2_gpio_get(struct gpio_chip *chip, unsigned int offset)
-> +{
-> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-> +	int dir;
-> +
-> +	dir = dln2_gpio_get_direction(chip, offset);
-> +	if (dir < 0)
-> +		return dir;
-> +
-> +	if (dir)
-> +		return dln2_gpio_pin_get_in_val(dln2, offset);
-> +
-> +	return dln2_gpio_pin_get_out_val(dln2, offset);
-> +}
-> +
-> +static void dln2_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
-> +{
-> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-> +
-> +	dln2_gpio_pin_set_out_val(dln2, offset, value);
-> +}
-> +
-> +static int dln2_gpio_set_direction(struct gpio_chip *chip, unsigned offset,
-> +				   unsigned dir)
-> +{
-> +	struct dln2_gpio *dln2 = container_of(chip, struct dln2_gpio, gpio);
-> +	struct dln2_gpio_pin_val req = {
-> +		.pin = cpu_to_le16(offset),
-> +		.value = cpu_to_le16(dir),
-> +	};
-> +
-> +	set_bit(offset, dln2->pin_dir_set);
-
-Set flag after you store the direction below.
-
-> +	if (dir == DLN2_GPIO_DIRECTION_OUT)
-> +		set_bit(offset, dln2->pin_dir);
-> +	else
-> +		clear_bit(offset, dln2->pin_dir);
-
-Either way, it looks like this could race with get_direction() if you
-get a set_direction() while get_direction() is retrieving the direction
-from the device.
-
-This would break gpio_get().
-
-> +
-> +	return dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_SET_DIRECTION,
-> +			     &req, sizeof(req), NULL, NULL);
-> +}
-
-<snip>
-
-> +static int dln2_gpio_set_event_cfg(struct dln2_gpio *dln2, unsigned pin,
-> +				   unsigned type, unsigned period)
-> +{
-> +	struct {
-> +		__le16 pin;
-> +		u8 type;
-> +		__le16 period;
-> +	} __packed req = {
-> +		.pin = cpu_to_le16(pin),
-> +		.type = type,
-> +		.period = cpu_to_le16(period),
-> +	};
-> +
-> +	return dln2_transfer(dln2->pdev, DLN2_GPIO_PIN_SET_EVENT_CFG,
-> +			     &req, sizeof(req), NULL, NULL);
-> +}
-> +
-> +static void dln2_irq_work(struct work_struct *w)
-> +{
-> +	struct dln2_irq_work *iw = container_of(w, struct dln2_irq_work, work);
-> +	struct dln2_gpio *dln2 = iw->dln2;
-> +	u8 type = iw->type & DLN2_GPIO_EVENT_MASK;
-> +
-> +	if (test_bit(iw->pin, dln2->irqs_enabled))
-> +		dln2_gpio_set_event_cfg(dln2, iw->pin, type, 0);
-> +	else
-> +		dln2_gpio_set_event_cfg(dln2, iw->pin, DLN2_GPIO_EVENT_NONE, 0);
-> +}
-> +
-> +static void dln2_irq_enable(struct irq_data *irqd)
-> +{
-> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
-> +	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
-> +	int pin = irqd_to_hwirq(irqd);
-> +
-> +	set_bit(pin, dln2->irqs_enabled);
-> +	schedule_work(&dln2->irq_work[pin].work);
-> +}
-> +
-> +static void dln2_irq_disable(struct irq_data *irqd)
-> +{
-> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(irqd);
-> +	struct dln2_gpio *dln2 = container_of(gc, struct dln2_gpio, gpio);
-> +	int pin = irqd_to_hwirq(irqd);
-> +
-> +	clear_bit(pin, dln2->irqs_enabled);
-> +	schedule_work(&dln2->irq_work[pin].work);
-> +}
-
-<snip>
-
-> +static int dln2_gpio_probe(struct platform_device *pdev)
-> +{
-> +	struct dln2_gpio *dln2;
-> +	struct device *dev = &pdev->dev;
-> +	int pins = dln2_gpio_get_pin_count(pdev);
-
-Again, don't do non-trivial intialisations when declaring your variables.
-
-> +	int i, ret;
-> +
-> +	if (pins < 0) {
-> +		dev_err(dev, "failed to get pin count: %d\n", pins);
-> +		return pins;
-> +	}
-> +	if (pins > DLN2_GPIO_MAX_PINS) {
-> +		pins = DLN2_GPIO_MAX_PINS;
-> +		dev_warn(dev, "clamping pins to %d\n", DLN2_GPIO_MAX_PINS);
-> +	}
-> +
-> +	dln2 = devm_kzalloc(&pdev->dev, sizeof(*dln2), GFP_KERNEL);
-> +	if (!dln2)
-> +		return -ENOMEM;
-> +
-> +	for (i = 0; i < DLN2_GPIO_MAX_PINS; i++) {
-> +		INIT_WORK(&dln2->irq_work[i].work, dln2_irq_work);
-> +		dln2->irq_work[i].pin = i;
-> +		dln2->irq_work[i].dln2 = dln2;
-> +	}
-> +
-> +	dln2->pdev = pdev;
-> +
-> +	dln2->gpio.label = "dln2";
-> +	dln2->gpio.dev = dev;
-> +	dln2->gpio.owner = THIS_MODULE;
-> +	dln2->gpio.base = -1;
-> +	dln2->gpio.ngpio = pins;
-> +	dln2->gpio.exported = 1;
-> +	dln2->gpio.set = dln2_gpio_set;
-> +	dln2->gpio.get = dln2_gpio_get;
-> +	dln2->gpio.request = dln2_gpio_request;
-> +	dln2->gpio.free = dln2_gpio_free;
-> +	dln2->gpio.get_direction = dln2_gpio_get_direction;
-> +	dln2->gpio.direction_input = dln2_gpio_direction_input;
-> +	dln2->gpio.direction_output = dln2_gpio_direction_output;
-> +	dln2->gpio.set_debounce = dln2_gpio_set_debounce;
-> +
-> +	platform_set_drvdata(pdev, dln2);
-> +
-> +	ret = gpiochip_add(&dln2->gpio);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to add gpio chip: %d\n", ret);
+> +		dev_dbg(dev, "nonzero urb status received %d\n", urb->status);
 > +		goto out;
 > +	}
 > +
-> +	ret = gpiochip_irqchip_add(&dln2->gpio, &dln2_gpio_irqchip, 0,
-> +				   handle_simple_irq, IRQ_TYPE_NONE);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to add irq chip: %d\n", ret);
-> +		goto out_gpiochip_remove;
+> +	if (urb->actual_length < sizeof(struct dln2_header)) {
+> +		dev_err(dev, "short response: %d\n", urb->actual_length);
+> +		goto out;
 > +	}
 > +
-> +	ret = dln2_register_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV,
-> +				     dln2_gpio_event);
-> +	if (ret) {
-> +		dev_err(dev, "failed to register event cb: %d\n", ret);
-> +		goto out_gpiochip_remove;
+> +	handle = le16_to_cpu(hdr->handle);
+> +	id = le16_to_cpu(hdr->id);
+> +	echo = le16_to_cpu(hdr->echo);
+> +	size = le16_to_cpu(hdr->size);
+> +
+> +	if (size != urb->actual_length) {
+> +		dev_err(dev, "size mismatch: handle %x cmd %x echo %x size %d actual %d\n",
+> +			handle, id, echo, size, urb->actual_length);
+> +		goto out;
 > +	}
 > +
-> +	return 0;
+> +	if (handle >= DLN2_MAX_MODULES) {
+> +		dev_warn(dev, "RX: invalid handle %d\n", handle);
+> +		goto out;
+> +	}
 > +
-> +out_gpiochip_remove:
-> +	gpiochip_remove(&dln2->gpio);
+> +	data = urb->transfer_buffer + sizeof(struct dln2_header);
+> +	len = urb->actual_length - sizeof(struct dln2_header);
+> +
+> +	if (handle == DLN2_HANDLE_EVENT) {
+> +		dln2_run_rx_callbacks(dln2, id, echo, data, len);
+> +		err = usb_submit_urb(urb, GFP_ATOMIC);
+> +		if (err < 0)
+> +			goto out_submit_failed;
+> +	} else {
+> +		dln2_rx_transfer(dln2, urb, handle, echo);
+> +	}
+> +
+> +	return;
+> +
 > +out:
+> +	err = usb_submit_urb(urb, GFP_ATOMIC);
+> +out_submit_failed:
+> +	if (err < 0)
+> +		dev_err(dev, "failed to re-submit RX URB: %d\n", err);
+> +}
+
+> +static int _dln2_transfer(struct dln2_dev *dln2, u16 handle, u16 cmd,
+> +			  const void *obuf, unsigned obuf_len,
+> +			  void *ibuf, unsigned *ibuf_len)
+> +{
+> +	int ret = 0;
+> +	u16 result;
+> +	int rx_slot;
+> +	struct dln2_response *rsp;
+> +	struct dln2_rx_context *rxc;
+> +	struct device *dev = &dln2->interface->dev;
+> +	const int timeout = DLN2_USB_TIMEOUT * HZ / 1000;
+> +	struct dln2_mod_rx_slots *rxs = &dln2->mod_rx_slots[handle];
+> +
+> +	rx_slot = alloc_rx_slot(rxs);
+> +	if (rx_slot < 0)
+> +		return rx_slot;
+> +
+> +	ret = dln2_send_wait(dln2, handle, cmd, rx_slot, obuf, obuf_len);
+> +	if (ret < 0) {
+> +		free_rx_slot(dln2, rxs, rx_slot);
+> +		dev_err(dev, "USB write failed: %d", ret);
+> +		return ret;
+> +	}
+> +
+> +	rxc = &rxs->slots[rx_slot];
+> +
+> +	ret = wait_for_completion_interruptible_timeout(&rxc->done, timeout);
+> +	if (ret <= 0) {
+> +		if (!ret)
+> +			ret = -ETIMEDOUT;
+> +		goto out_free_rx_slot;
+> +	}
+> +
+> +	/* if we got here we know that the response header has been checked */
+> +	rsp = rxc->urb->transfer_buffer;
+> +	if (rsp->hdr.size < sizeof(*rsp)) {
+> +		ret = -EPROTO;
+> +		goto out_free_rx_slot;
+> +	}
+> +
+> +	result = le16_to_cpu(rsp->result);
+> +	if (result) {
+> +		dev_dbg(dev, "%d received response with error %d\n",
+> +			handle, result);
+> +		ret = -EREMOTEIO;
+> +		goto out_free_rx_slot;
+> +	}
+> +
+> +	if (!ibuf) {
+> +		ret = 0;
+> +		goto out_free_rx_slot;
+> +	}
+> +
+> +	if (*ibuf_len > rsp->hdr.size - sizeof(*rsp))
+> +		*ibuf_len = rsp->hdr.size - sizeof(*rsp);
+> +
+> +	memcpy(ibuf, rsp + 1, *ibuf_len);
+> +
+> +out_free_rx_slot:
+> +	free_rx_slot(dln2, rxs, rx_slot);
+> +
 > +	return ret;
 > +}
 > +
-> +static int dln2_gpio_remove(struct platform_device *pdev)
+> +int dln2_transfer(struct platform_device *pdev, u16 cmd,
+> +		  const void *obuf, unsigned obuf_len,
+> +		  void *ibuf, unsigned *ibuf_len)
 > +{
-> +	struct dln2_gpio *dln2 = platform_get_drvdata(pdev);
+> +	struct dln2_platform_data *dln2_pdata;
+> +	struct dln2_dev *dln2;
+> +	u16 h;
 > +
-> +	dln2_unregister_event_cb(pdev, DLN2_GPIO_CONDITION_MET_EV);
-> +	dln2->pdev = NULL;
-> +	gpiochip_remove(&dln2->gpio);
+> +	/* USB device has been disconnected, bail out */
+> +	if (!pdev)
+> +		return -ENODEV;
 
-You probably need to flush all your work structs here.
+This isn't sufficient to prevent I/O after disconnect, or worse.
+
+You set pdev to NULL in the platform device's remove callbacks, but you
+have no synchronisation.
+
+To take one example: in _dln2_transfer above you wait for completion,
+but you never wake the process up in case the urb is killed due to a
+disconnect. Hence you get a timeout much later, call free_rx_slot which
+tries to send of another urb using potentially already freed data.
 
 > +
-> +	return 0;
+> +	dln2 = dev_get_drvdata(pdev->dev.parent);
+> +	dln2_pdata = dev_get_platdata(&pdev->dev);
+> +	h = dln2_pdata->handle;
+> +
+> +	return _dln2_transfer(dln2, h, cmd, obuf, obuf_len, ibuf, ibuf_len);
+> +}
+> +EXPORT_SYMBOL(dln2_transfer);
+
+> +static void dln2_free_rx_urbs(struct dln2_dev *dln2)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < DLN2_MAX_URBS; i++) {
+> +		usb_kill_urb(dln2->rx_urb[i]);
+> +		usb_free_urb(dln2->rx_urb[i]);
+> +		kfree(dln2->rx_buf[i]);
+> +	}
 > +}
 > +
-> +static struct platform_driver dln2_gpio_driver = {
-> +	.driver.name	= DRIVER_NAME,
-> +	.driver.owner	= THIS_MODULE,
-> +	.probe		= dln2_gpio_probe,
-> +	.remove		= dln2_gpio_remove,
-> +};
+> +static void dln2_free(struct dln2_dev *dln2)
+> +{
+> +	dln2_free_rx_urbs(dln2);
+> +	usb_put_dev(dln2->usb_dev);
+> +	kfree(dln2);
+> +}
+
+> +static void dln2_disconnect(struct usb_interface *interface)
+> +{
+> +	struct dln2_dev *dln2 = usb_get_intfdata(interface);
 > +
-> +module_platform_driver(dln2_gpio_driver);
-> +
-> +MODULE_AUTHOR("Daniel Baluta <daniel.baluta@intel.com");
-> +MODULE_DESCRIPTION(DRIVER_NAME "driver");
-> +MODULE_LICENSE("GPL");
+> +	mfd_remove_devices(&interface->dev);
+
+You need to make sure all I/O has stopped here.
+
+> +	dln2_free(dln2);
+> +}
 
 Johan
