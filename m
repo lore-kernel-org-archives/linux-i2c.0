@@ -1,82 +1,65 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: i2c-core.ko renamed to i2ccore.ko
-Date: Thu, 18 Sep 2014 17:10:48 +0200
-Message-ID: <20140918150954.GA4420@katana>
-References: <1411042678.7338.20.camel@chaos.site>
- <20140918125825.GR10854@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140918125825.GR10854-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: [PATCH v4 0/5] Second batch of cleanups for cros_ec
+Date: Thu, 18 Sep 2014 17:18:53 +0200
+Message-ID: <1411053538-17237-1-git-send-email-javier.martinez@collabora.co.uk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Gwendal Grignou <gwendal@google.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Javier Martinez Canillas <javier.martinez@collabora.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
+Hello,
 
---61jdw2sOBCFtR2d/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a second batch of cleanups patches for the mfd cros_ec
+driver and its subdevices drivers. The first batch of cleanups
+was posted by Doug Anderson [0] and have already been merged.
+The patches were picked from the ChromeOS 3.8 kernel and after
+these no cleanups patches for cros_ec are left, only commits
+that add cros ec support not yet available in mainline.
 
-On Thu, Sep 18, 2014 at 03:58:57PM +0300, Mika Westerberg wrote:
-> On Thu, Sep 18, 2014 at 02:17:58PM +0200, Jean Delvare wrote:
-> > Hi guys,
-> >=20
-> > Sorry for jumping in a bit late, but given that I did not get involved
-> > in the discussions that led to this decision, better late than never.
-> >=20
-> > I almost had an heart attack when noticing that module i2c-core.ko has
-> > suddenly been renamed to i2ccore.ko without an hyphen.
-> >=20
-> > Renaming kernel modules is almost always wrong, in particular subsystem
-> > core modules. Such renames have an impact at various levels. We just had
-> > to change a configuration file in the openSUSE Factory kernel to adjust
-> > that change, and this is how I noticed it. But there can be several
-> > other issues, including mkinitrd or equivalent tools, as well as
-> > documentation. The extra work and confusion is a high price to pay, and
-> > it can easily be avoided.
->=20
-> I understand completely your point and I guess this was rather
-> inadvertent change.
+This is a fourth version of the patch series that addresses
+issues pointed out by Lee Jones on v3 [1]. I dropped patch #6
+from this version since that change will make more sense once
+the cros_ec_dev driver is added and the cells array isn't empty.
 
-Yes. Thanks for pointing out, Jean!
+There is almost no functionality added on this series but the
+idea is to reduce the delta between the mainline drivers and
+the ones in the downstream Chrome OS 3.8 kernel so the missing
+functionality can be added on top once these cleanups patches
+are merged. The missing functionality currently in mainline is:
 
->=20
-> > So I am kindly asking that you revert this name change before kernel
-> > v3.17 final. Rename source files if you really have to, git makes it
-> > easy. Or merge the i2c-acpi.c code into i2c-core.c with ifdefs. Or
-> > whatever. Just don't rename i2c-core.ko, please.
->=20
-> My vote goes for merging i2c-acpi.c back to i2c-core.c with #ifdefs.
->=20
-> Tianyu, Wolfram, comments?
+- Chrome OS Embedded Controller userspace device interface
+- Chrome OS Embedded Controller Low Pin Count (LPC) inteface
+- Access to vboot context stored on a block device
+- Access to vboot context stored on EC's nvram
 
-Agreed.
+The patches in this series are authored by different people
+(all on cc) and consist of the following:
 
+Andrew Bresticker (3):
+  mfd: cros_ec: stop calling ->cmd_xfer() directly
+  mfd: cros_ec: move locking into cros_ec_cmd_xfer
+  mfd: cros_ec: wait for completion of commands that return IN_PROGRESS
 
---61jdw2sOBCFtR2d/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Derek Basehore (1):
+  i2c: i2c-cros-ec-tunnel: Set retries to 3
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Doug Anderson (1):
+  mfd: cros_ec: Delay for 50ms when we see EC_CMD_REBOOT_EC
 
-iQIcBAEBAgAGBQJUGvX2AAoJEBQN5MwUoCm2BDEP/i35Aykbdoy+eUOXotpP+dvM
-NHSY81ySWLmSgKrr+j0NVaNxl3qKLDaU5LytU9Ta6tMPcQX49W6Y8axd9NPH26UO
-SK1YLPTQq1nkDWujC+XmocFdt79croi0T9HaN372RsYVdc5F7zKSGNXFZaMUj3gH
-9LEtG+/GqjzdKMVKiHdIc1XJlSJlxHNOV5gBrul5NgcXVvvuk/9Kof6nFSVAxbR/
-FCar/U+3koIiPiB4Ai9JTcSqrfJLBBCUWgJ5JMPk5tnL27UnfTUqt8jLrOTv3d34
-Rcv8UhRq/p+6ReD0ry1EKt0uQKiN5CosxzkrDtnMwZSEnyOopQnowMF31tbbgp0/
-bUILFhqsYCxbSlzWUUyfaSYJ+g6E3mMPwNtjlyImCkBSktSYqHx4/vF5cD5aOuSR
-BIsj3e9siL1gxf33G5enKQ1tDfhHdp8gZaqggtw8bdv4HX69QRw8Cvtf6PsKJ6Jq
-QdZDbK3WAY0ditzCydbTH6JUxiMA5rQy/DKagBw/rnLuznxrnTpb6ilQYUODrJ9w
-NkLiZ15t7bRrWNYnz67ryNyckvp9+J0NLi2/IpCRQdf0t1jFF9Yp2WT9Y1ByvKyq
-68Hv2d0QHa6AnZ5rPAu+FNkDgYIJTOzmGjO6c3UjULsNx3B2w+hntO5EZv0ekb1Z
-XCKlAYZy9Hx0XbsKmlZz
-=ORtE
------END PGP SIGNATURE-----
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c |  5 +++-
+ drivers/input/keyboard/cros_ec_keyb.c   |  2 +-
+ drivers/mfd/cros_ec.c                   | 48 +++++++++++++++++++++++++++++++++
+ drivers/mfd/cros_ec_spi.c               | 20 +++++++-------
+ include/linux/mfd/cros_ec.h             | 24 ++++++++++++-----
+ 5 files changed, 80 insertions(+), 19 deletions(-)
 
---61jdw2sOBCFtR2d/--
+Patches #1 and #2 can be applied independently but patches #3, #4 and #5
+rely on the previous one so they should be applied together and in that order.
+
+Best regards,
+Javier
+
+[0]: https://www.mail-archive.com/linux-input@vger.kernel.org/msg11385.html
+[1]: https://www.mail-archive.com/linux-samsung-soc@vger.kernel.org/msg36505.html
+
