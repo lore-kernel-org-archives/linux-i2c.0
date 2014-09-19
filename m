@@ -1,123 +1,58 @@
-From: carl peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: designware: Rework probe() to get clock a bit later
-Date: Fri, 19 Sep 2014 15:08:58 +0800
-Message-ID: <CAC5e1FqNpfnW=nAvn0LTuYm2Cwd332UCgzYkx-h1Y8WaRPdTTw@mail.gmail.com>
-References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 3/3] gpio: add support for the Diolan DLN-2 USB GPIO
+ driver
+Date: Fri, 19 Sep 2014 09:11:39 +0200
+Message-ID: <20140919071139.GE26817@localhost>
+References: <1410290686-6680-1-git-send-email-octavian.purdila@intel.com>
+ <1410290686-6680-4-git-send-email-octavian.purdila@intel.com>
+ <20140918105458.GA2337@localhost>
+ <CAE1zot+_hX6TVkW-B6H9NzgyLhF54oQJZt+x_xXGjEB6A5dAZA@mail.gmail.com>
+ <20140918124611.GA26817@localhost>
+ <CAE1zotK7nb6VVp5a3n2_fnWZQHfizg4hFFy-ZVW5fzyFwmBMcA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1411032367-20274-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAE1zotK7nb6VVp5a3n2_fnWZQHfizg4hFFy-ZVW5fzyFwmBMcA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 18, 2014 at 5:26 PM, Mika Westerberg
-<mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> In order to be able to create missing clock for AMD (and in future possibly
-> others) we move getting clock for the device a bit later. Also make ACPI/DT
-> configuration in the same place depending on from where the device was
-> enumerated from.
->
-> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+On Thu, Sep 18, 2014 at 06:54:34PM +0300, Octavian Purdila wrote:
+> On Thu, Sep 18, 2014 at 3:46 PM, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> > On Thu, Sep 18, 2014 at 03:43:07PM +0300, Octavian Purdila wrote:
+> >> On Thu, Sep 18, 2014 at 1:54 PM, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> >> > On Tue, Sep 09, 2014 at 10:24:46PM +0300, Octavian Purdila wrote:
+> >
+> >> > Either way, it looks like this could race with get_direction() if you
+> >> > get a set_direction() while get_direction() is retrieving the direction
+> >> > from the device.
+> >> >
+> >> > This would break gpio_get().
+> >> >
+> >> I don't think gpio_set_direction() and gpio_get() are allowed to race.
+> >
+> > I wrote that set_direction() and get_direction() could race, which in
+> > turn would break gpio_get() as you would be caching the wrong
+> > direction setting.
+> >
+> 
+> OK, I now see the problem. I think doing this in get_direction() will
+> fix the issue:
+> 
+>                 if (!test_and_set_bit(offset, dln2->pin_dir_set))
+>                         set/clear_bit(offset, dln2->pin_dir);
+> 
+> because gpiolib calls get_direction() while requesting a pin and
+> request cannot race with itself. Which means that get_direction() can
+> not race with itself the first time it is called, when the set/clear
+> operation will be run.
+> 
+> And because we know that get_direction() is called first, we can even
+> remove the set/clear operation from set_direction().
 
-Tested-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Why not simply fetch the direction in request() and get rid of the
+pin_dir_set bitmask?
 
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 54 ++++++++++++++---------------
->  1 file changed, 26 insertions(+), 28 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index bc8773333155..7087b6ee97e2 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -81,9 +81,6 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
->         struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
->         bool fs_mode = dev->master_cfg & DW_IC_CON_SPEED_FAST;
->
-> -       if (!ACPI_HANDLE(&pdev->dev))
-> -               return -ENODEV;
-> -
->         dev->adapter.nr = -1;
->         dev->tx_fifo_depth = 32;
->         dev->rx_fifo_depth = 32;
-> @@ -123,6 +120,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
->         struct i2c_adapter *adap;
->         struct resource *mem;
->         int irq, r;
-> +       u32 ht = 0;
->
->         irq = platform_get_irq(pdev, 0);
->         if (irq < 0) {
-> @@ -145,6 +143,29 @@ static int dw_i2c_probe(struct platform_device *pdev)
->         dev->irq = irq;
->         platform_set_drvdata(pdev, dev);
->
-> +       dev->functionality =
-> +               I2C_FUNC_I2C |
-> +               I2C_FUNC_10BIT_ADDR |
-> +               I2C_FUNC_SMBUS_BYTE |
-> +               I2C_FUNC_SMBUS_BYTE_DATA |
-> +               I2C_FUNC_SMBUS_WORD_DATA |
-> +               I2C_FUNC_SMBUS_I2C_BLOCK;
-> +       dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-> +               DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
-> +
-> +       if (ACPI_COMPANION(&pdev->dev)) {
-> +               dw_i2c_acpi_configure(pdev);
-> +       } else if (pdev->dev.of_node) {
-> +               of_property_read_u32(pdev->dev.of_node,
-> +                                    "i2c-sda-hold-time-ns", &ht);
-> +               of_property_read_u32(pdev->dev.of_node,
-> +                                    "i2c-sda-falling-time-ns",
-> +                                    &dev->sda_falling_time);
-> +               of_property_read_u32(pdev->dev.of_node,
-> +                                    "i2c-scl-falling-time-ns",
-> +                                    &dev->scl_falling_time);
-> +       }
-> +
->         dev->clk = devm_clk_get(&pdev->dev, NULL);
->         dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
->
-> @@ -152,36 +173,13 @@ static int dw_i2c_probe(struct platform_device *pdev)
->                 return PTR_ERR(dev->clk);
->         clk_prepare_enable(dev->clk);
->
-> -       if (pdev->dev.of_node) {
-> -               u32 ht = 0;
-> +       if (!dev->sda_hold_time && ht) {
->                 u32 ic_clk = dev->get_clk_rate_khz(dev);
-> -
-> -               of_property_read_u32(pdev->dev.of_node,
-> -                                       "i2c-sda-hold-time-ns", &ht);
->                 dev->sda_hold_time = div_u64((u64)ic_clk * ht + 500000,
->                                              1000000);
-> -
-> -               of_property_read_u32(pdev->dev.of_node,
-> -                                    "i2c-sda-falling-time-ns",
-> -                                    &dev->sda_falling_time);
-> -               of_property_read_u32(pdev->dev.of_node,
-> -                                    "i2c-scl-falling-time-ns",
-> -                                    &dev->scl_falling_time);
->         }
->
-> -       dev->functionality =
-> -               I2C_FUNC_I2C |
-> -               I2C_FUNC_10BIT_ADDR |
-> -               I2C_FUNC_SMBUS_BYTE |
-> -               I2C_FUNC_SMBUS_BYTE_DATA |
-> -               I2C_FUNC_SMBUS_WORD_DATA |
-> -               I2C_FUNC_SMBUS_I2C_BLOCK;
-> -       dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
-> -               DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
-> -
-> -       /* Try first if we can configure the device from ACPI */
-> -       r = dw_i2c_acpi_configure(pdev);
-> -       if (r) {
-> +       if (!dev->tx_fifo_depth) {
->                 u32 param1 = i2c_dw_read_comp_param(dev);
->
->                 dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-> --
-> 2.1.0
->
+Johan
