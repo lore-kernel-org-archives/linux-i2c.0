@@ -1,104 +1,123 @@
 From: carl peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: designware: Add support for AMD i2c controller
-Date: Fri, 19 Sep 2014 13:29:33 +0800
-Message-ID: <CAC5e1Fr7aX_184BaV0A6QoOv9vW7F1BJu+GddVNZbhjxUwHS7g@mail.gmail.com>
-References: <1410930885-1379-1-git-send-email-carlpeng008@gmail.com>
-	<20140918091910.GE10854@lahna.fi.intel.com>
+Subject: Re: [PATCH 1/2] i2c: designware: Rework probe() to get clock a bit later
+Date: Fri, 19 Sep 2014 15:08:58 +0800
+Message-ID: <CAC5e1FqNpfnW=nAvn0LTuYm2Cwd332UCgzYkx-h1Y8WaRPdTTw@mail.gmail.com>
+References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140918091910.GE10854-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1411032367-20274-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mika,
-
-It works good on my machine.
-It is really perfect to create a uniform clk using sequence for
-platform and acpi device by using clk_register_fixed_rate.
-Thanks a lot for your continuous help!
-
-Best Regards
-Carl
-
-On Thu, Sep 18, 2014 at 5:19 PM, Mika Westerberg
+On Thu, Sep 18, 2014 at 5:26 PM, Mika Westerberg
 <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> On Wed, Sep 17, 2014 at 01:14:45PM +0800, Carl Peng wrote:
->> AMD i2c bus controller is ACPI device, its ACPI ID
->> is "AMD0010". This patch is used to add support for
->> AMD i2c bus controller in the Designware platform
->> driver.
->>
->> Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> Cc: Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
->> ---
->>  drivers/i2c/busses/i2c-designware-platdrv.c | 53 +++++++++++++++++++++++------
->>  1 file changed, 43 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index bc87733..20015e6 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -43,14 +43,18 @@
->>  #include <linux/acpi.h>
->>  #include "i2c-designware-core.h"
->>
->> +struct dw_i2c_config {
->> +     u32 clk_rate_khz;
->> +};
->> +
->>  static struct i2c_algorithm i2c_dw_algo = {
->>       .master_xfer    = i2c_dw_xfer,
->>       .functionality  = i2c_dw_func,
->>  };
->> -static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
->> -{
->> -     return clk_get_rate(dev->clk)/1000;
->> -}
->> +
->> +static struct dw_i2c_config amd_i2c_config = {
->> +     .clk_rate_khz = 133 * 1000,
->> +};
->>
->>  #ifdef CONFIG_ACPI
->>  static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
->> @@ -107,7 +111,8 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
->>       { "INT3433", 0 },
->>       { "80860F41", 0 },
->>       { "808622C1", 0 },
->> -     { }
->> +     { "AMD0010", (unsigned long)&amd_i2c_config },
->> +     {},
->>  };
->>  MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
->>  #else
->> @@ -117,12 +122,35 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
->>  }
->>  #endif
->>
->> +static const struct dw_i2c_config *i2c_dw_get_config(
->> +                                     struct dw_i2c_dev *dev)
->> +{
->> +     const struct acpi_device_id *id;
->> +
->> +     id = acpi_match_device(dw_i2c_acpi_match, dev->dev);
+> In order to be able to create missing clock for AMD (and in future possibly
+> others) we move getting clock for the device a bit later. Also make ACPI/DT
+> configuration in the same place depending on from where the device was
+> enumerated from.
 >
-> This fails to compile if !CONFIG_ACPI.
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+
+Tested-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 54 ++++++++++++++---------------
+>  1 file changed, 26 insertions(+), 28 deletions(-)
 >
-> But it doesn't matter because I changed my mind about how this should be
-> implemented ;-)
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index bc8773333155..7087b6ee97e2 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -81,9 +81,6 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+>         struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+>         bool fs_mode = dev->master_cfg & DW_IC_CON_SPEED_FAST;
 >
-> I think it will be better if we just register the clock in ACPI parts of
-> this driver in case of AMD device. That keeps the generic parts of the
-> platform driver cleaner.
+> -       if (!ACPI_HANDLE(&pdev->dev))
+> -               return -ENODEV;
+> -
+>         dev->adapter.nr = -1;
+>         dev->tx_fifo_depth = 32;
+>         dev->rx_fifo_depth = 32;
+> @@ -123,6 +120,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>         struct i2c_adapter *adap;
+>         struct resource *mem;
+>         int irq, r;
+> +       u32 ht = 0;
 >
-> I will send you a new version in a minute. Please let me know what you
-> think and if it works on your machine.
+>         irq = platform_get_irq(pdev, 0);
+>         if (irq < 0) {
+> @@ -145,6 +143,29 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>         dev->irq = irq;
+>         platform_set_drvdata(pdev, dev);
 >
->> +     if (id)
->> +             return (const struct dw_i2c_config *)id->driver_data;
->> +
->> +     return NULL;
->> +}
+> +       dev->functionality =
+> +               I2C_FUNC_I2C |
+> +               I2C_FUNC_10BIT_ADDR |
+> +               I2C_FUNC_SMBUS_BYTE |
+> +               I2C_FUNC_SMBUS_BYTE_DATA |
+> +               I2C_FUNC_SMBUS_WORD_DATA |
+> +               I2C_FUNC_SMBUS_I2C_BLOCK;
+> +       dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+> +               DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+> +
+> +       if (ACPI_COMPANION(&pdev->dev)) {
+> +               dw_i2c_acpi_configure(pdev);
+> +       } else if (pdev->dev.of_node) {
+> +               of_property_read_u32(pdev->dev.of_node,
+> +                                    "i2c-sda-hold-time-ns", &ht);
+> +               of_property_read_u32(pdev->dev.of_node,
+> +                                    "i2c-sda-falling-time-ns",
+> +                                    &dev->sda_falling_time);
+> +               of_property_read_u32(pdev->dev.of_node,
+> +                                    "i2c-scl-falling-time-ns",
+> +                                    &dev->scl_falling_time);
+> +       }
+> +
+>         dev->clk = devm_clk_get(&pdev->dev, NULL);
+>         dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+>
+> @@ -152,36 +173,13 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>                 return PTR_ERR(dev->clk);
+>         clk_prepare_enable(dev->clk);
+>
+> -       if (pdev->dev.of_node) {
+> -               u32 ht = 0;
+> +       if (!dev->sda_hold_time && ht) {
+>                 u32 ic_clk = dev->get_clk_rate_khz(dev);
+> -
+> -               of_property_read_u32(pdev->dev.of_node,
+> -                                       "i2c-sda-hold-time-ns", &ht);
+>                 dev->sda_hold_time = div_u64((u64)ic_clk * ht + 500000,
+>                                              1000000);
+> -
+> -               of_property_read_u32(pdev->dev.of_node,
+> -                                    "i2c-sda-falling-time-ns",
+> -                                    &dev->sda_falling_time);
+> -               of_property_read_u32(pdev->dev.of_node,
+> -                                    "i2c-scl-falling-time-ns",
+> -                                    &dev->scl_falling_time);
+>         }
+>
+> -       dev->functionality =
+> -               I2C_FUNC_I2C |
+> -               I2C_FUNC_10BIT_ADDR |
+> -               I2C_FUNC_SMBUS_BYTE |
+> -               I2C_FUNC_SMBUS_BYTE_DATA |
+> -               I2C_FUNC_SMBUS_WORD_DATA |
+> -               I2C_FUNC_SMBUS_I2C_BLOCK;
+> -       dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+> -               DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+> -
+> -       /* Try first if we can configure the device from ACPI */
+> -       r = dw_i2c_acpi_configure(pdev);
+> -       if (r) {
+> +       if (!dev->tx_fifo_depth) {
+>                 u32 param1 = i2c_dw_read_comp_param(dev);
+>
+>                 dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
+> --
+> 2.1.0
+>
