@@ -1,84 +1,104 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c-mxs: detect No Slave Ack on SELECT in PIO mode
-Date: Fri, 19 Sep 2014 04:45:21 +0200
-Message-ID: <201409190445.21419.marex@denx.de>
-References: <1410362286-1785-1-git-send-email-j.uzycki@elproma.com.pl>
+From: carl peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: designware: Add support for AMD i2c controller
+Date: Fri, 19 Sep 2014 13:29:33 +0800
+Message-ID: <CAC5e1Fr7aX_184BaV0A6QoOv9vW7F1BJu+GddVNZbhjxUwHS7g@mail.gmail.com>
+References: <1410930885-1379-1-git-send-email-carlpeng008@gmail.com>
+	<20140918091910.GE10854@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1410362286-1785-1-git-send-email-j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+In-Reply-To: <20140918091910.GE10854-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, September 10, 2014 at 05:18:06 PM, Janusz Uzycki wrote:
-> Reported problem:
-> i2cdetect scanned i2c bus very slow if address was not occupied by any
-> device.
-> 
-> Solution:
-> The patch adds to mxs_i2c_pio_wait_xfer_end() function
-> NO_SLAVE_ACK_IRQ bit polling during wait loop (until timeout).
-> If the bit is set the function immediately returns ENXIO error
-> in order to break the loop and not reset I2C block (it is in idle state
-> then). The function is called by mxs_i2c_pio_setup_xfer() to wait for
-> complete xfer after sent SELECT, READ or WRITE command.
-> If SELECT command is sent and selected slave address is unused by any
-> device on the bus I2C block sets NO_SLAVE_ACK_IRQ flag and doesn't
-> deassert CTRL0_RUN. Therefore we need to break the timeout loop when the
-> flag is set,
-> otherwise the loop continues until long timeout (1000ms).
-> The change does not affect READ command because slave does not ack
-> any byte then (only the master does ack / or not for the last read byte).
-> According to i.MX28 reference manual (quoted below) it is not clear
-> if the patch affects WRITE command. However when no acked bytes
-> on WRITE command followed after address byte (SELECT command)
-> STAT_GOT_A_NAK flag is set rather than NO_SLAVE_ACK_IRQ (no tested).
-> Therefore clock stretching shouldn't be affected too.
-> It has confirmation in FSL BSP 2.6.35 i2c implementation which
-> completes xfer after NO_SLAVE_ACK_IRQ interrupt and scheduled work.
-> Registers on NO_SLAVE_ACK_IRQ in PIO mode:
-> * STAT: 0xd0000e00
-> 	MASTER_PRESENT
-> 	SLAVE_PRESENT
-> 	GOT_A_NAK !
-> 	BUS_BUSY
-> 	CLK_GEN_BUSY
-> 	DATA_ENGINE_BUSY
-> * CTRL0: 0x20230000
-> 	RUN !
-> 	RETAIN_CLOCK
-> 	MASTER_MODE
-> 	DIRECTION
-> * CTRL1: 0x688600a0
-> 	RD_QUEUE_IRQ
-> 	WR_QUEUE_IRQ
-> 	ACK_MODE
-> 	SLAVE_ADDRESS_BYTE=0b10000110
-> 	BUS_FREE_IRQ
-> 	NO_SLAVE_ACK_IRQ !
-> 
-> NO_SLAVE_ACK_IRQ (CTRL1):
-> When a start condition is transmitted in master mode, the next byte
-> contains an address for a targeted slave. If the targeted slave does not
-> acknowledge the address byte, then this interrupt is set, no further I2C
-> protocol is processed, and the I2C bus returns to the idle state.
-> This bit is set to indicate that an interrupt is requested
-> by the I2C controller because the slave addressed
-> by a master transfer did not respond with an acknowledge.
-> 
-> Signed-off-by: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+Hi Mika,
 
-OK, uh, can the commit message not be shortened to like 5-10 lines ? I think you 
-really need to find your balance when it comes to documenting changes, but don't 
-worry, this will happen sooner rather than later ;-)
+It works good on my machine.
+It is really perfect to create a uniform clk using sequence for
+platform and acpi device by using clk_register_fixed_rate.
+Thanks a lot for your continuous help!
 
-It would be sufficient to say that you had problem with slow i2cdetect and that 
-was because the i2c controller driver ignored the NO_SLAVE_ACK bit. By 
-leveraging NO_SLAVE_ACK bit, the speedup happens. And this change is correct and 
-doesn't break anything because <a few lines here>.
+Best Regards
+Carl
 
-Do you know what I mean ?
+On Thu, Sep 18, 2014 at 5:19 PM, Mika Westerberg
+<mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> On Wed, Sep 17, 2014 at 01:14:45PM +0800, Carl Peng wrote:
+>> AMD i2c bus controller is ACPI device, its ACPI ID
+>> is "AMD0010". This patch is used to add support for
+>> AMD i2c bus controller in the Designware platform
+>> driver.
+>>
+>> Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>> Cc: Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/i2c-designware-platdrv.c | 53 +++++++++++++++++++++++------
+>>  1 file changed, 43 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> index bc87733..20015e6 100644
+>> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+>> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+>> @@ -43,14 +43,18 @@
+>>  #include <linux/acpi.h>
+>>  #include "i2c-designware-core.h"
+>>
+>> +struct dw_i2c_config {
+>> +     u32 clk_rate_khz;
+>> +};
+>> +
+>>  static struct i2c_algorithm i2c_dw_algo = {
+>>       .master_xfer    = i2c_dw_xfer,
+>>       .functionality  = i2c_dw_func,
+>>  };
+>> -static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+>> -{
+>> -     return clk_get_rate(dev->clk)/1000;
+>> -}
+>> +
+>> +static struct dw_i2c_config amd_i2c_config = {
+>> +     .clk_rate_khz = 133 * 1000,
+>> +};
+>>
+>>  #ifdef CONFIG_ACPI
+>>  static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+>> @@ -107,7 +111,8 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+>>       { "INT3433", 0 },
+>>       { "80860F41", 0 },
+>>       { "808622C1", 0 },
+>> -     { }
+>> +     { "AMD0010", (unsigned long)&amd_i2c_config },
+>> +     {},
+>>  };
+>>  MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+>>  #else
+>> @@ -117,12 +122,35 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
+>>  }
+>>  #endif
+>>
+>> +static const struct dw_i2c_config *i2c_dw_get_config(
+>> +                                     struct dw_i2c_dev *dev)
+>> +{
+>> +     const struct acpi_device_id *id;
+>> +
+>> +     id = acpi_match_device(dw_i2c_acpi_match, dev->dev);
+>
+> This fails to compile if !CONFIG_ACPI.
+>
+> But it doesn't matter because I changed my mind about how this should be
+> implemented ;-)
+>
+> I think it will be better if we just register the clock in ACPI parts of
+> this driver in case of AMD device. That keeps the generic parts of the
+> platform driver cleaner.
+>
+> I will send you a new version in a minute. Please let me know what you
+> think and if it works on your machine.
+>
+>> +     if (id)
+>> +             return (const struct dw_i2c_config *)id->driver_data;
+>> +
+>> +     return NULL;
+>> +}
