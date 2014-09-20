@@ -1,60 +1,82 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-mxs: fixed error message in pio transfer
-Date: Sat, 20 Sep 2014 14:39:53 +0200
-Message-ID: <20140920123953.GE3850@katana>
+Subject: Re: [PATCH] i2c-mxs: fixed PIO NACK error instead of timeout (1000ms)
+Date: Sat, 20 Sep 2014 14:49:36 +0200
+Message-ID: <20140920124935.GF3850@katana>
 References: <1410279571-4552-1-git-send-email-j.uzycki@elproma.com.pl>
+ <1410279571-4552-2-git-send-email-j.uzycki@elproma.com.pl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qOrJKOH36bD5yhNe"
+	protocol="application/pgp-signature"; boundary="tmoQ0UElFV5VgXgH"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1410279571-4552-1-git-send-email-j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+In-Reply-To: <1410279571-4552-2-git-send-email-j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
 Cc: marex-ynQEQJNshbs@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---qOrJKOH36bD5yhNe
+--tmoQ0UElFV5VgXgH
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 09, 2014 at 06:19:30PM +0200, Janusz Uzycki wrote:
-> If I2C_M_RD flag is set SELECT command is sent
-> and afterward READ command.
-> The patch fixes READ command to return READ failure error message
-> instead of SELECT failure error message.
+On Tue, Sep 09, 2014 at 06:19:31PM +0200, Janusz Uzycki wrote:
+> i2cdetect scanned i2c bus very slow if address was not occupied by any de=
+vice.
 >=20
 > Signed-off-by: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
 
-Applied to for-next with minor updates to the commit message, thanks!
+I would apply this patch and produce a fitting commit message out of the
+text you already sent, so you get an idea what is apropriate. However, I
+can't apply the patch. How did you create it?
 
-Marek, I added your ack since you said you are fine with the change
-itself. Thanks for reviewing the Freescale drivers BTW, much
-appreciated!
+> ---
+>  drivers/i2c/busses/i2c-mxs.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+> index 87ee72d..35ae448 100644
+> --- a/drivers/i2c/busses/i2c-mxs.c
+> +++ b/drivers/i2c/busses/i2c-mxs.c
+> @@ -307,6 +307,10 @@ static int mxs_i2c_pio_wait_xfer_end(struct mxs_i2c_=
+dev *i2c)
 
+=2E.. the 307,10 here should be 307,9. Did you manually edit it?
 
---qOrJKOH36bD5yhNe
+>  	unsigned long timeout =3D jiffies + msecs_to_jiffies(1000);
+> =20
+>  	while (readl(i2c->regs + MXS_I2C_CTRL0) & MXS_I2C_CTRL0_RUN) {
+> +		if (readl(i2c->regs + MXS_I2C_CTRL1) &
+> +				MXS_I2C_CTRL1_NO_SLAVE_ACK_IRQ)
+> +			return -ENXIO;
+>  		if (time_after(jiffies, timeout))
+>  			return -ETIMEDOUT;
+>  		cond_resched();
+> --=20
+> 1.7.11.3
+>=20
+
+--tmoQ0UElFV5VgXgH
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUHXWZAAoJEBQN5MwUoCm2Ld0P/Au6e4EFSTJ5dgybAzXjhPU1
-GJgz8PTk4FtehKG6e3cQoNbx3XzfyeNdkNuErD93Hw1H7YRjakutY34uqPzqjIMR
-zycQA1wwuBUqvd6Mql0xWgfSnc1mtmA2FB87iLNh2NS3zJIZcSrbp8TD4n6V3mjz
-lbYR8HgMnGNkT04uPx+TUuk9zmCaHE9GrmWRG4G+s1Mf/hyw+apiryuMNip4QNhn
-9M6lcUHVo2U9Tfuw6INTN2QP36Sm5d1Wxpw8R5XCjFh1Dl/YliGN04IBf98a8qls
-gAexFbU6VbEdUWGduybrpjJexyzo/+7+082YuRUdlBeLsIXJJU2kTUYkb7pVmhnh
-uz85JlcWmJZ7zRixVH96mBULm4upM+Ooj4Q9GUoWYdM9/MvLrpeZuoMxITuQ+0Hj
-Fudv5x02FIuKscSFjqkC7CQJM4AF7mtkBuNl4FVxOswRuqSVjshlUvkTbujEl3Zu
-Qi1aOcVd8YBnNjvEEu6a4R0TiZVRwEcefQlA4slBMp/y646yJPB9CVYmUNpZI8H0
-11Ud9NZIy6VLFlQ25MnFqHu5cdTztK292FdJqOUYy+s2LPZjM+QvGCFUoixcM66Q
-aJZ0X0YJeVlmW1F7wYDRqrDLd/5jsheKbHyGn5Djmay2qxNsD6ZhBFLJdhYT0+NQ
-+YtpbpAHZcrfTZOT+6r2
-=Pc+s
+iQIcBAEBAgAGBQJUHXfeAAoJEBQN5MwUoCm207YQAISP3JyX9dauBVT8hLKr3yRd
+G/hmGaMw/z6mHdDGTSzJkv913qRBkT96AuJHaVeVYkWcqOsCVEh2+g+ruqFSey/q
+/Jo3KSg6UV5oAVD3WQg8ztwpdnyp1LcSRZLiV2nyzqkGtUOzXtZYeEyUstD97SSS
+wQcKWHMjjbuhIfY+BekQEY3owwR9CQ2HYPefoEln+qbt7+qLsHZTI7lfNYlPbjS8
+faBJS7xgN2S3zFhrXylios5EQc4SKxTUiESpWP4imDeVrTKYZqmdkF0YkP40sAib
+AHw+B8C47Xt7MwMKObCDtjheG48P+WC7C3QJrm/nKh/TKn1qOw8TNH+uB8Sqf3nz
+x3XU+iQqI/FY0yNTn4eCUlslzcX0tulJ9g4CRX7kZrT8g40ufqDEbOim/OfBlw6g
+ksrcj2TvTrr0s6wh5tvA1ILkG1y3axInd1PzJahYGLxYWgGeZhAo+5hxzLiLtn3Y
+AKjYSZqjmwfuVbvdVR0Ym4wxVpm3o+YtoroaepkmoRzFB0cgEPHCRypZAWs0ZYs5
+PodRfxnNU34SuYbE3WMv2kznfYAd9i//5ivM2YpQ7nrelj93xFWks1yHWO1j1BtH
+teICet0RghGETzd0ynd8XOyqQUbyGMQcJRqrRSJt7p5MKigObGW4jcafrK6OykJp
+TAaal2hEI7TOOnoizKdg
+=zwGF
 -----END PGP SIGNATURE-----
 
---qOrJKOH36bD5yhNe--
+--tmoQ0UElFV5VgXgH--
