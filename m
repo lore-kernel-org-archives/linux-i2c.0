@@ -1,56 +1,58 @@
-From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 4/4] gpio: add support for the Diolan DLN-2 USB GPIO driver
-Date: Sat, 20 Sep 2014 09:32:24 +0300
-Message-ID: <CAE1zot+ENng7QE42UK9jahCcgNq6eLjKH4BMPX7OtAwHQLQnCg@mail.gmail.com>
-References: <1411158165-25794-1-git-send-email-octavian.purdila@intel.com>
-	<1411158165-25794-5-git-send-email-octavian.purdila@intel.com>
-	<201409200448.48180.arnd@arndb.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: i2c-core.ko renamed to i2ccore.ko
+Date: Sat, 20 Sep 2014 11:02:46 +0200
+Message-ID: <20140920090246.GA1612@katana>
+References: <1411042678.7338.20.camel@chaos.site>
+ <20140918125825.GR10854@lahna.fi.intel.com>
+ <20140918150954.GA4420@katana>
+ <541BE912.6060905@intel.com>
+ <20140919085328.GC10854@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201409200448.48180.arnd-r2nGTMty4D4@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140919085328.GC10854-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Sep 20, 2014 at 5:48 AM, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
-> On Friday 19 September 2014, Octavian Purdila wrote:
->> +struct dln2_gpio_pin {
->> +     __le16 pin;
->> +} __packed;
->
-> This does not need to be marked packed, since it is never embedded in another
-> structure.
->
 
-Will do.
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> +struct dln2_gpio_pin_val {
->> +     __le16 pin;
->> +     u8 value;
->> +} __packed;
->
-> It's enough here to mark just the 'pin' member as packed.
->
+On Fri, Sep 19, 2014 at 11:53:28AM +0300, Mika Westerberg wrote:
+> On Fri, Sep 19, 2014 at 04:28:02PM +0800, Lan Tianyu wrote:
+> > How about including i2c-acpi.c in the i2c-core.c directly if ACPI is
+> > selected?
+>=20
+> I would rather see it merged there.
 
-OK.
++1
 
->> +static int dln2_gpio_get_pin_count(struct platform_device *pdev)
->> +{
->> +     int ret;
->> +     __le16 count;
->> +     int len = sizeof(count);
->> +
->> +     ret = dln2_transfer(pdev, DLN2_GPIO_GET_PIN_COUNT, NULL, 0, &count,
->> +                         &len);
->
-> You must not do a USB transaction on stack memory.
->
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-dln2_transfer allocate a new buffer (in dln2_prep_buf(), with
-kmalloc()) and does the USB transfer with that buffer.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUHUK1AAoJEBQN5MwUoCm2DgoP/jjwUGx500K3NiWpUOIi71tV
+O8v46naMGfDwiCgeLONJSL7vTIyhtX+9A8RtU1msryyjLOg+d8WgUNkWXjLDCepp
+MzzZl0LBVXwPgq3yKP1frA8X+/bEGvxVNfdMbyY3N6weDPbxbKknX4qa0NwzERKY
+rAmazygJAFvh+czw6nAhdKw2vKhcqJFrU8YDIiU6YgCfEGH6I1ShBc3xIm2Wsv1v
+53kFzKUG7zuW1P/YPqqY1JrxyyfsC7DM4m0kZ0a5Bu/mPR5n428sDIwUMRx7f4W8
+LG+qNKvKmhajXSPLw8wzzzrzPp96tq2kcNZhENilpG8psdNy5yxUsrMp6AiVjFHw
+TYUXd+/nX55gbfU2g0joMrd7E/FyiEwcEdJ6PtDnFCR8fNRC8VGL2zNrKKZtdOuj
+wiHD5lXZKYq6tjLi7/Vw9BgwgeilOV/sQGYla/oLaxjdbQVNl23jNSje84dywIIr
+zXER8M/qC4K8qvNiGwQsXTm8LzOreBGLrHmw7lcRjRYV2RQYkNYdaiNf+UJoGJka
+qKI+FneCmSZZu7AKZB+9JHbbQvuDk827ND2bbKaXeJlPyKN5ElkEgjiXgbPWQ3aI
+r2zu65akua7cqOEZx6l7s5usdkQ0sNSk/HQj7Lv03K1byb/1ybY3MOV8RzuW35JK
+o7a5jp4BNfbCuQu+1vf1
+=KXDE
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
