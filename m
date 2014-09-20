@@ -1,59 +1,80 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: designware: Rework probe() to get clock a bit
- later
-Date: Sat, 20 Sep 2014 11:35:02 +0200
-Message-ID: <20140920093502.GF1612@katana>
+Subject: Re: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
+Date: Sat, 20 Sep 2014 11:36:34 +0200
+Message-ID: <20140920093633.GG1612@katana>
 References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6v9BRtpmy+umdQlo"
+	protocol="application/pgp-signature"; boundary="64j1qyTOoGvYcHb1"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1411032367-20274-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <1411032367-20274-2-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---6v9BRtpmy+umdQlo
+--64j1qyTOoGvYcHb1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 18, 2014 at 12:26:06PM +0300, Mika Westerberg wrote:
-> In order to be able to create missing clock for AMD (and in future possib=
-ly
-> others) we move getting clock for the device a bit later. Also make ACPI/=
-DT
-> configuration in the same place depending on from where the device was
-> enumerated from.
+On Thu, Sep 18, 2014 at 12:26:07PM +0300, Mika Westerberg wrote:
+> From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 >=20
+> Add support for AMD version of the DW I2C host controller. The device is
+> enumerated from ACPI namespace with ACPI ID AMD0010. Because the core
+> driver needs an input source clock, and this is not an Intel LPSS device
+> where clocks are provided through drivers/acpi/acpi_lpss.c, we register t=
+he
+> clock ourselves if the clock rate is given in ->driver_data.
+>=20
+> Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
 
-Applied to for-next, thanks!
+Applied to for-next, still wondering...
+
+>  drivers/i2c/busses/Kconfig                  |  1 +
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 27 +++++++++++++++++++++++=
+++++
+>  2 files changed, 28 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 2ac87fa3058d..9384498ef3c1 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -422,6 +422,7 @@ config I2C_DESIGNWARE_CORE
+> =20
+>  config I2C_DESIGNWARE_PLATFORM
+>  	tristate "Synopsys DesignWare Platform"
+> +	depends on COMMON_CLK
+
+=2E.. do all previous users have COMMON_CLK?
 
 
---6v9BRtpmy+umdQlo
+--64j1qyTOoGvYcHb1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUHUpGAAoJEBQN5MwUoCm28I8P/1MglYYCH5WsmhR7zuEDvjX8
-nFNxmEohz4B6gVyr8UGryn7FMbod0CGT4su2GAXD405y4obYKxCRJMLACR5kJa6d
-/fID24kKF/Jen9/Kmyy3+DtiQIyRTAeSVZlSHyNc/ejFZdKRPT5KMqAQa0QiN9ZK
-zxrLSWWATVyTyXcDkKLQbHze4em3csANrk0ESG7WR6f75tMri6wKu5z/0pU9uRun
-ZSDIGh7Cxxp8UhRycFy3Zi89kI897kQZeXSRF0w2LZkXAE7ZwAr52465yfaIhBqk
-7mxpNkMnXuS7wOv3ZXAdGPLMBEQrK0VGMvoK+mOAIJ5iJ/tubsk6WkpnAMBV69nb
-2J80+CEkgi/8wQLJJ8GHmdw3Dx+tlr5YCaynU419N+ujkyJ8raZp6yLqpefH5mAQ
-91avOYJ+s4/vkjWoEuirUYFSLvPVXW6PIk3kNLZOVL8gddSnzsu/O3g7G4u4xD+C
-/bzCogmXteXnRbbJe+DlCwuAX6tjdTHrrTLF/L1937N1+lhnIFgVPim2AW190DHm
-u4vLhs7aQABpSBN+/GUwsNRIihCeeIu8Z91FIxvTcr2UzzbWW3MQeaWkkO6nXeHa
-sBXywVvEFOj6Kl5+wGegY69Il2toWRhPXadowzIjZxwqdijjCMWUTz5JaDJub2XM
-2vpsvr8D0CrjKTBCRrV1
-=MmcG
+iQIcBAEBAgAGBQJUHUqhAAoJEBQN5MwUoCm28Z8P/j/yv4fxelCtpC5LP/lFmTW5
+LEVC5GlOrdGrFxqJgJ4Rcoi4s8yiUE3M2hNF/4EcehAIWg9JQITZfiIZJrtOybZI
+EFSJk+iTqVOjgHyhlenS4+EjeP4tUkG6pZUByFTB/tchhBnMnT4gfQGf3dukCYTM
+V9nxPnAfrETIGDwpvg/bfDIyV/6BDZlWLYP/GcMkL1DQ/e7T7y9Xi4l99jqZg+cR
+MxBQhXzA45lqHnXRAM0bfWsxK5OUlu4OI+wpzwrSu6GkhpPXCltjvJjy9O4Bzr40
+U77Mf6all9fZESUouGdlcHvrSJdlMA/Qla1APoSKr+ENiduJ4kmJNXhzNw4FPiwG
+hN9OcIFquCDhm2Fo3HyFMNc8BCIW4rcCj+MxfVsLPsY1C7qlTVuGsVXfHbmuh6m/
+HAb09h4Zo5fpcBYk2bb+pYZh/fuL/MaQf0AscmpCSxAOevkxN/dUxf2Be+Lgz42C
+4C5ZmRQbrIhjDVFtaYdgg767Jq+4vIvTXhrWLeTvsIvDXpXMWLqvSVGV/AvD9+9z
+BeggEQjVrPuS//Jf+CDtOqWKIJQgnm+GhmYKQQ/jBILNPjM4z21E5pQw4rlbuSM3
+r8zoMwJrMNuNsfE6h7+uMyQhP/JRuJMYUdvJobr+YHgqV+IfB7zHty/rmPyTEdg2
+RMVga6c5OylYIjbXVQay
+=5z4+
 -----END PGP SIGNATURE-----
 
---6v9BRtpmy+umdQlo--
+--64j1qyTOoGvYcHb1--
