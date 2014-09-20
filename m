@@ -1,57 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/3] i2c-rcar: make rcar_i2c_prepare_msg() *void*
-Date: Sat, 20 Sep 2014 11:44:27 +0200
-Message-ID: <20140920094427.GI1612@katana>
+Subject: Re: [PATCH v2 3/3] i2c-rcar: make rcar_i2c_irq_recv() *void*
+Date: Sat, 20 Sep 2014 11:45:10 +0200
+Message-ID: <20140920094510.GJ1612@katana>
 References: <2245366.q99HVYG3pL@wasted.cogentembedded.com>
- <3369447.JH8v9DUGDl@wasted.cogentembedded.com>
+ <19871938.mRdZLUD6Mv@wasted.cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nO3oAMapP4dBpMZi"
+	protocol="application/pgp-signature"; boundary="BEa57a89OpeoUzGD"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <3369447.JH8v9DUGDl@wasted.cogentembedded.com>
+In-Reply-To: <19871938.mRdZLUD6Mv@wasted.cogentembedded.com>
 Sender: linux-sh-owner@vger.kernel.org
 To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---nO3oAMapP4dBpMZi
+--BEa57a89OpeoUzGD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 15, 2014 at 12:15:46AM +0400, Sergei Shtylyov wrote:
-> rcar_i2c_prepare_msg() always returns 0, so we can make this function ret=
-urn
-> *void* and thus remove the result check in rcar_i2c_master_xfer().
+On Mon, Sep 15, 2014 at 12:17:34AM +0400, Sergei Shtylyov wrote:
+> rcar_i2c_irq_recv() always returns 0, so we can make this function return
+> *void* and also remove rcar_i2c_flags_set() invocation in rcar_i2c_irq().
 >=20
 > Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
->=20
 
-Applied to for-next, thanks!
+I prefer to skip this patch to have more similarity between the
+send_irq and recv_irq routines.
 
 
---nO3oAMapP4dBpMZi
+--BEa57a89OpeoUzGD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUHUx6AAoJEBQN5MwUoCm2QdQP/2AUpBrOOOiiweXTELJQwzwE
-0aWrJYjzJcSTCM1nuD0BOJIBrQj0sCAkJUwfigRRblcXQNqwCTb2p/5z8GVC/bNh
-cDxQjab3eEzf+2fn+xyQtEphYK39KcKSHgIKz97K45wWQXydH43mkJNuhnZtoFC6
-9gUm7n3pqxbpuqeTMUHpqW3OQPflhNgd14/koEq7l8ru/UxZwp1r/DiOBccWXUuL
-IviTuFcVH2waLkKT9rPvf9lynSATT0j4r9JZvW1V0kPwy0I40g+2jYWvPSEzgV1H
-MIEdJr00qA0mos3uCTLvzwaZugV2yJgMB72VnGDWNMDiHeztZy1ZlohKqvHlNjB3
-GU+zRcv7BF13s+1uNI+S9UI8x8UT8OSHK3TsLtCYxlWzugmKIkJ5TRTxgI+ioEBj
-ADzA58AFOUkMO9oNQuHn6VS+xdaUDB2CrSTIAec3Q4vwfHJ1tyL15sPmSr2oFTGO
-xGcFEpu2qrN3vKCBWzDi+ogEx1dqgBfNhwykhXVRe3FKboE+fR/2zUfSGgQtO9/Y
-Ug2T8DV/o5YbbBj7WLAd4cfRlUmxSJXRkJqlEJryHgjxzPZttHdSKGaIFnErJPR4
-ljDxR03+t9J4HzV4utIqbRTn/8V/XfC+oKi5zIni5ru5svOwrq4pvQiUGFQNO2Eo
-uSdFAFSLyDmLJkeW6F3L
-=JPvN
+iQIcBAEBAgAGBQJUHUymAAoJEBQN5MwUoCm2a6oQAJzKoP7rL106gdXmaiFBXgQJ
+OQlV9VstM2lhEZVekNWWDfYXUgNbpR3D4WK+nhxHSCXPQvXtvjx1Y22JNwsVJbI4
+zQ57d4uo75gsF7tZcXd4jSCaCo7Rw+6qan8ZmKcryOKfGbhW78T5oClcAyAUtkpw
+hgy7dBcu8cF68WG3TtP7Q3034w6zLyRVVbZswRc7xARYQVr4qhm52IvKFZgrZCrc
+39zAhSPg0j1xxPZbJfm23DVuLXsmz2Tb7C5sVagdfc6fEGeHPGguqZe8oPdoeDUR
+zzapDFkG211YISiXRJlrRDrj9+sLqAKQbVwmOlkHOXWuaBmGmfzI/dk555kSJDOG
+aMS1vw3+5ABaEHNTPc6HOrMp+cHa6GsZjfSPTKRD3lfTHspMPihdMSkvQSb++2fR
+Sg7xM/m06kE3ZgRN2E+jTotPEGOBznbGDVYvosOF8/t7UuCmVL++pEykrNaXb/8M
+HUzGXuMK1MgtpCsq66ZKli8Ep1UasycSy6mQaktcTal/yztOVFL/mTtXQiwjn/QX
+ubJ90PQ5Qzv1LRttIYPhHnEjvlsh4OT4y/fE/7Hr6vzWKamv4QCr1jH9qc+Kj8Yn
+x/1UEqCVuZ0d7GMz6ODCXjDdNfdGqmsll5PWOENODjq0bi1nOmdATqJ/tgnplg21
+z6JZbT+puZqe1XX2Zs1/
+=OQZo
 -----END PGP SIGNATURE-----
 
---nO3oAMapP4dBpMZi--
+--BEa57a89OpeoUzGD--
