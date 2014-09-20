@@ -1,104 +1,73 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v5 06/11] i2c: core: Convert to
- dev_pm_domain_attach|detach()
-Date: Sat, 20 Sep 2014 14:23:19 +0200
-Message-ID: <20140920122318.GC3850@katana>
-References: <1411151264-16245-1-git-send-email-ulf.hansson@linaro.org>
- <1411151264-16245-7-git-send-email-ulf.hansson@linaro.org>
+Subject: Re: [PATCH v2] i2c: imx: Add arbitration lost check
+Date: Sat, 20 Sep 2014 14:28:15 +0200
+Message-ID: <20140920122814.GD3850@katana>
+References: <1409723527-30603-1-git-send-email-haibo.chen@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bAmEntskrkuBymla"
+	protocol="application/pgp-signature"; boundary="7DO5AaGCk89r4vaK"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1411151264-16245-7-git-send-email-ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1409723527-30603-1-git-send-email-haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Daniel Lezcano <daniel.lezcano-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Stephen Boyd <sboyd-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Chris Ball <chris-OsFVWbfNK3isTnJN9+BGXg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov@gmail>
+To: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---bAmEntskrkuBymla
+--7DO5AaGCk89r4vaK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 19, 2014 at 08:27:39PM +0200, Ulf Hansson wrote:
-> Previously only the ACPI PM domain was supported by the i2c bus.
+On Wed, Sep 03, 2014 at 01:52:07PM +0800, Haibo Chen wrote:
+> According to the i.mx spec, for multimaster mode, if I2C is
+> enabled when the bus is busy and asserts start, hardware inhibits
+> the transmission, clears MSTA without signaling a stop, generate
+> an interrupt, and set I2C_I2SR[IAL] to indicate a failed attempt
+> to engage the bus, which means arbitration lost. In this case,
+> we should first test I2C_I2SR[IAL], and clear this bit if it is
+> set, and then I2C controller default to slave receive mode.
 >=20
-> Let's convert to the common attach/detach functions for PM domains,
-> which currently means we are extending the support to include the
-> generic PM domain as well.
+> This patch check the IAL bit every time before an I2c transmission.
+> if IAL is set, clear it and make I2C controller to default mode.
 >=20
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Reviewed-by: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-Looks good to me, but I'd like to give Mika a chance to look at it,
-since he does ACPI with I2C. Adding to CC.
-
+> Signed-off-by: Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Acked-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 > ---
->  drivers/i2c/i2c-core.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
+> Changes for V2:
+> -Use 'EAGAIN' instead of 'EIO' for arbitration lost
+> -Modify the comment style
 >=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 632057a..3cd8f11 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -279,10 +279,13 @@ static int i2c_device_probe(struct device *dev)
->  	if (status < 0)
->  		return status;
-> =20
-> -	acpi_dev_pm_attach(&client->dev, true);
-> -	status =3D driver->probe(client, i2c_match_id(driver->id_table, client)=
-);
-> -	if (status)
-> -		acpi_dev_pm_detach(&client->dev, true);
-> +	status =3D dev_pm_domain_attach(&client->dev, true);
-> +	if (status !=3D -EPROBE_DEFER) {
-> +		status =3D driver->probe(client, i2c_match_id(driver->id_table,
-> +					client));
-
-Very minor: I think it is more readable to keep this in one line.
-
-> +		if (status)
-> +			dev_pm_domain_detach(&client->dev, true);
-> +	}
-> =20
->  	return status;
->  }
-> @@ -302,7 +305,7 @@ static int i2c_device_remove(struct device *dev)
->  		status =3D driver->remove(client);
->  	}
-> =20
-> -	acpi_dev_pm_detach(&client->dev, true);
-> +	dev_pm_domain_detach(&client->dev, true);
->  	return status;
->  }
-> =20
-> --=20
-> 1.9.1
+>  drivers/i2c/busses/i2c-imx.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 >=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 613069b..ceff87c 100644
 
---bAmEntskrkuBymla
+Applied to for-next, thanks!
+
+
+--7DO5AaGCk89r4vaK
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUHXG2AAoJEBQN5MwUoCm2E7EP/1ykOCTRgrozlYwdbXxO9X8Z
-b6ad23VambrSiQJTZcYheydiVW9qrXIsn8TQf1flWChXtkD06odQRy8tGN8Vw3MQ
-MTdhyB19x1Z0TMkdmcrbhohsRchjsaeMgcpCNklW8ul8nASuDjY9KUdhVfUaY07q
-O1zyZxrA5ykPCq/xP2gakHTTOrB6pj0zwOlDe4yQOd1hJcWrhX0/EBxY4DgvvQIr
-o05w2rdr+s6qCCgV3WSY9EJ0JBOqNhvvGpGnpZe6tms8e1RmrEnSil3piBC1nhHP
-LPeZr/ZHdoRbEgUPNnr/otLhufVeE5uMLu7FFhmZi3DTVXXVb+kMjE17C6XYc3mM
-DIumY2ubMBInCIZDjFZa0BvwuodKqkWrG5cmgimDw8VywhDfmCXm7Q1immbKZ0rw
-p9R4YHkBl5ii0KCyTSrf5M4+ksV80iplb4jmIwfmU0kKnOIan1fgkmyHXR/WN67M
-d6sZUpMsuCUNTRj7Axe6LdKuuQe/EbO9GC66umjxtckJIesM/BSHHgGAGqnxQolQ
-q/NnP2JBTVz6sSjoBRb+EMw5cri2Yb2M1Ak24nw+uoveiqBGGMuFFQGoHyV9UXVP
-zA0MaUKKESiwO1RIaqhYe5lRwIwFSUktD5s/yYQqKbSF0zGAeRn79O+U2ei7xI9a
-gv2ABkxPmYxBPoSf9y1B
-=izqF
+iQIcBAEBAgAGBQJUHXLeAAoJEBQN5MwUoCm2K7IP+wYFzzpp0gf4iSR3y9HM+DfP
+NQLt5kO0sXCDDo0oJFqIWbdvyNA7nnsZWClpSqxqXQuVhHSoxGzqHv9/rVRs5xIJ
+XYU4RckMnWQOkDv5OmbVi0W7XDOnM6Dqxp/42aWUKKeeigFdWqasOy9zTo6sgrD+
+SRB3KXgkPbVENB2yNyMT707EjFnKaIHKsvalUpsS74hSVFSn55uNlaO5ojquHQgv
+Jmj8nfK0cuW2qHe3XiE9t8t0D7CGzEvYJDw7HBSV+BHzUZKcohvW9gNWBpR0bjCl
+9CEzo1xbBlRjkuWpKA0gtb7K2zskufEFLf9OqkS0rNk5QZGnVOA0ZLNwiYure59M
+Ch5dNzH90uON1eYt2ZQ7pe2z1UoEXlBkTMZLxjh3wUzhRjV5KoPtly1XUC4nj/Lk
+gxz+U901kQhVjHiRtcw+wj5CgE1iRKx6WJIsd3fNbj9GpQ3l3EJSJVDBlXvKNgor
+Tsv24h2TAcqEe3hFADEiPCa976JByG5xC7dWyGavV8i17gEWBQqKTw1Q+8/X2TYl
+O2D65LicvCHJmk5AGZHTA2nyJg6m1HRqGWNBXOsFybTHH9yL/jrI0RLS3yOhycfl
+gACPbVFTtQUpLWw3Xr0GTyCehPTCyxiJp/gg8iTXcOGVjKnLYNwTATDelVroegrS
+iE7kr7HfEzZvLIP+Mrg4
+=ROfn
 -----END PGP SIGNATURE-----
 
---bAmEntskrkuBymla--
+--7DO5AaGCk89r4vaK--
