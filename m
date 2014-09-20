@@ -1,32 +1,30 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/3] i2c-rcar: simplify check for last message
-Date: Sat, 20 Sep 2014 11:41:05 +0200
-Message-ID: <20140920094104.GH1612@katana>
+Subject: Re: [PATCH v2 2/3] i2c-rcar: make rcar_i2c_prepare_msg() *void*
+Date: Sat, 20 Sep 2014 11:44:27 +0200
+Message-ID: <20140920094427.GI1612@katana>
 References: <2245366.q99HVYG3pL@wasted.cogentembedded.com>
- <1757193.42K2JNstnx@wasted.cogentembedded.com>
+ <3369447.JH8v9DUGDl@wasted.cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82evfD9Ogz2JrdWZ"
+	protocol="application/pgp-signature"; boundary="nO3oAMapP4dBpMZi"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1757193.42K2JNstnx@wasted.cogentembedded.com>
+In-Reply-To: <3369447.JH8v9DUGDl@wasted.cogentembedded.com>
 Sender: linux-sh-owner@vger.kernel.org
 To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---82evfD9Ogz2JrdWZ
+--nO3oAMapP4dBpMZi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 15, 2014 at 12:14:14AM +0400, Sergei Shtylyov wrote:
-> rcar_i2c_master_xfer() needlessly compares the message pointers (using in=
-direct
-> addressing) in order to detect the last I2C message, while it's enough to=
- only
-> compare the message indexes.
+On Mon, Sep 15, 2014 at 12:15:46AM +0400, Sergei Shtylyov wrote:
+> rcar_i2c_prepare_msg() always returns 0, so we can make this function ret=
+urn
+> *void* and thus remove the result check in rcar_i2c_master_xfer().
 >=20
 > Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 >=20
@@ -34,26 +32,26 @@ direct
 Applied to for-next, thanks!
 
 
---82evfD9Ogz2JrdWZ
+--nO3oAMapP4dBpMZi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUHUuwAAoJEBQN5MwUoCm2rOcP/Att0G4hfrgBmKRzuXLavEzH
-S5c34La/PHKjiEXY7s259Q/wDMfkMlAQl2h4kbl1YjNJlZX7S71+4TDQqGy7MAgT
-01XEyi1kwyl/5mRngH9vxS2IGHYkZ7lPg47BHp7ISdZPuC5C2sf/XHQzF4mBel+O
-voyz2rOV6cH6te/RcSUR3Hqtrj4H/3/K/pdIvFtEqiubycPfcXfx09wVGllGjzr9
-v57hVYgtYRPywqSrDnpweS9tgMmw/HpGDM1nwnKE/oMUb08YVPk0Ovf8iom/X2A3
-jqiQN4w/tYmwm3S9oCVsJSnEIn5VX8fGNWU/h2LKBcm2/qPydNHWNIa22SC5zt6J
-QSFh3hJ9JFSjHQLv6be0YX2C9dKHkxYPEe3I/NktELw2pUnqr4QqxQDgBjVSoNuW
-uWEvtczV/MkEN092CcdWwIJBwJPoIEZ6P5Cu2OCScBiAi5ySV3dzox6iNrXZsiws
-igAVb9DhVDgsqS4CGbtBVfTKucSVGmSbTZZebBxzS9EPJBCHr7h3j+UUZqHJKnPM
-JIg5lUKaY34dfnSIbTe5mZLPhRUyX8bwDeKG9vCHbK9mmgPyHCNQCH9Lxo9TrYVl
-i7AOFVu3TLH62qvScrkaaTFaCVUXv/n+FFrQOXCW0Ix/wHRrgUo8iXEJyLQ0ULVm
-apOm4fcBDmFaR/hGs+31
-=s7rV
+iQIcBAEBAgAGBQJUHUx6AAoJEBQN5MwUoCm2QdQP/2AUpBrOOOiiweXTELJQwzwE
+0aWrJYjzJcSTCM1nuD0BOJIBrQj0sCAkJUwfigRRblcXQNqwCTb2p/5z8GVC/bNh
+cDxQjab3eEzf+2fn+xyQtEphYK39KcKSHgIKz97K45wWQXydH43mkJNuhnZtoFC6
+9gUm7n3pqxbpuqeTMUHpqW3OQPflhNgd14/koEq7l8ru/UxZwp1r/DiOBccWXUuL
+IviTuFcVH2waLkKT9rPvf9lynSATT0j4r9JZvW1V0kPwy0I40g+2jYWvPSEzgV1H
+MIEdJr00qA0mos3uCTLvzwaZugV2yJgMB72VnGDWNMDiHeztZy1ZlohKqvHlNjB3
+GU+zRcv7BF13s+1uNI+S9UI8x8UT8OSHK3TsLtCYxlWzugmKIkJ5TRTxgI+ioEBj
+ADzA58AFOUkMO9oNQuHn6VS+xdaUDB2CrSTIAec3Q4vwfHJ1tyL15sPmSr2oFTGO
+xGcFEpu2qrN3vKCBWzDi+ogEx1dqgBfNhwykhXVRe3FKboE+fR/2zUfSGgQtO9/Y
+Ug2T8DV/o5YbbBj7WLAd4cfRlUmxSJXRkJqlEJryHgjxzPZttHdSKGaIFnErJPR4
+ljDxR03+t9J4HzV4utIqbRTn/8V/XfC+oKi5zIni5ru5svOwrq4pvQiUGFQNO2Eo
+uSdFAFSLyDmLJkeW6F3L
+=JPvN
 -----END PGP SIGNATURE-----
 
---82evfD9Ogz2JrdWZ--
+--nO3oAMapP4dBpMZi--
