@@ -1,56 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 3/3] i2c-rcar: make rcar_i2c_irq_recv() *void*
-Date: Sat, 20 Sep 2014 11:45:10 +0200
-Message-ID: <20140920094510.GJ1612@katana>
-References: <2245366.q99HVYG3pL@wasted.cogentembedded.com>
- <19871938.mRdZLUD6Mv@wasted.cogentembedded.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-rcar: fix RCAR_IRQ_ACK_{RECV|SEND}
+Date: Sat, 20 Sep 2014 11:51:30 +0200
+Message-ID: <20140920095130.GK1612@katana>
+References: <2641177.jdYX8POT82@wasted.cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BEa57a89OpeoUzGD"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="x+RZeZVNR8VILNfK"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <19871938.mRdZLUD6Mv@wasted.cogentembedded.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+In-Reply-To: <2641177.jdYX8POT82-gHKXc3Y1Z8zGSmamagVegGFoWSdPRAKMAL8bYrjMMd8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---BEa57a89OpeoUzGD
+--x+RZeZVNR8VILNfK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 15, 2014 at 12:17:34AM +0400, Sergei Shtylyov wrote:
-> rcar_i2c_irq_recv() always returns 0, so we can make this function return
-> *void* and also remove rcar_i2c_flags_set() invocation in rcar_i2c_irq().
+On Sat, Sep 06, 2014 at 03:34:32AM +0400, Sergei Shtylyov wrote:
+> Bits 8-31 of all registers reflect the value of bits 0-7 on reads and sho=
+uld be
+> 0 on writes, according to the manuals. RCAR_IRQ_ACK_{RECV|SEND} macros ha=
+ve all
+> 1's in bits 8-31, thus going against the manuals, so fix them.
 >=20
-> Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+> Signed-off-by: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>=20
 
-I prefer to skip this patch to have more similarity between the
-send_irq and recv_irq routines.
+Applied to for-current, thanks!
 
 
---BEa57a89OpeoUzGD
+--x+RZeZVNR8VILNfK
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUHUymAAoJEBQN5MwUoCm2a6oQAJzKoP7rL106gdXmaiFBXgQJ
-OQlV9VstM2lhEZVekNWWDfYXUgNbpR3D4WK+nhxHSCXPQvXtvjx1Y22JNwsVJbI4
-zQ57d4uo75gsF7tZcXd4jSCaCo7Rw+6qan8ZmKcryOKfGbhW78T5oClcAyAUtkpw
-hgy7dBcu8cF68WG3TtP7Q3034w6zLyRVVbZswRc7xARYQVr4qhm52IvKFZgrZCrc
-39zAhSPg0j1xxPZbJfm23DVuLXsmz2Tb7C5sVagdfc6fEGeHPGguqZe8oPdoeDUR
-zzapDFkG211YISiXRJlrRDrj9+sLqAKQbVwmOlkHOXWuaBmGmfzI/dk555kSJDOG
-aMS1vw3+5ABaEHNTPc6HOrMp+cHa6GsZjfSPTKRD3lfTHspMPihdMSkvQSb++2fR
-Sg7xM/m06kE3ZgRN2E+jTotPEGOBznbGDVYvosOF8/t7UuCmVL++pEykrNaXb/8M
-HUzGXuMK1MgtpCsq66ZKli8Ep1UasycSy6mQaktcTal/yztOVFL/mTtXQiwjn/QX
-ubJ90PQ5Qzv1LRttIYPhHnEjvlsh4OT4y/fE/7Hr6vzWKamv4QCr1jH9qc+Kj8Yn
-x/1UEqCVuZ0d7GMz6ODCXjDdNfdGqmsll5PWOENODjq0bi1nOmdATqJ/tgnplg21
-z6JZbT+puZqe1XX2Zs1/
-=OQZo
+iQIcBAEBAgAGBQJUHU4iAAoJEBQN5MwUoCm2pWgP/jH0veGgeNakfNRbja0r7PI8
+FKnBpHBZEvoEqZYm5dmN5xxSZCfXKyjKDb/iO3n5otFZMfvNW1LPA9uOR+TUjAgd
+qDIwELE4shyjsKXQ3ag9hjrhvN5WcuxcvsSoJ0nilqcGspHutadsyftIzWxa8qzo
+ZbB7XpCQj6N8ygoOZLLzdGgdBT+TDUboSrIw8SB1dKpPl2ecZMMb5bWSSL1T1w2t
+N4ZoO+5Hki26WJKKCItROpbSZZIdV2O3Y47taB8ujQpBkxQQwTEHzMYPqTCti3hN
+qXypSTeBAC3WwuFIRTv7mymOhnYDUJCnDcqc1ZDz83KkSvTMHSF6n/kluJjQJeQI
+8J4ZSfMo2Hzctm/ag8R/rjH7teeftCQN1jlmTKmmdZPLW2nn0dIO74Qsrl8hsMFK
+7hGUAdflzop7iC61H3vxB3EOM1J8mJH8+/c5F7NZqI/vbcDMw7I1g3nXGPGdvUW+
+5zSze3FSajUJ9lHE6s3ZZCR0dOIpYgZTJVn26DHagempXIHsVhY80G+5hvFGXhhV
+s/rV/3/blzKx/sJv6fMEfsLyIt03VyZjP1ThoWjRcf6emB5pfsx/VpxLkT1GmYsk
+OI2jviWYyroLi16Vv8oWQuOkG2ndnQLxIllnWyLSMJboW+FNoyC9huTb2XWe/s9j
++QWLMTBHlQYtRSBROylN
+=NgBB
 -----END PGP SIGNATURE-----
 
---BEa57a89OpeoUzGD--
+--x+RZeZVNR8VILNfK--
