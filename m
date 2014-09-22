@@ -1,47 +1,59 @@
-From: Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: [PATCH] i2c-rk3x: move setup to the earlier subsys initcall
-Date: Mon, 22 Sep 2014 15:24:35 +0800
-Message-ID: <1411370675-27866-1-git-send-email-zyw@rock-chips.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
+Date: Mon, 22 Sep 2014 12:12:07 +0300
+Message-ID: <20140922091207.GJ1786@lahna.fi.intel.com>
+References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com>
+ <20140920093633.GG1612@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140920093633.GG1612@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org
-Cc: linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Some device using this bus, such as regulators, they should register
-as early as possible, so the I2C bus master needs to be loaded early.
-Therefore initialize via subsys_initcall() is better.
+On Sat, Sep 20, 2014 at 11:36:34AM +0200, Wolfram Sang wrote:
+> On Thu, Sep 18, 2014 at 12:26:07PM +0300, Mika Westerberg wrote:
+> > From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > 
+> > Add support for AMD version of the DW I2C host controller. The device is
+> > enumerated from ACPI namespace with ACPI ID AMD0010. Because the core
+> > driver needs an input source clock, and this is not an Intel LPSS device
+> > where clocks are provided through drivers/acpi/acpi_lpss.c, we register the
+> > clock ourselves if the clock rate is given in ->driver_data.
+> > 
+> > Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> > ---
+> 
+> Applied to for-next, still wondering...
 
-Signed-off-by: Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Thanks!
 
----
+> 
+> >  drivers/i2c/busses/Kconfig                  |  1 +
+> >  drivers/i2c/busses/i2c-designware-platdrv.c | 27 +++++++++++++++++++++++++++
+> >  2 files changed, 28 insertions(+)
+> > 
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 2ac87fa3058d..9384498ef3c1 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -422,6 +422,7 @@ config I2C_DESIGNWARE_CORE
+> >  
+> >  config I2C_DESIGNWARE_PLATFORM
+> >  	tristate "Synopsys DesignWare Platform"
+> > +	depends on COMMON_CLK
+> 
+> ... do all previous users have COMMON_CLK?
 
- drivers/i2c/busses/i2c-rk3x.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+The driver is being used on x86, ARM and ARC it seems. For x86 and ARM
+we pretty much have COMMON_CLK nowadays but I'm not sure about ARC.
+That's why I have copied Christian Ruppert.
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index e637c32..5b91901 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -760,7 +760,18 @@ static struct platform_driver rk3x_i2c_driver = {
- 	},
- };
- 
--module_platform_driver(rk3x_i2c_driver);
-+static int __init rk3x_i2c_init_driver(void)
-+{
-+	return platform_driver_register(&rk3x_i2c_driver);
-+}
-+
-+static void __exit rk3x_i2c_exit_driver(void)
-+{
-+	platform_driver_unregister(&rk3x_i2c_driver);
-+}
-+
-+subsys_initcall(rk3x_i2c_init_driver);
-+module_exit(rk3x_i2c_exit_driver);
- 
- MODULE_DESCRIPTION("Rockchip RK3xxx I2C Bus driver");
- MODULE_AUTHOR("Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>");
--- 
-1.7.9.5
+Christian,
+
+Do you see problems on your side if we depend on COMMON_CLK?
