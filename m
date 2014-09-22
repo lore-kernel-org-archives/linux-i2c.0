@@ -1,21 +1,17 @@
 From: Muthu Mani <muth@cypress.com>
-Subject: [PATCH 2/3] i2c: add support for Cypress CYUSBS234 USB-I2C adapter
-Date: Mon, 22 Sep 2014 15:03:46 +0530
-Message-ID: <1411378426-18387-1-git-send-email-muth@cypress.com>
+Subject: [PATCH 1/3] mfd: add support for Cypress CYUSBS234 USB Serial Bridge controller
+Date: Mon, 22 Sep 2014 15:02:52 +0530
+Message-ID: <1411378372-18351-1-git-send-email-muth@cypress.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Sender: linux-gpio-owner@vger.kernel.org
 To: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Muthu Mani <muth@cypress.com>, Rajaram Regupathy <rera@cypress.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Adds support for USB-I2C interface of Cypress Semiconductor
+Adds support for USB-I2C/GPIO interfaces of Cypress Semiconductor
 CYUSBS234 USB-Serial Bridge controller.
-
-The read/write operation is setup using vendor command through
-control endpoint and actual data transfer happens through
-bulk in/out endpoints.
 
 Details about the device can be found at:
 http://www.cypress.com/?rID=84126
@@ -23,63 +19,65 @@ http://www.cypress.com/?rID=84126
 Signed-off-by: Muthu Mani <muth@cypress.com>
 Signed-off-by: Rajaram Regupathy <rera@cypress.com>
 ---
- drivers/i2c/busses/Kconfig         |  12 +
- drivers/i2c/busses/Makefile        |   1 +
- drivers/i2c/busses/i2c-cyusbs23x.c | 534 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 547 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-cyusbs23x.c
+ drivers/mfd/Kconfig           |  12 ++++
+ drivers/mfd/Makefile          |   1 +
+ drivers/mfd/cyusbs23x.c       | 163 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/cyusbs23x.h |  51 +++++++++++++
+ 4 files changed, 227 insertions(+)
+ create mode 100644 drivers/mfd/cyusbs23x.c
+ create mode 100644 include/linux/mfd/cyusbs23x.h
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 2ac87fa..1fdc6ec 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -848,6 +848,18 @@ config I2C_RCAR
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index de5abf2..a31e9e3 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -116,6 +116,18 @@ config MFD_ASIC3
+ 	  This driver supports the ASIC3 multifunction chip found on many
+ 	  PDAs (mainly iPAQ and HTC based ones)
  
- comment "External I2C/SMBus adapter drivers"
- 
-+config I2C_CYUSBS23X
-+        tristate "CYUSBS23x I2C adapter"
-+        depends on MFD_CYUSBS23X && USB
-+        help
-+	  Say yes if you would like to access Cypress CYUSBS23x I2C device.
-+
-+	  This driver enables the I2C interface of CYUSBS23x USB Serial Bridge
-+	  controller.
++config MFD_CYUSBS23X
++        tristate "Cypress CYUSBS23x USB Serial Bridge controller"
++	select MFD_CORE
++	depends on USB
++	default n
++	help
++	  Say yes here if you want support for Cypress Semiconductor
++	  CYUSBS23x USB-Serial Bridge controller.
 +
 +	  This driver can also be built as a module. If so, the module will be
-+	  called i2c-cyusbs23x.
++	  called cyusbs23x.
 +
- config I2C_DIOLAN_U2C
- 	tristate "Diolan U2C-12 USB adapter"
- 	depends on USB
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 49bf07e..cbf28cb 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -84,6 +84,7 @@ obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
- obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
+ config PMIC_DA903X
+ 	bool "Dialog Semiconductor DA9030/DA9034 PMIC Support"
+ 	depends on I2C=y
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index f001487..fc5bcd1 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -151,6 +151,7 @@ si476x-core-y := si476x-cmd.o si476x-prop.o si476x-i2c.o
+ obj-$(CONFIG_MFD_SI476X_CORE)	+= si476x-core.o
  
- # External I2C/SMBus adapter drivers
-+obj-$(CONFIG_I2C_CYUSBS23X)	+= i2c-cyusbs23x.o
- obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
- obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
- obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
-diff --git a/drivers/i2c/busses/i2c-cyusbs23x.c b/drivers/i2c/busses/i2c-cyusbs23x.c
+ obj-$(CONFIG_MFD_CS5535)	+= cs5535-mfd.o
++obj-$(CONFIG_MFD_CYUSBS23X)     += cyusbs23x.o
+ obj-$(CONFIG_MFD_OMAP_USB_HOST)	+= omap-usb-host.o omap-usb-tll.o
+ obj-$(CONFIG_MFD_PM8921_CORE) 	+= pm8921-core.o ssbi.o
+ obj-$(CONFIG_TPS65911_COMPARATOR)	+= tps65911-comparator.o
+diff --git a/drivers/mfd/cyusbs23x.c b/drivers/mfd/cyusbs23x.c
 new file mode 100644
-index 0000000..6fade25
+index 0000000..824f020
 --- /dev/null
-+++ b/drivers/i2c/busses/i2c-cyusbs23x.c
-@@ -0,0 +1,534 @@
++++ b/drivers/mfd/cyusbs23x.c
+@@ -0,0 +1,163 @@
 +/*
-+ * Cypress USB-Serial Bridge Controller I2C-USB adapter driver
++ * Cypress USB-Serial Bridge Controller USB adapter driver
 + *
 + * Copyright (c) 2014 Cypress Semiconductor Corporation.
 + *
 + * Author:
-+ *   Rajaram Regupathy <rera@cypress.com>
++ *   Muthu Mani <muth@cypress.com>
 + *
 + * Additional contributors include:
-+ *   Muthu Mani <muth@cypress.com>
++ *   Rajaram Regupathy <rera@cypress.com>
 + *
 + * This program is free software; you can redistribute it and/or modify it
 + * under the terms of the GNU General Public License version 2 as published by
@@ -92,517 +90,204 @@ index 0000000..6fade25
 +#include <linux/slab.h>
 +#include <linux/types.h>
 +#include <linux/mutex.h>
-+#include <linux/platform_device.h>
 +
-+#include <linux/usb.h>
-+#include <linux/i2c.h>
-+
++#include <linux/mfd/core.h>
 +#include <linux/mfd/cyusbs23x.h>
 +
-+#define CYUSBS23X_I2C_NAME "cyusbs23x_i2c"
++#include <linux/usb.h>
 +
-+#pragma pack(1)
-+struct cyusbs_i2c_config {
-+	__u32 frequency;       /* Frequency of operation. Only valid values are
-+				  100KHz and 400KHz */
-+	__u8 slave_addr;       /* Slave address to be used when in slave mode */
-+	bool is_msb_first;     /* Whether to transmit MSB first */
-+	bool is_master;        /* Whether block is to be configured as a master:
-+				  1 - The block functions as I2C master;
-+				  0 - The block functions as I2C slave */
-+	bool s_ignore;         /* Ignore general call in slave mode */
-+	bool clock_stretch;    /* Whether to stretch clock in case of no FIFO
-+				  availability */
-+	bool is_loopback;      /* Whether to loop back TX data to RX. Valid
-+				  only for debug purposes */
-+	__u8 reserved[6];      /* Reserved for future use */
-+};
-+#pragma pack()
-+
-+struct cyusbs_i2c {
-+	struct i2c_adapter i2c_adapter;
-+	struct cyusbs_i2c_config i2c_config;
-+
-+	bool is_stop_bit;
-+	bool is_nak_bit;
++static const struct usb_device_id cyusbs23x_usb_table[] = {
++	{ USB_DEVICE(0x04b4, 0x0004) },   /* Cypress Semiconductor */
++	{ }                               /* Terminating entry */
 +};
 +
-+#define CY_I2C_MODE_WRITE     1
-+#define CY_I2C_MODE_READ      0
++MODULE_DEVICE_TABLE(usb, cyusbs23x_usb_table);
 +
-+static int cy_i2c_get_status(struct device *d, char *buf, __u16 mode);
-+static int cy_i2c_reset(struct device *d, __u16 mode);
++static const struct mfd_cell cyusbs23x_i2c_devs[] = {
++	{
++		.name = "cyusbs23x-i2c",
++	},
++	{
++		.name = "cyusbs23x-gpio",
++	},
++};
 +
-+static ssize_t show_i2c_read_status(struct device *d,
-+				    struct device_attribute *attr, char *buf)
++static int update_ep_details(struct usb_interface *interface,
++				struct cyusbs23x *cyusbs)
 +{
-+	dev_dbg(d, "%s\n", __func__);
++	struct usb_host_interface *iface_desc;
++	struct usb_endpoint_descriptor *ep;
++	int i;
 +
-+	return cy_i2c_get_status(d, buf, CY_I2C_MODE_READ);
-+}
-+static DEVICE_ATTR(i2c_read_status, 0444, show_i2c_read_status, NULL);
++	dev_dbg(&interface->dev, "%s\n", __func__);
 +
-+static ssize_t show_i2c_write_status(struct device *d,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	dev_dbg(d, "%s\n", __func__);
++	iface_desc = interface->cur_altsetting;
 +
-+	return cy_i2c_get_status(d, buf, CY_I2C_MODE_WRITE);
-+}
-+static DEVICE_ATTR(i2c_write_status, 0444, show_i2c_write_status, NULL);
++	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
 +
-+static ssize_t cy_i2c_read_reset(struct device *d,
-+				 struct device_attribute *attr,
-+				 const char *buf, size_t count)
-+{
-+	int ret;
++		dev_dbg(&interface->dev, "%s %d/%d\n",
++			__func__, i, iface_desc->desc.bNumEndpoints);
 +
-+	if (((count != 1) && (count != 2 || buf[1] != '\n')) || (buf[0] != '1'))
-+		return -EINVAL;
++		ep = &iface_desc->endpoint[i].desc;
 +
-+	dev_dbg(d, "%s\n", __func__);
-+	ret = cy_i2c_reset(d, CY_I2C_MODE_READ);
-+
-+	if (!ret)
-+		ret = count;
-+
-+	return ret;
-+}
-+static DEVICE_ATTR(i2c_read_reset, 0200, NULL, cy_i2c_read_reset);
-+
-+static ssize_t cy_i2c_write_reset(struct device *d,
-+				  struct device_attribute *attr,
-+				  const char *buf, size_t count)
-+{
-+	int ret;
-+
-+	if (((count != 1) && (count != 2 || buf[1] != '\n')) || (buf[0] != '1'))
-+		return -EINVAL;
-+
-+	dev_dbg(d, "%s\n", __func__);
-+	ret = cy_i2c_reset(d, CY_I2C_MODE_WRITE);
-+
-+	if (!ret)
-+		ret = count;
-+
-+	return ret;
-+}
-+static DEVICE_ATTR(i2c_write_reset, 0200, NULL, cy_i2c_write_reset);
-+
-+static ssize_t show_is_stop_bit(struct device *d,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct platform_device *pdev = to_platform_device(d);
-+	struct cyusbs_i2c *cy_i2c = platform_get_drvdata(pdev);
-+
-+	return sprintf(buf, "%d\n", cy_i2c->is_stop_bit);
-+}
-+
-+static ssize_t store_is_stop_bit(struct device *d,
-+				 struct device_attribute *attr,
-+				 const char *buf, size_t count)
-+{
-+	struct platform_device *pdev = to_platform_device(d);
-+	struct cyusbs_i2c *cy_i2c = platform_get_drvdata(pdev);
-+
-+	if ((count != 1) && (count != 2 || buf[1] != '\n'))
-+		return -EINVAL;
-+
-+	if (buf[0] == '0')
-+		cy_i2c->is_stop_bit = 0;
-+	else if (buf[0] == '1')
-+		cy_i2c->is_stop_bit = 1;
-+	else
-+		return -EINVAL;
-+
-+	dev_dbg(d, "is_stop_bit=%d buf=%s\n", cy_i2c->is_stop_bit, buf);
-+
-+	return count;
-+}
-+static DEVICE_ATTR(is_stop_bit, 0644, show_is_stop_bit, store_is_stop_bit);
-+
-+static ssize_t show_is_nak_bit(struct device *d,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	struct platform_device *pdev = to_platform_device(d);
-+	struct cyusbs_i2c *cy_i2c = platform_get_drvdata(pdev);
-+
-+	return sprintf(buf, "%d\n", cy_i2c->is_nak_bit);
-+}
-+
-+static ssize_t store_is_nak_bit(struct device *d,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	struct platform_device *pdev = to_platform_device(d);
-+	struct cyusbs_i2c *cy_i2c = platform_get_drvdata(pdev);
-+
-+	if ((count != 1) && (count != 2 || buf[1] != '\n'))
-+		return -EINVAL;
-+
-+	if (buf[0] == '0')
-+		cy_i2c->is_nak_bit = 0;
-+	else if (buf[0] == '1')
-+		cy_i2c->is_nak_bit = 1;
-+	else
-+		return -EINVAL;
-+
-+	dev_dbg(d, "is_nak_bit=%d buf=%s\n", cy_i2c->is_nak_bit, buf);
-+
-+	return count;
-+}
-+static DEVICE_ATTR(is_nak_bit, 0644, show_is_nak_bit, store_is_nak_bit);
-+
-+static int cy_i2c_get_status(struct device *d, char *buf, __u16 mode)
-+{
-+	int ret;
-+	__u16 wIndex, wValue, scb_index, tmp;
-+	struct cyusbs23x *cyusbs = dev_get_drvdata(d->parent);
-+
-+	tmp = cyusbs->usb_intf->cur_altsetting->desc.bInterfaceNumber;
-+	scb_index = tmp & 0x01;
-+	wValue = ((scb_index << CY_SCB_INDEX_POS) | mode);
-+	wIndex = 0;
-+
-+	mutex_lock(&cyusbs->lock);
-+	ret = usb_control_msg(cyusbs->usb_dev,
-+			usb_rcvctrlpipe(cyusbs->usb_dev, 0),
-+			CY_I2C_GET_STATUS_CMD,
-+			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-+			wValue, wIndex, buf, 3, 2000);
-+	mutex_unlock(&cyusbs->lock);
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s: %02x %02x %02x\n", __func__,
-+		buf[0], buf[1], buf[2]);
-+	return ret;
-+}
-+
-+static int cy_i2c_reset(struct device *d, __u16 mode)
-+{
-+	int ret;
-+	__u16 wIndex, wValue, scb_index, tmp;
-+	struct cyusbs23x *cyusbs = dev_get_drvdata(d->parent);
-+
-+	tmp = cyusbs->usb_intf->cur_altsetting->desc.bInterfaceNumber;
-+	scb_index = tmp & 0x01;
-+	wValue = ((scb_index << CY_SCB_INDEX_POS) | mode);
-+	wIndex = 0;
-+
-+	mutex_lock(&cyusbs->lock);
-+	ret = usb_control_msg(cyusbs->usb_dev,
-+			usb_sndctrlpipe(cyusbs->usb_dev, 0),
-+			CY_I2C_RESET_CMD,
-+			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-+			wValue, wIndex, NULL, 0, 2000);
-+	mutex_unlock(&cyusbs->lock);
-+	dev_dbg(d, "%s: %d\n", __func__, ret);
-+	return ret;
-+}
-+
-+static int cy_get_i2c_config(struct cyusbs23x *cyusbs,
-+				struct cyusbs_i2c *cy_i2c)
-+{
-+	int ret;
-+	__u16 scb_index, tmp;
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s\n", __func__);
-+
-+	tmp = cyusbs->usb_intf->cur_altsetting->desc.bInterfaceNumber;
-+	scb_index = (tmp & 0x01) << CY_SCB_INDEX_POS;
-+
-+	mutex_lock(&cyusbs->lock);
-+	ret = usb_control_msg(cyusbs->usb_dev,
-+			usb_rcvctrlpipe(cyusbs->usb_dev, 0),
-+			CY_I2C_GET_CONFIG_CMD,
-+			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-+			scb_index, 0, &cy_i2c->i2c_config, 16, 2000);
-+	mutex_unlock(&cyusbs->lock);
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s: %d, 0x%02x, %d, %d, %d, %d, %d\n",
-+		__func__, cy_i2c->i2c_config.frequency,
-+		cy_i2c->i2c_config.slave_addr,
-+		cy_i2c->i2c_config.is_msb_first,
-+		cy_i2c->i2c_config.is_master,
-+		cy_i2c->i2c_config.s_ignore,
-+		cy_i2c->i2c_config.clock_stretch,
-+		cy_i2c->i2c_config.is_loopback);
-+	return ret;
-+}
-+
-+static int cy_i2c_set_data_config(struct cyusbs23x *cyusbs,
-+				  struct cyusbs_i2c *cy_i2c, __u16 slave_addr,
-+				  __u16 length, __u8 command)
-+{
-+	int ret;
-+	__u16 wIndex, wValue;
-+	__u16 scb_index, tmp;
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s\n", __func__);
-+
-+	tmp = cyusbs->usb_intf->cur_altsetting->desc.bInterfaceNumber;
-+	scb_index = (tmp & 0x01) << 7;
-+	slave_addr = (slave_addr & 0x7F) | scb_index;
-+	wValue = cy_i2c->is_stop_bit | cy_i2c->is_nak_bit << 1;
-+	wValue |= (slave_addr << 8);
-+	wIndex = length;
-+
-+	dev_dbg(&cyusbs->usb_intf->dev,
-+		"%s, cmd=0x%x,val=0x%x,idx=0x%x\n",
-+		__func__, command, wValue, wIndex);
-+
-+	ret = usb_control_msg(cyusbs->usb_dev,
-+		usb_sndctrlpipe(cyusbs->usb_dev, 0),
-+		command, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-+		wValue, wIndex, NULL, 0, 2000);
-+
-+	return ret;
-+}
-+
-+static int cy_i2c_read(struct cyusbs23x *cyusbs, struct i2c_msg *msgs)
-+{
-+	int ret, actual_read_len = 0;
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s\n", __func__);
-+
-+	ret = usb_bulk_msg(cyusbs->usb_dev,
-+		usb_rcvbulkpipe(cyusbs->usb_dev, cyusbs->bulk_in_ep_num),
-+		msgs[0].buf,
-+		msgs[0].len,
-+		&actual_read_len, 5000);
-+
-+	if (ret)
-+		dev_dbg(&cyusbs->usb_intf->dev,
-+			"read %d/%d returned %d\n",
-+			actual_read_len, msgs[0].len, ret);
-+
-+	return ret;
-+}
-+
-+static int cy_i2c_write(struct cyusbs23x *cyusbs, struct i2c_msg *msgs)
-+{
-+	int ret, actual_write_len = 0;
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s\n", __func__);
-+
-+	ret = usb_bulk_msg(cyusbs->usb_dev,
-+		usb_sndbulkpipe(cyusbs->usb_dev, cyusbs->bulk_out_ep_num),
-+		msgs[0].buf,
-+		msgs[0].len,
-+		&actual_write_len, 5000);
-+
-+	if (ret)
-+		dev_dbg(&cyusbs->usb_intf->dev,
-+			"write %d/%d returned %d\n",
-+			actual_write_len, msgs[0].len, ret);
-+
-+	return ret;
-+}
-+
-+static int cy_i2c_xfer(struct i2c_adapter *adapter,
-+		       struct i2c_msg *msgs, int num)
-+{
-+	int ret = 0;
-+	struct cyusbs_i2c *cy_i2c;
-+	struct cyusbs23x *cyusbs = (struct cyusbs23x *)adapter->algo_data;
-+
-+	dev_dbg(&adapter->dev, "%s\n", __func__);
-+
-+	if (num > 1) {
-+		dev_err(&adapter->dev, "i2c_msg number is > 1\n");
-+		return -EIO;
++		if (!cyusbs->bulk_in_ep_num &&
++			usb_endpoint_is_bulk_in(ep)) {
++			cyusbs->bulk_in_ep_num = ep->bEndpointAddress;
++		}
++		if (!cyusbs->bulk_out_ep_num &&
++			usb_endpoint_is_bulk_out(ep)) {
++			cyusbs->bulk_out_ep_num = ep->bEndpointAddress;
++		}
++		if (!cyusbs->intr_in_ep_num &&
++			usb_endpoint_is_int_in(ep)) {
++			cyusbs->intr_in_ep_num = ep->bEndpointAddress;
++		}
 +	}
 +
-+	cy_i2c = container_of(adapter, struct cyusbs_i2c, i2c_adapter);
++	dev_dbg(&interface->dev, "%s %d, %d, %d\n",
++		__func__, cyusbs->intr_in_ep_num ,
++		cyusbs->bulk_in_ep_num, cyusbs->bulk_out_ep_num);
 +
-+	mutex_lock(&cyusbs->lock);
-+	if (msgs[0].flags & I2C_M_RD) {
-+		dev_dbg(&adapter->dev,
-+			"I2C read requested for addr 0x%02x, data length %d\n",
-+			msgs[0].addr, msgs[0].len);
++	if (!cyusbs->bulk_in_ep_num || !cyusbs->bulk_out_ep_num ||
++		!cyusbs->intr_in_ep_num)
++		return -EINVAL;
 +
-+		ret = cy_i2c_set_data_config(cyusbs, cy_i2c, msgs[0].addr,
-+				msgs[0].len, CY_I2C_READ_CMD);
-+
-+		if (ret < 0) {
-+			dev_err(&adapter->dev,
-+				"Set Config (read) failed with %d\n", ret);
-+			goto io_error;
-+		}
-+
-+		ret = cy_i2c_read(cyusbs, msgs);
-+		if (ret) {
-+			dev_err(&adapter->dev,
-+				"Read failed with error code %d\n", ret);
-+			goto io_error;
-+		}
-+	} else {
-+		dev_dbg(&adapter->dev,
-+			"I2C write requested for addr 0x%02x, data length %d\n",
-+			msgs[0].addr, msgs[0].len);
-+
-+		ret = cy_i2c_set_data_config(cyusbs, cy_i2c, msgs[0].addr,
-+				msgs[0].len, CY_I2C_WRITE_CMD);
-+
-+		if (ret < 0) {
-+			dev_err(&adapter->dev,
-+			"Set Config (write) failed with %d\n", ret);
-+			goto io_error;
-+		}
-+
-+		ret = cy_i2c_write(cyusbs, msgs);
-+		if (ret) {
-+			dev_err(&adapter->dev,
-+				"Write failed with error code %d\n", ret);
-+			goto io_error;
-+		}
-+	}
-+	mutex_unlock(&cyusbs->lock);
-+	return ret;
-+
-+io_error:
-+	mutex_unlock(&cyusbs->lock);
-+	return ret;
++	return 0;
 +}
 +
-+static u32 cy_i2c_func(struct i2c_adapter *adapter)
-+{
-+	dev_dbg(&adapter->dev, "%s\n", __func__);
-+
-+	return I2C_FUNC_I2C;
-+}
-+
-+static const struct i2c_algorithm i2c_cyusbs23x_algorithm = {
-+	.master_xfer	= cy_i2c_xfer,
-+	.functionality	= cy_i2c_func,
-+};
-+
-+static int cyusbs23x_i2c_probe(struct platform_device *pdev)
++static int cyusbs23x_probe(struct usb_interface *interface,
++			   const struct usb_device_id *id)
 +{
 +	struct cyusbs23x *cyusbs;
-+	struct cyusbs_i2c *cy_i2c;
-+	int ret = 0;
++	int ret;
 +
-+	dev_dbg(&pdev->dev, "%s\n", __func__);
-+
-+	cyusbs = dev_get_drvdata(pdev->dev.parent);
-+
-+	cy_i2c = devm_kzalloc(&pdev->dev, sizeof(*cy_i2c), GFP_KERNEL);
-+	if (cy_i2c == NULL)
++	cyusbs = kzalloc(sizeof(*cyusbs), GFP_KERNEL);
++	if (cyusbs == NULL)
 +		return -ENOMEM;
 +
-+	cy_i2c->is_stop_bit = 1;
-+	cy_i2c->is_nak_bit = 1;
++	mutex_init(&cyusbs->lock);
 +
-+	cy_i2c->i2c_adapter.owner = THIS_MODULE;
-+	cy_i2c->i2c_adapter.class = I2C_CLASS_HWMON;
-+	cy_i2c->i2c_adapter.algo = &i2c_cyusbs23x_algorithm;
-+	cy_i2c->i2c_adapter.algo_data = cyusbs;
-+	snprintf(cy_i2c->i2c_adapter.name, sizeof(CYUSBS23X_I2C_NAME),
-+			CYUSBS23X_I2C_NAME);
-+	cy_i2c->i2c_adapter.dev.parent = &pdev->dev;
++	cyusbs->usb_dev = usb_get_dev(interface_to_usbdev(interface));
++	cyusbs->usb_intf = interface;
 +
-+	ret = device_create_file(&pdev->dev, &dev_attr_i2c_read_status);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"error in adding i2c_read_status\n");
-+		goto error;
-+	}
-+	ret = device_create_file(&pdev->dev, &dev_attr_i2c_write_status);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"error in adding i2c_write_status\n");
-+		goto error;
-+	}
-+
-+	ret = device_create_file(&pdev->dev, &dev_attr_i2c_read_reset);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"error in adding i2c_read_reset\n");
-+		goto error;
-+	}
-+	ret = device_create_file(&pdev->dev, &dev_attr_i2c_write_reset);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"error in adding i2c_write_reset\n");
-+		goto error;
-+	}
-+
-+	ret = device_create_file(&pdev->dev, &dev_attr_is_nak_bit);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"error in adding is_nak_bit\n");
-+		goto error;
-+	}
-+	ret = device_create_file(&pdev->dev, &dev_attr_is_stop_bit);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"error in adding is_stop_bit\n");
-+		goto error;
-+	}
-+
-+	ret = cy_get_i2c_config(cyusbs, cy_i2c);
++	ret = update_ep_details(interface, cyusbs);
 +	if (ret < 0) {
-+		dev_err(&pdev->dev, "error to get i2c config\n");
++		dev_err(&interface->dev, "invalid interface\n");
 +		goto error;
 +	}
 +
-+	if (!cy_i2c->i2c_config.is_master) {
-+		ret = -EIO;
-+		dev_err(&pdev->dev, "not an I2C master\n");
-+		goto error;
-+	}
++	/* save our data pointer in this interface device */
++	usb_set_intfdata(interface, cyusbs);
++	dev_set_drvdata(&cyusbs->pdev.dev, cyusbs);
 +
-+	ret = i2c_add_adapter(&cy_i2c->i2c_adapter);
++	dev_dbg(&interface->dev,
++		"binding to %02x:%02x, in bus %03d address %03d\n",
++		le16_to_cpu(cyusbs->usb_dev->descriptor.idVendor),
++		le16_to_cpu(cyusbs->usb_dev->descriptor.idProduct),
++		cyusbs->usb_dev->bus->busnum,
++		cyusbs->usb_dev->devnum);
++
++	ret = mfd_add_devices(&interface->dev, -1, cyusbs23x_i2c_devs,
++				ARRAY_SIZE(cyusbs23x_i2c_devs), NULL, 0, NULL);
 +	if (ret != 0) {
-+		dev_err(&pdev->dev, "failed to add i2c adapter\n");
++		dev_err(&interface->dev, "Failed to add mfd devices to core\n");
 +		goto error;
 +	}
 +
-+	platform_set_drvdata(pdev, cy_i2c);
-+
-+	dev_dbg(&pdev->dev, "added I2C adapter\n");
 +	return 0;
 +
 +error:
-+	dev_dbg(&pdev->dev, "error occured %d\n", ret);
++	if (cyusbs) {
++		usb_put_dev(cyusbs->usb_dev);
++		kfree(cyusbs);
++	}
++
 +	return ret;
 +}
 +
-+static int cyusbs23x_i2c_remove(struct platform_device *pdev)
++static void cyusbs23x_disconnect(struct usb_interface *interface)
 +{
-+	struct cyusbs_i2c *cy_i2c = platform_get_drvdata(pdev);
++	struct cyusbs23x *cyusbs = usb_get_intfdata(interface);
 +
-+	dev_dbg(&pdev->dev, "%s\n", __func__);
++	mfd_remove_devices(&interface->dev);
++	usb_set_intfdata(interface, NULL);
++	usb_put_dev(cyusbs->usb_dev);
++	kfree(cyusbs);
 +
-+	i2c_del_adapter(&cy_i2c->i2c_adapter);
-+
-+	return 0;
++	dev_dbg(&interface->dev, "disconnected\n");
 +}
 +
-+static struct platform_driver cyusbs23x_i2c_driver = {
-+	.driver.name	= "cyusbs23x-i2c",
-+	.driver.owner	= THIS_MODULE,
-+	.probe		= cyusbs23x_i2c_probe,
-+	.remove		= cyusbs23x_i2c_remove,
++static struct usb_driver cyusbs23x_usb_driver = {
++	.name           = "cyusbs23x",
++	.probe          = cyusbs23x_probe,
++	.disconnect     = cyusbs23x_disconnect,
++	.id_table       = cyusbs23x_usb_table,
 +};
 +
-+static int __init cyusbs23x_i2c_init(void)
-+{
-+	return platform_driver_register(&cyusbs23x_i2c_driver);
-+}
-+subsys_initcall(cyusbs23x_i2c_init);
-+
-+static void __exit cyusbs23x_i2c_exit(void)
-+{
-+	platform_driver_unregister(&cyusbs23x_i2c_driver);
-+}
-+module_exit(cyusbs23x_i2c_exit);
++module_usb_driver(cyusbs23x_usb_driver);
 +
 +MODULE_AUTHOR("Rajaram Regupathy <rera@cypress.com>");
 +MODULE_AUTHOR("Muthu Mani <muth@cypress.com>");
-+MODULE_DESCRIPTION("i2c-cyusbs23x driver v0.1");
++MODULE_DESCRIPTION("CYUSBS23x driver v0.1");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:cyusbs23x-i2c");
 +
+diff --git a/include/linux/mfd/cyusbs23x.h b/include/linux/mfd/cyusbs23x.h
+new file mode 100644
+index 0000000..f2d37d4
+--- /dev/null
++++ b/include/linux/mfd/cyusbs23x.h
+@@ -0,0 +1,51 @@
++/*
++ * Cypress USB-Serial Bridge Controller definitions
++ *
++ * Copyright (c) 2014 Cypress Semiconductor Corporation.
++ *
++ * Author:
++ *   Muthu Mani <muth@cypress.com>
++ *
++ * Additional contributors include:
++ *   Rajaram Regupathy <rera@cypress.com>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#ifndef __MFD_CYUSBS23X_H__
++#define __MFD_CYUSBS23X_H__
++
++#include <linux/types.h>
++#include <linux/usb.h>
++
++/* Structure to hold all device specific stuff */
++struct cyusbs23x {
++	struct usb_device *usb_dev; /* the usb device for this device */
++	struct usb_interface *usb_intf; /* the usb interface for this device */
++	struct mutex lock;
++	struct platform_device pdev;
++
++	__u8 bulk_in_ep_num;
++	__u8 bulk_out_ep_num;
++	__u8 intr_in_ep_num;
++};
++
++enum CY_VENDOR_CMDS {
++	CY_I2C_GET_CONFIG_CMD = 0xC4,
++	CY_I2C_SET_CONFIG_CMD = 0xC5,
++	CY_I2C_WRITE_CMD,
++	CY_I2C_READ_CMD,
++	CY_I2C_GET_STATUS_CMD,
++	CY_I2C_RESET_CMD,
++	CY_GPIO_GET_CONFIG_CMD = 0xD8,
++	CY_GPIO_SET_CONFIG_CMD,
++	CY_GPIO_GET_VALUE_CMD,
++	CY_GPIO_SET_VALUE_CMD,
++
++} CY_VENDOR_CMDS;
++
++#define CY_SCB_INDEX_POS      15
++
++#endif /* __MFD_CYUSBS23X_H__ */
 -- 
 1.8.3.2
+
