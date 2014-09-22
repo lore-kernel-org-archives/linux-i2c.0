@@ -1,70 +1,66 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-mxs: fixed PIO NACK error instead of timeout (1000ms)
-Date: Mon, 22 Sep 2014 17:56:15 +0200
-Message-ID: <20140922155615.GA27087@katana>
-References: <1410279571-4552-1-git-send-email-j.uzycki@elproma.com.pl>
- <1410279571-4552-2-git-send-email-j.uzycki@elproma.com.pl>
- <20140920124935.GF3850@katana>
- <201409201522.00331.marex@denx.de>
+From: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-rk3x: move setup to the earlier subsys initcall
+Date: Mon, 22 Sep 2014 18:05:43 +0200
+Message-ID: <7192455.FveG5nGWsJ@xq-nb>
+References: <1411370675-27866-1-git-send-email-zyw@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201409201522.00331.marex-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <1411370675-27866-1-git-send-email-zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Chris,
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Am Montag, 22. September 2014, 15:24:35 schrieb Chris Zhong:
+> Some device using this bus, such as regulators, they should register
+> as early as possible, so the I2C bus master needs to be loaded early.
+> Therefore initialize via subsys_initcall() is better.
 
-On Sat, Sep 20, 2014 at 03:22:00PM +0200, Marek Vasut wrote:
-> On Saturday, September 20, 2014 at 02:49:36 PM, Wolfram Sang wrote:
-> > On Tue, Sep 09, 2014 at 06:19:31PM +0200, Janusz Uzycki wrote:
-> > > i2cdetect scanned i2c bus very slow if address was not occupied by any
-> > > device.
-> > >=20
-> > > Signed-off-by: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
-> >=20
-> > I would apply this patch and produce a fitting commit message out of the
-> > text you already sent, so you get an idea what is apropriate. However, I
-> > can't apply the patch. How did you create it?
-> >=20
->=20
-> I'd say it's based on Linux 3.14 . Btw. you could have pasted the commit =
-message=20
-> here too ;-)
+You could also use probe deferral in the regulator driver to wait until the 
+bus is ready. I don't know if you're already doing it, just wanted to point 
+that out.
 
-I can't apply the patch, it needs to be resent. And it is not wrong
-context IMO, the numbers say 4 lines will be added while the patch only
-contains 3. I could fix it manually, but I rather have a proper patch.
+That said, this change will make the boot faster in any case by avoiding 
+unnecessary deferrals, so I'm for it if you fix the minor issue below.
 
+> Signed-off-by: Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> 
+> ---
+> 
+>  drivers/i2c/busses/i2c-rk3x.c |   13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+> index e637c32..5b91901 100644
+> --- a/drivers/i2c/busses/i2c-rk3x.c
+> +++ b/drivers/i2c/busses/i2c-rk3x.c
+> @@ -760,7 +760,18 @@ static struct platform_driver rk3x_i2c_driver = {
+>  	},
+>  };
+> 
+> -module_platform_driver(rk3x_i2c_driver);
+> +static int __init rk3x_i2c_init_driver(void)
+> +{
+> +	return platform_driver_register(&rk3x_i2c_driver);
+> +}
+> +
+> +static void __exit rk3x_i2c_exit_driver(void)
+> +{
+> +	platform_driver_unregister(&rk3x_i2c_driver);
+> +}
+> +
+> +subsys_initcall(rk3x_i2c_init_driver);
+> +module_exit(rk3x_i2c_exit_driver);
 
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+This means that the driver cannot be used as a loadable module any more, 
+right?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+In that case, you should probably turn the tristate option in Kconfig into a 
+bool.
 
-iQIcBAEBAgAGBQJUIEafAAoJEBQN5MwUoCm22IoQAIKJKvJtcuuIMM4HwDcVgL/T
-5gGTMuqc3Aor6qelASgmKEmIgBU5ceFrM/q/qXpRI8oQCX7BDS6naigQsZE0y4k5
-O3YS77Vj2A5Fe2wBUPpKZq9DtbB4N/GoX1mFrireLro3+dJ7vX3EiL2F33YnM7g4
-27gUrRajxwl24z2+u5W2P5vAanxC4VmWAn4ZM3adzy3uqu7O+qw9B3DP8cFRzyvy
-7jmdKncZx7WCMe8ISuYDV4iULhg/i1/S2b5dJdblWg73aKkSaJ2E931409v+rQDt
-eqiEQImoEHJRkX/b+mXaZ8aviYaX7lnEZvGT0q/53aDMr8aW6Fq7Ev6u0XjvLDwk
-TrOQjN8UOCoJl/BGqe2KLbwLYDrHHLxO9MWyxVU/lNnD7n0gIXutH9Ec1Dng9Zg4
-3/FM4inLGBhAH949OcEBiUBnLvU8EkzhSv1rovAuCi4UDS7Fkyzec11dodnIN8C/
-Jlb7TcLNB804JgcNBH9Y7weauMiDgy2AnG4fYy0VYDqGoqt3q/5cTPqIdq+AdME/
-SF91dbbfPzYtrQ54xgtSTt7wlr8KCFxs29LTvAdofcJLCfuY3Ke+OQoXNFrgogFq
-dtt4mncaEu7igZtxWovTDeqswgFJb5nNukSvTuLcYP3V7yNo1JrVupW6gU5+Rorv
-H8cf/5slWcNm2aSl1LhV
-=NO8t
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+Cheers,
+  Max
