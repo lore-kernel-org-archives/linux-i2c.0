@@ -1,24 +1,35 @@
-From: "Benjamin Siaka" <siajaka-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: HOW ARE YOU?
-Date: Mon, 22 Sep 2014 01:14:09 +0000
-Message-ID: <20140922011420.DACF63AE80DE@studentsvm0.itb.ac.id>
-Reply-To: bensiaka-1lgz47149vU@public.gmane.org
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 1/5] i2c: rcar: add renesas,i2c-rcar-gen1/gen2 in DT
+ compatible
+Date: Mon, 22 Sep 2014 11:04:47 +0900
+Message-ID: <20140922020446.GG14899@verge.net.au>
+References: <87r40uw7rp.wl%kuninori.morimoto.gx@renesas.com>
+ <20140807001805.GE32652@verge.net.au>
+ <8761i5kuel.wl%kuninori.morimoto.gx@renesas.com>
+ <20140807011025.GA3284@verge.net.au>
+ <8738d9kojw.wl%kuninori.morimoto.gx@gmail.com>
+ <CANqRtoSu2cZyY2YELUzPF86UAz+=TFtBYsnmotpNDEh9FEhp1Q@mail.gmail.com>
+ <87zjfgkhae.wl%kuninori.morimoto.gx@gmail.com>
+ <CANqRtoR1kn0VjDiYy24hJueeL6Lxs5yxAeTEMQ-kNHn76EYMDQ@mail.gmail.com>
+ <87y4v0k89a.wl%kuninori.morimoto.gx@gmail.com>
+ <20140919171845.GC2874@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Description: Mail message body
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140919171845.GC2874@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Magnus Damm <magnus.damm@gmail.com>, Linux-SH <linux-sh@vger.kernel.org>, Linux-I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello my Dear,
+On Fri, Sep 19, 2014 at 07:18:51PM +0200, Wolfram Sang wrote:
+> 
+> > This approach has no effect to current feature,
+> > and can keep compatible for current and future,
+> > and can reduce / cleanup driver in the future.
+> 
+> I defer the patch series for now. Maybe we should talk about it at our
+> next meeting?
 
-I will greatly appreciate my correspondence meets you in good health condition.
-
-My name is Mr. Benjamin Siaka. I am seeking for your co-operation for investment partnership in your Country. I shall provide the FUND for the investment. When you acknowledged the receipt of this correspondence, thereafter I will give you the Full Details of my investment proposal.
-
-I await your response in earliest.
-
-My regards,
-Mr. Benjamin Siaka.
+That is fine by me.
