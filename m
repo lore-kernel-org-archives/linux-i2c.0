@@ -1,22 +1,34 @@
 From: Wolfram Sang <wsa@the-dreams.de>
 Subject: [PATCH] i2c: move acpi code back into the core
-Date: Mon, 22 Sep 2014 23:03:09 +0200
-Message-ID: <1411419789-4603-1-git-send-email-wsa@the-dreams.de>
+Date: Mon, 22 Sep 2014 23:06:46 +0200
+Message-ID: <1411420006-4713-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-acpi-owner@vger.kernel.org>
 Sender: linux-acpi-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Lan Tianyu <tianyu.lan@intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Lan Tianyu <tianyu.lan@intel.com>, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Commit 5d98e61d337c ("I2C/ACPI: Add i2c ACPI operation region support")
-renamed the i2c-core module. This may cause regressions for
-distributions, so put the ACPI code back into the core.
+Commit 5d98e61d337c ("I2C/ACPI: Add i2c ACPI operation region support") renamed
+the i2c-core module. This may cause regressions for distributions, so put the
+ACPI code back into the core. No code was changed.
 
 Reported-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Lan Tianyu <tianyu.lan@intel.com>
+Cc: Jean Delvare <jdelvare@suse.de>
 ---
+
+Lan Tianyi, this is a patch I expected to get from you, fully tested. Since we
+are approaching the final release soon, I did it now. Please do test this
+patch. All I can do is build test (it works for me, build robots are still
+running). If nobody tests this, I have to revert the ACPI changes of this
+cycle.
+
+Jean, can you have a look, too?
+
+We can think of something better for the next release, but for now, this should be it.
+
  MAINTAINERS            |   1 -
  drivers/i2c/Makefile   |   5 +-
  drivers/i2c/i2c-acpi.c | 364 -------------------------------------------------
