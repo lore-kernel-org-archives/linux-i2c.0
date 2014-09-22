@@ -1,45 +1,104 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
-Date: Mon, 22 Sep 2014 17:23:13 +0300
-Message-ID: <20140922142313.GD1786@lahna.fi.intel.com>
-References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
- <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com>
- <20140920093633.GG1612@katana>
- <20140922091207.GJ1786@lahna.fi.intel.com>
- <20140922122905.GA13321@ab42.lan>
- <C2D7FE5348E1B147BCA15975FBA230753C5DA425@IN01WEMBXA.internal.synopsys.com>
- <20140922140020.GB1786@lahna.fi.intel.com>
- <C2D7FE5348E1B147BCA15975FBA230753C5DA47D@IN01WEMBXA.internal.synopsys.com>
+From: =?UTF-8?B?SmFudXN6IFXFvHlja2k=?= <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+Subject: Re: [PATCH] i2c-mxs: detect No Slave Ack on SELECT in PIO mode
+Date: Mon, 22 Sep 2014 16:33:49 +0200
+Message-ID: <5420334D.8090809@elproma.com.pl>
+References: <1410362286-1785-1-git-send-email-j.uzycki@elproma.com.pl> <201409190445.21419.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <C2D7FE5348E1B147BCA15975FBA230753C5DA47D-uUKrqVzojAgF5QVroWrzJvufCSb+aD3WLzEdoUbNIic@public.gmane.org>
+In-Reply-To: <201409190445.21419.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 22, 2014 at 02:16:25PM +0000, Vineet Gupta wrote:
-> On Monday 22 September 2014 07:30 PM, Mika Westerberg wrote:
-> >>> COMMON_CLK is not selected by the ARC architecture in general. However,
-> >>> > > we do select COMMON_CLK in the TB10x platform which uses the designware
-> >>> > > I2C driver so this new dependency is no problem for us.
-> >>> > >
-> >>> > > Vineet,
-> >>> > >
-> >>> > > Do you see any issues with this on other existing ARC platforms, e.g.
-> >>> > > arcfpga?
-> >> > 
-> >> > So what needs to be done, COMMON_CLK needs to be defined in arch/arc/Kconfig ? And
-> >> > if so why ?
-> > Without COMMON_CLK, you are not able to select I2C_DESIGNWARE_PLATFORM
-> > anymore. So if something on ARC depends on this driver then we either
-> > need the COMMON_CLK there or figure out alternative way to fix Carl's
-> > problem.
-> 
-> I have not seen the orig patch, but it seems COMMON_CLK is already being selected
-> by TB10x, do we still need it in arch/arcKconfig, for all ARC platforms ?
 
-Only if the driver is being used by something else than TB10x on ARC. So
-that we don't cause regressions to existing users.
+W dniu 2014-09-19 04:45, Marek Vasut pisze:
+> On Wednesday, September 10, 2014 at 05:18:06 PM, Janusz Uzycki wrote:
+>> Reported problem:
+>> i2cdetect scanned i2c bus very slow if address was not occupied by any
+>> device.
+>>
+>> Solution:
+>> The patch adds to mxs_i2c_pio_wait_xfer_end() function
+>> NO_SLAVE_ACK_IRQ bit polling during wait loop (until timeout).
+>> If the bit is set the function immediately returns ENXIO error
+>> in order to break the loop and not reset I2C block (it is in idle state
+>> then). The function is called by mxs_i2c_pio_setup_xfer() to wait for
+>> complete xfer after sent SELECT, READ or WRITE command.
+>> If SELECT command is sent and selected slave address is unused by any
+>> device on the bus I2C block sets NO_SLAVE_ACK_IRQ flag and doesn't
+>> deassert CTRL0_RUN. Therefore we need to break the timeout loop when the
+>> flag is set,
+>> otherwise the loop continues until long timeout (1000ms).
+>> The change does not affect READ command because slave does not ack
+>> any byte then (only the master does ack / or not for the last read byte).
+>> According to i.MX28 reference manual (quoted below) it is not clear
+>> if the patch affects WRITE command. However when no acked bytes
+>> on WRITE command followed after address byte (SELECT command)
+>> STAT_GOT_A_NAK flag is set rather than NO_SLAVE_ACK_IRQ (no tested).
+>> Therefore clock stretching shouldn't be affected too.
+>> It has confirmation in FSL BSP 2.6.35 i2c implementation which
+>> completes xfer after NO_SLAVE_ACK_IRQ interrupt and scheduled work.
+>> Registers on NO_SLAVE_ACK_IRQ in PIO mode:
+>> * STAT: 0xd0000e00
+>> 	MASTER_PRESENT
+>> 	SLAVE_PRESENT
+>> 	GOT_A_NAK !
+>> 	BUS_BUSY
+>> 	CLK_GEN_BUSY
+>> 	DATA_ENGINE_BUSY
+>> * CTRL0: 0x20230000
+>> 	RUN !
+>> 	RETAIN_CLOCK
+>> 	MASTER_MODE
+>> 	DIRECTION
+>> * CTRL1: 0x688600a0
+>> 	RD_QUEUE_IRQ
+>> 	WR_QUEUE_IRQ
+>> 	ACK_MODE
+>> 	SLAVE_ADDRESS_BYTE=0b10000110
+>> 	BUS_FREE_IRQ
+>> 	NO_SLAVE_ACK_IRQ !
+>>
+>> NO_SLAVE_ACK_IRQ (CTRL1):
+>> When a start condition is transmitted in master mode, the next byte
+>> contains an address for a targeted slave. If the targeted slave does not
+>> acknowledge the address byte, then this interrupt is set, no further I2C
+>> protocol is processed, and the I2C bus returns to the idle state.
+>> This bit is set to indicate that an interrupt is requested
+>> by the I2C controller because the slave addressed
+>> by a master transfer did not respond with an acknowledge.
+>>
+>> Signed-off-by: Janusz Uzycki <j.uzycki-9tnw74Q4ehaHKKo6LODCOg@public.gmane.org>
+> OK, uh, can the commit message not be shortened to like 5-10 lines ? I think you
+> really need to find your balance when it comes to documenting changes, but don't
+> worry, this will happen sooner rather than later ;-)
+>
+> It would be sufficient to say that you had problem with slow i2cdetect and that
+> was because the i2c controller driver ignored the NO_SLAVE_ACK bit. By
+> leveraging NO_SLAVE_ACK bit, the speedup happens. And this change is correct and
+> doesn't break anything because <a few lines here>.
+>
+> Do you know what I mean ?
+>
+
+Yes, I know. It was explanation in details rather for comments than 
+final patch.
+Is it ok?:
+i2cdetect scanned i2c bus slow because the i2c-mxs driver ignored the 
+NO_SLAVE_ACK bit
+during busy-waiting loop. Thanks to the patch, the speedup happens.
+The change doesn't break anything else because:
+- on SELECT: NO_SLAVE_ACK bit checking is just welcome
+- on READ: master (the i2c controller, no slave device) generates 
+ACK/NAK bit
+- on WRITE: NO_SLAVE_ACK can be treated as NAK (the same effect)
+   so even the i2c controller sets NO_SLAVE_ACK on NAK (not confirmed)
+   the WRITE is not effected
+- on clock stretching: SCL wire is involved, it has no influence
+   on the ACK bit value on SDA wire
+
+kind regards
+Janusz
