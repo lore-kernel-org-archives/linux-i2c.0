@@ -1,137 +1,62 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c: Add generic support passing secondary devices
- addresses
-Date: Mon, 22 Sep 2014 17:41:44 +0300
-Message-ID: <20140922144144.GF1786@lahna.fi.intel.com>
-References: <1409925739-28188-1-git-send-email-jean-michel.hautbois@vodalys.com>
- <20140922104555.GQ1786@lahna.fi.intel.com>
- <542023C8.8080802@metafoo.de>
- <20140922134535.GZ1786@lahna.fi.intel.com>
- <54202E28.80500@metafoo.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: axxia: Add I2C driver for AXM55xx
+Date: Mon, 22 Sep 2014 16:49:05 +0200
+Message-ID: <20140922144904.GA1465@katana>
+References: <1408967482-17723-1-git-send-email-anders.berg@avagotech.com>
+ <20140920121242.GA3833@katana>
+ <CAE0=X_0VQ8rWrUgbsgKm1MwCP8bwWm3UJPq9p=xNDfjP4CC7Bg@mail.gmail.com>
+ <20140922095939.GB1406@katana>
+ <20140922130351.GL5182@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <54202E28.80500-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+In-Reply-To: <20140922130351.GL5182-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Cc: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 22, 2014 at 04:11:52PM +0200, Lars-Peter Clausen wrote:
-> On 09/22/2014 03:45 PM, Mika Westerberg wrote:
-> >On Mon, Sep 22, 2014 at 03:27:36PM +0200, Lars-Peter Clausen wrote:
-> >>On 09/22/2014 12:45 PM, Mika Westerberg wrote:
-> >>>On Fri, Sep 05, 2014 at 04:02:19PM +0200, Jean-Michel Hautbois wrote:
-> >>>>Some I2C devices have multiple addresses assigned, for example each address
-> >>>>corresponding to a different internal register map page of the device.
-> >>>>So far drivers which need support for this have handled this with a driver
-> >>>>specific and non-generic implementation, e.g. passing the additional address
-> >>>>via platform data.
-> >>>>
-> >>>>This patch provides a new helper function called i2c_new_secondary_device()
-> >>>>which is intended to provide a generic way to get the secondary address
-> >>>>as well as instantiate a struct i2c_client for the secondary address.
-> >>>>
-> >>>>The function expects a pointer to the primary i2c_client, a name
-> >>>>for the secondary address and an optional default address. The name is used
-> >>>>as a handle to specify which secondary address to get.
-> >>>>
-> >>>>The default address is used as a fallback in case no secondary address
-> >>>>was explicitly specified. In case no secondary address and no default
-> >>>>address were specified the function returns NULL.
-> >>>>
-> >>>>For now the function only supports look-up of the secondary address
-> >>>>from devicetree, but it can be extended in the future
-> >>>>to for example support board files and/or ACPI.
-> >>>>
-> >>>>Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
-> >>>
-> >>>Sorry, just noticed this one.
-> >>>
-> >>>Srinivas (CC'd) and I did similar patch series here:
-> >>>
-> >>>http://patchwork.ozlabs.org/patch/338342/
-> >
-> >Sorry I gave wrong link. That one is older version.
-> >
-> >Here is the current:
-> >
-> >http://patchwork.ozlabs.org/patch/386409/
-> >http://patchwork.ozlabs.org/patch/386410/
-> >
-> >>>
-> >>>We should probably collaborate on this one to get both DT and ACPI
-> >>>supported.
-> >>
-> >>Yes. The idea was to keep the interface of the API generic so it can be used
-> >>by ACPI or other device topology description mechanisms as well.
-> >>
-> >>But it looks as if the ACPI case is a bit more complex and we may need a
-> >>revision of the API. How for example in the ACPI case do you know which
-> >>address is which, when different parts of a chip are addressed using
-> >>different addresses?
-> >
-> >Unfortunately there is no way in ACPI 5.0 to find out which is which. So
-> >we trust the ordering of I2cSerialBus() resources. Even that has been
-> >problematic because some vendors then list things like SMBus ARA
-> >addresses there in random order :-(
-> >
-> >Our API has following signature:
-> >
-> >int i2c_address_by_index(struct i2c_client *client, int index,
-> >			 struct i2c_board_info *info,
-> >			 struct i2c_adapter **adapter)
-> >
-> >and we use index to find out which address to use.
-> >
-> >Note also that in ACPI it is possible that the I2cSerialBus() resource
-> >points to another I2C host controller, so we need to have 'adapter'
-> >parameter as well.
-> >
-> 
-> Ok, looks like there are two main differences in the two implementations.
-> 
-> 1) The ACPI one uses a integer index and the DT one uses a string index to
-> lookup the device.
-> 
-> The problem with the index lookup is that the order is binding specific. So
-> it might be different between e.g. the devicetree binding and the ACPI
-> binding. This makes it quite hard to use the API in a generic way and you'd
-> end up with hacks like:
-> 
-> if (client->dev.of_node)
-> 	index = 3;
-> else if (ACPI_COMPANION(client->dev))
-> 	index = 1;
-> else
-> 	index = 5;
-> 
 
-Indeed.
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> So we might need a extra translation table which maps a name to a ACPI index
-> and then we could use the name as the generic index in the driver.
+On Mon, Sep 22, 2014 at 02:03:51PM +0100, Russell King - ARM Linux wrote:
+> On Mon, Sep 22, 2014 at 11:59:39AM +0200, Wolfram Sang wrote:
+> > IRQ_NONE is "this interrupt wasn't by me" so for shared IRQs, the next
+> > handler can check.
+>=20
+> Err, no it isn't.  IRQ_NONE has no such effect.  All handlers on a
+> shared interrupt are always run irrespective of the return value from
+> any particular interrupt handler.  See kernel/irq/handle.c.
 
-Good thing is that ACPI 5.1 _DSD finally allows us to use similar naming
-as the DT has been doing. Problem is that we need to support both the
-new way *and* the older index lookup somehow :-/
+/me picks the brown paper bag. I was sure I did. Need to update my
+notes, it seems. Thanks for the heads up!
 
-> 2) The ACPI implementation returns the i2c_board_info and the adapter, while
-> the DT implementation returns the instantiated I2C client device.
-> 
-> It might make sense to have both. I image that most drivers are just
-> interested in creating a new client device and will simply pass the board
-> info and adapter they got to i2c_new_device(). In this case it makes sense
-> to have a helper function which already does this internally to avoid
-> boilerplate code duplication.
 
-I agree. How about making that helper a wrapper around the function that
-returns both i2c_board_info and an adapter?
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> There will probably some special cases though in which case the driver wants
-> to get the adapter and the board info and then manually call
-> i2c_new_device() after having done some additional steps.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Yes, if the alternative address happens to be on another bus. That
-should at least be possible with this API.
+iQIcBAEBAgAGBQJUIDbgAAoJEBQN5MwUoCm2N5UP/jYrU/j6nw2tJlhSg1IXtIub
+DI1aIy/K73SQAaXB92qUElCsRNpHh+bt0CmTwmSGuWNJc6CIyZiOlvlvJwc95Lwe
+lG0iYgm7wzYGPfrduvXLrrXBqiU6CdE6N6e6VY/zOQQSLlmJpXwTY8gjWMij6wQH
+RZJrbxNgMnH5mk0R/EPil7DdgB1GxQTBdIENWP/210WDfqBhp60ki92QpZpYfNav
+l+MpZzMh8WH9WcyC7YeDIwJDMntyemHkAUXjztLS9un9j5VekyubOu8fXBLQpoKb
+Dts19ItfS+e7y77FquZ0Gy8mlPC8NNaW2RC0guM0BKvfMokJiHh6qOyxA51rwKNc
+LO//96KH5PghNonlG/o4R/ONOn+VUvIhWK/9LQPZFwy85Tb+uKZ6tkkeYEaNS/Cs
+ex8xGIqVtphMsYezx7VNQu1JPRh5OCTb5AWINbsUiXu4/nHXy46bkIUxGS3upoUr
+OpNtddM/x+0x947z/laXUQW787AUc6HNGkNohlFLGLMpevw8MDzIxnuUpc1lhRNJ
+xGJle1x6LXHOwbPjvFDMZVXBhyrJaUk/9WWwkbt5NArANtrKjH59a5ytEHvZ5G21
+x5zaiVG8ZJZPLHRZIR0VIT6oiBbfRQHXH0pDqtrmWzkGQxJ86mQZChu/mu8vH378
+aiIfpoGNYH+sgzv7cfSb
+=vFvp
+-----END PGP SIGNATURE-----
+
+--mP3DRpeJDSE+ciuQ--
