@@ -1,265 +1,98 @@
-From: Muthu Mani <muth@cypress.com>
-Subject: [PATCH 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
-Date: Mon, 22 Sep 2014 15:04:18 +0530
-Message-ID: <1411378458-18424-1-git-send-email-muth@cypress.com>
+From: Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>
+Subject: Re: [PATCH] i2c: axxia: Add I2C driver for AXM55xx
+Date: Mon, 22 Sep 2014 12:24:39 +0200
+Message-ID: <CAE0=X_3JVt3+a8Hjm9Keyw0-TPMS+MpOnDCx9XhwdoPzxJ7ikg@mail.gmail.com>
+References: <1408967482-17723-1-git-send-email-anders.berg@avagotech.com>
+	<20140920121242.GA3833@katana>
+	<CAE0=X_0VQ8rWrUgbsgKm1MwCP8bwWm3UJPq9p=xNDfjP4CC7Bg@mail.gmail.com>
+	<20140922095939.GB1406@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Muthu Mani <muth@cypress.com>, Rajaram Regupathy <rera@cypress.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140922095939.GB1406@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Adds support for USB-GPIO interface of Cypress Semiconductor
-CYUSBS234 USB-Serial Bridge controller.
+On Mon, Sep 22, 2014 at 11:59 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>
+>> >> +             if (idev->msg_xfrd == 0 && i2c_m_recv_len(msg)) {
+>> >> +                     /*
+>> >> +                      * Check length byte for SMBus block read
+>> >> +                      */
+>> >> +                     if (c <= 0) {
+>> >> +                             idev->msg_err = -EPROTO;
+>> >> +                             i2c_int_disable(idev, ~0);
+>> >> +                             complete(&idev->msg_complete);
+>> >> +                             break;
+>> >> +                     } else if (c > I2C_SMBUS_BLOCK_MAX) {
+>> >> +                             c = I2C_SMBUS_BLOCK_MAX;
+>> >
+>> > What about returning -EPROTO here as well? I don't think that reading
+>> > just a slice of all the data is helpful.
+>> >
+>>
+>> Right, that is probably true. This came from the device I was using to
+>> test the block-read operation. This device violated the
+>> I2C_SMBUS_BLOCK_MAX limit, so I added this truncation to at least get
+>> something out...
+>
+> Which device was it? I know there are some doing that, yet I like to
+> know which ones.
 
-The GPIO get/set can be done through vendor command
-on control endpoint.
+It was a LTC2974, register MFR_FAULT_LOG (0xee).
 
-Details about the device can be found at:
-http://www.cypress.com/?rID=84126
+>
+>> >> +{
+>> >> +     struct axxia_i2c_dev *idev = _dev;
+>> >> +     u32 status;
+>> >> +
+>> >> +     if (!idev->msg)
+>> >> +             return IRQ_NONE;
+>> >
+>> > This is actually not true. There might be interrupt bits set, so there
+>> > is an IRQ. There shouldn't be one, right, but that's another case IMO.
+>> >
+>>
+>> You could see it as: there is no interrupt that this handler is
+>> interested in serving. I'd like to keep this test as there is some
+>> legacy software that could be run on platforms with this driver that
+>> access the I2C controller directly. If this happens, this test assures
+>> that the user get an informative "unhandled irq" error message
+>> (instead of a null pointer dereference).
+>
+> IRQ_NONE is "this interrupt wasn't by me" so for shared IRQs, the next
+> handler can check. You shouldn't remove the check per se. Still,  since
+> this interrupt was definately from the I2C core, you should return
+> IRQ_HANDLED and print an error message to the logs.
+>
 
-Signed-off-by: Muthu Mani <muth@cypress.com>
-Signed-off-by: Rajaram Regupathy <rera@cypress.com>
----
- drivers/gpio/Kconfig          |  13 +++
- drivers/gpio/Makefile         |   1 +
- drivers/gpio/gpio-cyusbs23x.c | 190 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 204 insertions(+)
- create mode 100644 drivers/gpio/gpio-cyusbs23x.c
+Ok, I'll do that.
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 9de1515..932e07c 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -886,6 +886,19 @@ config GPIO_BCM_KONA
- 
- comment "USB GPIO expanders:"
- 
-+config GPIO_CYUSBS23X
-+	tristate "CYUSBS23x GPIO support"
-+	depends on MFD_CYUSBS23X && USB
-+	help
-+	  Say yes here to access the GPIO signals of Cypress
-+	  Semiconductor CYUSBS23x USB Serial Bridge Controller.
-+
-+	  This driver enables the GPIO interface of CYUSBS23x USB Serial
-+	  Bridge controller.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called gpio-cyusbs23x.
-+
- config GPIO_VIPERBOARD
- 	tristate "Viperboard GPIO a & b support"
- 	depends on MFD_VIPERBOARD && USB
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 5d024e3..3ad89f1 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -23,6 +23,7 @@ obj-$(CONFIG_GPIO_BT8XX)	+= gpio-bt8xx.o
- obj-$(CONFIG_GPIO_CLPS711X)	+= gpio-clps711x.o
- obj-$(CONFIG_GPIO_CS5535)	+= gpio-cs5535.o
- obj-$(CONFIG_GPIO_CRYSTAL_COVE)	+= gpio-crystalcove.o
-+obj-$(CONFIG_GPIO_CYUSBS23X)	+= gpio-cyusbs23x.o
- obj-$(CONFIG_GPIO_DA9052)	+= gpio-da9052.o
- obj-$(CONFIG_GPIO_DA9055)	+= gpio-da9055.o
- obj-$(CONFIG_GPIO_DAVINCI)	+= gpio-davinci.o
-diff --git a/drivers/gpio/gpio-cyusbs23x.c b/drivers/gpio/gpio-cyusbs23x.c
-new file mode 100644
-index 0000000..8aa3ab6
---- /dev/null
-+++ b/drivers/gpio/gpio-cyusbs23x.c
-@@ -0,0 +1,190 @@
-+/*
-+ * Cypress USB-Serial Bridge Controller GPIO driver
-+ *
-+ * Copyright (c) 2014 Cypress Semiconductor Corporation.
-+ *
-+ * Author:
-+ *   Muthu Mani <muth@cypress.com>
-+ *
-+ * Additional contributors include:
-+ *   Rajaram Regupathy <rera@cypress.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/mutex.h>
-+#include <linux/platform_device.h>
-+
-+#include <linux/usb.h>
-+#include <linux/gpio.h>
-+
-+#include <linux/mfd/cyusbs23x.h>
-+
-+#define CY_GPIO_GET_LEN		(2)
-+
-+struct cyusbs_gpio {
-+	struct gpio_chip gpio;
-+	struct cyusbs23x *cyusbs;
-+};
-+
-+static int cy_gpio_get(struct gpio_chip *chip,
-+			unsigned offset)
-+{
-+	int ret;
-+	char buf[CY_GPIO_GET_LEN];
-+	__u16 wIndex, wValue;
-+	struct cyusbs_gpio *gpio =
-+				container_of(chip, struct cyusbs_gpio, gpio);
-+	struct cyusbs23x *cyusbs = gpio->cyusbs;
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s: %d\n", __func__,
-+		offset);
-+	wValue = offset;
-+	wIndex = 0;
-+
-+	mutex_lock(&cyusbs->lock);
-+	ret = usb_control_msg(cyusbs->usb_dev,
-+			usb_rcvctrlpipe(cyusbs->usb_dev, 0),
-+			CY_GPIO_GET_VALUE_CMD,
-+			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-+			wValue, wIndex, buf, CY_GPIO_GET_LEN, 2000);
-+	mutex_unlock(&cyusbs->lock);
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s: %d %02x %02x\n", __func__,
-+		ret, buf[0], buf[1]);
-+
-+	if (ret == CY_GPIO_GET_LEN) {
-+		if (buf[0] == 0)
-+			ret = buf[1];
-+		else
-+			ret = -EINVAL;
-+	} else {
-+		ret = -EREMOTEIO;
-+	}
-+
-+	return ret;
-+}
-+
-+static void cy_gpio_set(struct gpio_chip *chip,
-+			unsigned offset, int value)
-+{
-+	int ret;
-+	__u16 wIndex, wValue;
-+	struct cyusbs_gpio *gpio =
-+			container_of(chip, struct cyusbs_gpio, gpio);
-+	struct cyusbs23x *cyusbs = gpio->cyusbs;
-+
-+	dev_dbg(&cyusbs->usb_intf->dev, "%s: %d\n", __func__,
-+		offset);
-+	wValue = offset;
-+	wIndex = value;
-+
-+	mutex_lock(&cyusbs->lock);
-+	ret = usb_control_msg(cyusbs->usb_dev,
-+			usb_sndctrlpipe(cyusbs->usb_dev, 0),
-+			CY_GPIO_SET_VALUE_CMD,
-+			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-+			wValue, wIndex, NULL, 0, 2000);
-+	mutex_unlock(&cyusbs->lock);
-+
-+	if (ret < 0)
-+		dev_err(&cyusbs->usb_intf->dev, "error setting gpio:%d\n", ret);
-+}
-+
-+static int cy_gpio_direction_input(struct gpio_chip *chip,
-+					unsigned offset)
-+{
-+	return 0;
-+}
-+
-+static int cy_gpio_direction_output(struct gpio_chip *chip,
-+					unsigned offset, int value)
-+{
-+	return 0;
-+}
-+
-+static int cyusbs23x_gpio_probe(struct platform_device *pdev)
-+{
-+	struct cyusbs23x *cyusbs;
-+	struct cyusbs_gpio *cy_gpio;
-+	int ret = 0;
-+
-+	dev_dbg(&pdev->dev, "%s\n", __func__);
-+
-+	cyusbs = dev_get_drvdata(pdev->dev.parent);
-+
-+	cy_gpio = devm_kzalloc(&pdev->dev, sizeof(*cy_gpio), GFP_KERNEL);
-+	if (cy_gpio == NULL)
-+		return -ENOMEM;
-+
-+	cy_gpio->cyusbs = cyusbs;
-+	/* registering gpio */
-+	cy_gpio->gpio.label = "cyusbs23x gpio";
-+	cy_gpio->gpio.dev = &pdev->dev;
-+	cy_gpio->gpio.owner = THIS_MODULE;
-+	cy_gpio->gpio.base = -1;
-+	cy_gpio->gpio.ngpio = 12; /* total GPIOs */
-+	cy_gpio->gpio.can_sleep = true;
-+	cy_gpio->gpio.set = cy_gpio_set;
-+	cy_gpio->gpio.get = cy_gpio_get;
-+	cy_gpio->gpio.direction_input = cy_gpio_direction_input;
-+	cy_gpio->gpio.direction_output = cy_gpio_direction_output;
-+	ret = gpiochip_add(&cy_gpio->gpio);
-+	if (ret < 0) {
-+		dev_err(cy_gpio->gpio.dev, "could not add gpio");
-+		goto error;
-+	}
-+
-+	platform_set_drvdata(pdev, cy_gpio);
-+
-+	dev_dbg(&pdev->dev, "added GPIO\n");
-+	return ret;
-+
-+error:
-+	dev_dbg(&pdev->dev, "error occured %d\n", ret);
-+	return ret;
-+}
-+
-+static int cyusbs23x_gpio_remove(struct platform_device *pdev)
-+{
-+	struct cyusbs_gpio *cy_gpio = platform_get_drvdata(pdev);
-+
-+	dev_dbg(&pdev->dev, "%s\n", __func__);
-+
-+	gpiochip_remove(&cy_gpio->gpio);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver cyusbs23x_gpio_driver = {
-+	.driver.name    = "cyusbs23x-gpio",
-+	.driver.owner   = THIS_MODULE,
-+	.probe          = cyusbs23x_gpio_probe,
-+	.remove         = cyusbs23x_gpio_remove,
-+};
-+
-+static int __init cyusbs23x_gpio_init(void)
-+{
-+	return platform_driver_register(&cyusbs23x_gpio_driver);
-+}
-+subsys_initcall(cyusbs23x_gpio_init);
-+
-+static void __exit cyusbs23x_gpio_exit(void)
-+{
-+	platform_driver_unregister(&cyusbs23x_gpio_driver);
-+}
-+module_exit(cyusbs23x_gpio_exit);
-+
-+MODULE_AUTHOR("Rajaram Regupathy <rera@cypress.com>");
-+MODULE_AUTHOR("Muthu Mani <muth@cypress.com>");
-+MODULE_DESCRIPTION("gpio-cyusbs23x driver v0.1");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:cyusbs23x-gpio");
-+
--- 
-1.8.3.2
 
+>> >> +static int
+>> >> +axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
+>> >> +{
+>> >> +     u32 int_mask = MST_STATUS_ERR | MST_STATUS_SNS;
+>> >> +     u32 rx_xfer, tx_xfer;
+>> >> +     u32 addr_1, addr_2;
+>> >> +     int ret;
+>> >> +
+>> >> +     if (msg->len == 0 || msg->len > 255)
+>> >> +             return -EINVAL;
+>> >
+>> > Ouch, really? Maybe we should warn the user here.
+>>
+>> Yeah, the transfer length register limits the length to 255. I'll add
+>> a warning here.
+>
+> Please also add this information to the Kconfig description and
+> somewhere at the top of the source file. This is an important flaw which
+> people should easily find out about.
+>
+
+Ok.
+
+Thanks,
+Anders
