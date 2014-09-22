@@ -1,75 +1,86 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
-Date: Mon, 22 Sep 2014 14:29:06 +0200
-Message-ID: <20140922122905.GA13321@ab42.lan>
-References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
- <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com>
- <20140920093633.GG1612@katana>
- <20140922091207.GJ1786@lahna.fi.intel.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c: Add generic support passing secondary devices
+ addresses
+Date: Mon, 22 Sep 2014 16:45:35 +0300
+Message-ID: <20140922134535.GZ1786@lahna.fi.intel.com>
+References: <1409925739-28188-1-git-send-email-jean-michel.hautbois@vodalys.com>
+ <20140922104555.GQ1786@lahna.fi.intel.com>
+ <542023C8.8080802@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140922091207.GJ1786-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <542023C8.8080802-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Cc: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Mika,
+On Mon, Sep 22, 2014 at 03:27:36PM +0200, Lars-Peter Clausen wrote:
+> On 09/22/2014 12:45 PM, Mika Westerberg wrote:
+> >On Fri, Sep 05, 2014 at 04:02:19PM +0200, Jean-Michel Hautbois wrote:
+> >>Some I2C devices have multiple addresses assigned, for example each address
+> >>corresponding to a different internal register map page of the device.
+> >>So far drivers which need support for this have handled this with a driver
+> >>specific and non-generic implementation, e.g. passing the additional address
+> >>via platform data.
+> >>
+> >>This patch provides a new helper function called i2c_new_secondary_device()
+> >>which is intended to provide a generic way to get the secondary address
+> >>as well as instantiate a struct i2c_client for the secondary address.
+> >>
+> >>The function expects a pointer to the primary i2c_client, a name
+> >>for the secondary address and an optional default address. The name is used
+> >>as a handle to specify which secondary address to get.
+> >>
+> >>The default address is used as a fallback in case no secondary address
+> >>was explicitly specified. In case no secondary address and no default
+> >>address were specified the function returns NULL.
+> >>
+> >>For now the function only supports look-up of the secondary address
+> >>from devicetree, but it can be extended in the future
+> >>to for example support board files and/or ACPI.
+> >>
+> >>Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>
+> >
+> >Sorry, just noticed this one.
+> >
+> >Srinivas (CC'd) and I did similar patch series here:
+> >
+> >http://patchwork.ozlabs.org/patch/338342/
 
-On Mon, Sep 22, 2014 at 12:12:07PM +0300, Mika Westerberg wrote:
-> On Sat, Sep 20, 2014 at 11:36:34AM +0200, Wolfram Sang wrote:
-> > On Thu, Sep 18, 2014 at 12:26:07PM +0300, Mika Westerberg wrote:
-> > > From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > 
-> > > Add support for AMD version of the DW I2C host controller. The device is
-> > > enumerated from ACPI namespace with ACPI ID AMD0010. Because the core
-> > > driver needs an input source clock, and this is not an Intel LPSS device
-> > > where clocks are provided through drivers/acpi/acpi_lpss.c, we register the
-> > > clock ourselves if the clock rate is given in ->driver_data.
-> > > 
-> > > Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > > ---
-> > 
-> > Applied to for-next, still wondering...
-> 
-> Thanks!
-> 
-> > 
-> > >  drivers/i2c/busses/Kconfig                  |  1 +
-> > >  drivers/i2c/busses/i2c-designware-platdrv.c | 27 +++++++++++++++++++++++++++
-> > >  2 files changed, 28 insertions(+)
-> > > 
-> > > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> > > index 2ac87fa3058d..9384498ef3c1 100644
-> > > --- a/drivers/i2c/busses/Kconfig
-> > > +++ b/drivers/i2c/busses/Kconfig
-> > > @@ -422,6 +422,7 @@ config I2C_DESIGNWARE_CORE
-> > >  
-> > >  config I2C_DESIGNWARE_PLATFORM
-> > >  	tristate "Synopsys DesignWare Platform"
-> > > +	depends on COMMON_CLK
-> > 
-> > ... do all previous users have COMMON_CLK?
-> 
-> The driver is being used on x86, ARM and ARC it seems. For x86 and ARM
-> we pretty much have COMMON_CLK nowadays but I'm not sure about ARC.
-> That's why I have copied Christian Ruppert.
-> 
-> Christian,
-> 
-> Do you see problems on your side if we depend on COMMON_CLK?
+Sorry I gave wrong link. That one is older version.
 
-COMMON_CLK is not selected by the ARC architecture in general. However,
-we do select COMMON_CLK in the TB10x platform which uses the designware
-I2C driver so this new dependency is no problem for us.
+Here is the current:
 
-Vineet,
+http://patchwork.ozlabs.org/patch/386409/
+http://patchwork.ozlabs.org/patch/386410/
 
-Do you see any issues with this on other existing ARC platforms, e.g.
-arcfpga?
+> >
+> >We should probably collaborate on this one to get both DT and ACPI
+> >supported.
+> 
+> Yes. The idea was to keep the interface of the API generic so it can be used
+> by ACPI or other device topology description mechanisms as well.
+> 
+> But it looks as if the ACPI case is a bit more complex and we may need a
+> revision of the API. How for example in the ACPI case do you know which
+> address is which, when different parts of a chip are addressed using
+> different addresses?
 
-Greetings,
-  Christian
+Unfortunately there is no way in ACPI 5.0 to find out which is which. So
+we trust the ordering of I2cSerialBus() resources. Even that has been
+problematic because some vendors then list things like SMBus ARA
+addresses there in random order :-(
+
+Our API has following signature:
+
+int i2c_address_by_index(struct i2c_client *client, int index,
+			 struct i2c_board_info *info,
+			 struct i2c_adapter **adapter)
+
+and we use index to find out which address to use.
+
+Note also that in ACPI it is possible that the I2cSerialBus() resource
+points to another I2C host controller, so we need to have 'adapter'
+parameter as well.
