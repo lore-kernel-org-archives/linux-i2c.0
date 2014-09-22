@@ -1,35 +1,47 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 1/5] i2c: rcar: add renesas,i2c-rcar-gen1/gen2 in DT
- compatible
-Date: Mon, 22 Sep 2014 11:04:47 +0900
-Message-ID: <20140922020446.GG14899@verge.net.au>
-References: <87r40uw7rp.wl%kuninori.morimoto.gx@renesas.com>
- <20140807001805.GE32652@verge.net.au>
- <8761i5kuel.wl%kuninori.morimoto.gx@renesas.com>
- <20140807011025.GA3284@verge.net.au>
- <8738d9kojw.wl%kuninori.morimoto.gx@gmail.com>
- <CANqRtoSu2cZyY2YELUzPF86UAz+=TFtBYsnmotpNDEh9FEhp1Q@mail.gmail.com>
- <87zjfgkhae.wl%kuninori.morimoto.gx@gmail.com>
- <CANqRtoR1kn0VjDiYy24hJueeL6Lxs5yxAeTEMQ-kNHn76EYMDQ@mail.gmail.com>
- <87y4v0k89a.wl%kuninori.morimoto.gx@gmail.com>
- <20140919171845.GC2874@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140919171845.GC2874@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Magnus Damm <magnus.damm@gmail.com>, Linux-SH <linux-sh@vger.kernel.org>, Linux-I2C <linux-i2c@vger.kernel.org>
+From: Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH] i2c-rk3x: move setup to the earlier subsys initcall
+Date: Mon, 22 Sep 2014 15:24:35 +0800
+Message-ID: <1411370675-27866-1-git-send-email-zyw@rock-chips.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org
+Cc: linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 19, 2014 at 07:18:51PM +0200, Wolfram Sang wrote:
-> 
-> > This approach has no effect to current feature,
-> > and can keep compatible for current and future,
-> > and can reduce / cleanup driver in the future.
-> 
-> I defer the patch series for now. Maybe we should talk about it at our
-> next meeting?
+Some device using this bus, such as regulators, they should register
+as early as possible, so the I2C bus master needs to be loaded early.
+Therefore initialize via subsys_initcall() is better.
 
-That is fine by me.
+Signed-off-by: Chris Zhong <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+
+---
+
+ drivers/i2c/busses/i2c-rk3x.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index e637c32..5b91901 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -760,7 +760,18 @@ static struct platform_driver rk3x_i2c_driver = {
+ 	},
+ };
+ 
+-module_platform_driver(rk3x_i2c_driver);
++static int __init rk3x_i2c_init_driver(void)
++{
++	return platform_driver_register(&rk3x_i2c_driver);
++}
++
++static void __exit rk3x_i2c_exit_driver(void)
++{
++	platform_driver_unregister(&rk3x_i2c_driver);
++}
++
++subsys_initcall(rk3x_i2c_init_driver);
++module_exit(rk3x_i2c_exit_driver);
+ 
+ MODULE_DESCRIPTION("Rockchip RK3xxx I2C Bus driver");
+ MODULE_AUTHOR("Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>");
+-- 
+1.7.9.5
