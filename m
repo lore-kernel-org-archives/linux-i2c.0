@@ -1,29 +1,49 @@
-From: Peter =?iso-8859-1?q?H=FCwe?= <PeterHuewe-Mmb7MZpHnFY@public.gmane.org>
-Subject: i2c_transfer & dma
-Date: Tue, 23 Sep 2014 21:38:32 +0200
-Message-ID: <201409232138.33067.PeterHuewe@gmx.de>
+From: "David E. Box" <david.e.box@linux.intel.com>
+Subject: Re: [PATCH V2] i2c-designware: Add Intel Baytrail PMIC I2C bus
+ support
+Date: Tue, 23 Sep 2014 12:58:54 -0700
+Message-ID: <20140923195854.GA9921@pathfinder>
+References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
+ <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
+ <20140923190057.GN15315@lukather>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20140923190057.GN15315@lukather>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, dianders@chromium.org, u.kleine-koenig@pengutronix.de, laurent.pinchart+renesas@ideasonboard.com, boris.brezillon@free-electrons.com, maxime.coquelin@st.com, andrew@lunn.ch, sjg@chromium.org, markus.mayer@linaro.org, ch.naveen@samsung.com, jacob.jun.pan@linux.intel.com, max.schwarz@online.de, mika.westerberg@linux.intel.com, skuribay@pobox.com, Romain.Baeriswyl@abilis.com, wenkai.du@intel.com, chiau.ee.chew@intel.com, christian.ruppert@abilis.com, alan@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi Maxime,
 
-I was wondering if the buffer in an i2c_msg, passed to i2c_transfer must be 
-dma-able i.e. dynamically allocated, like for USB?
+On Tue, Sep 23, 2014 at 09:00:57PM +0200, Maxime Ripard wrote:
+> Hi David,
+> 
+> On Tue, Sep 23, 2014 at 11:40:26AM -0700, David E. Box wrote:
+> > This patch implements an I2C bus sharing mechanism between the host and platform
+> > hardware on select Intel BayTrail SoC platforms using the X-Powers AXP288 PMIC.
+> > 
+> > On these platforms access to the PMIC must be shared with platform hardware. The
+> > hardware unit assumes full control of the I2C bus and the host must request
+> > access through a special semaphore. Hardware control of the bus also makes it
+> > necessary to disable runtime pm to avoid interfering with hardware transactions.
+> > 
+> > Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+> 
+> Sorry for stepping in like this without really knowing your platform,
+> but wouldn't using the hwspinlock framework make more sense than
+> hardcoding your own internal functions here?
 
-The reason why I'm asking is because the e.g. the i2c_robotfuzz_osif usb-to-
-i2c adapter passes the incoming data directly to a usb_control_msg which of 
-course expects the buffer to be dma-able.
+I looked into this but didn't see a clear way on our platform to identify the
+semaphore seperately from doing it in the designware platform driver. The way
+we can find it now is through evaluating an ACPI _SEM object on every i2c device
+that gets probed by the dw driver since at probe time we can get the acpi handle.
+Without this handle however there isn't a clear way of evaluating the _SEM
+object which would be needed to register a hwspinlock in separate code.
 
-So the question is - does the user of i2c_transfer have to provide a dma-able 
-buffer, or is the bus driver (like the robotfuzz one) expected to convert 
-incoming buffer into a dma-able buffer?
+Plus it would still require changes to the designware i2c core, though admittedly
+having a generic hwspinlock pointer added to the struct is cleaner.
 
-
-Thanks,
-Peter
+Dave
