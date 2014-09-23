@@ -1,225 +1,30 @@
-From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [RFC PATCH] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
-Date: Tue, 23 Sep 2014 15:06:43 +0800
-Message-ID: <1411456003-29541-1-git-send-email-tianyu.lan@intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: rjw@rjwysocki.net, lenb@kernel.org, mika.westerberg@linux.intel.com, wsa@the-dreams.de, robert.moore@intel.com, lv.zheng@intel.com
-Cc: Lan Tianyu <tianyu.lan@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@acpica.org
+From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: move acpi code back into the core
+Date: Tue, 23 Sep 2014 15:09:10 +0800
+Message-ID: <54211C96.3030608@intel.com>
+References: <1411420006-4713-1-git-send-email-wsa@the-dreams.de> <5420CEC9.1030400@intel.com> <20140923053951.GA1411@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140923053951.GA1411@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI 5.0 introduces _DEP to designate device objects that OSPM should
-assign a higher priority in start ordering due to future operation region
-accesses.
+On 2014=E5=B9=B409=E6=9C=8823=E6=97=A5 13:39, Wolfram Sang wrote:
+>=20
+>> Sorry for later response due to sickness. I can't write this patch i=
+n
+>> time. Sorry again. I will test it soon.
+>=20
+> Oh, get well soon! Please say so next time, so I know.
+>=20
 
-On Asus T100TA, ACPI battery info are read from a I2C slave device via
-I2C operation region. Before I2C operation region handler is installed,
-battery _STA always returns 0. There is a _DEP method of designating
-start order under battery device node.
+Thanks. OK.
+I have put the patch into test system and need to wait some time.
 
-This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
-Introducing acpi_bus_dep_device_list and adding dep_present flags in the struct
-acpi_device. During ACPI namespace scan, all devices with _DEP support will be put
-into the new list and those devices' dep_present flag will be set. Driver's probe()
-should return EPROBE_DEFER when find dep_present is set. When I2C operation
-region handler is installed, check all devices on the new list. Remove the one from
-list if _DEP condition is met and clear its dep_present flag and do acpi_bus_attch()
-for the device in order to resolve battery _STA issue on the Asus T100TA.
-
-Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
----
- drivers/acpi/battery.c  |  4 +++
- drivers/acpi/scan.c     | 84 +++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-acpi.c  |  1 +
- include/acpi/acpi_bus.h |  2 ++
- include/linux/acpi.h    |  3 ++
- 5 files changed, 94 insertions(+)
-
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 1c162e7..c0a68ce 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -1194,6 +1194,10 @@ static int acpi_battery_add(struct acpi_device *device)
- 
- 	if (!device)
- 		return -EINVAL;
-+
-+	if (device->dep_present)
-+		return -EPROBE_DEFER;
-+
- 	battery = kzalloc(sizeof(struct acpi_battery), GFP_KERNEL);
- 	if (!battery)
- 		return -ENOMEM;
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 3bf7764..a26dbb3 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -36,6 +36,7 @@ bool acpi_force_hot_remove;
- 
- static const char *dummy_hid = "device";
- 
-+static LIST_HEAD(acpi_bus_dep_device_list);
- static LIST_HEAD(acpi_bus_id_list);
- static DEFINE_MUTEX(acpi_scan_lock);
- static LIST_HEAD(acpi_scan_handlers_list);
-@@ -43,6 +44,11 @@ DEFINE_MUTEX(acpi_device_lock);
- LIST_HEAD(acpi_wakeup_device_list);
- static DEFINE_MUTEX(acpi_hp_context_lock);
- 
-+struct acpi_dep_data {
-+	struct list_head node;
-+	struct acpi_device *adev;
-+};
-+
- struct acpi_device_bus_id{
- 	char bus_id[15];
- 	unsigned int instance_no;
-@@ -2048,6 +2054,32 @@ static void acpi_scan_init_hotplug(struct acpi_device *adev)
- 	}
- }
- 
-+static void acpi_device_dep_initialize(struct acpi_device * adev)
-+{
-+	struct acpi_dep_data *dep;
-+	acpi_status status;
-+
-+	if (!acpi_has_method(adev->handle, "_DEP"))
-+		return;
-+
-+	status = acpi_evaluate_reference(adev->handle, "_DEP", NULL,
-+					&adev->dep_devices);
-+	if (ACPI_FAILURE(status)) {
-+		dev_err(&adev->dev, "Fail to evaluate _DEP.\n");
-+		return;
-+	}
-+
-+	dep = kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
-+	if (!dep) {
-+		dev_err(&adev->dev, "Memory allocation error.\n");
-+		return;
-+	}
-+
-+	dep->adev = adev;
-+	adev->dep_present = true;
-+	list_add_tail(&dep->node , &acpi_bus_dep_device_list);
-+}
-+
- static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
- 				      void *not_used, void **return_value)
- {
-@@ -2074,6 +2106,7 @@ static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
- 		return AE_CTRL_DEPTH;
- 
- 	acpi_scan_init_hotplug(device);
-+	acpi_device_dep_initialize(device);
- 
-  out:
- 	if (!*return_value)
-@@ -2191,6 +2224,57 @@ static void acpi_bus_attach(struct acpi_device *device)
- 		acpi_bus_attach(child);
- }
- 
-+static int acpi_device_dep_check(struct acpi_device *adev)
-+{
-+	struct acpi_device *dep_adev;
-+	struct acpi_device_physical_node *pn;
-+	int i;
-+
-+	for (i = 0; i < adev->dep_devices.count; i++) {
-+		dep_adev = acpi_bus_get_acpi_device(
-+				adev->dep_devices.handles[i]);
-+
-+		if (!dep_adev)
-+			return -ENODEV;
-+
-+		/* Check acpi device driver probing */
-+		if (dep_adev->dev.driver)
-+			continue;
-+
-+		if (!dep_adev->physical_node_count)
-+			return -ENODEV;
-+
-+		/* Check physcial device node driver probing */
-+		mutex_lock(&dep_adev->physical_node_lock);
-+		list_for_each_entry(pn, &dep_adev->physical_node_list, node) {
-+			if (pn->dev->driver) {
-+				mutex_unlock(&dep_adev->physical_node_lock);
-+				continue;
-+			}
-+		}
-+		mutex_unlock(&dep_adev->physical_node_lock);
-+		return -EFAULT;
-+	}
-+
-+	return 0;
-+}
-+
-+int acpi_walk_dep_device_list(void)
-+{
-+	struct acpi_dep_data *dep, *tmp;
-+
-+	list_for_each_entry_safe(dep, tmp, &acpi_bus_dep_device_list, node) {
-+		if (!acpi_device_dep_check(dep->adev)) {
-+			dep->adev->dep_present = false;
-+			acpi_bus_attach(dep->adev);
-+			list_del(&dep->node);
-+			kfree(dep);
-+		}
-+	}
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
-+
- /**
-  * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
-  * @handle: Root of the namespace scope to scan.
-diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
-index 0dbc18c..fdc8dc8 100644
---- a/drivers/i2c/i2c-acpi.c
-+++ b/drivers/i2c/i2c-acpi.c
-@@ -339,6 +339,7 @@ int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
- 		return -ENOMEM;
- 	}
- 
-+	acpi_walk_dep_device_list();
- 	return 0;
- }
- 
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index c1c9de1..c1e7055 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -357,7 +357,9 @@ struct acpi_device {
- 	struct acpi_hotplug_context *hp;
- 	struct acpi_driver *driver;
- 	void *driver_data;
-+	bool dep_present;
- 	struct device dev;
-+	struct acpi_handle_list dep_devices;
- 	unsigned int physical_node_count;
- 	struct list_head physical_node_list;
- 	struct mutex physical_node_lock;
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 807cbc4..c9a504b 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -431,6 +431,7 @@ static inline bool acpi_driver_match_device(struct device *dev,
- 
- int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
- int acpi_device_modalias(struct device *, char *, int);
-+int acpi_walk_dep_device_list(void);
- 
- #define ACPI_PTR(_ptr)	(_ptr)
- 
-@@ -449,6 +450,8 @@ static inline const char *acpi_dev_name(struct acpi_device *adev)
- 
- static inline void acpi_early_init(void) { }
- 
-+static inline int acpi_walk_dep_device_list(void) { }
-+
- static inline int early_acpi_boot_init(void)
- {
- 	return 0;
--- 
-1.8.4.rc0.1.g8f6a3e5.dirty
-
+--=20
+Best regards
+Tianyu Lan
