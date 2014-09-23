@@ -1,154 +1,95 @@
-From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: Re: [PATCH] i2c: move acpi code back into the core
-Date: Tue, 23 Sep 2014 17:14:14 +0800
-Message-ID: <542139E6.2030806@intel.com>
-References: <1411420006-4713-1-git-send-email-wsa@the-dreams.de> <5420CEC9.1030400@intel.com> <20140923053951.GA1411@katana> <54211C96.3030608@intel.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
+Date: Tue, 23 Sep 2014 13:05:59 +0300
+Message-ID: <20140923100559.GJ1786@lahna.fi.intel.com>
+References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com>
+ <20140920093633.GG1612@katana>
+ <20140922091207.GJ1786@lahna.fi.intel.com>
+ <20140922122905.GA13321@ab42.lan>
+ <C2D7FE5348E1B147BCA15975FBA230753C5DA425@IN01WEMBXA.internal.synopsys.com>
+ <20140922140020.GB1786@lahna.fi.intel.com>
+ <C2D7FE5348E1B147BCA15975FBA230753C5DA47D@IN01WEMBXA.internal.synopsys.com>
+ <20140922172251.GA30685@ab42.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54211C96.3030608@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, "Wu, Fengguang" <fengguang.wu@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20140922172251.GA30685-7oYq3qWSd+k@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Cc: Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Viresh Kumar <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Daniel Tang <tangrs-wZPxy8ob7RQXC2x5gXVKYQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2014=E5=B9=B409=E6=9C=8823=E6=97=A5 15:09, Lan Tianyu wrote:
-> On 2014=E5=B9=B409=E6=9C=8823=E6=97=A5 13:39, Wolfram Sang wrote:
->>
->>> Sorry for later response due to sickness. I can't write this patch =
-in
->>> time. Sorry again. I will test it soon.
->>
->> Oh, get well soon! Please say so next time, so I know.
->>
->=20
-> Thanks. OK.
-> I have put the patch into test system and need to wait some time.
->=20
+On Mon, Sep 22, 2014 at 07:22:52PM +0200, Christian Ruppert wrote:
+> On Mon, Sep 22, 2014 at 02:16:25PM +0000, Vineet Gupta wrote:
+> > On Monday 22 September 2014 07:30 PM, Mika Westerberg wrote:
+> > >>> COMMON_CLK is not selected by the ARC architecture in general. However,
+> > >>> > > we do select COMMON_CLK in the TB10x platform which uses the designware
+> > >>> > > I2C driver so this new dependency is no problem for us.
+> > >>> > >
+> > >>> > > Vineet,
+> > >>> > >
+> > >>> > > Do you see any issues with this on other existing ARC platforms, e.g.
+> > >>> > > arcfpga?
+> > >> > 
+> > >> > So what needs to be done, COMMON_CLK needs to be defined in arch/arc/Kconfig ? And
+> > >> > if so why ?
+> > > Without COMMON_CLK, you are not able to select I2C_DESIGNWARE_PLATFORM
+> > > anymore. So if something on ARC depends on this driver then we either
+> > > need the COMMON_CLK there or figure out alternative way to fix Carl's
+> > > problem.
+> > 
+> > I have not seen the orig patch, but it seems COMMON_CLK is already being selected
+> > by TB10x, do we still need it in arch/arcKconfig, for all ARC platforms ?
+> 
+> Sorry for the confusion, I should have given you some context. Mika
+> has checked that designware i2c is used by some ARC platforms but he
+> didn't say which ones. The orig patch makes COMMON_CLK a requirement for
+> designware i2c.
 
-Hi Wolfram:
-The patch passed through the following 110 configure build test in the
-0-day build test system.
+Yeah, sorry about not mentioning the affected platforms. I've included
+them now in this email.
 
+> I checked that we're fine for TB10x (we need COMMON_CLK anyway) but
+> since you weren't in copy I just wanted to make sure that none of the
+> other ARC platforms (which don't seem to select COMMON_CLK) use
+> designware i2c and thus run into trouble.
+> 
+> If there is no designware i2c in any of your platforms, simply ignore
+> my message. From my point of view there is no need to move "select
+> COMMON_CLK" up to the ARC architecture level.
 
-configs tested: 110
+I grepped for snps,i2c-designware from the kernel source tree and this
+is what I found:
 
-mips                             allmodconfig
-mips                                   jz4740
-mips                              allnoconfig
-mips                      fuloong2e_defconfig
-mips                                     txx9
-x86_64                            allnoconfig
-sh                            titan_defconfig
-sh                          rsk7269_defconfig
-sh                  sh7785lcr_32bit_defconfig
-sh                                allnoconfig
-x86_64                     randconfig-c3-0923
-x86_64                     randconfig-c1-0923
-x86_64                     randconfig-c2-0923
-x86_64                     randconfig-c0-0923
-arm                       omap2plus_defconfig
-arm                                    sa1100
-arm                              allmodconfig
-arm                          prima2_defconfig
-arm                         at91_dt_defconfig
-arm                               allnoconfig
-arm                                   samsung
-arm                       spear13xx_defconfig
-arm                         s3c2410_defconfig
-arm                                  iop-adma
-arm                       imx_v6_v7_defconfig
-arm                                       mmp
-arm                           tegra_defconfig
-arm                                      arm5
-arm                          marzen_defconfig
-arm                                  at_hdmac
-arm                                    ep93xx
-arm                                        sh
-arm                                     arm67
-parisc                        c3000_defconfig
-parisc                         b180_defconfig
-parisc                              defconfig
-alpha                               defconfig
-parisc                            allnoconfig
-powerpc                  iss476-smp_defconfig
-powerpc                 mpc8315_rdb_defconfig
-mips                          ath79_defconfig
-arm                             bcm_defconfig
-powerpc                   gef_ppc9a_defconfig
-i386                      randconfig-ha0-0923
-i386                      randconfig-ha1-0923
-i386                      randconfig-ha2-0923
-i386                      randconfig-ha3-0923
-ia64                             allmodconfig
-ia64                              allnoconfig
-ia64                                defconfig
-ia64                             alldefconfig
-microblaze                      mmu_defconfig
-microblaze                    nommu_defconfig
-microblaze                       allyesconfig
-s390                             allmodconfig
-s390                              allnoconfig
-s390                                defconfig
-x86_64                    randconfig-ha1-0923
-x86_64                    randconfig-ha3-0923
-x86_64                    randconfig-ha0-0923
-x86_64                    randconfig-ha2-0923
-xtensa                       common_defconfig
-m32r                       m32104ut_defconfig
-xtensa                          iss_defconfig
-m32r                         opsput_defconfig
-m32r                           usrv_defconfig
-m32r                     mappi3.smp_defconfig
-sparc                               defconfig
-sparc64                           allnoconfig
-sparc64                             defconfig
-i386                             allyesconfig
-cris                 etrax-100lx_v2_defconfig
-blackfin                  TCM-BF537_defconfig
-blackfin            BF561-EZKIT-SMP_defconfig
-blackfin                BF533-EZKIT_defconfig
-blackfin                BF526-EZBRD_defconfig
-i386                       randconfig-r0-0923
-i386                       randconfig-r2-0923
-i386                       randconfig-r3-0923
-i386                       randconfig-r1-0923
-x86_64                 randconfig-s0-09231616
-x86_64                 randconfig
-Hi Wolfram:
-	The patch passed through the following 110 configure build test in the
-0-day build test system.-s1-09231616
-x86_64                           allmodconfig
-i386                             alldefconfig
-i386                             allmodconfig
-i386                              allnoconfig
-i386                                defconfig
-i386                     randconfig-x009-0922
-x86_64                   randconfig-x003-0922
-x86_64                   randconfig-x004-0922
-i386                     randconfig-x006-0922
-x86_64                   randconfig-x001-0922
-i386                     randconfig-x005-0922
-x86_64                   randconfig-x006-0922
-i386                     randconfig-x001-0922
-i386                     randconfig-x004-0922
-i386                     randconfig-x003-0922
-i386                     randconfig-x000-0922
-x86_64                   randconfig-x002-0922
-x86_64                   randconfig-x008-0922
-i386                     randconfig-x008-0922
-i386                     randconfig-x007-0922
-x86_64                   randconfig-x009-0922
-x86_64                   randconfig-x000-0922
-x86_64                   randconfig-x007-0922
-i386                     randconfig-x002-0922
-x86_64                   randconfig-x005-0922
-x86_64                             acpi-redef
-x86_64                           allyesdebian
-x86_64                                nfsroot
+Only ARC that is using the driver:
 
+ arch/arc/boot/dts/abilis_tb10x.dtsi -> OK
 
---=20
-Best regards
-Tianyu Lan
+Two ARMs that pass clock to the driver:
+
+ arch/arm/boot/dts/berlin2q.dtsi -> OK
+ arch/arm/boot/dts/socfpga.dts -> OK
+
+Following files have the designware driver listed but it seems to be
+disabled and does not get any clocks:
+
+ arch/arm/boot/dts/nspire-cx.dts
+
+ arch/arm/boot/dts/spear1310.dtsi
+ arch/arm/boot/dts/spear320.dtsi
+ arch/arm/boot/dts/spear3xx.dtsi
+ arch/arm/boot/dts/spear600.dtsi
+
+I think we are good to go with the first three but not sure about the
+last five. Adding Viresh Kumar and Daniel Tang to the thread.
+
+Viresh, Daniel,
+
+The thread is here http://patchwork.ozlabs.org/patch/390695/.
+
+In summary, we are adding COMMON_CLK dependency to the
+i2c-designware-platdrv.c in order to get clocks to one AMD DW based host
+controller and wanted to check that we don't break the existing users
+(nspire and SPEAR).
