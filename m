@@ -1,86 +1,58 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] [REGRESSION] i2c-acpi: Fix NULL Pointer dereference
-Date: Wed, 24 Sep 2014 23:06:24 +0200
-Message-ID: <1696265.yGhHYgE97A@vostro.rjw.lan>
+Date: Wed, 24 Sep 2014 23:02:16 +0200
+Message-ID: <20140924210216.GA1291@katana>
 References: <1410548987-3558-1-git-send-email-peterhuewe@gmx.de>
+ <1696265.yGhHYgE97A@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1410548987-3558-1-git-send-email-peterhuewe@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Huewe <peterhuewe@gmx.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1696265.yGhHYgE97A@vostro.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Peter Huewe <peterhuewe@gmx.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-Do you want me to take care of this or are you going to handle it?
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It has been ACKed by Mika already: https://patchwork.kernel.org/patch/4897751/
+On Wed, Sep 24, 2014 at 11:06:24PM +0200, Rafael J. Wysocki wrote:
+> Hi Wolfram,
+>=20
+> Do you want me to take care of this or are you going to handle it?
+>=20
+> It has been ACKed by Mika already: https://patchwork.kernel.org/patch/489=
+7751/
 
-Rafael
+I am going to handle it. i2c-acpi is being reworked, currently. Just
+waiting for some testbot results.
 
 
-On Friday, September 12, 2014 09:09:47 PM Peter Huewe wrote:
-> If adapter->dev.parent == NULL there is a NULL pointer dereference in
-> acpi_i2c_install_space_handler and acpi_i2c_remove_space_handler.
-> 
-> This is present since introduction of this code:
-> 366047515c6e "i2c: rework kernel config I2C_ACPI" or even
-> da3c6647ee08 "I2C/ACPI: Clean up I2C ACPI code and Add CONFIG_I2C_ACPI"
-> 
-> The adapter->dev.parent == NULL case is valid for the i2c_stub,
-> so loading i2c_stub with ACPI_I2C_OPREGION enabled results in an oops.
-> This is also valid at least for i2c_tiny_usb and i2c_robotfuzz_osif.
-> 
-> Fix by checking whether it is null before calling ACPI_HANDLE.
-> 
-> Signed-off-by: Peter Huewe <peterhuewe@gmx.de>
-> ---
->  drivers/i2c/i2c-acpi.c | 14 ++++++++++++--
->  1 file changed, 12 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
-> index 0dbc18c..c456b17 100644
-> --- a/drivers/i2c/i2c-acpi.c
-> +++ b/drivers/i2c/i2c-acpi.c
-> @@ -308,10 +308,15 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
->  
->  int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
->  {
-> -	acpi_handle handle = ACPI_HANDLE(adapter->dev.parent);
-> +	acpi_handle handle;
->  	struct acpi_i2c_handler_data *data;
->  	acpi_status status;
->  
-> +	if (!adapter->dev.parent)
-> +		return -ENODEV;
-> +
-> +	handle = ACPI_HANDLE(adapter->dev.parent);
-> +
->  	if (!handle)
->  		return -ENODEV;
->  
-> @@ -344,10 +349,15 @@ int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
->  
->  void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter)
->  {
-> -	acpi_handle handle = ACPI_HANDLE(adapter->dev.parent);
-> +	acpi_handle handle;
->  	struct acpi_i2c_handler_data *data;
->  	acpi_status status;
->  
-> +	if (!adapter->dev.parent)
-> +		return;
-> +
-> +	handle = ACPI_HANDLE(adapter->dev.parent);
-> +
->  	if (!handle)
->  		return;
->  
-> 
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUIzFYAAoJEBQN5MwUoCm2uQcP/0S4ArVct/aLOWNDMIq8FZDQ
+zoA0cSmVg2n40a10dcEJ8ZOFzeFaa/rET7GsdngEQD0evceD5CUfUOQIi3qccENr
+1zF0XbA4ApoCM4DSvAkyxxOzey0Wu/cEIKLPM/GQhE7wI6AbVAlFiC7UEDX1vOJ+
+PUJUy3QUyAJgbbzCm9qQcWyMwjIHRedAy0tLFEjQNv/xi/uik3E8CDYRzoXXSdyw
+xC9NYqrEt8JEBFlqEOjVgTkq5o1RV7BBMlxtnmmCJ/PU4DXf14PnQnGhWkVlS+HQ
+h+bkO494Lg51auCDqOWld6XqgU6ryysvlYbzs1Tvig8HTIJdyaBnS5yfUu2+raJp
+LkvKjpZYksv2MSaXRytYfflmBU6od9h3ZvHwbj9w7SpycSdho6A9pqmsJn5+9/3V
+uCD7mJsmEGVzMTNkV6oyERj+VApe0MeZrBAhiRgdGWwgIISBjyIkbrA7awm1Doga
+dokVbdvoVu+R+4atUPh7qjlRPiFRPWJ2iykM2FFGRxefGrYMQ/NkeeaKA9CFki5F
+MQD3is+LCimYgXr1SyO1UDJJ35TVkfnZ0iKTASR5zg8aULPbTeJMuB9hd7XUjJG7
+SRjYvFC9+xi/JFyn/IoyR2rHSSQZao5I7iJcFoG/tsLNLzUFN0O8XHt7foywkAAy
+AlavGNRxGZ7z5a6+SU5i
+=BwFv
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--
