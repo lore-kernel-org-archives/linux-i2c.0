@@ -1,62 +1,53 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH] [REGRESSION] i2c-acpi: Fix NULL Pointer dereference
-Date: Wed, 24 Sep 2014 23:24:43 +0200
-Message-ID: <2180819.4Kky9hrQa3@vostro.rjw.lan>
-References: <1410548987-3558-1-git-send-email-peterhuewe@gmx.de> <1696265.yGhHYgE97A@vostro.rjw.lan> <20140924210216.GA1291@katana>
+Date: Wed, 24 Sep 2014 23:19:13 +0200
+Message-ID: <20140924211913.GA1947@katana>
+References: <1410548987-3558-1-git-send-email-peterhuewe@gmx.de>
+ <1696265.yGhHYgE97A@vostro.rjw.lan>
+ <20140924210216.GA1291@katana>
+ <2180819.4Kky9hrQa3@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2079531.6bda5nDA8r"; micalg="pgp-sha256"; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20140924210216.GA1291@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Huewe <peterhuewe@gmx.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <2180819.4Kky9hrQa3-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Cc: Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---nextPart2079531.6bda5nDA8r
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wednesday, September 24, 2014 11:02:16 PM Wolfram Sang wrote:
-> On Wed, Sep 24, 2014 at 11:06:24PM +0200, Rafael J. Wysocki wrote:
-> > Hi Wolfram,
-> >=20
-> > Do you want me to take care of this or are you going to handle it?
-> >=20
-> > It has been ACKed by Mika already: https://patchwork.kernel.org/pat=
-ch/4897751/
->=20
-> I am going to handle it. i2c-acpi is being reworked, currently. Just
-> waiting for some testbot results.
 
-Cool, thanks!
+> I'm dropping it from my TODO list, then.
 
-I'm dropping it from my TODO list, then.
+Yup. Thanks for the heads up!
 
-=2D-=20
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
---nextPart2079531.6bda5nDA8r
+
+--r5Pyd7+fXNt84Ff3
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
+Version: GnuPG v1
 
-iQIcBAABCAAGBQJUIzagAAoJEILEb/54YlRxwxwP/ApwZ5uqq092+9YVZBFl+vUt
-gi1E+vNVMtCulx5IzCPiG53PTYWnFhMbQP3WEfikcXkGaT59ZggZXAfUlS6AW4VG
-5WZ2TShcL5DlGZDtaxn6bK5+SUfvBUfzMvpOwWQmTReUDqbrY9j6ccsjkbX3p60y
-rXWSgdBT/dtpvxZqyEau3IhHS4tKOOJ6Yv6itXSh6+lctN5WgZaW8IhtlJ404+yE
-sgLj0fRMRSNfcVbaaV1MZZqqnQrUOfyXEpaBIinZuCtICkk0sbn0JDcPzprIwZcX
-Ed5i7rqSQQe2bUmbQRDNWDiIyIY0Ja9u37+AuB7MPnugICO5fRb6ZKUPjxZBjEHl
-04OjfdHMszuFy9hGSP8HJ4MwKweHXD72v3DulP1xxzlJOFffSEJKmiEA+vqm0m7B
-KW/STpvyj7MvVEnHQgS1Qomb5qm9+np5HkllZHtOGPno4L0/5yRxNhr2GqsXNHhy
-95GFR2aRjLhTsWZZN+lSsdtQK/1jgLj0mIK0HeyUuTUqwOgfTE4/CjCUaoeZkJ6b
-IlSqYDh6YFHmxQZW5byxRHo//10MZzR8ySpEJu+kSYo+c1svbIbLd72iW7d9ufOD
-uskNtOrL04TzhxRGsTMgCG3y/uTpUxzScCLRvLetlHyyrbtcBbSNU1vxm+Bh9xbP
-0fEMWfZyNHHaref3Llzf
-=PtGu
+iQIcBAEBAgAGBQJUIzVRAAoJEBQN5MwUoCm2gFUQAKsZm4Tu3GJHHH2xHGb65fSl
+Y4Xse9xH5sSywUse9Ljh0w9/UYxqdmvd3Z2Eex7CpLLq99zwNQvsZtnt3vuAB4ne
+MkWLmSgrLRYqPwDkpK/mYIRvpRXiQRFB4nT7XtlxrBSrrVPEzQmRZXhbqDTDuClj
+x7SxwiJuLljbad6RF2rqfm1V1qFXOSY3g+Y5AXozfaSqMhc2WYzeg0PFtjQ5yVb3
+TP4rHzMB1yACN6fQnsCIAQrN9ffmH4BresFLk8S/7AbRBskrjgRVHuY+chxdtdhf
+7eoleDfQBFnBwOD2Rlz+pHtWX+erYrKRghvwA5bmm5I+mLuAkv6BdMR2o3k7NtNA
+c0eL2GTsg6HDtdDwhdr1EcpYqwQLHOIbtZmcBdv0eoNrpT0Aa48p3Zy8JdJzRe65
+aGathy/4aThdyms+P9Iot1ThX/UVAMDkTtUualaAShMGqS2zf55TKp1nLo87hfXY
+fssFM/aZVbCEhSl2uP911z47YBfRsWHNUN0tyAy4v4YZz17Hoi0vZvRF4S5PSUGz
+gmy27qnlPyVQEkqADWZSlChIMFAI/GoE8dAAkKyqdpfCATgb9ZchqGJY77UAivSa
+MC8M6q2v3K0UwWmvtf7HYSJjSEiPqbv7tuJMZX+JHAZR3os729hlNL56xwWeKt5V
+7kLmvMqz/m9KQzXrdLvp
+=2+KW
 -----END PGP SIGNATURE-----
 
---nextPart2079531.6bda5nDA8r--
+--r5Pyd7+fXNt84Ff3--
