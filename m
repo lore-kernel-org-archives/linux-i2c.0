@@ -1,32 +1,40 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v8 0/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Thu, 25 Sep 2014 12:23:54 +0200
-Message-ID: <201409251223.54218.marex@denx.de>
-References: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
+From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: Re: [PATCH v3 6/6] mfd: cros_ec: Instantiate sub-devices from device
+ tree
+Date: Thu, 25 Sep 2014 15:53:56 +0200
+Message-ID: <54241E74.9000403@collabora.co.uk>
+References: <1410428289-18229-1-git-send-email-javier.martinez@collabora.co.uk> <1410428289-18229-7-git-send-email-javier.martinez@collabora.co.uk> <20140917163114.GL30918@lee--X1> <541A8E88.6050707@collabora.co.uk> <20140919001512.GA29852@lee--X1>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yuan Yao <yao.yuan@freescale.com>
-Cc: wsa@the-dreams.de, LW@karo-electronics.de, mark.rutland@arm.com, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140919001512.GA29852@lee--X1>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Andreas Faerber <afaerber-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, September 25, 2014 at 10:11:27 AM, Yuan Yao wrote:
-> Changed in v8:
-> - some minor fixes for coding style.
-> - unsetting I2CR_DMAEN immediatelly when failed in DMA mode.
+Hello Lee,
 
-Brief skim over the patch doesn't show any dangling problems.
+On 09/19/2014 02:15 AM, Lee Jones wrote:
+>> 
+>> As explained above, DT, non-DT and x86 platforms instantiate the cros-ec-dev
+>> cells but DT platforms can define other child nodes. But I can remove the
+>> conditional if you want and reintroduce it once cros-ec-dev support is added.
+> 
+> Yes, that makes sense.  I only care about doing what's right for
+> Mainline, so if it doesn't make sense here, then we shouldn't be doing
+> it.
+> 
 
-Reviewed-by: Marek Vasut <marex@denx.de>
+Understood, that's why I dropped this since as explained earlier, it makes more
+sense to include this change once the cros_ec_dev driver is pushed to upstream.
 
-btw. the U-Boot output is completely irrelevant, it only points out you use 
-outdated version, so please keep only the relevant output. Also, I would 
-recommend you to trim the responses to patches with [...] so one doesn't have to 
-scroll through a wall of old text, but can easily find the relevant portions.
+The last version of the series (v4) I posted a week ago [0], does not include
+this patch so I hope the series can be picked for 3.18 since most of the patches
+were already acked by you.
 
-Best regards,
-Marek Vasut
+Thanks a lot and best regards,
+Javier
+
+[0]: https://www.mail-archive.com/linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg36770.html
