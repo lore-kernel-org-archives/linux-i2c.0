@@ -1,111 +1,88 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH V2] i2c-designware: Add Intel Baytrail PMIC I2C bus
- support
-Date: Thu, 25 Sep 2014 11:47:52 +0200
-Message-ID: <20140925094752.GY15315@lukather>
-References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
- <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
- <20140923190057.GN15315@lukather>
- <20140923195854.GA9921@pathfinder>
+From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Thu, 25 Sep 2014 09:58:59 +0000
+Message-ID: <0f491b0c56264ee09a09f94b718536f4@BL2PR03MB338.namprd03.prod.outlook.com>
+References: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
+ <1411632689-31531-2-git-send-email-yao.yuan@freescale.com>
+ <6a2c63ad3a60461a830a00281c9d0b3c@BLUPR03MB373.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sKosZo66cxuwvnFI"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140923195854.GA9921@pathfinder>
+In-Reply-To: <6a2c63ad3a60461a830a00281c9d0b3c-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>
+Cc: "LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org" <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+> -----Original Message-----
+> From: Duan Fugang-B38611
+> Sent: Thursday, September 25, 2014 5:25 PM
+> To: Yuan Yao-B46683; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; marex-ynQEQJNshbs@public.gmane.org
+> Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org;
+> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
+> linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: RE: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c
+> driver
+> 
+> From: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org> Sent: Thursday, September 25,
+> 2014 4:11 PM
+> >To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; marex-ynQEQJNshbs@public.gmane.org
+> >Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; Duan Fugang-B38611;
+> >shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-
+> >kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> >Subject: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c
+> >driver
+> >
+> >Add dma support for i2c. This function depend on DMA driver.
+> >You can turn on it by write both the dmas and dma-name properties in
+> >dts node.
+> >DMA is optional, even DMA request unsuccessfully, i2c can also work well.
+> >
+> >Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> >---
+> > drivers/i2c/busses/i2c-imx.c | 352
+> >+++++++++++++++++++++++++++++++++++++++++--
+> > 1 file changed, 342 insertions(+), 10 deletions(-)
+> >
+> >diff --git a/drivers/i2c/busses/i2c-imx.c
+> >b/drivers/i2c/busses/i2c-imx.c index 613069b..c643756 100644
+> >--- a/drivers/i2c/busses/i2c-imx.c
+> >+++ b/drivers/i2c/busses/i2c-imx.c
+> >@@ -37,22 +37,27 @@
+> >+	 */
+> >+	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> >+	reinit_completion(&i2c_imx->dma->cmd_complete);
+> >+	result = wait_for_completion_interruptible_timeout(
+> >+				&i2c_imx->dma->cmd_complete,
+> >+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> >+	if (result <= 0) {
+> >+		dmaengine_terminate_all(dma->chan_using);
+> >+		if (result)
+> >+			return result;
+> >+		else
+> >+			return -ETIMEDOUT;
+> >+	}
+> >+
+> >+	/* Waiting for Transfer complete. */
+> >+	while (1) {
+> >+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> >+		if (temp & I2SR_ICF)
+> Why not wait for IIF ?
 
---sKosZo66cxuwvnFI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[Yuan Yao] 
+IIF is often used. But IIF cannot indicate transfer completely in DMA mode. 
+So TCF(I2SR_ICF) is the only choice.
 
-Hi David,
+> >+			break;
+> >+		if (time_after(jiffies, orig_jiffies +
+> >+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
+> >+			dev_dbg(dev, "<%s> Timeout\n", __func__);
+> >+			return -ETIMEDOUT;
+> >+		}
+> >+		schedule();
+> >+	}
 
-On Tue, Sep 23, 2014 at 12:58:54PM -0700, David E. Box wrote:
-> Hi Maxime,
->=20
-> On Tue, Sep 23, 2014 at 09:00:57PM +0200, Maxime Ripard wrote:
-> > Hi David,
-> >=20
-> > On Tue, Sep 23, 2014 at 11:40:26AM -0700, David E. Box wrote:
-> > > This patch implements an I2C bus sharing mechanism between the host a=
-nd platform
-> > > hardware on select Intel BayTrail SoC platforms using the X-Powers AX=
-P288 PMIC.
-> > >=20
-> > > On these platforms access to the PMIC must be shared with platform ha=
-rdware. The
-> > > hardware unit assumes full control of the I2C bus and the host must r=
-equest
-> > > access through a special semaphore. Hardware control of the bus also =
-makes it
-> > > necessary to disable runtime pm to avoid interfering with hardware tr=
-ansactions.
-> > >=20
-> > > Signed-off-by: David E. Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> >=20
-> > Sorry for stepping in like this without really knowing your platform,
-> > but wouldn't using the hwspinlock framework make more sense than
-> > hardcoding your own internal functions here?
->=20
-> I looked into this but didn't see a clear way on our platform to identify=
- the
-> semaphore seperately from doing it in the designware platform driver. The=
- way
-> we can find it now is through evaluating an ACPI _SEM object on every i2c=
- device
-> that gets probed by the dw driver since at probe time we can get the acpi=
- handle.
-
-And you have no way to turn it around and identify which semaphore is
-associated to which i2c bus?
-
-If so, there is probably some way to associate a given instance of the
-i2c driver to one semaphore.
-
-> Without this handle however there isn't a clear way of evaluating the _SEM
-> object which would be needed to register a hwspinlock in separate code.
->=20
-> Plus it would still require changes to the designware i2c core, though ad=
-mittedly
-> having a generic hwspinlock pointer added to the struct is cleaner.
-
-Not only cleaner, but that could also be used by other platforms that
-are using this I2C driver (and since it's a designware IP, there must
-be quite a lot) together with hardware locking.
-
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---sKosZo66cxuwvnFI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUI+TIAAoJEBx+YmzsjxAgQ10P/jdaLqFWaiyjWvAKuGmCMa4R
-jrDOkSkE0k59jstPa9zO8KHysPQferECVgJrdj2/gDs1rxzGmgy9wEY1IGFjX18d
-C/CxHLZcoX7WcFg6tjbPKlEDKfjslsomYJIBh6mqJtFo/JN4+V+Q6aqZT284JQ0U
-Ech0QIv88u2jWseOsuiTePaQGUDOP7tvhFY8wcl7tC0OnVtIIt9MkQ8sQIxzp2sJ
-3SSedYugAqicmfRQPAdQ8zpWYscyZdy+wg64s7TxJImhAfcr/GVwH81G5YR3mk74
-gUOeKduZ+FxYtT15NgMghC9HnEruEVV/Cwx+jlH/FzCneOTEeN/4jQbErvZmz44j
-2RiMgop5zMxpWxs4gKXUirsX7SUSncVJJPVnn6cPIOz2+MoXHeUjuZfqbir95/2Q
-fQlB6As+H4f9h03oj7DZnV/zHfMrWFPIaSHuvSjkRIpd7/8hTyMwqkCDAh7ysWtm
-CMhzwbwXCZ6ipdbXilv3LdeJceypwyKJvJLce6ZosPC5GX7HXjuSukpKM6dj5u3U
-+9fu8OPgQ1h3ID2vbKf4jDRBdd2R6tZMtknCQ+5RofE2MgFQKdVFfatmKXSkimhO
-DS+0MRXqiDs74oJQAGcq4KLqDmjf0T1MdtWd/gBFlp+VFS2BRpALKGxEvkn2zITO
-psBlX5jx4f6RQ8FY+2bW
-=rFUM
------END PGP SIGNATURE-----
-
---sKosZo66cxuwvnFI--
+Thanks & Best regards,
+Yuan Yao
