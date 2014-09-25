@@ -1,88 +1,117 @@
-From: Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Thu, 25 Sep 2014 09:58:59 +0000
-Message-ID: <0f491b0c56264ee09a09f94b718536f4@BL2PR03MB338.namprd03.prod.outlook.com>
-References: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
- <1411632689-31531-2-git-send-email-yao.yuan@freescale.com>
- <6a2c63ad3a60461a830a00281c9d0b3c@BLUPR03MB373.namprd03.prod.outlook.com>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [PATCH v5 1/4] mfd: add support for Diolan DLN-2 devices
+Date: Thu, 25 Sep 2014 13:25:24 +0300
+Message-ID: <CAE1zot+NGpLFC2fT5giNdXowhaesOux97e_7N9T6EV1OaWWdtg@mail.gmail.com>
+References: <1411158165-25794-1-git-send-email-octavian.purdila@intel.com>
+	<1411158165-25794-2-git-send-email-octavian.purdila@intel.com>
+	<20140924104809.GA16198@localhost>
+	<CAE1zotLu7pN9pC_C+iRwSpMh2iPW5E1CL4RiycLK-jV_FZEfOQ@mail.gmail.com>
+	<20140924135444.GD16198@localhost>
+	<CAE1zot+BqL4=kTJaQYwPxL-19W-+2nomXXrKaogJZRXuvrVE0A@mail.gmail.com>
+	<20140924150749.GG16198@localhost>
+	<CAE1zotLbziKCaXio-LTu0hoz+jjTzqZD=PC3yP3VSn2+f7j62Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6a2c63ad3a60461a830a00281c9d0b3c-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "marex-ynQEQJNshbs@public.gmane.org" <marex-ynQEQJNshbs@public.gmane.org>
-Cc: "LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org" <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, "mark.rutland-5wv7dgnIgG8@public.gmane.org" <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CAE1zotLbziKCaXio-LTu0hoz+jjTzqZD=PC3yP3VSn2+f7j62Q@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Duan Fugang-B38611
-> Sent: Thursday, September 25, 2014 5:25 PM
-> To: Yuan Yao-B46683; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; marex-ynQEQJNshbs@public.gmane.org
-> Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org;
-> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org;
-> linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: RE: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c
-> driver
-> 
-> From: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org> Sent: Thursday, September 25,
-> 2014 4:11 PM
-> >To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; marex-ynQEQJNshbs@public.gmane.org
-> >Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org; mark.rutland-5wv7dgnIgG8@public.gmane.org; Duan Fugang-B38611;
-> >shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-
-> >kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> >Subject: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c
-> >driver
-> >
-> >Add dma support for i2c. This function depend on DMA driver.
-> >You can turn on it by write both the dmas and dma-name properties in
-> >dts node.
-> >DMA is optional, even DMA request unsuccessfully, i2c can also work well.
-> >
-> >Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> >---
-> > drivers/i2c/busses/i2c-imx.c | 352
-> >+++++++++++++++++++++++++++++++++++++++++--
-> > 1 file changed, 342 insertions(+), 10 deletions(-)
-> >
-> >diff --git a/drivers/i2c/busses/i2c-imx.c
-> >b/drivers/i2c/busses/i2c-imx.c index 613069b..c643756 100644
-> >--- a/drivers/i2c/busses/i2c-imx.c
-> >+++ b/drivers/i2c/busses/i2c-imx.c
-> >@@ -37,22 +37,27 @@
-> >+	 */
-> >+	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-> >+	reinit_completion(&i2c_imx->dma->cmd_complete);
-> >+	result = wait_for_completion_interruptible_timeout(
-> >+				&i2c_imx->dma->cmd_complete,
-> >+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-> >+	if (result <= 0) {
-> >+		dmaengine_terminate_all(dma->chan_using);
-> >+		if (result)
-> >+			return result;
-> >+		else
-> >+			return -ETIMEDOUT;
-> >+	}
-> >+
-> >+	/* Waiting for Transfer complete. */
-> >+	while (1) {
-> >+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> >+		if (temp & I2SR_ICF)
-> Why not wait for IIF ?
+On Wed, Sep 24, 2014 at 6:22 PM, Octavian Purdila
+<octavian.purdila@intel.com> wrote:
+> On Wed, Sep 24, 2014 at 6:07 PM, Johan Hovold <johan@kernel.org> wrote:
+>> On Wed, Sep 24, 2014 at 05:54:15PM +0300, Octavian Purdila wrote:
+>>> On Wed, Sep 24, 2014 at 4:54 PM, Johan Hovold <johan@kernel.org> wrote:
+>>> > On Wed, Sep 24, 2014 at 04:36:22PM +0300, Octavian Purdila wrote:
+>>> >> On Wed, Sep 24, 2014 at 1:48 PM, Johan Hovold <johan@kernel.org> wrote:
+>>> >> > On Fri, Sep 19, 2014 at 11:22:42PM +0300, Octavian Purdila wrote:
+>>> >>
+>>> >> <snip>
+>>> >>
+>>> >> >> + * dln2_dev.mod_rx_slots and then the echo header field to index the
+>>> >> >> + * slots field and find the receive context for a particular
+>>> >> >> + * request.
+>>> >> >> + */
+>>> >> >> +struct dln2_mod_rx_slots {
+>>> >> >> +     /* RX slots bitmap */
+>>> >> >> +     unsigned long bmap;
+>>> >> >> +
+>>> >> >> +     /* used to wait for a free RX slot */
+>>> >> >> +     wait_queue_head_t wq;
+>>> >> >> +
+>>> >> >> +     /* used to wait for an RX operation to complete */
+>>> >> >> +     struct dln2_rx_context slots[DLN2_MAX_RX_SLOTS];
+>>> >> >> +
+>>> >> >> +     /* device has been disconnected */
+>>> >> >> +     bool disconnected;
+>>> >> >
+>>> >> > This belongs in the dln2_dev struct.
+>>> >> >
+>>> >> > I think you're overcomplicating the disconnect handling by intertwining
+>>> >> > it with your slots.
+>>> >> >
+>>> >> > Add a lock, an active-transfer counter, a disconnected flag, and a wait
+>>> >> > queue to struct dln2_dev.
+>>> >> >
+>>> >>
+>>> >> I agree that disconnected is better suited in dln2_dev.
+>>> >>
+>>> >> However, I don't think that we need the active-transfer counter and a
+>>> >> new wait queue. We can simply use the existing waiting queues and the
+>>> >> implicit alloc_rx_slot()/free_rx_slot() calls to see if we are still
+>>> >> waiting for I/O.
+>>> >
+>>> > Just because you can reuse them doesn't mean it's a good idea. By
+>>> > separating a generic disconnect solution from your custom slot
+>>> > implementation we get something that is way easier to verify for
+>>> > correctness and that could also be reused in other drivers.
+>>>
+>>> Maybe I miss-understood what you are proposing, let me try to
+>>> summarize it to see if I got it right.
+>>>
+>>> You are suggesting to add a counter, increment it in alloc_rx_slot(),
+>>> decrement it in free_rx_slot().
+>>
+>> No increment it at the start of _dln2_transfer, and decrement it before
+>> returning from that function.
+>>
+>>> Then add a new waitqueue in dln2_dev
+>>> and in free_rx_slot() wake it up while in disconnect do a wait_event()
+>>> on it and check for the counter.
+>>
+>> Where you also wake the disconnect (or wait-until-sent) wait queue.
+>>
+>>> Also, alloc_rx_slot() should fail if
+>>> the disconnect flag is set.
+>>
+>> That is not required, but you can bail out early after alloc_rx_slot if
+>> the disconnect flag is set (no locking).
+>>
+>>> In this case we are still coupled to the slots implementation, in the
+>>> sense that you would need to understand the slots implementation to
+>>> understand how the disconnect works. We are also doing two wake-up
+>>> operations which I find redundant and which does not add much value in
+>>> clarity (since we still need to wake-up all completions for each
+>>> handle).
+>>>
+>>> I do agree that using a counter instead of checking the bitmaps is
+>>> cleaner though.
+>>
+>> You only need to the wake up if disconnected is set when returning from
+>> _dln2_transfer.
+>>
+>> Sure, the optimisation bit -- to abort any ongoing transfer -- still
+>> requires some insight into the slot implementation.
+>>
+>> But this way everything disconnect related (correctness-wise) is
+>> isolated to _dln2_transfer and dln2_disconnect.
+>>
+>
+> OK, I see what you mean now. I'll give it a try and will follow up
+> with a new patch set.
+>
 
-[Yuan Yao] 
-IIF is often used. But IIF cannot indicate transfer completely in DMA mode. 
-So TCF(I2SR_ICF) is the only choice.
-
-> >+			break;
-> >+		if (time_after(jiffies, orig_jiffies +
-> >+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
-> >+			dev_dbg(dev, "<%s> Timeout\n", __func__);
-> >+			return -ETIMEDOUT;
-> >+		}
-> >+		schedule();
-> >+	}
-
-Thanks & Best regards,
-Yuan Yao
+Johan, I think we don't really need the spinlock, the disconnect flag
+and an atomic counter should work. Do you see any issues with that?
