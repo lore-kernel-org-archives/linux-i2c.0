@@ -1,49 +1,32 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v5 1/4] mfd: add support for Diolan DLN-2 devices
-Date: Thu, 25 Sep 2014 12:43:42 +0200
-Message-ID: <20140925104342.GC32124@localhost>
-References: <1411158165-25794-2-git-send-email-octavian.purdila@intel.com>
- <20140924104809.GA16198@localhost>
- <CAE1zotLu7pN9pC_C+iRwSpMh2iPW5E1CL4RiycLK-jV_FZEfOQ@mail.gmail.com>
- <20140924135444.GD16198@localhost>
- <CAE1zot+BqL4=kTJaQYwPxL-19W-+2nomXXrKaogJZRXuvrVE0A@mail.gmail.com>
- <20140924150749.GG16198@localhost>
- <CAE1zotLbziKCaXio-LTu0hoz+jjTzqZD=PC3yP3VSn2+f7j62Q@mail.gmail.com>
- <CAE1zot+NGpLFC2fT5giNdXowhaesOux97e_7N9T6EV1OaWWdtg@mail.gmail.com>
- <20140925103011.GA32124@localhost>
- <CAE1zotL2A7Y_xbgCJD2mxiJ=F97GX7PkkB+YTUQjHD6tkDGs-g@mail.gmail.com>
+From: Marek Vasut <marex@denx.de>
+Subject: Re: [PATCH v8 0/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Thu, 25 Sep 2014 12:23:54 +0200
+Message-ID: <201409251223.54218.marex@denx.de>
+References: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAE1zotL2A7Y_xbgCJD2mxiJ=F97GX7PkkB+YTUQjHD6tkDGs-g@mail.gmail.com>
+In-Reply-To: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Johan Hovold <johan@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org
+To: Yuan Yao <yao.yuan@freescale.com>
+Cc: wsa@the-dreams.de, LW@karo-electronics.de, mark.rutland@arm.com, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 25, 2014 at 01:41:16PM +0300, Octavian Purdila wrote:
-> On Thu, Sep 25, 2014 at 1:30 PM, Johan Hovold <johan@kernel.org> wrote:
-> > On Thu, Sep 25, 2014 at 01:25:24PM +0300, Octavian Purdila wrote:
-> >
-> >> Johan, I think we don't really need the spinlock, the disconnect flag
-> >> and an atomic counter should work. Do you see any issues with that?
-> >
-> > No, you need to test and increment atomically so the lock is needed.
-> >
-> > Consider what could happen if you get a disconnect after testing but
-> > before incrementing.
-> 
-> I am still not seeing the problem. We would continue with the
-> increment, we will try to send which will fail and go on the error
-> path where we will decrement and wake_up. What am I missing?
+On Thursday, September 25, 2014 at 10:11:27 AM, Yuan Yao wrote:
+> Changed in v8:
+> - some minor fixes for coding style.
+> - unsetting I2CR_DMAEN immediatelly when failed in DMA mode.
 
-The whole point of the counter and flag is to make sure that no
-transfers are started after the flag is set. If you remove the lock you
-cannot guarantee that.
+Brief skim over the patch doesn't show any dangling problems.
 
-Disconnect sets the flag (after you test it in transfer() but before
-incrementing the counter), checks the counter which is 0 and proceeds
-with deregistration and deallocation. Then transfer() gets to run...
+Reviewed-by: Marek Vasut <marex@denx.de>
 
-Johan
+btw. the U-Boot output is completely irrelevant, it only points out you use 
+outdated version, so please keep only the relevant output. Also, I would 
+recommend you to trim the responses to patches with [...] so one doesn't have to 
+scroll through a wall of old text, but can easily find the relevant portions.
+
+Best regards,
+Marek Vasut
