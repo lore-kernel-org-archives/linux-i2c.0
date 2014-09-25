@@ -1,529 +1,316 @@
-From: "fugang.duan@freescale.com" <fugang.duan@freescale.com>
-Subject: RE: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c driver
-Date: Thu, 25 Sep 2014 09:24:49 +0000
-Message-ID: <6a2c63ad3a60461a830a00281c9d0b3c@BLUPR03MB373.namprd03.prod.outlook.com>
-References: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
- <1411632689-31531-2-git-send-email-yao.yuan@freescale.com>
+From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH] ACPI: Add _DEP(Operation Region Dependencies) support
+ to fix battery issue on the Asus T100TA
+Date: Thu, 25 Sep 2014 17:44:43 +0800
+Message-ID: <5423E40B.8010302@intel.com>
+References: <1411456003-29541-1-git-send-email-tianyu.lan@intel.com> <5595235.8OhLbSk3cf@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1411632689-31531-2-git-send-email-yao.yuan@freescale.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Yao Yuan <yao.yuan@freescale.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "marex@denx.de" <marex@denx.de>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "LW@KARO-electronics.de" <LW@KARO-electronics.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5595235.8OhLbSk3cf-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Cc: lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Yuan Yao <yao.yuan@freescale.com> Sent: Thursday, September 25, 2014 4:11 PM
->To: wsa@the-dreams.de; marex@denx.de
->Cc: LW@KARO-electronics.de; mark.rutland@arm.com; Duan Fugang-B38611;
->shawn.guo@linaro.org; linux-kernel@vger.kernel.org; linux-arm-
->kernel@lists.infradead.org; linux-i2c@vger.kernel.org
->Subject: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c driver
->
->Add dma support for i2c. This function depend on DMA driver.
->You can turn on it by write both the dmas and dma-name properties in dts
->node.
->DMA is optional, even DMA request unsuccessfully, i2c can also work well.
->
->Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
->---
-> drivers/i2c/busses/i2c-imx.c | 352
->+++++++++++++++++++++++++++++++++++++++++--
-> 1 file changed, 342 insertions(+), 10 deletions(-)
->
->diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
->index 613069b..c643756 100644
->--- a/drivers/i2c/busses/i2c-imx.c
->+++ b/drivers/i2c/busses/i2c-imx.c
->@@ -37,22 +37,27 @@
-> /** Includes
->*******************************************************************
->
->**************************************************************************
->*****/
->
->-#include <linux/init.h>
->-#include <linux/kernel.h>
->-#include <linux/module.h>
->+#include <linux/clk.h>
->+#include <linux/completion.h>
->+#include <linux/delay.h>
->+#include <linux/dma-mapping.h>
->+#include <linux/dmaengine.h>
->+#include <linux/dmapool.h>
-> #include <linux/errno.h>
-> #include <linux/err.h>
-> #include <linux/interrupt.h>
->-#include <linux/delay.h>
-> #include <linux/i2c.h>
->+#include <linux/init.h>
-> #include <linux/io.h>
->-#include <linux/sched.h>
->-#include <linux/platform_device.h>
->-#include <linux/clk.h>
->-#include <linux/slab.h>
->+#include <linux/kernel.h>
->+#include <linux/module.h>
-> #include <linux/of.h>
-> #include <linux/of_device.h>
->+#include <linux/of_dma.h>
-> #include <linux/platform_data/i2c-imx.h>
->+#include <linux/platform_device.h>
->+#include <linux/sched.h>
->+#include <linux/slab.h>
->
-> /** Defines
->********************************************************************
->
->**************************************************************************
->*****/
->@@ -63,6 +68,13 @@
-> /* Default value */
-> #define IMX_I2C_BIT_RATE	100000	/* 100kHz */
->
->+/*
->+ * Enable DMA if transfer byte size is bigger than this threshold.
->+ * As the hardware request, it must bigger than 4 bytes.
->+ */
->+#define IMX_I2C_DMA_THRESHOLD	16
->+#define IMX_I2C_DMA_TIMEOUT	1000
->+
-> /* IMX I2C registers:
->  * the I2C register offset is different between SoCs,
->  * to provid support for all these chips, split the @@ -88,6 +100,7 @@
-> #define I2SR_IBB	0x20
-> #define I2SR_IAAS	0x40
-> #define I2SR_ICF	0x80
->+#define I2CR_DMAEN	0x02
-> #define I2CR_RSTA	0x04
-> #define I2CR_TXAK	0x08
-> #define I2CR_MTX	0x10
->@@ -174,6 +187,17 @@ struct imx_i2c_hwdata {
-> 	unsigned		i2cr_ien_opcode;
-> };
->
->+struct imx_i2c_dma {
->+	struct dma_chan		*chan_tx;
->+	struct dma_chan		*chan_rx;
->+	struct dma_chan		*chan_using;
->+	struct completion	cmd_complete;
->+	dma_addr_t		dma_buf;
->+	unsigned int		dma_len;
->+	unsigned int		dma_transfer_dir;
->+	unsigned int		dma_data_dir;
->+};
->+
-> struct imx_i2c_struct {
-> 	struct i2c_adapter	adapter;
-> 	struct clk		*clk;
->@@ -186,6 +210,8 @@ struct imx_i2c_struct {
-> 	unsigned int		cur_clk;
-> 	unsigned int		bitrate;
-> 	const struct imx_i2c_hwdata	*hwdata;
->+
->+	struct imx_i2c_dma	*dma;
-> };
->
-> static const struct imx_i2c_hwdata imx1_i2c_hwdata  = { @@ -256,6
->+282,132 @@ static inline unsigned char imx_i2c_read_reg(struct
->imx_i2c_struct *i2c_imx,
-> 	return readb(i2c_imx->base + (reg << i2c_imx->hwdata->regshift));  }
->
->+/* Functions for DMA support */
->+static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
->+						dma_addr_t phy_addr)
->+{
->+	struct imx_i2c_dma *dma;
->+	struct dma_slave_config dma_sconfig;
->+	struct device *dev = &i2c_imx->adapter.dev;
->+	int ret;
->+
->+	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
->+	if (!dma)
->+		return -ENOMEM;
->+
->+	dma->chan_tx = dma_request_slave_channel(dev, "tx");
->+	if (!dma->chan_tx) {
->+		dev_dbg(dev, "can't request DMA tx channel\n");
->+		ret = -ENODEV;
->+		goto fail_al;
->+	}
->+
->+	dma_sconfig.dst_addr = phy_addr +
->+				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
->+	dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
->+	dma_sconfig.dst_maxburst = 1;
->+	dma_sconfig.direction = DMA_MEM_TO_DEV;
->+	ret = dmaengine_slave_config(dma->chan_tx, &dma_sconfig);
->+	if (ret < 0) {
->+		dev_dbg(dev, "can't configure tx channel\n");
->+		goto fail_tx;
->+	}
->+
->+	dma->chan_rx = dma_request_slave_channel(dev, "rx");
->+	if (!dma->chan_rx) {
->+		dev_dbg(dev, "can't request DMA rx channel\n");
->+		ret = -ENODEV;
->+		goto fail_tx;
->+	}
->+
->+	dma_sconfig.src_addr = phy_addr +
->+				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
->+	dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
->+	dma_sconfig.src_maxburst = 1;
->+	dma_sconfig.direction = DMA_DEV_TO_MEM;
->+	ret = dmaengine_slave_config(dma->chan_rx, &dma_sconfig);
->+	if (ret < 0) {
->+		dev_dbg(dev, "can't configure rx channel\n");
->+		goto fail_rx;
->+	}
->+
->+	i2c_imx->dma = dma;
->+	init_completion(&dma->cmd_complete);
->+	dev_info(dev, "using %s (tx) and %s (rx) for DMA transfers\n",
->+		dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
->+
->+	return 0;
->+
->+fail_rx:
->+	dma_release_channel(dma->chan_rx);
->+fail_tx:
->+	dma_release_channel(dma->chan_tx);
->+fail_al:
->+	devm_kfree(dev, dma);
->+	dev_info(dev, "can't use DMA\n");
->+
->+	return ret;
->+}
->+
->+static void i2c_imx_dma_callback(void *arg) {
->+	struct imx_i2c_struct *i2c_imx = (struct imx_i2c_struct *)arg;
->+	struct imx_i2c_dma *dma = i2c_imx->dma;
->+
->+	dma_unmap_single(dma->chan_using->device->dev, dma->dma_buf,
->+			dma->dma_len, dma->dma_data_dir);
->+	complete(&dma->cmd_complete);
->+}
->+
->+static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
->+					struct i2c_msg *msgs)
->+{
->+	struct imx_i2c_dma *dma = i2c_imx->dma;
->+	struct dma_async_tx_descriptor *txdesc;
->+	struct device *dev = &i2c_imx->adapter.dev;
->+	struct device *chan_dev = dma->chan_using->device->dev;
->+
->+	dma->dma_buf = dma_map_single(chan_dev, msgs->buf,
->+					dma->dma_len, dma->dma_data_dir);
->+	if (dma_mapping_error(chan_dev, dma->dma_buf)) {
->+		dev_err(dev, "DMA mapping failed\n");
->+		return -EINVAL;
->+	}
->+
->+	txdesc = dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
->+					dma->dma_len, dma->dma_transfer_dir,
->+					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
->+	if (!txdesc) {
->+		dev_err(dev, "Not able to get desc for DMA xfer\n");
->+		dma_unmap_single(chan_dev, dma->dma_buf,
->+					dma->dma_len, dma->dma_data_dir);
->+		return -EINVAL;
->+	}
->+
->+	txdesc->callback = i2c_imx_dma_callback;
->+	txdesc->callback_param = i2c_imx;
->+	dmaengine_submit(txdesc);
->+	dma_async_issue_pending(dma->chan_using);
->+
->+	return 0;
->+}
->+
->+static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx) {
->+	struct imx_i2c_dma *dma = i2c_imx->dma;
->+
->+	dma->dma_buf = 0;
->+	dma->dma_len = 0;
->+
->+	dma_release_channel(dma->chan_tx);
->+	dma->chan_tx = NULL;
->+
->+	dma_release_channel(dma->chan_rx);
->+	dma->chan_rx = NULL;
->+
->+	dma->chan_using = NULL;
->+}
->+
-> /** Functions for IMX I2C adapter driver
->***************************************
->
->**************************************************************************
->*****/
->
->@@ -379,6 +531,7 @@ static int i2c_imx_start(struct imx_i2c_struct
->*i2c_imx)
-> 	i2c_imx->stopped = 0;
->
-> 	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
->+	temp &= ~I2CR_DMAEN;
-> 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> 	return result;
-> }
->@@ -392,6 +545,8 @@ static void i2c_imx_stop(struct imx_i2c_struct
->*i2c_imx)
-> 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> 		temp &= ~(I2CR_MSTA | I2CR_MTX);
->+		if (i2c_imx->dma)
->+			temp &= ~I2CR_DMAEN;
-> 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> 	}
-> 	if (is_imx1_i2c(i2c_imx)) {
->@@ -432,6 +587,168 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
-> 	return IRQ_NONE;
-> }
->
->+static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
->+					struct i2c_msg *msgs)
->+{
->+	int result;
->+	unsigned int temp = 0;
->+	unsigned long orig_jiffies = jiffies;
->+	struct imx_i2c_dma *dma = i2c_imx->dma;
->+	struct device *dev = &i2c_imx->adapter.dev;
->+
->+	dev_dbg(dev, "<%s> write slave address: addr=0x%x\n",
->+		__func__, msgs->addr << 1);
->+
->+	dma->chan_using = dma->chan_tx;
->+	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
->+	dma->dma_data_dir = DMA_TO_DEVICE;
->+	dma->dma_len = msgs->len - 1;
->+	result = i2c_imx_dma_xfer(i2c_imx, msgs);
->+	if (result)
->+		return result;
->+
->+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->+	temp |= I2CR_DMAEN;
->+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->+
->+	/*
->+	 * Write slave address.
->+	 * The first byte muse be transmitted by the CPU.
->+	 */
->+	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
->+	reinit_completion(&i2c_imx->dma->cmd_complete);
->+	result = wait_for_completion_interruptible_timeout(
->+				&i2c_imx->dma->cmd_complete,
->+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
->+	if (result <= 0) {
->+		dmaengine_terminate_all(dma->chan_using);
->+		if (result)
->+			return result;
->+		else
->+			return -ETIMEDOUT;
->+	}
->+
->+	/* Waiting for Transfer complete. */
->+	while (1) {
->+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
->+		if (temp & I2SR_ICF)
-Why not wait for IIF ?
+On 2014=E5=B9=B409=E6=9C=8825=E6=97=A5 06:27, Rafael J. Wysocki wrote:
+> On Tuesday, September 23, 2014 03:06:43 PM Lan Tianyu wrote:
+>> ACPI 5.0 introduces _DEP to designate device objects that OSPM shoul=
+d
+>> assign a higher priority in start ordering due to future operation r=
+egion
+>> accesses.
+>>
+>> On Asus T100TA, ACPI battery info are read from a I2C slave device v=
+ia
+>> I2C operation region. Before I2C operation region handler is install=
+ed,
+>> battery _STA always returns 0. There is a _DEP method of designating
+>> start order under battery device node.
+>>
+>> This patch is to implement _DEP feature to fix battery issue on the =
+Asus T100TA.
+>> Introducing acpi_bus_dep_device_list and adding dep_present flags in=
+ the struct
+>> acpi_device. During ACPI namespace scan, all devices with _DEP suppo=
+rt will be put
+>> into the new list and those devices' dep_present flag will be set. D=
+river's probe()
+>> should return EPROBE_DEFER when find dep_present is set. When I2C op=
+eration
+>> region handler is installed, check all devices on the new list. Remo=
+ve the one from
+>> list if _DEP condition is met and clear its dep_present flag and do =
+acpi_bus_attch()
+>> for the device in order to resolve battery _STA issue on the Asus T1=
+00TA.
+>>
+>> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>=20
+> This is going in the right direction in my view, but isn't there just=
+ yet.
+>=20
+> Details below.
 
->+			break;
->+		if (time_after(jiffies, orig_jiffies +
->+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
->+			dev_dbg(dev, "<%s> Timeout\n", __func__);
->+			return -ETIMEDOUT;
->+		}
->+		schedule();
->+	}
->+
->+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->+	temp &= ~I2CR_DMAEN;
->+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->+
->+	/* The last data byte must be transferred by the CPU. */
->+	imx_i2c_write_reg(msgs->buf[msgs->len-1],
->+				i2c_imx, IMX_I2C_I2DR);
->+	result = i2c_imx_trx_complete(i2c_imx);
->+	if (result)
->+		return result;
->+
->+	result = i2c_imx_acked(i2c_imx);
->+	if (result)
->+		return result;
->+
->+	return 0;
->+}
->+
->+static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
->+			struct i2c_msg *msgs, bool is_lastmsg) {
->+	int result;
->+	unsigned int temp;
->+	unsigned long orig_jiffies;
->+	struct imx_i2c_dma *dma = i2c_imx->dma;
->+	struct device *dev = &i2c_imx->adapter.dev;
->+
->+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->+	temp |= I2CR_DMAEN;
->+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->+
->+	dma->chan_using = dma->chan_rx;
->+	dma->dma_transfer_dir = DMA_DEV_TO_MEM;
->+	dma->dma_data_dir = DMA_FROM_DEVICE;
->+	/* The last two data bytes must be transferred by the CPU. */
->+	dma->dma_len = msgs->len - 2;
->+	result = i2c_imx_dma_xfer(i2c_imx, msgs);
->+	if (result)
->+		return result;
->+
->+	reinit_completion(&i2c_imx->dma->cmd_complete);
->+	result = wait_for_completion_interruptible_timeout(
->+				&i2c_imx->dma->cmd_complete,
->+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
->+	if (result <= 0) {
->+		dmaengine_terminate_all(dma->chan_using);
->+		if (result)
->+			return result;
->+		else
->+			return -ETIMEDOUT;
->+	}
->+
->+	/* waiting for Transfer complete. */
->+	while (1) {
->+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
->+		if (temp & I2SR_ICF)
->+			break;
->+		if (time_after(jiffies, orig_jiffies +
->+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
->+			dev_dbg(dev, "<%s> Timeout\n", __func__);
->+			return -ETIMEDOUT;
->+		}
->+		schedule();
->+	}
->+
->+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->+	temp &= ~I2CR_DMAEN;
->+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->+
->+	/* read n-1 byte data */
->+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->+	temp |= I2CR_TXAK;
->+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->+
->+	msgs->buf[msgs->len-2] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
->+	/* read n byte data */
->+	result = i2c_imx_trx_complete(i2c_imx);
->+	if (result)
->+		return result;
->+
->+	if (is_lastmsg) {
->+		/*
->+		 * It must generate STOP before read I2DR to prevent
->+		 * controller from generating another clock cycle
->+		 */
->+		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
->+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
->+		temp &= ~(I2CR_MSTA | I2CR_MTX);
->+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->+		i2c_imx_bus_busy(i2c_imx, 0);
->+		i2c_imx->stopped = 1;
->+	} else {
->+		/*
->+		 * For i2c master receiver repeat restart operation like:
->+		 * read -> repeat MSTA -> read/write
->+		 * The controller must set MTX before read the last byte in
->+		 * the first read operation, otherwise the first read cost
->+		 * one extra clock cycle.
->+		 */
->+		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
->+		temp |= I2CR_MTX;
->+		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
->+	}
->+	msgs->buf[msgs->len-1] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
->+
->+	return 0;
->+}
->+
-> static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg
->*msgs)  {
-> 	int i, result;
->@@ -501,6 +818,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx,
->struct i2c_msg *msgs, bo
->
-> 	dev_dbg(&i2c_imx->adapter.dev, "<%s> read data\n", __func__);
->
->+	if (i2c_imx->dma && msgs->len >= IMX_I2C_DMA_THRESHOLD
->&& !block_data)
->+		return i2c_imx_dma_read(i2c_imx, msgs, is_lastmsg);
->+
-> 	/* read data */
-> 	for (i = 0; i < msgs->len; i++) {
-> 		u8 len = 0;
->@@ -615,8 +935,12 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
->#endif
-> 		if (msgs[i].flags & I2C_M_RD)
-> 			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg);
->-		else
->-			result = i2c_imx_write(i2c_imx, &msgs[i]);
->+		else {
->+			if (i2c_imx->dma && msgs[i].len >= IMX_I2C_DMA_THRESHOLD)
->+				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
->+			else
->+				result = i2c_imx_write(i2c_imx, &msgs[i]);
->+		}
-> 		if (result)
-> 			goto fail0;
-> 	}
->@@ -651,6 +975,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
-> 	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
-> 	void __iomem *base;
-> 	int irq, ret;
->+	dma_addr_t phy_addr;
->
-> 	dev_dbg(&pdev->dev, "<%s>\n", __func__);
->
->@@ -661,6 +986,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
-> 	}
->
-> 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->+	phy_addr = (dma_addr_t)res->start;
-> 	base = devm_ioremap_resource(&pdev->dev, res);
-> 	if (IS_ERR(base))
-> 		return PTR_ERR(base);
->@@ -740,6 +1066,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
-> 		i2c_imx->adapter.name);
-> 	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
->
->+	/* Init DMA config if support*/
->+	i2c_imx_dma_request(i2c_imx, phy_addr);
->+
-> 	return 0;   /* Return OK */
-> }
->
->@@ -751,6 +1080,9 @@ static int i2c_imx_remove(struct platform_device
->*pdev)
-> 	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
-> 	i2c_del_adapter(&i2c_imx->adapter);
->
->+	if (i2c_imx->dma)
->+		i2c_imx_dma_free(i2c_imx);
->+
-> 	/* setup chip registers to defaults */
-> 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
-> 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
->--
->1.8.4
+Thanks for review.
 
-Regards,
-Andy
+>=20
+>> ---
+>>  drivers/acpi/battery.c  |  4 +++
+>>  drivers/acpi/scan.c     | 84 ++++++++++++++++++++++++++++++++++++++=
++++++++++++
+>>  drivers/i2c/i2c-acpi.c  |  1 +
+>>  include/acpi/acpi_bus.h |  2 ++
+>>  include/linux/acpi.h    |  3 ++
+>>  5 files changed, 94 insertions(+)
+>>
+>> diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+>> index 1c162e7..c0a68ce 100644
+>> --- a/drivers/acpi/battery.c
+>> +++ b/drivers/acpi/battery.c
+>> @@ -1194,6 +1194,10 @@ static int acpi_battery_add(struct acpi_devic=
+e *device)
+>> =20
+>>  	if (!device)
+>>  		return -EINVAL;
+>> +
+>> +	if (device->dep_present)
+>=20
+> device->flags.dep_present would be better.  Or even call the flag dep=
+_unmet.
+
+Ok. Will update.
+
+>=20
+>> +		return -EPROBE_DEFER;
+>> +
+>>  	battery =3D kzalloc(sizeof(struct acpi_battery), GFP_KERNEL);
+>>  	if (!battery)
+>>  		return -ENOMEM;
+>> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+>> index 3bf7764..a26dbb3 100644
+>> --- a/drivers/acpi/scan.c
+>> +++ b/drivers/acpi/scan.c
+>> @@ -36,6 +36,7 @@ bool acpi_force_hot_remove;
+>> =20
+>>  static const char *dummy_hid =3D "device";
+>> =20
+>> +static LIST_HEAD(acpi_bus_dep_device_list);
+>>  static LIST_HEAD(acpi_bus_id_list);
+>>  static DEFINE_MUTEX(acpi_scan_lock);
+>>  static LIST_HEAD(acpi_scan_handlers_list);
+>> @@ -43,6 +44,11 @@ DEFINE_MUTEX(acpi_device_lock);
+>>  LIST_HEAD(acpi_wakeup_device_list);
+>>  static DEFINE_MUTEX(acpi_hp_context_lock);
+>> =20
+>> +struct acpi_dep_data {
+>> +	struct list_head node;
+>> +	struct acpi_device *adev;
+>> +};
+>> +
+>>  struct acpi_device_bus_id{
+>>  	char bus_id[15];
+>>  	unsigned int instance_no;
+>> @@ -2048,6 +2054,32 @@ static void acpi_scan_init_hotplug(struct acp=
+i_device *adev)
+>>  	}
+>>  }
+>> =20
+>> +static void acpi_device_dep_initialize(struct acpi_device * adev)
+>> +{
+>> +	struct acpi_dep_data *dep;
+>> +	acpi_status status;
+>> +
+>> +	if (!acpi_has_method(adev->handle, "_DEP"))
+>> +		return;
+>> +
+>> +	status =3D acpi_evaluate_reference(adev->handle, "_DEP", NULL,
+>> +					&adev->dep_devices);
+>> +	if (ACPI_FAILURE(status)) {
+>> +		dev_err(&adev->dev, "Fail to evaluate _DEP.\n");
+>=20
+> "Failed"
+>=20
+>> +		return;
+>> +	}
+>> +
+>> +	dep =3D kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
+>> +	if (!dep) {
+>> +		dev_err(&adev->dev, "Memory allocation error.\n");
+>=20
+> "Not enough memory for _DEP list entry\n"
+>=20
+>> +		return;
+>> +	}
+>> +
+>> +	dep->adev =3D adev;
+>> +	adev->dep_present =3D true;
+>> +	list_add_tail(&dep->node , &acpi_bus_dep_device_list);
+>> +}
+>> +
+>>  static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_n=
+ot_used,
+>>  				      void *not_used, void **return_value)
+>>  {
+>> @@ -2074,6 +2106,7 @@ static acpi_status acpi_bus_check_add(acpi_han=
+dle handle, u32 lvl_not_used,
+>>  		return AE_CTRL_DEPTH;
+>> =20
+>>  	acpi_scan_init_hotplug(device);
+>> +	acpi_device_dep_initialize(device);
+>> =20
+>>   out:
+>>  	if (!*return_value)
+>> @@ -2191,6 +2224,57 @@ static void acpi_bus_attach(struct acpi_devic=
+e *device)
+>>  		acpi_bus_attach(child);
+>>  }
+>> =20
+>> +static int acpi_device_dep_check(struct acpi_device *adev)
+>> +{
+>> +	struct acpi_device *dep_adev;
+>> +	struct acpi_device_physical_node *pn;
+>> +	int i;
+>> +
+>> +	for (i =3D 0; i < adev->dep_devices.count; i++) {
+>> +		dep_adev =3D acpi_bus_get_acpi_device(
+>> +				adev->dep_devices.handles[i]);
+>> +
+>> +		if (!dep_adev)
+>> +			return -ENODEV;
+>> +
+>> +		/* Check acpi device driver probing */
+>> +		if (dep_adev->dev.driver)
+>> +			continue;
+>=20
+> This check isn't sufficient, because _DEP is supposed to be about ope=
+ration
+> regions being present, not about drivers being present.  Same for the=
+ driver
+> check below.
+>=20
+> I wouldn't bother to check drivers in this stub implementation. ->
+
+Sounds like we need to check whether the dependent device node has been
+attached with operation region handler and this needs ACPICA to expose
+such function, right?
+
+>=20
+>> +
+>> +		if (!dep_adev->physical_node_count)
+>> +			return -ENODEV;
+>> +
+>> +		/* Check physcial device node driver probing */
+>> +		mutex_lock(&dep_adev->physical_node_lock);
+>> +		list_for_each_entry(pn, &dep_adev->physical_node_list, node) {
+>> +			if (pn->dev->driver) {
+>> +				mutex_unlock(&dep_adev->physical_node_lock);
+>> +				continue;
+>> +			}
+>> +		}
+>> +		mutex_unlock(&dep_adev->physical_node_lock);
+>> +		return -EFAULT;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +int acpi_walk_dep_device_list(void)
+>=20
+> -> I'd pass the operation region device to that (and I'd call the fun=
+ction
+> differently, but that's a detail).  Then, I'd just clear flags.dep_un=
+met
+> for all devices having that operation region device in their dep_devi=
+ces
+> (and drop their entries from the list).  It wouldn't cover the case w=
+hen
+> one device depends on two operation regions at the same time (in a me=
+aningful
+> way), but should be sufficient to address the battery problem at hand=
+=2E=20
+>=20
+
+This requires the dependent devices have a list to record devices which
+depends on them, right? Create such lists during ACPI namespace scan.
+
+
+>> +{
+>> +	struct acpi_dep_data *dep, *tmp;
+>> +
+>> +	list_for_each_entry_safe(dep, tmp, &acpi_bus_dep_device_list, node=
+) {
+>> +		if (!acpi_device_dep_check(dep->adev)) {
+>> +			dep->adev->dep_present =3D false;
+>> +			acpi_bus_attach(dep->adev);
+>> +			list_del(&dep->node);
+>> +			kfree(dep);
+>> +		}
+>> +	}
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
+>> +
+>>  /**
+>>   * acpi_bus_scan - Add ACPI device node objects in a given namespac=
+e scope.
+>>   * @handle: Root of the namespace scope to scan.
+>> diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
+>> index 0dbc18c..fdc8dc8 100644
+>> --- a/drivers/i2c/i2c-acpi.c
+>> +++ b/drivers/i2c/i2c-acpi.c
+>> @@ -339,6 +339,7 @@ int acpi_i2c_install_space_handler(struct i2c_ad=
+apter *adapter)
+>>  		return -ENOMEM;
+>>  	}
+>> =20
+>> +	acpi_walk_dep_device_list();
+>>  	return 0;
+>>  }
+>> =20
+>> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+>> index c1c9de1..c1e7055 100644
+>> --- a/include/acpi/acpi_bus.h
+>> +++ b/include/acpi/acpi_bus.h
+>> @@ -357,7 +357,9 @@ struct acpi_device {
+>>  	struct acpi_hotplug_context *hp;
+>>  	struct acpi_driver *driver;
+>>  	void *driver_data;
+>> +	bool dep_present;
+>>  	struct device dev;
+>> +	struct acpi_handle_list dep_devices;
+>>  	unsigned int physical_node_count;
+>>  	struct list_head physical_node_list;
+>>  	struct mutex physical_node_lock;
+>> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+>> index 807cbc4..c9a504b 100644
+>> --- a/include/linux/acpi.h
+>> +++ b/include/linux/acpi.h
+>> @@ -431,6 +431,7 @@ static inline bool acpi_driver_match_device(stru=
+ct device *dev,
+>> =20
+>>  int acpi_device_uevent_modalias(struct device *, struct kobj_uevent=
+_env *);
+>>  int acpi_device_modalias(struct device *, char *, int);
+>> +int acpi_walk_dep_device_list(void);
+>> =20
+>>  #define ACPI_PTR(_ptr)	(_ptr)
+>> =20
+>> @@ -449,6 +450,8 @@ static inline const char *acpi_dev_name(struct a=
+cpi_device *adev)
+>> =20
+>>  static inline void acpi_early_init(void) { }
+>> =20
+>> +static inline int acpi_walk_dep_device_list(void) { }
+>> +
+>>  static inline int early_acpi_boot_init(void)
+>>  {
+>>  	return 0;
+>>
+>=20
+
+
+--=20
+Best regards
+Tianyu Lan
