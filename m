@@ -1,326 +1,893 @@
-From: Muthu Mani <muth@cypress.com>
-Subject: [PATCH v2 1/3] mfd: add support for Cypress CYUSBS234 USB Serial Bridge controller
-Date: Thu, 25 Sep 2014 11:20:12 +0530
-Message-ID: <1411624212-5515-1-git-send-email-muth@cypress.com>
+From: Lan Tianyu <tianyu.lan@intel.com>
+Subject: Re: [PATCH v2] i2c: move acpi code back into the core
+Date: Thu, 25 Sep 2014 15:26:07 +0800
+Message-ID: <5423C38F.1050900@intel.com>
+References: <1411594591-5048-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Muthu Mani <muth@cypress.com>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1411594591-5048-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Adds support for USB-I2C/GPIO interfaces of Cypress Semiconductor
-CYUSBS234 USB-Serial Bridge controller.
+On 2014=E5=B9=B409=E6=9C=8825=E6=97=A5 05:36, Wolfram Sang wrote:
+> Commit 5d98e61d337c ("I2C/ACPI: Add i2c ACPI operation region support=
+")
+> renamed the i2c-core module. This may cause regressions for
+> distributions, so put the ACPI code back into the core.
+>=20
+> Reported-by: Jean Delvare <jdelvare@suse.de>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Cc: Lan Tianyu <tianyu.lan@intel.com>
+> Cc: Jean Delvare <jdelvare@suse.de>
+> ---
+>=20
+> v2: - make all acpi functions static
+>     - annotate #endif
+>     - remove declarations in i2c.h
+>     - add dummy functions to i2c-core.c
+>     - make two seperate #ifdef blocks instead of two nested ones
+>       (otherwise build errors due to no external decl. anymore)
+>=20
+> Mika, Lan, Jean: please test/review. I am still waiting for some test=
+bot
+> results, yet your audit is very wanted.
 
-Details about the device can be found at:
-http://www.cypress.com/?rID=84126
+Hi Wolfram:
+I have tested battery function and it worked normally with this patch.
 
-Signed-off-by: Muthu Mani <muth@cypress.com>
-Signed-off-by: Rajaram Regupathy <rera@cypress.com>
----
- drivers/mfd/Kconfig           |  12 +++
- drivers/mfd/Makefile          |   1 +
- drivers/mfd/cyusbs23x.c       | 190 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/cyusbs23x.h |  57 +++++++++++++
- 4 files changed, 260 insertions(+)
- create mode 100644 drivers/mfd/cyusbs23x.c
- create mode 100644 include/linux/mfd/cyusbs23x.h
+Tested-by: Lan Tianyu <tianyu.lan@intel.com>
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index de5abf2..a31e9e3 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -116,6 +116,18 @@ config MFD_ASIC3
- 	  This driver supports the ASIC3 multifunction chip found on many
- 	  PDAs (mainly iPAQ and HTC based ones)
- 
-+config MFD_CYUSBS23X
-+        tristate "Cypress CYUSBS23x USB Serial Bridge controller"
-+	select MFD_CORE
-+	depends on USB
-+	default n
-+	help
-+	  Say yes here if you want support for Cypress Semiconductor
-+	  CYUSBS23x USB-Serial Bridge controller.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called cyusbs23x.
-+
- config PMIC_DA903X
- 	bool "Dialog Semiconductor DA9030/DA9034 PMIC Support"
- 	depends on I2C=y
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index f001487..fc5bcd1 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -151,6 +151,7 @@ si476x-core-y := si476x-cmd.o si476x-prop.o si476x-i2c.o
- obj-$(CONFIG_MFD_SI476X_CORE)	+= si476x-core.o
- 
- obj-$(CONFIG_MFD_CS5535)	+= cs5535-mfd.o
-+obj-$(CONFIG_MFD_CYUSBS23X)     += cyusbs23x.o
- obj-$(CONFIG_MFD_OMAP_USB_HOST)	+= omap-usb-host.o omap-usb-tll.o
- obj-$(CONFIG_MFD_PM8921_CORE) 	+= pm8921-core.o ssbi.o
- obj-$(CONFIG_TPS65911_COMPARATOR)	+= tps65911-comparator.o
-diff --git a/drivers/mfd/cyusbs23x.c b/drivers/mfd/cyusbs23x.c
-new file mode 100644
-index 0000000..cf2d53b
---- /dev/null
-+++ b/drivers/mfd/cyusbs23x.c
-@@ -0,0 +1,190 @@
-+/*
-+ * Cypress USB-Serial Bridge Controller USB adapter driver
-+ *
-+ * Copyright (c) 2014 Cypress Semiconductor Corporation.
-+ *
-+ * Author:
-+ *   Muthu Mani <muth@cypress.com>
-+ *
-+ * Additional contributors include:
-+ *   Rajaram Regupathy <rera@cypress.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+/*
-+ * This is core MFD driver for Cypress Semiconductor CYUSBS234 USB-Serial
-+ * Bridge controller. CYUSBS234 offers a single channel serial interface
-+ * (I2C/SPI/UART). It can be configured to enable either of I2C, SPI, UART
-+ * interfaces. The GPIOs are also available to access.
-+ * Details about the device can be found at:
-+ *    http://www.cypress.com/?rID=84126
-+ *
-+ * Separate cell drivers are available for I2C and GPIO. SPI and UART are not
-+ * supported yet. All GPIOs are exposed for get operation. However, only
-+ * unused GPIOs can be set.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
-+#include <linux/mutex.h>
-+
-+#include <linux/mfd/core.h>
-+#include <linux/mfd/cyusbs23x.h>
-+
-+#include <linux/usb.h>
-+
-+static const struct usb_device_id cyusbs23x_usb_table[] = {
-+	{ USB_DEVICE(0x04b4, 0x0004) },   /* Cypress Semiconductor */
-+	{ }                               /* Terminating entry */
-+};
-+
-+MODULE_DEVICE_TABLE(usb, cyusbs23x_usb_table);
-+
-+static const struct mfd_cell cyusbs23x_i2c_devs[] = {
-+	{
-+		.name = "cyusbs23x-i2c",
-+	},
-+	{
-+		.name = "cyusbs23x-gpio",
-+	},
-+};
-+
-+static int update_ep_details(struct usb_interface *interface,
-+				struct cyusbs23x *cyusbs)
-+{
-+	struct usb_host_interface *iface_desc;
-+	struct usb_endpoint_descriptor *ep;
-+	int i;
-+
-+	dev_dbg(&interface->dev, "%s\n", __func__);
-+
-+	iface_desc = interface->cur_altsetting;
-+
-+	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
-+
-+		dev_dbg(&interface->dev, "%s %d/%d\n",
-+			__func__, i, iface_desc->desc.bNumEndpoints);
-+
-+		ep = &iface_desc->endpoint[i].desc;
-+
-+		if (!cyusbs->bulk_in_ep_num &&
-+			usb_endpoint_is_bulk_in(ep)) {
-+			cyusbs->bulk_in_ep_num = ep->bEndpointAddress;
-+		}
-+		if (!cyusbs->bulk_out_ep_num &&
-+			usb_endpoint_is_bulk_out(ep)) {
-+			cyusbs->bulk_out_ep_num = ep->bEndpointAddress;
-+		}
-+		if (!cyusbs->intr_in_ep_num &&
-+			usb_endpoint_is_int_in(ep)) {
-+			cyusbs->intr_in_ep_num = ep->bEndpointAddress;
-+		}
-+	}
-+
-+	dev_dbg(&interface->dev, "%s %d, %d, %d\n",
-+		__func__, cyusbs->intr_in_ep_num ,
-+		cyusbs->bulk_in_ep_num, cyusbs->bulk_out_ep_num);
-+
-+	if (!cyusbs->bulk_in_ep_num || !cyusbs->bulk_out_ep_num ||
-+		!cyusbs->intr_in_ep_num)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
-+static int cyusbs23x_probe(struct usb_interface *interface,
-+			   const struct usb_device_id *id)
-+{
-+	struct cyusbs23x *cyusbs;
-+	const struct mfd_cell *cyusbs23x_devs;
-+	int ret, mfd_id, ndevs = 0;
-+	u8 sub_class;
-+
-+	cyusbs = kzalloc(sizeof(*cyusbs), GFP_KERNEL);
-+	if (cyusbs == NULL)
-+		return -ENOMEM;
-+
-+	mutex_init(&cyusbs->lock);
-+
-+	cyusbs->usb_dev = usb_get_dev(interface_to_usbdev(interface));
-+	cyusbs->usb_intf = interface;
-+	cyusbs->intf_num = interface->cur_altsetting->desc.bInterfaceNumber;
-+
-+	ret = update_ep_details(interface, cyusbs);
-+	if (ret < 0) {
-+		dev_err(&interface->dev, "invalid interface\n");
-+		goto error;
-+	}
-+
-+	usb_set_intfdata(interface, cyusbs);
-+
-+	dev_dbg(&interface->dev,
-+		"binding to %02x:%02x, in bus %03d address %03d\n",
-+		le16_to_cpu(cyusbs->usb_dev->descriptor.idVendor),
-+		le16_to_cpu(cyusbs->usb_dev->descriptor.idProduct),
-+		cyusbs->usb_dev->bus->busnum,
-+		cyusbs->usb_dev->devnum);
-+
-+	sub_class = interface->cur_altsetting->desc.bInterfaceSubClass;
-+	switch (sub_class) {
-+	case CY_USBS_SCB_I2C:
-+		dev_dbg(&interface->dev, "I2C interface found\n");
-+		cyusbs23x_devs = cyusbs23x_i2c_devs;
-+		ndevs = ARRAY_SIZE(cyusbs23x_i2c_devs);
-+		break;
-+	default:
-+		dev_err(&interface->dev, "unsupported subclass\n");
-+		ret = -ENODEV;
-+		goto error;
-+	}
-+
-+	mfd_id = cyusbs->usb_dev->bus->busnum << 16 |
-+			cyusbs->usb_dev->devnum << 8 | cyusbs->intf_num;
-+	ret = mfd_add_devices(&interface->dev, mfd_id, cyusbs23x_devs,
-+				ndevs, NULL, 0, NULL);
-+	if (ret != 0) {
-+		dev_err(&interface->dev, "Failed to add mfd devices to core\n");
-+		goto error;
-+	}
-+
-+	return 0;
-+
-+error:
-+	usb_set_intfdata(interface, NULL);
-+	usb_put_dev(cyusbs->usb_dev);
-+	kfree(cyusbs);
-+
-+	return ret;
-+}
-+
-+static void cyusbs23x_disconnect(struct usb_interface *interface)
-+{
-+	struct cyusbs23x *cyusbs = usb_get_intfdata(interface);
-+
-+	mfd_remove_devices(&interface->dev);
-+	usb_set_intfdata(interface, NULL);
-+	usb_put_dev(cyusbs->usb_dev);
-+	kfree(cyusbs);
-+
-+	dev_dbg(&interface->dev, "disconnected\n");
-+}
-+
-+static struct usb_driver cyusbs23x_usb_driver = {
-+	.name           = "cyusbs23x",
-+	.probe          = cyusbs23x_probe,
-+	.disconnect     = cyusbs23x_disconnect,
-+	.id_table       = cyusbs23x_usb_table,
-+};
-+
-+module_usb_driver(cyusbs23x_usb_driver);
-+
-+MODULE_AUTHOR("Rajaram Regupathy <rera@cypress.com>");
-+MODULE_AUTHOR("Muthu Mani <muth@cypress.com>");
-+MODULE_DESCRIPTION("CYUSBS23x driver v0.1");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/mfd/cyusbs23x.h b/include/linux/mfd/cyusbs23x.h
-new file mode 100644
-index 0000000..0b71825
---- /dev/null
-+++ b/include/linux/mfd/cyusbs23x.h
-@@ -0,0 +1,57 @@
-+/*
-+ * Cypress USB-Serial Bridge Controller definitions
-+ *
-+ * Copyright (c) 2014 Cypress Semiconductor Corporation.
-+ *
-+ * Author:
-+ *   Muthu Mani <muth@cypress.com>
-+ *
-+ * Additional contributors include:
-+ *   Rajaram Regupathy <rera@cypress.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#ifndef __MFD_CYUSBS23X_H__
-+#define __MFD_CYUSBS23X_H__
-+
-+#include <linux/types.h>
-+#include <linux/usb.h>
-+
-+/* Structure to hold all device specific stuff */
-+struct cyusbs23x {
-+	struct usb_device *usb_dev;
-+	struct usb_interface *usb_intf;
-+	struct mutex lock;
-+
-+	u8 intf_num;
-+	u8 bulk_in_ep_num;
-+	u8 bulk_out_ep_num;
-+	u8 intr_in_ep_num;
-+};
-+
-+enum cy_vendor_cmds {
-+	CY_I2C_GET_CONFIG_CMD  = 0xC4,
-+	CY_I2C_SET_CONFIG_CMD  = 0xC5,
-+	CY_I2C_WRITE_CMD       = 0xC6,
-+	CY_I2C_READ_CMD        = 0xC7,
-+	CY_I2C_GET_STATUS_CMD  = 0xC8,
-+	CY_I2C_RESET_CMD       = 0xC9,
-+	CY_GPIO_GET_CONFIG_CMD = 0xD8,
-+	CY_GPIO_SET_CONFIG_CMD = 0xD9,
-+	CY_GPIO_GET_VALUE_CMD  = 0xDA,
-+	CY_GPIO_SET_VALUE_CMD  = 0xDB,
-+};
-+
-+enum cy_scb_modes {
-+	CY_USBS_SCB_DISABLED = 0,
-+	CY_USBS_SCB_UART = 1,
-+	CY_USBS_SCB_SPI = 2,
-+	CY_USBS_SCB_I2C = 3
-+};
-+
-+#define CY_SCB_INDEX_POS      15
-+
-+#endif /* __MFD_CYUSBS23X_H__ */
--- 
-1.8.3.2
+>=20
+>=20
+>  MAINTAINERS            |   1 -
+>  drivers/i2c/Makefile   |   5 +-
+>  drivers/i2c/i2c-acpi.c | 364 ---------------------------------------=
+----------
+>  drivers/i2c/i2c-core.c | 354 +++++++++++++++++++++++++++++++++++++++=
+++++++++
+>  include/linux/i2c.h    |  16 ---
+>  5 files changed, 355 insertions(+), 385 deletions(-)
+>  delete mode 100644 drivers/i2c/i2c-acpi.c
+>=20
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 809ecd680d88..e3682d0dea1e 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -4477,7 +4477,6 @@ M:	Mika Westerberg <mika.westerberg@linux.intel=
+=2Ecom>
+>  L:	linux-i2c@vger.kernel.org
+>  L:	linux-acpi@vger.kernel.org
+>  S:	Maintained
+> -F:	drivers/i2c/i2c-acpi.c
+> =20
+>  I2C-TAOS-EVM DRIVER
+>  M:	Jean Delvare <jdelvare@suse.de>
+> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> index e0228b228256..1722f50f2473 100644
+> --- a/drivers/i2c/Makefile
+> +++ b/drivers/i2c/Makefile
+> @@ -2,11 +2,8 @@
+>  # Makefile for the i2c core.
+>  #
+> =20
+> -i2ccore-y :=3D i2c-core.o
+> -i2ccore-$(CONFIG_ACPI)	 	+=3D i2c-acpi.o
+> -
+>  obj-$(CONFIG_I2C_BOARDINFO)	+=3D i2c-boardinfo.o
+> -obj-$(CONFIG_I2C)		+=3D i2ccore.o
+> +obj-$(CONFIG_I2C)		+=3D i2c-core.o
+>  obj-$(CONFIG_I2C_SMBUS)		+=3D i2c-smbus.o
+>  obj-$(CONFIG_I2C_CHARDEV)	+=3D i2c-dev.o
+>  obj-$(CONFIG_I2C_MUX)		+=3D i2c-mux.o
+> diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
+> deleted file mode 100644
+> index 0dbc18c15c43..000000000000
+> --- a/drivers/i2c/i2c-acpi.c
+> +++ /dev/null
+> @@ -1,364 +0,0 @@
+> -/*
+> - * I2C ACPI code
+> - *
+> - * Copyright (C) 2014 Intel Corp
+> - *
+> - * Author: Lan Tianyu <tianyu.lan@intel.com>
+> - *
+> - * This program is free software; you can redistribute it and/or mod=
+ify
+> - * it under the terms of the GNU General Public License version 2 as
+> - * published by the Free Software Foundation.
+> - *
+> - * This program is distributed in the hope that it will be useful, b=
+ut
+> - * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHA=
+NTABILITY
+> - * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public =
+License
+> - * for more details.
+> - */
+> -#define pr_fmt(fmt) "I2C/ACPI : " fmt
+> -
+> -#include <linux/kernel.h>
+> -#include <linux/errno.h>
+> -#include <linux/err.h>
+> -#include <linux/i2c.h>
+> -#include <linux/acpi.h>
+> -
+> -struct acpi_i2c_handler_data {
+> -	struct acpi_connection_info info;
+> -	struct i2c_adapter *adapter;
+> -};
+> -
+> -struct gsb_buffer {
+> -	u8	status;
+> -	u8	len;
+> -	union {
+> -		u16	wdata;
+> -		u8	bdata;
+> -		u8	data[0];
+> -	};
+> -} __packed;
+> -
+> -static int acpi_i2c_add_resource(struct acpi_resource *ares, void *d=
+ata)
+> -{
+> -	struct i2c_board_info *info =3D data;
+> -
+> -	if (ares->type =3D=3D ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+> -		struct acpi_resource_i2c_serialbus *sb;
+> -
+> -		sb =3D &ares->data.i2c_serial_bus;
+> -		if (sb->type =3D=3D ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> -			info->addr =3D sb->slave_address;
+> -			if (sb->access_mode =3D=3D ACPI_I2C_10BIT_MODE)
+> -				info->flags |=3D I2C_CLIENT_TEN;
+> -		}
+> -	} else if (info->irq < 0) {
+> -		struct resource r;
+> -
+> -		if (acpi_dev_resource_interrupt(ares, 0, &r))
+> -			info->irq =3D r.start;
+> -	}
+> -
+> -	/* Tell the ACPI core to skip this resource */
+> -	return 1;
+> -}
+> -
+> -static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level=
+,
+> -				       void *data, void **return_value)
+> -{
+> -	struct i2c_adapter *adapter =3D data;
+> -	struct list_head resource_list;
+> -	struct i2c_board_info info;
+> -	struct acpi_device *adev;
+> -	int ret;
+> -
+> -	if (acpi_bus_get_device(handle, &adev))
+> -		return AE_OK;
+> -	if (acpi_bus_get_status(adev) || !adev->status.present)
+> -		return AE_OK;
+> -
+> -	memset(&info, 0, sizeof(info));
+> -	info.acpi_node.companion =3D adev;
+> -	info.irq =3D -1;
+> -
+> -	INIT_LIST_HEAD(&resource_list);
+> -	ret =3D acpi_dev_get_resources(adev, &resource_list,
+> -				     acpi_i2c_add_resource, &info);
+> -	acpi_dev_free_resource_list(&resource_list);
+> -
+> -	if (ret < 0 || !info.addr)
+> -		return AE_OK;
+> -
+> -	adev->power.flags.ignore_parent =3D true;
+> -	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
+> -	if (!i2c_new_device(adapter, &info)) {
+> -		adev->power.flags.ignore_parent =3D false;
+> -		dev_err(&adapter->dev,
+> -			"failed to add I2C device %s from ACPI\n",
+> -			dev_name(&adev->dev));
+> -	}
+> -
+> -	return AE_OK;
+> -}
+> -
+> -/**
+> - * acpi_i2c_register_devices - enumerate I2C slave devices behind ad=
+apter
+> - * @adap: pointer to adapter
+> - *
+> - * Enumerate all I2C slave devices behind this adapter by walking th=
+e ACPI
+> - * namespace. When a device is found it will be added to the Linux d=
+evice
+> - * model and bound to the corresponding ACPI handle.
+> - */
+> -void acpi_i2c_register_devices(struct i2c_adapter *adap)
+> -{
+> -	acpi_handle handle;
+> -	acpi_status status;
+> -
+> -	if (!adap->dev.parent)
+> -		return;
+> -
+> -	handle =3D ACPI_HANDLE(adap->dev.parent);
+> -	if (!handle)
+> -		return;
+> -
+> -	status =3D acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+> -				     acpi_i2c_add_device, NULL,
+> -				     adap, NULL);
+> -	if (ACPI_FAILURE(status))
+> -		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
+> -}
+> -
+> -#ifdef CONFIG_ACPI_I2C_OPREGION
+> -static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
+> -		u8 cmd, u8 *data, u8 data_len)
+> -{
+> -
+> -	struct i2c_msg msgs[2];
+> -	int ret;
+> -	u8 *buffer;
+> -
+> -	buffer =3D kzalloc(data_len, GFP_KERNEL);
+> -	if (!buffer)
+> -		return AE_NO_MEMORY;
+> -
+> -	msgs[0].addr =3D client->addr;
+> -	msgs[0].flags =3D client->flags;
+> -	msgs[0].len =3D 1;
+> -	msgs[0].buf =3D &cmd;
+> -
+> -	msgs[1].addr =3D client->addr;
+> -	msgs[1].flags =3D client->flags | I2C_M_RD;
+> -	msgs[1].len =3D data_len;
+> -	msgs[1].buf =3D buffer;
+> -
+> -	ret =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+> -	if (ret < 0)
+> -		dev_err(&client->adapter->dev, "i2c read failed\n");
+> -	else
+> -		memcpy(data, buffer, data_len);
+> -
+> -	kfree(buffer);
+> -	return ret;
+> -}
+> -
+> -static int acpi_gsb_i2c_write_bytes(struct i2c_client *client,
+> -		u8 cmd, u8 *data, u8 data_len)
+> -{
+> -
+> -	struct i2c_msg msgs[1];
+> -	u8 *buffer;
+> -	int ret =3D AE_OK;
+> -
+> -	buffer =3D kzalloc(data_len + 1, GFP_KERNEL);
+> -	if (!buffer)
+> -		return AE_NO_MEMORY;
+> -
+> -	buffer[0] =3D cmd;
+> -	memcpy(buffer + 1, data, data_len);
+> -
+> -	msgs[0].addr =3D client->addr;
+> -	msgs[0].flags =3D client->flags;
+> -	msgs[0].len =3D data_len + 1;
+> -	msgs[0].buf =3D buffer;
+> -
+> -	ret =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+> -	if (ret < 0)
+> -		dev_err(&client->adapter->dev, "i2c write failed\n");
+> -
+> -	kfree(buffer);
+> -	return ret;
+> -}
+> -
+> -static acpi_status
+> -acpi_i2c_space_handler(u32 function, acpi_physical_address command,
+> -			u32 bits, u64 *value64,
+> -			void *handler_context, void *region_context)
+> -{
+> -	struct gsb_buffer *gsb =3D (struct gsb_buffer *)value64;
+> -	struct acpi_i2c_handler_data *data =3D handler_context;
+> -	struct acpi_connection_info *info =3D &data->info;
+> -	struct acpi_resource_i2c_serialbus *sb;
+> -	struct i2c_adapter *adapter =3D data->adapter;
+> -	struct i2c_client client;
+> -	struct acpi_resource *ares;
+> -	u32 accessor_type =3D function >> 16;
+> -	u8 action =3D function & ACPI_IO_MASK;
+> -	acpi_status ret =3D AE_OK;
+> -	int status;
+> -
+> -	ret =3D acpi_buffer_to_resource(info->connection, info->length, &ar=
+es);
+> -	if (ACPI_FAILURE(ret))
+> -		return ret;
+> -
+> -	if (!value64 || ares->type !=3D ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+> -		ret =3D AE_BAD_PARAMETER;
+> -		goto err;
+> -	}
+> -
+> -	sb =3D &ares->data.i2c_serial_bus;
+> -	if (sb->type !=3D ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> -		ret =3D AE_BAD_PARAMETER;
+> -		goto err;
+> -	}
+> -
+> -	memset(&client, 0, sizeof(client));
+> -	client.adapter =3D adapter;
+> -	client.addr =3D sb->slave_address;
+> -	client.flags =3D 0;
+> -
+> -	if (sb->access_mode =3D=3D ACPI_I2C_10BIT_MODE)
+> -		client.flags |=3D I2C_CLIENT_TEN;
+> -
+> -	switch (accessor_type) {
+> -	case ACPI_GSB_ACCESS_ATTRIB_SEND_RCV:
+> -		if (action =3D=3D ACPI_READ) {
+> -			status =3D i2c_smbus_read_byte(&client);
+> -			if (status >=3D 0) {
+> -				gsb->bdata =3D status;
+> -				status =3D 0;
+> -			}
+> -		} else {
+> -			status =3D i2c_smbus_write_byte(&client, gsb->bdata);
+> -		}
+> -		break;
+> -
+> -	case ACPI_GSB_ACCESS_ATTRIB_BYTE:
+> -		if (action =3D=3D ACPI_READ) {
+> -			status =3D i2c_smbus_read_byte_data(&client, command);
+> -			if (status >=3D 0) {
+> -				gsb->bdata =3D status;
+> -				status =3D 0;
+> -			}
+> -		} else {
+> -			status =3D i2c_smbus_write_byte_data(&client, command,
+> -					gsb->bdata);
+> -		}
+> -		break;
+> -
+> -	case ACPI_GSB_ACCESS_ATTRIB_WORD:
+> -		if (action =3D=3D ACPI_READ) {
+> -			status =3D i2c_smbus_read_word_data(&client, command);
+> -			if (status >=3D 0) {
+> -				gsb->wdata =3D status;
+> -				status =3D 0;
+> -			}
+> -		} else {
+> -			status =3D i2c_smbus_write_word_data(&client, command,
+> -					gsb->wdata);
+> -		}
+> -		break;
+> -
+> -	case ACPI_GSB_ACCESS_ATTRIB_BLOCK:
+> -		if (action =3D=3D ACPI_READ) {
+> -			status =3D i2c_smbus_read_block_data(&client, command,
+> -					gsb->data);
+> -			if (status >=3D 0) {
+> -				gsb->len =3D status;
+> -				status =3D 0;
+> -			}
+> -		} else {
+> -			status =3D i2c_smbus_write_block_data(&client, command,
+> -					gsb->len, gsb->data);
+> -		}
+> -		break;
+> -
+> -	case ACPI_GSB_ACCESS_ATTRIB_MULTIBYTE:
+> -		if (action =3D=3D ACPI_READ) {
+> -			status =3D acpi_gsb_i2c_read_bytes(&client, command,
+> -					gsb->data, info->access_length);
+> -			if (status > 0)
+> -				status =3D 0;
+> -		} else {
+> -			status =3D acpi_gsb_i2c_write_bytes(&client, command,
+> -					gsb->data, info->access_length);
+> -		}
+> -		break;
+> -
+> -	default:
+> -		pr_info("protocol(0x%02x) is not supported.\n", accessor_type);
+> -		ret =3D AE_BAD_PARAMETER;
+> -		goto err;
+> -	}
+> -
+> -	gsb->status =3D status;
+> -
+> - err:
+> -	ACPI_FREE(ares);
+> -	return ret;
+> -}
+> -
+> -
+> -int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
+> -{
+> -	acpi_handle handle =3D ACPI_HANDLE(adapter->dev.parent);
+> -	struct acpi_i2c_handler_data *data;
+> -	acpi_status status;
+> -
+> -	if (!handle)
+> -		return -ENODEV;
+> -
+> -	data =3D kzalloc(sizeof(struct acpi_i2c_handler_data),
+> -			    GFP_KERNEL);
+> -	if (!data)
+> -		return -ENOMEM;
+> -
+> -	data->adapter =3D adapter;
+> -	status =3D acpi_bus_attach_private_data(handle, (void *)data);
+> -	if (ACPI_FAILURE(status)) {
+> -		kfree(data);
+> -		return -ENOMEM;
+> -	}
+> -
+> -	status =3D acpi_install_address_space_handler(handle,
+> -				ACPI_ADR_SPACE_GSBUS,
+> -				&acpi_i2c_space_handler,
+> -				NULL,
+> -				data);
+> -	if (ACPI_FAILURE(status)) {
+> -		dev_err(&adapter->dev, "Error installing i2c space handler\n");
+> -		acpi_bus_detach_private_data(handle);
+> -		kfree(data);
+> -		return -ENOMEM;
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+> -void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter)
+> -{
+> -	acpi_handle handle =3D ACPI_HANDLE(adapter->dev.parent);
+> -	struct acpi_i2c_handler_data *data;
+> -	acpi_status status;
+> -
+> -	if (!handle)
+> -		return;
+> -
+> -	acpi_remove_address_space_handler(handle,
+> -				ACPI_ADR_SPACE_GSBUS,
+> -				&acpi_i2c_space_handler);
+> -
+> -	status =3D acpi_bus_get_private_data(handle, (void **)&data);
+> -	if (ACPI_SUCCESS(status))
+> -		kfree(data);
+> -
+> -	acpi_bus_detach_private_data(handle);
+> -}
+> -#endif
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 632057a44615..b696ac7e6d86 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -27,6 +27,8 @@
+>     OF support is copyright (c) 2008 Jochen Friedrich <jochen@scram.d=
+e>
+>     (based on a previous patch from Jon Smirl <jonsmirl@gmail.com>) a=
+nd
+>     (c) 2013  Wolfram Sang <wsa@the-dreams.de>
+> +   I2C ACPI code Copyright (C) 2014 Intel Corp
+> +   Author: Lan Tianyu <tianyu.lan@intel.com>
+>   */
+> =20
+>  #include <linux/module.h>
+> @@ -78,6 +80,358 @@ void i2c_transfer_trace_unreg(void)
+>  	static_key_slow_dec(&i2c_trace_msg);
+>  }
+> =20
+> +#if defined(CONFIG_ACPI)
+> +struct acpi_i2c_handler_data {
+> +	struct acpi_connection_info info;
+> +	struct i2c_adapter *adapter;
+> +};
+> +
+> +struct gsb_buffer {
+> +	u8	status;
+> +	u8	len;
+> +	union {
+> +		u16	wdata;
+> +		u8	bdata;
+> +		u8	data[0];
+> +	};
+> +} __packed;
+> +
+> +static int acpi_i2c_add_resource(struct acpi_resource *ares, void *d=
+ata)
+> +{
+> +	struct i2c_board_info *info =3D data;
+> +
+> +	if (ares->type =3D=3D ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+> +		struct acpi_resource_i2c_serialbus *sb;
+> +
+> +		sb =3D &ares->data.i2c_serial_bus;
+> +		if (sb->type =3D=3D ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> +			info->addr =3D sb->slave_address;
+> +			if (sb->access_mode =3D=3D ACPI_I2C_10BIT_MODE)
+> +				info->flags |=3D I2C_CLIENT_TEN;
+> +		}
+> +	} else if (info->irq < 0) {
+> +		struct resource r;
+> +
+> +		if (acpi_dev_resource_interrupt(ares, 0, &r))
+> +			info->irq =3D r.start;
+> +	}
+> +
+> +	/* Tell the ACPI core to skip this resource */
+> +	return 1;
+> +}
+> +
+> +static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level=
+,
+> +				       void *data, void **return_value)
+> +{
+> +	struct i2c_adapter *adapter =3D data;
+> +	struct list_head resource_list;
+> +	struct i2c_board_info info;
+> +	struct acpi_device *adev;
+> +	int ret;
+> +
+> +	if (acpi_bus_get_device(handle, &adev))
+> +		return AE_OK;
+> +	if (acpi_bus_get_status(adev) || !adev->status.present)
+> +		return AE_OK;
+> +
+> +	memset(&info, 0, sizeof(info));
+> +	info.acpi_node.companion =3D adev;
+> +	info.irq =3D -1;
+> +
+> +	INIT_LIST_HEAD(&resource_list);
+> +	ret =3D acpi_dev_get_resources(adev, &resource_list,
+> +				     acpi_i2c_add_resource, &info);
+> +	acpi_dev_free_resource_list(&resource_list);
+> +
+> +	if (ret < 0 || !info.addr)
+> +		return AE_OK;
+> +
+> +	adev->power.flags.ignore_parent =3D true;
+> +	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
+> +	if (!i2c_new_device(adapter, &info)) {
+> +		adev->power.flags.ignore_parent =3D false;
+> +		dev_err(&adapter->dev,
+> +			"failed to add I2C device %s from ACPI\n",
+> +			dev_name(&adev->dev));
+> +	}
+> +
+> +	return AE_OK;
+> +}
+> +
+> +/**
+> + * acpi_i2c_register_devices - enumerate I2C slave devices behind ad=
+apter
+> + * @adap: pointer to adapter
+> + *
+> + * Enumerate all I2C slave devices behind this adapter by walking th=
+e ACPI
+> + * namespace. When a device is found it will be added to the Linux d=
+evice
+> + * model and bound to the corresponding ACPI handle.
+> + */
+> +static void acpi_i2c_register_devices(struct i2c_adapter *adap)
+> +{
+> +	acpi_handle handle;
+> +	acpi_status status;
+> +
+> +	if (!adap->dev.parent)
+> +		return;
+> +
+> +	handle =3D ACPI_HANDLE(adap->dev.parent);
+> +	if (!handle)
+> +		return;
+> +
+> +	status =3D acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+> +				     acpi_i2c_add_device, NULL,
+> +				     adap, NULL);
+> +	if (ACPI_FAILURE(status))
+> +		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
+> +}
+> +
+> +#else /* CONFIG_ACPI */
+> +static inline void acpi_i2c_register_devices(struct i2c_adapter *ada=
+p) { }
+> +#endif /* CONFIG_ACPI */
+> +
+> +#ifdef CONFIG_ACPI_I2C_OPREGION
+> +static int acpi_gsb_i2c_read_bytes(struct i2c_client *client,
+> +		u8 cmd, u8 *data, u8 data_len)
+> +{
+> +
+> +	struct i2c_msg msgs[2];
+> +	int ret;
+> +	u8 *buffer;
+> +
+> +	buffer =3D kzalloc(data_len, GFP_KERNEL);
+> +	if (!buffer)
+> +		return AE_NO_MEMORY;
+> +
+> +	msgs[0].addr =3D client->addr;
+> +	msgs[0].flags =3D client->flags;
+> +	msgs[0].len =3D 1;
+> +	msgs[0].buf =3D &cmd;
+> +
+> +	msgs[1].addr =3D client->addr;
+> +	msgs[1].flags =3D client->flags | I2C_M_RD;
+> +	msgs[1].len =3D data_len;
+> +	msgs[1].buf =3D buffer;
+> +
+> +	ret =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+> +	if (ret < 0)
+> +		dev_err(&client->adapter->dev, "i2c read failed\n");
+> +	else
+> +		memcpy(data, buffer, data_len);
+> +
+> +	kfree(buffer);
+> +	return ret;
+> +}
+> +
+> +static int acpi_gsb_i2c_write_bytes(struct i2c_client *client,
+> +		u8 cmd, u8 *data, u8 data_len)
+> +{
+> +
+> +	struct i2c_msg msgs[1];
+> +	u8 *buffer;
+> +	int ret =3D AE_OK;
+> +
+> +	buffer =3D kzalloc(data_len + 1, GFP_KERNEL);
+> +	if (!buffer)
+> +		return AE_NO_MEMORY;
+> +
+> +	buffer[0] =3D cmd;
+> +	memcpy(buffer + 1, data, data_len);
+> +
+> +	msgs[0].addr =3D client->addr;
+> +	msgs[0].flags =3D client->flags;
+> +	msgs[0].len =3D data_len + 1;
+> +	msgs[0].buf =3D buffer;
+> +
+> +	ret =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+> +	if (ret < 0)
+> +		dev_err(&client->adapter->dev, "i2c write failed\n");
+> +
+> +	kfree(buffer);
+> +	return ret;
+> +}
+> +
+> +static acpi_status
+> +acpi_i2c_space_handler(u32 function, acpi_physical_address command,
+> +			u32 bits, u64 *value64,
+> +			void *handler_context, void *region_context)
+> +{
+> +	struct gsb_buffer *gsb =3D (struct gsb_buffer *)value64;
+> +	struct acpi_i2c_handler_data *data =3D handler_context;
+> +	struct acpi_connection_info *info =3D &data->info;
+> +	struct acpi_resource_i2c_serialbus *sb;
+> +	struct i2c_adapter *adapter =3D data->adapter;
+> +	struct i2c_client client;
+> +	struct acpi_resource *ares;
+> +	u32 accessor_type =3D function >> 16;
+> +	u8 action =3D function & ACPI_IO_MASK;
+> +	acpi_status ret =3D AE_OK;
+> +	int status;
+> +
+> +	ret =3D acpi_buffer_to_resource(info->connection, info->length, &ar=
+es);
+> +	if (ACPI_FAILURE(ret))
+> +		return ret;
+> +
+> +	if (!value64 || ares->type !=3D ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+> +		ret =3D AE_BAD_PARAMETER;
+> +		goto err;
+> +	}
+> +
+> +	sb =3D &ares->data.i2c_serial_bus;
+> +	if (sb->type !=3D ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> +		ret =3D AE_BAD_PARAMETER;
+> +		goto err;
+> +	}
+> +
+> +	memset(&client, 0, sizeof(client));
+> +	client.adapter =3D adapter;
+> +	client.addr =3D sb->slave_address;
+> +	client.flags =3D 0;
+> +
+> +	if (sb->access_mode =3D=3D ACPI_I2C_10BIT_MODE)
+> +		client.flags |=3D I2C_CLIENT_TEN;
+> +
+> +	switch (accessor_type) {
+> +	case ACPI_GSB_ACCESS_ATTRIB_SEND_RCV:
+> +		if (action =3D=3D ACPI_READ) {
+> +			status =3D i2c_smbus_read_byte(&client);
+> +			if (status >=3D 0) {
+> +				gsb->bdata =3D status;
+> +				status =3D 0;
+> +			}
+> +		} else {
+> +			status =3D i2c_smbus_write_byte(&client, gsb->bdata);
+> +		}
+> +		break;
+> +
+> +	case ACPI_GSB_ACCESS_ATTRIB_BYTE:
+> +		if (action =3D=3D ACPI_READ) {
+> +			status =3D i2c_smbus_read_byte_data(&client, command);
+> +			if (status >=3D 0) {
+> +				gsb->bdata =3D status;
+> +				status =3D 0;
+> +			}
+> +		} else {
+> +			status =3D i2c_smbus_write_byte_data(&client, command,
+> +					gsb->bdata);
+> +		}
+> +		break;
+> +
+> +	case ACPI_GSB_ACCESS_ATTRIB_WORD:
+> +		if (action =3D=3D ACPI_READ) {
+> +			status =3D i2c_smbus_read_word_data(&client, command);
+> +			if (status >=3D 0) {
+> +				gsb->wdata =3D status;
+> +				status =3D 0;
+> +			}
+> +		} else {
+> +			status =3D i2c_smbus_write_word_data(&client, command,
+> +					gsb->wdata);
+> +		}
+> +		break;
+> +
+> +	case ACPI_GSB_ACCESS_ATTRIB_BLOCK:
+> +		if (action =3D=3D ACPI_READ) {
+> +			status =3D i2c_smbus_read_block_data(&client, command,
+> +					gsb->data);
+> +			if (status >=3D 0) {
+> +				gsb->len =3D status;
+> +				status =3D 0;
+> +			}
+> +		} else {
+> +			status =3D i2c_smbus_write_block_data(&client, command,
+> +					gsb->len, gsb->data);
+> +		}
+> +		break;
+> +
+> +	case ACPI_GSB_ACCESS_ATTRIB_MULTIBYTE:
+> +		if (action =3D=3D ACPI_READ) {
+> +			status =3D acpi_gsb_i2c_read_bytes(&client, command,
+> +					gsb->data, info->access_length);
+> +			if (status > 0)
+> +				status =3D 0;
+> +		} else {
+> +			status =3D acpi_gsb_i2c_write_bytes(&client, command,
+> +					gsb->data, info->access_length);
+> +		}
+> +		break;
+> +
+> +	default:
+> +		pr_info("protocol(0x%02x) is not supported.\n", accessor_type);
+> +		ret =3D AE_BAD_PARAMETER;
+> +		goto err;
+> +	}
+> +
+> +	gsb->status =3D status;
+> +
+> + err:
+> +	ACPI_FREE(ares);
+> +	return ret;
+> +}
+> +
+> +
+> +static int acpi_i2c_install_space_handler(struct i2c_adapter *adapte=
+r)
+> +{
+> +	acpi_handle handle =3D ACPI_HANDLE(adapter->dev.parent);
+> +	struct acpi_i2c_handler_data *data;
+> +	acpi_status status;
+> +
+> +	if (!handle)
+> +		return -ENODEV;
+> +
+> +	data =3D kzalloc(sizeof(struct acpi_i2c_handler_data),
+> +			    GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	data->adapter =3D adapter;
+> +	status =3D acpi_bus_attach_private_data(handle, (void *)data);
+> +	if (ACPI_FAILURE(status)) {
+> +		kfree(data);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	status =3D acpi_install_address_space_handler(handle,
+> +				ACPI_ADR_SPACE_GSBUS,
+> +				&acpi_i2c_space_handler,
+> +				NULL,
+> +				data);
+> +	if (ACPI_FAILURE(status)) {
+> +		dev_err(&adapter->dev, "Error installing i2c space handler\n");
+> +		acpi_bus_detach_private_data(handle);
+> +		kfree(data);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void acpi_i2c_remove_space_handler(struct i2c_adapter *adapte=
+r)
+> +{
+> +	acpi_handle handle =3D ACPI_HANDLE(adapter->dev.parent);
+> +	struct acpi_i2c_handler_data *data;
+> +	acpi_status status;
+> +
+> +	if (!handle)
+> +		return;
+> +
+> +	acpi_remove_address_space_handler(handle,
+> +				ACPI_ADR_SPACE_GSBUS,
+> +				&acpi_i2c_space_handler);
+> +
+> +	status =3D acpi_bus_get_private_data(handle, (void **)&data);
+> +	if (ACPI_SUCCESS(status))
+> +		kfree(data);
+> +
+> +	acpi_bus_detach_private_data(handle);
+> +}
+> +#else /* CONFIG_ACPI_I2C_OPREGION */
+> +static inline void acpi_i2c_remove_space_handler(struct i2c_adapter =
+*adapter)
+> +{ }
+> +
+> +static inline int acpi_i2c_install_space_handler(struct i2c_adapter =
+*adapter)
+> +{ return 0; }
+> +#endif /* CONFIG_ACPI_I2C_OPREGION */
+> +
+>  /* -----------------------------------------------------------------=
+-------- */
+> =20
+>  static const struct i2c_device_id *i2c_match_id(const struct i2c_dev=
+ice_id *id,
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index a95efeb53a8b..b556e0ab946f 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -577,20 +577,4 @@ static inline struct i2c_adapter *of_find_i2c_ad=
+apter_by_node(struct device_node
+>  }
+>  #endif /* CONFIG_OF */
+> =20
+> -#ifdef CONFIG_ACPI
+> -void acpi_i2c_register_devices(struct i2c_adapter *adap);
+> -#else
+> -static inline void acpi_i2c_register_devices(struct i2c_adapter *ada=
+p) { }
+> -#endif /* CONFIG_ACPI */
+> -
+> -#ifdef CONFIG_ACPI_I2C_OPREGION
+> -int acpi_i2c_install_space_handler(struct i2c_adapter *adapter);
+> -void acpi_i2c_remove_space_handler(struct i2c_adapter *adapter);
+> -#else
+> -static inline void acpi_i2c_remove_space_handler(struct i2c_adapter =
+*adapter)
+> -{ }
+> -static inline int acpi_i2c_install_space_handler(struct i2c_adapter =
+*adapter)
+> -{ return 0; }
+> -#endif /* CONFIG_ACPI_I2C_OPREGION */
+> -
+>  #endif /* _LINUX_I2C_H */
+>=20
 
+
+--=20
+Best regards
+Tianyu Lan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
