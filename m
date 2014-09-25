@@ -1,135 +1,376 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.17
-Date: Thu, 25 Sep 2014 20:41:11 +0200
-Message-ID: <20140925184111.GA1924@katana>
+From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Subject: Re: [RFC PATCH] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
+Date: Thu, 25 Sep 2014 21:27:25 +0200
+Message-ID: <2232717.X50lT6IYgQ@vostro.rjw.lan>
+References: <1411456003-29541-1-git-send-email-tianyu.lan@intel.com> <5595235.8OhLbSk3cf@vostro.rjw.lan> <5423E40B.8010302@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <5423E40B.8010302-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thursday, September 25, 2014 05:44:43 PM Lan Tianyu wrote:
+> On 2014=E5=B9=B409=E6=9C=8825=E6=97=A5 06:27, Rafael J. Wysocki wrote=
+:
+> > On Tuesday, September 23, 2014 03:06:43 PM Lan Tianyu wrote:
+> >> ACPI 5.0 introduces _DEP to designate device objects that OSPM sho=
+uld
+> >> assign a higher priority in start ordering due to future operation=
+ region
+> >> accesses.
+> >>
+> >> On Asus T100TA, ACPI battery info are read from a I2C slave device=
+ via
+> >> I2C operation region. Before I2C operation region handler is insta=
+lled,
+> >> battery _STA always returns 0. There is a _DEP method of designati=
+ng
+> >> start order under battery device node.
+> >>
+> >> This patch is to implement _DEP feature to fix battery issue on th=
+e Asus T100TA.
+> >> Introducing acpi_bus_dep_device_list and adding dep_present flags =
+in the struct
+> >> acpi_device. During ACPI namespace scan, all devices with _DEP sup=
+port will be put
+> >> into the new list and those devices' dep_present flag will be set.=
+ Driver's probe()
+> >> should return EPROBE_DEFER when find dep_present is set. When I2C =
+operation
+> >> region handler is installed, check all devices on the new list. Re=
+move the one from
+> >> list if _DEP condition is met and clear its dep_present flag and d=
+o acpi_bus_attch()
+> >> for the device in order to resolve battery _STA issue on the Asus =
+T100TA.
+> >>
+> >> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> >=20
+> > This is going in the right direction in my view, but isn't there ju=
+st yet.
+> >=20
+> > Details below.
+>=20
+> Thanks for review.
+>=20
+> >=20
+> >> ---
+> >>  drivers/acpi/battery.c  |  4 +++
+> >>  drivers/acpi/scan.c     | 84 ++++++++++++++++++++++++++++++++++++=
++++++++++++++
+> >>  drivers/i2c/i2c-acpi.c  |  1 +
+> >>  include/acpi/acpi_bus.h |  2 ++
+> >>  include/linux/acpi.h    |  3 ++
+> >>  5 files changed, 94 insertions(+)
+> >>
+> >> diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+> >> index 1c162e7..c0a68ce 100644
+> >> --- a/drivers/acpi/battery.c
+> >> +++ b/drivers/acpi/battery.c
+> >> @@ -1194,6 +1194,10 @@ static int acpi_battery_add(struct acpi_dev=
+ice *device)
+> >> =20
+> >>  	if (!device)
+> >>  		return -EINVAL;
+> >> +
+> >> +	if (device->dep_present)
+> >=20
+> > device->flags.dep_present would be better.  Or even call the flag d=
+ep_unmet.
+>=20
+> Ok. Will update.
+>=20
+> >=20
+> >> +		return -EPROBE_DEFER;
+> >> +
+> >>  	battery =3D kzalloc(sizeof(struct acpi_battery), GFP_KERNEL);
+> >>  	if (!battery)
+> >>  		return -ENOMEM;
+> >> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+> >> index 3bf7764..a26dbb3 100644
+> >> --- a/drivers/acpi/scan.c
+> >> +++ b/drivers/acpi/scan.c
+> >> @@ -36,6 +36,7 @@ bool acpi_force_hot_remove;
+> >> =20
+> >>  static const char *dummy_hid =3D "device";
+> >> =20
+> >> +static LIST_HEAD(acpi_bus_dep_device_list);
+> >>  static LIST_HEAD(acpi_bus_id_list);
+> >>  static DEFINE_MUTEX(acpi_scan_lock);
+> >>  static LIST_HEAD(acpi_scan_handlers_list);
+> >> @@ -43,6 +44,11 @@ DEFINE_MUTEX(acpi_device_lock);
+> >>  LIST_HEAD(acpi_wakeup_device_list);
+> >>  static DEFINE_MUTEX(acpi_hp_context_lock);
+> >> =20
+> >> +struct acpi_dep_data {
+> >> +	struct list_head node;
+> >> +	struct acpi_device *adev;
+> >> +};
+> >> +
+> >>  struct acpi_device_bus_id{
+> >>  	char bus_id[15];
+> >>  	unsigned int instance_no;
+> >> @@ -2048,6 +2054,32 @@ static void acpi_scan_init_hotplug(struct a=
+cpi_device *adev)
+> >>  	}
+> >>  }
+> >> =20
+> >> +static void acpi_device_dep_initialize(struct acpi_device * adev)
+> >> +{
+> >> +	struct acpi_dep_data *dep;
+> >> +	acpi_status status;
+> >> +
+> >> +	if (!acpi_has_method(adev->handle, "_DEP"))
+> >> +		return;
+> >> +
+> >> +	status =3D acpi_evaluate_reference(adev->handle, "_DEP", NULL,
+> >> +					&adev->dep_devices);
+> >> +	if (ACPI_FAILURE(status)) {
+> >> +		dev_err(&adev->dev, "Fail to evaluate _DEP.\n");
+> >=20
+> > "Failed"
+> >=20
+> >> +		return;
+> >> +	}
+> >> +
+> >> +	dep =3D kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
+> >> +	if (!dep) {
+> >> +		dev_err(&adev->dev, "Memory allocation error.\n");
+> >=20
+> > "Not enough memory for _DEP list entry\n"
+> >=20
+> >> +		return;
+> >> +	}
+> >> +
+> >> +	dep->adev =3D adev;
+> >> +	adev->dep_present =3D true;
+> >> +	list_add_tail(&dep->node , &acpi_bus_dep_device_list);
+> >> +}
+> >> +
+> >>  static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl=
+_not_used,
+> >>  				      void *not_used, void **return_value)
+> >>  {
+> >> @@ -2074,6 +2106,7 @@ static acpi_status acpi_bus_check_add(acpi_h=
+andle handle, u32 lvl_not_used,
+> >>  		return AE_CTRL_DEPTH;
+> >> =20
+> >>  	acpi_scan_init_hotplug(device);
+> >> +	acpi_device_dep_initialize(device);
+> >> =20
+> >>   out:
+> >>  	if (!*return_value)
+> >> @@ -2191,6 +2224,57 @@ static void acpi_bus_attach(struct acpi_dev=
+ice *device)
+> >>  		acpi_bus_attach(child);
+> >>  }
+> >> =20
+> >> +static int acpi_device_dep_check(struct acpi_device *adev)
+> >> +{
+> >> +	struct acpi_device *dep_adev;
+> >> +	struct acpi_device_physical_node *pn;
+> >> +	int i;
+> >> +
+> >> +	for (i =3D 0; i < adev->dep_devices.count; i++) {
+> >> +		dep_adev =3D acpi_bus_get_acpi_device(
+> >> +				adev->dep_devices.handles[i]);
+> >> +
+> >> +		if (!dep_adev)
+> >> +			return -ENODEV;
+> >> +
+> >> +		/* Check acpi device driver probing */
+> >> +		if (dep_adev->dev.driver)
+> >> +			continue;
+> >=20
+> > This check isn't sufficient, because _DEP is supposed to be about o=
+peration
+> > regions being present, not about drivers being present.  Same for t=
+he driver
+> > check below.
+> >=20
+> > I wouldn't bother to check drivers in this stub implementation. ->
+>=20
+> Sounds like we need to check whether the dependent device node has be=
+en
+> attached with operation region handler and this needs ACPICA to expos=
+e
+> such function, right?
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes.  That's why I suggested to do the check in the function that insta=
+lls
+the operation region handler.  This way we are sure that the handler is
+already present.
 
-Linus,
+> >=20
+> >> +
+> >> +		if (!dep_adev->physical_node_count)
+> >> +			return -ENODEV;
+> >> +
+> >> +		/* Check physcial device node driver probing */
+> >> +		mutex_lock(&dep_adev->physical_node_lock);
+> >> +		list_for_each_entry(pn, &dep_adev->physical_node_list, node) {
+> >> +			if (pn->dev->driver) {
+> >> +				mutex_unlock(&dep_adev->physical_node_lock);
+> >> +				continue;
+> >> +			}
+> >> +		}
+> >> +		mutex_unlock(&dep_adev->physical_node_lock);
+> >> +		return -EFAULT;
+> >> +	}
+> >> +
+> >> +	return 0;
+> >> +}
+> >> +
+> >> +int acpi_walk_dep_device_list(void)
+> >=20
+> > -> I'd pass the operation region device to that (and I'd call the f=
+unction
+> > differently, but that's a detail).  Then, I'd just clear flags.dep_=
+unmet
+> > for all devices having that operation region device in their dep_de=
+vices
+> > (and drop their entries from the list).  It wouldn't cover the case=
+ when
+> > one device depends on two operation regions at the same time (in a =
+meaningful
+> > way), but should be sufficient to address the battery problem at ha=
+nd.=20
+> >=20
+>=20
+> This requires the dependent devices have a list to record devices whi=
+ch
+> depends on them, right? Create such lists during ACPI namespace scan.
 
-this is probably not the kind of pull request you want to see that late
-in the cycle. Yet, the ACPI refactorization was problematic again and
-caused another two issues which need fixing. My holidays with limited
-internet (plus travelling) and the developer's illness didn't help
-either :(
+I'm not sure what you mean.  "Dependent" means "depending on something"=
+, so the
+question reads "This requires the devices with _DEP to have a list of d=
+evices
+that depend on them" which is probably not what you meant.
 
-The details:
+=46or each device with _DEP we have dep_devices, so if you pass a point=
+er
+(opregion_adev) to the device that has just installed an operation regi=
+on
+handler to acpi_walk_dep_device_list() as an argument, then you can do
 
-- ACPI code was refactored out into a seperate file and as a
-  side-effect, the i2c-core module got renamed. Jean Delvare rightfully
-  complained about the rename being problematic for distributions. So,
-  Mika and I thought the least problematic way to deal with it is to move
-  all the code back into the main i2c core source file. This is mainly a
-  huge code move with some #ifdeffery applied. No functional code changes.
-  Our personal tests and the testbots did not find problems. (I was
-  thinking about reverting, too, yet that would also have ~800 lines
-  changed)
+	for (i =3D 0; i < adev->dep_devices.count; i++)
+		if (opregion_adev->handle =3D=3D adev->dep_devices.handles[i]) {
+			adev->dep_unmet =3D false;
+			acpi_bus_attach(adev);
+			list_del(&dep->node);
+			kfree(dep);
+		}
 
-- The new ACPI code also had a NULL pointer exception, thanks to Peter
-  for finding and fixing it.
+and of course appropriate locking needs to be there in case this races =
+with
+enumeration during hotplug after loading a new ACPI table on demand).
 
-- Mikko fixed a locking problem by decoupling clock_prepare and
-  clock_enable.
+I think you can even define
+ =20
+struct acpi_dep_data {
+	struct list_head node;
+	struct acpi_device *master;
+	struct acpi_device *slave;
+};
 
-- Addy learnt that the datasheet was wrong and reimplemented the
-  frequency setup according to the new algorithm.
+and create that for every valid pair of master (device pointed to by _D=
+EP)/slave
+(device with _DEP) and create a list of these.  Then, you won't need de=
+p_devices
+in struct acpi_device any more and your acpi_walk_dep_device_list() wil=
+l only
+need to walk the list until it finds the matching master/slave pair.
 
-- Fan fixed an off-by-one error when copying data
+That will handle the case when one device depends on multiple other dev=
+ices too
+I think.
 
-- Janusz fixed a copy'n'paste bug which gave a wrong error message
+> >> +		dep_adev =3D acpi_bus_get_acpi_device(
+> >> +				adev->dep_devices.handles[i]);
 
-- Sergei made sure that "don't touch" bits are not accessed
+>=20
+>=20
+> >> +{
+> >> +	struct acpi_dep_data *dep, *tmp;
+> >> +
+> >> +	list_for_each_entry_safe(dep, tmp, &acpi_bus_dep_device_list, no=
+de) {
+> >> +		if (!acpi_device_dep_check(dep->adev)) {
+> >> +			dep->adev->dep_present =3D false;
+> >> +			acpi_bus_attach(dep->adev);
+> >> +			list_del(&dep->node);
+> >> +			kfree(dep);
+> >> +		}
+> >> +	}
+> >> +	return 0;
+> >> +}
+> >> +EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
+> >> +
+> >>  /**
+> >>   * acpi_bus_scan - Add ACPI device node objects in a given namesp=
+ace scope.
+> >>   * @handle: Root of the namespace scope to scan.
+> >> diff --git a/drivers/i2c/i2c-acpi.c b/drivers/i2c/i2c-acpi.c
+> >> index 0dbc18c..fdc8dc8 100644
+> >> --- a/drivers/i2c/i2c-acpi.c
+> >> +++ b/drivers/i2c/i2c-acpi.c
+> >> @@ -339,6 +339,7 @@ int acpi_i2c_install_space_handler(struct i2c_=
+adapter *adapter)
+> >>  		return -ENOMEM;
+> >>  	}
+> >> =20
+> >> +	acpi_walk_dep_device_list();
+> >>  	return 0;
+> >>  }
+> >> =20
+> >> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+> >> index c1c9de1..c1e7055 100644
+> >> --- a/include/acpi/acpi_bus.h
+> >> +++ b/include/acpi/acpi_bus.h
+> >> @@ -357,7 +357,9 @@ struct acpi_device {
+> >>  	struct acpi_hotplug_context *hp;
+> >>  	struct acpi_driver *driver;
+> >>  	void *driver_data;
+> >> +	bool dep_present;
+> >>  	struct device dev;
+> >> +	struct acpi_handle_list dep_devices;
+> >>  	unsigned int physical_node_count;
+> >>  	struct list_head physical_node_list;
+> >>  	struct mutex physical_node_lock;
+> >> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+> >> index 807cbc4..c9a504b 100644
+> >> --- a/include/linux/acpi.h
+> >> +++ b/include/linux/acpi.h
+> >> @@ -431,6 +431,7 @@ static inline bool acpi_driver_match_device(st=
+ruct device *dev,
+> >> =20
+> >>  int acpi_device_uevent_modalias(struct device *, struct kobj_ueve=
+nt_env *);
+> >>  int acpi_device_modalias(struct device *, char *, int);
+> >> +int acpi_walk_dep_device_list(void);
+> >> =20
+> >>  #define ACPI_PTR(_ptr)	(_ptr)
+> >> =20
+> >> @@ -449,6 +450,8 @@ static inline const char *acpi_dev_name(struct=
+ acpi_device *adev)
+> >> =20
+> >>  static inline void acpi_early_init(void) { }
+> >> =20
+> >> +static inline int acpi_walk_dep_device_list(void) { }
+> >> +
+> >>  static inline int early_acpi_boot_init(void)
+> >>  {
+> >>  	return 0;
+> >>
+> >=20
+>=20
+>=20
+>=20
 
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 9e82bf014195d6f0054982c463575cdce24292be:
-
-  Linux 3.17-rc5 (2014-09-14 17:50:12 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-curre=
-nt
-
-for you to fetch changes up to 0aef44e84ad16cd87a88df78773fd81ecca34f11:
-
-  i2c: acpi: Fix NULL Pointer dereference (2014-09-25 16:08:15 +0200)
-
-----------------------------------------------------------------
-Fan Du (1):
-      i2c: ismt: use correct length when copy buffer
-
-Janusz U=C5=BCycki (1):
-      i2c: mxs: fix error message in pio transfer
-
-Mikko Perttunen (1):
-      i2c: tegra: Move clk_prepare/clk_set_rate to probe
-
-Peter H=C3=BCwe (1):
-      i2c: acpi: Fix NULL Pointer dereference
-
-Sergei Shtylyov (1):
-      i2c: rcar: fix RCAR_IRQ_ACK_{RECV|SEND}
-
-Wolfram Sang (1):
-      i2c: move acpi code back into the core
-
-addy ke (1):
-      i2c: rk3x: fix divisor calculation for SCL frequency
-
- MAINTAINERS                    |   1 -
- drivers/i2c/Makefile           |   5 +-
- drivers/i2c/busses/i2c-ismt.c  |   4 +-
- drivers/i2c/busses/i2c-mxs.c   |   2 +-
- drivers/i2c/busses/i2c-rcar.c  |   4 +-
- drivers/i2c/busses/i2c-rk3x.c  |  11 +-
- drivers/i2c/busses/i2c-tegra.c |  57 +++++--
- drivers/i2c/i2c-acpi.c         | 364 -------------------------------------=
-----
- drivers/i2c/i2c-core.c         | 364 +++++++++++++++++++++++++++++++++++++=
-++++
- include/linux/i2c.h            |  16 --
- 10 files changed, 420 insertions(+), 408 deletions(-)
- delete mode 100644 drivers/i2c/i2c-acpi.c
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUJGHHAAoJEBQN5MwUoCm20soP/1XnqM4R3cFr3q914HONuPb1
-CEmsJH1cifWwk7ubknoScaVXglnomSWlT4fwl1KsqNEBbg27Ps0EhREi+o/SHlzD
-7K8RDa6/3qwcHyGcHaHRrHlmk2QsE4e2yO7avGwzONo22L7VB11XTMQ6hGFB6wEH
-Gw2UtqzScHHkSfp7j6U0BK8gKDCKPXNIyhwuoZYXQyC9cJw7vL94ib2KM4OzED7Y
-+wg9UZ5nPvi7qxIj4EAqv7u+1Vr6tIyieVR1QLH4pi82W90D/paKwSMRHZQ4rRZS
-x2b0PMunwywFkkTpkf+1BlvhJyPRdabs8UGdrdwSJy1Mg19gLdqx28eiJqePKilP
-uw9+yakMyJXSlqN9J9n2NIJKyKCR369KfHEXdoOYwj+qAVyHWVUSyzzCpAeuCBsf
-XkMGdO05M23/8CBXSUS9wR2KbKfFzIHUSyb/9tHRRBReOqVgLPxBrff+hfzlGX5h
-zZTMmEmEzv3m+vN9EfJEkeM8R6VbGyQuztpVCdNSBk8o/wwoOiNCvhD5Ezt5mIGn
-18bu/tAhNomVTOFm8OzmMtTidhbgSyNcsXzVUSmy4DghkNTug0suTGalYSNlXpfT
-4oTBLp5IBpniGbNc9cFqkBW69TNVm88zmLfhQX1rLmSmW7ulx9Z0Ir6EXyVgl3ed
-0WXnZDhAhK6wq/28b2aV
-=yk+G
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+--=20
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
