@@ -1,121 +1,135 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 00/27] add
-	pm_runtime_last_busy_and_autosuspend() helper
-Date: Thu, 25 Sep 2014 09:22:01 -0500
-Message-ID: <20140925142201.GD28045@saruman>
-References: <1411575342-31048-1-git-send-email-vinod.koul@intel.com>
- <6374313.I12loOK9hA@vostro.rjw.lan>
- <20140924201558.GX17997@saruman>
- <2322320.9rETJijE2n@vostro.rjw.lan>
- <20140924203219.GZ17997@saruman> <20140925075718.GW24663@intel.com>
-Reply-To: balbi@ti.com
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 3.17
+Date: Thu, 25 Sep 2014 20:41:11 +0200
+Message-ID: <20140925184111.GA1924@katana>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0473778243=="
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20140925075718.GW24663@intel.com>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Vinod Koul <vinod.koul@intel.com>
-Cc: linux-wireless@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>, patches@opensource.wolfsonmicro.com, linux-doc@vger.kernel.org, linux-mmc@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Chris Ball <chris@printf.net>, dri-devel@lists.freedesktop.org, Marcin Wojtas <mw@semihalf.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, David Herrmann <dh.herrmann@gmail.com>, Shinya Kuribayashi <skuribay@pobox.com>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Jingoo Han <jg1.han@samsung.com>, Seungwon Jeon <tgih.jun@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, Jani Nikula <jani.nikula@intel.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Alan Stern <stern@rowland.harvard.edu>, Ben Skeggs <bskeggs@redhat.com>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Wolfram Sang <wsa@the-dreams>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============0473778243==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pZs/OQEoSSbxGlYw"
-Content-Disposition: inline
 
---pZs/OQEoSSbxGlYw
-Content-Type: text/plain; charset=us-ascii
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 25, 2014 at 01:27:18PM +0530, Vinod Koul wrote:
-> On Wed, Sep 24, 2014 at 03:32:19PM -0500, Felipe Balbi wrote:
-> > > > > OK, I guess this is as good as it gets.
-> > > > >=20
-> > > > > What tree would you like it go through?
-> > > >=20
-> > > > Do we really need this new helper ? I mean, the very moment when we
-> > > > decide to implement ->runtime_idle() we will need to get rid of this
-> > > > change. I wonder if it's really valid...
-> > >=20
-> > > I'm not sure I'm following?  This seems to simply implement what driv=
-ers
-> > > have been doing already as one function.  Why would it be invalid to =
-reduce
-> > > code duplication?
-> >=20
-> > For two reasons:
-> >=20
-> > 1) the helper has no inteligence whatsoever. It just calls the same
-> > functions.
-> >=20
-> > 2) the duplication will vanish whenever someone implements
-> > ->runtime_idle() and have that call pm_runtime_autosuspend() (like PCI
-> > and USB buses are doing today). This will just be yet another line that
-> > needs to change.
-> >=20
-> > Frankly though, no strong feelings, I just think it's a commit that
-> > doesn't bring that any benefits other than looking like one line was
-> > removed.
-> and yes that is what it tries to do nothing more nothing less. If in futu=
-re
-> there are no users (today we have quite a few), then we can remove the de=
-ad
-> macro, no harm. But that is not the situation today.
+Linus,
 
-as I said, a commit that's bound to be useless. It's not like you're
-saving 10 lines of code, it's only one. Replacing two simple lines with
-a function which takes <joke> almost as many characters to type </joke>.
+this is probably not the kind of pull request you want to see that late
+in the cycle. Yet, the ACPI refactorization was problematic again and
+caused another two issues which need fixing. My holidays with limited
+internet (plus travelling) and the developer's illness didn't help
+either :(
 
-IMO, this is pretty useless and I'd rather not see them in the drivers I
-maintain, sorry.
+The details:
 
-cheers
+- ACPI code was refactored out into a seperate file and as a
+  side-effect, the i2c-core module got renamed. Jean Delvare rightfully
+  complained about the rename being problematic for distributions. So,
+  Mika and I thought the least problematic way to deal with it is to move
+  all the code back into the main i2c core source file. This is mainly a
+  huge code move with some #ifdeffery applied. No functional code changes.
+  Our personal tests and the testbots did not find problems. (I was
+  thinking about reverting, too, yet that would also have ~800 lines
+  changed)
 
---=20
-balbi
+- The new ACPI code also had a NULL pointer exception, thanks to Peter
+  for finding and fixing it.
 
---pZs/OQEoSSbxGlYw
+- Mikko fixed a locking problem by decoupling clock_prepare and
+  clock_enable.
+
+- Addy learnt that the datasheet was wrong and reimplemented the
+  frequency setup according to the new algorithm.
+
+- Fan fixed an off-by-one error when copying data
+
+- Janusz fixed a copy'n'paste bug which gave a wrong error message
+
+- Sergei made sure that "don't touch" bits are not accessed
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 9e82bf014195d6f0054982c463575cdce24292be:
+
+  Linux 3.17-rc5 (2014-09-14 17:50:12 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-curre=
+nt
+
+for you to fetch changes up to 0aef44e84ad16cd87a88df78773fd81ecca34f11:
+
+  i2c: acpi: Fix NULL Pointer dereference (2014-09-25 16:08:15 +0200)
+
+----------------------------------------------------------------
+Fan Du (1):
+      i2c: ismt: use correct length when copy buffer
+
+Janusz U=C5=BCycki (1):
+      i2c: mxs: fix error message in pio transfer
+
+Mikko Perttunen (1):
+      i2c: tegra: Move clk_prepare/clk_set_rate to probe
+
+Peter H=C3=BCwe (1):
+      i2c: acpi: Fix NULL Pointer dereference
+
+Sergei Shtylyov (1):
+      i2c: rcar: fix RCAR_IRQ_ACK_{RECV|SEND}
+
+Wolfram Sang (1):
+      i2c: move acpi code back into the core
+
+addy ke (1):
+      i2c: rk3x: fix divisor calculation for SCL frequency
+
+ MAINTAINERS                    |   1 -
+ drivers/i2c/Makefile           |   5 +-
+ drivers/i2c/busses/i2c-ismt.c  |   4 +-
+ drivers/i2c/busses/i2c-mxs.c   |   2 +-
+ drivers/i2c/busses/i2c-rcar.c  |   4 +-
+ drivers/i2c/busses/i2c-rk3x.c  |  11 +-
+ drivers/i2c/busses/i2c-tegra.c |  57 +++++--
+ drivers/i2c/i2c-acpi.c         | 364 -------------------------------------=
+----
+ drivers/i2c/i2c-core.c         | 364 +++++++++++++++++++++++++++++++++++++=
+++++
+ include/linux/i2c.h            |  16 --
+ 10 files changed, 420 insertions(+), 408 deletions(-)
+ delete mode 100644 drivers/i2c/i2c-acpi.c
+
+--LZvS9be/3tNcYl/X
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUJCUIAAoJEIaOsuA1yqRE4sQQAKxfridt97ire3OQknEdDVFu
-aTPlvAJ0ycYXCy5Y9YI2w/jPYTkr+pOjpqCQc/lm0UssHhABkVAByhQPdZt/9O6F
-H2/7BhzyUAw6aUE9uFd/CYi7ngfRRBdGgxHW0jEKtywEu6Y918ezt1ZXwdyXGBCx
-NTP1sthcYPMCh5CShU+U5WaODAgeoeQa0iOLJ1lcn6wH9h/VyktzyvO8jYxcxPZ4
-uiYe41oJAQCSQYSTZpWXMVGX4XF/tqs1gkVLSUgXctg0ANrxqP+HmQtUTMRw6ofP
-4uj9feVcRmHficyJErFkQWJgblli8YUJsqhyCgeTIIQJCJ+99zrRidgXyJLBJAZX
-4vD6U6+eo27mhj0o7Qc7xuWV/7pvud8FiojotM0SLSP1mOoS3oGEXWxT9K9eFmmT
-cFaF4EJQPGY57tJvN003ijdICrJOLoDxxmV66MxmtqJ4n7pyJg5OikrxdpKMK7Gn
-A6glrWgmNe7qZ9NxG8ITLNESTA6Svaj4FVpjet8lvDbVLEJUjCAMHZanoPIm8i81
-ORgtJTYtTJKAN0SMi/dubKv8LCeP0JEdQ0wuGN8UEKmN3ImoEs422yF5LExdNn0L
-WJ712CFagm6iYJVmaRdy+BCzJtlola/XiVdzJRRCfAkcGXpDW6Hkw/lUNcAQcfzP
-JiOMpqscwF/mFSsPsvI0
-=q0tM
+iQIcBAEBAgAGBQJUJGHHAAoJEBQN5MwUoCm20soP/1XnqM4R3cFr3q914HONuPb1
+CEmsJH1cifWwk7ubknoScaVXglnomSWlT4fwl1KsqNEBbg27Ps0EhREi+o/SHlzD
+7K8RDa6/3qwcHyGcHaHRrHlmk2QsE4e2yO7avGwzONo22L7VB11XTMQ6hGFB6wEH
+Gw2UtqzScHHkSfp7j6U0BK8gKDCKPXNIyhwuoZYXQyC9cJw7vL94ib2KM4OzED7Y
++wg9UZ5nPvi7qxIj4EAqv7u+1Vr6tIyieVR1QLH4pi82W90D/paKwSMRHZQ4rRZS
+x2b0PMunwywFkkTpkf+1BlvhJyPRdabs8UGdrdwSJy1Mg19gLdqx28eiJqePKilP
+uw9+yakMyJXSlqN9J9n2NIJKyKCR369KfHEXdoOYwj+qAVyHWVUSyzzCpAeuCBsf
+XkMGdO05M23/8CBXSUS9wR2KbKfFzIHUSyb/9tHRRBReOqVgLPxBrff+hfzlGX5h
+zZTMmEmEzv3m+vN9EfJEkeM8R6VbGyQuztpVCdNSBk8o/wwoOiNCvhD5Ezt5mIGn
+18bu/tAhNomVTOFm8OzmMtTidhbgSyNcsXzVUSmy4DghkNTug0suTGalYSNlXpfT
+4oTBLp5IBpniGbNc9cFqkBW69TNVm88zmLfhQX1rLmSmW7ulx9Z0Ir6EXyVgl3ed
+0WXnZDhAhK6wq/28b2aV
+=yk+G
 -----END PGP SIGNATURE-----
 
---pZs/OQEoSSbxGlYw--
-
---===============0473778243==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Intel-gfx mailing list
-Intel-gfx@lists.freedesktop.org
-http://lists.freedesktop.org/mailman/listinfo/intel-gfx
-
---===============0473778243==--
+--LZvS9be/3tNcYl/X--
