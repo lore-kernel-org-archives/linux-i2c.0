@@ -1,31 +1,93 @@
-From: Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
-Date: Fri, 26 Sep 2014 09:20:20 +0530
-Message-ID: <5424E27C.2090302@synopsys.com>
-References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com> <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com> <20140920093633.GG1612@katana> <20140922091207.GJ1786@lahna.fi.intel.com> <20140922122905.GA13321@ab42.lan> <C2D7FE5348E1B147BCA15975FBA230753C5DA425@IN01WEMBXA.internal.synopsys.com> <20140922140020.GB1786@lahna.fi.intel.com> <C2D7FE5348E1B147BCA15975FBA230753C5DA47D@IN01WEMBXA.internal.synopsys.com> <20140922172251.GA30685@ab42.lan>
+From: Lan Tianyu <tianyu.lan@intel.com>
+Subject: Re: [RFC PATCH] ACPI: Add _DEP(Operation Region Dependencies) support
+ to fix battery issue on the Asus T100TA
+Date: Fri, 26 Sep 2014 13:23:29 +0800
+Message-ID: <5424F851.1020809@intel.com>
+References: <1411456003-29541-1-git-send-email-tianyu.lan@intel.com> <5595235.8OhLbSk3cf@vostro.rjw.lan> <5423E40B.8010302@intel.com> <2232717.X50lT6IYgQ@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140922172251.GA30685-7oYq3qWSd+k@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <2232717.X50lT6IYgQ@vostro.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: lenb@kernel.org, mika.westerberg@linux.intel.com, wsa@the-dreams.de, robert.moore@intel.com, lv.zheng@intel.com, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Chrisitian,
+On 2014=E5=B9=B409=E6=9C=8826=E6=97=A5 03:27, Rafael J. Wysocki wrote:
+> I'm not sure what you mean.  "Dependent" means "depending on somethin=
+g", so the
+> question reads "This requires the devices with _DEP to have a list of=
+ devices
+> that depend on them" which is probably not what you meant.
+>=20
 
-On Monday 22 September 2014 10:53 PM, Christian Ruppert wrote:
-> If there is no designware i2c in any of your platforms, simply ignore
-> my message. From my point of view there is no need to move "select
-> COMMON_CLK" up to the ARC architecture level.
+Sorry, I didn't say clearly. The "dependent device" I meant is device
+pointed to by _DEP(the master you mentioned at the bottom). I thought
+master also needed a list to find its slave(device with _DEP).
 
-I still ended up moving COMMON_CLK out of tb10x to arch/arc - due to consolidation
-of .init_machine() callbacks - from platform to arc core.
+> For each device with _DEP we have dep_devices, so if you pass a point=
+er
+> (opregion_adev) to the device that has just installed an operation re=
+gion
+> handler to acpi_walk_dep_device_list() as an argument, then you can d=
+o
+>=20
+> 	for (i =3D 0; i < adev->dep_devices.count; i++)
+> 		if (opregion_adev->handle =3D=3D adev->dep_devices.handles[i]) {
+> 			adev->dep_unmet =3D false;
+> 			acpi_bus_attach(adev);
+> 			list_del(&dep->node);
+> 			kfree(dep);
+> 		}
+>=20
+> and of course appropriate locking needs to be there in case this race=
+s with
+> enumeration during hotplug after loading a new ACPI table on demand).
+>=20
 
-Give linux-next a spin (perhaps later today as I just pushed a build error in that
-area).
+Yes, we can scan all devices on the list and match the opregion_adev
+with adev->dep_devices. This is comparatively simple solution.
 
-You'll like the almost empty platform file :-)
+> I think you can even define
+>  =20
+> struct acpi_dep_data {
+> 	struct list_head node;
+> 	struct acpi_device *master;
+> 	struct acpi_device *slave;
+> };
+>=20
+> and create that for every valid pair of master (device pointed to by =
+_DEP)/slave
+> (device with _DEP) and create a list of these.  Then, you won't need =
+dep_devices
+> in struct acpi_device any more and your acpi_walk_dep_device_list() w=
+ill only
+> need to walk the list until it finds the matching master/slave pair.
 
--Vineet
+One question is that when create struct acpi_dep_data for the dependenc=
+y
+relationship between master and slave. If do this when slave's ACPI
+device is created during ACPI namespace scan, master's ACPI device mayb=
+e
+not created at that point. So acpi_handle maybe more suitable than
+struct acpi_device here.
+
+>=20
+> That will handle the case when one device depends on multiple other d=
+evices too
+> I think.
+>=20
+>>>> > >> +		dep_adev =3D acpi_bus_get_acpi_device(
+>>>> > >> +				adev->dep_devices.handles[i]);
+>> >=20
+
+
+--=20
+Best regards
+Tianyu Lan
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
