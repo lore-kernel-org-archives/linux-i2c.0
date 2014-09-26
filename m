@@ -1,78 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH resend 2/2] i2c: hix5hd2: add i2c controller driver
-Date: Fri, 26 Sep 2014 08:55:44 +0200
-Message-ID: <20140926065544.GA1284@katana>
-References: <1409030722-30709-1-git-send-email-zhangfei.gao@linaro.org>
- <1409030722-30709-3-git-send-email-zhangfei.gao@linaro.org>
- <20140919171829.GB2874@katana>
- <5424DDD5.1020706@linaro.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 6/6] mfd: cros_ec: Instantiate sub-devices from device
+ tree
+Date: Fri, 26 Sep 2014 08:21:50 +0100
+Message-ID: <20140926072150.GE31272@lee--X1>
+References: <1410428289-18229-1-git-send-email-javier.martinez@collabora.co.uk>
+ <1410428289-18229-7-git-send-email-javier.martinez@collabora.co.uk>
+ <20140917163114.GL30918@lee--X1>
+ <541A8E88.6050707@collabora.co.uk>
+ <20140919001512.GA29852@lee--X1>
+ <54241E74.9000403@collabora.co.uk>
+ <20140925144846.GC21351@lee--X1>
+ <542437DE.4090701@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5424DDD5.1020706-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <542437DE.4090701-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: zhangfei <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+To: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Bill Richardson <wfrichar-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Derek Basehore <dbasehore-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Todd Broch <tbroch-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Andreas Faerber <afaerber-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 25 Sep 2014, Javier Martinez Canillas wrote:
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On 09/25/2014 04:48 PM, Lee Jones wrote:
+> > On Thu, 25 Sep 2014, Javier Martinez Canillas wrote:
+> >>=20
+> >> The last version of the series (v4) I posted a week ago [0], does =
+not include
+> >> this patch so I hope the series can be picked for 3.18 since most =
+of the patches
+> >> were already acked by you.
+> >=20
+> > Unfortunately this is going to have to wait until v3.19 now, as Lin=
+us
+> > is closing the -rcs early.  I have subsequently applied my last
+> > patch to the MFD tree for v3.18.  It will be good for these patches=
+ to
+> > get some soak testing in -next anyway, rather than rush them in.
+> >=20
+>=20
+> No worries. Does that mean that you are going to pick this series aft=
+er
+> the 3.18 merge window or should I resend this once 3.18-rc1 is releas=
+ed?
 
+If you can re-send with any Acks you've been given (no new ones) after
+-rc1, that would be helpful.
 
-> >>+#include <linux/clk.h>
-> >>+#include <linux/delay.h>
-> >>+#include <linux/i2c.h>
-> >>+#include <linux/io.h>
-> >>+#include <linux/interrupt.h>
-> >>+#include <linux/module.h>
-> >>+#include <linux/platform_device.h>
-> >>+#include <linux/pm_runtime.h>
-> >
-> >I think there should be at least of.h, too.
-> The of.h is already in i2c.h
-> include/linux/i2c.h:33:#include <linux/of.h>
-
-Please add it nonetheless, because you use e.g. of_property_read_u32()
-directly. That makes you independet of changes to i2c.h.
-
-> >>+	rate = i2c->s_clock;
-> >>+	sysclock = clk_get_rate(i2c->clk);
-> >>+	sclh = (sysclock / (rate * 2)) / 2 - 1;
-> >>+	writel_relaxed(sclh, i2c->regs + HIX5I2C_SCL_H);
-> >>+	scll = (sysclock / (rate * 2)) / 2 - 1;
-> >
-> >scll and sclh use the same formula? Have you measured the setup
-> >frequency with a scope?
-> Yes, it is confusing, will use the same vector scl instead.
-> The value is same means sclk high voltage and low voltage keep same time.
-
-OK.
-
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUJQ3wAAoJEBQN5MwUoCm2YNwQAIinkNKuFDpxWw8k3s1yBHs0
-PcaS8RpHRmtzuYr90lU0KXIwLsMzjmwH46uzwB3mgB+iI5BXqqrQfSw4H046m1dz
-biIph7JK/aCkttarBj+GGTepfjKWchwxburAFbzWq+RAW6zxPx/feOxeC5UCc4Ns
-mbGE59npZzvgWD+ijb0//mg9lwfhMW1/QdRtN85/K9TBrOfEyCnW1mO9ZH4a/nht
-X1cltEailZrGc5M328KkZijNsTYB7Yw7mcB08GTOmdcK/VNnSnSfHxa3fJKoJ7xq
-7DYxBCa0NV1r3brGt5kHLGTLohib6m6KFdJUKBUBbyIxEKNJVyGFSCHRDUKegROs
-NVV4r18DeBzXvKmrqBsZQQjv+4d6Of+KhruOO2pWhpS/IYvHM/8BapKaXvLa/Swf
-OfhhbIJIaQ6x2AWWWWLZjIhYIUL6iI228xD4FOVoHaKCfIm+8Ahntqblzr7SKBQk
-IFugRFV7XBFA8+NsVwGs89QRJJT6YUwjuYLALIL8fIjsGUyBSb/2AwnPf0cJP6Au
-X2U+Y4kJ8/7kDbWh7PJa1D8MhPkI8jfhW7g7oSQUKrXmYIY+4r2QBWt5mG/XC8jt
-IUFqKde+o2uefg19ypB8d4QwUQC49aXqRgs2eZOjujmwpSByTEgDOGAGHAMi42+y
-cG/7pZMWVgAe60bVaWP9
-=SRH1
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
