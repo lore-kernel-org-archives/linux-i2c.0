@@ -1,67 +1,70 @@
-From: addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: adjust the LOW divison based on characteristics
- of SCL
-Date: Fri, 26 Sep 2014 09:40:47 +0800
-Message-ID: <5424C41F.8030508@rock-chips.com>
-References: <1411523743-3444-1-git-send-email-addy.ke@rock-chips.com>	<CAD=FV=WiHR+KcTWHnma6TdPQcc3oc4wqAofj5kF=Sgec_5kGAQ@mail.gmail.com>	<54227F93.7000507@rock-chips.com>	<CAD=FV=Uq9AteUcpMvcU5tmyGZbVYWM6PNmevZXSVCkYB8rqSsQ@mail.gmail.com>	<5423765B.8000706@rock-chips.com>	<CAD=FV=Uuk1zBYn4NgcpDSHVfKeyw3MONO7roUNVSPSDDEyD=8Q@mail.gmail.com> <CAD=FV=UkAcR8b+T_Dvoy9STDfzyC8QVSawihoHLYyHFJ6bfXxQ@mail.gmail.com>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH] i2c: rk3x: adjust the LOW divison based on
+ characteristics of SCL
+Date: Thu, 25 Sep 2014 19:08:18 -0700
+Message-ID: <CAD=FV=WhBhmCO=GamNr7yyXvLmOFDro8zWVwrj1zQVYogzeyVA@mail.gmail.com>
+References: <1411523743-3444-1-git-send-email-addy.ke@rock-chips.com>
+	<CAD=FV=WiHR+KcTWHnma6TdPQcc3oc4wqAofj5kF=Sgec_5kGAQ@mail.gmail.com>
+	<54227F93.7000507@rock-chips.com>
+	<CAD=FV=Uq9AteUcpMvcU5tmyGZbVYWM6PNmevZXSVCkYB8rqSsQ@mail.gmail.com>
+	<5423765B.8000706@rock-chips.com>
+	<CAD=FV=Uuk1zBYn4NgcpDSHVfKeyw3MONO7roUNVSPSDDEyD=8Q@mail.gmail.com>
+	<CAD=FV=UkAcR8b+T_Dvoy9STDfzyC8QVSawihoHLYyHFJ6bfXxQ@mail.gmail.com>
+	<5424C41F.8030508@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAD=FV=UkAcR8b+T_Dvoy9STDfzyC8QVSawihoHLYyHFJ6bfXxQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5424C41F.8030508@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: addy ke <addy.ke@rock-chips.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Max Schwarz <max.schwarz@online.de>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Olof Johansson <olof@lixom.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-rockchip@lists.infradead.org, Eddie Cai <cf@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Tao Huang <huangtao@rock-chips.com>, Chris <zyw@rock-chips.com>, =?UTF-8?B?5aea5pm65oOF?= <yzq@rock-chips.com>, han jiang <hj@rock-chips.com>, Kever Yang <kever.yang@rock-chips.com>, Lin Huang <hl@rock-chips.com>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang@rock-chips.com>, Shunqian Zheng <zhengsq@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, Doug
+Addy,
 
-On 2014/9/26 5:52, Doug Anderson wrote:
-> Addy,
-> 
-> On Wed, Sep 24, 2014 at 9:36 PM, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+On Thu, Sep 25, 2014 at 6:40 PM, addy ke <addy.ke@rock-chips.com> wrote:
+> Hi, Doug
+>
+> On 2014/9/26 5:52, Doug Anderson wrote:
 >> Addy,
 >>
->> On Wed, Sep 24, 2014 at 6:56 PM, addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
->>> In my measurement,all paramter but "Data hold time" are match the characteristics of SCL bus line.
->>> the measured value is 0.928us("data hold time on RK3X"  ~=  "the low period / 2")
->>> but the maximum value described in table is 0.9us
+>> On Wed, Sep 24, 2014 at 9:36 PM, Doug Anderson <dianders@chromium.org> wrote:
+>>> Addy,
 >>>
->>> About "Data hold time", there are described in I2C specification:
->>> - for CBUS compatible masters for I2C-bus deivices
->>> - the maximum data hold time has only be met if the device does not stretch the LOW period of the SCL signal.
+>>> On Wed, Sep 24, 2014 at 6:56 PM, addy ke <addy.ke@rock-chips.com> wrote:
+>>>> In my measurement,all paramter but "Data hold time" are match the characteristics of SCL bus line.
+>>>> the measured value is 0.928us("data hold time on RK3X"  ~=  "the low period / 2")
+>>>> but the maximum value described in table is 0.9us
+>>>>
+>>>> About "Data hold time", there are described in I2C specification:
+>>>> - for CBUS compatible masters for I2C-bus deivices
+>>>> - the maximum data hold time has only be met if the device does not stretch the LOW period of the SCL signal.
+>>>>
+>>>> I have tested on RK3288-Pinky board, there are no error.
+>>>> But I don't known whether this paramter will affect i2c communications.
 >>>
->>> I have tested on RK3288-Pinky board, there are no error.
->>> But I don't known whether this paramter will affect i2c communications.
+>>> I'll have to spend more time tomorrow to really understand this, but
+>>> if changing the code to bias towards slightly longer "high" times
+>>> instead of "low" times helps fix it then that's fine with me.
 >>
->> I'll have to spend more time tomorrow to really understand this, but
->> if changing the code to bias towards slightly longer "high" times
->> instead of "low" times helps fix it then that's fine with me.
-> 
-> So what you're saying is that you're seeing a case where the clock
-> goes low and the data is not valid until .928us.  Is this data that is
-> being driven by the master or data that is being driven by the slave?
-> 
-It is driven by the master and will be release at half of LOW period in our IC design.
+>> So what you're saying is that you're seeing a case where the clock
+>> goes low and the data is not valid until .928us.  Is this data that is
+>> being driven by the master or data that is being driven by the slave?
+>>
+> It is driven by the master and will be release at half of LOW period in our IC design.
 
-> Do you know why the data takes so long to be valid?  Maybe you can
-> email me some of the waveforms and I can try to help you debug it.
-> 
-sure, I will email the I2C signal test report table right now.
-> 
-> In any case it sounds like the the "data hold time" problem is
-> unrelated to the clock ratio problem (right?), so maybe you could send
-> out patch v2?
-> 
-Ok, I will send patch v2 today.
-thanks.
+Ah, I didn't know this.  Is that in the TRM somewhere?
 
-> -Doug
-> 
-> P.S. I checked the Rockchip TRM and it claims 400kHz maximum i2c.  I
-> think that means you can just remove all of the "fast mode plus" and
-> "high speed mode" clock rates from your table.
-> 
-Ok.
-> 
-> 
+...so does it work to just replace:
+
+    ideal_low_div = DIV_ROUND_UP(clk_rate * min_low_ns,
+                                 scl_rate * 8 * min_total_ns)
+
+...with:
+
+    ideal_low_div = min_low_div
+
+
+That will assign all "extra" time to the "high" part.
+
+-Doug
