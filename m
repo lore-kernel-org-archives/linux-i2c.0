@@ -1,160 +1,42 @@
-From: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: [PATCH v2] i2c: rk3x: adjust the LOW divison based on characteristics of SCL
-Date: Sat, 27 Sep 2014 15:11:28 +0800
-Message-ID: <1411801888-3152-1-git-send-email-addy.ke@rock-chips.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Addy <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+From: atull <atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org>
+Subject: Re: [PATCH] i2c designware add support of I2C standard mode
+Date: Sat, 27 Sep 2014 22:40:12 -0500
+Message-ID: <alpine.DEB.2.10.1409272238450.2655@shineypoop>
+References: <20140820124231.GD21734@leverpostej> <1408544948-22339-1-git-send-email-romainba@abilis.com> <20140920092456.GD1612@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20140920092456.GD1612@katana>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dinguyen-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, yvanderv-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Addy <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+On Sat, 20 Sep 2014, Wolfram Sang wrote:
 
-As show in I2C specification:
-- Standard-mode: the minimum HIGH period of the scl clock is 4.0us
-                 the minimum LOW period of the scl clock is 4.7us
-- Fast-mode: the minimum HIGH period of the scl clock is 0.6us
-             the minimum LOW period of the scl clock is 1.3us
+> On Wed, Aug 20, 2014 at 04:29:08PM +0200, Romain Baeriswyl wrote:
+> > From: Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+> > 
+> > Some legacy devices support ony I2C standard mode at 100kHz.
+> > This patch allows to select the standard mode through the DTS
+> > with the use of the existing clock-frequency parameter.
+> > 
+> > When clock-frequency parameter is not set, the fast mode is selected.
+> > Only when the parameter is set at 100000, the standard mode is selected.
+> > 
+> > Signed-off-by: Romain Baeriswyl <romainba-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+> > Reviewed-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+> 
+> Applied to for-next, thanks to all involved!
+> 
+> 
 
-I have measured i2c SCL waveforms in fast-mode by oscilloscope
-on rk3288-pinky board. the LOW period of the scl clock is 1.3us.
-It is so critical that we must adjust LOW division to increase
-the LOW period of the scl clock.
+I don't see this in 
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+Is this in i2c/i2c/for-next?
 
-After put this patch, we can find that min_low_ns is about
-5.4us in Standard-mode and 1.6us in Fast-mode.
-
-Thanks Doug for the suggestion about division formulas.
-
-Signed-off-by: Addy <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
----
-Changes in v2:
-- remove Fast-mode plus and HS-mode
-- use new formulas suggested by Doug
-
- drivers/i2c/busses/i2c-rk3x.c | 104 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 97 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index e637c32..81672a8 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -428,19 +428,109 @@ out:
- 	return IRQ_HANDLED;
- }
- 
-+static void rk3x_i2c_get_min_ns(unsigned int scl_rate,
-+				unsigned long *min_low_ns,
-+				unsigned long *min_high_ns)
-+{
-+	WARN_ON(scl_rate > 400000);
-+
-+	/* As show in I2C specification:
-+	 * - Standard-mode(100KHz):
-+	 *   min_low_ns is 4700ns
-+	 *   min_high_ns is 4000ns
-+	 * - Fast-mode(400KHz):
-+	 *   min_low_ns is 1300ns
-+	 *   min_high_ns is 600ns
-+	 *
-+	 * (min_low_ns + min_high_ns) up to 10000ns in Standard-mode
-+	 * and 2500ns in Fast-mode
-+	 */
-+	if (scl_rate <= 100000) {
-+		*min_low_ns = 4700 + 650;
-+		*min_high_ns = 4000 + 650;
-+	} else {
-+		*min_low_ns = 1300 + 300;
-+		*min_high_ns = 600 + 300;
-+	}
-+}
-+
-+static void rk3x_i2c_calc_divs(unsigned long i2c_rate, unsigned long scl_rate,
-+			       unsigned long *div_low, unsigned long *div_high)
-+{
-+	unsigned long min_low_ns, min_high_ns, min_total_ns;
-+	unsigned long min_low_div, min_high_div;
-+	unsigned long min_total_div, min_div_for_hold;
-+	unsigned long extra_div, extra_low_div, ideal_low_div;
-+	unsigned long i2c_rate_khz, scl_rate_khz;
-+
-+	rk3x_i2c_get_min_ns(scl_rate, &min_low_ns, &min_high_ns);
-+	min_total_ns = min_low_ns + min_high_ns;
-+
-+	/* To avoid from overflow warning */
-+	i2c_rate_khz = i2c_rate / 1000;
-+	scl_rate_khz = scl_rate / 1000;
-+
-+	/*We need the total div to be >= this number
-+	 * so we don't clock too fast.
-+	 */
-+	min_total_div = DIV_ROUND_UP(i2c_rate_khz, scl_rate_khz * 8);
-+
-+	/* These are the min dividers needed for hold times */
-+	min_low_div = DIV_ROUND_UP(i2c_rate_khz * min_low_ns, 8 * 1000000);
-+	min_high_div = DIV_ROUND_UP(i2c_rate_khz * min_high_ns, 8 * 1000000);
-+	min_div_for_hold = (min_low_div + min_high_div);
-+
-+	if (min_div_for_hold > min_total_div) {
-+		/* Time needed to meet hold requirements is important.
-+		 * Just use that
-+		 * */
-+		*div_low = min_low_div;
-+		*div_high = min_high_div;
-+	} else {
-+		/* We've got to distribute some time among the low and high
-+		 * so we don't run too fast.
-+		 */
-+		extra_div = min_total_div - min_div_for_hold;
-+		/* We'll try to split things up perfectly evenly,
-+		 * biasing slightly towards having a higher div
-+		 * for low (spend more time low).
-+		 */
-+		ideal_low_div = DIV_ROUND_UP(i2c_rate_khz * min_low_ns,
-+					     scl_rate_khz * 8 * min_total_ns);
-+		/* Handle when the ideal low div is going to take up
-+		 * more than we have.
-+		 */
-+		if (ideal_low_div > min_low_div + extra_div)
-+			ideal_low_div = min_low_div + extra_div;
-+		/* Give low the "ideal" and give high whatever extra is left.*/
-+		extra_low_div = ideal_low_div - min_low_div;
-+		*div_low = ideal_low_div;
-+		*div_high
-+			= min_high_div + (extra_div - extra_low_div);
-+	}
-+
-+	/* Adjust to the fact that the hardware has an implicit "+1".*/
-+	*div_low = *div_low - 1;
-+	*div_high = *div_high - 1;
-+}
-+
- static void rk3x_i2c_set_scl_rate(struct rk3x_i2c *i2c, unsigned long scl_rate)
- {
- 	unsigned long i2c_rate = clk_get_rate(i2c->clk);
--	unsigned int div;
-+	unsigned long div_low, div_high;
- 
--	/* SCL rate = (clk rate) / (8 * DIV) */
--	div = DIV_ROUND_UP(i2c_rate, scl_rate * 8);
-+	/* The formulas in rk3x TRM:
-+	 * - T_scl_high = T_clk * (divh + 1) * 8
-+	 * - T_scl_low = T_clk * (divl + 1) * 8
-+	 * */
-+	rk3x_i2c_calc_divs(i2c_rate, scl_rate, &div_low, &div_high);
- 
--	/* The lower and upper half of the CLKDIV reg describe the length of
--	 * SCL low & high periods. */
--	div = DIV_ROUND_UP(div, 2);
-+	i2c_writel(i2c, (div_high << 16) | (div_low & 0xffff), REG_CLKDIV);
- 
--	i2c_writel(i2c, (div << 16) | (div & 0xffff), REG_CLKDIV);
-+	dev_dbg(i2c->dev, "scl_ns: %luns, scl_low_ns: %luns, scl_high_ns: %luns\n",
-+		1000000000/scl_rate,
-+		(1000000000 / i2c_rate) * (div_low + 1) * 8,
-+		(1000000000 / i2c_rate) * (div_high + 1) * 8);
- }
- 
- /**
--- 
-1.8.3.2
+Alan
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
