@@ -1,61 +1,58 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: axxia: Add I2C driver for AXM55xx
-Date: Mon, 29 Sep 2014 14:51:36 +0200
-Message-ID: <20140929125135.GA1327@katana>
-References: <1411983159-4692-1-git-send-email-anders.berg@avagotech.com>
- <54292F74.2030209@gmail.com>
- <CAE0=X_0guSvMqZxHvdS39Zxx4G7qVvnddv96t72rp4FwpJLgfA@mail.gmail.com>
- <54293F2C.2090206@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: rcar: remove sign-compare flaw
+Date: Mon, 29 Sep 2014 22:44:37 +0200
+Message-ID: <20140929204437.GA2758@katana>
+References: <1411207657-23707-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <54293F2C.2090206-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1411207657-23707-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---a8Wt8u1KmwUX3Y2C
+--h31gzZEtNLTqOjlF
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> >>Its looks good if we move the entire ISR above probe/remove
-> >>functionalities...
-> >>
-> >Not sure what you mean here... The ISR _is_ above probe/remove.
+On Sat, Sep 20, 2014 at 12:07:37PM +0200, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> I mean ISR should immediately above probe functionality. So that we can s=
-ee
-> devm_request_irq(..,isr_name,..) ISR directly with isr name..
+> gcc rightfully says:
+>=20
+> drivers/i2c/busses/i2c-rcar.c:198:10: warning: comparison between signed =
+and unsigned integer expressions [-Wsign-compare]
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Not so important to me, '*' in vim does that whereever the function is.
+Applied to for-next, thanks!
 
-Still, thanks for the review!
 
---a8Wt8u1KmwUX3Y2C
+--h31gzZEtNLTqOjlF
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUKVXXAAoJEBQN5MwUoCm2x5cP/j4hOcPDPDd2N79y+YfY46Xi
-M1CFTPQJi9kSikY+0pPnd/zDd5Wk3Gm3fR9oxBTAW2Zzt+EPlkiYr8YFd5STWc92
-l8dKoLd0OIgWS20FQkFqnfNg1pXS+T0OTnbt7fbFR2W2/zJi6TAMVWQ/fXtok3N2
-mYvAkklO7m7p+cpBkHuw0+uBYtbasDyFh/QEJI4mGxry8TzXZs0D23Vi2JfkP3Wd
-xKHH4D2AfO8ktBm+lVVMFtH09+inxqCEitNqyBhTtg35ELd7LpIai3EEBJPuod/p
-eRBvtqxRVQeIuf/DKp26eesTDpj8h17qCeWatl2R2zkTtZ/as4t+EMwKq/HNIX5I
-hnKYwz0K0T4dd9BeeC46j3gMXtwTqzCqtEvpgQvYEgkRvXg1yfZqRmtwUHm34TTV
-+fTGjRzLPb3jZrJ+U3VXl4D+l1nWmUj8HVn7eaUFKohUMv8nfLqUVdm30ZzDJzMI
-aiiOq8z/BLVB8EpE0gbbibIevgReXaf7ikZMPUDFodpK5hyBUm1ToQiF6iKfjUws
-oPuLGOLcQi0CPCYUHbJQClbjMPucd5x7Ho0i1Z4IohLbIXX0s0FZJeK6naU+K1b4
-5W5zzz0RRLliU0YSLlmXaaXjylmd1GJ5f0s3BIEUvdtLrlb5aZcMIlPpDxPQt461
-UxXgXm52Pwl+vUcbsNOa
-=euqh
+iQIcBAEBAgAGBQJUKcS0AAoJEBQN5MwUoCm2ZMsP/1UN+I9D/sCLrZJOhstLQ0da
+Y4xkmdwJGZHCDOIjk6wV61m8CkJFVHUJp0KNH+QTeDT2I5hpdRqUcQz7q+M5JWR0
+oxdtbw5aRpUH+Sc/RfJTmO6YVdsg1DQt5ZmofZBzN3C3ymPVpayItrXI9ULVa2N4
+zA2nfIsliXoCz4CqUKDWOTw+iIXs85MYOHsKq00fGDMpseqUq0aFgyQ1+Ss5Pd/m
+c5abk2oDDtaK0hL7zrpOIta9n9FnHAZH9958uAQ80LjFtoaTGe3dK+vBXK3YH+kU
+q4wA8GFZplgViSCgKJ4VPzuEoEcPYjC5yvfN6UUHCxoosvL4X6kIfeESVwuoGszi
+HvThT4tiGrGfnV6CNguJh3HmpBPdKevxoAsyDiNRk3OBDRVgOdN+fsPFw6q9CYJp
+q3utUZCdiJdDfJtCJ57mY0KRSElenykoAeFtmmy5mFg578/dStG25oSgmFs6qGYZ
+HjDbn8OSZd48QcmhyeebvPkeUaS+LZdV2oZsirwnmedZBPOBl2Cot0cFWsmdoI18
+yhPgjRwjkYljYYqo31gmUvUMzsNTdIO1NU7GkwPLkSzArSD/fn5gHbPoHi5lvZ0q
+k0wAC5Hwd/DvO+Z5ueWoGqb6SmSlPiXPUB1hO1wfM7z+5l3Gj5yUrwRak7yFWOsE
+qNQYMIdZXlavO9GuX3Qy
+=JvKm
 -----END PGP SIGNATURE-----
 
---a8Wt8u1KmwUX3Y2C--
+--h31gzZEtNLTqOjlF--
