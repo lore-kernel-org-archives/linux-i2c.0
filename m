@@ -1,216 +1,71 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v2] i2c: rk3x: adjust the LOW divison based on
- characteristics of SCL
-Date: Sun, 28 Sep 2014 21:39:05 -0700
-Message-ID: <CAD=FV=XnM-2CuctP-L=-gj7TPyMXrkhsDS9Tmxeq+9Mx5p7PZA@mail.gmail.com>
-References: <1411801888-3152-1-git-send-email-addy.ke@rock-chips.com>
+From: =?utf-8?B?5bCP5bC5?= <support@motech.cn>
+Subject: =?utf-8?B?55So5LqG5LiA5qyh5L2g5bCx5Lya6KeJ5b6X5piv5pyA5aW955qE55+t5L+h5Y+R6YCB5bmz5Y+wIA==?=
+	=?utf-8?B?ICAgICAgICAgICAgICAgICAgICA=?=
+	=?utf-8?B?ICAgICAgICAgICAgICAgICAgICA=?=
+	=?utf-8?B?ICAgICAgICAgICAgICAgICAgICA=?=
+	=?utf-8?B?ICAgICAgICBsaQ==?=
+Date: Mon, 29 Sep 2014 11:03:09 +0800
+Message-ID: <20140929110316667032@motech.cn>
+Reply-To: <dingxj8@aliyun.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1411801888-3152-1-git-send-email-addy.ke@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Addy Ke <addy.ke@rock-chips.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Max Schwarz <max.schwarz@online.de>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Olof Johansson <olof@lixom.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-rockchip@lists.infradead.org, Eddie Cai <cf@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Tao Huang <huangtao@rock-chips.com>, Chris <zyw@rock-chips.com>, =?UTF-8?B?5aea5pm65oOF?= <yzq@rock-chips.com>, han jiang <hj@rock-chips.com>, Kever Yang <kever.yang@rock-chips.com>, Lin Huang <hl@rock-chips.com>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang@rock-chips.com>, Shunqian Zheng <zhengsq@rock-chips.com>
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-hexagon-owner@vger.kernel.org>
+Sender: linux-hexagon-owner@vger.kernel.org
+To: linuv@yeah.net, linux-btrfs@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Addy,
-
-On Sat, Sep 27, 2014 at 12:11 AM, Addy Ke <addy.ke@rock-chips.com> wrote:
-> From: Addy <addy.ke@rock-chips.com>
->
-> As show in I2C specification:
-> - Standard-mode: the minimum HIGH period of the scl clock is 4.0us
->                  the minimum LOW period of the scl clock is 4.7us
-> - Fast-mode: the minimum HIGH period of the scl clock is 0.6us
->              the minimum LOW period of the scl clock is 1.3us
->
-> I have measured i2c SCL waveforms in fast-mode by oscilloscope
-> on rk3288-pinky board. the LOW period of the scl clock is 1.3us.
-> It is so critical that we must adjust LOW division to increase
-> the LOW period of the scl clock.
->
-> After put this patch, we can find that min_low_ns is about
-> 5.4us in Standard-mode and 1.6us in Fast-mode.
->
-> Thanks Doug for the suggestion about division formulas.
->
-> Signed-off-by: Addy <addy.ke@rock-chips.com>
-> ---
-> Changes in v2:
-> - remove Fast-mode plus and HS-mode
-> - use new formulas suggested by Doug
->
->  drivers/i2c/busses/i2c-rk3x.c | 104 +++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 97 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> index e637c32..81672a8 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -428,19 +428,109 @@ out:
->         return IRQ_HANDLED;
->  }
->
-> +static void rk3x_i2c_get_min_ns(unsigned int scl_rate,
-> +                               unsigned long *min_low_ns,
-> +                               unsigned long *min_high_ns)
-> +{
-> +       WARN_ON(scl_rate > 400000);
-> +
-> +       /* As show in I2C specification:
-> +        * - Standard-mode(100KHz):
-> +        *   min_low_ns is 4700ns
-> +        *   min_high_ns is 4000ns
-> +        * - Fast-mode(400KHz):
-> +        *   min_low_ns is 1300ns
-> +        *   min_high_ns is 600ns
-> +        *
-> +        * (min_low_ns + min_high_ns) up to 10000ns in Standard-mode
-> +        * and 2500ns in Fast-mode
-> +        */
-> +       if (scl_rate <= 100000) {
-> +               *min_low_ns = 4700 + 650;
-> +               *min_high_ns = 4000 + 650;
-> +       } else {
-> +               *min_low_ns = 1300 + 300;
-> +               *min_high_ns = 600 + 300;
-
-Wait, where did the extra 650 and 300 come from here?  Are you just
-trying to balance things out?  That's not the right way to do things.
-Please explain what you were trying to accomplish and we can figure
-out a better way.
-
-...maybe this helped make thins nicer in the clock rates you tried,
-but I'd bet that I can find clock rates that this is broken for...
-
-
-> +       }
-> +}
-> +
-> +static void rk3x_i2c_calc_divs(unsigned long i2c_rate, unsigned long scl_rate,
-> +                              unsigned long *div_low, unsigned long *div_high)
-> +{
-> +       unsigned long min_low_ns, min_high_ns, min_total_ns;
-> +       unsigned long min_low_div, min_high_div;
-> +       unsigned long min_total_div, min_div_for_hold;
-> +       unsigned long extra_div, extra_low_div, ideal_low_div;
-> +       unsigned long i2c_rate_khz, scl_rate_khz;
-> +
-> +       rk3x_i2c_get_min_ns(scl_rate, &min_low_ns, &min_high_ns);
-> +       min_total_ns = min_low_ns + min_high_ns;
-> +
-> +       /* To avoid from overflow warning */
-> +       i2c_rate_khz = i2c_rate / 1000;
-> +       scl_rate_khz = scl_rate / 1000;
-
-DIV_ROUND_UP?
-
-> +
-> +       /*We need the total div to be >= this number
-> +        * so we don't clock too fast.
-> +        */
-
-Please match the commenting style in the rest of the file.  That's:
-
-/*
- * A
- * B
- * C
- */
-
-Not:
-
-/* A
- * B
- * C
- */
-
-> +       min_total_div = DIV_ROUND_UP(i2c_rate_khz, scl_rate_khz * 8);
-> +
-> +       /* These are the min dividers needed for hold times */
-> +       min_low_div = DIV_ROUND_UP(i2c_rate_khz * min_low_ns, 8 * 1000000);
-> +       min_high_div = DIV_ROUND_UP(i2c_rate_khz * min_high_ns, 8 * 1000000);
-> +       min_div_for_hold = (min_low_div + min_high_div);
-> +
-> +       if (min_div_for_hold > min_total_div) {
-> +               /* Time needed to meet hold requirements is important.
-> +                * Just use that
-> +                * */
-
-Extra "*" in "* */"
-
-
-> +               *div_low = min_low_div;
-> +               *div_high = min_high_div;
-> +       } else {
-> +               /* We've got to distribute some time among the low and high
-> +                * so we don't run too fast.
-> +                */
-> +               extra_div = min_total_div - min_div_for_hold;
-> +               /* We'll try to split things up perfectly evenly,
-> +                * biasing slightly towards having a higher div
-> +                * for low (spend more time low).
-> +                */
-
-Last I remember you said that this wasn't going to work quite right
-and you were just going to assign all of the "extra" to the high part.
-What changed?
-
-
-> +               ideal_low_div = DIV_ROUND_UP(i2c_rate_khz * min_low_ns,
-> +                                            scl_rate_khz * 8 * min_total_ns);
-> +               /* Handle when the ideal low div is going to take up
-> +                * more than we have.
-> +                */
-> +               if (ideal_low_div > min_low_div + extra_div)
-> +                       ideal_low_div = min_low_div + extra_div;
-> +               /* Give low the "ideal" and give high whatever extra is left.*/
-> +               extra_low_div = ideal_low_div - min_low_div;
-> +               *div_low = ideal_low_div;
-> +               *div_high
-> +                       = min_high_div + (extra_div - extra_low_div);
-> +       }
-> +
-> +       /* Adjust to the fact that the hardware has an implicit "+1".*/
-> +       *div_low = *div_low - 1;
-> +       *div_high = *div_high - 1;
-> +}
-> +
->  static void rk3x_i2c_set_scl_rate(struct rk3x_i2c *i2c, unsigned long scl_rate)
->  {
->         unsigned long i2c_rate = clk_get_rate(i2c->clk);
-> -       unsigned int div;
-> +       unsigned long div_low, div_high;
->
-> -       /* SCL rate = (clk rate) / (8 * DIV) */
-> -       div = DIV_ROUND_UP(i2c_rate, scl_rate * 8);
-
-Strangely this now seems to be based upon an older version of the
-file.  I had to revert (b4a7bd7 i2c: rk3x: fix divisor calculation for
-SCL frequency) in order to apply v2.  Please submit your code against
-the latest accepted code.
-
-
-> +       /* The formulas in rk3x TRM:
-> +        * - T_scl_high = T_clk * (divh + 1) * 8
-> +        * - T_scl_low = T_clk * (divl + 1) * 8
-> +        * */
-> +       rk3x_i2c_calc_divs(i2c_rate, scl_rate, &div_low, &div_high);
->
-> -       /* The lower and upper half of the CLKDIV reg describe the length of
-> -        * SCL low & high periods. */
-> -       div = DIV_ROUND_UP(div, 2);
-> +       i2c_writel(i2c, (div_high << 16) | (div_low & 0xffff), REG_CLKDIV);
->
-> -       i2c_writel(i2c, (div << 16) | (div & 0xffff), REG_CLKDIV);
-> +       dev_dbg(i2c->dev, "scl_ns: %luns, scl_low_ns: %luns, scl_high_ns: %luns\n",
-> +               1000000000/scl_rate,
-> +               (1000000000 / i2c_rate) * (div_low + 1) * 8,
-> +               (1000000000 / i2c_rate) * (div_high + 1) * 8);
->  }
->
->  /**
-> --
-> 1.8.3.2
->
->
+DQogIOi/meS4quefreS/oeWPkemAgeW5s+WPsOWunuWcqOaYr+WkquWlveeUqOS6hu+8jOWGjeS5
+n+S4jeaEgeaJvuS4jeWIsOWlveeahOW5s+WPsOS6hu+8jOWPquimgeaYr+S9oOWPkeeahOWGheWu
+ueaYr+ato+inhOeahO+8jOi9u+advuWwseWPr+S7peWPkemAgeWHuuWOu+OAguWKoFFRMTkzOTg5
+NzI15YW35L2T5ZKo6K+i77yM5Y+v5Lul5byA6LSm5Y+35rWL5pWI5p6c44CCDQoNCg0KDQoNCg0K
+IA0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K
+DQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoN
+Cg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K
+DQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCui6q+adkOavlOS+i+W+iOWM
+gOensO+8jOiCjOiCieS4jeWkmu+8jOS9huaYr+e7k+WunuiAjOe0p+iHtO+8jOS4jeemgeS4gOmY
+teW/g+i3s++8jOW/g+mBk++8muKAnOWlveS4gOS4qua4heengOiAjOWBpeW6t+eahOWwkeW5tO+8
+geKAnSAgICDljbTlkJHmnajmma/liJ3pgZPvvJrigJzmnajogIHluIjvvIzmga3llpzkvaDllYrj
+gILigJ0gICAg5aSP5bCP5rSb5ZCs6KeB5aW56L275aOw57uG6K+t55qE5aOw6Z+z5Yay6K645bCP
+5pu856yR5LqG5LiA5LiL44CCICAgIOWlueWutuaVmeS4peiLm++8jOW+iOacieecvOiJsu+8jOmB
+k++8muKAnOmYv+WnqO+8jOaIkeWwseS4jeWOu+S6hu+8jOaIkeWbnuWutuWQg++8jOmprOS4iuWw
+seWIsOWutuS6huOAguKAneeEtuWQjuWSjOWkj+Wwj+a0m+aMpeaJi+mBk+WIq+OAgiAgICDlpI/l
+sI/mtJvlm57ov4flpLTmnaXvvIzot5/nnYDmr43kurLlvoDlrrblsZ7pmaLnmoTmlrnlkJHotbDv
+vIzorrjlsI/ov5jmmK/kuI3opoHov5nmoLfvvIzkvZXlv4XlkaLvvJ/pl7nliLDmnIDlkI7lpKfl
+rrblpKflrrbohLjkuIrpg73kuI3lpb3nnIvvvIHigJ0gICAg5L2V5Lqs55Sf6JOm5Zyw5YGc5L2P
+77yM5Zue6L+H5aS05p2l77yM5oG254ug54ug5Zyw55yL552A5LuW77yM55y8552b5Yeg5LmO6KaB
+5Za35Ye654Gr5p2l77yM6YGT77ya4oCc5L2g4oCm4oCm5aiB6IOB5oiR5ZWK77yB77yf4oCdICAg
+IOiRo+S5neaYn+ern+eEtueskeS6hu+8jOa0m+i2s+i2s+eyl+S6huS4pOWciO+8jOiCjOiCiee7
+k+Wunu+8jOiDuOiCjOmrmOmrmOeahOmahui1t++8jOaYvueEtuaYr+e7j+W4uOe7g+atpuaIluiA
+heaYr+W5suS9k+WKm+a0u+OAgiAgICDku5bku6zotr7pq5jmsJTmiazvvIzpnaLoibLpqoTmqKrv
+vIznnLznpZ7kuK3pg73pl6rng4HnnYDpmLTni6DnmoTlhrflhYnvvIzkuI3mgIDlpb3mhI/lnLDn
+nIvnnIvov5nkuKrnnIvnnIvpgqPkuKrvvIznnIvosIHpg73lpb3lg4/mmK/miYvmnLrpmIXor7vm
+m7TlpJrlhajmnKznlLXlrZDkuabvvIzor7fmkJzntKLjgJDkuZDor7vlsI/or7TpmIXor7vlmajj
+gJHlupTnlKjlronoo4XkuIDmoLfvvIzlpbnlv73nhLblm57ov4flpLTmnaXvvIzmu6HmmK/nrJHm
+hI/lnLDnnIvnnYDku5bvvIzpgqPnm67lhYnnqb/otornqoPnqoPnp4Hor63vvIznqb/ov4fkuKTk
+uKrnu5nmlrDkuabnlKjmiqXnurjljIXkuabnmq7nmoTlpbPlkIzlrabvvIznqb/ov4fkuIDkuKrp
+ooTkuaDoi7Hor63ljZXor43lpLTlj5HmnInngrnljbfmm7LnmoTlpKfkuKrlrZDnlLfnlJ/vvIzn
+m7Tovr7ku5bnmoTlv4PohI/jgIIgICAg6YKj54ix56yRCQ0KIOWkj+Wwj+a0m+S4gOmYteaDiuWW
+nO+8jOWlveiAtu+8jOWOhuWPsuWPiOWbnuWIsOWug+acrOadpeeahOi9qOmBk+S4iuS6hu+8jOec
+i+adpeadqOaZr+WInei/mOaYr+WBmuWkp+WtpuiAheeahOWRve+8jOmBk++8muKAnOaXoueEtuaC
+qOWcqOWbveWGhea3t+eahOS4jeWmguaEj++8jOS4jeWmguecvOWFieaUvui/nOeCue+8jOiAg+Wb
+veWklueahOWkp+Wtpu+8jOavleern+e7j+a1juWtpu+8jOaXoOiuuuaYr+aUv+eahOecvOedm+S7
+v+S9m+acieS4gOS4neW+l+aEj+a0i+a0i++8jOWlveWDj+WcqOivtO+8muKAnOWTvO+8jOaIkeWw
+seefpemBk+S9oOWcqOeci+aIkeOAguKAnSAgICDku7/kvZvkuIDnnqzpl7TvvIzlj4jku7/kvZvm
+mK/kuIDkuIflubTjgIIgICAg5aSc5bmV5LiN55+l5piv5L2V5pe26ZmN5Li055qE77yM6Lev54Gv
+5Yi35Zyw5Lqu5LqG6LW35p2l44CCICAgIOWkj+Wwj+a0m+W+ruW+ruS4gOeske+8jOa7oeaYr+eI
+seaAnOi/m+i0p+aKiuWFs+S4jeS4pe+8jOS5n+aciei0o+S7u+KAmeOAguKAnemSseiDveWKm+i/
+meaWuemdouOAgiAgICDku5bnnYDmgKXlnLDpgZPvvJrigJzmiJHlt7Lnu4/lkozmgLvlhazlj7jn
+moTlhq/lia/mgLvmkK3kuIrlhbPns7vkuobvvIzlmL/vvIzmiJHnlaXmlr3lsI/orqHlsLHmkK3k
+uIrkuobvvIHkvaDku6zmg7PkuI3liLDlkKfvvJ/lvojlpJrkurrmg7Pms5XlrZDmg7PljYrlubTv
+vIzljYrlubTlkI7ov5jmmK/op4HkuI3liLDku5bkuIDpnaLvvIzmiJHlsLHog73vvIHkvaDnnIvn
+nYDlkKfvvIzmiJHlvZPlsI/lrpjmmK/kuLrkuobmnZHmsJHlj5jlr4zvvIzov5nmnInku4DkuYjp
+lJnkuYjvvJ/igJ0gICAg5L2V5Lqs55Sf6YGT77ya4oCc5L2g5bCx5piv6L+Z5LmI6YCg56aP5LiA
+5pa555qE5LmI77yf4oCdICAgIOWkj+Wwj+a0m+WdkOS6huS4gOWknOi9pu+8jOiFv+iEmumDvem6
+u+S6hu+8jOi/meS8muWkqeawlOS5n+aUvuaZtOS6hu+8jOWwseaDs+S4i+i9pua0u+WKqOS4i++8
+jOaWveaWveeEtui1sOWIsOS7luS7rOi3n+edgOecvOedm+eci+edgOS7lu+8jOaEo+S6hueJh+WI
+u++8jOmBk++8muKAnOS9oOeahOaEj+aAneaYr++8n+KApuKApuKApuKApuWNluS6hu+8n+aIkeS7
+rOaJk+WBh+eahOWNluWBh++8n+i/meWDj+ivneS5iO+8n++8geKAnSAgICDlpI/lsI/mtJvkvY7l
+pLTmiZLmi4npo5/nianvvIzpgZPvvJrigJzmiJHllaXkuZ/msqHor7TvvIHmiJHlkIPkuJzopb/j
+gILigJ3or7Tlrozlj6rpob7ln4vlpLTlkIPppa3jgIIgICAg5L2V5LqsCQ0K
