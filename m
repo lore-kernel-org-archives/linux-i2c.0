@@ -1,51 +1,59 @@
-From: Andy Gross <agross@codeaurora.org>
-Subject: [PATCH] i2c: qup: Fix order of runtime pm initialization
-Date: Mon, 29 Sep 2014 17:00:51 -0500
-Message-ID: <1412028051-21774-1-git-send-email-agross@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Andy Gross <agross@codeaurora.org>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH] i2c: qup: Fix order of runtime pm initialization
+Date: Mon, 29 Sep 2014 17:49:34 -0500
+Message-ID: <20140929224934.GB21681@saruman>
+References: <1412028051-21774-1-git-send-email-agross@codeaurora.org>
+Reply-To: <balbi@ti.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OwLcNYc0lM97+oe1"
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1412028051-21774-1-git-send-email-agross@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Andy Gross <agross@codeaurora.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-The runtime pm calls need to be done before populating the children via the
-i2c_add_adapter call.  If this is not done, a child can run into issues trying
-to do i2c read/writes due to the pm_runtime_sync failing.
+--OwLcNYc0lM97+oe1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Andy Gross <agross@codeaurora.org>
----
- drivers/i2c/busses/i2c-qup.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+On Mon, Sep 29, 2014 at 05:00:51PM -0500, Andy Gross wrote:
+> The runtime pm calls need to be done before populating the children via t=
+he
+> i2c_add_adapter call.  If this is not done, a child can run into issues t=
+rying
+> to do i2c read/writes due to the pm_runtime_sync failing.
+>=20
+> Signed-off-by: Andy Gross <agross@codeaurora.org>
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 3a4d64e..092d89b 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -674,16 +674,20 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 	qup->adap.dev.of_node = pdev->dev.of_node;
- 	strlcpy(qup->adap.name, "QUP I2C adapter", sizeof(qup->adap.name));
- 
--	ret = i2c_add_adapter(&qup->adap);
--	if (ret)
--		goto fail;
--
- 	pm_runtime_set_autosuspend_delay(qup->dev, MSEC_PER_SEC);
- 	pm_runtime_use_autosuspend(qup->dev);
- 	pm_runtime_set_active(qup->dev);
- 	pm_runtime_enable(qup->dev);
-+
-+	ret = i2c_add_adapter(&qup->adap);
-+	if (ret)
-+		goto fail_runtime;
-+
- 	return 0;
- 
-+fail_runtime:
-+	pm_runtime_disable(qup->dev);
-+	pm_runtime_set_suspended(qup->dev);
- fail:
- 	qup_i2c_disable_clocks(qup);
- 	return ret;
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-hosted by The Linux Foundation
+Reviewed-by: Felipe Balbi <balbi@ti.com>
+
+--=20
+balbi
+
+--OwLcNYc0lM97+oe1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUKeH+AAoJEIaOsuA1yqREPFEQALN+xu2qW/Qakr5ZfkZoLsE+
+76r3Z1vojmfS/niQBf3fXwW8EEfXqdFPjUEeYCBG6myOVEKU2kGHQTYgGhey1OmK
+QVvEdbkZfFgUHSNsq0eGeENP51c/pDR4LplgW22DWZMIedKNnsT55e3wkXbkjzem
+OSk8nNn6ijKt2+MHt5kvj+/BLILGfP5myjBpTdVFDZqa790aDBVQHu1onJom0Ucd
+LEqK7npPrpxrnRGtyxpOo/PNebGm7dyP8zdXK2f0PKu3WuTAiGEaI8dI3U+hCbDD
+3Zm83gytAjWpg60BDAH4L032bxuUOF5Oq4pnUIfbcRZzsmuVukjU2JLQFwIBzhi3
+vbSkyL+Spj4HS06L/Ht79dTM+yusp7hCF+u1k+4yeSd3azi6MipeUwzHLUGP9G98
+j3PDfyQ8OUyffql5Njvgc6WWgQr8vlctA7LMmw0trBP9FV7Ad2fkm8n38Hg/ORfg
+zvFWPdBQxMbGRoYZLWvymgzCEU1HMOFTrh9sCAwVgWkPzd0+PqAQZo1qxBCk/+08
+5yNWYm5Ax+fb+1N70OygdEuZOBYf/zmXhQFmMRsN7JVCMCOi44G9VOHd5ZhMxsuX
+9k9erWfAbrSIjHBSwWz3B3aVZUVmIJB+T0Dgl9Swk/F1h/kconKNvV5bcBuxl60Q
+z6/ASS1w1gKPm0Kyixzq
+=2yUl
+-----END PGP SIGNATURE-----
+
+--OwLcNYc0lM97+oe1--
