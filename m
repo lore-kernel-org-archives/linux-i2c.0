@@ -1,98 +1,50 @@
-From: Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: axxia: Add I2C driver for AXM55xx
-Date: Mon, 29 Sep 2014 16:44:52 +0530
-Message-ID: <54293F2C.2090206@gmail.com>
-References: <1411983159-4692-1-git-send-email-anders.berg@avagotech.com>	<54292F74.2030209@gmail.com> <CAE0=X_0guSvMqZxHvdS39Zxx4G7qVvnddv96t72rp4FwpJLgfA@mail.gmail.com>
+From: zhangfei <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 2/3] i2c: hix5hd2: add i2c controller driver
+Date: Mon, 29 Sep 2014 20:49:22 +0800
+Message-ID: <54295552.2020501@linaro.org>
+References: <1411878129-19743-1-git-send-email-zhangfei.gao@linaro.org> <1411878129-19743-3-git-send-email-zhangfei.gao@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAE0=X_0guSvMqZxHvdS39Zxx4G7qVvnddv96t72rp4FwpJLgfA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1411878129-19743-3-git-send-email-zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/29/2014 04:43 PM, Anders Berg wrote:
-> On Mon, Sep 29, 2014 at 12:07 PM, Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> On 09/29/2014 03:02 PM, Anders Berg wrote:
->>> Add I2C bus driver for the controller found in the LSI Axxia family SoCs.
->>> The
->>> driver implements 10-bit addressing and SMBus transfer modes via emulation
->>> (including SMBus block data read).
->>>
->>> Signed-off-by: Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>
->>> ---
->>>
-> (...)
->>> +
->>> +       if (!idev->msg) {
->>> +               dev_warn(idev->dev, "unexpected interrupt");
->>
->> Missed terminating new line '\n'
->>
-> Right, I'll fix that (all occurrences)
+
+
+On 09/28/2014 12:22 PM, Zhangfei Gao wrote:
+> From: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 >
->>> +               goto out;
->>> +       }
->>> +
->>> +       /* RX FIFO needs service? */
->>> +       if (i2c_m_rd(idev->msg) && (status & MST_STATUS_RFL))
->>> +               axxia_i2c_empty_rx_fifo(idev);
->>> +
->>> +       /* TX FIFO needs service? */
->>> +       if (!i2c_m_rd(idev->msg) && (status & MST_STATUS_TFL)) {
->>> +               if (axxia_i2c_fill_tx_fifo(idev) == 0)
->>> +                       i2c_int_disable(idev, MST_STATUS_TFL);
->>> +       }
->>> +
->>> +       if (status & MST_STATUS_SCC) {
->>> +               /* Stop completed */
->>> +               i2c_int_disable(idev, ~0);
->>> +               complete(&idev->msg_complete);
->>> +       } else if (status & MST_STATUS_SNS) {
->>> +               /* Transfer done */
->>> +               i2c_int_disable(idev, ~0);
->>> +               if (i2c_m_rd(idev->msg) && idev->msg_xfrd <
->>> idev->msg->len)
->>> +                       axxia_i2c_empty_rx_fifo(idev);
->>> +               complete(&idev->msg_complete);
->>> +       } else if (unlikely(status & MST_STATUS_ERR)) {
->>> +               /* Transfer error */
->>> +               i2c_int_disable(idev, ~0);
->>> +               if (status & MST_STATUS_AL)
->>> +                       idev->msg_err = -EAGAIN;
->>> +               else if (status & MST_STATUS_NAK)
->>> +                       idev->msg_err = -ENXIO;
->>> +               else
->>> +                       idev->msg_err = -EIO;
->>> +               dev_dbg(idev->dev, "error %#x, addr=%#x rx=%u/%u
->>> tx=%u/%u\n",
->>> +                       status,
->>> +                       idev->msg->addr,
->>> +                       readl(idev->base + MST_RX_BYTES_XFRD),
->>> +                       readl(idev->base + MST_RX_XFER),
->>> +                       readl(idev->base + MST_TX_BYTES_XFRD),
->>> +                       readl(idev->base + MST_TX_XFER));
->>> +               complete(&idev->msg_complete);
->>> +       }
->>> +
->>> +out:
->>> +       /* Clear interrupt */
->>> +       writel(INT_MST, idev->base + INTERRUPT_STATUS);
->>> +
->>> +       return IRQ_HANDLED;
->>> +}
->>> +
->>
->> Its looks good if we move the entire ISR above probe/remove
->> functionalities...
->>
-> Not sure what you mean here... The ISR _is_ above probe/remove.
+> I2C drivers for hix5hd2 soc series, including following chipset
+> Hi3716CV200, Hi3719CV100, Hi3718CV100, Hi3719MV100, Hi3718MV100.
+>
+> Signed-off-by: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>   drivers/i2c/busses/Kconfig       |   10 +
+>   drivers/i2c/busses/Makefile      |    1 +
+>   drivers/i2c/busses/i2c-hix5hd2.c |  554 ++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 565 insertions(+)
+>   create mode 100644 drivers/i2c/busses/i2c-hix5hd2.c
+>
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 2ac87fa..ba0f43c 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -77,6 +77,16 @@ config I2C_AMD8111
+>   	  This driver can also be built as a module.  If so, the module
+>   	  will be called i2c-amd8111.
+>
+> +config I2C_HIX5HD2
+> +	tristate "Hix5hd2 high-speed I2C driver"
+> +	depends on ARCH_HIX5HD2
 
-I mean ISR should immediately above probe functionality. So that we can see
-devm_request_irq(..,isr_name,..) ISR directly with isr name..
+Would like to remove the dependence in next version to enable compile-test.
+The commit 4c255791ffd6410f ("asm-generic: io: implement relaxed 
+accessor macros as conditional wrappers") adds wrappers to asm-generic 
+of {read,write}{b,w,l,q}_relaxed.
 
--- 
-Regards,
-Varka Bhadram.
+Thanks
