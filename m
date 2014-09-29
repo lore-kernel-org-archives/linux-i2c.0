@@ -1,71 +1,48 @@
-From: =?utf-8?B?5bCP5bC5?= <support@motech.cn>
-Subject: =?utf-8?B?55So5LqG5LiA5qyh5L2g5bCx5Lya6KeJ5b6X5piv5pyA5aW955qE55+t5L+h5Y+R6YCB5bmz5Y+wIA==?=
-	=?utf-8?B?ICAgICAgICAgICAgICAgICAgICA=?=
-	=?utf-8?B?ICAgICAgICAgICAgICAgICAgICA=?=
-	=?utf-8?B?ICAgICAgICAgICAgICAgICAgICA=?=
-	=?utf-8?B?ICAgICAgICBsaQ==?=
-Date: Mon, 29 Sep 2014 11:03:09 +0800
-Message-ID: <20140929110316667032@motech.cn>
-Reply-To: <dingxj8@aliyun.com>
+From: Javier Martinez Canillas <javier.martinez@collabora.co.uk>
+Subject: Re: [PATCH v3 6/6] mfd: cros_ec: Instantiate sub-devices from device
+ tree
+Date: Mon, 29 Sep 2014 09:33:27 +0200
+Message-ID: <54290B47.2030907@collabora.co.uk>
+References: <1410428289-18229-1-git-send-email-javier.martinez@collabora.co.uk> <1410428289-18229-7-git-send-email-javier.martinez@collabora.co.uk> <20140917163114.GL30918@lee--X1> <541A8E88.6050707@collabora.co.uk> <20140919001512.GA29852@lee--X1> <54241E74.9000403@collabora.co.uk> <20140925144846.GC21351@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-hexagon-owner@vger.kernel.org>
-Sender: linux-hexagon-owner@vger.kernel.org
-To: linuv@yeah.net, linux-btrfs@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20140925144846.GC21351@lee--X1>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Doug Anderson <dianders@chromium.org>, Simon Glass <sjg@chromium.org>, Bill Richardson <wfrichar@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Derek Basehore <dbasehore@chromium.org>, Todd Broch <tbroch@chromium.org>, Olof Johansson <olof@lixom.net>, Andreas Faerber <afaerber@suse.de>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQogIOi/meS4quefreS/oeWPkemAgeW5s+WPsOWunuWcqOaYr+WkquWlveeUqOS6hu+8jOWGjeS5
-n+S4jeaEgeaJvuS4jeWIsOWlveeahOW5s+WPsOS6hu+8jOWPquimgeaYr+S9oOWPkeeahOWGheWu
-ueaYr+ato+inhOeahO+8jOi9u+advuWwseWPr+S7peWPkemAgeWHuuWOu+OAguWKoFFRMTkzOTg5
-NzI15YW35L2T5ZKo6K+i77yM5Y+v5Lul5byA6LSm5Y+35rWL5pWI5p6c44CCDQoNCg0KDQoNCg0K
-IA0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K
-DQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoN
-Cg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K
-DQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCui6q+adkOavlOS+i+W+iOWM
-gOensO+8jOiCjOiCieS4jeWkmu+8jOS9huaYr+e7k+WunuiAjOe0p+iHtO+8jOS4jeemgeS4gOmY
-teW/g+i3s++8jOW/g+mBk++8muKAnOWlveS4gOS4qua4heengOiAjOWBpeW6t+eahOWwkeW5tO+8
-geKAnSAgICDljbTlkJHmnajmma/liJ3pgZPvvJrigJzmnajogIHluIjvvIzmga3llpzkvaDllYrj
-gILigJ0gICAg5aSP5bCP5rSb5ZCs6KeB5aW56L275aOw57uG6K+t55qE5aOw6Z+z5Yay6K645bCP
-5pu856yR5LqG5LiA5LiL44CCICAgIOWlueWutuaVmeS4peiLm++8jOW+iOacieecvOiJsu+8jOmB
-k++8muKAnOmYv+WnqO+8jOaIkeWwseS4jeWOu+S6hu+8jOaIkeWbnuWutuWQg++8jOmprOS4iuWw
-seWIsOWutuS6huOAguKAneeEtuWQjuWSjOWkj+Wwj+a0m+aMpeaJi+mBk+WIq+OAgiAgICDlpI/l
-sI/mtJvlm57ov4flpLTmnaXvvIzot5/nnYDmr43kurLlvoDlrrblsZ7pmaLnmoTmlrnlkJHotbDv
-vIzorrjlsI/ov5jmmK/kuI3opoHov5nmoLfvvIzkvZXlv4XlkaLvvJ/pl7nliLDmnIDlkI7lpKfl
-rrblpKflrrbohLjkuIrpg73kuI3lpb3nnIvvvIHigJ0gICAg5L2V5Lqs55Sf6JOm5Zyw5YGc5L2P
-77yM5Zue6L+H5aS05p2l77yM5oG254ug54ug5Zyw55yL552A5LuW77yM55y8552b5Yeg5LmO6KaB
-5Za35Ye654Gr5p2l77yM6YGT77ya4oCc5L2g4oCm4oCm5aiB6IOB5oiR5ZWK77yB77yf4oCdICAg
-IOiRo+S5neaYn+ern+eEtueskeS6hu+8jOa0m+i2s+i2s+eyl+S6huS4pOWciO+8jOiCjOiCiee7
-k+Wunu+8jOiDuOiCjOmrmOmrmOeahOmahui1t++8jOaYvueEtuaYr+e7j+W4uOe7g+atpuaIluiA
-heaYr+W5suS9k+WKm+a0u+OAgiAgICDku5bku6zotr7pq5jmsJTmiazvvIzpnaLoibLpqoTmqKrv
-vIznnLznpZ7kuK3pg73pl6rng4HnnYDpmLTni6DnmoTlhrflhYnvvIzkuI3mgIDlpb3mhI/lnLDn
-nIvnnIvov5nkuKrnnIvnnIvpgqPkuKrvvIznnIvosIHpg73lpb3lg4/mmK/miYvmnLrpmIXor7vm
-m7TlpJrlhajmnKznlLXlrZDkuabvvIzor7fmkJzntKLjgJDkuZDor7vlsI/or7TpmIXor7vlmajj
-gJHlupTnlKjlronoo4XkuIDmoLfvvIzlpbnlv73nhLblm57ov4flpLTmnaXvvIzmu6HmmK/nrJHm
-hI/lnLDnnIvnnYDku5bvvIzpgqPnm67lhYnnqb/otornqoPnqoPnp4Hor63vvIznqb/ov4fkuKTk
-uKrnu5nmlrDkuabnlKjmiqXnurjljIXkuabnmq7nmoTlpbPlkIzlrabvvIznqb/ov4fkuIDkuKrp
-ooTkuaDoi7Hor63ljZXor43lpLTlj5HmnInngrnljbfmm7LnmoTlpKfkuKrlrZDnlLfnlJ/vvIzn
-m7Tovr7ku5bnmoTlv4PohI/jgIIgICAg6YKj54ix56yRCQ0KIOWkj+Wwj+a0m+S4gOmYteaDiuWW
-nO+8jOWlveiAtu+8jOWOhuWPsuWPiOWbnuWIsOWug+acrOadpeeahOi9qOmBk+S4iuS6hu+8jOec
-i+adpeadqOaZr+WInei/mOaYr+WBmuWkp+WtpuiAheeahOWRve+8jOmBk++8muKAnOaXoueEtuaC
-qOWcqOWbveWGhea3t+eahOS4jeWmguaEj++8jOS4jeWmguecvOWFieaUvui/nOeCue+8jOiAg+Wb
-veWklueahOWkp+Wtpu+8jOavleern+e7j+a1juWtpu+8jOaXoOiuuuaYr+aUv+eahOecvOedm+S7
-v+S9m+acieS4gOS4neW+l+aEj+a0i+a0i++8jOWlveWDj+WcqOivtO+8muKAnOWTvO+8jOaIkeWw
-seefpemBk+S9oOWcqOeci+aIkeOAguKAnSAgICDku7/kvZvkuIDnnqzpl7TvvIzlj4jku7/kvZvm
-mK/kuIDkuIflubTjgIIgICAg5aSc5bmV5LiN55+l5piv5L2V5pe26ZmN5Li055qE77yM6Lev54Gv
-5Yi35Zyw5Lqu5LqG6LW35p2l44CCICAgIOWkj+Wwj+a0m+W+ruW+ruS4gOeske+8jOa7oeaYr+eI
-seaAnOi/m+i0p+aKiuWFs+S4jeS4pe+8jOS5n+aciei0o+S7u+KAmeOAguKAnemSseiDveWKm+i/
-meaWuemdouOAgiAgICDku5bnnYDmgKXlnLDpgZPvvJrigJzmiJHlt7Lnu4/lkozmgLvlhazlj7jn
-moTlhq/lia/mgLvmkK3kuIrlhbPns7vkuobvvIzlmL/vvIzmiJHnlaXmlr3lsI/orqHlsLHmkK3k
-uIrkuobvvIHkvaDku6zmg7PkuI3liLDlkKfvvJ/lvojlpJrkurrmg7Pms5XlrZDmg7PljYrlubTv
-vIzljYrlubTlkI7ov5jmmK/op4HkuI3liLDku5bkuIDpnaLvvIzmiJHlsLHog73vvIHkvaDnnIvn
-nYDlkKfvvIzmiJHlvZPlsI/lrpjmmK/kuLrkuobmnZHmsJHlj5jlr4zvvIzov5nmnInku4DkuYjp
-lJnkuYjvvJ/igJ0gICAg5L2V5Lqs55Sf6YGT77ya4oCc5L2g5bCx5piv6L+Z5LmI6YCg56aP5LiA
-5pa555qE5LmI77yf4oCdICAgIOWkj+Wwj+a0m+WdkOS6huS4gOWknOi9pu+8jOiFv+iEmumDvem6
-u+S6hu+8jOi/meS8muWkqeawlOS5n+aUvuaZtOS6hu+8jOWwseaDs+S4i+i9pua0u+WKqOS4i++8
-jOaWveaWveeEtui1sOWIsOS7luS7rOi3n+edgOecvOedm+eci+edgOS7lu+8jOaEo+S6hueJh+WI
-u++8jOmBk++8muKAnOS9oOeahOaEj+aAneaYr++8n+KApuKApuKApuKApuWNluS6hu+8n+aIkeS7
-rOaJk+WBh+eahOWNluWBh++8n+i/meWDj+ivneS5iO+8n++8geKAnSAgICDlpI/lsI/mtJvkvY7l
-pLTmiZLmi4npo5/nianvvIzpgZPvvJrigJzmiJHllaXkuZ/msqHor7TvvIHmiJHlkIPkuJzopb/j
-gILigJ3or7Tlrozlj6rpob7ln4vlpLTlkIPppa3jgIIgICAg5L2V5LqsCQ0K
+Hello Lee,
+
+On 09/25/2014 04:48 PM, Lee Jones wrote:
+> On Thu, 25 Sep 2014, Javier Martinez Canillas wrote:
+>> 
+>> Understood, that's why I dropped this since as explained earlier, it makes more
+>> sense to include this change once the cros_ec_dev driver is pushed to upstream.
+>> 
+>> The last version of the series (v4) I posted a week ago [0], does not include
+>> this patch so I hope the series can be picked for 3.18 since most of the patches
+>> were already acked by you.
+> 
+> Unfortunately this is going to have to wait until v3.19 now, as Linus
+> is closing the -rcs early.  I have subsequently applied my last
+> patch to the MFD tree for v3.18.  It will be good for these patches to
+> get some soak testing in -next anyway, rather than rush them in.
+> 
+
+I don't want to be annoying but I was just wondering if now that Linus has
+delayed the 3.18 merge window for two weeks [1], you will consider picking
+this series. Most of the patches have been acked by you a couple of weeks
+ago anyways and I dropped $subject from the last version of the series [2],
+which was the patch you had issues with.
+
+It would be awesome if this can make it to 3.18 so we can start adding the
+missing functionality and target it to 3.19.
+
+Thanks a lot and best regards,
+Javier
+
+[1]: http://thread.gmane.org/gmane.linux.kernel/1797057
+[2]: https://www.mail-archive.com/linux-samsung-soc@vger.kernel.org/msg36770.html
