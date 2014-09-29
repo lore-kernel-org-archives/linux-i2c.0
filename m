@@ -1,58 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: remove sign-compare flaw
-Date: Mon, 29 Sep 2014 22:44:37 +0200
-Message-ID: <20140929204437.GA2758@katana>
-References: <1411207657-23707-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2 v2] i2c: cros-ec-tunnel: Add of match table
+Date: Mon, 29 Sep 2014 22:59:23 +0200
+Message-ID: <20140929205922.GB2758@katana>
+References: <1411114093-3505-1-git-send-email-sjoerd.simons@collabora.co.uk>
+ <1411114093-3505-2-git-send-email-sjoerd.simons@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="24zk1gE8NUlDmwG9"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1411207657-23707-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+In-Reply-To: <1411114093-3505-2-git-send-email-sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---h31gzZEtNLTqOjlF
+--24zk1gE8NUlDmwG9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Sep 20, 2014 at 12:07:37PM +0200, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Fri, Sep 19, 2014 at 10:08:12AM +0200, Sjoerd Simons wrote:
+> To enable the cros-ec-tunnel driver to be auto-loaded when build as a
+> module add an of match table (and export it) to match the modalias
+> information passed on to userspace as the Cros EC MFD driver registers
+> the MFD subdevices with an of_compatibility string.
 >=20
-> gcc rightfully says:
->=20
-> drivers/i2c/busses/i2c-rcar.c:198:10: warning: comparison between signed =
-and unsigned integer expressions [-Wsign-compare]
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+> Reviewed-by: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 
 Applied to for-next, thanks!
 
+However, since you are working on this driver: sparse rightfully
+complains about:
 
---h31gzZEtNLTqOjlF
+drivers/i2c/busses/i2c-cros-ec-tunnel.c:97:44: warning: cast truncates bits=
+ from constant value (10000 becomes 0)
+
+I don't know the EC protocol, can you check?
+
+
+--24zk1gE8NUlDmwG9
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUKcS0AAoJEBQN5MwUoCm2ZMsP/1UN+I9D/sCLrZJOhstLQ0da
-Y4xkmdwJGZHCDOIjk6wV61m8CkJFVHUJp0KNH+QTeDT2I5hpdRqUcQz7q+M5JWR0
-oxdtbw5aRpUH+Sc/RfJTmO6YVdsg1DQt5ZmofZBzN3C3ymPVpayItrXI9ULVa2N4
-zA2nfIsliXoCz4CqUKDWOTw+iIXs85MYOHsKq00fGDMpseqUq0aFgyQ1+Ss5Pd/m
-c5abk2oDDtaK0hL7zrpOIta9n9FnHAZH9958uAQ80LjFtoaTGe3dK+vBXK3YH+kU
-q4wA8GFZplgViSCgKJ4VPzuEoEcPYjC5yvfN6UUHCxoosvL4X6kIfeESVwuoGszi
-HvThT4tiGrGfnV6CNguJh3HmpBPdKevxoAsyDiNRk3OBDRVgOdN+fsPFw6q9CYJp
-q3utUZCdiJdDfJtCJ57mY0KRSElenykoAeFtmmy5mFg578/dStG25oSgmFs6qGYZ
-HjDbn8OSZd48QcmhyeebvPkeUaS+LZdV2oZsirwnmedZBPOBl2Cot0cFWsmdoI18
-yhPgjRwjkYljYYqo31gmUvUMzsNTdIO1NU7GkwPLkSzArSD/fn5gHbPoHi5lvZ0q
-k0wAC5Hwd/DvO+Z5ueWoGqb6SmSlPiXPUB1hO1wfM7z+5l3Gj5yUrwRak7yFWOsE
-qNQYMIdZXlavO9GuX3Qy
-=JvKm
+iQIcBAEBAgAGBQJUKcgqAAoJEBQN5MwUoCm2twEP/1sRKq/eDRFxR5Z5rh67ynUT
+22EIwT6s1A3OTPDWtZ693Wqb2WT1xxaoSdK9idmzX5Hh+FlkHybCqn9SylVGgwVV
+wf8UHidcirrsXhBEZU71pUTxPxEmTOjMxSmLQ9zfG9LkoamsCJ4om0fxZMgGq7ME
+aAqz6sMuTiqxOAl5e7e3eyplIceCYbTzid4cxBhIBlZekFmV6T0oK1effsEbfsuO
+ukaYafpiNze5/2sM6rrwhcd8tse6pgrTtOaI9WJgUqwJUK8bx44rJ29809h8KOxD
+8ijssJVzYwfqbKwadu2Nxsng3WaCQ6rx9Dgbb4zOLKoizBi7qt6KZ2htKe4+bJOi
+rXExDWaqqQkFvDIBb5TFiaLO8w2qy/Lwfk1jJWSBP8AKEalX0PyXdMWxQIg8qsgI
+yuolq9n5/nNa81AyEjHnIiWC7/RYXAPd+FpgRlUrOEDWDjT3cqWCxYl1We/LRzeF
+caxZfPfD+nb0y1gZ76+BL9z9OAhRHPCddBLQOMDHhBMWG41O5+LxEN89yyYwSect
+S4hMnyVNFDeXWWj6zOv3BlgBfPrHtpx2V36sV+/QzPmQd2nGhlPiwSrTl0JbMcUE
+tZYok8W2HVkHvU3aij5jH97hA8k6fD+hBsCinT1rPRpsdNOvzXanEiRz+ndT29B+
+qs/4k5bF7M+0+Ov+WjQr
+=stXG
 -----END PGP SIGNATURE-----
 
---h31gzZEtNLTqOjlF--
+--24zk1gE8NUlDmwG9--
