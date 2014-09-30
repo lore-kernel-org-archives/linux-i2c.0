@@ -1,40 +1,92 @@
 From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v2 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO
+Subject: Re: [PATCH 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO
  adapter
-Date: Tue, 30 Sep 2014 13:12:10 +0200
-Message-ID: <20140930111210.GC24736@localhost>
-References: <1411624319-5596-1-git-send-email-muth@cypress.com>
- <20140930110829.GB24736@localhost>
+Date: Tue, 30 Sep 2014 13:21:36 +0200
+Message-ID: <20140930112136.GC17834@localhost>
+References: <1411378458-18424-1-git-send-email-muth@cypress.com>
+ <20140922114357.GG5237@localhost>
+ <7e6ba8fdbdb643c885369e37e2bcd25a@BY2PR06MB076.namprd06.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20140930110829.GB24736@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <7e6ba8fdbdb643c885369e37e2bcd25a@BY2PR06MB076.namprd06.prod.outlook.com>
+Sender: linux-gpio-owner@vger.kernel.org
 To: Muthu Mani <muth@cypress.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
+Cc: Johan Hovold <johan@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 30, 2014 at 01:08:29PM +0200, Johan Hovold wrote:
-> On Thu, Sep 25, 2014 at 11:21:58AM +0530, Muthu Mani wrote:
+On Thu, Sep 25, 2014 at 05:47:11AM +0000, Muthu Mani wrote:
+> > -----Original Message-----
+> > From: Johan Hovold [mailto:jhovold@gmail.com] On Behalf Of Johan Hovold
 
-> > +static int cy_gpio_direction_input(struct gpio_chip *chip,
-> > +					unsigned offset)
-> > +{
-> > +	return 0;
-> > +}
-> > +
-> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
-> > +					unsigned offset, int value)
-> > +{
-> > +	return 0;
-> > +}
+> > > +static int cy_gpio_direction_input(struct gpio_chip *chip,
+> > > +                                     unsigned offset) {
+> > > +     return 0;
+> > 
+> > Aren't the GPIOs output-only?
 > 
-> This is not a correct implementation of these. You're are supposed to
-> return what direction the gpio is configured for. You should also add a
-> call back to set the direction.
+> No.
 
-That was backwards; these are supposed to set the direction, and then
-you should also implement the get_direction callback.
+Then you should implement this callback to configure the pin as an
+input.
 
+Or can the configuration only be made through your configuration tools
+and stored in eeprom?
+
+Then you need to retrieve the actual config and implement these
+callbacks (e.g. fail if not matching the eeprom config) along with
+get_direction().
+
+> > > +}
+> > > +
+> > > +static int cy_gpio_direction_output(struct gpio_chip *chip,
+> > > +                                     unsigned offset, int value) {
+> > > +     return 0;
+> > > +}
+> > > +
+> > > +static int cyusbs23x_gpio_probe(struct platform_device *pdev) {
+> > > +     struct cyusbs23x *cyusbs;
+> > > +     struct cyusbs_gpio *cy_gpio;
+> > > +     int ret = 0;
+> > > +
+> > > +     dev_dbg(&pdev->dev, "%s\n", __func__);
+> > > +
+> > > +     cyusbs = dev_get_drvdata(pdev->dev.parent);
+> > > +
+> > > +     cy_gpio = devm_kzalloc(&pdev->dev, sizeof(*cy_gpio), GFP_KERNEL);
+> > > +     if (cy_gpio == NULL)
+> > > +             return -ENOMEM;
+> > > +
+> > > +     cy_gpio->cyusbs = cyusbs;
+> > > +     /* registering gpio */
+> > > +     cy_gpio->gpio.label = "cyusbs23x gpio";
+> > > +     cy_gpio->gpio.dev = &pdev->dev;
+> > > +     cy_gpio->gpio.owner = THIS_MODULE;
+> > > +     cy_gpio->gpio.base = -1;
+> > > +     cy_gpio->gpio.ngpio = 12; /* total GPIOs */
+> > 
+> > I think you need to read out the gpio config from the device eeprom and
+> > implement a request() callback where you verify that a requested gpio is
+> > actually available (mode dependent, and there are never more than 10 gpios
+> > availble).
+> 
+> In this initial driver, all GPIOs are made available to user space.
+> Additional functionalities will be added in the next version of the driver.
+
+I think this needs to be implemented now. It's needed for direction
+handling as well as mentioned above.
+
+> > > +     cy_gpio->gpio.can_sleep = true;
+> > > +     cy_gpio->gpio.set = cy_gpio_set;
+> > > +     cy_gpio->gpio.get = cy_gpio_get;
+> > > +     cy_gpio->gpio.direction_input = cy_gpio_direction_input;
+> > > +     cy_gpio->gpio.direction_output = cy_gpio_direction_output;
+> > > +     ret = gpiochip_add(&cy_gpio->gpio);
+> > > +     if (ret < 0) {
+> > > +             dev_err(cy_gpio->gpio.dev, "could not add gpio");
+> > > +             goto error;
+> > > +     }
+
+Thanks,
 Johan
