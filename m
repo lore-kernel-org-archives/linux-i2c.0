@@ -1,45 +1,38 @@
-From: Bjorn Andersson <bjorn.andersson@sonymobile.com>
-Subject: Re: [PATCH] i2c: qup: Fix order of runtime pm initialization
-Date: Tue, 30 Sep 2014 13:03:30 -0700
-Message-ID: <20140930200329.GV28481@sonymobile.com>
-References: <1412028051-21774-1-git-send-email-agross@codeaurora.org>
- <20140930015323.GE28481@sonymobile.com>
- <20140930195923.GB26928@qualcomm.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v2] i2c: move acpi code back into the core
+Date: Tue, 30 Sep 2014 22:34:07 +0200
+Message-ID: <1773097.ooYUbTzKBv@vostro.rjw.lan>
+References: <1411594591-5048-1-git-send-email-wsa@the-dreams.de> <20140930160352.GV1786@lahna.fi.intel.com> <20140930204607.2ab3baed@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20140930195923.GB26928@qualcomm.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Andy Gross <agross@codeaurora.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20140930204607.2ab3baed@endymion.delvare>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lan Tianyu <tianyu.lan@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue 30 Sep 12:59 PDT 2014, Andy Gross wrote:
-
-> On Mon, Sep 29, 2014 at 06:53:24PM -0700, Bjorn Andersson wrote:
-> > On Mon 29 Sep 15:00 PDT 2014, Andy Gross wrote:
+On Tuesday, September 30, 2014 08:46:07 PM Jean Delvare wrote:
+> On Tue, 30 Sep 2014 19:03:52 +0300, Mika Westerberg wrote:
+> > On Tue, Sep 30, 2014 at 12:55:20PM +0200, Jean Delvare wrote:
+> > > The only thing which I find curious is that ACPI_I2C_OPREGION depends
+> > > on I2C=y. Is this limitation a leftover from when the code was split to
+> > > a separate file? It builds just fine with I2C=m, and I can't see why it
+> > > wouldn't work. I have a patch to enable that, I can send it if it is
+> > > the right thing to do. But maybe I'm missing something?
 > > 
-> > > The runtime pm calls need to be done before populating the children via the
-> > > i2c_add_adapter call.  If this is not done, a child can run into issues trying
-> > > to do i2c read/writes due to the pm_runtime_sync failing.
-> > > 
-> > 
-> > May I ask in what case this would fail?  I thought we tested this as we found
-> > the faulty error check after calling pm_runtime_get_sync().
+> > I think reason for the limitation is that if there happens to be some
+> > AML code that is currently using the I2C operation region and the user
+> > decides to unload the i2c-core.ko module or along those lines.
 > 
-> This is a different kind of failure.   If during probe, the children do some I2C
-> activity, they will encounter issues with the runtime_sync due to the pm_runtime
-> not being initialized.  However, once the qup probe completes, everything works
-> fine.
-> 
-> The original runtime_sync issue revolved around the runtime_sync return value
-> being misinterpreted due to the incorrect check.
-> 
+> If that's the reason then shouldn't it be addressed by proper reference
+> counting instead? We could simply increase the module reference count
+> when entering the critical section, and decrease it when we're done.
 
-Yeah, I just wondered why my testing didn't trigger this. But I suspect that
-the answer is simply that the client I ran with did not do i2c accesses from
-probe.
+That is not so simple in practice, because the code containing the
+critical sections in question is AML and not part of the kernel.
 
-Regards,
-Bjorn
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
