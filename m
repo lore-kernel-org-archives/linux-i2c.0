@@ -1,70 +1,71 @@
-From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over I2C
-Date: Tue, 30 Sep 2014 14:45:37 -0600
-Message-ID: <CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over
+ I2C
+Date: Tue, 30 Sep 2014 23:13:39 +0200
+Message-ID: <20140930211339.GA1264@katana>
 References: <542A3593.4020108@gmail.com>
+ <CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <542A3593.4020108@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Rajat Jain <rajatxjain@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Rajat Jain <rajatxjain@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>
 List-Id: linux-i2c@vger.kernel.org
 
-[+cc Wolfram]
 
-On Mon, Sep 29, 2014 at 10:46 PM, Rajat Jain <rajatxjain@gmail.com> wrote:
-> Most of the PLX PCI Express switches (and also switches from other vendors such
-> IDT) provide an I2C based secondary interface to access and program the switch.
-> This can be used to program the switch in situations where the PCIe interface
-> may not be suitable, or even available. (For instance, we may need to program
-> the device in a particular fashion before we even begin enumerating on the PCI,
-> or to even enable the PCIe interface of the device). More information on
-> usecases and other details has been provided in the documentation being added
-> as part of this patchset.
->
-> This is a driver that allows talking to the PLX PEX8xxx family of PCIe switches
-> over its I2C interface. Here are the patch descriptions:
->
-> [Patch 1/4] - Adds the PEX8xxx driver that exports API calls to read / write.
-> [Patch 2/4] - Adds a sysfs interface, to allow access to the switch.
-> [Patch 3/4] - Adds the MAINTAINERS entry.
-> [Patch 4/4] - Adds the documentation in Documentation/PCI/pex8xxx_i2c.txt
->
-> Since this is a driver for a PCIe switch, I currently put it under /driver/pci/.
-> I'm very open to suggestions for moving this around (Does introducing
-> drivers/pci/switch/ seem any better?). Especially I can see that the
-> drivers/pci/Kconfig appears under "Bus Options" in the main menu which does not
-> look like the right place for this driver. I am looking for suggestions here.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Definitely interesting work.  I have no idea where to put it.  It
-doesn't have anything to do with PCI core services or structures, so
-drivers/pci doesn't seem like the ideal place for it, but I don't have
-any better ideas.  If it did end up under drivers/pci, I agree that a
-drivers/pci/switch or something similar would probably be better than
-having it directly in drivers/pci.
 
-Maybe Wolfram or other I2C folks will have an idea.
+> > Since this is a driver for a PCIe switch, I currently put it under /dri=
+ver/pci/.
+> > I'm very open to suggestions for moving this around (Does introducing
+> > drivers/pci/switch/ seem any better?). Especially I can see that the
+> > drivers/pci/Kconfig appears under "Bus Options" in the main menu which =
+does not
+> > look like the right place for this driver. I am looking for suggestions=
+ here.
+>=20
+> Definitely interesting work.  I have no idea where to put it.  It
+> doesn't have anything to do with PCI core services or structures, so
+> drivers/pci doesn't seem like the ideal place for it, but I don't have
+> any better ideas.  If it did end up under drivers/pci, I agree that a
+> drivers/pci/switch or something similar would probably be better than
+> having it directly in drivers/pci.
+>=20
+> Maybe Wolfram or other I2C folks will have an idea.
 
-> Rajat Jain (4):
->   pci: Add I2C driver for the PLX PEX8xxx PCIe switch
->   pci/pex8xxx: Add sysfs interface for userspace access.
->   MAINTAINERS: Add new device driver entry for PEX pex8xxx
->   Documentation: Add documentation for the PCI switch PEX8xxx I2C
->     driver
->
->  Documentation/PCI/pex8xxx_i2c.txt |  134 +++++++++
->  MAINTAINERS                       |    7 +
->  drivers/pci/Kconfig               |   13 +
->  drivers/pci/Makefile              |    2 +
->  drivers/pci/pex8xxx_i2c.c         |  538 +++++++++++++++++++++++++++++++++++++
->  include/linux/i2c/pex8xxx_i2c.h   |   36 +++
->  6 files changed, 730 insertions(+)
->  create mode 100644 Documentation/PCI/pex8xxx_i2c.txt
->  create mode 100644 drivers/pci/pex8xxx_i2c.c
->  create mode 100644 include/linux/i2c/pex8xxx_i2c.h
->
-> --
-> 1.7.9.5
->
+Hmm, is this a common interface for those switches? Then a directory
+like drivers/pci/switch could make sense. Otherwise I'd suggest
+drivers/misc?
+
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUKx0DAAoJEBQN5MwUoCm2wcwP/2SmPFJxcR4iHj5WFmDfvarU
+VfRMOFK3wlFwO52659zxHz2rHOM6i2sOgEHZlHaB/0IU7XA9PZx6iEyMbBGYBLJN
+okQiNiE0hnl8w+DAcWxPs8On2rICa6KadfEYyIXzL7Z0958ffhnREZ7a+oYKWorw
+Aa1b+YppzBTjpw/4w31HqNbPhZbxTWZc4biyKkTsQeFA0vX6evkpcTQOLVyFR7Nw
+aZvI4wHbiuZoqLTnxKNw56h7ixJjCMVQfQrJ/HvcwiMO13DNBU7zxVU/1nVyc6CQ
+wguGL8lBfWgIMMChdBVTO5wdpMGmDsCSFaojb2vz8RhzlubwjcXu4DgNVN8EdWMr
+aliQXIs3Uf18/mZrA0uIo3NVjFQZeTpUtbS7tDM/T2+ITst1ctmb68WDzddfBtW5
+Y5U2/8v6R1dte/cSGKpLQG74jkDBsOTA9BExjQSIwNM8lEA6XUydX+h5TJfVAeYv
+xk9+HqfEuH54kSKy+U9fx5Hngk2mKl4+jCTyoQzGu2YYezcvHh2EAZ/gCSBoVwxw
+msuTKfuzI3It3+qI5V/oa+5sDkYU0bVrLyf4NvV5U1FqDM+i0Ln4RFXdqBCHQ1UM
+ZSXNtCv57Zt8+tthbIQ88MFHVXf/B7vi3ckMPnGxOHhBfFZ9BWqSigEC4hCW3xO2
+3K9tM7a1kg+bD9+11LK7
+=daoW
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--
