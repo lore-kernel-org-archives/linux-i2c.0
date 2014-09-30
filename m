@@ -1,81 +1,77 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH 2/2] i2c: designware: Add support for AMD I2C controller
-Date: Tue, 30 Sep 2014 08:19:56 +0300
-Message-ID: <20140930051956.GL1786@lahna.fi.intel.com>
+Date: Tue, 30 Sep 2014 07:57:50 +0200
+Message-ID: <20140930055750.GA1325@katana>
 References: <1411032367-20274-1-git-send-email-mika.westerberg@linux.intel.com>
  <1411032367-20274-2-git-send-email-mika.westerberg@linux.intel.com>
  <20140920093633.GG1612@katana>
  <20140922091207.GJ1786@lahna.fi.intel.com>
  <20140929212449.GC2758@katana>
+ <20140930051956.GL1786@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20140929212449.GC2758@katana>
+In-Reply-To: <20140930051956.GL1786-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 29, 2014 at 11:24:50PM +0200, Wolfram Sang wrote:
-> On Mon, Sep 22, 2014 at 12:12:07PM +0300, Mika Westerberg wrote:
-> > On Sat, Sep 20, 2014 at 11:36:34AM +0200, Wolfram Sang wrote:
-> > > On Thu, Sep 18, 2014 at 12:26:07PM +0300, Mika Westerberg wrote:
-> > > > From: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > > 
-> > > > Add support for AMD version of the DW I2C host controller. The device is
-> > > > enumerated from ACPI namespace with ACPI ID AMD0010. Because the core
-> > > > driver needs an input source clock, and this is not an Intel LPSS device
-> > > > where clocks are provided through drivers/acpi/acpi_lpss.c, we register the
-> > > > clock ourselves if the clock rate is given in ->driver_data.
-> > > > 
-> > > > Signed-off-by: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > > Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > > > ---
-> > > 
-> > > Applied to for-next, still wondering...
-> > 
-> > Thanks!
-> 
-> I reconsidered and these two patches are not in i2c/for-next because of
-> two reasons:
-> 
-> 1) They do not apply cleanly on top of other i2c-designware changes I
-> applied (check i2c/for-next I just pushed out). The conflicts might not
-> be hard, but they were not trivial enough for me to do them inbetween
-> other things. I'd be very happy about a repost on top of i2c/for-next.
 
-OK, I'll do that.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > > 
-> > > >  drivers/i2c/busses/Kconfig                  |  1 +
-> > > >  drivers/i2c/busses/i2c-designware-platdrv.c | 27 +++++++++++++++++++++++++++
-> > > >  2 files changed, 28 insertions(+)
-> > > > 
-> > > > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> > > > index 2ac87fa3058d..9384498ef3c1 100644
-> > > > --- a/drivers/i2c/busses/Kconfig
-> > > > +++ b/drivers/i2c/busses/Kconfig
-> > > > @@ -422,6 +422,7 @@ config I2C_DESIGNWARE_CORE
-> > > >  
-> > > >  config I2C_DESIGNWARE_PLATFORM
-> > > >  	tristate "Synopsys DesignWare Platform"
-> > > > +	depends on COMMON_CLK
-> > > 
-> > > ... do all previous users have COMMON_CLK?
-> > 
-> > The driver is being used on x86, ARM and ARC it seems. For x86 and ARM
-> > we pretty much have COMMON_CLK nowadays but I'm not sure about ARC.
-> 
-> 2) "pretty much have" is not so convincing to me. That is such a generic
-> core, it probably has enough out-of-tree users as well.
 
-I wasn't aware that we care about out-of-tree users.
+> > 1) They do not apply cleanly on top of other i2c-designware changes I
+> > applied (check i2c/for-next I just pushed out). The conflicts might not
+> > be hard, but they were not trivial enough for me to do them inbetween
+> > other things. I'd be very happy about a repost on top of i2c/for-next.
+>=20
+> OK, I'll do that.
 
-> And with all these ACPI regressions from this cycle, I am very
-> cautious right now.  Brainstorming: What about "depends on (ACPI &&
-> COMMON_CLK) || !ACPI"?
+Great, much appreciated!
 
-Understood. I'll try the above.
+> > 2) "pretty much have" is not so convincing to me. That is such a generic
+> > core, it probably has enough out-of-tree users as well.
+>=20
+> I wasn't aware that we care about out-of-tree users.
 
-Thanks.
+This is one example coming from a feeling that we should at least try to
+make this change having less impact.
+
+> > And with all these ACPI regressions from this cycle, I am very
+> > cautious right now.  Brainstorming: What about "depends on (ACPI &&
+> > COMMON_CLK) || !ACPI"?
+>=20
+> Understood. I'll try the above.
+
+Cool, thanks!
+
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUKkZeAAoJEBQN5MwUoCm2iNQQAIDtqUsL02uuVkIyOVhpnBje
+I5JM2VAZEutkzd8I8nus60GQWx1aTwzrglrSVBGIuL2nSJsABMGZrCFgKGa04g2r
+7pwIklWMbgoXSfgoO+MRpZmVP26pZmliEH/kZA65n0I9f3sVfnT/9c3qcwAppclN
+61vBB72tFFki6Scy9Bk2IJz09UHmZewdavmhMgz3C6W8gLCJ4A3bwyon7VB9Qy1j
+dtxzJjC22lh9agCz9w4u2wlOUNk5T7e+F2MUXNNGMPXGBJdJRaRmoKjFGVTK2IN4
+Gla9b2t7vJ8y9g4GliP7gi+j5Xt6ktSKB7VYPFwVIn90oqPCS/ObRd5kCPAa1Whk
+SzB0qqBUyMF1r4xZgQMS7s7A+Jg6T47ykSfeGF2Ge0oUVx4ftR8Uj1dgBPAId2v9
+0TJsCSnsdOmpaxWUTyRJoJArr7r9e9zXPo88bNpqjkz9iPuuDLsz3GhvXTIJeNeF
+3hoVD3oaqQBU3Sd1ix/c4c9SpEtGxolukvkr4SDQ8xwsYbXzYfvWycjSQ6W6ixHF
+2WLUneVfI5zKmxc56+2HGQMflV/b+Wfxc69yXJOBUOxK/rtgj+BQbdHpTLOdfjoa
+I8E4OQqB+NvUhcnyW0XMLdGIzDe26C5zEBwMmqkGW5pIwbaHpInd6HzVVDNZGbXL
+DK6JXqJ8ZMH/FGz8NMnX
+=Eewo
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
