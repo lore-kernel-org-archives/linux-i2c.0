@@ -1,72 +1,52 @@
 From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] I2C/ACPI: Fix possible ZERO_SIZE_PTR pointer
- dereferencing error.
-Date: Tue, 30 Sep 2014 12:40:08 +0300
-Message-ID: <20140930094008.GP1786@lahna.fi.intel.com>
-References: <1407810818-33672-1-git-send-email-Li.Xiubo@freescale.com>
- <20140819150355.GD15371@katana>
- <20140819151604.GU1660@lahna.fi.intel.com>
- <20140819153808.GE15371@katana>
- <20140819154555.GW1660@lahna.fi.intel.com>
- <53F4638F.5070704@intel.com>
- <20140820101814.GC1660@lahna.fi.intel.com>
- <20140930091949.GI1325@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH v2 1/3] i2c: designware: Default to fast mode in case of ACPI
+Date: Tue, 30 Sep 2014 13:04:53 +0300
+Message-ID: <1412071495-15323-2-git-send-email-mika.westerberg@linux.intel.com>
+References: <1412071495-15323-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20140930091949.GI1325@katana>
+In-Reply-To: <1412071495-15323-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Xiubo Li <Li.Xiubo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 30, 2014 at 11:19:49AM +0200, Wolfram Sang wrote:
-> Hi people,
-> 
-> thanks for the additional information here.
-> 
-> > > Sorry for later response due to leave home today. acpi_gsb_i2c_read_bytes()
-> > > dedicates for GenericSerialBus Read/Write N Bytes protocol(ACPI Spec
-> > > 5.5.2.4.5.3.8). Bios wants to read N Bytes when uses this protocol and the
-> > > length specified by Bios should be greater than 1. If the Bios specified 0
-> > > bytes, the associated function(E,G read battery info) would be totally unusable.
-> > > I think such Bios can't pass through Windows certification:). From this point, I
-> > > think the check is not necessary.
-> 
-> The simple question behind this is: Do I trust the caller? When I look
-> at BIOS (or anything outside the kernel for that matter), I clearly say
-> no, so...
-> 
-> > > If you still thought this maybe happen, I think it makes more sense to add the
-> > > check length in the ACPICA. Because ACPICA will allocate a data buffer for I2C
-> > > ACPI operation region access before call the callback. The buffer length will be
-> > > result of protocol head length plus data length. If data length is 0 and this
-> > > means the access will be invalid and ACPICA should ignore it or produce a warning.
-> 
-> ... I'd think such a check in ACPICA should be made. However, I can
-> still ask the question if I trust callers outside my subsystem. This is
-> more policy. We can demand that users of acpi_i2c_space_handler() should
-> sanity check their arguments. Any foreseeable chance there will be
-> another user other than ACPICA? I'd think no?
+There is no way in ACPI to tell in which speed the host controller is
+supposed to run, so we default to fast mode (400KHz). Since this has been
+the default all the time there should be no functional changes with this
+change.
 
-I'm not entirely sure I understand your question.
+This is the first step required to refactor the driver probe so that we can
+supply source clock from ACPI part of the driver to the core.
 
-It is supposed to work like this:
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
- 1. AML (firmware) code wants to do an I2C transaction. It may be
-    triggered from an GPE event or something else.
-
- 2. It reads/writes to an I2C operation region if it is available.
-
- 3. This all is handled inside ACPICA.
-
- 4. ACPICA calls registered address space handler for I2C which is
-    acpi_i2c_space_handler().
-
- 5. acpi_i2c_space_handler() handles the I2C transaction in the OS
-    context and returns back whatever is requested to the AML (firmware)
-    code.
-
-So the only caller of acpi_i2c_space_handler() is ACPICA and we sure can
-require it to validate the parameters it passes.
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 4d6a6b94e2fa..353adc4dc583 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -80,7 +80,6 @@ static void dw_i2c_acpi_params(struct platform_device *pdev, char method[],
+ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+-	bool fs_mode = dev->master_cfg & DW_IC_CON_SPEED_FAST;
+ 
+ 	if (!ACPI_HANDLE(&pdev->dev))
+ 		return -ENODEV;
+@@ -93,10 +92,9 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	 * Try to get SDA hold time and *CNT values from an ACPI method if
+ 	 * it exists for both supported speed modes.
+ 	 */
+-	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt,
+-			   fs_mode ? NULL : &dev->sda_hold_time);
++	dw_i2c_acpi_params(pdev, "SSCN", &dev->ss_hcnt, &dev->ss_lcnt, NULL);
+ 	dw_i2c_acpi_params(pdev, "FMCN", &dev->fs_hcnt, &dev->fs_lcnt,
+-			   fs_mode ? &dev->sda_hold_time : NULL);
++			   &dev->sda_hold_time);
+ 
+ 	return 0;
+ }
+-- 
+2.1.0
