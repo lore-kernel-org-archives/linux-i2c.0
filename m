@@ -1,49 +1,70 @@
-From: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Subject: Re: [PATCH 1/2 v2] i2c: cros-ec-tunnel: Add of match table
-Date: Tue, 30 Sep 2014 01:21:38 +0200
-Message-ID: <5429E982.4050509@collabora.co.uk>
-References: <1411114093-3505-1-git-send-email-sjoerd.simons@collabora.co.uk> <1411114093-3505-2-git-send-email-sjoerd.simons@collabora.co.uk> <20140929205922.GB2758@katana>
+From: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
+Subject: Re: [PATCH] i2c: qup: Fix order of runtime pm initialization
+Date: Mon, 29 Sep 2014 18:53:24 -0700
+Message-ID: <20140930015323.GE28481@sonymobile.com>
+References: <1412028051-21774-1-git-send-email-agross@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20140929205922.GB2758@katana>
+Content-Disposition: inline
+In-Reply-To: <1412028051-21774-1-git-send-email-agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>, "linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+On Mon 29 Sep 15:00 PDT 2014, Andy Gross wrote:
 
-On 09/29/2014 10:59 PM, Wolfram Sang wrote:
-> On Fri, Sep 19, 2014 at 10:08:12AM +0200, Sjoerd Simons wrote:
->> To enable the cros-ec-tunnel driver to be auto-loaded when build as a
->> module add an of match table (and export it) to match the modalias
->> information passed on to userspace as the Cros EC MFD driver registers
->> the MFD subdevices with an of_compatibility string.
->> 
->> Signed-off-by: Sjoerd Simons <sjoerd.simons-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
->> Reviewed-by: Javier Martinez Canillas <javier.martinez-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-> 
-> Applied to for-next, thanks!
-> 
-> However, since you are working on this driver: sparse rightfully
-> complains about:
-> 
-> drivers/i2c/busses/i2c-cros-ec-tunnel.c:97:44: warning: cast truncates bits from constant value (10000 becomes 0)
-> 
-> I don't know the EC protocol, can you check?
+> The runtime pm calls need to be done before populating the children via the
+> i2c_add_adapter call.  If this is not done, a child can run into issues trying
+> to do i2c read/writes due to the pm_runtime_sync failing.
 > 
 
-Doug posted a patch [0] to fix the issue you are reporting but it was not
-picked. I tested that the patch applies on top of linux-next + the latest
-cros_ec cleanups (that includes a patch for this i2c driver and was taken
-by Lee. So I think is safe for you take Doug's patch through your tree
-since it seems to not cause any conflict with the mfd tree.
+May I ask in what case this would fail?  I thought we tested this as we found
+the faulty error check after calling pm_runtime_get_sync().
 
-Or if you prefer, I can re-post that patch for 3.19.
+Nontheless,
 
-Best regards,
-Javier
+Acked-by: Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>
 
-[0]: https://lkml.org/lkml/2014/6/23/830
+Regards,
+Bjorn
+
+> Signed-off-by: Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-qup.c |   12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> index 3a4d64e..092d89b 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -674,16 +674,20 @@ static int qup_i2c_probe(struct platform_device *pdev)
+>  	qup->adap.dev.of_node = pdev->dev.of_node;
+>  	strlcpy(qup->adap.name, "QUP I2C adapter", sizeof(qup->adap.name));
+>  
+> -	ret = i2c_add_adapter(&qup->adap);
+> -	if (ret)
+> -		goto fail;
+> -
+>  	pm_runtime_set_autosuspend_delay(qup->dev, MSEC_PER_SEC);
+>  	pm_runtime_use_autosuspend(qup->dev);
+>  	pm_runtime_set_active(qup->dev);
+>  	pm_runtime_enable(qup->dev);
+> +
+> +	ret = i2c_add_adapter(&qup->adap);
+> +	if (ret)
+> +		goto fail_runtime;
+> +
+>  	return 0;
+>  
+> +fail_runtime:
+> +	pm_runtime_disable(qup->dev);
+> +	pm_runtime_set_suspended(qup->dev);
+>  fail:
+>  	qup_i2c_disable_clocks(qup);
+>  	return ret;
+> -- 
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> hosted by The Linux Foundation
+> 
