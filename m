@@ -1,71 +1,98 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over
- I2C
-Date: Tue, 30 Sep 2014 23:13:39 +0200
-Message-ID: <20140930211339.GA1264@katana>
+From: Rajat Jain <rajatxjain@gmail.com>
+Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over I2C
+Date: Tue, 30 Sep 2014 14:37:59 -0700
+Message-ID: <CAA93t1out+gJO29_0tn1zLJv_MUwJ458XKNT3Lo6WW+mH9XeRQ@mail.gmail.com>
 References: <542A3593.4020108@gmail.com>
- <CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+	<CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+	<20140930211339.GA1264@katana>
+Reply-To: rajatxjain@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Rajat Jain <rajatxjain@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20140930211339.GA1264@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>
 List-Id: linux-i2c@vger.kernel.org
 
+Hello,
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Sep 30, 2014 at 2:13 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> > Since this is a driver for a PCIe switch, I currently put it under /driver/pci/.
+>> > I'm very open to suggestions for moving this around (Does introducing
+>> > drivers/pci/switch/ seem any better?). Especially I can see that the
+>> > drivers/pci/Kconfig appears under "Bus Options" in the main menu which does not
+>> > look like the right place for this driver. I am looking for suggestions here.
+>>
+>> Definitely interesting work.  I have no idea where to put it.  It
+>> doesn't have anything to do with PCI core services or structures, so
+>> drivers/pci doesn't seem like the ideal place for it, but I don't have
+>> any better ideas.  If it did end up under drivers/pci, I agree that a
+>> drivers/pci/switch or something similar would probably be better than
+>> having it directly in drivers/pci.
+>>
+>> Maybe Wolfram or other I2C folks will have an idea.
+>
+> Hmm, is this a common interface for those switches? Then a directory
+> like drivers/pci/switch could make sense. Otherwise I'd suggest
+> drivers/misc?
+>
 
+Yes, this (I2C) is a common (secondary) interface for most of the
+modern PCIe switches from PLX and IDT. And it is often used in complex
+systems to handle use cases described in the documentation being added
+as part of this patch set. Excerpt (from
+https://lkml.org/lkml/2014/9/30/29):
 
-> > Since this is a driver for a PCIe switch, I currently put it under /dri=
-ver/pci/.
-> > I'm very open to suggestions for moving this around (Does introducing
-> > drivers/pci/switch/ seem any better?). Especially I can see that the
-> > drivers/pci/Kconfig appears under "Bus Options" in the main menu which =
-does not
-> > look like the right place for this driver. I am looking for suggestions=
- here.
->=20
-> Definitely interesting work.  I have no idea where to put it.  It
-> doesn't have anything to do with PCI core services or structures, so
-> drivers/pci doesn't seem like the ideal place for it, but I don't have
-> any better ideas.  If it did end up under drivers/pci, I agree that a
-> drivers/pci/switch or something similar would probably be better than
-> having it directly in drivers/pci.
->=20
-> Maybe Wolfram or other I2C folks will have an idea.
+===========================================================
+...<snip>...
 
-Hmm, is this a common interface for those switches? Then a directory
-like drivers/pci/switch could make sense. Otherwise I'd suggest
-drivers/misc?
++0. Why have an I2C interface to a PCIe switch?
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Other than the regular PCI express interface, most modern PCIe switches (e.g.
++from IDT and PLX) have an I2C based secondary interface. This interface allows
++access to all the registers of the switch. Some of these registers may not even
++be accessible over the regular PCI interface. Also, there are certain registers
++that can be written to, using only the I2C interface and may only be read-only
++using the PCI interface.
++
++This I2C interface is often used in designs involving these switches, and can
++be used for a variety of use cases where the switch needs to be configured
++independent of the PCI subsystem (and likely before PCI enumeration). Some
++examples:
++
++* Dividing a PCIe switch into multiple "virtual" switches. Using this feature,
++  a switch could be connected to 2 root ports for instance, each managing its
++  own PCI hierarchy, and the traffic from one virtual switch does not leak into
++  another.
++
++* Managing Transparent / Non-transparent bridging, and changing them
+on-the-fly.
++  There are ports that can be converted into "Non-transparent" bridge ports.
++  Essentially this is used to create different domains (not visible to
++  software). In a dynamic distributed system, it may be desirable to change a
++  transparent bridge to non-transparent or vice versa, for example, to handle a
++  failover situation.
++
++* Buggy hardware / Bad EEPROM configuration. There may be cases where an errata
++  involving register writes need to be applied before enumerating over PCI.
++  Also these switches are typically attached to an EEPROM that is supposed to
++  initialize the switch. If that EEPROM is not present, or contains bad
++  initialization data, this I2C interface can be used to fix that.
++
++* Changing switch configuration on the fly. In a multi-homed or complex
++  distributed systemsystem, there may be a need to change the switch
++  configuration (eg. change the upstream port, or the port or lane
++  configuration etc) to address run time scenarios (CPU plug out etc).
++
 
+...<snip>...
+===========================================================
 
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+I am myself leaning towards drivers/pci/switch/. And am wanting to
+hear what other think.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Thanks,
 
-iQIcBAEBAgAGBQJUKx0DAAoJEBQN5MwUoCm2wcwP/2SmPFJxcR4iHj5WFmDfvarU
-VfRMOFK3wlFwO52659zxHz2rHOM6i2sOgEHZlHaB/0IU7XA9PZx6iEyMbBGYBLJN
-okQiNiE0hnl8w+DAcWxPs8On2rICa6KadfEYyIXzL7Z0958ffhnREZ7a+oYKWorw
-Aa1b+YppzBTjpw/4w31HqNbPhZbxTWZc4biyKkTsQeFA0vX6evkpcTQOLVyFR7Nw
-aZvI4wHbiuZoqLTnxKNw56h7ixJjCMVQfQrJ/HvcwiMO13DNBU7zxVU/1nVyc6CQ
-wguGL8lBfWgIMMChdBVTO5wdpMGmDsCSFaojb2vz8RhzlubwjcXu4DgNVN8EdWMr
-aliQXIs3Uf18/mZrA0uIo3NVjFQZeTpUtbS7tDM/T2+ITst1ctmb68WDzddfBtW5
-Y5U2/8v6R1dte/cSGKpLQG74jkDBsOTA9BExjQSIwNM8lEA6XUydX+h5TJfVAeYv
-xk9+HqfEuH54kSKy+U9fx5Hngk2mKl4+jCTyoQzGu2YYezcvHh2EAZ/gCSBoVwxw
-msuTKfuzI3It3+qI5V/oa+5sDkYU0bVrLyf4NvV5U1FqDM+i0Ln4RFXdqBCHQ1UM
-ZSXNtCv57Zt8+tthbIQ88MFHVXf/B7vi3ckMPnGxOHhBfFZ9BWqSigEC4hCW3xO2
-3K9tM7a1kg+bD9+11LK7
-=daoW
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--
+Rajat
