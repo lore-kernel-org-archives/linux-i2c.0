@@ -1,92 +1,36 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO
- adapter
-Date: Tue, 30 Sep 2014 13:21:36 +0200
-Message-ID: <20140930112136.GC17834@localhost>
-References: <1411378458-18424-1-git-send-email-muth@cypress.com>
- <20140922114357.GG5237@localhost>
- <7e6ba8fdbdb643c885369e37e2bcd25a@BY2PR06MB076.namprd06.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <7e6ba8fdbdb643c885369e37e2bcd25a@BY2PR06MB076.namprd06.prod.outlook.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Muthu Mani <muth@cypress.com>
-Cc: Johan Hovold <johan@kernel.org>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>
+From: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v3 0/3] i2c: hix5hd2: add i2c controller driver
+Date: Tue, 30 Sep 2014 20:20:25 +0800
+Message-ID: <1412079628-6316-1-git-send-email-zhangfei.gao@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 25, 2014 at 05:47:11AM +0000, Muthu Mani wrote:
-> > -----Original Message-----
-> > From: Johan Hovold [mailto:jhovold@gmail.com] On Behalf Of Johan Hovold
+v3:
+Add COMPILE_TEST as dependence to enable compile test
+Remove specific mach info in dts binding to solve the confusion.
 
-> > > +static int cy_gpio_direction_input(struct gpio_chip *chip,
-> > > +                                     unsigned offset) {
-> > > +     return 0;
-> > 
-> > Aren't the GPIOs output-only?
-> 
-> No.
+v2: 
+Modify according to Wolfram's comments 
+including change vector name, coding style, return value etc.
 
-Then you should implement this callback to configure the pin as an
-input.
+Wei Yan (2):
+  i2c: hix5hd2: add devicetree documentation
+  i2c: hix5hd2: add i2c controller driver
 
-Or can the configuration only be made through your configuration tools
-and stored in eeprom?
+Zhangfei Gao (1):
+  ARM: dts: hix5hd2: add i2c node
 
-Then you need to retrieve the actual config and implement these
-callbacks (e.g. fail if not matching the eeprom config) along with
-get_direction().
+ .../devicetree/bindings/i2c/i2c-hix5hd2.txt        |   25 +
+ arch/arm/boot/dts/hisi-x5hd2.dtsi                  |   60 +++
+ drivers/i2c/busses/Kconfig                         |   10 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-hix5hd2.c                   |  554 ++++++++++++++++++++
+ 5 files changed, 650 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hix5hd2.txt
+ create mode 100644 drivers/i2c/busses/i2c-hix5hd2.c
 
-> > > +}
-> > > +
-> > > +static int cy_gpio_direction_output(struct gpio_chip *chip,
-> > > +                                     unsigned offset, int value) {
-> > > +     return 0;
-> > > +}
-> > > +
-> > > +static int cyusbs23x_gpio_probe(struct platform_device *pdev) {
-> > > +     struct cyusbs23x *cyusbs;
-> > > +     struct cyusbs_gpio *cy_gpio;
-> > > +     int ret = 0;
-> > > +
-> > > +     dev_dbg(&pdev->dev, "%s\n", __func__);
-> > > +
-> > > +     cyusbs = dev_get_drvdata(pdev->dev.parent);
-> > > +
-> > > +     cy_gpio = devm_kzalloc(&pdev->dev, sizeof(*cy_gpio), GFP_KERNEL);
-> > > +     if (cy_gpio == NULL)
-> > > +             return -ENOMEM;
-> > > +
-> > > +     cy_gpio->cyusbs = cyusbs;
-> > > +     /* registering gpio */
-> > > +     cy_gpio->gpio.label = "cyusbs23x gpio";
-> > > +     cy_gpio->gpio.dev = &pdev->dev;
-> > > +     cy_gpio->gpio.owner = THIS_MODULE;
-> > > +     cy_gpio->gpio.base = -1;
-> > > +     cy_gpio->gpio.ngpio = 12; /* total GPIOs */
-> > 
-> > I think you need to read out the gpio config from the device eeprom and
-> > implement a request() callback where you verify that a requested gpio is
-> > actually available (mode dependent, and there are never more than 10 gpios
-> > availble).
-> 
-> In this initial driver, all GPIOs are made available to user space.
-> Additional functionalities will be added in the next version of the driver.
-
-I think this needs to be implemented now. It's needed for direction
-handling as well as mentioned above.
-
-> > > +     cy_gpio->gpio.can_sleep = true;
-> > > +     cy_gpio->gpio.set = cy_gpio_set;
-> > > +     cy_gpio->gpio.get = cy_gpio_get;
-> > > +     cy_gpio->gpio.direction_input = cy_gpio_direction_input;
-> > > +     cy_gpio->gpio.direction_output = cy_gpio_direction_output;
-> > > +     ret = gpiochip_add(&cy_gpio->gpio);
-> > > +     if (ret < 0) {
-> > > +             dev_err(cy_gpio->gpio.dev, "could not add gpio");
-> > > +             goto error;
-> > > +     }
-
-Thanks,
-Johan
+-- 
+1.7.9.5
