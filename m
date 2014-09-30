@@ -1,38 +1,70 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2] i2c: move acpi code back into the core
-Date: Tue, 30 Sep 2014 22:34:07 +0200
-Message-ID: <1773097.ooYUbTzKBv@vostro.rjw.lan>
-References: <1411594591-5048-1-git-send-email-wsa@the-dreams.de> <20140930160352.GV1786@lahna.fi.intel.com> <20140930204607.2ab3baed@endymion.delvare>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over I2C
+Date: Tue, 30 Sep 2014 14:45:37 -0600
+Message-ID: <CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+References: <542A3593.4020108@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20140930204607.2ab3baed@endymion.delvare>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lan Tianyu <tianyu.lan@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <542A3593.4020108@gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Rajat Jain <rajatxjain@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, September 30, 2014 08:46:07 PM Jean Delvare wrote:
-> On Tue, 30 Sep 2014 19:03:52 +0300, Mika Westerberg wrote:
-> > On Tue, Sep 30, 2014 at 12:55:20PM +0200, Jean Delvare wrote:
-> > > The only thing which I find curious is that ACPI_I2C_OPREGION depends
-> > > on I2C=y. Is this limitation a leftover from when the code was split to
-> > > a separate file? It builds just fine with I2C=m, and I can't see why it
-> > > wouldn't work. I have a patch to enable that, I can send it if it is
-> > > the right thing to do. But maybe I'm missing something?
-> > 
-> > I think reason for the limitation is that if there happens to be some
-> > AML code that is currently using the I2C operation region and the user
-> > decides to unload the i2c-core.ko module or along those lines.
-> 
-> If that's the reason then shouldn't it be addressed by proper reference
-> counting instead? We could simply increase the module reference count
-> when entering the critical section, and decrease it when we're done.
+[+cc Wolfram]
 
-That is not so simple in practice, because the code containing the
-critical sections in question is AML and not part of the kernel.
+On Mon, Sep 29, 2014 at 10:46 PM, Rajat Jain <rajatxjain@gmail.com> wrote:
+> Most of the PLX PCI Express switches (and also switches from other vendors such
+> IDT) provide an I2C based secondary interface to access and program the switch.
+> This can be used to program the switch in situations where the PCIe interface
+> may not be suitable, or even available. (For instance, we may need to program
+> the device in a particular fashion before we even begin enumerating on the PCI,
+> or to even enable the PCIe interface of the device). More information on
+> usecases and other details has been provided in the documentation being added
+> as part of this patchset.
+>
+> This is a driver that allows talking to the PLX PEX8xxx family of PCIe switches
+> over its I2C interface. Here are the patch descriptions:
+>
+> [Patch 1/4] - Adds the PEX8xxx driver that exports API calls to read / write.
+> [Patch 2/4] - Adds a sysfs interface, to allow access to the switch.
+> [Patch 3/4] - Adds the MAINTAINERS entry.
+> [Patch 4/4] - Adds the documentation in Documentation/PCI/pex8xxx_i2c.txt
+>
+> Since this is a driver for a PCIe switch, I currently put it under /driver/pci/.
+> I'm very open to suggestions for moving this around (Does introducing
+> drivers/pci/switch/ seem any better?). Especially I can see that the
+> drivers/pci/Kconfig appears under "Bus Options" in the main menu which does not
+> look like the right place for this driver. I am looking for suggestions here.
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Definitely interesting work.  I have no idea where to put it.  It
+doesn't have anything to do with PCI core services or structures, so
+drivers/pci doesn't seem like the ideal place for it, but I don't have
+any better ideas.  If it did end up under drivers/pci, I agree that a
+drivers/pci/switch or something similar would probably be better than
+having it directly in drivers/pci.
+
+Maybe Wolfram or other I2C folks will have an idea.
+
+> Rajat Jain (4):
+>   pci: Add I2C driver for the PLX PEX8xxx PCIe switch
+>   pci/pex8xxx: Add sysfs interface for userspace access.
+>   MAINTAINERS: Add new device driver entry for PEX pex8xxx
+>   Documentation: Add documentation for the PCI switch PEX8xxx I2C
+>     driver
+>
+>  Documentation/PCI/pex8xxx_i2c.txt |  134 +++++++++
+>  MAINTAINERS                       |    7 +
+>  drivers/pci/Kconfig               |   13 +
+>  drivers/pci/Makefile              |    2 +
+>  drivers/pci/pex8xxx_i2c.c         |  538 +++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c/pex8xxx_i2c.h   |   36 +++
+>  6 files changed, 730 insertions(+)
+>  create mode 100644 Documentation/PCI/pex8xxx_i2c.txt
+>  create mode 100644 drivers/pci/pex8xxx_i2c.c
+>  create mode 100644 include/linux/i2c/pex8xxx_i2c.h
+>
+> --
+> 1.7.9.5
+>
