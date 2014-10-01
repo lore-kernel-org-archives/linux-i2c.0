@@ -1,78 +1,131 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Fwd: [Proposal] PM sleep children of inactive I2C bus segments
- off Masters in multi-master systems
-Date: Wed, 1 Oct 2014 23:21:46 +0200
-Message-ID: <20141001212142.GB2368@katana>
-References: <CAAVjN7eUmBVcAGPbcn3qsJ9M9uu2nkFoKHqGhhKGekZSceGiMw@mail.gmail.com>
- <20141001184304.GA6832@svl-evodev-groeck.juniper.net>
- <CAAVjN7edpkXYMHBm+wLegA_pc0hnm_YZf_z=Ni3h=EbDTmfegQ@mail.gmail.com>
- <20141001194115.GA6948@svl-evodev-groeck.juniper.net>
- <CAAVjN7fGRzyu7gxavJUay+K_Mm-0t1T_0Bysk6-sdaqu5=5k5A@mail.gmail.com>
- <20141001202058.GB6948@svl-evodev-groeck.juniper.net>
- <CAAVjN7e4nO579TfAJ5zMNe__Q9yU_-6naq4-0vm1rimespSrsw@mail.gmail.com>
- <20141001204302.GA7744@svl-evodev-groeck.juniper.net>
- <20141001211046.GA2368@katana>
- <20141001211657.GA7904@svl-evodev-groeck.juniper.net>
+From: Rajat Jain <rajatxjain@gmail.com>
+Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over I2C
+Date: Wed, 1 Oct 2014 14:32:37 -0700
+Message-ID: <CAA93t1qjzAWQqkZQcJYFZxvuhy6o1N2gJ+j=AKgcqE=zup=BJw@mail.gmail.com>
+References: <542A3593.4020108@gmail.com>
+	<CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+	<20140930211339.GA1264@katana>
+	<CAA93t1out+gJO29_0tn1zLJv_MUwJ458XKNT3Lo6WW+mH9XeRQ@mail.gmail.com>
+	<20141001072949.GA1322@katana>
+Reply-To: rajatxjain@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lEGEL1/lMxI0MVQ2"
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20141001211657.GA7904@svl-evodev-groeck.juniper.net>
-Sender: linux-pci-owner@vger.kernel.org
-To: Guenter Roeck <groeck@juniper.net>
-Cc: Danielle Costantino <danielle.costantino@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141001072949.GA1322@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>
 List-Id: linux-i2c@vger.kernel.org
 
+Hello,
 
---lEGEL1/lMxI0MVQ2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Oct 1, 2014 at 12:29 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> ===========================================================
+>> ...<snip>...
+>>
+>> +0. Why have an I2C interface to a PCIe switch?
+>> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> +Other than the regular PCI express interface, most modern PCIe switches (e.g.
+>> +from IDT and PLX) have an I2C based secondary interface. This interface allows
+>> +access to all the registers of the switch. Some of these registers may not even
+>> +be accessible over the regular PCI interface. Also, there are certain registers
+>> +that can be written to, using only the I2C interface and may only be read-only
+>> +using the PCI interface.
+>> +
+>> +This I2C interface is often used in designs involving these switches, and can
+>> +be used for a variety of use cases where the switch needs to be configured
+>> +independent of the PCI subsystem (and likely before PCI enumeration). Some
+>> +examples:
+>> +
+>> +* Dividing a PCIe switch into multiple "virtual" switches. Using this feature,
+>> +  a switch could be connected to 2 root ports for instance, each managing its
+>> +  own PCI hierarchy, and the traffic from one virtual switch does not leak into
+>> +  another.
+>> +
+>> +* Managing Transparent / Non-transparent bridging, and changing them
+>> on-the-fly.
+>> +  There are ports that can be converted into "Non-transparent" bridge ports.
+>> +  Essentially this is used to create different domains (not visible to
+>> +  software). In a dynamic distributed system, it may be desirable to change a
+>> +  transparent bridge to non-transparent or vice versa, for example, to handle a
+>> +  failover situation.
+>> +
+>> +* Buggy hardware / Bad EEPROM configuration. There may be cases where an errata
+>> +  involving register writes need to be applied before enumerating over PCI.
+>> +  Also these switches are typically attached to an EEPROM that is supposed to
+>> +  initialize the switch. If that EEPROM is not present, or contains bad
+>> +  initialization data, this I2C interface can be used to fix that.
+>> +
+>> +* Changing switch configuration on the fly. In a multi-homed or complex
+>> +  distributed systemsystem, there may be a need to change the switch
+>> +  configuration (eg. change the upstream port, or the port or lane
+>> +  configuration etc) to address run time scenarios (CPU plug out etc).
+>> +
+>>
+>> ...<snip>...
+>> ===========================================================
+>>
+>> I am myself leaning towards drivers/pci/switch/. And am wanting to
+>> hear what other think.
+>
+> I had a closer look and my first question is now if we really need a
+> kernel driver for this?
+>
+> The sysfs interface is basically to PEEK/POKE registers of the switch.
+> How registers get accessed is part of userspace. Well, then it might
+> even be easier to construct the proper i2c messages in userspace, too,
+> and send them via i2c-dev (instead of writing to various files in
+> sysfs).
+>
+> The Kernel API is also PEEK/POKE register. I am not an PCI expert, but I
+> can't see a user in this form. What I'd expect would be more like
+>
+> pci_switch_set_mode(some_device, PCI_BRIDGE_MODE_TRANSPARENT);
 
-On Wed, Oct 01, 2014 at 02:16:57PM -0700, Guenter Roeck wrote:
-> On Wed, Oct 01, 2014 at 11:10:47PM +0200, Wolfram Sang wrote:
-> >=20
-> > > Maybe you can find an error code which with some level of confidence
-> > > reflects "lost mastership". Then you can implement whatever makes sen=
-se
-> > > for your use case in your user space application(s).
-> >=20
-> > We have a documented fault code for ArbitrationLost and that is -EAGAIN
-> > (see Documentation/i2c/fault-codes). If a driver does use something
-> > else, patches are very welcome.
-> >=20
-> > Other than that, I find this thread very confusing. Of course can
-> > another master modify the clients, this is what multi-master is all
-> > about, no?
-> >=20
-> That is the point I was trying to make in one of my earlier replies.
+I understand and agree. In fact in the internal version of this driver
+(that I have not yet sent out for review), we do have APIs added
+similar to what you mention above. Currently I have APIs that:
+- Enable / Disable PCIe links.
+- Change the upstream port.
+- Enable / Disable Non-transparent mode etc.
 
-Yes, and I wondered why the thread continued after that, so I thought
-I'll bring it up again :) No, seriously, I did not understand the reply
-to that mail of yours, but I'll try again tomorrow after some sleep.
+However, I did not send them all out for review because I don't have
+the hardware to try and test them out on ALL the supported devices
+(also would require considerable amount of time). I have tested those
+APIs on PEX8713 only, because for e.g.I only have PEX8713 in a HW that
+connects to 2 CPUs at the same time.
 
+>
+> and then a shim layer would make sure the proper driver for the switch
+> sends the proper commands. Again, I don't know if the decision of
+> setting a mode/creating virtual switches... is even desirable in kernel
+> space. If so, then this is probably a sub-subsystem
+> drivers/pci/switches, but needs way more abstraction. Otherwise,
+> userspace will currently do IMO.
 
---lEGEL1/lMxI0MVQ2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+You are right, what this basic driver abstracts is the I2C interface
+(i.e. the command format and response format etc) of the PCIe switch,
+and not really the PCIe switch itself (Hence I was calling it PEX8xxx
+I2C driver. I think that is still a useful abstraction to have,
+because that can be used to build the actual logic code that program
+the switch. Yes, I agree that we can have another layer of abstraction
+so that we have:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+- The Core logic code (that knows "How do we want the switch to behave")
+- A PEX8xxx driver (that knows "which registers to program")
+- A PEX8xxx I2C driver ("How to program those registers") - this driver.
 
-iQIcBAEBAgAGBQJULHBlAAoJEBQN5MwUoCm2K1QP/jN4YVaUcPzQpRwH1pVy/hCN
-7k+koSKRHe9IXi5yUPex0mIv54r7wO+hqV5kVKzSWh3CXSaUtqqKgPDfcIv4a1YJ
-Fwij5Tz7xuYV47fNyke3507Q5XgAaPDb1YBS6SVfezuzN53SPexT9wC34Kh0niMw
-kHhNFJmb4DLa61QIFMxvWU7kQylnLBwwnpnbFxry6NhWzNsAHGykIps77aiofeML
-Az8VQ39/6FiY3xzVY5S2ROvvKgaGbgneJk3/9qq/4u5S4v3m5BxLrXTFNWS1IJFG
-aqu3No9mhVGoWPdY7lOjqKB5mOBTRpcJVjJT4+Jpq0R9x5gCfH09r1EV/XsC+QPt
-LWPE5OYEQNev7OQU1kdDLhwuOz2xNgFmeob/MCrG+WYxbcDZnPzB/6S1RtHziYC1
-5+n1MvfXhQ1MXh8/M/6x+9B6H5SEEssRQkN09tBfDepbVVjAhvsLe8KO2u1Hzebt
-BuK6MQhd02pRMx4bn3Rn4vIaYs/YM6esPWnknrDee59Wrb3lhxb3NkWC+rYe7qrV
-wO0w7HNX6gv0k9E1LC15+BBg8W8Hj96okayOoK1WSnNIaI3p9VS2IEy0ulOdaIT/
-E6Esb3GvVatjZikfzVYwqa22x7061t+WOR0Msi4XqVHM2VrDwR4QQHwjBvPVrTPz
-YCPaC+53bil6WZrmRDy/
-=nxSz
------END PGP SIGNATURE-----
+I do understand that your suggestion is to include and bundle the
+latter two into this same driver. However since the possibilities
+(about which APIs to provide) are too much and not enough hardware to
+test it, would it be acceptable if I include those APIs, but support
+them for only 1 device (and return error for others)? Note that even
+with those APIs, I feel exposing the Read/Write APIs will be useful -
+because what core logic wants to achieve can be highly device and
+platform specific. Also, a sysfs interface for this switch is proving
+to be a very helpful development aid :-) (personal experience :-))
 
---lEGEL1/lMxI0MVQ2--
+Thanks & Best Regards,
+
+Rajat Jain
