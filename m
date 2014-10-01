@@ -1,36 +1,31 @@
-From: Alexandru M Stan <amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: rk3x: fix 0 length write transfers
-Date: Wed,  1 Oct 2014 10:40:41 -0700
-Message-ID: <1412185241-24950-1-git-send-email-amstan@chromium.org>
+From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [Proposal] PM sleep children of inactive I2C bus segments off Masters
+ in multi-master systems
+Date: Wed, 1 Oct 2014 11:34:40 -0700
+Message-ID: <CAAVjN7dwS62EKMnuZc_P1UjkbRVk6RXqJ91GwWZ96bbY5Ct-rg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Sonny Rao <sonnyrao-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jeffy Chen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, ZhengShunQian <zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Alexandru M Stan <amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-i2cdetect -q was broken (everything was a false positive, and no transfers were
-actually being sent over i2c). The way it works is by sending a 0 length write
-request and checking for NACK. This patch fixes the 0 length writes and actually
-sends them.
+Currently I2C mux devices that support multiple master arbitration are
+the i2c-mux-pca9541 and i2c-arb-gpio-challenge drivers. I propose to
+add the ability to configure an interrupt pin from the Master Selector
+device to indicate that bus ownership has been lost. Once the device
+loses ownership, all of its children should enter a pm sleep mode (as
+you can't talk to them at this point) until master-ship has been
+reacquired.
 
-Reported-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: Alexandru M Stan <amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
----
- drivers/i2c/busses/i2c-rk3x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This has come up as an issue when the master loses control over a bus
+the return code of all transactions to its lave devices is EIO (not
+very helpful).
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index b41d979..f486d0e 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -238,7 +238,7 @@ static void rk3x_i2c_fill_transmit_buf(struct rk3x_i2c *i2c)
- 	for (i = 0; i < 8; ++i) {
- 		val = 0;
- 		for (j = 0; j < 4; ++j) {
--			if (i2c->processed == i2c->msg->len)
-+			if ((i2c->processed == i2c->msg->len) && (cnt != 0))
- 				break;
- 
- 			if (i2c->processed == 0 && cnt == 0)
+Any comments would be appreciated, I am just looking if there is
+interest in this.
+
+Thanks,
+
 -- 
-2.1.0.rc2.206.gedb03e5
+- Danielle Costantino
