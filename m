@@ -1,46 +1,61 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: fix 0 length write transfers
-Date: Wed, 1 Oct 2014 15:47:06 -0700
-Message-ID: <CAD=FV=VV1U2o41iz_NANvk=EZcMcrurvhN31s--_srU=4yuWcA@mail.gmail.com>
-References: <1412185241-24950-1-git-send-email-amstan@chromium.org>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: randconfig build error with next-20141001, in drivers/i2c/algos/i2c-algo-bit.c
+Date: Wed, 01 Oct 2014 16:26:11 -0700
+Message-ID: <542C8D93.8090008@infradead.org>
+References: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1412185241-24950-1-git-send-email-amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandru M Stan <amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sonny Rao <sonnyrao-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jeffy Chen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, ZhengShunQian <zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-can-owner@vger.kernel.org>
+In-Reply-To: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com>
+Sender: linux-can-owner@vger.kernel.org
+To: Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, wsa@the-dreams.de, khali@linux-fr.org, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-i2c@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-can@vger.kernel.org, linux-media <linux-media@vger.kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>
 List-Id: linux-i2c@vger.kernel.org
 
-Alex,
+On 10/01/14 14:37, Jim Davis wrote:
+> Building with the attached random configuration file,
 
-On Wed, Oct 1, 2014 at 10:40 AM, Alexandru M Stan <amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
-> i2cdetect -q was broken (everything was a false positive, and no transfers were
-> actually being sent over i2c). The way it works is by sending a 0 length write
-> request and checking for NACK. This patch fixes the 0 length writes and actually
-> sends them.
->
-> Reported-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Alexandru M Stan <amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-rk3x.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> index b41d979..f486d0e 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -238,7 +238,7 @@ static void rk3x_i2c_fill_transmit_buf(struct rk3x_i2c *i2c)
->         for (i = 0; i < 8; ++i) {
->                 val = 0;
->                 for (j = 0; j < 4; ++j) {
-> -                       if (i2c->processed == i2c->msg->len)
-> +                       if ((i2c->processed == i2c->msg->len) && (cnt != 0))
+Also:
+warning: (CAN_PEAK_PCIEC && SFC && IGB && VIDEO_TW68 && DRM && FB_DDC &=
+& FB_VIA) selects I2C_ALGOBIT which has unmet direct dependencies (I2C)
 
-This looks good to me.  Basically we still need to write the address
-of the device onto the bus even if there's no data.
+> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_bus=92:
+> drivers/i2c/algos/i2c-algo-bit.c:658:33: error: =91i2c_add_adapter=92
+> undeclared (first use in this function)
+>   return __i2c_bit_add_bus(adap, i2c_add_adapter);
+>                                  ^
+> drivers/i2c/algos/i2c-algo-bit.c:658:33: note: each undeclared
+> identifier is reported only once for each function it appears in
+> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_numbered=
+_bus=92:
+> drivers/i2c/algos/i2c-algo-bit.c:664:33: error:
+> =91i2c_add_numbered_adapter=92 undeclared (first use in this function=
+)
+>   return __i2c_bit_add_bus(adap, i2c_add_numbered_adapter);
+>                                  ^
+>   CC      net/openvswitch/actions.o
+> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_bus=92:
+> drivers/i2c/algos/i2c-algo-bit.c:659:1: warning: control reaches end =
+of non-void
+>  function [-Wreturn-type]
+>  }
+>  ^
+> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_numbered=
+_bus=92:
+> drivers/i2c/algos/i2c-algo-bit.c:665:1: warning: control reaches end =
+of non-void
+>  function [-Wreturn-type]
+>  }
+>  ^
+> make[3]: *** [drivers/i2c/algos/i2c-algo-bit.o] Error 1
 
-Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Tested-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+In drivers/media/pci/tw68/Kconfig, VIDEO_TW68 should depend on I2C in o=
+rder
+to make it safe to select I2C_ALGOBIT.
 
--Doug
+In drivers/net/can/sja1000/Kconfig, CAN_PEAK_PCIEC should depend on I2C
+instead of selecting I2C (and change the help text).
+
+
+--=20
+~Randy
