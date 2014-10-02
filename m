@@ -1,61 +1,116 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: randconfig build error with next-20141001, in drivers/i2c/algos/i2c-algo-bit.c
-Date: Wed, 01 Oct 2014 16:26:11 -0700
-Message-ID: <542C8D93.8090008@infradead.org>
-References: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over
+ I2C
+Date: Thu, 2 Oct 2014 08:34:23 +0200
+Message-ID: <20141002063423.GA1405@katana>
+References: <542A3593.4020108@gmail.com>
+ <CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+ <20140930211339.GA1264@katana>
+ <CAA93t1out+gJO29_0tn1zLJv_MUwJ458XKNT3Lo6WW+mH9XeRQ@mail.gmail.com>
+ <20141001072949.GA1322@katana>
+ <CAA93t1qjzAWQqkZQcJYFZxvuhy6o1N2gJ+j=AKgcqE=zup=BJw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-can-owner@vger.kernel.org>
-In-Reply-To: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com>
-Sender: linux-can-owner@vger.kernel.org
-To: Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, wsa@the-dreams.de, khali@linux-fr.org, Paul Gortmaker <paul.gortmaker@windriver.com>, linux-i2c@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-can@vger.kernel.org, linux-media <linux-media@vger.kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAA93t1qjzAWQqkZQcJYFZxvuhy6o1N2gJ+j=AKgcqE=zup=BJw@mail.gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Rajat Jain <rajatxjain@gmail.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/01/14 14:37, Jim Davis wrote:
-> Building with the attached random configuration file,
 
-Also:
-warning: (CAN_PEAK_PCIEC && SFC && IGB && VIDEO_TW68 && DRM && FB_DDC &=
-& FB_VIA) selects I2C_ALGOBIT which has unmet direct dependencies (I2C)
-
-> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_bus=92:
-> drivers/i2c/algos/i2c-algo-bit.c:658:33: error: =91i2c_add_adapter=92
-> undeclared (first use in this function)
->   return __i2c_bit_add_bus(adap, i2c_add_adapter);
->                                  ^
-> drivers/i2c/algos/i2c-algo-bit.c:658:33: note: each undeclared
-> identifier is reported only once for each function it appears in
-> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_numbered=
-_bus=92:
-> drivers/i2c/algos/i2c-algo-bit.c:664:33: error:
-> =91i2c_add_numbered_adapter=92 undeclared (first use in this function=
-)
->   return __i2c_bit_add_bus(adap, i2c_add_numbered_adapter);
->                                  ^
->   CC      net/openvswitch/actions.o
-> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_bus=92:
-> drivers/i2c/algos/i2c-algo-bit.c:659:1: warning: control reaches end =
-of non-void
->  function [-Wreturn-type]
->  }
->  ^
-> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_numbered=
-_bus=92:
-> drivers/i2c/algos/i2c-algo-bit.c:665:1: warning: control reaches end =
-of non-void
->  function [-Wreturn-type]
->  }
->  ^
-> make[3]: *** [drivers/i2c/algos/i2c-algo-bit.o] Error 1
-
-In drivers/media/pci/tw68/Kconfig, VIDEO_TW68 should depend on I2C in o=
-rder
-to make it safe to select I2C_ALGOBIT.
-
-In drivers/net/can/sja1000/Kconfig, CAN_PEAK_PCIEC should depend on I2C
-instead of selecting I2C (and change the help text).
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
---=20
-~Randy
+> I understand and agree. In fact in the internal version of this driver
+> (that I have not yet sent out for review), we do have APIs added
+> similar to what you mention above. Currently I have APIs that:
+> - Enable / Disable PCIe links.
+> - Change the upstream port.
+> - Enable / Disable Non-transparent mode etc.
+
+Now, that sounds better to me...
+
+> However, I did not send them all out for review because I don't have
+> the hardware to try and test them out on ALL the supported devices
+> (also would require considerable amount of time). I have tested those
+> APIs on PEX8713 only, because for e.g.I only have PEX8713 in a HW that
+> connects to 2 CPUs at the same time.
+
+That is a common problem to not have enough hardware to test. You could
+ask on the PCI mailing list for testers. The solution usually lies in
+showing the code rather than not showing the code.
+
+> the switch. Yes, I agree that we can have another layer of abstraction
+> so that we have:
+>=20
+> - The Core logic code (that knows "How do we want the switch to behave")
+> - A PEX8xxx driver (that knows "which registers to program")
+> - A PEX8xxx I2C driver ("How to program those registers") - this driver.
+>=20
+> I do understand that your suggestion is to include and bundle the
+> latter two into this same driver.
+
+It definately should be this way. Nobody else than the PEX8xxx driver
+should be able to send I2C messeges to the device! And this is
+absolutely standard, the logic how to talk to a device knows also how to
+prepare the I2C messages. One reason where it could be factored out is
+if there are multiple ways of transportation possible, like I2C or SPI.
+
+> However since the possibilities
+> (about which APIs to provide) are too much and not enough hardware to
+> test it, would it be acceptable if I include those APIs, but support
+> them for only 1 device (and return error for others)?
+
+Start with what YOU need and show us (all of it). From there, we can
+decide: do we start with one driver and factor out later, do we start
+with a sub-subsystem right away, etc... And there is still the question
+what APIs you provide, how they are implemented and if we really should
+have them in-kernel. I think that question will be more interesting for
+Bjorn because I don't really know much about switches in the PCI world.
+
+> with those APIs, I feel exposing the Read/Write APIs will be useful -
+> because what core logic wants to achieve can be highly device and
+> platform specific.
+
+That could also be solved by fixup-callbacks, but we'd need to see the
+core to tell, really.
+
+> Also, a sysfs interface for this switch is proving
+> to be a very helpful development aid :-) (personal experience :-))
+
+Sure, but such development aids don't need to be upstream. Especially if
+they create ABI such as sysfs-entries.
+
+Thanks and regards,
+
+   Wolfram
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJULPHvAAoJEBQN5MwUoCm2AvEQALNdxeOaK75eMJ4CmFtDgC2Z
+w6VttS2nU4LsgvyvhbaseTGxAGRPxee3kvNegG6s3yqf+U3F8yXs+JAiN+xV/QlK
+jjqsWE6hS+0MN8BFSb10gWaxkfiJbQtQc6r4V3H4Ty9enx4pfhY2MLZ7VReZJspb
+FnWmUFYv9YvCKibIn0G5sNNT/stuT/JXvlruHHh9Y67NPNYkQAyQsLj589ATfdd7
+AOgy2eHOi4khWO2uaw1Zv7ePFY8G1xOaH+0PboLGmj+Hjc8VyZaqc9WEnfXaMYAX
+eHW6e/tVQnTO9ANNctCka40V+wJuEmYJ8dIJW8M30zlPo6ZWsgeYVGsLDQBRUHds
+7z+NvE3wuipRo1mZz7jnv4BxPqbgnjoM7+p0A0YHoSJL7wY1vJUVxctqSkRfpvxa
+ros+J1LRORSkUMNiTN4KibRtGx+B7OUUCaRvF13nzg/ShLBURrVU0uzUOhyWOnTs
+TTzqH+JsUShVQbGVzO6Q3Xx+4G1bNl7lgTDvN4U6aqx3jYiutH/WulHIcuVelWdi
+DaRB5ZVS3xWiT3zeOLXdgFafCsBVyxJLNqUC5F1kSopwvjMjNdL0kByD92ln/OlL
+y2LDpadOjUgO2sve/kQdP4PmK9XDAO+E+oearykXVhezhHk1N617W/W5C77WJo5q
+9EVeALqmZbhgAeHFMic8
+=AWkh
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--
