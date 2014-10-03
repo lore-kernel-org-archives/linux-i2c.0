@@ -1,69 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 2/3] i2c: hix5hd2: add i2c controller driver
-Date: Fri, 3 Oct 2014 14:09:26 +0200
-Message-ID: <20141003120926.GF1349@katana>
-References: <1412079628-6316-1-git-send-email-zhangfei.gao@linaro.org>
- <1412079628-6316-3-git-send-email-zhangfei.gao@linaro.org>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v6 2/4] i2c: add support for Diolan DLN-2 USB-I2C adapter
+Date: Fri, 3 Oct 2014 15:30:28 +0300
+Message-ID: <CAE1zotLmY-UMVCGgJB=1X2MuMgERjdD2f7TsXVonZxE-cWb+kA@mail.gmail.com>
+References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
+	<1411661254-5204-3-git-send-email-octavian.purdila@intel.com>
+	<20141003011433.GG1323@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1412079628-6316-3-git-send-email-zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20141003011433.GG1323@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Oct 3, 2014 at 4:14 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> Hi,
+>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index 2ac87fa..6afc17e 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -1021,4 +1021,14 @@ config SCx200_ACB
+>>         This support is also available as a module.  If so, the module
+>>         will be called scx200_acb.
+>>
+>> +config I2C_DLN2
+>> +       tristate "Diolan DLN-2 USB I2C adapter"
+>> +       depends on MFD_DLN2
+>> +       help
+>> +         If you say yes to this option, support will be included for Diolan
+>> +         DLN2, a USB to I2C interface.
+>> +
+>> +         This driver can also be built as a module.  If so, the module
+>> +         will be called i2c-dln2.
+>> +
+>
+> Please keep to the existing sorting.
+>
+>
+>>  endmenu
+>> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+>> index 49bf07e..3118fea 100644
+>> --- a/drivers/i2c/busses/Makefile
+>> +++ b/drivers/i2c/busses/Makefile
+>> @@ -100,5 +100,6 @@ obj-$(CONFIG_I2C_ELEKTOR) += i2c-elektor.o
+>>  obj-$(CONFIG_I2C_PCA_ISA)    += i2c-pca-isa.o
+>>  obj-$(CONFIG_I2C_SIBYTE)     += i2c-sibyte.o
+>>  obj-$(CONFIG_SCx200_ACB)     += scx200_acb.o
+>> +obj-$(CONFIG_I2C_DLN2)               += i2c-dln2.o
+>
+> Ditto!
+>
+>> +static int dln2_i2c_enable(struct dln2_i2c *dln2, bool enable)
+>> +{
+>> +     int ret;
+>> +     u16 cmd;
+>> +
+>> +     if (enable)
+>> +             cmd = DLN2_I2C_ENABLE;
+>> +     else
+>> +             cmd = DLN2_I2C_DISABLE;
+>
+> Ternary operator?
+>
 
---0rSojgWGcpz+ezC3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In the first versions of the patch it was used, but Johan suggested to avoid it.
 
-Hi,
-
-On Tue, Sep 30, 2014 at 08:20:27PM +0800, Zhangfei Gao wrote:
-> From: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
->=20
-> I2C drivers for hix5hd2 soc series, including following chipset
-> Hi3716CV200, Hi3719CV100, Hi3718CV100, Hi3719MV100, Hi3718MV100.
->=20
-> Signed-off-by: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-Looks good to me. You probably want to have a look at this patch
-http://patchwork.ozlabs.org/patch/394648/
-
-an do something similar here, I guess.
-
-BTW what tests have you performed?
-
-Thanks,
-
-   Wolfram
-
-
---0rSojgWGcpz+ezC3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJULpH2AAoJEBQN5MwUoCm277cQALC8EZrzQ1wtmwAK3mNAIh6i
-QkP2wzXAdpG+VDYzBPSmBiaenbh9AI+hDKnbGhu+l/q1kBQy7mr/lwVfRgx/vL0m
-jCOOAAT1IOXqU3s5Pb6Z7Ri7MCyhKBfhyteTV+OdMTUMNF+X/KiUknFsLz4gTQU7
-YHuQErswjuLDNfYTY61k34JyXYAm7b1lMR/WWXq44oHPb/SdJWzBClrt0VRjmJ63
-YBPUojwWyj8YOtUhO7GhV+ziZsQbwNILltKioZ0lOKWczCdSb0bH5A1blRwAQXpn
-bSYqMr+4l4uhyZsJF3yXg/Ynhu+ctrhOgc6D2DXMln43qI9qwrJfOdy6Rnqjvojw
-8GWDN4taTvF6DMmdRoOg+YNZMw7HwnSbPQ6A9MbaSZNTOCZfHhXUqgRxFhfMoGq1
-A8nYFh6yZ9e5IquttAULAuBSrU2ii/UATJT45eoz+XkkU8DXZ2jyHyKPssWtkXJP
-Z1WvaI3fhDGXukX0WhWUylNOPEDjCdCsS+W2f2V5x3IdPyziwkUX3XmppHmIoZ/g
-+por2S0+Bwqh2apPppZMMs5Iy0KR98m4H2Nkud8adI4LrQdE876b2zy4e7mBjBpO
-Wlz7xBcP9Fkk8zhQJYwysIfSHPNcmPz6UpBlebEI0zDQudF0r4nL0mxT91zTRoI0
-og1w4D6TNH8dXyd7IJC9
-=Igv+
------END PGP SIGNATURE-----
-
---0rSojgWGcpz+ezC3--
+I have addressed the rest of you comments, thanks for the review.
