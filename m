@@ -1,57 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: qup: Fix order of runtime pm initialization
-Date: Fri, 3 Oct 2014 03:21:38 +0200
-Message-ID: <20141003012138.GH1323@katana>
-References: <1412028051-21774-1-git-send-email-agross@codeaurora.org>
+Subject: Re: [PATCH 2/2] i2c: exynos5: Add Kconfig dependencies
+Date: Fri, 3 Oct 2014 03:34:23 +0200
+Message-ID: <20141003013423.GJ1323@katana>
+References: <1410859998-29285-1-git-send-email-ch.naveen@samsung.com>
+ <1410859998-29285-3-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rCwQ2Y43eQY6RBgR"
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="wRtZRu2mMGBZ6YQ7"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1412028051-21774-1-git-send-email-agross@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Andy Gross <agross@codeaurora.org>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Bjorn Andersson <bjorn.andersson@sonymobile.com>, "Ivan T. Ivanov" <iivanov@mm-sol.com>, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <1410859998-29285-3-git-send-email-ch.naveen@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Cc: linux-i2c@vger.kernel.org, naveenkrishna.ch@gmail.com, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, sjg@chromium.org, grundler@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---rCwQ2Y43eQY6RBgR
+--wRtZRu2mMGBZ6YQ7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 29, 2014 at 05:00:51PM -0500, Andy Gross wrote:
-> The runtime pm calls need to be done before populating the children via t=
-he
-> i2c_add_adapter call.  If this is not done, a child can run into issues t=
-rying
-> to do i2c read/writes due to the pm_runtime_sync failing.
+On Tue, Sep 16, 2014 at 03:03:18PM +0530, Naveen Krishna Chatradhi wrote:
+> The i2c-exynos5.c driver can be reused for the HSI2C controller
+> on Exynos7 SoCs from Samsung.
 >=20
-> Signed-off-by: Andy Gross <agross@codeaurora.org>
+> This patch adds the Kconfig dependency to choose i2c-exynos5.c
+> for CONFIG_ARCH_EXYNOS7.
+>=20
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
 
-Applied to for-current, thanks!
+Folded this one into the previous one.
 
 
---rCwQ2Y43eQY6RBgR
+--wRtZRu2mMGBZ6YQ7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJULfohAAoJEBQN5MwUoCm2qaIP/1H0wlX9Fe+0xy2IB3MnX5Ya
-jlgiCl2ixzSy3Q328pDjwaNgt6uSjSC/ZD6kWkZ5p8ReLb9mb+tFT9GgDRZXrCnZ
-f2n1kSsOBjwrXEUE6PliIHga0FRWgZziNku5d4QtsxVPbynH3Bm6S7UUrhdYg6gX
-PLR4oL1SKTW5HDFxfIjD0rHSTqQ6doPEbewow1CvTGR2eFC7MlNBGaoSkk6abQai
-n8EmMCWLdovKQrMc5aXLydhEx6HuUh3Pi0brEaXvUeiB6RKnBidgJIDfMQjudUIA
-zIOTLnHWbphpbT48iHKUp2oe8DgDL4yyf3rjEBsgDvxz/A5rAODtXH9my5T+//NH
-1EfNvPsN+LicEwk6epTnAq5vb6W6nRpVSVjHDYSldxc/FaWqNgphtbeRlfG9XE51
-FHPT5N8UytcCjMXMwaEDIFn1u4OBv0vO358NW1x31wD5G0MAku3t0o2EY4GrmCoz
-UWYroII3Pc4MEy2G/2mJDilnxpDR43GqRdlZDV6lI3sLwF2IFC/J1Cdaak28SK19
-n7bvdvhfKL0znfoROkPRaymjkUhVUlxeR7LgAlN8lL+zHdx5DZdZjGRjkfHk9dJ8
-hJPOQGyQHUNbnE/snuddqVL0GNHc0TuVMqimcDD+Y0DW3YZwO4mk6hfNDeDzOmNQ
-URPYDG6QyR3ppNjzqbi0
-=nZj/
+iQIcBAEBAgAGBQJULf0fAAoJEBQN5MwUoCm2vCkQAJYQnwhuPCb56462MVMeeLSt
+ropoHhpNP2JKM57YTW1SgKlxv50zzdz0e1rbgPdmsijgNEctyzrbH8QWOrljZeo5
+ue56jDIgrzelyH8B7UUiZwfpeohqNA5CgQ03mYRefbZOtmMqNBlhao6Wfx200kq1
+xDFIvMWohrsiklELK0pnrog6ZYB+EAJXk6gDFCME0xRs4GM9Alxmqadq+1ZtsnV/
+ellOydCXmR8etCx+7OulGAsl2p+eiVvlLvGgRcTMbHP/pPtAVcKCIRRfF5H2c+S6
+XyaoNTK42ZXjpqug9yFLjbESHlmBCoikWTM4Ns6jzkf9/Hqv2QsH7c8GNUnIbLm8
+GeGl26lrH41Yhti0mEwlBEwCRQxY6PVfnepXSj5nV7R/FiNFLUuLUkLdc+yxZrAt
+LY167/abqCt43A+vcO6fwg5bYZmXn7h+RvExZonN8gLtFguvQT8ZruHiZNdjJpGB
+yvVLs4oNhjLZwYrRHVXd3Ql5AWCVhqc+J3J8ZqdqEah6dj493kLWRsX9XSGogl30
+zDCInU4xKqNTEl2kjIgzccW4LsKjRnWN1MIvNLBYvjhC6gybDU3M5GeBIBBditi3
+SVzZZi9RCmzwKu7tM50mQs0chmv7idXqEUACyJC+r3asCjCIUeFlWaK3vdxqVkSU
+wA+r4uEv67Gox3myjm26
+=Qf16
 -----END PGP SIGNATURE-----
 
---rCwQ2Y43eQY6RBgR--
+--wRtZRu2mMGBZ6YQ7--
