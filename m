@@ -1,95 +1,370 @@
-From: Rajat Jain <rajatxjain@gmail.com>
-Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over I2C
-Date: Thu, 2 Oct 2014 18:43:10 -0700
-Message-ID: <CAA93t1p-gj4FzbpaVVzWzcFmZHooVcrr3+XLNv1YyYssScep4Q@mail.gmail.com>
-References: <542A3593.4020108@gmail.com>
-	<CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
-	<20140930211339.GA1264@katana>
-	<CAA93t1out+gJO29_0tn1zLJv_MUwJ458XKNT3Lo6WW+mH9XeRQ@mail.gmail.com>
-	<20141001072949.GA1322@katana>
-	<CAA93t1qjzAWQqkZQcJYFZxvuhy6o1N2gJ+j=AKgcqE=zup=BJw@mail.gmail.com>
-	<20141002063423.GA1405@katana>
-Reply-To: rajatxjain@gmail.com
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v8 1/2] i2c: imx: add DMA support for freescale i2c driver
+Date: Fri, 3 Oct 2014 09:54:41 +0200
+Message-ID: <20141003075441.GA1349@katana>
+References: <1411632689-31531-1-git-send-email-yao.yuan@freescale.com>
+ <1411632689-31531-2-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20141002063423.GA1405@katana>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1411632689-31531-2-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: marex-ynQEQJNshbs@public.gmane.org, LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-Thanks a lot for your review and comments. I understand and will
-update with those APIs and send out a V2.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks & Best Regards,
+Hi,
 
-Rajat Jain
+thanks for this submission. Here is my review.
 
-On Wed, Oct 1, 2014 at 11:34 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> I understand and agree. In fact in the internal version of this driver
->> (that I have not yet sent out for review), we do have APIs added
->> similar to what you mention above. Currently I have APIs that:
->> - Enable / Disable PCIe links.
->> - Change the upstream port.
->> - Enable / Disable Non-transparent mode etc.
->
-> Now, that sounds better to me...
->
->> However, I did not send them all out for review because I don't have
->> the hardware to try and test them out on ALL the supported devices
->> (also would require considerable amount of time). I have tested those
->> APIs on PEX8713 only, because for e.g.I only have PEX8713 in a HW that
->> connects to 2 CPUs at the same time.
->
-> That is a common problem to not have enough hardware to test. You could
-> ask on the PCI mailing list for testers. The solution usually lies in
-> showing the code rather than not showing the code.
->
->> the switch. Yes, I agree that we can have another layer of abstraction
->> so that we have:
->>
->> - The Core logic code (that knows "How do we want the switch to behave")
->> - A PEX8xxx driver (that knows "which registers to program")
->> - A PEX8xxx I2C driver ("How to program those registers") - this driver.
->>
->> I do understand that your suggestion is to include and bundle the
->> latter two into this same driver.
->
-> It definately should be this way. Nobody else than the PEX8xxx driver
-> should be able to send I2C messeges to the device! And this is
-> absolutely standard, the logic how to talk to a device knows also how to
-> prepare the I2C messages. One reason where it could be factored out is
-> if there are multiple ways of transportation possible, like I2C or SPI.
->
->> However since the possibilities
->> (about which APIs to provide) are too much and not enough hardware to
->> test it, would it be acceptable if I include those APIs, but support
->> them for only 1 device (and return error for others)?
->
-> Start with what YOU need and show us (all of it). From there, we can
-> decide: do we start with one driver and factor out later, do we start
-> with a sub-subsystem right away, etc... And there is still the question
-> what APIs you provide, how they are implemented and if we really should
-> have them in-kernel. I think that question will be more interesting for
-> Bjorn because I don't really know much about switches in the PCI world.
->
->> with those APIs, I feel exposing the Read/Write APIs will be useful -
->> because what core logic wants to achieve can be highly device and
->> platform specific.
->
-> That could also be solved by fixup-callbacks, but we'd need to see the
-> core to tell, really.
->
->> Also, a sysfs interface for this switch is proving
->> to be a very helpful development aid :-) (personal experience :-))
->
-> Sure, but such development aids don't need to be upstream. Especially if
-> they create ABI such as sysfs-entries.
->
-> Thanks and regards,
->
->    Wolfram
+On Thu, Sep 25, 2014 at 04:11:28PM +0800, Yuan Yao wrote:
+> Add dma support for i2c. This function depend on DMA driver.
+> You can turn on it by write both the dmas and dma-name properties in dts =
+node.
+> DMA is optional, even DMA request unsuccessfully, i2c can also work well.
+>=20
+> Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 352 +++++++++++++++++++++++++++++++++++++=
+++++--
+>  1 file changed, 342 insertions(+), 10 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 613069b..c643756 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -37,22 +37,27 @@
+>  /** Includes ***********************************************************=
+********
+>  ************************************************************************=
+*******/
+> =20
+> -#include <linux/init.h>
+> -#include <linux/kernel.h>
+> -#include <linux/module.h>
+> +#include <linux/clk.h>
+> +#include <linux/completion.h>
+> +#include <linux/delay.h>
+> +#include <linux/dma-mapping.h>
+> +#include <linux/dmaengine.h>
+> +#include <linux/dmapool.h>
+>  #include <linux/errno.h>
+>  #include <linux/err.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/delay.h>
+>  #include <linux/i2c.h>
+> +#include <linux/init.h>
+>  #include <linux/io.h>
+> -#include <linux/sched.h>
+> -#include <linux/platform_device.h>
+> -#include <linux/clk.h>
+> -#include <linux/slab.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> +#include <linux/of_dma.h>
+>  #include <linux/platform_data/i2c-imx.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/sched.h>
+> +#include <linux/slab.h>
+
+This is a seperate patch.
+
+> @@ -432,6 +587,168 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_i=
+d)
+>  	return IRQ_NONE;
+>  }
+> =20
+> +static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> +					struct i2c_msg *msgs)
+> +{
+> +	int result;
+> +	unsigned int temp =3D 0;
+> +	unsigned long orig_jiffies =3D jiffies;
+> +	struct imx_i2c_dma *dma =3D i2c_imx->dma;
+> +	struct device *dev =3D &i2c_imx->adapter.dev;
+> +
+> +	dev_dbg(dev, "<%s> write slave address: addr=3D0x%x\n",
+> +		__func__, msgs->addr << 1);
+
+That debug should really go. We have other means to display ongoing I2C
+transactions and their address.
+
+> +
+> +	dma->chan_using =3D dma->chan_tx;
+> +	dma->dma_transfer_dir =3D DMA_MEM_TO_DEV;
+> +	dma->dma_data_dir =3D DMA_TO_DEVICE;
+> +	dma->dma_len =3D msgs->len - 1;
+> +	result =3D i2c_imx_dma_xfer(i2c_imx, msgs);
+> +	if (result)
+> +		return result;
+> +
+> +	temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	temp |=3D I2CR_DMAEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/*
+> +	 * Write slave address.
+> +	 * The first byte muse be transmitted by the CPU.
+
+"must"
+
+> +	 */
+> +	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> +	reinit_completion(&i2c_imx->dma->cmd_complete);
+> +	result =3D wait_for_completion_interruptible_timeout(
+> +				&i2c_imx->dma->cmd_complete,
+> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> +	if (result <=3D 0) {
+> +		dmaengine_terminate_all(dma->chan_using);
+> +		if (result)
+> +			return result;
+> +		else
+> +			return -ETIMEDOUT;
+> +	}
+> +
+> +	/* Waiting for Transfer complete. */
+
+"transfer"
+
+> +	while (1) {
+> +		temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +		if (temp & I2SR_ICF)
+> +			break;
+> +		if (time_after(jiffies, orig_jiffies +
+> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
+> +			dev_dbg(dev, "<%s> Timeout\n", __func__);
+> +			return -ETIMEDOUT;
+> +		}
+> +		schedule();
+
+That might have been asked before. Is there no interrupt for this?
+
+> +	}
+> +
+> +	temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	temp &=3D ~I2CR_DMAEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/* The last data byte must be transferred by the CPU. */
+> +	imx_i2c_write_reg(msgs->buf[msgs->len-1],
+> +				i2c_imx, IMX_I2C_I2DR);
+> +	result =3D i2c_imx_trx_complete(i2c_imx);
+> +	if (result)
+> +		return result;
+> +
+> +	result =3D i2c_imx_acked(i2c_imx);
+> +	if (result)
+> +		return result;
+> +
+> +	return 0;
+> +}
+> +
+> +static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+> +			struct i2c_msg *msgs, bool is_lastmsg)
+> +{
+> +	int result;
+> +	unsigned int temp;
+> +	unsigned long orig_jiffies;
+> +	struct imx_i2c_dma *dma =3D i2c_imx->dma;
+> +	struct device *dev =3D &i2c_imx->adapter.dev;
+> +
+> +	temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	temp |=3D I2CR_DMAEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	dma->chan_using =3D dma->chan_rx;
+> +	dma->dma_transfer_dir =3D DMA_DEV_TO_MEM;
+> +	dma->dma_data_dir =3D DMA_FROM_DEVICE;
+> +	/* The last two data bytes must be transferred by the CPU. */
+> +	dma->dma_len =3D msgs->len - 2;
+> +	result =3D i2c_imx_dma_xfer(i2c_imx, msgs);
+> +	if (result)
+> +		return result;
+> +
+> +	reinit_completion(&i2c_imx->dma->cmd_complete);
+> +	result =3D wait_for_completion_interruptible_timeout(
+> +				&i2c_imx->dma->cmd_complete,
+> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+> +	if (result <=3D 0) {
+> +		dmaengine_terminate_all(dma->chan_using);
+> +		if (result)
+> +			return result;
+> +		else
+> +			return -ETIMEDOUT;
+
+return result ?: -ETIMEDOUT;
+
+> +	}
+> +
+> +	/* waiting for Transfer complete. */
+
+"transfer"
+
+> +	while (1) {
+> +		temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +		if (temp & I2SR_ICF)
+> +			break;
+> +		if (time_after(jiffies, orig_jiffies +
+> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
+> +			dev_dbg(dev, "<%s> Timeout\n", __func__);
+> +			return -ETIMEDOUT;
+> +		}
+> +		schedule();
+> +	}
+> +
+> +	temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	temp &=3D ~I2CR_DMAEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/* read n-1 byte data */
+> +	temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	temp |=3D I2CR_TXAK;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	msgs->buf[msgs->len-2] =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +	/* read n byte data */
+> +	result =3D i2c_imx_trx_complete(i2c_imx);
+> +	if (result)
+> +		return result;
+> +
+> +	if (is_lastmsg) {
+> +		/*
+> +		 * It must generate STOP before read I2DR to prevent
+> +		 * controller from generating another clock cycle
+> +		 */
+> +		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
+> +		temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +		temp &=3D ~(I2CR_MSTA | I2CR_MTX);
+> +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +		i2c_imx_bus_busy(i2c_imx, 0);
+> +		i2c_imx->stopped =3D 1;
+> +	} else {
+> +		/*
+> +		 * For i2c master receiver repeat restart operation like:
+> +		 * read -> repeat MSTA -> read/write
+> +		 * The controller must set MTX before read the last byte in
+> +		 * the first read operation, otherwise the first read cost
+> +		 * one extra clock cycle.
+> +		 */
+> +		temp =3D readb(i2c_imx->base + IMX_I2C_I2CR);
+> +		temp |=3D I2CR_MTX;
+> +		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
+> +	}
+> +	msgs->buf[msgs->len-1] =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +
+> +	return 0;
+> +}
+> +
+>  static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg =
+*msgs)
+>  {
+>  	int i, result;
+> @@ -501,6 +818,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_im=
+x, struct i2c_msg *msgs, bo
+> =20
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s> read data\n", __func__);
+> =20
+> +	if (i2c_imx->dma && msgs->len >=3D IMX_I2C_DMA_THRESHOLD && !block_data)
+> +		return i2c_imx_dma_read(i2c_imx, msgs, is_lastmsg);
+> +
+>  	/* read data */
+>  	for (i =3D 0; i < msgs->len; i++) {
+>  		u8 len =3D 0;
+> @@ -615,8 +935,12 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+>  #endif
+>  		if (msgs[i].flags & I2C_M_RD)
+>  			result =3D i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg);
+> -		else
+> -			result =3D i2c_imx_write(i2c_imx, &msgs[i]);
+> +		else {
+> +			if (i2c_imx->dma && msgs[i].len >=3D IMX_I2C_DMA_THRESHOLD)
+> +				result =3D i2c_imx_dma_write(i2c_imx, &msgs[i]);
+> +			else
+> +				result =3D i2c_imx_write(i2c_imx, &msgs[i]);
+> +		}
+>  		if (result)
+>  			goto fail0;
+>  	}
+> @@ -651,6 +975,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  	struct imxi2c_platform_data *pdata =3D dev_get_platdata(&pdev->dev);
+>  	void __iomem *base;
+>  	int irq, ret;
+> +	dma_addr_t phy_addr;
+> =20
+>  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
+> =20
+> @@ -661,6 +986,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  	}
+> =20
+>  	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	phy_addr =3D (dma_addr_t)res->start;
+
+res can be NULL! Move it after it has been checked...
+
+>  	base =3D devm_ioremap_resource(&pdev->dev, res);
+>  	if (IS_ERR(base))
+>  		return PTR_ERR(base);
+
+=2E..here.
+
+
+> @@ -740,6 +1066,9 @@ static int i2c_imx_probe(struct platform_device *pde=
+v)
+>  		i2c_imx->adapter.name);
+>  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+> =20
+> +	/* Init DMA config if support*/
+> +	i2c_imx_dma_request(i2c_imx, phy_addr);
+> +
+>  	return 0;   /* Return OK */
+>  }
+> =20
+> @@ -751,6 +1080,9 @@ static int i2c_imx_remove(struct platform_device *pd=
+ev)
+>  	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
+>  	i2c_del_adapter(&i2c_imx->adapter);
+> =20
+> +	if (i2c_imx->dma)
+> +		i2c_imx_dma_free(i2c_imx);
+> +
+
+Looks mostly good, though.
+
+Thanks,
+
+   Wolfram
+
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJULlZBAAoJEBQN5MwUoCm2//cP/jBsXM2caZw1MnM2N87KsKCn
+tLclPMtFwuwbsmxmwHSRHDJ8EVjpALNJzJT2HXCrd3xaqxTS+sLT4y2CXqCqHUw9
+xfaHfQHK56N8iYZMZosQkwQpuACCF/BSBDriQst4SoUv6D4RqWkOqJXj+P34mwpG
+LdAeKPTcH/e8qcSPjGAEWKd5e4SG0FgFFyxUo+JTufqTwzuV4okG7QmSWCg4IfwU
+71ZZOmln8c9EdALUWnobFRuifs1JmRU0oBASA2zsAJSzp0qr9gcXgAVOf0AUzzZX
+mF6JM5s1qCPRqXubzmUqajp0D6pFkO6KqRpFL16XiNEI/wj3TnNyMAR7j1S0CsgE
+5EkQ3yk2+eEUicsqkUzFAAbg5vYlISPRsTgNROLQ2i8R3NVmnYb2u3vWmOg474I8
+Hg71Sj19b4b9Oyefj1UaKb++moFCbLEOzb+s7RY5oHEBovbpb591wlZ7Z+3/s9DV
+gdNgV6JfeSGICupZyQ+SAkw/qCHogG+TZgtO1lOfBMRJLxpkHcGhUeeqTDA4JrMs
+YYeNgmj9I4A19bxv3Adau007Mg5MFlhY6brs/1O2HMvIRjCubnfOHhAJoPA/m4id
+hT/rjJKfxZUHNcd8gcQGx8BwVeuSk/fIvpZ4s8Bu1Be5PlGe8msI7wj7rL8M8C9d
+WAamzi3Rffrv36Mcou48
+=WRTo
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--
