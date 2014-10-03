@@ -1,62 +1,95 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: exynos: add support for HSI2C module on Exynos7
-Date: Fri, 3 Oct 2014 03:34:05 +0200
-Message-ID: <20141003013404.GI1323@katana>
-References: <1410859998-29285-1-git-send-email-ch.naveen@samsung.com>
- <1410859998-29285-2-git-send-email-ch.naveen@samsung.com>
+From: Rajat Jain <rajatxjain@gmail.com>
+Subject: Re: [PATCH 0/4] Driver for talking to PLX PEX8xxx PCIe switch over I2C
+Date: Thu, 2 Oct 2014 18:43:10 -0700
+Message-ID: <CAA93t1p-gj4FzbpaVVzWzcFmZHooVcrr3+XLNv1YyYssScep4Q@mail.gmail.com>
+References: <542A3593.4020108@gmail.com>
+	<CAErSpo7BkXDHOZwHzwEu2BN3=39xFwQOyrjgVo6afWKMsnYT=A@mail.gmail.com>
+	<20140930211339.GA1264@katana>
+	<CAA93t1out+gJO29_0tn1zLJv_MUwJ458XKNT3Lo6WW+mH9XeRQ@mail.gmail.com>
+	<20141001072949.GA1322@katana>
+	<CAA93t1qjzAWQqkZQcJYFZxvuhy6o1N2gJ+j=AKgcqE=zup=BJw@mail.gmail.com>
+	<20141002063423.GA1405@katana>
+Reply-To: rajatxjain@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="16qp2B0xu0fRvRD7"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1410859998-29285-2-git-send-email-ch.naveen@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Cc: linux-i2c@vger.kernel.org, naveenkrishna.ch@gmail.com, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, sjg@chromium.org, grundler@chromium.org, linux-kernel@vger.kernel.org, cpgs@samsung.com, devicetree@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20141002063423.GA1405@katana>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Bjorn Helgaas <bhelgaas@google.com>, Jiri Kosina <jkosina@suse.cz>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Rajat Jain <rajatjain@juniper.net>, Guenter Roeck <groeck@juniper.net>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---16qp2B0xu0fRvRD7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks a lot for your review and comments. I understand and will
+update with those APIs and send out a V2.
 
-On Tue, Sep 16, 2014 at 03:03:17PM +0530, Naveen Krishna Chatradhi wrote:
-> The HSI2C module on Exynos7 differs in the transfer status
-> bits. Transfer status bits were moved to INT_ENABLE and
-> INT_STATUS registers
->=20
-> This patch adds support for the HSI2C module on Exynos7.
-> 1. Implementes a "hw" field in the variant struct to distinguish
->    the hardware.
-> 2. Updates the dt-new compatible in dt-binding documenation
->=20
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
+Thanks & Best Regards,
 
-Applied to for-next, thanks!
+Rajat Jain
 
-
---16qp2B0xu0fRvRD7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJULf0MAAoJEBQN5MwUoCm2i3YQAIKvm5Upiuz0wPfoJEDKZeIp
-28fXBYMV0DOCZ/Fqf/Rc3soar5knuAMVLNVnjAVuODim6gw34FC9yszFFjYZcmOv
-UlSvsoLGanxyT3+LAyOcKn01LodzmcwPpxeL0Y1fzNPnaRb9N7Lw/6DK6O1sQHfo
-NIpbo4xJzbGlLwdmuYoao7vVIu8oVerC724UqMQ6RSQBX0KzBRWbb6KX6ZtHgX7R
-I2xRFUJ7etYL5x9yIwz2q1LGefXobY1pDpMpLQ+U/5CuyOITVHotQyF5ABZ8k4ro
-fm/sgpL4V6hIymPxwjeZX2unFyTk9Acgr6+Qn9EDWWar9konzdGHvr5HlFaGkqzM
-nFrHiNSSqnaCrbjpJxI6iSz6QcL6SOh8kiXu9Oun8VQwOt3+rGUVD+Bujlgc5jPc
-gZ+hPcy9JhQbd8dDTviXZvBU09FVASE9NHXadj70s68RaikMWXTlvIIq2D12LhCd
-7oKOnZJqIaoIea3Wmrhx3EBdAcqi2SzxCdySExitvsWHR2PTkwcq05itzl5XjUzX
-YrQkMQlFKxAdajA2oJAa0VV9l63daVnNK9gPurIVqlBC1J8H9GYamxOgd5AUvpKD
-Twrfy8gFWoJwIdF6qErReNENF60SK7mYkdcyAC3eUpWpubS5e+lH44KNVfUgwXG2
-Dm2YmKuya+fQLWNdeKVM
-=eX59
------END PGP SIGNATURE-----
-
---16qp2B0xu0fRvRD7--
+On Wed, Oct 1, 2014 at 11:34 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> I understand and agree. In fact in the internal version of this driver
+>> (that I have not yet sent out for review), we do have APIs added
+>> similar to what you mention above. Currently I have APIs that:
+>> - Enable / Disable PCIe links.
+>> - Change the upstream port.
+>> - Enable / Disable Non-transparent mode etc.
+>
+> Now, that sounds better to me...
+>
+>> However, I did not send them all out for review because I don't have
+>> the hardware to try and test them out on ALL the supported devices
+>> (also would require considerable amount of time). I have tested those
+>> APIs on PEX8713 only, because for e.g.I only have PEX8713 in a HW that
+>> connects to 2 CPUs at the same time.
+>
+> That is a common problem to not have enough hardware to test. You could
+> ask on the PCI mailing list for testers. The solution usually lies in
+> showing the code rather than not showing the code.
+>
+>> the switch. Yes, I agree that we can have another layer of abstraction
+>> so that we have:
+>>
+>> - The Core logic code (that knows "How do we want the switch to behave")
+>> - A PEX8xxx driver (that knows "which registers to program")
+>> - A PEX8xxx I2C driver ("How to program those registers") - this driver.
+>>
+>> I do understand that your suggestion is to include and bundle the
+>> latter two into this same driver.
+>
+> It definately should be this way. Nobody else than the PEX8xxx driver
+> should be able to send I2C messeges to the device! And this is
+> absolutely standard, the logic how to talk to a device knows also how to
+> prepare the I2C messages. One reason where it could be factored out is
+> if there are multiple ways of transportation possible, like I2C or SPI.
+>
+>> However since the possibilities
+>> (about which APIs to provide) are too much and not enough hardware to
+>> test it, would it be acceptable if I include those APIs, but support
+>> them for only 1 device (and return error for others)?
+>
+> Start with what YOU need and show us (all of it). From there, we can
+> decide: do we start with one driver and factor out later, do we start
+> with a sub-subsystem right away, etc... And there is still the question
+> what APIs you provide, how they are implemented and if we really should
+> have them in-kernel. I think that question will be more interesting for
+> Bjorn because I don't really know much about switches in the PCI world.
+>
+>> with those APIs, I feel exposing the Read/Write APIs will be useful -
+>> because what core logic wants to achieve can be highly device and
+>> platform specific.
+>
+> That could also be solved by fixup-callbacks, but we'd need to see the
+> core to tell, really.
+>
+>> Also, a sysfs interface for this switch is proving
+>> to be a very helpful development aid :-) (personal experience :-))
+>
+> Sure, but such development aids don't need to be upstream. Especially if
+> they create ABI such as sysfs-entries.
+>
+> Thanks and regards,
+>
+>    Wolfram
