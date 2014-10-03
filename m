@@ -1,89 +1,110 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: axxia: Add I2C driver for AXM55xx
-Date: Fri, 3 Oct 2014 12:36:30 +0200
-Message-ID: <20141003103630.GB1349@katana>
-References: <1411983159-4692-1-git-send-email-anders.berg@avagotech.com>
+Subject: Re: [PATCH] i2c: Add generic support passing secondary devices
+ addresses
+Date: Fri, 3 Oct 2014 12:46:37 +0200
+Message-ID: <20141003104637.GC1349@katana>
+References: <1409925739-28188-1-git-send-email-jean-michel.hautbois@vodalys.com>
+ <20140922104555.GQ1786@lahna.fi.intel.com>
+ <542023C8.8080802@metafoo.de>
+ <20140922134535.GZ1786@lahna.fi.intel.com>
+ <54202E28.80500@metafoo.de>
+ <20140922144144.GF1786@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+	protocol="application/pgp-signature"; boundary="Clx92ZfkiYIKRjnr"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1411983159-4692-1-git-send-email-anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>
+In-Reply-To: <20140922144144.GF1786-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---qlTNgmc+xy1dBmNv
+--Clx92ZfkiYIKRjnr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 2ac87fa..8983474 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -77,6 +77,17 @@ config I2C_AMD8111
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-amd8111.
-> =20
-> +config I2C_AXXIA
-> +	tristate "Axxia I2C controller"
-> +	depends on ARCH_AXXIA || COMPILE_TEST
-> +	default ARCH_AXXIA
-> +	help
-> +	  Say yes if you want to support the I2C bus on Axxia platforms.
-> +
-> +	  Please note that this controller is limited to transfers of maximum
-> +	  255 bytes in length. Any attempt to to a larger transfer will return
-> +	  an error.
-> +
->  config I2C_I801
->  	tristate "Intel 82801 (ICH/PCH)"
->  	depends on PCI
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 49bf07e..5899edb 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -12,6 +12,7 @@ obj-$(CONFIG_I2C_ALI15X3)	+=3D i2c-ali15x3.o
->  obj-$(CONFIG_I2C_AMD756)	+=3D i2c-amd756.o
->  obj-$(CONFIG_I2C_AMD756_S4882)	+=3D i2c-amd756-s4882.o
->  obj-$(CONFIG_I2C_AMD8111)	+=3D i2c-amd8111.o
-> +obj-$(CONFIG_I2C_AXXIA)		+=3D i2c-axxia.o
->  obj-$(CONFIG_I2C_I801)		+=3D i2c-i801.o
->  obj-$(CONFIG_I2C_ISCH)		+=3D i2c-isch.o
->  obj-$(CONFIG_I2C_ISMT)		+=3D i2c-ismt.o
+> > Ok, looks like there are two main differences in the two implementation=
+s.
+> >=20
+> > 1) The ACPI one uses a integer index and the DT one uses a string index=
+ to
+> > lookup the device.
+> >=20
+> > The problem with the index lookup is that the order is binding specific=
+=2E So
+> > it might be different between e.g. the devicetree binding and the ACPI
+> > binding. This makes it quite hard to use the API in a generic way and y=
+ou'd
+> > end up with hacks like:
+> >=20
+> > if (client->dev.of_node)
+> > 	index =3D 3;
+> > else if (ACPI_COMPANION(client->dev))
+> > 	index =3D 1;
+> > else
+> > 	index =3D 5;
+> >=20
+>=20
+> Indeed.
+>=20
+> > So we might need a extra translation table which maps a name to a ACPI =
+index
+> > and then we could use the name as the generic index in the driver.
+>=20
+> Good thing is that ACPI 5.1 _DSD finally allows us to use similar naming
+> as the DT has been doing. Problem is that we need to support both the
+> new way *and* the older index lookup somehow :-/
+>=20
+> > 2) The ACPI implementation returns the i2c_board_info and the adapter, =
+while
+> > the DT implementation returns the instantiated I2C client device.
+> >=20
+> > It might make sense to have both. I image that most drivers are just
+> > interested in creating a new client device and will simply pass the boa=
+rd
+> > info and adapter they got to i2c_new_device(). In this case it makes se=
+nse
+> > to have a helper function which already does this internally to avoid
+> > boilerplate code duplication.
+>=20
+> I agree. How about making that helper a wrapper around the function that
+> returns both i2c_board_info and an adapter?
+>=20
+> > There will probably some special cases though in which case the driver =
+wants
+> > to get the adapter and the board info and then manually call
+> > i2c_new_device() after having done some additional steps.
+>=20
+> Yes, if the alternative address happens to be on another bus. That
+> should at least be possible with this API.
 
-Please put it to the embedded section.
-
-=2E..
-
-> +	idev->adapter.class =3D I2C_CLASS_HWMON;
-
-Being a DT driver, you most probably don't need this.
+Thanks for the discussion so far! I'll wait and see if some patches come
+out of it and mark this one as deferred for now.
 
 
---qlTNgmc+xy1dBmNv
+--Clx92ZfkiYIKRjnr
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJULnwuAAoJEBQN5MwUoCm2CkwQAJ+cYBA7ZhgbaqjFDiRKauCu
-+O+RBpsc1ckfgH0ThqudovAlIcuWRGvc8rbHQMs4R6DNGCZ+qxygPgR+XjotHE3n
-QQl3ER3NmG30EViE7pwoNR+IBEkdk7pJ8e2LGb08hfI1QT6ROdNTtV21TjVgEY1w
-eu28PEbJPJ3bbhMt/DyA9nTPYd8L3LCMR4JeuHAO5m9syMAsgLOm7RcAa2UVjbRk
-DIcnCbDrUCQvxcBycQes4q4eGTfKi+F9P7KfrcNFpwPqBAXHB6t/UhxCgJHAT1jt
-dk0MwqFImngWLfgGM8O3yiwETsR4AVPausjfCmvhVdgctUh85wFsY+sqnA9sVest
-s2O6Z4u9oVoEhsAZwfS0zZVnNbnzx3pkZ+ZpDIY9F166qMdmVIiCKNFfSBrI9g1b
-zdZxW0T8d1momDu14PzrW0HUjdKhx+ID3ZfeGUzxeMJk3XEnGrs4DdmWQIb+Jry5
-pHeUhFmZKXDHcl/dSGO107KdUPCP7OuN2oSZwvNlxsB9R9/2pZhedvUn6Rg4CubM
-3hvVxUrEiRrkX7xUAC78nNje780+XZ1ldUqJpJ41gPCurgyhYW0ML130mWB2GCaO
-swEAvOCmIC/jQ6FmBVJe/LD1rr7qfnxboIb1YQZLKZQGIZ/vNc+3COGu25d3Phrd
-Vbr9O4o7R3sTj+1c1EmK
-=08YL
+iQIcBAEBAgAGBQJULn6NAAoJEBQN5MwUoCm2YEwP/11ViOkhThM2kLwKNS1THzCQ
+L2nq9phTK5LHNRB7tKc3FWn0MYivJ5dFyxsookGEB5UpmGeYpL1cUUxwhhHNrc4W
+mmNHFsknuuwnHhylHcrgp0ssrB6/I5dwN1n3EHehgGrDjc7AbtXIxXLUCszvFLxw
+fwhk/qKzyFYCflZiJrWJCZE3oSlWGzw7ZNoZOLyh+xpdEVmvAAV3e4uHkltkmTuC
+X1cQHA5I54FQ8C/J4/qquHhNck7ygfR5dJPFmBKeqA264FKse6IB8/f8Aql7JwKm
+vFJoFxeejtJlPdvM9MtLB/2Y70l8OdxxP+uXRhkZ2y2PJu/XPm2bqW4aLaeiy28q
+PUPLQj2s16A7Wjum/PRdnMs7pfcHLgb0idwj2XGknKN8Z6ez4W+P4X963sqY+4QA
+VrbpoGLmxmJ9jTJ/9vaZUHA/CNwGTcWs6fMVPExczCjU7grbdrcEL7gXkGjJtu2c
+bU7qa6SxgYnYi4nu1FQYbLEj9N2O2sPVoHgSoZXqqxxD2DkXsQWALeVlEYIE9GJ8
+qQr2DyHFC3puHvNjdLPpNN9iis99iMqWqaliE6nIPrg5+BmIACx9AX7ET4JyaW5D
+0MxuBT0BPV6Key4A9f9S3zlfczn7Qx/iq5v6uZKAoE5x8DKG0ewHBFS/hWGQu92u
+qFrXhdTfZyaX0V0wd7Nr
+=h8Hu
 -----END PGP SIGNATURE-----
 
---qlTNgmc+xy1dBmNv--
+--Clx92ZfkiYIKRjnr--
