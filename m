@@ -1,33 +1,58 @@
-From: Beniamino Galvani <b.galvani@gmail.com>
-Subject: [PATCH v2 0/2] i2c: add driver for Amlogic Meson I2C controller
-Date: Sun,  5 Oct 2014 22:17:10 +0200
-Message-ID: <1412540232-26168-1-git-send-email-b.galvani@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Carlo Caione <carlo@caione.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Jerry Cao <jerry.cao@amlogic.com>, Victor Wan <victor.wan@amlogic.com>, Beniamino Galvani <b.galvani@gmail.com>
+From: Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2 2/2] i2c: meson: add device tree bindings documentation
+Date: Sun,  5 Oct 2014 22:17:12 +0200
+Message-ID: <1412540232-26168-3-git-send-email-b.galvani@gmail.com>
+References: <1412540232-26168-1-git-send-email-b.galvani@gmail.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1412540232-26168-1-git-send-email-b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jerry Cao <jerry.cao-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>, Victor Wan <victor.wan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+This commit adds device tree bindings documentation for the I2C bus
+controller found on Amlogic Meson SoCs.
 
-this patchset adds a driver for the I2C controller available in
-Amlogic Meson SoCs and has been tested on a Tronsmart Vega S89E TV box
-to communicate with a Ricoh RN5T618 PMIC.
-
-Changes since v1:
- - factored common code for token list setup
-
-Beniamino Galvani (2):
-  i2c: add support for Amlogic Meson I2C controller
-  i2c: meson: add device tree bindings documentation
-
- .../devicetree/bindings/i2c/i2c-meson.txt          |  24 +
- drivers/i2c/busses/Kconfig                         |   7 +
- drivers/i2c/busses/Makefile                        |   1 +
- drivers/i2c/busses/i2c-meson.c                     | 492 +++++++++++++++++++++
- 4 files changed, 524 insertions(+)
+Signed-off-by: Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-meson.txt          | 24 ++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-meson.txt
- create mode 100644 drivers/i2c/busses/i2c-meson.c
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
+new file mode 100644
+index 0000000..682f9a6
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
+@@ -0,0 +1,24 @@
++Amlogic Meson I2C controller
++
++Required properties:
++ - compatible: must be "amlogic,meson6-i2c"
++ - reg: physical address and length of the device registers
++ - interrupts: a single interrupt specifier
++ - clocks: clock for the device
++ - #address-cells: should be <1>
++ - #size-cells: should be <0>
++
++Optional properties:
++- clock-frequency: the desired I2C bus clock frequency in Hz; in
++  absence of this property the default value is used (100 kHz).
++
++Examples:
++
++	i2c@c8100500 {
++		compatible = "amlogic,meson6-i2c";
++		reg = <0xc8100500 0x20>;
++		interrupts = <0 92 1>;
++		clocks = <&clk81>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
 -- 
 1.9.1
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
