@@ -1,54 +1,33 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c-imx: Disable the clock on probe failure
-Date: Sat,  4 Oct 2014 09:17:27 -0300
-Message-ID: <1412425047-9323-1-git-send-email-festevam@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: Beniamino Galvani <b.galvani@gmail.com>
+Subject: [PATCH v2 0/2] i2c: add driver for Amlogic Meson I2C controller
+Date: Sun,  5 Oct 2014 22:17:10 +0200
+Message-ID: <1412540232-26168-1-git-send-email-b.galvani@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Carlo Caione <carlo@caione.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Jerry Cao <jerry.cao@amlogic.com>, Victor Wan <victor.wan@amlogic.com>, Beniamino Galvani <b.galvani@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Hi,
 
-In the case of errors during probe, we should disable i2c_imx->clk.
+this patchset adds a driver for the I2C controller available in
+Amlogic Meson SoCs and has been tested on a Tronsmart Vega S89E TV box
+to communicate with a Ricoh RN5T618 PMIC.
 
-Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+Changes since v1:
+ - factored common code for token list setup
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index ceff87c..c48e46a 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -710,7 +710,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 				pdev->name, i2c_imx);
- 	if (ret) {
- 		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
--		return ret;
-+		goto clk_disable;
- 	}
- 
- 	/* Init queue */
-@@ -735,7 +735,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "registration failed\n");
--		return ret;
-+		goto clk_disable;
- 	}
- 
- 	/* Set up platform driver data */
-@@ -749,6 +749,10 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
- 
- 	return 0;   /* Return OK */
-+
-+clk_disable:
-+	clk_disable_unprepare(i2c_imx->clk);
-+	return ret;
- }
- 
- static int i2c_imx_remove(struct platform_device *pdev)
+Beniamino Galvani (2):
+  i2c: add support for Amlogic Meson I2C controller
+  i2c: meson: add device tree bindings documentation
+
+ .../devicetree/bindings/i2c/i2c-meson.txt          |  24 +
+ drivers/i2c/busses/Kconfig                         |   7 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-meson.c                     | 492 +++++++++++++++++++++
+ 4 files changed, 524 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-meson.txt
+ create mode 100644 drivers/i2c/busses/i2c-meson.c
+
 -- 
 1.9.1
