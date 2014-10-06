@@ -1,55 +1,85 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-imx: Disable the clock on probe failure
-Date: Mon, 6 Oct 2014 20:00:10 +0200
-Message-ID: <20141006180010.GD2000@katana>
-References: <1412425047-9323-1-git-send-email-festevam@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: randconfig build error with next-20141001, in drivers/i2c/algos/i2c-algo-bit.c
+Date: Mon, 06 Oct 2014 11:09:44 -0700
+Message-ID: <5432DAE8.5030509@infradead.org>
+References: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com> <542C8D93.8090008@infradead.org> <54324D68.6070309@hartkopp.net> <5432C8C6.7060506@infradead.org> <5432D3E6.9020805@hartkopp.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0/kgSOzhNoDC5T3a"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1412425047-9323-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <5432D3E6.9020805@hartkopp.net>
+Sender: netdev-owner@vger.kernel.org
+To: Oliver Hartkopp <socketcan@hartkopp.net>, Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next <linux-next@vger.kernel.org>, Stephane Grosjean <s.grosjean@peak-system.com>, linux-i2c@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-can@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 10/06/14 10:39, Oliver Hartkopp wrote:
+> 
+> 
+> On 10/06/2014 06:52 PM, Randy Dunlap wrote:
+>> On 10/06/14 01:06, Oliver Hartkopp wrote:
+>>> Hello all,
+>>>
+>>> just to get it right:
+>>>
+>>> So far it looks like this in linux/drivers/net/can/sja1000/Kconfig
+>>>
+>>> config CAN_PEAK_PCIEC
+>>>         bool "PEAK PCAN-ExpressCard Cards"
+>>>         depends on CAN_PEAK_PCI
+>>>         select I2C
+>>>         select I2C_ALGOBIT
+>>>
+>>> If one would change the
+>>>
+>>>         select I2C
+>>>
+>>> into
+>>>
+>>>         depends on I2C
+>>>
+>>> IMHO the CAN_PEAK_PCIEC hardware would *only* be visible and selectable when
+>>> I2C was selected before (from anyone else?).
+>>
+>> That is correct.
+>>
+>>> So what it wrong on the current Kconfig entry?
+>>> Is 'select' deprecated?
+>>
+>> No, it's not deprecated.  It's just dangerous.  and driver configs should not
+>> enable entire subsystems via 'select'.
+>>
+>>> Or did randconfig generate a configuration that would not be possible by
+>>> properly generating the config file with 'make menuconfig' ??
+>>
+>> randconfig generated a config for another driver which causes a build error,
+>> not for a CAN driver.  The CAN driver does not have a build error AFAIK.
+>> Its Kconfig is just doing something with a very big & ugly stick.
+> 
+> But when it is not done like this, we might have an invisible config option in
+> the corner case that I2C is not enabled by anyone else.
+> 
+> So what would you propose then?
+> 
+> AFAICS there is 'just' a style problem as 'configs should not enable entire
+> subsystems'. But it finally is a correct and valid Kconfig, right?
 
---0/kgSOzhNoDC5T3a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, right.
 
-On Sat, Oct 04, 2014 at 09:17:27AM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->=20
-> In the case of errors during probe, we should disable i2c_imx->clk.
->=20
-> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> When I2C is already enabled - fine. If (unlikely) I2C is not enabled, we need
+> to pull the ugly stick. So what is dangerous on this? Was there any misuse of
+> select statements before?
 
-Applied to for-next, thanks!
+No syntactic misuse, more of a style thing, like you say.
+
+The danger is in select being a big stick that does not check for symbol
+dependencies.
+
+In the unlikely case that I2C is not enabled, the user should have to enable
+it instead of a solitary driver enabling it.  IOW, if a subsystem is disabled,
+the user probably wanted it that way and a single driver should not override
+that setting.
 
 
---0/kgSOzhNoDC5T3a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUMtiqAAoJEBQN5MwUoCm2APkP/R09EUyJ+JgsqF8K+nzkMhme
-O3x9QnmOOQESgXKlF/HYNC1hOv4CbWGWlKaoRPgFjWLbMlHcm/0crvCJKdWZZTV9
-SZ6Hp8J7QLfB6uEUvPQ39l2HBdV+VSiDlRl8x1izORAZEFIP2O/OAe8B1NYLJGGC
-YZZkMmgMii2p9KqNXyMLwsMDoySN2eTM4TLAb7o1s86DZK9geugjFINW3oHOGmc2
-1iH6FsKH4Iz24YiA7MMSfY6JCaYFdSUo2R+LosCa9bJm4zXDvzHOXPPUEvvYk8QO
-CkfcP3vjfzbzJQwtnUuSN4hJ4HjZaOlxkoMSlD8GXOarOIuBCmzQzpGUzfUD7y9y
-2yuTyQySmz93B9cTWyFPTri8o46GJCuZAywO0StYBeUpweblRwKiPGTstl4HVjlG
-YV/b1IofWcfS1HKUZ/P1cfmNsjaPtOcHUtmGNFDFw8m0ERcGpR573UEBkHq1DGVe
-Y0TrEyku8JcgIVchy+8UcTYhCnN8N2sqV9cOKLtJANN07x7cWtPjqpM0xADATK6F
-XhMH7jeUx51E/zUmaaX49yHAxASAERmG7L6KCmTv4mtwjadHRDdh1N+FRMZga7SW
-iSbCtg2XZtzAcwjSFEB7IvDcys5NCzkGEPYLxX7UP+ZnSmII0qxwA2ObTJvBbIZ/
-pPEc4t0yKsR1DF0UmufC
-=C+2F
------END PGP SIGNATURE-----
-
---0/kgSOzhNoDC5T3a--
+-- 
+~Randy
