@@ -1,59 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 1/3] i2c: hix5hd2: add devicetree documentation
-Date: Mon, 6 Oct 2014 19:56:58 +0200
-Message-ID: <20141006175658.GC2000@katana>
-References: <1412350549-2607-1-git-send-email-zhangfei.gao@linaro.org>
- <1412350549-2607-2-git-send-email-zhangfei.gao@linaro.org>
+Subject: Re: [PATCH] i2c-imx: Disable the clock on probe failure
+Date: Mon, 6 Oct 2014 20:00:10 +0200
+Message-ID: <20141006180010.GD2000@katana>
+References: <1412425047-9323-1-git-send-email-festevam@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1ccMZA6j1vT5UqiK"
+	protocol="application/pgp-signature"; boundary="0/kgSOzhNoDC5T3a"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1412350549-2607-2-git-send-email-zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1412425047-9323-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---1ccMZA6j1vT5UqiK
+--0/kgSOzhNoDC5T3a
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 03, 2014 at 11:35:47PM +0800, Zhangfei Gao wrote:
-> From: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+On Sat, Oct 04, 2014 at 09:17:27AM -0300, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 >=20
-> Signed-off-by: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> In the case of errors during probe, we should disable i2c_imx->clk.
+>=20
+> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-And while patch 2 needs an update anyhow...
-
-> +	status =3D "disabled";
-
-I think we can drop the "disabled" here.
+Applied to for-next, thanks!
 
 
---1ccMZA6j1vT5UqiK
+--0/kgSOzhNoDC5T3a
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUMtfqAAoJEBQN5MwUoCm2LbYP/ij0yA+NCbUIV+S6pUhd+xZd
-rvSmwt0mzhfO41jbM431d4lXOjJC/27/77L0BBbvwFaThbpxgzp+Bnb69RKSgqRS
-OCXGQ2t20kPlGjDG9fxVTZlimLo+9n5ePVHXigCABQIY9EoS1/L002l9qHtTBECo
-k3Vp6wMkP2Q+AUxfgBND++RteX3V3v3m8svj/55RsIuYCkJ2jPjzpgsZ5+1CV2ij
-I7e94rBhCWNBA1du6nKpFNam7T8myQH4wIRU5lR1MwLls/7lvScZVDOWRlEGoiJT
-DEvdBRIAaO4RQcOuWSeyxpBV5IVGaK0+EgeKGC5Ozz0XCECjzjsYEhnjxWg99f32
-nm9PUyOBPDq9Rl/OOnaZIsgA8jM2DXhgvTu3MA+PLblxZkxx5zlQ6yu0Vwobc8vl
-uw2x2km9w3hz3PoOOFvbXsPrkNMMW2r55fzEcbRTGWD+Ih74BF6vTq5aIu+eiDmr
-jCBtm2A4eRwxJ4ryXQDx8fOP/Sqjsgx0tuKdFgLbZVJiwbbRb6ujeXX3L7OFaTxn
-9Da3f+jNR9ihWSrlY1eBY96o4nnMQk+CbCiTB7A+eeAFQ5cbKPlopYB3pDqaZzq+
-81FlAIVUMSpMliDHvg7QYovViath5fvzIKAG0n5zXQR/8wqAFOlIHkoRqCCWyi+Z
-o/1hUWj0GoAY2L3d9paY
-=wSOY
+iQIcBAEBAgAGBQJUMtiqAAoJEBQN5MwUoCm2APkP/R09EUyJ+JgsqF8K+nzkMhme
+O3x9QnmOOQESgXKlF/HYNC1hOv4CbWGWlKaoRPgFjWLbMlHcm/0crvCJKdWZZTV9
+SZ6Hp8J7QLfB6uEUvPQ39l2HBdV+VSiDlRl8x1izORAZEFIP2O/OAe8B1NYLJGGC
+YZZkMmgMii2p9KqNXyMLwsMDoySN2eTM4TLAb7o1s86DZK9geugjFINW3oHOGmc2
+1iH6FsKH4Iz24YiA7MMSfY6JCaYFdSUo2R+LosCa9bJm4zXDvzHOXPPUEvvYk8QO
+CkfcP3vjfzbzJQwtnUuSN4hJ4HjZaOlxkoMSlD8GXOarOIuBCmzQzpGUzfUD7y9y
+2yuTyQySmz93B9cTWyFPTri8o46GJCuZAywO0StYBeUpweblRwKiPGTstl4HVjlG
+YV/b1IofWcfS1HKUZ/P1cfmNsjaPtOcHUtmGNFDFw8m0ERcGpR573UEBkHq1DGVe
+Y0TrEyku8JcgIVchy+8UcTYhCnN8N2sqV9cOKLtJANN07x7cWtPjqpM0xADATK6F
+XhMH7jeUx51E/zUmaaX49yHAxASAERmG7L6KCmTv4mtwjadHRDdh1N+FRMZga7SW
+iSbCtg2XZtzAcwjSFEB7IvDcys5NCzkGEPYLxX7UP+ZnSmII0qxwA2ObTJvBbIZ/
+pPEc4t0yKsR1DF0UmufC
+=C+2F
 -----END PGP SIGNATURE-----
 
---1ccMZA6j1vT5UqiK--
+--0/kgSOzhNoDC5T3a--
