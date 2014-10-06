@@ -1,99 +1,61 @@
-From: Oliver Hartkopp <socketcan@hartkopp.net>
-Subject: Re: randconfig build error with next-20141001, in drivers/i2c/algos/i2c-algo-bit.c
-Date: Mon, 06 Oct 2014 10:06:00 +0200
-Message-ID: <54324D68.6070309@hartkopp.net>
-References: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com> <542C8D93.8090008@infradead.org>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v6 1/4] mfd: add support for Diolan DLN-2 devices
+Date: Mon, 6 Oct 2014 15:17:22 +0300
+Message-ID: <CAE1zotLEV-=JvCJvEQqg8CA6fu3UWmPOx3ZYgpd+rYSuSEVmNQ@mail.gmail.com>
+References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
+	<1411661254-5204-2-git-send-email-octavian.purdila@intel.com>
+	<20141003171207.GC2394@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-can-owner@vger.kernel.org>
-In-Reply-To: <542C8D93.8090008@infradead.org>
-Sender: linux-can-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>, Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-next <linux-next@vger.kernel.org>, Stephane Grosjean <s.grosjean@peak-system.com>, linux-i2c@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-can@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141003171207.GC2394@localhost>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello all,
+On Fri, Oct 3, 2014 at 8:12 PM, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+>
+> On Thu, Sep 25, 2014 at 07:07:31PM +0300, Octavian Purdila wrote:
+> > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+> > Master Adapter DLN-2. Details about the device can be found here:
+> >
 
-just to get it right:
+<snip>
 
-So far it looks like this in linux/drivers/net/can/sja1000/Kconfig
+> > +
+> > +             ret = dln2_submit_urb(dln2, dln2->rx_urb[i], GFP_KERNEL);
+> > +             if (ret < 0)
+> > +                     return ret;
+>
+> Is it really worth having this helper only to save a couple of lines on
+> a dev_err? If you do all resubmissions on completion inline in the
+> handler, you only have three places where usb_submit_urb is called.
+>
 
-config CAN_PEAK_PCIEC
-        bool "PEAK PCAN-ExpressCard Cards"
-        depends on CAN_PEAK_PCI
-        select I2C
-        select I2C_ALGOBIT
+I moved the completion in the handler as you suggested. I have kept
+the helper, would you prefer to remove it?
 
-If one would change the
+<snip>
 
-        select I2C
+> > +     id = dln2->usb_dev->bus->busnum << 8 | dln2->usb_dev->devnum;
+>
+> After giving this some more thought, I think you should just
+> use PLATFORM_DEVID_AUTO as id. I have submitted a series to fix the
+> other USB MFD drivers and add a convenience helper to register
+> hotpluggable MFDs here:
+>
 
-into
+OK, I will use PLATFORM_DEVID_AUTO for now. If your series merges
+first and I have to resubmit mine, I will switch to using
+mfd_add_hotplug_devices.
 
-        depends on I2C
+> I'll try to take a quick look on the subdrivers on Monday.
+>
 
-IMHO the CAN_PEAK_PCIEC hardware would *only* be visible and selectable=
- when
-I2C was selected before (from anyone else?).
-
-So what it wrong on the current Kconfig entry?
-Is 'select' deprecated?
-
-Or did randconfig generate a configuration that would not be possible b=
-y
-properly generating the config file with 'make menuconfig' ??
-
-Please explain.
-
-Thanks,
-Oliver
-
-On 10/02/2014 01:26 AM, Randy Dunlap wrote:
-> On 10/01/14 14:37, Jim Davis wrote:
->> Building with the attached random configuration file,
->=20
-> Also:
-> warning: (CAN_PEAK_PCIEC && SFC && IGB && VIDEO_TW68 && DRM && FB_DDC=
- && FB_VIA) selects I2C_ALGOBIT which has unmet direct dependencies (I2=
-C)
->=20
->> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_bus=92:
->> drivers/i2c/algos/i2c-algo-bit.c:658:33: error: =91i2c_add_adapter=92
->> undeclared (first use in this function)
->>   return __i2c_bit_add_bus(adap, i2c_add_adapter);
->>                                  ^
->> drivers/i2c/algos/i2c-algo-bit.c:658:33: note: each undeclared
->> identifier is reported only once for each function it appears in
->> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_numbere=
-d_bus=92:
->> drivers/i2c/algos/i2c-algo-bit.c:664:33: error:
->> =91i2c_add_numbered_adapter=92 undeclared (first use in this functio=
-n)
->>   return __i2c_bit_add_bus(adap, i2c_add_numbered_adapter);
->>                                  ^
->>   CC      net/openvswitch/actions.o
->> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_bus=92:
->> drivers/i2c/algos/i2c-algo-bit.c:659:1: warning: control reaches end=
- of non-void
->>  function [-Wreturn-type]
->>  }
->>  ^
->> drivers/i2c/algos/i2c-algo-bit.c: In function =91i2c_bit_add_numbere=
-d_bus=92:
->> drivers/i2c/algos/i2c-algo-bit.c:665:1: warning: control reaches end=
- of non-void
->>  function [-Wreturn-type]
->>  }
->>  ^
->> make[3]: *** [drivers/i2c/algos/i2c-algo-bit.o] Error 1
->=20
-> In drivers/media/pci/tw68/Kconfig, VIDEO_TW68 should depend on I2C in=
- order
-> to make it safe to select I2C_ALGOBIT.
->=20
-> In drivers/net/can/sja1000/Kconfig, CAN_PEAK_PCIEC should depend on I=
-2C
-> instead of selecting I2C (and change the help text).
->=20
->=20
+Thanks Johan. I have addressed the rest of the comments as well and I
+will send another series after your reviews on the sub-drivers.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
