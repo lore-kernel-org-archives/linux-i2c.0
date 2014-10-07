@@ -1,100 +1,177 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: fix a potential kmemleak of adapter device
-Date: Tue, 7 Oct 2014 19:34:39 +0200
-Message-ID: <20141007173439.GE1577@katana>
-References: <52B0F7D0.2020506@cn.fujitsu.com>
- <20131220173144.GA9997@katana>
- <52B7961D.2050505@cn.fujitsu.com>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [PATCH v6 2/4] i2c: add support for Diolan DLN-2 USB-I2C adapter
+Date: Tue, 7 Oct 2014 20:52:35 +0300
+Message-ID: <CAE1zotKiYGXDbE0yVOz1ROuTxMf_Sfpn-0ghOM1dLEu1oEGZuw@mail.gmail.com>
+References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
+	<1411661254-5204-3-git-send-email-octavian.purdila@intel.com>
+	<20141007164636.GG5362@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GxcwvYAGnODwn7V8"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <52B7961D.2050505-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141007164636.GG5362@localhost>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Oct 7, 2014 at 7:46 PM, Johan Hovold <johan@kernel.org> wrote:
+> On Thu, Sep 25, 2014 at 07:07:32PM +0300, Octavian Purdila wrote:
+>> From: Laurentiu Palcu <laurentiu.palcu@intel.com>
+>>
+>> This patch adds support for the Diolan DLN-2 I2C master module. Due
+>> to hardware limitations it does not support SMBUS quick commands.
+>>
+>> Information about the USB protocol interface can be found in the
+>> Programmer's Reference Manual [1], see section 6.2.2 for the I2C
+>> master module commands and responses.
+>>
+>> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
+>>
+>> Signed-off-by: Laurentiu Palcu <laurentiu.palcu@intel.com>
+>> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+>> ---
+>
+> [...]
+>
+>> +#define DLN2_I2C_MAX_XFER_SIZE               256
+>> +#define DLN2_I2C_BUF_SIZE            (DLN2_I2C_MAX_XFER_SIZE + 16)
+>> +
+>> +struct dln2_i2c {
+>> +     struct platform_device *pdev;
+>> +     struct i2c_adapter adapter;
+>> +     u32 freq;
+>> +     u32 min_freq;
+>> +     u32 max_freq;
+>> +     u8 port;
+>> +     /*
+>> +      * Buffer to hold the packet for read or write transfers. One
+>> +      * is enough since we can't have multiple transfers in
+>> +      * parallel on the i2c adapter.
+>> +      */
+>> +     void *buf;
+>> +};
+>> +
+>> +static int dln2_i2c_enable(struct dln2_i2c *dln2, bool enable)
+>> +{
+>> +     int ret;
+>> +     u16 cmd;
+>> +
+>> +     if (enable)
+>> +             cmd = DLN2_I2C_ENABLE;
+>> +     else
+>> +             cmd = DLN2_I2C_DISABLE;
+>> +
+>> +     ret = dln2_transfer(dln2->pdev, cmd, &dln2->port, sizeof(dln2->port),
+>> +                         NULL, NULL);
+>
+> Don't use the port member of dln2 directly here. Encode the protocol in
+> the function as you already do for most other messages (and did in
+> previous versions). You could even declare a
+>
+>         struct {
+>                 u8 port;
+>         } tx;
+>
+> for consistency.
+>
 
---GxcwvYAGnODwn7V8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, I think I did this after Arnd's review on the gpio stuff where I
+thought he suggested to remove the structure, when in fact he asked to
+remove the __packed attribute. I will revert it back.
 
-On Mon, Dec 23, 2013 at 09:47:09AM +0800, Gu Zheng wrote:
-> Hi Wolfram,
-> On 12/21/2013 01:31 AM, Wolfram Sang wrote:
->=20
-> > On Wed, Dec 18, 2013 at 09:18:08AM +0800, Gu Zheng wrote:
-> >> When running with the latest kernel, we get the following kmemleak mes=
-sage:
-> >> unreferenced object 0xffff8800c2a36100 (size 256):
-> >>   comm "modprobe", pid 629, jiffies 4294676002 (age 1531.115s)
-> >>   hex dump (first 32 bytes):
-> >>     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-> >>     ff ff ff ff ff ff ff ff 78 21 85 82 ff ff ff ff  ........x!......
-> >>   backtrace:
-> >>     [<ffffffff815449ce>] kmemleak_alloc+0x73/0x98
-> >>     [<ffffffff8113fa2b>] slab_post_alloc_hook+0x28/0x2a
-> >>     [<ffffffff81142004>] __kmalloc+0x12c/0x158
-> >>     [<ffffffff8134c60b>] kzalloc.constprop.6+0xe/0x10
-> >>     [<ffffffff8134cb71>] device_private_init+0x18/0x66
-> >>     [<ffffffff8134f1e8>] dev_set_drvdata+0x1e/0x34
-> >>     [<ffffffffa01e643e>] i801_probe+0x5d/0x447 [i2c_i801]
-> >>     [<ffffffff812a78be>] local_pci_probe+0x41/0x84
-> >>     [<ffffffff812a7feb>] pci_device_probe+0xdf/0x10c
-> >>     [<ffffffff8134f90d>] driver_probe_device+0x12f/0x2ee
-> >>     [<ffffffff8134fb2b>] __driver_attach+0x5f/0x83
-> >>     [<ffffffff8134de28>] bus_for_each_dev+0x64/0x90
-> >>     [<ffffffff8134f36b>] driver_attach+0x1e/0x20
-> >>     [<ffffffff8134ef34>] bus_add_driver+0xf2/0x1f0
-> >>     [<ffffffff8135013e>] driver_register+0x8c/0xc3
-> >>     [<ffffffff812a7bb4>] __pci_register_driver+0x62/0x67
-> >> According to the backtrace, it seems that we do not release the
-> >> device_private field of adapter device in the fail path of i801_probe
-> >> or the flow of i2c_del_adapter, so add the cleanup step to fix it.
-> >>
-> >> Signed-off-by: Gu Zheng <guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org>
-> >=20
-> > ? Why should we free something we don't have allocated? The fix must be
-> > somewhere else probably...
->=20
-> We do allocate the device_private in device_private_init() when calling
-> dev_set_drvdata()
+>> +     if (ret < 0)
+>> +             return ret;
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static int dln2_i2c_set_frequency(struct dln2_i2c *dln2, u32 freq)
+>> +{
+>> +     int ret;
+>> +     struct tx_data {
+>> +             u8 port;
+>> +             __le32 freq;
+>> +     } __packed tx;
+>> +
+>> +     tx.port = dln2->port;
+>> +     tx.freq = cpu_to_le32(freq);
+>> +
+>> +     ret = dln2_transfer(dln2->pdev, DLN2_I2C_SET_FREQUENCY, &tx, sizeof(tx),
+>> +                         NULL, NULL);
+>> +     if (ret < 0)
+>> +             return ret;
+>> +
+>> +     dln2->freq = freq;
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static int dln2_i2c_get_freq(struct dln2_i2c *dln2, u16 cmd, u32 *res)
+>> +{
+>> +     int ret;
+>> +     __le32 freq;
+>> +     unsigned len = sizeof(freq);
+>> +
+>> +     ret = dln2_transfer(dln2->pdev, cmd, &dln2->port, sizeof(dln2->port),
+>> +                         &freq, &len);
+>
+> Same here.
+>
 
-dev_set_drvdata only does the following and doesn't call anything:
+OK.
 
-	dev->driver_data =3D data;
+>> +     if (ret < 0)
+>> +             return ret;
+>> +     if (len < sizeof(freq))
+>> +             return -EPROTO;
+>> +
+>> +     *res = le32_to_cpu(freq);
+>> +
+>> +     return 0;
+>> +}
+>> +
+>
+> [...]
+>
+>> +static ssize_t dln2_i2c_freq_show(struct device *dev,
+>> +                               struct device_attribute *attr, char *buf)
+>> +{
+>> +     struct dln2_i2c *dln2 = dev_get_drvdata(dev);
+>> +
+>> +     return snprintf(buf, PAGE_SIZE, "%d\n", dln2->freq);
+>> +}
+>> +
+>> +static ssize_t dln2_i2c_freq_store(struct device *dev,
+>> +                                struct device_attribute *attr,
+>> +                                const char *buf, size_t count)
+>> +{
+>> +     struct dln2_i2c *dln2 = dev_get_drvdata(dev);
+>> +     unsigned long freq;
+>> +     int ret;
+>> +
+>> +     if (kstrtoul(buf, 0, &freq) || freq < dln2->min_freq ||
+>> +         freq > dln2->max_freq)
+>> +             return -EINVAL;
+>> +
+>> +     ret = dln2_i2c_enable(dln2, false);
+>> +     if (ret < 0)
+>> +             return ret;
+>> +
+>> +     ret = dln2_i2c_set_frequency(dln2, freq);
+>> +     if (ret < 0)
+>> +             return ret;
+>> +
+>> +     ret = dln2_i2c_enable(dln2, true);
+>> +
+>> +     return count;
+>> +}
+>> +
+>> +static DEVICE_ATTR_RW(dln2_i2c_freq);
+>
+> You forgot to add the required documentation of the attribute to
+> Documentation/ABI as requested.
+>
 
-> to set adapter data in probe flow, and the calltrace
-> also shows this. Am I missing something?
-
-It should be freed by the driver core in device_release() again. Dunno
-why it does not happen and you are seeing the leak, but the fix is not
-correct.
-
-
---GxcwvYAGnODwn7V8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUNCQvAAoJEBQN5MwUoCm2T9oP/1KD9KgltT+wziX+DDAXeU2Q
-mJfbi9rSQTRrkEA5sU2vkm6/1SOsCLPZo9ji7FPTO15tPNsjWd1Oo58MmPDXo6jT
-ugV7W7MxhuRQqH5BBdXo4vVonXdFMbeaQAauucm9An+rOn4f5L8dMKXWo1gTiOg9
-SiyqTh3HBsaczhI3p2hzA412XpMi5/3wMxTkXG+Z7N9FQBjRjsZgqXIyhfgPGA9i
-cuofeXsBT3XciCymCIT32vm6LEeDxwaLYEc+yet3ahc8jTsYncIE2yQTf+fsFXcg
-xVdnZhbiJ5Flmbr4NxZewiLUl3le2zZBPsr8O/hVWX1I5V1ir2okqNEEYCznfeyi
-CL1aD3t0wdszsg8d1/JSIcup/8hzo3Blax7EbUfYaJUYQVIpTgfeYIULHH78fhka
-i6PSv3ynlL6UqNezFM7V2toWWYVa62UdhdPfrNy7TESqRKENsgXCukhS0ZyZIiry
-/FgFGGzXJwJoh7mlS5KZ5k91DSt8YMSbhODlIryMSqQoT9yPI32rCXNauyHDxQzM
-OHoz8KepfYYoFMTofIpPAp96qF7beUPKLQoQblN4hkDkb9Gqq8xsCiQrW9am4r8O
-43t6oIB9RX4/DzJM6qm/RyGKNy24jxwR4CwjBSE1IX4UxljSOxUDqPyRgwmWlOsi
-c29xonqPEoJr89YaayCC
-=7nIH
------END PGP SIGNATURE-----
-
---GxcwvYAGnODwn7V8--
+Hmm, I did add a new entry in Documentation/ABI/ at
+testing/sysfs-bus-i2c-busses-dln2. It should be right at the beginning
+at the patch.
