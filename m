@@ -1,69 +1,55 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v6 1/4] mfd: add support for Diolan DLN-2 devices
-Date: Tue, 7 Oct 2014 19:10:03 +0200
-Message-ID: <20141007171003.GI5362@localhost>
-References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
- <1411661254-5204-2-git-send-email-octavian.purdila@intel.com>
- <20141003171207.GC2394@localhost>
- <CAE1zotLEV-=JvCJvEQqg8CA6fu3UWmPOx3ZYgpd+rYSuSEVmNQ@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v5 1/3] i2c: hix5hd2: add devicetree documentation
+Date: Tue, 7 Oct 2014 19:13:45 +0200
+Message-ID: <20141007171344.GB1577@katana>
+References: <1412643853-11115-1-git-send-email-zhangfei.gao@linaro.org>
+ <1412643853-11115-2-git-send-email-zhangfei.gao@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAE1zotLEV-=JvCJvEQqg8CA6fu3UWmPOx3ZYgpd+rYSuSEVmNQ@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Johan Hovold <johan@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org
+In-Reply-To: <1412643853-11115-2-git-send-email-zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 06, 2014 at 03:17:22PM +0300, Octavian Purdila wrote:
-> On Fri, Oct 3, 2014 at 8:12 PM, Johan Hovold <johan@kernel.org> wrote:
-> >
-> > On Thu, Sep 25, 2014 at 07:07:31PM +0300, Octavian Purdila wrote:
-> > > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
-> > > Master Adapter DLN-2. Details about the device can be found here:
-> > >
-> 
-> <snip>
-> 
-> > > +
-> > > +             ret = dln2_submit_urb(dln2, dln2->rx_urb[i], GFP_KERNEL);
-> > > +             if (ret < 0)
-> > > +                     return ret;
-> >
-> > Is it really worth having this helper only to save a couple of lines on
-> > a dev_err? If you do all resubmissions on completion inline in the
-> > handler, you only have three places where usb_submit_urb is called.
-> >
-> 
-> I moved the completion in the handler as you suggested. I have kept
-> the helper, would you prefer to remove it?
 
-Moved the "completion"? I was suggesting that the URB resubmission
-should be done inline the URB completion handler.
+--gj572EiMnwbLXET9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[ "Completion" may be a little ambiguous. The URB callback is called an
-URB completion handler. Not be confused with the completion structures
-you use to wait for responses. ]
+On Tue, Oct 07, 2014 at 09:04:11AM +0800, Zhangfei Gao wrote:
+> From: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+>=20
+> Signed-off-by: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-It's fine to keep the helper as long as it's clear that the urb has been
-"cached" and should not be resubmitted (inline) in the completion
-handler in that case.
- 
-> <snip>
-> 
-> > > +     id = dln2->usb_dev->bus->busnum << 8 | dln2->usb_dev->devnum;
-> >
-> > After giving this some more thought, I think you should just
-> > use PLATFORM_DEVID_AUTO as id. I have submitted a series to fix the
-> > other USB MFD drivers and add a convenience helper to register
-> > hotpluggable MFDs here:
-> >
-> 
-> OK, I will use PLATFORM_DEVID_AUTO for now. If your series merges
-> first and I have to resubmit mine, I will switch to using
-> mfd_add_hotplug_devices.
+Applied to for-next, thanks!
 
-Lee merged the helper function earlier today.
 
-Johan
+--gj572EiMnwbLXET9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUNB9IAAoJEBQN5MwUoCm2zRUP/RtaeBkvBb12fNJNvLu9GpvT
+CUd/DkEC83wGaDb5SnGcW3VFzm2Se1m5JXFR9eND6pogFHcGpG+DfRPfogeK3uSv
+AzbJurVHekHPrYz8F6Z7zjvYLK7noZYX85NRu9FxFBTYWj0sNcdpF4SA4A/BH6+w
+fAMsZp8f7gFs+m3EVraWP3H3j/SiNcLcG5WP/Z4JXCdLR2jEd0YjO1Ml7SUEIMiT
+RozJBtNRsByDl6ws83KeneCw3YHGaCc8etebvNfb18weickzttSvoV0Zk5GGhvaw
+r9CvGGsoF9qQktFvlZsSoyYCBoHggxa7UaSF0FpWuc3JGaxO5TPZ/ee/NA1wxG2s
+cmqKVvy2B7A+RstztA2q/qc57ywUBG+WBe5Gdytd4fh5oNbgD4yUzY29x24dGD/2
+kYKHUkrOKAI1bWxSOYQTRgPNmmozY3bywK9Ch0PiO/VU1PTgHH5nBvyDKQak96P+
+3wxLwV5m2/YXMF7fo4ExA2xInJ2ADfCPtu5VVuaRuybpjIvYGphaI5Ij0Le1GIYq
+szSTa2Eog7jdkH+XoBPpn/K16fNw3V5S8/667hhOQeOYz6dOGt6L1qC8wPJPxJWM
+m0CuPtzbyYHV2YL29PathEFHKgTW9u1F3aZs39MUMIhSzt7ELd5zx1K6TUv7KCCt
+3aoEPw1FvfNR63xmdiPv
+=xt8b
+-----END PGP SIGNATURE-----
+
+--gj572EiMnwbLXET9--
