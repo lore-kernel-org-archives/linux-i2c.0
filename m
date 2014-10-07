@@ -1,64 +1,69 @@
-From: Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Subject: Re: randconfig build error with next-20141001, in drivers/i2c/algos/i2c-algo-bit.c
-Date: Tue, 07 Oct 2014 10:03:29 -0700
-Message-ID: <54341CE1.5020902@infradead.org>
-References: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com> <542C8D93.8090008@infradead.org> <54324D68.6070309@hartkopp.net> <5432C8C6.7060506@infradead.org> <5432D3E6.9020805@hartkopp.net> <5432DAE8.5030509@infradead.org> <5433AB31.9090603@hartkopp.net>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH v6 1/4] mfd: add support for Diolan DLN-2 devices
+Date: Tue, 7 Oct 2014 19:10:03 +0200
+Message-ID: <20141007171003.GI5362@localhost>
+References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
+ <1411661254-5204-2-git-send-email-octavian.purdila@intel.com>
+ <20141003171207.GC2394@localhost>
+ <CAE1zotLEV-=JvCJvEQqg8CA6fu3UWmPOx3ZYgpd+rYSuSEVmNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5433AB31.9090603-fJ+pQTUTwRTk1uMJSBkQmQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Hartkopp <socketcan-fJ+pQTUTwRTk1uMJSBkQmQ@public.gmane.org>, Stephane Grosjean <s.grosjean-g4cQ8AsIbFbL9ATBNaCtXw@public.gmane.org>
-Cc: Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, linux-next <linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-can-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAE1zotLEV-=JvCJvEQqg8CA6fu3UWmPOx3ZYgpd+rYSuSEVmNQ@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Johan Hovold <johan@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/07/14 01:58, Oliver Hartkopp wrote:
-> On 10/06/2014 08:09 PM, Randy Dunlap wrote:
->> On 10/06/14 10:39, Oliver Hartkopp wrote:
+On Mon, Oct 06, 2014 at 03:17:22PM +0300, Octavian Purdila wrote:
+> On Fri, Oct 3, 2014 at 8:12 PM, Johan Hovold <johan@kernel.org> wrote:
+> >
+> > On Thu, Sep 25, 2014 at 07:07:31PM +0300, Octavian Purdila wrote:
+> > > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+> > > Master Adapter DLN-2. Details about the device can be found here:
+> > >
 > 
->>> AFAICS there is 'just' a style problem as 'configs should not enable entire
->>> subsystems'. But it finally is a correct and valid Kconfig, right?
->>
->> Yes, right.
+> <snip>
 > 
-> (..)
+> > > +
+> > > +             ret = dln2_submit_urb(dln2, dln2->rx_urb[i], GFP_KERNEL);
+> > > +             if (ret < 0)
+> > > +                     return ret;
+> >
+> > Is it really worth having this helper only to save a couple of lines on
+> > a dev_err? If you do all resubmissions on completion inline in the
+> > handler, you only have three places where usb_submit_urb is called.
+> >
 > 
->> In the unlikely case that I2C is not enabled, the user should have to enable
->> it instead of a solitary driver enabling it.  IOW, if a subsystem is disabled,
->> the user probably wanted it that way and a single driver should not override
->> that setting.
-> 
-> Due to the fact that a change to 'depends on I2C' would make the config option
-> invisible (and therefore not selectable) in the case I2C was (unlikely)
-> disabled I would finally vote to leave it as-is.
-> 
-> The current Kconfig entry already contains a description that points to the
-> requirement to have I2C and I2C_ALGOBIT to be enabled to compile this driver:
-> 
-> config CAN_PEAK_PCIEC
-> 	bool "PEAK PCAN-ExpressCard Cards"
-> 	depends on CAN_PEAK_PCI
-> 	select I2C
-> 	select I2C_ALGOBIT
-> 	default y
-> 	---help---
-> 	  Say Y here if you want to use a PCAN-ExpressCard from PEAK-System
-> 	  Technik. This will also automatically select I2C and I2C_ALGO
-> 	  configuration options.
-> 
-> AFAIK the PEAK PCAN-ExpressCard is usually used in x86 architecture Laptops,
-> so it's near to an academic discussion as x86 usually selects I2C ;-)
+> I moved the completion in the handler as you suggested. I have kept
+> the helper, would you prefer to remove it?
 
-Pray tell where does x86 usually select I2C?
-Thanks.
+Moved the "completion"? I was suggesting that the URB resubmission
+should be done inline the URB completion handler.
 
-> @Stephane: When updating the help text to introduce the PCAN-ExpressCard 34
-> support anyway you might probably add some more information *why* the I2C
-> support is needed (for CAN transceiver settings and status LED).
+[ "Completion" may be a little ambiguous. The URB callback is called an
+URB completion handler. Not be confused with the completion structures
+you use to wait for responses. ]
+
+It's fine to keep the helper as long as it's clear that the urb has been
+"cached" and should not be resubmitted (inline) in the completion
+handler in that case.
+ 
+> <snip>
 > 
-> And /s/I2C_ALGO/I2C_ALGOBIT/ :-)
+> > > +     id = dln2->usb_dev->bus->busnum << 8 | dln2->usb_dev->devnum;
+> >
+> > After giving this some more thought, I think you should just
+> > use PLATFORM_DEVID_AUTO as id. I have submitted a series to fix the
+> > other USB MFD drivers and add a convenience helper to register
+> > hotpluggable MFDs here:
+> >
+> 
+> OK, I will use PLATFORM_DEVID_AUTO for now. If your series merges
+> first and I have to resubmit mine, I will switch to using
+> mfd_add_hotplug_devices.
 
+Lee merged the helper function earlier today.
 
--- 
-~Randy
+Johan
