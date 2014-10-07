@@ -1,40 +1,64 @@
-From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v6 4/4] gpio: add support for the Diolan DLN-2 USB GPIO
- driver
-Date: Tue, 7 Oct 2014 18:56:22 +0200
-Message-ID: <20141007165622.GH5362@localhost>
-References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
- <1411661254-5204-5-git-send-email-octavian.purdila@intel.com>
+From: Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Subject: Re: randconfig build error with next-20141001, in drivers/i2c/algos/i2c-algo-bit.c
+Date: Tue, 07 Oct 2014 10:03:29 -0700
+Message-ID: <54341CE1.5020902@infradead.org>
+References: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com> <542C8D93.8090008@infradead.org> <54324D68.6070309@hartkopp.net> <5432C8C6.7060506@infradead.org> <5432D3E6.9020805@hartkopp.net> <5432DAE8.5030509@infradead.org> <5433AB31.9090603@hartkopp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1411661254-5204-5-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5433AB31.9090603-fJ+pQTUTwRTk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Hartkopp <socketcan-fJ+pQTUTwRTk1uMJSBkQmQ@public.gmane.org>, Stephane Grosjean <s.grosjean-g4cQ8AsIbFbL9ATBNaCtXw@public.gmane.org>
+Cc: Jim Davis <jim.epost-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, linux-next <linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-can-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 25, 2014 at 07:07:34PM +0300, Octavian Purdila wrote:
-> From: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+On 10/07/14 01:58, Oliver Hartkopp wrote:
+> On 10/06/2014 08:09 PM, Randy Dunlap wrote:
+>> On 10/06/14 10:39, Oliver Hartkopp wrote:
 > 
-> This patch adds GPIO and IRQ support for the Diolan DLN-2 GPIO module.
+>>> AFAICS there is 'just' a style problem as 'configs should not enable entire
+>>> subsystems'. But it finally is a correct and valid Kconfig, right?
+>>
+>> Yes, right.
 > 
-> Information about the USB protocol interface can be found in the
-> Programmer's Reference Manual [1], see section 2.9 for the GPIO
-> module commands and responses.
+> (..)
 > 
-> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
+>> In the unlikely case that I2C is not enabled, the user should have to enable
+>> it instead of a solitary driver enabling it.  IOW, if a subsystem is disabled,
+>> the user probably wanted it that way and a single driver should not override
+>> that setting.
 > 
-> Signed-off-by: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
+> Due to the fact that a change to 'depends on I2C' would make the config option
+> invisible (and therefore not selectable) in the case I2C was (unlikely)
+> disabled I would finally vote to leave it as-is.
+> 
+> The current Kconfig entry already contains a description that points to the
+> requirement to have I2C and I2C_ALGOBIT to be enabled to compile this driver:
+> 
+> config CAN_PEAK_PCIEC
+> 	bool "PEAK PCAN-ExpressCard Cards"
+> 	depends on CAN_PEAK_PCI
+> 	select I2C
+> 	select I2C_ALGOBIT
+> 	default y
+> 	---help---
+> 	  Say Y here if you want to use a PCAN-ExpressCard from PEAK-System
+> 	  Technik. This will also automatically select I2C and I2C_ALGO
+> 	  configuration options.
+> 
+> AFAIK the PEAK PCAN-ExpressCard is usually used in x86 architecture Laptops,
+> so it's near to an academic discussion as x86 usually selects I2C ;-)
 
-Looks good. I'll provide my reviewed-by tag to the final submission.
+Pray tell where does x86 usually select I2C?
+Thanks.
 
-Thanks,
-Johan
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> @Stephane: When updating the help text to introduce the PCAN-ExpressCard 34
+> support anyway you might probably add some more information *why* the I2C
+> support is needed (for CAN transceiver settings and status LED).
+> 
+> And /s/I2C_ALGO/I2C_ALGOBIT/ :-)
+
+
+-- 
+~Randy
