@@ -1,85 +1,62 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: randconfig build error with next-20141001, in drivers/i2c/algos/i2c-algo-bit.c
-Date: Mon, 06 Oct 2014 11:09:44 -0700
-Message-ID: <5432DAE8.5030509@infradead.org>
-References: <CA+r1ZhiL1y9aeLeJjpd_1DtzOG_oyoPg7XsTPJ9G-XY5G2DfCQ@mail.gmail.com> <542C8D93.8090008@infradead.org> <54324D68.6070309@hartkopp.net> <5432C8C6.7060506@infradead.org> <5432D3E6.9020805@hartkopp.net>
+From: zhangfei <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 2/3] i2c: hix5hd2: add i2c controller driver
+Date: Tue, 07 Oct 2014 08:45:09 +0800
+Message-ID: <54333795.8010707@linaro.org>
+References: <1412350549-2607-1-git-send-email-zhangfei.gao@linaro.org> <1412350549-2607-3-git-send-email-zhangfei.gao@linaro.org> <20141006175611.GB2000@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <5432D3E6.9020805@hartkopp.net>
-Sender: netdev-owner@vger.kernel.org
-To: Oliver Hartkopp <socketcan@hartkopp.net>, Jim Davis <jim.epost@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: linux-next <linux-next@vger.kernel.org>, Stephane Grosjean <s.grosjean@peak-system.com>, linux-i2c@vger.kernel.org, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, linux-can@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141006175611.GB2000@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, haifeng.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jchxue-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xuwei5-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/06/14 10:39, Oliver Hartkopp wrote:
-> 
-> 
-> On 10/06/2014 06:52 PM, Randy Dunlap wrote:
->> On 10/06/14 01:06, Oliver Hartkopp wrote:
->>> Hello all,
->>>
->>> just to get it right:
->>>
->>> So far it looks like this in linux/drivers/net/can/sja1000/Kconfig
->>>
->>> config CAN_PEAK_PCIEC
->>>         bool "PEAK PCAN-ExpressCard Cards"
->>>         depends on CAN_PEAK_PCI
->>>         select I2C
->>>         select I2C_ALGOBIT
->>>
->>> If one would change the
->>>
->>>         select I2C
->>>
->>> into
->>>
->>>         depends on I2C
->>>
->>> IMHO the CAN_PEAK_PCIEC hardware would *only* be visible and selectable when
->>> I2C was selected before (from anyone else?).
+
+
+On 10/07/2014 01:56 AM, Wolfram Sang wrote:
+> On Fri, Oct 03, 2014 at 11:35:48PM +0800, Zhangfei Gao wrote:
+>> From: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 >>
->> That is correct.
+>> I2C drivers for hix5hd2 soc series, including following chipset
+>> Hi3716CV200, Hi3719CV100, Hi3718CV100, Hi3719MV100, Hi3718MV100.
 >>
->>> So what it wrong on the current Kconfig entry?
->>> Is 'select' deprecated?
->>
->> No, it's not deprecated.  It's just dangerous.  and driver configs should not
->> enable entire subsystems via 'select'.
->>
->>> Or did randconfig generate a configuration that would not be possible by
->>> properly generating the config file with 'make menuconfig' ??
->>
->> randconfig generated a config for another driver which causes a build error,
->> not for a CAN driver.  The CAN driver does not have a build error AFAIK.
->> Its Kconfig is just doing something with a very big & ugly stick.
-> 
-> But when it is not done like this, we might have an invisible config option in
-> the corner case that I2C is not enabled by anyone else.
-> 
-> So what would you propose then?
-> 
-> AFAICS there is 'just' a style problem as 'configs should not enable entire
-> subsystems'. But it finally is a correct and valid Kconfig, right?
+>> Signed-off-by: Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+>> Signed-off-by: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>
+> Sorry, one more thing, then we are ready to go:
+>
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License as published by
+>> + * the Free Software Foundation; either version 2 of the License, or
+>> + * (at your option) any later version.
+>
+> Here you say "GPL v2 or later"...
+>
+>> +MODULE_LICENSE("GPL v2");
+>
+> ... here "GPL v2 only". That should be consistent!
 
-Yes, right.
+Thanks for the notifying this, not notice before.
+Should change to MODULE_LICENSE("GPL").
 
-> When I2C is already enabled - fine. If (unlikely) I2C is not enabled, we need
-> to pull the ugly stick. So what is dangerous on this? Was there any misuse of
-> select statements before?
+include/linux/module.h
 
-No syntactic misuse, more of a style thing, like you say.
+/*
+  * The following license idents are currently accepted as indicating free
+  * software modules
+  *
+  *      "GPL"                           [GNU Public License v2 or later]
+  *      "GPL v2"                        [GNU Public License v2]
+  *      "GPL and additional rights"     [GNU Public License v2 rights 
+and more]
+  *      "Dual BSD/GPL"                  [GNU Public License v2
+  *                                       or BSD license choice]
+  *      "Dual MIT/GPL"                  [GNU Public License v2
+  *                                       or MIT license choice]
+  *      "Dual MPL/GPL"                  [GNU Public License v2
+  *                                       or Mozilla license choice]
+  *
 
-The danger is in select being a big stick that does not check for symbol
-dependencies.
-
-In the unlikely case that I2C is not enabled, the user should have to enable
-it instead of a solitary driver enabling it.  IOW, if a subsystem is disabled,
-the user probably wanted it that way and a single driver should not override
-that setting.
-
-
--- 
-~Randy
+Thanks
