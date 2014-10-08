@@ -1,67 +1,109 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v6 1/4] mfd: add support for Diolan DLN-2 devices
-Date: Wed, 8 Oct 2014 11:30:02 +0200
-Message-ID: <20141008093002.GC1990@localhost>
-References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
- <1411661254-5204-2-git-send-email-octavian.purdila@intel.com>
- <20141003171207.GC2394@localhost>
- <CAE1zotLEV-=JvCJvEQqg8CA6fu3UWmPOx3ZYgpd+rYSuSEVmNQ@mail.gmail.com>
- <20141007171003.GI5362@localhost>
- <CAE1zotLmO=VPkE5RYpr1k0-3N8__7A8pWCEM23hXh6nzEqAjeQ@mail.gmail.com>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH 2/6] Documentation: mailbox: Add APM X-Gene SLIMpro
+ mailbox dts documentation
+Date: Wed, 8 Oct 2014 10:50:12 +0100
+Message-ID: <20141008095012.GH27216@leverpostej>
+References: <1412726809-7525-1-git-send-email-fkan@apm.com>
+ <1412726809-7525-3-git-send-email-fkan@apm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAE1zotLmO=VPkE5RYpr1k0-3N8__7A8pWCEM23hXh6nzEqAjeQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Johan Hovold <johan@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org
+In-Reply-To: <1412726809-7525-3-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+Cc: "patches-qTEPVZfXA3Y@public.gmane.org" <patches-qTEPVZfXA3Y@public.gmane.org>, "jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 07, 2014 at 09:01:27PM +0300, Octavian Purdila wrote:
-> On Tue, Oct 7, 2014 at 8:10 PM, Johan Hovold <johan@kernel.org> wrote:
-> > On Mon, Oct 06, 2014 at 03:17:22PM +0300, Octavian Purdila wrote:
-> >> On Fri, Oct 3, 2014 at 8:12 PM, Johan Hovold <johan@kernel.org> wrote:
-> >> >
-> >> > On Thu, Sep 25, 2014 at 07:07:31PM +0300, Octavian Purdila wrote:
-> >> > > This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
-> >> > > Master Adapter DLN-2. Details about the device can be found here:
-> >> > >
-> >>
-> >> <snip>
-> >>
-> >> > > +
-> >> > > +             ret = dln2_submit_urb(dln2, dln2->rx_urb[i], GFP_KERNEL);
-> >> > > +             if (ret < 0)
-> >> > > +                     return ret;
-> >> >
-> >> > Is it really worth having this helper only to save a couple of lines on
-> >> > a dev_err? If you do all resubmissions on completion inline in the
-> >> > handler, you only have three places where usb_submit_urb is called.
-> >>
-> >> I moved the completion in the handler as you suggested. I have kept
-> >> the helper, would you prefer to remove it?
-> >
-> > Moved the "completion"? I was suggesting that the URB resubmission
-> > should be done inline the URB completion handler.
-> >
-> > [ "Completion" may be a little ambiguous. The URB callback is called an
-> > URB completion handler. Not be confused with the completion structures
-> > you use to wait for responses. ]
-> >
+On Wed, Oct 08, 2014 at 01:06:45AM +0100, Feng Kan wrote:
+> This adds the APM X-Gene SLIMpro mailbox device tree node documentation.
 > 
-> Sorry, I meant to say resubmission instead of completion.
+> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+> ---
+>  .../bindings/mailbox/xgene-slimpro-mailbox.txt     | 41 ++++++++++++++++++++++
+>  1 file changed, 41 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
 > 
-> > It's fine to keep the helper as long as it's clear that the urb has been
-> > "cached" and should not be resubmitted (inline) in the completion
-> > handler in that case.
+> diff --git a/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt b/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
+> new file mode 100644
+> index 0000000..d0b74fb
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
+> @@ -0,0 +1,41 @@
+> +The APM X-Gene SLIMpro mailbox driver is used to communicate messages between
+> +the ARM64 processors and the Cortex M3 (dubbed SLIMpro). It uses a simple
+> +interrupt based door bell mechanism and can exchange simple messages using the
+> +internal registers.
+
+The above should be a description of the hardware organisation, not the
+Linux driver. Removing the word "driver" in the above should be
+sufficient.
+
+> +
+> +There are total of 8 interrupts in this mailbox. Each used for an individual
+> +door bell (or mailbox channel).
+
+This should be described in the interrupts property.
+
+> +
+> +Required properties:
+> +- compatible:	Should be as "apm, xgene-slimpro-mbox".
+
+That space shouldn't be there.
+
+> +
+> +- reg:		Contain the mailbox register address range.
+> +
+> +- interrupts:	Contain interrupt information for the mailbox device.
+
+Please describe the specifics of this proeprty. This description is too
+general to be of any use. Specific how many interrupts you expect, the
+order thereof, etc. If there's not a well-defined ordering, or if you
+believe interrupts will be omitted, use interrupt-names, and define
+interrutps in terms of it.
+
+> +
+> +- #mbox-cells:	Specify the number of parameters used by the mailbox client.
+> +		Currently only one to specify the mailbox channel number.
+
+This should be a description of the specific values expected by this
+binding rather than the general meaning of this property. How many mbox
+cells do you expect (1, it seems?), and what does each encode(the index
+of the mailbox?)?
+
+Thanks,
+Mark.
+
+> +
+> +Example:
+> +
+> +Mailbox Node:
+> +		slimpro-mbox: slimpro-mbox@10540000 {
+> +			compatible = "apm,xgene-slimpro-mbox";
+> +			reg = <0x0 0x10540000 0x0 0xa000>;
+> +			#mbox-cells = <1>;
+> +			interrupts =  	<0x0 0x0 0x4>,
+> +					<0x0 0x1 0x4>,
+> +					<0x0 0x2 0x4>,
+> +					<0x0 0x3 0x4>,
+> +					<0x0 0x4 0x4>,
+> +					<0x0 0x5 0x4>,
+> +					<0x0 0x6 0x4>,
+> +					<0x0 0x7 0x4>;
+> +		};
+> +
+> +Client Node:
+> +		i2c-slimpro {
+> +			compatible = "apm,xgene-slimpro-i2c";
+> +			mbox = <&slimpro-mbox 0>;
+> +			mbox-names = "i2c-slimpro";
+> +		};
+> -- 
+> 1.9.1
 > 
-> Not sure I follow you here. I kept the helper and I call it from the
-> completion handler, from free_rx_slot and from dln2_setup_rx_ubs.
-
-Ah sorry, I was referring to your other helper dln2_rx_transfer().
-
-I still think you should do away with the dln2_submit_urb() helper as
-it needlessly hides what's on going without any real gain.
-
-Johan
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
