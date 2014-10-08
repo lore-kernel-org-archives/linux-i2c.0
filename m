@@ -1,50 +1,65 @@
 From: Muthu Mani <muth-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH v3 1/3] mfd: add support for Cypress CYUSBS234 USB Serial
- Bridge controller
-Date: Wed, 8 Oct 2014 07:03:32 +0000
-Message-ID: <44890a00b3914a5bb489cc95e5fe7cbf@BN1PR06MB069.namprd06.prod.outlook.com>
-References: <1412599949-3818-1-git-send-email-muth@cypress.com>
- <20141006133302.GA2306@localhost>
+Subject: RE: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO
+ adapter
+Date: Wed, 8 Oct 2014 07:09:06 +0000
+Message-ID: <405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
+References: <1412606822-3406-1-git-send-email-muth@cypress.com>
+ <CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141006133302.GA2306@localhost>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org" <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rajaram Regupathy <rera-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rajaram Regupathy <rera-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Johan Hovold [mailto:jhovold-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] On Behalf Of Johan Hovold
-> Sent: Monday, October 06, 2014 7:03 PM
-> To: Muthu Mani
-> Cc: Samuel Ortiz; Lee Jones; Wolfram Sang; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Linus
-> Walleij; Alexandre Courbot; linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org; linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
-> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Rajaram Regupathy
-> Subject: Re: [PATCH v3 1/3] mfd: add support for Cypress CYUSBS234 USB
-> Serial Bridge controller
-> 
-> On Mon, Oct 06, 2014 at 06:22:29PM +0530, Muthu Mani wrote:
-> > Adds support for USB-I2C/GPIO interfaces of Cypress Semiconductor
-> > CYUSBS234 USB-Serial Bridge controller.
-> >
-> > Details about the device can be found at:
-> > http://www.cypress.com/?rID=84126
-> >
-> > Signed-off-by: Muthu Mani <muth-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
-> > Signed-off-by: Rajaram Regupathy <rera-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
-> > ---
-> 
-> Please resend this series and include a revision changelog per patch (you can
-> keep it under the cut-off line).
-> 
-> Also, make sure not to drop thread participants from CC when resending.
-
-Thanks, I have resent it.
-
-> 
-> Thanks,
-> Johan
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbGV4YW5kcmUgQ291cmJvdCBb
+bWFpbHRvOmdudXJvdUBnbWFpbC5jb21dDQo+IFNlbnQ6IFR1ZXNkYXksIE9jdG9iZXIgMDcsIDIw
+MTQgMzozNCBQTQ0KPiBUbzogTXV0aHUgTWFuaQ0KPiBDYzogU2FtdWVsIE9ydGl6OyBMZWUgSm9u
+ZXM7IFdvbGZyYW0gU2FuZzsgTGludXMgV2FsbGVpajsgR3JlZyBLcm9haC0NCj4gSGFydG1hbjsg
+bGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgbGludXgtZ3Bpb0B2Z2VyLmtlcm5lbC5vcmc7IGxp
+bnV4LQ0KPiB1c2JAdmdlci5rZXJuZWwub3JnOyBMaW51eCBLZXJuZWwgTWFpbGluZyBMaXN0OyBS
+YWphcmFtIFJlZ3VwYXRoeTsgSm9oYW4NCj4gSG92b2xkDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0gg
+djMgMy8zXSBncGlvOiBhZGQgc3VwcG9ydCBmb3IgQ3lwcmVzcyBDWVVTQlMyMzQgVVNCLQ0KPiBH
+UElPIGFkYXB0ZXINCj4gDQo+IE9uIE1vbiwgT2N0IDYsIDIwMTQgYXQgMTE6NDcgUE0sIE11dGh1
+IE1hbmkgPG11dGhAY3lwcmVzcy5jb20+IHdyb3RlOg0KPiA+ICsNCj4gPiArc3RhdGljIGludCBj
+eV9ncGlvX2RpcmVjdGlvbl9pbnB1dChzdHJ1Y3QgZ3Bpb19jaGlwICpjaGlwLA0KPiA+ICsgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBvZmZzZXQpIHsNCj4g
+PiArICAgICAgIHJldHVybiAwOw0KPiA+ICt9DQo+ID4gKw0KPiA+ICtzdGF0aWMgaW50IGN5X2dw
+aW9fZGlyZWN0aW9uX291dHB1dChzdHJ1Y3QgZ3Bpb19jaGlwICpjaGlwLA0KPiA+ICsgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBvZmZzZXQsIGludCB2YWx1
+ZSkgew0KPiA+ICsgICAgICAgcmV0dXJuIDA7DQo+ID4gK30NCj4gDQo+IElmIHRoYXQgY2hpcCBp
+cyBjYXBhYmxlIG9mIGJvdGggb3V0cHV0IGFuZCBpbnB1dCwgc2hvdWxkbid0IHRoZXNlIGZ1bmN0
+aW9ucyBiZQ0KPiBpbXBsZW1lbnRlZD8gSSB0aGluayB0aGlzIGhhcyBhbHJlYWR5IGJlZW4gcG9p
+bnRlZCBvdXQgaW4gYSBwcmV2aW91cyB2ZXJzaW9uDQo+IGJ1dCB5b3UgZGlkIG5vdCByZXBseS4N
+Cg0KVGhhbmtzIGZvciB5b3VyIGlucHV0cy4NCg0KT25seSB0aGUgR1BJT3Mgd2hpY2ggYXJlIGNv
+bmZpZ3VyZWQgdG8gYmUgb3V0cHV0IEdQSU8gY2FuIGJlIHNldC4NClRoZSBzZXQgb3BlcmF0aW9u
+IHdvdWxkIGZhaWwgdHJ5aW5nIHRvIHNldCB0aGUgaW5wdXQgb3IgdW5jb25maWd1cmVkIEdQSU9z
+Lg0KSW4gdGhpcyB2ZXJzaW9uIG9mIGRyaXZlciwgdGhpcyBzdXBwb3J0IGlzIG5vdCBhZGRlZCwg
+aXQgY2FuIGJlIGludHJvZHVjZWQgaW4gZnV0dXJlIHZlcnNpb25zLg0KSSB3aWxsIGFkZCBhIFRP
+RE8gbm90ZSBpbiB0aGUgY29kZS4NCg0KPiANCj4gPiArDQo+ID4gK3N0YXRpYyBpbnQgY3l1c2Jz
+MjN4X2dwaW9fcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikgew0KPiA+ICsgICAg
+ICAgc3RydWN0IGN5dXNiczIzeCAqY3l1c2JzOw0KPiA+ICsgICAgICAgc3RydWN0IGN5dXNic19n
+cGlvICpjeV9ncGlvOw0KPiA+ICsgICAgICAgaW50IHJldCA9IDA7DQo+ID4gKw0KPiA+ICsgICAg
+ICAgZGV2X2RiZygmcGRldi0+ZGV2LCAiJXNcbiIsIF9fZnVuY19fKTsNCj4gDQo+ID4gKw0KPiA+
+ICsgICAgICAgY3l1c2JzID0gZGV2X2dldF9kcnZkYXRhKHBkZXYtPmRldi5wYXJlbnQpOw0KPiA+
+ICsNCj4gPiArICAgICAgIGN5X2dwaW8gPSBkZXZtX2t6YWxsb2MoJnBkZXYtPmRldiwgc2l6ZW9m
+KCpjeV9ncGlvKSwgR0ZQX0tFUk5FTCk7DQo+ID4gKyAgICAgICBpZiAoY3lfZ3BpbyA9PSBOVUxM
+KQ0KPiA+ICsgICAgICAgICAgICAgICByZXR1cm4gLUVOT01FTTsNCj4gPiArDQo+ID4gKyAgICAg
+ICBjeV9ncGlvLT5jeXVzYnMgPSBjeXVzYnM7DQo+ID4gKyAgICAgICAvKiByZWdpc3RlcmluZyBn
+cGlvICovDQo+ID4gKyAgICAgICBjeV9ncGlvLT5ncGlvLmxhYmVsID0gZGV2X25hbWUoJnBkZXYt
+PmRldik7DQo+ID4gKyAgICAgICBjeV9ncGlvLT5ncGlvLmRldiA9ICZwZGV2LT5kZXY7DQo+ID4g
+KyAgICAgICBjeV9ncGlvLT5ncGlvLm93bmVyID0gVEhJU19NT0RVTEU7DQo+ID4gKyAgICAgICBj
+eV9ncGlvLT5ncGlvLmJhc2UgPSAtMTsNCj4gPiArICAgICAgIGN5X2dwaW8tPmdwaW8ubmdwaW8g
+PSAxMjsgLyogdG90YWwgR1BJT3MgKi8NCj4gDQo+IElzbid0IHRoZXJlIGEgd2F5IHRvIGdldCB0
+aGUgbnVtYmVyIG9mIEdQSU9zIGZyb20gYSByZWxpYWJsZSBzb3VyY2U/DQo+IElmIG5vdCwgcGxl
+YXNlIGF0IGxlYXN0IHVzZSBhIG1hY3JvIGhlcmUuDQoNCkNZVVNCUzIzNCBoYXMgMTIgR1BJT3Mg
+aW4gdG90YWwgYXMgcGVyIHRoZSBkYXRhc2hlZXQuIEkgd2lsbCBhZGQgYSBtYWNybyBhbmQgdXNl
+IGl0Lg0K
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
