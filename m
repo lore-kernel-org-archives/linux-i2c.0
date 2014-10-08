@@ -1,103 +1,80 @@
 From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH 2/6] Documentation: mailbox: Add APM X-Gene SLIMpro
- mailbox dts documentation
-Date: Wed, 8 Oct 2014 10:50:12 +0100
-Message-ID: <20141008095012.GH27216@leverpostej>
+Subject: Re: [PATCH 5/6] Documentation: i2c: Add APM X-Gene platform SLIMpro
+ I2C driver documentation
+Date: Wed, 8 Oct 2014 11:11:44 +0100
+Message-ID: <20141008101144.GJ27216@leverpostej>
 References: <1412726809-7525-1-git-send-email-fkan@apm.com>
- <1412726809-7525-3-git-send-email-fkan@apm.com>
+ <1412726809-7525-6-git-send-email-fkan@apm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1412726809-7525-3-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
+In-Reply-To: <1412726809-7525-6-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Cc: "patches-qTEPVZfXA3Y@public.gmane.org" <patches-qTEPVZfXA3Y@public.gmane.org>, "jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: "patches-qTEPVZfXA3Y@public.gmane.org" <patches-qTEPVZfXA3Y@public.gmane.org>, "jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 08, 2014 at 01:06:45AM +0100, Feng Kan wrote:
-> This adds the APM X-Gene SLIMpro mailbox device tree node documentation.
+On Wed, Oct 08, 2014 at 01:06:48AM +0100, Feng Kan wrote:
+> Add APM X-Gene platform SLIMpro I2C driver documentation.
 > 
 > Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 > ---
->  .../bindings/mailbox/xgene-slimpro-mailbox.txt     | 41 ++++++++++++++++++++++
->  1 file changed, 41 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
+>  .../devicetree/bindings/i2c/i2c-xgene-slimpro.txt    | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt b/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
 > new file mode 100644
-> index 0000000..d0b74fb
+> index 0000000..1a79d53
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
-> @@ -0,0 +1,41 @@
-> +The APM X-Gene SLIMpro mailbox driver is used to communicate messages between
-> +the ARM64 processors and the Cortex M3 (dubbed SLIMpro). It uses a simple
-> +interrupt based door bell mechanism and can exchange simple messages using the
-> +internal registers.
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
+> @@ -0,0 +1,20 @@
+> +APM X-Gene SLIMpro Mailbox I2C Driver
+> +
+> +This is a I2C driver that access the I2C bus through the mailbox mechanism.
+> +There is documentation of the mailbox driver in the
+> +Documentation/devicetree/binding/mailbox/xgene-slimpro-mbox.txt
 
-The above should be a description of the hardware organisation, not the
-Linux driver. Removing the word "driver" in the above should be
-sufficient.
+This should not describe the driver. It should describe the hardware (an
+I2C controller accessed over the "slimpro" mailbox).
 
 > +
-> +There are total of 8 interrupts in this mailbox. Each used for an individual
-> +door bell (or mailbox channel).
-
-This should be described in the interrupts property.
-
+> +Required properties :
 > +
-> +Required properties:
-> +- compatible:	Should be as "apm, xgene-slimpro-mbox".
+> + - compatible : should be "apm,xgene-slimpro-i2c"
+> + - mbox : ptr to the mailbox dts node, use the name of the mailbox as the
+> +	  first parameter. The second parameter is the channel number.
 
-That space shouldn't be there.
+This is a phandle + specificer pair, the "name" you mention is a label
+reference (which generates a phandle).
 
-> +
-> +- reg:		Contain the mailbox register address range.
-> +
-> +- interrupts:	Contain interrupt information for the mailbox device.
+> +	  The APM X-Gene SLIMpro mailbox has 8 channels.
 
-Please describe the specifics of this proeprty. This description is too
-general to be of any use. Specific how many interrupts you expect, the
-order thereof, etc. If there's not a well-defined ordering, or if you
-believe interrupts will be omitted, use interrupt-names, and define
-interrutps in terms of it.
+Does it really make sense to model the slimpro in this way if all the
+clients are going to rely on the particulars of this mailbox?
 
-> +
-> +- #mbox-cells:	Specify the number of parameters used by the mailbox client.
-> +		Currently only one to specify the mailbox channel number.
+Either this is somewhat generic and the mailbox details are
+unimportant, or it is not and the entire device would be better modelled
+as an MFD.
 
-This should be a description of the specific values expected by this
-binding rather than the general meaning of this property. How many mbox
-cells do you expect (1, it seems?), and what does each encode(the index
-of the mailbox?)?
+> + - mbox-names : the name of the mailbox channel.
 
-Thanks,
+For any *-names property, you must define the _exact_ names you expect,
+or you shouldn't use the property. The entire point of the property is
+to disambiguate entries, and this is _more_ ambiguous than without the
+property.
+
 Mark.
 
 > +
-> +Example:
-> +
-> +Mailbox Node:
-> +		slimpro-mbox: slimpro-mbox@10540000 {
-> +			compatible = "apm,xgene-slimpro-mbox";
-> +			reg = <0x0 0x10540000 0x0 0xa000>;
-> +			#mbox-cells = <1>;
-> +			interrupts =  	<0x0 0x0 0x4>,
-> +					<0x0 0x1 0x4>,
-> +					<0x0 0x2 0x4>,
-> +					<0x0 0x3 0x4>,
-> +					<0x0 0x4 0x4>,
-> +					<0x0 0x5 0x4>,
-> +					<0x0 0x6 0x4>,
-> +					<0x0 0x7 0x4>;
-> +		};
-> +
-> +Client Node:
-> +		i2c-slimpro {
-> +			compatible = "apm,xgene-slimpro-i2c";
-> +			mbox = <&slimpro-mbox 0>;
-> +			mbox-names = "i2c-slimpro";
-> +		};
+> +Example :
+> +	i2cslimpro {
+> +		compatible = "apm,xgene-slimpro-i2c";
+> +		mbox = <&mailbox 0>;
+> +		mbox-names = "i2c-slimpro";
+> +	};
 > -- 
 > 1.9.1
 > 
