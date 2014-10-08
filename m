@@ -1,86 +1,57 @@
-From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH 5/6] Documentation: i2c: Add APM X-Gene platform SLIMpro
- I2C driver documentation
-Date: Wed, 8 Oct 2014 11:11:44 +0100
-Message-ID: <20141008101144.GJ27216@leverpostej>
-References: <1412726809-7525-1-git-send-email-fkan@apm.com>
- <1412726809-7525-6-git-send-email-fkan@apm.com>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH v6 2/4] i2c: add support for Diolan DLN-2 USB-I2C adapter
+Date: Wed, 8 Oct 2014 12:42:14 +0200
+Message-ID: <20141008104214.GD1990@localhost>
+References: <1411661254-5204-1-git-send-email-octavian.purdila@intel.com>
+ <1411661254-5204-3-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1412726809-7525-6-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Cc: "patches-qTEPVZfXA3Y@public.gmane.org" <patches-qTEPVZfXA3Y@public.gmane.org>, "jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <=devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+In-Reply-To: <1411661254-5204-3-git-send-email-octavian.purdila@intel.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 08, 2014 at 01:06:48AM +0100, Feng Kan wrote:
-> Add APM X-Gene platform SLIMpro I2C driver documentation.
-> 
-> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-xgene-slimpro.txt    | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
+On Thu, Sep 25, 2014 at 07:07:32PM +0300, Octavian Purdila wrote:
+
+> diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-busses-dln2 b/Documentation/ABI/testing/sysfs-bus-i2c-busses-dln2
 > new file mode 100644
-> index 0000000..1a79d53
+> index 0000000..ad55af6
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
-> @@ -0,0 +1,20 @@
-> +APM X-Gene SLIMpro Mailbox I2C Driver
-> +
-> +This is a I2C driver that access the I2C bus through the mailbox mechanism.
-> +There is documentation of the mailbox driver in the
-> +Documentation/devicetree/binding/mailbox/xgene-slimpro-mbox.txt
+> +++ b/Documentation/ABI/testing/sysfs-bus-i2c-busses-dln2
 
-This should not describe the driver. It should describe the hardware (an
-I2C controller accessed over the "slimpro" mailbox).
+This is a nonstandard path that does not match the attribute path (or
+any other convention followed under ABI/).
 
-> +
-> +Required properties :
-> +
-> + - compatible : should be "apm,xgene-slimpro-i2c"
-> + - mbox : ptr to the mailbox dts node, use the name of the mailbox as the
-> +	  first parameter. The second parameter is the channel number.
+I suggest you rename it
 
-This is a phandle + specificer pair, the "name" you mention is a label
-reference (which generates a phandle).
+	sysfs-class-i2c-adapter-dln2
 
-> +	  The APM X-Gene SLIMpro mailbox has 8 channels.
+> @@ -0,0 +1,5 @@
+> +What:		/sys/bus/i2c/devices/.../dln2_i2c_freq
 
-Does it really make sense to model the slimpro in this way if all the
-clients are going to rely on the particulars of this mailbox?
+I think you should rename the attribute "bus_frequency" and name the
+attribute group "dln2". That way the attribute will show up as
 
-Either this is somewhat generic and the mailbox details are
-unimportant, or it is not and the entire device would be better modelled
-as an MFD.
+	.../<device>/dln2/bus_frequency
 
-> + - mbox-names : the name of the mailbox channel.
+Then the "What:" field should read
 
-For any *-names property, you must define the _exact_ names you expect,
-or you shouldn't use the property. The entire point of the property is
-to disambiguate entries, and this is _more_ ambiguous than without the
-property.
+	What:		/sys/class/i2c-adapter/<device>/dln2/bus_frequency
 
-Mark.
+> +Date:		September 2014
+> +Contact:	Octavian Purdila <octavian.purdila@intel.com>
+> +Description:
+> +		This attribute shows/sets the frequency (in Hz) of the I2C bus.
 
-> +
-> +Example :
-> +	i2cslimpro {
-> +		compatible = "apm,xgene-slimpro-i2c";
-> +		mbox = <&mailbox 0>;
-> +		mbox-names = "i2c-slimpro";
-> +	};
-> -- 
-> 1.9.1
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+I'd reword this "Set the frequency...".
+
+Please also describe under what circumstances this may fail, that is,
+when setting a frequency less than or greater than the min or max
+frequencies reported by the device.
+
+Perhaps you should even consider exporting those two values?
+
+Johan
