@@ -1,41 +1,46 @@
-From: Feng Kan <fkan@apm.com>
-Subject: [PATCH 0/6] APM X-Gene platform mailbox and proxy i2c driver
-Date: Tue,  7 Oct 2014 17:06:43 -0700
-Message-ID: <1412726809-7525-1-git-send-email-fkan@apm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: patches@apm.com, jassisingbrar@gmail.com, =devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Feng Kan <fkan@apm.com>
+From: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+Subject: [PATCH 3/6] arm64: dts: mailbox device tree node for APM X-Gene platform.
+Date: Tue,  7 Oct 2014 17:06:46 -0700
+Message-ID: <1412726809-7525-4-git-send-email-fkan@apm.com>
+References: <1412726809-7525-1-git-send-email-fkan@apm.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1412726809-7525-1-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: patches-qTEPVZfXA3Y@public.gmane.org, jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, =devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch set contain the APM X-Gene platform mailbox driver and 
-a proxy i2c driver that uses the mailbox driver to communicate with
-the i2c bus through the slimpro coprocessor.
+Mailbox device tree node for APM X-Gene platform.
 
-Feng Kan (6):
-  mailbox: add support for APM X-Gene platform mailbox driver
-  Documentation: mailbox: Add APM X-Gene SLIMpro mailbox dts
-    documentation
-  arm64: dts: mailbox device tree node for APM X-Gene platform.
-  i2c: busses: add SLIMpro I2C device driver on APM X-Gene platform
-  Documentation: i2c: Add APM X-Gene platform SLIMpro I2C driver
-    documentation
-  arm64: dts: add proxy I2C device driver on APM X-Gene platform
+Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+---
+ arch/arm64/boot/dts/apm-storm.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
- .../devicetree/bindings/i2c/i2c-xgene-slimpro.txt  |  20 +
- .../bindings/mailbox/xgene-slimpro-mailbox.txt     |  41 ++
- arch/arm64/boot/dts/apm-storm.dtsi                 |  20 +
- drivers/i2c/busses/Kconfig                         |   9 +
- drivers/i2c/busses/Makefile                        |   1 +
- drivers/i2c/busses/i2c-xgene-slimpro.c             | 531 +++++++++++++++++++++
- drivers/mailbox/Kconfig                            |  10 +
- drivers/mailbox/Makefile                           |   1 +
- drivers/mailbox/mailbox-xgene-slimpro.c            | 287 +++++++++++
- 9 files changed, 920 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
- create mode 100644 Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
- create mode 100644 drivers/i2c/busses/i2c-xgene-slimpro.c
- create mode 100644 drivers/mailbox/mailbox-xgene-slimpro.c
-
+diff --git a/arch/arm64/boot/dts/apm-storm.dtsi b/arch/arm64/boot/dts/apm-storm.dtsi
+index 1cd5173..249f025 100644
+--- a/arch/arm64/boot/dts/apm-storm.dtsi
++++ b/arch/arm64/boot/dts/apm-storm.dtsi
+@@ -455,6 +455,20 @@
+ 			clocks = <&pcie4clk 0>;
+ 		};
+ 
++		mailbox: slimpro-mbox@10540000 {
++			compatible = "apm,xgene-slimpro-mbox";
++			reg = <0x0 0x10540000 0x0 0xa000>;
++			#mbox-cells = <1>;
++			interrupts =    <0x0 0x0 0x4>,
++					<0x0 0x1 0x4>,
++					<0x0 0x2 0x4>,
++					<0x0 0x3 0x4>,
++					<0x0 0x4 0x4>,
++					<0x0 0x5 0x4>,
++					<0x0 0x6 0x4>,
++					<0x0 0x7 0x4>;
++		};
++
+ 		serial0: serial@1c020000 {
+ 			status = "disabled";
+ 			device_type = "serial";
 -- 
 1.9.1
