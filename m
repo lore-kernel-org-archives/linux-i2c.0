@@ -1,98 +1,81 @@
-From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: mpc: Report correct I2C error codes on Freescale MPC i2c
- bus driver
-Date: Wed, 8 Oct 2014 12:06:15 -0700
-Message-ID: <CAAVjN7fq-czDj5Ga_UC+fzqy3dcYY3bgU7Z5JUY829Va4rbeXQ@mail.gmail.com>
+From: RR <rajaram.officemails@gmail.com>
+Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
+Date: Wed, 8 Oct 2014 16:46:55 -0700
+Message-ID: <CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
+References: <1412606822-3406-1-git-send-email-muth@cypress.com>
+	<CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
+	<405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
+	<CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Alexandre Courbot <gnurou@gmail.com>
+Cc: Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Report correct I2C error codes on Freescale MPC i2c bus driver
+On Wed, Oct 8, 2014 at 12:18 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
+> On Wed, Oct 8, 2014 at 4:09 PM, Muthu Mani <muth@cypress.com> wrote:
+>>> -----Original Message-----
+>>> From: Alexandre Courbot [mailto:gnurou@gmail.com]
+>>> Sent: Tuesday, October 07, 2014 3:34 PM
+>>> To: Muthu Mani
+>>> Cc: Samuel Ortiz; Lee Jones; Wolfram Sang; Linus Walleij; Greg Kroah-
+>>> Hartman; linux-i2c@vger.kernel.org; linux-gpio@vger.kernel.org; linux-
+>>> usb@vger.kernel.org; Linux Kernel Mailing List; Rajaram Regupathy; Johan
+>>> Hovold
+>>> Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-
+>>> GPIO adapter
+>>>
+>>> On Mon, Oct 6, 2014 at 11:47 PM, Muthu Mani <muth@cypress.com> wrote:
+>>> > +
+>>> > +static int cy_gpio_direction_input(struct gpio_chip *chip,
+>>> > +                                       unsigned offset) {
+>>> > +       return 0;
+>>> > +}
+>>> > +
+>>> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
+>>> > +                                       unsigned offset, int value) {
+>>> > +       return 0;
+>>> > +}
+>>>
+>>> If that chip is capable of both output and input, shouldn't these functions be
+>>> implemented? I think this has already been pointed out in a previous version
+>>> but you did not reply.
+>>
+>> Thanks for your inputs.
+>>
+>> Only the GPIOs which are configured to be output GPIO can be set.
+>
+> In that case cy_gpio_set() should return an error for GPIOs which are
+> not configured as outputs. Is that guaranteed by the current
+> implementation?
+>
+>> The set operation would fail trying to set the input or unconfigured GPIOs.
+>> In this version of driver, this support is not added, it can be introduced in future versions.
+>> I will add a TODO note in the code.
+>
+> Argh, no TODO please. Actual code that will turn this code into a
+> solid driver that can be merged.
 
+Does a driver targeted for a custom device has to implement every
+functionality in the 1st version ? My understanding is that Linux
+follows incremental model and allows incremental merge.
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 0edf630..b56145c 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -124,7 +124,7 @@
- static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
- {
-  unsigned long orig_jiffies = jiffies;
-- u32 x;
-+ u32 cmd_err;
-  int result = 0;
+(On a side note the driver is functionally verified with the necessary hardware)
 
-  if (!i2c->irq) {
-@@ -133,11 +133,11 @@
-  if (time_after(jiffies, orig_jiffies + timeout)) {
-  dev_dbg(i2c->dev, "timeout\n");
-  writeccr(i2c, 0);
-- result = -EIO;
-+ result = -ETIMEDOUT;
-  break;
-  }
-  }
-- x = readb(i2c->base + MPC_I2C_SR);
-+ cmd_err = readb(i2c->base + MPC_I2C_SR);
-  writeb(0, i2c->base + MPC_I2C_SR);
-  } else {
-  /* Interrupt mode */
-@@ -150,28 +150,28 @@
-  result = -ETIMEDOUT;
-  }
+Please correct me if I am missing something
 
-- x = i2c->interrupt;
-+ cmd_err = i2c->interrupt;
-  i2c->interrupt = 0;
-  }
-
-  if (result < 0)
-  return result;
-
-- if (!(x & CSR_MCF)) {
-+ if (!(cmd_err & CSR_MCF)) {
-  dev_dbg(i2c->dev, "unfinished\n");
-  return -EIO;
-  }
-
-- if (x & CSR_MAL) {
-+ if (cmd_err & CSR_MAL) {
-  dev_dbg(i2c->dev, "MAL\n");
-- return -EIO;
-+ return -EAGAIN;
-  }
-
-- if (writing && (x & CSR_RXAK)) {
-+ if (writing && (cmd_err & CSR_RXAK)) {
-  dev_dbg(i2c->dev, "No RXAK\n");
-  /* generate stop */
-  writeccr(i2c, CCR_MEN);
-- return -EIO;
-+ return -ENXIO;
-  }
-  return 0;
- }
-@@ -554,7 +554,7 @@
-        i2c->base + MPC_I2C_SR);
-  mpc_i2c_fixup(i2c);
-  }
-- return -EIO;
-+ return -ETIMEDOUT;
-  }
-  schedule();
-  }
-@@ -590,7 +590,7 @@
-        i2c->base + MPC_I2C_SR);
-  mpc_i2c_fixup(i2c);
-  }
-- return -EIO;
-+ return -ETIMEDOUT;
-  }
-  cond_resched();
-  }
-
-
-- Danielle Costantino
+>
+> Can all GPIOs be set as input or output? If so, please implement
+> cy_gpio_direction_*() and make sure that cy_gpio_set() behaves
+> properly if a GPIO is not an output. If the input/output GPIOs are
+> fixed, please make cy_gpio_direction_*() return an error if the GPIO
+> capabilities does not correspond to what is asked, and again ensure
+> that cy_gpio_set() works as expected.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
