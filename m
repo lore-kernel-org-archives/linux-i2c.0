@@ -1,81 +1,39 @@
 From: Feng Kan <fkan@apm.com>
-Subject: [PATCH 2/6] Documentation: mailbox: Add APM X-Gene SLIMpro mailbox
- dts documentation
-Date: Tue,  7 Oct 2014 17:06:45 -0700
-Message-ID: <1412726809-7525-3-git-send-email-fkan@apm.com>
+Subject: [PATCH 6/6] arm64: dts: add proxy I2C device driver on APM X-Gene platform
+Date: Tue,  7 Oct 2014 17:06:49 -0700
+Message-ID: <1412726809-7525-7-git-send-email-fkan@apm.com>
 References: <1412726809-7525-1-git-send-email-fkan@apm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1412726809-7525-1-git-send-email-fkan@apm.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: patches@apm.com, jassisingbrar@gmail.com, =devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Feng Kan <fkan@apm.com>
+Cc: Feng Kan <fkan@apm.com>, Hieu Le <hnle@apm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This adds the APM X-Gene SLIMpro mailbox device tree node documentation.
+Add proxy I2C device driver on APM X-Gene platform.
 
 Signed-off-by: Feng Kan <fkan@apm.com>
+Signed-off-by: Hieu Le <hnle@apm.com>
 ---
- .../bindings/mailbox/xgene-slimpro-mailbox.txt     | 41 ++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
+ arch/arm64/boot/dts/apm-storm.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt b/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
-new file mode 100644
-index 0000000..d0b74fb
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mailbox/xgene-slimpro-mailbox.txt
-@@ -0,0 +1,41 @@
-+The APM X-Gene SLIMpro mailbox driver is used to communicate messages between
-+the ARM64 processors and the Cortex M3 (dubbed SLIMpro). It uses a simple
-+interrupt based door bell mechanism and can exchange simple messages using the
-+internal registers.
-+
-+There are total of 8 interrupts in this mailbox. Each used for an individual
-+door bell (or mailbox channel).
-+
-+Required properties:
-+- compatible:	Should be as "apm, xgene-slimpro-mbox".
-+
-+- reg:		Contain the mailbox register address range.
-+
-+- interrupts:	Contain interrupt information for the mailbox device.
-+
-+- #mbox-cells:	Specify the number of parameters used by the mailbox client.
-+		Currently only one to specify the mailbox channel number.
-+
-+Example:
-+
-+Mailbox Node:
-+		slimpro-mbox: slimpro-mbox@10540000 {
-+			compatible = "apm,xgene-slimpro-mbox";
-+			reg = <0x0 0x10540000 0x0 0xa000>;
-+			#mbox-cells = <1>;
-+			interrupts =  	<0x0 0x0 0x4>,
-+					<0x0 0x1 0x4>,
-+					<0x0 0x2 0x4>,
-+					<0x0 0x3 0x4>,
-+					<0x0 0x4 0x4>,
-+					<0x0 0x5 0x4>,
-+					<0x0 0x6 0x4>,
-+					<0x0 0x7 0x4>;
-+		};
-+
-+Client Node:
-+		i2c-slimpro {
+diff --git a/arch/arm64/boot/dts/apm-storm.dtsi b/arch/arm64/boot/dts/apm-storm.dtsi
+index 249f025..09daf4c 100644
+--- a/arch/arm64/boot/dts/apm-storm.dtsi
++++ b/arch/arm64/boot/dts/apm-storm.dtsi
+@@ -469,6 +469,12 @@
+ 					<0x0 0x7 0x4>;
+ 		};
+ 
++		i2cslimpro {
 +			compatible = "apm,xgene-slimpro-i2c";
-+			mbox = <&slimpro-mbox 0>;
++			mbox = <&mailbox 0>;
 +			mbox-names = "i2c-slimpro";
 +		};
++
+ 		serial0: serial@1c020000 {
+ 			status = "disabled";
+ 			device_type = "serial";
 -- 
 1.9.1
