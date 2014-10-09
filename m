@@ -1,38 +1,79 @@
-From: Kiran Padwal <kiran.padwal@smartplayin.com>
-Subject: [PATCH 2/3] i2c: qup: Remove .owner field for driver
-Date: Thu,  9 Oct 2014 13:08:32 +0530
-Message-ID: <1412840312-31402-1-git-send-email-kiran.padwal@smartplayin.com>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: wsa@the-dreams.de, bjorn.andersson@sonymobile.com
-Cc: agross@codeaurora.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Kiran Padwal <kiran.padwal@smartplayin.com>
+From: Alexandre Courbot <gnurou@gmail.com>
+Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
+Date: Thu, 9 Oct 2014 16:59:04 +0900
+Message-ID: <CAAVeFuLOwcS-p+zHmLoAaxZz8XFyniuYjj76XMWZpezgkD=WQw@mail.gmail.com>
+References: <1412606822-3406-1-git-send-email-muth@cypress.com>
+ <CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
+ <405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
+ <CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com> <CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: RR <rajaram.officemails@gmail.com>
+Cc: Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-There is no need to init .owner field.
+On Thu, Oct 9, 2014 at 8:46 AM, RR <rajaram.officemails@gmail.com> wrote:
+> On Wed, Oct 8, 2014 at 12:18 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
+>> On Wed, Oct 8, 2014 at 4:09 PM, Muthu Mani <muth@cypress.com> wrote:
+>>>> -----Original Message-----
+>>>> From: Alexandre Courbot [mailto:gnurou@gmail.com]
+>>>> Sent: Tuesday, October 07, 2014 3:34 PM
+>>>> To: Muthu Mani
+>>>> Cc: Samuel Ortiz; Lee Jones; Wolfram Sang; Linus Walleij; Greg Kroah-
+>>>> Hartman; linux-i2c@vger.kernel.org; linux-gpio@vger.kernel.org; linux-
+>>>> usb@vger.kernel.org; Linux Kernel Mailing List; Rajaram Regupathy; Johan
+>>>> Hovold
+>>>> Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-
+>>>> GPIO adapter
+>>>>
+>>>> On Mon, Oct 6, 2014 at 11:47 PM, Muthu Mani <muth@cypress.com> wrote:
+>>>> > +
+>>>> > +static int cy_gpio_direction_input(struct gpio_chip *chip,
+>>>> > +                                       unsigned offset) {
+>>>> > +       return 0;
+>>>> > +}
+>>>> > +
+>>>> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
+>>>> > +                                       unsigned offset, int value) {
+>>>> > +       return 0;
+>>>> > +}
+>>>>
+>>>> If that chip is capable of both output and input, shouldn't these functions be
+>>>> implemented? I think this has already been pointed out in a previous version
+>>>> but you did not reply.
+>>>
+>>> Thanks for your inputs.
+>>>
+>>> Only the GPIOs which are configured to be output GPIO can be set.
+>>
+>> In that case cy_gpio_set() should return an error for GPIOs which are
+>> not configured as outputs. Is that guaranteed by the current
+>> implementation?
+>>
+>>> The set operation would fail trying to set the input or unconfigured GPIOs.
+>>> In this version of driver, this support is not added, it can be introduced in future versions.
+>>> I will add a TODO note in the code.
+>>
+>> Argh, no TODO please. Actual code that will turn this code into a
+>> solid driver that can be merged.
+>
+> Does a driver targeted for a custom device has to implement every
+> functionality in the 1st version ? My understanding is that Linux
+> follows incremental model and allows incremental merge.
 
-Based on the patch from Peter Griffin <peter.griffin@linaro.org>
-"mmc: remove .owner field for drivers using module_platform_driver"
+Certainly, but we are talking about very basic functionality here.
 
-This patch removes the superfluous .owner field for drivers which
-use the module_platform_driver API, as this is overridden in
-platform_driver_register anyway."
+Right now this driver will incorrectly returns success when trying to
+set the direction of a GPIO, even though it did not do anything. There
+is also no hint that _set will return an error if called on an
+input/unconfigured GPIO.
 
-Signed-off-by: Kiran Padwal <kiran.padwal@smartplayin.com>
----
- drivers/i2c/busses/i2c-qup.c |    1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 3a4d64e..f14af2e 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -760,7 +760,6 @@ static struct platform_driver qup_i2c_driver = {
- 	.remove = qup_i2c_remove,
- 	.driver = {
- 		.name = "i2c_qup",
--		.owner = THIS_MODULE,
- 		.pm = &qup_i2c_qup_pm_ops,
- 		.of_match_table = qup_i2c_dt_match,
- 	},
--- 
-1.7.9.5
+So while we are not asking for a driver to be perfect on the first
+iteration, setting the direction of a GPIO is a very basic
+functionality that is essential for a GPIO driver to just work. Custom
+device or not, this is mainline. The rest of the driver seems to be
+ok, so please take the last few steps that will allow us to merge a
+featured driver.
