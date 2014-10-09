@@ -1,74 +1,112 @@
-From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 1/3] mfd: add support for Cypress CYUSBS234 USB Serial
- Bridge controller
-Date: Thu, 9 Oct 2014 10:15:20 +0200
-Message-ID: <20141009081520.GJ1990@localhost>
-References: <1412606587-3323-1-git-send-email-muth@cypress.com>
- <20141009074029.GL20647@lee--X1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] at24: extend driver to allow writing via i2c_smbus_write_byte_data
+Date: Thu,  9 Oct 2014 11:07:58 +0200
+Message-ID: <1412845678-18933-1-git-send-email-christian.gmeiner@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20141009074029.GL20647@lee--X1>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Muthu Mani <muth-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rajaram Regupathy <rera-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 09, 2014 at 08:40:29AM +0100, Lee Jones wrote:
-> On Mon, 06 Oct 2014, Muthu Mani wrote:
+I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
+bus driver. This bus driver does not support
+I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
+to be able to write the eeprom. This patch adds support for
+I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
+It is quite slow, but it works.
 
-> > +static int update_ep_details(struct usb_interface *interface,
-> > +				struct cyusbs23x *cyusbs)
-> > +{
-> > +	struct usb_host_interface *iface_desc;
-> > +	struct usb_endpoint_descriptor *ep;
-> > +	int i;
-> > +
-> > +	iface_desc = interface->cur_altsetting;
-> > +
-> > +	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
-> > +
-> > +		ep = &iface_desc->endpoint[i].desc;
-> > +
-> > +		if (!cyusbs->bulk_in_ep_num && usb_endpoint_is_bulk_in(ep))
-> > +			cyusbs->bulk_in_ep_num = ep->bEndpointAddress;
-> > +		if (!cyusbs->bulk_out_ep_num && usb_endpoint_is_bulk_out(ep))
-> > +			cyusbs->bulk_out_ep_num = ep->bEndpointAddress;
-> > +		if (!cyusbs->intr_in_ep_num && usb_endpoint_is_int_in(ep))
-> > +			cyusbs->intr_in_ep_num = ep->bEndpointAddress;
-> > +	}
-> 
-> All of the USB specific code in this driver will require a USB Ack.
+Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/misc/eeprom/at24.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
-I'll review it once the incomplete gpio-driver issue has been resolved.
-
-> > +	dev_dbg(&interface->dev, "%s intr_in=%d, bulk_in=%d, bulk_out=%d\n",
-> > +		__func__, cyusbs->intr_in_ep_num ,
-> > +		cyusbs->bulk_in_ep_num, cyusbs->bulk_out_ep_num);
-> > +
-> > +	if (!cyusbs->bulk_in_ep_num || !cyusbs->bulk_out_ep_num ||
-> > +		!cyusbs->intr_in_ep_num)
-> > +		return -ENODEV;
-> > +
-> > +	return 0;
-> > +}
-
-[...]
-
-> > diff --git a/include/linux/mfd/cyusbs23x.h b/include/linux/mfd/cyusbs23x.h
-
-> > +/* Serial interfaces (I2C, SPI, UART) differ in interface subclass */
-> > +enum cy_scb_modes {
-> > +	CY_USBS_SCB_DISABLED = 0,
-> > +	CY_USBS_SCB_UART = 1,
-> > +	CY_USBS_SCB_SPI = 2,
-> > +	CY_USBS_SCB_I2C = 3
-> 
-> No need to number these.
-
-As it's not an arbitrary enumeration, I think they should be initialised
-explicitly. They could be defined in the mfd driver though, as they only
-appear to be needed during probe.
-
-Johan
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index d87f77f..f51daac 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -56,6 +56,7 @@ struct at24_data {
+ 	struct at24_platform_data chip;
+ 	struct memory_accessor macc;
+ 	int use_smbus;
++	int use_smbuse_write;
+ 
+ 	/*
+ 	 * Lock protects against activities from other Linux tasks,
+@@ -324,7 +325,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ {
+ 	struct i2c_client *client;
+ 	struct i2c_msg msg;
+-	ssize_t status;
++	ssize_t status = 0;
+ 	unsigned long timeout, write_time;
+ 	unsigned next_page;
+ 
+@@ -365,9 +366,18 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ 	timeout = jiffies + msecs_to_jiffies(write_timeout);
+ 	do {
+ 		write_time = jiffies;
+-		if (at24->use_smbus) {
+-			status = i2c_smbus_write_i2c_block_data(client,
+-					offset, count, buf);
++		if (at24->use_smbuse_write) {
++			switch (at24->use_smbuse_write) {
++			case I2C_SMBUS_I2C_BLOCK_DATA:
++				status = i2c_smbus_write_i2c_block_data(client,
++						offset, count, buf);
++				break;
++			case I2C_SMBUS_BYTE_DATA:
++				status = i2c_smbus_write_byte_data(client,
++						offset, buf[0]);
++				break;
++			}
++
+ 			if (status == 0)
+ 				status = count;
+ 		} else {
+@@ -487,6 +497,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct at24_platform_data chip;
+ 	bool writable;
+ 	int use_smbus = 0;
++	int use_smbus_write = 0;
+ 	struct at24_data *at24;
+ 	int err;
+ 	unsigned i, num_addresses;
+@@ -546,6 +557,18 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		}
+ 	}
+ 
++	/* Use I2C operations unless we're stuck with SMBus extensions. */
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		if (i2c_check_functionality(client->adapter,
++				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
++			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
++		} else if (i2c_check_functionality(client->adapter,
++				I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
++			use_smbus_write = I2C_SMBUS_BYTE_DATA;
++			chip.page_size = 1;
++		}
++	}
++
+ 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
+ 		num_addresses = 8;
+ 	else
+@@ -559,6 +582,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	mutex_init(&at24->lock);
+ 	at24->use_smbus = use_smbus;
++	at24->use_smbuse_write = use_smbus_write;
+ 	at24->chip = chip;
+ 	at24->num_addresses = num_addresses;
+ 
+@@ -576,8 +600,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	writable = !(chip.flags & AT24_FLAG_READONLY);
+ 	if (writable) {
+-		if (!use_smbus || i2c_check_functionality(client->adapter,
+-				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
++		if (!use_smbus || use_smbus_write) {
+ 
+ 			unsigned write_max = chip.page_size;
+ 
+-- 
+1.9.3
