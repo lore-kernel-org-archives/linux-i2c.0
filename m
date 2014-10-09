@@ -1,81 +1,204 @@
-From: RR <rajaram.officemails@gmail.com>
-Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
-Date: Wed, 8 Oct 2014 16:46:55 -0700
-Message-ID: <CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
-References: <1412606822-3406-1-git-send-email-muth@cypress.com>
-	<CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
-	<405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
-	<CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Alexandre Courbot <gnurou@gmail.com>
-Cc: Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
+From: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v4] i2c: rk3x: adjust the LOW divison based on characteristics of SCL
+Date: Thu,  9 Oct 2014 14:47:15 +0800
+Message-ID: <1412837235-4202-1-git-send-email-addy.ke@rock-chips.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 8, 2014 at 12:18 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
-> On Wed, Oct 8, 2014 at 4:09 PM, Muthu Mani <muth@cypress.com> wrote:
->>> -----Original Message-----
->>> From: Alexandre Courbot [mailto:gnurou@gmail.com]
->>> Sent: Tuesday, October 07, 2014 3:34 PM
->>> To: Muthu Mani
->>> Cc: Samuel Ortiz; Lee Jones; Wolfram Sang; Linus Walleij; Greg Kroah-
->>> Hartman; linux-i2c@vger.kernel.org; linux-gpio@vger.kernel.org; linux-
->>> usb@vger.kernel.org; Linux Kernel Mailing List; Rajaram Regupathy; Johan
->>> Hovold
->>> Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-
->>> GPIO adapter
->>>
->>> On Mon, Oct 6, 2014 at 11:47 PM, Muthu Mani <muth@cypress.com> wrote:
->>> > +
->>> > +static int cy_gpio_direction_input(struct gpio_chip *chip,
->>> > +                                       unsigned offset) {
->>> > +       return 0;
->>> > +}
->>> > +
->>> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
->>> > +                                       unsigned offset, int value) {
->>> > +       return 0;
->>> > +}
->>>
->>> If that chip is capable of both output and input, shouldn't these functions be
->>> implemented? I think this has already been pointed out in a previous version
->>> but you did not reply.
->>
->> Thanks for your inputs.
->>
->> Only the GPIOs which are configured to be output GPIO can be set.
->
-> In that case cy_gpio_set() should return an error for GPIOs which are
-> not configured as outputs. Is that guaranteed by the current
-> implementation?
->
->> The set operation would fail trying to set the input or unconfigured GPIOs.
->> In this version of driver, this support is not added, it can be introduced in future versions.
->> I will add a TODO note in the code.
->
-> Argh, no TODO please. Actual code that will turn this code into a
-> solid driver that can be merged.
+As show in I2C specification:
+- Standard-mode: the minimum HIGH period of the scl clock is 4.0us
+                 the minimum LOW period of the scl clock is 4.7us
+- Fast-mode: the minimum HIGH period of the scl clock is 0.6us
+             the minimum LOW period of the scl clock is 1.3us
 
-Does a driver targeted for a custom device has to implement every
-functionality in the 1st version ? My understanding is that Linux
-follows incremental model and allows incremental merge.
+I have measured i2c SCL waveforms in fast-mode by oscilloscope
+on rk3288-pinky board. the LOW period of the scl clock is 1.3us.
+It is so critical that we must adjust LOW division to increase
+the LOW period of the scl clock.
 
-(On a side note the driver is functionally verified with the necessary hardware)
+Thanks Doug for the suggestion about division formulas.
 
-Please correct me if I am missing something
+Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Tested-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+---
+Changes in v2:
+- remove Fast-mode plus and HS-mode
+- use new formulas suggested by Doug
+Changes in V3:
+- use new formulas (sep 30) suggested by Doug
+Changes in V3:
+- fix some wrong style
+- WARN_ONCE if min_low_div > max_low_div
 
->
-> Can all GPIOs be set as input or output? If so, please implement
-> cy_gpio_direction_*() and make sure that cy_gpio_set() behaves
-> properly if a GPIO is not an output. If the input/output GPIOs are
-> fixed, please make cy_gpio_direction_*() return an error if the GPIO
-> capabilities does not correspond to what is asked, and again ensure
-> that cy_gpio_set() works as expected.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ drivers/i2c/busses/i2c-rk3x.c | 140 +++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 133 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index b41d979..f17f7a2 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -24,6 +24,7 @@
+ #include <linux/wait.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
++#include <linux/math64.h>
+ 
+ 
+ /* Register Map */
+@@ -428,18 +429,143 @@ out:
+ 	return IRQ_HANDLED;
+ }
+ 
++static void rk3x_i2c_calc_divs(unsigned long i2c_rate, unsigned long scl_rate,
++			       unsigned long *div_low, unsigned long *div_high)
++{
++	unsigned long min_low_ns, min_high_ns;
++	unsigned long max_data_hold_ns;
++	unsigned long data_hold_buffer_ns;
++	unsigned long max_low_ns, min_total_ns;
++
++	unsigned long i2c_rate_khz, scl_rate_khz;
++
++	unsigned long min_low_div, min_high_div;
++	unsigned long max_low_div;
++
++	unsigned long min_div_for_hold, min_total_div;
++	unsigned long extra_div, extra_low_div, ideal_low_div;
++
++	/* Only support standard-mode and fast-mode */
++	WARN_ON(scl_rate > 400000);
++
++	/*
++	 * min_low_ns:  The minimum number of ns we need to hold low
++	 *		to meet i2c spec
++	 * min_high_ns: The minimum number of ns we need to hold high
++	 *		to meet i2c spec
++	 * max_low_ns:  The maximum number of ns we can hold low
++	 *		to meet i2c spec
++	 *
++	 * Note: max_low_ns should be (max data hold time * 2 - buffer)
++	 *	 This is because the i2c host on Rockchip holds the data line
++	 *	 for half the low time.
++	 */
++	if (scl_rate <= 100000) {
++		min_low_ns = 4700;
++		min_high_ns = 4000;
++		max_data_hold_ns = 3450;
++		data_hold_buffer_ns = 50;
++	} else {
++		min_low_ns = 1300;
++		min_high_ns = 600;
++		max_data_hold_ns = 900;
++		data_hold_buffer_ns = 50;
++	}
++	max_low_ns = max_data_hold_ns * 2 - data_hold_buffer_ns;
++	min_total_ns = min_low_ns + min_high_ns;
++
++	/* Adjust to avoid overflow */
++	i2c_rate_khz = DIV_ROUND_UP(i2c_rate, 1000);
++	scl_rate_khz = DIV_ROUND_UP(scl_rate, 1000);
++
++	/*
++	 * We need the total div to be >= this number
++	 * so we don't clock too fast.
++	 */
++	min_total_div = DIV_ROUND_UP(i2c_rate_khz, scl_rate_khz * 8);
++
++	/* These are the min dividers needed for min hold times. */
++	min_low_div = DIV_ROUND_UP(i2c_rate_khz * min_low_ns, 8 * 1000000);
++	min_high_div = DIV_ROUND_UP(i2c_rate_khz * min_high_ns, 8 * 1000000);
++	min_div_for_hold = (min_low_div + min_high_div);
++
++	/*
++	 * This is the maximum divider so we don't go over the max.
++	 * We don't round up here (we round down) since this is a max.
++	 */
++	max_low_div = i2c_rate_khz * max_low_ns / (8 * 1000000);
++
++	if (min_low_div > max_low_div) {
++		WARN_ONCE(true,
++			  "Conflicting, min_low_div %lu, max_low_div %lu\n",
++			  min_low_div, max_low_div);
++		max_low_div = min_low_div;
++	}
++
++	if (min_div_for_hold > min_total_div) {
++		/*
++		 * Time needed to meet hold requirements is important.
++		 * Just use that.
++		 */
++		*div_low = min_low_div;
++		*div_high = min_high_div;
++	} else {
++		/*
++		 * We've got to distribute some time among the low and high
++		 * so we don't run too fast.
++		 */
++		extra_div = min_total_div - min_div_for_hold;
++
++		/*
++		 * We'll try to split things up perfectly evenly,
++		 * biasing slightly towards having a higher div
++		 * for low (spend more time low).
++		 */
++		ideal_low_div = DIV_ROUND_UP(i2c_rate_khz * min_low_ns,
++					     scl_rate_khz * 8 * min_total_ns);
++
++		/* Don't allow it to go over the max */
++		if (ideal_low_div > max_low_div)
++			ideal_low_div = max_low_div;
++
++		/*
++		 * Handle when the ideal low div is going to take up
++		 * more than we have.
++		 */
++		if (ideal_low_div > min_low_div + extra_div)
++			ideal_low_div = min_low_div + extra_div;
++
++		/* Give low the "ideal" and give high whatever extra is left */
++		extra_low_div = ideal_low_div - min_low_div;
++		*div_low = ideal_low_div;
++		*div_high = min_high_div + (extra_div - extra_low_div);
++	}
++
++	/*
++	* Adjust to the fact that the hardware has an implicit "+1".
++	* NOTE: Above calculations always produce div_low > 0 and  div_high > 0.
++	*/
++	*div_low = *div_low - 1;
++	*div_high = *div_high - 1;
++}
++
+ static void rk3x_i2c_set_scl_rate(struct rk3x_i2c *i2c, unsigned long scl_rate)
+ {
+ 	unsigned long i2c_rate = clk_get_rate(i2c->clk);
+-	unsigned int div;
++	unsigned long div_low, div_high;
++	u64 t_low_ns, t_high_ns;
+ 
+-	/* set DIV = DIVH = DIVL
+-	 * SCL rate = (clk rate) / (8 * (DIVH + 1 + DIVL + 1))
+-	 *          = (clk rate) / (16 * (DIV + 1))
+-	 */
+-	div = DIV_ROUND_UP(i2c_rate, scl_rate * 16) - 1;
++	rk3x_i2c_calc_divs(i2c_rate, scl_rate, &div_low, &div_high);
++
++	i2c_writel(i2c, (div_high << 16) | (div_low & 0xffff), REG_CLKDIV);
+ 
+-	i2c_writel(i2c, (div << 16) | (div & 0xffff), REG_CLKDIV);
++	t_low_ns = div_u64(((u64)div_low + 1) * 8 * 1000000000, i2c_rate);
++	t_high_ns = div_u64(((u64)div_high + 1) * 8 * 1000000000, i2c_rate);
++	dev_dbg(i2c->dev,
++		"CLK %lukhz, Req %luns, Act low %lluns high %lluns\n",
++		i2c_rate / 1000,
++		1000000000 / scl_rate,
++		t_low_ns, t_high_ns);
+ }
+ 
+ /**
+-- 
+1.8.3.2
