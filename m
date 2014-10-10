@@ -1,75 +1,70 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: arc platform code updates (was Re: [PATCH 2/2] i2c: designware:
- Add support for AMD I2C controller)
-Date: Fri, 10 Oct 2014 11:13:57 +0200
-Message-ID: <20141010091356.GA16492@ab42.lan>
-References: <20140920093633.GG1612@katana>
- <20140922091207.GJ1786@lahna.fi.intel.com>
- <20140922122905.GA13321@ab42.lan>
- <C2D7FE5348E1B147BCA15975FBA230753C5DA425@IN01WEMBXA.internal.synopsys.com>
- <20140922140020.GB1786@lahna.fi.intel.com>
- <C2D7FE5348E1B147BCA15975FBA230753C5DA47D@IN01WEMBXA.internal.synopsys.com>
- <20140922172251.GA30685@ab42.lan>
- <5424E27C.2090302@synopsys.com>
- <20141007093004.GB30162@ab42.lan>
- <C2D7FE5348E1B147BCA15975FBA230753C5E4C98@IN01WEMBXA.internal.synopsys.com>
+From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v7 1/4] mfd: add support for Diolan DLN-2 devices
+Date: Fri, 10 Oct 2014 11:14:34 +0200
+Message-ID: <20141010091434.GB12494@localhost>
+References: <1412882541-10934-1-git-send-email-octavian.purdila@intel.com>
+ <1412882541-10934-2-git-send-email-octavian.purdila@intel.com>
+ <1412883877.2975.26.camel@joe-AO725>
+ <CAE1zotJTQATJkTQinnWOg=NJbG+SWzNNdgB2uVEJgubnhtyXbA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <C2D7FE5348E1B147BCA15975FBA230753C5E4C98-uUKrqVzojAgF5QVroWrzJvufCSb+aD3WLzEdoUbNIic@public.gmane.org>
+In-Reply-To: <CAE1zotJTQATJkTQinnWOg=NJbG+SWzNNdgB2uVEJgubnhtyXbA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Cc: "linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org" <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 07, 2014 at 12:35:29PM +0000, Vineet Gupta wrote:
-> +CC Guenter Roeck
-> [...]
-> > However, the kernel-doc comment for init_machine in
-> > mach_desc.h is now slightly confusing (still mentioning device tree).
+On Thu, Oct 09, 2014 at 11:27:12PM +0300, Octavian Purdila wrote:
+> On Thu, Oct 9, 2014 at 10:44 PM, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org> wrote:
+> > On Thu, 2014-10-09 at 22:22 +0300, Octavian Purdila wrote:
+
+> >> diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+> > []
+> > +struct dln2_mod_rx_slots {
+> > +       /* RX slots bitmap */
+> > +       unsigned long bmap;
+> >
+> > Probably better as:
+> >         DECLARE_BITMAP(bmap, DLN2_MAX_RX_SLOTS);
+> >
+> > Then a lot of &ptr->bmap uses can be ptr->bmap
+> >
 > 
-> A platform of future can still call of_platform_populate() etc to reparse the
-> stuff for say it's platform devices !
-> So I would think it is still relevant !
+> Originally I was using DECLARE_BITMAP, but during the review process
+> Johan suggested to use unsigned long. Now that I think about it, it
+> sounds better to use DECLARE_BITMAP and of couse keep using
+> find_first_bit, set_bit, etc. Johan do you see any issue with that?
 
-OK.
+No, that's fine as long as you keep the bitops.
 
-> > With this patch there remains only a single detail we need to manage
-> > through platform-specific code: the reset handler. Today we still
-> > provide a patch for the machine_restart function in reset.c to our
-> > customers so that rebooting from the command line works. Do you have any
-> > plans/ideas to fix this one as well?
+> >> +struct dln2_dev {
+> >> +     struct usb_device *usb_dev;
+> >> +     struct usb_interface *interface;
+> >> +     u8 ep_in;
+> >> +     u8 ep_out;
+> >> +
+> >> +     struct urb *rx_urb[DLN2_MAX_URBS];
+> >> +     void *rx_buf[DLN2_MAX_URBS];
+> >> +
+> >> +     struct dln2_mod_rx_slots mod_rx_slots[DLN2_HANDLES];
+> >> +
+> >> +     struct list_head event_cb_list;
+> >> +     spinlock_t event_cb_lock;
+> >> +
+> >> +     bool disconnect;
+> >> +     int active_transfers;
+> >> +     wait_queue_head_t disconnect_wq;
+> >> +     spinlock_t disconnect_lock;
+> >> +};
+> >
+> > Maybe reorder the bools and u8s to pack this a bit better?
 > 
-> Patches are welcome ;-)
-> 
-> ATM, I dont have a specific use-case for my current platforms, so can't write the
-> code - you can propose a patch and then we can work out what's best in general for
-> all ARC platforms. BTW there's a series in flight on related topic from Guenter so
-> please take a look at that too for big picture !
-> 
-> http://www.spinics.net/linux/lists/kernel/msg1840650.html
+> I prefer to keep it this way, it's not wasting a lot since you will
+> only have a handful of these devices, and it keeps the related data
+> together.
 
-Actually, before sending my previous mail I looked at the current
-implementation of the halt hook and didn't like it (otherwise I would
-have proposed something in the lines). So this one is definitely a step
-forward! I'm wondering about two things concerning reset, however:
+I agree.
 
-1. Is the PM module the right place for a reset handler? On the one hand
-   reset is functionally very similar to power off but on the other hand
-   reset is technically not a power management functionality. If the PM
-   module is not the right place, which would be the right place
-   instead?
-
-2. What would be the desired behaviour/semantics for a reset handler
-   chain equivalent to the power off handler chain. I see two
-   possibilities here:
-   a) Implementation exactly like power off. Every handler is expected
-      to reset the entire system and never returns.
-   b) A more "modular" implementation where different subsystems are
-      being reset sequentially (e.g. first reset peripherals through
-      GPIO in "high priority" handlers and finally reset the core in the
-      terminal "low priority" handler).
-
-Greetings,
-  Christian
+Johan
