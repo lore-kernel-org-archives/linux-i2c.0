@@ -1,127 +1,75 @@
-From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v7 1/4] mfd: add support for Diolan DLN-2 devices
-Date: Thu, 9 Oct 2014 23:27:12 +0300
-Message-ID: <CAE1zotJTQATJkTQinnWOg=NJbG+SWzNNdgB2uVEJgubnhtyXbA@mail.gmail.com>
-References: <1412882541-10934-1-git-send-email-octavian.purdila@intel.com>
-	<1412882541-10934-2-git-send-email-octavian.purdila@intel.com>
-	<1412883877.2975.26.camel@joe-AO725>
+From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: arc platform code updates (was Re: [PATCH 2/2] i2c: designware:
+ Add support for AMD I2C controller)
+Date: Fri, 10 Oct 2014 11:13:57 +0200
+Message-ID: <20141010091356.GA16492@ab42.lan>
+References: <20140920093633.GG1612@katana>
+ <20140922091207.GJ1786@lahna.fi.intel.com>
+ <20140922122905.GA13321@ab42.lan>
+ <C2D7FE5348E1B147BCA15975FBA230753C5DA425@IN01WEMBXA.internal.synopsys.com>
+ <20140922140020.GB1786@lahna.fi.intel.com>
+ <C2D7FE5348E1B147BCA15975FBA230753C5DA47D@IN01WEMBXA.internal.synopsys.com>
+ <20140922172251.GA30685@ab42.lan>
+ <5424E27C.2090302@synopsys.com>
+ <20141007093004.GB30162@ab42.lan>
+ <C2D7FE5348E1B147BCA15975FBA230753C5E4C98@IN01WEMBXA.internal.synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1412883877.2975.26.camel@joe-AO725>
+Content-Disposition: inline
+In-Reply-To: <C2D7FE5348E1B147BCA15975FBA230753C5E4C98-uUKrqVzojAgF5QVroWrzJvufCSb+aD3WLzEdoUbNIic@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Cc: "linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org" <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Carl Peng <carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Rui <ray.huang-5C7GfCeVMHo@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 9, 2014 at 10:44 PM, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org> wrote:
-> On Thu, 2014-10-09 at 22:22 +0300, Octavian Purdila wrote:
->> This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
->> Master Adapter DLN-2. Details about the device can be found here:
->
-> trivia:
->
->> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> []
->> +config MFD_DLN2
->> +     tristate "Diolan DLN2 support"
->> +     select MFD_CORE
->> +     depends on USB
->> +     help
->> +       This adds support for Diolan USB-I2C/SPI/GPIO Master Adapter DLN-2.
->> +       Additional drivers must be enabled in order to use the functionality
->> +       of the device.
->
-> additional drivers like...
->
+On Tue, Oct 07, 2014 at 12:35:29PM +0000, Vineet Gupta wrote:
+> +CC Guenter Roeck
+> [...]
+> > However, the kernel-doc comment for init_machine in
+> > mach_desc.h is now slightly confusing (still mentioning device tree).
+> 
+> A platform of future can still call of_platform_populate() etc to reparse the
+> stuff for say it's platform devices !
+> So I would think it is still relevant !
 
-I will rephrase.
+OK.
 
->> diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-> []
-> +struct dln2_mod_rx_slots {
-> +       /* RX slots bitmap */
-> +       unsigned long bmap;
->
-> Probably better as:
->         DECLARE_BITMAP(bmap, DLN2_MAX_RX_SLOTS);
->
-> Then a lot of &ptr->bmap uses can be ptr->bmap
->
+> > With this patch there remains only a single detail we need to manage
+> > through platform-specific code: the reset handler. Today we still
+> > provide a patch for the machine_restart function in reset.c to our
+> > customers so that rebooting from the command line works. Do you have any
+> > plans/ideas to fix this one as well?
+> 
+> Patches are welcome ;-)
+> 
+> ATM, I dont have a specific use-case for my current platforms, so can't write the
+> code - you can propose a patch and then we can work out what's best in general for
+> all ARC platforms. BTW there's a series in flight on related topic from Guenter so
+> please take a look at that too for big picture !
+> 
+> http://www.spinics.net/linux/lists/kernel/msg1840650.html
 
-Originally I was using DECLARE_BITMAP, but during the review process
-Johan suggested to use unsigned long. Now that I think about it, it
-sounds better to use DECLARE_BITMAP and of couse keep using
-find_first_bit, set_bit, etc. Johan do you see any issue with that?
+Actually, before sending my previous mail I looked at the current
+implementation of the halt hook and didn't like it (otherwise I would
+have proposed something in the lines). So this one is definitely a step
+forward! I'm wondering about two things concerning reset, however:
 
->> +struct dln2_dev {
->> +     struct usb_device *usb_dev;
->> +     struct usb_interface *interface;
->> +     u8 ep_in;
->> +     u8 ep_out;
->> +
->> +     struct urb *rx_urb[DLN2_MAX_URBS];
->> +     void *rx_buf[DLN2_MAX_URBS];
->> +
->> +     struct dln2_mod_rx_slots mod_rx_slots[DLN2_HANDLES];
->> +
->> +     struct list_head event_cb_list;
->> +     spinlock_t event_cb_lock;
->> +
->> +     bool disconnect;
->> +     int active_transfers;
->> +     wait_queue_head_t disconnect_wq;
->> +     spinlock_t disconnect_lock;
->> +};
->
-> Maybe reorder the bools and u8s to pack this a bit better?
->
+1. Is the PM module the right place for a reset handler? On the one hand
+   reset is functionally very similar to power off but on the other hand
+   reset is technically not a power management functionality. If the PM
+   module is not the right place, which would be the right place
+   instead?
 
-I prefer to keep it this way, it's not wasting a lot since you will
-only have a handful of these devices, and it keeps the related data
-together.
+2. What would be the desired behaviour/semantics for a reset handler
+   chain equivalent to the power off handler chain. I see two
+   possibilities here:
+   a) Implementation exactly like power off. Every handler is expected
+      to reset the entire system and never returns.
+   b) A more "modular" implementation where different subsystems are
+      being reset sequentially (e.g. first reset peripherals through
+      GPIO in "high priority" handlers and finally reset the core in the
+      terminal "low priority" handler).
 
->> +int dln2_register_event_cb(struct platform_device *pdev, u16 id,
->> +                        dln2_event_cb_t rx_cb)
->> +{
->> +     struct dln2_dev *dln2 = dev_get_drvdata(pdev->dev.parent);
->> +     struct dln2_event_cb_entry *i, *new;
->
-> new isn't a very good name
->
-
-Yes, new_cb should be better.
-
->> +static void dln2_run_event_callbacks(struct dln2_dev *dln2, u16 id, u16 echo,
->> +                                  void *data, int len)
->> +{
->> +     struct dln2_event_cb_entry *i;
->> +
->> +     rcu_read_lock();
->> +
->> +     list_for_each_entry_rcu(i, &dln2->event_cb_list, list)
->> +             if (i->id == id)
->> +                     i->callback(i->pdev, echo, data, len);
->
-> probably nicer with braces
->
->> +static int dln2_setup_rx_urbs(struct dln2_dev *dln2,
->> +                           struct usb_host_interface *hostif)
->> +{
->> +     int i;
->> +     const int rx_max_size = DLN2_RX_BUF_SIZE;
->> +
->> +     for (i = 0; i < DLN2_MAX_URBS; i++) {
->> +             int ret;
->> +             struct device *dev = &dln2->interface->dev;
->> +
->> +             dln2->rx_buf[i] = kmalloc(rx_max_size, GFP_KERNEL);
->> +             if (!dln2->rx_buf[i])
->> +                     return -ENOMEM;
->
-> memory leaks on failure?
->
-
-No, dln2_free_rx_urbs will do the cleanup (even in case of failures above).
-
-Thanks for the review Joe.
+Greetings,
+  Christian
