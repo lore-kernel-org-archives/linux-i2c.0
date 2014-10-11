@@ -1,13 +1,11 @@
 From: Yuan Yao <yao.yuan@freescale.com>
-Subject: [PATCH v9 3/3] i2c: imx: add DMA support for freescale i2c driver
-Date: Sat, 11 Oct 2014 18:57:12 +0800
-Message-ID: <1413025032-14958-4-git-send-email-yao.yuan@freescale.com>
-References: <1413025032-14958-1-git-send-email-yao.yuan@freescale.com>
+Subject: [PATCH v9 0/3] i2c: imx: add DMA support for freescale i2c driver
+Date: Sat, 11 Oct 2014 18:57:09 +0800
+Message-ID: <1413025032-14958-1-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1413025032-14958-1-git-send-email-yao.yuan@freescale.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -21,458 +19,349 @@ To: wsa@the-dreams.de, marex@denx.de
 Cc: mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-arm-kernel@lists.infradead.org, LW@KARO-electronics.de
 List-Id: linux-i2c@vger.kernel.org
 
-Add dma support for i2c. This function depend on DMA driver.
-You can turn on it by write both the dmas and dma-name properties in dts node.
-DMA is optional, even DMA request unsuccessfully, i2c can also work well.
-
-Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
----
- drivers/i2c/busses/i2c-imx.c | 327 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 325 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 2452b57..e58c771 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -38,7 +38,11 @@
- *******************************************************************************/
- 
- #include <linux/clk.h>
-+#include <linux/completion.h>
- #include <linux/delay.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/dmaengine.h>
-+#include <linux/dmapool.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-@@ -49,6 +53,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/of_dma.h>
- #include <linux/platform_data/i2c-imx.h>
- #include <linux/platform_device.h>
- #include <linux/sched.h>
-@@ -63,6 +68,13 @@
- /* Default value */
- #define IMX_I2C_BIT_RATE	100000	/* 100kHz */
- 
-+/*
-+ * Enable DMA if transfer byte size is bigger than this threshold.
-+ * As the hardware request, it must bigger than 4 bytes.
-+ */
-+#define IMX_I2C_DMA_THRESHOLD	16
-+#define IMX_I2C_DMA_TIMEOUT	1000
-+
- /* IMX I2C registers:
-  * the I2C register offset is different between SoCs,
-  * to provid support for all these chips, split the
-@@ -88,6 +100,7 @@
- #define I2SR_IBB	0x20
- #define I2SR_IAAS	0x40
- #define I2SR_ICF	0x80
-+#define I2CR_DMAEN	0x02
- #define I2CR_RSTA	0x04
- #define I2CR_TXAK	0x08
- #define I2CR_MTX	0x10
-@@ -174,6 +187,17 @@ struct imx_i2c_hwdata {
- 	unsigned		i2cr_ien_opcode;
- };
- 
-+struct imx_i2c_dma {
-+	struct dma_chan		*chan_tx;
-+	struct dma_chan		*chan_rx;
-+	struct dma_chan		*chan_using;
-+	struct completion	cmd_complete;
-+	dma_addr_t		dma_buf;
-+	unsigned int		dma_len;
-+	unsigned int		dma_transfer_dir;
-+	unsigned int		dma_data_dir;
-+};
-+
- struct imx_i2c_struct {
- 	struct i2c_adapter	adapter;
- 	struct clk		*clk;
-@@ -186,6 +210,8 @@ struct imx_i2c_struct {
- 	unsigned int		cur_clk;
- 	unsigned int		bitrate;
- 	const struct imx_i2c_hwdata	*hwdata;
-+
-+	struct imx_i2c_dma	*dma;
- };
- 
- static const struct imx_i2c_hwdata imx1_i2c_hwdata  = {
-@@ -256,6 +282,132 @@ static inline unsigned char imx_i2c_read_reg(struct imx_i2c_struct *i2c_imx,
- 	return readb(i2c_imx->base + (reg << i2c_imx->hwdata->regshift));
- }
- 
-+/* Functions for DMA support */
-+static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
-+						dma_addr_t phy_addr)
-+{
-+	struct imx_i2c_dma *dma;
-+	struct dma_slave_config dma_sconfig;
-+	struct device *dev = &i2c_imx->adapter.dev;
-+	int ret;
-+
-+	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
-+	if (!dma)
-+		return -ENOMEM;
-+
-+	dma->chan_tx = dma_request_slave_channel(dev, "tx");
-+	if (!dma->chan_tx) {
-+		dev_dbg(dev, "can't request DMA tx channel\n");
-+		ret = -ENODEV;
-+		goto fail_al;
-+	}
-+
-+	dma_sconfig.dst_addr = phy_addr +
-+				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
-+	dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
-+	dma_sconfig.dst_maxburst = 1;
-+	dma_sconfig.direction = DMA_MEM_TO_DEV;
-+	ret = dmaengine_slave_config(dma->chan_tx, &dma_sconfig);
-+	if (ret < 0) {
-+		dev_dbg(dev, "can't configure tx channel\n");
-+		goto fail_tx;
-+	}
-+
-+	dma->chan_rx = dma_request_slave_channel(dev, "rx");
-+	if (!dma->chan_rx) {
-+		dev_dbg(dev, "can't request DMA rx channel\n");
-+		ret = -ENODEV;
-+		goto fail_tx;
-+	}
-+
-+	dma_sconfig.src_addr = phy_addr +
-+				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
-+	dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
-+	dma_sconfig.src_maxburst = 1;
-+	dma_sconfig.direction = DMA_DEV_TO_MEM;
-+	ret = dmaengine_slave_config(dma->chan_rx, &dma_sconfig);
-+	if (ret < 0) {
-+		dev_dbg(dev, "can't configure rx channel\n");
-+		goto fail_rx;
-+	}
-+
-+	i2c_imx->dma = dma;
-+	init_completion(&dma->cmd_complete);
-+	dev_info(dev, "using %s (tx) and %s (rx) for DMA transfers\n",
-+		dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
-+
-+	return 0;
-+
-+fail_rx:
-+	dma_release_channel(dma->chan_rx);
-+fail_tx:
-+	dma_release_channel(dma->chan_tx);
-+fail_al:
-+	devm_kfree(dev, dma);
-+	dev_info(dev, "can't use DMA\n");
-+
-+	return ret;
-+}
-+
-+static void i2c_imx_dma_callback(void *arg)
-+{
-+	struct imx_i2c_struct *i2c_imx = (struct imx_i2c_struct *)arg;
-+	struct imx_i2c_dma *dma = i2c_imx->dma;
-+
-+	dma_unmap_single(dma->chan_using->device->dev, dma->dma_buf,
-+			dma->dma_len, dma->dma_data_dir);
-+	complete(&dma->cmd_complete);
-+}
-+
-+static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
-+					struct i2c_msg *msgs)
-+{
-+	struct imx_i2c_dma *dma = i2c_imx->dma;
-+	struct dma_async_tx_descriptor *txdesc;
-+	struct device *dev = &i2c_imx->adapter.dev;
-+	struct device *chan_dev = dma->chan_using->device->dev;
-+
-+	dma->dma_buf = dma_map_single(chan_dev, msgs->buf,
-+					dma->dma_len, dma->dma_data_dir);
-+	if (dma_mapping_error(chan_dev, dma->dma_buf)) {
-+		dev_err(dev, "DMA mapping failed\n");
-+		return -EINVAL;
-+	}
-+
-+	txdesc = dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
-+					dma->dma_len, dma->dma_transfer_dir,
-+					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-+	if (!txdesc) {
-+		dev_err(dev, "Not able to get desc for DMA xfer\n");
-+		dma_unmap_single(chan_dev, dma->dma_buf,
-+					dma->dma_len, dma->dma_data_dir);
-+		return -EINVAL;
-+	}
-+
-+	txdesc->callback = i2c_imx_dma_callback;
-+	txdesc->callback_param = i2c_imx;
-+	dmaengine_submit(txdesc);
-+	dma_async_issue_pending(dma->chan_using);
-+
-+	return 0;
-+}
-+
-+static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
-+{
-+	struct imx_i2c_dma *dma = i2c_imx->dma;
-+
-+	dma->dma_buf = 0;
-+	dma->dma_len = 0;
-+
-+	dma_release_channel(dma->chan_tx);
-+	dma->chan_tx = NULL;
-+
-+	dma_release_channel(dma->chan_rx);
-+	dma->chan_rx = NULL;
-+
-+	dma->chan_using = NULL;
-+}
-+
- /** Functions for IMX I2C adapter driver ***************************************
- *******************************************************************************/
- 
-@@ -387,6 +539,7 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
- 	i2c_imx->stopped = 0;
- 
- 	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
-+	temp &= ~I2CR_DMAEN;
- 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 	return result;
- }
-@@ -400,6 +553,8 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
-+		if (i2c_imx->dma)
-+			temp &= ~I2CR_DMAEN;
- 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 	}
- 	if (is_imx1_i2c(i2c_imx)) {
-@@ -440,6 +595,159 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
- 	return IRQ_NONE;
- }
- 
-+static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-+					struct i2c_msg *msgs)
-+{
-+	int result;
-+	unsigned int temp = 0;
-+	unsigned long orig_jiffies = jiffies;
-+	struct imx_i2c_dma *dma = i2c_imx->dma;
-+	struct device *dev = &i2c_imx->adapter.dev;
-+
-+	dma->chan_using = dma->chan_tx;
-+	dma->dma_transfer_dir = DMA_MEM_TO_DEV;
-+	dma->dma_data_dir = DMA_TO_DEVICE;
-+	dma->dma_len = msgs->len - 1;
-+	result = i2c_imx_dma_xfer(i2c_imx, msgs);
-+	if (result)
-+		return result;
-+
-+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+	temp |= I2CR_DMAEN;
-+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+	/*
-+	 * Write slave address.
-+	 * The first byte must be transmitted by the CPU.
-+	 */
-+	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
-+	reinit_completion(&i2c_imx->dma->cmd_complete);
-+	result = wait_for_completion_interruptible_timeout(
-+				&i2c_imx->dma->cmd_complete,
-+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-+	if (result <= 0) {
-+		dmaengine_terminate_all(dma->chan_using);
-+		return result ?: -ETIMEDOUT;
-+	}
-+
-+	/* Waiting for transfer complete. */
-+	while (1) {
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-+		if (temp & I2SR_ICF)
-+			break;
-+		if (time_after(jiffies, orig_jiffies +
-+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
-+			dev_dbg(dev, "<%s> Timeout\n", __func__);
-+			return -ETIMEDOUT;
-+		}
-+		schedule();
-+	}
-+
-+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+	temp &= ~I2CR_DMAEN;
-+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+	/* The last data byte must be transferred by the CPU. */
-+	imx_i2c_write_reg(msgs->buf[msgs->len-1],
-+				i2c_imx, IMX_I2C_I2DR);
-+	result = i2c_imx_trx_complete(i2c_imx);
-+	if (result)
-+		return result;
-+
-+	result = i2c_imx_acked(i2c_imx);
-+	if (result)
-+		return result;
-+
-+	return 0;
-+}
-+
-+static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
-+			struct i2c_msg *msgs, bool is_lastmsg)
-+{
-+	int result;
-+	unsigned int temp;
-+	unsigned long orig_jiffies;
-+	struct imx_i2c_dma *dma = i2c_imx->dma;
-+	struct device *dev = &i2c_imx->adapter.dev;
-+
-+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+	temp |= I2CR_DMAEN;
-+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+	dma->chan_using = dma->chan_rx;
-+	dma->dma_transfer_dir = DMA_DEV_TO_MEM;
-+	dma->dma_data_dir = DMA_FROM_DEVICE;
-+	/* The last two data bytes must be transferred by the CPU. */
-+	dma->dma_len = msgs->len - 2;
-+	result = i2c_imx_dma_xfer(i2c_imx, msgs);
-+	if (result)
-+		return result;
-+
-+	reinit_completion(&i2c_imx->dma->cmd_complete);
-+	result = wait_for_completion_interruptible_timeout(
-+				&i2c_imx->dma->cmd_complete,
-+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
-+	if (result <= 0) {
-+		dmaengine_terminate_all(dma->chan_using);
-+		return result ?: -ETIMEDOUT;
-+	}
-+
-+	/* waiting for transfer complete. */
-+	while (1) {
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-+		if (temp & I2SR_ICF)
-+			break;
-+		if (time_after(jiffies, orig_jiffies +
-+				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT))) {
-+			dev_dbg(dev, "<%s> Timeout\n", __func__);
-+			return -ETIMEDOUT;
-+		}
-+		schedule();
-+	}
-+
-+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+	temp &= ~I2CR_DMAEN;
-+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+	/* read n-1 byte data */
-+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+	temp |= I2CR_TXAK;
-+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+	msgs->buf[msgs->len-2] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+	/* read n byte data */
-+	result = i2c_imx_trx_complete(i2c_imx);
-+	if (result)
-+		return result;
-+
-+	if (is_lastmsg) {
-+		/*
-+		 * It must generate STOP before read I2DR to prevent
-+		 * controller from generating another clock cycle
-+		 */
-+		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		temp &= ~(I2CR_MSTA | I2CR_MTX);
-+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+		i2c_imx_bus_busy(i2c_imx, 0);
-+		i2c_imx->stopped = 1;
-+	} else {
-+		/*
-+		 * For i2c master receiver repeat restart operation like:
-+		 * read -> repeat MSTA -> read/write
-+		 * The controller must set MTX before read the last byte in
-+		 * the first read operation, otherwise the first read cost
-+		 * one extra clock cycle.
-+		 */
-+		temp = readb(i2c_imx->base + IMX_I2C_I2CR);
-+		temp |= I2CR_MTX;
-+		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
-+	}
-+	msgs->buf[msgs->len-1] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+
-+	return 0;
-+}
-+
- static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
- {
- 	int i, result;
-@@ -509,6 +817,9 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> read data\n", __func__);
- 
-+	if (i2c_imx->dma && msgs->len >= IMX_I2C_DMA_THRESHOLD && !block_data)
-+		return i2c_imx_dma_read(i2c_imx, msgs, is_lastmsg);
-+
- 	/* read data */
- 	for (i = 0; i < msgs->len; i++) {
- 		u8 len = 0;
-@@ -623,8 +934,12 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
- #endif
- 		if (msgs[i].flags & I2C_M_RD)
- 			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg);
--		else
--			result = i2c_imx_write(i2c_imx, &msgs[i]);
-+		else {
-+			if (i2c_imx->dma && msgs[i].len >= IMX_I2C_DMA_THRESHOLD)
-+				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
-+			else
-+				result = i2c_imx_write(i2c_imx, &msgs[i]);
-+		}
- 		if (result)
- 			goto fail0;
- 	}
-@@ -659,6 +974,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
- 	void __iomem *base;
- 	int irq, ret;
-+	dma_addr_t phy_addr;
- 
- 	dev_dbg(&pdev->dev, "<%s>\n", __func__);
- 
-@@ -673,6 +989,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
- 
-+	phy_addr = (dma_addr_t)res->start;
- 	i2c_imx = devm_kzalloc(&pdev->dev, sizeof(struct imx_i2c_struct),
- 				GFP_KERNEL);
- 	if (!i2c_imx)
-@@ -748,6 +1065,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 		i2c_imx->adapter.name);
- 	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
- 
-+	/* Init DMA config if support*/
-+	i2c_imx_dma_request(i2c_imx, phy_addr);
-+
- 	return 0;   /* Return OK */
- 
- clk_disable:
-@@ -763,6 +1083,9 @@ static int i2c_imx_remove(struct platform_device *pdev)
- 	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
- 	i2c_del_adapter(&i2c_imx->adapter);
- 
-+	if (i2c_imx->dma)
-+		i2c_imx_dma_free(i2c_imx);
-+
- 	/* setup chip registers to defaults */
- 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
- 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
--- 
-2.1.0.27.g96db324
+CkNoYW5nZWQgaW4gdjk6IAotIHNlcGVyYXRlIGEgcGF0Y2ggZm9yIHNvcnQgaW5jbHVkZSBoZWFk
+ZXJzIGFscGhhYmV0aWNhbGx5IAotIHNvbWUgbWlub3IgZml4ZXMgZm9yIGNvZGluZyBzdHlsZS4g
+CgpDaGFuZ2VkIGluIHY4OiAKLSBzb21lIG1pbm9yIGZpeGVzIGZvciBjb2Rpbmcgc3R5bGUuIAot
+IHVuc2V0dGluZyBJMkNSX0RNQUVOIGltbWVkaWF0ZWxseSB3aGVuIERNQSBmYWlsZWQuIAoKQ2hh
+bmdlZCBpbiB2NzogCi0gd2hlbiB3YWl0aW5nIGZvciB0cmFuc2ZlciBjb21wbGV0ZSB1c2Ugc2No
+ZWR1bGUoKSBpbnN0ZWFkIG9mIHVkZWxheSgpLiAKCkNoYW5nZWQgaW4gdjY6IAotIGNoYW5nZWQg
+dGhlIGluYXBwcm9wcmlhdGUgcHJpbnQgbWVzc2FnZS4gCi0gcmViYXNlIHRvIHRoZSBsYXRlc3Qg
+Y29kZS4gCgpDaGFuZ2VkIGluIHY1OiAKLSBhZGQgIipjaGFuX2RldiA9IGRtYS0+Y2hhbl91c2lu
+Zy0+ZGV2aWNlLT5kZXYiIGZvciBjb2RlIGNsZWFudXAuIAotIGFkZCB0aGUgdGVzdCBsb2dzLiAK
+CkNoYW5nZWQgaW4gdjQ6IAotIGNhbmNlbGxlZCAiaTJjX2lteC0+dXNlX2RtYSIuIAotIGNoYW5n
+ZWQgIkRtYSIgdG8gIkRNQSIuIAotIGFkZCBUaW1lb3V0IGhhbmRsaW5nIGZvciBUcmFuc2ZlciBj
+b21wbGV0ZS4gCgpDaGFuZ2VkIGluIHYzOiAKLSBmaXggYSBidWcgd2hlbiByZXF1ZXN0IHRoZSBk
+bWEgZmFpbGQuIAotIHNvbWUgbWlub3IgZml4ZXMgZm9yIGNvZGluZyBzdHlsZS4gCi0gb3RoZXIg
+bWlub3IgZml4ZXMuIAoKQ2hhbmdlZCBpbiB2MjogCi0gcmVtb3ZlIGhhc19kbWFfc3VwcG9ydCBw
+cm9wZXJ0eSAKLSB1bmlmeSBpMmNfaW14X2RtYV9yeCBhbmQgaTJjX2lteF9kbWFfdHggCi0gdW5p
+ZnkgaTJjX2lteF9kbWFfcmVhZCBhbmQgaTJjX2lteF9waW9fcmVhZCAKLSB1bmlmeSBpMmNfaW14
+X2RtYV93cml0ZSBhbmQgaTJjX2lteF9waW9fd3JpdGUgCgpBZGRlZCBpbiB2MTogCi0gRW5hYmxl
+IGRtYSBpZiBpdCdzIHN1cHBvcnQgZG1hIGFuZCB0cmFuc2ZlciBzaXplIGJpZ2dlciB0aGFuIHRo
+ZSB0aHJlc2hvbGQuIAotIEFkZCBkZXZpY2UgdHJlZSBiaW5kaW5ncyBmb3IgaTJjIGVETUEgc3Vw
+cG9ydC4gCi0gQWRkIGVETUEgc3VwcG9ydCBmb3IgaTJjIGRyaXZlci4gCgoKVGhlIHRlc3QgbG9n
+IGZvciBpMmMgRE1BIHN1cHBvcnQ6IAoKU3RhcnRpbmcga2VybmVsIC4uLiAKCkJvb3RpbmcgTGlu
+dXggb24gcGh5c2ljYWwgQ1BVIDB4ZjAwIApMaW51eCB2ZXJzaW9uIDMuMTIuMCsgKHl1YW55QHRp
+dGFuKSAoZ2NjIHZlcnNpb24gNC44LjMgMjAxMzEyMDIgKHByZXJlbGVhc2UpIChjcm9zc3Rvb2wt
+TkcgbGluYXJvLTEuMTMuMS00LjgtMjAxMy4xMiAtIExpbmFybyBHQ0MgMjAxMy4xMSkgKSAjMzQg
+U01QIFNhdCBPY3QgMTEgMTc6MTU6MTUgQ1NUIDIwMTQgCkNQVTogQVJNdjcgUHJvY2Vzc29yIFs0
+MTBmYzA3NV0gcmV2aXNpb24gNSAoQVJNdjcpLCBjcj0zMGM3M2M3ZCAKQ1BVOiBQSVBUIC8gVklQ
+VCBub25hbGlhc2luZyBkYXRhIGNhY2hlLCBWSVBUIGFsaWFzaW5nIGluc3RydWN0aW9uIGNhY2hl
+IApNYWNoaW5lOiBGcmVlc2NhbGUgTGF5ZXJzY2FwZSBMUzEwMjFBLCBtb2RlbDogTFMxMDIxQSBU
+V1IgQm9hcmQgCk1lbW9yeSBwb2xpY3k6IEVDQyBkaXNhYmxlZCwgRGF0YSBjYWNoZSB3cml0ZWFs
+bG9jIApQRVJDUFU6IEVtYmVkZGVkIDcgcGFnZXMvY3B1IEA4MGU3YTAwMCBzNzY4MCByODE5MiBk
+MTI4MDAgdTMyNzY4IApCdWlsdCAxIHpvbmVsaXN0cyBpbiBab25lIG9yZGVyLCBtb2JpbGl0eSBn
+cm91cGluZyBvbi4gVG90YWwgcGFnZXM6IDI2MDA5NiAKS2VybmVsIGNvbW1hbmQgbGluZTogcm9v
+dD0vZGV2L3JhbSBydyBjb25zb2xlPXR0eVMwLDExNTIwMCAKUElEIGhhc2ggdGFibGUgZW50cmll
+czogNDA5NiAob3JkZXI6IDIsIDE2Mzg0IGJ5dGVzKSAKRGVudHJ5IGNhY2hlIGhhc2ggdGFibGUg
+ZW50cmllczogMTMxMDcyIChvcmRlcjogNywgNTI0Mjg4IGJ5dGVzKSAKSW5vZGUtY2FjaGUgaGFz
+aCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6IDYsIDI2MjE0NCBieXRlcykgCk1lbW9yeTog
+MTAxNDE1MksvMTA0ODU3NksgYXZhaWxhYmxlICg0NDk1SyBrZXJuZWwgY29kZSwgMjQ5SyByd2Rh
+dGEsIDEzNTJLIHJvZGF0YSwgMjA3SyBpbml0LCAyMjRLIGJzcywgMzQ0MjRLIHJlc2VydmVkLCAw
+SyBoaWdobWVtKSAKVmlydHVhbCBrZXJuZWwgbWVtb3J5IGxheW91dDogCnZlY3RvciA6IDB4ZmZm
+ZjAwMDAgLSAweGZmZmYxMDAwICggNCBrQikgCmZpeG1hcCA6IDB4ZmZmMDAwMDAgLSAweGZmZmUw
+MDAwICggODk2IGtCKSAKdm1hbGxvYyA6IDB4YzA4MDAwMDAgLSAweGZmMDAwMDAwICgxMDAwIE1C
+KSAKbG93bWVtIDogMHg4MDAwMDAwMCAtIDB4YzAwMDAwMDAgKDEwMjQgTUIpIApwa21hcCA6IDB4
+N2ZlMDAwMDAgLSAweDgwMDAwMDAwICggMiBNQikgCm1vZHVsZXMgOiAweDdmMDAwMDAwIC0gMHg3
+ZmUwMDAwMCAoIDE0IE1CKSAKLnRleHQgOiAweDgwMDA4MDAwIC0gMHg4MDViZGY3NCAoNTg0OCBr
+QikgCi5pbml0IDogMHg4MDViZTAwMCAtIDB4ODA1ZjFlMDAgKCAyMDgga0IpIAouZGF0YSA6IDB4
+ODA1ZjIwMDAgLSAweDgwNjMwNTE4ICggMjUwIGtCKSAKLmJzcyA6IDB4ODA2MzA1MjAgLSAweDgw
+NjY4NjI4ICggMjI1IGtCKSAKU0xVQjogSFdhbGlnbj02NCwgT3JkZXI9MC0zLCBNaW5PYmplY3Rz
+PTAsIENQVXM9MiwgTm9kZXM9MSAKSGllcmFyY2hpY2FsIFJDVSBpbXBsZW1lbnRhdGlvbi4gClJD
+VSByZXN0cmljdGluZyBDUFVzIGZyb20gTlJfQ1BVUz00IHRvIG5yX2NwdV9pZHM9Mi4gCk5SX0lS
+UVM6MTYgbnJfaXJxczoxNiAxNiAKQXJjaGl0ZWN0ZWQgY3AxNSB0aW1lcihzKSBydW5uaW5nIGF0
+IDEyLjUwTUh6IChwaHlzKS4gClN3aXRjaGluZyB0byB0aW1lci1iYXNlZCBkZWxheSBsb29wIApz
+Y2hlZF9jbG9jazogQVJNIGFyY2ggdGltZXIgPjU2IGJpdHMgYXQgMTI1MDBrSHosIHJlc29sdXRp
+b24gODBucyAKc2NoZWRfY2xvY2s6IDMyIGJpdHMgYXQgMTAwIEh6LCByZXNvbHV0aW9uIDEwMDAw
+MDAwbnMsIHdyYXBzIGV2ZXJ5IDQyOTQ5NjcyODZtcyAKQ29uc29sZTogY29sb3VyIGR1bW15IGRl
+dmljZSA4MHgzMCAKQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcCAoc2tpcHBlZCksIHZhbHVlIGNhbGN1
+bGF0ZWQgdXNpbmcgdGltZXIgZnJlcXVlbmN5Li4gMjUuMDAgQm9nb01JUFMgKGxwaj0xMjUwMDAp
+IApwaWRfbWF4OiBkZWZhdWx0OiAzMjc2OCBtaW5pbXVtOiAzMDEgCk1vdW50LWNhY2hlIGhhc2gg
+dGFibGUgZW50cmllczogNTEyIApDUFU6IFRlc3Rpbmcgd3JpdGUgYnVmZmVyIGNvaGVyZW5jeTog
+b2sgCkNQVTA6IHVwZGF0ZSBjcHVfcG93ZXIgMTAyNCAKQ1BVMDogdGhyZWFkIC0xLCBjcHUgMCwg
+c29ja2V0IDE1LCBtcGlkciA4MDAwMGYwMCAKU2V0dGluZyB1cCBzdGF0aWMgaWRlbnRpdHkgbWFw
+IGZvciAweDgwNDY5NDIwIC0gMHg4MDQ2OTQ1NCAKQ1BVMTogQm9vdGVkIHNlY29uZGFyeSBwcm9j
+ZXNzb3IgCkNQVTE6IHVwZGF0ZSBjcHVfcG93ZXIgMTAyNCAKQ1BVMTogdGhyZWFkIC0xLCBjcHUg
+MSwgc29ja2V0IDE1LCBtcGlkciA4MDAwMGYwMSAKQnJvdWdodCB1cCAyIENQVXMgClNNUDogVG90
+YWwgb2YgMiBwcm9jZXNzb3JzIGFjdGl2YXRlZC4gCkNQVTogQWxsIENQVShzKSBzdGFydGVkIGlu
+IEhZUCBtb2RlLiAKQ1BVOiBWaXJ0dWFsaXphdGlvbiBleHRlbnNpb25zIGF2YWlsYWJsZS4gCmRl
+dnRtcGZzOiBpbml0aWFsaXplZCAKVkZQIHN1cHBvcnQgdjAuMzogaW1wbGVtZW50b3IgNDEgYXJj
+aGl0ZWN0dXJlIDIgcGFydCAzMCB2YXJpYW50IDcgcmV2IDUgCk5FVDogUmVnaXN0ZXJlZCBwcm90
+b2NvbCBmYW1pbHkgMTYgCkRNQTogcHJlYWxsb2NhdGVkIDI1NiBLaUIgcG9vbCBmb3IgYXRvbWlj
+IGNvaGVyZW50IGFsbG9jYXRpb25zIApjcHVpZGxlOiB1c2luZyBnb3Zlcm5vciBsYWRkZXIgCmNw
+dWlkbGU6IHVzaW5nIGdvdmVybm9yIG1lbnUgCmlycTogbm8gaXJxIGRvbWFpbiBmb3VuZCBmb3Ig
+L3NvYy91cWVAMjQwMDAwMC9xZWljQDgwICEgCmlycTogbm8gaXJxIGRvbWFpbiBmb3VuZCBmb3Ig
+L3NvYy91cWVAMjQwMDAwMC9xZWljQDgwICEgCmJpbzogY3JlYXRlIHNsYWIgPGJpby0wPiBhdCAw
+IApsYXllcnNjYXBlLXBjaWUgMzQwMDAwMC5wY2llOiBQQ0kgaG9zdCBicmlkZ2UgdG8gYnVzIDAw
+MDA6MDAgCnBjaV9idXMgMDAwMDowMDogcm9vdCBidXMgcmVzb3VyY2UgW2J1cyAwMC1mZl0gCnBj
+aV9idXMgMDAwMDowMDogcm9vdCBidXMgcmVzb3VyY2UgW2lvIDB4NDAxMDAwMDAwMC0weDQwMTAw
+MGZmZmZdIApwY2lfYnVzIDAwMDA6MDA6IHJvb3QgYnVzIHJlc291cmNlIFttZW0gMHg0MTAwMDAw
+MDAwLTB4NDFmZmZmZmZmZl0gKGJ1cyBhZGRyZXNzIFsweDAwMDAwMDAwLTB4ZmZmZmZmZmZdKSAK
+UENJOiBidXMwOiBGYXN0IGJhY2sgdG8gYmFjayB0cmFuc2ZlcnMgZGlzYWJsZWQgClBDSTogYnVz
+MTogRmFzdCBiYWNrIHRvIGJhY2sgdHJhbnNmZXJzIGVuYWJsZWQgCnBjaSAwMDAwOjAwOjAwLjA6
+IEJBUiAwOiBhc3NpZ25lZCBbbWVtIDB4NDEwMDAwMDAwMC0weDQxMDBmZmZmZmYgNjRiaXRdIApw
+Y2kgMDAwMDowMDowMC4wOiBCQVIgNjogYXNzaWduZWQgW21lbSAweDQxMDEwMDAwMDAtMHg0MTAx
+ZmZmZmZmIHByZWZdIApwY2kgMDAwMDowMDowMC4wOiBQQ0kgYnJpZGdlIHRvIFtidXMgMDFdIApw
+Y2kgMDAwMDowMDowMC4wOiBQQ0kgYnJpZGdlIHRvIFtidXMgMDFdIApsYXllcnNjYXBlLXBjaWUg
+MzUwMDAwMC5wY2llOiBQQ0kgaG9zdCBicmlkZ2UgdG8gYnVzIDAwMDE6MDAgCnBjaV9idXMgMDAw
+MTowMDogcm9vdCBidXMgcmVzb3VyY2UgW2J1cyAwMC1mZl0gCnBjaV9idXMgMDAwMTowMDogcm9v
+dCBidXMgcmVzb3VyY2UgW2lvIDB4NDgxMDAwMDAwMC0weDQ4MTAwMGZmZmZdIChidXMgYWRkcmVz
+cyBbMHg0ODBmZmYwMDAwLTB4NDgwZmZmZmZmZl0pIApwY2lfYnVzIDAwMDE6MDA6IHJvb3QgYnVz
+IHJlc291cmNlIFttZW0gMHg0OTAwMDAwMDAwLTB4NDlmZmZmZmZmZl0gKGJ1cyBhZGRyZXNzIFsw
+eDAwMDAwMDAwLTB4ZmZmZmZmZmZdKSAKUENJOiBidXMwOiBGYXN0IGJhY2sgdG8gYmFjayB0cmFu
+c2ZlcnMgZGlzYWJsZWQgClBDSTogYnVzMTogRmFzdCBiYWNrIHRvIGJhY2sgdHJhbnNmZXJzIGVu
+YWJsZWQgCnBjaSAwMDAxOjAwOjAwLjA6IEJBUiAwOiBhc3NpZ25lZCBbbWVtIDB4NDkwMDAwMDAw
+MC0weDQ5MDBmZmZmZmYgNjRiaXRdIApwY2kgMDAwMTowMDowMC4wOiBCQVIgNjogYXNzaWduZWQg
+W21lbSAweDQ5MDEwMDAwMDAtMHg0OTAxZmZmZmZmIHByZWZdIApwY2kgMDAwMTowMDowMC4wOiBQ
+Q0kgYnJpZGdlIHRvIFtidXMgMDFdIApwY2kgMDAwMDowMDowMC4wOiBQQ0kgYnJpZGdlIHRvIFti
+dXMgMDFdIApwY2kgMDAwMTowMDowMC4wOiBQQ0kgYnJpZGdlIHRvIFtidXMgMDFdIAp2Z2FhcmI6
+IGxvYWRlZCAKU0NTSSBzdWJzeXN0ZW0gaW5pdGlhbGl6ZWQgCnVzYmNvcmU6IHJlZ2lzdGVyZWQg
+bmV3IGludGVyZmFjZSBkcml2ZXIgdXNiZnMgCnVzYmNvcmU6IHJlZ2lzdGVyZWQgbmV3IGludGVy
+ZmFjZSBkcml2ZXIgaHViIAp1c2Jjb3JlOiByZWdpc3RlcmVkIG5ldyBkZXZpY2UgZHJpdmVyIHVz
+YiAKaTJjIGkyYy0wOiBJTVggSTJDIGFkYXB0ZXIgcmVnaXN0ZXJlZCAKb2ZfZG1hX3JlcXVlc3Rf
+c2xhdmVfY2hhbm5lbDogZG1hLW5hbWVzIHByb3BlcnR5IG9mIG5vZGUgJy9zb2MvaTJjQDIxODAw
+MDAnIG1pc3Npbmcgb3IgZW1wdHkgCmkyYyBpMmMtMDogY2FuJ3QgdXNlIERNQSAKaTJjIGkyYy0x
+OiBJTVggSTJDIGFkYXB0ZXIgcmVnaXN0ZXJlZCAKaTJjIGkyYy0xOiB1c2luZyBkbWEwY2hhbjE2
+ICh0eCkgYW5kIGRtYTBjaGFuMTcgKHJ4KSBmb3IgRE1BIHRyYW5zZmVycyAKaTJjIGkyYy0yOiBJ
+TVggSTJDIGFkYXB0ZXIgcmVnaXN0ZXJlZCAKb2ZfZG1hX3JlcXVlc3Rfc2xhdmVfY2hhbm5lbDog
+ZG1hLW5hbWVzIHByb3BlcnR5IG9mIG5vZGUgJy9zb2MvaTJjQDIxYTAwMDAnIG1pc3Npbmcgb3Ig
+ZW1wdHkgCmkyYyBpMmMtMjogY2FuJ3QgdXNlIERNQSAKcHBzX2NvcmU6IExpbnV4UFBTIEFQSSB2
+ZXIuIDEgcmVnaXN0ZXJlZCAKcHBzX2NvcmU6IFNvZnR3YXJlIHZlci4gNS4zLjYgLSBDb3B5cmln
+aHQgMjAwNS0yMDA3IFJvZG9sZm8gR2lvbWV0dGkgPGdpb21ldHRpQGxpbnV4Lml0PiAKUFRQIGNs
+b2NrIHN1cHBvcnQgcmVnaXN0ZXJlZCAKZnNsLWlmYyAxNTMwMDAwLmlmYzogRnJlZXNjYWxlIElu
+dGVncmF0ZWQgRmxhc2ggQ29udHJvbGxlciAKU3dpdGNoZWQgdG8gY2xvY2tzb3VyY2UgYXJjaF9z
+eXNfY291bnRlciAKTkVUOiBSZWdpc3RlcmVkIHByb3RvY29sIGZhbWlseSAyIApUQ1AgZXN0YWJs
+aXNoZWQgaGFzaCB0YWJsZSBlbnRyaWVzOiA4MTkyIChvcmRlcjogNCwgNjU1MzYgYnl0ZXMpIApU
+Q1AgYmluZCBoYXNoIHRhYmxlIGVudHJpZXM6IDgxOTIgKG9yZGVyOiA1LCAxNjM4NDAgYnl0ZXMp
+IApUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQgKGVzdGFibGlzaGVkIDgxOTIgYmluZCA4MTky
+KSAKVENQOiByZW5vIHJlZ2lzdGVyZWQgClVEUCBoYXNoIHRhYmxlIGVudHJpZXM6IDUxMiAob3Jk
+ZXI6IDIsIDI0NTc2IGJ5dGVzKSAKVURQLUxpdGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA1MTIgKG9y
+ZGVyOiAyLCAyNDU3NiBieXRlcykgCk5FVDogUmVnaXN0ZXJlZCBwcm90b2NvbCBmYW1pbHkgMSAK
+UlBDOiBSZWdpc3RlcmVkIG5hbWVkIFVOSVggc29ja2V0IHRyYW5zcG9ydCBtb2R1bGUuIApSUEM6
+IFJlZ2lzdGVyZWQgdWRwIHRyYW5zcG9ydCBtb2R1bGUuIApSUEM6IFJlZ2lzdGVyZWQgdGNwIHRy
+YW5zcG9ydCBtb2R1bGUuIApSUEM6IFJlZ2lzdGVyZWQgdGNwIE5GU3Y0LjEgYmFja2NoYW5uZWwg
+dHJhbnNwb3J0IG1vZHVsZS4gClRyeWluZyB0byB1bnBhY2sgcm9vdGZzIGltYWdlIGFzIGluaXRy
+YW1mcy4uLiAKcm9vdGZzIGltYWdlIGlzIG5vdCBpbml0cmFtZnMgKG5vIGNwaW8gbWFnaWMpOyBs
+b29rcyBsaWtlIGFuIGluaXRyZCAKRnJlZWluZyBpbml0cmQgbWVtb3J5OiAxODcwNEsgKGJkY2U5
+MDAwIC0gYmVmMmQwMDApIApORlM6IFJlZ2lzdGVyaW5nIHRoZSBpZF9yZXNvbHZlciBrZXkgdHlw
+ZSAKS2V5IHR5cGUgaWRfcmVzb2x2ZXIgcmVnaXN0ZXJlZCAKS2V5IHR5cGUgaWRfbGVnYWN5IHJl
+Z2lzdGVyZWQgCmpmZnMyOiB2ZXJzaW9uIDIuMi4gKE5BTkQpIMKpIDIwMDEtMjAwNiBSZWQgSGF0
+LCBJbmMuIAptc2dtbmkgaGFzIGJlZW4gc2V0IHRvIDIwMTcgCmlvIHNjaGVkdWxlciBub29wIHJl
+Z2lzdGVyZWQgCmlvIHNjaGVkdWxlciBkZWFkbGluZSByZWdpc3RlcmVkIAppbyBzY2hlZHVsZXIg
+Y2ZxIHJlZ2lzdGVyZWQgKGRlZmF1bHQpIApzaWk5MDJ4OiBwcm9iZSBvZiAxLTAwMzkgZmFpbGVk
+IHdpdGggZXJyb3IgLTEgClNlcmlhbDogODI1MC8xNjU1MCBkcml2ZXIsIDQgcG9ydHMsIElSUSBz
+aGFyaW5nIGVuYWJsZWQgCjIxYzA1MDAuc2VyaWFsOiB0dHlTMCBhdCBNTUlPIDB4MjFjMDUwMCAo
+aXJxID0gMTE4LCBiYXNlX2JhdWQgPSA5Mzc1MDAwKSBpcyBhIEZyZWVzY2FsZSAxNjU1MCBGSUZP
+NjQgCmNvbnNvbGUgW3R0eVMwXSBlbmFibGVkIAoyMWMwNjAwLnNlcmlhbDogdHR5UzEgYXQgTU1J
+TyAweDIxYzA2MDAgKGlycSA9IDExOCwgYmFzZV9iYXVkID0gOTM3NTAwMCkgaXMgYSBGcmVlc2Nh
+bGUgMTY1NTAgRklGTzY0IApvZl9zZXJpYWwgMjQwMjAwMC51Y2M6IGNsayBvciBjbG9jay1mcmVx
+dWVuY3kgbm90IGRlZmluZWQgCm9mX3NlcmlhbDogcHJvYmUgb2YgMjQwMjAwMC51Y2MgZmFpbGVk
+IHdpdGggZXJyb3IgLTIgCm9mX3NlcmlhbCAyNDAyMjAwLnVjYzogY2xrIG9yIGNsb2NrLWZyZXF1
+ZW5jeSBub3QgZGVmaW5lZCAKb2Zfc2VyaWFsOiBwcm9iZSBvZiAyNDAyMjAwLnVjYyBmYWlsZWQg
+d2l0aCBlcnJvciAtMiAKc2VyaWFsOiBGcmVlc2NhbGUgbHB1YXJ0IGRyaXZlciAKMjk1MDAwMC5z
+ZXJpYWw6IHR0eUxQMCBhdCBNTUlPIDB4Mjk1MDAwMCAoaXJxID0gMTEyLCBiYXNlX2JhdWQgPSA2
+MjUwMDAwKSBpcyBhIEZTTF9MUFVBUlQgCmJyZDogbW9kdWxlIGxvYWRlZCAKbG9vcDogbW9kdWxl
+IGxvYWRlZCAKNjAwMDAwMDAubm9yOiBGb3VuZCAxIHgxNiBkZXZpY2VzIGF0IDB4MCBpbiAxNi1i
+aXQgYmFuay4gTWFudWZhY3R1cmVyIElEIDB4MDAwMDg5IENoaXAgSUQgMHgwMDIyN2UgCkFtZC9G
+dWppdHN1IEV4dGVuZGVkIFF1ZXJ5IFRhYmxlIGF0IDB4MDA0MCAKQW1kL0Z1aml0c3UgRXh0ZW5k
+ZWQgUXVlcnkgdmVyc2lvbiAxLjMuIApudW1iZXIgb2YgQ0ZJIGNoaXBzOiAxIAo0IG9mcGFydCBw
+YXJ0aXRpb25zIGZvdW5kIG9uIE1URCBkZXZpY2UgNjAwMDAwMDAubm9yIApDcmVhdGluZyA0IE1U
+RCBwYXJ0aXRpb25zIG9uICI2MDAwMDAwMC5ub3IiOiAKMHgwMDAwMDAwMDAwMDAtMHgwMDAwMDAw
+MjAwMDAgOiAiTk9SIFJDVyBJbWFnZSIgCjB4MDAwMDAwMDIwMDAwLTB4MDAwMDAwMTIwMDAwIDog
+Ik5PUiBEVEIgSW1hZ2UiIAoweDAwMDAwMDEyMDAwMC0weDAwMDAwMDkyMDAwMCA6ICJOT1IgTGlu
+dXggS2VybmVsIEltYWdlIiAKMHgwMDAwMDA5MjAwMDAtMHgwMDAwMDNiMjAwMDAgOiAiTk9SIFJh
+bWRpc2sgUm9vdCBGaWxlIFN5c3RlbSIgCjZGcmVlc2NhbGUgRFNQSSBtYXN0ZXIgaW5pdGlhbGl6
+ZWQgCkNBTiBkZXZpY2UgZHJpdmVyIGludGVyZmFjZSAKZmxleGNhbiAyYTcwMDAwLmNhbjogZGV2
+aWNlIHJlZ2lzdGVyZWQgKHJlZ19iYXNlPWMwODFhMDAwLCBpcnE9MTU4KSAKZmxleGNhbiAyYTgw
+MDAwLmNhbjogZGV2aWNlIHJlZ2lzdGVyZWQgKHJlZ19iYXNlPWMwODFjMDAwLCBpcnE9MTU5KSAK
+bGlicGh5OiBGcmVlc2NhbGUgUG93ZXJRVUlDQyBNSUkgQnVzOiBwcm9iZWQgCmZzbC1naWFuZmFy
+IGV0aGVybmV0LjQ6IGVuYWJsZWQgZXJyYXRhIHdvcmthcm91bmRzLCBmbGFnczogMHg0IApmc2wt
+Z2lhbmZhciBldGhlcm5ldC40IGV0aDA6IG1hYzogMDA6MDQ6OWY6MDM6NDU6ZTggCmZzbC1naWFu
+ZmFyIGV0aGVybmV0LjQgZXRoMDogUnVubmluZyB3aXRoIE5BUEkgZW5hYmxlZCAKZnNsLWdpYW5m
+YXIgZXRoZXJuZXQuNCBldGgwOiBSWCBCRCByaW5nIHNpemUgZm9yIFFbMF06IDI1NiAKZnNsLWdp
+YW5mYXIgZXRoZXJuZXQuNCBldGgwOiBUWCBCRCByaW5nIHNpemUgZm9yIFFbMF06IDI1NiAKZnNs
+LWdpYW5mYXIgZXRoZXJuZXQuNTogZW5hYmxlZCBlcnJhdGEgd29ya2Fyb3VuZHMsIGZsYWdzOiAw
+eDQgCmZzbC1naWFuZmFyIGV0aGVybmV0LjUgZXRoMTogbWFjOiAwMDowNDo5ZjowMzo0NTplOSAK
+ZnNsLWdpYW5mYXIgZXRoZXJuZXQuNSBldGgxOiBSdW5uaW5nIHdpdGggTkFQSSBlbmFibGVkIApm
+c2wtZ2lhbmZhciBldGhlcm5ldC41IGV0aDE6IFJYIEJEIHJpbmcgc2l6ZSBmb3IgUVswXTogMjU2
+IApmc2wtZ2lhbmZhciBldGhlcm5ldC41IGV0aDE6IFRYIEJEIHJpbmcgc2l6ZSBmb3IgUVswXTog
+MjU2IApmc2wtZ2lhbmZhciBldGhlcm5ldC42OiBlbmFibGVkIGVycmF0YSB3b3JrYXJvdW5kcywg
+ZmxhZ3M6IDB4NCAKZnNsLWdpYW5mYXIgZXRoZXJuZXQuNiBldGgyOiBtYWM6IDAwOjA0OjlmOjAz
+OjQ1OmVhIApmc2wtZ2lhbmZhciBldGhlcm5ldC42IGV0aDI6IFJ1bm5pbmcgd2l0aCBOQVBJIGVu
+YWJsZWQgCmZzbC1naWFuZmFyIGV0aGVybmV0LjYgZXRoMjogUlggQkQgcmluZyBzaXplIGZvciBR
+WzBdOiAyNTYgCmZzbC1naWFuZmFyIGV0aGVybmV0LjYgZXRoMjogVFggQkQgcmluZyBzaXplIGZv
+ciBRWzBdOiAyNTYgCnBwcyBwcHMwOiBuZXcgUFBTIHNvdXJjZSBwdHAwIAplMTAwMDogSW50ZWwo
+UikgUFJPLzEwMDAgTmV0d29yayBEcml2ZXIgLSB2ZXJzaW9uIDcuMy4yMS1rOC1OQVBJIAplMTAw
+MDogQ29weXJpZ2h0IChjKSAxOTk5LTIwMDYgSW50ZWwgQ29ycG9yYXRpb24uIAplMTAwMGU6IElu
+dGVsKFIpIFBSTy8xMDAwIE5ldHdvcmsgRHJpdmVyIC0gMi4zLjItayAKZTEwMDBlOiBDb3B5cmln
+aHQoYykgMTk5OSAtIDIwMTMgSW50ZWwgQ29ycG9yYXRpb24uIAp4aGNpLWhjZCB4aGNpLWhjZC4w
+LmF1dG86IHhIQ0kgSG9zdCBDb250cm9sbGVyIAp4aGNpLWhjZCB4aGNpLWhjZC4wLmF1dG86IG5l
+dyBVU0IgYnVzIHJlZ2lzdGVyZWQsIGFzc2lnbmVkIGJ1cyBudW1iZXIgMSAKeGhjaS1oY2QgeGhj
+aS1oY2QuMC5hdXRvOiBpcnEgMTI1LCBpbyBtZW0gMHgwMzEwMDAwMCAKaHViIDEtMDoxLjA6IFVT
+QiBodWIgZm91bmQgCmh1YiAxLTA6MS4wOiAxIHBvcnQgZGV0ZWN0ZWQgCnhoY2ktaGNkIHhoY2kt
+aGNkLjAuYXV0bzogeEhDSSBIb3N0IENvbnRyb2xsZXIgCnhoY2ktaGNkIHhoY2ktaGNkLjAuYXV0
+bzogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVzIG51bWJlciAyIApodWIgMi0w
+OjEuMDogVVNCIGh1YiBmb3VuZCAKaHViIDItMDoxLjA6IDEgcG9ydCBkZXRlY3RlZCAKdXNiY29y
+ZTogcmVnaXN0ZXJlZCBuZXcgaW50ZXJmYWNlIGRyaXZlciB1c2Itc3RvcmFnZSAKbW91c2VkZXY6
+IFBTLzIgbW91c2UgZGV2aWNlIGNvbW1vbiBmb3IgYWxsIG1pY2UgCmkyYyAvZGV2IGVudHJpZXMg
+ZHJpdmVyIApzZGhjaTogU2VjdXJlIERpZ2l0YWwgSG9zdCBDb250cm9sbGVyIEludGVyZmFjZSBk
+cml2ZXIgCnNkaGNpOiBDb3B5cmlnaHQoYykgUGllcnJlIE9zc21hbiAKc2RoY2ktcGx0Zm06IFNE
+SENJIHBsYXRmb3JtIGFuZCBPRiBkcml2ZXIgaGVscGVyIAptbWMwOiBTREhDSSBjb250cm9sbGVy
+IG9uIDE1NjAwMDAuZXNkaGMgWzE1NjAwMDAuZXNkaGNdIHVzaW5nIEFETUEgClZhbHVlIGluIGpy
+c3RhcnQgYWRkciBjMGUwMDA1YywgdmFsdWUgcHJldiAwIG5ldyBmIApjYWFtIDE3MDAwMDAuY3J5
+cHRvOiBJbnN0YW50aWF0ZWQgUk5HNCBTSDAgCm1tYzA6IG5ldyBTREhDIGNhcmQgYXQgYWRkcmVz
+cyA4NDE1IApjYWFtIDE3MDAwMDAuY3J5cHRvOiBJbnN0YW50aWF0ZWQgUk5HNCBTSDEgCmNhYW0g
+MTcwMDAwMC5jcnlwdG86IGRldmljZSBJRCA9IDB4MGExNDAzMDAgKEVyYSA2NzEwODg2NCkgCmNh
+YW0gMTcwMDAwMC5jcnlwdG86IGpvYiByaW5ncyA9IDQsIHFpID0gMCAKbW1jYmxrMDogbW1jMDo4
+NDE1IFNEMDRHIDMuNjkgR2lCIApjYWFtIGFsZ29yaXRobXMgcmVnaXN0ZXJlZCBpbiAvcHJvYy9j
+cnlwdG8gCm1tY2JsazA6IApjYWFtX2pyIDE3MTAwMDAuanI6IHJlZ2lzdGVyaW5nIHJuZy1jYWFt
+IAp1c2Jjb3JlOiByZWdpc3RlcmVkIG5ldyBpbnRlcmZhY2UgZHJpdmVyIHVzYmhpZCAKdXNiaGlk
+OiBVU0IgSElEIGNvcmUgZHJpdmVyIApUQ1A6IGN1YmljIHJlZ2lzdGVyZWQgCkluaXRpYWxpemlu
+ZyBYRlJNIG5ldGxpbmsgc29ja2V0IApORVQ6IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDEw
+IApzaXQ6IElQdjYgb3ZlciBJUHY0IHR1bm5lbGluZyBkcml2ZXIgCk5FVDogUmVnaXN0ZXJlZCBw
+cm90b2NvbCBmYW1pbHkgMTcgCk5FVDogUmVnaXN0ZXJlZCBwcm90b2NvbCBmYW1pbHkgMTUgCmNh
+bjogY29udHJvbGxlciBhcmVhIG5ldHdvcmsgY29yZSAocmV2IDIwMTIwNTI4IGFiaSA5KSAKTkVU
+OiBSZWdpc3RlcmVkIHByb3RvY29sIGZhbWlseSAyOSAKY2FuOiByYXcgcHJvdG9jb2wgKHJldiAy
+MDEyMDUyOCkgCktleSB0eXBlIGRuc19yZXNvbHZlciByZWdpc3RlcmVkIApkcml2ZXJzL3J0Yy9o
+Y3Rvc3lzLmM6IHVuYWJsZSB0byBvcGVuIHJ0YyBkZXZpY2UgKHJ0YzApIApSQU1ESVNLOiBnemlw
+IGltYWdlIGZvdW5kIGF0IGJsb2NrIDAgCnVzYiAxLTE6IG5ldyBoaWdoLXNwZWVkIFVTQiBkZXZp
+Y2UgbnVtYmVyIDIgdXNpbmcgeGhjaS1oY2QgCmh1YiAxLTE6MS4wOiBVU0IgaHViIGZvdW5kIApo
+dWIgMS0xOjEuMDogNCBwb3J0cyBkZXRlY3RlZCAKdXNiIDItMTogbmV3IFN1cGVyU3BlZWQgVVNC
+IGRldmljZSBudW1iZXIgMiB1c2luZyB4aGNpLWhjZCAKdXNiIDItMTogUGFyZW50IGh1YiBtaXNz
+aW5nIExQTSBleGl0IGxhdGVuY3kgaW5mby4gUG93ZXIgbWFuYWdlbWVudCB3aWxsIGJlIGltcGFj
+dGVkLiAKaHViIDItMToxLjA6IFVTQiBodWIgZm91bmQgCmh1YiAyLTE6MS4wOiA0IHBvcnRzIGRl
+dGVjdGVkIApWRlM6IE1vdW50ZWQgcm9vdCAoZXh0MiBmaWxlc3lzdGVtKSBvbiBkZXZpY2UgMTow
+LiAKZGV2dG1wZnM6IG1vdW50ZWQgCkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnk6IDIwNEsg
+KDgwNWJlMDAwIC0gODA1ZjEwMDApIApJTklUOiB2ZXJzaW9uIDIuODggYm9vdGluZyAKU3RhcnRp
+bmcgdWRldiAKdWRldmRbMTE0XTogc3RhcnRpbmcgdmVyc2lvbiAxODIgCkZBVC1mcyAobW1jYmxr
+MCk6IFZvbHVtZSB3YXMgbm90IHByb3Blcmx5IHVubW91bnRlZC4gU29tZSBkYXRhIG1heSBiZSBj
+b3JydXB0LiBQbGVhc2UgcnVuIGZzY2suIApTdGFydGluZyBCb290bG9nIGRhZW1vbjogYm9vdGxv
+Z2QuIApQb3B1bGF0aW5nIGRldiBjYWNoZSAKQ29uZmlndXJpbmcgbmV0d29yayBpbnRlcmZhY2Vz
+Li4uIElQdjY6IEFERFJDT05GKE5FVERFVl9VUCk6IGV0aDA6IGxpbmsgaXMgbm90IHJlYWR5IAp1
+ZGhjcGMgKHYxLjIxLjEpIHN0YXJ0ZWQgClNlbmRpbmcgZGlzY292ZXIuLi4gCmxpYnBoeTogbWRp
+b0AyZDI0MDAwOjAyIC0gTGluayBpcyBEb3duIApTZW5kaW5nIGRpc2NvdmVyLi4uIApsaWJwaHk6
+IG1kaW9AMmQyNDAwMDowMiAtIExpbmsgaXMgVXAgLSAxMDAwL0Z1bGwgCklQdjY6IEFERFJDT05G
+KE5FVERFVl9DSEFOR0UpOiBldGgwOiBsaW5rIGJlY29tZXMgcmVhZHkgClNlbmRpbmcgZGlzY292
+ZXIuLi4gClNlbmRpbmcgc2VsZWN0IGZvciAxMC4xOTMuMjAuODcuLi4gCkxlYXNlIG9mIDEwLjE5
+My4yMC44NyBvYnRhaW5lZCwgbGVhc2UgdGltZSAxNDQwMCAKL2V0Yy91ZGhjcGMuZC81MGRlZmF1
+bHQ6IEFkZGluZyBETlMgMTAuMTkyLjEzMC4yMDEgCi9ldGMvdWRoY3BjLmQvNTBkZWZhdWx0OiBB
+ZGRpbmcgRE5TIDEwLjIxMS4wLjMgCi9ldGMvdWRoY3BjLmQvNTBkZWZhdWx0OiBBZGRpbmcgRE5T
+IDEwLjE5Ni41MS4yMDAgCmRvbmUuIApuZXQuaXB2NC5jb25mLmRlZmF1bHQucnBfZmlsdGVyID0g
+MSAKbmV0LmlwdjQuY29uZi5hbGwucnBfZmlsdGVyID0gMSAKaHdjbG9jazogY2FuJ3Qgb3BlbiAn
+L2Rldi9taXNjL3J0Yyc6IE5vIHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkgCldlZCBKdW4gMjUgMTE6
+NTk6MDAgVVRDIDIwMTQgCmh3Y2xvY2s6IGNhbid0IG9wZW4gJy9kZXYvbWlzYy9ydGMnOiBObyBz
+dWNoIGZpbGUgb3IgZGlyZWN0b3J5IApSdW5uaW5nIHBvc3RpbnN0IC9ldGMvcnBtLXBvc3RpbnN0
+cy8xMDAtc3lzdmluaXQtaW5pdHRhYi4uLiAKUnVubmluZyBwb3N0aW5zdCAvZXRjL3JwbS1wb3N0
+aW5zdHMvMTAxLWRlYmlhbnV0aWxzLi4uIAp1cGRhdGUtcmMuZDogL2V0Yy9pbml0LmQvcnVuLXBv
+c3RpbnN0cyBleGlzdHMgZHVyaW5nIHJjLmQgcHVyZ2UgKGNvbnRpbnVpbmcpIApSZW1vdmluZyBh
+bnkgc3lzdGVtIHN0YXJ0dXAgbGlua3MgZm9yIHJ1bi1wb3N0aW5zdHMgLi4uIAovZXRjL3JjUy5k
+L1M5OXJ1bi1wb3N0aW5zdHMgCklOSVQ6IEVudGVyaW5nIHJ1bmxldmVsOiA1IApTdGFydGluZyBP
+cGVuQlNEIFNlY3VyZSBTaGVsbCBzZXJ2ZXI6IHNzaGQgCmdlbmVyYXRpbmcgc3NoIFJTQSBrZXku
+Li4gCmdlbmVyYXRpbmcgc3NoIEVDRFNBIGtleS4uLiAKZ2VuZXJhdGluZyBzc2ggRFNBIGtleS4u
+LiAKZG9uZS4gCmh3Y2xvY2s6IGNhbid0IG9wZW4gJy9kZXYvbWlzYy9ydGMnOiBObyBzdWNoIGZp
+bGUgb3IgZGlyZWN0b3J5IApTdGFydGluZyBuZXR3b3JrIGJlbmNobWFyayBzZXJ2ZXI6IG5ldHNl
+cnZlci4gClN0YXJ0aW5nIHN5c3RlbSBsb2cgZGFlbW9uLi4uMCAKU3RhcnRpbmcga2VybmVsIGxv
+ZyBkYWVtb24uLi4wIApTdGFydGluZyBpbnRlcm5ldCBzdXBlcnNlcnZlcjogeGluZXRkLiAKU3Rv
+cHBpbmcgQm9vdGxvZyBkYWVtb246IGJvb3Rsb2dkLiAKClBva3kgKFlvY3RvIFByb2plY3QgUmVm
+ZXJlbmNlIERpc3RybykgMS41IGxzMTAyMWF0d3IgL2Rldi90dHlTMCAKCmxzMTAyMWF0d3IgbG9n
+aW46IHJvb3QgCnJvb3RAbHMxMDIxYXR3cjp+IyBpMmNkdW1wIC15IDEgMHg1MiBpIAowIDEgMiAz
+IDQgNSA2IDcgOCA5IGEgYiBjIGQgZSBmIDAxMjM0NTY3ODlhYmNkZWYgCjAwOiA1NSA1NSA1NSA1
+NSBhYSBhYSBhYSBhYSBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBVVVVVPz8/Py4uLi4uLi4uIAox
+MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4u
+Li4uLi4uLi4uLiAKMjA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCjMwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIAo0MDogZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKNTA6IGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4u
+Li4uLi4gCjYwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiAuLi4uLi4uLi4uLi4uLi4uIAo3MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKODA6IGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCjkwOiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4u
+IAphMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4u
+Li4uLi4uLi4uLi4uLiAKYjA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCmMwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIApkMDogZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKZTA6
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4u
+Li4uLi4uLi4gCmYwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiAuLi4uLi4uLi4uLi4uLi4uIApyb290QGxzMTAyMWF0d3I6fiMgaTJjZHVtcCAteSAxIDB4
+NTIgCk5vIHNpemUgc3BlY2lmaWVkICh1c2luZyBieXRlLWRhdGEgYWNjZXNzKSAKMCAxIDIgMyA0
+IDUgNiA3IDggOSBhIGIgYyBkIGUgZiAwMTIzNDU2Nzg5YWJjZGVmIAowMDogNTUgNTUgNTUgNTUg
+YWEgYWEgYWEgYWEgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgVVVVVT8/Pz8uLi4uLi4uLiAKMTA6
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4u
+Li4uLi4uLi4gCjIwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiAuLi4uLi4uLi4uLi4uLi4uIAozMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKNDA6IGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCjUwOiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4u
+Li4uIAo2MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+Li4uLi4uLi4uLi4uLi4uLiAKNzA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCjgwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIAo5MDogZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAK
+YTA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4u
+Li4uLi4uLi4uLi4gCmIwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIApjMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKZDA6IGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCmUwOiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4u
+Li4uLi4uIApmMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgLi4uLi4uLi4uLi4uLi4uLiAKcm9vdEBsczEwMjFhdHdyOn4jIGkyY3NldCAtZiAteSAxIDB4
+NTIgMHgwMCAweGEwIDB4YTEgMHhhMiAweGEzIDB4YTQgMHhhNSAweGE2IDB4YTcgMHhhOCAweGE5
+IDB4YWEgMHhhYiAweGFjIDB4YWQgMHhhZSAweGFmIGkgCnJvb3RAbHMxMDIxYXR3cjp+IyBpMmNz
+ZXQgLWYgLXkgMSAweDUyIDB4MTAgMHhiMCAweGIxIDB4YjIgMHhiMyAweGI0IDB4YjUgMHhiNiAw
+eGI3IDB4YjggMHhiOSAweGJhIDB4YmIgMHhiYyAweGJkIDB4YmUgMHhiZiBpIApyb290QGxzMTAy
+MWF0d3I6fiMgaTJjc2V0IC1mIC15IDEgMHg1MiAweDIwIDB4YzAgMHhjMSAweGMyIDB4YzMgMHhj
+NCAweGM1IDB4YzYgMHhjNyAweGM4IDB4YzkgMHhjYSAweGNiIDB4Y2MgMHhjZCAweGNlIDB4Y2Yg
+aSAKcm9vdEBsczEwMjFhdHdyOn4jIGkyY3NldCAtZiAteSAxIDB4NTIgMHgzMCAweGQwIDB4ZDEg
+MHhkMiAweGQzIDB4ZDQgMHhkNSAweGQ2IDB4ZDcgMHhkOCAweGQ5IDB4ZGEgMHhkYiAweGRjIDB4
+ZGQgMHhkZSAweGRmIGkgCnJvb3RAbHMxMDIxYXR3cjp+IyBpMmNzZXQgLWYgLXkgMSAweDUyIDB4
+NDAgMHhlMCAweGUxIDB4ZTIgMHhlMyAweGU0IDB4ZTUgMHhlNiAweGU3IDB4ZTggMHhlOSAweGVh
+IDB4ZWIgMHhlYyAweGVkIDB4ZWUgMHhlZiBpIApyb290QGxzMTAyMWF0d3I6fiMgaTJjZHVtcCAt
+eSAxIDB4NTIgaSAKMCAxIDIgMyA0IDUgNiA3IDggOSBhIGIgYyBkIGUgZiAwMTIzNDU2Nzg5YWJj
+ZGVmIAowMDogYTAgYTEgYTIgYTMgYTQgYTUgYTYgYTcgYTggYTkgYWEgYWIgYWMgYWQgYWUgYWYg
+Pz8/Pz8/Pz8/Pz8/Pz8/PyAKMTA6IGIwIGIxIGIyIGIzIGI0IGI1IGI2IGI3IGI4IGI5IGJhIGJi
+IGJjIGJkIGJlIGJmID8/Pz8/Pz8/Pz8/Pz8/Pz8gCjIwOiBjMCBjMSBjMiBjMyBjNCBjNSBjNiBj
+NyBjOCBjOSBjYSBjYiBjYyBjZCBjZSBjZiA/Pz8/Pz8/Pz8/Pz8/Pz8/IAozMDogZDAgZDEgZDIg
+ZDMgZDQgZDUgZDYgZDcgZDggZDkgZGEgZGIgZGMgZGQgZGUgZGYgPz8/Pz8/Pz8/Pz8/Pz8/PyAK
+NDA6IGUwIGUxIGUyIGUzIGU0IGU1IGU2IGU3IGU4IGU5IGVhIGViIGVjIGVkIGVlIGVmID8/Pz8/
+Pz8/Pz8/Pz8/Pz8gCjUwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIAo2MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKNzA6IGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCjgwOiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4u
+Li4uLi4uIAo5MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgLi4uLi4uLi4uLi4uLi4uLiAKYTA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCmIwOiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIApjMDogZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4u
+LiAKZDA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4u
+Li4uLi4uLi4uLi4uLi4gCmUwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIApmMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKcm9vdEBsczEwMjFhdHdy
+On4jIGkyY2R1bXAgLXkgMSAweDUyIApObyBzaXplIHNwZWNpZmllZCAodXNpbmcgYnl0ZS1kYXRh
+IGFjY2VzcykgCjAgMSAyIDMgNCA1IDYgNyA4IDkgYSBiIGMgZCBlIGYgMDEyMzQ1Njc4OWFiY2Rl
+ZiAKMDA6IGEwIGExIGEyIGEzIGE0IGE1IGE2IGE3IGE4IGE5IGFhIGFiIGFjIGFkIGFlIGFmID8/
+Pz8/Pz8/Pz8/Pz8/Pz8gCjEwOiBiMCBiMSBiMiBiMyBiNCBiNSBiNiBiNyBiOCBiOSBiYSBiYiBi
+YyBiZCBiZSBiZiA/Pz8/Pz8/Pz8/Pz8/Pz8/IAoyMDogYzAgYzEgYzIgYzMgYzQgYzUgYzYgYzcg
+YzggYzkgY2EgY2IgY2MgY2QgY2UgY2YgPz8/Pz8/Pz8/Pz8/Pz8/PyAKMzA6IGQwIGQxIGQyIGQz
+IGQ0IGQ1IGQ2IGQ3IGQ4IGQ5IGRhIGRiIGRjIGRkIGRlIGRmID8/Pz8/Pz8/Pz8/Pz8/Pz8gCjQw
+OiBlMCBlMSBlMiBlMyBlNCBlNSBlNiBlNyBlOCBlOSBlYSBlYiBlYyBlZCBlZSBlZiA/Pz8/Pz8/
+Pz8/Pz8/Pz8/IAo1MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKNjA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCjcwOiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIAo4MDogZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4u
+Li4uLiAKOTA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IC4uLi4uLi4uLi4uLi4uLi4gCmEwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
+ZiBmZiBmZiBmZiBmZiAuLi4uLi4uLi4uLi4uLi4uIApiMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKYzA6IGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4g
+CmQwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiAuLi4u
+Li4uLi4uLi4uLi4uIAplMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
+ZmYgZmYgZmYgLi4uLi4uLi4uLi4uLi4uLiAKZjA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
+IGZmIGZmIGZmIGZmIGZmIGZmIGZmIC4uLi4uLi4uLi4uLi4uLi4gCnJvb3RAbHMxMDIxYXR3cjp+
+IyAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4
+LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFk
+Lm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFy
+bS1rZXJuZWwK
