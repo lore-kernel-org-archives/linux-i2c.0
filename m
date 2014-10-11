@@ -1,49 +1,63 @@
-From: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH v9 2/3] Documentation:add DMA support for freescale i2c driver
-Date: Sat, 11 Oct 2014 18:57:11 +0800
-Message-ID: <1413025032-14958-3-git-send-email-yao.yuan@freescale.com>
+From: Yuan Yao <yao.yuan@freescale.com>
+Subject: [PATCH v9 1/3] i2c: imx: Sort include headers alphabetically
+Date: Sat, 11 Oct 2014 18:57:10 +0800
+Message-ID: <1413025032-14958-2-git-send-email-yao.yuan@freescale.com>
 References: <1413025032-14958-1-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1413025032-14958-1-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org
-Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1413025032-14958-1-git-send-email-yao.yuan@freescale.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, marex@denx.de
+Cc: LW@KARO-electronics.de, mark.rutland@arm.com, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c dts node properties for eDMA support, them depend on the eDMA driver.
+If the inlcude headers aren't sorted alphabetically, then the
+logical choice is to append new ones, however that creates a
+lot of potential for conflicts or duplicates because every change
+will then add new includes in the same location.
 
-Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-imx.txt | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/i2c/busses/i2c-imx.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-index 4a8513e..52d37fd 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-@@ -11,6 +11,8 @@ Required properties:
- Optional properties:
- - clock-frequency : Constains desired I2C/HS-I2C bus clock frequency in Hz.
-   The absence of the propoerty indicates the default frequency 100 kHz.
-+- dmas: A list of two dma specifiers, one for each entry in dma-names.
-+- dma-names: should contain "tx" and "rx".
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index c48e46a..2452b57 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -37,22 +37,22 @@
+ /** Includes *******************************************************************
+ *******************************************************************************/
  
- Examples:
+-#include <linux/init.h>
+-#include <linux/kernel.h>
+-#include <linux/module.h>
+-#include <linux/errno.h>
+-#include <linux/err.h>
+-#include <linux/interrupt.h>
++#include <linux/clk.h>
+ #include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/errno.h>
+ #include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
+ #include <linux/io.h>
+-#include <linux/sched.h>
+-#include <linux/platform_device.h>
+-#include <linux/clk.h>
+-#include <linux/slab.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_data/i2c-imx.h>
++#include <linux/platform_device.h>
++#include <linux/sched.h>
++#include <linux/slab.h>
  
-@@ -26,3 +28,12 @@ i2c@70038000 { /* HS-I2C on i.MX51 */
- 	interrupts = <64>;
- 	clock-frequency = <400000>;
- };
-+
-+i2c0: i2c@40066000 { /* i2c0 on vf610 */
-+	compatible = "fsl,vf610-i2c";
-+	reg = <0x40066000 0x1000>;
-+	interrupts =<0 71 0x04>;
-+	dmas = <&edma0 0 50>,
-+		<&edma0 0 51>;
-+	dma-names = "rx","tx";
-+};
+ /** Defines ********************************************************************
+ *******************************************************************************/
 -- 
-1.8.4
+2.1.0.27.g96db324
