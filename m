@@ -1,40 +1,49 @@
-From: John Crispin <blogic-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
-Subject: Re: [PATCH] i2c: MIPS: adds ralink I2C driver
-Date: Sat, 11 Oct 2014 09:14:19 +0200
-Message-ID: <5438D8CB.5080808@openwrt.org>
-References: <1412970186-16030-1-git-send-email-blogic@openwrt.org> <20141011042423.GA1267@katana>
+From: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH v9 2/3] Documentation:add DMA support for freescale i2c driver
+Date: Sat, 11 Oct 2014 18:57:11 +0800
+Message-ID: <1413025032-14958-3-git-send-email-yao.yuan@freescale.com>
+References: <1413025032-14958-1-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141011042423.GA1267@katana>
+In-Reply-To: <1413025032-14958-1-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org
+Cc: LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Add i2c dts node properties for eDMA support, them depend on the eDMA driver.
 
-On 11/10/2014 06:24, Wolfram Sang wrote:
-> Hi John,
->
->> +#define REG_CONFIG_REG		0x00
->> +#define REG_CLKDIV_REG		0x04
->> +#define REG_DEVADDR_REG		0x08
->> +#define REG_ADDR_REG		0x0C
->> +#define REG_DATAOUT_REG		0x10
->> +#define REG_DATAIN_REG		0x14
->> +#define REG_STATUS_REG		0x18
->> +#define REG_STARTXFR_REG	0x1C
->> +#define REG_BYTECNT_REG		0x20
-> The register set looks like the one from i2c-xlr.c, only that they are
-> 32 bit apart instead of 8. Can you check if you can reuse that driver?
->
-> Thanks,
->
->    Wolfram
->
-Hi Wolfram,
+Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-imx.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-will do, thanks for the pointer
-
-    John
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+index 4a8513e..52d37fd 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+@@ -11,6 +11,8 @@ Required properties:
+ Optional properties:
+ - clock-frequency : Constains desired I2C/HS-I2C bus clock frequency in Hz.
+   The absence of the propoerty indicates the default frequency 100 kHz.
++- dmas: A list of two dma specifiers, one for each entry in dma-names.
++- dma-names: should contain "tx" and "rx".
+ 
+ Examples:
+ 
+@@ -26,3 +28,12 @@ i2c@70038000 { /* HS-I2C on i.MX51 */
+ 	interrupts = <64>;
+ 	clock-frequency = <400000>;
+ };
++
++i2c0: i2c@40066000 { /* i2c0 on vf610 */
++	compatible = "fsl,vf610-i2c";
++	reg = <0x40066000 0x1000>;
++	interrupts =<0 71 0x04>;
++	dmas = <&edma0 0 50>,
++		<&edma0 0 51>;
++	dma-names = "rx","tx";
++};
+-- 
+1.8.4
