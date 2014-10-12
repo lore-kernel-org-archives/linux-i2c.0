@@ -1,53 +1,41 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RFC PATCH 3/3] i2c: show and change bus frequency via sysfs
-Date: Sun, 12 Oct 2014 10:06:37 -0700
-Message-ID: <20141012170637.GA12591@roeck-us.net>
-References: <1412885235-14026-1-git-send-email-octavian.purdila@intel.com>
- <1412885235-14026-4-git-send-email-octavian.purdila@intel.com>
- <CAJjB1qKQ0ND2CeF=Npahn0r19WjdTwc7D3Th7PLnn0FJxHa_KQ@mail.gmail.com>
- <CAE1zotL4Pb5etHzakCxeDLvZR112XGGaHomZ_dbh=AQVc0wvPg@mail.gmail.com>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: rk3x: adjust the LOW divison based on
+ characteristics of SCL
+Date: Sun, 12 Oct 2014 14:24:06 -0700
+Message-ID: <CAD=FV=XHOuQZPOrVRtoTGN2Yq6E7fuKSa+AM6U_MYKAoZ+nKBA@mail.gmail.com>
+References: <1412837235-4202-1-git-send-email-addy.ke@rock-chips.com>
+	<5700320.9GSb6erCFz@typ>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAE1zotL4Pb5etHzakCxeDLvZR112XGGaHomZ_dbh=AQVc0wvPg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Mark Roszko <mark.roszko@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-api@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Johan Hovold <johan@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5700320.9GSb6erCFz@typ>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
+Cc: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5aea5pm65oOF?= <yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, han jiang <hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Kever Yang <kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Shunqian Zheng <zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Oct 12, 2014 at 12:32:56PM +0300, Octavian Purdila wrote:
-> On Sat, Oct 11, 2014 at 11:14 PM, Mark Roszko <mark.roszko@gmail.com> wrote:
-> 
-> > This seems limiting to arches with peripherals that can support a range of
-> > frequencies rather than fixed numbers.
-> > Also it creates some portability quirkiness between platforms when all the
-> > i2c bus drivers have different supported freq lists and you have to match
-> > exactly the right frequency. I.e. one guy does 60khz but another only has
-> > 80khz.
-> 
-> Sorry, I don't understand your points here. If this limitations exists
-> they are not introduced by this patch. This patch just exposes the
-> frequency so that it can be read or changed in userspace.
-> 
-> > Another issue is in systems where you have i2c devices on the same bus as
-> > the sysfs user space driver. User space could set a bus frequency that
-> > prevents operation with a system i2c device.
-> 
-> Changing the frequency is limited to root. Also, bus drivers do not
-> have to implement set_freq if it is thought not to be safe.
-> 
-> On a different not, I have noticed that a fixed set of frequencies
-> might not be the best API, since multiple drivers rather support a
-> rather large set of frequencies in a range. A better API might be to
-> expose a min-max range and let the bus driver adjust the requested
-> frequency. I will follow up with a second version that does that.
+Max,
 
-As two separate sysfs attributes, maybe ? sysfs is supposed to provide
-one value per attribute.
+On Sun, Oct 12, 2014 at 5:10 AM, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org> wrote:
+>> +     /* Adjust to avoid overflow */
+>> +     i2c_rate_khz = DIV_ROUND_UP(i2c_rate, 1000);
+>> +     scl_rate_khz = DIV_ROUND_UP(scl_rate, 1000);
+>
+> I'm not really comfortable with using DIV_ROUND_UP on the last line, since
+> this may violate the user's set SCL rate. Rounding up 1.1kHz SCL rate to 2kHz
+> is not good.
 
-For the patch itself, I would find it better if you used is_visible to
-determine if the new attributes should be visible (and/or writable) instead
-of returning -EOPNOTSUPP.
+Ah, good point.  So we round up for i2c_rate and down for scl_rate:
 
-Guenter
+  i2c_rate_khz = DIV_ROUND_UP(i2c_rate, 1000);
+  scl_rate_khz = scl_rate / 1000;
+
+
+> I suggest using scl_rate / 1000 and placing a
+>
+> if(WARN_ON(scl_rate < 1000))
+>   scl_rate = 1000;
+>
+> somewhere to prevent scl_rate_khz from becoming 0.
+
+Ah, makes sense.  Yeah, that should be at the top.
