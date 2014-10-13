@@ -1,73 +1,73 @@
-From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Subject: [RFC/PATCH] i2c: pxa: Use suspend() and resume() instead of the _noirq hooks
-Date: Mon, 13 Oct 2014 13:44:23 -0300
-Message-ID: <1413218663-2847-1-git-send-email-ezequiel@vanguardiasur.com.ar>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+From: James Ralston <james.d.ralston@intel.com>
+Subject: [PATCH 2/4] i2c-i801: Add Device IDs for Intel Sunrise Point PCH
+Date: Mon, 13 Oct 2014 15:20:24 -0700
+Message-ID: <1413238824-5513-1-git-send-email-james.d.ralston@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
+Cc: James Ralston <james.d.ralston@intel.com>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The _noirq were previously chosen to make sure all the users of the
-adapter were suspended by the time the adapter itself enters the
-suspended state.
+This patch adds the I2C/SMBus Device IDs for the Intel Sunrise Point PCH.
 
-The {suspend,resume}_noirq usage was converted from an earlier
-implementation based on suspend_late and resume_early:
-
-commit 57f4d4f1b72983f8c76e2f232e064730aeffe599
-Author: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
-Date:   Wed Jul 8 13:22:39 2009 +0200
-
-    I2C: Rework i2c-pxa suspend_late()/resume_early()
-
-However, all the I2C devices are probed as children of its I2C adapter,
-and hence the device model guarantees they get suspended before its
-parent and resumed after it.
-
-In other words, there's no need to use the _noirq hooks to get a
-suspend/resume device/adapter order.
-
-This commit changes this by using the suspend/resume PM hooks in the I2C
-adapter.
-
-Signed-off-by: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Signed-off-by: James Ralston <james.d.ralston@intel.com>
 ---
- drivers/i2c/busses/i2c-pxa.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/i2c/busses/i2c-i801 | 1 +
+ drivers/i2c/busses/Kconfig        | 1 +
+ drivers/i2c/busses/i2c-i801.c     | 3 +++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index be671f7..3be19b36 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1292,7 +1292,7 @@ static int i2c_pxa_remove(struct platform_device *dev)
- }
+diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+index e9c803e..793c83d 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -28,6 +28,7 @@ Supported adapters:
+   * Intel Wildcat Point (PCH)
+   * Intel Wildcat Point-LP (PCH)
+   * Intel BayTrail (SOC)
++  * Intel Sunrise Point-H (PCH)
+    Datasheets: Publicly available at the Intel website
  
- #ifdef CONFIG_PM
--static int i2c_pxa_suspend_noirq(struct device *dev)
-+static int i2c_pxa_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct pxa_i2c *i2c = platform_get_drvdata(pdev);
-@@ -1302,7 +1302,7 @@ static int i2c_pxa_suspend_noirq(struct device *dev)
- 	return 0;
- }
+ On Intel Patsburg and later chipsets, both the normal host SMBus controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 2ac87fa..9f4f574 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -112,6 +112,7 @@ config I2C_I801
+ 	    Wildcat Point (PCH)
+ 	    Wildcat Point-LP (PCH)
+ 	    BayTrail (SOC)
++	    Sunrise Point-H (PCH)
  
--static int i2c_pxa_resume_noirq(struct device *dev)
-+static int i2c_pxa_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct pxa_i2c *i2c = platform_get_drvdata(pdev);
-@@ -1314,8 +1314,8 @@ static int i2c_pxa_resume_noirq(struct device *dev)
- }
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 10467a3..7cfc183 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -62,6 +62,7 @@
+  * Wildcat Point (PCH)		0x8ca2	32	hard	yes	yes	yes
+  * Wildcat Point-LP (PCH)	0x9ca2	32	hard	yes	yes	yes
+  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
++ * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -184,6 +185,7 @@
+ #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2		0x8d7f
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
+ #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
++#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
  
- static const struct dev_pm_ops i2c_pxa_dev_pm_ops = {
--	.suspend_noirq = i2c_pxa_suspend_noirq,
--	.resume_noirq = i2c_pxa_resume_noirq,
-+	.suspend = i2c_pxa_suspend,
-+	.resume = i2c_pxa_resume,
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -830,6 +832,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
+ 	{ 0, }
  };
  
- #define I2C_PXA_DEV_PM_OPS (&i2c_pxa_dev_pm_ops)
 -- 
-2.1.0
+1.8.3.1
