@@ -1,59 +1,146 @@
-From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [RFC PATCH 3/3] i2c: show and change bus frequency via sysfs
-Date: Mon, 13 Oct 2014 13:32:28 +0300
-Message-ID: <CAE1zotLf15Prv=uYwL1wnsANj8k8RFhtBZCNJLkqOO+vxqW5CA@mail.gmail.com>
-References: <1412885235-14026-1-git-send-email-octavian.purdila@intel.com>
-	<1412885235-14026-4-git-send-email-octavian.purdila@intel.com>
-	<CAJjB1qKQ0ND2CeF=Npahn0r19WjdTwc7D3Th7PLnn0FJxHa_KQ@mail.gmail.com>
-	<CAE1zotL4Pb5etHzakCxeDLvZR112XGGaHomZ_dbh=AQVc0wvPg@mail.gmail.com>
-	<20141012170637.GA12591@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Thomas Gessler <Thomas.Gessler-Tvfv6JZYqycq7YrIr1+ioITjL5QYi2yUhC4ANOJQIlc@public.gmane.org>
+Subject: [PATCH] i2c: i2c-xiic: Fix big-endian register access
+Date: Mon, 13 Oct 2014 18:08:47 +0200
+Message-ID: <1413216527-11933-1-git-send-email-Thomas.Gessler@exp2.physik.uni-giessen.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141012170637.GA12591-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, Thomas.Gessler-Tvfv6JZYqycq7YrIr1+ioITjL5QYi2yUhC4ANOJQIlc@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Oct 12, 2014 at 8:06 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
-> On Sun, Oct 12, 2014 at 12:32:56PM +0300, Octavian Purdila wrote:
->> On Sat, Oct 11, 2014 at 11:14 PM, Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->>
->> > This seems limiting to arches with peripherals that can support a range of
->> > frequencies rather than fixed numbers.
->> > Also it creates some portability quirkiness between platforms when all the
->> > i2c bus drivers have different supported freq lists and you have to match
->> > exactly the right frequency. I.e. one guy does 60khz but another only has
->> > 80khz.
->>
->> Sorry, I don't understand your points here. If this limitations exists
->> they are not introduced by this patch. This patch just exposes the
->> frequency so that it can be read or changed in userspace.
->>
->> > Another issue is in systems where you have i2c devices on the same bus as
->> > the sysfs user space driver. User space could set a bus frequency that
->> > prevents operation with a system i2c device.
->>
->> Changing the frequency is limited to root. Also, bus drivers do not
->> have to implement set_freq if it is thought not to be safe.
->>
->> On a different not, I have noticed that a fixed set of frequencies
->> might not be the best API, since multiple drivers rather support a
->> rather large set of frequencies in a range. A better API might be to
->> expose a min-max range and let the bus driver adjust the requested
->> frequency. I will follow up with a second version that does that.
->
-> As two separate sysfs attributes, maybe ? sysfs is supposed to provide
-> one value per attribute.
->
+The driver tried to access device registers with the (little-endian)
+iowrite/ioread functions. While this worked on little-endian machines
+(e.g. Microblaze with AXI bus), it made the driver unusable on
+big-endian machines (e.g. PPC405 with PLB).
 
-Yes, I was thinking of using three attributes: bus_frequency,
-bus_min_frequency and bus_max_frequency.
+During the probe function, the driver tried to write a 32-bit reset mask
+into the reset register. This caused an error interrupt on big-endian
+systems, because the device detected an invalid (byte-swapped) reset
+mask. The result was an Oops.
 
-> For the patch itself, I would find it better if you used is_visible to
-> determine if the new attributes should be visible (and/or writable) instead
-> of returning -EOPNOTSUPP.
->
+The patch implements an endianness detection similar to the one used in
+other Xilinx drivers like drivers/spi/spi-xilinx.c. It was tested on a
+PPC405/PLB system.
 
-OK, that sounds better. I will switch to that model in v2.
+Signed-off-by: Thomas Gessler <Thomas.Gessler-Tvfv6JZYqycq7YrIr1+ioITjL5QYi2yUhC4ANOJQIlc@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-xiic.c | 58 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 53 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index ade9223..9842660 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -50,6 +50,11 @@ enum xilinx_i2c_state {
+ 	STATE_START
+ };
+ 
++enum xiic_endian {
++	LITTLE,
++	BIG
++};
++
+ /**
+  * struct xiic_i2c - Internal representation of the XIIC I2C bus
+  * @base:	Memory base of the HW registers
+@@ -74,6 +79,7 @@ struct xiic_i2c {
+ 	enum xilinx_i2c_state	state;
+ 	struct i2c_msg		*rx_msg;
+ 	int			rx_pos;
++	enum xiic_endian	endianness;
+ };
+ 
+ 
+@@ -174,29 +180,58 @@ struct xiic_i2c {
+ static void xiic_start_xfer(struct xiic_i2c *i2c);
+ static void __xiic_start_xfer(struct xiic_i2c *i2c);
+ 
++/*
++ * For the register read and write functions, a little-endian and big-endian
++ * version are necessary. Endianness is detected during the probe function.
++ * Only the least significant byte [doublet] of the register are ever
++ * accessed. This requires an offset of 3 [2] from the base address for
++ * big-endian systems.
++ */
++
+ static inline void xiic_setreg8(struct xiic_i2c *i2c, int reg, u8 value)
+ {
+-	iowrite8(value, i2c->base + reg);
++	if (i2c->endianness == LITTLE)
++		iowrite8(value, i2c->base + reg);
++	else
++		iowrite8(value, i2c->base + reg + 3);
+ }
+ 
+ static inline u8 xiic_getreg8(struct xiic_i2c *i2c, int reg)
+ {
+-	return ioread8(i2c->base + reg);
++	u8 ret;
++
++	if (i2c->endianness == LITTLE)
++		ret = ioread8(i2c->base + reg);
++	else
++		ret = ioread8(i2c->base + reg + 3);
++	return ret;
+ }
+ 
+ static inline void xiic_setreg16(struct xiic_i2c *i2c, int reg, u16 value)
+ {
+-	iowrite16(value, i2c->base + reg);
++	if (i2c->endianness == LITTLE)
++		iowrite16(value, i2c->base + reg);
++	else
++		iowrite16be(value, i2c->base + reg + 2);
+ }
+ 
+ static inline void xiic_setreg32(struct xiic_i2c *i2c, int reg, int value)
+ {
+-	iowrite32(value, i2c->base + reg);
++	if (i2c->endianness == LITTLE)
++		iowrite32(value, i2c->base + reg);
++	else
++		iowrite32be(value, i2c->base + reg);
+ }
+ 
+ static inline int xiic_getreg32(struct xiic_i2c *i2c, int reg)
+ {
+-	return ioread32(i2c->base + reg);
++	u32 ret;
++
++	if (i2c->endianness == LITTLE)
++		ret = ioread32(i2c->base + reg);
++	else
++		ret = ioread32be(i2c->base + reg);
++	return ret;
+ }
+ 
+ static inline void xiic_irq_dis(struct xiic_i2c *i2c, u32 mask)
+@@ -696,6 +731,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int ret, irq;
+ 	u8 i;
++	u32 sr;
+ 
+ 	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
+@@ -728,6 +764,18 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	/*
++	 * Detect endianness
++	 * Try to reset the TX FIFO. Then check the EMPTY flag. If it is not
++	 * set, assume that the endianness was wrong and swap.
++	 */
++	i2c->endianness = LITTLE;
++	xiic_setreg32(i2c, XIIC_CR_REG_OFFSET, XIIC_CR_TX_FIFO_RESET_MASK);
++	/* Reset is cleared in xiic_reinit */
++	sr = xiic_getreg32(i2c, XIIC_SR_REG_OFFSET);
++	if (!(sr & XIIC_SR_TX_FIFO_EMPTY_MASK))
++		i2c->endianness = BIG;
++
+ 	xiic_reinit(i2c);
+ 
+ 	/* add i2c adapter to i2c tree */
+-- 
+2.1.2
