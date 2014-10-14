@@ -1,73 +1,43 @@
-From: James Ralston <james.d.ralston@intel.com>
-Subject: [PATCH 2/4] i2c-i801: Add Device IDs for Intel Sunrise Point PCH
-Date: Mon, 13 Oct 2014 15:20:24 -0700
-Message-ID: <1413238824-5513-1-git-send-email-james.d.ralston@intel.com>
+From: Mark Roszko <mark.roszko@gmail.com>
+Subject: Re: [RFC PATCH 3/3] i2c: show and change bus frequency via sysfs
+Date: Mon, 13 Oct 2014 21:53:20 -0400
+Message-ID: <CAJjB1qJsmFebE2u_wMe2gdrQYcEwY1-yDLpufK97EXjEoR6omQ@mail.gmail.com>
+References: <1412885235-14026-1-git-send-email-octavian.purdila@intel.com>
+ <1412885235-14026-4-git-send-email-octavian.purdila@intel.com>
+ <CAJjB1qKQ0ND2CeF=Npahn0r19WjdTwc7D3Th7PLnn0FJxHa_KQ@mail.gmail.com> <CAE1zotL4Pb5etHzakCxeDLvZR112XGGaHomZ_dbh=AQVc0wvPg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAE1zotL4Pb5etHzakCxeDLvZR112XGGaHomZ_dbh=AQVc0wvPg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: James Ralston <james.d.ralston@intel.com>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, linux-api@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Johan Hovold <johan@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the I2C/SMBus Device IDs for the Intel Sunrise Point PCH.
+> If this limitations exists
+>they are not introduced by this patch. This patch just exposes the
+>frequency so that it can be read or changed in userspace.
 
-Signed-off-by: James Ralston <james.d.ralston@intel.com>
----
- Documentation/i2c/busses/i2c-i801 | 1 +
- drivers/i2c/busses/Kconfig        | 1 +
- drivers/i2c/busses/i2c-i801.c     | 3 +++
- 3 files changed, 5 insertions(+)
+Ah, well right now you can have an i2c bus with driver 1 and 2. Say
+the i2c bus is configured for 60khz in kernel space which normally
+can't be changed. Driver 1 talks to a slave that cannot go above
+100khz. Now the userspace interface is added to the i2c bus. Some
+userspace application decides to reconfigure the bus for 400khz and do
+its communication to some slave device. Now the kernel tries to do
+some background talking to the drive 1 slave and suddenly finds it can
+no longer communicate with it. Right now with the kernel space only
+configuration, the system is safe from being messed up easily. It's
+more of a sanity of configuration issue.
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index e9c803e..793c83d 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -28,6 +28,7 @@ Supported adapters:
-   * Intel Wildcat Point (PCH)
-   * Intel Wildcat Point-LP (PCH)
-   * Intel BayTrail (SOC)
-+  * Intel Sunrise Point-H (PCH)
-    Datasheets: Publicly available at the Intel website
- 
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 2ac87fa..9f4f574 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -112,6 +112,7 @@ config I2C_I801
- 	    Wildcat Point (PCH)
- 	    Wildcat Point-LP (PCH)
- 	    BayTrail (SOC)
-+	    Sunrise Point-H (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 10467a3..7cfc183 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -62,6 +62,7 @@
-  * Wildcat Point (PCH)		0x8ca2	32	hard	yes	yes	yes
-  * Wildcat Point-LP (PCH)	0x9ca2	32	hard	yes	yes	yes
-  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
-+ * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -184,6 +185,7 @@
- #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2		0x8d7f
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
- #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
-+#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
- 
- struct i801_mux_config {
- 	char *gpio_chip;
-@@ -830,6 +832,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
- 	{ 0, }
- };
- 
--- 
-1.8.3.1
+>On a different not, I have noticed that a fixed set of frequencies
+>might not be the best API, since multiple drivers rather support a
+>rather large set of frequencies in a range. A better API might be to
+>expose a min-max range and let the bus driver adjust the requested
+>frequency. I will follow up with a second version that does that.
+
+I was actually thinking you could eliminate the table of supported
+frequencies and just have the bus driver handle the set frequency
+decision itself and just return an error code if it's invalid. There
+are legitiamate drivers that cannot do more than a list of frequencies
+already as well. One example is here:
+http://lxr.free-electrons.com/source/drivers/i2c/busses/i2c-bcm-kona.c#L717
