@@ -1,41 +1,126 @@
-From: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v6] i2c: rk3x: adjust the LOW divison based on characteristics of SCL
-Date: Wed, 15 Oct 2014 00:42:21 +0200
-Message-ID: <1801397.7yxIcDsLaN@typ>
-References: <1413168244-3553-1-git-send-email-addy.ke@rock-chips.com> <1413266961-3859-1-git-send-email-addy.ke@rock-chips.com>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH v2 3/3] i2c: show and change bus frequency via sysfs
+Date: Wed, 15 Oct 2014 14:49:39 +0300
+Message-ID: <CAE1zotKpgEqAhtQvsFFee8xnX02MmhwrM0YU-6OHVZHcxiAi9g@mail.gmail.com>
+References: <1413298094-9276-1-git-send-email-octavian.purdila@intel.com>
+	<1413298094-9276-4-git-send-email-octavian.purdila@intel.com>
+	<20141014154151.GB10067@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1413266961-3859-1-git-send-email-addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141014154151.GB10067-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Addy,
+On Tue, Oct 14, 2014 at 6:41 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
+>
+> On Tue, Oct 14, 2014 at 05:48:14PM +0300, Octavian Purdila wrote:
+> > This patch adds three new sysfs files: bus_frequency,
+> > bus_min_frequency and bus_max_frequency which allows the user to view
+> > or change the bus frequency on a per bus level.
+> >
 
-On Tuesday 14 October 2014 at 14:09:21, Addy Ke wrote:
-> As show in I2C specification:
-> - Standard-mode: the minimum HIGH period of the scl clock is 4.0us
->                  the minimum LOW period of the scl clock is 4.7us
-> - Fast-mode: the minimum HIGH period of the scl clock is 0.6us
->              the minimum LOW period of the scl clock is 1.3us
-> 
-> I have measured i2c SCL waveforms in fast-mode by oscilloscope
-> on rk3288-pinky board. the LOW period of the scl clock is 1.3us.
-> It is so critical that we must adjust LOW division to increase
-> the LOW period of the scl clock.
-> 
-> Thanks Doug for the suggestion about division formulas.
-> 
-> Tested-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Tested-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+<snip>
 
-Reviewed-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-Tested-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
+> > +
+> > +static DEVICE_ATTR(bus_frequency, S_IRUGO, i2c_sysfs_freq_show,
+> > +                i2c_sysfs_freq_store);
+>
+> Consider using DEVICE_ATTR_RO here. Also, extra empty line.
+>
 
-Cheers,
-  Max
+Unfortunately that won't work because we must transform bus_frequency
+to a RW entry (via is_visible) if the bus can change the frequency. We
+can't use DEVIE_ATTR_RW either, because transforming a RW entry to a
+RO entry with is visible is not possible:
+
+fs/sysfs/group.c:
+
+static int create_files(struct kernfs_node *parent, struct kobject *kobj,
+...
+                        if (grp->is_visible) {
+                                mode = grp->is_visible(kobj, *attr, i);
+                                if (!mode)
+                                        continue;
+                        }
+                        error = sysfs_add_file_mode_ns(parent, *attr, false,
+                                                       (*attr)->mode | mode,
+                                                       NULL);
+
+Of course if we only allow a RW frequency entry as you suggest below,
+then we can use DEVICE_ATTR_RW.
+
+> > +
+> > +
+> > +static ssize_t
+> > +i2c_sysfs_min_freq_show(struct device *dev, struct device_attribute *attr,
+> > +                       char *buf)
+> > +{
+> > +     struct i2c_adapter *adap = to_i2c_adapter(dev);
+> > +
+> > +     return snprintf(buf, PAGE_SIZE, "%d\n", adap->min_freq);
+> > +}
+> > +
+> > +static DEVICE_ATTR(bus_min_frequency, S_IRUGO, i2c_sysfs_min_freq_show, NULL);
+> > +
+>
+> Consider using DEVICE_ATTR_RO.
+>
+
+OK.
+
+> > +static ssize_t
+> > +i2c_sysfs_max_freq_show(struct device *dev, struct device_attribute *attr,
+> > +                       char *buf)
+> > +{
+> > +     struct i2c_adapter *adap = to_i2c_adapter(dev);
+> > +
+> > +     return snprintf(buf, PAGE_SIZE, "%d\n", adap->max_freq);
+> > +}
+> > +
+> > +static DEVICE_ATTR(bus_max_frequency, S_IRUGO, i2c_sysfs_max_freq_show, NULL);
+> > +
+> Consider using DEVICE_ATTR_RO.
+>
+
+OK.
+
+> Overall, it seems to me that the bus_ in front of the attrribute names
+> is really not necessary. The attributes are attached to the adapter, so it
+> should be obvious that the attributes describe the adapter (=bus) frequency and
+> not some other frequency.
+>
+> > +umode_t i2c_adapter_visible_attr(struct kobject *kobj,
+> > +                              struct attribute *attr, int idx)
+>
+> static umode_t
+>
+
+Oops :)
+
+> > +{
+> > +     struct device *dev = container_of(kobj, struct device, kobj);
+> > +     struct i2c_adapter *adap = to_i2c_adapter(dev);
+> > +     umode_t mode = attr->mode;
+> > +
+> > +     if (attr == &dev_attr_bus_min_frequency.attr)
+> > +             return adap->min_freq ? mode : 0;
+> > +
+> > +     if (attr == &dev_attr_bus_max_frequency.attr)
+> > +             return adap->max_freq ? mode : 0;
+> > +
+> > +     if (attr == &dev_attr_bus_frequency.attr) {
+> > +             if (adap->set_freq)
+> > +                     mode |= S_IWUSR;
+> > +             return adap->freq ? mode : 0;
+>
+> Personally, I would make all those attributes only visible if the adapter
+> supports setting the frquency, and not bother with other conditions,
+> to keep things simple. Not a strong call, though.
+>
+
+I don't have a strong opinion either. I think a RO frequency entry
+would help with debugging, but I am not sure how useful it is in
+practice.
