@@ -1,343 +1,76 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: [PATCH v8 2/4] i2c: add support for Diolan DLN-2 USB-I2C adapter
-Date: Wed, 15 Oct 2014 17:48:09 +0300
-Message-ID: <1413384491-23703-3-git-send-email-octavian.purdila@intel.com>
-References: <1413384491-23703-1-git-send-email-octavian.purdila@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1413384491-23703-1-git-send-email-octavian.purdila@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org
-Cc: arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c: Add generic support passing secondary devices
+ addresses
+Date: Wed, 15 Oct 2014 11:54:37 -0700
+Message-ID: <1413399277.1902.51.camel@spandruv-desktop.jf.intel.com>
+References: <1409925739-28188-1-git-send-email-jean-michel.hautbois@vodalys.com>
+	 <20140922104555.GQ1786@lahna.fi.intel.com> <542023C8.8080802@metafoo.de>
+	 <20140922134535.GZ1786@lahna.fi.intel.com> <54202E28.80500@metafoo.de>
+	 <20140922144144.GF1786@lahna.fi.intel.com> <20141003104637.GC1349@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141003104637.GC1349@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Jean-Michel Hautbois <jean-michel.hautbois-B+Q8N6RmIDZBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Laurentiu Palcu <laurentiu.palcu@intel.com>
+Hi Lars and Jean,
 
-This patch adds support for the Diolan DLN-2 I2C master module. Due
-to hardware limitations it does not support SMBUS quick commands.
+Are you taking this patch further to take care about ACPI related stuff
+submitted by Mika?
 
-Information about the USB protocol interface can be found in the
-Programmer's Reference Manual [1], see section 6.2.2 for the I2C
-master module commands and responses.
-
-[1] https://www.diolan.com/downloads/dln-api-manual.pdf
-
-Signed-off-by: Laurentiu Palcu <laurentiu.palcu@intel.com>
-Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
----
- drivers/i2c/busses/Kconfig    |  10 ++
- drivers/i2c/busses/Makefile   |   1 +
- drivers/i2c/busses/i2c-dln2.c | 270 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 281 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-dln2.c
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 2ac87fa..2f3f371 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -858,6 +858,16 @@ config I2C_DIOLAN_U2C
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-diolan-u2c.
- 
-+config I2C_DLN2
-+       tristate "Diolan DLN-2 USB I2C adapter"
-+       depends on MFD_DLN2
-+       help
-+         If you say yes to this option, support will be included for Diolan
-+         DLN2, a USB to I2C interface.
-+
-+         This driver can also be built as a module.  If so, the module
-+         will be called i2c-dln2.
-+
- config I2C_PARPORT
- 	tristate "Parallel port adapter"
- 	depends on PARPORT
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 49bf07e..4755f79 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -85,6 +85,7 @@ obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
- 
- # External I2C/SMBus adapter drivers
- obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
-+obj-$(CONFIG_I2C_DLN2)		+= i2c-dln2.o
- obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
- obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
- obj-$(CONFIG_I2C_ROBOTFUZZ_OSIF)	+= i2c-robotfuzz-osif.o
-diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-dln2.c
-new file mode 100644
-index 0000000..62c38cd
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-dln2.c
-@@ -0,0 +1,270 @@
-+/*
-+ * Driver for the Diolan DLN-2 USB-I2C adapter
-+ *
-+ * Copyright (c) 2014 Intel Corporation
-+ *
-+ * Derived from:
-+ *  i2c-diolan-u2c.c
-+ *  Copyright (c) 2010-2011 Ericsson AB
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation, version 2.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/platform_device.h>
-+#include <linux/mfd/dln2.h>
-+
-+#define DLN2_I2C_MODULE_ID		0x03
-+#define DLN2_I2C_CMD(cmd)		DLN2_CMD(cmd, DLN2_I2C_MODULE_ID)
-+
-+/* I2C commands */
-+#define DLN2_I2C_GET_PORT_COUNT		DLN2_I2C_CMD(0x00)
-+#define DLN2_I2C_ENABLE			DLN2_I2C_CMD(0x01)
-+#define DLN2_I2C_DISABLE		DLN2_I2C_CMD(0x02)
-+#define DLN2_I2C_IS_ENABLED		DLN2_I2C_CMD(0x03)
-+#define DLN2_I2C_WRITE			DLN2_I2C_CMD(0x06)
-+#define DLN2_I2C_READ			DLN2_I2C_CMD(0x07)
-+#define DLN2_I2C_SCAN_DEVICES		DLN2_I2C_CMD(0x08)
-+#define DLN2_I2C_PULLUP_ENABLE		DLN2_I2C_CMD(0x09)
-+#define DLN2_I2C_PULLUP_DISABLE		DLN2_I2C_CMD(0x0A)
-+#define DLN2_I2C_PULLUP_IS_ENABLED	DLN2_I2C_CMD(0x0B)
-+#define DLN2_I2C_TRANSFER		DLN2_I2C_CMD(0x0C)
-+#define DLN2_I2C_SET_MAX_REPLY_COUNT	DLN2_I2C_CMD(0x0D)
-+#define DLN2_I2C_GET_MAX_REPLY_COUNT	DLN2_I2C_CMD(0x0E)
-+
-+#define DLN2_I2C_MAX_XFER_SIZE		256
-+#define DLN2_I2C_BUF_SIZE		(DLN2_I2C_MAX_XFER_SIZE + 16)
-+
-+struct dln2_i2c {
-+	struct platform_device *pdev;
-+	struct i2c_adapter adapter;
-+	u8 port;
-+	/*
-+	 * Buffer to hold the packet for read or write transfers. One
-+	 * is enough since we can't have multiple transfers in
-+	 * parallel on the i2c adapter.
-+	 */
-+	void *buf;
-+};
-+
-+static int dln2_i2c_enable(struct dln2_i2c *dln2, bool enable)
-+{
-+	int ret;
-+	u16 cmd;
-+	struct {
-+		u8 port;
-+	} tx;
-+
-+	tx.port = dln2->port;
-+
-+	if (enable)
-+		cmd = DLN2_I2C_ENABLE;
-+	else
-+		cmd = DLN2_I2C_DISABLE;
-+
-+	ret = dln2_transfer(dln2->pdev, cmd, &tx, sizeof(tx),
-+			    NULL, NULL, NULL);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int dln2_i2c_write(struct dln2_i2c *dln2, u8 addr,
-+			  u8 *data, u16 data_len)
-+{
-+	int ret;
-+	struct {
-+		u8 port;
-+		u8 addr;
-+		u8 mem_addr_len;
-+		__le32 mem_addr;
-+		__le16 buf_len;
-+		u8 buf[DLN2_I2C_MAX_XFER_SIZE];
-+	} __packed *tx = dln2->buf;
-+	unsigned len;
-+
-+	BUILD_BUG_ON(sizeof(*tx) > DLN2_I2C_BUF_SIZE);
-+
-+	tx->port = dln2->port;
-+	tx->addr = addr;
-+	tx->mem_addr_len = 0;
-+	tx->mem_addr = 0;
-+	tx->buf_len = cpu_to_le16(data_len);
-+	memcpy(tx->buf, data, data_len);
-+
-+	len = sizeof(*tx) + data_len - DLN2_I2C_MAX_XFER_SIZE;
-+	ret = dln2_transfer(dln2->pdev, DLN2_I2C_WRITE, tx, len,
-+			    NULL, NULL, NULL);
-+	if (ret < 0)
-+		return ret;
-+
-+	return data_len;
-+}
-+
-+static int dln2_i2c_read(struct dln2_i2c *dln2, u16 addr, u8 *data,
-+			 u16 data_len)
-+{
-+	int ret;
-+	struct {
-+		u8 port;
-+		u8 addr;
-+		u8 mem_addr_len;
-+		__le32 mem_addr;
-+		__le16 buf_len;
-+	} __packed tx;
-+	struct {
-+		__le16 buf_len;
-+		u8 buf[DLN2_I2C_MAX_XFER_SIZE];
-+	} __packed *rx = dln2->buf;
-+	unsigned rx_len = sizeof(*rx);
-+
-+	BUILD_BUG_ON(sizeof(*rx) > DLN2_I2C_BUF_SIZE);
-+
-+	tx.port = dln2->port;
-+	tx.addr = addr;
-+	tx.mem_addr_len = 0;
-+	tx.mem_addr = 0;
-+	tx.buf_len = cpu_to_le16(data_len);
-+
-+	ret = dln2_transfer(dln2->pdev, DLN2_I2C_READ, &tx, sizeof(tx),
-+			    rx, &rx_len, NULL);
-+	if (ret < 0)
-+		return ret;
-+	if (rx_len < sizeof(rx->buf_len) + data_len)
-+		return -EPROTO;
-+	if (le16_to_cpu(rx->buf_len) != data_len)
-+		return -EPROTO;
-+
-+	memcpy(data, rx->buf, data_len);
-+
-+	return data_len;
-+}
-+
-+static int dln2_i2c_xfer(struct i2c_adapter *adapter,
-+			 struct i2c_msg *msgs, int num)
-+{
-+	struct dln2_i2c *dln2 = i2c_get_adapdata(adapter);
-+	struct i2c_msg *pmsg;
-+	struct device *dev = &dln2->pdev->dev;
-+	int i;
-+
-+	for (i = 0; i < num; i++) {
-+		int ret;
-+
-+		pmsg = &msgs[i];
-+
-+		if (pmsg->len > DLN2_I2C_MAX_XFER_SIZE) {
-+			dev_warn(dev, "maximum transfer size exceeded\n");
-+			return -EOPNOTSUPP;
-+		}
-+
-+		if (pmsg->flags & I2C_M_RD) {
-+			ret = dln2_i2c_read(dln2, pmsg->addr, pmsg->buf,
-+					    pmsg->len);
-+			if (ret < 0)
-+				return ret;
-+
-+			pmsg->len = ret;
-+		} else {
-+			ret = dln2_i2c_write(dln2, pmsg->addr, pmsg->buf,
-+					     pmsg->len);
-+			if (ret != pmsg->len)
-+				return -EPROTO;
-+		}
-+	}
-+
-+	return num;
-+}
-+
-+static u32 dln2_i2c_func(struct i2c_adapter *a)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_BYTE | I2C_FUNC_SMBUS_BYTE_DATA |
-+		I2C_FUNC_SMBUS_WORD_DATA | I2C_FUNC_SMBUS_BLOCK_PROC_CALL |
-+		I2C_FUNC_SMBUS_I2C_BLOCK;
-+}
-+
-+static const struct i2c_algorithm dln2_i2c_usb_algorithm = {
-+	.master_xfer = dln2_i2c_xfer,
-+	.functionality = dln2_i2c_func,
-+};
-+
-+static int dln2_i2c_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct dln2_i2c *dln2;
-+	struct device *dev = &pdev->dev;
-+	struct dln2_platform_data *pdata = dev_get_platdata(&pdev->dev);
-+
-+	dln2 = devm_kzalloc(dev, sizeof(*dln2), GFP_KERNEL);
-+	if (!dln2)
-+		return -ENOMEM;
-+
-+	dln2->buf = devm_kmalloc(dev, DLN2_I2C_BUF_SIZE, GFP_KERNEL);
-+	if (!dln2->buf)
-+		return -ENOMEM;
-+
-+	dln2->pdev = pdev;
-+	dln2->port = pdata->port;
-+
-+	/* setup i2c adapter description */
-+	dln2->adapter.owner = THIS_MODULE;
-+	dln2->adapter.class = I2C_CLASS_HWMON;
-+	dln2->adapter.algo = &dln2_i2c_usb_algorithm;
-+	dln2->adapter.dev.parent = dev;
-+	i2c_set_adapdata(&dln2->adapter, dln2);
-+	snprintf(dln2->adapter.name, sizeof(dln2->adapter.name), "%s-%s-%d",
-+		 "dln2-i2c", dev_name(pdev->dev.parent), dln2->port);
-+
-+	platform_set_drvdata(pdev, dln2);
-+
-+	/* initialize the i2c interface */
-+	ret = dln2_i2c_enable(dln2, true);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to initialize adapter: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/* and finally attach to i2c layer */
-+	ret = i2c_add_adapter(&dln2->adapter);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to add I2C adapter: %d\n", ret);
-+		goto out_disable;
-+	}
-+
-+	return 0;
-+
-+out_disable:
-+	dln2_i2c_enable(dln2, false);
-+
-+	return ret;
-+}
-+
-+static int dln2_i2c_remove(struct platform_device *pdev)
-+{
-+	struct dln2_i2c *dln2 = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&dln2->adapter);
-+	dln2_i2c_enable(dln2, false);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver dln2_i2c_driver = {
-+	.driver.name	= "dln2-i2c",
-+	.probe		= dln2_i2c_probe,
-+	.remove		= dln2_i2c_remove,
-+};
-+
-+module_platform_driver(dln2_i2c_driver);
-+
-+MODULE_AUTHOR("Laurentiu Palcu <laurentiu.palcu@intel.com>");
-+MODULE_DESCRIPTION("Driver for the Diolan DLN2 I2C master interface");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:dln2-i2c");
--- 
-1.9.1
+Thanks,
+Srinivas
+On Fri, 2014-10-03 at 12:46 +0200, Wolfram Sang wrote: 
+> > > Ok, looks like there are two main differences in the two implementations.
+> > > 
+> > > 1) The ACPI one uses a integer index and the DT one uses a string index to
+> > > lookup the device.
+> > > 
+> > > The problem with the index lookup is that the order is binding specific. So
+> > > it might be different between e.g. the devicetree binding and the ACPI
+> > > binding. This makes it quite hard to use the API in a generic way and you'd
+> > > end up with hacks like:
+> > > 
+> > > if (client->dev.of_node)
+> > > 	index = 3;
+> > > else if (ACPI_COMPANION(client->dev))
+> > > 	index = 1;
+> > > else
+> > > 	index = 5;
+> > > 
+> > 
+> > Indeed.
+> > 
+> > > So we might need a extra translation table which maps a name to a ACPI index
+> > > and then we could use the name as the generic index in the driver.
+> > 
+> > Good thing is that ACPI 5.1 _DSD finally allows us to use similar naming
+> > as the DT has been doing. Problem is that we need to support both the
+> > new way *and* the older index lookup somehow :-/
+> > 
+> > > 2) The ACPI implementation returns the i2c_board_info and the adapter, while
+> > > the DT implementation returns the instantiated I2C client device.
+> > > 
+> > > It might make sense to have both. I image that most drivers are just
+> > > interested in creating a new client device and will simply pass the board
+> > > info and adapter they got to i2c_new_device(). In this case it makes sense
+> > > to have a helper function which already does this internally to avoid
+> > > boilerplate code duplication.
+> > 
+> > I agree. How about making that helper a wrapper around the function that
+> > returns both i2c_board_info and an adapter?
+> > 
+> > > There will probably some special cases though in which case the driver wants
+> > > to get the adapter and the board info and then manually call
+> > > i2c_new_device() after having done some additional steps.
+> > 
+> > Yes, if the alternative address happens to be on another bus. That
+> > should at least be possible with this API.
+> 
+> Thanks for the discussion so far! I'll wait and see if some patches come
+> out of it and mark this one as deferred for now.
+> 
