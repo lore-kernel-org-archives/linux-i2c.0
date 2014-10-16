@@ -1,76 +1,96 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 1/2] drivers/misc/eeprom/men_eeprod: Introduce MEN Board
  Information EEPROM driver
-Date: Thu, 16 Oct 2014 11:48:04 +0200
-Message-ID: <20141016094804.GB1273@katana>
+Date: Thu, 16 Oct 2014 11:59:10 +0200
+Message-ID: <20141016095910.GC1273@katana>
 References: <cover.1413416105.git.andreas.werner@men.de>
  <d169930cfe45d4c05c79f7dd00471d732441529d.1413416105.git.andreas.werner@men.de>
  <20141016085835.GA1273@katana>
- <20141016093414.GA25214@kroah.com>
+ <20141016102126.GB23256@awelinux>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="lCAWRPmW1mITcIfM"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20141016093414.GA25214-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: Andreas Werner <andreas.werner-csrFAY9JiS4@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, johannes.thumshirn-csrFAY9JiS4@public.gmane.org
+In-Reply-To: <20141016102126.GB23256@awelinux>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andreas Werner <andreas.werner@men.de>
+Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, johannes.thumshirn@men.de
 List-Id: linux-i2c@vger.kernel.org
 
 
---tjCHc7DPkfUGtrlw
+--lCAWRPmW1mITcIfM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 16, 2014 at 11:34:14AM +0200, Greg KH wrote:
-> On Thu, Oct 16, 2014 at 10:58:35AM +0200, Wolfram Sang wrote:
-> > > +struct eeprom_data {
-> > > +	uint8_t eeprod_id;
-> > > +
-> > > +	uint8_t revision[3];
-> > > +	uint32_t serialnr;
-> > > +	uint8_t board_model;
-> > > +	char hw_name[6];
-> > > +
-> > > +	uint8_t reserved;
-> > > +
-> > > +	__be16 prod_date;
-> > > +	__be16 rep_date;
-> > > +
-> > > +	uint8_t reserved2[4];
-> > > +};
+
+> I do not want to parse the things in userspace because this EEPROM data
+> are related to the hardware and i want to give our customer the easiest w=
+ay
+> to access the data without installing any tool.
+
+I understand that point of view. From an upstream point of view, things
+may look different, though.
+
+> The current state to read the eeprom data is, that customer needs to inst=
+all a big
+> environment where the tool is integrated to have access to those kind of =
+simple
+> data or they have to write their own code.
+
+i2cget from i2c-tools? You could do a simple shell script to parse the
+data. Or do a board specific hook which reads the data and prints it to
+the logfiles...
+
+> > Consider how bloated the sysfs-ABI might get if every vendor who uses an
+> > eeprom wants to expose the data this way?
 > >=20
-> > And what if the compiler reorders?
 >=20
-> It's not allowed to reorder, but it can add padding wherever it wants
-> to, which if this is a on-device structure, can cause problems.  Use
-> __packed to prevent that.
+> Yes and no. The possible sysfs entries gets bloated if every vendor will =
+do it
+> like this way, but normally there is just one Board EEPROM on the board, =
+therefore
+> only one driver gets loaded.
 
-Yes, took the wrong word, sorry, I meant __packed.
+I am not talking about runtime here, I don't care about that. I am
+talking about the ABI we create and we have to maintain basically
+forever. And with vendor specific configuartion data I have doubts with
+that being stable.
+
+> I mean its the same for every i2c device like a temperature sensor, I can=
+ also
+> read it from userspace without any special hwmon driver.
+
+These is a HUGE difference. If I read tempX_input, I don't need to care
+if the sensor is I2C or SPI or whatever. The kernel abstracts that away.
+The files you create are for your I2C EEPROM only. Data gets
+"reformatted" and access gets hidden, but nothing is abstracted away.
+It would be different if we had a generic convention for "serial_id" or
+stuff like that. But as configuration data is highly specific I don't
+see this coming.
 
 
---tjCHc7DPkfUGtrlw
+--lCAWRPmW1mITcIfM
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUP5RUAAoJEBQN5MwUoCm2MZUP+QGAz+WpLi+FF45FIonW1/SB
-3dhP8GOLhKjHo0NoxvSeqELwP2TgpRxWG9JuVODxYA8owXTH4ijJYBEFKi5VYdhT
-FaSLF0eUwzTC60yWNk4VD0o/05kI5ccj0pjgDZVGoiKZL9CDXu4HdRf2lLJn/It6
-DhRqZiR9EItkJ1abf9WqjQ38gaeXcProoWCFc5o9+jIhzE6R9oK5/q39fhDwg6I8
-WwBd42xpQFdUod5mxj0fXe9v2nYMCRe1OmoYUsVmG9xRu9ws2wG8lOc9H6uRGjQr
-20O/KYOzvKfm3iR+UnOQcEXZ4sHrXRd4tHGyFriuZTdf41BmUyOR5pIUJquHI7Eh
-YVnE+ZIbwrUWlyzZzvq6aJvK/rQGxXftRA/et3Ml5K0rW7tCv7MM78VATF221Gr5
-ZXeoPkPWfyO4PNU4sXM3KWUZzr31GcLcxKNwSZMHRF1lAk03hT/hgqlzwR2I6F/g
-qENGPrSLvk84WKbWJJrjf4WNclt+lLDoRog2cu4Uw41SVx3kyGz7/gpphsCJ32Yb
-dAxHZU32/WgYG8wZ4I3jolarNKVMamlenfxPpPePA1bWRKdYSlDvcmOJxDF/t2MX
-DNHHn8A3eYWmyXUqsVIRVm0AcD0YV/elWuGwCbwUlpRJAItRad0Af94HiafzZgR1
-8uj2qlqx0xrs62ZtEodQ
-=KeL/
+iQIcBAEBAgAGBQJUP5buAAoJEBQN5MwUoCm22vIP/RdD8wIVSxhDA5dv+qpizBG4
+RR1xbeTCirzJQ8ZZNWGVK8JB/hcO4kEztlZSpGCXK09VqNk39kiOi1i7b3IxQbyE
+4sOWk5r8tdKtO4wwJs6Mi5Z3Q+MHHx9Gj4sSIg3Tepk/bW9b6JLXRVZTwuIbfNnX
+6TUZdIMN5L2YRRMTf0pMximA8FUu6++WXW6EDBji8lSbklU8gGqkMALQikeBq668
++ZVpTcB5tyq7gPMC+EyH7irLaRZGOOIuoZ0zlI01HRfDZOTzCpcvlsZFmq/gCN36
+p1/3NsHYzfR0ICAJKn1rx7i9N2o/xXxkxjgtbd/d4/KIQKmqOemJEYvi6wiXCpxg
+NQSoxVt9/pR0ebqGqnyacffS3V84gJMKonoyrjtvXilh1t38nENwuO58IxnqWKiL
+l3TzlusffOckd9vYvMmmGMBIV60vx96nXmkmZRC8wkN3nmVDi/lFu4thkueMyJiQ
+cL/ZDErm7CjqPxtCMDK9zA5EOAXuOtunw4llZYQAC/1pXRPcWL01LFW4YqJ+6qP8
+CL8iXsMvgMOTosA5OIzfxaTSdZxWMDEVkwHMRCA74AFch3/3TESvPiPU5xhxwu4U
+j/vwjiDY1IDfNLUq93xbDsQz6P5EOCCVZhj9r8FE34r7GprmS1fLRDXHA3EhGI2t
+S+SFlV2lobjF173y/kt2
+=fQiZ
 -----END PGP SIGNATURE-----
 
---tjCHc7DPkfUGtrlw--
+--lCAWRPmW1mITcIfM--
