@@ -1,103 +1,32 @@
-From: Andreas Werner <andreas.werner@men.de>
-Subject: [PATCH 2/2] Documentation/ABI/testing/men_eeprod: Added sysfs
- description for men_eeprod
-Date: Thu, 16 Oct 2014 10:15:27 +0200
-Message-ID: <dd7d012a2067068570c000fa85eb1760097baa92.1413416105.git.andreas.werner@men.de>
+From: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH 1/2] drivers/misc/eeprom/men_eeprod: Introduce MEN Board
+ Information EEPROM driver
+Date: Thu, 16 Oct 2014 10:44:12 +0200
+Message-ID: <20141016084412.GB22265@kroah.com>
 References: <cover.1413416105.git.andreas.werner@men.de>
+ <d169930cfe45d4c05c79f7dd00471d732441529d.1413416105.git.andreas.werner@men.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1413416105.git.andreas.werner@men.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org
-Cc: linux-kernel@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org, johannes.thumshirn@men.de, andreas.werner@men.de
+In-Reply-To: <d169930cfe45d4c05c79f7dd00471d732441529d.1413416105.git.andreas.werner-csrFAY9JiS4@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andreas Werner <andreas.werner-csrFAY9JiS4@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, johannes.thumshirn-csrFAY9JiS4@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the description for the men_eeprod.
-men_eeprod is a driver for the MEN Board Information EEPROM which
-exports the data using sysfs entries.
+On Thu, Oct 16, 2014 at 10:15:08AM +0200, Andreas Werner wrote:
+> +struct eeprom_data {
+> +	uint8_t eeprod_id;
 
-Signed-off-by: Andreas Werner <andreas.werner@men.de>
----
- .../ABI/testing/sysfs-bus-i2c-devices-men_eeprod   | 69 ++++++++++++++++++++++
- 1 file changed, 69 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-men_eeprod
+Please use the "real" kernel types, "u8" here, and "u32" in other places
+you use uint32_t (those are userspace types, not kernel types, sorry.)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-devices-men_eeprod b/Documentation/ABI/testing/sysfs-bus-i2c-devices-men_eeprod
-new file mode 100644
-index 0000000..a488d0e
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-bus-i2c-devices-men_eeprod
-@@ -0,0 +1,69 @@
-+What:		/sys/bus/i2c/devices/i2c-<busnr>/<busnr>-<devaddr>/eeprod_id
-+Date:		October 2014
-+Contact:	Andreas Werner <andreas.werner@men.de>
-+Description:
-+		Show the identifier of the EEPROM structure.
-+		There are different layouts of the EEPROM with more or less
-+		information. The ID identifies each of the layouts.
-+
-+		Currently supported structure is EEPROD2 (0x0E)
-+
-+What:		/sys/bus/i2c/devices/i2c-<busnr>/<busnr>-<devaddr>/revision
-+Date:		October 2014
-+Contact:	Andreas Werner <andreas.werner@men.de>
-+Description:
-+		Show the revision of the board.
-+		Format of the revision field is XX.XX.XX
-+
-+What:		/sys/bus/i2c/devices/i2c-<busnr>/<busnr>-<devaddr>/serialnr
-+Date:		October 2014
-+Contact:	Andreas Werner <andreas.werner@men.de>
-+Description:
-+		Show the serialnumber of the board. The serial number is
-+		a decimal number.
-+
-+What:		/sys/bus/i2c/devices/i2c-<busnr>/<busnr>-<devaddr>/hw_name
-+Date:		October 2014
-+Contact:	Andreas Werner <andreas.werner@men.de>
-+Description:
-+		Show the name of the board including the model.
-+		There are boards which have different features such as
-+		different size of RAM, the model identifies the different
-+		types.
-+
-+		Format of the hw_name is: <name><model>.
-+		Example: F075P00 where F75P is the hw_name and 00 the model.
-+
-+What:		/sys/bus/i2c/devices/i2c-<busnr>/<busnr>-<devaddr>/prod_date
-+Date:		October 2014
-+Contact:	Andreas Werner <andreas.werner@men.de>
-+Description:
-+		Show the board production date.
-+
-+		Format of the date: YYYY-MM-DD
-+
-+What:		/sys/bus/i2c/devices/i2c-<busnr>/<busnr>-<devaddr>/rep_date
-+Date:		October 2014
-+Contact:	Andreas Werner <andreas.werner@men.de>
-+Description:
-+		Show the last repair date.
-+		If the board returns back to the repair department, this field
-+		will be programmed with the current date.
-+		If the board has never returned, the field will be empty and
-+		the read access to this sysfs entry returns -EINVAL.
-+
-+		Format of the date: YYYY-MM-DD
-+
-+What:		/sys/bus/i2c/devices/i2c-<busnr>/<busnr>-<devaddr>/user_section
-+Date:		October 2014
-+Contact:	Andreas Werner <andreas.werner@men.de>
-+Description:
-+		Read or write access to the user section of the EEPROM
-+		This sysfs entry is a binary file where customer can write
-+		there own data to.
-+		The size of this file depends on the EEPROM layout which is
-+		identified by the eeprod_id.
-+
-+		eeprod_id	user_section size
-+		---------------------------------
-+		0x0E		232 byte
--- 
-2.1.0
+> +static DEVICE_ATTR(eeprod_id, S_IRUGO, show_eeprod_id, NULL);
+> +static DEVICE_ATTR(revision, S_IRUGO, show_revision, NULL);
+> +static DEVICE_ATTR(serial, S_IRUGO, show_serialnr, NULL);
+> +static DEVICE_ATTR(hw_name, S_IRUGO, show_hw_name, NULL);
+> +static DEVICE_ATTR(prod_date, S_IRUGO, show_prod_date, NULL);
+> +static DEVICE_ATTR(rep_date, S_IRUGO, show_rep_date, NULL);
+
+DEVICE_ATTR_RO() please.
