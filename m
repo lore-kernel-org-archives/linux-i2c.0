@@ -1,37 +1,79 @@
-From: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c/at91: adopt pinctrl support
-Date: Mon, 20 Oct 2014 11:17:43 -0700
-Message-ID: <7h4muyfvw8.fsf@deeprootsystems.com>
-References: <1413776535-10123-1-git-send-email-wenyou.yang@atmel.com>
-	<1413776535-10123-4-git-send-email-wenyou.yang@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Subject: [RESEND/PATCH] i2c: pxa: Use suspend() and resume() instead of the _noirq hooks
+Date: Mon, 20 Oct 2014 15:23:52 -0300
+Message-ID: <1413829432-7815-1-git-send-email-ezequiel@vanguardiasur.com.ar>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1413776535-10123-4-git-send-email-wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org> (Wenyou
-	Yang's message of "Mon, 20 Oct 2014 11:42:14 +0800")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org> writes:
+The _noirq were previously chosen to make sure all the users of the
+adapter were suspended by the time the adapter itself enters the
+suspended state.
 
-> Amend the i2c at91 pin controller to optionally take a pin control
-> handle and set the state of the pins to:
->
-> - "default" on boot, resume and before performing an transfer
-> - "sleep" on suspend()
->
-> This should make it possible to optimize energy usage for the pins
-> both for the suspend/resume cycle
->
-> Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+The {suspend,resume}_noirq usage was converted from an earlier
+implementation based on suspend_late and resume_early on this commit:
 
-This patch is a good example of why you should just have the ->suspend
-function call the same function as ->runtime_suspend.
+commit 57f4d4f1b72983f8c76e2f232e064730aeffe599
+Author: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
+Date:   Wed Jul 8 13:22:39 2009 +0200
 
-If you do that, rather than having to add the pinctrl_pm* calls bo both
-system PM and runtime PM functions, you could've just added them to the
-runtime PM functions.
+    I2C: Rework i2c-pxa suspend_late()/resume_early()
 
-Kevin
+However, all the I2C devices are probed as children of its I2C adapter,
+and hence the device model guarantees they are suspended before its parent, and
+resumed after it.
+
+In other words, there's no need to use the _noirq hooks to get a suspend/resume
+device/adapter order.
+
+This commit changes this by using the suspend/resume PM hooks in the I2C
+adapter.
+
+Signed-off-by: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+---
+Tested on a PXA CM-X300 board with a vendor-provided patch to make
+suspend/resume work properly.
+
+Now that the merge window is closed, I'm resending this rebased on
+v3.18-rc1.
+
+ drivers/i2c/busses/i2c-pxa.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index be671f7..3be19b36 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1292,7 +1292,7 @@ static int i2c_pxa_remove(struct platform_device *dev)
+ }
+ 
+ #ifdef CONFIG_PM
+-static int i2c_pxa_suspend_noirq(struct device *dev)
++static int i2c_pxa_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pxa_i2c *i2c = platform_get_drvdata(pdev);
+@@ -1302,7 +1302,7 @@ static int i2c_pxa_suspend_noirq(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int i2c_pxa_resume_noirq(struct device *dev)
++static int i2c_pxa_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pxa_i2c *i2c = platform_get_drvdata(pdev);
+@@ -1314,8 +1314,8 @@ static int i2c_pxa_resume_noirq(struct device *dev)
+ }
+ 
+ static const struct dev_pm_ops i2c_pxa_dev_pm_ops = {
+-	.suspend_noirq = i2c_pxa_suspend_noirq,
+-	.resume_noirq = i2c_pxa_resume_noirq,
++	.suspend = i2c_pxa_suspend,
++	.resume = i2c_pxa_resume,
+ };
+ 
+ #define I2C_PXA_DEV_PM_OPS (&i2c_pxa_dev_pm_ops)
+-- 
+2.1.0
