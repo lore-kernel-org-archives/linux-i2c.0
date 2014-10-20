@@ -1,24 +1,103 @@
-From: Alexandre Courbot <gnurou@gmail.com>
-Subject: Re: [PATCH v8 3/4] gpiolib: add irq_not_threaded flag to gpio_chip
-Date: Mon, 20 Oct 2014 14:08:38 +0900
-Message-ID: <CAAVeFuJ4B37YgvTBctXqmtWJtg3b19PDt1EEZF5Rc6KVXZzUtw@mail.gmail.com>
-References: <1413384491-23703-1-git-send-email-octavian.purdila@intel.com> <1413384491-23703-4-git-send-email-octavian.purdila@intel.com>
+From: Andreas Werner <andreas.werner@men.de>
+Subject: Re: [PATCH 1/2] drivers/misc/eeprom/men_eeprod: Introduce MEN Board
+ Information EEPROM driver
+Date: Mon, 20 Oct 2014 10:33:45 +0200
+Message-ID: <20141020083344.GA523@awelinux>
+References: <cover.1413416105.git.andreas.werner@men.de>
+ <d169930cfe45d4c05c79f7dd00471d732441529d.1413416105.git.andreas.werner@men.de>
+ <20141016085835.GA1273@katana>
+ <20141016102126.GB23256@awelinux>
+ <20141016095910.GC1273@katana>
+ <20141016114401.GA22506@awelinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1413384491-23703-4-git-send-email-octavian.purdila@intel.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Johan Hovold <johan@kernel.org>, daniel.baluta@intel.com, laurentiu.palcu@intel.com, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20141016114401.GA22506@awelinux>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andreas Werner <andreas.werner@men.de>, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, johannes.thumshirn@men.de
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 15, 2014 at 11:48 PM, Octavian Purdila
-<octavian.purdila@intel.com> wrote:
-> Some GPIO chips (e.g. the DLN2 USB adapter) have blocking get/set
-> operation but do not need a threaded irq handler.
+On Thu, Oct 16, 2014 at 01:44:02PM +0200, Andreas Werner wrote:
+> On Thu, Oct 16, 2014 at 11:59:10AM +0200, Wolfram Sang wrote:
+> > * PGP Signed by an unknown key
+> > 
+> > 
+> > > I do not want to parse the things in userspace because this EEPROM data
+> > > are related to the hardware and i want to give our customer the easiest way
+> > > to access the data without installing any tool.
+> > 
+> > I understand that point of view. From an upstream point of view, things
+> > may look different, though.
+> > 
+> 
+> I also understand your point of view :-).
+> Most customers wants just to have a running system without installing anything.
+> And for me an EEPROM is so simple and should not need a complicated way
+> to access it.
+> 
+> > > The current state to read the eeprom data is, that customer needs to install a big
+> > > environment where the tool is integrated to have access to those kind of simple
+> > > data or they have to write their own code.
+> > 
+> > i2cget from i2c-tools? You could do a simple shell script to parse the
+> > data. Or do a board specific hook which reads the data and prints it to
+> > the logfiles...
+> > 
+> 
+> Yes of course there are a lot of possibilities. This was just an example
+> what we currently use and what was developed years ago.
+> 
+> With a driver like this you can also define read only attributes to prevent customer
+> to write or modify the data in the production section. With i2ctools you can just
+> write any data to it you want.
+> 
+> > > > Consider how bloated the sysfs-ABI might get if every vendor who uses an
+> > > > eeprom wants to expose the data this way?
+> > > > 
+> > > 
+> > > Yes and no. The possible sysfs entries gets bloated if every vendor will do it
+> > > like this way, but normally there is just one Board EEPROM on the board, therefore
+> > > only one driver gets loaded.
+> > 
+> > I am not talking about runtime here, I don't care about that. I am
+> > talking about the ABI we create and we have to maintain basically
+> > forever. And with vendor specific configuartion data I have doubts with
+> > that being stable.
+> > 
+> 
+> Ok, but i do not think that we can make a "general" ABI definition for those kind
+> of devices because every vendor will have its own data in the EEPROM which he want
+> to have.
+> 
+> > > I mean its the same for every i2c device like a temperature sensor, I can also
+> > > read it from userspace without any special hwmon driver.
+> > 
+> > These is a HUGE difference. If I read tempX_input, I don't need to care
+> > if the sensor is I2C or SPI or whatever. The kernel abstracts that away.
+> > The files you create are for your I2C EEPROM only. Data gets
+> > "reformatted" and access gets hidden, but nothing is abstracted away.
+> > It would be different if we had a generic convention for "serial_id" or
+> > stuff like that. But as configuration data is highly specific I don't
+> > see this coming.
+> > 
+> 
+> For a standard sysfs interface it is a huge difference yes. At the point
+> of few from the EEPROM device it is a device like a temp sensor which
+> could be different from vendor to vendor.
+> 
+> Regards
+> Andy
+>
 
-Sorry if you already explained this (I have been a little bit late
-with the GPIO reviews recently), but does this optimization bring a
-significant benefit that justifies adding another field in struct
-gpio_chip? If so it would be nice to have it in the commit message. If
-not, do we need this at all?
+Greg what do you think about that driver as a Maintainer of the sysfs?
+To we have other ways to get those kind of drivers in the mainline kernel?
+
+Regards
+Andy
+
+ 
+> > 
+> > * Unknown Key
+> > * 0x14A029B6
