@@ -1,89 +1,24 @@
-From: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 3/3] i2c/at91: adopt pinctrl support
-Date: Mon, 20 Oct 2014 11:42:14 +0800
-Message-ID: <1413776535-10123-4-git-send-email-wenyou.yang@atmel.com>
-References: <1413776535-10123-1-git-send-email-wenyou.yang@atmel.com>
+From: Alexandre Courbot <gnurou@gmail.com>
+Subject: Re: [PATCH v8 3/4] gpiolib: add irq_not_threaded flag to gpio_chip
+Date: Mon, 20 Oct 2014 14:08:38 +0900
+Message-ID: <CAAVeFuJ4B37YgvTBctXqmtWJtg3b19PDt1EEZF5Rc6KVXZzUtw@mail.gmail.com>
+References: <1413384491-23703-1-git-send-email-octavian.purdila@intel.com> <1413384491-23703-4-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1413776535-10123-1-git-send-email-wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1413384491-23703-4-git-send-email-octavian.purdila@intel.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Johan Hovold <johan@kernel.org>, daniel.baluta@intel.com, laurentiu.palcu@intel.com, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Amend the i2c at91 pin controller to optionally take a pin control
-handle and set the state of the pins to:
+On Wed, Oct 15, 2014 at 11:48 PM, Octavian Purdila
+<octavian.purdila@intel.com> wrote:
+> Some GPIO chips (e.g. the DLN2 USB adapter) have blocking get/set
+> operation but do not need a threaded irq handler.
 
-- "default" on boot, resume and before performing an transfer
-- "sleep" on suspend()
-
-This should make it possible to optimize energy usage for the pins
-both for the suspend/resume cycle
-
-Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 8f408f8..ed2c382 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -32,6 +32,7 @@
- #include <linux/slab.h>
- #include <linux/platform_data/dma-atmel.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pinctrl/consumer.h>
- 
- #define DEFAULT_TWI_CLK_HZ		100000		/* max 400 Kbits/s */
- #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
-@@ -748,6 +749,8 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	u32 phy_addr;
- 	u32 bus_clk_rate;
- 
-+	pinctrl_pm_select_default_state(&pdev->dev);
-+
- 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
- 		return -ENOMEM;
-@@ -850,8 +853,10 @@ static int at91_twi_suspend(struct device *dev)
- {
- 	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
- 
--	if (!pm_runtime_suspended(dev))
-+	if (!pm_runtime_suspended(dev)) {
- 		clk_disable_unprepare(twi_dev->clk);
-+		pinctrl_pm_select_sleep_state(dev);
-+	}
- 
- 	return 0;
- }
-@@ -862,6 +867,7 @@ static int at91_twi_resume(struct device *dev)
- 	int ret;
- 
- 	if (!pm_runtime_suspended(dev)) {
-+		pinctrl_pm_select_default_state(dev);
- 		ret = clk_prepare_enable(twi_dev->clk);
- 		if (ret)
- 			return ret;
-@@ -881,6 +887,8 @@ static int at91_twi_runtime_suspend(struct device *dev)
- 
- 	clk_disable_unprepare(twi_dev->clk);
- 
-+	pinctrl_pm_select_sleep_state(dev);
-+
- 	return 0;
- }
- 
-@@ -888,6 +896,8 @@ static int at91_twi_runtime_resume(struct device *dev)
- {
- 	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
- 
-+	pinctrl_pm_select_default_state(dev);
-+
- 	return clk_prepare_enable(twi_dev->clk);
- }
- #endif
--- 
-1.7.9.5
+Sorry if you already explained this (I have been a little bit late
+with the GPIO reviews recently), but does this optimization bring a
+significant benefit that justifies adding another field in struct
+gpio_chip? If so it would be nice to have it in the commit message. If
+not, do we need this at all?
