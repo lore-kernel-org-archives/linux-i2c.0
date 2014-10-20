@@ -1,127 +1,43 @@
-From: Andreas Werner <andreas.werner-csrFAY9JiS4@public.gmane.org>
-Subject: Re: [PATCH 1/2] drivers/misc/eeprom/men_eeprod: Introduce MEN Board
- Information EEPROM driver
-Date: Mon, 20 Oct 2014 12:09:33 +0200
-Message-ID: <20141020100933.GC523@awelinux>
-References: <cover.1413416105.git.andreas.werner@men.de>
- <d169930cfe45d4c05c79f7dd00471d732441529d.1413416105.git.andreas.werner@men.de>
- <20141016085835.GA1273@katana>
- <20141016102126.GB23256@awelinux>
- <20141016095910.GC1273@katana>
- <20141016114401.GA22506@awelinux>
- <20141020083344.GA523@awelinux>
- <20141020091141.GA15332@kroah.com>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v8 3/4] gpiolib: add irq_not_threaded flag to gpio_chip
+Date: Mon, 20 Oct 2014 13:19:12 +0300
+Message-ID: <CAE1zot+FL54r3a6-qJwDti3D2dGCSwN=a0g0ki28cy1ToXgSfg@mail.gmail.com>
+References: <1413384491-23703-1-git-send-email-octavian.purdila@intel.com>
+	<1413384491-23703-4-git-send-email-octavian.purdila@intel.com>
+	<CAAVeFuJ4B37YgvTBctXqmtWJtg3b19PDt1EEZF5Rc6KVXZzUtw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20141020091141.GA15332-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <CAAVeFuJ4B37YgvTBctXqmtWJtg3b19PDt1EEZF5Rc6KVXZzUtw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: Andreas Werner <andreas.werner-csrFAY9JiS4@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, johannes.thumshirn-csrFAY9JiS4@public.gmane.org
+To: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 20, 2014 at 05:11:41PM +0800, Greg KH wrote:
-> On Mon, Oct 20, 2014 at 10:33:45AM +0200, Andreas Werner wrote:
-> > On Thu, Oct 16, 2014 at 01:44:02PM +0200, Andreas Werner wrote:
-> > > On Thu, Oct 16, 2014 at 11:59:10AM +0200, Wolfram Sang wrote:
-> > > > * PGP Signed by an unknown key
-> > > > 
-> > > > 
-> > > > > I do not want to parse the things in userspace because this EEPROM data
-> > > > > are related to the hardware and i want to give our customer the easiest way
-> > > > > to access the data without installing any tool.
-> > > > 
-> > > > I understand that point of view. From an upstream point of view, things
-> > > > may look different, though.
-> > > > 
-> > > 
-> > > I also understand your point of view :-).
-> > > Most customers wants just to have a running system without installing anything.
-> > > And for me an EEPROM is so simple and should not need a complicated way
-> > > to access it.
-> > > 
-> > > > > The current state to read the eeprom data is, that customer needs to install a big
-> > > > > environment where the tool is integrated to have access to those kind of simple
-> > > > > data or they have to write their own code.
-> > > > 
-> > > > i2cget from i2c-tools? You could do a simple shell script to parse the
-> > > > data. Or do a board specific hook which reads the data and prints it to
-> > > > the logfiles...
-> > > > 
-> > > 
-> > > Yes of course there are a lot of possibilities. This was just an example
-> > > what we currently use and what was developed years ago.
-> > > 
-> > > With a driver like this you can also define read only attributes to prevent customer
-> > > to write or modify the data in the production section. With i2ctools you can just
-> > > write any data to it you want.
-> > > 
-> > > > > > Consider how bloated the sysfs-ABI might get if every vendor who uses an
-> > > > > > eeprom wants to expose the data this way?
-> > > > > > 
-> > > > > 
-> > > > > Yes and no. The possible sysfs entries gets bloated if every vendor will do it
-> > > > > like this way, but normally there is just one Board EEPROM on the board, therefore
-> > > > > only one driver gets loaded.
-> > > > 
-> > > > I am not talking about runtime here, I don't care about that. I am
-> > > > talking about the ABI we create and we have to maintain basically
-> > > > forever. And with vendor specific configuartion data I have doubts with
-> > > > that being stable.
-> > > > 
-> > > 
-> > > Ok, but i do not think that we can make a "general" ABI definition for those kind
-> > > of devices because every vendor will have its own data in the EEPROM which he want
-> > > to have.
-> > > 
-> > > > > I mean its the same for every i2c device like a temperature sensor, I can also
-> > > > > read it from userspace without any special hwmon driver.
-> > > > 
-> > > > These is a HUGE difference. If I read tempX_input, I don't need to care
-> > > > if the sensor is I2C or SPI or whatever. The kernel abstracts that away.
-> > > > The files you create are for your I2C EEPROM only. Data gets
-> > > > "reformatted" and access gets hidden, but nothing is abstracted away.
-> > > > It would be different if we had a generic convention for "serial_id" or
-> > > > stuff like that. But as configuration data is highly specific I don't
-> > > > see this coming.
-> > > > 
-> > > 
-> > > For a standard sysfs interface it is a huge difference yes. At the point
-> > > of few from the EEPROM device it is a device like a temp sensor which
-> > > could be different from vendor to vendor.
-> > > 
-> > > Regards
-> > > Andy
-> > >
-> > 
-> > Greg what do you think about that driver as a Maintainer of the sysfs?
-> 
-> I maintain the sysfs core that drivers use, I don't dictate the policy
-> that those drivers create and send to userspace, that is up to the
-> maintainer of the subsystem.  There are some basic rules of sysfs (one
-> value per file), but other than that, please work with the maintainer to
-> come up with an interface that will work for all types of this device,
-> not just a one-off interface which does not scale at all, as Wolfram has
-> pointed out.
-> 
+On Mon, Oct 20, 2014 at 8:08 AM, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>
+> On Wed, Oct 15, 2014 at 11:48 PM, Octavian Purdila
+> <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> > Some GPIO chips (e.g. the DLN2 USB adapter) have blocking get/set
+> > operation but do not need a threaded irq handler.
+>
+> Sorry if you already explained this (I have been a little bit late
+> with the GPIO reviews recently), but does this optimization bring a
+> significant benefit that justifies adding another field in struct
+> gpio_chip? If so it would be nice to have it in the commit message. If
+> not, do we need this at all?
 
-Ok.
+Hi Alexandre,
 
-> > To we have other ways to get those kind of drivers in the mainline kernel?
-> 
-> Yes, work on a common interface that your driver can use, and it can be
-> accepted.  Why do you not want to do that?
-> 
-> thanks,
-> 
-> greg k-h
+In the case DLN2 USB GPIO adapter the GPIO interrupt is generated in
+the completion routine of a receive URB, which means that we are in
+interrupt context. If a threaded irq is used, we would have to
+schedule work instead of running to interrupt handler directly which
+is unnecessary and adds latency.
 
-I have never talked about that I do not want to do it. I just want to discuss
-it with you.
+BTW, AFAIC Linus W already merged this patch in his next tree, I am
+keeping it in this series because it was not pulled in the mfd-next
+tree.
 
-Right now we are at a point that i know that those kind of drivers can't be upstream
-and i will try to find a way of abstraction to get it upstream.
-
-Thanks
-Andy
+Thanks,
+Tavi
