@@ -1,67 +1,40 @@
-From: "Yang, Wenyou" <Wenyou.Yang@atmel.com>
-Subject: RE: [PATCH 2/3] i2c/at91: add support for system PM
-Date: Tue, 21 Oct 2014 01:25:07 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641BF596753@penmbx01>
-References: <1413776535-10123-1-git-send-email-wenyou.yang@atmel.com>
-	<1413776535-10123-3-git-send-email-wenyou.yang@atmel.com>
- <7h8ukafvzm.fsf@deeprootsystems.com>
+From: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2 0/3] i2c/at91: add support PM functions
+Date: Tue, 21 Oct 2014 10:26:16 +0800
+Message-ID: <1413858379-22865-1-git-send-email-wenyou.yang@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <7h8ukafvzm.fsf@deeprootsystems.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Hilman <khilman@kernel.org>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "Desroches, Ludovic" <Ludovic.Desroches@atmel.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Ferre, Nicolas" <Nicolas.FERRE@atmel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kevin,
+Hi Wolfram,
 
-> -----Original Message-----
-> From: Kevin Hilman [mailto:khilman@kernel.org]
-> Sent: Tuesday, October 21, 2014 2:16 AM
-> To: Yang, Wenyou
-> Cc: wsa@the-dreams.de; Desroches, Ludovic; linux-i2c@vger.kernel.org; linux-
-> kernel@vger.kernel.org; Ferre, Nicolas; linux-arm-kernel@lists.infradead.org
-> Subject: Re: [PATCH 2/3] i2c/at91: add support for system PM
-> 
-> Wenyou Yang <wenyou.yang@atmel.com> writes:
-> 
-> Add a changelog here describing what you're doing, and why.
-> 
-> > Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
-> > ---
-> >  drivers/i2c/busses/i2c-at91.c |   30 ++++++++++++++++++++++++++++++
-> >  1 file changed, 30 insertions(+)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-at91.c
-> > b/drivers/i2c/busses/i2c-at91.c index 03b9f48..8f408f8 100644
-> > --- a/drivers/i2c/busses/i2c-at91.c
-> > +++ b/drivers/i2c/busses/i2c-at91.c
-> > @@ -845,6 +845,35 @@ static int at91_twi_remove(struct platform_device
-> > *pdev)  }
-> >
-> >  #ifdef CONFIG_PM
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int at91_twi_suspend(struct device *dev) {
-> > +	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
-> > +
-> > +	if (!pm_runtime_suspended(dev))
-> > +		clk_disable_unprepare(twi_dev->clk);
-> 
-> I would just call at91_twi_runtime_suspend() here.
-> 
-> Then, if you need to add additional steps, you only have to add them in once
-> place.  This also makes it obvious that ->suspend and
-> ->runtime_suspend are doing the exact same thing.
-> 
-> NOTE: you'll need to wrap the runtime_suspend|resume functions in just
-> CONFIG_PM instead of CONFIG_PM_RUNTIME for this to work.
-Thanks a lot, I will modify it.
+The patches is to add the PM functions support for the at91 i2c controller.
 
-> 
-> Kevin
+It is based on the i2c/for-next branch of 
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git.
 
 Best Regards,
 Wenyou Yang
+
+------
+Change log:
+v2.0
+
+According to the advice from Kevin Hilman, 
+1./ Wrap the runtime suspend/resume functions in CONFIG_PM instead of CONFIG_PM_RUNTIME.
+2./ Call the runtime suspend/resume functions directly in the system suspend/resume.
+
+Wenyou Yang (3):
+  i2c/at91: add support for runtime PM
+  i2c/at91: add support for system PM
+  i2c/at91: adopt pinctrl support
+
+ drivers/i2c/busses/i2c-at91.c |   74 ++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 66 insertions(+), 8 deletions(-)
+
+-- 
+1.7.9.5
