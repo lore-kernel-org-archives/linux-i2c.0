@@ -1,95 +1,116 @@
-From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: mpc: Report correct I2C error codes on Freescale MPC i2c
- bus driver
-Date: Tue, 21 Oct 2014 00:05:44 -0700
-Message-ID: <CAAVjN7cpGzokOntyyGVBksdvAw7rGt8zvggpCeMqr+g1yHEyzg@mail.gmail.com>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c:at91: add bound checking on SMBus block length
+ bytes
+Date: Tue, 21 Oct 2014 09:14:34 +0200
+Message-ID: <20141021071434.GI7443@ldesroches-Latitude-E6320>
+References: <1408585181-10131-1-git-send-email-mark.roszko@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1408585181-10131-1-git-send-email-mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Hi Wolfram,
 
-This patch enforces correct I2C error returned codes from Freescale's
-MPC i2c bus driver, allowing for proper user-space/kernel error
-handling.
+Could you take this patch into your tree?
 
-Signed-off-by: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 0edf630..66bef28 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -124,7 +124,7 @@
- static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
- {
-  unsigned long orig_jiffies = jiffies;
-- u32 x;
-+ u32 cmd_err;
-  int result = 0;
+Thanks
 
-  if (!i2c->irq) {
-@@ -137,7 +137,7 @@
-  break;
-  }
-  }
-- x = readb(i2c->base + MPC_I2C_SR);
-+ cmd_err = readb(i2c->base + MPC_I2C_SR);
-  writeb(0, i2c->base + MPC_I2C_SR);
-  } else {
-  /* Interrupt mode */
-@@ -150,30 +150,30 @@
-  result = -ETIMEDOUT;
-  }
+Regards
 
-- x = i2c->interrupt;
-+ cmd_err = i2c->interrupt;
-  i2c->interrupt = 0;
-  }
+Ludovic
 
-- if (result < 0)
-- return result;
-+    if (result < 0)
-+        return result;
-
-- if (!(x & CSR_MCF)) {
-- dev_dbg(i2c->dev, "unfinished\n");
-- return -EIO;
-- }
-+    if (!(cmd_err & CSR_MCF)) {
-+        dev_dbg(i2c->dev, "unfinished\n");
-+        return -EIO;
-+    }
-
-- if (x & CSR_MAL) {
-- dev_dbg(i2c->dev, "MAL\n");
-- return -EIO;
-- }
-+    if (cmd_err & CSR_MAL) {
-+        dev_dbg(i2c->dev, "MAL\n");
-+        return -EAGAIN;
-+    }
-
-- if (writing && (x & CSR_RXAK)) {
-- dev_dbg(i2c->dev, "No RXAK\n");
-- /* generate stop */
-- writeccr(i2c, CCR_MEN);
-- return -EIO;
-- }
-- return 0;
-+    if (writing && (cmd_err & CSR_RXAK)) {
-+        dev_dbg(i2c->dev, "No RXAK\n");
-+        /* generate stop */
-+        writeccr(i2c, CCR_MEN);
-+        return -ENXIO;
-+    }
-+    return 0;
- }
-
- #if defined(CONFIG_PPC_MPC52xx) || defined(CONFIG_PPC_MPC512x)
-
--- 
-- Danielle Costantino
+On Wed, Aug 20, 2014 at 09:39:41PM -0400, Marek Roszko wrote:
+> The driver was not bound checking the received length byte to ensure it was within the
+> the buffer size that is allocated for SMBus blocks. This resulted in buffer overflows
+> whenever an invalid length byte was received.
+> It also failed to ensure the length byte was not zero. If it received zero, it would end up
+> in an infinite loop as the at91_twi_read_next_byte function returned immediately without
+> allowing RHR to be read to clear the RXRDY interrupt.
+> 
+> Tested agaisnt a SMBus compliant battery.
+> 
+> Signed-off-by: Marek Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> ---
+> Change from v1:
+> fixed typo in commit message
+> reworded message slightly to be specifically say length byte
+> 
+>  drivers/i2c/busses/i2c-at91.c |   28 ++++++++++++++++++++++++----
+>  1 file changed, 24 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index e95f9ba..ec4ff33 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -101,6 +101,7 @@ struct at91_twi_dev {
+>  	unsigned twi_cwgr_reg;
+>  	struct at91_twi_pdata *pdata;
+>  	bool use_dma;
+> +	bool recv_len_abort;
+>  	struct at91_twi_dma dma;
+>  };
+>  
+> @@ -267,12 +268,24 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
+>  	*dev->buf = at91_twi_read(dev, AT91_TWI_RHR) & 0xff;
+>  	--dev->buf_len;
+>  
+> +	/* return if aborting, we only needed to read RHR to clear RXRDY*/
+> +	if (dev->recv_len_abort)
+> +		return;
+> +
+>  	/* handle I2C_SMBUS_BLOCK_DATA */
+>  	if (unlikely(dev->msg->flags & I2C_M_RECV_LEN)) {
+> -		dev->msg->flags &= ~I2C_M_RECV_LEN;
+> -		dev->buf_len += *dev->buf;
+> -		dev->msg->len = dev->buf_len + 1;
+> -		dev_dbg(dev->dev, "received block length %d\n", dev->buf_len);
+> +		/* ensure length byte is a valid value */
+> +		if (*dev->buf <= I2C_SMBUS_BLOCK_MAX && *dev->buf > 0) {
+> +			dev->msg->flags &= ~I2C_M_RECV_LEN;
+> +			dev->buf_len += *dev->buf;
+> +			dev->msg->len = dev->buf_len + 1;
+> +			dev_dbg(dev->dev, "received block length %d\n",
+> +					 dev->buf_len);
+> +		} else {
+> +			/* abort and send the stop by reading one more byte */
+> +			dev->recv_len_abort = true;
+> +			dev->buf_len = 1;
+> +		}
+>  	}
+>  
+>  	/* send stop if second but last byte has been read */
+> @@ -444,6 +457,12 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+>  		ret = -EIO;
+>  		goto error;
+>  	}
+> +	if (dev->recv_len_abort) {
+> +		dev_err(dev->dev, "invalid smbus block length recvd\n");
+> +		ret = -EPROTO;
+> +		goto error;
+> +	}
+> +
+>  	dev_dbg(dev->dev, "transfer complete\n");
+>  
+>  	return 0;
+> @@ -500,6 +519,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+>  	dev->buf_len = m_start->len;
+>  	dev->buf = m_start->buf;
+>  	dev->msg = m_start;
+> +	dev->recv_len_abort = false;
+>  
+>  	ret = at91_do_twi_transfer(dev);
+>  
+> -- 
+> 1.7.10.4
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
