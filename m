@@ -1,99 +1,161 @@
-From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Subject: Re: [RESEND/PATCH] i2c: pxa: Use suspend() and resume() instead of
- the _noirq hooks
-Date: Wed, 22 Oct 2014 19:24:49 -0300
-Message-ID: <54482EB1.9030407@vanguardiasur.com.ar>
-References: <1413829432-7815-1-git-send-email-ezequiel@vanguardiasur.com.ar> <7hzjcqe9ge.fsf@deeprootsystems.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 1/2] i2c: Add generic support passing secondary devices addresses
+Date: Thu, 23 Oct 2014 02:37:41 +0300
+Message-ID: <1923603.aWjhqbNgon@avalon>
+References: <1413991848-28495-1-git-send-email-jean-michel.hautbois@vodalys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="o67mOOA02CFoSqxtKNN2KTIT905qoTBC2"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <7hzjcqe9ge.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1413991848-28495-1-git-send-email-jean-michel.hautbois@vodalys.com>
+Sender: linux-media-owner@vger.kernel.org
+To: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
+Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, lars@metafoo.de
 List-Id: linux-i2c@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---o67mOOA02CFoSqxtKNN2KTIT905qoTBC2
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+Hi Jean-Michel,
+
+Thank you for the patch.
+
+On Wednesday 22 October 2014 17:30:47 Jean-Michel Hautbois wrote:
+> Some I2C devices have multiple addresses assigned, for example each address
+> corresponding to a different internal register map page of the device.
+> So far drivers which need support for this have handled this with a driver
+> specific and non-generic implementation, e.g. passing the additional address
+> via platform data.
+> 
+> This patch provides a new helper function called i2c_new_secondary_device()
+> which is intended to provide a generic way to get the secondary address
+> as well as instantiate a struct i2c_client for the secondary address.
+> 
+> The function expects a pointer to the primary i2c_client, a name
+> for the secondary address and an optional default address. The name is used
+> as a handle to specify which secondary address to get.
+> 
+> The default address is used as a fallback in case no secondary address
+> was explicitly specified. In case no secondary address and no default
+> address were specified the function returns NULL.
+> 
+> For now the function only supports look-up of the secondary address
+> from devicetree, but it can be extended in the future
+> to for example support board files and/or ACPI.
+
+As this is core code I believe the DT bindings should be documented somewhere 
+in Documentation/devicetree/bindings/i2c/.
+
+> Signed-off-by: Jean-Michel Hautbois <jean-michel.hautbois@vodalys.com>
+> ---
+>  drivers/i2c/i2c-core.c | 40 ++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h    |  8 ++++++++
+>  2 files changed, 48 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 2f90ac6..fd3b07c 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1166,6 +1166,46 @@ struct i2c_client *i2c_new_dummy(struct i2c_adapter
+> *adapter, u16 address) }
+>  EXPORT_SYMBOL_GPL(i2c_new_dummy);
+> 
+> +/**
+> + * i2c_new_secondary_device - Helper to get the instantiated secondary
+> address
+
+It does more than that, it also creates the device.
+
+> + * @client: Handle to the primary client
+> + * @name: Handle to specify which secondary address to get
+> + * @default_addr: Used as a fallback if no secondary address was specified
+> + * Context: can sleep
+> + *
+> + * This returns an I2C client bound to the "dummy" driver based on DT
+> parsing.
+
+Could you elaborate on that ? I would explain that the address is retrieved 
+from the firmware based on the name, and that default_addr is used in case the 
+firmware doesn't provide any information.
+
+> + *
+> + * This returns the new i2c client, which should be saved for later use
+> with
+> + * i2c_unregister_device(); or NULL to indicate an error.
+> + */
+> +struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
+> +						const char *name,
+> +						u16 default_addr)
+> +{
+> +	int i;
+> +	u32 addr;
+> +	struct device_node *np;
+> +
+> +	np = client->dev.of_node;
+> +
+> +	if (np) {
+> +		i = of_property_match_string(np, "reg-names", name);
+> +		if (i >= 0)
+> +			of_property_read_u32_index(np, "reg", i, &addr);
+
+This call could fail in which case addr will be uninitialized.
+
+> +		else if (default_addr != 0)
+> +			addr = default_addr;
+> +		else
+> +			addr = NULL;
+
+addr isn't a pointer. I'm surprised the compiler hasn't warned you.
+
+> +	} else {
+> +		addr = default_addr;
+> +	}
+
+The whole logic can be simplified to
+
+	struct device_node *np = client->dev.of_node;
+	u32 addr = default_addr;
+	int i;
+
+	if (np) {
+		i = of_property_match_string(np, "reg-names", name);
+		if (i >= 0)
+			of_property_read_u32_index(np, "reg", i, &addr);
+	}
 
 
-On 10/20/2014 06:07 PM, Kevin Hilman wrote:
-> Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org> writes:
->=20
->> The _noirq were previously chosen to make sure all the users of the
->> adapter were suspended by the time the adapter itself enters the
->> suspended state.
->>
->> The {suspend,resume}_noirq usage was converted from an earlier
->> implementation based on suspend_late and resume_early on this commit:
->>
->> commit 57f4d4f1b72983f8c76e2f232e064730aeffe599
->> Author: Magnus Damm <damm-AlSX/UN32fvPDbFq/vQRIQ@public.gmane.org>
->> Date:   Wed Jul 8 13:22:39 2009 +0200
->>
->>     I2C: Rework i2c-pxa suspend_late()/resume_early()
->>
->> However, all the I2C devices are probed as children of its I2C adapter=
-,
->> and hence the device model guarantees they are suspended before its pa=
-rent, and
->> resumed after it.
->>
->> In other words, there's no need to use the _noirq hooks to get a suspe=
-nd/resume
->> device/adapter order.
->=20
-> Are you sure *really* about this?
->=20
+> +
+> +	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
+> +	return i2c_new_dummy(client->adapter, addr);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_new_secondary_device);
+> +
+> +
+>  /*
+> -------------------------------------------------------------------------
+> */
+> 
+>  /* I2C bus adapters -- one roots each I2C or SMBUS segment */
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index b556e0a..8629287 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -322,6 +322,14 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter
+> *, unsigned short addr); extern struct i2c_client *
+>  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
+> 
+> +/* Helper function providing a generic way to get the secondary address
+> + * as well as a client handle to this extra address.
+> + */
 
-Hm, now you made me doubt.
+The function is already documented in i2c-core.c, I would ditch this comment.
 
-> It's usally not the children that are the problem here.  It's usually
-> some other driver trying to use an I2C device e.g. MMC changing voltage=
+> +extern struct i2c_client *
+> +i2c_new_secondary_device(struct i2c_client *client,
+> +				const char *name,
+> +				u16 default_addr);
+> +
+>  extern void i2c_unregister_device(struct i2c_client *);
+>  #endif /* I2C */
 
-> using an I2C-based PMIC during its suspend process.
->=20
+-- 
+Regards,
 
-So we can't know for sure if using suspend/resume is going to work OK for=
-
-a I2C adapter?
-
-There might be some use of it that can't be accurately modeled in the
-device model.
-
-I.e., the above example is a dependency of MMC on the I2C being suspended=
-
-after him, but right now there's no way to model such relationship.
---=20
-Ezequiel Garcia, VanguardiaSur
-www.vanguardiasur.com.ar
-
-
---o67mOOA02CFoSqxtKNN2KTIT905qoTBC2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJUSC6xAAoJEIOKbhOEIHKi2F4QALGG+FKMoGy5p4HXw6JWuSG3
-hKS0oszyxFN9ml9KsH6IvAJMLQxcqZIaCL1cgLVQjFOl2fqUunHjMiUWfD6cloiK
-wkep+i0nELy3U8CGqd8rtsnwBXW3L1EilnBNtBpuUHPD1E3YwOna1JtAJJJZLkEY
-Kut9fglwjCMR0k1AdDtSdGcRQFCST22ALCAZdUMuR9sflB17wP+eourE07DtvvxG
-9ybKHeNdPpRMt6sKAvdvNxzyvoXBgRKXdsRvuuHNFg8aLTqhy1OKk/2+queUYymA
-C3DxcR65tfgbqLM6BDNOf1bEuOAmvypPaVEVp7ztGp+/zXkvZcBfPPicQJsIqLYU
-6s+p5G6+Q46r9n0Ekwe8w1ox3NkcrHXLdEYX0uFrlDdlKLFlNkzcKCypU2MseExo
-Y0WWSu7PkxFNe6Z8lnkb75M8VKLpjyWwT6C6P8361dWamyTYXwSrJKMFQdtUtevI
-7VsVocGJ7at9SNYDeYdQSnhXjYpAI576RXIC8jnBJBqDKq45PYPqXgu/XeNEo3xm
-arcKxXMHmlg1FQLWHj8RXHqEGcGR+khSErtVffV5s68hD84YVj/7X5GCpDcBlO70
-iIojkgFew6JE7k+baS05l3ehay+5N+/lsm/8rSRs+3Oo/v2TO6aiI/vNDbJ/wVa5
-YnXdYSH0FaCS/bQCRmAE
-=aGd0
------END PGP SIGNATURE-----
-
---o67mOOA02CFoSqxtKNN2KTIT905qoTBC2--
+Laurent Pinchart
