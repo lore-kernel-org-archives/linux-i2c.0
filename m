@@ -1,119 +1,43 @@
-From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v8 2/4] i2c: add support for Diolan DLN-2 USB-I2C adapter
-Date: Thu, 23 Oct 2014 17:19:40 +0200
-Message-ID: <20141023151940.GA21210@localhost>
-References: <1413384491-23703-1-git-send-email-octavian.purdila@intel.com>
- <1413384491-23703-3-git-send-email-octavian.purdila@intel.com>
+From: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3 0/3] i2c/at91: add support PM functions
+Date: Fri, 24 Oct 2014 14:50:14 +0800
+Message-ID: <1414133417-11530-1-git-send-email-wenyou.yang@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1413384491-23703-3-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 15, 2014 at 05:48:09PM +0300, Octavian Purdila wrote:
+Hi Wolfram,
 
-> +static int dln2_i2c_xfer(struct i2c_adapter *adapter,
-> +			 struct i2c_msg *msgs, int num)
-> +{
-> +	struct dln2_i2c *dln2 = i2c_get_adapdata(adapter);
-> +	struct i2c_msg *pmsg;
-> +	struct device *dev = &dln2->pdev->dev;
+The patches is to add the PM functions support for the at91 i2c controller.
 
-You want to use the i2c-adapter device here (not the platform device).
+It is based on the i2c/for-next branch of 
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git.
 
-> +	int i;
-> +
-> +	for (i = 0; i < num; i++) {
-> +		int ret;
-> +
-> +		pmsg = &msgs[i];
-> +
-> +		if (pmsg->len > DLN2_I2C_MAX_XFER_SIZE) {
-> +			dev_warn(dev, "maximum transfer size exceeded\n");
-> +			return -EOPNOTSUPP;
-> +		}
-> +
-> +		if (pmsg->flags & I2C_M_RD) {
-> +			ret = dln2_i2c_read(dln2, pmsg->addr, pmsg->buf,
-> +					    pmsg->len);
-> +			if (ret < 0)
-> +				return ret;
-> +
-> +			pmsg->len = ret;
-> +		} else {
-> +			ret = dln2_i2c_write(dln2, pmsg->addr, pmsg->buf,
-> +					     pmsg->len);
-> +			if (ret != pmsg->len)
-> +				return -EPROTO;
-> +		}
-> +	}
-> +
-> +	return num;
-> +}
+Best Regards,
+Wenyou Yang
 
-[...]
+------
+Change log:
+v2.0
 
-> +static int dln2_i2c_probe(struct platform_device *pdev)
-> +{
-> +	int ret;
-> +	struct dln2_i2c *dln2;
-> +	struct device *dev = &pdev->dev;
-> +	struct dln2_platform_data *pdata = dev_get_platdata(&pdev->dev);
-> +
-> +	dln2 = devm_kzalloc(dev, sizeof(*dln2), GFP_KERNEL);
-> +	if (!dln2)
-> +		return -ENOMEM;
-> +
-> +	dln2->buf = devm_kmalloc(dev, DLN2_I2C_BUF_SIZE, GFP_KERNEL);
-> +	if (!dln2->buf)
-> +		return -ENOMEM;
-> +
-> +	dln2->pdev = pdev;
-> +	dln2->port = pdata->port;
-> +
-> +	/* setup i2c adapter description */
-> +	dln2->adapter.owner = THIS_MODULE;
-> +	dln2->adapter.class = I2C_CLASS_HWMON;
-> +	dln2->adapter.algo = &dln2_i2c_usb_algorithm;
-> +	dln2->adapter.dev.parent = dev;
-> +	i2c_set_adapdata(&dln2->adapter, dln2);
-> +	snprintf(dln2->adapter.name, sizeof(dln2->adapter.name), "%s-%s-%d",
-> +		 "dln2-i2c", dev_name(pdev->dev.parent), dln2->port);
-> +
-> +	platform_set_drvdata(pdev, dln2);
-> +
-> +	/* initialize the i2c interface */
+According to the advice from Kevin Hilman, 
+1./ Wrap the runtime suspend/resume functions in CONFIG_PM instead of CONFIG_PM_RUNTIME.
+2./ Call the runtime suspend/resume functions directly in the system suspend/resume.
 
-No longer "initialisation" since you dropped the frequency setup?
+v3.0
+   Covert the system suspend/resume to suspend_noirq/resume_noirq.
 
-> +	ret = dln2_i2c_enable(dln2, true);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to initialize adapter: %d\n", ret);
+Wenyou Yang (3):
+  i2c/at91: add support for runtime PM
+  i2c/at91: add support for system PM
+  i2c/at91: adopt pinctrl support
 
-Same here.
+ drivers/i2c/busses/i2c-at91.c |   71 +++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 65 insertions(+), 6 deletions(-)
 
-> +		return ret;
-> +	}
-> +
-> +	/* and finally attach to i2c layer */
-> +	ret = i2c_add_adapter(&dln2->adapter);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to add I2C adapter: %d\n", ret);
-> +		goto out_disable;
-> +	}
-> +
-> +	return 0;
-> +
-> +out_disable:
-> +	dln2_i2c_enable(dln2, false);
-> +
-> +	return ret;
-> +}
-
-Looks good otherwise.
-
-Johan
+-- 
+1.7.9.5
