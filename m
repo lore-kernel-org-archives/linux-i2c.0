@@ -1,69 +1,37 @@
-From: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 3/3] i2c/at91: adopt pinctrl support
-Date: Fri, 24 Oct 2014 14:50:17 +0800
-Message-ID: <1414133417-11530-4-git-send-email-wenyou.yang@atmel.com>
-References: <1414133417-11530-1-git-send-email-wenyou.yang@atmel.com>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Q: i2c-mux-pca954x.c : How to get deselect activated via device tree?
+Date: Fri, 24 Oct 2014 13:25:36 +0200
+Message-ID: <544A3730.9080007@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1414133417-11530-1-git-send-email-wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Amend the i2c at91 pin controller to optionally take a pin control
-handle and set the state of the pins to:
+Hi,
 
-- "default" on boot, resume and before performing an transfer
-- "sleep" on suspend()
+there is means to unselect I2C multiplexer pca954x after every transfer.
+I've now run into situation where I need this feature: When two 
+multiplexers are on same bus and they host devices with same address.
 
-This should make it possible to optimize energy usage for the pins
-both for the suspend/resume cycle
+I could not yet find out from documentation or sources how to get 
+deselect feature enabled:
 
-Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+i2c-mux-pca954x.c:pca954x_probe()
+...
+			i2c_add_mux_adapter(adap, &client->dev, client,
+				force, num, class, pca954x_select_chan,
+				(pdata && pdata->modes[num].deselect_on_exit)
+					? pca954x_deselect_mux : NULL);
+...
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 6a84a2a..290caf1 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -32,6 +32,7 @@
- #include <linux/slab.h>
- #include <linux/platform_data/dma-atmel.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pinctrl/consumer.h>
- 
- #define DEFAULT_TWI_CLK_HZ		100000		/* max 400 Kbits/s */
- #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
-@@ -747,6 +748,8 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	u32 phy_addr;
- 	u32 bus_clk_rate;
- 
-+	pinctrl_pm_select_default_state(&pdev->dev);
-+
- 	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
- 		return -ENOMEM;
-@@ -851,6 +854,8 @@ static int at91_twi_runtime_suspend(struct device *dev)
- 
- 	clk_disable_unprepare(twi_dev->clk);
- 
-+	pinctrl_pm_select_sleep_state(dev);
-+
- 	return 0;
- }
- 
-@@ -858,6 +863,8 @@ static int at91_twi_runtime_resume(struct device *dev)
- {
- 	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
- 
-+	pinctrl_pm_select_default_state(dev);
-+
- 	return clk_prepare_enable(twi_dev->clk);
- }
- 
+How to initialize pdata->modes[num].deselect_on_exit?
+Some attribute in device tree should do the trick, shouldn't it?
+
+Has anybody a useful hint?
+
 -- 
-1.7.9.5
+KR
+Michael
