@@ -1,326 +1,132 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/2] iio: imu: inv_mpu6050: Add i2c mux for by pass
-Date: Sat, 25 Oct 2014 21:13:41 +0100
-Message-ID: <544C0475.4020403@kernel.org>
-References: <1413565901-4951-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: I2C OF IRQ parsing issue due to probe ordering
+Date: Sun, 26 Oct 2014 01:13:31 +0300
+Message-ID: <2287003.09eTeKUr1V@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1413565901-4951-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org >> Linux I2C" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 17/10/14 18:11, Srinivas Pandruvada wrote:
-> This chip has a mode in which this chipset can be i2c master. But
-> the current upstream driver doesn't support such mode as there is
-> some limited support of clients, which can be connected.
->
-> To attach such clients to main i2c bus chip has to be set up in
-> bypass mode. Creates an i2c mux, which will enable/disable this mode.
-> This was discussed for a while in mailing list, this was the decision.
->
-> This change also provides an API, which allows clients to be created for
-> this mux adapter.
->
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc'd Wolfram and linux-i2c given this is basically bolting an i2c_mux
-into an IIO driver.  There isn't enough here to make it worth and mfd
-(to my mind) if Wolfram is happy.
+Hello,
 
-I'm happy with the approach.  A few bits and bobs inline.
+I recently ran into an issue with the OF IRQ parsing code in the I2C core
+(of_i2c_register_devices in drivers/i2c/i2c-core.c).
 
-Jonathan
-> ---
->  drivers/iio/imu/inv_mpu6050/Kconfig        |   1 +
->  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 163 +++++++++++++++++++++++++++--
->  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |   9 ++
->  3 files changed, 167 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/iio/imu/inv_mpu6050/Kconfig b/drivers/iio/imu/inv_mpu6050/Kconfig
-> index 2d0608b..48fbc0b 100644
-> --- a/drivers/iio/imu/inv_mpu6050/Kconfig
-> +++ b/drivers/iio/imu/inv_mpu6050/Kconfig
-> @@ -7,6 +7,7 @@ config INV_MPU6050_IIO
->  	depends on I2C && SYSFS
->  	select IIO_BUFFER
->  	select IIO_TRIGGERED_BUFFER
-> +	select I2C_MUX
->  	help
->  	  This driver supports the Invensense MPU6050 devices.
->  	  This driver can also support MPU6500 in MPU6050 compatibility mode
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> index b75519d..9864362 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> @@ -23,6 +23,7 @@
->  #include <linux/kfifo.h>
->  #include <linux/spinlock.h>
->  #include <linux/iio/iio.h>
-> +#include <linux/i2c-mux.h>
->  #include "inv_mpu_iio.h"
->
->  /*
-> @@ -52,6 +53,7 @@ static const struct inv_mpu6050_reg_map reg_set_6050 = {
->  	.int_enable             = INV_MPU6050_REG_INT_ENABLE,
->  	.pwr_mgmt_1             = INV_MPU6050_REG_PWR_MGMT_1,
->  	.pwr_mgmt_2             = INV_MPU6050_REG_PWR_MGMT_2,
-> +	.int_pin_cfg		= INV_MPU6050_REG_INT_PIN_CFG,
->  };
->
->  static const struct inv_mpu6050_chip_config chip_config_6050 = {
-> @@ -72,11 +74,147 @@ static const struct inv_mpu6050_hw hw_info[INV_NUM_PARTS] = {
->  	},
->  };
->
-> +static struct i2c_adapter *inv_mux_adapter;
-> +
-Not embedding this surely prevents more than one mpu6050.  Can we not
-put it an instance specific structure?
->  int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 d)
->  {
->  	return i2c_smbus_write_i2c_block_data(st->client, reg, 1, &d);
->  }
->
-> +/*
-> + * The i2c read/write needs to happen in unlocked mode. As the parent
-> + * adapter is common. If we use locked versions, it will fail as
-> + * the mux adapter will lock the parent i2c adapter, while calling
-> + * select/deselect functions.
-> + */
-> +static int inv_mpu6050_write_reg_unlocked(struct inv_mpu6050_state *st,
-> +					  int reg, u8 d)
-> +{
-> +	int ret;
-> +	u8 buf[2];
-u8 buf[2] = {reg, d}; perhaps.
-> +	struct i2c_msg msg[1] = {
-Drop the array bit and just use &msg below for cleaner code?
-> +		{
-> +			.addr = st->client->addr,
-> +			.flags = 0,
-> +			.len = sizeof(buf),
-> +			.buf = buf,
-> +		}
-> +	};
-> +
-> +	buf[0] = reg;
-> +	buf[1] = d;
-> +	ret = __i2c_transfer(st->client->adapter, msg, 1);
-> +	if (ret != 1)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +
-> +static int inv_mpu6050_select_bypass(struct i2c_adapter *adap, void *mux_priv,
-> +				     u32 chan_id)
-> +{
-> +	struct iio_dev *indio_dev = mux_priv;
-> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
-> +	int ret = 0;
-> +
-> +	/* Use the same mutex which was used everywhere to protect power-op */
-> +	mutex_lock(&indio_dev->mlock);
-> +	if (!st->powerup_count) {
-> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
-> +						     0);
-> +		if (!ret)
-> +			msleep(INV_MPU6050_REG_UP_TIME);
-> +	}
-> +	if (!ret) {
-> +		st->powerup_count++;
-> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
-> +						st->client->irq |
-> +						INV_MPU6050_BIT_BYPASS_EN);
-> +	}
-> +	mutex_unlock(&indio_dev->mlock);
-> +
-> +	return ret;
-> +}
-> +
-> +static int inv_mpu6050_deselect_bypass(struct i2c_adapter *adap,
-> +				       void *mux_priv, u32 chan_id)
-> +{
-> +	struct iio_dev *indio_dev = mux_priv;
-> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
-> +
-> +	mutex_lock(&indio_dev->mlock);
-> +	/* It doesn't really mattter, if any of the calls fails */
-> +	inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
-> +				       st->client->irq);
-> +	st->powerup_count--;
-> +	if (!st->powerup_count)
-> +		inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
-> +					       INV_MPU6050_BIT_SLEEP);
-> +	mutex_unlock(&indio_dev->mlock);
-> +
-> +	return 0;
-> +}
-> +
-> +static int inv_mpu6050_create_mux(struct iio_dev *indio_dev)
-> +{
-> +	struct inv_mpu6050_state *mpu_st = iio_priv(indio_dev);
-> +	struct i2c_client *client = mpu_st->client;
-> +
-> +	mpu_st->mux_adapter = i2c_add_mux_adapter(client->adapter,
-> +						  &client->dev,
-> +						  indio_dev,
-> +						  0, 0, 0,
-> +						  inv_mpu6050_select_bypass,
-> +						  inv_mpu6050_deselect_bypass);
-> +	if (mpu_st->mux_adapter == NULL) {
-> +		dev_err(&mpu_st->client->dev, "Mux create Failed\n");
-> +		return -ENODEV;
-> +	}
-> +	inv_mux_adapter = mpu_st->mux_adapter;
-> +
-> +	return 0;
-> +}
-> +
-> +static void inv_mpu6050_destroy_mux(struct iio_dev *indio_dev)
-> +{
-> +	struct inv_mpu6050_state *mpu_st = iio_priv(indio_dev);
-> +
-> +	if (mpu_st->mux_adapter)
-> +		i2c_del_mux_adapter(mpu_st->mux_adapter);
-> +	inv_mux_adapter = NULL;
-> +}
-> +
-> +struct i2c_client *inv_mpu6050_add_mux_client(char *name, int addr,
-> +					      int irq, void *plat_data)
-> +{
-> +	struct i2c_client *client;
-> +	struct i2c_board_info info;
-> +
-> +	if (!inv_mux_adapter)
-> +		return NULL;
-> +
-> +	memset(&info, 0, sizeof(struct i2c_board_info));
-> +	strlcpy(info.type, name, sizeof(info.type));
-> +	info.addr = addr;
-> +	info.irq = irq;
-> +	info.platform_data = plat_data;
-Can you use c99 tricks to clean this up a little.
-struct i2c_board_info info = {
-       .addr = addr,
-       .irq = irq,
-       .platform_data = plat_data,
-};
-Rest will be initialized to zero then as well.
+My DT contains the following nodes.
 
-> +	client = i2c_new_device(inv_mux_adapter, &info);
-> +	if (!client) {
-> +		dev_err(&inv_mux_adapter->dev,
-> +			"failed to create mux clint %d\n", addr);
-> +		return NULL;
-> +	}
-> +
-> +	return client;
-> +}
-> +EXPORT_SYMBOL_GPL(inv_mpu6050_add_mux_client);
-> +
-> +void inv_mpu6050_del_mux_client(struct i2c_client *client)
-> +{
-> +	i2c_unregister_device(client);
-> +}
-> +EXPORT_SYMBOL_GPL(inv_mpu6050_del_mux_client);
-> +
->  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->  {
->  	u8 d, mgmt_1;
-> @@ -133,13 +271,22 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->
->  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on)
->  {
-> -	int result;
-> +	int result = 0;
-> +
-> +	if (power_on) {
-> +		/* Already under indio-dev->mlock mutex */
-> +		if (!st->powerup_count)
-> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
-> +						       0);
-> +		if (!result)
-> +			st->powerup_count++;
-> +	} else {
-> +		st->powerup_count--;
-> +		if (!st->powerup_count)
-> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
-> +						       INV_MPU6050_BIT_SLEEP);
-> +	}
->
-> -	if (power_on)
-> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1, 0);
-> -	else
-> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
-> -						INV_MPU6050_BIT_SLEEP);
->  	if (result)
->  		return result;
->
-> @@ -673,6 +820,7 @@ static int inv_mpu_probe(struct i2c_client *client,
->
->  	st = iio_priv(indio_dev);
->  	st->client = client;
-> +	st->powerup_count = 0;
->  	pdata = dev_get_platdata(&client->dev);
->  	if (pdata)
->  		st->plat_data = *pdata;
-> @@ -720,6 +868,8 @@ static int inv_mpu_probe(struct i2c_client *client,
->  		goto out_remove_trigger;
->  	}
->
-> +	inv_mpu6050_create_mux(indio_dev);
-> +
->  	return 0;
->
->  out_remove_trigger:
-> @@ -734,6 +884,7 @@ static int inv_mpu_remove(struct i2c_client *client)
->  	struct iio_dev *indio_dev = i2c_get_clientdata(client);
->  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
->
-> +	inv_mpu6050_destroy_mux(indio_dev);
->  	iio_device_unregister(indio_dev);
->  	inv_mpu6050_remove_trigger(st);
->  	iio_triggered_buffer_cleanup(indio_dev);
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> index e779931..90697c6 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> @@ -54,6 +54,7 @@ struct inv_mpu6050_reg_map {
->  	u8 int_enable;
->  	u8 pwr_mgmt_1;
->  	u8 pwr_mgmt_2;
-> +	u8 int_pin_cfg;
->  };
->
->  /*device enum */
-> @@ -119,6 +120,8 @@ struct inv_mpu6050_state {
->  	enum   inv_devices chip_type;
->  	spinlock_t time_stamp_lock;
->  	struct i2c_client *client;
-> +	struct i2c_adapter *mux_adapter;
-> +	int powerup_count;
->  	struct inv_mpu6050_platform_data plat_data;
->  	DECLARE_KFIFO(timestamps, long long, TIMESTAMP_FIFO_SIZE);
->  };
-> @@ -179,6 +182,9 @@ struct inv_mpu6050_state {
->  /* 6 + 6 round up and plus 8 */
->  #define INV_MPU6050_OUTPUT_DATA_SIZE         24
->
-> +#define INV_MPU6050_REG_INT_PIN_CFG	0x37
-> +#define INV_MPU6050_BIT_BYPASS_EN	0x2
-> +
->  /* init parameters */
->  #define INV_MPU6050_INIT_FIFO_RATE           50
->  #define INV_MPU6050_TIME_STAMP_TOR           5
-> @@ -245,3 +251,6 @@ int inv_reset_fifo(struct iio_dev *indio_dev);
->  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask);
->  int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 val);
->  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on);
-> +struct i2c_client *inv_mpu6050_add_mux_client(char *name, int adddr,
-> +					      int irq, void *plat_data);
-> +void inv_mpu6050_del_mux_client(struct i2c_client *client);
->
+        gpio1: gpio@e6051000 {
+                ...
+                #interrupt-cells = <2>;
+                interrupt-controller;
+                clocks = <&mstp9_clks R8A7790_CLK_GPIO1>;
+        };
+
+        iic2: i2c@e6520000 {
+                #address-cells = <1>;
+                #size-cells = <0>;
+                ...
+                hdmi@39 {
+                        compatible = "adi,adv7511w";
+                        reg = <0x39>;
+                        interrupt-parent = <&gpio1>;
+                        interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
+                        ...
+                };
+        };
+
+        mstp9_clks: mstp9_clks@e6150994 {
+                ...
+        };
+
+The i2c@e6520000 node is probed before the gpio@e6051000 node. The
+of_i2c_register_devices() function tries to register all children, including
+hdmi@39. It tries to parse and map the I2C client IRQ by calling
+irq_of_parse_and_map(), which returns 0 as the interrupt controller isn't
+probed yet. The adv7511 driver later probes the hdmi@39 device and gets
+client->irq set to 0.
+
+We can't control the probe order. One option to solve the problem would be to
+defer probing of the I2C client until the interrupt control is available. The
+following patch is a naive implementation. Before turning it into a real
+upstream candidate (changing the return type of irq_create_of_mapping without
+checking the callers is a no-go) I'd like to get feedback on the approach.
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 2f90ac6a7f79..73ff1e7d2382 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -631,6 +631,14 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!client)
+ 		return 0;
+ 
++	if (!client->irq && dev->of_node) {
++		int irq = irq_of_parse_and_map(dev->of_node, 0);
++		if (irq < 0)
++			return irq;
++
++		client->irq = irq;
++	}
++
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (!driver->probe || !driver->id_table)
+ 		return -ENODEV;
+@@ -1409,7 +1417,6 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
+ 			continue;
+ 		}
+ 
+-		info.irq = irq_of_parse_and_map(node, 0);
+ 		info.of_node = of_node_get(node);
+ 		info.archdata = &dev_ad;
+ 
+@@ -1423,7 +1430,6 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
+ 			dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
+ 				node->full_name);
+ 			of_node_put(node);
+-			irq_dispose_mapping(info.irq);
+ 			continue;
+ 		}
+ 	}
+diff --git a/include/linux/of_irq.h b/include/linux/of_irq.h
+index bfec136a6d1e..81a14d89a5bd 100644
+--- a/include/linux/of_irq.h
++++ b/include/linux/of_irq.h
+@@ -34,7 +34,7 @@ static inline int of_irq_parse_oldworld(struct device_node *device, int index,
+ extern int of_irq_parse_raw(const __be32 *addr, struct of_phandle_args *out_irq);
+ extern int of_irq_parse_one(struct device_node *device, int index,
+ 			  struct of_phandle_args *out_irq);
+-extern unsigned int irq_create_of_mapping(struct of_phandle_args *irq_data);
++extern int irq_create_of_mapping(struct of_phandle_args *irq_data);
+ extern int of_irq_to_resource(struct device_node *dev, int index,
+ 			      struct resource *r);
+ extern int of_irq_to_resource_table(struct device_node *dev,
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index 6534ff6ce02e..386fd09f4c85 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -466,7 +466,7 @@ int irq_create_strict_mappings(struct irq_domain *domain, unsigned int irq_base,
+ }
+ EXPORT_SYMBOL_GPL(irq_create_strict_mappings);
+ 
+-unsigned int irq_create_of_mapping(struct of_phandle_args *irq_data)
++int irq_create_of_mapping(struct of_phandle_args *irq_data)
+ {
+ 	struct irq_domain *domain;
+ 	irq_hw_number_t hwirq;
+@@ -477,7 +477,7 @@ unsigned int irq_create_of_mapping(struct of_phandle_args *irq_data)
+ 	if (!domain) {
+ 		pr_warn("no irq domain found for %s !\n",
+ 			of_node_full_name(irq_data->np));
+-		return 0;
++		return -EPROBE_DEFER;
+ 	}
+ 
+ 	/* If domain has no translation, then we assume interrupt line */
+
+-- 
+Regards,
+
+Laurent Pinchart
+
