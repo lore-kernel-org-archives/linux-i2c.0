@@ -1,106 +1,71 @@
-From: Octavian Purdila <octavian.purdila@intel.com>
-Subject: Re: [PATCH v8 2/4] i2c: add support for Diolan DLN-2 USB-I2C adapter
-Date: Mon, 27 Oct 2014 14:42:57 +0200
-Message-ID: <CAMoF9u2S9ZbsgeVaBKhc0o5Zo2pz7naomUv2RbvN-G=0C2Dt9A@mail.gmail.com>
-References: <1413384491-23703-1-git-send-email-octavian.purdila@intel.com>
-	<1413384491-23703-3-git-send-email-octavian.purdila@intel.com>
-	<20141023151940.GA21210@localhost>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: I2C OF IRQ parsing issue due to probe ordering
+Date: Mon, 27 Oct 2014 13:58:19 +0100
+Message-ID: <20141027125819.GA12641@katana>
+References: <2287003.09eTeKUr1V@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20141023151940.GA21210@localhost>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Octavian Purdila <octavian.purdila@intel.com>, Greg KH <gregkh@linuxfoundation.org>, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org, Arnd Bergmann <arnd@arndb.de>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <2287003.09eTeKUr1V@avalon>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 23, 2014 at 6:19 PM, Johan Hovold <johan@kernel.org> wrote:
->
-> On Wed, Oct 15, 2014 at 05:48:09PM +0300, Octavian Purdila wrote:
->
-> > +static int dln2_i2c_xfer(struct i2c_adapter *adapter,
-> > +                      struct i2c_msg *msgs, int num)
-> > +{
-> > +     struct dln2_i2c *dln2 = i2c_get_adapdata(adapter);
-> > +     struct i2c_msg *pmsg;
-> > +     struct device *dev = &dln2->pdev->dev;
->
-> You want to use the i2c-adapter device here (not the platform device).
->
 
-You are right, I will fix in v9.
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > +     int i;
-> > +
-> > +     for (i = 0; i < num; i++) {
-> > +             int ret;
-> > +
-> > +             pmsg = &msgs[i];
-> > +
-> > +             if (pmsg->len > DLN2_I2C_MAX_XFER_SIZE) {
-> > +                     dev_warn(dev, "maximum transfer size exceeded\n");
-> > +                     return -EOPNOTSUPP;
-> > +             }
-> > +
-> > +             if (pmsg->flags & I2C_M_RD) {
-> > +                     ret = dln2_i2c_read(dln2, pmsg->addr, pmsg->buf,
-> > +                                         pmsg->len);
-> > +                     if (ret < 0)
-> > +                             return ret;
-> > +
-> > +                     pmsg->len = ret;
-> > +             } else {
-> > +                     ret = dln2_i2c_write(dln2, pmsg->addr, pmsg->buf,
-> > +                                          pmsg->len);
-> > +                     if (ret != pmsg->len)
-> > +                             return -EPROTO;
-> > +             }
-> > +     }
-> > +
-> > +     return num;
-> > +}
->
-> [...]
->
-> > +static int dln2_i2c_probe(struct platform_device *pdev)
-> > +{
-> > +     int ret;
-> > +     struct dln2_i2c *dln2;
-> > +     struct device *dev = &pdev->dev;
-> > +     struct dln2_platform_data *pdata = dev_get_platdata(&pdev->dev);
-> > +
-> > +     dln2 = devm_kzalloc(dev, sizeof(*dln2), GFP_KERNEL);
-> > +     if (!dln2)
-> > +             return -ENOMEM;
-> > +
-> > +     dln2->buf = devm_kmalloc(dev, DLN2_I2C_BUF_SIZE, GFP_KERNEL);
-> > +     if (!dln2->buf)
-> > +             return -ENOMEM;
-> > +
-> > +     dln2->pdev = pdev;
-> > +     dln2->port = pdata->port;
-> > +
-> > +     /* setup i2c adapter description */
-> > +     dln2->adapter.owner = THIS_MODULE;
-> > +     dln2->adapter.class = I2C_CLASS_HWMON;
-> > +     dln2->adapter.algo = &dln2_i2c_usb_algorithm;
-> > +     dln2->adapter.dev.parent = dev;
-> > +     i2c_set_adapdata(&dln2->adapter, dln2);
-> > +     snprintf(dln2->adapter.name, sizeof(dln2->adapter.name), "%s-%s-%d",
-> > +              "dln2-i2c", dev_name(pdev->dev.parent), dln2->port);
-> > +
-> > +     platform_set_drvdata(pdev, dln2);
-> > +
-> > +     /* initialize the i2c interface */
->
-> No longer "initialisation" since you dropped the frequency setup?
->
-> > +     ret = dln2_i2c_enable(dln2, true);
-> > +     if (ret < 0) {
-> > +             dev_err(dev, "failed to initialize adapter: %d\n", ret);
->
-> Same here.
 
-Hmm, I still consider this to be an initialization operation, albeit
-less complex then it was before. If you don't mind too much, I would
-prefer to keep it this way.
+> The i2c@e6520000 node is probed before the gpio@e6051000 node. The
+> of_i2c_register_devices() function tries to register all children, including
+> hdmi@39. It tries to parse and map the I2C client IRQ by calling
+> irq_of_parse_and_map(), which returns 0 as the interrupt controller isn't
+> probed yet. The adv7511 driver later probes the hdmi@39 device and gets
+> client->irq set to 0.
+
+I've got this strange feeling of deja vu... Ah, here: Thierry Reding
+tackled this problem a year ago. His series:
+
+https://lkml.org/lkml/2013/9/16/111 (of/irq: Defer interrupt reference
+resolution)
+
+He did a V2 (which never made it to the i2c list). Seems like the first
+two patches made it and the rest got stalled without discussion?
+
+https://lkml.org/lkml/2013/9/18/216
+
+Adding Thierry to the queue. Maybe he can bring some light to what
+happened to his series.
+
+Regards,
+
+   Wolfram
+
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUTkFrAAoJEBQN5MwUoCm2a4IQAIbrQiPsJTA6xoS7X6tkMjjB
+5kCBqX7Yq0RFX+NRvQpknjdTs6GhIX6ZlYjqViEu8PxMVVd53yS0MHFZhoWLkzzC
+R1XTzwUmqPxy8e2kpPyPhSwxXxoB8C5IB1BXN1UgV1K6sqXpdG8n/LffdCTzTtgV
+lBWq6U6j/5LXiEH/NJzf9qLvF7pzjIydlK1BnX/gKGlWV7BxaR+WrtCG+lfnjDcv
+6gzN26JDgOLsagQWAFYL9EbRtQZglx/wt1FDvwThWPWc5hP+jwpgUCEhhWoi3fui
+wNXB2cdB0kygkSi7jHprTYQTJv373tFqQynU8BcnqbIODDX20ToPSO07ILpfi7M9
+X4Pc4AntSCqnbMtRa8cIYBH1fmRpp5u5upFvnDCT9WkYQgRk8Coj2/IY1qpNunLg
+xs0PpivoXwofZ42zVujB5NKxn89FnQS12qJhxPIgr7Xe/skbC7SxdNjYSK4d1icl
+1i0+52TmcdAVkRzl9hvjwMzai87o7Rge4qW9xClkGi/wOaR7gOMOEF+DpWSE4fgn
+ZS+jgYoXvszlVaK04AEvYl1LOaNqexy9wemckLjc0jb7fTHlHiQNGhMUol9a3NlQ
+1DaN/ZwoHcozniJiPzQxJrW8fzIgo039Ns+YtkBzlTl1aFkD+ZHSX6kaa0zTVd+K
+3e8TAgReMgpNtQcJho/A
+=0bkD
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--
