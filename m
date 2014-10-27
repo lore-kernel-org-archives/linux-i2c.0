@@ -1,59 +1,68 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
-Date: Mon, 27 Oct 2014 16:30:34 +0100
-Message-ID: <CACRpkdbe6OC-4CZ_DiUBcuv9wsMVtvk1FpkdNn5pZG+sgP6wZQ@mail.gmail.com>
-References: <1412606822-3406-1-git-send-email-muth@cypress.com>
-	<CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
-	<405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
-	<CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
-	<CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: RR <rajaram.officemails@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v9 0/4] mfd: add support for Diolan DLN-2
+Date: Mon, 27 Oct 2014 18:31:08 +0200
+Message-ID: <1414427472-4100-1-git-send-email-octavian.purdila@intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: arnd-r2nGTMty4D4@public.gmane.org, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 9, 2014 at 1:46 AM, RR <rajaram.officemails@gmail.com> wrote:
-> On Wed, Oct 8, 2014 at 12:18 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
->> On Wed, Oct 8, 2014 at 4:09 PM, Muthu Mani <muth@cypress.com> wrote:
+This patch series adds support for Diolan USB-I2C/GPIO Master Adapter
+DLN-2. Details about device can be found here:
 
->>>> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
->>>> > +                                       unsigned offset, int value) {
->>>> > +       return 0;
->>>> > +}
->>>>
->>>> If that chip is capable of both output and input, shouldn't these functions be
->>>> implemented? I think this has already been pointed out in a previous version
->>>> but you did not reply.
->>>
->>> Thanks for your inputs.
->>>
->>> Only the GPIOs which are configured to be output GPIO can be set.
->>
->> In that case cy_gpio_set() should return an error for GPIOs which are
->> not configured as outputs. Is that guaranteed by the current
->> implementation?
->>
->>> The set operation would fail trying to set the input or unconfigured GPIOs.
->>> In this version of driver, this support is not added, it can be introduced in future versions.
->>> I will add a TODO note in the code.
->>
->> Argh, no TODO please. Actual code that will turn this code into a
->> solid driver that can be merged.
->
-> Does a driver targeted for a custom device has to implement every
-> functionality in the 1st version ?
+https://www.diolan.com/i2c/i2c_interface.html.
 
-When you post a driver to the GPIO maintainers it is *NOT* tageted
-at a consumer device, it is targeted at the kernel community and
-upstream maintainers.
+This patch series is against the MFD tree branch
+for-mfd-next-v3.19. It does include a gpiolib patch that was merged by
+Linus W but it was not yet pulled into Lee's tree.
 
-Of course you can deliver add-on patches out-of-tree to your
-customers, it's generally a bad idea for the long term and maintenance
-of your driver, but it's your pick.
+Changes since v8:
 
-Yours,
-Linus Walleij
+ * common: remove result parameter from dln2_transfer as it is not yet
+   used in this patch set (we will add it later with the i2c change
+   freq patches); fix comments to wrap to 80 columns instead of 70
+
+ * MFD: add two variants for dln2_transfer: dln2_trasfer_rx and
+   dln2_transfer_tx; use entry instead of new_cb in
+   dln2_register_event_cb; rename dln2_rx_transfer to
+   dln2_transfer_complete and add comment about the URB completion,
+   also move the warning about late/missing responses here;
+
+ * GPIO: use dln2_transfer_rx and dln2_transfer_tx where possible
+
+ * I2C: use dln2_transfer_rx and dln2_transfer_tx where possible; use
+   adapter's device instead of platform's device for
+   dev_err/dev_info/etc prints
+
+
+Daniel Baluta (1):
+  gpio: add support for the Diolan DLN-2 USB GPIO driver
+
+Laurentiu Palcu (1):
+  i2c: add support for Diolan DLN-2 USB-I2C adapter
+
+Octavian Purdila (2):
+  mfd: add support for Diolan DLN-2 devices
+  gpiolib: add irq_not_threaded flag to gpio_chip
+
+ drivers/gpio/Kconfig          |  12 +
+ drivers/gpio/Makefile         |   1 +
+ drivers/gpio/gpio-dln2.c      | 553 ++++++++++++++++++++++++++++++
+ drivers/gpio/gpiolib.c        |   2 +-
+ drivers/i2c/busses/Kconfig    |  10 +
+ drivers/i2c/busses/Makefile   |   1 +
+ drivers/i2c/busses/i2c-dln2.c | 267 +++++++++++++++
+ drivers/mfd/Kconfig           |  11 +
+ drivers/mfd/Makefile          |   1 +
+ drivers/mfd/dln2.c            | 761 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/gpio/driver.h   |   3 +
+ include/linux/mfd/dln2.h      | 103 ++++++
+ 12 files changed, 1724 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/gpio/gpio-dln2.c
+ create mode 100644 drivers/i2c/busses/i2c-dln2.c
+ create mode 100644 drivers/mfd/dln2.c
+ create mode 100644 include/linux/mfd/dln2.h
+
+-- 
+1.9.1
