@@ -1,36 +1,67 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v7 4/4] gpio: add support for the Diolan DLN-2 USB GPIO driver
-Date: Mon, 27 Oct 2014 17:39:58 +0100
-Message-ID: <CACRpkdbWGZmHMfRt0EmFrVTP2Vg7ykBVnRSiZsJAtydtL9hJDg@mail.gmail.com>
-References: <1412882541-10934-1-git-send-email-octavian.purdila@intel.com>
-	<1412882541-10934-5-git-send-email-octavian.purdila@intel.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v9 1/4] mfd: add support for Diolan DLN-2 devices
+Date: Mon, 27 Oct 2014 09:57:49 -0700
+Message-ID: <1414429069.8884.10.camel@perches.com>
+References: <1414427472-4100-1-git-send-email-octavian.purdila@intel.com>
+	 <1414427472-4100-2-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1412882541-10934-5-git-send-email-octavian.purdila@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1414427472-4100-2-git-send-email-octavian.purdila@intel.com>
+Sender: linux-gpio-owner@vger.kernel.org
 To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Johan Hovold <johan@kernel.org>, Daniel Baluta <daniel.baluta@intel.com>, laurentiu.palcu@intel.com, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 9, 2014 at 9:22 PM, Octavian Purdila
-<octavian.purdila@intel.com> wrote:
+On Mon, 2014-10-27 at 18:31 +0200, Octavian Purdila wrote:
+> This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+> Master Adapter DLN-2. Details about the device can be found here:
 
-> From: Daniel Baluta <daniel.baluta@intel.com>
->
-> This patch adds GPIO and IRQ support for the Diolan DLN-2 GPIO module.
->
-> Information about the USB protocol interface can be found in the
-> Programmer's Reference Manual [1], see section 2.9 for the GPIO
-> module commands and responses.
->
-> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
->
-> Signed-off-by: Daniel Baluta <daniel.baluta@intel.com>
-> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+trivia:
 
-Looks good to me.
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+[]
+> +static int _dln2_transfer(struct dln2_dev *dln2, u16 handle, u16 cmd,
+> +			  const void *obuf, unsigned obuf_len,
+> +			  void *ibuf, unsigned *ibuf_len)
+> +{
+> +	int ret = 0;
+> +	int rx_slot;
+> +	struct dln2_response *rsp;
+> +	struct dln2_rx_context *rxc;
+> +	struct device *dev = &dln2->interface->dev;
+> +	const int timeout = DLN2_USB_TIMEOUT * HZ / 1000;
 
-Yours,
-Linus Walleij
+unsigned long timeout?
+
+[]
+
+> +	ret = wait_for_completion_interruptible_timeout(&rxc->done, timeout);
+> +	if (ret <= 0) {
+> +		if (!ret)
+> +			ret = -ETIMEDOUT;
+> +		goto out_free_rx_slot;
+> +	}
+
+[]
+
+> +static int dln2_print_serialno(struct dln2_dev *dln2)
+> +{
+> +	int ret;
+> +	__le32 serial_no;
+> +	int len = sizeof(serial_no);
+> +	struct device *dev = &dln2->interface->dev;
+> +
+> +	ret = _dln2_transfer(dln2, DLN2_HANDLE_CTRL, CMD_GET_DEVICE_SN, NULL, 0,
+> +			     &serial_no, &len);
+> +	if (ret < 0)
+> +		return ret;
+> +	if (len < sizeof(serial_no))
+> +		return -EREMOTEIO;
+> +
+> +	dev_info(dev, "Diolan DLN2 serial 0x%x\n", le32_to_cpu(serial_no));
+
+why a hex serial #?
+
+
