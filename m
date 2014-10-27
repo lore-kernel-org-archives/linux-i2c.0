@@ -1,221 +1,59 @@
-From: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH V2] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
-Date: Mon, 27 Oct 2014 23:09:44 +0800
-Message-ID: <1414422584-2638-1-git-send-email-tianyu.lan@intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
-Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
+Date: Mon, 27 Oct 2014 16:30:34 +0100
+Message-ID: <CACRpkdbe6OC-4CZ_DiUBcuv9wsMVtvk1FpkdNn5pZG+sgP6wZQ@mail.gmail.com>
+References: <1412606822-3406-1-git-send-email-muth@cypress.com>
+	<CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
+	<405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
+	<CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
+	<CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: RR <rajaram.officemails@gmail.com>
+Cc: Alexandre Courbot <gnurou@gmail.com>, Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI 5.0 introduces _DEP to designate device objects that OSPM should
-assign a higher priority in start ordering due to future operation region
-accesses.
+On Thu, Oct 9, 2014 at 1:46 AM, RR <rajaram.officemails@gmail.com> wrote:
+> On Wed, Oct 8, 2014 at 12:18 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
+>> On Wed, Oct 8, 2014 at 4:09 PM, Muthu Mani <muth@cypress.com> wrote:
 
-On Asus T100TA, ACPI battery info are read from a I2C slave device via
-I2C operation region. Before I2C operation region handler is installed,
-battery _STA always returns 0. There is a _DEP method of designating
-start order under battery device node.
+>>>> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
+>>>> > +                                       unsigned offset, int value) {
+>>>> > +       return 0;
+>>>> > +}
+>>>>
+>>>> If that chip is capable of both output and input, shouldn't these functions be
+>>>> implemented? I think this has already been pointed out in a previous version
+>>>> but you did not reply.
+>>>
+>>> Thanks for your inputs.
+>>>
+>>> Only the GPIOs which are configured to be output GPIO can be set.
+>>
+>> In that case cy_gpio_set() should return an error for GPIOs which are
+>> not configured as outputs. Is that guaranteed by the current
+>> implementation?
+>>
+>>> The set operation would fail trying to set the input or unconfigured GPIOs.
+>>> In this version of driver, this support is not added, it can be introduced in future versions.
+>>> I will add a TODO note in the code.
+>>
+>> Argh, no TODO please. Actual code that will turn this code into a
+>> solid driver that can be merged.
+>
+> Does a driver targeted for a custom device has to implement every
+> functionality in the 1st version ?
 
-This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
-Introducing acpi_dep_list and adding dep_unmet count in the struct
-acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
-valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
-master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
-count will increase by one if there is a device under its _DEP. Driver's probe() should
-return EPROBE_DEFER when find dep_unmet larger than 0. When I2C operation
-region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
-whose master is pointed to I2C host controller and decrease slave's dep_unmet.
-When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
-for the device in order to resolve battery _STA issue on the Asus T100TA.
+When you post a driver to the GPIO maintainers it is *NOT* tageted
+at a consumer device, it is targeted at the kernel community and
+upstream maintainers.
 
-Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
-Change since V1:
-	Rework struct acpi_dep_data, record master and slave's ACPI handle.
-Rename dep_present with dep_unmet and make it as a count. Increase dep_unmet
-during bootup and decrease it when associated operation region is installed.
+Of course you can deliver add-on patches out-of-tree to your
+customers, it's generally a bad idea for the long term and maintenance
+of your driver, but it's your pick.
 
- drivers/acpi/scan.c     | 91 +++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-core.c  |  1 +
- include/acpi/acpi_bus.h |  1 +
- include/linux/acpi.h    |  3 ++
- 4 files changed, 96 insertions(+)
-
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 4da55d8..bfa9c77 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -36,6 +36,8 @@ bool acpi_force_hot_remove;
- 
- static const char *dummy_hid = "device";
- 
-+static LIST_HEAD(acpi_dep_list);
-+static DEFINE_MUTEX(acpi_dep_list_lock);
- static LIST_HEAD(acpi_bus_id_list);
- static DEFINE_MUTEX(acpi_scan_lock);
- static LIST_HEAD(acpi_scan_handlers_list);
-@@ -43,6 +45,12 @@ DEFINE_MUTEX(acpi_device_lock);
- LIST_HEAD(acpi_wakeup_device_list);
- static DEFINE_MUTEX(acpi_hp_context_lock);
- 
-+struct acpi_dep_data {
-+	struct list_head node;
-+	acpi_handle master;
-+	acpi_handle slave;
-+};
-+
- struct acpi_device_bus_id{
- 	char bus_id[15];
- 	unsigned int instance_no;
-@@ -2121,6 +2129,63 @@ static void acpi_scan_init_hotplug(struct acpi_device *adev)
- 	}
- }
- 
-+static void acpi_device_dep_initialize(struct acpi_device *adev)
-+{
-+	struct acpi_dep_data *dep;
-+	struct acpi_handle_list dep_devices;
-+	struct acpi_device_info *info;
-+	acpi_status status;
-+	int i, skip;
-+
-+	if (!acpi_has_method(adev->handle, "_DEP"))
-+		return;
-+
-+	status = acpi_evaluate_reference(adev->handle, "_DEP", NULL,
-+					&dep_devices);
-+	if (ACPI_FAILURE(status)) {
-+		dev_err(&adev->dev, "Failed to evaluate _DEP.\n");
-+		return;
-+	}
-+
-+	for (i = 0; i < dep_devices.count; i++) {
-+
-+		status = acpi_get_object_info(dep_devices.handles[i], &info);
-+		if (ACPI_FAILURE(status)) {
-+			dev_err(&adev->dev, "Error reading device info\n");
-+			continue;
-+		}
-+
-+		/*
-+		 * Skip the dependency of Windows System Power
-+		 * Management Controller
-+		 */
-+		if (info->valid & ACPI_VALID_HID
-+		    && !strcmp(info->hardware_id.string, "INT3396"))
-+			skip = 1;
-+		else
-+			skip = 0;
-+
-+		kfree(info);
-+
-+		if (skip)
-+			continue;
-+
-+		dep = kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
-+		if (!dep) {
-+			dev_err(&adev->dev, "Not enough memory for _DEP list entry.\n");
-+			return;
-+		}
-+
-+		dep->master = dep_devices.handles[i];
-+		dep->slave  = adev->handle;
-+		adev->dep_unmet++;
-+
-+		mutex_lock(&acpi_dep_list_lock);
-+		list_add_tail(&dep->node , &acpi_dep_list);
-+		mutex_unlock(&acpi_dep_list_lock);
-+	}
-+}
-+
- static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
- 				      void *not_used, void **return_value)
- {
-@@ -2147,6 +2212,7 @@ static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
- 		return AE_CTRL_DEPTH;
- 
- 	acpi_scan_init_hotplug(device);
-+	acpi_device_dep_initialize(device);
- 
-  out:
- 	if (!*return_value)
-@@ -2267,6 +2333,31 @@ static void acpi_bus_attach(struct acpi_device *device)
- 		device->handler->hotplug.notify_online(device);
- }
- 
-+int acpi_walk_dep_device_list(acpi_handle handle)
-+{
-+	struct acpi_dep_data *dep, *tmp;
-+	struct acpi_device *adev;
-+
-+	mutex_lock(&acpi_dep_list_lock);
-+	list_for_each_entry_safe(dep, tmp, &acpi_dep_list, node) {
-+		if (dep->master == handle) {
-+			acpi_bus_get_device(dep->slave, &adev);
-+			if (!adev)
-+				continue;
-+
-+			adev->dep_unmet--;
-+			if (!adev->dep_unmet)
-+				acpi_bus_attach(adev);
-+			list_del(&dep->node);
-+			kfree(dep);
-+		}
-+	}
-+	mutex_unlock(&acpi_dep_list_lock);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
-+
- /**
-  * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
-  * @handle: Root of the namespace scope to scan.
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 126e182..d5495ca 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -402,6 +402,7 @@ static int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
- 		return -ENOMEM;
- 	}
- 
-+	acpi_walk_dep_device_list(handle);
- 	return 0;
- }
- 
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 98cd723..269f068 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -367,6 +367,7 @@ struct acpi_device {
- 	void *driver_data;
- 	struct device dev;
- 	unsigned int physical_node_count;
-+	unsigned int dep_unmet;
- 	struct list_head physical_node_list;
- 	struct mutex physical_node_lock;
- 	void (*remove)(struct acpi_device *);
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 2b9c235..cec5f55 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -428,6 +428,7 @@ extern bool acpi_driver_match_device(struct device *dev,
- 				     const struct device_driver *drv);
- int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
- int acpi_device_modalias(struct device *, char *, int);
-+int acpi_walk_dep_device_list(acpi_handle handle);
- 
- #define ACPI_PTR(_ptr)	(_ptr)
- 
-@@ -446,6 +447,8 @@ static inline const char *acpi_dev_name(struct acpi_device *adev)
- 
- static inline void acpi_early_init(void) { }
- 
-+static inline int acpi_walk_dep_device_list(acpi_handle handle) { }
-+
- static inline int early_acpi_boot_init(void)
- {
- 	return 0;
--- 
-1.8.4.rc0.1.g8f6a3e5.dirty
+Yours,
+Linus Walleij
