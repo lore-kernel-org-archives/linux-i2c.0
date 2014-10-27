@@ -1,70 +1,61 @@
-From: "Yang, Wenyou" <Wenyou.Yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH v3 2/3] i2c/at91: add support for system PM
-Date: Mon, 27 Oct 2014 00:35:48 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641BF59D3F4@penmbx01>
-References: <1414133417-11530-1-git-send-email-wenyou.yang@atmel.com>
- <1414133417-11530-3-git-send-email-wenyou.yang@atmel.com>
- <544A4DED.6090009@cogentembedded.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c:at91: add bound checking on SMBus block length
+ bytes
+Date: Mon, 27 Oct 2014 08:57:49 +0100
+Message-ID: <20141027075749.GA1284@katana>
+References: <1408585181-10131-1-git-send-email-mark.roszko@gmail.com>
+ <20141021071434.GI7443@ldesroches-Latitude-E6320>
+ <CAJjB1qK2fQgBukgeM0EqZs865_LF6jABGEtQbh8cqtQXGoSTAg@mail.gmail.com>
+ <20141023134927.GQ7443@ldesroches-Latitude-E6320>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <544A4DED.6090009-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20141023134927.GQ7443@ldesroches-Latitude-E6320>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Desroches, Ludovic" <Ludovic.Desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: "khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Ferre, Nicolas" <Nicolas.FERRE-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "<linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org> mailing list" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-> -----Original Message-----
-> From: Sergei Shtylyov [mailto:sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org]
-> Sent: Friday, October 24, 2014 9:03 PM
-> To: Yang, Wenyou; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; Desroches, Ludovic
-> Cc: khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; Ferre, Nicolas; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
-> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Subject: Re: [PATCH v3 2/3] i2c/at91: add support for system PM
-> 
-> Hello.
-> 
-> On 10/24/2014 10:50 AM, Wenyou Yang wrote:
-> 
-> > Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> > ---
-> >   drivers/i2c/busses/i2c-at91.c |   26 ++++++++++++++++++++++++++
-> >   1 file changed, 26 insertions(+)
-> 
-> > diff --git a/drivers/i2c/busses/i2c-at91.c
-> > b/drivers/i2c/busses/i2c-at91.c index a25fb5e..6a84a2a 100644
-> > --- a/drivers/i2c/busses/i2c-at91.c
-> > +++ b/drivers/i2c/busses/i2c-at91.c
-> > @@ -861,7 +861,33 @@ static int at91_twi_runtime_resume(struct device
-> > *dev)
-> [...]
-> > +static int at91_twi_resume_noirq(struct device *dev) {
-> > +	int ret;
-> > +
-> > +	if (!pm_runtime_status_suspended(dev)) {
-> > +		ret = at91_twi_runtime_resume(dev);
-> 
->     Resume if *not* suspended?
-Yes, if it is not runtime_suspended, it must be the system suspended, then resume it. I think so.
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > +		if (ret)
-> > +			return ret;
-> > +	}
-> > +
-> > +	pm_runtime_mark_last_busy(dev);
-> > +	pm_request_autosuspend(dev);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> [...]
-> 
-> WBR, Sergei
 
-Best Regards,
-Wenyou Yang
+> > Wolfram took in the patch quietly awhile back. It's in the 3.17 kernel
+> > and backported to some of the older trees.
+> > https://github.com/torvalds/linux/commit/75b81f339c6af43f6f4a1b3eabe060=
+3321dade65
+>=20
+> Great, sorry for the noise so. It seems I have checked it from a wrong
+> branch.
+
+Yes, usually I send out mails when applying patches. Dunno why I missed
+it here.
+
+
+--zYM0uCDKw75PZbzx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUTfr9AAoJEBQN5MwUoCm2cD0P/2RoKSqXkQHCAdpwpSIwwk0Q
+/aPCtd8uejXzuxwnU1V3NJ45y/vBMyGpWOFuaUYq3RnoS9sPD0+jtJ/nbHQDfPrb
+hEVQUIYNtDtKKR9EaUnOXe+nxcgiBYTcveozeAY2f6fKohdtNZgMa0efNCrtYl0x
+cFptZ9ojaWz0MhflIuy9tAOD6h9sLvSgDyT57m8CwlRF+RaogJEhaT2RVfiWXwxf
+PdkiKLhUS2UiGr7Uo05gk2b/k+xoTcEf++7rIyF32qF5kiuoqr7uLn0I1ySvjI9/
+5/v+3QcdRIhPF/Y/FmZrop8g0HvV2HcsLofBzbB2HBXrtba5+JQJRNx999Wjj6Hs
++LvWCqZu8woGYFW10mXE44+7TugsO6id36+6rx3ZnKucd+dPOcSaHoCcWbeOLxVK
+zixI1Nsb0NYKXQ4fZEa1B7+aQVTH9WChOxxOGmRnPV4MBReaVj4lFR8ZSslBIeGh
+lRJJ4tnIUDTtHMNlrEEQuW8hzZvBwmGsjPKNvyeQGWbuJC84LzFcZ13LxwCzBdlp
+i+XwWwM4o6CBZIWSRLMTqz46U18KvlztnVXCU/03Hvie6Sw5qn6sVzcn1MvGfAgX
+L6zp/Yw9oGU3OVi+pGtwsdP5655Dh4ddfLwGLpltF741Oog+qDUnGCx/O9vOuygH
+BtIb1BK1L6diXUTFfWPE
+=svmh
+-----END PGP SIGNATURE-----
+
+--zYM0uCDKw75PZbzx--
