@@ -1,38 +1,78 @@
-From: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-Subject: Problem with multiple i2c multiplexers on the same bus
-Date: Mon, 27 Oct 2014 11:46:01 -0700
-Message-ID: <CAB0SmAFZ5KPpeSbQia9kq668G5kE6hpw9eBRy=59U6GOymkj9A@mail.gmail.com>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: Re: [PATCH v9 1/4] mfd: add support for Diolan DLN-2 devices
+Date: Tue, 28 Oct 2014 15:25:36 +0200
+Message-ID: <CAMoF9u3DDPFXHKUmmPhAEXiqV3p5TaMfvQU-_HTmLO6amDxntw@mail.gmail.com>
+References: <1414427472-4100-1-git-send-email-octavian.purdila@intel.com>
+	<1414427472-4100-2-git-send-email-octavian.purdila@intel.com>
+	<1414429069.8884.10.camel@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1414429069.8884.10.camel@perches.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Octavian Purdila <octavian.purdila@intel.com>, Greg KH <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, wsa@the-dreams.de, sameo@linux.intel.com, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Johan Hovold <johan@kernel.org>, Daniel Baluta <daniel.baluta@intel.com>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-usb@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is regarding a series of emails between Guenter Roeck and Jean
-Delvare titled "Problem with multiple i2c multiplexers on one bus, and
-mux bus naming" sent in November 2013. Ref:
-http://thread.gmane.org/gmane.linux.drivers.i2c/16980
+On Mon, Oct 27, 2014 at 6:57 PM, Joe Perches <joe@perches.com> wrote:
+> On Mon, 2014-10-27 at 18:31 +0200, Octavian Purdila wrote:
+>> This patch implements the USB part of the Diolan USB-I2C/SPI/GPIO
+>> Master Adapter DLN-2. Details about the device can be found here:
+>
+> trivia:
+>
 
-I'm having the same problem with multiple PCA954x multiplexers on the
-same bus and there is no way to tell them apart just by looking at the
-"name" file.
+Thanks for the review Joe.
 
-There was a suggestion to change the name from "i2c-N-mux (chan_id M)"
-to "i2c-N-mux-XX (chan_id M)" or even "i2c-N-mux-i2c-XX (chan_id M)",
-where XX is the multiplexer's i2c address. That would solve my
-problem, but unfortunately it looks like Guenter never submitted the
-patch (or maybe it was rejected?).
+>> diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+> []
+>> +static int _dln2_transfer(struct dln2_dev *dln2, u16 handle, u16 cmd,
+>> +                       const void *obuf, unsigned obuf_len,
+>> +                       void *ibuf, unsigned *ibuf_len)
+>> +{
+>> +     int ret = 0;
+>> +     int rx_slot;
+>> +     struct dln2_response *rsp;
+>> +     struct dln2_rx_context *rxc;
+>> +     struct device *dev = &dln2->interface->dev;
+>> +     const int timeout = DLN2_USB_TIMEOUT * HZ / 1000;
+>
+> unsigned long timeout?
+>
 
-I would like to submit a similar change, but I was thinking of adding
-a module parameter so that the change is not the default behavior.
-The idea is to preserve backward compatibility for applications that
-don't require this fix. For example, modprobe i2c-dev
-explicit_mux_id=1 would use i2c-N-mux-i2c-XX (chan_id M), whereas
-modprobe i2c-dev would default to the current behavior: i.e. i2c-N-mux
-(chan_id M).
+Ok.
 
-Any thoughts, comments?
+> []
+>
+>> +     ret = wait_for_completion_interruptible_timeout(&rxc->done, timeout);
+>> +     if (ret <= 0) {
+>> +             if (!ret)
+>> +                     ret = -ETIMEDOUT;
+>> +             goto out_free_rx_slot;
+>> +     }
+>
+> []
 
-Regards,
-Martin
+I think you forgot to add your comments here?
+
+>
+>> +static int dln2_print_serialno(struct dln2_dev *dln2)
+>> +{
+>> +     int ret;
+>> +     __le32 serial_no;
+>> +     int len = sizeof(serial_no);
+>> +     struct device *dev = &dln2->interface->dev;
+>> +
+>> +     ret = _dln2_transfer(dln2, DLN2_HANDLE_CTRL, CMD_GET_DEVICE_SN, NULL, 0,
+>> +                          &serial_no, &len);
+>> +     if (ret < 0)
+>> +             return ret;
+>> +     if (len < sizeof(serial_no))
+>> +             return -EREMOTEIO;
+>> +
+>> +     dev_info(dev, "Diolan DLN2 serial 0x%x\n", le32_to_cpu(serial_no));
+>
+> why a hex serial #?
+>
+
+Good point, I will switch it to decimal.
