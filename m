@@ -1,125 +1,136 @@
-From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] at24: extend driver to allow writing via i2c_smbus_write_byte_data
-Date: Tue, 28 Oct 2014 17:51:14 +0100
-Message-ID: <CAH9NwWeJ2nwdWFL1u=cOrjEWYnp9jeyQ4_7OQtkD_1_4AYhdpA@mail.gmail.com>
-References: <1412845678-18933-1-git-send-email-christian.gmeiner@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1412845678-18933-1-git-send-email-christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v8 0/8] Device Tree Overlays - 8th time's the charm
+Date: Tue, 28 Oct 2014 22:35:57 +0200
+Message-ID: <1414528565-10907-1-git-send-email-pantelis.antoniou@konsulko.com>
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-ping
+The following patchset introduces Device Tree overlays, a method
+of dynamically altering the kernel's live Device Tree, along with
+a generic interface to use it in a board agnostic manner.
+
+It is against linux mainline as of today 28/10/2014
+"f7e87a44ef60ad379e39b45437604141453bf0ec"
+Merge tag 'media/v3.18-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/mchehab/linux-media
+
+It relies on the following previously submitted patches/patchsets:
+
+* configfs: Implement binary attributes (v2)
+
+To compile overlays you need the DTC compiler patch
+
+* "dtc: Dynamic symbols & fixup support (v3)"
+
+The full patchset is applied to the following tree/branch:
+
+git:    git-9UaJU3cA/F/QT0dZR+AlfA@public.gmane.org:pantoniou/linux-beagle-track-mainline.git
+branch: dt-ng/bbb
+http:   https://github.com/pantoniou/linux-beagle-track-mainline/tree/dt-ng4/gcl-bbb
+
+Changes since V7:
+* Using the mainline resolver with the updated local fixups format.
+* Drop delete capability using '-' prefix. The '-' prefixed names
+are valid properties and nodes and there is no need for it just yet.
+* Do not update special properties - name & phandle ones.
+* Change order of node attachment, so that the special property update
+works.
+
+Changes since V6:
+* Now using the updated transaction API.
+
+Changes since V5:
+* Rely on transactions for affecting changes to the live tree.
+This makes the patchset considerably smaller, and easier to grok.
+* Removed the internal API, simplyfing the interface.
+
+Changes since V4:
+* New API of_overlay_create/destroy being able to support stacked
+overlays correctly.
+* Removed use of notifiers internally.
+* Removed own-grown bus handler notifiers; using already in-place DT
+notification infrastructure.
+* Split SPI notifier patch to one patch of generic changes and one
+for DT overlay notifier.
+* Removed unused overlay depth feature.
+* Updated documentation.
+* Moved configfs based interface to using the new API.
+* Added overlay removal stacking tests.
+
+Changes since V3:
+* Added overlay self-tests.
+* Fix bug in of_init_overlay_info (wrong sizeof)
+* Platform bus handler handles parent_pdev == NULL
+* of_resolve fixes according to comments by robh
+ + changed if (foo == NULL) to if (!foo)
+ + changed if (foo != NULL) to if (foo)
+ + drivers/of/Kconfig added dep on OF && !SPARC
+ + convert to using be32_to_cpup
+ + u32 -> __be32 when modifying property values
+ + cosmetic fixes
+
+Changes since V2:
+* Use of a configfs board agnostic overlay method
+* Use of per bus handlers instead of hardcoded behaviour
+* Optional target-path overlay target, which allows one to use standard
+DTBs without resolution options.
+
+Changes since V1:
+
+* Removal of any bits related to a specific board (beaglebone).
+* Introduced a platform agnostic interface using /proc/device-tree-overlay
+* Various bug fixes related to i2c device handling have been squashed in.
+
+Pantelis Antoniou (9):
+ OF: Introduce Device Tree resolve support.
+ OF: Introduce DT overlay support.
+ OF: selftest: Add overlay self-test support.
+ OF: DT-Overlay configfs interface
+ OF: platform: Add OF notifier handler
+ of: i2c: Export single device registration method
+ OF: i2c: Add OF notifier handler
+ of: spi: Export single device registration method and accessors
+ OF: spi: Add OF notifier handler
+
+Pantelis Antoniou (8):
+  OF: Introduce DT overlay support. (v2)
+  OF: selftest: Add overlay self-test support. (v2)
+  OF: DT-Overlay configfs interface (v2)
+  OF: platform: Add OF notifier handler
+  of: i2c: Export single device registration method
+  OF: i2c: Add OF notifier handler
+  of: spi: Export single device registration method and accessors
+  OF: spi: Add OF notifier handler
+
+ Documentation/devicetree/bindings/selftest.txt |  14 +
+ Documentation/devicetree/overlay-notes.txt     | 137 ++++++
+ drivers/base/platform.c                        |  18 +-
+ drivers/i2c/i2c-core.c                         | 178 +++++--
+ drivers/of/Kconfig                             |  14 +
+ drivers/of/Makefile                            |   2 +
+ drivers/of/configfs.c                          | 340 +++++++++++++
+ drivers/of/overlay.c                           | 656 +++++++++++++++++++++++++
+ drivers/of/platform.c                          |  78 +++
+ drivers/of/selftest.c                          | 481 ++++++++++++++++++
+ drivers/of/testcase-data/testcases.dts         |  16 +
+ drivers/of/testcase-data/tests-overlay.dtsi    | 180 +++++++
+ drivers/spi/spi.c                              | 334 +++++++++----
+ include/linux/i2c.h                            |  10 +
+ include/linux/of.h                             |  31 ++
+ include/linux/of_platform.h                    |  10 +
+ 16 files changed, 2351 insertions(+), 148 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/selftest.txt
+ create mode 100644 Documentation/devicetree/overlay-notes.txt
+ create mode 100644 drivers/of/configfs.c
+ create mode 100644 drivers/of/overlay.c
+ create mode 100644 drivers/of/testcase-data/tests-overlay.dtsi
+
+-- 
+1.7.12
+
 --
-Christian Gmeiner, MSc
-
-https://soundcloud.com/christian-gmeiner
-
-
-2014-10-09 11:07 GMT+02:00 Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
-> bus driver. This bus driver does not support
-> I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
-> to be able to write the eeprom. This patch adds support for
-> I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
-> It is quite slow, but it works.
->
-> Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/misc/eeprom/at24.c | 35 +++++++++++++++++++++++++++++------
->  1 file changed, 29 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index d87f77f..f51daac 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -56,6 +56,7 @@ struct at24_data {
->         struct at24_platform_data chip;
->         struct memory_accessor macc;
->         int use_smbus;
-> +       int use_smbuse_write;
->
->         /*
->          * Lock protects against activities from other Linux tasks,
-> @@ -324,7 +325,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
->  {
->         struct i2c_client *client;
->         struct i2c_msg msg;
-> -       ssize_t status;
-> +       ssize_t status = 0;
->         unsigned long timeout, write_time;
->         unsigned next_page;
->
-> @@ -365,9 +366,18 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
->         timeout = jiffies + msecs_to_jiffies(write_timeout);
->         do {
->                 write_time = jiffies;
-> -               if (at24->use_smbus) {
-> -                       status = i2c_smbus_write_i2c_block_data(client,
-> -                                       offset, count, buf);
-> +               if (at24->use_smbuse_write) {
-> +                       switch (at24->use_smbuse_write) {
-> +                       case I2C_SMBUS_I2C_BLOCK_DATA:
-> +                               status = i2c_smbus_write_i2c_block_data(client,
-> +                                               offset, count, buf);
-> +                               break;
-> +                       case I2C_SMBUS_BYTE_DATA:
-> +                               status = i2c_smbus_write_byte_data(client,
-> +                                               offset, buf[0]);
-> +                               break;
-> +                       }
-> +
->                         if (status == 0)
->                                 status = count;
->                 } else {
-> @@ -487,6 +497,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->         struct at24_platform_data chip;
->         bool writable;
->         int use_smbus = 0;
-> +       int use_smbus_write = 0;
->         struct at24_data *at24;
->         int err;
->         unsigned i, num_addresses;
-> @@ -546,6 +557,18 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->                 }
->         }
->
-> +       /* Use I2C operations unless we're stuck with SMBus extensions. */
-> +       if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> +               if (i2c_check_functionality(client->adapter,
-> +                               I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-> +                       use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
-> +               } else if (i2c_check_functionality(client->adapter,
-> +                               I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
-> +                       use_smbus_write = I2C_SMBUS_BYTE_DATA;
-> +                       chip.page_size = 1;
-> +               }
-> +       }
-> +
->         if (chip.flags & AT24_FLAG_TAKE8ADDR)
->                 num_addresses = 8;
->         else
-> @@ -559,6 +582,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->
->         mutex_init(&at24->lock);
->         at24->use_smbus = use_smbus;
-> +       at24->use_smbuse_write = use_smbus_write;
->         at24->chip = chip;
->         at24->num_addresses = num_addresses;
->
-> @@ -576,8 +600,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->
->         writable = !(chip.flags & AT24_FLAG_READONLY);
->         if (writable) {
-> -               if (!use_smbus || i2c_check_functionality(client->adapter,
-> -                               I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-> +               if (!use_smbus || use_smbus_write) {
->
->                         unsigned write_max = chip.page_size;
->
-> --
-> 1.9.3
->
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
