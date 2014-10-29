@@ -1,89 +1,39 @@
-From: Valentin Longchamp <valentin.longchamp@keymile.com>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Wed, 29 Oct 2014 09:59:49 +0100
-Message-ID: <5450AC85.40302@keymile.com>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
- <1414537731.23458.120.camel@snotra.buserror.net>
+From: Alexander Sverdlin <alexander.sverdlin@nsn.com>
+Subject: Re: [PATCH] of: spi: Export single device registration method and
+ accessors (v2)
+Date: Wed, 29 Oct 2014 10:08:59 +0100
+Message-ID: <5450AEAB.40200@nsn.com>
+References: <1414572037-11306-1-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <1414537731.23458.120.camel@snotra.buserror.net>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-To: Scott Wood <scottwood@freescale.com>
-Cc: "Boschung, Rainer" <Rainer.Boschung@keymile.com>, Linux device trees <devicetree@vger.kernel.org>, "Brunck,
- Holger" <Holger.Brunck@keymile.com>, Linux PowerPC Kernel <linuxppc-dev@lists.ozlabs.org>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1414572037-11306-1-git-send-email-pantelis.antoniou@konsulko.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: ext Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>, Rob Herring <robherring2@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>, Matt Porter <matt.porter@linaro.org>, Koen Kooi <koen@dominion.thruhere.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alison Chaiken <Alison_Chaiken@mentor.com>, Dinh Nguyen <dinh.linux@gmail.com>, Jan Lubbe <jluebbe@lasnet.de>, Michael Stickel <ms@mycable.de>, Guenter Roeck <linux@roeck-us.net>, Dirk Behme <dirk.behme@gmail.com>, Alan Tull <delicious.quinoa@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Michael Bohan <mbohan@codeaurora.org>, Ionut Nicu <ioan.nicu.ext@nsn.com>, Michal Simek <monstr@monstr.eu>, Matt Ranostay <mranostay@gmail.com>, Joel Becker <jlbec@evilplan.org>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org, linux-ke
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMTAvMjkvMjAxNCAxMjowOCBBTSwgU2NvdHQgV29vZCB3cm90ZToKPiBPbiBGcmksIDIwMTQt
-MTAtMTcgYXQgMTE6MjcgKzAyMDAsIFZhbGVudGluIExvbmdjaGFtcCB3cm90ZToKPj4gV2l0aCAi
-ZnNsLWkyYyIgY29tcGF0aWJpbGl0eSB0aGUgaTJjIGZyZXF1ZW5jeSBpcyBub3Qgc2V0Cj4+IGNv
-cnJlY3RseSwgYmVjYXVzZSBpdCBzZXRzIG5vIHByZXNjYWxlci4gQWNjb3JkaW5nIHRvIHRoZSBB
-TjI5MTkgZnJvbQo+PiBGcmVlc2NhbGUgYW5kIHRoZSBRb3JJUSAoUDIwNDEpIGRvY3VtZW50YXRp
-b24sIHRoZSBzb3VyY2UgY2xvY2sgaXMgMS8yCj4+IHRoZSBwbGF0Zm9ybSBjbG9jay4gVGhpcyBp
-bXBsaWVzIHRoYXQgYSBwcmVzY2FsZXIgb2YgMiBtdXN0IGJlIHVzZWQuCj4+Cj4+IFRoaXMgY2hh
-bmdlcyB0aGUgY29tcGF0aWJpbGl0eSBvZiB0aGUgcW9yaXEtaTJjIC5kdHNpIGZpbGVzIHRvIHBp
-Y2sgdGhlCj4+IG1wYzg1NDMsIHdoaWNoIHVzZXMgdGhlIHNhbWUgZHJpdmVyIGJ1dCBzZXRzIHRo
-ZSBjb3JyZWN0IHByZXNjYWxlci4KPj4KPj4gU2lnbmVkLW9mZi1ieTogUmFpbmVyIEJvc2NodW5n
-IDxyYWluZXIuYm9zY2h1bmdAa2V5bWlsZS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IFZhbGVudGlu
-IExvbmdjaGFtcCA8dmFsZW50aW4ubG9uZ2NoYW1wQGtleW1pbGUuY29tPgo+PiAtLS0KPj4KPj4g
-IGFyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wvcW9yaXEtaTJjLTAuZHRzaSB8IDQgKystLQo+PiAg
-YXJjaC9wb3dlcnBjL2Jvb3QvZHRzL2ZzbC9xb3JpcS1pMmMtMS5kdHNpIHwgNCArKy0tCj4+ICAy
-IGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKPj4KPj4gZGlm
-ZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wvcW9yaXEtaTJjLTAuZHRzaSBiL2Fy
-Y2gvcG93ZXJwYy9ib290L2R0cy9mc2wvcW9yaXEtaTJjLTAuZHRzaQo+PiBpbmRleCA1ZjliZjdk
-Li5hYTZjMzY2IDEwMDY0NAo+PiAtLS0gYS9hcmNoL3Bvd2VycGMvYm9vdC9kdHMvZnNsL3Fvcmlx
-LWkyYy0wLmR0c2kKPj4gKysrIGIvYXJjaC9wb3dlcnBjL2Jvb3QvZHRzL2ZzbC9xb3JpcS1pMmMt
-MC5kdHNpCj4+IEBAIC0zNiw3ICszNiw3IEBAIGkyY0AxMTgwMDAgewo+PiAgCSNhZGRyZXNzLWNl
-bGxzID0gPDE+Owo+PiAgCSNzaXplLWNlbGxzID0gPDA+Owo+PiAgCWNlbGwtaW5kZXggPSA8MD47
-Cj4+IC0JY29tcGF0aWJsZSA9ICJmc2wtaTJjIjsKPj4gKwljb21wYXRpYmxlID0gImZzbCxtcGM4
-NTQzLWkyYyIsICJmc2wtaTJjIjsKPj4gIAlyZWcgPSA8MHgxMTgwMDAgMHgxMDA+Owo+PiAgCWlu
-dGVycnVwdHMgPSA8MzggMiAwIDA+Owo+PiAgCWRmc3JyOwo+PiBAQCAtNDYsNyArNDYsNyBAQCBp
-MmNAMTE4MTAwIHsKPj4gIAkjYWRkcmVzcy1jZWxscyA9IDwxPjsKPj4gIAkjc2l6ZS1jZWxscyA9
-IDwwPjsKPj4gIAljZWxsLWluZGV4ID0gPDE+Owo+PiAtCWNvbXBhdGlibGUgPSAiZnNsLWkyYyI7
-Cj4+ICsJY29tcGF0aWJsZSA9ICJmc2wsbXBjODU0My1pMmMiLCAiZnNsLWkyYyI7Cj4+ICAJcmVn
-ID0gPDB4MTE4MTAwIDB4MTAwPjsKPj4gIAlpbnRlcnJ1cHRzID0gPDM4IDIgMCAwPjsKPj4gIAlk
-ZnNycjsKPiAKPiBBcmUgYWxsIGNoaXBzIHRoYXQgdXNlIHRoaXMgZHRzaSAxMDAlIGNvbXBhdGli
-bGUgd2l0aCBtcGM4NTQzJ3MgaTJjLCBvcgo+IGp1c3QgaW4gd2F5cyB0aGUgTGludXggZHJpdmVy
-IGNhcmVzIGFib3V0PwoKSSBoYXZlIGp1c3QgbG9va2VkIGJyaWVmbHkgYXQgdGhlIG1wYzg1NDgg
-Uk0gKGNvdmVycyBtcGM4NTQzKSBhbmQgaXRzIGkyYwpjb250cm9sbGVyIGxvb2tzIHRoZSBzYW1l
-IGFzIHRoZSBxb3JpcSdzLiBJIGNhbm5vdCBob3dldmVyIHN0YXRlIGlmIHRoZXkgYXJlCjEwMCUg
-Y29tcGF0aWJsZS4KCklmIHdlIHdhbnRlZCB0byBiZSBvbiB0aGUgc2FmZSBzaWRlIGFuZCBzdHJp
-Y3QgKHNpbmNlIHdlIGFyZSBub3Qgc3VyZSB0aGF0IHRoZQpoYXJkd2FyZSBpcyAxMDAlIGNvbXBh
-dGlibGUpLCB3ZSBtYXliZSBzaG91bGQgYWRkIGEgZnNsLHFvcmlxLWkyYyBjb21wYXRpYmxlIHRv
-CnRoZSBkcml2ZXIgdGhhdCBkb2VzIHRoZSBzYW1lIGFzIG1wYzg1NDMtaTJjLgoKPiAKPiBXaGF0
-IGFib3V0IGZzbCxtcGM4NTQ0LWkyYywgd2hpY2ggaGFzIGFkZGl0aW9uYWwgc3BlY2lhbCBoYW5k
-bGluZyBpbiB0aGUKPiBkcml2ZXIsIGJ1dCBpcyBvbmx5IHVzZWQgaW4gc29jcmF0ZXMuZHRzIChu
-b3QgbXBjODU0NGRzLmR0cyk/CgpGcm9tIHRoZSBtcGM4NTQ0IFJNLCB0aGlzIGNvbnRyb2xsZXIg
-bG9va3MgdGhlIHNhbWUgYXMgdGhlIGFib3ZlIDIsIGV4Y2VwdCBmb3IKdGhlIHByZXNjYWxlciBm
-cm9tIHRoZSBkcml2ZXIgd2hpY2ggaXMgc2V0IHRvIDMuIEFzIHRvIHdoeSBpdCBpcyBvbmx5IHVz
-ZWQgaW4KdGhlIHNvY3JhdGVzLmR0cywgSSBjYW5ub3QgY29tbWVudCBhYm91dCBpdC4KClRoZSBw
-cmVzY2FsZXIgaXMgY29uZmlybWVkIHRvIGJlIDMgYnkgZGVmYXVsdCBieSB0aGUgVGFibGUgMyBv
-ZiB0aGUgQU4tMjE5IGZvcgp0aGUgbXBjODU0NC4KCj4gCj4gV2hhdCBhYm91dCBwcTMtaTJjLSou
-ZHRzaT8KPiAKClRoaXMgaXMgYWxzbyBpbnRlcmVzdGluZzogZnJvbSB0aGUgQU4tMjE5IFRhYmxl
-IDQsIHNvbWUgcHEzIGhhdmUgYSAyOjEKKG1jcGM4NTM2LzQzLzQ1LzQ3LzQ4LzY3LzY4LzcyLCBw
-bHVzIHAyMDIwKSBwcmVzY2FsZXIgd2hlcmUgc29tZSBkb24ndAoobXBjODUzMy80NCwgd2hlcmUg
-aXQgY2FuIGJlIDM6MSAtZGVmYXVsdC0gb3IgMjoxKS4gSG93ZXZlciBwcTMtaTJjLSouZHRzaQpk
-ZWZpbmVzIG5vIHByZXNjYWxlci4KCk5vdyBpZiBJIGxvb2sgYXQgd2hhdCBmaWxlcyBpbmNsdWRl
-IHRoZXNlIHBxMy1pMmMtKi5kdHNpLCBJIHNlZSBzb21lIHRoYXQgYXJlIGluCnRoZSB0aGUgMjox
-IGxpc3Q6CmFyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wvbXBjODUzNnNpLXBvc3QuZHRzaQphcmNo
-L3Bvd2VycGMvYm9vdC9kdHMvZnNsL21wYzg1NDhzaS1wb3N0LmR0c2kKYXJjaC9wb3dlcnBjL2Jv
-b3QvZHRzL2ZzbC9tcGM4NTY4c2ktcG9zdC5kdHNpCmFyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wv
-bXBjODU3MnNpLXBvc3QuZHRzaQphcmNoL3Bvd2VycGMvYm9vdC9kdHMvZnNsL3AyMDIwc2ktcG9z
-dC5kdHNpCgpJIGRvbid0IGhhdmUgYW55IGhhcmR3YXJlIHRvIGRvIHNvbWUgdGVzdHMgd2l0aCB0
-aGVzZSwgYnV0IGZyb20gbXkgbWVhc3VyZW1lbnRzCm9uIG91ciBxb3JpcSBiYXNlZCBzeXN0ZW0g
-KFAyMDQxIFNvQykgSSB0aGluayB0aGF0IHRoZSBnZW5lcmF0ZWQgSTJDIGNsb2NrcyBmb3IKdGhl
-IGFib3ZlIFNvQyBjdXJyZW50bHkgYXJlIG5vdCBjb3JyZWN0IGJlY2F1c2Ugb2YgdGhlIGlnbm9y
-ZWQgcHJlc2NhbGVyLgoKVmFsZW50aW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KTGludXhwcGMtZGV2IG1haWxpbmcgbGlzdApMaW51eHBwYy1kZXZAbGlz
-dHMub3psYWJzLm9yZwpodHRwczovL2xpc3RzLm96bGFicy5vcmcvbGlzdGluZm8vbGludXhwcGMt
-ZGV2
+Hello!
+
+On 29/10/14 09:40, ext Pantelis Antoniou wrote:
+> Dynamically inserting spi device nodes requires the use of a single
+> device registration method. Rework and export it.
+> 
+> Methods to lookup a device/master using a device node are added
+> as well, of_find_spi_master_by_node() & of_find_spi_device_by_node().
+> 
+> Changes since v1:
+> * Brown paper bug with parameter on of_register_spi_device().
+> 
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+
+Acked-by: Alexander Sverdlin <alexaner.sverdlin@nsn.com>
+
+> ---
+>  drivers/spi/spi.c | 255 +++++++++++++++++++++++++++++++++---------------------
+>  1 file changed, 157 insertions(+), 98 deletions(-)
+
+-- 
+Best regards,
+Alexander Sverdlin.
