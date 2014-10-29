@@ -1,80 +1,76 @@
-From: RR <rajaram.officemails@gmail.com>
-Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
-Date: Wed, 29 Oct 2014 07:51:06 +0530
-Message-ID: <CACdXCX4z=AbL6-O3Y76ZtLwyZ1F82_N4y60VmBKXnzf3KXvOzg@mail.gmail.com>
-References: <1412606822-3406-1-git-send-email-muth@cypress.com>
-	<CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
-	<405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
-	<CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
-	<CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
-	<CACRpkdbe6OC-4CZ_DiUBcuv9wsMVtvk1FpkdNn5pZG+sgP6wZQ@mail.gmail.com>
+From: Xudong Chen <xudong.chen@mediatek.com>
+Subject: [PATCH 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+Date: Wed, 29 Oct 2014 13:37:36 +0800
+Message-ID: <1414561058-23803-2-git-send-email-xudong.chen@mediatek.com>
+References: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdbe6OC-4CZ_DiUBcuv9wsMVtvk1FpkdNn5pZG+sgP6wZQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexandre Courbot <gnurou@gmail.com>, Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Mark Rutland <mark.rutland@arm.com>, arm@kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Xudong Chen <xudong.chen@mediatek.com>, devicetree@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, srv_heupstream@mediatek.com, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, YH Chen <yh.chen@mediatek.com>, linux-kernel@vger.kernel.org, Nathan Chung <nathan.chung@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, Sascha Hauer <kernel@pengutronix.de>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 27, 2014 at 9:00 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Thu, Oct 9, 2014 at 1:46 AM, RR <rajaram.officemails@gmail.com> wrote:
->> On Wed, Oct 8, 2014 at 12:18 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
->>> On Wed, Oct 8, 2014 at 4:09 PM, Muthu Mani <muth@cypress.com> wrote:
->
->>>>> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
->>>>> > +                                       unsigned offset, int value) {
->>>>> > +       return 0;
->>>>> > +}
->>>>>
->>>>> If that chip is capable of both output and input, shouldn't these functions be
->>>>> implemented? I think this has already been pointed out in a previous version
->>>>> but you did not reply.
->>>>
->>>> Thanks for your inputs.
->>>>
->>>> Only the GPIOs which are configured to be output GPIO can be set.
->>>
->>> In that case cy_gpio_set() should return an error for GPIOs which are
->>> not configured as outputs. Is that guaranteed by the current
->>> implementation?
->>>
->>>> The set operation would fail trying to set the input or unconfigured GPIOs.
->>>> In this version of driver, this support is not added, it can be introduced in future versions.
->>>> I will add a TODO note in the code.
->>>
->>> Argh, no TODO please. Actual code that will turn this code into a
->>> solid driver that can be merged.
->>
->> Does a driver targeted for a custom device has to implement every
->> functionality in the 1st version ?
->
-> When you post a driver to the GPIO maintainers it is *NOT* tageted
-> at a consumer device, it is targeted at the kernel community and
-> upstream maintainers.
+Add devicetree bindings for Mediatek Soc I2C driver.
 
-Totally agree. What I was conveying the patch has not modified
-any "core" kernel function and is specific to a device thus will not
-affect system.
+Signed-off-by: Xudong Chen <xudong.chen@mediatek.com>
+---
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         | 37 ++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
 
->
-> Of course you can deliver add-on patches out-of-tree to your
-> customers, it's generally a bad idea for the long term and maintenance
-> of your driver, but it's your pick.
-
-AFAIR In the recent past xHCI or gadget core or musb or dw3
-patches were added in increments. May be my analogy is incorrect and
-I am ignorant of some philosophy here.
-
-Sincerely I somehow was not convinced basic functionality is missing
-as referred in the review comment.We have tested the driver for most of
-the functionality of our DVK and is working perfectly.
-
-Moreover currently we do not expect an user to set gpio direction as
-it involves vendor specific usb control commands.
-
-Having said that we have taken the feedback and working to close this.
-
->
-> Yours,
-> Linus Walleij
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+new file mode 100644
+index 0000000..b4012c8
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+@@ -0,0 +1,37 @@
++* Mediatek's I2C controller
++
++The Mediatek's I2C controller is used to interface with I2C devices.
++
++Required properties:
++  - compatible: value should be either of the following.
++      (a) "mtk,mt6577-i2c", for i2c compatible with mt6577 i2c.
++      (b) "mtk,mt8127-i2c", for i2c compatible with mt8127 i2c.
++      (c) "mtk,mt8135-i2c", for i2c compatible with mt8135 i2c.
++  - reg: physical base address of the controller and dma base, length of memory mapped
++    region.
++  - interrupts: interrupt number to the cpu.
++  - clock-div: the fixed value for frequency divider of clock source in i2c module.
++    Each IC may be different.
++  - clocks: clock name from clock manager
++  - clock-names: clock name used in i2c driver probe
++
++Optional properties:
++  - clock-frequency: Frequency in Hz of the bus when transfer, the default value is 100000.
++  - mediatek,have-pmic: platform can control i2c form special pmic side.
++  - mediatek,have-dcm: platform has DCM(hardware digital clock manager) property.
++  - mediatek,use-push-pull: IO use push-pull mode.
++
++Example:
++
++	i2c0: i2c@1100d000 {
++			compatible = "mediatek,mt6577-i2c";
++			reg = <0x1100d000 0x70>,
++			      <0x11000300 0x80>;
++			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
++			clock-frequency = <100000>;
++			mediatek,have-pmic;
++			clock-div = <16>;
++			clocks = <&i2c0_ck>, <&ap_dma_ck>;
++			clock-names = "main", "dma";
++	};
++
+-- 
+1.8.1.1.dirty
