@@ -1,315 +1,89 @@
-From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH] of: spi: Export single device registration method and accessors (v2)
-Date: Wed, 29 Oct 2014 10:40:37 +0200
-Message-ID: <1414572037-11306-1-git-send-email-pantelis.antoniou@konsulko.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ke
+From: Valentin Longchamp <valentin.longchamp@keymile.com>
+Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
+Date: Wed, 29 Oct 2014 09:59:49 +0100
+Message-ID: <5450AC85.40302@keymile.com>
+References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
+ <1414537731.23458.120.camel@snotra.buserror.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <1414537731.23458.120.camel@snotra.buserror.net>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+To: Scott Wood <scottwood@freescale.com>
+Cc: "Boschung, Rainer" <Rainer.Boschung@keymile.com>, Linux device trees <devicetree@vger.kernel.org>, "Brunck,
+ Holger" <Holger.Brunck@keymile.com>, Linux PowerPC Kernel <linuxppc-dev@lists.ozlabs.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dynamically inserting spi device nodes requires the use of a single
-device registration method. Rework and export it.
-
-Methods to lookup a device/master using a device node are added
-as well, of_find_spi_master_by_node() & of_find_spi_device_by_node().
-
-Changes since v1:
-* Brown paper bug with parameter on of_register_spi_device().
-
-Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
----
- drivers/spi/spi.c | 255 +++++++++++++++++++++++++++++++++---------------------
- 1 file changed, 157 insertions(+), 98 deletions(-)
-
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index ebcb33d..4778366 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1220,6 +1220,122 @@ err_init_queue:
- /*-------------------------------------------------------------------------*/
- 
- #if defined(CONFIG_OF)
-+
-+static struct spi_device *
-+of_register_spi_device(struct spi_master *master, struct device_node *nc)
-+{
-+	struct spi_device *spi;
-+	int rc;
-+	u32 value;
-+
-+	/* Alloc an spi_device */
-+	spi = spi_alloc_device(master);
-+	if (!spi) {
-+		dev_err(&master->dev, "spi_device alloc error for %s\n",
-+			nc->full_name);
-+		rc = -ENOMEM;
-+		goto err_out;
-+	}
-+
-+	/* Select device driver */
-+	rc = of_modalias_node(nc, spi->modalias,
-+				sizeof(spi->modalias));
-+	if (rc < 0) {
-+		dev_err(&master->dev, "cannot find modalias for %s\n",
-+			nc->full_name);
-+		goto err_out;
-+	}
-+
-+	/* Device address */
-+	rc = of_property_read_u32(nc, "reg", &value);
-+	if (rc) {
-+		dev_err(&master->dev, "%s has no valid 'reg' property (%d)\n",
-+			nc->full_name, rc);
-+		goto err_out;
-+	}
-+	spi->chip_select = value;
-+
-+	/* Mode (clock phase/polarity/etc.) */
-+	if (of_find_property(nc, "spi-cpha", NULL))
-+		spi->mode |= SPI_CPHA;
-+	if (of_find_property(nc, "spi-cpol", NULL))
-+		spi->mode |= SPI_CPOL;
-+	if (of_find_property(nc, "spi-cs-high", NULL))
-+		spi->mode |= SPI_CS_HIGH;
-+	if (of_find_property(nc, "spi-3wire", NULL))
-+		spi->mode |= SPI_3WIRE;
-+	if (of_find_property(nc, "spi-lsb-first", NULL))
-+		spi->mode |= SPI_LSB_FIRST;
-+
-+	/* Device DUAL/QUAD mode */
-+	if (!of_property_read_u32(nc, "spi-tx-bus-width", &value)) {
-+		switch (value) {
-+		case 1:
-+			break;
-+		case 2:
-+			spi->mode |= SPI_TX_DUAL;
-+			break;
-+		case 4:
-+			spi->mode |= SPI_TX_QUAD;
-+			break;
-+		default:
-+			dev_warn(&master->dev,
-+				"spi-tx-bus-width %d not supported\n",
-+				value);
-+			break;
-+		}
-+	}
-+
-+	if (!of_property_read_u32(nc, "spi-rx-bus-width", &value)) {
-+		switch (value) {
-+		case 1:
-+			break;
-+		case 2:
-+			spi->mode |= SPI_RX_DUAL;
-+			break;
-+		case 4:
-+			spi->mode |= SPI_RX_QUAD;
-+			break;
-+		default:
-+			dev_warn(&master->dev,
-+				"spi-rx-bus-width %d not supported\n",
-+				value);
-+			break;
-+		}
-+	}
-+
-+	/* Device speed */
-+	rc = of_property_read_u32(nc, "spi-max-frequency", &value);
-+	if (rc) {
-+		dev_err(&master->dev, "%s has no valid 'spi-max-frequency' property (%d)\n",
-+			nc->full_name, rc);
-+		goto err_out;
-+	}
-+	spi->max_speed_hz = value;
-+
-+	/* IRQ */
-+	spi->irq = irq_of_parse_and_map(nc, 0);
-+
-+	/* Store a pointer to the node in the device structure */
-+	of_node_get(nc);
-+	spi->dev.of_node = nc;
-+
-+	/* Register the new device */
-+	request_module("%s%s", SPI_MODULE_PREFIX, spi->modalias);
-+	rc = spi_add_device(spi);
-+	if (rc) {
-+		dev_err(&master->dev, "spi_device register error %s\n",
-+			nc->full_name);
-+		goto err_out;
-+	}
-+
-+	return spi;
-+
-+err_out:
-+	spi_dev_put(spi);
-+	return ERR_PTR(rc);
-+}
-+
- /**
-  * of_register_spi_devices() - Register child devices onto the SPI bus
-  * @master:	Pointer to spi_master device
-@@ -1229,120 +1345,63 @@ err_init_queue:
-  */
- static void of_register_spi_devices(struct spi_master *master)
- {
--	struct spi_device *spi;
- 	struct device_node *nc;
--	int rc;
--	u32 value;
-+	struct spi_device *spi;
- 
- 	if (!master->dev.of_node)
- 		return;
- 
- 	for_each_available_child_of_node(master->dev.of_node, nc) {
--		/* Alloc an spi_device */
--		spi = spi_alloc_device(master);
--		if (!spi) {
--			dev_err(&master->dev, "spi_device alloc error for %s\n",
-+		spi = of_register_spi_device(master, nc);
-+		if (IS_ERR(spi))
-+			dev_warn(&master->dev, "Failed to create SPI device for %s\n",
- 				nc->full_name);
--			spi_dev_put(spi);
--			continue;
--		}
-+	}
-+}
- 
--		/* Select device driver */
--		if (of_modalias_node(nc, spi->modalias,
--				     sizeof(spi->modalias)) < 0) {
--			dev_err(&master->dev, "cannot find modalias for %s\n",
--				nc->full_name);
--			spi_dev_put(spi);
--			continue;
--		}
-+static int of_dev_node_match(struct device *dev, void *data)
-+{
-+	return dev->of_node == data;
-+}
- 
--		/* Device address */
--		rc = of_property_read_u32(nc, "reg", &value);
--		if (rc) {
--			dev_err(&master->dev, "%s has no valid 'reg' property (%d)\n",
--				nc->full_name, rc);
--			spi_dev_put(spi);
--			continue;
--		}
--		spi->chip_select = value;
--
--		/* Mode (clock phase/polarity/etc.) */
--		if (of_find_property(nc, "spi-cpha", NULL))
--			spi->mode |= SPI_CPHA;
--		if (of_find_property(nc, "spi-cpol", NULL))
--			spi->mode |= SPI_CPOL;
--		if (of_find_property(nc, "spi-cs-high", NULL))
--			spi->mode |= SPI_CS_HIGH;
--		if (of_find_property(nc, "spi-3wire", NULL))
--			spi->mode |= SPI_3WIRE;
--		if (of_find_property(nc, "spi-lsb-first", NULL))
--			spi->mode |= SPI_LSB_FIRST;
--
--		/* Device DUAL/QUAD mode */
--		if (!of_property_read_u32(nc, "spi-tx-bus-width", &value)) {
--			switch (value) {
--			case 1:
--				break;
--			case 2:
--				spi->mode |= SPI_TX_DUAL;
--				break;
--			case 4:
--				spi->mode |= SPI_TX_QUAD;
--				break;
--			default:
--				dev_warn(&master->dev,
--					 "spi-tx-bus-width %d not supported\n",
--					 value);
--				break;
--			}
--		}
-+/* bah; the match functions differ just by const-ness */
-+static int of_dev_node_match_const(struct device *dev, const void *data)
-+{
-+	return dev->of_node == data;
-+}
- 
--		if (!of_property_read_u32(nc, "spi-rx-bus-width", &value)) {
--			switch (value) {
--			case 1:
--				break;
--			case 2:
--				spi->mode |= SPI_RX_DUAL;
--				break;
--			case 4:
--				spi->mode |= SPI_RX_QUAD;
--				break;
--			default:
--				dev_warn(&master->dev,
--					 "spi-rx-bus-width %d not supported\n",
--					 value);
--				break;
--			}
--		}
-+/* must call put_device() when done with returned spi_device device */
-+struct spi_device *of_find_spi_device_by_node(struct device_node *node)
-+{
-+	struct device *dev;
- 
--		/* Device speed */
--		rc = of_property_read_u32(nc, "spi-max-frequency", &value);
--		if (rc) {
--			dev_err(&master->dev, "%s has no valid 'spi-max-frequency' property (%d)\n",
--				nc->full_name, rc);
--			spi_dev_put(spi);
--			continue;
--		}
--		spi->max_speed_hz = value;
-+	dev = bus_find_device(&spi_bus_type, NULL, node,
-+					 of_dev_node_match);
-+	if (!dev)
-+		return NULL;
- 
--		/* IRQ */
--		spi->irq = irq_of_parse_and_map(nc, 0);
-+	return to_spi_device(dev);
-+}
-+EXPORT_SYMBOL(of_find_spi_device_by_node);
- 
--		/* Store a pointer to the node in the device structure */
--		of_node_get(nc);
--		spi->dev.of_node = nc;
-+/* forward decl */
-+static struct class spi_master_class;
- 
--		/* Register the new device */
--		request_module("%s%s", SPI_MODULE_PREFIX, spi->modalias);
--		rc = spi_add_device(spi);
--		if (rc) {
--			dev_err(&master->dev, "spi_device register error %s\n",
--				nc->full_name);
--			spi_dev_put(spi);
--		}
-+/* the spi masters are not using spi_bus, so we find it with another way */
-+struct spi_master *of_find_spi_master_by_node(struct device_node *node)
-+{
-+	struct device *dev;
- 
--	}
-+	dev = class_find_device(&spi_master_class, NULL, node,
-+				of_dev_node_match_const);
-+	if (!dev)
-+		return NULL;
-+
-+	/* reference got in class_find_device */
-+	return container_of(dev, struct spi_master, dev);
- }
-+EXPORT_SYMBOL(of_find_spi_master_by_node);
-+
- #else
- static void of_register_spi_devices(struct spi_master *master) { }
- #endif
--- 
-1.7.12
+T24gMTAvMjkvMjAxNCAxMjowOCBBTSwgU2NvdHQgV29vZCB3cm90ZToKPiBPbiBGcmksIDIwMTQt
+MTAtMTcgYXQgMTE6MjcgKzAyMDAsIFZhbGVudGluIExvbmdjaGFtcCB3cm90ZToKPj4gV2l0aCAi
+ZnNsLWkyYyIgY29tcGF0aWJpbGl0eSB0aGUgaTJjIGZyZXF1ZW5jeSBpcyBub3Qgc2V0Cj4+IGNv
+cnJlY3RseSwgYmVjYXVzZSBpdCBzZXRzIG5vIHByZXNjYWxlci4gQWNjb3JkaW5nIHRvIHRoZSBB
+TjI5MTkgZnJvbQo+PiBGcmVlc2NhbGUgYW5kIHRoZSBRb3JJUSAoUDIwNDEpIGRvY3VtZW50YXRp
+b24sIHRoZSBzb3VyY2UgY2xvY2sgaXMgMS8yCj4+IHRoZSBwbGF0Zm9ybSBjbG9jay4gVGhpcyBp
+bXBsaWVzIHRoYXQgYSBwcmVzY2FsZXIgb2YgMiBtdXN0IGJlIHVzZWQuCj4+Cj4+IFRoaXMgY2hh
+bmdlcyB0aGUgY29tcGF0aWJpbGl0eSBvZiB0aGUgcW9yaXEtaTJjIC5kdHNpIGZpbGVzIHRvIHBp
+Y2sgdGhlCj4+IG1wYzg1NDMsIHdoaWNoIHVzZXMgdGhlIHNhbWUgZHJpdmVyIGJ1dCBzZXRzIHRo
+ZSBjb3JyZWN0IHByZXNjYWxlci4KPj4KPj4gU2lnbmVkLW9mZi1ieTogUmFpbmVyIEJvc2NodW5n
+IDxyYWluZXIuYm9zY2h1bmdAa2V5bWlsZS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IFZhbGVudGlu
+IExvbmdjaGFtcCA8dmFsZW50aW4ubG9uZ2NoYW1wQGtleW1pbGUuY29tPgo+PiAtLS0KPj4KPj4g
+IGFyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wvcW9yaXEtaTJjLTAuZHRzaSB8IDQgKystLQo+PiAg
+YXJjaC9wb3dlcnBjL2Jvb3QvZHRzL2ZzbC9xb3JpcS1pMmMtMS5kdHNpIHwgNCArKy0tCj4+ICAy
+IGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKPj4KPj4gZGlm
+ZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wvcW9yaXEtaTJjLTAuZHRzaSBiL2Fy
+Y2gvcG93ZXJwYy9ib290L2R0cy9mc2wvcW9yaXEtaTJjLTAuZHRzaQo+PiBpbmRleCA1ZjliZjdk
+Li5hYTZjMzY2IDEwMDY0NAo+PiAtLS0gYS9hcmNoL3Bvd2VycGMvYm9vdC9kdHMvZnNsL3Fvcmlx
+LWkyYy0wLmR0c2kKPj4gKysrIGIvYXJjaC9wb3dlcnBjL2Jvb3QvZHRzL2ZzbC9xb3JpcS1pMmMt
+MC5kdHNpCj4+IEBAIC0zNiw3ICszNiw3IEBAIGkyY0AxMTgwMDAgewo+PiAgCSNhZGRyZXNzLWNl
+bGxzID0gPDE+Owo+PiAgCSNzaXplLWNlbGxzID0gPDA+Owo+PiAgCWNlbGwtaW5kZXggPSA8MD47
+Cj4+IC0JY29tcGF0aWJsZSA9ICJmc2wtaTJjIjsKPj4gKwljb21wYXRpYmxlID0gImZzbCxtcGM4
+NTQzLWkyYyIsICJmc2wtaTJjIjsKPj4gIAlyZWcgPSA8MHgxMTgwMDAgMHgxMDA+Owo+PiAgCWlu
+dGVycnVwdHMgPSA8MzggMiAwIDA+Owo+PiAgCWRmc3JyOwo+PiBAQCAtNDYsNyArNDYsNyBAQCBp
+MmNAMTE4MTAwIHsKPj4gIAkjYWRkcmVzcy1jZWxscyA9IDwxPjsKPj4gIAkjc2l6ZS1jZWxscyA9
+IDwwPjsKPj4gIAljZWxsLWluZGV4ID0gPDE+Owo+PiAtCWNvbXBhdGlibGUgPSAiZnNsLWkyYyI7
+Cj4+ICsJY29tcGF0aWJsZSA9ICJmc2wsbXBjODU0My1pMmMiLCAiZnNsLWkyYyI7Cj4+ICAJcmVn
+ID0gPDB4MTE4MTAwIDB4MTAwPjsKPj4gIAlpbnRlcnJ1cHRzID0gPDM4IDIgMCAwPjsKPj4gIAlk
+ZnNycjsKPiAKPiBBcmUgYWxsIGNoaXBzIHRoYXQgdXNlIHRoaXMgZHRzaSAxMDAlIGNvbXBhdGli
+bGUgd2l0aCBtcGM4NTQzJ3MgaTJjLCBvcgo+IGp1c3QgaW4gd2F5cyB0aGUgTGludXggZHJpdmVy
+IGNhcmVzIGFib3V0PwoKSSBoYXZlIGp1c3QgbG9va2VkIGJyaWVmbHkgYXQgdGhlIG1wYzg1NDgg
+Uk0gKGNvdmVycyBtcGM4NTQzKSBhbmQgaXRzIGkyYwpjb250cm9sbGVyIGxvb2tzIHRoZSBzYW1l
+IGFzIHRoZSBxb3JpcSdzLiBJIGNhbm5vdCBob3dldmVyIHN0YXRlIGlmIHRoZXkgYXJlCjEwMCUg
+Y29tcGF0aWJsZS4KCklmIHdlIHdhbnRlZCB0byBiZSBvbiB0aGUgc2FmZSBzaWRlIGFuZCBzdHJp
+Y3QgKHNpbmNlIHdlIGFyZSBub3Qgc3VyZSB0aGF0IHRoZQpoYXJkd2FyZSBpcyAxMDAlIGNvbXBh
+dGlibGUpLCB3ZSBtYXliZSBzaG91bGQgYWRkIGEgZnNsLHFvcmlxLWkyYyBjb21wYXRpYmxlIHRv
+CnRoZSBkcml2ZXIgdGhhdCBkb2VzIHRoZSBzYW1lIGFzIG1wYzg1NDMtaTJjLgoKPiAKPiBXaGF0
+IGFib3V0IGZzbCxtcGM4NTQ0LWkyYywgd2hpY2ggaGFzIGFkZGl0aW9uYWwgc3BlY2lhbCBoYW5k
+bGluZyBpbiB0aGUKPiBkcml2ZXIsIGJ1dCBpcyBvbmx5IHVzZWQgaW4gc29jcmF0ZXMuZHRzIChu
+b3QgbXBjODU0NGRzLmR0cyk/CgpGcm9tIHRoZSBtcGM4NTQ0IFJNLCB0aGlzIGNvbnRyb2xsZXIg
+bG9va3MgdGhlIHNhbWUgYXMgdGhlIGFib3ZlIDIsIGV4Y2VwdCBmb3IKdGhlIHByZXNjYWxlciBm
+cm9tIHRoZSBkcml2ZXIgd2hpY2ggaXMgc2V0IHRvIDMuIEFzIHRvIHdoeSBpdCBpcyBvbmx5IHVz
+ZWQgaW4KdGhlIHNvY3JhdGVzLmR0cywgSSBjYW5ub3QgY29tbWVudCBhYm91dCBpdC4KClRoZSBw
+cmVzY2FsZXIgaXMgY29uZmlybWVkIHRvIGJlIDMgYnkgZGVmYXVsdCBieSB0aGUgVGFibGUgMyBv
+ZiB0aGUgQU4tMjE5IGZvcgp0aGUgbXBjODU0NC4KCj4gCj4gV2hhdCBhYm91dCBwcTMtaTJjLSou
+ZHRzaT8KPiAKClRoaXMgaXMgYWxzbyBpbnRlcmVzdGluZzogZnJvbSB0aGUgQU4tMjE5IFRhYmxl
+IDQsIHNvbWUgcHEzIGhhdmUgYSAyOjEKKG1jcGM4NTM2LzQzLzQ1LzQ3LzQ4LzY3LzY4LzcyLCBw
+bHVzIHAyMDIwKSBwcmVzY2FsZXIgd2hlcmUgc29tZSBkb24ndAoobXBjODUzMy80NCwgd2hlcmUg
+aXQgY2FuIGJlIDM6MSAtZGVmYXVsdC0gb3IgMjoxKS4gSG93ZXZlciBwcTMtaTJjLSouZHRzaQpk
+ZWZpbmVzIG5vIHByZXNjYWxlci4KCk5vdyBpZiBJIGxvb2sgYXQgd2hhdCBmaWxlcyBpbmNsdWRl
+IHRoZXNlIHBxMy1pMmMtKi5kdHNpLCBJIHNlZSBzb21lIHRoYXQgYXJlIGluCnRoZSB0aGUgMjox
+IGxpc3Q6CmFyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wvbXBjODUzNnNpLXBvc3QuZHRzaQphcmNo
+L3Bvd2VycGMvYm9vdC9kdHMvZnNsL21wYzg1NDhzaS1wb3N0LmR0c2kKYXJjaC9wb3dlcnBjL2Jv
+b3QvZHRzL2ZzbC9tcGM4NTY4c2ktcG9zdC5kdHNpCmFyY2gvcG93ZXJwYy9ib290L2R0cy9mc2wv
+bXBjODU3MnNpLXBvc3QuZHRzaQphcmNoL3Bvd2VycGMvYm9vdC9kdHMvZnNsL3AyMDIwc2ktcG9z
+dC5kdHNpCgpJIGRvbid0IGhhdmUgYW55IGhhcmR3YXJlIHRvIGRvIHNvbWUgdGVzdHMgd2l0aCB0
+aGVzZSwgYnV0IGZyb20gbXkgbWVhc3VyZW1lbnRzCm9uIG91ciBxb3JpcSBiYXNlZCBzeXN0ZW0g
+KFAyMDQxIFNvQykgSSB0aGluayB0aGF0IHRoZSBnZW5lcmF0ZWQgSTJDIGNsb2NrcyBmb3IKdGhl
+IGFib3ZlIFNvQyBjdXJyZW50bHkgYXJlIG5vdCBjb3JyZWN0IGJlY2F1c2Ugb2YgdGhlIGlnbm9y
+ZWQgcHJlc2NhbGVyLgoKVmFsZW50aW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KTGludXhwcGMtZGV2IG1haWxpbmcgbGlzdApMaW51eHBwYy1kZXZAbGlz
+dHMub3psYWJzLm9yZwpodHRwczovL2xpc3RzLm96bGFicy5vcmcvbGlzdGluZm8vbGludXhwcGMt
+ZGV2
