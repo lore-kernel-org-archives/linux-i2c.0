@@ -1,70 +1,80 @@
-From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Tue, 28 Oct 2014 18:08:51 -0500
-Message-ID: <1414537731.23458.120.camel@snotra.buserror.net>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
+From: RR <rajaram.officemails@gmail.com>
+Subject: Re: [PATCH v3 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
+Date: Wed, 29 Oct 2014 07:51:06 +0530
+Message-ID: <CACdXCX4z=AbL6-O3Y76ZtLwyZ1F82_N4y60VmBKXnzf3KXvOzg@mail.gmail.com>
+References: <1412606822-3406-1-git-send-email-muth@cypress.com>
+	<CAAVeFu+vBZ49ciZT+-dnKXks201_psy_NtYsTjw0ptOkx2es7Q@mail.gmail.com>
+	<405b439b16ea40078718da326343f673@BN1PR06MB069.namprd06.prod.outlook.com>
+	<CAAVeFu+X0Lk=5sNm9kOwGX=2-DYN_-5v-7M9bAWXraffKsTkMg@mail.gmail.com>
+	<CACdXCX7PqUHRKJ0KipmYzRF54XRmMYYArr5iof36VskJ75PaKg@mail.gmail.com>
+	<CACRpkdbe6OC-4CZ_DiUBcuv9wsMVtvk1FpkdNn5pZG+sgP6wZQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1413538026-15739-1-git-send-email-valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Cc: Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Holger Brunck <holger.brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Rainer Boschung <rainer.boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdbe6OC-4CZ_DiUBcuv9wsMVtvk1FpkdNn5pZG+sgP6wZQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alexandre Courbot <gnurou@gmail.com>, Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>, Johan Hovold <johan@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2014-10-17 at 11:27 +0200, Valentin Longchamp wrote:
-> With "fsl-i2c" compatibility the i2c frequency is not set
-> correctly, because it sets no prescaler. According to the AN2919 from
-> Freescale and the QorIQ (P2041) documentation, the source clock is 1/2
-> the platform clock. This implies that a prescaler of 2 must be used.
-> 
-> This changes the compatibility of the qoriq-i2c .dtsi files to pick the
-> mpc8543, which uses the same driver but sets the correct prescaler.
-> 
-> Signed-off-by: Rainer Boschung <rainer.boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-> ---
-> 
->  arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi | 4 ++--
->  arch/powerpc/boot/dts/fsl/qoriq-i2c-1.dtsi | 4 ++--
->  2 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
-> index 5f9bf7d..aa6c366 100644
-> --- a/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
-> +++ b/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
-> @@ -36,7 +36,7 @@ i2c@118000 {
->  	#address-cells = <1>;
->  	#size-cells = <0>;
->  	cell-index = <0>;
-> -	compatible = "fsl-i2c";
-> +	compatible = "fsl,mpc8543-i2c", "fsl-i2c";
->  	reg = <0x118000 0x100>;
->  	interrupts = <38 2 0 0>;
->  	dfsrr;
-> @@ -46,7 +46,7 @@ i2c@118100 {
->  	#address-cells = <1>;
->  	#size-cells = <0>;
->  	cell-index = <1>;
-> -	compatible = "fsl-i2c";
-> +	compatible = "fsl,mpc8543-i2c", "fsl-i2c";
->  	reg = <0x118100 0x100>;
->  	interrupts = <38 2 0 0>;
->  	dfsrr;
+On Mon, Oct 27, 2014 at 9:00 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+> On Thu, Oct 9, 2014 at 1:46 AM, RR <rajaram.officemails@gmail.com> wrote:
+>> On Wed, Oct 8, 2014 at 12:18 AM, Alexandre Courbot <gnurou@gmail.com> wrote:
+>>> On Wed, Oct 8, 2014 at 4:09 PM, Muthu Mani <muth@cypress.com> wrote:
+>
+>>>>> > +static int cy_gpio_direction_output(struct gpio_chip *chip,
+>>>>> > +                                       unsigned offset, int value) {
+>>>>> > +       return 0;
+>>>>> > +}
+>>>>>
+>>>>> If that chip is capable of both output and input, shouldn't these functions be
+>>>>> implemented? I think this has already been pointed out in a previous version
+>>>>> but you did not reply.
+>>>>
+>>>> Thanks for your inputs.
+>>>>
+>>>> Only the GPIOs which are configured to be output GPIO can be set.
+>>>
+>>> In that case cy_gpio_set() should return an error for GPIOs which are
+>>> not configured as outputs. Is that guaranteed by the current
+>>> implementation?
+>>>
+>>>> The set operation would fail trying to set the input or unconfigured GPIOs.
+>>>> In this version of driver, this support is not added, it can be introduced in future versions.
+>>>> I will add a TODO note in the code.
+>>>
+>>> Argh, no TODO please. Actual code that will turn this code into a
+>>> solid driver that can be merged.
+>>
+>> Does a driver targeted for a custom device has to implement every
+>> functionality in the 1st version ?
+>
+> When you post a driver to the GPIO maintainers it is *NOT* tageted
+> at a consumer device, it is targeted at the kernel community and
+> upstream maintainers.
 
-Are all chips that use this dtsi 100% compatible with mpc8543's i2c, or
-just in ways the Linux driver cares about?
+Totally agree. What I was conveying the patch has not modified
+any "core" kernel function and is specific to a device thus will not
+affect system.
 
-What about fsl,mpc8544-i2c, which has additional special handling in the
-driver, but is only used in socrates.dts (not mpc8544ds.dts)?
+>
+> Of course you can deliver add-on patches out-of-tree to your
+> customers, it's generally a bad idea for the long term and maintenance
+> of your driver, but it's your pick.
 
-What about pq3-i2c-*.dtsi?
+AFAIR In the recent past xHCI or gadget core or musb or dw3
+patches were added in increments. May be my analogy is incorrect and
+I am ignorant of some philosophy here.
 
--Scott
+Sincerely I somehow was not convinced basic functionality is missing
+as referred in the review comment.We have tested the driver for most of
+the functionality of our DVK and is working perfectly.
 
+Moreover currently we do not expect an user to set gpio direction as
+it involves vendor specific usb control commands.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Having said that we have taken the feedback and working to close this.
+
+>
+> Yours,
+> Linus Walleij
