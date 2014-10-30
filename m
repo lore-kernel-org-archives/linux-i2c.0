@@ -1,81 +1,48 @@
-From: Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Thu, 30 Oct 2014 13:38:22 +0100
-Message-ID: <CABuKBeKp211c87TRdFb2kB+Qs8WoSAsg+5h-CF7sy7k2gj8O2g@mail.gmail.com>
-References: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
-	<1414561058-23803-2-git-send-email-xudong.chen@mediatek.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: I2C OF IRQ parsing issue due to probe ordering
+Date: Thu, 30 Oct 2014 14:53:42 +0200
+Message-ID: <1718941.Qj8UzhsRTh@avalon>
+References: <2287003.09eTeKUr1V@avalon> <20141027125819.GA12641@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1414561058-23803-2-git-send-email-xudong.chen@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Xudong Chen <xudong.chen@mediatek.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, arm@kernel.org, Wolfram Sang <wsa@the-dreams.de>, srv_heupstream <srv_heupstream@mediatek.com>, Sascha Hauer <kernel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, Jean Delvare <jdelvare@suse.de>, Arnd Bergmann <arnd@arndb.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Nathan Chung <nathan.chung@mediatek.com>, YH Chen <yh.chen@mediatek.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <20141027125819.GA12641@katana>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2014-10-29 6:37 GMT+01:00 Xudong Chen <xudong.chen@mediatek.com>:
-> Add devicetree bindings for Mediatek Soc I2C driver.
->
-> Signed-off-by: Xudong Chen <xudong.chen@mediatek.com>
-> ---
->  .../devicetree/bindings/i2c/i2c-mt6577.txt         | 37 ++++++++++++++++++++++
->  1 file changed, 37 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> new file mode 100644
-> index 0000000..b4012c8
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> @@ -0,0 +1,37 @@
-> +* Mediatek's I2C controller
-> +
-> +The Mediatek's I2C controller is used to interface with I2C devices.
-> +
-> +Required properties:
-> +  - compatible: value should be either of the following.
-> +      (a) "mtk,mt6577-i2c", for i2c compatible with mt6577 i2c.
+Hi Wolfram and Thierry,
 
-Looking on the datasheet of mt6577 it does not seem that this driver
-is really compatible.
-I was not able to find the PATH_DIR register neither in the datasheet
-nor in the source code.
+On Monday 27 October 2014 13:58:19 Wolfram Sang wrote:
+> > The i2c@e6520000 node is probed before the gpio@e6051000 node. The
+> > of_i2c_register_devices() function tries to register all children,
+> > including hdmi@39. It tries to parse and map the I2C client IRQ by
+> > calling irq_of_parse_and_map(), which returns 0 as the interrupt
+> > controller isn't probed yet. The adv7511 driver later probes the hdmi@39
+> > device and gets client->irq set to 0.
+> 
+> I've got this strange feeling of deja vu... Ah, here: Thierry Reding
+> tackled this problem a year ago. His series:
 
-> +      (b) "mtk,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> +      (c) "mtk,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> +  - reg: physical base address of the controller and dma base, length of memory mapped
-> +    region.
-> +  - interrupts: interrupt number to the cpu.
-> +  - clock-div: the fixed value for frequency divider of clock source in i2c module.
-> +    Each IC may be different.
-> +  - clocks: clock name from clock manager
-> +  - clock-names: clock name used in i2c driver probe
-> +
-> +Optional properties:
-> +  - clock-frequency: Frequency in Hz of the bus when transfer, the default value is 100000.
-> +  - mediatek,have-pmic: platform can control i2c form special pmic side.
-> +  - mediatek,have-dcm: platform has DCM(hardware digital clock manager) property.
-> +  - mediatek,use-push-pull: IO use push-pull mode.
-> +
-> +Example:
-> +
-> +       i2c0: i2c@1100d000 {
-> +                       compatible = "mediatek,mt6577-i2c";
-> +                       reg = <0x1100d000 0x70>,
-> +                             <0x11000300 0x80>;
-> +                       interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-> +                       clock-frequency = <100000>;
-> +                       mediatek,have-pmic;
-> +                       clock-div = <16>;
-> +                       clocks = <&i2c0_ck>, <&ap_dma_ck>;
-> +                       clock-names = "main", "dma";
-> +       };
-> +
-> --
-> 1.8.1.1.dirty
->
+Thanks for the pointer.
 
+> https://lkml.org/lkml/2013/9/16/111 (of/irq: Defer interrupt reference
+> resolution)
+> 
+> He did a V2 (which never made it to the i2c list). Seems like the first
+> two patches made it and the rest got stalled without discussion?
+> 
+> https://lkml.org/lkml/2013/9/18/216
+> 
+> Adding Thierry to the queue. Maybe he can bring some light to what
+> happened to his series.
 
+That's exactly what I need :-) Thierry, do you plan to respin the series ?
 
 -- 
-motzblog.wordpress.com
+Regards,
+
+Laurent Pinchart
+
