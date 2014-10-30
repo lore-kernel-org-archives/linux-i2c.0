@@ -1,80 +1,103 @@
 From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: core: Dispose OF IRQ mapping at client removal
- time
-Date: Thu, 30 Oct 2014 15:25:47 +0100
-Message-ID: <20141030142543.GA20072@ulmo.nvidia.com>
+Subject: Re: [PATCH 0/3] Delay I2C OF IRQ mapping until probe time
+Date: Thu, 30 Oct 2014 15:27:54 +0100
+Message-ID: <20141030142752.GB20072@ulmo.nvidia.com>
 References: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1414677578-27412-3-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+	protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1414677578-27412-3-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+In-Reply-To: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---UlVJffcvxoiEqYs2
+--KFztAG8eRSV9hGtP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 30, 2014 at 03:59:37PM +0200, Laurent Pinchart wrote:
-> Clients instantiated from OF get an IRQ mapping created at device
-> registration time. Dispose the mapping when the client is removed.
+On Thu, Oct 30, 2014 at 03:59:35PM +0200, Laurent Pinchart wrote:
+> Hello,
 >=20
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnhk3lzF8UVTdg@public.gmane.org=
-m>
-> ---
->  drivers/i2c/i2c-core.c | 3 +++
->  1 file changed, 3 insertions(+)
-
-If this is needed regardless of patch 3/3, then presumably it should be
-Cc'ed to stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org since it fixes a bug that's been there
-for quite some time?
-
-Thierry
-
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 2f90ac6a7f79..258765b29684 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -670,6 +670,9 @@ static int i2c_device_remove(struct device *dev)
->  		status =3D driver->remove(client);
->  	}
-> =20
-> +	if (dev->of_node)
-> +		irq_dispose_mapping(client->irq);
-> +
->  	dev_pm_domain_detach(&client->dev, true);
->  	return status;
->  }
-> --=20
-> 2.0.4
+> I recently ran into an issue with the OF IRQ parsing code in the I2C core
+> (of_i2c_register_devices in drivers/i2c/i2c-core.c).
 >=20
+> My DT contains the following nodes.
+>=20
+>         gpio1: gpio@e6051000 {
+>                 ...
+>                 #interrupt-cells =3D <2>;
+>                 interrupt-controller;
+>                 clocks =3D <&mstp9_clks R8A7790_CLK_GPIO1>;
+>         };
+>=20
+>         iic2: i2c@e6520000 {
+>                 #address-cells =3D <1>;
+>                 #size-cells =3D <0>;
+>                 ...
+>                 hdmi@39 {
+>                         compatible =3D "adi,adv7511w";
+>                         reg =3D <0x39>;
+>                         interrupt-parent =3D <&gpio1>;
+>                         interrupts =3D <15 IRQ_TYPE_EDGE_FALLING>;
+>                         ...
+>                 };
+>         };
+>=20
+>         mstp9_clks: mstp9_clks@e6150994 {
+>                 ...
+>         };
+>=20
+> The i2c@e6520000 node is probed before the gpio@e6051000 node. The
+> of_i2c_register_devices() function tries to register all children, includ=
+ing
+> hdmi@39. It tries to parse and map the I2C client IRQ by calling
+> irq_of_parse_and_map(), which returns 0 as the interrupt controller isn't
+> probed yet. The adv7511 driver later probes the hdmi@39 device and gets
+> client->irq set to 0.
+>=20
+> As we can't control the probe order in the general case we need to rely on
+> deferred probing. This patch series is an attempt to do so, by moving IRQ
+> mapping from device registration time to device probe time were probing c=
+an be
+> deferred.
+>=20
+> Laurent Pinchart (3):
+>   of/irq: Export of_irq_get()
+>   i2c: core: Dispose OF IRQ mapping at client removal time
+>   i2c: core: Map OF IRQ at probe time
+>=20
+>  drivers/i2c/i2c-core.c | 14 ++++++++++++--
+>  drivers/of/irq.c       |  1 +
+>  2 files changed, 13 insertions(+), 2 deletions(-)
 
---UlVJffcvxoiEqYs2
+The series:
+
+Reviewed-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+
+--KFztAG8eRSV9hGtP
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQIcBAEBAgAGBQJUUkpnAAoJEN0jrNd/PrOhHFEP/j0gVhg1NzMsGaOQ4Fn6wteW
-02QIeCKIHeYDp7xS456XHpSGc43XT2MuDatAvIobnmTNfpryfZSGikA3m9NwxYF1
-qBqRQYEnsF0NFkYmCCTnQDfZf6IoBtYd3OdrPUMIQELCyRGVTsSlYWFf2yicJSju
-oh+ONYYRf59/kMTRFT8OoeKnPp0fwFZdiUefa0ZqjaBflFEMQO2xoVR3+TDzodwD
-6bvdpBOWDHcwwG/o1w6bMWZGgFFW9y+dGvNMLQkRa2URgvAQgzqapNoR62eZlEPK
-RlPlM1FoNsVa3sWbEHivIYymyGWd6N8VZBoOM1yvYvonHutwfJjxpqYb1+k8Te3t
-wfqR15cNy8kkWPpXI9jBOiA+dup1gEnxnN1KQayTGaqcRyS1R6oJO/Pagc1EM2iK
-ka6BF97c+2cpesxMf6G9ZAA/P+jmIjAv4heaY4x4xo1r1HxUCXT0jXCikIypPGmt
-DkPh6L3+wvGiVVbFMEmhqHUw7Np5flhiKvWDYcfBRTqDNwXgnsCSO0JbRDzoY5Ur
-Vcmahz/9bJv9PQXzPBuaRSEi4eIH0P/7njOQS6PZmRtuMMKVUBFyoJZCXfn70Ale
-rUq6jf5pRYvdmjiLm9XgsJHFUmZfWNtkMGtQ1SI00bofe9xeUq6Wxv9utH36F59D
-OIIVXASW9Rp4EOr1FK9f
-=Rzsr
+iQIcBAEBAgAGBQJUUkroAAoJEN0jrNd/PrOhAzoP/2WuRKqgArHTXF77nL2ZfHbq
+eRJAJff/uKi7MzgBLOlNuEfxxReQR005tUKRozHfR3m/+Sqxo2b4SFkF0Q2Ps6OR
+Szzb2gOVw2UGE6uLturZXs3R09mPGbhj+mJtKzvD3hvQslL39u8ybhf57/6NQTMB
+lbV3bKzAVoS+r1CxEn/FcNQm1Ossx0sXY6PgR9pquybGuRyeBCsmdALY+sa2lH6E
+JJl+Hh5C0BEQRODRLJsCQufvJoO5Veoa9KVelhMPkBx/hCj50x/Mgyye84YXhAcO
+0ON/pRgPzL9uyfs8V3ELHi7UWyMjF1s0sNdn03BBrzMpFra6Ti63Hlem66eOoja+
+hJdNflAgQ7aZQQRmM9p5bEhwu0H6hO9QTjrc/CrECO0T4UINru0iy2AcFFE7CnSh
+3D1p/xFcBfG1UCJ8iZKoHbT2czrPB3xtpeW2/OE57q9Lk7acHQn4wv0eqY4YXsG4
+lv4jDsZOmwW2CFB86fflu5W8mBPcfx+w/2sqwtzx6pWuzz46OzsvoLbcJ8AIBpQc
+ecs86r+MOIhxP2C/4TEOj+FeQ1woAD1lMf04riV5+YR/Q52uJDDdF1elkC5SLjBl
+/PC8kGT8igShadx1FSUMGXZwHYmbmZDjQWqTrFFS4cvNzHAnk5pTyGfqPnU4ffc+
+df5ty2bMoNeMpoejKorA
+=ayYQ
 -----END PGP SIGNATURE-----
 
---UlVJffcvxoiEqYs2--
+--KFztAG8eRSV9hGtP--
