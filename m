@@ -1,58 +1,73 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/3] I2C: mediatek: Add driver for MediaTek I2C controller
-Date: Thu, 30 Oct 2014 14:25:37 +0100
-Message-ID: <20141030132537.GB23852@katana>
-References: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
- <1414561058-23803-4-git-send-email-xudong.chen@mediatek.com>
- <CABuKBe+RXboBEZD7Bu_kSbVwiapJJcAuuw_wo=xw67osJWJ20w@mail.gmail.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: I2C OF IRQ parsing issue due to probe ordering
+Date: Thu, 30 Oct 2014 14:43:57 +0100
+Message-ID: <20141030134354.GA19802@ulmo.nvidia.com>
+References: <2287003.09eTeKUr1V@avalon>
+ <1441244.9DO8HMds24@avalon>
+ <20141030132136.GA23852@katana>
+ <2020186.tp9cWKgsNl@avalon>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E39vaYmALEf/7YXx"
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CABuKBe+RXboBEZD7Bu_kSbVwiapJJcAuuw_wo=xw67osJWJ20w@mail.gmail.com>
+In-Reply-To: <2020186.tp9cWKgsNl@avalon>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Xudong Chen <xudong.chen@mediatek.com>, Mark Rutland <mark.rutland@arm.com>, arm@kernel.org, srv_heupstream <srv_heupstream@mediatek.com>, Sascha Hauer <kernel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, Jean Delvare <jdelvare@suse.de>, Arnd Bergmann <arnd@arndb.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Nathan Chung <nathan.chung@mediatek.com>, YH Chen <yh.chen@mediatek.com>
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---E39vaYmALEf/7YXx
+--zhXaljGHf11kAtnf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> > +obj-$(CONFIG_I2C_MT65XX)       +=3D i2c-mt65xx.o
+On Thu, Oct 30, 2014 at 03:22:49PM +0200, Laurent Pinchart wrote:
+> Hi Wolfram,
 >=20
-> As it works for mt65xx and mt81xx series, better rename it to i2c-mtk.c
+> On Thursday 30 October 2014 14:21:36 Wolfram Sang wrote:
+> > > > See:
+> > > > 	9ec36cafe43b of/irq: do irq resolution in platform_get_irq
+> > > >=20
+> > > > I suspect a similar thing could be done for I2C.
+> > >=20
+> > > That could work. We would need to introduce a new i2c_get_irq() funct=
+ion
+> > > though. Wolfram, would you be fine with that ?
+> >=20
+> > I'd think it will look pretty similar to platform_get_irq, no? That is
+> > fine with me.
+>=20
+> It would, but as Thierry pointed out it should be possible to hide the de=
+tails=20
+> in the I2C core. I'll submit a patch shortly.
 
-That is a bit too generic IMO. It is likely that we will see some
-totally different I2C core from MTK in the future. Plus, it is not
-uncommon that a driver initially for SoC-X supports SoC-Y, too.
+i2c_device_probe() seems exactly the right place to do this. It's in
+fact the equivalent of what I had proposed in my original patch series
+where this was done in platform_drv_probe().
 
-Thanks for pointing out the other remarks.
+Thierry
 
-
---E39vaYmALEf/7YXx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2
 
-iQIcBAEBAgAGBQJUUjxRAAoJEBQN5MwUoCm2qEIP/iyFdvDPmtc3hA2x89c+dEe9
-lJ44z7RbYhP488vZedyRcbCIy1/vcs/YV9PxNEtYKsqKlVlLQYh7qEVhSL1JrZVh
-uOggnxFxBQeC4lBpHWOh5ZyucOGhhKT2433ifTkmrLK3dXVEvqEQKWzIltiPBUZo
-Sd9kG9/9otdPEJt3xGOjezb1oOG8ixSQM0OPQACDZDK/zVIkKsT8SoEkJrRwmj9g
-l6GOM4djaTesHqXtxyPBTTM72eJFIeFW+7SsxOHHlj81zMx/6sQuFTZi8J8amKg+
-F5kyDAOM5LpvVb1aXDE/iCDpdnPidTtNBcv4M73wH84hsDrOR748/nZM+J6JU514
-127KqWwEWtduu1OA60F6jLOXOgdnjqndCDzBn4SLD4DB5ESEbfE8WYEREcM0TN3e
-/+pHa2TCThEaz2HN80zD7ch4w3MSP87hKRApyezkr4tT7g1m++IzJ0Ig83S6hgKU
-m+gBETIbx0MIXCFKTHJoWD21muXs432/OItGA77uMep8dza2PDzhQqMRf2dDCG6B
-CZW4sKkRIDqaPpW01XutwiLf5s5EZI6v9xdyE1Ymyq1m1E0BOjXgG8On8TLUTYWQ
-Ph2cw0xIW6eHwJ0Ysh5bpZ3IJYzdQIXN2AmRRMcsl/YhgudqBO+yBYb+eGk6MaT2
-hTBYkLnwdp9RqNP/FhXV
-=mkvs
+iQIcBAEBAgAGBQJUUkCaAAoJEN0jrNd/PrOhzgwQAILjAvOl6g5yQSNdJy/NBxT7
+/w02zO5QzMWsWlQropceIhAQ6g/pO3ULs+HmrpKanmi1xjKsXubNos835uR8bpDS
+gxP4YHOZ5V8WKNvU0yFHZ2nQSiw0FG3nCTY1TkUza0EykNZjNuAAOVIzZKcFbKY1
+lrdEVU3KvwWup15NhfFH4HAZDZioRxuwhGszHzQI0om8II6+VCpxQXc5z+Fv2ZLs
+5uRHGEQvr0ZLCoY9g8oetsqBei+8cpPyz1SvyyFKHPqfkplylU0fcXKS1lWZ2epm
+LYdFl13MN5ytZWbH0A/p1oXlDvEy16zL+QgVVFYB+u0J+G5p16aRK8CoBobajKul
+t//PRiXkEvaPL56gDhdUGeALmFJo0U7QKZ3dg+s5g9JTSCrSauEBp6C37kICvZ/B
+7ZAXnfI4a8xiSBTLccwRF44Xabiw28vMQiV/hwnRg78NZ/0XtuCeqqMZ1Ggu1g4o
+EMhcLpAOOQzL3yhMSSRZG8+p6rQOp49k1Tc6/cu1w40PIFadfcixQfLyvqmJ979k
+yIapSbypR1Ueex4Ffwg9jAP0YB3+IrqjikUKtP24702M2Ui9nEQgk9s1NCj+pzup
+AgmSGlcMWT6bmWBDu17DhK1+2Y1ICJy/G6Tu2JlErv1p0wPRVOlKZVhGOtc8/Npl
+u8w4e7dxvcKtuU6rD+Bs
+=BuxV
 -----END PGP SIGNATURE-----
 
---E39vaYmALEf/7YXx--
+--zhXaljGHf11kAtnf--
