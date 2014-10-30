@@ -1,103 +1,34 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/3] Delay I2C OF IRQ mapping until probe time
-Date: Thu, 30 Oct 2014 15:27:54 +0100
-Message-ID: <20141030142752.GB20072@ulmo.nvidia.com>
-References: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Subject: Re: [PATCH 3/3] I2C: mediatek: Add driver for MediaTek I2C
+ controller
+Date: Thu, 30 Oct 2014 22:49:05 +0800
+Message-ID: <1414680545.5833.21.camel@mtksdaap41>
+References: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
+	 <1414561058-23803-4-git-send-email-xudong.chen@mediatek.com>
+	 <CABuKBe+RXboBEZD7Bu_kSbVwiapJJcAuuw_wo=xw67osJWJ20w@mail.gmail.com>
+	 <20141030132537.GB23852@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141030132537.GB23852@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, Xudong Chen <xudong.chen@mediatek.com>, Mark Rutland <mark.rutland@arm.com>, arm@kernel.org, srv_heupstream <srv_heupstream@mediatek.com>, Sascha Hauer <kernel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, Jean Delvare <jdelvare@suse.de>, Arnd Bergmann <arnd@arndb.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, Eddie Huang <eddie.huang@mediatek.com>, Nathan Chung <nathan.chung@mediatek.com>, YH Chen <yh.chen@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 2014-10-30 at 14:25 +0100, Wolfram Sang wrote:
+> > > +obj-$(CONFIG_I2C_MT65XX)       += i2c-mt65xx.o
+> > 
+> > As it works for mt65xx and mt81xx series, better rename it to i2c-mtk.c
+> 
+> That is a bit too generic IMO. It is likely that we will see some
+> totally different I2C core from MTK in the future. Plus, it is not
+> uncommon that a driver initially for SoC-X supports SoC-Y, too.
 
---KFztAG8eRSV9hGtP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Thu, Oct 30, 2014 at 03:59:35PM +0200, Laurent Pinchart wrote:
-> Hello,
->=20
-> I recently ran into an issue with the OF IRQ parsing code in the I2C core
-> (of_i2c_register_devices in drivers/i2c/i2c-core.c).
->=20
-> My DT contains the following nodes.
->=20
->         gpio1: gpio@e6051000 {
->                 ...
->                 #interrupt-cells =3D <2>;
->                 interrupt-controller;
->                 clocks =3D <&mstp9_clks R8A7790_CLK_GPIO1>;
->         };
->=20
->         iic2: i2c@e6520000 {
->                 #address-cells =3D <1>;
->                 #size-cells =3D <0>;
->                 ...
->                 hdmi@39 {
->                         compatible =3D "adi,adv7511w";
->                         reg =3D <0x39>;
->                         interrupt-parent =3D <&gpio1>;
->                         interrupts =3D <15 IRQ_TYPE_EDGE_FALLING>;
->                         ...
->                 };
->         };
->=20
->         mstp9_clks: mstp9_clks@e6150994 {
->                 ...
->         };
->=20
-> The i2c@e6520000 node is probed before the gpio@e6051000 node. The
-> of_i2c_register_devices() function tries to register all children, includ=
-ing
-> hdmi@39. It tries to parse and map the I2C client IRQ by calling
-> irq_of_parse_and_map(), which returns 0 as the interrupt controller isn't
-> probed yet. The adv7511 driver later probes the hdmi@39 device and gets
-> client->irq set to 0.
->=20
-> As we can't control the probe order in the general case we need to rely on
-> deferred probing. This patch series is an attempt to do so, by moving IRQ
-> mapping from device registration time to device probe time were probing c=
-an be
-> deferred.
->=20
-> Laurent Pinchart (3):
->   of/irq: Export of_irq_get()
->   i2c: core: Dispose OF IRQ mapping at client removal time
->   i2c: core: Map OF IRQ at probe time
->=20
->  drivers/i2c/i2c-core.c | 14 ++++++++++++--
->  drivers/of/irq.c       |  1 +
->  2 files changed, 13 insertions(+), 2 deletions(-)
+Yes, MTK TV SoCs(MT53xx) do use a different/incompatible I2C IP. So we
+preferred to keep original file name.
 
-The series:
-
-Reviewed-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-
---KFztAG8eRSV9hGtP
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJUUkroAAoJEN0jrNd/PrOhAzoP/2WuRKqgArHTXF77nL2ZfHbq
-eRJAJff/uKi7MzgBLOlNuEfxxReQR005tUKRozHfR3m/+Sqxo2b4SFkF0Q2Ps6OR
-Szzb2gOVw2UGE6uLturZXs3R09mPGbhj+mJtKzvD3hvQslL39u8ybhf57/6NQTMB
-lbV3bKzAVoS+r1CxEn/FcNQm1Ossx0sXY6PgR9pquybGuRyeBCsmdALY+sa2lH6E
-JJl+Hh5C0BEQRODRLJsCQufvJoO5Veoa9KVelhMPkBx/hCj50x/Mgyye84YXhAcO
-0ON/pRgPzL9uyfs8V3ELHi7UWyMjF1s0sNdn03BBrzMpFra6Ti63Hlem66eOoja+
-hJdNflAgQ7aZQQRmM9p5bEhwu0H6hO9QTjrc/CrECO0T4UINru0iy2AcFFE7CnSh
-3D1p/xFcBfG1UCJ8iZKoHbT2czrPB3xtpeW2/OE57q9Lk7acHQn4wv0eqY4YXsG4
-lv4jDsZOmwW2CFB86fflu5W8mBPcfx+w/2sqwtzx6pWuzz46OzsvoLbcJ8AIBpQc
-ecs86r+MOIhxP2C/4TEOj+FeQ1woAD1lMf04riV5+YR/Q52uJDDdF1elkC5SLjBl
-/PC8kGT8igShadx1FSUMGXZwHYmbmZDjQWqTrFFS4cvNzHAnk5pTyGfqPnU4ffc+
-df5ty2bMoNeMpoejKorA
-=ayYQ
------END PGP SIGNATURE-----
-
---KFztAG8eRSV9hGtP--
+Joe.C 
