@@ -1,73 +1,34 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: I2C OF IRQ parsing issue due to probe ordering
-Date: Thu, 30 Oct 2014 14:43:57 +0100
-Message-ID: <20141030134354.GA19802@ulmo.nvidia.com>
-References: <2287003.09eTeKUr1V@avalon>
- <1441244.9DO8HMds24@avalon>
- <20141030132136.GA23852@katana>
- <2020186.tp9cWKgsNl@avalon>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <2020186.tp9cWKgsNl@avalon>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
+From: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: [PATCH 1/3] of/irq: Export of_irq_get()
+Date: Thu, 30 Oct 2014 15:59:36 +0200
+Message-ID: <1414677578-27412-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+References: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+The function will be used by the I2C core which can be compiled as a
+module.
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+---
+ drivers/of/irq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-On Thu, Oct 30, 2014 at 03:22:49PM +0200, Laurent Pinchart wrote:
-> Hi Wolfram,
->=20
-> On Thursday 30 October 2014 14:21:36 Wolfram Sang wrote:
-> > > > See:
-> > > > 	9ec36cafe43b of/irq: do irq resolution in platform_get_irq
-> > > >=20
-> > > > I suspect a similar thing could be done for I2C.
-> > >=20
-> > > That could work. We would need to introduce a new i2c_get_irq() funct=
-ion
-> > > though. Wolfram, would you be fine with that ?
-> >=20
-> > I'd think it will look pretty similar to platform_get_irq, no? That is
-> > fine with me.
->=20
-> It would, but as Thierry pointed out it should be possible to hide the de=
-tails=20
-> in the I2C core. I'll submit a patch shortly.
-
-i2c_device_probe() seems exactly the right place to do this. It's in
-fact the equivalent of what I had proposed in my original patch series
-where this was done in platform_drv_probe().
-
-Thierry
-
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBAgAGBQJUUkCaAAoJEN0jrNd/PrOhzgwQAILjAvOl6g5yQSNdJy/NBxT7
-/w02zO5QzMWsWlQropceIhAQ6g/pO3ULs+HmrpKanmi1xjKsXubNos835uR8bpDS
-gxP4YHOZ5V8WKNvU0yFHZ2nQSiw0FG3nCTY1TkUza0EykNZjNuAAOVIzZKcFbKY1
-lrdEVU3KvwWup15NhfFH4HAZDZioRxuwhGszHzQI0om8II6+VCpxQXc5z+Fv2ZLs
-5uRHGEQvr0ZLCoY9g8oetsqBei+8cpPyz1SvyyFKHPqfkplylU0fcXKS1lWZ2epm
-LYdFl13MN5ytZWbH0A/p1oXlDvEy16zL+QgVVFYB+u0J+G5p16aRK8CoBobajKul
-t//PRiXkEvaPL56gDhdUGeALmFJo0U7QKZ3dg+s5g9JTSCrSauEBp6C37kICvZ/B
-7ZAXnfI4a8xiSBTLccwRF44Xabiw28vMQiV/hwnRg78NZ/0XtuCeqqMZ1Ggu1g4o
-EMhcLpAOOQzL3yhMSSRZG8+p6rQOp49k1Tc6/cu1w40PIFadfcixQfLyvqmJ979k
-yIapSbypR1Ueex4Ffwg9jAP0YB3+IrqjikUKtP24702M2Ui9nEQgk9s1NCj+pzup
-AgmSGlcMWT6bmWBDu17DhK1+2Y1ICJy/G6Tu2JlErv1p0wPRVOlKZVhGOtc8/Npl
-u8w4e7dxvcKtuU6rD+Bs
-=BuxV
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
+diff --git a/drivers/of/irq.c b/drivers/of/irq.c
+index 1471e0a223a5..0d7765807f49 100644
+--- a/drivers/of/irq.c
++++ b/drivers/of/irq.c
+@@ -405,6 +405,7 @@ int of_irq_get(struct device_node *dev, int index)
+ 
+ 	return irq_create_of_mapping(&oirq);
+ }
++EXPORT_SYMBOL_GPL(of_irq_get);
+ 
+ /**
+  * of_irq_get_byname - Decode a node's IRQ and return it as a Linux irq number
+-- 
+2.0.4
