@@ -1,125 +1,59 @@
-From: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: Problem with multiple i2c multiplexers on the same bus
-Date: Fri, 31 Oct 2014 14:45:02 -0700
-Message-ID: <CAB0SmAG1r-EUFrDAjuh14uYQYc_typV4+JbfkUvCGX+=_09QmA@mail.gmail.com>
-References: <CAB0SmAFZ5KPpeSbQia9kq668G5kE6hpw9eBRy=59U6GOymkj9A@mail.gmail.com>
-	<20141031210301.GA4169@katana>
-	<5453FC86.1080408@roeck-us.net>
+From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Add Imagination Technologies I2C SCB driver
+Date: Fri, 31 Oct 2014 21:58:01 +0000
+Message-ID: <20141031215801.GD12801@jhogan-linux.le.imgtec.org>
+References: <1414612641-4259-1-git-send-email-ezequiel.garcia@imgtec.com>
+ <1414612641-4259-2-git-send-email-ezequiel.garcia@imgtec.com>
+ <CAL1qeaEquLhpuSXd5=t9oEXi2iOArDbFFbfVrhOmyu70GR-z7w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5453FC86.1080408-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAL1qeaEquLhpuSXd5=t9oEXi2iOArDbFFbfVrhOmyu70GR-z7w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+To: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all, and thanks for your response.
+Hi Andrew,
 
-You are correct Guenter.  We need to address both i2c- and gpio-based
-multiplexers.  You and Jean suggested the following solution:
+On Fri, Oct 31, 2014 at 02:17:31PM -0700, Andrew Bresticker wrote:
+> > +       /*
+> > +        * To avoid slave event interrupts in automatic mode, use a timer to
+> > +        * poll the abort condition if we don't get an interrupt for too long.
+> > +        */
+> 
+> Why would polling be better than taking the interrupt?  Are an
+> excessive number of interrupts generated during normal operation?
 
-I2C Mux:  i2c-N-mux-i2c-XX (chan_id M)
-GPIO Mux: i2c-N-mux-gpio-XX (chan_id M)
+You get a slave event and transaction done interrupt for each atomic
+mode command (start, data, ack, stop, etc) that gets completed, none of
+which are of interest when using automatic mode since those atomic mode
+commands are managed automatically by hardware rather than by the I2C
+state machine in the ISR.
 
-Where XX is the i2c address or the first GPIO pin number.  This
-ensures unique IDs for both technologies.
+In practice, normal I2C transactions will be complete well before you
+get the timer interrupt, as the timer is "pushed back" during FIFO
+maintenance and disabled after the transaction is complete.
 
-Adding a parameter to i2c_add_mux_adapter() (as you and Jean
-suggested) would solve the problem.  Basically, we pass a unique id
-string (e.g. "-i2c-XX" or "-gpio-XX") to the API, which then adds to
-the "name" as described above. In cases where a unique id is not
-required, we can simply pass NULL to i2c_add_mux_adapter().  Here's an
-example of what the new API would look like:
+In this way normal automatic mode operation isn't impacted by
+unnecessary interrupts, but the exceptional abort condition can still be
+detected (with a slight delay).
 
-struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
-    struct device *mux_dev,
-    void *mux_priv, u32 force_nr, u32 chan_id,
-    unsigned int class,
-    int (*select) (struct i2c_adapter *,
-          void *mux_dev, u32 chan_id),
-    int (*deselect) (struct i2c_adapter *,
-    void *mux_dev, u32 chan_id),
-    const char *explicit_id);
+> > +/*
+> > + * Timer function to check if something has gone wrong in automatic mode (so we
+> > + * don't have to handle so many interrupts just to catch an exception).
+> > + */
+> > +static void img_i2c_check_timer(unsigned long arg)
+> 
+> When are slave event interrupts generated during normal operation?
+> It's not clear from the TRM I have.
 
-The parameter explicit_id gets used as follows:
+Mainly on completion (or rather detection) of certain atomic mode
+commands on the bus. Look for the use of at_slave_event in the driver.
+This is used with the atomic mode part, and set to false while it is
+waiting for a slave event interrupt before it can continue with the next
+atomic mode command.
 
-if (NULL == explicit_id)
-    explicit_id = "";
-snprintf(priv->adap.name, sizeof(priv->adap.name),
-    "i2c-%d-mux%s (chan_id %d)", i2c_adapter_id(parent), explicit_id, chan_id);
-
-If it's OK will all parties, I can submit a patch for it (and I'll
-make sure to reference Guenter and Jean as the designers).  This,
-however, is a first for me.  I read all the documents about submitting
-patches.  I was just wondering if I should submit against the current
-3.18 development or some other "stable" releases.
-
-Regards,
-Martin
-Martin Belanger
-Sr. Software Engineer
-1383 North McDowell Blvd.
-Petaluma, CA 94954
-M(707) 481-3392
-Emartin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org
-www.cyaninc.com
-
-
-On Fri, Oct 31, 2014 at 2:17 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
-> On 10/31/2014 02:03 PM, Wolfram Sang wrote:
->>
->> Hi,
->>
->> On Mon, Oct 27, 2014 at 11:46:01AM -0700, Martin Belanger wrote:
->>>
->>> This is regarding a series of emails between Guenter Roeck and Jean
->>> Delvare titled "Problem with multiple i2c multiplexers on one bus, and
->>> mux bus naming" sent in November 2013. Ref:
->>> http://thread.gmane.org/gmane.linux.drivers.i2c/16980
->>
->>
->> Please CC those people then, too. That helps getting their attention.
->> I've done this now.
->>
->>> I'm having the same problem with multiple PCA954x multiplexers on the
->>> same bus and there is no way to tell them apart just by looking at the
->>> "name" file.
->>>
->>> There was a suggestion to change the name from "i2c-N-mux (chan_id M)"
->>> to "i2c-N-mux-XX (chan_id M)" or even "i2c-N-mux-i2c-XX (chan_id M)",
->>> where XX is the multiplexer's i2c address. That would solve my
->>> problem, but unfortunately it looks like Guenter never submitted the
->>> patch (or maybe it was rejected?).
->>
->>
->> It just dropped off :( But you guys have my attention now, let's fix
->> this issue for 3.19! I am just reading through the old mails and will
->> think about it. Input is welcome.
->>
-> I didn't follow up on the issue since it was not an immediate concern,
-> and my proposed solution had some problems. If I remember correctly,
-> one of the problems was that the multiplexer does not have to be an
-> i2c chip. In that case XX would be unknown and/or have to be omitted.
->
-> Guenter
->
->
->>> I would like to submit a similar change, but I was thinking of adding
->>> a module parameter so that the change is not the default behavior.
->>> The idea is to preserve backward compatibility for applications that
->>> don't require this fix. For example, modprobe i2c-dev
->>> explicit_mux_id=1 would use i2c-N-mux-i2c-XX (chan_id M), whereas
->>> modprobe i2c-dev would default to the current behavior: i.e. i2c-N-mux
->>> (chan_id M).
->>
->>
->> I don't like the need to set a module parameter to fix a flaw. I do
->> consider changing the ABI to have better strings in "name". But as said,
->> I need to think about it a little more...
->>
->> Thanks,
->>
->>     Wolfram
->>
->
+Cheers
+James
