@@ -1,137 +1,95 @@
-From: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/3] I2C: mediatek: Add driver for MediaTek I2C controller
-Date: Fri, 31 Oct 2014 17:10:55 +0100
-Message-ID: <CABuKBeJ2NxcVn=yapcvNs1xLU+eye4JWESBwdcWoeqO=-vMBKw@mail.gmail.com>
-References: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
-	<1414561058-23803-4-git-send-email-xudong.chen@mediatek.com>
-	<CABuKBe+RXboBEZD7Bu_kSbVwiapJJcAuuw_wo=xw67osJWJ20w@mail.gmail.com>
-	<1414737101.32208.18.camel@mhfsdcap03>
-	<CABuKBeK1O2q37RMVE0Yjp2=QgkzXZfh=vxXiZrw-JMiYMxb-QQ@mail.gmail.com>
-	<1414766288.5833.46.camel@mtksdaap41>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/3] of/irq: Export of_irq_get()
+Date: Fri, 31 Oct 2014 19:20:37 +0100
+Message-ID: <20141031182037.GA2680@katana>
+References: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1414677578-27412-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <20141030141644.GE23852@katana>
+ <2139081.L8ZrMAojpq@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1414766288.5833.46.camel@mtksdaap41>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Nathan Chung <nathan.chung-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, YH Chen <yh.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <2139081.L8ZrMAojpq@avalon>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Grant Likely <grant.likely@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2014-10-31 15:38 GMT+01:00 Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
-> On Fri, 2014-10-31 at 11:48 +0100, Matthias Brugger wrote:
->> 2014-10-31 7:31 GMT+01:00 xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
->> > On Thu, 2014-10-30 at 14:16 +0100, Matthias Brugger wrote:
->> >> 2014-10-29 6:37 GMT+01:00 Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
->> >> > The mediatek SoCs have I2C controller that handle I2C transfer.
->> >> > This patch include common I2C bus driver.
->> >> > This driver is compatible with I2C controller on mt65xx/mt81xx.
->> >> >
->> >> > Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
->> >> > Change-Id: Icc17e326b9df46a226d536956e103f17b0382b6e
->> >> > ---
->> >> >  drivers/i2c/busses/Kconfig      |   9 +
->> >> >  drivers/i2c/busses/Makefile     |   1 +
->> >> >  drivers/i2c/busses/i2c-mt65xx.c | 728 ++++++++++++++++++++++++++++++++++++++++
->> >> >  3 files changed, 738 insertions(+)
->> >> >  create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
->> >> >
->> >> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> >> > index 917c358..0d7d0a4 100644
->> >> > --- a/drivers/i2c/busses/Kconfig
->> >> > +++ b/drivers/i2c/busses/Kconfig
->> >> > @@ -564,6 +564,15 @@ config I2C_MPC
->> >> >           This driver can also be built as a module.  If so, the module
->> >> >           will be called i2c-mpc.
->> >> >
->> >> > +config I2C_MT65XX
->> >> > +       tristate "MediaTek I2C adapter"
->> >> > +       depends on ARCH_MEDIATEK
->> >> > +       help
->> >> > +         This selects the MediaTek(R) Integrated Inter Circuit bus driver
->> >> > +         for MT65xx and MT81xx.
->> >> > +         If you want to use MediaTek(R) I2C interface, say Y or M here.
->> >> > +         If unsure, say N.
->> >> > +
->> >> >  config I2C_MV64XXX
->> >> >         tristate "Marvell mv64xxx I2C Controller"
->> >> >         depends on MV64X60 || PLAT_ORION || ARCH_SUNXI
->> >> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
->> >> > index 78d56c5..7a9f0f3 100644
->> >> > --- a/drivers/i2c/busses/Makefile
->> >> > +++ b/drivers/i2c/busses/Makefile
->> >> > @@ -54,6 +54,7 @@ obj-$(CONFIG_I2C_IMX)         += i2c-imx.o
->> >> >  obj-$(CONFIG_I2C_IOP3XX)       += i2c-iop3xx.o
->> >> >  obj-$(CONFIG_I2C_KEMPLD)       += i2c-kempld.o
->> >> >  obj-$(CONFIG_I2C_MPC)          += i2c-mpc.o
->> >> > +obj-$(CONFIG_I2C_MT65XX)       += i2c-mt65xx.o
->> >> > +
->> >> > +static int mt_i2c_do_transfer(struct mt_i2c *i2c)
->> >> > +{
->> >> > +       u16 addr_reg;
->> >> > +       u16 control_reg;
->> >> > +       int tmo = i2c->adap.timeout;
->> >> > +
->> >> > +       i2c->trans_stop = false;
->> >> > +       i2c->irq_stat = 0;
->> >> > +
->> >> > +       /* If use i2c pin from PMIC mt6397 side, need set PATH_DIR first */
->> >> > +       if (i2c->have_pmic)
->> >> > +               i2c_writew(I2C_CONTROL_WRAPPER, i2c, OFFSET_PATH_DIR);
->> >>
->> >> So this is some sort of multiplexer bit, right?
->> >> I think in this case we need to build a multi function device (mfd)
->> >> where the pmic driver will set this bit.
->> >>
->> > Hi,
->> >
->> > This feature means the chip can use I2C pins from PMIC(mt6397).
->> > In this case,
->> > 1. We actually control the register on mt8135 and the DMA/Control Logic
->> > is on mt8135, only use pins from mt6397. If set register OFFSET_PATH_DIR
->> > bit0 to 1, the I2C data will go/from PMIC pins.
->>
->> Sorry but I'm a bit puzzled. mt6397 is the PMIC, right?
->> So from the mt6589 datasheet it says:
->> "PATH_DIR Decides transmission direction
->> If set, the I2C data will go/from PMIC; otherwise, the I2C data will
->> go/from main die."
->>
->> From my understanding the I2C bus will be multiplexed depending on
->> this bit. The bit decides if it the data will be send to the PMIC or
->> to some other I2C peripheral.
->>
->> So we need a mfd and the PMIC device driver sets/unsets the PATH_DIR register.
->
-> Yes, mt6397 is the PMIC work with mt8135 or mt8127.
->
-> I think the datasheet is a little misleading here. AFAIK, on 8135 even
-> if your clear the bit for I2C4, there are no corresponding pins for this
-> i2c port on 8135. So it is not really multiplexed. Base on my
-> understanding this is more like "Set this bit if this a PMIC I2C port".
 
-I had a look at mt6589. The SoC has seven i2c controller. Looking at
-the source code all controller with an ID bigger then 3 can be set to
-pmic wrapper state.
-So I would say that the PATH_DIR bit is not always bound to i2c4. We
-should implement a driver which will work on all possible
-configurations. We don't know if apart from mt6589 and mt8135 some
-other SoC in the future will use this i2c controller.
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Maybe you can check with the HW guys how this is implemented to shed
-some light on the issue.
+On Thu, Oct 30, 2014 at 04:17:19PM +0200, Laurent Pinchart wrote:
+> On Thursday 30 October 2014 15:16:44 Wolfram Sang wrote:
+> > On Thu, Oct 30, 2014 at 03:59:36PM +0200, Laurent Pinchart wrote:
+> > > The function will be used by the I2C core which can be compiled as a
+> > > module.
+> > >=20
+> > > Signed-off-by: Laurent Pinchart
+> > > <laurent.pinchart+renesas@ideasonboard.com>
+> >=20
+> > I think it makes sense if I take this via I2C to get the dependencies
+> > for the later patches right?
+>=20
+> It would be easier, yes.
 
->
-> In order to use i2c4, we do need a PMIC pinmux driver to set pinmux
-> function for this i2c port. Since all the i2c control logic and
-> registers are on mt8135, it is strange to have PMIC device driver set
-> this bit on mt8135. Also, since mt8127 doesn't support this, it will be
-> even stranger when using this pmic and driver with mt8127.
->
-> Joe.C
->
->
+Oh, DT maintainers are not on CC. Then I can wait pretty long for an
+ack ;) Fixing that.
 
+>=20
+> > > ---
+> > >=20
+> > >  drivers/of/irq.c | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > >=20
+> > > diff --git a/drivers/of/irq.c b/drivers/of/irq.c
+> > > index 1471e0a223a5..0d7765807f49 100644
+> > > --- a/drivers/of/irq.c
+> > > +++ b/drivers/of/irq.c
+> > > @@ -405,6 +405,7 @@ int of_irq_get(struct device_node *dev, int index)
+> > >=20
+> > >  	return irq_create_of_mapping(&oirq);
+> > > =20
+> > >  }
+> > >=20
+> > > +EXPORT_SYMBOL_GPL(of_irq_get);
+> > >=20
+> > >  /**
+> > > =20
+> > >   * of_irq_get_byname - Decode a node's IRQ and return it as a Linux =
+irq
+> > >   number
+>=20
+> --=20
+> Regards,
+>=20
+> Laurent Pinchart
+>=20
 
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-motzblog.wordpress.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUU9L1AAoJEBQN5MwUoCm29PMQAJJWECr0ojCaJbmIa9Ow+rrf
+9OPT4nOA2aq43w97OPkFK1RofWpt5XLed2X2KHsouUrNjWj+QuIzGzzwsbV0wQap
+UMo+Vrt++dUicYqE4AYkgJz4Qi3aeRXdcJEqviCHT10FlLvedrif9vb218Kq8xE/
+jzCLvF79LtpnlGbgDsecd3/lJX0m5Y9z3/hhwrvXD8YLq10WDsqj6GyDdB1BEdRR
+9oSWuqbY0prB2UY7Ivk+xR183Fwi/H/l9Q0pFXPYtzy40XbOmAOsXOkByIiMbgQ1
+Y19akE1/tp3EqBC3GpVPznVUVIq3ee3wYhBJl6Q7PgsQOMGXvbfJMSuve2iIYoas
++t+BxiDa1UksD7+VmJEajtIKleQ1KyX51OeC3DM7XprLcI7LmIQ9+P4DKtXUvccU
+kW2fhiHtajdhp2iIyy6fNQdPkBEdZ8vLLUfzoMsgqKsrgoRBsR/cttv94bg+Mw5b
+K/QzeuaEEd164pOZzGO8Fl4rtR4We2dXKSbf2aRF/KPyi/Ibc4ghaz19j28E9HZG
+v66YTC2M0bJDY9u3+mnRl3xxn+e8TK5Dl3O6THWXcJ/QAfl42qddqDkMfwG2XQiP
+MBERcqWl4hxU28OEAy6Ib5whPhBRd009CCf25EqBobJCFp2+eh54D8TUCUwSvkbl
+8DzbyAzTukQQHPr7tCdv
+=BkhY
+-----END PGP SIGNATURE-----
+
+--vtzGhvizbBRQ85DL--
