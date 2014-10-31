@@ -1,115 +1,61 @@
-From: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Fri, 31 Oct 2014 11:50:23 +0100
-Message-ID: <CABuKBeKuDYDdHhbatCNREpeaGH=c0FBRiyqpaRmDjZAYTxoWCw@mail.gmail.com>
-References: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
-	<1414561058-23803-2-git-send-email-xudong.chen@mediatek.com>
-	<CABuKBeKp211c87TRdFb2kB+Qs8WoSAsg+5h-CF7sy7k2gj8O2g@mail.gmail.com>
-	<1414719509.32208.9.camel@mhfsdcap03>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1414719509.32208.9.camel@mhfsdcap03>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Nathan Chung <nathan.chung-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, YH Chen <yh.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [RFC 2/3] ARM: shmobile: r8a7790: add DMA nodes for IIC
+Date: Fri, 31 Oct 2014 11:51:17 +0100
+Message-ID: <1414752678-26078-3-git-send-email-wsa@the-dreams.de>
+References: <1414752678-26078-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1414752678-26078-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2014-10-31 2:38 GMT+01:00 xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
-> On Thu, 2014-10-30 at 13:38 +0100, Matthias Brugger wrote:
->> 2014-10-29 6:37 GMT+01:00 Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
->> > Add devicetree bindings for Mediatek Soc I2C driver.
->> >
->> > Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
->> > ---
->> >  .../devicetree/bindings/i2c/i2c-mt6577.txt         | 37 ++++++++++++++++++++++
->> >  1 file changed, 37 insertions(+)
->> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->> >
->> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->> > new file mode 100644
->> > index 0000000..b4012c8
->> > --- /dev/null
->> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->> > @@ -0,0 +1,37 @@
->> > +* Mediatek's I2C controller
->> > +
->> > +The Mediatek's I2C controller is used to interface with I2C devices.
->> > +
->> > +Required properties:
->> > +  - compatible: value should be either of the following.
->> > +      (a) "mtk,mt6577-i2c", for i2c compatible with mt6577 i2c.
->>
->> Looking on the datasheet of mt6577 it does not seem that this driver
->> is really compatible.
->> I was not able to find the PATH_DIR register neither in the datasheet
->> nor in the source code.
->>
-> Hi,
->
-> The PATH_DIR register named OFFSET_PATH_DIR(0x60) in the source code.
-> Only MT8135 supports this feature, so it does not contained in mt6577
-> datasheet.
-> I will modify the comment.
->
->> > +      (b) "mtk,mt8127-i2c", for i2c compatible with mt8127 i2c.
->> > +      (c) "mtk,mt8135-i2c", for i2c compatible with mt8135 i2c.
->> > +  - reg: physical base address of the controller and dma base, length of memory mapped
->> > +    region.
->> > +  - interrupts: interrupt number to the cpu.
->> > +  - clock-div: the fixed value for frequency divider of clock source in i2c module.
->> > +    Each IC may be different.
->> > +  - clocks: clock name from clock manager
->> > +  - clock-names: clock name used in i2c driver probe
->> > +
->> > +Optional properties:
->> > +  - clock-frequency: Frequency in Hz of the bus when transfer, the default value is 100000.
->> > +  - mediatek,have-pmic: platform can control i2c form special pmic side.
->
-> I will change this to:
->  - mediatek,have-pmic: platform can control i2c form special pmic side,
-> only MT8135 supports this.
->
-> Is this OK?
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-We need a multi function device driver for the I2C and the PMIC.
-Please have a look on my comments in the other thread.
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+---
+ arch/arm/boot/dts/r8a7790.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Thanks,
-Matthias
-
->
->> > +  - mediatek,have-dcm: platform has DCM(hardware digital clock manager) property.
->> > +  - mediatek,use-push-pull: IO use push-pull mode.
->> > +
->> > +Example:
->> > +
->> > +       i2c0: i2c@1100d000 {
->> > +                       compatible = "mediatek,mt6577-i2c";
->> > +                       reg = <0x1100d000 0x70>,
->> > +                             <0x11000300 0x80>;
->> > +                       interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
->> > +                       clock-frequency = <100000>;
->> > +                       mediatek,have-pmic;
->> > +                       clock-div = <16>;
->> > +                       clocks = <&i2c0_ck>, <&ap_dma_ck>;
->> > +                       clock-names = "main", "dma";
->> > +       };
->> > +
->> > --
->> > 1.8.1.1.dirty
->> >
->>
->>
->>
->
->
-
-
-
+diff --git a/arch/arm/boot/dts/r8a7790.dtsi b/arch/arm/boot/dts/r8a7790.dtsi
+index 69b7cd0e7fb3..7e836cc86098 100644
+--- a/arch/arm/boot/dts/r8a7790.dtsi
++++ b/arch/arm/boot/dts/r8a7790.dtsi
+@@ -359,6 +359,8 @@
+ 		reg = <0 0xe6500000 0 0x425>;
+ 		interrupts = <0 174 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp3_clks R8A7790_CLK_IIC0>;
++		dmas = <&dmac0 0x61>, <&dmac0 0x62>;
++		dma-names = "tx", "rx";
+ 		status = "disabled";
+ 	};
+ 
+@@ -369,6 +371,8 @@
+ 		reg = <0 0xe6510000 0 0x425>;
+ 		interrupts = <0 175 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp3_clks R8A7790_CLK_IIC1>;
++		dmas = <&dmac0 0x65>, <&dmac0 0x66>;
++		dma-names = "tx", "rx";
+ 		status = "disabled";
+ 	};
+ 
+@@ -379,6 +383,8 @@
+ 		reg = <0 0xe6520000 0 0x425>;
+ 		interrupts = <0 176 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp3_clks R8A7790_CLK_IIC2>;
++		dmas = <&dmac0 0x69>, <&dmac0 0x6a>;
++		dma-names = "tx", "rx";
+ 		status = "disabled";
+ 	};
+ 
+@@ -389,6 +395,8 @@
+ 		reg = <0 0xe60b0000 0 0x425>;
+ 		interrupts = <0 173 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp9_clks R8A7790_CLK_IICDVFS>;
++		dmas = <&dmac0 0x77>, <&dmac0 0x78>;
++		dma-names = "tx", "rx";
+ 		status = "disabled";
+ 	};
+ 
 -- 
-motzblog.wordpress.com
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.0.0
