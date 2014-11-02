@@ -1,62 +1,86 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: Problem with multiple i2c multiplexers on the same bus
-Date: Sun, 2 Nov 2014 21:38:07 +0100
-Message-ID: <20141102203807.GA29452@katana>
-References: <CAB0SmAFZ5KPpeSbQia9kq668G5kE6hpw9eBRy=59U6GOymkj9A@mail.gmail.com>
- <20141031210301.GA4169@katana>
- <5453FC86.1080408@roeck-us.net>
- <CAB0SmAG1r-EUFrDAjuh14uYQYc_typV4+JbfkUvCGX+=_09QmA@mail.gmail.com>
- <20141031215938.GA5370@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Subject: [PATCH] i2c: mux: create proper topology in sysfs
+Date: Sun,  2 Nov 2014 21:40:09 +0100
+Message-ID: <1414960809-16860-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20141031215938.GA5370@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+The current implementation creates muxed i2c-<n> busses as immediate
+children of their i2c-<n> parent bus. In case of multiple muxes on one
+bus, it is impossible to determine which muxed bus comes from which mux.
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Change the topology so that they are created under the corresponding mux
+device. This way, multiple muxes on the same segment can coexist and
+children busses are grouped accordingly.
 
+So for instance, by adding a pca9547 device with address 0x70 to
+bus i2c-0, instead of:
 
-> I rediscovered this series:
->=20
-> http://www.spinics.net/lists/linux-i2c/msg11542.html
-> ("i2c-mux: expose i2c bus topology under sysfs")
->=20
-> From a glimpse, I like this approach better. I wonder if we can maintain
-> backward compatibility somehow. I need to play with it. But not today,
-> this has to wait till tomorrow.
+/sys/class/i2c-dev/i2c-0/device/i2c-1
+...
+/sys/class/i2c-dev/i2c-0/device/i2c-8
 
-Sending a patch using this aproach in a minute...
+we get:
 
+/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-1
+...
+/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-8
 
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Symlinks for backward compatibility are provided.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Signed-off-by: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 
-iQIcBAEBAgAGBQJUVpYvAAoJEBQN5MwUoCm2fGEQAJBri0v3x1GE3wMB8UUK9sMT
-DuMz71DH3RgEeRxckNl6RtYlJ43G8ylikonbnLnOVrl3IklxZDYxOJeOQpU9VNOp
-Mzuamlw0XHPDfh34G6fMvQjOmfBJtRdBgLfK9nFs0Vf1y5UFnEoOCMd1RScqzetK
-o1UXeabjgf1OA/BsI32lnNM0KmdSq+2qrmDN8EWK2VkLWugzpUSsTL1MSIR2n0fH
-XvAhnPsScLmfSRs/KmEKgg104KkLuXq+8uWxHjlpAbRe4lgPK+R7C9iy8KnLjacD
-N9UhkJZ2B7n7yDiJfiUidKCkEKRGlhjeEmECSdJPUTTfpoGBP3q9mBBMzrMbqpop
-jV0ngOShK/iuHCrUHUTZ14tG+mQSCSJ5AjxZDCpfAihOD/51ffiE1n35BRrfIEh4
-UGiZ+2KFB4r0QenwlpnhZOBQWSaBot0MnaC5OlAFcXmatEAhDviO0gGsXjS8X9gL
-bM2VQ119EoRJkds112DjdV5TQeWBoZuY5G6I39tM/q1EuDbNRIPweP5EUTa3HmRV
-C2c2onBi1vkGMAy3SUzCHYGCjgcay2VhDmrC2zkGd9RDtFNOeAsJ7+V+skjEMd7Q
-jA1zCOUGoHpQT+Ydin7XyXwA+ldj3+dBDxr3tKBAhqe3gYSUXtV4AvTzj+B0PMQ9
-8PYsmkdLGh0j7XonXW9D
-=1z58
------END PGP SIGNATURE-----
+[wsa: Ported to top-of-tree (1 line left :)) and added the compatibility
+links.]
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
+---
 
---ikeVEW9yuYc//A+q--
+So, this is what I came up with to fix the mux-topology problem. Since I don't
+really use muxes, please review/comment/test. And give Acks/Tested-by tags if
+this works for you.
+
+ drivers/i2c/i2c-mux.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 2d0847b6be62..5b482ea32faf 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -138,7 +138,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 	priv->adap.owner = THIS_MODULE;
+ 	priv->adap.algo = &priv->algo;
+ 	priv->adap.algo_data = priv;
+-	priv->adap.dev.parent = &parent->dev;
++	priv->adap.dev.parent = mux_dev;
+ 	priv->adap.retries = parent->retries;
+ 	priv->adap.timeout = parent->timeout;
+ 
+@@ -183,6 +183,9 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 		return NULL;
+ 	}
+ 
++	WARN(sysfs_create_link(&parent->dev.kobj, &priv->adap.dev.kobj, priv->adap.dev.kobj.name),
++				"can't create compatibility link for old mux name scheme\n");
++
+ 	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
+ 		 i2c_adapter_id(&priv->adap));
+ 
+@@ -194,6 +197,7 @@ void i2c_del_mux_adapter(struct i2c_adapter *adap)
+ {
+ 	struct i2c_mux_priv *priv = adap->algo_data;
+ 
++	sysfs_remove_link(&priv->parent->dev.kobj, adap->dev.kobj.name);
+ 	i2c_del_adapter(adap);
+ 	kfree(priv);
+ }
+-- 
+2.1.1
