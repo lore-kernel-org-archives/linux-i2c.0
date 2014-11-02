@@ -1,86 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: mux: create proper topology in sysfs
-Date: Sun,  2 Nov 2014 21:40:09 +0100
-Message-ID: <1414960809-16860-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [RFC 0/3] i2c: sh_mobile: add DMA support
+Date: Sun, 02 Nov 2014 23:14:52 +0200
+Message-ID: <21770791.t5tSlWMt1c@avalon>
+References: <1414752678-26078-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1414752678-26078-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The current implementation creates muxed i2c-<n> busses as immediate
-children of their i2c-<n> parent bus. In case of multiple muxes on one
-bus, it is impossible to determine which muxed bus comes from which mux.
+Hi Wolfram,
 
-Change the topology so that they are created under the corresponding mux
-device. This way, multiple muxes on the same segment can coexist and
-children busses are grouped accordingly.
+On Friday 31 October 2014 11:51:15 Wolfram Sang wrote:
+> Here is my RFC to support DMA with the i2c-sh_mobile core. DMA works nicely
+> with my tests so far and we save 1 interrupt per transferred byte, yay!
 
-So for instance, by adding a pca9547 device with address 0x70 to
-bus i2c-0, instead of:
+Do we have an idea of how much power (or CPU time ?) DMA support could save ?
 
-/sys/class/i2c-dev/i2c-0/device/i2c-1
-...
-/sys/class/i2c-dev/i2c-0/device/i2c-8
+> DMA is opt-in, so if setting it up fails, we will fall back to PIO. The
+> threshold for selecting DMA is still under test, but probably good enough
+> already. The major issue currently: This driver uses subsys_initcall() but
+> at that time DMA is not available, and there is no deferred probe for DMA.
+> So, switching to module_init() makes DMA work, but this may cause
+> side-effects for older boards which rely on I2C being available early (to
+> control some PMIC, for example). This needs some more investigation. Also,
+> the driver (like all I2C DMA drivers currently) assumes that i2c message
+> buffers are DMA capable. This is not always true and might need some
+> assistance from the I2C core.
 
-we get:
+Given the amount of data we could probably use bounce buffers.
 
-/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-1
-...
-/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-8
+> Other than that, please test, review, comment. The series is based on
+> renesas-devel-20141030-v3.18-rc2 with Laurent's series "[PATCH v4 0/5] R-Car
+> Gen2 DMA Controller driver" on top of it. A git tree can be found here:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+> renesas/i2c-shmobile-dma-experimental
+> 
+> Thanks,
+> 
+>     Wolfram
+> 
+> 
+> Wolfram Sang (3):
+>   i2c: sh_mobile: add DMA support
+>   ARM: shmobile: r8a7790: add DMA nodes for IIC
+>   ARM: shmobile: r8a7791: add DMA nodes for IIC
+> 
+>  .../devicetree/bindings/i2c/i2c-sh_mobile.txt      |   5 +
+>  arch/arm/boot/dts/r8a7790.dtsi                     |   8 +
+>  arch/arm/boot/dts/r8a7791.dtsi                     |   6 +
+>  drivers/i2c/busses/i2c-sh_mobile.c                 | 203 ++++++++++++++++--
+>  4 files changed, 203 insertions(+), 19 deletions(-)
 
-Symlinks for backward compatibility are provided.
-
-Signed-off-by: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-
-[wsa: Ported to top-of-tree (1 line left :)) and added the compatibility
-links.]
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
----
-
-So, this is what I came up with to fix the mux-topology problem. Since I don't
-really use muxes, please review/comment/test. And give Acks/Tested-by tags if
-this works for you.
-
- drivers/i2c/i2c-mux.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 2d0847b6be62..5b482ea32faf 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -138,7 +138,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 	priv->adap.owner = THIS_MODULE;
- 	priv->adap.algo = &priv->algo;
- 	priv->adap.algo_data = priv;
--	priv->adap.dev.parent = &parent->dev;
-+	priv->adap.dev.parent = mux_dev;
- 	priv->adap.retries = parent->retries;
- 	priv->adap.timeout = parent->timeout;
- 
-@@ -183,6 +183,9 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 		return NULL;
- 	}
- 
-+	WARN(sysfs_create_link(&parent->dev.kobj, &priv->adap.dev.kobj, priv->adap.dev.kobj.name),
-+				"can't create compatibility link for old mux name scheme\n");
-+
- 	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
- 		 i2c_adapter_id(&priv->adap));
- 
-@@ -194,6 +197,7 @@ void i2c_del_mux_adapter(struct i2c_adapter *adap)
- {
- 	struct i2c_mux_priv *priv = adap->algo_data;
- 
-+	sysfs_remove_link(&priv->parent->dev.kobj, adap->dev.kobj.name);
- 	i2c_del_adapter(adap);
- 	kfree(priv);
- }
 -- 
-2.1.1
+Regards,
+
+Laurent Pinchart
+
