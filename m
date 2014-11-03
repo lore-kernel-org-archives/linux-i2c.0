@@ -1,142 +1,92 @@
-From: xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 3/3] I2C: mediatek: Add driver for MediaTek I2C
- controller
-Date: Mon, 3 Nov 2014 13:44:30 +0800
-Message-ID: <1414993470.10276.19.camel@mhfsdcap03>
-References: <1414561058-23803-1-git-send-email-xudong.chen@mediatek.com>
-	 <1414561058-23803-4-git-send-email-xudong.chen@mediatek.com>
-	 <CABuKBe+RXboBEZD7Bu_kSbVwiapJJcAuuw_wo=xw67osJWJ20w@mail.gmail.com>
-	 <1414737101.32208.18.camel@mhfsdcap03>
-	 <CABuKBeK1O2q37RMVE0Yjp2=QgkzXZfh=vxXiZrw-JMiYMxb-QQ@mail.gmail.com>
-	 <1414766288.5833.46.camel@mtksdaap41>
-	 <CABuKBeJ2NxcVn=yapcvNs1xLU+eye4JWESBwdcWoeqO=-vMBKw@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [RFC 1/3] i2c: sh_mobile: add DMA support
+Date: Mon, 3 Nov 2014 08:47:52 +0100
+Message-ID: <20141103074751.GA1776@katana>
+References: <1414752678-26078-1-git-send-email-wsa@the-dreams.de>
+ <1414752678-26078-2-git-send-email-wsa@the-dreams.de>
+ <2162385.nIBTGoCL05@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CABuKBeJ2NxcVn=yapcvNs1xLU+eye4JWESBwdcWoeqO=-vMBKw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <2162385.nIBTGoCL05@avalon>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srv_heupstream <srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Nathan Chung <nathan.chung-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, YH Chen <yh.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2014-10-31 at 17:10 +0100, Matthias Brugger wrote:
-> 2014-10-31 15:38 GMT+01:00 Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
-> > On Fri, 2014-10-31 at 11:48 +0100, Matthias Brugger wrote:
-> >> 2014-10-31 7:31 GMT+01:00 xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
-> >> > On Thu, 2014-10-30 at 14:16 +0100, Matthias Brugger wrote:
-> >> >> 2014-10-29 6:37 GMT+01:00 Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>:
-> >> >> > The mediatek SoCs have I2C controller that handle I2C transfer.
-> >> >> > This patch include common I2C bus driver.
-> >> >> > This driver is compatible with I2C controller on mt65xx/mt81xx.
-> >> >> >
-> >> >> > Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> >> >> > Change-Id: Icc17e326b9df46a226d536956e103f17b0382b6e
-> >> >> > ---
-> >> >> >  drivers/i2c/busses/Kconfig      |   9 +
-> >> >> >  drivers/i2c/busses/Makefile     |   1 +
-> >> >> >  drivers/i2c/busses/i2c-mt65xx.c | 728 ++++++++++++++++++++++++++++++++++++++++
-> >> >> >  3 files changed, 738 insertions(+)
-> >> >> >  create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
-> >> >> >
-> >> >> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> >> >> > index 917c358..0d7d0a4 100644
-> >> >> > --- a/drivers/i2c/busses/Kconfig
-> >> >> > +++ b/drivers/i2c/busses/Kconfig
-> >> >> > @@ -564,6 +564,15 @@ config I2C_MPC
-> >> >> >           This driver can also be built as a module.  If so, the module
-> >> >> >           will be called i2c-mpc.
-> >> >> >
-> >> >> > +config I2C_MT65XX
-> >> >> > +       tristate "MediaTek I2C adapter"
-> >> >> > +       depends on ARCH_MEDIATEK
-> >> >> > +       help
-> >> >> > +         This selects the MediaTek(R) Integrated Inter Circuit bus driver
-> >> >> > +         for MT65xx and MT81xx.
-> >> >> > +         If you want to use MediaTek(R) I2C interface, say Y or M here.
-> >> >> > +         If unsure, say N.
-> >> >> > +
-> >> >> >  config I2C_MV64XXX
-> >> >> >         tristate "Marvell mv64xxx I2C Controller"
-> >> >> >         depends on MV64X60 || PLAT_ORION || ARCH_SUNXI
-> >> >> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> >> >> > index 78d56c5..7a9f0f3 100644
-> >> >> > --- a/drivers/i2c/busses/Makefile
-> >> >> > +++ b/drivers/i2c/busses/Makefile
-> >> >> > @@ -54,6 +54,7 @@ obj-$(CONFIG_I2C_IMX)         += i2c-imx.o
-> >> >> >  obj-$(CONFIG_I2C_IOP3XX)       += i2c-iop3xx.o
-> >> >> >  obj-$(CONFIG_I2C_KEMPLD)       += i2c-kempld.o
-> >> >> >  obj-$(CONFIG_I2C_MPC)          += i2c-mpc.o
-> >> >> > +obj-$(CONFIG_I2C_MT65XX)       += i2c-mt65xx.o
-> >> >> > +
-> >> >> > +static int mt_i2c_do_transfer(struct mt_i2c *i2c)
-> >> >> > +{
-> >> >> > +       u16 addr_reg;
-> >> >> > +       u16 control_reg;
-> >> >> > +       int tmo = i2c->adap.timeout;
-> >> >> > +
-> >> >> > +       i2c->trans_stop = false;
-> >> >> > +       i2c->irq_stat = 0;
-> >> >> > +
-> >> >> > +       /* If use i2c pin from PMIC mt6397 side, need set PATH_DIR first */
-> >> >> > +       if (i2c->have_pmic)
-> >> >> > +               i2c_writew(I2C_CONTROL_WRAPPER, i2c, OFFSET_PATH_DIR);
-> >> >>
-> >> >> So this is some sort of multiplexer bit, right?
-> >> >> I think in this case we need to build a multi function device (mfd)
-> >> >> where the pmic driver will set this bit.
-> >> >>
-> >> > Hi,
-> >> >
-> >> > This feature means the chip can use I2C pins from PMIC(mt6397).
-> >> > In this case,
-> >> > 1. We actually control the register on mt8135 and the DMA/Control Logic
-> >> > is on mt8135, only use pins from mt6397. If set register OFFSET_PATH_DIR
-> >> > bit0 to 1, the I2C data will go/from PMIC pins.
-> >>
-> >> Sorry but I'm a bit puzzled. mt6397 is the PMIC, right?
-> >> So from the mt6589 datasheet it says:
-> >> "PATH_DIR Decides transmission direction
-> >> If set, the I2C data will go/from PMIC; otherwise, the I2C data will
-> >> go/from main die."
-> >>
-> >> From my understanding the I2C bus will be multiplexed depending on
-> >> this bit. The bit decides if it the data will be send to the PMIC or
-> >> to some other I2C peripheral.
-> >>
-> >> So we need a mfd and the PMIC device driver sets/unsets the PATH_DIR register.
-> >
-> > Yes, mt6397 is the PMIC work with mt8135 or mt8127.
-> >
-> > I think the datasheet is a little misleading here. AFAIK, on 8135 even
-> > if your clear the bit for I2C4, there are no corresponding pins for this
-> > i2c port on 8135. So it is not really multiplexed. Base on my
-> > understanding this is more like "Set this bit if this a PMIC I2C port".
-> 
-> I had a look at mt6589. The SoC has seven i2c controller. Looking at
-> the source code all controller with an ID bigger then 3 can be set to
-> pmic wrapper state.
 
-I have checked the mt8135 and mt6589 GPIO datasheet, there are pins on
-mt8135 or mt6589 for i2c4~i2c6, we also can use i2c4~i2c6 modules on
-mt8135 or mt6589 after set pinmux. Sorry about the misunderstand before.
-I will add i2c4~i2c6 nodes to the mt8135.dtsi in next patch.
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> So I would say that the PATH_DIR bit is not always bound to i2c4. We
-> should implement a driver which will work on all possible
-> configurations. We don't know if apart from mt6589 and mt8135 some
-> other SoC in the future will use this i2c controller.
-> 
-Because the mt6397 HW limitation, it's i2c module cannot be used when
-apart from mt6589 or mt8135.
-Take mt6589 for example:
-If we want to use mt6397 i2c pins, it must work together with mt6589,
-also we need to set the i2c control register on mt6589(DIR_PATH and the
-other registers) and then the HW will auto handle the communication
-between mt6397 and mt6589 internal(do not need any SW control), so data
-can go/from mt6397 pins. In this case the i2c pins on mt6397 will work
-just like the i2c pins is from mt6589.
+> > @@ -33,6 +35,9 @@
+> >  #include <linux/io.h>
+> >  #include <linux/slab.h>
+> >  #include <linux/of_device.h>
+> > +#include <linux/dmaengine.h>
+> > +#include <linux/dma-mapping.h>
+> > +#include <linux/sh_dma.h>
+>=20
+> I would have tried to keep the headers alphabetically sorted, if they had=
+ been=20
+> sorted in the first place :-)
 
-> Maybe you can check with the HW guys how this is implemented to shed
-> some light on the issue.
-> 
+Sure, I can do that as a seperate patch.
+
+> > +static void sh_mobile_i2c_cleanup_dma(struct sh_mobile_i2c_data *pd)
+> > +{
+> > +	if (pd->dma_direction =3D=3D DMA_FROM_DEVICE)
+> > +		dmaengine_terminate_all(pd->dma_rx);
+> > +	if (pd->dma_direction =3D=3D DMA_TO_DEVICE)
+>=20
+> else ?
+
+Yes, why not.
+
+> > +	pd->buf_mapped =3D true;
+>=20
+> Can't you use dma_direction !=3D DMA_NONE to detect whether the buffer ha=
+s been=20
+> mapped, instead of adding a new field to struct sh_mobile_i2c_data ? You =
+could=20
+> then simplify sh_mobile_i2c_cleanup_dma() by returning immediately at the=
+=20
+> beginning of the function if dma_direction =3D=3D DMA_NONE.
+
+I thought having this explicit might be more readable. Will try your
+idea though and check.
+
+>=20
+> Extra blank line here.
+
+Yes.
+
+Thanks for the review!
+
+
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUVzMnAAoJEBQN5MwUoCm26FMQAKqnZtJ3cJbYFPnV0FGYjqgP
++uTN2xE4S+hmfOcgPBOpdwV1CuzUovYylUmQFhp7HWLd3PpZe6vsFyudGA54T8pQ
+JFecS3ULKgRK0A10OgjHPFvoEDOpHmzbzxXue26Z3J1vB9DVnKE3iuCyuf1A/mAN
+ATv/Hdqwe5WKt8pYUXhBaYjS59cG363GSwuLdDeAt9HGcC3GPMLv+w2Q1c1tLI5i
+3dyeKdGSvFAJSNHFvcJEGG1tpfa8ETjDANfGJSUtiY5z/v8saFQCrYtNvEj0I6z3
+199bivYCH1MYSAsZiiWVqn4cCuZkD4KYW6f+LF1ffRYC7lxNqEjhc5SadMeK8IUg
+lj6CmIINEmX6UCleGp7KkM3yFLqADW9OiGaLtj9hAadXdYfdKJWp3bF3ppNftHXw
+mPg6JLosPUXXLOyHZlrJL1w3A7z+zBpHmtU86nHoHzzgRTEITftQlRUBdA9Hotz7
+VfZYpbhI4B3iPBHIWX6z/lV9W3OHaUWYOvw0D/sYFM4GjGhDNdIubcc5vmTWMv5G
+NgK1x1hGZqyjNr8LXXVsdTQK4N6Y1qrVv8ql68MXsC4gL9Kegyy++Q/3rmPB0lFI
+T1LZB3yNvnOJhPzkb8Uxgsg784g+MhhD0saQFaGsZaMk+NK4v7CMU1Jo0b4V71nr
+MHjcXtOnREWfyg9x4Dd0
+=8rlo
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--
