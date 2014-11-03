@@ -1,50 +1,31 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC 1/3] i2c: sh_mobile: add DMA support
-Date: Mon, 3 Nov 2014 09:58:48 +0100
-Message-ID: <CAMuHMdX1-ANQQhZkfKG67-TSKEUO6sFeiUMkkA323Ww4Cw9JrA@mail.gmail.com>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [RFC 3/3] ARM: shmobile: r8a7791: add DMA nodes for IIC
+Date: Mon, 3 Nov 2014 10:04:25 +0100
+Message-ID: <CAMuHMdXe6F7pr+P6pw3qbVngqopv5aArM-vfq2xR8R4mVDZpTg@mail.gmail.com>
 References: <1414752678-26078-1-git-send-email-wsa@the-dreams.de>
-	<1414752678-26078-2-git-send-email-wsa@the-dreams.de>
+	<1414752678-26078-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1414752678-26078-2-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1414752678-26078-4-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On Fri, Oct 31, 2014 at 11:51 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-On Fri, Oct 31, 2014 at 11:51 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-
-> +static struct dma_chan *sh_mobile_i2c_request_dma_chan(struct device *dev,
-> +                                             enum dma_transfer_direction dir,
-> +                                             dma_addr_t port_addr)
-> +{
-> +       dma_cap_mask_t mask;
-> +       struct dma_chan *chan;
-> +       struct dma_slave_config cfg;
-> +       int ret;
-> +
-> +       dma_cap_zero(mask);
-> +       dma_cap_set(DMA_SLAVE, mask);
-> +
-> +       chan = dma_request_slave_channel_compat(mask, shdma_chan_filter,
-> +                               (void *)0UL, dev, dir == DMA_MEM_TO_DEV ? "tx" : "rx");
-
-Given you only support DT DMA configuration (you always pass (void *)0UL
-as the channel ID), I think you can call dma_request_slave_channel(dev,
-dir == DMA_MEM_TO_DEV ? "tx" : "rx") directly instead of using the
-dma_request_slave_channel_compat() wrapper.
+Acked-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 
 Gr{oetje,eeting}s,
 
                         Geert
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
 
 In personal conversations with technical people, I call myself a hacker. But
 when I'm talking to journalists I just say "programmer" or something like that.
