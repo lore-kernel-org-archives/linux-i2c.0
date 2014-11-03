@@ -1,7 +1,7 @@
 From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Subject: Re: [PATCH] i2c: mux: create proper topology in sysfs
-Date: Mon, 3 Nov 2014 14:18:50 -0800
-Message-ID: <20141103221850.GA16026@roeck-us.net>
+Date: Mon, 3 Nov 2014 14:49:08 -0800
+Message-ID: <20141103224908.GA18594@roeck-us.net>
 References: <1414960809-16860-1-git-send-email-wsa@the-dreams.de>
  <20141103205534.GA18937@roeck-us.net>
  <20141103210200.GA6242@katana>
@@ -30,26 +30,10 @@ On Mon, Nov 03, 2014 at 10:02:00PM +0100, Wolfram Sang wrote:
 > 
 > What is your muxing setup?
 > 
-Complicated ;-).
+Ok, I think I know the problem. In my case, the parent adapter
+and the mux device are the same (since both are on the same chip
+and the mux is really merged into the i2c controller).
 
-There are really various muxes. The one above is a multi-function FPGA connected
-to a PCIe bus. The FPGA core has up to 8 i2c controllers. Each of those controllers
-supports up to 8 mux channels, for a total of up to 64 virtual i2c adapters.
-
-There are also gpio based muxes in the same system, only they are not
-'simple' gpio muxes where 1 pin matches 1 channel, but complex ones where
-the channel is determined by a three-bit value followed by an 8-bit mask
-(so there can be up to 64 mux channels on a single adapter).
-
-Plus of course there are some pca9548 and pca9546 based multiplexers.
-
-This is all mixed with gpio based bus master selectors permitting access from
-different boards. The overall architecture is so complex that it is actually
-possible to configure the i2c bus in circles (bus master selector to mux to
-another mux back to the other channel of the bus master selector).
-
-Just don't ask me who came up with that architecture ;-)
-
-I'll add some debugging to try to find out why the symlinks don't work.
+I'll have to figure out how to fix that.
 
 Guenter
