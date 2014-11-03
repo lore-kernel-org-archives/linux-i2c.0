@@ -1,34 +1,44 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: at91: don't account as iowait
-Date: Mon,  3 Nov 2014 21:16:16 +0100
-Message-ID: <1415045776-6373-1-git-send-email-wsa@the-dreams.de>
+From: catherine00939-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org
+Subject: Fix Penguin Penalty 17th October2014 ( mail-archive.com )
+Date: Tue, 4 Nov 2014 01:50:03 +0530
+Message-ID: <5457e375.a544440a.16b0.ffff9859@mx.google.com>
+Reply-To: seo.expert388-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-iowait is for blkio [1]. I2C shouldn't use it.
+Dear Sir
 
-[1] https://lkml.org/lkml/2014/11/3/317
+Did your website get hit by Google Penguin update on October 17th 2014?=
+ What basically is Google Penguin Update? It is actually a code name fo=
+r Google algorithm which aims at decreasing your websites search engine=
+ rankings that violate Google=92s guidelines by using black hat SEO tec=
+hniques to rank your webpage by giving number of spammy links to the pa=
+ge.
+=20
+We are one of those few SEO companies that can help you avoid penalties=
+ from Google Updates like Penguin and Panda. Our clients have survived =
+all the previous and present updates with ease. They have never been hi=
+t because we use 100% white hat SEO techniques to rank Webpages.  Simpl=
+e thing that we do to keep websites away from any Penguin or Panda pena=
+lties is follow Google guidelines and we give Google users the best ans=
+wers to their queries.
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+If you are looking to increase the quality of your websites and to get =
+more targeted traffic or save your websites from these Google penalties=
+ email us back with your interest.=20
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 917d54588d95..e05a672db3e5 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -434,7 +434,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		}
- 	}
- 
--	ret = wait_for_completion_io_timeout(&dev->cmd_complete,
-+	ret = wait_for_completion_timeout(&dev->cmd_complete,
- 					     dev->adapter.timeout);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
--- 
-2.1.1
+We will be glad to serve you and help you grow your business.
+
+Regards
+
+Vince G
+
+SEO Manager ( TOB )
+B7 Green Avenue, Amritsar 143001 Punjab
+____________________________
+NO CLICK in the subject to STOP EMAILS
