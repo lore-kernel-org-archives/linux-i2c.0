@@ -1,7 +1,7 @@
 From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Subject: Re: [PATCH] i2c: mux: create proper topology in sysfs
-Date: Mon, 3 Nov 2014 12:39:51 -0800
-Message-ID: <20141103203951.GA18530@roeck-us.net>
+Date: Mon, 3 Nov 2014 12:55:34 -0800
+Message-ID: <20141103205534.GA18937@roeck-us.net>
 References: <1414960809-16860-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -67,9 +67,23 @@ On Sun, Nov 02, 2014 at 09:40:09PM +0100, Wolfram Sang wrote:
 >  	priv->adap.algo_data = priv;
 > -	priv->adap.dev.parent = &parent->dev;
 > +	priv->adap.dev.parent = mux_dev;
+>  	priv->adap.retries = parent->retries;
+>  	priv->adap.timeout = parent->timeout;
+>  
+> @@ -183,6 +183,9 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+>  		return NULL;
+>  	}
+>  
+> +	WARN(sysfs_create_link(&parent->dev.kobj, &priv->adap.dev.kobj, priv->adap.dev.kobj.name),
+> +				"can't create compatibility link for old mux name scheme\n");
+> +
+Something seems to be wrong with the linking.
 
-Not sure if the reason is that i2c mux adapters assume that the parent 
-device is the i2c adapter, but the code crashes all over the place for me
-after applying this patch. I'll try to track it down.
+I get lots of messages such as
+
+sysfs: cannot create duplicate filename
+'/devices/fff70a000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0/0000:02:09.0/0000:10:00.0/i2c-sam.16/i2c-88/i2c-89'
+
+followed by "can't create compatibility link for old mux name scheme".
 
 Guenter
