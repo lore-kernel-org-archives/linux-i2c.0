@@ -1,55 +1,36 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC 1/3] i2c: sh_mobile: add DMA support
-Date: Tue, 4 Nov 2014 11:19:42 +0100
-Message-ID: <20141104101942.GA1298@katana>
-References: <1414752678-26078-1-git-send-email-wsa@the-dreams.de>
- <1414752678-26078-2-git-send-email-wsa@the-dreams.de>
- <CAMuHMdX1-ANQQhZkfKG67-TSKEUO6sFeiUMkkA323Ww4Cw9JrA@mail.gmail.com>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: mux: create proper topology in sysfs
+Date: Tue, 04 Nov 2014 06:16:37 -0800
+Message-ID: <5458DFC5.1010101@roeck-us.net>
+References: <1414960809-16860-1-git-send-email-wsa@the-dreams.de> <20141103205534.GA18937@roeck-us.net> <20141103210200.GA6242@katana> <20141103221850.GA16026@roeck-us.net> <20141104073306.GB1887@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdX1-ANQQhZkfKG67-TSKEUO6sFeiUMkkA323Ww4Cw9JrA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20141104073306.GB1887@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 11/03/2014 11:33 PM, Wolfram Sang wrote:
+>>> What is your muxing setup?
+>>>
+>> Complicated ;-).
+>
+> ...
+>
+> Ooooookay... well, for testing these patches, your setup is absolutely
+> awesome, of course :D May I ask what you are doing with that amount of
+> I2C?
+>
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The HW folks are trying to have one bus per device. So a card with 48x10GE
+needs 48 I2C busses, plus one or more busses for its other devices.
 
+Some of the HW tends to block its I2C bus if looked at in a wrong way,
+so that isn't actually too bad. The bus master selectors let either
+one of the main controller CPUs or the CPU on a line card have access
+to the bus.
 
-> Given you only support DT DMA configuration (you always pass (void *)0UL
-> as the channel ID), I think you can call dma_request_slave_channel(dev,
-> dir == DMA_MEM_TO_DEV ? "tx" : "rx") directly instead of using the
-> dma_request_slave_channel_compat() wrapper.
-
-Yay, true. Thanks for the review!
-
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUWKg+AAoJEBQN5MwUoCm2yk0P/2OjHDm6guPiG9VoctW41UcG
-1ql9SwW8RWguY2Nm/Twp0tXYMUxmnSm4wgxhN0Cyv8O7XU5KYTI63W8VAGtGg0CM
-zgDSwHPlTNyvEKFfdYGbBXNQQ/UmhvSpxSQb2xwyF4Ya2Pehbh14znQC1G5BvmPY
-q9Fx3iZY/8SfMhLQfRLLfAVVwlEj6b/jK5iPHhai7pF+MbNS11pWHWQoy1WeFmep
-bkdIG2Zuhs22vn/nFiYYhcdxr++xFc8puaBeUd4mGOjVIGaj9GYgHyN1EhykDX1Q
-EWszF5udJbvNISa1F9uHbCOV1BtUIv6q49mUXhg54UZ1vmHo/BLJ759JIC67Pkib
-xXcTqtdsipl1vr0FE7PdZnX7Sb+X2Qrxlt59wh38RUvuhxw+kQ7hIeZlWtBLmHkx
-t7xgPMkykx5NZKvAaOScsmsRJ9nbGHpuTW1zWXEelywSOKeQu357LX4/wILi47TK
-H9g3N2ddhIUPCJ58Oe278do21d+ljJnVF0TSnvg+YHq30PZfd+tvjNIzHCkTkzte
-rmrPzgFs/c0EkjUlbG2G5w4xyIKtzG/ixJfTyRuN11htjLSjH/5MQV088HRWgWK2
-+wvO4LNbHAYs4cGCNjAWB3rTlZM0Q/gJD1zr84bSouqfddtRfgLQudMbfVvgJ015
-5tZRmrVWgjFN6ZmLL8cf
-=S867
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
+Guenter
