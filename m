@@ -1,60 +1,63 @@
 From: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v2 0/2] i2c: Imagination Technologies I2C adapter driver
-Date: Tue, 4 Nov 2014 17:37:08 -0300
-Message-ID: <1415133430-25355-1-git-send-email-ezequiel.garcia@imgtec.com>
+Subject: [PATCH v2 2/2] DT: i2c: Add binding document for IMG I2C SCB
+Date: Tue, 4 Nov 2014 17:37:10 -0300
+Message-ID: <1415133430-25355-3-git-send-email-ezequiel.garcia@imgtec.com>
+References: <1415133430-25355-1-git-send-email-ezequiel.garcia@imgtec.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1415133430-25355-1-git-send-email-ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Changes from v1:
+From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 
-  * Cleaned-up the clock filter configuration by adding some macros.
+Introduce a devicetree binding for Imagination Technologies
+I2C SCB controller.
 
-  * Dropped the ISR_ATOMIC macro since it wasn't used anywhere and
-    instead just return 0.
-
-  * Rename some functions with the img_i2c_ prefix to follow the rest
-    of the driver style.
-
-  * Make img_i2c_{readl,writel} receive a struct img_i2c argument,
-    instead of the register base.
-
-  * Removed a duplicated flag in INT_ENABLE_MASK_ATOMIC macro definition.
-
-  * Added the system clock to the devicetree binding. Improved the binding
-    document.
-
-  * Added an explanation by James Hogan with details about the timer-based
-    abort condition detection.
-
-This patchset adds a new adapter driver supporting the Imagination Technologies
-I2C Serial Control Bus (SCB) controller.
-
-The driver supports the usual FIFO-based mode of operation (so-called automatic
-in the driver), and also a set lower-level modes of operation that is used
-for 0-length writes and for bus recovery routines.
-
-The recently merged bus recovery infrastructure is not used, given this driver
-already implements a fairly complex bus recovery, and has been tested
-extensively with it.
-
-Based on v3.18-rc2.
-
-James Hogan (2):
-  i2c: Add Imagination Technologies I2C SCB driver
-  DT: i2c: Add binding document for IMG I2C SCB
-
- .../devicetree/bindings/i2c/i2c-img-scb.txt        |   29 +
- drivers/i2c/busses/Kconfig                         |   10 +
- drivers/i2c/busses/Makefile                        |    1 +
- drivers/i2c/busses/i2c-img-scb.c                   | 1410 ++++++++++++++++++++
- 4 files changed, 1450 insertions(+)
+Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-img-scb.txt        | 29 ++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-img-scb.txt
- create mode 100644 drivers/i2c/busses/i2c-img-scb.c
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-img-scb.txt b/Documentation/devicetree/bindings/i2c/i2c-img-scb.txt
+new file mode 100644
+index 0000000..3a5cd1f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-img-scb.txt
+@@ -0,0 +1,29 @@
++IMG Serial Control Bus (SCB) I2C Controller
++
++Required Properties:
++- compatible: "img,scb-i2c"
++- reg: Physical base address and length of controller registers
++- interrupts: Interrupt number used by the controller
++- clocks : Should contain a clock specifier for each entry in clock-names
++- clock-names : Should contain the following entries:
++                "scb", for the SCB core clock.
++                "sys", for the system clock.
++- clock-frequency: The I2C bus frequency in Hz
++- #address-cells: Should be <1>
++- #size-cells: Should be <0>
++
++Optional Properties
++- img,bus-delay : Bus delay in ms, defaults to 0.
++
++Example:
++
++i2c@18100000 {
++	compatible = "img,scb-i2c";
++	reg = <0x18100000 0x200>;
++	interrupts = <GIC_SHARED 2 IRQ_TYPE_LEVEL_HIGH>;
++	clocks = <&i2c0_clk>, <&system_clk>;
++	clock-names = "scb", "sys";
++	clock-frequency = <400000>;
++	#address-cells = <1>;
++	#size-cells = <0>;
++};
 -- 
 2.1.0
