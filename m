@@ -1,49 +1,77 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: at91: don't account as iowait
-Date: Wed, 5 Nov 2014 11:55:22 +0100
-Message-ID: <20141105105522.GW20550@ldesroches-Latitude-E6320>
-References: <1415045776-6373-1-git-send-email-wsa@the-dreams.de>
+From: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: Add Imagination Technologies I2C SCB driver
+Date: Wed, 5 Nov 2014 09:04:07 -0300
+Message-ID: <545A1237.4010207@imgtec.com>
+References: <1415133430-25355-1-git-send-email-ezequiel.garcia@imgtec.com> <1415133430-25355-2-git-send-email-ezequiel.garcia@imgtec.com> <5459D3CB.9060204@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1415045776-6373-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <5459D3CB.9060204-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Simon Lindgren <simon-IfRblWqrl23QT0dZR+AlfA@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 03, 2014 at 09:16:16PM +0100, Wolfram Sang wrote:
-> iowait is for blkio [1]. I2C shouldn't use it.
-> 
-> [1] https://lkml.org/lkml/2014/11/3/317
-> 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-Thanks
 
-> ---
->  drivers/i2c/busses/i2c-at91.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On 11/05/2014 04:37 AM, Vladimir Zapolskiy wrote:
+> Hi Ezequiel,
 > 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 917d54588d95..e05a672db3e5 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -434,7 +434,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  		}
->  	}
->  
-> -	ret = wait_for_completion_io_timeout(&dev->cmd_complete,
-> +	ret = wait_for_completion_timeout(&dev->cmd_complete,
->  					     dev->adapter.timeout);
->  	if (ret == 0) {
->  		dev_err(dev->dev, "controller timed out\n");
-> -- 
-> 2.1.1
+> On 04.11.2014 22:37, Ezequiel Garcia wrote:
+>> From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+>>
+>> Add support for the IMG I2C Serial Control Bus (SCB) found on the
+>> Pistachio and TZ1090 SoCs.
+>>
+>> Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+>> [Ezequiel: code cleaning and rebasing]
+>> Signed-off-by: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/Kconfig       |   10 +
+>>  drivers/i2c/busses/Makefile      |    1 +
+>>  drivers/i2c/busses/i2c-img-scb.c | 1410 ++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 1421 insertions(+)
+>>  create mode 100644 drivers/i2c/busses/i2c-img-scb.c
+>>
+>> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
+>> new file mode 100644
+>> index 0000000..79ad85e
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-img-scb.c
+>> @@ -0,0 +1,1410 @@
+>> +/*
+>> + * I2C adapter for the IMG Serial Control Bus (SCB) IP block.
+>> + *
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> [snip]
+> 
+>> +	/*
+>> +	 * Get the bus number from the devicetree. Other I2C adapters may be
+>> +	 * reserved for non-Linux core. Instead of letting Linux pick any
+>> +	 * number, it's useful to fix the bus number so users get a consistent
+>> +	 * view.
+>> +	 */
+>> +	ret = of_property_read_u32(node, "linux,i2c-index", &val);
+>> +	if (!ret)
+>> +		i2c->adap.nr = val;
+>> +	else
+>> +		i2c->adap.nr = pdev->id;
+>> +
+> 
+> if I'm not mistaken "linux,i2c-index" property is redundant, talking
+> about Linux you can set up an arbitrary bus number by specifying a DTS
+> alias.
+> 
+> Most probably just
+> 
+>     i2c->adap.nr = pdev->id;
+> 
+> may serve your purposes.
+> 
+
+Argh, forgot to remove this one.
+
+Thanks,
+-- 
+Ezequiel
