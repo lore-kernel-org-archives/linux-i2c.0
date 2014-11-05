@@ -1,34 +1,59 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH v9 2/4] i2c: add support for Diolan DLN-2 USB-I2C adapter
-Date: Wed, 5 Nov 2014 16:49:47 +0100
-Message-ID: <20141105154947.GV31358@localhost>
-References: <1414427472-4100-1-git-send-email-octavian.purdila@intel.com>
- <1414427472-4100-3-git-send-email-octavian.purdila@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: [PATCH v10 0/3] add support for Diolan DLN-2
+Date: Wed,  5 Nov 2014 19:04:58 +0200
+Message-ID: <1415207101-16461-1-git-send-email-octavian.purdila@intel.com>
 Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1414427472-4100-3-git-send-email-octavian.purdila@intel.com>
 Sender: linux-gpio-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+To: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, lee.jones@linaro.org
+Cc: arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 27, 2014 at 06:31:10PM +0200, Octavian Purdila wrote:
-> From: Laurentiu Palcu <laurentiu.palcu@intel.com>
-> 
-> This patch adds support for the Diolan DLN-2 I2C master module. Due
-> to hardware limitations it does not support SMBUS quick commands.
-> 
-> Information about the USB protocol interface can be found in the
-> Programmer's Reference Manual [1], see section 6.2.2 for the I2C
-> master module commands and responses.
-> 
-> [1] https://www.diolan.com/downloads/dln-api-manual.pdf
-> 
-> Signed-off-by: Laurentiu Palcu <laurentiu.palcu@intel.com>
-> Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+This patch series adds support for Diolan USB-I2C/GPIO Master Adapter
+DLN-2. Details about device can be found here:
 
-Reviewed-by: Johan Hovold <johan@kernel.org>
+https://www.diolan.com/i2c/i2c_interface.html.
 
-Johan
+This patch series has been rebased against the for-mfd-next branch of
+the MFD tree.
+
+Changes since v9:
+
+ * MFD: use decimal serial no, break the run callback loop (there can
+   be only one entry per id), move up the declaration of a couple of
+   variables, remove a couple of redundant __packed attributes, fix a
+   typo and cleanup an error message, use unsigned long instead of int
+   for timeout
+
+ * I2C: none
+
+ * GPIO: drop a couple of cpu_to_le16() due to receiving data type
+   being u8
+
+Daniel Baluta (1):
+  gpio: add support for the Diolan DLN-2 USB GPIO driver
+
+Laurentiu Palcu (1):
+  i2c: add support for Diolan DLN-2 USB-I2C adapter
+
+Octavian Purdila (1):
+  mfd: add support for Diolan DLN-2 devices
+
+ drivers/gpio/Kconfig          |  12 +
+ drivers/gpio/Makefile         |   1 +
+ drivers/gpio/gpio-dln2.c      | 553 ++++++++++++++++++++++++++++++
+ drivers/i2c/busses/Kconfig    |  10 +
+ drivers/i2c/busses/Makefile   |   1 +
+ drivers/i2c/busses/i2c-dln2.c | 267 +++++++++++++++
+ drivers/mfd/Kconfig           |  11 +
+ drivers/mfd/Makefile          |   1 +
+ drivers/mfd/dln2.c            | 763 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/dln2.h      | 103 ++++++
+ 10 files changed, 1722 insertions(+)
+ create mode 100644 drivers/gpio/gpio-dln2.c
+ create mode 100644 drivers/i2c/busses/i2c-dln2.c
+ create mode 100644 drivers/mfd/dln2.c
+ create mode 100644 include/linux/mfd/dln2.h
+
+-- 
+1.9.1
+
