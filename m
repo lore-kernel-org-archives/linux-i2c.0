@@ -1,87 +1,60 @@
-From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] i2c: Add Imagination Technologies I2C SCB driver
-Date: Wed, 5 Nov 2014 09:37:47 +0200
-Message-ID: <5459D3CB.9060204@mentor.com>
-References: <1415133430-25355-1-git-send-email-ezequiel.garcia@imgtec.com> <1415133430-25355-2-git-send-email-ezequiel.garcia@imgtec.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [RFC PATCH V2] ACPI: Add _DEP(Operation Region Dependencies)
+ support to fix battery issue on the Asus T100TA
+Date: Wed, 5 Nov 2014 10:54:14 +0200
+Message-ID: <20141105085414.GV1618@lahna.fi.intel.com>
+References: <1414422584-2638-1-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1415133430-25355-2-git-send-email-ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1414422584-2638-1-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ezequiel,
-
-On 04.11.2014 22:37, Ezequiel Garcia wrote:
-> From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+On Mon, Oct 27, 2014 at 11:09:44PM +0800, Lan Tianyu wrote:
+> ACPI 5.0 introduces _DEP to designate device objects that OSPM should
+> assign a higher priority in start ordering due to future operation region
+> accesses.
 > 
-> Add support for the IMG I2C Serial Control Bus (SCB) found on the
-> Pistachio and TZ1090 SoCs.
+> On Asus T100TA, ACPI battery info are read from a I2C slave device via
+> I2C operation region. Before I2C operation region handler is installed,
+> battery _STA always returns 0. There is a _DEP method of designating
+> start order under battery device node.
 > 
-> Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-> [Ezequiel: code cleaning and rebasing]
-> Signed-off-by: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig       |   10 +
->  drivers/i2c/busses/Makefile      |    1 +
->  drivers/i2c/busses/i2c-img-scb.c | 1410 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 1421 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-img-scb.c
-> 
-> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-> new file mode 100644
-> index 0000000..79ad85e
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-img-scb.c
-> @@ -0,0 +1,1410 @@
-> +/*
-> + * I2C adapter for the IMG Serial Control Bus (SCB) IP block.
-> + *
+> This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
+> Introducing acpi_dep_list and adding dep_unmet count in the struct
+> acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
+> valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
+> master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
+> count will increase by one if there is a device under its _DEP. Driver's probe() should
+> return EPROBE_DEFER when find dep_unmet larger than 0. When I2C operation
+> region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
+> whose master is pointed to I2C host controller and decrease slave's dep_unmet.
+> When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
+> for the device in order to resolve battery _STA issue on the Asus T100TA.
 
-[snip]
+Is there a reason why the driver core can't handle this automatically in
+such way that when there are unmet dependencies, it will not probe the
+device? Or am I missing something?
 
-> +	/*
-> +	 * Get the bus number from the devicetree. Other I2C adapters may be
-> +	 * reserved for non-Linux core. Instead of letting Linux pick any
-> +	 * number, it's useful to fix the bus number so users get a consistent
-> +	 * view.
-> +	 */
-> +	ret = of_property_read_u32(node, "linux,i2c-index", &val);
-> +	if (!ret)
-> +		i2c->adap.nr = val;
-> +	else
-> +		i2c->adap.nr = pdev->id;
-> +
+Now it looks like the driver itself needs to know about these and handle
+them somehow.
 
-if I'm not mistaken "linux,i2c-index" property is redundant, talking
-about Linux you can set up an arbitrary bus number by specifying a DTS
-alias.
+I'm asking this because there are other things like devices using GPIOs
+that also take advantage of _DEP, like this on Asus T100:
 
-Most probably just
+        Device (SDHB)
+        {
+            Name (_ADR, Zero)  // _ADR: Address
+            Name (_HID, "INT33BB")  // _HID: Hardware ID
+            ...
+            Name (_DEP, Package (0x02)  // _DEP: Dependencies
+            {
+                PEPD,
+                GPO2
+            })
 
-    i2c->adap.nr = pdev->id;
-
-may serve your purposes.
-
-[snip]
-
-> +
-> +	ret = i2c_add_numbered_adapter(&i2c->adap);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "failed to add adapter\n");
-> +		goto disable_clk;
-> +	}
-> +
-> +	return 0;
-> +
-> +disable_clk:
-> +	clk_disable_unprepare(i2c->sys_clk);
-> +	return ret;
-> +}
-> +
-
-With best wishes,
-Vladimir
+I don't know what PEPD is but GPO2 is the GPIO controller.
