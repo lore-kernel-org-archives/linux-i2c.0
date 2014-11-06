@@ -1,74 +1,106 @@
-From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Thu, 6 Nov 2014 15:58:18 -0600
-Message-ID: <1415311098.23458.405.camel@snotra.buserror.net>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
-	 <1414537731.23458.120.camel@snotra.buserror.net>
-	 <5450AC85.40302@keymile.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [RFC PATCH V2] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
+Date: Fri, 07 Nov 2014 00:00:34 +0100
+Message-ID: <1576552.2oedNFkf9R@vostro.rjw.lan>
+References: <1414422584-2638-1-git-send-email-tianyu.lan@intel.com> <7320898.JB9z5hUzdG@vostro.rjw.lan> <20141106061952.GC1618@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5450AC85.40302-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Cc: Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20141106061952.GC1618@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Lan Tianyu <tianyu.lan@intel.com>, lenb@kernel.org, wsa@the-dreams.de, robert.moore@intel.com, lv.zheng@intel.com, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@acpica.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2014-10-29 at 09:59 +0100, Valentin Longchamp wrote:
-> On 10/29/2014 12:08 AM, Scott Wood wrote:
-> > On Fri, 2014-10-17 at 11:27 +0200, Valentin Longchamp wrote:
-> >> With "fsl-i2c" compatibility the i2c frequency is not set
-> >> correctly, because it sets no prescaler. According to the AN2919 from
-> >> Freescale and the QorIQ (P2041) documentation, the source clock is 1/2
-> >> the platform clock. This implies that a prescaler of 2 must be used.
-> >>
-> >> This changes the compatibility of the qoriq-i2c .dtsi files to pick the
-> >> mpc8543, which uses the same driver but sets the correct prescaler.
-> >>
-> >> Signed-off-by: Rainer Boschung <rainer.boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-> >> Signed-off-by: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-> >> ---
-> >>
-> >>  arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi | 4 ++--
-> >>  arch/powerpc/boot/dts/fsl/qoriq-i2c-1.dtsi | 4 ++--
-> >>  2 files changed, 4 insertions(+), 4 deletions(-)
-> >>
-> >> diff --git a/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
-> >> index 5f9bf7d..aa6c366 100644
-> >> --- a/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
-> >> +++ b/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
-> >> @@ -36,7 +36,7 @@ i2c@118000 {
-> >>  	#address-cells = <1>;
-> >>  	#size-cells = <0>;
-> >>  	cell-index = <0>;
-> >> -	compatible = "fsl-i2c";
-> >> +	compatible = "fsl,mpc8543-i2c", "fsl-i2c";
-> >>  	reg = <0x118000 0x100>;
-> >>  	interrupts = <38 2 0 0>;
-> >>  	dfsrr;
-> >> @@ -46,7 +46,7 @@ i2c@118100 {
-> >>  	#address-cells = <1>;
-> >>  	#size-cells = <0>;
-> >>  	cell-index = <1>;
-> >> -	compatible = "fsl-i2c";
-> >> +	compatible = "fsl,mpc8543-i2c", "fsl-i2c";
-> >>  	reg = <0x118100 0x100>;
-> >>  	interrupts = <38 2 0 0>;
-> >>  	dfsrr;
+On Thursday, November 06, 2014 08:19:52 AM Mika Westerberg wrote:
+> On Wed, Nov 05, 2014 at 10:55:23PM +0100, Rafael J. Wysocki wrote:
+> > On Wednesday, November 05, 2014 10:54:14 AM Mika Westerberg wrote:
+> > > On Mon, Oct 27, 2014 at 11:09:44PM +0800, Lan Tianyu wrote:
+> > > > ACPI 5.0 introduces _DEP to designate device objects that OSPM should
+> > > > assign a higher priority in start ordering due to future operation region
+> > > > accesses.
+> > > > 
+> > > > On Asus T100TA, ACPI battery info are read from a I2C slave device via
+> > > > I2C operation region. Before I2C operation region handler is installed,
+> > > > battery _STA always returns 0. There is a _DEP method of designating
+> > > > start order under battery device node.
+> > > > 
+> > > > This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
+> > > > Introducing acpi_dep_list and adding dep_unmet count in the struct
+> > > > acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
+> > > > valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
+> > > > master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
+> > > > count will increase by one if there is a device under its _DEP. Driver's probe() should
+> > > > return EPROBE_DEFER when find dep_unmet larger than 0. When I2C operation
+> > > > region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
+> > > > whose master is pointed to I2C host controller and decrease slave's dep_unmet.
+> > > > When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
+> > > > for the device in order to resolve battery _STA issue on the Asus T100TA.
+> > > 
+> > > Is there a reason why the driver core can't handle this automatically in
+> > > such way that when there are unmet dependencies, it will not probe the
+> > > device? Or am I missing something?
 > > 
-> > Are all chips that use this dtsi 100% compatible with mpc8543's i2c, or
-> > just in ways the Linux driver cares about?
+> > Yes, there is a reason: There's no way to represent such dependencies in the
+> > driver core. :-)
+> > 
+> > That's been discussed for several times (and I've even mentioned _DEP in one
+> > of those discussions) and it's always ended up being seen as "complexity
+> > nightmare".
 > 
-> I have just looked briefly at the mpc8548 RM (covers mpc8543) and its i2c
-> controller looks the same as the qoriq's. I cannot however state if they are
-> 100% compatible.
+> OK, I see.
 > 
-> If we wanted to be on the safe side and strict (since we are not sure that the
-> hardware is 100% compatible), we maybe should add a fsl,qoriq-i2c compatible to
-> the driver that does the same as mpc8543-i2c.
+> > > Now it looks like the driver itself needs to know about these and handle
+> > > them somehow.
+> > 
+> > The patch is missing the user of it which is going to be the battery driver
+> > only for the time being.  Tianyu, can you please include the battery changes
+> > into the patch at least for now?
+> > 
+> > > I'm asking this because there are other things like devices using GPIOs
+> > > that also take advantage of _DEP, like this on Asus T100:
+> > > 
+> > >         Device (SDHB)
+> > >         {
+> > >             Name (_ADR, Zero)  // _ADR: Address
+> > >             Name (_HID, "INT33BB")  // _HID: Hardware ID
+> > >             ...
+> > >             Name (_DEP, Package (0x02)  // _DEP: Dependencies
+> > >             {
+> > >                 PEPD,
+> > >                 GPO2
+> > >             })
+> > > 
+> > > I don't know what PEPD is but GPO2 is the GPIO controller.
+> > 
+> > Well, if you read the definition of _DEP in ACPI 5.1, it is all about operation
+> > regions, so this smells like abuse of sorts.  In any case, it is hard to argue
+> > that _DEP is not internal to ACPI because of that definition.
+> 
+> So if we have a device, like SDHB above (SDIO controller), that needs
+> GPIOs for powering the SDIO card and that is done by using GPIO
+> operation regions how do we ensure that the GPIO controller driver is
+> there?
+> 
+> I think the answer is that we just make sure the the GPIO driver is
+> there before anything that is going to use it. E.g make it
+> subsys_initcall() or so?
 
-If we're going to change the device tree I'd rather just add a property
-to say what the prescaler is.
+The current approach, which arguably is lame, has been to (1) compile in
+all drivers that *may* be depended on (like all drviers registering operation
+region handlers) and then (2) trick the devices to be registered in the right
+order.
 
--Scott
+I'd rather have a more robust mechanism than that, but so far no one has
+proposed anything remotely usable.
+
+As far as _DEP is concerned, it seems that in *practice* it is used to
+reflect functional dependencies between devices rather than the operation
+regions thing only (as specified).  In that case we may decide to follow
+the practice rather than the spec (and move to update the spec to reflect
+the practice at the same time), but that requires some consideration.
+
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
