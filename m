@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Subject: [PATCH 4/5] ARM: shmobile: sh73a0 dtsi: Add SoC-specific IIC compatible properties
-Date: Thu,  6 Nov 2014 12:52:09 +0100
-Message-ID: <1415274730-310-5-git-send-email-geert+renesas@glider.be>
+Subject: [PATCH 1/5] ARM: shmobile: kzm9g legacy: Set i2c clks_per_count to 2
+Date: Thu,  6 Nov 2014 12:52:06 +0100
+Message-ID: <1415274730-310-2-git-send-email-geert+renesas@glider.be>
 References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1415274730-310-1-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
@@ -10,68 +10,97 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Simon Horman <ho
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The IIC nodes used the generic compatible properties only.
-This causes the driver to fail when using Standard Speed, as the
-operational clock is driven by the 104 MHz HP clock:
+On sh73a0/kzm9g-legacy, probing of the i2c masters fails with:
 
-    i2c-sh_mobile e6820000.i2c: timing values out of range: L/H=0x208/0x1bf
-    i2c-sh_mobile: probe of e6820000.i2c failed with error -22
+    i2c-sh_mobile i2c-sh_mobile.0: timing values out of range: L/H=0x208/0x1bf
+    sh_mobile: probe of i2c-sh_mobile.0 failed with error -22
 
-Add the SoC-specific compatible property to fix this.
+According to the datasheet, the transfer rate is derived from the HP
+clock (which runs at 104 MHz) divided by two. Hence
+i2c_sh_mobile_platform_data.clks_per_count should be set to two.
+
+Now probing succeeds, and i2c works:
+
+    i2c-sh_mobile i2c-sh_mobile.0: I2C adapter 0 with bus speed 100000 Hz (L/H=0x104/0xe0)
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 ---
- arch/arm/boot/dts/sh73a0.dtsi | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Note that the L/H values still differ from the Transfer Rate Settings
+example in Table 19.3 of the datasheet, which suggests 0x121/0xe7.
 
-diff --git a/arch/arm/boot/dts/sh73a0.dtsi b/arch/arm/boot/dts/sh73a0.dtsi
-index 030a5920312fa19b..d8def5a529da2882 100644
---- a/arch/arm/boot/dts/sh73a0.dtsi
-+++ b/arch/arm/boot/dts/sh73a0.dtsi
-@@ -138,7 +138,7 @@
- 	i2c0: i2c@e6820000 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		compatible = "renesas,rmobile-iic";
-+		compatible = "renesas,iic-sh73a0", "renesas,rmobile-iic";
- 		reg = <0xe6820000 0x425>;
- 		interrupts = <0 167 IRQ_TYPE_LEVEL_HIGH
- 			      0 168 IRQ_TYPE_LEVEL_HIGH
-@@ -150,7 +150,7 @@
- 	i2c1: i2c@e6822000 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		compatible = "renesas,rmobile-iic";
-+		compatible = "renesas,iic-sh73a0", "renesas,rmobile-iic";
- 		reg = <0xe6822000 0x425>;
- 		interrupts = <0 51 IRQ_TYPE_LEVEL_HIGH
- 			      0 52 IRQ_TYPE_LEVEL_HIGH
-@@ -162,7 +162,7 @@
- 	i2c2: i2c@e6824000 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		compatible = "renesas,rmobile-iic";
-+		compatible = "renesas,iic-sh73a0", "renesas,rmobile-iic";
- 		reg = <0xe6824000 0x425>;
- 		interrupts = <0 171 IRQ_TYPE_LEVEL_HIGH
- 			      0 172 IRQ_TYPE_LEVEL_HIGH
-@@ -174,7 +174,7 @@
- 	i2c3: i2c@e6826000 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		compatible = "renesas,rmobile-iic";
-+		compatible = "renesas,iic-sh73a0", "renesas,rmobile-iic";
- 		reg = <0xe6826000 0x425>;
- 		interrupts = <0 183 IRQ_TYPE_LEVEL_HIGH
- 			      0 184 IRQ_TYPE_LEVEL_HIGH
-@@ -186,7 +186,7 @@
- 	i2c4: i2c@e6828000 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		compatible = "renesas,rmobile-iic";
-+		compatible = "renesas,iic-sh73a0", "renesas,rmobile-iic";
- 		reg = <0xe6828000 0x425>;
- 		interrupts = <0 187 IRQ_TYPE_LEVEL_HIGH
- 			      0 188 IRQ_TYPE_LEVEL_HIGH
+ arch/arm/mach-shmobile/setup-sh73a0.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/arch/arm/mach-shmobile/setup-sh73a0.c b/arch/arm/mach-shmobile/setup-sh73a0.c
+index 2955a08a655d8889..179c2b65be9f6829 100644
+--- a/arch/arm/mach-shmobile/setup-sh73a0.c
++++ b/arch/arm/mach-shmobile/setup-sh73a0.c
+@@ -22,6 +22,7 @@
+ #include <linux/of_platform.h>
+ #include <linux/delay.h>
+ #include <linux/input.h>
++#include <linux/i2c/i2c-sh_mobile.h>
+ #include <linux/io.h>
+ #include <linux/serial_sci.h>
+ #include <linux/sh_dma.h>
+@@ -188,11 +189,18 @@ static struct resource i2c4_resources[] = {
+ 	},
+ };
+ 
++static struct i2c_sh_mobile_platform_data i2c_platform_data = {
++	.clks_per_count	= 2,
++};
++
+ static struct platform_device i2c0_device = {
+ 	.name		= "i2c-sh_mobile",
+ 	.id		= 0,
+ 	.resource	= i2c0_resources,
+ 	.num_resources	= ARRAY_SIZE(i2c0_resources),
++	.dev		= {
++		.platform_data	= &i2c_platform_data,
++	},
+ };
+ 
+ static struct platform_device i2c1_device = {
+@@ -200,6 +208,9 @@ static struct platform_device i2c1_device = {
+ 	.id		= 1,
+ 	.resource	= i2c1_resources,
+ 	.num_resources	= ARRAY_SIZE(i2c1_resources),
++	.dev		= {
++		.platform_data	= &i2c_platform_data,
++	},
+ };
+ 
+ static struct platform_device i2c2_device = {
+@@ -207,6 +218,9 @@ static struct platform_device i2c2_device = {
+ 	.id		= 2,
+ 	.resource	= i2c2_resources,
+ 	.num_resources	= ARRAY_SIZE(i2c2_resources),
++	.dev		= {
++		.platform_data	= &i2c_platform_data,
++	},
+ };
+ 
+ static struct platform_device i2c3_device = {
+@@ -214,6 +228,9 @@ static struct platform_device i2c3_device = {
+ 	.id		= 3,
+ 	.resource	= i2c3_resources,
+ 	.num_resources	= ARRAY_SIZE(i2c3_resources),
++	.dev		= {
++		.platform_data	= &i2c_platform_data,
++	},
+ };
+ 
+ static struct platform_device i2c4_device = {
+@@ -221,6 +238,9 @@ static struct platform_device i2c4_device = {
+ 	.id		= 4,
+ 	.resource	= i2c4_resources,
+ 	.num_resources	= ARRAY_SIZE(i2c4_resources),
++	.dev		= {
++		.platform_data	= &i2c_platform_data,
++	},
+ };
+ 
+ static const struct sh_dmae_slave_config sh73a0_dmae_slaves[] = {
 -- 
 1.9.1
