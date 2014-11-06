@@ -1,80 +1,74 @@
-From: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v3 1/2] i2c: Add Imagination Technologies I2C SCB driver
-Date: Thu, 6 Nov 2014 14:21:50 -0300
-Message-ID: <545BAE2E.8010608@imgtec.com>
-References: <1415218919-9085-1-git-send-email-ezequiel.garcia@imgtec.com> <1415218919-9085-2-git-send-email-ezequiel.garcia@imgtec.com> <545BA6F9.3090207@mentor.com>
+From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
+Date: Thu, 6 Nov 2014 15:58:18 -0600
+Message-ID: <1415311098.23458.405.camel@snotra.buserror.net>
+References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
+	 <1414537731.23458.120.camel@snotra.buserror.net>
+	 <5450AC85.40302@keymile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <545BA6F9.3090207-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <5450AC85.40302-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Cc: Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, 2014-10-29 at 09:59 +0100, Valentin Longchamp wrote:
+> On 10/29/2014 12:08 AM, Scott Wood wrote:
+> > On Fri, 2014-10-17 at 11:27 +0200, Valentin Longchamp wrote:
+> >> With "fsl-i2c" compatibility the i2c frequency is not set
+> >> correctly, because it sets no prescaler. According to the AN2919 from
+> >> Freescale and the QorIQ (P2041) documentation, the source clock is 1/2
+> >> the platform clock. This implies that a prescaler of 2 must be used.
+> >>
+> >> This changes the compatibility of the qoriq-i2c .dtsi files to pick the
+> >> mpc8543, which uses the same driver but sets the correct prescaler.
+> >>
+> >> Signed-off-by: Rainer Boschung <rainer.boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+> >> Signed-off-by: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+> >> ---
+> >>
+> >>  arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi | 4 ++--
+> >>  arch/powerpc/boot/dts/fsl/qoriq-i2c-1.dtsi | 4 ++--
+> >>  2 files changed, 4 insertions(+), 4 deletions(-)
+> >>
+> >> diff --git a/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
+> >> index 5f9bf7d..aa6c366 100644
+> >> --- a/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
+> >> +++ b/arch/powerpc/boot/dts/fsl/qoriq-i2c-0.dtsi
+> >> @@ -36,7 +36,7 @@ i2c@118000 {
+> >>  	#address-cells = <1>;
+> >>  	#size-cells = <0>;
+> >>  	cell-index = <0>;
+> >> -	compatible = "fsl-i2c";
+> >> +	compatible = "fsl,mpc8543-i2c", "fsl-i2c";
+> >>  	reg = <0x118000 0x100>;
+> >>  	interrupts = <38 2 0 0>;
+> >>  	dfsrr;
+> >> @@ -46,7 +46,7 @@ i2c@118100 {
+> >>  	#address-cells = <1>;
+> >>  	#size-cells = <0>;
+> >>  	cell-index = <1>;
+> >> -	compatible = "fsl-i2c";
+> >> +	compatible = "fsl,mpc8543-i2c", "fsl-i2c";
+> >>  	reg = <0x118100 0x100>;
+> >>  	interrupts = <38 2 0 0>;
+> >>  	dfsrr;
+> > 
+> > Are all chips that use this dtsi 100% compatible with mpc8543's i2c, or
+> > just in ways the Linux driver cares about?
+> 
+> I have just looked briefly at the mpc8548 RM (covers mpc8543) and its i2c
+> controller looks the same as the qoriq's. I cannot however state if they are
+> 100% compatible.
+> 
+> If we wanted to be on the safe side and strict (since we are not sure that the
+> hardware is 100% compatible), we maybe should add a fsl,qoriq-i2c compatible to
+> the driver that does the same as mpc8543-i2c.
 
+If we're going to change the device tree I'd rather just add a property
+to say what the prescaler is.
 
-On 11/06/2014 01:51 PM, Vladimir Zapolskiy wrote:
-> Hi Ezequiel,
-> 
-> On 05.11.2014 22:21, Ezequiel Garcia wrote:
->> From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
->>
->> Add support for the IMG I2C Serial Control Bus (SCB) found on the
->> Pistachio and TZ1090 SoCs.
->>
->> Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
->> [Ezequiel: code cleaning and rebasing]
->> Signed-off-by: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
->> ---
->>  drivers/i2c/busses/Kconfig       |   10 +
->>  drivers/i2c/busses/Makefile      |    1 +
->>  drivers/i2c/busses/i2c-img-scb.c | 1397 ++++++++++++++++++++++++++++++++++++++
->>  3 files changed, 1408 insertions(+)
->>  create mode 100644 drivers/i2c/busses/i2c-img-scb.c
->>
-> 
-> [snip]
-> 
->> +static int img_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
->> +			int num)
->> +{
->> +	struct img_i2c *i2c = i2c_get_adapdata(i2c_adap);
->> +	bool atomic = false;
->> +	int i;
->> +
->> +	if (i2c->mode == MODE_SUSPEND) {
->> +		WARN(1, "refusing to service transaction in suspended state\n");
->> +		return -EIO;
->> +	}
->> +
->> +	if (i2c->mode == MODE_FATAL)
->> +		return -EIO;
->> +
->> +	for (i = 0; i < num; i++) {
->> +		if (likely(msgs[i].len))
->> +			continue;
->> +		/*
->> +		 * 0 byte reads are not possible because the slave could try
->> +		 * and pull the data line low, preventing a stop bit.
->> +		 */
->> +		if (unlikely(msgs[i].flags & I2C_M_RD))
->> +			return -EIO;
->> +		/*
->> +		 * 0 byte writes are possible and used for probing, but we
->> +		 * cannot do them in automatic mode, so use atomic mode
->> +		 * instead.
->> +		 */
->> +		atomic = true;
->> +	}
->> +
->> +	clk_prepare_enable(i2c->scb_clk);
-> 
-> Does it make sense to add a check for returned error here?
-> 
-
-Right, that makes sense.
-
--- 
-Ezequiel
+-Scott
