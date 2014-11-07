@@ -1,56 +1,80 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH 3/5] i2c: sh_mobile: Document SoC-specific bindings
-Date: Fri, 7 Nov 2014 13:17:57 +0900
-Message-ID: <20141107041756.GD2006@verge.net.au>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/5] ARM: shmobile: kzm9g legacy: Set i2c clks_per_count
+ to 2
+Date: Fri, 7 Nov 2014 06:24:21 +0100
+Message-ID: <20141107052420.GA1278@katana>
 References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
- <1415274730-310-4-git-send-email-geert+renesas@glider.be>
+ <1415274730-310-2-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1415274730-310-4-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+In-Reply-To: <1415274730-310-2-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 06, 2014 at 12:52:08PM +0100, Geert Uytterhoeven wrote:
-> Explicitly list the various SoC-specific compatible properties.
-> This allows checkpatch to validate DTSes.
-> 
+
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Nov 06, 2014 at 12:52:06PM +0100, Geert Uytterhoeven wrote:
+> On sh73a0/kzm9g-legacy, probing of the i2c masters fails with:
+>=20
+>     i2c-sh_mobile i2c-sh_mobile.0: timing values out of range: L/H=3D0x20=
+8/0x1bf
+>     sh_mobile: probe of i2c-sh_mobile.0 failed with error -22
+
+Yay, so the warning I added found another bug \o/
+
+>=20
+> According to the datasheet, the transfer rate is derived from the HP
+> clock (which runs at 104 MHz) divided by two. Hence
+> i2c_sh_mobile_platform_data.clks_per_count should be set to two.
+>=20
+> Now probing succeeds, and i2c works:
+>=20
+>     i2c-sh_mobile i2c-sh_mobile.0: I2C adapter 0 with bus speed 100000 Hz=
+ (L/H=3D0x104/0xe0)
+>=20
 > Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 
-Acked-by: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Reviewed-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-> index d2153ce36fa81404..c33e9a32d496ef10 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-> @@ -2,6 +2,15 @@ Device tree configuration for Renesas IIC (sh_mobile) driver
->  
->  Required properties:
->  - compatible      : "renesas,iic-<soctype>". "renesas,rmobile-iic" as fallback
-> +		     Examples with soctypes are:
-> +			- "renesas,iic-r8a73a4" (R-Mobile APE6)
-> +			- "renesas,iic-r8a7740" (R-Mobile A1)
-> +			- "renesas,iic-r8a7790" (R-Car H2)
-> +			- "renesas,iic-r8a7791" (R-Car M2-W)
-> +			- "renesas,iic-r8a7792" (R-Car V2H)
-> +			- "renesas,iic-r8a7793" (R-Car M2-N)
-> +			- "renesas,iic-r8a7794" (R-Car E2)
-> +			- "renesas,iic-sh73a0" (SH-Mobile AG5)
->  - reg             : address start and address range size of device
->  - interrupts      : interrupt of device
->  - clocks          : clock for device
-> -- 
-> 1.9.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> Note that the L/H values still differ from the Transfer Rate Settings
+> example in Table 19.3 of the datasheet, which suggests 0x121/0xe7.
+
+Is the formula different or is it rounding errors?
+
+Thanks,
+
+   Wolfram
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUXFeEAAoJEBQN5MwUoCm2x1gQAJ2pkFcl8Bl/nKbxIQvn5usj
+7TrdEOIA58sxiEt49u3E6Ys7LTnsMoqAda8U1zktpF9NWFokIy5NEVo5dXP2Ztdr
+f+O+mK96ieIUKRRUckIWLxCJ2bXD/RfXj6xAEazcfR7RBCVl2dwMvrqpH/sar61G
+U1K0jyBXMG+pHhsYD1l3PK4oFgJmy3i1zI6H4QYkTcSRlK1TeQV1JtTk9ZYrbArU
+k1D4nLwWkwuTmH4CveR8AmK9a8ED7KGeisqImHhf2ytSNyZ8EOKjFd6WcHxOxYll
+WHUFyv0tne/W/x0F5ggd5jziKCu47gOK6SXNNv0TbYfTUD0OftC5u4May17ZDcEb
+YasgmMF8QCspXXbE82hQ28LHdJs9cmd4tqC//ukSLs/nVY8mYvPIRFQx1AaikvLU
+zqIqGCnv3VekbFfRVm+aPwciDNqo552RJxWtPsbeDcONE3x22XWjY77KY27/zsQv
+hy6q/J7attdTg/RhyacLqepjVGdDi1HFhBjnjNSRr3wQw034iNP2F84HkUk+GB9J
+Ma/OGVuiSbgfN24TuZj9UkBlwQYgaY9AT04+pRPgiRS6vCJUyyQRsvf0X9U5rRe2
+Me/U2LYm6DTmN0Vh9wFclRRZj/qMexg9TxS4loqT/tzU+qOMXT7PgtdcQ29E3TFq
+wHGe5iuywHsArmZEmY1g
+=AYwA
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--
