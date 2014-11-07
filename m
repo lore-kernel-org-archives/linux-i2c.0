@@ -1,8 +1,10 @@
 From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/2] i2c-imx: Use the preferred form for passing a size of a struct
-Date: Fri,  7 Nov 2014 00:44:34 -0200
-Message-ID: <1415328275-13228-1-git-send-email-festevam@gmail.com>
+Subject: [PATCH 2/2] i2c-mxs: Use the preferred form for passing a size of a struct
+Date: Fri,  7 Nov 2014 00:44:35 -0200
+Message-ID: <1415328275-13228-2-git-send-email-festevam@gmail.com>
+References: <1415328275-13228-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1415328275-13228-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
@@ -24,21 +26,20 @@ So do it as recommeded.
 
 Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-mxs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index c48e46a..47269e0 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -673,8 +673,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 07e1be6..3e7893a 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -811,7 +811,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int err, irq;
  
--	i2c_imx = devm_kzalloc(&pdev->dev, sizeof(struct imx_i2c_struct),
--				GFP_KERNEL);
-+	i2c_imx = devm_kzalloc(&pdev->dev, sizeof(*i2c_imx), GFP_KERNEL);
- 	if (!i2c_imx)
+-	i2c = devm_kzalloc(dev, sizeof(struct mxs_i2c_dev), GFP_KERNEL);
++	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
  		return -ENOMEM;
  
 -- 
