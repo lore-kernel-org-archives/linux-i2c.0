@@ -1,73 +1,56 @@
-From: Soren Harward <stharward-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-i801 driver quit working in 3.8.11
-Date: Fri, 7 Nov 2014 12:05:37 -0500
-Message-ID: <CANQojO5DuiVaNg=awJEj4C6SNDUyp=rXO=_YTuWikkE=jMVtDA@mail.gmail.com>
-References: <CANQojO4jbSM=03WfJtw-iSNfexBNSt6GwRLpVSmBx_KrAa0bWQ@mail.gmail.com>
-	<20130806192228.GB8246@roeck-us.net>
-	<CANQojO74882h+oFJDrq2dsSC71NZHuyf2sjTzCr4a+VmPMLyVA@mail.gmail.com>
-	<52026530.2080301@roeck-us.net>
-	<CANQojO5B+7c+J=fxV-_mT=Y19Uy=4cW-83vnrphPkN5pmgc2YQ@mail.gmail.com>
-	<20130807174801.GB1862@roeck-us.net>
-	<CANQojO5QuoGSmmNYxxZ=0MhbZt0mEW-8n6kTxVSWuZ4p6NFw5Q@mail.gmail.com>
-	<20130807192556.GA31395@roeck-us.net>
-	<20140807101147.34087264@endymion.delvare>
-	<CANQojO4sCTmPaV7joQS4=XdifRx61q1Ac0xcdgJ-MW_URN1A=A@mail.gmail.com>
-	<20141105112217.0e1925f3@endymion.delvare>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: remove FSF address
+Date: Fri, 7 Nov 2014 18:37:12 +0100
+Message-ID: <20141107173712.GA3656@katana>
+References: <1415359328-3521-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141105112217.0e1925f3-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1415359328-3521-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 5, 2014 at 5:22 AM, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
->> Gentoo stabilized 3.16 a couple weeks ago, and I just realized "oh
->> yeah, I forgot to follow up with the i2c guys".  3.16.5 works withou=
-t
->> reverting commit 6676a847.
 
-Okay, so I guess I spoke too soon.  Using 3.16.5, the sensors can be
-read for a little while after boot (anywhere from 20=E2=80=9350 minutes=
-), and
-then it locks up again: any process that tries to read the sensors
-gets stuck in disk-wait.
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But using the debug version of the i2c-i801.c that Jean linked to
-above, I was able to figure out the problem.  It's in
-drivers/i2c/busses/i2c-i801.c:386 (line number in commit 7cfc183b3d63,
-which is the latest GIT commit at the time I'm writing this):
+On Fri, Nov 07, 2014 at 12:22:08PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+>=20
+> We have a central copy of the GPL for that. Some addresses were already
+> outdated.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-wait_event(priv->waitq, (status =3D priv->status));
+Applied to for-current, thanks!
 
-The debug version uses wait_event_timeout() instead of wait_event().
-It looks like this call hangs about once an hour at irregular and
-unpredictable intervals, because the debug version dumps the following
-message into the kernel logs:
 
-Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Timeout waiting
-for interrupt!
-Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Reg dump: STS=3D4=
-2
-CNT=3D08 CMD=3D81 ADD=3D5d DAT0=3D40 DAT1=3D00 BLKDAT=3D00
-Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Reg dump: PEC=3D0=
-0
-AUXSTS=3D00 AUXCTL=3D00
-Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Transaction timeo=
-ut
-Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Failed
-terminating the transaction
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-This error shows up about once an hour, at irregular and unpredictable
-intervals.  The stock kernel doesn't have the timeout, so I infer that
-that's what causing it to hang.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-I'm not sure what's actually causing the "timeout waiting for
-interrupt"; I hope you guys can figure that out from the dumped
-registers.  At the very least, it looks like we need to work around
-buggy hardware by using wait_event_timeout().
+iQIcBAEBAgAGBQJUXQNIAAoJEBQN5MwUoCm2SQcP/idEXOuSxWUmjSFi3aZO5TFz
+tfzt3L2F1rSC2h/LrpwjGrfFZPTTRYW49LLWONXz/cIfZhlUa4HbctOVw07/dHvj
+C2JnWb/jK/YiGMNA3RvVt/FLLrYoQ8wbVJGTULfzw3drRZ7fEwAHR6FZ+E5Q1WD2
+dfo78NF1pODOEMxEBfUGbHKR2rargpcgEKP+Uf3e7siXVgNPN6PIsqkYs4uPKH+M
+vMAQEDNB+Z3239vmehjtZEV7o3SCA/Yec9XuYm3GhYKKUxXWJCVfKXxWCo1qoMaT
+VoFEy51E/amHk2XS0n8SaCHfvIPLhrsqep5L1wMZvLB20dIT3ylo6mnNYeoPAfUl
+i1z+KguxxIOiAsgnteRcIdlXzbPUEaVazUHC33fZuamd9htRrTKXBOIkdh3qPQe2
+gNpaMzsXeI2QpXA4k7N4LvNrH3E8KhdmALpqMB0v5fV3A6wUxBjmK1nM69hhGJwS
+9W2WJWiykJ797svqAKFHRKWdmylSqrVEwohUqj8CnGdAM3xQbJfsMvgXQGqUJD++
+k/KGaHD59E3eq7oBjy5RUNwHsjbxbJ0ZNDEyf2Sm9yVWHUrpvVsHRN0VcO7YLoz/
+RCY/tS5NCoTfX0NWEEgCl/oaYxcJLpkSFbgAX2sak+xhTQ0da6QzbjmoBbeZGYmr
+fIyYGIDepc/dMC3zRcQz
+=kw2g
+-----END PGP SIGNATURE-----
 
---=20
-Soren Harward
+--oyUTqETQ0mS9luUI--
