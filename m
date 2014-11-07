@@ -1,49 +1,72 @@
-From: Andrew Jackson <Andrew.Jackson@arm.com>
-Subject: [PATCH] i2c: designware: prevent early stop on TX FIFO empty
-Date: Fri, 07 Nov 2014 12:10:44 +0000
-Message-ID: <545CB6C4.8010201@arm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andrew Morton <akpm@linux-foundation.org>, Baruch Siach <baruch@tkos.co.il>, "Du, Wenkai" <wenkai.du@intel.com>, Shinya Kuribayashi <skuribay@pobox.com>, Romain Baeriswyl <Romain.Baeriswyl@abilis.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Liviu Dudau <Liviu.Dudau@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH] i2c: mux: create "channel-n" symlinks for child segments
+Date: Fri,  7 Nov 2014 13:36:04 +0100
+Message-ID: <1415363764-10821-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If the Designware core is configured with IC_EMPTYFIFO_HOLD_MASTER_EN
-set to zero, allowing the TX FIFO to become empty causes a STOP
-condition to be generated on the I2C bus. If the transmit FIFO
-threshold is set too high, an erroneous STOP condition can be
-generated on long transfers - particularly where the interrupt
-latency is extended.
+From: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 
-Signed-off-by: Andrew Jackson <Andrew.Jackson@arm.com>
-Signed-off-by: Liviu Dudau <Liviu.Dudau@arm.com>
+This makes the topology clearer. For instance, by adding a pca9547
+device with address 0x70 to bus i2c-0, you get:
+
+/sys/class/i2c-dev/i2c-0/device/0-0070/channel-0 -> i2c-1
+...
+/sys/class/i2c-dev/i2c-0/device/0-0070/channel-7 -> i2c-8
+
+Signed-off-by: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+[wsa: simplified sysfs-usage and fixed format string usage]
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware-core.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 3c20e4b..e070edd 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -363,7 +363,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	}
+This should also make it easier for applications to handle the topology of
+muxes without breaking anything. Please give opinions if it really helps. I
+don't use muxes myself.
+
+ drivers/i2c/i2c-mux.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index d05208232b07..f43273a92069 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -110,6 +110,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 						 void *, u32))
+ {
+ 	struct i2c_mux_priv *priv;
++	char symlink_name[20];
+ 	int ret;
  
- 	/* Configure Tx/Rx FIFO threshold levels */
--	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
-+	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
- 	dw_writel(dev, 0, DW_IC_RX_TL);
+ 	priv = kzalloc(sizeof(struct i2c_mux_priv), GFP_KERNEL);
+@@ -189,6 +190,9 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 					dev_name(&priv->adap.dev)),
+ 					"can't create compatibility link for old mux name scheme\n");
  
- 	/* configure the i2c master */
++	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", chan_id);
++	WARN(sysfs_create_link(&mux_dev->kobj, &priv->adap.dev.kobj, symlink_name),
++				"can't create symlink for channel\n");
+ 	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
+ 		 i2c_adapter_id(&priv->adap));
+ 
+@@ -199,6 +203,10 @@ EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
+ void i2c_del_mux_adapter(struct i2c_adapter *adap)
+ {
+ 	struct i2c_mux_priv *priv = adap->algo_data;
++	char symlink_name[20];
++
++	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", priv->chan_id);
++	sysfs_remove_link(&adap->dev.parent->kobj, symlink_name);
+ 
+ 	if (adap->dev.parent != &priv->parent->dev)
+ 		sysfs_remove_link(&priv->parent->dev.kobj, dev_name(&adap->dev));
 -- 
-1.7.1
+2.1.1
