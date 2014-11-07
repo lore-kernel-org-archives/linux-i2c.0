@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 3/5] i2c: sh_mobile: improve success message
-Date: Fri,  7 Nov 2014 11:11:42 +0100
-Message-ID: <1415355104-2031-4-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 5/5] ARM: shmobile: r8a7791: add DMA nodes for IIC
+Date: Fri,  7 Nov 2014 11:11:44 +0100
+Message-ID: <1415355104-2031-6-git-send-email-wsa@the-dreams.de>
 References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-sh-owner@vger.kernel.org>
 In-Reply-To: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
@@ -12,37 +12,44 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-No user needs magic hex values, makes this debug output. Add DMA info.
-
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/r8a7791.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 1e0aa597dd04..903bb22aa5b4 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -293,6 +293,7 @@ static int sh_mobile_i2c_init(struct sh_mobile_i2c_data *pd)
- 	else
- 		pd->icic &= ~ICIC_ICCHB8;
+diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
+index 9a57215f54f7..213b6bda6201 100644
+--- a/arch/arm/boot/dts/r8a7791.dtsi
++++ b/arch/arm/boot/dts/r8a7791.dtsi
+@@ -371,6 +371,8 @@
+ 		reg = <0 0xe60b0000 0 0x425>;
+ 		interrupts = <0 173 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp9_clks R8A7791_CLK_IICDVFS>;
++		dmas = <&dmac0 0x77>, <&dmac0 0x78>;
++		dma-names = "tx", "rx";
+ 		status = "disabled";
+ 	};
  
-+	dev_dbg(pd->dev, "timing values: L/H=0x%x/0x%x\n", pd->iccl, pd->icch);
- 	return 0;
- }
+@@ -381,6 +383,8 @@
+ 		reg = <0 0xe6500000 0 0x425>;
+ 		interrupts = <0 174 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp3_clks R8A7791_CLK_IIC0>;
++		dmas = <&dmac0 0x61>, <&dmac0 0x62>;
++		dma-names = "tx", "rx";
+ 		status = "disabled";
+ 	};
  
-@@ -937,9 +938,8 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 		return ret;
- 	}
+@@ -391,6 +395,8 @@
+ 		reg = <0 0xe6510000 0 0x425>;
+ 		interrupts = <0 175 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp3_clks R8A7791_CLK_IIC1>;
++		dmas = <&dmac0 0x65>, <&dmac0 0x66>;
++		dma-names = "tx", "rx";
+ 		status = "disabled";
+ 	};
  
--	dev_info(&dev->dev,
--		 "I2C adapter %d with bus speed %lu Hz (L/H=0x%x/0x%x)\n",
--		 adap->nr, pd->bus_speed, pd->iccl, pd->icch);
-+	dev_info(&dev->dev, "I2C adapter %d, bus speed %lu Hz, DMA=%c\n",
-+		 adap->nr, pd->bus_speed, (pd->dma_rx || pd->dma_tx) ? 'y' : 'n');
- 
- 	return 0;
- }
 -- 
 2.1.1
 
