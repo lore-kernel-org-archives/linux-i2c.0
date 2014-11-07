@@ -1,46 +1,56 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] i2c-mxs: Use the preferred form for passing a size of a struct
-Date: Fri,  7 Nov 2014 00:44:35 -0200
-Message-ID: <1415328275-13228-2-git-send-email-festevam@gmail.com>
-References: <1415328275-13228-1-git-send-email-festevam@gmail.com>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH 3/5] i2c: sh_mobile: Document SoC-specific bindings
+Date: Fri, 7 Nov 2014 13:17:57 +0900
+Message-ID: <20141107041756.GD2006@verge.net.au>
+References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
+ <1415274730-310-4-git-send-email-geert+renesas@glider.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1415328275-13228-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1415274730-310-4-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+On Thu, Nov 06, 2014 at 12:52:08PM +0100, Geert Uytterhoeven wrote:
+> Explicitly list the various SoC-specific compatible properties.
+> This allows checkpatch to validate DTSes.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 
-According to Documentation/CodingStyle - Chapter 14:
+Acked-by: Simon Horman <horms+renesas-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
 
-"The preferred form for passing a size of a struct is the following:
-
-	p = kmalloc(sizeof(*p), ...);
-
-The alternative form where struct name is spelled out hurts readability and
-introduces an opportunity for a bug when the pointer variable type is changed
-but the corresponding sizeof that is passed to a memory allocator is not."
-    
-So do it as recommeded.
-
-Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/busses/i2c-mxs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 07e1be6..3e7893a 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -811,7 +811,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	int err, irq;
- 
--	i2c = devm_kzalloc(dev, sizeof(struct mxs_i2c_dev), GFP_KERNEL);
-+	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
- 
--- 
-1.9.1
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+> index d2153ce36fa81404..c33e9a32d496ef10 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+> @@ -2,6 +2,15 @@ Device tree configuration for Renesas IIC (sh_mobile) driver
+>  
+>  Required properties:
+>  - compatible      : "renesas,iic-<soctype>". "renesas,rmobile-iic" as fallback
+> +		     Examples with soctypes are:
+> +			- "renesas,iic-r8a73a4" (R-Mobile APE6)
+> +			- "renesas,iic-r8a7740" (R-Mobile A1)
+> +			- "renesas,iic-r8a7790" (R-Car H2)
+> +			- "renesas,iic-r8a7791" (R-Car M2-W)
+> +			- "renesas,iic-r8a7792" (R-Car V2H)
+> +			- "renesas,iic-r8a7793" (R-Car M2-N)
+> +			- "renesas,iic-r8a7794" (R-Car E2)
+> +			- "renesas,iic-sh73a0" (SH-Mobile AG5)
+>  - reg             : address start and address range size of device
+>  - interrupts      : interrupt of device
+>  - clocks          : clock for device
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
