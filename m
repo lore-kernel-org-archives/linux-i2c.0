@@ -1,83 +1,88 @@
-From: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: mux: create "channel-n" symlinks for child segments
-Date: Fri, 7 Nov 2014 13:10:03 -0800
-Message-ID: <CAB0SmAGdj2skpoBwribZXf1=1uSkHDmC1BfGXN0Rxu_S61=3Qw@mail.gmail.com>
-References: <1415363764-10821-1-git-send-email-wsa@the-dreams.de>
+From: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/3] SMBUS: Add DeviceIDs for SunrisePoint LP
+Date: Fri, 07 Nov 2014 17:55:43 -0500
+Message-ID: <1415400943.1954.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1415363764-10821-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, frank.riegel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This will work for me.
-Thanks,
-Martin
+>From 8386c61977dce52fcdfe7fb279692606f47650bc Mon Sep 17 00:00:00 2001
+From: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Date: Wed, 5 Nov 2014 16:30:03 -0500
+Subject: [PATCH 1/3] SMBUS: Add DeviceIDs for SunrisePoint LP
 
+This patch adds the DeviceIDs for SunrisePoint LP
 
-On Fri, Nov 7, 2014 at 4:36 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> From: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
->
-> This makes the topology clearer. For instance, by adding a pca9547
-> device with address 0x70 to bus i2c-0, you get:
->
-> /sys/class/i2c-dev/i2c-0/device/0-0070/channel-0 -> i2c-1
-> ...
-> /sys/class/i2c-dev/i2c-0/device/0-0070/channel-7 -> i2c-8
->
-> Signed-off-by: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-> [wsa: simplified sysfs-usage and fixed format string usage]
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-> Cc: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-> Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-> Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-> Cc: Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
-> ---
->
-> This should also make it easier for applications to handle the topology of
-> muxes without breaking anything. Please give opinions if it really helps. I
-> don't use muxes myself.
->
->  drivers/i2c/i2c-mux.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> index d05208232b07..f43273a92069 100644
-> --- a/drivers/i2c/i2c-mux.c
-> +++ b/drivers/i2c/i2c-mux.c
-> @@ -110,6 +110,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
->                                                  void *, u32))
->  {
->         struct i2c_mux_priv *priv;
-> +       char symlink_name[20];
->         int ret;
->
->         priv = kzalloc(sizeof(struct i2c_mux_priv), GFP_KERNEL);
-> @@ -189,6 +190,9 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
->                                         dev_name(&priv->adap.dev)),
->                                         "can't create compatibility link for old mux name scheme\n");
->
-> +       snprintf(symlink_name, sizeof(symlink_name), "channel-%u", chan_id);
-> +       WARN(sysfs_create_link(&mux_dev->kobj, &priv->adap.dev.kobj, symlink_name),
-> +                               "can't create symlink for channel\n");
->         dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
->                  i2c_adapter_id(&priv->adap));
->
-> @@ -199,6 +203,10 @@ EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
->  void i2c_del_mux_adapter(struct i2c_adapter *adap)
->  {
->         struct i2c_mux_priv *priv = adap->algo_data;
-> +       char symlink_name[20];
-> +
-> +       snprintf(symlink_name, sizeof(symlink_name), "channel-%u", priv->chan_id);
-> +       sysfs_remove_link(&adap->dev.parent->kobj, symlink_name);
->
->         if (adap->dev.parent != &priv->parent->dev)
->                 sysfs_remove_link(&priv->parent->dev.kobj, dev_name(&adap->dev));
-> --
-> 2.1.1
->
+Signed-off-by: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ Documentation/i2c/busses/i2c-i801 | 1 +
+ drivers/i2c/busses/Kconfig        | 1 +
+ drivers/i2c/busses/i2c-i801.c     | 3 +++
+ 3 files changed, 5 insertions(+)
+
+diff --git a/Documentation/i2c/busses/i2c-i801
+b/Documentation/i2c/busses/i2c-i801
+index 793c83d..82f48f7 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -29,6 +29,7 @@ Supported adapters:
+   * Intel Wildcat Point-LP (PCH)
+   * Intel BayTrail (SOC)
+   * Intel Sunrise Point-H (PCH)
++  * Intel Sunrise Point-LP (PCH)
+    Datasheets: Publicly available at the Intel website
+ 
+ On Intel Patsburg and later chipsets, both the normal host SMBus
+controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 917c358..06e99eb 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -123,6 +123,7 @@ config I2C_I801
+ 	    Wildcat Point-LP (PCH)
+ 	    BayTrail (SOC)
+ 	    Sunrise Point-H (PCH)
++	    Sunrise Point-LP (PCH)
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c
+b/drivers/i2c/busses/i2c-i801.c
+index 7cfc183..e158e18 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -63,6 +63,7 @@
+  * Wildcat Point-LP (PCH)	0x9ca2	32	hard	yes	yes	yes
+  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
+  * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
++ * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -186,6 +187,7 @@
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
+ #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
++#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
+ 
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -833,6 +835,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
+PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
+PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
+PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
+PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+ 	{ 0, }
+ };
+ 
+-- 
+1.9.3
