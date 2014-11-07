@@ -1,41 +1,44 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 1/5] ARM: shmobile: kzm9g legacy: Set i2c clks_per_count
- to 2
-Date: Fri, 7 Nov 2014 08:12:57 +0100
-Message-ID: <CAMuHMdVWS3HjsPj7T3JFxVuiRGSZmopkeDadpKH1YdmnAGYdNw@mail.gmail.com>
-References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
-	<1415274730-310-2-git-send-email-geert+renesas@glider.be>
-	<20141107052420.GA1278@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20141107052420.GA1278@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 0/5] i2c: sh_mobile: add DMA support
+Date: Fri,  7 Nov 2014 11:11:39 +0100
+Message-ID: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Here is v1 of the patch series to support DMA with the i2c-sh_mobile core. DMA
+works nicely with my tests so far and we save 1 interrupt per transferred byte,
+yay! DMA is opt-in, so if setting it up fails, we will fall back to PIO. The
+threshold for selecting DMA is still under test, but probably good enough
+already. Since the RFC, I learned about dma_request_slave_channel_reason() and
+deferred probing with DMA channels, so the major show stopper is gone now and
+this should be ready for inclusion IMO. The other open issues (best threshold
+value, ensure DMA capable buffers) can later be done incrementally.
 
-On Fri, Nov 7, 2014 at 6:24 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
->> Note that the L/H values still differ from the Transfer Rate Settings
->> example in Table 19.3 of the datasheet, which suggests 0x121/0xe7.
->
-> Is the formula different or is it rounding errors?
+Please test, review, comment. The series is based on
+renesas-devel-20141030-v3.18-rc2 with Laurent's series "[PATCH v4 0/5] R-Car
+Gen2 DMA Controller driver" on top of it. A git tree can be found here:
 
-The formula is different. It doesn't use absolute tLOW, tHIGH, and tF
-values, but only the duty cycle of the clock.
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c-shmobile-dma-experimental
 
-It's similar in the R-Car Gen2 docs. Except that on Gen2, there's no
-mention of using a duty cycle of 5/3 for High Speed like on AG5.
+Thanks to Geert and Laurent for reviewing the RFC!
 
-Gr{oetje,eeting}s,
+   Wolfram
 
-                        Geert
+Wolfram Sang (5):
+  i2c: sh_mobile: sort includes alphabetically
+  i2c: sh_mobile: add DMA support
+  i2c: sh_mobile: improve success message
+  ARM: shmobile: r8a7790: add DMA nodes for IIC
+  ARM: shmobile: r8a7791: add DMA nodes for IIC
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+ .../devicetree/bindings/i2c/i2c-sh_mobile.txt      |   5 +
+ arch/arm/boot/dts/r8a7790.dtsi                     |   8 +
+ arch/arm/boot/dts/r8a7791.dtsi                     |   6 +
+ drivers/i2c/busses/i2c-sh_mobile.c                 | 219 ++++++++++++++++++---
+ 4 files changed, 216 insertions(+), 22 deletions(-)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+2.1.1
