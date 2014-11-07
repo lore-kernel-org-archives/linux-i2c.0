@@ -1,62 +1,61 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: core: Map OF IRQ at probe time
-Date: Fri, 7 Nov 2014 19:05:12 +0100
-Message-ID: <20141107180512.GI3656@katana>
-References: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
- <1414677578-27412-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Subject: Re: [PATCH 2/3] i2c: qup: Remove .owner field for driver
+Date: Fri, 7 Nov 2014 19:14:20 +0100
+Message-ID: <20141107181420.GJ3656@katana>
+References: <1412840312-31402-1-git-send-email-kiran.padwal@smartplayin.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0XMZdl/q8hSSmFeD"
+	protocol="application/pgp-signature"; boundary="ONvqYzh+7ST5RsLk"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1414677578-27412-4-git-send-email-laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+In-Reply-To: <1412840312-31402-1-git-send-email-kiran.padwal-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Kiran Padwal <kiran.padwal-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
+Cc: bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---0XMZdl/q8hSSmFeD
+--ONvqYzh+7ST5RsLk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 30, 2014 at 03:59:38PM +0200, Laurent Pinchart wrote:
-> I2C clients instantiated from OF get their IRQ mapped at device
-> registration time. This leads to the IRQ being silently ignored if the
-> related irqchip hasn't been proved yet.
+On Thu, Oct 09, 2014 at 01:08:32PM +0530, Kiran Padwal wrote:
+> There is no need to init .owner field.
 >=20
-> Fix this by moving IRQ mapping at probe time using of_get_irq(). The
-> function operates as irq_of_parse_and_map() but additionally returns
-> -EPROBE_DEFER if the irqchip isn't available, allowing us to defer I2C
-> client probing.
+> Based on the patch from Peter Griffin <peter.griffin-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> "mmc: remove .owner field for drivers using module_platform_driver"
 >=20
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnhk3lzF8UVTdg@public.gmane.org=
-m>
+> This patch removes the superfluous .owner field for drivers which
+> use the module_platform_driver API, as this is overridden in
+> platform_driver_register anyway."
+>=20
+> Signed-off-by: Kiran Padwal <kiran.padwal-edOiRQu9Xnj5XLMNweQjbQ@public.gmane.org>
 
-Applied to for-next, thanks!
+Thanks, but superseded in favour of a generic solution
+(https://lkml.org/lkml/2014/10/21/594).
 
 
---0XMZdl/q8hSSmFeD
+--ONvqYzh+7ST5RsLk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUXQnYAAoJEBQN5MwUoCm2g2cP/jW/N5+nMiPXmicY8QfSBbGy
-XKM5710nnjfAcSiJ/L6ZglTp5T+15MC6XTmUpsgOq+R4L976jeXbNqu4YLYftf+O
-NOf3eigmV6f15RDcSAxs7SgDmVMGAAIiYZBYmsJgkm4N5LoOtuQUUlDdZ5uQ//8M
-h238/QnZUy12F8n6RNaXJO1P7bszeugEABGtOVMkLX9pCRfj4zmiKYJEX8bwwS5b
-/WZz4uZxP3kRjEyuSLuJMYRPMTFeKyOjCmVrnKgV81OjpsjdYaPWi1fTb8tLEjBI
-G10K10kaWIsCgcNdwDzcJVEoxf417OqfWfaw7ejCCP2vQrwEPCHMNxhcQ9hVlt0t
-F8bLxtNM1CM4mhzCTjL+XoPcaDX5XPWbkgmLPUqjmJLtmyKjZ2jOZeoWX6KaFab8
-Dv5S7TVu5ojrTVcL45CMxi4eu/nQo1d4ZzdYSd1jUJTfUzNW7HYD47YmYS2R2YWM
-hqwXpHhBsgh3PzXAgcR5qyjEnxPZbjtZ2wX8zKtIV78tu6qhi+NXWnogS3x1L7ti
-VVzZvHn/fHRfRhR6nelR/zWdupQPyHNyy5IPsYWqEb5+pM14uKO8eWmQLQzygkl4
-jeOQ5mwvE86rM2pbSZnVG0u031vVfNgk5GxBR59ucKcWPEh51M7ygsT8o0Bzdz1q
-M0972iRYTlB7Ud97XLYB
-=xCTs
+iQIcBAEBAgAGBQJUXQv8AAoJEBQN5MwUoCm2Nn4P/Ag1/S18Z/c/F0CK0tYfae4r
+8+8F+MXk0XbFecS0FHBIB22pa9XiEmNevhnRJFz/EwpiDNgfHWbEHFyUoE6gFY6s
+hmAVjM7sQxqV7NnUWct6KyE0v5gSrKfU6JtxDlOrZ4l/MCxkzoz6s6eTxQruHH/6
+sYVRh+zwOjNSwJFoDxUZ7BEMIbE52gYVYSj1pxb74csU/KgyK9vv+x49LBk3Y/9e
+fH8Mjdmk3jXgCsrOZFSWfvWUaGxhoBjkljYikadNhcsH2Sqej+UoGMkTM7fxi9Yp
+BVSctdjFugHIf5m/mPGgvuu3OyV6r/JYB/UnhN1IaQW/FjVxUp7xBLv6R3qT5iaQ
+ee4f/ZoVhQv3bVjTlmst4Zhkcqu9DGlH7bIc3w7JoqvO7/crhrVRvYZkH/IEmgzF
+OGN0FDAyw6CD54upHde0GvZLyWCiA5sDzFL2d40+j24jWzEeAkGpKuPBCRE1TMTx
+lveXOGnlPNeMao3NRRgs/I7zbD3gLiwLqbDp+PC/wPhu8/1o4QC2YEw8OPpcYcGL
+JhHDk41/dCfB7CGVDxaS+dKWkMJZGpYw2vCR9BD2pHR4qEezUSTMmYzR5RRi1FF1
+YhvTmU+ppD0Vbk5aiwQiunvtxddaEiMl0y77VY8odqgLraDqUNfPlCeIoq5wt7Jx
+RWJKp7X3MhtDfAGt6VOZ
+=nlA5
 -----END PGP SIGNATURE-----
 
---0XMZdl/q8hSSmFeD--
+--ONvqYzh+7ST5RsLk--
