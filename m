@@ -1,80 +1,63 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/5] ARM: shmobile: kzm9g legacy: Set i2c clks_per_count
- to 2
-Date: Fri, 7 Nov 2014 06:24:21 +0100
-Message-ID: <20141107052420.GA1278@katana>
+Subject: Re: [PATCH 4/5] ARM: shmobile: sh73a0 dtsi: Add SoC-specific IIC
+ compatible properties
+Date: Fri, 7 Nov 2014 06:25:33 +0100
+Message-ID: <20141107052533.GB1278@katana>
 References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
- <1415274730-310-2-git-send-email-geert+renesas@glider.be>
+ <1415274730-310-5-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+	protocol="application/pgp-signature"; boundary="mojUlQ0s9EVzWg2t"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1415274730-310-2-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+In-Reply-To: <1415274730-310-5-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 Cc: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---RnlQjJ0d97Da+TV1
+--mojUlQ0s9EVzWg2t
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 06, 2014 at 12:52:06PM +0100, Geert Uytterhoeven wrote:
-> On sh73a0/kzm9g-legacy, probing of the i2c masters fails with:
+On Thu, Nov 06, 2014 at 12:52:09PM +0100, Geert Uytterhoeven wrote:
+> The IIC nodes used the generic compatible properties only.
+> This causes the driver to fail when using Standard Speed, as the
+> operational clock is driven by the 104 MHz HP clock:
 >=20
->     i2c-sh_mobile i2c-sh_mobile.0: timing values out of range: L/H=3D0x20=
-8/0x1bf
->     sh_mobile: probe of i2c-sh_mobile.0 failed with error -22
-
-Yay, so the warning I added found another bug \o/
-
+>     i2c-sh_mobile e6820000.i2c: timing values out of range: L/H=3D0x208/0=
+x1bf
+>     i2c-sh_mobile: probe of e6820000.i2c failed with error -22
 >=20
-> According to the datasheet, the transfer rate is derived from the HP
-> clock (which runs at 104 MHz) divided by two. Hence
-> i2c_sh_mobile_platform_data.clks_per_count should be set to two.
->=20
-> Now probing succeeds, and i2c works:
->=20
->     i2c-sh_mobile i2c-sh_mobile.0: I2C adapter 0 with bus speed 100000 Hz=
- (L/H=3D0x104/0xe0)
+> Add the SoC-specific compatible property to fix this.
 >=20
 > Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 
 Reviewed-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-> ---
-> Note that the L/H values still differ from the Transfer Rate Settings
-> example in Table 19.3 of the datasheet, which suggests 0x121/0xe7.
 
-Is the formula different or is it rounding errors?
-
-Thanks,
-
-   Wolfram
-
---RnlQjJ0d97Da+TV1
+--mojUlQ0s9EVzWg2t
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUXFeEAAoJEBQN5MwUoCm2x1gQAJ2pkFcl8Bl/nKbxIQvn5usj
-7TrdEOIA58sxiEt49u3E6Ys7LTnsMoqAda8U1zktpF9NWFokIy5NEVo5dXP2Ztdr
-f+O+mK96ieIUKRRUckIWLxCJ2bXD/RfXj6xAEazcfR7RBCVl2dwMvrqpH/sar61G
-U1K0jyBXMG+pHhsYD1l3PK4oFgJmy3i1zI6H4QYkTcSRlK1TeQV1JtTk9ZYrbArU
-k1D4nLwWkwuTmH4CveR8AmK9a8ED7KGeisqImHhf2ytSNyZ8EOKjFd6WcHxOxYll
-WHUFyv0tne/W/x0F5ggd5jziKCu47gOK6SXNNv0TbYfTUD0OftC5u4May17ZDcEb
-YasgmMF8QCspXXbE82hQ28LHdJs9cmd4tqC//ukSLs/nVY8mYvPIRFQx1AaikvLU
-zqIqGCnv3VekbFfRVm+aPwciDNqo552RJxWtPsbeDcONE3x22XWjY77KY27/zsQv
-hy6q/J7attdTg/RhyacLqepjVGdDi1HFhBjnjNSRr3wQw034iNP2F84HkUk+GB9J
-Ma/OGVuiSbgfN24TuZj9UkBlwQYgaY9AT04+pRPgiRS6vCJUyyQRsvf0X9U5rRe2
-Me/U2LYm6DTmN0Vh9wFclRRZj/qMexg9TxS4loqT/tzU+qOMXT7PgtdcQ29E3TFq
-wHGe5iuywHsArmZEmY1g
-=AYwA
+iQIcBAEBAgAGBQJUXFfNAAoJEBQN5MwUoCm2jHMP/iiAi09MU17gTYMmC4Equ2Rm
+29tQ7INkdrpOIGT5Waw0vzIpMcJd8fB/wQYCdD+tcYDPRyBvZfKc5sNBM0vPmvEh
+6vEr9J7TGbXwAlhhxPs1nhrW63RvxHAmmZqFRpRm3Uzzc3ffYkThmUs/L0RDEV2a
+uVhAED3D50QYDRg3wJOZvZ9tMt0g2BzfFC71jiKITkT0U86UPMGRdt/y8enUkCyu
+RrwjGvAvM2jxBSaokr+/XXWFqfMrHIMxF/W5X/bOkQnzv0uq9iPQ3KCEFGjMwm0v
+D9pPzFPp1H+asQaWRQ8EuATfQRe1jIc/MK1Hh5gB9HxPag+3uFSLGN1sBQfBbdl9
+DKp/ykyywymsrxnRn4ysS1zHrS8Vfu5dKOoviJMcibL1bkqpMizQai9R7OH2CaLZ
+H6Mw6X6P1zj8644FA4XO6XZhig6PbVorfLGEAGL6DZtC9uUJ8V9bK1sWi+tsSq84
+35sMfe+dHFWbnbGnPFn+hcodtZpC623iuMzolpQFR0ubRxahHtGgLbJXuNzqZpSS
+M4slgX0DS8lu/mk+GdObJeMSwwgIwhDzfzucZHJi3rO5cRNkzW9ewrqB/TUkaSMS
+McJbe7mzZ9md/N0goW/gSrkGorkFGgg4kdVI2ehE8JqueoYUfEgbdYpqQ1yPpi+q
+DsYWQMGo9eJI09t7cpuu
+=2Sbz
 -----END PGP SIGNATURE-----
 
---RnlQjJ0d97Da+TV1--
+--mojUlQ0s9EVzWg2t--
