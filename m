@@ -1,63 +1,59 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 4/5] ARM: shmobile: sh73a0 dtsi: Add SoC-specific IIC
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 5/5] ARM: shmobile: r8a73a4 dtsi: Add SoC-specific IIC
  compatible properties
-Date: Fri, 7 Nov 2014 06:25:33 +0100
-Message-ID: <20141107052533.GB1278@katana>
+Date: Fri, 7 Nov 2014 06:26:16 +0100
+Message-ID: <20141107052616.GC1278@katana>
 References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
- <1415274730-310-5-git-send-email-geert+renesas@glider.be>
+ <1415274730-310-6-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mojUlQ0s9EVzWg2t"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="eHhjakXzOLJAF9wJ"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1415274730-310-5-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Cc: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1415274730-310-6-git-send-email-geert+renesas@glider.be>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---mojUlQ0s9EVzWg2t
+--eHhjakXzOLJAF9wJ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 06, 2014 at 12:52:09PM +0100, Geert Uytterhoeven wrote:
+On Thu, Nov 06, 2014 at 12:52:10PM +0100, Geert Uytterhoeven wrote:
 > The IIC nodes used the generic compatible properties only.
-> This causes the driver to fail when using Standard Speed, as the
-> operational clock is driven by the 104 MHz HP clock:
->=20
->     i2c-sh_mobile e6820000.i2c: timing values out of range: L/H=3D0x208/0=
-x1bf
->     i2c-sh_mobile: probe of e6820000.i2c failed with error -22
+> This may cause the driver to fail when using Standard Speed on IIC
+> masters where the operational clock is driven by the 130 MHz HP clock.
 >=20
 > Add the SoC-specific compatible property to fix this.
 >=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Reviewed-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---mojUlQ0s9EVzWg2t
+--eHhjakXzOLJAF9wJ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUXFfNAAoJEBQN5MwUoCm2jHMP/iiAi09MU17gTYMmC4Equ2Rm
-29tQ7INkdrpOIGT5Waw0vzIpMcJd8fB/wQYCdD+tcYDPRyBvZfKc5sNBM0vPmvEh
-6vEr9J7TGbXwAlhhxPs1nhrW63RvxHAmmZqFRpRm3Uzzc3ffYkThmUs/L0RDEV2a
-uVhAED3D50QYDRg3wJOZvZ9tMt0g2BzfFC71jiKITkT0U86UPMGRdt/y8enUkCyu
-RrwjGvAvM2jxBSaokr+/XXWFqfMrHIMxF/W5X/bOkQnzv0uq9iPQ3KCEFGjMwm0v
-D9pPzFPp1H+asQaWRQ8EuATfQRe1jIc/MK1Hh5gB9HxPag+3uFSLGN1sBQfBbdl9
-DKp/ykyywymsrxnRn4ysS1zHrS8Vfu5dKOoviJMcibL1bkqpMizQai9R7OH2CaLZ
-H6Mw6X6P1zj8644FA4XO6XZhig6PbVorfLGEAGL6DZtC9uUJ8V9bK1sWi+tsSq84
-35sMfe+dHFWbnbGnPFn+hcodtZpC623iuMzolpQFR0ubRxahHtGgLbJXuNzqZpSS
-M4slgX0DS8lu/mk+GdObJeMSwwgIwhDzfzucZHJi3rO5cRNkzW9ewrqB/TUkaSMS
-McJbe7mzZ9md/N0goW/gSrkGorkFGgg4kdVI2ehE8JqueoYUfEgbdYpqQ1yPpi+q
-DsYWQMGo9eJI09t7cpuu
-=2Sbz
+iQIcBAEBAgAGBQJUXFf4AAoJEBQN5MwUoCm22uMP/2574bStl0HXV/Bov1+H9cyN
+b//44WOHH+I0o2vExRS/v916frRWGJ3nHGfaPSLHRSj2EIUXgEJcFccx35WJssmO
+8lPBvrSs8cAbhx4KumnVNmrcKNHpQzaYBDh2NCvS5V7RANFEgYgmQDMk3TUyjCD8
+QG3wH6IfszacB/oc7Jj30aT/W20ksShSVK7kY9I+lte7KkFfsT7hHvguaRwJtXaC
+HiDUixn/aY3n5N98jVC98FpIcwqyeKjmRg6Ixp6ux6nCN8pn8tw7giLI4LBlFkBy
+tdMqMS6EV/L/0phpzYgxUSgCR6ZT3i32JsmDemWelfG0CcbfKDjI0DIm/SeW4Z/v
+RXZE6XzLxsLDT8gvm//i5HsbTfVCAYfUwrWgcDV2KZjMQNfl4B9A70REPm+34vhs
+5cum5kZYBRVH72ycHVm/XDhg9OlxYlzxweN5tZK8Pw3GvBiaZany1HajwaB5uTOM
+jICe42LaejbJAqyebGN7h26fNCe7VFJCvWOTVGQpgDm2vCf+zjhvDezDtg3areKp
+ZI2Q7RVSPMA30kLXe/IqvXyo47PUdwr2lLT10Atf5yBKu2voNrhUg6j6G+2bf1hd
+MbvVX7x0RHLYpr3t1NmmmCag1k50zfqxvdp7Svzy942jKNCiKQppEJ1VaS63yJJc
+U8s/YT/N8DKasYV+3tTJ
+=1kke
 -----END PGP SIGNATURE-----
 
---mojUlQ0s9EVzWg2t--
+--eHhjakXzOLJAF9wJ--
