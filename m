@@ -1,72 +1,73 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: mux: create "channel-n" symlinks for child segments
-Date: Fri,  7 Nov 2014 13:36:04 +0100
-Message-ID: <1415363764-10821-1-git-send-email-wsa@the-dreams.de>
+From: Soren Harward <stharward-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c-i801 driver quit working in 3.8.11
+Date: Fri, 7 Nov 2014 12:05:37 -0500
+Message-ID: <CANQojO5DuiVaNg=awJEj4C6SNDUyp=rXO=_YTuWikkE=jMVtDA@mail.gmail.com>
+References: <CANQojO4jbSM=03WfJtw-iSNfexBNSt6GwRLpVSmBx_KrAa0bWQ@mail.gmail.com>
+	<20130806192228.GB8246@roeck-us.net>
+	<CANQojO74882h+oFJDrq2dsSC71NZHuyf2sjTzCr4a+VmPMLyVA@mail.gmail.com>
+	<52026530.2080301@roeck-us.net>
+	<CANQojO5B+7c+J=fxV-_mT=Y19Uy=4cW-83vnrphPkN5pmgc2YQ@mail.gmail.com>
+	<20130807174801.GB1862@roeck-us.net>
+	<CANQojO5QuoGSmmNYxxZ=0MhbZt0mEW-8n6kTxVSWuZ4p6NFw5Q@mail.gmail.com>
+	<20130807192556.GA31395@roeck-us.net>
+	<20140807101147.34087264@endymion.delvare>
+	<CANQojO4sCTmPaV7joQS4=XdifRx61q1Ac0xcdgJ-MW_URN1A=A@mail.gmail.com>
+	<20141105112217.0e1925f3@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141105112217.0e1925f3-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+On Wed, Nov 5, 2014 at 5:22 AM, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
+>> Gentoo stabilized 3.16 a couple weeks ago, and I just realized "oh
+>> yeah, I forgot to follow up with the i2c guys".  3.16.5 works withou=
+t
+>> reverting commit 6676a847.
 
-This makes the topology clearer. For instance, by adding a pca9547
-device with address 0x70 to bus i2c-0, you get:
+Okay, so I guess I spoke too soon.  Using 3.16.5, the sensors can be
+read for a little while after boot (anywhere from 20=E2=80=9350 minutes=
+), and
+then it locks up again: any process that tries to read the sensors
+gets stuck in disk-wait.
 
-/sys/class/i2c-dev/i2c-0/device/0-0070/channel-0 -> i2c-1
-...
-/sys/class/i2c-dev/i2c-0/device/0-0070/channel-7 -> i2c-8
+But using the debug version of the i2c-i801.c that Jean linked to
+above, I was able to figure out the problem.  It's in
+drivers/i2c/busses/i2c-i801.c:386 (line number in commit 7cfc183b3d63,
+which is the latest GIT commit at the time I'm writing this):
 
-Signed-off-by: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-[wsa: simplified sysfs-usage and fixed format string usage]
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
----
+wait_event(priv->waitq, (status =3D priv->status));
 
-This should also make it easier for applications to handle the topology of
-muxes without breaking anything. Please give opinions if it really helps. I
-don't use muxes myself.
+The debug version uses wait_event_timeout() instead of wait_event().
+It looks like this call hangs about once an hour at irregular and
+unpredictable intervals, because the debug version dumps the following
+message into the kernel logs:
 
- drivers/i2c/i2c-mux.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Timeout waiting
+for interrupt!
+Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Reg dump: STS=3D4=
+2
+CNT=3D08 CMD=3D81 ADD=3D5d DAT0=3D40 DAT1=3D00 BLKDAT=3D00
+Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Reg dump: PEC=3D0=
+0
+AUXSTS=3D00 AUXCTL=3D00
+Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Transaction timeo=
+ut
+Nov 07 10:04:03 jens kernel: i801_smbus 0000:00:1f.3: Failed
+terminating the transaction
 
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index d05208232b07..f43273a92069 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -110,6 +110,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 						 void *, u32))
- {
- 	struct i2c_mux_priv *priv;
-+	char symlink_name[20];
- 	int ret;
- 
- 	priv = kzalloc(sizeof(struct i2c_mux_priv), GFP_KERNEL);
-@@ -189,6 +190,9 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 					dev_name(&priv->adap.dev)),
- 					"can't create compatibility link for old mux name scheme\n");
- 
-+	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", chan_id);
-+	WARN(sysfs_create_link(&mux_dev->kobj, &priv->adap.dev.kobj, symlink_name),
-+				"can't create symlink for channel\n");
- 	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
- 		 i2c_adapter_id(&priv->adap));
- 
-@@ -199,6 +203,10 @@ EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
- void i2c_del_mux_adapter(struct i2c_adapter *adap)
- {
- 	struct i2c_mux_priv *priv = adap->algo_data;
-+	char symlink_name[20];
-+
-+	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", priv->chan_id);
-+	sysfs_remove_link(&adap->dev.parent->kobj, symlink_name);
- 
- 	if (adap->dev.parent != &priv->parent->dev)
- 		sysfs_remove_link(&priv->parent->dev.kobj, dev_name(&adap->dev));
--- 
-2.1.1
+This error shows up about once an hour, at irregular and unpredictable
+intervals.  The stock kernel doesn't have the timeout, so I infer that
+that's what causing it to hang.
+
+I'm not sure what's actually causing the "timeout waiting for
+interrupt"; I hope you guys can figure that out from the dumped
+registers.  At the very least, it looks like we need to work around
+buggy hardware by using wait_event_timeout().
+
+--=20
+Soren Harward
