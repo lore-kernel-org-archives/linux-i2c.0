@@ -1,59 +1,41 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 5/5] ARM: shmobile: r8a73a4 dtsi: Add SoC-specific IIC
- compatible properties
-Date: Fri, 7 Nov 2014 06:26:16 +0100
-Message-ID: <20141107052616.GC1278@katana>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/5] ARM: shmobile: kzm9g legacy: Set i2c clks_per_count
+ to 2
+Date: Fri, 7 Nov 2014 08:12:57 +0100
+Message-ID: <CAMuHMdVWS3HjsPj7T3JFxVuiRGSZmopkeDadpKH1YdmnAGYdNw@mail.gmail.com>
 References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
- <1415274730-310-6-git-send-email-geert+renesas@glider.be>
+	<1415274730-310-2-git-send-email-geert+renesas@glider.be>
+	<20141107052420.GA1278@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eHhjakXzOLJAF9wJ"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1415274730-310-6-git-send-email-geert+renesas@glider.be>
+In-Reply-To: <20141107052420.GA1278@katana>
 Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---eHhjakXzOLJAF9wJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Nov 7, 2014 at 6:24 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>> Note that the L/H values still differ from the Transfer Rate Settings
+>> example in Table 19.3 of the datasheet, which suggests 0x121/0xe7.
+>
+> Is the formula different or is it rounding errors?
 
-On Thu, Nov 06, 2014 at 12:52:10PM +0100, Geert Uytterhoeven wrote:
-> The IIC nodes used the generic compatible properties only.
-> This may cause the driver to fail when using Standard Speed on IIC
-> masters where the operational clock is driven by the 130 MHz HP clock.
->=20
-> Add the SoC-specific compatible property to fix this.
->=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+The formula is different. It doesn't use absolute tLOW, tHIGH, and tF
+values, but only the duty cycle of the clock.
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+It's similar in the R-Car Gen2 docs. Except that on Gen2, there's no
+mention of using a duty cycle of 5/3 for High Speed like on AG5.
 
+Gr{oetje,eeting}s,
 
---eHhjakXzOLJAF9wJ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+                        Geert
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-iQIcBAEBAgAGBQJUXFf4AAoJEBQN5MwUoCm22uMP/2574bStl0HXV/Bov1+H9cyN
-b//44WOHH+I0o2vExRS/v916frRWGJ3nHGfaPSLHRSj2EIUXgEJcFccx35WJssmO
-8lPBvrSs8cAbhx4KumnVNmrcKNHpQzaYBDh2NCvS5V7RANFEgYgmQDMk3TUyjCD8
-QG3wH6IfszacB/oc7Jj30aT/W20ksShSVK7kY9I+lte7KkFfsT7hHvguaRwJtXaC
-HiDUixn/aY3n5N98jVC98FpIcwqyeKjmRg6Ixp6ux6nCN8pn8tw7giLI4LBlFkBy
-tdMqMS6EV/L/0phpzYgxUSgCR6ZT3i32JsmDemWelfG0CcbfKDjI0DIm/SeW4Z/v
-RXZE6XzLxsLDT8gvm//i5HsbTfVCAYfUwrWgcDV2KZjMQNfl4B9A70REPm+34vhs
-5cum5kZYBRVH72ycHVm/XDhg9OlxYlzxweN5tZK8Pw3GvBiaZany1HajwaB5uTOM
-jICe42LaejbJAqyebGN7h26fNCe7VFJCvWOTVGQpgDm2vCf+zjhvDezDtg3areKp
-ZI2Q7RVSPMA30kLXe/IqvXyo47PUdwr2lLT10Atf5yBKu2voNrhUg6j6G+2bf1hd
-MbvVX7x0RHLYpr3t1NmmmCag1k50zfqxvdp7Svzy942jKNCiKQppEJ1VaS63yJJc
-U8s/YT/N8DKasYV+3tTJ
-=1kke
------END PGP SIGNATURE-----
-
---eHhjakXzOLJAF9wJ--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
