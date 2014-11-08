@@ -1,127 +1,92 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.18
-Date: Sat, 8 Nov 2014 18:16:16 +0100
-Message-ID: <20141108171611.GA6592@katana>
+Subject: Re: [PATCH v9 3/3] i2c: imx: add DMA support for freescale i2c driver
+Date: Sat, 8 Nov 2014 18:35:13 +0100
+Message-ID: <20141108173513.GA4900@katana>
+References: <1413025032-14958-1-git-send-email-yao.yuan@freescale.com>
+ <1413025032-14958-4-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <1413025032-14958-4-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: marex-ynQEQJNshbs@public.gmane.org, LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---gBBFr7Ir9EOA20Yy
+--UlVJffcvxoiEqYs2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+Hi,
 
-here is one bigger cleanup (FSF address removal) and two bugfixes for
-I2C. Please pull.
+mostly looking good...
+
+> +#define IMX_I2C_DMA_THRESHOLD	16
+
+Have you guessed or measured this value? A comment about this value
+would be nice.
+
+> =20
+> +struct imx_i2c_dma {
+> +	struct dma_chan		*chan_tx;
+> +	struct dma_chan		*chan_rx;
+> +	struct dma_chan		*chan_using;
+> +	struct completion	cmd_complete;
+> +	dma_addr_t		dma_buf;
+> +	unsigned int		dma_len;
+> +	unsigned int		dma_transfer_dir;
+> +	unsigned int		dma_data_dir;
+
+Please use proper types as there are things like 'enum
+dma_data_direction' and the likes...
+
+> +	dmaengine_submit(txdesc);
+
+This can fail, too. Use dma_submit_error() to check.
+
+> +	result =3D wait_for_completion_interruptible_timeout(
+> +				&i2c_imx->dma->cmd_complete,
+> +				msecs_to_jiffies(IMX_I2C_DMA_TIMEOUT));
+
+Have you tested signals extensively? I can't really recommend the
+_intrruptible_ here. I don't see any cleaning up to get the bus to a
+consistent state again. Most people drop the interruptible sooner or
+later.
+
+> +	/* Init DMA config if support*/
+> +	i2c_imx_dma_request(i2c_imx, phy_addr);
+
+Make this function void? DMA is optional anyhow.
 
 Thanks,
 
    Wolfram
 
 
-The following changes since commit 0df1f2487d2f0d04703f142813d53615d62a1da4:
-
-  Linux 3.18-rc3 (2014-11-02 15:01:51 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to e4df3a0b62285130ac0a35cf07678c154ffb649d:
-
-  i2c: core: Dispose OF IRQ mapping at client removal time (2014-11-07 19:03:18 +0100)
-
-----------------------------------------------------------------
-Laurent Pinchart (1):
-      i2c: core: Dispose OF IRQ mapping at client removal time
-
-Wolfram Sang (2):
-      i2c: remove FSF address
-      i2c: at91: don't account as iowait
-
- drivers/i2c/algos/i2c-algo-bit.c            |  5 -----
- drivers/i2c/algos/i2c-algo-pca.c            |  5 -----
- drivers/i2c/algos/i2c-algo-pcf.c            |  5 -----
- drivers/i2c/algos/i2c-algo-pcf.h            |  7 +------
- drivers/i2c/busses/i2c-ali1535.c            |  4 ----
- drivers/i2c/busses/i2c-ali15x3.c            |  4 ----
- drivers/i2c/busses/i2c-amd756-s4882.c       |  4 ----
- drivers/i2c/busses/i2c-amd756.c             |  4 ----
- drivers/i2c/busses/i2c-at91.c               |  2 +-
- drivers/i2c/busses/i2c-au1550.c             |  4 ----
- drivers/i2c/busses/i2c-cpm.c                |  4 ----
- drivers/i2c/busses/i2c-davinci.c            |  4 ----
- drivers/i2c/busses/i2c-designware-core.c    |  4 ----
- drivers/i2c/busses/i2c-designware-core.h    |  4 ----
- drivers/i2c/busses/i2c-designware-pcidrv.c  |  4 ----
- drivers/i2c/busses/i2c-designware-platdrv.c |  4 ----
- drivers/i2c/busses/i2c-eg20t.c              |  4 ----
- drivers/i2c/busses/i2c-elektor.c            |  6 +-----
- drivers/i2c/busses/i2c-hydra.c              |  4 ----
- drivers/i2c/busses/i2c-i801.c               |  4 ----
- drivers/i2c/busses/i2c-imx.c                |  5 -----
- drivers/i2c/busses/i2c-iop3xx.h             |  6 +-----
- drivers/i2c/busses/i2c-isch.c               |  4 ----
- drivers/i2c/busses/i2c-ismt.c               |  4 ----
- drivers/i2c/busses/i2c-nforce2-s4985.c      |  4 ----
- drivers/i2c/busses/i2c-nforce2.c            |  4 ----
- drivers/i2c/busses/i2c-omap.c               |  4 ----
- drivers/i2c/busses/i2c-parport-light.c      |  4 ----
- drivers/i2c/busses/i2c-parport.c            |  4 ----
- drivers/i2c/busses/i2c-parport.h            |  4 ----
- drivers/i2c/busses/i2c-pasemi.c             |  4 ----
- drivers/i2c/busses/i2c-pca-isa.c            |  4 ----
- drivers/i2c/busses/i2c-piix4.c              |  4 ----
- drivers/i2c/busses/i2c-pmcmsp.c             |  4 ----
- drivers/i2c/busses/i2c-powermac.c           |  4 ----
- drivers/i2c/busses/i2c-s3c2410.c            |  4 ----
- drivers/i2c/busses/i2c-sh_mobile.c          |  4 ----
- drivers/i2c/busses/i2c-sibyte.c             |  4 ----
- drivers/i2c/busses/i2c-simtec.c             |  4 ----
- drivers/i2c/busses/i2c-sis5595.c            |  4 ----
- drivers/i2c/busses/i2c-sis630.c             |  4 ----
- drivers/i2c/busses/i2c-sis96x.c             |  4 ----
- drivers/i2c/busses/i2c-taos-evm.c           |  4 ----
- drivers/i2c/busses/i2c-via.c                |  4 ----
- drivers/i2c/busses/i2c-viapro.c             |  4 ----
- drivers/i2c/busses/i2c-xiic.c               |  4 ----
- drivers/i2c/busses/scx200_acb.c             |  4 ----
- drivers/i2c/i2c-boardinfo.c                 |  5 -----
- drivers/i2c/i2c-core.c                      | 10 ++++------
- drivers/i2c/i2c-core.h                      |  5 -----
- drivers/i2c/i2c-dev.c                       |  5 -----
- drivers/i2c/i2c-smbus.c                     |  5 -----
- drivers/i2c/i2c-stub.c                      |  4 ----
- 53 files changed, 8 insertions(+), 223 deletions(-)
-
---gBBFr7Ir9EOA20Yy
+--UlVJffcvxoiEqYs2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUXk/bAAoJEBQN5MwUoCm20pcQALIWsxpMAu7/XZ5ZqiBmZ0QD
-fj8AtTN6JkwTYYy8vjx6HGlhHJrMZNwWixClOtpBpMvvc4ULREdXYFDV4HrSLtQ9
-n2Be4gv9XdghQhoZnpbds4QKfoy8jQYrZGdNyQ7I2ht0pmTvXNgfxEB/CsmY157L
-vHCvMclnt7osVHn7puhdl9zmYYwzpKZxLaO7KGxt1t3SECmC43RleSBRDTyqTh6Y
-jrZ9IYUyYV90T0Ja9661D8UVn72GE7cfAucDwq2DenZzXNBDvEpWMQRR2QujVpkx
-yOXjvPK8C5bfolRRcfEwRHHjsmydH/ygvbouAmzwRNRtYCy7TGeQjtZU/ua7LMa9
-FGEfLbkLQ+tPlw7XcpIhxcKW2d5f6Wm2YVP1O3NB/MFFlQxcJ+NDiqBzYN4NBVo3
-eQOhQE3kcDuRT/7SoO/AAfspg/joUewHW5+5AQkmUEMnkTJedlla5PWb1ZayTFD2
-kkK9lVbzP94aACiXMUojZrKeKOYuvGg4CqqShL/bHYKQuuEcPoF8ORPrwuky1qqq
-t/6CiB5MbiBDMq+2RCBtT8W/ChZ/EyRT+eS41uADDUl0Dj27+jRriOec7wzyMpk5
-e9s8POxrror8Sc8ammMMYwzwA5oLyaW2aTgqINaGDG2lj68819DIY32fR/xGetVE
-GFPRi087r6y72CUDOB+i
-=hVQV
+iQIcBAEBAgAGBQJUXlRRAAoJEBQN5MwUoCm2U+EQAJ/DRCiZOK6+0nPvIzvKf0rk
+Wo+0V2G/+ZWY0TNqQ/x4XuORsIvx3vyxvrzR7Kvm4+gHAiOrDqrH6LuX6jJXb/q7
+3TbD8VPgJxmGaabJoUfXCgpUS3BU+CBM1DSiufSpKafoKWKV2eN6OmcS0sLZggKZ
+ZtNn44neHVj2nx5texSRe69ABraT/jdyiV0SD10dcR6WkknfN/1GZdtuZkW5Fr5I
+ZQroKMfs7vJPEmJsrWTgMqmk7U9Nd9hdEimHhOzHJQ+eJK5Uj+bHhhyq/1UPSuM0
+m1WchTTlzfxl8LZn52UjVzpAPcls2SSUR9ADWFv3F3XJa5QonA0MasSUu0J0WkD0
+rCMPX20+cilSDh01zcatWHVkgkoHazsWzDFJO151AmhskEUbu9G8aaw9F7VonynE
+rF/a+bjVSfqN7Tp+zMoJP78rM/mcqyzoC0titXXYQs5mmV/4Wrf6OGwdo5aO+x2K
+XfWD4jNCr8E5SMzYQSkabPqrReznLwRDHE56XoWSFaCLTJiJMrJU+HrdUP5zS18s
+0hVaiBHMl6ti/lPaCkAzbcJQwr+9SmOKjWC8/pHJHwQbl63UpvpK7d/6Ixcx2qeC
+akFMNMEbKjwyfMuquggp7g4ZY5pGcSMvGuYLt3q4JtCi1xWTYRjvBvYbE4Ty22tt
+TGkSq1ohA2TEoTYWBNLp
+=xq7W
 -----END PGP SIGNATURE-----
 
---gBBFr7Ir9EOA20Yy--
+--UlVJffcvxoiEqYs2--
