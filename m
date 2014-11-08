@@ -1,50 +1,110 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: exynos5: use proper errno for timeout
-Date: Sat, 8 Nov 2014 18:55:02 +0100
-Message-ID: <20141108175501.GC4900@katana>
-References: <1412337438-8223-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3 3/3] i2c/at91: adopt pinctrl support
+Date: Sat, 8 Nov 2014 19:03:14 +0100
+Message-ID: <20141108180314.GD4900@katana>
+References: <1414133417-11530-1-git-send-email-wenyou.yang@atmel.com>
+ <1414133417-11530-4-git-send-email-wenyou.yang@atmel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iFRdW5/EC4oqxDHL"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="hoZxPH4CaxYzWscb"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1412337438-8223-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: naveenkrishna.ch@gmail.com, Kukjin Kim <kgene.kim@samsung.com>, linux-samsung-soc@vger.kernel.org
+In-Reply-To: <1414133417-11530-4-git-send-email-wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---iFRdW5/EC4oqxDHL
+--hoZxPH4CaxYzWscb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 03, 2014 at 01:57:14PM +0200, Wolfram Sang wrote:
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+On Fri, Oct 24, 2014 at 02:50:17PM +0800, Wenyou Yang wrote:
+> Amend the i2c at91 pin controller to optionally take a pin control
+> handle and set the state of the pins to:
+>=20
+> - "default" on boot, resume and before performing an transfer
+> - "sleep" on suspend()
+>=20
+> This should make it possible to optimize energy usage for the pins
+> both for the suspend/resume cycle
+>=20
+> Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-at91.c |    7 +++++++
+>  1 file changed, 7 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 6a84a2a..290caf1 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -32,6 +32,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/platform_data/dma-atmel.h>
+>  #include <linux/pm_runtime.h>
+> +#include <linux/pinctrl/consumer.h>
+> =20
+>  #define DEFAULT_TWI_CLK_HZ		100000		/* max 400 Kbits/s */
+>  #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
+> @@ -747,6 +748,8 @@ static int at91_twi_probe(struct platform_device *pde=
+v)
+>  	u32 phy_addr;
+>  	u32 bus_clk_rate;
+> =20
+> +	pinctrl_pm_select_default_state(&pdev->dev);
+> +
 
-Applied to for-next, thanks!
+Do we really need this in probe? Isn't that default? I'm not sure,
+though...
 
+>  	dev =3D devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+>  	if (!dev)
+>  		return -ENOMEM;
+> @@ -851,6 +854,8 @@ static int at91_twi_runtime_suspend(struct device *de=
+v)
+> =20
+>  	clk_disable_unprepare(twi_dev->clk);
+> =20
+> +	pinctrl_pm_select_sleep_state(dev);
+> +
+>  	return 0;
+>  }
+> =20
+> @@ -858,6 +863,8 @@ static int at91_twi_runtime_resume(struct device *dev)
+>  {
+>  	struct at91_twi_dev *twi_dev =3D dev_get_drvdata(dev);
+> =20
+> +	pinctrl_pm_select_default_state(dev);
+> +
+>  	return clk_prepare_enable(twi_dev->clk);
+>  }
+> =20
+> --=20
+> 1.7.9.5
+>=20
 
---iFRdW5/EC4oqxDHL
+--hoZxPH4CaxYzWscb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUXlj1AAoJEBQN5MwUoCm2390QAJfwekoG7AI5xcM8hjtK616n
-KIHKV+C3mnGeHOdvabn0nfCV2ErSyLlwHX4qdP+iV7Bfk2xlhS+5jr/oukmNycq3
-FbO245Fga29YIXorTcfOb1f8/rBv5h9IhQMSj5fOboyWnBZT6kCpSgJuZRZM260y
-0yWuEiaDOALoebpGRGx1bY2xPZGH/ulqWHpjFOinob947lrIsMMZHBusrFv3/qxc
-Wipyi6og3actWFTV8QV2lOAggzaet21IOiI4c6c5kN+aFPsXn3UUDdGtS7lmM0qu
-bWi1/GNJ4zzMOuXO/Iz/4f7j+bPwcWIPPcQCfrXQpPSiqUpReK5JGCcifApujuoO
-d8ZFLz9WN20YKY7Gc2rruWTFXYZSFTYPQ7UE0e1W8NR1b1ZarBQXcMS9qtRLwY3m
-XswJYcjSeb037uhMEBtdruWuQD56GgfRE0MsZfbQbM9lRoXbfdJytEgTwtKI8lFk
-741M33Z3RstNWKWBXf3i2l8w4INRphCO0QZXyshYpaPRqxBta2KPKOlcQcREnceH
-05Kdyg/ycU4KWqx83nsE6I6zaDN1D/D6cAEwOp9JOT8+Vd5UKFSgcWrJHng25BwX
-PgrdyHJTMagSBXvpkAR0sLA7aPK1grVEmKNSaJBQCQOz/BKmOmqfBorzX5u+dW7e
-zZKtEMPzzYGjaJ+itmTL
-=SWYk
+iQIcBAEBAgAGBQJUXlriAAoJEBQN5MwUoCm22ScP/3TRXAjMaeWrJrjzJElUvBVd
+Gzlqe0zD1CAS4Bz0w56Q/mGs0XfoW7n/J1GI2gHBB2kvVtdJJJPIM40y8IO5qAU2
+2+o55WvdeE+eYjqrlEHDXbm01qnueRhJlf5da1twAvQXTHox1hYIFugeJN45jjVD
+q5yIKj4EHn0nEd638XrLKNZdmF1XhMDabjM81QINFbmncU7FVTAoh2kwhQMREE1s
+n3Id83oIP+iaff9wu4Aun+trSk44GkKxOBQuLZYi7Q6xauhFoB3xQAUF1mDFIfsG
+7zbSn9P/bj4XxZ6bJ39DQ8wgoqeWRoxFJn9Duhx74lPvIMRwg/Z93COVuFrNVI50
+2dWzbScGbvJSwtUyUcv+mSpFopdur/OhNVHSU9l8NBRHPU8gXnDkoMVO7gYJ3o34
+RSR/PdBZHP/F5f9rUzoYB00MPMwUdai8u9hjrvaVUXwOZNUsTQYzLd5Rn4IFqxUI
+v1+7FNc4Zt3EbWekqJyr55jrG3zjcZ1KzIRhJnQRx6GS9BfAbVxE8V6TvqlPDHyU
+UevXM7isI6B/MVm6WqhEYklychb8yBDhsgZQ8KUsS0tlNKfzXkM8dL2JGQ0M1MTa
+eUe2ohHyk1evtwv7gQSm4zsCsq7cqXYPIwF9XGe9daJ25Sl3ZQ+t7jWCRFT1qmgW
+adtXm+ZFTMqvsPU3aR3/
+=3XVP
 -----END PGP SIGNATURE-----
 
---iFRdW5/EC4oqxDHL--
+--hoZxPH4CaxYzWscb--
