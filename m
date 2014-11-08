@@ -1,59 +1,63 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/3] i2c/at91: add support for runtime PM
-Date: Sat, 8 Nov 2014 19:03:25 +0100
-Message-ID: <20141108180325.GE4900@katana>
-References: <1414133417-11530-1-git-send-email-wenyou.yang@atmel.com>
- <1414133417-11530-2-git-send-email-wenyou.yang@atmel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-davinci: Handle signals gracefully
+Date: Sat, 8 Nov 2014 22:51:55 +0100
+Message-ID: <20141108215155.GA1266@katana>
+References: <1389265885-26777-1-git-send-email-mike.looijmans@topic.nl>
+ <1394779348-4084-1-git-send-email-mike.looijmans@topic.nl>
+ <20140324161432.GA7524@katana>
+ <20140521081727.GE2708@katana>
+ <53808851.7060308@topic.nl>
+ <20140601201134.GA3853@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wTWi5aaYRw9ix9vO"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1414133417-11530-2-git-send-email-wenyou.yang@atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wenyou Yang <wenyou.yang@atmel.com>
-Cc: ludovic.desroches@atmel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com, khilman@kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20140601201134.GA3853@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---wTWi5aaYRw9ix9vO
+--zhXaljGHf11kAtnf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 24, 2014 at 02:50:15PM +0800, Wenyou Yang wrote:
-> Drivers should put the device into low power states proactively whenever =
-the
-> device is not in use. Thus implement support for runtime PM and use the
-> autosuspend feature to make sure that we can still perform well in case w=
-e see
-> lots of i2c traffic within short period of time.
+On Sun, Jun 01, 2014 at 10:11:34PM +0200, Wolfram Sang wrote:
 >=20
-> Signed-off-by: Wenyou Yang <wenyou.yang@atmel.com>
+> > Feel free to adap my patch or comments and commit. Or wait a few weeks =
+for
+> > when I have a sponsor to split and update the patch.
+>=20
+> OK, I'll hope you can make it for 3.17. Thanks!
 
-Applied to for-next, thanks!
+I now picked the part removing the interruptible-call. The part with
+the new exit-path would need to be resend and retested in case anyone
+is still caring.
 
 
---wTWi5aaYRw9ix9vO
+--zhXaljGHf11kAtnf
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUXlrtAAoJEBQN5MwUoCm2dEgP/3CgAlRC/tVd2P9gDo9fxdH/
-k8CpDbAD6f3RXH5etWInKCeVmeqO/w0PMUxE+dIfDFYJbDFU8JAeh/rUf7OVjOqJ
-to1VfZ5GvMHpLMvy6GbiDfFjZZ8uMV4/ZuGFo1DKmznJZXe08+1TQyecU0l4ZYxr
-fWeFfvEYM06mvcSG6TsMXlZIuMEcI8sAC7DEqCj9y4EK23S3pZX8/J2LW6LS3Kmw
-ciGdEjFFVhaUQFJxwMUKveGqWs4r6GFgKetjlVTW/7jy5XdYt/QKWMGa7guythm2
-I3Qh4ZY/dgh4LulH9NRt58HuIQZg5aYHXmGRX68IKr8xODNheyIu9K6dD1kHv5hx
-YKg7xEM3MKAkJYszBwG99xw7XRuiUPMA/jv79tuq6hdmGAPkGPqHHS3aNndHAbvz
-Wzi7ZGKeyb6C82dItrYzWTaRrY1iqWxxY5sjztCXUYpmcnYzokCl7qC7gqm3a8Mi
-UuGJZpZePwtLORubhfv6pRer/Skv2eLeWyEziuHgbZgRE9PW9WmGMIiSUWqOPCEu
-0FPI+uJu+Et95sDJucTSMkvHfVHTrRQBFNDc9AaIOlsnBmlUWJnhtjhVDAQ49STp
-UO/o1soXSySlequzClTY9uRrvS2U2MmlF6kmXZYhAYJrjWrvTlSVWc2uz5rGcD0z
-DnMn59OPSdfXf7SVnHTN
-=/8Kn
+iQIcBAEBAgAGBQJUXpB7AAoJEBQN5MwUoCm2IQsP+wbjQdDLfWo7LpnbYIeHOb8r
+gTZk9oL4WMvXBV2ETyioDm7bbL9dQhh997SL+VOiUrGwnkNFLsvlZsAXj3puvvrM
+zasyq3fJl0XJ7P9FMoxJoqK3Q+IF/L2NoKev6O+C9E8OaUzp0rDB1Gq38zTvo9IU
+jZTSuXhnn9W5bDIezxpVS1W/Qpg5tNqGMTMzMqKHzD4e8myFlqbKW2V5ajlxvjFa
+CNc/dzzlG7sNydWUfO4y7BUxDhpz38Gb3vTyn8cTcohzj+wy/xZ/29so8sMQxMBt
+P8ROTKdLhYTrA6Uf51JUrvzQKzQKC+tUvLBGXf3qdst75oeoUZr8HIFWYbZtkotV
+9QFDZAQn1zNo/bfwEIkCSuhUtoeiFnsunegWAlfu6HKxZlCziQ6ime3cL0VAeKRd
+0EVtAv4qiIc8uWvJspdbi0t0n2y8hplhNYWdzI4kMxkWGGzv8qxqbMK8asZb5GiD
+5pgwGrLVfyMFekuJy+R68InH3ypsyAvXpo7mBQdUQDXTHxBHdNxFDd2EibII2xrR
+Pdoha5JgBB20sA469lH/rcOhEY/2D19ItzziyV8T3YuUuiVXb5qn5dHuoPPIf+Yg
+bhBEnpcsqYtC1YsSY1lKG4pJ5nQ0REqV+jS0481a/M1y6xGFFx/hZfEayqO2eDfH
+ecQa27uCIBHvKl56CB2p
+=j0QT
 -----END PGP SIGNATURE-----
 
---wTWi5aaYRw9ix9vO--
+--zhXaljGHf11kAtnf--
