@@ -1,84 +1,84 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [GIT PULL] Immutable branch between MFD, GPIO and I2C
-Date: Mon, 10 Nov 2014 16:04:26 +0000
-Message-ID: <20141110160426.GK24004@x1>
-References: <1415281685-14866-1-git-send-email-octavian.purdila@intel.com>
- <20141110151226.GD24004@x1>
+From: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] SMBUS: Add DeviceIDs for SunrisePoint LP
+Date: Mon, 10 Nov 2014 12:13:01 -0500
+Message-ID: <1415639581.1954.21.camel@localhost.localdomain>
+References: <1415400943.1954.9.camel@localhost.localdomain>
+	 <20141110074533.20cbd55f@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20141110151226.GD24004@x1>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Octavian Purdila <octavian.purdila@intel.com>
-Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141110074533.20cbd55f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, frank.riegel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Please don't pull this -- it is missing a patch.
+>From 8386c61977dce52fcdfe7fb279692606f47650bc Mon Sep 17 00:00:00 2001
+From: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Date: Wed, 5 Nov 2014 16:30:03 -0500
+Subject: [PATCH] SMBUS: Add DeviceIDs for SunrisePoint LP
 
-Will fix.
+This patch adds the DeviceIDs for SunrisePoint LP
 
-> [Subject change -- in case you miss it]
->=20
-> Linus, Wolfram,
->=20
-> Enjoy!
->=20
-> The following changes since commit f114040e3ea6e07372334ade75d1ee0775=
-c355e1:
->=20
->   Linux 3.18-rc1 (2014-10-19 18:08:38 -0700)
->=20
-> are available in the git repository at:
->=20
->   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-m=
-fd-gpio-i2c-v3.19
->=20
-> for you to fetch changes up to e7d146b11a8a33b6033220b0f4fc4de2ab2921=
-8a:
->=20
->   gpio: add support for the Diolan DLN-2 USB GPIO driver (2014-11-10 =
-15:05:49 +0000)
->=20
-> ----------------------------------------------------------------
-> Immutable branch between MFD, GPIO and I2C
->=20
-> ----------------------------------------------------------------
-> Daniel Baluta (1):
->       gpio: add support for the Diolan DLN-2 USB GPIO driver
->=20
-> Laurentiu Palcu (1):
->       i2c: add support for Diolan DLN-2 USB-I2C adapter
->=20
-> Octavian Purdila (1):
->       mfd: Add support for Diolan DLN-2 devices
->=20
->  drivers/gpio/Kconfig          |  12 +
->  drivers/gpio/Makefile         |   1 +
->  drivers/gpio/gpio-dln2.c      | 553 ++++++++++++++++++++++++++++++
->  drivers/i2c/busses/Kconfig    |  10 +
->  drivers/i2c/busses/Makefile   |   1 +
->  drivers/i2c/busses/i2c-dln2.c | 267 +++++++++++++++
->  drivers/mfd/Kconfig           |  10 +
->  drivers/mfd/Makefile          |   1 +
->  drivers/mfd/dln2.c            | 763 ++++++++++++++++++++++++++++++++=
-++++++++++
->  include/linux/mfd/dln2.h      | 103 ++++++
->  10 files changed, 1721 insertions(+)
->  create mode 100644 drivers/gpio/gpio-dln2.c
->  create mode 100644 drivers/i2c/busses/i2c-dln2.c
->  create mode 100644 drivers/mfd/dln2.c
->  create mode 100644 include/linux/mfd/dln2.h
->=20
+Signed-off-by: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ Documentation/i2c/busses/i2c-i801 | 1 +
+ drivers/i2c/busses/Kconfig        | 1 +
+ drivers/i2c/busses/i2c-i801.c     | 3 +++
+ 3 files changed, 5 insertions(+)
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+index 793c83d..82f48f7 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -29,6 +29,7 @@ Supported adapters:
+   * Intel Wildcat Point-LP (PCH)
+   * Intel BayTrail (SOC)
+   * Intel Sunrise Point-H (PCH)
++  * Intel Sunrise Point-LP (PCH)
+    Datasheets: Publicly available at the Intel website
+ 
+ On Intel Patsburg and later chipsets, both the normal host SMBus controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 917c358..06e99eb 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -123,6 +123,7 @@ config I2C_I801
+ 	    Wildcat Point-LP (PCH)
+ 	    BayTrail (SOC)
+ 	    Sunrise Point-H (PCH)
++	    Sunrise Point-LP (PCH)
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 7cfc183..e158e18 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -63,6 +63,7 @@
+  * Wildcat Point-LP (PCH)	0x9ca2	32	hard	yes	yes	yes
+  * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
+  * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
++ * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -186,6 +187,7 @@
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
+ #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
+ #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
++#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
+ 
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -833,6 +835,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
+ 	{ 0, }
+ };
+ 
+-- 
+1.9.3
