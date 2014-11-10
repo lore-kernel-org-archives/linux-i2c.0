@@ -1,18 +1,20 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v11 0/3] add support for Diolan DLN-2
-Date: Mon, 10 Nov 2014 15:10:19 +0000
-Message-ID: <20141110151019.GC24004@x1>
+Subject: [GIT PULL] Immutable branch between MFD, GPIO and I2C
+Date: Mon, 10 Nov 2014 15:12:26 +0000
+Message-ID: <20141110151226.GD24004@x1>
 References: <1415281685-14866-1-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <1415281685-14866-1-git-send-email-octavian.purdila@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-gpio-owner@vger.kernel.org
 To: Octavian Purdila <octavian.purdila@intel.com>
 Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+
+[Subject change -- in case you miss it]
 
 Linus, Wolfram,
 
@@ -69,3 +71,8 @@ Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 =46ollow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
