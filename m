@@ -1,104 +1,51 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH 1/3] SMBUS: Add DeviceIDs for SunrisePoint LP
-Date: Mon, 10 Nov 2014 07:45:33 +0100
-Message-ID: <20141110074533.20cbd55f@endymion.delvare>
-References: <1415400943.1954.9.camel@localhost.localdomain>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v4] i2c/at91: adopt pinctrl support
+Date: Mon, 10 Nov 2014 14:13:28 +0300
+Message-ID: <54609DD8.8030903@cogentembedded.com>
+References: <1415584552-11390-1-git-send-email-wenyou.yang@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1415400943.1954.9.camel-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+In-Reply-To: <1415584552-11390-1-git-send-email-wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, frank.riegel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Cc: khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Devin,
+Hello.
 
-On Fri, 07 Nov 2014 17:55:43 -0500, Devin Ryles wrote:
-> From 8386c61977dce52fcdfe7fb279692606f47650bc Mon Sep 17 00:00:00 2001
-> From: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Date: Wed, 5 Nov 2014 16:30:03 -0500
-> Subject: [PATCH 1/3] SMBUS: Add DeviceIDs for SunrisePoint LP
-> 
-> This patch adds the DeviceIDs for SunrisePoint LP
-> 
-> Signed-off-by: Devin Ryles <devin.ryles-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+On 11/10/2014 4:55 AM, Wenyou Yang wrote:
+
+> Amend the at91 i2c pin controller
+
+    You're amending the hardware itself, really? :-)
+
+> to optionally take a pin controlhandle
+
+    I don't see the code that does this.
+
+> and set the state of the pins to:
+> - "default" on boot and resume.
+
+    I don't see where you are changing anything for the probe() method. 
+Perhaps you meant the driver core code which selects the dafault profile 
+automatically?
+
+> - "sleep" on suspend().
+
+> This should make it possible to optimize energy usage for the pins
+> both for the suspend/resume cycle
+
+> Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 > ---
->  Documentation/i2c/busses/i2c-i801 | 1 +
->  drivers/i2c/busses/Kconfig        | 1 +
->  drivers/i2c/busses/i2c-i801.c     | 3 +++
->  3 files changed, 5 insertions(+)
-> 
-> diff --git a/Documentation/i2c/busses/i2c-i801email-clients.txt
-> b/Documentation/i2c/busses/i2c-i801
-> index 793c83d..82f48f7 100644
-> --- a/Documentation/i2c/busses/i2c-i801
-> +++ b/Documentation/i2c/busses/i2c-i801
-> @@ -29,6 +29,7 @@ Supported adapters:
->    * Intel Wildcat Point-LP (PCH)
->    * Intel BayTrail (SOC)
->    * Intel Sunrise Point-H (PCH)
-> +  * Intel Sunrise Point-LP (PCH)
->     Datasheets: Publicly available at the Intel website
->  
->  On Intel Patsburg and later chipsets, both the normal host SMBus
-> controller
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 917c358..06e99eb 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -123,6 +123,7 @@ config I2C_I801
->  	    Wildcat Point-LP (PCH)
->  	    BayTrail (SOC)
->  	    Sunrise Point-H (PCH)
-> +	    Sunrise Point-LP (PCH)
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-i801.
-> diff --git a/drivers/i2c/busses/i2c-i801.c
-> b/drivers/i2c/busses/i2c-i801.c
-> index 7cfc183..e158e18 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -63,6 +63,7 @@
->   * Wildcat Point-LP (PCH)	0x9ca2	32	hard	yes	yes	yes
->   * BayTrail (SOC)		0x0f12	32	hard	yes	yes	yes
->   * Sunrise Point-H (PCH) 	0xa123  32	hard	yes	yes	yes
-> + * Sunrise Point-LP (PCH)	0x9d23	32	hard	yes	yes	yes
->   *
->   * Features supported by this driver:
->   * Software PEC				no
-> @@ -186,6 +187,7 @@
->  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS		0x9c22
->  #define PCI_DEVICE_ID_INTEL_WILDCATPOINT_LP_SMBUS	0x9ca2
->  #define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS	0xa123
-> +#define PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS	0x9d23
->  
->  struct i801_mux_config {
->  	char *gpio_chip;
-> @@ -833,6 +835,7 @@ static const struct pci_device_id i801_ids[] = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
-> PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
-> PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
-> PCI_DEVICE_ID_INTEL_SUNRISEPOINT_H_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL,
-> PCI_DEVICE_ID_INTEL_SUNRISEPOINT_LP_SMBUS) },
->  	{ 0, }
->  };
->  
+> Hi Wolfram,
+>
+> Thanks a lot.
+>
+> The change of this version is to remove
+> 	pinctrl_pm_select_default_state(&pdev->dev) from the _probe function.
 
-This looks good, however your e-mail client wrapped long lines so the
-patch can't be applied. Please reconfigure your client to not do that
-and send the patches again. In Evolution, you can select the entire
-contents of the patch and set the formatting to "Pre-formatted", that
-should work. See Documentation/email-clients.txt for more details. If
-you're not sure, try sending the message to yourself once first to make
-sure the formatting is good.
+    Aha, you've specifically removed this...
 
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+WBR, Sergei
