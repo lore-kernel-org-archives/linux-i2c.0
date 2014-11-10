@@ -1,69 +1,71 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v6] i2c: rk3x: adjust the LOW divison based on
- characteristics of SCL
-Date: Mon, 10 Nov 2014 15:58:52 +0100
-Message-ID: <20141110145852.GD10422@katana>
-References: <1413168244-3553-1-git-send-email-addy.ke@rock-chips.com>
- <1413266961-3859-1-git-send-email-addy.ke@rock-chips.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v11 0/3] add support for Diolan DLN-2
+Date: Mon, 10 Nov 2014 15:10:19 +0000
+Message-ID: <20141110151019.GC24004@x1>
+References: <1415281685-14866-1-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d01dLTUuW90fS44H"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1413266961-3859-1-git-send-email-addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org
+In-Reply-To: <1415281685-14866-1-git-send-email-octavian.purdila@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: gregkh@linuxfoundation.org, linus.walleij@linaro.org, gnurou@gmail.com, wsa@the-dreams.de, sameo@linux.intel.com, arnd@arndb.de, johan@kernel.org, daniel.baluta@intel.com, laurentiu.palcu@intel.com, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Linus, Wolfram,
 
---d01dLTUuW90fS44H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Enjoy!
 
-On Tue, Oct 14, 2014 at 02:09:21PM +0800, Addy Ke wrote:
-> As show in I2C specification:
-> - Standard-mode: the minimum HIGH period of the scl clock is 4.0us
->                  the minimum LOW period of the scl clock is 4.7us
-> - Fast-mode: the minimum HIGH period of the scl clock is 0.6us
->              the minimum LOW period of the scl clock is 1.3us
->=20
-> I have measured i2c SCL waveforms in fast-mode by oscilloscope
-> on rk3288-pinky board. the LOW period of the scl clock is 1.3us.
-> It is so critical that we must adjust LOW division to increase
-> the LOW period of the scl clock.
->=20
-> Thanks Doug for the suggestion about division formulas.
->=20
-> Tested-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Tested-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+The following changes since commit f114040e3ea6e07372334ade75d1ee0775c3=
+55e1:
 
-Applied to for-next, thanks!
+  Linux 3.18-rc1 (2014-10-19 18:08:38 -0700)
 
+are available in the git repository at:
 
---d01dLTUuW90fS44H
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git tags/ib-mfd=
+-gpio-i2c-v3.19
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+for you to fetch changes up to e7d146b11a8a33b6033220b0f4fc4de2ab29218a=
+:
 
-iQIcBAEBAgAGBQJUYNKrAAoJEBQN5MwUoCm2JxgP/RQ0ca7fvIybu+DF9BRhWKct
-ZqrnidDANnw/hRQiyIs7ueuNRGnZrRgSva2MzJzLpzWgfpzcALehXZvSE8XzAN1T
-EBckkq+FUiAAVkYREsUIGYmVhYOjcjQIDW9seDXAdXncWtPvI1U+31dIH7phCy3O
-Id3XgdqzoXbuzVzmBXSK95WXCeQUeuFXz/Iwj3mnhhA2iKRx3Szzj5XHll+l1oRv
-N/aNWjLuXo8AMpfGiT1LfHcF5FMG5HdM8EqkMiowz22v5ClYBuAcg7ietYkuGqyC
-DNHoZKniswntUuqcKNId2fz2xwj+XLGtPH0S2x7YDUH8Te5te0bR+vMzQAwvcWFL
-KFnHhVQbuSj9/MJEZCGEyWcNxqDNRMgqqb8Un5AooYeN7ZH6RIgfKH5G+s50ON/d
-JFCS9VSpePKAGgjHpxt4aEUHXx0ux1XDWRQwTGFTTR5xzoGeHXNOA2r+pjfaAj8b
-F+deNxOpL5QNGj+sdtTnH4FtGWHGSYc2T05+YHYC4mZOjVpgdBUAtcquh14RrYrB
-dq2Gvzjkrf+AnqXkde1JR6l8tvtKpBPwTSswk9c6nlLUGYN05U/GRjMuizZA8Xys
-hfhJKADBII6hFRAqJY5EufocpI8LtCWPfgGQ+IqaaWNSFtYAvYhynGWFhi/YMG2q
-NUMZuJ56Ut9NGbIq9Ekd
-=5uV4
------END PGP SIGNATURE-----
+  gpio: add support for the Diolan DLN-2 USB GPIO driver (2014-11-10 15=
+:05:49 +0000)
 
---d01dLTUuW90fS44H--
+----------------------------------------------------------------
+Immutable branch between MFD, GPIO and I2C
+
+----------------------------------------------------------------
+Daniel Baluta (1):
+      gpio: add support for the Diolan DLN-2 USB GPIO driver
+
+Laurentiu Palcu (1):
+      i2c: add support for Diolan DLN-2 USB-I2C adapter
+
+Octavian Purdila (1):
+      mfd: Add support for Diolan DLN-2 devices
+
+ drivers/gpio/Kconfig          |  12 +
+ drivers/gpio/Makefile         |   1 +
+ drivers/gpio/gpio-dln2.c      | 553 ++++++++++++++++++++++++++++++
+ drivers/i2c/busses/Kconfig    |  10 +
+ drivers/i2c/busses/Makefile   |   1 +
+ drivers/i2c/busses/i2c-dln2.c | 267 +++++++++++++++
+ drivers/mfd/Kconfig           |  10 +
+ drivers/mfd/Makefile          |   1 +
+ drivers/mfd/dln2.c            | 763 ++++++++++++++++++++++++++++++++++=
+++++++++
+ include/linux/mfd/dln2.h      | 103 ++++++
+ 10 files changed, 1721 insertions(+)
+ create mode 100644 drivers/gpio/gpio-dln2.c
+ create mode 100644 drivers/i2c/busses/i2c-dln2.c
+ create mode 100644 drivers/mfd/dln2.c
+ create mode 100644 include/linux/mfd/dln2.h
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
