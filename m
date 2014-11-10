@@ -1,26 +1,29 @@
 From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 5/5] ARM: shmobile: r8a73a4 dtsi: Add SoC-specific IIC
+Subject: Re: [PATCH 4/5] ARM: shmobile: sh73a0 dtsi: Add SoC-specific IIC
  compatible properties
-Date: Mon, 10 Nov 2014 10:04:47 +0900
-Message-ID: <20141110010447.GG16836@verge.net.au>
+Date: Mon, 10 Nov 2014 10:04:57 +0900
+Message-ID: <20141110010457.GH16836@verge.net.au>
 References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
- <1415274730-310-6-git-send-email-geert+renesas@glider.be>
- <20141107052616.GC1278@katana>
+ <1415274730-310-5-git-send-email-geert+renesas@glider.be>
+ <20141107052533.GB1278@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20141107052616.GC1278@katana>
+In-Reply-To: <20141107052533.GB1278@katana>
 Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 07, 2014 at 06:26:16AM +0100, Wolfram Sang wrote:
-> On Thu, Nov 06, 2014 at 12:52:10PM +0100, Geert Uytterhoeven wrote:
+On Fri, Nov 07, 2014 at 06:25:33AM +0100, Wolfram Sang wrote:
+> On Thu, Nov 06, 2014 at 12:52:09PM +0100, Geert Uytterhoeven wrote:
 > > The IIC nodes used the generic compatible properties only.
-> > This may cause the driver to fail when using Standard Speed on IIC
-> > masters where the operational clock is driven by the 130 MHz HP clock.
+> > This causes the driver to fail when using Standard Speed, as the
+> > operational clock is driven by the 104 MHz HP clock:
+> > 
+> >     i2c-sh_mobile e6820000.i2c: timing values out of range: L/H=0x208/0x1bf
+> >     i2c-sh_mobile: probe of e6820000.i2c failed with error -22
 > > 
 > > Add the SoC-specific compatible property to fix this.
 > > 
