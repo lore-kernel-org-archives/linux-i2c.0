@@ -1,54 +1,31 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH V2] i2c-designware: Add Intel Baytrail PMIC I2C bus
- support
-Date: Tue, 11 Nov 2014 13:50:28 +0200
-Message-ID: <20141111115028.GH1454@lahna.fi.intel.com>
-References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
- <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/2] fixes for ib-mfd-gpio-i2c-3.19
+Date: Tue, 11 Nov 2014 14:20:55 +0200
+Message-ID: <1415708457-18798-1-git-send-email-octavian.purdila@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1411497626-7984-1-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, julia.lawall-L2FTfq7BK8M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 23, 2014 at 11:40:26AM -0700, David E. Box wrote:
-> +void baytrail_evaluate_sem(struct dw_i2c_dev *dev)
-> +{
-> +	acpi_status status;
-> +	unsigned long long shared_host = 0;
-> +	acpi_handle handle;
-> +
-> +	if (!dev || !dev->dev) {
-> +		pr_err("%s:%d: device is NULL\n", __func__, __LINE__);
+Hi Lee,
 
-Not sure if it is useful to print things like above.
+A couple of patches that fixes a coccinelle warning found by Julia and
+kbuild test robot. They are not critical and I don't know if they must
+be pull through ib-mfd-gpio-i2c-3.19, please let me know if I need to
+submit them elsewhere.
 
-> +		return;
-> +	}
-> +
-> +	handle = ACPI_HANDLE(dev->dev);
-> +	if (!handle)
-> +		return;
-> +
-> +	status = acpi_evaluate_integer(handle, "_SEM", NULL, &shared_host);
+Thanks,
+Tavi
 
-Maybe it is better to check first if the operation succeeded before
-touching shared_host?
 
-	if (ACPI_SUCCESS(status) && shared_host) {
-	}
+Octavian Purdila (2):
+  mfd: dln2: fix _dln2_transfer return code
+  i2c: dln2: simplify return flow for dln2_i2c_enable
 
-Otherwise ACPI parts look good to me.
+ drivers/i2c/busses/i2c-dln2.c | 7 +------
+ drivers/mfd/dln2.c            | 3 ++-
+ 2 files changed, 3 insertions(+), 7 deletions(-)
 
-> +
-> +	if (shared_host) {
-> +		dev_info(dev->dev, "I2C bus managed by PUNIT\n");
-> +		dev->has_hw_lock = true;
-> +		dev->pm_runtime_disabled = true;
-> +	}
-> +}
-> +EXPORT_SYMBOL(baytrail_evaluate_sem);
+-- 
+1.9.1
