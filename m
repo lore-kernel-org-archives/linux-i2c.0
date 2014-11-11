@@ -1,113 +1,136 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/4] i2c-i801: Check if interrupts are disabled
-Date: Tue, 11 Nov 2014 11:58:54 +0100
-Message-ID: <20141111105853.GB3794@katana>
-References: <20141110222655.13660613@endymion.delvare>
- <20141110223139.02aafde4@endymion.delvare>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V2] i2c-designware: Add Intel Baytrail PMIC I2C bus
+ support
+Date: Tue, 11 Nov 2014 12:32:56 +0100
+Message-ID: <20141111113255.GC3794@katana>
+References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
+ <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="LwW0XdcUbUexiWVK"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20141110223139.02aafde4-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "David E. Box" <david.e.box@linux.intel.com>
+Cc: jdelvare@suse.de, arnd@arndb.de, maxime.ripard@free-electrons.com, dianders@chromium.org, u.kleine-koenig@pengutronix.de, laurent.pinchart+renesas@ideasonboard.com, boris.brezillon@free-electrons.com, maxime.coquelin@st.com, andrew@lunn.ch, sjg@chromium.org, markus.mayer@linaro.org, ch.naveen@samsung.com, jacob.jun.pan@linux.intel.com, max.schwarz@online.de, mika.westerberg@linux.intel.com, skuribay@pobox.com, Romain.Baeriswyl@abilis.com, wenkai.du@intel.com, chiau.ee.chew@intel.com, christian.ruppert@abilis.com, alan@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---TRYliJ5NKNqkz5bu
+--LwW0XdcUbUexiWVK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 10, 2014 at 10:31:39PM +0100, Jean Delvare wrote:
-> There is a control bit in the PCI configuration space which disables
-> interrupts. If this bit is set, the driver should not try to make use
-> of interrupts, it won't receive any.
+On Tue, Sep 23, 2014 at 11:40:26AM -0700, David E. Box wrote:
+> This patch implements an I2C bus sharing mechanism between the host and p=
+latform
+> hardware on select Intel BayTrail SoC platforms using the X-Powers AXP288=
+ PMIC.
 >=20
-> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-i801.c |   21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
->=20
-> --- linux-3.18-rc4.orig/drivers/i2c/busses/i2c-i801.c	2014-11-10 22:29:44=
-=2E416991298 +0100
-> +++ linux-3.18-rc4/drivers/i2c/busses/i2c-i801.c	2014-11-10 22:29:46.9150=
-45662 +0100
-> @@ -110,12 +110,16 @@
-> =20
->  /* PCI Address Constants */
->  #define SMBBAR		4
-> +#define SMBPCICTL	0x004
->  #define SMBPCISTS	0x006
->  #define SMBHSTCFG	0x040
-> =20
->  /* Host status bits for SMBPCISTS */
->  #define SMBPCISTS_INTS		0x08
-> =20
-> +/* Control bits for SMBPCICTL */
-> +#define SMBPCICTL_INTDIS	0x0400
+> On these platforms access to the PMIC must be shared with platform hardwa=
+re. The
+> hardware unit assumes full control of the I2C bus and the host must reque=
+st
+> access through a special semaphore. Hardware control of the bus also make=
+s it
+> necessary to disable runtime pm to avoid interfering with hardware transa=
+ctions.
+
+Can we foresee that other platforms will have similar mechanisms in the
+future?
+
+> +config I2C_BAYTRAIL_SEM
+
+I2C_DESIGNWARE_BAYTRAIL_SEM
+
+> +	tristate "Intel Baytrail I2C semaphore support"
+> +	depends on I2C_DESIGNWARE_PLATFORM
+> +	select I2C_DESIGNWARE_CORE
+
+This select is already covered by I2C_DESIGNWARE_PLATFORM.
+
+> +	select IOSF_MBI
+> +	help
+> +	  This driver enables host access to the PMIC I2C bus on select Intel
+> +	  BayTrail platforms using the X-Powers AXP288 PMIC. This driver is
+> +	  required for host access to the PMIC on these platforms. You should
+> +	  probably say Y if you have a BayTrail system, unless you know it uses
+> +	  a different PMIC. Otherwises critical PMIC functions, like charging,
+> +	  may not operate.
 > +
->  /* Host configuration bits for SMBHSTCFG */
->  #define SMBHSTCFG_HST_EN	1
->  #define SMBHSTCFG_SMB_SMI_EN	2
-> @@ -1235,6 +1239,23 @@ static int i801_probe(struct pci_dev *de
->  	priv->adapter.timeout =3D HZ / 5;
-> =20
->  	if (priv->features & FEATURE_IRQ) {
-> +		u16 pcictl, pcists;
+> +	  This driver should be built as a m if I2C_DESIGNWARE_PLATFORM=3Dm,
+> +	  and as y if I2C_DESIGNWARE_PLATFORM=3Dy.
+
+That shouldn't be the user's task to ensure. Please enforce this in the
+makefile. Check Documentation/kbuid/makefiles.txt, Section 3.3.
+
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-baytrail-sem.c
+> @@ -0,0 +1,157 @@
+> +/*
+> + * Intel BayTrail PMIC I2C bus semaphore implementaion
+> + * Copyright (c) 2014, Intel Corporation.
+
+Mika, can you have a look at the ACPI part here?
+
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busse=
+s/i2c-designware-core.h
+> index d66b6cb..13e0809 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -65,6 +65,8 @@
+>   * @ss_lcnt: standard speed LCNT value
+>   * @fs_hcnt: fast speed HCNT value
+>   * @fs_lcnt: fast speed LCNT value
+> + * has_hw_lock: true if bus access requires hardware lock
+> + * pm_runtime_disabled: true if pm runtime is disabled
+
+Look closely. There is a difference to the entries above.
+
+> @@ -123,3 +127,18 @@ extern void i2c_dw_disable(struct dw_i2c_dev *dev);
+>  extern void i2c_dw_clear_int(struct dw_i2c_dev *dev);
+>  extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
+>  extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
 > +
-> +		/* Complain if an interrupt is already pending */
-> +		pci_read_config_word(priv->pci_dev, SMBPCISTS, &pcists);
-> +		if (pcists & SMBPCISTS_INTS)
-> +			dev_warn(&dev->dev, "An interrupt is pending!\n");
+> +#if IS_ENABLED(CONFIG_I2C_BAYTRAIL_SEM)
+> +extern int baytrail_i2c_acquire(struct dw_i2c_dev *dev);
+> +extern void baytrail_i2c_release(struct dw_i2c_dev *dev);
+> +extern void baytrail_evaluate_sem(struct dw_i2c_dev *dev);
+> +#define i2c_dw_acquire_ownership(dev) baytrail_i2c_acquire(dev)
+> +#define i2c_dw_release_ownership(dev) baytrail_i2c_release(dev)
+> +#define i2c_dw_eval_lock(dev) baytrail_evaluate_sem(dev)
+i2c_dw_test_ownership_support()?
 
-You think it is better to not clear it?
+That doesn't scale in case other platformts will need this. I could
+imagine a struct i2c_dw_ownership_ops() (or whatever name) which gets
+populated according to the matched device.
 
-> +
-> +		/* Check if interrupts have been disabled */
-> +		pci_read_config_word(priv->pci_dev, SMBPCICTL, &pcictl);
-> +		if (pcictl & SMBPCICTL_INTDIS) {
-> +			dev_warn(&dev->dev,
-> +				 "Interrupts are disabled, will use polling\n");
+Thanks,
 
-I'd say it is more info than warning?
+   Wolfram
 
-> +			priv->features &=3D ~FEATURE_IRQ;
-> +		}
-> +	}
-> +
-> +	if (priv->features & FEATURE_IRQ) {
->  		init_waitqueue_head(&priv->waitq);
-> =20
->  		err =3D request_irq(dev->irq, i801_isr, IRQF_SHARED,
->=20
-> --=20
-> Jean Delvare
-> SUSE L3 Support
 
---TRYliJ5NKNqkz5bu
+--LwW0XdcUbUexiWVK
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUYevtAAoJEBQN5MwUoCm2Z0sP/1W+FfQJPahPrio1TVeRUmZA
-Ltdk8YJBIDmqvjkNhZh8B6PPIGNpENyTakPgpmPhNC0vPLgVL0cjW6USk7lUwbl0
-utItkYRYtwD9RrCSFC1cdSK3VpMyMPaaMHGQrfWW9m/D41tdoEBczE/rB6crEebx
-5jlVF9N3Gvkhzt+Ote0nXyxPPWtaWFFMLWxGpKDckej0S2tbC33E4SaMd4LStqlI
-7icJayZQAsgwJM6iprnENd5n9Q/0tRArGGjLTkT+Sco4i+lN9szlhmTK9I9m8BAA
-OPgSlXveCCubiMGfZUNesZEdwX1JguA8NQIpJ30mTMQ02Nz3CuxHBQ35LHliYehH
-XLDz/m/v0Pth4xyxhRhKv8k04Odbv/kMrVzUgNHSULvMExTx8xXbWUYcFr7lj3VG
-42gaZ917CQkW1G+95UiZAwkxNRLyWNT72SwEeujuOg0AbsX3cCTCGoX/VRwrC793
-X9Rm45mdiie6yMTuUDErTJHAC2WrIfch0nAN1nc2kPJAak6alDZ79ChDzxcXl+YI
-r+zy45DjvpXTcnfhyVCOBKmZvlbxp5hiBnQMV6biVN/j8sn6O0nNN+qaQiZXrhOh
-kFAjWN0M/aOP93qmTS3N3I/+CXfRZohsDftfmFgnEIxTTWF1Sxa/Rwqc+Tw08I/b
-t/kdJeL6io2Oy5vAG3Ef
-=qD5V
+iQIcBAEBAgAGBQJUYfPnAAoJEBQN5MwUoCm2rkUP/0vN0/lPlvhsGKjNzGO8Oi7V
+5Tpuq/xGsprduYildUePlA3sB7pzQqXxst+rVCbkaCTBSAEHHj4DpuWsFfRrWgex
+uDberogI9f0PXwDmXQd12f8ybhEjcM1Y7GKHxgy8AaTITUNija7MKQOZob2tGSP8
+nE4dS8aJ8g/FpIJRxsZ72v0kHQDrgrldblOU3lTih5S7q2X50pvNF5g2AvwtYIJB
+j+5EWY2F+Upo1pOE6J5j7kF9P8EaoPSBYq14KwRfMQdwe2VjZVhErBByP1RxV8yh
+EMYLPc4fJ/gkvvdfX3pnDheryLhN43X/8GbqU0O8HZrZ+cSubRrBhO0Xm7b2guQ0
+KDULcC0E/N7i0khss645QKXAMKKbkKafsS0E7DeKpF5sL0k5tsB858/V3j3L7+ut
+qYpgaeGNP+5MmASrp0V9/GB5vI1BYQJV8LBeAn4CCjkmqHAr34aSU+F39q5HHXRq
+kUNCkQzQ6vwQNjgAFwQ345vFmPhAfV+y9aSiKRYenjY+d/QHaJFdtuYcSEubmM9J
+8SlYP2mBld4rLBAqVgswSlUDuklDl5F0iDWyL+U3uJMYTXnP8bLiRujSOWPRl4QE
+DER2WTowFySSXAxgrieJ05KkGwTUr6nXjcJrJF8JSt0Fj8qn1HXNSw+bIWH5K+ps
+omdCq/Zqfp0L+ODxYamx
+=1VEs
 -----END PGP SIGNATURE-----
 
---TRYliJ5NKNqkz5bu--
+--LwW0XdcUbUexiWVK--
