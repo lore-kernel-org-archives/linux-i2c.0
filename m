@@ -1,66 +1,53 @@
-From: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v5 2/2] DT: i2c: Add binding document for IMG I2C SCB
-Date: Tue, 11 Nov 2014 17:39:47 -0300
-Message-ID: <54627413.2030901@imgtec.com>
-References: <1415647816-16415-1-git-send-email-ezequiel.garcia@imgtec.com>	<1415647816-16415-3-git-send-email-ezequiel.garcia@imgtec.com> <CAL1qeaHG=zVgA+LOQWcaYndyPJPq6Qs18b4Vorj8zXhj8tSeyw@mail.gmail.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 5/6] Documentation: i2c: Add APM X-Gene platform SLIMpro I2C driver documentation
+Date: Tue, 11 Nov 2014 22:40:01 +0100
+Message-ID: <3205278.6fp3VTYkMI@wuerfel>
+References: <1412726809-7525-1-git-send-email-fkan@apm.com> <1412726809-7525-6-git-send-email-fkan@apm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAL1qeaHG=zVgA+LOQWcaYndyPJPq6Qs18b4Vorj8zXhj8tSeyw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1412726809-7525-6-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>, patches-qTEPVZfXA3Y@public.gmane.org, jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, =devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On 11/10/2014 05:22 PM, Andrew Bresticker wrote:
-> Hi Ezequiel, James,
-> 
-> On Mon, Nov 10, 2014 at 11:30 AM, Ezequiel Garcia
-> <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org> wrote:
->> From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
->>
->> Introduce a devicetree binding for Imagination Technologies
->> I2C SCB controller.
->>
->> Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
->> Signed-off-by: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-> 
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-img-scb.txt b/Documentation/devicetree/bindings/i2c/i2c-img-scb.txt
->> new file mode 100644
->> index 0000000..3a5cd1f
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-img-scb.txt
->> @@ -0,0 +1,29 @@
->> +IMG Serial Control Bus (SCB) I2C Controller
->> +
->> +Required Properties:
->> +- compatible: "img,scb-i2c"
->> +- reg: Physical base address and length of controller registers
->> +- interrupts: Interrupt number used by the controller
->> +- clocks : Should contain a clock specifier for each entry in clock-names
->> +- clock-names : Should contain the following entries:
->> +                "scb", for the SCB core clock.
->> +                "sys", for the system clock.
->> +- clock-frequency: The I2C bus frequency in Hz
->> +- #address-cells: Should be <1>
->> +- #size-cells: Should be <0>
->> +
->> +Optional Properties
->> +- img,bus-delay : Bus delay in ms, defaults to 0.
-> 
-> Maybe this is a dumb question, but what delay does this correspond to
-> in hardware?  In what situations would we use a non-zero value?
+On Tuesday 07 October 2014 17:06:48 Feng Kan wrote:
+> Add APM X-Gene platform SLIMpro I2C driver documentation.
 > 
 
-I'm not sure when would we need a non-zero value. The TRM I have here
-mentions the bus delay parameter models the delay in the internal Clock
-Enable Generation block, and which affects the values that should be
-written to obtain a specified clock enable rate.
+Don't just repeat the subject line, explain what this is for.
 
-After re-reading the code that configures the clock generation, I think
-we can use some more comments :)
--- 
-Ezequiel
+> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+> ---
+>  .../devicetree/bindings/i2c/i2c-xgene-slimpro.txt    | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
+> new file mode 100644
+> index 0000000..1a79d53
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
+> @@ -0,0 +1,20 @@
+> +APM X-Gene SLIMpro Mailbox I2C Driver
+> +
+> +This is a I2C driver that access the I2C bus through the mailbox mechanism.
+> +There is documentation of the mailbox driver in the
+> +Documentation/devicetree/binding/mailbox/xgene-slimpro-mbox.txt
+> +
+> +Required properties :
+> +
+> + - compatible : should be "apm,xgene-slimpro-i2c"
+> + - mbox : ptr to the mailbox dts node, use the name of the mailbox as the
+> +	  first parameter. The second parameter is the channel number.
+> +	  The APM X-Gene SLIMpro mailbox has 8 channels.
+> + - mbox-names : the name of the mailbox channel.
+
+The current form of the mailbox interface no longer uses mbox-names, so
+just drop that. In the old form, the binding would have been incomplete
+because you don't list the required name.
+
+	Arnd
