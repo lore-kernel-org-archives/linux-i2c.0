@@ -1,68 +1,93 @@
-From: "Yang, Wenyou" <Wenyou.Yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH v4] i2c/at91: adopt pinctrl support
-Date: Tue, 11 Nov 2014 00:53:58 +0000
-Message-ID: <B256D81BAE5131468A838E5D7A243641BFC71DAA@penmbx01>
-References: <1415584552-11390-1-git-send-email-wenyou.yang@atmel.com>
- <54609DD8.8030903@cogentembedded.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 2/4] i2c-i801: Fallback to polling if request_irq() fails
+Date: Tue, 11 Nov 2014 11:57:34 +0100
+Message-ID: <20141111105734.GA3794@katana>
+References: <20141110222655.13660613@endymion.delvare>
+ <20141110223104.6419229d@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54609DD8.8030903-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20141110223104.6419229d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Desroches, Ludovic" <Ludovic.Desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: "khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Ferre, Nicolas" <Nicolas.FERRE-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-> -----Original Message-----
-> From: Sergei Shtylyov [mailto:sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org]
-> Sent: Monday, November 10, 2014 7:13 PM
-> To: Yang, Wenyou; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; Desroches, Ludovic
-> Cc: khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; Ferre, Nicolas; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
-> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Subject: Re: [PATCH v4] i2c/at91: adopt pinctrl support
-> 
-> Hello.
-> 
-> On 11/10/2014 4:55 AM, Wenyou Yang wrote:
-> 
-> > Amend the at91 i2c pin controller
-> 
->     You're amending the hardware itself, really? :-)
-> 
-> > to optionally take a pin controlhandle
-> 
->     I don't see the code that does this.
-> 
-> > and set the state of the pins to:
-> > - "default" on boot and resume.
-> 
->     I don't see where you are changing anything for the probe() method.
-> Perhaps you meant the driver core code which selects the dafault profile
-> automatically?
-Yes, the driver core code default do, so remove the redundant code from _probe function.
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > - "sleep" on suspend().
-> 
-> > This should make it possible to optimize energy usage for the pins
-> > both for the suspend/resume cycle
-> 
-> > Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> > ---
-> > Hi Wolfram,
-> >
-> > Thanks a lot.
-> >
-> > The change of this version is to remove
-> > 	pinctrl_pm_select_default_state(&pdev->dev) from the _probe function.
-> 
->     Aha, you've specifically removed this...
-> 
-> WBR, Sergei
+On Mon, Nov 10, 2014 at 10:31:04PM +0100, Jean Delvare wrote:
+> The i2c-i801 driver can work without interrupts, so there is no reason
+> to make a request_irq failure fatal. Instead we can simply fallback
+> to polling.
+>=20
+> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c |    7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>=20
+> --- linux-3.18-rc4.orig/drivers/i2c/busses/i2c-i801.c	2014-11-10 22:29:42=
+=2E788955868 +0100
+> +++ linux-3.18-rc4/drivers/i2c/busses/i2c-i801.c	2014-11-10 22:29:44.4169=
+91298 +0100
+> @@ -1242,9 +1242,11 @@ static int i801_probe(struct pci_dev *de
+>  		if (err) {
+>  			dev_err(&dev->dev, "Failed to allocate irq %d: %d\n",
+>  				dev->irq, err);
+> -			goto exit_release;
+> +			priv->features &=3D ~FEATURE_IRQ;
+> +			dev_info(&dev->dev, "SMBus using polling\n");
 
-Best Regards,
-Wenyou Yang
+Shouldn't this message also be printed for !FEATURE_IRQ? I'd think it
+should be moved to another place. We can also deduce from the dev_err
+above that polling will be used, no?
+
+> +		} else {
+> +			dev_info(&dev->dev, "SMBus using PCI interrupt\n");
+>  		}
+> -		dev_info(&dev->dev, "SMBus using PCI Interrupt\n");
+>  	}
+> =20
+>  	/* set up the sysfs linkage to our parent device */
+> @@ -1272,7 +1274,6 @@ static int i801_probe(struct pci_dev *de
+>  exit_free_irq:
+>  	if (priv->features & FEATURE_IRQ)
+>  		free_irq(dev->irq, priv);
+> -exit_release:
+>  	pci_release_region(dev, SMBBAR);
+>  exit:
+>  	kfree(priv);
+>=20
+> --=20
+> Jean Delvare
+> SUSE L3 Support
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUYeueAAoJEBQN5MwUoCm2aLEP/RCvoM5Hvab83I0qD3SGsPZb
+HkyzOClSvUA46IztxB1lK8IsLkYRNDjvLarpECEivpSWXEjgDde3TT7eVqb0sRTC
+zrBSaensDbCx2yAkS4U39IISmS8b5H5ZKx/stO4OtLEM2fxVnS6SWDSys/aN6m5C
+tma4wK4wIvIzpkgCv1CjyCma/2jg8GyJz++b9k1DV0vzMgTw6iMRulpIDClhhOyQ
+9JeR+6EgUDNPr8NHdpeiKqJlRNSZAGaLLf+tk/HLf2dACm3ex5FDAjGOwSl/Er2b
+EdLkUrNwMeh9hUBT0giB0iuwkNQyVYGCRnlPbDBaMfvWimCUFWPjvZ2KsWG+2+H1
+7x4FAwwADRl1StCZt0k8M7wT7nxsIlQq5mp7K2KivNpWAzmdHaasmw7bHzT8Jiwz
+GDCharGwtPnYxXvc0s8ZW6KlH666WBWIUXqdK5N+x6bw27E/HMqebTOwCbAOc7hg
+ay6Y43N8cWcVy7KjZ0TgSbpUEyprXHver8pcTT0xlFCAKBB5b3k1oA0wAq1RXZcb
+2u+IqCRIBrL17iBM/eOr5AMZnvEj6yqqtZZ4Au0jUMp3hVwXcjrM2UafH9FTvCpd
+ivb4aKiCEU9mDYDjPHgZRfs0AxBE86vZp0OGRjaRUf7gQXSV4BkT7QRHCLWuDMRE
+eyr2CCACCBZWMeV6gmQ9
+=RfZM
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--
