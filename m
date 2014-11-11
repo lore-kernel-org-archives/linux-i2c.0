@@ -1,169 +1,106 @@
-From: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v5 1/2] i2c: Add Imagination Technologies I2C SCB driver
-Date: Tue, 11 Nov 2014 13:59:17 -0300
-Message-ID: <54624065.2050202@imgtec.com>
-References: <1415647816-16415-1-git-send-email-ezequiel.garcia@imgtec.com>	<1415647816-16415-2-git-send-email-ezequiel.garcia@imgtec.com> <CAL1qeaEd-NeoC4Zc3u99WYSojr7HJVxmUweO6taBo8BhAxDJcQ@mail.gmail.com>
+From: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH V2] i2c-designware: Add Intel Baytrail PMIC I2C bus
+ support
+Date: Tue, 11 Nov 2014 09:11:00 -0800
+Message-ID: <20141111171100.GA6955@pathfinder>
+References: <1410543367-6565-1-git-send-email-david.e.box@linux.intel.com>
+ <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
+ <20141111113255.GC3794@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAL1qeaEd-NeoC4Zc3u99WYSojr7HJVxmUweO6taBo8BhAxDJcQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20141111113255.GC3794@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/10/2014 05:53 PM, Andrew Bresticker wrote:
-> Hi Ezequiel,
+On Tue, Nov 11, 2014 at 12:32:56PM +0100, Wolfram Sang wrote:
+> On Tue, Sep 23, 2014 at 11:40:26AM -0700, David E. Box wrote:
+> > This patch implements an I2C bus sharing mechanism between the host and platform
+> > hardware on select Intel BayTrail SoC platforms using the X-Powers AXP288 PMIC.
+> > 
+> > On these platforms access to the PMIC must be shared with platform hardware. The
+> > hardware unit assumes full control of the I2C bus and the host must request
+> > access through a special semaphore. Hardware control of the bus also makes it
+> > necessary to disable runtime pm to avoid interfering with hardware transactions.
 > 
-> On Mon, Nov 10, 2014 at 11:30 AM, Ezequiel Garcia
-> <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org> wrote:
->> From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
->>
->> Add support for the IMG I2C Serial Control Bus (SCB) found on the
->> Pistachio and TZ1090 SoCs.
->>
->> Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
->> [Ezequiel: code cleaning and rebasing]
->> Signed-off-by: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-> 
-> A few minor comments below, otherwise:
-> 
-> Reviewed-by: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> 
->> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
-[..]
->> +
->> +               wait_for_completion_timeout(&i2c->msg_complete, IMG_I2C_TOUT);
-> 
-> ... and here?
-> 
+> Can we foresee that other platforms will have similar mechanisms in the
+> future?
+>
 
-Right, missed these two.
+Maybe one other platform. Unlikely there'll be any others. Okay on your
+comments below.
 
->> +               del_timer_sync(&i2c->check_timer);
->> +               if (i2c->msg_status)
->> +                       break;
->> +       }
->> +
->> +       clk_disable_unprepare(i2c->scb_clk);
->> +
->> +       return i2c->msg_status ? i2c->msg_status : num;
->> +}
+Dave
+
+> > +config I2C_BAYTRAIL_SEM
 > 
->> +static int img_i2c_init(struct img_i2c *i2c)
->> +{
->> +       unsigned int clk_khz, bitrate_khz, clk_period, tckh, tckl, tsdh;
->> +       unsigned int i, ret, data, prescale, inc, int_bitrate;
->> +       unsigned int filt, filt_disable, filt_bypass;
->> +       struct img_i2c_timings timing;
->> +       u32 rev;
->> +
->> +       ret = clk_prepare_enable(i2c->scb_clk);
->> +       if (ret)
->> +               return ret;
->> +
->> +       rev = img_i2c_readl(i2c, SCB_CORE_REV_REG);
->> +       if ((rev & 0x00ffffff) < 0x00020200) {
->> +               dev_info(i2c->adap.dev.parent,
->> +                        "Unknown hardware revision (%d.%d.%d.%d)\n",
->> +                        (rev >> 24) & 0xff, (rev >> 16) & 0xff,
->> +                        (rev >> 8) & 0xff, rev & 0xff);
->> +               clk_disable_unprepare(i2c->scb_clk);
->> +               return -EINVAL;
->> +       }
->> +
->> +       if (rev == REL_SOC_IP_SCB_2_2_1)
->> +               i2c->need_wr_rd_fence = true;
->> +
->> +       bitrate_khz = i2c->bitrate / 1000;
->> +       clk_khz = clk_get_rate(i2c->scb_clk) / 1000;
->> +
->> +       /* Determine what mode we're in from the bitrate */
->> +       timing = timings[0];
->> +       for (i = 0; i < ARRAY_SIZE(timings); i++) {
->> +               if (i2c->bitrate <= timings[i].max_bitrate) {
->> +                       timing = timings[i];
->> +                       break;
->> +               }
->> +       }
->> +
->> +       /* Find the prescale that would give us that inc (approx delay = 0) */
->> +       prescale = SCB_OPT_INC * clk_khz / (256 * 16 * bitrate_khz);
->> +       prescale = clamp_t(unsigned int, prescale, 1, 8);
->> +       clk_khz /= prescale;
->> +
->> +       /* Setup the clock increment value */
->> +       inc = ((256 * 16 * bitrate_khz) /
->> +              (clk_khz - (16 * bitrate_khz * (clk_khz / 1000) *
->> +                          i2c->busdelay) / 10000));
->> +
->> +       /* Setup the filter clock value */
->> +       filt_bypass = 0;
->> +       filt_disable = 0;
->> +       filt = 0;
->> +       if (clk_khz < 20000) {
->> +               filt_disable = SCB_FILT_DISABLE;
->> +       } else if (clk_khz < 40000) {
->> +               filt_bypass = SCB_FILT_BYPASS;
->> +       } else {
->> +               /* Calculate filter clock */
->> +               filt = ((640000) / ((clk_khz / 1000) * (250 - i2c->busdelay)));
->> +               if ((640000) % ((clk_khz / 1000) * (250 - i2c->busdelay))) {
->> +                       /* Scale up */
->> +                       inc++;
->> +               }
->> +               if (filt > SCB_FILT_INC_MASK)
->> +                       filt = SCB_FILT_INC_MASK;
->> +       }
->> +       data = filt_disable | filt_bypass |
->> +              ((filt & SCB_FILT_INC_MASK) << SCB_FILT_INC_SHIFT) |
->> +              ((inc & SCB_INC_MASK) << SCB_INC_SHIFT) |
->> +              (prescale - 1);
->> +       img_i2c_writel(i2c, SCB_CLK_SET_REG, data);
+> I2C_DESIGNWARE_BAYTRAIL_SEM
 > 
-> Do filt_bypass/filt_disable really need to be separate variables?
-> Can't we just use filt in all three cases?
+> > +	tristate "Intel Baytrail I2C semaphore support"
+> > +	depends on I2C_DESIGNWARE_PLATFORM
+> > +	select I2C_DESIGNWARE_CORE
 > 
-
-Hm... how about this?
-
-        /* Setup the filter clock value */
-        if (clk_khz < 20000) {
-                filt = SCB_FILT_DISABLE;
-        } else if (clk_khz < 40000) {
-                filt = SCB_FILT_BYPASS;
-        } else {
-                /* Calculate filter clock */
-                filt = ((640000) / ((clk_khz / 1000) * (250 - i2c->busdelay)));
-                if ((640000) % ((clk_khz / 1000) * (250 - i2c->busdelay))) {
-                        /* Scale up */
-                        inc++;
-                }
-                if (filt > SCB_FILT_INC_MASK)
-                        filt = SCB_FILT_INC_MASK;
-
-                filt = ((filt & SCB_FILT_INC_MASK) << SCB_FILT_INC_SHIFT) |
-                       ((inc & SCB_INC_MASK) << SCB_INC_SHIFT) |
-                       (prescale - 1);
-        }
-        img_i2c_writel(i2c, SCB_CLK_SET_REG, filt);
-
-
->> +#ifdef CONFIG_PM_SLEEP
->> +static int img_i2c_suspend(struct device *dev)
->> +{
->> +       struct img_i2c *i2c = dev_get_drvdata(dev);
->> +
->> +       img_i2c_switch_mode(i2c, MODE_SUSPEND);
->> +
->> +       clk_disable(i2c->sys_clk);
+> This select is already covered by I2C_DESIGNWARE_PLATFORM.
 > 
-> Why not unprepare as well?
+> > +	select IOSF_MBI
+> > +	help
+> > +	  This driver enables host access to the PMIC I2C bus on select Intel
+> > +	  BayTrail platforms using the X-Powers AXP288 PMIC. This driver is
+> > +	  required for host access to the PMIC on these platforms. You should
+> > +	  probably say Y if you have a BayTrail system, unless you know it uses
+> > +	  a different PMIC. Otherwises critical PMIC functions, like charging,
+> > +	  may not operate.
+> > +
+> > +	  This driver should be built as a m if I2C_DESIGNWARE_PLATFORM=m,
+> > +	  and as y if I2C_DESIGNWARE_PLATFORM=y.
 > 
-
-Hm.. seems I got confused here, and thought we couldn't sleep.
-
-Thanks for the review!
--- 
-Ezequiel
+> That shouldn't be the user's task to ensure. Please enforce this in the
+> makefile. Check Documentation/kbuid/makefiles.txt, Section 3.3.
+> 
+> > --- /dev/null
+> > +++ b/drivers/i2c/busses/i2c-baytrail-sem.c
+> > @@ -0,0 +1,157 @@
+> > +/*
+> > + * Intel BayTrail PMIC I2C bus semaphore implementaion
+> > + * Copyright (c) 2014, Intel Corporation.
+> 
+> Mika, can you have a look at the ACPI part here?
+> 
+> > diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> > index d66b6cb..13e0809 100644
+> > --- a/drivers/i2c/busses/i2c-designware-core.h
+> > +++ b/drivers/i2c/busses/i2c-designware-core.h
+> > @@ -65,6 +65,8 @@
+> >   * @ss_lcnt: standard speed LCNT value
+> >   * @fs_hcnt: fast speed HCNT value
+> >   * @fs_lcnt: fast speed LCNT value
+> > + * has_hw_lock: true if bus access requires hardware lock
+> > + * pm_runtime_disabled: true if pm runtime is disabled
+> 
+> Look closely. There is a difference to the entries above.
+> 
+> > @@ -123,3 +127,18 @@ extern void i2c_dw_disable(struct dw_i2c_dev *dev);
+> >  extern void i2c_dw_clear_int(struct dw_i2c_dev *dev);
+> >  extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
+> >  extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
+> > +
+> > +#if IS_ENABLED(CONFIG_I2C_BAYTRAIL_SEM)
+> > +extern int baytrail_i2c_acquire(struct dw_i2c_dev *dev);
+> > +extern void baytrail_i2c_release(struct dw_i2c_dev *dev);
+> > +extern void baytrail_evaluate_sem(struct dw_i2c_dev *dev);
+> > +#define i2c_dw_acquire_ownership(dev) baytrail_i2c_acquire(dev)
+> > +#define i2c_dw_release_ownership(dev) baytrail_i2c_release(dev)
+> > +#define i2c_dw_eval_lock(dev) baytrail_evaluate_sem(dev)
+> i2c_dw_test_ownership_support()?
+> 
+> That doesn't scale in case other platformts will need this. I could
+> imagine a struct i2c_dw_ownership_ops() (or whatever name) which gets
+> populated according to the matched device.
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
