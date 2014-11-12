@@ -1,107 +1,61 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 4/6] i2c: busses: add SLIMpro I2C device driver on APM X-Gene platform
-Date: Tue, 11 Nov 2014 22:51:36 +0100
-Message-ID: <1894616.4yY7dajl4R@wuerfel>
-References: <1412726809-7525-1-git-send-email-fkan@apm.com> <1412726809-7525-5-git-send-email-fkan@apm.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 1/5] ARM: shmobile: kzm9g legacy: Set i2c clks_per_count
+ to 2
+Date: Wed, 12 Nov 2014 10:44:51 +0900
+Message-ID: <20141112014450.GC11597@verge.net.au>
+References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
+ <1415274730-310-2-git-send-email-geert+renesas@glider.be>
+ <20141107052420.GA1278@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1412726809-7525-5-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>, patches-qTEPVZfXA3Y@public.gmane.org, jassisingbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, =devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20141107052420.GA1278@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 07 October 2014 17:06:47 Feng Kan wrote:
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 2e45ae3..a03042c 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -1009,6 +1009,15 @@ config I2C_CROS_EC_TUNNEL
->  	  connected there. This will work whatever the interface used to
->  	  talk to the EC (SPI, I2C or LPC).
->  
-> +config I2C_XGENE_SLIMPRO
-> +	tristate "APM X-Gene SoC I2C SLIMpro devices support"
-> +	depends on ARCH_XGENE && XGENE_SLIMPRO_MBOX
+On Fri, Nov 07, 2014 at 06:24:21AM +0100, Wolfram Sang wrote:
+> On Thu, Nov 06, 2014 at 12:52:06PM +0100, Geert Uytterhoeven wrote:
+> > On sh73a0/kzm9g-legacy, probing of the i2c masters fails with:
+> > 
+> >     i2c-sh_mobile i2c-sh_mobile.0: timing values out of range: L/H=0x208/0x1bf
+> >     sh_mobile: probe of i2c-sh_mobile.0 failed with error -22
+> 
+> Yay, so the warning I added found another bug \o/
+> 
+> > 
+> > According to the datasheet, the transfer rate is derived from the HP
+> > clock (which runs at 104 MHz) divided by two. Hence
+> > i2c_sh_mobile_platform_data.clks_per_count should be set to two.
+> > 
+> > Now probing succeeds, and i2c works:
+> > 
+> >     i2c-sh_mobile i2c-sh_mobile.0: I2C adapter 0 with bus speed 100000 Hz (L/H=0x104/0xe0)
+> > 
+> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> 
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> > ---
+> > Note that the L/H values still differ from the Transfer Rate Settings
+> > example in Table 19.3 of the datasheet, which suggests 0x121/0xe7.
+> 
+> Is the formula different or is it rounding errors?
 
-Why this dependency on XGENE_SLIMPRO_MBOX?
+Hi Geert,
 
-Better replace it with a dependency on MAILBOX.
+As this appears to be a bug fix I would like to accompany this patch with
+some text describing when the problem was introduced and what its effects
+are. In short a rough guide to if it should be applied to -stable. To that
+end I prepared the following which I would appreciate your feedback on.
 
-> +	} else {
-> +		spin_lock_irqsave(&ctx->lock, flags);
-> +		ctx->i2c_rx_poll = 1;
-> +		for (count = SLIMPRO_I2C_WAIT_COUNT; count > 0; count--) {
-> +			if (ctx->i2c_rx_poll == 0)
-> +				break;
-> +			udelay(100);
-> +		}
+* ARM: shmobile: kzm9g legacy: Set i2c clks_per_count
 
-No, you can't block the CPU for an extended amount of time with
-interrupts disabled. Please kill this code.
+  This problem appears to have been introduced when i2c shmobile support was
+  added to the sh73a9 by b028f94b76319e1b8 ("ARM: mach-shmobile: sh73a0
+  i2c_shmobile support.") in v2.6.37.
 
-> +	ctx->resp_msg = data;
-> +	if (ctx->mbox_client.tx_block)
-> +		init_completion(&ctx->rd_complete);
+  Without this fix i2c may not operate correctly on the sh73a0/kzm9g.
 
-reinit_completion()?
-
-> +static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
-> +				u32 addrlen, u32 protocol, u32 readlen,
-> +				u32 with_data_len, void *data)
-> +{
-> +	dma_addr_t paddr;
-> +	u32 msg[3];
-> +	int rc;
-> +
-> +	paddr = dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
-> +			       DMA_FROM_DEVICE);
-
-ctx->dev is probably the wrong device here. The i2c controller is not
-DMA capable itself, you need to have a pointer to the device that actually
-performs the DMA here.
-
-
-> +	/* Request mailbox channel */
-> +	cl->dev = &pdev->dev;
-> +	cl->rx_callback = slimpro_i2c_rx_cb;
-> +	cl->tx_done = slimpro_i2c_tx_done;
-> +	cl->tx_block = true;
-> +	cl->tx_tout = SLIMPRO_OP_TO_MS;
-> +	cl->knows_txdone = false;
-> +	cl->chan_name = "i2c-slimpro";
-> +	ctx->mbox_chan = mbox_request_channel(cl);
-
-This is not the correct interface.
-
-> +	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
-> +	if (rc)
-> +		dev_warn(&pdev->dev, "Unable to set dma mask\n");
-
-Are you sure that this is the correct device to perform the DMA?
-
-Moreover, the mask doesn't match the usage: the slimpro_i2c_blkrd
-function passes in only the lower 32 bit of the address, which would
-be DMA_BIT_MASK(32).
-
-> +#ifdef CONFIG_OF
-> +static struct of_device_id xgene_slimpro_i2c_id[] = {
-> +	{.compatible = "apm,xgene-slimpro-i2c" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, xgene_slimpro_i2c_dt_ids);
-> +#endif
-> +
-> +static struct platform_driver xgene_slimpro_i2c_driver = {
-> +	.probe	= xgene_slimpro_i2c_probe,
-> +	.remove	= xgene_slimpro_i2c_remove,
-> +	.driver	= {
-> +		.name	= XGENE_SLIMPRO_I2C,
-> +		.owner	= THIS_MODULE,
-> +		.of_match_table = of_match_ptr(xgene_slimpro_i2c_id)
-> +	},
-> +};
-
-The driver only supports DT, so just drop the #ifdef and the of_match_ptr().
