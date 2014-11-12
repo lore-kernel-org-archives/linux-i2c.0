@@ -1,37 +1,32 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH 1/5] ARM: shmobile: kzm9g legacy: Set i2c clks_per_count
- to 2
-Date: Wed, 12 Nov 2014 18:05:48 +0900
-Message-ID: <20141112090548.GZ9007@verge.net.au>
-References: <1415274730-310-1-git-send-email-geert+renesas@glider.be>
- <1415274730-310-2-git-send-email-geert+renesas@glider.be>
- <20141107052420.GA1278@katana>
- <20141112014450.GC11597@verge.net.au>
- <CAMuHMdUUspG8-dYGiO7cmuECBLpfmQAYg=B8ZpajxRXhaEUJ2A@mail.gmail.com>
- <CAMuHMdXoiX6CreDJNaDHcmsifX0C+TRRvTy4JWYBc2c-MVT_Qw@mail.gmail.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: [PATCH 0/4 v2] i2c-i801: Make interrupt mode more robust
+Date: Wed, 12 Nov 2014 10:19:31 +0100
+Message-ID: <20141112101931.5f8c196a@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXoiX6CreDJNaDHcmsifX0C+TRRvTy4JWYBc2c-MVT_Qw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 12, 2014 at 09:55:58AM +0100, Geert Uytterhoeven wrote:
-> On Wed, Nov 12, 2014 at 9:53 AM, Geert Uytterhoeven
-> <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org> wrote:
-> >>   i2c_shmobile support.") in v2.6.37.
-> >>
-> >>   Without this fix i2c may not operate correctly on the sh73a0/kzm9g.
-> >
-> > Thanks, that's correct.
-> 
-> git tag --contains b028f94b76319e1b8 says v2.6.38.
-> 
-> Not that you're gonna backport it to ltsi-v2.6.37 ;-)
+Hi all,
 
-Hopefully not!
+This is a patch series aiming at making the interrupt mode of the
+i2c-i801 driver more robust. A number of driver lock-ups have been
+reported on a few systems over the past few years, all related to
+interrupt mode. So let's make it more tolerant to unreliable hardware
+or whatever the actual problem is.
 
-I'll update my description anyway.
+i2c-i801: Use wait_event_timeout to wait for interrupts
+i2c-i801: Fallback to polling if request_irq() fails
+i2c-i801: Check if interrupts are disabled
+i2c-i801: Drop useless debug message
+
+Changes since v1:
+ * Updated according to Wolfram's review. Thanks!
+
+-- 
+Jean Delvare
+SUSE L3 Support
