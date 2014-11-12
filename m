@@ -1,68 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
-Date: Wed, 12 Nov 2014 17:11:47 +0100
-Message-ID: <20141112161146.GE4031@katana>
+Subject: Re: [PATCH 3/5] i2c: sh_mobile: improve success message
+Date: Wed, 12 Nov 2014 17:12:19 +0100
+Message-ID: <20141112161219.GF4031@katana>
 References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
- <1415355104-2031-3-git-send-email-wsa@the-dreams.de>
+ <1415355104-2031-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ep0oHQY+/Gbo/zt0"
+	protocol="application/pgp-signature"; boundary="ChQOR20MqfxkMJg9"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1415355104-2031-3-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1415355104-2031-4-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---ep0oHQY+/Gbo/zt0
+--ChQOR20MqfxkMJg9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 07, 2014 at 11:11:41AM +0100, Wolfram Sang wrote:
+On Fri, Nov 07, 2014 at 11:11:42AM +0100, Wolfram Sang wrote:
 > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Make it possible to transfer i2c message buffers via DMA.
-> Start/Stop/Sending_Slave_Adress is still handled using the old state
-> machine, it is sending the actual data that is done via DMA. This is
-> least intrusive and allows us to work with the message buffers directly
-> instead of preparing a custom buffer which involves copying the data
-> around.
+> No user needs magic hex values, makes this debug output. Add DMA info.
 >=20
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
 
 Applied to for-next, thanks!
 
-One minor change:
+Simon, that means you can queue up patches 4 + 5?
 
--			i2c_op(pd, OP_TX_STOP, data);
-+			i2c_op(pd, OP_TX_STOP, 0);
 
-To prevent uninitialzed var usage.
-
---ep0oHQY+/Gbo/zt0
+--ChQOR20MqfxkMJg9
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUY4bCAAoJEBQN5MwUoCm2i4YP+wbsfz+IBdb6tdASw0SKkngI
-QkR/vC5+uGdJXevFqV8s9U/1JaTKRioaLjCr5hhxl16axNDmNBkfDvg+puAsohRB
-z3JIAfLiy8zAY7pVlYOBEHLWBmx9r6kiD9G3RGzdAIWfKyuzz+Auos9832mr7w6Z
-ca3yeC2BHAKpC5+ScXVDD1LlqV6keUmgK8dyrb5JdKKgeFyRVc/aJ3G5VYAKsWgS
-rg42UlYJEUQVEhl0ss7i51Jn0/bzHiFs97Gy7LRjH17H4Rb//sL4n9eyjhgFZLvh
-thmLm6zhcSjSLsJc+/hVX2cu5oZILzE/d2FXA2i+0/YZYLbrjzvSN1oNJdSz4ox5
-nFr5hpGusYyAvEHfnKL8gK5LYrdbTRPzCcJmLTsie6Ru6FqURol2Srcpmtc1H56y
-D4bildpdj9UUs+YS3fWDhjx9pExZ5t1OKZLhxgUpN3Jls2ytlZeYAILjOayVcPjX
-O+LDt1NOngXSW3jSQNlXQPp02dAedd1otTPv0IfdkPfBKoQrXlyHVJ7f3wbxF+Oe
-TXEbIH7RzCgX306M6KHdhYqf/hfzJ+td7+Cw12iUdwkuirnE0RacB0/su7tPx97O
-4TuW3I0eCcZvVt4bDgO/h2jG4vA06Dje/7Q0fEuMEJvNzEw/YRbzNm31UnFKtmJH
-vplgtQP9BBbmWZPctPt3
-=FP49
+iQIcBAEBAgAGBQJUY4bjAAoJEBQN5MwUoCm2IpgP/3H6tJaBBBsoL5p3Mz2paDZy
+FeQUQADm8DjDrDyFYftsr8NSe2mDxCZoU27IrtYHzAVJrLO3G6RX0YwiMQAufqmd
+ZK95lyV+Q3Y989K6j+oYv2VHZt/mSAXULpKgLSlqnXXsSG+/HH2imvMOrLEJIS8C
+QXoJcek0MoT9GTX21nR9yE2VBIiOntp85tGJyvbdVLL/7Rsw34wEXySXK4JD7J40
+e3mkyG+qgO+HbhH9LDzSTTmGnt3VWvUePMpQiErZ0M6AIgCHNS3awzz8nhthNyAk
+V/J9kSsgHtdNascor6FtdA/VPgBvwuf1oX7+ZkXNIWngYL+wQr3O/dI2CJa+i4d8
+ehBKzWAAVZcrMqms6pzu3Yc5+zmxL8Q86fu29osdWWtr8tQyOqxGtTA4Sye7GYwf
+bZXVoq+3fm9JpZYaEkYonP4tAj6AfrJ/j8OsHbPgmz8RKCLDpjJ9sUPSFneTp8if
+9FSQ4Qg4NcVRapMtTYdIh9KIFgI6n7NA9L5k7YfkLhLZBsytkbv7Vrt1s6glfFeQ
+0+aWeuQCbidwrzE0RLw8SWws9TOUn36/c+g0Jk4dtOZ/OKa7pjUY8K1YI+AwfARQ
+5d5VQqJoXsNbVlgRomikInJvcwLlAX7taBlRQ+YToFy/ixgovXq11MnM9lB56tZB
+WLIa+aekCmh5thBr/+QX
+=favQ
 -----END PGP SIGNATURE-----
 
---ep0oHQY+/Gbo/zt0--
+--ChQOR20MqfxkMJg9--
