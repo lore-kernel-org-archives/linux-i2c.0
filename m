@@ -1,62 +1,68 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/4 v2] i2c-i801: Make interrupt mode more robust
-Date: Wed, 12 Nov 2014 16:28:05 +0100
-Message-ID: <20141112152805.GA4031@katana>
-References: <20141112101931.5f8c196a@endymion.delvare>
+Subject: Re: [PATCH] i2c: mpc: Report correct I2C error codes on Freescale
+ MPC i2c bus driver
+Date: Wed, 12 Nov 2014 16:40:30 +0100
+Message-ID: <20141112154030.GB4031@katana>
+References: <CAAVjN7cpGzokOntyyGVBksdvAw7rGt8zvggpCeMqr+g1yHEyzg@mail.gmail.com>
+ <20141110144954.GC10422@katana>
+ <CAAVjN7fsZC6V7bsJQLNmEx=yOmvsDn2ZwfOHNLd_=_jAbYB2dA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20141112101931.5f8c196a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <CAAVjN7fsZC6V7bsJQLNmEx=yOmvsDn2ZwfOHNLd_=_jAbYB2dA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---C7zPtVaVf+AK4Oqc
+--4bRzO86E/ozDv8r1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 12, 2014 at 10:19:31AM +0100, Jean Delvare wrote:
-> Hi all,
+On Wed, Nov 12, 2014 at 05:08:09AM -0800, Danielle Costantino wrote:
+> From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Subject: [PATCH v2] i2c: mpc: report correct I2C error return codes
 >=20
-> This is a patch series aiming at making the interrupt mode of the
-> i2c-i801 driver more robust. A number of driver lock-ups have been
-> reported on a few systems over the past few years, all related to
-> interrupt mode. So let's make it more tolerant to unreliable hardware
-> or whatever the actual problem is.
+> This patch enforces correct I2C error returned codes from Freescale's
+> MPC i2c bus driver, allowing for proper user-space/kernel error
+> handling.
 >=20
-> i2c-i801: Use wait_event_timeout to wait for interrupts
-> i2c-i801: Fallback to polling if request_irq() fails
-> i2c-i801: Check if interrupts are disabled
-> i2c-i801: Drop useless debug message
+> Signed-off-by: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index 0edf630..4c5d7d9 100644
 
 Applied to for-next, thanks!
 
+Still, the attachment worked, not the mail itself. That is OK for now,
+but not generally acceptable. There is Documentation/email-clients.txt
+which has some info about GMail. Please check.
 
---C7zPtVaVf+AK4Oqc
+
+--4bRzO86E/ozDv8r1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUY3yEAAoJEBQN5MwUoCm2msMP/05tReXj2+ihNXUHvudtW6Zh
-YnW5oR4+hBBFHCoGgIM65CJHkbMVTYu3JO2LxfuxI13+I2m7TRef6BMH9XJ8rZtW
-1xhjhrA8Fx5xarmLwepyNcmlhZCWjdZtW53fuYIE/SfmCaaQLBLx5ZjNoTfVOVVi
-YM2hC/zBtdFe9/yrAVBlwLq3B0b1klb4V0irrbLrIwhxZsWNp0xMlzFah+RXtjVF
-a01nATP6clQoyKk/NJ5x9IcUvu95v0qW9boPlRevyhCEb6WdN/qcmc78mKrknMwH
-eVRe92p9P/wLISpsDLH8D44FwQxWxB2JbXZWqxEtF2OjmgHrKcgMAOhWHVokCoMT
-imOIw40CwHs/c2z3q3YfMnif3930Eh3xngHNKTqqTK4S4OhfzdgYKcIPwPQk4m6r
-R5FSpnC0BjYVWIiuf6ja1P/Cqitp2AXB3ZfnQRT0CvrqECrxBkKpEyi7ihY2tL2g
-h/W1eXtsc80sSSEkTxGalNNB22Fkl/xLG9UXkRZykNnyVwN18qJxgeH9JPqWy/P6
-/Ij0ZKs5wOb4sAN+nyLfooAmRKDgLZTGBymoKdFfSshCp6CVb6CFz4VqPkfH9wly
-DCzPnAuDd+SlUI2lxmN1NwK5J5rRYlQJvzSX69jRed0sOMFdyDMehXEKNKyZdcCx
-Q1Hyy7rtpApB/zYVXxMr
-=ubiq
+iQIcBAEBAgAGBQJUY39uAAoJEBQN5MwUoCm229MQALUb6uGnG52AQWBvQm1cLbbZ
+FWr3RDDQUUA/N9Z+IAz2Z/tYLpi+qva0vNcTg8BcDeL4135rEsOZWTaJWKTprUgu
+iOljcN2wGFwGxaBdWi83KvJFoGlbe2DQaxUKHQiFXiVd4jaS3fdPj1m41ErNKab5
+F/6srRdu79soJwWeNAeVZvkwkx0YXoOqTzbGodbzCQzujnEQ6Pl62di4XKtv/b1u
+EbyC28BDWoJSJT2E3O8YftGPWm9eOQzvLNLZvjfwuSiDTUCkg8m7y0dnAWC9VlwS
+2lKoEIEmDxPOOQfGOrr0vruh7y9WJG8PSbpEdXIvDKs7gU1LFM5JC5tnFAiHdpJ0
+09IhEFZagqzG1aHDUrktnAxuz7cCjpcyjKwqcCK633JQthlq5eCos6mZwnPp/P+8
+wc5HCv6wcLgwIVcBeBOtM5abpBAZyVhotvHIM9W5wzR4cneHtx2OOre6kPdGI18u
+JCee8XS5+NPPFmAys9rP2bm18lo1iwm3YO3jRG9eL6Y9PU15WhykRynCcnHGlCZh
+0DwaLCI1BKE0W0uYsvz96YTj5J3emkRmZ1QUkcX+0QXh+Lac3yrdoHKr5/NrpBWg
+Or1ZIMjcCAaJ9Dam8HzfgmwEmnR6ZlIKaI3pQJ1OlxtEKSKXTdfYU1gij+VelPsY
+5SCJfzdpzvCbj0afKlr4
+=vnmP
 -----END PGP SIGNATURE-----
 
---C7zPtVaVf+AK4Oqc--
+--4bRzO86E/ozDv8r1--
