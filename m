@@ -1,56 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/5] i2c: sh_mobile: sort includes alphabetically
-Date: Wed, 12 Nov 2014 17:10:46 +0100
-Message-ID: <20141112161046.GD4031@katana>
+Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
+Date: Wed, 12 Nov 2014 17:11:47 +0100
+Message-ID: <20141112161146.GE4031@katana>
 References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
- <1415355104-2031-2-git-send-email-wsa@the-dreams.de>
+ <1415355104-2031-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="P+33d92oIH25kiaB"
+	protocol="application/pgp-signature"; boundary="ep0oHQY+/Gbo/zt0"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1415355104-2031-2-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1415355104-2031-3-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---P+33d92oIH25kiaB
+--ep0oHQY+/Gbo/zt0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 07, 2014 at 11:11:40AM +0100, Wolfram Sang wrote:
+On Fri, Nov 07, 2014 at 11:11:41AM +0100, Wolfram Sang wrote:
 > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Improves readability and reduces chances of duplicates.
+> Make it possible to transfer i2c message buffers via DMA.
+> Start/Stop/Sending_Slave_Adress is still handled using the old state
+> machine, it is sending the actual data that is done via DMA. This is
+> least intrusive and allows us to work with the message buffers directly
+> instead of preparing a custom buffer which involves copying the data
+> around.
 >=20
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
 
 Applied to for-next, thanks!
 
+One minor change:
 
---P+33d92oIH25kiaB
+-			i2c_op(pd, OP_TX_STOP, data);
++			i2c_op(pd, OP_TX_STOP, 0);
+
+To prevent uninitialzed var usage.
+
+--ep0oHQY+/Gbo/zt0
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUY4aGAAoJEBQN5MwUoCm2r34QAKsPhPCp9KGn7whMMN0UE4+M
-6VVAUvEcxvT/BE3tS+UwkHkEyxbHUDtGiz4OAEHgDnojudfEfrSjfNTpp6WnPm1a
-xEWpRnzFPdov5It+Bt29DFxPgXbiTIOh/HpN7MfjrqhKLpkstZt3O6832Zg3mFUQ
-E9v2S+XjYDYMG4Ima9X5Pm2wGeG5ofLND3kkH4u4UJuOm3m/Q4Xp59UyDG753c7W
-i3bAokohqIG2O/YOGliVmu3Pdu8l2hkYMdA412cH0+Ys/Ynaq4juWI5CDGBcftoN
-rjDtKFrhXW+mk2xc3DWG8qhUVzOoLBqdiqFH0yqmDqnC4GgZ3h3t/ANH3MIBZfVb
-O3CAU/zoDt5Zl54VaNvGYWc3Ai1g1zFGVVXz5SX2qhvKrlhrN8ELUAB0dtjCdVeC
-9EEoKYzjMmTV4TOtdxP7ZW3zFjFnbCnS2c0sxYwRs2re4qB7URqCqJUd3bV9n2ph
-XhRCP91FaUBC9EykKt1yKj/+oUJXCnLZWEFlh4HCyFJ/foMG88mmJi4lVue5+tnK
-UE9iw4jgCLIBwle6ZCysiQz24+oGkuushmg3RxUgkmeQPRHK4psVyUU62RdUl6vY
-ZP1bNXLjS1pZp2AsujxFv6b5YwPQTXbWNZdZwBAUQCPBt82288hlggYzT+Q5JbWr
-zflEojrU0nkH2gqvmykj
-=K/Vy
+iQIcBAEBAgAGBQJUY4bCAAoJEBQN5MwUoCm2i4YP+wbsfz+IBdb6tdASw0SKkngI
+QkR/vC5+uGdJXevFqV8s9U/1JaTKRioaLjCr5hhxl16axNDmNBkfDvg+puAsohRB
+z3JIAfLiy8zAY7pVlYOBEHLWBmx9r6kiD9G3RGzdAIWfKyuzz+Auos9832mr7w6Z
+ca3yeC2BHAKpC5+ScXVDD1LlqV6keUmgK8dyrb5JdKKgeFyRVc/aJ3G5VYAKsWgS
+rg42UlYJEUQVEhl0ss7i51Jn0/bzHiFs97Gy7LRjH17H4Rb//sL4n9eyjhgFZLvh
+thmLm6zhcSjSLsJc+/hVX2cu5oZILzE/d2FXA2i+0/YZYLbrjzvSN1oNJdSz4ox5
+nFr5hpGusYyAvEHfnKL8gK5LYrdbTRPzCcJmLTsie6Ru6FqURol2Srcpmtc1H56y
+D4bildpdj9UUs+YS3fWDhjx9pExZ5t1OKZLhxgUpN3Jls2ytlZeYAILjOayVcPjX
+O+LDt1NOngXSW3jSQNlXQPp02dAedd1otTPv0IfdkPfBKoQrXlyHVJ7f3wbxF+Oe
+TXEbIH7RzCgX306M6KHdhYqf/hfzJ+td7+Cw12iUdwkuirnE0RacB0/su7tPx97O
+4TuW3I0eCcZvVt4bDgO/h2jG4vA06Dje/7Q0fEuMEJvNzEw/YRbzNm31UnFKtmJH
+vplgtQP9BBbmWZPctPt3
+=FP49
 -----END PGP SIGNATURE-----
 
---P+33d92oIH25kiaB--
+--ep0oHQY+/Gbo/zt0--
