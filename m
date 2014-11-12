@@ -1,85 +1,34 @@
-From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: dln2: simplify return flow for dln2_i2c_enable
-Date: Wed, 12 Nov 2014 11:39:43 +0100
-Message-ID: <20141112103943.GF15215@localhost>
-References: <1415708457-18798-1-git-send-email-octavian.purdila@intel.com>
- <1415708457-18798-3-git-send-email-octavian.purdila@intel.com>
- <20141111122636.GF29789@localhost>
- <CAE1zotKi+kpv6a9xM=-qkpo3K9R5xKjrf2RZgDV7advXFS92FA@mail.gmail.com>
- <alpine.DEB.2.02.1411111718460.2047@localhost6.localdomain6>
+From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: mux: create "channel-n" symlinks for child segments
+Date: Wed, 12 Nov 2014 04:29:13 -0800
+Message-ID: <CAAVjN7fJ0d2-Rp_9poPxMbrCVmz9be7-yZCE-Z7Vr=E4L8rpAg@mail.gmail.com>
+References: <1415363764-10821-1-git-send-email-wsa@the-dreams.de>
+	<CAAVjN7dR0DYmuGOeMtVzsf-K7zsxXEY=jrGg_+V4XuyZhcyfiQ@mail.gmail.com>
+	<20141108175117.GB4900@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.02.1411111718460.2047-bi+AKbBUZKagILUCTcTcHdKyNwTtLsGr@public.gmane.org>
+In-Reply-To: <20141108175117.GB4900@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-Cc: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Nov 11, 2014 at 05:20:37PM +0100, Julia Lawall wrote:
-> On Tue, 11 Nov 2014, Octavian Purdila wrote:
-> 
-> > On Tue, Nov 11, 2014 at 2:26 PM, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> > > On Tue, Nov 11, 2014 at 02:20:57PM +0200, Octavian Purdila wrote:
-> > >> This fixes the following kbuild test robot warning:
-> > >>
-> > >> >> drivers/i2c/busses/i2c-dln2.c:70:1-4: WARNING: end returns can be simplified if negative or 0 value
-> > >>
-> > >> Reported-by: kbuild test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > >> Reported-by: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-> > >>
-> > >> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > >> ---
-> > >>  drivers/i2c/busses/i2c-dln2.c | 7 +------
-> > >>  1 file changed, 1 insertion(+), 6 deletions(-)
-> > >>
-> > >> diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-dln2.c
-> > >> index 010a5fa..b3fb86a 100644
-> > >> --- a/drivers/i2c/busses/i2c-dln2.c
-> > >> +++ b/drivers/i2c/busses/i2c-dln2.c
-> > >> @@ -54,7 +54,6 @@ struct dln2_i2c {
-> > >>
-> > >>  static int dln2_i2c_enable(struct dln2_i2c *dln2, bool enable)
-> > >>  {
-> > >> -     int ret;
-> > >>       u16 cmd;
-> > >>       struct {
-> > >>               u8 port;
-> > >> @@ -67,11 +66,7 @@ static int dln2_i2c_enable(struct dln2_i2c *dln2, bool enable)
-> > >>       else
-> > >>               cmd = DLN2_I2C_DISABLE;
-> > >>
-> > >> -     ret = dln2_transfer_tx(dln2->pdev, cmd, &tx, sizeof(tx));
-> > >> -     if (ret < 0)
-> > >> -             return ret;
-> > >> -
-> > >> -     return 0;
-> > >> +     return dln2_transfer_tx(dln2->pdev, cmd, &tx, sizeof(tx));
-> > >
-> > > This looks like a bogus warning. It's not generally equivalent (ret > 0)
-> > > and is not mandated by any style guide lines.
-> > >
-> > 
-> > In this particular it should be equivalent (with the previous fix) and
-> > it saves 5 lines, so I think its worth it.
-> 
-> It's marked as a warning because it is not generally equivalent.  But 
-> there may be many cases where it is equivalent, and in this case the 
-> documentation for the function said that it should have been.  So I think 
-> that the warning is useful.
+Could you send an aggregated patch, I want to be sure I test exactly
+what is planned in the final patch (the patch says it includes part of
+the next patch "[PATCH v2] i2c: mux: create proper topology in sysfs".
 
-I still think "warning" is too strong, "hint" would perhaps be more
-appropriate, if at all needed.
+On Sat, Nov 8, 2014 at 9:51 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Fri, Nov 07, 2014 at 11:47:37PM -0800, Danielle Costantino wrote:
+>> Just tested it and it work well for me. lsi2c (a tool I have been
+>> developing) was complacently unaffected, I will be releasing it as an
+>> open source app soon.
+>
+> Thanks, can you check this patch ("[PATCH v2] i2c: mux: create proper
+> topology in sysfs"), too? I sent it out a second ago.
+>
 
-Sure we can save four lines of code this way, but we also hide the
-return value of the function so that instead of just looking at the
-function itself I now have to look at the documentation of the final
-function call (and hope it is up to date) to figure out the return
-value (e.g. it may return the number of bytes transfered on success).
 
-I also believe using a temporary is preferred for purely aesthetic
-reasons in case the final function call has enough parameters that it
-needs to use continuation lines.
 
-Johan
+-- 
+- Danielle Costantino
