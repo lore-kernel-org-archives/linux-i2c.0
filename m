@@ -1,59 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4] i2c/at91: adopt pinctrl support
-Date: Wed, 12 Nov 2014 16:51:01 +0100
-Message-ID: <20141112155101.GC4031@katana>
-References: <1415584552-11390-1-git-send-email-wenyou.yang@atmel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/5] i2c: sh_mobile: sort includes alphabetically
+Date: Wed, 12 Nov 2014 17:10:46 +0100
+Message-ID: <20141112161046.GD4031@katana>
+References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
+ <1415355104-2031-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qbvjkv9qwOGw/5Fx"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="P+33d92oIH25kiaB"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1415584552-11390-1-git-send-email-wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <1415355104-2031-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Qbvjkv9qwOGw/5Fx
+--P+33d92oIH25kiaB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 10, 2014 at 09:55:52AM +0800, Wenyou Yang wrote:
-> Amend the at91 i2c pin controller to optionally take a pin control
-> handle and set the state of the pins to:
-> - "default" on boot and resume.
-> - "sleep" on suspend().
+On Fri, Nov 07, 2014 at 11:11:40AM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> This should make it possible to optimize energy usage for the pins
-> both for the suspend/resume cycle
+> Improves readability and reduces chances of duplicates.
 >=20
-> Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Applied to for-next, thanks!
 
 
---Qbvjkv9qwOGw/5Fx
+--P+33d92oIH25kiaB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUY4HkAAoJEBQN5MwUoCm2M4gP/0FC4eBZdi+9vyu+iDasENOe
-Nt/sGnxFpuBHRA2JRvWruk29KmjBYmugT535ySzyzAavWzXoHLNT6hIWhs1vtFnV
-1C4UVLgKFVOW2VviGJowj2Jiq+da5NO4WCA1J7vDHri0A/zHd1I+2nfUKSknUaye
-XJcPb50811UXyn3w9pmwCGWmPgofcTfF9lfh2aMYBwkznhF6Mf8mRAzMsjxNx+uy
-fBNzCzIIyd2zzppwmUD8VgUsTj7mS3SV3IgMRe6A1nRJtITmHgFyOt5rLAHASNZI
-e03E8d46pAwCukNUGhplxNsiz32gLlskQDG4fgkQfQ37o09nVFGor3fbq+8fSWDw
-hx4QN37PvdvtDe9oXK5y+SnHJq1lFVHjy8RBx2/ovI3xrs3YqdPxfrybjCSeH5z2
-A7EwjLEovf56CmU6ywOwYdRm2LczsZ/oHBmaDCNC0/qnJw/qhBBYintFTGkMimMz
-YebJJiP4N9/RnIVEnl6/CDnUaMJ1WpMzQbC+pBCH07ST3T2nhubDCaoyNXrl4pND
-xcow7vuflDoALjhC5I+9M5aLc5HgbtWnorC7qsSeQEx2Swu11PzV7cVsBwX6WvN3
-55SW92XFlVZ23a3jEyW0RmtUAnc3unVxWqVwPc8pHhYuGfCVjZXgJKcxrwfN+Wez
-zFLUyoc4g0jPlPwDfRmL
-=1clq
+iQIcBAEBAgAGBQJUY4aGAAoJEBQN5MwUoCm2r34QAKsPhPCp9KGn7whMMN0UE4+M
+6VVAUvEcxvT/BE3tS+UwkHkEyxbHUDtGiz4OAEHgDnojudfEfrSjfNTpp6WnPm1a
+xEWpRnzFPdov5It+Bt29DFxPgXbiTIOh/HpN7MfjrqhKLpkstZt3O6832Zg3mFUQ
+E9v2S+XjYDYMG4Ima9X5Pm2wGeG5ofLND3kkH4u4UJuOm3m/Q4Xp59UyDG753c7W
+i3bAokohqIG2O/YOGliVmu3Pdu8l2hkYMdA412cH0+Ys/Ynaq4juWI5CDGBcftoN
+rjDtKFrhXW+mk2xc3DWG8qhUVzOoLBqdiqFH0yqmDqnC4GgZ3h3t/ANH3MIBZfVb
+O3CAU/zoDt5Zl54VaNvGYWc3Ai1g1zFGVVXz5SX2qhvKrlhrN8ELUAB0dtjCdVeC
+9EEoKYzjMmTV4TOtdxP7ZW3zFjFnbCnS2c0sxYwRs2re4qB7URqCqJUd3bV9n2ph
+XhRCP91FaUBC9EykKt1yKj/+oUJXCnLZWEFlh4HCyFJ/foMG88mmJi4lVue5+tnK
+UE9iw4jgCLIBwle6ZCysiQz24+oGkuushmg3RxUgkmeQPRHK4psVyUU62RdUl6vY
+ZP1bNXLjS1pZp2AsujxFv6b5YwPQTXbWNZdZwBAUQCPBt82288hlggYzT+Q5JbWr
+zflEojrU0nkH2gqvmykj
+=K/Vy
 -----END PGP SIGNATURE-----
 
---Qbvjkv9qwOGw/5Fx--
+--P+33d92oIH25kiaB--
