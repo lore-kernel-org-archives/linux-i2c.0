@@ -1,68 +1,59 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mpc: Report correct I2C error codes on Freescale
- MPC i2c bus driver
-Date: Wed, 12 Nov 2014 16:40:30 +0100
-Message-ID: <20141112154030.GB4031@katana>
-References: <CAAVjN7cpGzokOntyyGVBksdvAw7rGt8zvggpCeMqr+g1yHEyzg@mail.gmail.com>
- <20141110144954.GC10422@katana>
- <CAAVjN7fsZC6V7bsJQLNmEx=yOmvsDn2ZwfOHNLd_=_jAbYB2dA@mail.gmail.com>
+Subject: Re: [PATCH v4] i2c/at91: adopt pinctrl support
+Date: Wed, 12 Nov 2014 16:51:01 +0100
+Message-ID: <20141112155101.GC4031@katana>
+References: <1415584552-11390-1-git-send-email-wenyou.yang@atmel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
+	protocol="application/pgp-signature"; boundary="Qbvjkv9qwOGw/5Fx"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAAVjN7fsZC6V7bsJQLNmEx=yOmvsDn2ZwfOHNLd_=_jAbYB2dA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1415584552-11390-1-git-send-email-wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---4bRzO86E/ozDv8r1
+--Qbvjkv9qwOGw/5Fx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 12, 2014 at 05:08:09AM -0800, Danielle Costantino wrote:
-> From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Subject: [PATCH v2] i2c: mpc: report correct I2C error return codes
+On Mon, Nov 10, 2014 at 09:55:52AM +0800, Wenyou Yang wrote:
+> Amend the at91 i2c pin controller to optionally take a pin control
+> handle and set the state of the pins to:
+> - "default" on boot and resume.
+> - "sleep" on suspend().
 >=20
-> This patch enforces correct I2C error returned codes from Freescale's
-> MPC i2c bus driver, allowing for proper user-space/kernel error
-> handling.
+> This should make it possible to optimize energy usage for the pins
+> both for the suspend/resume cycle
 >=20
-> Signed-off-by: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->=20
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> index 0edf630..4c5d7d9 100644
+> Signed-off-by: Wenyou Yang <wenyou.yang-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
 Applied to for-next, thanks!
 
-Still, the attachment worked, not the mail itself. That is OK for now,
-but not generally acceptable. There is Documentation/email-clients.txt
-which has some info about GMail. Please check.
 
-
---4bRzO86E/ozDv8r1
+--Qbvjkv9qwOGw/5Fx
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUY39uAAoJEBQN5MwUoCm229MQALUb6uGnG52AQWBvQm1cLbbZ
-FWr3RDDQUUA/N9Z+IAz2Z/tYLpi+qva0vNcTg8BcDeL4135rEsOZWTaJWKTprUgu
-iOljcN2wGFwGxaBdWi83KvJFoGlbe2DQaxUKHQiFXiVd4jaS3fdPj1m41ErNKab5
-F/6srRdu79soJwWeNAeVZvkwkx0YXoOqTzbGodbzCQzujnEQ6Pl62di4XKtv/b1u
-EbyC28BDWoJSJT2E3O8YftGPWm9eOQzvLNLZvjfwuSiDTUCkg8m7y0dnAWC9VlwS
-2lKoEIEmDxPOOQfGOrr0vruh7y9WJG8PSbpEdXIvDKs7gU1LFM5JC5tnFAiHdpJ0
-09IhEFZagqzG1aHDUrktnAxuz7cCjpcyjKwqcCK633JQthlq5eCos6mZwnPp/P+8
-wc5HCv6wcLgwIVcBeBOtM5abpBAZyVhotvHIM9W5wzR4cneHtx2OOre6kPdGI18u
-JCee8XS5+NPPFmAys9rP2bm18lo1iwm3YO3jRG9eL6Y9PU15WhykRynCcnHGlCZh
-0DwaLCI1BKE0W0uYsvz96YTj5J3emkRmZ1QUkcX+0QXh+Lac3yrdoHKr5/NrpBWg
-Or1ZIMjcCAaJ9Dam8HzfgmwEmnR6ZlIKaI3pQJ1OlxtEKSKXTdfYU1gij+VelPsY
-5SCJfzdpzvCbj0afKlr4
-=vnmP
+iQIcBAEBAgAGBQJUY4HkAAoJEBQN5MwUoCm2M4gP/0FC4eBZdi+9vyu+iDasENOe
+Nt/sGnxFpuBHRA2JRvWruk29KmjBYmugT535ySzyzAavWzXoHLNT6hIWhs1vtFnV
+1C4UVLgKFVOW2VviGJowj2Jiq+da5NO4WCA1J7vDHri0A/zHd1I+2nfUKSknUaye
+XJcPb50811UXyn3w9pmwCGWmPgofcTfF9lfh2aMYBwkznhF6Mf8mRAzMsjxNx+uy
+fBNzCzIIyd2zzppwmUD8VgUsTj7mS3SV3IgMRe6A1nRJtITmHgFyOt5rLAHASNZI
+e03E8d46pAwCukNUGhplxNsiz32gLlskQDG4fgkQfQ37o09nVFGor3fbq+8fSWDw
+hx4QN37PvdvtDe9oXK5y+SnHJq1lFVHjy8RBx2/ovI3xrs3YqdPxfrybjCSeH5z2
+A7EwjLEovf56CmU6ywOwYdRm2LczsZ/oHBmaDCNC0/qnJw/qhBBYintFTGkMimMz
+YebJJiP4N9/RnIVEnl6/CDnUaMJ1WpMzQbC+pBCH07ST3T2nhubDCaoyNXrl4pND
+xcow7vuflDoALjhC5I+9M5aLc5HgbtWnorC7qsSeQEx2Swu11PzV7cVsBwX6WvN3
+55SW92XFlVZ23a3jEyW0RmtUAnc3unVxWqVwPc8pHhYuGfCVjZXgJKcxrwfN+Wez
+zFLUyoc4g0jPlPwDfRmL
+=1clq
 -----END PGP SIGNATURE-----
 
---4bRzO86E/ozDv8r1--
+--Qbvjkv9qwOGw/5Fx--
