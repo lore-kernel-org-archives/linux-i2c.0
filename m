@@ -1,7 +1,7 @@
 From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH 3/4 v2] i2c-i801: Check if interrupts are disabled
-Date: Wed, 12 Nov 2014 10:25:37 +0100
-Message-ID: <20141112102537.654bb894@endymion.delvare>
+Subject: [PATCH 4/4 v2] i2c-i801: Drop useless debug message
+Date: Wed, 12 Nov 2014 10:26:38 +0100
+Message-ID: <20141112102638.50833f66@endymion.delvare>
 References: <20141112101931.5f8c196a@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,61 +13,30 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-There is a control bit in the PCI configuration space which disables
-interrupts. If this bit is set, the driver should not try to make use
-of interrupts, it won't receive any.
+Don't log the host status register value in i801_isr(), it has very
+little value and fills up the log when debugging is enabled.
 
 Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
-Changes since v1:
- * Turned warning message into info message and made it shorter.
+No change since v1.
 
- drivers/i2c/busses/i2c-i801.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/i2c/busses/i2c-i801.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- linux-3.18-rc4.orig/drivers/i2c/busses/i2c-i801.c	2014-11-11 14:56:35.777941563 +0100
-+++ linux-3.18-rc4/drivers/i2c/busses/i2c-i801.c	2014-11-11 15:32:30.128418755 +0100
-@@ -110,12 +110,16 @@
+--- linux-3.18-rc4.orig/drivers/i2c/busses/i2c-i801.c	2014-11-10 19:54:05.042326020 +0100
++++ linux-3.18-rc4/drivers/i2c/busses/i2c-i801.c	2014-11-10 19:56:51.562907696 +0100
+@@ -507,9 +507,6 @@ static irqreturn_t i801_isr(int irq, voi
+ 		return IRQ_NONE;
  
- /* PCI Address Constants */
- #define SMBBAR		4
-+#define SMBPCICTL	0x004
- #define SMBPCISTS	0x006
- #define SMBHSTCFG	0x040
+ 	status = inb_p(SMBHSTSTS(priv));
+-	if (status != 0x42)
+-		dev_dbg(&priv->pci_dev->dev, "irq: status = %02x\n", status);
+-
+ 	if (status & SMBHSTSTS_BYTE_DONE)
+ 		i801_isr_byte_done(priv);
  
- /* Host status bits for SMBPCISTS */
- #define SMBPCISTS_INTS		0x08
- 
-+/* Control bits for SMBPCICTL */
-+#define SMBPCICTL_INTDIS	0x0400
-+
- /* Host configuration bits for SMBHSTCFG */
- #define SMBHSTCFG_HST_EN	1
- #define SMBHSTCFG_SMB_SMI_EN	2
-@@ -1235,6 +1239,22 @@ static int i801_probe(struct pci_dev *de
- 	priv->adapter.timeout = HZ / 5;
- 
- 	if (priv->features & FEATURE_IRQ) {
-+		u16 pcictl, pcists;
-+
-+		/* Complain if an interrupt is already pending */
-+		pci_read_config_word(priv->pci_dev, SMBPCISTS, &pcists);
-+		if (pcists & SMBPCISTS_INTS)
-+			dev_warn(&dev->dev, "An interrupt is pending!\n");
-+
-+		/* Check if interrupts have been disabled */
-+		pci_read_config_word(priv->pci_dev, SMBPCICTL, &pcictl);
-+		if (pcictl & SMBPCICTL_INTDIS) {
-+			dev_info(&dev->dev, "Interrupts are disabled\n");
-+			priv->features &= ~FEATURE_IRQ;
-+		}
-+	}
-+
-+	if (priv->features & FEATURE_IRQ) {
- 		init_waitqueue_head(&priv->waitq);
- 
- 		err = request_irq(dev->irq, i801_isr, IRQF_SHARED,
+
 
 -- 
 Jean Delvare
