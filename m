@@ -1,8 +1,7 @@
 From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH 1/4 v2] i2c-i801: Use wait_event_timeout to wait for
- interrupts
-Date: Wed, 12 Nov 2014 10:20:40 +0100
-Message-ID: <20141112102040.3658ad94@endymion.delvare>
+Subject: [PATCH 2/4 v2] i2c-i801: Fallback to polling if request_irq() fails
+Date: Wed, 12 Nov 2014 10:24:07 +0100
+Message-ID: <20141112102407.613f3664@endymion.delvare>
 References: <20141112101931.5f8c196a@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -14,87 +13,43 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Some systems have been reported to have trouble with interrupts. Use
-wait_event_timeout() instead of wait_event() so we don't get stuck in
-that case, and log the problem.
+The i2c-i801 driver can work without interrupts, so there is no reason
+to make a request_irq failure fatal. Instead we can simply fallback
+to polling.
 
 Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
-No change since v1.
+Changes since v1:
+ * Always log whether the driver is using polling or PCI interrupt.
 
- drivers/i2c/busses/i2c-i801.c |   25 ++++++++++++++++++++++---
- 1 file changed, 22 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- linux-3.18-rc4.orig/drivers/i2c/busses/i2c-i801.c	2014-11-10 22:26:47.212135115 +0100
-+++ linux-3.18-rc4/drivers/i2c/busses/i2c-i801.c	2014-11-10 22:29:18.040417276 +0100
-@@ -2,7 +2,7 @@
-     Copyright (c) 1998 - 2002  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>,
-     Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>, and Mark D. Studebaker
-     <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
--    Copyright (C) 2007 - 2012  Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-+    Copyright (C) 2007 - 2014  Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-     Copyright (C) 2010         Intel Corporation,
-                                David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
- 
-@@ -373,6 +373,7 @@ static int i801_transaction(struct i801_
- {
- 	int status;
- 	int result;
-+	const struct i2c_adapter *adap = &priv->adapter;
- 
- 	result = i801_check_pre(priv);
- 	if (result < 0)
-@@ -381,7 +382,14 @@ static int i801_transaction(struct i801_
- 	if (priv->features & FEATURE_IRQ) {
- 		outb_p(xact | SMBHSTCNT_INTREN | SMBHSTCNT_START,
- 		       SMBHSTCNT(priv));
--		wait_event(priv->waitq, (status = priv->status));
-+		result = wait_event_timeout(priv->waitq,
-+					    (status = priv->status),
-+					    adap->timeout);
-+		if (!result) {
-+			status = -ETIMEDOUT;
-+			dev_warn(&priv->pci_dev->dev,
-+				 "Timeout waiting for interrupt!\n");
-+		}
- 		priv->status = 0;
- 		return i801_check_post(priv, status);
+--- linux-3.18-rc4.orig/drivers/i2c/busses/i2c-i801.c	2014-11-10 22:29:42.788955868 +0100
++++ linux-3.18-rc4/drivers/i2c/busses/i2c-i801.c	2014-11-11 14:56:35.777941563 +0100
+@@ -1242,10 +1242,11 @@ static int i801_probe(struct pci_dev *de
+ 		if (err) {
+ 			dev_err(&dev->dev, "Failed to allocate irq %d: %d\n",
+ 				dev->irq, err);
+-			goto exit_release;
++			priv->features &= ~FEATURE_IRQ;
+ 		}
+-		dev_info(&dev->dev, "SMBus using PCI Interrupt\n");
  	}
-@@ -529,6 +537,7 @@ static int i801_block_transaction_byte_b
- 	int smbcmd;
- 	int status;
- 	int result;
-+	const struct i2c_adapter *adap = &priv->adapter;
++	dev_info(&dev->dev, "SMBus using %s\n",
++		 priv->features & FEATURE_IRQ ? "PCI interrupt" : "polling");
  
- 	result = i801_check_pre(priv);
- 	if (result < 0)
-@@ -557,7 +566,14 @@ static int i801_block_transaction_byte_b
- 		priv->data = &data->block[1];
- 
- 		outb_p(priv->cmd | SMBHSTCNT_START, SMBHSTCNT(priv));
--		wait_event(priv->waitq, (status = priv->status));
-+		result = wait_event_timeout(priv->waitq,
-+					    (status = priv->status),
-+					    adap->timeout);
-+		if (!result) {
-+			status = -ETIMEDOUT;
-+			dev_warn(&priv->pci_dev->dev,
-+				 "Timeout waiting for interrupt!\n");
-+		}
- 		priv->status = 0;
- 		return i801_check_post(priv, status);
- 	}
-@@ -1215,6 +1231,9 @@ static int i801_probe(struct pci_dev *de
- 		outb_p(inb_p(SMBAUXCTL(priv)) &
- 		       ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B), SMBAUXCTL(priv));
- 
-+	/* Default timeout in interrupt mode: 200 ms */
-+	priv->adapter.timeout = HZ / 5;
-+
- 	if (priv->features & FEATURE_IRQ) {
- 		init_waitqueue_head(&priv->waitq);
- 
+ 	/* set up the sysfs linkage to our parent device */
+ 	priv->adapter.dev.parent = &dev->dev;
+@@ -1272,7 +1273,6 @@ static int i801_probe(struct pci_dev *de
+ exit_free_irq:
+ 	if (priv->features & FEATURE_IRQ)
+ 		free_irq(dev->irq, priv);
+-exit_release:
+ 	pci_release_region(dev, SMBBAR);
+ exit:
+ 	kfree(priv);
 
 -- 
 Jean Delvare
