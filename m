@@ -1,406 +1,541 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: Driver to expose PowerNV platform i2c busses
-Date: Thu, 13 Nov 2014 08:58:17 +0100
-Message-ID: <20141113075817.GA1288@katana>
-References: <20141110060424.9407.2498.stgit@localhost.localdomain>
+Subject: Re: [PATCH] MIPS/I2C: Move SEAD3 I2C driver to where it belongs.
+Date: Thu, 13 Nov 2014 09:24:22 +0100
+Message-ID: <20141113082422.GB1288@katana>
+References: <1412847261-7930-1-git-send-email-markos.chandras@imgtec.com>
+ <1412847261-7930-3-git-send-email-markos.chandras@imgtec.com>
+ <20141023181925.GA6719@linux-mips.org>
+ <20141024122656.GC12641@linux-mips.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+	protocol="application/pgp-signature"; boundary="2B/JsCI69OhZNC5r"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20141110060424.9407.2498.stgit-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+In-Reply-To: <20141024122656.GC12641-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+To: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Cc: Markos Chandras <markos.chandras-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Chris Dearman <chris.dearman-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---AhhlLboLdkugWU4S
+--2B/JsCI69OhZNC5r
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-I am basically fine if this goes via the powerpc-tree and I was hoping
-that I could ack it right now. However, the driver looks a bit rushed
-and definately needs updates before it is ready to go.
-
-On Mon, Nov 10, 2014 at 11:35:39AM +0530, Neelesh Gupta wrote:
-> The patch exposes the available i2c busses on the PowerNV platform
-> to the kernel and implements the bus driver to support i2c and
-> smbus commands.
-> The driver uses the platform device infrastructure to probe the busses
-> on the platform and registers them with the i2c driver framework.
+On Fri, Oct 24, 2014 at 02:26:57PM +0200, Ralf Baechle wrote:
+> Fixes the following build problem if CONFIG_I2C is disabled:
 >=20
-> Signed-off-by: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-> Signed-off-by: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> arch/mips/mti-sead3/sead3-pic32-i2c-drv.c: In function 'i2c_platform_prob=
+e':
+> arch/mips/mti-sead3/sead3-pic32-i2c-drv.c:345:2: error: implicit declarat=
+ion of
+> function 'i2c_add_numbered_adapter' [-Werror=3Dimplicit-function-declarat=
+ion]
+>   ret =3D i2c_add_numbered_adapter(&priv->adap);
+>     ^
+> arch/mips/mti-sead3/sead3-pic32-i2c-drv.c: In function
+> 'i2c_platform_remove':
+> arch/mips/mti-sead3/sead3-pic32-i2c-drv.c:361:2: error: implicit declarat=
+ion
+> of function 'i2c_del_adapter' [-Werror=3Dimplicit-function-declaration]
+> i2c_del_adapter(&priv->adap);
+>=20
 
-Review for the I2C parts:
+Uh, so this is already mainline? It has some issues.
 
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 78d56c5..350aa86 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -102,5 +102,6 @@ obj-$(CONFIG_I2C_ELEKTOR)	+=3D i2c-elektor.o
->  obj-$(CONFIG_I2C_PCA_ISA)	+=3D i2c-pca-isa.o
->  obj-$(CONFIG_I2C_SIBYTE)	+=3D i2c-sibyte.o
->  obj-$(CONFIG_SCx200_ACB)	+=3D scx200_acb.o
-> +obj-$(CONFIG_I2C_OPAL)		+=3D i2c-opal.o
+> Signed-off-by: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+> Cc: Markos Chandras <markos.chandras-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org
+> Cc: Chris Dearman <chris.dearman-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 
-Please sort it properly, not simply at the end.
+No diffstat?
 
-> =20
->  ccflags-$(CONFIG_I2C_DEBUG_BUS) :=3D -DDEBUG
-> diff --git a/drivers/i2c/busses/i2c-opal.c b/drivers/i2c/busses/i2c-opal.c
+> diff --git a/drivers/i2c/busses/i2c-sead3.c b/drivers/i2c/busses/i2c-sead=
+3.c
 > new file mode 100644
-> index 0000000..3261716
+> index 0000000..1f787a6
 > --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-opal.c
-> @@ -0,0 +1,276 @@
+> +++ b/drivers/i2c/busses/i2c-sead3.c
+> @@ -0,0 +1,405 @@
 > +/*
-> + * IBM OPAL I2C driver
-> + * Copyright (C) 2014 IBM
+> + * This file is subject to the terms and conditions of the GNU General P=
+ublic
+> + * License.  See the file "COPYING" in the main directory of this archive
+> + * for more details.
 > + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program.
+> + * Copyright (C) 2012 MIPS Technologies, Inc.  All rights reserved.
 > + */
-> +
+> +#include <linux/init.h>
 > +#include <linux/module.h>
-> +#include <linux/kernel.h>
 > +#include <linux/slab.h>
+> +#include <linux/delay.h>
 > +#include <linux/i2c.h>
-> +#include <linux/device.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/of.h>
-> +#include <linux/mm.h>
-> +#include <asm/opal.h>
-> +#include <asm/firmware.h>
 
 Please sort the includes.
 
 > +
-> +static int i2c_opal_send_request(u32 bus_id, struct opal_i2c_request *re=
-q)
+> +#define PIC32_I2CxCON		0x0000
+> +#define	 PIC32_I2CCON_ON	(1<<15)
+> +#define	 PIC32_I2CCON_ACKDT	(1<<5)
+> +#define	 PIC32_I2CCON_ACKEN	(1<<4)
+> +#define	 PIC32_I2CCON_RCEN	(1<<3)
+> +#define	 PIC32_I2CCON_PEN	(1<<2)
+> +#define	 PIC32_I2CCON_RSEN	(1<<1)
+> +#define	 PIC32_I2CCON_SEN	(1<<0)
+> +#define PIC32_I2CxCONCLR	0x0004
+> +#define PIC32_I2CxCONSET	0x0008
+> +#define PIC32_I2CxSTAT		0x0010
+> +#define PIC32_I2CxSTATCLR	0x0014
+> +#define	 PIC32_I2CSTAT_ACKSTAT	(1<<15)
+> +#define	 PIC32_I2CSTAT_TRSTAT	(1<<14)
+> +#define	 PIC32_I2CSTAT_BCL	(1<<10)
+> +#define	 PIC32_I2CSTAT_IWCOL	(1<<7)
+> +#define	 PIC32_I2CSTAT_I2COV	(1<<6)
+> +#define PIC32_I2CxBRG		0x0040
+> +#define PIC32_I2CxTRN		0x0050
+> +#define PIC32_I2CxRCV		0x0060
+> +
+> +static DEFINE_SPINLOCK(pic32_bus_lock);
+> +
+> +static void __iomem *bus_xfer	=3D (void __iomem *)0xbf000600;
+> +static void __iomem *bus_status =3D (void __iomem *)0xbf000060;
+> +
+> +#define DELAY() udelay(100)
+> +
+> +static inline unsigned int ioready(void)
 > +{
-> +	struct opal_msg msg;
-> +	int token, rc;
-> +
-> +	token =3D opal_async_get_token_interruptible();
-> +	if (token < 0) {
-> +		if (token !=3D -ERESTARTSYS)
-> +			pr_err("Failed to get the async token\n");
-> +
-> +		return token;
-> +	}
-> +
-> +	rc =3D opal_i2c_request(token, bus_id, req);
-> +	if (rc !=3D OPAL_ASYNC_COMPLETION) {
-> +		rc =3D -EIO;
-> +		goto exit;
-> +	}
-> +
-> +	rc =3D opal_async_wait_response(token, &msg);
-> +	if (rc) {
-> +		rc =3D -EIO;
-> +		goto exit;
-
-Is it really -EIO? Maybe -ETIMEDOUT?
-
-> +	}
-> +
-> +	rc =3D be64_to_cpu(msg.params[1]);
-> +	if (rc !=3D OPAL_SUCCESS) {
-> +		rc =3D -EIO;
-> +		goto exit;
-> +	}
-> +
-> +exit:
-> +	opal_async_release_token(token);
-> +	return rc;
+> +	return readl(bus_status) & 1;
 > +}
 > +
-> +static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg=
- *msgs,
-> +				int num)
+> +static inline void wait_ioready(void)
 > +{
-> +	unsigned long opal_id =3D (unsigned long)adap->algo_data;
-> +	struct opal_i2c_request req;
-> +	int rc, i;
-> +
-> +	/* We only support fairly simple combinations here of one
-> +	 * or two messages
-> +	 */
-
-I don't think you should offer I2C_FUNC_I2C with those limitations. Is
-there a case you really needs this?
-
-> +	memset(&req, 0, sizeof(req));
-> +	switch (num) {
-> +	case 0:
-> +		return 0;
-> +	case 1:
-> +		req.type =3D (msgs[0].flags & I2C_M_RD) ?
-> +			OPAL_I2C_RAW_READ : OPAL_I2C_RAW_WRITE;
-> +		req.addr =3D cpu_to_be16(msgs[0].addr);
-> +		req.size =3D cpu_to_be32(msgs[0].len);
-> +		req.buffer_ra =3D cpu_to_be64(__pa(msgs[0].buf));
-> +		break;
-> +	case 2:
-> +		/* For two messages, we basically support only simple
-> +		 * smbus transactions of a write plus a read. We might
-> +		 * want to allow also two writes but we'd have to bounce
-> +		 * the data into a single buffer.
-> +		 */
-> +		if ((msgs[0].flags & I2C_M_RD) || !(msgs[1].flags & I2C_M_RD))
-> +			return -EIO;
-> +		if (msgs[0].len > 4)
-> +			return -EIO;
-> +		if (msgs[0].addr !=3D msgs[1].addr)
-> +			return -EIO;
-
--EOPNOTSUPP? Please check Documentation/i2c/fault-codes for the error
-codes we use.
-
-> +		req.type =3D OPAL_I2C_SM_READ;
-> +		req.addr =3D cpu_to_be16(msgs[0].addr);
-> +		req.subaddr_sz =3D msgs[0].len;
-> +		for (i =3D 0; i < msgs[0].len; i++)
-> +			req.subaddr =3D (req.subaddr << 8) | msgs[0].buf[i];
-> +		req.subaddr =3D cpu_to_be32(req.subaddr);
-> +		req.size =3D cpu_to_be32(msgs[1].len);
-> +		req.buffer_ra =3D cpu_to_be64(__pa(msgs[1].buf));
-> +		break;
-> +	default:
-> +		return -EIO;
-> +	}
-> +
-> +	rc =3D i2c_opal_send_request(opal_id, &req);
-> +	if (rc)
-> +		return rc;
-> +
-> +	return num;
-> +}
-> +
-> +static int i2c_opal_smbus_xfer(struct i2c_adapter *adap, u16 addr,
-> +			       unsigned short flags, char read_write,
-> +			       u8 command, int size, union i2c_smbus_data *data)
-> +{
-> +	unsigned long opal_id =3D (unsigned long)adap->algo_data;
-> +	struct opal_i2c_request req;
-> +	u8 local[2];
-> +	int rc;
-> +
-> +	memset(&req, 0, sizeof(req));
-> +
-> +	req.addr =3D cpu_to_be16(addr);
-> +	switch (size) {
-> +	case I2C_SMBUS_BYTE:
-> +		req.buffer_ra =3D cpu_to_be64(__pa(&data->byte));
-> +		req.size =3D cpu_to_be32(1);
-> +		/* Fall through */
-> +	case I2C_SMBUS_QUICK:
-> +		req.type =3D (read_write =3D=3D I2C_SMBUS_READ) ?
-> +			OPAL_I2C_RAW_READ : OPAL_I2C_RAW_WRITE;
-> +		break;
-> +	case I2C_SMBUS_BYTE_DATA:
-> +		req.buffer_ra =3D cpu_to_be64(__pa(&data->byte));
-> +		req.size =3D cpu_to_be32(1);
-> +		req.subaddr =3D cpu_to_be32(command);
-> +		req.subaddr_sz =3D 1;
-> +		req.type =3D (read_write =3D=3D I2C_SMBUS_READ) ?
-> +			OPAL_I2C_SM_READ : OPAL_I2C_SM_WRITE;
-> +		break;
-> +	case I2C_SMBUS_WORD_DATA:
-> +		if (!read_write) {
-> +			local[0] =3D data->word & 0xff;
-> +			local[1] =3D (data->word >> 8) & 0xff;
-> +		}
-> +		req.buffer_ra =3D cpu_to_be64(__pa(local));
-> +		req.size =3D cpu_to_be32(2);
-> +		req.subaddr =3D cpu_to_be32(command);
-> +		req.subaddr_sz =3D 1;
-> +		req.type =3D (read_write =3D=3D I2C_SMBUS_READ) ?
-> +			OPAL_I2C_SM_READ : OPAL_I2C_SM_WRITE;
-> +		break;
-> +	case I2C_SMBUS_I2C_BLOCK_DATA:
-> +		req.buffer_ra =3D cpu_to_be64(__pa(&data->block[1]));
-> +		req.size =3D cpu_to_be32(data->block[0]);
-> +		req.subaddr =3D cpu_to_be32(command);
-> +		req.subaddr_sz =3D 1;
-> +		req.type =3D (read_write =3D=3D I2C_SMBUS_READ) ?
-> +			OPAL_I2C_SM_READ : OPAL_I2C_SM_WRITE;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	rc =3D i2c_opal_send_request(opal_id, &req);
-> +	if (!rc && read_write && size =3D=3D I2C_SMBUS_WORD_DATA) {
-> +		data->word =3D ((u16)local[1]) << 8;
-> +		data->word |=3D local[0];
-> +	}
-> +
-> +	return rc;
-> +}
-> +
-> +static u32 i2c_opal_func(struct i2c_adapter *adapter)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-> +	       I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-> +	       I2C_FUNC_SMBUS_I2C_BLOCK;
+> +	do { } while (!ioready());
 > +}
 
-See comment above about I2C_FUNC_I2C?
+No timeout?
 
 > +
-> +static const struct i2c_algorithm i2c_opal_algo =3D {
-> +	.master_xfer	=3D i2c_opal_master_xfer,
-> +	.smbus_xfer	=3D i2c_opal_smbus_xfer,
-> +	.functionality	=3D i2c_opal_func,
+> +static inline void wait_ioclear(void)
+> +{
+> +	do { } while (ioready());
+> +}
+
+ditto
+
+> +
+> +static inline void check_ioclear(void)
+> +{
+> +	if (ioready()) {
+> +		do {
+> +			(void) readl(bus_xfer);
+> +			DELAY();
+> +		} while (ioready());
+> +	}
+> +}
+> +
+> +static u32 pic32_bus_readl(u32 reg)
+> +{
+> +	unsigned long flags;
+> +	u32 status, val;
+> +
+> +	spin_lock_irqsave(&pic32_bus_lock, flags);
+> +
+> +	check_ioclear();
+> +	writel((0x01 << 24) | (reg & 0x00ffffff), bus_xfer);
+
+Can we have names for all these magic hex-values?
+
+> +	DELAY();
+> +	wait_ioready();
+> +	status =3D readl(bus_xfer);
+> +	DELAY();
+> +	val =3D readl(bus_xfer);
+> +	wait_ioclear();
+> +
+> +	spin_unlock_irqrestore(&pic32_bus_lock, flags);
+> +
+> +	return val;
+> +}
+> +
+> +static void pic32_bus_writel(u32 val, u32 reg)
+> +{
+> +	unsigned long flags;
+> +	u32 status;
+> +
+> +	spin_lock_irqsave(&pic32_bus_lock, flags);
+> +
+> +	check_ioclear();
+> +	writel((0x10 << 24) | (reg & 0x00ffffff), bus_xfer);
+> +	DELAY();
+> +	writel(val, bus_xfer);
+> +	DELAY();
+> +	wait_ioready();
+> +	status =3D readl(bus_xfer);
+> +	wait_ioclear();
+> +
+> +	spin_unlock_irqrestore(&pic32_bus_lock, flags);
+> +}
+> +
+> +struct pic32_i2c_platform_data {
+> +	u32	base;
+> +	struct i2c_adapter adap;
+> +	u32	xfer_timeout;
+> +	u32	ack_timeout;
+> +	u32	ctl_timeout;
 > +};
+
+priv goes to the platform instead of the adapter? Unusual, why is that?
+
 > +
-> +static int i2c_opal_probe(struct platform_device *pdev)
+> +static inline void pic32_i2c_start(struct pic32_i2c_platform_data *adap)
 > +{
-> +	struct i2c_adapter	*adapter;
-> +	const char		*pname;
-> +	u32			opal_id;
-> +	int			rc;
-> +
-> +	if (!pdev->dev.of_node)
-> +		return -ENODEV;
-
-Can this happen? How would the match happen otherwise?
-
-> +	rc =3D of_property_read_u32(pdev->dev.of_node, "ibm,opal-id", &opal_id);
-> +	if (rc) {
-> +		dev_err(&pdev->dev, "Missing ibm,opal-id property !\n");
-> +		return -EIO;
-> +	}
-> +	adapter =3D kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
-
-devm_kzalloc?
-
-> +	if (!adapter)
-> +		return -ENOMEM;
-> +	adapter->algo =3D &i2c_opal_algo;
-> +	adapter->algo_data =3D (void *)(unsigned long)opal_id;
-
-double cast?
-
-> +	adapter->dev.parent =3D &pdev->dev;
-> +	adapter->dev.of_node =3D of_node_get(pdev->dev.of_node);
-> +	pname =3D of_get_property(pdev->dev.of_node, "port-name", NULL);
-
-I have never seen this binding before, it looks fishy. Where is it document=
-ed?
-
-> +	if (pname)
-> +		strlcpy(adapter->name, pname, sizeof(adapter->name));
-> +	else
-> +		strlcpy(adapter->name, "opal", sizeof(adapter->name));
-> +
-> +	platform_set_drvdata(pdev, adapter);
-> +	rc =3D i2c_add_adapter(adapter);
-> +	if (rc)
-> +		dev_err(&pdev->dev, "Failed to register the i2c adapter\n");
-
-Leaking 'adapter' here.
-
-> +
-> +	return rc;
+> +	pic32_bus_writel(PIC32_I2CCON_SEN, adap->base + PIC32_I2CxCONSET);
 > +}
 > +
-> +static int i2c_opal_remove(struct platform_device *pdev)
+> +static inline void pic32_i2c_stop(struct pic32_i2c_platform_data *adap)
 > +{
-> +	struct i2c_adapter *adapter =3D platform_get_drvdata(pdev);
+> +	pic32_bus_writel(PIC32_I2CCON_PEN, adap->base + PIC32_I2CxCONSET);
+> +}
 > +
-> +	i2c_del_adapter(adapter);
+> +static inline void pic32_i2c_ack(struct pic32_i2c_platform_data *adap)
+> +{
+> +	pic32_bus_writel(PIC32_I2CCON_ACKDT, adap->base + PIC32_I2CxCONCLR);
+> +	pic32_bus_writel(PIC32_I2CCON_ACKEN, adap->base + PIC32_I2CxCONSET);
+> +}
 > +
-> +	kfree(adapter);
+> +static inline void pic32_i2c_nack(struct pic32_i2c_platform_data *adap)
+> +{
+> +	pic32_bus_writel(PIC32_I2CCON_ACKDT, adap->base + PIC32_I2CxCONSET);
+> +	pic32_bus_writel(PIC32_I2CCON_ACKEN, adap->base + PIC32_I2CxCONSET);
+> +}
 > +
+> +static inline int pic32_i2c_idle(struct pic32_i2c_platform_data *adap)
+> +{
+> +	int i;
+> +
+> +	for (i =3D 0; i < adap->ctl_timeout; i++) {
+> +		if (((pic32_bus_readl(adap->base + PIC32_I2CxCON) &
+> +		      (PIC32_I2CCON_ACKEN | PIC32_I2CCON_RCEN |
+> +		       PIC32_I2CCON_PEN | PIC32_I2CCON_RSEN |
+> +		       PIC32_I2CCON_SEN)) =3D=3D 0) &&
+> +		    ((pic32_bus_readl(adap->base + PIC32_I2CxSTAT) &
+> +		      (PIC32_I2CSTAT_TRSTAT)) =3D=3D 0))
+> +			return 0;
+> +		udelay(1);
+> +	}
+> +	return -ETIMEDOUT;
+> +}
+> +
+> +static inline u32 pic32_i2c_master_write(struct pic32_i2c_platform_data =
+*adap,
+> +		u32 byte)
+> +{
+> +	pic32_bus_writel(byte, adap->base + PIC32_I2CxTRN);
+> +	return pic32_bus_readl(adap->base + PIC32_I2CxSTAT) &
+> +			PIC32_I2CSTAT_IWCOL;
+> +}
+> +
+> +static inline u32 pic32_i2c_master_read(struct pic32_i2c_platform_data *=
+adap)
+> +{
+> +	pic32_bus_writel(PIC32_I2CCON_RCEN, adap->base + PIC32_I2CxCONSET);
+> +	while (pic32_bus_readl(adap->base + PIC32_I2CxCON) & PIC32_I2CCON_RCEN)
+> +		;
+> +	pic32_bus_writel(PIC32_I2CSTAT_I2COV, adap->base + PIC32_I2CxSTATCLR);
+> +	return pic32_bus_readl(adap->base + PIC32_I2CxRCV);
+> +}
+> +
+> +static int pic32_i2c_address(struct pic32_i2c_platform_data *adap,
+> +		unsigned int addr, int rd)
+> +{
+> +	pic32_i2c_idle(adap);
+> +	pic32_i2c_start(adap);
+> +	pic32_i2c_idle(adap);
+> +
+> +	addr <<=3D 1;
+> +	if (rd)
+> +		addr |=3D 1;
+> +
+> +	if (pic32_i2c_master_write(adap, addr))
+> +		return -EIO;
+> +	pic32_i2c_idle(adap);
+> +	if (pic32_bus_readl(adap->base + PIC32_I2CxSTAT) &
+> +			PIC32_I2CSTAT_ACKSTAT)
+> +		return -EIO;
+
+I'd think this is -ENXIO. Please have a look at
+Documentation/i2c/fault-codes for the error codes we use.
+
 > +	return 0;
 > +}
 > +
-> +static const struct of_device_id i2c_opal_of_match[] =3D {
-> +	{
-> +		.compatible =3D "ibm,power8-i2c-port",
-> +	},
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, i2c_opal_of_match);
+> +static int sead3_i2c_read(struct pic32_i2c_platform_data *adap,
+> +		unsigned char *buf, unsigned int len)
+> +{
+> +	u32 data;
+> +	int i;
 > +
-> +static struct platform_driver i2c_opal_driver =3D {
-> +	.probe	=3D i2c_opal_probe,
-> +	.remove	=3D i2c_opal_remove,
-> +	.driver	=3D {
-> +		.name		=3D "i2c-opal",
-> +		.owner		=3D THIS_MODULE,
+> +	i =3D 0;
+> +	while (i < len) {
+> +		data =3D pic32_i2c_master_read(adap);
+> +		buf[i++] =3D data;
+> +		if (i < len)
+> +			pic32_i2c_ack(adap);
+> +		else
+> +			pic32_i2c_nack(adap);
+> +	}
+> +
+> +	pic32_i2c_stop(adap);
+> +	pic32_i2c_idle(adap);
+> +	return 0;
+> +}
+> +
+> +static int sead3_i2c_write(struct pic32_i2c_platform_data *adap,
+> +		unsigned char *buf, unsigned int len)
+> +{
+> +	int i;
+> +	u32 data;
+> +
+> +	i =3D 0;
+> +	while (i < len) {
+> +		data =3D buf[i];
+> +		if (pic32_i2c_master_write(adap, data))
+> +			return -EIO;
+> +		pic32_i2c_idle(adap);
+> +		if (pic32_bus_readl(adap->base + PIC32_I2CxSTAT) &
+> +					PIC32_I2CSTAT_ACKSTAT)
+> +			return -EIO;
+
+ditto
+
+> +		i++;
+> +	}
+> +
+> +	pic32_i2c_stop(adap);
+> +	pic32_i2c_idle(adap);
+> +	return 0;
+> +}
+> +
+> +static int sead3_pic32_platform_xfer(struct i2c_adapter *i2c_adap,
+> +		struct i2c_msg *msgs, int num)
+> +{
+> +	struct pic32_i2c_platform_data *adap =3D i2c_adap->algo_data;
+> +	struct i2c_msg *p;
+> +	int i, err =3D 0;
+> +
+> +	for (i =3D 0; i < num; i++) {
+> +#define __BUFSIZE 80
+> +		int ii;
+> +		static char buf[__BUFSIZE];
+> +		char *b =3D buf;
+> +
+> +		p =3D &msgs[i];
+> +		b +=3D sprintf(buf, " [%d bytes]", p->len);
+> +		if ((p->flags & I2C_M_RD) =3D=3D 0) {
+> +			for (ii =3D 0; ii < p->len; ii++) {
+> +				if (b < &buf[__BUFSIZE-4]) {
+> +					b +=3D sprintf(b, " %02x", p->buf[ii]);
+> +				} else {
+> +					strcat(b, "...");
+> +					break;
+> +				}
+> +			}
+> +		}
+
+??? Where is buf used? And we have other debugging options and support
+even tracing. Not needed.
+
+> +	}
+> +
+> +	for (i =3D 0; !err && i < num; i++) {
+> +		p =3D &msgs[i];
+> +		err =3D pic32_i2c_address(adap, p->addr, p->flags & I2C_M_RD);
+> +		if (err || !p->len)
+> +			continue;
+
+So, you don't support SMBUS_QUICK? You should remove it from the
+functionality then. Or add support for it.
+
+> +		if (p->flags & I2C_M_RD)
+> +			err =3D sead3_i2c_read(adap, p->buf, p->len);
+> +		else
+> +			err =3D sead3_i2c_write(adap, p->buf, p->len);
+> +	}
+> +
+> +	/* Return the number of messages processed, or the error code. */
+> +	if (err =3D=3D 0)
+> +		err =3D num;
+> +
+> +	return err;
+> +}
+> +
+> +static u32 sead3_pic32_platform_func(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+> +
+> +static const struct i2c_algorithm sead3_platform_algo =3D {
+> +	.master_xfer	=3D sead3_pic32_platform_xfer,
+> +	.functionality	=3D sead3_pic32_platform_func,
+> +};
+> +
+> +static void sead3_i2c_platform_setup(struct pic32_i2c_platform_data *pri=
+v)
+> +{
+> +	pic32_bus_writel(500, priv->base + PIC32_I2CxBRG);
+> +	pic32_bus_writel(PIC32_I2CCON_ON, priv->base + PIC32_I2CxCONCLR);
+> +	pic32_bus_writel(PIC32_I2CCON_ON, priv->base + PIC32_I2CxCONSET);
+> +	pic32_bus_writel(PIC32_I2CSTAT_BCL | PIC32_I2CSTAT_IWCOL,
+> +		priv->base + PIC32_I2CxSTATCLR);
+> +}
+> +
+> +static int sead3_i2c_platform_probe(struct platform_device *pdev)
+> +{
+> +	struct pic32_i2c_platform_data *priv;
+> +	struct resource *r;
+> +	int ret;
+> +
+> +	r =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!r) {
+> +		ret =3D -ENODEV;
+> +		goto out;
+> +	}
+> +
+> +	priv =3D kzalloc(sizeof(struct pic32_i2c_platform_data), GFP_KERNEL);
+> +	if (!priv) {
+> +		ret =3D -ENOMEM;
+> +		goto out;
+> +	}
+> +
+> +	priv->base =3D r->start;
+
+OK. MIPS doesn't need ioremap?
+
+> +	if (!priv->base) {
+> +		ret =3D -EBUSY;
+> +		goto out_mem;
+> +	}
+> +
+> +	priv->xfer_timeout =3D 200;
+> +	priv->ack_timeout =3D 200;
+> +	priv->ctl_timeout =3D 200;
+
+Why have three if they are all the same?
+
+> +
+> +	priv->adap.nr =3D pdev->id;
+> +	priv->adap.algo =3D &sead3_platform_algo;
+> +	priv->adap.algo_data =3D priv;
+> +	priv->adap.dev.parent =3D &pdev->dev;
+> +	strlcpy(priv->adap.name, "SEAD3 PIC32", sizeof(priv->adap.name));
+> +
+> +	sead3_i2c_platform_setup(priv);
+> +
+> +	ret =3D i2c_add_numbered_adapter(&priv->adap);
+> +	if (ret =3D=3D 0) {
+> +		platform_set_drvdata(pdev, priv);
+
+No, it must be set before! If I2C gets called after add_adapter and
+before the if, we have an OOPS.
+
+> +		return 0;
+> +	}
+> +
+> +out_mem:
+> +	kfree(priv);
+> +out:
+> +	return ret;
+> +}
+> +
+> +static int sead3_i2c_platform_remove(struct platform_device *pdev)
+> +{
+> +	struct pic32_i2c_platform_data *priv =3D platform_get_drvdata(pdev);
+> +
+> +	platform_set_drvdata(pdev, NULL);
+> +	i2c_del_adapter(&priv->adap);
+> +	kfree(priv);
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int sead3_i2c_platform_suspend(struct platform_device *pdev,
+> +		pm_message_t state)
+> +{
+> +	dev_dbg(&pdev->dev, "i2c_platform_disable\n");
+> +	return 0;
+> +}
+> +
+> +static int sead3_i2c_platform_resume(struct platform_device *pdev)
+> +{
+> +	struct pic32_i2c_platform_data *priv =3D platform_get_drvdata(pdev);
+> +
+> +	dev_dbg(&pdev->dev, "sead3_i2c_platform_setup\n");
+> +	sead3_i2c_platform_setup(priv);
+> +
+> +	return 0;
+> +}
+> +#else
+> +#define sead3_i2c_platform_suspend	NULL
+> +#define sead3_i2c_platform_resume	NULL
+> +#endif
+> +
+> +static struct platform_driver sead3_i2c_platform_driver =3D {
+> +	.driver =3D {
+> +		.name	=3D "sead3-i2c",
+> +		.owner	=3D THIS_MODULE,
 
 Not needed.
 
-> +		.of_match_table	=3D i2c_opal_of_match,
 > +	},
+> +	.probe		=3D sead3_i2c_platform_probe,
+> +	.remove		=3D sead3_i2c_platform_remove,
+> +	.suspend	=3D sead3_i2c_platform_suspend,
+> +	.resume		=3D sead3_i2c_platform_resume,
 > +};
 > +
-> +static int __init i2c_opal_init(void)
+> +static int __init sead3_i2c_platform_init(void)
 > +{
-> +	if (!firmware_has_feature(FW_FEATURE_OPAL))
-> +		return -ENODEV;
-> +
-> +	return platform_driver_register(&i2c_opal_driver);
+> +	return platform_driver_register(&sead3_i2c_platform_driver);
 > +}
+> +module_init(sead3_i2c_platform_init);
 > +
-> +static void __exit i2c_opal_exit(void)
+> +static void __exit sead3_i2c_platform_exit(void)
 > +{
-> +	return platform_driver_unregister(&i2c_opal_driver);
+> +	platform_driver_unregister(&sead3_i2c_platform_driver);
 > +}
+> +module_exit(sead3_i2c_platform_exit);
+
+module_platform_driver()
+
 > +
-> +MODULE_AUTHOR("Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>");
-> +MODULE_DESCRIPTION("IBM OPAL I2C driver");
+> +MODULE_AUTHOR("Chris Dearman, MIPS Technologies INC.");
+> +MODULE_DESCRIPTION("SEAD3 PIC32 I2C driver");
 > +MODULE_LICENSE("GPL");
-> +
-> +module_init(i2c_opal_init);
-> +module_exit(i2c_opal_exit);
 
-Please put thos right below the functions it references.
-
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
---AhhlLboLdkugWU4S
+--2B/JsCI69OhZNC5r
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUZGSYAAoJEBQN5MwUoCm2dM0P/jr6d1Qrw5siJm1c5xlTOIOb
-4i7GKNE/FgcjkRPfu3CXc3f4Mi9P8NN4s1vulqeC1Rcec4b7e2qOYkNz8bhg1J1s
-DSD2J+PR6d6hd2FTET1KQMS47CAMipl57BN+V4fWeH5kCME7jZR+oXcHaTlTzZi9
-fWseerleeIvySLEOgQhG8SI0pp6a2AOFoFpZW4XV/8lf0OO7QZmUvHkJMpYFSX+u
-aRqk8/NQW6NJ8vnH2ox7tO9tA+bz7zvDnDj5/Sv9MbEXl1WRSsvxtNPYGEeHaev2
-SVbkAOOsYkgLZnvWOQ994WMB6DF1S9mAavsmdHziXQwUh/b+GuBJny2Vo/labYht
-SfeK2zkxqfbMYsT4Qpuu9U8F1hpGPCuCUTWy6XlClFIL43Rimik++USAaEJ0M7yr
-m5bs0qBksjH78vMLuJdzOYXgpMpmAsFYYqVIBZW9adUlXgXkTD6pfrHE4UU6jWMP
-XeAmR8JQzn9Vz5Hn2MNABpBC1VVffs6hjeCbGJgMqR/+frgdNFwVuc9GmhcZCPpu
-j0Mb5PgQJtQOvvEJdQtx1EReoVR0DiStFsib1gkM1/374SxSRwBAQWC+k/hPS0Wx
-aAxZLtsKYxWA03i6gfWhqlu3Bb+FapaAErBYcO0jL+UxxDzHOO/wwYwXPOHV0hZz
-h/0VOKdHjnivnohugHWb
-=FG3T
+iQIcBAEBAgAGBQJUZGq2AAoJEBQN5MwUoCm2PrIQAJ4Fy3A11EMcU/G7yJRn3sAR
+4f8+AIsBv7okeH3K8/ypzrbRS9V+VzU9v1izOfrdasBXTUuM6mo3otV9ZetyX8L0
+xeBA+MqTjLuUIv+3qkreJ1SEjquoceuvjoOhLVX63d5FK4vNPEB22nFxttGpe5yq
+ghOfWPFVi+abzcs/zbGf1vtvnGGLgw6CWzMrv4e0y8qEkXYtrvVU5tSxpGW//pDL
+v6nFCfyxJBWe+zQgXAi8vtyS9q9lszfvUFj/qVwQ9rRQh1i1kj09gP6IcK08P/vw
+6qjrqzvfdzKXmeUrstGvIBexE7/JXnn7yYfw+OuK5VoEbaYva+L+JI9T7qByl+H/
+vjPjcjADcz2XQkXFqlxB7FFNjw6HMDRJrt3E8ZP+QRTywSLIxh7TuX/V2NiQuqxB
+z3fDO9RCxkvuv9izzHmv0TLxJRXYTrpjfuZQ0U4czvLMtGj9XlrG4jdsOTaf4Ad5
+29dsSasAIwG1UILdLaGlqoJD+Na2HmuudstAHqsAwceNAFJFaWJn8KV0QX/Ry+SY
+E9MbblEc5B5VD/sm8FRX4Iv7qwCrh8nrMOlo5Y7LUzGGA3IBolbGT6pJzxlynMho
+LWjiCgfapjbk8TvmCI4j+SI1AnyIVe+XkDfakRqAxfuh0i4SKTPiWvxW8awcFhi6
+Jwj2UQ25lYnSaGPp0TST
+=pULg
 -----END PGP SIGNATURE-----
 
---AhhlLboLdkugWU4S--
+--2B/JsCI69OhZNC5r--
