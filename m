@@ -1,125 +1,73 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Thu, 13 Nov 2014 19:16:50 +0100
-Message-ID: <20141113181649.GG1275@katana>
+Subject: Re: [PATCH v2 0/3] ARM: mediatek: Add driver for Mediatek I2C
+ controller
+Date: Thu, 13 Nov 2014 19:31:22 +0100
+Message-ID: <20141113183122.GH1275@katana>
 References: <1415078977-18374-1-git-send-email-xudong.chen@mediatek.com>
- <1415078977-18374-2-git-send-email-xudong.chen@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Zrag5V6pnZGjLKiw"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="bpVaumkpfGNUagdU"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1415078977-18374-2-git-send-email-xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1415078977-18374-1-git-send-email-xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Nathan Chung <nathan.chung-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, YH Chen <yh.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Zrag5V6pnZGjLKiw
+--bpVaumkpfGNUagdU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 04, 2014 at 01:29:35PM +0800, Xudong Chen wrote:
-> Add devicetree bindings for Mediatek Soc I2C driver.
+
+> MTK I2C HW has some limitation.
+> 1. If the i2c_msg number is more than one, STOP will be issued instead of
+> RS(Repeat Start) between each message.
 >=20
-> Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-mt6577.txt         | 39 ++++++++++++++++=
-++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> 2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
+> mode the Repeat Start will be issued between 2 messages.
+> In this driver if 2 messages is first write then read, the driver will
+> combine 2 messages using Write-Read mode so the RS will be issued between
+> the 2 messages.
+> Ex: W/R/R, driver will combine first W/R and then R.
 >=20
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Docum=
-entation/devicetree/bindings/i2c/i2c-mt6577.txt
-> new file mode 100644
-> index 0000000..733e65e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> @@ -0,0 +1,39 @@
-> +* Mediatek's I2C controller
-> +
-> +The Mediatek's I2C controller is used to interface with I2C devices.
-> +
-> +Required properties:
-> +  - compatible: value should be either of the following.
-> +      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-> +      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-> +      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> +      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> +  - reg: physical base address of the controller and dma base, length of=
- memory mapped
-> +    region.
-> +  - interrupts: interrupt number to the cpu.
-> +  - clock-div: the fixed value for frequency divider of clock source in =
-i2c module.
-> +    Each IC may be different.
+> 3. Due to HW limitation, in this version the max transfer data length is =
+255
+> in one message.
 
-? Doesn't that platform have CCF and can't we derive an I2C clock there?
+This looks to me more like an SMBUS controller instead of I2C. Maybe you
+should populate smbus_xfer rather than master_xfer?
 
-> +  - clocks: clock name from clock manager
-> +  - clock-names: clock name used in i2c driver probe
+> MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+> registers in MT8135 side.
 
-This needs names of the clocks. Check other binding documentation for
-examples.
+I still didn't get this, even after reading the mail thread of old
+series. Can someone maybe draw me a nice ASCII picture showing the setup
+which is going on here?
 
-> +Optional properties:
-> +  - clock-frequency: Frequency in Hz of the bus when transfer, the defau=
-lt value is 100000.
-> +  - mediatek,have-pmic: platform can control i2c form special pmic side.
-> +    Only mt6589 and mt8135 support this feature.
-> +  - mediatek,have-dcm: platform has DCM(hardware digital clock manager) =
-property.
-> +  - mediatek,use-push-pull: IO use push-pull mode.
 
-About the last 3 ones: Can't we encode this in the driver? Like, if the
-compatible is "mediatek,mt6589-i2c" we know it has this and that but not
-this?
-
-> +
-> +Example:
-> +
-> +	i2c0: i2c@1100d000 {
-> +			compatible =3D "mediatek,mt6577-i2c";
-> +			reg =3D <0x1100d000 0x70>,
-> +			      <0x11000300 0x80>;
-> +			interrupts =3D <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-> +			clock-frequency =3D <100000>;
-> +			mediatek,have-pmic;
-> +			clock-div =3D <16>;
-> +			clocks =3D <&i2c0_ck>, <&ap_dma_ck>;
-> +			clock-names =3D "main", "dma";
-> +	};
-> +
-> --=20
-> 1.8.1.1.dirty
->=20
-
---Zrag5V6pnZGjLKiw
+--bpVaumkpfGNUagdU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUZPWRAAoJEBQN5MwUoCm21mwP/19ldP8KxrJErVJG1I508pR4
-FPluToB8zPG/cboC5kjm3Hy1mbr3HlNE2gsjJgo+4ltkTmwwem/y85EQvxl3VEY7
-q6zqJ7m8cN4XU/uLyU0Upf1811Mx/TS19E5LjiaTBOdc7etcOloFruARRZnkAvg7
-wDf9TqJAWwDwSCvqy888DWNqR9eMpjLkA0qGPAYnTHPnIDiUIpcWZyfVU+5bqw5o
-/uAjlyKREMXNewEoCMYl59W2S3gu4KX3EGNbpmIwxrGRZiyhla+Bngt64RSQy7nT
-iKZTEsUtpAZAH10TU1ckuEi7WiGrK4+8J8lauwGBKd6G0knplOwkNfiEf7e3Tt+J
-UP/enGOAAlnsn2PDaN72iI2OAJ1LxmDTpeGMHFCeuLbr6NBa8WZ4M1KGA2qBOuSS
-1aCHWMIHNiAKU8jMLTFe2HkqywKVrfIi5snBh7/nPNTJCRb3r8Hes9CG7Rdky76k
-MaYIe+I5zS4bXrH54HgUEGuA5+WLD9/8Y4FjzyhzMWxO4EW5Z9VBZaYX80aWUsbj
-rtQFLMeFxkErFOWKxJcuCWpuXja9OCPz/XSp4wqsKx4Yh1baFWdQ6Zj/0HVwqcYP
-fpyrmBTVpiCHAFPNzB4IzxuVj4ZMwqQW8goSsx7w0qyyBzuujxG8g3KytXw9g4PG
-mro1YU+vk+OcIcqK3NaK
-=1nCo
+iQIcBAEBAgAGBQJUZPj6AAoJEBQN5MwUoCm298UP/i/SoKTHz4N7HOuev9WcBtwC
+XzbQo/VmY+4QNUD1O0rS+qoCDHi5x3hr46Gqn0zCLdRmfRlu0jBi2u+Ccb0m0P9I
+HgZdFz2UEJlXz0ZEuMYcVSBqA9U7tm4USF8o27zzPX6nvQsk3/JyNxm0LOPAS/Jg
+caLFXcIBkUQcdAevt/Q8O/OY6IstLsTiL2xVcGMCVWaAQoZ4/Lor7YmpYfBh5qJC
+7YD2Ww/7knl2BEy2A8p3eMQZMetdmSEnCW35XvqoFhSRi2UI84AHtkEzb+BzOW6X
+GrYyUEMbCk2hEXbUR2vp/DWofnnbz52AoghlkrUu20E84FEOpSX2jBxtM/f8k9+i
+CqPZl2Bjw4rAzCg3IOlWEad2ItbBTJcRnp3yDdpWZ6T3nlOLOKMuV9zCeLObvZNU
+7RLei4ZOtdje32H6ccPgwLv32JrStJdZYhnro0ZT1moxwvOrF2dzEwlPtMYZlIET
+37P3LkcIbTN/xUJoBi81VsYerRDYs/NVvQE6NBc1GTNGZqbqPzMYx6rushKiCR3q
+tgW/R8bp0go5GTyPUf87ebgk/hTQXcrOWOcOuxyhuuH3pOhXQmItXVm5XS0j9Naa
+UACDfqPGPU+C2TEJWjVddkOIGOX1GKzjTFe5O9W4U/gfYhX2AYWxUmEmVABFSsjo
+LoF4hHo43V6ZYiirk6nw
+=NRsk
 -----END PGP SIGNATURE-----
 
---Zrag5V6pnZGjLKiw--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--bpVaumkpfGNUagdU--
