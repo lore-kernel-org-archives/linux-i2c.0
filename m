@@ -1,63 +1,103 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: dln2: simplify return flow for dln2_i2c_enable
-Date: Thu, 13 Nov 2014 17:23:16 +0100
-Message-ID: <20141113162315.GC1275@katana>
-References: <1415708457-18798-1-git-send-email-octavian.purdila@intel.com>
- <1415708457-18798-3-git-send-email-octavian.purdila@intel.com>
+Subject: Re: [PATCH v6 1/2] i2c: Add Imagination Technologies I2C SCB driver
+Date: Thu, 13 Nov 2014 18:38:25 +0100
+Message-ID: <20141113173825.GD1275@katana>
+References: <1415885111-4138-1-git-send-email-ezequiel.garcia@imgtec.com>
+ <1415885111-4138-2-git-send-email-ezequiel.garcia@imgtec.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H8ygTp4AXg6deix2"
+	protocol="application/pgp-signature"; boundary="n/aVsWSeQ4JHkrmm"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1415708457-18798-3-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1415885111-4138-2-git-send-email-ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, julia.lawall-L2FTfq7BK8M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Cc: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---H8ygTp4AXg6deix2
+--n/aVsWSeQ4JHkrmm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 11, 2014 at 02:20:57PM +0200, Octavian Purdila wrote:
-> This fixes the following kbuild test robot warning:
->=20
-> >> drivers/i2c/busses/i2c-dln2.c:70:1-4: WARNING: end returns can be simp=
-lified if negative or 0 value
->=20
-> Reported-by: kbuild test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Reported-by: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
->=20
-> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Hi,
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Thank you for this submission! Wow, this is a lot of code and I have
+only very minor comments. Good work and thanks to all previous
+reviewers!
 
-Lee, I think it is easiest if you simply add it to the branch you have
-for this driver. OK?
+> @@ -0,0 +1,1415 @@
+> +/*
+> + * I2C adapter for the IMG Serial Control Bus (SCB) IP block.
+> + *
+> + * Copyright (C) 2009, 2010, 2012, 2014 Imagination Technologies Ltd.
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * There are three ways that this I2C controller can be driven:
+
+Interesting beast. Offers a lot of possibilities and complexity :)
+
+> + * Notice that the driver implements a timer-based timeout mechanism.
+> + * This is done to avoid slave events interrupts in automatic mode,
+> + * given the driver gets a slave event and transaction done interrupts
+> + * for each atomic mode command (start, data, ack, stop, etc) that gets
+> + * completed, none of which are of interest when using automatic mode
+> + * since those atomic mode commands are managed automatically by hardware
+> + * rather than by the I2C state machine in the interrupt handler.
+
+I read this three times and still have no clear picture. Please
+rephrase. Smaller sentences. Simple ones.
 
 
---H8ygTp4AXg6deix2
+... all down to probe()
+
+> +	i2c_set_adapdata(&i2c->adap, i2c);
+> +	i2c->adap.dev.parent = &pdev->dev;
+> +	i2c->adap.dev.of_node = node;
+> +	i2c->adap.owner = THIS_MODULE;
+> +	i2c->adap.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+
+You probably won't need this one. You have DT probing.
+
+> +	i2c->adap.algo = &img_i2c_algo;
+> +	i2c->adap.retries = 5;
+> +	i2c->adap.nr = pdev->id;
+> +	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
+> +		 "IMG i2c%d", i2c->adap.nr);
+
+Please use a static name, like "IMG <some type> I2C". This describes the
+IP block, not the bus in use.
+
+Very close to go...
+
+Thanks,
+
+   Wolfram
+
+
+--n/aVsWSeQ4JHkrmm
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUZNrzAAoJEBQN5MwUoCm2hYEQAK8Vl1LSgOEumr0m0S/r9LAq
-wKhjfG3+GePjKw0hubynlOIQd1tlEcK5bnnKLeCHY3KTmEMc93RqvMCOLFQrhjVN
-rM+dameOLR8gUqPo7qoC/XyNq2Buk18hUGowu2mvqAjtNykj8J7oOucY7gl0E2jf
-VwIMfQfZ6Oks0xY5BwnBo/VgAgEXGezYyX1rcyiBYGKNzZGhW2G+AqkCxk0DyFvY
-pwO0pTQZ40KtXSK/tVl/UGcHGn6KWeIwB4gvwl8+HGbZt14rDaAFhYLlHoqThbv0
-8cAptEJ1yB7ECeZX/5beu3xP6I3whY89bqKKsQLSiI/6Vr3ay0w4TRWh/v+Yo7Nj
-C9ivrjzTnxU3s5fqFRisU0N24IQmpGZ+UUQbedfr+pikc14ShpmXGfaRgrpoXAXA
-t7tJuplzGCiK5stW5SAOW5cLsAuuNpUbQ1TUBVe5t14FVp2U7gO27jnpn3PpCKkO
-vNVvuolmrIgqiAkKpYO3UW5EEurP6wWQCuWVr/AHA9rQEDKpNMsvifiaGvF7XcIx
-aPnNvXjmggRCtmX2vRtjXKwr93Xh4Fd0vs2dl+yuHpV9XBYgzwqlmstY6njp8InD
-Wm7OvSanc3BhQJtlljE10fGoXRJJw/aPkUWph6hd//7rsT6B6OyqlNx6lRj4BIPz
-ZM0CNRexB4QzGjID8JvB
-=gM3i
+iQIcBAEBAgAGBQJUZOyRAAoJEBQN5MwUoCm2wf8P/jlgbCFhIpQY9WKribEX2sbF
+WqgdpDSrq/NPGRrQV9H15yjEo/EHiCMLgzyR9i61I7JAulVlKPcw/PheLz3EyTkr
+cbTMDcvrZRq4QkIktaNIkc5xUHwcJZ5f86MP0XGRB1sRkMLgVHdzhdHLg1eiHmUg
+pzsUR+BtZqFDjqt3Rz77sJzK7WGY+PLRlDGkP3fqh+TGBAL9ytk43oJ9n7jqvSLf
+BSB9OApceu7ghl0Ne2rUUPSkZJYNSV03E8AqdusXeq8an4J2rwIe9YMsbTs0mtc0
+3FGNgCnAucnjNS5XWMNshKC+KKsj5xob1ueAuy2E7uB1rZ4AmVcEIhZNjqcvLD83
+0p7Dw1zSoiXLxvRpY3kLMq8ceTkck3ZLZxZbMhu8XVbJthcQi7+65EAAkGGPFLHp
+qhAy40L2avFX9aoX0JgGSlkAwtikhWflvrBw3JKFRhoRify33rVGriqTH/D9ZUdG
++nq/wB9+nNm1cr2qyojf+xoujlsCScvTraLOz0iLYfopW+cbQw9G4XnKGanUPe/Y
+1B9/s1pZW4+xDipUuzzMktNjd8FFhOVomSCGzDProB+ORJ48VYIqFNRqvyiE2Rpx
+Gs9L8pHCMG1ucQBLZyePs7gLtRlh/c1xQjaaFN63QS/E7FP7k0wBB22V62p6jc7s
+6Tvqyazpmjj3YPAVoHXF
+=IeW0
 -----END PGP SIGNATURE-----
 
---H8ygTp4AXg6deix2--
+--n/aVsWSeQ4JHkrmm--
