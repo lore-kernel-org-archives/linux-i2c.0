@@ -1,103 +1,64 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v6 1/2] i2c: Add Imagination Technologies I2C SCB driver
-Date: Thu, 13 Nov 2014 18:38:25 +0100
-Message-ID: <20141113173825.GD1275@katana>
-References: <1415885111-4138-1-git-send-email-ezequiel.garcia@imgtec.com>
- <1415885111-4138-2-git-send-email-ezequiel.garcia@imgtec.com>
+Subject: Re: [PATCH] at24: extend driver to allow writing via
+ i2c_smbus_write_byte_data
+Date: Thu, 13 Nov 2014 18:42:35 +0100
+Message-ID: <20141113174235.GE1275@katana>
+References: <1412845678-18933-1-git-send-email-christian.gmeiner@gmail.com>
+ <20141113001628.GA2062@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n/aVsWSeQ4JHkrmm"
+	protocol="application/pgp-signature"; boundary="WK3l2KTTmXPVedZ6"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1415885111-4138-2-git-send-email-ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20141113001628.GA2062@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Cc: Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+To: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---n/aVsWSeQ4JHkrmm
+--WK3l2KTTmXPVedZ6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Thu, Nov 13, 2014 at 01:16:28AM +0100, Wolfram Sang wrote:
+> On Thu, Oct 09, 2014 at 11:07:58AM +0200, Christian Gmeiner wrote:
+> > I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
+> > bus driver. This bus driver does not support
+> > I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
+> > to be able to write the eeprom. This patch adds support for
+> > I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
+> > It is quite slow, but it works.
+> >=20
+> > Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>=20
+> Applied to for-next, thanks!
 
-Thank you for this submission! Wow, this is a lot of code and I have
-only very minor comments. Good work and thanks to all previous
-reviewers!
-
-> @@ -0,0 +1,1415 @@
-> +/*
-> + * I2C adapter for the IMG Serial Control Bus (SCB) IP block.
-> + *
-> + * Copyright (C) 2009, 2010, 2012, 2014 Imagination Technologies Ltd.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + * There are three ways that this I2C controller can be driven:
-
-Interesting beast. Offers a lot of possibilities and complexity :)
-
-> + * Notice that the driver implements a timer-based timeout mechanism.
-> + * This is done to avoid slave events interrupts in automatic mode,
-> + * given the driver gets a slave event and transaction done interrupts
-> + * for each atomic mode command (start, data, ack, stop, etc) that gets
-> + * completed, none of which are of interest when using automatic mode
-> + * since those atomic mode commands are managed automatically by hardware
-> + * rather than by the I2C state machine in the interrupt handler.
-
-I read this three times and still have no clear picture. Please
-rephrase. Smaller sentences. Simple ones.
+Since I haven't pushed out yet, I did
+s/use_smbuse_write/use_smbus_write/g on the file.
 
 
-... all down to probe()
-
-> +	i2c_set_adapdata(&i2c->adap, i2c);
-> +	i2c->adap.dev.parent = &pdev->dev;
-> +	i2c->adap.dev.of_node = node;
-> +	i2c->adap.owner = THIS_MODULE;
-> +	i2c->adap.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-
-You probably won't need this one. You have DT probing.
-
-> +	i2c->adap.algo = &img_i2c_algo;
-> +	i2c->adap.retries = 5;
-> +	i2c->adap.nr = pdev->id;
-> +	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
-> +		 "IMG i2c%d", i2c->adap.nr);
-
-Please use a static name, like "IMG <some type> I2C". This describes the
-IP block, not the bus in use.
-
-Very close to go...
-
-Thanks,
-
-   Wolfram
-
-
---n/aVsWSeQ4JHkrmm
+--WK3l2KTTmXPVedZ6
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUZOyRAAoJEBQN5MwUoCm2wf8P/jlgbCFhIpQY9WKribEX2sbF
-WqgdpDSrq/NPGRrQV9H15yjEo/EHiCMLgzyR9i61I7JAulVlKPcw/PheLz3EyTkr
-cbTMDcvrZRq4QkIktaNIkc5xUHwcJZ5f86MP0XGRB1sRkMLgVHdzhdHLg1eiHmUg
-pzsUR+BtZqFDjqt3Rz77sJzK7WGY+PLRlDGkP3fqh+TGBAL9ytk43oJ9n7jqvSLf
-BSB9OApceu7ghl0Ne2rUUPSkZJYNSV03E8AqdusXeq8an4J2rwIe9YMsbTs0mtc0
-3FGNgCnAucnjNS5XWMNshKC+KKsj5xob1ueAuy2E7uB1rZ4AmVcEIhZNjqcvLD83
-0p7Dw1zSoiXLxvRpY3kLMq8ceTkck3ZLZxZbMhu8XVbJthcQi7+65EAAkGGPFLHp
-qhAy40L2avFX9aoX0JgGSlkAwtikhWflvrBw3JKFRhoRify33rVGriqTH/D9ZUdG
-+nq/wB9+nNm1cr2qyojf+xoujlsCScvTraLOz0iLYfopW+cbQw9G4XnKGanUPe/Y
-1B9/s1pZW4+xDipUuzzMktNjd8FFhOVomSCGzDProB+ORJ48VYIqFNRqvyiE2Rpx
-Gs9L8pHCMG1ucQBLZyePs7gLtRlh/c1xQjaaFN63QS/E7FP7k0wBB22V62p6jc7s
-6Tvqyazpmjj3YPAVoHXF
-=IeW0
+iQIcBAEBAgAGBQJUZO2LAAoJEBQN5MwUoCm2B2oQAIDGBlOddMIEy9dXsR8yKyAA
+mKsP7/KJYtr12t0KS8B7CQd5+S8Fq4jH38rK4x1Lu5oEsa9kNjIU4+y0wIFPCS1g
+7IZlN0DPLvbsnDYE2jy5PkFR/zzLMSw8iyzpaGoS+uHb/eRkOL8SjN9iE4cjUMGp
+mY39woKKYFxKIypsBk2qZp4pZgA+CgNKl52oFjoqj7OCcXpEnmdd4iLx3Gr7Ojnp
+D2jHg40lKyOqG0fVd0ms5Bv/fwvcA/GQNrVTVBSaf0wNlpjkzqHiwzH/OX72hd06
+0cTBbsgY+lHbilzigBQv+LqO9r6rxJZl3jEEaZAAhiR+Ys2Gzqqh19SjwoT6WmSU
+7lOeK/TUmt1L4z1TMita61TqXgNkQ61KcisPrADfBDytPHrVERuQDnzqbPCilyqf
+LvDahjrQoTs2Zd6Q/x6as0Cl5dOVox50i7AMjBM2T01Y6CPvCtFaVCRCwA/Qh+pz
+foWzafADHuc2NEXW2T0loPy0bODaAWFnNmwL1YutkEfltt4rWB7yXYiqlSc1RmhH
+23han+ZJa6HiWtsd2rmObLPa8HZonI+wHttDK67Hc4QC81DR8mElbLMorqeQrOrE
+MoEws4lwEZUjHb6gRwHPFTg74l5Brq3xitkEh9gHy3mhx8f/4iVqxIb5SgpdbuFt
+JgtNxPNdyNTfQNap8o50
+=4wn7
 -----END PGP SIGNATURE-----
 
---n/aVsWSeQ4JHkrmm--
+--WK3l2KTTmXPVedZ6--
