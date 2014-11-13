@@ -1,65 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-xiic: Fix big-endian register access
-Date: Thu, 13 Nov 2014 01:18:31 +0100
-Message-ID: <20141113001831.GB2062@katana>
-References: <1413216527-11933-1-git-send-email-Thomas.Gessler@exp2.physik.uni-giessen.de>
+Subject: Re: [RESEND/PATCH] i2c: pxa: Use suspend() and resume() instead of
+ the _noirq hooks
+Date: Thu, 13 Nov 2014 01:21:40 +0100
+Message-ID: <20141113002139.GC2062@katana>
+References: <1413829432-7815-1-git-send-email-ezequiel@vanguardiasur.com.ar>
+ <7hzjcqe9ge.fsf@deeprootsystems.com>
+ <54482EB1.9030407@vanguardiasur.com.ar>
+ <7hzjcnaazl.fsf@deeprootsystems.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
+	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1413216527-11933-1-git-send-email-Thomas.Gessler-Tvfv6JZYqycq7YrIr1+ioITjL5QYi2yUhC4ANOJQIlc@public.gmane.org>
+In-Reply-To: <7hzjcnaazl.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Gessler <Thomas.Gessler-Tvfv6JZYqycq7YrIr1+ioITjL5QYi2yUhC4ANOJQIlc@public.gmane.org>
-Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---QTprm0S8XgL7H0Dt
+--oTHb8nViIGeoXxdp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Oct 13, 2014 at 06:08:47PM +0200, Thomas Gessler wrote:
-> The driver tried to access device registers with the (little-endian)
-> iowrite/ioread functions. While this worked on little-endian machines
-> (e.g. Microblaze with AXI bus), it made the driver unusable on
-> big-endian machines (e.g. PPC405 with PLB).
->=20
-> During the probe function, the driver tried to write a 32-bit reset mask
-> into the reset register. This caused an error interrupt on big-endian
-> systems, because the device detected an invalid (byte-swapped) reset
-> mask. The result was an Oops.
->=20
-> The patch implements an endianness detection similar to the one used in
-> other Xilinx drivers like drivers/spi/spi-xilinx.c. It was tested on a
-> PPC405/PLB system.
->=20
-> Signed-off-by: Thomas Gessler <Thomas.Gessler-Tvfv6JZYqycq7YrIr1+ioITjL5QYi2yUhC4ANOJQIlc@public.gmane.org>
-
-Applied to for-next, thanks!
 
 
---QTprm0S8XgL7H0Dt
+> suspend/resume order depends on probe ordering, so with deferred probe,
+> the probe ordering might be right, but it should be thoroughly tested.
+
+Thanks a lot for the input here, Kevin!
+
+
+--oTHb8nViIGeoXxdp
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUY/jXAAoJEBQN5MwUoCm2ThAP/Amim6GRJ7gd48UNKhYLmowO
-cH5s+hEIrEu/gI41B55N8WRLGlwiCN78+LWkJ5MSJ8nHV5/BR/P5Py83yuLG1LxK
-Cyj3qLemPXMSLdIiqrxlm+G3VinVT8BWeiRpU4YfaF7CcuMpKZ7nGEYz6bI+JnC8
-f+2fRrAiiADjH93jlfI7G+0wVilZoouZWEDyh0ju+ppvS6FDUrxrHxAMo4R9Z1MJ
-wCyN8dtFFrbnOXuf6gN+3e1oCLoWpRaifs50a8ADrg/Mq6X+JUbUKKg+0N2hqjnm
-CwHk0NBpWtXn+h9V8ACypHJKyqeHbCCnWRMapKyoDTlds5F74pHyXn2Gk5eaQ8Fo
-kC1LICe1fmXJi7tzxlQqbBECjxMnio9d25IgHhEtBqBqispCkEIaXsv86mmu0O38
-Jjtr1Oy0J66Y8UBG9yiLDu38cf0NMJGHxU+keNYachilf4v94+/Yl/RUMBP22mly
-UtMvPs1ZrurCwWpFnHpfTLyO2jWxkIOdyKTVQPTzDvwqCXLNPjn+ONjy62lT2QYp
-6CWrbAexhVda0e3txBzwRc/2ElnlMvYLKr/K7fO6GcgPmeoupC6N8aV4nA9/6a+6
-RgVV1hj9nDtzTWn5YhW+qSSz+Fs4FfrgK26efQGK9b6/svo088RqUci7rCnCA1nX
-/76nX9ux5kRHWhrtLQ9/
-=52DW
+iQIcBAEBAgAGBQJUY/mTAAoJEBQN5MwUoCm2TXAP/R/Bs4ATy4iJRuUqGibRRkBy
+vimsHp4gLPmKpQF3qNRuQgiOLSTrv60TMgH4LVmFyQZEsEpngtZZ0CvBKg3OfjjL
+hlS+mKeBkFQZOvoaKjiAp6w/mPmkBHJgJVaVRhvHUcFsKokogxZXfBYzd+KGrD8+
+Yi0tUpDuzlztRzQOMZd3JNGzH2SnLPd0GqhYU+VsoL/MtX/kEGR62/A8zIOQu9ab
+JshyWvjoOl0C8UEzjfoRxgMdze/JvzJ1in6AvZ7DdsfEaytZ5CWqxaL+gbFU6cCr
+PVt5uh93gdqCJdapM17DsZjFtsVVzdqrdIeT6mgDkJxbbFGnU0ZerEzb/ihfMUYs
+kE7i2HMeua+XUENmt9dXeEshVlUPbIga1EhNIVOY6vsPMtwLsTLZu9mFq+XhpmNG
+VpW6tEwBQihDeMo+LJbQKR/arIPbSySGia/hKoh7YGJMjveikbtXmpTm66l18oHj
+nEzcbCBemkOfgoJLdz/K2E7TTUDegy7OM7Xu5rXsQ2+IvYNvSOJlH4GXJsgtJArQ
+qmCNA2KY/Db3uHseKaM46rnk+HAo6zRMYoijiE+6M7yiy6ggT1Y1vMrgXDDZm68z
+OHf/LeLT+H9IQKdCyCsNnfDKbFODIksUZByROgyC+I/ORAAzlT7w4/Wa0H89K14C
+1RjmuyfoIZpjUsHYxeZx
+=s7ht
 -----END PGP SIGNATURE-----
 
---QTprm0S8XgL7H0Dt--
+--oTHb8nViIGeoXxdp--
