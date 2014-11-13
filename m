@@ -1,68 +1,30 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 5/5] ARM: shmobile: r8a7791: add DMA nodes for IIC
-Date: Thu, 13 Nov 2014 09:26:50 +0900
-Message-ID: <20141113002650.GB14971@verge.net.au>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH 3/5] i2c: sh_mobile: improve success message
+Date: Thu, 13 Nov 2014 09:27:02 +0900
+Message-ID: <20141113002702.GC9195@verge.net.au>
 References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
- <1415355104-2031-6-git-send-email-wsa@the-dreams.de>
+ <1415355104-2031-4-git-send-email-wsa@the-dreams.de>
+ <20141112161219.GF4031@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1415355104-2031-6-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <20141112161219.GF4031@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 07, 2014 at 11:11:44AM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Wed, Nov 12, 2014 at 05:12:19PM +0100, Wolfram Sang wrote:
+> On Fri, Nov 07, 2014 at 11:11:42AM +0100, Wolfram Sang wrote:
+> > From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> > 
+> > No user needs magic hex values, makes this debug output. Add DMA info.
+> > 
+> > Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Applied to for-next, thanks!
+> 
+> Simon, that means you can queue up patches 4 + 5?
 
-Thanks, I have queued this up.
-
-> ---
->  arch/arm/boot/dts/r8a7791.dtsi | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
-> index 9a57215f54f7..213b6bda6201 100644
-> --- a/arch/arm/boot/dts/r8a7791.dtsi
-> +++ b/arch/arm/boot/dts/r8a7791.dtsi
-> @@ -371,6 +371,8 @@
->  		reg = <0 0xe60b0000 0 0x425>;
->  		interrupts = <0 173 IRQ_TYPE_LEVEL_HIGH>;
->  		clocks = <&mstp9_clks R8A7791_CLK_IICDVFS>;
-> +		dmas = <&dmac0 0x77>, <&dmac0 0x78>;
-> +		dma-names = "tx", "rx";
->  		status = "disabled";
->  	};
->  
-> @@ -381,6 +383,8 @@
->  		reg = <0 0xe6500000 0 0x425>;
->  		interrupts = <0 174 IRQ_TYPE_LEVEL_HIGH>;
->  		clocks = <&mstp3_clks R8A7791_CLK_IIC0>;
-> +		dmas = <&dmac0 0x61>, <&dmac0 0x62>;
-> +		dma-names = "tx", "rx";
->  		status = "disabled";
->  	};
->  
-> @@ -391,6 +395,8 @@
->  		reg = <0 0xe6510000 0 0x425>;
->  		interrupts = <0 175 IRQ_TYPE_LEVEL_HIGH>;
->  		clocks = <&mstp3_clks R8A7791_CLK_IIC1>;
-> +		dmas = <&dmac0 0x65>, <&dmac0 0x66>;
-> +		dma-names = "tx", "rx";
->  		status = "disabled";
->  	};
->  
-> -- 
-> 2.1.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Thanks, I have now done so.
