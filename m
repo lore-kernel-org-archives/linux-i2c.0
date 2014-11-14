@@ -1,978 +1,1495 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH v8 1/8] OF: Introduce DT overlay support. (v2)
-Date: Thu, 13 Nov 2014 23:36:18 +0000
-Message-ID: <20141113233618.1C378C40B52@trevor.secretlab.ca>
-References: <1414528565-10907-1-git-send-email-pantelis.antoniou@konsulko.com>
-	<1414528565-10907-2-git-send-email-pantelis.antoniou@konsulko.com>
+From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v7 1/2] i2c: Add Imagination Technologies I2C SCB driver
+Date: Fri, 14 Nov 2014 00:04:50 +0000
+Message-ID: <20141114000450.GC1739@jhogan-linux.le.imgtec.org>
+References: <1415885111-4138-2-git-send-email-ezequiel.garcia@imgtec.com>
+ <1415903541-21511-1-git-send-email-ezequiel.garcia@imgtec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1414528565-10907-2-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1415903541-21511-1-git-send-email-ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, James Hartley <james.hartley-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 28 Oct 2014 22:35:58 +0200
-, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
- wrote:
-> Introduce DT overlay support.
+On Thu, Nov 13, 2014 at 03:32:21PM -0300, Ezequiel Garcia wrote:
+> From: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 > 
-> Makes it possible to dynamically overlay a part of the kernel's
-> tree with another tree that's been dynamically loaded.
-> Removal of nodes and properties is also possible.
+> Add support for the IMG I2C Serial Control Bus (SCB) found on the
+> Pistachio and TZ1090 SoCs.
 > 
-> The hard part of applying and reverting the overlay is performed
-> using changesets.
-> 
-> Documentation about internal and APIs is provided in
-> 	Documentation/devicetree/overlay-notes.txt
-
-Hi Pantelis,
-
-Comments below. I've picked up this patch, the selftest patch, and the
-platform bus patch into my working tree. You can supply me with fixup
-patches for the comments below.
-
-Hopefully I'll get my tree published to a test branch tomorrow .
-
-> 
-> Changes since v1:
-> - Drop delete capability using '-' prefix. The '-' prefixed names
-> are valid properties and nodes and there is no need for it just yet.
-> - Do not update special properties - name & phandle ones.
-> - Change order of node attachment, so that the special property update
-> works.
-> 
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+> [Ezequiel: code cleaning and rebasing]
+> Signed-off-by: Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 > ---
->  Documentation/devicetree/overlay-notes.txt | 137 ++++++
->  drivers/of/Kconfig                         |   7 +
->  drivers/of/Makefile                        |   1 +
->  drivers/of/overlay.c                       | 656 +++++++++++++++++++++++++++++
->  include/linux/of.h                         |  31 ++
->  5 files changed, 832 insertions(+)
->  create mode 100644 Documentation/devicetree/overlay-notes.txt
->  create mode 100644 drivers/of/overlay.c
+>  drivers/i2c/busses/Kconfig       |   10 +
+>  drivers/i2c/busses/Makefile      |    1 +
+>  drivers/i2c/busses/i2c-img-scb.c | 1412 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 1423 insertions(+)
+>  create mode 100644 drivers/i2c/busses/i2c-img-scb.c
 > 
-> diff --git a/Documentation/devicetree/overlay-notes.txt b/Documentation/devicetree/overlay-notes.txt
-> new file mode 100644
-> index 0000000..b060bd7
-> --- /dev/null
-> +++ b/Documentation/devicetree/overlay-notes.txt
-> @@ -0,0 +1,137 @@
-> +Device Tree Overlay Notes
-> +-------------------------
-> +
-> +This document describes the implementation of the in-kernel
-> +device tree overlay functionality residing in drivers/of/overlay.c and is a
-> +companion document to Documentation/devicetree/dt-object-internal.txt[1] &
-> +Documentation/devicetree/dynamic-resolution-notes.txt[2]
-> +
-> +How overlays work
-> +-----------------
-> +
-> +A Device Tree's overlay purpose is to modify the kernel's live tree, and
-> +have the modification affecting the state of the the kernel in a way that
-> +is reflecting the changes.
-> +Since the kernel mainly deals with devices, any new device node that result
-> +in an active device should have it created while if the device node is either
-> +disabled or removed all together, the affected device should be deregistered.
-> +
-> +Lets take an example where we have a foo board with the following base tree
-> +which is taken from [1].
-> +
-> +---- foo.dts -----------------------------------------------------------------
-> +	/* FOO platform */
-> +	/ {
-> +		compatible = "corp,foo";
-> +
-> +		/* shared resources */
-> +		res: res {
-> +		};
-> +
-> +		/* On chip peripherals */
-> +		ocp: ocp {
-> +			/* peripherals that are always instantiated */
-> +			peripheral1 { ... };
-> +		}
-> +	};
-> +---- foo.dts -----------------------------------------------------------------
-> +
-> +The overlay bar.dts, when loaded (and resolved as described in [2]) should
-> +
-> +---- bar.dts -----------------------------------------------------------------
-> +/plugin/;	/* allow undefined label references and record them */
-> +/ {
-> +	....	/* various properties for loader use; i.e. part id etc. */
-> +	fragment@0 {
-> +		target = <&ocp>;
-> +		__overlay__ {
-> +			/* bar peripheral */
-> +			bar {
-> +				compatible = "corp,bar";
-> +				... /* various properties and child nodes */
-> +			}
-> +		};
-> +	};
-> +};
-> +---- bar.dts -----------------------------------------------------------------
-> +
-> +result in foo+bar.dts
-> +
-> +---- foo+bar.dts -------------------------------------------------------------
-> +	/* FOO platform + bar peripheral */
-> +	/ {
-> +		compatible = "corp,foo";
-> +
-> +		/* shared resources */
-> +		res: res {
-> +		};
-> +
-> +		/* On chip peripherals */
-> +		ocp: ocp {
-> +			/* peripherals that are always instantiated */
-> +			peripheral1 { ... };
-> +
-> +			/* bar peripheral */
-> +			bar {
-> +				compatible = "corp,bar";
-> +				... /* various properties and child nodes */
-> +			}
-> +		}
-> +	};
-> +---- foo+bar.dts -------------------------------------------------------------
-> +
-> +As a result of the the overlay, a new device node (bar) has been created
-> +so a bar platform device will be registered and if a matching device driver
-> +is loaded the device will be created as expected.
-> +
-> +Overlay in-kernel API
-> +--------------------------------
-> +
-> +The API is quite easy to use.
-> +
-> +1. Call of_overlay_create() to create and apply an overlay. The return value
-> +is a cookie identifying this overlay.
-> +
-> +2. Call of_overlay_destroy() to remove and cleanup the overlay previously
-> +created via the call to of_overlay_create(). Removal of an overlay that
-> +is stacked by another will not be permitted.
-> +
-> +Finally, if you need to remove all overlays in one-go, just call
-> +of_overlay_destroy_all() which will remove every single one in the correct
-> +order.
-> +
-> +Overlay DTS Format
-> +------------------
-> +
-> +The DTS of an overlay should have the following format:
-> +
-> +{
-> +	/* ignored properties by the overlay */
-> +
-> +	fragment@0 {	/* first child node */
-> +
-> +		target=<phandle>;	/* phandle target of the overlay */
-> +	or
-> +		target-path="/path";	/* target path of the overlay */
-> +
-> +		__overlay__ {
-> +			property-a;	/* add property-a to the target */
-> +			-property-b;	/* remove property-b from target */
-> +			node-a {	/* add to an existing, or create a node-a */
-> +				...
-> +			};
-> +			-node-b {	/* remove an existing node-b */
-> +				...
-> +			};
-
--property-b and -node-b need to be removed from the example.
-
-> +		};
-> +	}
-> +	fragment@1 {	/* second child node */
-> +		...
-> +	};
-> +	/* more fragments follow */
-> +}
-> +
-> +Using the non-phandle based target method allows one to use a base DT which does
-> +not contain a __symbols__ node, i.e. it was not compiled with the -@ option.
-> +The __symbols__ node is only required for the target=<phandle> method, since it
-> +contains the information required to map from a phandle to a tree location.
-> diff --git a/drivers/of/Kconfig b/drivers/of/Kconfig
-> index 1a13f5b..aa315c4 100644
-> --- a/drivers/of/Kconfig
-> +++ b/drivers/of/Kconfig
-> @@ -83,4 +83,11 @@ config OF_RESERVED_MEM
->  config OF_RESOLVE
->  	bool
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 917c358..653f73e 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -523,6 +523,16 @@ config I2C_IBM_IIC
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-ibm_iic.
 >  
-> +config OF_OVERLAY
-> +	bool
-> +	depends on OF
-> +	select OF_DYNAMIC
-> +	select OF_DEVICE
-> +	select OF_RESOLVE
+> +config I2C_IMG
+> +	tristate "Imagination Technologies I2C SCB Controller"
+> +	depends on SOC_TZ1090 || COMPILE_TEST
+> +	help
+> +	  Say Y here if you want to use the IMG I2C SCB controller,
+> +	  available on the TZ1090 SoC.
 > +
->  endmenu # OF
-> diff --git a/drivers/of/Makefile b/drivers/of/Makefile
-> index ca9209c..1bfe462 100644
-> --- a/drivers/of/Makefile
-> +++ b/drivers/of/Makefile
-> @@ -14,6 +14,7 @@ obj-$(CONFIG_OF_PCI_IRQ)  += of_pci_irq.o
->  obj-$(CONFIG_OF_MTD)	+= of_mtd.o
->  obj-$(CONFIG_OF_RESERVED_MEM) += of_reserved_mem.o
->  obj-$(CONFIG_OF_RESOLVE)  += resolver.o
-> +obj-$(CONFIG_OF_OVERLAY) += overlay.o
->  
->  CFLAGS_fdt.o = -I$(src)/../../scripts/dtc/libfdt
->  CFLAGS_fdt_address.o = -I$(src)/../../scripts/dtc/libfdt
-> diff --git a/drivers/of/overlay.c b/drivers/of/overlay.c
+> +	  This driver can also be built as a module.  If so, the module
+> +	  will be called i2c-img-scb.
+> +
+>  config I2C_IMX
+>  	tristate "IMX I2C interface"
+>  	depends on ARCH_MXC
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index 78d56c5..84861ea 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -50,6 +50,7 @@ obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
+>  obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
+>  obj-$(CONFIG_I2C_HIX5HD2)	+= i2c-hix5hd2.o
+>  obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
+> +obj-$(CONFIG_I2C_IMG)		+= i2c-img-scb.o
+>  obj-$(CONFIG_I2C_IMX)		+= i2c-imx.o
+>  obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+>  obj-$(CONFIG_I2C_KEMPLD)	+= i2c-kempld.o
+> diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
 > new file mode 100644
-> index 0000000..ec7675d
+> index 0000000..0fcc169
 > --- /dev/null
-> +++ b/drivers/of/overlay.c
-> @@ -0,0 +1,656 @@
+> +++ b/drivers/i2c/busses/i2c-img-scb.c
+> @@ -0,0 +1,1412 @@
 > +/*
-> + * Functions for working with device tree overlays
+> + * I2C adapter for the IMG Serial Control Bus (SCB) IP block.
 > + *
-> + * Copyright (C) 2012 Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-> + * Copyright (C) 2012 Texas Instruments Inc.
+> + * Copyright (C) 2009, 2010, 2012, 2014 Imagination Technologies Ltd.
 > + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + *
+> + * There are three ways that this I2C controller can be driven:
+> + *
+> + * - Raw control of the SDA and SCK signals.
+> + *
+> + *   This corresponds to MODE_RAW, which takes control of the signals
+> + *   directly for a certain number of clock cycles (the INT_TIMING
+> + *   interrupt can be used for timing).
+> + *
+> + * - Atomic commands. A low level I2C symbol (such as generate
+> + *   start/stop/ack/nack bit, generate byte, receive byte, and receive
+> + *   ACK) is given to the hardware, with detection of completion by bits
+> + *   in the LINESTAT register.
+> + *
+> + *   This mode of operation is used by MODE_ATOMIC, which uses an I2C
+> + *   state machine in the interrupt handler to compose/react to I2C
+> + *   transactions using atomic mode commands, and also by MODE_SEQUENCE,
+> + *   which emits a simple fixed sequence of atomic mode commands.
+> + *
+> + *   Due to software control, the use of atomic commands usually results
+> + *   in suboptimal use of the bus, with gaps between the I2C symbols while
+> + *   the driver decides what to do next.
+> + *
+> + * - Automatic mode. A bus address, and whether to read/write is
+> + *   specified, and the hardware takes care of the I2C state machine,
+> + *   using a FIFO to send/receive bytes of data to an I2C slave. The
+> + *   driver just has to keep the FIFO drained or filled in response to the
+> + *   appropriate FIFO interrupts.
+> + *
+> + *   This corresponds to MODE_AUTOMATIC, which manages the FIFOs and deals
+> + *   with control of repeated start bits between I2C messages.
+> + *
+> + *   Use of automatic mode and the FIFO can make much more efficient use
+> + *   of the bus compared to individual atomic commands, with potentially
+> + *   no wasted time between I2C symbols or I2C messages.
+> + *
+> + * In most cases MODE_AUTOMATIC is used, however if any of the messages in
+> + * a transaction are zero byte writes (e.g. used by i2cdetect for probing
+> + * the bus), MODE_ATOMIC must be used since automatic mode is normally
+> + * started by the writing of data into the FIFO.
+> + *
+> + * The other modes are used in specific circumstances where MODE_ATOMIC and
+> + * MODE_AUTOMATIC aren't appropriate. MODE_RAW is used to implement a bus
+> + * recovery routine. MODE_SEQUENCE is used to reset the bus and make sure
+> + * it is in a sane state.
+> + *
+> + * Notice that the driver implements a timer-based timeout mechanism.
+> + * The reason for this mechanism is to reduce the number of interrupts
+> + * received in automatic mode.
+> + *
+> + * The driver would get a slave event and transaction done interrupts for
+> + * each atomic mode command that gets completed. However, these events are
+> + * not needed in automatic mode, becase those atomic mode commands are
+
+Thanks for rewording Ezequiel. It's now much clearer than my original
+mega-sentence!
+
+There's a minor typo on this line btw. s/becase/bacause/.
+
+Cheers
+James
+
+> + * managed automatically by the hardware.
+> + *
+> + * In practice, normal I2C transactions will be complete well before you
+> + * get the timer interrupt, as the timer is re-scheduled during FIFO
+> + * maintenance and disabled after the transaction is complete.
+> + *
+> + * In this way normal automatic mode operation isn't impacted by
+> + * unnecessary interrupts, but the exceptional abort condition can still be
+> + * detected (with a slight delay).
 > + */
-> +#undef DEBUG
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/clk.h>
+> +#include <linux/completion.h>
+> +#include <linux/err.h>
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
 > +#include <linux/kernel.h>
 > +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/string.h>
-> +#include <linux/ctype.h>
-> +#include <linux/errno.h>
-> +#include <linux/string.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/platform_device.h>
 > +#include <linux/slab.h>
-> +#include <linux/err.h>
+> +#include <linux/timer.h>
 > +
-> +#include "of_private.h"
+> +/* Register offsets */
 > +
-> +/**
-> + * struct of_overlay_info	- Holds a single overlay info
-> + * @target:	target of the overlay operation
-> + * @overlay:	pointer to the overlay contents node
-> + *
-> + * Holds a single overlay state, including all the overlay logs &
-> + * records.
+> +#define SCB_STATUS_REG			0x00
+> +#define SCB_OVERRIDE_REG		0x04
+> +#define SCB_READ_ADDR_REG		0x08
+> +#define SCB_READ_COUNT_REG		0x0c
+> +#define SCB_WRITE_ADDR_REG		0x10
+> +#define SCB_READ_DATA_REG		0x14
+> +#define SCB_WRITE_DATA_REG		0x18
+> +#define SCB_FIFO_STATUS_REG		0x1c
+> +#define SCB_CONTROL_SOFT_RESET		0x1f
+> +#define SCB_CLK_SET_REG			0x3c
+> +#define SCB_INT_STATUS_REG		0x40
+> +#define SCB_INT_CLEAR_REG		0x44
+> +#define SCB_INT_MASK_REG		0x48
+> +#define SCB_CONTROL_REG			0x4c
+> +#define SCB_TIME_TPL_REG		0x50
+> +#define SCB_TIME_TPH_REG		0x54
+> +#define SCB_TIME_TP2S_REG		0x58
+> +#define SCB_TIME_TBI_REG		0x60
+> +#define SCB_TIME_TSL_REG		0x64
+> +#define SCB_TIME_TDL_REG		0x68
+> +#define SCB_TIME_TSDL_REG		0x6c
+> +#define SCB_TIME_TSDH_REG		0x70
+> +#define SCB_READ_XADDR_REG		0x74
+> +#define SCB_WRITE_XADDR_REG		0x78
+> +#define SCB_WRITE_COUNT_REG		0x7c
+> +#define SCB_CORE_REV_REG		0x80
+> +#define SCB_TIME_TCKH_REG		0x84
+> +#define SCB_TIME_TCKL_REG		0x88
+> +#define SCB_FIFO_FLUSH_REG		0x8c
+> +#define SCB_READ_FIFO_REG		0x94
+> +#define SCB_CLEAR_REG			0x98
+> +
+> +/* SCB_CONTROL_REG bits */
+> +
+> +#define SCB_CONTROL_CLK_ENABLE		0x1e0
+> +#define SCB_CONTROL_TRANSACTION_HALT	0x200
+> +
+> +#define FIFO_READ_FULL			BIT(0)
+> +#define FIFO_READ_EMPTY			BIT(1)
+> +#define FIFO_WRITE_FULL			BIT(2)
+> +#define FIFO_WRITE_EMPTY		BIT(3)
+> +
+> +/* SCB_CLK_SET_REG bits */
+> +#define SCB_FILT_DISABLE		BIT(31)
+> +#define SCB_FILT_BYPASS			BIT(30)
+> +#define SCB_FILT_INC_MASK		0x7f
+> +#define SCB_FILT_INC_SHIFT		16
+> +#define SCB_INC_MASK			0x7f
+> +#define SCB_INC_SHIFT			8
+> +
+> +/* SCB_INT_*_REG bits */
+> +
+> +#define INT_BUS_INACTIVE		BIT(0)
+> +#define INT_UNEXPECTED_START		BIT(1)
+> +#define INT_SCLK_LOW_TIMEOUT		BIT(2)
+> +#define INT_SDAT_LOW_TIMEOUT		BIT(3)
+> +#define INT_WRITE_ACK_ERR		BIT(4)
+> +#define INT_ADDR_ACK_ERR		BIT(5)
+> +#define INT_FIFO_FULL			BIT(9)
+> +#define INT_FIFO_FILLING		BIT(10)
+> +#define INT_FIFO_EMPTY			BIT(11)
+> +#define INT_FIFO_EMPTYING		BIT(12)
+> +#define INT_TRANSACTION_DONE		BIT(15)
+> +#define INT_SLAVE_EVENT			BIT(16)
+> +#define INT_TIMING			BIT(18)
+> +
+> +#define INT_FIFO_FULL_FILLING	(INT_FIFO_FULL  | INT_FIFO_FILLING)
+> +#define INT_FIFO_EMPTY_EMPTYING	(INT_FIFO_EMPTY | INT_FIFO_EMPTYING)
+> +
+> +/* Level interrupts need clearing after handling instead of before */
+> +#define INT_LEVEL			0x01e00
+> +
+> +/* Don't allow any interrupts while the clock may be off */
+> +#define INT_ENABLE_MASK_INACTIVE	0x00000
+> +
+> +/* Interrupt masks for the different driver modes */
+> +
+> +#define INT_ENABLE_MASK_RAW		INT_TIMING
+> +
+> +#define INT_ENABLE_MASK_ATOMIC		(INT_TRANSACTION_DONE | \
+> +					 INT_SLAVE_EVENT      | \
+> +					 INT_ADDR_ACK_ERR     | \
+> +					 INT_WRITE_ACK_ERR)
+> +
+> +#define INT_ENABLE_MASK_AUTOMATIC	(INT_SCLK_LOW_TIMEOUT | \
+> +					 INT_ADDR_ACK_ERR     | \
+> +					 INT_WRITE_ACK_ERR    | \
+> +					 INT_FIFO_FULL        | \
+> +					 INT_FIFO_FILLING     | \
+> +					 INT_FIFO_EMPTY       | \
+> +					 INT_FIFO_EMPTYING)
+> +
+> +#define INT_ENABLE_MASK_WAITSTOP	(INT_SLAVE_EVENT      | \
+> +					 INT_ADDR_ACK_ERR     | \
+> +					 INT_WRITE_ACK_ERR)
+> +
+> +/* SCB_STATUS_REG fields */
+> +
+> +#define LINESTAT_SCLK_LINE_STATUS	BIT(0)
+> +#define LINESTAT_SCLK_EN		BIT(1)
+> +#define LINESTAT_SDAT_LINE_STATUS	BIT(2)
+> +#define LINESTAT_SDAT_EN		BIT(3)
+> +#define LINESTAT_DET_START_STATUS	BIT(4)
+> +#define LINESTAT_DET_STOP_STATUS	BIT(5)
+> +#define LINESTAT_DET_ACK_STATUS		BIT(6)
+> +#define LINESTAT_DET_NACK_STATUS	BIT(7)
+> +#define LINESTAT_BUS_IDLE		BIT(8)
+> +#define LINESTAT_T_DONE_STATUS		BIT(9)
+> +#define LINESTAT_SCLK_OUT_STATUS	BIT(10)
+> +#define LINESTAT_SDAT_OUT_STATUS	BIT(11)
+> +#define LINESTAT_GEN_LINE_MASK_STATUS	BIT(12)
+> +#define LINESTAT_START_BIT_DET		BIT(13)
+> +#define LINESTAT_STOP_BIT_DET		BIT(14)
+> +#define LINESTAT_ACK_DET		BIT(15)
+> +#define LINESTAT_NACK_DET		BIT(16)
+> +#define LINESTAT_INPUT_HELD_V		BIT(17)
+> +#define LINESTAT_ABORT_DET		BIT(18)
+> +#define LINESTAT_ACK_OR_NACK_DET	(LINESTAT_ACK_DET | LINESTAT_NACK_DET)
+> +#define LINESTAT_INPUT_DATA		0xff000000
+> +#define LINESTAT_INPUT_DATA_SHIFT	24
+> +
+> +#define LINESTAT_CLEAR_SHIFT		13
+> +#define LINESTAT_LATCHED		(0x3f << LINESTAT_CLEAR_SHIFT)
+> +
+> +/* SCB_OVERRIDE_REG fields */
+> +
+> +#define OVERRIDE_SCLK_OVR		BIT(0)
+> +#define OVERRIDE_SCLKEN_OVR		BIT(1)
+> +#define OVERRIDE_SDAT_OVR		BIT(2)
+> +#define OVERRIDE_SDATEN_OVR		BIT(3)
+> +#define OVERRIDE_MASTER			BIT(9)
+> +#define OVERRIDE_LINE_OVR_EN		BIT(10)
+> +#define OVERRIDE_DIRECT			BIT(11)
+> +#define OVERRIDE_CMD_SHIFT		4
+> +#define OVERRIDE_CMD_MASK		0x1f
+> +#define OVERRIDE_DATA_SHIFT		24
+> +
+> +#define OVERRIDE_SCLK_DOWN		(OVERRIDE_LINE_OVR_EN | \
+> +					 OVERRIDE_SCLKEN_OVR)
+> +#define OVERRIDE_SCLK_UP		(OVERRIDE_LINE_OVR_EN | \
+> +					 OVERRIDE_SCLKEN_OVR | \
+> +					 OVERRIDE_SCLK_OVR)
+> +#define OVERRIDE_SDAT_DOWN		(OVERRIDE_LINE_OVR_EN | \
+> +					 OVERRIDE_SDATEN_OVR)
+> +#define OVERRIDE_SDAT_UP		(OVERRIDE_LINE_OVR_EN | \
+> +					 OVERRIDE_SDATEN_OVR | \
+> +					 OVERRIDE_SDAT_OVR)
+> +
+> +/* OVERRIDE_CMD values */
+> +
+> +#define CMD_PAUSE			0x00
+> +#define CMD_GEN_DATA			0x01
+> +#define CMD_GEN_START			0x02
+> +#define CMD_GEN_STOP			0x03
+> +#define CMD_GEN_ACK			0x04
+> +#define CMD_GEN_NACK			0x05
+> +#define CMD_RET_DATA			0x08
+> +#define CMD_RET_ACK			0x09
+> +
+> +/* Fixed timing values */
+> +
+> +#define TIMEOUT_TBI			0x0
+> +#define TIMEOUT_TSL			0xffff
+> +#define TIMEOUT_TDL			0x0
+> +
+> +/* Transaction timeout */
+> +
+> +#define IMG_I2C_TIMEOUT			(msecs_to_jiffies(1000))
+> +
+> +/*
+> + * Worst incs are 1 (innacurate) and 16*256 (irregular).
+> + * So a sensible inc is the logarithmic mean: 64 (2^6), which is
+> + * in the middle of the valid range (0-127).
 > + */
-> +struct of_overlay_info {
-> +	struct device_node *target;
-> +	struct device_node *overlay;
+> +#define SCB_OPT_INC		64
+> +
+> +/* Setup the clock enable filtering for 25 ns */
+> +#define SCB_FILT_GLITCH		25
+> +
+> +/*
+> + * Bits to return from interrupt handler functions for different modes.
+> + * This delays completion until we've finished with the registers, so that the
+> + * function waiting for completion can safely disable the clock to save power.
+> + */
+> +#define ISR_COMPLETE_M		BIT(31)
+> +#define ISR_FATAL_M		BIT(30)
+> +#define ISR_WAITSTOP		BIT(29)
+> +#define ISR_STATUS_M		0x0000ffff	/* contains +ve errno */
+> +#define ISR_COMPLETE(err)	(ISR_COMPLETE_M | (ISR_STATUS_M & (err)))
+> +#define ISR_FATAL(err)		(ISR_COMPLETE(err) | ISR_FATAL_M)
+> +
+> +#define REL_SOC_IP_SCB_2_2_1	0x00020201
+> +
+> +enum img_i2c_mode {
+> +	MODE_INACTIVE,
+> +	MODE_RAW,
+> +	MODE_ATOMIC,
+> +	MODE_AUTOMATIC,
+> +	MODE_SEQUENCE,
+> +	MODE_FATAL,
+> +	MODE_WAITSTOP,
+> +	MODE_SUSPEND,
 > +};
 > +
-> +/**
-> + * struct of_overlay - Holds a complete overlay transaction
-> + * @node:	List on which we are located
-> + * @count:	Count of ovinfo structures
-> + * @ovinfo:	Overlay info array (count size)
-> + * @le_list:	List of the overlay logs
-
-The documentation is out-of-date. Please supply a fixup patch.
-
-> + *
-> + * Holds a complete overlay transaction
-> + */
-> +struct of_overlay {
-> +	int id;
-> +	struct list_head node;
-> +	int count;
-> +	struct of_overlay_info *ovinfo_tab;
-> +	struct of_changeset cset;
+> +/* Timing parameters for i2c modes (in ns) */
+> +struct img_i2c_timings {
+> +	const char *name;
+> +	unsigned int max_bitrate;
+> +	unsigned int tckh, tckl, tsdh, tsdl;
+> +	unsigned int tp2s, tpl, tph;
 > +};
 > +
-> +static int of_overlay_apply_one(struct of_overlay *ov,
-> +		struct device_node *target, const struct device_node *overlay);
+> +/* The timings array must be ordered from slower to faster */
+> +static struct img_i2c_timings timings[] = {
+> +	/* Standard mode */
+> +	{
+> +		.name = "standard",
+> +		.max_bitrate = 100000,
+> +		.tckh = 4000,
+> +		.tckl = 4700,
+> +		.tsdh = 4700,
+> +		.tsdl = 8700,
+> +		.tp2s = 4700,
+> +		.tpl = 4700,
+> +		.tph = 4000,
+> +	},
+> +	/* Fast mode */
+> +	{
+> +		.name = "fast",
+> +		.max_bitrate = 400000,
+> +		.tckh = 600,
+> +		.tckl = 1300,
+> +		.tsdh = 600,
+> +		.tsdl = 1200,
+> +		.tp2s = 1300,
+> +		.tpl = 600,
+> +		.tph = 600,
+> +	},
+> +};
 > +
-> +static int of_overlay_apply_single_property(struct of_overlay *ov,
-> +		struct device_node *target, struct property *prop)
+> +/* Reset dance */
+> +static u8 img_i2c_reset_seq[] = { CMD_GEN_START,
+> +				  CMD_GEN_DATA, 0xff,
+> +				  CMD_RET_ACK,
+> +				  CMD_GEN_START,
+> +				  CMD_GEN_STOP,
+> +				  0 };
+> +/* Just issue a stop (after an abort condition) */
+> +static u8 img_i2c_stop_seq[] = {  CMD_GEN_STOP,
+> +				  0 };
+> +
+> +/* We're interested in different interrupts depending on the mode */
+> +static unsigned int img_i2c_int_enable_by_mode[] = {
+> +	[MODE_INACTIVE]  = INT_ENABLE_MASK_INACTIVE,
+> +	[MODE_RAW]       = INT_ENABLE_MASK_RAW,
+> +	[MODE_ATOMIC]    = INT_ENABLE_MASK_ATOMIC,
+> +	[MODE_AUTOMATIC] = INT_ENABLE_MASK_AUTOMATIC,
+> +	[MODE_SEQUENCE]  = INT_ENABLE_MASK_ATOMIC,
+> +	[MODE_FATAL]     = 0,
+> +	[MODE_WAITSTOP]  = INT_ENABLE_MASK_WAITSTOP,
+> +	[MODE_SUSPEND]   = 0,
+> +};
+> +
+> +/* Atomic command names */
+> +static const char * const img_i2c_atomic_cmd_names[] = {
+> +	[CMD_PAUSE]	= "PAUSE",
+> +	[CMD_GEN_DATA]	= "GEN_DATA",
+> +	[CMD_GEN_START]	= "GEN_START",
+> +	[CMD_GEN_STOP]	= "GEN_STOP",
+> +	[CMD_GEN_ACK]	= "GEN_ACK",
+> +	[CMD_GEN_NACK]	= "GEN_NACK",
+> +	[CMD_RET_DATA]	= "RET_DATA",
+> +	[CMD_RET_ACK]	= "RET_ACK",
+> +};
+> +
+> +struct img_i2c {
+> +	struct i2c_adapter adap;
+> +
+> +	void __iomem *base;
+> +
+> +	/*
+> +	 * The scb core clock is used to get the input frequency, and to disable
+> +	 * it after every set of transactions to save some power.
+> +	 */
+> +	struct clk *scb_clk, *sys_clk;
+> +	unsigned int bitrate;
+> +	bool need_wr_rd_fence;
+> +
+> +	/* state */
+> +	struct completion msg_complete;
+> +	spinlock_t lock;	/* lock before doing anything with the state */
+> +	struct i2c_msg msg;
+> +
+> +	/* After the last transaction, wait for a stop bit */
+> +	bool last_msg;
+> +	int msg_status;
+> +
+> +	enum img_i2c_mode mode;
+> +	u32 int_enable;		/* depends on mode */
+> +	u32 line_status;	/* line status over command */
+> +
+> +	/*
+> +	 * To avoid slave event interrupts in automatic mode, use a timer to
+> +	 * poll the abort condition if we don't get an interrupt for too long.
+> +	 */
+> +	struct timer_list check_timer;
+> +	bool t_halt;
+> +
+> +	/* atomic mode state */
+> +	bool at_t_done;
+> +	bool at_slave_event;
+> +	int at_cur_cmd;
+> +	u8 at_cur_data;
+> +
+> +	/* Sequence: either reset or stop. See img_i2c_sequence. */
+> +	u8 *seq;
+> +
+> +	/* raw mode */
+> +	unsigned int raw_timeout;
+> +};
+> +
+> +static void img_i2c_writel(struct img_i2c *i2c, u32 offset, u32 value)
 > +{
-> +	struct property *propn, *tprop;
-> +
-> +	/* NOTE: Multiple changes of single properties not supported */
-> +	tprop = of_find_property(target, prop->name, NULL);
-> +
-> +	/* special properties are not meant to be updated (silent NOP) */
-> +	if (tprop &&
-> +		(!of_prop_cmp(prop->name, "name") ||
-> +		 !of_prop_cmp(prop->name, "phandle") ||
-> +		 !of_prop_cmp(prop->name, "linux,phandle")))
-> +		return 0;
-
-What is the reason for these tests being conditional on the presence of
-the property in the node?
-
-> +
-> +	propn = __of_prop_dup(prop, GFP_KERNEL);
-> +	if (propn == NULL)
-> +		return -ENOMEM;
-> +
-> +	/* not found? add */
-> +	if (tprop == NULL)
-> +		return of_changeset_add_property(&ov->cset, target, propn);
-> +
-> +	/* found? update */
-> +	return of_changeset_update_property(&ov->cset, target, propn, tprop);
+> +	writel(value, i2c->base + offset);
 > +}
 > +
-> +static int of_overlay_apply_single_device_node(struct of_overlay *ov,
-> +		struct device_node *target, struct device_node *child)
+> +static u32 img_i2c_readl(struct img_i2c *i2c, u32 offset)
 > +{
-> +	const char *cname;
-> +	struct device_node *tchild;
-> +	char *full_name;
-> +	const char *suffix;
+> +	return readl(i2c->base + offset);
+> +}
+> +
+> +/*
+> + * The code to read from the master read fifo, and write to the master
+> + * write fifo, checks a bit in an SCB register before every byte to
+> + * ensure that the fifo is not full (write fifo) or empty (read fifo).
+> + * Due to clock domain crossing inside the SCB block the updated value
+> + * of this bit is only visible after 2 cycles.
+> + *
+> + * The scb_wr_rd_fence() function does 2 dummy writes (to the read-only
+> + * revision register), and it's called after reading from or writing to the
+> + * fifos to ensure that subsequent reads of the fifo status bits do not read
+> + * stale values.
+> + */
+> +static void img_i2c_wr_rd_fence(struct img_i2c *i2c)
+> +{
+> +	if (i2c->need_wr_rd_fence) {
+> +		img_i2c_writel(i2c, SCB_CORE_REV_REG, 0);
+> +		img_i2c_writel(i2c, SCB_CORE_REV_REG, 0);
+> +	}
+> +}
+> +
+> +static void img_i2c_switch_mode(struct img_i2c *i2c, enum img_i2c_mode mode)
+> +{
+> +	i2c->mode = mode;
+> +	i2c->int_enable = img_i2c_int_enable_by_mode[mode];
+> +	i2c->line_status = 0;
+> +}
+> +
+> +static void img_i2c_raw_op(struct img_i2c *i2c)
+> +{
+> +	i2c->raw_timeout = 0;
+> +	img_i2c_writel(i2c, SCB_OVERRIDE_REG,
+> +		OVERRIDE_SCLKEN_OVR |
+> +		OVERRIDE_SDATEN_OVR |
+> +		OVERRIDE_MASTER |
+> +		OVERRIDE_LINE_OVR_EN |
+> +		OVERRIDE_DIRECT |
+> +		((i2c->at_cur_cmd & OVERRIDE_CMD_MASK) << OVERRIDE_CMD_SHIFT) |
+> +		(i2c->at_cur_data << OVERRIDE_DATA_SHIFT));
+> +}
+> +
+> +static const char *img_i2c_atomic_op_name(unsigned int cmd)
+> +{
+> +	if (unlikely(cmd >= ARRAY_SIZE(img_i2c_atomic_cmd_names)))
+> +		return "UNKNOWN";
+> +	return img_i2c_atomic_cmd_names[cmd];
+> +}
+> +
+> +/* Send a single atomic mode command to the hardware */
+> +static void img_i2c_atomic_op(struct img_i2c *i2c, int cmd, u8 data)
+> +{
+> +	i2c->at_cur_cmd = cmd;
+> +	i2c->at_cur_data = data;
+> +
+> +	/* work around lack of data setup time when generating data */
+> +	if (cmd == CMD_GEN_DATA && i2c->mode == MODE_ATOMIC) {
+> +		u32 line_status = img_i2c_readl(i2c, SCB_STATUS_REG);
+> +
+> +		if (line_status & LINESTAT_SDAT_LINE_STATUS && !(data & 0x80)) {
+> +			/* hold the data line down for a moment */
+> +			img_i2c_switch_mode(i2c, MODE_RAW);
+> +			img_i2c_raw_op(i2c);
+> +			return;
+> +		}
+> +	}
+> +
+> +	dev_dbg(i2c->adap.dev.parent,
+> +		"atomic cmd=%s (%d) data=%#x\n",
+> +		img_i2c_atomic_op_name(cmd), cmd, data);
+> +	i2c->at_t_done = (cmd == CMD_RET_DATA || cmd == CMD_RET_ACK);
+> +	i2c->at_slave_event = false;
+> +	i2c->line_status = 0;
+> +
+> +	img_i2c_writel(i2c, SCB_OVERRIDE_REG,
+> +		((cmd & OVERRIDE_CMD_MASK) << OVERRIDE_CMD_SHIFT) |
+> +		OVERRIDE_MASTER |
+> +		OVERRIDE_DIRECT |
+> +		(data << OVERRIDE_DATA_SHIFT));
+> +}
+> +
+> +/* Start a transaction in atomic mode */
+> +static void img_i2c_atomic_start(struct img_i2c *i2c)
+> +{
+> +	img_i2c_switch_mode(i2c, MODE_ATOMIC);
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> +	img_i2c_atomic_op(i2c, CMD_GEN_START, 0x00);
+> +}
+> +
+> +static void img_i2c_soft_reset(struct img_i2c *i2c)
+> +{
+> +	i2c->t_halt = false;
+> +	img_i2c_writel(i2c, SCB_CONTROL_REG, 0);
+> +	img_i2c_writel(i2c, SCB_CONTROL_REG,
+> +		       SCB_CONTROL_CLK_ENABLE | SCB_CONTROL_SOFT_RESET);
+> +}
+> +
+> +/* enable or release transaction halt for control of repeated starts */
+> +static void img_i2c_transaction_halt(struct img_i2c *i2c, bool t_halt)
+> +{
+> +	u32 val;
+> +
+> +	if (i2c->t_halt == t_halt)
+> +		return;
+> +	i2c->t_halt = t_halt;
+> +	val = img_i2c_readl(i2c, SCB_CONTROL_REG);
+> +	if (t_halt)
+> +		val |= SCB_CONTROL_TRANSACTION_HALT;
+> +	else
+> +		val &= ~SCB_CONTROL_TRANSACTION_HALT;
+> +	img_i2c_writel(i2c, SCB_CONTROL_REG, val);
+> +}
+> +
+> +/* Drain data from the FIFO into the buffer (automatic mode) */
+> +static void img_i2c_read_fifo(struct img_i2c *i2c)
+> +{
+> +	while (i2c->msg.len) {
+> +		u32 fifo_status;
+> +		u8 data;
+> +
+> +		fifo_status = img_i2c_readl(i2c, SCB_FIFO_STATUS_REG);
+> +		if (fifo_status & FIFO_READ_EMPTY)
+> +			break;
+> +
+> +		data = img_i2c_readl(i2c, SCB_READ_DATA_REG);
+> +		*i2c->msg.buf = data;
+> +
+> +		img_i2c_writel(i2c, SCB_READ_FIFO_REG, 0xff);
+> +		img_i2c_wr_rd_fence(i2c);
+> +		i2c->msg.len--;
+> +		i2c->msg.buf++;
+> +	}
+> +}
+> +
+> +/* Fill the FIFO with data from the buffer (automatic mode) */
+> +static void img_i2c_write_fifo(struct img_i2c *i2c)
+> +{
+> +	while (i2c->msg.len) {
+> +		u32 fifo_status;
+> +
+> +		fifo_status = img_i2c_readl(i2c, SCB_FIFO_STATUS_REG);
+> +		if (fifo_status & FIFO_WRITE_FULL)
+> +			break;
+> +
+> +		img_i2c_writel(i2c, SCB_WRITE_DATA_REG, *i2c->msg.buf);
+> +		img_i2c_wr_rd_fence(i2c);
+> +		i2c->msg.len--;
+> +		i2c->msg.buf++;
+> +	}
+> +
+> +	/* Disable fifo emptying interrupt if nothing more to write */
+> +	if (!i2c->msg.len)
+> +		i2c->int_enable &= ~INT_FIFO_EMPTYING;
+> +}
+> +
+> +/* Start a read transaction in automatic mode */
+> +static void img_i2c_read(struct img_i2c *i2c)
+> +{
+> +	img_i2c_switch_mode(i2c, MODE_AUTOMATIC);
+> +	if (!i2c->last_msg)
+> +		i2c->int_enable |= INT_SLAVE_EVENT;
+> +
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> +	img_i2c_writel(i2c, SCB_READ_ADDR_REG, i2c->msg.addr);
+> +	img_i2c_writel(i2c, SCB_READ_COUNT_REG, i2c->msg.len);
+> +
+> +	img_i2c_transaction_halt(i2c, false);
+> +	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
+> +}
+> +
+> +/* Start a write transaction in automatic mode */
+> +static void img_i2c_write(struct img_i2c *i2c)
+> +{
+> +	img_i2c_switch_mode(i2c, MODE_AUTOMATIC);
+> +	if (!i2c->last_msg)
+> +		i2c->int_enable |= INT_SLAVE_EVENT;
+> +
+> +	img_i2c_writel(i2c, SCB_WRITE_ADDR_REG, i2c->msg.addr);
+> +	img_i2c_writel(i2c, SCB_WRITE_COUNT_REG, i2c->msg.len);
+> +
+> +	img_i2c_transaction_halt(i2c, false);
+> +	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
+> +	img_i2c_write_fifo(i2c);
+> +
+> +	/* img_i2c_write_fifo() may modify int_enable */
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> +}
+> +
+> +/*
+> + * Indicate that the transaction is complete. This is called from the
+> + * ISR to wake up the waiting thread, after which the ISR must not
+> + * access any more SCB registers.
+> + */
+> +static void img_i2c_complete_transaction(struct img_i2c *i2c, int status)
+> +{
+> +	img_i2c_switch_mode(i2c, MODE_INACTIVE);
+> +	if (status) {
+> +		i2c->msg_status = status;
+> +		img_i2c_transaction_halt(i2c, false);
+> +	}
+> +	complete(&i2c->msg_complete);
+> +}
+> +
+> +static unsigned int img_i2c_raw_atomic_delay_handler(struct img_i2c *i2c,
+> +					u32 int_status, u32 line_status)
+> +{
+> +	/* Stay in raw mode for this, so we don't just loop infinitely */
+> +	img_i2c_atomic_op(i2c, i2c->at_cur_cmd, i2c->at_cur_data);
+> +	img_i2c_switch_mode(i2c, MODE_ATOMIC);
+> +	return 0;
+> +}
+> +
+> +static unsigned int img_i2c_raw(struct img_i2c *i2c, u32 int_status,
+> +				u32 line_status)
+> +{
+> +	if (int_status & INT_TIMING) {
+> +		if (i2c->raw_timeout == 0)
+> +			return img_i2c_raw_atomic_delay_handler(i2c,
+> +				int_status, line_status);
+> +		--i2c->raw_timeout;
+> +	}
+> +	return 0;
+> +}
+> +
+> +static unsigned int img_i2c_sequence(struct img_i2c *i2c, u32 int_status)
+> +{
+> +	static const unsigned int continue_bits[] = {
+> +		[CMD_GEN_START] = LINESTAT_START_BIT_DET,
+> +		[CMD_GEN_DATA]  = LINESTAT_INPUT_HELD_V,
+> +		[CMD_RET_ACK]   = LINESTAT_ACK_DET | LINESTAT_NACK_DET,
+> +		[CMD_RET_DATA]  = LINESTAT_INPUT_HELD_V,
+> +		[CMD_GEN_STOP]  = LINESTAT_STOP_BIT_DET,
+> +	};
+> +	int next_cmd = -1;
+> +	u8 next_data = 0x00;
+> +
+> +	if (int_status & INT_SLAVE_EVENT)
+> +		i2c->at_slave_event = true;
+> +	if (int_status & INT_TRANSACTION_DONE)
+> +		i2c->at_t_done = true;
+> +
+> +	if (!i2c->at_slave_event || !i2c->at_t_done)
+> +		return 0;
+> +
+> +	/* wait if no continue bits are set */
+> +	if (i2c->at_cur_cmd >= 0 &&
+> +	    i2c->at_cur_cmd < ARRAY_SIZE(continue_bits)) {
+> +		unsigned int cont_bits = continue_bits[i2c->at_cur_cmd];
+> +
+> +		if (cont_bits) {
+> +			cont_bits |= LINESTAT_ABORT_DET;
+> +			if (!(i2c->line_status & cont_bits))
+> +				return 0;
+> +		}
+> +	}
+> +
+> +	/* follow the sequence of commands in i2c->seq */
+> +	next_cmd = *i2c->seq;
+> +	/* stop on a nil */
+> +	if (!next_cmd) {
+> +		img_i2c_writel(i2c, SCB_OVERRIDE_REG, 0);
+> +		return ISR_COMPLETE(0);
+> +	}
+> +	/* when generating data, the next byte is the data */
+> +	if (next_cmd == CMD_GEN_DATA) {
+> +		++i2c->seq;
+> +		next_data = *i2c->seq;
+> +	}
+> +	++i2c->seq;
+> +	img_i2c_atomic_op(i2c, next_cmd, next_data);
+> +
+> +	return 0;
+> +}
+> +
+> +static void img_i2c_reset_start(struct img_i2c *i2c)
+> +{
+> +	/* Initiate the magic dance */
+> +	img_i2c_switch_mode(i2c, MODE_SEQUENCE);
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> +	i2c->seq = img_i2c_reset_seq;
+> +	i2c->at_slave_event = true;
+> +	i2c->at_t_done = true;
+> +	i2c->at_cur_cmd = -1;
+> +
+> +	/* img_i2c_reset_seq isn't empty so the following won't fail */
+> +	img_i2c_sequence(i2c, 0);
+> +}
+> +
+> +static void img_i2c_stop_start(struct img_i2c *i2c)
+> +{
+> +	/* Initiate a stop bit sequence */
+> +	img_i2c_switch_mode(i2c, MODE_SEQUENCE);
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> +	i2c->seq = img_i2c_stop_seq;
+> +	i2c->at_slave_event = true;
+> +	i2c->at_t_done = true;
+> +	i2c->at_cur_cmd = -1;
+> +
+> +	/* img_i2c_stop_seq isn't empty so the following won't fail */
+> +	img_i2c_sequence(i2c, 0);
+> +}
+> +
+> +static unsigned int img_i2c_atomic(struct img_i2c *i2c,
+> +				   u32 int_status,
+> +				   u32 line_status)
+> +{
+> +	int next_cmd = -1;
+> +	u8 next_data = 0x00;
+> +
+> +	if (int_status & INT_SLAVE_EVENT)
+> +		i2c->at_slave_event = true;
+> +	if (int_status & INT_TRANSACTION_DONE)
+> +		i2c->at_t_done = true;
+> +
+> +	if (!i2c->at_slave_event || !i2c->at_t_done)
+> +		goto next_atomic_cmd;
+> +	if (i2c->line_status & LINESTAT_ABORT_DET) {
+> +		dev_dbg(i2c->adap.dev.parent, "abort condition detected\n");
+> +		next_cmd = CMD_GEN_STOP;
+> +		i2c->msg_status = -EIO;
+> +		goto next_atomic_cmd;
+> +	}
+> +
+> +	/* i2c->at_cur_cmd may have completed */
+> +	switch (i2c->at_cur_cmd) {
+> +	case CMD_GEN_START:
+> +		next_cmd = CMD_GEN_DATA;
+> +		next_data = (i2c->msg.addr << 1);
+> +		if (i2c->msg.flags & I2C_M_RD)
+> +			next_data |= 0x1;
+> +		break;
+> +	case CMD_GEN_DATA:
+> +		if (i2c->line_status & LINESTAT_INPUT_HELD_V)
+> +			next_cmd = CMD_RET_ACK;
+> +		break;
+> +	case CMD_RET_ACK:
+> +		if (i2c->line_status & LINESTAT_ACK_DET) {
+> +			if (i2c->msg.len == 0) {
+> +				next_cmd = CMD_GEN_STOP;
+> +			} else if (i2c->msg.flags & I2C_M_RD) {
+> +				next_cmd = CMD_RET_DATA;
+> +			} else {
+> +				next_cmd = CMD_GEN_DATA;
+> +				next_data = *i2c->msg.buf;
+> +				--i2c->msg.len;
+> +				++i2c->msg.buf;
+> +			}
+> +		} else if (i2c->line_status & LINESTAT_NACK_DET) {
+> +			i2c->msg_status = -EIO;
+> +			next_cmd = CMD_GEN_STOP;
+> +		}
+> +		break;
+> +	case CMD_RET_DATA:
+> +		if (i2c->line_status & LINESTAT_INPUT_HELD_V) {
+> +			*i2c->msg.buf = (i2c->line_status &
+> +						LINESTAT_INPUT_DATA)
+> +					>> LINESTAT_INPUT_DATA_SHIFT;
+> +			--i2c->msg.len;
+> +			++i2c->msg.buf;
+> +			if (i2c->msg.len)
+> +				next_cmd = CMD_GEN_ACK;
+> +			else
+> +				next_cmd = CMD_GEN_NACK;
+> +		}
+> +		break;
+> +	case CMD_GEN_ACK:
+> +		if (i2c->line_status & LINESTAT_ACK_DET) {
+> +			next_cmd = CMD_RET_DATA;
+> +		} else {
+> +			i2c->msg_status = -EIO;
+> +			next_cmd = CMD_GEN_STOP;
+> +		}
+> +		break;
+> +	case CMD_GEN_NACK:
+> +		next_cmd = CMD_GEN_STOP;
+> +		break;
+> +	case CMD_GEN_STOP:
+> +		img_i2c_writel(i2c, SCB_OVERRIDE_REG, 0);
+> +		return ISR_COMPLETE(0);
+> +	default:
+> +		dev_err(i2c->adap.dev.parent, "bad atomic command %d\n",
+> +			i2c->at_cur_cmd);
+> +		i2c->msg_status = -EIO;
+> +		next_cmd = CMD_GEN_STOP;
+> +		break;
+> +	}
+> +
+> +next_atomic_cmd:
+> +	if (next_cmd != -1) {
+> +		/* don't actually stop unless we're the last transaction */
+> +		if (next_cmd == CMD_GEN_STOP && !i2c->msg_status &&
+> +						!i2c->last_msg)
+> +			return ISR_COMPLETE(0);
+> +		img_i2c_atomic_op(i2c, next_cmd, next_data);
+> +	}
+> +	return 0;
+> +}
+> +
+> +/*
+> + * Timer function to check if something has gone wrong in automatic mode (so we
+> + * don't have to handle so many interrupts just to catch an exception).
+> + */
+> +static void img_i2c_check_timer(unsigned long arg)
+> +{
+> +	struct img_i2c *i2c = (struct img_i2c *)arg;
+> +	unsigned long flags;
+> +	unsigned int line_status;
+> +
+> +	spin_lock_irqsave(&i2c->lock, flags);
+> +	line_status = img_i2c_readl(i2c, SCB_STATUS_REG);
+> +
+> +	/* check for an abort condition */
+> +	if (line_status & LINESTAT_ABORT_DET) {
+> +		dev_dbg(i2c->adap.dev.parent,
+> +			"abort condition detected by check timer\n");
+> +		/* enable slave event interrupt mask to trigger irq */
+> +		img_i2c_writel(i2c, SCB_INT_MASK_REG,
+> +			       i2c->int_enable | INT_SLAVE_EVENT);
+> +	}
+> +
+> +	spin_unlock_irqrestore(&i2c->lock, flags);
+> +}
+> +
+> +static unsigned int img_i2c_auto(struct img_i2c *i2c,
+> +				 unsigned int int_status,
+> +				 unsigned int line_status)
+> +{
+> +	if (int_status & (INT_WRITE_ACK_ERR | INT_ADDR_ACK_ERR))
+> +		return ISR_COMPLETE(EIO);
+> +
+> +	if (line_status & LINESTAT_ABORT_DET) {
+> +		dev_dbg(i2c->adap.dev.parent, "abort condition detected\n");
+> +		/* empty the read fifo */
+> +		if ((i2c->msg.flags & I2C_M_RD) &&
+> +		    (int_status & INT_FIFO_FULL_FILLING))
+> +			img_i2c_read_fifo(i2c);
+> +		/* use atomic mode and try to force a stop bit */
+> +		i2c->msg_status = -EIO;
+> +		img_i2c_stop_start(i2c);
+> +		return 0;
+> +	}
+> +
+> +	/* Enable transaction halt on start bit */
+> +	if (!i2c->last_msg && i2c->line_status & LINESTAT_START_BIT_DET) {
+> +		img_i2c_transaction_halt(i2c, true);
+> +		/* we're no longer interested in the slave event */
+> +		i2c->int_enable &= ~INT_SLAVE_EVENT;
+> +	}
+> +
+> +	mod_timer(&i2c->check_timer, jiffies + msecs_to_jiffies(1));
+> +
+> +	if (i2c->msg.flags & I2C_M_RD) {
+> +		if (int_status & INT_FIFO_FULL_FILLING) {
+> +			img_i2c_read_fifo(i2c);
+> +			if (i2c->msg.len == 0)
+> +				return ISR_WAITSTOP;
+> +		}
+> +	} else {
+> +		if (int_status & INT_FIFO_EMPTY_EMPTYING) {
+> +			/*
+> +			 * The write fifo empty indicates that we're in the
+> +			 * last byte so it's safe to start a new write
+> +			 * transaction without losing any bytes from the
+> +			 * previous one.
+> +			 * see 2.3.7 Repeated Start Transactions.
+> +			 */
+> +			if ((int_status & INT_FIFO_EMPTY) &&
+> +			    i2c->msg.len == 0)
+> +				return ISR_WAITSTOP;
+> +			img_i2c_write_fifo(i2c);
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t img_i2c_isr(int irq, void *dev_id)
+> +{
+> +	struct img_i2c *i2c = (struct img_i2c *)dev_id;
+> +	u32 int_status, line_status;
+> +	/* We handle transaction completion AFTER accessing registers */
+> +	unsigned int hret;
+> +
+> +	/* Read interrupt status register. */
+> +	int_status = img_i2c_readl(i2c, SCB_INT_STATUS_REG);
+> +	/* Clear detected interrupts. */
+> +	img_i2c_writel(i2c, SCB_INT_CLEAR_REG, int_status);
+> +
+> +	/*
+> +	 * Read line status and clear it until it actually is clear.  We have
+> +	 * to be careful not to lose any line status bits that get latched.
+> +	 */
+> +	line_status = img_i2c_readl(i2c, SCB_STATUS_REG);
+> +	if (line_status & LINESTAT_LATCHED) {
+> +		img_i2c_writel(i2c, SCB_CLEAR_REG,
+> +			      (line_status & LINESTAT_LATCHED)
+> +				>> LINESTAT_CLEAR_SHIFT);
+> +		img_i2c_wr_rd_fence(i2c);
+> +	}
+> +
+> +	spin_lock(&i2c->lock);
+> +
+> +	/* Keep track of line status bits received */
+> +	i2c->line_status &= ~LINESTAT_INPUT_DATA;
+> +	i2c->line_status |= line_status;
+> +
+> +	/*
+> +	 * Certain interrupts indicate that sclk low timeout is not
+> +	 * a problem. If any of these are set, just continue.
+> +	 */
+> +	if ((int_status & INT_SCLK_LOW_TIMEOUT) &&
+> +	    !(int_status & (INT_SLAVE_EVENT |
+> +			    INT_FIFO_EMPTY |
+> +			    INT_FIFO_FULL))) {
+> +		dev_crit(i2c->adap.dev.parent,
+> +			 "fatal: clock low timeout occurred %s addr 0x%02x\n",
+> +			 (i2c->msg.flags & I2C_M_RD) ? "reading" : "writing",
+> +			 i2c->msg.addr);
+> +		hret = ISR_FATAL(EIO);
+> +		goto out;
+> +	}
+> +
+> +	if (i2c->mode == MODE_ATOMIC)
+> +		hret = img_i2c_atomic(i2c, int_status, line_status);
+> +	else if (i2c->mode == MODE_AUTOMATIC)
+> +		hret = img_i2c_auto(i2c, int_status, line_status);
+> +	else if (i2c->mode == MODE_SEQUENCE)
+> +		hret = img_i2c_sequence(i2c, int_status);
+> +	else if (i2c->mode == MODE_WAITSTOP && (int_status & INT_SLAVE_EVENT) &&
+> +			 (line_status & LINESTAT_STOP_BIT_DET))
+> +		hret = ISR_COMPLETE(0);
+> +	else if (i2c->mode == MODE_RAW)
+> +		hret = img_i2c_raw(i2c, int_status, line_status);
+> +	else
+> +		hret = 0;
+> +
+> +	/* Clear detected level interrupts. */
+> +	img_i2c_writel(i2c, SCB_INT_CLEAR_REG, int_status & INT_LEVEL);
+> +
+> +out:
+> +	if (hret & ISR_WAITSTOP) {
+> +		/*
+> +		 * Only wait for stop on last message.
+> +		 * Also we may already have detected the stop bit.
+> +		 */
+> +		if (!i2c->last_msg || i2c->line_status & LINESTAT_STOP_BIT_DET)
+> +			hret = ISR_COMPLETE(0);
+> +		else
+> +			img_i2c_switch_mode(i2c, MODE_WAITSTOP);
+> +	}
+> +
+> +	/* now we've finished using regs, handle transaction completion */
+> +	if (hret & ISR_COMPLETE_M) {
+> +		int status = -(hret & ISR_STATUS_M);
+> +
+> +		img_i2c_complete_transaction(i2c, status);
+> +		if (hret & ISR_FATAL_M)
+> +			img_i2c_switch_mode(i2c, MODE_FATAL);
+> +	}
+> +
+> +	/* Enable interrupts (int_enable may be altered by changing mode) */
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> +
+> +	spin_unlock(&i2c->lock);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +/* Force a bus reset sequence and wait for it to complete */
+> +static int img_i2c_reset_bus(struct img_i2c *i2c)
+> +{
+> +	unsigned long flags;
 > +	int ret;
 > +
-> +	/* special case for nodes with a suffix */
-> +	suffix = strrchr(child->full_name, '@');
-> +	if (suffix != NULL) {
-> +		cname = kbasename(child->full_name);
-> +		if (cname == NULL)
-> +			return -ENOMEM;
-> +	} else
-> +		cname = child->name;
-
-So, if it has a unit address suffix, kbasename is used. If it doesn't
-have a suffix, child->name is used because it is cheaper that using
-kbasename? If that's the reason, I don't think the code complexity is
-worth it since the cost should be negligable. Can kbasename() be used
-always?
-
+> +	spin_lock_irqsave(&i2c->lock, flags);
+> +	reinit_completion(&i2c->msg_complete);
+> +	img_i2c_reset_start(i2c);
+> +	spin_unlock_irqrestore(&i2c->lock, flags);
 > +
-> +	ret = 0;
+> +	ret = wait_for_completion_timeout(&i2c->msg_complete, IMG_I2C_TIMEOUT);
+> +	if (ret == 0)
+> +		return -ETIMEDOUT;
+> +	return 0;
+> +}
 > +
-> +	/* NOTE: Multiple mods of created nodes not supported */
-> +	tchild = of_get_child_by_name(target, cname);
-> +	if (tchild != NULL) {
+> +static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+> +			int num)
+> +{
+> +	struct img_i2c *i2c = i2c_get_adapdata(adap);
+> +	bool atomic = false;
+> +	int i, ret;
 > +
-> +		/* apply overlay recursively */
-> +		ret = of_overlay_apply_one(ov, tchild,
-> +				child);
-> +
-> +		of_node_put(tchild);
-> +
-> +	} else {
-> +		full_name = kasprintf(GFP_KERNEL, "%s/%s",
-> +				target->full_name, cname);
-> +		if (full_name == NULL)
-> +			return -ENOMEM;
-> +
-> +		/* create empty tree as a target */
-> +		tchild = __of_node_alloc(full_name, GFP_KERNEL);
-> +
-> +		/* free either way */
-> +		kfree(full_name);
-> +
-> +		if (tchild == NULL)
-> +			return -ENOMEM;
-> +
-> +		/* point to parent */
-> +		tchild->parent = target;
-
-As discussed on IRC, if a node doesn't already exist in the tree, then
-the properties can be duplicated with the node. There is no need to do a
-of_changeset_add_property() on each and every node. That just makes the
-load on notifiers a lot heavier and adds more processing on add and
-remove.
-
-> +
-> +		/* apply the overlay */
-> +		ret = of_overlay_apply_one(ov, tchild,
-> +				child);
-> +
-> +		/* attach the node afterwards */
-> +		if (!ret)
-> +			ret = of_changeset_attach_node(&ov->cset, tchild);
-
-It looks to me like the parent is getting added /after/ the child is
-added in the changeset stack. That doesn't look right to me. Wouldn't
-that also mean that the child node get registered on sysfs after the
-parent nodes?
-
-> +
+> +	if (i2c->mode == MODE_SUSPEND) {
+> +		WARN(1, "refusing to service transaction in suspended state\n");
+> +		return -EIO;
 > +	}
+> +
+> +	if (i2c->mode == MODE_FATAL)
+> +		return -EIO;
+> +
+> +	for (i = 0; i < num; i++) {
+> +		if (likely(msgs[i].len))
+> +			continue;
+> +		/*
+> +		 * 0 byte reads are not possible because the slave could try
+> +		 * and pull the data line low, preventing a stop bit.
+> +		 */
+> +		if (unlikely(msgs[i].flags & I2C_M_RD))
+> +			return -EIO;
+> +		/*
+> +		 * 0 byte writes are possible and used for probing, but we
+> +		 * cannot do them in automatic mode, so use atomic mode
+> +		 * instead.
+> +		 */
+> +		atomic = true;
+> +	}
+> +
+> +	ret = clk_prepare_enable(i2c->scb_clk);
+> +	if (ret)
+> +		return ret;
+> +
+> +	for (i = 0; i < num; i++) {
+> +		struct i2c_msg *msg = &msgs[i];
+> +		unsigned long flags;
+> +
+> +		spin_lock_irqsave(&i2c->lock, flags);
+> +
+> +		/*
+> +		 * Make a copy of the message struct. We mustn't modify the
+> +		 * original or we'll confuse drivers and i2c-dev.
+> +		 */
+> +		i2c->msg = *msg;
+> +		i2c->msg_status = 0;
+> +
+> +		/*
+> +		 * After the last message we must have waited for a stop bit.
+> +		 * Not waiting can cause problems when the clock is disabled
+> +		 * before the stop bit is sent, and the linux I2C interface
+> +		 * requires separate transfers not to joined with repeated
+> +		 * start.
+> +		 */
+> +		i2c->last_msg = (i == num - 1);
+> +		reinit_completion(&i2c->msg_complete);
+> +
+> +		if (atomic)
+> +			img_i2c_atomic_start(i2c);
+> +		else if (msg->flags & I2C_M_RD)
+> +			img_i2c_read(i2c);
+> +		else
+> +			img_i2c_write(i2c);
+> +		spin_unlock_irqrestore(&i2c->lock, flags);
+> +
+> +		ret = wait_for_completion_timeout(&i2c->msg_complete,
+> +						  IMG_I2C_TIMEOUT);
+> +		del_timer_sync(&i2c->check_timer);
+> +
+> +		if (ret == 0) {
+> +			dev_err(adap->dev.parent, "i2c transfer timed out\n");
+> +			i2c->msg_status = -ETIMEDOUT;
+> +			break;
+> +		}
+> +
+> +		if (i2c->msg_status)
+> +			break;
+> +	}
+> +
+> +	clk_disable_unprepare(i2c->scb_clk);
+> +
+> +	return i2c->msg_status ? i2c->msg_status : num;
+> +}
+> +
+> +static u32 img_i2c_func(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+> +
+> +static const struct i2c_algorithm img_i2c_algo = {
+> +	.master_xfer = img_i2c_xfer,
+> +	.functionality = img_i2c_func,
+> +};
+> +
+> +static int img_i2c_init(struct img_i2c *i2c)
+> +{
+> +	unsigned int clk_khz, bitrate_khz, clk_period, tckh, tckl, tsdh;
+> +	unsigned int i, ret, data, prescale, inc, int_bitrate, filt;
+> +	struct img_i2c_timings timing;
+> +	u32 rev;
+> +
+> +	ret = clk_prepare_enable(i2c->scb_clk);
+> +	if (ret)
+> +		return ret;
+> +
+> +	rev = img_i2c_readl(i2c, SCB_CORE_REV_REG);
+> +	if ((rev & 0x00ffffff) < 0x00020200) {
+> +		dev_info(i2c->adap.dev.parent,
+> +			 "Unknown hardware revision (%d.%d.%d.%d)\n",
+> +			 (rev >> 24) & 0xff, (rev >> 16) & 0xff,
+> +			 (rev >> 8) & 0xff, rev & 0xff);
+> +		clk_disable_unprepare(i2c->scb_clk);
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (rev == REL_SOC_IP_SCB_2_2_1) {
+> +		i2c->need_wr_rd_fence = true;
+> +		dev_info(i2c->adap.dev.parent, "fence quirk enabled");
+> +	}
+> +
+> +	bitrate_khz = i2c->bitrate / 1000;
+> +	clk_khz = clk_get_rate(i2c->scb_clk) / 1000;
+> +
+> +	/* Determine what mode we're in from the bitrate */
+> +	timing = timings[0];
+> +	for (i = 0; i < ARRAY_SIZE(timings); i++) {
+> +		if (i2c->bitrate <= timings[i].max_bitrate) {
+> +			timing = timings[i];
+> +			break;
+> +		}
+> +	}
+> +
+> +	/* Find the prescale that would give us that inc (approx delay = 0) */
+> +	prescale = SCB_OPT_INC * clk_khz / (256 * 16 * bitrate_khz);
+> +	prescale = clamp_t(unsigned int, prescale, 1, 8);
+> +	clk_khz /= prescale;
+> +
+> +	/* Setup the clock increment value */
+> +	inc = (256 * 16 * bitrate_khz) / clk_khz;
+> +
+> +	/*
+> +	 * The clock generation logic allows to filter glitches on the bus.
+> +	 * This filter is able to remove bus glitches shorter than 50ns.
+> +	 * If the clock enable rate is greater than 20 MHz, no filtering
+> +	 * is required, so we need to disable it.
+> +	 * If it's between the 20-40 MHz range, there's no need to divide
+> +	 * the clock to get a filter.
+> +	 */
+> +	if (clk_khz < 20000) {
+> +		filt = SCB_FILT_DISABLE;
+> +	} else if (clk_khz < 40000) {
+> +		filt = SCB_FILT_BYPASS;
+> +	} else {
+> +		/* Calculate filter clock */
+> +		filt = (64000 / ((clk_khz / 1000) * SCB_FILT_GLITCH));
+> +
+> +		/* Scale up if needed */
+> +		if (64000 % ((clk_khz / 1000) * SCB_FILT_GLITCH))
+> +			inc++;
+> +
+> +		if (filt > SCB_FILT_INC_MASK)
+> +			filt = SCB_FILT_INC_MASK;
+> +
+> +		filt = (filt & SCB_FILT_INC_MASK) << SCB_FILT_INC_SHIFT;
+> +	}
+> +	data = filt | ((inc & SCB_INC_MASK) << SCB_INC_SHIFT) | (prescale - 1);
+> +	img_i2c_writel(i2c, SCB_CLK_SET_REG, data);
+> +
+> +	/* Obtain the clock period of the fx16 clock in ns */
+> +	clk_period = (256 * 1000000) / (clk_khz * inc);
+> +
+> +	/* Calculate the bitrate in terms of internal clock pulses */
+> +	int_bitrate = 1000000 / (bitrate_khz * clk_period);
+> +	if ((1000000 % (bitrate_khz * clk_period)) >=
+> +	    ((bitrate_khz * clk_period) / 2))
+> +		int_bitrate++;
+> +
+> +	/* Setup TCKH value */
+> +	tckh = timing.tckh / clk_period;
+> +	if (timing.tckh % clk_period)
+> +		tckh++;
+> +
+> +	if (tckh > 0)
+> +		data = tckh - 1;
+> +	else
+> +		data = 0;
+> +
+> +	img_i2c_writel(i2c, SCB_TIME_TCKH_REG, data);
+> +
+> +	/* Setup TCKL value */
+> +	tckl = int_bitrate - tckh;
+> +
+> +	if (tckl > 0)
+> +		data = tckl - 1;
+> +	else
+> +		data = 0;
+> +
+> +	img_i2c_writel(i2c, SCB_TIME_TCKL_REG, data);
+> +
+> +	/* Setup TSDH value */
+> +	tsdh = timing.tsdh / clk_period;
+> +	if (timing.tsdh % clk_period)
+> +		tsdh++;
+> +
+> +	if (tsdh > 1)
+> +		data = tsdh - 1;
+> +	else
+> +		data = 0x01;
+> +	img_i2c_writel(i2c, SCB_TIME_TSDH_REG, data);
+> +
+> +	/* This value is used later */
+> +	tsdh = data;
+> +
+> +	/* Setup TPL value */
+> +	data = timing.tpl / clk_period;
+> +	if (data > 0)
+> +		--data;
+> +	img_i2c_writel(i2c, SCB_TIME_TPL_REG, data);
+> +
+> +	/* Setup TPH value */
+> +	data = timing.tph / clk_period;
+> +	if (data > 0)
+> +		--data;
+> +	img_i2c_writel(i2c, SCB_TIME_TPH_REG, data);
+> +
+> +	/* Setup TSDL value to TPL + TSDH + 2 */
+> +	img_i2c_writel(i2c, SCB_TIME_TSDL_REG, data + tsdh + 2);
+> +
+> +	/* Setup TP2S value */
+> +	data = timing.tp2s / clk_period;
+> +	if (data > 0)
+> +		--data;
+> +	img_i2c_writel(i2c, SCB_TIME_TP2S_REG, data);
+> +
+> +	img_i2c_writel(i2c, SCB_TIME_TBI_REG, TIMEOUT_TBI);
+> +	img_i2c_writel(i2c, SCB_TIME_TSL_REG, TIMEOUT_TSL);
+> +	img_i2c_writel(i2c, SCB_TIME_TDL_REG, TIMEOUT_TDL);
+> +
+> +	/* Take module out of soft reset and enable clocks */
+> +	img_i2c_soft_reset(i2c);
+> +
+> +	/* Disable all interrupts */
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, 0);
+> +
+> +	/* Clear all interrupts */
+> +	img_i2c_writel(i2c, SCB_INT_CLEAR_REG, ~0);
+> +
+> +	/* Clear the scb_line_status events */
+> +	img_i2c_writel(i2c, SCB_CLEAR_REG, ~0);
+> +
+> +	/* Enable interrupts */
+> +	img_i2c_writel(i2c, SCB_INT_MASK_REG, i2c->int_enable);
+> +
+> +	/* Perform a synchronous sequence to reset the bus */
+> +	ret = img_i2c_reset_bus(i2c);
+> +
+> +	clk_disable_unprepare(i2c->scb_clk);
 > +
 > +	return ret;
 > +}
 > +
-> +/*
-> + * Apply a single overlay node recursively.
-> + *
-> + * Note that the in case of an error the target node is left
-> + * in a inconsistent state. Error recovery should be performed
-> + * by using the tree changes list.
-> + */
-> +static int of_overlay_apply_one(struct of_overlay *ov,
-> +		struct device_node *target, const struct device_node *overlay)
+> +static int img_i2c_probe(struct platform_device *pdev)
 > +{
-> +	struct device_node *child;
-> +	struct property *prop;
-> +	int prev_avail, prop_avail, pass;
-> +	int ret;
-> +
-> +	/*
-> +	 * Special consideration for status properties
-> +	 *
-> +	 * In order to make status property changes work
-> +	 * we have the following cases:
-> +	 *
-> +	 * Enabled device with status change to 'disabled'
-> +	 *   -> Status property must be first on the record list
-> +	 *
-> +	 * Disabled device with status change to 'okay'
-> +	 *   -> Status property must be last in the record list
-> +	 *
-> +	 * That way we don't need a special notifier for
-> +	 * device status change, a simple notifier on the status
-> +	 * property is enough.
-> +	 *
-> +	 */
-
-Is this true anymore? The notifiers are held back until all the changes
-are made to the tree, so regardless of what order the notifiers are
-emitted in, the tree will always be in the correct state.
-
-> +
-> +	/* note that we require the existence of a status property */
-> +	prev_avail = of_device_is_available(target) &&
-> +		of_find_property(target,
-> +				"compatible", NULL) &&
-> +		of_find_property(target,
-> +				"status", NULL);
-> +
-> +	/* we make two passes */
-> +	for (pass = 1; pass <= 2; pass++) {
-> +
-> +		for_each_property_of_node(overlay, prop) {
-> +
-> +			prop_avail = -1;
-> +
-> +			if (of_prop_cmp(prop->name, "status") == 0)
-> +				prop_avail = strcmp(prop->value, "okay") == 0 ||
-> +						strcmp(prop->value, "ok") == 0;
-> +
-> +			/* skip activation property */
-> +			if (prev_avail == 0) {
-> +				/* 0 -> 1, pass #1, skip */
-> +				if (pass == 1) {
-> +					if (prop_avail == 1)
-> +						continue;
-> +				} else {
-> +					/* 0 -> 1, pass #2, process */
-> +					if (prop_avail != 1)
-> +						continue;
-> +				}
-> +			} else {
-> +				if (pass == 1) {
-> +					/* 1 -> 0, pass #1, process */
-> +					if (prop_avail != 0)
-> +						continue;
-> +				} else {
-> +					/* 1 -> 0, pass #2, skip */
-> +					if (prop_avail == 0)
-> +						continue;
-> +				}
-> +			}
-> +
-> +			ret = of_overlay_apply_single_property(ov,
-> +					target, prop);
-> +			if (ret != 0) {
-> +				pr_err("%s: Failed to apply prop @%s/%s\n",
-> +						__func__, target->full_name,
-> +						prop->name);
-> +				return ret;
-> +			}
-> +		}
-> +	}
-> +
-> +	for_each_child_of_node(overlay, child) {
-> +		ret = of_overlay_apply_single_device_node(ov, target, child);
-> +		if (ret != 0) {
-> +			pr_err("%s: Failed to apply single node @%s/%s\n",
-> +					__func__, target->full_name,
-> +					child->name);
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * of_overlay_apply - Apply @count overlays pointed at by @ovinfo_tab
-> + * @ov:		Overlay to apply
-> + *
-> + * Applies the overlays given, while handling all error conditions
-> + * appropriately. Either the operation succeeds, or if it fails the
-> + * live tree is reverted to the state before the attempt.
-> + * Returns 0, or an error if the overlay attempt failed.
-> + */
-> +static int of_overlay_apply(struct of_overlay *ov)
-> +{
-> +	struct of_overlay_info *ovinfo;
-> +	int i, err;
-> +
-> +	/* first we apply the overlays atomically */
-> +	for (i = 0; i < ov->count; i++) {
-> +
-> +		ovinfo = &ov->ovinfo_tab[i];
-> +
-> +		err = of_overlay_apply_one(ov, ovinfo->target,
-> +				ovinfo->overlay);
-> +		if (err != 0) {
-> +			pr_err("%s: overlay failed '%s'\n",
-> +				__func__, ovinfo->target->full_name);
-> +			return err;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Find the target node using a number of different strategies
-> + * in order of preference
-> + *
-> + * "target" property containing the phandle of the target
-> + * "target-path" property containing the path of the target
-> + *
-> + */
-> +static struct device_node *find_target_node(struct device_node *info_node)
-> +{
-> +	const char *path;
+> +	struct device_node *node = pdev->dev.of_node;
+> +	struct img_i2c *i2c;
+> +	struct resource *res;
+> +	int irq, ret;
 > +	u32 val;
+> +
+> +	i2c = devm_kzalloc(&pdev->dev, sizeof(struct img_i2c), GFP_KERNEL);
+> +	if (!i2c)
+> +		return -ENOMEM;
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	i2c->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(i2c->base))
+> +		return PTR_ERR(i2c->base);
+> +
+> +	irq = platform_get_irq(pdev, 0);
+> +	if (irq < 0) {
+> +		dev_err(&pdev->dev, "can't get irq number\n");
+> +		return irq;
+> +	}
+> +
+> +	i2c->sys_clk = devm_clk_get(&pdev->dev, "sys");
+> +	if (IS_ERR(i2c->sys_clk)) {
+> +		dev_err(&pdev->dev, "can't get system clock\n");
+> +		return PTR_ERR(i2c->sys_clk);
+> +	}
+> +
+> +	i2c->scb_clk = devm_clk_get(&pdev->dev, "scb");
+> +	if (IS_ERR(i2c->scb_clk)) {
+> +		dev_err(&pdev->dev, "can't get core clock\n");
+> +		return PTR_ERR(i2c->scb_clk);
+> +	}
+> +
+> +	ret = devm_request_irq(&pdev->dev, irq, img_i2c_isr, 0,
+> +			       pdev->name, i2c);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "can't request irq %d\n", irq);
+> +		return ret;
+> +	}
+> +
+> +	/* Set up the exception check timer */
+> +	init_timer(&i2c->check_timer);
+> +	i2c->check_timer.function = img_i2c_check_timer;
+> +	i2c->check_timer.data = (unsigned long)i2c;
+> +
+> +	i2c->bitrate = timings[0].max_bitrate;
+> +	if (!of_property_read_u32(node, "clock-frequency", &val))
+> +		i2c->bitrate = val;
+> +
+> +	i2c_set_adapdata(&i2c->adap, i2c);
+> +	i2c->adap.dev.parent = &pdev->dev;
+> +	i2c->adap.dev.of_node = node;
+> +	i2c->adap.owner = THIS_MODULE;
+> +	i2c->adap.algo = &img_i2c_algo;
+> +	i2c->adap.retries = 5;
+> +	i2c->adap.nr = pdev->id;
+> +	snprintf(i2c->adap.name, sizeof(i2c->adap.name), "IMG SCB I2C");
+> +
+> +	img_i2c_switch_mode(i2c, MODE_INACTIVE);
+> +	spin_lock_init(&i2c->lock);
+> +	init_completion(&i2c->msg_complete);
+> +
+> +	platform_set_drvdata(pdev, i2c);
+> +
+> +	ret = clk_prepare_enable(i2c->sys_clk);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = img_i2c_init(i2c);
+> +	if (ret)
+> +		goto disable_clk;
+> +
+> +	ret = i2c_add_numbered_adapter(&i2c->adap);
+> +	if (ret < 0) {
+> +		dev_err(&pdev->dev, "failed to add adapter\n");
+> +		goto disable_clk;
+> +	}
+> +
+> +	return 0;
+> +
+> +disable_clk:
+> +	clk_disable_unprepare(i2c->sys_clk);
+> +	return ret;
+> +}
+> +
+> +static int img_i2c_remove(struct platform_device *dev)
+> +{
+> +	struct img_i2c *i2c = platform_get_drvdata(dev);
+> +
+> +	i2c_del_adapter(&i2c->adap);
+> +	clk_disable_unprepare(i2c->sys_clk);
+> +
+> +	return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int img_i2c_suspend(struct device *dev)
+> +{
+> +	struct img_i2c *i2c = dev_get_drvdata(dev);
+> +
+> +	img_i2c_switch_mode(i2c, MODE_SUSPEND);
+> +
+> +	clk_disable_unprepare(i2c->sys_clk);
+> +
+> +	return 0;
+> +}
+> +
+> +static int img_i2c_resume(struct device *dev)
+> +{
+> +	struct img_i2c *i2c = dev_get_drvdata(dev);
 > +	int ret;
 > +
-> +	/* first try to go by using the target as a phandle */
-> +	ret = of_property_read_u32(info_node, "target", &val);
-> +	if (ret == 0)
-> +		return of_find_node_by_phandle(val);
+> +	ret = clk_prepare_enable(i2c->sys_clk);
+> +	if (ret)
+> +		return ret;
 > +
-> +	/* now try to locate by path */
-> +	ret = of_property_read_string(info_node, "target-path", &path);
-> +	if (ret == 0)
-> +		return of_find_node_by_path(path);
-> +
-> +	pr_err("%s: Failed to find target for node %p (%s)\n", __func__,
-> +			info_node, info_node->name);
-> +
-> +	return NULL;
-> +}
-> +
-> +/**
-> + * of_fill_overlay_info	- Fill an overlay info structure
-> + * @ov		Overlay to fill
-> + * @info_node:	Device node containing the overlay
-> + * @ovinfo:	Pointer to the overlay info structure to fill
-> + *
-> + * Fills an overlay info structure with the overlay information
-> + * from a device node. This device node must have a target property
-> + * which contains a phandle of the overlay target node, and an
-> + * __overlay__ child node which has the overlay contents.
-> + * Both ovinfo->target & ovinfo->overlay have their references taken.
-> + *
-> + * Returns 0 on success, or a negative error value.
-> + */
-> +static int of_fill_overlay_info(struct of_overlay *ov,
-> +		struct device_node *info_node, struct of_overlay_info *ovinfo)
-> +{
-> +	ovinfo->overlay = of_get_child_by_name(info_node, "__overlay__");
-> +	if (ovinfo->overlay == NULL)
-> +		goto err_fail;
-> +
-> +	ovinfo->target = find_target_node(info_node);
-> +	if (ovinfo->target == NULL)
-> +		goto err_fail;
-> +
-> +	return 0;
-> +
-> +err_fail:
-> +	of_node_put(ovinfo->target);
-> +	of_node_put(ovinfo->overlay);
-> +
-> +	memset(ovinfo, 0, sizeof(*ovinfo));
-> +	return -EINVAL;
-> +}
-> +
-> +/**
-> + * of_build_overlay_info	- Build an overlay info array
-> + * @ov		Overlay to build
-> + * @tree:	Device node containing all the overlays
-> + *
-> + * Helper function that given a tree containing overlay information,
-> + * allocates and builds an overlay info array containing it, ready
-> + * for use using of_overlay_apply.
-> + *
-> + * Returns 0 on success with the @cntp @ovinfop pointers valid,
-> + * while on error a negative error value is returned.
-> + */
-> +static int of_build_overlay_info(struct of_overlay *ov,
-> +		struct device_node *tree)
-> +{
-> +	struct device_node *node;
-> +	struct of_overlay_info *ovinfo;
-> +	int cnt, err;
-> +
-> +	/* worst case; every child is a node */
-> +	cnt = 0;
-> +	for_each_child_of_node(tree, node)
-> +		cnt++;
-> +
-> +	ovinfo = kcalloc(cnt, sizeof(*ovinfo), GFP_KERNEL);
-> +	if (ovinfo == NULL)
-> +		return -ENOMEM;
-> +
-> +	cnt = 0;
-> +	for_each_child_of_node(tree, node) {
-> +
-> +		memset(&ovinfo[cnt], 0, sizeof(*ovinfo));
-> +		err = of_fill_overlay_info(ov, node, &ovinfo[cnt]);
-> +		if (err == 0)
-> +			cnt++;
-> +	}
-> +
-> +	/* if nothing filled, return error */
-> +	if (cnt == 0) {
-> +		kfree(ovinfo);
-> +		return -ENODEV;
-> +	}
-> +
-> +	ov->count = cnt;
-> +	ov->ovinfo_tab = ovinfo;
+> +	img_i2c_init(i2c);
 > +
 > +	return 0;
 > +}
+> +#endif /* CONFIG_PM_SLEEP */
 > +
-> +/**
-> + * of_free_overlay_info	- Free an overlay info array
-> + * @ov		Overlay to free the overlay info from
-> + * @ovinfo_tab:	Array of overlay_info's to free
-> + *
-> + * Releases the memory of a previously allocated ovinfo array
-> + * by of_build_overlay_info.
-> + * Returns 0, or an error if the arguments are bogus.
-> + */
-> +static int of_free_overlay_info(struct of_overlay *ov)
-> +{
-> +	struct of_overlay_info *ovinfo;
-> +	int i;
+> +static SIMPLE_DEV_PM_OPS(img_i2c_pm, img_i2c_suspend, img_i2c_resume);
 > +
-> +	/* do it in reverse */
-> +	for (i = ov->count - 1; i >= 0; i--) {
-> +		ovinfo = &ov->ovinfo_tab[i];
+> +static const struct of_device_id img_scb_i2c_match[] = {
+> +	{ .compatible = "img,scb-i2c" },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, img_scb_i2c_match);
 > +
-> +		of_node_put(ovinfo->target);
-> +		of_node_put(ovinfo->overlay);
-> +	}
-> +	kfree(ov->ovinfo_tab);
+> +static struct platform_driver img_scb_i2c_driver = {
+> +	.driver = {
+> +		.name		= "img-i2c-scb",
+> +		.of_match_table	= img_scb_i2c_match,
+> +		.pm		= &img_i2c_pm,
+> +	},
+> +	.probe = img_i2c_probe,
+> +	.remove = img_i2c_remove,
+> +};
+> +module_platform_driver(img_scb_i2c_driver);
 > +
-> +	return 0;
-> +}
-> +
-> +static LIST_HEAD(ov_list);
-> +static DEFINE_MUTEX(ov_lock);
-> +static DEFINE_IDR(ov_idr);
-> +
-> +/**
-> + * of_overlay_create	- Create and apply an overlay
-> + * @tree:	Device node containing all the overlays
-> + *
-> + * Creates and applies an overlay while also keeping track
-> + * of the overlay in a list. This list can be used to prevent
-> + * illegal overlay removals.
-> + *
-> + * Returns the id of the created overlay, or an negative error number
-> + */
-> +int of_overlay_create(struct device_node *tree)
-> +{
-> +	struct of_overlay *ov;
-> +	int err, id;
-> +
-> +	/* allocate the overlay structure */
-> +	ov = kzalloc(sizeof(*ov), GFP_KERNEL);
-> +	if (ov == NULL)
-> +		return -ENOMEM;
-> +	ov->id = -1;
-> +
-> +	INIT_LIST_HEAD(&ov->node);
-> +	mutex_lock(&ov_lock);
-
-Holding the of_mutex lock over the entire operation is probably
-sufficent. I don't think the locking needs the complexity of multiple
-mutexes.
-
-> +
-> +	of_changeset_init(&ov->cset);
-> +
-> +	id = idr_alloc(&ov_idr, ov, 0, 0, GFP_KERNEL);
-> +	if (id < 0) {
-> +		pr_err("%s: idr_alloc() failed for tree@%s\n",
-> +				__func__, tree->full_name);
-> +		err = id;
-> +		goto err_destroy_trans;
-> +	}
-> +	ov->id = id;
-> +
-> +	/* build the overlay info structures */
-> +	err = of_build_overlay_info(ov, tree);
-> +	if (err) {
-> +		pr_err("%s: of_build_overlay_info() failed for tree@%s\n",
-> +				__func__, tree->full_name);
-> +		goto err_free_idr;
-> +	}
-> +
-> +	mutex_lock(&of_mutex);
-> +
-> +	/* apply the overlay */
-> +	err = of_overlay_apply(ov);
-> +	if (err) {
-> +		pr_err("%s: of_overlay_apply() failed for tree@%s\n",
-> +				__func__, tree->full_name);
-> +		goto err_abort_trans;
-> +	}
-> +
-> +	/* apply the changeset */
-> +	err = of_changeset_apply(&ov->cset);
-> +	if (err) {
-> +		pr_err("%s: of_changeset_apply() failed for tree@%s\n",
-> +				__func__, tree->full_name);
-> +		goto err_revert_overlay;
-> +	}
-> +
-> +	mutex_unlock(&of_mutex);
-> +
-> +	/* add to the tail of the overlay list */
-> +	list_add_tail(&ov->node, &ov_list);
-> +
-> +	mutex_unlock(&ov_lock);
-> +
-> +	return id;
-> +
-> +err_revert_overlay:
-> +err_abort_trans:
-> +	of_free_overlay_info(ov);
-> +	mutex_unlock(&of_mutex);
-> +err_free_idr:
-> +	idr_remove(&ov_idr, ov->id);
-> +err_destroy_trans:
-> +	of_changeset_destroy(&ov->cset);
-> +	mutex_unlock(&ov_lock);
-> +	kfree(ov);
-> +
-> +	return err;
-> +}
-> +EXPORT_SYMBOL_GPL(of_overlay_create);
-> +
-> +/* check whether the given node, lies under the given tree */
-> +static int overlay_subtree_check(struct device_node *tree,
-> +		struct device_node *dn)
-> +{
-> +	struct device_node *child;
-> +
-> +	/* match? */
-> +	if (tree == dn)
-> +		return 1;
-> +
-> +	for_each_child_of_node(tree, child) {
-> +		if (overlay_subtree_check(child, dn))
-> +			return 1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/* check whether this overlay is the topmost */
-> +static int overlay_is_topmost(struct of_overlay *ov, struct device_node *dn)
-> +{
-> +	struct of_overlay *ovt;
-> +	struct of_changeset_entry *ce;
-> +
-> +	list_for_each_entry_reverse(ovt, &ov_list, node) {
-> +
-> +		/* if we hit ourselves, we're done */
-> +		if (ovt == ov)
-> +			break;
-> +
-> +		/* check against each subtree affected by this overlay */
-> +		list_for_each_entry(ce, &ovt->cset.entries, node) {
-> +			if (overlay_subtree_check(ce->np, dn)) {
-> +				pr_err("%s: #%d clashes #%d @%s\n",
-> +					__func__, ov->id, ovt->id,
-> +					dn->full_name);
-> +				return 0;
-> +			}
-> +		}
-> +	}
-> +
-> +	/* overlay is topmost */
-> +	return 1;
-> +}
-> +
-> +/*
-> + * We can safely remove the overlay only if it's the top-most one.
-> + * Newly applied overlays are inserted at the tail of the overlay list,
-> + * so a top most overlay is the one that is closest to the tail.
-> + *
-> + * The topmost check is done by exploiting this property. For each
-> + * affected device node in the log list we check if this overlay is
-> + * the one closest to the tail. If another overlay has affected this
-> + * device node and is closest to the tail, then removal is not permited.
-> + */
-> +static int overlay_removal_is_ok(struct of_overlay *ov)
-> +{
-> +	struct of_changeset_entry *ce;
-> +
-> +	list_for_each_entry(ce, &ov->cset.entries, node) {
-> +		if (!overlay_is_topmost(ov, ce->np)) {
-> +			pr_err("%s: overlay #%d is not topmost\n",
-> +					__func__, ov->id);
-> +			return 0;
-> +		}
-> +	}
-> +
-> +	return 1;
-> +}
-> +
-> +/**
-> + * of_overlay_destroy	- Removes an overlay
-> + * @id:	Overlay id number returned by a previous call to of_overlay_create
-> + *
-> + * Removes an overlay if it is permissible.
-> + *
-> + * Returns 0 on success, or an negative error number
-> + */
-> +int of_overlay_destroy(int id)
-> +{
-> +	struct of_overlay *ov;
-> +	int err;
-> +
-> +	mutex_lock(&ov_lock);
-> +	ov = idr_find(&ov_idr, id);
-> +	if (ov == NULL) {
-> +		err = -ENODEV;
-> +		pr_err("%s: Could not find overlay #%d\n",
-> +				__func__, id);
-> +		goto out;
-> +	}
-> +
-> +	/* check whether the overlay is safe to remove */
-> +	if (!overlay_removal_is_ok(ov)) {
-> +		err = -EBUSY;
-> +		pr_err("%s: removal check failed for overlay #%d\n",
-> +				__func__, id);
-> +		goto out;
-> +	}
-> +
-> +
-> +	list_del(&ov->node);
-> +
-> +	mutex_lock(&of_mutex);
-> +	of_changeset_revert(&ov->cset);
-> +	mutex_unlock(&of_mutex);
-> +
-> +	of_free_overlay_info(ov);
-> +	idr_remove(&ov_idr, id);
-> +	of_changeset_destroy(&ov->cset);
-> +	kfree(ov);
-> +
-> +	err = 0;
-> +
-> +out:
-> +	mutex_unlock(&ov_lock);
-> +
-> +	return err;
-> +}
-> +EXPORT_SYMBOL_GPL(of_overlay_destroy);
-> +
-> +/**
-> + * of_overlay_destroy_all	- Removes all overlays from the system
-> + *
-> + * Removes all overlays from the system in the correct order.
-> + *
-> + * Returns 0 on success, or an negative error number
-> + */
-> +int of_overlay_destroy_all(void)
-> +{
-> +	struct of_overlay *ov, *ovn;
-> +
-> +	mutex_lock(&ov_lock);
-> +
-> +	/* the tail of list is guaranteed to be safe to remove */
-> +	list_for_each_entry_safe_reverse(ov, ovn, &ov_list, node) {
-> +		list_del(&ov->node);
-> +
-> +		mutex_lock(&of_mutex);
-> +		of_changeset_revert(&ov->cset);
-> +		mutex_unlock(&of_mutex);
-> +
-> +		of_free_overlay_info(ov);
-> +		idr_remove(&ov_idr, ov->id);
-> +		kfree(ov);
-> +	}
-> +
-> +
-> +	mutex_unlock(&ov_lock);
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(of_overlay_destroy_all);
-> diff --git a/include/linux/of.h b/include/linux/of.h
-> index 9ff1ec5..9e3e545 100644
-> --- a/include/linux/of.h
-> +++ b/include/linux/of.h
-> @@ -23,6 +23,7 @@
->  #include <linux/spinlock.h>
->  #include <linux/topology.h>
->  #include <linux/notifier.h>
-> +#include <linux/list.h>
->  
->  #include <asm/byteorder.h>
->  #include <asm/errno.h>
-> @@ -873,4 +874,34 @@ static inline int of_changeset_update_property(struct of_changeset *ocs,
->  /* CONFIG_OF_RESOLVE api */
->  extern int of_resolve_phandles(struct device_node *tree);
->  
-> +/**
-> + * Overlay support
-> + */
-> +
-> +#ifdef CONFIG_OF_OVERLAY
-> +
-> +/* ID based overlays; the API for external users */
-> +int of_overlay_create(struct device_node *tree);
-> +int of_overlay_destroy(int id);
-> +int of_overlay_destroy_all(void);
-> +
-> +#else
-> +
-> +static inline int of_overlay_create(struct device_node *tree)
-> +{
-> +	return -ENOTSUPP;
-> +}
-> +
-> +static inline int of_overlay_destroy(int id)
-> +{
-> +	return -ENOTSUPP;
-> +}
-> +
-> +static inline int of_overlay_destroy_all(void)
-> +{
-> +	return -ENOTSUPP;
-> +}
-> +
-> +#endif
-> +
->  #endif /* _LINUX_OF_H */
+> +MODULE_AUTHOR("James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>");
+> +MODULE_DESCRIPTION("IMG host I2C driver");
+> +MODULE_LICENSE("GPL v2");
 > -- 
-> 1.7.12
+> 2.1.0
 > 
