@@ -1,73 +1,145 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: at91: introduce probe deferring
-Date: Fri, 14 Nov 2014 14:47:59 +0100
-Message-ID: <1415972879-26509-1-git-send-email-ludovic.desroches@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: minyard-HInyCGIudOg@public.gmane.org
+Subject: [PATCH] i2c: Add parameters to sysfs-added i2c devices
+Date: Fri, 14 Nov 2014 08:41:57 -0600
+Message-ID: <1415976117-27755-1-git-send-email-minyard@acm.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Return probe defer if requesting a dma channel without a dma controller probed.
+From: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Some devices might need parameters to control their operation,
+add the ability to pass these parameters to the client.
+
+This also makes the parsing of sysfs-added I2C devices a little
+more flexible, allowing tabs and arbitrary numbers of spaces.
+
+Signed-off-by: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-at91.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ drivers/i2c/i2c-core.c | 46 ++++++++++++++++++++++++++++++++++------------
+ include/linux/i2c.h    |  3 +++
+ 2 files changed, 37 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 77fb647..df3f4c4 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -679,14 +679,21 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	dma_cap_zero(mask);
- 	dma_cap_set(DMA_SLAVE, mask);
+I'm adding an SMBus IPMI driver, and it needs to be able to have
+the IPMI bus address specified in case it's not the default.
+
+Also, this seems like it would be useful for other devices that
+need some sort of configuration.
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index f43b4e1..9a2ab13 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -781,7 +781,10 @@ static int i2c_device_pm_restore(struct device *dev)
  
--	dma->chan_tx = dma_request_slave_channel_compat(mask, filter, pdata,
--							dev->dev, "tx");
--	if (!dma->chan_tx) {
-+	dma->chan_tx = dma_request_slave_channel_reason(dev->dev, "tx");
-+	if (IS_ERR(dma->chan_tx)) {
-+		ret = PTR_ERR(dma->chan_tx);
-+		if (ret == -EPROBE_DEFER) {
-+			dev_warn(dev->dev, "no DMA channel available at the moment\n");
-+			return ret;
-+		}
- 		dev_err(dev->dev, "can't get a DMA channel for tx\n");
--		ret = -EBUSY;
- 		goto error;
- 	}
- 
-+	/*
-+	 * No reason to check EPROBE_DEFER here since we have already request
-+	 * tx channel. If it fails here, it's for another reason.
-+	 */
- 	dma->chan_rx = dma_request_slave_channel_compat(mask, filter, pdata,
- 							dev->dev, "rx");
- 	if (!dma->chan_rx) {
-@@ -722,7 +729,7 @@ error:
- 	dev_info(dev->dev, "can't use DMA\n");
- 	if (dma->chan_rx)
- 		dma_release_channel(dma->chan_rx);
--	if (dma->chan_tx)
-+	if (!IS_ERR(dma->chan_tx))
- 		dma_release_channel(dma->chan_tx);
- 	return ret;
+ static void i2c_client_dev_release(struct device *dev)
+ {
+-	kfree(to_i2c_client(dev));
++	struct i2c_client *client = to_i2c_client(dev);
++
++	kfree(client->parms);
++	kfree(client);
  }
-@@ -788,8 +795,11 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	clk_prepare_enable(dev->clk);
  
- 	if (dev->pdata->has_dma_support) {
--		if (at91_twi_configure_dma(dev, phy_addr) == 0)
-+		rc = at91_twi_configure_dma(dev, phy_addr);
-+		if (rc == 0)
- 			dev->use_dma = true;
-+		else if (rc == -EPROBE_DEFER)
-+			return rc;
+ static ssize_t
+@@ -1059,6 +1062,13 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	client->flags = info->flags;
+ 	client->addr = info->addr;
+ 	client->irq = info->irq;
++	if (info->parms) {
++		client->parms = kstrdup(info->parms, GFP_KERNEL);
++		if (!client->parms) {
++			dev_err(&adap->dev, "Out of memory allocating parms\n");
++			goto out_err_silent;
++		}
++	}
+ 
+ 	strlcpy(client->name, info->type, sizeof(client->name));
+ 
+@@ -1207,31 +1217,43 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
+ 	struct i2c_adapter *adap = to_i2c_adapter(dev);
+ 	struct i2c_board_info info;
+ 	struct i2c_client *client;
+-	char *blank, end;
++	char *pos, end;
+ 	int res;
+ 
+ 	memset(&info, 0, sizeof(struct i2c_board_info));
+ 
+-	blank = strchr(buf, ' ');
+-	if (!blank) {
++	pos = strpbrk(buf, " \t");
++	if (!pos) {
+ 		dev_err(dev, "%s: Missing parameters\n", "new_device");
+ 		return -EINVAL;
+ 	}
+-	if (blank - buf > I2C_NAME_SIZE - 1) {
++	if (pos - buf > I2C_NAME_SIZE - 1) {
+ 		dev_err(dev, "%s: Invalid device name\n", "new_device");
+ 		return -EINVAL;
+ 	}
+-	memcpy(info.type, buf, blank - buf);
++	memcpy(info.type, buf, pos - buf);
+ 
+-	/* Parse remaining parameters, reject extra parameters */
+-	res = sscanf(++blank, "%hi%c", &info.addr, &end);
+-	if (res < 1) {
++	while (isspace(*pos))
++		pos++;
++
++	/* Parse address, saving remaining parameters. */
++	res = sscanf(pos, "%hi%c", &info.addr, &end);
++	if (res < 1 || !isspace(end)) {
+ 		dev_err(dev, "%s: Can't parse I2C address\n", "new_device");
+ 		return -EINVAL;
+ 	}
+-	if (res > 1  && end != '\n') {
+-		dev_err(dev, "%s: Extra parameters\n", "new_device");
+-		return -EINVAL;
++	if (res > 1 && end != '\n') {
++		if (isspace(end)) {
++			/* Extra parms, skip the address and space. */
++			while (!isspace(*pos))
++				pos++;
++			while (isspace(*pos))
++				pos++;
++			info.parms = pos;
++		} else {
++			dev_err(dev, "%s: Extra parameters\n", "new_device");
++			return -EINVAL;
++		}
  	}
  
- 	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
+ 	client = i2c_new_device(adap, &info);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index b556e0a..e40fc56 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -222,6 +222,7 @@ struct i2c_client {
+ 	char name[I2C_NAME_SIZE];
+ 	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
+ 	struct device dev;		/* the device structure		*/
++	char *parms;			/* sysfs extra parms		*/
+ 	int irq;			/* irq issued by device		*/
+ 	struct list_head detected;
+ };
+@@ -255,6 +256,7 @@ static inline void i2c_set_clientdata(struct i2c_client *dev, void *data)
+  * @archdata: copied into i2c_client.dev.archdata
+  * @of_node: pointer to OpenFirmware device node
+  * @acpi_node: ACPI device node
++ * @parms: Parameters supplied on the sysfs command line
+  * @irq: stored in i2c_client.irq
+  *
+  * I2C doesn't actually support hardware probing, although controllers and
+@@ -276,6 +278,7 @@ struct i2c_board_info {
+ 	struct dev_archdata	*archdata;
+ 	struct device_node *of_node;
+ 	struct acpi_dev_node acpi_node;
++	char            *parms;
+ 	int		irq;
+ };
+ 
 -- 
-2.0.3
+1.8.3.1
