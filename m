@@ -1,51 +1,64 @@
-From: Valentin Longchamp <valentin.longchamp@keymile.com>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Fri, 14 Nov 2014 08:43:01 +0100
-Message-ID: <5465B285.7070005@keymile.com>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
- <1414537731.23458.120.camel@snotra.buserror.net> <5450AC85.40302@keymile.com>
- <20141113003418.GE2062@katana>
+From: Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v2 0/3] ARM: mediatek: Add driver for Mediatek I2C
+ controller
+Date: Fri, 14 Nov 2014 16:00:30 +0800
+Message-ID: <1415952030.17958.129.camel@mtksdaap41>
+References: <1415078977-18374-1-git-send-email-xudong.chen@mediatek.com>
+	 <20141113183122.GH1275@katana>  <1415934752.2152.58.camel@mhfsdcap03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20141113003418.GE2062@katana>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux device trees <devicetree@vger.kernel.org>, "Boschung,
- Rainer" <Rainer.Boschung@keymile.com>, "Brunck,
- Holger" <Holger.Brunck@keymile.com>, Linux I2C <linux-i2c@vger.kernel.org>, Scott Wood <scottwood@freescale.com>, Linux PowerPC Kernel <linuxppc-dev@lists.ozlabs.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1415934752.2152.58.camel@mhfsdcap03>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, flora.fu-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Nathan Chung <nathan.chung-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, YH Chen <yh.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMTEvMTMvMjAxNCAwMTozNCBBTSwgV29sZnJhbSBTYW5nIHdyb3RlOgo+IAo+PiBJZiB3ZSB3
-YW50ZWQgdG8gYmUgb24gdGhlIHNhZmUgc2lkZSBhbmQgc3RyaWN0IChzaW5jZSB3ZSBhcmUgbm90
-IHN1cmUgdGhhdCB0aGUKPj4gaGFyZHdhcmUgaXMgMTAwJSBjb21wYXRpYmxlKSwgd2UgbWF5YmUg
-c2hvdWxkIGFkZCBhIGZzbCxxb3JpcS1pMmMgY29tcGF0aWJsZSB0bwo+PiB0aGUgZHJpdmVyIHRo
-YXQgZG9lcyB0aGUgc2FtZSBhcyBtcGM4NTQzLWkyYy4KPiAKPiBPciB5b3UgbGVhdmUgdGhlIGRy
-aXZlciBhcyBpcyBhbmQgdXNlIGJvdGggY29tcGF0aWJsZXM6Cj4gCj4gY29tcGF0aWJsZSA9ICJm
-c2wscW9yaXEtaTJjIiwgImZzbCxtcGM4NTQzLWkyYyIsICJmc2wtaTJjIjsKPiAKPiA/Cj4gCgpJ
-IGxpa2UgU2NvdHQncyBwcm9wb3NpdGlvbiB0byBhZGQgdGhlIHByZXNjYWxlciBpbiB0aGUgZGV2
-aWNlIHRyZWUgbW9yZS4gRnJvbQp0aGUgaGFyZHdhcmUgZGVzY3JpcHRpb24gcG9pbnQgb2Ygdmll
-dywgaXQgbWFrZXMgbW9yZSBzZW5zZTogdGhlIGRldmljZXMgYXJlIGFsbApqdXN0IGZzbC1pMmMs
-IHdpdGggYSBkaWZmZXJlbnQgcHJlc2NhbGVyLiBJIGp1c3QgcXVvdGUgaXQgYmVsb3cgYXMgYSBy
-ZW1pbmRlci4KCj4gCj4gSWYgd2UncmUgZ29pbmcgdG8gY2hhbmdlIHRoZSBkZXZpY2UgdHJlZSBJ
-J2QgcmF0aGVyIGp1c3QgYWRkIGEgcHJvcGVydHkKPiB0byBzYXkgd2hhdCB0aGUgcHJlc2NhbGVy
-IGlzLgoKIFdlIHdvdWxkIGhvd2V2ZXIsIGxlYXZlIHRoZSBib2FyZHMnIGRldmljZSB0cmVlcyB0
-aGF0IHVzZSB0aGluZ3MgbGlrZQoiZnNsLG1wYzg1NDMtaTJjIiBhcyBpcyBhbmQgaW50cm9kdWNl
-IHRoZSBwcmVzY2FsZXIgZm9yIHRoZSBvdGhlcnMgcmVxdWlyaW5nIGl0LgoKCk5vdyB0aGUgZHJh
-d2JhY2sgaXMgdGhhdCB0aGUgZHJpdmVyIHdvdWxkIHJlcXVpcmUgYSBjaGFuZ2UsIHRvIHBhcnNl
-IHRoaXMKcHJlc2NhbGVyIG5ldyBwcmVzY2FsZXIgcHJvcGVydHkuIFdvdWxkIHRoaXMgYmUgT0sg
-ZnJvbSB5b3VyIHBvaW50IG9mIHZpZXcKV29sZnJhbSA/IElmIHllcywgSSB3aWxsIHNlbmQgdGhl
-IHBhdGNoZXMgZm9yIGl0LgoKVmFsZW50aW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KTGludXhwcGMtZGV2IG1haWxpbmcgbGlzdApMaW51eHBwYy1kZXZA
-bGlzdHMub3psYWJzLm9yZwpodHRwczovL2xpc3RzLm96bGFicy5vcmcvbGlzdGluZm8vbGludXhw
-cGMtZGV2
+On Fri, 2014-11-14 at 11:12 +0800, xudong chen wrote:
+> On Thu, 2014-11-13 at 19:31 +0100, Wolfram Sang wrote:
+> > > MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+> > > registers in MT8135 side.
+> > 
+> > I still didn't get this, even after reading the mail thread of old
+> > series. Can someone maybe draw me a nice ASCII picture showing the setup
+> > which is going on here?
+> > 
+> 
+> 1. The DIR_PATH register is in MT8135.
+> 2. All the registers used in the driver are in MT8135.
+> 3. If want I2C wave go/from PMIC need to set the DIR_PATH register bit^0
+> to 1 extra.
+
+Hi,
+
+Some supplemental, I hope this make it more clear.
+
+    +---------------+
+    |     MT8135    |
+    |               |
+    |    +----------|
+    |    |I2C       |___SDA
+    |    |controller|___SCL
+    |    +----------|
+    |               |      +-------+
+    |    +----------|      | MT6397|
+    |    |  pwrap   |      |       |___SDA_pmic
+    |    |          |<---->|       |___SCL_pmic
+    +---------------+      +-------+
+
+This is the simplified block diagram of mt8135 and mt6397. MT8135 can
+works with MTK PMIC MT6397. On MT8135, it use pwrap module to control
+/communicate with the PMIC. Pwrap is a hardware communicate with pmic
+through MTK proprietary interface.
+
+There are several PMIC functionality that is controlled by registers
+and controllers on MT8135, I2C is one of them.
+
+On MT8135, I2C controller can control I2C pins on MT8135 and MT6397.
+When you set I2C DIR_PATH register on MT8135, i2c controller will
+control PMIC pins(through pwrap) to send i2c signal. Because the
+i2c controllers are on 8135, it can still do DMA from system memory.
+So it kinds of like these 2 works like a virtual SoC.
+
+Joe.C
