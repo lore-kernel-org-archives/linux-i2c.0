@@ -1,53 +1,51 @@
-From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH] i2c: Driver to expose PowerNV platform i2c busses
-Date: Fri, 14 Nov 2014 16:17:19 +1100
-Message-ID: <1415942239.666.37.camel@kernel.crashing.org>
-References: <20141110060424.9407.2498.stgit@localhost.localdomain>
-	 <20141113075817.GA1288@katana> <1415876169.666.2.camel@kernel.crashing.org>
-	 <20141113131014.GA8025@katana>
-	 <1415912020.666.17.camel@kernel.crashing.org>
+From: Valentin Longchamp <valentin.longchamp@keymile.com>
+Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
+Date: Fri, 14 Nov 2014 08:43:01 +0100
+Message-ID: <5465B285.7070005@keymile.com>
+References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
+ <1414537731.23458.120.camel@snotra.buserror.net> <5450AC85.40302@keymile.com>
+ <20141113003418.GE2062@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1415912020.666.17.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20141113003418.GE2062@katana>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux device trees <devicetree@vger.kernel.org>, "Boschung,
+ Rainer" <Rainer.Boschung@keymile.com>, "Brunck,
+ Holger" <Holger.Brunck@keymile.com>, Linux I2C <linux-i2c@vger.kernel.org>, Scott Wood <scottwood@freescale.com>, Linux PowerPC Kernel <linuxppc-dev@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2014-11-14 at 07:53 +1100, Benjamin Herrenschmidt wrote:
-> > > > > +       adapter->dev.parent = &pdev->dev;
-> > > > > +       adapter->dev.of_node = of_node_get(pdev->dev.of_node);
-> > > > > +       pname = of_get_property(pdev->dev.of_node, "port-name", NULL);
-> > > > 
-> > > > I have never seen this binding before, it looks fishy. Where is it documented?
-> > > 
-> > > We made it up, like pretty every SoC vendor out there. What's fishy
-> > > about it ? It's a very good way to get fixed i2c port names on the
-> > > system, the firmware defines them.
-> > 
-> > But the SoC vendors prefix it with their company name and add
-> > documentation for the binding.
-> 
-> Why do we need to prefix arbitrary props for a very specific device ?
-> When adding things to an existing more/less generic device it makes some
-> sense but here I don't see much point. I can whip up a "binding"
-> document for this adapter and make "port-name" be part of it if you
-> want :) In fact a better name for the property might be "bus-id"...
-
-Note: We've slipped in a last minute update to the FW which isn't
-deployed yet to turn that into ibm,port-name and change the compatible
-match to the more generic "ibm,opal-i2c" since the underlying HW
-implementation doesn't have to be P8 (and in fact we'll soon also expose
-the i2c bus off the Centaur memory buffer chips that goes to the DIMMs).
-
-This is the only parts of the "binding" linux cares about. The actual
-DT representation for that device is a bit more complete, there's a
-parent node for the i2c master engine and a node per port, but clients
-like Linux only care about the ports. The clock frequencies are in
-standard properties but here too, only the FW use them for its own
-internal use, this is an abstract FW API (server world ....)
-
-Cheers,
-Ben.
+T24gMTEvMTMvMjAxNCAwMTozNCBBTSwgV29sZnJhbSBTYW5nIHdyb3RlOgo+IAo+PiBJZiB3ZSB3
+YW50ZWQgdG8gYmUgb24gdGhlIHNhZmUgc2lkZSBhbmQgc3RyaWN0IChzaW5jZSB3ZSBhcmUgbm90
+IHN1cmUgdGhhdCB0aGUKPj4gaGFyZHdhcmUgaXMgMTAwJSBjb21wYXRpYmxlKSwgd2UgbWF5YmUg
+c2hvdWxkIGFkZCBhIGZzbCxxb3JpcS1pMmMgY29tcGF0aWJsZSB0bwo+PiB0aGUgZHJpdmVyIHRo
+YXQgZG9lcyB0aGUgc2FtZSBhcyBtcGM4NTQzLWkyYy4KPiAKPiBPciB5b3UgbGVhdmUgdGhlIGRy
+aXZlciBhcyBpcyBhbmQgdXNlIGJvdGggY29tcGF0aWJsZXM6Cj4gCj4gY29tcGF0aWJsZSA9ICJm
+c2wscW9yaXEtaTJjIiwgImZzbCxtcGM4NTQzLWkyYyIsICJmc2wtaTJjIjsKPiAKPiA/Cj4gCgpJ
+IGxpa2UgU2NvdHQncyBwcm9wb3NpdGlvbiB0byBhZGQgdGhlIHByZXNjYWxlciBpbiB0aGUgZGV2
+aWNlIHRyZWUgbW9yZS4gRnJvbQp0aGUgaGFyZHdhcmUgZGVzY3JpcHRpb24gcG9pbnQgb2Ygdmll
+dywgaXQgbWFrZXMgbW9yZSBzZW5zZTogdGhlIGRldmljZXMgYXJlIGFsbApqdXN0IGZzbC1pMmMs
+IHdpdGggYSBkaWZmZXJlbnQgcHJlc2NhbGVyLiBJIGp1c3QgcXVvdGUgaXQgYmVsb3cgYXMgYSBy
+ZW1pbmRlci4KCj4gCj4gSWYgd2UncmUgZ29pbmcgdG8gY2hhbmdlIHRoZSBkZXZpY2UgdHJlZSBJ
+J2QgcmF0aGVyIGp1c3QgYWRkIGEgcHJvcGVydHkKPiB0byBzYXkgd2hhdCB0aGUgcHJlc2NhbGVy
+IGlzLgoKIFdlIHdvdWxkIGhvd2V2ZXIsIGxlYXZlIHRoZSBib2FyZHMnIGRldmljZSB0cmVlcyB0
+aGF0IHVzZSB0aGluZ3MgbGlrZQoiZnNsLG1wYzg1NDMtaTJjIiBhcyBpcyBhbmQgaW50cm9kdWNl
+IHRoZSBwcmVzY2FsZXIgZm9yIHRoZSBvdGhlcnMgcmVxdWlyaW5nIGl0LgoKCk5vdyB0aGUgZHJh
+d2JhY2sgaXMgdGhhdCB0aGUgZHJpdmVyIHdvdWxkIHJlcXVpcmUgYSBjaGFuZ2UsIHRvIHBhcnNl
+IHRoaXMKcHJlc2NhbGVyIG5ldyBwcmVzY2FsZXIgcHJvcGVydHkuIFdvdWxkIHRoaXMgYmUgT0sg
+ZnJvbSB5b3VyIHBvaW50IG9mIHZpZXcKV29sZnJhbSA/IElmIHllcywgSSB3aWxsIHNlbmQgdGhl
+IHBhdGNoZXMgZm9yIGl0LgoKVmFsZW50aW4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KTGludXhwcGMtZGV2IG1haWxpbmcgbGlzdApMaW51eHBwYy1kZXZA
+bGlzdHMub3psYWJzLm9yZwpodHRwczovL2xpc3RzLm96bGFicy5vcmcvbGlzdGluZm8vbGludXhw
+cGMtZGV2
