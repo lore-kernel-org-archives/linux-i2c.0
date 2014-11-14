@@ -1,66 +1,53 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH v3 1/2] i2c: mux: create symlink to actual mux device
-Date: Thu, 13 Nov 2014 19:55:45 -0800
-Message-ID: <54657D41.5010006@roeck-us.net>
-References: <1415885996-14770-1-git-send-email-wsa@the-dreams.de>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH] i2c: Driver to expose PowerNV platform i2c busses
+Date: Fri, 14 Nov 2014 16:17:19 +1100
+Message-ID: <1415942239.666.37.camel@kernel.crashing.org>
+References: <20141110060424.9407.2498.stgit@localhost.localdomain>
+	 <20141113075817.GA1288@katana> <1415876169.666.2.camel@kernel.crashing.org>
+	 <20141113131014.GA8025@katana>
+	 <1415912020.666.17.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1415885996-14770-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <1415912020.666.17.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>, Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>, Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/13/2014 05:39 AM, Wolfram Sang wrote:
-> The current implementation creates muxed i2c-<n> busses as immediate
-> children of their i2c-<n> parent bus. In case of multiple muxes on one
-> bus, it is impossible to determine which muxed bus comes from which mux.
->
-> It could be argued that the parent device should be changed from the
-> parent adapter to the mux device. This has pros and cons. To improve the
-> topology, simply add a "muxed_device" symlink pointing to the actual
-> muxing device, so we can distinguish muxed busses. Doing it this way, we
-> don't break the ABI.
->
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-> Cc: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-> Cc: Rodolfo Giometti <giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org>
-> Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-> Cc: Jeroen De Wachter <jeroen.de.wachter-CNXmb7IdZIWZIoH1IeqzKA@public.gmane.org>
-> Cc: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+On Fri, 2014-11-14 at 07:53 +1100, Benjamin Herrenschmidt wrote:
+> > > > > +       adapter->dev.parent = &pdev->dev;
+> > > > > +       adapter->dev.of_node = of_node_get(pdev->dev.of_node);
+> > > > > +       pname = of_get_property(pdev->dev.of_node, "port-name", NULL);
+> > > > 
+> > > > I have never seen this binding before, it looks fishy. Where is it documented?
+> > > 
+> > > We made it up, like pretty every SoC vendor out there. What's fishy
+> > > about it ? It's a very good way to get fixed i2c port names on the
+> > > system, the firmware defines them.
+> > 
+> > But the SoC vendors prefix it with their company name and add
+> > documentation for the binding.
+> 
+> Why do we need to prefix arbitrary props for a very specific device ?
+> When adding things to an existing more/less generic device it makes some
+> sense but here I don't see much point. I can whip up a "binding"
+> document for this adapter and make "port-name" be part of it if you
+> want :) In fact a better name for the property might be "bus-id"...
 
-This version works for me and passes testing with our application code.
+Note: We've slipped in a last minute update to the FW which isn't
+deployed yet to turn that into ibm,port-name and change the compatible
+match to the more generic "ibm,opal-i2c" since the underlying HW
+implementation doesn't have to be P8 (and in fact we'll soon also expose
+the i2c bus off the Centaur memory buffer chips that goes to the DIMMs).
 
-Tested-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+This is the only parts of the "binding" linux cares about. The actual
+DT representation for that device is a bit more complete, there's a
+parent node for the i2c master engine and a node per port, but clients
+like Linux only care about the ports. The clock frequencies are in
+standard properties but here too, only the FW use them for its own
+internal use, this is an abstract FW API (server world ....)
 
-> ---
->   drivers/i2c/i2c-mux.c | 4 ++++
->   1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> index 2d0847b6be62..f246a9f7dd22 100644
-> --- a/drivers/i2c/i2c-mux.c
-> +++ b/drivers/i2c/i2c-mux.c
-> @@ -183,6 +183,9 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
->   		return NULL;
->   	}
->
-> +	WARN(sysfs_create_link(&priv->adap.dev.kobj, &mux_dev->kobj, "mux_device"),
-> +			       "can't create symlink to mux device\n");
-> +
->   	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
->   		 i2c_adapter_id(&priv->adap));
->
-> @@ -194,6 +197,7 @@ void i2c_del_mux_adapter(struct i2c_adapter *adap)
->   {
->   	struct i2c_mux_priv *priv = adap->algo_data;
->
-> +	sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
->   	i2c_del_adapter(adap);
->   	kfree(priv);
->   }
->
+Cheers,
+Ben.
