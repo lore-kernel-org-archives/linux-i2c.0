@@ -1,81 +1,98 @@
 From: xudong chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v2 0/3] ARM: mediatek: Add driver for Mediatek I2C
- controller
-Date: Fri, 14 Nov 2014 11:12:32 +0800
-Message-ID: <1415934752.2152.58.camel@mhfsdcap03>
+Subject: Re: [PATCH v2 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+Date: Fri, 14 Nov 2014 11:13:03 +0800
+Message-ID: <1415934783.2152.59.camel@mhfsdcap03>
 References: <1415078977-18374-1-git-send-email-xudong.chen@mediatek.com>
-	 <20141113183122.GH1275@katana>
+	 <1415078977-18374-2-git-send-email-xudong.chen@mediatek.com>
+	 <20141113181649.GG1275@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141113183122.GH1275@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141113181649.GG1275@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Nathan Chung <nathan.chung-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, YH Chen <yh.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Nathan Chung <nathan.chung-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, YH Chen <yh.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2014-11-13 at 19:31 +0100, Wolfram Sang wrote:
-> > MTK I2C HW has some limitation.
-> > 1. If the i2c_msg number is more than one, STOP will be issued instead of
-> > RS(Repeat Start) between each message.
+On Thu, 2014-11-13 at 19:16 +0100, Wolfram Sang wrote:
+> On Tue, Nov 04, 2014 at 01:29:35PM +0800, Xudong Chen wrote:
+> > Add devicetree bindings for Mediatek Soc I2C driver.
 > > 
-> > 2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
-> > mode the Repeat Start will be issued between 2 messages.
-> > In this driver if 2 messages is first write then read, the driver will
-> > combine 2 messages using Write-Read mode so the RS will be issued between
-> > the 2 messages.
-> > Ex: W/R/R, driver will combine first W/R and then R.
+> > Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> > ---
+> >  .../devicetree/bindings/i2c/i2c-mt6577.txt         | 39 ++++++++++++++++++++++
+> >  1 file changed, 39 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
 > > 
-> > 3. Due to HW limitation, in this version the max transfer data length is 255
-> > in one message.
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> > new file mode 100644
+> > index 0000000..733e65e
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> > @@ -0,0 +1,39 @@
+> > +* Mediatek's I2C controller
+> > +
+> > +The Mediatek's I2C controller is used to interface with I2C devices.
+> > +
+> > +Required properties:
+> > +  - compatible: value should be either of the following.
+> > +      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> > +      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> > +      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> > +      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> > +  - reg: physical base address of the controller and dma base, length of memory mapped
+> > +    region.
+> > +  - interrupts: interrupt number to the cpu.
+> > +  - clock-div: the fixed value for frequency divider of clock source in i2c module.
+> > +    Each IC may be different.
 > 
-> This looks to me more like an SMBUS controller instead of I2C. Maybe you
-> should populate smbus_xfer rather than master_xfer?
-
-This is the HW limitation, we will try to workaround this in the
-separate patch.
-
+> ? Doesn't that platform have CCF and can't we derive an I2C clock there?
 > 
-> > MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
-> > registers in MT8135 side.
+This value is fixed and is different from each chip. It cannot be get
+from the CCF.
+
+> > +  - clocks: clock name from clock manager
+> > +  - clock-names: clock name used in i2c driver probe
 > 
-> I still didn't get this, even after reading the mail thread of old
-> series. Can someone maybe draw me a nice ASCII picture showing the setup
-> which is going on here?
+> This needs names of the clocks. Check other binding documentation for
+> examples.
 > 
+OK I will add the names.
+> > +Optional properties:
+> > +  - clock-frequency: Frequency in Hz of the bus when transfer, the default value is 100000.
+> > +  - mediatek,have-pmic: platform can control i2c form special pmic side.
+> > +    Only mt6589 and mt8135 support this feature.
+> > +  - mediatek,have-dcm: platform has DCM(hardware digital clock manager) property.
+> > +  - mediatek,use-push-pull: IO use push-pull mode.
+> 
+> About the last 3 ones: Can't we encode this in the driver? Like, if the
+> compatible is "mediatek,mt6589-i2c" we know it has this and that but not
+> this?
+> 
+Yes, the DCM can be moved to the driver, but the pmic and push-pull
+cannot encode in the driver.
+Because Mediatek i2c IO-config compatible with open-drain and push-pull
+mode, some devices use push-pull mode, so need set this in dts.
+The PMIC feature can use the pins on PMIC(mt6397) side, if do not set
+this the driver will use the I2C pins on the master chip.
+I will try to explain more detail for PMIC in the other mail thread.
 
-1. The DIR_PATH register is in MT8135.
-2. All the registers used in the driver are in MT8135.
-3. If want I2C wave go/from PMIC need to set the DIR_PATH register bit^0
-to 1 extra.
-
->From the picture:
-If MT8135 connected to PMIC(MT6397), when set the DIR_PATH register
-bit^0 to 1, the HW will transfer the i2c wave from pins(SDA4_pmic &
-SCL4_pmic) on MT6397 side.
-If want use pins(SDA4 & SCL4) on 8135 side directly, we should set the
-DIR_PATH register bit^0 to 0.
-
-_______       ________
-|      |______|       |
-|      |      |  PMIC |
-| 8135 |______| (6397)|___SDA4_pmic
-|      |      |       |___SCL4_pmic
-!______!      !_______!
-  |   |
-SDA4 SCL4
-
-
-Thanks!
-
-
-
-
-
-
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > +
+> > +Example:
+> > +
+> > +	i2c0: i2c@1100d000 {
+> > +			compatible = "mediatek,mt6577-i2c";
+> > +			reg = <0x1100d000 0x70>,
+> > +			      <0x11000300 0x80>;
+> > +			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
+> > +			clock-frequency = <100000>;
+> > +			mediatek,have-pmic;
+> > +			clock-div = <16>;
+> > +			clocks = <&i2c0_ck>, <&ap_dma_ck>;
+> > +			clock-names = "main", "dma";
+> > +	};
+> > +
+> > -- 
+> > 1.8.1.1.dirty
+> > 
