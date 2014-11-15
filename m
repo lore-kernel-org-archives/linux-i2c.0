@@ -1,95 +1,49 @@
-From: Martin Belanger <martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: How to probe for pca954x multiplexers on a i2c-ocores bus?
-Date: Fri, 14 Nov 2014 14:38:37 -0800
-Message-ID: <CAB0SmAHA4jsRnGu3nRqRC2KJkvEixJVxAbURiSysnD3fj-4JSw@mail.gmail.com>
-References: <CAB0SmAEOFJn2aTVm3nA9ttOME24FNWrwPDczQh+bLJipZAFedQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: i2c: omap: fix NACK and Arbitration Lost irq handling
+Date: Sat, 15 Nov 2014 05:12:55 +0400
+Message-ID: <1416013976-6441-1-git-send-email-al.kochet@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAB0SmAEOFJn2aTVm3nA9ttOME24FNWrwPDczQh+bLJipZAFedQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-As I expected, my crude diagram came out all messed up.  Here's a
-simplified representation:
+commit 1d7afc95946487945cc7f5019b41255b72224b70 (i2c: omap: ack IRQ in parts)
+changed the interrupt handler to complete transfers without clearing
+XRDY (AL case) and ARDY (NACK case) flags. XRDY or ARDY interrupt will be
+fired again (in parallel with omap_i2c_xfer_msg). Interrupt handler will
+complete transfers second time. As a result, NACK and AL transfers
+terminates with "transfer timeout" and sometimes client code segfault.
 
-uP -> i2c-ocores -> PCIe -> FPGA -> PCA954x -> i2c buses
+The patch restore original logic of handling NACK and AL interrupts and
+fix race between interrupt handler and omap_i2c_xfer_msg (for AL and
+NACK case only).
 
-Martin Belanger
-Sr. Software Engineer
-1383 North McDowell Blvd.
-Petaluma, CA 94954
-M(707) 481-3392
-Emartin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org
-www.cyaninc.com
+Tested on Beagleboard XM C.
 
+Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-On Fri, Nov 14, 2014 at 2:34 PM, Martin Belanger
-<martin.belanger-Ir6+u9MVKBtBDgjK7y7TUQ@public.gmane.org> wrote:
-> We're in the process of developing a new hardware platform. It's built
-> around a COM-Express motherboard.  There will be four hot-pluggable
-> PCIe cards.  The pluggable cards have an FPGA that provides PCIe
-> connectivity with the motherboard.  We're planning to use the
-> OpenCores I2C controller combined with the i2c-ocores kernel driver
-> (Documentation/i2c/busses/i2c-ocores) to provide one or more i2c buses
-> out of the FPGA as shown in the crude diagram below.
->
-> There will be several variations of the pluggable cards. At this time
-> we don't know exactly how different these cards will be, but suffice
-> to say that some cards will have PCA954x i2c multiplexers hanging off
-> the i2c-ocores bus, and others may not have PCA954x muxes at all. It
-> would be nice if the PCA954x i2c mux buses could get enumerated
-> automatically by probing.  I'm not sure how to make this work however.
->
-> I read the i2c documentation, "instantiating-devices" and
-> "writing-clients", but it is still not clear to me how to do this.  In
-> "instantiating-devices", "Method 3: Probe an I2C bus for certain
-> devices" seems to be the way to go, but I'm still not sure how the
-> pca954x driver will get instantiated for each of the PCA954x
-> multiplexers.
->
-> Is what I'm describing possible?  Is there any code I can look at to
-> get an idea of how to do this?
->
-> +-----------------+
-> +------------------------------------------------------------------+
-> |                 |          | Pluggable
->                          |
-> |                 |          |                   +---------+
->                          |
-> |                 |          |                   |         |
-> +--------+                       |
-> |                 |          |  +------+         |         +---+
-> Device |   +---------+         |
-> |                 |          |  |      |         |         |
-> +--------+   |         +---- ... |
-> |                 |          |  |      +---I2C---+ pca954x |
->      |         |         |
-> |                 |          |  |      |         |
-> +----------------+ pca954x +---- ... |
-> |                 |          |  |      |         |         |
-> +--------+   |         |         |
-> |                 |          |  |      |         |         +---+
-> Device |   |         +---- ... |
-> | Motherboard     +---PCIe---+--+ FPGA |         +---------+
-> +--------+   +---------+         |
-> |                 |          |  |      |
->                          |
-> |                 |          |  |      |
-> +--------+                       |
-> |                 |          |  |      +---I2C---------+-------+
-> Device |                       |
-> |                 |          |  |      |               |
-> +--------+                       |
-> |                 |          |  +------+               |
-> +--------+                       |
-> |                 |          |                         +-------+
-> Device |                       |
-> |                 |          |
-> +--------+                       |
-> +-----------------+
-> +------------------------------------------------------------------+
->
-> Thanks,
-> Martin Belanger
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 90dcc2e..9af7095 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -926,14 +926,12 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
+ 		if (stat & OMAP_I2C_STAT_NACK) {
+ 			err |= OMAP_I2C_STAT_NACK;
+ 			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_NACK);
+-			break;
+ 		}
+ 
+ 		if (stat & OMAP_I2C_STAT_AL) {
+ 			dev_err(dev->dev, "Arbitration lost\n");
+ 			err |= OMAP_I2C_STAT_AL;
+ 			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_AL);
+-			break;
+ 		}
+ 
+ 		/*
+-- 
+1.7.9.5
