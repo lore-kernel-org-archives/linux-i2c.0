@@ -1,40 +1,44 @@
-From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] at24: extend driver to allow writing via i2c_smbus_write_byte_data
-Date: Mon, 17 Nov 2014 08:40:32 +0100
-Message-ID: <CAH9NwWca2jdurQGRddTJwF=9and3+8C5uctg0UR+iGfmjofrZw@mail.gmail.com>
-References: <1412845678-18933-1-git-send-email-christian.gmeiner@gmail.com>
- <20141113001628.GA2062@katana> <20141113174235.GE1275@katana>
+From: unexploited59740-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: Fix Penguin Penalty 17th October2014 ( mail-archive.com )
+Date: Mon, 17 Nov 2014 14:28:06 +0530
+Message-ID: <5469b89e.a8a2420a.0eb6.ffffc933@mx.google.com>
+Reply-To: seo.expert388-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141113174235.GE1275@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram
+Dear Sir
 
-Thanks a lot!
+Did your website get hit by Google Penguin update on October 17th 2014?=
+ What basically is Google Penguin Update? It is actually a code name fo=
+r Google algorithm which aims at decreasing your websites search engine=
+ rankings that violate Google=92s guidelines by using black hat SEO tec=
+hniques to rank your webpage by giving number of spammy links to the pa=
+ge.
+=20
+We are one of those few SEO companies that can help you avoid penalties=
+ from Google Updates like Penguin and Panda. Our clients have survived =
+all the previous and present updates with ease. They have never been hi=
+t because we use 100% white hat SEO techniques to rank Webpages.  Simpl=
+e thing that we do to keep websites away from any Penguin or Panda pena=
+lties is follow Google guidelines and we give Google users the best ans=
+wers to their queries.
 
-2014-11-13 18:42 GMT+01:00 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
-> On Thu, Nov 13, 2014 at 01:16:28AM +0100, Wolfram Sang wrote:
->> On Thu, Oct 09, 2014 at 11:07:58AM +0200, Christian Gmeiner wrote:
->> > I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
->> > bus driver. This bus driver does not support
->> > I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
->> > to be able to write the eeprom. This patch adds support for
->> > I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
->> > It is quite slow, but it works.
->> >
->> > Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->>
->> Applied to for-next, thanks!
->
-> Since I haven't pushed out yet, I did
-> s/use_smbuse_write/use_smbus_write/g on the file.
->
---
-Christian Gmeiner, MSc
+If you are looking to increase the quality of your websites and to get =
+more targeted traffic or save your websites from these Google penalties=
+ email us back with your interest.=20
 
-https://soundcloud.com/christian-gmeiner
+We will be glad to serve you and help you grow your business.
+
+Regards
+
+Vince G
+
+SEO Manager ( TOB )
+B7 Green Avenue, Amritsar 143001 Punjab
+____________________________
+NO CLICK in the subject to STOP EMAILS
