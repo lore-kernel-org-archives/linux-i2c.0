@@ -1,46 +1,42 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/2] i2c: dln2: simplify return flow for dln2_i2c_enable
-Date: Mon, 17 Nov 2014 14:56:51 +0000
-Message-ID: <20141117145651.GR24004@x1>
-References: <1415708457-18798-1-git-send-email-octavian.purdila@intel.com>
- <1415708457-18798-3-git-send-email-octavian.purdila@intel.com>
- <20141113162315.GC1275@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20141113162315.GC1275@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Octavian Purdila <octavian.purdila@intel.com>, laurentiu.palcu@intel.com, johan@kernel.org, julia.lawall@lip6.fr, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH V2 1/5] serial: pxa: prepare/unprepare clocks
+Date: Mon, 17 Nov 2014 18:07:39 +0300
+Message-ID: <1416236863-20898-1-git-send-email-dbaryshkov@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 13 Nov 2014, Wolfram Sang wrote:
+Change clk_enable/disable() calls to clk_prepare_enable() and
+clk_disable_unprepare().
 
-> On Tue, Nov 11, 2014 at 02:20:57PM +0200, Octavian Purdila wrote:
-> > This fixes the following kbuild test robot warning:
-> >=20
-> > >> drivers/i2c/busses/i2c-dln2.c:70:1-4: WARNING: end returns can b=
-e simplified if negative or 0 value
-> >=20
-> > Reported-by: kbuild test robot <fengguang.wu@intel.com>
-> > Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-> >=20
-> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
->=20
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
->=20
-> Lee, I think it is easiest if you simply add it to the branch you hav=
-e
-> for this driver. OK?
+Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/tty/serial/pxa.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Octavian indicated that he needs to send a v2 of the second patch.  I
-assume he will add your Ack to this patch when he does with a note
-saying that it needs to be added to the I2C IB.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+diff --git a/drivers/tty/serial/pxa.c b/drivers/tty/serial/pxa.c
+index 21b7d8b8..2f4c329 100644
+--- a/drivers/tty/serial/pxa.c
++++ b/drivers/tty/serial/pxa.c
+@@ -647,7 +647,7 @@ serial_pxa_console_write(struct console *co, const char *s, unsigned int count)
+ 	unsigned long flags;
+ 	int locked = 1;
+ 
+-	clk_enable(up->clk);
++	clk_prepare_enable(up->clk);
+ 	local_irq_save(flags);
+ 	if (up->port.sysrq)
+ 		locked = 0;
+@@ -674,7 +674,7 @@ serial_pxa_console_write(struct console *co, const char *s, unsigned int count)
+ 	if (locked)
+ 		spin_unlock(&up->port.lock);
+ 	local_irq_restore(flags);
+-	clk_disable(up->clk);
++	clk_disable_unprepare(up->clk);
+ 
+ }
+ 
+-- 
+2.1.1
