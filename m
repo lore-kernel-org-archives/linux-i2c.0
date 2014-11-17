@@ -1,81 +1,78 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: core: Fix probing of i2c slaves without interrupts
-Date: Mon, 17 Nov 2014 19:12:14 +0100
-Message-ID: <20141117181214.GB12644@katana>
-References: <1416224580-4782-1-git-send-email-geert+renesas@glider.be>
- <CAOMZO5BsfCfP+bMfYWZ9C=Sp0sWkEr6WoRRygw18EfW2T_k3oQ@mail.gmail.com>
+Subject: Re: [PATCH v10 3/3] i2c: imx: add DMA support for freescale i2c
+ driver
+Date: Mon, 17 Nov 2014 19:24:13 +0100
+Message-ID: <20141117182413.GC12644@katana>
+References: <1416220836-7666-1-git-send-email-yao.yuan@freescale.com>
+ <1416220836-7666-4-git-send-email-yao.yuan@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="rQ2U398070+RC21q"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAOMZO5BsfCfP+bMfYWZ9C=Sp0sWkEr6WoRRygw18EfW2T_k3oQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1416220836-7666-4-git-send-email-yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: marex-ynQEQJNshbs@public.gmane.org, LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---zx4FCpZtqtKETZ7O
+--rQ2U398070+RC21q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 17, 2014 at 03:08:25PM -0200, Fabio Estevam wrote:
-> On Mon, Nov 17, 2014 at 9:43 AM, Geert Uytterhoeven
-> <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org> wrote:
-> > Since commit 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time"),
-> > i2c slaves without interrupts (e.g. da9210 and at24 on r8a7791/koelsch)
-> > fail to probe:
-> >
-> >     at24: probe of 2-0050 failed with error -22
-> >
-> >     da9210: probe of 6-0068 failed with error -22
-> >
-> > This happens because the call to of_irq_get() in i2c_device_probe()
-> > returns -EINVAL.
-> >
-> > If a device node does not have an "interrupts" property,
-> > of_irq_parse_one() fails. Unlike irq_of_parse_and_map(), of_irq_get()
-> > does not ignore errors from of_irq_parse_one(), but forwards them.
-> >
-> > Make i2c_device_probe() ignore all errors but -EPROBE_DEFER to fix this,
-> > just like platform_get_irq() and platform_get_irq_byname() already do.
-> >
-> > Fixes: 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time")
-> > Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+On Mon, Nov 17, 2014 at 06:40:36PM +0800, Yuan Yao wrote:
+> Add dma support for i2c. This function depend on DMA driver.
+> You can turn on it by write both the dmas and dma-name properties in dts =
+node.
+> DMA is optional, even DMA request unsuccessfully, i2c can also work well.
 >=20
-> With this patch applied my codec and PMIC can be probed again:
->=20
-> Tested-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Signed-off-by: Yuan Yao <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-Applied to for-next, thanks!
+gcc found a bug:
+
+drivers/i2c/busses/i2c-imx.c:703:7: warning: 'orig_jiffies' may be used uni=
+nitialized in this function [-Wuninitialized]
+drivers/i2c/busses/i2c-imx.c:672:16: note: 'orig_jiffies' was declared here
+
+> +	result =3D wait_for_completion_interruptible_timeout(
+> +				&i2c_imx->dma->cmd_complete,
+> +				msecs_to_jiffies(DMA_TIMEOUT));
+
+And are you sure you want to use
+wait_for_completion_interruptible_timeout() instead of
+wait_for_completion_timeout() here? Unless you confirm you tested it a
+lot with signals, I really cannot recommend the *_interruptible_*
+version.
+
+Other than that, good. I liked the logfile of what you tested very much!
+
+Thanks,
+
+   Wolfram
 
 
---zx4FCpZtqtKETZ7O
+--rQ2U398070+RC21q
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUajp+AAoJEBQN5MwUoCm2GuQQAKeOuIgtjnK/BRm4YuKvF1ks
-Zim3GnThYz3T3aKYqp7GeOT0kG3FRR/1GkvPTh7nLJsNBZemmCW4pde8FGlWK0RW
-GaqGmNNVHdrhfNYbJceI2ikwMTjPmz+ACXZOOgFhfrMdALJ8KRRJI7Xom4n5w4nU
-yjhZ2Yg71qmrVFz/Ov/EeHGKEbi7bpgSnZYqUnu6sVfWikxO6JshKIVqQ3jxD/+j
-N3G3KlSiHCA2wh980VkKFO06MvxunD00e8GZGMVnCWsoYWF/pSzzCaZnHtlHBDIV
-4gdNPmUM6qyK9ZoIj2H5e7/enT6B1EaTKm4AvupzSa7O4XD4rAwo3mFs2TSbpZBY
-2YZ6M8uDYYi76K6ArOZOCVueilz4QO8VZIJoxashODwI2rZEtrGrwBIJYwDMwoJ4
-qHbqtB4g8jA0lGKnK/F5IZ8n5yH9+1KYEBZxxK942jAN9y2hBx/9SQ5he9W9mkph
-fBFxsrW1CHzJi0n6RtjEn/XFmW33R1Jd0yfLt8n4iT0rkpCJEjaaPe2+uBSiKCHY
-eHpoj4OeVDJzFmP3sGri/0JLhJboDLcVJB9vkGOfPMw6REDYiRtL4uvtdTsjO8e6
-+TJM8vB4T/6Q4LjcCdkEdDo9TryGCHi610TvLPR1xtZOKxb+1q4a4XfIjlvc1ZeZ
-ZX5hUXoFIQG4rVdAZcRb
-=RFFv
+iQIcBAEBAgAGBQJUaj1MAAoJEBQN5MwUoCm2iAQP+gLvU7RvnQ8HxMQwrz7EKPab
+gLmHNnokSivV0hk/pKscDE+OIW7ep8JkVqGBn9EnyTbx3IMXpZlr+b+sYMmp7gi9
+fw57Oat4JTP5sQWk46f6K26ptUQDQMAXhSFg33JByQ1P10UJkKpDpjtohB6jh4iS
+e7Q6q0pI0p3AyWcoCNqSfzGa3cXKT1cpQhAk+Az/HrmhA/1A004XuPJP/L6cYnik
+cdMKYKOLTShl/QYqMHn6BzsZejAqFU3k2BHE8s8wpnjCQ5gA+VKwJMAdLufrdsEM
+//yQsnzuZIX+uKXJW3xTbLCG4A4Y+I9EUKfTwLSrT22rTnPe1WY0fYS3yLMRU4hw
+Qs9BxKux7Pa49Kml7s/XAqxID3r+G9yWuea0V8wK5Um6jfNyD1jUQP8bzFU2+szW
+LAA5XiscFrxn+jztD9Nc9PIf+okCHwClM+wG6YYOjX+BUfzwNGtvWMn8j9lcStkT
+RWh3HVbs5+APXw/hRzGIHLWDG1g4yDCnLQn7TaxFqa2dEY0uJ2QMU2QLsGEmGMKm
+NiaWcQXs5WNYl8FGX6WUEQ1CwQBMUf/mDhw2l+pknpCV2kzRiF0yuT4bqCbMJQ6W
+7mhUiJgdH8Ko6T0OMfeGTwV+8A243bYC41G7s2BauJXOstYP0tHzAFDXMcXVt5IP
+eKgD7RMzCIyTvTuswvzu
+=q3Tk
 -----END PGP SIGNATURE-----
 
---zx4FCpZtqtKETZ7O--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--rQ2U398070+RC21q--
