@@ -1,85 +1,68 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V2 2/5] i2c: pxa: prepare/unprepare clocks
-Date: Mon, 17 Nov 2014 19:26:46 +0100
-Message-ID: <20141117182646.GD12644@katana>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH V2 3/5] usb: gadget: pxa25x_udc: prepare/unprepare clocks in pxa-ssp
+Date: Mon, 17 Nov 2014 19:44:28 +0100
+Message-ID: <878uj98y5v.fsf@free.fr>
 References: <1416236863-20898-1-git-send-email-dbaryshkov@gmail.com>
- <1416236863-20898-2-git-send-email-dbaryshkov@gmail.com>
+	<1416236863-20898-3-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LTeJQqWS0MN7I/qa"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1416236863-20898-2-git-send-email-dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-serial-owner@vger.kernel.org>
+In-Reply-To: <1416236863-20898-3-git-send-email-dbaryshkov@gmail.com> (Dmitry
+	Eremin-Solenikov's message of "Mon, 17 Nov 2014 18:07:41 +0300")
+Sender: linux-serial-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Felipe Balbi <balbi@ti.com>, Jiri Slaby <jslaby@suse.cz>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Dmitry Eremin-Solenikov <dbaryshkov@gmail.com> writes:
 
---LTeJQqWS0MN7I/qa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Nov 17, 2014 at 06:07:40PM +0300, Dmitry Eremin-Solenikov wrote:
 > Change clk_enable/disable() calls to clk_prepare_enable() and
 > clk_disable_unprepare().
-
-You describe what is done but we can see that from the patch. Please
-describe here why the change is needed.
-
->=20
-> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-pxa.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index be671f7..2e75375 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -1297,7 +1297,7 @@ static int i2c_pxa_suspend_noirq(struct device *dev)
->  	struct platform_device *pdev =3D to_platform_device(dev);
->  	struct pxa_i2c *i2c =3D platform_get_drvdata(pdev);
-> =20
-> -	clk_disable(i2c->clk);
-> +	clk_disable_unprepare(i2c->clk);
-> =20
->  	return 0;
->  }
-> @@ -1307,7 +1307,7 @@ static int i2c_pxa_resume_noirq(struct device *dev)
->  	struct platform_device *pdev =3D to_platform_device(dev);
->  	struct pxa_i2c *i2c =3D platform_get_drvdata(pdev);
-> =20
-> -	clk_enable(i2c->clk);
-> +	clk_prepare_enable(i2c->clk);
->  	i2c_pxa_reset(i2c);
-> =20
->  	return 0;
-> --=20
-> 2.1.1
->=20
+>  drivers/usb/gadget/udc/pxa25x_udc.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/usb/gadget/udc/pxa25x_udc.c b/drivers/usb/gadget/udc/pxa25x_udc.c
+> index 42f7eeb..e4964ee 100644
+> --- a/drivers/usb/gadget/udc/pxa25x_udc.c
+> +++ b/drivers/usb/gadget/udc/pxa25x_udc.c
+> @@ -103,8 +103,8 @@ static const char ep0name [] = "ep0";
+>  
+>  /* IXP doesn't yet support <linux/clk.h> */
+>  #define clk_get(dev,name)	NULL
+> -#define clk_enable(clk)		do { } while (0)
+> -#define clk_disable(clk)	do { } while (0)
+> +#define clk_prepare_enable(clk)	do { } while (0)
+> +#define clk_disable_unprepare(clk)	do { } while (0)
+>  #define clk_put(clk)		do { } while (0)
+>  
+>  #endif
+> @@ -932,7 +932,7 @@ static int pullup(struct pxa25x_udc *udc)
+>  		if (!udc->active) {
+>  			udc->active = 1;
+>  			/* Enable clock for USB device */
+> -			clk_enable(udc->clk);
+> +			clk_prepare_enable(udc->clk);
 
---LTeJQqWS0MN7I/qa
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Guess what, Russell's remark on i2c and serial made me cross-check.  And there
+is a case where this will be called in irq context too ...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+See :
+-> do_IRQ
+  -> lubbock_vbus_irq()
+    -> pxa25x_udc_vbus_session()
+      -> pullup()
+        -> clk_prepare_enable()
+          -> CRACK
 
-iQIcBAEBAgAGBQJUaj3lAAoJEBQN5MwUoCm2voIP/3pBFRQGIKFtRkxJ+gELDXpC
-B+R8bx9hVpfQZa3Nl5Qg/OiefymyNHHaebWkZYVTm7RB9pQjyWJN6sBpdBeFTFT+
-mrExCAfyOgD4riqgvpAmGPEyjwqmf+AiU/HIfdAzvsSp80kmP7Zb9ondX0cJ1C9n
-avpP1G0pqs//mdFPkRc4SYdlNVHwHWKTuW3Xtk1t1GDmnGOK2o8HJOSMV4vM7s1d
-+rJSeUjmazasZnxd5PWAl6t7Uh929un+vp1eSGMwEfiFpMYbytc8xZuVMiWkzbA8
-/aYgyhsXtb0SM2aWp59Z4NxhTRBQwSvQMKG2pHp9PaJOxv1iOWD+csMPraX3nbMR
-HjjyFWIapu3q7Rfd43oA33NSP141l49jSjTiRZTSe45+UwKhp9MyoIEJlz4TvRFa
-06q+7Q99LbndJMSSTXe1hSK7GgI3XQ2c06evvp8t44KWOi7s54FRoxFKIngMJs7N
-zc2fMeFeMjDeDUWgDib48EdUx3oMQ07X3pL5YBqyITUB8j+ZjYnuOW4zFdAddpCO
-3GiK2A1bakn5RXrWeZFE/O0IZqN94NlD+M6MKWciXh0wp/qksRF2SmCBLg6SfWLF
-WWh+WFpDvW8tnBSV4Vn+5TgVBQZNxmTOeOx3NMvPvx9YGusWxcDiqbhA0J4n5L2F
-Zpa9CdpDQ7YNfRBlHm3W
-=dlj6
------END PGP SIGNATURE-----
+Note that your patch is not really the faulty one, I think a threaded irq
+instead of the "raw" irq should do the trick. And it is granted on UDC api that
+vbus function is called in a "sleeping" context (Felipe correct me if I'm
+wrong), so a patch to fix this before your current code would be fine.
 
---LTeJQqWS0MN7I/qa--
+Cheers.
+
+--
+Robert
