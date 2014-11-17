@@ -1,113 +1,52 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 3/3] i2c: core: Map OF IRQ at probe time
-Date: Mon, 17 Nov 2014 12:24:56 +0100
-Message-ID: <CAMuHMdUaTU1MvmjuSMKohz1Nh0BmsfCW-JcPejOOsRCAjXwquA@mail.gmail.com>
-References: <1414677578-27412-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<1414677578-27412-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1414677578-27412-4-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, Rob Herring <robh+dt@kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
+From: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH] i2c: core: Fix probing of i2c slaves without interrupts
+Date: Mon, 17 Nov 2014 12:43:00 +0100
+Message-ID: <1416224580-4782-1-git-send-email-geert+renesas@glider.be>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Laurent,
+Since commit 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time"),
+i2c slaves without interrupts (e.g. da9210 and at24 on r8a7791/koelsch)
+fail to probe:
 
-On Thu, Oct 30, 2014 at 2:59 PM, Laurent Pinchart
-<laurent.pinchart+renesas@ideasonboard.com> wrote:
-> I2C clients instantiated from OF get their IRQ mapped at device
-> registration time. This leads to the IRQ being silently ignored if the
-> related irqchip hasn't been proved yet.
->
-> Fix this by moving IRQ mapping at probe time using of_get_irq(). The
-> function operates as irq_of_parse_and_map() but additionally returns
-> -EPROBE_DEFER if the irqchip isn't available, allowing us to defer I2C
-> client probing.
->
-> Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-> ---
->  drivers/i2c/i2c-core.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 258765b29684..c6694f232240 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -631,6 +631,15 @@ static int i2c_device_probe(struct device *dev)
->         if (!client)
->                 return 0;
->
-> +       if (!client->irq && dev->of_node) {
-> +               int irq = of_irq_get(dev->of_node, 0);
-> +
-> +               if (irq < 0)
-> +                       return irq;
+    at24: probe of 2-0050 failed with error -22
 
-This change broke all i2c slaves not having interrupts (e.g. da9210 and at24
-on r8a7791/koelsch), which now fail to probe:
+    da9210: probe of 6-0068 failed with error -22
 
--DA9210: 1000 mV at 4600 mA
- ...
- i2c /dev entries driver
--at24 2-0050: 256 byte 24c02 EEPROM, writable, 16 bytes/write
-+at24: probe of 2-0050 failed with error -22
- i2c-rcar e6530000.i2c: probed
- ...
-+da9210: probe of 6-0068 failed with error -22
-+i2c-sh_mobile e60b0000.i2c: I2C adapter 6, bus speed 100000 Hz, DMA=y
+This happens because the call to of_irq_get() in i2c_device_probe()
+returns -EINVAL.
 
-i2c_device_probe() fails because of_irq_get() returns -EINVAL,
-originating from of_irq_parse_one() not finding an "interrupts" property
-(there is none).
+If a device node does not have an "interrupts" property,
+of_irq_parse_one() fails. Unlike irq_of_parse_and_map(), of_irq_get()
+does not ignore errors from of_irq_parse_one(), but forwards them.
 
-Apparently you overlooked a difference between irq_of_parse_and_map()
-and of_get_irq(): the former returns 0 if there's no "interrupts" property,
-while the latter forwards the error code from of_irq_parse_one.
+Make i2c_device_probe() ignore all errors but -EPROBE_DEFER to fix this,
+just like platform_get_irq() and platform_get_irq_byname() already do.
 
-I see two ways to fix this:
-  1. Make of_get_irq() return 0 if no "interrupts" property was found, to
-     make it behave more similar to irq_of_parse_and_map().
-     Does any code rely on the error forwarding?
-  2. Make i2c_device_probe() only return if -EPROBE_DEFER, and ignore
-     all other error codes.
-     It seems irq_create_of_mapping() never returns an error code, but
-     0 in case of failures?
+Fixes: 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time")
+Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-As platform_get_irq{,_byname}() do the latter, I'll cook a patch
-to do that.
-
-> +               client->irq = irq;
-> +       }
-> +
->         driver = to_i2c_driver(dev->driver);
->         if (!driver->probe || !driver->id_table)
->                 return -ENODEV;
-> @@ -1412,7 +1421,6 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
->                         continue;
->                 }
->
-> -               info.irq = irq_of_parse_and_map(node, 0);
->                 info.of_node = of_node_get(node);
->                 info.archdata = &dev_ad;
->
-> @@ -1426,7 +1434,6 @@ static void of_i2c_register_devices(struct i2c_adapter *adap)
->                         dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
->                                 node->full_name);
->                         of_node_put(node);
-> -                       irq_dispose_mapping(info.irq);
->                         continue;
->                 }
->         }
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index a0768d6dffc28aae..cf830915713b387a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -629,8 +629,10 @@ static int i2c_device_probe(struct device *dev)
+ 	if (!client->irq && dev->of_node) {
+ 		int irq = of_irq_get(dev->of_node, 0);
+ 
+-		if (irq < 0)
++		if (irq == -EPROBE_DEFER)
+ 			return irq;
++		if (irq < 0)
++			irq = 0;
+ 
+ 		client->irq = irq;
+ 	}
+-- 
+1.9.1
