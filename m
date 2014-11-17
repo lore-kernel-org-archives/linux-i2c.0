@@ -1,45 +1,43 @@
-From: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: dln2: simplify return flow for dln2_i2c_enable
-Date: Mon, 17 Nov 2014 17:12:03 +0200
-Message-ID: <CAE1zot+9-JMjKWST4VDifrjau=kXoxWB=GOHx06h8szwMwiCwg@mail.gmail.com>
-References: <1415708457-18798-1-git-send-email-octavian.purdila@intel.com>
-	<1415708457-18798-3-git-send-email-octavian.purdila@intel.com>
-	<20141113162315.GC1275@katana>
-	<20141117145651.GR24004@x1>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH V2 2/5] i2c: pxa: prepare/unprepare clocks
+Date: Mon, 17 Nov 2014 15:51:07 +0000
+Message-ID: <20141117155107.GU4042@n2100.arm.linux.org.uk>
+References: <1416236863-20898-1-git-send-email-dbaryshkov@gmail.com>
+ <1416236863-20898-2-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141117145651.GR24004@x1>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-serial-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1416236863-20898-2-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-serial-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Robert Jarzmik <robert.jarzmik@free.fr>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Felipe Balbi <balbi@ti.com>, linux-usb@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-serial@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 17, 2014 at 4:56 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->
-> On Thu, 13 Nov 2014, Wolfram Sang wrote:
->
-> > On Tue, Nov 11, 2014 at 02:20:57PM +0200, Octavian Purdila wrote:
-> > > This fixes the following kbuild test robot warning:
-> > >
-> > > >> drivers/i2c/busses/i2c-dln2.c:70:1-4: WARNING: end returns can be simplified if negative or 0 value
-> > >
-> > > Reported-by: kbuild test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > > Reported-by: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-> > >
-> > > Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> >
-> > Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> >
-> > Lee, I think it is easiest if you simply add it to the branch you have
-> > for this driver. OK?
->
-> Octavian indicated that he needs to send a v2 of the second patch.  I
-> assume he will add your Ack to this patch when he does with a note
-> saying that it needs to be added to the I2C IB.
->
+On Mon, Nov 17, 2014 at 06:07:40PM +0300, Dmitry Eremin-Solenikov wrote:
+> Change clk_enable/disable() calls to clk_prepare_enable() and
+> clk_disable_unprepare().
+> 
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-pxa.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> index be671f7..2e75375 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -1297,7 +1297,7 @@ static int i2c_pxa_suspend_noirq(struct device *dev)
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct pxa_i2c *i2c = platform_get_drvdata(pdev);
+>  
+> -	clk_disable(i2c->clk);
+> +	clk_disable_unprepare(i2c->clk);
 
-Hi Lee,
+Since clk_unprepare() and clk_prepare() can sleep, it is unwise to call
+these with IRQs disabled - the _noirq variants of these are run with
+IRQs disabled.
 
-Yes, I will to that, and add a couple more fixes from Dan Carpenter, a
-little bit later tonight.
+-- 
+FTTC broadband for 0.8mile line: currently at 9.5Mbps down 400kbps up
+according to speedtest.net.
