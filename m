@@ -1,248 +1,213 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
-Date: Tue, 18 Nov 2014 17:04:54 +0100
-Message-ID: <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 3/3] i2c: rcar: add slave support
+Date: Tue, 18 Nov 2014 17:04:55 +0100
+Message-ID: <1416326695-13083-4-git-send-email-wsa@the-dreams.de>
 References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1416326695-13083-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-The first user of the i2c-slave interface is an eeprom simulator. It is
-a shared memory which can be accessed by the remote master via I2C and
-locally via sysfs.
+The first I2C slave provider using the new generic interface.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 ---
 
 Changes since RFC:
-* fix build error for modules
-* don't hardcode size
-* add boundary checks for sysfs access
-* use a spinlock
-* s/at24s/eeprom/g
-* add some docs
-* clean up exit paths
-* use size-variable instead of driver_data
+* no runtime_pm for slaves
+* don't use NULL in i2c_slave_event
 
- drivers/i2c/Kconfig            |  10 +++
- drivers/i2c/Makefile           |   1 +
- drivers/i2c/i2c-slave-eeprom.c | 170 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 181 insertions(+)
- create mode 100644 drivers/i2c/i2c-slave-eeprom.c
+ drivers/i2c/busses/i2c-rcar.c | 125 +++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 116 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-index b51a402752c4..8c9e619f3026 100644
---- a/drivers/i2c/Kconfig
-+++ b/drivers/i2c/Kconfig
-@@ -110,6 +110,16 @@ config I2C_STUB
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index d826e82dd997..369ef747fb81 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -48,6 +48,12 @@
+ #define ICMAR	0x20	/* master address */
+ #define ICRXTX	0x24	/* data port */
  
- 	  If you don't know what to do here, definitely say N.
++/* ICSCR */
++#define SDBS	(1 << 3)	/* slave data buffer select */
++#define SIE	(1 << 2)	/* slave interface enable */
++#define GCAE	(1 << 1)	/* general call address enable */
++#define FNA	(1 << 0)	/* forced non acknowledgement */
++
+ /* ICMCR */
+ #define MDBS	(1 << 7)	/* non-fifo mode switch */
+ #define FSCL	(1 << 6)	/* override SCL pin */
+@@ -58,6 +64,15 @@
+ #define FSB	(1 << 1)	/* force stop bit */
+ #define ESG	(1 << 0)	/* en startbit gen */
  
-+config I2C_SLAVE
-+	bool "I2C slave support"
++/* ICSSR (also for ICSIER) */
++#define GCAR	(1 << 6)	/* general call received */
++#define STM	(1 << 5)	/* slave transmit mode */
++#define SSR	(1 << 4)	/* stop received */
++#define SDE	(1 << 3)	/* slave data empty */
++#define SDT	(1 << 2)	/* slave data transmitted */
++#define SDR	(1 << 1)	/* slave data received */
++#define SAR	(1 << 0)	/* slave addr received */
 +
-+if I2C_SLAVE
-+
-+config I2C_SLAVE_EEPROM
-+	tristate "I2C eeprom slave driver"
-+
-+endif
-+
- config I2C_DEBUG_CORE
- 	bool "I2C Core debugging messages"
- 	help
-diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-index 1722f50f2473..45095b3d16a9 100644
---- a/drivers/i2c/Makefile
-+++ b/drivers/i2c/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
- obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
- obj-y				+= algos/ busses/ muxes/
- obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
-+obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
+ /* ICMSR (also for ICMIE) */
+ #define MNR	(1 << 6)	/* nack received */
+ #define MAL	(1 << 5)	/* arbitration lost */
+@@ -103,6 +118,7 @@ struct rcar_i2c_priv {
+ 	u32 icccr;
+ 	u32 flags;
+ 	enum rcar_i2c_type devtype;
++	struct i2c_client *slave;
+ };
  
- ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
- CFLAGS_i2c-core.o := -Wno-deprecated-declarations
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-new file mode 100644
-index 000000000000..6631400b5f02
---- /dev/null
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -0,0 +1,170 @@
-+/*
-+ * I2C slave mode EEPROM simulator
-+ *
-+ * Copyright (C) 2014 by Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
-+ * Copyright (C) 2014 by Renesas Electronics Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; version 2 of the License.
-+ *
-+ * Because most IP blocks can only detect one I2C slave address anyhow, this
-+ * driver does not support simulating EEPROM types which take more than one
-+ * address. It is prepared to simulate bigger EEPROMs with an internal 16 bit
-+ * pointer, yet implementation is deferred until the need actually arises.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/sysfs.h>
-+
-+struct eeprom_data {
-+	struct bin_attribute bin;
-+	bool first_write;
-+	spinlock_t buffer_lock;
-+	u8 buffer_idx;
-+	u8 buffer[];
-+};
-+
-+static int i2c_slave_eeprom_slave_cb(struct i2c_client *client,
-+				     enum i2c_slave_event event, u8 *val)
+ #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
+@@ -126,15 +142,6 @@ static u32 rcar_i2c_read(struct rcar_i2c_priv *priv, int reg)
+ 
+ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ {
+-	/*
+-	 * reset slave mode.
+-	 * slave mode is not used on this driver
+-	 */
+-	rcar_i2c_write(priv, ICSIER, 0);
+-	rcar_i2c_write(priv, ICSAR, 0);
+-	rcar_i2c_write(priv, ICSCR, 0);
+-	rcar_i2c_write(priv, ICSSR, 0);
+-
+ 	/* reset master mode */
+ 	rcar_i2c_write(priv, ICMIER, 0);
+ 	rcar_i2c_write(priv, ICMCR, 0);
+@@ -360,6 +367,63 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 	return 0;
+ }
+ 
++static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
 +{
-+	struct eeprom_data *eeprom = i2c_get_clientdata(client);
++	u32 ssr_raw, ssr_filtered;
++	u8 value;
 +
-+	switch (event) {
-+	case I2C_SLAVE_REQ_WRITE_END:
-+		if (eeprom->first_write) {
-+			eeprom->buffer_idx = *val;
-+			eeprom->first_write = false;
++	ssr_raw = rcar_i2c_read(priv, ICSSR) & 0xff;
++	ssr_filtered = ssr_raw & rcar_i2c_read(priv, ICSIER);
++
++	if (!ssr_filtered)
++		return false;
++
++	/* address detected */
++	if (ssr_filtered & SAR) {
++		/* read or write request */
++		if (ssr_raw & STM) {
++			i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_START, &value);
++			rcar_i2c_write(priv, ICRXTX, value);
++			rcar_i2c_write(priv, ICSIER, SDE | SSR | SAR);
 +		} else {
-+			spin_lock(&eeprom->buffer_lock);
-+			eeprom->buffer[eeprom->buffer_idx++] = *val;
-+			spin_unlock(&eeprom->buffer_lock);
++			i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_START, &value);
++			rcar_i2c_read(priv, ICRXTX);	/* dummy read */
++			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
 +		}
-+		break;
 +
-+	case I2C_SLAVE_REQ_READ_START:
-+		spin_lock(&eeprom->buffer_lock);
-+		*val = eeprom->buffer[eeprom->buffer_idx];
-+		spin_unlock(&eeprom->buffer_lock);
-+		break;
-+
-+	case I2C_SLAVE_REQ_READ_END:
-+		eeprom->buffer_idx++;
-+		break;
-+
-+	case I2C_SLAVE_STOP:
-+		eeprom->first_write = true;
-+		break;
-+
-+	default:
-+		break;
++		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
 +	}
 +
-+	return 0;
-+}
-+
-+static ssize_t i2c_slave_eeprom_bin_read(struct file *filp, struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf, loff_t off, size_t count)
-+{
-+	struct eeprom_data *eeprom;
-+	unsigned long flags;
-+
-+	if (off + count >= attr->size)
-+		return -EFBIG;
-+
-+	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
-+
-+	spin_lock_irqsave(&eeprom->buffer_lock, flags);
-+	memcpy(buf, &eeprom->buffer[off], count);
-+	spin_unlock_irqrestore(&eeprom->buffer_lock, flags);
-+
-+	return count;
-+}
-+
-+static ssize_t i2c_slave_eeprom_bin_write(struct file *filp, struct kobject *kobj,
-+		struct bin_attribute *attr, char *buf, loff_t off, size_t count)
-+{
-+	struct eeprom_data *eeprom;
-+	unsigned long flags;
-+
-+	if (off + count >= attr->size)
-+		return -EFBIG;
-+
-+	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
-+
-+	spin_lock_irqsave(&eeprom->buffer_lock, flags);
-+	memcpy(&eeprom->buffer[off], buf, count);
-+	spin_unlock_irqrestore(&eeprom->buffer_lock, flags);
-+
-+	return count;
-+}
-+
-+static int i2c_slave_eeprom_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+{
-+	struct eeprom_data *eeprom;
-+	int ret;
-+	unsigned size = id->driver_data;
-+
-+	eeprom = devm_kzalloc(&client->dev, sizeof(struct eeprom_data) + size, GFP_KERNEL);
-+	if (!eeprom)
-+		return -ENOMEM;
-+
-+	eeprom->first_write = true;
-+	spin_lock_init(&eeprom->buffer_lock);
-+	i2c_set_clientdata(client, eeprom);
-+
-+	sysfs_bin_attr_init(&eeprom->bin);
-+	eeprom->bin.attr.name = "slave-eeprom";
-+	eeprom->bin.attr.mode = S_IRUSR | S_IWUSR;
-+	eeprom->bin.read = i2c_slave_eeprom_bin_read;
-+	eeprom->bin.write = i2c_slave_eeprom_bin_write;
-+	eeprom->bin.size = size;
-+
-+	ret = sysfs_create_bin_file(&client->dev.kobj, &eeprom->bin);
-+	if (ret)
-+		return ret;
-+
-+	ret = i2c_slave_register(client, i2c_slave_eeprom_slave_cb);
-+	if (ret) {
-+		sysfs_remove_bin_file(&client->dev.kobj, &eeprom->bin);
-+		return ret;
++	/* master sent stop */
++	if (ssr_filtered & SSR) {
++		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
++		rcar_i2c_write(priv, ICSIER, SAR | SSR);
++		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
 +	}
 +
-+	return 0;
-+};
++	/* master wants to write to us */
++	if (ssr_filtered & SDR) {
++		int ret;
 +
-+static int i2c_slave_eeprom_remove(struct i2c_client *client)
++		value = rcar_i2c_read(priv, ICRXTX);
++		ret = i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_END, &value);
++		/* Send NACK in case of error */
++		rcar_i2c_write(priv, ICSCR, SIE | SDBS | (ret < 0 ? FNA : 0));
++		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_START, &value);
++		rcar_i2c_write(priv, ICSSR, ~SDR & 0xff);
++	}
++
++	/* master wants to read from us */
++	if (ssr_filtered & SDE) {
++		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_END, &value);
++		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_START, &value);
++		rcar_i2c_write(priv, ICRXTX, value);
++		rcar_i2c_write(priv, ICSSR, ~SDE & 0xff);
++	}
++
++	return true;
++}
++
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+@@ -369,6 +433,9 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	/*-------------- spin lock -----------------*/
+ 	spin_lock(&priv->lock);
+ 
++	if (rcar_i2c_slave_irq(priv))
++		goto exit;
++
+ 	msr = rcar_i2c_read(priv, ICMSR);
+ 
+ 	/* Only handle interrupts that are currently enabled */
+@@ -499,6 +566,44 @@ out:
+ 	return ret;
+ }
+ 
++
++static int rcar_reg_slave(struct i2c_client *slave)
 +{
-+	struct eeprom_data *eeprom = i2c_get_clientdata(client);
++	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
 +
-+	i2c_slave_unregister(client);
-+	sysfs_remove_bin_file(&client->dev.kobj, &eeprom->bin);
++	if (priv->slave)
++		return -EBUSY;
++
++	if (slave->flags & I2C_CLIENT_TEN)
++		return -EAFNOSUPPORT;
++
++	pm_runtime_forbid(rcar_i2c_priv_to_dev(priv));
++
++	priv->slave = slave;
++	rcar_i2c_write(priv, ICSAR, slave->addr);
++	rcar_i2c_write(priv, ICSSR, 0);
++	rcar_i2c_write(priv, ICSIER, SAR | SSR);
++	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
 +
 +	return 0;
 +}
 +
-+static const struct i2c_device_id i2c_slave_eeprom_id[] = {
-+	{ "slave-24c02", 2048 / 8 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
++static int rcar_unreg_slave(struct i2c_client *slave)
++{
++	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
 +
-+static struct i2c_driver i2c_slave_eeprom_driver = {
-+	.driver = {
-+		.name = "i2c-slave-eeprom",
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = i2c_slave_eeprom_probe,
-+	.remove = i2c_slave_eeprom_remove,
-+	.id_table = i2c_slave_eeprom_id,
-+};
-+module_i2c_driver(i2c_slave_eeprom_driver);
++	WARN_ON(!priv->slave);
 +
-+MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
-+MODULE_DESCRIPTION("I2C slave mode EEPROM simulator");
-+MODULE_LICENSE("GPL v2");
++	rcar_i2c_write(priv, ICSIER, 0);
++	rcar_i2c_write(priv, ICSCR, 0);
++
++	priv->slave = NULL;
++
++	pm_runtime_allow(rcar_i2c_priv_to_dev(priv));
++
++	return 0;
++}
++
+ static u32 rcar_i2c_func(struct i2c_adapter *adap)
+ {
+ 	/* This HW can't do SMBUS_QUICK and NOSTART */
+@@ -508,6 +613,8 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
+ static const struct i2c_algorithm rcar_i2c_algo = {
+ 	.master_xfer	= rcar_i2c_master_xfer,
+ 	.functionality	= rcar_i2c_func,
++	.reg_slave	= rcar_reg_slave,
++	.unreg_slave	= rcar_unreg_slave,
+ };
+ 
+ static const struct of_device_id rcar_i2c_dt_ids[] = {
 -- 
 2.1.1
