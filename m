@@ -1,56 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v11 0/3] i2c: imx: add DMA support for freescale i2c
- driver
-Date: Tue, 18 Nov 2014 16:01:55 +0100
-Message-ID: <20141118150155.GA30004@katana>
-References: <1416306667-15673-1-git-send-email-yao.yuan@freescale.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: acpi: remove unneeded variable initialization
+Date: Tue, 18 Nov 2014 16:05:37 +0100
+Message-ID: <20141118150537.GB30004@katana>
+References: <1416319963-28946-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1416306667-15673-1-git-send-email-yao.yuan@freescale.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yuan Yao <yao.yuan@freescale.com>
-Cc: marex@denx.de, LW@KARO-electronics.de, mark.rutland@arm.com, fugang.duan@freescale.com, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1416319963-28946-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---bg08WKrSYDhXBjb5
+--RASg3xLB4tUQ4RcS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 18, 2014 at 06:31:04PM +0800, Yuan Yao wrote:
+On Tue, Nov 18, 2014 at 03:12:43PM +0100, Wolfram Sang wrote:
+> No need to initialize 'ret' if it gets assigned directly after that.
 >=20
-> Changed in v11:=20
-> - Fix the bug for 'orig_jiffies' uninitialized.
-> - Use wait_for_completion_timeout() instead of wait_for_completion_interr=
-uptible_timeout().=20
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---bg08WKrSYDhXBjb5
+--RASg3xLB4tUQ4RcS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUa19iAAoJEBQN5MwUoCm2rjIP/0UFcRatChJe4L+YU7l24G9H
-J+uDWA+uSUqXa2uRreYcUmobkLtDfK6hfjtphnqlNPasJdGwZ3DsQsBSKHiwOM0k
-TLxDd4aegWYPzivU0DCNUMw2LEr9aJn7PcyEVmgzWyNGWGWhQqDlp56vRjA4DJ7S
-CQkyD0KRKiJd9NA2Z5FKx/8+lcBylJuto7LAMfG29SpGXBBdD+gyuLGS/AsW2hE0
-BokWXHFlaxMy6v0apBFrs5BfcRN8DI6+dWwMKtsSKhP8z9uQ9bODSjRAjLy4DQfD
-UOagqsuIjZgk2Doakmze59GiJtjb6Fsea7VV9HIhWWgINWlfmInJD5KMj6FwdezZ
-CDPE561NYJROv3SG90uwgVACH+BiLMtzDfZZ0mVQQz4GwiK+nMp1aaG7hlwoZEVz
-yEOAKJ/ANAZOmOPevdT4shtUwIRXFUSFlmf9SM0l2IdfVe83myoPog73o34M4Ewx
-XsEraBUnR4zR+GLSuO/VPQHEa/bm3q8Z7wVlQ5becZYpoU4lKImiZ6JL6O/yHKwV
-MFmWACjqCcxLt/aMCXpea1mMjeuc+bR+Q+KfDJz/blfviKfssp7nw71PdDHYWyxj
-5Xu4FZ9t+hd/73MwebEnoNXy8tOZ7SEo/zvPuHFJ5BmhaI47gHSPo6Tz4VIRzXid
-s8W2pApsHLTaMyrsfUT2
-=NlES
+iQIcBAEBAgAGBQJUa2BBAAoJEBQN5MwUoCm2mqgP/jM1v05aTSD0JNnkYFBREL3S
+koYmdfIqj9+fpx1KGrdemShBik7L4KykTUWg8mdxh0fGU76FfFqc/BBrLnXI0ni+
+wfoqYOfIhxmyvJRoegFRaSUEjD3FqWQBIBdUT0kH4DkNXyb0aJe52ZDZNXf6DWE0
+MfRMeD9BMA10QB50P5tOVnVWN99/W3T8eqK5nLaVf/opScvnyMsBPVuye90GunWM
+7ZUyh5UQSHW0uga194D44FszsvxWHWB6vQn9PItceiM1JlAhYhTtvuVAdNXXYBGY
+Od2HsAIXSAXJcpx2Y39PwLur9e3eJ1MahIvOF4aj3LFqGRwPKJGhpd3gpEcsRtHB
+UM3e4tw5v0v7ufHdvWammGcrsS8/+HmiK7Z8tZHdXMLS5K+oSo1ALJ7G6RXcWwqo
+kT5/soF1ap+XxuzOxcB/IQuauuvu0J1XfnJcBmWbR6Ak4O3sYeCJqs8s5ihiuZ/u
+37MxnkGykZuk3PysB9hZLfd7qtMfiVtS8VoSI3Cv774kL2GH1A3PxezgvhI0KYAQ
+6chJhJehLWuKVU5Yt0XpBlsUfqgalEVhBKpooQZuJRpREpL/ROKy0nVB8kY1Cf30
+jEPyCEMFukLxa9iIokLbjkKzyWvcBpPtSHBqSpbt2g8/3uqyOfLYY0+MawAYRLN+
+20uvxtlMZXY5iUnPdVm1
+=S1rv
 -----END PGP SIGNATURE-----
 
---bg08WKrSYDhXBjb5--
+--RASg3xLB4tUQ4RcS--
