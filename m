@@ -1,213 +1,81 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 3/3] i2c: rcar: add slave support
-Date: Tue, 18 Nov 2014 17:04:55 +0100
-Message-ID: <1416326695-13083-4-git-send-email-wsa@the-dreams.de>
-References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] i2c: omap: fix "Too much work in one IRQ" irq
+ handling
+Date: Tue, 18 Nov 2014 17:12:41 +0100
+Message-ID: <20141118161241.GH30004@katana>
+References: <1416014452-6712-1-git-send-email-al.kochet@gmail.com>
+ <1416014452-6712-2-git-send-email-al.kochet@gmail.com>
+ <20141115014859.GC808@saruman>
+ <7C4EE58D-8956-40C2-B649-775B2F551D2A@gmail.com>
+ <20141115034756.GA2917@saruman>
+ <20141115035328.GA3289@saruman>
+ <A47891AC-7453-43F0-9196-5133A1525C68@gmail.com>
+ <20141116154558.GA7422@saruman>
+ <20141117144152.GA12644@katana>
+ <20141118160059.GI8223@saruman>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dMyqICaxQaaUjrCL"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1416326695-13083-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20141118160059.GI8223@saruman>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-The first I2C slave provider using the new generic interface.
+--dMyqICaxQaaUjrCL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
 
-Changes since RFC:
-* no runtime_pm for slaves
-* don't use NULL in i2c_slave_event
+> > > right, Linux doesn't support being the slave. That's also a missing
+> > > feature, not a bug.
+> >=20
+> > This is going to change. I sent out RFC patches for slave support [1]
+> > and will send V1 this week. This won't affect your driver, though,
+> > unless you implement the backend into it.
+> >=20
+> > Just to keep your heads up.
+> >=20
+> > [1] http://thread.gmane.org/gmane.linux.kernel/1783295
+>=20
+> sweet :-)
 
- drivers/i2c/busses/i2c-rcar.c | 125 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 116 insertions(+), 9 deletions(-)
+V1 was sent out a few seconds ago :)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index d826e82dd997..369ef747fb81 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -48,6 +48,12 @@
- #define ICMAR	0x20	/* master address */
- #define ICRXTX	0x24	/* data port */
- 
-+/* ICSCR */
-+#define SDBS	(1 << 3)	/* slave data buffer select */
-+#define SIE	(1 << 2)	/* slave interface enable */
-+#define GCAE	(1 << 1)	/* general call address enable */
-+#define FNA	(1 << 0)	/* forced non acknowledgement */
-+
- /* ICMCR */
- #define MDBS	(1 << 7)	/* non-fifo mode switch */
- #define FSCL	(1 << 6)	/* override SCL pin */
-@@ -58,6 +64,15 @@
- #define FSB	(1 << 1)	/* force stop bit */
- #define ESG	(1 << 0)	/* en startbit gen */
- 
-+/* ICSSR (also for ICSIER) */
-+#define GCAR	(1 << 6)	/* general call received */
-+#define STM	(1 << 5)	/* slave transmit mode */
-+#define SSR	(1 << 4)	/* stop received */
-+#define SDE	(1 << 3)	/* slave data empty */
-+#define SDT	(1 << 2)	/* slave data transmitted */
-+#define SDR	(1 << 1)	/* slave data received */
-+#define SAR	(1 << 0)	/* slave addr received */
-+
- /* ICMSR (also for ICMIE) */
- #define MNR	(1 << 6)	/* nack received */
- #define MAL	(1 << 5)	/* arbitration lost */
-@@ -103,6 +118,7 @@ struct rcar_i2c_priv {
- 	u32 icccr;
- 	u32 flags;
- 	enum rcar_i2c_type devtype;
-+	struct i2c_client *slave;
- };
- 
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -126,15 +142,6 @@ static u32 rcar_i2c_read(struct rcar_i2c_priv *priv, int reg)
- 
- static void rcar_i2c_init(struct rcar_i2c_priv *priv)
- {
--	/*
--	 * reset slave mode.
--	 * slave mode is not used on this driver
--	 */
--	rcar_i2c_write(priv, ICSIER, 0);
--	rcar_i2c_write(priv, ICSAR, 0);
--	rcar_i2c_write(priv, ICSCR, 0);
--	rcar_i2c_write(priv, ICSSR, 0);
--
- 	/* reset master mode */
- 	rcar_i2c_write(priv, ICMIER, 0);
- 	rcar_i2c_write(priv, ICMCR, 0);
-@@ -360,6 +367,63 @@ static int rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
- 	return 0;
- }
- 
-+static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
-+{
-+	u32 ssr_raw, ssr_filtered;
-+	u8 value;
-+
-+	ssr_raw = rcar_i2c_read(priv, ICSSR) & 0xff;
-+	ssr_filtered = ssr_raw & rcar_i2c_read(priv, ICSIER);
-+
-+	if (!ssr_filtered)
-+		return false;
-+
-+	/* address detected */
-+	if (ssr_filtered & SAR) {
-+		/* read or write request */
-+		if (ssr_raw & STM) {
-+			i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_START, &value);
-+			rcar_i2c_write(priv, ICRXTX, value);
-+			rcar_i2c_write(priv, ICSIER, SDE | SSR | SAR);
-+		} else {
-+			i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_START, &value);
-+			rcar_i2c_read(priv, ICRXTX);	/* dummy read */
-+			rcar_i2c_write(priv, ICSIER, SDR | SSR | SAR);
-+		}
-+
-+		rcar_i2c_write(priv, ICSSR, ~SAR & 0xff);
-+	}
-+
-+	/* master sent stop */
-+	if (ssr_filtered & SSR) {
-+		i2c_slave_event(priv->slave, I2C_SLAVE_STOP, &value);
-+		rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+		rcar_i2c_write(priv, ICSSR, ~SSR & 0xff);
-+	}
-+
-+	/* master wants to write to us */
-+	if (ssr_filtered & SDR) {
-+		int ret;
-+
-+		value = rcar_i2c_read(priv, ICRXTX);
-+		ret = i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_END, &value);
-+		/* Send NACK in case of error */
-+		rcar_i2c_write(priv, ICSCR, SIE | SDBS | (ret < 0 ? FNA : 0));
-+		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_WRITE_START, &value);
-+		rcar_i2c_write(priv, ICSSR, ~SDR & 0xff);
-+	}
-+
-+	/* master wants to read from us */
-+	if (ssr_filtered & SDE) {
-+		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_END, &value);
-+		i2c_slave_event(priv->slave, I2C_SLAVE_REQ_READ_START, &value);
-+		rcar_i2c_write(priv, ICRXTX, value);
-+		rcar_i2c_write(priv, ICSSR, ~SDE & 0xff);
-+	}
-+
-+	return true;
-+}
-+
- static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- {
- 	struct rcar_i2c_priv *priv = ptr;
-@@ -369,6 +433,9 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- 	/*-------------- spin lock -----------------*/
- 	spin_lock(&priv->lock);
- 
-+	if (rcar_i2c_slave_irq(priv))
-+		goto exit;
-+
- 	msr = rcar_i2c_read(priv, ICMSR);
- 
- 	/* Only handle interrupts that are currently enabled */
-@@ -499,6 +566,44 @@ out:
- 	return ret;
- }
- 
-+
-+static int rcar_reg_slave(struct i2c_client *slave)
-+{
-+	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
-+
-+	if (priv->slave)
-+		return -EBUSY;
-+
-+	if (slave->flags & I2C_CLIENT_TEN)
-+		return -EAFNOSUPPORT;
-+
-+	pm_runtime_forbid(rcar_i2c_priv_to_dev(priv));
-+
-+	priv->slave = slave;
-+	rcar_i2c_write(priv, ICSAR, slave->addr);
-+	rcar_i2c_write(priv, ICSSR, 0);
-+	rcar_i2c_write(priv, ICSIER, SAR | SSR);
-+	rcar_i2c_write(priv, ICSCR, SIE | SDBS);
-+
-+	return 0;
-+}
-+
-+static int rcar_unreg_slave(struct i2c_client *slave)
-+{
-+	struct rcar_i2c_priv *priv = i2c_get_adapdata(slave->adapter);
-+
-+	WARN_ON(!priv->slave);
-+
-+	rcar_i2c_write(priv, ICSIER, 0);
-+	rcar_i2c_write(priv, ICSCR, 0);
-+
-+	priv->slave = NULL;
-+
-+	pm_runtime_allow(rcar_i2c_priv_to_dev(priv));
-+
-+	return 0;
-+}
-+
- static u32 rcar_i2c_func(struct i2c_adapter *adap)
- {
- 	/* This HW can't do SMBUS_QUICK and NOSTART */
-@@ -508,6 +613,8 @@ static u32 rcar_i2c_func(struct i2c_adapter *adap)
- static const struct i2c_algorithm rcar_i2c_algo = {
- 	.master_xfer	= rcar_i2c_master_xfer,
- 	.functionality	= rcar_i2c_func,
-+	.reg_slave	= rcar_reg_slave,
-+	.unreg_slave	= rcar_unreg_slave,
- };
- 
- static const struct of_device_id rcar_i2c_dt_ids[] = {
--- 
-2.1.1
+https://lkml.org/lkml/2014/11/18/678
+
+> Still, as of now we can't consider what Alexander mentions a bug. Good
+> to get it sorted out, but not -rc material.
+
+I got confused with all the patches sent out for his issues. Can you ack
+them once you are fine and mention if you consider them important for
+this or the next release? That would be really helpful!
+
+
+--dMyqICaxQaaUjrCL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUa2/5AAoJEBQN5MwUoCm2wbQQAJRMYWeig0w2oFaI4QBK/Wbe
+qtynhUdpOsFpogiy+j/toJi1KDJijejE7qw6drCUTLZTeqEQPIP/1ndvT5qclNVO
+ydw9ZOrnP/1rdsh71vFzqc1rNlPXjm2XziByohg2bCvOQlu3o8GtwQJ5VRVLZyQT
+a/0YA96rkA8G9pWaMBnlnRxZCj8eL2ODRa++BBhzIcE4vZKPmmTlAk4VdjUkV0PK
+L264wZn1RgiLEDiBREtfa1mEoPHnwH6kL2JXEpv/v99cfsD7N4dazveZAQdWzI3z
+YIlbVogRneXqui7JjvVIWbPxUK+bZr1qQDsOeKScQvPRsKGYrQeMfBHx5rEQBtlB
+jQTn7QjRRCJx7y8W/wtaGLnB/DNeXyUfO0kvvd7Olc9W3UR/CryTP1awq15Ao4vA
+afluJ7BOqoviTJKtttJjOh4uXYa/PbD+TQ0ieO86uk41hd4qhK4PJKZS9017o2zt
+TqhGaEKpGUTYdXW0mNt3ern7SttTcDP29l3Efu/gql4e2BTsGRWBIpdUgtTuodAT
+BfFv5a/6kUwEhdWFXCURrIzW8UiBcKdYCio6Hv3px0LLLcwBQEULJyZHjYhwIpvY
+Dze1S4o+0Pj4v1gb9KEAzw7x7kAdb2ltGmsG6KzacuOpR/nSNmlM07P1jxPKSwme
+SPjCOJHfO1y0vmMe7d/7
+=1fcd
+-----END PGP SIGNATURE-----
+
+--dMyqICaxQaaUjrCL--
