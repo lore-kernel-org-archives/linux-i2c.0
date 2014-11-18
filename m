@@ -1,49 +1,74 @@
-From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Mon, 17 Nov 2014 19:28:03 -0600
-Message-ID: <1416274083.15957.96.camel@freescale.com>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
-	 <1414537731.23458.120.camel@snotra.buserror.net>
-	 <5450AC85.40302@keymile.com> <20141113003418.GE2062@katana>
-	 <5465B285.7070005@keymile.com> <20141114082832.GA2180@katana>
+From: Yao Yuan <yao.yuan@freescale.com>
+Subject: RE: [PATCH v10 3/3] i2c: imx: add DMA support for freescale i2c driver
+Date: Tue, 18 Nov 2014 06:56:27 +0000
+Message-ID: <BL2PR03MB33898E57AC61B7D45685DCB83880@BL2PR03MB338.namprd03.prod.outlook.com>
+References: <1416220836-7666-1-git-send-email-yao.yuan@freescale.com>
+ <1416220836-7666-4-git-send-email-yao.yuan@freescale.com>
+ <20141117182413.GC12644@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141114082832.GA2180@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20141117182413.GC12644@katana>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "marex@denx.de" <marex@denx.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "fugang.duan@freescale.com" <fugang.duan@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "LW@KARO-electronics.de" <LW@KARO-electronics.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2014-11-14 at 09:28 +0100, Wolfram Sang wrote:
-> > > 
-> > > If we're going to change the device tree I'd rather just add a property
-> > > to say what the prescaler is.
-> > 
-> >  We would however, leave the boards' device trees that use things like
-> > "fsl,mpc8543-i2c" as is and introduce the prescaler for the others requiring it.
-> > 
-> > 
-> > Now the drawback is that the driver would require a change, to parse this
-> > prescaler new prescaler property. Would this be OK from your point of view
-> > Wolfram ? If yes, I will send the patches for it.
+Hi Wolfram,
+
+Thank you for having found the bug, I indeed missed initializing it('orig_jiffies'). 
+I will do more detailed review and send the v11 soon.
+
+Best Regards,
+Yuan Yao
+
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa@the-dreams.de]
+> Sent: Tuesday, November 18, 2014 2:24 AM
+> To: Yuan Yao-B46683
+> Cc: marex@denx.de; LW@KARO-electronics.de; mark.rutland@arm.com; Duan
+> Fugang-B38611; shawn.guo@linaro.org; linux-kernel@vger.kernel.org; linux-
+> arm-kernel@lists.infradead.org; linux-i2c@vger.kernel.org
+> Subject: Re: [PATCH v10 3/3] i2c: imx: add DMA support for freescale i2c
+> driver
 > 
-> I don't think it is OK.
-
-Why?
-
->  I'd think it can be deduced from the compatible property.
-
-For almost all existing device trees it cannot be.
-
-If you want something that will work without changing device trees,
-you'll need to use SVR to identify the SoC.
-
--Scott
-
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> On Mon, Nov 17, 2014 at 06:40:36PM +0800, Yuan Yao wrote:
+> > Add dma support for i2c. This function depend on DMA driver.
+> > You can turn on it by write both the dmas and dma-name properties in
+> dts node.
+> > DMA is optional, even DMA request unsuccessfully, i2c can also work
+> well.
+> >
+> > Signed-off-by: Yuan Yao <yao.yuan@freescale.com>
+> 
+> gcc found a bug:
+> 
+> drivers/i2c/busses/i2c-imx.c:703:7: warning: 'orig_jiffies' may be used
+> uninitialized in this function [-Wuninitialized]
+> drivers/i2c/busses/i2c-imx.c:672:16: note: 'orig_jiffies' was declared
+> here
+> 
+> > +	result = wait_for_completion_interruptible_timeout(
+> > +				&i2c_imx->dma->cmd_complete,
+> > +				msecs_to_jiffies(DMA_TIMEOUT));
+> 
+> And are you sure you want to use
+> wait_for_completion_interruptible_timeout() instead of
+> wait_for_completion_timeout() here? Unless you confirm you tested it a
+> lot with signals, I really cannot recommend the *_interruptible_* version.
+> 
+> Other than that, good. I liked the logfile of what you tested very much!
+> 
+> Thanks,
+> 
+>    Wolfram
