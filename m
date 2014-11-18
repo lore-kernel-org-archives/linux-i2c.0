@@ -1,54 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 2/3] i2c: add support for Amlogic Meson I2C controller
-Date: Tue, 18 Nov 2014 16:17:58 +0100
-Message-ID: <20141118151758.GF30004@katana>
+Subject: Re: [PATCH v3 3/3] ARM: dts: meson: add I2C controller nodes
+Date: Tue, 18 Nov 2014 16:19:27 +0100
+Message-ID: <20141118151927.GG30004@katana>
 References: <1415907123-4318-1-git-send-email-b.galvani@gmail.com>
- <1415907123-4318-3-git-send-email-b.galvani@gmail.com>
+ <1415907123-4318-4-git-send-email-b.galvani@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bGR76rFJjkSxVeRa"
+	protocol="application/pgp-signature"; boundary="7uYPyRQQ5N0D02nI"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1415907123-4318-3-git-send-email-b.galvani@gmail.com>
+In-Reply-To: <1415907123-4318-4-git-send-email-b.galvani@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Beniamino Galvani <b.galvani@gmail.com>
 Cc: Carlo Caione <carlo@caione.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jerry Cao <jerry.cao@amlogic.com>, Victor Wan <victor.wan@amlogic.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---bGR76rFJjkSxVeRa
+--7uYPyRQQ5N0D02nI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 13, 2014 at 08:32:02PM +0100, Beniamino Galvani wrote:
-> This is a driver for the I2C controller found in Amlogic Meson SoCs.
+On Thu, Nov 13, 2014 at 08:32:03PM +0100, Beniamino Galvani wrote:
+> Add nodes for I2C controllers A,B,AO, which are available in both
+> Meson6 and Meson8.
 >=20
 > Signed-off-by: Beniamino Galvani <b.galvani@gmail.com>
+> ---
 
-Applied to for-next, thanks!
+I usually don't take DTS patches. They should go via arm-soc. Please say
+so if there are reasons I should take it.
 
 
---bGR76rFJjkSxVeRa
+--7uYPyRQQ5N0D02nI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUa2MmAAoJEBQN5MwUoCm2FLwP/2Sx4AtZlXOoxp4AQkbuA4rO
-2kld6cbPBWE3Biijb9mM1UUs//O30j/Vju2jitQYGGyJ8bkDfd5qPnUxgcB+EHQV
-7uW/jpugAMNd1SxaWe0ezsUVCSjAdOh4sMxOHFcezNtQbM9fcKTJF/1cZBOdb6wc
-wH2xYlepWYRJaAs2iILgftMmqU/dtGRgs/sTdeE6Lb277GNWP188SWw2QK+C75Gg
-Vidf6GQMQXLmhvIv/263d+6jbCFLgCQNohnr1tMYw5kyZM8r8VURlwuOSjqxUzrr
-Y5svtTwJVPTgMcaF3e9SaADSUF1y/Gqy1u0w6uYZNPriOH8y8l67iesBKwNCYXGc
-e23paM1qHXet8nYfnRnnI8PH6ejHqBSu/SOx0f15xrDFQIerd6y2ohm+RepYzKEO
-bjeHKnIgrPRy5adR6JrFahmKgRbZAHrWjCac5lDU4qX7/ZTp+ozmRvOc8UpwtOpu
-Akr07ClwAx4lu0S1Tlm7TxtPrDvpeShbZ/TQDFUZnLIVAjUQa48uCXLWYfpfQF44
-OGPhJ/hqUUUAji+/K0cfOzHkiN5L4Klsa7lSlSNRUVr+kAIY7v/dUvH0NNBtXXDf
-qsfu5lwXWxCYqylnhr4Qo0C4cYOonaPQEiKerc+dz2eiROdLyb62K/JvDNw18A4g
-hWskMMviRLSdw43IRscH
-=aPkN
+iQIcBAEBAgAGBQJUa2N/AAoJEBQN5MwUoCm2dxMQALJV9jfj0AxVKMIKBOBhd+3Z
+GHhiBCDE8OUG048ZA0UN10CK5oWuKH0cAjiPNkrVwNslljkb0h0OgDiotm52+Kop
+hwiJUxJHevq6QkQfyYNTvc9qZxJhXT2DFGSgcSND6mjddvgxnC3JVrbyYokU4Swq
+oizbF3Jcmd53SvioTH0YvgTG1+m6i3JOTFC8anfvjdRdxQZl7Jk3uPTSYj46IxcG
+s/y7yjH1BK58Q8A5yKmNOPfoR/I48OLu0q+9gnP9AZ2wxiptBbAgWGMhm/cuEQv3
+T9wneie6x+jBxRtHquSnfTcdkkccUthAzE24nq56FpepjvUnOkpucAsbAyKtMAC3
+EFKwQbqfWh+C6Ij+Sxv6NhLVWZmzb28JYyO6yRJpnO7IyiE4FWWAweS0Wn2De+WU
+4WHSN3wwq9eo3lCoS5wVFeUweVrhXOEFYsHjJfobuxKg5vW7L9uD0I3MPcaAqsU3
+1i5L3cVOO8ZjBQdNf7+hvtNOa4CHFHFcZoVyzhfOQPsJZMMtlOyve//juXrd092p
+iXfitCC6s/6UzOwBcBpX6X3oNalEoOicDQiK65BAhTfxthLiH3TjNIPG1U3KyY+/
+kiZY9DuoAGBs2/QvXQUbCxf+czz9fJYkDvvECtWX14pxI79MkgpY84x32JvokJvX
+T/0MLgi9KmSCfcX5ZjXg
+=xGBb
 -----END PGP SIGNATURE-----
 
---bGR76rFJjkSxVeRa--
+--7uYPyRQQ5N0D02nI--
