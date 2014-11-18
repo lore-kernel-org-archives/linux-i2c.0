@@ -1,32 +1,23 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: acpi: remove unneeded variable initialization
-Date: Tue, 18 Nov 2014 15:12:43 +0100
-Message-ID: <1416319963-28946-1-git-send-email-wsa@the-dreams.de>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c: acpi: remove unneeded variable initialization
+Date: Tue, 18 Nov 2014 16:27:54 +0200
+Message-ID: <20141118142754.GD1309@lahna.fi.intel.com>
+References: <1416319963-28946-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1416319963-28946-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-No need to initialize 'ret' if it gets assigned directly after that.
+On Tue, Nov 18, 2014 at 03:12:43PM +0100, Wolfram Sang wrote:
+> No need to initialize 'ret' if it gets assigned directly after that.
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- drivers/i2c/i2c-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+True.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index cf830915713b..3105bd273f70 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -260,7 +260,7 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
- 	struct acpi_resource *ares;
- 	u32 accessor_type = function >> 16;
- 	u8 action = function & ACPI_IO_MASK;
--	acpi_status ret = AE_OK;
-+	acpi_status ret;
- 	int status;
- 
- 	ret = acpi_buffer_to_resource(info->connection, info->length, &ares);
--- 
-2.1.1
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
