@@ -1,81 +1,214 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: prevent early stop on TX FIFO empty
-Date: Wed, 19 Nov 2014 10:21:22 +0100
-Message-ID: <20141119092122.GC1439@katana>
-References: <545CB6C4.8010201@arm.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH] i2c: at91: introduce probe deferring
+Date: Wed, 19 Nov 2014 10:47:15 +0100
+Message-ID: <5216790.dAh2H6iKq8@wuerfel>
+References: <1415972879-26509-1-git-send-email-ludovic.desroches@atmel.com> <20141119091647.GB1439@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HG+GLK89HZ1zG0kk"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <545CB6C4.8010201-5wv7dgnIgG8@public.gmane.org>
+In-Reply-To: <20141119091647.GB1439@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Jackson <Andrew.Jackson-5wv7dgnIgG8@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "Du, Wenkai" <wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>, Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liviu Dudau <Liviu.Dudau-5wv7dgnIgG8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wednesday 19 November 2014 10:16:47 Wolfram Sang wrote:
+> On Fri, Nov 14, 2014 at 02:47:59PM +0100, Ludovic Desroches wrote:
+> > Return probe defer if requesting a dma channel without a dma controller probed.
+> > 
+> > Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-at91.c | 22 ++++++++++++++++------
+> >  1 file changed, 16 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> > index 77fb647..df3f4c4 100644
+> > --- a/drivers/i2c/busses/i2c-at91.c
+> > +++ b/drivers/i2c/busses/i2c-at91.c
+> > @@ -679,14 +679,21 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+> >  	dma_cap_zero(mask);
+> >  	dma_cap_set(DMA_SLAVE, mask);
+> >  
+> > -	dma->chan_tx = dma_request_slave_channel_compat(mask, filter, pdata,
+> > -							dev->dev, "tx");
+> > -	if (!dma->chan_tx) {
+> > +	dma->chan_tx = dma_request_slave_channel_reason(dev->dev, "tx");
+> 
+> Will it cause regressions if you drop the compat-version of requesting
+> a channel?
 
---HG+GLK89HZ1zG0kk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I got curious about this, since the patch looks obviously wrong, but
+actually it's ok. However the entire DMA support for non-DT platforms
+can be dropped in this driver, see patch below
 
-On Fri, Nov 07, 2014 at 12:10:44PM +0000, Andrew Jackson wrote:
-> If the Designware core is configured with IC_EMPTYFIFO_HOLD_MASTER_EN
-> set to zero, allowing the TX FIFO to become empty causes a STOP
-> condition to be generated on the I2C bus. If the transmit FIFO
-> threshold is set too high, an erroneous STOP condition can be
-> generated on long transfers - particularly where the interrupt
-> latency is extended.
->=20
-> Signed-off-by: Andrew Jackson <Andrew.Jackson-5wv7dgnIgG8@public.gmane.org>
-> Signed-off-by: Liviu Dudau <Liviu.Dudau-5wv7dgnIgG8@public.gmane.org>
+> > +	if (IS_ERR(dma->chan_tx)) {
+> > +		ret = PTR_ERR(dma->chan_tx);
+> > +		if (ret == -EPROBE_DEFER) {
+> > +			dev_warn(dev->dev, "no DMA channel available at the moment\n");
+> 
+> I'd say drop this warning. The core usually prints when deferred probing
+> takes place.
 
-So, what do other designware users think of this change (nice CC list
-BTW, Andrew). Adding Mika, too.
+Definitely yes.
 
-> ---
->  drivers/i2c/busses/i2c-designware-core.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busse=
-s/i2c-designware-core.c
-> index 3c20e4b..e070edd 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -363,7 +363,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
->  	}
-> =20
->  	/* Configure Tx/Rx FIFO threshold levels */
-> -	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
-> +	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
->  	dw_writel(dev, 0, DW_IC_RX_TL);
-> =20
->  	/* configure the i2c master */
-> --=20
-> 1.7.1
->=20
+	Arnd
+8<---
+[PATCH] i2c: at91: remove legacy DMA supoprt
 
---HG+GLK89HZ1zG0kk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Since at91sam9g45 is now DT-only, all DMA capable users of this driver are
+using the DT case, and the legacy support can be removed. While at it, fix
+the deferred probe case.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 
-iQIbBAEBAgAGBQJUbGESAAoJEBQN5MwUoCm2bjYP+Ie4QLkVvrtwxxKd4S0GR2Al
-UnSMQoeq5yFZOKk+eO+7RdK7G5CWuMXYG/GIIpmx94X0XOGOi5AwX76TTY2nhsZf
-Sq0CcsQ7dnspJ9lpr+KfYo8PmbQft13+qnzFZwlWwOECs2qmFryYK9c9R1b87zaE
-mbz0DJtRiAWYroSKhpDXrFYp6u+qDGepxhuRgSo6ufgCNPm6axrNoM7ivoxw9ORK
-v3fEBWbB7KN+UbwrRIWFD3jSZyQVN6MuHB1OLH1IedJR5K2Xrd+f/uA5tkcxOnQY
-Wd2b//AMMrgSoWyNG7HF0cFeb996kOLshVz0zlxe+kmdkmN/n3hqJffLMrS8W+y0
-F6w1bH45yQfc03vjihIOaJxb+XPi8TrZ/bEglpSAwn7X3atMgKgz4K8VI4NV+Vu+
-pc4WYLh++HSMMyqK27ikVmckQ0VbMc2w6ZevEVrpBgS0yfC0KLQn7CY0CLn9LeFp
-99KUkCLbhvv1EycXKfnlHyMh6GdYIFa04jGLhr/+EP7MFOPUIR72ZuFt+bAcBlEK
-4hf0OegU0K6ICq9mkTAZKng6Kx6hehN6oA/L0jb4vwzCTGFrkDD+oVJr6giVTPz2
-g/io4l+a8tkolpqsAbcIoRwQ8mEG9qbidytCKLmdrEwiM7DM1TpZSoxlVteFM7jZ
-3GwRq80JDitC2BlvAHc=
-=j73i
------END PGP SIGNATURE-----
-
---HG+GLK89HZ1zG0kk--
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 917d54588d95..534f4c07bfb6 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -72,8 +72,6 @@ struct at91_twi_pdata {
+ 	unsigned clk_max_div;
+ 	unsigned clk_offset;
+ 	bool has_unre_flag;
+-	bool has_dma_support;
+-	struct at_dma_slave dma_slave;
+ };
+ 
+ struct at91_twi_dma {
+@@ -541,35 +539,30 @@ static struct at91_twi_pdata at91rm9200_config = {
+ 	.clk_max_div = 5,
+ 	.clk_offset = 3,
+ 	.has_unre_flag = true,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9261_config = {
+ 	.clk_max_div = 5,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9260_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g20_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g10_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static const struct platform_device_id at91_twi_devtypes[] = {
+@@ -598,7 +591,6 @@ static struct at91_twi_pdata at91sam9x5_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = true,
+ };
+ 
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+@@ -627,30 +619,11 @@ static const struct of_device_id atmel_twi_dt_ids[] = {
+ MODULE_DEVICE_TABLE(of, atmel_twi_dt_ids);
+ #endif
+ 
+-static bool filter(struct dma_chan *chan, void *pdata)
+-{
+-	struct at91_twi_pdata *sl_pdata = pdata;
+-	struct at_dma_slave *sl;
+-
+-	if (!sl_pdata)
+-		return false;
+-
+-	sl = &sl_pdata->dma_slave;
+-	if (sl && (sl->dma_dev == chan->device->dev)) {
+-		chan->private = sl;
+-		return true;
+-	} else {
+-		return false;
+-	}
+-}
+-
+ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ {
+ 	int ret = 0;
+-	struct at91_twi_pdata *pdata = dev->pdata;
+ 	struct dma_slave_config slave_config;
+ 	struct at91_twi_dma *dma = &dev->dma;
+-	dma_cap_mask_t mask;
+ 
+ 	memset(&slave_config, 0, sizeof(slave_config));
+ 	slave_config.src_addr = (dma_addr_t)phy_addr + AT91_TWI_RHR;
+@@ -661,22 +634,17 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 	slave_config.dst_maxburst = 1;
+ 	slave_config.device_fc = false;
+ 
+-	dma_cap_zero(mask);
+-	dma_cap_set(DMA_SLAVE, mask);
+-
+-	dma->chan_tx = dma_request_slave_channel_compat(mask, filter, pdata,
+-							dev->dev, "tx");
+-	if (!dma->chan_tx) {
+-		dev_err(dev->dev, "can't get a DMA channel for tx\n");
+-		ret = -EBUSY;
++	dma->chan_tx = dma_request_slave_channel_reason(dev->dev, "tx");
++	if (IS_ERR(dma->chan_tx)) {
++		ret = PTR_ERR(dma->chan_tx);
++		dma->chan_tx = NULL;
+ 		goto error;
+ 	}
+ 
+-	dma->chan_rx = dma_request_slave_channel_compat(mask, filter, pdata,
+-							dev->dev, "rx");
+-	if (!dma->chan_rx) {
+-		dev_err(dev->dev, "can't get a DMA channel for rx\n");
+-		ret = -EBUSY;
++	dma->chan_rx = dma_request_slave_channel_reason(dev->dev, "rx");
++	if (IS_ERR(dma->chan_rx)) {
++		ret = PTR_ERR(dma->chan_rx);
++		dma->chan_rx = NULL;
+ 		goto error;
+ 	}
+ 
+@@ -697,6 +665,7 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 	sg_init_table(&dma->sg, 1);
+ 	dma->buf_mapped = false;
+ 	dma->xfer_in_progress = false;
++	dev->use_dma = true;
+ 
+ 	dev_info(dev->dev, "using %s (tx) and %s (rx) for DMA transfers\n",
+ 		 dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
+@@ -704,7 +673,8 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 	return ret;
+ 
+ error:
+-	dev_info(dev->dev, "can't use DMA\n");
++	if (ret != -EPROBE_DEFER)
++		dev_info(dev->dev, "can't use DMA, error %d\n", ret);
+ 	if (dma->chan_rx)
+ 		dma_release_channel(dma->chan_rx);
+ 	if (dma->chan_tx)
+@@ -772,10 +742,8 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	}
+ 	clk_prepare_enable(dev->clk);
+ 
+-	if (dev->pdata->has_dma_support) {
+-		if (at91_twi_configure_dma(dev, phy_addr) == 0)
+-			dev->use_dma = true;
+-	}
++	if (dev->of_node)
++		at91_twi_configure_dma(dev, phy_addr);
+ 
+ 	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
+ 			&bus_clk_rate);
