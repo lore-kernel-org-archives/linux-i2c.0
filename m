@@ -1,19 +1,20 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH] i2c: at91: introduce probe deferring
-Date: Wed, 19 Nov 2014 10:47:15 +0100
-Message-ID: <5216790.dAh2H6iKq8@wuerfel>
-References: <1415972879-26509-1-git-send-email-ludovic.desroches@atmel.com> <20141119091647.GB1439@katana>
+Date: Wed, 19 Nov 2014 10:55:50 +0100
+Message-ID: <20141119095550.GD3639@ldesroches-Latitude-E6320>
+References: <1415972879-26509-1-git-send-email-ludovic.desroches@atmel.com>
+ <20141119091647.GB1439@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
 In-Reply-To: <20141119091647.GB1439@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 19 November 2014 10:16:47 Wolfram Sang wrote:
+On Wed, Nov 19, 2014 at 10:16:47AM +0100, Wolfram Sang wrote:
 > On Fri, Nov 14, 2014 at 02:47:59PM +0100, Ludovic Desroches wrote:
 > > Return probe defer if requesting a dma channel without a dma controller probed.
 > > 
@@ -38,10 +39,11 @@ On Wednesday 19 November 2014 10:16:47 Wolfram Sang wrote:
 > Will it cause regressions if you drop the compat-version of requesting
 > a channel?
 
-I got curious about this, since the patch looks obviously wrong, but
-actually it's ok. However the entire DMA support for non-DT platforms
-can be dropped in this driver, see patch below
+All our devices with a DMA controller have been converted to device tree
+and the legacy board support will be removed in 3.19 so it won't cause
+regression.
 
+> 
 > > +	if (IS_ERR(dma->chan_tx)) {
 > > +		ret = PTR_ERR(dma->chan_tx);
 > > +		if (ret == -EPROBE_DEFER) {
@@ -49,166 +51,9 @@ can be dropped in this driver, see patch below
 > 
 > I'd say drop this warning. The core usually prints when deferred probing
 > takes place.
+>
+ 
+Ok, I'll remove it.
 
-Definitely yes.
 
-	Arnd
-8<---
-[PATCH] i2c: at91: remove legacy DMA supoprt
-
-Since at91sam9g45 is now DT-only, all DMA capable users of this driver are
-using the DT case, and the legacy support can be removed. While at it, fix
-the deferred probe case.
-
-Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 917d54588d95..534f4c07bfb6 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -72,8 +72,6 @@ struct at91_twi_pdata {
- 	unsigned clk_max_div;
- 	unsigned clk_offset;
- 	bool has_unre_flag;
--	bool has_dma_support;
--	struct at_dma_slave dma_slave;
- };
- 
- struct at91_twi_dma {
-@@ -541,35 +539,30 @@ static struct at91_twi_pdata at91rm9200_config = {
- 	.clk_max_div = 5,
- 	.clk_offset = 3,
- 	.has_unre_flag = true,
--	.has_dma_support = false,
- };
- 
- static struct at91_twi_pdata at91sam9261_config = {
- 	.clk_max_div = 5,
- 	.clk_offset = 4,
- 	.has_unre_flag = false,
--	.has_dma_support = false,
- };
- 
- static struct at91_twi_pdata at91sam9260_config = {
- 	.clk_max_div = 7,
- 	.clk_offset = 4,
- 	.has_unre_flag = false,
--	.has_dma_support = false,
- };
- 
- static struct at91_twi_pdata at91sam9g20_config = {
- 	.clk_max_div = 7,
- 	.clk_offset = 4,
- 	.has_unre_flag = false,
--	.has_dma_support = false,
- };
- 
- static struct at91_twi_pdata at91sam9g10_config = {
- 	.clk_max_div = 7,
- 	.clk_offset = 4,
- 	.has_unre_flag = false,
--	.has_dma_support = false,
- };
- 
- static const struct platform_device_id at91_twi_devtypes[] = {
-@@ -598,7 +591,6 @@ static struct at91_twi_pdata at91sam9x5_config = {
- 	.clk_max_div = 7,
- 	.clk_offset = 4,
- 	.has_unre_flag = false,
--	.has_dma_support = true,
- };
- 
- static const struct of_device_id atmel_twi_dt_ids[] = {
-@@ -627,30 +619,11 @@ static const struct of_device_id atmel_twi_dt_ids[] = {
- MODULE_DEVICE_TABLE(of, atmel_twi_dt_ids);
- #endif
- 
--static bool filter(struct dma_chan *chan, void *pdata)
--{
--	struct at91_twi_pdata *sl_pdata = pdata;
--	struct at_dma_slave *sl;
--
--	if (!sl_pdata)
--		return false;
--
--	sl = &sl_pdata->dma_slave;
--	if (sl && (sl->dma_dev == chan->device->dev)) {
--		chan->private = sl;
--		return true;
--	} else {
--		return false;
--	}
--}
--
- static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- {
- 	int ret = 0;
--	struct at91_twi_pdata *pdata = dev->pdata;
- 	struct dma_slave_config slave_config;
- 	struct at91_twi_dma *dma = &dev->dma;
--	dma_cap_mask_t mask;
- 
- 	memset(&slave_config, 0, sizeof(slave_config));
- 	slave_config.src_addr = (dma_addr_t)phy_addr + AT91_TWI_RHR;
-@@ -661,22 +634,17 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	slave_config.dst_maxburst = 1;
- 	slave_config.device_fc = false;
- 
--	dma_cap_zero(mask);
--	dma_cap_set(DMA_SLAVE, mask);
--
--	dma->chan_tx = dma_request_slave_channel_compat(mask, filter, pdata,
--							dev->dev, "tx");
--	if (!dma->chan_tx) {
--		dev_err(dev->dev, "can't get a DMA channel for tx\n");
--		ret = -EBUSY;
-+	dma->chan_tx = dma_request_slave_channel_reason(dev->dev, "tx");
-+	if (IS_ERR(dma->chan_tx)) {
-+		ret = PTR_ERR(dma->chan_tx);
-+		dma->chan_tx = NULL;
- 		goto error;
- 	}
- 
--	dma->chan_rx = dma_request_slave_channel_compat(mask, filter, pdata,
--							dev->dev, "rx");
--	if (!dma->chan_rx) {
--		dev_err(dev->dev, "can't get a DMA channel for rx\n");
--		ret = -EBUSY;
-+	dma->chan_rx = dma_request_slave_channel_reason(dev->dev, "rx");
-+	if (IS_ERR(dma->chan_rx)) {
-+		ret = PTR_ERR(dma->chan_rx);
-+		dma->chan_rx = NULL;
- 		goto error;
- 	}
- 
-@@ -697,6 +665,7 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	sg_init_table(&dma->sg, 1);
- 	dma->buf_mapped = false;
- 	dma->xfer_in_progress = false;
-+	dev->use_dma = true;
- 
- 	dev_info(dev->dev, "using %s (tx) and %s (rx) for DMA transfers\n",
- 		 dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
-@@ -704,7 +673,8 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	return ret;
- 
- error:
--	dev_info(dev->dev, "can't use DMA\n");
-+	if (ret != -EPROBE_DEFER)
-+		dev_info(dev->dev, "can't use DMA, error %d\n", ret);
- 	if (dma->chan_rx)
- 		dma_release_channel(dma->chan_rx);
- 	if (dma->chan_tx)
-@@ -772,10 +742,8 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	}
- 	clk_prepare_enable(dev->clk);
- 
--	if (dev->pdata->has_dma_support) {
--		if (at91_twi_configure_dma(dev, phy_addr) == 0)
--			dev->use_dma = true;
--	}
-+	if (dev->of_node)
-+		at91_twi_configure_dma(dev, phy_addr);
- 
- 	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
- 			&bus_clk_rate);
+Ludovic
