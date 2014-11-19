@@ -1,55 +1,80 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] DT: i2c: Add more devices handled by the adxl34x-i2c
- driver
-Date: Wed, 19 Nov 2014 15:21:51 +0100
-Message-ID: <20141119142151.GB1384@katana>
-References: <1415981011-13423-1-git-send-email-geert+renesas@glider.be>
- <1415981011-13423-2-git-send-email-geert+renesas@glider.be>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] dt: Update I2C trivial devices list
+Date: Wed, 19 Nov 2014 15:24:39 +0100
+Message-ID: <20141119142438.GC1384@katana>
+References: <1387239151-19226-1-git-send-email-bgamari.foss@gmail.com>
+ <52B07870.6070809@wwwdotorg.org>
+ <87a9fztofc.fsf@gmail.com>
+ <20140113125128.GE2586@katana>
+ <87r48cklgj.fsf@gmail.com>
+ <52D41B14.6060701@wwwdotorg.org>
+ <87ob3flrmw.fsf@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vGgW1X5XWziG23Ko"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="HG+GLK89HZ1zG0kk"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1415981011-13423-2-git-send-email-geert+renesas@glider.be>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, rtc-linux@googlegroups.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <87ob3flrmw.fsf-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Gamari <bgamari.foss-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---vGgW1X5XWziG23Ko
+--HG+GLK89HZ1zG0kk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 14, 2014 at 05:03:31PM +0100, Geert Uytterhoeven wrote:
-> This allows checkpatch to validate more DTSes.
+On Mon, Jan 13, 2014 at 12:26:47PM -0500, Ben Gamari wrote:
+> Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> writes:
 >=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > On 01/13/2014 07:25 AM, Ben Gamari wrote:
+> >> Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
+> >>> What about putting this into a seperate paragraph prefixed with "Curr=
+ent
+> >>> Linux specific implementation:"?
+> >>>
+> >> This would address my concern quite nicely.
+> >
+> > The text should go into Documentation/ not the DT binding.
+> >
+> The problem here is that as it stands DT is quite daunting to pick
+> up. My needs are pretty minimal yet I had to spend many hours sifting
+> through source, blogs, and Documentation/* to get something that more or
+> less worked. The bindings are generally well-documented, but there is no
+> "start here" document in the tree giving conventions and an overview of
+> how Linux in particular uses DT.
+>=20
+> The closest thing I know of is Documentation/devicetree/usage-model.txt.
+> Perhaps this is where the language Wolfram suggested should be placed.
 
-Applied to for-next, thanks!
+I appreciate your effort to improve documentation on how to get started.
+Sadly, I don't know where the best place would be and I am too busy to
+look it up. If you are interested, I'll happily apply the outcome,
+otherwise we sadly have to wait until someone else comes up.
 
 
---vGgW1X5XWziG23Ko
+--HG+GLK89HZ1zG0kk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUbKd/AAoJEBQN5MwUoCm2ePoQALUE+CqIyBXMivHdWi0gbxLl
-mZCXb/2z1IgUq6nbzWWBNE1uIIjRoCf9zASmpXPvArDwouaaFeZjyNzZ8SKx0UjE
-UnWv1cELwq6xVbIp9LEOrfnkI4w1yduOJGlDcKGF/kOb6QvkSswN/dFrXRKa9nwO
-jwQ7GePWDwawyr3NEvtIItU2XcJE9X7+p+aHn2TjhmKaY4k+f133g4RitPFoJ7/X
-cwavZEQnd7NJvMLxvgJ9VSD2PrQMCUSnwTugZYChvg4lchyIaNy4lf6Fr4y3TQ7d
-sPLz7ueGi265Eq+KiGVG7e63ItPZ2PeZdHhcmc9CcuZryUkFSM1E8ta+i35x8BpX
-UdXCKQ0I6mZ68Zrh3xUl8EijvyytOnhS6VSDUwyGUkv6QZ0RCZKB/97HYPYp4Ubc
-jgHYXp+r0RlzDuSGg0WUyHOWDOWD1S7h8wr8UD/6+MingtTis9OrZqBIcOZDjAPD
-QdWf6pLcxTprxYWM9jL2IODOA4llpbd1FX3jmQEySkiA9gTYQlianI5iZozdiCpS
-fA+MmSC3uK6sd+xTc5Q5dVc26T+6RA5I0EX3mV9YavRR7a908J+b1Z0UEXNxp7Rx
-iIogI4RzxRxMjA3Y6vRs5CLMxLv3daPqeqFDvOKrY9LjSRuJEyPEyF9GpawG4tG6
-FaghElSV9pYozB+lsoZ+
-=rfAy
+iQIcBAEBAgAGBQJUbKgmAAoJEBQN5MwUoCm2C4kQAKh51kdxJbhxZn9cE/VSeCxv
+KK+M59593BNjGSUwWpE0IsEAryqE/12/4ESacsmFAZE0q5RjTljddy0wm6//dQov
+JUYCtSJ9ZSm7bgpCZnznEvFMk2MiH36N20HHtfoQeIqQTYPKNcNMx2OYIaQI2lZz
+uUdJoAs+HATo8rRIIoznND6N+yYGYlAg7TDk5A1pMNoTp7adJ/VBxSZg/N21IZjz
+DEJjlgXsn21hydY+YF45A332EfF8UoHnf+otLpEJ/t711PB2ejXyYJgJy94i8S+C
+kdQ08nQaxBLhLCHnNw/Z2ks6gpOfDz4Yyt28IxnNu1cR1WFySm/k4EnBuDbbcX52
+QrTseD9rIp8rPuFdpiMT8+x7bCVvdPNt6mQCBRp5TrjJN4/1hpIl6+ylR5cgXoiV
+57dfJ2KLVqjiL9V7FODrlj+CjDN/JxaDDBX6EhwNHbBmrpe2PiBmOt2Jrf3yn24J
+PtaT8gI6y3mgmdB/DWqMoHpVgfS+OFn15tksh7Gozzh0RHfYPUZyGnHYdcswrF1E
+npooM/+yNm96TSMDvGKqNBXYd48I9mJI+QyBgSMRiR2wjJlqTJaBfLpbW44e6tsf
+P56w71h2OQJOzLbg4+CClFnWCJGCR0no8Pa01fhGeCpnbkiODuxoRzzVGUJWm4fr
+aF2HB+PNdL0oLgTvouWX
+=UgyN
 -----END PGP SIGNATURE-----
 
---vGgW1X5XWziG23Ko--
+--HG+GLK89HZ1zG0kk--
