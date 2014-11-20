@@ -1,184 +1,88 @@
-From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/4] i2c: omap: implement workaround for handling invalid BB-bit values
-Date: Fri, 21 Nov 2014 01:28:43 +0400
-Message-ID: <1416518925-20679-3-git-send-email-al.kochet@gmail.com>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1416518925-20679-1-git-send-email-al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [1/5] i2c: i2c-davinci: switch to use platform_get_irq
+Date: Thu, 20 Nov 2014 22:48:38 +0100
+Message-ID: <20141120214838.GA346@pengutronix.de>
+References: <1416477788-5544-2-git-send-email-grygorii.strashko@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1416477788-5544-2-git-send-email-grygorii.strashko@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, Murali Karicheri <m-karicheri2@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-In a multimaster environment, after IP software reset, BB-bit value doesn't
-correspond to the current bus state. It may happen what BB-bit will be 0,
-while the bus is busy due to another I2C master activity.
+Hello Grygorii,
 
-Any transfer started when BB=0 and bus is busy wouldn't be completed by IP
-and results in controller timeout. More over, in some cases IP could
-interrupt another master's transfer and corrupt data on wire.
+On Thu, Nov 20, 2014 at 12:03:04PM +0200, Grygorii Strashko wrote:
+> Switch Davinci I2C driver to use platform_get_irq(), because
+> - it is not recommened to use
+>   platform_get_resource(pdev, IORESOURCE_IRQ, ..) for requesting IRQ'=
+s
+>   resources any more, as they can be not ready yet in case of DT-boot=
+ing.
+> - it makes code simpler
+>=20
+> CC: Sekhar Nori <nsekhar@ti.com>
+> CC: Kevin Hilman <khilman@deeprootsystems.com>
+> CC: Santosh Shilimkar <ssantosh@kernel.org>
+> CC: Murali Karicheri <m-karicheri2@ti.com>
+> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+> ---
+>  drivers/i2c/busses/i2c-davinci.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2=
+c-davinci.c
+> index 4d96147..9bbfb8f 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -640,13 +640,13 @@ static int davinci_i2c_probe(struct platform_de=
+vice *pdev)
+>  {
+>  	struct davinci_i2c_dev *dev;
+>  	struct i2c_adapter *adap;
+> -	struct resource *mem, *irq;
+> -	int r;
+> +	struct resource *mem;
+> +	int r, irq;
+> =20
+> -	irq =3D platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> -	if (!irq) {
+> -		dev_err(&pdev->dev, "no irq resource?\n");
+> -		return -ENODEV;
+> +	irq =3D platform_get_irq(pdev, 0);
+One bad thing about platform_get_irq is its unusual handling of irq=3D0=
+=2E
+I'm pretty sure you don't want to use this value, so adding something
+like:
 
-The commit implement method allowing to prevent IP from entering into
-"controller timeout" state and from "data corruption" state.
+	if (!irq)
+		irq =3D -ENXIO
 
-The one drawback is the need to wait for 10ms before the first transfer.
+would be welcome because the usual value for "invalid irq" is 0 and not
+-ESOMETHING. platform_get_irq is one of the very few functions that
+don't adhere to this convention. With handling <=3D 0 as error your cod=
+e
+is immune to changes in this area. Although I notice that
+platform_get_irq got worse in this respect to handle -EPROBE_DEFER. hmm=
+=2E
 
-Tested on Beagleboard XM C.
+Apart from your change I wonder if platform_get_irq should handle
+of_irq_get returning 0 as an error.
 
-Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |  103 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 103 insertions(+)
+> +	if (irq < 0) {
+> +		dev_err(&pdev->dev, "can't get irq resource ret=3D%d\n", irq);
+Please don't print an error if irq=3D-EPROBE_DEFER.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index a021733..3ffb9c0 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -58,6 +58,9 @@
- /* timeout for pm runtime autosuspend */
- #define OMAP_I2C_PM_TIMEOUT		1000	/* ms */
- 
-+/* timeout for making decision on bus free status */
-+#define OMAP_I2C_BUS_FREE_TIMEOUT (msecs_to_jiffies(10))
-+
- /* For OMAP3 I2C_IV has changed to I2C_WE (wakeup enable) */
- enum {
- 	OMAP_I2C_REV_REG = 0,
-@@ -210,6 +213,9 @@ struct omap_i2c_dev {
- 						 */
- 	u32			rev;
- 	unsigned		b_hw:1;		/* bad h/w fixes */
-+	unsigned		bb_valid:1;	/* true when BB-bit reflects
-+						 * the I2C bus state
-+						 */
- 	unsigned		receiver:1;	/* true when we're in receiver mode */
- 	u16			iestate;	/* Saved interrupt register */
- 	u16			pscstate;
-@@ -336,7 +342,10 @@ static int omap_i2c_reset(struct omap_i2c_dev *dev)
- 		/* SYSC register is cleared by the reset; rewrite it */
- 		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, sysc);
- 
-+		/* Schedule I2C-bus monitoring on the next transfer */
-+		dev->bb_valid = 0;
- 	}
-+
- 	return 0;
- }
- 
-@@ -449,6 +458,11 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 	dev->scllstate = scll;
- 	dev->sclhstate = sclh;
- 
-+	if (dev->rev < OMAP_I2C_OMAP1_REV_2) {
-+		/* Not implemented */
-+		dev->bb_valid = 1;
-+	}
-+
- 	__omap_i2c_init(dev);
- 
- 	return 0;
-@@ -473,6 +487,91 @@ static int omap_i2c_wait_for_bb(struct omap_i2c_dev *dev)
- 	return 0;
- }
- 
-+/*
-+ * Wait while BB-bit doesn't reflect the I2C bus state
-+ *
-+ * In a multimaster environment, after IP software reset, BB-bit value doesn't
-+ * correspond to the current bus state. It may happen what BB-bit will be 0,
-+ * while the bus is busy due to another I2C master activity.
-+ * Here are BB-bit values after reset:
-+ *     SDA   SCL   BB   NOTES
-+ *       0     0    0   1, 2
-+ *       1     0    0   1, 2
-+ *       0     1    1
-+ *       1     1    0   3
-+ * Later, if IP detect SDA=0 and SCL=1 (ACK) or SDA 1->0 while SCL=1 (START)
-+ * combinations on the bus, it set BB-bit to 1.
-+ * If IP detect SDA 0->1 while SCL=1 (STOP) combination on the bus,
-+ * it set BB-bit to 0 and BF to 1.
-+ * BB and BF bits correctly tracks the bus state while IP is suspended
-+ * BB bit became valid on the next FCLK clock after CON_EN bit set
-+ *
-+ * NOTES:
-+ * 1. Any transfer started when BB=0 and bus is busy wouldn't be
-+ *    completed by IP and results in controller timeout.
-+ * 2. Any transfer started when BB=0 and SCL=0 results in IP
-+ *    starting to drive SDA low. In that case IP corrupt data
-+ *    on the bus.
-+ * 3. Any transfer started in the middle of another master's transfer
-+ *    results in unpredictable results and data corruption
-+ */
-+static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *dev)
-+{
-+	unsigned long bus_free_timeout = 0;
-+	unsigned long timeout;
-+	int bus_free = 0;
-+	u16 stat, systest;
-+
-+	if (dev->bb_valid)
-+		return 0;
-+
-+	timeout = jiffies + OMAP_I2C_TIMEOUT;
-+	while (1) {
-+		stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
-+		/*
-+		 * We will see BB or BF event in a case IP had detected any
-+		 * activity on the I2C bus. Now IP correctly tracks the bus
-+		 * state. BB-bit value is valid.
-+		 */
-+		if (stat & (OMAP_I2C_STAT_BB | OMAP_I2C_STAT_BF))
-+			break;
-+
-+		/*
-+		 * Otherwise, we must look signals on the bus to make
-+		 * the right decision.
-+		 */
-+		systest = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+		if ((systest & OMAP_I2C_SYSTEST_SCL_I_FUNC) &&
-+		    (systest & OMAP_I2C_SYSTEST_SDA_I_FUNC)) {
-+			if (!bus_free) {
-+				bus_free_timeout = jiffies +
-+					OMAP_I2C_BUS_FREE_TIMEOUT;
-+				bus_free = 1;
-+			}
-+
-+			/*
-+			 * SDA and SCL lines was high for 10 ms without bus
-+			 * activity detected. The bus is free. Consider
-+			 * BB-bit value is valid.
-+			 */
-+			if (time_after(jiffies, bus_free_timeout))
-+				break;
-+		} else {
-+			bus_free = 0;
-+		}
-+
-+		if (time_after(jiffies, timeout)) {
-+			dev_warn(dev->dev, "timeout waiting for bus ready\n");
-+			return -ETIMEDOUT;
-+		}
-+
-+		msleep(1);
-+	}
-+
-+	dev->bb_valid = 1;
-+	return 0;
-+}
-+
- static void omap_i2c_resize_fifo(struct omap_i2c_dev *dev, u8 size, bool is_rx)
- {
- 	u16		buf;
-@@ -643,6 +742,10 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	if (IS_ERR_VALUE(r))
- 		goto out;
- 
-+	r = omap_i2c_wait_for_bb_valid(dev);
-+	if (r < 0)
-+		goto out;
-+
- 	r = omap_i2c_wait_for_bb(dev);
- 	if (r < 0)
- 		goto out;
--- 
-1.7.9.5
+> +		return irq;
+>  	}
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
