@@ -1,254 +1,90 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH V2] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
-Date: Thu, 20 Nov 2014 22:24:10 +0100
-Message-ID: <2092795.JQp4ODhu7d@vostro.rjw.lan>
-References: <1416492733-18597-1-git-send-email-tianyu.lan@intel.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: Re: [PATCH] i2c: omap: fix NACK and Arbitration Lost irq handling
+Date: Thu, 20 Nov 2014 23:10:37 +0200
+Message-ID: <20141120211037.GB6796@fuloong-minipc.musicnaut.iki.fi>
+References: <1416242517-29885-1-git-send-email-al.kochet@gmail.com>
+ <1416330058-21473-1-git-send-email-al.kochet@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1416492733-18597-1-git-send-email-tianyu.lan@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Lan Tianyu <tianyu.lan@intel.com>
-Cc: lenb@kernel.org, wsa@the-dreams.de, robert.moore@intel.com, lv.zheng@intel.com, shigorin@gmail.com, adamw@happyassassin.net, jan.brummer@tabos.org, mika.westerberg@linux.intel.com, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@acpica.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1416330058-21473-1-git-send-email-al.kochet@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Alexander Kochetkov <al.kochet@gmail.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, November 20, 2014 10:12:12 PM Lan Tianyu wrote:
-> ACPI 5.0 introduces _DEP to designate device objects that OSPM should
-> assign a higher priority in start ordering due to future operation region
-> accesses.
+On Tue, Nov 18, 2014 at 09:00:58PM +0400, Alexander Kochetkov wrote:
+> commit 1d7afc95946487945cc7f5019b41255b72224b70 (i2c: omap: ack IRQ in parts)
+> changed the interrupt handler to complete transfers without clearing
+> XRDY (AL case) and ARDY (NACK case) flags. XRDY or ARDY interrupts will be
+> fired again. As a result, ISR keep processing transfer after it was already
+> complete (from the driver code point of view).
 > 
-> On Asus T100TA, ACPI battery info are read from a I2C slave device via
-> I2C operation region. Before I2C operation region handler is installed,
-> battery _STA always returns 0. There is a _DEP method of designating
-> start order under battery device node.
+> A didn't see real impacts of the 1d7afc9, but it is really bad idea to
+> have ISR running on user data after transfer was complete.
 > 
-> This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
-> Introducing acpi_dep_list and adding dep_unmet count in the struct
-> acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
-> valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
-> master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
-> count will increase by one if there is a device under its _DEP. Driver's probe() should
-> return EPROBE_DEFER when find dep_unmet is larger than 0. When I2C operation
-> region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
-> whose master is pointed to I2C host controller and decrease slave's dep_unmet.
-> When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
-> for the device in order to resolve battery _STA issue on the Asus T100TA.
+> It looks, what 1d7afc9 violate TI specs in what how AL and NACK should be
+> handled (see Note 1, sprugn4r, Figure 17-31 and Figure 17-32).
 > 
-> Reference: https://bugzilla.kernel.org/show_bug.cgi?id=69011
-> Tested-by: Jan-Michael Brummer <jan.brummer@tabos.org>
-> Tested-by: Adam Williamson <adamw@happyassassin.net>
-> Tested-by: Michael Shigorin <shigorin@gmail.com>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
+> According to specs (if I understood correctly), in case of NACK and AL driver
+> must reset NACK, AL, ARDY, RDR, and RRDY (Master Receive Mode), and
+> NACK, AL, ARDY, and XDR (Master Transmitter Mode).
+> 
+> All that is done down the code under the if condition:
+> if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) ...
+> 
+> The patch restore pre 1d7afc9 logic of handling NACK and AL interrupts, so
+> no interrupts is fired after ISR informs the rest of driver what transfer
+> complete.
+> 
+> Note: instead of removing break under NACK case, we could just replace 'break'
+> with 'continue' and allow NACK transfer to finish using ARDY event. I found
+> that NACK and ARDY bits usually set together. That case confirm TI wiki:
+> http://processors.wiki.ti.com/index.php/I2C_Tips#Detecting_and_handling_NACK
+> 
+> In order if someone interested in the event traces for NACK and AL cases,
+> I sent them to mailing list.
+> 
+> Tested on Beagleboard XM C.
+> 
+> Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
+> Fixes: 1d7afc9 i2c: omap: ack IRQ in parts
+> Cc: <stable@vger.kernel.org> # v3.7+
+
+I could not see any breakage or anything wrong on OMAP2 & OMAP3.
+On OMAP1 I don't have anything on the OMAP I2C bus, so cannot really
+test anything there.
+
+Tested-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+
 > ---
-> Change since V1:
-> 	Remove redundant blank line and some coding style fixs.
->        
->  drivers/acpi/battery.c  |  4 +++
->  drivers/acpi/scan.c     | 86 +++++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/i2c/i2c-core.c  |  1 +
->  include/acpi/acpi_bus.h |  1 +
->  include/linux/acpi.h    |  1 +
->  5 files changed, 93 insertions(+)
+>  drivers/i2c/busses/i2c-omap.c |    2 --
+>  1 file changed, 2 deletions(-)
 > 
-> diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-> index 8ec8a89..d98ba43 100644
-> --- a/drivers/acpi/battery.c
-> +++ b/drivers/acpi/battery.c
-> @@ -1180,6 +1180,10 @@ static int acpi_battery_add(struct acpi_device *device)
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 90dcc2e..9af7095 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -926,14 +926,12 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
+>  		if (stat & OMAP_I2C_STAT_NACK) {
+>  			err |= OMAP_I2C_STAT_NACK;
+>  			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_NACK);
+> -			break;
+>  		}
 >  
->  	if (!device)
->  		return -EINVAL;
-> +
-> +	if (device->dep_unmet)
-> +		return -EPROBE_DEFER;
-> +
->  	battery = kzalloc(sizeof(struct acpi_battery), GFP_KERNEL);
->  	if (!battery)
->  		return -ENOMEM;
-> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-> index 9cb5cca..54a4102 100644
-> --- a/drivers/acpi/scan.c
-> +++ b/drivers/acpi/scan.c
-> @@ -36,6 +36,8 @@ bool acpi_force_hot_remove;
+>  		if (stat & OMAP_I2C_STAT_AL) {
+>  			dev_err(dev->dev, "Arbitration lost\n");
+>  			err |= OMAP_I2C_STAT_AL;
+>  			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_AL);
+> -			break;
+>  		}
 >  
->  static const char *dummy_hid = "device";
->  
-> +static LIST_HEAD(acpi_dep_list);
-> +static DEFINE_MUTEX(acpi_dep_list_lock);
->  static LIST_HEAD(acpi_bus_id_list);
->  static DEFINE_MUTEX(acpi_scan_lock);
->  static LIST_HEAD(acpi_scan_handlers_list);
-> @@ -43,6 +45,12 @@ DEFINE_MUTEX(acpi_device_lock);
->  LIST_HEAD(acpi_wakeup_device_list);
->  static DEFINE_MUTEX(acpi_hp_context_lock);
->  
-> +struct acpi_dep_data {
-> +	struct list_head node;
-> +	acpi_handle master;
-> +	acpi_handle slave;
-> +};
-> +
->  struct acpi_device_bus_id{
->  	char bus_id[15];
->  	unsigned int instance_no;
-> @@ -2193,6 +2201,60 @@ static void acpi_scan_init_hotplug(struct acpi_device *adev)
->  	}
->  }
->  
-> +static void acpi_device_dep_initialize(struct acpi_device *adev)
-> +{
-> +	struct acpi_dep_data *dep;
-> +	struct acpi_handle_list dep_devices;
-> +	struct acpi_device_info *info;
-> +	acpi_status status;
-> +	int i, skip;
-
-skip and info are only needed inside of the loop it seems ->
-
-> +
-> +	if (!acpi_has_method(adev->handle, "_DEP"))
-> +		return;
-> +
-> +	status = acpi_evaluate_reference(adev->handle, "_DEP", NULL,
-> +					&dep_devices);
-> +	if (ACPI_FAILURE(status)) {
-> +		dev_err(&adev->dev, "Failed to evaluate _DEP.\n");
-> +		return;
-> +	}
-> +
-> +	for (i = 0; i < dep_devices.count; i++) {
-
--> so you can define:
-
-		struct acpi_device_info *info;
-		bool skip;
-
-here and ->>
-
-
-> +		status = acpi_get_object_info(dep_devices.handles[i], &info);
-> +		if (ACPI_FAILURE(status)) {
-> +			dev_err(&adev->dev, "Error reading device info\n");
-> +			continue;
-> +		}
-> +
-> +		/*
-> +		 * Skip the dependency of Windows System Power
-> +		 * Management Controller
-> +		 */
-> +		if (info->valid & ACPI_VALID_HID
-> +		    && !strcmp(info->hardware_id.string, "INT3396"))
-> +			skip = 1;
-> +		else
-> +			skip = 0;
-
-->> then you can do
-
-		skip = info->valid & ACPI_VALID_HID &&
-			!strcmp(info->hardware_id.string, "INT3396");
-
-> +
-> +		kfree(info);
-> +
-> +		if (skip)
-> +			continue;
-> +
-> +		dep = kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
-> +		if (!dep)
-> +			return;
-> +
-> +		dep->master = dep_devices.handles[i];
-> +		dep->slave  = adev->handle;
-> +		adev->dep_unmet++;
-> +
-> +		mutex_lock(&acpi_dep_list_lock);
-> +		list_add_tail(&dep->node , &acpi_dep_list);
-> +		mutex_unlock(&acpi_dep_list_lock);
-> +	}
-> +}
-> +
->  static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
->  				      void *not_used, void **return_value)
->  {
-> @@ -2219,6 +2281,7 @@ static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
->  		return AE_CTRL_DEPTH;
->  
->  	acpi_scan_init_hotplug(device);
-> +	acpi_device_dep_initialize(device);
->  
->   out:
->  	if (!*return_value)
-> @@ -2339,6 +2402,29 @@ static void acpi_bus_attach(struct acpi_device *device)
->  		device->handler->hotplug.notify_online(device);
->  }
->  
-> +void acpi_walk_dep_device_list(acpi_handle handle)
-> +{
-> +	struct acpi_dep_data *dep, *tmp;
-> +	struct acpi_device *adev;
-> +
-> +	mutex_lock(&acpi_dep_list_lock);
-> +	list_for_each_entry_safe(dep, tmp, &acpi_dep_list, node) {
-> +		if (dep->master == handle) {
-> +			acpi_bus_get_device(dep->slave, &adev);
-> +			if (!adev)
-> +				continue;
-> +
-> +			adev->dep_unmet--;
-> +			if (!adev->dep_unmet)
-> +				acpi_bus_attach(adev);
-> +			list_del(&dep->node);
-> +			kfree(dep);
-> +		}
-> +	}
-> +	mutex_unlock(&acpi_dep_list_lock);
-> +}
-> +EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
-> +
->  /**
->   * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
->   * @handle: Root of the namespace scope to scan.
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index f43b4e1..68aeb8e 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -403,6 +403,7 @@ static int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
->  		return -ENOMEM;
->  	}
->  
-> +	acpi_walk_dep_device_list(handle);
->  	return 0;
->  }
->  
-> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-> index 7d1ce40..d539084 100644
-> --- a/include/acpi/acpi_bus.h
-> +++ b/include/acpi/acpi_bus.h
-> @@ -372,6 +372,7 @@ struct acpi_device {
->  	void *driver_data;
->  	struct device dev;
->  	unsigned int physical_node_count;
-> +	unsigned int dep_unmet;
->  	struct list_head physical_node_list;
->  	struct mutex physical_node_lock;
->  	void (*remove)(struct acpi_device *);
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index 10f2ed9..e09f7f4 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -428,6 +428,7 @@ extern bool acpi_driver_match_device(struct device *dev,
->  				     const struct device_driver *drv);
->  int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
->  int acpi_device_modalias(struct device *, char *, int);
-> +void acpi_walk_dep_device_list(acpi_handle handle);
->  
->  struct platform_device *acpi_create_platform_device(struct acpi_device *);
->  #define ACPI_PTR(_ptr)	(_ptr)
-
-The rest looks OK.
-
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+>  		/*
+> -- 
+> 1.7.9.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
