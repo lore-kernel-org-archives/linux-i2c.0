@@ -1,64 +1,61 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: [PATCH 1/5] i2c: i2c-davinci: switch to use platform_get_irq
-Date: Thu, 20 Nov 2014 12:03:04 +0200
-Message-ID: <1416477788-5544-2-git-send-email-grygorii.strashko@ti.com>
-References: <1416477788-5544-1-git-send-email-grygorii.strashko@ti.com>
+From: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+Subject: Re: [PATCH] i2c: img-scb: Allow building for MIPS
+Date: Thu, 20 Nov 2014 07:18:51 -0300
+Message-ID: <546DC00B.30509@imgtec.com>
+References: <1416355113-8942-1-git-send-email-abrestic@chromium.org> <20141119000308.GL1739@jhogan-linux.le.imgtec.org> <20141119090728.GA1439@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1416477788-5544-1-git-send-email-grygorii.strashko@ti.com>
+In-Reply-To: <20141119090728.GA1439@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, Murali Karicheri <m-karicheri2@ti.com>
+To: Wolfram Sang <wsa@the-dreams.de>, James Hogan <james.hogan@imgtec.com>
+Cc: Andrew Bresticker <abrestic@chromium.org>, James Hartley <james.hartley@imgtec.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Switch Davinci I2C driver to use platform_get_irq(), because
-- it is not recommened to use
-  platform_get_resource(pdev, IORESOURCE_IRQ, ..) for requesting IRQ's
-  resources any more, as they can be not ready yet in case of DT-booting.
-- it makes code simpler
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-CC: Sekhar Nori <nsekhar@ti.com>
-CC: Kevin Hilman <khilman@deeprootsystems.com>
-CC: Santosh Shilimkar <ssantosh@kernel.org>
-CC: Murali Karicheri <m-karicheri2@ti.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
- drivers/i2c/busses/i2c-davinci.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 4d96147..9bbfb8f 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -640,13 +640,13 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- {
- 	struct davinci_i2c_dev *dev;
- 	struct i2c_adapter *adap;
--	struct resource *mem, *irq;
--	int r;
-+	struct resource *mem;
-+	int r, irq;
- 
--	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (!irq) {
--		dev_err(&pdev->dev, "no irq resource?\n");
--		return -ENODEV;
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "can't get irq resource ret=%d\n", irq);
-+		return irq;
- 	}
- 
- 	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
-@@ -661,7 +661,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	init_completion(&dev->xfr_complete);
- #endif
- 	dev->dev = &pdev->dev;
--	dev->irq = irq->start;
-+	dev->irq = irq;
- 	dev->pdata = dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, dev);
- 
--- 
-1.9.1
+
+On 11/19/2014 06:07 AM, Wolfram Sang wrote:
+> On Wed, Nov 19, 2014 at 12:03:08AM +0000, James Hogan wrote:
+>> On Tue, Nov 18, 2014 at 03:58:33PM -0800, Andrew Bresticker
+>> wrote:
+>>> The SCB is present on IMG SoCs other than the META-based
+>>> TZ1090, such as the MIPS-based Pistachio SoC.  Relax the
+>>> Kconfig dependency so that it can be built on any MIPS or META
+>>> machine.
+>>> 
+>>> Signed-off-by: Andrew Bresticker <abrestic@chromium.org>
+>> 
+>> Looks good to me.
+>> 
+>> Acked-by: James Hogan <james.hogan@imgtec.com>
+>> 
+>> Cheers James
+>> 
+> 
+> Applied to for-next, thanks!
+> 
+
+Can't find this one, maybe it wasn't pushed yet?
+- -- 
+Ezequiel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJUbcALAAoJEIOKbhOEIHKi5U4P+gJ/JwXOFFCbWxhA8SQZShWC
+Rwx8RSlvhbsOPPc7G596mMu0nfFBQFVBOII1Pw6UByPlUpi5FaLxQtEnxdWYNGbX
+nQ7opxx/r0Ml5z5FsNQnBZ8olaoBfzZb1o/yl91cavul8JND1DCiyljAhvFzwRkv
+ggnb8e6VY4ezqhYeS7HxNeVVjl+a3VQRHXnRfKYY/yFzVGO8/p1dPEXgm30hbIiK
+NW9DoTq7HRkgtPtEJR1/pR0OnRvE3nA7kgi0u5ZUA8zjlzMwDm1Bpn/MQugX/4Lq
+bRCbF67AMYDQAbifimZoxG/mlXRXpaKvcS/o4yagoTdXQuWFPNrRZyRvz9fSaGuZ
+GD3sE6IGYwhXIP+o6CIHL/6SUPT50+5hGCcuBivwr3fiBw3SzPDJXAG29gUXo0v7
+vW4RTV+mouEgJX4YKdjtLaeCdOrru6zwXEVlhpCky8mczAoYFahK2nm7BhL/aC2y
+7nrPNLGAaEg0MXuaWwmgBeYqIHkJyf4TAmL2A5uj4kb8zH7QlzyNSa4ETwL1VqkE
+krEOjfr6KsQ2YW9MNEUK8S7ti9WB3ezUOQYEOKGn/w6ZAiynzev6YRg+sWyDhsK2
+qZ065wYttrSB/ShHagbQbKt+4F+WXEkLl+T72ZNqwj+02G3/cU9i5BjH8XTsPfJu
+Qp66n26U/8ynz4N5rafo
+=qMRD
+-----END PGP SIGNATURE-----
