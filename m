@@ -1,132 +1,293 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [2/5] i2c: davinci: query STP always when NACK is received
-Date: Thu, 20 Nov 2014 23:19:53 +0100
-Message-ID: <20141120221953.GI27002@pengutronix.de>
-References: <1416477788-5544-3-git-send-email-grygorii.strashko@ti.com>
+From: Stijn Devriendt <highguy@gmail.com>
+Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
+Date: Thu, 20 Nov 2014 23:39:08 +0100
+Message-ID: <CAOY=C6FSXWn2AKn9gp0oU69U8VkkyJAE7MMUTZsToy0P_Tf6AA@mail.gmail.com>
+References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
+	<1416326695-13083-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1416477788-5544-3-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, LKML <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
-
-On Thu, Nov 20, 2014 at 12:03:05PM +0200, Grygorii Strashko wrote:
-> According to I2C specification the NACK should be handled as folowing=
-:
-s/folowing/follows/
-
-> "When SDA remains HIGH during this ninth clock pulse, this is defined=
- as the Not
-> Acknowledge signal. The master can then gene rate either a STOP condi=
-tion to
-s/gene rate/generate/
-
-> abort the transfer, or a repeated START condition to start a new tran=
-sfer."
-> [http://www.nxp.com/documents/user_manual/UM10204.pdf]
-The link is nice, but pointing out that this is the i2c spec would be
-nice.
-
-> The same is recomened by TI I2C wiki:
-s/recomened/recommended/
-
->  http://processors.wiki.ti.com/index.php/I2C_Tips
-If the specification tells what to do, there is no need to further
-support your claim.
-
-> Currently, the Davinci I2C driver interrupts I2C trunsfer in case of =
-NACK, but
-s/trunsfer/transfer/
-
-> It queries Stop condition DAVINCI_I2C_MDR_REG.STP=3D1 only if NACK ha=
-s been received
-s/It/it/
-
-> during the last message transmitting/recieving.
-s/transmitting/transmitted/; s/recieving/received/
-
-I think I don't understand this sentence even with the typos corrected.
-Do you want to say:
-
-Currently the Davinci i2c driver interrupts the transfer on receipt of =
-a
-NACK but fails to send a STOP in some situations and so makes the bus
-stuck.
-
-> This may lead to Bus stuck in "Bus Busy" until I2C IP reset (idle/ena=
-ble) if
-> during SMBus reading transaction the first I2C message is NACKed.
-Did you hit this problem, or is this a theoretical issue?
-
-Assuming this is a candidate for stable, adding a Fixes:-footer would b=
-e
-nice.
-
-> Hence, fix it by querying Stop condition (STP) always when NACK is re=
-ceived.
->=20
-> This patch fixes Davinci I2C in the same way it was done for OMAP I2C
-> commit cda2109a26eb ("i2c: omap: query STP always when NACK is receiv=
-ed").
->=20
-> More info can be found at:
-> https://lkml.org/lkml/2013/7/16/159
-> http://patchwork.ozlabs.org/patch/249790/
-I'd drop this "more info" paragraph.
-
-> CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-> Reported-by: Hein Tibosch <hein_tibosch-mRCrAkd8dF0@public.gmane.org>
-Is this Reported-by tag reused from the omap issue?
-
-> Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+On Tue, Nov 18, 2014 at 5:04 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> The first user of the i2c-slave interface is an eeprom simulator. It is
+> a shared memory which can be accessed by the remote master via I2C and
+> locally via sysfs.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > ---
->  drivers/i2c/busses/i2c-davinci.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2=
-c-davinci.c
-> index 9bbfb8f..2cef115 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -411,11 +411,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, s=
-truct i2c_msg *msg, int stop)
->  	if (dev->cmd_err & DAVINCI_I2C_STR_NACK) {
->  		if (msg->flags & I2C_M_IGNORE_NAK)
->  			return msg->len;
-> -		if (stop) {
-> -			w =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> -			w |=3D DAVINCI_I2C_MDR_STP;
-> -			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
-> -		}
-> +		w =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> +		w |=3D DAVINCI_I2C_MDR_STP;
-> +		davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
-I think this is a good change, but I wonder if the handling of
-I2C_M_IGNORE_NAK is correct here. If the controller reports a NACK say
-for the 2nd byte of a 5-byte-message, the transfer supposed to
-continue, right? (Hmm, maybe the framework handle this and restarts the
-transfer with I2C_M_NOSTART but the davinci driver doesn't seem to
-handle this flag?)
+>
+> Changes since RFC:
+> * fix build error for modules
+> * don't hardcode size
+> * add boundary checks for sysfs access
+> * use a spinlock
+> * s/at24s/eeprom/g
+> * add some docs
+> * clean up exit paths
+> * use size-variable instead of driver_data
+>
+>  drivers/i2c/Kconfig            |  10 +++
+>  drivers/i2c/Makefile           |   1 +
+>  drivers/i2c/i2c-slave-eeprom.c | 170 +++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 181 insertions(+)
+>  create mode 100644 drivers/i2c/i2c-slave-eeprom.c
+>
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index b51a402752c4..8c9e619f3026 100644
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -110,6 +110,16 @@ config I2C_STUB
+>
+>           If you don't know what to do here, definitely say N.
+>
+> +config I2C_SLAVE
+> +       bool "I2C slave support"
+> +
+> +if I2C_SLAVE
+> +
+> +config I2C_SLAVE_EEPROM
+> +       tristate "I2C eeprom slave driver"
+> +
+> +endif
+> +
+>  config I2C_DEBUG_CORE
+>         bool "I2C Core debugging messages"
+>         help
+> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> index 1722f50f2473..45095b3d16a9 100644
+> --- a/drivers/i2c/Makefile
+> +++ b/drivers/i2c/Makefile
+> @@ -9,6 +9,7 @@ obj-$(CONFIG_I2C_CHARDEV)       += i2c-dev.o
+>  obj-$(CONFIG_I2C_MUX)          += i2c-mux.o
+>  obj-y                          += algos/ busses/ muxes/
+>  obj-$(CONFIG_I2C_STUB)         += i2c-stub.o
+> +obj-$(CONFIG_I2C_SLAVE_EEPROM) += i2c-slave-eeprom.o
+>
+>  ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
+>  CFLAGS_i2c-core.o := -Wno-deprecated-declarations
+> diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
+> new file mode 100644
+> index 000000000000..6631400b5f02
+> --- /dev/null
+> +++ b/drivers/i2c/i2c-slave-eeprom.c
+> @@ -0,0 +1,170 @@
+> +/*
+> + * I2C slave mode EEPROM simulator
+> + *
+> + * Copyright (C) 2014 by Wolfram Sang, Sang Engineering <wsa@sang-engineering.com>
+> + * Copyright (C) 2014 by Renesas Electronics Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the
+> + * Free Software Foundation; version 2 of the License.
+> + *
+> + * Because most IP blocks can only detect one I2C slave address anyhow, this
+> + * driver does not support simulating EEPROM types which take more than one
+> + * address. It is prepared to simulate bigger EEPROMs with an internal 16 bit
+> + * pointer, yet implementation is deferred until the need actually arises.
+> + */
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/slab.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/sysfs.h>
+> +
+> +struct eeprom_data {
+> +       struct bin_attribute bin;
+> +       bool first_write;
+> +       spinlock_t buffer_lock;
+> +       u8 buffer_idx;
+> +       u8 buffer[];
+> +};
+> +
+> +static int i2c_slave_eeprom_slave_cb(struct i2c_client *client,
+> +                                    enum i2c_slave_event event, u8 *val)
+> +{
+> +       struct eeprom_data *eeprom = i2c_get_clientdata(client);
+> +
+> +       switch (event) {
+> +       case I2C_SLAVE_REQ_WRITE_END:
+> +               if (eeprom->first_write) {
+> +                       eeprom->buffer_idx = *val;
+> +                       eeprom->first_write = false;
+> +               } else {
+> +                       spin_lock(&eeprom->buffer_lock);
+> +                       eeprom->buffer[eeprom->buffer_idx++] = *val;
+> +                       spin_unlock(&eeprom->buffer_lock);
+> +               }
+> +               break;
+> +
+> +       case I2C_SLAVE_REQ_READ_START:
+> +               spin_lock(&eeprom->buffer_lock);
+> +               *val = eeprom->buffer[eeprom->buffer_idx];
+> +               spin_unlock(&eeprom->buffer_lock);
+> +               break;
+> +
+> +       case I2C_SLAVE_REQ_READ_END:
+> +               eeprom->buffer_idx++;
+> +               break;
+> +
+> +       case I2C_SLAVE_STOP:
+> +               eeprom->first_write = true;
+> +               break;
+> +
+> +       default:
+> +               break;
+> +       }
+> +
+> +       return 0;
+> +}
 
-Best regards
-Uwe
 
->  		return -EREMOTEIO;
->  	}
->  	return -EIO;
+Would it make sense to have:
+WRITE_START
+WRITE_NEXT
+WRITE_STOP
+WRITE_REPEAT_START
+READ_START
+READ_NEXT
+READ_STOP
+READ_REPEAT_START
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Some devices may want different behavior for subsequent
+reads when they are separate transactions, compared to
+a single larger transaction.
+e.g. a single transaction may wraparound inside a >8bit
+register (e.g. for 16bit: msb, lsb, msb, lsb, ...), but step
+to the next register when a separate read/write is issued.
+Alternatively, a WRITE/READ_NEXT may be implemented
+more efficiently. This may not matter for current systems
+compared to the low-frequency bus, but who knows what
+IoT devices may bring to the table.
+
+Also, behavior may be different for repeat start versus
+stop/start, although a repeat start could be a start
+without a previous stop as well...
+
+Of course, if an I2C adapter cannot distinguish these
+events, this is probably a futile attempt at adding
+semantics that will silently break depending on the
+actual hardware/driver used.
+
+Regards,
+Stijn
+
+> +
+> +static ssize_t i2c_slave_eeprom_bin_read(struct file *filp, struct kobject *kobj,
+> +               struct bin_attribute *attr, char *buf, loff_t off, size_t count)
+> +{
+> +       struct eeprom_data *eeprom;
+> +       unsigned long flags;
+> +
+> +       if (off + count >= attr->size)
+> +               return -EFBIG;
+> +
+> +       eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
+> +
+> +       spin_lock_irqsave(&eeprom->buffer_lock, flags);
+> +       memcpy(buf, &eeprom->buffer[off], count);
+> +       spin_unlock_irqrestore(&eeprom->buffer_lock, flags);
+> +
+> +       return count;
+> +}
+> +
+> +static ssize_t i2c_slave_eeprom_bin_write(struct file *filp, struct kobject *kobj,
+> +               struct bin_attribute *attr, char *buf, loff_t off, size_t count)
+> +{
+> +       struct eeprom_data *eeprom;
+> +       unsigned long flags;
+> +
+> +       if (off + count >= attr->size)
+> +               return -EFBIG;
+> +
+> +       eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
+> +
+> +       spin_lock_irqsave(&eeprom->buffer_lock, flags);
+> +       memcpy(&eeprom->buffer[off], buf, count);
+> +       spin_unlock_irqrestore(&eeprom->buffer_lock, flags);
+> +
+> +       return count;
+> +}
+> +
+> +static int i2c_slave_eeprom_probe(struct i2c_client *client, const struct i2c_device_id *id)
+> +{
+> +       struct eeprom_data *eeprom;
+> +       int ret;
+> +       unsigned size = id->driver_data;
+> +
+> +       eeprom = devm_kzalloc(&client->dev, sizeof(struct eeprom_data) + size, GFP_KERNEL);
+> +       if (!eeprom)
+> +               return -ENOMEM;
+> +
+> +       eeprom->first_write = true;
+> +       spin_lock_init(&eeprom->buffer_lock);
+> +       i2c_set_clientdata(client, eeprom);
+> +
+> +       sysfs_bin_attr_init(&eeprom->bin);
+> +       eeprom->bin.attr.name = "slave-eeprom";
+> +       eeprom->bin.attr.mode = S_IRUSR | S_IWUSR;
+> +       eeprom->bin.read = i2c_slave_eeprom_bin_read;
+> +       eeprom->bin.write = i2c_slave_eeprom_bin_write;
+> +       eeprom->bin.size = size;
+> +
+> +       ret = sysfs_create_bin_file(&client->dev.kobj, &eeprom->bin);
+> +       if (ret)
+> +               return ret;
+> +
+> +       ret = i2c_slave_register(client, i2c_slave_eeprom_slave_cb);
+> +       if (ret) {
+> +               sysfs_remove_bin_file(&client->dev.kobj, &eeprom->bin);
+> +               return ret;
+> +       }
+> +
+> +       return 0;
+> +};
+> +
+> +static int i2c_slave_eeprom_remove(struct i2c_client *client)
+> +{
+> +       struct eeprom_data *eeprom = i2c_get_clientdata(client);
+> +
+> +       i2c_slave_unregister(client);
+> +       sysfs_remove_bin_file(&client->dev.kobj, &eeprom->bin);
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct i2c_device_id i2c_slave_eeprom_id[] = {
+> +       { "slave-24c02", 2048 / 8 },
+> +       { }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
+> +
+> +static struct i2c_driver i2c_slave_eeprom_driver = {
+> +       .driver = {
+> +               .name = "i2c-slave-eeprom",
+> +               .owner = THIS_MODULE,
+> +       },
+> +       .probe = i2c_slave_eeprom_probe,
+> +       .remove = i2c_slave_eeprom_remove,
+> +       .id_table = i2c_slave_eeprom_id,
+> +};
+> +module_i2c_driver(i2c_slave_eeprom_driver);
+> +
+> +MODULE_AUTHOR("Wolfram Sang <wsa@sang-engineering.com>");
+> +MODULE_DESCRIPTION("I2C slave mode EEPROM simulator");
+> +MODULE_LICENSE("GPL v2");
+> --
+> 2.1.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
