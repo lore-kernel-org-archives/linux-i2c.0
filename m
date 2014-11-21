@@ -1,99 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/4] i2c: omap: don't reset controller if Arbitration
- Lost detected
-Date: Fri, 21 Nov 2014 19:11:25 +0100
-Message-ID: <20141121181125.GD3754@katana>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
- <1416518925-20679-4-git-send-email-al.kochet@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v7] i2c: rk3x: handle dynamic clock rate changes correctly
+Date: Fri, 21 Nov 2014 19:18:34 +0100
+Message-ID: <20141121181834.GE3754@katana>
+References: <1827790.Sq6eyYqr17@typ>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x4pBfXISqBoDm8sr"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="AjmyJqqohANyBN/e"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1416518925-20679-4-git-send-email-al.kochet@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexander Kochetkov <al.kochet@gmail.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>
+In-Reply-To: <1827790.Sq6eyYqr17@typ>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
+Cc: linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Huang Tao <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---x4pBfXISqBoDm8sr
+--AjmyJqqohANyBN/e
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 21, 2014 at 01:28:44AM +0400, Alexander Kochetkov wrote:
-> Arbitration Lost is a expected situation in a multimaster environment.
-> IP correctly detect it.
+On Thu, Nov 20, 2014 at 10:26:50AM +0100, Max Schwarz wrote:
+> The i2c input clock can change dynamically, e.g. on the RK3066 where
+> pclk_i2c0 and pclk_i2c1 are connected to the armclk, which changes
+> rate on cpu frequency scaling.
 >=20
-> The only reason for reseting IP in the AL case is to be sure to
-> avoid advisory 1.94 (omap3) and errata i595 (omap4):
-> "I2C: After an Arbitration is Lost the Module Incorrectly Starts
-> the Next Transfer" with workaround: "The MST and STT bits inside
-> I2C_CON should be set to 1 at the same moment (avoid setting the
-> MST bit to 1 while STT =3D 0)."
+> Until now, we incorrectly called clk_get_rate() while holding the
+> i2c->lock in rk3x_i2c_xfer() to adapt to clock rate changes.
+> Thanks to Huang Tao for reporting this issue.
 >=20
-> The driver never writes MST and STT bits separately and doesn't
-> create condition for errata. So the reset is not necessary.
+> Do it properly now using the clk notifier framework. The callback
+> logic was taken from i2c-cadence.c.
 >=20
-> Tested on Beagleboard XM C.
+> Also rename all misleading "i2c_rate" variables to "clk_rate", as they
+> describe the *input* clk rate.
 >=20
-> Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-omap.c |    6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 3ffb9c0..47103e7 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -707,13 +707,17 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *ad=
-ap,
->  		return 0;
-> =20
->  	/* We have an error */
-> -	if (dev->cmd_err & (OMAP_I2C_STAT_AL | OMAP_I2C_STAT_ROVR |
-> +	if (dev->cmd_err & (OMAP_I2C_STAT_ROVR |
->  			    OMAP_I2C_STAT_XUDF)) {
->  		omap_i2c_reset(dev);
->  		__omap_i2c_init(dev);
->  		return -EIO;
->  	}
-> =20
-> +	if (dev->cmd_err & OMAP_I2C_STAT_AL) {
-> +		return -EIO;
-> +	}
+> Signed-off-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
+> Tested-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org> on RK3188
 
-The errno for AL is -EAGAIN. Curly braces are not needed.
+Superfluous, I assume that you tested a patch when you send it :)
 
-> +
->  	if (dev->cmd_err & OMAP_I2C_STAT_NACK) {
->  		if (msg->flags & I2C_M_IGNORE_NAK)
->  			return 0;
-> --=20
-> 1.7.9.5
->=20
+> Tested-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> on RK3288
+> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
---x4pBfXISqBoDm8sr
+Please drop such tags when there are significant changes between the
+revisions (which happened here). They need to be sent again explicitly,
+so I know really this version has been worked on.
+
+So, Doug, please confirm those tags.
+
+
+--AjmyJqqohANyBN/e
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUb4BNAAoJEBQN5MwUoCm25T4P/1ewQDUeHc0TOlcS0LNREi/E
-MPT4dAf2Xu2I2NGJpGfUxfXpD4XvC8rl8cyZWzm9za6r51nLn7Bb4Wy3eKlIEN1n
-h5N5XaBpFNmSFxz/nsVTaRxr+Q4tfP9jWPckprJhKmJIRcXTkmE4eaT0/OV/Vd+2
-IBRj6d99TRvytj9ZS3YOCS3iNXamd1obJd4P9auM1KEUqFBBY7FiQs3PyUZBkuf/
-jcZdNcZtrz2DgZiun2j90XfQ4nhSu3xeSgWj0KCow/MgXShXwWC4mSpgYKcn1PMO
-gRgr1TFmHoYgozjtnkGAWlWlxn6lYV88rJv2We7fx6XNtqypHYBk8AIQix3JD4CF
-aAARYAiJQfqfhT64sovFemergbxm9TCWrukqDBVFO1a3e1ElvFbM/ujBwTn03lDY
-KxeowSNy5A6+XnGyf7lbaGMQC1abUlEcTnuy4BhWIF3liRK1IFhRWF4wjXlKFSWi
-MXqa7iAGHTCrwx5Z033pm6K9qHD1js+aAOj/5WebYs7IiCCBy0Keforq8/jHZAuu
-dnWIj+Ao4bYJNlWOVXrbnitk0gJdB2AP6fdri1y+juQ5UKNw1/CRot4c4/rklgK/
-GozeZPebsUZ2b1sDfUP5UJJK6Ckkbg2am3RWHYG4bG6yFur2Rq4Q4Mjf4OwZIoJk
-W/UIHKGmkGK6txWlf/mI
-=1bEl
+iQIcBAEBAgAGBQJUb4H5AAoJEBQN5MwUoCm2ldgP/A140e12/vHdJbzzJqIiXEE1
+B0u/WGjyFoiQQemKq+2C6ADdpwy18J+RpvWXXmoDdgKhgcT8hkNa2QymL/Z00KN2
+zNtfGKUiAS6k+owweXsXKlkyrsfYTkgocpUQbWo9lGqxLmxNwTNwcQDrmlCAfKlW
+KkehrFt/r+E4OPmgHitdgk+AQue1gb9Qj3w+3tsa0xfY4KccABKaZCz3qIfGpvUn
+wIS8ZeZQ07iiXQpPzvJXj0XEmBFTevS9B1ThOVZqG1vAES4yfS1/opGDD8uQpxe/
+QPMcEb1jhFjsx+Q+ZwuIOo+fF01f4+N4aOTWU0kQ/0SgXHaJEMQhDeC9FHsaHQvv
+ZWKOHk3KOmuOpBKAqin1zvq4Vqvs6+tXSzP7/RT83LQUAWN1XPcDRMje9jBhS3jU
+UbW9WwV2vIDcrRTdw2l1kPgNpnVCGIfPGP4xDJGFo76L/WEmxYiuv9UuhTvmiMXS
+6tcoCI8hdOzljf+I+s8860+vj2h6GoNkFxKyvhSXdPEpnag/WIZ77ex61DLCq1EL
+xCwNWgHwEmuNd0Zl9RwbA1g9R7urAoxwldDs6nYilEe/WGya2Wf2ZaV3Mutm7qfB
+JMFIHf2GNwpxeuqSJalfU4VW+Ju9Yx3DzUk1xBi2/oyVq1vxtHLnDuRK7yxmf4Fi
+C0A2Ok6tau2Ksn2EKoEA
+=nc9K
 -----END PGP SIGNATURE-----
 
---x4pBfXISqBoDm8sr--
+--AjmyJqqohANyBN/e--
