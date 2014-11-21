@@ -1,204 +1,106 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
-Date: Fri, 21 Nov 2014 08:19:41 +0100
-Message-ID: <20141121071941.GK27002@pengutronix.de>
-References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
- <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 1/2] i2c: s3c2410: Handle i2c sys_cfg register in i2c
+ driver
+Date: Fri, 21 Nov 2014 08:25:45 +0100
+Message-ID: <20141121072545.GG1480@katana>
+References: <1414656270-8048-1-git-send-email-pankaj.dubey@samsung.com>
+ <1414656270-8048-2-git-send-email-pankaj.dubey@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yQbNiKLmgenwUfTN"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <1414656270-8048-2-git-send-email-pankaj.dubey@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Pankaj Dubey <pankaj.dubey@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com, linux@arm.linux.org.uk, thomas.ab@samsung.com, Rob Herring <robh+dt@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
 
-this mail is thematically more a reply to patch 1 and maybe just serves
-my understanding of the slave support.
+--yQbNiKLmgenwUfTN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 18, 2014 at 05:04:54PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Thu, Oct 30, 2014 at 01:34:29PM +0530, Pankaj Dubey wrote:
+> Let's handle i2c interrupt re-configuration in i2c driver. This will
+> help us in removing some soc specific checks from machine files and
+> will help in removing static iomapping of SYS register in exynos.c
 >=20
-> The first user of the i2c-slave interface is an eeprom simulator. It =
-is
-> a shared memory which can be accessed by the remote master via I2C an=
-d
-> locally via sysfs.
+> Since only Exynos5250, and Exynos5420 has i2c nodes in DT, added syscon
+> based phandle to i2c device nodes of respective SoC DT files.
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Also handle saving and restoring of SYS_I2C_CFG register during
+> suspend and resume of i2c driver.
+>=20
+> CC: Rob Herring <robh+dt@kernel.org>
+> CC: Randy Dunlap <rdunlap@infradead.org>
+> CC: Wolfram Sang <wsa@the-dreams.de>
+> CC: Russell King <linux@arm.linux.org.uk>
+> CC: devicetree@vger.kernel.org
+> CC: linux-doc@vger.kernel.org
+> CC: linux-i2c@vger.kernel.org
+> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
 > ---
->=20
-> Changes since RFC:
-> * fix build error for modules
-> * don't hardcode size
-> * add boundary checks for sysfs access
-> * use a spinlock
-> * s/at24s/eeprom/g
-> * add some docs
-> * clean up exit paths
-> * use size-variable instead of driver_data
->=20
->  drivers/i2c/Kconfig            |  10 +++
->  drivers/i2c/Makefile           |   1 +
->  drivers/i2c/i2c-slave-eeprom.c | 170 +++++++++++++++++++++++++++++++=
-++++++++++
->  3 files changed, 181 insertions(+)
->  create mode 100644 drivers/i2c/i2c-slave-eeprom.c
->=20
-> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-> index b51a402752c4..8c9e619f3026 100644
-> --- a/drivers/i2c/Kconfig
-> +++ b/drivers/i2c/Kconfig
-> @@ -110,6 +110,16 @@ config I2C_STUB
-> =20
->  	  If you don't know what to do here, definitely say N.
-> =20
-> +config I2C_SLAVE
-> +	bool "I2C slave support"
-> +
-> +if I2C_SLAVE
-> +
-> +config I2C_SLAVE_EEPROM
-> +	tristate "I2C eeprom slave driver"
-> +
-> +endif
-> +
->  config I2C_DEBUG_CORE
->  	bool "I2C Core debugging messages"
->  	help
-> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-> index 1722f50f2473..45095b3d16a9 100644
-> --- a/drivers/i2c/Makefile
-> +++ b/drivers/i2c/Makefile
-> @@ -9,6 +9,7 @@ obj-$(CONFIG_I2C_CHARDEV)	+=3D i2c-dev.o
->  obj-$(CONFIG_I2C_MUX)		+=3D i2c-mux.o
->  obj-y				+=3D algos/ busses/ muxes/
->  obj-$(CONFIG_I2C_STUB)		+=3D i2c-stub.o
-> +obj-$(CONFIG_I2C_SLAVE_EEPROM)	+=3D i2c-slave-eeprom.o
-> =20
->  ccflags-$(CONFIG_I2C_DEBUG_CORE) :=3D -DDEBUG
->  CFLAGS_i2c-core.o :=3D -Wno-deprecated-declarations
-> diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-e=
-eprom.c
-> new file mode 100644
-> index 000000000000..6631400b5f02
-> --- /dev/null
-> +++ b/drivers/i2c/i2c-slave-eeprom.c
-> @@ -0,0 +1,170 @@
-> +/*
-> + * I2C slave mode EEPROM simulator
-> + *
-> + * Copyright (C) 2014 by Wolfram Sang, Sang Engineering <wsa@sang-en=
-gineering.com>
-> + * Copyright (C) 2014 by Renesas Electronics Corporation
-> + *
-> + * This program is free software; you can redistribute it and/or mod=
-ify it
-> + * under the terms of the GNU General Public License as published by=
- the
-> + * Free Software Foundation; version 2 of the License.
-> + *
-> + * Because most IP blocks can only detect one I2C slave address anyh=
-ow, this
-> + * driver does not support simulating EEPROM types which take more t=
-han one
-> + * address. It is prepared to simulate bigger EEPROMs with an intern=
-al 16 bit
-> + * pointer, yet implementation is deferred until the need actually a=
-rises.
-> + */
-> +
-> +#include <linux/i2c.h>
-> +#include <linux/init.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/slab.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/sysfs.h>
-> +
-> +struct eeprom_data {
-> +	struct bin_attribute bin;
-> +	bool first_write;
-> +	spinlock_t buffer_lock;
-> +	u8 buffer_idx;
-> +	u8 buffer[];
-> +};
-> +
-> +static int i2c_slave_eeprom_slave_cb(struct i2c_client *client,
-> +				     enum i2c_slave_event event, u8 *val)
-> +{
-> +	struct eeprom_data *eeprom =3D i2c_get_clientdata(client);
-> +
-> +	switch (event) {
-> +	case I2C_SLAVE_REQ_WRITE_END:
-> +		if (eeprom->first_write) {
-> +			eeprom->buffer_idx =3D *val;
-> +			eeprom->first_write =3D false;
-> +		} else {
-> +			spin_lock(&eeprom->buffer_lock);
-> +			eeprom->buffer[eeprom->buffer_idx++] =3D *val;
-> +			spin_unlock(&eeprom->buffer_lock);
-> +		}
-> +		break;
-> +
-> +	case I2C_SLAVE_REQ_READ_START:
-> +		spin_lock(&eeprom->buffer_lock);
-> +		*val =3D eeprom->buffer[eeprom->buffer_idx];
-> +		spin_unlock(&eeprom->buffer_lock);
-> +		break;
-> +
-> +	case I2C_SLAVE_REQ_READ_END:
-> +		eeprom->buffer_idx++;
-You don't check here for buffer_idx >=3D ARRAY_SIZE(buffer)?
-Ditto in the I2C_SLAVE_REQ_WRITE_END case.
-> +		break;
-> +
-> +	case I2C_SLAVE_STOP:
-> +		eeprom->first_write =3D true;
-> +		break;
-> +
-> +	default:
-> +		break;
+>  .../devicetree/bindings/i2c/i2c-s3c2410.txt        |    1 +
+>  arch/arm/boot/dts/exynos5250.dtsi                  |    4 +++
+>  arch/arm/boot/dts/exynos5420.dtsi                  |    4 +++
+
+I usually don't take DTS patches. They should go via arm-soc. Please say
+so if there are reasons I should take them.
+
+> @@ -1084,6 +1092,23 @@ s3c24xx_i2c_parse_dt(struct device_node *np, struc=
+t s3c24xx_i2c *i2c)
+>  	of_property_read_u32(np, "samsung,i2c-slave-addr", &pdata->slave_addr);
+>  	of_property_read_u32(np, "samsung,i2c-max-bus-freq",
+>  				(u32 *)&pdata->frequency);
+> +	/*
+> +	 * Exynos5's legacy i2c controller and new high speed i2c
+> +	 * controller have muxed interrupt sources. By default the
+> +	 * interrupts for 4-channel HS-I2C controller are enabled.
+> +	 * If node for first four channels of legacy i2c controller
+
+s/node/nodes/
+
+> +	 * are available then re-configure the interrupts via the
+> +	 * system register.
+> +	 */
+> +	id =3D of_alias_get_id(np, "i2c");
+> +	i2c->sysreg =3D syscon_regmap_lookup_by_phandle(np,
+> +			"samsung,sysreg-phandle");
+> +	if (IS_ERR(i2c->sysreg)) {
+> +		/* As this is not compulsory do not return error */
+> +		pr_info("i2c-%d skipping re-configuration of interrutps\n", id);
+
+I'd say drop this message. If you want to keep it, it should be dev_dbg.
+
+> +		return;
 > +	}
-> +
-> +	return 0;
-> +}
-This is the most interesting function here because it uses the new
-interface, the functions below are only to update and show the simulate=
-d
-eeprom contents and driver boilerplate, right?
+> +	regmap_update_bits(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, BIT(id), 0);
+>  }
 
-When the eeprom driver is probed and the adapter driver notices a read
-request for the respective i2c address, this callback is called with
-event=3DI2C_SLAVE_REQ_READ_START. Returning 0 here and provide the firs=
-t
-byte to send make the adapter ack the read request and send the data
-provided. If something !=3D 0 is returned a NAK is sent?
+Rest looks good, thanks!
 
-How is the next byte requested from the slave driver? I assume with two
-additional calls to the callback, first with
-event=3DI2C_SLAVE_REQ_READ_END, then event=3DI2C_SLAVE_REQ_READ_START o=
-nce
-more. Would it make sense to reduce this to a single call? Does the
-driver at READ_END time already know if its write got acked? If so, how=
-?
+--yQbNiKLmgenwUfTN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-This means that for each byte the callback is called. Would it make
-sense to make the API more flexible and allow the slave driver to retur=
-n
-a buffer? This would remove some callback overhead and might allow to
-let the adapter driver make use of its DMA mechanism.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Best regards
-Uwe
+iQIcBAEBAgAGBQJUbuj5AAoJEBQN5MwUoCm2hTsP/Az5+KkwKMv2AxxdjTHgErj3
+XGj9YmSGR3ISb8e3E+JBbWBlPxyYXdQgncO1+2uSqJPD7WGsE9r2/klSX8l7XKOF
++wek+ic9f0qzO+R+CnoYF1t54OtG7NLQBztSj7DXU5LpFc8amAmNqUAEoO/LK0W+
+dsgk+eOub6AZW6Tl33VKiDviWim+KutfHT7CAduRFcWAnAiAZU4Wx6cDLzGR0qMa
+3H4etNn0IX6m6suB0I9G7dC0qnw3BpsF8851kY5e5xTEieMubv7S9vrpp9rEkSB6
+4olSfTRNc/NZkh++XO95RqQMqAjkOtIRECMmUOhCNHSt8jVF5/juKp3spDFeOdvM
+PKN+qy/V1710UWykuYEqwPWxtpdiZ7gVOFh6A47cxBjyHP2wW3PWOIKsAwz4pjPr
+dAjZG40tpCmXtRuQcionSfeXtWLmOFBZMUCZMo/vH+K29esL2RMNkJYsQ2uyNvkx
+EP/ozVNj9H28WM/aOWBk+kMMOBJycUZ2MiH6H68ya7DOs/u2e8WMvb7ZzD0OPUlY
+uM4jg3z3Mom3BBwluMYqCzLSAbZnDaQQNMWrhb57RV0pQ6GEPelmkzZGi47lJ3QN
+9AQOl3HmKVeh4SZeg5vBOVIEcV1x8xeE9hx3u3dsYJ8Q/Sxqf2NHKRg9rbyXlZDs
+oTPciS5BQDe1p0JXQlvT
+=QkRc
+-----END PGP SIGNATURE-----
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+--yQbNiKLmgenwUfTN--
