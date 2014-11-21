@@ -1,71 +1,149 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [2/5] i2c: davinci: query STP always when NACK is received
-Date: Fri, 21 Nov 2014 14:10:08 +0100
-Message-ID: <20141121131008.GQ27002@pengutronix.de>
-References: <1416477788-5544-3-git-send-email-grygorii.strashko@ti.com>
- <20141120221953.GI27002@pengutronix.de>
- <546F34B9.1000206@ti.com>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/2] i2c: at91: remove legacy DMA support
+Date: Fri, 21 Nov 2014 14:44:31 +0100
+Message-ID: <1416577472-24542-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <546F34B9.1000206-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 
-On Fri, Nov 21, 2014 at 02:48:57PM +0200, Grygorii Strashko wrote:
-> On 11/21/2014 12:19 AM, Uwe Kleine-K=F6nig wrote:
-> >> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses=
-/i2c-davinci.c
-> >> index 9bbfb8f..2cef115 100644
-> >> --- a/drivers/i2c/busses/i2c-davinci.c
-> >> +++ b/drivers/i2c/busses/i2c-davinci.c
-> >> @@ -411,11 +411,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap=
-, struct i2c_msg *msg, int stop)
-> >>   	if (dev->cmd_err & DAVINCI_I2C_STR_NACK) {
-> >>   		if (msg->flags & I2C_M_IGNORE_NAK)
-> >>   			return msg->len;
-> >> -		if (stop) {
-> >> -			w =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> >> -			w |=3D DAVINCI_I2C_MDR_STP;
-> >> -			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
-> >> -		}
-> >> +		w =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-> >> +		w |=3D DAVINCI_I2C_MDR_STP;
-> >> +		davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
-> > I think this is a good change, but I wonder if the handling of
-> > I2C_M_IGNORE_NAK is correct here. If the controller reports a NACK =
-say
-> > for the 2nd byte of a 5-byte-message, the transfer supposed to
-> > continue, right? (Hmm, maybe the framework handle this and restarts=
- the
-> > transfer with I2C_M_NOSTART but the davinci driver doesn't seem to
-> > handle this flag?)
->=20
-> Have nothing to say about handling of I2C_M_IGNORE_NAK. I'm not going=
- to
-> change current behavior - davinci driver will interrupt transfer of i=
-2c_msg always
->  in case of NACK and start transfer of the next i2c_msg (if exist).
-> In my opinion, Above question is out of scope of this patch.
-Yeah right, that's exactly what I thought.
+Since at91sam9g45 is now DT-only, all DMA capable users of this driver
+are using the DT case, and the legacy support can be removed.
 
-Thinking again I wonder if with your change handling is correct when th=
-e
-sender wants to do a repeated start. That would need a more detailed
-look into the driver.
+Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+---
 
-Best regards
-Uwe
+Hi,
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+I have split the legacy dma support removing and probe deferring. I have also
+fixed the compilation issue.
+
+ drivers/i2c/busses/i2c-at91.c | 37 +++----------------------------------
+ 1 file changed, 3 insertions(+), 34 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 917d545..b69ea9b 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -72,7 +72,6 @@ struct at91_twi_pdata {
+ 	unsigned clk_max_div;
+ 	unsigned clk_offset;
+ 	bool has_unre_flag;
+-	bool has_dma_support;
+ 	struct at_dma_slave dma_slave;
+ };
+ 
+@@ -541,35 +540,30 @@ static struct at91_twi_pdata at91rm9200_config = {
+ 	.clk_max_div = 5,
+ 	.clk_offset = 3,
+ 	.has_unre_flag = true,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9261_config = {
+ 	.clk_max_div = 5,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9260_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g20_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g10_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = false,
+ };
+ 
+ static const struct platform_device_id at91_twi_devtypes[] = {
+@@ -598,7 +592,6 @@ static struct at91_twi_pdata at91sam9x5_config = {
+ 	.clk_max_div = 7,
+ 	.clk_offset = 4,
+ 	.has_unre_flag = false,
+-	.has_dma_support = true,
+ };
+ 
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+@@ -627,30 +620,11 @@ static const struct of_device_id atmel_twi_dt_ids[] = {
+ MODULE_DEVICE_TABLE(of, atmel_twi_dt_ids);
+ #endif
+ 
+-static bool filter(struct dma_chan *chan, void *pdata)
+-{
+-	struct at91_twi_pdata *sl_pdata = pdata;
+-	struct at_dma_slave *sl;
+-
+-	if (!sl_pdata)
+-		return false;
+-
+-	sl = &sl_pdata->dma_slave;
+-	if (sl && (sl->dma_dev == chan->device->dev)) {
+-		chan->private = sl;
+-		return true;
+-	} else {
+-		return false;
+-	}
+-}
+-
+ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ {
+ 	int ret = 0;
+-	struct at91_twi_pdata *pdata = dev->pdata;
+ 	struct dma_slave_config slave_config;
+ 	struct at91_twi_dma *dma = &dev->dma;
+-	dma_cap_mask_t mask;
+ 
+ 	memset(&slave_config, 0, sizeof(slave_config));
+ 	slave_config.src_addr = (dma_addr_t)phy_addr + AT91_TWI_RHR;
+@@ -661,19 +635,14 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 	slave_config.dst_maxburst = 1;
+ 	slave_config.device_fc = false;
+ 
+-	dma_cap_zero(mask);
+-	dma_cap_set(DMA_SLAVE, mask);
+-
+-	dma->chan_tx = dma_request_slave_channel_compat(mask, filter, pdata,
+-							dev->dev, "tx");
++	dma->chan_tx = dma_request_slave_channel(dev->dev, "tx");
+ 	if (!dma->chan_tx) {
+ 		dev_err(dev->dev, "can't get a DMA channel for tx\n");
+ 		ret = -EBUSY;
+ 		goto error;
+ 	}
+ 
+-	dma->chan_rx = dma_request_slave_channel_compat(mask, filter, pdata,
+-							dev->dev, "rx");
++	dma->chan_rx = dma_request_slave_channel(dev->dev, "rx");
+ 	if (!dma->chan_rx) {
+ 		dev_err(dev->dev, "can't get a DMA channel for rx\n");
+ 		ret = -EBUSY;
+@@ -772,7 +741,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	}
+ 	clk_prepare_enable(dev->clk);
+ 
+-	if (dev->pdata->has_dma_support) {
++	if (dev->dev->of_node) {
+ 		if (at91_twi_configure_dma(dev, phy_addr) == 0)
+ 			dev->use_dma = true;
+ 	}
+-- 
+2.0.3
