@@ -1,104 +1,61 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH] i2c: omap: fix i207 errata handling
-Date: Fri, 21 Nov 2014 10:08:28 -0600
-Message-ID: <20141121160828.GP7508@saruman>
-References: <1416529011-21803-1-git-send-email-al.kochet@gmail.com>
-Reply-To: <balbi@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 1/2] i2c: s3c2410: Handle i2c sys_cfg register in i2c
+ driver
+Date: Fri, 21 Nov 2014 17:47:26 +0100
+Message-ID: <20141121164726.GA1426@katana>
+References: <1414656270-8048-1-git-send-email-pankaj.dubey@samsung.com>
+ <1414656270-8048-2-git-send-email-pankaj.dubey@samsung.com>
+ <20141121072545.GG1480@katana>
+ <546F1140.4050709@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8G1nIWD3RY794FAy"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1416529011-21803-1-git-send-email-al.kochet@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexander Kochetkov <al.kochet@gmail.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>
+In-Reply-To: <546F1140.4050709@samsung.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Pankaj Dubey <pankaj.dubey@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com, linux@arm.linux.org.uk, thomas.ab@samsung.com, Rob Herring <robh+dt@kernel.org>, Randy Dunlap <rdunlap@infradead.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---8G1nIWD3RY794FAy
+
+--u3/rZRmxL6MmkK24
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 21, 2014 at 04:16:51AM +0400, Alexander Kochetkov wrote:
-> commit 6d9939f651419a63e091105663821f9c7d3fec37 (i2c: omap: split out [XR=
-]DR
-> and [XR]RDY) changed the way how errata i207 (I2C: RDR Flag May Be Incorr=
-ectly
-> Set) get handled. 6d9939f6514 code doesn't correspond to workaround provi=
-ded by
-> errata.
->=20
-> According to errata ISR must filter out spurious RDR before data read not=
- after.
-> ISR must read RXSTAT to get number of bytes available to read. Because RDR
-> could be set while there could no data in the receive FIFO.
->=20
-> Restored pre 6d9939f6514 way of handling errata.
->=20
-> Found by code review. Real impact haven't seen.
-> Tested on Beagleboard XM C.
->=20
-> Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
-> Fixes: 6d9939f651419a63e09110 i2c: omap: split out [XR]DR and [XR]RDY
 
-Tested on BBB and AM437x Starter Kit
-
-Tested-by: Felipe Balbi <balbi@ti.com>
-Reviewed-by: Felipe Balbi <balbi@ti.com>
-
-> ---
->  drivers/i2c/busses/i2c-omap.c |    8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+> >I usually don't take DTS patches. They should go via arm-soc. Please say
+> >so if there are reasons I should take them.
 >=20
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 90dcc2e..e7cbcb0 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -958,11 +958,13 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
->  			if (dev->fifo_size)
->  				num_bytes =3D dev->buf_len;
-> =20
-> -			omap_i2c_receive_data(dev, num_bytes, true);
-> -
-> -			if (dev->errata & I2C_OMAP_ERRATA_I207)
-> +			if (dev->errata & I2C_OMAP_ERRATA_I207) {
->  				i2c_omap_errata_i207(dev, stat);
-> +				num_bytes =3D (omap_i2c_read_reg(dev,
-> +					OMAP_I2C_BUFSTAT_REG) >> 8) & 0x3F;
-> +			}
-> =20
-> +			omap_i2c_receive_data(dev, num_bytes, true);
->  			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_RDR);
->  			continue;
->  		}
-> --=20
-> 1.7.9.5
->=20
+> I CC'ed to you because same patch contains changes in i2c driver.
 
---=20
-balbi
+Yes, those should absolutely go via my I2C tree. You need to make a
+seperate patch out of the dts changes which then also should go via
+samsung-soc, unless Kukjin says he really wants to go the via I2C. But I
+guess the latter will just create merge conflicts.
 
---8G1nIWD3RY794FAy
+
+--u3/rZRmxL6MmkK24
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUb2N8AAoJEIaOsuA1yqREDw0P/jVAXOEa7gB6gyCWSCO26Muu
-gY15MoL2pXp1dtMrk4fgWgYjiYKpGAgEpLGhAPWZuni/PF5KnCo8qhN+szme3IxZ
-teEaWyIZxhd8y8ORGNlP7bLHvY7r6G9JdnzPlYodvpKZIR+jgWTv2+huIy/j8AGR
-oV3HhyptBx7z8IFcfz7IGV+i5i0obiVnYKb0fyxqY0a8ctJa4nuAe7mHvB+bboHM
-yAm40a2Ew1o+uwFfXxgiwC4xExq42PF5aJ+vPV1776HtTvhQUTrRUKaedNrVLm1P
-eFEFKcApTuIswLJemXmlOybc3PRFZ5Pi4fYW7303DUVadkST5I8xkfgs08mks+Ox
-wvw3n7AmQSTH8anHEuqhjjmY9Gbw9IOGfAQZrjEIoHorOi/hDT5y+FSXlBRgl0Gf
-YbOaILwBUuTDbCrCuxfmFBJ+V3Wn+P23ioSxexOGA+3LondDI3dmx8WTOVbr2QwF
-3ohWUdVNykIg0hXxiS4QoIa+TmzGNiSkFYZoXd6/yxx4geOiuGHxIH3d3Bq5xSn8
-6GH9s7YQvAUhBL9igXkIUEhElnDZQkmpWnHIBFxt2Yvo9jMaBxpl118zH8xoApwq
-w6zpbKHBuJ5spp+OPF8quuZY1vFmhjQwV9KG27HK4+W4Ws9yXWPov4ubLgIsgSaA
-QkKXS3zS3s044H4h347+
-=kGUT
+iQIcBAEBAgAGBQJUb2ydAAoJEBQN5MwUoCm2CuIP/0EDmy1XbiZ8nKtZZ51gE6Wn
+cXFcyI4V1NUKdXmQwDMrkzhZgUx4cam4cHyex3qcYXdC0dp6p5tgM+A9BPfBLTUD
+8CUBP+M9gV+UHOYWxF5w+O/uRGV5UyjuNf9iH66uDHpG0dzebnrj+XuN1+yE9Ett
+zLG1/i3UyDuFNbRKBBfEanBnqXzONreWWZYa9cX3JREDz4R4pVcqqRfPM46CJX00
+6T5CgTbh2+pWsdPfMMQeLe2YSkYu2BgFgak6MN7uOjSBNhr74oK+qTkhXBuoVN58
+AHbsOYOEDEqpkbxqYRr+LK5G/916dD6awgXxdprveeNL5AWeOEvdxN2Kbr6TfbA6
+PrhklVw0UQvFNY/qAWp76pR7EtBEw8IGygYp9W3XweUtw2KnvcptdXqU6xwCGt5K
+NGnlbtNTSP6yF1VqJbGtrgx0oBP9qK3OI8oD7ZE9oeUaub/sVN8/U1YpvVOFyX1q
+9wN6aznawsGguc9CxesC+qu2F3La58BzFT+rSyRCTMH/dlJ1/qamUjhqca/MeZef
+pRwZp/7z92NnWZ8v5f5E+FFkxZ9JT6ojD4k+3/0T40frqS5jT/5UiiKw3CYYG6UY
+AHPE8T0yp68v69fA2eOuLKu8NV9yHKQAVPPG+kznwz67x3XE1zOBX429A/f7Nqgb
+1CVNTC5UWoC4tp3tXfhR
+=/0Y7
 -----END PGP SIGNATURE-----
 
---8G1nIWD3RY794FAy--
+--u3/rZRmxL6MmkK24--
