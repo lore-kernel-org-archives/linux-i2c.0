@@ -1,123 +1,57 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] of: spi: Export single device registration method and
- accessors (v2)
-Date: Fri, 21 Nov 2014 16:53:26 +0000
-Message-ID: <CACxGe6uwjzYs73bOCpij-dFHfJBfjj7f6T-eRivs7EdQaShAbg@mail.gmail.com>
-References: <1414572037-11306-1-git-send-email-pantelis.antoniou@konsulko.com>
- <20141029101420.GT18557@sirena.org.uk> <6A3753C0-251A-4645-AD96-CB1D6521175F@antoniou-consulting.com>
- <20141029122204.GG18557@sirena.org.uk> <20141121153329.C4DDDC40D85@trevor.secretlab.ca>
- <CC185E77-95F6-4E4B-B431-59C9A9775453@antoniou-consulting.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: at91: remove legacy DMA support
+Date: Fri, 21 Nov 2014 19:08:00 +0100
+Message-ID: <20141121180800.GB3754@katana>
+References: <1416577472-24542-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CC185E77-95F6-4E4B-B431-59C9A9775453-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux I2C <linux-i2c@vg>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1416577472-24542-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 21, 2014 at 3:44 PM, Pantelis Antoniou
-<panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org> wrote:
-> Hi Grant,
->
->> On Nov 21, 2014, at 17:33 , Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>=
- wrote:
->>
->> On Wed, 29 Oct 2014 12:22:04 +0000
->> , Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->> wrote:
->>> On Wed, Oct 29, 2014 at 01:48:06PM +0200, Pantelis Antoniou wrote:
->>>>> On Oct 29, 2014, at 12:14 , Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote=
-:
->>>
->>>>> This feels like there is an abstraction problem somewhere, whatev=
-er code
->>>>> is supposed to use this is going to need to be taught about each
->>>>> individual bus which is going to be tedious, I would expect that =
-we'd
->>>>> have something like the bus being able to provide a callback whic=
-h will
->>>>> get invoked whenever a new node appears on the parent node for th=
-e bus.
->>>
->>>> There=E2 EURO (tm)s a whole patchset that does exactly this.
->>>> Look at "OF: spi: Add OF notifier handler=E2 EURO  and you=E2 EURO=
- (tm)ll where this is used.
->>>
->>> I deleted that unread I'm afraid; one of the reasons that you shoul=
-d use
->>> subject lines matching the styles for the subsystems is that it's o=
-ne of
->>> the things people use to filter out things that actually need atten=
-tion,
->>> if things are busy things that at first glance don't look terribly
->>> relevant (like changes to the OF core in this case) are likely to g=
-et
->>> looked at less urgently or just skipped.
->>>
->>> A quick glance suggests that this is adding code inside the SPI cor=
-e so
->>> it's still not explaining why anything is being exported, can you
->>> clarify please?
->>
->> I have the same question. This doesn't look like it should be export=
-ing
->> symbols.
->>
->> Also, the way the patch is written causes a lot of code changes to g=
-et
->> interleaved in the diff. It would be better to split into two patche=
-s;
->> one that creates the new of_register_spi_device(), and a separate pa=
-tch
->> to add the other new functions. It would be certainly easier to revi=
-ew
->> that way.
->>
->
-> The diff does make a mess of things; it's not that complex of a patch=
-=2E
->
-> Your wish shall be granted. I'll respin this over the weekend.
 
-I've fixed it in my tree by moving the match functions into the second
-patch. The diffs are much easier to read now. I'll post the new
-versions to the list shortly, but if you can test that would be
-fantastic.
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-g.
+On Fri, Nov 21, 2014 at 02:44:31PM +0100, Ludovic Desroches wrote:
+> From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+>=20
+> Since at91sam9g45 is now DT-only, all DMA capable users of this driver
+> are using the DT case, and the legacy support can be removed.
+>=20
+> Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
->
->>>
->>>>> SubmittingPatches says.  Please also try to keep your CC list san=
-e,
->>>>> CCing random people just means that you're increasing the volume =
-of mail
->>>>> they have to process.  I'm surprised kernel.org accepts so many C=
-Cs.
->>>
->>>>> I have to say I don't recall ever seeing v1...
->>>
->>>> All of them are in the CC list for a reason.
->>>
->>> This is a single, standalone SPI patch - you didn't send it as part=
- of a
->>> series (which is the only reason I read it).
->>
->> Yes, this is part of the OF overlay series. It should have at least =
-been
->> marked as [PATCH 7/8] and that it replaced the previous, buggy, patc=
-h 7.
->>
->> g.
->>
->
-> Regards
->
-> -- Pantelis
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-spi" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Applied to for-next, thanks!
+
+
+--aVD9QWMuhilNxW9f
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUb3+AAAoJEBQN5MwUoCm2Y/UP/0M12niXeTR1I9eIspmshgwO
+JxjuJ2gjbETQU0OkSL71hv/831lwsQm9sg5AAA7o9insm2S6FdsIQ3CYtLPR8naj
+O+yoRDClRY15GqIZsbTdVaby7NVT3D0ymcL2ZJXA8nyFDMuJFopu2TFmMNvG4zVe
+aqD7XWRQH76Yvr3An9ibiD9bIXGyXsJ0+4iXEr3r68yU0a9+C9jjAfCRg1hiauBi
+eBsnir8lbXasw7zIQ30NqI9P5Ea1snAFlpbmRijUo7XTKsIp4VqnKZ1mQ56e3TzS
+hZAz9kKZs/OI4pP57U4VG0LJyznOPjPDsrBnBS5PxOBAqE8/H5CMq0ttLF9cXfn1
+ecud9aKBVy0OSNo+ks+gKsAFz4yYzQ95F46y1V6Qjo88g2VpvBezkXMMkWa43ci0
+cmv9m2tuGjJB+/QgUKZGhZq26TGrhL2S9FAP8Qf0lBIl63Tro+TgkJUMg0IyFtpD
+S6PRaBeEMkJskDaZKkiTdsXdESaHt/kJ6TRXuc9n7Ezz/z9bhiycmZdJXKyRUoZR
+fZtpnNqmwSkHnnUiY70viBdcOX0zXp3Ub3as85aPCfctfPlYqh02a0fIF0fO8Q83
+O0S2X3ufeh0ke9uwwMU4Rf28tMLmy7NnwO1enkXhScT8bYwKxYnB0dPeHqhLS/Vk
+mCmI48Str4tCOsywojZ/
+=D/OE
+-----END PGP SIGNATURE-----
+
+--aVD9QWMuhilNxW9f--
