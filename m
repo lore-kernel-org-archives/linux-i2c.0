@@ -1,90 +1,90 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] i2c: at91: enable probe deferring on dma channel request
-Date: Fri, 21 Nov 2014 14:44:32 +0100
-Message-ID: <1416577472-24542-2-git-send-email-ludovic.desroches@atmel.com>
-References: <1416577472-24542-1-git-send-email-ludovic.desroches@atmel.com>
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [1/5] i2c: i2c-davinci: switch to use platform_get_irq
+Date: Fri, 21 Nov 2014 08:03:26 -0600
+Message-ID: <CAL_JsqJKhtzx9NKQ9R=m_4ReCUM9FP71mE7oRkScxPE7k881AA@mail.gmail.com>
+References: <1416477788-5544-2-git-send-email-grygorii.strashko@ti.com>
+ <20141120214838.GA346@pengutronix.de> <546F1B7D.1020209@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1416577472-24542-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <546F1B7D.1020209-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If dma controller is not probed, defer i2c probe.
+On Fri, Nov 21, 2014 at 5:01 AM, Grygorii Strashko
+<grygorii.strashko-l0cyMroinI0@public.gmane.org> wrote:
+> On 11/20/2014 11:48 PM, Uwe Kleine-K=C3=B6nig wrote:
+>> Hello Grygorii,
+>>
+>> On Thu, Nov 20, 2014 at 12:03:04PM +0200, Grygorii Strashko wrote:
+>>> Switch Davinci I2C driver to use platform_get_irq(), because
+>>> - it is not recommened to use
+>>>    platform_get_resource(pdev, IORESOURCE_IRQ, ..) for requesting I=
+RQ's
+>>>    resources any more, as they can be not ready yet in case of DT-b=
+ooting.
+>>> - it makes code simpler
+>>>
+>>> CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+>>> CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+>>> CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>>> CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+>>> Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+>>> ---
+>>>   drivers/i2c/busses/i2c-davinci.c | 14 +++++++-------
+>>>   1 file changed, 7 insertions(+), 7 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/=
+i2c-davinci.c
+>>> index 4d96147..9bbfb8f 100644
+>>> --- a/drivers/i2c/busses/i2c-davinci.c
+>>> +++ b/drivers/i2c/busses/i2c-davinci.c
+>>> @@ -640,13 +640,13 @@ static int davinci_i2c_probe(struct platform_=
+device *pdev)
+>>>   {
+>>>      struct davinci_i2c_dev *dev;
+>>>      struct i2c_adapter *adap;
+>>> -    struct resource *mem, *irq;
+>>> -    int r;
+>>> +    struct resource *mem;
+>>> +    int r, irq;
+>>>
+>>> -    irq =3D platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+>>> -    if (!irq) {
+>>> -            dev_err(&pdev->dev, "no irq resource?\n");
+>>> -            return -ENODEV;
+>>> +    irq =3D platform_get_irq(pdev, 0);
+>> One bad thing about platform_get_irq is its unusual handling of irq=3D=
+0.
+>> I'm pretty sure you don't want to use this value, so adding somethin=
+g
+>> like:
+>>
+>>       if (!irq)
+>>               irq =3D -ENXIO
+>>
+>> would be welcome because the usual value for "invalid irq" is 0 and =
+not
+>> -ESOMETHING. platform_get_irq is one of the very few functions that
+>> don't adhere to this convention. With handling <=3D 0 as error your =
+code
+>> is immune to changes in this area. Although I notice that
+>> platform_get_irq got worse in this respect to handle -EPROBE_DEFER. =
+hmm.
+>>
+>> Apart from your change I wonder if platform_get_irq should handle
+>> of_irq_get returning 0 as an error.
+>
+> I think you are right and It seems like, the check for !irq should
+> be added/restored for OF case in platform_get_irq() too.
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
+Changing the return values of platform_get_irq is tricky as it would
+potentially break drivers because NO_IRQ can be 0 or -1 depending on
+the arch. Drivers checking against specific values of NO_IRQ would
+break. We've done some clean-up in this area, but I suspect more is
+needed.
 
-Arnd,
-
-It's a combination of the first patch I sent and yours. As you said that my
-patch "looks wrong but actually it's ok" I didn't dare to add your
-signed-off-by.
-
- drivers/i2c/busses/i2c-at91.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index b69ea9b..3e56d73 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -635,17 +635,17 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	slave_config.dst_maxburst = 1;
- 	slave_config.device_fc = false;
- 
--	dma->chan_tx = dma_request_slave_channel(dev->dev, "tx");
--	if (!dma->chan_tx) {
--		dev_err(dev->dev, "can't get a DMA channel for tx\n");
--		ret = -EBUSY;
-+	dma->chan_tx = dma_request_slave_channel_reason(dev->dev, "tx");
-+	if (IS_ERR(dma->chan_tx)) {
-+		ret = PTR_ERR(dma->chan_tx);
-+		dma->chan_tx = NULL;
- 		goto error;
- 	}
- 
--	dma->chan_rx = dma_request_slave_channel(dev->dev, "rx");
--	if (!dma->chan_rx) {
--		dev_err(dev->dev, "can't get a DMA channel for rx\n");
--		ret = -EBUSY;
-+	dma->chan_rx = dma_request_slave_channel_reason(dev->dev, "rx");
-+	if (IS_ERR(dma->chan_rx)) {
-+		ret = PTR_ERR(dma->chan_rx);
-+		dma->chan_rx = NULL;
- 		goto error;
- 	}
- 
-@@ -666,6 +666,7 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	sg_init_table(&dma->sg, 1);
- 	dma->buf_mapped = false;
- 	dma->xfer_in_progress = false;
-+	dev->use_dma = true;
- 
- 	dev_info(dev->dev, "using %s (tx) and %s (rx) for DMA transfers\n",
- 		 dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
-@@ -673,7 +674,8 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	return ret;
- 
- error:
--	dev_info(dev->dev, "can't use DMA\n");
-+	if (ret != -EPROBE_DEFER)
-+		dev_info(dev->dev, "can't use DMA, error %d\n", ret);
- 	if (dma->chan_rx)
- 		dma_release_channel(dma->chan_rx);
- 	if (dma->chan_tx)
-@@ -742,8 +744,9 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	clk_prepare_enable(dev->clk);
- 
- 	if (dev->dev->of_node) {
--		if (at91_twi_configure_dma(dev, phy_addr) == 0)
--			dev->use_dma = true;
-+		rc = at91_twi_configure_dma(dev, phy_addr);
-+		if (rc == -EPROBE_DEFER)
-+			return rc;
- 	}
- 
- 	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
--- 
-2.0.3
+Rob
