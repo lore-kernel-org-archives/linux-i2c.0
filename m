@@ -1,59 +1,204 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: prevent early stop on TX FIFO empty
-Date: Fri, 21 Nov 2014 08:05:54 +0100
-Message-ID: <20141121070554.GF1480@katana>
-References: <545CB6C4.8010201@arm.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
+Date: Fri, 21 Nov 2014 08:19:41 +0100
+Message-ID: <20141121071941.GK27002@pengutronix.de>
+References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
+ <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yH1ZJFh+qWm+VodA"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <545CB6C4.8010201-5wv7dgnIgG8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Jackson <Andrew.Jackson-5wv7dgnIgG8@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "Du, Wenkai" <wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>, Romain Baeriswyl <Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Liviu Dudau <Liviu.Dudau-5wv7dgnIgG8@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
---yH1ZJFh+qWm+VodA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+this mail is thematically more a reply to patch 1 and maybe just serves
+my understanding of the slave support.
 
-On Fri, Nov 07, 2014 at 12:10:44PM +0000, Andrew Jackson wrote:
-> If the Designware core is configured with IC_EMPTYFIFO_HOLD_MASTER_EN
-> set to zero, allowing the TX FIFO to become empty causes a STOP
-> condition to be generated on the I2C bus. If the transmit FIFO
-> threshold is set too high, an erroneous STOP condition can be
-> generated on long transfers - particularly where the interrupt
-> latency is extended.
+On Tue, Nov 18, 2014 at 05:04:54PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Signed-off-by: Andrew Jackson <Andrew.Jackson-5wv7dgnIgG8@public.gmane.org>
-> Signed-off-by: Liviu Dudau <Liviu.Dudau-5wv7dgnIgG8@public.gmane.org>
+> The first user of the i2c-slave interface is an eeprom simulator. It =
+is
+> a shared memory which can be accessed by the remote master via I2C an=
+d
+> locally via sysfs.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>=20
+> Changes since RFC:
+> * fix build error for modules
+> * don't hardcode size
+> * add boundary checks for sysfs access
+> * use a spinlock
+> * s/at24s/eeprom/g
+> * add some docs
+> * clean up exit paths
+> * use size-variable instead of driver_data
+>=20
+>  drivers/i2c/Kconfig            |  10 +++
+>  drivers/i2c/Makefile           |   1 +
+>  drivers/i2c/i2c-slave-eeprom.c | 170 +++++++++++++++++++++++++++++++=
+++++++++++
+>  3 files changed, 181 insertions(+)
+>  create mode 100644 drivers/i2c/i2c-slave-eeprom.c
+>=20
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index b51a402752c4..8c9e619f3026 100644
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -110,6 +110,16 @@ config I2C_STUB
+> =20
+>  	  If you don't know what to do here, definitely say N.
+> =20
+> +config I2C_SLAVE
+> +	bool "I2C slave support"
+> +
+> +if I2C_SLAVE
+> +
+> +config I2C_SLAVE_EEPROM
+> +	tristate "I2C eeprom slave driver"
+> +
+> +endif
+> +
+>  config I2C_DEBUG_CORE
+>  	bool "I2C Core debugging messages"
+>  	help
+> diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+> index 1722f50f2473..45095b3d16a9 100644
+> --- a/drivers/i2c/Makefile
+> +++ b/drivers/i2c/Makefile
+> @@ -9,6 +9,7 @@ obj-$(CONFIG_I2C_CHARDEV)	+=3D i2c-dev.o
+>  obj-$(CONFIG_I2C_MUX)		+=3D i2c-mux.o
+>  obj-y				+=3D algos/ busses/ muxes/
+>  obj-$(CONFIG_I2C_STUB)		+=3D i2c-stub.o
+> +obj-$(CONFIG_I2C_SLAVE_EEPROM)	+=3D i2c-slave-eeprom.o
+> =20
+>  ccflags-$(CONFIG_I2C_DEBUG_CORE) :=3D -DDEBUG
+>  CFLAGS_i2c-core.o :=3D -Wno-deprecated-declarations
+> diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-e=
+eprom.c
+> new file mode 100644
+> index 000000000000..6631400b5f02
+> --- /dev/null
+> +++ b/drivers/i2c/i2c-slave-eeprom.c
+> @@ -0,0 +1,170 @@
+> +/*
+> + * I2C slave mode EEPROM simulator
+> + *
+> + * Copyright (C) 2014 by Wolfram Sang, Sang Engineering <wsa@sang-en=
+gineering.com>
+> + * Copyright (C) 2014 by Renesas Electronics Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify it
+> + * under the terms of the GNU General Public License as published by=
+ the
+> + * Free Software Foundation; version 2 of the License.
+> + *
+> + * Because most IP blocks can only detect one I2C slave address anyh=
+ow, this
+> + * driver does not support simulating EEPROM types which take more t=
+han one
+> + * address. It is prepared to simulate bigger EEPROMs with an intern=
+al 16 bit
+> + * pointer, yet implementation is deferred until the need actually a=
+rises.
+> + */
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/slab.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/sysfs.h>
+> +
+> +struct eeprom_data {
+> +	struct bin_attribute bin;
+> +	bool first_write;
+> +	spinlock_t buffer_lock;
+> +	u8 buffer_idx;
+> +	u8 buffer[];
+> +};
+> +
+> +static int i2c_slave_eeprom_slave_cb(struct i2c_client *client,
+> +				     enum i2c_slave_event event, u8 *val)
+> +{
+> +	struct eeprom_data *eeprom =3D i2c_get_clientdata(client);
+> +
+> +	switch (event) {
+> +	case I2C_SLAVE_REQ_WRITE_END:
+> +		if (eeprom->first_write) {
+> +			eeprom->buffer_idx =3D *val;
+> +			eeprom->first_write =3D false;
+> +		} else {
+> +			spin_lock(&eeprom->buffer_lock);
+> +			eeprom->buffer[eeprom->buffer_idx++] =3D *val;
+> +			spin_unlock(&eeprom->buffer_lock);
+> +		}
+> +		break;
+> +
+> +	case I2C_SLAVE_REQ_READ_START:
+> +		spin_lock(&eeprom->buffer_lock);
+> +		*val =3D eeprom->buffer[eeprom->buffer_idx];
+> +		spin_unlock(&eeprom->buffer_lock);
+> +		break;
+> +
+> +	case I2C_SLAVE_REQ_READ_END:
+> +		eeprom->buffer_idx++;
+You don't check here for buffer_idx >=3D ARRAY_SIZE(buffer)?
+Ditto in the I2C_SLAVE_REQ_WRITE_END case.
+> +		break;
+> +
+> +	case I2C_SLAVE_STOP:
+> +		eeprom->first_write =3D true;
+> +		break;
+> +
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return 0;
+> +}
+This is the most interesting function here because it uses the new
+interface, the functions below are only to update and show the simulate=
+d
+eeprom contents and driver boilerplate, right?
 
-Applied to for-current, thanks!
+When the eeprom driver is probed and the adapter driver notices a read
+request for the respective i2c address, this callback is called with
+event=3DI2C_SLAVE_REQ_READ_START. Returning 0 here and provide the firs=
+t
+byte to send make the adapter ack the read request and send the data
+provided. If something !=3D 0 is returned a NAK is sent?
 
+How is the next byte requested from the slave driver? I assume with two
+additional calls to the callback, first with
+event=3DI2C_SLAVE_REQ_READ_END, then event=3DI2C_SLAVE_REQ_READ_START o=
+nce
+more. Would it make sense to reduce this to a single call? Does the
+driver at READ_END time already know if its write got acked? If so, how=
+?
 
---yH1ZJFh+qWm+VodA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+This means that for each byte the callback is called. Would it make
+sense to make the API more flexible and allow the slave driver to retur=
+n
+a buffer? This would remove some callback overhead and might allow to
+let the adapter driver make use of its DMA mechanism.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Best regards
+Uwe
 
-iQIcBAEBAgAGBQJUbuRSAAoJEBQN5MwUoCm2Vm4P/2WJo/YijxHHkvdU0CMQ8zWa
-ezutbaLvLDGKZHkbOHVWhIg9ST1ZDioE110x6pEL7ycTc3PpgNuCKiUXlzhgFNXz
-HKJm7YhNM1CIs9gfUoHizvFMSUNzL538lwIy27AZ3WqAiNAdMFdz5aaDzBNXEVXq
-iTZZyTgrz7xjmTLkITCklmra4998u8g+FLOuNkHKsyUZilqJvJlgaPpDCVkWI3WR
-4YyS72cBmBxV8/7s1/PKOPJtFeNUJv0j238EyGiW6g5pZ+SEZH7J/8E1DJTK2IaB
-/blNjPxiCr5jSGV0nM4P62S84kl1IItKD+JSXpzxiG1CHECLM0jT4V/ymcug50HO
-jNlrd5d7/8zxB/HxtvgBnyyKn8QG44ztRxIMvWKKMbuyBh88Sie/9byp/gr6Wu2X
-hN+tcrVVpSSXTfqk0KeEkBOU2IPoZpTMz37pBAqJybcChr5MX36bJ0CfeOSNNG6o
-Zdqvqvyqq4Qh5VYKlgSqQ+CLOWc2qVRrnGZO97hw/Vajk7DZe33N4A6cbGoeau3g
-bLM6xh9RXhkCR85pwKA88+2xXHmsOYMvjMQIBuqznYkecE1HOnmBIlXhB5l76wJI
-ctphM21O/gY1PRkjv+FT9N9psnjKNXSy29S6D24Ijg8Orf5uEWC6+AaxbdbeFIFr
-+L0MS5jrA6WBJbvQgOnG
-=w4EQ
------END PGP SIGNATURE-----
-
---yH1ZJFh+qWm+VodA--
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
