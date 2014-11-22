@@ -1,96 +1,78 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v1 1/2] iio: imu: inv_mpu6050: Add i2c mux for by pass
-Date: Sat, 22 Nov 2014 14:08:18 +0100
-Message-ID: <20141122130818.GA2679@katana>
-References: <1416333184-1367-1-git-send-email-srinivas.pandruvada@linux.intel.com>
- <1416333184-1367-2-git-send-email-srinivas.pandruvada@linux.intel.com>
- <54707A80.90809@kernel.org>
+Subject: Re: [PATCH 2/4] i2c: omap: implement workaround for handling invalid
+ BB-bit values
+Date: Sat, 22 Nov 2014 14:23:09 +0100
+Message-ID: <20141122132309.GC2679@katana>
+References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
+ <1416518925-20679-3-git-send-email-al.kochet@gmail.com>
+ <20141121160808.GM7508@saruman>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+	protocol="application/pgp-signature"; boundary="XMCwj5IQnwKtuyBG"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <54707A80.90809-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20141121160808.GM7508@saruman>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---KsGdsel6WgEHnImy
+--XMCwj5IQnwKtuyBG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-On Sat, Nov 22, 2014 at 11:58:56AM +0000, Jonathan Cameron wrote:
-> On 18/11/14 17:53, Srinivas Pandruvada wrote:
-> > This chip has a mode in which this chipset can be i2c master. But
-
-I don't think it is a master...
-
-> > the current upstream driver doesn't support such mode as there is
-> > some limited support of clients, which can be connected.
+On Fri, Nov 21, 2014 at 10:08:08AM -0600, Felipe Balbi wrote:
+> On Fri, Nov 21, 2014 at 01:28:43AM +0400, Alexander Kochetkov wrote:
+> > In a multimaster environment, after IP software reset, BB-bit value doe=
+sn't
+> > correspond to the current bus state. It may happen what BB-bit will be =
+0,
+> > while the bus is busy due to another I2C master activity.
 > >=20
-> > To attach such clients to main i2c bus chip has to be set up in
-> > bypass mode. Creates an i2c mux, which will enable/disable this mode.
-> > This was discussed for a while in mailing list, this was the decision.
-
-=2E.. but more a by-pass? What is the advantage of putting slaves behind
-the by-pass instead of directly connecting it to the bus?
-
-> > This change also provides an API, which allows clients to be created for
-> > this mux adapter.
+> > Any transfer started when BB=3D0 and bus is busy wouldn't be completed =
+by IP
+> > and results in controller timeout. More over, in some cases IP could
+> > interrupt another master's transfer and corrupt data on wire.
 > >=20
-> > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Still wants to go to Wolfram and linux-i2c, given we are adding an i2c mux
-> deep in an IIO driver.
+> > The commit implement method allowing to prevent IP from entering into
+> > "controller timeout" state and from "data corruption" state.
+> >=20
+> > The one drawback is the need to wait for 10ms before the first transfer.
+> >=20
+> > Tested on Beagleboard XM C.
+> >=20
+> > Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 >=20
-> Whilst Wolfram was happy (iirc) with the approach he might want to take
-> a look at the implementation (and I'd rather have his ack before taking t=
-his).
+> Tested on BBB and AM437x Starter Kit
+>=20
+> Tested-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 
-Thanks! Please notice my new email address.
-
-> > +static struct i2c_adapter *inv_mux_adapter;
-
-static??? And if I have multiple mpu6050 on the bus?
-
-=2E..
-
-> > +struct i2c_client *inv_mpu6050_add_mux_client(char *name, unsigned sho=
-rt addr,
-> > +					      int irq, void *plat_data)
-> > +{
-
-Huh? Why do we need that? Why can't we use the instantiation methods we
-already have?
-
-Rest looks okay from a first glimpse.
-
-   Wolfram
+Huh, I can't apply this one? Which kernel version is this based on?
 
 
---KsGdsel6WgEHnImy
+--XMCwj5IQnwKtuyBG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUcIrCAAoJEBQN5MwUoCm2AvAP/04wYpTQR62cHsryHFSfY/Yn
-OtkNpw8CWrq2u7M9cwuZb7JOf8P0i/80qeSi8HMePp0VhAz+TgpDVjus3qCJ8BWs
-wsjxSA29bI/32lqsJU3YNINxMayThJ/4ryCEJTPI+sH5wTjRu0I7hg5hfeHsNW2e
-hLIhdS4QPDR5hwXRIR0NYVw6qe0il9JkbRQZ+ZbduYhg7pGqPc7VOqU+DIzqcJ4N
-GGEGMda5U6YxgrYqMQc65Emy6bjxLyn+bH7r6LVSdUQN0bFMwxpJXhA2e8rWpwt5
-IPj/4CSkcPZhidi7/5h+LlKSNOYh0BplACer3L1APf6iTGY0L9uwAyB5LrDzh4As
-51zKOg6Ns2RVOudL/fOcz5ZSKpeBw3SmP6AQlM2uVJoD4LHMNU010jCqQMEq0oN1
-h/aNsLxwZjJ7PdBIXoiNwEB+gxs+6b1PGHXnP6YRx4ADh7OL3zDxPan1Lo5ge55x
-oiNUHMz9r9ivx2ngRj4DLPw5D2vWzIIMnlHmg6Ry683s53Iq/AmNcJlOdJ1Yl2gz
-IopkLX3BHlIhgMxWMQE6QRQy8aKY4TEzsybm8OMBLxFov4O2FyHI95o1eJXvlzeY
-58fU2iO9xn7nWcLHrx8v0ZcSrDSlw3bIK9xf7YMCVfeRBx+/omUvOk/zs7wpuhPe
-XJoE4eFiiVk9I17zVx0B
-=zUfW
+iQIcBAEBAgAGBQJUcI49AAoJEBQN5MwUoCm2Ba8P/0imzQrZvoLx7zKI+v5UpV1f
+mFRmNH5X7yvAhbt3dao6/hJ3hSs1x7wJp+momIObCXGhNZepzrqEdENPqKNnnx2f
+v30nl18b9Gt43D+DjzD7qLNlvlhNleKMUC4auXYnfmi2BuarMbVWY+ug7KcIPL2e
+WVyzRUejWoY3nbTkCnuinu9cGTUDH2+R2Ve6WIuIcV5n7uASgNYK+XAJf0Y3wXmu
+TeFJwV9tDEWcD32Fmdf0Vmfy1BaO8fz6KGkJ33rXG5E+O+QIH+ps96jKakMS27eZ
+pThbihzEs+tMK16Lwbg+qUA8TS3QSyvYLPI6Tk5/OUVs6qDxiWKUHoBynjNMczp8
+xtB2rl7YDvg1irwhevuh2ZQjVi+a+ceflejOca7zy9QBgtO2X2dMIM34UwL0OH2H
+4ayFM6SSKPWJjvoRcVQIA5dMAX3VZ6hmtxkVuZWAAi0bhvOTvvdqFklshPYbL2um
+uIh3uR+b8gRNvnao4LkI/To0LCUaa/8gFHG9UQHT3bb7BPToCH0ZUleJE6paYOx8
+TUWf3PmTnS/wd//gaqb7QkPrxd3088HvIGl7lAe0qMeokoTpusUMmrVTRAvm5Zq9
+4T75IHh0sE0TgVOAGgbkaELdv9lIiU1Wl52KOEi0MssgFqM93GZyvFangC02MBRI
+Exghg2WSfXCYtqwbYWrD
+=zLD2
 -----END PGP SIGNATURE-----
 
---KsGdsel6WgEHnImy--
+--XMCwj5IQnwKtuyBG--
