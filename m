@@ -1,35 +1,61 @@
-From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: fix i207 errata handling
-Date: Sat, 22 Nov 2014 02:16:53 +0300
-Message-ID: <ED68D587-66C0-427A-85D5-D213DC136ECD@gmail.com>
-References: <1416529011-21803-1-git-send-email-al.kochet@gmail.com> <089B5BDA-682D-46B6-869F-A6ADDFE691C3@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <089B5BDA-682D-46B6-869F-A6ADDFE691C3-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
+From: Kukjin Kim <kgene@kernel.org>
+Subject: RE: [PATCH v4 1/2] i2c: s3c2410: Handle i2c sys_cfg register in i2c
+ driver
+Date: Sat, 22 Nov 2014 09:42:43 +0900
+Message-ID: <018d01d005ed$3a777640$af6662c0$@kernel.org>
+References: <1414656270-8048-1-git-send-email-pankaj.dubey@samsung.com>
+ <1414656270-8048-2-git-send-email-pankaj.dubey@samsung.com>
+ <20141121072545.GG1480@katana> <546F1140.4050709@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <546F1140.4050709@samsung.com>
+Content-language: ko
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: 'Pankaj Dubey' <pankaj.dubey@samsung.com>, 'Wolfram Sang' <wsa@the-dreams.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, thomas.ab@samsung.com, 'Rob Herring' <robh+dt@kernel.org>, 'Randy Dunlap' <rdunlap@infradead.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Pankaj Dubey wrote:
+> 
+> On Friday 21 November 2014 12:55 PM, Wolfram Sang wrote:
+> > On Thu, Oct 30, 2014 at 01:34:29PM +0530, Pankaj Dubey wrote:
+> >> Let's handle i2c interrupt re-configuration in i2c driver. This will
+> >> help us in removing some soc specific checks from machine files and
+> >> will help in removing static iomapping of SYS register in exynos.c
+> >>
+> >> Since only Exynos5250, and Exynos5420 has i2c nodes in DT, added syscon
+> >> based phandle to i2c device nodes of respective SoC DT files.
+> >>
+Well...actually there are 4ch i2c in exynos5410 and exynos5800 as well, i2c
+nodes are not added in dt files though.
 
-21 =CE=CF=D1=C2. 2014 =C7., =D7 3:29, Alexander Kochetkov <al.kochet@gm=
-ail.com> =CE=C1=D0=C9=D3=C1=CC(=C1):
+> >> Also handle saving and restoring of SYS_I2C_CFG register during
+> >> suspend and resume of i2c driver.
+> >>
+> >> CC: Rob Herring <robh+dt@kernel.org>
+> >> CC: Randy Dunlap <rdunlap@infradead.org>
+> >> CC: Wolfram Sang <wsa@the-dreams.de>
+> >> CC: Russell King <linux@arm.linux.org.uk>
+> >> CC: devicetree@vger.kernel.org
+> >> CC: linux-doc@vger.kernel.org
+> >> CC: linux-i2c@vger.kernel.org
+> >> Signed-off-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+> >> ---
+> >>   .../devicetree/bindings/i2c/i2c-s3c2410.txt        |    1 +
+> >>   arch/arm/boot/dts/exynos5250.dtsi                  |    4 +++
+> >>   arch/arm/boot/dts/exynos5420.dtsi                  |    4 +++
+> >
+> > I usually don't take DTS patches. They should go via arm-soc. Please say
+> > so if there are reasons I should take them.
+> 
+> I CC'ed to you because same patch contains changes in i2c driver.
+> I am not very sure via which tree this should go. May be I can ask
+> samsung SoC maintainer Kukjin to look into this, as patch 2/2 has
+> changes in mach-exynos which should go via Kukjin's tree.
+> 
+I'll reply on other email.
 
->>=20
->> Found by code review. Real impact haven't seen.
->> Tested on Beagleboard XM C.
->=20
-> Does anybody know the "certain rare conditions" when RDR errata appea=
-rs?
-> I tested without luck (Beagleboard XM C).
-
-Spent half a day trying to catch the errata without luck.
-Tried to simulate noise on the bus in hope it may happen.
-Tried to run with OMAP_I2C_FLAG_NO_FIFO flag.
-
-What a mystery errata. Hiding.
-
-Anyway, thanks!
-Have a nice weekend!
+Thanks,
+Kukjin
