@@ -1,107 +1,79 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v1 1/2] iio: imu: inv_mpu6050: Add i2c mux for by pass
-Date: Sat, 22 Nov 2014 12:20:59 -0800
-Message-ID: <1416687659.3744.28.camel@spandruv-hsb-test>
-References: <1416333184-1367-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <1416333184-1367-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-	 <54707A80.90809@kernel.org> <20141122130818.GA2679@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3 0/4] i2c: omap: patch series related to multimaster
+ mode
+Date: Sat, 22 Nov 2014 22:08:13 +0100
+Message-ID: <20141122210812.GA1275@katana>
+References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
+ <1416685634-5864-1-git-send-email-al.kochet@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141122130818.GA2679@katana>
+Content-Disposition: inline
+In-Reply-To: <1416685634-5864-1-git-send-email-al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 2014-11-22 at 14:08 +0100, Wolfram Sang wrote:
-> On Sat, Nov 22, 2014 at 11:58:56AM +0000, Jonathan Cameron wrote:
-> > On 18/11/14 17:53, Srinivas Pandruvada wrote:
-> > > This chip has a mode in which this chipset can be i2c master. But
-> 
-> I don't think it is a master...
-> 
 
-Let me explain. The INV MPU65XX chipset provides an accelerometer and
-gyroscope. But it allows one more sensor like AK8975 can be connected
-directly to it. A INV MPU65XX device driver can access this AK8975 via
-INV MPU65XX through its register interface. In this mode the AK8975
-chipset is controlled by INV MPU chipset. So outside driver don't need
-to worry about the chipset connected to it. The INV MPU chipset take
-care of i2c communication to AK8975. You can't access AK8975 from main
-processor's i2c bus. There is an analog switch in the MPU INV device
-disconnects this client chipset from main processor i2c bus.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-They provide a mode in which you can ask to connect the client chipset
-like AK8975 to main processor i2c bus. This is called bypass mode. Once
-you set MPU in bypass mode then AK8975 can be communicated like any i2c
-client device from main processor i2c bus. Since MPU INV can go to sleep
-mode deactivating analog switch, we have to make sure that each
-transaction with AK8975 enable bypass mode.
+On Sat, Nov 22, 2014 at 11:47:10PM +0400, Alexander Kochetkov wrote:
+> Here is the patch series intended to improve stability of
+> i2c-omap driver in the i2c multimaster environments.
+>=20
+> Tested on Beagleboard XM C.
+> For now all fine. No controller timeouts, no data corruptions.
+>=20
+> Also impelemented i2c bus fault detection during startup and
+> after reset.
+>=20
+> So, instead of the message "controller timeout" blaming IP,
+> you get "timeout waiting for bus ready".
+>=20
+> Rebased against i2c/for-next (eb61694b43dea0d43ea2574e7d48f476a6bdffb0)
+>=20
+> Tested on the kernel from angstrom-v2013.06-yocto1.4
+> Kernel recepie linux-mainline_3.2.bb
+> git://github.com/Angstrom-distribution/meta-ti.git; branch angstrom-stagi=
+ng-yocto1.4
+> With all i2-omap.c patches backported from upstream linux/master
+>=20
+> Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>=20
+> Alexander Kochetkov (4):
+>   i2c: omap: cleanup register definitions
+>   i2c: omap: implement workaround for handling invalid BB-bit values
+>   i2c: omap: don't reset controller if Arbitration Lost detected
+>   i2c: omap: add notes related to i2c multimaster mode
 
-
-> > > the current upstream driver doesn't support such mode as there is
-> > > some limited support of clients, which can be connected.
-> > > 
-> > > To attach such clients to main i2c bus chip has to be set up in
-> > > bypass mode. Creates an i2c mux, which will enable/disable this mode.
-> > > This was discussed for a while in mailing list, this was the decision.
-> 
-> ... but more a by-pass? What is the advantage of putting slaves behind
-> the by-pass instead of directly connecting it to the bus?
-bypass by directly connecting to processor i2c bus.
-> 
-> > > This change also provides an API, which allows clients to be created for
-> > > this mux adapter.
-> > > 
-> > > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > Still wants to go to Wolfram and linux-i2c, given we are adding an i2c mux
-> > deep in an IIO driver.
-> > 
-> > Whilst Wolfram was happy (iirc) with the approach he might want to take
-> > a look at the implementation (and I'd rather have his ack before taking this).
-> 
-> Thanks! Please notice my new email address.
-> 
-> > > +static struct i2c_adapter *inv_mux_adapter;
-> 
-> static??? And if I have multiple mpu6050 on the bus?
->  
-I am not sure that you can connect two MPU devices as i2c address is
-fixed at 0x68. But I can make part of mpu device instance structure
-removing static.
-
-> ...
-> 
-> > > +struct i2c_client *inv_mpu6050_add_mux_client(char *name, unsigned short addr,
-> > > +					      int irq, void *plat_data)
-> > > +{
-> 
-> Huh? Why do we need that? Why can't we use the instantiation methods we
-> already have?
-> 
-Unfortunately no. These are Windows 8 tablets with assumption that INV
-MPU6X driver is controlling AK8975, without any special driver for
-AK8975 (Linux drivers doesn't have this capability). So the ACPI config
-data will not have any entry for AK8975 as a device with i2c address. We
-have to parse INV MPU6X ACPI configuration's private data in a DMI
-specific x86 platform driver and find out AK8975 address and create a
-client device for this i2c-mux. This configuration doesn't follow any
-standard ACPI device with i2c configuration (Here only INV MPU6X is
-shown as a i2c device in ACPI).
+All applied to for-next, thanks!
 
 
-Thanks,
-Srinivas
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iQIcBAEBAgAGBQJUcPs8AAoJEBQN5MwUoCm2of4P/RYg5MELYAaeKfX8bMbiQYe/
+dOoccjTAaGR/KI3fd0qb0K+0SSjYz8OHqe2YpoD4Xqd8p5OhHzIZgDQjAikS5fQc
+WcLYs9pnUxgO30LONK2o78lUy5VIl+9/5Cg2EHuQPeJMvedupOup3aVG/O5JDwD7
+LNsCZp6RKRwE4DCTVHhaRpMC/pa9bTwW3M1Zt2a5wUjAYLlih+dvcNBv/cQ/lmft
+LX2u3Yy2pRvo/NEo3aoxr9np88XwIvvVRcELCIlJ2bE0rEVoYmqKFFW+MTR/bGMi
+A+0ptbH0B7E4HUUch4XMYbvyBupvvaBz8Izr6jIudQFx1q0PiEevuQv6UIM9QIe+
+y1tRql8o4cTv2Vk2YXhuPh2l4J3HHoczhv29bxI6dOUh4g3ixExlP4tBhc+WaWAh
+D0NxhpsQsOaJyqFtRLsANEl8WPHD2AbNcLa8U2RshZMhp5Pf6PoeTpv6vxJF8Jpv
+BU5HnsFlgWRqfee+HZEcmZ/d/oR7TUuPjjhmDg+FWgAmT6VMkbyl+aQ79FMBQqlT
+u6swIdti14Og7hXxU6tqR5VQD6KBhiO3jRbgWKofxLG/TkJvRIXDF4OY7QhyyMCP
+T5YIvdakBfJrpayDO5DDfxQT5vrbyEcxlLpSBXXasunQ9R9y5RYcddJrFOtlrfN0
+OENSIho3PzzLbT346jNN
+=YMcV
+-----END PGP SIGNATURE-----
 
-
-
-
-
-> Rest looks okay from a first glimpse.
-> 
->    Wolfram
-> 
+--2fHTh5uZTiUOsy+g--
