@@ -1,63 +1,107 @@
-From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 1/4] i2c: omap: cleanup register definitions
-Date: Sat, 22 Nov 2014 23:47:11 +0400
-Message-ID: <1416685634-5864-2-git-send-email-al.kochet@gmail.com>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
- <1416685634-5864-1-git-send-email-al.kochet@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v1 1/2] iio: imu: inv_mpu6050: Add i2c mux for by pass
+Date: Sat, 22 Nov 2014 12:20:59 -0800
+Message-ID: <1416687659.3744.28.camel@spandruv-hsb-test>
+References: <1416333184-1367-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <1416333184-1367-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <54707A80.90809@kernel.org> <20141122130818.GA2679@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1416685634-5864-1-git-send-email-al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20141122130818.GA2679@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Delete STAT_AD0 mask as unrelated to current IP (omap1?).
-Delete DEBUG conditional around SYSTEST masks group.
-Add SYSTEST functional mode masks for SCL and SDA.
-Add STAT_BF mask.
+On Sat, 2014-11-22 at 14:08 +0100, Wolfram Sang wrote:
+> On Sat, Nov 22, 2014 at 11:58:56AM +0000, Jonathan Cameron wrote:
+> > On 18/11/14 17:53, Srinivas Pandruvada wrote:
+> > > This chip has a mode in which this chipset can be i2c master. But
+> 
+> I don't think it is a master...
+> 
 
-Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Tested-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+Let me explain. The INV MPU65XX chipset provides an accelerometer and
+gyroscope. But it allows one more sensor like AK8975 can be connected
+directly to it. A INV MPU65XX device driver can access this AK8975 via
+INV MPU65XX through its register interface. In this mode the AK8975
+chipset is controlled by INV MPU chipset. So outside driver don't need
+to worry about the chipset connected to it. The INV MPU chipset take
+care of i2c communication to AK8975. You can't access AK8975 from main
+processor's i2c bus. There is an analog switch in the MPU INV device
+disconnects this client chipset from main processor i2c bus.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 32dc651..adfac9b 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -98,7 +98,7 @@ enum {
- #define OMAP_I2C_STAT_ROVR	(1 << 11)	/* Receive overrun */
- #define OMAP_I2C_STAT_XUDF	(1 << 10)	/* Transmit underflow */
- #define OMAP_I2C_STAT_AAS	(1 << 9)	/* Address as slave */
--#define OMAP_I2C_STAT_AD0	(1 << 8)	/* Address zero */
-+#define OMAP_I2C_STAT_BF	(1 << 8)	/* Bus Free */
- #define OMAP_I2C_STAT_XRDY	(1 << 4)	/* Transmit data ready */
- #define OMAP_I2C_STAT_RRDY	(1 << 3)	/* Receive data ready */
- #define OMAP_I2C_STAT_ARDY	(1 << 2)	/* Register access ready */
-@@ -146,16 +146,20 @@ enum {
- #define OMAP_I2C_SCLH_HSSCLH	8
- 
- /* I2C System Test Register (OMAP_I2C_SYSTEST): */
--#ifdef DEBUG
- #define OMAP_I2C_SYSTEST_ST_EN		(1 << 15)	/* System test enable */
- #define OMAP_I2C_SYSTEST_FREE		(1 << 14)	/* Free running mode */
- #define OMAP_I2C_SYSTEST_TMODE_MASK	(3 << 12)	/* Test mode select */
- #define OMAP_I2C_SYSTEST_TMODE_SHIFT	(12)		/* Test mode select */
-+/* Functional mode */
-+#define OMAP_I2C_SYSTEST_SCL_I_FUNC	(1 << 8)	/* SCL line input value */
-+#define OMAP_I2C_SYSTEST_SCL_O_FUNC	(1 << 7)	/* SCL line output value */
-+#define OMAP_I2C_SYSTEST_SDA_I_FUNC	(1 << 6)	/* SDA line input value */
-+#define OMAP_I2C_SYSTEST_SDA_O_FUNC	(1 << 5)	/* SDA line output value */
-+/* SDA/SCL IO mode */
- #define OMAP_I2C_SYSTEST_SCL_I		(1 << 3)	/* SCL line sense in */
- #define OMAP_I2C_SYSTEST_SCL_O		(1 << 2)	/* SCL line drive out */
- #define OMAP_I2C_SYSTEST_SDA_I		(1 << 1)	/* SDA line sense in */
- #define OMAP_I2C_SYSTEST_SDA_O		(1 << 0)	/* SDA line drive out */
--#endif
- 
- /* OCP_SYSSTATUS bit definitions */
- #define SYSS_RESETDONE_MASK		(1 << 0)
--- 
-1.7.9.5
+They provide a mode in which you can ask to connect the client chipset
+like AK8975 to main processor i2c bus. This is called bypass mode. Once
+you set MPU in bypass mode then AK8975 can be communicated like any i2c
+client device from main processor i2c bus. Since MPU INV can go to sleep
+mode deactivating analog switch, we have to make sure that each
+transaction with AK8975 enable bypass mode.
+
+
+> > > the current upstream driver doesn't support such mode as there is
+> > > some limited support of clients, which can be connected.
+> > > 
+> > > To attach such clients to main i2c bus chip has to be set up in
+> > > bypass mode. Creates an i2c mux, which will enable/disable this mode.
+> > > This was discussed for a while in mailing list, this was the decision.
+> 
+> ... but more a by-pass? What is the advantage of putting slaves behind
+> the by-pass instead of directly connecting it to the bus?
+bypass by directly connecting to processor i2c bus.
+> 
+> > > This change also provides an API, which allows clients to be created for
+> > > this mux adapter.
+> > > 
+> > > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> > Still wants to go to Wolfram and linux-i2c, given we are adding an i2c mux
+> > deep in an IIO driver.
+> > 
+> > Whilst Wolfram was happy (iirc) with the approach he might want to take
+> > a look at the implementation (and I'd rather have his ack before taking this).
+> 
+> Thanks! Please notice my new email address.
+> 
+> > > +static struct i2c_adapter *inv_mux_adapter;
+> 
+> static??? And if I have multiple mpu6050 on the bus?
+>  
+I am not sure that you can connect two MPU devices as i2c address is
+fixed at 0x68. But I can make part of mpu device instance structure
+removing static.
+
+> ...
+> 
+> > > +struct i2c_client *inv_mpu6050_add_mux_client(char *name, unsigned short addr,
+> > > +					      int irq, void *plat_data)
+> > > +{
+> 
+> Huh? Why do we need that? Why can't we use the instantiation methods we
+> already have?
+> 
+Unfortunately no. These are Windows 8 tablets with assumption that INV
+MPU6X driver is controlling AK8975, without any special driver for
+AK8975 (Linux drivers doesn't have this capability). So the ACPI config
+data will not have any entry for AK8975 as a device with i2c address. We
+have to parse INV MPU6X ACPI configuration's private data in a DMI
+specific x86 platform driver and find out AK8975 address and create a
+client device for this i2c-mux. This configuration doesn't follow any
+standard ACPI device with i2c configuration (Here only INV MPU6X is
+shown as a i2c device in ACPI).
+
+
+Thanks,
+Srinivas
+
+
+
+
+
+
+
+> Rest looks okay from a first glimpse.
+> 
+>    Wolfram
+> 
