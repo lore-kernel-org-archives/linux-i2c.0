@@ -1,68 +1,33 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v7] i2c: rk3x: handle dynamic clock rate changes correctly
-Date: Sat, 22 Nov 2014 14:29:03 +0100
-Message-ID: <20141122132903.GD2679@katana>
-References: <1827790.Sq6eyYqr17@typ>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3Pql8miugIZX0722"
+From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/4] i2c: omap: implement workaround for handling invalid BB-bit values
+Date: Sat, 22 Nov 2014 17:06:10 +0300
+Message-ID: <B6D9B4D7-25CB-456F-88B4-EB6A53E33A9D@gmail.com>
+References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com> <1416518925-20679-3-git-send-email-al.kochet@gmail.com> <20141121160808.GM7508@saruman> <20141122132309.GC2679@katana>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1827790.Sq6eyYqr17@typ>
+In-Reply-To: <20141122132309.GC2679@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-Cc: linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, addy ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Huang Tao <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---3Pql8miugIZX0722
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+22 =CE=CF=D1=C2. 2014 =C7., =D7 16:23, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>=
+ =CE=C1=D0=C9=D3=C1=CC(=C1):
 
-On Thu, Nov 20, 2014 at 10:26:50AM +0100, Max Schwarz wrote:
-> The i2c input clock can change dynamically, e.g. on the RK3066 where
-> pclk_i2c0 and pclk_i2c1 are connected to the armclk, which changes
-> rate on cpu frequency scaling.
->=20
-> Until now, we incorrectly called clk_get_rate() while holding the
-> i2c->lock in rk3x_i2c_xfer() to adapt to clock rate changes.
-> Thanks to Huang Tao for reporting this issue.
->=20
-> Do it properly now using the clk notifier framework. The callback
-> logic was taken from i2c-cadence.c.
->=20
-> Also rename all misleading "i2c_rate" variables to "clk_rate", as they
-> describe the *input* clk rate.
->=20
-> Signed-off-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-> Tested-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org> on RK3188
-> Tested-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> on RK3288
-> Reviewed-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Huh, I can't apply this one? Which kernel version is this based on?
 
-Applied to for-next, thanks!
+v.3.13-rc8
+It depends on PATCH 1/4
 
-
---3Pql8miugIZX0722
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUcI+fAAoJEBQN5MwUoCm2F+wP/2W01PglFlCkOggGL7uFfT4p
-B0INqmDTXlnPuOAgn3krkY86X5C7Aov9m0HNhhQCTgdBW0cby3gAL6TIuAVipDeH
-zFKVw1J6pKFq8URngsiYNFQHLtsphOjUzpy1xijyO8x46v/FALmKEb1Iu5H88vze
-qGhcmAoSzOjMFMu2Q6FLQkWQkUtaR/g57TleaY2HAYjaa2ikSRrR0DZ0AZp0voR2
-5svNlLDsxbClwYa0sJ8mFu+NM3LwZCzUxpXcUVPtdDGykJpkWLcPAsd3CgDqTQGN
-hd6IrXkgm4vvV2vGW+RTjtpNiQOOYUtD/7cjVvQqQVCa9MN5JurV+n1raR3N4gpX
-qkJ0vt/2ZIXLIk8FZGJ48BnCqGc92HpCpf+W/7T/sujyFN9WTQlUN73piUK7K3/5
-vOVdKod9yTjMLt9PWTwiAYjBIvL8U4dLfXBEJYxKi8ehjit+1ch/rXXhE5dhmLr4
-4nvtb5MB7nIM0DOU5TAP4miAHjUsn5m5igC/ruYi0BReqkM2NxiYK7jxweSLEpti
-syJ3YieUdw1bfsEwb0czF0a9ITU8KmQrpK/wwncsFhqIFP+YqFfwrXiYZEgpVoaL
-elEX8ehlP6pGIMzuL3FCb5AKHJH1yg6ZtDmL6L8/WYGjtDK5MP8HYSWQi6pav3mM
-ccGpsmtNyRk17ytkDGB4
-=k8rj
------END PGP SIGNATURE-----
-
---3Pql8miugIZX0722--
+alexander@ubuntu:git.kernel.org.pub.scm.linux.kernel.git.stable.linux-s=
+table$ git log --pretty=3Doneline --abbrev-commit -6
+204c058 i2c: omap: add notes related to i2c multimaster mode
+2b15417 i2c: omap: don't reset controller if Arbitration Lost detected
+38ef30e i2c: omap: implement workaround for handling invalid BB-bit val=
+ues
+9b15135 i2c: omap: cleanup register definitions
+a7483d8 Fixes: 1d7afc9 i2c: omap: ack IRQ in parts
+7e22e91 Linux 3.13-rc8
