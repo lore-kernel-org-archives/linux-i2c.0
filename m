@@ -1,65 +1,156 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/4] i2c: omap: implement workaround for handling invalid
- BB-bit values
-Date: Sat, 22 Nov 2014 19:02:22 +0100
-Message-ID: <20141122180222.GA9698@katana>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
- <1416518925-20679-3-git-send-email-al.kochet@gmail.com>
- <20141121160808.GM7508@saruman>
- <20141122132309.GC2679@katana>
- <B6D9B4D7-25CB-456F-88B4-EB6A53E33A9D@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
+Date: Sat, 22 Nov 2014 19:12:29 +0100
+Message-ID: <20141122181229.GB9698@katana>
+References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
+ <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
+ <CAOY=C6FSXWn2AKn9gp0oU69U8VkkyJAE7MMUTZsToy0P_Tf6AA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <B6D9B4D7-25CB-456F-88B4-EB6A53E33A9D-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <CAOY=C6FSXWn2AKn9gp0oU69U8VkkyJAE7MMUTZsToy0P_Tf6AA@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Stijn Devriendt <highguy@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, LKML <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=utf-8
+--s2ZSL+KKDSLx8OML
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Nov 22, 2014 at 05:06:10PM +0300, Alexander Kochetkov wrote:
+Hi,
+
+Please quote only relevant parts of the message (like I did). This
+improves readability a lot.
+
+> > +static int i2c_slave_eeprom_slave_cb(struct i2c_client *client,
+> > +                                    enum i2c_slave_event event, u8 *va=
+l)
+> > +{
+> > +       struct eeprom_data *eeprom =3D i2c_get_clientdata(client);
+> > +
+> > +       switch (event) {
+> > +       case I2C_SLAVE_REQ_WRITE_END:
+> > +               if (eeprom->first_write) {
+> > +                       eeprom->buffer_idx =3D *val;
+> > +                       eeprom->first_write =3D false;
+> > +               } else {
+> > +                       spin_lock(&eeprom->buffer_lock);
+> > +                       eeprom->buffer[eeprom->buffer_idx++] =3D *val;
+> > +                       spin_unlock(&eeprom->buffer_lock);
+> > +               }
+> > +               break;
+> > +
+> > +       case I2C_SLAVE_REQ_READ_START:
+> > +               spin_lock(&eeprom->buffer_lock);
+> > +               *val =3D eeprom->buffer[eeprom->buffer_idx];
+> > +               spin_unlock(&eeprom->buffer_lock);
+> > +               break;
+> > +
+> > +       case I2C_SLAVE_REQ_READ_END:
+> > +               eeprom->buffer_idx++;
+> > +               break;
+> > +
+> > +       case I2C_SLAVE_STOP:
+> > +               eeprom->first_write =3D true;
+> > +               break;
+> > +
+> > +       default:
+> > +               break;
+> > +       }
+> > +
+> > +       return 0;
+> > +}
 >=20
-> 22 =D0=BD=D0=BE=D1=8F=D0=B1. 2014 =D0=B3., =D0=B2 16:23, Wolfram Sang <ws=
-a@the-dreams.de> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB(=D0=B0):
 >=20
-> > Huh, I can't apply this one? Which kernel version is this based on?
+> Would it make sense to have:
+> WRITE_START
+> WRITE_NEXT
+> WRITE_STOP
+> WRITE_REPEAT_START
+> READ_START
+> READ_NEXT
+> READ_STOP
+> READ_REPEAT_START
 >=20
-> v.3.13-rc8
+> Some devices may want different behavior for subsequent
+> reads when they are separate transactions, compared to
+> a single larger transaction.
 
-Wow, that's old. Can you please rebase the series on top of 3.18-rc4? Or
-my i2c/for-next? Or at the very least 3.17?
+This can all be handled with I2C_SLAVE_STOP.
 
-@Felipe: With which kernel did you test the series? Also, 3.13?
+> e.g. a single transaction may wraparound inside a >8bit
+> register (e.g. for 16bit: msb, lsb, msb, lsb, ...), but step
+> to the next register when a separate read/write is issued.
+> Alternatively, a WRITE/READ_NEXT may be implemented
+> more efficiently. This may not matter for current systems
+> compared to the low-frequency bus, but who knows what
+> IoT devices may bring to the table.
+
+Let's start simple until we have more use cases. WRITE_NEXT may be
+useful when you have an internal u8 pointer to be set before actually
+sending data, but already less useful if this is u16. Also, slaves may
+decide to handle stops at unexpected places differently. Furthermore, my
+feeling is that slave drivers will be more robust if they handle those
+simple primitives properly.
+
+What I could imagine, though, is that somewhen the eeprom simulator will
+be able to get data via other means than the shared memory, maybe via
+some callback. Then, the callback really only has to deal with "read
+this byte" or "write that byte" while for the outer world we have a
+proper well-known EEPROM like I2C interface.
+
+That being said, the list of I2C_SLAVE_* events is extensible, of
+course. Though, I rather see low-level stuff there like "General Call
+Adress received".
+
+>=20
+> Also, behavior may be different for repeat start versus
+> stop/start, although a repeat start could be a start
+> without a previous stop as well...
+
+IMO a repeated start is to ensure that two messages arrive at the slave
+without interruption from another master. I can't think why a slave
+should know which type of start that was. In fact, if it does that would
+raise an eyebrow for me. Do you have an example?
+
+> Of course, if an I2C adapter cannot distinguish these
+> events, this is probably a futile attempt at adding
+> semantics that will silently break depending on the
+> actual hardware/driver used.
+
+That as well. I have not seen an I2C adapter which could provide this
+information so far.
+
+Thanks,
+
+   Wolfram
 
 
---X1bOJ3K7DJ5YkBrT
+--s2ZSL+KKDSLx8OML
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUcM+uAAoJEBQN5MwUoCm2zk4P/iC6x0VMW9PO1tfCbnatApUl
-aO0WzWx1XnqyNt9qo+L7EZjGiDXo9iRfh9Doo39S0Frm3LBnq7NI9N/SlkRWZFcS
-txS/579BmuqHSw0+0Sjp/V0B7l5mgpSNXpZjdSKgB6EO/rkC1tN4OurvPJyl5bwh
-t1Csu0JHehwpYW4fCJBpa//3VbZ9aepl7rUWj70n2ETBWPQaGmxEKvWY2Ztku4/Y
-5Rxf2dcM9nQ68LzRPj5A4HVXPugKOOYWo+Turd51t4DQEamX+aAj3M9hRfdMovwL
-GANh2RHLSJ+O3Iy2iwnLvdeUd7yL19EhhjeE5V9T8ZvIzHtoHQCcA+yu6XKMhwXi
-+o9wYqC8aZGUEPdhoVtUFSJYwfHCiltzPFz6jqlHVJRM4rnYaPjwilQmRYFtVTGz
-Pqc0NIted7naIbj+FN8D5cmL4jeUa3yKuyDbW5MHsPY3BIpxQ/cqMTLT9BZ0uvq0
-e5VUcIG3ywTcnSvnAWRLJlxY7BYvXyrjX+CK6TY5v2kLFwd+FHDtlxnL+dDV/Ieg
-iiojNHQsd6suJ/lmANh22KZFSZEPbxVMlyz03E5/NG2bUK1nTgTQg19bJ8E309C/
-BCVo5rl/4Kbc7+AgzkQ2y1O3cHbkL64Z9I/CaSTCvHQiQFZ5IfI04vYT9d/g5DDg
-PcsAqhFcSAEiQ74UehGA
-=Z2hb
+iQIcBAEBAgAGBQJUcNIMAAoJEBQN5MwUoCm2PugQAKjjIK4D8pzc1nECdCwUflEO
+B/sWORvZHHq+PUiJwf5j/f2lNR/pJ9UMizTGi2apZwTmpurRsgZh6GtSlpSjoPco
+pTF3nsfNH4LYiTqCUU5tnIjjLriIy+TjMSceR+laEFF78a5/1DqGAL+Gcb9CfbOj
+A8myWHpGx+5NcDoQLr438SjOBun6h7JWCM2zaAGl7MUwMkTirvN+3scOFurj7lI4
+Cs0qMhCnT7kZmp4XAUbTUXo9Zp9N4VbhlCRmyLo7jx1c4fkAFk9yZeMVqgS6ErRN
+pEXf6Abun5zsrrPuOYhIXgex10MkJs17Y1zhHfyHV7BuOXVqJOwpAE+sTpT27B5U
+7iy3OeZBhFXKyb5w8lGA6663gRl9e6+juHd6J+8ks2xUPMNfzd1xHFyrBifWwGA4
+4MqSxSBjc26CyJ4irwvgW4K0lwWAiHcXl6YBMFe21D/jPdUaVhJp1N/x6BMHVDYR
+BAcHjWcgcLnFAN2fwBWIxV7/3mQbCnIhuwKzR+yzcrTVDwuW5UGN+I57ScPa/DY4
+8k5i7VA0v39bTS7CFgzYXMW8+9kMOVWLQBknBidfa+h2y2btHec2KijcAkTeM2Eu
+/6wouYgOxBtC2itPdvTaVgNLnDnlXNrQ3Nwy2zCGl1R084Qt3oINjW3FWLSbPmTp
+2CFGdOsjd/r6sraa3k11
+=0dAB
 -----END PGP SIGNATURE-----
 
---X1bOJ3K7DJ5YkBrT--
+--s2ZSL+KKDSLx8OML--
