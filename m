@@ -1,112 +1,319 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v2 3/4] i2c: omap: don't reset controller if Arbitration
- Lost detected
-Date: Fri, 21 Nov 2014 19:07:28 -0600
-Message-ID: <20141122010728.GB26751@saruman>
-References: <1416518925-20679-4-git-send-email-al.kochet@gmail.com>
- <1416610307-3698-1-git-send-email-al.kochet@gmail.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v1 1/2] iio: imu: inv_mpu6050: Add i2c mux for by pass
+Date: Sat, 22 Nov 2014 11:58:56 +0000
+Message-ID: <54707A80.90809@kernel.org>
+References: <1416333184-1367-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1416333184-1367-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1416610307-3698-1-git-send-email-al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1416333184-1367-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---CdrF4e02JqNVZeln
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 18/11/14 17:53, Srinivas Pandruvada wrote:
+> This chip has a mode in which this chipset can be i2c master. But
+> the current upstream driver doesn't support such mode as there is
+> some limited support of clients, which can be connected.
+> 
+> To attach such clients to main i2c bus chip has to be set up in
+> bypass mode. Creates an i2c mux, which will enable/disable this mode.
+> This was discussed for a while in mailing list, this was the decision.
+> 
+> This change also provides an API, which allows clients to be created for
+> this mux adapter.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Still wants to go to Wolfram and linux-i2c, given we are adding an i2c mux
+deep in an IIO driver.
 
-On Sat, Nov 22, 2014 at 02:51:47AM +0400, Alexander Kochetkov wrote:
-> Arbitration Lost is an expected situation in a multimaster
-> environment. I2C controller (IP) correctly detect and report AL.
->=20
-> The only one visible reason for reseting IP in the AL case is
-> to avoid advisory 1.94 (omap3) and errata i595 (omap4): "I2C:
-> After an Arbitration is Lost the Module Incorrectly Starts
-> the Next Transfer".
->=20
-> Errata workaround states: "The MST and STT bits inside I2C_CON
-> should be set to 1 at the same moment (avoid setting the MST bit
-> to 1 while STT =3D 0)." The driver never set MST and STT bits
-> separately and doesn't create condition for errata. So the reset
-> is not necessary.
->=20
-> Also corrected return value for AL to -EAGAIN.
->=20
-> Tested on Beagleboard XM C.
->=20
-> Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Whilst Wolfram was happy (iirc) with the approach he might want to take
+a look at the implementation (and I'd rather have his ack before taking this).
 
-you could have kept my tested-by and reviewed-by:
-
-Tested-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-
-
-> On 21.10.2014 21:11, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> > The errno for AL is -EAGAIN. Curly braces are not needed.
->=20
-> Thank you, Wolfram, fixed.
->=20
->  drivers/i2c/busses/i2c-omap.c |    6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 3ffb9c0..02da567 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -707,13 +707,15 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *ad=
-ap,
->  		return 0;
-> =20
->  	/* We have an error */
-> -	if (dev->cmd_err & (OMAP_I2C_STAT_AL | OMAP_I2C_STAT_ROVR |
-> -			    OMAP_I2C_STAT_XUDF)) {
-> +	if (dev->cmd_err & (OMAP_I2C_STAT_ROVR | OMAP_I2C_STAT_XUDF)) {
->  		omap_i2c_reset(dev);
->  		__omap_i2c_init(dev);
->  		return -EIO;
->  	}
-> =20
-> +	if (dev->cmd_err & OMAP_I2C_STAT_AL)
-> +		return -EAGAIN;
+Jonathan
+> ---
+>  drivers/iio/imu/inv_mpu6050/Kconfig        |   1 +
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 168 +++++++++++++++++++++++++++--
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |   9 ++
+>  3 files changed, 172 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/iio/imu/inv_mpu6050/Kconfig b/drivers/iio/imu/inv_mpu6050/Kconfig
+> index 2d0608b..48fbc0b 100644
+> --- a/drivers/iio/imu/inv_mpu6050/Kconfig
+> +++ b/drivers/iio/imu/inv_mpu6050/Kconfig
+> @@ -7,6 +7,7 @@ config INV_MPU6050_IIO
+>  	depends on I2C && SYSFS
+>  	select IIO_BUFFER
+>  	select IIO_TRIGGERED_BUFFER
+> +	select I2C_MUX
+>  	help
+>  	  This driver supports the Invensense MPU6050 devices.
+>  	  This driver can also support MPU6500 in MPU6050 compatibility mode
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index b75519d..4fce0d1 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -23,6 +23,7 @@
+>  #include <linux/kfifo.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/iio/iio.h>
+> +#include <linux/i2c-mux.h>
+>  #include "inv_mpu_iio.h"
+>  
+>  /*
+> @@ -52,6 +53,7 @@ static const struct inv_mpu6050_reg_map reg_set_6050 = {
+>  	.int_enable             = INV_MPU6050_REG_INT_ENABLE,
+>  	.pwr_mgmt_1             = INV_MPU6050_REG_PWR_MGMT_1,
+>  	.pwr_mgmt_2             = INV_MPU6050_REG_PWR_MGMT_2,
+> +	.int_pin_cfg		= INV_MPU6050_REG_INT_PIN_CFG,
+>  };
+>  
+>  static const struct inv_mpu6050_chip_config chip_config_6050 = {
+> @@ -72,11 +74,150 @@ static const struct inv_mpu6050_hw hw_info[INV_NUM_PARTS] = {
+>  	},
+>  };
+>  
+> +static struct i2c_adapter *inv_mux_adapter;
 > +
->  	if (dev->cmd_err & OMAP_I2C_STAT_NACK) {
->  		if (msg->flags & I2C_M_IGNORE_NAK)
->  			return 0;
-> --=20
-> 1.7.9.5
->=20
-
---=20
-balbi
-
---CdrF4e02JqNVZeln
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUb+HQAAoJEIaOsuA1yqRE6kgP/1IadpV93TFytmxBhHWhz89L
-BU2OdhZhRWm6P9EBOCQ4G8P+3yC773kiXCLmuV7wK1XgSZmQyBaCMQBLXnCvHIUZ
-XA37Do34V2wSgTrEF/bacWfgNBqCPoqNKI37HYWT5Wv9bf0JectVFUvmwuLVG0tF
-nKZYiPhS1RsWm9mj3fkf8K2ZqNm25n/DQ1QfsfZDiY/VMzsK5nG2mOO7dOeklOzD
-TK1AVHWJ0swMo5ZBC/0Hq3SoLJ93t3eaQMh8PN7vFmv7K2Rs6rYKBwuYfumtDVL7
-uTN6BuPYK07uIJeHFxgjqrpu0RoqQJaq5ya9+MFxBFm0ZBZZ4wK1oFJbNoloxZEX
-qu1uWv4PQh1iEJ1GonMDqMgVpx0Pbv86bItEljCUSbDJ1M+CQwmHlqjzlRf0jS+L
-5oev0fIWd2LncPE0k1Hd7jGRv8wZmsSVNc/tibstqgTM8A60XmUWLAwBkb0fTTTJ
-D6deaoKEUbfQn5LGq6I5djlp4xMaJ9t7J1PmM5sWZLyQehyXyVXWMhAqVMgHya4L
-EQCGXwLvQpqU/GjwbyJSzpqS9V2GlzdzMmhxhjfJoX4lB+abObplka9436v7+NY/
-El+Fyg3wEy0aeOBSmfQ3bwwgImRw41bdaXX3YCniqz4hwUi8Y0w3Yg/Eew4A+aAV
-rdbyUZKHKc0eE+WRp1kR
-=ZnN9
------END PGP SIGNATURE-----
-
---CdrF4e02JqNVZeln--
+>  int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 d)
+>  {
+>  	return i2c_smbus_write_i2c_block_data(st->client, reg, 1, &d);
+>  }
+>  
+> +/*
+> + * The i2c read/write needs to happen in unlocked mode. As the parent
+> + * adapter is common. If we use locked versions, it will fail as
+> + * the mux adapter will lock the parent i2c adapter, while calling
+> + * select/deselect functions.
+> + */
+> +static int inv_mpu6050_write_reg_unlocked(struct inv_mpu6050_state *st,
+> +					  u8 reg, u8 d)
+> +{
+> +	int ret;
+> +	u8 buf[2];
+> +	struct i2c_msg msg[1] = {
+> +		{
+> +			.addr = st->client->addr,
+> +			.flags = 0,
+> +			.len = sizeof(buf),
+> +			.buf = buf,
+> +		}
+> +	};
+> +
+> +	buf[0] = reg;
+> +	buf[1] = d;
+> +	ret = __i2c_transfer(st->client->adapter, msg, 1);
+> +	if (ret != 1)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +static int inv_mpu6050_select_bypass(struct i2c_adapter *adap, void *mux_priv,
+> +				     u32 chan_id)
+> +{
+> +	struct iio_dev *indio_dev = mux_priv;
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +	int ret = 0;
+> +
+> +	/* Use the same mutex which was used everywhere to protect power-op */
+> +	mutex_lock(&indio_dev->mlock);
+> +	if (!st->powerup_count) {
+> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
+> +						     0);
+> +		if (ret)
+> +			goto write_error;
+> +
+> +		msleep(INV_MPU6050_REG_UP_TIME);
+> +	}
+> +	if (!ret) {
+> +		st->powerup_count++;
+> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
+> +						     st->client->irq |
+> +						     INV_MPU6050_BIT_BYPASS_EN);
+> +	}
+> +write_error:
+> +	mutex_unlock(&indio_dev->mlock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int inv_mpu6050_deselect_bypass(struct i2c_adapter *adap,
+> +				       void *mux_priv, u32 chan_id)
+> +{
+> +	struct iio_dev *indio_dev = mux_priv;
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +
+> +	mutex_lock(&indio_dev->mlock);
+> +	/* It doesn't really mattter, if any of the calls fails */
+> +	inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
+> +				       st->client->irq);
+> +	st->powerup_count--;
+> +	if (!st->powerup_count)
+> +		inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
+> +					       INV_MPU6050_BIT_SLEEP);
+> +	mutex_unlock(&indio_dev->mlock);
+> +
+> +	return 0;
+> +}
+> +
+> +static int inv_mpu6050_create_mux(struct iio_dev *indio_dev)
+> +{
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +	struct i2c_client *client = st->client;
+> +
+> +	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
+> +					      &client->dev,
+> +					      indio_dev,
+> +					      0, 0, 0,
+> +					      inv_mpu6050_select_bypass,
+> +					      inv_mpu6050_deselect_bypass);
+> +	if (st->mux_adapter == NULL) {
+> +		dev_err(&st->client->dev, "Mux create Failed\n");
+> +		return -ENODEV;
+> +	}
+> +	inv_mux_adapter = st->mux_adapter;
+> +
+> +	return 0;
+> +}
+> +
+> +static void inv_mpu6050_destroy_mux(struct iio_dev *indio_dev)
+> +{
+> +	struct inv_mpu6050_state *mpu_st = iio_priv(indio_dev);
+> +
+> +	if (mpu_st->mux_adapter)
+> +		i2c_del_mux_adapter(mpu_st->mux_adapter);
+> +	inv_mux_adapter = NULL;
+> +}
+> +
+> +struct i2c_client *inv_mpu6050_add_mux_client(char *name, unsigned short addr,
+> +					      int irq, void *plat_data)
+> +{
+> +	struct i2c_client *client;
+> +	struct i2c_board_info info;
+> +
+> +	if (!inv_mux_adapter)
+> +		return NULL;
+> +
+> +	memset(&info, 0, sizeof(struct i2c_board_info));
+> +	strlcpy(info.type, name, sizeof(info.type));
+> +	info.addr = addr;
+> +	info.irq = irq;
+> +	info.platform_data = plat_data;
+> +	client = i2c_new_device(inv_mux_adapter, &info);
+> +	if (!client) {
+> +		dev_err(&inv_mux_adapter->dev,
+> +			"failed to create mux client %d\n", addr);
+> +		return NULL;
+> +	}
+> +
+> +	return client;
+> +}
+> +EXPORT_SYMBOL_GPL(inv_mpu6050_add_mux_client);
+> +
+> +void inv_mpu6050_del_mux_client(struct i2c_client *client)
+> +{
+> +	i2c_unregister_device(client);
+> +}
+> +EXPORT_SYMBOL_GPL(inv_mpu6050_del_mux_client);
+> +
+>  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>  {
+>  	u8 d, mgmt_1;
+> @@ -133,13 +274,22 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>  
+>  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on)
+>  {
+> -	int result;
+> +	int result = 0;
+> +
+> +	if (power_on) {
+> +		/* Already under indio-dev->mlock mutex */
+> +		if (!st->powerup_count)
+> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
+> +						       0);
+> +		if (!result)
+> +			st->powerup_count++;
+> +	} else {
+> +		st->powerup_count--;
+> +		if (!st->powerup_count)
+> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
+> +						       INV_MPU6050_BIT_SLEEP);
+> +	}
+>  
+> -	if (power_on)
+> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1, 0);
+> -	else
+> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
+> -						INV_MPU6050_BIT_SLEEP);
+>  	if (result)
+>  		return result;
+>  
+> @@ -673,6 +823,7 @@ static int inv_mpu_probe(struct i2c_client *client,
+>  
+>  	st = iio_priv(indio_dev);
+>  	st->client = client;
+> +	st->powerup_count = 0;
+>  	pdata = dev_get_platdata(&client->dev);
+>  	if (pdata)
+>  		st->plat_data = *pdata;
+> @@ -720,6 +871,10 @@ static int inv_mpu_probe(struct i2c_client *client,
+>  		goto out_remove_trigger;
+>  	}
+>  
+> +	result = inv_mpu6050_create_mux(indio_dev);
+> +	if (result)
+> +		goto out_remove_trigger;
+> +
+>  	return 0;
+>  
+>  out_remove_trigger:
+> @@ -734,6 +889,7 @@ static int inv_mpu_remove(struct i2c_client *client)
+>  	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>  
+> +	inv_mpu6050_destroy_mux(indio_dev);
+>  	iio_device_unregister(indio_dev);
+>  	inv_mpu6050_remove_trigger(st);
+>  	iio_triggered_buffer_cleanup(indio_dev);
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> index e779931..6f19b1e 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> @@ -54,6 +54,7 @@ struct inv_mpu6050_reg_map {
+>  	u8 int_enable;
+>  	u8 pwr_mgmt_1;
+>  	u8 pwr_mgmt_2;
+> +	u8 int_pin_cfg;
+>  };
+>  
+>  /*device enum */
+> @@ -119,6 +120,8 @@ struct inv_mpu6050_state {
+>  	enum   inv_devices chip_type;
+>  	spinlock_t time_stamp_lock;
+>  	struct i2c_client *client;
+> +	struct i2c_adapter *mux_adapter;
+> +	unsigned int powerup_count;
+>  	struct inv_mpu6050_platform_data plat_data;
+>  	DECLARE_KFIFO(timestamps, long long, TIMESTAMP_FIFO_SIZE);
+>  };
+> @@ -179,6 +182,9 @@ struct inv_mpu6050_state {
+>  /* 6 + 6 round up and plus 8 */
+>  #define INV_MPU6050_OUTPUT_DATA_SIZE         24
+>  
+> +#define INV_MPU6050_REG_INT_PIN_CFG	0x37
+> +#define INV_MPU6050_BIT_BYPASS_EN	0x2
+> +
+>  /* init parameters */
+>  #define INV_MPU6050_INIT_FIFO_RATE           50
+>  #define INV_MPU6050_TIME_STAMP_TOR           5
+> @@ -245,3 +251,6 @@ int inv_reset_fifo(struct iio_dev *indio_dev);
+>  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask);
+>  int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 val);
+>  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on);
+> +struct i2c_client *inv_mpu6050_add_mux_client(char *name, unsigned short addr,
+> +					      int irq, void *plat_data);
+> +void inv_mpu6050_del_mux_client(struct i2c_client *client);
+> 
