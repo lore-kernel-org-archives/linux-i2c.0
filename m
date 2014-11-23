@@ -1,229 +1,80 @@
-From: Lan Tianyu <tianyu.lan@intel.com>
-Subject: [PATCH V3] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
-Date: Sun, 23 Nov 2014 21:22:54 +0800
-Message-ID: <1416748974-24124-1-git-send-email-tianyu.lan@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: rjw@rjwysocki.net, lenb@kernel.org, wsa@the-dreams.de, robert.moore@intel.com, lv.zheng@intel.com, shigorin@gmail.com, adamw@happyassassin.net, jan.brummer@tabos.org, mika.westerberg@linux.intel.com
-Cc: Lan Tianyu <tianyu.lan@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@acpica.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v8 5/8] of: i2c: Export single device registration method
+Date: Sun, 23 Nov 2014 17:22:29 +0100
+Message-ID: <20141123162229.GA1303@katana>
+References: <1414528565-10907-1-git-send-email-pantelis.antoniou@konsulko.com>
+ <1414528565-10907-6-git-send-email-pantelis.antoniou@konsulko.com>
+ <20141121014631.C86D5C413E8@trevor.secretlab.ca>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20141121014631.C86D5C413E8-WNowdnHR2B42iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI 5.0 introduces _DEP to designate device objects that OSPM should
-assign a higher priority in start ordering due to future operation region
-accesses.
 
-On Asus T100TA, ACPI battery info are read from a I2C slave device via
-I2C operation region. Before I2C operation region handler is installed,
-battery _STA always returns 0. There is a _DEP method of designating
-start order under battery device node.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
-Introducing acpi_dep_list and adding dep_unmet count in the struct
-acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
-valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
-master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
-count will increase by one if there is a device under its _DEP. Driver's probe() should
-return EPROBE_DEFER when find dep_unmet is larger than 0. When I2C operation
-region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
-whose master is pointed to I2C host controller and decrease slave's dep_unmet.
-When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
-for the device in order to resolve battery _STA issue on the Asus T100TA.
+On Fri, Nov 21, 2014 at 01:46:31AM +0000, Grant Likely wrote:
+> On Tue, 28 Oct 2014 22:36:02 +0200
+> , Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+>  wrote:
+> > Dynamically inserting i2c client device nodes requires the use
+> > of a single device registration method. Rework and export it.
+> >=20
+> > Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+>=20
+> Acked-by: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>=20
+> Wolfram, this patch and the next one only make sense in conjunction with =
+the overlay
+> patches, but they don't necessarily need to be merged via the same tree.
+> I'm happy to take them, but am equally happy to have you take them
+> (assuming I ack the next patch; I haven't looked at it yet). What is
+> your preference?
 
-Reference: https://bugzilla.kernel.org/show_bug.cgi?id=69011
-Tested-by: Jan-Michael Brummer <jan.brummer@tabos.org>
-Tested-by: Adam Williamson <adamw@happyassassin.net>
-Tested-by: Michael Shigorin <shigorin@gmail.com>
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Lan Tianyu <tianyu.lan@intel.com>
----
-Change since V2:
-        Coding style change
-Change since V1:
- 	Remove redundant blank line and some coding style fixs.
+OK, now I had the time to look at it, phew.
+
+Is this targetted for 3.19? Then you can take it:
+Reviewed-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+There is a minor conflict caused by this patch in i2c/for-next which
+should be easy to solve, just remove the irq handling.
+
+2fd36c552649 2014-10-30 15:59 Laurent Pinchart   o i2c: core: Map OF IRQ at=
+ probe time
+
+If you target for later than 3.19, then we need to discuss again,
+because there might be other i2c core changes coming in.
 
 
- drivers/acpi/battery.c  |  4 +++
- drivers/acpi/scan.c     | 85 +++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-core.c  |  1 +
- include/acpi/acpi_bus.h |  1 +
- include/linux/acpi.h    |  1 +
- 5 files changed, 92 insertions(+)
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 8ec8a89..d98ba43 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -1180,6 +1180,10 @@ static int acpi_battery_add(struct acpi_device *device)
- 
- 	if (!device)
- 		return -EINVAL;
-+
-+	if (device->dep_unmet)
-+		return -EPROBE_DEFER;
-+
- 	battery = kzalloc(sizeof(struct acpi_battery), GFP_KERNEL);
- 	if (!battery)
- 		return -ENOMEM;
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 9cb5cca..1b1cf55 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -36,6 +36,8 @@ bool acpi_force_hot_remove;
- 
- static const char *dummy_hid = "device";
- 
-+static LIST_HEAD(acpi_dep_list);
-+static DEFINE_MUTEX(acpi_dep_list_lock);
- static LIST_HEAD(acpi_bus_id_list);
- static DEFINE_MUTEX(acpi_scan_lock);
- static LIST_HEAD(acpi_scan_handlers_list);
-@@ -43,6 +45,12 @@ DEFINE_MUTEX(acpi_device_lock);
- LIST_HEAD(acpi_wakeup_device_list);
- static DEFINE_MUTEX(acpi_hp_context_lock);
- 
-+struct acpi_dep_data {
-+	struct list_head node;
-+	acpi_handle master;
-+	acpi_handle slave;
-+};
-+
- struct acpi_device_bus_id{
- 	char bus_id[15];
- 	unsigned int instance_no;
-@@ -2193,6 +2201,59 @@ static void acpi_scan_init_hotplug(struct acpi_device *adev)
- 	}
- }
- 
-+static void acpi_device_dep_initialize(struct acpi_device *adev)
-+{
-+	struct acpi_dep_data *dep;
-+	struct acpi_handle_list dep_devices;
-+	acpi_status status;
-+	int i;
-+
-+	if (!acpi_has_method(adev->handle, "_DEP"))
-+		return;
-+
-+	status = acpi_evaluate_reference(adev->handle, "_DEP", NULL,
-+					&dep_devices);
-+	if (ACPI_FAILURE(status)) {
-+		dev_err(&adev->dev, "Failed to evaluate _DEP.\n");
-+		return;
-+	}
-+
-+	for (i = 0; i < dep_devices.count; i++) {
-+		struct acpi_device_info *info;
-+		int skip;
-+
-+		status = acpi_get_object_info(dep_devices.handles[i], &info);
-+		if (ACPI_FAILURE(status)) {
-+			dev_err(&adev->dev, "Error reading device info\n");
-+			continue;
-+		}
-+
-+		/*
-+		 * Skip the dependency of Windows System Power
-+		 * Management Controller
-+		 */
-+		skip = info->valid & ACPI_VALID_HID &&
-+			!strcmp(info->hardware_id.string, "INT3396");
-+
-+		kfree(info);
-+
-+		if (skip)
-+			continue;
-+
-+		dep = kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
-+		if (!dep)
-+			return;
-+
-+		dep->master = dep_devices.handles[i];
-+		dep->slave  = adev->handle;
-+		adev->dep_unmet++;
-+
-+		mutex_lock(&acpi_dep_list_lock);
-+		list_add_tail(&dep->node , &acpi_dep_list);
-+		mutex_unlock(&acpi_dep_list_lock);
-+	}
-+}
-+
- static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
- 				      void *not_used, void **return_value)
- {
-@@ -2219,6 +2280,7 @@ static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
- 		return AE_CTRL_DEPTH;
- 
- 	acpi_scan_init_hotplug(device);
-+	acpi_device_dep_initialize(device);
- 
-  out:
- 	if (!*return_value)
-@@ -2339,6 +2401,29 @@ static void acpi_bus_attach(struct acpi_device *device)
- 		device->handler->hotplug.notify_online(device);
- }
- 
-+void acpi_walk_dep_device_list(acpi_handle handle)
-+{
-+	struct acpi_dep_data *dep, *tmp;
-+	struct acpi_device *adev;
-+
-+	mutex_lock(&acpi_dep_list_lock);
-+	list_for_each_entry_safe(dep, tmp, &acpi_dep_list, node) {
-+		if (dep->master == handle) {
-+			acpi_bus_get_device(dep->slave, &adev);
-+			if (!adev)
-+				continue;
-+
-+			adev->dep_unmet--;
-+			if (!adev->dep_unmet)
-+				acpi_bus_attach(adev);
-+			list_del(&dep->node);
-+			kfree(dep);
-+		}
-+	}
-+	mutex_unlock(&acpi_dep_list_lock);
-+}
-+EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
-+
- /**
-  * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
-  * @handle: Root of the namespace scope to scan.
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index f43b4e1..68aeb8e 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -403,6 +403,7 @@ static int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
- 		return -ENOMEM;
- 	}
- 
-+	acpi_walk_dep_device_list(handle);
- 	return 0;
- }
- 
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 7d1ce40..d539084 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -372,6 +372,7 @@ struct acpi_device {
- 	void *driver_data;
- 	struct device dev;
- 	unsigned int physical_node_count;
-+	unsigned int dep_unmet;
- 	struct list_head physical_node_list;
- 	struct mutex physical_node_lock;
- 	void (*remove)(struct acpi_device *);
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index 10f2ed9..e09f7f4 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -428,6 +428,7 @@ extern bool acpi_driver_match_device(struct device *dev,
- 				     const struct device_driver *drv);
- int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
- int acpi_device_modalias(struct device *, char *, int);
-+void acpi_walk_dep_device_list(acpi_handle handle);
- 
- struct platform_device *acpi_create_platform_device(struct acpi_device *);
- #define ACPI_PTR(_ptr)	(_ptr)
--- 
-1.8.4.rc0.1.g8f6a3e5.dirty
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUcgnEAAoJEBQN5MwUoCm22xoQAIwYwLQpx3DWnPiYlkAL3Eg2
+zTs6odMqXEvK7R7GPe8owC4rUMwfqq8wRe97wcmK8n5miNsYOm9wK2c6P1kMYo2m
+4rs/+xW6zEdcuqL+SQRpVhzdtekyzqxwylWpwBdTb0hwGRgpgogkiIc+CXG1Vrds
+1IpjpDTKiujbzmCTx6v3er/XxLjCn18jWfBzyZgpUEscdNHuH0n6mPilemxuuUBu
+M5UFpPgvlfwk+cIgQPafpR8MZeJahstbRrBzWIz/L0ReyuIrCPmkme1qA9/ym1u5
+EdGxmx1sZOe8JxXWlbQ7OoSytDkK7N+fKHLmitGRESTGUAiXhhdlnmp7WB8JIVTb
+MS6c0iyRb5cEN7gv0Y+F1VHg8xyz+LAc9gwPxYYBR9jUEGZTQudRONcFbGB0dWLP
+q6mH/JmQlPZJWTC5G/fbgler9OZ4T/OP1uL46h4BulDFER/E6lZ1tMrpXHWnBlWD
+CHitO97/v41YYfIGosL0g9HNb2jseNi0RC30UmLK97vRhSZ1A1+3Txfi514qfTg0
+DL6YVcppil/VI6zNi3gbVCQtQrs9bjigZ5tTDWptA+IoFCdL29Q48EyqzS9532wg
+NtTbyKN37RGSTB9Gd4IlZHgHPtFhoT5LblUqQPtZy/GNOIWmyC+toDy4JSDZ5K0y
+MjeHZbmVuOP3eMC+wrV/
+=sIg1
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
