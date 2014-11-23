@@ -1,59 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v8 6/8] OF: i2c: Add OF notifier handler
-Date: Sun, 23 Nov 2014 17:23:26 +0100
-Message-ID: <20141123162326.GB1303@katana>
-References: <1414528565-10907-1-git-send-email-pantelis.antoniou@konsulko.com>
- <1414528565-10907-7-git-send-email-pantelis.antoniou@konsulko.com>
- <20141121015335.99BF2C413E8@trevor.secretlab.ca>
- <546E9D75.3000208@roeck-us.net>
- <20141121150837.20DC4C40D85@trevor.secretlab.ca>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] Add support for SCCB devices into PXA27x I2C controller
+Date: Sun, 23 Nov 2014 19:23:02 +0300
+Message-ID: <547209E6.9010905@cogentembedded.com>
+References: <54711397.9060601@tul.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20141121150837.20DC4C40D85-WNowdnHR2B42iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
+In-Reply-To: <54711397.9060601-qphu/3gb4gc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alison Chaiken <Alison_Chaiken-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>, Dinh Nguyen <dinh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jan Lubbe <jluebbe-H4yykcOXDpCzQB+pC5nmwQ@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, Michael Stickel <ms-g5CePrrZ5ROELgA04lAiVw@public.gmane.org>, Dirk Behme <dirk.behme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Tull <delicious.quinoa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Michael Bohan <mbohan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>, Matt Ranostay <mranostay-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joel Becker <jlbec-aKy9MeLSZ9dg9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-spi
+To: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello.
 
---CUfgB8w4ZwR/yMy5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 11/23/2014 1:52 AM, Petr Cvek wrote:
 
+> Add support for SCCB devices into PXA27x I2C controller.
 
-> I picked up the patch into my tree and made the above changes because
-> they're pretty trivial. If Wolfram is okay with it then I can take the
-> whole series through my tree. Otherwise I'll put the of_reconfig_* empty
-> stubs into a separate branch that he and broonie can both pull.
+> Fix generated START but no STOP for message without I2C_M_NOSTART flag. Add
+> support for I2C_M_IGNORE_NAK flag.
 
-With your fix applied and in case of targetting 3.19:
+> Signed-off-by: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>
+> ---
+>   drivers/i2c/busses/i2c-pxa.c | 22 ++++++++++++++++------
+>   1 file changed, 16 insertions(+), 6 deletions(-)
 
-Reviewed-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> index be671f7..adad044 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -885,7 +885,14 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32
+> isr)
+>           return; /* ignore */
+>       }
+>
+> -    if (isr & ISR_BED) {
+> +    /*
 
+    Your patch has tabs replaces by spaces; probably your email agent's work. :-)
 
---CUfgB8w4ZwR/yMy5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> +     * Ignore NAK when flag I2C_M_IGNORE_NAK is present,
+> +     * this enables use of SCCB devices
+> +     */
+> +    if ((isr & ISR_BED) &&
+> +        (!((i2c->msg->flags & I2C_M_IGNORE_NAK) &&
+> +            (isr & ISR_ACKNAK)))) {
+> +
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+   This empty line is not needed.
 
-iQIcBAEBAgAGBQJUcgn+AAoJEBQN5MwUoCm2tIAP/RULnWQjdzIKKiwQUBYw60fF
-58Ha7WPDM07X36HWiS+bW/D/ZoWguLRqBC3XdfFLk8vqLSw511108hzG8saQbTGQ
-Xt9+BGMimATszp0MIke3Qnv+rq0v56zGjq15jtgJJaf+kAZYRZiat4m3adeYpMtJ
-2sWzGf0e1uCf3nVIzr/gAMUPimCFdaPJoKLDldL0lLAk+XKwK68dprDdk+3Hkd9y
-SdmoSb4gdXzEviG2IvvYCL7xCrLsIRC1pnINbA5j7z7TKKv3fMASkvr8MNZUa99t
-o7qiTKkrFeaJE1nIJFKhB/2B/tUzvULlxOh/8PVyd1AJB9JggiLP9kJx3cpE4QaA
-uKhVnaNOgPWVDIBm7YBlbHZQovAAqxI3VISwxkib2iFYw+QApo5XiExaME2Pt1jr
-QL/73AJvUxN+wefoNGvv3U7D+7Cfx98YH/tmnJs/oc3wBhE8SChQShK++RMJxd22
-zmVc+A6uMhexkxx2vtvd4S6n8njcMMMCD8VRvVlLZVMh76sie1GsPqLW7hFKj/JE
-hbWb6GIx+7giqaHR045YIj7+kaI64MxciBo4soaoaIe0CpU9abJfeEy/g0/LmLBQ
-FDTiGwUPE8T/OhZjO69OaX/6WxQ18XasJFO78bAtRCw+ei6yuc/GnH5YZIB4zStO
-v5aKcKtyr217hWj9k1TK
-=PwMc
------END PGP SIGNATURE-----
+[...]
 
---CUfgB8w4ZwR/yMy5--
+WBR, Sergei
