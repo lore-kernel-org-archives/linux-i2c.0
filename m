@@ -1,160 +1,87 @@
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
 	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
-Date: Sun, 23 Nov 2014 21:20:08 +0100
-Message-ID: <20141123202008.GE4431@pengutronix.de>
-References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
- <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
- <20141121071941.GK27002@pengutronix.de>
- <20141122182630.GD9698@katana>
+Subject: Re: [2/5] i2c: davinci: query STP always when NACK is received
+Date: Sun, 23 Nov 2014 21:33:14 +0100
+Message-ID: <20141123203314.GF4431@pengutronix.de>
+References: <1416477788-5544-3-git-send-email-grygorii.strashko@ti.com>
+ <20141120221953.GI27002@pengutronix.de>
+ <546F34B9.1000206@ti.com>
+ <20141121131008.GQ27002@pengutronix.de>
+ <546F5B51.1030006@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20141122182630.GD9698@katana>
+In-Reply-To: <546F5B51.1030006-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+Hello Grygorii,
 
-On Sat, Nov 22, 2014 at 07:26:30PM +0100, Wolfram Sang wrote:
+On Fri, Nov 21, 2014 at 05:33:37PM +0200, Grygorii Strashko wrote:
+> On 11/21/2014 03:10 PM, Uwe Kleine-K=F6nig wrote:
+> > On Fri, Nov 21, 2014 at 02:48:57PM +0200, Grygorii Strashko wrote:
+> >> On 11/21/2014 12:19 AM, Uwe Kleine-K=F6nig wrote:
+> >>>> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/buss=
+es/i2c-davinci.c
+> >>>> index 9bbfb8f..2cef115 100644
+> >>>> --- a/drivers/i2c/busses/i2c-davinci.c
+> >>>> +++ b/drivers/i2c/busses/i2c-davinci.c
+> >>>> @@ -411,11 +411,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *ad=
+ap, struct i2c_msg *msg, int stop)
+> >>>>    	if (dev->cmd_err & DAVINCI_I2C_STR_NACK) {
+> >>>>    		if (msg->flags & I2C_M_IGNORE_NAK)
+> >>>>    			return msg->len;
+> >>>> -		if (stop) {
+> >>>> -			w =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> >>>> -			w |=3D DAVINCI_I2C_MDR_STP;
+> >>>> -			davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+> >>>> -		}
+> >>>> +		w =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> >>>> +		w |=3D DAVINCI_I2C_MDR_STP;
+> >>>> +		davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, w);
+> >>> I think this is a good change, but I wonder if the handling of
+> >>> I2C_M_IGNORE_NAK is correct here. If the controller reports a NAC=
+K say
+> >>> for the 2nd byte of a 5-byte-message, the transfer supposed to
+> >>> continue, right? (Hmm, maybe the framework handle this and restar=
+ts the
+> >>> transfer with I2C_M_NOSTART but the davinci driver doesn't seem t=
+o
+> >>> handle this flag?)
+> >>
+> >> Have nothing to say about handling of I2C_M_IGNORE_NAK. I'm not go=
+ing to
+> >> change current behavior - davinci driver will interrupt transfer o=
+f i2c_msg always
+> >>   in case of NACK and start transfer of the next i2c_msg (if exist=
+).
+> >> In my opinion, Above question is out of scope of this patch.
+> > Yeah right, that's exactly what I thought.
+> >=20
+> > Thinking again I wonder if with your change handling is correct whe=
+n the
+> > sender wants to do a repeated start. That would need a more detaile=
+d
+> > look into the driver.
 >=20
-> > this mail is thematically more a reply to patch 1 and maybe just se=
-rves
-> > my understanding of the slave support.
->=20
-> Sure. This shows how badly needed the documentation is :)
->=20
-> ...
-> > > +		break;
-> > > +
-> > > +	case I2C_SLAVE_STOP:
-> > > +		eeprom->first_write =3D true;
-> > > +		break;
-> > > +
-> > > +	default:
-> > > +		break;
-> > > +	}
-> > > +
-> > > +	return 0;
-> > > +}
-> > This is the most interesting function here because it uses the new
-> > interface, the functions below are only to update and show the simu=
-lated
-> > eeprom contents and driver boilerplate, right?
->=20
-> Yes.
->=20
-> > When the eeprom driver is probed and the adapter driver notices a r=
-ead
-> > request for the respective i2c address, this callback is called wit=
-h
-> > event=3DI2C_SLAVE_REQ_READ_START. Returning 0 here and provide the =
-first
-> > byte to send make the adapter ack the read request and send the dat=
-a
-> > provided. If something !=3D 0 is returned a NAK is sent?
->=20
-> We only send NAK on write requests (I use read/write from the master
-I don't understand this. Who is "we" in this case?=20
+> Davinci driver will always abort transfer with error -EREMOTEIO in ca=
+se if
+> NACK received from I2C slave device. And the next omap_i2c_xfer() cal=
+l may
+> be *not* targeted to the same I2C slave device.
+> ^ if !I2C_M_IGNORE_NAK
+Does this resolve my concern? I think it doesn't. Also a Sr might well
+address another device, doesn't it?
 
-> perspective). Then, we have to say if the received byte was successfu=
-lly
-> processed. When reading, the master has to ack the successful recepti=
-on
-> of the byte.
-Right, I got this wrong in my question. On a read request (as seen from
-the master) the master has to ack.
-=20
-> > How is the next byte requested from the slave driver? I assume with=
- two
-> > additional calls to the callback, first with
-> > event=3DI2C_SLAVE_REQ_READ_END, then event=3DI2C_SLAVE_REQ_READ_STA=
-RT once
-> > more. Would it make sense to reduce this to a single call? Does the
-> > driver at READ_END time already know if its write got acked? If so,=
- how?
->=20
-> No single call. I had this first, but my experiments showed that it i=
-s
-> important for the EEPROM driver to only increase the internal pointer
-> when the byte was ACKed. Otherwise, I was off-by-one.
-Sure, the driver has to know how his read response was received by the
-master. But assuming I understand your abstraction right there is some
-redundancy. There are only three cases on a read request (well plus err=
-or
-handling):
-
- - master sends ACK, reads next byte
-   in this case the slave must provide another word
-   In your abstraction this implies
-     callback(I2C_SLAVE_REQ_READ_END); <-- this is redundant
-     callback(I2C_SLAVE_REQ_READ_START);
-
- - master sends ACK, then P or Sr
-     callback(I2C_SLAVE_REQ_READ_END);
-     maybe callback(I2C_SLAVE_STOP)
-
- - master sends NACK
-   in this case the message ends and the master has to send Sr or P.
-   In your case this results in:
-     nothing for the NACK?
-     maybe callback(I2C_SLAVE_STOP)
-
-The situations where the slave has to react are:
-
- - slave was addressed with R
-   input: address
-   output: NAK or (ACK + data byte)
- - slave was addressed with #W:
-   input: address
-   output: NAK or ACK
- - data sent by slave-transmitter was acked
-   output: next data byte (maybe unused because master sends Sr or P)
- - data sent by slave-transmitter was nacked
-   output: void (unless we want to support IGNORE_NAK :-)
- - slave received a data byte (write)
-   input: data
-   output: NAK or ACK
-
-This looks like a better model in my eyes. In this model the slave
-driver doesn't even need to be informed about P. Not entirely sure abou=
-t
-"data sent by slave-transmitter was nacked".
-
-> Ideally, I2C_SLAVE_REQ_READ_END should be used when the master ACKed =
-the
-> byte, right. However, the rcar hardware doesn't have an interrupt for
-> this, so I imply that the start of a new read request ends the old on=
-e.
-> I probably should add a comment for that.
->=20
-> > This means that for each byte the callback is called. Would it make
-> > sense to make the API more flexible and allow the slave driver to r=
-eturn
-> > a buffer? This would remove some callback overhead and might allow =
-to
-> > let the adapter driver make use of its DMA mechanism.
->=20
-> For DMA, I haven't seen DMA slave support yet. Makes sense to me, we
-haha, there is only a single slave driver yet and you're the author.
-
-> wouldn't know the transfer size, since the master can send a stop
-> anytime. This makes possible gains of using a buffer also speculative=
-=2E
-> Also, I2C is still a low-bandwith bus, so usually we have a high numb=
-er
-> of small transfers.
->=20
-> For now, I'd skip this idea. As I said in another thread, we need mor=
-e
-> use cases. If the need arises, we can come up with something. I don't
-> think the current design prevents such an addition?
-It would change the API, but starting to get experience with byte
-banging is probably OK.
+A call to .master_xfer with a message sequence implicitly expects ACKs
+from the slave and doesn't tell anything about what should be done on a
+NAK. So IMHO you must not send a P when the slave responds with a NAK,
+but error out and let the sender decide if it wants to reply with P or
+Sr.
 
 Best regards
 Uwe
