@@ -1,45 +1,73 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [4/5] i2c: davinci: use bus recovery infrastructure
-Date: Sun, 23 Nov 2014 21:36:34 +0100
-Message-ID: <20141123203634.GG4431@pengutronix.de>
-References: <1416477788-5544-5-git-send-email-grygorii.strashko@ti.com>
- <20141121190744.GB4431@pengutronix.de>
- <546F9382.40102@ti.com>
+From: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>
+Subject: Re: [PATCH v2] Add support for SCCB devices into PXA27x I2C controller
+Date: Sun, 23 Nov 2014 23:21:22 +0100
+Message-ID: <54725DE2.9090800@tul.cz>
+References: <54711397.9060601@tul.cz> <20141123083112.GA1932@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <546F9382.40102-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20141123083112.GA1932@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Grygorii,
+I'm sorry for spacing, I didn't realize thunderbird automatically replaces tabs with spaces. Now it should be OK. 
 
-On Fri, Nov 21, 2014 at 09:33:22PM +0200, Grygorii Strashko wrote:
-> On 11/21/2014 09:07 PM, Uwe Kleine-K=F6nig wrote:
-> > On Thu, Nov 20, 2014 at 12:03:07PM +0200, Grygorii Strashko wrote:
-> > Just another general comment about the driver that doesn't influenc=
-e the
-> > correctness of this patch: The i2c-davinci driver is quite quick to
-> > reset the bus. I wonder how often this reset triggers. Is the bus i=
-n
-> > question less "stable" than others?
->=20
-> In comparison to ..? :)
-In comparison to other bus drivers in other SoCs. I know this might be
-hard to answer. I just wonder where the reason for this has to be
-located. Strange hardware? Software bug? Or is this SoC just operating
-with strange slaves more often than others?
+I created this patch by fixing both I2C controller and SCCB device, so it seems I incorrectly used I2C_M_NOSTART instead I2C_M_STOP. Problem with I2C_M_STOP is that it causes bus freeze when using userspace utility "i2cget" on SCCB device (unfreeze can be done with i2c-pxa module reload). But this can be probably repaired in i2cget.
 
-Best regards
-Uwe
+Patched kernel was from vanilla 3.18.0-rc5 commit fc14f9c1272f62c3e8d01300f52467c0d9af50f9
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Signed-off-by: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index be671f7..f80df8f 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -885,7 +885,9 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
+ 		return; /* ignore */
+ 	}
+ 
+-	if (isr & ISR_BED) {
++	if ((isr & ISR_BED) &&
++		(!((i2c->msg->flags & I2C_M_IGNORE_NAK) &&
++			(isr & ISR_ACKNAK)))) {
+ 		int ret = BUS_ERROR;
+ 
+ 		/*
+@@ -919,12 +921,14 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
+ 		icr |= ICR_ALDIE | ICR_TB;
+ 
+ 		/*
+-		 * If this is the last byte of the last message, send
+-		 * a STOP.
++		 * If this is the last byte of the last message or last byte
++		 * of any message with I2C_M_STOP (e.g. SCCB), send a STOP.
+ 		 */
+-		if (i2c->msg_ptr == i2c->msg->len &&
+-		    i2c->msg_idx == i2c->msg_num - 1)
+-			icr |= ICR_STOP;
++		if ((i2c->msg_ptr == i2c->msg->len) &&
++			((i2c->msg->flags & I2C_M_STOP) ||
++			(i2c->msg_idx == i2c->msg_num - 1)))
++				icr |= ICR_STOP;
++
+ 	} else if (i2c->msg_idx < i2c->msg_num - 1) {
+ 		/*
+ 		 * Next segment of the message.
+@@ -1071,7 +1075,8 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
+ 
+ static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
++		I2C_FUNC_PROTOCOL_MANGLING | I2C_FUNC_NOSTART;
+ }
+ 
+ static const struct i2c_algorithm i2c_pxa_algorithm = {
+-- 
+1.7.12.1
