@@ -1,62 +1,73 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PATCH V3] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
-Date: Mon, 24 Nov 2014 16:27:11 +0100
-Message-ID: <1720074.U59stZW2tQ@vostro.rjw.lan>
-References: <1416748974-24124-1-git-send-email-tianyu.lan@intel.com> <54729A7B.4050007@linux.intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] Add support for SCCB devices into PXA27x I2C
+ controller
+Date: Mon, 24 Nov 2014 18:27:54 +0100
+Message-ID: <20141124172753.GA25434@katana>
+References: <54711397.9060601@tul.cz>
+ <20141123083112.GA1932@katana>
+ <54725DE2.9090800@tul.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54729A7B.4050007-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <54725DE2.9090800-qphu/3gb4gc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Li, Aubrey" <aubrey.li-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shigorin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adamw-cfjF3rc+CpsYNetmKr+vY16hYfS7NtTn@public.gmane.org, jan.brummer-sgYkR6nYkOfYtjvyW6yDsg@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
+To: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, November 24, 2014 10:39:55 AM Li, Aubrey wrote:
-> On 2014/11/23 21:22, Lan Tianyu wrote:
-> > ACPI 5.0 introduces _DEP to designate device objects that OSPM should
-> > assign a higher priority in start ordering due to future operation region
-> > accesses.
-> > 
-> > On Asus T100TA, ACPI battery info are read from a I2C slave device via
-> > I2C operation region. Before I2C operation region handler is installed,
-> > battery _STA always returns 0. There is a _DEP method of designating
-> > start order under battery device node.
-> > 
-> > This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
-> > Introducing acpi_dep_list and adding dep_unmet count in the struct
-> > acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
-> > valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
-> > master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
-> > count will increase by one if there is a device under its _DEP. Driver's probe() should
-> > return EPROBE_DEFER when find dep_unmet is larger than 0. When I2C operation
-> > region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
-> > whose master is pointed to I2C host controller and decrease slave's dep_unmet.
-> > When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
-> > for the device in order to resolve battery _STA issue on the Asus T100TA.
-> 
-> Well, Can we explicitly tied this up with ASUS T100TA in the code?
-> If I understand correctly, the assumption in the patch is that the
-> battery device only depends on I2C device, which is true on ASUS T100TA,
-> but may not on the other platforms.
-> 
-> This patch does not work on a box I have, on it _DEP contains I2C and GPIO.
 
-Does the patch break anything for you?
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Device (BATC)
->         {
->             Name (_HID, EisaId ("PNP0C0A"))  // _HID: Hardware ID
-> --------snip--------
->             Name (_DEP, Package (0x03)  // _DEP: Dependencies
->             {
->                 I2C1,
->                 GPO2,
->                 GPO0
->             })
-> 
+On Sun, Nov 23, 2014 at 11:21:22PM +0100, Petr Cvek wrote:
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+> I created this patch by fixing both I2C controller and SCCB device, so
+> it seems I incorrectly used I2C_M_NOSTART instead I2C_M_STOP. Problem
+> with I2C_M_STOP is that it causes bus freeze when using userspace
+> utility "i2cget" on SCCB device (unfreeze can be done with i2c-pxa
+> module reload). But this can be probably repaired in i2cget.
+
+Please CC Jean Delvare, he maintains the I2C tools.
+
+> Patched kernel was from vanilla 3.18.0-rc5 commit fc14f9c1272f62c3e8d01300f52467c0d9af50f9
+
+Thanks but all these paragraphs describing the updates should have gone
+below the "---" line. Your original commit message was more apropriate
+and should have stayed.
+
+>  static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
+>  {
+> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
+> +		I2C_FUNC_PROTOCOL_MANGLING | I2C_FUNC_NOSTART;
+
+Okay, so NOSTART was previously implemented but not advertised? Please
+update the commit log to say that this will be also fixed by your patch.
+
+
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUc2qZAAoJEBQN5MwUoCm2A3wP/0nvzQfuXA2210jrfU92ejYV
+geLt+iBMJYFiJUkviBF+ImqZEP/tFds5ROTS9VYNsbJmwmlzDbkgOhPEGlHFWp+4
+n8GLFrNW/8sktELMommAieRhLkp7003MHZJ6uM/2RdGtGF1S6wIuk7HcpC1agsnB
+CbkeiX0HbtKNVGSmOmPDCxI8IKMUb7S4SZ9JbzCHkBIb/0ko8KedGpQCbCVnJS9c
++r/bGmZP433GFGzv1hiy8zz4oB2Gx2K2MV0OrsMWsfd+A9ABe8RChAYH31sf8nTu
+k4Ae2ZoEiePA7Dw9iZXHUqXS6CB6TBGvPTdgWhfWrF3Ovm9KNhycq+BZ2HcZvA12
+8CiBVcfaHU7ae7mt8dup+AYFQpAEMbKBbfqwx3y9GYcY7uLumL+GSOzqvgg1w7k8
+jxIgtDDu8U/RWwFqopUJvHBetk3ImNIyi9sk6TC9ip2uTrUcn9tuTKA8WceZq+On
+oi/fignpzfuknq4o7gCC73Jynino1Q9XXwlSGiO6dpNaczwMjVS0msi+QxdRW+ii
+JdypdwZP+r/Bl3a0g8KIyg2OXmo1FNeuUQFrrzezMBG0r0kUJb0GVwR7ZIXwpy/B
+pSkB88eIlAz90iXpVtTN1l7UtPUmcEs1oRkrVAOwSD+KX+A7vrRr5EAKIznrGeH2
+7lxM06xAVmpu69/9M7PL
+=nbwe
+-----END PGP SIGNATURE-----
+
+--cNdxnHkX5QqsyA0e--
