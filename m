@@ -1,82 +1,80 @@
-From: Mike Looijmans <info-KQxf8TFvCoAi8rCdYzckzA@public.gmane.org>
-Subject: Re: [5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio for bus
- recovery
-Date: Mon, 24 Nov 2014 19:13:06 +0100
-Message-ID: <54737532.1050808@milosoftware.com>
-References: <1416477788-5544-6-git-send-email-grygorii.strashko@ti.com> <20141123170400.GC4431@pengutronix.de> <54732F8E.4080105@ti.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 2/4] i2c: omap: implement workaround for handling invalid
+ BB-bit values
+Date: Mon, 24 Nov 2014 13:08:40 -0600
+Message-ID: <20141124190840.GE25712@saruman>
+References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
+ <1416518925-20679-3-git-send-email-al.kochet@gmail.com>
+ <20141121160808.GM7508@saruman>
+ <20141122132309.GC2679@katana>
+ <B6D9B4D7-25CB-456F-88B4-EB6A53E33A9D@gmail.com>
+ <20141122180222.GA9698@katana>
+ <20141123044306.GA19898@saruman>
+ <1CC68911-DF20-4FF0-A08A-1A6F0B565662@gmail.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54732F8E.4080105-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, =?windows-1252?Q?Uwe_?= =?windows-1252?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XuV1QlJbYrcVoo+x"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1CC68911-DF20-4FF0-A08A-1A6F0B565662@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alexander Kochetkov <al.kochet@gmail.com>
+Cc: balbi@ti.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On 24-11-2014 14:15, Grygorii Strashko wrote:
-> Hi Uwe,
-> On 11/23/2014 07:04 PM, Uwe Kleine-K=F6nig wrote:
->> On Thu, Nov 20, 2014 at 12:03:08PM +0200, Grygorii Strashko wrote:
->>> @@ -664,6 +759,7 @@ static int davinci_i2c_probe(struct platform_de=
-vice *pdev)
->>>    		if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency"=
-,
->>>    			&prop))
->>>    			dev->pdata->bus_freq =3D prop / 1000;
->>> +		dev->pdata->has_pfunc =3D true;
->> I don't understand this. Why does this ICPFUNC recovery work if the =
-bus
->> is probed by oftree, but doesn't if not?
-> I've mentioned this in commit message:
->   Allow platforms to indicate the presence of the ICPFUNC registers w=
-ith a has_pfunc
->   platform data flag and enable this mode for platforms which support=
-s DT (da850 and
->   Keystone 2 are two SoCs which support DT now and they also support =
-ICPFUNC registers).
->
-> I'll add proper comment here.
+--XuV1QlJbYrcVoo+x
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Just thinking: What happens if you try to use the ICPFUNC registers on=20
-platforms that don't support it? If the answer is "nothing bad", then=20
-you might as well assume that if the platform doesn't specify its own=20
-GPIOs, you can always try using the ICPFUNC registers to shake the I2C=20
-bus. Better to try and fail than to never try at all...
+On Sun, Nov 23, 2014 at 04:18:40PM +0300, Alexander Kochetkov wrote:
+>=20
+> 23 =D0=BD=D0=BE=D1=8F=D0=B1. 2014 =D0=B3., =D0=B2 7:43, Felipe Balbi <bal=
+bi@ti.com> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB(=D0=B0):
+>=20
+> > maybe there was a typo? I tested on v3.18-rc3 :-)
+>=20
+> I do my tests on kernel from angstrom with almost all i2c-omap patches
+> backported from linux/master.
+> Then I rebased them to wrong (old) kernel version and posted to the
+> list.
+>=20
+> Angstrom kernel is from meta-ti layer. It's the same kernel as for arago.
+> http://arago-project.org/wiki/index.php/Main_Page
+>=20
+> I would really like to switch to the recent kernel, but I don't know
+> how good codec engine (CE) is supported on it.
+> Initially all ti drivers for codec engine was done for 2.6.x kernels
+> and later some of them was ported for 3.2.x.
+>=20
+> Felipe, do you know how CE is supported on v3.18-rc3?
 
->
->>>    	} else if (!dev->pdata) {
->>>    		dev->pdata =3D &davinci_i2c_platform_data_default;
->>>    	}
->>> @@ -705,7 +801,9 @@ static int davinci_i2c_probe(struct platform_de=
-vice *pdev)
->>>    	adap->timeout =3D DAVINCI_I2C_TIMEOUT;
->>>    	adap->dev.of_node =3D pdev->dev.of_node;
->>>   =20
->>> -	if (dev->pdata->scl_pin) {
->>> +	if (dev->pdata->has_pfunc)
->>> +		adap->bus_recovery_info =3D &davinci_i2c_scl_recovery_info;
->>> +	else if (dev->pdata->scl_pin) {
->>>    		adap->bus_recovery_info =3D &davinci_i2c_gpio_recovery_info;
->>>    		adap->bus_recovery_info->scl_gpio =3D dev->pdata->scl_pin;
->>>    		adap->bus_recovery_info->sda_gpio =3D dev->pdata->sda_pin;
->>> diff --git a/include/linux/platform_data/i2c-davinci.h b/include/li=
-nux/platform_data/i2c-davinci.h
->>> index 2312d19..89fd347 100644
->>> --- a/include/linux/platform_data/i2c-davinci.h
->>> +++ b/include/linux/platform_data/i2c-davinci.h
->>> @@ -18,6 +18,7 @@ struct davinci_i2c_platform_data {
->>>    	unsigned int	bus_delay;	/* post-transaction delay (usec) */
->>>    	unsigned int    sda_pin;        /* GPIO pin ID to use for SDA *=
-/
->>>    	unsigned int    scl_pin;        /* GPIO pin ID to use for SCL *=
-/
->>> +	bool		has_pfunc;	/*chip has a ICPFUNC register */
->> Space after /* please
->>
-> regards,
-> -grygorii
->
->
->
+what's CE ?
+
+--=20
+balbi
+
+--XuV1QlJbYrcVoo+x
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUc4I3AAoJEIaOsuA1yqREEMEP/Rb3NyFytlPmHaKBocd194hC
+IGNXEF6UnTJDNpnWZH88B5Z72GklsiGMkU2Zu1FyRNM9VF4E+ixhTx/vGcY1MIh7
++SZdpzdop+d7/Mfa3tgMgf7FL4LzaGVfVFNkXLKEwf501tAu5X3wbqmzTU9Iy9we
+TMO61Q4By7TMBLky1IlkfWVstNJVZLMkpIfWnXXL6J49hG3n6ku7LF9jPoSxeN4+
+KyJHtR8iMsLtMs1WBla8ew2xUktZblsXnS3MMegWPVwyKJZirdZVRd3xCRgKPLje
+x+3vpHAO3dk8MtghGncejYHwEnJcNkbWudpHxF3V/uavbxhs+8KqG6FYQr20AfxZ
+JBjyF4CGY4Vj9aWs28UfxHtTO9UuLh2HCpfsXIex1dLHYm9JQOAvO4tocKx5A5n/
+jKL9cgOp8KvoQRWZ8LDUNsM2d7KusM8VwmIXpRIFze948o5anMIVsK0fGQwHl6gJ
+Mg/6XPNHrYHsQt013wjyH2ep3HKhwXSbEBhEf6ZdwOz5j9oDeaUnRhW7rpSyjzQ8
+MaNiCu1oFY419+2BJTq4AfOHxWiecO/tu1eQfwerUZo5R9o+iv89YgtLbZBpMdiV
+Ddu+/PoGGO4/lt280ReU4n64o0tLLfsRSrXvpqFtTNPBkD3tAMOacWCGRE5/vEfb
+XZlSA+svyFbCtJPMA/Cj
+=vgAr
+-----END PGP SIGNATURE-----
+
+--XuV1QlJbYrcVoo+x--
