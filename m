@@ -1,74 +1,52 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [4/5] i2c: davinci: use bus recovery infrastructure
-Date: Mon, 24 Nov 2014 21:07:54 +0100
-Message-ID: <20141124200754.GW4431@pengutronix.de>
-References: <1416477788-5544-5-git-send-email-grygorii.strashko@ti.com>
- <20141121190744.GB4431@pengutronix.de>
- <546F9382.40102@ti.com>
- <20141123203634.GG4431@pengutronix.de>
- <547331F2.3000006@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] omap: i2c: don't check bus state IP rev3.3 and earlier
+Date: Tue, 25 Nov 2014 00:33:09 +0400
+Message-ID: <1416861189-17109-1-git-send-email-al.kochet@gmail.com>
+References: <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <547331F2.3000006-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1416685634-5864-3-git-send-email-al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Grygorii,
+Commit 903c3859f77f9b0aace551da03267ef7a211dbc4 ("i2c: omap: implement
+workaround for handling invalid BB-bit values") introduce the error result
+in boot test fault on OMAP3530 boards
 
-On Mon, Nov 24, 2014 at 03:26:10PM +0200, Grygorii Strashko wrote:
-> On 11/23/2014 10:36 PM, Uwe Kleine-K=F6nig wrote:
-> > On Fri, Nov 21, 2014 at 09:33:22PM +0200, Grygorii Strashko wrote:
-> >> On 11/21/2014 09:07 PM, Uwe Kleine-K=F6nig wrote:
-> >>> On Thu, Nov 20, 2014 at 12:03:07PM +0200, Grygorii Strashko wrote=
-:
-> >>> Just another general comment about the driver that doesn't influe=
-nce the
-> >>> correctness of this patch: The i2c-davinci driver is quite quick =
-to
-> >>> reset the bus. I wonder how often this reset triggers. Is the bus=
- in
-> >>> question less "stable" than others?
-> >>
-> >> In comparison to ..? :)
-> > In comparison to other bus drivers in other SoCs. I know this might=
- be
-> > hard to answer. I just wonder where the reason for this has to be
-> > located. Strange hardware? Software bug? Or is this SoC just operat=
-ing
-> > with strange slaves more often than others?
->=20
-> Davinci driver does reset in two cases:
-> - when I2C transaction isn't completed due to timeout (no irq receive=
-d)
-> - when BB is detected
-> both cases are reasonable, because in 1st case HW state is undefined
-> in 2d case - Davinci I2C supports only master mode and if BB detected
-> we need perform some recovery procedure.
-note that for multi-master scenarios bus recovery might be bad. So that
-has not necessarily something to do with "master mode only".
+The patch fix the error (disable i2c bus test for OMAP3530).
 
-> Also, this patch doesn't introduce functional changes - it's just cod=
-e
-> reworking intended to reuse I2C bus recovery infrastructure
-Yeah this is fine, and my concern shouldn't stop your patch from gettin=
-g
-in as it is an improvement for sure. Still I only had to handle BB once
-in my linux lifetime, and that was for a different reason. (Machine
-doing massive i2c transfers and so a client was often holding the bus
-busy when the watchdog resetted the cpu.) So I just wondered how often
-the need for recovery arises.
+Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Fixes: 903c3859f77f9b0aace551da03267ef7a211dbc4
+---
+ drivers/i2c/busses/i2c-omap.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 5d92d0e..4563200 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -344,8 +344,10 @@ static int omap_i2c_reset(struct omap_i2c_dev *dev)
+ 		/* SYSC register is cleared by the reset; rewrite it */
+ 		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, sysc);
+ 
+-		/* Schedule I2C-bus monitoring on the next transfer */
+-		dev->bb_valid = 0;
++		if (dev->rev > OMAP_I2C_REV_ON_3430_3530) {
++			/* Schedule I2C-bus monitoring on the next transfer */
++			dev->bb_valid = 0;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -460,7 +462,7 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 	dev->scllstate = scll;
+ 	dev->sclhstate = sclh;
+ 
+-	if (dev->rev < OMAP_I2C_OMAP1_REV_2) {
++	if (dev->rev <= OMAP_I2C_REV_ON_3430_3530) {
+ 		/* Not implemented */
+ 		dev->bb_valid = 1;
+ 	}
+-- 
+1.7.9.5
