@@ -1,58 +1,65 @@
-From: Pankaj Dubey <pankaj.dubey@samsung.com>
-Subject: Re: [PATCH v4 1/2] i2c: s3c2410: Handle i2c sys_cfg register in i2c
- driver
-Date: Mon, 24 Nov 2014 14:31:53 +0530
-Message-ID: <5472F401.30404@samsung.com>
-References: <1414656270-8048-1-git-send-email-pankaj.dubey@samsung.com>
- <1414656270-8048-2-git-send-email-pankaj.dubey@samsung.com>
- <20141121072545.GG1480@katana> <546F1140.4050709@samsung.com>
- <20141121164726.GA1426@katana> <019101d005ed$fd3d5eb0$f7b81c10$@kernel.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: rk3x: add Kconfig dependency on COMMON_CLK
+Date: Mon, 24 Nov 2014 10:31:16 +0100
+Message-ID: <20141124093116.GB3733@katana>
+References: <1499103.qTrcqP28lh@typ>
+ <20141124080509.GK4431@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-reply-to: <019101d005ed$fd3d5eb0$f7b81c10$@kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Kukjin Kim <kgene@kernel.org>, 'Wolfram Sang' <wsa@the-dreams.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux@arm.linux.org.uk, thomas.ab@samsung.com, 'Rob Herring' <robh+dt@kernel.org>, 'Randy Dunlap' <rdunlap@infradead.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20141124080509.GK4431-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
+--zx4FCpZtqtKETZ7O
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Saturday 22 November 2014 06:18 AM, Kukjin Kim wrote:
-> Wolfram Sang wrote:
->>
-> Hi Wolfram,
->
->>>> I usually don't take DTS patches. They should go via arm-soc. Please say
->>>> so if there are reasons I should take them.
->>>
->>> I CC'ed to you because same patch contains changes in i2c driver.
->>
->> Yes, those should absolutely go via my I2C tree. You need to make a
->> seperate patch out of the dts changes which then also should go via
->> samsung-soc, unless Kukjin says he really wants to go the via I2C. But I
->> guess the latter will just create merge conflicts.
->
-> Hmm...I think, Pankaj needs to submit separated patches 1) driver change, 2) dt
-> change and then 3) remove change. And 2nd and 3rd changes should be handed in
-> Samsung tree together after landing 1) change in -next.
->
-> Of course, 1) change should be handled in i2c tree ;)
->
+On Mon, Nov 24, 2014 at 09:05:09AM +0100, Uwe Kleine-K=C3=B6nig wrote:
+> Hello Max,
+>=20
+> On Mon, Nov 24, 2014 at 01:32:27AM +0100, Max Schwarz wrote:
+> > Now that we are using the clk notifier framework we get compile errors
+> > without COMMON_CLK. But the driver fails to probe without COMMON_CLK
+> > anyways, so just add that as a Kconfig dependency.
+> Hmm, I wonder how a kernel that fails to compile can even start probing
+> ... :-)
+>=20
+> Anyhow, it would be nice to quote the compiler error you fix here and
+> point out the patch that failed to add the needed dependency.
 
-Thanks for review and guidance. I separated i2c driver changes and 
-posted it as v6 here [1]. DT changes and mach-exynos removal of i2c 
-settings have been posted as v6 here [2]. Please do review and if OK 
-let's get it merged.
+Yes, that would be perfect. But for fixing the breakage in linux-next we
+created, this is good enough for me.
 
-[1]: i2c-driver: https://patchwork.kernel.org/patch/5363981/
-[2]: mach-exynos: 
-http://comments.gmane.org/gmane.linux.kernel.samsung-soc/40155
+Applied to for-next, thanks!
 
-Thanks,
-Pankaj Dubey
-> Thanks,
-> Kukjin
->
->
+
+--zx4FCpZtqtKETZ7O
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUcvrkAAoJEBQN5MwUoCm2WMcQAJdfCBTLusXgnBGTXy0Jkthn
+Uot3d7BcgNUXXaD4q3fQb9B3Ef0Y1Kqvb7VizYbbRl1BPTdXvkxIM682lO16IQmT
+LFwN9km5tb1fNSiOoGYsost+LsXEQi8eacF5RSpkIN/VyWz8ELj6q4P/9VNfOjmh
+5yV9aTo8n1+kwG921zjgliV/lGf23L50WCSVcRKBVdglXy/4eWeUZqDjTgeM3Y9Y
+zb/jGS4/0n8NbPAgqxVLk/XOYVr50uEmyqoyaBUiWB3XCqyx8GW5Xzz4DbMS/2Cu
+0LQ9ymt+ly1eH3FsrMGA0yhvp06GG6AevROOmurnMTmJusZVfdYdet+S+SeoucIV
+3cySQ20dR5Aw8HFZZLATrCuDs9xQusRuuC609jaOCuUOpya6/vnlKB29jUJxCjhL
+PW57zHCGlH4XZhzdzfqW7Yudgb79+8BQcTFYu/pTuDyt/DPDBlcmCj6qMPXoSJiA
+zpixnIl28Mso7d+ctGMd43V6Nzu2D8Gp7NQxAuVekozjOvy509f0O3fGyrcO4DuV
+FZZ+9vUl8LNNyf36xLMRY2dmM1wrHeIwo2raa4/Ic+VQid20OGb1NZCs2ct3pay7
+M8u1J1K7Hs6Q2RhERIfzk0yk3QiHVihJBvYK/QE8o2hkLM+KzyXUG3MSkNUfr3sB
+mz/rwGs8HRePqxytgcFq
+=5A+x
+-----END PGP SIGNATURE-----
+
+--zx4FCpZtqtKETZ7O--
