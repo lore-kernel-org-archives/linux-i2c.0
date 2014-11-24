@@ -1,65 +1,61 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: add Kconfig dependency on COMMON_CLK
-Date: Mon, 24 Nov 2014 10:31:16 +0100
-Message-ID: <20141124093116.GB3733@katana>
-References: <1499103.qTrcqP28lh@typ>
- <20141124080509.GK4431@pengutronix.de>
+Subject: Re: [PATCH v6]  i2c: s3c2410: Handle i2c sys_cfg register in i2c
+ driver
+Date: Mon, 24 Nov 2014 10:38:27 +0100
+Message-ID: <20141124093827.GC3733@katana>
+References: <1416818018-6684-1-git-send-email-pankaj.dubey@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zx4FCpZtqtKETZ7O"
+	protocol="application/pgp-signature"; boundary="rQ2U398070+RC21q"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20141124080509.GK4431-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1416818018-6684-1-git-send-email-pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+To: Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, thomas.ab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---zx4FCpZtqtKETZ7O
-Content-Type: text/plain; charset=utf-8
+--rQ2U398070+RC21q
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 24, 2014 at 09:05:09AM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> Hello Max,
+On Mon, Nov 24, 2014 at 02:03:38PM +0530, Pankaj Dubey wrote:
+> Let's handle i2c interrupt re-configuration in i2c driver. This will
+> help us in removing some soc specific checks from machine files and
+> will help in removing static iomapping of SYS register in exynos.c
 >=20
-> On Mon, Nov 24, 2014 at 01:32:27AM +0100, Max Schwarz wrote:
-> > Now that we are using the clk notifier framework we get compile errors
-> > without COMMON_CLK. But the driver fails to probe without COMMON_CLK
-> > anyways, so just add that as a Kconfig dependency.
-> Hmm, I wonder how a kernel that fails to compile can even start probing
-> ... :-)
+> Also handle saving and restoring of SYS_I2C_CFG register during
+> suspend and resume of i2c driver.
 >=20
-> Anyhow, it would be nice to quote the compiler error you fix here and
-> point out the patch that failed to add the needed dependency.
-
-Yes, that would be perfect. But for fixing the breakage in linux-next we
-created, this is good enough for me.
+> CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Pankaj Dubey <pankaj.dubey-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---zx4FCpZtqtKETZ7O
+--rQ2U398070+RC21q
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUcvrkAAoJEBQN5MwUoCm2WMcQAJdfCBTLusXgnBGTXy0Jkthn
-Uot3d7BcgNUXXaD4q3fQb9B3Ef0Y1Kqvb7VizYbbRl1BPTdXvkxIM682lO16IQmT
-LFwN9km5tb1fNSiOoGYsost+LsXEQi8eacF5RSpkIN/VyWz8ELj6q4P/9VNfOjmh
-5yV9aTo8n1+kwG921zjgliV/lGf23L50WCSVcRKBVdglXy/4eWeUZqDjTgeM3Y9Y
-zb/jGS4/0n8NbPAgqxVLk/XOYVr50uEmyqoyaBUiWB3XCqyx8GW5Xzz4DbMS/2Cu
-0LQ9ymt+ly1eH3FsrMGA0yhvp06GG6AevROOmurnMTmJusZVfdYdet+S+SeoucIV
-3cySQ20dR5Aw8HFZZLATrCuDs9xQusRuuC609jaOCuUOpya6/vnlKB29jUJxCjhL
-PW57zHCGlH4XZhzdzfqW7Yudgb79+8BQcTFYu/pTuDyt/DPDBlcmCj6qMPXoSJiA
-zpixnIl28Mso7d+ctGMd43V6Nzu2D8Gp7NQxAuVekozjOvy509f0O3fGyrcO4DuV
-FZZ+9vUl8LNNyf36xLMRY2dmM1wrHeIwo2raa4/Ic+VQid20OGb1NZCs2ct3pay7
-M8u1J1K7Hs6Q2RhERIfzk0yk3QiHVihJBvYK/QE8o2hkLM+KzyXUG3MSkNUfr3sB
-mz/rwGs8HRePqxytgcFq
-=5A+x
+iQIcBAEBAgAGBQJUcvyTAAoJEBQN5MwUoCm25tkP/RrOeNzBdZNJ22GIwJEN1Son
+6CHIcUr6mjsnLFDzvxfzI+nnaSS1ewKLyFNG5JzsCEQ1Ui/SpN1cUjvuGsVF6BRw
+FGCr6tYI7xW7EwZgKgPs5Yv8biqzJ8M0f736ToP+zDC4WRm1etwdipy9gAlcHGOP
+sDHCts5CZvVK915H7bp8abv1G1yrM3ONmshZWXsE8ICeMLj5x5TK0cey/WDN0iSn
+/vmMW4mIshc4++qygdLnSz7mSRl01+fOzC52jv2O9mgAfeFUJB3TFPvJs/FgrVne
+XRGKsH+/WTZz6nZ3wj/w2C3TFlbwu9aJYGeMl28WWHd8T9QB+iPLhhKMMQX1WMfu
+YqqRMb/m4vxNCNXpM7crkUVXQxMz0DRRCtdwCyrbx1FTr1LA9xhhDRgTsgay/e5C
+Bm00UWhWGMA2TF5iMoyi/KDnvSHAMBq7m9DM5Hn0+np73TIasMa7GJNidhfnLBub
+I4C/GWFjV4Alqfv+YnaBlOMUpFKRLNXznUCPQvTagEUG0UVzMI71YgZwFaSAVjhm
+q0f3cNFIv8KvZwLXoB/6iq/dYTUkaKOnQ1OSHHhItR4AT9O+QFpPvGtHjA0osgay
+1kpaKcxVf/Xhf2PgGfgtTuv2fTk6qDyt7c9ORI/dmmF8ZpQtjlKnoezaDn1aMLjW
+/flGf4Xc6tF9anFV38A1
+=MZIY
 -----END PGP SIGNATURE-----
 
---zx4FCpZtqtKETZ7O--
+--rQ2U398070+RC21q--
