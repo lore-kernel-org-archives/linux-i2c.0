@@ -1,51 +1,49 @@
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
 	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: rk3x: add Kconfig dependency on COMMON_CLK
-Date: Mon, 24 Nov 2014 10:57:24 +0100
-Message-ID: <20141124095724.GQ4431@pengutronix.de>
-References: <1565974.mtHL9sZWPl@typ>
+Subject: Re: [PATCH] i2c: rk3x: add Kconfig dependency on COMMON_CLK
+Date: Mon, 24 Nov 2014 10:59:55 +0100
+Message-ID: <20141124095954.GR4431@pengutronix.de>
+References: <1499103.qTrcqP28lh@typ>
+ <20141124080509.GK4431@pengutronix.de>
+ <20141124093116.GB3733@katana>
+ <20141124093823.GN4431@pengutronix.de>
+ <20141124095800.GE3733@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1565974.mtHL9sZWPl@typ>
+In-Reply-To: <20141124095800.GE3733@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hallo,
+On Mon, Nov 24, 2014 at 10:58:00AM +0100, Wolfram Sang wrote:
+>=20
+> > > Applied to for-next, thanks!
+> > Just for me to learn: is your for-next stable once pushed?
+>=20
+> Nope, I push manually when I feel comfortable. That might change,
+> though.
+>=20
+> > As you didn't push out yet, it's
+> >=20
+> > Fixes: 5a6f1566f6a0 ("i2c: rk3x: handle dynamic clock rate changes =
+correctly")
+>=20
+> Actually, it is 249051f49907. I rebased my internal i2c/for-3.19 tree=
+ to
+> fix an authorship and merged that into i2c/for-next. For those reason=
+s,
+> my current policy is to use "Fixes:" only for commits which hit the
+> linus-tree. I probably shouldn't do such things, but as long as I was
+> working on my own, this worked pretty well ;)
+If it's not stable you can even squash in the fix. In this case the
+commit log drill was superfluous for this commit, but (hopefully) still
+useful for the future.
 
-On Mon, Nov 24, 2014 at 10:55:45AM +0100, Max Schwarz wrote:
-> Commit 5a6f1566f6a0 ("i2c: rk3x: handle dynamic clock rate changes
-> correctly") introduced a dependency on clock rate notifiers. Now we g=
-et
-> compiler errors if compiled without COMMON_CLK:
->=20
-> drivers/i2c/busses/i2c-rk3x.c: In function 'rk3x_i2c_clk_notifier_cb'=
-:
-> drivers/i2c/busses/i2c-rk3x.c:634:7: error: 'PRE_RATE_CHANGE' undecla=
-red (first use in this function)
-> [...]
->=20
-> But the driver has always depended on COMMON_CLK even if it compiled
->  - in fact it fails to probe without it. So add that as a Kconfig
-> dependency.
->=20
-> Fixes: 5a6f1566f6a0 ("i2c: rk3x: handle dynamic clock rate changes co=
-rrectly")
-> Signed-off-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
-> ---
->=20
-> Wolfram,
->=20
-> here is a version with *even* better commit msg in case you still wan=
-t to
-> take that instead of my quick fix.
-Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
-Thanks
+Best regards
 Uwe
 
 --=20
