@@ -1,73 +1,82 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] Add support for SCCB devices into PXA27x I2C
- controller
-Date: Mon, 24 Nov 2014 18:27:54 +0100
-Message-ID: <20141124172753.GA25434@katana>
-References: <54711397.9060601@tul.cz>
- <20141123083112.GA1932@katana>
- <54725DE2.9090800@tul.cz>
+From: Mike Looijmans <info-KQxf8TFvCoAi8rCdYzckzA@public.gmane.org>
+Subject: Re: [5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio for bus
+ recovery
+Date: Mon, 24 Nov 2014 19:13:06 +0100
+Message-ID: <54737532.1050808@milosoftware.com>
+References: <1416477788-5544-6-git-send-email-grygorii.strashko@ti.com> <20141123170400.GC4431@pengutronix.de> <54732F8E.4080105@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Content-Type: text/plain; charset=windows-1252;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54725DE2.9090800-qphu/3gb4gc@public.gmane.org>
+In-Reply-To: <54732F8E.4080105-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, =?windows-1252?Q?Uwe_?= =?windows-1252?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 24-11-2014 14:15, Grygorii Strashko wrote:
+> Hi Uwe,
+> On 11/23/2014 07:04 PM, Uwe Kleine-K=F6nig wrote:
+>> On Thu, Nov 20, 2014 at 12:03:08PM +0200, Grygorii Strashko wrote:
+>>> @@ -664,6 +759,7 @@ static int davinci_i2c_probe(struct platform_de=
+vice *pdev)
+>>>    		if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency"=
+,
+>>>    			&prop))
+>>>    			dev->pdata->bus_freq =3D prop / 1000;
+>>> +		dev->pdata->has_pfunc =3D true;
+>> I don't understand this. Why does this ICPFUNC recovery work if the =
+bus
+>> is probed by oftree, but doesn't if not?
+> I've mentioned this in commit message:
+>   Allow platforms to indicate the presence of the ICPFUNC registers w=
+ith a has_pfunc
+>   platform data flag and enable this mode for platforms which support=
+s DT (da850 and
+>   Keystone 2 are two SoCs which support DT now and they also support =
+ICPFUNC registers).
+>
+> I'll add proper comment here.
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Just thinking: What happens if you try to use the ICPFUNC registers on=20
+platforms that don't support it? If the answer is "nothing bad", then=20
+you might as well assume that if the platform doesn't specify its own=20
+GPIOs, you can always try using the ICPFUNC registers to shake the I2C=20
+bus. Better to try and fail than to never try at all...
 
-On Sun, Nov 23, 2014 at 11:21:22PM +0100, Petr Cvek wrote:
-
-> I created this patch by fixing both I2C controller and SCCB device, so
-> it seems I incorrectly used I2C_M_NOSTART instead I2C_M_STOP. Problem
-> with I2C_M_STOP is that it causes bus freeze when using userspace
-> utility "i2cget" on SCCB device (unfreeze can be done with i2c-pxa
-> module reload). But this can be probably repaired in i2cget.
-
-Please CC Jean Delvare, he maintains the I2C tools.
-
-> Patched kernel was from vanilla 3.18.0-rc5 commit fc14f9c1272f62c3e8d01300f52467c0d9af50f9
-
-Thanks but all these paragraphs describing the updates should have gone
-below the "---" line. Your original commit message was more apropriate
-and should have stayed.
-
->  static u32 i2c_pxa_functionality(struct i2c_adapter *adap)
->  {
-> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-> +		I2C_FUNC_PROTOCOL_MANGLING | I2C_FUNC_NOSTART;
-
-Okay, so NOSTART was previously implemented but not advertised? Please
-update the commit log to say that this will be also fixed by your patch.
-
-
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUc2qZAAoJEBQN5MwUoCm2A3wP/0nvzQfuXA2210jrfU92ejYV
-geLt+iBMJYFiJUkviBF+ImqZEP/tFds5ROTS9VYNsbJmwmlzDbkgOhPEGlHFWp+4
-n8GLFrNW/8sktELMommAieRhLkp7003MHZJ6uM/2RdGtGF1S6wIuk7HcpC1agsnB
-CbkeiX0HbtKNVGSmOmPDCxI8IKMUb7S4SZ9JbzCHkBIb/0ko8KedGpQCbCVnJS9c
-+r/bGmZP433GFGzv1hiy8zz4oB2Gx2K2MV0OrsMWsfd+A9ABe8RChAYH31sf8nTu
-k4Ae2ZoEiePA7Dw9iZXHUqXS6CB6TBGvPTdgWhfWrF3Ovm9KNhycq+BZ2HcZvA12
-8CiBVcfaHU7ae7mt8dup+AYFQpAEMbKBbfqwx3y9GYcY7uLumL+GSOzqvgg1w7k8
-jxIgtDDu8U/RWwFqopUJvHBetk3ImNIyi9sk6TC9ip2uTrUcn9tuTKA8WceZq+On
-oi/fignpzfuknq4o7gCC73Jynino1Q9XXwlSGiO6dpNaczwMjVS0msi+QxdRW+ii
-JdypdwZP+r/Bl3a0g8KIyg2OXmo1FNeuUQFrrzezMBG0r0kUJb0GVwR7ZIXwpy/B
-pSkB88eIlAz90iXpVtTN1l7UtPUmcEs1oRkrVAOwSD+KX+A7vrRr5EAKIznrGeH2
-7lxM06xAVmpu69/9M7PL
-=nbwe
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--
+>
+>>>    	} else if (!dev->pdata) {
+>>>    		dev->pdata =3D &davinci_i2c_platform_data_default;
+>>>    	}
+>>> @@ -705,7 +801,9 @@ static int davinci_i2c_probe(struct platform_de=
+vice *pdev)
+>>>    	adap->timeout =3D DAVINCI_I2C_TIMEOUT;
+>>>    	adap->dev.of_node =3D pdev->dev.of_node;
+>>>   =20
+>>> -	if (dev->pdata->scl_pin) {
+>>> +	if (dev->pdata->has_pfunc)
+>>> +		adap->bus_recovery_info =3D &davinci_i2c_scl_recovery_info;
+>>> +	else if (dev->pdata->scl_pin) {
+>>>    		adap->bus_recovery_info =3D &davinci_i2c_gpio_recovery_info;
+>>>    		adap->bus_recovery_info->scl_gpio =3D dev->pdata->scl_pin;
+>>>    		adap->bus_recovery_info->sda_gpio =3D dev->pdata->sda_pin;
+>>> diff --git a/include/linux/platform_data/i2c-davinci.h b/include/li=
+nux/platform_data/i2c-davinci.h
+>>> index 2312d19..89fd347 100644
+>>> --- a/include/linux/platform_data/i2c-davinci.h
+>>> +++ b/include/linux/platform_data/i2c-davinci.h
+>>> @@ -18,6 +18,7 @@ struct davinci_i2c_platform_data {
+>>>    	unsigned int	bus_delay;	/* post-transaction delay (usec) */
+>>>    	unsigned int    sda_pin;        /* GPIO pin ID to use for SDA *=
+/
+>>>    	unsigned int    scl_pin;        /* GPIO pin ID to use for SCL *=
+/
+>>> +	bool		has_pfunc;	/*chip has a ICPFUNC register */
+>> Space after /* please
+>>
+> regards,
+> -grygorii
+>
+>
+>
