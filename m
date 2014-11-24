@@ -1,36 +1,74 @@
-From: Alexander Kochetkov <al.kochet@gmail.com>
-Subject: Re: [PATCH v3 2/4] i2c: omap: implement workaround for handling invalid BB-bit values
-Date: Mon, 24 Nov 2014 23:05:21 +0300
-Message-ID: <47749B61-5924-4E56-9931-77B0CFC0AAA0@gmail.com>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com> <1416685634-5864-1-git-send-email-al.kochet@gmail.com> <1416685634-5864-3-git-send-email-al.kochet@gmail.com> <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com> <47A1A441-952C-4AC3-859C-5A8E405767E0@gmail.com> <20141124194759.GG2757@atomide.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141124194759.GG2757@atomide.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Kevin Hilman <khilman@kernel.org>, Felipe Balbi <balbi@ti.com>, Wolfram Sang <wsa@the-dreams.de>, linux-omap <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Alexander Kochetkov <al.kochet@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [4/5] i2c: davinci: use bus recovery infrastructure
+Date: Mon, 24 Nov 2014 21:07:54 +0100
+Message-ID: <20141124200754.GW4431@pengutronix.de>
+References: <1416477788-5544-5-git-send-email-grygorii.strashko@ti.com>
+ <20141121190744.GB4431@pengutronix.de>
+ <546F9382.40102@ti.com>
+ <20141123203634.GG4431@pengutronix.de>
+ <547331F2.3000006@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <547331F2.3000006-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Guys, I really sorry for that :(
+Hi Grygorii,
 
-> Just try to boot it with your patch? :)
+On Mon, Nov 24, 2014 at 03:26:10PM +0200, Grygorii Strashko wrote:
+> On 11/23/2014 10:36 PM, Uwe Kleine-K=F6nig wrote:
+> > On Fri, Nov 21, 2014 at 09:33:22PM +0200, Grygorii Strashko wrote:
+> >> On 11/21/2014 09:07 PM, Uwe Kleine-K=F6nig wrote:
+> >>> On Thu, Nov 20, 2014 at 12:03:07PM +0200, Grygorii Strashko wrote=
+:
+> >>> Just another general comment about the driver that doesn't influe=
+nce the
+> >>> correctness of this patch: The i2c-davinci driver is quite quick =
+to
+> >>> reset the bus. I wonder how often this reset triggers. Is the bus=
+ in
+> >>> question less "stable" than others?
+> >>
+> >> In comparison to ..? :)
+> > In comparison to other bus drivers in other SoCs. I know this might=
+ be
+> > hard to answer. I just wonder where the reason for this has to be
+> > located. Strange hardware? Software bug? Or is this SoC just operat=
+ing
+> > with strange slaves more often than others?
+>=20
+> Davinci driver does reset in two cases:
+> - when I2C transaction isn't completed due to timeout (no irq receive=
+d)
+> - when BB is detected
+> both cases are reasonable, because in 1st case HW state is undefined
+> in 2d case - Davinci I2C supports only master mode and if BB detected
+> we need perform some recovery procedure.
+note that for multi-master scenarios bus recovery might be bad. So that
+has not necessarily something to do with "master mode only".
 
-Yes, may be two-three times (max).
-Something (u-boot, may be) leave the bus in the wrong state.
-Really strange.
+> Also, this patch doesn't introduce functional changes - it's just cod=
+e
+> reworking intended to reuse I2C bus recovery infrastructure
+Yeah this is fine, and my concern shouldn't stop your patch from gettin=
+g
+in as it is an improvement for sure. Still I only had to handle BB once
+in my linux lifetime, and that was for a different reason. (Machine
+doing massive i2c transfers and so a client was often holding the bus
+busy when the watchdog resetted the cpu.) So I just wondered how often
+the need for recovery arises.
 
-> But the test function should not loop forever in any case I take?
+Best regards
+Uwe
 
-It doesn't loop forever. It finish with message:
-"[    3.046691] omap_i2c 48070000.i2c: timeout waiting for bus ready"
-
-> So I doubt we just want to change the test for for a higher rev number
-> for  OMAP_I2C_REV_ON_3430_3530.
-
-
-Yes, I'll do it within 15 minutes.
-And later, if it possible, I'd try to see what happens.
-
-Alexander.
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
