@@ -1,68 +1,64 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: Re: [5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio for bus
- recovery
-Date: Mon, 24 Nov 2014 21:22:24 +0200
-Message-ID: <54738570.8070601@ti.com>
-References: <1416477788-5544-6-git-send-email-grygorii.strashko@ti.com> <20141123170400.GC4431@pengutronix.de> <54732F8E.4080105@ti.com> <54737532.1050808@milosoftware.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v3 2/4] i2c: omap: implement workaround for handling
+ invalid BB-bit values
+Date: Mon, 24 Nov 2014 11:25:17 -0800
+Message-ID: <20141124192517.GE2757@atomide.com>
+References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
+ <1416685634-5864-1-git-send-email-al.kochet@gmail.com>
+ <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
+ <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com>
+ <20141124191023.GG25712@saruman>
+ <20141124191347.GA26751@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54737532.1050808-KQxf8TFvCoAi8rCdYzckzA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20141124191347.GA26751@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Looijmans <info-KQxf8TFvCoAi8rCdYzckzA@public.gmane.org>, =?windows-1252?Q?Uwe_Kleine?= =?windows-1252?Q?-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/24/2014 08:13 PM, Mike Looijmans wrote:
-> On 24-11-2014 14:15, Grygorii Strashko wrote:
->> Hi Uwe,
->> On 11/23/2014 07:04 PM, Uwe Kleine-K=F6nig wrote:
->>> On Thu, Nov 20, 2014 at 12:03:08PM +0200, Grygorii Strashko wrote:
->>>> @@ -664,6 +759,7 @@ static int davinci_i2c_probe(struct=20
->>>> platform_device *pdev)
->>>>            if (!of_property_read_u32(pdev->dev.of_node,=20
->>>> "clock-frequency",
->>>>                &prop))
->>>>                dev->pdata->bus_freq =3D prop / 1000;
->>>> +        dev->pdata->has_pfunc =3D true;
->>> I don't understand this. Why does this ICPFUNC recovery work if the=
- bus
->>> is probed by oftree, but doesn't if not?
->> I've mentioned this in commit message:
->>   Allow platforms to indicate the presence of the ICPFUNC registers=20
->> with a has_pfunc
->>   platform data flag and enable this mode for platforms which suppor=
-ts=20
->> DT (da850 and
->>   Keystone 2 are two SoCs which support DT now and they also support=
-=20
->> ICPFUNC registers).
->>
->> I'll add proper comment here.
->=20
-> Just thinking: What happens if you try to use the ICPFUNC registers o=
-n=20
-> platforms that don't support it? If the answer is "nothing bad", then=
-=20
-> you might as well assume that if the platform doesn't specify its own=
-=20
-> GPIOs, you can always try using the ICPFUNC registers to shake the I2=
-C=20
-> bus. Better to try and fail than to never try at all...
->=20
+* Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> [141124 11:14]:
+> On Mon, Nov 24, 2014 at 01:10:23PM -0600, Felipe Balbi wrote:
+> > On Mon, Nov 24, 2014 at 11:08:48AM -0800, Kevin Hilman wrote:
+> > > On Sat, Nov 22, 2014 at 11:47 AM, Alexander Kochetkov
+> > > <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> > > > In a multimaster environment, after IP software reset, BB-bit value doesn't
+> > > > correspond to the current bus state. It may happen what BB-bit will be 0,
+> > > > while the bus is busy due to another I2C master activity.
+> > > >
+> > > > Any transfer started when BB=0 and bus is busy wouldn't be completed by IP
+> > > > and results in controller timeout. More over, in some cases IP could
+> > > > interrupt another master's transfer and corrupt data on wire.
+> > > >
+> > > > The commit implement method allowing to prevent IP from entering into
+> > > > "controller timeout" state and from "data corruption" state.
+> > > >
+> > > > The one drawback is the need to wait for 10ms before the first transfer.
+> > > >
+> > > > Tested on Beagleboard XM C.
+> > > > Tested on BBB and AM437x Starter Kit by Felipe Balbi.
+> > > >
+> > > > Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > > > Tested-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> > > > Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> > > 
+> > > This patch recently hit linux-next (as commit 903c3859f77f) and boot
+> > > breakage[1] in next-20141124 on OMAP3530 Beagle and Overo/Tobi boards
+> > > was bisected down to this commit.
+> > > 
+> > > Kevin
+> > > 
+> > > [1] http://status.armcloud.us/boot/?next-20141124&omap
+> > 
+> > btw, based on Kevin's boot test, only OMAP3530 is failing.
+> 
+> OK, giving Alexander some time for a fix. If it can't be found, I'll
+> revert this patch. Thanks!
 
-I think the right answer is !"nothing bad".
+I can confirm reverting it fixes things for me as well thanks.
 
-My intention was to enable this feature by default, because current DT-=
-compatible
-SoCs support it and the possibility that older SoCs will migrate to DT =
-is low.
-But now I think that the right way will be to add proper compatible str=
-ings
-and use them to detect if ICPFUNC registers are supported or not.
+Regards,
 
-[...]
-
-regards,
--grygorii
+Tony
