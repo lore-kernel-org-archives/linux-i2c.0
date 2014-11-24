@@ -1,71 +1,57 @@
-From: Xudong Chen <xudong.chen@mediatek.com>
-Subject: [PATCH v3 1/2] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Mon, 24 Nov 2014 17:38:47 +0800
-Message-ID: <1416821928-11453-2-git-send-email-xudong.chen@mediatek.com>
-References: <1416821928-11453-1-git-send-email-xudong.chen@mediatek.com>
+From: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH v2] i2c: rk3x: add Kconfig dependency on COMMON_CLK
+Date: Mon, 24 Nov 2014 10:46:25 +0100
+Message-ID: <1433526.P5A9cIEu1z@typ>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1416821928-11453-1-git-send-email-xudong.chen@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: srv_heupstream@mediatek.com, Sascha Hauer <kernel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, Xudong Chen <xudong.chen@mediatek.com>, Jean Delvare <jdelvare@suse.de>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Nathan Chung <nathan.chung@mediatek.com>, YH Chen <yh.chen@mediatek.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add devicetree bindings for Mediatek Soc I2C driver.
+Fixes: 5a6f1566f6a0 ("i2c: rk3x: handle dynamic clock rate changes correctly")
 
-Signed-off-by: Xudong Chen <xudong.chen@mediatek.com>
-Change-Id: Iaaba1e8420abfbfb503501310de04ee25ae72e18
+which introduced a dependency on clock rate notifiers. Now we get compiler
+errors if compiled without COMMON_CLK:
+
+drivers/i2c/busses/i2c-rk3x.c: In function 'rk3x_i2c_clk_notifier_cb':
+drivers/i2c/busses/i2c-rk3x.c:634:7: error: 'PRE_RATE_CHANGE' undeclared (first use in this function)
+[...]
+
+But the driver has always depended on COMMON_CLK even if it compiled
+ - in fact it fails to probe without it. So add that as a Kconfig
+dependency.
+
+Signed-off-by: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>
 ---
- .../devicetree/bindings/i2c/i2c-mt6577.txt         | 40 ++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-new file mode 100644
-index 0000000..08f86c7
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-@@ -0,0 +1,40 @@
-+* Mediatek's I2C controller
-+
-+The Mediatek's I2C controller is used to interface with I2C devices.
-+
-+Required properties:
-+  - compatible: value should be either of the following.
-+      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-+      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-+      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-+      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-+  - reg: physical base address of the controller and dma base, length of memory
-+    mapped region.
-+  - interrupts: interrupt number to the cpu.
-+  - clock-div: the fixed value for frequency divider of clock source in i2c
-+    module. Each IC may be different.
-+  - clocks: clock name from clock manager
-+  - clock-names: Must include "main" and "dma", if enable have-pmic need include
-+    "pmic" extra.
-+
-+Optional properties:
-+  - clock-frequency: Frequency in Hz of the bus when transfer, the default value
-+    is 100000.
-+  - mediatek,have-pmic: platform can control i2c form special pmic side.
-+    Only mt6589 and mt8135 support this feature.
-+  - mediatek,use-push-pull: IO config use push-pull mode.
-+
-+Example:
-+
-+	i2c0: i2c@1100d000 {
-+			compatible = "mediatek,mt6577-i2c";
-+			reg = <0x1100d000 0x70>,
-+			      <0x11000300 0x80>;
-+			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-+			clock-frequency = <100000>;
-+			mediatek,have-pmic;
-+			clock-div = <16>;
-+			clocks = <&i2c0_ck>, <&ap_dma_ck>;
-+			clock-names = "main", "dma";
-+	};
-+
+Wolfram,
+
+here is a version with better commit msg in case you still want to take that
+instead of my quick fix.
+
+Uwe, thanks for your comments!
+
+Cheers,
+  Max
+
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index a940e33..bb66119 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -720,7 +720,7 @@ config I2C_RIIC
+ 
+ config I2C_RK3X
+ 	tristate "Rockchip RK3xxx I2C adapter"
+-	depends on OF
++	depends on OF && COMMON_CLK
+ 	help
+ 	  Say Y here to include support for the I2C adapter in Rockchip RK3xxx
+ 	  SoCs.
 -- 
-1.8.1.1.dirty
+1.9.1
