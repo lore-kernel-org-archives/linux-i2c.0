@@ -1,76 +1,68 @@
-From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 0/3] i2c: i2c-imx-hdmi: add support of iMX6 HDMI DDC I2C
- bus
-Date: Mon, 24 Nov 2014 21:15:19 +0200
-Message-ID: <547383C7.8000705@mentor.com>
-References: <1416073759-19939-1-git-send-email-vladimir_zapolskiy@mentor.com> <20141124122052.GI3733@katana>
+From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Subject: Re: [5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio for bus
+ recovery
+Date: Mon, 24 Nov 2014 21:22:24 +0200
+Message-ID: <54738570.8070601@ti.com>
+References: <1416477788-5544-6-git-send-email-grygorii.strashko@ti.com> <20141123170400.GC4431@pengutronix.de> <54732F8E.4080105@ti.com> <54737532.1050808@milosoftware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141124122052.GI3733@katana>
+In-Reply-To: <54737532.1050808-KQxf8TFvCoAi8rCdYzckzA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Looijmans <info-KQxf8TFvCoAi8rCdYzckzA@public.gmane.org>, =?windows-1252?Q?Uwe_Kleine?= =?windows-1252?Q?-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On 24.11.2014 14:20, Wolfram Sang wrote:
-> On Sat, Nov 15, 2014 at 07:49:16PM +0200, Vladimir Zapolskiy wrote:
->> Please review a proposed iMX6 HDMI DDC controller driver written on
->> top of I2C framework.
+On 11/24/2014 08:13 PM, Mike Looijmans wrote:
+> On 24-11-2014 14:15, Grygorii Strashko wrote:
+>> Hi Uwe,
+>> On 11/23/2014 07:04 PM, Uwe Kleine-K=F6nig wrote:
+>>> On Thu, Nov 20, 2014 at 12:03:08PM +0200, Grygorii Strashko wrote:
+>>>> @@ -664,6 +759,7 @@ static int davinci_i2c_probe(struct=20
+>>>> platform_device *pdev)
+>>>>            if (!of_property_read_u32(pdev->dev.of_node,=20
+>>>> "clock-frequency",
+>>>>                &prop))
+>>>>                dev->pdata->bus_freq =3D prop / 1000;
+>>>> +        dev->pdata->has_pfunc =3D true;
+>>> I don't understand this. Why does this ICPFUNC recovery work if the=
+ bus
+>>> is probed by oftree, but doesn't if not?
+>> I've mentioned this in commit message:
+>>   Allow platforms to indicate the presence of the ICPFUNC registers=20
+>> with a has_pfunc
+>>   platform data flag and enable this mode for platforms which suppor=
+ts=20
+>> DT (da850 and
+>>   Keystone 2 are two SoCs which support DT now and they also support=
+=20
+>> ICPFUNC registers).
 >>
->> Changes from RFC to v1 version:
->> * added I2C bus ducumentation,
->> * updated iMX6 HDMI device tree bindings documentation,
->> * device resource information is collected from parent HDMI phandle,
->> * minor clean-ups.
->>
->> The driver intends to support HDMI on-controller I2C master bus with
->> limited cababilities, however by nature of the sub-device it seems
->> reasonable to separate it into a stand-alone driver, which also can be
->> used independently on general HDMI controller driver, for example as
->> an additional I2C bus on a board, but please be aware that the bus is
->> not compliant to I2C specification.
->>
->> In my practice I've met iMX6Q boards, where HDMI DDC lines are
->> connected to iMX6 HDMI DDC pins and not to any of 3 I2C busses, so
->> support of iMX6 HDMI I2C bus is important to have.
->>
->> Main issues with the device/driver:
->> * iMX6 HDMI controller becomes a shared device (both interrupt and
->>   memory region) between HDMI driver itself and this I2C bus driver.
->> * Only two patterns of I2C transactions are supported due to hardware
->>   limitation, these patters are described in driver's code header.
->> * The bus controller supports one more multi-byte read pattern (so
->>   called Extended Read Mode), but Freescale documentation is too vague
->>   to easily add this mode into the driver.
->>
->> The bus driver may be used independently on presence/absence of iMX6
->> HDMI controller driver, so build dependeny is not set.
+>> I'll add proper comment here.
+>=20
+> Just thinking: What happens if you try to use the ICPFUNC registers o=
+n=20
+> platforms that don't support it? If the answer is "nothing bad", then=
+=20
+> you might as well assume that if the platform doesn't specify its own=
+=20
+> GPIOs, you can always try using the ICPFUNC registers to shake the I2=
+C=20
+> bus. Better to try and fail than to never try at all...
+>=20
 
-thank you for review.
+I think the right answer is !"nothing bad".
 
-> I think there are now 3 drivers in my queue which are not fully I2C
-> compatible but more supporting the very minimum to, say, read an eeprom.
-> I am not feeling well to allow them to use I2C_FUNC_I2C. So, I want to
-> think about ways how to communicate deficiencies like "only 255 byte" or
-> "only WRRD messages" to users of that I2C controller. This is most
-> likely not happening before 3.19. But assistance is very welcome.
-> 
+My intention was to enable this feature by default, because current DT-=
+compatible
+SoCs support it and the possibility that older SoCs will migrate to DT =
+is low.
+But now I think that the right way will be to add proper compatible str=
+ings
+and use them to detect if ICPFUNC registers are supported or not.
 
-Yeah, it sounds absolutely correct *not* to allow such drivers (and this
-one in particular) to provide naked I2C_FUNC_I2C.
+[...]
 
-Is there any chance to extend I2C_FUNC_* list? It still has some free
-bits, not so many though.
-
-Probably it might be possible to create another list of quirks or
-exceptions (in opposite to functionality) and export quirks of a
-particular I2C bus to userspace over some userspace to kernel channel
-(e.g. adding one more ioctl).
-
---
-With best wishes,
-Vladimir
+regards,
+-grygorii
