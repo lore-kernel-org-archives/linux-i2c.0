@@ -1,92 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 2/4] i2c: omap: implement workaround for handling
- invalid BB-bit values
-Date: Mon, 24 Nov 2014 20:13:47 +0100
-Message-ID: <20141124191347.GA26751@katana>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
- <1416685634-5864-1-git-send-email-al.kochet@gmail.com>
- <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
- <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com>
- <20141124191023.GG25712@saruman>
+From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 0/3] i2c: i2c-imx-hdmi: add support of iMX6 HDMI DDC I2C
+ bus
+Date: Mon, 24 Nov 2014 21:15:19 +0200
+Message-ID: <547383C7.8000705@mentor.com>
+References: <1416073759-19939-1-git-send-email-vladimir_zapolskiy@mentor.com> <20141124122052.GI3733@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20141124191023.GG25712@saruman>
-Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Kevin Hilman <khilman@kernel.org>, Alexander Kochetkov <al.kochet@gmail.com>, Tony Lindgren <tony@atomide.com>, linux-omap <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141124122052.GI3733@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 24.11.2014 14:20, Wolfram Sang wrote:
+> On Sat, Nov 15, 2014 at 07:49:16PM +0200, Vladimir Zapolskiy wrote:
+>> Please review a proposed iMX6 HDMI DDC controller driver written on
+>> top of I2C framework.
+>>
+>> Changes from RFC to v1 version:
+>> * added I2C bus ducumentation,
+>> * updated iMX6 HDMI device tree bindings documentation,
+>> * device resource information is collected from parent HDMI phandle,
+>> * minor clean-ups.
+>>
+>> The driver intends to support HDMI on-controller I2C master bus with
+>> limited cababilities, however by nature of the sub-device it seems
+>> reasonable to separate it into a stand-alone driver, which also can be
+>> used independently on general HDMI controller driver, for example as
+>> an additional I2C bus on a board, but please be aware that the bus is
+>> not compliant to I2C specification.
+>>
+>> In my practice I've met iMX6Q boards, where HDMI DDC lines are
+>> connected to iMX6 HDMI DDC pins and not to any of 3 I2C busses, so
+>> support of iMX6 HDMI I2C bus is important to have.
+>>
+>> Main issues with the device/driver:
+>> * iMX6 HDMI controller becomes a shared device (both interrupt and
+>>   memory region) between HDMI driver itself and this I2C bus driver.
+>> * Only two patterns of I2C transactions are supported due to hardware
+>>   limitation, these patters are described in driver's code header.
+>> * The bus controller supports one more multi-byte read pattern (so
+>>   called Extended Read Mode), but Freescale documentation is too vague
+>>   to easily add this mode into the driver.
+>>
+>> The bus driver may be used independently on presence/absence of iMX6
+>> HDMI controller driver, so build dependeny is not set.
 
-On Mon, Nov 24, 2014 at 01:10:23PM -0600, Felipe Balbi wrote:
-> On Mon, Nov 24, 2014 at 11:08:48AM -0800, Kevin Hilman wrote:
-> > On Sat, Nov 22, 2014 at 11:47 AM, Alexander Kochetkov
-> > <al.kochet@gmail.com> wrote:
-> > > In a multimaster environment, after IP software reset, BB-bit value d=
-oesn't
-> > > correspond to the current bus state. It may happen what BB-bit will b=
-e 0,
-> > > while the bus is busy due to another I2C master activity.
-> > >
-> > > Any transfer started when BB=3D0 and bus is busy wouldn't be complete=
-d by IP
-> > > and results in controller timeout. More over, in some cases IP could
-> > > interrupt another master's transfer and corrupt data on wire.
-> > >
-> > > The commit implement method allowing to prevent IP from entering into
-> > > "controller timeout" state and from "data corruption" state.
-> > >
-> > > The one drawback is the need to wait for 10ms before the first transf=
-er.
-> > >
-> > > Tested on Beagleboard XM C.
-> > > Tested on BBB and AM437x Starter Kit by Felipe Balbi.
-> > >
-> > > Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
-> > > Tested-by: Felipe Balbi <balbi@ti.com>
-> > > Reviewed-by: Felipe Balbi <balbi@ti.com>
-> >=20
-> > This patch recently hit linux-next (as commit 903c3859f77f) and boot
-> > breakage[1] in next-20141124 on OMAP3530 Beagle and Overo/Tobi boards
-> > was bisected down to this commit.
-> >=20
-> > Kevin
-> >=20
-> > [1] http://status.armcloud.us/boot/?next-20141124&omap
->=20
-> btw, based on Kevin's boot test, only OMAP3530 is failing.
+thank you for review.
 
-OK, giving Alexander some time for a fix. If it can't be found, I'll
-revert this patch. Thanks!
+> I think there are now 3 drivers in my queue which are not fully I2C
+> compatible but more supporting the very minimum to, say, read an eeprom.
+> I am not feeling well to allow them to use I2C_FUNC_I2C. So, I want to
+> think about ways how to communicate deficiencies like "only 255 byte" or
+> "only WRRD messages" to users of that I2C controller. This is most
+> likely not happening before 3.19. But assistance is very welcome.
+> 
 
+Yeah, it sounds absolutely correct *not* to allow such drivers (and this
+one in particular) to provide naked I2C_FUNC_I2C.
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Is there any chance to extend I2C_FUNC_* list? It still has some free
+bits, not so many though.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Probably it might be possible to create another list of quirks or
+exceptions (in opposite to functionality) and export quirks of a
+particular I2C bus to userspace over some userspace to kernel channel
+(e.g. adding one more ioctl).
 
-iQIcBAEBAgAGBQJUc4NrAAoJEBQN5MwUoCm2xaEQAK082DTEJDKCWUS19KrPWQVv
-VoGX6sogqQafjoeKvdr88NSg9IC/YjZMz7yMnnPiMt8/ynW8vuQMjk82mlCnUIvo
-0w8Ge+8oD0hIKGZ2BGXWFUvPiqEaJiz3zCVOuLbvuzsmSrr1TsmVL9Y2fUsyrGr0
-HfBh7KRM552hA6HC++tFUsMSfFmCiVQLOgOAARi6DSTxcOIZn4GeEwP1PeOqKy8P
-dScCo/j3cC2MnLtayVuyRL+5PgWW8moqsjP5qOMD/S0jipYB/1VF6WnegWq9oDDJ
-YaqGAD7gUeCjAlhuFIo9hIO/xiyZs4b78e8qDBAO/Ekeq6vEjsQeyJAGx6dhiUwn
-bJMLIWHK1Y+lsMlbHP1DcKZ+UQkaufYAJP+nkZ0rxfd24UbPnLF+UgoXg80Y34t5
-x2gZBYCq7qxhi1r3PQAVUWig1Et+2f1jndg0LZd7cUTYiOlHQ/oRCyAfUk/BQU1K
-O8MiH1cHcQsjUPCK3uL96wQyab59wS4uYaR5BHfo977DcDXkAWZebuE9tZN/mucr
-nDGAgSGajAlI4qcw3sdQCbiKsnxfZvYNSLchISj8OsoWNJZGHA2eNYYm5bW4pr95
-7olnxARQg5u+u6JFagMc+sDYcNcwk7BTefZIArvGfU2CanlGtm+aZ3lGkWV1LGpQ
-R8KQx20SkFFsgViPD5/9
-=ckvQ
------END PGP SIGNATURE-----
-
---X1bOJ3K7DJ5YkBrT--
+--
+With best wishes,
+Vladimir
