@@ -1,59 +1,66 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: rk3x: add Kconfig dependency on COMMON_CLK
-Date: Mon, 24 Nov 2014 10:38:23 +0100
-Message-ID: <20141124093823.GN4431@pengutronix.de>
-References: <1499103.qTrcqP28lh@typ>
- <20141124080509.GK4431@pengutronix.de>
- <20141124093116.GB3733@katana>
+From: Xudong Chen <xudong.chen@mediatek.com>
+Subject: [PATCH v3 0/2] ARM: mediatek: Add driver for Mediatek I2C controller
+Date: Mon, 24 Nov 2014 17:38:46 +0800
+Message-ID: <1416821928-11453-1-git-send-email-xudong.chen@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20141124093116.GB3733@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, Sascha Hauer <kernel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, Xudong Chen <xudong.chen@mediatek.com>, Jean Delvare <jdelvare@suse.de>, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Nathan Chung <nathan.chung@mediatek.com>, YH Chen <yh.chen@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hey Wolfram,
+This series is the third version of Mediatek SoCs I2C controller common
+bus driver.
+Compared to the second version,
+1. Add comments for clock in dt-bindings file i2c-mt6577.txt.
+2. Remove mt8135.dtsi because of the dependency on pinctrl and clock.
+3. Encode the feature have-dcm in i2c-mt65xx.c by checking the compatible.
 
-On Mon, Nov 24, 2014 at 10:31:16AM +0100, Wolfram Sang wrote:
-> On Mon, Nov 24, 2014 at 09:05:09AM +0100, Uwe Kleine-K=F6nig wrote:
-> > Hello Max,
-> >=20
-> > On Mon, Nov 24, 2014 at 01:32:27AM +0100, Max Schwarz wrote:
-> > > Now that we are using the clk notifier framework we get compile e=
-rrors
-> > > without COMMON_CLK. But the driver fails to probe without COMMON_=
-CLK
-> > > anyways, so just add that as a Kconfig dependency.
-> > Hmm, I wonder how a kernel that fails to compile can even start pro=
-bing
-> > ... :-)
-> >=20
-> > Anyhow, it would be nice to quote the compiler error you fix here a=
-nd
-> > point out the patch that failed to add the needed dependency.
->=20
-> Yes, that would be perfect. But for fixing the breakage in linux-next=
- we
-> created, this is good enough for me.
->=20
-> Applied to for-next, thanks!
-Just for me to learn: is your for-next stable once pushed?
+This driver is based on 3.18-rc1.
 
-As you didn't push out yet, it's
+MTK I2C HW has some limitation.
+1. If the i2c_msg number is more than one, STOP will be issued instead of
+RS(Repeat Start) between each message.
+Such as: "START + ADDR + DATA_n + STOP + START + ADDR + DATA_n + STOP ..."
 
-=46ixes: 5a6f1566f6a0 ("i2c: rk3x: handle dynamic clock rate changes co=
-rrectly")
+2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
+mode the Repeat Start will be issued between 2 messages.
+In this driver if 2 messages is first write then read, the driver will
+combine 2 messages using Write-Read mode so the RS will be issued between
+the 2 messages.
+Ex: W/R/R, driver will combine first W/R and then R.
+The data series will be:
+"START + WriteADDR + DATA + RS + ReadADDR + DATA + STOP + START + ReadADDR +
+DATA + STOP".
 
-party on,
-Uwe
+3. Due to HW limitation, in this version the max transfer data length is 255
+in one message. If want to transfer more than 255 bytes, HW needs the SW
+driver to split the data. Take 600 bytes for example, the data need to be
+divided into 3 parts 255 + 255 + 90. The data series will be:
+"START + ADDR + DATA_255 + RS + ADDR + DATA_255 + RS + ADDR +  DATA_90 + STOP"
+instead of "START + ADDR + DATA_900 + STOP".
+We haven't implement this yet, we will do this in the separate patch.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+registers in MT8135 side. In this case, driver should set OFFSET_PATH_DIR
+bit first, the operation on other registers are still the same.
+For now MT6589/MT8135 support this, MT6577/MT6595/MT8127 do not support.
+For example, If want to use I2C4/5/6 pins on MT8135 just need to enable
+the pinmux, else if want to use I2C pins on PMIC(MT6397) need to add
+"mediatek,have-pmic" property in the .dts file of each platform.
+
+Xudong Chen (2):
+  dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+  I2C: mediatek: Add driver for MediaTek I2C controller
+
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         |  40 ++
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-mt65xx.c                    | 742 +++++++++++++++++++++
+ 4 files changed, 792 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+ create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
+
+--
+1.8.1.1.dirty
