@@ -1,153 +1,62 @@
-From: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] i2c: Add parameters to sysfs-added i2c devices
-Date: Mon, 24 Nov 2014 07:43:23 -0600
-Message-ID: <547335FB.4020002@mvista.com>
-References: <1415976117-27755-1-git-send-email-minyard@acm.org>
+From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Subject: Re: [PATCH V3] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
+Date: Mon, 24 Nov 2014 16:27:11 +0100
+Message-ID: <1720074.U59stZW2tQ@vostro.rjw.lan>
+References: <1416748974-24124-1-git-send-email-tianyu.lan@intel.com> <54729A7B.4050007@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1415976117-27755-1-git-send-email-minyard-HInyCGIudOg@public.gmane.org>
+In-Reply-To: <54729A7B.4050007-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: minyard-HInyCGIudOg@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Li, Aubrey" <aubrey.li-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shigorin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adamw-cfjF3rc+CpsYNetmKr+vY16hYfS7NtTn@public.gmane.org, jan.brummer-sgYkR6nYkOfYtjvyW6yDsg@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ping, I haven't heard anything on this.
+On Monday, November 24, 2014 10:39:55 AM Li, Aubrey wrote:
+> On 2014/11/23 21:22, Lan Tianyu wrote:
+> > ACPI 5.0 introduces _DEP to designate device objects that OSPM should
+> > assign a higher priority in start ordering due to future operation region
+> > accesses.
+> > 
+> > On Asus T100TA, ACPI battery info are read from a I2C slave device via
+> > I2C operation region. Before I2C operation region handler is installed,
+> > battery _STA always returns 0. There is a _DEP method of designating
+> > start order under battery device node.
+> > 
+> > This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
+> > Introducing acpi_dep_list and adding dep_unmet count in the struct
+> > acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
+> > valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
+> > master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
+> > count will increase by one if there is a device under its _DEP. Driver's probe() should
+> > return EPROBE_DEFER when find dep_unmet is larger than 0. When I2C operation
+> > region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
+> > whose master is pointed to I2C host controller and decrease slave's dep_unmet.
+> > When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
+> > for the device in order to resolve battery _STA issue on the Asus T100TA.
+> 
+> Well, Can we explicitly tied this up with ASUS T100TA in the code?
+> If I understand correctly, the assumption in the patch is that the
+> battery device only depends on I2C device, which is true on ASUS T100TA,
+> but may not on the other platforms.
+> 
+> This patch does not work on a box I have, on it _DEP contains I2C and GPIO.
 
--corey
+Does the patch break anything for you?
 
-On 11/14/2014 08:41 AM, minyard-HInyCGIudOg@public.gmane.org wrote:
-> From: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
->
-> Some devices might need parameters to control their operation,
-> add the ability to pass these parameters to the client.
->
-> This also makes the parsing of sysfs-added I2C devices a little
-> more flexible, allowing tabs and arbitrary numbers of spaces.
->
-> Signed-off-by: Corey Minyard <cminyard-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c | 46 ++++++++++++++++++++++++++++++++++------------
->  include/linux/i2c.h    |  3 +++
->  2 files changed, 37 insertions(+), 12 deletions(-)
->
-> I'm adding an SMBus IPMI driver, and it needs to be able to have
-> the IPMI bus address specified in case it's not the default.
->
-> Also, this seems like it would be useful for other devices that
-> need some sort of configuration.
->
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index f43b4e1..9a2ab13 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -781,7 +781,10 @@ static int i2c_device_pm_restore(struct device *dev)
->  
->  static void i2c_client_dev_release(struct device *dev)
->  {
-> -	kfree(to_i2c_client(dev));
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +
-> +	kfree(client->parms);
-> +	kfree(client);
->  }
->  
->  static ssize_t
-> @@ -1059,6 +1062,13 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
->  	client->flags = info->flags;
->  	client->addr = info->addr;
->  	client->irq = info->irq;
-> +	if (info->parms) {
-> +		client->parms = kstrdup(info->parms, GFP_KERNEL);
-> +		if (!client->parms) {
-> +			dev_err(&adap->dev, "Out of memory allocating parms\n");
-> +			goto out_err_silent;
-> +		}
-> +	}
->  
->  	strlcpy(client->name, info->type, sizeof(client->name));
->  
-> @@ -1207,31 +1217,43 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
->  	struct i2c_adapter *adap = to_i2c_adapter(dev);
->  	struct i2c_board_info info;
->  	struct i2c_client *client;
-> -	char *blank, end;
-> +	char *pos, end;
->  	int res;
->  
->  	memset(&info, 0, sizeof(struct i2c_board_info));
->  
-> -	blank = strchr(buf, ' ');
-> -	if (!blank) {
-> +	pos = strpbrk(buf, " \t");
-> +	if (!pos) {
->  		dev_err(dev, "%s: Missing parameters\n", "new_device");
->  		return -EINVAL;
->  	}
-> -	if (blank - buf > I2C_NAME_SIZE - 1) {
-> +	if (pos - buf > I2C_NAME_SIZE - 1) {
->  		dev_err(dev, "%s: Invalid device name\n", "new_device");
->  		return -EINVAL;
->  	}
-> -	memcpy(info.type, buf, blank - buf);
-> +	memcpy(info.type, buf, pos - buf);
->  
-> -	/* Parse remaining parameters, reject extra parameters */
-> -	res = sscanf(++blank, "%hi%c", &info.addr, &end);
-> -	if (res < 1) {
-> +	while (isspace(*pos))
-> +		pos++;
-> +
-> +	/* Parse address, saving remaining parameters. */
-> +	res = sscanf(pos, "%hi%c", &info.addr, &end);
-> +	if (res < 1 || !isspace(end)) {
->  		dev_err(dev, "%s: Can't parse I2C address\n", "new_device");
->  		return -EINVAL;
->  	}
-> -	if (res > 1  && end != '\n') {
-> -		dev_err(dev, "%s: Extra parameters\n", "new_device");
-> -		return -EINVAL;
-> +	if (res > 1 && end != '\n') {
-> +		if (isspace(end)) {
-> +			/* Extra parms, skip the address and space. */
-> +			while (!isspace(*pos))
-> +				pos++;
-> +			while (isspace(*pos))
-> +				pos++;
-> +			info.parms = pos;
-> +		} else {
-> +			dev_err(dev, "%s: Extra parameters\n", "new_device");
-> +			return -EINVAL;
-> +		}
->  	}
->  
->  	client = i2c_new_device(adap, &info);
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index b556e0a..e40fc56 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -222,6 +222,7 @@ struct i2c_client {
->  	char name[I2C_NAME_SIZE];
->  	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
->  	struct device dev;		/* the device structure		*/
-> +	char *parms;			/* sysfs extra parms		*/
->  	int irq;			/* irq issued by device		*/
->  	struct list_head detected;
->  };
-> @@ -255,6 +256,7 @@ static inline void i2c_set_clientdata(struct i2c_client *dev, void *data)
->   * @archdata: copied into i2c_client.dev.archdata
->   * @of_node: pointer to OpenFirmware device node
->   * @acpi_node: ACPI device node
-> + * @parms: Parameters supplied on the sysfs command line
->   * @irq: stored in i2c_client.irq
->   *
->   * I2C doesn't actually support hardware probing, although controllers and
-> @@ -276,6 +278,7 @@ struct i2c_board_info {
->  	struct dev_archdata	*archdata;
->  	struct device_node *of_node;
->  	struct acpi_dev_node acpi_node;
-> +	char            *parms;
->  	int		irq;
->  };
->  
+> Device (BATC)
+>         {
+>             Name (_HID, EisaId ("PNP0C0A"))  // _HID: Hardware ID
+> --------snip--------
+>             Name (_DEP, Package (0x03)  // _DEP: Dependencies
+>             {
+>                 I2C1,
+>                 GPO2,
+>                 GPO0
+>             })
+> 
+
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
