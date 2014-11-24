@@ -1,87 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/3] i2c: i2c-imx-hdmi: add support of iMX6 HDMI DDC I2C
- bus
-Date: Mon, 24 Nov 2014 13:20:52 +0100
-Message-ID: <20141124122052.GI3733@katana>
-References: <1416073759-19939-1-git-send-email-vladimir_zapolskiy@mentor.com>
+From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Subject: Re: [5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio for bus
+ recovery
+Date: Mon, 24 Nov 2014 15:15:58 +0200
+Message-ID: <54732F8E.4080105@ti.com>
+References: <1416477788-5544-6-git-send-email-grygorii.strashko@ti.com> <20141123170400.GC4431@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qVyHzDF4yf4A8jkR"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1416073759-19939-1-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20141123170400.GC4431-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
-Cc: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Uwe,
+On 11/23/2014 07:04 PM, Uwe Kleine-K=F6nig wrote:
+> On Thu, Nov 20, 2014 at 12:03:08PM +0200, Grygorii Strashko wrote:
+>> @@ -664,6 +759,7 @@ static int davinci_i2c_probe(struct platform_dev=
+ice *pdev)
+>>   		if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+>>   			&prop))
+>>   			dev->pdata->bus_freq =3D prop / 1000;
+>> +		dev->pdata->has_pfunc =3D true;
+> I don't understand this. Why does this ICPFUNC recovery work if the b=
+us
+> is probed by oftree, but doesn't if not?
 
---qVyHzDF4yf4A8jkR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've mentioned this in commit message:
+ Allow platforms to indicate the presence of the ICPFUNC registers with=
+ a has_pfunc
+ platform data flag and enable this mode for platforms which supports D=
+T (da850 and
+ Keystone 2 are two SoCs which support DT now and they also support ICP=
+=46UNC registers).
 
-On Sat, Nov 15, 2014 at 07:49:16PM +0200, Vladimir Zapolskiy wrote:
-> Please review a proposed iMX6 HDMI DDC controller driver written on
-> top of I2C framework.
+I'll add proper comment here.
+
 >=20
-> Changes from RFC to v1 version:
-> * added I2C bus ducumentation,
-> * updated iMX6 HDMI device tree bindings documentation,
-> * device resource information is collected from parent HDMI phandle,
-> * minor clean-ups.
+>>   	} else if (!dev->pdata) {
+>>   		dev->pdata =3D &davinci_i2c_platform_data_default;
+>>   	}
+>> @@ -705,7 +801,9 @@ static int davinci_i2c_probe(struct platform_dev=
+ice *pdev)
+>>   	adap->timeout =3D DAVINCI_I2C_TIMEOUT;
+>>   	adap->dev.of_node =3D pdev->dev.of_node;
+>>  =20
+>> -	if (dev->pdata->scl_pin) {
+>> +	if (dev->pdata->has_pfunc)
+>> +		adap->bus_recovery_info =3D &davinci_i2c_scl_recovery_info;
+>> +	else if (dev->pdata->scl_pin) {
+>>   		adap->bus_recovery_info =3D &davinci_i2c_gpio_recovery_info;
+>>   		adap->bus_recovery_info->scl_gpio =3D dev->pdata->scl_pin;
+>>   		adap->bus_recovery_info->sda_gpio =3D dev->pdata->sda_pin;
+>> diff --git a/include/linux/platform_data/i2c-davinci.h b/include/lin=
+ux/platform_data/i2c-davinci.h
+>> index 2312d19..89fd347 100644
+>> --- a/include/linux/platform_data/i2c-davinci.h
+>> +++ b/include/linux/platform_data/i2c-davinci.h
+>> @@ -18,6 +18,7 @@ struct davinci_i2c_platform_data {
+>>   	unsigned int	bus_delay;	/* post-transaction delay (usec) */
+>>   	unsigned int    sda_pin;        /* GPIO pin ID to use for SDA */
+>>   	unsigned int    scl_pin;        /* GPIO pin ID to use for SCL */
+>> +	bool		has_pfunc;	/*chip has a ICPFUNC register */
+> Space after /* please
 >=20
-> The driver intends to support HDMI on-controller I2C master bus with
-> limited cababilities, however by nature of the sub-device it seems
-> reasonable to separate it into a stand-alone driver, which also can be
-> used independently on general HDMI controller driver, for example as
-> an additional I2C bus on a board, but please be aware that the bus is
-> not compliant to I2C specification.
->=20
-> In my practice I've met iMX6Q boards, where HDMI DDC lines are
-> connected to iMX6 HDMI DDC pins and not to any of 3 I2C busses, so
-> support of iMX6 HDMI I2C bus is important to have.
->=20
-> Main issues with the device/driver:
-> * iMX6 HDMI controller becomes a shared device (both interrupt and
->   memory region) between HDMI driver itself and this I2C bus driver.
-> * Only two patterns of I2C transactions are supported due to hardware
->   limitation, these patters are described in driver's code header.
-> * The bus controller supports one more multi-byte read pattern (so
->   called Extended Read Mode), but Freescale documentation is too vague
->   to easily add this mode into the driver.
->=20
-> The bus driver may be used independently on presence/absence of iMX6
-> HDMI controller driver, so build dependeny is not set.
 
-I think there are now 3 drivers in my queue which are not fully I2C
-compatible but more supporting the very minimum to, say, read an eeprom.
-I am not feeling well to allow them to use I2C_FUNC_I2C. So, I want to
-think about ways how to communicate deficiencies like "only 255 byte" or
-"only WRRD messages" to users of that I2C controller. This is most
-likely not happening before 3.19. But assistance is very welcome.
-
-
---qVyHzDF4yf4A8jkR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUcyKkAAoJEBQN5MwUoCm2RXoP/jUcIoLckeLfZGMqxFcEdOXp
-ttWeMr5DblfvymiBB/wMszi/o3PLpM73sONZAiGrxN6LK6kC2KtGCjdMhpOtW4mf
-90SHWoAdVngqre7D+3DZaCk8kIsdV3jkFGx6h0XUwixCBC5z1tjMd6NcUlrtORs0
-rPux2M0UFTjXTptt/Y3mGLZ/O+y4fvk85Ny72k2xC8zN9Cox0uil2LqB4/mYwCwH
-gDl4hfotUXqcnJrRGa5n4zChrxDCCdq/C+iZ0dQHkeeBzPR8rUTRyERHBM3pkEUy
-59KMGb41jJYB/pGOVPCJujO+eYsdE0VoGhn+EwljNZRiPHBc663uNt63D+WLeh4s
-C8Ra7XfkB9w0zWKLuSfWz0FXe4Cx/DiiqrmsVaJPrZcwWDqI+PV67hfuaZ7Nh1cY
-Tq6+IHu4IIxlw9ucCh3RLglyeBpceBvi7Ybe7dzvVzTVoHUdQQNVut3677/1UPLy
-25WOFDPeuzhQWrxatOKbAycYJKGvOAxRgSADwyWxs88FBTfmarRYr4e4CqzzMckV
-eXMnXLjptm5iz3oV2Q90aGT/n5SS2R8lSxmU1Epl/CTpnGinYuuaI46WSWNqwfaS
-kYnuuGPJFvIzb+980PqRDcizgc2/E/JCjjdvc5HtYufA6DUz27CNSAZ9dITUyvlH
-phOCKNBeYys6tPRSmb0+
-=3Cf6
------END PGP SIGNATURE-----
-
---qVyHzDF4yf4A8jkR--
+regards,
+-grygorii
