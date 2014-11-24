@@ -1,74 +1,91 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v3 2/4] i2c: omap: implement workaround for handling
- invalid BB-bit values
-Date: Mon, 24 Nov 2014 11:47:59 -0800
-Message-ID: <20141124194759.GG2757@atomide.com>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
- <1416685634-5864-1-git-send-email-al.kochet@gmail.com>
- <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
- <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com>
- <47A1A441-952C-4AC3-859C-5A8E405767E0@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [2/5] i2c: davinci: query STP always when NACK is received
+Date: Mon, 24 Nov 2014 21:02:35 +0100
+Message-ID: <20141124200235.GV4431@pengutronix.de>
+References: <1416477788-5544-3-git-send-email-grygorii.strashko@ti.com>
+ <20141120221953.GI27002@pengutronix.de>
+ <546F34B9.1000206@ti.com>
+ <20141121131008.GQ27002@pengutronix.de>
+ <546F5B51.1030006@ti.com>
+ <20141123203314.GF4431@pengutronix.de>
+ <547333EB.5050403@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <47A1A441-952C-4AC3-859C-5A8E405767E0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <547333EB.5050403-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [141124 11:41]:
->=20
-> 24 =D0=BD=D0=BE=D1=8F=D0=B1. 2014 =D0=B3., =D0=B2 22:08, Kevin Hilman=
- <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB(=D0=B0=
-):
->=20
-> > This patch recently hit linux-next (as commit 903c3859f77f) and boo=
-t
-> > breakage[1] in next-20141124 on OMAP3530 Beagle and Overo/Tobi boar=
-ds
-> > was bisected down to this commit.
-> >=20
-> > Kevin
-> >=20
-> > [1] http://status.armcloud.us/boot/?next-20141124&omap
->=20
->=20
-> Could someone advice with debugging on OMAP3530?
+Hello Grygorii,
 
-Just try to boot it with your patch? :)
+On Mon, Nov 24, 2014 at 03:34:35PM +0200, Grygorii Strashko wrote:
+> On 11/23/2014 10:33 PM, Uwe Kleine-K=F6nig wrote:
+> > A call to .master_xfer with a message sequence implicitly expects A=
+CKs
+> > from the slave and doesn't tell anything about what should be done =
+on a
+> > NAK. So IMHO you must not send a P when the slave responds with a N=
+AK,
+> > but error out and let the sender decide if it wants to reply with P=
+ or
+> > Sr.
+>=20
+> Sry, but what should be done is defined by I2C/SMbus specs? Does it?
+> For SMBus devices, the specification states (http://smbus.org/specs/)
+> "4.2.Acknowledge (ACK) and not acknowledge (NACK)":
+> - "The slave device detects an invalid command or invalid data. In th=
+is=20
+>   case the slave device must not acknowledge the received byte. The m=
+aster
+>   upon detection of this condition must generate a STOP condition and
+>   retry the transaction"
+> For I2C devices, the specification states [http://www.nxp.com/documen=
+ts/user_manual/UM10204.pdf]:
+> "3.1.6 Acknowledge (ACK) and Not Acknowledge (NACK)"
+> "When SDA remains HIGH during this ninth clock pulse, this is defined=
+ as the Not
+> Acknowledge signal. The master can then generate either a STOP condit=
+ion to
+> abort the transfer, or a repeated START condition to start a new tran=
+sfer."
+Yes, that's exactly what I meant. The master has the choice, and the
+driver should not eliminate options here.
 =20
-> I'd like to apply one one more commit to see events during boot and
-> see actual signals on wire (during of timeout)?
-
-If you post a patch, I can test boot with it. Looks like the failing
-ones have i2c rev3.3 on 34xx vs rev4.4 on 36xx.
-
-But the test function should not loop forever in any case I take?
-
-So I doubt we just want to change the test for for a higher rev number
-for  OMAP_I2C_REV_ON_3430_3530.
+> Let take a look on i2c/smbus xfer:
+> i2c_lock_adapter(adap)
+>  adap->algo->master_xfer/smbus_xfer()
+> i2c_unlock_adapter(adap);
+>  |- rt_mutex_unlock(&adapter->bus_lock);
+>     |- task switch
+> =20
+> So, there is no guarantee that next xfer will address the same I2C cl=
+ient device,
+> which, in turn, may lead to BB detection (will lead to BB detection i=
+f previous
+> transfer has been not acknowledged by SMbus client device).
+That's a valid concern.
 =20
-> Otherwise, commit must dropped (or rewritten such way it is disabled =
-by default).
+> Small summary, I2C core + Davinci I2C driver provide ability to use r=
+epeated
+> start (Sr) only within one I2C transaction - which is a number of wri=
+te/read
+> operations specified by i2c_msg array. NACK always interrupts transac=
+tion
+> with -EREMOTEIO.
 >=20
->=20
-> 24 =D0=BD=D0=BE=D1=8F=D0=B1. 2014 =D0=B3., =D0=B2 22:13, Wolfram Sang=
- <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB(=D0=B0)=
-:
->=20
-> > OK, giving Alexander some time for a fix. If it can't be found, I'l=
-l
-> > revert this patch. Thanks!
->=20
-> What deadline?
+> Also, the I2C core doesn't provide ability to manually send P.
+Hmm, Wolfram, what do you think?
 
-I'd say by Tuesday as we have multiple automated test systems failing
-as soon as people update their trees. And when they are failing, we
-may miss other breakage happening in linux next.
+Best regards
+Uwe
 
-Regards,
-
-Tony
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
