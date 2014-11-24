@@ -1,53 +1,56 @@
-From: Alexander Kochetkov <al.kochet@gmail.com>
-Subject: Re: [PATCH v3 2/4] i2c: omap: implement workaround for handling invalid BB-bit values
-Date: Mon, 24 Nov 2014 22:39:42 +0300
-Message-ID: <47A1A441-952C-4AC3-859C-5A8E405767E0@gmail.com>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com> <1416685634-5864-1-git-send-email-al.kochet@gmail.com> <1416685634-5864-3-git-send-email-al.kochet@gmail.com> <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=koi8-r
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [5/5] i2c: davinci: use ICPFUNC to toggle I2C as gpio for bus
+ recovery
+Date: Mon, 24 Nov 2014 20:45:33 +0100
+Message-ID: <20141124194533.GU4431@pengutronix.de>
+References: <1416477788-5544-6-git-send-email-grygorii.strashko@ti.com>
+ <20141123170400.GC4431@pengutronix.de>
+ <54732F8E.4080105@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-Cc: Felipe Balbi <balbi@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Alexander Kochetkov <al.kochet@gmail.com>, Kevin Hilman <khilman@kernel.org>, Tony Lindgren <tony@atomide.com>, linux-omap <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <54732F8E.4080105-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, Mike Looijmans <milo-software-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Grygorii,
 
-24 =CE=CF=D1=C2. 2014 =C7., =D7 22:08, Kevin Hilman <khilman@kernel.org=
-> =CE=C1=D0=C9=D3=C1=CC(=C1):
-
-> This patch recently hit linux-next (as commit 903c3859f77f) and boot
-> breakage[1] in next-20141124 on OMAP3530 Beagle and Overo/Tobi boards
-> was bisected down to this commit.
+On Mon, Nov 24, 2014 at 03:15:58PM +0200, Grygorii Strashko wrote:
+> On 11/23/2014 07:04 PM, Uwe Kleine-K=F6nig wrote:
+> > On Thu, Nov 20, 2014 at 12:03:08PM +0200, Grygorii Strashko wrote:
+> >> @@ -664,6 +759,7 @@ static int davinci_i2c_probe(struct platform_d=
+evice *pdev)
+> >>   		if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency"=
+,
+> >>   			&prop))
+> >>   			dev->pdata->bus_freq =3D prop / 1000;
+> >> +		dev->pdata->has_pfunc =3D true;
+> > I don't understand this. Why does this ICPFUNC recovery work if the=
+ bus
+> > is probed by oftree, but doesn't if not?
 >=20
-> Kevin
->=20
-> [1] http://status.armcloud.us/boot/?next-20141124&omap
+> I've mentioned this in commit message:
+>  Allow platforms to indicate the presence of the ICPFUNC registers wi=
+th a has_pfunc
+>  platform data flag and enable this mode for platforms which supports=
+ DT (da850 and
+>  Keystone 2 are two SoCs which support DT now and they also support I=
+CPFUNC registers).
+Ah, so you assume that in the dt case the pfunc functionality is
+available. I didn't understand if it's bad or not if this assumption is
+wrong, but I suggest to only use the pfunc stuff if the device node has
+a given property (e.g. ti,has_pfunc).
 
+Best regards
+Uwe
 
-Could someone advice with debugging on OMAP3530?
-
-I'd like to apply one one more commit to see events during boot and
-see actual signals on wire (during of timeout)?
-
-Otherwise, commit must dropped (or rewritten such way it is disabled by=
- default).
-
-
-24 =CE=CF=D1=C2. 2014 =C7., =D7 22:13, Wolfram Sang <wsa@the-dreams.de>=
- =CE=C1=D0=C9=D3=C1=CC(=C1):
-
-> OK, giving Alexander some time for a fix. If it can't be found, I'll
-> revert this patch. Thanks!
-
-What deadline?
-
-Alexander.
-
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
