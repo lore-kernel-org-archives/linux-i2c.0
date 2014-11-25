@@ -1,64 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 12/14] i2c/of: Add OF_RECONFIG notifier handler
-Date: Tue, 25 Nov 2014 15:11:43 +0100
-Message-ID: <20141125141143.GC1843@katana>
-References: <1416868422-22103-1-git-send-email-grant.likely@linaro.org>
- <1416868422-22103-13-git-send-email-grant.likely@linaro.org>
+Subject: Re: [PATCH v2] omap: i2c: don't check bus state IP rev3.3 and earlier
+Date: Tue, 25 Nov 2014 15:19:24 +0100
+Message-ID: <20141125141924.GD1843@katana>
+References: <20141124210809.GG2817@atomide.com>
+ <1416867655-22232-1-git-send-email-al.kochet@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ncSAzJYg3Aa9+CRW"
+	protocol="application/pgp-signature"; boundary="Hf61M2y+wYpnELGG"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1416868422-22103-13-git-send-email-grant.likely@linaro.org>
+In-Reply-To: <1416867655-22232-1-git-send-email-al.kochet@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Grant Likely <grant.likely@linaro.org>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, Rob Herring <robh+dt@kernel.org>, Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org
+To: Alexander Kochetkov <al.kochet@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Kevin Hilman <khilman@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---ncSAzJYg3Aa9+CRW
+--Hf61M2y+wYpnELGG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 24, 2014 at 10:33:40PM +0000, Grant Likely wrote:
-> From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+On Tue, Nov 25, 2014 at 02:20:55AM +0400, Alexander Kochetkov wrote:
+> Commit 903c3859f77f9b0aace551da03267ef7a211dbc4 ("i2c: omap: implement
+> workaround for handling invalid BB-bit values") introduce the error result
+> in boot test fault on OMAP3530 boards
 >=20
-> CONFIG_OF_DYNAMIC enables runtime changes to the device tree which in
-> turn may trigger addition or removal of devices from Linux. Add an
-> OF_RECONFIG notifier handler to receive tree change events and to
-> creating or destroy i2c devices as required.
+> The patch fix the error (disable i2c bus test for OMAP3530).
 >=20
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-> [grant.likely: clean up #ifdefs and drop unneeded error handling]
-> Signed-off-by: Grant Likely <grant.likely@linaro.org>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: linux-i2c@vger.kernel.org
+> Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
+> Fixes: 903c3859f77f9b0aace551da03267ef7a211dbc4
+> Reported-by: Kevin Hilman <khilman@kernel.org>
+> Tested-by: Tony Lindgren <tony@atomide.com>
+>=20
 
-Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
+Applied to for-next, thanks!
+
+I'll push out this evening to make the boot tests work again. If there
+is more to be investigated, either hurry up and post v3 ;) or let me
+know that you need more time.
 
 
---ncSAzJYg3Aa9+CRW
+--Hf61M2y+wYpnELGG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUdI4fAAoJEBQN5MwUoCm2W4EP/3qb5u0igOYGh/2FevV4t+b4
-DJFLtEVwjwqQwIgZMpUwu0WT1CIsoI6s+q/lgiG4Fl9y2P2ZleoRECGx0dkxMZmG
-wL+Bg2S6MnUbJOp1+I6xoLO5LChOYIuj6k5bm41YF+7sABIlmdiBJUP1QMnv6VQH
-XHCxOjBwqlhzd19cbCTsrztGEO/QnbCJyu2oIk6pS5E3a6IWa7n8fEJI0bUVairm
-tqfCv5wZnYo9h+xYP9qoxJoy5wYSR1fHbflK/LCBh7Di5i69qc+ED/OJt8t/iK4a
-nhjGVguPE/zdJZKIITe6ekuwPxgy9LGDhwEbFymbOMGml/pak9v17osUqvaUSWmF
-XjSU+ojxALYk6NwJ7FXOPoTrY7EiOJc4v4BL3xa5waRkhLoWrCVs6B0SPGpykf+d
-g7jk9JNrPDTryxkiN+yMI9DOfElOxw7ebbRkBigVi//58qkTM8aWXWVlwEI/xUxK
-QXX8IUOemRJZPbt+YIQQdrerIyUXHPPuicI0eWC+SldYB7HmjO6EcvuQY6EvCY/B
-TcXE5tYsveAOTC6aYwf4bfd4f+GgzfV5SQanH1IGBSnyCSQNAFE+YR9tFY9745n+
-mQXlJ7GSIv2KyA9YSnx0D7NVd5jUQolJ2rjWYz+D3w7TIxUfqRZAAj9wSi6HgmhL
-6PvubW5n5gHEhs1DWFx2
-=1DXP
+iQIcBAEBAgAGBQJUdI/rAAoJEBQN5MwUoCm27vwP/26YUQ12x4vab6NKhQEEca2v
+YvdWWNl9E2SrI3DiaBbjY44stVpkg6OEl6lsyxUs/AqQQRfjutWyDyexyELWpPkj
+NMQ2H5tPuIg6WIuo8UawRheoFumy8LnXUXCHz84J53cd8HsNyDy9+8SjNqolqMAM
+t3tPeoR/atBk6JzlCuyvLZajUkfPB8VwZ1mmDfvHHwYFSzbM01D72opWJORvowPn
+WwCKzgEEqa1ym0mjoIukI/NGe+4Sj3LVzZz9hUMFhdNHfcMSUdJ0I0vEEGb0nbnJ
+/knCHluL7SsNtilnBathDTMYAW6YTKvnimEBxhOj+MmemVkCzCrqG2J7M4wPHwBg
+qI2kfd4jezwXJeJGHJX4hMu1kDQiM6N5P9kZMOUKT+yFYaZmJPUaN3ozpjBJkzeN
+H1Nos8B+ovFVP5tgBtJp1e3AePTga7BFNq2HWF4m2oUXVuITDAeReZxDV2YJYL7q
+OrhCBDFrrrhAA0Ldh7l0KWb225Q2ZZKRM3NOrrWFKfuYXV7O3FtoACWS6H8K5zJ8
+DGrfKO7jzTntNdacv6yWpqkEtyETnNHuE1BUF9bT14Br6FJHXuONXR11Ne83aZ3I
+CHBVxa3xgYPvnmmZMSvi2IQ7Qprln5XdP1QKGlVYzSqpiFWrWOk7OjHhbSHBK/HO
+4GjuVWmrBkqnWA003sCL
+=zl1p
 -----END PGP SIGNATURE-----
 
---ncSAzJYg3Aa9+CRW--
+--Hf61M2y+wYpnELGG--
