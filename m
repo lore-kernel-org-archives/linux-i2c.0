@@ -1,91 +1,35 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Tue, 25 Nov 2014 19:13:47 +0100
-Message-ID: <20141125181347.GC9716@katana>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
- <1414537731.23458.120.camel@snotra.buserror.net>
- <5450AC85.40302@keymile.com>
- <20141113003418.GE2062@katana>
- <5465B285.7070005@keymile.com>
- <20141114082832.GA2180@katana>
- <1416274083.15957.96.camel@freescale.com>
+From: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] omap: i2c: don't check bus state IP rev3.3 and earlier
+Date: Tue, 25 Nov 2014 11:12:02 -0800
+Message-ID: <7hzjbfjdrx.fsf@deeprootsystems.com>
+References: <20141124210809.GG2817@atomide.com>
+	<1416867655-22232-1-git-send-email-al.kochet@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MnLPg7ZWsaic7Fhd"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1416274083.15957.96.camel-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <1416867655-22232-1-git-send-email-al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+	(Alexander Kochetkov's message of "Tue, 25 Nov 2014 02:20:55 +0400")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
 
---MnLPg7ZWsaic7Fhd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Commit 903c3859f77f9b0aace551da03267ef7a211dbc4 ("i2c: omap: implement
+> workaround for handling invalid BB-bit values") introduce the error result
+> in boot test fault on OMAP3530 boards
+>
+> The patch fix the error (disable i2c bus test for OMAP3530).
+>
+> Signed-off-by: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Fixes: 903c3859f77f9b0aace551da03267ef7a211dbc4
+> Reported-by: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Tested-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 
-On Mon, Nov 17, 2014 at 07:28:03PM -0600, Scott Wood wrote:
-> On Fri, 2014-11-14 at 09:28 +0100, Wolfram Sang wrote:
-> > > >=20
-> > > > If we're going to change the device tree I'd rather just add a prop=
-erty
-> > > > to say what the prescaler is.
-> > >=20
-> > >  We would however, leave the boards' device trees that use things like
-> > > "fsl,mpc8543-i2c" as is and introduce the prescaler for the others re=
-quiring it.
-> > >=20
-> > >=20
-> > > Now the drawback is that the driver would require a change, to parse =
-this
-> > > prescaler new prescaler property. Would this be OK from your point of=
- view
-> > > Wolfram ? If yes, I will send the patches for it.
-> >=20
-> > I don't think it is OK.
->=20
-> Why?
+Tested-by: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Because I thought it could be deduced. Then, a seperate property would
-not be OK.
+I tested DT and legacy boot on 3430/n900, 3530/beagle and
+3530/overo-tobi.  All boot fine.
 
-> >  I'd think it can be deduced from the compatible property.
->=20
-> For almost all existing device trees it cannot be.
-
-Pity :( If we do introduce a new property, it should probably be
-"clock-div". Grepping through binding documentation, that seems
-accepted. We should ask DT maintainers, too, to be safe.
-
-> If you want something that will work without changing device trees,
-> you'll need to use SVR to identify the SoC.
-
-The driver is doing that already, see mpc_i2c_get_sec_cfg_8xxx(). Dunno
-if it makes sense to add to it for consistency reasons?
-
-
---MnLPg7ZWsaic7Fhd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUdMbbAAoJEBQN5MwUoCm2BIsQAJ+N/XUWx2AclSWuY0H6ZtQD
-i5oOPHCbuu3GNjIqJlWjRRHYpMQb0wkl+u9Xbo8yzKULEeQ8cxb4FLOv70ylem/E
-kFkyecWGFdkRnLwTSk8FvywYayTmlb0ktNBeg83XJcx58ibN+Otwc0WzWNM0cLFX
-kKWhlNpKrz2LyNCJP4oFB7vhu5TClAo6VTdYBrN5bGY0BlEuhuRB7vx2RKTWvAWf
-VTIoMIBDVJAHbIYfMo1mFUgu0yK1j69/IAT8N1UZXttKlG0ZCbpeTXYrLds+n7ss
-DRChWvK9FH46gzzLmPbIAA/oUDAuetIcgyBwlwCt6xrW2MdncEML8YymhUjCF18p
-g739ZFA7Ukvn9J5NK/3+JfCy4Z5/aY1yiCHazwHVFK8wv7Asr994fl27HenDGjSq
-vupdCCv7cswoauVV4mydc0eZVovjFOijaVEwsFZLX6aXDLkw5OzEpA4xvh4lc9cm
-B/vr3iDYHn0+EuVpYUovh3Ob3vW+TGOObY2QV+Wh2R4jvBqZQ9sVNBomg4r0W/Nc
-61CQzvM5TpmwOVXnI6cXz++P079js300Qy4oAG/q6luchyPWBUk1vujCnXP3iRh4
-PvkUjdU0H7SbYYAd/LEFpwqv29go9dz6BLEoAB1P33XdOfAdXPGmtqQv3oFzXs91
-5vfrkJBSvxVChwOphWJf
-=A8Vc
------END PGP SIGNATURE-----
-
---MnLPg7ZWsaic7Fhd--
+Kevin
