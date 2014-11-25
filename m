@@ -1,63 +1,64 @@
-From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 2/4] i2c: omap: implement workaround for handling invalid BB-bit values
-Date: Tue, 25 Nov 2014 03:09:13 +0300
-Message-ID: <06376010-5DED-49AA-9494-A9546567E7CA@gmail.com>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com> <1416685634-5864-1-git-send-email-al.kochet@gmail.com> <1416685634-5864-3-git-send-email-al.kochet@gmail.com> <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com> <47A1A441-952C-4AC3-859C-5A8E405767E0@gmail.com> <20141124194759.GG2757@atomide.com> <47749B61-5924-4E56-9931-77B0CFC0AAA0@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <47749B61-5924-4E56-9931-77B0CFC0AAA0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: "Li, Aubrey" <aubrey.li@linux.intel.com>
+Subject: Re: [PATCH V3] ACPI: Add _DEP(Operation Region Dependencies) support
+ to fix battery issue on the Asus T100TA
+Date: Tue, 25 Nov 2014 08:18:34 +0800
+Message-ID: <5473CADA.6040307@linux.intel.com>
+References: <1416748974-24124-1-git-send-email-tianyu.lan@intel.com> <54729A7B.4050007@linux.intel.com> <1720074.U59stZW2tQ@vostro.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1720074.U59stZW2tQ@vostro.rjw.lan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Lan Tianyu <tianyu.lan@intel.com>, lenb@kernel.org, wsa@the-dreams.de, robert.moore@intel.com, lv.zheng@intel.com, shigorin@gmail.com, adamw@happyassassin.net, jan.brummer@tabos.org, mika.westerberg@linux.intel.com, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@acpica.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 2014/11/24 23:27, Rafael J. Wysocki wrote:
+> On Monday, November 24, 2014 10:39:55 AM Li, Aubrey wrote:
+>> On 2014/11/23 21:22, Lan Tianyu wrote:
+>>> ACPI 5.0 introduces _DEP to designate device objects that OSPM should
+>>> assign a higher priority in start ordering due to future operation region
+>>> accesses.
+>>>
+>>> On Asus T100TA, ACPI battery info are read from a I2C slave device via
+>>> I2C operation region. Before I2C operation region handler is installed,
+>>> battery _STA always returns 0. There is a _DEP method of designating
+>>> start order under battery device node.
+>>>
+>>> This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
+>>> Introducing acpi_dep_list and adding dep_unmet count in the struct
+>>> acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
+>>> valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
+>>> master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
+>>> count will increase by one if there is a device under its _DEP. Driver's probe() should
+>>> return EPROBE_DEFER when find dep_unmet is larger than 0. When I2C operation
+>>> region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
+>>> whose master is pointed to I2C host controller and decrease slave's dep_unmet.
+>>> When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
+>>> for the device in order to resolve battery _STA issue on the Asus T100TA.
+>>
+>> Well, Can we explicitly tied this up with ASUS T100TA in the code?
+>> If I understand correctly, the assumption in the patch is that the
+>> battery device only depends on I2C device, which is true on ASUS T100TA,
+>> but may not on the other platforms.
+>>
+>> This patch does not work on a box I have, on it _DEP contains I2C and GPIO.
+> 
+> Does the patch break anything for you?
 
-24 =CE=CF=D1=C2. 2014 =C7., =D7 23:05, Alexander Kochetkov <al.kochet@g=
-mail.com> =CE=C1=D0=C9=D3=C1=CC(=C1):
+Not I'm aware so far.
 
-> Something (u-boot, may be) leave the bus in the wrong state.
-> Really strange.
-
-Actually something wrong with i2c-pullups on i2c.1 bus on fault boards.
-May be these are boards without pull-ups?
-All beagles doesn't have internal pull-ups on i2c.1 since u-boot 2011.x=
-=2E
-
-Here is the bug in the u-boot related to beagle:
-http://git.denx.de/?p=3Du-boot.git;a=3Dcommit;h=3D04e2a13336f0e507ef416=
-bbede3be92b79c46594
-
-Yes, I made fix, but keep that in mind.
-
-=46or example one of the boards (omap3-beagle):
-http://status.armcloud.us/boot/omap3-beagle/job/next/kernel/next-201411=
-24/defconfig/arm-omap2plus_defconfig/
-http://status.armcloud.us/boot/omap3-beagle,legacy/job/next/kernel/next=
--20141124/defconfig/arm-omap2plus_defconfig/
-http://status.armcloud.us/boot/omap3-beagle/job/next/kernel/next-201411=
-24/defconfig/arm-multi_v7_defconfig/
-
-has following warning message in the u-boot log:
-> U-Boot 2014.07 (Aug 21 2014 - 11:03:05)
->=20
-> OMAP3530-GP ES3.0, CPU-OPP2, L3-165MHz, Max CPU Clock 600 MHz
-> OMAP3 Beagle board + LPDDR/NAND
-> ....
-> Beagle Rev C1/C2/C3
-> Timed out in wait_for_event: status=3D1000
-> Check if pads/pull-ups of bus 1 are properly configured
-
-Also beagle schematic has following log entry for A3:
-4. Added optional pullup resistors on I2C2_SCL and I2C_SDA into the lay=
-out.
-
-Is the fault beagle is pre A3 revision?
-
-I can't tell anything about second one board (omap3-overo-tobi), becaus=
-e I could not get it schematic.
-
-And how you have i2c.1 working without pull-ups I don't know.
-
-Alexander.
+> 
+>> Device (BATC)
+>>         {
+>>             Name (_HID, EisaId ("PNP0C0A"))  // _HID: Hardware ID
+>> --------snip--------
+>>             Name (_DEP, Package (0x03)  // _DEP: Dependencies
+>>             {
+>>                 I2C1,
+>>                 GPO2,
+>>                 GPO0
+>>             })
+>>
+> 
