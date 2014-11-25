@@ -1,120 +1,241 @@
-From: Stijn Devriendt <highguy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
-Date: Tue, 25 Nov 2014 23:07:38 +0100
-Message-ID: <CAOY=C6F6TMyeDvNneBV6K5hVjoG+qk-1Y_R3oJkEiGxhLOoQ0A@mail.gmail.com>
-References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
-	<1416326695-13083-3-git-send-email-wsa@the-dreams.de>
-	<CAOY=C6FSXWn2AKn9gp0oU69U8VkkyJAE7MMUTZsToy0P_Tf6AA@mail.gmail.com>
-	<20141122181229.GB9698@katana>
+From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Subject: Re: [PATCH V3] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
+Date: Tue, 25 Nov 2014 23:31:47 +0100
+Message-ID: <2784837.a10Sa2bqgX@vostro.rjw.lan>
+References: <1416748974-24124-1-git-send-email-tianyu.lan@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141122181229.GB9698@katana>
+In-Reply-To: <1416748974-24124-1-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shigorin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adamw-cfjF3rc+CpsYNetmKr+vY16hYfS7NtTn@public.gmane.org, jan.brummer-sgYkR6nYkOfYtjvyW6yDsg@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Nov 22, 2014 at 7:12 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> Hi,
->
-> Please quote only relevant parts of the message (like I did). This
-> improves readability a lot.
->
+On Sunday, November 23, 2014 09:22:54 PM Lan Tianyu wrote:
+> ACPI 5.0 introduces _DEP to designate device objects that OSPM should
+> assign a higher priority in start ordering due to future operation region
+> accesses.
+> 
+> On Asus T100TA, ACPI battery info are read from a I2C slave device via
+> I2C operation region. Before I2C operation region handler is installed,
+> battery _STA always returns 0. There is a _DEP method of designating
+> start order under battery device node.
+> 
+> This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
+> Introducing acpi_dep_list and adding dep_unmet count in the struct
+> acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
+> valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
+> master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
+> count will increase by one if there is a device under its _DEP. Driver's probe() should
+> return EPROBE_DEFER when find dep_unmet is larger than 0. When I2C operation
+> region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
+> whose master is pointed to I2C host controller and decrease slave's dep_unmet.
+> When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
+> for the device in order to resolve battery _STA issue on the Asus T100TA.
+> 
+> Reference: https://bugzilla.kernel.org/show_bug.cgi?id=69011
+> Tested-by: Jan-Michael Brummer <jan.brummer-sgYkR6nYkOfYtjvyW6yDsg@public.gmane.org>
+> Tested-by: Adam Williamson <adamw-cfjF3rc+CpsYNetmKr+vY16hYfS7NtTn@public.gmane.org>
+> Tested-by: Michael Shigorin <shigorin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-My bad, will minimize the overhead in the future.
+Queued up for 3.19-rc1, thanks!
 
->>
->> Would it make sense to have:
->> WRITE_START
->> WRITE_NEXT
->> WRITE_STOP
->> WRITE_REPEAT_START
->> READ_START
->> READ_NEXT
->> READ_STOP
->> READ_REPEAT_START
->>
->> Some devices may want different behavior for subsequent
->> reads when they are separate transactions, compared to
->> a single larger transaction.
->
-> This can all be handled with I2C_SLAVE_STOP.
->
+> ---
+> Change since V2:
+>         Coding style change
+> Change since V1:
+>  	Remove redundant blank line and some coding style fixs.
+> 
+> 
+>  drivers/acpi/battery.c  |  4 +++
+>  drivers/acpi/scan.c     | 85 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/i2c/i2c-core.c  |  1 +
+>  include/acpi/acpi_bus.h |  1 +
+>  include/linux/acpi.h    |  1 +
+>  5 files changed, 92 insertions(+)
+> 
+> diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+> index 8ec8a89..d98ba43 100644
+> --- a/drivers/acpi/battery.c
+> +++ b/drivers/acpi/battery.c
+> @@ -1180,6 +1180,10 @@ static int acpi_battery_add(struct acpi_device *device)
+>  
+>  	if (!device)
+>  		return -EINVAL;
+> +
+> +	if (device->dep_unmet)
+> +		return -EPROBE_DEFER;
+> +
+>  	battery = kzalloc(sizeof(struct acpi_battery), GFP_KERNEL);
+>  	if (!battery)
+>  		return -ENOMEM;
+> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+> index 9cb5cca..1b1cf55 100644
+> --- a/drivers/acpi/scan.c
+> +++ b/drivers/acpi/scan.c
+> @@ -36,6 +36,8 @@ bool acpi_force_hot_remove;
+>  
+>  static const char *dummy_hid = "device";
+>  
+> +static LIST_HEAD(acpi_dep_list);
+> +static DEFINE_MUTEX(acpi_dep_list_lock);
+>  static LIST_HEAD(acpi_bus_id_list);
+>  static DEFINE_MUTEX(acpi_scan_lock);
+>  static LIST_HEAD(acpi_scan_handlers_list);
+> @@ -43,6 +45,12 @@ DEFINE_MUTEX(acpi_device_lock);
+>  LIST_HEAD(acpi_wakeup_device_list);
+>  static DEFINE_MUTEX(acpi_hp_context_lock);
+>  
+> +struct acpi_dep_data {
+> +	struct list_head node;
+> +	acpi_handle master;
+> +	acpi_handle slave;
+> +};
+> +
+>  struct acpi_device_bus_id{
+>  	char bus_id[15];
+>  	unsigned int instance_no;
+> @@ -2193,6 +2201,59 @@ static void acpi_scan_init_hotplug(struct acpi_device *adev)
+>  	}
+>  }
+>  
+> +static void acpi_device_dep_initialize(struct acpi_device *adev)
+> +{
+> +	struct acpi_dep_data *dep;
+> +	struct acpi_handle_list dep_devices;
+> +	acpi_status status;
+> +	int i;
+> +
+> +	if (!acpi_has_method(adev->handle, "_DEP"))
+> +		return;
+> +
+> +	status = acpi_evaluate_reference(adev->handle, "_DEP", NULL,
+> +					&dep_devices);
+> +	if (ACPI_FAILURE(status)) {
+> +		dev_err(&adev->dev, "Failed to evaluate _DEP.\n");
+> +		return;
+> +	}
+> +
+> +	for (i = 0; i < dep_devices.count; i++) {
+> +		struct acpi_device_info *info;
+> +		int skip;
+> +
+> +		status = acpi_get_object_info(dep_devices.handles[i], &info);
+> +		if (ACPI_FAILURE(status)) {
+> +			dev_err(&adev->dev, "Error reading device info\n");
+> +			continue;
+> +		}
+> +
+> +		/*
+> +		 * Skip the dependency of Windows System Power
+> +		 * Management Controller
+> +		 */
+> +		skip = info->valid & ACPI_VALID_HID &&
+> +			!strcmp(info->hardware_id.string, "INT3396");
+> +
+> +		kfree(info);
+> +
+> +		if (skip)
+> +			continue;
+> +
+> +		dep = kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
+> +		if (!dep)
+> +			return;
+> +
+> +		dep->master = dep_devices.handles[i];
+> +		dep->slave  = adev->handle;
+> +		adev->dep_unmet++;
+> +
+> +		mutex_lock(&acpi_dep_list_lock);
+> +		list_add_tail(&dep->node , &acpi_dep_list);
+> +		mutex_unlock(&acpi_dep_list_lock);
+> +	}
+> +}
+> +
+>  static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
+>  				      void *not_used, void **return_value)
+>  {
+> @@ -2219,6 +2280,7 @@ static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
+>  		return AE_CTRL_DEPTH;
+>  
+>  	acpi_scan_init_hotplug(device);
+> +	acpi_device_dep_initialize(device);
+>  
+>   out:
+>  	if (!*return_value)
+> @@ -2339,6 +2401,29 @@ static void acpi_bus_attach(struct acpi_device *device)
+>  		device->handler->hotplug.notify_online(device);
+>  }
+>  
+> +void acpi_walk_dep_device_list(acpi_handle handle)
+> +{
+> +	struct acpi_dep_data *dep, *tmp;
+> +	struct acpi_device *adev;
+> +
+> +	mutex_lock(&acpi_dep_list_lock);
+> +	list_for_each_entry_safe(dep, tmp, &acpi_dep_list, node) {
+> +		if (dep->master == handle) {
+> +			acpi_bus_get_device(dep->slave, &adev);
+> +			if (!adev)
+> +				continue;
+> +
+> +			adev->dep_unmet--;
+> +			if (!adev->dep_unmet)
+> +				acpi_bus_attach(adev);
+> +			list_del(&dep->node);
+> +			kfree(dep);
+> +		}
+> +	}
+> +	mutex_unlock(&acpi_dep_list_lock);
+> +}
+> +EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
+> +
+>  /**
+>   * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
+>   * @handle: Root of the namespace scope to scan.
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index f43b4e1..68aeb8e 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -403,6 +403,7 @@ static int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
+>  		return -ENOMEM;
+>  	}
+>  
+> +	acpi_walk_dep_device_list(handle);
+>  	return 0;
+>  }
+>  
+> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+> index 7d1ce40..d539084 100644
+> --- a/include/acpi/acpi_bus.h
+> +++ b/include/acpi/acpi_bus.h
+> @@ -372,6 +372,7 @@ struct acpi_device {
+>  	void *driver_data;
+>  	struct device dev;
+>  	unsigned int physical_node_count;
+> +	unsigned int dep_unmet;
+>  	struct list_head physical_node_list;
+>  	struct mutex physical_node_lock;
+>  	void (*remove)(struct acpi_device *);
+> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+> index 10f2ed9..e09f7f4 100644
+> --- a/include/linux/acpi.h
+> +++ b/include/linux/acpi.h
+> @@ -428,6 +428,7 @@ extern bool acpi_driver_match_device(struct device *dev,
+>  				     const struct device_driver *drv);
+>  int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
+>  int acpi_device_modalias(struct device *, char *, int);
+> +void acpi_walk_dep_device_list(acpi_handle handle);
+>  
+>  struct platform_device *acpi_create_platform_device(struct acpi_device *);
+>  #define ACPI_PTR(_ptr)	(_ptr)
+> 
 
-I think the goal is probably better covered by Uwe's idea for
-returning a buffer. See below...
-
->> e.g. a single transaction may wraparound inside a >8bit
->> register (e.g. for 16bit: msb, lsb, msb, lsb, ...), but step
->> to the next register when a separate read/write is issued.
->> Alternatively, a WRITE/READ_NEXT may be implemented
->> more efficiently. This may not matter for current systems
->> compared to the low-frequency bus, but who knows what
->> IoT devices may bring to the table.
->
-> Let's start simple until we have more use cases. WRITE_NEXT may be
-> useful when you have an internal u8 pointer to be set before actually
-> sending data, but already less useful if this is u16. Also, slaves may
-> decide to handle stops at unexpected places differently. Furthermore, my
-> feeling is that slave drivers will be more robust if they handle those
-> simple primitives properly.
->
-
-I think usable semantics could be that a slave driver can indicate at any
-point during an I2C read transaction that the next X bytes should be
-returned from a buffer and for a write transaction, that the next X bytes
-should be buffered before passed on to the driver. When the transaction
-ends or the adapter reaches the end of the buffer, it indicates this to
-the driver which can then either cleanup or otherwise act accordingly.
-For the EEPROM driver, this could mean that after the address is received,
-the driver can pass the pointer + remaining size and have the adapter
-driver take care of transmit. Upon end-of-buffer, it could just handle the
-wraparound and let the adapter take care of the rest.
-
-But as you say, this can be added later on when the need arises.
-
-> What I could imagine, though, is that somewhen the eeprom simulator will
-> be able to get data via other means than the shared memory, maybe via
-> some callback. Then, the callback really only has to deal with "read
-> this byte" or "write that byte" while for the outer world we have a
-> proper well-known EEPROM like I2C interface.
->
-> That being said, the list of I2C_SLAVE_* events is extensible, of
-> course. Though, I rather see low-level stuff there like "General Call
-> Adress received".
->
->>
->> Also, behavior may be different for repeat start versus
->> stop/start, although a repeat start could be a start
->> without a previous stop as well...
->
-> IMO a repeated start is to ensure that two messages arrive at the slave
-> without interruption from another master. I can't think why a slave
-> should know which type of start that was. In fact, if it does that would
-> raise an eyebrow for me. Do you have an example?
->
-
-No, I'll have to pass on that one. Plenty of odd I2C behavior, but that's
-not one of them. You're right on repeat start, so it would be quite
-erratic behavior. But even if, it can probably be added later on.
-
->> Of course, if an I2C adapter cannot distinguish these
->> events, this is probably a futile attempt at adding
->> semantics that will silently break depending on the
->> actual hardware/driver used.
->
-> That as well. I have not seen an I2C adapter which could provide this
-> information so far.
->
-
-Just checked components we're using and stop/repeated-start both
-transition into the same state.
-
-Regards,
-Stijn
-
-> Thanks,
->
->    Wolfram
->
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
