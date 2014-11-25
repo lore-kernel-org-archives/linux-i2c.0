@@ -1,96 +1,92 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v3 2/4] i2c: omap: implement workaround for handling
- invalid BB-bit values
-Date: Tue, 25 Nov 2014 07:41:50 -0800
-Message-ID: <20141125154150.GI2817@atomide.com>
-References: <1416518925-20679-1-git-send-email-al.kochet@gmail.com>
- <1416685634-5864-1-git-send-email-al.kochet@gmail.com>
- <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
- <CAMAWPa8whctBR6fBFaSzPvm3qn+QK06CimRrxFxxH=0kNkF4UA@mail.gmail.com>
- <47A1A441-952C-4AC3-859C-5A8E405767E0@gmail.com>
- <20141124194759.GG2757@atomide.com>
- <47749B61-5924-4E56-9931-77B0CFC0AAA0@gmail.com>
- <06376010-5DED-49AA-9494-A9546567E7CA@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: Driver to expose PowerNV platform i2c busses
+Date: Tue, 25 Nov 2014 18:14:03 +0100
+Message-ID: <20141125171403.GA9716@katana>
+References: <20141116171605.4750.17472.stgit@localhost.localdomain>
+ <546DF910.4060802@linux.vnet.ibm.com>
+ <20141124121803.GH3733@katana>
+ <1416889937.4998.54.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <06376010-5DED-49AA-9494-A9546567E7CA-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1416889937.4998.54.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Cc: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [141124 16:11]:
->=20
-> 24 =D0=BD=D0=BE=D1=8F=D0=B1. 2014 =D0=B3., =D0=B2 23:05, Alexander Ko=
-chetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB=
-(=D0=B0):
->=20
-> > Something (u-boot, may be) leave the bus in the wrong state.
-> > Really strange.
->=20
-> Actually something wrong with i2c-pullups on i2c.1 bus on fault board=
-s.
-> May be these are boards without pull-ups?
 
-It could be. Boards that use external i2c pulls should have all the
-internal pulls disabled as the pulls get connected in parallel and
-the total resistance decreases. And then the i2c signals may not be
-up to the spec.
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Note that there are internal pulls in the i2c controller, and in the
-i2c padconf registers.
-
-> All beagles doesn't have internal pull-ups on i2c.1 since u-boot 2011=
-=2Ex.
-
-The pulls should be enabled based on the board and possibly based
-on the board revision.
-=20
-> Here is the bug in the u-boot related to beagle:
-> http://git.denx.de/?p=3Du-boot.git;a=3Dcommit;h=3D04e2a13336f0e507ef4=
-16bbede3be92b79c46594
->=20
-> Yes, I made fix, but keep that in mind.
->=20
-> For example one of the boards (omap3-beagle):
-> http://status.armcloud.us/boot/omap3-beagle/job/next/kernel/next-2014=
-1124/defconfig/arm-omap2plus_defconfig/
-> http://status.armcloud.us/boot/omap3-beagle,legacy/job/next/kernel/ne=
-xt-20141124/defconfig/arm-omap2plus_defconfig/
-> http://status.armcloud.us/boot/omap3-beagle/job/next/kernel/next-2014=
-1124/defconfig/arm-multi_v7_defconfig/
->=20
-> has following warning message in the u-boot log:
-> > U-Boot 2014.07 (Aug 21 2014 - 11:03:05)
+On Tue, Nov 25, 2014 at 03:32:17PM +1100, Benjamin Herrenschmidt wrote:
+> On Mon, 2014-11-24 at 13:18 +0100, Wolfram Sang wrote:
 > >=20
-> > OMAP3530-GP ES3.0, CPU-OPP2, L3-165MHz, Max CPU Clock 600 MHz
-> > OMAP3 Beagle board + LPDDR/NAND
-> > ....
-> > Beagle Rev C1/C2/C3
-> > Timed out in wait_for_event: status=3D1000
-> > Check if pads/pull-ups of bus 1 are properly configured
+> > I think there are now 3 drivers in my queue which are not fully I2C
+> > compatible but more supporting the very minimum to, say, read an
+> > eeprom.
+> > I am not feeling well to allow them to use I2C_FUNC_I2C. So, I want to
+> > think about ways how to communicate deficiencies like "only 255 byte"
+> > or
+> > "only WRRD messages" to users of that I2C controller. This is most
+> > likely not happening before 3.19. But assistance is very welcome.
 >=20
-> Also beagle schematic has following log entry for A3:
-> 4. Added optional pullup resistors on I2C2_SCL and I2C_SDA into the l=
-ayout.
->=20
-> Is the fault beagle is pre A3 revision?
+> There are drivers doing that already, this is afaik common practice.
 
-Seems to be C1/C2/C3 based on the above logs?
-=20
-> I can't tell anything about second one board (omap3-overo-tobi), beca=
-use I could not get it schematic.
->=20
-> And how you have i2c.1 working without pull-ups I don't know.
+Well, there are drivers doing it, but to me this is somewhere between a
+hack and a workaround. Somehow like using subsys_initcall() to overcome
+probe ordering issues. That has never been nice and I still don't have a
+solution how to convert those drivers back to module_init() + deferred
+probe without causing regressions. As a result, people still want to
+copy that behaviour.
 
-I checked on the LDP and it seems to have external pulls for i2c.
-I also tested n900 without your fix, and it's failing too. On n900
-there are external pulls and all the internal pulls should be
-disabled.
+> Please don't gate the merging process to some hypothetical rework that
+> will imply reworking also a number of user space tools and in-kernel i2c
+> device drivers. Basically that would mean "your platform won't be
+> supported upstream for the next year and btw, rewrite all userspace".
 
-Regards,
+Call me naive but I don't think we need to rewrite all userspace. That
+is what I am at least aiming for.
 
-Tony
+> By all means let's create new "smbus" APIs for >1 bytes offset but let's
+> not make it a gate to merging drivers using the existing way of doing
+> things that has been so far perfectly functional.
+
+You say "let's", yet my experience is that once I accept a patch like
+yours, people are off with their support leaving me alone with the
+topic. Not because they are evil, but because they also have tons of
+other stuff to do. I perfectly understand I know this myself. And then,
+more and more people will come asking for the same as you and the
+situation gets harder and harder to fix.
+
+That all being said, the driver has other issues which I will mention in
+a seperate thread.
+
+
+--+HP7ph2BbKc20aGI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUdLjbAAoJEBQN5MwUoCm2+zcP/jAGYhr6Z9OBzKhW/jykUZCZ
+S4CGz/IxsIAyMr58DzkpiRALnjbdvqQ5I0QWSSpgN+UBWj+RP4vvFzT304TYfdy5
+3H32qWV1V71DfWySMlxElHGOE/4Ma4gsPL6gOJc0vqfZn7zawqSVV4SMSzLi8rHP
+UBbw4kIFInT1RGEgN/iQQWp+pKJop0hffudI6rSAluXzTZgzNIvf4uOsUuotMpZ9
+sbhNWvKgC0VK/Eg8bsck+tFCT7HZS8RFwU0u9BelBdVfcNzOAqMdNlSfp42a+ywD
+QaoXwosJD9TOq3iF1kbbpzR8/RXqgtUIyVZOlZkeqYNxLmWuSmytPhrRZz5DPPWw
+2D3pbvrzTpP9wJI4ESbA5EiHuGYdHYLqmWlu0xKf796cTbVd02/9IVRt8U2XIksP
+pw5svyrq3hd56eg01VPJNKkTjj80cm456OeMwd3/8dKYI1I82A08qXUTMR3SlJoU
+cshfgbA94TDcrhw4MTdOY6256kWkX6e06FAE7dHlTXOKLIGW2y/sdnmoTv/cB8pB
+BYn0oRaDVeqiXOPF8chMPOEl19tY0HEPE6htf4FYBPZwdyt0N0l25j+dwNV8hQ3E
+Asa1yXn8urfiQJ0zjvl+4Q3EoMt648W6hA7LzHIZmdScMbYcj+bhSvUiugzHFT8x
+k48K1mp1U6ZbbSFt/3Sd
+=IVEC
+-----END PGP SIGNATURE-----
+
+--+HP7ph2BbKc20aGI--
