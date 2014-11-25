@@ -1,45 +1,147 @@
-From: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] omap: i2c: don't check bus state IP rev3.3 and earlier
-Date: Tue, 25 Nov 2014 11:13:10 -0800
-Message-ID: <7hvbm3jdq1.fsf@deeprootsystems.com>
-References: <20141124210809.GG2817@atomide.com>
-	<1416867655-22232-1-git-send-email-al.kochet@gmail.com>
-	<20141125141924.GD1843@katana>
-	<7E0A0B24-91D5-41A4-B007-004C5965D0D7@gmail.com>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: Driver to expose PowerNV platform i2c busses
+Date: Wed, 26 Nov 2014 07:36:05 +1100
+Message-ID: <1416947765.4998.69.camel@kernel.crashing.org>
+References: <20141116171605.4750.17472.stgit@localhost.localdomain>
+	 <20141125175316.GB9716@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <7E0A0B24-91D5-41A4-B007-004C5965D0D7-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> (Alexander
-	Kochetkov's message of "Tue, 25 Nov 2014 17:38:23 +0300")
+In-Reply-To: <20141125175316.GB9716@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
+On Tue, 2014-11-25 at 18:53 +0100, Wolfram Sang wrote:
+> On Sun, Nov 16, 2014 at 10:47:46PM +0530, Neelesh Gupta wrote:
+> > The patch exposes the available i2c busses on the PowerNV platform
+> > to the kernel and implements the bus driver to support i2c and
+> > smbus commands.
+> > The driver uses the platform device infrastructure to probe the busses
+> > on the platform and registers them with the i2c driver framework.
+> > 
+> > Signed-off-by: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+> > Signed-off-by: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> 
+> ...
+> 
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 917c358..71ad6e1 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -1044,4 +1044,15 @@ config SCx200_ACB
+> >  	  This support is also available as a module.  If so, the module
+> >  	  will be called scx200_acb.
+> >  
+> > +config I2C_OPAL
+> > +	tristate "IBM OPAL I2C driver"
+> > +	depends on PPC_POWERNV
+> > +	default y
+> > +	help
+> > +	  This exposes the PowerNV platform i2c busses to the linux i2c layer,
+> > +	  the driver is based on the OPAL interfaces.
+> > +
+> > +	  This driver can also be built as a module. If so, the module will be
+> > +	  called as i2c-opal.
+> > +
+> >  endmenu
+> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > index 78d56c5..350aa86 100644
+> > --- a/drivers/i2c/busses/Makefile
+> > +++ b/drivers/i2c/busses/Makefile
+> > @@ -102,5 +102,6 @@ obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
+> >  obj-$(CONFIG_I2C_PCA_ISA)	+= i2c-pca-isa.o
+> >  obj-$(CONFIG_I2C_SIBYTE)	+= i2c-sibyte.o
+> >  obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+> > +obj-$(CONFIG_I2C_OPAL)		+= i2c-opal.o
+> 
+> Please keep it proprly sorted.
+> 
+> > +	rc = of_property_read_u32(pdev->dev.of_node, "ibm,opal-id", &opal_id);
+> > +	if (rc) {
+> > +		dev_err(&pdev->dev, "Missing ibm,opal-id property !\n");
+> > +		return -EIO;
+> > +	}
+> 
+> You introduce new bindings which need to be documented in
+> Docuemntation/devicetree/bindings/i2c.
 
-> 25 =D0=BD=D0=BE=D1=8F=D0=B1. 2014 =D0=B3., =D0=B2 17:19, Wolfram Sang=
- <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB(=D0=B0)=
-:
->
->> I'll push out this evening to make the boot tests work again. If the=
-re
->> is more to be investigated, either hurry up and post v3 ;) or let me
->> know that you need more time.
->
-> Ok, thank you. Let the fix go to the kernel-next.
-> Maybe small fix to subject "omap: i2c:" to "i2c: omap:"
->
-> I still guessing what some boards have broken i2c pull-ups.
-> And real fix must go in the board file.
-> http://www.spinics.net/lists/linux-i2c/msg17750.html
->
-> I could create a patch to confirm this.
-> But I don't have omap3530 boards to run.
-> I'll be very appreciated if someone could run the patch.
+Ugh ... thanks god the powerpc maintainer (me) didn't request binding
+document for everything that went into the device-tree on those
+platforms or we would still be writing them....
 
-I'll test your patch on all my OMAP boards.  Put whatever debug output
-you want, and I'll send you links to all the boot output.
+> They should be posted as a seperate patch with
+> devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org CCed, so they can comment on it. This is
+> required these days and especially important..
 
-Kevin
+Suuure, let's create more process and committees, and make sure nothing
+gets done in any reasonable amount of time. Have we gone completely
+insane ?
+
+This is completely useless as an exercise. It's not like I'm going to
+change the firmware interfaces anymore anyway so the "comments" are
+going to be at best bike shed painting.
+
+I'm getting close to just put that driver in powerpc.git ...
+ 
+The point of publicly discussing bindings in the ARM world was in part
+because we attacked a community with no understanding of the DT, but in
+LARGE part because we had to define them for components and SoC that
+would potentially be re-used in different platforms etc..
+
+Here we are talking about a representation specific to a given FW
+interface on PowerPC only which isn't going to be used by any other
+platform that PowerNV (since the OPAL fw is what makes PowerNV) by the
+people who invented the frigging flat device tree in the first place, so
+give me a break.
+
+It's getting quite tempting to just throw that driver into powerpc.git
+
+> > +	adapter = devm_kzalloc(&pdev->dev, sizeof(*adapter), GFP_KERNEL);
+> > +	if (!adapter)
+> > +		return -ENOMEM;
+> > +
+> > +	adapter->algo = &i2c_opal_algo;
+> > +	adapter->algo_data = (void *)(unsigned long)opal_id;
+> > +	adapter->dev.parent = &pdev->dev;
+> > +	adapter->dev.of_node = of_node_get(pdev->dev.of_node);
+> > +	pname = of_get_property(pdev->dev.of_node, "ibm,port-name", NULL);
+> > +	if (pname)
+> > +		strlcpy(adapter->name, pname, sizeof(adapter->name));
+> > +	else
+> > +		strlcpy(adapter->name, "opal", sizeof(adapter->name));
+> 
+> ... because I'd like to get an ack from them because of this binding.
+
+And I don't give a flying crap about what random ARM SOC vendor thinks
+of my powerpc FW interface for a powerpc unique FW interface.
+
+>  I
+> don't know if we can just say "this comes from firmware, so we must
+> support it" (although you wrote the firmware IIUC) or if we have to
+> judge if this is a HW description which should go into DT? I am open
+> meanwhile that the adapter name does not need to be static anymore.
+> However, I don't know much about server world and FW, so maybe they can
+> assist.
+
+I doubt it, all we're going to do is waste a few more monthes and make
+it more painful for us to get our support into distros in time with 0
+benefit whatsoever.
+
+> An example binding in that document would also be very helpful.
+> 
+> 
+> > +static struct platform_driver i2c_opal_driver = {
+> > +	.probe	= i2c_opal_probe,
+> > +	.remove	= i2c_opal_remove,
+> > +	.driver	= {
+> > +		.name		= "i2c-opal",
+> > +		.owner		= THIS_MODULE,
+> 
+> owner not needed.
+> 
+> Thanks,
+> 
+>    Wolfram
