@@ -1,95 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Alexander Kochetkov <al.kochet@gmail.com>
 Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
-Date: Wed, 26 Nov 2014 13:22:50 +0100
-Message-ID: <20141126122250.GA4397@katana>
-References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
- <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
- <CAOY=C6FSXWn2AKn9gp0oU69U8VkkyJAE7MMUTZsToy0P_Tf6AA@mail.gmail.com>
- <20141122181229.GB9698@katana>
- <CAOY=C6F6TMyeDvNneBV6K5hVjoG+qk-1Y_R3oJkEiGxhLOoQ0A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAOY=C6F6TMyeDvNneBV6K5hVjoG+qk-1Y_R3oJkEiGxhLOoQ0A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stijn Devriendt <highguy@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, LKML <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>
+Date: Wed, 26 Nov 2014 15:25:29 +0300
+Message-ID: <2A7C987F-15E0-46FD-A711-E7F5BA9893FC@gmail.com>
+References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de> <1416326695-13083-3-git-send-email-wsa@the-dreams.de> <CAOY=C6FSXWn2AKn9gp0oU69U8VkkyJAE7MMUTZsToy0P_Tf6AA@mail.gmail.com> <20141122181229.GB9698@katana>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20141122181229.GB9698@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Stijn Devriendt <highguy@gmail.com>, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, LKML <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+22 =CE=CF=D1=C2. 2014 =C7., =D7 21:12, Wolfram Sang <wsa@the-dreams.de>=
+ =CE=C1=D0=C9=D3=C1=CC(=C1):
 
+> IMO a repeated start is to ensure that two messages arrive at the sla=
+ve
+> without interruption from another master. I can't think why a slave
+> should know which type of start that was. In fact, if it does that wo=
+uld
+> raise an eyebrow for me. Do you have an example?
 
-> My bad, will minimize the overhead in the future.
+It is used to implement Device ID reading.
+Not sure, that the feature is really needed for the first release.
 
-Thanks!
+See [1] "3.1.17 Device ID" chapter on page "20 of 64"
+See [2] "7.2.2 Device ID (PCA9671 ID field)" chapter
 
-> I think usable semantics could be that a slave driver can indicate at any
-> point during an I2C read transaction that the next X bytes should be
-> returned from a buffer and for a write transaction, that the next X bytes
-> should be buffered before passed on to the driver. When the transaction
+[1] UM10204 I2C-bus specification and user manual (http://www.nxp.com/d=
+ocuments/user_manual/UM10204.pdf)
+[2] PCA9671 (http://www.nxp.com/documents/data_sheet/PCA9671.pdf)
 
-Yes, if we have something like that it should definately be that the
-slave driver offers a buffer and the bus driver may accept the buffer or
-not. Buffers should be opt-in and slave drivers will always have to
-support byte-based transactions as the ultimate fallback because this is
-how the vast majority of HW works (at least those I checked).
+Alexander.
 
-That makes me really wonder if there will be a case where performance is
-so important that buffer handling is coded on top of the always needed
-byte based handling?
-
-More so, I'd think most slaves will have stuff like registers. So,
-buffered writes usually won't make sense because setting bits should
-cause an action immediately. And reading bits will have the problem of
-data getting stale. I'd think this is the biggest use case of I2C.
-Except for reading an EEPROM _once_ ;)
-
-> ends or the adapter reaches the end of the buffer, it indicates this to
-> the driver which can then either cleanup or otherwise act accordingly.
-
-Or the adapter encounters an unexpected STOP. Cleanups need to handle
-interrupted transactions as well. I'd think this is a bit more error
-prone, because people would need to check a return value and compare it
-to the number of bytes they wanted. Not a show stopper, but also nothing
-I want to throw in too easily.
-
-> But as you say, this can be added later on when the need arises.
-
-I'd really say so.
-
-> Just checked components we're using and stop/repeated-start both
-> transition into the same state.
-
-Good, thanks for checking! May I ask which components you are using?
-
-   Wolfram
-
-
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUdcYaAAoJEBQN5MwUoCm2Ut8P/jSG+L8qB4j4mF7C6yNtd3nR
-xYbGz0te3282ritSJONOtP4GXVkz2v8TL3/1ZkEvmVyaZAclMTceFRoyIyVUrNxn
-4t1tnJxDqM2+8fYq7OWhIAAVPjynWcNxM7EkJs4sSRzrfQyc6A+s8rGUYc8Ol37L
-VEVCW76tlhwiBLohZAD8QF8/s9q9NAXmMBeXYfw5lVeUS02Cuvmmdsf697HrkWOr
-OGd6wSPjXT9SZKFLY1D7MxvUnbEDZK0vU8GGDMDsQJjO91/rJb+0ptpB5yHEFF+/
-TMoVMIpf/nheH/gRQP9bbQrS9mslun3bZ+26zcPDnX0Ao59N1zScXYiFCKfqKcR3
-HczLZzBWGeS6oY+9Y03dmqD9aQ6Ix+O3BwYe8RZ66YANuiIUIq36WBtrCLZoUI3x
-jPZLDFlFEsvQWZkWMkFWc8udKbHV7EHlaNj8Ce7g3VVqCakcIJBvaLkMmy0DmZMb
-gUhj/vz8fdZQkT2VwwKq6TrlZExJ1cL7H2KasKNxoHd7ki+Tlz/Np8zd7xWOH28C
-GylIwCsd9JU4kHuumvF+brCVV0nBTtvpNBgIznPZ4YkJ0VEbu8mUiyQUegszyUyA
-1Z6BChvQhMROl0DJIEG56HbBMeE8RxjkXRE3x6ylP3aocaOobJCLmIXl8dHa0FVd
-dAvlShGnoRlikm9aV+bI
-=+RhW
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--
