@@ -1,69 +1,62 @@
 From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: [PATCH v2 1/5] i2c: i2c-davinci: switch to use platform_get_irq
-Date: Wed, 26 Nov 2014 15:59:49 +0200
-Message-ID: <1417010393-30598-2-git-send-email-grygorii.strashko@ti.com>
+Subject: [PATCH v2 3/5] i2c: recovery: change input parameter to i2c_adapter
+ for prepare/unprepare_recovery
+Date: Wed, 26 Nov 2014 15:59:51 +0200
+Message-ID: <1417010393-30598-4-git-send-email-grygorii.strashko@ti.com>
 References: <1417010393-30598-1-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1417010393-30598-1-git-send-email-grygorii.strashko@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Wolfram Sang <wsa@the-dreams.de>, Sekhar Nori <nsekhar@ti.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Mike Looijmans <milo-software@users.sourceforge.net>, Grygorii Strashko <grygorii.strashko@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, Murali Karicheri <m-karicheri2@ti.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, linux-kernel@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, linux-i2c@vger.kernel.org, Mike Looijmans <milo-software@users.sourceforge.net>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Switch Davinci I2C driver to use platform_get_irq(), because
-it is not recommened to use platform_get_resource(pdev, IORESOURCE_IRQ, ..)
-for requesting IRQ resources any more, as they can be not ready yet
-in case of DT-boot.
-
-CC: Sekhar Nori <nsekhar@ti.com>
-CC: Kevin Hilman <khilman@deeprootsystems.com>
-CC: Santosh Shilimkar <ssantosh@kernel.org>
-CC: Murali Karicheri <m-karicheri2@ti.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
----
- drivers/i2c/busses/i2c-davinci.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 4d96147..7f54903 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -640,13 +640,17 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- {
- 	struct davinci_i2c_dev *dev;
- 	struct i2c_adapter *adap;
--	struct resource *mem, *irq;
--	int r;
--
--	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (!irq) {
--		dev_err(&pdev->dev, "no irq resource?\n");
--		return -ENODEV;
-+	struct resource *mem;
-+	int r, irq;
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq <= 0) {
-+		if (irq == -EPROBE_DEFER)
-+			return irq;
-+		if (!irq)
-+			irq = -ENXIO;
-+		dev_err(&pdev->dev, "can't get irq resource ret=%d\n", irq);
-+		return irq;
- 	}
- 
- 	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
-@@ -661,7 +665,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	init_completion(&dev->xfr_complete);
- #endif
- 	dev->dev = &pdev->dev;
--	dev->irq = irq->start;
-+	dev->irq = irq;
- 	dev->pdata = dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, dev);
- 
--- 
-1.9.1
+VGhpcyBwYXRjaCBjaGFuZ2VzIHR5cGUgb2YgaW5wdXQgcGFyYW1ldGVyIGZvciAucHJlcGFyZS91
+bnByZXBhcmVfcmVjb3ZlcnkoKQpjYWxsYmFja3MgZnJvbSBzdHJ1Y3QgaTJjX2J1c19yZWNvdmVy
+eV9pbmZvICogdG8gc3RydWN0IGkyY19hZGFwdGVyICouClRoaXMgYWxsb3dzIHRvIHNpbXBsaWZ5
+IGltcGxlbWVudGF0aW9uIG9mIHRoZXNlIGNhbGxiYWNrcyBhbmQgYXZvaWQKdHlwZSBjb252ZXJz
+YXRpb25zIGZyb20gaTJjX2J1c19yZWNvdmVyeV9pbmZvIHRvIGkyY19hZGFwdGVyLgpUaGUgaTJj
+X2J1c19yZWNvdmVyeV9pbmZvIGNhbiBiZSBzaW1wbHkgcmV0cmlldmVkIGZyb20gc3RydWN0IGky
+Y19hZGFwdGVyCndoaWNoIGNvbnRhaW5zIHBvaW50ZXIgb24gaXQuCgpDQzogU2VraGFyIE5vcmkg
+PG5zZWtoYXJAdGkuY29tPgpDQzogS2V2aW4gSGlsbWFuIDxraGlsbWFuQGRlZXByb290c3lzdGVt
+cy5jb20+CkNDOiBTYW50b3NoIFNoaWxpbWthciA8c3NhbnRvc2hAa2VybmVsLm9yZz4KQ0M6IE11
+cmFsaSBLYXJpY2hlcmkgPG0ta2FyaWNoZXJpMkB0aS5jb20+CkFja2VkLWJ5OiBVd2UgS2xlaW5l
+LUvDtm5pZyA8dS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlPgpTaWduZWQtb2ZmLWJ5OiBH
+cnlnb3JpaSBTdHJhc2hrbyA8Z3J5Z29yaWkuc3RyYXNoa29AdGkuY29tPgotLS0KIGRyaXZlcnMv
+aTJjL2kyYy1jb3JlLmMgfCA0ICsrLS0KIGluY2x1ZGUvbGludXgvaTJjLmggICAgfCA0ICsrLS0K
+IDIgZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCmlu
+ZGV4IDJmOTBhYzYuLjcyYjZlMzQgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMK
+KysrIGIvZHJpdmVycy9pMmMvaTJjLWNvcmUuYwpAQCAtNTYzLDcgKzU2Myw3IEBAIHN0YXRpYyBp
+bnQgaTJjX2dlbmVyaWNfcmVjb3Zlcnkoc3RydWN0IGkyY19hZGFwdGVyICphZGFwKQogCWludCBp
+ID0gMCwgdmFsID0gMSwgcmV0ID0gMDsKIAogCWlmIChicmktPnByZXBhcmVfcmVjb3ZlcnkpCi0J
+CWJyaS0+cHJlcGFyZV9yZWNvdmVyeShicmkpOworCQlicmktPnByZXBhcmVfcmVjb3ZlcnkoYWRh
+cCk7CiAKIAkvKgogCSAqIEJ5IHRoaXMgdGltZSBTQ0wgaXMgaGlnaCwgYXMgd2UgbmVlZCB0byBn
+aXZlIDkgZmFsbGluZy1yaXNpbmcgZWRnZXMKQEAgLTU4OCw3ICs1ODgsNyBAQCBzdGF0aWMgaW50
+IGkyY19nZW5lcmljX3JlY292ZXJ5KHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCkKIAl9CiAKIAlp
+ZiAoYnJpLT51bnByZXBhcmVfcmVjb3ZlcnkpCi0JCWJyaS0+dW5wcmVwYXJlX3JlY292ZXJ5KGJy
+aSk7CisJCWJyaS0+dW5wcmVwYXJlX3JlY292ZXJ5KGFkYXApOwogCiAJcmV0dXJuIHJldDsKIH0K
+ZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvaTJjLmggYi9pbmNsdWRlL2xpbnV4L2kyYy5oCmlu
+ZGV4IGI1NTZlMGEuLmNmOTM4MGYgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaTJjLmgKKysr
+IGIvaW5jbHVkZS9saW51eC9pMmMuaApAQCAtNDA0LDggKzQwNCw4IEBAIHN0cnVjdCBpMmNfYnVz
+X3JlY292ZXJ5X2luZm8gewogCXZvaWQgKCpzZXRfc2NsKShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKiwg
+aW50IHZhbCk7CiAJaW50ICgqZ2V0X3NkYSkoc3RydWN0IGkyY19hZGFwdGVyICopOwogCi0Jdm9p
+ZCAoKnByZXBhcmVfcmVjb3ZlcnkpKHN0cnVjdCBpMmNfYnVzX3JlY292ZXJ5X2luZm8gKmJyaSk7
+Ci0Jdm9pZCAoKnVucHJlcGFyZV9yZWNvdmVyeSkoc3RydWN0IGkyY19idXNfcmVjb3ZlcnlfaW5m
+byAqYnJpKTsKKwl2b2lkICgqcHJlcGFyZV9yZWNvdmVyeSkoc3RydWN0IGkyY19hZGFwdGVyICop
+OworCXZvaWQgKCp1bnByZXBhcmVfcmVjb3ZlcnkpKHN0cnVjdCBpMmNfYWRhcHRlciAqKTsKIAog
+CS8qIGdwaW8gcmVjb3ZlcnkgKi8KIAlpbnQgc2NsX2dwaW87Ci0tIAoxLjkuMQoKCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwg
+bWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8v
+bGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
