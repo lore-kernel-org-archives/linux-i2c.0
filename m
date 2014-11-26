@@ -1,241 +1,75 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PATCH V3] ACPI: Add _DEP(Operation Region Dependencies) support to fix battery issue on the Asus T100TA
-Date: Tue, 25 Nov 2014 23:31:47 +0100
-Message-ID: <2784837.a10Sa2bqgX@vostro.rjw.lan>
-References: <1416748974-24124-1-git-send-email-tianyu.lan@intel.com>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH] i2c: core: Fix probing of i2c slaves without interrupts
+Date: Wed, 26 Nov 2014 02:22:42 +0200
+Message-ID: <1869027.VfW5YtiRHN@avalon>
+References: <1416224580-4782-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1416748974-24124-1-git-send-email-tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.moore-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shigorin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adamw-cfjF3rc+CpsYNetmKr+vY16hYfS7NtTn@public.gmane.org, jan.brummer-sgYkR6nYkOfYtjvyW6yDsg@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-E0kO6a4B6psdnm+yROfE0A@public.gmane.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1416224580-4782-1-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sunday, November 23, 2014 09:22:54 PM Lan Tianyu wrote:
-> ACPI 5.0 introduces _DEP to designate device objects that OSPM should
-> assign a higher priority in start ordering due to future operation region
-> accesses.
-> 
-> On Asus T100TA, ACPI battery info are read from a I2C slave device via
-> I2C operation region. Before I2C operation region handler is installed,
-> battery _STA always returns 0. There is a _DEP method of designating
-> start order under battery device node.
-> 
-> This patch is to implement _DEP feature to fix battery issue on the Asus T100TA.
-> Introducing acpi_dep_list and adding dep_unmet count in the struct
-> acpi_device. During ACPI namespace scan, create struct acpi_dep_data for a
-> valid pair of master (device pointed to by _DEP)/slave(device with _DEP), record
-> master's and slave's ACPI handle in it and put it into acpi_dep_list. The dep_unmet
-> count will increase by one if there is a device under its _DEP. Driver's probe() should
-> return EPROBE_DEFER when find dep_unmet is larger than 0. When I2C operation
-> region handler is installed, remove all struct acpi_dep_data on the acpi_dep_list
-> whose master is pointed to I2C host controller and decrease slave's dep_unmet.
-> When dep_unmet decreases to 0, all _DEP conditions are met and then do acpi_bus_attach()
-> for the device in order to resolve battery _STA issue on the Asus T100TA.
-> 
-> Reference: https://bugzilla.kernel.org/show_bug.cgi?id=69011
-> Tested-by: Jan-Michael Brummer <jan.brummer-sgYkR6nYkOfYtjvyW6yDsg@public.gmane.org>
-> Tested-by: Adam Williamson <adamw-cfjF3rc+CpsYNetmKr+vY16hYfS7NtTn@public.gmane.org>
-> Tested-by: Michael Shigorin <shigorin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Signed-off-by: Lan Tianyu <tianyu.lan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Hi Geert,
 
-Queued up for 3.19-rc1, thanks!
+On Monday 17 November 2014 12:43:00 Geert Uytterhoeven wrote:
+> Since commit 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time"),
+> i2c slaves without interrupts (e.g. da9210 and at24 on r8a7791/koelsch)
+> fail to probe:
+> 
+>     at24: probe of 2-0050 failed with error -22
+> 
+>     da9210: probe of 6-0068 failed with error -22
+> 
+> This happens because the call to of_irq_get() in i2c_device_probe()
+> returns -EINVAL.
+> 
+> If a device node does not have an "interrupts" property,
+> of_irq_parse_one() fails. Unlike irq_of_parse_and_map(), of_irq_get()
+> does not ignore errors from of_irq_parse_one(), but forwards them.
+> 
+> Make i2c_device_probe() ignore all errors but -EPROBE_DEFER to fix this,
+> just like platform_get_irq() and platform_get_irq_byname() already do.
+
+Thank you for fixing my mistake.
+
+> Fixes: 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time")
+> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+
+Just for the record, even if it's too late,
+
+Acked-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 
 > ---
-> Change since V2:
->         Coding style change
-> Change since V1:
->  	Remove redundant blank line and some coding style fixs.
+>  drivers/i2c/i2c-core.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> 
->  drivers/acpi/battery.c  |  4 +++
->  drivers/acpi/scan.c     | 85 +++++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/i2c/i2c-core.c  |  1 +
->  include/acpi/acpi_bus.h |  1 +
->  include/linux/acpi.h    |  1 +
->  5 files changed, 92 insertions(+)
-> 
-> diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-> index 8ec8a89..d98ba43 100644
-> --- a/drivers/acpi/battery.c
-> +++ b/drivers/acpi/battery.c
-> @@ -1180,6 +1180,10 @@ static int acpi_battery_add(struct acpi_device *device)
->  
->  	if (!device)
->  		return -EINVAL;
-> +
-> +	if (device->dep_unmet)
-> +		return -EPROBE_DEFER;
-> +
->  	battery = kzalloc(sizeof(struct acpi_battery), GFP_KERNEL);
->  	if (!battery)
->  		return -ENOMEM;
-> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-> index 9cb5cca..1b1cf55 100644
-> --- a/drivers/acpi/scan.c
-> +++ b/drivers/acpi/scan.c
-> @@ -36,6 +36,8 @@ bool acpi_force_hot_remove;
->  
->  static const char *dummy_hid = "device";
->  
-> +static LIST_HEAD(acpi_dep_list);
-> +static DEFINE_MUTEX(acpi_dep_list_lock);
->  static LIST_HEAD(acpi_bus_id_list);
->  static DEFINE_MUTEX(acpi_scan_lock);
->  static LIST_HEAD(acpi_scan_handlers_list);
-> @@ -43,6 +45,12 @@ DEFINE_MUTEX(acpi_device_lock);
->  LIST_HEAD(acpi_wakeup_device_list);
->  static DEFINE_MUTEX(acpi_hp_context_lock);
->  
-> +struct acpi_dep_data {
-> +	struct list_head node;
-> +	acpi_handle master;
-> +	acpi_handle slave;
-> +};
-> +
->  struct acpi_device_bus_id{
->  	char bus_id[15];
->  	unsigned int instance_no;
-> @@ -2193,6 +2201,59 @@ static void acpi_scan_init_hotplug(struct acpi_device *adev)
->  	}
->  }
->  
-> +static void acpi_device_dep_initialize(struct acpi_device *adev)
-> +{
-> +	struct acpi_dep_data *dep;
-> +	struct acpi_handle_list dep_devices;
-> +	acpi_status status;
-> +	int i;
-> +
-> +	if (!acpi_has_method(adev->handle, "_DEP"))
-> +		return;
-> +
-> +	status = acpi_evaluate_reference(adev->handle, "_DEP", NULL,
-> +					&dep_devices);
-> +	if (ACPI_FAILURE(status)) {
-> +		dev_err(&adev->dev, "Failed to evaluate _DEP.\n");
-> +		return;
-> +	}
-> +
-> +	for (i = 0; i < dep_devices.count; i++) {
-> +		struct acpi_device_info *info;
-> +		int skip;
-> +
-> +		status = acpi_get_object_info(dep_devices.handles[i], &info);
-> +		if (ACPI_FAILURE(status)) {
-> +			dev_err(&adev->dev, "Error reading device info\n");
-> +			continue;
-> +		}
-> +
-> +		/*
-> +		 * Skip the dependency of Windows System Power
-> +		 * Management Controller
-> +		 */
-> +		skip = info->valid & ACPI_VALID_HID &&
-> +			!strcmp(info->hardware_id.string, "INT3396");
-> +
-> +		kfree(info);
-> +
-> +		if (skip)
-> +			continue;
-> +
-> +		dep = kzalloc(sizeof(struct acpi_dep_data), GFP_KERNEL);
-> +		if (!dep)
-> +			return;
-> +
-> +		dep->master = dep_devices.handles[i];
-> +		dep->slave  = adev->handle;
-> +		adev->dep_unmet++;
-> +
-> +		mutex_lock(&acpi_dep_list_lock);
-> +		list_add_tail(&dep->node , &acpi_dep_list);
-> +		mutex_unlock(&acpi_dep_list_lock);
-> +	}
-> +}
-> +
->  static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
->  				      void *not_used, void **return_value)
->  {
-> @@ -2219,6 +2280,7 @@ static acpi_status acpi_bus_check_add(acpi_handle handle, u32 lvl_not_used,
->  		return AE_CTRL_DEPTH;
->  
->  	acpi_scan_init_hotplug(device);
-> +	acpi_device_dep_initialize(device);
->  
->   out:
->  	if (!*return_value)
-> @@ -2339,6 +2401,29 @@ static void acpi_bus_attach(struct acpi_device *device)
->  		device->handler->hotplug.notify_online(device);
->  }
->  
-> +void acpi_walk_dep_device_list(acpi_handle handle)
-> +{
-> +	struct acpi_dep_data *dep, *tmp;
-> +	struct acpi_device *adev;
-> +
-> +	mutex_lock(&acpi_dep_list_lock);
-> +	list_for_each_entry_safe(dep, tmp, &acpi_dep_list, node) {
-> +		if (dep->master == handle) {
-> +			acpi_bus_get_device(dep->slave, &adev);
-> +			if (!adev)
-> +				continue;
-> +
-> +			adev->dep_unmet--;
-> +			if (!adev->dep_unmet)
-> +				acpi_bus_attach(adev);
-> +			list_del(&dep->node);
-> +			kfree(dep);
-> +		}
-> +	}
-> +	mutex_unlock(&acpi_dep_list_lock);
-> +}
-> +EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
-> +
->  /**
->   * acpi_bus_scan - Add ACPI device node objects in a given namespace scope.
->   * @handle: Root of the namespace scope to scan.
 > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index f43b4e1..68aeb8e 100644
+> index a0768d6dffc28aae..cf830915713b387a 100644
 > --- a/drivers/i2c/i2c-core.c
 > +++ b/drivers/i2c/i2c-core.c
-> @@ -403,6 +403,7 @@ static int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
->  		return -ENOMEM;
->  	}
->  
-> +	acpi_walk_dep_device_list(handle);
->  	return 0;
->  }
->  
-> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-> index 7d1ce40..d539084 100644
-> --- a/include/acpi/acpi_bus.h
-> +++ b/include/acpi/acpi_bus.h
-> @@ -372,6 +372,7 @@ struct acpi_device {
->  	void *driver_data;
->  	struct device dev;
->  	unsigned int physical_node_count;
-> +	unsigned int dep_unmet;
->  	struct list_head physical_node_list;
->  	struct mutex physical_node_lock;
->  	void (*remove)(struct acpi_device *);
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index 10f2ed9..e09f7f4 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -428,6 +428,7 @@ extern bool acpi_driver_match_device(struct device *dev,
->  				     const struct device_driver *drv);
->  int acpi_device_uevent_modalias(struct device *, struct kobj_uevent_env *);
->  int acpi_device_modalias(struct device *, char *, int);
-> +void acpi_walk_dep_device_list(acpi_handle handle);
->  
->  struct platform_device *acpi_create_platform_device(struct acpi_device *);
->  #define ACPI_PTR(_ptr)	(_ptr)
+> @@ -629,8 +629,10 @@ static int i2c_device_probe(struct device *dev)
+>  	if (!client->irq && dev->of_node) {
+>  		int irq = of_irq_get(dev->of_node, 0);
 > 
+> -		if (irq < 0)
+> +		if (irq == -EPROBE_DEFER)
+>  			return irq;
+> +		if (irq < 0)
+> +			irq = 0;
+> 
+>  		client->irq = irq;
+>  	}
 
 -- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Regards,
+
+Laurent Pinchart
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
