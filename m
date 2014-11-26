@@ -1,65 +1,95 @@
-From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Tue, 25 Nov 2014 19:41:37 -0600
-Message-ID: <1416966097.15957.171.camel@freescale.com>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
-	 <1414537731.23458.120.camel@snotra.buserror.net>
-	 <5450AC85.40302@keymile.com> <20141113003418.GE2062@katana>
-	 <5465B285.7070005@keymile.com> <20141114082832.GA2180@katana>
-	 <1416274083.15957.96.camel@freescale.com> <20141125181347.GC9716@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/3] i2c: slave-eeprom: add eeprom simulator driver
+Date: Wed, 26 Nov 2014 13:22:50 +0100
+Message-ID: <20141126122250.GA4397@katana>
+References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
+ <1416326695-13083-3-git-send-email-wsa@the-dreams.de>
+ <CAOY=C6FSXWn2AKn9gp0oU69U8VkkyJAE7MMUTZsToy0P_Tf6AA@mail.gmail.com>
+ <20141122181229.GB9698@katana>
+ <CAOY=C6F6TMyeDvNneBV6K5hVjoG+qk-1Y_R3oJkEiGxhLOoQ0A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141125181347.GC9716@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAOY=C6F6TMyeDvNneBV6K5hVjoG+qk-1Y_R3oJkEiGxhLOoQ0A@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stijn Devriendt <highguy@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, LKML <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2014-11-25 at 19:13 +0100, Wolfram Sang wrote:
-> On Mon, Nov 17, 2014 at 07:28:03PM -0600, Scott Wood wrote:
-> > On Fri, 2014-11-14 at 09:28 +0100, Wolfram Sang wrote:
-> > > > > 
-> > > > > If we're going to change the device tree I'd rather just add a property
-> > > > > to say what the prescaler is.
-> > > > 
-> > > >  We would however, leave the boards' device trees that use things like
-> > > > "fsl,mpc8543-i2c" as is and introduce the prescaler for the others requiring it.
-> > > > 
-> > > > 
-> > > > Now the drawback is that the driver would require a change, to parse this
-> > > > prescaler new prescaler property. Would this be OK from your point of view
-> > > > Wolfram ? If yes, I will send the patches for it.
-> > > 
-> > > I don't think it is OK.
-> > 
-> > Why?
-> 
-> Because I thought it could be deduced. Then, a seperate property would
-> not be OK.
-> 
-> > >  I'd think it can be deduced from the compatible property.
-> > 
-> > For almost all existing device trees it cannot be.
-> 
-> Pity :( If we do introduce a new property, it should probably be
-> "clock-div". Grepping through binding documentation, that seems
-> accepted. We should ask DT maintainers, too, to be safe.
-> 
-> > If you want something that will work without changing device trees,
-> > you'll need to use SVR to identify the SoC.
-> 
-> The driver is doing that already, see mpc_i2c_get_sec_cfg_8xxx(). Dunno
-> if it makes sense to add to it for consistency reasons?
 
-That's not SVR, but sure.  Better to avoid messing with existing device
-trees.
-
--Scott
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> My bad, will minimize the overhead in the future.
+
+Thanks!
+
+> I think usable semantics could be that a slave driver can indicate at any
+> point during an I2C read transaction that the next X bytes should be
+> returned from a buffer and for a write transaction, that the next X bytes
+> should be buffered before passed on to the driver. When the transaction
+
+Yes, if we have something like that it should definately be that the
+slave driver offers a buffer and the bus driver may accept the buffer or
+not. Buffers should be opt-in and slave drivers will always have to
+support byte-based transactions as the ultimate fallback because this is
+how the vast majority of HW works (at least those I checked).
+
+That makes me really wonder if there will be a case where performance is
+so important that buffer handling is coded on top of the always needed
+byte based handling?
+
+More so, I'd think most slaves will have stuff like registers. So,
+buffered writes usually won't make sense because setting bits should
+cause an action immediately. And reading bits will have the problem of
+data getting stale. I'd think this is the biggest use case of I2C.
+Except for reading an EEPROM _once_ ;)
+
+> ends or the adapter reaches the end of the buffer, it indicates this to
+> the driver which can then either cleanup or otherwise act accordingly.
+
+Or the adapter encounters an unexpected STOP. Cleanups need to handle
+interrupted transactions as well. I'd think this is a bit more error
+prone, because people would need to check a return value and compare it
+to the number of bytes they wanted. Not a show stopper, but also nothing
+I want to throw in too easily.
+
+> But as you say, this can be added later on when the need arises.
+
+I'd really say so.
+
+> Just checked components we're using and stop/repeated-start both
+> transition into the same state.
+
+Good, thanks for checking! May I ask which components you are using?
+
+   Wolfram
+
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUdcYaAAoJEBQN5MwUoCm2Ut8P/jSG+L8qB4j4mF7C6yNtd3nR
+xYbGz0te3282ritSJONOtP4GXVkz2v8TL3/1ZkEvmVyaZAclMTceFRoyIyVUrNxn
+4t1tnJxDqM2+8fYq7OWhIAAVPjynWcNxM7EkJs4sSRzrfQyc6A+s8rGUYc8Ol37L
+VEVCW76tlhwiBLohZAD8QF8/s9q9NAXmMBeXYfw5lVeUS02Cuvmmdsf697HrkWOr
+OGd6wSPjXT9SZKFLY1D7MxvUnbEDZK0vU8GGDMDsQJjO91/rJb+0ptpB5yHEFF+/
+TMoVMIpf/nheH/gRQP9bbQrS9mslun3bZ+26zcPDnX0Ao59N1zScXYiFCKfqKcR3
+HczLZzBWGeS6oY+9Y03dmqD9aQ6Ix+O3BwYe8RZ66YANuiIUIq36WBtrCLZoUI3x
+jPZLDFlFEsvQWZkWMkFWc8udKbHV7EHlaNj8Ce7g3VVqCakcIJBvaLkMmy0DmZMb
+gUhj/vz8fdZQkT2VwwKq6TrlZExJ1cL7H2KasKNxoHd7ki+Tlz/Np8zd7xWOH28C
+GylIwCsd9JU4kHuumvF+brCVV0nBTtvpNBgIznPZ4YkJ0VEbu8mUiyQUegszyUyA
+1Z6BChvQhMROl0DJIEG56HbBMeE8RxjkXRE3x6ylP3aocaOobJCLmIXl8dHa0FVd
+dAvlShGnoRlikm9aV+bI
+=+RhW
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--
