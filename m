@@ -1,99 +1,41 @@
-From: Alexander Kochetkov <al.kochet@gmail.com>
-Subject: [RFC] i2c: omap: TEST: do IP reset during probe.
-Date: Wed, 26 Nov 2014 23:05:22 +0400
-Message-ID: <1417028722-29306-1-git-send-email-al.kochet@gmail.com>
-References: <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Hilman <khilman@kernel.org>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Felipe Balbi <balbi@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Alexander Kochetkov <al.kochet@gmail.com>
+From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] omap: i2c: don't check bus state IP rev3.3 and earlier
+Date: Wed, 26 Nov 2014 22:26:10 +0300
+Message-ID: <65BAE81D-E894-48EB-B5A0-0D0FFB9B448F@gmail.com>
+References: <20141124210809.GG2817@atomide.com> <1416867655-22232-1-git-send-email-al.kochet@gmail.com> <20141125141924.GD1843@katana> <7E0A0B24-91D5-41A4-B007-004C5965D0D7@gmail.com> <7hvbm3jdq1.fsf@deeprootsystems.com>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <7hvbm3jdq1.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-NOT FOR UPSTREAM
 
-The patch checks if IP reset during probe could bring I2C bus
-to a free state on omap2430 - omap3530 boards.
+25 =CE=CF=D1=C2. 2014 =C7., =D7 22:13, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org=
+> =CE=C1=D0=C9=D3=C1=CC(=C1):
 
-I guess, IP hold one of I2C lines in a low state.
-I guess, u-boot haven't sent a stop condition.
+> I'll test your patch on all my OMAP boards.  Put whatever debug outpu=
+t
+> you want, and I'll send you links to all the boot output.
 
-The patch is rebased on branch 'i2c/for-next' of
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux
-(6e79807443cba7397cd855ed29d6faba51d4c893)
+Hello, Kevin!
 
-Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
-Reported-by: Kevin Hilman <khilman@kernel.org>
-Tested-by: Kevin Hilman <khilman@kernel.org>
----
- drivers/i2c/busses/i2c-omap.c |   41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
+I've sent the patch[1]. Could you be so kind to run it on all your OMAP=
+ boards?
+Thank you very much!
+It is not urgent at all.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 4563200..865c9a1 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -282,6 +282,26 @@ static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
- 				(i2c_dev->regs[reg] << i2c_dev->reg_shift));
- }
- 
-+static int omap_i2c_wait_for_bb_valid(struct omap_i2c_dev *dev);
-+
-+static inline void
-+omap_i2c_dump_state(const char *func, int line, struct omap_i2c_dev *dev, const char *msg)
-+{
-+	u16 systest = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+	dev_info(dev->dev, "%s: STAT=0x%04x; IE=0x%04x; CON=0x%04x; SYSTEST=0x%04x; SDA=%d%d [OI]; SCL=%d%d [OI] (%s:%d)\n",
-+		msg,
-+		omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG),
-+		omap_i2c_read_reg(dev, OMAP_I2C_IE_REG),
-+		omap_i2c_read_reg(dev, OMAP_I2C_CON_REG),
-+		systest,
-+		(systest & OMAP_I2C_SYSTEST_SDA_O_FUNC) ? 1 : 0,
-+		(systest & OMAP_I2C_SYSTEST_SDA_I_FUNC) ? 1 : 0,
-+		(systest & OMAP_I2C_SYSTEST_SCL_O_FUNC) ? 1 : 0,
-+		(systest & OMAP_I2C_SYSTEST_SCL_I_FUNC) ? 1 : 0,
-+		func, line);
-+}
-+#define OMAP_I2C_DUMP_STATE(dev, msg) omap_i2c_dump_state(__func__, __LINE__, (dev), (msg))
-+
- static void __omap_i2c_init(struct omap_i2c_dev *dev)
- {
- 
-@@ -469,6 +489,23 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 
- 	__omap_i2c_init(dev);
- 
-+	msleep(1);
-+	OMAP_I2C_DUMP_STATE(dev, "init0");
-+
-+	dev->bb_valid = 0;
-+	omap_i2c_wait_for_bb_valid(dev);
-+	OMAP_I2C_DUMP_STATE(dev, "init1");
-+	dev_info(dev->dev, "init1: bb_valid=%d\n", dev->bb_valid);
-+
-+	omap_i2c_reset(dev);
-+	__omap_i2c_init(dev);
-+	dev->bb_valid = 0;
-+	omap_i2c_wait_for_bb_valid(dev);
-+	OMAP_I2C_DUMP_STATE(dev, "init2");
-+	dev_info(dev->dev, "init2: bb_valid=%d\n", dev->bb_valid);
-+
-+	dev->bb_valid = 1;
-+
- 	return 0;
- }
- 
-@@ -1367,8 +1404,8 @@ omap_i2c_probe(struct platform_device *pdev)
- 		goto err_unuse_clocks;
- 	}
- 
--	dev_info(dev->dev, "bus %d rev%d.%d at %d kHz\n", adap->nr,
--		 major, minor, dev->speed);
-+	dev_info(dev->dev, "bus %d rev%d.%d at %d kHz (rev %08x)\n", adap->nr,
-+		 major, minor, dev->speed, dev->rev);
- 
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
--- 
-1.7.9.5
+What is the preferred way for giving patches for you (for future)?
+I have one more fixes for i2c-omap (I think final).
+I don't want to break tests anymore.
+
+And I found, that n900 boot test PASS, but in fact it doesn't[2].
+
+Alexander.
+
+[1] http://marc.info/?l=3Dlinux-i2c&m=3D141702877518332&w=3D2
+[2] http://status.armcloud.us/boot/omap3-n900/job/next/kernel/next-2014=
+1124/defconfig/arm-omap2plus_defconfig/
