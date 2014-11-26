@@ -1,73 +1,63 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH] i2c: core: Fix probing of i2c slaves without interrupts
-Date: Wed, 26 Nov 2014 02:22:42 +0200
-Message-ID: <1869027.VfW5YtiRHN@avalon>
-References: <1416224580-4782-1-git-send-email-geert+renesas@glider.be>
+From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
+Date: Tue, 25 Nov 2014 19:41:37 -0600
+Message-ID: <1416966097.15957.171.camel@freescale.com>
+References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>
+	 <1414537731.23458.120.camel@snotra.buserror.net>
+	 <5450AC85.40302@keymile.com> <20141113003418.GE2062@katana>
+	 <5465B285.7070005@keymile.com> <20141114082832.GA2180@katana>
+	 <1416274083.15957.96.camel@freescale.com> <20141125181347.GC9716@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1416224580-4782-1-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+In-Reply-To: <20141125181347.GC9716@katana>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Geert,
-
-On Monday 17 November 2014 12:43:00 Geert Uytterhoeven wrote:
-> Since commit 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time"),
-> i2c slaves without interrupts (e.g. da9210 and at24 on r8a7791/koelsch)
-> fail to probe:
+On Tue, 2014-11-25 at 19:13 +0100, Wolfram Sang wrote:
+> On Mon, Nov 17, 2014 at 07:28:03PM -0600, Scott Wood wrote:
+> > On Fri, 2014-11-14 at 09:28 +0100, Wolfram Sang wrote:
+> > > > > 
+> > > > > If we're going to change the device tree I'd rather just add a property
+> > > > > to say what the prescaler is.
+> > > > 
+> > > >  We would however, leave the boards' device trees that use things like
+> > > > "fsl,mpc8543-i2c" as is and introduce the prescaler for the others requiring it.
+> > > > 
+> > > > 
+> > > > Now the drawback is that the driver would require a change, to parse this
+> > > > prescaler new prescaler property. Would this be OK from your point of view
+> > > > Wolfram ? If yes, I will send the patches for it.
+> > > 
+> > > I don't think it is OK.
+> > 
+> > Why?
 > 
->     at24: probe of 2-0050 failed with error -22
+> Because I thought it could be deduced. Then, a seperate property would
+> not be OK.
 > 
->     da9210: probe of 6-0068 failed with error -22
+> > >  I'd think it can be deduced from the compatible property.
+> > 
+> > For almost all existing device trees it cannot be.
 > 
-> This happens because the call to of_irq_get() in i2c_device_probe()
-> returns -EINVAL.
+> Pity :( If we do introduce a new property, it should probably be
+> "clock-div". Grepping through binding documentation, that seems
+> accepted. We should ask DT maintainers, too, to be safe.
 > 
-> If a device node does not have an "interrupts" property,
-> of_irq_parse_one() fails. Unlike irq_of_parse_and_map(), of_irq_get()
-> does not ignore errors from of_irq_parse_one(), but forwards them.
+> > If you want something that will work without changing device trees,
+> > you'll need to use SVR to identify the SoC.
 > 
-> Make i2c_device_probe() ignore all errors but -EPROBE_DEFER to fix this,
-> just like platform_get_irq() and platform_get_irq_byname() already do.
+> The driver is doing that already, see mpc_i2c_get_sec_cfg_8xxx(). Dunno
+> if it makes sense to add to it for consistency reasons?
 
-Thank you for fixing my mistake.
+That's not SVR, but sure.  Better to avoid messing with existing device
+trees.
 
-> Fixes: 2fd36c55264926e2 ("i2c: core: Map OF IRQ at probe time")
-> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+-Scott
 
-Just for the record, even if it's too late,
-
-Acked-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-
-> ---
->  drivers/i2c/i2c-core.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index a0768d6dffc28aae..cf830915713b387a 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -629,8 +629,10 @@ static int i2c_device_probe(struct device *dev)
->  	if (!client->irq && dev->of_node) {
->  		int irq = of_irq_get(dev->of_node, 0);
-> 
-> -		if (irq < 0)
-> +		if (irq == -EPROBE_DEFER)
->  			return irq;
-> +		if (irq < 0)
-> +			irq = 0;
-> 
->  		client->irq = irq;
->  	}
-
--- 
-Regards,
-
-Laurent Pinchart
 
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
