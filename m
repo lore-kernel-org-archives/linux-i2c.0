@@ -1,51 +1,129 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [RFC] i2c: omap: TEST: do IP reset during probe.
-Date: Sat, 29 Nov 2014 14:06:19 -0800
-Message-ID: <20141129220619.GZ2817@atomide.com>
-References: <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
- <1417028722-29306-1-git-send-email-al.kochet@gmail.com>
- <7hzjbdd57j.fsf@deeprootsystems.com>
- <20141128221350.GW2817@atomide.com>
- <E4A4FA05-0752-41CB-B86B-84035C6EAF05@gmail.com>
+From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: mux: pca9541: add return value check on register writes
+Date: Sat, 29 Nov 2014 14:45:47 -0800
+Message-ID: <547A4C9B.5080705@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <E4A4FA05-0752-41CB-B86B-84035C6EAF05-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [141128 15:27]:
-> Hello, Tony!
-> 
-> I just want to know, is multimaster i2c feature is interesting for TI SOC,
-> so I could send another patches?
+i2c: mux: pca9541: add return value check on register writes
 
-Sure and thanks for looking into fixing things.
- 
-> Or it's better to leave the thing without changes, as current single master version
-> well tested and work?
+Without this check there are conditions when the device was unable to
+acquire mastership but returns that it succeeded.
 
-Well once the fixes are in, I don't see any reason to not add
-multimaster support.
- 
-> Also I have a draft version of mixed multimaster/slave version. But it could introduce new bugs.
-> Are we ready for that? Thats because IP behavior, sometimes, doesn't correspond to TRMs[4][5].
-> It's the one of strange IP I ever seen on TI SOC. And TRM not as detailed as DSP TRMs.
+also convert to use devm memory allocation functions
 
-I think we can pretty easily test the i2c support before things get
-merged. I guess it should then be possible to loop two i2c controllers
-and run automated tests on them :)
- 
-> Looks, like you haven't seen my response in another thread[1].
-> So, duplicate it here.
+Signed-off-by: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c 
+b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index cb77277..0a029e9 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -52,9 +52,9 @@
+  #define PCA9541_CTL_TESTON    (1 << 6)
+  #define PCA9541_CTL_NTESTON    (1 << 7)
 
-Sorry I guess I forgot to reply, let me know if I still missed something.
+-#define PCA9541_ISTAT_INTIN    (1 << 0)
++#define PCA9541_ISTAT_INTIN        (1 << 0)
+  #define PCA9541_ISTAT_BUSINIT    (1 << 1)
+-#define PCA9541_ISTAT_BUSOK    (1 << 2)
++#define PCA9541_ISTAT_BUSOK        (1 << 2)
+  #define PCA9541_ISTAT_BUSLOST    (1 << 3)
+  #define PCA9541_ISTAT_MYTEST    (1 << 6)
+  #define PCA9541_ISTAT_NMYTEST    (1 << 7)
+@@ -65,7 +65,7 @@
+  #define busoff(x)    (!((x) & BUSON) || ((x) & BUSON) == BUSON)
 
-I'll give your two fixes a try on Monday hopefully.
+  /* arbitration timeouts, in jiffies */
+-#define ARB_TIMEOUT    (HZ / 8)    /* 125 ms until forcing bus ownership */
++#define ARB_TIMEOUT        (HZ / 8)    /* 125 ms until forcing bus 
+ownership */
+  #define ARB2_TIMEOUT    (HZ / 4)    /* 250 ms until acquisition failure */
 
-Regards,
+  /* arbitration retry delays, in us */
+@@ -219,6 +219,7 @@
+  {
+      struct pca9541 *data = i2c_get_clientdata(client);
+      int reg;
++    int ret = 0;
 
-Tony
+      reg = pca9541_reg_read(client, PCA9541_CONTROL);
+      if (reg < 0)
+@@ -237,7 +238,7 @@
+               * Other master did not request ownership,
+               * or arbitration timeout expired. Take the bus.
+               */
+-            pca9541_reg_write(client,
++            ret = pca9541_reg_write(client,
+                        PCA9541_CONTROL,
+                        pca9541_control[reg & 0x0f]
+                        | PCA9541_CTL_NTESTON);
+@@ -255,11 +256,11 @@
+           * Reset NTESTON and BUSINIT, then return success.
+           */
+          if (reg & (PCA9541_CTL_NTESTON | PCA9541_CTL_BUSINIT))
+-            pca9541_reg_write(client,
++            ret = pca9541_reg_write(client,
+                        PCA9541_CONTROL,
+                        reg & ~(PCA9541_CTL_NTESTON
+                            | PCA9541_CTL_BUSINIT));
+-        return 1;
++        return ret < 0 ? ret : 1;
+      } else {
+          /*
+           * Other master owns the bus.
+@@ -269,7 +270,7 @@
+          data->select_timeout = SELECT_DELAY_LONG;
+          if (time_is_before_eq_jiffies(data->arb_timeout)) {
+              /* Time is up, take the bus and reset it. */
+-            pca9541_reg_write(client,
++            ret = pca9541_reg_write(client,
+                        PCA9541_CONTROL,
+                        pca9541_control[reg & 0x0f]
+                        | PCA9541_CTL_BUSINIT
+@@ -277,12 +278,12 @@
+          } else {
+              /* Request bus ownership if needed */
+              if (!(reg & PCA9541_CTL_NTESTON))
+-                pca9541_reg_write(client,
++                ret = pca9541_reg_write(client,
+                            PCA9541_CONTROL,
+                            reg | PCA9541_CTL_NTESTON);
+          }
+      }
+-    return 0;
++    return ret < 0 ? ret : 0;
+  }
+
+  static int pca9541_select_chan(struct i2c_adapter *adap, void *client, 
+u32 chan)
+@@ -331,7 +332,7 @@
+      if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE_DATA))
+          goto err;
+
+-    data = kzalloc(sizeof(struct pca9541), GFP_KERNEL);
++    data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
+      if (!data) {
+          ret = -ENOMEM;
+          goto err;
+@@ -368,7 +369,7 @@
+      return 0;
+
+  exit_free:
+-    kfree(data);
++    devm_kfree(&client->dev, data);
+  err:
+      return ret;
+  }
+@@ -379,7 +380,6 @@
+
+      i2c_del_mux_adapter(data->mux_adap);
+
+-    kfree(data);
+      return 0;
+  }
