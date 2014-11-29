@@ -1,108 +1,51 @@
-From: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: mpc: add register documentation to Freescale I2C driver
-Date: Sat, 29 Nov 2014 13:58:42 -0800
-Message-ID: <547A4192.30102@gmail.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [RFC] i2c: omap: TEST: do IP reset during probe.
+Date: Sat, 29 Nov 2014 14:06:19 -0800
+Message-ID: <20141129220619.GZ2817@atomide.com>
+References: <1416685634-5864-3-git-send-email-al.kochet@gmail.com>
+ <1417028722-29306-1-git-send-email-al.kochet@gmail.com>
+ <7hzjbdd57j.fsf@deeprootsystems.com>
+ <20141128221350.GW2817@atomide.com>
+ <E4A4FA05-0752-41CB-B86B-84035C6EAF05@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <E4A4FA05-0752-41CB-B86B-84035C6EAF05-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c: mpc: add register documentation to Freescale I2C driver
+* Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [141128 15:27]:
+> Hello, Tony!
+> 
+> I just want to know, is multimaster i2c feature is interesting for TI SOC,
+> so I could send another patches?
 
-return -ETIMEDOUT for all time-out error conditions and warn on 
-arbitration lost.
+Sure and thanks for looking into fixing things.
+ 
+> Or it's better to leave the thing without changes, as current single master version
+> well tested and work?
 
-Signed-off-by: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Well once the fixes are in, I don't see any reason to not add
+multimaster support.
+ 
+> Also I have a draft version of mixed multimaster/slave version. But it could introduce new bugs.
+> Are we ready for that? Thats because IP behavior, sometimes, doesn't correspond to TRMs[4][5].
+> It's the one of strange IP I ever seen on TI SOC. And TRM not as detailed as DSP TRMs.
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 4c5d7d9..28d9245 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -36,26 +36,31 @@
-  #define MPC_I2C_CLOCK_LEGACY   0
-  #define MPC_I2C_CLOCK_PRESERVE (~0U)
+I think we can pretty easily test the i2c support before things get
+merged. I guess it should then be possible to loop two i2c controllers
+and run automated tests on them :)
+ 
+> Looks, like you haven't seen my response in another thread[1].
+> So, duplicate it here.
 
--#define MPC_I2C_FDR   0x04
--#define MPC_I2C_CR    0x08
--#define MPC_I2C_SR    0x0c
--#define MPC_I2C_DR    0x10
--#define MPC_I2C_DFSRR 0x14
-+#define    MPC_I2C_ADR        0x00    /* I2C address register */
-+#define    MPC_I2C_FDR        0x04    /* I2C frequency divider register */
-+#define    MPC_I2C_CR        0x08    /* I2C control register */
-+#define    MPC_I2C_SR        0x0C    /* I2C status register */
-+#define    MPC_I2C_DR        0x10    /* I2C data register */
-+#define    MPC_I2C_DFSRR    0x14    /* I2C digital filter sampling rate 
-register */
+Sorry I guess I forgot to reply, let me know if I still missed something.
 
--#define CCR_MEN  0x80
--#define CCR_MIEN 0x40
--#define CCR_MSTA 0x20
--#define CCR_MTX  0x10
--#define CCR_TXAK 0x08
--#define CCR_RSTA 0x04
-+/* I2C Control Register (MPC_I2C_CR): */
-+#define CCR_MEN  0x80    /* Module enable */
-+#define CCR_MIEN 0x40    /* Module interrupt enable */
-+#define CCR_MSTA 0x20    /* Master/slave mode START */
-+#define CCR_MTX  0x10    /* Transmit/receive mode select */
-+#define CCR_TXAK 0x08    /* Transfer acknowledge */
-+#define CCR_RSTA 0x04    /* Repeated START */
-+#define CCR_BCST 0x01    /* Broadcast */
+I'll give your two fixes a try on Monday hopefully.
 
--#define CSR_MCF  0x80
--#define CSR_MAAS 0x40
--#define CSR_MBB  0x20
--#define CSR_MAL  0x10
--#define CSR_SRW  0x04
--#define CSR_MIF  0x02
--#define CSR_RXAK 0x01
-+/* I2C Status Register (MPC_I2C_SR): */
-+#define CSR_MCF  0x80    /* Data transfer */
-+#define CSR_MAAS 0x40    /* Addressed as a slave */
-+#define CSR_MBB  0x20    /* Bus busy */
-+#define CSR_MAL  0x10    /* Arbitration lost */
-+#define CSR_BCSTM 0x08    /* Broadcast match */
-+#define CSR_SRW  0x04    /* Slave read/write */
-+#define CSR_MIF  0x02    /* Module interrupt */
-+#define CSR_RXAK 0x01    /* Received acknowledge */
+Regards,
 
-  struct mpc_i2c {
-      struct device *dev;
-@@ -158,12 +163,12 @@
-          return result;
-
-      if (!(cmd_err & CSR_MCF)) {
--        dev_dbg(i2c->dev, "unfinished\n");
-+        dev_warn(i2c->dev, "unfinished\n");
-          return -EIO;
-      }
-
-      if (cmd_err & CSR_MAL) {
--        dev_dbg(i2c->dev, "MAL\n");
-+        dev_err(i2c->dev, "Arbitration lost\n");
-          return -EAGAIN;
-      }
-
-@@ -554,7 +559,7 @@
-                         i2c->base + MPC_I2C_SR);
-                  mpc_i2c_fixup(i2c);
-              }
--            return -EIO;
-+            return -ETIMEDOUT;
-          }
-          schedule();
-      }
-@@ -590,7 +595,7 @@
-                         i2c->base + MPC_I2C_SR);
-                  mpc_i2c_fixup(i2c);
-              }
--            return -EIO;
-+            return -ETIMEDOUT;
-          }
-          cond_resched();
-      }
+Tony
