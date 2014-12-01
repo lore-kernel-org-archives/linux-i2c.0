@@ -1,58 +1,197 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mux: pca9541: add return value check on register
- writes
-Date: Mon, 1 Dec 2014 18:33:27 +0100
-Message-ID: <20141201173327.GE3212@katana>
-References: <547A4C9B.5080705@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: Add parameters to sysfs-added i2c devices
+Date: Mon, 1 Dec 2014 18:38:48 +0100
+Message-ID: <20141201173848.GF3212@katana>
+References: <1415976117-27755-1-git-send-email-minyard@acm.org>
+ <547335FB.4020002@mvista.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TD8GDToEDw0WLGOL"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="Wb5NtZlyOqqy58h0"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <547A4C9B.5080705-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <547335FB.4020002@mvista.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Corey Minyard <cminyard@mvista.com>
+Cc: minyard@acm.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---TD8GDToEDw0WLGOL
+--Wb5NtZlyOqqy58h0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> -#define PCA9541_ISTAT_INTIN    (1 << 0)
-> +#define PCA9541_ISTAT_INTIN        (1 << 0)
->  #define PCA9541_ISTAT_BUSINIT    (1 << 1)
-> -#define PCA9541_ISTAT_BUSOK    (1 << 2)
-> +#define PCA9541_ISTAT_BUSOK        (1 << 2)
+On Mon, Nov 24, 2014 at 07:43:23AM -0600, Corey Minyard wrote:
+> Ping, I haven't heard anything on this.
 
-What's with this whitespace noise? Please fix and resend.
+Use cases please :) What client drivers would need that and what params
+do they need?
 
-Make sure you read Documentation/email-clients.txt about GMail and send
-some test mails to yourself only. When you are sure everything is OK,
-then send out.
+>=20
+> -corey
+>=20
+> On 11/14/2014 08:41 AM, minyard@acm.org wrote:
+> > From: Corey Minyard <cminyard@mvista.com>
+> >
+> > Some devices might need parameters to control their operation,
+> > add the ability to pass these parameters to the client.
+> >
+> > This also makes the parsing of sysfs-added I2C devices a little
+> > more flexible, allowing tabs and arbitrary numbers of spaces.
+> >
+> > Signed-off-by: Corey Minyard <cminyard@mvista.com>
+> > ---
+> >  drivers/i2c/i2c-core.c | 46 ++++++++++++++++++++++++++++++++++--------=
+----
+> >  include/linux/i2c.h    |  3 +++
+> >  2 files changed, 37 insertions(+), 12 deletions(-)
+> >
+> > I'm adding an SMBus IPMI driver, and it needs to be able to have
+> > the IPMI bus address specified in case it's not the default.
+> >
+> > Also, this seems like it would be useful for other devices that
+> > need some sort of configuration.
+> >
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index f43b4e1..9a2ab13 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -781,7 +781,10 @@ static int i2c_device_pm_restore(struct device *de=
+v)
+> > =20
+> >  static void i2c_client_dev_release(struct device *dev)
+> >  {
+> > -	kfree(to_i2c_client(dev));
+> > +	struct i2c_client *client =3D to_i2c_client(dev);
+> > +
+> > +	kfree(client->parms);
+> > +	kfree(client);
+> >  }
+> > =20
+> >  static ssize_t
+> > @@ -1059,6 +1062,13 @@ i2c_new_device(struct i2c_adapter *adap, struct =
+i2c_board_info const *info)
+> >  	client->flags =3D info->flags;
+> >  	client->addr =3D info->addr;
+> >  	client->irq =3D info->irq;
+> > +	if (info->parms) {
+> > +		client->parms =3D kstrdup(info->parms, GFP_KERNEL);
+> > +		if (!client->parms) {
+> > +			dev_err(&adap->dev, "Out of memory allocating parms\n");
+> > +			goto out_err_silent;
+> > +		}
+> > +	}
+> > =20
+> >  	strlcpy(client->name, info->type, sizeof(client->name));
+> > =20
+> > @@ -1207,31 +1217,43 @@ i2c_sysfs_new_device(struct device *dev, struct=
+ device_attribute *attr,
+> >  	struct i2c_adapter *adap =3D to_i2c_adapter(dev);
+> >  	struct i2c_board_info info;
+> >  	struct i2c_client *client;
+> > -	char *blank, end;
+> > +	char *pos, end;
+> >  	int res;
+> > =20
+> >  	memset(&info, 0, sizeof(struct i2c_board_info));
+> > =20
+> > -	blank =3D strchr(buf, ' ');
+> > -	if (!blank) {
+> > +	pos =3D strpbrk(buf, " \t");
+> > +	if (!pos) {
+> >  		dev_err(dev, "%s: Missing parameters\n", "new_device");
+> >  		return -EINVAL;
+> >  	}
+> > -	if (blank - buf > I2C_NAME_SIZE - 1) {
+> > +	if (pos - buf > I2C_NAME_SIZE - 1) {
+> >  		dev_err(dev, "%s: Invalid device name\n", "new_device");
+> >  		return -EINVAL;
+> >  	}
+> > -	memcpy(info.type, buf, blank - buf);
+> > +	memcpy(info.type, buf, pos - buf);
+> > =20
+> > -	/* Parse remaining parameters, reject extra parameters */
+> > -	res =3D sscanf(++blank, "%hi%c", &info.addr, &end);
+> > -	if (res < 1) {
+> > +	while (isspace(*pos))
+> > +		pos++;
+> > +
+> > +	/* Parse address, saving remaining parameters. */
+> > +	res =3D sscanf(pos, "%hi%c", &info.addr, &end);
+> > +	if (res < 1 || !isspace(end)) {
+> >  		dev_err(dev, "%s: Can't parse I2C address\n", "new_device");
+> >  		return -EINVAL;
+> >  	}
+> > -	if (res > 1  && end !=3D '\n') {
+> > -		dev_err(dev, "%s: Extra parameters\n", "new_device");
+> > -		return -EINVAL;
+> > +	if (res > 1 && end !=3D '\n') {
+> > +		if (isspace(end)) {
+> > +			/* Extra parms, skip the address and space. */
+> > +			while (!isspace(*pos))
+> > +				pos++;
+> > +			while (isspace(*pos))
+> > +				pos++;
+> > +			info.parms =3D pos;
+> > +		} else {
+> > +			dev_err(dev, "%s: Extra parameters\n", "new_device");
+> > +			return -EINVAL;
+> > +		}
+> >  	}
+> > =20
+> >  	client =3D i2c_new_device(adap, &info);
+> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> > index b556e0a..e40fc56 100644
+> > --- a/include/linux/i2c.h
+> > +++ b/include/linux/i2c.h
+> > @@ -222,6 +222,7 @@ struct i2c_client {
+> >  	char name[I2C_NAME_SIZE];
+> >  	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
+> >  	struct device dev;		/* the device structure		*/
+> > +	char *parms;			/* sysfs extra parms		*/
+> >  	int irq;			/* irq issued by device		*/
+> >  	struct list_head detected;
+> >  };
+> > @@ -255,6 +256,7 @@ static inline void i2c_set_clientdata(struct i2c_cl=
+ient *dev, void *data)
+> >   * @archdata: copied into i2c_client.dev.archdata
+> >   * @of_node: pointer to OpenFirmware device node
+> >   * @acpi_node: ACPI device node
+> > + * @parms: Parameters supplied on the sysfs command line
+> >   * @irq: stored in i2c_client.irq
+> >   *
+> >   * I2C doesn't actually support hardware probing, although controllers=
+ and
+> > @@ -276,6 +278,7 @@ struct i2c_board_info {
+> >  	struct dev_archdata	*archdata;
+> >  	struct device_node *of_node;
+> >  	struct acpi_dev_node acpi_node;
+> > +	char            *parms;
+> >  	int		irq;
+> >  };
+> > =20
+>=20
 
-
---TD8GDToEDw0WLGOL
+--Wb5NtZlyOqqy58h0
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUfKZnAAoJEBQN5MwUoCm21gIP+wdiXHIeWhbOr4QSF06HZU2K
-HTN3TL+w4QTvxImCUYqiG4QnyVfroAEmI571B3KDleW0PWMuygLhvKkitIgL1pYn
-Y1ymhrZFEvje3kdjDh8v77i68LVnxWsvAD1cp8IlF/ve96tl2NoV/x2GAd7pP8Yf
-J0BDOIs9uRb5TmZ/b+/0ULqUw2fyGdq+SF7+LhnqM7/an+RSwSN41mZAa3Otc9EZ
-BHtKvtRS6RU7x19h1usua4gOgCoc8bfcer7h7T3r4KRYFAfrcREWlfYnRoTVKrH6
-qjHjcpGeVkkpf0YwgKUoWl4VoX+eeodQiqjBwMY1kekrSYj6QkVeyPE7RYQsDwKi
-XnAvxsZIoIWFW+KNhcb8fTe9uTFMreOJ85rchNDIYAsZpHszJSyHE/4tJ4dWxFiC
-bTthVZeusuRPVOMX0XYGOSmB6/IizIZ6GVIP5jaAfAWSX5nBOmBGLkDks+880Q7J
-g2hDHamRZqHNQJNjRiiQD7tHNqmzn4CSTGcLqo1GCMPOa01vrYxHmR73l727/SmD
-EHmtSJAurbaJQtt6Zkg1BY/gWXG0RQA0+M55VYnXOt5hv73+ZuAT9sFXO9uBEvxr
-/CQYQx6IRNlpVA/kCKnP0gGDaFbSHL+qD1H3roaL+U3JwUyqwCjULrsDjTXx2U/K
-gCohYTjZtVrc3/jLiuU5
-=wDV1
+iQIcBAEBAgAGBQJUfKeoAAoJEBQN5MwUoCm2eDMP/36UDlPBHbf0vnnDB+dgCH9o
+8TebXBkOtRV/IFyFTeVdlwbI1d71DZEowQU2Wta7+9pop9YouoiPq1m+dRUgbtsO
+LX579tUCh8ZMVzTvE8QL8T3BD5WDwdmGSo5tvyBia1HS0OG/axa8cNeK3n/5XLYl
+AmJBTR4dGZBGBifLRvaP4QtzRw0ezx4WFDnxPSvc6rKlZsyHcOCGts+2Q7W0S/Og
+Het9oJrUwZkgcOClWpp74IJUkETz7kCp9B8R2/285r5Q4L4CM5rzOjovsWwQij5B
+9uxmRgJcRt2UOMoIi2+iL/RGijalUgXAYnb/JFK3xT/QwnzBvoI94cRbj0kbgtsK
+EzlEMuwSnOmPDDgxFPi41jid269GMkFMCzZp/GziNdby8m8tzr/Pdk4brpy60nuf
+hPBEhEOrcEO7m7STu1QF4eoZe+Ildw9izG2Jnu71oEiTwdJc5GdlflGaKDTGKjY5
+NmsnnXNT0HHcRjmpvsS5fI9+odFq8YwnjmDDpbeXkY4bfCEXM50sBulAd2f2vvRx
+1FBl8nAv4+fT8v7sF7wPgUwwEq5tmMSdHiKDPjKsEe+USmDkFQMtG6lpKBbUQax2
++WjFcYlNoE/ieuGTjbh7lgNyVpITsf3q9NAsPnL6Gt6NvEjPO2G9dscQ+8QedEtp
+SWjoseI1q86o/VvHgK3k
+=1SkI
 -----END PGP SIGNATURE-----
 
---TD8GDToEDw0WLGOL--
+--Wb5NtZlyOqqy58h0--
