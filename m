@@ -1,184 +1,87 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v4 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO adapter
-Date: Mon, 1 Dec 2014 14:51:16 +0100
-Message-ID: <CACRpkdYbbheP5KTuj7f+2cJXrOjjkRZjR0-bth1DF3kCig6n5A@mail.gmail.com>
-References: <1417192911-16719-1-git-send-email-muth@cypress.com>
+From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/3] staging: imx-drm: document internal HDMI I2C master
+ controller DT binding
+Date: Mon, 1 Dec 2014 16:54:11 +0200
+Message-ID: <547C8113.3050100@mentor.com>
+References: <1416073759-19939-1-git-send-email-vladimir_zapolskiy@mentor.com> <1416073759-19939-2-git-send-email-vladimir_zapolskiy@mentor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1417192911-16719-1-git-send-email-muth@cypress.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Muthu Mani <muth@cypress.com>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Alexandre Courbot <gnurou@gmail.com>, Johan Hovold <johan@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1416073759-19939-2-git-send-email-vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 28, 2014 at 5:41 PM, Muthu Mani <muth@cypress.com> wrote:
+Hi Philipp and Shawn,
 
-> Adds support for USB-GPIO interface of Cypress Semiconductor
-> CYUSBS234 USB-Serial Bridge controller.
->
-> The GPIO get/set can be done through vendor command on control endpoint
-> for the configured gpios.
->
-> Details about the device can be found at:
-> http://www.cypress.com/?rID=84126
->
-> Signed-off-by: Muthu Mani <muth@cypress.com>
-> Signed-off-by: Rajaram Regupathy <rera@cypress.com>
+On 15.11.2014 19:49, Vladimir Zapolskiy wrote:
+> Provide information about how to bind internal iMX6Q/DL HDMI DDC I2C
+> master controller. The property is set as optional one, because iMX6
+> HDMI DDC bus may be represented by one of general purpose I2C busses
+> found on SoC.
+> 
+> Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 > ---
-> Changes since v3:
-
-(..)
-> +config GPIO_CYUSBS23X
-> +       tristate "CYUSBS23x GPIO support"
-> +       depends on MFD_CYUSBS23X && USB
-
-Doesn't MFD_CYUSV23X already depend on USB?
-
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/module.h>
-> +#include <linux/slab.h>
-> +#include <linux/types.h>
-> +#include <linux/mutex.h>
-> +#include <linux/platform_device.h>
+>  Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt |   10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt b/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
+> index 1b756cf..43c8924 100644
+> --- a/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
+> +++ b/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
+> @@ -10,6 +10,8 @@ Required properties:
+>   - #address-cells : should be <1>
+>   - #size-cells : should be <0>
+>   - compatible : should be "fsl,imx6q-hdmi" or "fsl,imx6dl-hdmi".
+> +   If internal HDMI DDC I2C master controller is supposed to be used,
+> +   then "simple-bus" should be added to compatible value.
+>   - gpr : should be <&gpr>.
+>     The phandle points to the iomuxc-gpr region containing the HDMI
+>     multiplexer control register.
+> @@ -22,6 +24,7 @@ Required properties:
+>  
+>  Optional properties:
+>   - ddc-i2c-bus: phandle of an I2C controller used for DDC EDID probing
+> + - ddc: internal HDMI DDC I2C master controller
+>  
+>  example:
+>  
+> @@ -32,7 +35,7 @@ example:
+>          hdmi: hdmi@0120000 {
+>                  #address-cells = <1>;
+>                  #size-cells = <0>;
+> -                compatible = "fsl,imx6q-hdmi";
+> +                compatible = "fsl,imx6q-hdmi", "simple-bus";
+>                  reg = <0x00120000 0x9000>;
+>                  interrupts = <0 115 0x04>;
+>                  gpr = <&gpr>;
+> @@ -40,6 +43,11 @@ example:
+>                  clock-names = "iahb", "isfr";
+>                  ddc-i2c-bus = <&i2c2>;
+>  
+> +                hdmi_ddc: ddc {
+> +                        compatible = "fsl,imx6q-hdmi-ddc";
+> +                        status = "disabled";
+> +                };
 > +
-> +#include <linux/usb.h>
-> +#include <linux/gpio.h>
-> +
-> +#include <linux/mfd/cyusbs23x.h>
+>                  port@0 {
+>                          reg = <0>;
+>  
+> 
 
-Why this arbitrary newlines? Add this
+knowing in advance that I2C framework lacks a graceful support of non
+fully compliant I2C devices, do you have any objections to the proposed
+iMX HDMI DTS change?
 
-#include <linus/bitops.h>
-
-> +struct cyusbs_gpio {
-> +       struct gpio_chip gpio;
-> +       struct cyusbs23x *cyusbs;
-> +       u32 out_gpio;
-> +       u32 out_value;
-> +       u32 in_gpio;
-> +};
-
-Add kerneldoc to this struct so we know what the out/in etc are.
-
-> +static int cy_gpio_get(struct gpio_chip *chip,
-> +                       unsigned offset)
-> +{
-> +       int ret;
-> +       char *buf;
-> +       u16 wIndex, wValue;
-> +       struct cyusbs_gpio *gpio = to_cyusbs_gpio(chip);
-> +       struct cyusbs23x *cyusbs = gpio->cyusbs;
-> +
-> +       if (gpio->out_gpio & (1 << offset))
-> +               return gpio->out_value & (1 << offset);
-
-Rewrite like this:
-
-if (gpio->out_gpio & BIT(offset))
-             return !!(gpio->out_value & BIT(offset));
-
-(!! will clamp  to [0,1])
-
-> +       wValue = offset;
-> +       wIndex = 0;
-> +       buf = kmalloc(CY_GPIO_GET_LEN, GFP_KERNEL);
-> +       if (buf == NULL)
-> +               return -ENOMEM;
-> +
-> +       ret = usb_control_msg(cyusbs->usb_dev,
-> +                       usb_rcvctrlpipe(cyusbs->usb_dev, 0),
-> +                       CY_GPIO_GET_VALUE_CMD,
-> +                       USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-> +                       wValue, wIndex, buf, CY_GPIO_GET_LEN,
-> +                       CY_USBS_CTRL_XFER_TIMEOUT);
-> +       if (ret == CY_GPIO_GET_LEN) {
-> +               dev_dbg(chip->dev, "%s: offset=%d %02X %02X\n",
-> +                       __func__, offset, buf[0], buf[1]);
-> +               if (buf[0] == 0)
-> +                       ret = buf[1];
-
-ret = !!buf[1];
-
-> +               else
-> +                       ret = -EIO;
-> +       } else {
-> +               dev_err(chip->dev, "%s: offset=%d %d\n", __func__, offset, ret);
-> +               ret = -EIO;
-> +       }
-> +
-> +       kfree(buf);
-> +       return ret;
-> +}
-> +
-> +static void cy_gpio_set(struct gpio_chip *chip,
-> +                       unsigned offset, int value)
-> +{
-> +       int ret;
-> +       u16 wIndex, wValue;
-> +       struct cyusbs_gpio *gpio = to_cyusbs_gpio(chip);
-> +       struct cyusbs23x *cyusbs = gpio->cyusbs;
-> +
-> +       wValue = offset;
-> +       wIndex = value;
-> +
-> +       ret = usb_control_msg(cyusbs->usb_dev,
-> +                       usb_sndctrlpipe(cyusbs->usb_dev, 0),
-> +                       CY_GPIO_SET_VALUE_CMD,
-> +                       USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-> +                       wValue, wIndex, NULL, 0, CY_USBS_CTRL_XFER_TIMEOUT);
-> +       if (ret < 0)
-> +               dev_err(chip->dev, "error setting gpio %d: %d\n", offset, ret);
-> +       else {
-> +               if (value)
-> +                       gpio->out_value |= (1 << offset);
-> +               else
-> +                       gpio->out_value &= ~(1 << offset);
-
-Use the BIT(offset) pattern here and everywhere else in the file.
-
-> +static int cy_get_device_config(struct cyusbs23x *cyusbs, u8 *buf)
-> +{
-> +       int ret;
-> +
-> +       ret = usb_control_msg(cyusbs->usb_dev,
-> +                       usb_sndctrlpipe(cyusbs->usb_dev, 0),
-> +                       CY_DEV_ENABLE_CONFIG_READ_CMD,
-> +                       USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-> +                       0xA6BC, 0xB1B0, NULL, 0,
-
-Aren't these 16bit numbers #defined somewhere?
-
-#define CYUSB_VID 0xA6BC and use that?
-
-> +static int cy_gpio_retrieve_gpio_details(struct cyusbs_gpio *gpio)
-> +{
-> +       int ret;
-> +       u32 drive0, drive1;
-> +       u8 *buf;
-> +       struct cyusbs23x *cyusbs = gpio->cyusbs;
-> +
-> +       buf = kzalloc(CY_DEVICE_CONFIG_SIZE, GFP_KERNEL);
-> +       if (buf == NULL)
-> +               return -ENOMEM;
-> +
-> +       ret = cy_get_device_config(cyusbs, buf);
-> +       if (ret) {
-> +               dev_err(&cyusbs->usb_dev->dev,
-> +                       "could not retrieve device configuration\n");
-> +               goto error;
-> +       }
-> +
-> +       /* Retrieve the GPIO configuration details */
-> +       drive0 = *((u32 *)&buf[436]);
-> +       drive1 = *((u32 *)&buf[440]);
-> +       gpio->out_gpio = drive0 | drive1;
-> +       gpio->out_value = drive1;
-> +       gpio->in_gpio = *((u32 *)&buf[444]);
-
-These offsets seem horribly arbitrary. Is there a spec of the packet
-format to reference in that comment?
-
-Yours,
-Linus Walleij
+--
+With best wishes,
+Vladimir
