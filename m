@@ -1,74 +1,64 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v3 1/5] i2c: i2c-davinci: switch to use platform_get_irq
-Date: Mon, 1 Dec 2014 17:34:03 +0200
-Message-ID: <1417448047-15236-2-git-send-email-grygorii.strashko@ti.com>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: [PATCH v3 0/5] i2c: davinci improvements and fixes
+Date: Mon, 1 Dec 2014 17:34:02 +0200
+Message-ID: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1417448047-15236-1-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Sekhar Nori <nsekhar@ti.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, Murali Karicheri <m-karicheri2@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Switch Davinci I2C driver to use platform_get_irq(), because
-it is not recommened to use platform_get_resource(pdev, IORESOURCE_IRQ,=
- ..)
-for requesting IRQ resources any more, as they can be not ready yet
-in case of DT-boot.
+This series contains some fixes and improvements for Davinci I2C:
+patch 1 - small improvement
+patch 2 - fixes "Bus busy" state for some case (was reported long time ago:()
 
-CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-davinci.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+patch 3-5 - converts driver to use I2C bus recovery infrastructure and
+adds Davinci I2C bus recovery mechanizm based on using ICPFUNC registers.
+These patches are combination of two patches from Ben Gardiner [1] and
+Mike Looijmans [2] which i've reworked to use I2C bus recovery infrastructure
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-=
-davinci.c
-index 4d96147..25e8e25 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -640,13 +640,17 @@ static int davinci_i2c_probe(struct platform_devi=
-ce *pdev)
- {
- 	struct davinci_i2c_dev *dev;
- 	struct i2c_adapter *adap;
--	struct resource *mem, *irq;
--	int r;
--
--	irq =3D platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (!irq) {
--		dev_err(&pdev->dev, "no irq resource?\n");
--		return -ENODEV;
-+	struct resource *mem;
-+	int r, irq;
-+
-+	irq =3D platform_get_irq(pdev, 0);
-+	if (irq <=3D 0) {
-+		if (!irq)
-+			irq =3D -ENXIO;
-+		if (irq !=3D -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"can't get irq resource ret=3D%d\n", irq);
-+		return irq;
- 	}
-=20
- 	dev =3D devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
-@@ -661,7 +665,7 @@ static int davinci_i2c_probe(struct platform_device=
- *pdev)
- 	init_completion(&dev->xfr_complete);
- #endif
- 	dev->dev =3D &pdev->dev;
--	dev->irq =3D irq->start;
-+	dev->irq =3D irq;
- 	dev->pdata =3D dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, dev);
-=20
---=20
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2011-April/047305.html
+"[PATCH 0/6] i2c-davinci gpio pulsed SCL recovery with ICPFUNC"
+[2] https://lkml.org/lkml/2014/2/28/133
+"[PATCH] i2c-davinci: Implement a bus recovery that actually works"
+
+Changes in v3:
+- minor comments applied
+
+Changes in v2:
+- patch 1: error handling improved
+- patch 2: commit message updated
+- patch 4: minor comments applied
+- patch 5: added new optional DT property "ti,has-pfunc"
+
+Link on v2:
+ https://lkml.org/lkml/2014/11/26/252
+
+Link on v1:
+ http://www.spinics.net/lists/linux-i2c/msg17601.html
+
+CC: Sekhar Nori <nsekhar@ti.com>
+CC: Kevin Hilman <khilman@deeprootsystems.com>
+CC: Santosh Shilimkar <ssantosh@kernel.org>
+CC: Murali Karicheri <m-karicheri2@ti.com>
+
+Grygorii Strashko (5):
+  i2c: i2c-davinci: switch to use platform_get_irq
+  i2c: davinci: generate STP always when NACK is received
+  i2c: recovery: change input parameter to i2c_adapter for
+    prepare/unprepare_recovery
+  i2c: davinci: use bus recovery infrastructure
+  i2c: davinci: use ICPFUNC to toggle I2C as gpio for bus recovery
+
+ .../devicetree/bindings/i2c/i2c-davinci.txt        |   3 +
+ drivers/i2c/busses/i2c-davinci.c                   | 205 +++++++++++++++------
+ drivers/i2c/i2c-core.c                             |   4 +-
+ include/linux/i2c.h                                |   4 +-
+ include/linux/platform_data/i2c-davinci.h          |   1 +
+ 5 files changed, 159 insertions(+), 58 deletions(-)
+
+-- 
 1.9.1
