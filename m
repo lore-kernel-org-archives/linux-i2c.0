@@ -1,62 +1,119 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: [PATCH v3 3/5] i2c: recovery: change input parameter to i2c_adapter
- for prepare/unprepare_recovery
-Date: Mon, 1 Dec 2014 17:34:05 +0200
-Message-ID: <1417448047-15236-4-git-send-email-grygorii.strashko@ti.com>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
+From: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/3] staging: imx-drm: document internal HDMI I2C master
+ controller DT binding
+Date: Mon, 1 Dec 2014 17:39:10 +0200
+Message-ID: <547C8B9E.8050605@mentor.com>
+References: <1416073759-19939-1-git-send-email-vladimir_zapolskiy@mentor.com>	 <1416073759-19939-2-git-send-email-vladimir_zapolskiy@mentor.com>	 <547C8113.3050100@mentor.com> <1417446703.4624.18.camel@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Sekhar Nori <nsekhar@ti.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, linux-kernel@vger.kernel.org, Murali Karicheri <m-karicheri2@ti.com>, linux-i2c@vger.kernel.org, Santosh Shilimkar <ssantosh@kernel.org>, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1417446703.4624.18.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-VGhpcyBwYXRjaCBjaGFuZ2VzIHR5cGUgb2YgaW5wdXQgcGFyYW1ldGVyIGZvciAucHJlcGFyZS91
-bnByZXBhcmVfcmVjb3ZlcnkoKQpjYWxsYmFja3MgZnJvbSBzdHJ1Y3QgaTJjX2J1c19yZWNvdmVy
-eV9pbmZvICogdG8gc3RydWN0IGkyY19hZGFwdGVyICouClRoaXMgYWxsb3dzIHRvIHNpbXBsaWZ5
-IGltcGxlbWVudGF0aW9uIG9mIHRoZXNlIGNhbGxiYWNrcyBhbmQgYXZvaWQKdHlwZSBjb252ZXJz
-YXRpb25zIGZyb20gaTJjX2J1c19yZWNvdmVyeV9pbmZvIHRvIGkyY19hZGFwdGVyLgpUaGUgaTJj
-X2J1c19yZWNvdmVyeV9pbmZvIGNhbiBiZSBzaW1wbHkgcmV0cmlldmVkIGZyb20gc3RydWN0IGky
-Y19hZGFwdGVyCndoaWNoIGNvbnRhaW5zIHBvaW50ZXIgb24gaXQuCgpDQzogU2VraGFyIE5vcmkg
-PG5zZWtoYXJAdGkuY29tPgpDQzogS2V2aW4gSGlsbWFuIDxraGlsbWFuQGRlZXByb290c3lzdGVt
-cy5jb20+CkNDOiBTYW50b3NoIFNoaWxpbWthciA8c3NhbnRvc2hAa2VybmVsLm9yZz4KQ0M6IE11
-cmFsaSBLYXJpY2hlcmkgPG0ta2FyaWNoZXJpMkB0aS5jb20+CkFja2VkLWJ5OiBVd2UgS2xlaW5l
-LUvDtm5pZyA8dS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlPgpTaWduZWQtb2ZmLWJ5OiBH
-cnlnb3JpaSBTdHJhc2hrbyA8Z3J5Z29yaWkuc3RyYXNoa29AdGkuY29tPgotLS0KIGRyaXZlcnMv
-aTJjL2kyYy1jb3JlLmMgfCA0ICsrLS0KIGluY2x1ZGUvbGludXgvaTJjLmggICAgfCA0ICsrLS0K
-IDIgZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQoKZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCmlu
-ZGV4IDJmOTBhYzYuLjcyYjZlMzQgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMK
-KysrIGIvZHJpdmVycy9pMmMvaTJjLWNvcmUuYwpAQCAtNTYzLDcgKzU2Myw3IEBAIHN0YXRpYyBp
-bnQgaTJjX2dlbmVyaWNfcmVjb3Zlcnkoc3RydWN0IGkyY19hZGFwdGVyICphZGFwKQogCWludCBp
-ID0gMCwgdmFsID0gMSwgcmV0ID0gMDsKIAogCWlmIChicmktPnByZXBhcmVfcmVjb3ZlcnkpCi0J
-CWJyaS0+cHJlcGFyZV9yZWNvdmVyeShicmkpOworCQlicmktPnByZXBhcmVfcmVjb3ZlcnkoYWRh
-cCk7CiAKIAkvKgogCSAqIEJ5IHRoaXMgdGltZSBTQ0wgaXMgaGlnaCwgYXMgd2UgbmVlZCB0byBn
-aXZlIDkgZmFsbGluZy1yaXNpbmcgZWRnZXMKQEAgLTU4OCw3ICs1ODgsNyBAQCBzdGF0aWMgaW50
-IGkyY19nZW5lcmljX3JlY292ZXJ5KHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCkKIAl9CiAKIAlp
-ZiAoYnJpLT51bnByZXBhcmVfcmVjb3ZlcnkpCi0JCWJyaS0+dW5wcmVwYXJlX3JlY292ZXJ5KGJy
-aSk7CisJCWJyaS0+dW5wcmVwYXJlX3JlY292ZXJ5KGFkYXApOwogCiAJcmV0dXJuIHJldDsKIH0K
-ZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvaTJjLmggYi9pbmNsdWRlL2xpbnV4L2kyYy5oCmlu
-ZGV4IGI1NTZlMGEuLmNmOTM4MGYgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaTJjLmgKKysr
-IGIvaW5jbHVkZS9saW51eC9pMmMuaApAQCAtNDA0LDggKzQwNCw4IEBAIHN0cnVjdCBpMmNfYnVz
-X3JlY292ZXJ5X2luZm8gewogCXZvaWQgKCpzZXRfc2NsKShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKiwg
-aW50IHZhbCk7CiAJaW50ICgqZ2V0X3NkYSkoc3RydWN0IGkyY19hZGFwdGVyICopOwogCi0Jdm9p
-ZCAoKnByZXBhcmVfcmVjb3ZlcnkpKHN0cnVjdCBpMmNfYnVzX3JlY292ZXJ5X2luZm8gKmJyaSk7
-Ci0Jdm9pZCAoKnVucHJlcGFyZV9yZWNvdmVyeSkoc3RydWN0IGkyY19idXNfcmVjb3ZlcnlfaW5m
-byAqYnJpKTsKKwl2b2lkICgqcHJlcGFyZV9yZWNvdmVyeSkoc3RydWN0IGkyY19hZGFwdGVyICop
-OworCXZvaWQgKCp1bnByZXBhcmVfcmVjb3ZlcnkpKHN0cnVjdCBpMmNfYWRhcHRlciAqKTsKIAog
-CS8qIGdwaW8gcmVjb3ZlcnkgKi8KIAlpbnQgc2NsX2dwaW87Ci0tIAoxLjkuMQoKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwg
-bWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8v
-bGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+On 01.12.2014 17:11, Philipp Zabel wrote:
+> Am Montag, den 01.12.2014, 16:54 +0200 schrieb Vladimir Zapolskiy:
+>> Hi Philipp and Shawn,
+>>
+>> On 15.11.2014 19:49, Vladimir Zapolskiy wrote:
+>>> Provide information about how to bind internal iMX6Q/DL HDMI DDC I2C
+>>> master controller. The property is set as optional one, because iMX6
+>>> HDMI DDC bus may be represented by one of general purpose I2C busses
+>>> found on SoC.
+>>>
+>>> Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+>>> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+>>> Cc: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+>>> Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>>> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>>> Cc: linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>>> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+>>> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>>> ---
+>>>  Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt |   10 +++++++++-
+>>>  1 file changed, 9 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt b/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
+>>> index 1b756cf..43c8924 100644
+>>> --- a/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
+>>> +++ b/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
+>>> @@ -10,6 +10,8 @@ Required properties:
+>>>   - #address-cells : should be <1>
+>>>   - #size-cells : should be <0>
+>>>   - compatible : should be "fsl,imx6q-hdmi" or "fsl,imx6dl-hdmi".
+>>> +   If internal HDMI DDC I2C master controller is supposed to be used,
+>>> +   then "simple-bus" should be added to compatible value.
+>>>   - gpr : should be <&gpr>.
+>>>     The phandle points to the iomuxc-gpr region containing the HDMI
+>>>     multiplexer control register.
+>>> @@ -22,6 +24,7 @@ Required properties:
+>>>  
+>>>  Optional properties:
+>>>   - ddc-i2c-bus: phandle of an I2C controller used for DDC EDID probing
+>>> + - ddc: internal HDMI DDC I2C master controller
+>>>  
+>>>  example:
+>>>  
+>>> @@ -32,7 +35,7 @@ example:
+>>>          hdmi: hdmi@0120000 {
+>>>                  #address-cells = <1>;
+>>>                  #size-cells = <0>;
+>>> -                compatible = "fsl,imx6q-hdmi";
+>>> +                compatible = "fsl,imx6q-hdmi", "simple-bus";
+>>>                  reg = <0x00120000 0x9000>;
+>>>                  interrupts = <0 115 0x04>;
+>>>                  gpr = <&gpr>;
+>>> @@ -40,6 +43,11 @@ example:
+>>>                  clock-names = "iahb", "isfr";
+>>>                  ddc-i2c-bus = <&i2c2>;
+>>>  
+>>> +                hdmi_ddc: ddc {
+>>> +                        compatible = "fsl,imx6q-hdmi-ddc";
+>>> +                        status = "disabled";
+>>> +                };
+>>> +
+>>>                  port@0 {
+>>>                          reg = <0>;
+>>>  
+>>>
+>>
+>> knowing in advance that I2C framework lacks a graceful support of non
+>> fully compliant I2C devices, do you have any objections to the proposed
+>> iMX HDMI DTS change?
+> 
+> I'm not sure about this. Have you seen "drm: Decouple EDID parsing from
+> I2C adapter"? I feel like in the absence of a ddc-i2c-bus property the
+> imx-hdmi/dw-hdmi driver should try to use the internal HDMI DDC I2C
+> master controller, bypassing the I2C framework altogether.
+> 
+
+My idea is exactly not to bypass the I2C framework, briefly the
+rationale is that
+* it allows to reuse I2C UAPI/tools naturally applied to the internal
+iMX HDMI DDC bus,
+* it allows to use iMX HDMI DDC bus as an additional feature-limited I2C
+bus on SoC (who knows, I absolutely won't be surprised, if anyone needs
+it on practice),
+* if an HDMI controller supports an external I2C bus, the integration
+with HDMI DDC bus driver based on I2C framework is seamless.
+
+However I agree that the selected approach may look odd, the question is
+if the oddness comes from the technical side or from the fact that
+nobody has done it before this way.
+
+I'm open to any critique, if the proposal of creating an I2C bus from
+HDMI DDC bus is lame, then I suppose the shared iMX HDMI DDC bus driver
+should be converted to something formless and internally used by
+imx-hdmi. The negative side-effects of such a change from my point of
+view are
+* more or less natural modularity is lost,
+* a number of I2C framework API/functions should be copy-pasted to the
+updated HDMI DDC bus driver to support a subset of I2C read/write
+transactions.
+
+--
+With best wishes,
+Vladimir
