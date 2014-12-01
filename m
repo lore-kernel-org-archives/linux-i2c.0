@@ -1,94 +1,74 @@
-From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH 1/3] staging: imx-drm: document internal HDMI I2C master
- controller DT binding
-Date: Mon, 01 Dec 2014 16:11:43 +0100
-Message-ID: <1417446703.4624.18.camel@pengutronix.de>
-References: <1416073759-19939-1-git-send-email-vladimir_zapolskiy@mentor.com>
-	 <1416073759-19939-2-git-send-email-vladimir_zapolskiy@mentor.com>
-	 <547C8113.3050100@mentor.com>
+From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v3 1/5] i2c: i2c-davinci: switch to use platform_get_irq
+Date: Mon, 1 Dec 2014 17:34:03 +0200
+Message-ID: <1417448047-15236-2-git-send-email-grygorii.strashko@ti.com>
+References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <547C8113.3050100@mentor.com>
-Sender: linux-media-owner@vger.kernel.org
-To: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-Cc: Shawn Guo <shawn.guo@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1417448047-15236-1-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am Montag, den 01.12.2014, 16:54 +0200 schrieb Vladimir Zapolskiy:
-> Hi Philipp and Shawn,
-> 
-> On 15.11.2014 19:49, Vladimir Zapolskiy wrote:
-> > Provide information about how to bind internal iMX6Q/DL HDMI DDC I2C
-> > master controller. The property is set as optional one, because iMX6
-> > HDMI DDC bus may be represented by one of general purpose I2C busses
-> > found on SoC.
-> > 
-> > Signed-off-by: Vladimir Zapolskiy <vladimir_zapolskiy@mentor.com>
-> > Cc: Wolfram Sang <wsa@the-dreams.de>
-> > Cc: Philipp Zabel <p.zabel@pengutronix.de>
-> > Cc: Shawn Guo <shawn.guo@linaro.org>
-> > Cc: devicetree@vger.kernel.org
-> > Cc: linux-media@vger.kernel.org
-> > Cc: linux-arm-kernel@lists.infradead.org
-> > Cc: linux-i2c@vger.kernel.org
-> > ---
-> >  Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt |   10 +++++++++-
-> >  1 file changed, 9 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt b/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
-> > index 1b756cf..43c8924 100644
-> > --- a/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
-> > +++ b/Documentation/devicetree/bindings/staging/imx-drm/hdmi.txt
-> > @@ -10,6 +10,8 @@ Required properties:
-> >   - #address-cells : should be <1>
-> >   - #size-cells : should be <0>
-> >   - compatible : should be "fsl,imx6q-hdmi" or "fsl,imx6dl-hdmi".
-> > +   If internal HDMI DDC I2C master controller is supposed to be used,
-> > +   then "simple-bus" should be added to compatible value.
-> >   - gpr : should be <&gpr>.
-> >     The phandle points to the iomuxc-gpr region containing the HDMI
-> >     multiplexer control register.
-> > @@ -22,6 +24,7 @@ Required properties:
-> >  
-> >  Optional properties:
-> >   - ddc-i2c-bus: phandle of an I2C controller used for DDC EDID probing
-> > + - ddc: internal HDMI DDC I2C master controller
-> >  
-> >  example:
-> >  
-> > @@ -32,7 +35,7 @@ example:
-> >          hdmi: hdmi@0120000 {
-> >                  #address-cells = <1>;
-> >                  #size-cells = <0>;
-> > -                compatible = "fsl,imx6q-hdmi";
-> > +                compatible = "fsl,imx6q-hdmi", "simple-bus";
-> >                  reg = <0x00120000 0x9000>;
-> >                  interrupts = <0 115 0x04>;
-> >                  gpr = <&gpr>;
-> > @@ -40,6 +43,11 @@ example:
-> >                  clock-names = "iahb", "isfr";
-> >                  ddc-i2c-bus = <&i2c2>;
-> >  
-> > +                hdmi_ddc: ddc {
-> > +                        compatible = "fsl,imx6q-hdmi-ddc";
-> > +                        status = "disabled";
-> > +                };
-> > +
-> >                  port@0 {
-> >                          reg = <0>;
-> >  
-> > 
-> 
-> knowing in advance that I2C framework lacks a graceful support of non
-> fully compliant I2C devices, do you have any objections to the proposed
-> iMX HDMI DTS change?
+Switch Davinci I2C driver to use platform_get_irq(), because
+it is not recommened to use platform_get_resource(pdev, IORESOURCE_IRQ,=
+ ..)
+for requesting IRQ resources any more, as they can be not ready yet
+in case of DT-boot.
 
-I'm not sure about this. Have you seen "drm: Decouple EDID parsing from
-I2C adapter"? I feel like in the absence of a ddc-i2c-bus property the
-imx-hdmi/dw-hdmi driver should try to use the internal HDMI DDC I2C
-master controller, bypassing the I2C framework altogether.
+CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-davinci.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-regards
-Philipp
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-=
+davinci.c
+index 4d96147..25e8e25 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -640,13 +640,17 @@ static int davinci_i2c_probe(struct platform_devi=
+ce *pdev)
+ {
+ 	struct davinci_i2c_dev *dev;
+ 	struct i2c_adapter *adap;
+-	struct resource *mem, *irq;
+-	int r;
+-
+-	irq =3D platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (!irq) {
+-		dev_err(&pdev->dev, "no irq resource?\n");
+-		return -ENODEV;
++	struct resource *mem;
++	int r, irq;
++
++	irq =3D platform_get_irq(pdev, 0);
++	if (irq <=3D 0) {
++		if (!irq)
++			irq =3D -ENXIO;
++		if (irq !=3D -EPROBE_DEFER)
++			dev_err(&pdev->dev,
++				"can't get irq resource ret=3D%d\n", irq);
++		return irq;
+ 	}
+=20
+ 	dev =3D devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
+@@ -661,7 +665,7 @@ static int davinci_i2c_probe(struct platform_device=
+ *pdev)
+ 	init_completion(&dev->xfr_complete);
+ #endif
+ 	dev->dev =3D &pdev->dev;
+-	dev->irq =3D irq->start;
++	dev->irq =3D irq;
+ 	dev->pdata =3D dev_get_platdata(&pdev->dev);
+ 	platform_set_drvdata(pdev, dev);
+=20
+--=20
+1.9.1
