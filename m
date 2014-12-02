@@ -1,70 +1,95 @@
-From: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH 3/4] devicetree: bindings: Add defeature-repeated-start
  property for Cadence I2C
-Date: Tue, 2 Dec 2014 17:43:44 +0530
-Message-ID: <CAFcVECLtPx6shBXJbg9Uf_8fnhkMoO1zpoxGcdda7PSA7z_2rA@mail.gmail.com>
+Date: Tue, 2 Dec 2014 13:52:03 +0100
+Message-ID: <20141202125203.GA4072@katana>
 References: <1417514749-24319-1-git-send-email-harinik@xilinx.com>
-	<1417514749-24319-4-git-send-email-harinik@xilinx.com>
-	<20141202111907.GC23671@leverpostej>
+ <1417514749-24319-4-git-send-email-harinik@xilinx.com>
+ <20141202111907.GC23671@leverpostej>
+ <CAFcVECLtPx6shBXJbg9Uf_8fnhkMoO1zpoxGcdda7PSA7z_2rA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141202111907.GC23671@leverpostej>
+Content-Disposition: inline
+In-Reply-To: <CAFcVECLtPx6shBXJbg9Uf_8fnhkMoO1zpoxGcdda7PSA7z_2rA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+To: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mark,
 
-On Tue, Dec 2, 2014 at 4:49 PM, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org> wrote:
-> On Tue, Dec 02, 2014 at 10:05:48AM +0000, Harini Katakam wrote:
->> From: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
->>
->> This patch adds "defeature-repeated-start" property in i2c-cadence.txt.
->>
->> Signed-off-by: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
->> Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
->> ---
->>  .../devicetree/bindings/i2c/i2c-cadence.txt        |   11 +++++++++++
->>  1 file changed, 11 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-cadence.txt b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
->> index 7cb0b56..9d417a7 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-cadence.txt
->> @@ -11,6 +11,17 @@ Required properties:
->>  Optional properties:
->>    - clock-frequency: Desired operating frequency, in Hz, of the bus.
->>    - clock-names: Input clock name, should be 'pclk'.
->> +  - defeature-repeated-start: Include this property to defeature repeated start
->> +                           This defeature is due to a few bugs in the
->> +                           I2C controller.
->> +                           Completion interrupt after a read/receive
->> +                           operation is NOT obtained if HOLD bit is set
->> +                           at that time. Because of this bug, repeated start
->> +                           will only work if there are no transfers following
->> +                           a read/receive transfer.
->> +                           If HOLD is held for long without a transfer,
->> +                           invalid read transactions are generated by the
->> +                           controller due to a HW timeout related bug.
->
-> I'm not keen on the name; it sounds like we're disabling a feature
-> rather than describing the problem (and "defeature" is not a common
-> term in this sense, "disable" would be better).
->
-> It sounds like there are two issues with staying in the HOLD state? Lost
-> completion IRQs and a separate HW timeout bug? Or are the two related?
->
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, there are two issues here and they are not related.
-But a combination of both is leading to not using repeated start.
-The intention was to defeature except that it works in some scenarios
-(such as a typical write+read in that order with repeated start)
-and there are people who already use the driver with slaves that need this.
+> >> +  - defeature-repeated-start: Include this property to defeature repe=
+ated start
+> >> +                           This defeature is due to a few bugs in the
+> >> +                           I2C controller.
+> >> +                           Completion interrupt after a read/receive
+> >> +                           operation is NOT obtained if HOLD bit is s=
+et
+> >> +                           at that time. Because of this bug, repeate=
+d start
+> >> +                           will only work if there are no transfers f=
+ollowing
+> >> +                           a read/receive transfer.
+> >> +                           If HOLD is held for long without a transfe=
+r,
+> >> +                           invalid read transactions are generated by=
+ the
+> >> +                           controller due to a HW timeout related bug.
+> >
+> > I'm not keen on the name; it sounds like we're disabling a feature
+> > rather than describing the problem (and "defeature" is not a common
+> > term in this sense, "disable" would be better).
+> >
+> > It sounds like there are two issues with staying in the HOLD state? Lost
+> > completion IRQs and a separate HW timeout bug? Or are the two related?
+> >
+>=20
+> Yes, there are two issues here and they are not related.
+> But a combination of both is leading to not using repeated start.
+> The intention was to defeature except that it works in some scenarios
+> (such as a typical write+read in that order with repeated start)
+> and there are people who already use the driver with slaves that need thi=
+s.
 
-Regards,
-Harini
+That should not be handled using a binding. If you get a transfer (at
+runtime) with criteria you don't support, return with -EOPNOTSUPP from
+the master xfer routine.
+
+That being said, the number of broken/not-fully-compliant I2C
+controllers has increased a lot recent times (why can't we just use the
+established old ones?). Maybe we will have core support for a subset of
+I2C (wr+rd) in the future, but that's still ahead...
+
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUfbXzAAoJEBQN5MwUoCm2SVEQAKislH9uLpKzI/F6xVYHO86O
+wojbo5Mmrpx5sCZfFgfl2iK7emBL9zDUVrZbX1gelrCGuVmwP0f/n8LwLNweu9YZ
+B4hwRbnAusMaxxU95OdeHKDEYJN8NUY62bhmjhSFANZ1m03XK+YN+m+BUxvb8yfk
+hv2ORgRn+pXb9QMim7dAYaETRzNi6TRZ8orbRuckt9b8tYojzGUJcaDQRAB9xy35
+2kDVlxzPDodY9l/AZBt+yckhRUu0uJgUvcvO2NILqJDXAQwBtKMSKULaSMNVdJcc
+o8rVAjYXj57RAr2iNf+xNPgfFUGx13BK7gjxZJg1G/6wJtesz1sfa/MJ7ALFqrMt
+CnebxMTWOyMahU1AvZOZee4PDX4FU4pyh3kxKM51hgz2abNEaCb6Md9hrRy3Y0Z8
+isoyIds1RbluLkYMZLHFLJIZrU+bxECMnYsSPchZ4GFhB+yNKhkTLSE73vMcy1K2
+U/BIOLyaqHFmSK8GMYu1S6LoJMHG/enFcvaS9LHWBgLxXftx3qElgG+lK9NaaCfN
+MK2qz2hxmK+BE0a26wiDv6oA6aJs8Jj9bz3Hg1pEaNwN/dVZuHAjOwnbdHbaWl2J
+pIjS58EwjNyVDhHC5eQyWs2ZHxX7dYXkcpziy1uuPlB2j5sjrgIPfsgZupQ951CF
+NlZJ/ACPfhgk8lH33WGD
+=TJQZ
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
