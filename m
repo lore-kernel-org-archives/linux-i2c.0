@@ -1,74 +1,78 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/4] devicetree: bindings: Add defeature-repeated-start
- property for Cadence I2C
-Date: Tue, 2 Dec 2014 14:16:11 +0100
-Message-ID: <20141202131611.GC4072@katana>
-References: <1417514749-24319-1-git-send-email-harinik@xilinx.com>
- <1417514749-24319-4-git-send-email-harinik@xilinx.com>
- <20141202111907.GC23671@leverpostej>
- <CAFcVECLtPx6shBXJbg9Uf_8fnhkMoO1zpoxGcdda7PSA7z_2rA@mail.gmail.com>
- <20141202125203.GA4072@katana>
- <CAFcVECJwFoFd6GrmF282CG+fELnYb=FNCTDq=RYKky_dHha=Jg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] staging: imx-drm: document internal HDMI I2C master
+ controller DT binding
+Date: Tue, 2 Dec 2014 14:21:59 +0100
+Message-ID: <20141202132158.GD4072@katana>
+References: <1416073759-19939-1-git-send-email-vladimir_zapolskiy@mentor.com>
+ <1416073759-19939-2-git-send-email-vladimir_zapolskiy@mentor.com>
+ <547C8113.3050100@mentor.com>
+ <1417446703.4624.18.camel@pengutronix.de>
+ <547C8B9E.8050605@mentor.com>
+ <1417450979.4624.23.camel@pengutronix.de>
+ <547D5DE2.2040704@rock-chips.com>
+ <547DBA99.1010703@mentor.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eHhjakXzOLJAF9wJ"
+	protocol="application/pgp-signature"; boundary="+KJYzRxRHjYqLGl5"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAFcVECJwFoFd6GrmF282CG+fELnYb=FNCTDq=RYKky_dHha=Jg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <547DBA99.1010703-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+To: Vladimir Zapolskiy <vladimir_zapolskiy-nmGgyN9QBj3QT0dZR+AlfA@public.gmane.org>
+Cc: Andy Yan <andy.yan-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---eHhjakXzOLJAF9wJ
+--+KJYzRxRHjYqLGl5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> But given the bugs, it will be useful to just disable it if the system doesn't
-> require repeated start.
+> Thank you for references.
 
-What do you do when disable repeated start? Sending STOP and START? If
-so, this is really something different than repeated start. By using
-I2C_FUNC_I2C a user expects repeated start, so if the HW does not
-support it, we should say so and don't try to emulate it with something
-different.
+Yes, thank you all. Really great to see this consolidation effort going
+on!
 
-> If you think DT entry is not the way to go, do you think a CONFIG option or
-> something better will work?
+> I'll try to review all out of i2c/busses/* registered i2c adapters, may
+> be there is something in common between all of them.
 
-No, check at runtime if the transfer is possible on this HW. Bail out if
-not.
+Yay, cool! Thanks!
 
-> We chose a DT property because there is a good chance the user has multiple
-> cadence I2C controllers - one connected to a slave that needs repeated start
-> (like a power controller) and another that doesn't care.
+> I'll prepare the change of the HDMI DDC support for review (will be able
+> to test it only on iMX6), Wolfram, please skip from your consideration
+> the published version of the i2c bus driver.
 
-The user should not need to know with this level of detail if we can
-avoid it IMO.
+Okay, will do.
+
+> Wolfram, by the way is I2C_CLASS_DDC adapter class in operational use or
+> deprecated?
+
+Class based instantiation is NOT deprecated and will stay as far as I
+can see. Many platform bus drivers did set the class flag needlessly, so
+we had a deprecation mechanism to get rid of those flags in drivers in
+order to speed up boot time.
 
 
---eHhjakXzOLJAF9wJ
+--+KJYzRxRHjYqLGl5
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUfbubAAoJEBQN5MwUoCm29vUP/joDQCiY2g+Bc/f63BDzYevg
-vlqzOgmZghenJ0flPZL06Tx2MQkIHXWVoMn4OisvNmXS0Z+15g7m6sZZCdfS14nj
-e/IjuUHR2vuwTIUbXZlxaBKqIqKsXfl0LYVHDr99aABD7iBfIIHzzKmYJ+uuR11g
-+Jo5CmW2HzfLz+tTBVS3ZuoM/e+vniuUWNIJsnCN5d4YY/TcBWUNgosPpf1/vp1J
-S0KDgJWbD6vIKUADrgz8t8LMUQb2YJbvG4F+BvT6rWb3LouBU0x5XiVdOmX56Cvy
-N5mGlqhzSMqOjIJ4NP7qK3o1bxCdU2F8sOlf6MRfIqX6Rs0SumNliDIc9s42CMPA
-cizhJ0EkxU2eff/pfsXxQSCJwxtX+Ul+ypA80Y9KE47c4//9OPJeE33i1tZdLJra
-6ZrPXVpUyQO78DiaBa3FPaTmyBj3uuZ0X+qCeelFmLjt4JCNMtlTkmL64rMHr/Qw
-FEfqMga7HmJWnHGXmiAaasFzdXY4/CQPQG84qMAD+ffxFSZmuzfg3j8Ge7A0rjw7
-koDWyh4tiwkOTJgFXbjl6K4goHalnwquYC6ArRnc1l0r7XVIBlcjfK43aKPNnK/j
-xwgWPb9f9pASB4GlMqUECHTrOX9psJezna5G3Q0ZzbUlqtDHHKjhATq864a3ewQ8
-b87LjQUxtKyPHc+7G2jY
-=av0D
+iQIcBAEBAgAGBQJUfbz2AAoJEBQN5MwUoCm2VgcP/RgU3B7AYR+/Q8GqQkwmH/AH
+2rtjpgnOhZUTOVs4nq4J1LYdxdoW8rUKmupohD7uOz0+wySlWVl3GU8ahO5uzykp
+Q6OrsquSGvjfLbSyBCiZ/DvS40J4I5w0p1OwYK1IUbOYaIFdWzbjQrbctTPfsRBr
+QX9tSHh1nuknXMPShO/ePiV5qGRsadKBb8FUMOVoaOffgal9BtCWTfj4mwoHQMro
+Lj0qcC2duG2PuDnZW7/EWTnxQ8YczcaE/ABuxVnZoQoyKHvr/hXaN/2jn9aeTaqk
+fbq4mzHRdS+zN1x51pqbPsEe6aqZtFJ6oIWpO4CWzNI3llwT+BG5uyngrJ+X3r8B
+82aRSxoi1HJEm5P5mbjhOAo6YDCc9XPpq5qwp0JDVtxb9rfEE86kQaeabQEH+Mvi
+yCyFqPxaOTYwBB4JRb28Yrk10RsbEuIK1Y/zK/jcsEJgI5VkzZbEtgI9nuYvpOFW
+xV69Kbi0c5ys/PU4Dv5f3qdCL38CJCbz6p95BnWzJRyG1z4IRiLy9oUPF1yi5VyR
+0Hlc3TdrsNWcdVZbr7xfC6OPIvuhGojmhE2GoJVdxmMkh3Vza85WEgmyEO+OoUbd
+BQRBnk7FKCaIp2pWeBFPO9En7m1pVen1pl1xFlYJNX1VY1N1/79HR0rkdtFVe0y6
+8RTvBVrh6uMPt2FRNve5
+=Phgz
 -----END PGP SIGNATURE-----
 
---eHhjakXzOLJAF9wJ--
+--+KJYzRxRHjYqLGl5--
