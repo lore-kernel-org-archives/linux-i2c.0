@@ -1,36 +1,43 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: Re: [PATCH 3/4] devicetree: bindings: Add defeature-repeated-start
- property for Cadence I2C
-Date: Tue, 02 Dec 2014 16:12:48 +0100
-Message-ID: <547DD6F0.6060006@metafoo.de>
-References: <1417514749-24319-1-git-send-email-harinik@xilinx.com> <1417514749-24319-4-git-send-email-harinik@xilinx.com> <20141202111907.GC23671@leverpostej> <CAFcVECLtPx6shBXJbg9Uf_8fnhkMoO1zpoxGcdda7PSA7z_2rA@mail.gmail.com> <20141202125203.GA4072@katana> <CAFcVECJwFoFd6GrmF282CG+fELnYb=FNCTDq=RYKky_dHha=Jg@mail.gmail.com> <20141202131611.GC4072@katana> <CAFcVECKMqACtumHZGHbToUUSjd_dWCcLbu=_ZjNnnGdAZQ_3fg@mail.gmail.com> <20141202141548.GA5883@katana>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH] i2c: rk3x: fix bug that cause measured high_ns doesn't
+ meet I2C spec
+Date: Tue, 2 Dec 2014 15:02:37 -0800
+Message-ID: <CAD=FV=WN3Tuzby0fVOyxJ14iroBcgEpWHaz7Rh7EyfrHijhV0A@mail.gmail.com>
+References: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141202141548.GA5883@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, "ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org" <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, "galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org" <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org" <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Addy Ke <addy.ke@rock-chips.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Max Schwarz <max.schwarz@online.de>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Olof Johansson <olof@lixom.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Eddie Cai <cf@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Tao Huang <huangtao@rock-chips.com>, Chris <zyw@rock-chips.com>, =?UTF-8?B?5aea5pm65oOF?= <yzq@rock-chips.com>, han jiang <hj@rock-chips.com>, Kever Yang <kever.yang@rock-chips.com>, Lin Huang <hl@rock-chips.com>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang@rock-chips.com>, Shunqian Zheng <zhengsq@rock-chips.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 12/02/2014 03:15 PM, Wolfram Sang wrote:
->>> What do you do when disable repeated start? Sending STOP and START? If
->>> so, this is really something different than repeated start. By using
->>> I2C_FUNC_I2C a user expects repeated start, so if the HW does not
->>> support it, we should say so and don't try to emulate it with something
->>> different.
->>
->> Yes, we send stop.
+Addy,
+
+On Thu, Nov 6, 2014 at 12:11 AM, Addy Ke <addy.ke@rock-chips.com> wrote:
+> high_ns calculated from the low division of CLKDIV register is the sum of
+> actual measured high_ns and rise_ns. The rise time which related to
+> external pull-up resistor can be up to the maximum rise time in I2C spec.
 >
-> As said before, this is wrong. Another master could interfere between
-> the messages when using stop+start. This is no replacement for repeated
-> start.
+> In my test, if external pull-up resistor is 4.7K, rise_ns is about 700ns.
+> So the actual measured high_ns is about 3900ns, which is less than 4000ns
+> (the minimum high_ns in I2C spec).
 
-More importantly a lot of I2C slaves also reset their internal state machine 
-on a stop. So e.g. if reading a register is implemented by doing 
-start,write,repeated start,read,stop and you replace that with 
-start,write,stop,start,read,stop you'll always read register zero instead of 
-the register you wanted to read.
+It's a little unfortunate to have to make the assumption that the rise
+time for a board is going to be the maximum the spec allows.  I think
+this is something that's better to let a board specify in the device
+tree.  Allowing us to specify it also gives us a little extra slop and
+makes it easier to specify a "fall time" without affecting the
+resulting frequency.  Right now your code assumes that the fall time
+is 0.
 
-- Lars
+I've prototyped what things could look like if the rise and fall times
+were specified in the device tree.  You can see my patch (atop yours)
+at:
+
+https://chromium-review.googlesource.com/#/c/232774/
+
+...perhaps you could squash that into your patch and post up v2?
+
+-Doug
