@@ -1,77 +1,58 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v4 3/3] gpio: add support for Cypress CYUSBS234 USB-GPIO
- adapter
-Date: Tue, 2 Dec 2014 09:28:56 +0000
-Message-ID: <20141202092856.GD12068@x1>
-References: <1417192911-16719-1-git-send-email-muth@cypress.com>
- <CACRpkdYbbheP5KTuj7f+2cJXrOjjkRZjR0-bth1DF3kCig6n5A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdYbbheP5KTuj7f+2cJXrOjjkRZjR0-bth1DF3kCig6n5A@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Muthu Mani <muth@cypress.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Alexandre Courbot <gnurou@gmail.com>, Johan Hovold <johan@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>
+From: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 0/4] Cadence I2C driver fixes
+Date: Tue,  2 Dec 2014 15:35:45 +0530
+Message-ID: <1417514749-24319-1-git-send-email-harinik@xilinx.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 01 Dec 2014, Linus Walleij wrote:
+This series implements workarounds for some bugs in Cadence I2C controller.
 
-> On Fri, Nov 28, 2014 at 5:41 PM, Muthu Mani <muth@cypress.com> wrote:
->=20
-> > Adds support for USB-GPIO interface of Cypress Semiconductor
-> > CYUSBS234 USB-Serial Bridge controller.
-> >
-> > The GPIO get/set can be done through vendor command on control endp=
-oint
-> > for the configured gpios.
-> >
-> > Details about the device can be found at:
-> > http://www.cypress.com/?rID=3D84126
-> >
-> > Signed-off-by: Muthu Mani <muth@cypress.com>
-> > Signed-off-by: Rajaram Regupathy <rera@cypress.com>
-> > ---
-> > Changes since v3:
->=20
-> (..)
-> > +config GPIO_CYUSBS23X
-> > +       tristate "CYUSBS23x GPIO support"
-> > +       depends on MFD_CYUSBS23X && USB
->=20
-> Doesn't MFD_CYUSV23X already depend on USB?
+- The I2C controller when configured in Master Mode generates invalid read transactions.
+When HOLD bit is set and HW timeout occurs, invalid read transactions are
+generated on the bus. This will affect repeated start conditions and large
+data transfer condtions where transfer_size_register has to be updated again.
+The transfer size register rolls over erroneously under these conditions.
+Note that this HW timeout cannot be disabled even if the interrupt is unused.
+Errata link: http://www.xilinx.com/support/answers/61664.html
 
-Yup.
+-The I2C controller when configured in Master Mode is the missing master completion interrupt.
+During repeated start condition, the driver has to set the HOLD bit for
+the set of transfer being done together and clear the HOLD bit just before
+the last transfer. But the controller does not indicate completion when
+a read/receive transfer is done if the HOLD bit is set. This affects
+all repeated start operation where a read/receive transfer is not
+the last transfer.
+Errata link: http://www.xilinx.com/support/answers/61665.html
 
-> > +#include <linux/kernel.h>
-> > +#include <linux/errno.h>
-> > +#include <linux/module.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/types.h>
-> > +#include <linux/mutex.h>
-> > +#include <linux/platform_device.h>
-> > +
-> > +#include <linux/usb.h>
-> > +#include <linux/gpio.h>
-> > +
-> > +#include <linux/mfd/cyusbs23x.h>
->=20
-> Why this arbitrary newlines? Add this
->=20
-> #include <linus/bitops.h>
+To address the above,
+- >252 byte transfer are done such that transfer_size never becomes zero.
+- timeout register value is increased (even though the driver doesn't use this).
+- repeated start is defeatured based on a devicetree input. This input is
+because repeated start is required as part of protocol for some slave devices
+(not just to retain control in a multi-master scenario). The driver works
+as expected with these devices and hence the defeature is optional in such
+cases.
+- In case user chooses not to de-feature repeated start, then a check is
+performed to see if there any transfer following a read/receive transfer
+in the set of messages using repeated start. An error is returned in such
+cases because if we proceed, completion interrupt is never obtained and
+a SW timeout will occur.
 
-Narcissist. =3D;-)
+Harini Katakam (1):
+  i2c: cadence: Handle > 252 byte transfers
 
-[...]
+Vishnu Motghare (3):
+  i2c: cadence: Set the hardware time-out register to maximum value
+  devicetree: bindings: Add defeature-repeated-start property for
+    Cadence I2C
+  i2c: cadence: Defeature repeated start based on devicetree property
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ .../devicetree/bindings/i2c/i2c-cadence.txt        |   11 ++
+ drivers/i2c/busses/i2c-cadence.c                   |  200 +++++++++++---------
+ 2 files changed, 125 insertions(+), 86 deletions(-)
+
+-- 
+1.7.9.5
