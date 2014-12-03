@@ -1,71 +1,98 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-omap / PM: Drop CONFIG_PM_RUNTIME from i2c-omap.c
-Date: Wed, 3 Dec 2014 12:17:32 +0100
-Message-ID: <20141203111732.GC1039@katana>
-References: <1764802.h0lkXSoFee@vostro.rjw.lan>
+Subject: Re: [PATCH 2/4] i2c: cadence: Set the hardware time-out register to
+ maximum value
+Date: Wed, 3 Dec 2014 12:28:30 +0100
+Message-ID: <20141203112830.GD1039@katana>
+References: <1417514749-24319-1-git-send-email-harinik@xilinx.com>
+ <1417514749-24319-3-git-send-email-harinik@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TYecfFk8j8mZq+dy"
-Return-path: <linux-pm-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="zbGR4y+acU1DwHSi"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1764802.h0lkXSoFee@vostro.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
+In-Reply-To: <1417514749-24319-3-git-send-email-harinik@xilinx.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Harini Katakam <harinik@xilinx.com>
+Cc: grant.likely@linaro.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, michal.simek@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, vishnum@xilinx.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---TYecfFk8j8mZq+dy
+--zbGR4y+acU1DwHSi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 03, 2014 at 02:58:15AM +0100, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+On Tue, Dec 02, 2014 at 03:35:47PM +0530, Harini Katakam wrote:
+> From: Vishnu Motghare <vishnum@xilinx.com>
 >=20
-> After commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if PM_SLEEP is
-> selected) PM_RUNTIME is always set if PM is set, so some #ifdef blocks
-> depending on CONFIG_PM_RUNTIME may be dropped now.
+> Cadence I2C controller has bug wherein it generates invalid read transact=
+ions
+> after time-out in master receiver mode. This driver does not use the HW
+> timeout and this interrupt is disabled but the feature itself cannot be
+> disabled. Hence, this patch writes the maximum value (0xFF) to this regis=
+ter.
+> This is one of the workarounds to this bug and it will not avoid the issue
+> completely but reduce the chances of error.
+
+This is a good description and should be in a comment in the driver.
+
 >=20
-> Do that in drivers/i2c/busses/i2c-omap.c.
->=20
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
+> Signed-off-by: Harini Katakam <harinik@xilinx.com>
 > ---
+>  drivers/i2c/busses/i2c-cadence.c |    4 ++++
+>  1 file changed, 4 insertions(+)
 >=20
-> Note: This depends on commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if
-> PM_SLEEP is selected) which is only in linux-next at the moment (via the
-> linux-pm tree).
+> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-ca=
+dence.c
+> index e54899e..8065205 100644
+> --- a/drivers/i2c/busses/i2c-cadence.c
+> +++ b/drivers/i2c/busses/i2c-cadence.c
+> @@ -111,6 +111,8 @@
+>  #define CDNS_I2C_DIVA_MAX	4
+>  #define CDNS_I2C_DIVB_MAX	64
+> =20
+> +#define CDNS_I2C_TIMEOUT_MAX	0xFF
+> +
+>  #define cdns_i2c_readreg(offset)       readl_relaxed(id->membase + offse=
+t)
+>  #define cdns_i2c_writereg(val, offset) writel_relaxed(val, id->membase +=
+ offset)
+> =20
+> @@ -858,6 +860,8 @@ static int cdns_i2c_probe(struct platform_device *pde=
+v)
+>  		goto err_clk_dis;
+>  	}
+> =20
+> +	cdns_i2c_writereg(CDNS_I2C_TIMEOUT_MAX, CDNS_I2C_TIME_OUT_OFFSET);
+> +
+>  	dev_info(&pdev->dev, "%u kHz mmio %08lx irq %d\n",
+>  		 id->i2c_clk / 1000, (unsigned long)r_mem->start, id->irq);
+> =20
+> --=20
+> 1.7.9.5
 >=20
-> Please let me know if it is OK to take this one into linux-pm.
 
-=46rom my side, yes:
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-Might be worth waiting a day for an ack from someone at TI. They usually
-keep a good eye on their drivers.
-
-
---TYecfFk8j8mZq+dy
+--zbGR4y+acU1DwHSi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUfvFMAAoJEBQN5MwUoCm2qbUQAKrX54LEYWLrqmU+/rMj37u9
-ApAk6STSKWHuglymQ+gjXBlGBSwu9d7xjt9ROWXIppd/hRDqLHUY/FB3/3YDaAMl
-O/m0kI1BiwYcha8jbd+bFcakOMBJeNZEiVTpKCj+qMDtlGQffzZkupP+0XlGYwvu
-ZRuQzc9elGnu0fxoDw3/4Isic00MKZm43vgfJBBrJxaeCCmImez8UubXmHv6z8UQ
-D+lnMqvlBDMJYGHbwClUcw8nbtfbX4xkxoYxcw4x4D0X4y9njQjEsj9tpJxOHsdc
-jZDs0o6NrdgewZhh8N4MtW7lDb3q6olpcD5jUuHrn7JgGK/88FxcMn9h5cLX5QSG
-MFDsBKj9zAWHbsXjgDlGwZQx0FNZilJ3Z8V5NO+Jy1iTKpJckE47aBiKuqTwk6ss
-W02L0cf+V6Ub/RRRkSVLRy0/CPwFXhGVxCVTHT19AIXRLU7KEQRJs1jE2NpUk+mk
-E302ihKPACI3VrDNQ5LD3mRWrDvk1JHFzq8A5L9todD/T9sImOeEF4wNxf1vlVsC
-vYQiWDmr44Ig+INYtjLl1Q37LdDohphw2aAtIlF8gAC+d2XlQUcYQoDR6Y2v33U2
-nuXzbF6Y3UW1+Xs4ezUmBBrjz7Jv7TiGXr82GXiQpQwzv54tvK+9pzi/bgJK7brf
-9kindPUPir34s8hey5Qj
-=dMhd
+iQIcBAEBAgAGBQJUfvPeAAoJEBQN5MwUoCm2BlIQAIyiQ/Cl6ZY9TjwtUoS+uq3R
+xJR0pS+CzzWlC9zv7YTATu9FyngTpTOM9f0sWjpPWQ03hLxkrouZoyqk3wXR2xpa
+hLVvYOekLia6eSmI25Xr9/tsKsS6QN4ToQbTvB2T7fcphcRAsQPdUm7O9f62D8SA
+nvAvH9qalBL82P4qA0K3YYBHU/y9PUx7TkCT8c6otPb2C5lSSb9HY9PSAvwbJgii
+aDwHuJfT8w3e+1JeCtpk2PDvx/NuLCv1s1KCWGi6IRcPvAEhVDsb+B6lsaKg/h8U
+Ycooe2IyDrF6bAtjrTAFITDAFS+4j8eAXQJ+8NKxCAVJSw+zIgYuTMtvq0QrUmmy
+jaNtaq1M+5w5pbpsMPx2fIRe9yCgWXf1/t/dYkPxDKsvVvpcRnAaAdadsqhldIsx
+4aJcMFFA41IgPqR0lpEaVotint/ahCjh9LUHldRiKfytfIY7LvZEpJ8EaxVdf/r5
+FbBVdMra4WkV35bPaX91uFb1PwDvOaWW6VkryAsmBhaQZTh68VS4xy3Ft6zxxwXz
+w2Rabclu3mmQQL7puQeaxHqDql2Hv9oaXA2qmixvtflX2rth+6rRQW0S9y1uahkN
+ZKFyTwKCzQaWK/RwPySG+9xJocdFwddJvsIAaiu0P1qEqIFArBo/ok7iB1XTJ7oF
+h8xXeWqvjmGPWOFCBTfc
+=HoJW
 -----END PGP SIGNATURE-----
 
---TYecfFk8j8mZq+dy--
+--zbGR4y+acU1DwHSi--
