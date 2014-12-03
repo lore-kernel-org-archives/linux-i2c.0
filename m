@@ -1,75 +1,26 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.18
-Date: Wed, 3 Dec 2014 21:22:35 +0100
-Message-ID: <20141203202230.GA14053@katana>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH 1/2] Documentation: i2c: Use PM ops instead of legacy
+ suspend/resume
+Date: Wed, 3 Dec 2014 17:00:22 -0500
+Message-ID: <20141203170022.6ec17a33@lwn.net>
+References: <1417366352-22356-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1417366352-22356-1-git-send-email-lars@metafoo.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Sun, 30 Nov 2014 17:52:31 +0100
+Lars-Peter Clausen <lars@metafoo.de> wrote:
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> New drivers should use PM ops instead of the legacy suspend/resume
+> callbacks. Update the I2C device driver guides to reflect this.
 
-Linus,
+It looks like nobody has picked this up; I'll take it through the docs
+tree, I guess, unless somebody objects...
 
-i2c has a few driver bugfixes for 3.18. Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 206c5f60a3d902bc4b56dab2de3e88de5eb06108:
-
-  Linux 3.18-rc4 (2014-11-09 14:55:29 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to ccfc866356674cb3a61829d239c685af6e85f197:
-
-  i2c: omap: fix i207 errata handling (2014-11-22 22:07:40 +0100)
-
-----------------------------------------------------------------
-Alexander Kochetkov (2):
-      i2c: omap: fix NACK and Arbitration Lost irq handling
-      i2c: omap: fix i207 errata handling
-
-Andrew Jackson (1):
-      i2c: designware: prevent early stop on TX FIFO empty
-
- drivers/i2c/busses/i2c-designware-core.c |  2 +-
- drivers/i2c/busses/i2c-omap.c            | 10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUf3EGAAoJEBQN5MwUoCm2xH8QAJBG7YSmMv74DOv1GuIJaQP6
-KMWMYiUHa4uaOJ5sToNTN+Fz8Xz3yEwuznWrJUeNcQe0vZjuHFQyZg6ouOZPkYz/
-cnHIjDXJHL92DW9xshCm6cvc7EMHa4HwKxfMmeoi371oCZbV3+x4hXVc2KGgdsU3
-RHvSplYD+usEumOQSQJdex6sF1YxtHmWLqT8x2zhF8R4ViIjRTl6kzttGEBkL0L6
-xsALQOejRU/Rougk3Spe7f6ISRnn4MqnTJ/VbqXHwl688qHX43C66Yql8+kcNziY
-8ep0OkG79ImjWC4TO8G58cnTKkzm7wjb7Up/y/jWT45AAgi7UUoqQWVdRoNMbs/z
-nqy/FgTiutPxgh7i8dGDPeDrG0TuNB0sy7qfJqmZRQB6+Qar81ysRyuAAKw8pYYQ
-CEFWlws/MOrPoKJeC69R4qQVVoHSBJtMlvuLHfKoTaaQTB4EfYDWCxqskQIrKQxw
-dOPoKf/FjNrnilAT5t83l2YLeZRWNIaeCCQH5fuvcS+DCojPk1XUCUg7nTsqyVxf
-L39+ndM5kbtYWiJb/XeeJnhd8IcbDCBCC0j4zoyGEY4Zh0Z760iiyByAdUw6X+7C
-C9V2uS367QV0hRGT77/KqIIVTM9zdQR/3EHfXoCa8YL1dKzo9OeHhSBiPsVAycZu
-8/EdPIVMAeVP5+3HIq7h
-=kICW
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+jon
