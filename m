@@ -1,122 +1,68 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: Question about patch "i2c: omap: resize fifos before each
- message"
-Date: Wed, 3 Dec 2014 13:38:26 -0600
-Message-ID: <20141203193826.GK16138@saruman>
-References: <A20987D6-DEEC-488D-9655-36A4D186599B@gmail.com>
- <20141203154936.GF16138@saruman>
- <8C51B585-BFD6-48CC-A2C4-EB88CB820426@gmail.com>
- <20141203174938.GJ16138@saruman>
- <7602A84A-43B2-4C22-ACFA-FEA0640A6B7D@gmail.com>
-Reply-To: <balbi@ti.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KIbT1ud6duwZIwNL"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <7602A84A-43B2-4C22-ACFA-FEA0640A6B7D@gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Alexander Kochetkov <al.kochet@gmail.com>
-Cc: balbi@ti.com, Kevin Hilman <khilman@kernel.org>, Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, linux-omap <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Question about patch "i2c: omap: resize fifos before each message"
+Date: Wed, 3 Dec 2014 23:04:37 +0300
+Message-ID: <7EACB0B2-7079-4FEB-8009-58682730F8A6@gmail.com>
+References: <A20987D6-DEEC-488D-9655-36A4D186599B@gmail.com> <20141203154936.GF16138@saruman> <8C51B585-BFD6-48CC-A2C4-EB88CB820426@gmail.com> <20141203174938.GJ16138@saruman> <7602A84A-43B2-4C22-ACFA-FEA0640A6B7D@gmail.com> <20141203193826.GK16138@saruman>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141203193826.GK16138@saruman>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: balbi-l0cyMroinI0@public.gmane.org
+Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---KIbT1ud6duwZIwNL
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+03 =C4=C5=CB. 2014 =C7., =D7 22:38, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org> =CE=C1=D0=
+=C9=D3=C1=CC(=C1):
 
-On Wed, Dec 03, 2014 at 10:01:33PM +0300, Alexander Kochetkov wrote:
-> 03 =D0=B4=D0=B5=D0=BA. 2014 =D0=B3., =D0=B2 20:49, Felipe Balbi <balbi@ti=
-=2Ecom> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB(=D0=B0):
->=20
->=20
-> >  It can also be a master receiver and a
-> > slave transmitter.=20
-> Agree, but this unrelated to races.
->=20
-> >  Note also that MST bit does *not* auto clear.
->=20
-> Yes, it *does* auto clear!
-> MST bit automatically clear when IP receive AL.
-> See TRM [1]. All other TRMs (omap3530, omap3430,=20
-> omap4, omap5) has the same picture.
->=20
-> From TRM:
-> 2Ci.I2C_CON[10] MST bits are cleared by hardware
->=20
-> And MST bit clear after IP send STP (success transfer).
->=20
-> Did you see what value is in CON register after successful master
-> transfer?  Apply my patch and see that.
-> It doesn't have MST bit set. That mean IP is in slave mode (receiver
-> or transmitter - doesn't matter) after *any* master transfer.
->=20
-> And simple test show that. IP respond to GC address (address 0).
-> And respond to SA address (if programmed).
->=20
-> And TRM[1] figure has comment for 'end' state:
-> "I2C controller goes into slave receiver mode."
+> then handle slave interrupts :-) But handle them so that it won't rac=
+e
+> with a master transfer request. Moving omap_i2c_xfer() inside the IRQ
+> handler isn't the best way to do it, however.
 
-had completely missed that comment. Right, IP will switch over into
-slave mode. Still, as of today, this can't happen because Multimaster
-isn't supported :-)
+I do that with care :)
 
-> And IP keeps into slave mode until 'suspend'.
+Currently, only 'resize fifo' and 'clear fifo' is the one thing what mu=
+st=20
+be moved into ISR (I'll check is it possible or late).=20
+Because I can't ask ISR to generate interrupt to start master transfer.
+I thought about that without luck.
+I have to write to CON register. I can lock xfer for short time to
+check STAT (for AAS) and either write CON or flag to start master after
+slave complete.
+
+'clear fifo' must be done in response to NACK. TRM states this[1]"
+"TX and RX FIFOs must be cleared (the I2Ci.I2C_BUF[6] TXFIFO_CLR
+and I2Ci.I2C_BUF[14] RXFIFO_CLR bits are set to 1)."
+
+'resize fifo' could be avoided at all, but, it so nice feature.
+
+And yes, if we could utilize full fifo to send message, we could set
+threshold to message size and get only RRDY at the end.
+
+If message size is greater than fifo size, we want to use double
+buffer scheme to minimize ISR latencies.
+
+But now, variable 'fifo_size' is set to half of IP real fifo size.
+And for messages with fifo_size/2 ... fifo_size we use drainig
+feature (get RDR, XRD). While we could receive only one IRQ.
+I'll fix that.
+
+>> And, I'll try to move fifo threshold init code into ISR. Don't see
+>> something wrong.
 >=20
-> Then, after 'resume' IP initialized into slave receiver mode. There is
-> short time after resume and master start initialize new transfer.
->=20
-> So, then we start new transfer IP could start receiving slave command.
+> I wouldn't do that. It's just too late... look, IRQs won't fire until
+> I2C_CON is setup to start a transfer (transmit or receive), you *must=
+*
+> resize FIFO before starting a transfer otherwise, well, you know...
+Looks, like RRDY is fired after simple compare with threshold.
+I'll check is this possible (but, that doesn't cover into TRM).
+Or may be it is late to change it.
 
-you'd first receive an interrupt which would let you figure out if the
-interrupt was for Slave or Master modes. Then you can do anything you
-want (set a flag that you're going into slave mode and return -EAGAIN on
-any master transfer request for example).
-
-> > Also,
-> > the IP won't do anything (considering it's always in master mode) until
-> > STT bit is set again
-> Yes, it do slave reception or tranmittion with STT bit set to 0.
->=20
-> You could set STT bit to 1, and then it got cleared to 0, you
-> now, that IP received Start condition with slave transfer.
->=20
-> You could leave STT bit set to 0, but IP still respond to slave transfer.
-> (at least the IP on dm3730).
->=20
-> And we can't set MST bit again after master transfer to leave IP in the
-> master mode. We must disable IP (clear EN bit) before transfers to
-> disable slave mode, or we must handle slave interrupts.
-
-then handle slave interrupts :-) But handle them so that it won't race
-with a master transfer request. Moving omap_i2c_xfer() inside the IRQ
-handler isn't the best way to do it, however.
-
---=20
-balbi
-
---KIbT1ud6duwZIwNL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUf2ayAAoJEIaOsuA1yqREdGgP/2QrEGaKutdNngjuDJxCX2+N
-4SbYe18cvBdNJ0/pzuCqJIk2VQkL7Aw4ExIHI96403GuFPjPbIU7jyDJHzs2DAWp
-+j4pzDbMNZNQJzGmBHZNrXSmBq3kLJ3fPRVq57XcJJqW1AiSsnHLH1KIavWqXbKt
-GhpV9ADfwqsidCeThewreCvtBFYj6kcVluFDdCyXQ+nl1JQ3RR+JkiVOr1y7HCjQ
-z4jRUXQDq91eiX19jA/eoLDcl/tkXVsUbp2OHRpK1oyBIrK1mFY8CqAxZOGNSedc
-onYwdO4uhIJzRrq7KiBeZuqWZrcqBlP1RdZqEEsyRpfikeIMoUyI+zR4fgHTnFGp
-A7679ZsW5NGfWF4WVpdqn68r7m7IAiOi9QfWOYsrrm79fZ83/XACMfKtNpKKOeey
-WXdGvgrqX7rAy/ktc5PIeu5XNpyz6WGNfOXkmXUIf25N6gpsjDb6u+rVEvGD1XSb
-HzhOcUerh06VuJ0RyJ5FZrP9X+jT7G7Fj7GUeE2jmS+Mthqi0U7z73M+m4UIBDxO
-UnIjNuqDZA4ZJJ2g7mdFLVZp/HuS2HNmh4rEWkWITkuts921yddNiqyOemhM011K
-FgBdcHpatjphK7g6xM/yhcdt2JYmGLE9rtsyKJV6e/MdAlg9A3gtEVT9UvpeYllv
-lloP6Fy4XAxlXitjhSFW
-=W+3H
------END PGP SIGNATURE-----
-
---KIbT1ud6duwZIwNL--
+[1] AM-DM37x Multimedia Device Silicon Revision 1.x  - sprugn4r,
+     p. 2796, Table 17-9. HS I2C Interrupt Events--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
