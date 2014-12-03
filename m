@@ -1,68 +1,53 @@
-From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Question about patch "i2c: omap: resize fifos before each message"
-Date: Wed, 3 Dec 2014 23:04:37 +0300
-Message-ID: <7EACB0B2-7079-4FEB-8009-58682730F8A6@gmail.com>
-References: <A20987D6-DEEC-488D-9655-36A4D186599B@gmail.com> <20141203154936.GF16138@saruman> <8C51B585-BFD6-48CC-A2C4-EB88CB820426@gmail.com> <20141203174938.GJ16138@saruman> <7602A84A-43B2-4C22-ACFA-FEA0640A6B7D@gmail.com> <20141203193826.GK16138@saruman>
-Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141203193826.GK16138@saruman>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: balbi-l0cyMroinI0@public.gmane.org
-Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH V3 2/2] i2c-designware: Add Intel Baytrail PMIC I2C bus
+ support
+Date: Wed, 3 Dec 2014 18:10:46 +0200
+Message-ID: <20141203161046.GC28857@lahna.fi.intel.com>
+References: <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
+ <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
+ <1417478973-25522-3-git-send-email-david.e.box@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1417478973-25522-3-git-send-email-david.e.box@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "David E. Box" <david.e.box@linux.intel.com>
+Cc: wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, maxime.ripard@free-electrons.com, dianders@chromium.org, u.kleine-koenig@pengutronix.de, laurent.pinchart+renesas@ideasonboard.com, boris.brezillon@free-electrons.com, andrew@lunn.ch, sjg@chromium.org, markus.mayer@linaro.org, jacob.jun.pan@linux.intel.com, max.schwarz@online.de, skuribay@pobox.com, Romain.Baeriswyl@abilis.com, wenkai.du@intel.com, chiau.ee.chew@intel.com, alan@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Dec 01, 2014 at 04:09:33PM -0800, David E. Box wrote:
+> This patch implements an I2C bus sharing mechanism between the host and platform
+> hardware on select Intel BayTrail SoC platforms using the X-Powers AXP288 PMIC.
+> 
+> On these platforms access to the PMIC must be shared with platform hardware. The
+> hardware unit assumes full control of the I2C bus and the host must request
+> access through a special semaphore. Hardware control of the bus also makes it
+> necessary to disable runtime pm to avoid interfering with hardware transactions.
+> 
+> Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+> ---
+>  drivers/i2c/busses/Kconfig                   |  12 +++
+>  drivers/i2c/busses/Makefile                  |   1 +
+>  drivers/i2c/busses/i2c-designware-baytrail.c | 155 +++++++++++++++++++++++++++
+>  drivers/i2c/busses/i2c-designware-core.h     |   6 ++
+>  4 files changed, 174 insertions(+)
+>  create mode 100644 drivers/i2c/busses/i2c-designware-baytrail.c
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 917c358..d2bfd88 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -464,6 +464,18 @@ config I2C_DESIGNWARE_PCI
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-designware-pci.
+>  
+> +config I2C_DESIGNWARE_BAYTRAIL
+> +	bool "Intel Baytrail I2C semaphore support"
+> +	depends on I2C_DESIGNWARE_PLATFORM=y
 
-03 =C4=C5=CB. 2014 =C7., =D7 22:38, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org> =CE=C1=D0=
-=C9=D3=C1=CC(=C1):
+Hmm, is there something preventing to compile this as module?
 
-> then handle slave interrupts :-) But handle them so that it won't rac=
-e
-> with a master transfer request. Moving omap_i2c_xfer() inside the IRQ
-> handler isn't the best way to do it, however.
+What comes to the driver itself, no objections from me.
 
-I do that with care :)
-
-Currently, only 'resize fifo' and 'clear fifo' is the one thing what mu=
-st=20
-be moved into ISR (I'll check is it possible or late).=20
-Because I can't ask ISR to generate interrupt to start master transfer.
-I thought about that without luck.
-I have to write to CON register. I can lock xfer for short time to
-check STAT (for AAS) and either write CON or flag to start master after
-slave complete.
-
-'clear fifo' must be done in response to NACK. TRM states this[1]"
-"TX and RX FIFOs must be cleared (the I2Ci.I2C_BUF[6] TXFIFO_CLR
-and I2Ci.I2C_BUF[14] RXFIFO_CLR bits are set to 1)."
-
-'resize fifo' could be avoided at all, but, it so nice feature.
-
-And yes, if we could utilize full fifo to send message, we could set
-threshold to message size and get only RRDY at the end.
-
-If message size is greater than fifo size, we want to use double
-buffer scheme to minimize ISR latencies.
-
-But now, variable 'fifo_size' is set to half of IP real fifo size.
-And for messages with fifo_size/2 ... fifo_size we use drainig
-feature (get RDR, XRD). While we could receive only one IRQ.
-I'll fix that.
-
->> And, I'll try to move fifo threshold init code into ISR. Don't see
->> something wrong.
->=20
-> I wouldn't do that. It's just too late... look, IRQs won't fire until
-> I2C_CON is setup to start a transfer (transmit or receive), you *must=
-*
-> resize FIFO before starting a transfer otherwise, well, you know...
-Looks, like RRDY is fired after simple compare with threshold.
-I'll check is this possible (but, that doesn't cover into TRM).
-Or may be it is late to change it.
-
-[1] AM-DM37x Multimedia Device Silicon Revision 1.x  - sprugn4r,
-     p. 2796, Table 17-9. HS I2C Interrupt Events--
-To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
