@@ -1,43 +1,55 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH] i2c: rk3x: fix bug that cause measured high_ns doesn't
- meet I2C spec
-Date: Tue, 2 Dec 2014 15:02:37 -0800
-Message-ID: <CAD=FV=WN3Tuzby0fVOyxJ14iroBcgEpWHaz7Rh7EyfrHijhV0A@mail.gmail.com>
-References: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: [PATCH] i2c-omap / PM: Drop CONFIG_PM_RUNTIME from i2c-omap.c
+Date: Wed, 03 Dec 2014 02:58:15 +0100
+Message-ID: <1764802.h0lkXSoFee@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Addy Ke <addy.ke@rock-chips.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Max Schwarz <max.schwarz@online.de>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Olof Johansson <olof@lixom.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Eddie Cai <cf@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Tao Huang <huangtao@rock-chips.com>, Chris <zyw@rock-chips.com>, =?UTF-8?B?5aea5pm65oOF?= <yzq@rock-chips.com>, han jiang <hj@rock-chips.com>, Kever Yang <kever.yang@rock-chips.com>, Lin Huang <hl@rock-chips.com>, =?UTF-8?B?5pmT6IW+546L?= <caesar.wang@rock-chips.com>, Shunqian Zheng <zhengsq@rock-chips.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Addy,
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-On Thu, Nov 6, 2014 at 12:11 AM, Addy Ke <addy.ke@rock-chips.com> wrote:
-> high_ns calculated from the low division of CLKDIV register is the sum of
-> actual measured high_ns and rise_ns. The rise time which related to
-> external pull-up resistor can be up to the maximum rise time in I2C spec.
->
-> In my test, if external pull-up resistor is 4.7K, rise_ns is about 700ns.
-> So the actual measured high_ns is about 3900ns, which is less than 4000ns
-> (the minimum high_ns in I2C spec).
+After commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if PM_SLEEP is
+selected) PM_RUNTIME is always set if PM is set, so some #ifdef blocks
+depending on CONFIG_PM_RUNTIME may be dropped now.
 
-It's a little unfortunate to have to make the assumption that the rise
-time for a board is going to be the maximum the spec allows.  I think
-this is something that's better to let a board specify in the device
-tree.  Allowing us to specify it also gives us a little extra slop and
-makes it easier to specify a "fall time" without affecting the
-resulting frequency.  Right now your code assumes that the fall time
-is 0.
+Do that in drivers/i2c/busses/i2c-omap.c.
 
-I've prototyped what things could look like if the rise and fall times
-were specified in the device tree.  You can see my patch (atop yours)
-at:
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
 
-https://chromium-review.googlesource.com/#/c/232774/
+Note: This depends on commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if
+PM_SLEEP is selected) which is only in linux-next at the moment (via the
+linux-pm tree).
 
-...perhaps you could squash that into your patch and post up v2?
+Please let me know if it is OK to take this one into linux-pm.
 
--Doug
+---
+ drivers/i2c/busses/i2c-omap.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+Index: linux-pm/drivers/i2c/busses/i2c-omap.c
+===================================================================
+--- linux-pm.orig/drivers/i2c/busses/i2c-omap.c
++++ linux-pm/drivers/i2c/busses/i2c-omap.c
+@@ -1280,7 +1280,6 @@ static int omap_i2c_remove(struct platfo
+ }
+ 
+ #ifdef CONFIG_PM
+-#ifdef CONFIG_PM_RUNTIME
+ static int omap_i2c_runtime_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -1318,7 +1317,6 @@ static int omap_i2c_runtime_resume(struc
+ 
+ 	return 0;
+ }
+-#endif /* CONFIG_PM_RUNTIME */
+ 
+ static struct dev_pm_ops omap_i2c_pm_ops = {
+ 	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
+
