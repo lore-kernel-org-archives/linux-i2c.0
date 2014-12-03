@@ -1,55 +1,187 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: [PATCH] i2c-omap / PM: Drop CONFIG_PM_RUNTIME from i2c-omap.c
-Date: Wed, 03 Dec 2014 02:58:15 +0100
-Message-ID: <1764802.h0lkXSoFee@vostro.rjw.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
+From: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v2] i2c: rk3x: fix bug that cause measured high_ns doesn't meet I2C spec
+Date: Wed,  3 Dec 2014 10:37:17 +0800
+Message-ID: <1417574237-4328-1-git-send-email-addy.ke@rock-chips.com>
+References: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1415261514-4051-1-git-send-email-addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+high_ns calculated from the low division of CLKDIV register is the sum
+of actual measured high_ns and rise_ns. The rise time which related to
+external pull-up resistor can be up to the maximum rise time in I2C spec.
 
-After commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if PM_SLEEP is
-selected) PM_RUNTIME is always set if PM is set, so some #ifdef blocks
-depending on CONFIG_PM_RUNTIME may be dropped now.
+In my test, if external pull-up resistor is 4.7K, rise_ns is about
+700ns. So the actual measured high_ns is about 3900ns, which is less
+than 4000ns(the minimum high_ns in I2C spec).
 
-Do that in drivers/i2c/busses/i2c-omap.c.
+To fix this bug, min_low_ns should include fall time and min_high_ns
+should include rise time too.
 
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This patch merged the patch that Doug submitted to chromium, which
+can get the rise and fall times for signals from the device tree.
+This allows us to more accurately calculate timings. see:
+https://chromium-review.googlesource.com/#/c/232774/
+
+Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 ---
+Changes in v2:
+- merged the patch that Doug submitted to chromium
 
-Note: This depends on commit b2b49ccbdd54 (PM: Kconfig: Set PM_RUNTIME if
-PM_SLEEP is selected) which is only in linux-next at the moment (via the
-linux-pm tree).
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 10 ++++
+ drivers/i2c/busses/i2c-rk3x.c                      | 55 +++++++++++++++-------
+ 2 files changed, 47 insertions(+), 18 deletions(-)
 
-Please let me know if it is OK to take this one into linux-pm.
-
----
- drivers/i2c/busses/i2c-omap.c |    2 --
- 1 file changed, 2 deletions(-)
-
-Index: linux-pm/drivers/i2c/busses/i2c-omap.c
-===================================================================
---- linux-pm.orig/drivers/i2c/busses/i2c-omap.c
-+++ linux-pm/drivers/i2c/busses/i2c-omap.c
-@@ -1280,7 +1280,6 @@ static int omap_i2c_remove(struct platfo
- }
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+index dde6c22..faf5997 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+@@ -21,6 +21,13 @@ Required on RK3066, RK3188 :
+ Optional properties :
  
- #ifdef CONFIG_PM
--#ifdef CONFIG_PM_RUNTIME
- static int omap_i2c_runtime_suspend(struct device *dev)
+  - clock-frequency : SCL frequency to use (in Hz). If omitted, 100kHz is used.
++ - rise-ns : Number of nanoseconds the signal takes to rise (t(r) in i2c spec).
++	     If not specified this is assumed to be the max the spec allows
++	     (1000 ns for standard mode, 300 ns for fast mode) which might
++	     cause slightly slower communication.
++ - fall-ns : Number of nanoseconds the signal takes to fall (t(f) in the i2c0
++	     spec).  If not specified this is assumed to be the max the spec
++	     allows (300 ns) which might cause slightly slower communication.
+ 
+ Example:
+ 
+@@ -39,4 +46,7 @@ i2c0: i2c@2002d000 {
+ 
+ 	clock-names = "i2c";
+ 	clocks = <&cru PCLK_I2C0>;
++
++	rise-ns = <800>;
++	fall-ns = <100>;
+ };
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 0ee5802..025d4b5 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -102,6 +102,8 @@ struct rk3x_i2c {
+ 
+ 	/* Settings */
+ 	unsigned int scl_frequency;
++	unsigned int rise_ns;
++	unsigned int fall_ns;
+ 
+ 	/* Synchronization & notification */
+ 	spinlock_t lock;
+@@ -435,6 +437,8 @@ out:
+  *
+  * @clk_rate: I2C input clock rate
+  * @scl_rate: Desired SCL rate
++ * @rise_ns: How many ns it takes for signals to rise.
++ * @fall_ns: How many ns it takes for signals to fall.
+  * @div_low: Divider output for low
+  * @div_high: Divider output for high
+  *
+@@ -443,11 +447,14 @@ out:
+  * too high, we silently use the highest possible rate.
+  */
+ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
++			      unsigned long rise_ns, unsigned long fall_ns,
+ 			      unsigned long *div_low, unsigned long *div_high)
  {
- 	struct platform_device *pdev = to_platform_device(dev);
-@@ -1318,7 +1317,6 @@ static int omap_i2c_runtime_resume(struc
++	unsigned long spec_min_low_ns, spec_min_high_ns;
++	unsigned long spec_max_data_hold_ns;
++	unsigned long spec_data_hold_buffer_ns;
++
+ 	unsigned long min_low_ns, min_high_ns;
+-	unsigned long max_data_hold_ns;
+-	unsigned long data_hold_buffer_ns;
+ 	unsigned long max_low_ns, min_total_ns;
  
- 	return 0;
- }
--#endif /* CONFIG_PM_RUNTIME */
+ 	unsigned long clk_rate_khz, scl_rate_khz;
+@@ -470,28 +477,30 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
  
- static struct dev_pm_ops omap_i2c_pm_ops = {
- 	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
-
+ 	/*
+ 	 * min_low_ns:  The minimum number of ns we need to hold low
+-	 *		to meet i2c spec
++	 *		to meet i2c spec, should include fall time.
+ 	 * min_high_ns: The minimum number of ns we need to hold high
+-	 *		to meet i2c spec
++	 *		to meet i2c spec, should include rise time.
+ 	 * max_low_ns:  The maximum number of ns we can hold low
+-	 *		to meet i2c spec
++	 *		to meet i2c spec.
+ 	 *
+ 	 * Note: max_low_ns should be (max data hold time * 2 - buffer)
+ 	 *	 This is because the i2c host on Rockchip holds the data line
+ 	 *	 for half the low time.
+ 	 */
+ 	if (scl_rate <= 100000) {
+-		min_low_ns = 4700;
+-		min_high_ns = 4000;
+-		max_data_hold_ns = 3450;
+-		data_hold_buffer_ns = 50;
++		spec_min_low_ns = 4700;
++		spec_min_high_ns = 4000;
++		spec_max_data_hold_ns = 3450;
++		spec_data_hold_buffer_ns = 50;
+ 	} else {
+-		min_low_ns = 1300;
+-		min_high_ns = 600;
+-		max_data_hold_ns = 900;
+-		data_hold_buffer_ns = 50;
++		spec_min_low_ns = 1300;
++		spec_min_high_ns = 600;
++		spec_max_data_hold_ns = 900;
++		spec_data_hold_buffer_ns = 50;
+ 	}
+-	max_low_ns = max_data_hold_ns * 2 - data_hold_buffer_ns;
++	min_low_ns = spec_min_low_ns + fall_ns;
++	min_high_ns = spec_min_high_ns + rise_ns;
++	max_low_ns = spec_max_data_hold_ns * 2 - spec_data_hold_buffer_ns;
+ 	min_total_ns = min_low_ns + min_high_ns;
+ 
+ 	/* Adjust to avoid overflow */
+@@ -588,8 +597,8 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+ 	u64 t_low_ns, t_high_ns;
+ 	int ret;
+ 
+-	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, &div_low,
+-				 &div_high);
++	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->rise_ns,
++				 i2c->fall_ns, &div_low, &div_high);
+ 
+ 	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", i2c->scl_frequency);
+ 
+@@ -633,9 +642,9 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+ 	switch (event) {
+ 	case PRE_RATE_CHANGE:
+ 		if (rk3x_i2c_calc_divs(ndata->new_rate, i2c->scl_frequency,
+-				      &div_low, &div_high) != 0) {
++				       i2c->rise_ns, i2c->fall_ns, &div_low,
++				       &div_high) != 0)
+ 			return NOTIFY_STOP;
+-		}
+ 
+ 		/* scale up */
+ 		if (ndata->new_rate > ndata->old_rate)
+@@ -859,6 +868,16 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+ 		i2c->scl_frequency = DEFAULT_SCL_RATE;
+ 	}
+ 
++	/* Read rise and fall ns; if not there use the default max from spec */
++	if (of_property_read_u32(pdev->dev.of_node, "rise-ns", &i2c->rise_ns)) {
++		if (i2c->scl_frequency <= 100000)
++			i2c->rise_ns = 1000;
++		else
++			i2c->rise_ns = 300;
++	}
++	if (of_property_read_u32(pdev->dev.of_node, "fall-ns", &i2c->fall_ns))
++		i2c->fall_ns = 300;
++
+ 	strlcpy(i2c->adap.name, "rk3x-i2c", sizeof(i2c->adap.name));
+ 	i2c->adap.owner = THIS_MODULE;
+ 	i2c->adap.algo = &rk3x_i2c_algorithm;
+-- 
+1.8.3.2
