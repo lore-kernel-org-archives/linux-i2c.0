@@ -1,53 +1,75 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH V3 2/2] i2c-designware: Add Intel Baytrail PMIC I2C bus
- support
-Date: Wed, 3 Dec 2014 18:10:46 +0200
-Message-ID: <20141203161046.GC28857@lahna.fi.intel.com>
-References: <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
- <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
- <1417478973-25522-3-git-send-email-david.e.box@linux.intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 3.18
+Date: Wed, 3 Dec 2014 21:22:35 +0100
+Message-ID: <20141203202230.GA14053@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1417478973-25522-3-git-send-email-david.e.box@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "David E. Box" <david.e.box@linux.intel.com>
-Cc: wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, maxime.ripard@free-electrons.com, dianders@chromium.org, u.kleine-koenig@pengutronix.de, laurent.pinchart+renesas@ideasonboard.com, boris.brezillon@free-electrons.com, andrew@lunn.ch, sjg@chromium.org, markus.mayer@linaro.org, jacob.jun.pan@linux.intel.com, max.schwarz@online.de, skuribay@pobox.com, Romain.Baeriswyl@abilis.com, wenkai.du@intel.com, chiau.ee.chew@intel.com, alan@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 01, 2014 at 04:09:33PM -0800, David E. Box wrote:
-> This patch implements an I2C bus sharing mechanism between the host and platform
-> hardware on select Intel BayTrail SoC platforms using the X-Powers AXP288 PMIC.
-> 
-> On these platforms access to the PMIC must be shared with platform hardware. The
-> hardware unit assumes full control of the I2C bus and the host must request
-> access through a special semaphore. Hardware control of the bus also makes it
-> necessary to disable runtime pm to avoid interfering with hardware transactions.
-> 
-> Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-> ---
->  drivers/i2c/busses/Kconfig                   |  12 +++
->  drivers/i2c/busses/Makefile                  |   1 +
->  drivers/i2c/busses/i2c-designware-baytrail.c | 155 +++++++++++++++++++++++++++
->  drivers/i2c/busses/i2c-designware-core.h     |   6 ++
->  4 files changed, 174 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-designware-baytrail.c
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 917c358..d2bfd88 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -464,6 +464,18 @@ config I2C_DESIGNWARE_PCI
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-designware-pci.
->  
-> +config I2C_DESIGNWARE_BAYTRAIL
-> +	bool "Intel Baytrail I2C semaphore support"
-> +	depends on I2C_DESIGNWARE_PLATFORM=y
 
-Hmm, is there something preventing to compile this as module?
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-What comes to the driver itself, no objections from me.
+Linus,
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+i2c has a few driver bugfixes for 3.18. Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 206c5f60a3d902bc4b56dab2de3e88de5eb06108:
+
+  Linux 3.18-rc4 (2014-11-09 14:55:29 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to ccfc866356674cb3a61829d239c685af6e85f197:
+
+  i2c: omap: fix i207 errata handling (2014-11-22 22:07:40 +0100)
+
+----------------------------------------------------------------
+Alexander Kochetkov (2):
+      i2c: omap: fix NACK and Arbitration Lost irq handling
+      i2c: omap: fix i207 errata handling
+
+Andrew Jackson (1):
+      i2c: designware: prevent early stop on TX FIFO empty
+
+ drivers/i2c/busses/i2c-designware-core.c |  2 +-
+ drivers/i2c/busses/i2c-omap.c            | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+--5vNYLRcllDrimb99
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUf3EGAAoJEBQN5MwUoCm2xH8QAJBG7YSmMv74DOv1GuIJaQP6
+KMWMYiUHa4uaOJ5sToNTN+Fz8Xz3yEwuznWrJUeNcQe0vZjuHFQyZg6ouOZPkYz/
+cnHIjDXJHL92DW9xshCm6cvc7EMHa4HwKxfMmeoi371oCZbV3+x4hXVc2KGgdsU3
+RHvSplYD+usEumOQSQJdex6sF1YxtHmWLqT8x2zhF8R4ViIjRTl6kzttGEBkL0L6
+xsALQOejRU/Rougk3Spe7f6ISRnn4MqnTJ/VbqXHwl688qHX43C66Yql8+kcNziY
+8ep0OkG79ImjWC4TO8G58cnTKkzm7wjb7Up/y/jWT45AAgi7UUoqQWVdRoNMbs/z
+nqy/FgTiutPxgh7i8dGDPeDrG0TuNB0sy7qfJqmZRQB6+Qar81ysRyuAAKw8pYYQ
+CEFWlws/MOrPoKJeC69R4qQVVoHSBJtMlvuLHfKoTaaQTB4EfYDWCxqskQIrKQxw
+dOPoKf/FjNrnilAT5t83l2YLeZRWNIaeCCQH5fuvcS+DCojPk1XUCUg7nTsqyVxf
+L39+ndM5kbtYWiJb/XeeJnhd8IcbDCBCC0j4zoyGEY4Zh0Z760iiyByAdUw6X+7C
+C9V2uS367QV0hRGT77/KqIIVTM9zdQR/3EHfXoCa8YL1dKzo9OeHhSBiPsVAycZu
+8/EdPIVMAeVP5+3HIq7h
+=kICW
+-----END PGP SIGNATURE-----
+
+--5vNYLRcllDrimb99--
