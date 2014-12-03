@@ -1,98 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/4] i2c: cadence: Set the hardware time-out register to
- maximum value
-Date: Wed, 3 Dec 2014 12:28:30 +0100
-Message-ID: <20141203112830.GD1039@katana>
-References: <1417514749-24319-1-git-send-email-harinik@xilinx.com>
- <1417514749-24319-3-git-send-email-harinik@xilinx.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zbGR4y+acU1DwHSi"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1417514749-24319-3-git-send-email-harinik@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Harini Katakam <harinik@xilinx.com>
-Cc: grant.likely@linaro.org, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, michal.simek@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, vishnum@xilinx.com
+From: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v2 0/3] Cadence I2C driver fixes
+Date: Wed,  3 Dec 2014 18:05:23 +0530
+Message-ID: <1417610126-7957-1-git-send-email-harinik@xilinx.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+This series implements workarounds for some bugs in Cadence I2C controller.
 
---zbGR4y+acU1DwHSi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+- The I2C controller when configured in Master Mode generates invalid read transactions.
+When HOLD bit is set and HW timeout occurs, invalid read transactions are
+generated on the bus. This will affect repeated start conditions and large
+data transfer condtions where transfer_size_register has to be updated again.
+The transfer size register rolls over erroneously under these conditions.
+Note that this HW timeout cannot be disabled even if the interrupt is unused.
+Errata link: http://www.xilinx.com/support/answers/61664.html
 
-On Tue, Dec 02, 2014 at 03:35:47PM +0530, Harini Katakam wrote:
-> From: Vishnu Motghare <vishnum@xilinx.com>
->=20
-> Cadence I2C controller has bug wherein it generates invalid read transact=
-ions
-> after time-out in master receiver mode. This driver does not use the HW
-> timeout and this interrupt is disabled but the feature itself cannot be
-> disabled. Hence, this patch writes the maximum value (0xFF) to this regis=
-ter.
-> This is one of the workarounds to this bug and it will not avoid the issue
-> completely but reduce the chances of error.
+-The I2C controller when configured in Master Mode is the missing master completion interrupt.
+During repeated start condition, the driver has to set the HOLD bit for
+the set of transfer being done together and clear the HOLD bit just before
+the last transfer. But the controller does not indicate completion when
+a read/receive transfer is done if the HOLD bit is set. This affects
+all repeated start operation where a read/receive transfer is not
+the last transfer.
+Errata link: http://www.xilinx.com/support/answers/61665.html
 
-This is a good description and should be in a comment in the driver.
+To address the above,
+- >252 byte transfer are done such that transfer_size never becomes zero.
+- timeout register value is increased (even though the driver doesn't use this).
+- A check is performed to see if there any transfer following a
+read/receive transfer in the set of messages using repeated start.
+An error is returned in such cases because if we proceed, completion interrupt
+is never obtained and a SW timeout will occur.
 
->=20
-> Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
-> Signed-off-by: Harini Katakam <harinik@xilinx.com>
-> ---
->  drivers/i2c/busses/i2c-cadence.c |    4 ++++
->  1 file changed, 4 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-ca=
-dence.c
-> index e54899e..8065205 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -111,6 +111,8 @@
->  #define CDNS_I2C_DIVA_MAX	4
->  #define CDNS_I2C_DIVB_MAX	64
-> =20
-> +#define CDNS_I2C_TIMEOUT_MAX	0xFF
-> +
->  #define cdns_i2c_readreg(offset)       readl_relaxed(id->membase + offse=
-t)
->  #define cdns_i2c_writereg(val, offset) writel_relaxed(val, id->membase +=
- offset)
-> =20
-> @@ -858,6 +860,8 @@ static int cdns_i2c_probe(struct platform_device *pde=
-v)
->  		goto err_clk_dis;
->  	}
-> =20
-> +	cdns_i2c_writereg(CDNS_I2C_TIMEOUT_MAX, CDNS_I2C_TIME_OUT_OFFSET);
-> +
->  	dev_info(&pdev->dev, "%u kHz mmio %08lx irq %d\n",
->  		 id->i2c_clk / 1000, (unsigned long)r_mem->start, id->irq);
-> =20
-> --=20
-> 1.7.9.5
->=20
+Harini Katakam (2):
+  i2c: cadence: Handle > 252 byte transfers
+  i2c: cadence: Check for errata condition involving master receive
 
---zbGR4y+acU1DwHSi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Vishnu Motghare (1):
+  i2c: cadence: Set the hardware time-out register to maximum value
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+ drivers/i2c/busses/i2c-cadence.c |  178 ++++++++++++++++++++++----------------
+ 1 file changed, 103 insertions(+), 75 deletions(-)
 
-iQIcBAEBAgAGBQJUfvPeAAoJEBQN5MwUoCm2BlIQAIyiQ/Cl6ZY9TjwtUoS+uq3R
-xJR0pS+CzzWlC9zv7YTATu9FyngTpTOM9f0sWjpPWQ03hLxkrouZoyqk3wXR2xpa
-hLVvYOekLia6eSmI25Xr9/tsKsS6QN4ToQbTvB2T7fcphcRAsQPdUm7O9f62D8SA
-nvAvH9qalBL82P4qA0K3YYBHU/y9PUx7TkCT8c6otPb2C5lSSb9HY9PSAvwbJgii
-aDwHuJfT8w3e+1JeCtpk2PDvx/NuLCv1s1KCWGi6IRcPvAEhVDsb+B6lsaKg/h8U
-Ycooe2IyDrF6bAtjrTAFITDAFS+4j8eAXQJ+8NKxCAVJSw+zIgYuTMtvq0QrUmmy
-jaNtaq1M+5w5pbpsMPx2fIRe9yCgWXf1/t/dYkPxDKsvVvpcRnAaAdadsqhldIsx
-4aJcMFFA41IgPqR0lpEaVotint/ahCjh9LUHldRiKfytfIY7LvZEpJ8EaxVdf/r5
-FbBVdMra4WkV35bPaX91uFb1PwDvOaWW6VkryAsmBhaQZTh68VS4xy3Ft6zxxwXz
-w2Rabclu3mmQQL7puQeaxHqDql2Hv9oaXA2qmixvtflX2rth+6rRQW0S9y1uahkN
-ZKFyTwKCzQaWK/RwPySG+9xJocdFwddJvsIAaiu0P1qEqIFArBo/ok7iB1XTJ7oF
-h8xXeWqvjmGPWOFCBTfc
-=HoJW
------END PGP SIGNATURE-----
-
---zbGR4y+acU1DwHSi--
+-- 
+1.7.9.5
