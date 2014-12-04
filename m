@@ -1,63 +1,62 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] i2c: cadence: Check for errata condition
- involving master receive
-Date: Thu, 4 Dec 2014 19:34:07 +0100
-Message-ID: <20141204183406.GK7944@katana>
-References: <1417610126-7957-1-git-send-email-harinik@xilinx.com>
- <1417610126-7957-4-git-send-email-harinik@xilinx.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: rk3x: fix bug that cause measured high_ns
+ doesn't meet I2C spec
+Date: Thu, 4 Dec 2014 19:40:46 +0100
+Message-ID: <20141204184046.GL7944@katana>
+References: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
+ <1417574237-4328-1-git-send-email-addy.ke@rock-chips.com>
+ <20141203111518.GB1039@katana>
+ <CAD=FV=X5inPWZakhgDX0dX=1CWXygEi3_AH9FVFWXYT3LZA5bg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lildS9pRFgpM/xzO"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="xjamM5M9kpPM/bcu"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1417610126-7957-4-git-send-email-harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+In-Reply-To: <CAD=FV=X5inPWZakhgDX0dX=1CWXygEi3_AH9FVFWXYT3LZA5bg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: Addy Ke <addy.ke@rock-chips.com>, Max Schwarz <max.schwarz@online.de>, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, Olof Johansson <olof@lixom.net>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Eddie Cai <cf@rock-chips.com>, Jianqun Xu <xjq@rock-chips.com>, Tao Huang <huangtao@rock-chips.com>, Chris <zyw@rock-chips.com>, =?utf-8?B?5aea5pm65oOF?= <yzq@rock-chips.com>, han jiang <hj@rock-chips.com>, Kever Yang <kever.yang@rock-chips.com>, Lin Huang <hl@rock-chips.com>, caesar <caesar.wang@rock-c>
 List-Id: linux-i2c@vger.kernel.org
 
 
---lildS9pRFgpM/xzO
+--xjamM5M9kpPM/bcu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-> +		/*
-> +		 * This controller does not give completion interrupt after a
-> +		 * master receive transfer if HOLD bit is set (repeated start),
-> +		 * resulting in SW timeout. Hence, if a receive transfer is
-> +		 * followed by any other transfer, an error is returned
-> +		 * indicating that this sequence is not supported.
-> +		 */
-> +		for (count = 0; count < num-1; count++) {
-> +			if (msgs[count].flags & I2C_M_RD)
-> +				return -EOPNOTSUPP;
-> +		}
+> If you don't read all the below, my belief is that we should simply
+> rename the strings in Addy's patch.  We should change "rise-ns" to
+> "i2c-scl-rising-time" and "fall-ns" to "i2c-scl-falling-time".
+> Wolfram: can you confirm this is OK?  I'm voting to leave the "-ns"
+> off the end of both to avoid asymmetry.
 
-Yeah, a lot better. Probably it would be good to inform the user with a
-warning what went wrong?
+New binding should have the "-ns" suffix, right? So, I'd vote to add the
+suffix to the new bindings and deprecate the ones used in the designware
+driver: "i2c-scl-rising-time-ns" and "i2c-scl-falling-time-ns"
 
+It might be a little more work now, but it will help us in the future,
+because it is the correct way to do it.
 
---lildS9pRFgpM/xzO
+--xjamM5M9kpPM/bcu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUgKkeAAoJEBQN5MwUoCm2CCoP/jd2i91LvyW0uRWrzwl++RrB
-CXmWjLHT9r1+L6J3n6h09LJvx7/sRvQkHMW2QzVOIoq8PfdGkoLUL887UV7k3iMq
-QljF7yr8eO3XezO1DHCnCtaMtH7nxDS3PWX8r0pmjgPNSNNUVWAySRF2aQjnymPA
-MHonRUARDfQOvaqq63fYjM+IhIIy9FY+PxMoejPeO46eQ+aoD0ecba/TaLIxdLid
-ZBZBfnQFHi0nnezOm3LX9H13C0mBPMLqJKxGk2LJTA7Tur03qCvRuzl0xhP0zwkc
-bJ1AjJ3SlROWGe8ze9lAgkIgskpXwLIgG3DbdrFUFa5RYYCfhfWoupUchmORs6oN
-MLuw+erJEEFN446I7Vyo7ldgrjS6IZXG7E7ouPqWXyc/E6qF8nVRCMfUlT6RNLZk
-KwTo1auPg/flxwUyavik4NnaIRgVxbGo/eD8pgtQEchreJEn1eaKbNY63ja0LAsH
-sd99x6Zx55biByp3DTk1em0TZWyZ+tJP0I9bRbqQq5kaRdy6fqX+HOJ/DKqGOesK
-rO4KDoCnGoUjJEKtqYdDdpeuwOed3XRQklAJCcbATcjeFzC6KKw8H2rglW4eUsQm
-AkMoYNqWnrlHlgzsGXO56ZVUKXhCvExZJ8TGYJVW100o4cEvGZtaddY8oJ+WHGJ5
-+MyQkkSj5tq+tjPXdu/q
-=Xd07
+iQIcBAEBAgAGBQJUgKquAAoJEBQN5MwUoCm2/BgP/3HQXR2iRvK+F1+ZQS/jilk3
+L/1gRWOud2ixUpGzPLCWeEEPO+MFO2Pbci4cE2ULPp6e2ta7eVRpOIOColSCYDMO
+iamBdCYJ1af2s6Z7oPrMGihp9b9BurvJw1PmIqnXHmOUuUqjKkikFueCY5wMuHuS
+LsFx71BFYKrVhAiuy5I3TkcUeZwc+GNrbZCoTLnWuD+I/tM6TtGeUlWn/1WSJbmU
+Ht0iR8cpMSu/yGpNKKToXGT0iTsBkSbCoGaK5nej9jz/s55OvoCiq8pnw29d7qdq
+VTlMLkrXxbYQJJ6JhM6TlT17Lakj/8PXxZMI0p+mXIWiXJYSpopd57vjg1GYD8OF
+nZEYm40ppufY+gofuJvB2/RiCHf7N9eCiiqvcwMPjrMI5t3CqNtm3djI9oL4Hut4
+psUy5rMO1ddRce911/o0teWdpfrerw7jmfD0zm4K3cB6Fgf4tvU8BdVXb+UhiR2I
+R2yVOVEMgXsjeYRKJdFC5ALcwG3CXAcPyiqq89aSX3rfh52G6hTyXNlPN2ys5VUA
+zkclj4i7EUz64JO1XTiRCXRW0JZ1QcKw4QqqkHATC+tHBBubV/Sp6XlbtkF4wDE+
+40L8FhOC1D0ID/txWKJE5Mewbs9A7jT1pdy/0oQgZv5efLfaWJH7SQKRHV52ui9E
+oLhql1hQxpvrS5IUQSrC
+=Hh5C
 -----END PGP SIGNATURE-----
 
---lildS9pRFgpM/xzO--
+--xjamM5M9kpPM/bcu--
