@@ -1,44 +1,75 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: rk3x: fix bug that cause measured high_ns doesn't
- meet I2C spec
-Date: Thu, 4 Dec 2014 10:43:19 -0800
-Message-ID: <CAD=FV=Vp3hwxbDzb+FUhNXy8qW8fTCkgd67jRDV3foT0o9HQuQ@mail.gmail.com>
-References: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
-	<1417574237-4328-1-git-send-email-addy.ke@rock-chips.com>
-	<20141203111518.GB1039@katana>
-	<CAD=FV=X5inPWZakhgDX0dX=1CWXygEi3_AH9FVFWXYT3LZA5bg@mail.gmail.com>
-	<20141204184046.GL7944@katana>
+From: "David E. Box" <david.e.box@linux.intel.com>
+Subject: Re: [PATCH V3 1/2] i2c-designware: Add i2c bus locking support
+Date: Thu, 4 Dec 2014 10:42:10 -0800
+Message-ID: <20141204184210.GA1530@pathfinder>
+References: <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com>
+ <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
+ <1417478973-25522-2-git-send-email-david.e.box@linux.intel.com>
+ <5480144F.2040506@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141204184046.GL7944@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5aea5pm65oOF?= <yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, han jiang <hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Kever Yang <kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, caesar <caesar.wang@rock-c>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <5480144F.2040506@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, maxime.ripard@free-electrons.com, dianders@chromium.org, u.kleine-koenig@pengutronix.de, laurent.pinchart+renesas@ideasonboard.com, boris.brezillon@free-electrons.com, andrew@lunn.ch, sjg@chromium.org, markus.mayer@linaro.org, jacob.jun.pan@linux.intel.com, max.schwarz@online.de, mika.westerberg@linux.intel.com, skuribay@pobox.com, Romain.Baeriswyl@abilis.com, wenkai.du@intel.com, chiau.ee.chew@intel.com, alan@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram,
+On Thu, Dec 04, 2014 at 09:59:11AM +0200, Jarkko Nikula wrote:
+> Hi
+> 
+> On 12/02/2014 02:09 AM, David E. Box wrote:
+> >Adds support for acquiring and releasing a hardware bus lock in the i2c
+> >designware core transfer function. This is needed for i2c bus controllers
+> >that are shared with but not controlled by the kernel.
+> >
+> >Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+> >---
+> >  drivers/i2c/busses/i2c-designware-core.c    | 11 +++++++++++
+> >  drivers/i2c/busses/i2c-designware-core.h    |  6 ++++++
+> >  drivers/i2c/busses/i2c-designware-platdrv.c | 18 +++++++++++++-----
+> >  3 files changed, 30 insertions(+), 5 deletions(-)
+> >
+> ...
+> >diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> >index a743115..afdff3b 100644
+> >--- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> >+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> >@@ -261,10 +261,16 @@ static int dw_i2c_probe(struct platform_device *pdev)
+> >  		return r;
+> >  	}
+> >-	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+> >-	pm_runtime_use_autosuspend(&pdev->dev);
+> >-	pm_runtime_set_active(&pdev->dev);
+> >-	pm_runtime_enable(&pdev->dev);
+> >+	i2c_dw_eval_lock_support(dev);
+> i2c_dw_eval_lock_support() is added in the next patch.
+> >+
+> >+	if (dev->pm_runtime_disabled) {
+> >+		pm_runtime_forbid(&pdev->dev);
+> >+	} else {
+> >+		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+> >+		pm_runtime_use_autosuspend(&pdev);
+> >+		pm_runtime_set_active(&pdev->dev);
+> >+		pm_runtime_enable(&pdev->dev);
+> >+	}
+> >  	return 0;
+> >  }
+> >@@ -314,7 +320,9 @@ static int dw_i2c_resume(struct device *dev)
+> >  	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+> >  	clk_prepare_enable(i_dev->clk);
+> >-	i2c_dw_init(i_dev);
+> >+
+> >+	if (!i_dev->pm_runtime_disabled)
+> >+		i2c_dw_init(i_dev);
+> Should there be similar conditional call or locking around
+> i2c_dw_init() and i2c_dw_disable_int() also in dw_i2c_probe()?
+> 
 
-On Thu, Dec 4, 2014 at 10:40 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->
->> If you don't read all the below, my belief is that we should simply
->> rename the strings in Addy's patch.  We should change "rise-ns" to
->> "i2c-scl-rising-time" and "fall-ns" to "i2c-scl-falling-time".
->> Wolfram: can you confirm this is OK?  I'm voting to leave the "-ns"
->> off the end of both to avoid asymmetry.
->
-> New binding should have the "-ns" suffix, right? So, I'd vote to add the
-> suffix to the new bindings and deprecate the ones used in the designware
-> driver: "i2c-scl-rising-time-ns" and "i2c-scl-falling-time-ns"
->
-> It might be a little more work now, but it will help us in the future,
-> because it is the correct way to do it.
+Timely reply. Around i2c_dw_init(), yes. I just discovered this as the source
+of a recent hang that's occuring in the loop in __i2c_dw_enable().
+The hange occurs very infrequently and only, so far, when not built in. A
+block around i2c_dw_disable_int() would make sense as well as a precaution.
 
-OK, that sounds fair.  You're OK with my proposal otherwise?
-
-Are you looking for Addy or me to submit a patch supporting the "-ns"
-suffix on the Designware i2c driver, or should we just use the "-ns"
-suffix in the Rockchip driver and assume someone will later add
-support for the new binding in the Designware i2c driver?
-
--Doug
+Dave
