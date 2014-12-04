@@ -1,60 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/2] Documentation: i2c: Use PM ops instead of legacy
- suspend/resume
-Date: Thu, 4 Dec 2014 05:39:37 +0100
-Message-ID: <20141204043934.GA1052@katana>
-References: <1417366352-22356-1-git-send-email-lars@metafoo.de>
- <20141203170022.6ec17a33@lwn.net>
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH V3 1/2] i2c-designware: Add i2c bus locking support
+Date: Thu, 04 Dec 2014 09:59:11 +0200
+Message-ID: <5480144F.2040506@linux.intel.com>
+References: <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com> <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com> <1417478973-25522-2-git-send-email-david.e.box@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20141203170022.6ec17a33-T1hC0tSOHrs@public.gmane.org>
+In-Reply-To: <1417478973-25522-2-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>
-Cc: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 12/02/2014 02:09 AM, David E. Box wrote:
+> Adds support for acquiring and releasing a hardware bus lock in the i2c
+> designware core transfer function. This is needed for i2c bus controllers
+> that are shared with but not controlled by the kernel.
+>
+> Signed-off-by: David E. Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>   drivers/i2c/busses/i2c-designware-core.c    | 11 +++++++++++
+>   drivers/i2c/busses/i2c-designware-core.h    |  6 ++++++
+>   drivers/i2c/busses/i2c-designware-platdrv.c | 18 +++++++++++++-----
+>   3 files changed, 30 insertions(+), 5 deletions(-)
+>
+...
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index a743115..afdff3b 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -261,10 +261,16 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>   		return r;
+>   	}
+>   
+> -	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+> -	pm_runtime_use_autosuspend(&pdev->dev);
+> -	pm_runtime_set_active(&pdev->dev);
+> -	pm_runtime_enable(&pdev->dev);
+> +	i2c_dw_eval_lock_support(dev);
+i2c_dw_eval_lock_support() is added in the next patch.
+> +
+> +	if (dev->pm_runtime_disabled) {
+> +		pm_runtime_forbid(&pdev->dev);
+> +	} else {
+> +		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+> +		pm_runtime_use_autosuspend(&pdev->dev);
+> +		pm_runtime_set_active(&pdev->dev);
+> +		pm_runtime_enable(&pdev->dev);
+> +	}
+>   
+>   	return 0;
+>   }
+> @@ -314,7 +320,9 @@ static int dw_i2c_resume(struct device *dev)
+>   	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+>   
+>   	clk_prepare_enable(i_dev->clk);
+> -	i2c_dw_init(i_dev);
+> +
+> +	if (!i_dev->pm_runtime_disabled)
+> +		i2c_dw_init(i_dev);
+>   
+Should there be similar conditional call or locking around i2c_dw_init() 
+and i2c_dw_disable_int() also in dw_i2c_probe()?
 
-On Wed, Dec 03, 2014 at 05:00:22PM -0500, Jonathan Corbet wrote:
-> On Sun, 30 Nov 2014 17:52:31 +0100
-> Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org> wrote:
->=20
-> > New drivers should use PM ops instead of the legacy suspend/resume
-> > callbacks. Update the I2C device driver guides to reflect this.
->=20
-> It looks like nobody has picked this up; I'll take it through the docs
-> tree, I guess, unless somebody objects...
-
-I'll take it via I2C.
-
-
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUf+WGAAoJEBQN5MwUoCm2OAkP/0JIyt2wWnIQ41Je5vFBOCIr
-p31vpbZ0fU7PUGXhPopOnNlI0YSvMYkcHR1Cm3j4tIis7vTbDGq30coeO5vm2aak
-FdfOecouG9mvNsVT3JusA6/YHPVk3nPxtM7RD8ymDdxLaA7CNRjjxT4eGk45YApr
-A5ZDVVjLzsV0uTCWE1UEzxTM0ueSmfRLAl+yveILzGbL/Pj0dr3gkfblzfLWfelA
-6m2zl4HcL2V0Y7TuveFNUFfIxV8gkCjAgNy1LdgZwLWKB6rSF5WnO4c7qXwLulZJ
-WfUpmeNmb5wI+E9qnZXH21K8hT7A+MgqwYUDhDyCRJ3a7njw6uAQJcJBQ/NQ+DHn
-MabKqwQv6rAmpOZQkZeY3Ipf5H8QckKkvVLDw0fnTlWlGnhC4HI7L169aj7tgSc5
-pp3bokqyZ+I7oi+SE1/chukFHcHP01gNekXGfq30Mh9EOU9iLblLlU6a9jJ/1iQg
-3qemNN5DGnn1DzCrV22WMJXDcXvF3yfYXpbFNC6b6CgrRmUVxd24Zc8QTIWG6GA3
-BfcNcVsHtncxZY+TN7rA4amz2k7gGouDpcB3nTfzu9h8+cKO/CHLIzME541F9c+q
-6HPOUys2PDspYLAn9tPlOmK15cET+MUHk6AUYmGJCRZ6KdABUMRI5ZMTX1SpPCcb
-k3LRqMBdge6CbyIGVvS4
-=NBpv
------END PGP SIGNATURE-----
-
---9amGYk9869ThD9tj--
+-- 
+Jarkko
