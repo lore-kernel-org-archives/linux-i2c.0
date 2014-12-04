@@ -1,67 +1,65 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 3/5] i2c: recovery: change input parameter to
- i2c_adapter for prepare/unprepare_recovery
-Date: Thu, 4 Dec 2014 19:29:11 +0100
-Message-ID: <20141204182910.GH7944@katana>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
- <1417448047-15236-4-git-send-email-grygorii.strashko@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/3] i2c: cadence: Set the hardware time-out register
+ to maximum value
+Date: Thu, 4 Dec 2014 19:30:15 +0100
+Message-ID: <20141204183015.GI7944@katana>
+References: <1417610126-7957-1-git-send-email-harinik@xilinx.com>
+ <1417610126-7957-3-git-send-email-harinik@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wayzTnRSUXKNfBqd"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="byLs0wutDcxFdwtm"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1417448047-15236-4-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1417610126-7957-3-git-send-email-harinik@xilinx.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Harini Katakam <harinik@xilinx.com>
+Cc: mark.rutland@arm.com, michal.simek@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, vishnum@xilinx.com, harinikatakamlinux@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---wayzTnRSUXKNfBqd
-Content-Type: text/plain; charset=utf-8
+--byLs0wutDcxFdwtm
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 01, 2014 at 05:34:05PM +0200, Grygorii Strashko wrote:
-> This patch changes type of input parameter for .prepare/unprepare_recover=
-y()
-> callbacks from struct i2c_bus_recovery_info * to struct i2c_adapter *.
-> This allows to simplify implementation of these callbacks and avoid
-> type conversations from i2c_bus_recovery_info to i2c_adapter.
-> The i2c_bus_recovery_info can be simply retrieved from struct i2c_adapter
-> which contains pointer on it.
+On Wed, Dec 03, 2014 at 06:05:25PM +0530, Harini Katakam wrote:
+> From: Vishnu Motghare <vishnum@xilinx.com>
 >=20
-> CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+> Cadence I2C controller has bug wherein it generates invalid read transact=
+ions
+> after timeout in master receiver mode. This driver does not use the HW
+> timeout and this interrupt is disabled but the feature itself cannot be
+> disabled. Hence, this patch writes the maximum value (0xFF) to this regis=
+ter.
+> This is one of the workarounds to this bug and it will not avoid the issue
+> completely but reduces the chances of error.
+>=20
+> Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
+> Signed-off-by: Harini Katakam <harinik@xilinx.com>
 
-Ah, bus recovery, I need to have a closer look on this one. Scheduled
-for 3.20.
+Applied to for-current, thanks!
 
 
---wayzTnRSUXKNfBqd
+--byLs0wutDcxFdwtm
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUgKf2AAoJEBQN5MwUoCm2tPsP/0ydflzbnHvHC01h4WW8TkCZ
-zLfZk+qRBntM2CJ8eh7eqLgvEurzSg4shzksDkYMo8djFmZavTmaYpWM1PQmc1Zq
-BsHqAkGlSt/T3A6DRXD25zgWuI0V+g7TY035cqHEgeTbFN485+B+W/I3eItvpjcu
-9w1ZXNE8+8qpVFXJO7shAK0IcV/O8o5yqzOck6loHRGl9dKz0CNGTT8iDUFCVqTO
-PaZ7cG7MKxt24fxmn5A57pd4e7aKzV9HD/tbgXek096Cz7HA+Q1nUp9YBwzavxHi
-NVqBisgD5/r19M/Ub2XZXqzj7qKCBm4W4KI96xoyjtDEnVsIZzoJYWG4hHTu0JxJ
-eXhEEytYOWV36tuHSFPTTJbXVN9yUW0GBjOrXkww76dHMj58LmfBnlgEN5m/KNO0
-UbW9coT0kkW4S8Kzmne1iYh4oMGBFaQ8u9luNrnSibiveF1eGyONyzchfbrirCvA
-KhWgR849vjxs59RdoatHfvXXF/ZqkM1wTq/xHkBTicuuc1/6HAV5WZDcHGfYOfFG
-5TkBKk3sU0fpf0Tqmrjh6CNFS/VtsbgdxPgVM16fsjgDjkhzTBU0HaGwTtKphr7X
-JcGpm159/WlBd9E5xHgQ2oEU6hGJwr+1BmipSIQ5mjqqvjBSeC7dV6ny721qfoVC
-3SmOdkYksFGD8LmP+Uwu
-=45gn
+iQIcBAEBAgAGBQJUgKg2AAoJEBQN5MwUoCm23pwP/itLlYloGG6UhJiqE67jIxq1
+Zzh/9XnWunZN62cDASUh663SfCTqQy6VzbFMbxlwZszDEcYpMEnApFy/QQarszBS
+1tSgJaET7FK5nadhWrz3uqUTAqv5Qlcs54GhMoD8LNfJfT4OQKzk6luaOu+eUNXv
+Re/rpRJmhLHPmpMhExvNA5fKKGcj5UOMTuulENhW+sBpuM16NkUuPY8S4bsh3Y0E
+Hoho/A9KSlHdlVf/GMnZgv2qA2ke1vc52GfN+8E3KKntQaFdWL2TXwDNx6orUrGc
+CUE9wyoYcIVEHs/f69J5ryAzbs/I2TkMJKcNyoPJ/ZKwtGEHPPClayLFKTJtmi5H
+sDrKI/j1CDlQsWRWD3w60tNugBtcT+pNflfAAYcXa0IE59M/U/Ch+kyG/tdzHKdz
+Cy53l2L8/U9CImBTExOKgQmSoeKJUeF//lhDkWdNr5JQ423VlnbRfZvRvIeNWsNC
+AuTHkXbcqA8I6EQnN6cscjNK7hHM4hx5Z08NCqpvFh2veUilwL7ARCwevbseBvHg
+Aqtmo4Eim2QhJkJCXvEHFaZH6meBcdQdD0nNQNLDX2Feb0+ixRaB3TzBmMjajaRm
+dJowy/BKcOY9mWzGlzIsX3BJAzl6lQ1+P2AQ6/jQTxY6LRXLt6KAANY0WLfkNPhP
+TYBPRjLehDUi/qz1GGGS
+=BDJf
 -----END PGP SIGNATURE-----
 
---wayzTnRSUXKNfBqd--
+--byLs0wutDcxFdwtm--
