@@ -1,64 +1,33 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: sh_mobile: optimize irq entry
-Date: Thu,  4 Dec 2014 17:20:49 +0100
-Message-ID: <1417710049-6894-1-git-send-email-wsa@the-dreams.de>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [PATCH] i2c: sh_mobile: optimize irq entry
+Date: Thu, 4 Dec 2014 17:23:53 +0100
+Message-ID: <CAMuHMdV_LnaiY-dErSC3yfeS+Vd+KRTh=WA2RYMj7mUS=xrQVw@mail.gmail.com>
+References: <1417710049-6894-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1417710049-6894-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+On Thu, Dec 4, 2014 at 5:20 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> We can simply pass the pointer to the private structure to the irq
+> routine instead of passing the platform device and looking up its
+> driver_data.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-We can simply pass the pointer to the private structure to the irq
-routine instead of passing the platform device and looking up its
-driver_data.
+Acked-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
- drivers/i2c/busses/i2c-sh_mobile.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+Gr{oetje,eeting}s,
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index c2362a4bec25..429778280b6d 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -470,8 +470,7 @@ static int sh_mobile_i2c_isr_rx(struct sh_mobile_i2c_data *pd)
- 
- static irqreturn_t sh_mobile_i2c_isr(int irq, void *dev_id)
- {
--	struct platform_device *dev = dev_id;
--	struct sh_mobile_i2c_data *pd = platform_get_drvdata(dev);
-+	struct sh_mobile_i2c_data *pd = dev_id;
- 	unsigned char sr;
- 	int wakeup = 0;
- 
-@@ -806,7 +805,7 @@ static void sh_mobile_i2c_release_dma(struct sh_mobile_i2c_data *pd)
- 	}
- }
- 
--static int sh_mobile_i2c_hook_irqs(struct platform_device *dev)
-+static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, struct sh_mobile_i2c_data *pd)
- {
- 	struct resource *res;
- 	resource_size_t n;
-@@ -815,7 +814,7 @@ static int sh_mobile_i2c_hook_irqs(struct platform_device *dev)
- 	while ((res = platform_get_resource(dev, IORESOURCE_IRQ, k))) {
- 		for (n = res->start; n <= res->end; n++) {
- 			ret = devm_request_irq(&dev->dev, n, sh_mobile_i2c_isr,
--					  0, dev_name(&dev->dev), dev);
-+					  0, dev_name(&dev->dev), pd);
- 			if (ret) {
- 				dev_err(&dev->dev, "cannot request IRQ %pa\n", &n);
- 				return ret;
-@@ -846,7 +845,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 		return PTR_ERR(pd->clk);
- 	}
- 
--	ret = sh_mobile_i2c_hook_irqs(dev);
-+	ret = sh_mobile_i2c_hook_irqs(dev, pd);
- 	if (ret)
- 		return ret;
- 
--- 
-2.1.3
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
