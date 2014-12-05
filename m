@@ -1,79 +1,75 @@
-From: rajeev kumar <rajeevkumar.linux@gmail.com>
-Subject: Re: [PATCH v3 2/2] i2c: cadence: Check for errata condition involving
- master receive
-Date: Fri, 5 Dec 2014 14:03:21 +0530
-Message-ID: <CAA7nrtg7xG5NekMMPLH-XLV+KEurX+akubhLqc3o6DA9R1bd9Q@mail.gmail.com>
-References: <1417766884-8383-1-git-send-email-harinik@xilinx.com>
-	<1417766884-8383-3-git-send-email-harinik@xilinx.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v2] iio: imu: inv_mpu6050: Add i2c mux for by pass
+Date: Fri, 05 Dec 2014 08:03:18 -0800
+Message-ID: <1417795398.1851.17.camel@spandruv-desktop.jf.intel.com>
+References: <1417734625-13739-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <1417734625-13739-2-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <20141205070313.GA1197@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1417766884-8383-3-git-send-email-harinik@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Harini Katakam <harinik@xilinx.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, michal.simek@xilinx.com, soren.brinkmann@xilinx.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Harini Katakam <harinikatakamlinux@gmail.com>, Vishnu Motghare <vishnum@xilinx.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141205070313.GA1197@katana>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Dec 5, 2014 at 1:38 PM, Harini Katakam <harinik@xilinx.com> wrote:
-> Cadence I2C controller has the following bugs:
-> - completion indication is not given to the driver at the end of
-> a read/receive transfer with HOLD bit set.
-> - Invalid read transaction are generated on the bus when HW timeout
-> condition occurs with HOLD bit set.
->
-> As a result of the above, if a set of messages to be transferred with
-> repeated start includes any transfer following a read transfer,
-> completion is never indicated and timeout occurs.
-> Hence a check is implemented to return -EOPNOTSUPP for such sequences.
->
-> Signed-off-by: Harini Katakam <harinik@xilinx.com>
-> Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
-> ---
->
-> v3:
-> Add warning in case of unsupported transfer.
->
+On Fri, 2014-12-05 at 08:03 +0100, Wolfram Sang wrote: 
+> On Thu, Dec 04, 2014 at 03:10:25PM -0800, Srinivas Pandruvada wrote:
+> > This chip allows some limited number of sensors connected to it as
+> > slaves, which can be directly accessed by register interface of this
+> > driver.But the current upstream driver doesn't support such mode.
+> > To attach such slaves to main processor i2c bus, chip has to be set
+> > up in bypass mode. This change adds i2c mux, which will enable/disable
+> > this mode for transaction to/from such slave devices.
+> > This was discussed for a while in mailing list, this was the outcome:
+> > Reference:
+> > http://www.spinics.net/lists/linux-iio/msg12126.html
+> > http://comments.gmane.org/gmane.linux.kernel.iio/11470
+> > 
+> > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> 
+> Only minor nits, in general:
+> 
+> Reviewed-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> 
+> > +static int inv_mpu6050_create_mux(struct iio_dev *indio_dev)
+> > +{
+> > +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> > +	struct i2c_client *client = st->client;
+> > +
+> > +	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
+> > +					      &client->dev,
+> > +					      indio_dev,
+> > +					      0, 0, 0,
+> > +					      inv_mpu6050_select_bypass,
+> > +					      inv_mpu6050_deselect_bypass);
+> > +	if (st->mux_adapter == NULL) {
+> > +		dev_err(&st->client->dev, "Mux create Failed\n");
+> 
+> i2c_add_mux_adapter prints error messages on its own, so this is not
+> needed.
+> 
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static void inv_mpu6050_destroy_mux(struct iio_dev *indio_dev)
+> > +{
+> > +	struct inv_mpu6050_state *mpu_st = iio_priv(indio_dev);
+> > +
+> > +	if (mpu_st->mux_adapter)
+> > +		i2c_del_mux_adapter(mpu_st->mux_adapter);
+> > +}
+> 
+> Since those two functions are only called once and don't encapsulate
+> much, I'd rather put the commands directly into the calling functions.
+Agree. I will move them to the caller and submit another version.
+I hope, I can still use reviewed-by tag, after this change.
 
-Reviewed-by: Rajeev Kumar <rajeevkumar.linux@gmail.com>
-
-> v2:
-> Dont defeteature repeated start. Just check for unsupported conditions in the
-> driver and return error.
->
-> ---
->  drivers/i2c/busses/i2c-cadence.c |   15 +++++++++++++++
->  1 file changed, 15 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> index 5f5d4fa..3ea3b7a 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -541,6 +541,21 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->          * processed with a repeated start.
->          */
->         if (num > 1) {
-> +               /*
-> +                * This controller does not give completion interrupt after a
-> +                * master receive transfer if HOLD bit is set (repeated start),
-> +                * resulting in SW timeout. Hence, if a receive transfer is
-> +                * followed by any other transfer, an error is returned
-> +                * indicating that this sequence is not supported.
-> +                */
-> +               for (count = 0; count < num-1; count++) {
-> +                       if (msgs[count].flags & I2C_M_RD)
-> +                               dev_warn(adap->dev.parent,
-> +                                       "No support for repeated start when\t");
-> +                               dev_warn(adap->dev.parent,
-> +                                       "receive is followed by a transfer\n");
-> +                               return -EOPNOTSUPP;
-> +               }
->                 id->bus_hold_flag = 1;
->                 reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
->                 reg |= CDNS_I2C_CR_HOLD;
-> --
-> 1.7.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Srinivas 
+> 
