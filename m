@@ -1,60 +1,79 @@
-From: Michal Simek <michal.simek@xilinx.com>
-Subject: Re: [PATCH v2 1/3] i2c: cadence: Handle > 252 byte transfers
-Date: Fri, 5 Dec 2014 09:15:29 +0100
-Message-ID: <66a490c827bc47d98a0118a58d7060e7@BN1BFFO11FD054.protection.gbl>
-References: <1417610126-7957-1-git-send-email-harinik@xilinx.com>
-	<1417610126-7957-2-git-send-email-harinik@xilinx.com>
- <CAA7nrtg_G+U2EVxy0joZC+fBGyXS_uOwe1RZ8PyoDv7icu6OBw@mail.gmail.com>
+From: rajeev kumar <rajeevkumar.linux@gmail.com>
+Subject: Re: [PATCH v3 2/2] i2c: cadence: Check for errata condition involving
+ master receive
+Date: Fri, 5 Dec 2014 14:03:21 +0530
+Message-ID: <CAA7nrtg7xG5NekMMPLH-XLV+KEurX+akubhLqc3o6DA9R1bd9Q@mail.gmail.com>
+References: <1417766884-8383-1-git-send-email-harinik@xilinx.com>
+	<1417766884-8383-3-git-send-email-harinik@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAA7nrtg_G+U2EVxy0joZC+fBGyXS_uOwe1RZ8PyoDv7icu6OBw@mail.gmail.com>
+In-Reply-To: <1417766884-8383-3-git-send-email-harinik@xilinx.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: rajeev kumar <rajeevkumar.linux@gmail.com>, Harini Katakam <harinik@xilinx.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, michal.simek@xilinx.com, soren.brinkmann@xilinx.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, vishnum@xilinx.com, harinikatakamlinux@gmail.com
+To: Harini Katakam <harinik@xilinx.com>
+Cc: wsa@the-dreams.de, mark.rutland@arm.com, michal.simek@xilinx.com, soren.brinkmann@xilinx.com, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Harini Katakam <harinikatakamlinux@gmail.com>, Vishnu Motghare <vishnum@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 12/05/2014 06:41 AM, rajeev kumar wrote:
-> On Wed, Dec 3, 2014 at 6:05 PM, Harini Katakam <harinik@xilinx.com> wrote:
->> The I2C controller sends a NACK to the slave when transfer size register
->> reaches zero, irrespective of the hold bit. So, in order to handle transfers
->> greater than 252 bytes, the transfer size register has to be maintained at a
->> value >= 1. This patch implements the same.
-> 
-> Why 252 Bytes ?  Is it word allign or what ?
-> 
->> The interrupt status is cleared at the beginning of the isr instead of
->> the end, to avoid missing any interrupts - this is in sync with the new
->> transfer handling.
->>
-> 
-> No need to write this, actually this is the correct way of handling interrupt.
-> 
->> Signed-off-by: Harini Katakam <harinik@xilinx.com>
->> ---
->>
->> v2:
->> No changes
->>
->> ---
->>  drivers/i2c/busses/i2c-cadence.c |  156 ++++++++++++++++++++------------------
->>  1 file changed, 81 insertions(+), 75 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
->> index 63f3f03..e54899e 100644
->> --- a/drivers/i2c/busses/i2c-cadence.c
->> +++ b/drivers/i2c/busses/i2c-cadence.c
->> @@ -126,6 +126,7 @@
->>   * @suspended:         Flag holding the device's PM status
->>   * @send_count:                Number of bytes still expected to send
->>   * @recv_count:                Number of bytes still expected to receive
->> + * @curr_recv_count:   Number of bytes to be received in current transfer
-> 
-> Please do the alignment properly
+On Fri, Dec 5, 2014 at 1:38 PM, Harini Katakam <harinik@xilinx.com> wrote:
+> Cadence I2C controller has the following bugs:
+> - completion indication is not given to the driver at the end of
+> a read/receive transfer with HOLD bit set.
+> - Invalid read transaction are generated on the bus when HW timeout
+> condition occurs with HOLD bit set.
+>
+> As a result of the above, if a set of messages to be transferred with
+> repeated start includes any transfer following a read transfer,
+> completion is never indicated and timeout occurs.
+> Hence a check is implemented to return -EOPNOTSUPP for such sequences.
+>
+> Signed-off-by: Harini Katakam <harinik@xilinx.com>
+> Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
+> ---
+>
+> v3:
+> Add warning in case of unsupported transfer.
+>
 
-Alignments are correct when you apply this patch.
-Please let us know if you see any problem.
+Reviewed-by: Rajeev Kumar <rajeevkumar.linux@gmail.com>
 
-Thanks,
-Michal
+> v2:
+> Dont defeteature repeated start. Just check for unsupported conditions in the
+> driver and return error.
+>
+> ---
+>  drivers/i2c/busses/i2c-cadence.c |   15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+> index 5f5d4fa..3ea3b7a 100644
+> --- a/drivers/i2c/busses/i2c-cadence.c
+> +++ b/drivers/i2c/busses/i2c-cadence.c
+> @@ -541,6 +541,21 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>          * processed with a repeated start.
+>          */
+>         if (num > 1) {
+> +               /*
+> +                * This controller does not give completion interrupt after a
+> +                * master receive transfer if HOLD bit is set (repeated start),
+> +                * resulting in SW timeout. Hence, if a receive transfer is
+> +                * followed by any other transfer, an error is returned
+> +                * indicating that this sequence is not supported.
+> +                */
+> +               for (count = 0; count < num-1; count++) {
+> +                       if (msgs[count].flags & I2C_M_RD)
+> +                               dev_warn(adap->dev.parent,
+> +                                       "No support for repeated start when\t");
+> +                               dev_warn(adap->dev.parent,
+> +                                       "receive is followed by a transfer\n");
+> +                               return -EOPNOTSUPP;
+> +               }
+>                 id->bus_hold_flag = 1;
+>                 reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+>                 reg |= CDNS_I2C_CR_HOLD;
+> --
+> 1.7.9.5
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
