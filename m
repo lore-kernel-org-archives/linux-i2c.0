@@ -1,99 +1,46 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] iio: imu: inv_mpu6050: Add i2c mux for by pass
-Date: Fri, 5 Dec 2014 08:03:13 +0100
-Message-ID: <20141205070313.GA1197@katana>
-References: <1417734625-13739-1-git-send-email-srinivas.pandruvada@linux.intel.com>
- <1417734625-13739-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1417734625-13739-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v3 0/2] Cadence I2C driver fixes
+Date: Fri,  5 Dec 2014 13:38:02 +0530
+Message-ID: <1417766884-8383-1-git-send-email-harinik@xilinx.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+This series implements workarounds for some bugs in Cadence I2C controller.
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+- The I2C controller when configured in Master Mode generates invalid read transactions.
+When HOLD bit is set and HW timeout occurs, invalid read transactions are
+generated on the bus. This will affect repeated start conditions and large
+data transfer condtions where transfer_size_register has to be updated again.
+The transfer size register rolls over erroneously under these conditions.
+Note that this HW timeout cannot be disabled even if the interrupt is unused.
+Errata link: http://www.xilinx.com/support/answers/61664.html
 
-On Thu, Dec 04, 2014 at 03:10:25PM -0800, Srinivas Pandruvada wrote:
-> This chip allows some limited number of sensors connected to it as
-> slaves, which can be directly accessed by register interface of this
-> driver.But the current upstream driver doesn't support such mode.
-> To attach such slaves to main processor i2c bus, chip has to be set
-> up in bypass mode. This change adds i2c mux, which will enable/disable
-> this mode for transaction to/from such slave devices.
-> This was discussed for a while in mailing list, this was the outcome:
-> Reference:
-> http://www.spinics.net/lists/linux-iio/msg12126.html
-> http://comments.gmane.org/gmane.linux.kernel.iio/11470
->=20
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+-The I2C controller when configured in Master Mode is the missing master completion interrupt.
+During repeated start condition, the driver has to set the HOLD bit for
+the set of transfer being done together and clear the HOLD bit just before
+the last transfer. But the controller does not indicate completion when
+a read/receive transfer is done if the HOLD bit is set. This affects
+all repeated start operation where a read/receive transfer is not
+the last transfer.
+Errata link: http://www.xilinx.com/support/answers/61665.html
 
-Only minor nits, in general:
+To address the above,
+- >252 byte transfers are done such that transfer_size never becomes zero.
+- timeout register value is increased (even though the driver doesn't use this).
+- A check is performed to see if there is any transfer following a
+read/receive transfer in the set of messages using repeated start.
+An error is returned in such cases because if we proceed, completion interrupt
+is never obtained and a SW timeout will occur.
 
-Reviewed-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Harini Katakam (2):
+  i2c: cadence: Handle > 252 byte transfers
+  i2c: cadence: Check for errata condition involving master receive
 
-> +static int inv_mpu6050_create_mux(struct iio_dev *indio_dev)
-> +{
-> +	struct inv_mpu6050_state *st =3D iio_priv(indio_dev);
-> +	struct i2c_client *client =3D st->client;
-> +
-> +	st->mux_adapter =3D i2c_add_mux_adapter(client->adapter,
-> +					      &client->dev,
-> +					      indio_dev,
-> +					      0, 0, 0,
-> +					      inv_mpu6050_select_bypass,
-> +					      inv_mpu6050_deselect_bypass);
-> +	if (st->mux_adapter =3D=3D NULL) {
-> +		dev_err(&st->client->dev, "Mux create Failed\n");
+ drivers/i2c/busses/i2c-cadence.c |  188 +++++++++++++++++++++++---------------
+ 1 file changed, 115 insertions(+), 73 deletions(-)
 
-i2c_add_mux_adapter prints error messages on its own, so this is not
-needed.
-
-> +		return -ENODEV;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void inv_mpu6050_destroy_mux(struct iio_dev *indio_dev)
-> +{
-> +	struct inv_mpu6050_state *mpu_st =3D iio_priv(indio_dev);
-> +
-> +	if (mpu_st->mux_adapter)
-> +		i2c_del_mux_adapter(mpu_st->mux_adapter);
-> +}
-
-Since those two functions are only called once and don't encapsulate
-much, I'd rather put the commands directly into the calling functions.
-
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUgVixAAoJEBQN5MwUoCm2G5MP/161OTKVAacj/Koq/hCKekFi
-kSQ8Hx/zQmZ/FBwlfstKQ0V6PiQCKERMjszKrnANDlSN+2XyqPjugp7i4kiEeDjC
-YUIOmdnIit9njA17ofeJ2iYsrb0k4vddnbzMa0DOiQX4/XCFyOr39RmzGKDgRJU2
-dpQE2H6REfUZJaHX/cdpeiM01zGCzmlDTVsqYj1KJPBfdoLoNvVzRTb42fR7/waH
-x40woytbXoeaW29wXQt4k5mbhD9ro6xBOeGwGP+ltaCZhTkapUrEQqqRP0q4IGv3
-5zZZ+fKvGGHbO0G+hRbklyULBy7LNu7sYPF28UccQv6tJt5PbAsFmzZGYOh0Rii/
-+AoL1n/aJEZLMuGb/0yzJ9EPM2FDAKKCiTJoJl/gqmm3Rum2MqlUbFsTKlVNDwMk
-4tGm7JLBCfCFkM9A2wJm31BKz8Rk5kYpWGgrczdEznRs6UIcsBeGSK1M6sSGUbQd
-VhOCO9qmzZewB0huKZUwGuQbEcjDY3z/Yfk7gmXEXEjNUd/n0i1KIbNDt1SaxcaC
-/Xjaaatn3Qna4NueNvh1kMWWF0N5mSp7y0bih2iDHVVTGNy6V5slXdzcjNrp5JXs
-3DCe8fGdKjMwmOO5pDRC3+Njn3KC2G6uGnUhrwZhEnyuM4sifJpcZse3Xl/A0ynx
-pcIf0Kc4eqvoF+FZDMS/
-=Vt+N
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+-- 
+1.7.9.5
