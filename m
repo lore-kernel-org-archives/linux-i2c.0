@@ -1,78 +1,49 @@
-From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
-Subject: Re: [PATCH v3 2/2] i2c: cadence: Check for errata condition
- involving master receive
-Date: Fri, 5 Dec 2014 09:11:03 -0800
-Message-ID: <655928d0462248b6a8e4821b5245bc57@BN1BFFO11FD016.protection.gbl>
-References: <1417766884-8383-1-git-send-email-harinik@xilinx.com>
- <1417766884-8383-3-git-send-email-harinik@xilinx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1417766884-8383-3-git-send-email-harinik@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Harini Katakam <harini.katakam@xilinx.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, harinik@xilinx.com, harinikatakamlinux@gmail.com, Vishnu Motghare <vishnum@xilinx.com>
+From: Alexander Kochetkov <al.kochet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC 1/2] i2c: omap: fix buffer overruns during RX/TX data processing
+Date: Fri, 5 Dec 2014 20:18:53 +0300
+Message-ID: <46D905A0-2E71-4490-84BD-4D2467E13899@gmail.com>
+References: <1417294803-14729-1-git-send-email-al.kochet@gmail.com> <1417294803-14729-2-git-send-email-al.kochet@gmail.com> <20141201195841.GD2817@atomide.com> <B3F4FEFF-2333-473D-8A35-7D4EF1C44D90@gmail.com> <20141204180946.GG2817@atomide.com>
+Mime-Version: 1.0 (Mac OS X Mail 7.3 \(1878.6\))
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141204180946.GG2817-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Harini,
+Hello, Tony!
 
-On Fri, 2014-12-05 at 01:38PM +0530, Harini Katakam wrote:
-> Cadence I2C controller has the following bugs:
-> - completion indication is not given to the driver at the end of
-> a read/receive transfer with HOLD bit set.
-> - Invalid read transaction are generated on the bus when HW timeout
-> condition occurs with HOLD bit set.
->=20
-> As a result of the above, if a set of messages to be transferred with
-> repeated start includes any transfer following a read transfer,
-> completion is never indicated and timeout occurs.
-> Hence a check is implemented to return -EOPNOTSUPP for such sequences=
-=2E
->=20
-> Signed-off-by: Harini Katakam <harinik@xilinx.com>
-> Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
-> ---
->=20
-> v3:
-> Add warning in case of unsupported transfer.
->=20
-> v2:
-> Dont defeteature repeated start. Just check for unsupported condition=
-s in the
-> driver and return error.
->=20
-> ---
->  drivers/i2c/busses/i2c-cadence.c |   15 +++++++++++++++
->  1 file changed, 15 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2=
-c-cadence.c
-> index 5f5d4fa..3ea3b7a 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -541,6 +541,21 @@ static int cdns_i2c_master_xfer(struct i2c_adapt=
-er *adap, struct i2c_msg *msgs,
->  	 * processed with a repeated start.
->  	 */
->  	if (num > 1) {
-> +		/*
-> +		 * This controller does not give completion interrupt after a
-> +		 * master receive transfer if HOLD bit is set (repeated start),
-> +		 * resulting in SW timeout. Hence, if a receive transfer is
-> +		 * followed by any other transfer, an error is returned
-> +		 * indicating that this sequence is not supported.
-> +		 */
-> +		for (count =3D 0; count < num-1; count++) {
-> +			if (msgs[count].flags & I2C_M_RD)
-> +				dev_warn(adap->dev.parent,
-> +					"No support for repeated start when\t");
-> +				dev_warn(adap->dev.parent,
-> +					"receive is followed by a transfer\n");
+> The issue I'm seeing on 2430sdp is some earlier regression that
+> has started happening over the past year or so. 
 
-Please make this a single dev_warn without a line break in the string.
-That way you can grep for the message in the sources.
+I don't have 2430sdp. And I couldn't  find 2430sdp schematics.
+Looks, like this is NDA stuff.
 
-	Thanks,
-	S=C3=B6ren
+> Of course the issue I'm seeing could be caused by hung twl4030
+> PMIC too.
+
+This could be switching twl4030 into inappropriate for 2430sdp mode.
+
+For example, SMARTREFLEX_ENABLE bit is dangerous, because
+it switch twl-pads from VMODE to i2c.
+And when you set SMARTREFLEX_ENABLE, twl automatically drop
+VDD1 and VDD2 to 1.2V (if VDD1_SR_CONTROL was not initialized through
+BYPASS register early in the boot loader).
+
+What mode is used in the 2430sdp? VMODE or Smartreflex?
+
+And, that is my assumption, may be it wrong again.
+
+I'd added trace in the twl_i2c_read_u8/twl_i2c_write_u8 functions to
+easy find concrete line of code, what cause problem (by register address).
+
+Hang happens on access to 0x004b address group.
+That could be: BACKUP_REG, INT, PM_MASTER, PM_RECEIVER, RTC or
+SECURED_REG. It hard to tell which one cause hang without trace.
+
+Hope this helps.
+
+Regards,
+Alexander.
