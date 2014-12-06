@@ -1,42 +1,255 @@
-From: Muthu Mani <muth@cypress.com>
-Subject: RE: [PATCH v4 1/3] mfd: add support for Cypress CYUSBS234 USB Serial
- Bridge controller
-Date: Sat, 6 Dec 2014 10:54:26 +0000
-Message-ID: <BN1PR06MB069DE9058CA3EE9B5635E1DCC660@BN1PR06MB069.namprd06.prod.outlook.com>
-References: <1417241944-17799-1-git-send-email-muth@cypress.com>
- <20141201121533.GE15845@x1>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3] iio: imu: inv_mpu6050: Add i2c mux for by pass
+Date: Sat, 06 Dec 2014 11:01:28 +0000
+Message-ID: <5482E208.6030905@kernel.org>
+References: <1417819929-27730-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1417819929-27730-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20141201121533.GE15845@x1>
-Content-Language: en-US
-Sender: linux-gpio-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Rajaram Regupathy <rera@cypress.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1417819929-27730-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-VGhhbmtzIGZvciB5b3VyIGlucHV0cy4NCg0KPiA+ICsvKiBTZXJpYWwgaW50ZXJmYWNlcyAoSTJD
-LCBTUEksIFVBUlQpIGRpZmZlciBpbiBpbnRlcmZhY2Ugc3ViY2xhc3MgKi8NCj4gPiArZW51bSBj
-eV9zY2JfbW9kZXMgew0KPiA+ICsgICAgICAgQ1lfVVNCU19TQ0JfRElTQUJMRUQgPSAwLA0KPiA+
-ICsgICAgICAgQ1lfVVNCU19TQ0JfVUFSVCA9IDEsDQo+ID4gKyAgICAgICBDWV9VU0JTX1NDQl9T
-UEkgPSAyLA0KPiA+ICsgICAgICAgQ1lfVVNCU19TQ0JfSTJDID0gMw0KPg0KPiBXaHkgaGF2ZSB5
-b3UgbnVtYmVyZWQgdGhlc2UgaW5kaXZpZHVhbGx5Pw0KDQpJIGhhdmUgY2hhbmdlZCB0aGVtIGFz
-ICNkZWZpbmUncyBub3cuIFRoZXNlIHZhbHVlcyBhcmUgbm90IGFyYml0cmFyeS4NCg0KPiA+ICsg
-ICAgICAgLyogU2VyaWFsIGludGVyZmFjZXMgKEkyQywgU1BJLCBVQVJUKSBkaWZmZXIgaW4gaW50
-ZXJmYWNlIHN1YmNsYXNzICovDQo+ID4gKyAgICAgICBzd2l0Y2ggKGludGVyZmFjZS0+Y3VyX2Fs
-dHNldHRpbmctPmRlc2MuYkludGVyZmFjZVN1YkNsYXNzKSB7DQo+ID4gKyAgICAgICBjYXNlIENZ
-X1VTQlNfU0NCX0kyQzoNCj4gPiArICAgICAgICAgICAgICAgZGV2X2luZm8oJmludGVyZmFjZS0+
-ZGV2LCAidXNpbmcgSTJDIGludGVyZmFjZVxuIik7DQo+ID4gKyAgICAgICAgICAgICAgIGN5dXNi
-czIzeF9kZXZzID0gY3l1c2JzMjN4X2kyY19ncGlvX2RldnM7DQo+ID4gKyAgICAgICAgICAgICAg
-IG5kZXZzID0gQVJSQVlfU0laRShjeXVzYnMyM3hfaTJjX2dwaW9fZGV2cyk7DQo+DQo+IE5vdCBz
-dXJlIEkgZ2V0IHRoaXMuICBXaHkgZG8geW91IGhhdmUgbG9jYWwgdmFyaWFibGVzIGZvciB0aGVz
-ZSBpbnN0ZWFkIG9mIHVzaW5nDQo+IHRoZW0gZGlyZWN0bHk/DQoNCldlIGFyZSBwbGFubmluZyB0
-byBzdXBwb3J0IG90aGVyIHByb3RvY29scyBpbiBmdXR1cmUuIFRvIGZhY2lsaXRhdGUgdGhhdCwg
-bG9jYWwgdmFyaWFibGVzIGFyZSB1c2VkLg0KDQo+ID4gKyAgICAgICByZXR1cm4gMDsNCj4gPiAr
-DQo+ID4gK2Vycm9yOg0KPiA+ICsgICAgICAgdXNiX3B1dF9kZXYoY3l1c2JzLT51c2JfZGV2KTsN
-Cj4NCj4gSXNuJ3QgdGhlcmUgYSBkZXZtXyogdmVyc2lvbiBvZiB1c2Jfc2V0X2ludGZkYXRhKCk/
-DQoNCk5vLg0KDQpUaGFua3MsDQpNdXRodQ0KDQpUaGlzIG1lc3NhZ2UgYW5kIGFueSBhdHRhY2ht
-ZW50cyBtYXkgY29udGFpbiBDeXByZXNzIChvciBpdHMgc3Vic2lkaWFyaWVzKSBjb25maWRlbnRp
-YWwgaW5mb3JtYXRpb24uIElmIGl0IGhhcyBiZWVuIHJlY2VpdmVkIGluIGVycm9yLCBwbGVhc2Ug
-YWR2aXNlIHRoZSBzZW5kZXIgYW5kIGltbWVkaWF0ZWx5IGRlbGV0ZSB0aGlzIG1lc3NhZ2UuDQo=
+On 05/12/14 22:52, Srinivas Pandruvada wrote:
+> This chip allows some limited number of sensors connected to it as
+> slaves, which can be directly accessed by register interface of this
+> driver.But the current upstream driver doesn't support such mode.
+> To attach such slaves to main processor i2c bus, chip has to be set
+> up in bypass mode. This change adds i2c mux, which will enable/disable
+> this mode for transaction to/from such slave devices.
+> This was discussed for a while in mailing list, this was the outcome:
+> Reference:
+> http://www.spinics.net/lists/linux-iio/msg12126.html
+> http://comments.gmane.org/gmane.linux.kernel.iio/11470
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Reviewed-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Applied to the togreg branch of IIO.git
+
+Thanks,
+
+> 
+> ---
+>  drivers/iio/imu/inv_mpu6050/Kconfig        |   1 +
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 115 +++++++++++++++++++++++++++--
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |   6 ++
+>  3 files changed, 116 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/iio/imu/inv_mpu6050/Kconfig b/drivers/iio/imu/inv_mpu6050/Kconfig
+> index 2d0608b..48fbc0b 100644
+> --- a/drivers/iio/imu/inv_mpu6050/Kconfig
+> +++ b/drivers/iio/imu/inv_mpu6050/Kconfig
+> @@ -7,6 +7,7 @@ config INV_MPU6050_IIO
+>  	depends on I2C && SYSFS
+>  	select IIO_BUFFER
+>  	select IIO_TRIGGERED_BUFFER
+> +	select I2C_MUX
+>  	help
+>  	  This driver supports the Invensense MPU6050 devices.
+>  	  This driver can also support MPU6500 in MPU6050 compatibility mode
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index b75519d..6d2c115 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -23,6 +23,7 @@
+>  #include <linux/kfifo.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/iio/iio.h>
+> +#include <linux/i2c-mux.h>
+>  #include "inv_mpu_iio.h"
+>  
+>  /*
+> @@ -52,6 +53,7 @@ static const struct inv_mpu6050_reg_map reg_set_6050 = {
+>  	.int_enable             = INV_MPU6050_REG_INT_ENABLE,
+>  	.pwr_mgmt_1             = INV_MPU6050_REG_PWR_MGMT_1,
+>  	.pwr_mgmt_2             = INV_MPU6050_REG_PWR_MGMT_2,
+> +	.int_pin_cfg		= INV_MPU6050_REG_INT_PIN_CFG,
+>  };
+>  
+>  static const struct inv_mpu6050_chip_config chip_config_6050 = {
+> @@ -77,6 +79,83 @@ int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 d)
+>  	return i2c_smbus_write_i2c_block_data(st->client, reg, 1, &d);
+>  }
+>  
+> +/*
+> + * The i2c read/write needs to happen in unlocked mode. As the parent
+> + * adapter is common. If we use locked versions, it will fail as
+> + * the mux adapter will lock the parent i2c adapter, while calling
+> + * select/deselect functions.
+> + */
+> +static int inv_mpu6050_write_reg_unlocked(struct inv_mpu6050_state *st,
+> +					  u8 reg, u8 d)
+> +{
+> +	int ret;
+> +	u8 buf[2];
+> +	struct i2c_msg msg[1] = {
+> +		{
+> +			.addr = st->client->addr,
+> +			.flags = 0,
+> +			.len = sizeof(buf),
+> +			.buf = buf,
+> +		}
+> +	};
+> +
+> +	buf[0] = reg;
+> +	buf[1] = d;
+> +	ret = __i2c_transfer(st->client->adapter, msg, 1);
+> +	if (ret != 1)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +static int inv_mpu6050_select_bypass(struct i2c_adapter *adap, void *mux_priv,
+> +				     u32 chan_id)
+> +{
+> +	struct iio_dev *indio_dev = mux_priv;
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +	int ret = 0;
+> +
+> +	/* Use the same mutex which was used everywhere to protect power-op */
+> +	mutex_lock(&indio_dev->mlock);
+> +	if (!st->powerup_count) {
+> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
+> +						     0);
+> +		if (ret)
+> +			goto write_error;
+> +
+> +		msleep(INV_MPU6050_REG_UP_TIME);
+> +	}
+> +	if (!ret) {
+> +		st->powerup_count++;
+> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
+> +						     st->client->irq |
+> +						     INV_MPU6050_BIT_BYPASS_EN);
+> +	}
+> +write_error:
+> +	mutex_unlock(&indio_dev->mlock);
+> +
+> +	return ret;
+> +}
+> +
+> +static int inv_mpu6050_deselect_bypass(struct i2c_adapter *adap,
+> +				       void *mux_priv, u32 chan_id)
+> +{
+> +	struct iio_dev *indio_dev = mux_priv;
+> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+> +
+> +	mutex_lock(&indio_dev->mlock);
+> +	/* It doesn't really mattter, if any of the calls fails */
+> +	inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
+> +				       st->client->irq);
+> +	st->powerup_count--;
+> +	if (!st->powerup_count)
+> +		inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
+> +					       INV_MPU6050_BIT_SLEEP);
+> +	mutex_unlock(&indio_dev->mlock);
+> +
+> +	return 0;
+> +}
+> +
+>  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>  {
+>  	u8 d, mgmt_1;
+> @@ -133,13 +212,22 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
+>  
+>  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on)
+>  {
+> -	int result;
+> +	int result = 0;
+> +
+> +	if (power_on) {
+> +		/* Already under indio-dev->mlock mutex */
+> +		if (!st->powerup_count)
+> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
+> +						       0);
+> +		if (!result)
+> +			st->powerup_count++;
+> +	} else {
+> +		st->powerup_count--;
+> +		if (!st->powerup_count)
+> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
+> +						       INV_MPU6050_BIT_SLEEP);
+> +	}
+>  
+> -	if (power_on)
+> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1, 0);
+> -	else
+> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
+> -						INV_MPU6050_BIT_SLEEP);
+>  	if (result)
+>  		return result;
+>  
+> @@ -673,6 +761,7 @@ static int inv_mpu_probe(struct i2c_client *client,
+>  
+>  	st = iio_priv(indio_dev);
+>  	st->client = client;
+> +	st->powerup_count = 0;
+>  	pdata = dev_get_platdata(&client->dev);
+>  	if (pdata)
+>  		st->plat_data = *pdata;
+> @@ -720,8 +809,21 @@ static int inv_mpu_probe(struct i2c_client *client,
+>  		goto out_remove_trigger;
+>  	}
+>  
+> +	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
+> +					      &client->dev,
+> +					      indio_dev,
+> +					      0, 0, 0,
+> +					      inv_mpu6050_select_bypass,
+> +					      inv_mpu6050_deselect_bypass);
+> +	if (!st->mux_adapter) {
+> +		result = -ENODEV;
+> +		goto out_unreg_device;
+> +	}
+> +
+>  	return 0;
+>  
+> +out_unreg_device:
+> +	iio_device_unregister(indio_dev);
+>  out_remove_trigger:
+>  	inv_mpu6050_remove_trigger(st);
+>  out_unreg_ring:
+> @@ -734,6 +836,7 @@ static int inv_mpu_remove(struct i2c_client *client)
+>  	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>  
+> +	i2c_del_mux_adapter(st->mux_adapter);
+>  	iio_device_unregister(indio_dev);
+>  	inv_mpu6050_remove_trigger(st);
+>  	iio_triggered_buffer_cleanup(indio_dev);
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> index e779931..aa837de 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> @@ -54,6 +54,7 @@ struct inv_mpu6050_reg_map {
+>  	u8 int_enable;
+>  	u8 pwr_mgmt_1;
+>  	u8 pwr_mgmt_2;
+> +	u8 int_pin_cfg;
+>  };
+>  
+>  /*device enum */
+> @@ -119,6 +120,8 @@ struct inv_mpu6050_state {
+>  	enum   inv_devices chip_type;
+>  	spinlock_t time_stamp_lock;
+>  	struct i2c_client *client;
+> +	struct i2c_adapter *mux_adapter;
+> +	unsigned int powerup_count;
+>  	struct inv_mpu6050_platform_data plat_data;
+>  	DECLARE_KFIFO(timestamps, long long, TIMESTAMP_FIFO_SIZE);
+>  };
+> @@ -179,6 +182,9 @@ struct inv_mpu6050_state {
+>  /* 6 + 6 round up and plus 8 */
+>  #define INV_MPU6050_OUTPUT_DATA_SIZE         24
+>  
+> +#define INV_MPU6050_REG_INT_PIN_CFG	0x37
+> +#define INV_MPU6050_BIT_BYPASS_EN	0x2
+> +
+>  /* init parameters */
+>  #define INV_MPU6050_INIT_FIFO_RATE           50
+>  #define INV_MPU6050_TIME_STAMP_TOR           5
+> 
