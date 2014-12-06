@@ -1,44 +1,35 @@
-From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v3] iio: imu: inv_mpu6050: Add i2c mux for by pass
-Date: Fri,  5 Dec 2014 14:52:08 -0800
-Message-ID: <1417819929-27730-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V3 0/2] i2c-designware: Baytrail bus locking driver
+Date: Sat, 06 Dec 2014 12:51:24 +0900
+Message-ID: <54827D3C.3080401@pobox.com>
+References: <1411497626-7984-1-git-send-email-david.e.box@linux.intel.com> <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1417478973-25522-1-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-v3
-As suggested by Wolfram, removed
-inv_mpu6050_create_mux and inv_mpu6050_destroy_mux
-and moved the contents to their caller.
+On 14/12/02 9:09, David E. Box wrote:
+> Select Intel Baytrail platforms support PMIC's whose i2c bus may be controlled
+> exclusively by platform hardware. This patch set adds support for i2c bus
+> locking to the designware core and provides a driver module for managing
+> the lock on these platforms. Since the lock on these systems isn't enumerable
+> outside of the i2c platform driver, the locking functions are assigned at
+> compile time.
 
-v2
-Addressed comments from Wolfram
-- Added reference of discussion for adding this mode to commit message
- to explain the purpose
-- Removed static mux variable
-- Removed exported interface to add i2c client on the i2c mux
-comments by Hartmut
-- Unregister iio device if there is a failure
+Have you ever look into the hwspinlock framework?  It seems to me that
+such an exclusive operation between CPUs and external hardware blocks
+is exactly what hwspinlock is for.  Further more hwspinlock takes care
+of exclusiveness between SMP cores.
 
-Removed ak8975 change from series still this patch is accepted.
+Ideally I would expect i2c-designware to have hwspinlock lock/unlock
+API calls on one I2C transaction, but it's not necessarily the case.
+Introducing such platform hooks (acquire_lock and release_lock) and
+keeping actual exclusive operataion outside the driver might be good
+for various usecases/platforms.
 
-v1
-Some minor formatting fix mostly suggested by Hartmut
-fail probe if mux create fails
-function parameter type matching i2c struct
-
-v0
-base version
-
-Srinivas Pandruvada (1):
-  iio: imu: inv_mpu6050: Add i2c mux for by pass
-
- drivers/iio/imu/inv_mpu6050/Kconfig        |   1 +
- drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 115 +++++++++++++++++++++++++++--
- drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |   6 ++
- 3 files changed, 116 insertions(+), 6 deletions(-)
-
--- 
-1.9.3
+   Shinya
