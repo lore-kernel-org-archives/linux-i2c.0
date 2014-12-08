@@ -1,255 +1,193 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3] iio: imu: inv_mpu6050: Add i2c mux for by pass
-Date: Sat, 06 Dec 2014 11:01:28 +0000
-Message-ID: <5482E208.6030905@kernel.org>
-References: <1417819929-27730-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1417819929-27730-2-git-send-email-srinivas.pandruvada@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1417819929-27730-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v3] i2c: rk3x: fix bug that cause measured high_ns doesn't meet I2C spec
+Date: Mon,  8 Dec 2014 10:59:49 +0800
+Message-ID: <1418007589-3688-1-git-send-email-addy.ke@rock-chips.com>
+References: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1415261514-4051-1-git-send-email-addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/12/14 22:52, Srinivas Pandruvada wrote:
-> This chip allows some limited number of sensors connected to it as
-> slaves, which can be directly accessed by register interface of this
-> driver.But the current upstream driver doesn't support such mode.
-> To attach such slaves to main processor i2c bus, chip has to be set
-> up in bypass mode. This change adds i2c mux, which will enable/disable
-> this mode for transaction to/from such slave devices.
-> This was discussed for a while in mailing list, this was the outcome:
-> Reference:
-> http://www.spinics.net/lists/linux-iio/msg12126.html
-> http://comments.gmane.org/gmane.linux.kernel.iio/11470
-> 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Reviewed-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Applied to the togreg branch of IIO.git
+high_ns calculated from the low division of CLKDIV register is the sum
+of actual measured high_ns and rise_ns. The rise time which related to
+external pull-up resistor can be up to the maximum rise time in I2C spec.
 
-Thanks,
+In my test, if external pull-up resistor is 4.7K, rise_ns is about
+700ns. So the actual measured high_ns is about 3900ns, which is less
+than 4000ns(the minimum high_ns in I2C spec).
 
-> 
-> ---
->  drivers/iio/imu/inv_mpu6050/Kconfig        |   1 +
->  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 115 +++++++++++++++++++++++++++--
->  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |   6 ++
->  3 files changed, 116 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/iio/imu/inv_mpu6050/Kconfig b/drivers/iio/imu/inv_mpu6050/Kconfig
-> index 2d0608b..48fbc0b 100644
-> --- a/drivers/iio/imu/inv_mpu6050/Kconfig
-> +++ b/drivers/iio/imu/inv_mpu6050/Kconfig
-> @@ -7,6 +7,7 @@ config INV_MPU6050_IIO
->  	depends on I2C && SYSFS
->  	select IIO_BUFFER
->  	select IIO_TRIGGERED_BUFFER
-> +	select I2C_MUX
->  	help
->  	  This driver supports the Invensense MPU6050 devices.
->  	  This driver can also support MPU6500 in MPU6050 compatibility mode
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> index b75519d..6d2c115 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-> @@ -23,6 +23,7 @@
->  #include <linux/kfifo.h>
->  #include <linux/spinlock.h>
->  #include <linux/iio/iio.h>
-> +#include <linux/i2c-mux.h>
->  #include "inv_mpu_iio.h"
->  
->  /*
-> @@ -52,6 +53,7 @@ static const struct inv_mpu6050_reg_map reg_set_6050 = {
->  	.int_enable             = INV_MPU6050_REG_INT_ENABLE,
->  	.pwr_mgmt_1             = INV_MPU6050_REG_PWR_MGMT_1,
->  	.pwr_mgmt_2             = INV_MPU6050_REG_PWR_MGMT_2,
-> +	.int_pin_cfg		= INV_MPU6050_REG_INT_PIN_CFG,
->  };
->  
->  static const struct inv_mpu6050_chip_config chip_config_6050 = {
-> @@ -77,6 +79,83 @@ int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 d)
->  	return i2c_smbus_write_i2c_block_data(st->client, reg, 1, &d);
->  }
->  
-> +/*
-> + * The i2c read/write needs to happen in unlocked mode. As the parent
-> + * adapter is common. If we use locked versions, it will fail as
-> + * the mux adapter will lock the parent i2c adapter, while calling
-> + * select/deselect functions.
-> + */
-> +static int inv_mpu6050_write_reg_unlocked(struct inv_mpu6050_state *st,
-> +					  u8 reg, u8 d)
-> +{
-> +	int ret;
-> +	u8 buf[2];
-> +	struct i2c_msg msg[1] = {
-> +		{
-> +			.addr = st->client->addr,
-> +			.flags = 0,
-> +			.len = sizeof(buf),
-> +			.buf = buf,
-> +		}
-> +	};
-> +
-> +	buf[0] = reg;
-> +	buf[1] = d;
-> +	ret = __i2c_transfer(st->client->adapter, msg, 1);
-> +	if (ret != 1)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +
-> +static int inv_mpu6050_select_bypass(struct i2c_adapter *adap, void *mux_priv,
-> +				     u32 chan_id)
-> +{
-> +	struct iio_dev *indio_dev = mux_priv;
-> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
-> +	int ret = 0;
-> +
-> +	/* Use the same mutex which was used everywhere to protect power-op */
-> +	mutex_lock(&indio_dev->mlock);
-> +	if (!st->powerup_count) {
-> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
-> +						     0);
-> +		if (ret)
-> +			goto write_error;
-> +
-> +		msleep(INV_MPU6050_REG_UP_TIME);
-> +	}
-> +	if (!ret) {
-> +		st->powerup_count++;
-> +		ret = inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
-> +						     st->client->irq |
-> +						     INV_MPU6050_BIT_BYPASS_EN);
-> +	}
-> +write_error:
-> +	mutex_unlock(&indio_dev->mlock);
-> +
-> +	return ret;
-> +}
-> +
-> +static int inv_mpu6050_deselect_bypass(struct i2c_adapter *adap,
-> +				       void *mux_priv, u32 chan_id)
-> +{
-> +	struct iio_dev *indio_dev = mux_priv;
-> +	struct inv_mpu6050_state *st = iio_priv(indio_dev);
-> +
-> +	mutex_lock(&indio_dev->mlock);
-> +	/* It doesn't really mattter, if any of the calls fails */
-> +	inv_mpu6050_write_reg_unlocked(st, st->reg->int_pin_cfg,
-> +				       st->client->irq);
-> +	st->powerup_count--;
-> +	if (!st->powerup_count)
-> +		inv_mpu6050_write_reg_unlocked(st, st->reg->pwr_mgmt_1,
-> +					       INV_MPU6050_BIT_SLEEP);
-> +	mutex_unlock(&indio_dev->mlock);
-> +
-> +	return 0;
-> +}
-> +
->  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->  {
->  	u8 d, mgmt_1;
-> @@ -133,13 +212,22 @@ int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask)
->  
->  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on)
->  {
-> -	int result;
-> +	int result = 0;
-> +
-> +	if (power_on) {
-> +		/* Already under indio-dev->mlock mutex */
-> +		if (!st->powerup_count)
-> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
-> +						       0);
-> +		if (!result)
-> +			st->powerup_count++;
-> +	} else {
-> +		st->powerup_count--;
-> +		if (!st->powerup_count)
-> +			result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
-> +						       INV_MPU6050_BIT_SLEEP);
-> +	}
->  
-> -	if (power_on)
-> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1, 0);
-> -	else
-> -		result = inv_mpu6050_write_reg(st, st->reg->pwr_mgmt_1,
-> -						INV_MPU6050_BIT_SLEEP);
->  	if (result)
->  		return result;
->  
-> @@ -673,6 +761,7 @@ static int inv_mpu_probe(struct i2c_client *client,
->  
->  	st = iio_priv(indio_dev);
->  	st->client = client;
-> +	st->powerup_count = 0;
->  	pdata = dev_get_platdata(&client->dev);
->  	if (pdata)
->  		st->plat_data = *pdata;
-> @@ -720,8 +809,21 @@ static int inv_mpu_probe(struct i2c_client *client,
->  		goto out_remove_trigger;
->  	}
->  
-> +	st->mux_adapter = i2c_add_mux_adapter(client->adapter,
-> +					      &client->dev,
-> +					      indio_dev,
-> +					      0, 0, 0,
-> +					      inv_mpu6050_select_bypass,
-> +					      inv_mpu6050_deselect_bypass);
-> +	if (!st->mux_adapter) {
-> +		result = -ENODEV;
-> +		goto out_unreg_device;
-> +	}
-> +
->  	return 0;
->  
-> +out_unreg_device:
-> +	iio_device_unregister(indio_dev);
->  out_remove_trigger:
->  	inv_mpu6050_remove_trigger(st);
->  out_unreg_ring:
-> @@ -734,6 +836,7 @@ static int inv_mpu_remove(struct i2c_client *client)
->  	struct iio_dev *indio_dev = i2c_get_clientdata(client);
->  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
->  
-> +	i2c_del_mux_adapter(st->mux_adapter);
->  	iio_device_unregister(indio_dev);
->  	inv_mpu6050_remove_trigger(st);
->  	iio_triggered_buffer_cleanup(indio_dev);
-> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> index e779931..aa837de 100644
-> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-> @@ -54,6 +54,7 @@ struct inv_mpu6050_reg_map {
->  	u8 int_enable;
->  	u8 pwr_mgmt_1;
->  	u8 pwr_mgmt_2;
-> +	u8 int_pin_cfg;
->  };
->  
->  /*device enum */
-> @@ -119,6 +120,8 @@ struct inv_mpu6050_state {
->  	enum   inv_devices chip_type;
->  	spinlock_t time_stamp_lock;
->  	struct i2c_client *client;
-> +	struct i2c_adapter *mux_adapter;
-> +	unsigned int powerup_count;
->  	struct inv_mpu6050_platform_data plat_data;
->  	DECLARE_KFIFO(timestamps, long long, TIMESTAMP_FIFO_SIZE);
->  };
-> @@ -179,6 +182,9 @@ struct inv_mpu6050_state {
->  /* 6 + 6 round up and plus 8 */
->  #define INV_MPU6050_OUTPUT_DATA_SIZE         24
->  
-> +#define INV_MPU6050_REG_INT_PIN_CFG	0x37
-> +#define INV_MPU6050_BIT_BYPASS_EN	0x2
-> +
->  /* init parameters */
->  #define INV_MPU6050_INIT_FIFO_RATE           50
->  #define INV_MPU6050_TIME_STAMP_TOR           5
-> 
+To fix this bug, min_low_ns should include fall time and min_high_ns
+should include rise time too.
+
+This patch merged the patch that Doug submitted to chromium, which
+can get the rise and fall times for signals from the device tree.
+This allows us to more accurately calculate timings. see:
+https://chromium-review.googlesource.com/#/c/232774/
+
+Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+---
+Changes in v2:
+- merged the patch that Doug submitted to chromium
+Changes in v3:
+- merged the patch that Doug submitted to chromium to change bindins
+  see: https://chromium-review.googlesource.com/#/c/232775/
+
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 11 +++++
+ drivers/i2c/busses/i2c-rk3x.c                      | 57 +++++++++++++++-------
+ 2 files changed, 50 insertions(+), 18 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+index dde6c22..925d6eb 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+@@ -21,6 +21,14 @@ Required on RK3066, RK3188 :
+ Optional properties :
+ 
+  - clock-frequency : SCL frequency to use (in Hz). If omitted, 100kHz is used.
++ - i2c-scl-rising-time-ns : Number of nanoseconds the signal takes to rise
++	(t(r) in i2c spec). If not specified this is assumed to be the max the
++	spec allows(1000 ns for standard mode, 300 ns for fast mode) which
++	might cause slightly slower communication.
++ - i2c-scl-falling-time-ns : Number of nanoseconds the signal takes to fall
++	(t(f) in the i2c0 spec).  If not specified this is assumed to be the
++	max the spec allows (300 ns) which might cause slightly slower
++	communication.
+ 
+ Example:
+ 
+@@ -39,4 +47,7 @@ i2c0: i2c@2002d000 {
+ 
+ 	clock-names = "i2c";
+ 	clocks = <&cru PCLK_I2C0>;
++
++	i2c-scl-rising-time-ns = <800>;
++	i2c-scl-falling-time-ns = <100>;
+ };
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 0ee5802..50c1678 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -102,6 +102,8 @@ struct rk3x_i2c {
+ 
+ 	/* Settings */
+ 	unsigned int scl_frequency;
++	unsigned int rise_ns;
++	unsigned int fall_ns;
+ 
+ 	/* Synchronization & notification */
+ 	spinlock_t lock;
+@@ -435,6 +437,8 @@ out:
+  *
+  * @clk_rate: I2C input clock rate
+  * @scl_rate: Desired SCL rate
++ * @rise_ns: How many ns it takes for signals to rise.
++ * @fall_ns: How many ns it takes for signals to fall.
+  * @div_low: Divider output for low
+  * @div_high: Divider output for high
+  *
+@@ -443,11 +447,14 @@ out:
+  * too high, we silently use the highest possible rate.
+  */
+ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
++			      unsigned long rise_ns, unsigned long fall_ns,
+ 			      unsigned long *div_low, unsigned long *div_high)
+ {
++	unsigned long spec_min_low_ns, spec_min_high_ns;
++	unsigned long spec_max_data_hold_ns;
++	unsigned long spec_data_hold_buffer_ns;
++
+ 	unsigned long min_low_ns, min_high_ns;
+-	unsigned long max_data_hold_ns;
+-	unsigned long data_hold_buffer_ns;
+ 	unsigned long max_low_ns, min_total_ns;
+ 
+ 	unsigned long clk_rate_khz, scl_rate_khz;
+@@ -470,28 +477,30 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
+ 
+ 	/*
+ 	 * min_low_ns:  The minimum number of ns we need to hold low
+-	 *		to meet i2c spec
++	 *		to meet i2c spec, should include fall time.
+ 	 * min_high_ns: The minimum number of ns we need to hold high
+-	 *		to meet i2c spec
++	 *		to meet i2c spec, should include rise time.
+ 	 * max_low_ns:  The maximum number of ns we can hold low
+-	 *		to meet i2c spec
++	 *		to meet i2c spec.
+ 	 *
+ 	 * Note: max_low_ns should be (max data hold time * 2 - buffer)
+ 	 *	 This is because the i2c host on Rockchip holds the data line
+ 	 *	 for half the low time.
+ 	 */
+ 	if (scl_rate <= 100000) {
+-		min_low_ns = 4700;
+-		min_high_ns = 4000;
+-		max_data_hold_ns = 3450;
+-		data_hold_buffer_ns = 50;
++		spec_min_low_ns = 4700;
++		spec_min_high_ns = 4000;
++		spec_max_data_hold_ns = 3450;
++		spec_data_hold_buffer_ns = 50;
+ 	} else {
+-		min_low_ns = 1300;
+-		min_high_ns = 600;
+-		max_data_hold_ns = 900;
+-		data_hold_buffer_ns = 50;
++		spec_min_low_ns = 1300;
++		spec_min_high_ns = 600;
++		spec_max_data_hold_ns = 900;
++		spec_data_hold_buffer_ns = 50;
+ 	}
+-	max_low_ns = max_data_hold_ns * 2 - data_hold_buffer_ns;
++	min_low_ns = spec_min_low_ns + fall_ns;
++	min_high_ns = spec_min_high_ns + rise_ns;
++	max_low_ns = spec_max_data_hold_ns * 2 - spec_data_hold_buffer_ns;
+ 	min_total_ns = min_low_ns + min_high_ns;
+ 
+ 	/* Adjust to avoid overflow */
+@@ -588,8 +597,8 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+ 	u64 t_low_ns, t_high_ns;
+ 	int ret;
+ 
+-	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, &div_low,
+-				 &div_high);
++	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->rise_ns,
++				 i2c->fall_ns, &div_low, &div_high);
+ 
+ 	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", i2c->scl_frequency);
+ 
+@@ -633,9 +642,9 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+ 	switch (event) {
+ 	case PRE_RATE_CHANGE:
+ 		if (rk3x_i2c_calc_divs(ndata->new_rate, i2c->scl_frequency,
+-				      &div_low, &div_high) != 0) {
++				       i2c->rise_ns, i2c->fall_ns, &div_low,
++				       &div_high) != 0)
+ 			return NOTIFY_STOP;
+-		}
+ 
+ 		/* scale up */
+ 		if (ndata->new_rate > ndata->old_rate)
+@@ -859,6 +868,18 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+ 		i2c->scl_frequency = DEFAULT_SCL_RATE;
+ 	}
+ 
++	/* Read rise and fall ns; if not there use the default max from spec */
++	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-rising-time-ns",
++				 &i2c->rise_ns)) {
++		if (i2c->scl_frequency <= 100000)
++			i2c->rise_ns = 1000;
++		else
++			i2c->rise_ns = 300;
++	}
++	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-falling-time-ns",
++				 &i2c->fall_ns))
++		i2c->fall_ns = 300;
++
+ 	strlcpy(i2c->adap.name, "rk3x-i2c", sizeof(i2c->adap.name));
+ 	i2c->adap.owner = THIS_MODULE;
+ 	i2c->adap.algo = &rk3x_i2c_algorithm;
+-- 
+1.8.3.2
