@@ -1,191 +1,87 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: rk3x: fix bug that cause measured high_ns doesn't
- meet I2C spec
-Date: Mon, 8 Dec 2014 09:13:05 -0800
-Message-ID: <CAD=FV=V=PDPiDhDmd+j8ePsF43EvuFP-LxKgMKo7ZRBzSMyOJA@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3] i2c: rk3x: fix bug that cause measured high_ns
+ doesn't meet I2C spec
+Date: Mon, 8 Dec 2014 18:34:32 +0100
+Message-ID: <20141208173432.GA5732@katana>
 References: <1415261514-4051-1-git-send-email-addy.ke@rock-chips.com>
-	<1418007589-3688-1-git-send-email-addy.ke@rock-chips.com>
-	<20141208085202.GA13486@pengutronix.de>
+ <1418007589-3688-1-git-send-email-addy.ke@rock-chips.com>
+ <20141208085202.GA13486@pengutronix.de>
+ <CAD=FV=V=PDPiDhDmd+j8ePsF43EvuFP-LxKgMKo7ZRBzSMyOJA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141208085202.GA13486-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAD=FV=V=PDPiDhDmd+j8ePsF43EvuFP-LxKgMKo7ZRBzSMyOJA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?UTF-8?B?5aea5pm65oOF?= <yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kever Yang <kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, caesar <caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Han Jiang <hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Shunqian Zheng <zhengsq@rock-chips.c>
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Heiko =?utf-8?Q?St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, =?utf-8?B?5aea5pm65oOF?= <yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Chris <zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kever Yang <kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Jianqun Xu <xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, caesar <caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Eddie Cai <cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Han Jiang <hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-On Mon, Dec 8, 2014 at 12:52 AM, Uwe Kleine-K=C3=B6nig
-<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> Hello Addy,
->
-> On Mon, Dec 08, 2014 at 10:59:49AM +0800, Addy Ke wrote:
->> high_ns calculated from the low division of CLKDIV register is the s=
-um
->> of actual measured high_ns and rise_ns. The rise time which related =
-to
-> I think "actual measured" is misleading here. (The driver doesn't
-> dermine these parameters automatically, right?)
->
-> Maybe something like the following is more correct and understandable=
-?:
->
->         The number of clock cycles to be written into the XYZ registe=
-r
->         that determines the i2c clk high phase includes the rise time=
-=2E
->         So to meet the timing requirements defined in the i2c
->         specification which defines the minimal time SCL has to be hi=
-gh,
->         the rise time has to taken into account. The same applies to =
-the
->         low phase with falling time.
-
-I agree that the prose of the commit message could be cleaned up.  I
-don't think English is Addy's primary language.  Your proposals sound
-fine to me, though I would probably replace XYZ by "CLKDIV".  You
-should capitalize I2C here, too.
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
->> external pull-up resistor can be up to the maximum rise time in I2C =
-spec.
->>
->> In my test, if external pull-up resistor is 4.7K, rise_ns is about
-> It would be nice to point out the actual board you used (if it's a
-> publically available machine).
+> > There are different capitalisation of i2c in the patch and the commit l=
+og. I
+> > don't know what Wolfram prefers here, but using the same spelling
+> > everywhere would be nice.
+>=20
+> Can you please point out?  IIRC you should always capitalize I2C in
+> prose (descriptions, comments, documentation, etc).  However when used
+> in places which specific capitalization standards it should be
+> lowercase.  That means file names, directory names, device tree
+> property names, etc should be lower case.
 
-He probably tested on rk3288-pinky, which is not an upstream board yet.
+This is what I prefer, too. However, I am not too strict about it.
+I mean, both are readable.
 
+> >> +     /* Read rise and fall ns; if not there use the default max from =
+spec */
+> >> +     if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-rising-time=
+-ns",
+> >> +                              &i2c->rise_ns)) {
+> >> +             if (i2c->scl_frequency <=3D 100000)
+> >> +                     i2c->rise_ns =3D 1000;
+> >> +             else
+> >> +                     i2c->rise_ns =3D 300;
+> >> +     }
+> >> +     if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-falling-tim=
+e-ns",
+> >> +                              &i2c->fall_ns))
+> >> +             i2c->fall_ns =3D 300;
+> >> +
+> > I don't know if other drivers do the same (I assume they should). If so,
+> > moving this logic into the core would be nice. I guess this can still be
+> > done later.
 
->> 700ns. So the actual measured high_ns is about 3900ns, which is less
->> than 4000ns(the minimum high_ns in I2C spec).
-> s/s(/s (/;
-> s/spec/specification for Standard-mode/
->
-> There are different capitalisation of i2c in the patch and the commit=
- log. I
-> don't know what Wolfram prefers here, but using the same spelling
-> everywhere would be nice.
-
-Can you please point out?  IIRC you should always capitalize I2C in
-prose (descriptions, comments, documentation, etc).  However when used
-in places which specific capitalization standards it should be
-lowercase.  That means file names, directory names, device tree
-property names, etc should be lower case.
-
-I think Addy got it right in most cases and places where it's wrong
-are probably my fault.  I think I missed a few in my patches.  :(
-
-
->> To fix this bug, min_low_ns should include fall time and min_high_ns
->> should include rise time too.
->>
->> This patch merged the patch that Doug submitted to chromium, which
-> Isn't Chromium a web browser? Does it really contain i2c stuff?
-> I bet it's about Chromium OS.
-
-Chromium OS is part of the Chromium project.
+Let's leave that for later. If we do it, we should start with bus speed
+setting first, probably.
 
 
->> +     (t(r) in i2c spec). If not specified this is assumed to be the=
- max the
-> s/spec/specification/; s/max/maximum/
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-This should have been I2C, not i2c (capital).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iQIcBAEBAgAGBQJUheEoAAoJEBQN5MwUoCm2d50P+gLCIO+q+hHdrmpuN+gSsgrW
+ZOA2Pzu/OIxSROcIkaflb189RUpZ0NNBKCF5R4WxeHPYJy38B2S9kMYKSw9HF4Vl
+66cg/x/RQX7Tdd4RH15ItXILN/OvegotwDY/Qmh3zE1+FpnjBGnQmHWzVNcBfPFF
+84/50dwmFUznSDr/8ZkrCgJXe2tmdOWdSleY0lqoq+9pYcCmhtcyHoiUm9RZ19HV
+DOu2fODtH8flhVM7EO6K0QV2+QQmeMInSvw3TMTwFKtdVivXBcGlcFvA9PqnvicD
++srv6WzV22lU6lMEvdOLlzCOC/kzR1uq3Fo0TuMvk6nDwg7x3RevE4+Nauu+iNp8
+c+mc9JHyYmeSUctrLHGQek7AD8i6dsYosXlf0Iq8lyNTVl00kwA76CcbWU/+hVqY
+c7fu8M96E/jKloduJX8W1vxTdJZGOfU1j3adC19I/TU4UGTvEPleQcEHOe5hxWgK
+ThN8YXAyE/6dKgYC5Kj2uXpHZK+KXf/xfi1S4ZumhPGtHxnoLDPbBKRGbZ2u0B6T
+Ok/I918QoGy4NcxXLQI+4zGxxwSJ1EEIK9+dg4VFTmtao2sjoh9zHEwKprujrBXf
+tZdFkFYhI6LBJAszLlNttOxBZez53dmj7ykRsqEY/Wia9xJDK6ezRXuKOvsWl0Mp
+2s8PGFp05PsHCRhAZiZ/
+=F7XD
+-----END PGP SIGNATURE-----
 
->> +     might cause slightly slower communication.
->> + - i2c-scl-falling-time-ns : Number of nanoseconds the signal takes=
- to fall
->> +     (t(f) in the i2c0 spec).  If not specified this is assumed to =
-be the
-> s/i2c0/i2c/
-
-Same here: I2C.
-
-
->>        * min_low_ns:  The minimum number of ns we need to hold low
->> -      *              to meet i2c spec
->> +      *              to meet i2c spec, should include fall time.
->>        * min_high_ns: The minimum number of ns we need to hold high
->> -      *              to meet i2c spec
->> +      *              to meet i2c spec, should include rise time.
->>        * max_low_ns:  The maximum number of ns we can hold low
->> -      *              to meet i2c spec
->> +      *              to meet i2c spec.
-
-=2E..and those should be I2C.
-
-
->>        *
->>        * Note: max_low_ns should be (max data hold time * 2 - buffer=
-)
->>        *       This is because the i2c host on Rockchip holds the da=
-ta line
->>        *       for half the low time.
->>        */
->>       if (scl_rate <=3D 100000) {
->                 /* Standard-mode */
->> -             min_low_ns =3D 4700;
->> -             min_high_ns =3D 4000;
->> -             max_data_hold_ns =3D 3450;
->> -             data_hold_buffer_ns =3D 50;
->> +             spec_min_low_ns =3D 4700;
->> +             spec_min_high_ns =3D 4000;
->> +             spec_max_data_hold_ns =3D 3450;
-> The specification calls this "data valid time" (t_(VD;DAT)).
-
-Could change this if need be, but the old code had it as "data hold".
-Maybe we could argue about it in a future patch?
-
-
->> +             spec_data_hold_buffer_ns =3D 50;
-> I didn't find this parameter in the spec, also it doesn't differ for
-> Standard-mode vs. Fast-mode. What is this?
-
-I believe I put it in an earlier bit of sample code when Addy was
-worried about things being too close to the margins.  I'm not sure
-what specifically Addy was worried about.  Maybe this should actually
-be the falling time for data?
-
-Again, this is not something new so perhaps we could debate in a future=
- patch?
-
-
->> +     /* Read rise and fall ns; if not there use the default max fro=
-m spec */
->> +     if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-rising-ti=
-me-ns",
->> +                              &i2c->rise_ns)) {
->> +             if (i2c->scl_frequency <=3D 100000)
->> +                     i2c->rise_ns =3D 1000;
->> +             else
->> +                     i2c->rise_ns =3D 300;
->> +     }
->> +     if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-falling-t=
-ime-ns",
->> +                              &i2c->fall_ns))
->> +             i2c->fall_ns =3D 300;
->> +
-> I don't know if other drivers do the same (I assume they should). If =
-so,
-> moving this logic into the core would be nice. I guess this can still=
- be
-> done later.
->
-> The i2c specification also has a minimum for t(r) and t(f). I don't k=
-now
-> why these are limited, but I think it would be good to check for thes=
-e
-> limits, too.
-
-One of these two properties is in another driver (the Designware one).
-However, different hardware seems to take in different parameters for
-I2C.  It seems like for now the best thing to do is to keep drivers
-consistent.  If we notice a pattern then stuff should move to the
-core.
-
--Doug
+--bg08WKrSYDhXBjb5--
