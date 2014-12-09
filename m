@@ -1,59 +1,59 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
-Date: Tue, 9 Dec 2014 11:53:45 +0100
-Message-ID: <CAMuHMdW7Y_OXWySwxDch82gcGv0fyFPQAxXwSFKQz-QbDN4cPQ@mail.gmail.com>
-References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
-	<1415355104-2031-3-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart support
+Date: Tue,  9 Dec 2014 12:22:45 +0100
+Message-ID: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1415355104-2031-3-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>
+Cc: Support Opensource <support.opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+	Hi Wim, Wolfram, Simon, Magnus,
 
-On Fri, Nov 7, 2014 at 11:11 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -727,6 +886,21 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
->         if (ret)
->                 return ret;
->
-> +       /* Init DMA */
-> +       sg_init_table(&pd->sg, 1);
-> +       pd->dma_direction = DMA_NONE;
-> +       ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
-> +                                            res->start + ICDR, &pd->dma_rx);
-> +       if (ret == -EPROBE_DEFER)
-> +               return ret;
-> +
-> +       ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
-> +                                            res->start + ICDR, &pd->dma_tx);
-> +       if (ret == -EPROBE_DEFER) {
-> +               sh_mobile_i2c_release_dma(pd);
-> +               return ret;
-> +       }
-> +
+This patch series add restart support for r8a7791/koelsch through the watchdog
+in the DA9063 PMIC. Restart can be triggered in two ways:
+  1. Timeout of the watchdog timer,
+  2. Manual system restart, shutting down the DA9063.
 
-If the DTS contains "dma" and "dma-names" properties, but CONFIG_RCAR_DMAC
-is disabled, sh_mobile_i2c_request_dma_chan() returns -EPROBE_DEFER,
-and the driver fails to initialize.
+Dependencies:
+  - There are no strict merge order dependencies,
+  - While manual restart depends on patch 1, patches 3 and 4 can be merged
+    now, as restart on watchdog timeout works without patch 1.
 
-If I remove the "dma" and "dma-names" properties, the driver does fall back
-to PIO mode.
+Patches:
+  - Patch 1 is intended for the watchdog tree (based on watchdog/next),
+  - Patch 2 is intended for the i2c tree (based on i2c/next),
+  - Patches 3 and 4 are intended for the shmobile tree (based on
+    renesas-devel-20141209-v3.18).
 
-I think this is a regression.
+This was tested on r8a7791/koelsch.
+I expect this restart method to be usable on r8a7791/lager and r8a7794/alt,
+too.
+
+Thanks!
+
+Geert Uytterhoeven (4):
+  watchdog: da9063: Add restart handler support
+  DT: i2c: Add devices handled by the da9063 MFD driver
+  ARM: shmobile: koelsch: Add DA9063 PMIC device node for system restart
+  ARM: shmobile: Enable DA9063 watchdog in multiplatform defconfig
+
+ .../devicetree/bindings/i2c/trivial-devices.txt    |  1 +
+ arch/arm/boot/dts/r8a7791-koelsch.dts              |  7 +++++
+ arch/arm/configs/shmobile_defconfig                |  3 ++
+ drivers/watchdog/da9063_wdt.c                      | 32 +++++++++++++++++++++-
+ 4 files changed, 42 insertions(+), 1 deletion(-)
+
+-- 
+1.9.1
 
 Gr{oetje,eeting}s,
 
-                        Geert
+						Geert
 
 --
 Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
 In personal conversations with technical people, I call myself a hacker. But
 when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+							    -- Linus Torvalds
