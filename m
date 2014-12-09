@@ -1,43 +1,34 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH 1/4] watchdog: da9063: Add restart handler support
-Date: Tue, 9 Dec 2014 08:22:22 -0800
-Message-ID: <20141209162222.GA19663@roeck-us.net>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
- <1418124169-7123-2-git-send-email-geert+renesas@glider.be>
- <6ED8E3B22081A4459DAC7699F3695FB7D0B4C115@SW-EX-MBX02.diasemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7D0B4C115-68WUHU125fLzLL1Oxlh9IgLouzNaz+3S@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Opensource [Steve Twiss]" <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Cc: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [RFC] Documentation: i2c: add fault code for not supporting 10 bit addresses
+Date: Tue,  9 Dec 2014 18:48:50 +0100
+Message-ID: <1418147330-5999-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 09, 2014 at 12:37:15PM +0000, Opensource [Steve Twiss] wrote:
-> On 09 December 2014 11:23 Geert Uytterhoeven wrote:
-> 
-[ ... ]
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-> > +	ret = register_restart_handler(&wdt->restart_handler);
-> > +	if (ret)
-> > +		dev_err(wdt->da9063->dev,
-> > +			"Failed to register restart handler (err = %d)\n", ret);
-> 
->  (I guess this is intentional).. if the restart handler doesn't get registered then
-> this problem is just ignored and not counted as a real error.
-> 
-This makes sense, since one doesn't want the watchdog driver to fail
-loading just because the restart handler failed to register.
-One option might be to make the message dev_warn instead of dev_err,
-but that is really a nitpick.
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+---
+ Documentation/i2c/fault-codes | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-
-Thanks,
-Guenter
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/i2c/fault-codes b/Documentation/i2c/fault-codes
+index 47c25abb7d52..008db43d28a9 100644
+--- a/Documentation/i2c/fault-codes
++++ b/Documentation/i2c/fault-codes
+@@ -35,6 +35,10 @@ Also, codes returned by adapter probe methods follow rules which are
+ specific to their host bus (such as PCI, or the platform bus).
+ 
+ 
++EAFNOSUPPORT
++	Returned by I2C adapters not supporting 10 bit addresses when
++	they are requested to use such an address.
++
+ EAGAIN
+ 	Returned by I2C adapters when they lose arbitration in master
+ 	transmit mode:  some other master was transmitting different
+-- 
+2.1.3
