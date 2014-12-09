@@ -1,43 +1,49 @@
-From: "Opensource [Steve Twiss]" <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH 2/4] DT: i2c: Add devices handled by the da9063 MFD
- driver
-Date: Tue, 9 Dec 2014 12:40:16 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7D0B4C12B@SW-EX-MBX02.diasemi.com>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
- <1418124169-7123-3-git-send-email-geert+renesas@glider.be>
+From: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [v3] i2c: Driver to expose PowerNV platform i2c busses
+Date: Tue, 09 Dec 2014 18:48:40 +0530
+Message-ID: <5486F6B0.4030302@linux.vnet.ibm.com>
+References: <20141209094503.100F81400DE@ozlabs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1418124169-7123-3-git-send-email-geert+renesas@glider.be>
-Content-Language: en-US
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>
-Cc: Support Opensource <Support.Opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141209094503.100F81400DE-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDkgRGVjZW1iZXIgMjAxNCAxMToyMywgR2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlIA0KDQo+
-IFN1YmplY3Q6IFtQQVRDSCAyLzRdIERUOiBpMmM6IEFkZCBkZXZpY2VzIGhhbmRsZWQgYnkgdGhl
-IGRhOTA2MyBNRkQgZHJpdmVyDQo+IA0KPiBUaGlzIGFsbG93cyBjaGVja3BhdGNoIHRvIHZhbGlk
-YXRlIG1vcmUgRFRTZXMuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBHZWVydCBVeXR0ZXJob2V2ZW4g
-PGdlZXJ0K3JlbmVzYXNAZ2xpZGVyLmJlPg0KPiBDYzogZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5v
-cmcNCj4gLS0tDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL3RyaXZp
-YWwtZGV2aWNlcy50eHQgfCAxICsNCj4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQ0K
-PiANCj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMv
-dHJpdmlhbC1kZXZpY2VzLnR4dA0KPiBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5n
-cy9pMmMvdHJpdmlhbC1kZXZpY2VzLnR4dA0KPiBpbmRleCBlMGJlZWY0ZjhjZmY1Y2RmLi4zYmM0
-ZWEzYzVjNDg0MmZmIDEwMDY0NA0KPiAtLS0gYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmlu
-ZGluZ3MvaTJjL3RyaXZpYWwtZGV2aWNlcy50eHQNCj4gKysrIGIvRG9jdW1lbnRhdGlvbi9kZXZp
-Y2V0cmVlL2JpbmRpbmdzL2kyYy90cml2aWFsLWRldmljZXMudHh0DQo+IEBAIC00Nyw2ICs0Nyw3
-IEBAIGRhbGxhcyxkczMyMzIJCUV4dHJlbWVseSBBY2N1cmF0ZSBJwrJDIFJUQw0KPiB3aXRoIElu
-dGVncmF0ZWQgQ3J5c3RhbCBhbmQgU1JBTQ0KPiAgZGFsbGFzLGRzNDUxMAkJQ1BVIFN1cGVydmlz
-b3Igd2l0aCBOb252b2xhdGlsZSBNZW1vcnkgYW5kDQo+IFByb2dyYW1tYWJsZSBJL08NCj4gIGRh
-bGxhcyxkczc1CQlEaWdpdGFsIFRoZXJtb21ldGVyIGFuZCBUaGVybW9zdGF0DQo+ICBkbGcsZGE5
-MDUzCQlEQTkwNTM6IGZsZXhpYmxlIHN5c3RlbSBsZXZlbCBQTUlDIHdpdGggbXVsdGljb3JlDQo+
-IHN1cHBvcnQNCj4gK2RsZyxkYTkwNjMJCURBOTA2Mzogc3lzdGVtIFBNSUMgZm9yIHF1YWQtY29y
-ZSBhcHBsaWNhdGlvbg0KPiBwcm9jZXNzb3JzDQo+ICBlcHNvbixyeDgwMjUJCUhpZ2gtU3RhYmls
-aXR5LiBJMkMtQnVzIElOVEVSRkFDRSBSRUFMIFRJTUUgQ0xPQ0sNCj4gTU9EVUxFDQo+ICBlcHNv
-bixyeDg1ODEJCUkyQy1CVVMgSU5URVJGQUNFIFJFQUwgVElNRSBDTE9DSyBNT0RVTEUNCj4gIGZz
-bCxtYWczMTEwCQlNQUczMTEwOiBYdHJpbnNpYyBIaWdoIEFjY3VyYWN5LCAzRCBNYWduZXRvbWV0
-ZXINCg0KQWNrZWQtYnk6IFN0ZXZlIFR3aXNzIDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNv
-bT4NCg==
+
+On 12/09/2014 03:15 PM, Michael Ellerman wrote:
+> On Mon, 2014-08-12 at 06:36:16 UTC, Neelesh Gupta wrote:
+>> The patch exposes the available i2c busses on the PowerNV platform
+>> to the kernel and implements the bus driver to support i2c and
+>> smbus commands.
+>> The driver uses the platform device infrastructure to probe the busses
+>> on the platform and registers them with the i2c driver framework.
+>>   arch/powerpc/include/asm/opal.h                    |   29 ++
+>>   arch/powerpc/platforms/powernv/opal-wrappers.S     |    1
+>>   arch/powerpc/platforms/powernv/opal.c              |   11 +
+> This had major conflicts in the above files.
+>
+> I've fixed it up but please check I did it correctly:
+>
+>    https://github.com/mpe/powerpc-merge/commits/pw/neelesh-i2c
+>
+> It also doesn't build as a module:
+>
+>    $ grep CONFIG_I2C_OPAL .config
+>    CONFIG_I2C_OPAL=m
+>    $ make ...
+>    ...
+>    ERROR: "opal_i2c_request" [drivers/i2c/busses/i2c-opal.ko] undefined!
+
+Yeah, this needs to be exported.
+I think for the same reason, "opal-rtc" is still waiting, plus awaiting 
+"ack" from
+maintainers.
+
+- Neelesh
+
+>
+> cheers
+>
