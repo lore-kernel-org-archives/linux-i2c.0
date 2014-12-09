@@ -1,49 +1,90 @@
-From: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [v3] i2c: Driver to expose PowerNV platform i2c busses
-Date: Tue, 09 Dec 2014 18:48:40 +0530
-Message-ID: <5486F6B0.4030302@linux.vnet.ibm.com>
-References: <20141209094503.100F81400DE@ozlabs.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
+Date: Tue, 9 Dec 2014 15:09:18 +0100
+Message-ID: <20141209140917.GA3386@katana>
+References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
+ <1415355104-2031-3-git-send-email-wsa@the-dreams.de>
+ <CAMuHMdW7Y_OXWySwxDch82gcGv0fyFPQAxXwSFKQz-QbDN4cPQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141209094503.100F81400DE-mnsaURCQ41sdnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdW7Y_OXWySwxDch82gcGv0fyFPQAxXwSFKQz-QbDN4cPQ@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
-On 12/09/2014 03:15 PM, Michael Ellerman wrote:
-> On Mon, 2014-08-12 at 06:36:16 UTC, Neelesh Gupta wrote:
->> The patch exposes the available i2c busses on the PowerNV platform
->> to the kernel and implements the bus driver to support i2c and
->> smbus commands.
->> The driver uses the platform device infrastructure to probe the busses
->> on the platform and registers them with the i2c driver framework.
->>   arch/powerpc/include/asm/opal.h                    |   29 ++
->>   arch/powerpc/platforms/powernv/opal-wrappers.S     |    1
->>   arch/powerpc/platforms/powernv/opal.c              |   11 +
-> This had major conflicts in the above files.
->
-> I've fixed it up but please check I did it correctly:
->
->    https://github.com/mpe/powerpc-merge/commits/pw/neelesh-i2c
->
-> It also doesn't build as a module:
->
->    $ grep CONFIG_I2C_OPAL .config
->    CONFIG_I2C_OPAL=m
->    $ make ...
->    ...
->    ERROR: "opal_i2c_request" [drivers/i2c/busses/i2c-opal.ko] undefined!
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yeah, this needs to be exported.
-I think for the same reason, "opal-rtc" is still waiting, plus awaiting 
-"ack" from
-maintainers.
+On Tue, Dec 09, 2014 at 11:53:45AM +0100, Geert Uytterhoeven wrote:
+> Hi Wolfram,
+>=20
+> On Fri, Nov 7, 2014 at 11:11 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> > --- a/drivers/i2c/busses/i2c-sh_mobile.c
+> > +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+> > @@ -727,6 +886,21 @@ static int sh_mobile_i2c_probe(struct platform_dev=
+ice *dev)
+> >         if (ret)
+> >                 return ret;
+> >
+> > +       /* Init DMA */
+> > +       sg_init_table(&pd->sg, 1);
+> > +       pd->dma_direction =3D DMA_NONE;
+> > +       ret =3D sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
+> > +                                            res->start + ICDR, &pd->dm=
+a_rx);
+> > +       if (ret =3D=3D -EPROBE_DEFER)
+> > +               return ret;
+> > +
+> > +       ret =3D sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
+> > +                                            res->start + ICDR, &pd->dm=
+a_tx);
+> > +       if (ret =3D=3D -EPROBE_DEFER) {
+> > +               sh_mobile_i2c_release_dma(pd);
+> > +               return ret;
+> > +       }
+> > +
+>=20
+> If the DTS contains "dma" and "dma-names" properties, but CONFIG_RCAR_DMAC
+> is disabled, sh_mobile_i2c_request_dma_chan() returns -EPROBE_DEFER,
+> and the driver fails to initialize.
+>=20
+> If I remove the "dma" and "dma-names" properties, the driver does fall ba=
+ck
+> to PIO mode.
+>=20
+> I think this is a regression.
 
-- Neelesh
+The only solution I can think of is to not bail out here and retry again
+before every transfer? Doesn't sound elegant, though...
 
->
-> cheers
->
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUhwKNAAoJEBQN5MwUoCm28dwP/0II5XHxsvw9AVQzugSlKeBJ
+01YljEw9bzvDjjey8qvAPtiETMZC/FYKSHuQVuEXRJWwFTaFgB6Q21QI5P/IqPFh
+DkHDkIzgYD7Fba29qhuiHUQB8uvMrWux2ZGnThL6W5b++6jQstVlAY1oz9M7KwCx
+Lc1xuSArRw6UEKDytlaV1avEAmaWboLYHoSho3Noch0AH80dyUATdi+xSdZGfXCB
+VPXKooAZey2U3m7vBUj144yjh2YKsXXZTqvhmFqGQwYXLnw57XUXXpNyvMnvEbcw
+3tlpLrdgmbMYTz8F+fZ3mOfVn9+TtIBrdzLenaFc/mHZKC6kqJwD29VlUThpsrgy
+V13WqKFGGTsHR/tDlno6QWvb3dfKgdm7HXmDJQappRizhxc4Jh3Z2wZThW0r53tb
+rSoRpeHmEwEFHH2R2fffj1LjemkxZCWiY+JpzZ5ID+OLu6+hOZPYBKel4KnREGaK
+YhoZEDp7+oQnvsOfsC0l4nr/sUmaSgjowYiO4j+rKSTvtGwjCdrNxQ0V2bXhQngC
+cP6pvTxfcoGe4wOssmKpsbK9+hGipAm2DrRCnhSq58Dr4LR8ta7dgily/bieKa7d
+B5gQ5tW4YRrhfdjbkVYqcrUU++BZLgmUwsHQJVf/5oH7VIfcHSEzBWhw6OGU4gO/
+z9Mij5IGmBb/IolRUNBl
+=R0l2
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--
