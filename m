@@ -1,58 +1,46 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart support
-Date: Wed, 10 Dec 2014 11:06:25 +0100
-Message-ID: <CAMuHMdWY_1OsjFvT35Lg23ytzPz0MSCmcT7diGk1ughxNnmtVg@mail.gmail.com>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
-	<20141210003352.GH9690@verge.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20141210003352.GH9690@verge.net.au>
-Sender: linux-sh-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Support Opensource <support.opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
+From: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v4 0/2] Cadence I2C driver fixes
+Date: Wed, 10 Dec 2014 17:14:42 +0530
+Message-ID: <1418211884-5329-1-git-send-email-harinik@xilinx.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Simon,
+This series implements workarounds for some bugs in Cadence I2C controller.
 
-On Wed, Dec 10, 2014 at 1:33 AM, Simon Horman <horms@verge.net.au> wrote:
-> On Tue, Dec 09, 2014 at 12:22:45PM +0100, Geert Uytterhoeven wrote:
->> This patch series add restart support for r8a7791/koelsch through the watchdog
->> in the DA9063 PMIC. Restart can be triggered in two ways:
->>   1. Timeout of the watchdog timer,
->>   2. Manual system restart, shutting down the DA9063.
->>
->> Dependencies:
->>   - There are no strict merge order dependencies,
->>   - While manual restart depends on patch 1, patches 3 and 4 can be merged
->>     now, as restart on watchdog timeout works without patch 1.
->>
->> Patches:
->>   - Patch 1 is intended for the watchdog tree (based on watchdog/next),
->>   - Patch 2 is intended for the i2c tree (based on i2c/next),
->>   - Patches 3 and 4 are intended for the shmobile tree (based on
->>     renesas-devel-20141209-v3.18).
->
-> Patches 3 and 4 look like they could be queued up for v3.20 now.
-> Shall I do so?
+- The I2C controller when configured in Master Mode generates invalid read transactions.
+When HOLD bit is set and HW timeout occurs, invalid read transactions are
+generated on the bus. This will affect repeated start conditions and large
+data transfer condtions where transfer_size_register has to be updated again.
+The transfer size register rolls over erroneously under these conditions.
+Note that this HW timeout cannot be disabled even if the interrupt is unused.
+Errata link: http://www.xilinx.com/support/answers/61664.html
 
-Please do so.
+-The I2C controller when configured in Master Mode is the missing master completion interrupt.
+During repeated start condition, the driver has to set the HOLD bit for
+the set of transfer being done together and clear the HOLD bit just before
+the last transfer. But the controller does not indicate completion when
+a read/receive transfer is done if the HOLD bit is set. This affects
+all repeated start operation where a read/receive transfer is not
+the last transfer.
+Errata link: http://www.xilinx.com/support/answers/61665.html
 
-You can easily test restart on watchdog timeout using:
+To address the above,
+- >252 byte transfers are done such that transfer_size never becomes zero.
+- timeout register value is increased (even though the driver doesn't use this).
+- A check is performed to see if there is any transfer following a
+read/receive transfer in the set of messages using repeated start.
+An error is returned in such cases because if we proceed, completion interrupt
+is never obtained and a SW timeout will occur.
 
-$ cat > /dev/watchdog0
+Harini Katakam (2):
+  i2c: cadence: Handle > 252 byte transfers
+  i2c: cadence: Check for errata condition involving master receive
 
-Koelsch should restart 8 seconds after you stop typing.
+ drivers/i2c/busses/i2c-cadence.c |  187 +++++++++++++++++++++++---------------
+ 1 file changed, 114 insertions(+), 73 deletions(-)
 
-Thanks!
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+1.7.9.5
