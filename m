@@ -1,70 +1,39 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart
- support
-Date: Wed, 10 Dec 2014 09:33:52 +0900
-Message-ID: <20141210003352.GH9690@verge.net.au>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH 0/4] Add I2C support to Broadcom iProc
+Date: Tue, 9 Dec 2014 16:54:47 -0800
+Message-ID: <1418172891-19441-1-git-send-email-rjui@broadcom.com>
+References: <Ray Jui <rjui@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Support Opensource <support.opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 09, 2014 at 12:22:45PM +0100, Geert Uytterhoeven wrote:
-> 	Hi Wim, Wolfram, Simon, Magnus,
-> 
-> This patch series add restart support for r8a7791/koelsch through the watchdog
-> in the DA9063 PMIC. Restart can be triggered in two ways:
->   1. Timeout of the watchdog timer,
->   2. Manual system restart, shutting down the DA9063.
-> 
-> Dependencies:
->   - There are no strict merge order dependencies,
->   - While manual restart depends on patch 1, patches 3 and 4 can be merged
->     now, as restart on watchdog timeout works without patch 1.
-> 
-> Patches:
->   - Patch 1 is intended for the watchdog tree (based on watchdog/next),
->   - Patch 2 is intended for the i2c tree (based on i2c/next),
->   - Patches 3 and 4 are intended for the shmobile tree (based on
->     renesas-devel-20141209-v3.18).
+This patchset contains the initial I2C support for Broadcom iProc family of
+SoCs.
 
-Patches 3 and 4 look like they could be queued up for v3.20 now.
-Shall I do so?
+The iProc I2C controller has separate internal TX and RX FIFOs, each has a
+size of 64 bytes. The iProc I2C controller supports two bus speeds including
+standard mode (100 kHz) and fast mode (400 kHz)
 
-> This was tested on r8a7791/koelsch.
-> I expect this restart method to be usable on r8a7791/lager and r8a7794/alt,
-> too.
-> 
-> Thanks!
-> 
-> Geert Uytterhoeven (4):
->   watchdog: da9063: Add restart handler support
->   DT: i2c: Add devices handled by the da9063 MFD driver
->   ARM: shmobile: koelsch: Add DA9063 PMIC device node for system restart
->   ARM: shmobile: Enable DA9063 watchdog in multiplatform defconfig
-> 
->  .../devicetree/bindings/i2c/trivial-devices.txt    |  1 +
->  arch/arm/boot/dts/r8a7791-koelsch.dts              |  7 +++++
->  arch/arm/configs/shmobile_defconfig                |  3 ++
->  drivers/watchdog/da9063_wdt.c                      | 32 +++++++++++++++++++++-
->  4 files changed, 42 insertions(+), 1 deletion(-)
-> 
-> -- 
-> 1.9.1
-> 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
-> 
+Ray Jui (4):
+  i2c: iProc: define Broadcom iProc I2C binding
+  i2c: iproc: Add Broadcom iProc I2C Driver
+  ARM: mach-bcm: Enable I2C support for iProc
+  ARM: dts: add I2C device nodes for Broadcom Cygnus
+
+ .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |   37 ++
+ arch/arm/boot/dts/bcm-cygnus.dtsi                  |   20 +
+ arch/arm/mach-bcm/Kconfig                          |    1 +
+ drivers/i2c/busses/Kconfig                         |    9 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-bcm-iproc.c                 |  503 ++++++++++++++++++++
+ 6 files changed, 571 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+ create mode 100644 drivers/i2c/busses/i2c-bcm-iproc.c
+
+-- 
+1.7.9.5
