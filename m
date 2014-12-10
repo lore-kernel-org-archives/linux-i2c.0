@@ -1,68 +1,41 @@
-From: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH v4 2/2] i2c: cadence: Check for errata condition involving master receive
-Date: Wed, 10 Dec 2014 17:14:44 +0530
-Message-ID: <1418211884-5329-3-git-send-email-harinik@xilinx.com>
-References: <1418211884-5329-1-git-send-email-harinik@xilinx.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1418211884-5329-1-git-send-email-harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
-Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: sh_mobile: remove unneeded DMA mask
+Date: Wed, 10 Dec 2014 14:13:01 +0100
+Message-ID: <1418217181-25647-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Cadence I2C controller has the following bugs:
-- completion indication is not given to the driver at the end of
-a read/receive transfer with HOLD bit set.
-- Invalid read transaction are generated on the bus when HW timeout
-condition occurs with HOLD bit set.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-As a result of the above, if a set of messages to be transferred with
-repeated start includes any transfer following a read transfer,
-completion is never indicated and timeout occurs.
-Hence a check is implemented to return -EOPNOTSUPP for such sequences.
+We don't need the mask since we obtain the channels via DT.
 
-Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
+ drivers/i2c/busses/i2c-sh_mobile.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-v4:
-Use single dev_warn and make message grep-able.
-
-v3:
-Add warning in case of unsupported transfer.
-
-v2:
-Dont defeteature repeated start. Just check for unsupported conditions in the
-driver and return error.
-
----
- drivers/i2c/busses/i2c-cadence.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 5f5d4fa..f9269a6 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -541,6 +541,20 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	 * processed with a repeated start.
- 	 */
- 	if (num > 1) {
-+		/*
-+		 * This controller does not give completion interrupt after a
-+		 * master receive transfer if HOLD bit is set (repeated start),
-+		 * resulting in SW timeout. Hence, if a receive transfer is
-+		 * followed by any other transfer, an error is returned
-+		 * indicating that this sequence is not supported.
-+		 */
-+		for (count = 0; count < num-1; count++) {
-+			if (msgs[count].flags & I2C_M_RD)
-+				dev_warn(adap->dev.parent, "No support for "
-+					 "repeated start when receive is "
-+					 "followed by a transfer\n");
-+				return -EOPNOTSUPP;
-+		}
- 		id->bus_hold_flag = 1;
- 		reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
- 		reg |= CDNS_I2C_CR_HOLD;
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 429778280b6d..b9c8cf2aac2c 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -752,14 +752,11 @@ MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
+ static int sh_mobile_i2c_request_dma_chan(struct device *dev, enum dma_transfer_direction dir,
+ 					  dma_addr_t port_addr, struct dma_chan **chan_ptr)
+ {
+-	dma_cap_mask_t mask;
+ 	struct dma_chan *chan;
+ 	struct dma_slave_config cfg;
+ 	char *chan_name = dir == DMA_MEM_TO_DEV ? "tx" : "rx";
+ 	int ret;
+ 
+-	dma_cap_zero(mask);
+-	dma_cap_set(DMA_SLAVE, mask);
+ 	*chan_ptr = NULL;
+ 
+ 	chan = dma_request_slave_channel_reason(dev, chan_name);
 -- 
-1.7.9.5
+2.1.3
+
