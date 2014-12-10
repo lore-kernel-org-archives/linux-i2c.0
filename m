@@ -1,74 +1,66 @@
-From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v2 3/4] ARM: mach-bcm: Enable I2C support for iProc
-Date: Tue, 9 Dec 2014 19:58:27 -0800
-Message-ID: <5487C4E3.6060403@broadcom.com>
-References: <Ray Jui <rjui@broadcom.com> <1418177893-22094-1-git-send-email-rjui@broadcom.com> <1418177893-22094-4-git-send-email-rjui@broadcom.com> <5487ADE5.4070705@gmail.com> <5487AEF0.5010404@broadcom.com> <5487BBE0.4000701@gmail.com>
+From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
+Date: Wed, 10 Dec 2014 14:44:01 +0900
+Message-ID: <CANqRtoTs52ORCqY43OyPJ2ME7BBcQr3+RVGURjteFQAztDSZjg@mail.gmail.com>
+References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
+	<1415355104-2031-3-git-send-email-wsa@the-dreams.de>
+	<CAMuHMdW7Y_OXWySwxDch82gcGv0fyFPQAxXwSFKQz-QbDN4cPQ@mail.gmail.com>
+	<20141209140917.GA3386@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5487BBE0.4000701-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20141209140917.GA3386@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram, Geert,
 
+On Tue, Dec 9, 2014 at 11:09 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Tue, Dec 09, 2014 at 11:53:45AM +0100, Geert Uytterhoeven wrote:
+>> Hi Wolfram,
+>>
+>> On Fri, Nov 7, 2014 at 11:11 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>> > --- a/drivers/i2c/busses/i2c-sh_mobile.c
+>> > +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+>> > @@ -727,6 +886,21 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+>> >         if (ret)
+>> >                 return ret;
+>> >
+>> > +       /* Init DMA */
+>> > +       sg_init_table(&pd->sg, 1);
+>> > +       pd->dma_direction = DMA_NONE;
+>> > +       ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
+>> > +                                            res->start + ICDR, &pd->dma_rx);
+>> > +       if (ret == -EPROBE_DEFER)
+>> > +               return ret;
+>> > +
+>> > +       ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
+>> > +                                            res->start + ICDR, &pd->dma_tx);
+>> > +       if (ret == -EPROBE_DEFER) {
+>> > +               sh_mobile_i2c_release_dma(pd);
+>> > +               return ret;
+>> > +       }
+>> > +
+>>
+>> If the DTS contains "dma" and "dma-names" properties, but CONFIG_RCAR_DMAC
+>> is disabled, sh_mobile_i2c_request_dma_chan() returns -EPROBE_DEFER,
+>> and the driver fails to initialize.
+>>
+>> If I remove the "dma" and "dma-names" properties, the driver does fall back
+>> to PIO mode.
+>>
+>> I think this is a regression.
+>
+> The only solution I can think of is to not bail out here and retry again
+> before every transfer? Doesn't sound elegant, though...
 
-On 12/9/2014 7:20 PM, Florian Fainelli wrote:
-> On 09/12/14 18:24, Ray Jui wrote:
->>
->>
->> On 12/9/2014 6:20 PM, Florian Fainelli wrote:
->>> On 09/12/14 18:18, Ray Jui wrote:
->>>> Enable I2C driver support for Broadcom iProc family of SoCs by
->>>> selecting I2C_BCM_IPROC
->>>>
->>>> Signed-off-by: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
->>>> Reviewed-by: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
->>>> ---
->>>>    arch/arm/mach-bcm/Kconfig |    1 +
->>>>    1 file changed, 1 insertion(+)
->>>>
->>>> diff --git a/arch/arm/mach-bcm/Kconfig b/arch/arm/mach-bcm/Kconfig
->>>> index aaeec78..86ee90b 100644
->>>> --- a/arch/arm/mach-bcm/Kconfig
->>>> +++ b/arch/arm/mach-bcm/Kconfig
->>>> @@ -19,6 +19,7 @@ config ARCH_BCM_IPROC
->>>>        select ARCH_REQUIRE_GPIOLIB
->>>>        select ARM_AMBA
->>>>        select PINCTRL
->>>> +    select I2C_BCM_IPROC
->>>
->>> One way to avoid having to modify mach-bcm/Kconfig would be to have your
->>> i2c driver Kconfig do this:
->>>
->>> default ARCH_BCM_IPROC
->>>
->>> would that work?
->>>
->> Yes. So in which case it is better to select a driver from the
->> architecture specific Kconfig?
->
-> I suppose if your driver/subsystem is critical for system boot, like
-> powering a regulator or something that has a critical purpose, a select
-> is probably more appropriate here. If this is just exposing non-critical
-> devices, I would go with a depends on/default at the driver Kconfig level.
->
-> This is just how I see things, others would definitively have a
-> different view.
->
-Okay. Thanks. I default the driver to y in patchset v3 just like some 
-other I2C drivers in the same Kconfig. It already depends on 
-ARCH_BCM_IPROC so it makes sense to set the default to y, i.e., it will 
-be enabled by default for ARCH_BCM_IPROC platforms.
+I think we have to request for each and every transfer. And fall back
+to PIO as default in a transparent way. This because the number of DMA
+channels are limited compared to number of potential consumers, so
+request failure may happen at any time.
 
->>
->>>>        help
->>>>          This enables support for systems based on Broadcom IPROC
->>>> architected SoCs.
->>>>          The IPROC complex contains one or more ARM CPUs along with
->>>> common
->>>>
->>>
->
+Thanks,
+
+/ magnus
