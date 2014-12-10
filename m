@@ -1,110 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
-Date: Wed, 10 Dec 2014 09:01:55 +0100
-Message-ID: <20141210080155.GA1148@katana>
-References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
- <1415355104-2031-3-git-send-email-wsa@the-dreams.de>
- <CAMuHMdW7Y_OXWySwxDch82gcGv0fyFPQAxXwSFKQz-QbDN4cPQ@mail.gmail.com>
- <20141209140917.GA3386@katana>
- <CANqRtoTs52ORCqY43OyPJ2ME7BBcQr3+RVGURjteFQAztDSZjg@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart support
+Date: Wed, 10 Dec 2014 11:06:25 +0100
+Message-ID: <CAMuHMdWY_1OsjFvT35Lg23ytzPz0MSCmcT7diGk1ughxNnmtVg@mail.gmail.com>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+	<20141210003352.GH9690@verge.net.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CANqRtoTs52ORCqY43OyPJ2ME7BBcQr3+RVGURjteFQAztDSZjg@mail.gmail.com>
+In-Reply-To: <20141210003352.GH9690@verge.net.au>
 Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Simon Horman <horms@verge.net.au>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Support Opensource <support.opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Simon,
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Dec 10, 2014 at 1:33 AM, Simon Horman <horms@verge.net.au> wrote:
+> On Tue, Dec 09, 2014 at 12:22:45PM +0100, Geert Uytterhoeven wrote:
+>> This patch series add restart support for r8a7791/koelsch through the watchdog
+>> in the DA9063 PMIC. Restart can be triggered in two ways:
+>>   1. Timeout of the watchdog timer,
+>>   2. Manual system restart, shutting down the DA9063.
+>>
+>> Dependencies:
+>>   - There are no strict merge order dependencies,
+>>   - While manual restart depends on patch 1, patches 3 and 4 can be merged
+>>     now, as restart on watchdog timeout works without patch 1.
+>>
+>> Patches:
+>>   - Patch 1 is intended for the watchdog tree (based on watchdog/next),
+>>   - Patch 2 is intended for the i2c tree (based on i2c/next),
+>>   - Patches 3 and 4 are intended for the shmobile tree (based on
+>>     renesas-devel-20141209-v3.18).
+>
+> Patches 3 and 4 look like they could be queued up for v3.20 now.
+> Shall I do so?
 
-On Wed, Dec 10, 2014 at 02:44:01PM +0900, Magnus Damm wrote:
-> Hi Wolfram, Geert,
->=20
-> On Tue, Dec 9, 2014 at 11:09 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > On Tue, Dec 09, 2014 at 11:53:45AM +0100, Geert Uytterhoeven wrote:
-> >> Hi Wolfram,
-> >>
-> >> On Fri, Nov 7, 2014 at 11:11 AM, Wolfram Sang <wsa@the-dreams.de> wrot=
-e:
-> >> > --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> >> > +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> >> > @@ -727,6 +886,21 @@ static int sh_mobile_i2c_probe(struct platform_=
-device *dev)
-> >> >         if (ret)
-> >> >                 return ret;
-> >> >
-> >> > +       /* Init DMA */
-> >> > +       sg_init_table(&pd->sg, 1);
-> >> > +       pd->dma_direction =3D DMA_NONE;
-> >> > +       ret =3D sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_M=
-EM,
-> >> > +                                            res->start + ICDR, &pd-=
->dma_rx);
-> >> > +       if (ret =3D=3D -EPROBE_DEFER)
-> >> > +               return ret;
-> >> > +
-> >> > +       ret =3D sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_D=
-EV,
-> >> > +                                            res->start + ICDR, &pd-=
->dma_tx);
-> >> > +       if (ret =3D=3D -EPROBE_DEFER) {
-> >> > +               sh_mobile_i2c_release_dma(pd);
-> >> > +               return ret;
-> >> > +       }
-> >> > +
-> >>
-> >> If the DTS contains "dma" and "dma-names" properties, but CONFIG_RCAR_=
-DMAC
-> >> is disabled, sh_mobile_i2c_request_dma_chan() returns -EPROBE_DEFER,
-> >> and the driver fails to initialize.
-> >>
-> >> If I remove the "dma" and "dma-names" properties, the driver does fall=
- back
-> >> to PIO mode.
-> >>
-> >> I think this is a regression.
-> >
-> > The only solution I can think of is to not bail out here and retry again
-> > before every transfer? Doesn't sound elegant, though...
->=20
-> I think we have to request for each and every transfer. And fall back
-> to PIO as default in a transparent way. This because the number of DMA
-> channels are limited compared to number of potential consumers, so
-> request failure may happen at any time.
+Please do so.
 
-AFAIR this scenario happens when submitting the transfer. The check
-for this is already in place. Requesting the channel is a different
-matter. Still, I'll cook up a patch and we will see what it looks
-like...
+You can easily test restart on watchdog timeout using:
 
+$ cat > /dev/watchdog0
 
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Koelsch should restart 8 seconds after you stop typing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Thanks!
 
-iQIcBAEBAgAGBQJUh/3zAAoJEBQN5MwUoCm2Op8QAKuvmMAG0ho61bT0fOAx+Nm/
-BKh2p7nIJXzc0T3vYoYL/uh9wdG42nMxAphcXCCLrjAAUw6/+fFSqiWuHMe8tZPj
-Qwqw6l3Q3sakL43B7CRkm9YKpUgIV+d/I2dNTJaS+dkiRQPOsxrXR1ATBN/uiP1j
-RmeQEuMzobvU4XlMMTJ61hXvsPFyLLFw1tmKvB72pUWOEN5lRvBU+Q7IOsyo8iM5
-c59eVwqf6z4er8ObIutnXPvQ0CLoXjy+y+JxcdPi/BN8OPGFOm1PaS1dwYjEdiF/
-+VKeJSjV1eV8RU6pmLV8zBzd6btCnkxzDA9U1XRid5BPmoQR8xFXHVch9ybYTxd9
-aTvZWlogLlWeYojkADAQ+AjP3BfDV1/LbToiAeTgvKwTo7ANXSf+1b4i17ENk5O0
-NMdtNjK4G7CAysxCJ5K+zIxkPiJhqIP2f3evRxWreocKxvi17yNKvyE5VVEGH3t6
-GZgB3jgNUVBxca/dEaN+RurgXldsRZTKuD/H5VBZf2tYpxmC0JgToztzO5BhI/r6
-UDkQxliGw2ahc7QInXoslKrhP5gaLllcNPbUz7EY33e5OJBbci8WEijHFFDiXzmC
-OEFleo3MhTxU7QL6D5wrod2/vOt27pZu2UoOfy34HKm9LfKKabj8tbKeV2EAQFXx
-aythhnZ2ahgZLW6Y72Qy
-=xo2X
------END PGP SIGNATURE-----
+Gr{oetje,eeting}s,
 
---y0ulUmNC+osPPQO6--
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
