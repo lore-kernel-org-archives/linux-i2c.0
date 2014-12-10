@@ -1,58 +1,46 @@
-From: Ray Jui <rjui@broadcom.com>
-Subject: [PATCH v2 4/4] ARM: dts: add I2C device nodes for Broadcom Cygnus
-Date: Tue, 9 Dec 2014 18:18:13 -0800
-Message-ID: <1418177893-22094-5-git-send-email-rjui@broadcom.com>
-References: <Ray Jui <rjui@broadcom.com>
- <1418177893-22094-1-git-send-email-rjui@broadcom.com>
+From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 3/4] ARM: mach-bcm: Enable I2C support for iProc
+Date: Tue, 09 Dec 2014 18:20:21 -0800
+Message-ID: <5487ADE5.4070705@gmail.com>
+References: <Ray Jui <rjui@broadcom.com> <1418177893-22094-1-git-send-email-rjui@broadcom.com> <1418177893-22094-4-git-send-email-rjui@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418177893-22094-1-git-send-email-rjui@broadcom.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Christian Daudt <bcm@fixthebug.org>, Matt Porter <mporter@linaro.org>, Florian Fainelli <f.fainelli@gmail.com>, Russell King <linux@arm.linux.org.uk>
-Cc: Scott Branden <sbranden@broadcom.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1418177893-22094-4-git-send-email-rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add I2C device nodes and its properties in bcm-cygnus.dtsi but keep
-them disabled there. Individual I2C devices can be enabled in board
-specific dts file when I2C slave devices are enabled in the future
+On 09/12/14 18:18, Ray Jui wrote:
+> Enable I2C driver support for Broadcom iProc family of SoCs by
+> selecting I2C_BCM_IPROC
+> 
+> Signed-off-by: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> ---
+>  arch/arm/mach-bcm/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/arm/mach-bcm/Kconfig b/arch/arm/mach-bcm/Kconfig
+> index aaeec78..86ee90b 100644
+> --- a/arch/arm/mach-bcm/Kconfig
+> +++ b/arch/arm/mach-bcm/Kconfig
+> @@ -19,6 +19,7 @@ config ARCH_BCM_IPROC
+>  	select ARCH_REQUIRE_GPIOLIB
+>  	select ARM_AMBA
+>  	select PINCTRL
+> +	select I2C_BCM_IPROC
 
-Signed-off-by: Ray Jui <rjui@broadcom.com>
-Reviewed-by: Scott Branden <sbranden@broadcom.com>
----
- arch/arm/boot/dts/bcm-cygnus.dtsi |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+One way to avoid having to modify mach-bcm/Kconfig would be to have your
+i2c driver Kconfig do this:
 
-diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bcm-cygnus.dtsi
-index 5126f9e..f7d6c1d 100644
---- a/arch/arm/boot/dts/bcm-cygnus.dtsi
-+++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
-@@ -70,6 +70,26 @@
- 		};
- 	};
- 
-+	i2c0: i2c@18008000 {
-+		compatible = "brcm,iproc-i2c";
-+		reg = <0x18008000 0x100>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		interrupts = <GIC_SPI 85 IRQ_TYPE_NONE>;
-+		clock-frequency = <100000>;
-+		status = "disabled";
-+	};
-+
-+	i2c1: i2c@1800b000 {
-+		compatible = "brcm,iproc-i2c";
-+		reg = <0x1800b000 0x100>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		interrupts = <GIC_SPI 86 IRQ_TYPE_NONE>;
-+		clock-frequency = <100000>;
-+		status = "disabled";
-+	};
-+
- 	uart0: serial@18020000 {
- 		compatible = "snps,dw-apb-uart";
- 		reg = <0x18020000 0x100>;
--- 
-1.7.9.5
+default ARCH_BCM_IPROC
+
+would that work?
+
+>  	help
+>  	  This enables support for systems based on Broadcom IPROC architected SoCs.
+>  	  The IPROC complex contains one or more ARM CPUs along with common
+> 
