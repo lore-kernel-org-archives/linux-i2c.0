@@ -1,76 +1,75 @@
-From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann@xilinx.com>
-Subject: Re: [PATCH v4 2/2] i2c: cadence: Check for errata condition
- involving master receive
-Date: Wed, 10 Dec 2014 09:45:54 -0800
-Message-ID: <6b2bd13bcd934b0fb09712e8950348e6@BN1AFFO11FD005.protection.gbl>
-References: <1418211884-5329-1-git-send-email-harinik@xilinx.com>
- <1418211884-5329-3-git-send-email-harinik@xilinx.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [RFC 1/2] i2c: sh_mobile: refactor DMA setup
+Date: Wed, 10 Dec 2014 22:06:34 +0300
+Message-ID: <548899BA.40002@cogentembedded.com>
+References: <1418217709-26392-1-git-send-email-wsa@the-dreams.de> <1418217709-26392-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1418211884-5329-3-git-send-email-harinik@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Harini Katakam <harini.katakam@xilinx.com>
-Cc: wsa@the-dreams.de, mark.rutland@arm.com, michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, harinikatakamlinux@gmail.com, harinik@xilinx.com, Vishnu Motghare <vishnum@xilinx.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1418217709-26392-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2014-12-10 at 05:14PM +0530, Harini Katakam wrote:
-> Cadence I2C controller has the following bugs:
-> - completion indication is not given to the driver at the end of
-> a read/receive transfer with HOLD bit set.
-> - Invalid read transaction are generated on the bus when HW timeout
-> condition occurs with HOLD bit set.
->=20
-> As a result of the above, if a set of messages to be transferred with
-> repeated start includes any transfer following a read transfer,
-> completion is never indicated and timeout occurs.
-> Hence a check is implemented to return -EOPNOTSUPP for such sequences=
-=2E
->=20
-> Signed-off-by: Harini Katakam <harinik@xilinx.com>
-> Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
-> ---
->=20
-> v4:
-> Use single dev_warn and make message grep-able.
->=20
-> v3:
-> Add warning in case of unsupported transfer.
->=20
-> v2:
-> Dont defeteature repeated start. Just check for unsupported condition=
-s in the
-> driver and return error.
->=20
-> ---
->  drivers/i2c/busses/i2c-cadence.c |   14 ++++++++++++++
->  1 file changed, 14 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2=
-c-cadence.c
-> index 5f5d4fa..f9269a6 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -541,6 +541,20 @@ static int cdns_i2c_master_xfer(struct i2c_adapt=
-er *adap, struct i2c_msg *msgs,
->  	 * processed with a repeated start.
->  	 */
->  	if (num > 1) {
-> +		/*
-> +		 * This controller does not give completion interrupt after a
-> +		 * master receive transfer if HOLD bit is set (repeated start),
-> +		 * resulting in SW timeout. Hence, if a receive transfer is
-> +		 * followed by any other transfer, an error is returned
-> +		 * indicating that this sequence is not supported.
-> +		 */
-> +		for (count =3D 0; count < num-1; count++) {
-> +			if (msgs[count].flags & I2C_M_RD)
-> +				dev_warn(adap->dev.parent, "No support for "
-> +					 "repeated start when receive is "
-> +					 "followed by a transfer\n");
+Hello.
 
-Still not grepable. There must be no line breaks in the string!
+On 12/10/2014 04:21 PM, Wolfram Sang wrote:
 
-	S=C3=B6ren
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+> Refactor DMA setup to keep the errno so we can implement better
+> deferred probe support in the next step.
+
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>   drivers/i2c/busses/i2c-sh_mobile.c | 35 ++++++++++++++++-------------------
+>   1 file changed, 16 insertions(+), 19 deletions(-)
+
+> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+> index b9c8cf2aac2c..636f2297143a 100644
+> --- a/drivers/i2c/busses/i2c-sh_mobile.c
+> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+[...]
+> @@ -749,21 +749,18 @@ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
+>   };
+>   MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
+>
+> -static int sh_mobile_i2c_request_dma_chan(struct device *dev, enum dma_transfer_direction dir,
+> -					  dma_addr_t port_addr, struct dma_chan **chan_ptr)
+> +static struct dma_chan *sh_mobile_i2c_request_dma_chan(struct device *dev,
+> +				enum dma_transfer_direction dir, dma_addr_t port_addr)
+
+    Hm, alignment style changed...
+
+[...]
+> @@ -891,13 +886,15 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+>   	/* Init DMA */
+>   	sg_init_table(&pd->sg, 1);
+>   	pd->dma_direction = DMA_NONE;
+> -	ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
+> -					     res->start + ICDR, &pd->dma_rx);
+> +	pd->dma_rx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
+> +					     res->start + ICDR);
+
+    The alignment of this line is strange: it's neither here nor there, i.e. 
+not aligned to the next char after ( above and still contains spaces. I think 
+we want the old way of the alignment kept, i.e. the line starting under 
+'pd->dev'...
+
+> +	ret = PTR_ERR(pd->dma_rx);
+>   	if (ret == -EPROBE_DEFER)
+>   		return ret;
+>
+> -	ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
+> -					     res->start + ICDR, &pd->dma_tx);
+> +	pd->dma_tx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
+> +					     res->start + ICDR);
+
+    Likewise.
+
+[...]
+
+WBR, Sergei
+
