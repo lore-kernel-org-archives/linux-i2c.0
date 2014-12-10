@@ -1,34 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [RFC] Documentation: i2c: add fault code for not supporting 10 bit addresses
-Date: Tue,  9 Dec 2014 18:48:50 +0100
-Message-ID: <1418147330-5999-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart
+ support
+Date: Wed, 10 Dec 2014 09:33:52 +0900
+Message-ID: <20141210003352.GH9690@verge.net.au>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Support Opensource <support.opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, linux-watchdog@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+On Tue, Dec 09, 2014 at 12:22:45PM +0100, Geert Uytterhoeven wrote:
+> 	Hi Wim, Wolfram, Simon, Magnus,
+> 
+> This patch series add restart support for r8a7791/koelsch through the watchdog
+> in the DA9063 PMIC. Restart can be triggered in two ways:
+>   1. Timeout of the watchdog timer,
+>   2. Manual system restart, shutting down the DA9063.
+> 
+> Dependencies:
+>   - There are no strict merge order dependencies,
+>   - While manual restart depends on patch 1, patches 3 and 4 can be merged
+>     now, as restart on watchdog timeout works without patch 1.
+> 
+> Patches:
+>   - Patch 1 is intended for the watchdog tree (based on watchdog/next),
+>   - Patch 2 is intended for the i2c tree (based on i2c/next),
+>   - Patches 3 and 4 are intended for the shmobile tree (based on
+>     renesas-devel-20141209-v3.18).
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
- Documentation/i2c/fault-codes | 4 ++++
- 1 file changed, 4 insertions(+)
+Patches 3 and 4 look like they could be queued up for v3.20 now.
+Shall I do so?
 
-diff --git a/Documentation/i2c/fault-codes b/Documentation/i2c/fault-codes
-index 47c25abb7d52..008db43d28a9 100644
---- a/Documentation/i2c/fault-codes
-+++ b/Documentation/i2c/fault-codes
-@@ -35,6 +35,10 @@ Also, codes returned by adapter probe methods follow rules which are
- specific to their host bus (such as PCI, or the platform bus).
- 
- 
-+EAFNOSUPPORT
-+	Returned by I2C adapters not supporting 10 bit addresses when
-+	they are requested to use such an address.
-+
- EAGAIN
- 	Returned by I2C adapters when they lose arbitration in master
- 	transmit mode:  some other master was transmitting different
--- 
-2.1.3
+> This was tested on r8a7791/koelsch.
+> I expect this restart method to be usable on r8a7791/lager and r8a7794/alt,
+> too.
+> 
+> Thanks!
+> 
+> Geert Uytterhoeven (4):
+>   watchdog: da9063: Add restart handler support
+>   DT: i2c: Add devices handled by the da9063 MFD driver
+>   ARM: shmobile: koelsch: Add DA9063 PMIC device node for system restart
+>   ARM: shmobile: Enable DA9063 watchdog in multiplatform defconfig
+> 
+>  .../devicetree/bindings/i2c/trivial-devices.txt    |  1 +
+>  arch/arm/boot/dts/r8a7791-koelsch.dts              |  7 +++++
+>  arch/arm/configs/shmobile_defconfig                |  3 ++
+>  drivers/watchdog/da9063_wdt.c                      | 32 +++++++++++++++++++++-
+>  4 files changed, 42 insertions(+), 1 deletion(-)
+> 
+> -- 
+> 1.9.1
+> 
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds
+> 
