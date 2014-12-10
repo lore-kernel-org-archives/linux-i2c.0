@@ -1,43 +1,80 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [RFC 0/2] i2c: sh_mobile: don't regress on deferred probing
-Date: Wed, 10 Dec 2014 14:49:18 +0100
-Message-ID: <CAMuHMdUwsUakz7S_7xCob4__wR-PXcdpZKTGx0i_6ZatDeSvXg@mail.gmail.com>
-References: <1418217709-26392-1-git-send-email-wsa@the-dreams.de>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
+Date: Wed, 10 Dec 2014 16:19:36 +0200
+Message-ID: <10746939.zT8Pinqvll@avalon>
+References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de> <CANqRtoTs52ORCqY43OyPJ2ME7BBcQr3+RVGURjteFQAztDSZjg@mail.gmail.com> <20141210080155.GA1148@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1418217709-26392-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <20141210080155.GA1148@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+(CC'ing the dmaengine mailing list)
 
-On Wed, Dec 10, 2014 at 2:21 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> Okay, here is my take on solving the problem found by Geert. I still don't like
-> it much but it is not as bad as I expected it to be ;) Let me know what you
-> think.
+On Wednesday 10 December 2014 09:01:55 Wolfram Sang wrote:
+> On Wed, Dec 10, 2014 at 02:44:01PM +0900, Magnus Damm wrote:
+> > On Tue, Dec 9, 2014 at 11:09 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> >> On Tue, Dec 09, 2014 at 11:53:45AM +0100, Geert Uytterhoeven wrote:
+> >>> On Fri, Nov 7, 2014 at 11:11 AM, Wolfram Sang wrote:
+> >>>> --- a/drivers/i2c/busses/i2c-sh_mobile.c
+> >>>> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+> >>>> @@ -727,6 +886,21 @@ static int sh_mobile_i2c_probe(struct
+> >>>> platform_device *dev)
+> >>>>         if (ret)
+> >>>>                 return ret;
+> >>>> 
+> >>>> +       /* Init DMA */
+> >>>> +       sg_init_table(&pd->sg, 1);
+> >>>> +       pd->dma_direction = DMA_NONE;
+> >>>> +       ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
+> >>>> +                                            res->start + ICDR,
+> >>>> &pd->dma_rx);
+> >>>> +       if (ret == -EPROBE_DEFER)
+> >>>> +               return ret;
+> >>>> +
+> >>>> +       ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
+> >>>> +                                            res->start + ICDR,
+> >>>> &pd->dma_tx);
+> >>>> +       if (ret == -EPROBE_DEFER) {
+> >>>> +               sh_mobile_i2c_release_dma(pd);
+> >>>> +               return ret;
+> >>>> +       }
+> >>>> +
+> >>> 
+> >>> If the DTS contains "dma" and "dma-names" properties, but
+> >>> CONFIG_RCAR_DMAC is disabled, sh_mobile_i2c_request_dma_chan() returns
+> >>> -EPROBE_DEFER, and the driver fails to initialize.
+> >>> 
+> >>> If I remove the "dma" and "dma-names" properties, the driver does fall
+> >>> back to PIO mode.
+> >>> 
+> >>> I think this is a regression.
+> >> 
+> >> The only solution I can think of is to not bail out here and retry again
+> >> before every transfer? Doesn't sound elegant, though...
+> > 
+> > I think we have to request for each and every transfer. And fall back
+> > to PIO as default in a transparent way. This because the number of DMA
+> > channels are limited compared to number of potential consumers, so
+> > request failure may happen at any time.
+> 
+> AFAIR this scenario happens when submitting the transfer. The check
+> for this is already in place. Requesting the channel is a different
+> matter. Still, I'll cook up a patch and we will see what it looks
+> like...
 
-Thanks, it's indeed less ugly than I would have expected ;-)
+We could fix part of the issue by using virtual dma channels. In that case 
+channel requests wouldn't fail anymore due to resource starvation with a large 
+number of consumers. However, the request could still fail with -EPROBE_DEFER. 
+For a driver that wants to fall back to PIO when DMA is unavailable I 
+currently don't see another way than moving the channel request at the time of 
+the transfer.
 
-Note that in spi-rspi.c and spi-sh-msiof, any error returned by *_request_dma()
-is considered an error, and -EPROBE_DEFER is not handled specially.
-So it won't retry if the DMA engine driver isn't available, but just use PIO
-(until unbind/bind).
+-- 
+Regards,
 
-Now we have a nice sample implementation, perhaps I should port it to
-spi-rspi and spi-sh-msiof, too?
-
-Let's wait and see for other comments...
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Laurent Pinchart
