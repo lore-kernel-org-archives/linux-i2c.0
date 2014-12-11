@@ -1,55 +1,101 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: sh_mobile: remove unneeded DMA mask
-Date: Thu, 11 Dec 2014 22:29:22 +0100
-Message-ID: <20141211212921.GB21482@katana>
-References: <1418217181-25647-1-git-send-email-wsa@the-dreams.de>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
+Date: Thu, 11 Dec 2014 23:42:47 +0200
+Message-ID: <2462101.Er8OZg9N24@avalon>
+References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de> <10746939.zT8Pinqvll@avalon> <20141210142314.GB8247@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1418217181-25647-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <20141210142314.GB8247@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---FkmkrVfFsRoUs1wW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wednesday 10 December 2014 15:23:15 Wolfram Sang wrote:
+> On Wed, Dec 10, 2014 at 04:19:36PM +0200, Laurent Pinchart wrote:
+> > (CC'ing the dmaengine mailing list)
+> 
+> Thanks!
+> 
+> > On Wednesday 10 December 2014 09:01:55 Wolfram Sang wrote:
+> > > On Wed, Dec 10, 2014 at 02:44:01PM +0900, Magnus Damm wrote:
+> > > > On Tue, Dec 9, 2014 at 11:09 PM, Wolfram Sang wrote:
+> > > >> On Tue, Dec 09, 2014 at 11:53:45AM +0100, Geert Uytterhoeven wrote:
+> > > >>> On Fri, Nov 7, 2014 at 11:11 AM, Wolfram Sang wrote:
+> > > >>>> --- a/drivers/i2c/busses/i2c-sh_mobile.c
+> > > >>>> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
+> > > >>>> @@ -727,6 +886,21 @@ static int sh_mobile_i2c_probe(struct
+> > > >>>> platform_device *dev)
+> > > >>>> 
+> > > >>>>         if (ret)
+> > > >>>>         
+> > > >>>>                 return ret;
+> > > >>>> 
+> > > >>>> +       /* Init DMA */
+> > > >>>> +       sg_init_table(&pd->sg, 1);
+> > > >>>> +       pd->dma_direction = DMA_NONE;
+> > > >>>> +       ret = sh_mobile_i2c_request_dma_chan(pd->dev,
+> > > >>>> DMA_DEV_TO_MEM,
+> > > >>>> +                                            res->start + ICDR,
+> > > >>>> &pd->dma_rx);
+> > > >>>> +       if (ret == -EPROBE_DEFER)
+> > > >>>> +               return ret;
+> > > >>>> +
+> > > >>>> +       ret = sh_mobile_i2c_request_dma_chan(pd->dev,
+> > > >>>> DMA_MEM_TO_DEV,
+> > > >>>> +                                            res->start + ICDR,
+> > > >>>> &pd->dma_tx);
+> > > >>>> +       if (ret == -EPROBE_DEFER) {
+> > > >>>> +               sh_mobile_i2c_release_dma(pd);
+> > > >>>> +               return ret;
+> > > >>>> +       }
+> > > >>>> +
+> > > >>> 
+> > > >>> If the DTS contains "dma" and "dma-names" properties, but
+> > > >>> CONFIG_RCAR_DMAC is disabled, sh_mobile_i2c_request_dma_chan()
+> > > >>> returns -EPROBE_DEFER, and the driver fails to initialize.
+> > > >>> 
+> > > >>> If I remove the "dma" and "dma-names" properties, the driver does
+> > > >>> fall back to PIO mode.
+> > > >>> 
+> > > >>> I think this is a regression.
+> > > >> 
+> > > >> The only solution I can think of is to not bail out here and retry
+> > > >> again before every transfer? Doesn't sound elegant, though...
+> > > > 
+> > > > I think we have to request for each and every transfer. And fall back
+> > > > to PIO as default in a transparent way. This because the number of DMA
+> > > > channels are limited compared to number of potential consumers, so
+> > > > request failure may happen at any time.
+> > > 
+> > > AFAIR this scenario happens when submitting the transfer. The check
+> > > for this is already in place. Requesting the channel is a different
+> > > matter. Still, I'll cook up a patch and we will see what it looks
+> > > like...
+> > 
+> > We could fix part of the issue by using virtual dma channels. In that case
+> > channel requests wouldn't fail anymore due to resource starvation with a
+> > large number of consumers. However, the request could still fail with
+> > -EPROBE_DEFER. For a driver that wants to fall back to PIO when DMA is
+> > unavailable I currently don't see another way than moving the channel
+> > request at the time of the transfer.
+> 
+> Note that the I2C drives uses subsys_initcall() for historic reasons,
+> while the DMA driver uses module_init(). This is hard to revert without
+> introducing potential regressions on older boards. So, the I2C DMA
+> support needs to handle deferred probe definately. I am with Laurent, I
+> don't see any other way, but I'd be glad to be enlightened...
 
-On Wed, Dec 10, 2014 at 02:13:01PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
->=20
-> We don't need the mask since we obtain the channels via DT.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+While I believe that requesting the channel at transfer time is the good 
+solution, I think we should still try to move to module initcalls where 
+possible. The risk of regressions is real so proper testing is needed. My 
+question is, have you tried it ?
 
-Applied to for-next, thanks!
+-- 
+Regards,
 
-
---FkmkrVfFsRoUs1wW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUigyxAAoJEBQN5MwUoCm2hJMP/iyKeGkoffg4wSTTLvglxkWV
-VxywE5HbSSchYaYy4Em1tSPcjQ1JytN5LRM+DHlqon0dyZiIE3I0TSEqldKpFLzv
-T5j+wVJCeFrLvV8C4XGMEAm89lVpDb1AiU1OSCMm02m5lJjYmOC1pnXbYUGmee75
-C/kfLxbtcLTaUIx1PxdrUcj86LnitRtT26PP19v5w+cKZ5iOwxGr/G1nx2Vv+CsN
-Cp1SZ5F3RXVzorLhlQT8VH+pI/tbP9XhvKHgd9Q14p1Br4mLu5TEJ9lUmSVwof9B
-sBnIhHfBoIGonmVU+T4FYP3+j2wMhmk1u0Vkbz2WJKOZ5G/T4h76bXJzjYi930Q2
-9g4dPs9Dy00G6zNg/CDgvh/dRsDOIoFyU7bvMRjjeJ6Qz9aInWzJDCfFAWII5mEd
-IVR4thdOEHxV14s3kRnTVvR0YC9TiQzVCPfMZjeVYpeoKxmqXdhKmnENSOgDuNAY
-jCSOT6YDI3bzb7XyTMV1sEPzbfhu5y/4NqFmt3LJYanzksglQ2GOCYx+wIpxbgI0
-6kOwsvQ3eGiRMOcsNT7G+Ob6s9Hegd2VYsZZdSS6TfNa/QZGP7ZeuSv5fP7ddYvx
-u3a9ZZ8lkqAmrebZ74Q3VMTCxMlFCneZzMvVFYhR9mkUFr5r4BCqZx32vRT4pTdc
-RJRM1Fdoyl4xoHWtLJnQ
-=NhGZ
------END PGP SIGNATURE-----
-
---FkmkrVfFsRoUs1wW--
+Laurent Pinchart
