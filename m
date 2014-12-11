@@ -1,154 +1,230 @@
-From: Vinod Koul <vinod.koul@intel.com>
-Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
-Date: Thu, 11 Dec 2014 10:32:26 +0530
-Message-ID: <20141211050226.GJ16827@intel.com>
-References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
- <CANqRtoTs52ORCqY43OyPJ2ME7BBcQr3+RVGURjteFQAztDSZjg@mail.gmail.com>
- <20141210080155.GA1148@katana>
- <10746939.zT8Pinqvll@avalon>
- <20141210142314.GB8247@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QXO0/MSS4VvK6f+D"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20141210142314.GB8247@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, dmaengine@vger.kernel.org
+From: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v4] i2c: rk3x: fix bug that cause measured high_ns doesn't meet I2C specification
+Date: Thu, 11 Dec 2014 14:00:49 +0800
+Message-ID: <1418277650-25215-1-git-send-email-addy.ke@rock-chips.com>
+References: <1418007589-3688-1-git-send-email-addy.ke@rock-chips.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1418007589-3688-1-git-send-email-addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, cf-TNX95d0MmH7DzftRWevZcw@public.gmane.org, xjq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, yzq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hj-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kever.yang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, caesar.wang-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhengsq-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+The number of clock cycles to be written into the CLKDIV register
+that determines the I2C clk high phase includes the rise time.
+So to meet the timing requirements defined in the I2C specification
+which defines the minimal time SCL has to be high, the rise time
+has to taken into account. The same applies to the low phase with
+falling time.
 
---QXO0/MSS4VvK6f+D
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In my test on RK3288-Pink2 board, which is not an upstream board yet,
+if external pull-up resistor is 4.7K, rise_ns is about 700ns.
+So the measured high_ns is about 3900ns, which is less than 4000ns
+(the minimum high_ns in I2C specification for Standard-mode).
 
-On Wed, Dec 10, 2014 at 03:23:15PM +0100, Wolfram Sang wrote:
-> On Wed, Dec 10, 2014 at 04:19:36PM +0200, Laurent Pinchart wrote:
-> > (CC'ing the dmaengine mailing list)
->=20
-> Thanks!
->=20
-> > On Wednesday 10 December 2014 09:01:55 Wolfram Sang wrote:
-> > > On Wed, Dec 10, 2014 at 02:44:01PM +0900, Magnus Damm wrote:
-> > > > On Tue, Dec 9, 2014 at 11:09 PM, Wolfram Sang <wsa@the-dreams.de> w=
-rote:
-> > > >> On Tue, Dec 09, 2014 at 11:53:45AM +0100, Geert Uytterhoeven wrote:
-> > > >>> On Fri, Nov 7, 2014 at 11:11 AM, Wolfram Sang wrote:
-> > > >>>> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> > > >>>> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> > > >>>> @@ -727,6 +886,21 @@ static int sh_mobile_i2c_probe(struct
-> > > >>>> platform_device *dev)
-> > > >>>>         if (ret)
-> > > >>>>                 return ret;
-> > > >>>>=20
-> > > >>>> +       /* Init DMA */
-> > > >>>> +       sg_init_table(&pd->sg, 1);
-> > > >>>> +       pd->dma_direction =3D DMA_NONE;
-> > > >>>> +       ret =3D sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_=
-TO_MEM,
-> > > >>>> +                                            res->start + ICDR,
-> > > >>>> &pd->dma_rx);
-> > > >>>> +       if (ret =3D=3D -EPROBE_DEFER)
-> > > >>>> +               return ret;
-> > > >>>> +
-> > > >>>> +       ret =3D sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_=
-TO_DEV,
-> > > >>>> +                                            res->start + ICDR,
-> > > >>>> &pd->dma_tx);
-> > > >>>> +       if (ret =3D=3D -EPROBE_DEFER) {
-> > > >>>> +               sh_mobile_i2c_release_dma(pd);
-> > > >>>> +               return ret;
-> > > >>>> +       }
-> > > >>>> +
-> > > >>>=20
-> > > >>> If the DTS contains "dma" and "dma-names" properties, but
-> > > >>> CONFIG_RCAR_DMAC is disabled, sh_mobile_i2c_request_dma_chan() re=
-turns
-> > > >>> -EPROBE_DEFER, and the driver fails to initialize.
-> > > >>>=20
-> > > >>> If I remove the "dma" and "dma-names" properties, the driver does=
- fall
-> > > >>> back to PIO mode.
-> > > >>>=20
-> > > >>> I think this is a regression.
-> > > >>=20
-> > > >> The only solution I can think of is to not bail out here and retry=
- again
-> > > >> before every transfer? Doesn't sound elegant, though...
-> > > >=20
-> > > > I think we have to request for each and every transfer. And fall ba=
-ck
-> > > > to PIO as default in a transparent way. This because the number of =
-DMA
-> > > > channels are limited compared to number of potential consumers, so
-> > > > request failure may happen at any time.
-> > >=20
-> > > AFAIR this scenario happens when submitting the transfer. The check
-> > > for this is already in place. Requesting the channel is a different
-> > > matter. Still, I'll cook up a patch and we will see what it looks
-> > > like...
-I think this is a limitation of driver may not be for HW. The right model f=
-or
-dma_chan is to be viewed as SW channels and not the ones of HW (yes that is
-how most of the drivers use that, but we can improve upon)
+To fix this bug, min_low_ns should include fall time and min_high_ns
+should include rise time too.
 
-If we rework the driver to view dma_chan as SW channels, then you can accept
-multiple channel requests and accept based on if we are able link the chann=
-el to
-that peripheral or not. Here one txn maybe for peripheral A, subsequent one
-for peripheral B. The driver needs to ensure the proper mux registers etc a=
-re
-programmed while issuing next descriptor.
+This patch merged the patch that Doug submitted to chromium project,
+which can get the rise and fall times for signals from the device tree.
+This allows us to more accurately calculate timings. see:
+https://chromium-review.googlesource.com/#/c/232774/
 
---=20
-~Vinod
+Signed-off-by: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+---
+Changes in v2:
+- merged the patch that Doug submitted to chromium project
+Changes in v3:
+- merged the patch that Doug submitted to chromium to projectchange bindins
+  see: https://chromium-review.googlesource.com/#/c/232774/
+Changes in v4:
+- Fix some typos pointed out by Uwe
+- adjust "i2c" capitalization to "I2C"
 
-> >=20
-> > We could fix part of the issue by using virtual dma channels. In that c=
-ase=20
-> > channel requests wouldn't fail anymore due to resource starvation with =
-a large=20
-> > number of consumers. However, the request could still fail with -EPROBE=
-_DEFER.=20
-> > For a driver that wants to fall back to PIO when DMA is unavailable I=
-=20
-> > currently don't see another way than moving the channel request at the =
-time of=20
-> > the transfer.
->=20
-> Note that the I2C drives uses subsys_initcall() for historic reasons,
-> while the DMA driver uses module_init(). This is hard to revert without
-> introducing potential regressions on older boards. So, the I2C DMA
-> support needs to handle deferred probe definately. I am with Laurent, I
-> don't see any other way, but I'd be glad to be enlightened...
->=20
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt | 11 ++++
+ drivers/i2c/busses/i2c-rk3x.c                      | 76 +++++++++++++++-------
+ 2 files changed, 62 insertions(+), 25 deletions(-)
 
-
-
---=20
-
---QXO0/MSS4VvK6f+D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJUiSViAAoJEHwUBw8lI4NHTXAQAJSc+71Hk5pf4rYhiHwxFaCw
-FdqnDlDoSpb/Sf74siChO08XKAsf0s8z6F/L0U1heasvwJ7d33PnoBVwwM4MKzEi
-2ot0EXgloQdNJsJgQaOo2UVXi9I2bGRW1S0h/I74eqQJx6YUKByhz/41Defa37/Y
-Wkv4WNhun8x8aXOX4dMrjbPG5QNdgPPmG7KD66BYouh1PKnSzy+3E3ZdowdQKlzA
-OEVmXR9CFnIfXeOeuN8gNDXDY767J3y/fW3s6kI0rNM23ih8Ne6+Lyvn/jkR8Gk+
-TDJgq1wLIWUaErrwRRDz64Y6yssYUkq/BTl1fWSSH22DaaVKP17vCKIqYSYYpBlZ
-9j9qB5h7zcKgOBZkEWpD84H+RD0R3GAnBKpztYRQaLirV2rPFHV+rLYxfcvnH42+
-tVYBIfOmQPuB86lfYb1e+ZVPlPOZ6dkExOCQTUyo/EmsQVS+pGwiGTpNPvfQxZwE
-/ZbG935KvxRxmn5aEbFlcryhWVj+MbXXKias2Buu7rs8k5tut7ZGgJN0A6crJrwb
-yi2OLG/hnc5B1+EBeVTTdJvpnlNGuKYIF7h3tyUOKh0IbGKrkeXPCCMV4tbtPPlR
-Br16+3NRAVHEINkEZ6Cjjsa5lBtUQwV6diWNOkjZARyMzP0PFj5gozzb3ucg6YYa
-KugSN/v6V1zRsLaFTa5U
-=cNk3
------END PGP SIGNATURE-----
-
---QXO0/MSS4VvK6f+D--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+index dde6c22..1885bd8 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+@@ -21,6 +21,14 @@ Required on RK3066, RK3188 :
+ Optional properties :
+ 
+  - clock-frequency : SCL frequency to use (in Hz). If omitted, 100kHz is used.
++ - i2c-scl-rising-time-ns : Number of nanoseconds the signal takes to rise
++	(t(r) in I2C specification). If not specified this is assumed to be
++	the maximum the specification allows(1000 ns for Standard-mode,
++	300 ns for Fast-mode) which might cause slightly slower communication.
++ - i2c-scl-falling-time-ns : Number of nanoseconds the signal takes to fall
++	(t(f) in the I2C specification). If not specified this is assumed to
++	be the maximum the specification allows (300 ns) which might cause
++	slightly slowercommunication.
+ 
+ Example:
+ 
+@@ -39,4 +47,7 @@ i2c0: i2c@2002d000 {
+ 
+ 	clock-names = "i2c";
+ 	clocks = <&cru PCLK_I2C0>;
++
++	i2c-scl-rising-time-ns = <800>;
++	i2c-scl-falling-time-ns = <100>;
+ };
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 0ee5802..f8eb77e 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -102,6 +102,8 @@ struct rk3x_i2c {
+ 
+ 	/* Settings */
+ 	unsigned int scl_frequency;
++	unsigned int rise_ns;
++	unsigned int fall_ns;
+ 
+ 	/* Synchronization & notification */
+ 	spinlock_t lock;
+@@ -435,6 +437,8 @@ out:
+  *
+  * @clk_rate: I2C input clock rate
+  * @scl_rate: Desired SCL rate
++ * @rise_ns: How many ns it takes for signals to rise.
++ * @fall_ns: How many ns it takes for signals to fall.
+  * @div_low: Divider output for low
+  * @div_high: Divider output for high
+  *
+@@ -443,11 +447,14 @@ out:
+  * too high, we silently use the highest possible rate.
+  */
+ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
++			      unsigned long rise_ns, unsigned long fall_ns,
+ 			      unsigned long *div_low, unsigned long *div_high)
+ {
++	unsigned long spec_min_low_ns, spec_min_high_ns;
++	unsigned long spec_max_data_hold_ns;
++	unsigned long spec_data_hold_buffer_ns;
++
+ 	unsigned long min_low_ns, min_high_ns;
+-	unsigned long max_data_hold_ns;
+-	unsigned long data_hold_buffer_ns;
+ 	unsigned long max_low_ns, min_total_ns;
+ 
+ 	unsigned long clk_rate_khz, scl_rate_khz;
+@@ -469,29 +476,33 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
+ 		scl_rate = 1000;
+ 
+ 	/*
+-	 * min_low_ns:  The minimum number of ns we need to hold low
+-	 *		to meet i2c spec
+-	 * min_high_ns: The minimum number of ns we need to hold high
+-	 *		to meet i2c spec
+-	 * max_low_ns:  The maximum number of ns we can hold low
+-	 *		to meet i2c spec
++	 * min_low_ns:  The minimum number of ns we need to hold low to
++	 *		meet I2C specification, should include fall time.
++	 * min_high_ns: The minimum number of ns we need to hold high to
++	 *		meet I2C specification, should include rise time.
++	 * max_low_ns:  The maximum number of ns we can hold low to meet
++	 *		I2C specification.
+ 	 *
+-	 * Note: max_low_ns should be (max data hold time * 2 - buffer)
++	 * Note: max_low_ns should be (maximum data hold time * 2 - buffer)
+ 	 *	 This is because the i2c host on Rockchip holds the data line
+ 	 *	 for half the low time.
+ 	 */
+ 	if (scl_rate <= 100000) {
+-		min_low_ns = 4700;
+-		min_high_ns = 4000;
+-		max_data_hold_ns = 3450;
+-		data_hold_buffer_ns = 50;
++		/* Standard-mode */
++		spec_min_low_ns = 4700;
++		spec_min_high_ns = 4000;
++		spec_max_data_hold_ns = 3450;
++		spec_data_hold_buffer_ns = 50;
+ 	} else {
+-		min_low_ns = 1300;
+-		min_high_ns = 600;
+-		max_data_hold_ns = 900;
+-		data_hold_buffer_ns = 50;
++		/* Fast-mode */
++		spec_min_low_ns = 1300;
++		spec_min_high_ns = 600;
++		spec_max_data_hold_ns = 900;
++		spec_data_hold_buffer_ns = 50;
+ 	}
+-	max_low_ns = max_data_hold_ns * 2 - data_hold_buffer_ns;
++	min_low_ns = spec_min_low_ns + fall_ns;
++	min_high_ns = spec_min_high_ns + rise_ns;
++	max_low_ns = spec_max_data_hold_ns * 2 - spec_data_hold_buffer_ns;
+ 	min_total_ns = min_low_ns + min_high_ns;
+ 
+ 	/* Adjust to avoid overflow */
+@@ -510,8 +521,8 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
+ 	min_div_for_hold = (min_low_div + min_high_div);
+ 
+ 	/*
+-	 * This is the maximum divider so we don't go over the max.
+-	 * We don't round up here (we round down) since this is a max.
++	 * This is the maximum divider so we don't go over the maximum.
++	 * We don't round up here (we round down) since this is a maximum.
+ 	 */
+ 	max_low_div = clk_rate_khz * max_low_ns / (8 * 1000000);
+ 
+@@ -544,7 +555,7 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
+ 		ideal_low_div = DIV_ROUND_UP(clk_rate_khz * min_low_ns,
+ 					     scl_rate_khz * 8 * min_total_ns);
+ 
+-		/* Don't allow it to go over the max */
++		/* Don't allow it to go over the maximum */
+ 		if (ideal_low_div > max_low_div)
+ 			ideal_low_div = max_low_div;
+ 
+@@ -588,8 +599,8 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+ 	u64 t_low_ns, t_high_ns;
+ 	int ret;
+ 
+-	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, &div_low,
+-				 &div_high);
++	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->rise_ns,
++				 i2c->fall_ns, &div_low, &div_high);
+ 
+ 	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", i2c->scl_frequency);
+ 
+@@ -633,9 +644,9 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+ 	switch (event) {
+ 	case PRE_RATE_CHANGE:
+ 		if (rk3x_i2c_calc_divs(ndata->new_rate, i2c->scl_frequency,
+-				      &div_low, &div_high) != 0) {
++				       i2c->rise_ns, i2c->fall_ns, &div_low,
++				       &div_high) != 0)
+ 			return NOTIFY_STOP;
+-		}
+ 
+ 		/* scale up */
+ 		if (ndata->new_rate > ndata->old_rate)
+@@ -859,6 +870,21 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+ 		i2c->scl_frequency = DEFAULT_SCL_RATE;
+ 	}
+ 
++	/*
++	 * Read rise and fall ns.
++	 * If not, there use the default maximum from specification.
++	 */
++	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-rising-time-ns",
++				 &i2c->rise_ns)) {
++		if (i2c->scl_frequency <= 100000)
++			i2c->rise_ns = 1000;
++		else
++			i2c->rise_ns = 300;
++	}
++	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-falling-time-ns",
++				 &i2c->fall_ns))
++		i2c->fall_ns = 300;
++
+ 	strlcpy(i2c->adap.name, "rk3x-i2c", sizeof(i2c->adap.name));
+ 	i2c->adap.owner = THIS_MODULE;
+ 	i2c->adap.algo = &rk3x_i2c_algorithm;
+-- 
+1.8.3.2
