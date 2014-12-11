@@ -1,46 +1,38 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
-Date: Thu, 11 Dec 2014 23:52:10 +0200
-Message-ID: <1729516.HWbfnj3Cpn@avalon>
-References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de> <2462101.Er8OZg9N24@avalon> <20141211214732.GC21482@katana>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH] i2c: rk3x: Account for repeated start time requirement
+Date: Thu, 11 Dec 2014 13:58:20 -0800
+Message-ID: <CAD=FV=VT_vzn_7EPfokA50B42ObDuXdtWEu72Dq6DHXt0QXFzA@mail.gmail.com>
+References: <1418325511-16648-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20141211214732.GC21482@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, dmaengine@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1418325511-16648-1-git-send-email-dianders@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Max Schwarz <max.schwarz@online.de>
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Addy Ke <addy.ke@rock-chips.com>, Lin Huang <hl@rock-chips.com>, yiwei cai <cyw@rock-chips.com>, Doug Anderson <dianders@chromium.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 11 December 2014 22:47:32 Wolfram Sang wrote:
-> > > Note that the I2C drives uses subsys_initcall() for historic reasons,
-> > > while the DMA driver uses module_init(). This is hard to revert without
-> > > introducing potential regressions on older boards. So, the I2C DMA
-> > > support needs to handle deferred probe definately. I am with Laurent, I
-> > > don't see any other way, but I'd be glad to be enlightened...
-> > 
-> > While I believe that requesting the channel at transfer time is the good
-> > solution, I think we should still try to move to module initcalls where
-> > possible. The risk of regressions is real so proper testing is needed. My
-> > question is, have you tried it ?
-> 
-> I would need to test all boards using this driver to not fail booting.
-> Usually I2C drivers are moved to subsys_initcall because they need
-> access to something critical (PMIC, GPIOs...) early. I don't see a sane
-> way to do that testing.
+Hi,
 
-Still, I would like to get a better view on the problems we should expect, by 
-testing this on the latest boards for instance.
+On Thu, Dec 11, 2014 at 11:18 AM, Doug Anderson <dianders@chromium.org> wrote:
+> -       min_low_ns = spec_min_low_ns + fall_ns;
+> -       min_high_ns = spec_min_high_ns + rise_ns;
+> +       /*
+> +        * For repeated start we need at least (spec_setup_start * 2) to meet
+> +        * (tSU;SDA) requirements. The controller drops data low at half the
+> +        * high time). Also need to meet normal specification requirements.
+> +        */
+> +       if (for_start)
+> +               min_high_ns = max(spec_setup_start * 2,
+> +                                 spec_setup_start + sda_fall_ns +
+> +                                 spec_min_high_ns);
+> +       else
+> +               min_high_ns = spec_min_high_ns;
+> +       min_high_ns += scl_rise_ns;
+> +
+> +       min_low_ns = spec_min_low_ns + scl_fall_ns;
 
-> Other than that, even if we move to module_init, we reduce the chance of
-> getting a deferred probe, but we do not eliminate it...
-
-Sure, but reducing the chance of deferred probe is a good idea in my opinion 
-:-)
-
--- 
-Regards,
-
-Laurent Pinchart
-
+Sorry I didn't think about this before, but I think the above has a
+slight bug.  I need to account for the scl_rise_ns rise time twice in
+the repeated start case, I believe.  I'll send out a new version
+shortly.
