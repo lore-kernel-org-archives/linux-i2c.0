@@ -1,92 +1,70 @@
-From: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] i2c: cadence: Check for errata condition involving
- master receive
-Date: Thu, 11 Dec 2014 12:46:53 +0530
-Message-ID: <CAFcVECJDfJaEALDxfZg5-+tsD02mVT43s7PX4RLs349Kx9Jaeg@mail.gmail.com>
-References: <1418211884-5329-1-git-send-email-harinik@xilinx.com>
-	<1418211884-5329-3-git-send-email-harinik@xilinx.com>
-	<6b2bd13bcd934b0fb09712e8950348e6@BN1AFFO11FD005.protection.gbl>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
+Date: Thu, 11 Dec 2014 08:37:27 +0100
+Message-ID: <20141211073727.GA1252@katana>
+References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
+ <CANqRtoTs52ORCqY43OyPJ2ME7BBcQr3+RVGURjteFQAztDSZjg@mail.gmail.com>
+ <20141210080155.GA1148@katana>
+ <10746939.zT8Pinqvll@avalon>
+ <20141210142314.GB8247@katana>
+ <20141211050226.GJ16827@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6b2bd13bcd934b0fb09712e8950348e6-reflc3kr++MEH1pyDrHbn+hlVc3/7hDbVaz/vdPVXQ4@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: Harini Katakam <harini.katakam-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20141211050226.GJ16827@intel.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Vinod Koul <vinod.koul@intel.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, dmaengine@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Soren,
 
-On Wed, Dec 10, 2014 at 11:15 PM, S=C3=B6ren Brinkmann
-<soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
-> On Wed, 2014-12-10 at 05:14PM +0530, Harini Katakam wrote:
->> Cadence I2C controller has the following bugs:
->> - completion indication is not given to the driver at the end of
->> a read/receive transfer with HOLD bit set.
->> - Invalid read transaction are generated on the bus when HW timeout
->> condition occurs with HOLD bit set.
->>
->> As a result of the above, if a set of messages to be transferred wit=
-h
->> repeated start includes any transfer following a read transfer,
->> completion is never indicated and timeout occurs.
->> Hence a check is implemented to return -EOPNOTSUPP for such sequence=
-s.
->>
->> Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
->> Signed-off-by: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
->> ---
->>
->> v4:
->> Use single dev_warn and make message grep-able.
->>
->> v3:
->> Add warning in case of unsupported transfer.
->>
->> v2:
->> Dont defeteature repeated start. Just check for unsupported conditio=
-ns in the
->> driver and return error.
->>
->> ---
->>  drivers/i2c/busses/i2c-cadence.c |   14 ++++++++++++++
->>  1 file changed, 14 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i=
-2c-cadence.c
->> index 5f5d4fa..f9269a6 100644
->> --- a/drivers/i2c/busses/i2c-cadence.c
->> +++ b/drivers/i2c/busses/i2c-cadence.c
->> @@ -541,6 +541,20 @@ static int cdns_i2c_master_xfer(struct i2c_adap=
-ter *adap, struct i2c_msg *msgs,
->>        * processed with a repeated start.
->>        */
->>       if (num > 1) {
->> +             /*
->> +              * This controller does not give completion interrupt =
-after a
->> +              * master receive transfer if HOLD bit is set (repeate=
-d start),
->> +              * resulting in SW timeout. Hence, if a receive transf=
-er is
->> +              * followed by any other transfer, an error is returne=
-d
->> +              * indicating that this sequence is not supported.
->> +              */
->> +             for (count =3D 0; count < num-1; count++) {
->> +                     if (msgs[count].flags & I2C_M_RD)
->> +                             dev_warn(adap->dev.parent, "No support=
- for "
->> +                                      "repeated start when receive =
-is "
->> +                                      "followed by a transfer\n");
->
-> Still not grepable. There must be no line breaks in the string!
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This message will be printed in one single line.
-Do you want this string to be grepable in the driver? Why is that neces=
-sary?
 
-Regards,
-Harini
+> I think this is a limitation of driver may not be for HW. The right model=
+ for
+> dma_chan is to be viewed as SW channels and not the ones of HW (yes that =
+is
+> how most of the drivers use that, but we can improve upon)
+>=20
+> If we rework the driver to view dma_chan as SW channels, then you can acc=
+ept
+> multiple channel requests and accept based on if we are able link the cha=
+nnel to
+> that peripheral or not.
+
+In my understanding, the DMA driver does exactly that. However, it is
+not even loaded at the time the I2C driver wants a channel, so the
+dmaengine core defers the probe. That is the problem for optional DMA
+channels: we can't know when deferring probe won't help anymore and
+don't know when it is time to fall back to PIO.
+
+
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUiUm3AAoJEBQN5MwUoCm2ndkP+gPDbBbOcS/Hx5JDPz+xCH6L
+KGtMAMTX1nmoOyjedY1Igv1PdvAMyEn6/DQTP3RpeVW01QAfMIDBxXRKDngIIMwu
+ehrAlYoe0Z45vAjGMzCGUyJnx1y2EM8LRv0k2nymUw6224AFDOAASHDe25+Esxp1
+qldeMa7HBfqt1HqX2SGoocgrlrERHG5cCz1HY4/C+qVkBtbLBfKnMDJtzvYk3leR
+sjEM/JVFXtGFOrXdte2rtg4qrmW/qvN1P+D+S7pA/xWO6AM2df/is0flp9utUjzG
+stnTn8U1RJRy8Wu+4aXAQcIPo+dCnMv98Z8a5Kk0t0fWpb0wOmkWrwZm3SgMhx6+
+ULS9GSQckBC5JWAGR6FqDAqh1/Z9bZS6QtMUysVdixKHBqmKgQAqZimFGU2pmPjW
+9ic5xQDfrO10sPnmNx6HLxaNsW/lwkoPjenC6rWqR3zUuhSuxwY8SL+81MlAhskC
+GaZ0Bq7PKbg0O0BSEzmdbKdY832yJaKqeO2/VN0LVeepmG0g08fC4W9/mFP6Nbig
+N9rjKsKh717+CaxA9npeQiR4qzrBMctbn0mi+XuTujxhwZxv/Mtr+ynFn8WMza63
+cVXj77EmFqrcVIZKHJNX+ww51uJibJLb39XtWqQt+30AdzPAAGnQbMmuBkHEu5m3
+N63vFokltQT9kp0/4t+s
+=wGbu
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--
