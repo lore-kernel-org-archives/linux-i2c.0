@@ -1,100 +1,261 @@
-From: =?utf-8?B?U8O2cmVu?= Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] i2c: cadence: Check for errata condition
- involving master receive
-Date: Thu, 11 Dec 2014 09:28:59 -0800
-Message-ID: <61a2ff3fb6764fa388436dbbe20a8d70@BY2FFO11FD001.protection.gbl>
-References: <1418211884-5329-1-git-send-email-harinik@xilinx.com>
- <1418211884-5329-3-git-send-email-harinik@xilinx.com>
- <6b2bd13bcd934b0fb09712e8950348e6@BN1AFFO11FD005.protection.gbl>
- <CAFcVECJDfJaEALDxfZg5-+tsD02mVT43s7PX4RLs349Kx9Jaeg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: rk3x: Account for repeated start time requirement
+Date: Thu, 11 Dec 2014 11:18:31 -0800
+Message-ID: <1418325511-16648-1-git-send-email-dianders@chromium.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAFcVECJDfJaEALDxfZg5-+tsD02mVT43s7PX4RLs349Kx9Jaeg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Harini Katakam <harini.katakam-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org
+Cc: heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, cyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2014-12-11 at 12:46PM +0530, Harini Katakam wrote:
-> Hi Soren,
->=20
-> On Wed, Dec 10, 2014 at 11:15 PM, S=C3=B6ren Brinkmann
-> <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
-> > On Wed, 2014-12-10 at 05:14PM +0530, Harini Katakam wrote:
-> >> Cadence I2C controller has the following bugs:
-> >> - completion indication is not given to the driver at the end of
-> >> a read/receive transfer with HOLD bit set.
-> >> - Invalid read transaction are generated on the bus when HW timeou=
-t
-> >> condition occurs with HOLD bit set.
-> >>
-> >> As a result of the above, if a set of messages to be transferred w=
-ith
-> >> repeated start includes any transfer following a read transfer,
-> >> completion is never indicated and timeout occurs.
-> >> Hence a check is implemented to return -EOPNOTSUPP for such sequen=
-ces.
-> >>
-> >> Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-> >> Signed-off-by: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-> >> ---
-> >>
-> >> v4:
-> >> Use single dev_warn and make message grep-able.
-> >>
-> >> v3:
-> >> Add warning in case of unsupported transfer.
-> >>
-> >> v2:
-> >> Dont defeteature repeated start. Just check for unsupported condit=
-ions in the
-> >> driver and return error.
-> >>
-> >> ---
-> >>  drivers/i2c/busses/i2c-cadence.c |   14 ++++++++++++++
-> >>  1 file changed, 14 insertions(+)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses=
-/i2c-cadence.c
-> >> index 5f5d4fa..f9269a6 100644
-> >> --- a/drivers/i2c/busses/i2c-cadence.c
-> >> +++ b/drivers/i2c/busses/i2c-cadence.c
-> >> @@ -541,6 +541,20 @@ static int cdns_i2c_master_xfer(struct i2c_ad=
-apter *adap, struct i2c_msg *msgs,
-> >>        * processed with a repeated start.
-> >>        */
-> >>       if (num > 1) {
-> >> +             /*
-> >> +              * This controller does not give completion interrup=
-t after a
-> >> +              * master receive transfer if HOLD bit is set (repea=
-ted start),
-> >> +              * resulting in SW timeout. Hence, if a receive tran=
-sfer is
-> >> +              * followed by any other transfer, an error is retur=
-ned
-> >> +              * indicating that this sequence is not supported.
-> >> +              */
-> >> +             for (count =3D 0; count < num-1; count++) {
-> >> +                     if (msgs[count].flags & I2C_M_RD)
-> >> +                             dev_warn(adap->dev.parent, "No suppo=
-rt for "
-> >> +                                      "repeated start when receiv=
-e is "
-> >> +                                      "followed by a transfer\n")=
-;
-> >
-> > Still not grepable. There must be no line breaks in the string!
->=20
-> This message will be printed in one single line.
-> Do you want this string to be grepable in the driver? Why is that nec=
-essary?
+On Rockchip I2C the controller drops SDA low in the repeated start
+condition at half the SCL high time.
 
-It's about grepping the sources.
-I pointed you to the paragraph in the Codingstyle rules, please read
-it.
+If we want to meet timing requirements, that means we need to hold SCL
+high for (4.7us * 2) when we're sending a repeated start (.6us * 2 for
+Fast-mode).  That lets us achieve minimum tSU;STA.  However, we don't
+want to always hold SCL high for that long because we'd never be able
+to make 100kHz or 400kHz speeds.
 
-	S=C3=B6ren
+Let's fix this by doing our clock calculations twice: once taking the
+above into account and once running at normal speeds.  We'll use the
+slower speed when sending the start bit and the normal speed
+otherwise.
+
+Note: we really only need the conservative timing when sending
+_repeated_ starts, not when sending the first start.  We don't account
+for this so technically the first start bit will be longer too.
+...well, except in the case when we use the combined write/read
+optimization which doesn't use the same code.
+
+As part of this change we needed to account for the SDA falling time.
+The specification indicates that this should be the same, but we'll
+follow Designware and add a binding.  Note that we deviate from
+Designware and assign the default SDA falling time to be the same as
+the SCL falling time, which is incredibly likely.
+
+Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+---
+Note: This is based on Addy's patch (i2c: rk3x: fix bug that cause
+measured high_ns doesn't meet I2C specification) that can be found at
+<https://patchwork.kernel.org/patch/5475331/>.
+
+ Documentation/devicetree/bindings/i2c/i2c-rk3x.txt |  7 +-
+ drivers/i2c/busses/i2c-rk3x.c                      | 90 +++++++++++++++++-----
+ 2 files changed, 74 insertions(+), 23 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+index 1885bd8..8cc75d9 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rk3x.txt
+@@ -21,14 +21,17 @@ Required on RK3066, RK3188 :
+ Optional properties :
+ 
+  - clock-frequency : SCL frequency to use (in Hz). If omitted, 100kHz is used.
+- - i2c-scl-rising-time-ns : Number of nanoseconds the signal takes to rise
++ - i2c-scl-rising-time-ns : Number of nanoseconds the SCL signal takes to rise
+ 	(t(r) in I2C specification). If not specified this is assumed to be
+ 	the maximum the specification allows(1000 ns for Standard-mode,
+ 	300 ns for Fast-mode) which might cause slightly slower communication.
+- - i2c-scl-falling-time-ns : Number of nanoseconds the signal takes to fall
++ - i2c-scl-falling-time-ns : Number of nanoseconds the SCL signal takes to fall
+ 	(t(f) in the I2C specification). If not specified this is assumed to
+ 	be the maximum the specification allows (300 ns) which might cause
+ 	slightly slowercommunication.
++ - i2c-sda-falling-time-ns : Number of nanoseconds the SDA signal takes to fall
++	(t(f) in the I2C specification). If not specified we'll use the SCL
++	value since they are the same in nearly all cases.
+ 
+ Example:
+ 
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 36a9224..1f994df 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -102,8 +102,14 @@ struct rk3x_i2c {
+ 
+ 	/* Settings */
+ 	unsigned int scl_frequency;
+-	unsigned int rise_ns;
+-	unsigned int fall_ns;
++	unsigned int scl_rise_ns;
++	unsigned int scl_fall_ns;
++	unsigned int sda_fall_ns;
++
++	/* DIV changes when we're sending a repeated start; keep both */
++	bool sending_start;
++	u32 div_normal;
++	u32 div_start;
+ 
+ 	/* Synchronization & notification */
+ 	spinlock_t lock;
+@@ -146,6 +152,9 @@ static void rk3x_i2c_start(struct rk3x_i2c *i2c)
+ {
+ 	u32 val;
+ 
++	i2c->sending_start = true;
++	i2c_writel(i2c, i2c->div_start, REG_CLKDIV);
++
+ 	rk3x_i2c_clean_ipd(i2c);
+ 	i2c_writel(i2c, REG_INT_START, REG_IEN);
+ 
+@@ -281,6 +290,9 @@ static void rk3x_i2c_handle_start(struct rk3x_i2c *i2c, unsigned int ipd)
+ 	/* disable start bit */
+ 	i2c_writel(i2c, i2c_readl(i2c, REG_CON) & ~REG_CON_START, REG_CON);
+ 
++	i2c->sending_start = false;
++	i2c_writel(i2c, i2c->div_normal, REG_CLKDIV);
++
+ 	/* enable appropriate interrupts and transition */
+ 	if (i2c->mode == REG_CON_MOD_TX) {
+ 		i2c_writel(i2c, REG_INT_MBTF | REG_INT_NAKRCV, REG_IEN);
+@@ -437,21 +449,26 @@ out:
+  *
+  * @clk_rate: I2C input clock rate
+  * @scl_rate: Desired SCL rate
+- * @rise_ns: How many ns it takes for signals to rise.
+- * @fall_ns: How many ns it takes for signals to fall.
++ * @scl_rise_ns: How many ns it takes for SCL to rise.
++ * @scl_fall_ns: How many ns it takes for SCL to fall.
++ * @sda_fall_ns: How many ns it takes for SDA to fall.
+  * @div_low: Divider output for low
+  * @div_high: Divider output for high
++ * @for_start: Take into account that we might be sending a start bit.
+  *
+  * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
+  * a best-effort divider value is returned in divs. If the target rate is
+  * too high, we silently use the highest possible rate.
+  */
+ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
+-			      unsigned long rise_ns, unsigned long fall_ns,
+-			      unsigned long *div_low, unsigned long *div_high)
++			      unsigned long scl_rise_ns,
++			      unsigned long scl_fall_ns,
++			      unsigned long sda_fall_ns,
++			      unsigned long *div_low, unsigned long *div_high,
++			      bool for_start)
+ {
+ 	unsigned long spec_min_low_ns, spec_min_high_ns;
+-	unsigned long spec_max_data_hold_ns;
++	unsigned long spec_setup_start, spec_max_data_hold_ns;
+ 	unsigned long data_hold_buffer_ns;
+ 
+ 	unsigned long min_low_ns, min_high_ns;
+@@ -490,18 +507,32 @@ static int rk3x_i2c_calc_divs(unsigned long clk_rate, unsigned long scl_rate,
+ 	if (scl_rate <= 100000) {
+ 		/* Standard-mode */
+ 		spec_min_low_ns = 4700;
++		spec_setup_start = 4700;
+ 		spec_min_high_ns = 4000;
+ 		spec_max_data_hold_ns = 3450;
+ 		data_hold_buffer_ns = 50;
+ 	} else {
+ 		/* Fast-mode */
+ 		spec_min_low_ns = 1300;
++		spec_setup_start = 600;
+ 		spec_min_high_ns = 600;
+ 		spec_max_data_hold_ns = 900;
+ 		data_hold_buffer_ns = 50;
+ 	}
+-	min_low_ns = spec_min_low_ns + fall_ns;
+-	min_high_ns = spec_min_high_ns + rise_ns;
++	/*
++	 * For repeated start we need at least (spec_setup_start * 2) to meet
++	 * (tSU;SDA) requirements. The controller drops data low at half the
++	 * high time). Also need to meet normal specification requirements.
++	 */
++	if (for_start)
++		min_high_ns = max(spec_setup_start * 2,
++				  spec_setup_start + sda_fall_ns +
++				  spec_min_high_ns);
++	else
++		min_high_ns = spec_min_high_ns;
++	min_high_ns += scl_rise_ns;
++
++	min_low_ns = spec_min_low_ns + scl_fall_ns;
+ 	max_low_ns = spec_max_data_hold_ns * 2 - data_hold_buffer_ns;
+ 	min_total_ns = min_low_ns + min_high_ns;
+ 
+@@ -597,15 +628,28 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+ {
+ 	unsigned long div_low, div_high;
+ 	u64 t_low_ns, t_high_ns;
++	unsigned long flags;
+ 	int ret;
+ 
+-	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->rise_ns,
+-				 i2c->fall_ns, &div_low, &div_high);
++	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->scl_rise_ns,
++				 i2c->scl_fall_ns, i2c->sda_fall_ns,
++				 &div_low, &div_high, true);
++	i2c->div_start = (div_high << 16) | (div_low & 0xffff);
++	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", i2c->scl_frequency);
+ 
++	ret = rk3x_i2c_calc_divs(clk_rate, i2c->scl_frequency, i2c->scl_rise_ns,
++				 i2c->scl_fall_ns, i2c->sda_fall_ns,
++				 &div_low, &div_high, false);
++	i2c->div_normal = (div_high << 16) | (div_low & 0xffff);
+ 	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", i2c->scl_frequency);
+ 
+ 	clk_enable(i2c->clk);
+-	i2c_writel(i2c, (div_high << 16) | (div_low & 0xffff), REG_CLKDIV);
++	spin_lock_irqsave(&i2c->lock, flags);
++	if (i2c->sending_start)
++		i2c_writel(i2c, i2c->div_start, REG_CLKDIV);
++	else
++		i2c_writel(i2c, i2c->div_normal, REG_CLKDIV);
++	spin_unlock_irqrestore(&i2c->lock, flags);
+ 	clk_disable(i2c->clk);
+ 
+ 	t_low_ns = div_u64(((u64)div_low + 1) * 8 * 1000000000, clk_rate);
+@@ -644,8 +688,9 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+ 	switch (event) {
+ 	case PRE_RATE_CHANGE:
+ 		if (rk3x_i2c_calc_divs(ndata->new_rate, i2c->scl_frequency,
+-				       i2c->rise_ns, i2c->fall_ns, &div_low,
+-				       &div_high) != 0)
++				       i2c->scl_rise_ns, i2c->scl_fall_ns,
++				       i2c->sda_fall_ns,
++				       &div_low, &div_high, true) != 0)
+ 			return NOTIFY_STOP;
+ 
+ 		/* scale up */
+@@ -779,10 +824,10 @@ static int rk3x_i2c_xfer(struct i2c_adapter *adap,
+ 		if (i + ret >= num)
+ 			i2c->is_last_msg = true;
+ 
+-		spin_unlock_irqrestore(&i2c->lock, flags);
+-
+ 		rk3x_i2c_start(i2c);
+ 
++		spin_unlock_irqrestore(&i2c->lock, flags);
++
+ 		timeout = wait_event_timeout(i2c->wait, !i2c->busy,
+ 					     msecs_to_jiffies(WAIT_TIMEOUT));
+ 
+@@ -875,15 +920,18 @@ static int rk3x_i2c_probe(struct platform_device *pdev)
+ 	 * the default maximum timing from the specification.
+ 	 */
+ 	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-rising-time-ns",
+-				 &i2c->rise_ns)) {
++				 &i2c->scl_rise_ns)) {
+ 		if (i2c->scl_frequency <= 100000)
+-			i2c->rise_ns = 1000;
++			i2c->scl_rise_ns = 1000;
+ 		else
+-			i2c->rise_ns = 300;
++			i2c->scl_rise_ns = 300;
+ 	}
+ 	if (of_property_read_u32(pdev->dev.of_node, "i2c-scl-falling-time-ns",
+-				 &i2c->fall_ns))
+-		i2c->fall_ns = 300;
++				 &i2c->scl_fall_ns))
++		i2c->scl_fall_ns = 300;
++	if (of_property_read_u32(pdev->dev.of_node, "i2c-sda-falling-time-ns",
++				 &i2c->scl_fall_ns))
++		i2c->sda_fall_ns = i2c->scl_fall_ns;
+ 
+ 	strlcpy(i2c->adap.name, "rk3x-i2c", sizeof(i2c->adap.name));
+ 	i2c->adap.owner = THIS_MODULE;
+-- 
+2.2.0.rc0.207.ga3a616c
