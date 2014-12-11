@@ -1,75 +1,51 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [RFC 1/2] i2c: sh_mobile: refactor DMA setup
-Date: Wed, 10 Dec 2014 22:06:34 +0300
-Message-ID: <548899BA.40002@cogentembedded.com>
-References: <1418217709-26392-1-git-send-email-wsa@the-dreams.de> <1418217709-26392-2-git-send-email-wsa@the-dreams.de>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 0/4] ARM: shmobile: koelsch: Add DA9063 watchdog restart
+ support
+Date: Thu, 11 Dec 2014 10:04:57 +0900
+Message-ID: <20141211010456.GA28633@verge.net.au>
+References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
+ <20141210003352.GH9690@verge.net.au>
+ <CAMuHMdWY_1OsjFvT35Lg23ytzPz0MSCmcT7diGk1ughxNnmtVg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1418217709-26392-2-git-send-email-wsa@the-dreams.de>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWY_1OsjFvT35Lg23ytzPz0MSCmcT7diGk1ughxNnmtVg@mail.gmail.com>
 Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Support Opensource <support.opensource@diasemi.com>, Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
+On Wed, Dec 10, 2014 at 11:06:25AM +0100, Geert Uytterhoeven wrote:
+> Hi Simon,
+> 
+> On Wed, Dec 10, 2014 at 1:33 AM, Simon Horman <horms@verge.net.au> wrote:
+> > On Tue, Dec 09, 2014 at 12:22:45PM +0100, Geert Uytterhoeven wrote:
+> >> This patch series add restart support for r8a7791/koelsch through the watchdog
+> >> in the DA9063 PMIC. Restart can be triggered in two ways:
+> >>   1. Timeout of the watchdog timer,
+> >>   2. Manual system restart, shutting down the DA9063.
+> >>
+> >> Dependencies:
+> >>   - There are no strict merge order dependencies,
+> >>   - While manual restart depends on patch 1, patches 3 and 4 can be merged
+> >>     now, as restart on watchdog timeout works without patch 1.
+> >>
+> >> Patches:
+> >>   - Patch 1 is intended for the watchdog tree (based on watchdog/next),
+> >>   - Patch 2 is intended for the i2c tree (based on i2c/next),
+> >>   - Patches 3 and 4 are intended for the shmobile tree (based on
+> >>     renesas-devel-20141209-v3.18).
+> >
+> > Patches 3 and 4 look like they could be queued up for v3.20 now.
+> > Shall I do so?
+> 
+> Please do so.
+> 
+> You can easily test restart on watchdog timeout using:
+> 
+> $ cat > /dev/watchdog0
+> 
+> Koelsch should restart 8 seconds after you stop typing.
 
-On 12/10/2014 04:21 PM, Wolfram Sang wrote:
-
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-> Refactor DMA setup to keep the errno so we can implement better
-> deferred probe support in the next step.
-
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->   drivers/i2c/busses/i2c-sh_mobile.c | 35 ++++++++++++++++-------------------
->   1 file changed, 16 insertions(+), 19 deletions(-)
-
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index b9c8cf2aac2c..636f2297143a 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-[...]
-> @@ -749,21 +749,18 @@ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
->   };
->   MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
->
-> -static int sh_mobile_i2c_request_dma_chan(struct device *dev, enum dma_transfer_direction dir,
-> -					  dma_addr_t port_addr, struct dma_chan **chan_ptr)
-> +static struct dma_chan *sh_mobile_i2c_request_dma_chan(struct device *dev,
-> +				enum dma_transfer_direction dir, dma_addr_t port_addr)
-
-    Hm, alignment style changed...
-
-[...]
-> @@ -891,13 +886,15 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
->   	/* Init DMA */
->   	sg_init_table(&pd->sg, 1);
->   	pd->dma_direction = DMA_NONE;
-> -	ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
-> -					     res->start + ICDR, &pd->dma_rx);
-> +	pd->dma_rx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
-> +					     res->start + ICDR);
-
-    The alignment of this line is strange: it's neither here nor there, i.e. 
-not aligned to the next char after ( above and still contains spaces. I think 
-we want the old way of the alignment kept, i.e. the line starting under 
-'pd->dev'...
-
-> +	ret = PTR_ERR(pd->dma_rx);
->   	if (ret == -EPROBE_DEFER)
->   		return ret;
->
-> -	ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
-> -					     res->start + ICDR, &pd->dma_tx);
-> +	pd->dma_tx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
-> +					     res->start + ICDR);
-
-    Likewise.
-
-[...]
-
-WBR, Sergei
-
+Thanks, I have queued them up.
