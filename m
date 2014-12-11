@@ -1,108 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/3] i2c: slave support framework for Linux devices
-Date: Thu, 11 Dec 2014 22:26:32 +0100
-Message-ID: <20141211212632.GA21482@katana>
-References: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: sh_mobile: remove unneeded DMA mask
+Date: Thu, 11 Dec 2014 22:29:22 +0100
+Message-ID: <20141211212921.GB21482@katana>
+References: <1418217181-25647-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2428395937521453853=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1416326695-13083-1-git-send-email-wsa@the-dreams.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1418217181-25647-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============2428395937521453853==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
-Content-Disposition: inline
-
-
---PEIAKu/WMn1b1Hv9
+--FkmkrVfFsRoUs1wW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 18, 2014 at 05:04:52PM +0100, Wolfram Sang wrote:
-> Finally, here is my take on the often desired feature that Linux can not =
-only
-> be an I2C master, but also an I2C slave. Since RFC, most open issues have=
- been
-> dealt with. Find details in the patch descriptions. Documentation is still
-> missing and will come later this or next week, but surely early enough for
-> the 3.19 release which this series wants to go in. Yet, I'd like to encou=
-rage
-> code-review and build-testing already.
+On Wed, Dec 10, 2014 at 02:13:01PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 >=20
-> Basically, an I2C slave is a standard I2C client providing a callback fun=
-ction.
-> When registering as a slave, the connection to the I2C adapter is made wh=
-ich
-> uses the callback when a slave event happens. That splits the HW support
-> (enabling slave mode on the adapter) and SW support (here a generic eeprom
-> simulator) nicely IMO.
+> We don't need the mask since we obtain the channels via DT.
 >=20
-> The patches have been tested with a Renesas R8A7790 based Lager board. Th=
-ey are
-> based on top of 3.18-rc5, but will easily apply to renesas/devel. A git t=
-ree
-> can be found here:
->=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/slave-sup=
-port
->=20
-> Comments welcome! Thanks,
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-This series applied to for-next (with some typos corrected)!
-
-I think I have an idea to improve the API thanks to Uwe's comments.
-Still, I'd like to send out my pull request soonish and fix this
-later. It won't be a massive overhaul, so I think it is okay.
+Applied to for-next, thanks!
 
 
---PEIAKu/WMn1b1Hv9
+--FkmkrVfFsRoUs1wW
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUigwIAAoJEBQN5MwUoCm2IS8P/RWVO7Ax6TIkYIsrC8TscGar
-0ENgFTLZfldrqyREWVu36lz16JhsxnrBPcrboBe0BpFpVmgLIweaVyVcUFmhi4u5
-Z8ZlAvH233j/yG0tyse3qWvhy/1yWkHPzLaTybhp7kr4iaGvRc7s8RxOiQNzYpAt
-qk8EZeI9FrIRJ1iUUfT14vClB7Xi2DJl0qqC/rFrPIKVSVyOsNma+tW/wxuibSmd
-M1PMYZdMJIuBOp6QibWaOxrkNOGwIU+aD30WWZsAcqGY9JvbpPTG9Ii8DoE4f8D9
-eZAB4/yEFCVfVkSdzHgAosnN3sqcEkJ3L470nHz7ukVTUDn6sTooDKWrQOGhXpGl
-S9/cuU67Zcsqgl1BUBzwKvgB5QzH2lButf8HuAdHb+s5SKIm465AtBADuj5TbNCc
-rdDvnZUSZ/A07whh/KuWuraOxetfAQ4EMDwgFW+N67bg6ZXD1dPCyS8u9NU94XBC
-D0ODP70T4QhT7prQXsTSbTjuRhf2DAldY+iMgmwefVTcDfxM5Z8YJnDiBSA2rzZb
-RIuCQUJr78447O+OqVAELBDzBspWIaN6dHfywZ7RC0+7flbmCgI9Up/Oh24XziTZ
-+iDA+jtd3/fmzAskDDPeok8dV/qUy5K1BNlaUgIz5wNjstyons2SzLsPq+vDfL/7
-FhLkeFKOiUNMPKRcAc6O
-=QLBs
+iQIcBAEBAgAGBQJUigyxAAoJEBQN5MwUoCm2hJMP/iyKeGkoffg4wSTTLvglxkWV
+VxywE5HbSSchYaYy4Em1tSPcjQ1JytN5LRM+DHlqon0dyZiIE3I0TSEqldKpFLzv
+T5j+wVJCeFrLvV8C4XGMEAm89lVpDb1AiU1OSCMm02m5lJjYmOC1pnXbYUGmee75
+C/kfLxbtcLTaUIx1PxdrUcj86LnitRtT26PP19v5w+cKZ5iOwxGr/G1nx2Vv+CsN
+Cp1SZ5F3RXVzorLhlQT8VH+pI/tbP9XhvKHgd9Q14p1Br4mLu5TEJ9lUmSVwof9B
+sBnIhHfBoIGonmVU+T4FYP3+j2wMhmk1u0Vkbz2WJKOZ5G/T4h76bXJzjYi930Q2
+9g4dPs9Dy00G6zNg/CDgvh/dRsDOIoFyU7bvMRjjeJ6Qz9aInWzJDCfFAWII5mEd
+IVR4thdOEHxV14s3kRnTVvR0YC9TiQzVCPfMZjeVYpeoKxmqXdhKmnENSOgDuNAY
+jCSOT6YDI3bzb7XyTMV1sEPzbfhu5y/4NqFmt3LJYanzksglQ2GOCYx+wIpxbgI0
+6kOwsvQ3eGiRMOcsNT7G+Ob6s9Hegd2VYsZZdSS6TfNa/QZGP7ZeuSv5fP7ddYvx
+u3a9ZZ8lkqAmrebZ74Q3VMTCxMlFCneZzMvVFYhR9mkUFr5r4BCqZx32vRT4pTdc
+RJRM1Fdoyl4xoHWtLJnQ
+=NhGZ
 -----END PGP SIGNATURE-----
 
---PEIAKu/WMn1b1Hv9--
-
-
---===============2428395937521453853==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============2428395937521453853==--
+--FkmkrVfFsRoUs1wW--
