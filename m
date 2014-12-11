@@ -1,76 +1,39 @@
-From: Valentin Longchamp <valentin.longchamp@keymile.com>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Thu, 11 Dec 2014 14:44:20 +0100
-Message-ID: <54899FB4.9010207@keymile.com>
-References: <1413538026-15739-1-git-send-email-valentin.longchamp@keymile.com>	
- <1414537731.23458.120.camel@snotra.buserror.net>	
- <5450AC85.40302@keymile.com> <20141113003418.GE2062@katana>	
- <5465B285.7070005@keymile.com> <20141114082832.GA2180@katana>	
- <1416274083.15957.96.camel@freescale.com> <20141125181347.GC9716@katana>
- <1416966097.15957.171.camel@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <1416966097.15957.171.camel@freescale.com>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-To: Scott Wood <scottwood@freescale.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, danielle.costantino@gmail.com, "Boschung,
- Rainer" <Rainer.Boschung@keymile.com>, "Brunck,
- Holger" <Holger.Brunck@keymile.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux PowerPC Kernel <linuxppc-dev@lists.ozlabs.org>
+From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH 0/2] i2c: i2c-mv64xxx: fix offload support
+Date: Thu, 11 Dec 2014 17:33:44 +0100
+Message-ID: <1418315626-9552-1-git-send-email-thomas.petazzoni@free-electrons.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgYWxsLAoKUGlja2luZyB1cCB0aGlzIGlzc3VlIGFnYWluLgoKT24gMTEvMjYvMjAxNCAwMjo0
-MSBBTSwgU2NvdHQgV29vZCB3cm90ZToKPiBPbiBUdWUsIDIwMTQtMTEtMjUgYXQgMTk6MTMgKzAx
-MDAsIFdvbGZyYW0gU2FuZyB3cm90ZToKPj4gT24gTW9uLCBOb3YgMTcsIDIwMTQgYXQgMDc6Mjg6
-MDNQTSAtMDYwMCwgU2NvdHQgV29vZCB3cm90ZToKPj4+IE9uIEZyaSwgMjAxNC0xMS0xNCBhdCAw
-OToyOCArMDEwMCwgV29sZnJhbSBTYW5nIHdyb3RlOgo+Pj4+Pj4KPj4+Pj4+IElmIHdlJ3JlIGdv
-aW5nIHRvIGNoYW5nZSB0aGUgZGV2aWNlIHRyZWUgSSdkIHJhdGhlciBqdXN0IGFkZCBhIHByb3Bl
-cnR5Cj4+Pj4+PiB0byBzYXkgd2hhdCB0aGUgcHJlc2NhbGVyIGlzLgo+Pj4+Pgo+Pj4+PiAgV2Ug
-d291bGQgaG93ZXZlciwgbGVhdmUgdGhlIGJvYXJkcycgZGV2aWNlIHRyZWVzIHRoYXQgdXNlIHRo
-aW5ncyBsaWtlCj4+Pj4+ICJmc2wsbXBjODU0My1pMmMiIGFzIGlzIGFuZCBpbnRyb2R1Y2UgdGhl
-IHByZXNjYWxlciBmb3IgdGhlIG90aGVycyByZXF1aXJpbmcgaXQuCj4+Pj4+Cj4+Pj4+Cj4+Pj4+
-IE5vdyB0aGUgZHJhd2JhY2sgaXMgdGhhdCB0aGUgZHJpdmVyIHdvdWxkIHJlcXVpcmUgYSBjaGFu
-Z2UsIHRvIHBhcnNlIHRoaXMKPj4+Pj4gcHJlc2NhbGVyIG5ldyBwcmVzY2FsZXIgcHJvcGVydHku
-IFdvdWxkIHRoaXMgYmUgT0sgZnJvbSB5b3VyIHBvaW50IG9mIHZpZXcKPj4+Pj4gV29sZnJhbSA/
-IElmIHllcywgSSB3aWxsIHNlbmQgdGhlIHBhdGNoZXMgZm9yIGl0Lgo+Pj4+Cj4+Pj4gSSBkb24n
-dCB0aGluayBpdCBpcyBPSy4KPj4+Cj4+PiBXaHk/Cj4+Cj4+IEJlY2F1c2UgSSB0aG91Z2h0IGl0
-IGNvdWxkIGJlIGRlZHVjZWQuIFRoZW4sIGEgc2VwZXJhdGUgcHJvcGVydHkgd291bGQKPj4gbm90
-IGJlIE9LLgo+Pgo+Pj4+ICBJJ2QgdGhpbmsgaXQgY2FuIGJlIGRlZHVjZWQgZnJvbSB0aGUgY29t
-cGF0aWJsZSBwcm9wZXJ0eS4KPj4+Cj4+PiBGb3IgYWxtb3N0IGFsbCBleGlzdGluZyBkZXZpY2Ug
-dHJlZXMgaXQgY2Fubm90IGJlLgo+Pgo+PiBQaXR5IDooIElmIHdlIGRvIGludHJvZHVjZSBhIG5l
-dyBwcm9wZXJ0eSwgaXQgc2hvdWxkIHByb2JhYmx5IGJlCj4+ICJjbG9jay1kaXYiLiBHcmVwcGlu
-ZyB0aHJvdWdoIGJpbmRpbmcgZG9jdW1lbnRhdGlvbiwgdGhhdCBzZWVtcwo+PiBhY2NlcHRlZC4g
-V2Ugc2hvdWxkIGFzayBEVCBtYWludGFpbmVycywgdG9vLCB0byBiZSBzYWZlLgo+Pgo+Pj4gSWYg
-eW91IHdhbnQgc29tZXRoaW5nIHRoYXQgd2lsbCB3b3JrIHdpdGhvdXQgY2hhbmdpbmcgZGV2aWNl
-IHRyZWVzLAo+Pj4geW91J2xsIG5lZWQgdG8gdXNlIFNWUiB0byBpZGVudGlmeSB0aGUgU29DLgo+
-Pgo+PiBUaGUgZHJpdmVyIGlzIGRvaW5nIHRoYXQgYWxyZWFkeSwgc2VlIG1wY19pMmNfZ2V0X3Nl
-Y19jZmdfOHh4eCgpLiBEdW5ubwo+PiBpZiBpdCBtYWtlcyBzZW5zZSB0byBhZGQgdG8gaXQgZm9y
-IGNvbnNpc3RlbmN5IHJlYXNvbnM/Cj4gCj4gVGhhdCdzIG5vdCBTVlIsIGJ1dCBzdXJlLiAgQmV0
-dGVyIHRvIGF2b2lkIG1lc3Npbmcgd2l0aCBleGlzdGluZyBkZXZpY2UKPiB0cmVlcy4KPiAKCldo
-YXQgaXMgdGhlbiB0aGUgYWdyZWVtZW50IGhlcmUgPyBBZGQgYSBjbG9jay1kaXYgdG8gdGhlIGRl
-dmljZSB0cmVlcyA/IE9yIGRvCnNvbWV0aGluZyBzaW1pbGFyIHRvICBtcGNfaTJjX2dldF9zZWNf
-Y2ZnXzh4eHgoKSA/CgpJIHRoaW5rIHRoZSBjbG9jay1kaXYgcHJvcGVydHkgaXMgYmV0dGVyIGFj
-Y29yZGluZyB0byBGcmVlc2NhbGUncyBBTiAyOTE5CnNlY3Rpb24gMy4xIFNvdXJjZSBjbG9jay4g
-QWxsIHRoZSBzb3VyY2UgY2xvY2tzIGFyZSBmaXhlZCAod2l0aCBhIGNsb2NrLWRpdiBvZiAyCmlu
-IGNhc2Ugb2YgbXBjODUzNi80My80NS80Ny80OC82Ny82OC83MiwgcGx1cyBwMjAyMCkgZXhjZXB0
-IGZvciB0aGUgbXBjODUzMy80NAp3aGVyZSBpdCBjYW4gYmUgMiBvciAzLCBhbmQgdGhhdCdzIHdo
-YXQgbXBjX2kyY19nZXRfc2VjX2NmZ184eHh4KCkgZGV0ZXJtaW5lcy4KClNvIG1wY19pMmNfZ2V0
-X3NlY19jZmdfOHh4eCgpIHNob3VsZCByZW1haW4gdGhlIGV4Y2VwdGlvbiBhbmQgdGhlIG90aGVy
-CnByZXNjYWxlciB2YWx1ZXMgc2hvdWxkIGJlIGRlcml2ZWQgZnJvbSBhbiBhZGRpdGlvbmFsIGNs
-b2NrLWRpdiB0aGF0IG11c3QgYmUKYWRkZWQgaW4gdGhlIHJlc3BlY3RpdmUgZGV2aWNlIHRyZWVz
-IChhdCBsZWFzdCBmb3IgdGhlIHFvcmlxIGRldmljZXMsIGJlY2F1c2UKZm9yIGluc3RhbmNlIG1w
-Yzg1NDMgYWxyZWFkeSBoYXMgdGhlIGNvcnJlY3QgcHJlc2NhbGVyIHRoYW5rcyB0bwptcGNfaTJj
-X2RhdGFfODU0MyBmcm9tIGkyYy1tcGMuYykuCgpWYWxlbnRpbgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51eHBwYy1kZXYgbWFpbGluZyBsaXN0Ckxp
-bnV4cHBjLWRldkBsaXN0cy5vemxhYnMub3JnCmh0dHBzOi8vbGlzdHMub3psYWJzLm9yZy9saXN0
-aW5mby9saW51eHBwYy1kZXY=
+Wolfram,
+
+Please consider this set of two patches (one cleanup and one fix) that
+aim at making the i2c-mv64xxx offload support work properly for SMBus
+type transfers and make sure it only gets used for transactions where
+it can really be used (in order to comply with the expectations of the
+I2C subsystem in terms of repeated start usage between messages of the
+same xfer).
+
+Without this patch, a platform like the Armada XP WRT1900AC doesn't
+even boot completely, because an I2C LED controller driver triggers
+some SMBus transfers that are do not work with the current i2c-mv64xxx
+driver.
+
+They apply on top of 3.18.
+
+Thanks,
+
+Thomas
+
+Thomas Petazzoni (2):
+  i2c: i2c-mv64xxx: use BIT() macro for register value definitions
+  i2c: i2c-mv64xxx: rework offload support to fix several problems
+
+ drivers/i2c/busses/i2c-mv64xxx.c | 325 +++++++++++++++++++++++----------------
+ 1 file changed, 194 insertions(+), 131 deletions(-)
+
+-- 
+2.1.0
