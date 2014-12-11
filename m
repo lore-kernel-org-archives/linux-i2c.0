@@ -1,59 +1,92 @@
-From: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c: designware: use {readl|writel}_relaxed instead of readl/writel
-Date: Thu, 11 Dec 2014 14:26:41 +0800
-Message-ID: <1418279201-3886-1-git-send-email-jszhang@marvell.com>
+From: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 2/2] i2c: cadence: Check for errata condition involving
+ master receive
+Date: Thu, 11 Dec 2014 12:46:53 +0530
+Message-ID: <CAFcVECJDfJaEALDxfZg5-+tsD02mVT43s7PX4RLs349Kx9Jaeg@mail.gmail.com>
+References: <1418211884-5329-1-git-send-email-harinik@xilinx.com>
+	<1418211884-5329-3-git-send-email-harinik@xilinx.com>
+	<6b2bd13bcd934b0fb09712e8950348e6@BN1AFFO11FD005.protection.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <6b2bd13bcd934b0fb09712e8950348e6-reflc3kr++MEH1pyDrHbn+hlVc3/7hDbVaz/vdPVXQ4@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Harini Katakam <harini.katakam-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-readl/writel is too expensive especially on Cortex A9 w/ outer L2 cache.
-This introduces i2c read/write errors on Marvell BG2/BG2Q SoCs when there
-are heavy L2 cache maintenance operations at the same time.
+Hi Soren,
 
-The driver does not perform DMA, so it's safe to use the relaxed version.
->From another side, the relaxed io accessor macros are available on all
-architectures now, so we can use the relaxed versions instead.
+On Wed, Dec 10, 2014 at 11:15 PM, S=C3=B6ren Brinkmann
+<soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
+> On Wed, 2014-12-10 at 05:14PM +0530, Harini Katakam wrote:
+>> Cadence I2C controller has the following bugs:
+>> - completion indication is not given to the driver at the end of
+>> a read/receive transfer with HOLD bit set.
+>> - Invalid read transaction are generated on the bus when HW timeout
+>> condition occurs with HOLD bit set.
+>>
+>> As a result of the above, if a set of messages to be transferred wit=
+h
+>> repeated start includes any transfer following a read transfer,
+>> completion is never indicated and timeout occurs.
+>> Hence a check is implemented to return -EOPNOTSUPP for such sequence=
+s.
+>>
+>> Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+>> Signed-off-by: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+>> ---
+>>
+>> v4:
+>> Use single dev_warn and make message grep-able.
+>>
+>> v3:
+>> Add warning in case of unsupported transfer.
+>>
+>> v2:
+>> Dont defeteature repeated start. Just check for unsupported conditio=
+ns in the
+>> driver and return error.
+>>
+>> ---
+>>  drivers/i2c/busses/i2c-cadence.c |   14 ++++++++++++++
+>>  1 file changed, 14 insertions(+)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i=
+2c-cadence.c
+>> index 5f5d4fa..f9269a6 100644
+>> --- a/drivers/i2c/busses/i2c-cadence.c
+>> +++ b/drivers/i2c/busses/i2c-cadence.c
+>> @@ -541,6 +541,20 @@ static int cdns_i2c_master_xfer(struct i2c_adap=
+ter *adap, struct i2c_msg *msgs,
+>>        * processed with a repeated start.
+>>        */
+>>       if (num > 1) {
+>> +             /*
+>> +              * This controller does not give completion interrupt =
+after a
+>> +              * master receive transfer if HOLD bit is set (repeate=
+d start),
+>> +              * resulting in SW timeout. Hence, if a receive transf=
+er is
+>> +              * followed by any other transfer, an error is returne=
+d
+>> +              * indicating that this sequence is not supported.
+>> +              */
+>> +             for (count =3D 0; count < num-1; count++) {
+>> +                     if (msgs[count].flags & I2C_M_RD)
+>> +                             dev_warn(adap->dev.parent, "No support=
+ for "
+>> +                                      "repeated start when receive =
+is "
+>> +                                      "followed by a transfer\n");
+>
+> Still not grepable. There must be no line breaks in the string!
 
-Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-core.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+This message will be printed in one single line.
+Do you want this string to be grepable in the driver? Why is that neces=
+sary?
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 23628b7..e279948 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -170,10 +170,10 @@ u32 dw_readl(struct dw_i2c_dev *dev, int offset)
- 	u32 value;
- 
- 	if (dev->accessor_flags & ACCESS_16BIT)
--		value = readw(dev->base + offset) |
--			(readw(dev->base + offset + 2) << 16);
-+		value = readw_relaxed(dev->base + offset) |
-+			(readw_relaxed(dev->base + offset + 2) << 16);
- 	else
--		value = readl(dev->base + offset);
-+		value = readl_relaxed(dev->base + offset);
- 
- 	if (dev->accessor_flags & ACCESS_SWAP)
- 		return swab32(value);
-@@ -187,10 +187,10 @@ void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
- 		b = swab32(b);
- 
- 	if (dev->accessor_flags & ACCESS_16BIT) {
--		writew((u16)b, dev->base + offset);
--		writew((u16)(b >> 16), dev->base + offset + 2);
-+		writew_relaxed((u16)b, dev->base + offset);
-+		writew_relaxed((u16)(b >> 16), dev->base + offset + 2);
- 	} else {
--		writel(b, dev->base + offset);
-+		writel_relaxed(b, dev->base + offset);
- 	}
- }
- 
--- 
-2.1.3
+Regards,
+Harini
