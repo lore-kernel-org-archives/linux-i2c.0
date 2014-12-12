@@ -1,46 +1,46 @@
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Subject: Re: [PATCH v3 0/2] ARM: mediatek: Add driver for Mediatek I2C
- controller
-Date: Fri, 12 Dec 2014 10:40:22 +0800
-Message-ID: <1418352022.4994.44.camel@mtksdaap41>
-References: <1416821928-11453-1-git-send-email-xudong.chen@mediatek.com>
- <20141124121555.GG3733@katana> <1417096856.12707.59.camel@mtksdaap41>
- <20141127164536.GC5667@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20141127164536.GC5667@katana>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Xudong Chen <xudong.chen@mediatek.com>, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, YH Chen <yh.chen@mediatek.com>, Liguo Zhang <Liguo.Zhang@mediatek.com>, Nathan Chung <nathan.chung@mediatek.com>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Herring <robh+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, linux-arm-kernel@lists.infradead.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, Kumar Gala <galak@codeaurora.org>
+From: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v5 0/2] Cadence I2C driver fixes
+Date: Fri, 12 Dec 2014 09:48:25 +0530
+Message-ID: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2014-11-27 at 17:45 +0100, Wolfram Sang wrote:
-> > > I think there are now 3 drivers in my queue which are not fully I2C
-> > > compatible but more supporting the very minimum to, say, read an eeprom.
-> > > I am not feeling well to allow them to use I2C_FUNC_I2C. So, I want to
-> > > think about ways how to communicate deficiencies like "only 255 byte" or
-> > > "only WRRD messages" to users of that I2C controller. This is most
-> > > likely not happening before 3.19. But assistance is very welcome.
+This series implements workarounds for some bugs in Cadence I2C controller.
 
-Hi Wolfram,
+- The I2C controller when configured in Master Mode generates invalid read transactions.
+When HOLD bit is set and HW timeout occurs, invalid read transactions are
+generated on the bus. This will affect repeated start conditions and large
+data transfer condtions where transfer_size_register has to be updated again.
+The transfer size register rolls over erroneously under these conditions.
+Note that this HW timeout cannot be disabled even if the interrupt is unused.
+Errata link: http://www.xilinx.com/support/answers/61664.html
 
-We've started upstream work for MT8173[1].
+-The I2C controller when configured in Master Mode is the missing master completion interrupt.
+During repeated start condition, the driver has to set the HOLD bit for
+the set of transfer being done together and clear the HOLD bit just before
+the last transfer. But the controller does not indicate completion when
+a read/receive transfer is done if the HOLD bit is set. This affects
+all repeated start operation where a read/receive transfer is not
+the last transfer.
+Errata link: http://www.xilinx.com/support/answers/61665.html
 
-We've fixed these issues for new SoC, and we believe it is fully I2C
-compatible now. We'll add mt8173 support to this driver, so this driver
-will support both fully I2C compatible SoC and the current one.
+To address the above,
+- >252 byte transfers are done such that transfer_size never becomes zero.
+- timeout register value is increased (even though the driver doesn't use this).
+- A check is performed to see if there is any transfer following a
+read/receive transfer in the set of messages using repeated start.
+An error is returned in such cases because if we proceed, completion interrupt
+is never obtained and a SW timeout will occur.
 
-Joe.C
+Harini Katakam (2):
+  i2c: cadence: Handle > 252 byte transfers
+  i2c: cadence: Check for errata condition involving master receive
 
-[1]
-http://lists.infradead.org/pipermail/linux-arm-kernel/2014-December/309847.html
+ drivers/i2c/busses/i2c-cadence.c |  185 +++++++++++++++++++++++---------------
+ 1 file changed, 112 insertions(+), 73 deletions(-)
+
+-- 
+1.7.9.5
