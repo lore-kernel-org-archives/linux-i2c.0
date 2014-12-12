@@ -1,69 +1,54 @@
-From: Harini Katakam <harinik@xilinx.com>
-Subject: [PATCH v5 2/2] i2c: cadence: Check for errata condition involving master receive
-Date: Fri, 12 Dec 2014 09:48:27 +0530
-Message-ID: <1418357907-4215-3-git-send-email-harinik@xilinx.com>
-References: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, mark.rutland@arm.com
-Cc: michal.simek@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, harinikatakamlinux@gmail.com, harinik@xilinx.com, Vishnu Motghare <vishnum@xilinx.com>
+From: Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>
+Subject: Re: [v3] i2c: Driver to expose PowerNV platform i2c busses
+Date: Fri, 12 Dec 2014 16:30:48 +1100
+Message-ID: <1418362248.1465.6.camel@ellerman.id.au>
+References: <20141209094503.100F81400DE@ozlabs.org>
+	 <1418120492.13358.45.camel@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1418120492.13358.45.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Cc: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Jeremy Kerr <jeremy.kerr-8fk3Idey6ehBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Cadence I2C controller has the following bugs:
-- completion indication is not given to the driver at the end of
-a read/receive transfer with HOLD bit set.
-- Invalid read transaction are generated on the bus when HW timeout
-condition occurs with HOLD bit set.
+On Tue, 2014-12-09 at 21:21 +1100, Benjamin Herrenschmidt wrote:
+> On Tue, 2014-12-09 at 20:45 +1100, Michael Ellerman wrote:
+> > On Mon, 2014-08-12 at 06:36:16 UTC, Neelesh Gupta wrote:
+> > > The patch exposes the available i2c busses on the PowerNV platform
+> > > to the kernel and implements the bus driver to support i2c and
+> > > smbus commands.
+> > > The driver uses the platform device infrastructure to probe the busses
+> > > on the platform and registers them with the i2c driver framework.
+> > 
+> > >  arch/powerpc/include/asm/opal.h                    |   29 ++
+> > >  arch/powerpc/platforms/powernv/opal-wrappers.S     |    1 
+> > >  arch/powerpc/platforms/powernv/opal.c              |   11 +
+> > 
+> > This had major conflicts in the above files.
+> > 
+> > I've fixed it up but please check I did it correctly:
+> > 
+> >   https://github.com/mpe/powerpc-merge/commits/pw/neelesh-i2c
+> > 
+> > It also doesn't build as a module:
+> > 
+> >   $ grep CONFIG_I2C_OPAL .config
+> >   CONFIG_I2C_OPAL=m
+> >   $ make ...
+> >   ...
+> >   ERROR: "opal_i2c_request" [drivers/i2c/busses/i2c-opal.ko] undefined!
+> 
+> Right that needs to be exported, however for those OPAL wrappers to work
+> when exported as modules on an LE kernel with ABI v2 (pfiew !) we need
+> another patch from jk to sort out the external entry to the asm...
+> 
+> Jeremy, is that already in or not yet ?
 
-As a result of the above, if a set of messages to be transferred with
-repeated start includes any transfer following a read transfer,
-completion is never indicated and timeout occurs.
-Hence a check is implemented to return -EOPNOTSUPP for such sequences.
+Yeah it's been in since October.
 
-Signed-off-by: Harini Katakam <harinik@xilinx.com>
-Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
----
+Please send a v4 with a fix for this Neelesh.
 
-v5:
-Make warning grepable in driver.
-
-v4:
-Use single dev_warn and make message grep-able.
-
-v3:
-Add warning in case of unsupported transfer.
-
-v2:
-Dont defeteature repeated start. Just check for unsupported conditions in the
-driver and return error.
-
----
- drivers/i2c/busses/i2c-cadence.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 5f5d4fa..6538c6c 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -541,6 +541,18 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	 * processed with a repeated start.
- 	 */
- 	if (num > 1) {
-+		/*
-+		 * This controller does not give completion interrupt after a
-+		 * master receive transfer if HOLD bit is set (repeated start),
-+		 * resulting in SW timeout. Hence, if a receive transfer is
-+		 * followed by any other transfer, an error is returned
-+		 * indicating that this sequence is not supported.
-+		 */
-+		for (count = 0; count < num-1; count++) {
-+			if (msgs[count].flags & I2C_M_RD)
-+				dev_warn(adap->dev.parent, "No support for repeated start when receive is followed by a transfer\n");
-+				return -EOPNOTSUPP;
-+		}
- 		id->bus_hold_flag = 1;
- 		reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
- 		reg |= CDNS_I2C_CR_HOLD;
--- 
-1.7.9.5
+cheers
