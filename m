@@ -1,60 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
-Date: Fri, 12 Dec 2014 12:07:35 +0100
-Message-ID: <20141212110735.GA5288@katana>
-References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
- <2462101.Er8OZg9N24@avalon>
- <20141211214732.GC21482@katana>
- <1729516.HWbfnj3Cpn@avalon>
+From: Muthu Mani <muth-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [PATCH v4 2/3] i2c: add support for Cypress CYUSBS234 USB-I2C
+ adapter
+Date: Fri, 12 Dec 2014 16:03:34 +0000
+Message-ID: <BN1PR06MB06912FCBAAE08006E352008CC600@BN1PR06MB069.namprd06.prod.outlook.com>
+References: <1417241986-17841-1-git-send-email-muth@cypress.com>
+ <20141203110755.GA1039@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1729516.HWbfnj3Cpn@avalon>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, dmaengine@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141203110755.GA1039@katana>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org" <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rajaram Regupathy <rera-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for reviewing the code.
 
+> > +/*
+> > + * It exposes sysfs entries under the i2c adapter for getting the i2c
+> > +transfer
+> > + * status, reset i2c read/write module, get/set nak and stop bits.
+> > + */
+>
+> Yes, I see that. Yet, I don't know why they are needed? The driver should
+> know when to send NAK/STOP. Why expose that to the user? And why do
+> we need a reset? Are there stability problems? What about unloading the
+> module? And what is the use case for reading the status?
 
-> > Other than that, even if we move to module_init, we reduce the chance of
-> > getting a deferred probe, but we do not eliminate it...
->=20
-> Sure, but reducing the chance of deferred probe is a good idea in my opin=
-ion=20
-> :-)
+For repeated start (Sr) scenario, the STOP bit will not be set.
+For dummy write scenario (writing EEPROM address from I2C EEPROM slave), the STOP bit should not be set. But, for normal I2C write, the STOP bit should be set.
+We provide control to user to control when to STOP/NAK to handle different scenarios.
 
-Yes, that's a thing nice to have. It is just, I ought to work on "must
-have" tasks first ;)
+The reset is an additional provision given to user to reset the I2C read or write engines. It does not require unloading I2C kernel module.
+The status indicates the information about the last i2c read/write operation.
 
+>
+> > +       if (num > 1) {
+> > +               dev_err(&adapter->dev, "i2c_msg number is > 1\n");
+> > +               return -EIO;
+> > +       }
+>
+> Ouch! Don't you have any repeated start option somewhere?
 
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+In this version of the driver, we handle only single i2c message. In future iterations, we will add support for multiple i2c messages.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Thanks,
+Muthu
 
-iQIcBAEBAgAGBQJUisx3AAoJEBQN5MwUoCm2u/sQAIUvjXAUWxypKRBan83ZC9LM
-NkcXX7+vwfVYrnSpHqBUSZ/mY7Wr/oSM04FEgdLd2utgQY5Wr2KjxCDCQZM1laXB
-vwNqYqhgHRnRzuAyXUQdFb9jbjmbevYNauCw2A4axrHDiGAK2Q0Xedycv0I/E+FF
-qYulL9aqG76Xj62axsUy/HYd25cGStykGqPBWcVu9WkBvgeTRLv8afKwfMeMJBo7
-d6ko8D2iSqy+M0FUuQPXs9mmsC5v6Vi9bSWwykUtZUssM7NGWFYruaF21by8H+jg
-gMM1ijmZFTDGuXJiPmm4nxY2OjmOV0Od6/zVdD2ZtrnNAnoEOiGTXJm/8z1rVhAs
-UZ5hUc4Sbjs0gZOWUoTOvO1as3xLpus33FEMvHH7pnhRf2p3cilMDn7wAAVZYhhY
-CUougzXdOco6Ypw5rJ6U0xleiDCvV++RE/e9xbBK4qGKBWNzQfdAUOdeczRrsF37
-ZsnhSwH2svjI4AH+7UaQPkl09Tasj1gwGs8KVP7UTRMQfcKQ8BXfKafXejT0b+I8
-S6EGgv/tqX1b0895cJKDkvn6pMmWlBRfGlIKDPFYHIj0SoSjoL73MyLzMJ0xSAtb
-svKRinNXjGPoD3g0KH9UvLpXojFwc8Q5cmUYb3JY/bwJVEEZ5nWHHrcpJFBU3iUF
-ahz1VfAnPHWIH/R1JLKq
-=0xc2
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--
+This message and any attachments may contain Cypress (or its subsidiaries) confidential information. If it has been received in error, please advise the sender and immediately delete this message.
