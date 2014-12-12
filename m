@@ -1,54 +1,60 @@
-From: Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>
-Subject: Re: [v3] i2c: Driver to expose PowerNV platform i2c busses
-Date: Fri, 12 Dec 2014 16:30:48 +1100
-Message-ID: <1418362248.1465.6.camel@ellerman.id.au>
-References: <20141209094503.100F81400DE@ozlabs.org>
-	 <1418120492.13358.45.camel@kernel.crashing.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
+Date: Fri, 12 Dec 2014 12:07:35 +0100
+Message-ID: <20141212110735.GA5288@katana>
+References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
+ <2462101.Er8OZg9N24@avalon>
+ <20141211214732.GC21482@katana>
+ <1729516.HWbfnj3Cpn@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1418120492.13358.45.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Cc: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Jeremy Kerr <jeremy.kerr-8fk3Idey6ehBDgjK7y7TUQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1729516.HWbfnj3Cpn@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Magnus Damm <magnus.damm@gmail.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, dmaengine@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2014-12-09 at 21:21 +1100, Benjamin Herrenschmidt wrote:
-> On Tue, 2014-12-09 at 20:45 +1100, Michael Ellerman wrote:
-> > On Mon, 2014-08-12 at 06:36:16 UTC, Neelesh Gupta wrote:
-> > > The patch exposes the available i2c busses on the PowerNV platform
-> > > to the kernel and implements the bus driver to support i2c and
-> > > smbus commands.
-> > > The driver uses the platform device infrastructure to probe the busses
-> > > on the platform and registers them with the i2c driver framework.
-> > 
-> > >  arch/powerpc/include/asm/opal.h                    |   29 ++
-> > >  arch/powerpc/platforms/powernv/opal-wrappers.S     |    1 
-> > >  arch/powerpc/platforms/powernv/opal.c              |   11 +
-> > 
-> > This had major conflicts in the above files.
-> > 
-> > I've fixed it up but please check I did it correctly:
-> > 
-> >   https://github.com/mpe/powerpc-merge/commits/pw/neelesh-i2c
-> > 
-> > It also doesn't build as a module:
-> > 
-> >   $ grep CONFIG_I2C_OPAL .config
-> >   CONFIG_I2C_OPAL=m
-> >   $ make ...
-> >   ...
-> >   ERROR: "opal_i2c_request" [drivers/i2c/busses/i2c-opal.ko] undefined!
-> 
-> Right that needs to be exported, however for those OPAL wrappers to work
-> when exported as modules on an LE kernel with ABI v2 (pfiew !) we need
-> another patch from jk to sort out the external entry to the asm...
-> 
-> Jeremy, is that already in or not yet ?
 
-Yeah it's been in since October.
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Please send a v4 with a fix for this Neelesh.
 
-cheers
+> > Other than that, even if we move to module_init, we reduce the chance of
+> > getting a deferred probe, but we do not eliminate it...
+>=20
+> Sure, but reducing the chance of deferred probe is a good idea in my opin=
+ion=20
+> :-)
+
+Yes, that's a thing nice to have. It is just, I ought to work on "must
+have" tasks first ;)
+
+
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUisx3AAoJEBQN5MwUoCm2u/sQAIUvjXAUWxypKRBan83ZC9LM
+NkcXX7+vwfVYrnSpHqBUSZ/mY7Wr/oSM04FEgdLd2utgQY5Wr2KjxCDCQZM1laXB
+vwNqYqhgHRnRzuAyXUQdFb9jbjmbevYNauCw2A4axrHDiGAK2Q0Xedycv0I/E+FF
+qYulL9aqG76Xj62axsUy/HYd25cGStykGqPBWcVu9WkBvgeTRLv8afKwfMeMJBo7
+d6ko8D2iSqy+M0FUuQPXs9mmsC5v6Vi9bSWwykUtZUssM7NGWFYruaF21by8H+jg
+gMM1ijmZFTDGuXJiPmm4nxY2OjmOV0Od6/zVdD2ZtrnNAnoEOiGTXJm/8z1rVhAs
+UZ5hUc4Sbjs0gZOWUoTOvO1as3xLpus33FEMvHH7pnhRf2p3cilMDn7wAAVZYhhY
+CUougzXdOco6Ypw5rJ6U0xleiDCvV++RE/e9xbBK4qGKBWNzQfdAUOdeczRrsF37
+ZsnhSwH2svjI4AH+7UaQPkl09Tasj1gwGs8KVP7UTRMQfcKQ8BXfKafXejT0b+I8
+S6EGgv/tqX1b0895cJKDkvn6pMmWlBRfGlIKDPFYHIj0SoSjoL73MyLzMJ0xSAtb
+svKRinNXjGPoD3g0KH9UvLpXojFwc8Q5cmUYb3JY/bwJVEEZ5nWHHrcpJFBU3iUF
+ahz1VfAnPHWIH/R1JLKq
+=0xc2
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--
