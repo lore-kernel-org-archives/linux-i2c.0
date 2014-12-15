@@ -1,234 +1,147 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.19
-Date: Sun, 14 Dec 2014 14:38:50 +0100
-Message-ID: <20141214133845.GA4604@katana>
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: [PATCH] of: i2c: Add DT bindings for idle states to PCA954x mux driver
+Date: Mon, 15 Dec 2014 02:25:18 +0100
+Message-ID: <548E387E.2020502@nsn.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+of: i2c: Add DT bindings for idle states to PCA954x mux driver
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Introduce two new device tree bindings to specify idle state of PCA954x family
+of I2C multiplexors:
+  - idle-state: specifies particular child bus to be selected in idle;
+  - idle-disconnect: signals that mux should disconnect all child buses in idle;
 
-Linus,
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |    3 +
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |   51 +++++++++++++++++--
+ 2 files changed, 48 insertions(+), 6 deletions(-)
 
-for 3.19, the I2C subsystem has to offer special candy this time. Right
-in time for Christmas :)
-
-* I2C slave framework: finally, a generic mechanism for Linux being
-  an I2C slave (if the bus driver supports that). Docs are still missing
-  but will come later this cycle, the code is good enough to go.
-* I2C muxes represent their topology in sysfs much more detailed.
-  This will help users to navigate around much easier.
-* irq population of i2c clients is now done at probe time, not device
-  creation time, to have better support for deferred probing.
-* new drivers for Imagination SCB, Amlogic Meson
-* DMA support added for Freescale IMX, Renesas SHMobile
-* slightly bigger driver updates to OMAP, i801, AT91, and rk3x
-  (mostly quirk handling, timing updates, and using better kernel
-  interfaces)
-* eeprom driver can now write with byte-access (very slow, but OK to
-  have)
-* and the bunch of smaller fixes, cleanups, ID updates...
-
-Plese pull!
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 206c5f60a3d902bc4b56dab2de3e88de5eb06108:
-
-  Linux 3.18-rc4 (2014-11-09 14:55:29 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-3.19
-
-for you to fetch changes up to 6cf710d47633be388e831713738626d1911163c8:
-
-  i2c: sh_mobile: remove unneeded DMA mask (2014-12-11 22:28:22 +0100)
-
-----------------------------------------------------------------
-Alexander Kochetkov (5):
-      i2c: omap: cleanup register definitions
-      i2c: omap: implement workaround for handling invalid BB-bit values
-      i2c: omap: don't reset controller if Arbitration Lost detected
-      i2c: omap: add notes related to i2c multimaster mode
-      omap: i2c: don't check bus state IP rev3.3 and earlier
-
-Andrew Bresticker (1):
-      i2c: img-scb: Allow building for MIPS
-
-Arnd Bergmann (1):
-      i2c: at91: remove legacy DMA support
-
-Beniamino Galvani (1):
-      i2c: add support for Amlogic Meson I2C controller
-
-Christian Gmeiner (1):
-      eeprom: at24: extend driver to allow writing via i2c_smbus_write_byte_data
-
-Danielle Costantino (1):
-      i2c: mpc: report correct I2C error return codes
-
-Devin Ryles (1):
-      i2c: i801: Add DeviceIDs for SunrisePoint LP
-
-Doug Anderson (1):
-      i2c: designware: Fix falling time bindings doc
-
-Fabio Estevam (1):
-      i2c: imx+mxs: Use the preferred form for passing a size of a struct
-
-Geert Uytterhoeven (5):
-      i2c: sh_mobile: Document SoC-specific bindings
-      i2c: sh_mobile: Add support for r8a73a4 and sh73a0
-      i2c: core: Fix probing of i2c slaves without interrupts
-      DT: i2c: Add more devices handled by the rtc-rs5c372 driver
-      DT: i2c: Add more devices handled by the adxl34x-i2c driver
-
-Gerlando Falauto (1):
-      i2c: mux: create "channel-n" symlinks for child segments in the mux device
-
-Grygorii Strashko (1):
-      i2c: davinci: switch to use platform_get_irq
-
-James Hogan (2):
-      DT: i2c: Add binding document for IMG I2C SCB
-      i2c: img-scb: Add Imagination Technologies I2C SCB driver
-
-Jean Delvare (4):
-      i2c: i801: Use wait_event_timeout to wait for interrupts
-      i2c: i801: Fallback to polling if request_irq() fails
-      i2c: i801: Check if interrupts are disabled
-      i2c: i801: Drop useless debug message
-
-Lars-Peter Clausen (1):
-      Documentation: i2c: Use PM ops instead of legacy suspend/resume
-
-Laurent Pinchart (2):
-      of/irq: Export of_irq_get()
-      i2c: core: Map OF IRQ at probe time
-
-Ludovic Desroches (1):
-      i2c: at91: enable probe deferring on dma channel request
-
-Max Schwarz (2):
-      i2c: rk3x: handle dynamic clock rate changes correctly
-      i2c: rk3x: add Kconfig dependency on COMMON_CLK
-
-Mike Looijmans (1):
-      i2c: davinci: don't use interruptible completion
-
-Pankaj Dubey (1):
-      i2c: s3c2410: Handle i2c sys_cfg register in i2c driver
-
-Petr Cvek (1):
-      i2c: pxa: add support for SCCB devices
-
-Thomas Gessler (1):
-      i2c: xiic: Fix big-endian register access
-
-Wenyou Yang (3):
-      i2c: at91: add support for runtime PM
-      i2c: at91: add support for system PM
-      i2c: at91: adopt pinctrl support
-
-Wolfram Sang (14):
-      i2c: exynos5: use proper errno for timeout
-      i2c: sh_mobile: sort includes alphabetically
-      i2c: sh_mobile: add DMA support
-      i2c: sh_mobile: improve success message
-      i2c: acpi: remove unneeded variable initialization
-      i2c: mux: create symlink to actual mux device
-      i2c: imx: simplify i2c_imx_dma_write() a little
-      i2c: sh_mobile: use proper device for mapping DMA memory
-      i2c: sh_mobile: optimize irq entry
-      MAINTAINERS: add I2C dt bindings also to I2C realm
-      i2c: core changes for slave support
-      i2c: slave-eeprom: add eeprom simulator driver
-      i2c: rcar: add slave support
-      i2c: sh_mobile: remove unneeded DMA mask
-
-Yao Yuan (2):
-      i2c: imx: Sort include headers alphabetically
-      i2c: imx: add DMA support for freescale i2c driver
-
-addy ke (1):
-      i2c: rk3x: adjust the LOW divison based on characteristics of SCL
-
- .../devicetree/bindings/i2c/i2c-designware.txt     |    4 +-
- .../devicetree/bindings/i2c/i2c-img-scb.txt        |   26 +
- Documentation/devicetree/bindings/i2c/i2c-imx.txt  |   11 +
- .../devicetree/bindings/i2c/i2c-meson.txt          |   24 +
- .../devicetree/bindings/i2c/i2c-sh_mobile.txt      |   14 +
- .../devicetree/bindings/i2c/trivial-devices.txt    |    8 +
- Documentation/i2c/busses/i2c-i801                  |    1 +
- Documentation/i2c/upgrading-clients                |    6 +-
- Documentation/i2c/writing-clients                  |    8 +-
- MAINTAINERS                                        |    1 +
- drivers/i2c/Kconfig                                |   10 +
- drivers/i2c/Makefile                               |    1 +
- drivers/i2c/busses/Kconfig                         |   20 +-
- drivers/i2c/busses/Makefile                        |    2 +
- drivers/i2c/busses/i2c-at91.c                      |  127 +-
- drivers/i2c/busses/i2c-davinci.c                   |   24 +-
- drivers/i2c/busses/i2c-exynos5.c                   |    4 +-
- drivers/i2c/busses/i2c-i801.c                      |   57 +-
- drivers/i2c/busses/i2c-img-scb.c                   | 1412 ++++++++++++++++++++
- drivers/i2c/busses/i2c-imx.c                       |  354 ++++-
- drivers/i2c/busses/i2c-meson.c                     |  492 +++++++
- drivers/i2c/busses/i2c-mpc.c                       |   18 +-
- drivers/i2c/busses/i2c-mxs.c                       |    2 +-
- drivers/i2c/busses/i2c-omap.c                      |  133 +-
- drivers/i2c/busses/i2c-pxa.c                       |   19 +-
- drivers/i2c/busses/i2c-rcar.c                      |  124 +-
- drivers/i2c/busses/i2c-rk3x.c                      |  251 +++-
- drivers/i2c/busses/i2c-s3c2410.c                   |   29 +
- drivers/i2c/busses/i2c-sh_mobile.c                 |  244 +++-
- drivers/i2c/busses/i2c-xiic.c                      |   58 +-
- drivers/i2c/i2c-core.c                             |   64 +-
- drivers/i2c/i2c-mux.c                              |   12 +
- drivers/i2c/i2c-slave-eeprom.c                     |  170 +++
- drivers/misc/eeprom/at24.c                         |   35 +-
- drivers/of/irq.c                                   |    1 +
- include/linux/i2c.h                                |   29 +
- 36 files changed, 3608 insertions(+), 187 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-img-scb.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-meson.txt
- create mode 100644 drivers/i2c/busses/i2c-img-scb.c
- create mode 100644 drivers/i2c/busses/i2c-meson.c
- create mode 100644 drivers/i2c/i2c-slave-eeprom.c
-
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUjZLlAAoJEBQN5MwUoCm2l6QP/1wXEMBcw1wkzHbZLuvKyenm
-Aobz3V6w+At12zC45OnTR4jMBFjLhN8yyiqUEbNWiYqNWSoJ4goWwny6M7YrhHiZ
-qJWoo6pK//0byQ5QH4kKV/dDoBRSyPzIPNtyjiO4oecS8Hk5sawALEL/qqzP175S
-/Y8tJoicew50YSRp17o+/nUoCneTZvQ2KNSTS/va3fRDiTUddgJ9Z8mdNRQM5QxB
-xrm/xuvt3mXWFVpNZHoPCRlgVCmT/p/hKd6Rxjbzyw5iNENAevQe+mKuogbIHvbL
-uY8tRSN44P7pMuFDW9N/5DEs3phYbQ2XedcWAWSUTbiZoBo+grHmgP4vSS0qn5Mg
-ZLIaZ7FINttAKW16sR1tPOgdA62y1nI3mlhFwhBez5hgEIUigzit/0K/pAOzDYUe
-DOh4BeplcdPD/qCOninus2KE/Yjo6r5yQ4gR9eL+L4SDi2JUlH9OVBvABoxR7Yxf
-fQ+0jxDJmAPa0JZxdjZp9XwLS8h0uxHCBJkjh4Gb1/7LuJoEq1aJ4aqYDggY6enw
-OxSMGZm2zs95O14YpkZbrywf4G2y6rcQZhdDEsO82qFUM6/v5/zmvtolAYa0yWbt
-4KQ5Q1wdHwwz8fP2O7+S5/cHVKS62QC1X2GU4+Bb77o2QQ1mNWglpuYhDub3ibwl
-vQMHYTfZU6SdiMr3AtaW
-=0LMz
------END PGP SIGNATURE-----
-
---FCuugMFkClbJLl1L--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index 34a3fb6..1fbe287 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -16,6 +16,9 @@ Required Properties:
+ Optional Properties:
+ 
+   - reset-gpios: Reference to the GPIO connected to the reset input.
++  - idle-state: Child bus connected in idle state (specified by its "reg" value)
++  - idle-disconnect: Boolean; if defined, forces mux to disconnect all children
++    in idle state
+ 
+ 
+ Example:
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index ec11b40..69cf603 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -43,6 +43,7 @@
+ #include <linux/module.h>
+ #include <linux/pm.h>
+ #include <linux/slab.h>
++#include <linux/of.h>
+ 
+ #define PCA954X_MAX_NCHANS 8
+ 
+@@ -62,6 +63,8 @@ struct pca954x {
+ 	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
+ 
+ 	u8 last_chan;		/* last register value */
++	bool idle_disconnect;
++	s8 idle_chan;		/* valid if not negative */
+ };
+ 
+ struct chip_desc {
+@@ -172,10 +175,20 @@ static int pca954x_deselect_mux(struct i2c_adapter *adap,
+ 				void *client, u32 chan)
+ {
+ 	struct pca954x *data = i2c_get_clientdata(client);
++	struct pca954x_platform_data *pdata =
++		dev_get_platdata(&((struct i2c_client *)client)->dev);
++
++	if ((pdata && pdata->modes[chan].deselect_on_exit) ||
++	    data->idle_disconnect) {
++		/* Deselect active channel */
++		data->last_chan = 0;
++		return pca954x_reg_write(adap, client, data->last_chan);
++	}
+ 
+-	/* Deselect active channel */
+-	data->last_chan = 0;
+-	return pca954x_reg_write(adap, client, data->last_chan);
++	if (data->idle_chan >= 0)
++		return pca954x_select_chan(adap, client, data->idle_chan);
++
++	return 0;
+ }
+ 
+ /*
+@@ -186,6 +199,7 @@ static int pca954x_probe(struct i2c_client *client,
+ {
+ 	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+ 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
++	struct device_node *of_node = client->dev.of_node;
+ 	struct gpio_desc *gpio;
+ 	int num, force, class;
+ 	struct pca954x *data;
+@@ -216,6 +230,27 @@ static int pca954x_probe(struct i2c_client *client,
+ 
+ 	data->type = id->driver_data;
+ 	data->last_chan = 0;		   /* force the first selection */
++	data->idle_chan = -1;		   /* no forced idle state */
++
++	if (of_node) {
++		u32 ch;
++
++		if (of_property_read_bool(of_node, "idle-disconnect"))
++			data->idle_disconnect = true;
++
++		if (!of_property_read_u32_index(of_node, "idle-state", 0, &ch)) {
++			if (ch < PCA954X_MAX_NCHANS) {
++				data->idle_chan = ch;
++				/* Force idle state from the beginning */
++				ret = pca954x_select_chan(adap, client, ch);
++				if (ret)
++					return ret;
++			} else {
++				dev_warn(&client->dev,
++				         "Invalid idle-state property\n");
++			}
++		}
++	}
+ 
+ 	/* Now create an adapter for each channel */
+ 	for (num = 0; num < chips[data->type].nchans; num++) {
+@@ -234,8 +269,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 		data->virt_adaps[num] =
+ 			i2c_add_mux_adapter(adap, &client->dev, client,
+ 				force, num, class, pca954x_select_chan,
+-				(pdata && pdata->modes[num].deselect_on_exit)
+-					? pca954x_deselect_mux : NULL);
++				pca954x_deselect_mux);
+ 
+ 		if (data->virt_adaps[num] == NULL) {
+ 			ret = -ENODEV;
+@@ -281,7 +315,12 @@ static int pca954x_resume(struct device *dev)
+ 	struct pca954x *data = i2c_get_clientdata(client);
+ 
+ 	data->last_chan = 0;
+-	return i2c_smbus_write_byte(client, 0);
++	/* Restore idle state on resume */
++	if (data->idle_chan >= 0)
++		return pca954x_select_chan(to_i2c_adapter(client->dev.parent),
++		                           client, data->idle_chan);
++	else
++		return i2c_smbus_write_byte(client, 0);
+ }
+ #endif
+ 
+-- 
+1.7.1
