@@ -1,102 +1,166 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 2/5] i2c: sh_mobile: add DMA support
-Date: Mon, 15 Dec 2014 09:31:01 +0100
-Message-ID: <CAMuHMdWsUkQN-+h07Zf2snbD9bEw49_+rasY4zS8QcvqA+aXUQ@mail.gmail.com>
-References: <1415355104-2031-1-git-send-email-wsa@the-dreams.de>
-	<2462101.Er8OZg9N24@avalon>
-	<20141211214732.GC21482@katana>
-	<1729516.HWbfnj3Cpn@avalon>
-	<20141215064306.GN16827@intel.com>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH] of: i2c: Add DT bindings for idle states to PCA954x mux driver
+Date: Mon, 15 Dec 2014 10:40:15 +0200
+Message-ID: <4262366.rJm0Aq2lpm@avalon>
+References: <548E387E.2020502@nsn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20141215064306.GN16827@intel.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Vinod Koul <vinod.koul@intel.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Simon Horman <horms@verge.net.au>, dmaengine@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <548E387E.2020502-OYasijW0DpE@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vinod,
+Hi Alexander,
 
-On Mon, Dec 15, 2014 at 7:43 AM, Vinod Koul <vinod.koul@intel.com> wrote:
-> On Thu, Dec 11, 2014 at 11:52:10PM +0200, Laurent Pinchart wrote:
->> On Thursday 11 December 2014 22:47:32 Wolfram Sang wrote:
->> > > > Note that the I2C drives uses subsys_initcall() for historic reasons,
->> > > > while the DMA driver uses module_init(). This is hard to revert without
->> > > > introducing potential regressions on older boards. So, the I2C DMA
->> > > > support needs to handle deferred probe definately. I am with Laurent, I
->> > > > don't see any other way, but I'd be glad to be enlightened...
->> > >
->> > > While I believe that requesting the channel at transfer time is the good
->> > > solution, I think we should still try to move to module initcalls where
->> > > possible. The risk of regressions is real so proper testing is needed. My
->> > > question is, have you tried it ?
->> >
->> > I would need to test all boards using this driver to not fail booting.
->> > Usually I2C drivers are moved to subsys_initcall because they need
->> > access to something critical (PMIC, GPIOs...) early. I don't see a sane
->> > way to do that testing.
->>
->> Still, I would like to get a better view on the problems we should expect, by
->> testing this on the latest boards for instance.
->>
->> > Other than that, even if we move to module_init, we reduce the chance of
->> > getting a deferred probe, but we do not eliminate it...
->>
->> Sure, but reducing the chance of deferred probe is a good idea in my opinion
->> :-)
-> Okay so what is the issue here, this statement is a bit worrying. Why do
-> you guys want to reduce the chance of deferred probe? I assumed that issue was
-> the channels availability...
+Thank you for the patch.
 
-Please let me summarize...
+On Monday 15 December 2014 02:25:18 Alexander Sverdlin wrote:
+> of: i2c: Add DT bindings for idle states to PCA954x mux driver
+> 
+> Introduce two new device tree bindings to specify idle state of PCA954x
+> family of I2C multiplexors:
+>   - idle-state: specifies particular child bus to be selected in idle;
+>   - idle-disconnect: signals that mux should disconnect all child buses in
+> idle;
 
-During probe of a DMA client driver, the DMA engine driver may not be available,
-causing dma_request_slave_channel*() to return -EPROBE-DEFER.
-There are actually two different reasons that the DMA engine driver may not
-be available:
-  1. The DMA engine driver hasn't been initialized yet, due to probe order.
-     This is more likely to happen with i2c client drivers, as they
-are initialized
-     from subsys_initcall() instead of module_init() (E.g. I never saw
-it with the
-     spi-rspi driver).
-     => The DMA client driver wants to return -EPROBE_DEFER too, and
-       retry later.
-  2. The DMA engine driver is not included in the kernel build.
-     => The DMA client driver wants to fall back to PIO.
+Could you please briefly explain your use case(s) for those two properties ?
 
-Now, how to distinguish between the two cases above?
+> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+> ---
+>  .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |    3 +
+>  drivers/i2c/muxes/i2c-mux-pca954x.c                |   51 +++++++++++++++--
+>  2 files changed, 48 insertions(+), 6 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt index
+> 34a3fb6..1fbe287 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> @@ -16,6 +16,9 @@ Required Properties:
+>  Optional Properties:
+> 
+>    - reset-gpios: Reference to the GPIO connected to the reset input.
+> +  - idle-state: Child bus connected in idle state (specified by its "reg"
+> value) +  - idle-disconnect: Boolean; if defined, forces mux to disconnect
+> all children +    in idle state
+> 
+> 
+>  Example:
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> b/drivers/i2c/muxes/i2c-mux-pca954x.c index ec11b40..69cf603 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -43,6 +43,7 @@
+>  #include <linux/module.h>
+>  #include <linux/pm.h>
+>  #include <linux/slab.h>
+> +#include <linux/of.h>
 
-Currently, e.g. i2c-sh_mobile always returns -EPROBE_DEFER, never falling
-back to PIO, breaking case 2. While e.g. spi-rspi always falls back to PIO,
-which is suboptimal in case 1 (but I never encountered that case with spi).
+Could you please keep headers sorted alphabetically ?
 
-Solutions under consideration:
-  1. Wolfram posted a patch to make i2c-sh_mobile fall back to PIO, and retry
-     DMA initialization in every request, so it will switch to DMA
-when it becomes
-     available. But this is suboptimal, as it adds overhead to every
-request (and
-     DMA may never become available in case 2).
+>  #define PCA954X_MAX_NCHANS 8
+> 
+> @@ -62,6 +63,8 @@ struct pca954x {
+>  	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
+> 
+>  	u8 last_chan;		/* last register value */
+> +	bool idle_disconnect;
+> +	s8 idle_chan;		/* valid if not negative */
+>  };
+> 
+>  struct chip_desc {
+> @@ -172,10 +175,20 @@ static int pca954x_deselect_mux(struct i2c_adapter
+> *adap, void *client, u32 chan)
+>  {
+>  	struct pca954x *data = i2c_get_clientdata(client);
+> +	struct pca954x_platform_data *pdata =
+> +		dev_get_platdata(&((struct i2c_client *)client)->dev);
+> +
+> +	if ((pdata && pdata->modes[chan].deselect_on_exit) ||
+> +	    data->idle_disconnect) {
 
-  2. Delay i2c initialization, by moving from subsys_initcall() to
-module_init(),
-      in the hope the i2c client driver will be initialized after the
-DMA engine.
-     This is being discussed in the thread you quoted above.
+I would copy pdata->modes[chan].deselect_on_exit to data->idle_disconnect in 
+the probe function, so you could avoiding accessing pdata here.
 
-I hope this explains the problem well.
+> +		/* Deselect active channel */
+> +		data->last_chan = 0;
+> +		return pca954x_reg_write(adap, client, data->last_chan);
+> +	}
+> 
+> -	/* Deselect active channel */
+> -	data->last_chan = 0;
+> -	return pca954x_reg_write(adap, client, data->last_chan);
+> +	if (data->idle_chan >= 0)
+> +		return pca954x_select_chan(adap, client, data->idle_chan);
+> +
+> +	return 0;
+>  }
+> 
+>  /*
+> @@ -186,6 +199,7 @@ static int pca954x_probe(struct i2c_client *client,
+>  {
+>  	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+>  	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+> +	struct device_node *of_node = client->dev.of_node;
+>  	struct gpio_desc *gpio;
+>  	int num, force, class;
+>  	struct pca954x *data;
+> @@ -216,6 +230,27 @@ static int pca954x_probe(struct i2c_client *client,
+> 
+>  	data->type = id->driver_data;
+>  	data->last_chan = 0;		   /* force the first selection */
+> +	data->idle_chan = -1;		   /* no forced idle state */
+> +
+> +	if (of_node) {
+> +		u32 ch;
+> +
+> +		if (of_property_read_bool(of_node, "idle-disconnect"))
+> +			data->idle_disconnect = true;
+> +
+> +		if (!of_property_read_u32_index(of_node, "idle-state", 0, &ch)) {
+> +			if (ch < PCA954X_MAX_NCHANS) {
+> +				data->idle_chan = ch;
+> +				/* Force idle state from the beginning */
+> +				ret = pca954x_select_chan(adap, client, ch);
+> +				if (ret)
+> +					return ret;
+> +			} else {
+> +				dev_warn(&client->dev,
+> +				         "Invalid idle-state property\n");
+> +			}
+> +		}
+> +	}
+> 
+>  	/* Now create an adapter for each channel */
+>  	for (num = 0; num < chips[data->type].nchans; num++) {
+> @@ -234,8 +269,7 @@ static int pca954x_probe(struct i2c_client *client,
+>  		data->virt_adaps[num] =
+>  			i2c_add_mux_adapter(adap, &client->dev, client,
+>  				force, num, class, pca954x_select_chan,
+> -				(pdata && pdata->modes[num].deselect_on_exit)
+> -					? pca954x_deselect_mux : NULL);
+> +				pca954x_deselect_mux);
+> 
+>  		if (data->virt_adaps[num] == NULL) {
+>  			ret = -ENODEV;
+> @@ -281,7 +315,12 @@ static int pca954x_resume(struct device *dev)
+>  	struct pca954x *data = i2c_get_clientdata(client);
+> 
+>  	data->last_chan = 0;
+> -	return i2c_smbus_write_byte(client, 0);
+> +	/* Restore idle state on resume */
+> +	if (data->idle_chan >= 0)
+> +		return pca954x_select_chan(to_i2c_adapter(client->dev.parent),
+> +		                           client, data->idle_chan);
+> +	else
+> +		return i2c_smbus_write_byte(client, 0);
+>  }
+>  #endif
 
-Thanks!
+-- 
+Regards,
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Laurent Pinchart
