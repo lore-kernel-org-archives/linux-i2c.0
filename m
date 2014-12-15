@@ -1,45 +1,37 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH] of: i2c: Add DT bindings for idle states to PCA954x mux
- driver
-Date: Mon, 15 Dec 2014 13:08:39 +0100
-Message-ID: <548ECF47.8030307@gmx.de>
-References: <548E387E.2020502@nsn.com> <4262366.rJm0Aq2lpm@avalon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: [PATCH] i2c: sh_mobile: I2C_SH_MOBILE should depend on HAS_DMA
+Date: Mon, 15 Dec 2014 14:37:04 +0100
+Message-ID: <1418650624-28174-1-git-send-email-geert@linux-m68k.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4262366.rJm0Aq2lpm@avalon>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Laurent,
+If NO_DMA=y:
 
-Am 15.12.2014 um 09:40 schrieb Laurent Pinchart:
-> Hi Alexander,
->
-> Thank you for the patch.
->
-> On Monday 15 December 2014 02:25:18 Alexander Sverdlin wrote:
->> of: i2c: Add DT bindings for idle states to PCA954x mux driver
->>
->> Introduce two new device tree bindings to specify idle state of PCA954x
->> family of I2C multiplexors:
->>    - idle-state: specifies particular child bus to be selected in idle;
->>    - idle-disconnect: signals that mux should disconnect all child buses in
->> idle;
->
-> Could you please briefly explain your use case(s) for those two properties ?
+drivers/built-in.o: In function `sh_mobile_i2c_dma_unmap':
+i2c-sh_mobile.c:(.text+0x60de42): undefined reference to `dma_unmap_single'
+drivers/built-in.o: In function `sh_mobile_i2c_xfer_dma':
+i2c-sh_mobile.c:(.text+0x60df22): undefined reference to `dma_map_single'
+i2c-sh_mobile.c:(.text+0x60df2e): undefined reference to `dma_mapping_error'
 
-Rationale (which should be added) is:
-If there are two or more multiplexers/switches connected to same bus 
-unused ones need to be set to neutral/unconnected state, otherwise 
-transactions to devices behind current multiplexer get visible to all 
-buses lately addressed on the other multiplexers. This will lead to 
-address conflicts for all devices with same address.
+Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-Usage of new bindings is xor.
-
-KR
-Michael
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index c1351d9fb35bbc8d..f08dd20f625c184d 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -753,6 +753,7 @@ config I2C_SH7760
+ 
+ config I2C_SH_MOBILE
+ 	tristate "SuperH Mobile I2C Controller"
++	depends on HAS_DMA
+ 	depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
+ 	help
+ 	  If you say yes to this option, support will be included for the
+-- 
+1.9.1
