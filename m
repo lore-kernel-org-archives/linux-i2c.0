@@ -1,50 +1,74 @@
-From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v3 0/3] Add I2C support to Broadcom iProc
-Date: Mon, 15 Dec 2014 16:12:27 -0800
-Message-ID: <548F78EB.8090801@broadcom.com>
-References: <rjui@broadcom.com> <1418183832-24793-1-git-send-email-rjui@broadcom.com> <548F577E.7020207@broadcom.com> <20141215215533.GA13945@katana>
+From: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
+Subject: [PATCHv1 1/7] dt-bindings: use isil prefix for Intersil
+Date: Tue, 16 Dec 2014 01:22:27 +0100
+Message-ID: <8e8a6eff40822083c0510f6c2787639ee819ef45.1418688042.git.arno@natisbad.org>
+References: <cover.1418688042.git.arno@natisbad.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141215215533.GA13945@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1418688042.git.arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Hayato Suzuki <hytszk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Antony Pavlov <antonynpavlov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe-rXY34ruvC2xidJT2blvkqNi2O/JbrIOy@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-Thanks for the reply. I'll go through your recent reviews and if I find 
-any comment that applies to my driver I'll make the change.
+This patch fixes DT documentation to reference isil (NASDAQ symbol and
+the most used prefix inside the kernel) for all Intersil products.
 
-Thanks,
+It reverts both 7c75c1d5e72b ("dt-bindings: Document deprecated device
+vendor name to fix related warning") and b2ea3f82e798 ("dt-bindings:
+Document correct and deprecated vendor-prefix with device isl29028").
 
-Ray
+Signed-off-by: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/trivial-devices.txt | 5 ++---
+ Documentation/devicetree/bindings/vendor-prefixes.txt     | 3 +--
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-On 12/15/2014 1:55 PM, Wolfram Sang wrote:
-> Hi,
->
-> please don't drop the i2c-list.
->
->> I guess you are probably extremely busy and might not have had a chance to
->> look into the iProc I2C driver v3 patch that was submitted on December 9.
->> I'm not trying to rush it, and am perfectly fine with waiting longer. I
->> understand subsystem maintainers like you are usually very busy.
->
-> True, true.
->
->> As I'm quite new to the upstreaming process, here I'd just like to find out
->> in a bit more details on what to expect and how to proceed forward.
->
-> We are in the merge window currently, and I will start looking at new
-> patches probably around rc2 or so.
->
-> If you want to speed up things, check the reviews of other new drivers I
-> did in the recent past and check if some of the remarks also apply to
-> your driver.
->
-> Thanks,
->
->     Wolfram
->
+diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt =
+b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+index 9f4e3824e71e..0aaff72065bf 100644
+--- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+@@ -58,9 +58,8 @@ fsl,sgtl5000		SGTL5000: Ultra Low-Power Audio Codec
+ gmt,g751		G751: Digital Temperature Sensor and Thermal Watchdog with T=
+wo-Wire Interface
+ infineon,slb9635tt	Infineon SLB9635 (Soft-) I2C TPM (old protocol, max=
+ 100khz)
+ infineon,slb9645tt	Infineon SLB9645 I2C TPM (new protocol, max 400khz)
+-isl,isl12057		Intersil ISL12057 I2C RTC Chip
+-isil,isl29028           (deprecated, use isl)
+-isl,isl29028            Intersil ISL29028 Ambient Light and Proximity =
+Sensor
++isil,isl12057		Intersil ISL12057 I2C RTC Chip
++isil,isl29028           Intersil ISL29028 Ambient Light and Proximity =
+Sensor
+ maxim,ds1050		5 Bit Programmable, Pulse-Width Modulator
+ maxim,max1237		Low-Power, 4-/12-Channel, 2-Wire Serial, 12-Bit ADCs
+ maxim,max6625		9-Bit/12-Bit Temperature Sensors with I=C2=B2C-Compatib=
+le Serial Interface
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Do=
+cumentation/devicetree/bindings/vendor-prefixes.txt
+index cc6151c431c8..ba574e431c5a 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -79,8 +79,7 @@ innolux	Innolux Corporation
+ intel	Intel Corporation
+ intercontrol	Inter Control Group
+ isee	ISEE 2007 S.L.
+-isil    Intersil (deprecated, use isl)
+-isl	Intersil
++isil	Intersil
+ karo	Ka-Ro electronics GmbH
+ keymile	Keymile GmbH
+ lacie	LaCie
+--=20
+2.1.1
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
