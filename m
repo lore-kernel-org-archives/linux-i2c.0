@@ -1,88 +1,182 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 2/2] i2c: sh_mobile: rework deferred probing
-Date: Tue, 16 Dec 2014 12:35:23 +0100
-Message-ID: <20141216113523.GB10958@katana>
-References: <1418217709-26392-1-git-send-email-wsa@the-dreams.de>
- <1418217709-26392-3-git-send-email-wsa@the-dreams.de>
- <CAMuHMdX2u4J2Dqb2ww23F4ED2QFWu4Ev2tF9Nr6o0PXRdpxSDA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdX2u4J2Dqb2ww23F4ED2QFWu4Ev2tF9Nr6o0PXRdpxSDA@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 2/2] i2c: sh_mobile: rework deferred probing
+Date: Tue, 16 Dec 2014 13:31:26 +0100
+Message-ID: <1418733086-26324-3-git-send-email-wsa@the-dreams.de>
+References: <1418733086-26324-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1418733086-26324-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
---aM3YZ0Iwxop3KEKx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+DMA is opt-in for this driver. So, we can't use deferred probing for
+requesting DMA channels in probe, because our driver would get endlessly
+deferred if DMA support is compiled in AND the DMA driver is missing.
+Because we can't know when the DMA driver might show up, we always try
+again when a DMA transfer would be possible. The downside is that there
+is more overhead for setting up PIO transfers under the above scenario.
+But well, having DMA enabled and the proper DMA driver missing looks
+like a broken or test config anyhow.
 
-On Wed, Dec 10, 2014 at 02:44:58PM +0100, Geert Uytterhoeven wrote:
-> Hi Wolfram,
->=20
-> On Wed, Dec 10, 2014 at 2:21 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > DMA is opt-in for this driver. So, we can't use deferred probing in
-> > probe, because our driver would get endlessly deferred if DMA support is
-> > compiled in but only the DMA driver is missing. Because we can't know
-> > when the DMA driver might show up, we always try again when a DMA
-> > transfer would be possible. The downside is that there is more overhead
-> > for setting up every DMA transfer.
->=20
-> ... for setting up every PIO transfer?
->=20
-> Once DMA is available, it's just one extra variable check.
+Reported-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-sh_mobile.c | 98 +++++++++++++++++++-------------------
+ 1 file changed, 48 insertions(+), 50 deletions(-)
 
-ACK. Mixed that up.
-
->=20
-> > Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > ---
-> >  drivers/i2c/busses/i2c-sh_mobile.c | 98 +++++++++++++++++++-----------=
---------
-> >  1 file changed, 48 insertions(+), 50 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2=
-c-sh_mobile.c
-> > index 636f2297143a..ea7b99212fa6 100644
-> > --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> > +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> > @@ -144,6 +144,7 @@ struct sh_mobile_i2c_data {
-> >         int sr;
-> >         bool send_stop;
-> >
-> > +       struct resource *res;
->=20
-> I thinkk you can just store dma_addr_t port_addr here.
-
-Yes, but I liked the resource better :)
-
-
---aM3YZ0Iwxop3KEKx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUkBj7AAoJEBQN5MwUoCm2X2sP/RyVZb8/w5C2Cs+39S3imllD
-zaf/8f/PYdHRyr9eWuoQAsgGKIQDB/IYSj20PX6JJkHebaEJcnSpglKlgIF/YtsR
-N8kEKRKaFmuuJPoiSDT9qhxqBpXahaunmsSq3nV23CLuUNGOjDROc2r5+VrFqGW+
-YzNOvEOmtKQfBTxoZOhxZVFtn4WkTrn/gWGWfLxwsVtVOc54gaYfLAKtZrPv91zz
-7PymjQs0E2botRcnltbX/Gjz5fZA3MQnZNhwED2KTZ4spTfmWm2lDQBt098bgwyj
-sOz3sczenWwoBYpH4HjKL97xWK+wO74Kbku+IInN8iMBDjkyOmQtbkpa9uZymdSS
-wvY531sWrpjjNRlSj6AdHLTeqy4MxWoEVtZ3131bTjIH90UmeFO5zoM3B73PolsI
-22av9cNgpJHJ1T+tjS0IWVT1QNQfHPPNdRZwjuvy9rjUMbfWuE02flh1yIb5RWxj
-0GpyF/b9BYUBTrBbhCf69BCpozSkK1/Iz9JfIJPM86qggYizt5n7M8CaC17aHT3H
-npAh6CwT+hPj2RzJmwTsm68TOfE8VUhzcxR3anqW2Wbu2kvLFl/45AffaQC/fqC0
-Gh82ZMp/pKRZffhX7zu5zmHDdEqzZxXr1aIoowSzISn/p+9vlGoQ6tgzuMFQPnuh
-PwJ7Sj3QfHMRVT/ZA3k9
-=drZ4
------END PGP SIGNATURE-----
-
---aM3YZ0Iwxop3KEKx--
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 2eccbb55dab2..1b7903f5f4b3 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -144,6 +144,7 @@ struct sh_mobile_i2c_data {
+ 	int sr;
+ 	bool send_stop;
+ 
++	struct resource *res;
+ 	struct dma_chan *dma_tx;
+ 	struct dma_chan *dma_rx;
+ 	struct scatterlist sg;
+@@ -543,6 +544,41 @@ static void sh_mobile_i2c_dma_callback(void *data)
+ 	iic_set_clr(pd, ICIC, 0, ICIC_TDMAE | ICIC_RDMAE);
+ }
+ 
++static struct dma_chan *sh_mobile_i2c_request_dma_chan(struct device *dev,
++				enum dma_transfer_direction dir, dma_addr_t port_addr)
++{
++	struct dma_chan *chan;
++	struct dma_slave_config cfg;
++	char *chan_name = dir == DMA_MEM_TO_DEV ? "tx" : "rx";
++	int ret;
++
++	chan = dma_request_slave_channel_reason(dev, chan_name);
++	if (IS_ERR(chan)) {
++		dev_dbg(dev, "request_channel failed for %s (%d)\n", chan_name, ret);
++		return chan;
++	}
++
++	memset(&cfg, 0, sizeof(cfg));
++	cfg.direction = dir;
++	if (dir == DMA_MEM_TO_DEV) {
++		cfg.dst_addr = port_addr;
++		cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
++	} else {
++		cfg.src_addr = port_addr;
++		cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
++	}
++
++	ret = dmaengine_slave_config(chan, &cfg);
++	if (ret) {
++		dev_dbg(dev, "slave_config failed for %s (%d)\n", chan_name, ret);
++		dma_release_channel(chan);
++		return ERR_PTR(ret);
++	}
++
++	dev_dbg(dev, "got DMA channel for %s\n", chan_name);
++	return chan;
++}
++
+ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
+ {
+ 	bool read = pd->msg->flags & I2C_M_RD;
+@@ -552,6 +588,15 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
+ 	dma_addr_t dma_addr;
+ 	dma_cookie_t cookie;
+ 
++	if (PTR_ERR(chan) == -EPROBE_DEFER) {
++		if (read)
++			chan = pd->dma_rx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
++									   pd->res->start + ICDR);
++		else
++			chan = pd->dma_tx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
++									   pd->res->start + ICDR);
++	}
++
+ 	if (IS_ERR(chan))
+ 		return;
+ 
+@@ -749,41 +794,6 @@ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
+ 
+-static struct dma_chan *sh_mobile_i2c_request_dma_chan(struct device *dev,
+-				enum dma_transfer_direction dir, dma_addr_t port_addr)
+-{
+-	struct dma_chan *chan;
+-	struct dma_slave_config cfg;
+-	char *chan_name = dir == DMA_MEM_TO_DEV ? "tx" : "rx";
+-	int ret;
+-
+-	chan = dma_request_slave_channel_reason(dev, chan_name);
+-	if (IS_ERR(chan)) {
+-		dev_dbg(dev, "request_channel failed for %s (%d)\n", chan_name, ret);
+-		return chan;
+-	}
+-
+-	memset(&cfg, 0, sizeof(cfg));
+-	cfg.direction = dir;
+-	if (dir == DMA_MEM_TO_DEV) {
+-		cfg.dst_addr = port_addr;
+-		cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+-	} else {
+-		cfg.src_addr = port_addr;
+-		cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+-	}
+-
+-	ret = dmaengine_slave_config(chan, &cfg);
+-	if (ret) {
+-		dev_dbg(dev, "slave_config failed for %s (%d)\n", chan_name, ret);
+-		dma_release_channel(chan);
+-		return ERR_PTR(ret);
+-	}
+-
+-	dev_dbg(dev, "got DMA channel for %s\n", chan_name);
+-	return chan;
+-}
+-
+ static void sh_mobile_i2c_release_dma(struct sh_mobile_i2c_data *pd)
+ {
+ 	if (!IS_ERR(pd->dma_tx)) {
+@@ -846,6 +856,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+ 
++	pd->res = res;
+ 	pd->reg = devm_ioremap_resource(&dev->dev, res);
+ 	if (IS_ERR(pd->reg))
+ 		return PTR_ERR(pd->reg);
+@@ -886,19 +897,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	/* Init DMA */
+ 	sg_init_table(&pd->sg, 1);
+ 	pd->dma_direction = DMA_NONE;
+-	pd->dma_rx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
+-						    res->start + ICDR);
+-	ret = PTR_ERR(pd->dma_rx);
+-	if (ret == -EPROBE_DEFER)
+-		return ret;
+-
+-	pd->dma_tx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
+-						    res->start + ICDR);
+-	ret = PTR_ERR(pd->dma_tx);
+-	if (ret == -EPROBE_DEFER) {
+-		sh_mobile_i2c_release_dma(pd);
+-		return ret;
+-	}
++	pd->dma_rx = pd->dma_tx = ERR_PTR(-EPROBE_DEFER);
+ 
+ 	/* Enable Runtime PM for this device.
+ 	 *
+@@ -936,8 +935,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 		return ret;
+ 	}
+ 
+-	dev_info(&dev->dev, "I2C adapter %d, bus speed %lu Hz, DMA=%c\n",
+-		 adap->nr, pd->bus_speed, (pd->dma_rx || pd->dma_tx) ? 'y' : 'n');
++	dev_info(&dev->dev, "I2C adapter %d, bus speed %lu Hz\n", adap->nr, pd->bus_speed);
+ 
+ 	return 0;
+ }
+-- 
+2.1.3
