@@ -1,44 +1,31 @@
-From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Subject: Re: [PATCH] of: i2c: Add DT bindings for idle states to PCA954x mux
- driver
-Date: Tue, 16 Dec 2014 21:13:47 +0100
-Message-ID: <5490927B.1010705@nsn.com>
-References: <548E387E.2020502@nsn.com> <5722849.lDq3gpSIfD@avalon> <54902A49.7030804@nsn.com> <3857435.mVCtkYnmde@avalon>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [RFC 1/2] i2c: sh_mobile: refactor DMA setup
+Date: Wed, 17 Dec 2014 00:06:48 +0300
+Message-ID: <54909EE8.2040001@cogentembedded.com>
+References: <1418217709-26392-1-git-send-email-wsa@the-dreams.de> <1418217709-26392-2-git-send-email-wsa@the-dreams.de> <548899BA.40002@cogentembedded.com> <20141216113411.GA10958@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <3857435.mVCtkYnmde@avalon>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20141216113411.GA10958@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Laurent!
+Hello.
 
-On 16/12/14 14:38, ext Laurent Pinchart wrote:
->>> I understand the use cases of the idle-disconnect property. What do you
->>> > > use idle-state for, when the idle state is different from disconnecting
->>> > > the bus ?
->> >
->> > We do not have a use case for that. It was done only for the sake of
->> > completeness. Because other MUXes actually offer user this possibility. I
->> > was initially thinking about providing this on i2c-mux level for all of
->> > them, but unfortunately they all use deselect callback in different way and
->> > pinctrl is the worst case, as idle state cannot be represented with an int,
->> > but should be a pointer.
->> > 
->> > Anyway, if you think there is no use-case for this, I can drop this part.
-> Adding a DT property without a clear use case usually makes me a bit wary. I 
-> would thus prefer going for either idle-disconnect alone, or for an idle-state 
-> property that would allow selecting disconnection as one of the possible 
-> values.
+On 12/16/2014 02:34 PM, Wolfram Sang wrote:
 
-I thought about this, but this would require some magic value for idle-state
-property, which would not be obvious for the readers of .dts file without
-consulting the documentation. So, I would prefer to drop the idle channel selection
-completely...
+>>     Hm, alignment style changed...
 
--- 
-Best regards,
-Alexander Sverdlin.
+> I am not too strict on that as long as the result is somewhat readable.
+
+> I'd be more interested in your thoughts about the general approach taken
+> in this series.
+
+    Sorry, I'm not very familiar with this driver (and busy with other stuff 
+currently).
+
+WBR, Sergei
+
