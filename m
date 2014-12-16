@@ -1,114 +1,221 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 1/2] i2c: sh_mobile: refactor DMA setup
-Date: Tue, 16 Dec 2014 13:31:25 +0100
-Message-ID: <1418733086-26324-2-git-send-email-wsa@the-dreams.de>
-References: <1418733086-26324-1-git-send-email-wsa@the-dreams.de>
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: Re: [PATCH] of: i2c: Add DT bindings for idle states to PCA954x mux
+ driver
+Date: Tue, 16 Dec 2014 13:49:13 +0100
+Message-ID: <54902A49.7030804@nsn.com>
+References: <548E387E.2020502@nsn.com> <4262366.rJm0Aq2lpm@avalon> <548FE8B2.9010400@nsn.com> <5722849.lDq3gpSIfD@avalon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1418733086-26324-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <5722849.lDq3gpSIfD@avalon>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: ext Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Hello Laurent,
 
-Refactor DMA setup to keep the errno so we can implement better
-deferred probe support in the next step.
+On 16/12/14 12:07, ext Laurent Pinchart wrote:
+>>>> of: i2c: Add DT bindings for idle states to PCA954x mux driver
+>>>>
+>>>> Introduce two new device tree bindings to specify idle state of PCA954x
+>>>>
+>>>> family of I2C multiplexors:
+>>>>   - idle-state: specifies particular child bus to be selected in idle;
+>>>>   - idle-disconnect: signals that mux should disconnect all child buses
+>>>>   in idle;
+>>>
+>>> Could you please briefly explain your use case(s) for those two properties
+>>> ?
+>>
+>> idle-state specifies which bus will be connected when there is no data
+>> transfer. i2c-mux-gpio also has "idle-state" (though, it can replace both
+>> connect and disconnect cases in my patch). i2c-mux-pinctrl has special
+>> "idle" convention, specifying idle state as last in the list of states.
+>> Again, it can serve for both my properties.
+>>
+>> idle-disconnect is what we actually use for some security reasons (so that
+>> I2C bus of the external SFP cage is not connected to the rest of I2C bus
+>> in idle).
+> 
+> Thank you for the explanation. I would add it to the DT bindings 
+> documentation, or at least to the commit message.
 
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
----
- drivers/i2c/busses/i2c-sh_mobile.c | 35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+Ok, I'll send v2 with all your comments addressed.
+ 
+> I understand the use cases of the idle-disconnect property. What do you use 
+> idle-state for, when the idle state is different from disconnecting the bus ?
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index b9c8cf2aac2c..2eccbb55dab2 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -552,7 +552,7 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
- 	dma_addr_t dma_addr;
- 	dma_cookie_t cookie;
- 
--	if (!chan)
-+	if (IS_ERR(chan))
- 		return;
- 
- 	dma_addr = dma_map_single(chan->device->dev, pd->msg->buf, pd->msg->len, dir);
-@@ -749,21 +749,18 @@ static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
- 
--static int sh_mobile_i2c_request_dma_chan(struct device *dev, enum dma_transfer_direction dir,
--					  dma_addr_t port_addr, struct dma_chan **chan_ptr)
-+static struct dma_chan *sh_mobile_i2c_request_dma_chan(struct device *dev,
-+				enum dma_transfer_direction dir, dma_addr_t port_addr)
- {
- 	struct dma_chan *chan;
- 	struct dma_slave_config cfg;
- 	char *chan_name = dir == DMA_MEM_TO_DEV ? "tx" : "rx";
- 	int ret;
- 
--	*chan_ptr = NULL;
--
- 	chan = dma_request_slave_channel_reason(dev, chan_name);
- 	if (IS_ERR(chan)) {
--		ret = PTR_ERR(chan);
- 		dev_dbg(dev, "request_channel failed for %s (%d)\n", chan_name, ret);
--		return ret;
-+		return chan;
- 	}
- 
- 	memset(&cfg, 0, sizeof(cfg));
-@@ -780,25 +777,23 @@ static int sh_mobile_i2c_request_dma_chan(struct device *dev, enum dma_transfer_
- 	if (ret) {
- 		dev_dbg(dev, "slave_config failed for %s (%d)\n", chan_name, ret);
- 		dma_release_channel(chan);
--		return ret;
-+		return ERR_PTR(ret);
- 	}
- 
--	*chan_ptr = chan;
--
- 	dev_dbg(dev, "got DMA channel for %s\n", chan_name);
--	return 0;
-+	return chan;
- }
- 
- static void sh_mobile_i2c_release_dma(struct sh_mobile_i2c_data *pd)
- {
--	if (pd->dma_tx) {
-+	if (!IS_ERR(pd->dma_tx)) {
- 		dma_release_channel(pd->dma_tx);
--		pd->dma_tx = NULL;
-+		pd->dma_tx = ERR_PTR(-EPROBE_DEFER);
- 	}
- 
--	if (pd->dma_rx) {
-+	if (!IS_ERR(pd->dma_rx)) {
- 		dma_release_channel(pd->dma_rx);
--		pd->dma_rx = NULL;
-+		pd->dma_rx = ERR_PTR(-EPROBE_DEFER);
- 	}
- }
- 
-@@ -891,13 +886,15 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
- 	/* Init DMA */
- 	sg_init_table(&pd->sg, 1);
- 	pd->dma_direction = DMA_NONE;
--	ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
--					     res->start + ICDR, &pd->dma_rx);
-+	pd->dma_rx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_DEV_TO_MEM,
-+						    res->start + ICDR);
-+	ret = PTR_ERR(pd->dma_rx);
- 	if (ret == -EPROBE_DEFER)
- 		return ret;
- 
--	ret = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
--					     res->start + ICDR, &pd->dma_tx);
-+	pd->dma_tx = sh_mobile_i2c_request_dma_chan(pd->dev, DMA_MEM_TO_DEV,
-+						    res->start + ICDR);
-+	ret = PTR_ERR(pd->dma_tx);
- 	if (ret == -EPROBE_DEFER) {
- 		sh_mobile_i2c_release_dma(pd);
- 		return ret;
+We do not have a use case for that. It was done only for the sake of completeness.
+Because other MUXes actually offer user this possibility. I was initially thinking
+about providing this on i2c-mux level for all of them, but unfortunately they all
+use deselect callback in different way and pinctrl is the worst case, as idle
+state cannot be represented with an int, but should be a pointer.
+
+Anyway, if you think there is no use-case for this, I can drop this part.
+
+>>>> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+>>>> ---
+>>>>
+>>>>  .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |    3 +
+>>>>  drivers/i2c/muxes/i2c-mux-pca954x.c                |   51 ++++++++++++--
+>>>>  2 files changed, 48 insertions(+), 6 deletions(-)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+>>>> b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt index
+>>>> 34a3fb6..1fbe287 100644
+>>>> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+>>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+>>>>
+>>>> @@ -16,6 +16,9 @@ Required Properties:
+>>>>  Optional Properties:
+>>>>    - reset-gpios: Reference to the GPIO connected to the reset input.
+>>>>
+>>>> +  - idle-state: Child bus connected in idle state (specified by its
+>>>> "reg" value)
+>>>> +  - idle-disconnect: Boolean; if defined, forces mux to disconnect all
+>>>> children
+>>>> +    in idle state
+>>>>
+>>>>  Example:
+>>>> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
+>>>> b/drivers/i2c/muxes/i2c-mux-pca954x.c index ec11b40..69cf603 100644
+>>>> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+>>>> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>>>> @@ -43,6 +43,7 @@
+>>>>  #include <linux/module.h>
+>>>>  #include <linux/pm.h>
+>>>>  #include <linux/slab.h>
+>>>> +#include <linux/of.h>
+>>>
+>>> Could you please keep headers sorted alphabetically ?
+>>
+>> Yes...
+>>
+>>>>  #define PCA954X_MAX_NCHANS 8
+>>>>
+>>>> @@ -62,6 +63,8 @@ struct pca954x {
+>>>>
+>>>>  	struct i2c_adapter *virt_adaps[PCA954X_MAX_NCHANS];
+>>>>  	
+>>>>  	u8 last_chan;		/* last register value */
+>>>>
+>>>> +	bool idle_disconnect;
+>>>> +	s8 idle_chan;		/* valid if not negative */
+>>>>
+>>>>  };
+>>>>  
+>>>>  struct chip_desc {
+>>>>
+>>>> @@ -172,10 +175,20 @@ static int pca954x_deselect_mux(struct i2c_adapter
+>>>> *adap, void *client, u32 chan)
+>>>>
+>>>>  {
+>>>>  
+>>>>  	struct pca954x *data = i2c_get_clientdata(client);
+>>>>
+>>>> +	struct pca954x_platform_data *pdata =
+>>>> +		dev_get_platdata(&((struct i2c_client *)client)->dev);
+>>>> +
+>>>> +	if ((pdata && pdata->modes[chan].deselect_on_exit) ||
+>>>> +	    data->idle_disconnect) {
+>>>
+>>> I would copy pdata->modes[chan].deselect_on_exit to data->idle_disconnect
+>>> in the probe function, so you could avoiding accessing pdata here.
+>>
+>> Unfortunately, this pdata has different (per-channel) semantics. I cannot
+>> really understand, why it was done this way, but anyway it's not possible
+>> to use one global bit to represent per-channel bits without changing the
+>> behavior.
+>>
+>> I'm not keen to brake out-of-tree code (if any), but may be it will be
+>> decided to drop this per-channel deselect_on_exit, because it's not used at
+>> least in the kernel tree...
+> 
+> I'd vote for removing deselect_on_exit from platform data, but I won't insist.
+
+Then it should be a separate patch, probably... I can send a series removing pdata
+pits and adding a DT binding.
+
+>>>> +		/* Deselect active channel */
+>>>> +		data->last_chan = 0;
+>>>> +		return pca954x_reg_write(adap, client, data->last_chan);
+>>>> +	}
+>>>>
+>>>> -	/* Deselect active channel */
+>>>> -	data->last_chan = 0;
+>>>> -	return pca954x_reg_write(adap, client, data->last_chan);
+>>>> +	if (data->idle_chan >= 0)
+>>>> +		return pca954x_select_chan(adap, client, data->idle_chan);
+>>>> +
+>>>> +	return 0;
+>>>>  }
+>>>>  
+>>>>  /*
+>>>> @@ -186,6 +199,7 @@ static int pca954x_probe(struct i2c_client *client,
+>>>>  {
+>>>>  	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+>>>>  	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+>>>> +	struct device_node *of_node = client->dev.of_node;
+>>>>  	struct gpio_desc *gpio;
+>>>>  	int num, force, class;
+>>>>  	struct pca954x *data;
+>>>> @@ -216,6 +230,27 @@ static int pca954x_probe(struct i2c_client *client,
+>>>>  	data->type = id->driver_data;
+>>>>  	data->last_chan = 0;		   /* force the first selection */
+>>>>
+>>>> +	data->idle_chan = -1;		   /* no forced idle state */
+>>>> +
+>>>> +	if (of_node) {
+>>>> +		u32 ch;
+>>>> +
+>>>> +		if (of_property_read_bool(of_node, "idle-disconnect"))
+>>>> +			data->idle_disconnect = true;
+>>>> +
+>>>> +		if (!of_property_read_u32_index(of_node, "idle-state", 0, &ch)) {
+>>>> +			if (ch < PCA954X_MAX_NCHANS) {
+>>>> +				data->idle_chan = ch;
+>>>> +				/* Force idle state from the beginning */
+>>>> +				ret = pca954x_select_chan(adap, client, ch);
+>>>> +				if (ret)
+>>>> +					return ret;
+>>>> +			} else {
+>>>> +				dev_warn(&client->dev,
+>>>> +				         "Invalid idle-state property\n");
+>>>> +			}
+>>>> +		}
+>>>> +	}
+>>>>
+>>>>  	/* Now create an adapter for each channel */
+>>>>  	for (num = 0; num < chips[data->type].nchans; num++) {
+>>>> @@ -234,8 +269,7 @@ static int pca954x_probe(struct i2c_client *client,
+>>>>  		data->virt_adaps[num] =
+>>>>  			i2c_add_mux_adapter(adap, &client->dev, client,
+>>>>  				force, num, class, pca954x_select_chan,
+>>>> -				(pdata && pdata->modes[num].deselect_on_exit)
+>>>> -					? pca954x_deselect_mux : NULL);
+>>>> +				pca954x_deselect_mux);
+>>>>
+>>>>  		if (data->virt_adaps[num] == NULL) {
+>>>>  			ret = -ENODEV;
+>>>> @@ -281,7 +315,12 @@ static int pca954x_resume(struct device *dev)
+>>>>  	struct pca954x *data = i2c_get_clientdata(client);
+>>>>  	
+>>>>  	data->last_chan = 0;
+>>>>
+>>>> -	return i2c_smbus_write_byte(client, 0);
+>>>> +	/* Restore idle state on resume */
+>>>> +	if (data->idle_chan >= 0)
+>>>> +		return pca954x_select_chan(to_i2c_adapter(client->dev.parent),
+>>>> +		                           client, data->idle_chan);
+>>>> +	else
+>>>> +		return i2c_smbus_write_byte(client, 0);
+>>>>
+>>>>  }
+>>>>  #endif
+> 
+
 -- 
-2.1.3
+Best regards,
+Alexander Sverdlin.
