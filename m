@@ -1,48 +1,66 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: sh_mobile: I2C_SH_MOBILE should depend on HAS_DMA
-Date: Wed, 17 Dec 2014 09:04:52 +0100
-Message-ID: <CAMuHMdWShh+m_0c_3cnGt_2J03u0dhWytER0AqLWoLtauEh5aA@mail.gmail.com>
+Date: Wed, 17 Dec 2014 09:59:07 +0100
+Message-ID: <20141217085907.GB2919@katana>
 References: <1418650624-28174-1-git-send-email-geert@linux-m68k.org>
-	<20141217065814.GB1018@katana>
+ <20141217065814.GB1018@katana>
+ <CAMuHMdWShh+m_0c_3cnGt_2J03u0dhWytER0AqLWoLtauEh5aA@mail.gmail.com>
+ <20141217083905.GA2919@katana>
+ <CAMuHMdWoNxZ_gKWntANTn+oakJfVwY9np1cKs-sXoOf3vpS5Fg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20141217065814.GB1018@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XF85m9dhOBO43t/C"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWoNxZ_gKWntANTn+oakJfVwY9np1cKs-sXoOf3vpS5Fg@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Wed, Dec 17, 2014 at 7:58 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Mon, Dec 15, 2014 at 02:37:04PM +0100, Geert Uytterhoeven wrote:
->> If NO_DMA=y:
->>
->> drivers/built-in.o: In function `sh_mobile_i2c_dma_unmap':
->> i2c-sh_mobile.c:(.text+0x60de42): undefined reference to `dma_unmap_single'
->> drivers/built-in.o: In function `sh_mobile_i2c_xfer_dma':
->> i2c-sh_mobile.c:(.text+0x60df22): undefined reference to `dma_map_single'
->> i2c-sh_mobile.c:(.text+0x60df2e): undefined reference to `dma_mapping_error'
->>
->> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
->
-> Thanks for spotting this. However, since DMA is opt-in, isn't this
-> dependency too much? I can't think of anything better than #ifdeffing
-> the code, though.
+--XF85m9dhOBO43t/C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You're right.
 
-E.g. drivers/spi/spi.c (in SPI the mapping is handled by the core), this
-code is #ifdefed out.
+> If ARM and SUPERH imply HAS_DMA, that formula is almost identical to
+> the one I proposed in my patch?
 
-Gr{oetje,eeting}s,
+Ehrm, true :)
 
-                        Geert
+>        depends on HAS_DMA
+>        depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
+>=20
+> I just prefer to split dependencies in two lines where it makes sense ("h=
+ard"
+> dependencies vs. "soft" (user platform configuration) dependencies).
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I prefer my version slightly. But not worth the hazzle, I'll pick yours.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Thanks!
+
+--XF85m9dhOBO43t/C
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUkUXaAAoJEBQN5MwUoCm2fy4P/Re36/47sQJzKrum7vh0nsyw
+rq+JdDJXbeNhTsCPauLlzeoo5dY+d6Uan2JFR+TTy7lshMgkP2rLZK9LiOhFglSS
+zNO+z5pm3PxIg/PYMlW/zo9sRScfIO1HuK0vIggLC+tCBDML592V0CNMs+Qh6d9i
+kMqyLOG94G3omCbb7m3DWnovT8bAC1DW5CzZgBfmndCm3+JT9CifsMlar6kOPujv
+RMuL4NZTJh58nZFCyXrUNQOWMAPcLUhfbojMk2cYzgADZKN1TiYkchjFcWelobwV
+co7snDDghKkeizcXjXgq2wo8Hs1MZ3meQmUiAyNEznj9cjXAWpvywA1KBqj9KYdP
+PsrkHh2TdjeCmXMBbNs2D9Q9lU1RAJqDITQPM1mGl5PX6PYjBEK38F8smTNW3sY9
+Ap74mwlAxZ7LMTvkqcj3skQ1r0CauakjA2Xf/QBEiaI7G5h6fK3aSeojEvoe9INs
+pFXXSKbotTwkJYtD1oDrWMuzusGDIcs586kfCC+tELoPPn5pbHcCC3AfsmYOQpOp
+kcKdOpbvb1fUR6EJGLpsuBFmDy2mwB1XT+1DvsPYSSJT1OzPVzGWP+QUQYDuAQjW
+SUcbn2ltnoxaC8RJ9JUVpwQJRR1FNFVi8hiFS+TLzl5fxXcaJjVpurRdxxIOMOGP
+UoOhQwMs34RTa3mcFEyc
+=z13R
+-----END PGP SIGNATURE-----
+
+--XF85m9dhOBO43t/C--
