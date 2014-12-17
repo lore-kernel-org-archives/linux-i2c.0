@@ -1,67 +1,82 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCHv2 2/8] dt-bindings: use isil prefix for Intersil in I2C
- trivial-devices.txt
-Date: Wed, 17 Dec 2014 07:46:11 +0100
-Message-ID: <20141217064610.GA1018@katana>
-References: <cover.1418763328.git.arno@natisbad.org>
- <86079cdf7325f6d83e0270d32ff66bcc3e6a34bb.1418763328.git.arno@natisbad.org>
+Subject: Re: [PATCH] i2c: sh_mobile: I2C_SH_MOBILE should depend on HAS_DMA
+Date: Wed, 17 Dec 2014 07:58:14 +0100
+Message-ID: <20141217065814.GB1018@katana>
+References: <1418650624-28174-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="jho1yZJdad60DJr+"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <86079cdf7325f6d83e0270d32ff66bcc3e6a34bb.1418763328.git.arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe-rXY34ruvC2xidJT2blvkqNi2O/JbrIOy@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Darshana Padmadas <darshanapadmadas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1418650624-28174-1-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---OgqxwSJOaUobr8KG
+--jho1yZJdad60DJr+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 16, 2014 at 10:19:53PM +0100, Arnaud Ebalard wrote:
+On Mon, Dec 15, 2014 at 02:37:04PM +0100, Geert Uytterhoeven wrote:
+> If NO_DMA=3Dy:
 >=20
-> This patch fixes I2C trivial-devices.txt DT documentation file to
-> reference isil (NASDAQ symbol and the most used prefix inside the
-> kernel) for Intersil.
+> drivers/built-in.o: In function `sh_mobile_i2c_dma_unmap':
+> i2c-sh_mobile.c:(.text+0x60de42): undefined reference to `dma_unmap_singl=
+e'
+> drivers/built-in.o: In function `sh_mobile_i2c_xfer_dma':
+> i2c-sh_mobile.c:(.text+0x60df22): undefined reference to `dma_map_single'
+> i2c-sh_mobile.c:(.text+0x60df2e): undefined reference to `dma_mapping_err=
+or'
 >=20
-> It reverts 7c75c1d5e72b ("dt-bindings: Document deprecated device
-> vendor name to fix related warning").
+> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+
+Thanks for spotting this. However, since DMA is opt-in, isn't this
+dependency too much? I can't think of anything better than #ifdeffing
+the code, though.
+
+> ---
+>  drivers/i2c/busses/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 >=20
-> Signed-off-by: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index c1351d9fb35bbc8d..f08dd20f625c184d 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -753,6 +753,7 @@ config I2C_SH7760
+> =20
+>  config I2C_SH_MOBILE
+>  	tristate "SuperH Mobile I2C Controller"
+> +	depends on HAS_DMA
+>  	depends on SUPERH || ARCH_SHMOBILE || COMPILE_TEST
+>  	help
+>  	  If you say yes to this option, support will be included for the
+> --=20
+> 1.9.1
+>=20
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-Should I take it or does it go via another tree?
-
-
---OgqxwSJOaUobr8KG
+--jho1yZJdad60DJr+
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUkSayAAoJEBQN5MwUoCm2ZM0P/3AKbkaOqcnf7Ma8/Uk/0znk
-dr7qEQlVse9EqA/HBAErbyBRae0wPAACdjfq7Ul9DxPNdCCSLyetNtRZqgY0TZZI
-1FfZwNN1hPX+Up6iTllKrppiUYt9+2Gol/KEMxmKdeFLt49FZk/GmTE2OfBkCYsg
-gDtDilwsnWkQ4+5B1VYhQbOj5POP1qGoXcYyjRex6zdLUwO7BPCLf5yNqARQCFaZ
-+BYwmLeP5xkNHwFYkeh8Q3YsPM6QrV9bMGyVw1t0ox+u6aplkFIMn0pQCYFQUa5T
-wn2DMFJ2H0cBL1vNF47rXQf6bZr4Kh8IP4s4G7VZuaa+8WwrxrvQOWCUbNsmB3Vo
-oxpxbL2slfrKyKtYfHIV2HiuU3O2GjIyHO7pe9XNgWsP1cQL2SLC5aGbIGfBi4+f
-AtrEoDoRkX8pttBMrRhzyFeVVeeiUZ6XUiBIaud7Pa66rULE/zq5KUKnzTm+5Tgf
-FjyUZSuQfT4C4GIc4Qf9DFKt/JRY/5iiZwdSVylRt3Wl+q7HTp/7cMuWegOlTZr8
-ek1p/EnQZOPL4VsudxM8igHCS3gWx1WdcaweeBaTac5ydvskkrtcxxJfU4l4IqCC
-RoeSR2Uh1g/8PS6WbmJbzMbKOR/fQUNOgs0tLc46EGNIZENmbknX3GtbeuSF7626
-4U8RKQoUGEfYZBEmSqZ+
-=Z3Ff
+iQIcBAEBAgAGBQJUkSmGAAoJEBQN5MwUoCm2xHsP/js2TUgYoioEwKyqVFe5DaFY
+7vmdGM9QXQIvlS+hMBhdMeVbN8tb5CUF+G24XEyiqrDgbrG7PiHb84ud+XziGsfW
+h7q7r2mSDYWWEkIFJhJ/EPO4P9SSkdkbXwTM9Q978nRc85UA7Zq000WLfXT7+iO1
+t2ymXpIDyHldywsVeA2jalTJ0oe9KDHQ0Sob2Hp7ZJinYbndFwYqxnr5Ppepphke
+f20jM+gmPNZc00kzOLc16AfiZ5rurVPPPu9YdeuyyH6g38LjUMSqv6TyzojIVXhj
+93lbaLRKg+TM1B/txu9aZqKQRBDeFouGBalSPPFFQNdO6CHH3vusuqsTxobyeNCB
+Cge/xnG5LqJcPRToKusXg0sVoEyvEFAShKJ1AEJqQk3PHzMCDdrAIa0edp6EswDq
+TXejkg/mD/cBldVaQuKIF3HNP3tu27L7EKKOiLKfRtQzvajsb/Sa6Wp8L4kNKCVw
+2ZHL47jXiYd222/SyJc/uGtw9CHy6AxrQPlCgdyyyMYYB1B78dCqdu6CE3UeoYPD
+4V+8A+sA5zYw8LoyMgPh/JOX/jhnWQe2WwjgQ8b1G5ojb2RmQPs9waMKzpWSQCL9
+sRm2ebnytWMmS8b/0Rrc8U4U234lNXmMoMGwv/EKIF5hCJSbL9iXrEEqgmWllh50
+ZPoHxD1VZO4k2Qcc73q4
+=zwWr
 -----END PGP SIGNATURE-----
 
---OgqxwSJOaUobr8KG--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--jho1yZJdad60DJr+--
