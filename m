@@ -1,64 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: sh_mobile: rework deferred probing
-Date: Wed, 17 Dec 2014 19:29:06 +0100
-Message-ID: <20141217182905.GD3981@katana>
-References: <1418733086-26324-1-git-send-email-wsa@the-dreams.de>
- <1418733086-26324-3-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: sh_mobile: I2C_SH_MOBILE should depend on HAS_DMA
+Date: Wed, 17 Dec 2014 19:29:15 +0100
+Message-ID: <20141217182915.GE3981@katana>
+References: <1418650624-28174-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Xm/fll+QQv+hsKip"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="mR8QP4gmHujQHb1c"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1418733086-26324-3-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, dmaengine@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>
+In-Reply-To: <1418650624-28174-1-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Xm/fll+QQv+hsKip
+--mR8QP4gmHujQHb1c
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 16, 2014 at 01:31:26PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Mon, Dec 15, 2014 at 02:37:04PM +0100, Geert Uytterhoeven wrote:
+> If NO_DMA=3Dy:
 >=20
-> DMA is opt-in for this driver. So, we can't use deferred probing for
-> requesting DMA channels in probe, because our driver would get endlessly
-> deferred if DMA support is compiled in AND the DMA driver is missing.
-> Because we can't know when the DMA driver might show up, we always try
-> again when a DMA transfer would be possible. The downside is that there
-> is more overhead for setting up PIO transfers under the above scenario.
-> But well, having DMA enabled and the proper DMA driver missing looks
-> like a broken or test config anyhow.
+> drivers/built-in.o: In function `sh_mobile_i2c_dma_unmap':
+> i2c-sh_mobile.c:(.text+0x60de42): undefined reference to `dma_unmap_singl=
+e'
+> drivers/built-in.o: In function `sh_mobile_i2c_xfer_dma':
+> i2c-sh_mobile.c:(.text+0x60df22): undefined reference to `dma_map_single'
+> i2c-sh_mobile.c:(.text+0x60df2e): undefined reference to `dma_mapping_err=
+or'
 >=20
-> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 
 Applied to for-current, thanks!
 
 
---Xm/fll+QQv+hsKip
+--mR8QP4gmHujQHb1c
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUkctxAAoJEBQN5MwUoCm2y2IP+wZ5bw+HGMG8Zy9F5JNPU5T2
-IPmrdf2sqd5+YDOj5oiZJO3yxco+8X/oBpGKY40hN/DAg7khq0Bx8RFf6QYjAeeY
-yjIzcNkK51V+3iNjv9TtESL/3R0z/lXL1Ex4xFC5AXvxDs9XKwKn1cvIYQSjXfu8
-B3GmGQP2KEu7P+7ruo8/6CdkK/e03sd8v/iZQClmsYE4R6HznjlNuald2ARlID5z
-4NGk+/QioidFq5vQ6GpHTYs8AIJ6R/w1xRLXG9HssCXK2Ji5JbtdoE7Mj9exDzuC
-Ynr92I3LC/KCCoI4CfhGW6xhJumHnjzkpyMp8IvdkfcJWkbNZS8ZDFBFn6wZ+agC
-J/xo11Fgs93p9MnT3U76mkfZryqNmMENTZypHmHoN3idWO5/fRQv8J2RK0xfgiGs
-1FmXmyOiL4KpYKroEG9Kwti/+gLSvVZv6azZx2kSmRENDOr6Q/JRAdGiN5xHuOOi
-bPtKQG/GrM6KGkUHwUhklTS0oETv6Y2sy1VzIg6XFUqg7Cc4A/9qo4PVKeDRB0mp
-zaoQb75vnv0g0uQxG1RV70kdUVeXlVUorOr4WE4cECqpgY9oNfZWwa3QpZZ5ZR9n
-46iK9J4EldRk60eYe/rH3rheJg/y3fnZe1yKJSJXdb6Hx06dvklAxSaqZQOi5fWb
-tHmwvJ8ypOwsSqT9qc9s
-=lDfV
+iQIcBAEBAgAGBQJUkct7AAoJEBQN5MwUoCm2kHIP/08aq8IEDCGmfnuAn5A+3a6t
+C1fspkLXZ5MXGVM2Pygtu24CT5cmJ+CLGBQrNDu6zIShq1nRCtZOrXAqaNTWCadO
+vzQyE1RRXIeh9dlQdKx3q75P+4KB8c5C1AL7OEwqNMM6W90vARmZf8NAwMSi4scC
+lLDUqZttEdyL+CQ7bUcVjyYvUhPIbFFQ10daPo/71xC2VyB/EyP+AkOL5MiCbKQW
+i9AhKSKoK321VTB7c+9BPJTvSty/lA6mJ93PDVlhuGQ7iF3b5/0Omnv34o9FNBRh
+8bfjehmfnJAZ8JvJut4Ptf2m20TzQ5CQj9oiop3lHqaXTH2DGPebNvaHrJPUzX38
+7ndwUEkt9vOAI48d7dY2fIqCJE/xKJNL71j1kqSzDIUkq7tDn0vWfat3A0Yqdnf/
+IP8aIRFmEhHhROF8aym5mcmkBRBwj5COAQEyDB/oHwyIomaVOcYK9TzmWaGnw8lQ
+xV7EqLziKOxrepLm3DC8a3Xid3uZ8G8UqrcrR1lUlehNRUNlqpjwrhhlXL/kvrGs
+mYMaahW7efwdjWThkAY4Dh8mnJQPY9RUz6wWKUzel5vP+agChxdfhzV0CEswdeFG
+4+83E7H0djKVIGj1ydS/ETxPkrZ2+/DKZZSVABTgEhDVeQ2mYRME94R0uPcq5pm0
+BcwOzvy3pJp3y1wQeGm+
+=ilcy
 -----END PGP SIGNATURE-----
 
---Xm/fll+QQv+hsKip--
+--mR8QP4gmHujQHb1c--
