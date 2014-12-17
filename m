@@ -1,57 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: sh_mobile: refactor DMA setup
-Date: Wed, 17 Dec 2014 19:28:47 +0100
-Message-ID: <20141217182847.GC3981@katana>
+Subject: Re: [PATCH 2/2] i2c: sh_mobile: rework deferred probing
+Date: Wed, 17 Dec 2014 19:29:06 +0100
+Message-ID: <20141217182905.GD3981@katana>
 References: <1418733086-26324-1-git-send-email-wsa@the-dreams.de>
- <1418733086-26324-2-git-send-email-wsa@the-dreams.de>
+ <1418733086-26324-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YD3LsXFS42OYHhNZ"
+	protocol="application/pgp-signature"; boundary="Xm/fll+QQv+hsKip"
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1418733086-26324-2-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <1418733086-26324-3-git-send-email-wsa@the-dreams.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, dmaengine@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---YD3LsXFS42OYHhNZ
+--Xm/fll+QQv+hsKip
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 16, 2014 at 01:31:25PM +0100, Wolfram Sang wrote:
+On Tue, Dec 16, 2014 at 01:31:26PM +0100, Wolfram Sang wrote:
 > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> Refactor DMA setup to keep the errno so we can implement better
-> deferred probe support in the next step.
+> DMA is opt-in for this driver. So, we can't use deferred probing for
+> requesting DMA channels in probe, because our driver would get endlessly
+> deferred if DMA support is compiled in AND the DMA driver is missing.
+> Because we can't know when the DMA driver might show up, we always try
+> again when a DMA transfer would be possible. The downside is that there
+> is more overhead for setting up PIO transfers under the above scenario.
+> But well, having DMA enabled and the proper DMA driver missing looks
+> like a broken or test config anyhow.
 >=20
+> Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Applied to for-current, thanks!
 
 
---YD3LsXFS42OYHhNZ
+--Xm/fll+QQv+hsKip
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUkcteAAoJEBQN5MwUoCm2GDIQAKb/OLsoXJauOynOnYMtMqxi
-LjNmz5icBtEO55ou3y5FTBERbU4zJyyuhpO2S0QxJZllVe/6Ht0xdfggUrC40axy
-ql5bYhbQmFVfCKrVsOUGYumrk3zv0Q2JVIWbRRT2/CG6nq139F208xy7zSsi8nDt
-pQ84m+nNG5P5JjO3GfwOfUqfh1HNCldtiBct5urYHhpIqd0xXmH/4Y2UoTgxoqlB
-Iu1xQCAEeQaTAibvjURlPDuEG4gWZkP83tJqDR/uENk0lZt5ijvBli5b8jUKXvbd
-TK8vrv5sp5o+M3fV04HDViL60JMKwOQxNXNxa4nqh1UJvSGKmfoS+OyKMGzsDn83
-QGRMxlLA/vcuPtBzKnLTi7W7y0HW4f9xcPWjH4Q5OgItmCPPkxptgWdiazw705RX
-webtMyOzePi6PH3W4buo+9LPp4UL+pJyzowg3m1G4YEB/IXkHiMBSKnMYvClbGGr
-wm7R/1vYUS+G+ff7SnG1BaOZWvmzwYkqqd0TO4ATQhFhIYqYCrJF7vFN/1tkQM3x
-uglauMXIZQR5cC+7rWaKf0D13biSy3t2IL7E8mJgz0kdlRMbOU2gBughvnkGWo9B
-R6cPdTlT0kRMzeDDcooJmfPRXAYoUBRr7CNJuBhjSXPUBC8c+YQEx7oU0v14AICs
-yLlIJtGWrGRFCslqKtgR
-=hAhU
+iQIcBAEBAgAGBQJUkctxAAoJEBQN5MwUoCm2y2IP+wZ5bw+HGMG8Zy9F5JNPU5T2
+IPmrdf2sqd5+YDOj5oiZJO3yxco+8X/oBpGKY40hN/DAg7khq0Bx8RFf6QYjAeeY
+yjIzcNkK51V+3iNjv9TtESL/3R0z/lXL1Ex4xFC5AXvxDs9XKwKn1cvIYQSjXfu8
+B3GmGQP2KEu7P+7ruo8/6CdkK/e03sd8v/iZQClmsYE4R6HznjlNuald2ARlID5z
+4NGk+/QioidFq5vQ6GpHTYs8AIJ6R/w1xRLXG9HssCXK2Ji5JbtdoE7Mj9exDzuC
+Ynr92I3LC/KCCoI4CfhGW6xhJumHnjzkpyMp8IvdkfcJWkbNZS8ZDFBFn6wZ+agC
+J/xo11Fgs93p9MnT3U76mkfZryqNmMENTZypHmHoN3idWO5/fRQv8J2RK0xfgiGs
+1FmXmyOiL4KpYKroEG9Kwti/+gLSvVZv6azZx2kSmRENDOr6Q/JRAdGiN5xHuOOi
+bPtKQG/GrM6KGkUHwUhklTS0oETv6Y2sy1VzIg6XFUqg7Cc4A/9qo4PVKeDRB0mp
+zaoQb75vnv0g0uQxG1RV70kdUVeXlVUorOr4WE4cECqpgY9oNfZWwa3QpZZ5ZR9n
+46iK9J4EldRk60eYe/rH3rheJg/y3fnZe1yKJSJXdb6Hx06dvklAxSaqZQOi5fWb
+tHmwvJ8ypOwsSqT9qc9s
+=lDfV
 -----END PGP SIGNATURE-----
 
---YD3LsXFS42OYHhNZ--
+--Xm/fll+QQv+hsKip--
