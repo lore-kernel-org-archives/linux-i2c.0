@@ -1,38 +1,95 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Thu, 18 Dec 2014 14:03:18 +0100
-Message-ID: <CAMuHMdXcfe0JQhZzGSAoqjKR346-QJrvyi=afHF7cAaHKa56pw@mail.gmail.com>
-References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<20141218082151.GA1038@katana>
-	<1492007.8cQN1myWLD@avalon>
+From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Subject: Re: [PATCH 3/3] iio: ak8975: Added autodetect feature for ACPI
+Date: Thu, 18 Dec 2014 17:28:21 +0100
+Message-ID: <549300A5.5080904@metafoo.de>
+References: <1418678363-22437-1-git-send-email-srinivas.pandruvada@linux.intel.com> <1418678363-22437-4-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1492007.8cQN1myWLD@avalon>
-Sender: linux-input-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1418678363-22437-4-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 18, 2014 at 1:49 PM, Laurent Pinchart
-<laurent.pinchart@ideasonboard.com> wrote:
-> There are three compatible strings defined for the ADXL345 and ADXL346 in
-> Documentation/devicetree/bindings/i2c/trivial-devices.txt: "adi,adxl345",
-> "adi,adxl346", "adi,adxl34x". Given that the last one is a fallback for the
-> first two I don't see a need to add the specific compatible strings to the
-> driver for now. If a new totally incompatible chip named ADXL347 comes out we
-> will need a new driver which won't be allowed to use the "adi,adxl34x"
-> compatible string.
+Added I2C to Cc.
 
-FWIW, I'm the evil person who added the adxl entries to that file...
+On 12/15/2014 10:19 PM, Srinivas Pandruvada wrote:
+> Using i2c auto detect feature and auto device creation feature,
+> enumerate ak8975 device, by checking their presence.
+> This is needed because when this device sits behind an i2c mux, there
+> is no way to define i2c mux in ACPI. This will enable ak8975 on
+> windows based tablets/laptops running Linux when connected via a mux.
+> Since DT model already can define an i2c mux and devices connected to
+> it, this feature is only enabled for ACPI.
+>
 
-Gr{oetje,eeting}s,
+This is quite a bit of a hack. Did they decide to not include the device in 
+the ACPI description at all or is there a special id for INV6050+AK8975?
 
-                        Geert
+How does Windows decide whether there is a device or not?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>   drivers/iio/magnetometer/ak8975.c | 35 +++++++++++++++++++++++++++++++++++
+>   1 file changed, 35 insertions(+)
+>
+> diff --git a/drivers/iio/magnetometer/ak8975.c b/drivers/iio/magnetometer/ak8975.c
+> index 0d10a4b..c3455bd 100644
+> --- a/drivers/iio/magnetometer/ak8975.c
+> +++ b/drivers/iio/magnetometer/ak8975.c
+> @@ -820,6 +820,36 @@ static const struct i2c_device_id ak8975_id[] = {
+>
+>   MODULE_DEVICE_TABLE(i2c, ak8975_id);
+>
+> +#if defined(CONFIG_ACPI)
+> +static int ak8975_detect(struct i2c_client *temp_client,
+> +			 struct i2c_board_info *info)
+> +{
+> +	struct i2c_adapter *adapter;
+> +	int i, j;
+> +	int ret;
+> +
+> +	/* autodetect only when we are behind a mux */
+> +	adapter = i2c_parent_is_i2c_adapter(temp_client->adapter);
+> +	if (!adapter)
+> +		return -ENODEV;
+> +
+> +	for (i = 0; i < AK_MAX_TYPE; ++i) {
+> +		ret = ak8975_who_i_am(temp_client, i);
+> +		if (ret >= 0) {
+> +			for (j = 0; j < ARRAY_SIZE(ak8975_id) - 1; ++j) {
+> +				if (i == (int)ak8975_id[j].driver_data) {
+> +					strlcpy(info->type, ak8975_id[j].name,
+> +						I2C_NAME_SIZE);
+> +					return 0;
+> +				}
+> +			}
+> +		}
+> +	}
+> +
+> +	return -ENODEV;
+> +}
+> +#endif
+> +
+>   static const struct of_device_id ak8975_of_match[] = {
+>   	{ .compatible = "asahi-kasei,ak8975", },
+>   	{ .compatible = "ak8975", },
+> @@ -841,6 +871,11 @@ static struct i2c_driver ak8975_driver = {
+>   	},
+>   	.probe		= ak8975_probe,
+>   	.id_table	= ak8975_id,
+> +#if defined(CONFIG_ACPI)
+> +	.class		= I2C_CLASS_HWMON,
+> +	.address_list	= I2C_ADDRS(0x0C, 0x0D, 0x0E, 0x0F),
+> +	.detect		= ak8975_detect,
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+In contrast to the commit message this is always enabled if the kernel 
+contains ACPI support, not if the device is a ACPI device.
+
+> +#endif
+>   };
+>   module_i2c_driver(ak8975_driver);
+>
+>
