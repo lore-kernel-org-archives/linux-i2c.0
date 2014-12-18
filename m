@@ -1,42 +1,69 @@
-From: arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org (Arnaud Ebalard)
-Subject: Re: [PATCHv2 2/8] dt-bindings: use isil prefix for Intersil in I2C trivial-devices.txt
-Date: Wed, 17 Dec 2014 22:59:07 +0100
-Message-ID: <87d27i545w.fsf@natisbad.org>
-References: <cover.1418763328.git.arno@natisbad.org>
-	<86079cdf7325f6d83e0270d32ff66bcc3e6a34bb.1418763328.git.arno@natisbad.org>
-	<20141217064610.GA1018@katana>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141217064610.GA1018@katana> (Wolfram Sang's message of "Wed,
-	17 Dec 2014 07:46:11 +0100")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe-rXY34ruvC2xidJT2blvkqNi2O/JbrIOy@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Darshana Padmadas <darshanapadmadas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Subject: [PATCH] input: adxl34x: Add OF match support
+Date: Thu, 18 Dec 2014 04:15:23 +0200
+Message-ID: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+The I2C subsystem can match devices without explicit OF support based on
+the part of their compatible property after the comma. However, this
+mechanism uses the first compatible value only. For adxl34x OF device
+nodes the compatible property should list the more specific
+"adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
+fallback value second. This prevents the device node from being matched
+with the adxl34x driver.
 
-Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
+Fix this by adding an OF match table with an "adi,adxl34x" compatible
+entry.
 
-> On Tue, Dec 16, 2014 at 10:19:53PM +0100, Arnaud Ebalard wrote:
->> 
->> This patch fixes I2C trivial-devices.txt DT documentation file to
->> reference isil (NASDAQ symbol and the most used prefix inside the
->> kernel) for Intersil.
->> 
->> It reverts 7c75c1d5e72b ("dt-bindings: Document deprecated device
->> vendor name to fix related warning").
->> 
->> Signed-off-by: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
->
-> Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
->
-> Should I take it or does it go via another tree?
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+---
+ drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-No one has objected yet and MAINTAINERS file tells its under your
-jurisdiction, so I guess you can take ;-)
+Another option would have been to add "adxl325" and "adxl326" entries to the
+adxl34x_id I2C match table, but it would have had the drawback of requiring a
+driver update for every new device.
 
-Cheers,
+diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
+index 416f47ddcc90..22687b738811 100644
+--- a/drivers/input/misc/adxl34x-i2c.c
++++ b/drivers/input/misc/adxl34x-i2c.c
+@@ -10,6 +10,7 @@
+ #include <linux/input.h>	/* BUS_I2C */
+ #include <linux/i2c.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/types.h>
+ #include <linux/pm.h>
+ #include "adxl34x.h"
+@@ -137,11 +138,21 @@ static const struct i2c_device_id adxl34x_id[] = {
+ 
+ MODULE_DEVICE_TABLE(i2c, adxl34x_id);
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id adxl34x_of_id[] = {
++	{ .compatible = "adi,adxl34x", },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(of, adxl34x_of_id);
++#endif
++
+ static struct i2c_driver adxl34x_driver = {
+ 	.driver = {
+ 		.name = "adxl34x",
+ 		.owner = THIS_MODULE,
+ 		.pm = &adxl34x_i2c_pm,
++		.of_match_table = of_match_ptr(adxl34x_of_id),
+ 	},
+ 	.probe    = adxl34x_i2c_probe,
+ 	.remove   = adxl34x_i2c_remove,
+-- 
+Regards,
 
-a+
+Laurent Pinchart
+
