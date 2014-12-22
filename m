@@ -1,7 +1,7 @@
 From: Josephine Kuku <babylove123-SMvu0/A6zywAvxtiuMwx3w@public.gmane.org>
-Subject: How are you?
-Date: Mon, 22 Dec 2014 11:44:38 GMT
-Message-ID: <dOmLbCF4xcCC3RS8TOJKpAschiJLOb1LpMdSOQUj9vGh@mynet.com>
+Subject: Hi dear!!
+Date: Mon, 22 Dec 2014 16:51:59 GMT
+Message-ID: <843G2GeCw51fytIBd0g3bQzGMmVeJpSkhjoHimp9G2ro@mynet.com>
 Reply-To: josykuku-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
