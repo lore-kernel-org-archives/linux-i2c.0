@@ -1,93 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
-Date: Tue, 23 Dec 2014 14:49:40 +0100
-Message-ID: <20141223134940.GA1925@katana>
-References: <1414537731.23458.120.camel@snotra.buserror.net>
- <5450AC85.40302@keymile.com>
- <20141113003418.GE2062@katana>
- <5465B285.7070005@keymile.com>
- <20141114082832.GA2180@katana>
- <1416274083.15957.96.camel@freescale.com>
- <20141125181347.GC9716@katana>
- <1416966097.15957.171.camel@freescale.com>
- <54899FB4.9010207@keymile.com>
- <54996CB5.8030808@keymile.com>
+From: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Subject: Re: [RFC] i2c: designware: Avoid initcall and initialize the driver
+ like a regular one
+Date: Tue, 23 Dec 2014 11:57:02 -0300
+Message-ID: <549982BE.3080500@vanguardiasur.com.ar>
+References: <1419272149-28716-1-git-send-email-walter@vanguardiasur.com.ar> <20141222190233.GA1014@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54996CB5.8030808-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Cc: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141222190233.GA1014@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Cc: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 12/22/2014 04:02 PM, Wolfram Sang wrote:
+> On Mon, Dec 22, 2014 at 03:15:49PM -0300, Walter Lozano wrote:
+>> Currently, the driver is relying on a subsys_initcall() to register
+>> the platform driver struct. This is typically done to allow early uses
+>> of the I2C bus (for instance, I2C regulators used from early machine code).
+>>
+>> While this might work on some cases, it breaks on others. For instance,
+>> I2C devices with GPIO-wired interrupts will fail to request the
+>> interrupt because of this initcall usage.
+>>
+>> This commits attempts to fix the above issue, by converting the I2C
+>> driver into a regular kernel platform driver. This guarantees it will
+>> probe after GPIOs drivers.
+>>
+>> Platforms based on devicetree won't be affected by this change.
+> 
+> Huh, why is that?
+> 
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Unless I'm missing something here, our beloved DeviceTree guarantees to
+model the dependency between I2C slaves devices and the I2C master their
+connected to.
 
-On Tue, Dec 23, 2014 at 02:23:01PM +0100, Valentin Longchamp wrote:
-> Wolfgang, Scott,
+So, a machine fully-based on DeviceTree would never attempt to use the I2C
+bus without first registering the master, right?
 
-Wolfram, please.
+This means there won't be any early users of the I2C platform driver in this
+scenario.
 
-> > What is then the agreement here ? Add a clock-div to the device trees ?=
- Or do
-> > something similar to  mpc_i2c_get_sec_cfg_8xxx() ?
-> >=20
-> > I think the clock-div property is better according to Freescale's AN 29=
-19
-> > section 3.1 Source clock. All the source clocks are fixed (with a clock=
--div of 2
-> > in case of mpc8536/43/45/47/48/67/68/72, plus p2020) except for the mpc=
-8533/44
-> > where it can be 2 or 3, and that's what mpc_i2c_get_sec_cfg_8xxx() dete=
-rmines.
-> >=20
-> > So mpc_i2c_get_sec_cfg_8xxx() should remain the exception and the other
-> > prescaler values should be derived from an additional clock-div that mu=
-st be
-> > added in the respective device trees (at least for the qoriq devices, b=
-ecause
-> > for instance mpc8543 already has the correct prescaler thanks to
-> > mpc_i2c_data_8543 from i2c-mpc.c).
-> >=20
->=20
-> Do you have an opinion on the above ?
+>> Legacy platforms, relying on the I2C being available early, might need
+>> to implement proper defered mechanisms to overcome potential problems.
+> 
+> NAK. We can't say "Let's cause a regression to force people to fix
+> things that used to work" IMO. You exactly pointed out the problem that using
+> subsys_initcall() creates.
+> 
+> What about fixing the drivers you use to support deferred probing when
+> acquitin the irq?
+> 
 
-I don't mind. I'll leave it to PowerPC experts to judge if a new binding
-is apropriate or reading SVR is the way to go. If it is going to be a
-new binding, then please look around before if there is already
-something similar around...
+Maybe we can fix the legacy ones instead. However, a quick look shows there
+aren't any!
 
+$ git grep i2c_designware
+drivers/i2c/busses/i2c-designware-pcidrv.c:MODULE_ALIAS("i2c_designware-pci");
+drivers/i2c/busses/i2c-designware-platdrv.c:MODULE_ALIAS("platform:i2c_designware");
+drivers/i2c/busses/i2c-designware-platdrv.c:            .name   = "i2c_designware",
 
---1yeeQ81UyVL57Vl7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Looks like this patch is pretty harmless.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUmXL0AAoJEBQN5MwUoCm2CcgQAKV5sdN8lTA+hbf/QsQO7ubF
-Ia+rTM8zopsChRAA1VwAj9qU3LSUnSxHraT+2+lOxr1UwERvacMRcTpEWzWHDABM
-8O+K/QDu+FhAsarFvcBs/qgUrSRka9nesPYIs6DGVo0ggK5dN9ZEvsJCyrJIvbRa
-dOCZbVHKhAfrXHSuGr5UrLuHwOvdGZr6L0giCxNM00riU1RxFYKnNnNXH6JVhfDG
-ztjUjelgpUiPW0pMikpcfSxI/KTFxe81j4wIM7tD+foaSPusBEsTpFPdVvkZWvRH
-MV6YQPPO30lLh7jjZp7T5RAvrsRsJ9kiM3OvADnWwGGXvaGtRMvvEN8RBr2Do/MF
-HJux3tdV1m6aVcyUZqQZXEkOikNsBKvbPSl+oS4tpmoH3x2JeXq3eyVfh3/ovwK2
-EXqgTvhXKRecm3Rj7qjsqfUO09KTZnxrqVBcntViSh3IbF/06qpp9q5ago4tH9vp
-aTipo6RUpVRgk8dUCY+j/sbBXJ7G9abHWeZqZCxYUtpJYuDUQwytqNosZA7me0YY
-mCtqgXoOsoXzdV9TLh4pQRscMhInDGiAN50HsxLonrx2IobNWr30GCZanoMxeh2m
-noKZAvY13Tedl6fWpjIuJ9Pyx9Dcd3nQnvRoXrWrdObqJfZh4pQhcBgE1/ii3SSt
-eY4WVC0kuiry2wHpZr/B
-=qYRd
------END PGP SIGNATURE-----
-
---1yeeQ81UyVL57Vl7--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks!
+-- 
+Ezequiel Garcia, VanguardiaSur
+www.vanguardiasur.com.ar
