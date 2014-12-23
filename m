@@ -1,109 +1,116 @@
-From: "Amelkin,  Aleksandr" <Aleksandr.Amelkin-vHJ8rsvMqnUPfZBKTuL5GA@public.gmane.org>
-Subject: [PATCH] i2c-tools i2cget read SMBus block data
-Date: Tue, 23 Dec 2014 18:06:38 +0300
-Message-ID: <674465BAC0F69347905C11F02369E3AB94142C8987@ppmail.tp-local.ru>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [RFC] i2c: designware: Avoid initcall and initialize the driver
+ like a regular one
+Date: Tue, 23 Dec 2014 16:26:21 +0100
+Message-ID: <20141223152621.GA3692@katana>
+References: <1419272149-28716-1-git-send-email-walter@vanguardiasur.com.ar>
+ <20141222190233.GA1014@katana>
+ <549982BE.3080500@vanguardiasur.com.ar>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="_002_674465BAC0F69347905C11F02369E3AB94142C8987ppmailtplocal_"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: ru-RU
+Content-Disposition: inline
+In-Reply-To: <549982BE.3080500-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
+Cc: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---_002_674465BAC0F69347905C11F02369E3AB94142C8987ppmailtplocal_
-Content-Type: text/plain; charset="us-ascii"
+
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi.
 
-Attached please find a patch that adds read SMBus block data capability to =
-i2cget.
+> >> This guarantees it will probe after GPIOs drivers.
 
-This allows for reading such things, for example, as MFR_MODEL or MFR_SERIA=
-L registers from
-PMBus devices. That capability is highly helpful for those developing drive=
-rs for new or custom devices.
+BTW this is not true to the best of my knowledge. It will make that
+"very likely" but not "guarantee" anything. So, the race window is
+smaller but it is still there. You need a proper fix anyhow.
 
-The block data is output in a 'hexdump -C' format.
+> >> Platforms based on devicetree won't be affected by this change.
+> >=20
+> > Huh, why is that?
+> >=20
+>=20
+> Unless I'm missing something here, our beloved DeviceTree guarantees to
+> model the dependency between I2C slaves devices and the I2C master their
+> connected to.
 
-Hope this gets incorporated into the next i2c-tools release.
+Frankly, you are missing quite some things here. The I2C core registers
+the clients when a master gets registered. No difference between
+platform and DT here.
 
-With best regards -
-Alexander Amelkin,
-T-Platforms [http://www.t-platforms.com]
+> So, a machine fully-based on DeviceTree would never attempt to use the I2C
+> bus without first registering the master, right?
+
+Neither would platform, that would be quite a bug.
+
+> This means there won't be any early users of the I2C platform driver in t=
+his
+> scenario.
+
+There won't be with platform as well. But I think you are missing the
+point. We are a *consumer* of GPIOs here. All of the above has nothing
+to do with GPIO controllers being already available.
+
+> >> Legacy platforms, relying on the I2C being available early, might need
+> >> to implement proper defered mechanisms to overcome potential problems.
+> >=20
+> > NAK. We can't say "Let's cause a regression to force people to fix
+> > things that used to work" IMO. You exactly pointed out the problem that=
+ using
+> > subsys_initcall() creates.
+> >=20
+> > What about fixing the drivers you use to support deferred probing when
+> > acquitin the irq?
+> >=20
+>=20
+> Maybe we can fix the legacy ones instead. However, a quick look shows the=
+re
+> aren't any!
+>=20
+> $ git grep i2c_designware
+> drivers/i2c/busses/i2c-designware-pcidrv.c:MODULE_ALIAS("i2c_designware-p=
+ci");
+> drivers/i2c/busses/i2c-designware-platdrv.c:MODULE_ALIAS("platform:i2c_de=
+signware");
+> drivers/i2c/busses/i2c-designware-platdrv.c:            .name   =3D "i2c_=
+designware",
+>=20
+> Looks like this patch is pretty harmless.
+
+In-tree you are right. Out-of-tree, you probably aren't. I wouldn't care
+about the latter if that would block a real bugfix. But since the above
+patch is not the proper fix IMO, I prefer being stable here.
+
+Regards,
+
+   Wolfram
 
 
---_002_674465BAC0F69347905C11F02369E3AB94142C8987ppmailtplocal_
-Content-Type: application/octet-stream; name="i2cget-block.diff"
-Content-Description: i2cget-block.diff
-Content-Disposition: attachment; filename="i2cget-block.diff"; size=3560;
-	creation-date="Tue, 23 Dec 2014 15:01:24 GMT";
-	modification-date="Tue, 23 Dec 2014 15:01:16 GMT"
-Content-Transfer-Encoding: base64
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-SW5kZXg6IHRvb2xzL2kyY2dldC44Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIHRvb2xzL2kyY2dldC44CShyZXZp
-c2lvbiA2MjYwKQorKysgdG9vbHMvaTJjZ2V0LjgJKHdvcmtpbmcgY29weSkKQEAgLTQ1LDggKzQ1
-LDggQEAKIHdpbGwgYmUgcmVhZCAoaWYgdGhhdCBtYWtlcyBzZW5zZSBmb3IgdGhlIGNvbnNpZGVy
-ZWQgY2hpcCkuCiAuUFAKIFRoZSBcZkltb2RlXGZSIHBhcmFtZXRlciwgaWYgc3BlY2lmaWVkLCBp
-cyBvbmUgb2YgdGhlIGxldHRlcnMgXGZCYlxmUCwKLVxmQndcZlAgb3IgXGZCY1xmUCwgY29ycmVz
-cG9uZGluZyB0byBhIHJlYWQgYnl0ZSBkYXRhLCBhIHJlYWQgd29yZCBkYXRhIG9yIGEKLXdyaXRl
-IGJ5dGUvcmVhZCBieXRlIHRyYW5zYWN0aW9uLCByZXNwZWN0aXZlbHkuIEEgXGZCcFxmUCBjYW4g
-YWxzbyBiZSBhcHBlbmRlZAorXGZCd1xmUCwgXGZCY1xmUCBvciBcZkJzXGZQLCBjb3JyZXNwb25k
-aW5nIHRvIGEgcmVhZCBieXRlIGRhdGEsIGEgcmVhZCB3b3JkIGRhdGEsIGEKK3dyaXRlIGJ5dGUv
-cmVhZCBieXRlIG9yIHJlYWQgU01CdXMgYmxvY2sgdHJhbnNhY3Rpb24sIHJlc3BlY3RpdmVseS4g
-QSBcZkJwXGZQIGNhbiBhbHNvIGJlIGFwcGVuZGVkCiB0byB0aGUgXGZJbW9kZVxmUiBwYXJhbWV0
-ZXIgdG8gZW5hYmxlIFBFQy4gSWYgdGhlIFxmSW1vZGVcZlIgcGFyYW1ldGVyIGlzIG9taXR0ZWQs
-CiBpMmNnZXQgZGVmYXVsdHMgdG8gYSByZWFkIGJ5dGUgZGF0YSB0cmFuc2FjdGlvbiwgdW5sZXNz
-IFxmSWRhdGEtYWRkcmVzc1xmUiBpcwogYWxzbyBvbWl0dGVkLCBpbiB3aGljaCBjYXNlIHRoZSBk
-ZWZhdWx0IChhbmQgb25seSB2YWxpZCkgdHJhbnNhY3Rpb24gaXMgYQpJbmRleDogdG9vbHMvaTJj
-Z2V0LmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PQotLS0gdG9vbHMvaTJjZ2V0LmMJKHJldmlzaW9uIDYyNjApCisrKyB0
-b29scy9pMmNnZXQuYwkod29ya2luZyBjb3B5KQpAQCAtMjksNiArMjksNyBAQAogI2luY2x1ZGUg
-PHN0ZGlvLmg+CiAjaW5jbHVkZSA8c3RkbGliLmg+CiAjaW5jbHVkZSA8dW5pc3RkLmg+CisjaW5j
-bHVkZSA8Y3R5cGUuaD4KICNpbmNsdWRlIDxsaW51eC9pMmMuaD4KICNpbmNsdWRlIDxsaW51eC9p
-MmMtZGV2Lmg+CiAjaW5jbHVkZSA8aTJjL3NtYnVzLmg+CkBAIC0zNiw2ICszNyw4IEBACiAjaW5j
-bHVkZSAidXRpbC5oIgogI2luY2x1ZGUgIi4uL3ZlcnNpb24uaCIKIAorI2RlZmluZSBCWVRFU19J
-Tl9CTE9DS19TVFJJTkcgMTYKKwogc3RhdGljIHZvaWQgaGVscCh2b2lkKSBfX2F0dHJpYnV0ZV9f
-ICgobm9yZXR1cm4pKTsKIAogc3RhdGljIHZvaWQgaGVscCh2b2lkKQpAQCAtNDcsNiArNTAsNyBA
-QAogCQkiICBNT0RFIGlzIG9uZSBvZjpcbiIKIAkJIiAgICBiIChyZWFkIGJ5dGUgZGF0YSwgZGVm
-YXVsdClcbiIKIAkJIiAgICB3IChyZWFkIHdvcmQgZGF0YSlcbiIKKwkJIiAgICBzIChyZWFkIFNN
-QnVzIGJsb2NrIGRhdGEpXG4iCiAJCSIgICAgYyAod3JpdGUgYnl0ZS9yZWFkIGJ5dGUpXG4iCiAJ
-CSIgICAgQXBwZW5kIHAgZm9yIFNNQnVzIFBFQ1xuIik7CiAJZXhpdCgxKTsKQEAgLTg5LDYgKzkz
-LDEzIEBACiAJCQlyZXR1cm4gLTE7CiAJCX0KIAkJYnJlYWs7CisKKwljYXNlIEkyQ19TTUJVU19C
-TE9DS19EQVRBOgorCQlpZiAoIShmdW5jcyAmIEkyQ19GVU5DX1NNQlVTX1JFQURfQkxPQ0tfREFU
-QSkpIHsKKwkJCWZwcmludGYoc3RkZXJyLCBNSVNTSU5HX0ZVTkNfRk1ULCAiU01CdXMgYmxvY2sg
-cmVhZCIpOworCQkJcmV0dXJuIC0xOworCQl9CisJCWJyZWFrOwogCX0KIAogCWlmIChwZWMKQEAg
-LTE1OSw2ICsxNzAsOCBAQAogCWludCBwZWMgPSAwOwogCWludCBmbGFncyA9IDA7CiAJaW50IGZv
-cmNlID0gMCwgeWVzID0gMCwgdmVyc2lvbiA9IDA7CisJY2hhciBibG9ja1tJMkNfU01CVVNfQkxP
-Q0tfTUFYICsgMl07CisJaW50IG9mZnNldDsKIAogCS8qIGhhbmRsZSAob3B0aW9uYWwpIGZsYWdz
-IGZpcnN0ICovCiAJd2hpbGUgKDErZmxhZ3MgPCBhcmdjICYmIGFyZ3ZbMStmbGFnc11bMF0gPT0g
-Jy0nKSB7CkBAIC0yMDgsNiArMjIxLDcgQEAKIAkJY2FzZSAnYic6IHNpemUgPSBJMkNfU01CVVNf
-QllURV9EQVRBOyBicmVhazsKIAkJY2FzZSAndyc6IHNpemUgPSBJMkNfU01CVVNfV09SRF9EQVRB
-OyBicmVhazsKIAkJY2FzZSAnYyc6IHNpemUgPSBJMkNfU01CVVNfQllURTsgYnJlYWs7CisJCWNh
-c2UgJ3MnOiBzaXplID0gSTJDX1NNQlVTX0JMT0NLX0RBVEE7IGJyZWFrOwogCQlkZWZhdWx0Ogog
-CQkJZnByaW50ZihzdGRlcnIsICJFcnJvcjogSW52YWxpZCBtb2RlIVxuIik7CiAJCQloZWxwKCk7
-CkBAIC0yNDMsNiArMjU3LDkgQEAKIAljYXNlIEkyQ19TTUJVU19XT1JEX0RBVEE6CiAJCXJlcyA9
-IGkyY19zbWJ1c19yZWFkX3dvcmRfZGF0YShmaWxlLCBkYWRkcmVzcyk7CiAJCWJyZWFrOworCWNh
-c2UgSTJDX1NNQlVTX0JMT0NLX0RBVEE6CisJCXJlcyA9IGkyY19zbWJ1c19yZWFkX2Jsb2NrX2Rh
-dGEoZmlsZSwgZGFkZHJlc3MsIGJsb2NrKTsKKwkJYnJlYWs7CiAJZGVmYXVsdDogLyogSTJDX1NN
-QlVTX0JZVEVfREFUQSAqLwogCQlyZXMgPSBpMmNfc21idXNfcmVhZF9ieXRlX2RhdGEoZmlsZSwg
-ZGFkZHJlc3MpOwogCX0KQEAgLTI1Myw3ICsyNzAsMzIgQEAKIAkJZXhpdCgyKTsKIAl9CiAKLQlw
-cmludGYoIjB4JTAqeFxuIiwgc2l6ZSA9PSBJMkNfU01CVVNfV09SRF9EQVRBID8gNCA6IDIsIHJl
-cyk7CisJc3dpdGNoIChzaXplKSB7CisJCWRlZmF1bHQ6IC8qIEkyQ19TTUJVU19CWVRFX0RBVEEs
-IEkyQ19TTUJVU19XT1JEX0RBVEEsIEkyQ19TTUJVU19CWVRFICovCisJCQlwcmludGYoIjB4JTAq
-eFxuIiwgc2l6ZSA9PSBJMkNfU01CVVNfV09SRF9EQVRBID8gNCA6IDIsIHJlcyk7CisJCQlicmVh
-azsKIAorCQljYXNlIEkyQ19TTUJVU19CTE9DS19EQVRBOgorCQkJZm9yKG9mZnNldCA9IDA7IG9m
-ZnNldCA8IHJlczsgb2Zmc2V0ICs9IEJZVEVTX0lOX0JMT0NLX1NUUklORykgeworCQkJCWludCBw
-b3M7CisJCQkJcHJpbnRmKCIlMDJYOiAiLCBvZmZzZXQpOworCQkJCS8qIFByaW50IHRoZSBoZXgg
-dmFsdWVzICovCisJCQkJZm9yKHBvcyA9IDA7IHBvcyA8IEJZVEVTX0lOX0JMT0NLX1NUUklORyAm
-JiBvZmZzZXQgKyBwb3MgPCByZXM7IHBvcysrKSB7CisJCQkJCXByaW50ZigiJTAyWCAiLCBibG9j
-a1tvZmZzZXQgKyBwb3NdKTsKKwkJCQl9CisKKwkJCQlwcmludGYoInwgIik7CisKKwkJCQkvKiBQ
-cmludCB0aGUgcHJpbnRhYmxlIGNoYXJhY3RlcnMgKi8KKwkJCQlmb3IocG9zID0gMDsgcG9zIDwg
-QllURVNfSU5fQkxPQ0tfU1RSSU5HICYmIG9mZnNldCArIHBvcyA8IHJlczsgcG9zKyspIHsKKwkJ
-CQkJY2hhciBjID0gYmxvY2tbb2Zmc2V0ICsgcG9zXTsKKwkJCQkJcHJpbnRmKCIlYyIsIGlzcHJp
-bnQoYykgPyBjIDogJy4nKTsKKwkJCQl9CisKKwkJCQlwcmludGYoIlxuIik7CisJCQl9CisJCQli
-cmVhazsKKwl9CisKIAlleGl0KDApOwogfQo=
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
---_002_674465BAC0F69347905C11F02369E3AB94142C8987ppmailtplocal_--
+iQIcBAEBAgAGBQJUmYmdAAoJEBQN5MwUoCm28SQQAICl+HSUIwlAWadE74c52KyY
+uKMDVRPmjKaLxkANGFIofTeXXUFt0GMFrc57OFWr60bkMZreMczn47JQ/t1Em7ci
+u2znC++K7xL1lntR907COTq2Lcdqi4uXcO3Dya9Qj+Hocmip1eeZ3OPBAnk+5A01
+YU1ziNSQxQMN/dRe3FH2LBINGlAVkv9Lc/HgotrAPHZoWbCmMecN3jE/OIN+nJ8t
+bcXvJKQ8NdDlAEvVFt0Fv7RxZ6u1e98onFzMKngiLAODbK2dUQ11jQaH/03Wo/yy
+REgzz0WFfRWGc4UILFg5SIkcjRF6CZqRpt8KN9oRDQx1j9sKJdY6Lpxz+6pYlCW7
+91pZ1PILXmN60kS3qNrdyzS27c/vMUmqV+eCP31Q4ugXKYmIm4nOvV7P9sp+tJe+
+eTSiKKLN5yLXpJlL+GWVHznBsZbIvU0sAtoyEzTdgjqTlCrrA/h1O2MavUK5n8ui
+0nRnOKwl9ye0cS9kXV80rrZK9N4AMSWYwROMqGfO6eLOTiN67LxQRdaI0wMUUUfI
+3y/YOfO2ovdjjPjQThKS/Ut2IiTUnc0dy1YNNeiqS8E6Dr+0Du/+Uv7dw+FqAEeP
++hRYWuwG+B6YLp55EvLZ8hnu3hY2ySMxL5EvyuxSUnNAe3NrxdfFD58lxzr2q+6F
+shE/Gkq0UMAe0rkwehXK
+=D87P
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--
