@@ -1,66 +1,61 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC] i2c: designware: Avoid initcall and initialize the driver
- like a regular one
-Date: Tue, 23 Dec 2014 17:23:58 +0100
-Message-ID: <20141223162357.GA4467@katana>
-References: <1419272149-28716-1-git-send-email-walter@vanguardiasur.com.ar>
- <20141222190233.GA1014@katana>
- <549982BE.3080500@vanguardiasur.com.ar>
- <20141223152621.GA3692@katana>
- <54998B1A.9020208@vanguardiasur.com.ar>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/3] iio: ak8975: Added autodetect feature for ACPI
+Date: Fri, 26 Dec 2014 11:53:03 +0000
+Message-ID: <549D4C1F.6050907@kernel.org>
+References: <1418678363-22437-1-git-send-email-srinivas.pandruvada@linux.intel.com>	 <1418678363-22437-4-git-send-email-srinivas.pandruvada@linux.intel.com>	 <549300A5.5080904@metafoo.de>	 <1418921521.740.282.camel@spandruv-desktop.jf.intel.com>	 <54930965.3030008@metafoo.de>	 <1418923812.4459.8.camel@spandruv-desktop.jf.intel.com>	 <549314C4.8090001@metafoo.de> <1418925641.4459.11.camel@spandruv-desktop.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54998B1A.9020208-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ezequiel Garcia <ezequiel-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>
-Cc: Walter Lozano <walter-30ULvvUtt6G51wMPkGsGjgyUoB5FGQPZ@public.gmane.org>, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, atull-yzvPICuk2ABMcg4IHK0kFoH6Mc4MB0Vx@public.gmane.org, raymond.tan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, carlpeng008-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1418925641.4459.11.camel-hINH/TbAiWppyMZ9rn1DP+ejPoqOX1/hEvhb3Hwu1Ks@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 18/12/14 18:00, Srinivas Pandruvada wrote:
+> On Thu, 2014-12-18 at 18:54 +0100, Lars-Peter Clausen wrote: 
+>> On 12/18/2014 06:30 PM, Srinivas Pandruvada wrote:
+>>> On Thu, 2014-12-18 at 18:05 +0100, Lars-Peter Clausen wrote:
+>>>> On 12/18/2014 05:52 PM, Srinivas Pandruvada wrote:
+>>>>> On Thu, 2014-12-18 at 17:28 +0100, Lars-Peter Clausen wrote:
+>>>>>> Added I2C to Cc.
+>>>>>>
+>>>>>> On 12/15/2014 10:19 PM, Srinivas Pandruvada wrote:
+>>>>>>> Using i2c auto detect feature and auto device creation feature,
+>>>>>>> enumerate ak8975 device, by checking their presence.
+>>>>>>> This is needed because when this device sits behind an i2c mux, there
+>>>>>>> is no way to define i2c mux in ACPI. This will enable ak8975 on
+>>>>>>> windows based tablets/laptops running Linux when connected via a mux.
+>>>>>>> Since DT model already can define an i2c mux and devices connected to
+>>>>>>> it, this feature is only enabled for ACPI.
+>>>>>>>
+>>>>>>
+>>>>>> This is quite a bit of a hack.
+>>>>> Why?
+>>>>> Auto detect is standard feature of i2c devices. This is using standard
+>>>>> auto detect feature provided by the framework.
+>>>>
+>>>> Auto detect is ugly, slow and unreliable, it's kind of like the last straw
+>>>> if nothing else works.
+>>> That is true here. You can't enumerate this device by ACPI. As discussed
+>>> before we created i2c mux in inv6050 so that we can use AK8975 in bypass
+>>> mode. I added some API to create i2c device on this mux, which Wolfram
+>>> didn't like. He wanted to enumerate using existing mechanisms.
+>>
+>> If there is only a single ACPI ID that says this is a INV6050 with a AK8975 
+>> attached then the way to handle this is to have a driver that binds to that id 
+>> and creates both devices.
+> Which address you will create device also adapter here is i2c mux
+> created by inv6050? You don't know i2c address of AK8975. To know AK8975
+> i2c address, even ugly hack to parse propriety vendor ACPI data, which
+> will change between to manufacturer.
+> 
+This is odd enough, that I'd like a wider range of views on it.
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> >> This means there won't be any early users of the I2C platform driver i=
-n this
-> >> scenario.
-> >=20
-> > There won't be with platform as well.
->=20
-> Oh, OK. Then maybe you can clarify why all those i2c busses need to be
-> registered with initcall in the first place?
-
-Because they want to access PMICs early to have voltages ready when
-other drivers are probed. This, again, is DT/platform independent.
-All this is cruft from the pre-deferred-probe era. And pretty annoying
-to deprecated although I'd love to do that.
-
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUmZcdAAoJEBQN5MwUoCm2mSsQAJFeJsOsjQ92KcWrD3lKsdQq
-n8WfIN1qhmXsmZUKmmdlrnfvwrxcI9SLtPCoSkJXvEKFFqtuLoa936hAgNdmw21P
-Nq2jkFiot7saUvJ1LYRkcou/O9sa/lKeRRy0Asapq3kpTyeEmOfTsxWMi7GtMaRD
-4lU/8mReMXE0WAllk/cYna64uKyAoRaEvskEwN43VF52ljqFIw5Llle1Pfy+OgXR
-6PQ/nh4Mo2PSsnMAT8vShkETPXDlRjnzCPk7qN0DZ4dyEctPwVny1qQrv2WFYgok
-VJdEmBXqbl1I78Tv5r+RJ1eOyHjb56gfgMusO6QtPUi3n7esfmYXRQBx7ITmSi/B
-fprfEQMurj05crA9o7zys7WhYPjEM+s6FQmTO/NBSZuljPbPwQD59qRN72Ts2cZl
-on9czLOJ5CwnKIn2wMk2rKoS8uuTT8rHdqJ07hntHCMH3bnAhKe1G78PAvcnMcT5
-zjRIiMyu029WCZGzjodXcU/VObsjrIMxoqn+LAsMblJE8YaHQfOjSt4WsyPcONzP
-dDQs0p49xygI1M0B8DueQLCpzzD8StTavDjMTSQhYnEP7+0zXUlZkdSC/cLwA6ME
-fQGlf75BtbQXPQd5zfvDr5UQb9FxSLlqhmxKG5abm3KilDE94F3UOGeWoE3xEZ9s
-0GDeG22x8/Szxi8lVWO1
-=j7Wv
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
+Wolfram - was this the approach you had in mind?
+>>
+>> - Lars
+>>
+> 
+> 
