@@ -1,61 +1,51 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] iio: ak8975: Added autodetect feature for ACPI
-Date: Fri, 26 Dec 2014 11:53:03 +0000
-Message-ID: <549D4C1F.6050907@kernel.org>
-References: <1418678363-22437-1-git-send-email-srinivas.pandruvada@linux.intel.com>	 <1418678363-22437-4-git-send-email-srinivas.pandruvada@linux.intel.com>	 <549300A5.5080904@metafoo.de>	 <1418921521.740.282.camel@spandruv-desktop.jf.intel.com>	 <54930965.3030008@metafoo.de>	 <1418923812.4459.8.camel@spandruv-desktop.jf.intel.com>	 <549314C4.8090001@metafoo.de> <1418925641.4459.11.camel@spandruv-desktop.jf.intel.com>
+From: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c-qoriq: modified compatibility for correct prescaler
+Date: Fri, 26 Dec 2014 20:43:40 -0600
+Message-ID: <1419648220.5581.192.camel@freescale.com>
+References: <1414537731.23458.120.camel@snotra.buserror.net>
+	 <5450AC85.40302@keymile.com> <20141113003418.GE2062@katana>
+	 <5465B285.7070005@keymile.com> <20141114082832.GA2180@katana>
+	 <1416274083.15957.96.camel@freescale.com> <20141125181347.GC9716@katana>
+	 <1416966097.15957.171.camel@freescale.com> <54899FB4.9010207@keymile.com>
+	 <54996CB5.8030808@keymile.com> <20141223134940.GA1925@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1418925641.4459.11.camel-hINH/TbAiWppyMZ9rn1DP+ejPoqOX1/hEvhb3Hwu1Ks@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20141223134940.GA1925@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Valentin Longchamp <valentin.longchamp-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, Linux PowerPC Kernel <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Linux device trees <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Brunck, Holger" <Holger.Brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, "Boschung, Rainer" <Rainer.Boschung-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>, danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18/12/14 18:00, Srinivas Pandruvada wrote:
-> On Thu, 2014-12-18 at 18:54 +0100, Lars-Peter Clausen wrote: 
->> On 12/18/2014 06:30 PM, Srinivas Pandruvada wrote:
->>> On Thu, 2014-12-18 at 18:05 +0100, Lars-Peter Clausen wrote:
->>>> On 12/18/2014 05:52 PM, Srinivas Pandruvada wrote:
->>>>> On Thu, 2014-12-18 at 17:28 +0100, Lars-Peter Clausen wrote:
->>>>>> Added I2C to Cc.
->>>>>>
->>>>>> On 12/15/2014 10:19 PM, Srinivas Pandruvada wrote:
->>>>>>> Using i2c auto detect feature and auto device creation feature,
->>>>>>> enumerate ak8975 device, by checking their presence.
->>>>>>> This is needed because when this device sits behind an i2c mux, there
->>>>>>> is no way to define i2c mux in ACPI. This will enable ak8975 on
->>>>>>> windows based tablets/laptops running Linux when connected via a mux.
->>>>>>> Since DT model already can define an i2c mux and devices connected to
->>>>>>> it, this feature is only enabled for ACPI.
->>>>>>>
->>>>>>
->>>>>> This is quite a bit of a hack.
->>>>> Why?
->>>>> Auto detect is standard feature of i2c devices. This is using standard
->>>>> auto detect feature provided by the framework.
->>>>
->>>> Auto detect is ugly, slow and unreliable, it's kind of like the last straw
->>>> if nothing else works.
->>> That is true here. You can't enumerate this device by ACPI. As discussed
->>> before we created i2c mux in inv6050 so that we can use AK8975 in bypass
->>> mode. I added some API to create i2c device on this mux, which Wolfram
->>> didn't like. He wanted to enumerate using existing mechanisms.
->>
->> If there is only a single ACPI ID that says this is a INV6050 with a AK8975 
->> attached then the way to handle this is to have a driver that binds to that id 
->> and creates both devices.
-> Which address you will create device also adapter here is i2c mux
-> created by inv6050? You don't know i2c address of AK8975. To know AK8975
-> i2c address, even ugly hack to parse propriety vendor ACPI data, which
-> will change between to manufacturer.
+On Tue, 2014-12-23 at 14:49 +0100, Wolfram Sang wrote:
+> On Tue, Dec 23, 2014 at 02:23:01PM +0100, Valentin Longchamp wrote:
+> > Wolfgang, Scott,
 > 
-This is odd enough, that I'd like a wider range of views on it.
+> Wolfram, please.
+> 
+> > > What is then the agreement here ? Add a clock-div to the device trees ? Or do
+> > > something similar to  mpc_i2c_get_sec_cfg_8xxx() ?
+> > > 
+> > > I think the clock-div property is better according to Freescale's AN 2919
+> > > section 3.1 Source clock. All the source clocks are fixed (with a clock-div of 2
+> > > in case of mpc8536/43/45/47/48/67/68/72, plus p2020) except for the mpc8533/44
+> > > where it can be 2 or 3, and that's what mpc_i2c_get_sec_cfg_8xxx() determines.
+> > > 
+> > > So mpc_i2c_get_sec_cfg_8xxx() should remain the exception and the other
+> > > prescaler values should be derived from an additional clock-div that must be
+> > > added in the respective device trees (at least for the qoriq devices, because
+> > > for instance mpc8543 already has the correct prescaler thanks to
+> > > mpc_i2c_data_8543 from i2c-mpc.c).
+> > > 
+> > 
+> > Do you have an opinion on the above ?
+> 
+> I don't mind. I'll leave it to PowerPC experts to judge if a new binding
+> is apropriate or reading SVR is the way to go. If it is going to be a
+> new binding, then please look around before if there is already
+> something similar around...
 
-Wolfram - was this the approach you had in mind?
->>
->> - Lars
->>
-> 
-> 
+I'd rather use SVR so things work with existing device trees.
+
+-Scott
