@@ -1,80 +1,88 @@
-From: Jeremiah Mahler <jmmahler@gmail.com>
-Subject: Re: [PATCH V1 1/1] iio: Added Capella cm3232 ambient light sensor
- driver.
-Date: Wed, 31 Dec 2014 19:38:56 -0800
-Message-ID: <20150101033856.GB10710@hudson.localdomain>
-References: <1420071030-888-1-git-send-email-ktsai@capellamicro.com>
+From: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] at91: i2c-at91: improve time-out handling
+Date: Thu, 01 Jan 2015 13:02:13 -0500
+Message-ID: <54A58BA5.3080003@interlog.com>
+Reply-To: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1420071030-888-1-git-send-email-ktsai@capellamicro.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Tsai <ktsai@capellamicro.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Antti Palosaari <crope@iki.fi>, Daniel Baluta <daniel.baluta@intel.com>, Archana Patni <archana.patni@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed;
+ boundary="------------050506090606020809050608"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Kevin,
+This is a multi-part message in MIME format.
+--------------050506090606020809050608
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Dec 31, 2014 at 04:10:30PM -0800, Kevin Tsai wrote:
-> CM3232 is an advanced ambient light sensor with I2C protocol interface.
-> The I2C slave address is internally hardwired as 0x10 (7-bit).  Writing
-> to configure register is byte mode, but reading ALS register requests to
-> use word mode for 16-bit resolution.
-> 
-> Signed-off-by: Kevin Tsai <ktsai@capellamicro.com>
-> ---
->  .../devicetree/bindings/i2c/trivial-devices.txt    |   1 +
->  MAINTAINERS                                        |   6 +
->  drivers/iio/light/Kconfig                          |  11 +
-[...]
-> +static int cm3232_get_lux(struct cm3232_chip *chip);
-> +static int cm3232_read_als_it(struct cm3232_chip *chip, int *val2);
-> +
-> +/**
-> + * cm3232_reg_init() - Initialize CM3232 registers
-> + * @chip:	pointer of struct cm3232.
-> + *
-> + * Initialize CM3232 ambient light sensor register to default values.
-> + *
-> +  Return: 0 for success; otherwise for error code.
-Is a '*' missing?
+With lk 3.19.0-rc2 and a at91sam9g25 (9x5) based system I
+connected a NXP SC16IS750 I2C to serial bridge. After
+routing the 750's IRQ back to the sc16is7xx driver and some
+simple successful test, it was time for some intense testing:
+Tx looped back to Rx on the 750, open picocom on /dev/ttySC0
+at 38400, and use hexdump to blast a binary file (in hex) at
+ttySC0. The I2C SCL speed was 200,000 Hz.
 
-> + */
-> +static int cm3232_reg_init(struct cm3232_chip *chip)
-> +{
-> +	struct i2c_client *client = chip->client;
-> +	struct cm3232_als_info *als_info;
-> +	s32 ret;
-> +
-> +	/* Identify device */
-[...]
-> +
-> +	/* Calculate mlux per bit based on als_it */
-> +	ret = cm3232_read_als_it(chip, &als_it);
-> +	if (ret < 0)
-> +		return -EINVAL;
-> +	tmp = (__force u64)als_info->mlux_per_bit;
-> +	tmp *= als_info->mlux_per_bit_base_it;
-> +	tmp = div_u64 (tmp, als_it);
-                 ^
-         no space after function
-> +
-> +	/* Get als_raw */
-> +	als_info->als_raw = i2c_smbus_read_word_data(
-> +				client,
-> +				CM3232_REG_ADDR_ALS);
-> +	if (als_info->als_raw < 0)
-> +		return als_info->als_raw;
-> +
-> +	tmp *= als_info->als_raw;
-> +	tmp *= als_info->calibscale;
-> +	tmp = div_u64(tmp, CM3232_CALIBSCALE_RESOLUTION);
-> +	tmp = div_u64(tmp, CM3232_MLUX_PER_LUX);
-[...]
+It worked as expected for a few seconds then it wedged the
+I2C bus. That was repeatable. In the cases that I checked SCL
+was high, SDA was low (driven by _both_ the G25's macrocell
+and the 750!!) and IRQ was active (low). This patch stopped
+the G25 macrocell from driving SDA low in the above wedge
+(and stopped copious error reports going to the log). I was
+surprised that a NXP I2C chip got into this situation, IMO
+SDA on a slave should have a driven low timeout. IMO all
+I2C master drivers should have provision to drive a gpio
+connected to a (or all the) slave's RESET line(s).
 
-It builds clean and there are no checkpatch or sparse errors.
-Overall it looks good.
 
--- 
-- Jeremiah Mahler
+ChangeLog:
+    when handling an I2C bus time-out, first clean-up the
+    DMA transfer, then do an I2C macrocell software reset
+    and restore some registers, including the interrupt
+    mask
+
+Signed-off-by: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+
+--------------050506090606020809050608
+Content-Type: text/x-patch;
+ name="i2c-at91-timeout1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="i2c-at91-timeout1.patch"
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 636fd2e..4d78708 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -382,6 +382,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ {
+ 	int ret;
+ 	bool has_unre_flag = dev->pdata->has_unre_flag;
++	bool timed_out = false;
+ 
+ 	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
+ 		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
+@@ -440,7 +441,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 					     dev->adapter.timeout);
+ 	if (ret == 0) {
+ 		dev_err(dev->dev, "controller timed out\n");
+-		at91_init_twi_bus(dev);
++		timed_out = true;
+ 		ret = -ETIMEDOUT;
+ 		goto error;
+ 	}
+@@ -471,6 +472,11 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 
+ error:
+ 	at91_twi_dma_cleanup(dev);
++	if (timed_out) {
++		at91_twi_irq_save(dev);
++		at91_init_twi_bus(dev);
++		at91_twi_irq_restore(dev);
++	}
+ 	return ret;
+ }
+ 
+
+--------------050506090606020809050608--
