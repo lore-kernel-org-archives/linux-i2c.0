@@ -1,88 +1,40 @@
-From: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH] at91: i2c-at91: improve time-out handling
-Date: Thu, 01 Jan 2015 13:02:13 -0500
-Message-ID: <54A58BA5.3080003@interlog.com>
-Reply-To: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH] input: adxl34x: Add OF match support
+Date: Mon, 05 Jan 2015 10:27:50 +0200
+Message-ID: <9953341.ly5Z8mnrNK@avalon>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdXcfe0JQhZzGSAoqjKR346-QJrvyi=afHF7cAaHKa56pw@mail.gmail.com> <10011053.aypz0IuTJG@avalon>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------050506090606020809050608"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <10011053.aypz0IuTJG@avalon>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050506090606020809050608
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Geert,
 
-With lk 3.19.0-rc2 and a at91sam9g25 (9x5) based system I
-connected a NXP SC16IS750 I2C to serial bridge. After
-routing the 750's IRQ back to the sc16is7xx driver and some
-simple successful test, it was time for some intense testing:
-Tx looped back to Rx on the 750, open picocom on /dev/ttySC0
-at 38400, and use hexdump to blast a binary file (in hex) at
-ttySC0. The I2C SCL speed was 200,000 Hz.
+On Thursday 18 December 2014 21:23:46 Laurent Pinchart wrote:
+> On Thursday 18 December 2014 14:03:18 Geert Uytterhoeven wrote:
+> > On Thu, Dec 18, 2014 at 1:49 PM, Laurent Pinchart wrote:
+> > > There are three compatible strings defined for the ADXL345 and ADXL346
+> > > in Documentation/devicetree/bindings/i2c/trivial-devices.txt:
+> > > "adi,adxl345", "adi,adxl346", "adi,adxl34x". Given that the last one is
+> > > a fallback for the first two I don't see a need to add the specific
+> > > compatible strings to the driver for now. If a new totally incompatible
+> > > chip named ADXL347 comes out we will need a new driver which won't be
+> > > allowed to use the "adi,adxl34x" compatible string.
+> > 
+> > FWIW, I'm the evil person who added the adxl entries to that file...
+> 
+> git-blame had already reported you.
+> 
+> Do you think we should remove that compatible string ?
 
-It worked as expected for a few seconds then it wedged the
-I2C bus. That was repeatable. In the cases that I checked SCL
-was high, SDA was low (driven by _both_ the G25's macrocell
-and the 750!!) and IRQ was active (low). This patch stopped
-the G25 macrocell from driving SDA low in the above wedge
-(and stopped copious error reports going to the log). I was
-surprised that a NXP I2C chip got into this situation, IMO
-SDA on a slave should have a driven low timeout. IMO all
-I2C master drivers should have provision to drive a gpio
-connected to a (or all the) slave's RESET line(s).
+Ping ?
 
+-- 
+Regards,
 
-ChangeLog:
-    when handling an I2C bus time-out, first clean-up the
-    DMA transfer, then do an I2C macrocell software reset
-    and restore some registers, including the interrupt
-    mask
-
-Signed-off-by: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-
---------------050506090606020809050608
-Content-Type: text/x-patch;
- name="i2c-at91-timeout1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="i2c-at91-timeout1.patch"
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 636fd2e..4d78708 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -382,6 +382,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- {
- 	int ret;
- 	bool has_unre_flag = dev->pdata->has_unre_flag;
-+	bool timed_out = false;
- 
- 	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
- 		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
-@@ -440,7 +441,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 					     dev->adapter.timeout);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
--		at91_init_twi_bus(dev);
-+		timed_out = true;
- 		ret = -ETIMEDOUT;
- 		goto error;
- 	}
-@@ -471,6 +472,11 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 
- error:
- 	at91_twi_dma_cleanup(dev);
-+	if (timed_out) {
-+		at91_twi_irq_save(dev);
-+		at91_init_twi_bus(dev);
-+		at91_twi_irq_restore(dev);
-+	}
- 	return ret;
- }
- 
-
---------------050506090606020809050608--
+Laurent Pinchart
