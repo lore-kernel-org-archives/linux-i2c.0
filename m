@@ -1,66 +1,55 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH V1 1/1] iio: Added Capella cm3232 ambient light sensor
- driver.
-Date: Mon, 05 Jan 2015 09:56:51 -0800
-Message-ID: <1420480611.2652.19.camel@perches.com>
-References: <1420071030-888-1-git-send-email-ktsai@capellamicro.com>
-	 <CAEnQRZBD2NMYRp1cW0J2ssT4CT=0jSM=X6ByHQiUrA0ueV8fRA@mail.gmail.com>
-	 <1420463396.2652.8.camel@perches.com>
-	 <CAEnQRZBmwurFCJU4E4ArO8waU+YcGWrRYr3DRVxq9haduX2t=w@mail.gmail.com>
-	 <1420476166.2652.14.camel@perches.com>
-	 <CAEnQRZA6=FK8CaJvh7kxOEAyDLQQE77xZ02UofLUUT67yZG8bg@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] input: adxl34x: Add OF match support
+Date: Tue, 6 Jan 2015 14:28:12 +0100
+Message-ID: <CAMuHMdXyo7BHJ-Jk3xKrCiCEVDF1M+-Sz9tBWibXc4pNYvdDeA@mail.gmail.com>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+	<1492007.8cQN1myWLD@avalon>
+	<CAMuHMdXcfe0JQhZzGSAoqjKR346-QJrvyi=afHF7cAaHKa56pw@mail.gmail.com>
+	<10011053.aypz0IuTJG@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAEnQRZA6=FK8CaJvh7kxOEAyDLQQE77xZ02UofLUUT67yZG8bg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Baluta <daniel.baluta@intel.com>
-Cc: Kevin Tsai <ktsai@capellamicro.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald <pmeerw@pmeerw.net>, Grant Likely <grant.likely@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Antti Palosaari <crope@iki.fi>, Archana Patni <archana.patni@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <10011053.aypz0IuTJG@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 2015-01-05 at 19:50 +0200, Daniel Baluta wrote:
-> On Mon, Jan 5, 2015 at 6:42 PM, Joe Perches <joe@perches.com> wrote:
-> > On Mon, 2015-01-05 at 16:20 +0200, Daniel Baluta wrote:
-> >> On Mon, Jan 5, 2015 at 3:09 PM, Joe Perches <joe@perches.com> wrote:
-> >> > On Mon, 2015-01-05 at 12:51 +0200, Daniel Baluta wrote:
-> >> >> On Thu, Jan 1, 2015 at 2:10 AM, Kevin Tsai <ktsai@capellamicro.com> wrote:
-> >> >> > CM3232 is an advanced ambient light sensor with I2C protocol interface.
-> >> >> > The I2C slave address is internally hardwired as 0x10 (7-bit).  Writing
-> >> >> > to configure register is byte mode, but reading ALS register requests to
-> >> >> > use word mode for 16-bit resolution.
-> > []
-> >> >> You could directly return i2c_smbus_write_byte_data(..).
-> >> >
-> >> > Sometimes it's better to return a specific value
-> >> > for the error instead of depending on correctness
-> >> > of all the indirect functions in the call chain.
-> >> >
-> >> > In this case, all the smbus_xfer functions must
-> >> > return 0 on success.  Do they?
-> >>
-> >> Yes.
-> >>
-> >> http://lxr.free-electrons.com/source/drivers/i2c/i2c-core.c#L2845
-> >
-> > This doesn't show that adapter->algo->smbus_xfer()
-> > returns 0, you have to look at the code for that
-> > indirectly called function.
-> 
-> I based my answer on the comment at the top of the function:
-> 
-> 2845  * This executes an SMBus protocol operation, and returns a negative
-> 2846  * errno code else zero on success.
+Hi Laurent, Wolfram,
 
-Sure, but comments and code often differ and the
-implementation of any of those smbus_xfer functions
-could return a positive value like the byte value or
-the number of bytes written instead of 0.
+On Thu, Dec 18, 2014 at 8:23 PM, Laurent Pinchart
+<laurent.pinchart@ideasonboard.com> wrote:
+> On Thursday 18 December 2014 14:03:18 Geert Uytterhoeven wrote:
+>> On Thu, Dec 18, 2014 at 1:49 PM, Laurent Pinchart wrote:
+>> > There are three compatible strings defined for the ADXL345 and ADXL346 in
+>> > Documentation/devicetree/bindings/i2c/trivial-devices.txt: "adi,adxl345",
+>> > "adi,adxl346", "adi,adxl34x". Given that the last one is a fallback for
+>> > the first two I don't see a need to add the specific compatible strings to
+>> > the driver for now. If a new totally incompatible chip named ADXL347 comes
+>> > out we will need a new driver which won't be allowed to use the
+>> > "adi,adxl34x" compatible string.
+>>
+>> FWIW, I'm the evil person who added the adxl entries to that file...
+>
+> git-blame had already reported you.
+>
+> Do you think we should remove that compatible string ?
 
-For correctness, you'd have to inspect them all.
+Remove it from trivial-devices.txt, or from the .dts?
 
-If some new future smbus_xfer function was written
-incorrectly, the return value from this function could
-now be positive.
+Can't we just fix i2c_device_match(), to consider all compatible values
+of the device's node instead of just the first one when doing a legacy match?
 
-cheers, Joe
+For now, I'd remove the "adi,adxl345" entry from sh73a0-kzm9g.dts,
+until matching is fixed.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
