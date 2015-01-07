@@ -1,90 +1,58 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] at91: i2c-at91: improve time-out handling
-Date: Wed, 7 Jan 2015 11:31:14 +0100
-Message-ID: <20150107103113.GA30897@ldesroches-Latitude-E6320>
-References: <54A58BA5.3080003@interlog.com>
+From: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c: imx: whitespace and checkpatch cleanup
+Date: Wed, 07 Jan 2015 12:01:53 +0100
+Message-ID: <1420628513.3191.30.camel@pengutronix.de>
+References: <1420555701-24645-1-git-send-email-p.zabel@pengutronix.de>
+	 <1420555701-24645-3-git-send-email-p.zabel@pengutronix.de>
+	 <BLUPR03MB3730EFCF20035ADB0027ABAF5460@BLUPR03MB373.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54A58BA5.3080003-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <BLUPR03MB3730EFCF20035ADB0027ABAF5460-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-Cc: linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Fabio.Estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Fabio.Estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Douglas,
+Hi Andy,
 
-On Thu, Jan 01, 2015 at 01:02:13PM -0500, Douglas Gilbert wrote:
-> With lk 3.19.0-rc2 and a at91sam9g25 (9x5) based system I
-> connected a NXP SC16IS750 I2C to serial bridge. After
-> routing the 750's IRQ back to the sc16is7xx driver and some
-> simple successful test, it was time for some intense testing:
-> Tx looped back to Rx on the 750, open picocom on /dev/ttySC0
-> at 38400, and use hexdump to blast a binary file (in hex) at
-> ttySC0. The I2C SCL speed was 200,000 Hz.
+Am Mittwoch, den 07.01.2015, 02:36 +0000 schrieb
+fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org:
+> From: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Sent: Tuesday, January 06, 2015 10:48 PM
+> > To: Wolfram Sang
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Duan Fugang-B38611; Yuan Yao-B46683;
+> > Estevam Fabio-R49496; kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; Philipp Zabel
+> > Subject: [PATCH 3/3] i2c: imx: whitespace and checkpatch cleanup
+> > 
+> > This patch fixes up some whitespace issues and addresses a few checkpatch
+> > warnings.
+> > 
+> > Signed-off-by: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-imx.c | 53 ++++++++++++++++++++++++++------------
+> > ------
+> >  1 file changed, 32 insertions(+), 21 deletions(-)
 > 
-> It worked as expected for a few seconds then it wedged the
-> I2C bus. That was repeatable. In the cases that I checked SCL
-> was high, SDA was low (driven by _both_ the G25's macrocell
-> and the 750!!) and IRQ was active (low). This patch stopped
-> the G25 macrocell from driving SDA low in the above wedge
-> (and stopped copious error reports going to the log). I was
-> surprised that a NXP I2C chip got into this situation, IMO
-> SDA on a slave should have a driven low timeout. IMO all
-> I2C master drivers should have provision to drive a gpio
-> connected to a (or all the) slave's RESET line(s).
+> [snip]
+> >  		if (i == (msgs->len - 1)) {
+> >  			if (is_lastmsg) {
+> >  				/*
+> > -				 * It must generate STOP before read I2DR to
+> > prevent
+> > -				 * controller from generating another clock cycle
+> > +				 * It must generate STOP before read I2DR to
+> > +				 * prevent controller from generating another
+> > +				 * clock cycle
+> >  				 */
 > 
-> 
-> ChangeLog:
->    when handling an I2C bus time-out, first clean-up the
->    DMA transfer, then do an I2C macrocell software reset
->    and restore some registers, including the interrupt
->    mask
-> 
+> It is better for the format:
+> 	/* It must generate STOP before read I2DR to
 
-I am wondering why you need to call at91_twi_irq_save() and
-at91_twi_irq_restore(). The interrupts enabled in the driver are
-AT91_TWI_TXCOMP, AT91_TWI_RXRDY and AT91_TWI_TXRDY and they are managed
-in at91_do_twi_transfer() so they would be set correctly for the next
-transfer.
+Thank you for the review, but according to Documentation/CodingStyle
+this multi-line comment format is only preferred for code in net/ and
+drivers/net.
 
-Regards
-
-Ludovic
-
-> Signed-off-by: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 636fd2e..4d78708 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -382,6 +382,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  {
->  	int ret;
->  	bool has_unre_flag = dev->pdata->has_unre_flag;
-> +	bool timed_out = false;
->  
->  	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
->  		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
-> @@ -440,7 +441,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  					     dev->adapter.timeout);
->  	if (ret == 0) {
->  		dev_err(dev->dev, "controller timed out\n");
-> -		at91_init_twi_bus(dev);
-> +		timed_out = true;
->  		ret = -ETIMEDOUT;
->  		goto error;
->  	}
-> @@ -471,6 +472,11 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  
->  error:
->  	at91_twi_dma_cleanup(dev);
-> +	if (timed_out) {
-> +		at91_twi_irq_save(dev);
-> +		at91_init_twi_bus(dev);
-> +		at91_twi_irq_restore(dev);
-> +	}
->  	return ret;
->  }
->  
+regards
+Philipp
