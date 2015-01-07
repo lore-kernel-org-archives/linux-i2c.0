@@ -1,58 +1,53 @@
-From: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: imx: whitespace and checkpatch cleanup
-Date: Wed, 07 Jan 2015 12:01:53 +0100
-Message-ID: <1420628513.3191.30.camel@pengutronix.de>
+From: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH 3/3] i2c: imx: whitespace and checkpatch cleanup
+Date: Wed, 7 Jan 2015 11:13:44 +0000
+Message-ID: <BLUPR03MB3736B5091ABD1D7F848BF6EF5460@BLUPR03MB373.namprd03.prod.outlook.com>
 References: <1420555701-24645-1-git-send-email-p.zabel@pengutronix.de>
 	 <1420555701-24645-3-git-send-email-p.zabel@pengutronix.de>
 	 <BLUPR03MB3730EFCF20035ADB0027ABAF5460@BLUPR03MB373.namprd03.prod.outlook.com>
+ <1420628513.3191.30.camel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BLUPR03MB3730EFCF20035ADB0027ABAF5460-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+In-Reply-To: <1420628513.3191.30.camel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Fabio.Estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <Fabio.Estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
-
-Am Mittwoch, den 07.01.2015, 02:36 +0000 schrieb
-fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org:
-> From: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Sent: Tuesday, January 06, 2015 10:48 PM
-> > To: Wolfram Sang
-> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Duan Fugang-B38611; Yuan Yao-B46683;
-> > Estevam Fabio-R49496; kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; Philipp Zabel
-> > Subject: [PATCH 3/3] i2c: imx: whitespace and checkpatch cleanup
-> > 
-> > This patch fixes up some whitespace issues and addresses a few checkpatch
-> > warnings.
-> > 
-> > Signed-off-by: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-imx.c | 53 ++++++++++++++++++++++++++------------
-> > ------
-> >  1 file changed, 32 insertions(+), 21 deletions(-)
-> 
-> [snip]
-> >  		if (i == (msgs->len - 1)) {
-> >  			if (is_lastmsg) {
-> >  				/*
-> > -				 * It must generate STOP before read I2DR to
-> > prevent
-> > -				 * controller from generating another clock cycle
-> > +				 * It must generate STOP before read I2DR to
-> > +				 * prevent controller from generating another
-> > +				 * clock cycle
-> >  				 */
-> 
-> It is better for the format:
-> 	/* It must generate STOP before read I2DR to
-
-Thank you for the review, but according to Documentation/CodingStyle
-this multi-line comment format is only preferred for code in net/ and
-drivers/net.
-
-regards
-Philipp
+RnJvbTogUGhpbGlwcCBaYWJlbCA8cC56YWJlbEBwZW5ndXRyb25peC5kZT4NClNlbnQ6IFdlZG5l
+c2RheSwgSmFudWFyeSAwNywgMjAxNSA3OjAyIFBNDQo+IFRvOiBEdWFuIEZ1Z2FuZy1CMzg2MTEN
+Cj4gQ2M6IFdvbGZyYW0gU2FuZzsgRXN0ZXZhbSBGYWJpby1SNDk0OTY7IGxpbnV4LWkyY0B2Z2Vy
+Lmtlcm5lbC5vcmc7DQo+IGtlcm5lbEBwZW5ndXRyb25peC5kZTsgWXVhbiBZYW8tQjQ2NjgzDQo+
+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMy8zXSBpMmM6IGlteDogd2hpdGVzcGFjZSBhbmQgY2hlY2tw
+YXRjaCBjbGVhbnVwDQo+IA0KPiBIaSBBbmR5LA0KPiANCj4gQW0gTWl0dHdvY2gsIGRlbiAwNy4w
+MS4yMDE1LCAwMjozNiArMDAwMCBzY2hyaWViDQo+IGZ1Z2FuZy5kdWFuQGZyZWVzY2FsZS5jb206
+DQo+ID4gRnJvbTogUGhpbGlwcCBaYWJlbCA8cC56YWJlbEBwZW5ndXRyb25peC5kZT4NCj4gPiBT
+ZW50OiBUdWVzZGF5LCBKYW51YXJ5IDA2LCAyMDE1IDEwOjQ4IFBNDQo+ID4gPiBUbzogV29sZnJh
+bSBTYW5nDQo+ID4gPiBDYzogbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgRHVhbiBGdWdhbmct
+QjM4NjExOyBZdWFuIFlhby1CNDY2ODM7DQo+ID4gPiBFc3RldmFtIEZhYmlvLVI0OTQ5Njsga2Vy
+bmVsQHBlbmd1dHJvbml4LmRlOyBQaGlsaXBwIFphYmVsDQo+ID4gPiBTdWJqZWN0OiBbUEFUQ0gg
+My8zXSBpMmM6IGlteDogd2hpdGVzcGFjZSBhbmQgY2hlY2twYXRjaCBjbGVhbnVwDQo+ID4gPg0K
+PiA+ID4gVGhpcyBwYXRjaCBmaXhlcyB1cCBzb21lIHdoaXRlc3BhY2UgaXNzdWVzIGFuZCBhZGRy
+ZXNzZXMgYSBmZXcNCj4gPiA+IGNoZWNrcGF0Y2ggd2FybmluZ3MuDQo+ID4gPg0KPiA+ID4gU2ln
+bmVkLW9mZi1ieTogUGhpbGlwcCBaYWJlbCA8cC56YWJlbEBwZW5ndXRyb25peC5kZT4NCj4gPiA+
+IC0tLQ0KPiA+ID4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMgfCA1Mw0KPiA+ID4gKysr
+KysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0NCj4gPiA+IC0tLS0tLQ0KPiA+ID4g
+IDEgZmlsZSBjaGFuZ2VkLCAzMiBpbnNlcnRpb25zKCspLCAyMSBkZWxldGlvbnMoLSkNCj4gPg0K
+PiA+IFtzbmlwXQ0KPiA+ID4gIAkJaWYgKGkgPT0gKG1zZ3MtPmxlbiAtIDEpKSB7DQo+ID4gPiAg
+CQkJaWYgKGlzX2xhc3Rtc2cpIHsNCj4gPiA+ICAJCQkJLyoNCj4gPiA+IC0JCQkJICogSXQgbXVz
+dCBnZW5lcmF0ZSBTVE9QIGJlZm9yZSByZWFkIEkyRFIgdG8NCj4gPiA+IHByZXZlbnQNCj4gPiA+
+IC0JCQkJICogY29udHJvbGxlciBmcm9tIGdlbmVyYXRpbmcgYW5vdGhlciBjbG9jayBjeWNsZQ0K
+PiA+ID4gKwkJCQkgKiBJdCBtdXN0IGdlbmVyYXRlIFNUT1AgYmVmb3JlIHJlYWQgSTJEUiB0bw0K
+PiA+ID4gKwkJCQkgKiBwcmV2ZW50IGNvbnRyb2xsZXIgZnJvbSBnZW5lcmF0aW5nIGFub3RoZXIN
+Cj4gPiA+ICsJCQkJICogY2xvY2sgY3ljbGUNCj4gPiA+ICAJCQkJICovDQo+ID4NCj4gPiBJdCBp
+cyBiZXR0ZXIgZm9yIHRoZSBmb3JtYXQ6DQo+ID4gCS8qIEl0IG11c3QgZ2VuZXJhdGUgU1RPUCBi
+ZWZvcmUgcmVhZCBJMkRSIHRvDQo+IA0KPiBUaGFuayB5b3UgZm9yIHRoZSByZXZpZXcsIGJ1dCBh
+Y2NvcmRpbmcgdG8gRG9jdW1lbnRhdGlvbi9Db2RpbmdTdHlsZSB0aGlzDQo+IG11bHRpLWxpbmUg
+Y29tbWVudCBmb3JtYXQgaXMgb25seSBwcmVmZXJyZWQgZm9yIGNvZGUgaW4gbmV0LyBhbmQNCj4g
+ZHJpdmVycy9uZXQuDQo+IA0KPiByZWdhcmRzDQo+IFBoaWxpcHANCg0KSSBhZ3JlZS4gU28gSSBh
+bSBmaW5lIGZvciB0aGUgcGF0Y2guIFRoYW5rcyBmb3IgeW91ciBjb2RlIGNsZWFuLg0KDQpBY2tl
+ZC1ieTogRnVnYW5nIER1YW4gPEIzODYxMUBmcmVlc2NhbGUuY29tPg0KDQpSZWdhcmRzLA0KQW5k
+eQ0K
