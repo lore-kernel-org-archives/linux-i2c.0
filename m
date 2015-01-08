@@ -1,51 +1,35 @@
 From: kbuild test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [wsa:i2c/quirks 10/11] drivers/i2c/busses/i2c-viperboard.c:357:27:
- sparse: symbol 'vprbrd_quirks' was not declared. Should it be static?
+Subject: [PATCH wsa] i2c: viperboard: vprbrd_quirks can be static
 Date: Fri, 9 Jan 2015 02:07:53 +0800
-Message-ID: <201501090239.gPJgrJIE%fengguang.wu@intel.com>
+Message-ID: <20150108180753.GA9361@lkp-sb04>
+References: <201501090239.gPJgrJIE%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <201501090239.gPJgrJIE%fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: kbuild-all-JC7UmRfGjtg@public.gmane.org, Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-tree:   git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux i2c/quirks
-head:   b1d39af8ae21f4930854b0656aa83a83fd38049e
-commit: 5f7099010eda61b777ba84cf9b64dc8428846d25 [10/11] i2c: viperboard: make use of the new infrastructure for quirks
-reproduce:
-  # apt-get install sparse
-  git checkout 5f7099010eda61b777ba84cf9b64dc8428846d25
-  make ARCH=x86_64 allmodconfig
-  make C=1 CF=-D__CHECK_ENDIAN__
+drivers/i2c/busses/i2c-viperboard.c:357:27: sparse: symbol 'vprbrd_quirks' was not declared. Should it be static?
 
-
-sparse warnings: (new ones prefixed by >>)
-
-   drivers/i2c/busses/i2c-viperboard.c:128:35: sparse: incorrect type in assignment (different base types)
-   drivers/i2c/busses/i2c-viperboard.c:128:35:    expected unsigned short [unsigned] [usertype] addr
-   drivers/i2c/busses/i2c-viperboard.c:128:35:    got restricted __le16 [usertype] <noident>
-   drivers/i2c/busses/i2c-viperboard.c:201:34: sparse: incorrect type in assignment (different base types)
-   drivers/i2c/busses/i2c-viperboard.c:201:34:    expected unsigned short [unsigned] [usertype] tf1
-   drivers/i2c/busses/i2c-viperboard.c:201:34:    got restricted __le16 [usertype] <noident>
-   drivers/i2c/busses/i2c-viperboard.c:202:34: sparse: incorrect type in assignment (different base types)
-   drivers/i2c/busses/i2c-viperboard.c:202:34:    expected unsigned short [unsigned] [usertype] tf2
-   drivers/i2c/busses/i2c-viperboard.c:202:34:    got restricted __le16 [usertype] <noident>
-   drivers/i2c/busses/i2c-viperboard.c:237:35: sparse: incorrect type in assignment (different base types)
-   drivers/i2c/busses/i2c-viperboard.c:237:35:    expected unsigned short [unsigned] [usertype] addr
-   drivers/i2c/busses/i2c-viperboard.c:237:35:    got restricted __le16 [usertype] <noident>
-   drivers/i2c/busses/i2c-viperboard.c:300:35: sparse: incorrect type in assignment (different base types)
-   drivers/i2c/busses/i2c-viperboard.c:300:35:    expected unsigned short [unsigned] [usertype] len
-   drivers/i2c/busses/i2c-viperboard.c:300:35:    got restricted __le16 [usertype] <noident>
-   drivers/i2c/busses/i2c-viperboard.c:325:35: sparse: incorrect type in assignment (different base types)
-   drivers/i2c/busses/i2c-viperboard.c:325:35:    expected unsigned short [unsigned] [usertype] len
-   drivers/i2c/busses/i2c-viperboard.c:325:35:    got restricted __le16 [usertype] <noident>
->> drivers/i2c/busses/i2c-viperboard.c:357:27: sparse: symbol 'vprbrd_quirks' was not declared. Should it be static?
-
-Please review and possibly fold the followup patch.
-
+Signed-off-by: Fengguang Wu <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 ---
-0-DAY kernel test infrastructure                Open Source Technology Center
-http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
+ i2c-viperboard.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-viperboard.c b/drivers/i2c/busses/i2c-viperboard.c
+index f880f08..47e88ad 100644
+--- a/drivers/i2c/busses/i2c-viperboard.c
++++ b/drivers/i2c/busses/i2c-viperboard.c
+@@ -354,7 +354,7 @@ static const struct i2c_algorithm vprbrd_algorithm = {
+ 	.functionality	= vprbrd_i2c_func,
+ };
+ 
+-struct i2c_adapter_quirks vprbrd_quirks = {
++static struct i2c_adapter_quirks vprbrd_quirks = {
+ 	.max_read_len = 2048,
+ 	.max_write_len = 2048,
+ };
