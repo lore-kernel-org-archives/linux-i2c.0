@@ -1,33 +1,35 @@
-From: kbuild test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [wsa:i2c/quirks 8/11] drivers/i2c/busses/i2c-dln2.c:184:27: sparse:
- symbol 'dln2_i2c_quirks' was not declared. Should it be static?
+From: kbuild test robot <fengguang.wu@intel.com>
+Subject: [PATCH wsa] i2c: dln2: dln2_i2c_quirks can be static
 Date: Fri, 9 Jan 2015 02:02:00 +0800
-Message-ID: <201501090243.rmSyDkOe%fengguang.wu@intel.com>
+Message-ID: <20150108180200.GA130854@lkp-sb04>
+References: <201501090243.rmSyDkOe%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: kbuild-all-JC7UmRfGjtg@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Laurentiu Palcu <laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <201501090243.rmSyDkOe%fengguang.wu@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: kbuild-all@01.org, Octavian Purdila <octavian.purdila@intel.com>, Lee Jones <lee.jones@linaro.org>, Johan Hovold <johan@kernel.org>, Laurentiu Palcu <laurentiu.palcu@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-tree:   git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux i2c/quirks
-head:   b1d39af8ae21f4930854b0656aa83a83fd38049e
-commit: dfd33ddaa80259918c200cfacb9076c75cf1da82 [8/11] i2c: dln2: make use of the new infrastructure for quirks
-reproduce:
-  # apt-get install sparse
-  git checkout dfd33ddaa80259918c200cfacb9076c75cf1da82
-  make ARCH=x86_64 allmodconfig
-  make C=1 CF=-D__CHECK_ENDIAN__
+drivers/i2c/busses/i2c-dln2.c:184:27: sparse: symbol 'dln2_i2c_quirks' was not declared. Should it be static?
 
-
-sparse warnings: (new ones prefixed by >>)
-
->> drivers/i2c/busses/i2c-dln2.c:184:27: sparse: symbol 'dln2_i2c_quirks' was not declared. Should it be static?
-
-Please review and possibly fold the followup patch.
-
+Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
 ---
-0-DAY kernel test infrastructure                Open Source Technology Center
-http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
+ i2c-dln2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-dln2.c
+index 3e47811..b6f9ba7 100644
+--- a/drivers/i2c/busses/i2c-dln2.c
++++ b/drivers/i2c/busses/i2c-dln2.c
+@@ -181,7 +181,7 @@ static const struct i2c_algorithm dln2_i2c_usb_algorithm = {
+ 	.functionality = dln2_i2c_func,
+ };
+ 
+-struct i2c_adapter_quirks dln2_i2c_quirks = {
++static struct i2c_adapter_quirks dln2_i2c_quirks = {
+ 	.max_read_len = DLN2_I2C_MAX_XFER_SIZE,
+ 	.max_write_len = DLN2_I2C_MAX_XFER_SIZE,
+ };
