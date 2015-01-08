@@ -1,35 +1,33 @@
-From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [PATCH wsa] i2c: axxia: axxia_i2c_quirks can be static
+From: kbuild test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [wsa:i2c/quirks 7/11] drivers/i2c/busses/i2c-axxia.c:452:27: sparse:
+ symbol 'axxia_i2c_quirks' was not declared. Should it be static?
 Date: Fri, 9 Jan 2015 01:57:37 +0800
-Message-ID: <20150108175737.GA33686@lkp-sb04>
-References: <201501090118.jHaamxHl%fengguang.wu@intel.com>
+Message-ID: <201501090118.jHaamxHl%fengguang.wu@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <201501090118.jHaamxHl%fengguang.wu@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: kbuild-all@01.org, Anders Berg <anders.berg@avagotech.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: kbuild-all-JC7UmRfGjtg@public.gmane.org, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-drivers/i2c/busses/i2c-axxia.c:452:27: sparse: symbol 'axxia_i2c_quirks' was not declared. Should it be static?
+tree:   git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux i2c/quirks
+head:   b1d39af8ae21f4930854b0656aa83a83fd38049e
+commit: 70181ecd2990326a91edb3dac1db4cce21e561f7 [7/11] i2c: axxia: make use of the new infrastructure for quirks
+reproduce:
+  # apt-get install sparse
+  git checkout 70181ecd2990326a91edb3dac1db4cce21e561f7
+  make ARCH=x86_64 allmodconfig
+  make C=1 CF=-D__CHECK_ENDIAN__
 
-Signed-off-by: Fengguang Wu <fengguang.wu@intel.com>
+
+sparse warnings: (new ones prefixed by >>)
+
+>> drivers/i2c/busses/i2c-axxia.c:452:27: sparse: symbol 'axxia_i2c_quirks' was not declared. Should it be static?
+
+Please review and possibly fold the followup patch.
+
 ---
- i2c-axxia.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-index 2d35476..488c5d3 100644
---- a/drivers/i2c/busses/i2c-axxia.c
-+++ b/drivers/i2c/busses/i2c-axxia.c
-@@ -449,7 +449,7 @@ static const struct i2c_algorithm axxia_i2c_algo = {
- 	.functionality = axxia_i2c_func,
- };
- 
--struct i2c_adapter_quirks axxia_i2c_quirks = {
-+static struct i2c_adapter_quirks axxia_i2c_quirks = {
- 	.max_read_len = 255,
- 	.max_write_len = 255,
- };
+0-DAY kernel test infrastructure                Open Source Technology Center
+http://lists.01.org/mailman/listinfo/kbuild                 Intel Corporation
