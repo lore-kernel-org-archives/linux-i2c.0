@@ -1,117 +1,61 @@
-From: Feng Kan <fkan@apm.com>
-Subject: Re: [PATCH 4/6] i2c: busses: add SLIMpro I2C device driver on APM
- X-Gene platform
-Date: Fri, 9 Jan 2015 10:56:51 -0800
-Message-ID: <CAL85gmCOXKiHEO=URrAGBNZpJpen5P5PH1xDoF1-jasj0iDg4Q@mail.gmail.com>
-References: <1412726809-7525-1-git-send-email-fkan@apm.com>
-	<1412726809-7525-5-git-send-email-fkan@apm.com>
-	<1894616.4yY7dajl4R@wuerfel>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [RFC 02/11] i2c: add quirk checks to core
+Date: Fri, 09 Jan 2015 22:35:27 +0300
+Message-ID: <54B02D7F.7040501@cogentembedded.com>
+References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de> <1420824103-24169-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1894616.4yY7dajl4R@wuerfel>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, patches <patches@apm.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Hieu Le <hnle@apm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1420824103-24169-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Nov 11, 2014 at 1:51 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Tuesday 07 October 2014 17:06:47 Feng Kan wrote:
->> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> index 2e45ae3..a03042c 100644
->> --- a/drivers/i2c/busses/Kconfig
->> +++ b/drivers/i2c/busses/Kconfig
->> @@ -1009,6 +1009,15 @@ config I2C_CROS_EC_TUNNEL
->>         connected there. This will work whatever the interface used to
->>         talk to the EC (SPI, I2C or LPC).
->>
->> +config I2C_XGENE_SLIMPRO
->> +     tristate "APM X-Gene SoC I2C SLIMpro devices support"
->> +     depends on ARCH_XGENE && XGENE_SLIMPRO_MBOX
+Hello.
+
+On 01/09/2015 08:21 PM, Wolfram Sang wrote:
+
+> Let the core do the checks if HW quirks prevent a transfer. Saves code
+> from drivers and adds consistency.
+
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> ---
+>   drivers/i2c/i2c-core.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 53 insertions(+)
 >
-> Why this dependency on XGENE_SLIMPRO_MBOX?
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 39d25a8cb1ad..7b10a19abf5b 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2063,6 +2063,56 @@ module_exit(i2c_exit);
+>    * ----------------------------------------------------
+>    */
 >
-> Better replace it with a dependency on MAILBOX.
-Arnd, just a question. Is this because this possibly help with future
-compatibility by choosing a more broad dependency?
+> +/* Check if val is exceeding the quirk IFF quirk is non 0 */
+> +#define i2c_quirk_exceeded(val, quirk) ((quirk) && ((val) > (quirk)))
+> +
+> +static int i2c_quirk_error(struct i2c_adapter *adap, struct i2c_msg *msg, char *err_msg)
+> +{
+> +	dev_err(&adap->dev, "quirk: %s (addr 0x%04x, size %u)\n", err_msg, msg->addr, msg->len);
+> +	return -EOPNOTSUPP;
+> +}
+
+    Always returning the same value doesn't make much sense. Are you trying to 
+save space on the call sites?
+
+[...]
+> @@ -2080,6 +2130,9 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>   	unsigned long orig_jiffies;
+>   	int ret, try;
 >
->> +     } else {
->> +             spin_lock_irqsave(&ctx->lock, flags);
->> +             ctx->i2c_rx_poll = 1;
->> +             for (count = SLIMPRO_I2C_WAIT_COUNT; count > 0; count--) {
->> +                     if (ctx->i2c_rx_poll == 0)
->> +                             break;
->> +                     udelay(100);
->> +             }
->
-> No, you can't block the CPU for an extended amount of time with
-> interrupts disabled. Please kill this code.
->
->> +     ctx->resp_msg = data;
->> +     if (ctx->mbox_client.tx_block)
->> +             init_completion(&ctx->rd_complete);
->
-> reinit_completion()?
->
->> +static int slimpro_i2c_blkrd(struct slimpro_i2c_dev *ctx, u32 chip, u32 addr,
->> +                             u32 addrlen, u32 protocol, u32 readlen,
->> +                             u32 with_data_len, void *data)
->> +{
->> +     dma_addr_t paddr;
->> +     u32 msg[3];
->> +     int rc;
->> +
->> +     paddr = dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
->> +                            DMA_FROM_DEVICE);
->
-> ctx->dev is probably the wrong device here. The i2c controller is not
-> DMA capable itself, you need to have a pointer to the device that actually
-> performs the DMA here.
->
->
->> +     /* Request mailbox channel */
->> +     cl->dev = &pdev->dev;
->> +     cl->rx_callback = slimpro_i2c_rx_cb;
->> +     cl->tx_done = slimpro_i2c_tx_done;
->> +     cl->tx_block = true;
->> +     cl->tx_tout = SLIMPRO_OP_TO_MS;
->> +     cl->knows_txdone = false;
->> +     cl->chan_name = "i2c-slimpro";
->> +     ctx->mbox_chan = mbox_request_channel(cl);
->
-> This is not the correct interface.
->
->> +     rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
->> +     if (rc)
->> +             dev_warn(&pdev->dev, "Unable to set dma mask\n");
->
-> Are you sure that this is the correct device to perform the DMA?
->
-> Moreover, the mask doesn't match the usage: the slimpro_i2c_blkrd
-> function passes in only the lower 32 bit of the address, which would
-> be DMA_BIT_MASK(32).
->
->> +#ifdef CONFIG_OF
->> +static struct of_device_id xgene_slimpro_i2c_id[] = {
->> +     {.compatible = "apm,xgene-slimpro-i2c" },
->> +     {},
->> +};
->> +MODULE_DEVICE_TABLE(of, xgene_slimpro_i2c_dt_ids);
->> +#endif
->> +
->> +static struct platform_driver xgene_slimpro_i2c_driver = {
->> +     .probe  = xgene_slimpro_i2c_probe,
->> +     .remove = xgene_slimpro_i2c_remove,
->> +     .driver = {
->> +             .name   = XGENE_SLIMPRO_I2C,
->> +             .owner  = THIS_MODULE,
->> +             .of_match_table = of_match_ptr(xgene_slimpro_i2c_id)
->> +     },
->> +};
->
-> The driver only supports DT, so just drop the #ifdef and the of_match_ptr().
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +	if (adap->quirks && i2c_check_for_quirks(adap, msgs, num))
+
+    So, you only check for non-zero result of this function? Perhaps it makes 
+sense to return true/false instead?
+
+> +		return -EOPNOTSUPP;
+> +
+
+WBR, Sergei
