@@ -1,66 +1,90 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 06/11] i2c: cpm: make use of the new infrastructure for quirks
-Date: Fri,  9 Jan 2015 18:21:36 +0100
-Message-ID: <1420824103-24169-7-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 03/11] i2c: at91: make use of the new infrastructure for quirks
+Date: Fri,  9 Jan 2015 18:21:33 +0100
+Message-ID: <1420824103-24169-4-git-send-email-wsa@the-dreams.de>
 References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Jochen Friedrich <jochen@scram.de>, linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-cpm.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-at91.c | 32 +++++++++++---------------------
+ 1 file changed, 11 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-index 2d466538b2e2..714bdc837769 100644
---- a/drivers/i2c/busses/i2c-cpm.c
-+++ b/drivers/i2c/busses/i2c-cpm.c
-@@ -308,22 +308,12 @@ static int cpm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	struct i2c_reg __iomem *i2c_reg = cpm->i2c_reg;
- 	struct i2c_ram __iomem *i2c_ram = cpm->i2c_ram;
- 	struct i2c_msg *pmsg;
--	int ret, i;
-+	int ret;
- 	int tptr;
- 	int rptr;
- 	cbd_t __iomem *tbdf;
- 	cbd_t __iomem *rbdf;
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 636fd2efad88..8be7cf6e2747 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -487,30 +487,10 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	if (ret < 0)
+ 		goto out;
  
--	if (num > CPM_MAXBD)
--		return -EINVAL;
--
--	/* Check if we have any oversized READ requests */
--	for (i = 0; i < num; i++) {
--		pmsg = &msgs[i];
--		if (pmsg->len >= CPM_MAX_READ)
--			return -EINVAL;
--	}
--
- 	/* Reset to use first buffer */
- 	out_be16(&i2c_ram->rbptr, in_be16(&i2c_ram->rbase));
- 	out_be16(&i2c_ram->tbptr, in_be16(&i2c_ram->tbase));
-@@ -424,10 +414,18 @@ static const struct i2c_algorithm cpm_i2c_algo = {
- 	.functionality = cpm_i2c_func,
- };
+-	/*
+-	 * The hardware can handle at most two messages concatenated by a
+-	 * repeated start via it's internal address feature.
+-	 */
+-	if (num > 2) {
+-		dev_err(dev->dev,
+-			"cannot handle more than two concatenated messages.\n");
+-		ret = 0;
+-		goto out;
+-	} else if (num == 2) {
++	if (num == 2) {
+ 		int internal_address = 0;
+ 		int i;
  
-+/* CPM_MAX_READ is also limiting writes according to the code! */
-+static struct i2c_adapter_quirks cpm_i2c_quirks = {
-+	.max_num_msgs = CPM_MAXBD,
-+	.max_read_len = CPM_MAX_READ,
-+	.max_write_len = CPM_MAX_READ,
+-		if (msg->flags & I2C_M_RD) {
+-			dev_err(dev->dev, "first transfer must be write.\n");
+-			ret = -EINVAL;
+-			goto out;
+-		}
+-		if (msg->len > 3) {
+-			dev_err(dev->dev, "first message size must be <= 3.\n");
+-			ret = -EINVAL;
+-			goto out;
+-		}
+-
+ 		/* 1st msg is put into the internal address, start with 2nd */
+ 		m_start = &msg[1];
+ 		for (i = 0; i < msg->len; ++i) {
+@@ -540,6 +520,15 @@ out:
+ 	return ret;
+ }
+ 
++/*
++ * The hardware can handle at most two messages concatenated by a
++ * repeated start via it's internal address feature.
++ */
++static struct i2c_adapter_quirks at91_twi_quirks = {
++	.flags = I2C_ADAPTER_QUIRK_COMB_WRITE_FIRST,
++	.max_comb_write_len = 3,
 +};
 +
- static const struct i2c_adapter cpm_ops = {
- 	.owner		= THIS_MODULE,
- 	.name		= "i2c-cpm",
- 	.algo		= &cpm_i2c_algo,
-+	.quirks		= &cpm_i2c_quirks,
- };
- 
- static int cpm_i2c_setup(struct cpm_i2c *cpm)
+ static u32 at91_twi_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+@@ -777,6 +766,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	dev->adapter.owner = THIS_MODULE;
+ 	dev->adapter.class = I2C_CLASS_DEPRECATED;
+ 	dev->adapter.algo = &at91_twi_algorithm;
++	dev->adapter.quirks = &at91_twi_quirks;
+ 	dev->adapter.dev.parent = dev->dev;
+ 	dev->adapter.nr = pdev->id;
+ 	dev->adapter.timeout = AT91_I2C_TIMEOUT;
 -- 
 2.1.3
