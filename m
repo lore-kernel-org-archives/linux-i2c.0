@@ -1,94 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 11/11] i2c: pmcmsp: make use of the new infrastructure for quirks
-Date: Fri,  9 Jan 2015 18:21:41 +0100
-Message-ID: <1420824103-24169-12-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 05/11] i2c: qup: make use of the new infrastructure for quirks
+Date: Fri,  9 Jan 2015 18:21:35 +0100
+Message-ID: <1420824103-24169-6-git-send-email-wsa@the-dreams.de>
 References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 In-Reply-To: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/busses/i2c-pmcmsp.c | 42 ++++++++++++++++-------------------------
- 1 file changed, 16 insertions(+), 26 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
-index 44f03eed00dd..e06efee9fa70 100644
---- a/drivers/i2c/busses/i2c-pmcmsp.c
-+++ b/drivers/i2c/busses/i2c-pmcmsp.c
-@@ -463,14 +463,6 @@ static enum pmcmsptwi_xfer_result pmcmsptwi_xfer_cmd(
- 		return -EINVAL;
- 	}
- 
--	if (cmd->read_len > MSP_MAX_BYTES_PER_RW ||
--	    cmd->write_len > MSP_MAX_BYTES_PER_RW) {
--		dev_err(&pmcmsptwi_adapter.dev,
--			"%s: Cannot transfer more than %d bytes\n",
--			__func__, MSP_MAX_BYTES_PER_RW);
--		return -EINVAL;
--	}
--
- 	mutex_lock(&data->lock);
- 	dev_dbg(&pmcmsptwi_adapter.dev,
- 		"Setting address to 0x%04x\n", cmd->addr);
-@@ -527,25 +519,14 @@ static int pmcmsptwi_master_xfer(struct i2c_adapter *adap,
- 	struct pmcmsptwi_cfg oldcfg, newcfg;
- 	int ret;
- 
--	if (num > 2) {
--		dev_dbg(&adap->dev, "%d messages unsupported\n", num);
--		return -EINVAL;
--	} else if (num == 2) {
--		/* Check for a dual write-then-read command */
-+	if (num == 2) {
- 		struct i2c_msg *nextmsg = msg + 1;
--		if (!(msg->flags & I2C_M_RD) &&
--		    (nextmsg->flags & I2C_M_RD) &&
--		    msg->addr == nextmsg->addr) {
--			cmd.type = MSP_TWI_CMD_WRITE_READ;
--			cmd.write_len = msg->len;
--			cmd.write_data = msg->buf;
--			cmd.read_len = nextmsg->len;
--			cmd.read_data = nextmsg->buf;
--		} else {
--			dev_dbg(&adap->dev,
--				"Non write-read dual messages unsupported\n");
--			return -EINVAL;
--		}
-+
-+		cmd.type = MSP_TWI_CMD_WRITE_READ;
-+		cmd.write_len = msg->len;
-+		cmd.write_data = msg->buf;
-+		cmd.read_len = nextmsg->len;
-+		cmd.read_data = nextmsg->buf;
- 	} else if (msg->flags & I2C_M_RD) {
- 		cmd.type = MSP_TWI_CMD_READ;
- 		cmd.read_len = msg->len;
-@@ -605,6 +586,14 @@ static u32 pmcmsptwi_i2c_func(struct i2c_adapter *adapter)
- 		I2C_FUNC_SMBUS_WORD_DATA | I2C_FUNC_SMBUS_PROC_CALL;
- }
- 
-+static struct i2c_adapter_quirks pmcmsptwi_i2c_quirks = {
-+	.flags = I2C_ADAPTER_QUIRK_COMB_WRITE_THEN_READ,
-+	.max_write_len = MSP_MAX_BYTES_PER_RW,
-+	.max_read_len = MSP_MAX_BYTES_PER_RW,
-+	.max_comb_write_len = MSP_MAX_BYTES_PER_RW,
-+	.max_comb_read_len = MSP_MAX_BYTES_PER_RW,
-+};
-+
- /* -- Initialization -- */
- 
- static struct i2c_algorithm pmcmsptwi_algo = {
-@@ -616,6 +605,7 @@ static struct i2c_adapter pmcmsptwi_adapter = {
- 	.owner		= THIS_MODULE,
- 	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
- 	.algo		= &pmcmsptwi_algo,
-+	.quirks		= &pmcmsptwi_i2c_quirks,
- 	.name		= DRV_NAME,
- };
- 
--- 
-2.1.3
+U2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4KLS0tCiBkcml2
+ZXJzL2kyYy9idXNzZXMvaTJjLXF1cC5jIHwgMjEgKysrKysrKysrKy0tLS0tLS0tLS0tCiAxIGZp
+bGUgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgMTEgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1xdXAuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
+cXVwLmMKaW5kZXggNGRhZDIzYmRmZmJlLi5mZGNiZGFiODA4ZTkgMTAwNjQ0Ci0tLSBhL2RyaXZl
+cnMvaTJjL2J1c3Nlcy9pMmMtcXVwLmMKKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1xdXAu
+YwpAQCAtNDEyLDE3ICs0MTIsNiBAQCBzdGF0aWMgaW50IHF1cF9pMmNfcmVhZF9vbmUoc3RydWN0
+IHF1cF9pMmNfZGV2ICpxdXAsIHN0cnVjdCBpMmNfbXNnICptc2cpCiAJdW5zaWduZWQgbG9uZyBs
+ZWZ0OwogCWludCByZXQ7CiAKLQkvKgotCSAqIFRoZSBRVVAgYmxvY2sgd2lsbCBpc3N1ZSBhIE5B
+Q0sgYW5kIFNUT1Agb24gdGhlIGJ1cyB3aGVuIHJlYWNoaW5nCi0JICogdGhlIGVuZCBvZiB0aGUg
+cmVhZCwgdGhlIGxlbmd0aCBvZiB0aGUgcmVhZCBpcyBzcGVjaWZpZWQgYXMgb25lIGJ5dGUKLQkg
+KiB3aGljaCBsaW1pdHMgdGhlIHBvc3NpYmxlIHJlYWQgdG8gMjU2IChRVVBfUkVBRF9MSU1JVCkg
+Ynl0ZXMuCi0JICovCi0JaWYgKG1zZy0+bGVuID4gUVVQX1JFQURfTElNSVQpIHsKLQkJZGV2X2Vy
+cihxdXAtPmRldiwgIkhXIG5vdCBjYXBhYmxlIG9mIHJlYWRzIG92ZXIgJWQgYnl0ZXNcbiIsCi0J
+CQlRVVBfUkVBRF9MSU1JVCk7Ci0JCXJldHVybiAtRUlOVkFMOwotCX0KLQogCXF1cC0+bXNnID0g
+bXNnOwogCXF1cC0+cG9zICA9IDA7CiAKQEAgLTUzNCw2ICs1MjMsMTUgQEAgc3RhdGljIGNvbnN0
+IHN0cnVjdCBpMmNfYWxnb3JpdGhtIHF1cF9pMmNfYWxnbyA9IHsKIAkuZnVuY3Rpb25hbGl0eQk9
+IHF1cF9pMmNfZnVuYywKIH07CiAKKy8qCisgKiBUaGUgUVVQIGJsb2NrIHdpbGwgaXNzdWUgYSBO
+QUNLIGFuZCBTVE9QIG9uIHRoZSBidXMgd2hlbiByZWFjaGluZworICogdGhlIGVuZCBvZiB0aGUg
+cmVhZCwgdGhlIGxlbmd0aCBvZiB0aGUgcmVhZCBpcyBzcGVjaWZpZWQgYXMgb25lIGJ5dGUKKyAq
+IHdoaWNoIGxpbWl0cyB0aGUgcG9zc2libGUgcmVhZCB0byAyNTYgKFFVUF9SRUFEX0xJTUlUKSBi
+eXRlcy4KKyAqLworc3RhdGljIHN0cnVjdCBpMmNfYWRhcHRlcl9xdWlya3MgcXVwX2kyY19xdWly
+a3MgPSB7CisJLm1heF9yZWFkX2xlbiA9IFFVUF9SRUFEX0xJTUlULAorfTsKKwogc3RhdGljIHZv
+aWQgcXVwX2kyY19lbmFibGVfY2xvY2tzKHN0cnVjdCBxdXBfaTJjX2RldiAqcXVwKQogewogCWNs
+a19wcmVwYXJlX2VuYWJsZShxdXAtPmNsayk7CkBAIC02NzAsNiArNjY4LDcgQEAgc3RhdGljIGlu
+dCBxdXBfaTJjX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCiAKIAlpMmNfc2V0
+X2FkYXBkYXRhKCZxdXAtPmFkYXAsIHF1cCk7CiAJcXVwLT5hZGFwLmFsZ28gPSAmcXVwX2kyY19h
+bGdvOworCXF1cC0+YWRhcC5xdWlya3MgPSAmcXVwX2kyY19xdWlya3M7CiAJcXVwLT5hZGFwLmRl
+di5wYXJlbnQgPSBxdXAtPmRldjsKIAlxdXAtPmFkYXAuZGV2Lm9mX25vZGUgPSBwZGV2LT5kZXYu
+b2Zfbm9kZTsKIAlzdHJsY3B5KHF1cC0+YWRhcC5uYW1lLCAiUVVQIEkyQyBhZGFwdGVyIiwgc2l6
+ZW9mKHF1cC0+YWRhcC5uYW1lKSk7Ci0tIAoyLjEuMwoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KTGludXhwcGMtZGV2IG1haWxpbmcgbGlzdApMaW51eHBw
+Yy1kZXZAbGlzdHMub3psYWJzLm9yZwpodHRwczovL2xpc3RzLm96bGFicy5vcmcvbGlzdGluZm8v
+bGludXhwcGMtZGV2
