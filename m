@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 09/11] i2c: powermac: make use of the new infrastructure for quirks
-Date: Fri,  9 Jan 2015 18:21:39 +0100
-Message-ID: <1420824103-24169-10-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 11/11] i2c: pmcmsp: make use of the new infrastructure for quirks
+Date: Fri,  9 Jan 2015 18:21:41 +0100
+Message-ID: <1420824103-24169-12-git-send-email-wsa@the-dreams.de>
 References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
@@ -12,43 +12,83 @@ List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/busses/i2c-powermac.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-pmcmsp.c | 42 ++++++++++++++++-------------------------
+ 1 file changed, 16 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
-index 60a53c169ed2..6abcf696e359 100644
---- a/drivers/i2c/busses/i2c-powermac.c
-+++ b/drivers/i2c/busses/i2c-powermac.c
-@@ -153,12 +153,6 @@ static int i2c_powermac_master_xfer(	struct i2c_adapter *adap,
- 	int			read;
- 	int			addrdir;
+diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
+index 44f03eed00dd..e06efee9fa70 100644
+--- a/drivers/i2c/busses/i2c-pmcmsp.c
++++ b/drivers/i2c/busses/i2c-pmcmsp.c
+@@ -463,14 +463,6 @@ static enum pmcmsptwi_xfer_result pmcmsptwi_xfer_cmd(
+ 		return -EINVAL;
+ 	}
  
--	if (num != 1) {
--		dev_err(&adap->dev,
--			"Multi-message I2C transactions not supported\n");
--		return -EOPNOTSUPP;
+-	if (cmd->read_len > MSP_MAX_BYTES_PER_RW ||
+-	    cmd->write_len > MSP_MAX_BYTES_PER_RW) {
+-		dev_err(&pmcmsptwi_adapter.dev,
+-			"%s: Cannot transfer more than %d bytes\n",
+-			__func__, MSP_MAX_BYTES_PER_RW);
+-		return -EINVAL;
 -	}
 -
- 	if (msgs->flags & I2C_M_TEN)
- 		return -EINVAL;
- 	read = (msgs->flags & I2C_M_RD) != 0;
-@@ -205,6 +199,9 @@ static const struct i2c_algorithm i2c_powermac_algorithm = {
- 	.functionality	= i2c_powermac_func,
- };
+ 	mutex_lock(&data->lock);
+ 	dev_dbg(&pmcmsptwi_adapter.dev,
+ 		"Setting address to 0x%04x\n", cmd->addr);
+@@ -527,25 +519,14 @@ static int pmcmsptwi_master_xfer(struct i2c_adapter *adap,
+ 	struct pmcmsptwi_cfg oldcfg, newcfg;
+ 	int ret;
  
-+static struct i2c_adapter_quirks i2c_powermac_quirks = {
-+	.max_num_msgs = 1,
+-	if (num > 2) {
+-		dev_dbg(&adap->dev, "%d messages unsupported\n", num);
+-		return -EINVAL;
+-	} else if (num == 2) {
+-		/* Check for a dual write-then-read command */
++	if (num == 2) {
+ 		struct i2c_msg *nextmsg = msg + 1;
+-		if (!(msg->flags & I2C_M_RD) &&
+-		    (nextmsg->flags & I2C_M_RD) &&
+-		    msg->addr == nextmsg->addr) {
+-			cmd.type = MSP_TWI_CMD_WRITE_READ;
+-			cmd.write_len = msg->len;
+-			cmd.write_data = msg->buf;
+-			cmd.read_len = nextmsg->len;
+-			cmd.read_data = nextmsg->buf;
+-		} else {
+-			dev_dbg(&adap->dev,
+-				"Non write-read dual messages unsupported\n");
+-			return -EINVAL;
+-		}
++
++		cmd.type = MSP_TWI_CMD_WRITE_READ;
++		cmd.write_len = msg->len;
++		cmd.write_data = msg->buf;
++		cmd.read_len = nextmsg->len;
++		cmd.read_data = nextmsg->buf;
+ 	} else if (msg->flags & I2C_M_RD) {
+ 		cmd.type = MSP_TWI_CMD_READ;
+ 		cmd.read_len = msg->len;
+@@ -605,6 +586,14 @@ static u32 pmcmsptwi_i2c_func(struct i2c_adapter *adapter)
+ 		I2C_FUNC_SMBUS_WORD_DATA | I2C_FUNC_SMBUS_PROC_CALL;
+ }
+ 
++static struct i2c_adapter_quirks pmcmsptwi_i2c_quirks = {
++	.flags = I2C_ADAPTER_QUIRK_COMB_WRITE_THEN_READ,
++	.max_write_len = MSP_MAX_BYTES_PER_RW,
++	.max_read_len = MSP_MAX_BYTES_PER_RW,
++	.max_comb_write_len = MSP_MAX_BYTES_PER_RW,
++	.max_comb_read_len = MSP_MAX_BYTES_PER_RW,
 +};
++
+ /* -- Initialization -- */
  
- static int i2c_powermac_remove(struct platform_device *dev)
- {
-@@ -434,6 +431,7 @@ static int i2c_powermac_probe(struct platform_device *dev)
- 
- 	platform_set_drvdata(dev, adapter);
- 	adapter->algo = &i2c_powermac_algorithm;
-+	adapter->quirks = &i2c_powermac_quirks;
- 	i2c_set_adapdata(adapter, bus);
- 	adapter->dev.parent = &dev->dev;
+ static struct i2c_algorithm pmcmsptwi_algo = {
+@@ -616,6 +605,7 @@ static struct i2c_adapter pmcmsptwi_adapter = {
+ 	.owner		= THIS_MODULE,
+ 	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+ 	.algo		= &pmcmsptwi_algo,
++	.quirks		= &pmcmsptwi_i2c_quirks,
+ 	.name		= DRV_NAME,
+ };
  
 -- 
 2.1.3
