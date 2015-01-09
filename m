@@ -1,104 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC 02/11] i2c: add quirk checks to core
-Date: Fri,  9 Jan 2015 18:21:32 +0100
-Message-ID: <1420824103-24169-3-git-send-email-wsa@the-dreams.de>
+Subject: [RFC 07/11] i2c: axxia: make use of the new infrastructure for quirks
+Date: Fri,  9 Jan 2015 18:21:37 +0100
+Message-ID: <1420824103-24169-8-git-send-email-wsa@the-dreams.de>
 References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
 In-Reply-To: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 To: linux-i2c@vger.kernel.org
-Cc: linux-mips@linux-mips.org, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-Let the core do the checks if HW quirks prevent a transfer. Saves code
-from drivers and adds consistency.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 ---
- drivers/i2c/i2c-core.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+ drivers/i2c/busses/i2c-axxia.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 39d25a8cb1ad..7b10a19abf5b 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2063,6 +2063,56 @@ module_exit(i2c_exit);
-  * ----------------------------------------------------
-  */
+diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
+index 768a598d8d03..488c5d3bf9db 100644
+--- a/drivers/i2c/busses/i2c-axxia.c
++++ b/drivers/i2c/busses/i2c-axxia.c
+@@ -336,11 +336,6 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
+ 	u32 addr_1, addr_2;
+ 	int ret;
  
-+/* Check if val is exceeding the quirk IFF quirk is non 0 */
-+#define i2c_quirk_exceeded(val, quirk) ((quirk) && ((val) > (quirk)))
-+
-+static int i2c_quirk_error(struct i2c_adapter *adap, struct i2c_msg *msg, char *err_msg)
-+{
-+	dev_err(&adap->dev, "quirk: %s (addr 0x%04x, size %u)\n", err_msg, msg->addr, msg->len);
-+	return -EOPNOTSUPP;
-+}
-+
-+static int i2c_check_for_quirks(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	struct i2c_adapter_quirks *q = adap->quirks;
-+	u16 max_read = q->max_read_len, max_write = q->max_write_len;
-+	int max_num = q->max_num_msgs, i;
-+
-+	if (q->flags & I2C_ADAPTER_QUIRK_COMB_WRITE_THEN_READ)
-+		max_num = 2;
-+
-+	if (i2c_quirk_exceeded(num, max_num))
-+		return i2c_quirk_error(adap, &msgs[0], "too many messages");
-+
-+	if (num == 2 && q->flags & I2C_ADAPTER_QUIRK_COMB_WRITE_FIRST) {
-+		if (msgs[0].flags & I2C_M_RD)
-+			return i2c_quirk_error(adap, &msgs[0], "invalid first write msg");
-+
-+		max_write = q->max_comb_write_len;
-+	}
-+
-+	if (num == 2 && q->flags & I2C_ADAPTER_QUIRK_COMB_READ_SECOND) {
-+		if (!(msgs[1].flags & I2C_M_RD) || msgs[0].addr != msgs[1].addr)
-+			return i2c_quirk_error(adap, &msgs[1], "invalid second read msg");
-+
-+		max_read = q->max_comb_read_len;
-+	}
-+
-+	for (i = 0; i < num; i++) {
-+		u16 len = msgs[i].len;
-+
-+		if (msgs[i].flags & I2C_M_RD) {
-+			if (i2c_quirk_exceeded(len, max_read))
-+				return i2c_quirk_error(adap, &msgs[i], "msg too long");
-+		} else {
-+			if (i2c_quirk_exceeded(len, max_write))
-+				return i2c_quirk_error(adap, &msgs[i], "msg too long");
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  * __i2c_transfer - unlocked flavor of i2c_transfer
-  * @adap: Handle to I2C bus
-@@ -2080,6 +2130,9 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	unsigned long orig_jiffies;
- 	int ret, try;
+-	if (msg->len > 255) {
+-		dev_warn(idev->dev, "unsupported length %u\n", msg->len);
+-		return -EINVAL;
+-	}
+-
+ 	idev->msg = msg;
+ 	idev->msg_xfrd = 0;
+ 	idev->msg_err = 0;
+@@ -454,6 +449,11 @@ static const struct i2c_algorithm axxia_i2c_algo = {
+ 	.functionality = axxia_i2c_func,
+ };
  
-+	if (adap->quirks && i2c_check_for_quirks(adap, msgs, num))
-+		return -EOPNOTSUPP;
++static struct i2c_adapter_quirks axxia_i2c_quirks = {
++	.max_read_len = 255,
++	.max_write_len = 255,
++};
 +
- 	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
- 	 * enabled.  This is an efficient way of keeping the for-loop from
- 	 * being executed when not needed.
+ static int axxia_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+@@ -511,6 +511,7 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+ 	strlcpy(idev->adapter.name, pdev->name, sizeof(idev->adapter.name));
+ 	idev->adapter.owner = THIS_MODULE;
+ 	idev->adapter.algo = &axxia_i2c_algo;
++	idev->adapter.quirks = &axxia_i2c_quirks;
+ 	idev->adapter.dev.parent = &pdev->dev;
+ 	idev->adapter.dev.of_node = pdev->dev.of_node;
+ 
 -- 
 2.1.3
