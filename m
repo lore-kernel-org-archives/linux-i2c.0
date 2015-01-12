@@ -1,43 +1,35 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: [PATCH] i2c: exynos5: Move initialization code to subsys_initcall()
-Date: Mon, 12 Jan 2015 11:53:02 +0900
-Message-ID: <1421031182-18992-1-git-send-email-jy0922.shim@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org, wsa@the-dreams.de, kgene.kim@samsung.com, naveenkrishna.ch@gmail.com, broonie@kernel.org, jy0922.shim@samsung.com
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: exynos5: Move initialization code to
+ subsys_initcall()
+Date: Mon, 12 Jan 2015 08:50:19 +0100
+Message-ID: <20150112075019.GB22880@pengutronix.de>
+References: <1421031182-18992-1-git-send-email-jy0922.shim@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1421031182-18992-1-git-send-email-jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is required in order to ensure that core system devices such as
-voltage regulators attached via I2C are available early in boot.
+Hello,
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
----
- drivers/i2c/busses/i2c-exynos5.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+On Mon, Jan 12, 2015 at 11:53:02AM +0900, Joonyoung Shim wrote:
+> This is required in order to ensure that core system devices such as
+> voltage regulators attached via I2C are available early in boot.
+Deferred probing isn't an option? If so I suggest adding the reasoning
+in a comment to stop the next person converting it to that.
+(And if not, please fix accordingly to use deferred probing.)
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index b29c750..18ca097 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -867,7 +867,17 @@ static struct platform_driver exynos5_i2c_driver = {
- 	},
- };
- 
--module_platform_driver(exynos5_i2c_driver);
-+static int __init exynos5_i2c_init_driver(void)
-+{
-+	return platform_driver_register(&exynos5_i2c_driver);
-+}
-+subsys_initcall(exynos5_i2c_init_driver);
-+
-+static void __exit exynos5_i2c_exit_driver(void)
-+{
-+	platform_driver_unregister(&exynos5_i2c_driver);
-+}
-+module_exit(exynos5_i2c_exit_driver);
- 
- MODULE_DESCRIPTION("Exynos5 HS-I2C Bus driver");
- MODULE_AUTHOR("Naveen Krishna Chatradhi, <ch.naveen@samsung.com>");
--- 
-1.9.1
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
