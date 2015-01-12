@@ -1,43 +1,115 @@
-From: Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: exynos5: Move initialization code to subsys_initcall()
-Date: Mon, 12 Jan 2015 17:43:50 +0900
-Message-ID: <54B38946.3020406@samsung.com>
-References: <1421031182-18992-1-git-send-email-jy0922.shim@samsung.com>
- <20150112075019.GB22880@pengutronix.de>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC 02/11] i2c: add quirk checks to core
+Date: Mon, 12 Jan 2015 10:58:47 +0100
+Message-ID: <20150112095847.GD3625@ldesroches-Latitude-E6320>
+References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
+ <1420824103-24169-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20150112075019.GB22880-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1420824103-24169-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, tomi.valkeinen-l0cyMroinI0@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-+Cc Tomi Valkeinen,
+Hi Wolfram,
 
-Hi Uwe,
+On Fri, Jan 09, 2015 at 06:21:32PM +0100, Wolfram Sang wrote:
+> Let the core do the checks if HW quirks prevent a transfer. Saves code
+> from drivers and adds consistency.
+> 
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c | 53 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 53 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 39d25a8cb1ad..7b10a19abf5b 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2063,6 +2063,56 @@ module_exit(i2c_exit);
+>   * ----------------------------------------------------
+>   */
+>  
+> +/* Check if val is exceeding the quirk IFF quirk is non 0 */
+> +#define i2c_quirk_exceeded(val, quirk) ((quirk) && ((val) > (quirk)))
+> +
+> +static int i2c_quirk_error(struct i2c_adapter *adap, struct i2c_msg *msg, char *err_msg)
+> +{
+> +	dev_err(&adap->dev, "quirk: %s (addr 0x%04x, size %u)\n", err_msg, msg->addr, msg->len);
+> +	return -EOPNOTSUPP;
+> +}
+> +
+> +static int i2c_check_for_quirks(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+> +{
+> +	struct i2c_adapter_quirks *q = adap->quirks;
+> +	u16 max_read = q->max_read_len, max_write = q->max_write_len;
+> +	int max_num = q->max_num_msgs, i;
+> +
+> +	if (q->flags & I2C_ADAPTER_QUIRK_COMB_WRITE_THEN_READ)
+> +		max_num = 2;
+> +
+> +	if (i2c_quirk_exceeded(num, max_num))
+> +		return i2c_quirk_error(adap, &msgs[0], "too many messages");
+> +
+> +	if (num == 2 && q->flags & I2C_ADAPTER_QUIRK_COMB_WRITE_FIRST) {
+> +		if (msgs[0].flags & I2C_M_RD)
+> +			return i2c_quirk_error(adap, &msgs[0], "invalid first write msg");
+> +
+> +		max_write = q->max_comb_write_len;
+> +	}
+> +
+> +	if (num == 2 && q->flags & I2C_ADAPTER_QUIRK_COMB_READ_SECOND) {
+> +		if (!(msgs[1].flags & I2C_M_RD) || msgs[0].addr != msgs[1].addr)
+> +			return i2c_quirk_error(adap, &msgs[1], "invalid second read msg");
+> +
+> +		max_read = q->max_comb_read_len;
+> +	}
+> +
+> +	for (i = 0; i < num; i++) {
+> +		u16 len = msgs[i].len;
+> +
+> +		if (msgs[i].flags & I2C_M_RD) {
+> +			if (i2c_quirk_exceeded(len, max_read))
+> +				return i2c_quirk_error(adap, &msgs[i], "msg too long");
+> +		} else {
+> +			if (i2c_quirk_exceeded(len, max_write))
+> +				return i2c_quirk_error(adap, &msgs[i], "msg too long");
+> +		}
+> +	}
+> +
 
-On 01/12/2015 04:50 PM, Uwe Kleine-K=F6nig wrote:
-> Hello,
->=20
-> On Mon, Jan 12, 2015 at 11:53:02AM +0900, Joonyoung Shim wrote:
->> This is required in order to ensure that core system devices such as
->> voltage regulators attached via I2C are available early in boot.
-> Deferred probing isn't an option? If so I suggest adding the reasonin=
-g
-> in a comment to stop the next person converting it to that.
-> (And if not, please fix accordingly to use deferred probing.)
->=20
+I am not sure it will perfectly fit at91 quirks.
 
-I couldn't get penguin logo since the commit 92b004d ("video/logo:
-prevent use of logos after they have been freed") and i just tried old
-way because i missed the flow to move to deferred probing.
+The hardware can handle two messages by using the internal address
+feature. The internal address size is from one byte to three bytes. Then
+the length of the first message is limited to three but we don't have
+this constraint for the second one. If we have 'write then read' no problem
+but if we have two write messages, the second one will cause a quirk
+exceeded error.
 
-=46b driver probe seems to be ran between fb_logo_late_init late_initca=
-ll
-and the freeing of the logos.
+Regards
 
-Any ideas?
+Ludovic
 
-Thanks for pointing.
+> +	return 0;
+> +}
+> +
+>  /**
+>   * __i2c_transfer - unlocked flavor of i2c_transfer
+>   * @adap: Handle to I2C bus
+> @@ -2080,6 +2130,9 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>  	unsigned long orig_jiffies;
+>  	int ret, try;
+>  
+> +	if (adap->quirks && i2c_check_for_quirks(adap, msgs, num))
+> +		return -EOPNOTSUPP;
+> +
+>  	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
+>  	 * enabled.  This is an efficient way of keeping the for-loop from
+>  	 * being executed when not needed.
+> -- 
+> 2.1.3
+> 
