@@ -1,59 +1,65 @@
-From: Harini Katakam <harinikatakamlinux@gmail.com>
-Subject: Re: [PATCH v5 0/2] Cadence I2C driver fixes
-Date: Mon, 12 Jan 2015 15:38:25 +0530
-Message-ID: <CAFcVECJ9-aTu=FFNr-yctHfQQEJx1TL2R-uRuqszaSvJk-yLTA@mail.gmail.com>
-References: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [RFC 02/11] i2c: add quirk checks to core
+Date: Mon, 12 Jan 2015 11:13:49 +0100
+Message-ID: <20150112101349.GA995@katana>
+References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
+ <1420824103-24169-3-git-send-email-wsa@the-dreams.de>
+ <20150112095847.GD3625@ldesroches-Latitude-E6320>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "wsa@the-dreams.de" <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>
-Cc: Michal Simek <michal.simek@xilinx.com>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Harini Katakam <harinikatakamlinux@gmail.com>, Harini Katakam <harinik@xilinx.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150112095847.GD3625@ldesroches-Latitude-E6320>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-Any further comments on this?
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Regards,
-Harini
 
-On Fri, Dec 12, 2014 at 9:48 AM, Harini Katakam <harinik@xilinx.com> wrote:
-> This series implements workarounds for some bugs in Cadence I2C controller.
->
-> - The I2C controller when configured in Master Mode generates invalid read transactions.
-> When HOLD bit is set and HW timeout occurs, invalid read transactions are
-> generated on the bus. This will affect repeated start conditions and large
-> data transfer condtions where transfer_size_register has to be updated again.
-> The transfer size register rolls over erroneously under these conditions.
-> Note that this HW timeout cannot be disabled even if the interrupt is unused.
-> Errata link: http://www.xilinx.com/support/answers/61664.html
->
-> -The I2C controller when configured in Master Mode is the missing master completion interrupt.
-> During repeated start condition, the driver has to set the HOLD bit for
-> the set of transfer being done together and clear the HOLD bit just before
-> the last transfer. But the controller does not indicate completion when
-> a read/receive transfer is done if the HOLD bit is set. This affects
-> all repeated start operation where a read/receive transfer is not
-> the last transfer.
-> Errata link: http://www.xilinx.com/support/answers/61665.html
->
-> To address the above,
-> - >252 byte transfers are done such that transfer_size never becomes zero.
-> - timeout register value is increased (even though the driver doesn't use this).
-> - A check is performed to see if there is any transfer following a
-> read/receive transfer in the set of messages using repeated start.
-> An error is returned in such cases because if we proceed, completion interrupt
-> is never obtained and a SW timeout will occur.
->
-> Harini Katakam (2):
->   i2c: cadence: Handle > 252 byte transfers
->   i2c: cadence: Check for errata condition involving master receive
->
->  drivers/i2c/busses/i2c-cadence.c |  185 +++++++++++++++++++++++---------------
->  1 file changed, 112 insertions(+), 73 deletions(-)
->
-> --
-> 1.7.9.5
->
+> I am not sure it will perfectly fit at91 quirks.
+
+I think it does.
+
+> The hardware can handle two messages by using the internal address
+> feature. The internal address size is from one byte to three bytes. Then
+> the length of the first message is limited to three but we don't have
+> this constraint for the second one. If we have 'write then read' no problem
+> but if we have two write messages, the second one will cause a quirk
+> exceeded error.
+
+Yeah, for this reason I seperated I2C_ADAPTER_QUIRK_COMB_WRITE_FIRST
+out. The first message is checked against max_comb_write_len which is
+set to 3 for your driver. The second is checked agains max_write_len
+which is unset in your driver and thus can be of any length.
+
+That should work, no?
+
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUs55dAAoJEBQN5MwUoCm2gf4P+QECpDMLwMrK3kh5i4CYdzF3
+c6wzWfew04QCEjN5xmZNJqcTeFZWcQ9x+RX8NWRhVSx6gVqsc8jGxKzZDALM63TF
+1j3Zvn54NK99hBPVgeyI1VLqLrRfNDoSIp3Pdf9paGFO6cvsEY38FT9P/qTGC3fH
+ckIiaCjlg/QLV8bp+gSJLUPyo5V8n7eLXi6tmzCYh79AfuFMZ0s8Ct4IAQA/hiOE
+Kxyw1jVundVZatdmIsfVSdSrdbV5WE2m1vasj426uvVoVTFgp2Zz+ANNxzj3Z7aL
+yQvYFUjbnFIunPAplVF8CTAUcPpfa3uv1EY9T+iN0rFeTVs9HIIBz+PfDDLgvvfB
+gtniH+vqId9NK4JPKlmJcKzK8AXrfeEHIEiRMpofve6ts8QTDcpFJnJw3lvVn2yS
+Y+GGKAqmOTLUwzMDk0I0/JYw+OoFQOdaEGZJogYCuvR/yVwagzoJKKq/dZpvqghY
+By8yNEIZgfDDXYI2ZeMgn9tNpYUlBpka7pXtl0jhrQxrNm2p8SEnDsd9ZrbtECjZ
+k6HSiPMhmWfg1X3856qQVm6OxNz4n+PJLjMCkh5kR956tIlK42x5bnJFIQVtLczB
+Q1ITIUfeWpXOus1OX1rw5NQU5jibczKT4PK7ZcjbXGRefAhJYXRnDlLjzkgW1r7f
+WzSXkfbxs+E6D0NLDa43
+=Hhq0
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--
