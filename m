@@ -1,136 +1,61 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in
- i2c_del_adapter
-Date: Tue, 13 Jan 2015 16:29:57 +0100
-Message-ID: <20150113152957.GL7660@katana>
-References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com>
+Subject: Re: [PATCHv2 2/8] dt-bindings: use isil prefix for Intersil in I2C
+ trivial-devices.txt
+Date: Tue, 13 Jan 2015 16:45:14 +0100
+Message-ID: <20150113154513.GM7660@katana>
+References: <cover.1418763328.git.arno@natisbad.org>
+ <86079cdf7325f6d83e0270d32ff66bcc3e6a34bb.1418763328.git.arno@natisbad.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PpocKf6TCvdC9BKE"
+	protocol="application/pgp-signature"; boundary="eWmFpGZayiNrn4FL"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1421082050-10213-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <86079cdf7325f6d83e0270d32ff66bcc3e6a34bb.1418763328.git.arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+To: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe-rXY34ruvC2xidJT2blvkqNi2O/JbrIOy@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Darshana Padmadas <darshanapadmadas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---PpocKf6TCvdC9BKE
+--eWmFpGZayiNrn4FL
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 12, 2015 at 07:00:50PM +0200, Pantelis Antoniou wrote:
-> Waiting for the device release method to be called when
-> going through i2c_del_adapter is wrong and leads to deadlock
-> when removing an i2c mux device.
+On Tue, Dec 16, 2014 at 10:19:53PM +0100, Arnaud Ebalard wrote:
+>=20
+> This patch fixes I2C trivial-devices.txt DT documentation file to
+> reference isil (NASDAQ symbol and the most used prefix inside the
+> kernel) for Intersil.
+>=20
+> It reverts 7c75c1d5e72b ("dt-bindings: Document deprecated device
+> vendor name to fix related warning").
+>=20
+> Signed-off-by: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
 
-Adding Jean to the list, maybe he knows more details from the past.
+Applied to for-next, thanks!
 
->=20
-> For instance when using the OF i2c mux unitest removal we get this.
->=20
-> [<c055dfdc>] (__schedule) from [<c0561b74>] (schedule_timeout+0x18/0x198)
-> [<c0561b74>] (schedule_timeout) from [<c055ee74>] (wait_for_common+0xf8/0=
-x138)
-> [<c055ee74>] (wait_for_common) from [<c03f724c>] (i2c_del_adapter+0x174/0=
-x1cc)
-> [<c03f724c>] (i2c_del_adapter) from [<c03f8480>] (i2c_del_mux_adapter+0x4=
-8/0x60)
-> [<c03f8480>] (i2c_del_mux_adapter) from [<c046cf00>] (selftest_i2c_mux_re=
-move+0x28/0x34)
-> [<c046cf00>] (selftest_i2c_mux_remove) from [<c03f5234>] (i2c_device_remo=
-ve+0x34/0x70)
-> [<c03f5234>] (i2c_device_remove) from [<c03322ec>] (__device_release_driv=
-er+0x7c/0xc0)
-> [<c03322ec>] (__device_release_driver) from [<c0332968>] (driver_detach+0=
-x8c/0xb4)
-> [<c0332968>] (driver_detach) from [<c0332088>] (bus_remove_driver+0x64/0x=
-8c)
-> [<c0332088>] (bus_remove_driver) from [<c07f1858>] (of_selftest+0x1f84/0x=
-20f0)
-> [<c07f1858>] (of_selftest) from [<c0008b04>] (do_one_initcall+0x104/0x1b4)
-> [<c0008b04>] (do_one_initcall) from [<c07c4d9c>] (kernel_init_freeable+0x=
-110/0x1d8)
-> [<c07c4d9c>] (kernel_init_freeable) from [<c05591ec>] (kernel_init+0x8/0x=
-e4)
-> [<c05591ec>] (kernel_init) from [<c000deb8>] (ret_from_fork+0x14/0x3c)
-> 2 locks held by swapper/0/1:
->  #0:  (&dev->mutex){......}, at: [<c0332944>] driver_detach+0x68/0xb4
->  #1:  (&dev->mutex){......}, at: [<c0332954>] driver_detach+0x78/0xb4
-> Kernel panic - not syncing: hung_task: blocked tasks
-> CPU: 0 PID: 16 Comm: khungtaskd Not tainted 3.19.0-rc4-00022-g261647c #443
-> Hardware name: Generic AM33XX (Flattened Device Tree)
-> [<c00140a8>] (unwind_backtrace) from [<c00110dc>] (show_stack+0x10/0x14)
-> [<c00110dc>] (show_stack) from [<c055c3ac>] (dump_stack+0x70/0x8c)
-> [<c055c3ac>] (dump_stack) from [<c055ad10>] (panic+0x88/0x1f0)
-> [<c055ad10>] (panic) from [<c00adef8>] (watchdog+0x2d4/0x350)
-> [<c00adef8>] (watchdog) from [<c004e984>] (kthread+0xd8/0xec)
-> [<c004e984>] (kthread) from [<c000deb8>] (ret_from_fork+0x14/0x3c)
->=20
-> The device release method is never called and we hang waiting for it.
->=20
-> This patch is marked as an [RFC] since the original code seems to
-> really want to protect against a race from sysfs accessors, which
-> I don't see how it could be a problem.
->=20
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 39d25a8..e020a16 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1185,7 +1185,7 @@ EXPORT_SYMBOL_GPL(i2c_new_dummy);
->  static void i2c_adapter_dev_release(struct device *dev)
->  {
->  	struct i2c_adapter *adap =3D to_i2c_adapter(dev);
-> -	complete(&adap->dev_released);
-> +	/* XXX complete(&adap->dev_released); */
->  }
-> =20
->  /*
-> @@ -1797,11 +1797,11 @@ void i2c_del_adapter(struct i2c_adapter *adap)
->  	dev_dbg(&adap->dev, "adapter [%s] unregistered\n", adap->name);
-> =20
->  	/* clean up the sysfs representation */
-> -	init_completion(&adap->dev_released);
-> +	/* XXX init_completion(&adap->dev_released); */
->  	device_unregister(&adap->dev);
-> =20
->  	/* wait for sysfs to drop all references */
-> -	wait_for_completion(&adap->dev_released);
-> +	/* XXX wait_for_completion(&adap->dev_released); */
-> =20
->  	/* free bus id */
->  	mutex_lock(&core_lock);
-> --=20
-> 1.7.12
->=20
 
---PpocKf6TCvdC9BKE
+--eWmFpGZayiNrn4FL
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUtTn1AAoJEBQN5MwUoCm2/7UQAIpuILWa+nu6XedFfr8pwXVc
-hdlAmtbM/E8d7K6qgIta7zl+LP4gfz7Zdc5FqOTbWnYzb5vZhc9KkV74fiPD3TpU
-CVpV97PWJDbvQ5nsF/thT1T6zlIIyL92G72B4vnjvfvMIS6DHrEZoAYYtm5pkk48
-eTr4sBH4WKSb0t25rt9P2o7AZ5Bz+L5NbXiTv3NuyW1sky2VHz0e0abDKmM162Ns
-E5Q8uJuVGuzCywrLznBDkOd5slBiA9d/qNtCtqEclX235WtecVL6yQB+bLHt0jlX
-zQrAja3hORPIIhjvy//tmIvMwlVviJLUiSOprbv3CkqGMef9I8WxIA2q09ZRpeBK
-sAChJvkAfq15ntaSLgiY9opfPFhr9jTKuaV9zG7mxYKHId8TQGew0IDqKkHNnaqB
-ia3Yd/47NuI2lSvybPbupWG/eQXRme/4UvjyrQRfmMmn4zamGQs71OAjEsvWUGEH
-+uLlDfouzvlh4z8I3fO0kKqSCIamokEjB14gY2kI2nweXkAiPQnG+CNjq54JKXBZ
-Q9FTNCyAUGuFe78DBw8wEPx+GUOexEUpSIlJrtf0Q8Z7mZgzOjYNKWLmdnvVts3+
-apkNqxIMu650X/Htd6tD8mFJMdFU1ovRpdmB2FgQxEMjF9JQm5POava5eCBYqcrL
-lkFNTcPsheDUECA2gPCT
-=60Ut
+iQIcBAEBAgAGBQJUtT2JAAoJEBQN5MwUoCm2PmUP/2E48aZD4g4+0sf76A82Jsf8
+em5Wt2t4O9H8+46wzEO4UctY1TpRXoPQVHp8XnK3aPsoj7ZReQAFzMGQ9qZL/p2w
+dylZxi5gmfhZFTdnOh+zsdprwfvUdzTOlJhGOjTXGMViEojyzHgGrvjsEJcor3kI
+mgObD5fv6UCllYUu8q0vYxqEGoMq59Zy4ivpzs9/zoMxtjYUzknEUSsz9MxRo4Qh
+1sQE8E0tBixWHrOv0Qc7H8vaXMfthTOF3PoJVJUCzME0clKeCC2V3ah96eTKPVPc
+jR7gKBAjxA8hZbbkxBEkaRDFB8fJrjlB8xhAjI0/Y5G5NVbfSA2s28HejhYMrImi
+NxPfKEjM0K7vaQa3EckCBJqp5kKX720dMlmfPtlHyE7FygpgYyFO/fOGP7eNSGxs
+wvSHtICwhhO9tMH+K7AHYxqv08UaJiTGhZkM22Lznron43D5sMcds23gv579+RrS
+x3xE8igD+93IvUz10hR9GJhrFjYjwSlJ9LkBBnMyxeiukxFXBMZRFrLzyz43TKxW
+1p+nE1O3d7THjkf/Dl7xAPuha4gOBLwO9XhM27Do8FEfIjZUNG87HgEdoaHh2xKb
+xnUk+KgkLk4L4eXWcrSrVyhBXYgFIvNS9PLadV9kCb8FGeVKbu5DEsIwwXg6iC1C
+I7NsdezHczKuvksCxE/K
+=1v7O
 -----END PGP SIGNATURE-----
 
---PpocKf6TCvdC9BKE--
+--eWmFpGZayiNrn4FL--
