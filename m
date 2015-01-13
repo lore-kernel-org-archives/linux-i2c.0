@@ -1,47 +1,56 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c / ACPI: Pick the first address if device has multiple
-Date: Tue, 13 Jan 2015 19:00:07 +0200
-Message-ID: <20150113170007.GV1386@lahna.fi.intel.com>
-References: <1419860928-195404-1-git-send-email-mika.westerberg@linux.intel.com>
- <20150113155059.GN7660@katana>
- <1421167477.4459.229.camel@spandruv-desktop.jf.intel.com>
- <20150113164829.GO7660@katana>
+From: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 2/2] i2c: cadence: Check for errata condition involving
+ master receive
+Date: Tue, 13 Jan 2015 22:46:27 +0530
+Message-ID: <CAFcVECK6qYd=6MW=EPWpUHVbQRCVEpE21r15DUwVtZXyBQBoUA@mail.gmail.com>
+References: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
+	<1418357907-4215-3-git-send-email-harinik@xilinx.com>
+	<20150113113538.GB7660@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150113164829.GO7660@katana>
+In-Reply-To: <20150113113538.GB7660@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 13, 2015 at 05:48:29PM +0100, Wolfram Sang wrote:
-> On Tue, Jan 13, 2015 at 08:44:37AM -0800, Srinivas Pandruvada wrote:
-> > On Tue, 2015-01-13 at 16:50 +0100, Wolfram Sang wrote: 
-> > > On Mon, Dec 29, 2014 at 03:48:48PM +0200, Mika Westerberg wrote:
-> > > > ACPI specification allows I2C devices with multiple addresses. The current
-> > > > implementation goes over all addresses and assigns the last one to the
-> > > > device. This is typically not the primary address of the device.
-> > > > 
-> > > > Instead of doing that we assign the first address to the device and then
-> > > > let the driver handle rest of the addresses as it wishes.
-> > > > 
-> > > > Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > > > Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > > 
-> > > Yes, seems better than what we do know. But maybe taking the lowest
-> > > address is a bit better heuristic than taking the first address?
-> > > Not sure, though...
-> > The problem in taking lowest is that in many cases in current devices,
-> > the lowest address may end being 0x0C, which is reserved address for
-> > SMBUS (ARA). This will require different handling. Unfortunately ACPI
-> > doesn't have a way to distinguish whether SMBUS support is desired or
-> > not. 
-> > The other option is to skip all reserved addresses for SMBUS also and
-> > then create on the lowest.
-> 
-> Well, this makes me think that Mika's approach is probably the sanest
-> one...
+Hi,
 
-Also I think it is more consistent that way.
+On Tue, Jan 13, 2015 at 5:05 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>> @@ -541,6 +541,18 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>>        * processed with a repeated start.
+>>        */
+>>       if (num > 1) {
+>> +             /*
+>> +              * This controller does not give completion interrupt after a
+>> +              * master receive transfer if HOLD bit is set (repeated start),
+>> +              * resulting in SW timeout. Hence, if a receive transfer is
+>> +              * followed by any other transfer, an error is returned
+>> +              * indicating that this sequence is not supported.
+>> +              */
+>> +             for (count = 0; count < num-1; count++) {
+>> +                     if (msgs[count].flags & I2C_M_RD)
+>> +                             dev_warn(adap->dev.parent, "No support for repeated start when receive is followed by a transfer\n");
+>> +                             return -EOPNOTSUPP;
+>> +             }
+>>               id->bus_hold_flag = 1;
+>>               reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+>>               reg |= CDNS_I2C_CR_HOLD;
+>
+> Have you ever tested this code? There is a huge bug in it :(
+
+I'm sorry. I'll send another patch with the braces for the if statement.
+I seem to have tested with only the return statement and no dev_warn.
+
+>
+> Also, in the comment, use "message" instead of "transfer". One transfer
+> consists of multiple messages.
+>
+> Maybe the warning can be simplified, too: "can't do repeated start after
+> read messages".
+>
+I'll do that.
+
+Regards,
+Harini
