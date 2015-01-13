@@ -1,35 +1,67 @@
-From: Baruch Siach <baruch@tkos.co.il>
-Subject: Re: [PATCH] i2c: designware: use {readl|writel}_relaxed instead of
- readl/writel
-Date: Tue, 13 Jan 2015 18:28:12 +0200
-Message-ID: <20150113162812.GA2227@tarshish>
-References: <1418279201-3886-1-git-send-email-jszhang@marvell.com>
- <20150113143654.GG7660@katana>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c / ACPI: Pick the first address if device has
+ multiple
+Date: Tue, 13 Jan 2015 08:44:37 -0800
+Message-ID: <1421167477.4459.229.camel@spandruv-desktop.jf.intel.com>
+References: <1419860928-195404-1-git-send-email-mika.westerberg@linux.intel.com>
+	 <20150113155059.GN7660@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150113143654.GG7660@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jisheng Zhang <jszhang@marvell.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150113155059.GN7660@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Tue, Jan 13, 2015 at 03:36:54PM +0100, Wolfram Sang wrote:
-> > The driver does not perform DMA, so it's safe to use the relaxed version.
-> > From another side, the relaxed io accessor macros are available on all
-> > architectures now, so we can use the relaxed versions instead.
+On Tue, 2015-01-13 at 16:50 +0100, Wolfram Sang wrote: 
+> On Mon, Dec 29, 2014 at 03:48:48PM +0200, Mika Westerberg wrote:
+> > ACPI specification allows I2C devices with multiple addresses. The current
+> > implementation goes over all addresses and assigns the last one to the
+> > device. This is typically not the primary address of the device.
+> > 
+> > Instead of doing that we assign the first address to the device and then
+> > let the driver handle rest of the addresses as it wishes.
+> > 
+> > Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> > Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 > 
-> Can the designware core make use of DMA in theory?
+> Yes, seems better than what we do know. But maybe taking the lowest
+> address is a bit better heuristic than taking the first address?
+> Not sure, though...
+The problem in taking lowest is that in many cases in current devices,
+the lowest address may end being 0x0C, which is reserved address for
+SMBUS (ARA). This will require different handling. Unfortunately ACPI
+doesn't have a way to distinguish whether SMBUS support is desired or
+not. 
+The other option is to skip all reserved addresses for SMBUS also and
+then create on the lowest.
 
-According to the "DesignWare DW_apb_i2c Databook" version I have it can 
-(optionally).
-
-baruch
-
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
+Thanks,
+Srinivas 
+> 
+> > ---
+> >  drivers/i2c/i2c-core.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index 39d25a8cb1ad..a06be43b7842 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -102,7 +102,7 @@ static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
+> >  		struct acpi_resource_i2c_serialbus *sb;
+> >  
+> >  		sb = &ares->data.i2c_serial_bus;
+> > -		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> > +		if (!info->addr && sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> >  			info->addr = sb->slave_address;
+> >  			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
+> >  				info->flags |= I2C_CLIENT_TEN;
+> > -- 
+> > 2.1.4
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
