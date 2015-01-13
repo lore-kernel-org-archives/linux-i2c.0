@@ -1,134 +1,136 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] at91: i2c-at91: improve time-out handling
-Date: Tue, 13 Jan 2015 16:27:52 +0100
-Message-ID: <20150113152752.GK7660@katana>
-References: <54A58BA5.3080003@interlog.com>
- <20150107103113.GA30897@ldesroches-Latitude-E6320>
+Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in
+ i2c_del_adapter
+Date: Tue, 13 Jan 2015 16:29:57 +0100
+Message-ID: <20150113152957.GL7660@katana>
+References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DozTQjXnjm3C9Xhk"
+	protocol="application/pgp-signature"; boundary="PpocKf6TCvdC9BKE"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150107103113.GA30897@ldesroches-Latitude-E6320>
+In-Reply-To: <1421082050-10213-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---DozTQjXnjm3C9Xhk
+--PpocKf6TCvdC9BKE
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 07, 2015 at 11:31:14AM +0100, Ludovic Desroches wrote:
-> Hi Douglas,
->=20
-> On Thu, Jan 01, 2015 at 01:02:13PM -0500, Douglas Gilbert wrote:
-> > With lk 3.19.0-rc2 and a at91sam9g25 (9x5) based system I
-> > connected a NXP SC16IS750 I2C to serial bridge. After
-> > routing the 750's IRQ back to the sc16is7xx driver and some
-> > simple successful test, it was time for some intense testing:
-> > Tx looped back to Rx on the 750, open picocom on /dev/ttySC0
-> > at 38400, and use hexdump to blast a binary file (in hex) at
-> > ttySC0. The I2C SCL speed was 200,000 Hz.
-> >=20
-> > It worked as expected for a few seconds then it wedged the
-> > I2C bus. That was repeatable. In the cases that I checked SCL
-> > was high, SDA was low (driven by _both_ the G25's macrocell
-> > and the 750!!) and IRQ was active (low). This patch stopped
-> > the G25 macrocell from driving SDA low in the above wedge
-> > (and stopped copious error reports going to the log). I was
-> > surprised that a NXP I2C chip got into this situation, IMO
-> > SDA on a slave should have a driven low timeout. IMO all
-> > I2C master drivers should have provision to drive a gpio
-> > connected to a (or all the) slave's RESET line(s).
-> >=20
-> >=20
-> > ChangeLog:
-> >    when handling an I2C bus time-out, first clean-up the
-> >    DMA transfer, then do an I2C macrocell software reset
-> >    and restore some registers, including the interrupt
-> >    mask
-> >=20
->=20
-> I am wondering why you need to call at91_twi_irq_save() and
-> at91_twi_irq_restore(). The interrupts enabled in the driver are
-> AT91_TWI_TXCOMP, AT91_TWI_RXRDY and AT91_TWI_TXRDY and they are managed
-> in at91_do_twi_transfer() so they would be set correctly for the next
-> transfer.
+On Mon, Jan 12, 2015 at 07:00:50PM +0200, Pantelis Antoniou wrote:
+> Waiting for the device release method to be called when
+> going through i2c_del_adapter is wrong and leads to deadlock
+> when removing an i2c mux device.
 
-Douglas, any more info you could provide?
+Adding Jean to the list, maybe he knows more details from the past.
 
 >=20
-> Regards
+> For instance when using the OF i2c mux unitest removal we get this.
 >=20
-> Ludovic
+> [<c055dfdc>] (__schedule) from [<c0561b74>] (schedule_timeout+0x18/0x198)
+> [<c0561b74>] (schedule_timeout) from [<c055ee74>] (wait_for_common+0xf8/0=
+x138)
+> [<c055ee74>] (wait_for_common) from [<c03f724c>] (i2c_del_adapter+0x174/0=
+x1cc)
+> [<c03f724c>] (i2c_del_adapter) from [<c03f8480>] (i2c_del_mux_adapter+0x4=
+8/0x60)
+> [<c03f8480>] (i2c_del_mux_adapter) from [<c046cf00>] (selftest_i2c_mux_re=
+move+0x28/0x34)
+> [<c046cf00>] (selftest_i2c_mux_remove) from [<c03f5234>] (i2c_device_remo=
+ve+0x34/0x70)
+> [<c03f5234>] (i2c_device_remove) from [<c03322ec>] (__device_release_driv=
+er+0x7c/0xc0)
+> [<c03322ec>] (__device_release_driver) from [<c0332968>] (driver_detach+0=
+x8c/0xb4)
+> [<c0332968>] (driver_detach) from [<c0332088>] (bus_remove_driver+0x64/0x=
+8c)
+> [<c0332088>] (bus_remove_driver) from [<c07f1858>] (of_selftest+0x1f84/0x=
+20f0)
+> [<c07f1858>] (of_selftest) from [<c0008b04>] (do_one_initcall+0x104/0x1b4)
+> [<c0008b04>] (do_one_initcall) from [<c07c4d9c>] (kernel_init_freeable+0x=
+110/0x1d8)
+> [<c07c4d9c>] (kernel_init_freeable) from [<c05591ec>] (kernel_init+0x8/0x=
+e4)
+> [<c05591ec>] (kernel_init) from [<c000deb8>] (ret_from_fork+0x14/0x3c)
+> 2 locks held by swapper/0/1:
+>  #0:  (&dev->mutex){......}, at: [<c0332944>] driver_detach+0x68/0xb4
+>  #1:  (&dev->mutex){......}, at: [<c0332954>] driver_detach+0x78/0xb4
+> Kernel panic - not syncing: hung_task: blocked tasks
+> CPU: 0 PID: 16 Comm: khungtaskd Not tainted 3.19.0-rc4-00022-g261647c #443
+> Hardware name: Generic AM33XX (Flattened Device Tree)
+> [<c00140a8>] (unwind_backtrace) from [<c00110dc>] (show_stack+0x10/0x14)
+> [<c00110dc>] (show_stack) from [<c055c3ac>] (dump_stack+0x70/0x8c)
+> [<c055c3ac>] (dump_stack) from [<c055ad10>] (panic+0x88/0x1f0)
+> [<c055ad10>] (panic) from [<c00adef8>] (watchdog+0x2d4/0x350)
+> [<c00adef8>] (watchdog) from [<c004e984>] (kthread+0xd8/0xec)
+> [<c004e984>] (kthread) from [<c000deb8>] (ret_from_fork+0x14/0x3c)
 >=20
-> > Signed-off-by: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+> The device release method is never called and we hang waiting for it.
 >=20
-> > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at9=
-1.c
-> > index 636fd2e..4d78708 100644
-> > --- a/drivers/i2c/busses/i2c-at91.c
-> > +++ b/drivers/i2c/busses/i2c-at91.c
-> > @@ -382,6 +382,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev=
- *dev)
-> >  {
-> >  	int ret;
-> >  	bool has_unre_flag =3D dev->pdata->has_unre_flag;
-> > +	bool timed_out =3D false;
-> > =20
-> >  	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
-> >  		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
-> > @@ -440,7 +441,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev=
- *dev)
-> >  					     dev->adapter.timeout);
-> >  	if (ret =3D=3D 0) {
-> >  		dev_err(dev->dev, "controller timed out\n");
-> > -		at91_init_twi_bus(dev);
-> > +		timed_out =3D true;
-> >  		ret =3D -ETIMEDOUT;
-> >  		goto error;
-> >  	}
-> > @@ -471,6 +472,11 @@ static int at91_do_twi_transfer(struct at91_twi_de=
-v *dev)
-> > =20
-> >  error:
-> >  	at91_twi_dma_cleanup(dev);
-> > +	if (timed_out) {
-> > +		at91_twi_irq_save(dev);
-> > +		at91_init_twi_bus(dev);
-> > +		at91_twi_irq_restore(dev);
-> > +	}
-> >  	return ret;
-> >  }
-> > =20
+> This patch is marked as an [RFC] since the original code seems to
+> really want to protect against a race from sysfs accessors, which
+> I don't see how it could be a problem.
 >=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 39d25a8..e020a16 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1185,7 +1185,7 @@ EXPORT_SYMBOL_GPL(i2c_new_dummy);
+>  static void i2c_adapter_dev_release(struct device *dev)
+>  {
+>  	struct i2c_adapter *adap =3D to_i2c_adapter(dev);
+> -	complete(&adap->dev_released);
+> +	/* XXX complete(&adap->dev_released); */
+>  }
+> =20
+>  /*
+> @@ -1797,11 +1797,11 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+>  	dev_dbg(&adap->dev, "adapter [%s] unregistered\n", adap->name);
+> =20
+>  	/* clean up the sysfs representation */
+> -	init_completion(&adap->dev_released);
+> +	/* XXX init_completion(&adap->dev_released); */
+>  	device_unregister(&adap->dev);
+> =20
+>  	/* wait for sysfs to drop all references */
+> -	wait_for_completion(&adap->dev_released);
+> +	/* XXX wait_for_completion(&adap->dev_released); */
+> =20
+>  	/* free bus id */
+>  	mutex_lock(&core_lock);
+> --=20
+> 1.7.12
+>=20
 
---DozTQjXnjm3C9Xhk
+--PpocKf6TCvdC9BKE
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUtTl4AAoJEBQN5MwUoCm2C18P/jSy6Kr05PDMyB8zQjrlYH/e
-DcqFI4+31GvEjJYfpwSOyBHL6EOfAH9mGnMY+WKcBSo7wSqLj+xtisX1jxl8IHTN
-+fbXpTDApGIqSMpDO1nSbQ+CbQ/pM6hpbl/HIQKaMAKwHUIrexuq7m44ytITwkQN
-7+Dr23aoWWMo04f8XnhrTO7HVwTIiIzjbwU7LCpOBQp+3XlSsA+csB1fNFvbZLxp
-9za+m9hJy4RdcqDqxHLiDwRob/oI61zjFruvJuJ9UwcB2B6DFWk+o43L+muhRt+U
-KVIVkQ3fVZ0Np5vpNy5O7PKqHAhSL6AdUll/1cB0gQVRT+b0FDVl0nk/MLjtta4C
-P36oA/S9GzpYfbv4pTxnvyRn+oeKUa4EJwuOxPY09GfGDB+1f03ubLkkDu9PY3FC
-TnKZ1e4UGDLFqMUYJoEcCG9eJWFts4Wa96D6cF0QwNiBQ5quHIoXdUf9sYySgzvq
-y2uPS45T/g8cE+ISKPlb43HV2KUjJLLd7B6QkrYVhbRvmztVsjNZB1jid/iQiF4c
-RoCzX68fPfaF9KYl+ZBTSXuZTdJliO4YTPCsgwbHX8o/jjCU7lZS2pE3u8HMnLd9
-Vd81BPiBA1dlJ3f40QBshFWbVVZKr6tM0V5ge/NQmy+Ta8GLIZSJjyEzCsn++jeL
-jLDV+2jLSTPb7AxdniBz
-=KlJq
+iQIcBAEBAgAGBQJUtTn1AAoJEBQN5MwUoCm2/7UQAIpuILWa+nu6XedFfr8pwXVc
+hdlAmtbM/E8d7K6qgIta7zl+LP4gfz7Zdc5FqOTbWnYzb5vZhc9KkV74fiPD3TpU
+CVpV97PWJDbvQ5nsF/thT1T6zlIIyL92G72B4vnjvfvMIS6DHrEZoAYYtm5pkk48
+eTr4sBH4WKSb0t25rt9P2o7AZ5Bz+L5NbXiTv3NuyW1sky2VHz0e0abDKmM162Ns
+E5Q8uJuVGuzCywrLznBDkOd5slBiA9d/qNtCtqEclX235WtecVL6yQB+bLHt0jlX
+zQrAja3hORPIIhjvy//tmIvMwlVviJLUiSOprbv3CkqGMef9I8WxIA2q09ZRpeBK
+sAChJvkAfq15ntaSLgiY9opfPFhr9jTKuaV9zG7mxYKHId8TQGew0IDqKkHNnaqB
+ia3Yd/47NuI2lSvybPbupWG/eQXRme/4UvjyrQRfmMmn4zamGQs71OAjEsvWUGEH
++uLlDfouzvlh4z8I3fO0kKqSCIamokEjB14gY2kI2nweXkAiPQnG+CNjq54JKXBZ
+Q9FTNCyAUGuFe78DBw8wEPx+GUOexEUpSIlJrtf0Q8Z7mZgzOjYNKWLmdnvVts3+
+apkNqxIMu650X/Htd6tD8mFJMdFU1ovRpdmB2FgQxEMjF9JQm5POava5eCBYqcrL
+lkFNTcPsheDUECA2gPCT
+=60Ut
 -----END PGP SIGNATURE-----
 
---DozTQjXnjm3C9Xhk--
+--PpocKf6TCvdC9BKE--
