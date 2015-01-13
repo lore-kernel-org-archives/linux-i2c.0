@@ -1,72 +1,650 @@
-From: Harini Katakam <harinik@xilinx.com>
-Subject: [PATCH v6] i2c: cadence: Check for errata condition involving master receive
-Date: Wed, 14 Jan 2015 00:04:59 +0530
-Message-ID: <1421174099-19839-1-git-send-email-harinik@xilinx.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, mark.rutland@arm.com
-Cc: michal.simek@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, harinikatakamlinux@gmail.com, harinik@xilinx.com
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v3 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
+Date: Tue, 13 Jan 2015 23:50:12 +0100
+Message-ID: <20150113225012.GK22880@pengutronix.de>
+References: <rjui@broadcom.com>
+ <1418183832-24793-1-git-send-email-rjui@broadcom.com>
+ <1418183832-24793-3-git-send-email-rjui@broadcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1418183832-24793-3-git-send-email-rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Cadence I2C controller has the following bugs:
-- completion indication is not given to the driver at the end of
-a read/receive transfer with HOLD bit set.
-- Invalid read transaction are generated on the bus when HW timeout
-condition occurs with HOLD bit set.
+Hello,
 
-As a result of the above, if a set of messages to be transferred with
-repeated start includes any message following a read message,
-completion is never indicated and timeout occurs.
-Hence a check is implemented to return -EOPNOTSUPP for such sequences.
+On Tue, Dec 09, 2014 at 07:57:11PM -0800, Ray Jui wrote:
+> Add initial support to the Broadcom iProc I2C controller found in the
+> iProc family of SoCs.
+>=20
+> The iProc I2C controller has separate internal TX and RX FIFOs, each =
+has
+> a size of 64 bytes. The iProc I2C controller supports two bus speeds
+> including standard mode (100kHz) and fast mode (400kHz)
+>=20
+> Signed-off-by: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/Kconfig         |   10 +
+>  drivers/i2c/busses/Makefile        |    1 +
+>  drivers/i2c/busses/i2c-bcm-iproc.c |  500 ++++++++++++++++++++++++++=
+++++++++++
+>  3 files changed, 511 insertions(+)
+>  create mode 100644 drivers/i2c/busses/i2c-bcm-iproc.c
+>=20
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index c1351d9..df21366 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -372,6 +372,16 @@ config I2C_BCM2835
+>  	  This support is also available as a module.  If so, the module
+>  	  will be called i2c-bcm2835.
+> =20
+> +config I2C_BCM_IPROC
+> +	tristate "Broadcom iProc I2C controller"
+> +	depends on ARCH_BCM_IPROC
+> +	default y
+It would be nice to have the following here to improve compile coverage
+testing:
 
-Signed-off-by: Harini Katakam <harinik@xilinx.com>
-Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
----
+	depends on ARCH_BCM_IPROC || COMPILE_TEST
+	default ARCH_BCM_IPROC
 
-v6:
-- Correct if condition - add braces to include both statements.
-- Modify comments and warning message.
+> +	help
+> +	  If you say yes to this option, support will be included for the
+> +	  Broadcom iProc I2C controller.
+> +
+> +	  If you don't know what to do here, say N.
+> +
+>  config I2C_BCM_KONA
+>  	tristate "BCM Kona I2C adapter"
+>  	depends on ARCH_BCM_MOBILE
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefil=
+e
+> index 5e6c822..216e7be 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -33,6 +33,7 @@ obj-$(CONFIG_I2C_AT91)		+=3D i2c-at91.o
+>  obj-$(CONFIG_I2C_AU1550)	+=3D i2c-au1550.o
+>  obj-$(CONFIG_I2C_AXXIA)		+=3D i2c-axxia.o
+>  obj-$(CONFIG_I2C_BCM2835)	+=3D i2c-bcm2835.o
+> +obj-$(CONFIG_I2C_BCM_IPROC)	+=3D i2c-bcm-iproc.o
+>  obj-$(CONFIG_I2C_BLACKFIN_TWI)	+=3D i2c-bfin-twi.o
+>  obj-$(CONFIG_I2C_CADENCE)	+=3D i2c-cadence.o
+>  obj-$(CONFIG_I2C_CBUS_GPIO)	+=3D i2c-cbus-gpio.o
+> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/=
+i2c-bcm-iproc.c
+> new file mode 100644
+> index 0000000..35ac497
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+> @@ -0,0 +1,500 @@
+> +/*
+> + * Copyright (C) 2014 Broadcom Corporation
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation version 2.
+> + *
+> + * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+> + * kind, whether express or implied; without even the implied warran=
+ty
+> + * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/sched.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/clk.h>
+> +#include <linux/io.h>
+> +#include <linux/slab.h>
+> +#include <linux/delay.h>
+> +
+> +#define CFG_OFFSET                   0x00
+> +#define CFG_RESET_SHIFT              31
+> +#define CFG_EN_SHIFT                 30
+> +#define CFG_M_RETRY_CNT_SHIFT        16
+> +#define CFG_M_RETRY_CNT_MASK         0x0f
+> +
+> +#define TIM_CFG_OFFSET               0x04
+> +#define TIME_CFG_MODE_400_SHIFT      31
+> +
+> +#define M_FIFO_CTRL_OFFSET           0x0c
+> +#define M_FIFO_RX_FLUSH_SHIFT        31
+> +#define M_FIFO_TX_FLUSH_SHIFT        30
+> +#define M_FIFO_RX_CNT_SHIFT          16
+> +#define M_FIFO_RX_CNT_MASK           0x7f
+> +#define M_FIFO_RX_THLD_SHIFT         8
+> +#define M_FIFO_RX_THLD_MASK          0x3f
+> +
+> +#define M_CMD_OFFSET                 0x30
+> +#define M_CMD_START_BUSY_SHIFT       31
+> +#define M_CMD_STATUS_SHIFT           25
+> +#define M_CMD_STATUS_MASK            0x07
+> +#define M_CMD_STATUS_SUCCESS         0x0
+> +#define M_CMD_STATUS_LOST_ARB        0x1
+> +#define M_CMD_STATUS_NACK_ADDR       0x2
+> +#define M_CMD_STATUS_NACK_DATA       0x3
+> +#define M_CMD_STATUS_TIMEOUT         0x4
+> +#define M_CMD_PROTOCOL_SHIFT         9
+> +#define M_CMD_PROTOCOL_MASK          0xf
+> +#define M_CMD_PROTOCOL_BLK_WR        0x7
+> +#define M_CMD_PROTOCOL_BLK_RD        0x8
+> +#define M_CMD_PEC_SHIFT              8
+> +#define M_CMD_RD_CNT_SHIFT           0
+> +#define M_CMD_RD_CNT_MASK            0xff
+> +
+> +#define IE_OFFSET                    0x38
+> +#define IE_M_RX_FIFO_FULL_SHIFT      31
+> +#define IE_M_RX_THLD_SHIFT           30
+> +#define IE_M_START_BUSY_SHIFT        28
+> +
+> +#define IS_OFFSET                    0x3c
+> +#define IS_M_RX_FIFO_FULL_SHIFT      31
+> +#define IS_M_RX_THLD_SHIFT           30
+> +#define IS_M_START_BUSY_SHIFT        28
+> +
+> +#define M_TX_OFFSET                  0x40
+> +#define M_TX_WR_STATUS_SHIFT         31
+> +#define M_TX_DATA_SHIFT              0
+> +#define M_TX_DATA_MASK               0xff
+> +
+> +#define M_RX_OFFSET                  0x44
+> +#define M_RX_STATUS_SHIFT            30
+> +#define M_RX_STATUS_MASK             0x03
+> +#define M_RX_PEC_ERR_SHIFT           29
+> +#define M_RX_DATA_SHIFT              0
+> +#define M_RX_DATA_MASK               0xff
+> +
+> +#define I2C_TIMEOUT_MESC             100
+> +#define M_TX_RX_FIFO_SIZE            64
+> +
+> +enum bus_speed_index {
+> +	I2C_SPD_100K =3D 0,
+> +	I2C_SPD_400K,
+> +};
+> +
+> +struct bcm_iproc_i2c_dev {
+> +	struct device *device;
+> +
+> +	void __iomem *base;
+> +	struct i2c_msg *msg;
+> +
+> +	struct i2c_adapter adapter;
+> +
+> +	struct completion done;
+> +};
+> +
+> +/*
+> + * Can be expanded in the future if more interrupt status bits are u=
+tilized
+> + */
+> +#define ISR_MASK (1 << IS_M_START_BUSY_SHIFT)
+> +
+> +static irqreturn_t bcm_iproc_i2c_isr(int irq, void *data)
+> +{
+> +	struct bcm_iproc_i2c_dev *dev =3D data;
+> +	u32 status =3D readl(dev->base + IS_OFFSET);
+> +
+> +	status &=3D ISR_MASK;
+> +
+> +	if (!status)
+> +		return IRQ_NONE;
+> +
+> +	writel(status, dev->base + IS_OFFSET);
+> +	complete_all(&dev->done);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int __wait_for_bus_idle(struct bcm_iproc_i2c_dev *dev)
+> +{
+> +	unsigned long timeout =3D jiffies + msecs_to_jiffies(I2C_TIMEOUT_ME=
+SC);
+> +
+> +	while (readl(dev->base + M_CMD_OFFSET) &
+> +			(1 << M_CMD_START_BUSY_SHIFT)) {
+> +		if (time_after(jiffies, timeout)) {
+> +			dev_err(dev->device, "wait for bus idle timeout\n");
+> +			return -ETIMEDOUT;
+> +		}
+Add a call to cpu_relax here. Do you really need a tight loop here?
 
-v5:
-Make warning grepable in driver.
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int bcm_iproc_i2c_format_addr(struct bcm_iproc_i2c_dev *dev,
+> +				     struct i2c_msg *msg, u8 *addr)
+> +{
+> +
+> +	if (msg->flags & I2C_M_TEN) {
+> +		dev_err(dev->device, "no support for 10-bit address\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	*addr =3D (msg->addr << 1) & 0xfe;
+I don't see what difference the & 0xfe makes. I think you can drop that=
+=2E
 
-v4:
-Use single dev_warn and make message grep-able.
+> +
+> +	if (msg->flags & I2C_M_RD)
+> +		*addr |=3D 1;
+> +
+> +	return 0;
+> +}
+> +
+> +static int bcm_iproc_i2c_check_status(struct bcm_iproc_i2c_dev *dev)
+> +{
+> +	u32 val;
+> +
+> +	val =3D readl(dev->base + M_CMD_OFFSET);
+> +	val =3D (val >> M_CMD_STATUS_SHIFT) & M_CMD_STATUS_MASK;
+> +
+> +	switch (val) {
+> +	case M_CMD_STATUS_SUCCESS:
+> +		return 0;
+> +
+> +	case M_CMD_STATUS_LOST_ARB:
+> +		dev_err(dev->device, "lost bus arbitration\n");
+I wouldn't dev_err that, only dev_dbg. I'm not sure how usual the error=
+s
+for the next two cases is, maybe degrade them to dev_dbg, too?
 
-v3:
-Add warning in case of unsupported transfer.
+> +		return -EREMOTEIO;
+> +
+> +	case M_CMD_STATUS_NACK_ADDR:
+> +		dev_err(dev->device, "NAK addr:0x%02x\n", dev->msg->addr);
+> +		return -EREMOTEIO;
+> +
+> +	case M_CMD_STATUS_NACK_DATA:
+> +		dev_err(dev->device, "NAK data\n");
+> +		return -EREMOTEIO;
+> +
+> +	case M_CMD_STATUS_TIMEOUT:
+> +		dev_err(dev->device, "bus timeout\n");
+> +		return -ETIMEDOUT;
+> +
+> +	default:
+> +		dev_err(dev->device, "unknown error code=3D%d\n", val);
+> +		return -EREMOTEIO;
+> +	}
+> +
+> +	return -EREMOTEIO;
+> +}
+> +
+> +static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *d=
+ev,
+> +					 struct i2c_msg *msg)
+> +{
+> +	int ret, i;
+> +	u8 addr;
+> +	u32 val;
+> +	unsigned long time_left =3D msecs_to_jiffies(I2C_TIMEOUT_MESC);
+> +
+> +	if (msg->len < 1 || msg->len > M_TX_RX_FIFO_SIZE - 1) {
+> +		dev_err(dev->device,
+> +			"supported data length is 1 - %u bytes\n",
+> +				M_TX_RX_FIFO_SIZE - 1);
+> +		return -EINVAL;
+> +	}
+> +
+> +	dev->msg =3D msg;
+> +	ret =3D __wait_for_bus_idle(dev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D bcm_iproc_i2c_format_addr(dev, msg, &addr);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* load slave address into the TX FIFO */
+> +	writel(addr, dev->base + M_TX_OFFSET);
+> +
+> +	/* for a write transaction, load data into the TX FIFO */
+> +	if (!(msg->flags & I2C_M_RD)) {
+> +		for (i =3D 0; i < msg->len; i++) {
+> +			val =3D msg->buf[i];
+> +
+> +			/* mark the last byte */
+> +			if (i =3D=3D msg->len - 1)
+> +				val |=3D 1 << M_TX_WR_STATUS_SHIFT;
+> +
+> +			writel(val, dev->base + M_TX_OFFSET);
+> +		}
+> +	}
+> +
+> +	/* mark as incomplete before starting the transaction */
+> +	reinit_completion(&dev->done);
+> +
+> +	/*
+> +	 * Enable the "start busy" interrupt, which will be triggered after
+> +	 * the transaction is done
+This sound's wrong. I'd expect "start busy" to trigger as soon as the
+controller gets hold of the bus.
 
-v2:
-Dont defeteature repeated start. Just check for unsupported conditions in the
-driver and return error.
+> +	 */
+> +	writel(1 << IE_M_START_BUSY_SHIFT, dev->base + IE_OFFSET);
+> +
+> +	/*
+> +	 * Now we can activate the transfer. For a read operation, specify =
+the
+> +	 * number of bytes to read
+> +	 */
+> +	val =3D 1 << M_CMD_START_BUSY_SHIFT;
+> +	if (msg->flags & I2C_M_RD) {
+> +		val |=3D (M_CMD_PROTOCOL_BLK_RD << M_CMD_PROTOCOL_SHIFT) |
+> +			(msg->len << M_CMD_RD_CNT_SHIFT);
+> +	} else {
+> +		val |=3D (M_CMD_PROTOCOL_BLK_WR << M_CMD_PROTOCOL_SHIFT);
+> +	}
+> +	writel(val, dev->base + M_CMD_OFFSET);
+> +
+> +	time_left =3D wait_for_completion_timeout(&dev->done, time_left);
+> +
+> +	/* disable all interrupts */
+> +	writel(0, dev->base + IE_OFFSET);
+> +
+> +	if (!time_left) {
+> +		dev_err(dev->device, "transaction times out\n");
+> +
+> +		/* flush FIFOs */
+> +		val =3D (1 << M_FIFO_RX_FLUSH_SHIFT) |
+> +			(1 << M_FIFO_TX_FLUSH_SHIFT);
+> +		writel(val, dev->base + M_FIFO_CTRL_OFFSET);
+> +		return -EREMOTEIO;
+> +	}
+> +
+> +	ret =3D bcm_iproc_i2c_check_status(dev);
+> +	if (ret) {
+> +		/* flush both TX/RX FIFOs */
+> +		val =3D (1 << M_FIFO_RX_FLUSH_SHIFT) |
+> +			(1 << M_FIFO_TX_FLUSH_SHIFT);
+> +		writel(val, dev->base + M_FIFO_CTRL_OFFSET);
+> +		return ret;
+> +	}
+> +
+> +	/*
+> +	 * For a read operation, we now need to load the data from FIFO
+> +	 * into the memory buffer
+> +	 */
+> +	if (msg->flags & I2C_M_RD) {
+> +		for (i =3D 0; i < msg->len; i++) {
+> +			msg->buf[i] =3D (readl(dev->base + M_RX_OFFSET) >>
+> +					M_RX_DATA_SHIFT) & M_RX_DATA_MASK;
+> +		}
+> +	}
+> +
+> +	dev_dbg(dev->device, "xfer %c, addr=3D0x%02x, len=3D%d\n",
+> +			(msg->flags & I2C_M_RD) ? 'R' : 'W', msg->addr,
+> +			msg->len);
+> +	dev_dbg(dev->device, "**** data start ****\n");
+> +	for (i =3D 0; i < msg->len; i++)
+> +		dev_dbg(dev->device, "0x%02x ",  msg->buf[i]);
+> +	dev_dbg(dev->device, "**** data end ****\n");
+> +
+> +	return 0;
+> +}
+> +
+> +static int bcm_iproc_i2c_xfer(struct i2c_adapter *adapter,
+> +			      struct i2c_msg msgs[], int num)
+> +{
+> +	struct bcm_iproc_i2c_dev *dev =3D i2c_get_adapdata(adapter);
+> +	int ret, i;
+> +
+> +	/* go through all messages */
+> +	for (i =3D 0; i < num; i++) {
+> +		ret =3D bcm_iproc_i2c_xfer_single_msg(dev, &msgs[i]);
+> +		if (ret) {
+> +			dev_err(dev->device, "xfer failed\n");
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	return num;
+> +}
+> +
+> +static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap=
+)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+> +
+> +static const struct i2c_algorithm bcm_iproc_algo =3D {
+> +	.master_xfer =3D bcm_iproc_i2c_xfer,
+> +	.functionality =3D bcm_iproc_i2c_functionality,
+> +};
+> +
+> +static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *dev)
+> +{
+> +	unsigned int bus_speed, speed_bit;
+> +	u32 val;
+> +	int ret =3D of_property_read_u32(dev->device->of_node, "clock-frequ=
+ency",
+> +				       &bus_speed);
+Inconsistent coding style. At most other places you use 2 tabs to inden=
+t
+a continued line. (Well you use this style for breaks in function
+declarations. Using the same style for both cases would be nice.)
 
----
- drivers/i2c/busses/i2c-cadence.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+> +	if (ret < 0) {
+> +		dev_err(dev->device, "missing clock-frequency property\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	switch (bus_speed) {
+> +	case 100000:
+> +		speed_bit =3D 0;
+> +		break;
+> +	case 400000:
+> +		speed_bit =3D 1;
+> +		break;
+> +	default:
+> +		dev_err(dev->device, "%d Hz bus speed not supported\n",
+> +				bus_speed);
+> +		dev_err(dev->device, "valid speeds are 100khz and 400khz\n");
+> +		return -EINVAL;
+> +	}
+I'd be more graceful here:
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 5f5d4fa..c7be4fb 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -541,6 +541,19 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	 * processed with a repeated start.
- 	 */
- 	if (num > 1) {
-+		/*
-+		 * This controller does not give completion interrupt after a
-+		 * master receive message if HOLD bit is set (repeated start),
-+		 * resulting in SW timeout. Hence, if a receive message is
-+		 * followed by any other message, an error is returned
-+		 * indicating that this sequence is not supported.
-+		 */
-+		for (count = 0; count < num-1; count++) {
-+			if (msgs[count].flags & I2C_M_RD) {
-+				dev_warn(adap->dev.parent, "Can't do repeated start after a receive message\n");
-+				return -EOPNOTSUPP;
-+			}
-+		}
- 		id->bus_hold_flag = 1;
- 		reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
- 		reg |= CDNS_I2C_CR_HOLD;
--- 
-1.7.9.5
+	if (bus_speed < 100000)
+		error_out;
+	else if (bus_speed < 400000)
+		speed_bit =3D 0;
+	else
+		/* >=3D 400000 */
+		speed_bit =3D 1;
+
+> +
+> +	val =3D readl(dev->base + TIM_CFG_OFFSET);
+> +	val &=3D ~(1 << TIME_CFG_MODE_400_SHIFT);
+> +	val |=3D speed_bit << TIME_CFG_MODE_400_SHIFT;
+> +	writel(val, dev->base + TIM_CFG_OFFSET);
+> +
+> +	dev_info(dev->device, "bus set to %u Hz\n", bus_speed);
+> +
+> +	return 0;
+> +}
+> +
+> +static int bcm_iproc_i2c_init(struct bcm_iproc_i2c_dev *dev)
+> +{
+> +	u32 val;
+> +
+> +	/* put controller in reset */
+> +	val =3D readl(dev->base + CFG_OFFSET);
+> +	val |=3D 1 << CFG_RESET_SHIFT;
+> +	val &=3D ~(1 << CFG_EN_SHIFT);
+> +	writel(val, dev->base + CFG_OFFSET);
+> +
+> +	/* wait 100 usec per spec */
+> +	udelay(100);
+> +
+> +	/* bring controller out of reset */
+> +	val =3D readl(dev->base + CFG_OFFSET);
+Is it necessary to reread the register value here?
+
+> +	val &=3D ~(1 << CFG_RESET_SHIFT);
+> +	writel(val, dev->base + CFG_OFFSET);
+> +
+> +	/* flush TX/RX FIFOs and set RX FIFO threshold to zero */
+> +	val =3D (1 << M_FIFO_RX_FLUSH_SHIFT) | (1 << M_FIFO_TX_FLUSH_SHIFT)=
+;
+> +	writel(val, dev->base + M_FIFO_CTRL_OFFSET);
+> +
+> +	/* disable all interrupts */
+> +	val =3D 0;
+> +	writel(val, dev->base + IE_OFFSET);
+writel(0, dev->base + IE_OFFSET);
+
+> +	/* clear all pending interrupts */
+> +	val =3D readl(dev->base + IS_OFFSET);
+> +	writel(val, dev->base + IS_OFFSET);
+writel(0xffffffff, dev->base + IS_OFFSET); ??
+
+> +
+> +	return 0;
+> +}
+> +
+> +static void bcm_iproc_i2c_enable(struct bcm_iproc_i2c_dev *dev)
+> +{
+> +	u32 val;
+> +
+> +	val =3D readl(dev->base + CFG_OFFSET);
+> +	val |=3D 1 << CFG_EN_SHIFT;
+> +	writel(val, dev->base + CFG_OFFSET);
+> +}
+> +
+> +static void bcm_iproc_i2c_disable(struct bcm_iproc_i2c_dev *dev)
+> +{
+> +	u32 val;
+> +
+> +	val =3D readl(dev->base + CFG_OFFSET);
+> +	val &=3D ~(1 << CFG_EN_SHIFT);
+> +	writel(val, dev->base + CFG_OFFSET);
+> +}
+> +
+> +static int bcm_iproc_i2c_probe(struct platform_device *pdev)
+> +{
+> +	int irq, ret =3D 0;
+> +	struct bcm_iproc_i2c_dev *dev;
+"dev" is a misleading name here. I'd call this
+
+	bcm_iproc_i2c_ddata *ddata;
+
+> +	struct i2c_adapter *adap;
+> +	struct resource *res;
+> +
+> +	dev =3D devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+> +	if (!dev)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, dev);
+> +	dev->device =3D &pdev->dev;
+> +	init_completion(&dev->done);
+> +
+> +	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	dev->base =3D devm_ioremap_resource(dev->device, res);
+> +	if (IS_ERR(dev->base))
+> +		return -ENOMEM;
+		return PTR_ERR(dev->base);
+
+> +
+> +	ret =3D bcm_iproc_i2c_init(dev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret =3D bcm_iproc_i2c_cfg_speed(dev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	irq =3D platform_get_irq(pdev, 0);
+> +	if (irq < 0) {
+irq =3D=3D 0 should be handled as error, too.
+
+> +		dev_err(dev->device, "no irq resource\n");
+> +		return irq;
+> +	}
+> +
+> +	ret =3D devm_request_irq(&pdev->dev, irq, bcm_iproc_i2c_isr,
+> +			IRQF_SHARED, pdev->name, dev);
+> +	if (ret) {
+> +		dev_err(dev->device, "unable to request irq %i\n", irq);
+> +		return ret;
+> +	}
+> +
+> +	bcm_iproc_i2c_enable(dev);
+> +
+> +	adap =3D &dev->adapter;
+> +	i2c_set_adapdata(adap, dev);
+> +	strlcpy(adap->name, "Broadcom iProc I2C adapter", sizeof(adap->name=
+));
+> +	adap->algo =3D &bcm_iproc_algo;
+> +	adap->dev.parent =3D &pdev->dev;
+> +	adap->dev.of_node =3D pdev->dev.of_node;
+> +
+> +	ret =3D i2c_add_adapter(adap);
+> +	if (ret) {
+> +		dev_err(dev->device, "failed to add adapter\n");
+> +		return ret;
+> +	}
+> +
+> +	dev_info(dev->device, "device registered successfully\n");
+This just clutters the boot log. Please remove.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static int bcm_iproc_i2c_remove(struct platform_device *pdev)
+> +{
+> +	struct bcm_iproc_i2c_dev *dev =3D platform_get_drvdata(pdev);
+> +
+> +	i2c_del_adapter(&dev->adapter);
+> +	bcm_iproc_i2c_disable(dev);
+I think you have a problem here if bcm_iproc_i2c_remove is called while
+an irq is still being serviced. I'm not sure how to prevent this
+properly for a shared interrupt.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id bcm_iproc_i2c_of_match[] =3D {
+> +	{.compatible =3D "brcm,iproc-i2c",},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, bcm_iproc_i2c_of_match);
+> +
+> +static struct platform_driver bcm_iproc_i2c_driver =3D {
+> +	.driver =3D {
+> +		   .name =3D "bcm-iproc-i2c",
+> +		   .of_match_table =3D bcm_iproc_i2c_of_match,
+> +		   },
+Inconsistent indention.
+
+> +	.probe =3D bcm_iproc_i2c_probe,
+> +	.remove =3D bcm_iproc_i2c_remove,
+> +};
+> +module_platform_driver(bcm_iproc_i2c_driver);
+> +
+> +MODULE_AUTHOR("Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>");
+> +MODULE_DESCRIPTION("Broadcom iProc I2C Driver");
+> +MODULE_LICENSE("GPL v2");
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
