@@ -1,50 +1,72 @@
-From: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 1/2] i2c: cadence: Handle > 252 byte transfers
-Date: Tue, 13 Jan 2015 22:47:20 +0530
-Message-ID: <CAFcVECK5PmvmHpGmtVdyc=rrv7bj97bjR5LuZQoehVhgn3Xbxw@mail.gmail.com>
-References: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
-	<1418357907-4215-2-git-send-email-harinik@xilinx.com>
-	<20150113112854.GA7660@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150113112854.GA7660@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, =?UTF-8?Q?S=C3=B6ren_Brinkmann?= <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Harini Katakam <harinik@xilinx.com>
+Subject: [PATCH v6] i2c: cadence: Check for errata condition involving master receive
+Date: Wed, 14 Jan 2015 00:04:59 +0530
+Message-ID: <1421174099-19839-1-git-send-email-harinik@xilinx.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, mark.rutland@arm.com
+Cc: michal.simek@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, harinikatakamlinux@gmail.com, harinik@xilinx.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Cadence I2C controller has the following bugs:
+- completion indication is not given to the driver at the end of
+a read/receive transfer with HOLD bit set.
+- Invalid read transaction are generated on the bus when HW timeout
+condition occurs with HOLD bit set.
 
-On Tue, Jan 13, 2015 at 4:58 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Fri, Dec 12, 2014 at 09:48:26AM +0530, Harini Katakam wrote:
->> The I2C controller sends a NACK to the slave when transfer size register
->> reaches zero, irrespective of the hold bit. So, in order to handle transfers
->> greater than 252 bytes, the transfer size register has to be maintained at a
->> value >= 1. This patch implements the same.
->> The interrupt status is cleared at the beginning of the isr instead of
->> the end, to avoid missing any interrupts.
->>
->> Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
->
-> Applied to for-next, thanks!
->
->> @@ -333,10 +359,11 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
->>        * receive if it is less than transfer size and transfer size if
->>        * it is more. Enable the interrupts.
->>        */
->> -     if (id->recv_count > CDNS_I2C_TRANSFER_SIZE)
->> +     if (id->recv_count > CDNS_I2C_TRANSFER_SIZE) {
->>               cdns_i2c_writereg(CDNS_I2C_TRANSFER_SIZE,
->>                                 CDNS_I2C_XFER_SIZE_OFFSET);
->> -     else
->> +             id->curr_recv_count = CDNS_I2C_TRANSFER_SIZE;
->> +     } else
->>               cdns_i2c_writereg(id->recv_count, CDNS_I2C_XFER_SIZE_OFFSET);
->
-> else branch must have braces, too! I fixed that.
+As a result of the above, if a set of messages to be transferred with
+repeated start includes any message following a read message,
+completion is never indicated and timeout occurs.
+Hence a check is implemented to return -EOPNOTSUPP for such sequences.
 
-Thanks!
+Signed-off-by: Harini Katakam <harinik@xilinx.com>
+Signed-off-by: Vishnu Motghare <vishnum@xilinx.com>
+---
 
-Regards,
-Harini
+v6:
+- Correct if condition - add braces to include both statements.
+- Modify comments and warning message.
+
+v5:
+Make warning grepable in driver.
+
+v4:
+Use single dev_warn and make message grep-able.
+
+v3:
+Add warning in case of unsupported transfer.
+
+v2:
+Dont defeteature repeated start. Just check for unsupported conditions in the
+driver and return error.
+
+---
+ drivers/i2c/busses/i2c-cadence.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 5f5d4fa..c7be4fb 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -541,6 +541,19 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	 * processed with a repeated start.
+ 	 */
+ 	if (num > 1) {
++		/*
++		 * This controller does not give completion interrupt after a
++		 * master receive message if HOLD bit is set (repeated start),
++		 * resulting in SW timeout. Hence, if a receive message is
++		 * followed by any other message, an error is returned
++		 * indicating that this sequence is not supported.
++		 */
++		for (count = 0; count < num-1; count++) {
++			if (msgs[count].flags & I2C_M_RD) {
++				dev_warn(adap->dev.parent, "Can't do repeated start after a receive message\n");
++				return -EOPNOTSUPP;
++			}
++		}
+ 		id->bus_hold_flag = 1;
+ 		reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+ 		reg |= CDNS_I2C_CR_HOLD;
+-- 
+1.7.9.5
