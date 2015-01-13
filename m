@@ -1,63 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: use {readl|writel}_relaxed instead of
- readl/writel
-Date: Tue, 13 Jan 2015 15:36:54 +0100
-Message-ID: <20150113143654.GG7660@katana>
-References: <1418279201-3886-1-git-send-email-jszhang@marvell.com>
+Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
+Date: Tue, 13 Jan 2015 16:12:58 +0100
+Message-ID: <20150113151258.GH7660@katana>
+References: <1421082094-10267-1-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MiFvc8Vo6wRSORdP"
+	protocol="application/pgp-signature"; boundary="OgApRN/oydYDdnYz"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1418279201-3886-1-git-send-email-jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1421082094-10267-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---MiFvc8Vo6wRSORdP
+--OgApRN/oydYDdnYz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jan 12, 2015 at 07:01:34PM +0200, Pantelis Antoniou wrote:
+> Mark (and unmark) device nodes with the POPULATE flag as appropriate.
+> This is required to avoid multi probing when using I2C and device
+> overlays containing a mux.
+>=20
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+
+Applied to for-current, thanks!
 
 
-On Thu, Dec 11, 2014 at 02:26:41PM +0800, Jisheng Zhang wrote:
-> readl/writel is too expensive especially on Cortex A9 w/ outer L2 cache.
-> This introduces i2c read/write errors on Marvell BG2/BG2Q SoCs when there
-> are heavy L2 cache maintenance operations at the same time.
-
-Reading this again, I got a question:
-
-Really read/write errors? I would think that there is a performance
-penalty because of the memory barriers. But errors?
-
-> The driver does not perform DMA, so it's safe to use the relaxed version.
-> From another side, the relaxed io accessor macros are available on all
-> architectures now, so we can use the relaxed versions instead.
-
-Can the designware core make use of DMA in theory?
-
-
---MiFvc8Vo6wRSORdP
+--OgApRN/oydYDdnYz
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUtS2GAAoJEBQN5MwUoCm2svAQAIpRt3q0aHH0xGwK8rt2P91x
-ZJVUcF2YrP1KPo14LaP6N0lPAjzathtXBHOPr5udB7+zoMJBPGdHXrPRP9x7WmAY
-89avemgEFOdrhuDcBkr2BXhn6hsRs5HJlu9x0/z/HfLK4Cwmoh9BhB4CTOYT4VnL
-PlH60kJBSfAxh2llM/k024o70p8uNnN0ODe4kIDiBcbqnWTOBjTT4ecjT0qehrl/
-T7ghYQOFzl4vwzgvMNFrxMNb4n1eksktxn5qua/HGrloU8l1iJ1rRBSBkw1xfHJp
-/2DZv+inHvuyLPvyNLEld8i/4Q0QgA/D8zL7lNhLuA7pmwUmv496NJpkX++xD+da
-SJOZuzKGT30lUUQLMLUEkeG89kLqMkqbbsdrC4RDw6LP077h/p53rmFuVGr9Yc3B
-3Nk5TfeOK34mq4eTLvNerAwg+y6e6T7GekVGvRjR6gGcSQPsD8SD3sEpVSgbFzhY
-8xM3yDBROS6/kepaHGAXSF3nyxYg2ask8Cdrirg9pRwHm6OHCTBl8S5q6hYAzINu
-ysJTSor0O64aiwxhH/dVzEEqHbf8X/0/rHLrxomoVPS0l4lmgqH538to59vYQ1+C
-HR80GYPgkBL8EnwNo06VuYvoEpOO8c1/IDlSFpbkaWO0RV9Wid16ImvI59EkR28s
-bxtE2Bu78n1pC4fbYQzG
-=lfnX
+iQIcBAEBAgAGBQJUtTX6AAoJEBQN5MwUoCm2HdcQAJ1gGX76PYeL9L3vx1c+PN6Y
+AhFpf4x/NluTMEskDT6tfMQV13GtPL5t1+KCIIGFGw6hCpngCg8jSCCbXg3eQR8M
+Cs2lM0AucIratXvN3B3CxzURGDlJCG863ITA5ltjMMXUPdIubdXCSQiDTLI77v3z
+u6DC79T3Am6akWW+lIZDI+6A4OJHb1WKs4gklkr8FA7RJEUnQQmTdmTtgUCt6jU4
+rTWfwJ0OLCTVIRtsuFlHEHKsZn7F0J7MnH0ABIm/Ov0h8y/DaaKgUbGELhc+pp6j
+QviN6xkWJwmiOCNOdJcBb0MFE3bM2ILvSUlD+YpjrzGxr/z9pTFU2kCx9/LXXynS
+flS5oyXJDV8MsqnVd+6k/0mICUiOEkvv7YdJf0RauYNI5YzydoE9PSrAvSk2GUwl
+Z+o3hIl6B5SU+29nwrn/XsddmmY+As9X8Ar5jWIn9Ln3v9CgRVqDkWSZiBlhR5w4
+zUg0PKSWpWVfBHQ+hFU+fbap5qHogLSFc7zAsXby9sR+MnKxjyM2Ix4BDUA23Bsd
+HbjYGK78OIpo3zXdSJGG+AMn7J4YTdEZbeZbE0SZiWwR4Yc1/YWNriN73zHGgc4F
+5CYlq/ZbitA4MhX9aXxH2Ju7h1oR097NEfUdwAfXEQ9iVutYXsCSXymK0q6l5kVa
+HIqvPxe/QoHVrwB1Qtbs
+=YrUw
 -----END PGP SIGNATURE-----
 
---MiFvc8Vo6wRSORdP--
+--OgApRN/oydYDdnYz--
