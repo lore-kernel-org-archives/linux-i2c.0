@@ -1,55 +1,76 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/4] DT: i2c: Add devices handled by the da9063 MFD driver
-Date: Tue, 13 Jan 2015 11:15:41 +0100
-Message-ID: <20150113101541.GH1059@katana>
-References: <1418124169-7123-1-git-send-email-geert+renesas@glider.be>
- <1418124169-7123-3-git-send-email-geert+renesas@glider.be>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 1/2] i2c: cadence: Handle > 252 byte transfers
+Date: Tue, 13 Jan 2015 12:28:54 +0100
+Message-ID: <20150113112854.GA7660@katana>
+References: <1418357907-4215-1-git-send-email-harinik@xilinx.com>
+ <1418357907-4215-2-git-send-email-harinik@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="boAH8PqvUi1v1f55"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1418124169-7123-3-git-send-email-geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-Cc: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1418357907-4215-2-git-send-email-harinik@xilinx.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Harini Katakam <harinik@xilinx.com>
+Cc: mark.rutland@arm.com, michal.simek@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, harinikatakamlinux@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---boAH8PqvUi1v1f55
+--tThc/1wpZn/ma/RB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 09, 2014 at 12:22:47PM +0100, Geert Uytterhoeven wrote:
-> This allows checkpatch to validate more DTSes.
+On Fri, Dec 12, 2014 at 09:48:26AM +0530, Harini Katakam wrote:
+> The I2C controller sends a NACK to the slave when transfer size register
+> reaches zero, irrespective of the hold bit. So, in order to handle transf=
+ers
+> greater than 252 bytes, the transfer size register has to be maintained a=
+t a
+> value >=3D 1. This patch implements the same.
+> The interrupt status is cleared at the beginning of the isr instead of
+> the end, to avoid missing any interrupts.
 >=20
-> Signed-off-by: Geert Uytterhoeven <geert+renesas-gXvu3+zWzMSzQB+pC5nmwQ@public.gmane.org>
-> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Harini Katakam <harinik@xilinx.com>
 
 Applied to for-next, thanks!
 
+> @@ -333,10 +359,11 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+>  	 * receive if it is less than transfer size and transfer size if
+>  	 * it is more. Enable the interrupts.
+>  	 */
+> -	if (id->recv_count > CDNS_I2C_TRANSFER_SIZE)
+> +	if (id->recv_count > CDNS_I2C_TRANSFER_SIZE) {
+>  		cdns_i2c_writereg(CDNS_I2C_TRANSFER_SIZE,
+>  				  CDNS_I2C_XFER_SIZE_OFFSET);
+> -	else
+> +		id->curr_recv_count =3D CDNS_I2C_TRANSFER_SIZE;
+> +	} else
+>  		cdns_i2c_writereg(id->recv_count, CDNS_I2C_XFER_SIZE_OFFSET);
 
---boAH8PqvUi1v1f55
+else branch must have braces, too! I fixed that.
+
+
+--tThc/1wpZn/ma/RB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUtPBNAAoJEBQN5MwUoCm2iNsP/AjtlWEndXDssxKgZY9COUGo
-hsqZakcXbQYM1HkFdVQ6ZVXSGzyy7BnzY1a/Z+v6TLtxlvFykhgVAC9ds311xi8u
-w/6Aei0eMPdJKJWnXSzkDx23B/fViQ6SbOyudZQdw/sm6XVVvoqx8RA7Mg0KyCg9
-Wh+rYYIBezK5/YkLtKqEgXQu4mopd6eMs4rniTsi0WnNJjKA5Dgjc7SSRwol/NLp
-N1j33IEFaI7h6SkMLXOYcwee/Bp94Q4ND/RRIsBgpYV7LK6p3CiM84JgAVuJ+36E
-dwFOOSR3Tv/n5L68z9ykhmdGKbhnnUARoaCRaagFUM4PguSDgGETQ/BRDvlE137m
-PuXz/1FBg+W4XjMDMIiEIiLrvYa0dyC68WLXQqhjcCkvFZdlNyh9jEkurOWv0WEM
-7EVL3rA5eblWb64PmgINL+XjMU8xusR5Lo/4vyaQEX7E1hj5KJXweq5+r7P/gtcM
-m1HO2eHUtTrtOyOlQ1c+7faIpZJbjO5avB3f+0EyXxxCp+T4A4RlGx5d2vOxqGql
-7j5AmPlhMPEqfV2eLUZdyOJbDLgGMaIW+UXt7VJKS2VJ89HECrMftdB2YjsDVe7Q
-cpxH+HM2F805OAZ6808S7NxwfofyYIN2S8n3Rs1mr7ZeTTV2aRxawbQbnExWr/dw
-IzIgeh7PHP3K0Vt8zyM9
-=bqzf
+iQIcBAEBAgAGBQJUtQF2AAoJEBQN5MwUoCm2MbcP/A+1f1dbP+/97P9g+OU6S65D
+f3Az8j+0Fu//0TKOeOwmr5ay+QBaPYxdbNfCBd8Ppd3w6oeP+xeXuUAu505tbdQw
+G1adUv4lmZoFMuMQMYhWv9oObGFq6Td1sufaxWVFAqeEQaWpLPda/sUQwjV5llsL
+q6dCfJsQxLGO9cFK+CN/QnMch8JcrY+G+cwqS/OS7klgWJwMkVj6VLLIhvenZQ7C
+NuFsCmrmLVDScVkEa4QgCX5oLG3gfldDutR8LjUFpzUruPfSkRWF70hoRV1cvWzB
+Jh2LCtPiH7jSZ2Wgp/lINVsS/VsBdXOn3ya6dFArWXrAbWAOlTjscrACWwI7gnvr
+wrfGigEgYuKPrsY/rXH+Ki8MBOAhRDV6+LRDtfLwSGMYjG43yEfXgdYCnKPzTqzp
+OH5V5eqYEFK8igdzn2Q5oWLwXiJIrx3RuEsfLYunM4R77j76/I09eAsuDSLzxszv
+0ytdgmqvxL+gpduu2ohj0yBk7edGpz5A908VlkWeqydOyF0Z2px7LWgiQUJixZ0G
+/HB6o5AlUDEbXkB9t1fatj+84R64kSUn+EU8kaK5SXiJcty0f143Vf2PM9yqr89n
+D6E6ssRkZnhtA9lJIXaIEMShcFeHwZqw6nTfGiZYyrBd2gwlqK05jmyFftfTyR26
+bhNlSzG+raJFGIXz+1e9
+=BBRZ
 -----END PGP SIGNATURE-----
 
---boAH8PqvUi1v1f55--
+--tThc/1wpZn/ma/RB--
