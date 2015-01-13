@@ -1,61 +1,86 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCHv2 2/8] dt-bindings: use isil prefix for Intersil in I2C
- trivial-devices.txt
-Date: Tue, 13 Jan 2015 16:45:14 +0100
-Message-ID: <20150113154513.GM7660@katana>
-References: <cover.1418763328.git.arno@natisbad.org>
- <86079cdf7325f6d83e0270d32ff66bcc3e6a34bb.1418763328.git.arno@natisbad.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c / ACPI: Pick the first address if device has multiple
+Date: Tue, 13 Jan 2015 16:50:59 +0100
+Message-ID: <20150113155059.GN7660@katana>
+References: <1419860928-195404-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eWmFpGZayiNrn4FL"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="20XocjIeMTCm4X0r"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <86079cdf7325f6d83e0270d32ff66bcc3e6a34bb.1418763328.git.arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe-rXY34ruvC2xidJT2blvkqNi2O/JbrIOy@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Darshana Padmadas <darshanapadmadas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1419860928-195404-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---eWmFpGZayiNrn4FL
+--20XocjIeMTCm4X0r
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 16, 2014 at 10:19:53PM +0100, Arnaud Ebalard wrote:
+On Mon, Dec 29, 2014 at 03:48:48PM +0200, Mika Westerberg wrote:
+> ACPI specification allows I2C devices with multiple addresses. The current
+> implementation goes over all addresses and assigns the last one to the
+> device. This is typically not the primary address of the device.
 >=20
-> This patch fixes I2C trivial-devices.txt DT documentation file to
-> reference isil (NASDAQ symbol and the most used prefix inside the
-> kernel) for Intersil.
+> Instead of doing that we assign the first address to the device and then
+> let the driver handle rest of the addresses as it wishes.
 >=20
-> It reverts 7c75c1d5e72b ("dt-bindings: Document deprecated device
-> vendor name to fix related warning").
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+
+Yes, seems better than what we do know. But maybe taking the lowest
+address is a bit better heuristic than taking the first address?
+Not sure, though...
+
+> ---
+>  drivers/i2c/i2c-core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
-> Signed-off-by: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 39d25a8cb1ad..a06be43b7842 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -102,7 +102,7 @@ static int acpi_i2c_add_resource(struct acpi_resource=
+ *ares, void *data)
+>  		struct acpi_resource_i2c_serialbus *sb;
+> =20
+>  		sb =3D &ares->data.i2c_serial_bus;
+> -		if (sb->type =3D=3D ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> +		if (!info->addr && sb->type =3D=3D ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+>  			info->addr =3D sb->slave_address;
+>  			if (sb->access_mode =3D=3D ACPI_I2C_10BIT_MODE)
+>  				info->flags |=3D I2C_CLIENT_TEN;
+> --=20
+> 2.1.4
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Applied to for-next, thanks!
-
-
---eWmFpGZayiNrn4FL
+--20XocjIeMTCm4X0r
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUtT2JAAoJEBQN5MwUoCm2PmUP/2E48aZD4g4+0sf76A82Jsf8
-em5Wt2t4O9H8+46wzEO4UctY1TpRXoPQVHp8XnK3aPsoj7ZReQAFzMGQ9qZL/p2w
-dylZxi5gmfhZFTdnOh+zsdprwfvUdzTOlJhGOjTXGMViEojyzHgGrvjsEJcor3kI
-mgObD5fv6UCllYUu8q0vYxqEGoMq59Zy4ivpzs9/zoMxtjYUzknEUSsz9MxRo4Qh
-1sQE8E0tBixWHrOv0Qc7H8vaXMfthTOF3PoJVJUCzME0clKeCC2V3ah96eTKPVPc
-jR7gKBAjxA8hZbbkxBEkaRDFB8fJrjlB8xhAjI0/Y5G5NVbfSA2s28HejhYMrImi
-NxPfKEjM0K7vaQa3EckCBJqp5kKX720dMlmfPtlHyE7FygpgYyFO/fOGP7eNSGxs
-wvSHtICwhhO9tMH+K7AHYxqv08UaJiTGhZkM22Lznron43D5sMcds23gv579+RrS
-x3xE8igD+93IvUz10hR9GJhrFjYjwSlJ9LkBBnMyxeiukxFXBMZRFrLzyz43TKxW
-1p+nE1O3d7THjkf/Dl7xAPuha4gOBLwO9XhM27Do8FEfIjZUNG87HgEdoaHh2xKb
-xnUk+KgkLk4L4eXWcrSrVyhBXYgFIvNS9PLadV9kCb8FGeVKbu5DEsIwwXg6iC1C
-I7NsdezHczKuvksCxE/K
-=1v7O
+iQIcBAEBAgAGBQJUtT7iAAoJEBQN5MwUoCm2fMEP/3pNQ4grR9mUkxah4zFyf/ER
+r0U5tqD2VsaPj0sJMauYLXPJ3G8t148+WVdn07XJRREtBIKepleacim4Vbuwgc2D
+kiI+ipcrq8I3ixTVjmOnRqbCr0vJs6jZkZC+PBxlEm+n+s8TOdUbpSwS5tZ4V5IX
+tVSaYjkf7bHpD4+0sCDUPSa2X6dCBbDnRqa+ZuyAZV9JagHJfQM5EnIygXiXMVLM
+obFP8Ctq0DAYalG74XIkvQR451a7820A5MmdJZTRIzL+LkEw53v9nbX8QgdpP9dZ
+5/K/3xrnmFDzVMdmMaqvP15Cg9zl/Bs/CXvXXM60sDWSLtlvZJX2uMJXvSHyh9L+
+QxQnXnHHp2wDSdm/NshcO4DQzdB8UzxtaWMs0w8CttlHEP0eVm2fWIeM9SanXLRF
+B7OLnqrrmpIOGy6LiH8djSs0VJmZ7RpbeCiiKwn/qB/qIzYqFpovs/YdVt1ILQdu
+EJpLnLQzFtxUpDGfvQRz+1xj32lXoiAgzgXsNNBYZ5pm3rWElqLs7qZTy9uon3sG
+WNQhmpYYLKr5VpHsL9XQpnoevICfbnksJepen666hwSQQKFg10AxxGdJMxd08m5a
+ylDRUJaWssCGZkvmMqRlHEcgMFxeyZ2uKw8lvsCizQBNWsa3a3p0vCOTxC5wqDZF
+u1GYOO5OHmZ2IPV9vryL
+=CRnM
 -----END PGP SIGNATURE-----
 
---eWmFpGZayiNrn4FL--
+--20XocjIeMTCm4X0r--
