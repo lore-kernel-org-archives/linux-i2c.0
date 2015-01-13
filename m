@@ -1,82 +1,108 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: rk3x: Account for repeated start time requirement
-Date: Tue, 13 Jan 2015 12:47:14 +0100
-Message-ID: <20150113114714.GD7660@katana>
-References: <1418924647-23795-1-git-send-email-dianders@chromium.org>
+Subject: Re: [PATCH] i2c: designware: use {readl|writel}_relaxed instead of
+ readl/writel
+Date: Tue, 13 Jan 2015 12:52:05 +0100
+Message-ID: <20150113115205.GE7660@katana>
+References: <1418279201-3886-1-git-send-email-jszhang@marvell.com>
+ <20141219104315.0ccbba9c@xhacker>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a2FkP9tdjPU2nyhF"
+	protocol="application/pgp-signature"; boundary="JBi0ZxuS5uaEhkUZ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1418924647-23795-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <20141219104315.0ccbba9c@xhacker>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, cyw-TNX95d0MmH7DzftRWevZcw@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---a2FkP9tdjPU2nyhF
+--JBi0ZxuS5uaEhkUZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 18, 2014 at 09:44:07AM -0800, Doug Anderson wrote:
-> On Rockchip I2C the controller drops SDA low slightly too soon to meet
-> the "repeated start" requirements.
+On Fri, Dec 19, 2014 at 10:43:15AM +0800, Jisheng Zhang wrote:
+> Dear all,
 >=20
-> From my own experimentation over a number of rates:
->  - controller appears to drop SDA at .875x (7/8) programmed clk high.
->  - controller appears to keep SCL high for 2x programmed clk high.
->=20
-> The first rule isn't enough to meet tSU;STA requirements in
-> Standard-mode on the system I tested on.  The second rule is probably
-> enough to meet tHD;STA requirements in nearly all cases (especially
-> after accounting for the first), but it doesn't hurt to account for it
-> anyway just in case.
->=20
-> Even though the repeated start requirement only need to be accounted
-> for during a small part of the transfer, we'll adjust the timings for
-> the whole transfer to meet it.  I believe that adjusting the timings
-> in just the right place to switch things up for repeated start would
-> require several extra interrupts and that doesn't seem terribly worth
-> it.
->=20
-> With this change and worst case rise/fall times, I see 100kHz i2c
-> going to ~85kHz.  With slightly optimized rise/fall (800ns / 50ns) I
-> see i2c going to ~89kHz.  Fast-mode isn't affected much because
-> tSU;STA is shorter relative to tHD;STA there.
->=20
-> As part of this change we needed to account for the SDA falling time.
-> The specification indicates that this should be the same, but we'll
-> follow Designware's lead and add a binding.  Note that we deviate from
-> Designware and assign the default SDA falling time to be the same as
-> the SCL falling time, which is incredibly likely.
->=20
-> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Is there any issue I need to resolve so that the patch can be merged?
 
-Applied to for-next, thanks!
+Adding Mika to the loop. He uses the driver a lot (and knows other
+people who do)...
 
 
---a2FkP9tdjPU2nyhF
+> On Wed, 10 Dec 2014 22:26:41 -0800
+> Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org> wrote:
+>=20
+> > readl/writel is too expensive especially on Cortex A9 w/ outer L2 cache.
+> > This introduces i2c read/write errors on Marvell BG2/BG2Q SoCs when the=
+re
+> > are heavy L2 cache maintenance operations at the same time.
+> >=20
+> > The driver does not perform DMA, so it's safe to use the relaxed versio=
+n.
+> > From another side, the relaxed io accessor macros are available on all
+> > architectures now, so we can use the relaxed versions instead.
+> >=20
+> > Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-designware-core.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-designware-core.c
+> > b/drivers/i2c/busses/i2c-designware-core.c index 23628b7..e279948 100644
+> > --- a/drivers/i2c/busses/i2c-designware-core.c
+> > +++ b/drivers/i2c/busses/i2c-designware-core.c
+> > @@ -170,10 +170,10 @@ u32 dw_readl(struct dw_i2c_dev *dev, int offset)
+> >  	u32 value;
+> > =20
+> >  	if (dev->accessor_flags & ACCESS_16BIT)
+> > -		value =3D readw(dev->base + offset) |
+> > -			(readw(dev->base + offset + 2) << 16);
+> > +		value =3D readw_relaxed(dev->base + offset) |
+> > +			(readw_relaxed(dev->base + offset + 2) << 16);
+> >  	else
+> > -		value =3D readl(dev->base + offset);
+> > +		value =3D readl_relaxed(dev->base + offset);
+> > =20
+> >  	if (dev->accessor_flags & ACCESS_SWAP)
+> >  		return swab32(value);
+> > @@ -187,10 +187,10 @@ void dw_writel(struct dw_i2c_dev *dev, u32 b, int
+> > offset) b =3D swab32(b);
+> > =20
+> >  	if (dev->accessor_flags & ACCESS_16BIT) {
+> > -		writew((u16)b, dev->base + offset);
+> > -		writew((u16)(b >> 16), dev->base + offset + 2);
+> > +		writew_relaxed((u16)b, dev->base + offset);
+> > +		writew_relaxed((u16)(b >> 16), dev->base + offset + 2);
+> >  	} else {
+> > -		writel(b, dev->base + offset);
+> > +		writel_relaxed(b, dev->base + offset);
+> >  	}
+> >  }
+> > =20
+>=20
+
+--JBi0ZxuS5uaEhkUZ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUtQXCAAoJEBQN5MwUoCm2COIP/jdShB2rJRTE2y+DAhnMHS0f
-jw05ItQPJYASagsGyw3RGVmIAV/jOYLjz2oIGAfnNEHGmC6Ui0rkiJOiPeUJ0/TK
-MWD8bIe7gd9UNTfO2M+X+n8pMSY/ZAECh33tbtOgFxC94IoaYstDyGH1/YEQbBOv
-r2hUpTfzmxmgaUr21yxiAWvjhkqcbL1pysr2HeHi+45grClHWOtcBOw7JEh59qgZ
-19Wd5GPtabAbOmB8rINHkHn3YgOdn8kXWPmZohOBPjvTs4HyLCzmqkPkUneldNbS
-56dYSV8tXVK7iDYx30i5T5qqdUxauFxFq4FuwrikOD7lrTU6DujSsRGpYCjLpKkL
-f3lrlMQ6Ox7C0BBJXYyytYH96eqlIr3kMm2JpjBv9f6qJNDyir3XyltlMMz8He4p
-+rOljfaBK0gh+TkdvuaLM+ZSZ2goQkun2j+ZwUlGsIFG9xUjvz9TsAppv/zRtlfG
-JhQ4yfJkTUwkxnv0bI/ZFo/KkMg5M+F9nZ4zvnbx4WCbqM6AwooUWEU0Uxc1bYIn
-s53I896WlWDlwQTSDjzvOtqGUdaEi2P4eHe/MrGhGyky0SR5FT1sRH/uMi/P6Bgj
-og/UUiD181jRuyFmPBfdyt/0/pty1JD4aVMw6UM5fVX9XE6qcLR8o2Dd6YOvhAnh
-y1TIK3YGYexZCzP/koGD
-=L2fi
+iQIcBAEBAgAGBQJUtQblAAoJEBQN5MwUoCm2L9oQAKjk2uGq6kH5QKyveBeq+Lsh
+GXPoKimISTJmsbip+Y8IDWFa3try5o9VTSU5qFRJM0iLPvJoAdi2WnYuEKQNQgPU
+2OSAKRjdXjdoyp7lx6piblqgFFcfhamUYoQ5vd4tlcJ5WbqHS7/UsOWtfmH4s7SD
+vaPVrD3usWAOjRZsxhJ4c4zK6AzJJgAiMBBSy4YI7iAUYp6WKLEObTBya4VM3eju
+qXfwro3Zc2O1Y7paUNptQi+/H75zrbEgR+mtmtDuDy5xHB8dYN07Je8QjmgytCls
+HHDQEnQuBUb8fqE+OZvJHmK2hPQXW/x8Cq4Nv34n0DN0DlRokkG9kaLk8sVqv+88
+FQ6aLrHc6QoKWQlU2HZEfLOXKvwoRsT2QmTXTkKRaL1Ft7Z++CZ0ab6X9MzKf8oi
+pFrBGPDR8g0nL3TsRZG64VMvSlEKJFBUpQ2X6CV1pjCfi2DojwrSaBq0ydbT3LCx
+Uqij2ZNrqsQeq1hwfYWGsUE2WESibiJLYXenmJA9zAMq+As4UETMwc15JgT15PxF
+Lezp5BkpEhW3jzEHc62tnrXfNAVt7aDPLI4+ZPN9/7Qh+rRfJAosQ41e3tio5OcH
+d6JBd3KBzRi4MZ2Ro+jKAmYeI9+2Glea8y0PYMEQ+BHhsXEHhimKVYewDghzrYPm
+o+lhU/izIQe4n+hOnNnN
+=mtX6
 -----END PGP SIGNATURE-----
 
---a2FkP9tdjPU2nyhF--
+--JBi0ZxuS5uaEhkUZ--
