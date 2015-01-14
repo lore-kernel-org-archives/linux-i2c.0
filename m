@@ -1,52 +1,78 @@
-From: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: use {readl|writel}_relaxed instead of
- readl/writel
-Date: Wed, 14 Jan 2015 12:05:09 +0800
-Message-ID: <20150114120509.0ba8267e@xhacker>
-References: <1418279201-3886-1-git-send-email-jszhang@marvell.com>
-	<20150113143654.GG7660@katana>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v3 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
+Date: Wed, 14 Jan 2015 08:51:37 +0100
+Message-ID: <20150114075137.GL22880@pengutronix.de>
+References: <rjui@broadcom.com>
+ <1418183832-24793-1-git-send-email-rjui@broadcom.com>
+ <1418183832-24793-3-git-send-email-rjui@broadcom.com>
+ <20150113225012.GK22880@pengutronix.de>
+ <54B5D0F9.8030902@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150113143654.GG7660@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <54B5D0F9.8030902@broadcom.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ray Jui <rjui@broadcom.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Christian Daudt <bcm@fixthebug.org>, Matt Porter <mporter@linaro.org>, Florian Fainelli <f.fainelli@gmail.com>, Russell King <linux@arm.linux.org.uk>, Scott Branden <sbranden@broadcom.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Wolfram,
+Hello,
 
-On Tue, 13 Jan 2015 06:36:54 -0800
-Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+On Tue, Jan 13, 2015 at 06:14:17PM -0800, Ray Jui wrote:
+> >> +	irq =3D platform_get_irq(pdev, 0);
+> >> +	if (irq < 0) {
+> > irq =3D=3D 0 should be handled as error, too.
+> >=20
+> Ah. I thought zero is a valid global interrupt number, and I see othe=
+r
+> drivers checking against < 0 as well. Is my understanding incorrect?
+These are wrong, too. 0 should never be a valid interrupt number. There
+are some exceptions but mostly for historic reasons. The right handling
+is used for example in drivers/i2c/busses/i2c-efm32.c.
 
-> 
-> On Thu, Dec 11, 2014 at 02:26:41PM +0800, Jisheng Zhang wrote:
-> > readl/writel is too expensive especially on Cortex A9 w/ outer L2 cache.
-> > This introduces i2c read/write errors on Marvell BG2/BG2Q SoCs when there
-> > are heavy L2 cache maintenance operations at the same time.
-> 
-> Reading this again, I got a question:
-> 
-> Really read/write errors? I would think that there is a performance
-> penalty because of the memory barriers. But errors?
+> >> +		dev_err(dev->device, "no irq resource\n");
+> >> +		return irq;
+> >> +	}
+> [...]
+> >> +static int bcm_iproc_i2c_remove(struct platform_device *pdev)
+> >> +{
+> >> +	struct bcm_iproc_i2c_dev *dev =3D platform_get_drvdata(pdev);
+> >> +
+> >> +	i2c_del_adapter(&dev->adapter);
+> >> +	bcm_iproc_i2c_disable(dev);
+> > I think you have a problem here if bcm_iproc_i2c_remove is called w=
+hile
+> > an irq is still being serviced. I'm not sure how to prevent this
+> > properly for a shared interrupt.
+> >=20
+> Can I grab i2c_lock_adapter to ensure the bus is locked (so there's n=
+o
+> outstanding transactions or IRQs by the time we remove the adapter)? =
+But
+> I see no I2C bus driver does this in their remove function...
+The problem I pointed out is the reason for some driver authors not to
+use devm_request_irq. If you use plain request_irq and the matching
+free_irq in the .remove callback you can be sure that the irq isn't
+running any more as soon as free_irq returns.
 
-I dunno whether I can call the issue as error. The situation is one i2c client
-has a bit strict timing requirement. Without the patch, if there are heavy L2 cache
-maintenance operations at the same time, there may be long delay between each
-DW_IC_DATA_CMD write opeartions in i2c_dw_xfer_msg() in the DW_IC_INTR_TX_EMPTY isr.
+BTW, if you use vim, you can add
 
-Thus about 1/300 i2c transactions may be ignored by the i2c client per my test.
+	set cinoptions=3D(,:
+	if has("autocmd")
+		filetype plugin indent on
+	endif
 
-> 
-> > The driver does not perform DMA, so it's safe to use the relaxed version.
-> > From another side, the relaxed io accessor macros are available on all
-> > architectures now, so we can use the relaxed versions instead.
-> 
-> Can the designware core make use of DMA in theory?
-> 
+to your .vimrc. Then while typing vim does the indention right and
+consistent, and with the =3D command you can reindent.
 
-the IP can do DMA in theory. But currently, there's no DMA support in the driver.
+Best regards
+Uwe
 
-Thanks for your review,
-Jisheng
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
