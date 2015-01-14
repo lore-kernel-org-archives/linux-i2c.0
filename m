@@ -1,56 +1,86 @@
-From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in i2c_del_adapter
-Date: Wed, 14 Jan 2015 16:12:49 +0200
-Message-ID: <C31FA639-70E2-49D0-9797-94A8E989F84F@konsulko.com>
-References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com> <20150113152957.GL7660@katana> <20150114144938.4e3c3f52@endymion.delvare> <B2D57D11-FBC2-432A-90E8-90E4CF8F716C@konsulko.com> <54B677DE.6030204@gmx.de>
-Mime-Version: 1.0 (Mac OS X Mail 8.1 \(1993\))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: imx: silence dma_request_slave_channel errors
+ if dma not set up in device tree
+Date: Wed, 14 Jan 2015 15:14:07 +0100
+Message-ID: <20150114141407.GA1598@katana>
+References: <1420555701-24645-1-git-send-email-p.zabel@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54B677DE.6030204-Mmb7MZpHnFY@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1420555701-24645-1-git-send-email-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michael,
 
-> On Jan 14, 2015, at 16:06 , Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org> wrote=
-:
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jan 06, 2015 at 03:48:19PM +0100, Philipp Zabel wrote:
+> If the i2c device tree nodes don't contain the dmas and dma-names propert=
+y, an
+> error is displayed for each i2c device:
 >=20
-> Am 14.01.2015 um 14:54 schrieb Pantelis Antoniou:
->> Hi Jean,
->>=20
->>> On Jan 14, 2015, at 15:49 , Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
-> ...
->>> That being said, nobody complained about this in 11 years, so I wou=
-ld
->>> be surprised if it was plain wrong. I'd rather question the test co=
-de.
->>> Where is it?
->>>=20
->>=20
->> No-one has apparently tested removing an i2c mux device on a running=
- system
->> before.
+>     of_dma_request_slave_channel: dma-names property of node '/soc/aips-b=
+us@02100000/i2c@021a0000' missing or empty
 >=20
-> We do it day by day and it works perfectly with pca954x from 2.6.32 t=
-o 3.14.27
-> So if there are problems they must have been invented lately.
+> This patch avoids calling dma_request_slave_channel if the dma-names prop=
+erty
+> does not exist in the device tree in the first place.
+>=20
+> Signed-off-by: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-I had a report that someone had the same problem with overlays containi=
-ng a pca mux,
-let me see if I can find the person that sent it and get him to supply =
-more info.
+Aren't you curing the symptoms instead of the cause? Sending a
+counterpatch in a second...
 
-Kernel was at least 3.17, so=E2=80=A6
-
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 7f3a9fe..f0d9904 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -288,6 +288,9 @@ static void i2c_imx_dma_request(struct imx_i2c_struct=
+ *i2c_imx,
+>  	struct device *dev =3D &i2c_imx->adapter.dev;
+>  	int ret;
+> =20
+> +	if (!of_get_property(dev->of_node, "dma-names", NULL))
+> +		return;
+> +
+>  	dma =3D devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
+>  	if (!dma)
+>  		return;
 > --=20
-> JM2C
-> KR
-> Michael
+> 2.1.4
 >=20
 
-Regards
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-=E2=80=94 Pantelis
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUtnmvAAoJEBQN5MwUoCm2bgIP/3ODaLnGC3X8D0rVfg2kAyDP
+HY2m5CKJ2M7ga61l3VnP3sYHI0divOjBs2/0O6peX5KAI6xHEAMr87AP3X3WVEOi
+a907cAGmrozfxUSNPv4zUZ5OeXa87rB9JZmjUmqAZ8IIcphWxlM1lusGx0pGqjeW
+mxhjWnpvhlEqsXQYgSPpxFQi1f0reFuwUHvROYj8Albf0VZN2yGrB251dOACSplY
+xOA8935+vLIEd+azDYDPAmL7oIDvy7b62UhuYcpvDmR4awjMtYsqtMDs7m9wCZl8
+4SwfpVeslJ0kD4lpAWw2EVLEcXDghLHFRJR2erC9Hm5QWfTf7gD6Y3rMzqGnPiq0
+ux36Kbxw/SqiVEnqjjdEinibKxWTnOEiC931lhC9skyB8UUgdCdycEx6l7pNxOBS
+9K6bY5LG0p0ujuiYI40BGVtlO3yja7YZtrTPaILNiWb8BfqSjnytsbP1KUooHQDa
+p5/jiQvJV4lqeHwDhK0IZIzQMYGP2fxLYuTG4sgESHbVIVWzz7yj+sOM4YG4OQ8g
+xz3ZqioCVkIVT6Mt6IhSP1/q30Z3Z1AQdVPf2YWoJZ3yRMF6wwucIBJRS6WtVCMl
+ExklT18vF1uRiXcKZrEUTVHS93svPHHNe9AiO6xHjPQeX8RQqL97crxBoody/6TL
+8ZGm6QT1iO+qvhy+gpu9
+=Uaeu
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
