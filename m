@@ -1,64 +1,59 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v6] i2c: cadence: Check for errata condition involving
- master receive
-Date: Wed, 14 Jan 2015 11:37:18 +0100
-Message-ID: <20150114103718.GA2615@katana>
-References: <1421174099-19839-1-git-send-email-harinik@xilinx.com>
+Subject: Re: [PATCH] i2c / ACPI: Pick the first address if device has multiple
+Date: Wed, 14 Jan 2015 11:55:58 +0100
+Message-ID: <20150114105558.GC2615@katana>
+References: <1419860928-195404-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
+	protocol="application/pgp-signature"; boundary="WplhKdTI2c8ulnbP"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1421174099-19839-1-git-send-email-harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1419860928-195404-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---IJpNTDwzlM2Ie8A6
+--WplhKdTI2c8ulnbP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 14, 2015 at 12:04:59AM +0530, Harini Katakam wrote:
-> Cadence I2C controller has the following bugs:
-> - completion indication is not given to the driver at the end of
-> a read/receive transfer with HOLD bit set.
-> - Invalid read transaction are generated on the bus when HW timeout
-> condition occurs with HOLD bit set.
+On Mon, Dec 29, 2014 at 03:48:48PM +0200, Mika Westerberg wrote:
+> ACPI specification allows I2C devices with multiple addresses. The current
+> implementation goes over all addresses and assigns the last one to the
+> device. This is typically not the primary address of the device.
 >=20
-> As a result of the above, if a set of messages to be transferred with
-> repeated start includes any message following a read message,
-> completion is never indicated and timeout occurs.
-> Hence a check is implemented to return -EOPNOTSUPP for such sequences.
+> Instead of doing that we assign the first address to the device and then
+> let the driver handle rest of the addresses as it wishes.
 >=20
-> Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Applied to for-next with some whitespace corrections, thanks!
+Applied to for-next, thanks!
 
 
---IJpNTDwzlM2Ie8A6
+--WplhKdTI2c8ulnbP
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUtkbdAAoJEBQN5MwUoCm2nfYP/0H8SYdWn4SA73uwqLFo9rob
-fBpN69GZPGko5lS36jDp4thSmBRJnQlaIQeQgA1IqG1ftmgWDgJAeCWpxfFxO6pt
-ZSDRtDzkQv+8I8hfNQa1dXH5a1/kiQ3WSqCFSFeIWIDsozjvy7shFab/JLvrX9/A
-Jd+NN/6ExJszXrUbOId9AqPIK2ZZZWy9iX60Z1fJSwRQsjw/uKq9QsmQQo2H9s3D
-QF3PiTionlpsT9LqfTRi+dD0o1eR8qC79gG369iJUkwsxTzNXwdWp54P5vP6/ZcY
-LGJV9HtZiSJhZMfcBWMH0weeZkEcw/8cWvsx7dwmSrL/utagYpol7dXXr5+pqlE4
-dxBJ/Evg3A3JNlouolGsDnSYEduypmBo5hFNXwa1Ivd4JTRYZJmxUDGee3syvcev
-pMjFA0akgNBdgLHnn4D+FzzvbKSO/3RAPDGKWG7dYRjTxc8s8MEr6X5Jm76tHsZw
-Ya3tCT3SYJY4ooLola2mTb6RcKx9KkZrvMlvc2EaBYSuXRbGBPlnVk1cXgkZp8KC
-+G4KG/4X59LgrFLLfDPCEdxCl4KfZVSy9jmcd3gxjPkWqw+fAvjHq4bVcSm+L1/e
-j1Hs4FCMEaTfeqja3TKA+9xxkOriuStx99aKbQVM7Npk0xwoGa/n2acyPjh/tUzv
-wnMgyTHsEoDVi6uqvfba
-=Qtnr
+iQIcBAEBAgAGBQJUtks+AAoJEBQN5MwUoCm2kSQP/2A/U8P0Zg0X3+8vDaVFgmc+
+p2pRkYeeHIwZfCcmtw/WiUMpGuiZdSnu42obpcy+srbPoWemmsvKolVCibn0lg6u
+K98fAi+NYL3gNpJdJF7DTeKrlNsWb/Bzxf+dKZy22b6K4gSmk5z42p5ySod2ygKD
+YJ/pc39ES2A+n5jYDVAvjto35YgipjiCSVxB5++yA3/zcmJv1Mcua6oWvVx9iRHe
+DvBX3cs2QgBrZxbBFX8zawTKzAQvmGwV0cDQuU+pJ/RajvLoy+69PCSXaPEkLw5E
+9CXWSFVqZp/LujRXneiiRmAP4FXDoctKXes0S5Agb65zWBoeOzE/H7sMtF+9/e/h
+nmgesER5hrOr/WBN7aWpnRQxu6l8w/paPJ3kqjjjBCWQ5lziN95bHntWpRoHdOn3
+phLKCqUewl5DXZrL0J6K9185gbmolBGIaDPWg27vNrCRzN/Rq0P303F1A9MRKhZW
+3DZ/M9Vw2RxvfMK4E5PP4/lN0/h/fCBiXzffJZuwc6sQ2+yNNNHm4q/Cw8KVHLqI
+1GJVZ0By319fJYEeDXxmYmsT49p72czTcUKkSZeLUadU1/iaDkLUujZgoiLB77Xn
+tSLXkEuJT1Qx+nCbI5Q4rAL44p+Pa5guMRviZX0VJUY//yvvHltybKNaP/gZoxHp
+jVorzLZo4TR+Lqj8Igg1
+=/b9l
 -----END PGP SIGNATURE-----
 
---IJpNTDwzlM2Ie8A6--
+--WplhKdTI2c8ulnbP--
