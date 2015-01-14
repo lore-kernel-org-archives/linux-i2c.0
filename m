@@ -1,59 +1,59 @@
-From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in
- i2c_del_adapter
-Date: Wed, 14 Jan 2015 12:41:22 -0800
-Message-ID: <20150114204122.GA31119@kroah.com>
-References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com>
- <20150113152957.GL7660@katana>
- <20150114144938.4e3c3f52@endymion.delvare>
- <B2D57D11-FBC2-432A-90E8-90E4CF8F716C@konsulko.com>
- <20150114161525.49c54acc@endymion.delvare>
- <20150114162442.GB18578@roeck-us.net>
- <20150114181426.3a39791b@endymion.delvare>
- <6680B42A-76E8-40CF-9574-ECD00B40AE98@konsulko.com>
+From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v4 0/3] Add I2C support to Broadcom iProc
+Date: Wed, 14 Jan 2015 14:23:30 -0800
+Message-ID: <1421274213-3544-1-git-send-email-rjui@broadcom.com>
+References: <Ray Jui <rjui@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <6680B42A-76E8-40CF-9574-ECD00B40AE98-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 14, 2015 at 07:24:22PM +0200, Pantelis Antoniou wrote:
-> I=E2=80=99ll try to dig around tomorrow and see what the real device =
-reference counts
-> are, but my hunch goes like this:
->=20
-> MUX
-> +=E2=80=94- ADAPTER
->     +=E2=80=94 DEV.
->=20
-> Mux remove method is called, i2c_del_mux_adapter is called on all the=
- channels
-> of the mux, calling in turn i2c_del_adapter which hangs on completion=
- of the
-> dev_released.
->=20
-> The call to device_unregister never calls the device_type callback (i=
-2c_adapter_dev_release)
-> because the reference count is not 1 at that point, someone else is h=
-aving another
-> reference.
+This patchset contains the initial I2C support for Broadcom iProc family of
+SoCs.
 
-Who has that reference?  It's not sysfs, right?  Or is it?  How is the
-remove method being called, is that coming from a sysfs file?
+The iProc I2C controller has separate internal TX and RX FIFOs, each has a
+size of 64 bytes. The iProc I2C controller supports two bus speeds including
+standard mode (100 kHz) and fast mode (400 kHz)
 
-Having that call "wait" for the other release call to happen is really
-old, as Jean points out, from 2003.  We have "fixed" sysfs since then t=
-o
-detach the files from the devices easier, we used to have some nasy
-reference count issues in that area.  Perhaps this isn't needed anymore=
-,
-I don't remember the i2c core code at all, that was a long time ago.
+Changes from v3:
+ - Add config dependency to COMPILE_TEST to allow the driver to be build tested
+   by other platforms
+ - Improve CPU utilization efficiency in the loop of waiting for bus to idle
+ - Add more comment in the driver to clarify the way how the "start busy"
+   interrupt is triggered from the I2C controller
+ - Fix inconsistent coding style and format
+ - Improve the bus speed validation logic in the driver
+ - Add code to free the interrupt line in driver's remove function. Also
+   change to use non-devm API to request the interrupt line
+ - Other miscellaneous improvements and fixes
 
-thanks,
+Changes from v2:
+ - Have the I2C driver default to y so it does not need to be selected from
+   ARCH_BCM_IPROC. This also helps to get rid of one patch. The driver still
+   depends on ARCH_BCM_IPROC
+ - Get rid of redundant check on resource returned by platform_get_resource
 
-greg k-h
+Changes from v1:
+ - Fix function argument parenthesis
+ - Get rid of redundant driver owner field
+
+Ray Jui (3):
+  i2c: iProc: define Broadcom iProc I2C binding
+  i2c: iproc: Add Broadcom iProc I2C Driver
+  ARM: dts: add I2C device nodes for Broadcom Cygnus
+
+ .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |   37 ++
+ arch/arm/boot/dts/bcm-cygnus.dtsi                  |   20 +
+ drivers/i2c/busses/Kconfig                         |   10 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-bcm-iproc.c                 |  503 ++++++++++++++++++++
+ 5 files changed, 571 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+ create mode 100644 drivers/i2c/busses/i2c-bcm-iproc.c
+
+-- 
+1.7.9.5
