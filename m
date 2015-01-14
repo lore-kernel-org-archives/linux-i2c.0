@@ -1,120 +1,64 @@
-From: Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH] i2c-ocores: add common clock support
-Date: Wed, 14 Jan 2015 13:21:39 +0300
-Message-ID: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Korsgaard <jacmet@sunsite.dk>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v6] i2c: cadence: Check for errata condition involving
+ master receive
+Date: Wed, 14 Jan 2015 11:37:18 +0100
+Message-ID: <20150114103718.GA2615@katana>
+References: <1421174099-19839-1-git-send-email-harinik@xilinx.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1421174099-19839-1-git-send-email-harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Allow bus clock specification as a common clock handle. This makes this
-controller easier to use in a setup based on common clock framework.
 
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
----
- .../devicetree/bindings/i2c/i2c-ocores.txt         |  4 ++-
- drivers/i2c/busses/i2c-ocores.c                    | 38 ++++++++++++++++++++--
- 2 files changed, 38 insertions(+), 4 deletions(-)
+--IJpNTDwzlM2Ie8A6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-index 1637c29..4b4c5a3 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-@@ -4,7 +4,9 @@ Required properties:
- - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
- - reg             : bus address start and address range size of device
- - interrupts      : interrupt number
--- clock-frequency : frequency of bus clock in Hz
-+- clk             : handle to bus clock (mutually exclusive with
-+                    clock-frequency)
-+- clock-frequency : frequency of bus clock in Hz (mutually exclusive with clk)
- - #address-cells  : should be <1>
- - #size-cells     : should be <0>
- 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 7249b5b..f97c5c8 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -12,6 +12,7 @@
-  * kind, whether express or implied.
-  */
- 
-+#include <linux/clk.h>
- #include <linux/err.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -36,6 +37,7 @@ struct ocores_i2c {
- 	int nmsgs;
- 	int state; /* see STATE_ */
- 	int clock_khz;
-+	struct clk *clk;
- 	void (*setreg)(struct ocores_i2c *i2c, int reg, u8 value);
- 	u8 (*getreg)(struct ocores_i2c *i2c, int reg);
- };
-@@ -320,9 +322,23 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
- 	}
- 
- 	if (of_property_read_u32(np, "clock-frequency", &val)) {
--		dev_err(&pdev->dev,
--			"Missing required parameter 'clock-frequency'\n");
--		return -ENODEV;
-+		struct clk *clk = devm_clk_get(&pdev->dev, NULL);
-+
-+		if (!IS_ERR(clk)) {
-+			int ret = clk_prepare_enable(clk);
-+
-+			if (ret) {
-+				dev_err(&pdev->dev,
-+					"clk_prepare_enable failed: %d\n", ret);
-+				return ret;
-+			}
-+			i2c->clk = clk;
-+			val = clk_get_rate(clk);
-+		} else {
-+			dev_err(&pdev->dev,
-+				"Missing required parameter 'clock-frequency'\n");
-+			return -ENODEV;
-+		}
- 	}
- 	i2c->clock_khz = val / 1000;
- 
-@@ -446,6 +462,9 @@ static int ocores_i2c_remove(struct platform_device *pdev)
- 	/* remove adapter & data */
- 	i2c_del_adapter(&i2c->adap);
- 
-+	if (i2c->clk)
-+		clk_disable_unprepare(i2c->clk);
-+
- 	return 0;
- }
- 
-@@ -458,6 +477,9 @@ static int ocores_i2c_suspend(struct device *dev)
- 	/* make sure the device is disabled */
- 	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
- 
-+	if (i2c->clk)
-+		clk_disable_unprepare(i2c->clk);
-+
- 	return 0;
- }
- 
-@@ -465,6 +487,16 @@ static int ocores_i2c_resume(struct device *dev)
- {
- 	struct ocores_i2c *i2c = dev_get_drvdata(dev);
- 
-+	if (i2c->clk) {
-+		int ret = clk_prepare_enable(i2c->clk);
-+
-+		if (ret) {
-+			dev_err(&pdev->dev,
-+				"clk_prepare_enable failed: %d\n", ret);
-+			return ret;
-+		}
-+	}
-+
- 	ocores_init(i2c);
- 
- 	return 0;
--- 
-1.8.1.4
+On Wed, Jan 14, 2015 at 12:04:59AM +0530, Harini Katakam wrote:
+> Cadence I2C controller has the following bugs:
+> - completion indication is not given to the driver at the end of
+> a read/receive transfer with HOLD bit set.
+> - Invalid read transaction are generated on the bus when HW timeout
+> condition occurs with HOLD bit set.
+>=20
+> As a result of the above, if a set of messages to be transferred with
+> repeated start includes any message following a read message,
+> completion is never indicated and timeout occurs.
+> Hence a check is implemented to return -EOPNOTSUPP for such sequences.
+>=20
+> Signed-off-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Vishnu Motghare <vishnum-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+
+Applied to for-next with some whitespace corrections, thanks!
+
+
+--IJpNTDwzlM2Ie8A6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUtkbdAAoJEBQN5MwUoCm2nfYP/0H8SYdWn4SA73uwqLFo9rob
+fBpN69GZPGko5lS36jDp4thSmBRJnQlaIQeQgA1IqG1ftmgWDgJAeCWpxfFxO6pt
+ZSDRtDzkQv+8I8hfNQa1dXH5a1/kiQ3WSqCFSFeIWIDsozjvy7shFab/JLvrX9/A
+Jd+NN/6ExJszXrUbOId9AqPIK2ZZZWy9iX60Z1fJSwRQsjw/uKq9QsmQQo2H9s3D
+QF3PiTionlpsT9LqfTRi+dD0o1eR8qC79gG369iJUkwsxTzNXwdWp54P5vP6/ZcY
+LGJV9HtZiSJhZMfcBWMH0weeZkEcw/8cWvsx7dwmSrL/utagYpol7dXXr5+pqlE4
+dxBJ/Evg3A3JNlouolGsDnSYEduypmBo5hFNXwa1Ivd4JTRYZJmxUDGee3syvcev
+pMjFA0akgNBdgLHnn4D+FzzvbKSO/3RAPDGKWG7dYRjTxc8s8MEr6X5Jm76tHsZw
+Ya3tCT3SYJY4ooLola2mTb6RcKx9KkZrvMlvc2EaBYSuXRbGBPlnVk1cXgkZp8KC
++G4KG/4X59LgrFLLfDPCEdxCl4KfZVSy9jmcd3gxjPkWqw+fAvjHq4bVcSm+L1/e
+j1Hs4FCMEaTfeqja3TKA+9xxkOriuStx99aKbQVM7Npk0xwoGa/n2acyPjh/tUzv
+wnMgyTHsEoDVi6uqvfba
+=Qtnr
+-----END PGP SIGNATURE-----
+
+--IJpNTDwzlM2Ie8A6--
