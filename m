@@ -1,50 +1,55 @@
-From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in i2c_del_adapter
-Date: Wed, 14 Jan 2015 16:18:56 +0200
-Message-ID: <AEACDB0B-BF24-422E-89E3-45B232E6E261@konsulko.com>
-References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com> <20150113152957.GL7660@katana> <20150114144938.4e3c3f52@endymion.delvare> <B2D57D11-FBC2-432A-90E8-90E4CF8F716C@konsulko.com> <54B679DC.40303@roeck-us.net>
-Mime-Version: 1.0 (Mac OS X Mail 8.1 \(1993\))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 2/3] i2c: imx: remove unused return value assignments
+Date: Wed, 14 Jan 2015 15:20:09 +0100
+Message-ID: <20150114142009.GB1598@katana>
+References: <1420555701-24645-1-git-send-email-p.zabel@pengutronix.de>
+ <1420555701-24645-2-git-send-email-p.zabel@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2B/JsCI69OhZNC5r"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54B679DC.40303-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1420555701-24645-2-git-send-email-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guenter,
 
-> On Jan 14, 2015, at 16:14 , Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
->=20
-> On 01/14/2015 05:54 AM, Pantelis Antoniou wrote:
->=20
->>> That being said, nobody complained about this in 11 years, so I wou=
-ld
->>> be surprised if it was plain wrong. I'd rather question the test co=
-de.
->>> Where is it?
->>>=20
->>=20
->> No-one has apparently tested removing an i2c mux device on a running=
- system
->> before.
->>=20
-> Hi Pantelis,
->=20
-> We didn't see the problem with 3.14. That was with an earlier version=
- of the
-> overlay patchset, though.
->=20
+--2B/JsCI69OhZNC5r
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There have been changes to the overlay patchset since then true, but I =
-don=E2=80=99t see
-how that would trigger a deadlock in i2c. The completion wait just seem=
-s bogus to me.
-
-> Guenter
+On Tue, Jan 06, 2015 at 03:48:20PM +0100, Philipp Zabel wrote:
+> The ret variable is set and never used in the error path of i2c_imx_dma_r=
+equest.
 >=20
+> Signed-off-by: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-Regards
+Applied to for-next, thanks!
 
-=E2=80=94 Pantelis
+
+--2B/JsCI69OhZNC5r
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUtnsZAAoJEBQN5MwUoCm2TLkP/jJDuUNhTdLMXk5PTI4uJXn4
+NB4zMive+H1wFkVBZaYlMufJEjQslrcubq5bbvpZ+pl0GgyYKIbLgxWZucvkD1WR
+Zoe/t1LafJhPOisV15Ct9uQbRBiA0MP20DZFbl5T7xrxnIlrBkcMcAXlmm51HW5m
+JK5fUNx/uesif49IaD+FqP4PkgFJ7bGhUOpKBJsfyGqgEs9AgEbY40Pv+f6s5TYO
+WI7qMc3U5IBhVz+jxxR/ycPxDb1pSiuvNlC20A5Sz6A3ZYu0/JvlLfjb+EvI1Zaf
+fiNWxJnp5FoFMu441x5UGN+cT8+WIEguH/rmd4h6NVdoc5kLy1IsvSbQToiVc9ks
+cT91ViZ4tGF9x3DvrUfL38Q90T7uw7LcAExjnSfEu/ECqJgESWAkM+iZkC8N5e5w
+N7sI3AWEZ6jCH39Jg7ktIfaC3HSL6+jfaFk8IPPlZ3vtA/G8q631KzbpJ6Gv5EBB
+019n2w5SoVjQDY3fhQM1lWBsXKskK13xx7hBhPnXgFbpGjp7v3P1xOcKsMcsX0tp
+H3tIDHPjFCwHszyRZq7orRqEVkDNMGcNlkWW/9Z6elgWKB95Hc61KOQw34Io6c7i
+6tkL32KMKXgRX+6zJ3k+e/VE5MMsBRKWwb+sBsXWoSA89NXBWks9/+i2Eg+u17xG
+scPXlUOz3kv0Z4ndD0uC
+=cFFY
+-----END PGP SIGNATURE-----
+
+--2B/JsCI69OhZNC5r--
