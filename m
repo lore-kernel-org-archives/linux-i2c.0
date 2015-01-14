@@ -1,82 +1,59 @@
-From: Ray Jui <rjui@broadcom.com>
-Subject: Re: [PATCH v3 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
-Date: Wed, 14 Jan 2015 12:05:20 -0800
-Message-ID: <54B6CC00.3050609@broadcom.com>
-References: <rjui@broadcom.com> <1418183832-24793-1-git-send-email-rjui@broadcom.com> <1418183832-24793-3-git-send-email-rjui@broadcom.com> <20150113225012.GK22880@pengutronix.de> <54B5D0F9.8030902@broadcom.com> <20150114075137.GL22880@pengutronix.de>
+From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in
+ i2c_del_adapter
+Date: Wed, 14 Jan 2015 12:41:22 -0800
+Message-ID: <20150114204122.GA31119@kroah.com>
+References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com>
+ <20150113152957.GL7660@katana>
+ <20150114144938.4e3c3f52@endymion.delvare>
+ <B2D57D11-FBC2-432A-90E8-90E4CF8F716C@konsulko.com>
+ <20150114161525.49c54acc@endymion.delvare>
+ <20150114162442.GB18578@roeck-us.net>
+ <20150114181426.3a39791b@endymion.delvare>
+ <6680B42A-76E8-40CF-9574-ECD00B40AE98@konsulko.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150114075137.GL22880@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Christian Daudt <bcm@fixthebug.org>, Matt Porter <mporter@linaro.org>, Florian Fainelli <f.fainelli@gmail.com>, Russell King <linux@arm.linux.org.uk>, Scott Branden <sbranden@broadcom.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <6680B42A-76E8-40CF-9574-ECD00B40AE98-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On 1/13/2015 11:51 PM, Uwe Kleine-K=F6nig wrote:
-> Hello,
+On Wed, Jan 14, 2015 at 07:24:22PM +0200, Pantelis Antoniou wrote:
+> I=E2=80=99ll try to dig around tomorrow and see what the real device =
+reference counts
+> are, but my hunch goes like this:
 >=20
-> On Tue, Jan 13, 2015 at 06:14:17PM -0800, Ray Jui wrote:
->>>> +	irq =3D platform_get_irq(pdev, 0);
->>>> +	if (irq < 0) {
->>> irq =3D=3D 0 should be handled as error, too.
->>>
->> Ah. I thought zero is a valid global interrupt number, and I see oth=
-er
->> drivers checking against < 0 as well. Is my understanding incorrect?
-> These are wrong, too. 0 should never be a valid interrupt number. The=
-re
-> are some exceptions but mostly for historic reasons. The right handli=
-ng
-> is used for example in drivers/i2c/busses/i2c-efm32.c.
+> MUX
+> +=E2=80=94- ADAPTER
+>     +=E2=80=94 DEV.
 >=20
-Okay. Will check against <=3D 0. Thanks.
+> Mux remove method is called, i2c_del_mux_adapter is called on all the=
+ channels
+> of the mux, calling in turn i2c_del_adapter which hangs on completion=
+ of the
+> dev_released.
+>=20
+> The call to device_unregister never calls the device_type callback (i=
+2c_adapter_dev_release)
+> because the reference count is not 1 at that point, someone else is h=
+aving another
+> reference.
 
->>>> +		dev_err(dev->device, "no irq resource\n");
->>>> +		return irq;
->>>> +	}
->> [...]
->>>> +static int bcm_iproc_i2c_remove(struct platform_device *pdev)
->>>> +{
->>>> +	struct bcm_iproc_i2c_dev *dev =3D platform_get_drvdata(pdev);
->>>> +
->>>> +	i2c_del_adapter(&dev->adapter);
->>>> +	bcm_iproc_i2c_disable(dev);
->>> I think you have a problem here if bcm_iproc_i2c_remove is called w=
-hile
->>> an irq is still being serviced. I'm not sure how to prevent this
->>> properly for a shared interrupt.
->>>
->> Can I grab i2c_lock_adapter to ensure the bus is locked (so there's =
-no
->> outstanding transactions or IRQs by the time we remove the adapter)?=
- But
->> I see no I2C bus driver does this in their remove function...
-> The problem I pointed out is the reason for some driver authors not t=
+Who has that reference?  It's not sysfs, right?  Or is it?  How is the
+remove method being called, is that coming from a sysfs file?
+
+Having that call "wait" for the other release call to happen is really
+old, as Jean points out, from 2003.  We have "fixed" sysfs since then t=
 o
-> use devm_request_irq. If you use plain request_irq and the matching
-> free_irq in the .remove callback you can be sure that the irq isn't
-> running any more as soon as free_irq returns.
->=20
-Okay. Will change to use request_irq and make sure that it's freed in
-the remove function. Also, the interrupt is dedicated to the I2C
-controller, so I'll remove the IRQF_SHARED flag.
+detach the files from the devices easier, we used to have some nasy
+reference count issues in that area.  Perhaps this isn't needed anymore=
+,
+I don't remember the i2c core code at all, that was a long time ago.
 
-> BTW, if you use vim, you can add
->=20
-> 	set cinoptions=3D(,:
-> 	if has("autocmd")
-> 		filetype plugin indent on
-> 	endif
->=20
-> to your .vimrc. Then while typing vim does the indention right and
-> consistent, and with the =3D command you can reindent.
->=20
-Wow this is excellent! Just tried and it works perfectly. Thanks a lot!=
-!!
+thanks,
 
-> Best regards
-> Uwe
->=20
+greg k-h
