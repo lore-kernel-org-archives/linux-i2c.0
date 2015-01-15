@@ -1,59 +1,47 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
-Date: Thu, 15 Jan 2015 18:51:26 +0100
-Message-ID: <CAMuHMdUwHde0EvbCD574L2tW6qqxLCtZwAb+0M-4QCjB9V6fmQ@mail.gmail.com>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<1421333655-31029-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<20150115170209.GA6342@katana>
-	<CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com>
-	<20150115174333.GC6342@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150115174333.GC6342@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
+Date: Thu, 15 Jan 2015 20:32:47 +0200
+Message-ID: <5F116C80-232D-4587-ACD1-F99C93262D7A@konsulko.com>
+References: <1421339635-16039-1-git-send-email-pantelis.antoniou@konsulko.com> <20150115173529.GB6342@katana>
+Mime-Version: 1.0 (Mac OS X Mail 8.1 \(1993\))
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150115173529.GB6342@katana>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 15, 2015 at 6:43 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
->> On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->> >> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
->> >> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
->> >> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
->> >>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
->> >>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
->> >>  adi,adxl345          Three-Axis Digital Accelerometer
->> >> -adi,adxl346          Three-Axis Digital Accelerometer
->> >> -adi,adxl34x          Three-Axis Digital Accelerometer
->> >> +adi,adxl346          Three-Axis Digital Accelerometer (backward-compatibility value "adi,adxl345" must be listed too)
->> >
->> > I'd rather drop 346 because there is no compatible for that one anywhere.
->> > No need to resend, I can fix it here...
->>
->> If you drop adi,adxl346, checkpatch will start complaining if it encounters
->> it in a .dts.
->
-> Boah, this is annoying. That means we need an 346 entry even if it is
-> not different from 345 (which is fine by me).
+Hi Wolfram,
 
-To be clear: you need the entry in the documentation. It can be omitted
-from the driver if it's not (yet) used for matching.
+> On Jan 15, 2015, at 19:35 , Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>=20
+> On Thu, Jan 15, 2015 at 06:33:55PM +0200, Pantelis Antoniou wrote:
+>> Mark (and unmark) device nodes with the POPULATE flag as appropriate=
+=2E
+>> This is required to avoid multi probing when using I2C and device
+>> overlays containing a mux.
+>> This patch is also more careful with the release of the adapter devi=
+ce
+>> which caused a deadlock with muxes.
+>>=20
+>> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+>=20
+> Applied to for-current, thanks!
+>=20
 
-> If checkpatch does it this way, that means the rule of thumb is to
-> *always* have a dedicated compatible entry? Can someone confirm this?
+Just sent an updated patch that doesn=E2=80=99t break the build on !OF;=
+ some
+OF accessors are not defined then.
 
-All compatible values that are in use must be documented.
-Checkpatch just greps in Documentation/devicetree/bindings/.
+Regards
 
-Gr{oetje,eeting}s,
+=E2=80=94 Pantelis
 
-                        Geert
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+To unsubscribe from this list: send the line "unsubscribe devicetree" i=
+n
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
