@@ -1,49 +1,92 @@
-From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Subject: Re: [PATCH v2] of: i2c: Add idle-disconnect DT property to PCA954x
- mux driver
-Date: Thu, 15 Jan 2015 14:35:02 +0100
-Message-ID: <54B7C206.8030809@nsn.com>
-References: <5494599A.8050803@nsn.com> <20150115123237.GC2549@katana> <54B7BBF5.4010001@nsn.com> <20150115131935.GE2549@katana>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH] input: adxl34x: Add OF match support
+Date: Thu, 15 Jan 2015 16:19:19 +0200
+Message-ID: <2054159.e1XeKNyynp@avalon>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <1492007.8cQN1myWLD@avalon> <20150115125321.GD2549@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150115131935.GE2549@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20150115125321.GD2549@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Wolfram,
 
-On 15/01/15 14:19, ext Wolfram Sang wrote:
->>>> of: i2c: Add idle-disconnect DT property to PCA954x mux driver
->>>> > >>
->>>> > >> Add idle-disconnect device tree property to PCA954x mux driver. The new property
->>>> > >> forces the multiplexer to disconnect child buses in idle state. This is used, for
->>>> > >> example, when there are several multiplexers on the same bus and the devices on
->>>> > >> the underlying buses might have same I2C addresses.
->>> > > 
->>> > > Basically OK. Question to DT maintainers: "idle-disconnect",
->>> > > "i2c-mux-idle-disconnect", or is there another existing binding we could
->>> > > use?
->>> > > 
->>>> > >> At the same time old (and not used in the tree) platform data binding
->>>> > >> deselect_on_exit is removed to simplify the implementation. Old binding has
->>>> > >> different (per-channel) semantics and doesn't fit well in the new concept.
->>> > > 
->>> > > I'd prefer to keep it. It should be only one || more. It is not really
->>> > > in the way IMO.
->> > 
->> > It complicates the implementation 3x times :) This is part of our discussion with Laurent:
-> Does it? I don't want DT and platform_data to behave equally. I just
-> want to keep being backwards compatible. So, I'd suggest:
+On Thursday 15 January 2015 13:53:22 Wolfram Sang wrote:
+> On Thu, Dec 18, 2014 at 02:49:28PM +0200, Laurent Pinchart wrote:
+> > On Thursday 18 December 2014 09:21:51 Wolfram Sang wrote:
+> >> On Thu, Dec 18, 2014 at 04:15:23AM +0200, Laurent Pinchart wrote:
+> >>> The I2C subsystem can match devices without explicit OF support based
+> >>> on the part of their compatible property after the comma. However,
+> >>> this mechanism uses the first compatible value only. For adxl34x OF
+> >>> device nodes the compatible property should list the more specific
+> >>> "adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
+> >>> fallback value second. This prevents the device node from being
+> >>> matched with the adxl34x driver.
+> >>> 
+> >>> Fix this by adding an OF match table with an "adi,adxl34x" compatible
+> >>> entry.
+> >>> 
+> >>> Signed-off-by: Laurent Pinchart
+> >>> <laurent.pinchart+renesas@ideasonboard.com>
+> >>> ---
+> >>> 
+> >>>  drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
+> >>>  1 file changed, 11 insertions(+)
+> >>> 
+> >>> Another option would have been to add "adxl325" and "adxl326" entries
+> >>> to the adxl34x_id I2C match table, but it would have had the drawback
+> >>> of requiring a driver update for every new device.
+> >> 
+> >> AFAIK this is even required for compatible entries, to be as specific as
+> >> possible. I think this makes sense. With platform_ids, we already had
+> >> the problem that pca954x was too generic and was used for both GPIO
+> >> extenders and I2C muxers (IIRC).
+> > 
+> > There are three compatible strings defined for the ADXL345 and ADXL346 in
+> > Documentation/devicetree/bindings/i2c/trivial-devices.txt: "adi,adxl345",
+> > "adi,adxl346", "adi,adxl34x". Given that the last one is a fallback for
+> > the first two I don't see a need to add the specific compatible strings to
+> > the driver for now. If a new totally incompatible chip named ADXL347 comes
+> > out we will need a new driver which won't be allowed to use the
+> > "adi,adxl34x" compatible string.
 > 
-> (pdata && pdata->modes[num].deselect_on_exit) || idle_disconnect ? pca954x_deselect_mux : NULL);
+> Been there, got bitten. We only found out too late, because one driver
+> was in i2c and the other in GPIO (or LED even?), both using "953x" :(
 
-you are right, thanks for the hint :)
-I'll prepare v3...
+That seems like a development, review and/or merge process failure to me, I 
+wouldn't avoid generic compatible strings for that reason only.
+
+> > An option would be to remove "adi,adxl34x" from
+> > Documentation/devicetree/bindings/i2c/trivial-devices.txt, in which case
+> > the driver should match explicitly on "adi,adxl345" and "adi,adxl346".
+> > That might clash with the DT ABI stability requirements though.
+> 
+> I do prefer this:
+> 
+> 1) add specific compatible values to the driver. We do those updates for
+> new devices all the time
+
+Do you mean OF compatible values, or I2C match table entries ? I assume OF 
+compatible values.
+
+As the ADXL346 is backward-compatible with the ADXL345, and as the driver 
+doesn't support the ADXL346-specific features, how about adding only the 
+adxl345 for now, and using compatible = "adi,adxl346", "adi,adxl345"; for the 
+ADXL346 ?
+
+> 2) also add "34x" as a compatible but mark it as deprecateed
+> 3) delete "34x" from trivial devices
+
+OK.
+
+> Everyone OK with that?
 
 -- 
-Best regards,
-Alexander Sverdlin.
+Regards,
+
+Laurent Pinchart
+
