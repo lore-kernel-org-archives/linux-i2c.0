@@ -1,57 +1,293 @@
 From: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH V4 0/2] i2c-designware: Add Intel Baytrail pmic i2c bus support
-Date: Thu, 15 Jan 2015 01:12:15 -0800
-Message-ID: <1421313137-1613-1-git-send-email-david.e.box@linux.intel.com>
-References: <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
+Subject: [PATCH V4 2/2] i2c-designware: Add Intel Baytrail PMIC I2C bus support
+Date: Thu, 15 Jan 2015 01:12:17 -0800
+Message-ID: <1421313137-1613-3-git-send-email-david.e.box@linux.intel.com>
+References: <1421313137-1613-1-git-send-email-david.e.box@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1421313137-1613-1-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 In-Reply-To: <1417478973-25522-1-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+References: <1417478973-25522-1-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-V4:	- Added bus lock to i2c_dw_init() as suggested by Jarrko Nikula
-	  <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>. Addresses infrequent hang that was
-	  seen occuring during probe.
-	- Added label in i2c_dw_xfer() to bypass unnecessary lock release when
-	  acquire fails. Suggested by Mika.
-	- Changed make to build driver as composite addition to
-	  i2c-designware-platform. Driver can be module or built-in following
-	  the platform driver selection. Tested as both.
-	- Added EPROBE_DEFER return to baytrail definition of i2c_dw_eval_lock()
-	  to defer probe if iosf_mbi driver (required for acquring bus lock) is
-	  not available.
+This patch implements an I2C bus sharing mechanism between the host and platform
+hardware on select Intel BayTrail SoC platforms using the X-Powers AXP288 PMIC.
 
-V3:	- Split lock support and driver into separate patches
-	- Change module build to bool. Platforms running without this driver
-	  cannot perform critical functions such as charging. Furthermore attempts
-	  by other drivers to access the i2c bus without a lock will hang the
-	  platform.
-	- Replaced has_hw_lock flag with acquire/release function pointers.
-	- Replaced acquire/release ifdef code with single
-	  i2c_dw_eval_lock_support() test for cleaner (if still undesirable)
-	  compile time scalability. Future Intel platforms will however continue
-	  to use the Baytrail driver.
+On these platforms access to the PMIC must be shared with platform hardware. The
+hardware unit assumes full control of the I2C bus and the host must request
+access through a special semaphore. Hardware control of the bus also makes it
+necessary to disable runtime pm to avoid interfering with hardware transactions.
 
-V2:	- Moved semaphore detection out of dw platform driver
-	- Replaced function pointers with defined acquire/release functions in
-	  dw core. This helps eliminate the ifdefery in the dw platform driver.
-	- Use new has_hw_lock flag to check if the lock exists on a given bus.
-	- Use new pm_runtime_disabled flag to conditionally turnoff runtime pm
-	  in the dw platform driver.
-
-David E. Box (2):
-  i2c-designware: Add i2c bus locking support
-  i2c-designware: Add Intel Baytrail PMIC I2C bus support
-
+Signed-off-by: David E. Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
  drivers/i2c/busses/Kconfig                   |  11 ++
  drivers/i2c/busses/Makefile                  |   1 +
  drivers/i2c/busses/i2c-designware-baytrail.c | 160 +++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-core.c     |  26 +++++
- drivers/i2c/busses/i2c-designware-core.h     |  12 ++
+ drivers/i2c/busses/i2c-designware-core.h     |   6 +
  drivers/i2c/busses/i2c-designware-platdrv.c  |  20 +++-
- 6 files changed, 225 insertions(+), 5 deletions(-)
+ 5 files changed, 193 insertions(+), 5 deletions(-)
  create mode 100644 drivers/i2c/busses/i2c-designware-baytrail.c
 
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 917c358..9a83c46 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -464,6 +464,17 @@ config I2C_DESIGNWARE_PCI
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-designware-pci.
+ 
++config I2C_DESIGNWARE_BAYTRAIL
++	bool "Intel Baytrail I2C semaphore support"
++	depends on I2C_DESIGNWARE_PLATFORM
++	select IOSF_MBI
++	help
++	  This driver enables managed host access to the PMIC I2C bus on select
++	  Intel BayTrail platforms using the X-Powers AXP288 PMIC. It allows
++	  the host to request uninterrupted access to the PMIC's I2C bus from
++	  the platform firmware controlling it. You should say Y if running on
++	  a BayTrail system using the AXP288.
++
+ config I2C_EFM32
+ 	tristate "EFM32 I2C controller"
+ 	depends on ARCH_EFM32 || COMPILE_TEST
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 78d56c5..15b2965 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -41,6 +41,7 @@ obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
+ obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+= i2c-designware-core.o
+ obj-$(CONFIG_I2C_DESIGNWARE_PLATFORM)	+= i2c-designware-platform.o
+ i2c-designware-platform-objs := i2c-designware-platdrv.o
++i2c-designware-platform-$(CONFIG_I2C_DESIGNWARE_BAYTRAIL) += i2c-designware-baytrail.o
+ obj-$(CONFIG_I2C_DESIGNWARE_PCI)	+= i2c-designware-pci.o
+ i2c-designware-pci-objs := i2c-designware-pcidrv.o
+ obj-$(CONFIG_I2C_EFM32)		+= i2c-efm32.o
+diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
+new file mode 100644
+index 0000000..5f1ff4c
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+@@ -0,0 +1,160 @@
++/*
++ * Intel BayTrail PMIC I2C bus semaphore implementaion
++ * Copyright (c) 2014, Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms and conditions of the GNU General Public License,
++ * version 2, as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ */
++#include <linux/module.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/acpi.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <asm/iosf_mbi.h>
++#include "i2c-designware-core.h"
++
++#define SEMAPHORE_TIMEOUT	100
++#define PUNIT_SEMAPHORE		0x7
++
++static unsigned long acquired;
++
++static int get_sem(struct device *dev, u32 *sem)
++{
++	u32 reg_val;
++	int ret;
++
++	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_READ, PUNIT_SEMAPHORE,
++			    &reg_val);
++	if (ret) {
++		dev_err(dev, "iosf failed to read punit semaphore\n");
++		return ret;
++	}
++
++	*sem = reg_val & 0x1;
++
++	return 0;
++}
++
++static void reset_semaphore(struct device *dev)
++{
++	u32 data;
++
++	if (iosf_mbi_read(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_READ,
++				PUNIT_SEMAPHORE, &data)) {
++		dev_err(dev, "iosf failed to reset punit semaphore during read\n");
++		return;
++	}
++
++	data = data & 0xfffffffe;
++	if (iosf_mbi_write(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_WRITE,
++				 PUNIT_SEMAPHORE, data))
++		dev_err(dev, "iosf failed to reset punit semaphore during write\n");
++}
++
++int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
++{
++	u32 sem = 0;
++	int ret;
++	unsigned long start, end;
++
++	if (!dev || !dev->dev)
++		return -ENODEV;
++
++	if (!dev->acquire_lock)
++		return 0;
++
++	/* host driver writes 0x2 to side band semaphore register */
++	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_WRITE,
++				 PUNIT_SEMAPHORE, 0x2);
++	if (ret) {
++		dev_err(dev->dev, "iosf punit semaphore request failed\n");
++		return ret;
++	}
++
++	/* host driver waits for bit 0 to be set in semaphore register */
++	start = jiffies;
++	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
++	while (!time_after(jiffies, end)) {
++		ret = get_sem(dev->dev, &sem);
++		if (!ret && sem) {
++			acquired = jiffies;
++			dev_dbg(dev->dev, "punit semaphore acquired after %ums\n",
++				jiffies_to_msecs(jiffies - start));
++			return 0;
++		}
++
++		usleep_range(1000, 2000);
++	}
++
++	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
++	reset_semaphore(dev->dev);
++
++	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_READ,
++		PUNIT_SEMAPHORE, &sem);
++	if (!ret)
++		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
++	else
++		dev_err(dev->dev, "PUNIT SEM: %d\n", sem);
++
++	WARN_ON(1);
++
++	return -ETIMEDOUT;
++}
++EXPORT_SYMBOL(baytrail_i2c_acquire);
++
++void baytrail_i2c_release(struct dw_i2c_dev *dev)
++{
++	if (!dev || !dev->dev)
++		return;
++
++	if (!dev->acquire_lock)
++		return;
++
++	reset_semaphore(dev->dev);
++	dev_dbg(dev->dev, "punit semaphore held for %ums\n",
++		jiffies_to_msecs(jiffies - acquired));
++}
++EXPORT_SYMBOL(baytrail_i2c_release);
++
++int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
++{
++	acpi_status status;
++	unsigned long long shared_host = 0;
++	acpi_handle handle;
++
++	if (!dev || !dev->dev)
++		return 0;
++
++	handle = ACPI_HANDLE(dev->dev);
++	if (!handle)
++		return 0;
++
++	status = acpi_evaluate_integer(handle, "_SEM", NULL, &shared_host);
++
++	if (ACPI_FAILURE(status))
++		return 0;
++
++	if (shared_host) {
++		dev_info(dev->dev, "I2C bus managed by PUNIT\n");
++		dev->acquire_lock = baytrail_i2c_acquire;
++		dev->release_lock = baytrail_i2c_release;
++		dev->pm_runtime_disabled = true;
++	}
++
++	if (!iosf_mbi_available())
++		return -EPROBE_DEFER;
++
++	return 0;
++}
++EXPORT_SYMBOL(i2c_dw_eval_lock_support);
++
++MODULE_AUTHOR("David E. Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>");
++MODULE_DESCRIPTION("Baytrail I2C Semaphore driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index a472c91..92ceb65 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -129,3 +129,9 @@ extern void i2c_dw_disable(struct dw_i2c_dev *dev);
+ extern void i2c_dw_clear_int(struct dw_i2c_dev *dev);
+ extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
+ extern u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev);
++
++#if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
++extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
++#else
++static inline int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev) { return 0; }
++#endif
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index a743115..ac32414 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -199,6 +199,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 			clk_freq = pdata->i2c_scl_freq;
+ 	}
+ 
++	r = i2c_dw_eval_lock_support(dev);
++	if (r)
++		return r;
++
+ 	dev->functionality =
+ 		I2C_FUNC_I2C |
+ 		I2C_FUNC_10BIT_ADDR |
+@@ -261,10 +265,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		return r;
+ 	}
+ 
+-	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
+-	pm_runtime_use_autosuspend(&pdev->dev);
+-	pm_runtime_set_active(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
++	if (dev->pm_runtime_disabled) {
++		pm_runtime_forbid(&pdev->dev);
++	} else {
++		pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
++		pm_runtime_use_autosuspend(&pdev->dev);
++		pm_runtime_set_active(&pdev->dev);
++		pm_runtime_enable(&pdev->dev);
++	}
+ 
+ 	return 0;
+ }
+@@ -314,7 +322,9 @@ static int dw_i2c_resume(struct device *dev)
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
+ 	clk_prepare_enable(i_dev->clk);
+-	i2c_dw_init(i_dev);
++
++	if (!i_dev->pm_runtime_disabled)
++		i2c_dw_init(i_dev);
+ 
+ 	return 0;
+ }
 -- 
 1.9.1
