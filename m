@@ -1,84 +1,74 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
-Date: Thu, 15 Jan 2015 13:07:05 +0100
-Message-ID: <20150115120704.GB2549@katana>
-References: <rjui@broadcom.com>
- <1421274213-3544-1-git-send-email-rjui@broadcom.com>
- <1421274213-3544-3-git-send-email-rjui@broadcom.com>
- <20150115084119.GN22880@pengutronix.de>
+Subject: Re: [PATCH v2] of: i2c: Add idle-disconnect DT property to PCA954x
+ mux driver
+Date: Thu, 15 Jan 2015 13:32:37 +0100
+Message-ID: <20150115123237.GC2549@katana>
+References: <5494599A.8050803@nsn.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
+	protocol="application/pgp-signature"; boundary="32u276st3Jlj2kUU"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150115084119.GN22880-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <5494599A.8050803-OYasijW0DpE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---f2QGlHpHGjS2mn6Y
+--32u276st3Jlj2kUU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Dec 19, 2014 at 06:00:10PM +0100, Alexander Sverdlin wrote:
+> of: i2c: Add idle-disconnect DT property to PCA954x mux driver
+>=20
+> Add idle-disconnect device tree property to PCA954x mux driver. The new p=
+roperty
+> forces the multiplexer to disconnect child buses in idle state. This is u=
+sed, for
+> example, when there are several multiplexers on the same bus and the devi=
+ces on
+> the underlying buses might have same I2C addresses.
 
-> > +	iproc_i2c->msg = msg;
-> Can it happen that iproc_i2c->msg still holds an uncompleted message
-> here or is this serialized by the core? Wolfram? Either here something
+Basically OK. Question to DT maintainers: "idle-disconnect",
+"i2c-mux-idle-disconnect", or is there another existing binding we could
+use?
 
-We have per-adapter locks serializing transfers, if you mean that?
+> At the same time old (and not used in the tree) platform data binding
+> deselect_on_exit is removed to simplify the implementation. Old binding h=
+as
+> different (per-channel) semantics and doesn't fit well in the new concept.
 
-> > +static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i2c)
-> > +{
-> > +	unsigned int bus_speed, speed_bit;
-> > +	u32 val;
-> > +	int ret = of_property_read_u32(iproc_i2c->device->of_node,
-> > +				       "clock-frequency", &bus_speed);
-> > +	if (ret < 0) {
-> > +		dev_err(iproc_i2c->device,
-> > +			"missing clock-frequency property\n");
-> > +		return -ENODEV;
-> Is a missing property the only situation where of_property_read_u32
-> returns an error? Would it be sane to default to 100 kHz?
+I'd prefer to keep it. It should be only one || more. It is not really
+in the way IMO.
 
-Default of 100kHz instead of -ENODEV sounds very reasonable.
-
-> > +static int bcm_iproc_i2c_remove(struct platform_device *pdev)
-> > +{
-> > +	struct bcm_iproc_i2c_dev *iproc_i2c = platform_get_drvdata(pdev);
-> > +
-> > +	i2c_del_adapter(&iproc_i2c->adapter);
-> You need to free the irq before i2c_del_adapter.
-
-One could also keep using devm_request_irq and disable all interrupts
-sources here?
-
-Thanks for the reviews, Uwe!
+Thanks,
 
    Wolfram
 
 
---f2QGlHpHGjS2mn6Y
+--32u276st3Jlj2kUU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUt61oAAoJEBQN5MwUoCm2NBUP/0gGYZRq83QMbPHm5H9LPpmj
-uRvfNtoFlZGa4ZlwfmfPs4HseBOme3ppPc4/QMl283S3QcZufrpq/bP3l2H6cmXi
-2WtirS/IYL2PvdzbRgVTR5SeCnmBhPEndA0K4J9+HejGUhOf7Q6PonrfAjP1jG8v
-cBbC0PgUXSkPFQszp4th2cax4nS9Bjz8hPqrG1uKqS7siv0niGLV+CKuXnc3a59Q
-udJGCsCZhvfqND5Dl+nOgxyR/teOguL9pCaQ8s8hX21FGuAIiUlPBk5/wB2UJVln
-EPkl9+GevP9oQK/9ZyXLF0RoSaeeeX2yDRrmx4aRDnoSH+RBUL833f3K+JnW3kSP
-v0MiiDo7YSp1W6t4g+kUn+AplH9PDbkH9QRy1ssmJ2tSuGxhUsL+SEf+fAMXtp64
-CkF4wqn6Q092ZE0qmBM7X13hoIkRTvWaqDNW5U8+zakqR+8WfxubXMBAfU1U+ZLc
-NdVrhy0dx4xcTSa82w19E7yx8G0J5Zdhe7xxqcx3ct0PJbMcnHMRuIhtkNXgAUSp
-ybTjqmrkF1gNU9+MCmhrNo8fnWObK0U5CrTDYh6Acdi2Nqs1tBIlUOEHOSCVmLPn
-uoD/5CTrRJkV1HppxxwC1jGGxxMXTFzbffnCTTya1XqP2yyTdPntXSUsHQfE458s
-mgImHzp7eZfC/fVBtiVT
-=C66l
+iQIcBAEBAgAGBQJUt7NlAAoJEBQN5MwUoCm20wIP/0tKzVdSapjhtMaEhGLsWYMc
+4HnwjuSNlWFZnOaRkJG4nQkH12NHcR/tU9YxS44N32np7hd9mLOIHfp8ZydBiEd5
+4SfMJzl7PmPVkFOg5d5BiGkxOhk4TWsZDw8laNs/DhyeQ32nN85kcK4abQYe/Jf6
+AJe0YefBaK2FTkGDKsZkxnWSVQjcNsL0PiV0IbYzq7EcACVczKCIIzWYrexzvizQ
+j/ljL7TYkOGTWH22f8P+VHyFLiNkcSs/ZCUSwcMf40jw2xm6gEZTdb5QM/KPoS9D
+fri7Mp1bzqRmjOIJV0VWwCEhTSqCxtN9Zq5mTS9a7pJp/OU7pbzp8k0ObNXh28Bn
+gdZJjBRApJlQOkk0duyqnB0hxa+pgovdm8ZW2v5peitCfuXWNTpG9uT/GAa8Zf8Y
+14RIufjOXjsMz14uCXLC919YuZ4ItOHLS76Yo+2/Z1kaV4Y6cwVIiCbnMQoDpDpA
+AxZrjvJmrNYb7UKDBHv8vpiBxM9kfDFTXMVGnlLuTaF3QueT58GpEEc4CDyDsbCi
+rMU98ulNqoo9d1mFbMJQW53jMSagLO/8NzpDJX69am0PM3w4eP8cowpeewk5mxt+
+gdZsbET+I8JIhfZcIRZ8w3i6AbDj7BVjVBCxzAdV6OTUH33nFkCHWGRCj5zgL+Kf
+YJlGeVG4tm3rL/mRVQpI
+=0zMi
 -----END PGP SIGNATURE-----
 
---f2QGlHpHGjS2mn6Y--
+--32u276st3Jlj2kUU--
