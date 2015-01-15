@@ -1,61 +1,78 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
-Date: Thu, 15 Jan 2015 18:35:29 +0100
-Message-ID: <20150115173529.GB6342@katana>
-References: <1421339635-16039-1-git-send-email-pantelis.antoniou@konsulko.com>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Thu, 15 Jan 2015 18:43:33 +0100
+Message-ID: <20150115174333.GC6342@katana>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1421333655-31029-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <20150115170209.GA6342@katana>
+ <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="E/DnYTRukya0zdZ1"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1421339635-16039-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+In-Reply-To: <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---s/l3CgOIzMHHjg/5
+--E/DnYTRukya0zdZ1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 15, 2015 at 06:33:55PM +0200, Pantelis Antoniou wrote:
-> Mark (and unmark) device nodes with the POPULATE flag as appropriate.
-> This is required to avoid multi probing when using I2C and device
-> overlays containing a mux.
-> This patch is also more careful with the release of the adapter device
-> which caused a deadlock with muxes.
+On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
+> On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> >> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
+> >>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
+> >>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
+> >>  adi,adxl345          Three-Axis Digital Accelerometer
+> >> -adi,adxl346          Three-Axis Digital Accelerometer
+> >> -adi,adxl34x          Three-Axis Digital Accelerometer
+> >> +adi,adxl346          Three-Axis Digital Accelerometer (backward-compa=
+tibility value "adi,adxl345" must be listed too)
+> >
+> > I'd rather drop 346 because there is no compatible for that one anywher=
+e.
+> > No need to resend, I can fix it here...
 >=20
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+> If you drop adi,adxl346, checkpatch will start complaining if it encounte=
+rs
+> it in a .dts.
 
-Applied to for-current, thanks!
+Boah, this is annoying. That means we need an 346 entry even if it is
+not different from 345 (which is fine by me).
+
+If checkpatch does it this way, that means the rule of thumb is to
+*always* have a dedicated compatible entry? Can someone confirm this?
+
+Why did we discuss then? Now, I am confused as well...
 
 
---s/l3CgOIzMHHjg/5
+--E/DnYTRukya0zdZ1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUt/phAAoJEBQN5MwUoCm24w0P/0+Xby0Mz5k7tK9vL/LzgtkU
-NV81emFIXFbxDxO8b5Rq8TX3KHCMxdrG80wEQtPN9S3U+61BZnny5RWfFLlq6fGZ
-fQgnOrAIK7/02dswlWSmVVjFM8G7EkrIH2OQ+kbLSr6cPa4+9y+Kj9khSvL4nAm7
-xcE9fZcYDwufFv3f6v8ubZ9KCjv9rZvXGu5IKI/PhS5gSVwU5do4cl0V7mD7y6u8
-Lajr2hgVyCL2v+VQdSDl+YIPr9JAD7+ld7Gj7C1FNdY1roK+10qvHi/U3yRvqEM5
-ghwKoHU8JbU9sLabr7ifEFOzUvJ3YWOlOJ/pbPQYuSKaCpa6ipNnUrK8kdPgLk7p
-Xh/Qo/rll4n/775UlDUafe22Ojnv4Rjnl1e4QnbM5DWIbF7X+Eug/JBlEbAoG5eI
-VDnmHqTdGZhMU/kPGWxzbwPZ8h9nMGDApbOPRntNpa8kBf5ilxNbpWeWldhGGK+8
-YGR/f44460zaqdp17FWsUaLfnFK3qZpw9P2Z0ZeESaNEtuxyQmft0ED4FLts7zEO
-XUvq2gVRub5R9FQ0PzWlEDh7CDW7IYmDNu4ksFZIEYJpwgOW9SkRxvrgvXjGllgu
-J9WDhZn75aHubX2B9dc80EPE3hk6mzsgYQ4zQE6qECRHav5opeNrKjXPHYMI4hG3
-ouqbUGF4ltmRuQ94EgR8
-=1b1a
+iQIcBAEBAgAGBQJUt/xFAAoJEBQN5MwUoCm2k5wP/1hCMgyCmq6Hd5gNycHDE54K
+Pq28xRysXAAsXkSCyMDug5Y2l98RNMgwuXsvgOrDpILpTYF5LB2sk21Aa6Ik5mss
+gahJqVof+jQxKXwxjtHmGZpXZCq95aF4wPw6+Tg6zTanWtdNcTB59uMyZC7ieLr5
+SXpUU75Xhg5V3svJs2En6fKTuboGE8iAVJbZyldKuDnNp2bvGkzmYTVnOdqoaR3u
+VeyeV+69eiq20qfEgzX8PrsuKeMns34xyZNETgWRdXy8raXFenzQhz29+p5tMSMu
+gRPun7f9OzHvRVCIOgFZvG3o7z0TOJBBWaumoVGCatiqhWvdYSVzorHxW2M+I0AX
+pX6QvDilZAlrWa1j1KJ/GYtulsiGrvUGanwztm9pUTXqbrY5zu72I1B4nlabioVt
+RxpT/81Y67IrwSvL/eK1Emrh2fo0SNEhHsNqKFctDn4hr3D9dzrq5cnntO8XQUyZ
+nvn4GFxvbzJRPtdrpzD2stEt2Rvd59OR/L6c17h0LCOA4A60SfmRJ9IxFtrxlUdr
+jMBDVIu1PLOnVbkGoVTAuhyeOMfKFTQaj/gfIG3jrp6wTBHo/3niKMUC8CyFh8ce
+FfO5DxlVGuMvUsJnICnZ/2HgFUR5avX/ADgWFH2D8vZkf0eFD7hduisRu73oiSRN
+LLfY8XyQdtH/LrzvYWKs
+=G0qK
 -----END PGP SIGNATURE-----
 
---s/l3CgOIzMHHjg/5--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--E/DnYTRukya0zdZ1--
