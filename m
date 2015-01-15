@@ -1,74 +1,119 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] of: i2c: Add idle-disconnect DT property to PCA954x
- mux driver
-Date: Thu, 15 Jan 2015 13:32:37 +0100
-Message-ID: <20150115123237.GC2549@katana>
-References: <5494599A.8050803@nsn.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] input: adxl34x: Add OF match support
+Date: Thu, 15 Jan 2015 13:53:22 +0100
+Message-ID: <20150115125321.GD2549@katana>
+References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <20141218082151.GA1038@katana>
+ <1492007.8cQN1myWLD@avalon>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="32u276st3Jlj2kUU"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="2Z2K0IlrPCVsbNpk"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5494599A.8050803-OYasijW0DpE@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1492007.8cQN1myWLD@avalon>
+Sender: linux-sh-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, linux-input@vger.kernel.org, linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
 
---32u276st3Jlj2kUU
+--2Z2K0IlrPCVsbNpk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 19, 2014 at 06:00:10PM +0100, Alexander Sverdlin wrote:
-> of: i2c: Add idle-disconnect DT property to PCA954x mux driver
+On Thu, Dec 18, 2014 at 02:49:28PM +0200, Laurent Pinchart wrote:
+> Hi Wolfram,
 >=20
-> Add idle-disconnect device tree property to PCA954x mux driver. The new p=
-roperty
-> forces the multiplexer to disconnect child buses in idle state. This is u=
-sed, for
-> example, when there are several multiplexers on the same bus and the devi=
-ces on
-> the underlying buses might have same I2C addresses.
+> On Thursday 18 December 2014 09:21:51 Wolfram Sang wrote:
+> > On Thu, Dec 18, 2014 at 04:15:23AM +0200, Laurent Pinchart wrote:
+> > > The I2C subsystem can match devices without explicit OF support based=
+ on
+> > > the part of their compatible property after the comma. However, this
+> > > mechanism uses the first compatible value only. For adxl34x OF device
+> > > nodes the compatible property should list the more specific
+> > > "adi,adxl345" or "adi,adxl346" value first and the "adi,adxl34x"
+> > > fallback value second. This prevents the device node from being match=
+ed
+> > > with the adxl34x driver.
+> > >=20
+> > > Fix this by adding an OF match table with an "adi,adxl34x" compatible
+> > > entry.
+> > >=20
+> > > Signed-off-by: Laurent Pinchart
+> > > <laurent.pinchart+renesas@ideasonboard.com>
+> > > ---
+> > >=20
+> > >  drivers/input/misc/adxl34x-i2c.c | 11 +++++++++++
+> > >  1 file changed, 11 insertions(+)
+> > >=20
+> > > Another option would have been to add "adxl325" and "adxl326" entries=
+ to
+> > > the adxl34x_id I2C match table, but it would have had the drawback of
+> > > requiring a driver update for every new device.
+> >=20
+> > AFAIK this is even required for compatible entries, to be as specific as
+> > possible. I think this makes sense. With platform_ids, we already had
+> > the problem that pca954x was too generic and was used for both GPIO
+> > extenders and I2C muxers (IIRC).
+>=20
+> There are three compatible strings defined for the ADXL345 and ADXL346 in=
+=20
+> Documentation/devicetree/bindings/i2c/trivial-devices.txt: "adi,adxl345",=
+=20
+> "adi,adxl346", "adi,adxl34x". Given that the last one is a fallback for t=
+he=20
+> first two I don't see a need to add the specific compatible strings to th=
+e=20
+> driver for now. If a new totally incompatible chip named ADXL347 comes ou=
+t we=20
+> will need a new driver which won't be allowed to use the "adi,adxl34x"=20
+> compatible string.
 
-Basically OK. Question to DT maintainers: "idle-disconnect",
-"i2c-mux-idle-disconnect", or is there another existing binding we could
-use?
+Been there, got bitten. We only found out too late, because one driver
+was in i2c and the other in GPIO (or LED even?), both using "953x" :(
 
-> At the same time old (and not used in the tree) platform data binding
-> deselect_on_exit is removed to simplify the implementation. Old binding h=
-as
-> different (per-channel) semantics and doesn't fit well in the new concept.
+> An option would be to remove "adi,adxl34x" from=20
+> Documentation/devicetree/bindings/i2c/trivial-devices.txt, in which case =
+the=20
+> driver should match explicitly on "adi,adxl345" and "adi,adxl346". That m=
+ight=20
+> clash with the DT ABI stability requirements though.
 
-I'd prefer to keep it. It should be only one || more. It is not really
-in the way IMO.
+I do prefer this:
+
+1) add specific compatible values to the driver. We do those updates for
+new devices all the time
+2) also add "34x" as a compatible but mark it as deprecateed
+3) delete "34x" from trivial devices
+
+Everyone OK with that?
 
 Thanks,
 
    Wolfram
 
 
---32u276st3Jlj2kUU
+--2Z2K0IlrPCVsbNpk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUt7NlAAoJEBQN5MwUoCm20wIP/0tKzVdSapjhtMaEhGLsWYMc
-4HnwjuSNlWFZnOaRkJG4nQkH12NHcR/tU9YxS44N32np7hd9mLOIHfp8ZydBiEd5
-4SfMJzl7PmPVkFOg5d5BiGkxOhk4TWsZDw8laNs/DhyeQ32nN85kcK4abQYe/Jf6
-AJe0YefBaK2FTkGDKsZkxnWSVQjcNsL0PiV0IbYzq7EcACVczKCIIzWYrexzvizQ
-j/ljL7TYkOGTWH22f8P+VHyFLiNkcSs/ZCUSwcMf40jw2xm6gEZTdb5QM/KPoS9D
-fri7Mp1bzqRmjOIJV0VWwCEhTSqCxtN9Zq5mTS9a7pJp/OU7pbzp8k0ObNXh28Bn
-gdZJjBRApJlQOkk0duyqnB0hxa+pgovdm8ZW2v5peitCfuXWNTpG9uT/GAa8Zf8Y
-14RIufjOXjsMz14uCXLC919YuZ4ItOHLS76Yo+2/Z1kaV4Y6cwVIiCbnMQoDpDpA
-AxZrjvJmrNYb7UKDBHv8vpiBxM9kfDFTXMVGnlLuTaF3QueT58GpEEc4CDyDsbCi
-rMU98ulNqoo9d1mFbMJQW53jMSagLO/8NzpDJX69am0PM3w4eP8cowpeewk5mxt+
-gdZsbET+I8JIhfZcIRZ8w3i6AbDj7BVjVBCxzAdV6OTUH33nFkCHWGRCj5zgL+Kf
-YJlGeVG4tm3rL/mRVQpI
-=0zMi
+iQIcBAEBAgAGBQJUt7hBAAoJEBQN5MwUoCm2Y70P/2KEeSgh/g/k18jpKglp33rI
+m8e0U09JbX2uqFCkRrY6y+pjjYFwgID6ldeDwyf8ZV+CuyD1UYbE73WHdk3Gb0VK
+LhQqupWpCFmjCW2xs53385gsw1abtYRC99qM+3cPmlb4jmZfD9vLDMiatG1lJ0KL
+Bdf5teTbee2LxzyMAgRuO12dYTfRcp2HkzVgxn5wV9QEyHsceW7+WAh89jWJtoH+
+Gj5/HSe+PzbGP643BoOx3p/GSSSKlbsZ1OytRk9YhmQnoUCR0f/YnXjVEeP8kvQ9
+qXWehZwYXJDSgkLwLBTwKJWZmG1BzCkrZYLgosjHD/P0wP8IXEMMwW5GyR9xEa7k
+FF0xI+Zp2HLGY6kSMaD+/0jglwsI+lbkeo6GbYinc5JFDhMXuUrMJ/KPUR+VQnGL
+K5jDb2rlY56OYJ1vg4cDQLyX5Jj7tr9iFh+5vLBPH7Uy6tj+Z/1lJSZxYMbchrhh
+Zr8I7mLTRnvjCVEn6ebwR1nlACNtDLdHL+FyDnXQ89Dv/SkyG7oFSqym5Q2+Jl6G
+f5aVzLb0QILKRG1wlXIqSs2B5zHEnTO0kBjSZZ/VrcNMi8Be3L8cf/JSJxhsrV59
+LZbEiraaaB4f+RAyVfHhADkvURiXoSBpsYGmgyUBSf7S0Jf+4tN1XkVxtgOs0IpS
+++ojwwLw+xEcXhSCRt1Q
+=utdP
 -----END PGP SIGNATURE-----
 
---32u276st3Jlj2kUU--
+--2Z2K0IlrPCVsbNpk--
