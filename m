@@ -1,40 +1,62 @@
-From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: enable acquisition of timeout value from
- Device Tree
-Date: Thu, 15 Jan 2015 21:36:15 +0100
-Message-ID: <20150115213615.6697ef5a@free-electrons.com>
-References: <1421342671-20468-1-git-send-email-gregory.clement@free-electrons.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Thu, 15 Jan 2015 22:51:43 +0200
+Message-ID: <16733840.6Wupp0rKhe@avalon>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com> <20150115174333.GC6342@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1421342671-20468-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcin Wojtas <mw-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20150115174333.GC6342@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Gregory CLEMENT,
+Hi Wolfram,
 
-On Thu, 15 Jan 2015 18:24:31 +0100, Gregory CLEMENT wrote:
+On Thursday 15 January 2015 18:43:33 Wolfram Sang wrote:
+> On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
+> > On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> >>> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >>> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> >>> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
+> >>> 
+> >>>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
+> >>>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
+> >>>  adi,adxl345          Three-Axis Digital Accelerometer
+> >>> 
+> >>> -adi,adxl346          Three-Axis Digital Accelerometer
+> >>> -adi,adxl34x          Three-Axis Digital Accelerometer
+> >>> +adi,adxl346          Three-Axis Digital Accelerometer
+> >>> (backward-compatibility value "adi,adxl345" must be listed too)
+> >>
+> >> I'd rather drop 346 because there is no compatible for that one
+> >> anywhere. No need to resend, I can fix it here...
+> > 
+> > If you drop adi,adxl346, checkpatch will start complaining if it
+> > encounters it in a .dts.
+> 
+> Boah, this is annoying. That means we need an 346 entry even if it is
+> not different from 345 (which is fine by me).
+> 
+> If checkpatch does it this way, that means the rule of thumb is to
+> *always* have a dedicated compatible entry? Can someone confirm this?
 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> index 5c30026921ae..d7fa740b68f1 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> @@ -25,12 +25,16 @@ default frequency is 100kHz
->                       whenever you're using the "allwinner,sun6i-a31-i2c"
->                       compatible.
->  
-> + - timeout-ms      : timeout value in miliseconds. If not set the default
-> +                     timeout is 1000ms
+I believe we should register a new compatible entry for a device when the 
+device isn't identical, from a compatibility point of view, to an already 
+registered device. In this specific case the adxl346 offers addition features 
+compared to the adxl345. It thus qualify for its own compatible string. Its DT 
+nodes should list both the adi,adxl346 and adi,adxl345 compatible strings in 
+that order, as the chip is compatible with the adxl345. On the driver side, 
+given that we don't need to differentiate between the devices based on the 
+compatible string (as runtime model detection is possible) we don't need to 
+add a match entry for adi,adxl346.
 
-I think this description lacks one information: the timeout of *what* ?
+> Why did we discuss then? Now, I am confused as well...
 
-Best regards,
-
-Thomas
 -- 
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Regards,
+
+Laurent Pinchart
+
