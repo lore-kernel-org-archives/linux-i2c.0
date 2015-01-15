@@ -1,33 +1,40 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 22:34:29 +0200
-Message-ID: <6357346.RjFSG892rq@avalon>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <20150115185431.GG33214@dtor-ws> <CAMuHMdXrRtgAahaEUh8x61E-koE25VL-6LOJrkjx4_fohKQtwQ@mail.gmail.com>
+From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: enable acquisition of timeout value from
+ Device Tree
+Date: Thu, 15 Jan 2015 21:36:15 +0100
+Message-ID: <20150115213615.6697ef5a@free-electrons.com>
+References: <1421342671-20468-1-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAMuHMdXrRtgAahaEUh8x61E-koE25VL-6LOJrkjx4_fohKQtwQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1421342671-20468-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marcin Wojtas <mw-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 15 January 2015 21:00:37 Geert Uytterhoeven wrote:
-> On Thu, Jan 15, 2015 at 7:54 PM, Dmitry Torokhov wrote:
-> > I still do not understand what we are trying to fix here. Why is
-> > "adi,adxl34x" compatible string no good anymore? If we start using exact
-> > models and the physical device does not match do we abort probe? What is
-> > the problem that we are solving here?
-> 
-> Because there's no guarantee that the driver actually supports all
-> "adi,adxl34<x>" with <x> = 0..9, some of which don't exist yet.
+Dear Gregory CLEMENT,
 
-That's one of the reasons. Another one is that the adxl34x driver won't match 
-DT nodes that list the "adi,adxl34x" compatible value in positions other than 
-the first.
+On Thu, 15 Jan 2015 18:24:31 +0100, Gregory CLEMENT wrote:
 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> index 5c30026921ae..d7fa740b68f1 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> @@ -25,12 +25,16 @@ default frequency is 100kHz
+>                       whenever you're using the "allwinner,sun6i-a31-i2c"
+>                       compatible.
+>  
+> + - timeout-ms      : timeout value in miliseconds. If not set the default
+> +                     timeout is 1000ms
+
+I think this description lacks one information: the timeout of *what* ?
+
+Best regards,
+
+Thomas
 -- 
-Regards,
-
-Laurent Pinchart
+Thomas Petazzoni, CTO, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
