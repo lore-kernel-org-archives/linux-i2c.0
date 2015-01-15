@@ -1,62 +1,47 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
-Date: Thu, 15 Jan 2015 22:51:43 +0200
-Message-ID: <16733840.6Wupp0rKhe@avalon>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com> <20150115174333.GC6342@katana>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] input: adxl34x: Add OF match support
+Date: Thu, 15 Jan 2015 13:06:32 -0800
+Message-ID: <20150115210632.GE19367@dtor-ws>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <20150115185431.GG33214@dtor-ws>
+ <CAMuHMdXrRtgAahaEUh8x61E-koE25VL-6LOJrkjx4_fohKQtwQ@mail.gmail.com>
+ <6357346.RjFSG892rq@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20150115174333.GC6342@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <6357346.RjFSG892rq@avalon>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Thursday 15 January 2015 18:43:33 Wolfram Sang wrote:
-> On Thu, Jan 15, 2015 at 06:32:31PM +0100, Geert Uytterhoeven wrote:
-> > On Thu, Jan 15, 2015 at 6:02 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >>> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> >>> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-> >>> @@ -18,8 +18,7 @@ adi,adt7475         +/-1C TDM Extended Temp Range I.C
-> >>> 
-> >>>  adi,adt7476          +/-1C TDM Extended Temp Range I.C
-> >>>  adi,adt7490          +/-1C TDM Extended Temp Range I.C
-> >>>  adi,adxl345          Three-Axis Digital Accelerometer
-> >>> 
-> >>> -adi,adxl346          Three-Axis Digital Accelerometer
-> >>> -adi,adxl34x          Three-Axis Digital Accelerometer
-> >>> +adi,adxl346          Three-Axis Digital Accelerometer
-> >>> (backward-compatibility value "adi,adxl345" must be listed too)
-> >>
-> >> I'd rather drop 346 because there is no compatible for that one
-> >> anywhere. No need to resend, I can fix it here...
+On Thu, Jan 15, 2015 at 10:34:29PM +0200, Laurent Pinchart wrote:
+> On Thursday 15 January 2015 21:00:37 Geert Uytterhoeven wrote:
+> > On Thu, Jan 15, 2015 at 7:54 PM, Dmitry Torokhov wrote:
+> > > I still do not understand what we are trying to fix here. Why is
+> > > "adi,adxl34x" compatible string no good anymore? If we start using exact
+> > > models and the physical device does not match do we abort probe? What is
+> > > the problem that we are solving here?
 > > 
-> > If you drop adi,adxl346, checkpatch will start complaining if it
-> > encounters it in a .dts.
-> 
-> Boah, this is annoying. That means we need an 346 entry even if it is
-> not different from 345 (which is fine by me).
-> 
-> If checkpatch does it this way, that means the rule of thumb is to
-> *always* have a dedicated compatible entry? Can someone confirm this?
+> > Because there's no guarantee that the driver actually supports all
+> > "adi,adxl34<x>" with <x> = 0..9, some of which don't exist yet.
 
-I believe we should register a new compatible entry for a device when the 
-device isn't identical, from a compatibility point of view, to an already 
-registered device. In this specific case the adxl346 offers addition features 
-compared to the adxl345. It thus qualify for its own compatible string. Its DT 
-nodes should list both the adi,adxl346 and adi,adxl345 compatible strings in 
-that order, as the chip is compatible with the adxl345. On the driver side, 
-given that we don't need to differentiate between the devices based on the 
-compatible string (as runtime model detection is possible) we don't need to 
-add a match entry for adi,adxl346.
+So, what? When we encounter such devices and decide that we actually
+want a different driver for them (instead of enhancing the existing one)
+we'll give them their own compatible string. It's not like "adi,adxl348"
+will automatically match with "adi,adxl34x", is it?
 
-> Why did we discuss then? Now, I am confused as well...
+> 
+> That's one of the reasons. Another one is that the adxl34x driver won't match 
+> DT nodes that list the "adi,adxl34x" compatible value in positions other than 
+> the first.
+
+Will it match anything else in the position other than 1st (i.e.
+if device has compatible sting like "adi,adxl345-1", "adi,adxl345")?
+Why "adi,adxl34x" is special?
+
+Thanks.
 
 -- 
-Regards,
-
-Laurent Pinchart
-
+Dmitry
