@@ -1,17 +1,17 @@
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
 	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v4 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
-Date: Thu, 15 Jan 2015 09:41:19 +0100
-Message-ID: <20150115084119.GN22880@pengutronix.de>
+Subject: Re: [PATCH v4 3/3] ARM: dts: add I2C device nodes for Broadcom Cygnus
+Date: Thu, 15 Jan 2015 09:44:56 +0100
+Message-ID: <20150115084456.GO22880@pengutronix.de>
 References: <rjui@broadcom.com>
  <1421274213-3544-1-git-send-email-rjui@broadcom.com>
- <1421274213-3544-3-git-send-email-rjui@broadcom.com>
+ <1421274213-3544-4-git-send-email-rjui@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1421274213-3544-3-git-send-email-rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1421274213-3544-4-git-send-email-rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -19,224 +19,37 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hello,
 
-On Wed, Jan 14, 2015 at 02:23:32PM -0800, Ray Jui wrote:
-> +#include <linux/device.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/sched.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
-> +#include <linux/slab.h>
-> +#include <linux/delay.h>
-some of them are not needed. I tested on amd64 and efm32 and could drop
-linux/device.h, linux/sched.h, linux/clk.h. (BTW, I wonder that you
-don't need clk handling.)
-
-> +#define TIM_CFG_OFFSET               0x04
-> +#define TIME_CFG_MODE_400_SHIFT      31
-Is the register name and the bit name prefix really different or is thi=
-s
-a typo?
-
-> +static int __wait_for_bus_idle(struct bcm_iproc_i2c_dev *iproc_i2c)
-A bcm_iproc_i2c prefix would be nice here.
-
-> +static int bcm_iproc_i2c_format_addr(struct bcm_iproc_i2c_dev *iproc=
-_i2c,
-> +				     struct i2c_msg *msg, u8 *addr)
-> +{
-> +
-> +	if (msg->flags & I2C_M_TEN) {
-> +		dev_err(iproc_i2c->device, "no support for 10-bit address\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	*addr =3D (msg->addr << 1);
-You can also drop the parentheses.
-
-> +	switch (val) {
-> +	case M_CMD_STATUS_SUCCESS:
-> +		return 0;
-> +
-> +	case M_CMD_STATUS_LOST_ARB:
-> +		dev_err(iproc_i2c->device, "lost bus arbitration\n");
-> +		return -EREMOTEIO;
-> +
-> +	case M_CMD_STATUS_NACK_ADDR:
-> +		dev_err(iproc_i2c->device, "NAK addr:0x%02x\n",
-> +			iproc_i2c->msg->addr);
-> +		return -EREMOTEIO;
-> +
-> +	case M_CMD_STATUS_NACK_DATA:
-> +		dev_err(iproc_i2c->device, "NAK data\n");
-> +		return -EREMOTEIO;
-> +
-> +	case M_CMD_STATUS_TIMEOUT:
-> +		dev_err(iproc_i2c->device, "bus timeout\n");
-> +		return -ETIMEDOUT;
-> +
-> +	default:
-> +		dev_err(iproc_i2c->device, "unknown error code=3D%d\n", val);
-> +		return -EREMOTEIO;
-> +	}
-> +
-> +	return -EREMOTEIO;
-This is not reached.
-
-> +}
-> +
-> +static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *i=
-proc_i2c,
-> +					 struct i2c_msg *msg)
-> +{
-> +	int ret, i;
-> +	u8 addr;
-> +	u32 val;
-> +	unsigned long time_left =3D msecs_to_jiffies(I2C_TIMEOUT_MESC);
-> +
-> +	if (msg->len < 1 || msg->len > M_TX_RX_FIFO_SIZE - 1) {
-Is the < 1 a hardware or a software limitation? That means your driver
-doesn't support I2C_SMBUS_QUICK which is used for example by i2cdetect.
-
-> +		dev_err(iproc_i2c->device,
-> +			"supported data length is 1 - %u bytes\n",
-> +			M_TX_RX_FIFO_SIZE - 1);
-> +		return -EINVAL;
-> +	}
-> +
-> +	iproc_i2c->msg =3D msg;
-Can it happen that iproc_i2c->msg still holds an uncompleted message
-here or is this serialized by the core? Wolfram? Either here something
-like:
-
-	if (iproc_i2c->msg)
-		return -EBUSY;
-
-and
-
-	iproc_i2c->msg =3D NULL;
-
-when a transfer is completed is needed, or the respective code can be
-dropped from other drivers (e.g. i2c-efm32).
-On the other hand .msg is only used in bcm_iproc_i2c_check_status() to
-give a diagnostic message. Maybe you can drop .msg and instead give it
-as an additional parameter to bcm_iproc_i2c_check_status().
-
-> +	ret =3D __wait_for_bus_idle(iproc_i2c);
-> +	if (ret)
-> +		return ret;
-I would still prefer to have something like:
-
-	if (bcm_iproc_i2c_bus_busy())
-		return -EBUSY;
-
-instead of a tight loop here.
-
-> +	ret =3D bcm_iproc_i2c_format_addr(iproc_i2c, msg, &addr);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* load slave address into the TX FIFO */
-> +	writel(addr, iproc_i2c->base + M_TX_OFFSET);
-> +
-> +	/* for a write transaction, load data into the TX FIFO */
-> +	if (!(msg->flags & I2C_M_RD)) {
-> +		for (i =3D 0; i < msg->len; i++) {
-> +			val =3D msg->buf[i];
-> +
-> +			/* mark the last byte */
-> +			if (i =3D=3D msg->len - 1)
-> +				val |=3D 1 << M_TX_WR_STATUS_SHIFT;
-What happens if you don't mark this last byte? Could this be used to
-support transfers bigger than the fifo size?
-
-> +	/*
-> +	 * Enable the "start busy" interrupt, which will be triggered after
-> +	 * the transaction is done, i.e., the internal start_busy bit
-s/\.,/./ I think
-
-> +	 * transitions from 1 to 0
-s/$/./
-> +	 */
-> +	writel(1 << IE_M_START_BUSY_SHIFT, iproc_i2c->base + IE_OFFSET);
-> +
-> +	/*
-> +	 * Now we can activate the transfer. For a read operation, specify =
-the
-> +	 * number of bytes to read
+On Wed, Jan 14, 2015 at 02:23:33PM -0800, Ray Jui wrote:
+> Add I2C device nodes and its properties in bcm-cygnus.dtsi but keep
+> them disabled there. Individual I2C devices can be enabled in board
+> specific dts file when I2C slave devices are enabled in the future
 s/$/./
 
-> +	 */
-> +	val =3D 1 << M_CMD_START_BUSY_SHIFT;
-> +	if (msg->flags & I2C_M_RD) {
-> +		val |=3D (M_CMD_PROTOCOL_BLK_RD << M_CMD_PROTOCOL_SHIFT) |
-> +		       (msg->len << M_CMD_RD_CNT_SHIFT);
-> +	} else {
-> +		val |=3D (M_CMD_PROTOCOL_BLK_WR << M_CMD_PROTOCOL_SHIFT);
-> +	}
-> +	writel(val, iproc_i2c->base + M_CMD_OFFSET);
-> +
-> +	time_left =3D wait_for_completion_timeout(&iproc_i2c->done, time_le=
-ft);
+>=20
+> Signed-off-by: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/bcm-cygnus.dtsi |   20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>=20
+> diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bc=
+m-cygnus.dtsi
+> index 5126f9e..f7d6c1d 100644
+> --- a/arch/arm/boot/dts/bcm-cygnus.dtsi
+> +++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
+> @@ -70,6 +70,26 @@
+>  		};
+>  	};
+> =20
+> +	i2c0: i2c@18008000 {
+> +		compatible =3D "brcm,iproc-i2c";
+in patch 2 you wrote the driver is for a family of SoCs, right? Then I'=
+d
+make this:
 
-When the interrupt fires here after the complete timed out and before
-you disable the irq you still throw the result away.
-> +
-> +	/* disable all interrupts */
-> +	writel(0, iproc_i2c->base + IE_OFFSET);
-> +
-> +	if (!time_left) {
-> +		dev_err(iproc_i2c->device, "transaction times out\n");
-s/times/timed/
+	compatible =3D "brcm,$mysoc-iproc-i2c", "brcm,iproc-i2c";
 
-> +static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap=
-)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-Note that I2C_FUNC_SMBUS_EMUL includes I2C_FUNC_SMBUS_QUICK, so your
-driver claims to support transfers of length 0.
-
-> +static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i=
-2c)
-> +{
-> +	unsigned int bus_speed, speed_bit;
-> +	u32 val;
-> +	int ret =3D of_property_read_u32(iproc_i2c->device->of_node,
-> +				       "clock-frequency", &bus_speed);
-> +	if (ret < 0) {
-> +		dev_err(iproc_i2c->device,
-> +			"missing clock-frequency property\n");
-> +		return -ENODEV;
-Is a missing property the only situation where of_property_read_u32
-returns an error? Would it be sane to default to 100 kHz?
-
-> +static int bcm_iproc_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct bcm_iproc_i2c_dev *iproc_i2c =3D platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&iproc_i2c->adapter);
-You need to free the irq before i2c_del_adapter.
-
-> +	free_irq(iproc_i2c->irq, iproc_i2c);
-> +	bcm_iproc_i2c_disable(iproc_i2c);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id bcm_iproc_i2c_of_match[] =3D {
-> +	{.compatible =3D "brcm,iproc-i2c",},
-Not sure this is specified to be a must, but I'd add spaces after { and
-before }.
-
-> +	{},
-It's a good habit to write this as
-
-	{ /* sentinel */ }
-
-without trailing comma.
+(or maybe s/$mysoc-iproc-i2c/$mysoc-i2c/).
 
 Best regards
 Uwe
