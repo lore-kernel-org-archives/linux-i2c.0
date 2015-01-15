@@ -1,57 +1,60 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 14:03:16 +0100
-Message-ID: <CAMuHMdXjB6-Fwk2+FLRNEynVgBXOm52n92QA-ZMTxsekPMtdsQ@mail.gmail.com>
-References: <1418868923-13411-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-	<20141218082151.GA1038@katana>
-	<1492007.8cQN1myWLD@avalon>
-	<20150115125321.GD2549@katana>
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: Re: [PATCH v2] of: i2c: Add idle-disconnect DT property to PCA954x
+ mux driver
+Date: Thu, 15 Jan 2015 14:09:09 +0100
+Message-ID: <54B7BBF5.4010001@nsn.com>
+References: <5494599A.8050803@nsn.com> <20150115123237.GC2549@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20150115125321.GD2549@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150115123237.GC2549@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 15, 2015 at 1:53 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
->> There are three compatible strings defined for the ADXL345 and ADXL346 in
->> Documentation/devicetree/bindings/i2c/trivial-devices.txt: "adi,adxl345",
->> "adi,adxl346", "adi,adxl34x". Given that the last one is a fallback for the
->> first two I don't see a need to add the specific compatible strings to the
->> driver for now. If a new totally incompatible chip named ADXL347 comes out we
->> will need a new driver which won't be allowed to use the "adi,adxl34x"
->> compatible string.
+Hi Wolfram!
+
+On 15/01/15 13:32, ext Wolfram Sang wrote:
+> On Fri, Dec 19, 2014 at 06:00:10PM +0100, Alexander Sverdlin wrote:
+>> of: i2c: Add idle-disconnect DT property to PCA954x mux driver
+>>
+>> Add idle-disconnect device tree property to PCA954x mux driver. The new property
+>> forces the multiplexer to disconnect child buses in idle state. This is used, for
+>> example, when there are several multiplexers on the same bus and the devices on
+>> the underlying buses might have same I2C addresses.
+> 
+> Basically OK. Question to DT maintainers: "idle-disconnect",
+> "i2c-mux-idle-disconnect", or is there another existing binding we could
+> use?
+> 
+>> At the same time old (and not used in the tree) platform data binding
+>> deselect_on_exit is removed to simplify the implementation. Old binding has
+>> different (per-channel) semantics and doesn't fit well in the new concept.
+> 
+> I'd prefer to keep it. It should be only one || more. It is not really
+> in the way IMO.
+
+It complicates the implementation 3x times :) This is part of our discussion with Laurent:
+----
+>>
+>> I would copy pdata->modes[chan].deselect_on_exit to data->idle_disconnect
+>> in the probe function, so you could avoiding accessing pdata here.
 >
-> Been there, got bitten. We only found out too late, because one driver
-> was in i2c and the other in GPIO (or LED even?), both using "953x" :(
-
-Yep, pca953x => leds-pca953x
-
->> An option would be to remove "adi,adxl34x" from
->> Documentation/devicetree/bindings/i2c/trivial-devices.txt, in which case the
->> driver should match explicitly on "adi,adxl345" and "adi,adxl346". That might
->> clash with the DT ABI stability requirements though.
+> Unfortunately, this pdata has different (per-channel) semantics. I cannot
+> really understand, why it was done this way, but anyway it's not possible
+> to use one global bit to represent per-channel bits without changing the
+> behavior.
 >
-> I do prefer this:
->
-> 1) add specific compatible values to the driver. We do those updates for
-> new devices all the time
-> 2) also add "34x" as a compatible but mark it as deprecateed
-> 3) delete "34x" from trivial devices
->
-> Everyone OK with that?
+> I'm not keen to brake out-of-tree code (if any), but may be it will be
+> decided to drop this per-channel deselect_on_exit, because it's not used at
+> least in the kernel tree...
 
-Sounds fine to me. Thanks!
+I'd vote for removing deselect_on_exit from platform data, but I won't insist.
+----
 
-Gr{oetje,eeting}s,
 
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Best regards,
+Alexander Sverdlin.
