@@ -1,76 +1,36 @@
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Subject: [PATCH v2 2/2] input: adxl34x: Add OF match support
-Date: Thu, 15 Jan 2015 16:54:15 +0200
-Message-ID: <1421333655-31029-3-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Geert Uytterhoeven <geert@glider.be>
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] of: i2c: Add idle-disconnect DT property to PCA954x
+ mux driver
+Date: Thu, 15 Jan 2015 09:48:54 -0600
+Message-ID: <CAL_Jsq+=D8=-nUjX6LB6HQGQtc4QH_5H69xttaVbg+e4az+0_g@mail.gmail.com>
+References: <5494599A.8050803@nsn.com> <20150115123237.GC2549@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150115123237.GC2549@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The I2C subsystem can match devices without explicit OF support based on
-the part of their compatible property after the comma. However, this
-mechanism uses the first compatible value only. For adxl34x OF device
-nodes the compatible property will contain the more specific
-"adi,adxl345" or "adi,adxl346" value first. This prevents the device
-node from being matched with the adxl34x driver.
+On Thu, Jan 15, 2015 at 6:32 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Fri, Dec 19, 2014 at 06:00:10PM +0100, Alexander Sverdlin wrote:
+>> of: i2c: Add idle-disconnect DT property to PCA954x mux driver
+>>
+>> Add idle-disconnect device tree property to PCA954x mux driver. The new property
+>> forces the multiplexer to disconnect child buses in idle state. This is used, for
+>> example, when there are several multiplexers on the same bus and the devices on
+>> the underlying buses might have same I2C addresses.
+>
+> Basically OK. Question to DT maintainers: "idle-disconnect",
+> "i2c-mux-idle-disconnect", or is there another existing binding we could
+> use?
 
-Fix this by adding an OF match table with an "adi,adxl345" compatible
-entry. There's no need to add the "adi,adxl346" entry as the ADXL346 is
-backward-compatible with the ADXL345 with differences handled by runtime
-detection of the device model.
+Not that I'm aware of. If this is specific to i2c-mux's then I'd go
+with the latter. Either way, this should go in a common i2c or i2c-mux
+binding doc.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
----
- drivers/input/misc/adxl34x-i2c.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+Alternatively, couldn't the kernel do this automatically when the
+above conditions happen?
 
-diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
-index 416f47ddcc90..1e028f1f221c 100644
---- a/drivers/input/misc/adxl34x-i2c.c
-+++ b/drivers/input/misc/adxl34x-i2c.c
-@@ -10,6 +10,7 @@
- #include <linux/input.h>	/* BUS_I2C */
- #include <linux/i2c.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/types.h>
- #include <linux/pm.h>
- #include "adxl34x.h"
-@@ -137,11 +138,31 @@ static const struct i2c_device_id adxl34x_id[] = {
- 
- MODULE_DEVICE_TABLE(i2c, adxl34x_id);
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id adxl34x_of_id[] = {
-+	/*
-+	 * The ADXL346 is backward-compatible with the ADXL345. Differences are
-+	 * handled by runtime detection of the device model, there's thus no
-+	 * need for listing the "adi,adxl346" compatible value explicitly.
-+	 */
-+	{ .compatible = "adi,adxl345", },
-+	/*
-+	 * Deprecated, DT nodes should use one or more of the device-specific
-+	 * compatible values "adi,adxl345" and "adi,adxl346".
-+	 */
-+	{ .compatible = "adi,adxl34x", },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(of, adxl34x_of_id);
-+#endif
-+
- static struct i2c_driver adxl34x_driver = {
- 	.driver = {
- 		.name = "adxl34x",
- 		.owner = THIS_MODULE,
- 		.pm = &adxl34x_i2c_pm,
-+		.of_match_table = of_match_ptr(adxl34x_of_id),
- 	},
- 	.probe    = adxl34x_i2c_probe,
- 	.remove   = adxl34x_i2c_remove,
--- 
-2.0.5
-
+Rob
