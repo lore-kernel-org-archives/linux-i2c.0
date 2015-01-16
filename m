@@ -1,26 +1,59 @@
-From: Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V3 1/1] iio: Added Capella cm3232 ambient light sensor driver.
-Date: Fri, 16 Jan 2015 12:09:14 +0200
-Message-ID: <CAEnQRZAmUAchC_EYxhaJ3ayC4+=sDJA0WDtQqbg8YhZV-rErHw@mail.gmail.com>
-References: <1421372464-30316-1-git-send-email-ktsai@capellamicro.com>
+From: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v4 0/2] ARM: mediatek: Add driver for Mediatek I2C controller
+Date: Fri, 16 Jan 2015 18:33:36 +0800
+Message-ID: <1421404418-50718-1-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1421372464-30316-1-git-send-email-ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Archana Patni <archana.patni-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Uwe Kleine-Konig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudon>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 16, 2015 at 3:41 AM, Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org> wrote:
-> CM3232 is an advanced ambient light sensor with I2C protocol interface.
-> The I2C slave address is internally hardwired as 0x10 (7-bit).  Writing
-> to configure register is byte mode, but reading ALS register requests to
-> use word mode for 16-bit resolution.
+This series is the fourth version of Mediatek SoCs I2C controller common
+bus driver.
 
-IIO part looks good to me. Would be nice to see some comments from
-Peter and Hartmut.
+Change in v4:
+Modify to support i2c_adapter_quirks base on Wolfram's patch [1].
+Remove check transfer size and WRRD combine code. Instead, fill quirk
+property and let i2c_check_for_quirks to do the filter.
 
+This driver is based on 3.19-rc1.
 
-thanks,
-Daniel.
+MTK I2C HW has some limitations.
+1. Only support one i2c_msg number. One exception is WRRD (write then read)
+mode. WRRD can have two i2c_msg numbers.
+
+2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
+mode the Repeat Start will be issued between 2 messages.
+In this driver if 2 messages is first write then read, the driver will
+combine 2 messages using Write-Read mode so the RS will be issued between
+the 2 messages.
+
+3. The max transfer data length is 255 in one message. In WRRD mode, the
+max data length of second msg is 31.
+
+MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+registers in MT8135 side. In this case, driver should set OFFSET_PATH_DIR
+bit first, the operation on other registers are still the same.
+For now MT6589/MT8135 support this, MT6577/MT6595/MT8127 do not support.
+For example, If want to use I2C4/5/6 pins on MT8135 just need to enable
+the pinmux, else if want to use I2C pins on PMIC(MT6397) need to add
+"mediatek,have-pmic" property in the .dts file of each platform.
+
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-January/314804.html
+
+Xudong Chen (2):
+  dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+  I2C: mediatek: Add driver for MediaTek I2C controller
+
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         |  40 ++
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-mt65xx.c                    | 710 +++++++++++++++++++++
+ 4 files changed, 760 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+ create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
+
+--
+1.8.1.1.dirty
