@@ -1,73 +1,102 @@
-From: Eddie Huang <eddie.huang@mediatek.com>
-Subject: [PATCH v4 1/2] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Fri, 16 Jan 2015 18:33:37 +0800
-Message-ID: <1421404418-50718-2-git-send-email-eddie.huang@mediatek.com>
-References: <1421404418-50718-1-git-send-email-eddie.huang@mediatek.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH] i2c: exynos5: Move initialization code to
+ subsys_initcall()
+Date: Fri, 16 Jan 2015 13:35:29 +0100
+Message-ID: <20150116123527.GG4885@ulmo.nvidia.com>
+References: <1421031182-18992-1-git-send-email-jy0922.shim@samsung.com>
+ <20150112075019.GB22880@pengutronix.de>
+ <54B38946.3020406@samsung.com>
+ <54B50BFF.7070101@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1421404418-50718-1-git-send-email-eddie.huang@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>
-Cc: srv_heupstream@mediatek.com, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Jean Delvare <jdelvare@suse.de>, Arnd Bergmann <arnd@arndb.de>, Doug Anderson <dianders@chromium.org>, Andrew Bresticker <abrestic@chromium.org>, Max Schwarz <max.schwarz@online.de>, Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>, Boris BREZILLON <boris.brezillon@free-electrons.com>, Anders Berg <anders.berg@avagotech.com>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, Wei Yan <sledge.yanwei@huawei.com>, Lee Jones <lee.jones@linaro.org>, Simon Glass <sjg@chromium.org>, Jim Cromie <jim.cromie@gmail.com>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Beniamino Galvani <b.galvani@gmail.com>, Xudong Chen <xudon>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JbKQpFqZXJ2T76Sg"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <54B50BFF.7070101@ti.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, wsa@the-dreams.de, kgene.kim@samsung.com, naveenkrishna.ch@gmail.com, broonie@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Xudong Chen <xudong.chen@mediatek.com>
 
-Add devicetree bindings for Mediatek Soc I2C driver.
+--JbKQpFqZXJ2T76Sg
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Xudong Chen <xudong.chen@mediatek.com>
-Signed-off-by: Eddie Huang <eddie.huang@mediatek.com>
----
- .../devicetree/bindings/i2c/i2c-mt6577.txt         | 40 ++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+On Tue, Jan 13, 2015 at 02:13:51PM +0200, Tomi Valkeinen wrote:
+> On 12/01/15 10:43, Joonyoung Shim wrote:
+> > +Cc Tomi Valkeinen,
+> >=20
+> > Hi Uwe,
+> >=20
+> > On 01/12/2015 04:50 PM, Uwe Kleine-K=C3=B6nig wrote:
+> >> Hello,
+> >>
+> >> On Mon, Jan 12, 2015 at 11:53:02AM +0900, Joonyoung Shim wrote:
+> >>> This is required in order to ensure that core system devices such as
+> >>> voltage regulators attached via I2C are available early in boot.
+> >> Deferred probing isn't an option? If so I suggest adding the reasoning
+> >> in a comment to stop the next person converting it to that.
+> >> (And if not, please fix accordingly to use deferred probing.)
+> >>
+> >=20
+> > I couldn't get penguin logo since the commit 92b004d ("video/logo:
+> > prevent use of logos after they have been freed") and i just tried old
+> > way because i missed the flow to move to deferred probing.
+> >=20
+> > Fb driver probe seems to be ran between fb_logo_late_init late_initcall
+> > and the freeing of the logos.
+> >=20
+> > Any ideas?
+>=20
+> Thierry mentioned on IRC that he encountered the same issue. And I
+> encountered it also.
+>=20
+> So... I'd rather not revert the fix, as it's quite a nasty one, and it
+> happens while console lock is held, so it looks like the machine just
+> froze. But I don't know how it could be improved with the current kernel.
+>=20
+> We could make the logos non-initdata, but I don't much like that option.
+> Or we could perhaps implement some new way to catch the freeing of initda=
+ta.
+>=20
+> Any other ideas?
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-new file mode 100644
-index 0000000..08f86c7
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-@@ -0,0 +1,40 @@
-+* Mediatek's I2C controller
-+
-+The Mediatek's I2C controller is used to interface with I2C devices.
-+
-+Required properties:
-+  - compatible: value should be either of the following.
-+      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-+      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-+      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-+      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-+  - reg: physical base address of the controller and dma base, length of memory
-+    mapped region.
-+  - interrupts: interrupt number to the cpu.
-+  - clock-div: the fixed value for frequency divider of clock source in i2c
-+    module. Each IC may be different.
-+  - clocks: clock name from clock manager
-+  - clock-names: Must include "main" and "dma", if enable have-pmic need include
-+    "pmic" extra.
-+
-+Optional properties:
-+  - clock-frequency: Frequency in Hz of the bus when transfer, the default value
-+    is 100000.
-+  - mediatek,have-pmic: platform can control i2c form special pmic side.
-+    Only mt6589 and mt8135 support this feature.
-+  - mediatek,use-push-pull: IO config use push-pull mode.
-+
-+Example:
-+
-+	i2c0: i2c@1100d000 {
-+			compatible = "mediatek,mt6577-i2c";
-+			reg = <0x1100d000 0x70>,
-+			      <0x11000300 0x80>;
-+			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-+			clock-frequency = <100000>;
-+			mediatek,have-pmic;
-+			clock-div = <16>;
-+			clocks = <&i2c0_ck>, <&ap_dma_ck>;
-+			clock-names = "main", "dma";
-+	};
-+
--- 
-1.8.1.1.dirty
+I think we could still make the logos non-initdata based on a Kconfig
+symbol. Another option might be to copy the logo data to memory that's
+not automatically freed after init, so that we get better control over
+when it is released. I tried tracing the various parts that would need
+this data, but couldn't find any place after which it isn't needed
+anymore. Specifically it is code that can be executed on every console
+switch, so we can't really get rid of it at any sensible time.
+
+I'd argue that if it's needed at every VT switch where the framebuffer
+console is activated, then we really can't get rid of it at all. Or we
+don't display the logo at every switch and can free the backing memory
+right after the first switch for example.
+
+Thierry
+
+--JbKQpFqZXJ2T76Sg
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBAgAGBQJUuQWPAAoJEN0jrNd/PrOhu7QP/2oRTrGa7pIqJKelis4xL1qr
+m3CxOJhtfyv9+sc1G0fxjR0LNUmBdt1dKT3LZo1ruKkaMOp4Xyp8BMl2fc5FcIM+
+vOaG7NfHS2YtNZUAO9B42NFMtE42XYVFFO0G87MT/z9RFLAXyOygXfefyZOhp6Pa
+aKzbNKa2TiNivXnRnHWqGTE6ROtVydWvkpf9pyaZBevytxFpuhHamEadcA65mGbs
+F5T6C/pz9//yFYXgWx3ed3SCdU8TqgI93eIUEl/8SgYWcWLU1Lu2bVPC3FVjK5to
+X0vYNpkFFhrtQwjiIcC2yxoiFCb/MvUXyWIhWhG8tDUbXUZ3bn9GPRCxbH4WHoqy
+2421MHOfWuNY71Mr87RIuiH+SYEbLURmyTkMlhirGB7lq1etED8del2YA2yexFwP
+wAy4JOpgNZ2rtBXx0sjLB9U1vdH/gws9xBNOvg3gMePu1jewC5LRjLopsh7tU0BC
+brZ528A/2mmXaETHFVgGGhjtG9fsKhQ4WZIGYwKIOSa9byAH79o66fatBUFi45UZ
+YW7aB8UGkcQVopmZCZlec/QfOw3LoP7JqPCiDwcQpwdwAF0Ip3+AWr8LwtQX11EJ
+CzWqyLx+e4IAyN/EAapCqBH49/UnN0S4mqqRbJy7HB7TA4ac7HKYCpyyxqo7mOm3
+f78dkC3e7gKkBADjQOMt
+=iJEP
+-----END PGP SIGNATURE-----
+
+--JbKQpFqZXJ2T76Sg--
