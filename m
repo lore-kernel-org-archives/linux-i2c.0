@@ -1,45 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] i2c: do not try to load modules for of-registered devices
-Date: Fri, 16 Jan 2015 00:07:22 -0800
-Message-ID: <20150116080722.GA7813@dtor-ws>
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Subject: Re: [RFC 01/11] i2c: add quirk structure to describe adapter flaws
+Date: Fri, 16 Jan 2015 16:18:15 +0800
+Message-ID: <1421396295.11671.50.camel@mtksdaap41>
+References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
+	 <1420824103-24169-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <1420824103-24169-2-git-send-email-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Liguo Zhang <Liguo.Zhang@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Trying to register an I2C device asynchronously (via async_schedule() call)
-results in an ugly warning from request_module() warning about potential
-deadlock (because request_module tries to wait for async works to
-complete). While we could try to switch to request_module_nowait(), other
-buses, as well as I2C itself when not using device tree, do not try to load
-modules, but rather rely on the standard infrastructure (udev) to execute
-module loading, and we should be doing the same.
+On Fri, 2015-01-09 at 18:21 +0100, Wolfram Sang wrote:
+> The number of I2C adapters which are not fully I2C compatible is rising,
+> sadly. Drivers usually do handle the flaws, still the user receives only
+> some errno for a transfer which normally can be expected to work. This
+> patch introduces a formal description of flaws. One advantage is that
+> the core can check before the actual transfer if the messages could be
+> transferred at all. This is done in the next patch. Another advantage is
+> that we can pass this information to the user so the restrictions are
+> exactly known and further actions can be based on that. This will be
+> done later after some stabilization period for this description.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/i2c/i2c-core.c | 2 --
- 1 file changed, 2 deletions(-)
+Hi Wolfram,
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 39d25a8..706caea 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1419,8 +1419,6 @@ static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
- 	if (of_get_property(node, "wakeup-source", NULL))
- 		info.flags |= I2C_CLIENT_WAKE;
- 
--	request_module("%s%s", I2C_MODULE_PREFIX, info.type);
--
- 	result = i2c_new_device(adap, &info);
- 	if (result == NULL) {
- 		dev_err(&adap->dev, "of_i2c: Failure registering %s\n",
--- 
-2.2.0.rc0.207.ga3a616c
+This can describe the behavior of our current upstream driver[1], which
+only support combine write-then-read.
 
+After checking with Xudong & HW guys, it seems our HW can do more. 
+On MT8135, it can support at most 2 messages, no matter read or write,
+with the limitation that the length of the second message must <=
+31bytes.
 
--- 
-Dmitry
+So this RFC is enough for our driver, but it would be better if we could
+also support other case.
+
+Joe.C
+
+[1]:
+http://lists.infradead.org/pipermail/linux-arm-kernel/2014-November/305468.html
