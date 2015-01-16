@@ -1,52 +1,87 @@
-From: Eddie Huang <eddie.huang@mediatek.com>
-Subject: Re: [RFC 01/11] i2c: add quirk structure to describe adapter flaws
-Date: Fri, 16 Jan 2015 13:50:08 +0800
-Message-ID: <1421387408.9323.10.camel@mtksdaap41>
-References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
-	 <1420824103-24169-2-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1420824103-24169-2-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
+From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in i2c_del_adapter
+Date: Fri, 16 Jan 2015 09:19:49 +0200
+Message-ID: <F3ED5864-58DF-4E70-8592-88658C59D7CB@konsulko.com>
+References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com> <20150113152957.GL7660@katana> <20150114144938.4e3c3f52@endymion.delvare> <B2D57D11-FBC2-432A-90E8-90E4CF8F716C@konsulko.com> <20150114161525.49c54acc@endymion.delvare> <20150114162442.GB18578@roeck-us.net> <20150114181426.3a39791b@endymion.delvare> <6680B42A-76E8-40CF-9574-ECD00B40AE98@konsulko.com> <20150114204122.GA31119@kroah.com> <E91AA1C8-64EE-4111-94BD-B8F05071D507@konsulko.com> <20150115225521.GA26542@kroah.com>
+Mime-Version: 1.0 (Mac OS X Mail 8.1 \(1993\))
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150115225521.GA26542-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi Greg,
 
-On Fri, 2015-01-09 at 18:21 +0100, Wolfram Sang wrote:
->  
-> + */
-> +struct i2c_adapter_quirks {
-> +	u64 flags;
-> +	int max_num_msgs;
-> +	u16 max_write_len;
-> +	u16 max_read_len;
-> +	u16 max_comb_write_len;
-> +	u16 max_comb_read_len;
-> +};
-> +
-> +#define I2C_ADAPTER_QUIRK_COMB_WRITE_FIRST	BIT(0)
-> +#define I2C_ADAPTER_QUIRK_COMB_READ_SECOND	BIT(1)
-> +#define I2C_ADAPTER_QUIRK_COMB_WRITE_THEN_READ	(I2C_ADAPTER_QUIRK_COMB_WRITE_FIRST | \
-> +						I2C_ADAPTER_QUIRK_COMB_READ_SECOND)
-> +
->  /*
->   * i2c_adapter is the structure used to identify a physical i2c bus along
->   * with the access algorithms necessary to access it.
-> @@ -472,6 +506,7 @@ struct i2c_adapter {
->  	struct list_head userspace_clients;
->  
->  	struct i2c_bus_recovery_info *bus_recovery_info;
-> +	struct i2c_adapter_quirks *quirks;
->  };
->  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
->  
+> On Jan 16, 2015, at 00:55 , Greg Kroah-Hartman <gregkh@linuxfoundatio=
+n.org> wrote:
+>=20
+> On Thu, Jan 15, 2015 at 06:25:22PM +0200, Pantelis Antoniou wrote:
+>> Hi Greg,
+>>=20
+>>> On Jan 14, 2015, at 22:41 , Greg Kroah-Hartman <gregkh@linuxfoundat=
+ion.org> wrote:
+>>>=20
+>>> On Wed, Jan 14, 2015 at 07:24:22PM +0200, Pantelis Antoniou wrote:
+>>>> I=E2=80=99ll try to dig around tomorrow and see what the real devi=
+ce reference counts
+>>>> are, but my hunch goes like this:
+>>>>=20
+>>>> MUX
+>>>> +=E2=80=94- ADAPTER
+>>>>   +=E2=80=94 DEV.
+>>>>=20
+>>>> Mux remove method is called, i2c_del_mux_adapter is called on all =
+the channels
+>>>> of the mux, calling in turn i2c_del_adapter which hangs on complet=
+ion of the
+>>>> dev_released.
+>>>>=20
+>>>> The call to device_unregister never calls the device_type callback=
+ (i2c_adapter_dev_release)
+>>>> because the reference count is not 1 at that point, someone else i=
+s having another
+>>>> reference.
+>>>=20
+>>=20
+>> First of all, my head hurts. Tracking device references ain=E2=80=99=
+t easy. Is there some kind
+>> of debugging method you=E2=80=99d recommend for this?
+>=20
+> You can turn on debugging for kobjects and the driver core if you wan=
+t
+> to slow down your system log a bunch, but it can be helpful for trick=
+ier
+> issues.  Or just sprinkle a few printks around.
+>=20
 
-I suggest to add const.
-	const struct i2c_adapter_quirks *quirks;
+Turning on debugging for kobjects is like opening the floodgates=E2=80=A6
 
-also, in i2c-core.c, should modify:
-	const struct i2c_adapter_quirks *q = adap->quirks;
+I managed to make do with a few printks, but some kind of tracking woul=
+d
+be helpful.=20
+
+>>> I don't remember the i2c core code at all, that was a long time ago=
+=2E
+>>>=20
+>>=20
+>> Bummer.
+>=20
+> Do you remember code you wrote 12 year ago and haven't looked at for =
+at
+> least 11?  Why expect others to as well? :)
+>=20
+
+You=E2=80=99re supposed to be a super-hero maintainer god right? How am=
+ I supposed
+to continue living with my belief system crumbled like that? :)
+
+> thanks,
+>=20
+> greg k-h
+
+Regards
+
+=E2=80=94 Pantelis
