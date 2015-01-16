@@ -1,87 +1,38 @@
-From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] [RFC] i2c: Don't wait for device release in i2c_del_adapter
-Date: Fri, 16 Jan 2015 09:19:49 +0200
-Message-ID: <F3ED5864-58DF-4E70-8592-88658C59D7CB@konsulko.com>
-References: <1421082050-10213-1-git-send-email-pantelis.antoniou@konsulko.com> <20150113152957.GL7660@katana> <20150114144938.4e3c3f52@endymion.delvare> <B2D57D11-FBC2-432A-90E8-90E4CF8F716C@konsulko.com> <20150114161525.49c54acc@endymion.delvare> <20150114162442.GB18578@roeck-us.net> <20150114181426.3a39791b@endymion.delvare> <6680B42A-76E8-40CF-9574-ECD00B40AE98@konsulko.com> <20150114204122.GA31119@kroah.com> <E91AA1C8-64EE-4111-94BD-B8F05071D507@konsulko.com> <20150115225521.GA26542@kroah.com>
-Mime-Version: 1.0 (Mac OS X Mail 8.1 \(1993\))
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH 1/2] of: Add vendor prefix 'netlogic'
+Date: Fri, 16 Jan 2015 12:53:39 +0530
+Message-ID: <1421393020-18807-1-git-send-email-jchandra@broadcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150115225521.GA26542-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Greg,
+From: Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 
-> On Jan 16, 2015, at 00:55 , Greg Kroah-Hartman <gregkh@linuxfoundatio=
-n.org> wrote:
->=20
-> On Thu, Jan 15, 2015 at 06:25:22PM +0200, Pantelis Antoniou wrote:
->> Hi Greg,
->>=20
->>> On Jan 14, 2015, at 22:41 , Greg Kroah-Hartman <gregkh@linuxfoundat=
-ion.org> wrote:
->>>=20
->>> On Wed, Jan 14, 2015 at 07:24:22PM +0200, Pantelis Antoniou wrote:
->>>> I=E2=80=99ll try to dig around tomorrow and see what the real devi=
-ce reference counts
->>>> are, but my hunch goes like this:
->>>>=20
->>>> MUX
->>>> +=E2=80=94- ADAPTER
->>>>   +=E2=80=94 DEV.
->>>>=20
->>>> Mux remove method is called, i2c_del_mux_adapter is called on all =
-the channels
->>>> of the mux, calling in turn i2c_del_adapter which hangs on complet=
-ion of the
->>>> dev_released.
->>>>=20
->>>> The call to device_unregister never calls the device_type callback=
- (i2c_adapter_dev_release)
->>>> because the reference count is not 1 at that point, someone else i=
-s having another
->>>> reference.
->>>=20
->>=20
->> First of all, my head hurts. Tracking device references ain=E2=80=99=
-t easy. Is there some kind
->> of debugging method you=E2=80=99d recommend for this?
->=20
-> You can turn on debugging for kobjects and the driver core if you wan=
-t
-> to slow down your system log a bunch, but it can be helpful for trick=
-ier
-> issues.  Or just sprinkle a few printks around.
->=20
+Add vendor name "netlogic" in vendor-prefixes.txt, which will be used for
+the Netlogic XLP and XLPII MIPS SoCs. These processors were from NetLogic
+Microsystems which is now part of Broadcom Corporation.
 
-Turning on debugging for kobjects is like opening the floodgates=E2=80=A6
+Signed-off-by: Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+---
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-I managed to make do with a few printks, but some kind of tracking woul=
-d
-be helpful.=20
-
->>> I don't remember the i2c core code at all, that was a long time ago=
-=2E
->>>=20
->>=20
->> Bummer.
->=20
-> Do you remember code you wrote 12 year ago and haven't looked at for =
-at
-> least 11?  Why expect others to as well? :)
->=20
-
-You=E2=80=99re supposed to be a super-hero maintainer god right? How am=
- I supposed
-to continue living with my belief system crumbled like that? :)
-
-> thanks,
->=20
-> greg k-h
-
-Regards
-
-=E2=80=94 Pantelis
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index b1df0ad..ad45908 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -111,6 +111,7 @@ mxicy	Macronix International Co., Ltd.
+ national	National Semiconductor
+ neonode		Neonode Inc.
+ netgear	NETGEAR
++netlogic	Broadcom Corporation (formerly NetLogic Microsystems)
+ newhaven	Newhaven Display International
+ nintendo	Nintendo
+ nokia	Nokia
+-- 
+1.9.1
