@@ -1,378 +1,152 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] I2C: mediatek: Add driver for MediaTek I2C
- controller
-Date: Sun, 18 Jan 2015 11:18:16 +0100
-Message-ID: <20150118101816.GF22880@pengutronix.de>
-References: <1421404418-50718-1-git-send-email-eddie.huang@mediatek.com>
- <1421404418-50718-3-git-send-email-eddie.huang@mediatek.com>
+From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Subject: Re: [RFC 1/3] i2c: Enhancement of i2c API to address circular lock
+ dependency problem
+Date: Sun, 18 Jan 2015 11:54:56 +0100
+Message-ID: <54BB9100.7000506@samsung.com>
+References: <1421419194-1849-1-git-send-email-p.osmialowsk@samsung.com> <CA+Ln22GrsCj0291dVccFPzPW8pmxyc8JHtPo5ijsAdDXw6RC1Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1421404418-50718-3-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Uwe Kleine-Konig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bjorn Andersson <bjorn.andersson@s>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <CA+Ln22GrsCj0291dVccFPzPW8pmxyc8JHtPo5ijsAdDXw6RC1Q@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Tomasz Figa <tomasz.figa@gmail.com>, Paul Osmialowski <p.osmialowsk@samsung.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kukjin Kim <kgene@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Michael Turquette <mturquette@linaro.org>, Peter De Schrijver <pdeschrijver@nvidia.com>, Russell King <rmk+kernel@arm.linux.org.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+W dniu 18.01.2015 o 07:30, Tomasz Figa pisze:
+> Hi,
+>
+> [CCing more people]
+>
+> 2015-01-16 23:39 GMT+09:00 Paul Osmialowski <p.osmialowsk@samsung.com>:
+>> This enhancement of i2c API is designed to address following problem
+>> caused by circular lock dependency:
+>>
+>> -> #1 (prepare_lock){+.+.+.}:
+>> [    2.730502]        [<c0061e50>] __lock_acquire+0x3c0/0x8a4
+>> [    2.735970]        [<c0062868>] lock_acquire+0x6c/0x8c
+>> [    2.741090]        [<c04a2724>] mutex_lock_nested+0x68/0x464
+>> [    2.746733]        [<c0395e84>] clk_prepare_lock+0x40/0xe8
+>> [    2.752201]        [<c0397698>] clk_unprepare+0x18/0x28
+>> [    2.757409]        [<c034cbb0>] s3c24xx_i2c_xfer+0xc8/0x124
+>> [    2.762964]        [<c03457e0>] __i2c_transfer+0x74/0x8c
+>> [    2.768259]        [<c0347234>] i2c_transfer+0x78/0xec
+>> [    2.773380]        [<c02a177c>] regmap_i2c_read+0x48/0x64
+>> [    2.778761]        [<c029d5c0>] _regmap_raw_read+0xa8/0xfc
+>> [    2.784230]        [<c029d920>] _regmap_bus_read+0x28/0x48
+>> [    2.789699]        [<c029ce00>] _regmap_read+0x74/0xdc
+>> [    2.794819]        [<c029d0ec>] _regmap_update_bits+0x24/0x70
+>> [    2.800549]        [<c029e348>] regmap_update_bits+0x40/0x5c
+>> [    2.806190]        [<c024c3c4>] _regulator_do_disable+0x68/0x7c
+>> [    2.812093]        [<c024f4d8>] _regulator_disable+0x90/0x12c
+>> [    2.817822]        [<c024f5a8>] regulator_disable+0x34/0x60
+>> [    2.823377]        [<c0363070>] mmc_regulator_set_ocr+0x74/0xdc
+>> [    2.829279]        [<c03783e8>] sdhci_set_power+0x38/0x20c
+>> [    2.834748]        [<c0379c10>] sdhci_do_set_ios+0x180/0x450
+>> [    2.840389]        [<c0379f00>] sdhci_set_ios+0x20/0x2c
+>> [    2.845597]        [<c0364978>] mmc_set_initial_state+0x5c/0xbc
+>> [    2.851500]        [<c0364f48>] mmc_power_off+0x2c/0x60
+>> [    2.856708]        [<c0365c00>] mmc_rescan+0x268/0x27c
+>> [    2.861829]        [<c003a128>] process_one_work+0x18c/0x3f8
+>> [    2.867471]        [<c003a400>] worker_thread+0x38/0x2f8
+>> [    2.872766]        [<c003f66c>] kthread+0xe4/0x104
+>> [    2.877540]        [<c000f0a8>] ret_from_fork+0x14/0x2c
+>> [    2.882749]
+>> -> #0 (&map->mutex){+.+...}:
+>> [    2.886828]        [<c0061224>] validate_chain.isra.25+0x3bc/0x548
+>> [    2.892990]        [<c0061e50>] __lock_acquire+0x3c0/0x8a4
+>> [    2.898459]        [<c0062868>] lock_acquire+0x6c/0x8c
+>> [    2.903580]        [<c04a2724>] mutex_lock_nested+0x68/0x464
+>> [    2.909222]        [<c029ce9c>] regmap_read+0x34/0x5c
+>> [    2.914257]        [<c039a994>] max_gen_clk_is_prepared+0x1c/0x38
+>> [    2.920333]        [<c0396ec4>] clk_unprepare_unused_subtree+0x64/0x98
+>> [    2.926842]        [<c0396f78>] clk_disable_unused+0x80/0xd8
+>> [    2.932484]        [<c00089d0>] do_one_initcall+0xac/0x1f0
+>> [    2.937953]        [<c068bd44>] do_basic_setup+0x90/0xc8
+>> [    2.943248]        [<c068be00>] kernel_init_freeable+0x84/0x120
+>> [    2.949150]        [<c0491248>] kernel_init+0x8/0xec
+>> [    2.954097]        [<c000f0a8>] ret_from_fork+0x14/0x2c
+>> [    2.959307]
+>> [    2.959307] other info that might help us debug this:
+>> [    2.959307]
+>> [    2.967293]  Possible unsafe locking scenario:
+>> [    2.967293]
+>> [    2.973194]        CPU0                    CPU1
+>> [    2.977708]        ----                    ----
+>> [    2.982221]   lock(prepare_lock);
+>> [    2.985520]                                lock(&map->mutex);
+>> [    2.991248]                                lock(prepare_lock);
+>> [    2.997063]   lock(&map->mutex);
+>> [    3.000276]
+>> [    3.000276]  *** DEADLOCK ***
+>>
+>> Apparently regulator and clock try to acquire lock which is protecting the
+>> same regmap. Communication over i2c requires clock to be started. Both things
+>> require access to the same regmap in order to complete.
+>
+> I stumbled upon this issue (and reported it) quite long time ago
+> already, but apparently nobody cared too much (including myself,
+> unfortunately). Please see [1] for details.
+>
+> [1] https://lkml.org/lkml/2014/7/2/171
+>
+> We have here a typical ABBA deadlock scenario, between I2C clock
+> providers and other (logical) devices on the same (physical) I2C
+> device, for which a regmap is used to share the registers between
+> drivers. Remaining factor here is I2C controller driver, which must
+> perform clock gating in I2C ops to trigger this deadlock.
+>
+> The problem is that any operation on such I2C clock will first try to
+> acquire clk_prepare_mutex and then, through driver's callback, access
+> the regmap, acquiring its mutex (then an I2C transfer will happen, but
+> it irrelevant in this context). On opposite side we have drivers for
+> other functionality exposed by this I2C device, which will access the
+> regmap, acquiring its mutex and causing I2C transfers to happen.
+>
+> The key here is that I2C transfers might require some clocks to be
+> prepared, so clk_prepare() might get called from this context and
+> cause a deadlock, because clk_prepare_mutex might have been already
+> acquired by another context, waiting for regmap mutex, which has been
+> already acquired by this context.
+>
+> Now, for the solution, the approach proposed by Paul, as far as I
+> could understand it by reading the code (it's definitely lacking a
+> cover letter with detailed explanation), should solve the issue by
+> enforcing correct locking order at regmap level. However I wonder if
+> we really need a heavy solution like this or we could just make I2C
+> drivers not require clock preparation in I2C transfers, as suggested
+> by Peter De Schrijver in [1], which should fix the issue as well.
+>
+> So, the question is, do we actually have hardware that _really_
+> requires _actual_ preparation or all the clk_prepare_enable()s in I2C
+> drivers (at least in i2c-s3c2410) are just to simplify the code?
 
-On Fri, Jan 16, 2015 at 06:33:38PM +0800, Eddie Huang wrote:
-> +config I2C_MT65XX
-> +	tristate "MediaTek I2C adapter"
-> +	depends on ARCH_MEDIATEK
-depends on ARCH_MEDIATEK || COMPILE_TEST
-default ARCH_MEDIATEK
 
-would be nice to have to get better compile coverage.
+Hi Tomasz,
 
-> +struct mtk_i2c {
-> +	struct i2c_adapter adap;	/* i2c host adapter */
-> +	struct device *dev;
-> +	wait_queue_head_t wait;		/* i2c transfer wait queue */
-> +	/* set in i2c probe */
-> +	void __iomem *base;		/* i2c base addr */
-> +	void __iomem *pdmabase;		/* dma base address*/
-> +	int irqnr;			/* i2c interrupt number */
-irqs are unsigned quantities
+I completely forgot that you already thought about this deadlock in 2014. I 
+think we can try the no-prepare way for i2c-s3c2410. However this would be 
+only workaround for specific chip. Other buses (like SPI) would require 
+similar changes.
 
-> +	struct i2c_dma_buf dma_buf;	/* memory alloc for DMA mode */
-> +	struct clk *clk_main;		/* main clock for i2c bus */
-> +	struct clk *clk_dma;		/* DMA clock for i2c via DMA */
-> +	struct clk *clk_pmic;		/* PMIC clock for i2c from PMIC */
-> +	bool have_pmic;			/* can use i2c pins from PMIC */
-> +	bool use_push_pull;		/* IO config push-pull mode */
-> +	u32 platform_compat;		/* platform compatible data */
-> +	/* set when doing the transfer */
-> +	u16 irq_stat;			/* interrupt status */
-> +	unsigned int speed_hz;		/* The speed in transfer */
-> +	bool trans_stop;		/* i2c transfer stop */
-> +	enum mtk_trans_op op;
-> +	u16 msg_len;
-> +	u8 *msg_buf;			/* pointer to msg data */
-> +	u16 msg_aux_len;		/* WRRD mode to set AUX_LEN register*/
-> +	u16 addr;	/* 7bit slave address, without read/write bit */
-Wouldn't it be easier to maintain a pointer to the message to be
-transferred?
+I wondered why this was not observed (at least not observed by me with 
+lockdep) on Gear 2 (Rinato) board. This is quite similar case: the S2MPS14 
+PMIC provides regulators and 32kHz clocks. I think it is exactly the same 
+pattern as for max77686... but somehow lockdep never reported that deadlock 
+there.
 
-> +	u16 timing_reg;
-> +	u16 high_speed_reg;
-> +};
-> +
-> +static const struct of_device_id mtk_i2c_of_match[] =3D {
-> +	{ .compatible =3D "mediatek,mt6577-i2c", .data =3D (void *)COMPAT_M=
-T6577 },
-> +	{ .compatible =3D "mediatek,mt6589-i2c", .data =3D (void *)COMPAT_M=
-T6589 },
-> +	{},
-There is usually no , after the sentinel entry.
+Anyway thanks for pointing out old discussion.
 
-> +};
-> +MODULE_DEVICE_TABLE(of, mtk_i2c_match);
-> +
-> +static inline void i2c_writew(u16 value, struct mtk_i2c *i2c, u8 off=
-set)
-> +{
-> +	writew(value, i2c->base + offset);
-> +}
-hmm, these simple wrappers are fine in general for me because they migh=
-t
-ease debugging or changing the accessor-function. Still "i2c_writew"
-sounds too generic. IMHO you should spend the few chars to make this
-mtk_i2c_writew. And to match my taste completely, move the driver data
-parameter to the front. (But there are too much different tastes out
-there to really request a certain style here.) Same for the other
-wrappers of course.
+Best regards,
+Krzysztof
 
-> +	/* Prepare buffer data to start transfer */
-> +	if (i2c->op =3D=3D I2C_MASTER_RD) {
-> +		i2c_writel_dma(I2C_DMA_INT_FLAG_NONE, i2c, OFFSET_INT_FLAG);
-> +		i2c_writel_dma(I2C_DMA_CON_RX, i2c, OFFSET_CON);
-> +		i2c_writel_dma((u32)i2c->msg_buf, i2c, OFFSET_RX_MEM_ADDR);
-> +		i2c_writel_dma(i2c->msg_len, i2c, OFFSET_RX_LEN);
-> +	} else if (i2c->op =3D=3D I2C_MASTER_WR) {
-> +		i2c_writel_dma(I2C_DMA_INT_FLAG_NONE, i2c, OFFSET_INT_FLAG);
-> +		i2c_writel_dma(I2C_DMA_CON_TX, i2c, OFFSET_CON);
-> +		i2c_writel_dma((u32)i2c->msg_buf, i2c, OFFSET_TX_MEM_ADDR);
-> +		i2c_writel_dma(i2c->msg_len, i2c, OFFSET_TX_LEN);
-> +	} else {
-		/* i2c->op =3D=3D I2C_MASTER_WRRD */
-
-> +		i2c_writel_dma(I2C_DMA_CLR_FLAG, i2c, OFFSET_INT_FLAG);
-> +		i2c_writel_dma(I2C_DMA_CLR_FLAG, i2c, OFFSET_CON);
-> +		i2c_writel_dma((u32)i2c->msg_buf, i2c, OFFSET_TX_MEM_ADDR);
-> +		i2c_writel_dma((u32)i2c->dma_buf.paddr, i2c,
-> +			OFFSET_RX_MEM_ADDR);
-> +		i2c_writel_dma(i2c->msg_len, i2c, OFFSET_TX_LEN);
-> +		i2c_writel_dma(i2c->msg_aux_len, i2c, OFFSET_RX_LEN);
-> +	}
-> +
-> +	/* flush before sending start */
-> +	mb();
-> +	i2c_writel_dma(I2C_DMA_START_EN, i2c, OFFSET_EN);
-> +	i2c_writew(I2C_TRANSAC_START, i2c, OFFSET_START);
-> +
-> +	tmo =3D wait_event_timeout(i2c->wait, i2c->trans_stop, tmo);
-If the request completes just when wait_event_timeout returned 0 you
-shouldn't throw it away.
-
-> +	if (tmo =3D=3D 0) {
-> +		dev_dbg(i2c->dev, "addr: %x, transfer timeout\n", i2c->addr);
-> +		mtk_i2c_init_hw(i2c);
-> +		return -ETIMEDOUT;
-> +	}
-> [...]
-> +	if (msgs->addr =3D=3D 0) {
-> +		dev_dbg(i2c->dev, " addr is invalid.\n");
-Is this a hardware limitation?
-
-I'd remove the leading space in the message. (Applies also to other
-places.)
-
-> +		ret =3D -EINVAL;
-> +		goto err_exit;
-> +	}
-> +
-> +	if (msgs->buf =3D=3D NULL) {
-> +		dev_dbg(i2c->dev, " data buffer is NULL.\n");
-> +		ret =3D -EINVAL;
-> +		goto err_exit;
-> +	}
-> +
-> +	i2c->addr =3D msgs->addr;
-> +	i2c->msg_len =3D msgs->len;
-> +	i2c->msg_buf =3D msgs->buf;
-> +
-> +	if (msgs->flags & I2C_M_RD)
-> +		i2c->op =3D I2C_MASTER_RD;
-> +	else
-> +		i2c->op =3D I2C_MASTER_WR;
-> +
-> +	/* combined two messages into one transaction */
-> +	if (num > 1) {
-> +		i2c->msg_aux_len =3D (msgs + 1)->len;
-> +		i2c->op =3D I2C_MASTER_WRRD;
-> +	}
-This means "write then read", right? You should check here that the
-first message is really a write and the 2nd a read then.
-Can this happen at all with the quirks defined below (.max_num_msgs =3D
-1)?
-
-> +	/*
-> +	 * always use DMA mode.
-Out of interest: Did you benchmark DMA vs manual mode for a typical
-(what ever that means) scenario?
-
-> +	 * 1st when write need copy the data of message to dma memory
-> +	 * 2nd when read need copy the DMA data to the message buffer.
-> +	 */
-> +	mtk_i2c_copy_to_dma(i2c, msgs);
-> +	i2c->msg_buf =3D (u8 *)i2c->dma_buf.paddr;
-> +	ret =3D mtk_i2c_do_transfer(i2c);
-> +	if (ret < 0)
-> +		goto err_exit;
-> +
-> +	if (i2c->op =3D=3D I2C_MASTER_WRRD)
-> +		mtk_i2c_copy_from_dma(i2c, msgs + 1);
-> +	else
-> +		mtk_i2c_copy_from_dma(i2c, msgs);
-> +
-> +	/* the return value is number of executed messages */
-> +	ret =3D num;
-> +
-> +err_exit:
-> +	mtk_i2c_clock_disable(i2c);
-> +	return ret;
-> +}
-> +
-> +static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
-> +{
-> +	struct mtk_i2c *i2c =3D dev_id;
-> +
-> +	/* Clear interrupt mask */
-> +	i2c_writew(~(I2C_HS_NACKERR | I2C_ACKERR | I2C_TRANSAC_COMP),
-> +		i2c, OFFSET_INTR_MASK);
-What is the effect of this. Does it disable further irqs?
-
-> +	i2c->irq_stat =3D i2c_readw(i2c, OFFSET_INTR_STAT);
-Maybe you need locking here to modify your driver data in the irq?
-
-> +	i2c_writew(I2C_HS_NACKERR | I2C_ACKERR | I2C_TRANSAC_COMP,
-> +		i2c, OFFSET_INTR_STAT);
-This is the ack? Then this is racy; I guess you want
-
-	i2c_writew(i2c->irq_stat & (I2C_HS_NACKERR | I2C_ACKERR ...),
-		   i2c, OFFSET_INTR_STAT);
-
-then.
-
-> +	i2c->trans_stop =3D true;
-> +	wake_up(&i2c->wait);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static u32 mtk_i2c_functionality(struct i2c_adapter *adap)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR | I2C_FUNC_SMBUS_EMUL;
-Does your hardware handle 10bit addresses that nice that there is
-nothing visible in the driver apart from this functionality
-announcement?
-
-> +}
-> +
-> +static const struct i2c_algorithm mtk_i2c_algorithm =3D {
-> +	.master_xfer =3D mtk_i2c_transfer,
-> +	.functionality =3D mtk_i2c_functionality,
-> +};
-> +
-> +static inline u32 mtk_get_device_prop(struct platform_device *pdev)
-> +{
-> +	const struct of_device_id *match;
-> +
-> +	match =3D of_match_node(mtk_i2c_of_match, pdev->dev.of_node);
-> +	return (u32)match->data;
-> +}
-> +
-> +static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *=
-i2c,
-> +	unsigned int *clk_src_div)
-> +{
-> +	i2c->speed_hz =3D I2C_DEFAUT_SPEED;
-> +	of_property_read_u32(np, "clock-frequency", &i2c->speed_hz);
-> +	of_property_read_u32(np, "clock-div", clk_src_div);
-You should check the return value of of_property_read_u32.
-
-> [...]
-> +	ret =3D devm_request_irq(&pdev->dev, i2c->irqnr, mtk_i2c_irq,
-> +		IRQF_TRIGGER_NONE, I2C_DRV_NAME, i2c);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev,
-> +			"Request I2C IRQ %d fail\n", i2c->irqnr);
-> +		return ret;
-> +	}
-I think the devm_request_irq should go near the end of probing.
-Otherwise the irq might fire before the used resources are ready.
-
-> +
-> +	i2c->adap.dev.of_node =3D pdev->dev.of_node;
-> +	i2c->dev =3D &i2c->adap.dev;
-> +	i2c->adap.dev.parent =3D &pdev->dev;
-> +	i2c->adap.owner =3D THIS_MODULE;
-> +	i2c->adap.algo =3D &mtk_i2c_algorithm;
-> +	i2c->adap.quirks =3D &mt6577_i2c_quirks;
-> +	i2c->adap.algo_data =3D NULL;
-No need to initialize this to NULL as the struct was allocated using
-kzalloc.
-
-> +	i2c->adap.timeout =3D 2 * HZ;
-> +	i2c->adap.retries =3D 1;
-> +
-> +	i2c->clk_main =3D devm_clk_get(&pdev->dev, "main");
-> +	if (IS_ERR(i2c->clk_main)) {
-> +		dev_err(&pdev->dev, "cannot get main clock\n");
-> +		return PTR_ERR(i2c->clk_main);
-> +	}
-> +
-> +	i2c->clk_dma =3D devm_clk_get(&pdev->dev, "dma");
-> +	if (IS_ERR(i2c->clk_dma)) {
-> +		dev_err(&pdev->dev, "cannot get dma clock\n");
-> +		return PTR_ERR(i2c->clk_dma);
-> +	}
-> +
-> +	if (i2c->have_pmic) {
-> +		i2c->clk_pmic =3D devm_clk_get(&pdev->dev, "pmic");
-> +		if (IS_ERR(i2c->clk_pmic)) {
-> +			dev_err(&pdev->dev, "cannot get pmic clock\n");
-> +			return PTR_ERR(i2c->clk_pmic);
-> +		}
-> +		clk_src_in_hz =3D clk_get_rate(i2c->clk_pmic) / clk_src_div;
-> +	} else {
-> +		clk_src_in_hz =3D clk_get_rate(i2c->clk_main) / clk_src_div;
-> +	}
-This can be simplified, i.e. the common line can go after the if block
-and then the else branch can be dropped.
-
-> +	dev_dbg(&pdev->dev, "clock source %p,clock src frequency %d\n",
-> +		i2c->clk_main, clk_src_in_hz);
-> +	strlcpy(i2c->adap.name, I2C_DRV_NAME, sizeof(i2c->adap.name));
-> +	init_waitqueue_head(&i2c->wait);
-> +
-> +	ret =3D i2c_set_speed(i2c, clk_src_in_hz);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to set the speed.\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	ret =3D mtk_i2c_clock_enable(i2c);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "clock enable failed!\n");
-> +		return ret;
-> +	}
-> +	mtk_i2c_init_hw(i2c);
-> +	mtk_i2c_clock_disable(i2c);
-> +
-> +	i2c->dma_buf.vaddr =3D dma_alloc_coherent(&pdev->dev,
-> +		PAGE_SIZE, &i2c->dma_buf.paddr, GFP_KERNEL);
-> +	if (i2c->dma_buf.vaddr =3D=3D NULL) {
-> +		dev_err(&pdev->dev, "dma_alloc_coherent fail\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	i2c_set_adapdata(&i2c->adap, i2c);
-> +	ret =3D i2c_add_adapter(&i2c->adap);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to add i2c bus to i2c core\n");
-> +		free_i2c_dma_bufs(i2c);
-> +		return ret;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, i2c);
-> +
-> +	return 0;
-> +}
-> +
-> +static int mtk_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct mtk_i2c *i2c =3D platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&i2c->adap);
-> +	free_i2c_dma_bufs(i2c);
-> +	platform_set_drvdata(pdev, NULL);
-> +
-Here you need to make sure that no irq is running when i2c_del_adapter
-is called.
-
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver mtk_i2c_driver =3D {
-> +	.probe =3D mtk_i2c_probe,
-> +	.remove =3D mtk_i2c_remove,
-> +	.driver =3D {
-> +		.name =3D I2C_DRV_NAME,
-> +		.owner =3D THIS_MODULE,
-You don't need to set .owner any more. That's included in
-module_platform_driver since some time.
-
-> +		.of_match_table =3D of_match_ptr(mtk_i2c_of_match),
-> +	},
-> +};
-> +
-> +module_platform_driver(mtk_i2c_driver);
-> +
-> +MODULE_LICENSE("GPL");
-MODULE_LICENSE("GPL v2");
-> +MODULE_DESCRIPTION("MediaTek I2C Bus Driver");
-> +MODULE_AUTHOR("Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>");
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+>
+> Best regards,
+> Tomasz
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
