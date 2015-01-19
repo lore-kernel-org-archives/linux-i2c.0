@@ -1,51 +1,58 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] README: add info about current maintainer
-Date: Mon, 19 Jan 2015 12:02:53 +0100
-Message-ID: <20150119110253.GB998@katana>
-References: <1421659898-1310-1-git-send-email-wsa@the-dreams.de>
- <20150119113542.4a9e2007@endymion.delvare>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: Py-smbus for Python 3
+Date: Mon, 19 Jan 2015 13:24:30 +0100
+Message-ID: <20150119132430.7fcba08e@endymion.delvare>
+References: <1421658501.2937.2@smtp.inria.fr>
+	<1879153388.1899869.1421658735412.JavaMail.zimbra@inria.fr>
+	<20150119092420.GA998@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150119113542.4a9e2007-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20150119092420.GA998@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi all,
 
---bCsyhTFzCvuiizWE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Mon, 19 Jan 2015 10:24:20 +0100, Wolfram Sang wrote:
+> On Mon, Jan 19, 2015 at 10:12:15AM +0100, Michael Mercier wrote:
+> > Hi,
+> > 
+> > I am working on a project that use the py-smbus module. The problem is 
+> > I am using python 3.x and the py-smbus library is not compatible with 
+> > this version.
+> > 
+> > I found a lot of hack to do so, like:
+> > http://www.raspberrypi.org/forums/viewtopic.php?f=32&t=22348
+> > http://procrastinative.ninja/2014/07/21/smbus-for-python34-on-raspberry/
+> > http://comments.gmane.org/gmane.linux.drivers.i2c/11290
+> > http://www.spinics.net/lists/linux-i2c/msg08427.html
+> > 
+> > I eventually manage to make it work but this code only working with 
+> > python 3.
+> > 
+> > I like distribute it but I do not know where. Is there someone that can 
+> > merge this upstream properly (with python2 compatibility)?
+> > 
+> > I can also put it on github to make it available so any interested people could improve it?
+> > 
+> > What do you think?
+> 
+> Adding Jean to the list, he is the current maintainer of i2c-tools.
 
-> Good idea, I have applied a similar change also explicitly requesting
-> that I am Cc'd.
+Indeed there have been many people doing the same, unfortunately nobody
+ever posted a patch which would preserve compatibility with python 2. I
+don't know a thing about python but I can't imagine that this is not
+possible.
 
-Great, thanks!
+Unfortunately, as long as nobody contributes a patch which makes
+py-smbus work for both python version 2 and version 3, I can't apply
+it. I don't think it makes sense to break compatibility with one
+version to make the other one work.
 
-
---bCsyhTFzCvuiizWE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUvORdAAoJEBQN5MwUoCm2EkgP/3N6bsFF2sJG44jmqKv8PUW2
-Qs/WBhmPOpiPlRYm+dqBuoOFqs5wqM4loc46GEt0Z0OfpKOACwtDDxlJqGPbauho
-q5mz+dsqgaiqXpGv5sAB/luQLGyjyYdNFw/92lxSCcKj+vU4/mcsrQjw9bmcsg48
-B9L9Ndl6ZPrTaZeG1JI1Bv4rRDcBQo+AKX0km6CEOj75EhtCmr4HrsEKEOsDx5RE
-BdsnkvXT36eTLd54KcMvKb9XGPM3hUm7DNj+Hq9uY1QZIlfYgf7hOkySFpJ3VLJB
-MugwVNIxdphOtYeMkvZSuBl6Wo9f2tDfpoh+nSL4P4L4WqZwI0YLxQOhtEmxX5xg
-PTIijXKRpP9/vnJJSAwY2JAf7WOIxwwj4utoI2lmRr0F9qcFEntTu+kYJNqARNmM
-VwacxZI+HBI9XG5ee+MoXoxayyObw3cD00TMpO3nghTAvLy3ueg4pGMQXaeKOyBz
-P1ipaIuaTXkToz+l1aUOYI8BrwXTdIoJPfOhun3yHuP1uKOhiAjCiMIt5SQkX1bq
-ngRpzVt1giIj9C+i3zcICMrixlgRAv/qIWC0JtSpkVcf/46g88KvmzjcXY5RpGkA
-chCxw5/0Onl9UQxqyHCEBVIz2g5sTgHFNquDpZb89LFW4uVnP2NGkRqjzJmkUD0c
-+Yagp+HNCCYYO2YUXu51
-=klBr
------END PGP SIGNATURE-----
-
---bCsyhTFzCvuiizWE--
+-- 
+Jean Delvare
+SUSE L3 Support
