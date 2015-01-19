@@ -1,67 +1,39 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [RFC 1/3] i2c: Enhancement of i2c API to address circular lock
- dependency problem
-Date: Sun, 18 Jan 2015 13:41:24 +0000
-Message-ID: <20150118134124.GC2809@sirena.org.uk>
-References: <1421419194-1849-1-git-send-email-p.osmialowsk@samsung.com>
- <CA+Ln22GrsCj0291dVccFPzPW8pmxyc8JHtPo5ijsAdDXw6RC1Q@mail.gmail.com>
- <54BB9100.7000506@samsung.com>
+From: Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>
+Subject: Fwd: Py-smbus for Python 3
+Date: Mon, 19 Jan 2015 10:12:15 +0100 (CET)
+Message-ID: <1879153388.1899869.1421658735412.JavaMail.zimbra@inria.fr>
+References: <1421658501.2937.2@smtp.inria.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="9Ek0hoCL9XbhcSqy"
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <54BB9100.7000506@samsung.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Cc: Tomasz Figa <tomasz.figa@gmail.com>, Paul Osmialowski <p.osmialowsk@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kukjin Kim <kgene@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Michael Turquette <mturquette@linaro.org>, Peter De Schrijver <pdeschrijver@nvidia.com>, Russell King <rmk+kernel@arm.linux.org.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1421658501.2937.2-YAXBhf1W29QAs8EywTwl9A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
---9Ek0hoCL9XbhcSqy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I am working on a project that use the py-smbus module. The problem is 
+I am using python 3.x and the py-smbus library is not compatible with 
+this version.
 
-On Sun, Jan 18, 2015 at 11:54:56AM +0100, Krzysztof Kozlowski wrote:
-> W dniu 18.01.2015 o 07:30, Tomasz Figa pisze:
+I found a lot of hack to do so, like:
+http://www.raspberrypi.org/forums/viewtopic.php?f=32&t=22348
+http://procrastinative.ninja/2014/07/21/smbus-for-python34-on-raspberry/
+http://comments.gmane.org/gmane.linux.drivers.i2c/11290
+http://www.spinics.net/lists/linux-i2c/msg08427.html
 
-> >So, the question is, do we actually have hardware that _really_
-> >requires _actual_ preparation or all the clk_prepare_enable()s in I2C
-> >drivers (at least in i2c-s3c2410) are just to simplify the code?
+I eventually manage to make it work but this code only working with 
+python 3.
 
-> I completely forgot that you already thought about this deadlock in 2014. I
-> think we can try the no-prepare way for i2c-s3c2410. However this would be
-> only workaround for specific chip. Other buses (like SPI) would require
-> similar changes.
+I like distribute it but I do not know where. Is there someone that can 
+merge this upstream properly (with python2 compatibility)?
 
-Right, and it's every single driver which would need an update too which
-is a bit icky and sad.  On the other hand a more detailed fix is going
-to involve trying to make the clock API locking more fine grained which
-isn't fun.
+I can also put it on github to make it available so any interested people could improve it?
 
-> I wondered why this was not observed (at least not observed by me with
-> lockdep) on Gear 2 (Rinato) board. This is quite similar case: the S2MPS14
-> PMIC provides regulators and 32kHz clocks. I think it is exactly the same
-> pattern as for max77686... but somehow lockdep never reported that deadlock
-> there.
+What do you think?
 
-Mostly the clocks on PMICs never get changed at runtime which helps a
-lot here.
+Thanks,
 
---9Ek0hoCL9XbhcSqy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJUu7gDAAoJECTWi3JdVIfQPmMH/3afYEY4WeiR+Sf1FQumwTFo
-ed0ITCeLzT0D1WSSg75AL1WMOdkwRILhNkFWN9KKwOI2gAbWFJhF4Eg8fsyHGjuu
-u17mnrg8okxJjbWRP7fykFhXMhjNy5etUghTwVxgUYsM6UW982F91HrHFUgv9Fkd
-BgfnfBE9Md4nbIhD8b1K5BECpD61dteSjzWAGd7BXQ4UpJhdDhpUEnccykjvy5jC
-s9AJQEQIU7ttsiNF+mBUktT4TjXqiJFj7j3lI1MIFwK4NMqHGCeZooRlmo441hEO
-zKJszwMdFNjKVR87rUMSn4m9IwySIWQEhLbBL859X+rLl2XBQfECf72ednVpB+U=
-=Hh0i
------END PGP SIGNATURE-----
-
---9Ek0hoCL9XbhcSqy--
+Michael Mercier
