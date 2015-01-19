@@ -1,58 +1,104 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: Py-smbus for Python 3
-Date: Mon, 19 Jan 2015 13:24:30 +0100
-Message-ID: <20150119132430.7fcba08e@endymion.delvare>
-References: <1421658501.2937.2@smtp.inria.fr>
-	<1879153388.1899869.1421658735412.JavaMail.zimbra@inria.fr>
-	<20150119092420.GA998@katana>
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: [PATCH v3] of: i2c: Add i2c-mux-idle-disconnect DT property to PCA954x
+ mux driver
+Date: Mon, 19 Jan 2015 14:29:00 +0100
+Message-ID: <54BD069C.2080108@nsn.com>
+References: <5494599A.8050803@nsn.com> <20150115123237.GC2549@katana> <54B7BBF5.4010001@nsn.com> <20150115131935.GE2549@katana> <54B7C206.8030809@nsn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150119092420.GA998@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <54B7C206.8030809-OYasijW0DpE@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, jdelvare-l3A5Bk7waGM@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+of: i2c: Add i2c-mux-idle-disconnect DT property to PCA954x mux driver
 
-On Mon, 19 Jan 2015 10:24:20 +0100, Wolfram Sang wrote:
-> On Mon, Jan 19, 2015 at 10:12:15AM +0100, Michael Mercier wrote:
-> > Hi,
-> > 
-> > I am working on a project that use the py-smbus module. The problem is 
-> > I am using python 3.x and the py-smbus library is not compatible with 
-> > this version.
-> > 
-> > I found a lot of hack to do so, like:
-> > http://www.raspberrypi.org/forums/viewtopic.php?f=32&t=22348
-> > http://procrastinative.ninja/2014/07/21/smbus-for-python34-on-raspberry/
-> > http://comments.gmane.org/gmane.linux.drivers.i2c/11290
-> > http://www.spinics.net/lists/linux-i2c/msg08427.html
-> > 
-> > I eventually manage to make it work but this code only working with 
-> > python 3.
-> > 
-> > I like distribute it but I do not know where. Is there someone that can 
-> > merge this upstream properly (with python2 compatibility)?
-> > 
-> > I can also put it on github to make it available so any interested people could improve it?
-> > 
-> > What do you think?
-> 
-> Adding Jean to the list, he is the current maintainer of i2c-tools.
+Add i2c-mux-idle-disconnect device tree property to PCA954x mux driver. The new
+property forces the multiplexer to disconnect child buses in idle state. This is
+used, for example, when there are several multiplexers on the same bus and the
+devices on the underlying buses might have same I2C addresses.
 
-Indeed there have been many people doing the same, unfortunately nobody
-ever posted a patch which would preserve compatibility with python 2. I
-don't know a thing about python but I can't imagine that this is not
-possible.
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+---
 
-Unfortunately, as long as nobody contributes a patch which makes
-py-smbus work for both python version 2 and version 3, I can't apply
-it. I don't think it makes sense to break compatibility with one
-version to make the other one work.
+Changes in v3:
+- preserve legacy platform data deselect_on_exit flag
+- change property name to i2c-mux-idle-disconnect
+Changes in v2:
+- dropped idle-state binding
+- headers in alphabetical order
+- removed old platform data deselect_on_exit flag
 
--- 
-Jean Delvare
-SUSE L3 Support
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |    3 +++
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |   11 ++++++++++-
+ 2 files changed, 13 insertions(+), 1 deletions(-)
+
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -16,6 +16,9 @@ Required Properties:
+ Optional Properties:
+ 
+   - reset-gpios: Reference to the GPIO connected to the reset input.
++  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
++    children in idle state. This is necessary for example, if there are several
++    multiplexers on the bus and the devices behind them use same I2C addresses.
+ 
+ 
+ Example:
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -41,6 +41,7 @@
+ #include <linux/i2c-mux.h>
+ #include <linux/i2c/pca954x.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/slab.h>
+ 
+@@ -186,6 +187,9 @@ static int pca954x_probe(struct i2c_client *client,
+ {
+ 	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+ 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
++	struct device_node *np = client->dev.of_node;
++	struct device_node *of_node = client->dev.of_node;
++	bool idle_disconnect_dt;
+ 	struct gpio_desc *gpio;
+ 	int num, force, class;
+ 	struct pca954x *data;
+@@ -217,10 +221,14 @@ static int pca954x_probe(struct i2c_client *client,
+ 	data->type = id->driver_data;
+ 	data->last_chan = 0;		   /* force the first selection */
+ 
++	idle_disconnect_dt = of_node &&
++		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
++
+ 	/* Now create an adapter for each channel */
+ 	for (num = 0; num < chips[data->type].nchans; num++) {
+ 		force = 0;			  /* dynamic adap number */
+ 		class = 0;			  /* no class by default */
++		bool idle_disconnect_pd = false;
+ 		if (pdata) {
+ 			if (num < pdata->num_modes) {
+ 				/* force static number */
+@@ -229,12 +237,13 @@ static int pca954x_probe(struct i2c_client *client,
+ 			} else
+ 				/* discard unconfigured channels */
+ 				break;
++			idle_disconnect_pd = pdata->modes[num].deselect_on_exit;
+ 		}
+ 
+ 		data->virt_adaps[num] =
+ 			i2c_add_mux_adapter(adap, &client->dev, client,
+ 				force, num, class, pca954x_select_chan,
+-				(pdata && pdata->modes[num].deselect_on_exit)
++				(idle_disconnect_pd || idle_disconnect_dt)
+ 					? pca954x_deselect_mux : NULL);
+ 
+ 		if (data->virt_adaps[num] == NULL) {
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
