@@ -1,105 +1,82 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [RFC 2/3] regmap: Use the enhancement of i2c API to address
- circular dependency problem
-Date: Mon, 19 Jan 2015 19:25:57 +0000
-Message-ID: <20150119192557.GI2809@sirena.org.uk>
-References: <1421419194-1849-1-git-send-email-p.osmialowsk@samsung.com>
- <1421419194-1849-2-git-send-email-p.osmialowsk@samsung.com>
- <20150116162314.GB3856@sirena.org.uk>
- <alpine.DEB.2.10.1501161811280.21618@AMDC1262.digital.local>
- <20150116183635.GH3856@sirena.org.uk>
- <alpine.DEB.2.10.1501191031080.13777@AMDC1262.digital.local>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH v4 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
+Date: Mon, 19 Jan 2015 19:28:05 +0000
+Message-ID: <20150119192805.GF26493@n2100.arm.linux.org.uk>
+References: <20150115084119.GN22880@pengutronix.de>
+ <54B98C18.4080807@broadcom.com>
+ <20150117160113.GA22880@pengutronix.de>
+ <54BABEE9.8070801@broadcom.com>
+ <20150117201849.GC22880@pengutronix.de>
+ <54BACB66.6040909@broadcom.com>
+ <20150117211017.GD22880@pengutronix.de>
+ <54BAD391.9080909@broadcom.com>
+ <20150117224021.GA26493@n2100.arm.linux.org.uk>
+ <54BAFEA9.9040900@broadcom.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="7IgncvKP0CVPV/ZZ"
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.10.1501191031080.13777@AMDC1262.digital.local>
-Sender: linux-doc-owner@vger.kernel.org
-To: Paul Osmialowski <p.osmialowsk@samsung.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+In-Reply-To: <54BAFEA9.9040900@broadcom.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ray Jui <rjui@broadcom.com>
+Cc: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Christian Daudt <bcm@fixthebug.org>, Matt Porter <mporter@linaro.org>, Florian Fainelli <f.fainelli@gmail.com>, Scott Branden <sbranden@broadcom.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Sat, Jan 17, 2015 at 04:30:33PM -0800, Ray Jui wrote:
+> 
+> 
+> On 1/17/2015 2:40 PM, Russell King - ARM Linux wrote:
+> > On Sat, Jan 17, 2015 at 01:26:41PM -0800, Ray Jui wrote:
+> >> 	time_left = wait_for_completion_timeout(&iproc_i2c->done, time_left);
+> >>
+> >> 	/* disable all interrupts */
+> >> 	writel(0, iproc_i2c->base + IE_OFFSET);
+> >>
+> >> 	if (!time_left && !atomic_read(&iproc_i2c->transfer_is_successful)) {
+> > 
+> > Why are you using atomic_read() here?
+> > 
+> transfer_is_successful 1) will be reset to 0 in this function (before
+> kick start the I2C transfer), 2) will be set to 1 in the ISR (to signal
+> completion of the I2C transfer), and 3) will be checked in this function
+> here. I thought that means I should declare it volatile, because it can
+> be modified in both the process context and interrupt context (and I use
+> atomic because I remember Linux checkpatch warns against using volatile)?
 
---7IgncvKP0CVPV/ZZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+You don't need volatile or atomic_t for that.
 
-On Mon, Jan 19, 2015 at 10:31:22AM +0100, Paul Osmialowski wrote:
-> On Fri, 16 Jan 2015, Mark Brown wrote:
+Rather than switching to atomic_t when seeing the checkpatch warning,
+you'd do better to read Documentation/volatile-considered-harmful.txt
+to understand why checkpatch issues the warning, and realise that you
+don't need it for the above.
 
-> >What I'm saying is that I want to understand this change from a point of
-> >view that isn't tied to I2C - at the regmap level what is this doing,
+Note that in the above code, the compiler can't make an assumption
+about iproc_i2c->transfer_is_successful because it can't tell whether
+a called function (eg, wait_for_completion_timeout()) could modify it.
 
-> From the regmap point of view, it allows its functions to have a chance to
-> prepare transfer medium for (synchronous) transfer (no matter what bus
-> handles it) before it actually start to happen (then unprepare it when it's
-> done) and crucially before any lock is obtained in functions like
-> regmap_write(), regmap_read() or regmap_update_bits.
+Another possible issue with the above code are these lines:
 
-OK, so that's what should go in the changelog (along with an explanation
-of why this preparation is required at all) - but I still don't see the
-async bit of this I'm afraid.
+	/* disable all interrupts */
+	writel(0, iproc_i2c->base + IE_OFFSET);
 
-> Maybe adding a pair of callbacks (map->reg_write_sync_prepared(),
-> map->reg_read_sync_prepared()) would make situation clearer.
+It would be nice to think that would hit the hardware immediately, but
+that's making assumptions about hardware which are not necessary true.
+Your interrupt handler could even be running on another CPU after you've
+asked for that register to be written.
 
-No, I don't think so - it'd just complicate the callers.
+Depending on what you're trying to achieve here, you may need:
 
-> >I2C is a bus that has some properties which you're saying needs some
-> >changes, what are those properties and those changes?
+	/* disable all interrupts */
+	writel(0, iproc_i2c->base + IE_OFFSET);
+	/* read it back to ensure the write has hit */
+	readl(iproc_i2c->base + IE_OFFSET);
 
-> I'm not saying I2C as a bus requires changes. What I'm saying is that I2C
-> API can be extended to allow more detailed control on what happens with the
-> transfer.
+	/* make sure the interrupt handler isn't running */
+	synchronize_irq(...->irq);
 
-My point here is that your explanation is in terms of I2C specifics and
-not really at a generic regmap level.
+if what you're trying to do is to ensure that the interrupt handler has
+finished running.
 
-> >Can you be more specific please?  If something needs preparing it seems
-> >like it'd need preparing over an async transaction just as much as over
-> >a synchronous one.
-
-> Even with those preparation and unpreparation stages, this transfer is still
-> synchronous. For example, it starts when regmap_read() starts and ends when
-> regmap_read() ends. Nothing is queued or deferred. Namely, when
-> max_gen_clk_unprepare() function calls regmap_update_bits() it expects that
-> when regmap_update_bits() returned, no outstanding transfer are happening
-> nor waiting to proceed. Everything must be completed before returning to
-> max_gen_clk_unprepare().
-
-That doesn't address my question - all you're saying is that in a
-synchronous call path things are synchronous which is fine but obviously
-regmap supports async I/O too.
-
-> >Not in this pattern where the caller needs to check too.
-
-> I don't persist on that. Apparently, you're the author of this file, though
-> regmap_init() function was later expanded by other guys. They never assigned
-> bus callback function pointers directly to map operation callbacks. It is
-> possible to replace 'map->reg_prepare_sync_io = regmap_bus_prepare_sync_io'
-> with 'map->reg_prepare_sync_io = map->bus->prepare_sync_io' - this will
-> compile and this will work properly. But IMHO it wouldn't match with what
-> the others did.
-
-If you look at the other callbacks they're doing other things beyond
-simply forwarding the functions on.  That's the problem here, the
-functions just add a layer of indirection and nothing else.
-
---7IgncvKP0CVPV/ZZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJUvVpFAAoJECTWi3JdVIfQ6NIH/0425/3zjySHkW9YBh834jXA
-nw0QdjmOho7GTprP9b2F028GlgR4YxoMWp5XT4Nf13q35PdhKoIA7bxaeiJxMyqj
-jL9C350dvBLXbjvWpQa9lEOim7DWW/r3SM5AO0c6Qw0uCDkaIuZe3oaFOmRrNdGa
-pL3Q5PZ8Nv8oBG296V79lFZeD7T+gcCozxZdRw/Ay9/DHgvl7Dn60GWzlqmLJysm
-iGHn5hbtA1xq9XCTwXd/NUDQNUjWzv6oPlshA3zl4Lrm/Zp3wVUhdFZycC0K4mok
-pUG0xL92DgWfwonuiUC65WrTY78UpbDw4lV/SEpr0TK4gJtWgYdQFr43FGZxc3g=
-=6/ek
------END PGP SIGNATURE-----
-
---7IgncvKP0CVPV/ZZ--
+-- 
+FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
+according to speedtest.net.
