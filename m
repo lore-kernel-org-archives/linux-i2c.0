@@ -1,97 +1,82 @@
 From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v5 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
-Date: Mon, 19 Jan 2015 11:15:41 -0800
-Message-ID: <54BD57DD.9080002@broadcom.com>
-References: <rjui@broadcom.com> <1421451737-7107-1-git-send-email-rjui@broadcom.com> <1421451737-7107-3-git-send-email-rjui@broadcom.com> <54BB795C.6040402@broadcom.com> <20150118094741.GE22880@pengutronix.de> <20150118110658.GA1113@katana> <20150118111759.GG22880@pengutronix.de> <54BB9D2B.20408@broadcom.com> <20150118115650.GH22880@pengutronix.de> <54BBA36A.10608@broadcom.com>
+Subject: [PATCH v6 0/3] Add I2C support to Broadcom iProc
+Date: Mon, 19 Jan 2015 11:23:45 -0800
+Message-ID: <1421695428-19102-1-git-send-email-rjui@broadcom.com>
+References: <Ray Jui <rjui@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54BBA36A.10608-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arend van Spriel <arend-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, =?windows-1252?Q?Uwe_Kleine-?= =?windows-1252?Q?K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arend van Spriel <arend-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This patchset contains the initial I2C support for Broadcom iProc family of
+SoCs.
 
+The iProc I2C controller has separate internal TX and RX FIFOs, each has a
+size of 64 bytes. The iProc I2C controller supports two bus speeds including
+standard mode (100 kHz) and fast mode (400 kHz)
 
-On 1/18/2015 4:13 AM, Arend van Spriel wrote:
-> On 01/18/15 12:56, Uwe Kleine-K=F6nig wrote:
->> Hello,
->>
->> On Sun, Jan 18, 2015 at 12:46:51PM +0100, Arend van Spriel wrote:
->>> On 01/18/15 12:17, Uwe Kleine-K=F6nig wrote:
->>>> Hello Wolfram,
->>>>
->>>> On Sun, Jan 18, 2015 at 12:06:58PM +0100, Wolfram Sang wrote:
->>>>> On Sun, Jan 18, 2015 at 10:47:41AM +0100, Uwe Kleine-K=F6nig wrot=
-e:
->>>>>> On Sun, Jan 18, 2015 at 10:14:04AM +0100, Arend van Spriel wrote=
-:
->>>>>>> On 01/17/15 00:42, Ray Jui wrote:
->>>>>>>> +    complete_all(&iproc_i2c->done);
->>>>>>>
->>>>>>> Looking over this code it seems to me there is always a single
->>>>>>> process waiting for iproc_i2c->done to complete. So using compl=
-ete()
->>>>>>> here would suffice.
->>>>>> Yeah, there is always only a single thread waiting. That means b=
-oth
->>>>>> complete and complete_all are suitable. AFAIK there is no reason
->>>>>> to pick
->>>>>> one over the other in this case.
->>>>>
->>>>> Clarity?
->>>> And which do you consider more clear? complete_all might result in=
- the
->>>> question: "Is there>1 waiter?" and complete might yield to "What a=
-bout
->>>> the other waiters?". If you already know there is only one, both a=
-re on
->>>> par on clarity. Might only be me?! I don't care much.
->>>
->>> Maybe it is me, but it is not about questions but it is about
->>> implicit statements that the code makes (or reader derives from it)=
-=2E
->>> When using complete_all you indicate to the reader "there can be
->>> more than one waiter". When using complete it indicates "there is
->>> only one waiter". If those statements are not true that is a code
->> No, complete works just fine in the presence of>1 waiter. It just wa=
-kes
->> a single waiter and all others continue to wait.
->=20
-> Yes. Agree.
->=20
->> That is, for single-waiter situations there is no semantic differenc=
-e
->> between complete and complete_all. But there is a difference for
->> multi-waiter queues.
->=20
-> Indeed.
->=20
->> I think this is just a matter of your POV in the single-waiter
->> situation: complete might be intuitive because you just completed a
->> single task and complete_all might be intuitive because it signals
->> "I'm completely done, there is noone waiting for me any more.".
->=20
-> Ok. Let's leave it to the author's intuition or to say it differently
-> "sorry for the noise" ;-)
-Will stay with complete_all since I meant to say "after this transfer
-complete interrupt, there should be no one waiting anymore (although
-there's currently only one waiter, and will likely stay that way)"
+Changes from v5:
+ - Improve the "waiting for transaction to be complete" logic to take care of
+   the corner case when an interrupt fires after wait_for_completion_timeout
+   times out
+ - Improve the logic to disable I2C interrupt in the remove function. Make it
+   more generic so it works for both dedicated and shared interrupt
 
-Thanks!
+Changes from v4:
+ - Remove redundant header file includes
+ - Change the logic that waits for the host controller to be idle to
+   simply return -EBUSY
+ - Use proper print level and error codes in the driver
+ - Allow zero length message in the driver to support I2C_SMBUS_QUICK
+ - Change back to use devm_request_irq. Disable interrupt in the remove
+   function so there's no outstanding I2C interrupt when the driver is
+   being removed from the framework
+ - Other minor miscellaneous improvements and fixes
 
->=20
-> Regards,
-> Arend
->=20
->> Best regards
->> Uwe
->>
->=20
+Changes from v3:
+ - Add config dependency to COMPILE_TEST to allow the driver to be build tested
+   by other platforms
+ - Improve CPU utilization efficiency in the loop of waiting for bus to idle
+ - Add more comment in the driver to clarify the way how the "start busy"
+   interrupt is triggered from the I2C controller
+ - Fix inconsistent coding style and format
+ - Improve the bus speed validation logic in the driver
+ - Add code to free the interrupt line in driver's remove function. Also
+   change to use non-devm API to request the interrupt line
+ - Other miscellaneous improvements and fixes
+
+Changes from v2:
+ - Have the I2C driver default to y so it does not need to be selected from
+   ARCH_BCM_IPROC. This also helps to get rid of one patch. The driver still
+   depends on ARCH_BCM_IPROC
+ - Get rid of redundant check on resource returned by platform_get_resource
+
+Changes from v1:
+ - Fix function argument parenthesis
+ - Get rid of redundant driver owner field
+
+Ray Jui (3):
+  i2c: iProc: define Broadcom iProc I2C binding
+  i2c: iproc: Add Broadcom iProc I2C Driver
+  ARM: dts: add I2C device nodes for Broadcom Cygnus
+
+ .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |   37 ++
+ arch/arm/boot/dts/bcm-cygnus.dtsi                  |   20 +
+ drivers/i2c/busses/Kconfig                         |   10 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-bcm-iproc.c                 |  499 ++++++++++++++++++++
+ 5 files changed, 567 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+ create mode 100644 drivers/i2c/busses/i2c-bcm-iproc.c
+
+-- 
+1.7.9.5
+
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
