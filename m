@@ -1,74 +1,105 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: Fwd: Py-smbus for Python 3
-Date: Mon, 19 Jan 2015 10:24:20 +0100
-Message-ID: <20150119092420.GA998@katana>
-References: <1421658501.2937.2@smtp.inria.fr>
- <1879153388.1899869.1421658735412.JavaMail.zimbra@inria.fr>
+From: Paul Osmialowski <p.osmialowsk@samsung.com>
+Subject: Re: [RFC 2/3] regmap: Use the enhancement of i2c API to address
+ circular dependency problem
+Date: Mon, 19 Jan 2015 10:31:22 +0100 (CET)
+Message-ID: <alpine.DEB.2.10.1501191031080.13777@AMDC1262.digital.local>
+References: <1421419194-1849-1-git-send-email-p.osmialowsk@samsung.com>
+ <1421419194-1849-2-git-send-email-p.osmialowsk@samsung.com>
+ <20150116162314.GB3856@sirena.org.uk>
+ <alpine.DEB.2.10.1501161811280.21618@AMDC1262.digital.local>
+ <20150116183635.GH3856@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1879153388.1899869.1421658735412.JavaMail.zimbra-MZpvjPyXg2s@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <20150116183635.GH3856@sirena.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, p.osmialowsk@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---liOOAslEiF7prFVr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 19, 2015 at 10:12:15AM +0100, Michael Mercier wrote:
-> Hi,
->=20
-> I am working on a project that use the py-smbus module. The problem is=20
-> I am using python 3.x and the py-smbus library is not compatible with=20
-> this version.
->=20
-> I found a lot of hack to do so, like:
-> http://www.raspberrypi.org/forums/viewtopic.php?f=3D32&t=3D22348
-> http://procrastinative.ninja/2014/07/21/smbus-for-python34-on-raspberry/
-> http://comments.gmane.org/gmane.linux.drivers.i2c/11290
-> http://www.spinics.net/lists/linux-i2c/msg08427.html
->=20
-> I eventually manage to make it work but this code only working with=20
-> python 3.
->=20
-> I like distribute it but I do not know where. Is there someone that can=
-=20
-> merge this upstream properly (with python2 compatibility)?
->=20
-> I can also put it on github to make it available so any interested people=
- could improve it?
->=20
-> What do you think?
+On Fri, 16 Jan 2015, Mark Brown wrote:
 
-Adding Jean to the list, he is the current maintainer of i2c-tools.
+> On Fri, Jan 16, 2015 at 06:36:14PM +0100, Paul Osmialowski wrote:
+>> On Fri, 16 Jan 2015, Mark Brown wrote:
+>
+>>> I don't know what this means, sorry.  I'm also very worried about the
+>>> fact that this is being discussed purely in terms of I2C - why would
+>>> this not affect other buses?
+>
+>> I tried to open some gate for further extension to any bus that is used for
+>> regmap communications. Currently it goes down to regmap-i2c.c since I
+>> enhanced i2c API for this. Anyone who feels it is useful or saves oneself
+>> from locking troubles can voluntarily adapt other regmap-i2c.* places (as
+>> needed?).
+>
+>> My whole point is that I proposed a way to solve nasty deadlock which is
+>> better to fix than just leave as it is. I got a feeling that situation I
+>> adressed here may occur others too, so I proposed this extension that allows
+>> future adaptations. I don't expect it to be accepted easily (i.e. I'm new
+>> here and have mixed feelins about proposing changes that go so far),
+>> therefore I prepared other solution for this particular deadlock that occurs
+>> on this particular device.
+>
+> What I'm saying is that I want to understand this change from a point of
+> view that isn't tied to I2C - at the regmap level what is this doing,
 
+>From the regmap point of view, it allows its functions to have a chance to 
+prepare transfer medium for (synchronous) transfer (no matter what bus 
+handles it) before it actually start to happen (then unprepare it when 
+it's done) and crucially before any lock is obtained in functions like 
+regmap_write(), regmap_read() or regmap_update_bits.
 
---liOOAslEiF7prFVr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Maybe adding a pair of callbacks (map->reg_write_sync_prepared(), 
+map->reg_read_sync_prepared()) would make situation clearer.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+> I2C is a bus that has some properties which you're saying needs some
+> changes, what are those properties and those changes?
 
-iQIcBAEBAgAGBQJUvM1EAAoJEBQN5MwUoCm2dpsQAJ45jgcdSykdUSkFrWEkkQ2k
-Y7t/hcjb0lo8RX7ao5hKexR6nwbNvwdBplKG6KUBVMWiy/B4u+/496qxb8AI+qdJ
-NWGA1eDRSS2a9t4Tt6AR4B8uf5LS590TwPy+vyvgCt8+k7IRp5gfT3spzxtpf955
-UZkGcxquBNdiECfhpODkd9nmXk1S/19jUk5uDTRE8FvPKLaYpL//VgyPIIyWs/Ln
-aKCAzrt5Z43Xtv8PKw87yvkteMxFV8AigIEtu3uoyQAMl/cm/sbR6C9oine9/Blh
-zgxexZRt7ZAY7XxhcSrvzPItQekZaCk3Zp2utCxs87pJ6bO3w5cESHzd9kk8SeEm
-JRqD1vcoHYxqsWZXU+V9zxCPj0FWBMFSyMN0vr7nc2+O2ueaIk0FF+AUx1TyKJyh
-RNqPT6514l5EmMP3VqaIxc4Z8VT0ddSFQHNLyHBlYt/5nXuIqc95a92JvO1m5Z/p
-RCinXfJj1zPCMbmr1LQ9MbX3jb0c/zKW16+vNbR1Yu+jObetRjBvp+Ff6t0/FthD
-g7dFdFagU23UdPPa61YXowHWYLAtGFcDLGNFc03Cv8gsSdHNOczUNn8qXkLE1oPm
-3TjTYpzQBk4zqrUpYa6KxCRGur+xrC1ur34j1smFduh//cxWL0QPAbs2MlIpuXhI
-mMSAcmt2t8skuGlNCjMW
-=rFR5
------END PGP SIGNATURE-----
+I'm not saying I2C as a bus requires changes. What I'm saying is that I2C 
+API can be extended to allow more detailed control on what happens with 
+the transfer.
 
---liOOAslEiF7prFVr--
+>
+>>>> +	void (*reg_unprepare_sync_io)(void *context);
+>
+>>> The first question here is why this only affects synchronous I/O or
+>>> alternatively why these operations have _sync in the name if they aren't
+>>> for synchronous I/O.
+>
+>> IMHO this whole idea is against asynchronous I/O.
+>
+> Can you be more specific please?  If something needs preparing it seems
+> like it'd need preparing over an async transaction just as much as over
+> a synchronous one.
+>
+
+Even with those preparation and unpreparation stages, this transfer is 
+still synchronous. For example, it starts when regmap_read() starts and 
+ends when regmap_read() ends. Nothing is queued or deferred. Namely, when 
+max_gen_clk_unprepare() function calls regmap_update_bits() it expects 
+that when regmap_update_bits() returned, no outstanding transfer are 
+happening nor waiting to proceed. Everything must be completed before 
+returning to max_gen_clk_unprepare().
+
+>>>> +	if (bus) {
+>>>> +		map->reg_prepare_sync_io = regmap_bus_prepare_sync_io;
+>>>> +		map->reg_unprepare_sync_io = regmap_bus_unprepare_sync_io;
+>>>> +	}
+>
+>>> Why are we using these indirections instead of assigning the operation
+>>> directly?  They...
+>
+>> I followed the pattern used throughout this file.
+>
+> Not in this pattern where the caller needs to check too.
+>
+
+I don't persist on that. Apparently, you're the author of this file, 
+though regmap_init() function was later expanded by other guys. They never 
+assigned bus callback function pointers directly to map operation 
+callbacks. It is possible to replace 'map->reg_prepare_sync_io = 
+regmap_bus_prepare_sync_io' with 'map->reg_prepare_sync_io = 
+map->bus->prepare_sync_io' - this will compile and this will work 
+properly. But IMHO it wouldn't match with what the others did.
