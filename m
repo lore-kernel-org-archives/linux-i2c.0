@@ -1,104 +1,68 @@
-From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Subject: [PATCH v3] of: i2c: Add i2c-mux-idle-disconnect DT property to PCA954x
- mux driver
-Date: Mon, 19 Jan 2015 14:29:00 +0100
-Message-ID: <54BD069C.2080108@nsn.com>
-References: <5494599A.8050803@nsn.com> <20150115123237.GC2549@katana> <54B7BBF5.4010001@nsn.com> <20150115131935.GE2549@katana> <54B7C206.8030809@nsn.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC 01/11] i2c: add quirk structure to describe adapter flaws
+Date: Mon, 19 Jan 2015 16:00:11 +0100
+Message-ID: <20150119150010.GA3820@katana>
+References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
+ <1420824103-24169-2-git-send-email-wsa@the-dreams.de>
+ <1421396295.11671.50.camel@mtksdaap41>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54B7C206.8030809-OYasijW0DpE@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, jdelvare-l3A5Bk7waGM@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1421396295.11671.50.camel@mtksdaap41>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@atmel.com>, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, Eddie Huang <eddie.huang@mediatek.com>, Xudong Chen <xudong.chen@mediatek.com>, Liguo Zhang <Liguo.Zhang@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
-of: i2c: Add i2c-mux-idle-disconnect DT property to PCA954x mux driver
 
-Add i2c-mux-idle-disconnect device tree property to PCA954x mux driver. The new
-property forces the multiplexer to disconnect child buses in idle state. This is
-used, for example, when there are several multiplexers on the same bus and the
-devices on the underlying buses might have same I2C addresses.
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
----
+Hi,
 
-Changes in v3:
-- preserve legacy platform data deselect_on_exit flag
-- change property name to i2c-mux-idle-disconnect
-Changes in v2:
-- dropped idle-state binding
-- headers in alphabetical order
-- removed old platform data deselect_on_exit flag
+> This can describe the behavior of our current upstream driver[1], which
+> only support combine write-then-read.
+>=20
+> After checking with Xudong & HW guys, it seems our HW can do more.=20
+> On MT8135, it can support at most 2 messages, no matter read or write,
+> with the limitation that the length of the second message must <=3D
+> 31bytes.
+>=20
+> So this RFC is enough for our driver, but it would be better if we could
+> also support other case.
 
- .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |    3 +++
- drivers/i2c/muxes/i2c-mux-pca954x.c                |   11 ++++++++++-
- 2 files changed, 13 insertions(+), 1 deletions(-)
+Hmm, I think we can convert max_comb_{read|write}_len to
+max_comb_{1st|2nd}_msg_len or similar.
 
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -16,6 +16,9 @@ Required Properties:
- Optional Properties:
- 
-   - reset-gpios: Reference to the GPIO connected to the reset input.
-+  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
-+    children in idle state. This is necessary for example, if there are several
-+    multiplexers on the bus and the devices behind them use same I2C addresses.
- 
- 
- Example:
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -41,6 +41,7 @@
- #include <linux/i2c-mux.h>
- #include <linux/i2c/pca954x.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- #include <linux/pm.h>
- #include <linux/slab.h>
- 
-@@ -186,6 +187,9 @@ static int pca954x_probe(struct i2c_client *client,
- {
- 	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
- 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
-+	struct device_node *np = client->dev.of_node;
-+	struct device_node *of_node = client->dev.of_node;
-+	bool idle_disconnect_dt;
- 	struct gpio_desc *gpio;
- 	int num, force, class;
- 	struct pca954x *data;
-@@ -217,10 +221,14 @@ static int pca954x_probe(struct i2c_client *client,
- 	data->type = id->driver_data;
- 	data->last_chan = 0;		   /* force the first selection */
- 
-+	idle_disconnect_dt = of_node &&
-+		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
-+
- 	/* Now create an adapter for each channel */
- 	for (num = 0; num < chips[data->type].nchans; num++) {
- 		force = 0;			  /* dynamic adap number */
- 		class = 0;			  /* no class by default */
-+		bool idle_disconnect_pd = false;
- 		if (pdata) {
- 			if (num < pdata->num_modes) {
- 				/* force static number */
-@@ -229,12 +237,13 @@ static int pca954x_probe(struct i2c_client *client,
- 			} else
- 				/* discard unconfigured channels */
- 				break;
-+			idle_disconnect_pd = pdata->modes[num].deselect_on_exit;
- 		}
- 
- 		data->virt_adaps[num] =
- 			i2c_add_mux_adapter(adap, &client->dev, client,
- 				force, num, class, pca954x_select_chan,
--				(pdata && pdata->modes[num].deselect_on_exit)
-+				(idle_disconnect_pd || idle_disconnect_dt)
- 					? pca954x_deselect_mux : NULL);
- 
- 		if (data->virt_adaps[num] == NULL) {
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I'll check but it will probably not before next week.
+
+Thanks for the input!
+
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUvRv6AAoJEBQN5MwUoCm2BtUP/j0J77NsM7yPGZCkW0ukxlje
+DlX4KwNdJfkLoKAXA4Mihfl33bzS7Vs7S0LN9ZSAu2wgxp5kl/+ZKMMCIauMLt1o
+CYtAZuHvQBMPmsDRyumir597NOE9oDd31ttZs3USzwG5SiIHSGh1yU/MMHezG5Qp
+HxyQ42NhSUY55h88FEHm3GrEXCBJ3JS765t7USm6/HriyvHoPrzS+X8dhvPWwZup
+u8LRbL10HYHjYNXBo918+KvHvMO8tmVET/tqqShcLsTo1+xadr9p3xzuqu7VwETX
+j7UgnJtkpBv1xftkqp3vVNQ6seLPd/ozaIdTfHtnIPlD3f9aGZBIcHS9uOBtwfuJ
+ptR0EFR0RYDws84ipI85veGB7QTJOlKonSyGKfSIdvmjMGwSnVCBe2wO6jWv9IWw
+d76+/R/53nwI+IyZK99wmzDNfMhK4EVybKzdLqtt4/7RYlifGB79Vrorlo9t26hD
+XnJNxUAJZiwn9yaoeuKI/pH67tGKfjMGe3A7+HISdaSwwAn5aLLWggBeI9pIHB6r
+ZeoXhSXK3RskAM5/50OpwPfXn/oMCq/XUBycBRJwXzQs+ab49wD+ptX/QCXqk4N0
+vGnrT41MLD+U6mhgwtLqd9idT7U1lg44cbe8lBmnhbhaYwhp+L01HJbaK6ALfEJy
+VESLiRjTpngaAEIGYvQH
+=GLeY
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--
