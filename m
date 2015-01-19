@@ -1,108 +1,152 @@
-From: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c-tools: add compatibility for python2/3 to py-smbus
-Date: Mon, 19 Jan 2015 16:13:26 +0100
-Message-ID: <CA+TH9VkT1K2aqAuNOLsGiU407OA4NYcMVaUakEQgSWLpMBBg2A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a11343cf000f3fe050d02c65a
+From: Paul Osmialowski <p.osmialowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c: s3c2410: fix ABBA deadlock by keeping clock prepared
+Date: Mon, 19 Jan 2015 17:03:33 +0100
+Message-ID: <1421683413-27075-1-git-send-email-p.osmialowsk@samsung.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org
+To: Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter De Schrijver <pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Paul Osmialowski <p.osmialowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---001a11343cf000f3fe050d02c65a
-Content-Type: text/plain; charset=ISO-8859-1
+This patch solves deadlock between clock prepare mutex and regmap mutex reported
+by Tomasz Figa in [1] by implementing solution from [2]: "always leave the clock
+of the i2c controller in a prepared state".
 
-Dear Jean Delvare,
+[1] https://lkml.org/lkml/2014/7/2/171
+[2] https://lkml.org/lkml/2014/7/2/207
 
-Attached you can find a patch that implements py-smbus for python3
-with python2 backward compatibility.
-This patch is not heavily tested, but it wors well for me.
+On each i2c transfer handled by s3c24xx_i2c_xfer(), clk_prepare_enable() was
+called, which calls clk_prepare() then clk_enable(). clk_prepare() takes
+prepare_lock mutex before proceeding. Note that i2c transfer functions are
+invoked from many places in kernel, typically with some other additional lock
+held.
 
-Unfortunately, I don't know how to use svn for sharing source code, it
-is so ugly compared to git and it doesn't provide a way to send
-patches via email, so the best way I found was to attach the patch
-file.
+It may happen that function on CPU1 (e.g. regmap_update_bits()) has taken a
+mutex (i.e. regmap lock mutex) then it attempts i2c communication in order to
+proceed (so it needs to obtain clock related prepare_lock mutex during transfer
+preparation stage due to clk_prepare() call). At the same time other task on
+CPU0 wants to operate on clock (e.g. to (un)prepare clock for some other reason)
+so it has taken prepare_lock mutex.
 
-Hope this helps!
+CPU0:                        CPU1:
+clk_disable_unused()         regulator_disable()
+  clk_prepare_lock()           map->lock(map->lock_arg)
+  regmap_read()                s3c24xx_i2c_xfer()
+    map->lock(map->lock_arg)     clk_prepare_lock()
 
-Sincerely, Angelo
+Implemented solution from [2] leaves i2c clock prepared. Preparation is done in
+s3c24xx_i2c_probe() function. Without this patch, it is immediately unprepared
+by clk_disable_unprepare() call. I've replaced this call with clk_disable() and
+I've added clk_unprepare() call in s3c24xx_i2c_remove().
 
+The s3c24xx_i2c_xfer() function now uses clk_enable() instead of
+clk_prepare_enable() (and clk_disable() instead of clk_unprepare_disable()).
+
+Signed-off-by: Paul Osmialowski <p.osmialowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index bff20a5..958c8db 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -785,14 +785,16 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	int ret;
+ 
+ 	pm_runtime_get_sync(&adap->dev);
+-	clk_prepare_enable(i2c->clk);
++	ret = clk_enable(i2c->clk);
++	if (ret)
++		return ret;
+ 
+ 	for (retry = 0; retry < adap->retries; retry++) {
+ 
+ 		ret = s3c24xx_i2c_doxfer(i2c, msgs, num);
+ 
+ 		if (ret != -EAGAIN) {
+-			clk_disable_unprepare(i2c->clk);
++			clk_disable(i2c->clk);
+ 			pm_runtime_put(&adap->dev);
+ 			return ret;
+ 		}
+@@ -802,7 +804,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 		udelay(100);
+ 	}
+ 
+-	clk_disable_unprepare(i2c->clk);
++	clk_disable(i2c->clk);
+ 	pm_runtime_put(&adap->dev);
+ 	return -EREMOTEIO;
+ }
+@@ -1197,7 +1199,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	clk_prepare_enable(i2c->clk);
+ 	ret = s3c24xx_i2c_init(i2c);
+-	clk_disable_unprepare(i2c->clk);
++	clk_disable(i2c->clk);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "I2C controller init failed\n");
+ 		return ret;
+@@ -1210,6 +1212,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		i2c->irq = ret = platform_get_irq(pdev, 0);
+ 		if (ret <= 0) {
+ 			dev_err(&pdev->dev, "cannot find IRQ\n");
++			clk_unprepare(i2c->clk);
+ 			return ret;
+ 		}
+ 
+@@ -1218,6 +1221,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 		if (ret != 0) {
+ 			dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
++			clk_unprepare(i2c->clk);
+ 			return ret;
+ 		}
+ 	}
+@@ -1225,6 +1229,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register cpufreq notifier\n");
++		clk_unprepare(i2c->clk);
+ 		return ret;
+ 	}
+ 
+@@ -1241,6 +1246,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to add bus to i2c core\n");
+ 		s3c24xx_i2c_deregister_cpufreq(i2c);
++		clk_unprepare(i2c->clk);
+ 		return ret;
+ 	}
+ 
+@@ -1262,6 +1268,8 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+ 
++	clk_unprepare(i2c->clk);
++
+ 	pm_runtime_disable(&i2c->adap.dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+@@ -1293,13 +1301,16 @@ static int s3c24xx_i2c_resume_noirq(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
++	int ret;
+ 
+ 	if (!IS_ERR(i2c->sysreg))
+ 		regmap_write(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, i2c->sys_i2c_cfg);
+ 
+-	clk_prepare_enable(i2c->clk);
++	ret = clk_enable(i2c->clk);
++	if (ret)
++		return ret;
+ 	s3c24xx_i2c_init(i2c);
+-	clk_disable_unprepare(i2c->clk);
++	clk_disable(i2c->clk);
+ 	i2c->suspended = 0;
+ 
+ 	return 0;
 -- 
-Profile: http://it.linkedin.com/in/compagnucciangelo
-
---001a11343cf000f3fe050d02c65a
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="i2c-tools-py-smbus-python2-3-support.patch"
-Content-Disposition: attachment;
-	filename="i2c-tools-py-smbus-python2-3-support.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i53zs5lw0
-
-SW5kZXg6IHNtYnVzbW9kdWxlLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpkaWZmIC0tZ2l0IGEvaTJjLXRvb2xzL3Ry
-dW5rL3B5LXNtYnVzL3NtYnVzbW9kdWxlLmMgYi9pMmMtdG9vbHMvdHJ1bmsvcHktc21idXMvc21i
-dXNtb2R1bGUuYwotLS0gYS9pMmMtdG9vbHMvdHJ1bmsvcHktc21idXMvc21idXNtb2R1bGUuYwko
-cmV2aXNpb24gNjI2MSkKKysrIGIvaTJjLXRvb2xzL3RydW5rL3B5LXNtYnVzL3NtYnVzbW9kdWxl
-LmMJKHdvcmtpbmcgY29weSkKQEAgLTE4LDE0ICsxOCwxNiBAQAogCiAjaW5jbHVkZSA8UHl0aG9u
-Lmg+CiAjaW5jbHVkZSAic3RydWN0bWVtYmVyLmgiCi0jaW5jbHVkZSA8c3lzL2lvY3RsLmg+CiAj
-aW5jbHVkZSA8c3RkbGliLmg+CiAjaW5jbHVkZSA8c3RkaW8uaD4KICNpbmNsdWRlIDxmY250bC5o
-PgotI2luY2x1ZGUgPGxpbnV4L2kyYy5oPgogI2luY2x1ZGUgPGxpbnV4L2kyYy1kZXYuaD4KLSNp
-bmNsdWRlIDxpMmMvc21idXMuaD4KIAorLyogUmVxdWlyZWQgZm9yIGJhY2t3YXJkIGNvbXBhdGli
-aWxpdHkgd2l0aCBweXRob24gMiovCisjaWYgUFlfTUFKT1JfVkVSU0lPTiA+PSAzCisjZGVmaW5l
-IFBZMworI2VuZGlmCisKIC8qCiAqKiBUaGVzZSBhcmUgcmVxdWlyZWQgdG8gYnVpbGQgdGhpcyBt
-b2R1bGUgYWdhaW5zdCBMaW51eCBvbGRlciB0aGFuIDIuNi4yMy4KICovCkBAIC0zNSw2ICszNyw3
-IEBACiAjZGVmaW5lIEkyQ19TTUJVU19JMkNfQkxPQ0tfREFUQQk4CiAjZW5kaWYKIAorI2lmbmRl
-ZiBQWTMKIFB5RG9jX1NUUlZBUihTTUJ1c19tb2R1bGVfZG9jLAogCSJUaGlzIG1vZHVsZSBkZWZp
-bmVzIGFuIG9iamVjdCB0eXBlIHRoYXQgYWxsb3dzIFNNQnVzIHRyYW5zYWN0aW9uc1xuIgogCSJv
-biBob3N0cyBydW5uaW5nIHRoZSBMaW51eCBrZXJuZWwuICBUaGUgaG9zdCBrZXJuZWwgbXVzdCBo
-YXZlIEkyQ1xuIgpAQCAtNDQsNiArNDcsNyBAQAogCSJcbiIKIAkiQmVjYXVzZSB0aGUgSTJDIGRl
-dmljZSBpbnRlcmZhY2UgaXMgb3BlbmVkIFIvVywgdXNlcnMgb2YgdGhpc1xuIgogCSJtb2R1bGUg
-dXN1YWxseSBtdXN0IGhhdmUgcm9vdCBwZXJtaXNzaW9ucy5cbiIpOworI2VuZGlmCiAKIHR5cGVk
-ZWYgc3RydWN0IHsKIAlQeU9iamVjdF9IRUFECkBAIC05NCw3ICs5OCwxMSBAQAogCVB5T2JqZWN0
-ICpyZWYgPSBTTUJ1c19jbG9zZShzZWxmKTsKIAlQeV9YREVDUkVGKHJlZik7CiAKKyNpZm5kZWYg
-UFkzCiAJc2VsZi0+b2JfdHlwZS0+dHBfZnJlZSgoUHlPYmplY3QgKilzZWxmKTsKKyNlbHNlCisJ
-UHlfVFlQRShzZWxmKS0+dHBfZnJlZSgoUHlPYmplY3QgKilzZWxmKTsKKyNlbmRpZgogfQogCiAj
-ZGVmaW5lIE1BWFBBVEggMTYKQEAgLTQzNCwxMSArNDQyLDE5IEBACiAKIAlmb3IgKGlpID0gMDsg
-aWkgPCBsZW47IGlpKyspIHsKIAkJUHlPYmplY3QgKnZhbCA9IFB5TGlzdF9HRVRfSVRFTShsaXN0
-LCBpaSk7CisjaWZuZGVmIFBZMwogCQlpZiAoIVB5SW50X0NoZWNrKHZhbCkpIHsKIAkJCVB5RXJy
-X1NldFN0cmluZyhQeUV4Y19UeXBlRXJyb3IsIG1zZyk7CiAJCQlyZXR1cm4gMDsgLyogZmFpbCAq
-LwogCQl9CiAJCWRhdGEtPmJsb2NrW2lpKzFdID0gKF9fdTgpUHlJbnRfQVNfTE9ORyh2YWwpOwor
-I2Vsc2UKKwkJaWYgKCFQeUxvbmdfQ2hlY2sodmFsKSkgeworCQkJUHlFcnJfU2V0U3RyaW5nKFB5
-RXhjX1R5cGVFcnJvciwgbXNnKTsKKwkJCXJldHVybiAwOyAvKiBmYWlsICovCisJCX0KKwkJZGF0
-YS0+YmxvY2tbaWkrMV0gPSAoX191OClQeUxvbmdfQVNfTE9ORyh2YWwpOworI2VuZGlmCiAJfQog
-CiAJcmV0dXJuIDE7IC8qIHN1Y2Nlc3MgKi8KQEAgLTYzNiwxMiArNjUyLDE4IEBACiAJe05VTEx9
-LAogfTsKIAorI2lmbmRlZiBQWTMKIHN0YXRpYyBQeVR5cGVPYmplY3QgU01CdXNfdHlwZSA9IHsK
-IAlQeU9iamVjdF9IRUFEX0lOSVQoTlVMTCkKIAkwLAkJCQkvKiBvYl9zaXplICovCiAJInNtYnVz
-LlNNQnVzIiwJCQkvKiB0cF9uYW1lICovCi0Jc2l6ZW9mKFNNQnVzKSwJCQkvKiB0cF9iYXNpY3Np
-emUgKi8KLQkwLAkJCQkvKiB0cF9pdGVtc2l6ZSAqLworI2Vsc2UKK3N0YXRpYyBQeVR5cGVPYmpl
-Y3QgU01CdXNfdHlwZSA9IHsKKwlQeVZhck9iamVjdF9IRUFEX0lOSVQoTlVMTCwgMCkKKwkiU01C
-dXMiLAkJCS8qIHRwX25hbWUgKi8KKyNlbmRpZgorCXNpemVvZihTTUJ1cyksCQkvKiB0cF9iYXNp
-Y3NpemUgKi8KKwkwLAkJCQkgICAgLyogdHBfaXRlbXNpemUgKi8KIAkoZGVzdHJ1Y3RvcilTTUJ1
-c19kZWFsbG9jLAkvKiB0cF9kZWFsbG9jICovCiAJMCwJCQkJLyogdHBfcHJpbnQgKi8KIAkwLAkJ
-CQkvKiB0cF9nZXRhdHRyICovCkBAIC02NzgsMjQgKzcwMCw2NCBAQAogCVNNQnVzX25ldywJCQkv
-KiB0cF9uZXcgKi8KIH07CiAKKyNpZm5kZWYgUFkzCiBzdGF0aWMgUHlNZXRob2REZWYgU01CdXNf
-bW9kdWxlX21ldGhvZHNbXSA9IHsKIAl7TlVMTH0KIH07CisjZWxzZQorc3RhdGljIHN0cnVjdCBQ
-eU1vZHVsZURlZiBTTUJ1c01vZHVsZSA9IHsKKwlQeU1vZHVsZURlZl9IRUFEX0lOSVQsCisJIlNN
-QnVzIiwJLyogbV9uYW1lICovCisJIlRoaXMgbW9kdWxlIGRlZmluZXMgYW4gb2JqZWN0IHR5cGUg
-dGhhdCBhbGxvd3MgU01CdXMgdHJhbnNhY3Rpb25zXG4iCisJIm9uIGhvc3RzIHJ1bm5pbmcgdGhl
-IExpbnV4IGtlcm5lbC4gIFRoZSBob3N0IGtlcm5lbCBtdXN0IGhhdmUgSTJDXG4iCisJInN1cHBv
-cnQsIEkyQyBkZXZpY2UgaW50ZXJmYWNlIHN1cHBvcnQsIGFuZCBhIGJ1cyBhZGFwdGVyIGRyaXZl
-ci5cbiIKKwkiQWxsIG9mIHRoZXNlIGNhbiBiZSBlaXRoZXIgYnVpbHQtaW4gdG8gdGhlIGtlcm5l
-bCwgb3IgbG9hZGVkIGZyb21cbiIKKwkibW9kdWxlcy5cbiIKKwkiXG4iCisJIkJlY2F1c2UgdGhl
-IEkyQyBkZXZpY2UgaW50ZXJmYWNlIGlzIG9wZW5lZCBSL1csIHVzZXJzIG9mIHRoaXNcbiIKKwki
-bW9kdWxlIHVzdWFsbHkgbXVzdCBoYXZlIHJvb3QgcGVybWlzc2lvbnMuXG4iLCAgLyogbV9kb2Mg
-Ki8KKwktMSwgLyogbV9zaXplICovCisJTlVMTCwgLyogbV9tZXRob2RzICovCisJTlVMTCwgLyog
-bV9yZWxvYWQgKi8KKwlOVUxMLCAvKiBtX3RyYXZlcnNlICovCisJTlVMTCwgLyogbV9jbGVhciAq
-LworCU5VTEwsIC8qIG1fZnJlZSAqLworfTsKKyNlbmRpZgogCiAjaWZuZGVmIFB5TU9ESU5JVF9G
-VU5DCS8qIGRlY2xhcmF0aW9ucyBmb3IgRExMIGltcG9ydC9leHBvcnQgKi8KICNkZWZpbmUgUHlN
-T0RJTklUX0ZVTkMgdm9pZAogI2VuZGlmCiBQeU1PRElOSVRfRlVOQwotaW5pdHNtYnVzKHZvaWQp
-IAorCisjaWZuZGVmIFBZMworaW5pdHNtYnVzKHZvaWQpCisjZWxzZQorUHlJbml0X3NtYnVzKHZv
-aWQpCisjZW5kaWYgCiB7CiAJUHlPYmplY3QqIG07CiAKIAlpZiAoUHlUeXBlX1JlYWR5KCZTTUJ1
-c190eXBlKSA8IDApCisjaWZuZGVmIFBZMwogCQlyZXR1cm47CisjZWxzZQorCQlyZXR1cm4gTlVM
-TDsKKyNlbmRpZgogCisjaWZuZGVmIFBZMwogCW0gPSBQeV9Jbml0TW9kdWxlMygic21idXMiLCBT
-TUJ1c19tb2R1bGVfbWV0aG9kcywgU01CdXNfbW9kdWxlX2RvYyk7CisjZWxzZQorCW0gPSBQeU1v
-ZHVsZV9DcmVhdGUoJlNNQnVzTW9kdWxlKTsKKwlpZiAobSA9PSBOVUxMKQorCQlyZXR1cm4gTlVM
-TDsKKyNlbmRpZgogCiAJUHlfSU5DUkVGKCZTTUJ1c190eXBlKTsKIAlQeU1vZHVsZV9BZGRPYmpl
-Y3QobSwgIlNNQnVzIiwgKFB5T2JqZWN0ICopJlNNQnVzX3R5cGUpOworCisjaWZkZWYgUFkzCisJ
-cmV0dXJuIG07CisjZW5kaWYKIH0KIAo=
---001a11343cf000f3fe050d02c65a--
+1.9.1
