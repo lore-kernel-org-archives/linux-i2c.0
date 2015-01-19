@@ -1,62 +1,108 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC 01/11] i2c: add quirk structure to describe adapter flaws
-Date: Mon, 19 Jan 2015 16:05:15 +0100
-Message-ID: <20150119150514.GB3820@katana>
-References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
- <1420824103-24169-2-git-send-email-wsa@the-dreams.de>
- <1421387408.9323.10.camel@mtksdaap41>
+From: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: i2c-tools: add compatibility for python2/3 to py-smbus
+Date: Mon, 19 Jan 2015 16:13:26 +0100
+Message-ID: <CA+TH9VkT1K2aqAuNOLsGiU407OA4NYcMVaUakEQgSWLpMBBg2A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LpQ9ahxlCli8rRTG"
+Content-Type: multipart/mixed; boundary=001a11343cf000f3fe050d02c65a
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1421387408.9323.10.camel@mtksdaap41>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+--001a11343cf000f3fe050d02c65a
+Content-Type: text/plain; charset=ISO-8859-1
 
---LpQ9ahxlCli8rRTG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dear Jean Delvare,
 
+Attached you can find a patch that implements py-smbus for python3
+with python2 backward compatibility.
+This patch is not heavily tested, but it wors well for me.
 
-> > +	struct i2c_adapter_quirks *quirks;
-> >  };
-> >  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
-> > =20
->=20
-> I suggest to add const.
-> 	const struct i2c_adapter_quirks *quirks;
->=20
-> also, in i2c-core.c, should modify:
-> 	const struct i2c_adapter_quirks *q =3D adap->quirks;
+Unfortunately, I don't know how to use svn for sharing source code, it
+is so ugly compared to git and it doesn't provide a way to send
+patches via email, so the best way I found was to attach the patch
+file.
 
-Thanks, I'll think about it.
+Hope this helps!
 
+Sincerely, Angelo
 
---LpQ9ahxlCli8rRTG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+-- 
+Profile: http://it.linkedin.com/in/compagnucciangelo
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+--001a11343cf000f3fe050d02c65a
+Content-Type: text/x-patch; charset=US-ASCII;
+	name="i2c-tools-py-smbus-python2-3-support.patch"
+Content-Disposition: attachment;
+	filename="i2c-tools-py-smbus-python2-3-support.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_i53zs5lw0
 
-iQIcBAEBAgAGBQJUvR0qAAoJEBQN5MwUoCm2kAQQAIn4NHdQ77C3iBtOkfdr7nta
-VM8Ft7w+0genCuj5Gkse3W92uzfmv6l50ffQH5vDEG+20b0dOTJI05peBler8+hK
-hFBE7V5lkx/ujwtuWUhn4wMcnWOXGLnIyTxm7MQCo146ORIp4Z3th5/jR0ACSe40
-vTAlbm3sAkZvArbjIeLfSiQY3MNhYjYx/0wPp2u9Tyi+TxHs27bj/bS0Q8Z8xgxA
-jMjhHZzFvplwoy8x76FglCx1ZPpgWajLgQQtcz/JXOwmXqlc+jTMbVcgbunEh6w3
-F5WYGEM6eUVT5dKvTLdBvaxrcbhGU56tXiX1z54J8A6ZyXipji28CT/8QG0xJt8p
-R1I20oHhwd+Fz9ZX0Y1KJthj+2ZkvoKiBTIVcNyJt0KnCQUU+DKslUQELsBn3dO+
-vD3r7kL/DHLVFtXLSWMASyzkB6ytANOBCmt5elHoKD10ZOZx9oBbMEUXkH/6MNEK
-IPJSdGevkCMsPnDiKcEISk+COYyzFHyPYIu4Gahl5SgpytIyCkWVRTCl4HBpW+e3
-Gc0u08W59eDmuzzOqfmYga+EPU6Wr3YIrhtAnagtmrhGP4332L3htI/kHSt2uylE
-3TP8XymlY/PcAWwWfbH+R0Wv5nBfUsCTtJgNa4KHhqdr3O0tLyKKf6MfjzSCtFN9
-dOAm/x3bZqagrE8Cq8Lf
-=PK3B
------END PGP SIGNATURE-----
-
---LpQ9ahxlCli8rRTG--
+SW5kZXg6IHNtYnVzbW9kdWxlLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpkaWZmIC0tZ2l0IGEvaTJjLXRvb2xzL3Ry
+dW5rL3B5LXNtYnVzL3NtYnVzbW9kdWxlLmMgYi9pMmMtdG9vbHMvdHJ1bmsvcHktc21idXMvc21i
+dXNtb2R1bGUuYwotLS0gYS9pMmMtdG9vbHMvdHJ1bmsvcHktc21idXMvc21idXNtb2R1bGUuYwko
+cmV2aXNpb24gNjI2MSkKKysrIGIvaTJjLXRvb2xzL3RydW5rL3B5LXNtYnVzL3NtYnVzbW9kdWxl
+LmMJKHdvcmtpbmcgY29weSkKQEAgLTE4LDE0ICsxOCwxNiBAQAogCiAjaW5jbHVkZSA8UHl0aG9u
+Lmg+CiAjaW5jbHVkZSAic3RydWN0bWVtYmVyLmgiCi0jaW5jbHVkZSA8c3lzL2lvY3RsLmg+CiAj
+aW5jbHVkZSA8c3RkbGliLmg+CiAjaW5jbHVkZSA8c3RkaW8uaD4KICNpbmNsdWRlIDxmY250bC5o
+PgotI2luY2x1ZGUgPGxpbnV4L2kyYy5oPgogI2luY2x1ZGUgPGxpbnV4L2kyYy1kZXYuaD4KLSNp
+bmNsdWRlIDxpMmMvc21idXMuaD4KIAorLyogUmVxdWlyZWQgZm9yIGJhY2t3YXJkIGNvbXBhdGli
+aWxpdHkgd2l0aCBweXRob24gMiovCisjaWYgUFlfTUFKT1JfVkVSU0lPTiA+PSAzCisjZGVmaW5l
+IFBZMworI2VuZGlmCisKIC8qCiAqKiBUaGVzZSBhcmUgcmVxdWlyZWQgdG8gYnVpbGQgdGhpcyBt
+b2R1bGUgYWdhaW5zdCBMaW51eCBvbGRlciB0aGFuIDIuNi4yMy4KICovCkBAIC0zNSw2ICszNyw3
+IEBACiAjZGVmaW5lIEkyQ19TTUJVU19JMkNfQkxPQ0tfREFUQQk4CiAjZW5kaWYKIAorI2lmbmRl
+ZiBQWTMKIFB5RG9jX1NUUlZBUihTTUJ1c19tb2R1bGVfZG9jLAogCSJUaGlzIG1vZHVsZSBkZWZp
+bmVzIGFuIG9iamVjdCB0eXBlIHRoYXQgYWxsb3dzIFNNQnVzIHRyYW5zYWN0aW9uc1xuIgogCSJv
+biBob3N0cyBydW5uaW5nIHRoZSBMaW51eCBrZXJuZWwuICBUaGUgaG9zdCBrZXJuZWwgbXVzdCBo
+YXZlIEkyQ1xuIgpAQCAtNDQsNiArNDcsNyBAQAogCSJcbiIKIAkiQmVjYXVzZSB0aGUgSTJDIGRl
+dmljZSBpbnRlcmZhY2UgaXMgb3BlbmVkIFIvVywgdXNlcnMgb2YgdGhpc1xuIgogCSJtb2R1bGUg
+dXN1YWxseSBtdXN0IGhhdmUgcm9vdCBwZXJtaXNzaW9ucy5cbiIpOworI2VuZGlmCiAKIHR5cGVk
+ZWYgc3RydWN0IHsKIAlQeU9iamVjdF9IRUFECkBAIC05NCw3ICs5OCwxMSBAQAogCVB5T2JqZWN0
+ICpyZWYgPSBTTUJ1c19jbG9zZShzZWxmKTsKIAlQeV9YREVDUkVGKHJlZik7CiAKKyNpZm5kZWYg
+UFkzCiAJc2VsZi0+b2JfdHlwZS0+dHBfZnJlZSgoUHlPYmplY3QgKilzZWxmKTsKKyNlbHNlCisJ
+UHlfVFlQRShzZWxmKS0+dHBfZnJlZSgoUHlPYmplY3QgKilzZWxmKTsKKyNlbmRpZgogfQogCiAj
+ZGVmaW5lIE1BWFBBVEggMTYKQEAgLTQzNCwxMSArNDQyLDE5IEBACiAKIAlmb3IgKGlpID0gMDsg
+aWkgPCBsZW47IGlpKyspIHsKIAkJUHlPYmplY3QgKnZhbCA9IFB5TGlzdF9HRVRfSVRFTShsaXN0
+LCBpaSk7CisjaWZuZGVmIFBZMwogCQlpZiAoIVB5SW50X0NoZWNrKHZhbCkpIHsKIAkJCVB5RXJy
+X1NldFN0cmluZyhQeUV4Y19UeXBlRXJyb3IsIG1zZyk7CiAJCQlyZXR1cm4gMDsgLyogZmFpbCAq
+LwogCQl9CiAJCWRhdGEtPmJsb2NrW2lpKzFdID0gKF9fdTgpUHlJbnRfQVNfTE9ORyh2YWwpOwor
+I2Vsc2UKKwkJaWYgKCFQeUxvbmdfQ2hlY2sodmFsKSkgeworCQkJUHlFcnJfU2V0U3RyaW5nKFB5
+RXhjX1R5cGVFcnJvciwgbXNnKTsKKwkJCXJldHVybiAwOyAvKiBmYWlsICovCisJCX0KKwkJZGF0
+YS0+YmxvY2tbaWkrMV0gPSAoX191OClQeUxvbmdfQVNfTE9ORyh2YWwpOworI2VuZGlmCiAJfQog
+CiAJcmV0dXJuIDE7IC8qIHN1Y2Nlc3MgKi8KQEAgLTYzNiwxMiArNjUyLDE4IEBACiAJe05VTEx9
+LAogfTsKIAorI2lmbmRlZiBQWTMKIHN0YXRpYyBQeVR5cGVPYmplY3QgU01CdXNfdHlwZSA9IHsK
+IAlQeU9iamVjdF9IRUFEX0lOSVQoTlVMTCkKIAkwLAkJCQkvKiBvYl9zaXplICovCiAJInNtYnVz
+LlNNQnVzIiwJCQkvKiB0cF9uYW1lICovCi0Jc2l6ZW9mKFNNQnVzKSwJCQkvKiB0cF9iYXNpY3Np
+emUgKi8KLQkwLAkJCQkvKiB0cF9pdGVtc2l6ZSAqLworI2Vsc2UKK3N0YXRpYyBQeVR5cGVPYmpl
+Y3QgU01CdXNfdHlwZSA9IHsKKwlQeVZhck9iamVjdF9IRUFEX0lOSVQoTlVMTCwgMCkKKwkiU01C
+dXMiLAkJCS8qIHRwX25hbWUgKi8KKyNlbmRpZgorCXNpemVvZihTTUJ1cyksCQkvKiB0cF9iYXNp
+Y3NpemUgKi8KKwkwLAkJCQkgICAgLyogdHBfaXRlbXNpemUgKi8KIAkoZGVzdHJ1Y3RvcilTTUJ1
+c19kZWFsbG9jLAkvKiB0cF9kZWFsbG9jICovCiAJMCwJCQkJLyogdHBfcHJpbnQgKi8KIAkwLAkJ
+CQkvKiB0cF9nZXRhdHRyICovCkBAIC02NzgsMjQgKzcwMCw2NCBAQAogCVNNQnVzX25ldywJCQkv
+KiB0cF9uZXcgKi8KIH07CiAKKyNpZm5kZWYgUFkzCiBzdGF0aWMgUHlNZXRob2REZWYgU01CdXNf
+bW9kdWxlX21ldGhvZHNbXSA9IHsKIAl7TlVMTH0KIH07CisjZWxzZQorc3RhdGljIHN0cnVjdCBQ
+eU1vZHVsZURlZiBTTUJ1c01vZHVsZSA9IHsKKwlQeU1vZHVsZURlZl9IRUFEX0lOSVQsCisJIlNN
+QnVzIiwJLyogbV9uYW1lICovCisJIlRoaXMgbW9kdWxlIGRlZmluZXMgYW4gb2JqZWN0IHR5cGUg
+dGhhdCBhbGxvd3MgU01CdXMgdHJhbnNhY3Rpb25zXG4iCisJIm9uIGhvc3RzIHJ1bm5pbmcgdGhl
+IExpbnV4IGtlcm5lbC4gIFRoZSBob3N0IGtlcm5lbCBtdXN0IGhhdmUgSTJDXG4iCisJInN1cHBv
+cnQsIEkyQyBkZXZpY2UgaW50ZXJmYWNlIHN1cHBvcnQsIGFuZCBhIGJ1cyBhZGFwdGVyIGRyaXZl
+ci5cbiIKKwkiQWxsIG9mIHRoZXNlIGNhbiBiZSBlaXRoZXIgYnVpbHQtaW4gdG8gdGhlIGtlcm5l
+bCwgb3IgbG9hZGVkIGZyb21cbiIKKwkibW9kdWxlcy5cbiIKKwkiXG4iCisJIkJlY2F1c2UgdGhl
+IEkyQyBkZXZpY2UgaW50ZXJmYWNlIGlzIG9wZW5lZCBSL1csIHVzZXJzIG9mIHRoaXNcbiIKKwki
+bW9kdWxlIHVzdWFsbHkgbXVzdCBoYXZlIHJvb3QgcGVybWlzc2lvbnMuXG4iLCAgLyogbV9kb2Mg
+Ki8KKwktMSwgLyogbV9zaXplICovCisJTlVMTCwgLyogbV9tZXRob2RzICovCisJTlVMTCwgLyog
+bV9yZWxvYWQgKi8KKwlOVUxMLCAvKiBtX3RyYXZlcnNlICovCisJTlVMTCwgLyogbV9jbGVhciAq
+LworCU5VTEwsIC8qIG1fZnJlZSAqLworfTsKKyNlbmRpZgogCiAjaWZuZGVmIFB5TU9ESU5JVF9G
+VU5DCS8qIGRlY2xhcmF0aW9ucyBmb3IgRExMIGltcG9ydC9leHBvcnQgKi8KICNkZWZpbmUgUHlN
+T0RJTklUX0ZVTkMgdm9pZAogI2VuZGlmCiBQeU1PRElOSVRfRlVOQwotaW5pdHNtYnVzKHZvaWQp
+IAorCisjaWZuZGVmIFBZMworaW5pdHNtYnVzKHZvaWQpCisjZWxzZQorUHlJbml0X3NtYnVzKHZv
+aWQpCisjZW5kaWYgCiB7CiAJUHlPYmplY3QqIG07CiAKIAlpZiAoUHlUeXBlX1JlYWR5KCZTTUJ1
+c190eXBlKSA8IDApCisjaWZuZGVmIFBZMwogCQlyZXR1cm47CisjZWxzZQorCQlyZXR1cm4gTlVM
+TDsKKyNlbmRpZgogCisjaWZuZGVmIFBZMwogCW0gPSBQeV9Jbml0TW9kdWxlMygic21idXMiLCBT
+TUJ1c19tb2R1bGVfbWV0aG9kcywgU01CdXNfbW9kdWxlX2RvYyk7CisjZWxzZQorCW0gPSBQeU1v
+ZHVsZV9DcmVhdGUoJlNNQnVzTW9kdWxlKTsKKwlpZiAobSA9PSBOVUxMKQorCQlyZXR1cm4gTlVM
+TDsKKyNlbmRpZgogCiAJUHlfSU5DUkVGKCZTTUJ1c190eXBlKTsKIAlQeU1vZHVsZV9BZGRPYmpl
+Y3QobSwgIlNNQnVzIiwgKFB5T2JqZWN0ICopJlNNQnVzX3R5cGUpOworCisjaWZkZWYgUFkzCisJ
+cmV0dXJuIG07CisjZW5kaWYKIH0KIAo=
+--001a11343cf000f3fe050d02c65a--
