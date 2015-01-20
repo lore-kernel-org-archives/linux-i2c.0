@@ -1,41 +1,62 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 1/2] i2c: tegra: Maintain CPU endianness
-Date: Tue, 20 Jan 2015 15:22:25 +0300
-Message-ID: <1421756555-20266-1-git-send-email-digetx@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: digetx@gmail.com, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>, Bob Mottram <bob.mottram@codethink.co.uk>, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH] i2c: slave-eeprom: fix boundary check when using sysfs
+Date: Tue, 20 Jan 2015 15:52:15 +0200
+Message-ID: <2988844.NmFWX0K5r9@avalon>
+References: <1421684575-6679-1-git-send-email-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1421684575-6679-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Debora Grosse <debora@mds.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Support CPU BE mode by adding endianness conversion for memcpy interactions.
+Hi Wolfram,
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/i2c/busses/i2c-tegra.c | 3 +++
- 1 file changed, 3 insertions(+)
+Thank you for the patch.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 28b87e6..e0d3ef1 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -286,6 +286,7 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
- 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
-+		val = cpu_to_le32(val);
- 		memcpy(buf, &val, buf_remaining);
- 		buf_remaining = 0;
- 		rx_fifo_avail--;
-@@ -343,7 +344,9 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 */
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
-+		val = 0;
- 		memcpy(&val, buf, buf_remaining);
-+		val = cpu_to_le32(val);
- 
- 		/* Again update before writing to FIFO to make sure isr sees. */
- 		i2c_dev->msg_buf_remaining = 0;
+On Monday 19 January 2015 17:22:55 Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> Due to a copy&paste error, the last byte of the shared memory was not
+> accessible via sysfs.
+> 
+> Reported-by: Debora Grosse <debora@mds.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+> ---
+>  drivers/i2c/i2c-slave-eeprom.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
+> index f432f81b0414..8f417e9054ac 100644
+> --- a/drivers/i2c/i2c-slave-eeprom.c
+> +++ b/drivers/i2c/i2c-slave-eeprom.c
+> @@ -74,7 +74,7 @@ static ssize_t i2c_slave_eeprom_bin_read(struct file
+> *filp, struct kobject *kobj struct eeprom_data *eeprom;
+>  	unsigned long flags;
+> 
+> -	if (off + count >= attr->size)
+> +	if (off + count > attr->size)
+>  		return -EFBIG;
+> 
+>  	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
+> @@ -92,7 +92,7 @@ static ssize_t i2c_slave_eeprom_bin_write(struct file
+> *filp, struct kobject *kob struct eeprom_data *eeprom;
+>  	unsigned long flags;
+> 
+> -	if (off + count >= attr->size)
+> +	if (off + count > attr->size)
+>  		return -EFBIG;
+> 
+>  	eeprom = dev_get_drvdata(container_of(kobj, struct device, kobj));
+
 -- 
-2.2.1
+Regards,
+
+Laurent Pinchart
+
