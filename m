@@ -1,165 +1,119 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: i2c-tools: add compatibility for python2/3 to py-smbus
-Date: Mon, 19 Jan 2015 23:03:27 +0100
-Message-ID: <20150119230327.0224d0ba@endymion.delvare>
-References: <CA+TH9VkT1K2aqAuNOLsGiU407OA4NYcMVaUakEQgSWLpMBBg2A@mail.gmail.com>
+From: Paul Osmialowski <p.osmialowsk@samsung.com>
+Subject: Re: [RFC 2/3] regmap: Use the enhancement of i2c API to address
+ circular dependency problem
+Date: Tue, 20 Jan 2015 12:14:31 +0100 (CET)
+Message-ID: <alpine.DEB.2.10.1501201214200.8428@AMDC1262.digital.local>
+References: <1421419194-1849-1-git-send-email-p.osmialowsk@samsung.com>
+ <1421419194-1849-2-git-send-email-p.osmialowsk@samsung.com>
+ <20150116162314.GB3856@sirena.org.uk>
+ <alpine.DEB.2.10.1501161811280.21618@AMDC1262.digital.local>
+ <20150116183635.GH3856@sirena.org.uk>
+ <alpine.DEB.2.10.1501191031080.13777@AMDC1262.digital.local>
+ <20150119192557.GI2809@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+TH9VkT1K2aqAuNOLsGiU407OA4NYcMVaUakEQgSWLpMBBg2A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Renz, Bernhard" <bernhard.renz-//tT4aWmXyZBDgjK7y7TUQ@public.gmane.org>, Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <20150119192557.GI2809@sirena.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Angelo,
 
-On Mon, 19 Jan 2015 16:13:26 +0100, Angelo Compagnucci wrote:
-> Dear Jean Delvare,
-> 
-> Attached you can find a patch that implements py-smbus for python3
-> with python2 backward compatibility.
-> This patch is not heavily tested, but it wors well for me.
 
-Thanks a lot for your work. I was finally about to look into this and
-you saved me some time :-)
+On Mon, 19 Jan 2015, Mark Brown wrote:
 
-> Unfortunately, I don't know how to use svn for sharing source code, it
-> is so ugly compared to git and it doesn't provide a way to send
-> patches via email, so the best way I found was to attach the patch
-> file.
+> On Mon, Jan 19, 2015 at 10:31:22AM +0100, Paul Osmialowski wrote:
+>> On Fri, 16 Jan 2015, Mark Brown wrote:
+>
+>>> What I'm saying is that I want to understand this change from a point of
+>>> view that isn't tied to I2C - at the regmap level what is this doing,
+>
+>> From the regmap point of view, it allows its functions to have a chance to
+>> prepare transfer medium for (synchronous) transfer (no matter what bus
+>> handles it) before it actually start to happen (then unprepare it when it's
+>> done) and crucially before any lock is obtained in functions like
+>> regmap_write(), regmap_read() or regmap_update_bits.
+>
+> OK, so that's what should go in the changelog (along with an explanation
+> of why this preparation is required at all) - but I still don't see the
+> async bit of this I'm afraid.
+>
 
-This is fine. You know, this is how people did before git was invented,
-and it worked well ;-)
+I don't think preparation stage should be exposed for asynchronous 
+transfer. Due to its nature, it shouldn't cause circular lock dependency 
+as we can observe for synchronous io. Since i2c does not support async 
+transfer anyway (so (map->async && map->bus->async_write) will be always 
+false for i2c transfers), let's use spi as an example.
 
-> Hope this helps!
+With spi we have curious situation where both sync and async are handled 
+by the same __spi_async() function, though for sync transfer 
+wait_for_completion() is called soon after __spi_async() in order to 
+ensure that transfer is completed.
 
-Oh yeah. I started from your version and improved it as follows:
-* Added back missing header files as pointed out by Michael. I have a
-  hard time believing you did not need these.
-* Reverted some undesirable white space changes.
-* Turned most #ifndefs into #ifdefs for readability.
-* Shared the module documentation string.
-* Added some preprocessing magic to limit the number of #ifdefs.
-* Dropped PY3 definition.
+Actual transfer is handled by spi_transfer_one_message() called from 
+spi_pump_messages(). Note that spi_pump_message() before it calls 
+spi_transfer_one_message() also calls prepare_message() callback (if 
+provided):
 
-Result is below, my patch is significantly smaller and the resulting
-code is IMHO more readable. It builds fine for both python 2.7 and 3.3,
-however I can't test it, so I would appreciate if you guys could test
-and report. If it works fine I'll commit it tomorrow.
+ 	if (master->prepare_message) {
+ 		ret = master->prepare_message(master, master->cur_msg);
 
-For convenience I have also put the pre-patched file at:
-http://jdelvare.nerim.net/devel/i2c-tools/smbusmodule.c
+So we have some candidate to expose if we would like to modify 
+regmap-spi.c similarly to regmap-i2c.c. Thing is, we don't need to expose 
+it for asynchronous transfer. If master->prepare_message() callback 
+obtains some lock, which is unfortunately held by other task that waits 
+for a lock already obtained by regmap_write_async() it will not wait 
+forever since call path started in regmap_write_async() is not blocked by 
+things like wait_for_completion() and should soon end calling 
+map->unlock(map->lock_arg).
 
-Thanks.
----
- py-smbus/smbusmodule.c |   47 +++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 45 insertions(+), 2 deletions(-)
+>> Maybe adding a pair of callbacks (map->reg_write_sync_prepared(),
+>> map->reg_read_sync_prepared()) would make situation clearer.
+>
+> No, I don't think so - it'd just complicate the callers.
+>
+>>> I2C is a bus that has some properties which you're saying needs some
+>>> changes, what are those properties and those changes?
+>
+>> I'm not saying I2C as a bus requires changes. What I'm saying is that I2C
+>> API can be extended to allow more detailed control on what happens with the
+>> transfer.
+>
+> My point here is that your explanation is in terms of I2C specifics and
+> not really at a generic regmap level.
+>
+>>> Can you be more specific please?  If something needs preparing it seems
+>>> like it'd need preparing over an async transaction just as much as over
+>>> a synchronous one.
+>
+>> Even with those preparation and unpreparation stages, this transfer is still
+>> synchronous. For example, it starts when regmap_read() starts and ends when
+>> regmap_read() ends. Nothing is queued or deferred. Namely, when
+>> max_gen_clk_unprepare() function calls regmap_update_bits() it expects that
+>> when regmap_update_bits() returned, no outstanding transfer are happening
+>> nor waiting to proceed. Everything must be completed before returning to
+>> max_gen_clk_unprepare().
+>
+> That doesn't address my question - all you're saying is that in a
+> synchronous call path things are synchronous which is fine but obviously
+> regmap supports async I/O too.
+>
+>>> Not in this pattern where the caller needs to check too.
+>
+>> I don't persist on that. Apparently, you're the author of this file, though
+>> regmap_init() function was later expanded by other guys. They never assigned
+>> bus callback function pointers directly to map operation callbacks. It is
+>> possible to replace 'map->reg_prepare_sync_io = regmap_bus_prepare_sync_io'
+>> with 'map->reg_prepare_sync_io = map->bus->prepare_sync_io' - this will
+>> compile and this will work properly. But IMHO it wouldn't match with what
+>> the others did.
+>
+> If you look at the other callbacks they're doing other things beyond
+> simply forwarding the functions on.  That's the problem here, the
+> functions just add a layer of indirection and nothing else.
+>
 
---- i2c-tools.orig/py-smbus/smbusmodule.c	2015-01-19 22:09:39.624016377 +0100
-+++ i2c-tools/py-smbus/smbusmodule.c	2015-01-19 22:59:03.651572099 +0100
-@@ -94,7 +94,11 @@ SMBus_dealloc(SMBus *self)
- 	PyObject *ref = SMBus_close(self);
- 	Py_XDECREF(ref);
- 
-+#if PY_MAJOR_VERSION >= 3
-+	Py_TYPE(self)->tp_free((PyObject *)self);
-+#else
- 	self->ob_type->tp_free((PyObject *)self);
-+#endif
- }
- 
- #define MAXPATH 16
-@@ -434,11 +438,19 @@ SMBus_list_to_data(PyObject *list, union
- 
- 	for (ii = 0; ii < len; ii++) {
- 		PyObject *val = PyList_GET_ITEM(list, ii);
-+#if PY_MAJOR_VERSION >= 3
-+		if (!PyLong_Check(val)) {
-+			PyErr_SetString(PyExc_TypeError, msg);
-+			return 0; /* fail */
-+		}
-+		data->block[ii+1] = (__u8)PyLong_AS_LONG(val);
-+#else
- 		if (!PyInt_Check(val)) {
- 			PyErr_SetString(PyExc_TypeError, msg);
- 			return 0; /* fail */
- 		}
- 		data->block[ii+1] = (__u8)PyInt_AS_LONG(val);
-+#endif
- 	}
- 
- 	return 1; /* success */
-@@ -637,9 +649,14 @@ static PyGetSetDef SMBus_getset[] = {
- };
- 
- static PyTypeObject SMBus_type = {
-+#if PY_MAJOR_VERSION >= 3
-+	PyVarObject_HEAD_INIT(NULL, 0)
-+	"SMBus",			/* tp_name */
-+#else
- 	PyObject_HEAD_INIT(NULL)
- 	0,				/* ob_size */
- 	"smbus.SMBus",			/* tp_name */
-+#endif
- 	sizeof(SMBus),			/* tp_basicsize */
- 	0,				/* tp_itemsize */
- 	(destructor)SMBus_dealloc,	/* tp_dealloc */
-@@ -678,24 +695,50 @@ static PyTypeObject SMBus_type = {
- 	SMBus_new,			/* tp_new */
- };
- 
-+#if PY_MAJOR_VERSION >= 3
-+static struct PyModuleDef SMBusModule = {
-+	PyModuleDef_HEAD_INIT,
-+	"SMBus",			/* m_name */
-+	SMBus_module_doc,  		/* m_doc */
-+	-1,				/* m_size */
-+	NULL,				/* m_methods */
-+	NULL,				/* m_reload */
-+	NULL,				/* m_traverse */
-+	NULL,				/* m_clear */
-+	NULL,				/* m_free */
-+};
-+#define INIT_RETURN(m)	return m
-+#define INIT_FNAME	PyInit_smbus
-+#else
- static PyMethodDef SMBus_module_methods[] = {
- 	{NULL}
- };
-+#define INIT_RETURN(m)	return
-+#define INIT_FNAME	initsmbus
-+#endif
- 
- #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
- #define PyMODINIT_FUNC void
- #endif
- PyMODINIT_FUNC
--initsmbus(void) 
-+INIT_FNAME(void)
- {
- 	PyObject* m;
- 
- 	if (PyType_Ready(&SMBus_type) < 0)
--		return;
-+		INIT_RETURN(NULL);
- 
-+#if PY_MAJOR_VERSION >= 3
-+	m = PyModule_Create(&SMBusModule);
-+#else
- 	m = Py_InitModule3("smbus", SMBus_module_methods, SMBus_module_doc);
-+#endif
-+	if (m == NULL)
-+		INIT_RETURN(NULL);
- 
- 	Py_INCREF(&SMBus_type);
- 	PyModule_AddObject(m, "SMBus", (PyObject *)&SMBus_type);
-+
-+	INIT_RETURN(m);
- }
- 
-
--- 
-Jean Delvare
-SUSE L3 Support
+Yes, I added layer of indirection just because the others added layer of 
+indirection - there is no functional requirement behind that. It can be 
+easily removed.
