@@ -1,45 +1,103 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
-Date: Thu, 22 Jan 2015 17:09:32 -0600
-Message-ID: <CAL_JsqKYvcec=xWQM7_Dgrr5zmkefXqGCQvHwJ+uxNgfiv7fcw@mail.gmail.com>
-References: <1421346798-17148-1-git-send-email-pantelis.antoniou@konsulko.com>
- <20150122144818.GG3413@katana> <CAL_JsqKEBYwX=5zgWbdVRxm-H-sFiDa9rAp26BvuKNECoNW=uQ@mail.gmail.com>
- <20150122150243.GI3413@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-ocores: add common clock support
+Date: Fri, 23 Jan 2015 00:21:48 +0100
+Message-ID: <20150122232148.GA17463@katana>
+References: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
+ <20150122144522.GF3413@katana>
+ <CAMo8Bf+XJY_bY+OB2i_SZQmAavwERG39BR8FVj202V-E3UidPg@mail.gmail.com>
+ <20150122150717.GJ3413@katana>
+ <87wq4e7jqy.fsf@dell.be.48ers.dk>
+ <20150122185711.GA14880@katana>
+ <CAMo8BfJdmB-=i4bJypHzGvegxgBPafpiT_hyQXLhvzBUmE+u_g@mail.gmail.com>
+ <20150122192649.GC14880@katana>
+ <CAMo8BfJqS1O=ZiVs89wsuNuQ_Qt=2BJtcens=09POucM_OjXrQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150122150243.GI3413@katana>
+Content-Disposition: inline
+In-Reply-To: <CAMo8BfJqS1O=ZiVs89wsuNuQ_Qt=2BJtcens=09POucM_OjXrQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+To: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 22, 2015 at 9:02 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Thu, Jan 22, 2015 at 08:58:36AM -0600, Rob Herring wrote:
->> On Thu, Jan 22, 2015 at 8:48 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->> > On Thu, Jan 15, 2015 at 08:33:18PM +0200, Pantelis Antoniou wrote:
->> >> Mark (and unmark) device nodes with the POPULATE flag as appropriate.
->> >> This is required to avoid multi probing when using I2C and device
->> >> overlays containing a mux.
->> >> This patch is also more careful with the release of the adapter device
->> >> which caused a deadlock with muxes, and does not break the build
->> >> on !OF since the node flag accessors are not defined then.
->> >>
->> >> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
->> >
->> > Applied to for-current, thanks!
->>
->> Ignoring my comments? It's not a big deal, but Pantelis did send out
->> the DT patch necessary for my suggestion[1]. It's needed in another
->> place now, too.
->
-> Not sure if I saw this patch before...
->
-> Is this DT patch targetted to for-next or for-current. Because this
-> patch is a bugfix and needs to go into this cycle. I'll happily apply a
-> cleanup patch to for-next then.
 
-Feel free to apply it for 3.19 with my ack. You then want to pick up
-v1 of this patch.
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rob
+On Thu, Jan 22, 2015 at 11:53:51PM +0300, Max Filippov wrote:
+> On Thu, Jan 22, 2015 at 10:26 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> > On Thu, Jan 22, 2015 at 10:15:40PM +0300, Max Filippov wrote:
+> >> On Thu, Jan 22, 2015 at 9:57 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrot=
+e:
+> >> > My suggestion is:
+> >> >
+> >> > 1) if there is a clk node:
+> >> >         - we get the clock rate via clock framework
+> >> >         - "clock-frequency" is describing the bus speed as usual (No=
+te
+> >> >           that parsing here can be as simple as checking for 100kHz =
+only.
+> >> >           Although a seperate patch could probably easily add suppor=
+t for
+> >> >           other bus speeds to)
+> >> >
+> >> > 2?) a new binding is present to specify the IP clock speed:
+> >> >         - is this needed? is somebody using the driver without CCF?
+> >> >         - if so, the new binding is parsed and evaluated
+> >> >         - I couldn't find an existing binding to specify a clock spe=
+ed.
+> >> >           Please have a look, too. Otherwise we need to introduce sth
+> >> >           like "opencores,ip-clock-khz" probably.
+> >> >         - "clock-frequency" is describing the bus speed as usual
+> >> >
+> >> > 3) only "clock-frequency" is present:
+> >> >         - we keep the current behaviour to be backwards compatible.
+> >> >         - driver should emit a warning to convert to new style
+> >> >         - must be marked deprecated everywhere
+> >> >
+> >> > The documentation should be updated accordingly.
+> >> >
+> >> > Thoughts?
+> >>
+> >> I can update my patch to do (1) and (3), leaving (2) to whoever may
+> >> need that.
+> >
+> > Please implement (2) as well. Otherwise we would have documented
+> > ambiguity of "clock-frequency" which is bad. It shouldn't be much code.
+>=20
+> There will be ambiguity if we want to maintain backwards compatibility,
+> so we're documenting it anyway. And since we're going to maintain it,
+> those who don't use CCF will still have option (3). Is there a point in
+> introducing (2) which currently does not exist and thus has no users?
+
+Yes, because 3) is marked as deprecated "DON'T USE". If you don't
+implement 2), then we force people to actually use the ambiguity!
+
+
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUwYYMAAoJEBQN5MwUoCm2BJQP+wc+ZoNTBA8PiHAmrHxPvaqG
+f+8nE0Zt68w0h52wocWHabFi/88XXpo1Jc/gVlj5x280zR9usO9iK4k4IWlI17uE
+sEeKOqaZ5IJ8ArrmsAhMvznzFTy9QCnePsk9MCF8OWvvXhmH+RlRUuodvbwQFVQ5
+fPqCs1Oo7rUL2eWOiEqxQip4JdQ7W3slxlxyXD5N+Re47nYWC50Ma8K/377ggIRB
+n33LXaYVWdu7R93pV3OMD1xMdLldenHaPKZ76DgBLiwEI3RMnfJg3eEvTuqMPSHn
+bqAwfrLNyVwsYLk0sqvS605whDMyx98j4YkjQoOOU2IddNVo6/ZhE9WIASlipaqQ
+TOycqWVBupR9q0Ij/BtjE7UoP41+Oihi0L6OJNEW7v1OqH487ifOCumqDBVznYNA
+Ine9ncbWCrAYvJ5JLg0ew6t9utRFCUDh5l98Z5+lEg/6yqqpPtNfNz8tTiVnucEl
+hF4YTW9hieqEvYsbWGc8hxjVZkGfZxwJz5CBXdCJI398h7pTuEbUxSNYHHlIOAZg
+GNxq8W0jvOeeYupxFOGduV0r2csNaDNI0qf1LcHGltUMgphtt/icvhSL3BOBBtiL
+xf2/j2mo61uiv56Wlmwl4HZFTOOuVYlV5nBAxKXCnKQAyX34p+F2E8J+yuTi8LT4
+gig7x2awr+H0NuogSiUj
+=Y7pM
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--
