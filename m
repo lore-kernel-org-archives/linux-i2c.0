@@ -1,55 +1,49 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: imx: whitespace and checkpatch cleanup
-Date: Thu, 22 Jan 2015 16:35:21 +0100
-Message-ID: <20150122153521.GK3413@katana>
-References: <1421939849-20964-1-git-send-email-p.zabel@pengutronix.de>
+From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: tegra: Maintain CPU endianness
+Date: Thu, 22 Jan 2015 19:06:40 +0300
+Message-ID: <54C12010.8040504@gmail.com>
+References: <1421756555-20266-1-git-send-email-digetx@gmail.com> <20150122074001.GB427@ulmo> <CAAVeFuJHST9VOWXe_cZNvLmfGdamuU4HSgdZC6EoQvrsGFt+Fg@mail.gmail.com> <54C115D1.10206@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/0P/MvzTfyTu5j9Q"
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1421939849-20964-1-git-send-email-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <54C115D1.10206-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+22.01.2015 18:22, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> 22.01.2015 10:55, Alexandre Courbot =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>> On Thu, Jan 22, 2015 at 4:40 PM, Thierry Reding
+>> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>>>
+>>> Should this not technically be le32_to_cpu() since the data origina=
+tes
+>>> from the I2C controller?
+>
+> No, i2c_readl returns value in CPU endianness, so it's correct. But f=
+or
+> i2c_writel should be used le32_to_cpu(), since it takes value in CPU =
+endianness.
+> It's my overlook, V2 is coming.
+>
+>>>
+>>> Why does this have to be initialized to 0 now?
+>>
+>> I suspect this is because we are going to memcpy less than 4 bytes
+>> into it, but I cannot figure out how that memcpy if guaranteed to
+>> produce the expected result for both endiannesses.
+>>
+> That's correct. Memcpy is working with bytes, so it doesn't care abou=
+t
+> endianness and produces expected result, since I2C message is char ar=
+ray.
+>
+I'll spend some more time reviewing, to see if nullifying should go as =
+separate=20
+patch.
 
---/0P/MvzTfyTu5j9Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Jan 22, 2015 at 04:17:29PM +0100, Philipp Zabel wrote:
-> This patch fixes up some whitespace issues and addresses a few
-> checkpatch warnings.
->=20
-> Signed-off-by: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Acked-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-
-Applied to for-next, thanks!
-
-
---/0P/MvzTfyTu5j9Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwRi5AAoJEBQN5MwUoCm2wy4P/0PhztJ4FpV4fTBvf37CvDKk
-WEu0ZTXKTF9M74Swmg4zhvElsuRaBFxfUExIAMjAmkNC7ZL+chVnptlNJCVP+CLQ
-ma58RwggaIggtO6BpkFyp2Nan3vyzDNggjE/cPHeprpTIMsFnzVfFQiU07or6Ymy
-dPuGcG3lt9AgRxSyzlAhe0uNv223QbX14KwUxZpVSLoJIiUWsnmLMeUBGJl+zicg
-5X6enOg2gaABv9ttBgs89SFHrp/4vHW8inoy5Bx2BkXCXUhnvUcU1v/t0uDd35Hh
-N9YYgONm42XlHoTId/juxlNGozJU8g94gNjFPMdT88lwZ3aED0doZRc1s4Fz0BVO
-2wmZTpIkH9H28M2OJQ9ihqdNmSjzkCvzkA69gCFEuP164h3Bx2laeoy1Al1gAvP1
-eVOM2h4EbqxxrqAVjW6HHulln4Qd+2B6EUFkT0Y/Lz3a8U8jdC6aViu+/xHqXxtT
-X4VzHOccXqwHkKh164VZZXaYOXHSYSaHgtk9oo7fITT3dWq6AKBedn2cXTGzzpAI
-MUV1IDHIy/L5F9YOsoPB5ZLCxGV5/pDRBDxZ6ob9AvUIfOWUYktFjNc58Am/xDhH
-kUTOQgFTGCWPbABDW4kVXye0n2TZQQXdTGBRHTSrH+s7zLreEpacQ+KLWjew7mMS
-VFsdtdLVaWDm1Ec0o8c0
-=l3yd
------END PGP SIGNATURE-----
-
---/0P/MvzTfyTu5j9Q--
+--=20
+Dmitry
