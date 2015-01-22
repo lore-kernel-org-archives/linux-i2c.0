@@ -1,57 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: slave-eeprom: fix boundary check when using sysfs
-Date: Thu, 22 Jan 2015 15:23:49 +0100
-Message-ID: <20150122142349.GC3413@katana>
-References: <1421684575-6679-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: simplify boilerplate code for attribute groups
+Date: Thu, 22 Jan 2015 15:27:37 +0100
+Message-ID: <20150122142737.GD3413@katana>
+References: <1421694744-19528-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2/5bycvrmDh4d1IB"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="WChQLJJJfbwij+9x"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1421684575-6679-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Debora Grosse <debora@mds.com>
+In-Reply-To: <1421694744-19528-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---2/5bycvrmDh4d1IB
+--WChQLJJJfbwij+9x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 19, 2015 at 05:22:55PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Mon, Jan 19, 2015 at 08:12:24PM +0100, Wolfram Sang wrote:
+> Declaring attribute groups can be done with macros these days, let's use
+> them for consistency and readability reasons. Also, put the ATTR macros
+> directly below the referenced functions while we are here.
 >=20
-> Due to a copy&paste error, the last byte of the shared memory was not
-> accessible via sysfs.
->=20
-> Reported-by: Debora Grosse <debora@mds.com>
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---2/5bycvrmDh4d1IB
+--WChQLJJJfbwij+9x
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUwQf0AAoJEBQN5MwUoCm2Y2sQALAnL0i8Eq8SwgWHTG2FNHKB
-Oz2HaTcw/g+xPMxIjJccxZrhPMQ/2y1LwbkMk8Df+jCNwpKWXJu3kKuubH2xqbFN
-zb+LNho9bdAT2uhgSBLOQKkZMs1b3Pkxyh3gNFRACgICjRRjPyETRSaZrOhfYWR9
-KO8Ly6H6EeCf4lUzgh3Z4gDwj/xuaFJ81Cd0bdIqjPYe81B2feG6HKROP/c/4OKh
-a10L05nFqpBCUAHsERTag1qi6BdgivVzp/V6SbkuwNzABgNVF2PUYhX/sQTSRB8u
-+c9MUmQSz2eO4wGDBvo8o/83GzbqpaMleiyFRO4qEOI2tE5FXI/qbXAXSnYPzLBs
-U6lkADl6NVAr0o6EE9oQ96mMUwhnzq6077ph4q0ifwufQDBtiygvUanmht+co4Qo
-6LfZVRTswawgVDsLKUOdiNPgA6rCMVjtJRE4pwhAAX00/Wtktl1MYncTp9NqGKSn
-s+notoWzg8Ujno2hrT8vjhwJ0CsCmMdEPJ7Z8sxXU6PQ55VeTFBxVkUHnCk8q5jC
-a7lel8ow1FIFVMQz/ZIgodxMzzvg6Sricozv/IUKJkpSz10AzV2Z3dM5IriQwZef
-/w9D8GqRyQPqyqLuFGoTjc9dwkF9we3g7uXv9JFQ0uduUunUK89CXMX1PlQTg/hS
-GnKndcGjmY+ppJE0zM+e
-=SyrN
+iQIcBAEBAgAGBQJUwQjZAAoJEBQN5MwUoCm2FDMP/3/U3KuQbpErVFznPXE2/Z8x
+wdOeDRueQecvLWy7m+HEnAOLGN34UsHgfQeu+yLCqxm9GqqgHbPWDQtR+RS04RVk
+figYmOM9Z1/33Avg0xLTlFI0jonxIJM+lUnyiEYYssnsuXuTOHvE8bLB1ApF1i/I
+nI2DmPpKyBOZ4k0KhSELAlRDg10GZmvDqMDZfU/Ibw/NE8Aq6SwZbXXBn7D0iL7Q
+nDvsBk2PT7adEghFAQawTMgrs3avspTK5CYljN1KT5bM0ZdxxJoI2JthDKDXly5M
+dw92ngYVWJK+4eJHLjNKacMK9Dq1TrcgnKauo8320kXGq4bSPXgiraeUP1c7llRn
+jJ53BkfHQ8iGUiO2eO9NGJxR428wWVtA39RLGyYyCcWJ02eb/o2WNV5MTSa1uEhO
+ML7n0wcFWMT2Y14n2MvHFVFILc3Dk4ne88UIxS+gUUr2wsaDLDQtWvCBCvy8Q0/5
+9HZomAFKgRbRM6PyX0yVzsxFXG2NSFGufhwP+NF/WYfcbU+XJPIpMPcPwSxsiDk1
+EKYwvVeWsVLPd6eFLgRvU7ucVFu9TxxekPKy8OEKyfTsE02Z/Lzb77GR66XEQCe/
++ALLGJhiGaFWMODM/oa13HiZeQLieG2KjzGijanGAaip1Giivq0kf5BT/Vfp+RLV
+niGMDqKBlnUgasRtBFTn
+=7xsF
 -----END PGP SIGNATURE-----
 
---2/5bycvrmDh4d1IB--
+--WChQLJJJfbwij+9x--
