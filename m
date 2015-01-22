@@ -1,26 +1,57 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH V4 1/2] i2c-designware: Add i2c bus locking support
-Date: Thu, 22 Jan 2015 16:22:26 +0200
-Message-ID: <20150122142226.GF1850@lahna.fi.intel.com>
-References: <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
- <1421313137-1613-2-git-send-email-david.e.box@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: slave-eeprom: fix boundary check when using sysfs
+Date: Thu, 22 Jan 2015 15:23:49 +0100
+Message-ID: <20150122142349.GC3413@katana>
+References: <1421684575-6679-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2/5bycvrmDh4d1IB"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1421313137-1613-2-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1421684575-6679-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Debora Grosse <debora@mds.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 15, 2015 at 01:12:16AM -0800, David E. Box wrote:
-> Adds support for acquiring and releasing a hardware bus lock in the i2c
-> designware core transfer function. This is needed for i2c bus controllers
-> that are shared with but not controlled by the kernel.
-> 
-> Signed-off-by: David E. Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Looks good.
+--2/5bycvrmDh4d1IB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+On Mon, Jan 19, 2015 at 05:22:55PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>=20
+> Due to a copy&paste error, the last byte of the shared memory was not
+> accessible via sysfs.
+>=20
+> Reported-by: Debora Grosse <debora@mds.com>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Applied to for-current, thanks!
+
+
+--2/5bycvrmDh4d1IB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUwQf0AAoJEBQN5MwUoCm2Y2sQALAnL0i8Eq8SwgWHTG2FNHKB
+Oz2HaTcw/g+xPMxIjJccxZrhPMQ/2y1LwbkMk8Df+jCNwpKWXJu3kKuubH2xqbFN
+zb+LNho9bdAT2uhgSBLOQKkZMs1b3Pkxyh3gNFRACgICjRRjPyETRSaZrOhfYWR9
+KO8Ly6H6EeCf4lUzgh3Z4gDwj/xuaFJ81Cd0bdIqjPYe81B2feG6HKROP/c/4OKh
+a10L05nFqpBCUAHsERTag1qi6BdgivVzp/V6SbkuwNzABgNVF2PUYhX/sQTSRB8u
++c9MUmQSz2eO4wGDBvo8o/83GzbqpaMleiyFRO4qEOI2tE5FXI/qbXAXSnYPzLBs
+U6lkADl6NVAr0o6EE9oQ96mMUwhnzq6077ph4q0ifwufQDBtiygvUanmht+co4Qo
+6LfZVRTswawgVDsLKUOdiNPgA6rCMVjtJRE4pwhAAX00/Wtktl1MYncTp9NqGKSn
+s+notoWzg8Ujno2hrT8vjhwJ0CsCmMdEPJ7Z8sxXU6PQ55VeTFBxVkUHnCk8q5jC
+a7lel8ow1FIFVMQz/ZIgodxMzzvg6Sricozv/IUKJkpSz10AzV2Z3dM5IriQwZef
+/w9D8GqRyQPqyqLuFGoTjc9dwkF9we3g7uXv9JFQ0uduUunUK89CXMX1PlQTg/hS
+GnKndcGjmY+ppJE0zM+e
+=SyrN
+-----END PGP SIGNATURE-----
+
+--2/5bycvrmDh4d1IB--
