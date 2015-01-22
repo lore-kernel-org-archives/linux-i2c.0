@@ -1,69 +1,43 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: imx: silence dma_request_slave_channel errors
- if dma not set up in device tree
-Date: Thu, 22 Jan 2015 15:33:46 +0100
-Message-ID: <20150122143346.GE3413@katana>
-References: <1420555701-24645-1-git-send-email-p.zabel@pengutronix.de>
- <20150114141407.GA1598@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FN+gV9K+162wdwwF"
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH v1 3/3] i2c: designware-pci: no need to provide clk_khz
+Date: Thu, 22 Jan 2015 16:44:29 +0200
+Message-ID: <1421937869-28376-3-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1421937869-28376-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150114141407.GA1598@katana>
+In-Reply-To: <1421937869-28376-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Yao Yuan <yao.yuan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Cohen <david.a.cohen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+The clk_khz field makes sense only if SS counters are not provided. Since we
+provide them for Haswell and Baytrail explicitly we can omit the clk_khz
+parameter.
 
---FN+gV9K+162wdwwF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-On Wed, Jan 14, 2015 at 03:14:07PM +0100, Wolfram Sang wrote:
-> On Tue, Jan 06, 2015 at 03:48:19PM +0100, Philipp Zabel wrote:
-> > If the i2c device tree nodes don't contain the dmas and dma-names prope=
-rty, an
-> > error is displayed for each i2c device:
-> >=20
-> >     of_dma_request_slave_channel: dma-names property of node '/soc/aips=
--bus@02100000/i2c@021a0000' missing or empty
-> >=20
-> > This patch avoids calling dma_request_slave_channel if the dma-names pr=
-operty
-> > does not exist in the device tree in the first place.
-> >=20
-> > Signed-off-by: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->=20
-> Aren't you curing the symptoms instead of the cause? Sending a
-> counterpatch in a second...
-
-Setting to superseded because of my counterpatch fixing this in the
-dmaengine core. Maybe you want to ack that? :)
-
-
---FN+gV9K+162wdwwF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwQpKAAoJEBQN5MwUoCm2YHIP/iNQ3GcpgmWtrHjEvbjBw2qN
-NSub3fPHY4Udmy1cPz9/n6rudwOfeAmKNxcVEpYN0isxw6x8b1lEZVIymdmpOwRe
-7OyS3QH4YBLH0vZ7rrnBZdesxOAcSViXffQNSV3F0vvUqsPLLFolcZQcZLW4NJA6
-zD1Ii0Wcf9ms/zU8qLaVONnFRclY96dV57Y8y51igBbb0YoLTZOe6uZdz2Mlezun
-M+SpMlKPzEc7nT8TaoTrUnXk8a/QQFn7xl3HxN98vloB/RpW+63/a+eHgN2aRPSU
-GEhX3hnlfg7fnePywX+4GCqzMGQwq1pUhZNI8gR6zI50VWdiZHbYPvf8gv1RxqPT
-ydWokxdvIxLMz87EFtmC3I16bpQAfhJOJqXgUozJKNZ9JqCv8Maxk21+D4bEbUZ6
-szl3KeGMxe6qnew2nyhuxyIfKrM4TtuiEQ5NWERlNk1wu/Bwi/AwrU//nDvP3W2x
-K1OWosH2uFe8F9sSRdtWa1LlXNYR4dWPysoHon/MJUAP7ivHNdRbmxUl1FhwiQeq
-KsSlQAvtU1MBZ7vhYa4xJDY0RlkI7l0KQmj/gXNarxeLnifCeDYtax7gS1uxlyPf
-B03RS98QTCxRBvdOqUFxcWEJxF64ykhYGcLxJGpdweth0Rk4nfIBe6MofG2Vyv2R
-b1ihr5Q1ulNEinfugaLs
-=rwFV
------END PGP SIGNATURE-----
-
---FN+gV9K+162wdwwF--
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 2bbd2a7..506cbe8 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -112,7 +112,6 @@ static struct dw_pci_controller dw_pci_controllers[] = {
+ 		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
+ 		.tx_fifo_depth = 32,
+ 		.rx_fifo_depth = 32,
+-		.clk_khz = 100000,
+ 		.functionality = I2C_FUNC_10BIT_ADDR,
+ 		.scl_sda_cfg = &byt_config,
+ 	},
+@@ -121,7 +120,6 @@ static struct dw_pci_controller dw_pci_controllers[] = {
+ 		.bus_cfg = INTEL_MID_STD_CFG | DW_IC_CON_SPEED_FAST,
+ 		.tx_fifo_depth = 32,
+ 		.rx_fifo_depth = 32,
+-		.clk_khz = 100000,
+ 		.functionality = I2C_FUNC_10BIT_ADDR,
+ 		.scl_sda_cfg = &hsw_config,
+ 	},
+-- 
+2.1.4
