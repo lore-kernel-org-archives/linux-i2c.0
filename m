@@ -1,45 +1,44 @@
-From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] i2c: tegra: Maintain CPU endianness
-Date: Thu, 22 Jan 2015 21:12:21 +0300
-Message-ID: <1421950352-26515-1-git-send-email-digetx@gmail.com>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-ocores: add common clock support
+Date: Thu, 22 Jan 2015 19:28:21 +0100
+Message-ID: <87wq4e7jqy.fsf@dell.be.48ers.dk>
+References: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
+	<20150122144522.GF3413@katana>
+	<CAMo8Bf+XJY_bY+OB2i_SZQmAavwERG39BR8FVj202V-E3UidPg@mail.gmail.com>
+	<20150122150717.GJ3413@katana>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150122150717.GJ3413@katana> (Wolfram Sang's message of "Thu,
+	22 Jan 2015 16:07:17 +0100")
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Support CPU BE mode by adding endianness conversion for memcpy interactions.
+>>>>> "Wolfram" == Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
 
-Signed-off-by: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-Changelog:
-v2: For consistency cpu_to_le32() changed to le32_to_cpu() because
-    i2c_writel() takes BE value in BE CPU mode and value is in LE format.
+ >> The clock here is not the i2c bus clock, but the clock input of the
 
- drivers/i2c/busses/i2c-tegra.c | 3 +++
- 1 file changed, 3 insertions(+)
+ > Yes, what I would expect from a clk-property :)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 28b87e6..b5afb9f 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -286,6 +286,7 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
- 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
-+		val = cpu_to_le32(val);
- 		memcpy(buf, &val, buf_remaining);
- 		buf_remaining = 0;
- 		rx_fifo_avail--;
-@@ -343,7 +344,9 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 */
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
-+		val = 0;
- 		memcpy(&val, buf, buf_remaining);
-+		val = le32_to_cpu(val);
- 
- 		/* Again update before writing to FIFO to make sure isr sees. */
- 		i2c_dev->msg_buf_remaining = 0;
+ >> controller. The function ocores_init initializes the prescaler register of
+ >> the controller so that the bus clock equals 100kHz (internal clock
+ >> runs at 500kHz):
+
+ > 'clock-frequency' usually describes the I2C bus speed. So, for ocores,
+ > it describes speed of the clock for the controller? That would be
+ > ouch...
+
+Indeed :/
+
+Looking back in the history, the device tree patch originally used a
+custom "clock_khz" property until some guy told him to use
+clock-frequency ;)
+
+https://lists.ozlabs.org/pipermail/devicetree-discuss/2010-November/003650.html
+
+As far as I can see I wasn't CC'ed on that patch.
+
 -- 
-2.2.1
+Bye, Peter Korsgaard
