@@ -1,64 +1,32 @@
-From: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-ocores: add common clock support
-Date: Thu, 22 Jan 2015 23:53:51 +0300
-Message-ID: <CAMo8BfJqS1O=ZiVs89wsuNuQ_Qt=2BJtcens=09POucM_OjXrQ@mail.gmail.com>
-References: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
-	<20150122144522.GF3413@katana>
-	<CAMo8Bf+XJY_bY+OB2i_SZQmAavwERG39BR8FVj202V-E3UidPg@mail.gmail.com>
-	<20150122150717.GJ3413@katana>
-	<87wq4e7jqy.fsf@dell.be.48ers.dk>
-	<20150122185711.GA14880@katana>
-	<CAMo8BfJdmB-=i4bJypHzGvegxgBPafpiT_hyQXLhvzBUmE+u_g@mail.gmail.com>
-	<20150122192649.GC14880@katana>
+From: David Cohen <david.a.cohen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v1 1/3] i2c: designware-pci: shrink dw_pci_controllers
+ array
+Date: Thu, 22 Jan 2015 14:27:12 -0800
+Message-ID: <20150122222712.GA3678@psi-dev26.jf.intel.com>
+References: <1421937869-28376-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <20150122190301.GA15297@psi-dev26.jf.intel.com>
+ <20150122191758.GB14880@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150122192649.GC14880@katana>
+Content-Disposition: inline
+In-Reply-To: <20150122191758.GB14880@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 22, 2015 at 10:26 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Thu, Jan 22, 2015 at 10:15:40PM +0300, Max Filippov wrote:
->> On Thu, Jan 22, 2015 at 9:57 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->> > My suggestion is:
->> >
->> > 1) if there is a clk node:
->> >         - we get the clock rate via clock framework
->> >         - "clock-frequency" is describing the bus speed as usual (Note
->> >           that parsing here can be as simple as checking for 100kHz only.
->> >           Although a seperate patch could probably easily add support for
->> >           other bus speeds to)
->> >
->> > 2?) a new binding is present to specify the IP clock speed:
->> >         - is this needed? is somebody using the driver without CCF?
->> >         - if so, the new binding is parsed and evaluated
->> >         - I couldn't find an existing binding to specify a clock speed.
->> >           Please have a look, too. Otherwise we need to introduce sth
->> >           like "opencores,ip-clock-khz" probably.
->> >         - "clock-frequency" is describing the bus speed as usual
->> >
->> > 3) only "clock-frequency" is present:
->> >         - we keep the current behaviour to be backwards compatible.
->> >         - driver should emit a warning to convert to new style
->> >         - must be marked deprecated everywhere
->> >
->> > The documentation should be updated accordingly.
->> >
->> > Thoughts?
->>
->> I can update my patch to do (1) and (3), leaving (2) to whoever may
->> need that.
->
-> Please implement (2) as well. Otherwise we would have documented
-> ambiguity of "clock-frequency" which is bad. It shouldn't be much code.
+On Thu, Jan 22, 2015 at 08:17:58PM +0100, Wolfram Sang wrote:
+> 
+> > Since you're doing this rework, could you remove moorestown for good?
+> > It's no longer supported as one of intel mid's platform anyway.
+> 
+> If support for that platform is not broken anyhow, I'd say let's keep
+> it. There still might be users out there...
+> 
 
-There will be ambiguity if we want to maintain backwards compatibility,
-so we're documenting it anyway. And since we're going to maintain it,
-those who don't use CCF will still have option (3). Is there a point in
-introducing (2) which currently does not exist and thus has no users?
+It actually is. When Medfield, Clover Trail and Merrifield support was
+merged, Moorefield support became broken with no interest from anybody
+to fix it. It's time now to remove all of its code :)
 
--- 
-Thanks.
--- Max
+Br, David
