@@ -1,60 +1,43 @@
-From: Peter Korsgaard <peter-+2lRwdCCLRT2eFz/2MeuCQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-ocores: add common clock support
-Date: Thu, 22 Jan 2015 16:21:27 +0100
-Message-ID: <871tmm96yw.fsf@dell.be.48ers.dk>
-References: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
-	<20150122144522.GF3413@katana>
+From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: tegra: Maintain CPU endianness
+Date: Thu, 22 Jan 2015 18:22:57 +0300
+Message-ID: <54C115D1.10206@gmail.com>
+References: <1421756555-20266-1-git-send-email-digetx@gmail.com> <20150122074001.GB427@ulmo> <CAAVeFuJHST9VOWXe_cZNvLmfGdamuU4HSgdZC6EoQvrsGFt+Fg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150122144522.GF3413@katana> (Wolfram Sang's message of "Thu,
-	22 Jan 2015 15:45:22 +0100")
+In-Reply-To: <CAAVeFuJHST9VOWXe_cZNvLmfGdamuU4HSgdZC6EoQvrsGFt+Fg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Wolfram" == Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
+22.01.2015 10:55, Alexandre Courbot =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> On Thu, Jan 22, 2015 at 4:40 PM, Thierry Reding
+> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>>
+>> Should this not technically be le32_to_cpu() since the data originat=
+es
+>> from the I2C controller?
 
- >> @@ -320,9 +322,23 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
- >> }
- >> 
- >> if (of_property_read_u32(np, "clock-frequency", &val)) {
- >> -		dev_err(&pdev->dev,
- >> -			"Missing required parameter 'clock-frequency'\n");
- >> -		return -ENODEV;
- >> +		struct clk *clk = devm_clk_get(&pdev->dev, NULL);
- >> +
- >> +		if (!IS_ERR(clk)) {
- >> +			int ret = clk_prepare_enable(clk);
- >> +
- >> +			if (ret) {
- >> +				dev_err(&pdev->dev,
- >> +					"clk_prepare_enable failed: %d\n", ret);
- >> +				return ret;
- >> +			}
- >> +			i2c->clk = clk;
- >> +			val = clk_get_rate(clk);
- >> +		} else {
- >> +			dev_err(&pdev->dev,
- >> +				"Missing required parameter 'clock-frequency'\n");
- >> +			return -ENODEV;
- >> +		}
+No, i2c_readl returns value in CPU endianness, so it's correct. But for=
+=20
+i2c_writel should be used le32_to_cpu(), since it takes value in CPU en=
+dianness.
+It's my overlook, V2 is coming.
 
- > Either NAK or I don't understand the logic here :) If a dts does NOT
- > have the bus-speed set by 'clock-frequency', then we take the value of
- > the clock assigned to this platform_device?
+>>
+>> Why does this have to be initialized to 0 now?
+>
+> I suspect this is because we are going to memcpy less than 4 bytes
+> into it, but I cannot figure out how that memcpy if guaranteed to
+> produce the expected result for both endiannesses.
+>
+That's correct. Memcpy is working with bytes, so it doesn't care about=20
+endianness and produces expected result, since I2C message is char arra=
+y.
 
- > The usual thing to do when 'clock-frequency' is not set is to default to
- > 100kHz.
-
-The confusion comes from the fact that the device tree bindings uses
-clock-frequency for the clock frequency of the IP core and NOT for the
-i2c bus frequency. This dates back to when the bindings where added
-(049bb69d82e5f7f356) :/
-
-The driver is currently hardcoded to use a 100KHz i2c bus clock (see
-ocoores_init()).
-
--- 
-Bye, Peter Korsgaard
+--=20
+Dmitry
