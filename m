@@ -1,79 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-ocores: add common clock support
-Date: Thu, 22 Jan 2015 15:45:22 +0100
-Message-ID: <20150122144522.GF3413@katana>
-References: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
+Date: Thu, 22 Jan 2015 15:48:19 +0100
+Message-ID: <20150122144818.GG3413@katana>
+References: <1421346798-17148-1-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Il7n/DHsA0sMLmDu"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="IuhbYIxU28t+Kd57"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1421346798-17148-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Il7n/DHsA0sMLmDu
+--IuhbYIxU28t+Kd57
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> @@ -320,9 +322,23 @@ static int ocores_i2c_of_probe(struct platform_devic=
-e *pdev,
->  	}
-> =20
->  	if (of_property_read_u32(np, "clock-frequency", &val)) {
-> -		dev_err(&pdev->dev,
-> -			"Missing required parameter 'clock-frequency'\n");
-> -		return -ENODEV;
-> +		struct clk *clk =3D devm_clk_get(&pdev->dev, NULL);
-> +
-> +		if (!IS_ERR(clk)) {
-> +			int ret =3D clk_prepare_enable(clk);
-> +
-> +			if (ret) {
-> +				dev_err(&pdev->dev,
-> +					"clk_prepare_enable failed: %d\n", ret);
-> +				return ret;
-> +			}
-> +			i2c->clk =3D clk;
-> +			val =3D clk_get_rate(clk);
-> +		} else {
-> +			dev_err(&pdev->dev,
-> +				"Missing required parameter 'clock-frequency'\n");
-> +			return -ENODEV;
-> +		}
+On Thu, Jan 15, 2015 at 08:33:18PM +0200, Pantelis Antoniou wrote:
+> Mark (and unmark) device nodes with the POPULATE flag as appropriate.
+> This is required to avoid multi probing when using I2C and device
+> overlays containing a mux.
+> This patch is also more careful with the release of the adapter device
+> which caused a deadlock with muxes, and does not break the build
+> on !OF since the node flag accessors are not defined then.
+>=20
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 
-Either NAK or I don't understand the logic here :) If a dts does NOT
-have the bus-speed set by 'clock-frequency', then we take the value of
-the clock assigned to this platform_device?
-
-The usual thing to do when 'clock-frequency' is not set is to default to
-100kHz.
+Applied to for-current, thanks!
 
 
---Il7n/DHsA0sMLmDu
+--IuhbYIxU28t+Kd57
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJUwQ0BAAoJEBQN5MwUoCm2KskP/0D6PCki5rw68rprNyaHhm05
-blVUkm0iQ9xh4ftchbsWSPyXI5sD+c5lgJ6gYuIk1kLw0+ELtI7rGe99K2Gh2Zaz
-6dy3m7Fa37HTs/t2oHBL0WlrDWEGxuKQqMAxiTpI3j+HVkPXN8BzYB1PJwWXpVh6
-9cHcJ7o6arD/OZMUiUPpHihTNfx/WPAGel1laMaZ5SBKs74MLB6EGF/jz/dlyoum
-iv4HCUQowrQiG8G+ASPpFtVPvqGHY0FH/1Wtzg9bYujfV4bYNH1xQGL7hBqaka8J
-p/LOeAJEI+U0Wj3sJQAjwJXM7+mrsDhNcR6CGFq4uauDTw3AoZBFdfiSNrr6LvT7
-3Ugr+b6ZRO8Nw8/O9KAbUGVkA2riW5l5ArzyyZBrRA/MaY31wdV5vEJHXogUlBr0
-GXpgY1EawyqVeKbcjUh9sE7Zmh51fmUdOriE2w5Xb1rxCAmwlgg8cWBJVqJZHWrq
-AAB65k4HfOXSjROS3NV5v05fdOd67FBjSNArxoTlNki3d0owsRHE7TkYMmaCTr7Q
-LKxWZJAlc/0UDGW6bIpaaGW5v+ipfueWuxeh5SxeQHL3NBhhLAuYYM9Xpklu0o83
-AMhi/vDYbLReShaG7qsU+XIPV5De5gL1svY7jvbCpFEskLpPW8wthOSvqQdRSWM+
-14Fgri5DeJjwz7K2an1m
-=LOwu
+iQIcBAEBAgAGBQJUwQ2yAAoJEBQN5MwUoCm2HaEP/11sSC+KDGNTm1Xo/RWS0+Uc
+vrxQ3b6vTzLUEE+kRl2GbEqWIM37Ja35CGqNRbc1E70ldeoRZ6ovZeyYRNc0bmwz
+bRvX396SlCJvF1kTYSWHrrAhIs55vv/Igqb7XPT5RLQed+HJSv679luoQ5qngd9l
+mwc4+3RXdwSg5DrBLOTS6/xGOYpxV/kAV+iWlsEcd/8OopMtdWoMgDOXTseaFyS9
+pCRijYj5YWPubMQXzQprf+gZDL1HdGo4daJo1tzQLex93TMsNfnj3JQpdBu3Y0YV
+OdEoleSFRQyszYEyT5+1aSYQ0KIk5zfvk2H86mF+tu3JdgoZ/TeMsqG5nfqE3r8/
+kIGRDcx0jY3E2jowbYBWrVppB3fFYr0aBy5TO4NlakVkrtigFPxA9aAONmjDx63f
+v4/8enQAcesokq/VQ+d8TcK/KWbupMm2FjVMXkwskRdHHvUoj6PhT2WJ6Qc+nVHi
+ZbiJJ4RjCb3kLSCQtme+rvfrEJhxmKsESbgF36eP9PvByi6QpqMMiExu5oLhY5Fi
+ZvTuSCiuggZ22NqpnVUutzQzGLiesiMYbSrJqbrtbJn6B1+xGiRyT6du/WRJKoWU
+9jFeXtNjYG4GbASg0TkYPU+nGyY5T1qynqxqxe/N3HBdPbl0gdlOIskQmtLpL2MU
+EHjZJFJyEE0RsIFrIlaR
+=Tr5G
 -----END PGP SIGNATURE-----
 
---Il7n/DHsA0sMLmDu--
+--IuhbYIxU28t+Kd57--
