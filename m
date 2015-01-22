@@ -1,70 +1,65 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-ocores: add common clock support
-Date: Thu, 22 Jan 2015 21:41:47 +0100
-Message-ID: <20150122204147.GA16770@katana>
-References: <1421230899-7843-1-git-send-email-jcmvbkbc@gmail.com>
- <20150122144522.GF3413@katana>
- <CAMo8Bf+XJY_bY+OB2i_SZQmAavwERG39BR8FVj202V-E3UidPg@mail.gmail.com>
- <20150122150717.GJ3413@katana>
- <87wq4e7jqy.fsf@dell.be.48ers.dk>
- <20150122185711.GA14880@katana>
- <CAMo8BfJCPQWa-AGODDO5o2XZU3d-BbaxjSSG9SOoMzoXpYtr-A@mail.gmail.com>
+From: "David E. Box" <david.e.box@linux.intel.com>
+Subject: Re: [PATCH V4 2/2] i2c-designware: Add Intel Baytrail PMIC I2C bus
+ support
+Date: Thu, 22 Jan 2015 12:48:51 -0800
+Message-ID: <20150122204851.GA11246@pathfinder>
+References: <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
+ <1421313137-1613-3-git-send-email-david.e.box@linux.intel.com>
+ <20150122142819.GG1850@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMo8BfJCPQWa-AGODDO5o2XZU3d-BbaxjSSG9SOoMzoXpYtr-A@mail.gmail.com>
+In-Reply-To: <20150122142819.GG1850@lahna.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Peter Korsgaard <peter@korsgaard.com>, Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: wsa@the-dreams.de, jdelvare@suse.de, arnd@arndb.de, maxime.ripard@free-electrons.com, dianders@chromium.org, u.kleine-koenig@pengutronix.de, laurent.pinchart+renesas@ideasonboard.com, boris.brezillon@free-electrons.com, maxime.coquelin@st.com, andrew@lunn.ch, sjg@chromium.org, markus.mayer@linaro.org, ch.naveen@samsung.com, jacob.jun.pan@linux.intel.com, max.schwarz@online.de, skuribay@pobox.com, Romain.Baeriswyl@abilis.com, wenkai.du@intel.com, christian.ruppert@abilis.com, alan@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Mika,
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jan 22, 2015 at 04:28:19PM +0200, Mika Westerberg wrote:
+> On Thu, Jan 15, 2015 at 01:12:17AM -0800, David E. Box wrote:
+> > This patch implements an I2C bus sharing mechanism between the host and platform
+> > hardware on select Intel BayTrail SoC platforms using the X-Powers AXP288 PMIC.
+> > 
+> > On these platforms access to the PMIC must be shared with platform hardware. The
+> > hardware unit assumes full control of the I2C bus and the host must request
+> > access through a special semaphore. Hardware control of the bus also makes it
+> > necessary to disable runtime pm to avoid interfering with hardware transactions.
+> > 
+> > Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+> 
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> 
+> One comment, though:
+> 
+> > ---
+> >  drivers/i2c/busses/Kconfig                   |  11 ++
+> >  drivers/i2c/busses/Makefile                  |   1 +
+> >  drivers/i2c/busses/i2c-designware-baytrail.c | 160 +++++++++++++++++++++++++++
+> >  drivers/i2c/busses/i2c-designware-core.h     |   6 +
+> >  drivers/i2c/busses/i2c-designware-platdrv.c  |  20 +++-
+> >  5 files changed, 193 insertions(+), 5 deletions(-)
+> >  create mode 100644 drivers/i2c/busses/i2c-designware-baytrail.c
+> > 
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 917c358..9a83c46 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -464,6 +464,17 @@ config I2C_DESIGNWARE_PCI
+> >  	  This driver can also be built as a module.  If so, the module
+> >  	  will be called i2c-designware-pci.
+> >  
+> > +config I2C_DESIGNWARE_BAYTRAIL
+> > +	bool "Intel Baytrail I2C semaphore support"
+> 
+> It would be nice if it was possible to compile this as a module.
 
-On Thu, Jan 22, 2015 at 11:36:25PM +0300, Max Filippov wrote:
-> On Thu, Jan 22, 2015 at 9:57 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > 2?) a new binding is present to specify the IP clock speed:
-> >         - is this needed? is somebody using the driver without CCF?
-> >         - if so, the new binding is parsed and evaluated
-> >         - I couldn't find an existing binding to specify a clock speed.
-> >           Please have a look, too. Otherwise we need to introduce sth
-> >           like "opencores,ip-clock-khz" probably.
-> >         - "clock-frequency" is describing the bus speed as usual
->=20
-> ePAPR document says that clock-frequency 'specifies the frequency
-> of a clock in Hz', not identifying which clock. Outside i2c drivers
-> subtree it is commonly used to specify input clock frequency of IP
-> blocks, even for bus controllers, e.g. SPI.
+In the makefile the driver is now part of the composite object for
+I2C_DESIGNWARE_PLATFORM. So if selected it will compile as the platform driver
+is compiled. This makes the most sense since the linking doesn't work right if
+both drivers aren't built the same. This is really an extension to the platform
+driver anyway and not standalone code.
 
-I know; it was established in I2C this way before I took over.
-I don't think it is a good idea to change that.
-
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwWCKAAoJEBQN5MwUoCm2/agQAIyKeAeSIClpWpxMXtPJ10ky
-pF6WLHz1Knpvq/nYPDN5DvQLycwll4J5qDaXYtn+vMJJnw/E7wHIB6uI7y0NdEh+
-scyMKudbHWXBCm3Gzac5te7OMuJARDgOROyLzB+nLmq/hZmkRcSD+70LLNx/VZb7
-my0Cygv+a4k1F6UGqkhDJWc23BHCwo3vPvhp3QgEiRvKIEYBF5U1V1pKJbVRLdl3
-fMx6LAkTP/oSzQB41P8aGQmWyLtUu98bTITavNRHsKqr9nowQ3tzlzSjQSWds9dt
-xEtXi4IEC7gVOQsveYlfVY2ugwWnb/sWVoMBiwyzWJHmuycOLcPs/2us41cwUjpx
-jWy/bKtSetH20EAM6orJw7bIXQ4FItlefuDlbX1xh6OTRfXGzYRPOyCmPQVJlTYK
-MZ3nru5SvM0ex/TwW88IK3gZ8bQA6vksANnydY28fJiTvlN//OkcSZrH3qFz3qKw
-K9EwKct88W3+BCu/4VUAyuq1CjdBdm1V1eO1q64okS+aJq/fvzM5ueys8jPSYueD
-KyyPAdnYknDuhU8lI01DbIv1Ik6P1/+1K5YI1sqrugElmq2FapgRogufds7UKq00
-AkKihxiHbq9BYfHnch2bRuc6I7eopPuL9c7bDfzjhrK0uA+IEJjmeulTRfdf2r4/
-rlnWP5hp3OlLl+2x97bz
-=Cqjn
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+Dave
