@@ -1,98 +1,103 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: s3c2410: fix ABBA deadlock by keeping clock prepared
-Date: Fri, 23 Jan 2015 15:52:47 +0100
-Message-ID: <20150123145247.GD9592@katana>
-References: <1421683413-27075-1-git-send-email-p.osmialowsk@samsung.com>
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: [PATCH v4] of: i2c: Add i2c-mux-idle-disconnect DT property to PCA954x
+ mux driver
+Date: Fri, 23 Jan 2015 16:41:29 +0100
+Message-ID: <54C26BA9.4050405@nsn.com>
+References: <5494599A.8050803@nsn.com> <20150115123237.GC2549@katana> <54B7BBF5.4010001@nsn.com> <20150115131935.GE2549@katana> <54B7C206.8030809@nsn.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ieNMXl1Fr3cevapt"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1421683413-27075-1-git-send-email-p.osmialowsk@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Osmialowski <p.osmialowsk@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, Mark Brown <broonie@kernel.org>, Tomasz Figa <tomasz.figa@gmail.com>, Peter De Schrijver <pdeschrijver@nvidia.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <54B7C206.8030809-OYasijW0DpE@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+of: i2c: Add i2c-mux-idle-disconnect DT property to PCA954x mux driver
 
---ieNMXl1Fr3cevapt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add i2c-mux-idle-disconnect device tree property to PCA954x mux driver. The new
+property forces the multiplexer to disconnect child buses in idle state. This is
+used, for example, when there are several multiplexers on the same bus and the
+devices on the underlying buses might have same I2C addresses.
 
-On Mon, Jan 19, 2015 at 05:03:33PM +0100, Paul Osmialowski wrote:
-> This patch solves deadlock between clock prepare mutex and regmap mutex r=
-eported
-> by Tomasz Figa in [1] by implementing solution from [2]: "always leave th=
-e clock
-> of the i2c controller in a prepared state".
->=20
-> [1] https://lkml.org/lkml/2014/7/2/171
-> [2] https://lkml.org/lkml/2014/7/2/207
->=20
-> On each i2c transfer handled by s3c24xx_i2c_xfer(), clk_prepare_enable() =
-was
-> called, which calls clk_prepare() then clk_enable(). clk_prepare() takes
-> prepare_lock mutex before proceeding. Note that i2c transfer functions are
-> invoked from many places in kernel, typically with some other additional =
-lock
-> held.
->=20
-> It may happen that function on CPU1 (e.g. regmap_update_bits()) has taken=
- a
-> mutex (i.e. regmap lock mutex) then it attempts i2c communication in orde=
-r to
-> proceed (so it needs to obtain clock related prepare_lock mutex during tr=
-ansfer
-> preparation stage due to clk_prepare() call). At the same time other task=
- on
-> CPU0 wants to operate on clock (e.g. to (un)prepare clock for some other =
-reason)
-> so it has taken prepare_lock mutex.
->=20
-> CPU0:                        CPU1:
-> clk_disable_unused()         regulator_disable()
->   clk_prepare_lock()           map->lock(map->lock_arg)
->   regmap_read()                s3c24xx_i2c_xfer()
->     map->lock(map->lock_arg)     clk_prepare_lock()
->=20
-> Implemented solution from [2] leaves i2c clock prepared. Preparation is d=
-one in
-> s3c24xx_i2c_probe() function. Without this patch, it is immediately unpre=
-pared
-> by clk_disable_unprepare() call. I've replaced this call with clk_disable=
-() and
-> I've added clk_unprepare() call in s3c24xx_i2c_remove().
->=20
-> The s3c24xx_i2c_xfer() function now uses clk_enable() instead of
-> clk_prepare_enable() (and clk_disable() instead of clk_unprepare_disable(=
-)).
->=20
-> Signed-off-by: Paul Osmialowski <p.osmialowsk@samsung.com>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+---
 
-Applied to for-current, thanks!
+Changes in v4:
+- fix compilation warnings
+Changes in v3:
+- preserve legacy platform data deselect_on_exit flag
+- change property name to i2c-mux-idle-disconnect
+Changes in v2:
+- dropped idle-state binding
+- headers in alphabetical order
+- removed old platform data deselect_on_exit flag
 
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |    3 +++
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |   10 +++++++++-
+ 2 files changed, 12 insertions(+), 1 deletions(-)
 
---ieNMXl1Fr3cevapt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwmA/AAoJEBQN5MwUoCm2sEkP/iVEyjBUV7/BVkcOxy3+P66e
-IrFKY6XQsfJTdrK8AOo1YqML5f8TbPCDPrc4EV/escY44IpbLUOyhZ4Ub/gcTCZU
-UrdGtHrLFqnmTQKNoZslL117nCdoNLeYtAeH6HVxp1XXq+1PuqyTchoz3aqWYV6H
-037T6SKl7zOsC2x78FJ1E2n0z9Lf/ksfNFS2IemVxu+VNBKkix6zdUB41yanGJdv
-tQqIfyJAntq1EAkiAV11oz/4qjkV6QcdqOF6qbA5dLL/Lsgu3zy6363bIYRV8SAe
-tJXaihe9L8r6ek5vgxKk8Nks0Nr2Rr1UarhEdQH7jKt5OekbOY916rBHscQxbQcU
-mi+ExSAmxggo0e9CNphFa+vxVO5ZhJCHlo2/QFbpUMkYRPQFPG7EXD5M1u/S5BJl
-ZXvxDDh7BAMXifE57cOACw1qJoikNY0b7l56QfFRMRufHVCowv2ECkRRxH39JljS
-Zjx3bHIdVKTa+U67jy5VOhDP3C967GmBc2g/JzNSixEa5zEJ2ojlrU/Ok/nq+gvH
-ODbApKnZjfKvXcOXxhyE4n4XxQRPkkjazH8hahbg4PT+E/VB9b7SRLwD2L05ieDj
-gUdpw1ZbLORd74OzUT5VhIfFahHd9sBPrv+AGscTlXH9iNgVCV5JCodvvj2BHjI3
-wVzFTc7xU3PRgs1P/RJF
-=RjYp
------END PGP SIGNATURE-----
-
---ieNMXl1Fr3cevapt--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index 34a3fb6..cf53d5f 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -16,6 +16,9 @@ Required Properties:
+ Optional Properties:
+ 
+   - reset-gpios: Reference to the GPIO connected to the reset input.
++  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
++    children in idle state. This is necessary for example, if there are several
++    multiplexers on the bus and the devices behind them use same I2C addresses.
+ 
+ 
+ Example:
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index ec11b40..b81f888 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -41,6 +41,7 @@
+ #include <linux/i2c-mux.h>
+ #include <linux/i2c/pca954x.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ #include <linux/pm.h>
+ #include <linux/slab.h>
+ 
+@@ -186,6 +187,8 @@ static int pca954x_probe(struct i2c_client *client,
+ {
+ 	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+ 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
++	struct device_node *of_node = client->dev.of_node;
++	bool idle_disconnect_dt;
+ 	struct gpio_desc *gpio;
+ 	int num, force, class;
+ 	struct pca954x *data;
+@@ -217,8 +220,12 @@ static int pca954x_probe(struct i2c_client *client,
+ 	data->type = id->driver_data;
+ 	data->last_chan = 0;		   /* force the first selection */
+ 
++	idle_disconnect_dt = of_node &&
++		of_property_read_bool(of_node, "i2c-mux-idle-disconnect");
++
+ 	/* Now create an adapter for each channel */
+ 	for (num = 0; num < chips[data->type].nchans; num++) {
++		bool idle_disconnect_pd = false;
+ 		force = 0;			  /* dynamic adap number */
+ 		class = 0;			  /* no class by default */
+ 		if (pdata) {
+@@ -229,12 +236,13 @@ static int pca954x_probe(struct i2c_client *client,
+ 			} else
+ 				/* discard unconfigured channels */
+ 				break;
++			idle_disconnect_pd = pdata->modes[num].deselect_on_exit;
+ 		}
+ 
+ 		data->virt_adaps[num] =
+ 			i2c_add_mux_adapter(adap, &client->dev, client,
+ 				force, num, class, pca954x_select_chan,
+-				(pdata && pdata->modes[num].deselect_on_exit)
++				(idle_disconnect_pd || idle_disconnect_dt)
+ 					? pca954x_deselect_mux : NULL);
+ 
+ 		if (data->virt_adaps[num] == NULL) {
