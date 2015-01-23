@@ -1,85 +1,98 @@
-From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: tegra: Maintain CPU endianness
-Date: Fri, 23 Jan 2015 17:52:10 +0300
-Message-ID: <54C2601A.7000005@gmail.com>
-References: <1421756555-20266-1-git-send-email-digetx@gmail.com> <20150122074001.GB427@ulmo> <CAAVeFuJHST9VOWXe_cZNvLmfGdamuU4HSgdZC6EoQvrsGFt+Fg@mail.gmail.com> <54C115D1.10206@gmail.com> <54C12010.8040504@gmail.com> <54C130EA.2050505@gmail.com> <20150123094552.GD3835@ulmo> <54C24C2B.1070907@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: s3c2410: fix ABBA deadlock by keeping clock prepared
+Date: Fri, 23 Jan 2015 15:52:47 +0100
+Message-ID: <20150123145247.GD9592@katana>
+References: <1421683413-27075-1-git-send-email-p.osmialowsk@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54C24C2B.1070907-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ieNMXl1Fr3cevapt"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1421683413-27075-1-git-send-email-p.osmialowsk@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Paul Osmialowski <p.osmialowsk@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>, Mark Brown <broonie@kernel.org>, Tomasz Figa <tomasz.figa@gmail.com>, Peter De Schrijver <pdeschrijver@nvidia.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-23.01.2015 16:27, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> 23.01.2015 12:45, Thierry Reding =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->> On Thu, Jan 22, 2015 at 08:18:34PM +0300, Dmitry Osipenko wrote:
->>> 22.01.2015 19:06, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->>>> 22.01.2015 18:22, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->>>>> 22.01.2015 10:55, Alexandre Courbot =D0=BF=D0=B8=D1=88=D0=B5=D1=82=
-:
->>>>>> On Thu, Jan 22, 2015 at 4:40 PM, Thierry Reding
->>>>>> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->>>>>>>
->>>>>>> Should this not technically be le32_to_cpu() since the data ori=
-ginates
->>>>>> >from the I2C controller?
->>>>>
->>>>> No, i2c_readl returns value in CPU endianness, so it's correct. B=
-ut for
->>>>> i2c_writel should be used le32_to_cpu(), since it takes value in =
-CPU
->>>>> endianness.
->>>>> It's my overlook, V2 is coming.
->>>>>
->>>>>>>
->>>>>>> Why does this have to be initialized to 0 now?
->>>>>>
->>>>>> I suspect this is because we are going to memcpy less than 4 byt=
-es
->>>>>> into it, but I cannot figure out how that memcpy if guaranteed t=
-o
->>>>>> produce the expected result for both endiannesses.
->>>>>>
->>>>> That's correct. Memcpy is working with bytes, so it doesn't care =
-about
->>>>> endianness and produces expected result, since I2C message is cha=
-r array.
->>>>>
->>>> I'll spend some more time reviewing, to see if nullifying should g=
-o as separate
->>>> patch.
->>>>
->>> Well, I2C_FIFO_STATUS returns 8-bit value. The rest of bits very li=
-kely to
->>> be RAZ, however I don't see anything on it in documentation. In tha=
-t case it
->>> won't cause any problems with LE value and nullifying is only neede=
-d for BE
->>> mode.
->>
->> What does I2C_FIFO_STATUS have to do with anything?
->>
->> My point was more that we already tell hardware how much data is to =
-be
->> transferred (via the packet header in tegra_i2c_xfer_msg()), hence t=
-he
->> hardware shouldn't care whether the FIFO is padded with random data =
-or
->> zeros.
->>
->> Thierry
->>
-> Got your point. I was thinking it's expected behavior, but now I'll e=
-laborate
-> this more.
->
-Gaahh! I'm sure it wasn't working before! I'll make more testing and se=
-nd v3=20
-without "val =3D 0", if all will be fine.
 
---=20
-Dmitry
+--ieNMXl1Fr3cevapt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jan 19, 2015 at 05:03:33PM +0100, Paul Osmialowski wrote:
+> This patch solves deadlock between clock prepare mutex and regmap mutex r=
+eported
+> by Tomasz Figa in [1] by implementing solution from [2]: "always leave th=
+e clock
+> of the i2c controller in a prepared state".
+>=20
+> [1] https://lkml.org/lkml/2014/7/2/171
+> [2] https://lkml.org/lkml/2014/7/2/207
+>=20
+> On each i2c transfer handled by s3c24xx_i2c_xfer(), clk_prepare_enable() =
+was
+> called, which calls clk_prepare() then clk_enable(). clk_prepare() takes
+> prepare_lock mutex before proceeding. Note that i2c transfer functions are
+> invoked from many places in kernel, typically with some other additional =
+lock
+> held.
+>=20
+> It may happen that function on CPU1 (e.g. regmap_update_bits()) has taken=
+ a
+> mutex (i.e. regmap lock mutex) then it attempts i2c communication in orde=
+r to
+> proceed (so it needs to obtain clock related prepare_lock mutex during tr=
+ansfer
+> preparation stage due to clk_prepare() call). At the same time other task=
+ on
+> CPU0 wants to operate on clock (e.g. to (un)prepare clock for some other =
+reason)
+> so it has taken prepare_lock mutex.
+>=20
+> CPU0:                        CPU1:
+> clk_disable_unused()         regulator_disable()
+>   clk_prepare_lock()           map->lock(map->lock_arg)
+>   regmap_read()                s3c24xx_i2c_xfer()
+>     map->lock(map->lock_arg)     clk_prepare_lock()
+>=20
+> Implemented solution from [2] leaves i2c clock prepared. Preparation is d=
+one in
+> s3c24xx_i2c_probe() function. Without this patch, it is immediately unpre=
+pared
+> by clk_disable_unprepare() call. I've replaced this call with clk_disable=
+() and
+> I've added clk_unprepare() call in s3c24xx_i2c_remove().
+>=20
+> The s3c24xx_i2c_xfer() function now uses clk_enable() instead of
+> clk_prepare_enable() (and clk_disable() instead of clk_unprepare_disable(=
+)).
+>=20
+> Signed-off-by: Paul Osmialowski <p.osmialowsk@samsung.com>
+
+Applied to for-current, thanks!
+
+
+--ieNMXl1Fr3cevapt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUwmA/AAoJEBQN5MwUoCm2sEkP/iVEyjBUV7/BVkcOxy3+P66e
+IrFKY6XQsfJTdrK8AOo1YqML5f8TbPCDPrc4EV/escY44IpbLUOyhZ4Ub/gcTCZU
+UrdGtHrLFqnmTQKNoZslL117nCdoNLeYtAeH6HVxp1XXq+1PuqyTchoz3aqWYV6H
+037T6SKl7zOsC2x78FJ1E2n0z9Lf/ksfNFS2IemVxu+VNBKkix6zdUB41yanGJdv
+tQqIfyJAntq1EAkiAV11oz/4qjkV6QcdqOF6qbA5dLL/Lsgu3zy6363bIYRV8SAe
+tJXaihe9L8r6ek5vgxKk8Nks0Nr2Rr1UarhEdQH7jKt5OekbOY916rBHscQxbQcU
+mi+ExSAmxggo0e9CNphFa+vxVO5ZhJCHlo2/QFbpUMkYRPQFPG7EXD5M1u/S5BJl
+ZXvxDDh7BAMXifE57cOACw1qJoikNY0b7l56QfFRMRufHVCowv2ECkRRxH39JljS
+Zjx3bHIdVKTa+U67jy5VOhDP3C967GmBc2g/JzNSixEa5zEJ2ojlrU/Ok/nq+gvH
+ODbApKnZjfKvXcOXxhyE4n4XxQRPkkjazH8hahbg4PT+E/VB9b7SRLwD2L05ieDj
+gUdpw1ZbLORd74OzUT5VhIfFahHd9sBPrv+AGscTlXH9iNgVCV5JCodvvj2BHjI3
+wVzFTc7xU3PRgs1P/RJF
+=RjYp
+-----END PGP SIGNATURE-----
+
+--ieNMXl1Fr3cevapt--
