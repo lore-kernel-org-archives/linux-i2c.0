@@ -1,68 +1,335 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4] of: i2c: Add i2c-mux-idle-disconnect DT property to
- PCA954x mux driver
-Date: Fri, 23 Jan 2015 17:13:50 +0100
-Message-ID: <20150123161350.GF9592@katana>
-References: <5494599A.8050803@nsn.com>
- <20150115123237.GC2549@katana>
- <54B7BBF5.4010001@nsn.com>
- <20150115131935.GE2549@katana>
- <54B7C206.8030809@nsn.com>
- <54C26BA9.4050405@nsn.com>
+From: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v2] iio: imu: inv_mpu6050: Create mux clients for ACPI
+Date: Fri, 23 Jan 2015 08:16:38 -0800
+Message-ID: <1422029798.2908.1.camel@spandruv-hsb-test>
+References: <1421965915-19747-1-git-send-email-srinivas.pandruvada@linux.intel.com>
+	 <1421965915-19747-2-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UBnjLfzoMQYIXCvq"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54C26BA9.4050405-OYasijW0DpE@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Lawnick Michael 61283229 <michael.lawnick-OYasijW0DpE@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1421965915-19747-2-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 2015-01-22 at 14:31 -0800, Srinivas Pandruvada wrote:
+> This is a follow up patches after adding i2c mux adapter for bypass
+> mode. Potentially many different types of sensor can be attached to
+> INVMPU6XXX device, which can be connected to main cpu i2c bus in
+> bypass mode.
+> Why do we need this?
+> The system ACPI table entry will consist of only one device for
+> INV6XXX, assuming that this driver will handle all connected sensors.
+> That is not true for the Linux driver. There are bunch of IIO drivers
+> for each sensors, hence we created a mux on this device. So to load
+> these additional drivers, we need to create i2c devices for them
+> in this driver using this mux adapter.
+> 
+> There are multiple options:
+> 1. Use the auto detect feature, this needs a new i2c class for the
+> adapter as the existing HWMON class is not acceptable. Also the
+> autodetect has overhead of executing detect method for each
+> matching class of adapters.
+> This is a simple implementation. This option was previously submitted
+> with not a happy feedback.
+> 
+> 2. Option is use ACPI magic and parse the configuration data. What
+> we need to create a i2c device at a minimum is address and a name.
+> Address can be obtained for secondary device in more or less in a
+> standard way from using _CRS element. But there is no name. To get
+> name we need to process proprietary vendor data. Not having name is
+> not fun, as you have to create device using the device name of
+> INVN6XXXX, respecting driver duplicate name space restriction.
+> Also each client driver needs to have this name in the id table.
+> Since multiple driver can be loaded, the driver should be able to
+> detect its presence and gracefully exit for the other client driver
+> to take it over.
+> So we use two step process:
+> - Use DMI to id platform and parse propritery data. This is not uncommon
+> for many x86 platform specific driver. We will get both name and address.
+> The change created necessary infrastructure to add more properitery vendor
+> data parsing.
+> - If DMI match fails, then create device on INV6XXX-client (we can't
+> create with same name as INV6XXX as it will cause duplicate name and driver
+> model will reject.) With this each client sensor driver which needs to get
+> attached via INV6XXXX, need this name in the id table and detect the
+> physical presence of sensor in probe and exit if not found.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/iio/imu/inv_mpu6050/Makefile       |   2 +-
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 196 +++++++++++++++++++++++++++++
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c |  11 ++
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |   3 +
+>  4 files changed, 211 insertions(+), 1 deletion(-)
+>  create mode 100644 drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> 
+> diff --git a/drivers/iio/imu/inv_mpu6050/Makefile b/drivers/iio/imu/inv_mpu6050/Makefile
+> index 3a677c7..f566f6a 100644
+> --- a/drivers/iio/imu/inv_mpu6050/Makefile
+> +++ b/drivers/iio/imu/inv_mpu6050/Makefile
+> @@ -3,4 +3,4 @@
+>  #
+>  
+>  obj-$(CONFIG_INV_MPU6050_IIO) += inv-mpu6050.o
+> -inv-mpu6050-objs := inv_mpu_core.o inv_mpu_ring.o inv_mpu_trigger.o
+> +inv-mpu6050-objs := inv_mpu_core.o inv_mpu_ring.o inv_mpu_trigger.o inv_mpu_acpi.o
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> new file mode 100644
+> index 0000000..2d98c1a
+> --- /dev/null
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+> @@ -0,0 +1,196 @@
+> +/*
+> + * inv_mpu_acpi: ACPI processing for creating client devices
+> + * Copyright (c) 2015, Intel Corporation.
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms and conditions of the GNU General Public License,
+> + * version 2, as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope it will be useful, but WITHOUT
+> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> + * more details.
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/i2c.h>
+> +#include <linux/dmi.h>
+> +#include <linux/acpi.h>
+> +#include "inv_mpu_iio.h"
+> +
+> +enum inv_mpu_product_name {
+> +	INV_MPU_NOT_MATCHED,
+> +	INV_MPU_ASUS_T100TA,
+> +};
+> +
+> +static enum inv_mpu_product_name matched_product_name;
+> +
+> +static int __init asus_t100_matched(const struct dmi_system_id *d)
+> +{
+> +	matched_product_name = INV_MPU_ASUS_T100TA;
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct dmi_system_id inv_mpu_dev_list[] = {
+> +	{
+> +	.callback = asus_t100_matched,
+> +	.ident = "Asus Transformer Book T100",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "T100TA"),
+> +			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
+> +		},
+> +	},
+> +	/* Add more matching tables here..*/
+> +	{}
+> +};
+> +
+> +static int asus_acpi_get_sensor_info(struct acpi_device *adev,
+> +				     struct i2c_client *client,
+> +				     struct i2c_board_info *info)
+> +{
+> +	struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
+> +	int i;
+> +	acpi_status status;
+> +	union acpi_object *cpm;
+> +
+> +	status = acpi_evaluate_object(adev->handle, "CNF0", NULL, &buffer);
+> +	if (ACPI_FAILURE(status))
+> +		return -ENODEV;
+> +
+> +	cpm = buffer.pointer;
+> +	for (i = 0; i < cpm->package.count; ++i) {
+> +		union acpi_object *elem;
+> +		int j;
+> +
+> +		elem = &(cpm->package.elements[i]);
+> +		for (j = 0; j < elem->package.count; ++j) {
+> +			union acpi_object *sub_elem;
+> +
+> +			sub_elem = &(elem->package.elements[j]);
+> +			if (sub_elem->type == ACPI_TYPE_STRING)
+> +				strlcpy(info->type, sub_elem->string.pointer,
+> +					sizeof(info->type));
+> +			else if (sub_elem->type == ACPI_TYPE_INTEGER) {
+> +				if (sub_elem->integer.value != client->addr) {
+> +					info->addr = sub_elem->integer.value;
+> +					break; /* Not a MPU6500 primary */
+> +				}
+> +			}
+> +		}
+> +	}
+> +
+> +	kfree(buffer.pointer);
+> +
+> +	return cpm->package.count;
+> +}
+> +
+> +static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
+> +{
+> +	u32 *addr = data;
+> +
+> +	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+> +		struct acpi_resource_i2c_serialbus *sb;
+> +
+> +		sb = &ares->data.i2c_serial_bus;
+> +		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+> +			if (*addr)
+> +				*addr |= (sb->slave_address << 16);
+> +			else
+> +				*addr = sb->slave_address;
+> +		}
+> +	}
+> +
+> +	/* Tell the ACPI core that we already copied this address */
+> +	return 1;
+> +}
+> +
+> +static int inv_mpu_process_acpi_config(struct i2c_client *client,
+> +				       unsigned short *primary_addr,
+> +				       unsigned short *secondary_addr)
+> +{
+> +	const struct acpi_device_id *id;
+> +	struct acpi_device *adev;
+> +	u32 i2c_addr = 0;
+> +	LIST_HEAD(resources);
+> +	int ret;
+> +
+> +	id = acpi_match_device(client->dev.driver->acpi_match_table,
+> +			       &client->dev);
+> +	if (!id)
+> +		return -ENODEV;
+> +
+> +	adev = ACPI_COMPANION(&client->dev);
+> +	if (!adev)
+> +		return -ENODEV;
+> +
+> +	ret = acpi_dev_get_resources(adev, &resources,
+> +				     acpi_i2c_check_resource, &i2c_addr);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	acpi_dev_free_resource_list(&resources);
+> +	*primary_addr = i2c_addr & 0x0000ffff;
+> +	*secondary_addr = (i2c_addr & 0xffff0000) >> 16;
+> +
+> +	return 0;
+> +}
+> +
+> +int inv_mpu_acpi_create_mux_client(struct inv_mpu6050_state *st)
+> +{
+> +
+> +	st->mux_client = NULL;
+> +	if (ACPI_HANDLE(&st->client->dev)) {
+> +		struct i2c_board_info info;
+> +		struct acpi_device *adev;
+> +		int ret = -1;
+> +
+> +		adev = ACPI_COMPANION(&st->client->dev);
+> +		memset(&info, 0, sizeof(info));
+> +
+> +		dmi_check_system(inv_mpu_dev_list);
+> +		switch (matched_product_name) {
+> +		case INV_MPU_ASUS_T100TA:
+> +			ret = asus_acpi_get_sensor_info(adev, st->client,
+> +							&info);
+> +			break;
+> +		/* Add more matched product processing here */
+> +		default:
+> +			break;
+> +		}
+> +
+> +		if (ret < 0) {
+> +			/* No matching DMI, so create device on INV6XX type */
+> +			unsigned short primary, secondary;
+> +
+> +			ret = inv_mpu_process_acpi_config(st->client, &primary,
+> +							  &secondary);
+> +			if (!ret && secondary) {
+> +				char *name;
+> +
+> +				info.addr = secondary;
+> +				strlcpy(info.type, dev_name(&adev->dev),
+> +					sizeof(info.type));
+> +				name = strchr(info.type, ':');
+> +				if (name)
+> +					*name = '\0';
+> +				strlcat(info.type, "-client",
+> +					sizeof(info.type));
+> +			} else
+> +				return 0; /* no secondary addr, which is OK */
+> +		}
+> +		st->mux_client = i2c_new_device(st->mux_adapter, &info);
+> +		if (!st->mux_client)
+> +			return -ENODEV;
+> +
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +void inv_mpu_acpi_delete_mux_client(struct inv_mpu6050_state *st)
+> +{
+> +	if (st->mux_client)
+> +		i2c_unregister_device(st->mux_client);
+> +}
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index d8d5bed..280aa77 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -825,8 +825,16 @@ static int inv_mpu_probe(struct i2c_client *client,
+>  		goto out_unreg_device;
+>  	}
+>  
+> +#ifdef CONFIG_ACPI
+> +	result = inv_mpu_acpi_create_mux_client(st);
+> +	if (result)
+> +		goto out_del_mux;
+> +#endif
+> +
+>  	return 0;
+>  
+> +out_del_mux:
+> +	i2c_del_mux_adapter(st->mux_adapter);
+Need to enclose above two lines under CONFIG_ACPI also.
+I will resubmit with any other changes suggested.
 
---UBnjLfzoMQYIXCvq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks,
+Srinivas
 
-On Fri, Jan 23, 2015 at 04:41:29PM +0100, Alexander Sverdlin wrote:
-> of: i2c: Add i2c-mux-idle-disconnect DT property to PCA954x mux driver
->=20
-> Add i2c-mux-idle-disconnect device tree property to PCA954x mux driver. T=
-he new
-> property forces the multiplexer to disconnect child buses in idle state. =
-This is
-> used, for example, when there are several multiplexers on the same bus an=
-d the
-> devices on the underlying buses might have same I2C addresses.
->=20
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-
-Applied to for-next, thanks! Added a newline after declaring
-idle_disconnect_pd.
-
-
---UBnjLfzoMQYIXCvq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwnM+AAoJEBQN5MwUoCm2neUP/RTavF6pw+x+kSTBTlYPOI/y
-RT0P1xmxvXjOkj/21e+2F6FsUHdgDWWvtyYvPr+60P6m123jxsaMLplSk3xDqv57
-FfiIdSr83Z3ja1kbR1U24WeiDN1j+/O8L9o0IRWxuwJjAz3rK+uLZU/bPF08kBMx
-FfUU1kNxZsL1Dag5DzTTrCw6dAQTAVl/SuhGddEPS2fG3YKQa+YOxmCDZejjs/Mj
-tTMz/gEnBzw5CcAN1+0IUPKFexCn3VqcIZnbQkcs9F6RB8vZKDtwRT1QEB5iGaj9
-dXW+AfAi5EuAtGRbLNw+GdCJkCfimqbNT4xLnSfajlPXenoExeiAq63bexuskS9Z
-GffuTsTTJQTdIH+SJIBJCEVYOgHWRv/xCneoF7neMhHQNqwfIbaswIrd3qWeB47O
-o5tz37PZsoGsov/qYeU6quYli15QQqf+SvuFV0t5oA9uxWI5rKcbRFZHox074EP5
-LUZh+4xxnySKLvZCAeCPt38Nl/OIB4zfyL4iZXpEyLpVnvMX/moPpbW/j8ZLmGma
-+Bnt9MN3MZ70MY7UR1vWvcIBH7bM9+gOvEfS4Z2sFp9LGVkpohGMChOH5tbwaKv1
-5JQyXFesn5ebUqB1i03S1oz33Gj6DqYdCst/F1qrFaOx8cLXyl6PQ5nEa8aC+Cxs
-6bXCJc3mZYWigI2x47SK
-=p2VC
------END PGP SIGNATURE-----
-
---UBnjLfzoMQYIXCvq--
+>  out_unreg_device:
+>  	iio_device_unregister(indio_dev);
+>  out_remove_trigger:
+> @@ -841,6 +849,9 @@ static int inv_mpu_remove(struct i2c_client *client)
+>  	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+>  	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+>  
+> +#ifdef CONFIG_ACPI
+> +	inv_mpu_acpi_delete_mux_client(st);
+> +#endif
+>  	i2c_del_mux_adapter(st->mux_adapter);
+>  	iio_device_unregister(indio_dev);
+>  	inv_mpu6050_remove_trigger(st);
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> index aa837de..db0a4a2 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+> @@ -121,6 +121,7 @@ struct inv_mpu6050_state {
+>  	spinlock_t time_stamp_lock;
+>  	struct i2c_client *client;
+>  	struct i2c_adapter *mux_adapter;
+> +	struct i2c_client *mux_client;
+>  	unsigned int powerup_count;
+>  	struct inv_mpu6050_platform_data plat_data;
+>  	DECLARE_KFIFO(timestamps, long long, TIMESTAMP_FIFO_SIZE);
+> @@ -251,3 +252,5 @@ int inv_reset_fifo(struct iio_dev *indio_dev);
+>  int inv_mpu6050_switch_engine(struct inv_mpu6050_state *st, bool en, u32 mask);
+>  int inv_mpu6050_write_reg(struct inv_mpu6050_state *st, int reg, u8 val);
+>  int inv_mpu6050_set_power_itg(struct inv_mpu6050_state *st, bool power_on);
+> +int inv_mpu_acpi_create_mux_client(struct inv_mpu6050_state *st);
+> +void inv_mpu_acpi_delete_mux_client(struct inv_mpu6050_state *st);
