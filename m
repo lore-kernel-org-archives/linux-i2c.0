@@ -1,72 +1,78 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 2/4] i2c: designware-pci: shrink dw_pci_controllers
- array
-Date: Fri, 23 Jan 2015 15:04:06 +0200
-Message-ID: <1422018246.31903.162.camel@linux.intel.com>
-References: <1422014045-20584-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1422014045-20584-2-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <20150123124155.GA1906@katana> <20150123124805.GP1850@lahna.fi.intel.com>
+From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: tegra: Maintain CPU endianness
+Date: Fri, 23 Jan 2015 16:27:07 +0300
+Message-ID: <54C24C2B.1070907@gmail.com>
+References: <1421756555-20266-1-git-send-email-digetx@gmail.com> <20150122074001.GB427@ulmo> <CAAVeFuJHST9VOWXe_cZNvLmfGdamuU4HSgdZC6EoQvrsGFt+Fg@mail.gmail.com> <54C115D1.10206@gmail.com> <54C12010.8040504@gmail.com> <54C130EA.2050505@gmail.com> <20150123094552.GD3835@ulmo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150123124805.GP1850-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <20150123094552.GD3835@ulmo>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Cohen <david.a.cohen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2015-01-23 at 14:48 +0200, Mika Westerberg wrote:
-> On Fri, Jan 23, 2015 at 01:41:55PM +0100, Wolfram Sang wrote:
-> > On Fri, Jan 23, 2015 at 01:54:03PM +0200, Andy Shevchenko wrote:
-> > > There is no need to duplicate same data for each controller. If we need
-> > > specific stuff for a certain controller in the future we may add it later. The
-> > > patch leaves one controller per platform.
-> > > 
-> > > Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > > ---
-> > >  drivers/i2c/busses/i2c-designware-pcidrv.c | 63 ++++++------------------------
-> > >  1 file changed, 11 insertions(+), 52 deletions(-)
-> > > 
-> > > diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > > index 5c6fca7..435a8ec 100644
-> > > --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > > +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-> > > @@ -40,13 +40,7 @@
-> > >  #define DRIVER_NAME "i2c-designware-pci"
-> > >  
-> > >  enum dw_pci_ctl_id_t {
-> > > -	medfield_0,
-> > > -	medfield_1,
-> > > -	medfield_2,
-> > > -	medfield_3,
-> > > -	medfield_4,
-> > > -	medfield_5,
-> > > -
-> > > +	medfield,
-> > >  	baytrail,
-> > >  	haswell,
-> > >  };
-> > > @@ -98,47 +92,12 @@ static struct dw_scl_sda_cfg hsw_config = {
-> > >  };
-> > >  
-> > >  static struct  dw_pci_controller  dw_pci_controllers[] = {
-> > > -	[medfield_0] = {
-> > > -		.bus_num     = 0,
-> > 
-> > Wasn't that bus_num used to ensure stable bus numbers? Adding Mika.
-> 
-> That's right.
-> 
-> However, I don't think anybody really uses Medfield outside Intel so in
-> that sense this patch should not break anything.
+23.01.2015 12:45, Thierry Reding =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> On Thu, Jan 22, 2015 at 08:18:34PM +0300, Dmitry Osipenko wrote:
+>> 22.01.2015 19:06, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>>> 22.01.2015 18:22, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>>>> 22.01.2015 10:55, Alexandre Courbot =D0=BF=D0=B8=D1=88=D0=B5=D1=82=
+:
+>>>>> On Thu, Jan 22, 2015 at 4:40 PM, Thierry Reding
+>>>>> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>>>>>>
+>>>>>> Should this not technically be le32_to_cpu() since the data orig=
+inates
+>>>>> >from the I2C controller?
+>>>>
+>>>> No, i2c_readl returns value in CPU endianness, so it's correct. Bu=
+t for
+>>>> i2c_writel should be used le32_to_cpu(), since it takes value in C=
+PU endianness.
+>>>> It's my overlook, V2 is coming.
+>>>>
+>>>>>>
+>>>>>> Why does this have to be initialized to 0 now?
+>>>>>
+>>>>> I suspect this is because we are going to memcpy less than 4 byte=
+s
+>>>>> into it, but I cannot figure out how that memcpy if guaranteed to
+>>>>> produce the expected result for both endiannesses.
+>>>>>
+>>>> That's correct. Memcpy is working with bytes, so it doesn't care a=
+bout
+>>>> endianness and produces expected result, since I2C message is char=
+ array.
+>>>>
+>>> I'll spend some more time reviewing, to see if nullifying should go=
+ as separate
+>>> patch.
+>>>
+>> Well, I2C_FIFO_STATUS returns 8-bit value. The rest of bits very lik=
+ely to
+>> be RAZ, however I don't see anything on it in documentation. In that=
+ case it
+>> won't cause any problems with LE value and nullifying is only needed=
+ for BE
+>> mode.
+>
+> What does I2C_FIFO_STATUS have to do with anything?
+>
+> My point was more that we already tell hardware how much data is to b=
+e
+> transferred (via the packet header in tegra_i2c_xfer_msg()), hence th=
+e
+> hardware shouldn't care whether the FIFO is padded with random data o=
+r
+> zeros.
+>
+> Thierry
+>
+Got your point. I was thinking it's expected behavior, but now I'll ela=
+borate=20
+this more.
 
-I think better to ask David who is closer to that Intel MID area.
-
-AFAIU, technically due to fake PCI bus on Medfield even with automatic
-bus number you will get stable assignment, though it might be changed
-once from the original version.
-
--- 
-Andy Shevchenko <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Intel Finland Oy
+--=20
+Dmitry
