@@ -1,78 +1,68 @@
-From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: tegra: Maintain CPU endianness
-Date: Fri, 23 Jan 2015 16:27:07 +0300
-Message-ID: <54C24C2B.1070907@gmail.com>
-References: <1421756555-20266-1-git-send-email-digetx@gmail.com> <20150122074001.GB427@ulmo> <CAAVeFuJHST9VOWXe_cZNvLmfGdamuU4HSgdZC6EoQvrsGFt+Fg@mail.gmail.com> <54C115D1.10206@gmail.com> <54C12010.8040504@gmail.com> <54C130EA.2050505@gmail.com> <20150123094552.GD3835@ulmo>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH V4 2/2] i2c-designware: Add Intel Baytrail PMIC I2C bus
+ support
+Date: Fri, 23 Jan 2015 15:18:53 +0100
+Message-ID: <20150123141853.GA9592@katana>
+References: <1417478973-25522-1-git-send-email-david.e.box@linux.intel.com>
+ <1421313137-1613-3-git-send-email-david.e.box@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150123094552.GD3835@ulmo>
+Content-Disposition: inline
+In-Reply-To: <1421313137-1613-3-git-send-email-david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: jdelvare-l3A5Bk7waGM@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.coquelin-qxv4g6HH51o@public.gmane.org, andrew-g2DYL2Zd6BY@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, markus.mayer-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jacob.jun.pan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org, Romain.Baeriswyl-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, wenkai.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-23.01.2015 12:45, Thierry Reding =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> On Thu, Jan 22, 2015 at 08:18:34PM +0300, Dmitry Osipenko wrote:
->> 22.01.2015 19:06, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->>> 22.01.2015 18:22, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->>>> 22.01.2015 10:55, Alexandre Courbot =D0=BF=D0=B8=D1=88=D0=B5=D1=82=
-:
->>>>> On Thu, Jan 22, 2015 at 4:40 PM, Thierry Reding
->>>>> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->>>>>>
->>>>>> Should this not technically be le32_to_cpu() since the data orig=
-inates
->>>>> >from the I2C controller?
->>>>
->>>> No, i2c_readl returns value in CPU endianness, so it's correct. Bu=
-t for
->>>> i2c_writel should be used le32_to_cpu(), since it takes value in C=
-PU endianness.
->>>> It's my overlook, V2 is coming.
->>>>
->>>>>>
->>>>>> Why does this have to be initialized to 0 now?
->>>>>
->>>>> I suspect this is because we are going to memcpy less than 4 byte=
-s
->>>>> into it, but I cannot figure out how that memcpy if guaranteed to
->>>>> produce the expected result for both endiannesses.
->>>>>
->>>> That's correct. Memcpy is working with bytes, so it doesn't care a=
-bout
->>>> endianness and produces expected result, since I2C message is char=
- array.
->>>>
->>> I'll spend some more time reviewing, to see if nullifying should go=
- as separate
->>> patch.
->>>
->> Well, I2C_FIFO_STATUS returns 8-bit value. The rest of bits very lik=
-ely to
->> be RAZ, however I don't see anything on it in documentation. In that=
- case it
->> won't cause any problems with LE value and nullifying is only needed=
- for BE
->> mode.
->
-> What does I2C_FIFO_STATUS have to do with anything?
->
-> My point was more that we already tell hardware how much data is to b=
-e
-> transferred (via the packet header in tegra_i2c_xfer_msg()), hence th=
-e
-> hardware shouldn't care whether the FIFO is padded with random data o=
-r
-> zeros.
->
-> Thierry
->
-Got your point. I was thinking it's expected behavior, but now I'll ela=
-borate=20
-this more.
 
---=20
-Dmitry
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+Mostly good, except one thing:
+
+> +config I2C_DESIGNWARE_BAYTRAIL
+> +	bool "Intel Baytrail I2C semaphore support"
+> +	depends on I2C_DESIGNWARE_PLATFORM
+> +	select IOSF_MBI
+
+This needs some dependency on something Baytrail specific. Otherwise, it
+causes lots of build errors:
+
+With ARM allnoconfig, I can select this option but there are no headers
+for iosf.
+
+With x86_64_defconfig and disabled ACPI, I can select this option but it
+fails over "implicit declaration of function =E2=80=98acpi_evaluate_integer=
+=E2=80=99".
+
+An incremental patch will do for me, the rest looks good.
+
+
+--17pEHd4RhPHOinZp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUwlhNAAoJEBQN5MwUoCm2rkUP/iYlfnu/9Kxz6dGnXV+BJCXC
+DTs/nJfuL07/Tpw7Dtgk0QWfEVrdqZFazDt2rCMpXNKTj+BI8DxrXmKRvf1Jk2NT
+oQoexr8Ua32pbjEk3ab0Mzt0tOiny4ePhVJRHGXneOUsj4hPLiNQjzd7cJQn0iRu
+dwZZjtB3a3da0e1P77cWIkSPn7F794bgALFShhg8BodPNatLkTtYMMEEDQEaO4Lo
+aClDzF1VTii+Y9TkDiRMb3Cn3zgA+QszGOvpRO4A8dd5RtAKbYnMM7fuDJPCJ1wn
+a7kvt6coE5n1nTNzspaIcRAVz48uvpG8nMwmn2Ul64trj4hU6BnCoOYtMavaHx0O
+J7yPk6S8HjV2c+uwiO6ciGGi8HbYsZxTgJFquQmZhzi0itWGsFhD155vxFJwtgc8
+QpsffIgVhTO3yfCTP958pJVZPjJvO06LtieAyf3KVSsaKk/tOfL0jUa4zJ1sv5rq
+e9IrRdn+TgsMeC/hzPC8QzJpQebRtOiozeukSLfAUPsQNkgk/MZ7lIdZi9I4l/65
+4M3UUSowGNoLCUhaSmMzQ0MbHMwXcm3LrOrgJTUX5mLqSNlOdtZ+W9I1psMsE422
+jIx0CyFFJLn0S3o6IcwEsrcU04zHTP21tQdINNESJfcGn8I9URAKzQvZVcZFuzQF
+Gys86cNje2tf0RBHgEhR
+=hydN
+-----END PGP SIGNATURE-----
+
+--17pEHd4RhPHOinZp--
