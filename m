@@ -1,58 +1,85 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 3/4] i2c: designware-pci: no need to provide clk_khz
-Date: Fri, 23 Jan 2015 15:36:47 +0100
-Message-ID: <20150123143647.GC9592@katana>
-References: <1422014045-20584-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <1422014045-20584-3-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: tegra: Maintain CPU endianness
+Date: Fri, 23 Jan 2015 17:52:10 +0300
+Message-ID: <54C2601A.7000005@gmail.com>
+References: <1421756555-20266-1-git-send-email-digetx@gmail.com> <20150122074001.GB427@ulmo> <CAAVeFuJHST9VOWXe_cZNvLmfGdamuU4HSgdZC6EoQvrsGFt+Fg@mail.gmail.com> <54C115D1.10206@gmail.com> <54C12010.8040504@gmail.com> <54C130EA.2050505@gmail.com> <20150123094552.GD3835@ulmo> <54C24C2B.1070907@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CblX+4bnyfN0pR09"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1422014045-20584-3-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Cohen <david.a.cohen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <54C24C2B.1070907-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+23.01.2015 16:27, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> 23.01.2015 12:45, Thierry Reding =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>> On Thu, Jan 22, 2015 at 08:18:34PM +0300, Dmitry Osipenko wrote:
+>>> 22.01.2015 19:06, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>>>> 22.01.2015 18:22, Dmitry Osipenko =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>>>>> 22.01.2015 10:55, Alexandre Courbot =D0=BF=D0=B8=D1=88=D0=B5=D1=82=
+:
+>>>>>> On Thu, Jan 22, 2015 at 4:40 PM, Thierry Reding
+>>>>>> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>>>>>>>
+>>>>>>> Should this not technically be le32_to_cpu() since the data ori=
+ginates
+>>>>>> >from the I2C controller?
+>>>>>
+>>>>> No, i2c_readl returns value in CPU endianness, so it's correct. B=
+ut for
+>>>>> i2c_writel should be used le32_to_cpu(), since it takes value in =
+CPU
+>>>>> endianness.
+>>>>> It's my overlook, V2 is coming.
+>>>>>
+>>>>>>>
+>>>>>>> Why does this have to be initialized to 0 now?
+>>>>>>
+>>>>>> I suspect this is because we are going to memcpy less than 4 byt=
+es
+>>>>>> into it, but I cannot figure out how that memcpy if guaranteed t=
+o
+>>>>>> produce the expected result for both endiannesses.
+>>>>>>
+>>>>> That's correct. Memcpy is working with bytes, so it doesn't care =
+about
+>>>>> endianness and produces expected result, since I2C message is cha=
+r array.
+>>>>>
+>>>> I'll spend some more time reviewing, to see if nullifying should g=
+o as separate
+>>>> patch.
+>>>>
+>>> Well, I2C_FIFO_STATUS returns 8-bit value. The rest of bits very li=
+kely to
+>>> be RAZ, however I don't see anything on it in documentation. In tha=
+t case it
+>>> won't cause any problems with LE value and nullifying is only neede=
+d for BE
+>>> mode.
+>>
+>> What does I2C_FIFO_STATUS have to do with anything?
+>>
+>> My point was more that we already tell hardware how much data is to =
+be
+>> transferred (via the packet header in tegra_i2c_xfer_msg()), hence t=
+he
+>> hardware shouldn't care whether the FIFO is padded with random data =
+or
+>> zeros.
+>>
+>> Thierry
+>>
+> Got your point. I was thinking it's expected behavior, but now I'll e=
+laborate
+> this more.
+>
+Gaahh! I'm sure it wasn't working before! I'll make more testing and se=
+nd v3=20
+without "val =3D 0", if all will be fine.
 
---CblX+4bnyfN0pR09
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Jan 23, 2015 at 01:54:04PM +0200, Andy Shevchenko wrote:
-> The clk_khz field makes sense only if SS counters are not provided. Since=
- we
-> provide them for Haswell and Baytrail explicitly we may omit the clk_khz
-> parameter.
->=20
-> Reviewed-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-
-Applied to for-next, thanks!
-
-
---CblX+4bnyfN0pR09
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUwlx/AAoJEBQN5MwUoCm2bboP/3Ori2MxQEC3CyXTedqq8h65
-Vu7UWMnKnhczDlFyJJqKEuvRoBNsp9dseJq/XMoioxKHlIHSVdO9FQHpI7nkpNQ9
-7NPJCPV3lXVhgGJP/rWvMNGpeP4jcYoYWtjO7wwFOo3XuadqKw25IJ/+6SQ0IYCJ
-oXPrEhAcjK5LeJDuV1QtDt9iV1PwWcZ6LOABcBZT6QX9QDKFR/mS37cydFpXkrsC
-hJ9/O6BU/kxKp3QpDAdPuulX+9qrMiS9Hq8s4vcl2b2C1PHDa6a9J0U9psHiwHEB
-Ggax9XajXipel6IOZcxlrDHREhjLCTtXOc56kWMC0lj/+0bziOnyA0zVzF85L1FX
-gYO7ds/G83/T+G6+rwv5yvBev8oGbOLUJB48+iXm6gkcxiSvfmuMQCWA+nppbCjy
-Oo2vy9Lj/ovhhINuu2pflMQ3hAdP2xrtXGXi2nLYotk5ev9H5FYmp4xhEAPoa7Gt
-iE1pP54OlgxVgL7oi5v/TWUbeiTtJyBYpGqhtV+pK8gHvuWjroi/d5t2L6k0GZHH
-PYJiwZQoYGIWqbkO9fYwltVC5S1aYE/ckRpE//qfjZ4N3el4UL3nqamJCCM0nOgH
-eA/s19Yq2gyKt37egSxP9L0Asar0TMdbn0GGGGgfGYPraa0ZyRzSE/mcaFIDC0dm
-WOZ1fz08T0TkYD8dsB/C
-=4Bin
------END PGP SIGNATURE-----
-
---CblX+4bnyfN0pR09--
+--=20
+Dmitry
