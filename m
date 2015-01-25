@@ -1,179 +1,555 @@
-From: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] at91: i2c-at91: improve time-out handling
-Date: Sat, 24 Jan 2015 23:42:24 +0100
-Message-ID: <54C41FD0.2010607@interlog.com>
-References: <54A58BA5.3080003@interlog.com> <20150107103113.GA30897@ldesroches-Latitude-E6320> <20150113152752.GK7660@katana>
-Reply-To: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V3 1/1] iio: Added Capella cm3232 ambient light sensor
+ driver.
+Date: Sun, 25 Jan 2015 22:43:12 +0000
+Message-ID: <54C57180.10900@kernel.org>
+References: <1421372464-30316-1-git-send-email-ktsai@capellamicro.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------030804020606010403000602"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150113152752.GK7660@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: patchwork-notifications-2CcfMPLixEJ8D7ILJbWmE2D2FQJk+8+b@public.gmane.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1421372464-30316-1-git-send-email-ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Archana Patni <archana.patni-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030804020606010403000602
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+On 16/01/15 01:41, Kevin Tsai wrote:
+> CM3232 is an advanced ambient light sensor with I2C protocol interface.
+> The I2C slave address is internally hardwired as 0x10 (7-bit).  Writing
+> to configure register is byte mode, but reading ALS register requests to
+> use word mode for 16-bit resolution.
+> 
+> Signed-off-by: Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>
+Couple of little bits inline that I've cleared up in applying the patch...
+(utterly trivial so lets not waste any time!)
 
-On 15-01-13 04:27 PM, Wolfram Sang wrote:
-> On Wed, Jan 07, 2015 at 11:31:14AM +0100, Ludovic Desroches wrote:
->> Hi Douglas,
->>
->> On Thu, Jan 01, 2015 at 01:02:13PM -0500, Douglas Gilbert wrote:
->>> With lk 3.19.0-rc2 and a at91sam9g25 (9x5) based system I
->>> connected a NXP SC16IS750 I2C to serial bridge. After
->>> routing the 750's IRQ back to the sc16is7xx driver and some
->>> simple successful test, it was time for some intense testing:
->>> Tx looped back to Rx on the 750, open picocom on /dev/ttySC0
->>> at 38400, and use hexdump to blast a binary file (in hex) at
->>> ttySC0. The I2C SCL speed was 200,000 Hz.
->>>
->>> It worked as expected for a few seconds then it wedged the
->>> I2C bus. That was repeatable. In the cases that I checked SCL
->>> was high, SDA was low (driven by _both_ the G25's macrocell
->>> and the 750!!) and IRQ was active (low). This patch stopped
->>> the G25 macrocell from driving SDA low in the above wedge
->>> (and stopped copious error reports going to the log). I was
->>> surprised that a NXP I2C chip got into this situation, IMO
->>> SDA on a slave should have a driven low timeout. IMO all
->>> I2C master drivers should have provision to drive a gpio
->>> connected to a (or all the) slave's RESET line(s).
->>>
->>>
->>> ChangeLog:
->>>     when handling an I2C bus time-out, first clean-up the
->>>     DMA transfer, then do an I2C macrocell software reset
->>>     and restore some registers, including the interrupt
->>>     mask
->>>
->>
->> I am wondering why you need to call at91_twi_irq_save() and
->> at91_twi_irq_restore(). The interrupts enabled in the driver are
->> AT91_TWI_TXCOMP, AT91_TWI_RXRDY and AT91_TWI_TXRDY and they are managed
->> in at91_do_twi_transfer() so they would be set correctly for the next
->> transfer.
->
-> Douglas, any more info you could provide?
+I'ts been here a while since Daniel suggested he'd like to see comments
+from Peter and Hartmut.  I'm going to take the view that it looks
+fine to me, and those guys are either happy, or too busy to look!
 
-I reran the torture tests without the at91_twi_irq_save() and
-at91_twi_irq_restore() calls and got the same results. So it
-seems that those calls are not needed; revised patch attached.
+Anyhow,
 
-Other observations: after the torture test wedges (after
-several seconds at 38400 baud) grounding the RESET pin on the
-SC16IS750 clears the I2C bus jam; thereafter I2C
-transmissions can continue. That implies to me that Atmel's
-I2C macrocell is not wedged.
+Applied with small changes as outlined below to the togreg branch of iio.git
+Initially pushed out as testing for the autobuilders to play.
 
-When the sc16is7xx driver is built as a module, then rmmod
-runs into a slow path dump in the logs. That comes from the
-clk_disable() call in:
-   sc16is7xx_i2c_remove+0x88/0xa4 [sc16is7xx]
+Thanks,
 
-Tests done with lk 3.19.0-rc4 using a AT91SAM9G25 system
-(Acme Arietta).
+Jonathan
+> ---
+> v3:
+> Added hw_id to als_info structure.
+> Removed unused include files.
+> Modified cm3232_write_als_it() to handle register update fail.
+> 
+> Thanks comments from Daniel Baluta.
+> 
+> v2:
+> Removed unused CM3232_CMD_ALS_HS.
+> Modified cm3232_als_info structure.  Removed id field.
+> Modified cm3232_chip structure.
+> Merged CM3232_als_it_bits and CM3232_als_it_values to cm3232_it_scale.
+> Removed mutex lock.
+> Renamed als_raw to regs_als.  Moved it to cm3232_chip structure.
+> Modified cm3232_read_als_it() and cm3232_write_als_it() to support val2.
+> 
+> Thanks comments from Jeremiah Mahler, Peter Meerwald, Daniel Baluta,
+> and Joe Perches.
+> 
+> v1:
+> Added cm3232.c to support Capella Microsystems CM3232 Ambient Light
+> Sensor.
+> 
+>  .../devicetree/bindings/i2c/trivial-devices.txt    |   1 +
+>  MAINTAINERS                                        |   6 +
+>  drivers/iio/light/Kconfig                          |  11 +
+>  drivers/iio/light/Makefile                         |   1 +
+>  drivers/iio/light/cm3232.c                         | 409 +++++++++++++++++++++
+>  5 files changed, 428 insertions(+)
+>  create mode 100644 drivers/iio/light/cm3232.c
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> index 9f4e382..572a7c4 100644
+> --- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> +++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> @@ -34,6 +34,7 @@ atmel,24c512		i2c serial eeprom  (24cxx)
+>  atmel,24c1024		i2c serial eeprom  (24cxx)
+>  atmel,at97sc3204t	i2c trusted platform module (TPM)
+>  capella,cm32181		CM32181: Ambient Light Sensor
+> +capella,cm3232		CM3232: Ambient Light Sensor
+>  catalyst,24c32		i2c serial eeprom
+>  cirrus,cs42l51		Cirrus Logic CS42L51 audio codec
+>  dallas,ds1307		64 x 8, Serial, I2C Real-Time Clock
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index ddb9ac8..06a613a 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -2378,6 +2378,12 @@ F:	security/capability.c
+>  F:	security/commoncap.c
+>  F:	kernel/capability.c
+>  
+> +CAPELLA MICROSYSTEMS LIGHT SENSOR DRIVER
+> +M:	Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>
+> +S:	Maintained
+> +F:	drivers/iio/light/cm*
+> +F:	Documentation/devicetree/bindings/i2c/trivial-devices.txt
+> +
+>  CC2520 IEEE-802.15.4 RADIO DRIVER
+>  M:	Varka Bhadram <varkabhadram-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>  L:	linux-wpan-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
+> index 5bea821..cd5028e 100644
+> --- a/drivers/iio/light/Kconfig
+> +++ b/drivers/iio/light/Kconfig
+> @@ -48,6 +48,17 @@ config CM32181
+>  	 To compile this driver as a module, choose M here:
+>  	 the module will be called cm32181.
+>  
+> +config CM3232
+> +	depends on I2C
+> +	tristate "CM3232 ambient light sensor"
+> +	help
+> +	 Say Y here if you use cm3232.
+> +	 This option enables ambient light sensor using
+> +	 Capella Microsystems cm3232 device driver.
+> +
+> +	 To compile this driver as a module, choose M here:
+> +	 the module will be called cm3232.
+> +
+>  config CM36651
+>  	depends on I2C
+>  	tristate "CM36651 driver"
+> diff --git a/drivers/iio/light/Makefile b/drivers/iio/light/Makefile
+> index 47877a3..f2c8d55 100644
+> --- a/drivers/iio/light/Makefile
+> +++ b/drivers/iio/light/Makefile
+> @@ -7,6 +7,7 @@ obj-$(CONFIG_ADJD_S311)		+= adjd_s311.o
+>  obj-$(CONFIG_AL3320A)		+= al3320a.o
+>  obj-$(CONFIG_APDS9300)		+= apds9300.o
+>  obj-$(CONFIG_CM32181)		+= cm32181.o
+> +obj-$(CONFIG_CM3232)		+= cm3232.o
+>  obj-$(CONFIG_CM36651)		+= cm36651.o
+>  obj-$(CONFIG_GP2AP020A00F)	+= gp2ap020a00f.o
+>  obj-$(CONFIG_HID_SENSOR_ALS)	+= hid-sensor-als.o
+> diff --git a/drivers/iio/light/cm3232.c b/drivers/iio/light/cm3232.c
+> new file mode 100644
+> index 0000000..8573f98
+> --- /dev/null
+> +++ b/drivers/iio/light/cm3232.c
+> @@ -0,0 +1,409 @@
+> +/*
+> + * CM3232 Ambient Light Sensor
+> + *
+> + * Copyright (C) 2014-2015 Capella Microsystems Inc.
+> + * Author: Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2, as published
+> + * by the Free Software Foundation.
+> + *
+> + * IIO driver for CM3232 (7-bit I2C slave address 0x10).
+> + *
+blank line here doesn't serve any purpose.
+> + */
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/module.h>
+> +#include <linux/iio/iio.h>
+> +#include <linux/iio/sysfs.h>
+> +#include <linux/init.h>
+> +
+> +/* Registers Address */
+> +#define CM3232_REG_ADDR_CMD		0x00
+> +#define CM3232_REG_ADDR_ALS		0x50
+> +#define CM3232_REG_ADDR_ID		0x53
+> +
+> +#define CM3232_CMD_ALS_DISABLE		BIT(0)
+> +
+> +#define CM3232_CMD_ALS_IT_SHIFT		2
+> +#define CM3232_CMD_ALS_IT_MASK		(BIT(2) | BIT(3) | BIT(4))
+> +#define CM3232_CMD_ALS_IT_DEFAULT	(0x01 << CM3232_CMD_ALS_IT_SHIFT)
+> +
+> +#define CM3232_CMD_ALS_RESET		BIT(6)
+> +
+> +#define CM3232_CMD_DEFAULT		CM3232_CMD_ALS_IT_DEFAULT
+> +
+> +#define CM3232_HW_ID			0x32
+> +#define CM3232_CALIBSCALE_DEFAULT	100000
+> +#define CM3232_CALIBSCALE_RESOLUTION	100000
+> +#define CM3232_MLUX_PER_LUX		1000
+> +
+> +#define CM3232_MLUX_PER_BIT_DEFAULT	64
+> +#define CM3232_MLUX_PER_BIT_BASE_IT	100000
+> +
+> +static const struct {
+> +	int val;
+> +	int val2;
+> +	u8 it;
+> +} cm3232_als_it_scales[] = {
+> +	{0, 100000, 0},	/* 0.100000 */
+> +	{0, 200000, 1},	/* 0.200000 */
+> +	{0, 400000, 2},	/* 0.400000 */
+> +	{0, 800000, 3},	/* 0.800000 */
+> +	{1, 600000, 4},	/* 1.600000 */
+> +	{3, 200000, 5},	/* 3.200000 */
+> +};
+> +
+> +struct cm3232_als_info {
+> +	u8 regs_cmd_default;
+> +	u8 hw_id;
+> +	int calibscale;
+> +	int mlux_per_bit;
+> +	int mlux_per_bit_base_it;
+> +};
+> +
+> +static struct cm3232_als_info cm3232_als_info_default = {
+> +	.regs_cmd_default = CM3232_CMD_DEFAULT,
+> +	.hw_id = CM3232_HW_ID,
+> +	.calibscale = CM3232_CALIBSCALE_DEFAULT,
+> +	.mlux_per_bit = CM3232_MLUX_PER_BIT_DEFAULT,
+> +	.mlux_per_bit_base_it = CM3232_MLUX_PER_BIT_BASE_IT,
+> +};
+> +
+> +struct cm3232_chip {
+> +	struct i2c_client *client;
+> +	struct cm3232_als_info *als_info;
+> +	u8 regs_cmd;
+> +	u16 regs_als;
+> +};
+> +
+> +static int cm3232_get_lux(struct cm3232_chip *chip);
+> +static int cm3232_read_als_it(struct cm3232_chip *chip, int *val, int *val2);
+personally I'd just reorganize the code so these forward defs
+aren't needed.  Oh, just checked.  You don't need them!
 
-For the attached patch:
-   Signed-off-by: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-
-
->> Regards
->>
->> Ludovic
->>
->>> Signed-off-by: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
->>
->>> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
->>> index 636fd2e..4d78708 100644
->>> --- a/drivers/i2c/busses/i2c-at91.c
->>> +++ b/drivers/i2c/busses/i2c-at91.c
->>> @@ -382,6 +382,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->>>   {
->>>   	int ret;
->>>   	bool has_unre_flag = dev->pdata->has_unre_flag;
->>> +	bool timed_out = false;
->>>
->>>   	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
->>>   		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
->>> @@ -440,7 +441,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->>>   					     dev->adapter.timeout);
->>>   	if (ret == 0) {
->>>   		dev_err(dev->dev, "controller timed out\n");
->>> -		at91_init_twi_bus(dev);
->>> +		timed_out = true;
->>>   		ret = -ETIMEDOUT;
->>>   		goto error;
->>>   	}
->>> @@ -471,6 +472,11 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->>>
->>>   error:
->>>   	at91_twi_dma_cleanup(dev);
->>> +	if (timed_out) {
->>> +		at91_twi_irq_save(dev);
->>> +		at91_init_twi_bus(dev);
->>> +		at91_twi_irq_restore(dev);
->>> +	}
->>>   	return ret;
->>>   }
->>>
->>
-
-
---------------030804020606010403000602
-Content-Type: text/x-patch;
- name="i2c-at91_tmout2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="i2c-at91_tmout2.patch"
-
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 91bd5bd..b2a6fbe 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -41,6 +41,10 @@ dtb-$(CONFIG_ARCH_AT91) += at91sam9g25ek.dtb
- dtb-$(CONFIG_ARCH_AT91) += at91sam9g35ek.dtb
- dtb-$(CONFIG_ARCH_AT91) += at91sam9x25ek.dtb
- dtb-$(CONFIG_ARCH_AT91) += at91sam9x35ek.dtb
-+dtb-$(CONFIG_ARCH_AT91) += acme-arietta.dtb
-+dtb-$(CONFIG_ARCH_AT91) += acme-arietta_sc16.dtb
-+dtb-$(CONFIG_ARCH_AT91) += at91-aria_cb.dtb
-+dtb-$(CONFIG_ARCH_AT91) += at91-aria_mg25.dtb
- # sama5d3
- dtb-$(CONFIG_ARCH_AT91)	+= at91-sama5d3_xplained.dtb
- dtb-$(CONFIG_ARCH_AT91)	+= sama5d31ek.dtb
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 636fd2e..fcaf01c 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -382,6 +382,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- {
- 	int ret;
- 	bool has_unre_flag = dev->pdata->has_unre_flag;
-+	bool timed_out = false;
- 
- 	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
- 		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
-@@ -440,7 +441,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 					     dev->adapter.timeout);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
--		at91_init_twi_bus(dev);
-+		timed_out = true;
- 		ret = -ETIMEDOUT;
- 		goto error;
- 	}
-@@ -471,6 +472,8 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 
- error:
- 	at91_twi_dma_cleanup(dev);
-+	if (timed_out)
-+		at91_init_twi_bus(dev);
- 	return ret;
- }
- 
-
---------------030804020606010403000602--
+I'll drop these in a merge if nothing else comes up.
+> +
+> +/**
+> + * cm3232_reg_init() - Initialize CM3232
+> + * @chip:	pointer of struct cm3232_chip.
+> + *
+> + * Check and initialize CM3232 ambient light sensor.
+> + *
+> + * Return: 0 for success; otherwise for error code.
+> + */
+> +static int cm3232_reg_init(struct cm3232_chip *chip)
+> +{
+> +	struct i2c_client *client = chip->client;
+> +	s32 ret;
+> +
+> +	chip->als_info = &cm3232_als_info_default;
+> +
+> +	/* Identify device */
+> +	ret = i2c_smbus_read_word_data(client, CM3232_REG_ADDR_ID);
+> +	if (ret < 0) {
+> +		dev_err(&chip->client->dev, "Error reading addr_id\n");
+> +		return ret;
+> +	}
+> +
+> +	if ((ret & 0xFF) != chip->als_info->hw_id)
+> +		return -ENODEV;
+> +
+> +	/* Disable and reset device */
+> +	chip->regs_cmd = CM3232_CMD_ALS_DISABLE | CM3232_CMD_ALS_RESET;
+> +	ret = i2c_smbus_write_byte_data(client, CM3232_REG_ADDR_CMD,
+> +					chip->regs_cmd);
+> +	if (ret < 0) {
+> +		dev_err(&chip->client->dev, "Error writing reg_cmd\n");
+> +		return ret;
+> +	}
+> +
+> +	/* Register default value */
+> +	chip->regs_cmd = chip->als_info->regs_cmd_default;
+> +
+> +	/* Configure register */
+> +	ret = i2c_smbus_write_byte_data(client, CM3232_REG_ADDR_CMD,
+> +					chip->regs_cmd);
+> +	if (ret < 0)
+> +		dev_err(&chip->client->dev, "Error writing reg_cmd\n");
+> +
+> +	return 0;
+> +}
+> +
+> +/**
+> + *  cm3232_read_als_it() - Get sensor integration time
+> + *  @chip:	pointer of struct cm3232_chip
+> + *  @val:	pointer of int to load the integration (sec).
+> + *  @val2:	pointer of int to load the integration time (microsecond).
+> + *
+> + *  Report the current integration time.
+> + *
+> + *  Return: IIO_VAL_INT_PLUS_MICRO for success, otherwise -EINVAL.
+> + */
+> +static int cm3232_read_als_it(struct cm3232_chip *chip, int *val, int *val2)
+> +{
+> +	u16 als_it;
+> +	int i;
+> +
+> +	als_it = chip->regs_cmd;
+> +	als_it &= CM3232_CMD_ALS_IT_MASK;
+> +	als_it >>= CM3232_CMD_ALS_IT_SHIFT;
+> +	for (i = 0; i < ARRAY_SIZE(cm3232_als_it_scales); i++) {
+> +		if (als_it == cm3232_als_it_scales[i].it) {
+> +			*val = cm3232_als_it_scales[i].val;
+> +			*val2 = cm3232_als_it_scales[i].val2;
+> +			return IIO_VAL_INT_PLUS_MICRO;
+> +		}
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +/**
+> + * cm3232_write_als_it() - Write sensor integration time
+> + * @chip:	pointer of struct cm3232_chip.
+> + * @val:	integration time in second.
+> + * @val2:	integration time in microsecond.
+> + *
+> + * Convert integration time to sensor value.
+> + *
+> + * Return: i2c_smbus_write_byte_data command return value.
+> + */
+> +static int cm3232_write_als_it(struct cm3232_chip *chip, int val, int val2)
+> +{
+> +	struct i2c_client *client = chip->client;
+> +	u16 als_it, cmd;
+> +	int i;
+> +	s32 ret;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(cm3232_als_it_scales); i++) {
+> +		if (val == cm3232_als_it_scales[i].val &&
+> +			val2 == cm3232_als_it_scales[i].val2) {
+> +
+> +			als_it = cm3232_als_it_scales[i].it;
+> +			als_it <<= CM3232_CMD_ALS_IT_SHIFT;
+> +
+> +			cmd = chip->regs_cmd & ~CM3232_CMD_ALS_IT_MASK;
+> +			cmd |= als_it;
+> +			ret = i2c_smbus_write_byte_data(client,
+> +							CM3232_REG_ADDR_CMD,
+> +							cmd);
+> +			if (ret < 0)
+> +				return ret;
+> +			chip->regs_cmd = cmd;
+> +			return 0;
+> +		}
+> +	}
+> +	return -EINVAL;
+> +}
+> +
+> +/**
+> + * cm3232_get_lux() - report current lux value
+> + * @chip:	pointer of struct cm3232_chip.
+> + *
+> + * Convert sensor data to lux.  It depends on integration
+> + * time and calibscale variable.
+> + *
+> + * Return: Zero or positive value is lux, otherwise error code.
+> + */
+> +static int cm3232_get_lux(struct cm3232_chip *chip)
+> +{
+> +	struct i2c_client *client = chip->client;
+> +	struct cm3232_als_info *als_info = chip->als_info;
+> +	int ret;
+> +	int val, val2;
+> +	int als_it;
+> +	u64 lux;
+> +
+> +	/* Calculate mlux per bit based on als_it */
+> +	ret = cm3232_read_als_it(chip, &val, &val2);
+> +	if (ret < 0)
+> +		return -EINVAL;
+> +	als_it = val * 1000000 + val2;
+> +	lux = (__force u64)als_info->mlux_per_bit;
+> +	lux *= als_info->mlux_per_bit_base_it;
+> +	lux = div_u64(lux, als_it);
+> +
+> +	ret = i2c_smbus_read_word_data(client, CM3232_REG_ADDR_ALS);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "Error reading reg_addr_als\n");
+> +		return ret;
+> +	}
+> +
+> +	chip->regs_als = (u16)ret;
+> +	lux *= chip->regs_als;
+> +	lux *= als_info->calibscale;
+> +	lux = div_u64(lux, CM3232_CALIBSCALE_RESOLUTION);
+> +	lux = div_u64(lux, CM3232_MLUX_PER_LUX);
+> +
+> +	if (lux > 0xFFFF)
+> +		lux = 0xFFFF;
+> +
+> +	return (int)lux;
+> +}
+> +
+> +static int cm3232_read_raw(struct iio_dev *indio_dev,
+> +			struct iio_chan_spec const *chan,
+> +			int *val, int *val2, long mask)
+> +{
+> +	struct cm3232_chip *chip = iio_priv(indio_dev);
+> +	struct cm3232_als_info *als_info = chip->als_info;
+> +	int ret;
+> +
+> +	switch (mask) {
+> +	case IIO_CHAN_INFO_PROCESSED:
+> +		ret = cm3232_get_lux(chip);
+> +		if (ret < 0)
+> +			return ret;
+> +		*val = ret;
+> +		return IIO_VAL_INT;
+> +	case IIO_CHAN_INFO_CALIBSCALE:
+> +		*val = als_info->calibscale;
+> +		return IIO_VAL_INT;
+> +	case IIO_CHAN_INFO_INT_TIME:
+> +		return cm3232_read_als_it(chip, val, val2);
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +static int cm3232_write_raw(struct iio_dev *indio_dev,
+> +			struct iio_chan_spec const *chan,
+> +			int val, int val2, long mask)
+> +{
+> +	struct cm3232_chip *chip = iio_priv(indio_dev);
+> +	struct cm3232_als_info *als_info = chip->als_info;
+> +
+> +	switch (mask) {
+> +	case IIO_CHAN_INFO_CALIBSCALE:
+> +		als_info->calibscale = val;
+> +		return 0;
+> +	case IIO_CHAN_INFO_INT_TIME:
+> +		return cm3232_write_als_it(chip, val, val2);
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+> +/**
+> + * cm3232_get_it_available() - Get available ALS IT value
+> + * @dev:	pointer of struct device.
+> + * @attr:	pointer of struct device_attribute.
+> + * @buf:	pointer of return string buffer.
+> + *
+> + * Display the available integration time in second.
+> + *
+> + * Return: string length.
+> + */
+> +static ssize_t cm3232_get_it_available(struct device *dev,
+> +			struct device_attribute *attr, char *buf)
+> +{
+> +	int i, len;
+> +
+> +	for (i = 0, len = 0; i < ARRAY_SIZE(cm3232_als_it_scales); i++)
+> +		len += scnprintf(buf + len, PAGE_SIZE - len, "%u.%06u ",
+> +			cm3232_als_it_scales[i].val,
+> +			cm3232_als_it_scales[i].val2);
+> +	return len + scnprintf(buf + len, PAGE_SIZE - len, "\n");
+> +}
+> +
+> +static const struct iio_chan_spec cm3232_channels[] = {
+> +	{
+> +		.type = IIO_LIGHT,
+> +		.info_mask_separate =
+> +			BIT(IIO_CHAN_INFO_PROCESSED) |
+> +			BIT(IIO_CHAN_INFO_CALIBSCALE) |
+> +			BIT(IIO_CHAN_INFO_INT_TIME),
+> +	}
+> +};
+> +
+> +static IIO_DEVICE_ATTR(in_illuminance_integration_time_available,
+> +			S_IRUGO, cm3232_get_it_available, NULL, 0);
+> +
+> +static struct attribute *cm3232_attributes[] = {
+> +	&iio_dev_attr_in_illuminance_integration_time_available.dev_attr.attr,
+> +	NULL,
+> +};
+> +
+> +static const struct attribute_group cm3232_attribute_group = {
+> +	.attrs = cm3232_attributes
+> +};
+> +
+> +static const struct iio_info cm3232_info = {
+> +	.driver_module		= THIS_MODULE,
+> +	.read_raw		= &cm3232_read_raw,
+> +	.write_raw		= &cm3232_write_raw,
+> +	.attrs			= &cm3232_attribute_group,
+> +};
+> +
+> +static int cm3232_probe(struct i2c_client *client,
+> +			const struct i2c_device_id *id)
+> +{
+> +	struct cm3232_chip *chip;
+> +	struct iio_dev *indio_dev;
+> +	int ret;
+> +
+> +	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*chip));
+> +	if (!indio_dev)
+> +		return -ENOMEM;
+> +
+> +	chip = iio_priv(indio_dev);
+> +	i2c_set_clientdata(client, indio_dev);
+> +	chip->client = client;
+> +
+> +	indio_dev->dev.parent = &client->dev;
+> +	indio_dev->channels = cm3232_channels;
+> +	indio_dev->num_channels = ARRAY_SIZE(cm3232_channels);
+> +	indio_dev->info = &cm3232_info;
+> +	if (id && id->name)
+> +		indio_dev->name = id->name;
+> +	else
+> +		indio_dev->name = (char *)dev_name(&client->dev);
+> +	indio_dev->modes = INDIO_DIRECT_MODE;
+> +
+> +	ret = cm3232_reg_init(chip);
+> +	if (ret) {
+> +		dev_err(&client->dev,
+> +			"%s: register init failed\n",
+> +			__func__);
+> +		return ret;
+> +	}
+> +
+> +	return iio_device_register(indio_dev);
+> +}
+> +
+> +static int cm3232_remove(struct i2c_client *client)
+> +{
+> +	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+> +
+> +	i2c_smbus_write_byte_data(client, CM3232_REG_ADDR_CMD,
+> +		CM3232_CMD_ALS_DISABLE);
+> +
+> +	iio_device_unregister(indio_dev);
+If getting really fussy, a blank line here is the convention.
+> +	return 0;
+> +}
+> +
+> +static const struct i2c_device_id cm3232_id[] = {
+> +	{"cm3232", 0},
+> +	{}
+> +};
+> +
+> +MODULE_DEVICE_TABLE(i2c, cm3232_id);
+> +
+> +static const struct of_device_id cm3232_of_match[] = {
+> +	{.compatible = "capella,cm3232"},
+> +	{}
+> +};
+> +
+> +static struct i2c_driver cm3232_driver = {
+> +	.driver = {
+> +		.name	= "cm3232",
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table = of_match_ptr(cm3232_of_match),
+> +	},
+> +	.id_table	= cm3232_id,
+> +	.probe		= cm3232_probe,
+> +	.remove		= cm3232_remove,
+> +};
+> +
+> +module_i2c_driver(cm3232_driver);
+> +
+> +MODULE_AUTHOR("Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>");
+> +MODULE_DESCRIPTION("CM3232 ambient light sensor driver");
+> +MODULE_LICENSE("GPL");
+> 
