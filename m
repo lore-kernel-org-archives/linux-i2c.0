@@ -1,46 +1,40 @@
-From: "David E. Box" <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware-baytrail: use proper Kconfig dependencies
-Date: Mon, 26 Jan 2015 10:47:34 -0800
-Message-ID: <20150126184734.GA32373@pathfinder>
-References: <1422290974-24561-1-git-send-email-wsa@the-dreams.de>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: Only include slave support if selected
+Date: Mon, 26 Jan 2015 19:53:21 +0100
+Message-ID: <20150126195321.7f85e616@endymion.delvare>
+References: <20150126190047.7bc44f26@endymion.delvare>
+	<20150126180508.GB25317@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1422290974-24561-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <20150126180508.GB25317@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, kbuild-all-JC7UmRfGjtg@public.gmane.org
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 26, 2015 at 05:49:34PM +0100, Wolfram Sang wrote:
-> IOSF_MBI depends on PCI, so we should not select it but depend on it.
-> This ensures also we compile on X86 only, other archs will break because
-> of an arch specific include. Also depend on ACPI since this driver uses
-> it.
+On Mon, 26 Jan 2015 19:05:09 +0100, Wolfram Sang wrote:
+> On Mon, Jan 26, 2015 at 07:00:47PM +0100, Jean Delvare wrote:
+> > Make the slave support depend on CONFIG_I2C_SLAVE. Otherwise it gets
+> > included unconditionally, even when it is not needed.
+> > 
+> > Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> > Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> > ---
+> > Changes since v1:
+> > * Let I2C_RCAR select I2C_SLAVE
+> > 
+> > Wolfram, you mentioned i2c-sh_mobile but that driver doesn't seem to
+> > implement slave support in v3.19-rc6 so I did not include it. Feel free
+> > to add more selects to drivers/i2c/busses/Kconfig to match the current
+> > state of your i2c tree.
 > 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Sorry, my bad. I meant the RCAR driver which you spotted. What about the
+> function pointers in the algo struct?
 
-Acked-by: David E. Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Doh, forgot about them once again. Stay tuned, patch v3 is coming...
 
-> ---
->  drivers/i2c/busses/Kconfig | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 83062b2c0e6b..442408d2e7b7 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -467,8 +467,7 @@ config I2C_DESIGNWARE_PCI
->  
->  config I2C_DESIGNWARE_BAYTRAIL
->  	bool "Intel Baytrail I2C semaphore support"
-> -	depends on I2C_DESIGNWARE_PLATFORM
-> -	select IOSF_MBI
-> +	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI && ACPI
->  	help
->  	  This driver enables managed host access to the PMIC I2C bus on select
->  	  Intel BayTrail platforms using the X-Powers AXP288 PMIC. It allows
-> -- 
-> 2.1.3
-> 
+-- 
+Jean Delvare
+SUSE L3 Support
