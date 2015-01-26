@@ -1,62 +1,31 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: I2C slave support
-Date: Mon, 26 Jan 2015 12:33:29 +0100
-Message-ID: <20150126113329.GB1052@katana>
-References: <20150124210825.521bf923@endymion.delvare>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: i2c-tools: add compatibility for python2/3 to py-smbus
+Date: Mon, 26 Jan 2015 12:46:15 +0100
+Message-ID: <20150126124615.7fd1f64f@endymion.delvare>
+References: <CA+TH9VkT1K2aqAuNOLsGiU407OA4NYcMVaUakEQgSWLpMBBg2A@mail.gmail.com>
+	<20150119230327.0224d0ba@endymion.delvare>
+	<1421917018.21840.0@smtp.inria.fr>
+	<20150122114958.3178f5f6@endymion.delvare>
+	<1421933290.21840.1@smtp.inria.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150124210825.521bf923-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1421933290.21840.1-YAXBhf1W29QAs8EywTwl9A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>
+Cc: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Renz, Bernhard" <bernhard.renz-//tT4aWmXyZBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 22 Jan 2015 14:28:10 +0100, Michael Mercier wrote:
+> I have only tested read_i2c_block_data write_i2c_block_data for python 
+> 3.2 and python 2.7.
+> 
+> I think you can push these patchs upstream.
 
---kORqDWCi7qDJ0mEj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I committed both patches. I also added python 3 support to the stable
+branch.
 
-
-> I find it confusing that I2C slave support is included even when
-> CONFIG_I2C_SLAVE is not set. I don't know if this was discussed before?
-
-I was thinking about it but was undecided between "size of code added
-unconditionally" and "ugly #ifdeffing the code".
-
-> I am considering adding ifdefs around the code to only include it when
-> CONFIG_I2C_SLAVE is set. Alternatively the code could be moved to a
-> separate module altogether. What do you think?
-
-Own module: Again, undecided. On the one hand it makes for a nice
-encapsulation, on the other hand there is overhead for having another
-module. I am very happy that the core code for slave support is so slim.
-
-Mabye #ifdef is a good start. I could do it as well, I don't mind.
-
-
---kORqDWCi7qDJ0mEj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUxiYJAAoJEBQN5MwUoCm2O3oP/3aH6/Se+vwPjB/nPw4EGNcy
-OELy0Gx/4ZAWYqa+iGKuw11DwsOBV9OGiej7s+WwnQddS8yAjBh8AuXCMs6v/Wnu
-8Dzc5sBQfXRjdQPUfvZxQxebXGLhrOl0h2oKgV+uHscvtXgqONOMQCmggAWOy8py
-zZQp/TE2RQSWBJ+AoYfGiR2wHnta7QFHfjTLf58nTTh2eaCSZEGbwnx9oXwRk63y
-ge+34W6YoA4GoFLHToYheyR0F83G/saA+nAq0lT6hnTnFGl4FgqRxA9Sio+f8jyf
-hujY81t86Ym8RhhTTegUuHAXDtI5CAUm04J9AcAXAqOfvA6LXK2DUGzbvq/0z2S0
-LBpATf6tze//ZVeHuQ1Az5qild2MeEx+daWKLwlf3gBeoOXoOZWyLa97B91Ct9u5
-Epm6EwLhITvDv88NIPOOruWOa32G8jcUvfhC/ukN2JvHZkZQYg3boOWxJKSQtUHe
-ZeXS3sPsCJU9zuruXjPqHsiG6zTb7h3bCj2wzUWYssmJXc4qaPDJKCOvNBaiLhxN
-a5FShnuDJCZO0pceWv86RlvXHg7l/3QVeD1D5C9ao0yImOBsJZSbEZ78ZK3U9YER
-+zzO/oJTgaDaLocuNzjnbpJr5DQudIqqvXGCF5M2BmBxEASCaNBchNbqytXHywb/
-1HvQnP48Cim4VVnYUxnn
-=Lzcy
------END PGP SIGNATURE-----
-
---kORqDWCi7qDJ0mEj--
+-- 
+Jean Delvare
+SUSE L3 Support
