@@ -1,31 +1,66 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: i2c-tools: add compatibility for python2/3 to py-smbus
-Date: Mon, 26 Jan 2015 12:46:15 +0100
-Message-ID: <20150126124615.7fd1f64f@endymion.delvare>
-References: <CA+TH9VkT1K2aqAuNOLsGiU407OA4NYcMVaUakEQgSWLpMBBg2A@mail.gmail.com>
-	<20150119230327.0224d0ba@endymion.delvare>
-	<1421917018.21840.0@smtp.inria.fr>
-	<20150122114958.3178f5f6@endymion.delvare>
-	<1421933290.21840.1@smtp.inria.fr>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Mon, 26 Jan 2015 13:09:47 +0100
+Message-ID: <20150126120947.GC1052@katana>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <1421333655-31029-2-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <20150115170209.GA6342@katana>
+ <CAMuHMdW7ETcFGSPiE9BWA2dAE93477fzoyF-+_EaiPSDT9WMWA@mail.gmail.com>
+ <20150115174333.GC6342@katana>
+ <CAMuHMdUwHde0EvbCD574L2tW6qqxLCtZwAb+0M-4QCjB9V6fmQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1421933290.21840.1-YAXBhf1W29QAs8EywTwl9A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>
-Cc: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Renz, Bernhard" <bernhard.renz-//tT4aWmXyZBDgjK7y7TUQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ctP54qlpMx3WjD+/"
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdUwHde0EvbCD574L2tW6qqxLCtZwAb+0M-4QCjB9V6fmQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 22 Jan 2015 14:28:10 +0100, Michael Mercier wrote:
-> I have only tested read_i2c_block_data write_i2c_block_data for python 
-> 3.2 and python 2.7.
-> 
-> I think you can push these patchs upstream.
 
-I committed both patches. I also added python 3 support to the stable
-branch.
+--ctP54qlpMx3WjD+/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jean Delvare
-SUSE L3 Support
+
+> >> If you drop adi,adxl346, checkpatch will start complaining if it encou=
+nters
+> >> it in a .dts.
+> >
+> > Boah, this is annoying. That means we need an 346 entry even if it is
+> > not different from 345 (which is fine by me).
+>=20
+> To be clear: you need the entry in the documentation. It can be omitted
+> from the driver if it's not (yet) used for matching.
+
+Well, I don't really like that behaviour, but I don't like
+i2c/trivial-devices.txt as well, so I'll just apply the patch and live
+with it :)
+
+
+--ctP54qlpMx3WjD+/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUxi6LAAoJEBQN5MwUoCm2HrsP/2sYjISludcqelKR5gHEHa8X
+VAFcGFiIsVlu9TQWjDFWMzZnBrmBXGDH46ZT1wijmpGBzN/6UmANqhHQRLJnPthO
+30yc7m1DGJxlfEoY/WRHAvbioH8OhFQ3yt+oKd1JZJlhb9Tpf6Alzsr6w/pxz9IO
+bSw1ttHqAEDZdjsVyYY/2xiwS4mjbnIcLBwbewzAAb9i0dE7WnK2iqlnZn2jQuUN
+RscejLZiF3jxO+vwvWxVuSZaNSvdeT7uI2tVuEm21I7JLF0GzrMJqnmJ82Y6U758
+2Vjt1JIP8irbxbMMsICwdjymWVCRPnknuYVJa9Y0FqHrI9WDx2Q4s/8u515bBTVH
+Aoj2cwTuqFmt0AML7e3YLmGKYvYAo4ASgjGUWnmZ8Ezxc2wVp6QHQorbrOVBB+7w
+6zrmup2Qj2OMcZyv2DTWvJboBVL9Q6T9RQMSec9CogT4GYq+qOY2V2exiWYBeCPH
+tLbURZvtf3qIYdjJ7+b2yLwNi+rYPu7rCN80AsszJH0O01FpRnmPkg92jI5PM8Rb
+JyIDU5G2rYC7yFW7+N+US8GpM8a2CI1Vl0YuHzRg5650jf/ngX2p2/uGVRSDg5ea
+UUKRROE5xI1FekLSufLHpgJXXJjw6k/GZt4/1xROuWXPNMupUxM3eZgdmLJLoKCh
+jQKvt0PnMawLwiKAVcot
+=q7Qu
+-----END PGP SIGNATURE-----
+
+--ctP54qlpMx3WjD+/--
