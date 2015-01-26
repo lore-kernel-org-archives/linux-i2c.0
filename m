@@ -1,48 +1,75 @@
-From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3] i2c: tegra: Maintain CPU endianness
-Date: Mon, 26 Jan 2015 19:55:02 +0300
-Message-ID: <1422291305-32514-1-git-send-email-digetx@gmail.com>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: I2C slave support
+Date: Mon, 26 Jan 2015 18:07:47 +0100
+Message-ID: <20150126180747.07ddacfd@endymion.delvare>
+References: <20150124210825.521bf923@endymion.delvare>
+	<20150126113329.GB1052@katana>
+	<20150126171745.3d6d0fec@endymion.delvare>
+	<20150126163013.GE13494@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150126163013.GE13494@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Support CPU BE mode by adding endianness conversion for memcpy interactions.
+On Mon, 26 Jan 2015 17:30:13 +0100, Wolfram Sang wrote:
+> 
+> > > Own module: Again, undecided. On the one hand it makes for a nice
+> > > encapsulation, on the other hand there is overhead for having another
+> > > module. I am very happy that the core code for slave support is so slim.
+> > 
+> > I gave a try to the separate module approach and I have to agree that
+> > it seems overkill given the small amount of code.
+> 
+> OK, thanks for trying!
+> 
+> > Something like this?
+> 
+> Yes, pretty much what I had in mind. One issue, though:
+> 
+> > +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> >  enum i2c_slave_event {
+> >  	I2C_SLAVE_REQ_READ_START,
+> >  	I2C_SLAVE_REQ_READ_END,
+> > @@ -263,6 +266,7 @@ static inline int i2c_slave_event(struct
+> >  {
+> >  	return client->slave_cb(client, event, val);
+> >  }
+> > +#endif
+> 
+> This should fail because bus drivers need those enums for their slave
+> backend. Try building i2c-sh_mobile which builds with an x86 toolchain
+> as well.
 
-Signed-off-by: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Acked-by: Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-Changelog:
-v2: For consistency cpu_to_le32() changed to le32_to_cpu() because
-    i2c_writel() takes BE value in BE CPU mode and value is in LE format.
-v3: Removed "val = 0;", it turned out it wasn't needed. For some reason
-    it wasn't working at first time, hope it was just me doing something
-    wrong and it's not a heisenbug. I've checked kernel with all memory
-    corruption detection options enabled and it didn't show any problems.
+Sorry I missed that, because there is currently no i2c bus driver
+implementing slave support on x86-64.
 
- drivers/i2c/busses/i2c-tegra.c | 2 ++
- 1 file changed, 2 insertions(+)
+> * Either we leave this included, so bus drivers don't need any ifdeffery
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 28b87e6..29f1433 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -286,6 +286,7 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
- 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
-+		val = cpu_to_le32(val);
- 		memcpy(buf, &val, buf_remaining);
- 		buf_remaining = 0;
- 		rx_fifo_avail--;
-@@ -344,6 +345,7 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
- 		memcpy(&val, buf, buf_remaining);
-+		val = le32_to_cpu(val);
- 
- 		/* Again update before writing to FIFO to make sure isr sees. */
- 		i2c_dev->msg_buf_remaining = 0;
+We can do that. The enum itself has no run-time cost so I don't mind.
+
+> or
+> 
+> * we mandate that bus drivers also use the ifedeffery. Then, we could
+>   also mask out the (un)reg_slave callbacks in struct i2c_adapter
+> 
+> What do you think?
+
+Oh, I admit I completely missed the (un)reg_slave callbacks in my first
+patch.
+
+While I am happy with a few ifdefs in i2c-core and i2c.h, I agree it
+will become messy if these are required in device drivers as well.
+
+Hmm, what about bus drivers with slave mode support must select
+CONFIG_I2C_SLAVE? This solves my problem nicely, and makes no change
+compared to the current situation for people using slave mode.
+
+Thanks,
 -- 
-2.2.1
+Jean Delvare
+SUSE L3 Support
