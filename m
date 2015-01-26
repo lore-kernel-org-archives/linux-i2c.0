@@ -1,78 +1,48 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware-baytrail: use proper Kconfig dependencies
-Date: Mon, 26 Jan 2015 17:51:15 +0100
-Message-ID: <20150126165115.GF13494@katana>
-References: <1422290974-24561-1-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FoLtEtfbNGMjfgrs"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1422290974-24561-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, kbuild-all-JC7UmRfGjtg@public.gmane.org
+From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3] i2c: tegra: Maintain CPU endianness
+Date: Mon, 26 Jan 2015 19:55:02 +0300
+Message-ID: <1422291305-32514-1-git-send-email-digetx@gmail.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Bob Mottram <bob.mottram-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Support CPU BE mode by adding endianness conversion for memcpy interactions.
 
---FoLtEtfbNGMjfgrs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+Changelog:
+v2: For consistency cpu_to_le32() changed to le32_to_cpu() because
+    i2c_writel() takes BE value in BE CPU mode and value is in LE format.
+v3: Removed "val = 0;", it turned out it wasn't needed. For some reason
+    it wasn't working at first time, hope it was just me doing something
+    wrong and it's not a heisenbug. I've checked kernel with all memory
+    corruption detection options enabled and it didn't show any problems.
 
-On Mon, Jan 26, 2015 at 05:49:34PM +0100, Wolfram Sang wrote:
-> IOSF_MBI depends on PCI, so we should not select it but depend on it.
-> This ensures also we compile on X86 only, other archs will break because
-> of an arch specific include. Also depend on ACPI since this driver uses
-> it.
->=20
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+ drivers/i2c/busses/i2c-tegra.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Depending on IOSF_MBI also helps against the I2C driver being built-in
-and IOSF_MBI being a module.
-
-> ---
->  drivers/i2c/busses/Kconfig | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 83062b2c0e6b..442408d2e7b7 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -467,8 +467,7 @@ config I2C_DESIGNWARE_PCI
-> =20
->  config I2C_DESIGNWARE_BAYTRAIL
->  	bool "Intel Baytrail I2C semaphore support"
-> -	depends on I2C_DESIGNWARE_PLATFORM
-> -	select IOSF_MBI
-> +	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI && ACPI
->  	help
->  	  This driver enables managed host access to the PMIC I2C bus on select
->  	  Intel BayTrail platforms using the X-Powers AXP288 PMIC. It allows
-> --=20
-> 2.1.3
->=20
-
---FoLtEtfbNGMjfgrs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUxnCDAAoJEBQN5MwUoCm2z+kP/jXfS+x4EcMnhK6NwyDWNW7l
-IYIYumKOihfNLl1ZMuZ3eCu0cCDtAHu/uQHCUfSqV9DROHEoxA9nP29x9Koa2TYk
-eOfwsfkW6o2+10iujo/vL8TPL/BqMjAIH3xGPOxP16z4A8OwEXk+LT9jo4FAI4r4
-+/DY58vK7m8PtSbK2uIN6LuIw2+dpj5iMB3FBYR+cE89eqIvIFUUVJioq+hJNy+0
-31iEr7C+nBjOF1OfYRjydE2P0Wib1PAXLxGLa1rv6UCmcNiBsCDYEyECLMqEoIoN
-BfDhqAIewN66Mjznp24ulLXPWKA77aa7MjnHgRLhExjN/ret4+J3nyWuCC9JYlOU
-+v2MhyAWnH/5fPxPhbMMd0PQz2YdMQsB6yfJU1B8ANP38vluSNxHtubwYjyi+O5m
-LL2fM4RpZeKOslUaiDm+IGMab1WTYVe1f2X4QMEIbTGm4ZRre+T6iEuCVXrK8ovP
-U/c9ZymQfV7+ScOi0JqKxHkqXw2NHkg28KFJHHEQEYhpFYh1Jw3Q8drlgJoPVh9S
-bK9wLNwKa7Ra79p2yoVejF5t/BU/BQWcWaRTjbQsyyIb3c9U7kfW+R9LlLY++EY+
-3gxqLck1LK5FxmqF0sWIuBovEyKb1Xfkixf5D5Kgik76YSeABSEbUkFBANRiSnsG
-zu35ulygH5+3rAS9sl+T
-=13Jn
------END PGP SIGNATURE-----
-
---FoLtEtfbNGMjfgrs--
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 28b87e6..29f1433 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -286,6 +286,7 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
+ 		BUG_ON(buf_remaining > 3);
+ 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
++		val = cpu_to_le32(val);
+ 		memcpy(buf, &val, buf_remaining);
+ 		buf_remaining = 0;
+ 		rx_fifo_avail--;
+@@ -344,6 +345,7 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
+ 		BUG_ON(buf_remaining > 3);
+ 		memcpy(&val, buf, buf_remaining);
++		val = le32_to_cpu(val);
+ 
+ 		/* Again update before writing to FIFO to make sure isr sees. */
+ 		i2c_dev->msg_buf_remaining = 0;
+-- 
+2.2.1
