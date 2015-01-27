@@ -1,58 +1,26 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3] i2c: Only include slave support if selected
-Date: Mon, 26 Jan 2015 22:05:52 +0100
-Message-ID: <20150126210551.GD28095@katana>
-References: <20150126205931.25e1f648@endymion.delvare>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware-baytrail: use proper Kconfig dependencies
+Date: Tue, 27 Jan 2015 12:17:38 +0200
+Message-ID: <20150127101738.GL1451@lahna.fi.intel.com>
+References: <1422290974-24561-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150126205931.25e1f648-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1422290974-24561-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, kbuild-all-JC7UmRfGjtg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jan 26, 2015 at 05:49:34PM +0100, Wolfram Sang wrote:
+> IOSF_MBI depends on PCI, so we should not select it but depend on it.
+> This ensures also we compile on X86 only, other archs will break because
+> of an arch specific include. Also depend on ACPI since this driver uses
+> it.
+> 
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
---k4f25fnPtRuIRUb3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for taking care of this,
 
-On Mon, Jan 26, 2015 at 08:59:31PM +0100, Jean Delvare wrote:
-> Make the slave support depend on CONFIG_I2C_SLAVE. Otherwise it gets
-> included unconditionally, even when it is not needed.
->=20
-> I2C bus drivers which implement slave support must select
-> I2C_SLAVE.
->=20
-> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-Applied to for-current, thanks!
-
-
---k4f25fnPtRuIRUb3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJUxqwvAAoJEBQN5MwUoCm2SAsP/ixy9pW15BspvFMcczyhshYV
-/+UNwCMS4PCmgnUJdhAjo6HEAPjSz0xBDqHoiWuziY2MnF0zptlR/ClTSFrP3le1
-Mw6S+tYfXaBUY0MIyXNUqpfUY8TSOtiekqIEW/vpWshVWotxG9WDlJ0yz9jBYiZ9
-4EuzNpaErPNg3siwCjX7eEfDtdo6dPtNPSZQAxbFREpiLZjVH7Rbz1LsoMx+fM7h
-K32ouej5kwKSJ/lDvBtUOExUf/AcLGriyTSVUgTvZn29PRYTCIH99JrnmXI8Y1Ob
-Ya7uxGzznA7ajxQeLTrLXiHFqMDuf5NKnd45AwlodfrpJNKVKFnBuxKbtMGbr1jw
-pWJXmQAYTFYZ5ny0RgP43vxXZ6F8stQce/2F2Xieh2MT4Vnn8qvOPyUAzt2isMkW
-8obnUSiGqVOPdlIGAm6yOtD1o19KAZWdgnUrGGc+v1CbezrRhM9rk/qGls1NBM9M
-2Cq7C0v9x18mrnetrQNJEZkPXmW41aIJ2VOpwtJOStZTxfpYM/eNAl9y8+p3tzHu
-ah96aXpBdqVWj6OkdD8bEqlpNfM+IXZH/MO3pOk474AW9jwc7oICj/0QVM8+MyRV
-/QajYeAcxma3Hlu2FYUhMO6+cnDlE8+ZvnLJMRbFH1y0TNkbxibWBkT9mu+jBdWY
-8Yu7gnIS9GHQUqLSD8Yv
-=hVAr
------END PGP SIGNATURE-----
-
---k4f25fnPtRuIRUb3--
+Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
