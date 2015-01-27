@@ -1,26 +1,42 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware-baytrail: use proper Kconfig dependencies
-Date: Tue, 27 Jan 2015 12:17:38 +0200
-Message-ID: <20150127101738.GL1451@lahna.fi.intel.com>
-References: <1422290974-24561-1-git-send-email-wsa@the-dreams.de>
+From: Martin Hisch <martin.hisch.ext-Bf/A/FSCP0w3s4ca2cGeAgC/G2K4zDHf@public.gmane.org>
+Subject: Re: [PATCH v2 1/3] i2c: cadence: Handle > 252 byte transfers
+Date: Tue, 27 Jan 2015 15:14:39 +0000 (UTC)
+Message-ID: <loom.20150127T155921-844@post.gmane.org>
+References: <1417610126-7957-1-git-send-email-harinik@xilinx.com> <1417610126-7957-2-git-send-email-harinik@xilinx.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1422290974-24561-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, kbuild-all-JC7UmRfGjtg@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 26, 2015 at 05:49:34PM +0100, Wolfram Sang wrote:
-> IOSF_MBI depends on PCI, so we should not select it but depend on it.
-> This ensures also we compile on X86 only, other archs will break because
-> of an arch specific include. Also depend on ACPI since this driver uses
-> it.
+Harini Katakam <harinik@...> writes:
+
 > 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> The I2C controller sends a NACK to the slave when transfer size register
+> reaches zero, irrespective of the hold bit. So, in order to handle transfers
+> greater than 252 bytes, the transfer size register has to be maintained at a
+> value >= 1. This patch implements the same.
+> The interrupt status is cleared at the beginning of the isr instead of
+> the end, to avoid missing any interrupts - this is in sync with the new
+> transfer handling.
+> 
+> Signed-off-by: Harini Katakam <harinik@...>
+> ---
+> 
+> v2:
+> No changes
+> 
 
-Thanks for taking care of this,
 
-Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Hi,
+just had a look to the ISR code and found:
+
+	/* wait while fifo is full */
+	while (cdns_i2c_readreg(CDNS_I2C_XFER_SIZE_OFFSET) 
+	    (id->curr_recv_count - CDNS_I2C_FIFO_DEPTH))
+
+this means, that (16 x 9 bit / SCL freq) is being waited in the ISR.
+At 400 kHz SCL freq, this is 360 us. Is that a valid 
+workaround in respect to realtime behaviour?
