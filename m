@@ -1,54 +1,52 @@
-From: Paul Walmsley <paul@pwsan.com>
-Subject: [PATCH 10/24] Documentation: DT bindings: add more chip compatible
- strings for Tegra I2C
-Date: Wed, 28 Jan 2015 16:49:37 -0700
-Message-ID: <20150128234937.20644.50547.stgit@dusk.lan>
-References: <20150128234935.20644.89300.stgit@dusk.lan>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: randconfig build error with next-20150127, in
+ drivers/i2c/busses/i2c-designware-baytrail.c
+Date: Wed, 28 Jan 2015 07:59:29 +0100
+Message-ID: <20150128065929.GA1086@katana>
+References: <CA+r1ZhisCd7+LJ0gm-NLPJ+UE-FEuEWFQqDqcy7KPp2tD_bveA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150128234935.20644.89300.stgit@dusk.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Alexandre Courbot <gnurou@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org, Kumar Gala <galak@codeaurora.org>, Stephen Warren <swarren@wwwdotorg.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CA+r1ZhisCd7+LJ0gm-NLPJ+UE-FEuEWFQqDqcy7KPp2tD_bveA@mail.gmail.com>
+Sender: linux-next-owner@vger.kernel.org
+To: Jim Davis <jim.epost@gmail.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next <linux-next@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, david.e.box@linux.intel.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-Add compatible strings for the I2C IP blocks present on several Tegra
-chips.  The primary objective here is to avoid checkpatch warnings,
-per:
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-http://marc.info/?l=linux-tegra&m=142201349727836&w=2
+On Tue, Jan 27, 2015 at 04:41:44PM -0700, Jim Davis wrote:
+> Building with the attached random configuration file,
 
-Signed-off-by: Paul Walmsley <paul@pwsan.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ian Campbell <ijc+devicetree@hellion.org.uk>
-Cc: Kumar Gala <galak@codeaurora.org>
-Cc: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>
-Cc: linux-i2c@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Cc: linux-tegra@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- .../devicetree/bindings/i2c/nvidia,tegra20-i2c.txt |    3 +++
- 1 file changed, 3 insertions(+)
+A proper Kconfig dependency fix has already been added and is in
+linux-next as of today.
 
-diff --git a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-index 87507e9ce6db..8e233d913a78 100644
---- a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.txt
-@@ -2,6 +2,9 @@ NVIDIA Tegra20/Tegra30/Tegra114 I2C controller driver.
- 
- Required properties:
- - compatible : should be:
-+	"nvidia,tegra210-i2c" (not yet matched by the driver)
-+	"nvidia,tegra132-i2c" (not yet matched by the driver)
-+	"nvidia,tegra124-i2c" (not yet matched by the driver)
- 	"nvidia,tegra114-i2c"
- 	"nvidia,tegra30-i2c"
- 	"nvidia,tegra20-i2c"
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUyIjRAAoJEBQN5MwUoCm2QlYP/0zO854F6omGBspWgmMoMN4d
+6lZmyiBqOxwhLlSIrcDJqbWVvxVaGXcMhJL2OppeH0y7AZQrXHFtTWWLPqPDS4qG
+JdRHhQj7DaoA28rZ1/09TRcdK9UHGPJvA93Qy0gxOaAnpHRnaKR6HZXIRtvkY1PS
+0gDSixw1Ib5dwgtJFNzSRcc00RdmpuXefvtFTCJ/0ogvtovDXBSKQQ5jlEyq2GZj
+KQDXVmZiKvOseSKvPnNmjBmCGxaId1QchrAnpWTnUq3K/5mmBa+mF0gQLyFQBrKX
+64Y724mgW+4grWyzlbuM7y64ZWh8HOUQLeppcV6/x/ukqpscZcdFvI0CWhDhurA0
+D8SAjsMNCiBn4ui2Her72NsFg+Iwi10lVj+ceseXBZ5aBs9gZNuHG4jbaOdtU2WQ
+0OI7iV/+ikHy5cjiAb0yQKRrSfgfZCns9SOKwMHWDaFKzj+xBdNWUGZh+rvFt+Au
+ns2kvAgNZubbzxhpWW/AA7zAauCpjrvDgo/8K8Ext3N9/VG9Zaet/jpg9CNM7N82
+bvjqWlpV3BIe8dO9YB8pT4oYJxRYggxA7cyOas5/VmNwFmW3vI3L0au/oUAhXwQc
+s28cGzjPQ61hHPOBqYQ4ipz1afQ9SFhZiYJjxHvakiwEKTnBmbkPHnurdmumPSJT
+U94XVQ+DUoLiwvADP8WM
+=lF3S
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--
