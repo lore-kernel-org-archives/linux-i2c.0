@@ -1,142 +1,40 @@
-From: Marc Dietrich <marvin24@gmx.de>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 1/3] i2c: tegra: implement slave mode
-Date: Thu, 29 Jan 2015 10:40:29 +0100
-Message-ID: <9832724.7FuYNbcgYv@fb07-iapwap2>
-References: <1422516022-27161-1-git-send-email-danindrey@mail.ru> <1422516022-27161-2-git-send-email-danindrey@mail.ru>
+Date: Thu, 29 Jan 2015 12:41:55 +0100
+Message-ID: <20150129114155.GA9080@katana>
+References: <1422516022-27161-1-git-send-email-danindrey@mail.ru>
+ <1422516022-27161-2-git-send-email-danindrey@mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart2151738.3ynmAqSYhs"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1422516022-27161-2-git-send-email-danindrey@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andrey Danin <danindrey@mail.ru>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, ac100@lists.launchpad.net, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, ac100@lists.launchpad.net, Laxman Dewangan <ldewangan@nvidia.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, Marc Dietrich <marvin24@gmx.de>
 List-Id: linux-i2c@vger.kernel.org
 
 
---nextPart2151738.3ynmAqSYhs
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="ISO-8859-1"
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Andrey,
+Hi,
 
-first, thanks for accepting the challenge once more ;-)
-
-The driver depends on I2C_SLAVE now, so you need to add this to Kconfig. The 
-amount of code (and additional overhead) is pretty small, so I think it's ok 
-to always enable it. Otherwise we would need lots of ifdefs.
-
-Am Donnerstag, 29. Januar 2015, 10:20:20 schrieb Andrey Danin:
 > Initialization code is based on NVEC driver.
-> 
+>=20
 > There is a HW bug in AP20 that was also mentioned in kernel sources
 > for Toshiba AC100.
-> 
+>=20
 > Signed-off-by: Andrey Danin <danindrey@mail.ru>
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 131
-> +++++++++++++++++++++++++++++++++++++++++ 1 file changed, 131 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index 28b87e6..cfc4e67 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -42,8 +42,15 @@
->  #define I2C_SL_CNFG				0x020
->  #define I2C_SL_CNFG_NACK			(1<<1)
->  #define I2C_SL_CNFG_NEWSL			(1<<2)
-> +#define I2C_SL_RCVD				0x024
-> +#define I2C_SL_STATUS				0x028
-> +#define I2C_SL_ST_IRQ				(1<<3)
-> +#define I2C_SL_ST_END_TRANS			(1<<4)
-> +#define I2C_SL_ST_RCVD				(1<<2)
-> +#define I2C_SL_ST_RNW				(1<<1)
->  #define I2C_SL_ADDR1				0x02c
->  #define I2C_SL_ADDR2				0x030
-> +#define I2C_SL_DELAY_COUNT			0x03c
->  #define I2C_TX_FIFO				0x050
->  #define I2C_RX_FIFO				0x054
->  #define I2C_PACKET_TRANSFER_STATUS		0x058
-> @@ -125,6 +132,8 @@ enum msg_end_type {
->   * @clk_divisor_std_fast_mode: Clock divisor in standard/fast mode. It is
->   *		applicable if there is no fast clock source i.e. single clock
->   *		source.
-> + * @slave_read_start_delay: Workaround for AP20 I2C Slave Controller bug.
-> Delay + *              before writing data byte into register I2C_SL_RCVD.
-> */
-> 
->  struct tegra_i2c_hw_feature {
-> @@ -133,6 +142,7 @@ struct tegra_i2c_hw_feature {
->  	bool has_single_clk_source;
->  	int clk_divisor_hs_mode;
->  	int clk_divisor_std_fast_mode;
-> +	int slave_read_start_delay;
->  };
-> 
->  /**
-> @@ -173,6 +183,7 @@ struct tegra_i2c_dev {
->  	int msg_read;
->  	u32 bus_clk_rate;
->  	bool is_suspended;
-> +	struct i2c_client *slave;
->  };
-> 
->  static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned
-> long reg) @@ -398,6 +409,12 @@ static inline int
-> tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
-> 
->  static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
->  {
-> +	if (i2c_dev->slave) {
-> +		dev_warn(i2c_dev->dev,
-> +			"i2c slave is registered, don't disable a clock\n");
-> +		return;
-> +	}
-> +
 
-is this really required? What are the callers of clock_disable? I think it 
-would be ok to make master or slave operation exclusive for now. We have no 
-way to test this anyway. Maybe some flag which blocks master operation.
+Cool, thanks for the converison. While I usually like to only get the
+patches which I need to handle, please CC me to all patches next time. I
+am interested what changes were needed for the user of the slave
+framework, too.
 
-
->  	clk_disable(i2c_dev->div_clk);
->  	if (!i2c_dev->hw->has_single_clk_source)
->  		clk_disable(i2c_dev->fast_clk);
-> @@ -459,12 +476,84 @@ static int tegra_i2c_init(struct tegra_i2c_dev
-> *i2c_dev) return err;
->  }
-> 
-> +static inline int is_ready(unsigned long status)
-> +{
-> +	return status & I2C_SL_ST_IRQ;
-> +}
-
-is_slave_irq?
-
-> +
-> +static inline int is_write(unsigned long status)
-> +{
-> +	return (status & I2C_SL_ST_RNW) == 0;
-> +}
-> +
-> +static inline int is_read(unsigned long status)
-> +{
-> +	return !is_write(status);
-> +}
-> +
-> +static inline int is_trans_start(unsigned long status)
-> +{
-> +	return status & I2C_SL_ST_RCVD;
-> +}
-> +
-> +static inline int is_trans_end(unsigned long status)
-> +{
-> +	return status & I2C_SL_ST_END_TRANS;
-> +}
-
-Following the rest of the files coding style, I think this helpers can be 
-moved to the caller itself. 
-
-> +
 > +static bool tegra_i2c_slave_isr(int irq, struct tegra_i2c_dev *i2c_dev)
 > +{
 > +	unsigned long status;
@@ -144,144 +42,82 @@ moved to the caller itself.
 > +
 > +	if (!i2c_dev->slave || !i2c_dev->slave->slave_cb)
 > +		return false;
-> +
-> +	status = i2c_readl(i2c_dev, I2C_SL_STATUS);
-> +	if (!is_ready(status))
-> +		return false;
-> +
-> +	/* master sent stop */
-> +	if (is_trans_end(status)) {
-> +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_STOP, NULL);
-> +		if (!is_trans_start(status))
-> +			return true;
-> +	}
-> +
+
+Can this happen?
+
 > +	/* i2c master sends data to us */
 > +	if (is_write(status)) {
 > +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_REQ_WRITE_START,
 > +				NULL);
-> +		value = i2c_readl(i2c_dev, I2C_SL_RCVD);
-> +		if (is_trans_start(status))
-> +			i2c_writel(i2c_dev, 0, I2C_SL_RCVD);
-> +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_REQ_WRITE_END,
-> +				&value);
-> +	}
-> +
-> +	/* i2c master reads data from us */
-> +	if (is_read(status)) {
-> +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_REQ_READ_START,
-> +				&value);
-> +		if (is_trans_start(status)
-> +				&& i2c_dev->hw->slave_read_start_delay)
-> +			udelay(i2c_dev->hw->slave_read_start_delay);
-> +		i2c_writel(i2c_dev, value, I2C_SL_RCVD);
-> +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_REQ_READ_END, NULL);
-> +	}
-> +
-> +	return true;
-> +}
-> +
->  static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
->  {
->  	u32 status;
->  	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
->  	struct tegra_i2c_dev *i2c_dev = dev_id;
-> 
-> +	if (tegra_i2c_slave_isr(irq, i2c_dev))
-> +		return IRQ_HANDLED;
-> +
->  	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
-> 
->  	if (status == 0) {
-> @@ -660,9 +749,48 @@ static u32 tegra_i2c_func(struct i2c_adapter *adap)
->  	return ret;
->  }
-> 
+
+Can this HW create an interrupt once the address detection + RW bit are
+received? Or only if a complete write has been received?
+
 > +static int tegra_reg_slave(struct i2c_client *slave)
 > +{
-> +	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(slave->adapter);
+> +	struct tegra_i2c_dev *i2c_dev =3D i2c_get_adapdata(slave->adapter);
 > +
 > +	if (i2c_dev->slave)
 > +		return -EBUSY;
 > +
-> +	i2c_dev->slave = slave;
+> +	i2c_dev->slave =3D slave;
 > +
 > +	tegra_i2c_clock_enable(i2c_dev);
 > +
 > +	reset_control_assert(i2c_dev->rst);
 > +	udelay(2);
 > +	reset_control_deassert(i2c_dev->rst);
+
+Why do you need a reset when a slave gets registered?
+
 > +
 > +	i2c_writel(i2c_dev, I2C_SL_CNFG_NEWSL, I2C_SL_CNFG);
 > +	i2c_writel(i2c_dev, 0x1E, I2C_SL_DELAY_COUNT);
+
+What does this magic number mean?
+
 > +
 > +	i2c_writel(i2c_dev, slave->addr, I2C_SL_ADDR1);
 > +	i2c_writel(i2c_dev, 0, I2C_SL_ADDR2);
-> +
-> +	return 0;
-> +}
-> +
-> +static int tegra_unreg_slave(struct i2c_client *slave)
-> +{
-> +	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(slave->adapter);
-> +
-> +	WARN_ON(!i2c_dev->slave);
-> +
-> +	i2c_writel(i2c_dev, 0, I2C_SL_CNFG);
-> +
-> +	i2c_dev->slave = NULL;
-> +
-> +	return 0;
-> +}
-> +
->  static const struct i2c_algorithm tegra_i2c_algo = {
->  	.master_xfer	= tegra_i2c_xfer,
->  	.functionality	= tegra_i2c_func,
-> +	.reg_slave		= tegra_reg_slave,
-> +	.unreg_slave	= tegra_unreg_slave,
->  };
-> 
->  static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
-> @@ -671,6 +799,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw
-> = { .has_single_clk_source = false,
->  	.clk_divisor_hs_mode = 3,
->  	.clk_divisor_std_fast_mode = 0,
-> +	.slave_read_start_delay = 8,
->  };
-> 
->  static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
-> @@ -679,6 +808,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw
-> = { .has_single_clk_source = false,
->  	.clk_divisor_hs_mode = 3,
->  	.clk_divisor_std_fast_mode = 0,
-> +	.slave_read_start_delay = 0,
->  };
-> 
->  static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-> @@ -687,6 +817,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw
-> = { .has_single_clk_source = true,
->  	.clk_divisor_hs_mode = 1,
->  	.clk_divisor_std_fast_mode = 0x19,
-> +	.slave_read_start_delay = 0,
->  };
-> 
->  /* Match table for of_platform binding */
 
---nextPart2151738.3ynmAqSYhs
+Handling 10 bit addresses?
+
+> +
+> +	return 0;
+> +}
+> +
+
+>  static const struct tegra_i2c_hw_feature tegra30_i2c_hw =3D {
+> @@ -679,6 +808,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_=
+hw =3D {
+>  	.has_single_clk_source =3D false,
+>  	.clk_divisor_hs_mode =3D 3,
+>  	.clk_divisor_std_fast_mode =3D 0,
+> +	.slave_read_start_delay =3D 0,
+
+No need to init to 0 IMO.
+
+
+--nFreZHaLTZJo0R7j
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1
 
-iQEcBAABCAAGBQJUygANAAoJEKyeR39HFBtohIQH/1lr2RJBeHoqRqJptZ0IuVmm
-2JmhzPQp2Gre3EIm10Fj/FfwDaKfF4CmYDUj5NactOoXq7OmfGN5BPcjGv9PO0AT
-D4AhoW8jfaAVBJ9pK0O8g950bfZp9vaCVtwkB8CiaZU1lu6gyQOBanSLuEh5onoR
-mHnQ9OIjsLHQfCCmKvbK8Vq5pvnF1Dra8wFoNbdqzSFvhYQGfKG1kzt4jqL2wQmF
-kas8qgxmZYwKzIXHV6Sm+iRYySELJCNvByl04lVolfMff8N/pvaEiWhGScFO1eoo
-OMiB8TeweEjukEa3ZQ1MLld8rkIn8ycY6sjiIYRD0e/8L4CQIOWfF1MX6uhHuxA=
-=KT0Z
+iQIcBAEBAgAGBQJUyhyDAAoJEBQN5MwUoCm2pTAP/0Y5Nqt/YdL+ug7MTyX4Tq1i
+3X7MgYamvmc5QrSvW/ee4z+d7zK+2ep1QlATGoSog5lA7k8pGP7MweunNmV0EvC4
+EFVYTTYD0o+kqVtTbEpXztnaGWV97eOMwz9zEBFI5Z+C8ok0leQ++UrvHywPgwRo
+Eo77T9CXNV4B2jhMCHNIJhSeCL+9UfpuVXx8nA0P0CSVnBW6cux/ozqa6OosJqHX
+oyW9s+e+nobf45juPiINTGDKcNurCR1rhv6+pYZ/+QE5HmBVFGcJOzZpwjC7W6f3
+aFksCtjNQQKDDgyQvCvkMGbcxgmXr//tu4ZW7BHn8R7Gax3iBVw65qO4f98ZnBEM
+TcX3SeeFFDZwyYTObwCa8MMLhoBT3emllsYd4cDzMcMV5VnhuT8Wwa4+OhO9KsFx
+MmHJT5HRtovJioXB08imSJVpif1R4b7Gepwj9aqdRzocOOtcGewD2hUonuvuTXWJ
+73MBox+JLexAcEo2fj9OOb9oeZzuLOdCSDnC1HT5WGfsDnXd8M/cA6BdCH4pREOP
+TTdpcYXzqgf/1JBPJkiL+UCeFyrYYz8mPK6gfHGaZDc20UTVW9/6DtKqmwXCFxFe
+0fHHFGo/SvmUk3apQ98wRNO35Mh2YOv1ttGc6wyVu0lGAPJRtR2wSn2gd8h4RbAc
+eIVKbbItBsfAouK56fzx
+=PfQo
 -----END PGP SIGNATURE-----
 
---nextPart2151738.3ynmAqSYhs--
+--nFreZHaLTZJo0R7j--
