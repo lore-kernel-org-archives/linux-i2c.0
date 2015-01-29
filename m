@@ -1,75 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: sh_mobile: terminate DMA reads properly
-Date: Thu, 29 Jan 2015 18:33:16 +0100
-Message-ID: <1422552796-11315-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH] i2c: clarify comments about the dev_released completion
+Date: Thu, 29 Jan 2015 22:45:09 +0100
+Message-ID: <1422567909-13399-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+There was quite some confusion why this completion is there and if it is
+still necessary. Sadly, it is. However, let's improve the comments and
+share what we rediscovered.
 
-DMA read requests could miss proper termination, so two more bytes would
-have been read via PIO overwriting the end of the buffer with wrong
-data. Make DMA stop handling more readable while we are here.
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 440d5dbc8b5f..007818b3e174 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -139,6 +139,7 @@ struct sh_mobile_i2c_data {
- 	int pos;
- 	int sr;
- 	bool send_stop;
-+	bool stop_after_dma;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 39d25a8cb1ad..7a9368750b9a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1796,11 +1796,15 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+ 	/* device name is gone after device_unregister */
+ 	dev_dbg(&adap->dev, "adapter [%s] unregistered\n", adap->name);
  
- 	struct resource *res;
- 	struct dma_chan *dma_tx;
-@@ -407,7 +408,7 @@ static int sh_mobile_i2c_isr_tx(struct sh_mobile_i2c_data *pd)
+-	/* clean up the sysfs representation */
++	/* wait until all references to the device are gone
++	 *
++	 * FIXME: This is old code and should ideally be replaced by an
++	 * alternative which results in decoupling the lifetime of the struct
++	 * device from the i2c_adapter, like spi or netdev do. Any solution
++	 * should be throughly tested with DEBUG_KOBJECT_RELEASE enabled!
++	 */
+ 	init_completion(&adap->dev_released);
+ 	device_unregister(&adap->dev);
+-
+-	/* wait for sysfs to drop all references */
+ 	wait_for_completion(&adap->dev_released);
  
- 	if (pd->pos == pd->msg->len) {
- 		/* Send stop if we haven't yet (DMA case) */
--		if (pd->send_stop && (iic_rd(pd, ICCR) & ICCR_BBSY))
-+		if (pd->send_stop && pd->stop_after_dma)
- 			i2c_op(pd, OP_TX_STOP, 0);
- 		return 1;
- 	}
-@@ -449,6 +450,13 @@ static int sh_mobile_i2c_isr_rx(struct sh_mobile_i2c_data *pd)
- 		real_pos = pd->pos - 2;
- 
- 		if (pd->pos == pd->msg->len) {
-+			if (pd->stop_after_dma) {
-+				/* Simulate PIO end condition after DMA transfer */
-+				i2c_op(pd, OP_RX_STOP, 0);
-+				pd->pos++;
-+				break;
-+			}
-+
- 			if (real_pos < 0) {
- 				i2c_op(pd, OP_RX_STOP, 0);
- 				break;
-@@ -536,6 +544,7 @@ static void sh_mobile_i2c_dma_callback(void *data)
- 
- 	sh_mobile_i2c_dma_unmap(pd);
- 	pd->pos = pd->msg->len;
-+	pd->stop_after_dma = true;
- 
- 	iic_set_clr(pd, ICIC, 0, ICIC_TDMAE | ICIC_RDMAE);
- }
-@@ -726,6 +735,7 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
- 		bool do_start = pd->send_stop || !i;
- 		msg = &msgs[i];
- 		pd->send_stop = i == num - 1 || msg->flags & I2C_M_STOP;
-+		pd->stop_after_dma = false;
- 
- 		err = start_ch(pd, msg, do_start);
- 		if (err)
+ 	/* free bus id */
 -- 
 2.1.4
-
