@@ -1,52 +1,30 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: Intel lynx point designware issue
-Date: Mon, 2 Feb 2015 12:25:45 +0200
-Message-ID: <20150202102545.GQ22740@lahna.fi.intel.com>
-References: <195CACBC-7E0B-4598-986C-0814289C6ECD@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2 0/2] i2c: i2c-ocores: clock improvements
+Date: Mon,  2 Feb 2015 18:28:11 +0300
+Message-ID: <1422890893-30989-1-git-send-email-jcmvbkbc@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <195CACBC-7E0B-4598-986C-0814289C6ECD-ee4meeAH724@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Daoud <alex.daoud-ee4meeAH724@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 30, 2015 at 04:36:27PM +0000, Alexandre Daoud wrote:
-> Hey Linux-i2c,
-> 
-> I have a bit of an unorthodox question for this mailing list but you guys seem like the only people who could help me at this point.
-> 
-> I have a Dell Venue 11 Pro tablet with the Lynxpoint I2C busses
-> (INT33C2, INT33C3), one of which drives an i2c-hid touchscreen device.
-> I have installed OS X on this device and I have been attempting to
-> port the Linux designware i2c drivers to OS X. The drivers are pretty
-> much just a carbon copy of the ones in the Linux kernel with obvious
-> modifications to integrate with the Darwin kernel. The issue that I am
-> facing is that no matter what I do, the I2C bus seems to refuse to
-> start an I2C transaction. Here is the sequence of events:
-> 
-> I initiate a transaction on the bus with code exactly equivalent to
-> that in i2c_dw_xfer_init. The bus then generates a IC_INTR_TX_EMPTY
-> interrupt and I start filling the transaction fifo by writing to the
-> data command register. The bus generates a few IC_INTR_TX_EMPTY to
-> avoid overflow (again, this is following the structure of the Linux
-> kernel drivers pretty much line by line). Once the data has been
-> written (with a restart in the middle for direction change and a stop
-> on the last entry), nothing happens. The data to be sent sits in the
-> transaction fifo and the bus does not initiate the transaction, no
-> matter what I try.
+Peter, Wolfram,
 
-One thing that comes to mind is that some of the earlier Lynxpoint I2C
-host controllers had the functional clock gated. If you check what is
-done in drivers/acpi/acpi_lpss.c:
+this series fixes clock-frequency attribute usage by i2c-ocores driver and
+adds optional common clock framework support.
 
-        if (dev_desc->flags & LPSS_CLK_GATE) {
-                clk = clk_register_gate(NULL, devname, parent, 0,
-                                        prv_base, 0, 0, NULL);
-                parent = devname;
-        }
+Changes v1->v2:
+- add cleanup patch for clock-frequency attribute that implements options
+  2 and 3, as was suggested here: https://lkml.org/lkml/2015/1/22/527
+- make CCF support optional
 
-You could try the same so that you set bit 0 in the private register
-space (starting at 0x800).
+Max Filippov (2):
+  i2c: i2c-ocores: fix clock-frequency binding usage
+  i2c: i2c-ocores: add common clock support
+
+ .../devicetree/bindings/i2c/i2c-ocores.txt         | 42 +++++++++-
+ drivers/i2c/busses/i2c-ocores.c                    | 95 +++++++++++++++++++---
+ 2 files changed, 122 insertions(+), 15 deletions(-)
+
+-- 
+1.8.1.4
