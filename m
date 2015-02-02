@@ -1,204 +1,80 @@
-From: Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH 21/66] rtl2830: implement own I2C locking
-Date: Mon, 02 Feb 2015 22:23:40 +0200
-Message-ID: <54CFDCCC.3030006@iki.fi>
-References: <1419367799-14263-1-git-send-email-crope@iki.fi>	<1419367799-14263-21-git-send-email-crope@iki.fi> <20150202180726.454dc878@recife.lan>
+Date: Mon, 2 Feb 2015 21:33:24 +0100
+Message-ID: <20150202203324.GA11486@katana>
+References: <1419367799-14263-1-git-send-email-crope@iki.fi>
+ <1419367799-14263-21-git-send-email-crope@iki.fi>
+ <20150202180726.454dc878@recife.lan>
+ <54CFDCCC.3030006@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150202180726.454dc878-+RedX5hVuTR+urZeOPWqwQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <54CFDCCC.3030006-X3B1VOXEql0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+To: Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>
+Cc: Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/02/2015 10:07 PM, Mauro Carvalho Chehab wrote:
-> Em Tue, 23 Dec 2014 22:49:14 +0200
-> Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org> escreveu:
->
->> Own I2C locking is needed due to two special reasons:
->> 1) Chips uses multiple register pages/banks on single I2C slave.
->> Page is changed via I2C register access.
->> 2) Chip offers muxed/gated I2C adapter for tuner. Gate/mux is
->> controlled by I2C register access.
->>
->> Due to these reasons, I2C locking did not fit very well.
->
-> I don't like the idea of calling __i2c_transfer() without calling first
-> i2c_lock_adapter(). This can be dangerous, as the I2C core itself uses
-> the lock for its own usage.
->
-> Ok, this may eventually work ok for now, but a further change at the I2C
-> core could easily break it. So, we need to double check about such
-> patch with the I2C maintainer.
->
-> Jean,
->
-> Are you ok with such patch? If so, please ack.
 
-Basic problem here is that I2C-mux itself is controlled by same I2C 
-device which implements I2C adapter for tuner.
-
-Here is what connections looks like:
-  ___________         ____________         ____________
-|  USB IF   |       |   demod    |       |    tuner   |
-|-----------|       |------------|       |------------|
-|           |--I2C--|-----/ -----|--I2C--|            |
-|I2C master |       |  I2C mux   |       | I2C slave  |
-|___________|       |____________|       |____________|
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-So when tuner is called via I2C, it needs recursively call same I2C 
-adapter which is already locked. More elegant solution would be indeed nice.
+> >Ok, this may eventually work ok for now, but a further change at the I2C
+> >core could easily break it. So, we need to double check about such
+> >patch with the I2C maintainer.
+> >
+> >Jean,
+> >
+> >Are you ok with such patch? If so, please ack.
 
-regards
-Antti
+Jean handed over I2C to me in late 2012 :)
+
+> Basic problem here is that I2C-mux itself is controlled by same I2C device
+> which implements I2C adapter for tuner.
+>=20
+> Here is what connections looks like:
+>  ___________         ____________         ____________
+> |  USB IF   |       |   demod    |       |    tuner   |
+> |-----------|       |------------|       |------------|
+> |           |--I2C--|-----/ -----|--I2C--|            |
+> |I2C master |       |  I2C mux   |       | I2C slave  |
+> |___________|       |____________|       |____________|
+>=20
+>=20
+> So when tuner is called via I2C, it needs recursively call same I2C adapt=
+er
+> which is already locked. More elegant solution would be indeed nice.
+
+So, AFAIU this is the same problem that I2C based mux devices have (like
+drivers/i2c/muxes/i2c-mux-pca954x.c)? They also use the unlocked
+transfers...
 
 
->
-> Regards,
-> Mauro
->>
->> Signed-off-by: Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>
->> ---
->>   drivers/media/dvb-frontends/rtl2830.c      | 45 +++++++++++++++++++++++++-----
->>   drivers/media/dvb-frontends/rtl2830_priv.h |  1 +
->>   2 files changed, 39 insertions(+), 7 deletions(-)
->>
->> diff --git a/drivers/media/dvb-frontends/rtl2830.c b/drivers/media/dvb-frontends/rtl2830.c
->> index 8abaca6..3a9e4e9 100644
->> --- a/drivers/media/dvb-frontends/rtl2830.c
->> +++ b/drivers/media/dvb-frontends/rtl2830.c
->> @@ -43,7 +43,7 @@ static int rtl2830_wr(struct i2c_client *client, u8 reg, const u8 *val, int len)
->>   	buf[0] = reg;
->>   	memcpy(&buf[1], val, len);
->>
->> -	ret = i2c_transfer(client->adapter, msg, 1);
->> +	ret = __i2c_transfer(client->adapter, msg, 1);
->>   	if (ret == 1) {
->>   		ret = 0;
->>   	} else {
->> @@ -73,7 +73,7 @@ static int rtl2830_rd(struct i2c_client *client, u8 reg, u8 *val, int len)
->>   		}
->>   	};
->>
->> -	ret = i2c_transfer(client->adapter, msg, 2);
->> +	ret = __i2c_transfer(client->adapter, msg, 2);
->>   	if (ret == 2) {
->>   		ret = 0;
->>   	} else {
->> @@ -93,16 +93,23 @@ static int rtl2830_wr_regs(struct i2c_client *client, u16 reg, const u8 *val, in
->>   	u8 reg2 = (reg >> 0) & 0xff;
->>   	u8 page = (reg >> 8) & 0xff;
->>
->> +	mutex_lock(&dev->i2c_mutex);
->> +
->>   	/* switch bank if needed */
->>   	if (page != dev->page) {
->>   		ret = rtl2830_wr(client, 0x00, &page, 1);
->>   		if (ret)
->> -			return ret;
->> +			goto err_mutex_unlock;
->>
->>   		dev->page = page;
->>   	}
->>
->> -	return rtl2830_wr(client, reg2, val, len);
->> +	ret = rtl2830_wr(client, reg2, val, len);
->> +
->> +err_mutex_unlock:
->> +	mutex_unlock(&dev->i2c_mutex);
->> +
->> +	return ret;
->>   }
->>
->>   /* read multiple registers */
->> @@ -113,16 +120,23 @@ static int rtl2830_rd_regs(struct i2c_client *client, u16 reg, u8 *val, int len)
->>   	u8 reg2 = (reg >> 0) & 0xff;
->>   	u8 page = (reg >> 8) & 0xff;
->>
->> +	mutex_lock(&dev->i2c_mutex);
->> +
->>   	/* switch bank if needed */
->>   	if (page != dev->page) {
->>   		ret = rtl2830_wr(client, 0x00, &page, 1);
->>   		if (ret)
->> -			return ret;
->> +			goto err_mutex_unlock;
->>
->>   		dev->page = page;
->>   	}
->>
->> -	return rtl2830_rd(client, reg2, val, len);
->> +	ret = rtl2830_rd(client, reg2, val, len);
->> +
->> +err_mutex_unlock:
->> +	mutex_unlock(&dev->i2c_mutex);
->> +
->> +	return ret;
->>   }
->>
->>   /* read single register */
->> @@ -815,6 +829,10 @@ static int rtl2830_select(struct i2c_adapter *adap, void *mux_priv, u32 chan_id)
->>   	};
->>   	int ret;
->>
->> +	dev_dbg(&client->dev, "\n");
->> +
->> +	mutex_lock(&dev->i2c_mutex);
->> +
->>   	/* select register page */
->>   	ret = __i2c_transfer(client->adapter, select_reg_page_msg, 1);
->>   	if (ret != 1) {
->> @@ -841,6 +859,18 @@ err:
->>   	return ret;
->>   }
->>
->> +static int rtl2830_deselect(struct i2c_adapter *adap, void *mux_priv, u32 chan)
->> +{
->> +	struct i2c_client *client = mux_priv;
->> +	struct rtl2830_dev *dev = i2c_get_clientdata(client);
->> +
->> +	dev_dbg(&client->dev, "\n");
->> +
->> +	mutex_unlock(&dev->i2c_mutex);
->> +
->> +	return 0;
->> +}
->> +
->>   static struct dvb_frontend *rtl2830_get_dvb_frontend(struct i2c_client *client)
->>   {
->>   	struct rtl2830_dev *dev = i2c_get_clientdata(client);
->> @@ -886,6 +916,7 @@ static int rtl2830_probe(struct i2c_client *client,
->>   	dev->client = client;
->>   	dev->pdata = client->dev.platform_data;
->>   	dev->sleeping = true;
->> +	mutex_init(&dev->i2c_mutex);
->>   	INIT_DELAYED_WORK(&dev->stat_work, rtl2830_stat_work);
->>
->>   	/* check if the demod is there */
->> @@ -895,7 +926,7 @@ static int rtl2830_probe(struct i2c_client *client,
->>
->>   	/* create muxed i2c adapter for tuner */
->>   	dev->adapter = i2c_add_mux_adapter(client->adapter, &client->dev,
->> -			client, 0, 0, 0, rtl2830_select, NULL);
->> +			client, 0, 0, 0, rtl2830_select, rtl2830_deselect);
->>   	if (dev->adapter == NULL) {
->>   		ret = -ENODEV;
->>   		goto err_kfree;
->> diff --git a/drivers/media/dvb-frontends/rtl2830_priv.h b/drivers/media/dvb-frontends/rtl2830_priv.h
->> index 2931889..517758a 100644
->> --- a/drivers/media/dvb-frontends/rtl2830_priv.h
->> +++ b/drivers/media/dvb-frontends/rtl2830_priv.h
->> @@ -30,6 +30,7 @@ struct rtl2830_dev {
->>   	struct i2c_adapter *adapter;
->>   	struct dvb_frontend fe;
->>   	bool sleeping;
->> +	struct mutex i2c_mutex;
->>   	u8 page; /* active register page */
->>   	unsigned long filters;
->>   	struct delayed_work stat_work;
+--tKW2IUtsqtDRztdT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-http://palosaari.fi/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJUz98UAAoJEBQN5MwUoCm2BccP/RV44szd9ocf8LtYppv7c4do
+Gvg9shTDCBVSJVTs6iBhgFjU3MCzvmqcP9ZTSpAmH6xHdD5bPq+O8TztjSlhHjeR
+dOHaC/bWhtlBVYSiUnR26jc1EDtVhVeNmeiiRMRRASnb8lqwEXUiUNkT6LOiygfC
+rNmaqfAb8B+boX3yODbx29SjMpjtAOcbOXSU+ABNU2Bc+3SzItwtXCilCL4/s3Ob
+ow8Ngyo2Wri6dWryo4Q71+bOlYbZVNUwa9iJpxKURnZ6PHWfGQhTM95j+thP5M75
+TWBrnwaGg22vjH5xK/7rBmGFMqLHeya2kTuvgFnjELIBP9trUaiLYgAi9A5rq7Vx
+Urf9SUxJM0McaksjB7o0ecw+YDELbm/y9v4OoNQzqaErnO1X0BfXHXYb0jB77qQf
+cin/7q4ApXlplGf+CF/SkERKMqfA/TxFe6m0Lvnh/2jh1NCQUfRbGCOeyDqFvQyM
+QJiHV4SHVTgCFq7aCdoaLeGSPprm64rxrTb1Tf/hR5r5cmCTSMQu+j9pMSQTtNxT
+zFasSviPp95ztSUFmC9rLMGe06sjDM57+OvtN/ejoWNrA0X8H+sAnKauzbOBlxei
+ZMyWMWbFCbSFBP1yb08DL7+w8AnSAJEPjWulk+VYmw7Rxlf8tktwMkvcsLpGR7w+
+2RJPHeX7v+pUNgCeqChT
+=dDU1
+-----END PGP SIGNATURE-----
+
+--tKW2IUtsqtDRztdT--
