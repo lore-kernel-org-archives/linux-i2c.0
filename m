@@ -1,27 +1,31 @@
-From: One Thousand Gnomes <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+From: Alexandre Daoud <alex.daoud-ee4meeAH724@public.gmane.org>
 Subject: Re: Intel lynx point designware issue
-Date: Mon, 2 Feb 2015 15:53:24 +0000
-Message-ID: <20150202155324.1c463f03@lxorguk.ukuu.org.uk>
-References: <195CACBC-7E0B-4598-986C-0814289C6ECD@mac.com>
+Date: Mon, 02 Feb 2015 16:08:41 +0000
+Message-ID: <0NJ5000Y0JIKT300@st11p00mm-asmtp001.mac.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <195CACBC-7E0B-4598-986C-0814289C6ECD-ee4meeAH724@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Daoud <alex.daoud-ee4meeAH724@public.gmane.org>
+To: One Thousand Gnomes <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 30 Jan 2015 16:36:27 +0000
-Alexandre Daoud <alex.daoud-ee4meeAH724@public.gmane.org> wrote:
-
-> Hey Linux-i2c,
-> 
-> I have a bit of an unorthodox question for this mailing list but you guys seem like the only people who could help me at this point.
-> 
-> I have a Dell Venue 11 Pro tablet with the Lynxpoint I2C busses (INT33C2, INT33C3), one of which drives an i2c-hid touchscreen device.
-
-Last time I looked the Venue 11 Pro touchpad didn't work in Linux either.
-
-Alan
+SGkgQWxhbiwKCllvdSBhcmUgcmlnaHQgdGhhdCB0aGVyZSBhcmUgaXNzdWVzIHdpdGggdGhlIHRv
+dWNocGFkLCBJJ20gcmVmZXJyaW5nIHRvIHRoZSB0b3VjaHNjcmVlbiBob3dldmVyICh3aGljaCB3
+b3JrcyBmaW5lIHdpdGggaTJjLWhpZCBvbiBMaW51eCkuCgpUaGUgaXNzdWUgd2l0aCB0aGUgdG91
+Y2hwYWQsIGlmIEkgcmVjYWxsIGNvcnJlY3RseSwgd2FzIHRoYXQgdGhlIHJtaTQgZHJpdmVycyB3
+ZXJlIHRha2luZyBwcmlvcml0eSBvdmVyIHRoZSBoaWQtZ2VuZXJpYyBvbmVzICh3aGljaCB0aGV5
+IHNob3VsZCksIGhvd2V2ZXIgcm1pNCB3YXMgYnJva2VuIGluIHJlY2VudCBrZXJuZWwgYnVpbGRz
+LiBUaGlzIGlzIHdoYXQgSSd2ZSBoZWFyZCwgSSBoYXZlbid0IGFjdHVhbGx5IGluc3RhbGxlZCBM
+aW51eCBvbiB0aGUgZGV2aWNlIG15c2VsZi4KCkFsZXhPbiAyIEZlYiAyMDE1IDE1OjUzLCBPbmUg
+VGhvdXNhbmQgR25vbWVzIDxnbm9tZXNAbHhvcmd1ay51a3V1Lm9yZy51az4gd3JvdGU6Cj4KPiBP
+biBGcmksIDMwIEphbiAyMDE1IDE2OjM2OjI3ICswMDAwIAo+IEFsZXhhbmRyZSBEYW91ZCA8YWxl
+eC5kYW91ZEBtYWMuY29tPiB3cm90ZTogCj4KPiA+IEhleSBMaW51eC1pMmMsIAo+ID4gCj4gPiBJ
+IGhhdmUgYSBiaXQgb2YgYW4gdW5vcnRob2RveCBxdWVzdGlvbiBmb3IgdGhpcyBtYWlsaW5nIGxp
+c3QgYnV0IHlvdSBndXlzIHNlZW0gbGlrZSB0aGUgb25seSBwZW9wbGUgd2hvIGNvdWxkIGhlbHAg
+bWUgYXQgdGhpcyBwb2ludC4gCj4gPiAKPiA+IEkgaGF2ZSBhIERlbGwgVmVudWUgMTEgUHJvIHRh
+YmxldCB3aXRoIHRoZSBMeW54cG9pbnQgSTJDIGJ1c3NlcyAoSU5UMzNDMiwgSU5UMzNDMyksIG9u
+ZSBvZiB3aGljaCBkcml2ZXMgYW4gaTJjLWhpZCB0b3VjaHNjcmVlbiBkZXZpY2UuIAo+Cj4gTGFz
+dCB0aW1lIEkgbG9va2VkIHRoZSBWZW51ZSAxMSBQcm8gdG91Y2hwYWQgZGlkbid0IHdvcmsgaW4g
+TGludXggZWl0aGVyLiAKPgo+IEFsYW4gCg==
