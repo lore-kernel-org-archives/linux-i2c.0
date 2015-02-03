@@ -1,76 +1,94 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 4/6] i2c: busses: add SLIMpro I2C device driver on APM
- X-Gene platform
-Date: Tue, 3 Feb 2015 00:16:57 +0100
-Message-ID: <20150202231657.GA14881@katana>
-References: <1412726809-7525-1-git-send-email-fkan@apm.com>
- <1412726809-7525-5-git-send-email-fkan@apm.com>
- <1894616.4yY7dajl4R@wuerfel>
- <CAL85gmCuJtS2DMVHc96FtM_nP2++wMXNrrUp0Kvx0qajKsFuCw@mail.gmail.com>
- <20150130061118.GA995@katana>
- <CAL85gmD+0cJfZoWo8ujmjwy9yaKjNPjJaUm00Vrv5o9kcg-ozA@mail.gmail.com>
+From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: Re: [PATCH 21/66] rtl2830: implement own I2C locking
+Date: Tue, 3 Feb 2015 15:53:01 -0200
+Message-ID: <20150203155301.7ba63776@recife.lan>
+References: <1419367799-14263-1-git-send-email-crope@iki.fi>
+	<1419367799-14263-21-git-send-email-crope@iki.fi>
+	<20150202180726.454dc878@recife.lan>
+	<54CFDCCC.3030006@iki.fi>
+	<20150202203324.GA11486@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAL85gmD+0cJfZoWo8ujmjwy9yaKjNPjJaUm00Vrv5o9kcg-ozA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, patches <patches-qTEPVZfXA3Y@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+ boundary="Sig_/vlc4iJA=hRPVu/H5BVxFEdq"; protocol="application/pgp-signature"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20150202203324.GA11486@katana>
+Sender: linux-media-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Antti Palosaari <crope@iki.fi>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, linux-i2c@vger.kernel.org, linux-media@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
+--Sig_/vlc4iJA=hRPVu/H5BVxFEdq
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Em Mon, 02 Feb 2015 21:33:24 +0100
+Wolfram Sang <wsa@the-dreams.de> escreveu:
 
-On Mon, Feb 02, 2015 at 02:15:44PM -0800, Feng Kan wrote:
-> On Thu, Jan 29, 2015 at 10:11 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> >
-> >> > ctx->dev is probably the wrong device here. The i2c controller is not
-> >> > DMA capable itself, you need to have a pointer to the device that actually
-> >> > performs the DMA here.
-> >>
-> >> Arnd, I do agree this may not be the best identification. There is no
-> >> representation for this on the Linux side. I could put it as NULL. However,
-> >> there are other i2c bus drivers that seem to do the same thing. Please
-> >> let me know what you think.
-> >
-> > For completeness: Those drivers need fixing!
-> I have some doubts. I could hack up a dts node for the helper
-> processor that is doing the dma. However, the dma master could be
-> anything for that matter. I am not sure how I can write this in a
-> generic manner.
+>=20
+> > >Ok, this may eventually work ok for now, but a further change at the I=
+2C
+> > >core could easily break it. So, we need to double check about such
+> > >patch with the I2C maintainer.
+> > >
+> > >Jean,
+> > >
+> > >Are you ok with such patch? If so, please ack.
+>=20
+> Jean handed over I2C to me in late 2012 :)
 
-All I wanted to say is that, to the best of my knowledge, currently all
-DMA capable i2c bus drivers which do not pass the DMA capable device
-when mapping, need a fix like 8cfcae9f0595. So, the argument "other
-drivers do it, too" is invalid IMO. You might have other, better, more
-technical arguments for your case. Like above, that could be fine, I'd
-say. But I leave this to the DMA experts...
+Sorry for the mess... I mis-read MAINTAINERS.
 
+> > Basic problem here is that I2C-mux itself is controlled by same I2C dev=
+ice
+> > which implements I2C adapter for tuner.
+> >=20
+> > Here is what connections looks like:
+> >  ___________         ____________         ____________
+> > |  USB IF   |       |   demod    |       |    tuner   |
+> > |-----------|       |------------|       |------------|
+> > |           |--I2C--|-----/ -----|--I2C--|            |
+> > |I2C master |       |  I2C mux   |       | I2C slave  |
+> > |___________|       |____________|       |____________|
+> >=20
+> >=20
+> > So when tuner is called via I2C, it needs recursively call same I2C ada=
+pter
+> > which is already locked. More elegant solution would be indeed nice.
+>=20
+> So, AFAIU this is the same problem that I2C based mux devices have (like
+> drivers/i2c/muxes/i2c-mux-pca954x.c)? They also use the unlocked
+> transfers...
 
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+If I understood your comment correct, you're ok with this approach,
+right? I'll then merge the remaining of this 66-patch series.
+
+If latter a better way to lock the I2C mux appears, we can reverse
+this change.
+
+Regards,
+Mauro
+>=20
+
+--Sig_/vlc4iJA=hRPVu/H5BVxFEdq
+Content-Type: application/pgp-signature
+Content-Description: Assinatura digital OpenPGP
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2
 
-iQIcBAEBAgAGBQJU0AVpAAoJEBQN5MwUoCm29tEQAJjpiq+tFCrYqmYVq96TKDyK
-mXHcwzc+VS4Y2n42ROiEwK9Z+By3qVPj2iddE1uK1FMXhWAvrlTFQfss0dE+8AP3
-kl+dccyQ+YKD5wrACEfVaRF5zIcoieYqj7n0IAFp7oVOKMqf2L0juU9XeIMkFFrq
-C8fpUP+r7sQ0raQ0O22E6HQ2VvaYIfVL2fipspkzaWJXq+I9dcWzWp+go8A6M6ab
-WPPvg+2vCoSGeKvXUPSCvZh+QHIJWDWP/dtpgvW1rO/w0G4F3BmQX6vraCoedpsA
-/rcmeq+qgck4VBwNDjPS9q+f5vR4ZW6LRg12VFWMiFNA9gbU8RF4V6hvnez/fRAZ
-oHTYeVVTUAN3/VEMxn+mvJvQTZNMS3T2KeNwP5HCYgDurXZQ/Hq3sHItyQ/8J8TE
-Fz9F7XzjIm9gsV1k94kequfl0u7vVcKe4SYKSQB99PwiiIkuHz276yu/ppfYEStq
-AALGDyucPRv75kWozbljhaifuxgCTRkuv8U7S9+0IMsS7/TPkNWn2NvptEy71RZo
-W/eBdln0AsBhY2lphxg+zJz/nmoSjF2H5E1WVN0l4Q96b4IbvXhO3eAXQ4wbxU6c
-hBKosT+jifXJEoWMF7b8QZGwYH1ZurHBQ8ZhWQmdnl0W3kTuXcAGcNZcYdkZ6myV
-Y+QjoQCKrdrLB5IgowMR
-=bvLf
+iQIcBAEBAgAGBQJU0QsFAAoJEAhfPr2O5OEVQWoP/3pSoFGkdT+Cq8m9sv0iHul/
+V4V+vIn7DVqTRc98oM6Ehtu+BubBR6pAKQiN6XQNQJBg+acB4nVO/nukjbbZmIRh
+M335nepmqaMFUAPS1+43vVqgN+w9hqBmlTSUn0SUGw76z2h5jWP2DlMxAlnBayvs
+XochsQNkjPAD9dfNRAiU+wE0PysfE5RBAuZC767S69X2+dLUyKuo+UzdIN2ZczyK
+E7DJIfyTCEUP9qyuwk3rudLoxVNCVnjnz5gbBZAvHRqlotE1cC4UY5GY13tmKUIp
+lnYv1fDjWDtR8w0n00UNnq6fT+xz2ANyPgTbBVxQCIC9Eq5D2237LTPRiFr/Ke1n
+hhuH69geST8GxquBOnc3G3lNHES2lj72v+msg6eKcwfTC7S5dPBHcMV6DMvKV+Qw
+LzrPfh5bG4cJqz5t8bM80IXjxPJhk2TFihPwBwxmaQ3lGFwozgqvmEs65etiGZJP
+6vx16qUK0Goz8kvxTXwa9j5Ea4VuYRPT2Fiz4VDqoPNCiKGw0RBaCy/bKpJXsyKE
+ZvShe0E/cSgWHfAKo/NwWV6+RlVTeeg93+9kGlhd641/Jkmy6rW1zKSMb8HRgSho
+sn4pIUZ5JYb+GxFgpvzIGvniKTs1e/ZHByRGuXbXMVUxrcvyH3wq0oag2xsQFlOg
+0x5HOZGlM9cQTqjyyaHY
+=1fer
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--Sig_/vlc4iJA=hRPVu/H5BVxFEdq--
