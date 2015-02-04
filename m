@@ -1,58 +1,116 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 21/66] rtl2830: implement own I2C locking
-Date: Wed, 4 Feb 2015 10:47:20 +0000
-Message-ID: <20150204104720.GU21293@sirena.org.uk>
-References: <1419367799-14263-1-git-send-email-crope@iki.fi>
- <1419367799-14263-21-git-send-email-crope@iki.fi>
- <20150202180726.454dc878@recife.lan>
- <54CFDCCC.3030006@iki.fi>
- <20150202203324.GA11486@katana>
- <20150203155301.7ba63776@recife.lan>
- <54D11499.6080800@iki.fi>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="m4Bb2ZHVQIF8uI6I"
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH] eeprom: at24: Add support for large EEPROMs connected to SMBus adapters
+Date: Wed,  4 Feb 2015 08:23:37 -0800
+Message-ID: <1423067017-27607-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54D11499.6080800-X3B1VOXEql0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Antti Palosaari <crope-X3B1VOXEql0@public.gmane.org>
-Cc: Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Large EEPROMS (24c32 and larger) require a two-byte data address
+instead of just a single byte. Implement support for such EEPROMs
+with SMBus commands.
 
---m4Bb2ZHVQIF8uI6I
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Support has limitations (reads are not multi-master safe) and is slow,
+but it works. Practical use is for a system with 24c32 connected to
+Intel 82801I (ICH9).
 
-On Tue, Feb 03, 2015 at 08:34:01PM +0200, Antti Palosaari wrote:
-> On 02/03/2015 07:53 PM, Mauro Carvalho Chehab wrote:
+Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+---
+ drivers/misc/eeprom/at24.c | 52 +++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 47 insertions(+), 5 deletions(-)
 
-> >If latter a better way to lock the I2C mux appears, we can reverse
-> >this change.
-
-> More I am worried about next patch in a serie, which converts all that to
-> regmap API... Same recursive mux register access comes to problem there,
-> which I work-arounded by defining own I2C IO... And in that case I used
-> i2c_lock_adapter/i2c_unlock_adapter so adapter is locked properly.
-
-Opne coding the register I/O is a terrible solution, we should allow
-people to keep this code factored out.
-
---m4Bb2ZHVQIF8uI6I
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJU0fi4AAoJECTWi3JdVIfQAj4H/jPrWZCtmodKYxGoNzixT1Ha
-o2vcHt7CLOBNhBF+LusOXdCcuz83maG1azHpuMLiM4xQiYb/q26WcD1571jOSiMy
-7IpR9SBdeTXjhX927o620ZfJ8PsKSuH3Bn3+3WcaicyUxGzSq1tmsyVJjLt1BsgS
-7+20zY8d/XVADx8JJMjac05urMbD95fhSM1M4a0TcUI/ACFr3H3mzNu43vr9h9xZ
-lEMy1fxYI4MjpCCU7SytiwH6qRdHWwgZePIr1S1VzMrvU+xjqpYRZiP8KxZYGHVS
-mGW+TPQGRPjRSXc5oBJJAQGcvi6fQ+hHazJQ4lCAY6x3olIPvlo9PcKSpMB3C9s=
-=zjl4
------END PGP SIGNATURE-----
-
---m4Bb2ZHVQIF8uI6I--
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 2d3db81..057d35c 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -198,6 +198,8 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 	case I2C_SMBUS_BYTE_DATA:
+ 		count = 1;
+ 		break;
++	case I2C_SMBUS_BYTE:
++		break;
+ 	default:
+ 		/*
+ 		 * When we have a better choice than SMBus calls, use a
+@@ -249,6 +251,27 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
+ 				status = count;
+ 			}
+ 			break;
++		case I2C_SMBUS_BYTE:
++			/*
++			 * 16-bit data address. Write data address as separate
++			 * write operation, then read data without setting
++			 * the address again. This is not multi-master safe,
++			 * but the best we can do.
++			 */
++			status = i2c_smbus_write_byte_data(client,
++							   offset >> 8,
++							   offset & 0xff);
++			if (status < 0)
++				break;
++			for (i = 0; i < count; i++) {
++				status = i2c_smbus_read_byte(client);
++				if (status < 0)
++					break;
++				buf[i] = status;
++			}
++			if (status >= 0)
++				status = count;
++			break;
+ 		default:
+ 			status = i2c_transfer(client->adapter, msg, 2);
+ 			if (status == 2)
+@@ -372,6 +395,16 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ 				status = i2c_smbus_write_i2c_block_data(client,
+ 						offset, count, buf);
+ 				break;
++			case I2C_SMBUS_WORD_DATA:
++				/*
++				 * 16-bit data address. Transmit data address
++				 * MSB as SMBus command, data address LSB as
++				 * first data byte.
++				 */
++				status = i2c_smbus_write_word_data(client,
++					offset >> 8,
++					(offset & 0xff) | (buf[0] << 8));
++				break;
+ 			case I2C_SMBUS_BYTE_DATA:
+ 				status = i2c_smbus_write_byte_data(client,
+ 						offset, buf[0]);
+@@ -540,10 +573,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	/* Use I2C operations unless we're stuck with SMBus extensions. */
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+-		if (chip.flags & AT24_FLAG_ADDR16)
+-			return -EPFNOSUPPORT;
+-
+-		if (i2c_check_functionality(client->adapter,
++		if (chip.flags & AT24_FLAG_ADDR16) {
++			if (!i2c_check_functionality(client->adapter,
++						I2C_FUNC_SMBUS_WRITE_BYTE_DATA |
++						I2C_FUNC_SMBUS_READ_BYTE))
++				return -EPFNOSUPPORT;
++			use_smbus = I2C_SMBUS_BYTE;
++		} else if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+ 			use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
+ 		} else if (i2c_check_functionality(client->adapter,
+@@ -559,7 +595,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	/* Use I2C operations unless we're stuck with SMBus extensions. */
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+-		if (i2c_check_functionality(client->adapter,
++		if (chip.flags & AT24_FLAG_ADDR16) {
++			if (i2c_check_functionality(client->adapter,
++					I2C_FUNC_SMBUS_WRITE_WORD_DATA)) {
++				use_smbus_write = I2C_SMBUS_WORD_DATA;
++				chip.page_size = 1;
++			}
++		} else if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+ 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
+ 		} else if (i2c_check_functionality(client->adapter,
+-- 
+2.1.0
