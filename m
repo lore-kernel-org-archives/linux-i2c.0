@@ -1,116 +1,64 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: [PATCH] eeprom: at24: Add support for large EEPROMs connected to SMBus adapters
-Date: Wed,  4 Feb 2015 08:23:37 -0800
-Message-ID: <1423067017-27607-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
+ SMBus adapters
+Date: Wed, 4 Feb 2015 18:47:23 +0100
+Message-ID: <20150204174723.GB30930@katana>
+References: <1423067017-27607-1-git-send-email-linux@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0ntfKIWw70PvrIHh"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1423067017-27607-1-git-send-email-linux@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Large EEPROMS (24c32 and larger) require a two-byte data address
-instead of just a single byte. Implement support for such EEPROMs
-with SMBus commands.
 
-Support has limitations (reads are not multi-master safe) and is slow,
-but it works. Practical use is for a system with 24c32 connected to
-Intel 82801I (ICH9).
+--0ntfKIWw70PvrIHh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
----
- drivers/misc/eeprom/at24.c | 52 +++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 47 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2d3db81..057d35c 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -198,6 +198,8 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	case I2C_SMBUS_BYTE_DATA:
- 		count = 1;
- 		break;
-+	case I2C_SMBUS_BYTE:
-+		break;
- 	default:
- 		/*
- 		 * When we have a better choice than SMBus calls, use a
-@@ -249,6 +251,27 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 				status = count;
- 			}
- 			break;
-+		case I2C_SMBUS_BYTE:
-+			/*
-+			 * 16-bit data address. Write data address as separate
-+			 * write operation, then read data without setting
-+			 * the address again. This is not multi-master safe,
-+			 * but the best we can do.
-+			 */
-+			status = i2c_smbus_write_byte_data(client,
-+							   offset >> 8,
-+							   offset & 0xff);
-+			if (status < 0)
-+				break;
-+			for (i = 0; i < count; i++) {
-+				status = i2c_smbus_read_byte(client);
-+				if (status < 0)
-+					break;
-+				buf[i] = status;
-+			}
-+			if (status >= 0)
-+				status = count;
-+			break;
- 		default:
- 			status = i2c_transfer(client->adapter, msg, 2);
- 			if (status == 2)
-@@ -372,6 +395,16 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 				status = i2c_smbus_write_i2c_block_data(client,
- 						offset, count, buf);
- 				break;
-+			case I2C_SMBUS_WORD_DATA:
-+				/*
-+				 * 16-bit data address. Transmit data address
-+				 * MSB as SMBus command, data address LSB as
-+				 * first data byte.
-+				 */
-+				status = i2c_smbus_write_word_data(client,
-+					offset >> 8,
-+					(offset & 0xff) | (buf[0] << 8));
-+				break;
- 			case I2C_SMBUS_BYTE_DATA:
- 				status = i2c_smbus_write_byte_data(client,
- 						offset, buf[0]);
-@@ -540,10 +573,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	/* Use I2C operations unless we're stuck with SMBus extensions. */
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
--		if (chip.flags & AT24_FLAG_ADDR16)
--			return -EPFNOSUPPORT;
--
--		if (i2c_check_functionality(client->adapter,
-+		if (chip.flags & AT24_FLAG_ADDR16) {
-+			if (!i2c_check_functionality(client->adapter,
-+						I2C_FUNC_SMBUS_WRITE_BYTE_DATA |
-+						I2C_FUNC_SMBUS_READ_BYTE))
-+				return -EPFNOSUPPORT;
-+			use_smbus = I2C_SMBUS_BYTE;
-+		} else if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
- 			use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
- 		} else if (i2c_check_functionality(client->adapter,
-@@ -559,7 +595,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	/* Use I2C operations unless we're stuck with SMBus extensions. */
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
--		if (i2c_check_functionality(client->adapter,
-+		if (chip.flags & AT24_FLAG_ADDR16) {
-+			if (i2c_check_functionality(client->adapter,
-+					I2C_FUNC_SMBUS_WRITE_WORD_DATA)) {
-+				use_smbus_write = I2C_SMBUS_WORD_DATA;
-+				chip.page_size = 1;
-+			}
-+		} else if (i2c_check_functionality(client->adapter,
- 				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
- 			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
- 		} else if (i2c_check_functionality(client->adapter,
--- 
-2.1.0
+On Wed, Feb 04, 2015 at 08:23:37AM -0800, Guenter Roeck wrote:
+> Large EEPROMS (24c32 and larger) require a two-byte data address
+> instead of just a single byte. Implement support for such EEPROMs
+> with SMBus commands.
+>=20
+> Support has limitations (reads are not multi-master safe) and is slow,
+> but it works. Practical use is for a system with 24c32 connected to
+> Intel 82801I (ICH9).
+
+Can't you simply use i2c-dev to access the EEPROM? In multi-master
+environments, things can really go wrong, so I wouldn't like to add
+something dangerous by default. Maybe with a module parameter named
+"allow-multimaster-unsafe-access-to-large-eeproms-with-smbus" which is
+default off. But I'd really prefer the i2c-dev solution. Hooking a 16bit
+EEPROM to SMBus is daring, after all. SMBus is multi-master, too.
+
+
+--0ntfKIWw70PvrIHh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU0lsrAAoJEBQN5MwUoCm2VuYP/2DurOnQypsERp/NDUc2/0cB
+sR0xi/dPtFHP60ynTVJ3rmyJ1rlLAprDpSvdOLZm7AyeRqLa9BE0EDoILABwWADO
+zUDJd7OhfNsGRNWiFmXSxjPsSbU1ASHbjF3Np53Q8ISjZkogI+R0wjqXiW0P0/yk
+SHcmBu11r0Kj2W6iXToZxe0PP74QbDH4pT4nv5quIRJe6udJHkGaA/eI4K8/iUj9
+KH8SvPZDfCb25bd/0ibMD6WlIMegmORpEjLUmiK9nZIVKA06Zv+LRNw2L59Q5lyf
+NosY6jFpI7b3WA/iGOvI1tABknCC5mIyO6E/kkNdPwEkec5qwra7OdPj1mysSY6N
+UH52QgQQ96AXPX60A4m8rKO1aLMlxjEuptnsEVqvcXBkntVMvEh6tcj49RW5CKMU
+JpiWfz3GM8BilmjYbW6uJVc1mz4qfXz+s3lfr8FoAmh6WseONDY2Gk3try95xQeH
+xoD91iSYhpnssgnwnfi0LX9mgsDzCvjkdcaVlt3rsvZs0Eb36IOVR/2Y7HCXCmLq
+TLkK61jyjSjFyhgvGDVv5+jHkiPTzMZ+BStciecELUBG+h0tFjXPybfscozR+HWp
+d3KuU8Bp6PrAFINrY75BeQfwfr/AQl+fKDKQaseSMLew5mMdPT4g/HKuRFu7otFb
+F0xqgB83m8dBH8Zua6S2
+=3Y4M
+-----END PGP SIGNATURE-----
+
+--0ntfKIWw70PvrIHh--
