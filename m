@@ -1,68 +1,63 @@
-From: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: i2c-ocores: add common clock support
-Date: Thu, 5 Feb 2015 22:24:42 +0300
-Message-ID: <CAMo8BfJyKfKuUC5xmB7Ji1SmCELZZCm_EP2V6rD7TfpjVy4ftg@mail.gmail.com>
-References: <1422890893-30989-1-git-send-email-jcmvbkbc@gmail.com>
-	<1422890893-30989-3-git-send-email-jcmvbkbc@gmail.com>
-	<20150205191510.GB15307@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 2/3] Documentation: DT bindings: add more Tegra chip
+ compatible strings
+Date: Thu, 5 Feb 2015 20:25:22 +0100
+Message-ID: <20150205192521.GF15307@katana>
+References: <20150130221104.4761.50643.stgit@dusk.lan>
+ <20150130221104.4761.4534.stgit@dusk.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150205191510.GB15307@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Pql/uPZNXIm1JCle"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150130221104.4761.4534.stgit-orwA252wQtA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Takashi Iwai <tiwai-l3A5Bk7waGM@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Walmsley <pwalmsley-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Terje =?utf-8?Q?Bergstr=C3=B6m?= <tbergstrom-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Dylan Reid <dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Jingchang Lu <jingchang.lu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sean Paul <seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>l
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 5, 2015 at 10:15 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->
-> > -     if (of_property_read_u32(np, "opencores,ip-clock-frequency", &val)) {
-> > +#ifdef CONFIG_HAVE_CLK
-> > +     i2c->clk = devm_clk_get(&pdev->dev, NULL);
-> > +
-> > +     if (!IS_ERR(i2c->clk)) {
-> > +             int ret = clk_prepare_enable(i2c->clk);
-> > +
-> > +             if (ret) {
-> > +                     dev_err(&pdev->dev,
-> > +                             "clk_prepare_enable failed: %d\n", ret);
-> > +                     return ret;
-> > +             }
-> > +             i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
-> > +             if (clock_frequency_present)
-> > +                     i2c->bus_clock_khz = clock_frequency / 1000;
-> > +     } else
-> > +#endif
-> > +             if (of_property_read_u32(np, "opencores,ip-clock-frequency",
-> > +                                      &val)) {
->
-> This is not very readable (wrong indentation) and fragile. I'd suggest
-> to leave out #ifdeffery, the compiler will remove the code for !HAVE_CLK
-> because of the empty dummy functions[1]. Then, you can write properly
-> formatted code again.
->
-> [1] Well, it should if there wasn't a bug in that: https://lkml.org/lkml/2015/2/5/544
 
-Ok, will fix.
+--Pql/uPZNXIm1JCle
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > +#ifdef CONFIG_HAVE_CLK
-> > +     if (!IS_ERR(i2c->clk)) {
-> > +             int ret = clk_prepare_enable(i2c->clk);
-> > +
-> > +             if (ret) {
-> > +                     dev_err(&pdev->dev,
-> > +                             "clk_prepare_enable failed: %d\n", ret);
-> > +                     return ret;
-> > +             }
-> > +             i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
-> > +     }
-> > +#endif
->
-> Ahem, there is a build error in here :(
+Hi Paul!
 
-Ooops, looks like I don't have CONFIG_PM_SLEEP in my test config.
-Will fix. Sorry about that.
+On Fri, Jan 30, 2015 at 03:11:04PM -0700, Paul Walmsley wrote:
+> Align compatible strings for several IP blocks present on Tegra chips
+> with the latest doctrine from the DT maintainers:
+>=20
+> http://marc.info/?l=3Ddevicetree&m=3D142255654213019&w=3D2
 
--- 
-Thanks.
--- Max
+OK, I am not sure if I like the direction, but having a rule of thumb
+here is definately a good thing. Thanks for the pointer!
+
+So, for the I2C part:
+
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+
+--Pql/uPZNXIm1JCle
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU08OhAAoJEBQN5MwUoCm211kP/1gwSZCg1BcLlL4f03sgSP7g
+43ow1o5erCEDXawaJrwocF5h/w5itymPrTl0V4pFTr2isis7jsaZvt+aBXtfKbeb
+gaKuqiMWxmw3iSbClMkT7rWSrM+BaLs2oJqLD6lAEW4F3YDHS0j1Rl0k5It5J230
+qNgO2mCar0l7pY7QWsv5vTPBtvNDa/VUaFn+nqzGRCheobMLOiTCaFe11KTnUT2G
+Fks0y8yqe5eAmd6kXSylFrp72IORLGpk+mjkZZw5PNmVF3iwcW+HhW4WGLVtdFJv
+C3haV/XZ+0Vx0+E0FZslvGZJFljo2bNWhX3zqIhOX4ZEHa0xBKL7KH8+4h9Y9pkN
+TGta6Gr9vsByPZbc8kIsPEvELZW0T61dYkkVs5FHnSgFa1iBxOrxxn1rVP22dyHp
+koVCrWFrG0A8NLUDrv2msO4RTU7INmO7mpwTGmpcRyDWjIn0OfMPwyISjw4T4pZL
+lh4tMOWsTQBboi1itXAhMk8xa97TR9qbyUwOvud/MwqVHiY8ZkQBawXGIoW+y+pO
+9qLpccLwI79/l7yl7xpSQpCtylxPAESeXAulTHRYTffoAREWKQwmhPeqe4awoiZg
+XGYjKiVlJBnSEYUgVXCkZi5tsqikfBH3p0VY1sKIrW5MhE2by22TTzoDVyvD2y/z
+6ov2grGmesT2m3keN2oH
+=5LNo
+-----END PGP SIGNATURE-----
+
+--Pql/uPZNXIm1JCle--
