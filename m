@@ -1,63 +1,85 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 2/3] Documentation: DT bindings: add more Tegra chip
- compatible strings
-Date: Thu, 5 Feb 2015 20:25:22 +0100
-Message-ID: <20150205192521.GF15307@katana>
-References: <20150130221104.4761.50643.stgit@dusk.lan>
- <20150130221104.4761.4534.stgit@dusk.lan>
+Subject: Re: [PATCH] i2c/mpc: Fix ISR return value
+Date: Thu, 5 Feb 2015 20:36:13 +0100
+Message-ID: <20150205193612.GG15307@katana>
+References: <BL2PR03MB449C87445D2FD1F15E9D33483310@BL2PR03MB449.namprd03.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pql/uPZNXIm1JCle"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="vSsTm1kUtxIHoa7M"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150130221104.4761.4534.stgit-orwA252wQtA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Takashi Iwai <tiwai-l3A5Bk7waGM@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Walmsley <pwalmsley-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Terje =?utf-8?Q?Bergstr=C3=B6m?= <tbergstrom-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Dylan Reid <dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Jingchang Lu <jingchang.lu-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sean Paul <seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>l
+In-Reply-To: <BL2PR03MB449C87445D2FD1F15E9D33483310-AZ66ij2kwaaRkNCTDI+ukOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Amit Tomar <Amit.Tomar-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Pql/uPZNXIm1JCle
-Content-Type: text/plain; charset=us-ascii
+--vSsTm1kUtxIHoa7M
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Paul!
-
-On Fri, Jan 30, 2015 at 03:11:04PM -0700, Paul Walmsley wrote:
-> Align compatible strings for several IP blocks present on Tegra chips
-> with the latest doctrine from the DT maintainers:
+On Fri, Jan 30, 2015 at 10:24:10AM +0000, Amit Tomar wrote:
+> ISR should not return IRQ_HANDLED for not handling anything.=20
+> This patch fixes the return value of ISR for the same case.
 >=20
-> http://marc.info/?l=3Ddevicetree&m=3D142255654213019&w=3D2
+>=20
+> Signed-off-by: Amit Singh Tomar <amit.tomar-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-OK, I am not sure if I like the direction, but having a rule of thumb
-here is definately a good thing. Thanks for the pointer!
-
-So, for the I2C part:
-
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+I can't apply the patch. There seem to be whitespace problems. Please
+fix the patch or your mail sending.
 
 
---Pql/uPZNXIm1JCle
+> ---
+> drivers/i2c/busses/i2c-mpc.c |=C2=A0=C2=A0=C2=A0 3 ++-
+> 1 file changed, 2 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c =
+index 0edf630..7a3136f 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -95,8 +95,9 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 i2c->interrupt =3D readb(i2c->=
+base + MPC_I2C_SR);
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 writeb(0, i2c->base + MPC_I2C_=
+SR);
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 wake_up(&i2c->queue);
+> +=C2=A0=C2=A0 =C2=A0=C2=A0  return IRQ_HANDLED;
+> =C2=A0=C2=A0=C2=A0 }
+> -=C2=A0 return IRQ_HANDLED;
+> + =C2=A0return IRQ_NONE;
+> }
+>=20
+> /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
+> --
+> 1.7.9.5
+> =20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--vSsTm1kUtxIHoa7M
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU08OhAAoJEBQN5MwUoCm211kP/1gwSZCg1BcLlL4f03sgSP7g
-43ow1o5erCEDXawaJrwocF5h/w5itymPrTl0V4pFTr2isis7jsaZvt+aBXtfKbeb
-gaKuqiMWxmw3iSbClMkT7rWSrM+BaLs2oJqLD6lAEW4F3YDHS0j1Rl0k5It5J230
-qNgO2mCar0l7pY7QWsv5vTPBtvNDa/VUaFn+nqzGRCheobMLOiTCaFe11KTnUT2G
-Fks0y8yqe5eAmd6kXSylFrp72IORLGpk+mjkZZw5PNmVF3iwcW+HhW4WGLVtdFJv
-C3haV/XZ+0Vx0+E0FZslvGZJFljo2bNWhX3zqIhOX4ZEHa0xBKL7KH8+4h9Y9pkN
-TGta6Gr9vsByPZbc8kIsPEvELZW0T61dYkkVs5FHnSgFa1iBxOrxxn1rVP22dyHp
-koVCrWFrG0A8NLUDrv2msO4RTU7INmO7mpwTGmpcRyDWjIn0OfMPwyISjw4T4pZL
-lh4tMOWsTQBboi1itXAhMk8xa97TR9qbyUwOvud/MwqVHiY8ZkQBawXGIoW+y+pO
-9qLpccLwI79/l7yl7xpSQpCtylxPAESeXAulTHRYTffoAREWKQwmhPeqe4awoiZg
-XGYjKiVlJBnSEYUgVXCkZi5tsqikfBH3p0VY1sKIrW5MhE2by22TTzoDVyvD2y/z
-6ov2grGmesT2m3keN2oH
-=5LNo
+iQIcBAEBAgAGBQJU08YsAAoJEBQN5MwUoCm2j+IP/0frGE2bdyzVHfXb35oq9vEo
+vjLWjehWry2xBO1Hs/E4OzNwjB4Kr4YUFjZ718XdLVtFjfiyGFPPv/ec6B70TbTx
+Wj9Lysrn546cfkmmThxjURaZrEzPh3qoZcqrcF5N3ekZ1mC1mRlzpDS4fIdnzMXU
+WPgl2LoLUdTySJH5Z2vWrCS65UdfVu/fJz5JTHKmo3AzugOpsSVOPu0hhj+lSqwT
+XYHgHxm9Gz6VBucleB7NMfxKBPbpDdieQq262C0sH82dkjd65FVZ6LdykXLrEAYP
+n+D/rSt4d2YQc0g16cBM56dror1IYl0hmLlL3Y74AkAEyjK3A+YqR9trW7AlpKcU
+CpYcJhJUdRXRte5U9YuKMq9UPi1ls5AfO1IF3sLPtumHXgoEgjYfs5OrTDf/Zai+
+2Xb24HzBr54/TM0yI8S3Cgp1+fEjUs0YTo8NvjBK/aBkqgkxtmVK7E+LBVfdOehH
+V/fN2d2uG8AspK+UmxeyVSFO0bkGWdBepvHCN5eiEx3KzsverxfM9lao8noNK8IE
+dk14GAol5cQSj7eaOYV9TGn8kT9PdZ2YfBdcQjzvIVsYm5s5LFyYqUXj0KHxpqFE
+MtEzOQQG3wNB/7PpgPnekaqzNXTLAM0w9lH8C4F6th+0rpJWfnDerxOIbjZytMqb
+P8xfj32mFaNcbNsrhvU9
+=cojz
 -----END PGP SIGNATURE-----
 
---Pql/uPZNXIm1JCle--
+--vSsTm1kUtxIHoa7M--
