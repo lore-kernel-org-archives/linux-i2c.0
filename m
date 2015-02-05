@@ -1,88 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: i2c-ocores: add common clock support
-Date: Thu, 5 Feb 2015 20:15:11 +0100
-Message-ID: <20150205191510.GB15307@katana>
-References: <1422890893-30989-1-git-send-email-jcmvbkbc@gmail.com>
- <1422890893-30989-3-git-send-email-jcmvbkbc@gmail.com>
+Subject: Re: [PATCH] i2c: clarify comments about the dev_released completion
+Date: Thu, 5 Feb 2015 20:18:26 +0100
+Message-ID: <20150205191826.GC15307@katana>
+References: <1422567909-13399-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
+	protocol="application/pgp-signature"; boundary="dkEUBIird37B8yKS"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1422890893-30989-3-git-send-email-jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1422567909-13399-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---FkmkrVfFsRoUs1wW
+--dkEUBIird37B8yKS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> -	if (of_property_read_u32(np, "opencores,ip-clock-frequency", &val)) {
-> +#ifdef CONFIG_HAVE_CLK
-> +	i2c->clk = devm_clk_get(&pdev->dev, NULL);
-> +
-> +	if (!IS_ERR(i2c->clk)) {
-> +		int ret = clk_prepare_enable(i2c->clk);
-> +
-> +		if (ret) {
-> +			dev_err(&pdev->dev,
-> +				"clk_prepare_enable failed: %d\n", ret);
-> +			return ret;
-> +		}
-> +		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
-> +		if (clock_frequency_present)
-> +			i2c->bus_clock_khz = clock_frequency / 1000;
-> +	} else
-> +#endif
-> +		if (of_property_read_u32(np, "opencores,ip-clock-frequency",
-> +					 &val)) {
+On Thu, Jan 29, 2015 at 10:45:09PM +0100, Wolfram Sang wrote:
+> There was quite some confusion why this completion is there and if it is
+> still necessary. Sadly, it is. However, let's improve the comments and
+> share what we rediscovered.
+>=20
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-This is not very readable (wrong indentation) and fragile. I'd suggest
-to leave out #ifdeffery, the compiler will remove the code for !HAVE_CLK
-because of the empty dummy functions[1]. Then, you can write properly
-formatted code again.
-
-[1] Well, it should if there wasn't a bug in that: https://lkml.org/lkml/2015/2/5/544
-
-> +#ifdef CONFIG_HAVE_CLK
-> +	if (!IS_ERR(i2c->clk)) {
-> +		int ret = clk_prepare_enable(i2c->clk);
-> +
-> +		if (ret) {
-> +			dev_err(&pdev->dev,
-> +				"clk_prepare_enable failed: %d\n", ret);
-> +			return ret;
-> +		}
-> +		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
-> +	}
-> +#endif
-
-Ahem, there is a build error in here :(
+Applied to for-next, thanks!
 
 
---FkmkrVfFsRoUs1wW
+--dkEUBIird37B8yKS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU08E+AAoJEBQN5MwUoCm2yKoP/2y8QmU9K2y24Bbz7OC6Q7ps
-x5s8wB0MJconrpmmwvE7fyliGuXIOozqyVan7wXJ00qnGkLltVqBqj7PiNDA3rqH
-dE/uSV/qLWO8olszRKcYqg+qLw6H6ZUA8ZQ+aLmcbPaQvFV6F2U4m81tXjNBDn//
-30Is6pPkm/65+wLC5VKbdxF5o2wXy3ROz8MUXYKLH7kq8wivqmTpbsu8e7JRl6xZ
-unk2fUIn8PGT553HxcQbXvIYFmL0oaqPOPqJ2X4wNvBqDMMfmtHIHuR/ZiwaY8/r
-8XHfJOMivDZ0WekEtj7WnBvDA0dOqkLxQm4Czm6Sc0+Jq/f0lgqk0uniu7bJCM+v
-mOmGdF3R/hT+4OZAJRl+WHsIvvd4vHW77pjbumbnP6UPk05oXoJBO4zD2JSIUmQH
-QMBgwozRWsdK9+Tt737NIfg6nkXIdAad2SYbd50ySfgH6cmnAAIs0fHhv9XTNGXU
-faFNZBhLMFdrj8Eg/Rp+lGuwu93nxmqMflCIZyz9rJRWMkq7sgZJ33h2bBn8XTBm
-TyaLnNYt42D3V8WKv6Zkkw6yWNO9dSimoV+60mUUEFVjg2CDjP2XBFJL5CHE1DSw
-TRZIUJenqixAlPIFoncv54v2pwAB6t/iyhFiAyKhrNBIGAauAH7zV8mcPTQrHeGO
-fwM+FOs228cg//+kAny6
-=Iwrq
+iQIcBAEBAgAGBQJU08ICAAoJEBQN5MwUoCm2pqkP+wbrrqKWPB/mFUhSueJ57BRs
+hUzBp85eTv7AHDVj+qRu+Pr25jZIp1a8Po0C0CZ6Fr301NVHXwlpE5bOW6REWd/7
+oDe1UtlXEitsJXAsHmzmLWQ55jMfbLevtsAP+sJwQ2WFptGNfRn+WSSl9hSa2gKQ
+gD9Y/ZERkcqzg2INPU5RPciuzLCGAKXDkpoh2BQNK8dgH2z9Q96wLiWHnHDFNcNV
+8aMJoELzUJMtZ8+93bdmogZtpHDR9FUZFosDFixZ9c+9jtceX9xZijiwBYTTBP39
+bK1vNt1fvbtJfOqD1d465U9wYwsbctJeiFu5i5hM5QaaGYMkuagaoT4GzehGeOAF
+eetnc1sWOMQ+v1GxOp2dY1fiJ39GDWTn8YBV6T8z2wbhoB99iZxpStiAyUXQ+dqk
+lJ8TP3Y4NnoC5yar7M6pRrhLzQaL6OU0sHaKARwTsJBRPSlb3WkLe6wguFuFuxdD
+30t7DRGIPRjJTaAPiZUzluwTvMliYLToTjqXqoZJjC/uOsNgILlz9s3kPEMqmjxu
+VKYY8vIrgKgO4GS8E/yxtFYMw5LGu6V0Cd299OrJTDTfRmjgQmAJGQxhZ66jVO8w
+06ZnaiQQ9HRuFzVX6u0rBVM4Fqfv20CCOIT8+kpGA+8kk0S4rqdHFrZCZLeMWqgr
+AArc1PzLCktd0H0xpBfF
+=KUic
 -----END PGP SIGNATURE-----
 
---FkmkrVfFsRoUs1wW--
+--dkEUBIird37B8yKS--
