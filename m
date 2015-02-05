@@ -1,63 +1,88 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c: i2c-ocores: fix clock-frequency binding usage
-Date: Thu, 5 Feb 2015 20:11:05 +0100
-Message-ID: <20150205191105.GA15307@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] i2c: i2c-ocores: add common clock support
+Date: Thu, 5 Feb 2015 20:15:11 +0100
+Message-ID: <20150205191510.GB15307@katana>
 References: <1422890893-30989-1-git-send-email-jcmvbkbc@gmail.com>
- <1422890893-30989-2-git-send-email-jcmvbkbc@gmail.com>
+ <1422890893-30989-3-git-send-email-jcmvbkbc@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1422890893-30989-2-git-send-email-jcmvbkbc@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1422890893-30989-3-git-send-email-jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---PEIAKu/WMn1b1Hv9
+--FkmkrVfFsRoUs1wW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 02, 2015 at 06:28:12PM +0300, Max Filippov wrote:
-> clock-frequency property is meant to control the bus frequency for i2c bus
-> drivers, but it was incorrectly used to specify i2c controller input clock
-> frequency.
-> Introduce new attribute, opencores,ip-clock-frequency, that specifies i2c
-> controller clock frequency and make clock-frequency attribute compatible
-> with other i2c drivers. Maintain backwards compatibility in case
-> opencores,ip-clock-frequency attribute is missing.
->=20
-> Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+> -	if (of_property_read_u32(np, "opencores,ip-clock-frequency", &val)) {
+> +#ifdef CONFIG_HAVE_CLK
+> +	i2c->clk = devm_clk_get(&pdev->dev, NULL);
+> +
+> +	if (!IS_ERR(i2c->clk)) {
+> +		int ret = clk_prepare_enable(i2c->clk);
+> +
+> +		if (ret) {
+> +			dev_err(&pdev->dev,
+> +				"clk_prepare_enable failed: %d\n", ret);
+> +			return ret;
+> +		}
+> +		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
+> +		if (clock_frequency_present)
+> +			i2c->bus_clock_khz = clock_frequency / 1000;
+> +	} else
+> +#endif
+> +		if (of_property_read_u32(np, "opencores,ip-clock-frequency",
+> +					 &val)) {
 
-Exactly what I had in mind. Thank you for making the effort to fix this
-properly!
+This is not very readable (wrong indentation) and fragile. I'd suggest
+to leave out #ifdeffery, the compiler will remove the code for !HAVE_CLK
+because of the empty dummy functions[1]. Then, you can write properly
+formatted code again.
 
-Applied to for-next!
+[1] Well, it should if there wasn't a bug in that: https://lkml.org/lkml/2015/2/5/544
+
+> +#ifdef CONFIG_HAVE_CLK
+> +	if (!IS_ERR(i2c->clk)) {
+> +		int ret = clk_prepare_enable(i2c->clk);
+> +
+> +		if (ret) {
+> +			dev_err(&pdev->dev,
+> +				"clk_prepare_enable failed: %d\n", ret);
+> +			return ret;
+> +		}
+> +		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
+> +	}
+> +#endif
+
+Ahem, there is a build error in here :(
 
 
---PEIAKu/WMn1b1Hv9
+--FkmkrVfFsRoUs1wW
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU08BJAAoJEBQN5MwUoCm25XMQAKpvJByaORHBDE/Pt0eTOK63
-4d00HAic0gSZRgicflawMgkBGNBTaov2z7C3D3HroWkIMccPaT3xyvTO8wR0XCE/
-gxsf8TbuLLthzJDbOvfQWVUu2vC5SMp0bF/Xg5rHCmvPxjiZ06cea0p/tnYD41+P
-eyLVLUNcf9/tPVCMbi72YEmZzWUloSQyg+XQ1hswdlSyaOcFwn5xcc8ghsMcbxBD
-gcrEiLkwyHS7qoAT6xxgCdS1TMZg99W3eyVFatNU6wVrEuayhPHSdF6EvYZmeoo1
-/Ajt0TI0nmbAx/W6RvByfbvWny/pISb7iVyNCjqw/wM2OW4Gwry8B5eh15FDBY1w
-J/mcuQc85BDlwA1c+YBaOwrlwoIVwv9Lj/ijl4hMF+QqZ1rrXuCLXzCG7fhQqd3C
-Bab28NjSgPaZXcGOqYaamxM2bMNrZSIAZPx3nGHMjWpLxsN+3K8xFcd33fOna8St
-piWn3GbJMAabRmuDwhEDNzbHf/7xRN1+z0S84yWC3s5K+awU1MT2OnUoksr35MRd
-/6KPMpNdkr7BgE5TYFohoHWn4FZaLDr9Rk/1K80e6/LIcXGG94FlSd3tc+QevC/g
-qWZCWdnAXjhv07u85H8VjfLm9rRK2PP2WT/ecGlsjkMZSngMJ5KwV9NI7P1+hbYM
-eEiig9AhXmw4V/LcEmPb
-=QXNh
+iQIcBAEBAgAGBQJU08E+AAoJEBQN5MwUoCm2yKoP/2y8QmU9K2y24Bbz7OC6Q7ps
+x5s8wB0MJconrpmmwvE7fyliGuXIOozqyVan7wXJ00qnGkLltVqBqj7PiNDA3rqH
+dE/uSV/qLWO8olszRKcYqg+qLw6H6ZUA8ZQ+aLmcbPaQvFV6F2U4m81tXjNBDn//
+30Is6pPkm/65+wLC5VKbdxF5o2wXy3ROz8MUXYKLH7kq8wivqmTpbsu8e7JRl6xZ
+unk2fUIn8PGT553HxcQbXvIYFmL0oaqPOPqJ2X4wNvBqDMMfmtHIHuR/ZiwaY8/r
+8XHfJOMivDZ0WekEtj7WnBvDA0dOqkLxQm4Czm6Sc0+Jq/f0lgqk0uniu7bJCM+v
+mOmGdF3R/hT+4OZAJRl+WHsIvvd4vHW77pjbumbnP6UPk05oXoJBO4zD2JSIUmQH
+QMBgwozRWsdK9+Tt737NIfg6nkXIdAad2SYbd50ySfgH6cmnAAIs0fHhv9XTNGXU
+faFNZBhLMFdrj8Eg/Rp+lGuwu93nxmqMflCIZyz9rJRWMkq7sgZJ33h2bBn8XTBm
+TyaLnNYt42D3V8WKv6Zkkw6yWNO9dSimoV+60mUUEFVjg2CDjP2XBFJL5CHE1DSw
+TRZIUJenqixAlPIFoncv54v2pwAB6t/iyhFiAyKhrNBIGAauAH7zV8mcPTQrHeGO
+fwM+FOs228cg//+kAny6
+=Iwrq
 -----END PGP SIGNATURE-----
 
---PEIAKu/WMn1b1Hv9--
+--FkmkrVfFsRoUs1wW--
