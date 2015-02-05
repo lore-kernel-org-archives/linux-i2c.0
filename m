@@ -1,62 +1,170 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c: i2c-ocores: fix clock-frequency binding usage
-Date: Thu, 5 Feb 2015 20:51:00 +0100
-Message-ID: <20150205195100.GK15307@katana>
-References: <1422890893-30989-1-git-send-email-jcmvbkbc@gmail.com>
- <1422890893-30989-2-git-send-email-jcmvbkbc@gmail.com>
- <20150205191105.GA15307@katana>
- <CAMo8BfK0mMySABkwRy6cnzPXjc1D_+AN2zLFtED58XOJ0zaDLQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lZZ4ablUVnt2XgAh"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMo8BfK0mMySABkwRy6cnzPXjc1D_+AN2zLFtED58XOJ0zaDLQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+From: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v4] i2c: i2c-ocores: add common clock support
+Date: Thu,  5 Feb 2015 22:55:01 +0300
+Message-ID: <1423166101-20840-1-git-send-email-jcmvbkbc@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Allow bus clock specification as a common clock handle. This makes this
+controller easier to use in a setup based on common clock framework.
 
---lZZ4ablUVnt2XgAh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+Changes v3->v4:
+- drop all #ifdef CONFIG_HAVE_CLK
 
-On Thu, Feb 05, 2015 at 10:46:26PM +0300, Max Filippov wrote:
-> On Thu, Feb 5, 2015 at 10:11 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > Exactly what I had in mind. Thank you for making the effort to fix this
-> > properly!
-> >
-> > Applied to for-next!
->=20
-> Wolfram, is there any chance this series makes it into 3.20?
-> (I need to update xtfpga platform, and the update depends on whether
-> these changes are there or not).
+Changes v2->v3:
+- drop #ifdef CONFIG_HAVE_CLK in the ocores_i2c_of_probe
+- fix error reporting code in ocores_i2c_resume
 
-Yes, it is planned for 3.20.
+Changes v1->v2:
+- fix binding documentation;
+- make CCF support optional.
 
+ .../devicetree/bindings/i2c/i2c-ocores.txt         | 32 +++++++++++++++++----
+ drivers/i2c/busses/i2c-ocores.c                    | 33 +++++++++++++++++++++-
+ 2 files changed, 59 insertions(+), 6 deletions(-)
 
---lZZ4ablUVnt2XgAh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJU08mkAAoJEBQN5MwUoCm2qfkP/jQ+l42oy5apHIg8FLnBe/QY
-e8zAvlBZa8Dh9RGe2BwJDJb7OKnP4uI6mDdUs44CYPHmHJ6QrxFHMQQzLbqv2r35
-S0OFS7T0vBj30g5CuXU8Lg5WZxylVEquECZEwZ7cTdjwf/nPuBGCEjb5ERsV773O
-zxVirvNJlRjPR1jdoM1oJvq4/DAaw1verw6gsyqwGpcJ3eoBpczZf5CZ7QAP9FiS
-wJ7NKcSNAGKb0hjU0lXRy5kNaAh2sB7NG9pi5tSUoBa2MUy/rwfJWaWX/M/IYmgi
-2J2Hgg2Mq4T8JAJwk/zDN2ptbqKabLn+Xv3RU36V27xtp60w9cOfdFGJDI7kpXSh
-3FeXGeUfFV/XrwJfGmGpWFpT8w9ornz71pk8tX77G8Q/xbZsTDOa7TefBpNb6JWE
-hH80m/JoID2Xovj0IErTDG53e2zAbPbpzVeJFHBBX1FaIU6js0exeRdfzEOyk+rQ
-oJueovL3bwHNlD+5o1Onk+bpSVpRrffYNGeMwkEmG0DlBGpWnAMZL7TuFqzUF4ap
-XfoZgj0GnL6DzwG6SOTWSc5cn/eAsERmzmTLWN6SKP5NpKtxbMWAMGv+GiEzYRFX
-yCCfkoggTBjTUKZ/gEnNxY5OD4drW9SeZu9Bw+CZEg9rjolwgAzoJOS0So80Crtp
-fhFB+R2Jh4YKQsk6fZl/
-=egqE
------END PGP SIGNATURE-----
-
---lZZ4ablUVnt2XgAh--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+index 5bef3ad..17bef9a 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+@@ -4,8 +4,10 @@ Required properties:
+ - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
+ - reg             : bus address start and address range size of device
+ - interrupts      : interrupt number
++- clocks          : handle to the controller clock; see the note below.
++                    Mutually exclusive with opencores,ip-clock-frequency
+ - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
+-                    see the note below
++                    see the note below. Mutually exclusive with clocks
+ - #address-cells  : should be <1>
+ - #size-cells     : should be <0>
+ 
+@@ -20,14 +22,16 @@ Note
+ clock-frequency property is meant to control the bus frequency for i2c bus
+ drivers, but it was incorrectly used to specify i2c controller input clock
+ frequency. So the following rules are set to fix this situation:
+-- if clock-frequency is present and opencores,ip-clock-frequency is not,
+-  then clock-frequency specifies i2c controller clock frequency. This is
+-  to keep backwards compatibility with setups using old DTB. i2c bus
++- if clock-frequency is present and neither opencores,ip-clock-frequency nor
++  clocks are, then clock-frequency specifies i2c controller clock frequency.
++  This is to keep backwards compatibility with setups using old DTB. i2c bus
+   frequency is fixed at 100 KHz.
++- if clocks is present it specifies i2c controller clock. clock-frequency
++  property specifies i2c bus frequency.
+ - if opencores,ip-clock-frequency is present it specifies i2c controller
+   clock frequency. clock-frequency property specifies i2c bus frequency.
+ 
+-Example:
++Examples:
+ 
+ 	i2c0: ocores@a0000000 {
+ 		#address-cells = <1>;
+@@ -45,3 +49,21 @@ Example:
+ 			reg = <0x60>;
+ 		};
+ 	};
++or
++	i2c0: ocores@a0000000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "opencores,i2c-ocores";
++		reg = <0xa0000000 0x8>;
++		interrupts = <10>;
++		clocks = <&osc>;
++		clock-frequency = <400000>; /* i2c bus frequency 400 KHz */
++
++		reg-shift = <0>;	/* 8 bit registers */
++		reg-io-width = <1>;	/* 8 bit read/write */
++
++		dummy@60 {
++			compatible = "dummy";
++			reg = <0x60>;
++		};
++	};
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index bff99e3..fab1723 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -12,6 +12,7 @@
+  * kind, whether express or implied.
+  */
+ 
++#include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+@@ -35,6 +36,7 @@ struct ocores_i2c {
+ 	int pos;
+ 	int nmsgs;
+ 	int state; /* see STATE_ */
++	struct clk *clk;
+ 	int ip_clock_khz;
+ 	int bus_clock_khz;
+ 	void (*setreg)(struct ocores_i2c *i2c, int reg, u8 value);
+@@ -339,7 +341,21 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
+ 							&clock_frequency);
+ 	i2c->bus_clock_khz = 100;
+ 
+-	if (of_property_read_u32(np, "opencores,ip-clock-frequency", &val)) {
++	i2c->clk = devm_clk_get(&pdev->dev, NULL);
++
++	if (!IS_ERR(i2c->clk)) {
++		int ret = clk_prepare_enable(i2c->clk);
++
++		if (ret) {
++			dev_err(&pdev->dev,
++				"clk_prepare_enable failed: %d\n", ret);
++			return ret;
++		}
++		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
++		if (clock_frequency_present)
++			i2c->bus_clock_khz = clock_frequency / 1000;
++	} else if (of_property_read_u32(np, "opencores,ip-clock-frequency",
++					&val)) {
+ 		if (!clock_frequency_present) {
+ 			dev_err(&pdev->dev,
+ 				"Missing required parameter 'opencores,ip-clock-frequency'\n");
+@@ -477,6 +493,9 @@ static int ocores_i2c_remove(struct platform_device *pdev)
+ 	/* remove adapter & data */
+ 	i2c_del_adapter(&i2c->adap);
+ 
++	if (!IS_ERR(i2c->clk))
++		clk_disable_unprepare(i2c->clk);
++
+ 	return 0;
+ }
+ 
+@@ -489,6 +508,8 @@ static int ocores_i2c_suspend(struct device *dev)
+ 	/* make sure the device is disabled */
+ 	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
+ 
++	if (!IS_ERR(i2c->clk))
++		clk_disable_unprepare(i2c->clk);
+ 	return 0;
+ }
+ 
+@@ -496,6 +517,16 @@ static int ocores_i2c_resume(struct device *dev)
+ {
+ 	struct ocores_i2c *i2c = dev_get_drvdata(dev);
+ 
++	if (!IS_ERR(i2c->clk)) {
++		int ret = clk_prepare_enable(i2c->clk);
++
++		if (ret) {
++			dev_err(dev,
++				"clk_prepare_enable failed: %d\n", ret);
++			return ret;
++		}
++		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
++	}
+ 	return ocores_init(dev, i2c);
+ }
+ 
+-- 
+1.8.1.4
