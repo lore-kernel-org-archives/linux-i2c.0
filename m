@@ -1,68 +1,59 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c/mpc: Fix ISR return value
-Date: Thu, 5 Feb 2015 20:37:53 +0100
-Message-ID: <20150205193753.GH15307@katana>
-References: <BL2PR03MB449C87445D2FD1F15E9D33483310@BL2PR03MB449.namprd03.prod.outlook.com>
- <CAAVjN7fQ4RLgsk1R_DPrFm21OBWpsBdxMuDyQauiz3pxCgK+Lw@mail.gmail.com>
+Subject: Re: [PATCH] at91: i2c-at91: improve time-out handling
+Date: Thu, 5 Feb 2015 20:40:18 +0100
+Message-ID: <20150205194017.GI15307@katana>
+References: <54A58BA5.3080003@interlog.com>
+ <20150107103113.GA30897@ldesroches-Latitude-E6320>
+ <20150113152752.GK7660@katana>
+ <54C41FD0.2010607@interlog.com>
+ <CAJjB1qJSBzwviN7Ey+9AHmiEy1PcTKOnPOWVc8xFCZmfkW-BRw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RwGu8mu1E+uYXPWP"
+	protocol="application/pgp-signature"; boundary="boAH8PqvUi1v1f55"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAAVjN7fQ4RLgsk1R_DPrFm21OBWpsBdxMuDyQauiz3pxCgK+Lw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <CAJjB1qJSBzwviN7Ey+9AHmiEy1PcTKOnPOWVc8xFCZmfkW-BRw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Danielle Costantino <danielle.costantino-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Mark Roszko <mark.roszko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, patchwork-notifications-2CcfMPLixEJ8D7ILJbWmE2D2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---RwGu8mu1E+uYXPWP
+--boAH8PqvUi1v1f55
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 30, 2015 at 03:17:37AM -0800, Danielle Costantino wrote:
-> I have been using the driver with this modification for the past 6
-> months and it has been stable in an industrial environment.I had made
-> a few other changes that also improve reliability (using ppc in_8 and
-> out_8 and eieio barriers to ensure in-order execution. This lets you
-> remove the unneeded double read of the status register. I also added a
-> more robust recovery function to handle force of bus master-ship, and
-> clearing the arb lost interrupt that is generated. currently this can
-> cause the isr to trigger and cause superfluous interrupts. I have not
-> posted this patch because of the extensive changes,
+On Mon, Jan 26, 2015 at 12:19:23PM -0500, Mark Roszko wrote:
+> You can check if ret =3D=3D -ETIMEDOUT in the error path instead of
+> allocating another variable.
 >=20
-> I will ack this patch.
+> You also generated the patch with your /arch/arm/boot/dts/Makefile change=
+s.
 
-Thanks for the detailed explanation. If you want to assist me even
-further, please use the standard form for an Ack:
-
-Acked-by: <your email>
-
-Then patchwork will automatically collect the ack and I don't have to do
-it manually.
+True. Someone cares to respin this patch?
 
 
---RwGu8mu1E+uYXPWP
+--boAH8PqvUi1v1f55
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU08aRAAoJEBQN5MwUoCm2fUwP/AghMy6DE3Kyh4HU4WtiS+3a
-nPt6s0Sw704C+ZoYCCDZa72rRnTDw/N6r/SrhJo6FqNs5HtjOPw35T2WMaALdcCL
-pNS57BsYzOdvnlIuHXSPQlqGqjJo56SesmVB2znUMd3ukbzb6I7NHiuRQbM9g6m2
-ynQbDXrUfNDZnQWl9RYVHqt4Q9QRjcCuCjV7WWCyeNfFHU9LXPeJGZ9yD41+8uik
-cI4uDZnrpMIlsBEhb1pl/Ido+kATd0tzNouzB3YHh0czyt3FrAL7Z7bdiq5tGxDq
-oxX0KMraLXz+8MpQ2mzCqRDOL5pNl7bhm+wEy9uGcNH+yVboQq7aEbrtnrsPSliM
-v7PiqFIjb8fU0mO0cW8wMtwa3I2ysOmE9V43coRpOzW18skAHShKWDK7N5kSMF1v
-Ulll4GrLfVRbSN8YAsLodJx+B/a371H5+tVbAlhxLOv/w/cWAQCoW4hCBXebHsw2
-470ZAxNLe3CzcufyTAhjFjB3l5LExFS2XX/iT5dicxeGyP3srbkCE2cXoU9BS/zq
-OnPSc1Ns6MI240wPmi2wkJJBGVDjoYfU/38U5vQwP7+jrU9xU7+ukzVFFrhjQsl9
-TM9GTz64snhbzSrQ1lSED7HUC+S05JYBELc6xXDBUOAGDS9X+sldT6C7pZbHWMaD
-i3+epviScOtq3VZjZ4Id
-=dWmw
+iQIcBAEBAgAGBQJU08chAAoJEBQN5MwUoCm2918QAJnCh9gdQ2/4pNKInwnMrSUY
+oF3ytHs39NtWmXBfSFfrWv20qO9xovwe/ArZ9Ee9MB7XpeZqNx/fvJJNb2biWYDa
+HAbJEQHj+ns67ybYzXUUPZVgKN0hp9UNqmAEBOzZMhfsg/QNDuk85ZCsQn8Uw34q
+hJOadV8iMA3pfcDFp+uhbVkblcslSIr3XLh7Nqu/H3c3DbbXYxrqR5yic4uRV9Qz
+NCbgCl+sV2/Z95X/GLZo3w+m562uKkmwa/I4p+K8IOrcuHmhLQeiMCh+XbkRxrUf
+AFrJYXK73Jxc2NDkfIEQhzNuO1nQ+AxDZcYtiF68a9Okwc2qEO+L/g7/BqYPZ4c/
+3UtpdAbZkydnemGWSbSW+LyPWhJpB6CTegxKr/gEwuodP8h9diq3pCmbJKytVMMg
+nBln9vIEwU3N2QWMwoqVpgRK3KUjWItMr5FISzbc5rEzbjkK6bCeMd8s74rMEOyv
+GNqfwR0pX2B/AeNi/jFBk4l4PFvtWfTGFS4aKJ4TDs13B4wSIGCg/p7JjkFqh5n3
+7eFngAtYBj5gZpktdAy39AFiBNOiEXVxndtZU7gK4gawmPtnfeuDxcRQz3OoH49J
+YN/hV5sWqAHDCN/ruAEXN5LtsiRIw5EX9iQQ1a/yLP7WkojgXhJG3OOx7S6m3FNO
+OFakscGT45l0gIJNCGps
+=/eQw
 -----END PGP SIGNATURE-----
 
---RwGu8mu1E+uYXPWP--
+--boAH8PqvUi1v1f55--
