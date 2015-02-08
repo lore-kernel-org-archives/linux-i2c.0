@@ -1,64 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v8 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
-Date: Sun, 8 Feb 2015 12:03:25 +0100
-Message-ID: <20150208110325.GA2750@katana>
-References: <rjui@broadcom.com>
- <1423272507-18459-1-git-send-email-rjui@broadcom.com>
- <1423272507-18459-3-git-send-email-rjui@broadcom.com>
- <20150207175039.GB6263@katana>
- <54D6EF3D.4030302@broadcom.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <54D6EF3D.4030302@broadcom.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <rjui@broadcom.com>
-Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Arend van Spriel <arend@broadcom.com>, Kevin Cernekee <cernekee@chromium.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Christian Daudt <bcm@fixthebug.org>, Matt Porter <mporter@linaro.org>, Florian Fainelli <f.fainelli@gmail.com>, Russell King <linux@arm.linux.org.uk>, Scott Branden <sbranden@broadcom.com>, Dmitry Torokhov <dtor@google.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org
+From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH] i2c: i2c-bcm2835: match return type of wait_for_completion_timeout
+Date: Sun,  8 Feb 2015 06:04:18 -0500
+Message-ID: <1423393458-30334-1-git-send-email-hofrat@osadl.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Uwe Kleine-Koenig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+return type of wait_for_completion_timeout is unsigned long not int. as
+time_left is used for wait_for_completion_timeout exclusively here its 
+type is simply changed to unsigned long.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+---
 
+Patch was only compile tested with 
 
-> > Is it really a HW limitation? Could the driver later be extended to
-> > continue filling the FIFO if a certain threshold is reached?
-> >=20
->=20
-> Will return -EOPNOTSUPP. This really depends on whether or not we expect
-> one sequence of START + SLV ADDR + DATA + STOP per i2c message. I can
-> later extend the driver to refill/re-drain the FIFO for data size >=3D 64
-> bytes, if one sequence of SATRT...STOP per message is not a requirement.
+Patch is against 3.19.0-rc7 (localversion-next is -next-20150204)
 
-It is important to have the terminology clear here: One transfer can
-consist of multiple messages. The transfer uses START/STOP at the
-beginning/end, the messages within the transfer only REPEATED_START.
+ drivers/i2c/busses/i2c-bcm2835.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJU10J9AAoJEBQN5MwUoCm2ANgQALKCNtbY4aUsxivEuiqT/XT6
-RWd9OqSObUdDJ/J30k4huW9EHMVYKvbETq9VdlJIVJtl7XazNA8Qzcmb2fwYq4ey
-53YMBtG4/90FATN9jkITtcLKSKuYp1i/YZ6E9TncL66iERM2MeWX41yvI3nODI0+
-r5d/RqWk6uFLoHuFPgz6OqEdD0LH40G1L92sgJuBbGqC0pGWW4O1Q2HG7KkIZOHv
-5WT9biQKlMFsdcZ8HbmH9sId7eLtnlZfO+vr2g29tbbtHEqWvvABfGpcxRfG8JKF
-SQjdVO3a9Cu66mHStaZIT9t2FyAm+FcPclv/cIPc5vp16Kw9miwjXra3KA0jvm53
-YiV3nkCjAD+iurfundkgaVX58vE8bLmLzRx+uvjHjpDQrET/HrmHBLskRxWg432S
-XCLRjyzBLgfR5bRrvstjiwMnjoyfe6foOXxtiJOSjP6KKI8d4Fif54lMo20gc8fu
-EIw9peCt2Odw7oTzscBV99vFfYnVGtkEmTyeqsyIaSQOFvRp25iLMBiGoJAqEpxw
-NlX3CJ6My5wCeOMNK09OibHZGJzfZCO9Hism3ORFZcShnF7cbY84OOH64q2hPuuU
-P4gblyugL0ZlctR5rnxyzTa+D/RuOFdgRbLnspj0GTmN1+sZm24sxn6/9zlvUOxp
-ylJWZLZwl0+i1EwrWlYd
-=wIuG
------END PGP SIGNATURE-----
-
---lrZ03NoBR/3+SXJZ--
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 5d6feb9..c9336a3 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -147,7 +147,7 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
+ 				struct i2c_msg *msg)
+ {
+ 	u32 c;
+-	int time_left;
++	unsigned long time_left;
+ 
+ 	i2c_dev->msg_buf = msg->buf;
+ 	i2c_dev->msg_buf_remaining = msg->len;
+-- 
+1.7.10.4
