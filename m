@@ -1,58 +1,51 @@
-From: Nicholas Mc Guire <der.herr-kA1LtwSENNE@public.gmane.org>
-Subject: Re: [PATCH] i2c: axxia: match return type of
-	wait_for_completion_timeout
-Date: Sun, 8 Feb 2015 16:44:29 +0100
-Message-ID: <20150208154429.GA15534@opentech.at>
-References: <1423391485-30367-1-git-send-email-hofrat@osadl.org> <20150208143939.GA6033@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH] i2c: at91: fixup return type of wait_for_completion_timeout
+Date: Sun,  8 Feb 2015 11:12:07 -0500
+Message-ID: <1423411927-32686-1-git-send-email-hofrat@osadl.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150208143939.GA6033@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 08 Feb 2015, Wolfram Sang wrote:
+Return type of wait_for_completion_timeout is unsigned long not int. This
+patch adds a timeout variable of appropriate type and fixes up the assignment.
 
-> On Sun, Feb 08, 2015 at 05:31:25AM -0500, Nicholas Mc Guire wrote:
-> > return type of wait_for_completion_timeout is unsigned long not int. as ret
-> > is only used for wait_for_completion_timeout here the type is simply changed
-> > unsigned long.
-> > 
-> > Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-> > ---
-> > 
-> > Patch was only compile tested with axm55xx_defconfig
-> > (implies CONFIG_I2C_AXXIA=y)
-> > 
-> > Patch is against 3.19.0-rc7 (localversion-next is -next-20150204)
-> > 
-> >  drivers/i2c/busses/i2c-axxia.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-> > index 1decc88..9434824 100644
-> > --- a/drivers/i2c/busses/i2c-axxia.c
-> > +++ b/drivers/i2c/busses/i2c-axxia.c
-> > @@ -408,7 +408,7 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
-> >  static int axxia_i2c_stop(struct axxia_i2c_dev *idev)
-> >  {
-> >  	u32 int_mask = MST_STATUS_ERR | MST_STATUS_SCC;
-> > -	int ret;
-> > +	unsigned long ret;
-> 
-> 'ret' being an int is kind of an idiom, so I'd rather see the variable
-> renamed, too, like the other patches do.
->
-thanks - was not renaming variables - only if a new one was introduced I
-gave it a name that was related to the timeout use. Will consider that 
-for some of the other cleanups then as well.
+Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+---
+
+Patch was only compile tested with at91_dt_defconfig
+(implies CONFIG_I2C_AT91=y)
+
+Patch is against 3.19.0-rc7 (localversion-next is -next-20150204)
+
+ drivers/i2c/busses/i2c-at91.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 636fd2e..79c6404 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -381,6 +381,7 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ {
+ 	int ret;
++	unsigned long timeout;
+ 	bool has_unre_flag = dev->pdata->has_unre_flag;
  
-> Also, please combine the two axxia patches into one.
-> 
-done and resent.
-
-thx!
-hofrat
+ 	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
+@@ -436,9 +437,9 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 		}
+ 	}
+ 
+-	ret = wait_for_completion_timeout(&dev->cmd_complete,
+-					     dev->adapter.timeout);
+-	if (ret == 0) {
++	timeout = wait_for_completion_timeout(&dev->cmd_complete,
++					      dev->adapter.timeout);
++	if (timeout == 0) {
+ 		dev_err(dev->dev, "controller timed out\n");
+ 		at91_init_twi_bus(dev);
+ 		ret = -ETIMEDOUT;
+-- 
+1.7.10.4
