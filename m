@@ -1,71 +1,54 @@
-From: Ray Jui <rjui@broadcom.com>
-Subject: [PATCH v9 1/3] i2c: iProc: define Broadcom iProc I2C binding
-Date: Sat, 7 Feb 2015 21:25:24 -0800
-Message-ID: <1423373126-30024-2-git-send-email-rjui@broadcom.com>
-References: <Ray Jui <rjui@broadcom.com>
- <1423373126-30024-1-git-send-email-rjui@broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Nicholas Mc Guire <hofrat@osadl.org>
+Subject: [PATCH] i2c: ismt: fix type of return var of wait_for_completion_timeout
+Date: Sun,  8 Feb 2015 03:03:30 -0500
+Message-ID: <1423382611-24463-1-git-send-email-hofrat@osadl.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1423373126-30024-1-git-send-email-rjui@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Arend van Spriel <arend@broadcom.com>, Kevin Cernekee <cernekee@chromium.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, Grant Likely <grant.likely@linaro.org>, Christian Daudt <bcm@fixthebug.org>, Matt Porter <mporter@linaro.org>, Florian Fainelli <f.fainelli@gmail.com>, Russell King <linux@arm.linux.org.uk>
-Cc: Scott Branden <sbranden@broadcom.com>, Dmitry Torokhov <dtor@google.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, devicetree@vger.kernel.org, Ray Jui <rjui@broadcom.com>
+To: Seth Heasley <seth.heasley@intel.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>, Wolfram Sang <wsa@the-dreams.de>, Fan Du <fan.du@intel.com>, Jingoo Han <jg1.han@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Document the I2C device tree binding for Broadcom iProc family of
-SoCs
+return type of wait_for_completion_timeout is unsigned long not int. As 
+ret is in used for other calls a new appropriately typed variable timeout
+is added to handle wait_for_completion_timeout 
 
-Signed-off-by: Ray Jui <rjui@broadcom.com>
-Reviewed-by: Scott Branden <sbranden@broadcom.com>
-Reviewed-by: Kevin Cernekee <cernekee@chromium.org>
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
 ---
- .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |   37 ++++++++++++++++++++
- 1 file changed, 37 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
 
-diff --git a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-new file mode 100644
-index 0000000..81f982c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-@@ -0,0 +1,37 @@
-+Broadcom iProc I2C controller
-+
-+Required properties:
-+
-+- compatible:
-+    Must be "brcm,iproc-i2c"
-+
-+- reg:
-+    Define the base and range of the I/O address space that contain the iProc
-+    I2C controller registers
-+
-+- interrupts:
-+    Should contain the I2C interrupt
-+
-+- clock-frequency:
-+    This is the I2C bus clock. Need to be either 100000 or 400000
-+
-+- #address-cells:
-+    Always 1 (for I2C addresses)
-+
-+- #size-cells:
-+    Always 0
-+
-+Example:
-+	i2c0: i2c@18008000 {
-+		compatible = "brcm,iproc-i2c";
-+		reg = <0x18008000 0x100>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		interrupts = <GIC_SPI 85 IRQ_TYPE_NONE>;
-+		clock-frequency = <100000>;
-+
-+		codec: wm8750@1a {
-+			compatible = "wlf,wm8750";
-+			reg = <0x1a>;
-+		};
-+	};
+Patch was only compile tested with x86_64_defconfig + CONFIG_I2C_ISMT=m
+
+Patch is against 3.19.0-rc7 (localversion-next is -next-20150204)
+
+ drivers/i2c/busses/i2c-ismt.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index f2b0ff0..2197ac8 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -380,6 +380,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 		       int size, union i2c_smbus_data *data)
+ {
+ 	int ret;
++	unsigned long timeout;
+ 	dma_addr_t dma_addr = 0; /* address of the data buffer */
+ 	u8 dma_size = 0;
+ 	enum dma_data_direction dma_direction = 0;
+@@ -578,13 +579,13 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 	ismt_submit_desc(priv);
+ 
+ 	/* Now we wait for interrupt completion, 1s */
+-	ret = wait_for_completion_timeout(&priv->cmp, HZ*1);
++	timeout = wait_for_completion_timeout(&priv->cmp, HZ*1);
+ 
+ 	/* unmap the data buffer */
+ 	if (dma_size != 0)
+ 		dma_unmap_single(&adap->dev, dma_addr, dma_size, dma_direction);
+ 
+-	if (unlikely(!ret)) {
++	if (unlikely(!timeout)) {
+ 		dev_err(dev, "completion wait timed out\n");
+ 		ret = -ETIMEDOUT;
+ 		goto out;
 -- 
-1.7.9.5
+1.7.10.4
