@@ -1,7 +1,7 @@
 From: Nicholas Mc Guire <hofrat@osadl.org>
-Subject: [PATCH] i2c: axxia: match var to return type of wait_for_completion_timeout
-Date: Sun,  8 Feb 2015 03:33:22 -0500
-Message-ID: <1423384402-11572-1-git-send-email-hofrat@osadl.org>
+Subject: [PATCH] i2c: axxia: match return type of wait_for_completion_timeout
+Date: Sun,  8 Feb 2015 05:31:25 -0500
+Message-ID: <1423391485-30367-1-git-send-email-hofrat@osadl.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
@@ -24,17 +24,17 @@ Patch is against 3.19.0-rc7 (localversion-next is -next-20150204)
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-index 768a598..1decc88 100644
+index 1decc88..9434824 100644
 --- a/drivers/i2c/busses/i2c-axxia.c
 +++ b/drivers/i2c/busses/i2c-axxia.c
-@@ -334,7 +334,7 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
- 	u32 int_mask = MST_STATUS_ERR | MST_STATUS_SNS;
- 	u32 rx_xfer, tx_xfer;
- 	u32 addr_1, addr_2;
+@@ -408,7 +408,7 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
+ static int axxia_i2c_stop(struct axxia_i2c_dev *idev)
+ {
+ 	u32 int_mask = MST_STATUS_ERR | MST_STATUS_SCC;
 -	int ret;
 +	unsigned long ret;
  
- 	if (msg->len > 255) {
- 		dev_warn(idev->dev, "unsupported length %u\n", msg->len);
+ 	reinit_completion(&idev->msg_complete);
+ 
 -- 
 1.7.10.4
