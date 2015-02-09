@@ -1,55 +1,76 @@
-From: Nicholas Mc Guire <hofrat@osadl.org>
-Subject: [PATCH v2] i2c: cadence: fixup of wait_for_completion_timeout return handling
-Date: Mon,  9 Feb 2015 10:03:52 -0500
-Message-ID: <1423494232-24747-1-git-send-email-hofrat@osadl.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: Soren Brinkmann <soren.brinkmann@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
+From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH v2] i2c: img-scb: fixup of wait_for_completion_timeout return handling
+Date: Mon,  9 Feb 2015 10:15:21 -0500
+Message-ID: <1423494921-2708-1-git-send-email-hofrat@osadl.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: James Hogan <james.hogan-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Andrew Bresticker <abrestic-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-return type of wait_for_completion_timeout is unsigned long not int. The
-return variable is renamed to reflect its use and the type adjusted to
-unsigned long.
+Return type of wait_for_completion_timeout is unsigned long not int. 
+Appropriately typed/named variable are added and assignment fixed up.
 
-Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 ---
 
-v2: int ret is an idiom not only a declaration - thus rather than just
-    changing the type, rename the variable, as suggested by Wolfram Sang 
-    <wsa@the-dreams.de>. 
+v2: int ret is an idiom - thus rather than just changing the type, rename
+    the variable, as suggested by Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>.
 
-Patch was only compile tested with multi_v7_defconfig
-(implies CONFIG_I2C_CADENCE=y)
+Patch was compile tested with x86_64_defconfig + CONFIG_COMPILE_TEST=y
+CONFIG_I2C_IMG=m
 
 Patch is against 3.19.0-rc7 (localversion-next is -next-20150209)
 
- drivers/i2c/busses/i2c-cadence.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-img-scb.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 7d7a14c..8f92732f 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -475,7 +475,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
- static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 		struct i2c_adapter *adap)
+diff --git a/drivers/i2c/busses/i2c-img-scb.c b/drivers/i2c/busses/i2c-img-scb.c
+index 0fcc169..6e4e990 100644
+--- a/drivers/i2c/busses/i2c-img-scb.c
++++ b/drivers/i2c/busses/i2c-img-scb.c
+@@ -988,15 +988,16 @@ out:
+ static int img_i2c_reset_bus(struct img_i2c *i2c)
  {
+ 	unsigned long flags;
 -	int ret;
 +	unsigned long timeout;
- 	u32 reg;
  
- 	id->p_msg = msg;
-@@ -501,8 +501,8 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 		cdns_i2c_msend(id);
+ 	spin_lock_irqsave(&i2c->lock, flags);
+ 	reinit_completion(&i2c->msg_complete);
+ 	img_i2c_reset_start(i2c);
+ 	spin_unlock_irqrestore(&i2c->lock, flags);
  
- 	/* Wait for the signal of completion */
--	ret = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
--	if (!ret) {
-+	timeout = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
-+	if (!timeout) {
- 		cdns_i2c_master_reset(adap);
- 		dev_err(id->adap.dev.parent,
- 				"timeout waiting on completion\n");
+-	ret = wait_for_completion_timeout(&i2c->msg_complete, IMG_I2C_TIMEOUT);
+-	if (ret == 0)
++	timeout = wait_for_completion_timeout(&i2c->msg_complete,
++					      IMG_I2C_TIMEOUT);
++	if (timeout == 0)
+ 		return -ETIMEDOUT;
+ 	return 0;
+ }
+@@ -1007,6 +1008,7 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	struct img_i2c *i2c = i2c_get_adapdata(adap);
+ 	bool atomic = false;
+ 	int i, ret;
++	unsigned long timeout;
+ 
+ 	if (i2c->mode == MODE_SUSPEND) {
+ 		WARN(1, "refusing to service transaction in suspended state\n");
+@@ -1068,11 +1070,11 @@ static int img_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			img_i2c_write(i2c);
+ 		spin_unlock_irqrestore(&i2c->lock, flags);
+ 
+-		ret = wait_for_completion_timeout(&i2c->msg_complete,
+-						  IMG_I2C_TIMEOUT);
++		timeout = wait_for_completion_timeout(&i2c->msg_complete,
++						      IMG_I2C_TIMEOUT);
+ 		del_timer_sync(&i2c->check_timer);
+ 
+-		if (ret == 0) {
++		if (timeout == 0) {
+ 			dev_err(adap->dev.parent, "i2c transfer timed out\n");
+ 			i2c->msg_status = -ETIMEDOUT;
+ 			break;
 -- 
 1.7.10.4
