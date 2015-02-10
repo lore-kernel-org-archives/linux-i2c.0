@@ -1,70 +1,44 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: Support for Netlogic XLP9XX/5XX I2C controller.
-Date: Mon, 9 Feb 2015 18:23:01 +0100
-Message-ID: <20150209172301.GA11749@katana>
-References: <1421393020-18807-1-git-send-email-jchandra@broadcom.com>
- <1421393020-18807-2-git-send-email-jchandra@broadcom.com>
- <20150209152805.GC8024@katana>
- <20150209161549.GA2787@jayachandranc.netlogicmicro.com>
+From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v9 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
+Date: Mon, 9 Feb 2015 21:23:38 -0800
+Message-ID: <54D995DA.7040201@broadcom.com>
+References: <rjui@broadcom.com> <1423373126-30024-1-git-send-email-rjui@broadcom.com> <1423373126-30024-3-git-send-email-rjui@broadcom.com> <20150209121036.GB2491@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150209161549.GA2787-l4W0uAg2RDvWG0bvociYJ/An/qbn1+6FOui0OUZsNXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jayachandran C." <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150209121036.GB2491@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: =?windows-1252?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arend van Spriel <arend-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Kevin Cernekee <cernekee-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Dmitry Torokhov <dtor-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
+On 2/9/2015 4:10 AM, Wolfram Sang wrote:
+> On Sat, Feb 07, 2015 at 09:25:25PM -0800, Ray Jui wrote:
+>> Add initial support to the Broadcom iProc I2C controller found in the
+>> iProc family of SoCs.
+>>
+>> The iProc I2C controller has separate internal TX and RX FIFOs, each has
+>> a size of 64 bytes. The iProc I2C controller supports two bus speeds
+>> including standard mode (100kHz) and fast mode (400kHz)
+>>
+>> Signed-off-by: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+>> Reviewed-by: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+>> Reviewed-by: Kevin Cernekee <cernekee-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> 
+> Applied to for-next, thanks!
+> 
+> Next time, please send new patches as seperate threads, not as a reply
+> to the old series.
+> 
 
-> Given that we have already have i2c/busses/i2c-xlr.c upstream (and updates
-> to i2c-ocores.c for our earlier chip), I was hoping that we have got thin=
-gs
-> right this time.
+Thanks, Wolfram. I think I'm missing something here and would like to
+get it clarified, so I don't make the same mistake again in the future:
+I thought I've already sent these patches as a new thread, i.e., [PATCH
+v9 ...], isn't it?
 
-=46rom the glimpse I had, it was mostly OK. Yet, a number of nits in
-regard to API updates, superfluous things. Stuff like that.
+Thanks,
 
-You could also check earlier reviews from me and check if there are
-issues which apply to your driver as well.
-
-> Anyway, I will forward it internally to Ray for review, and if necessary
-> submit another patch.
-
-Thanks!
-
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJU2Oz1AAoJEBQN5MwUoCm2sgEP/iIcDo9zN5pyxDM1cNIAY3pp
-9c5Ithwp8aEQnBVJO7S73hQtrBooAhu6HHLK/D1+ZgNngcbqe0Yp1VgIINfbMFrU
-NQX2YXq2AdeJPqFpqmauZ14PMgB0vp1jF6Z1LK8hWVFmV5R70uH/Z/eoSlykxLrO
-Y4JRnIvzePFump7L+RkNAwbvx4pq7atMCZvEJxSwMpROedj4vYLvP38iNHJzU4pb
-9uy6onkUiri6UE1L8zewjiXyNaIsey+HrZVg4DxNOiV8uKfN9QrknbmBLOgvTAGb
-KyaNI3q/in+8jQqbdy45fT/K5yfuq2nDrkfXdbnTXTAXaXui81P2XM8egmKA8xNJ
-YRWb42T737boyDgNhjbxBATRDtQinsOHiCcEVI9DHrgUYFC4DpAxfDIqDhbwzZbb
-s8JP7VqyarsGkcthcG9iLx05SweBq7A/yvIbYUBc1kpciiirWXOK48srsv0yscSl
-4Da2PSNMn/q8ipX/ls39vGz6KxZg9jeU75X8PjPe5MiXBPjxqHE6GGmuUjQhhuWh
-GXckFtns7/4kzezVhXEWqLNzLNPwIPBWlKMBnYsHeh6gBfF+q9JrUNe5pDpuq2Sz
-Pt4GvpIuxR5k6r+8HFiW7MlErP5paIyTM+oQc+Enl/PDY8I4+OmfJBnzYsjd7Kap
-0kylaI0w38Gzkn0qG/Ib
-=iOeU
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Ray
