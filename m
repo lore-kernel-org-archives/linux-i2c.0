@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v1 2/5] i2c-designware-baytrail: fix typo in error path
-Date: Tue, 10 Feb 2015 19:06:07 +0200
-Message-ID: <1423587970-19136-2-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 4/5] i2c-designware-baytrail: cross-check lock functions
+Date: Tue, 10 Feb 2015 19:06:09 +0200
+Message-ID: <1423587970-19136-4-git-send-email-andriy.shevchenko@linux.intel.com>
 References: <1423587970-19136-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1423587970-19136-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
@@ -10,28 +10,26 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg 
 Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It seems we have same message for different return values in get_sem() and
-baytrail_i2c_acquire(). I suspect this is just a typo, so this patch fixes it.
+It seems the idea behind the cross-check is to prevent acquire semaphore when
+there is no release callback and vice versa. Thus, patch fixes a typo.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware-baytrail.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware-baytrail.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index e9cb355..9b67655 100644
+index d334744..036d9bdc0 100644
 --- a/drivers/i2c/busses/i2c-designware-baytrail.c
 +++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -99,8 +99,8 @@ int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	reset_semaphore(dev->dev);
+@@ -71,7 +71,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+ 	if (!dev || !dev->dev)
+ 		return -ENODEV;
  
- 	ret = iosf_mbi_read(BT_MBI_UNIT_PMC, BT_MBI_BUNIT_READ,
--		PUNIT_SEMAPHORE, &sem);
--	if (!ret)
-+				PUNIT_SEMAPHORE, &sem);
-+	if (ret)
- 		dev_err(dev->dev, "iosf failed to read punit semaphore\n");
- 	else
- 		dev_err(dev->dev, "PUNIT SEM: %d\n", sem);
+-	if (!dev->acquire_lock)
++	if (!dev->release_lock)
+ 		return 0;
+ 
+ 	/* host driver writes to side band semaphore register */
 -- 
 2.1.4
