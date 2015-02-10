@@ -1,58 +1,90 @@
-From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-Subject: [PATCH v3] i2c: cadence: fixup wait_for_completion_timeout return handling
-Date: Tue, 10 Feb 2015 11:55:10 -0500
-Message-ID: <1423587310-18103-1-git-send-email-hofrat@osadl.org>
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH v1 3/5] i2c-designware-baytrail: fix sparse warnings
+Date: Tue, 10 Feb 2015 19:06:08 +0200
+Message-ID: <1423587970-19136-3-git-send-email-andriy.shevchenko@linux.intel.com>
+References: <1423587970-19136-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1423587970-19136-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-return type of wait_for_completion_timeout is unsigned long not int. The
-return variable is renamed to make the timeout condition clearly readable
-and the type adjusted to unsigned long.
+There is no need to export functions that are used as the callbacks in the
+struct dw_i2c_dev. Otherwise we get the following warnings:
 
-Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+drivers/i2c/busses/i2c-designware-baytrail.c:63:5: warning: symbol 'baytrail_i2c_acquire' was not declared. Should it be static?
+drivers/i2c/busses/i2c-designware-baytrail.c:114:6: warning: symbol 'baytrail_i2c_release' was not declared. Should it be static?
+
+While here, do few indentation fixes, remove i2c_dw_eval_lock_support() from
+functions exported to the modules and redundant assignment of local sem
+variable.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
+ drivers/i2c/busses/i2c-designware-baytrail.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-v3: rename the variable to time_left as suggested by Sergei Shtylyov 
-    <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org> so that the timeout condition is
-    clearly readable.
-v2: int ret is an idiom not only a declaration - thus rather than just
-    changing the type, rename the variable, as suggested by Wolfram Sang
-    <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>.
-
-Patch was only compile tested with multi_v7_defconfig
-(implies CONFIG_I2C_CADENCE=y)
-
-Patch is against 3.19.0 (localversion-next is -next-20150210)
-
- drivers/i2c/busses/i2c-cadence.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 7d7a14c..2ee78e0 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -475,7 +475,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
- static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 		struct i2c_adapter *adap)
+diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
+index 9b67655..d334744 100644
+--- a/drivers/i2c/busses/i2c-designware-baytrail.c
++++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+@@ -17,7 +17,9 @@
+ #include <linux/acpi.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
++
+ #include <asm/iosf_mbi.h>
++
+ #include "i2c-designware-core.h"
+ 
+ #define SEMAPHORE_TIMEOUT	100
+@@ -60,9 +62,9 @@ static void reset_semaphore(struct device *dev)
+ 		dev_err(dev, "iosf failed to reset punit semaphore during write\n");
+ }
+ 
+-int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
++static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
  {
--	int ret;
-+	unsigned long time_left;
- 	u32 reg;
+-	u32 sem = 0;
++	u32 sem;
+ 	int ret;
+ 	unsigned long start, end;
  
- 	id->p_msg = msg;
-@@ -501,8 +501,8 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 		cdns_i2c_msend(id);
+@@ -109,9 +111,8 @@ int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
  
- 	/* Wait for the signal of completion */
--	ret = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
--	if (!ret) {
-+	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
-+	if (time_left == 0) {
- 		cdns_i2c_master_reset(adap);
- 		dev_err(id->adap.dev.parent,
- 				"timeout waiting on completion\n");
+ 	return -ETIMEDOUT;
+ }
+-EXPORT_SYMBOL(baytrail_i2c_acquire);
+ 
+-void baytrail_i2c_release(struct dw_i2c_dev *dev)
++static void baytrail_i2c_release(struct dw_i2c_dev *dev)
+ {
+ 	if (!dev || !dev->dev)
+ 		return;
+@@ -123,7 +124,6 @@ void baytrail_i2c_release(struct dw_i2c_dev *dev)
+ 	dev_dbg(dev->dev, "punit semaphore held for %ums\n",
+ 		jiffies_to_msecs(jiffies - acquired));
+ }
+-EXPORT_SYMBOL(baytrail_i2c_release);
+ 
+ int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
+ {
+@@ -139,7 +139,6 @@ int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
+ 		return 0;
+ 
+ 	status = acpi_evaluate_integer(handle, "_SEM", NULL, &shared_host);
+-
+ 	if (ACPI_FAILURE(status))
+ 		return 0;
+ 
+@@ -155,7 +154,6 @@ int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL(i2c_dw_eval_lock_support);
+ 
+ MODULE_AUTHOR("David E. Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>");
+ MODULE_DESCRIPTION("Baytrail I2C Semaphore driver");
 -- 
-1.7.10.4
+2.1.4
