@@ -1,54 +1,31 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v1 5/5] i2c-designware-baytrail: baytrail_i2c_acquire() might sleep
-Date: Tue, 10 Feb 2015 19:06:10 +0200
-Message-ID: <1423587970-19136-5-git-send-email-andriy.shevchenko@linux.intel.com>
-References: <1423587970-19136-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v9 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
+Date: Tue, 10 Feb 2015 09:10:23 -0800
+Message-ID: <54DA3B7F.8040705@broadcom.com>
+References: <rjui@broadcom.com> <1423373126-30024-1-git-send-email-rjui@broadcom.com> <1423373126-30024-3-git-send-email-rjui@broadcom.com> <20150209121036.GB2491@katana> <54D995DA.7040201@broadcom.com> <20150210083339.GA999@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1423587970-19136-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <20150210083339.GA999@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: =?windows-1252?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arend van Spriel <arend-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Kevin Cernekee <cernekee-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Dmitry Torokhov <dtor-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch marks baytrail_i2c_acquire() that it might sleep. Also it chages
-while-loop to do-while and, though it is matter of taste, gives a chance to
-check one more time before report a timeout.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-baytrail.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
-index 036d9bdc0..7d7ae97 100644
---- a/drivers/i2c/busses/i2c-designware-baytrail.c
-+++ b/drivers/i2c/busses/i2c-designware-baytrail.c
-@@ -68,6 +68,8 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	int ret;
- 	unsigned long start, end;
- 
-+	might_sleep();
-+
- 	if (!dev || !dev->dev)
- 		return -ENODEV;
- 
-@@ -85,7 +87,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 	/* host driver waits for bit 0 to be set in semaphore register */
- 	start = jiffies;
- 	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
--	while (!time_after(jiffies, end)) {
-+	do {
- 		ret = get_sem(dev->dev, &sem);
- 		if (!ret && sem) {
- 			acquired = jiffies;
-@@ -95,7 +97,7 @@ static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
- 		}
- 
- 		usleep_range(1000, 2000);
--	}
-+	} while (time_before(jiffies, end));
- 
- 	dev_err(dev->dev, "punit semaphore timed out, resetting\n");
- 	reset_semaphore(dev->dev);
--- 
-2.1.4
+On 2/10/2015 12:33 AM, Wolfram Sang wrote:
+> 
+>> Thanks, Wolfram. I think I'm missing something here and would like to
+>> get it clarified, so I don't make the same mistake again in the future:
+>> I thought I've already sent these patches as a new thread, i.e., [PATCH
+>> v9 ...], isn't it?
+> 
+> Yes, but "In-Reply-To" was set and so my MUAs (mutt and Thunderbird)
+> threaded them to your first submission. Most people I know prefer to
+> have this not threaded.
+> 
+Okay I got it now. Thanks.
+
+Ray
