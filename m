@@ -1,63 +1,70 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v9 2/3] i2c: iproc: Add Broadcom iProc I2C Driver
-Date: Tue, 10 Feb 2015 09:33:40 +0100
-Message-ID: <20150210083339.GA999@katana>
-References: <rjui@broadcom.com>
- <1423373126-30024-1-git-send-email-rjui@broadcom.com>
- <1423373126-30024-3-git-send-email-rjui@broadcom.com>
- <20150209121036.GB2491@katana>
- <54D995DA.7040201@broadcom.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH v2] i2c: cadence: fixup of wait_for_completion_timeout
+ return handling
+Date: Tue, 10 Feb 2015 17:17:24 +0300
+Message-ID: <54DA12F4.3080203@cogentembedded.com>
+References: <1423494232-24747-1-git-send-email-hofrat@osadl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <54D995DA.7040201-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arend van Spriel <arend-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Kevin Cernekee <cernekee-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Christian Daudt <bcm-xK7y4jjYLqYh9ZMKESR00Q@public.gmane.org>, Matt Porter <mporter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Dmitry Torokhov <dtor-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1423494232-24747-1-git-send-email-hofrat@osadl.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nicholas Mc Guire <hofrat@osadl.org>, Michal Simek <michal.simek@xilinx.com>
+Cc: Soren Brinkmann <soren.brinkmann@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello.
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 2/9/2015 6:03 PM, Nicholas Mc Guire wrote:
 
+> return type of wait_for_completion_timeout is unsigned long not int. The
+> return variable is renamed to reflect its use and the type adjusted to
+> unsigned long.
 
-> Thanks, Wolfram. I think I'm missing something here and would like to
-> get it clarified, so I don't make the same mistake again in the future:
-> I thought I've already sent these patches as a new thread, i.e., [PATCH
-> v9 ...], isn't it?
+> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> ---
 
-Yes, but "In-Reply-To" was set and so my MUAs (mutt and Thunderbird)
-threaded them to your first submission. Most people I know prefer to
-have this not threaded.
+> v2: int ret is an idiom not only a declaration - thus rather than just
+>      changing the type, rename the variable, as suggested by Wolfram Sang
+>      <wsa@the-dreams.de>.
 
+> Patch was only compile tested with multi_v7_defconfig
+> (implies CONFIG_I2C_CADENCE=y)
 
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> Patch is against 3.19.0-rc7 (localversion-next is -next-20150209)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+>   drivers/i2c/busses/i2c-cadence.c |    6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
 
-iQIcBAEBAgAGBQJU2cJjAAoJEBQN5MwUoCm2qb0QALLw0ICuM/0F1pD9w2zRQrZ7
-fwoTIJLNivjQA7O31bzVCXSH61db/VEvuEHRkvp7qbHr04SLtsCM+k8qTDOW1H8z
-wGtgxL9R1Bpi6cOZcUAH92QXlfJNvJC5ujpDVT2XGicCxc6twqCA0ymozWfQtvV9
-PLDJ1QXcRGD7SA5v7endND9J7AOmYGEr2tUKgEQzNpqK1S/X1GbgNyfk0JLW8xAT
-Q8X750lwSTkBAuqFOiOu8ZaafAT91qNNx2g5G63gHpviaz/Gknmjlzhki6PhAxhk
-HzXYtCNwkDwG7VzDQpxFJl6gUFbSwVasmndx3k2W4HfAbEuJx+BGwwxhiL4/SWEE
-xcvcjCOte8RmLk66hV2xw1N6dO/xL//Mr9X/DgDkmrSpg0zRrkMngbvm3d4f5OSU
-kf8U6WANVwLXpyFqoc6id2v4jlkK/tsVusHmMYm2LzIb07AYddREm2y+Yh4LqucI
-VTpuBV9VE+6jZnG+Ss8J7kqTEB8VKZ1Y09ji0N02POjVaqqQ1PS6n6GtOh2o6SHM
-Whk9p3VNmc9UqdkMn4OtBdjjj9cFuLOiRL0pPwRx+ul9fgKQK0k4vs3pw+vgc5cz
-n4omRNu3RdKfa+1BjXd3bl2+TOQAufwPOsihFk6trP1BK7uUwoKFIeqqWOpljH3D
-hBDGOJRfMaWWAaeSqZ+T
-=UMJq
------END PGP SIGNATURE-----
+> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+> index 7d7a14c..8f92732f 100644
+> --- a/drivers/i2c/busses/i2c-cadence.c
+> +++ b/drivers/i2c/busses/i2c-cadence.c
+> @@ -475,7 +475,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
+>   static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+>   		struct i2c_adapter *adap)
+>   {
+> -	int ret;
+> +	unsigned long timeout;
+>   	u32 reg;
+>
+>   	id->p_msg = msg;
+> @@ -501,8 +501,8 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+>   		cdns_i2c_msend(id);
+>
+>   	/* Wait for the signal of completion */
+> -	ret = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
+> -	if (!ret) {
+> +	timeout = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
+> +	if (!timeout) {
 
---SUOF0GtieIMvvwua--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+    Which means that timeout *did* expire, contrary to what one may think. I 
+don't think this is a good name for the variable, I'd suggest something like 
+'time_left' instead...
+
+>   		cdns_i2c_master_reset(adap);
+>   		dev_err(id->adap.dev.parent,
+>   				"timeout waiting on completion\n");
+
+WBR, Sergei
