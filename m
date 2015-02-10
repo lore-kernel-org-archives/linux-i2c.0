@@ -1,63 +1,58 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: at91: fixup return type of
- wait_for_completion_timeout
-Date: Tue, 10 Feb 2015 17:39:04 +0100
-Message-ID: <20150210163904.GG1962@odux.rfo.atmel.com>
-References: <1423411927-32686-1-git-send-email-hofrat@osadl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH v3] i2c: cadence: fixup wait_for_completion_timeout return handling
+Date: Tue, 10 Feb 2015 11:55:10 -0500
+Message-ID: <1423587310-18103-1-git-send-email-hofrat@osadl.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1423411927-32686-1-git-send-email-hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-Cc: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Soren Brinkmann <soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Feb 08, 2015 at 11:12:07AM -0500, Nicholas Mc Guire wrote:
-> Return type of wait_for_completion_timeout is unsigned long not int. This
-> patch adds a timeout variable of appropriate type and fixes up the assignment.
-> 
-> Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+return type of wait_for_completion_timeout is unsigned long not int. The
+return variable is renamed to make the timeout condition clearly readable
+and the type adjusted to unsigned long.
 
-Thanks
+Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+---
 
-> ---
-> 
-> Patch was only compile tested with at91_dt_defconfig
-> (implies CONFIG_I2C_AT91=y)
-> 
-> Patch is against 3.19.0-rc7 (localversion-next is -next-20150204)
-> 
->  drivers/i2c/busses/i2c-at91.c |    7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 636fd2e..79c6404 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -381,6 +381,7 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
->  static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  {
->  	int ret;
-> +	unsigned long timeout;
->  	bool has_unre_flag = dev->pdata->has_unre_flag;
->  
->  	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
-> @@ -436,9 +437,9 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  		}
->  	}
->  
-> -	ret = wait_for_completion_timeout(&dev->cmd_complete,
-> -					     dev->adapter.timeout);
-> -	if (ret == 0) {
-> +	timeout = wait_for_completion_timeout(&dev->cmd_complete,
-> +					      dev->adapter.timeout);
-> +	if (timeout == 0) {
->  		dev_err(dev->dev, "controller timed out\n");
->  		at91_init_twi_bus(dev);
->  		ret = -ETIMEDOUT;
-> -- 
-> 1.7.10.4
-> 
+v3: rename the variable to time_left as suggested by Sergei Shtylyov 
+    <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org> so that the timeout condition is
+    clearly readable.
+v2: int ret is an idiom not only a declaration - thus rather than just
+    changing the type, rename the variable, as suggested by Wolfram Sang
+    <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>.
+
+Patch was only compile tested with multi_v7_defconfig
+(implies CONFIG_I2C_CADENCE=y)
+
+Patch is against 3.19.0 (localversion-next is -next-20150210)
+
+ drivers/i2c/busses/i2c-cadence.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 7d7a14c..2ee78e0 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -475,7 +475,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
+ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 		struct i2c_adapter *adap)
+ {
+-	int ret;
++	unsigned long time_left;
+ 	u32 reg;
+ 
+ 	id->p_msg = msg;
+@@ -501,8 +501,8 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 		cdns_i2c_msend(id);
+ 
+ 	/* Wait for the signal of completion */
+-	ret = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
+-	if (!ret) {
++	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
++	if (time_left == 0) {
+ 		cdns_i2c_master_reset(adap);
+ 		dev_err(id->adap.dev.parent,
+ 				"timeout waiting on completion\n");
+-- 
+1.7.10.4
