@@ -1,7 +1,7 @@
 From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCHv2 2/5] i2c: i801: Remove i801_driver forward declaration
-Date: Wed, 11 Feb 2015 14:32:05 +0200
-Message-ID: <1423657928-25534-3-git-send-email-jarkko.nikula@linux.intel.com>
+Subject: [PATCHv2 3/5] i2c: i801: Use managed devm_* memory and irq allocation
+Date: Wed, 11 Feb 2015 14:32:06 +0200
+Message-ID: <1423657928-25534-4-git-send-email-jarkko.nikula@linux.intel.com>
 References: <1423657928-25534-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1423657928-25534-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
@@ -10,45 +10,72 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-struct pci_driver i801_driver forward declaration is needed only for
-accessing the name field. Remove it and use dev_driver_string() instead.
+This simplifies the error and remove paths.
 
 Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 7d1f4a478c54..5f827dfc671a 100644
+index 5f827dfc671a..b1d725d758bb 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -223,8 +223,6 @@ struct i801_priv {
- #endif
- };
+@@ -1138,7 +1138,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	int err, i;
+ 	struct i801_priv *priv;
  
--static struct pci_driver i801_driver;
--
- #define FEATURE_SMBUS_PEC	(1 << 0)
- #define FEATURE_BLOCK_BUFFER	(1 << 1)
- #define FEATURE_BLOCK_PROC	(1 << 2)
-@@ -1204,7 +1202,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 		goto exit;
- 	}
+-	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(&dev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
  
--	err = pci_request_region(dev, SMBBAR, i801_driver.name);
-+	err = pci_request_region(dev, SMBBAR, dev_driver_string(&dev->dev));
- 	if (err) {
- 		dev_err(&dev->dev,
- 			"Failed to request SMBus region 0x%lx-0x%Lx\n",
-@@ -1256,7 +1254,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+@@ -1253,8 +1253,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	if (priv->features & FEATURE_IRQ) {
  		init_waitqueue_head(&priv->waitq);
  
- 		err = request_irq(dev->irq, i801_isr, IRQF_SHARED,
--				  i801_driver.name, priv);
-+				  dev_driver_string(&dev->dev), priv);
+-		err = request_irq(dev->irq, i801_isr, IRQF_SHARED,
+-				  dev_driver_string(&dev->dev), priv);
++		err = devm_request_irq(&dev->dev, dev->irq, i801_isr,
++				       IRQF_SHARED,
++				       dev_driver_string(&dev->dev), priv);
  		if (err) {
  			dev_err(&dev->dev, "Failed to allocate irq %d: %d\n",
  				dev->irq, err);
+@@ -1275,7 +1276,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	err = i2c_add_adapter(&priv->adapter);
+ 	if (err) {
+ 		dev_err(&dev->dev, "Failed to add SMBus adapter\n");
+-		goto exit_free_irq;
++		goto exit_release;
+ 	}
+ 
+ 	i801_probe_optional_slaves(priv);
+@@ -1286,12 +1287,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ 	return 0;
+ 
+-exit_free_irq:
+-	if (priv->features & FEATURE_IRQ)
+-		free_irq(dev->irq, priv);
++exit_release:
+ 	pci_release_region(dev, SMBBAR);
+ exit:
+-	kfree(priv);
+ 	return err;
+ }
+ 
+@@ -1303,11 +1301,8 @@ static void i801_remove(struct pci_dev *dev)
+ 	i2c_del_adapter(&priv->adapter);
+ 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+ 
+-	if (priv->features & FEATURE_IRQ)
+-		free_irq(dev->irq, priv);
+ 	pci_release_region(dev, SMBBAR);
+ 
+-	kfree(priv);
+ 	/*
+ 	 * do not call pci_disable_device(dev) since it can cause hard hangs on
+ 	 * some systems during power-off (eg. Fujitsu-Siemens Lifebook E8010)
 -- 
 2.1.4
