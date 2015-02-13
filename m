@@ -1,53 +1,60 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
- SMBus adapters
-Date: Wed, 11 Feb 2015 20:01:26 -0800
-Message-ID: <20150212040126.GA1691@roeck-us.net>
-References: <1423067017-27607-1-git-send-email-linux@roeck-us.net>
- <20150204174723.GB30930@katana>
- <20150204190819.GA15467@roeck-us.net>
- <20150204233516.GA1677@katana>
- <20150205002630.GA396@roeck-us.net>
- <20150205144028.GA4865@katana>
- <20150205175326.GA26691@roeck-us.net>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCHv2 1/5] i2c: i801: Don't break user-visible strings
+Date: Fri, 13 Feb 2015 11:00:02 +0100
+Message-ID: <20150213110002.0823131c@endymion.delvare>
+References: <1423657928-25534-1-git-send-email-jarkko.nikula@linux.intel.com>
+	<1423657928-25534-2-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150205175326.GA26691-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <1423657928-25534-2-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 05, 2015 at 09:53:26AM -0800, Guenter Roeck wrote:
-> On Thu, Feb 05, 2015 at 03:40:28PM +0100, Wolfram Sang wrote:
-> > > > > At the same time multi-master access is quite rare.
-> > > > 
-> > > > It should still work in those rare cases. A setup of an SoC, an EC
-> > > > (those like to be masters, as well), and an EEPROM is not very far off.
-> > 
-> > To clarify: What I meant here is, at24 should also work in those rare
-> > cases reliably (like the described case of SoC, EC and EEPROM). Your
-> > patch sacrificies this reliability.
-> > 
-> But it won't, and it can't. 24c32 should simply not be used in such cases.
-> Besides, at least on PCs, ACPI should reserve and thus block SMBus access
-> if it is used by an EC (or IPMI or similar).
+On Wed, 11 Feb 2015 14:32:04 +0200, Jarkko Nikula wrote:
+> It makes more difficult to grep these error prints from sources if they are
+> split to multiple source lines.
 > 
-> I don't think it should (or even can) be the Linux kernel's responsibility
-> to ensure that the hardware does not prevent such problems.
+> Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
 > 
-Hi Wolfram,
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 8fafb254e42a..7d1f4a478c54 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -1192,8 +1192,8 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  	/* Determine the address of the SMBus area */
+>  	priv->smba = pci_resource_start(dev, SMBBAR);
+>  	if (!priv->smba) {
+> -		dev_err(&dev->dev, "SMBus base address uninitialized, "
+> -			"upgrade BIOS\n");
+> +		dev_err(&dev->dev,
+> +			"SMBus base address uninitialized, upgrade BIOS\n");
+>  		err = -ENODEV;
+>  		goto exit;
+>  	}
+> @@ -1206,8 +1206,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  
+>  	err = pci_request_region(dev, SMBBAR, i801_driver.name);
+>  	if (err) {
+> -		dev_err(&dev->dev, "Failed to request SMBus region "
+> -			"0x%lx-0x%Lx\n", priv->smba,
+> +		dev_err(&dev->dev,
+> +			"Failed to request SMBus region 0x%lx-0x%Lx\n",
+> +			priv->smba,
+>  			(unsigned long long)pci_resource_end(dev, SMBBAR));
+>  		goto exit;
+>  	}
 
-I wonder where we are with thisp patch; I don't recall a reply to my previous
-e-mail.
+Looks good.
 
-Do you need some more time to think about it ? Otherwise I'll publish an
-out-of-tree version of the at24 driver with the patch applied on github,
-for those who might need the functionality provided by this patch.
+Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
 
-Please let me know.
-
-Thanks,
-Guenter
+-- 
+Jean Delvare
+SUSE L3 Support
