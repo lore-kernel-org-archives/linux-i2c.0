@@ -1,69 +1,83 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCHv2 5/5] i2c: i801: Use managed pcim_* PCI device
- initialization and reservation
-Date: Fri, 13 Feb 2015 16:20:41 +0100
-Message-ID: <20150213162041.2e298843@endymion.delvare>
-References: <1423657928-25534-1-git-send-email-jarkko.nikula@linux.intel.com>
-	<1423657928-25534-6-git-send-email-jarkko.nikula@linux.intel.com>
-	<20150213114756.2f0b0df9@endymion.delvare>
-	<54DDE43B.70902@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54DDE43B.70902-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Yoshihiro Kaneko <ykaneko0929@gmail.com>
+Subject: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
+Date: Sun, 15 Feb 2015 23:43:15 +0900
+Message-ID: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 13 Feb 2015 13:47:07 +0200, Jarkko Nikula wrote:
-> On 02/13/2015 12:47 PM, Jean Delvare wrote:
-> > On Wed, 11 Feb 2015 14:32:08 +0200, Jarkko Nikula wrote:
-> >> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> >> index 5fb35464f693..9f7b69743233 100644
-> >> --- a/drivers/i2c/busses/i2c-i801.c
-> >> +++ b/drivers/i2c/busses/i2c-i801.c
-> >> @@ -1180,12 +1180,13 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
-> >>   	}
-> >>   	priv->features &= ~disable_features;
-> >>
-> >> -	err = pci_enable_device(dev);
-> >> +	err = pcim_enable_device(dev);
-> >>   	if (err) {
-> >>   		dev_err(&dev->dev, "Failed to enable SMBus PCI device (%d)\n",
-> >>   			err);
-> >>   		goto exit;
-> >>   	}
-> >> +	pcim_pin_device(dev);
-> >>
-> >>   	/* Determine the address of the SMBus area */
-> >>   	priv->smba = pci_resource_start(dev, SMBBAR);
-> >
-> > What is the benefit of this change, compared to just leaving the call
-> > to pci_enable_device() in place?
->
-> If you mean the patch itself I think easy pcim_pin_device() removal is 
-> the biggest benefit if we ever want to experiment does hang during 
-> power-off problem still exist in some machines. All PCI, ACPI and 
-> power-off code have evolved in 9 years so original problem may not exist 
-> anymore. Who knows.
-> 
-> Without this patch pcm_disable_device() needs to be added to error paths 
-> and i801_remove(). (of course trivial but it's always more nice to get 
-> regression from one-liner).
-> 
-> If you mean plain pcim_enable_device() it is required for other pcim_ 
-> functions since it allocates pcim_release which takes care of cleanup 
-> bunch of things including pci_release_region().
-> 
-> E.g. pcim_iomap_regions() without pcim_enable_device() causes an oops 
-> when doing "cat /proc/ioports" after module removal since 
-> pcim_iomap_release() only unmaps but does not release regions.
+From: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
 
-I meant the latter. If there's a good reason for calling
-pcim_enable_device then alright.
+In case of repeated START condition, the restart has to be kicked
+before clear status (MSR register). If it is kicked after clear status,
+R-Car I2C may transfer data (TXD register) or receive data (RXD register)
+instead of transferring slave address (MAR register).
 
+Signed-off-by: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
+Signed-off-by: Yoshihiro Kaneko <ykaneko0929@gmail.com>
+---
+
+This patch is based on i2c/for-next branch of Wolfram Sang's linux tree.
+
+ drivers/i2c/busses/i2c-rcar.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 71a6e07..96c349f 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -2,6 +2,7 @@
+  * Driver for the Renesas RCar I2C unit
+  *
+  * Copyright (C) 2014 Wolfram Sang <wsa@sang-engineering.com>
++ * Copyright (C) 2013-2014 Renesas Electronics Corporation
+  *
+  * Copyright (C) 2012-14 Renesas Solutions Corp.
+  * Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+@@ -99,6 +100,7 @@
+ #define ID_DONE		(1 << 2)
+ #define ID_ARBLOST	(1 << 3)
+ #define ID_NACK		(1 << 4)
++#define ID_FIRST_MSG	(1 << 5)
+ 
+ enum rcar_i2c_type {
+ 	I2C_RCAR_GEN1,
+@@ -125,6 +127,7 @@ struct rcar_i2c_priv {
+ #define rcar_i2c_is_recv(p)		((p)->msg->flags & I2C_M_RD)
+ 
+ #define rcar_i2c_flags_set(p, f)	((p)->flags |= (f))
++#define rcar_i2c_flags_clr(p, f)	((p)->flags &= ~(f))
+ #define rcar_i2c_flags_has(p, f)	((p)->flags & (f))
+ 
+ #define LOOP_TIMEOUT	1024
+@@ -257,8 +260,14 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ 	int read = !!rcar_i2c_is_recv(priv);
+ 
+ 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
+-	rcar_i2c_write(priv, ICMSR, 0);
+-	rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++	if (rcar_i2c_flags_has(priv, ID_FIRST_MSG)) {	/* start */
++		rcar_i2c_write(priv, ICMSR, 0);
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++		rcar_i2c_flags_clr(priv, ID_FIRST_MSG);
++	} else {	/* restart */
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_START);
++		rcar_i2c_write(priv, ICMSR, 0);
++	}
+ 	rcar_i2c_write(priv, ICMIER, read ? RCAR_IRQ_RECV : RCAR_IRQ_SEND);
+ }
+ 
+@@ -524,6 +533,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 		priv->msg	= &msgs[i];
+ 		priv->pos	= 0;
+ 		priv->flags	= 0;
++		if (i == 0)
++			rcar_i2c_flags_set(priv, ID_FIRST_MSG);
+ 		if (i == num - 1)
+ 			rcar_i2c_flags_set(priv, ID_LAST_MSG);
+ 
 -- 
-Jean Delvare
-SUSE L3 Support
+1.9.1
+
