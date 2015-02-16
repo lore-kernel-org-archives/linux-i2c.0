@@ -1,53 +1,37 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: [PATCH 1/2] i2c: dt binding documentation for the Digicolor I2C controller
-Date: Mon, 16 Feb 2015 15:20:03 +0200
-Message-ID: <7da767503ac6085c10fbd1953ffd36621b8bf0c5.1424092804.git.baruch@tkos.co.il>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected
+ to SMBus adapters
+Date: Mon, 16 Feb 2015 07:37:10 -0800
+Message-ID: <54E20EA6.4060504@roeck-us.net>
+References: <1423067017-27607-1-git-send-email-linux@roeck-us.net> <20150204174723.GB30930@katana> <20150204190819.GA15467@roeck-us.net> <20150204233516.GA1677@katana> <20150205002630.GA396@roeck-us.net> <20150205144028.GA4865@katana> <20150205175326.GA26691@roeck-us.net> <20150212040126.GA1691@roeck-us.net> <20150216120951.GA2840@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150216120951.GA2840@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The CX92755 is an SoC in the Conexant Digicolor series. This devicetree binding
-document describes the I2C controller on the CX92755 SoC, that is also shared
-by some other SoCs in the Digicolor series.
+On 02/16/2015 04:09 AM, Wolfram Sang wrote:
+> Hi Guenter,
+>
+>> I wonder where we are with thisp patch; I don't recall a reply to my previous
+>> e-mail.
+>
+> Sorry for the late reply. I needed to recover from a HDD headcrash :(
+>
+>> Do you need some more time to think about it ? Otherwise I'll publish an
+>> out-of-tree version of the at24 driver with the patch applied on github,
+>> for those who might need the functionality provided by this patch.
+>
+> Your last mail made me aware of why we were missing each other before. I
+> see your point now, but yes, still need to think about it. My plan is to
+> have a decision until the 3.21 merge window.
+>
 
-Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-digicolor.txt      | 25 ++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
+Ok, fair enough.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt b/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
-new file mode 100644
-index 000000000000..457a098d4f7e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
-@@ -0,0 +1,25 @@
-+Conexant Digicolor I2C controller
-+
-+Required properties:
-+ - compatible: must be "cnxt,cx92755-i2c"
-+ - reg: physical address and length of the device registers
-+ - interrupts: a single interrupt specifier
-+ - clocks: clock for the device
-+ - #address-cells: should be <1>
-+ - #size-cells: should be <0>
-+
-+Optional properties:
-+- clock-frequency: the desired I2C bus clock frequency in Hz; in
-+  absence of this property the default value is used (100 kHz).
-+
-+Example:
-+
-+	i2c: i2c@f0000120 {
-+		compatible = "cnxt,cx92755-i2c";
-+		reg = <0xf0000120 0x10>;
-+		interrupts = <28>;
-+		clocks = <&main_clk>;
-+		clock-frequency = <100000>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+	};
--- 
-2.1.4
+Thanks,
+Guenter
