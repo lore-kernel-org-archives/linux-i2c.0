@@ -1,63 +1,67 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: linux-next: Tree for Feb 17 (i2c-designware-baytrail.c)
-Date: Tue, 17 Feb 2015 20:11:58 +0100
-Message-ID: <20150217191153.GA1616@katana>
-References: <20150217160221.1a15340e@canb.auug.org.au>
- <54E38840.5060306@infradead.org>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH] i2c: pca954x: improve usage of gpiod API
+Date: Tue, 17 Feb 2015 22:06 +0200
+Message-ID: <11044377.oGGMZ6UzhB@avalon>
+References: <1424164328-28534-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
-Return-path: <linux-next-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <54E38840.5060306@infradead.org>
-Sender: linux-next-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, "David E. Box" <david.e.box@linux.intel.com>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1424164328-28534-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Uwe,
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thank you for the patch.
 
-Randy,
-
-thanks for the report!
-
-> I suppose someone could make that:
+On Tuesday 17 February 2015 10:12:08 Uwe Kleine-K=F6nig wrote:
+> Since 39b2bbe3d715 (gpio: add flags argument to gpiod_get*() function=
+s)
+> which appeared in v3.17-rc1, the gpiod_get* functions take an additio=
+nal
+> parameter that allows to specify direction and initial value for
+> outputs.
 >=20
-> 	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=3Dy && ACPI
+> Also there is an *_optional variant that serves well here.  The semat=
+ics
+> is slightly changed here by using it. Now if a reset gpio is specifie=
+d
+> and getting hold on it fails, pca954x_probe fails, too.
 >=20
-> or even make I2C_DESIGNWARE_BAYTRAIL be a tristate symbol.
+> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-I'll wait a day for input from David what he prefers, because I don't
-own/know this platform. If there is no response, I'll apply the first
-solution.
+Acked-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 
-   Wolfram
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> b/drivers/i2c/muxes/i2c-mux-pca954x.c index ec11b404b433..0042cf3d77d=
+b
+> 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -201,9 +201,9 @@ static int pca954x_probe(struct i2c_client *clien=
+t,
+>  	i2c_set_clientdata(client, data);
+>=20
+>  	/* Get the mux out of reset if a reset GPIO is specified. */
+> -	gpio =3D devm_gpiod_get(&client->dev, "reset");
+> -	if (!IS_ERR(gpio))
+> -		gpiod_direction_output(gpio, 0);
+> +	gpio =3D devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_L=
+OW);
+> +	if (IS_ERR(gpio))
+> +		return PTR_ERR(gpio);
+>=20
+>  	/* Write the mux register at addr to verify
+>  	 * that the mux is in fact present. This also
 
+--=20
+Regards,
 
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJU45J5AAoJEBQN5MwUoCm2iSQP/R7dq5U+fxSg5wWD50KNMnTI
-3chwTowlQMIbYivbPoMLTbhTLhNGAZ1Qb9EDbytEmdUFhkVSdo2uYdm1FbQ8JDX6
-pU6P8pgG7GqqLadxOyHO0vl6jbxnR+j3ojYM0i/jBZKjFt1xN6QzUHGu5Px8Uls3
-wmyfHHQMQ0bP3cfWdvUERqy80ekytaxDWQEZiDLAIiHlXHvjhbGjQtSlzid1jYo7
-AXycstqSiU0uTksELt0JbkJg6iecZytqfvRVC6mlA9r7guZwAbF1eCYZNQogAz+d
-3YY0gcomm7eYN+uOTv9kmSrEBwc2vba5/13k4poXvxQ20MHmOHBua9ed1FTieILI
-/eLrhfRnFiYwCkkLcgJ/Nyd876P5shzSK2ttr5khgSuPCGXnZENZIajynpyTPrRs
-ggwsf3o77j5X1pAy9Y4ailbrmd1VGe05TUsBNLVC3286n4ESGYHSsZ8E95yj5XxW
-FCNlLxuR0S/2vef6hyLcAWb87lBdesGVSfZzdaW49TvNJeGbTQSeHZxVt7UmfzXS
-RMkGGKzZVuTJgGc6OlRN61VlYjRknVGXGi5we4ISIp/Uh3GyNrFvuxofEh32+r3N
-XK+/pXO+UHWGV4XK4FCbabgweXfrm5B+e4u2wKPKLudKPUMhsehtOVI+0j28+Z8h
-xV9HXkf0RNf5REATbdYO
-=KJWG
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--
+Laurent Pinchart
