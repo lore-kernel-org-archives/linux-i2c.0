@@ -1,56 +1,82 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: linux-next: Tree for Feb 17 (i2c-designware-baytrail.c)
-Date: Tue, 17 Feb 2015 10:28:16 -0800
-Message-ID: <54E38840.5060306@infradead.org>
-References: <20150217160221.1a15340e@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150217160221.1a15340e@canb.auug.org.au>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, "David E. Box" <david.e.box@linux.intel.com>, linux-i2c@vger.kernel.org
+From: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 0/8] Add proper support for Compulab CM-A510/SBC-A510
+Date: Tue, 17 Feb 2015 19:52:01 +0100
+Message-ID: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/16/15 21:02, Stephen Rothwell wrote:
-> Hi all,
-> 
-> Please do not add any material destined for v3.21 to your linux-next
-> included trees until after v3.20-rc1 has been released.
-> 
-> Changes since 20150216:
-> 
+This patch set improves current mainline support for the Compulab
+CM-A510 System-on-Module (SoM) and its default Compulab SBC-A510
+base board. Thanks to Gabriel Dobato who agreed to remote debug and
+test the provided DT changes.
 
-on i386, when CONFIG_IOSF_MBI=m and
-CONFIG_I2C_DESIGNWARE_BAYTRAIL=y:
+On the way to proper support, we
+- Rework i2c-mux-pinctrl to honor disabled sub-bus nodes
+- Add missing "compulab" vendor prefix
+- Fix broken uart[23] reg properties
+- Beautify Dove's dtsi files by adding gpio/irq includes, node
+  labels for pcie, and some additional pinctrl settings
+- Add a node for the internal i2c mux mechanism on Dove SoCs
 
-drivers/built-in.o: In function `i2c_dw_eval_lock_support':
-(.text+0x37dd74): undefined reference to `iosf_mbi_available'
-drivers/built-in.o: In function `reset_semaphore.isra.1':
-i2c-designware-baytrail.c:(.text+0x37ddd1): undefined reference to `iosf_mbi_read'
-i2c-designware-baytrail.c:(.text+0x37de13): undefined reference to `iosf_mbi_write'
-drivers/built-in.o: In function `baytrail_i2c_acquire':
-(.text+0x37df26): undefined reference to `iosf_mbi_write'
-drivers/built-in.o: In function `baytrail_i2c_acquire':
-(.text+0x37dfab): undefined reference to `iosf_mbi_read'
-drivers/built-in.o: In function `baytrail_i2c_acquire':
-(.text+0x37e080): undefined reference to `iosf_mbi_read'
+And finally add a DT include for the Compulab CM-A510 SoM and a DT
+board file for the SBC-A510 base board.
 
+Patches are based on stable v3.19 and are indended for the next
+merge window (either v3.21 or v4.1). Compulab related changes have
+been tested by Gabriel Dobato, I tested on SolidRun CuBox that it
+does not break existing Dove boards.
 
-because IOSF_MBI is tristate and I2C_DESIGNWARE_BAYTRAIL is bool:
+For the i2c-mux-pinctrl, a Tested-by from any user of Tegra20
+Seaboard, Tamonten, or Ventana would be nice to see if it is fully
+compatible.
 
-config I2C_DESIGNWARE_BAYTRAIL
-	bool "Intel Baytrail I2C semaphore support"
-	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI && ACPI
+I have added MVEBU maintainers to all patches, Wolfram for i2c and
+Stephen as the i2c-mux-pinctrl author i2c-mux-pinctrl related patches,
+and corresponding lists. As there is no important DT work in here,
+I decided to not explicitly add each of the DT maintainers except for
+the vendor prefix patch.
 
+Sebastian Hesselbarth (8):
+  i2c: mux-pinctrl: Rework to honor disabled child nodes
+  devicetree: vendor-prefixes: Add CompuLab to known vendors
+  ARM: dts: dove: Fix uart[23] reg property
+  ARM: dts: dove: Always include gpio and interrupt-controller headers
+  ARM: dts: dove: Add node labels for PCIe ports 0 and 1
+  ARM: dts: dove: Add some more common pinctrl settings
+  ARM: dts: dove: Add internal i2c multiplexer node
+  ARM: dts: dove: Add proper support for Compulab CM-A510/SBC-A510
 
-I suppose someone could make that:
+ .../devicetree/bindings/i2c/i2c-mux-pinctrl.txt    |  28 +--
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ arch/arm/boot/dts/Makefile                         |   5 +-
+ arch/arm/boot/dts/dove-cm-a510.dts                 |  38 ----
+ arch/arm/boot/dts/dove-cm-a510.dtsi                | 195 +++++++++++++++++++++
+ arch/arm/boot/dts/dove-sbc-a510.dts                | 182 +++++++++++++++++++
+ arch/arm/boot/dts/dove.dtsi                        | 103 ++++++++++-
+ drivers/i2c/muxes/i2c-mux-pinctrl.c                |  70 +++++---
+ 8 files changed, 537 insertions(+), 85 deletions(-)
+ delete mode 100644 arch/arm/boot/dts/dove-cm-a510.dts
+ create mode 100644 arch/arm/boot/dts/dove-cm-a510.dtsi
+ create mode 100644 arch/arm/boot/dts/dove-sbc-a510.dts
 
-	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=y && ACPI
-
-or even make I2C_DESIGNWARE_BAYTRAIL be a tristate symbol.
-
-
+---
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Cc: Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 -- 
-~Randy
+2.1.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
