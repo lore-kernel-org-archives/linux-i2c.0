@@ -1,67 +1,96 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH] i2c: pca954x: improve usage of gpiod API
-Date: Tue, 17 Feb 2015 22:06 +0200
-Message-ID: <11044377.oGGMZ6UzhB@avalon>
-References: <1424164328-28534-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH 1/8] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Tue, 17 Feb 2015 13:46:31 -0700
+Message-ID: <54E3A8A7.8080703@wwwdotorg.org>
+References: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com> <1424199129-22099-2-git-send-email-sebastian.hesselbarth@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1424164328-28534-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1424199129-22099-2-git-send-email-sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Uwe,
+On 02/17/2015 11:52 AM, Sebastian Hesselbarth wrote:
+> I2C mux pinctrl driver currently determines the number of sub-busses by
+> counting available pinctrl-names. Unfortunately, this requires each
+> incarnation of the devicetree node with different available sub-busses
+> to be rewritten.
 
-Thank you for the patch.
+Can you be more explicit about the problem here? Why does anything need 
+to be re-written if a child node is disabled; presumably there's no need 
+for the child bus numbers to be contiguous. In other words, with the 
+example in the existing DT binding doc:
 
-On Tuesday 17 February 2015 10:12:08 Uwe Kleine-K=F6nig wrote:
-> Since 39b2bbe3d715 (gpio: add flags argument to gpiod_get*() function=
-s)
-> which appeared in v3.17-rc1, the gpiod_get* functions take an additio=
-nal
-> parameter that allows to specify direction and initial value for
-> outputs.
->=20
-> Also there is an *_optional variant that serves well here.  The semat=
-ics
-> is slightly changed here by using it. Now if a reset gpio is specifie=
-d
-> and getting hold on it fails, pca954x_probe fails, too.
->=20
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+         i2cmux {
+                 compatible = "i2c-mux-pinctrl";
+...
+                 pinctrl-names = "ddc", "pta", "idle";
+                 pinctrl-0 = <&state_i2cmux_ddc>;
+                 pinctrl-1 = <&state_i2cmux_pta>;
+                 pinctrl-2 = <&state_i2cmux_idle>;
 
-Acked-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+                 i2c@0 {
+                         reg = <0>;
+...
+                 i2c@1 {
+                         reg = <1>;
+...
 
-> ---
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> b/drivers/i2c/muxes/i2c-mux-pca954x.c index ec11b404b433..0042cf3d77d=
-b
-> 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -201,9 +201,9 @@ static int pca954x_probe(struct i2c_client *clien=
-t,
->  	i2c_set_clientdata(client, data);
->=20
->  	/* Get the mux out of reset if a reset GPIO is specified. */
-> -	gpio =3D devm_gpiod_get(&client->dev, "reset");
-> -	if (!IS_ERR(gpio))
-> -		gpiod_direction_output(gpio, 0);
-> +	gpio =3D devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_L=
-OW);
-> +	if (IS_ERR(gpio))
-> +		return PTR_ERR(gpio);
->=20
->  	/* Write the mux register at addr to verify
->  	 * that the mux is in fact present. This also
+That would generate child busses 0 and 1. If I was to disable the i2c@0 
+node, then there would still be definitions for child busses 0 and 1 in 
+the DT, it's just that child bus 0 wouldn't actually exist at run-time. 
+I don't see what part of DT needs to be re-written to accomodate this?
 
---=20
-Regards,
+> This patch reworks i2c-mux-pinctrl driver to count the number of
+> available sub-nodes instead. The rework should be compatible to the old
+> way of probing for sub-busses and additionally allows to disable unused
+> sub-busses with standard DT property status = "disabled".
+>
+> This also amends the corresponding devicetree binding documentation to
+> reflect the new functionality to disable unused sub-nodes. While at it,
+> also fix two references to binding documentation files that miss an "i2c-"
+> prefix.
 
-Laurent Pinchart
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+
+> -For each named state defined in the pinctrl-names property, an I2C child bus
+> -will be created. I2C child bus numbers are assigned based on the index into
+> -the pinctrl-names property.
+> +For each child node that is not disabled by a status != "okay", an I2C
+> +child bus will be created. I2C child bus numbers are assigned based on the
+> +order of child nodes.
+
+I would have assumed that disabled sub-nodes was a global concept within 
+DT, and so wouldn't be mentioned in the binding. It would just be a bug 
+in the driver if it didn't ignore disabled sub-nodes.
+
+
+
+
+>
+> -The only exception is that no bus will be created for a state named "idle". If
+> -such a state is defined, it must be the last entry in pinctrl-names. For
+> -example:
+> -
+> -	pinctrl-names = "ddc", "pta", "idle"  ->  ddc = bus 0, pta = bus 1
+> -	pinctrl-names = "ddc", "idle", "pta"  ->  Invalid ("idle" not last)
+> -	pinctrl-names = "idle", "ddc", "pta"  ->  Invalid ("idle" not last)
+> +There must be a corresponding pinctrl-names entry for each enabled child
+> +node at the position of the child node's "reg" property.
+
+The addition there seems fine, but the existing text re: the idle state 
+seems clearer in the original text.
+>
+>   Whenever an access is made to a device on a child bus, the relevant pinctrl
+>   state will be programmed into hardware.
+>
+> -If an idle state is defined, whenever an access is not being made to a device
+> -on a child bus, the idle pinctrl state will be programmed into hardware.
+> +Also, there can be an idle pinctrl state defined at the end of possible
+> +pinctrl states. If an idle state is defined, whenever an access is not being
+> +made to a device on a child bus, the idle pinctrl state will be programmed
+> +into hardware.
