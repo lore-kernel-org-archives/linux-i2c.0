@@ -1,96 +1,38 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH 1/8] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Tue, 17 Feb 2015 13:46:31 -0700
-Message-ID: <54E3A8A7.8080703@wwwdotorg.org>
-References: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com> <1424199129-22099-2-git-send-email-sebastian.hesselbarth@gmail.com>
+From: "David E. Box" <david.e.box@linux.intel.com>
+Subject: Re: linux-next: Tree for Feb 17 (i2c-designware-baytrail.c)
+Date: Tue, 17 Feb 2015 12:59:49 -0800
+Message-ID: <20150217205949.GA6671@pathfinder>
+References: <20150217160221.1a15340e@canb.auug.org.au>
+ <54E38840.5060306@infradead.org>
+ <20150217191153.GA1616@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1424199129-22099-2-git-send-email-sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150217191153.GA1616@katana>
+Sender: linux-next-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Randy Dunlap <rdunlap@infradead.org>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/17/2015 11:52 AM, Sebastian Hesselbarth wrote:
-> I2C mux pinctrl driver currently determines the number of sub-busses by
-> counting available pinctrl-names. Unfortunately, this requires each
-> incarnation of the devicetree node with different available sub-busses
-> to be rewritten.
+Hi Wolfram,
 
-Can you be more explicit about the problem here? Why does anything need 
-to be re-written if a child node is disabled; presumably there's no need 
-for the child bus numbers to be contiguous. In other words, with the 
-example in the existing DT binding doc:
+On Tue, Feb 17, 2015 at 08:11:58PM +0100, Wolfram Sang wrote:
+> Randy,
+> 
+> thanks for the report!
+> 
+> > I suppose someone could make that:
+> > 
+> > 	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=y && ACPI
+> > 
+> > or even make I2C_DESIGNWARE_BAYTRAIL be a tristate symbol.
+> 
+> I'll wait a day for input from David what he prefers, because I don't
+> own/know this platform. If there is no response, I'll apply the first
+> solution.
+> 
 
-         i2cmux {
-                 compatible = "i2c-mux-pinctrl";
-...
-                 pinctrl-names = "ddc", "pta", "idle";
-                 pinctrl-0 = <&state_i2cmux_ddc>;
-                 pinctrl-1 = <&state_i2cmux_pta>;
-                 pinctrl-2 = <&state_i2cmux_idle>;
+This is fine with me. I own IOSF_MBI as well. Thanks.
 
-                 i2c@0 {
-                         reg = <0>;
-...
-                 i2c@1 {
-                         reg = <1>;
-...
-
-That would generate child busses 0 and 1. If I was to disable the i2c@0 
-node, then there would still be definitions for child busses 0 and 1 in 
-the DT, it's just that child bus 0 wouldn't actually exist at run-time. 
-I don't see what part of DT needs to be re-written to accomodate this?
-
-> This patch reworks i2c-mux-pinctrl driver to count the number of
-> available sub-nodes instead. The rework should be compatible to the old
-> way of probing for sub-busses and additionally allows to disable unused
-> sub-busses with standard DT property status = "disabled".
->
-> This also amends the corresponding devicetree binding documentation to
-> reflect the new functionality to disable unused sub-nodes. While at it,
-> also fix two references to binding documentation files that miss an "i2c-"
-> prefix.
-
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
-
-> -For each named state defined in the pinctrl-names property, an I2C child bus
-> -will be created. I2C child bus numbers are assigned based on the index into
-> -the pinctrl-names property.
-> +For each child node that is not disabled by a status != "okay", an I2C
-> +child bus will be created. I2C child bus numbers are assigned based on the
-> +order of child nodes.
-
-I would have assumed that disabled sub-nodes was a global concept within 
-DT, and so wouldn't be mentioned in the binding. It would just be a bug 
-in the driver if it didn't ignore disabled sub-nodes.
-
-
-
-
->
-> -The only exception is that no bus will be created for a state named "idle". If
-> -such a state is defined, it must be the last entry in pinctrl-names. For
-> -example:
-> -
-> -	pinctrl-names = "ddc", "pta", "idle"  ->  ddc = bus 0, pta = bus 1
-> -	pinctrl-names = "ddc", "idle", "pta"  ->  Invalid ("idle" not last)
-> -	pinctrl-names = "idle", "ddc", "pta"  ->  Invalid ("idle" not last)
-> +There must be a corresponding pinctrl-names entry for each enabled child
-> +node at the position of the child node's "reg" property.
-
-The addition there seems fine, but the existing text re: the idle state 
-seems clearer in the original text.
->
->   Whenever an access is made to a device on a child bus, the relevant pinctrl
->   state will be programmed into hardware.
->
-> -If an idle state is defined, whenever an access is not being made to a device
-> -on a child bus, the idle pinctrl state will be programmed into hardware.
-> +Also, there can be an idle pinctrl state defined at the end of possible
-> +pinctrl states. If an idle state is defined, whenever an access is not being
-> +made to a device on a child bus, the idle pinctrl state will be programmed
-> +into hardware.
+Dave
