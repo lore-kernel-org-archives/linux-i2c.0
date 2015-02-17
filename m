@@ -1,38 +1,156 @@
-From: "David E. Box" <david.e.box@linux.intel.com>
-Subject: Re: linux-next: Tree for Feb 17 (i2c-designware-baytrail.c)
-Date: Tue, 17 Feb 2015 12:59:49 -0800
-Message-ID: <20150217205949.GA6671@pathfinder>
-References: <20150217160221.1a15340e@canb.auug.org.au>
- <54E38840.5060306@infradead.org>
- <20150217191153.GA1616@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-next-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150217191153.GA1616@katana>
-Sender: linux-next-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Randy Dunlap <rdunlap@infradead.org>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/8] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Tue, 17 Feb 2015 22:08:09 +0100
+Message-ID: <54E3ADB9.1040008@gmail.com>
+References: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com> <1424199129-22099-2-git-send-email-sebastian.hesselbarth@gmail.com> <54E3A8A7.8080703@wwwdotorg.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <54E3A8A7.8080703-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On 17.02.2015 21:46, Stephen Warren wrote:
+> On 02/17/2015 11:52 AM, Sebastian Hesselbarth wrote:
+>> I2C mux pinctrl driver currently determines the number of sub-busses by
+>> counting available pinctrl-names. Unfortunately, this requires each
+>> incarnation of the devicetree node with different available sub-busses
+>> to be rewritten.
+>
+> Can you be more explicit about the problem here? Why does anything need
+> to be re-written if a child node is disabled; presumably there's no need
+> for the child bus numbers to be contiguous. In other words, with the
+> example in the existing DT binding doc:
+>
+>          i2cmux {
+>                  compatible = "i2c-mux-pinctrl";
+> ...
+>                  pinctrl-names = "ddc", "pta", "idle";
+>                  pinctrl-0 = <&state_i2cmux_ddc>;
+>                  pinctrl-1 = <&state_i2cmux_pta>;
+>                  pinctrl-2 = <&state_i2cmux_idle>;
+>
+>                  i2c@0 {
+>                          reg = <0>;
+> ...
+>                  i2c@1 {
+>                          reg = <1>;
+> ...
+>
+> That would generate child busses 0 and 1. If I was to disable the i2c@0
+> node, then there would still be definitions for child busses 0 and 1 in
+> the DT, it's just that child bus 0 wouldn't actually exist at run-time.
+> I don't see what part of DT needs to be re-written to accomodate this?
 
-On Tue, Feb 17, 2015 at 08:11:58PM +0100, Wolfram Sang wrote:
-> Randy,
-> 
-> thanks for the report!
-> 
-> > I suppose someone could make that:
-> > 
-> > 	depends on I2C_DESIGNWARE_PLATFORM && IOSF_MBI=y && ACPI
-> > 
-> > or even make I2C_DESIGNWARE_BAYTRAIL be a tristate symbol.
-> 
-> I'll wait a day for input from David what he prefers, because I don't
-> own/know this platform. If there is no response, I'll apply the first
-> solution.
-> 
+The way the current driver works, to disable i2c@0 you'd have to remove
+the pinctrl-0 state, pinctrl-names string at position 0, and the node
+itself.
 
-This is fine with me. I own IOSF_MBI as well. Thanks.
+So, on Dove SoC there is three sub-busses, now consider one board A with
+i2c0 and i2c1 enabled but board B with i2c0 and i2c2 enabled:
 
-Dave
+board-A.dts:
+
+i2cmux {
+	pinctrl-names = "i2c0", "i2c1", "idle";
+	pinctrl-0 = <&state_for_i2c0>;
+	pinctrl-1 = <&state_for_i2c1>;
+};
+
+but
+
+board-B.dts:
+
+i2cmux {
+	pinctrl-names = "i2c0", "i2c2", "idle";
+	pinctrl-0 = <&state_for_i2c0>;
+	pinctrl-1 = <&state_for_i2c2>;
+	/* Note that this ^^^ is state_for_i2c2 */
+};
+
+while the approach with status = "disabled" allows all properties for
+both board remain the same - except you'll enable either i2c1 or i2c2
+sub-node on board level:
+
+i2cmux {
+	pinctrl-names = "i2c0", "i2c1", "i2c2", "idle";
+	pinctrl-0 = <&state_for_i2c0>;
+	pinctrl-1 = <&state_for_i2c1>;
+	pinctrl-2 = <&state_for_i2c2>;
+};
+
+board-A.dts:
+
+i2cmux {
+	i2c@0 { status = "okay"; };
+	i2c@1 { status = "okay"; };
+};
+
+and
+
+board-B.dts:
+
+i2cmux {
+	i2c@0 { status = "okay"; };
+	i2c@2 { status = "okay"; };
+};
+
+In general, it is less about the binding but how the driver is written:
+Number of sub-busses is determined by elements in pinctrl-names not
+available (enabled) sub-nodes.
+
+>> This patch reworks i2c-mux-pinctrl driver to count the number of
+>> available sub-nodes instead. The rework should be compatible to the old
+>> way of probing for sub-busses and additionally allows to disable unused
+>> sub-busses with standard DT property status = "disabled".
+>>
+>> This also amends the corresponding devicetree binding documentation to
+>> reflect the new functionality to disable unused sub-nodes. While at it,
+>> also fix two references to binding documentation files that miss an
+>> "i2c-"
+>> prefix.
+>
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+>> b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+>
+>> -For each named state defined in the pinctrl-names property, an I2C
+>> child bus
+>> -will be created. I2C child bus numbers are assigned based on the
+>> index into
+>> -the pinctrl-names property.
+>> +For each child node that is not disabled by a status != "okay", an I2C
+>> +child bus will be created. I2C child bus numbers are assigned based
+>> on the
+>> +order of child nodes.
+>
+> I would have assumed that disabled sub-nodes was a global concept within
+> DT, and so wouldn't be mentioned in the binding. It would just be a bug
+> in the driver if it didn't ignore disabled sub-nodes.
+
+Yep, the concept is very global. It is about the current driver and this
+binding changes are just to make it a little more clear that the driver
+should behave different, i.e. get rid of anything that implies that
+pinctrl-names has any effect on the number of sub-busses registered.
+
+>> -The only exception is that no bus will be created for a state named
+>> "idle". If
+>> -such a state is defined, it must be the last entry in pinctrl-names. For
+>> -example:
+>> -
+>> -    pinctrl-names = "ddc", "pta", "idle"  ->  ddc = bus 0, pta = bus 1
+>> -    pinctrl-names = "ddc", "idle", "pta"  ->  Invalid ("idle" not last)
+>> -    pinctrl-names = "idle", "ddc", "pta"  ->  Invalid ("idle" not last)
+>> +There must be a corresponding pinctrl-names entry for each enabled child
+>> +node at the position of the child node's "reg" property.
+>
+> The addition there seems fine, but the existing text re: the idle state
+> seems clearer in the original text.
+
+Ok, I'll have a look at how to preserve this section better.
+
+Do you still have one of the current boards available for testing?
+
+Sebastian
