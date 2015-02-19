@@ -1,38 +1,35 @@
-From: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Subject: [PATCH V2 3/3] arm64: dts: add proxy I2C device driver on APM X-Gene platform
-Date: Wed, 18 Feb 2015 11:34:03 -0800
-Message-ID: <1424288043-2995-3-git-send-email-fkan@apm.com>
-References: <1424288043-2995-1-git-send-email-fkan@apm.com>
+From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Subject: [PATCH] i2c: fix reference to functionality constants definition
+Date: Thu, 19 Feb 2015 12:51:30 +0200
+Message-ID: <4496c1554df0c37d12d109604426bd9a3ab1e974.1424343090.git.baruch@tkos.co.il>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1424288043-2995-1-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add proxy I2C device driver on APM X-Gene platform.
+Since commit 607ca46e97 ('UAPI: (Scripted) Disintegrate include/linux') the
+list of functionality constants moved to include/uapi/linux/i2c.h. Update the
+reference accordingly.
 
-Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+Fixes: 607ca46e97 ('UAPI: (Scripted) Disintegrate include/linux')
+Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
 ---
- arch/arm64/boot/dts/apm/apm-storm.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ Documentation/i2c/functionality | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/apm/apm-storm.dtsi b/arch/arm64/boot/dts/apm/apm-storm.dtsi
-index 27d6c3d..f19bb6b 100644
---- a/arch/arm64/boot/dts/apm/apm-storm.dtsi
-+++ b/arch/arm64/boot/dts/apm/apm-storm.dtsi
-@@ -483,6 +483,11 @@
- 					<0x0 0x7 0x4>;
- 		};
+diff --git a/Documentation/i2c/functionality b/Documentation/i2c/functionality
+index 4556a3eb87c4..4aae8ed15873 100644
+--- a/Documentation/i2c/functionality
++++ b/Documentation/i2c/functionality
+@@ -12,7 +12,7 @@ FUNCTIONALITY CONSTANTS
+ -----------------------
  
-+		i2cslimpro {
-+			compatible = "apm,xgene-slimpro-i2c";
-+			mboxes = <&mailbox 0>;
-+		};
-+
- 		serial0: serial@1c020000 {
- 			status = "disabled";
- 			device_type = "serial";
+ For the most up-to-date list of functionality constants, please check
+-<linux/i2c.h>!
++<uapi/linux/i2c.h>!
+ 
+   I2C_FUNC_I2C                    Plain i2c-level commands (Pure SMBus
+                                   adapters typically can not do these)
 -- 
-1.9.1
+2.1.4
