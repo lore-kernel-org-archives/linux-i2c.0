@@ -1,90 +1,128 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: ocores: rework clk code to handle NULL cookie
-Date: Thu, 19 Feb 2015 17:37:04 +0100
-Message-ID: <1424363824-6093-1-git-send-email-wsa@the-dreams.de>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] i2c: omap: implement bus recovery
+Date: Thu, 19 Feb 2015 12:06:49 -0600
+Message-ID: <1424369209-26735-1-git-send-email-balbi@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-For, !HAVE_CLK the clk API returns a NULL cookie. Rework the
-initialization code to handle that. If clk_get_rate() delivers 0, we use
-the fallback mechanisms. The patch is pretty easy when ignoring white
-space issues (git diff -b).
+If either SCL or SDA are stuck low, we need to
+recover the bus using the procedure described
+on section 3.1.16 of the I2C specification.
 
-Suggested-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Note that we're trying to implement the procedure
+exactly as described by that section. First we
+check which line is stuck low, then implement
+one or the other procedure. If SDA recovery procedure
+fails, we reset our IP in an attempt to make it work.
+
+Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 ---
 
-Max, can you please test/review. I can only compile-test. This is the outcome
-of this thread: https://lkml.org/lkml/2015/2/5/544
+Tested with AM437x IDK, AM437x SK, BeagleBoneBlack and Beagle X15 with
+1000 iterations of i2cdetect on all available buses.
 
- drivers/i2c/busses/i2c-ocores.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+That said, I couldn't get any device to hold the bus busy so I could
+see this working. If anybody has any good way of forcing a condition
+so that we need bus recovery, I'd be glad to look at.
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 3fc76b6ffcaade..abf5db7e441eba 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -354,20 +354,24 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
- 		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
- 		if (clock_frequency_present)
- 			i2c->bus_clock_khz = clock_frequency / 1000;
--	} else if (of_property_read_u32(np, "opencores,ip-clock-frequency",
--					&val)) {
--		if (!clock_frequency_present) {
--			dev_err(&pdev->dev,
--				"Missing required parameter 'opencores,ip-clock-frequency'\n");
--			return -ENODEV;
+cheers
+
+ drivers/i2c/busses/i2c-omap.c | 71 +++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 69 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 0e894193accf..c3e4da751adf 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -472,6 +472,73 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 	return 0;
+ }
+ 
++static void omap_i2c_clock_pulse(struct omap_i2c_dev *dev)
++{
++	u32 reg;
++	int i;
++
++	/* Enable testmode */
++	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
++	reg |= OMAP_I2C_SYSTEST_ST_EN;
++	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
++
++	for (i = 0; i < 9; i++) {
++		reg |= OMAP_I2C_SYSTEST_SCL_O;
++		omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
++		mdelay(100);
++		reg &= ~OMAP_I2C_SYSTEST_SCL_O;
++		omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
++		mdelay(100);
 +	}
 +
-+	if (i2c->ip_clock_khz == 0) {
-+		if (of_property_read_u32(np, "opencores,ip-clock-frequency",
-+						&val)) {
-+			if (!clock_frequency_present) {
-+				dev_err(&pdev->dev,
-+					"Missing required parameter 'opencores,ip-clock-frequency'\n");
-+				return -ENODEV;
-+			}
-+			i2c->ip_clock_khz = clock_frequency / 1000;
-+			dev_warn(&pdev->dev,
-+				 "Deprecated usage of the 'clock-frequency' property, please update to 'opencores,ip-clock-frequency'\n");
-+		} else {
-+			i2c->ip_clock_khz = val / 1000;
-+			if (clock_frequency_present)
-+				i2c->bus_clock_khz = clock_frequency / 1000;
++	/* Disable testmode */
++	reg &= ~OMAP_I2C_SYSTEST_ST_EN;
++	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
++}
++
++static void omap_i2c_bus_recover(struct omap_i2c_dev *dev)
++{
++	u32 reg1;
++	u32 reg2;
++
++	/*
++	 * First differentiate SCL stuck low from SDA stuck low using our
++	 * SYSTEST register. Depending on which line is stuck low, we will
++	 * either Reset our I2C IP (SCL stuck low) or drive 9 clock pulses on
++	 * SCL (SDA stuck low) to tell the device to release the bus.
++	 *
++	 * If, after 9 clock pulses on SCL device still doesn't release the
++	 * bus, there's nothing more we can do; we will still try to Reset
++	 * our I2C IP anyway.
++	 */
++
++	reg1 = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
++	msleep(1);
++	reg2 = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
++
++	if (!(reg1 & OMAP_I2C_SYSTEST_SCL_I_FUNC) &&
++			!(reg2 & OMAP_I2C_SYSTEST_SCL_I_FUNC)) {
++		dev_err(dev->dev, "SCL is stuck low, resetting\n");
++		omap_i2c_reset(dev);
++	}
++
++	if (!(reg1 & OMAP_I2C_SYSTEST_SDA_I_FUNC) &&
++			!(reg2 & OMAP_I2C_SYSTEST_SDA_I_FUNC)) {
++		dev_err(dev->dev, "SDA is stuck low, driving 9 pulses on SCL\n");
++		omap_i2c_clock_pulse(dev);
++
++		reg1 = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
++		msleep(1);
++		reg2 = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
++
++		if ((reg1 & OMAP_I2C_SYSTEST_SDA_I_FUNC) &&
++				(reg2 & OMAP_I2C_SYSTEST_SDA_I_FUNC)) {
++			dev_err(dev->dev, "SDA still stuck, resetting\n");
++			omap_i2c_reset(dev);
++		}
++	}
++}
++
+ /*
+  * Waiting on Bus Busy
+  */
+@@ -482,8 +549,8 @@ static int omap_i2c_wait_for_bb(struct omap_i2c_dev *dev)
+ 	timeout = jiffies + OMAP_I2C_TIMEOUT;
+ 	while (omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG) & OMAP_I2C_STAT_BB) {
+ 		if (time_after(jiffies, timeout)) {
+-			dev_warn(dev->dev, "timeout waiting for bus ready\n");
+-			return -ETIMEDOUT;
++			omap_i2c_bus_recover(dev);
++			return 0;
  		}
--		i2c->ip_clock_khz = clock_frequency / 1000;
--		dev_warn(&pdev->dev,
--			 "Deprecated usage of the 'clock-frequency' property, please update to 'opencores,ip-clock-frequency'\n");
--	} else {
--		i2c->ip_clock_khz = val / 1000;
--		if (clock_frequency_present)
--			i2c->bus_clock_khz = clock_frequency / 1000;
+ 		msleep(1);
  	}
- 
- 	of_property_read_u32(pdev->dev.of_node, "reg-io-width",
-@@ -518,6 +522,7 @@ static int ocores_i2c_resume(struct device *dev)
- 	struct ocores_i2c *i2c = dev_get_drvdata(dev);
- 
- 	if (!IS_ERR(i2c->clk)) {
-+		unsigned long rate;
- 		int ret = clk_prepare_enable(i2c->clk);
- 
- 		if (ret) {
-@@ -525,7 +530,9 @@ static int ocores_i2c_resume(struct device *dev)
- 				"clk_prepare_enable failed: %d\n", ret);
- 			return ret;
- 		}
--		i2c->ip_clock_khz = clk_get_rate(i2c->clk) / 1000;
-+		rate = clk_get_rate(i2c->clk) / 1000;
-+		if (rate)
-+			i2c->ip_clock_khz = rate;
- 	}
- 	return ocores_init(dev, i2c);
- }
 -- 
-2.1.4
+2.3.0
