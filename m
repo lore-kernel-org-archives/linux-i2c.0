@@ -1,64 +1,87 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC 02/11] i2c: add quirk checks to core
-Date: Tue, 24 Feb 2015 15:25:24 +0100
-Message-ID: <20150224142524.GB18301@katana>
-References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
- <1420824103-24169-3-git-send-email-wsa@the-dreams.de>
- <20150112120814.GE12302@n2100.arm.linux.org.uk>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [PATCH 2/4] i2c: sunxi: Add Reduced Serial Bus
+ (RSB) DT bindings documentation
+Date: Tue, 24 Feb 2015 22:32:57 +0800
+Message-ID: <CAGb2v675oV60cont4JPX0Cy-5oaqXSz+74kC4JFeJYja6SSV+A@mail.gmail.com>
+References: <1424773744-15106-1-git-send-email-wens@csie.org>
+ <9851276.8ZCd3XfZle@wuerfel> <CAGb2v66ru6Yurt1CFn-zocAuqen8GWSm8y9dHRf=-OOcc-DR7g@mail.gmail.com>
+ <16025407.hQRFhlbHKD@wuerfel>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150112120814.GE12302-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBNUXWKTQKGQE72JK7LI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <16025407.hQRFhlbHKD@wuerfel>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Feb 24, 2015 at 10:17 PM, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
+> On Tuesday 24 February 2015 22:01:26 Chen-Yu Tsai wrote:
+>> On Tue, Feb 24, 2015 at 6:37 PM, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
+>> > On Tuesday 24 February 2015 18:29:02 Chen-Yu Tsai wrote:
+>> >>
+>> >> +       rsb@01f03400 {
+>> >> +               compatible = "allwinner,sun8i-a23-rsb";
+>> >> +               reg = <0x01f03400 0x400>;
+>> >> +               interrupts = <0 39 4>;
+>> >> +               clocks = <&apb0_gates 3>;
+>> >> +               clock-frequency = <3000000>;
+>> >> +               resets = <&apb0_rst 3>;
+>> >> +
+>> >> +               axp223: pmic@2d {
+>> >> +                       compatible = "x-powers,axp223", "x-powers,axp221";
+>> >> +                       reg = <0x2d>;
+>> >> +                       allwinner,rsb-hw-addr = <0x3e3>;
+>> >> +
+>> >> +                       /* ... */
+>> >> +               };
+>> >> +       };
+>>
+>> > I don't really understand the need for having two addresses (runtime
+>> > and hardware). Could the runtime address be configured at runtime?
+>>
+>> You can, though the driver doesn't support this. I don't think the
+>> I2C subsystem allows arbitrary device insertion during normal
+>> operation, but maybe i2c-dev? I've tried using different addresses
+>> for devices so they do get changed during the probe phase, just
+>> to be sure that the code works, and it's not just sitting at
+>> the address the bootloader used.
+>>
+>> In any case, the distinction is more like burnt-in or hardwired
+>> addresses vs software configurable addresses.
+>
+> The simplest binding would the probably be to only put the
+> hardware address into the 'reg' property and always assign the
+> logical addresses dynamically.
+>
+> Would that add a lot of complexity or does it have any other
+> downsides?
 
---7iMSBzlTiPOCCT2k
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The hardware address is 12 bits wide. Any address higher than
+0x3ff will be rejected by the I2C core. The AC100 is at 0xe89.
 
-On Mon, Jan 12, 2015 at 12:08:14PM +0000, Russell King - ARM Linux wrote:
-> On Fri, Jan 09, 2015 at 06:21:32PM +0100, Wolfram Sang wrote:
-> > +static int i2c_quirk_error(struct i2c_adapter *adap, struct i2c_msg *m=
-sg, char *err_msg)
-> > +{
-> > +	dev_err(&adap->dev, "quirk: %s (addr 0x%04x, size %u)\n", err_msg, ms=
-g->addr, msg->len);
-> > +	return -EOPNOTSUPP;
-> > +}
->=20
-> So, what happens if I open an I2C adapter, find a message which causes
-> i2c_quirk_error() to be called, and then spin repeatedly calling that...
-> Shouldn't there be some rate limiting to this?
+Assigning addresses dynamically means the driver has to keep
+a lookup table to map the hardware address to the logical
+address to issue the command to.
 
-Can be argued. Changed to dev_err_ratelimited(). Thanks!
+There's also the issue of dynamically assigned address colliding
+with unlisted devices, though I think this would only happen in
+the development / bring up phase of the device.
+
+I think the first issue pretty much rules out putting the
+hardware address into 'reg'.
+
+Putting the logical address in the 'reg' property allows the
+user to poke unlisted devices using i2c-tools, though this
+is not so useful to the average user.
 
 
---7iMSBzlTiPOCCT2k
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJU7InUAAoJEBQN5MwUoCm2FyMP/396wTJ79mIvC6SMKh0qHIIy
-lfoEi7z+j7FXG1auWe/Jg0Zl8AdNVlmXuwo6XX/BHWyuj2ZUTSU6I0VikqzbyoRQ
-CX9TDFWvPIKxw72LUNSIQjWuflc1xUL57vRHjnamEuASwPp97url6/qMFSQiRZhy
-4REikDaClN3m/HlSH86r+EH/UbXdLA182nOinmuzzt4wED0EMNN8pGlj/kY2Mlgr
-F1EJL71+lWetbWvwGD+OQlJyGwf/spro+5d/pJ9onbg98lKRV72HBkqx3idxfZEM
-t1UDwJVCl3tUwpFY26GTenUBmnGjxjRxgiSJMPBhdaW+L5GqFh1rbmfVfT41o7Yf
-dE32o1O4UO9L8IkRMw/+nKJ0xfQza1Gihskq2Q0n8rkNpg9G8lH+KGqhYK+dzTlT
-W5MzoLnyzv6QvP5RB7LXdUA6g4vciaeoNOynd21r4otmNLAPR00m6OkY2FZTtsqt
-M40if2xDZlY56y9Shy7oXiglC/Dw4PsjmKPuy7gV7F1K99nsXM1gNzhwjnanOyBL
-FDWif4e9gEBrCONre9IRMZ3351GZEtkDGPnTWHAwF8ncgILzA/nGr4gkQDBVt00w
-K5Pdo1CHdZqxzXeh8/S8u4kxOVQYyx81FJ+6mnQFhbn4TtV8Q5qQL2oh3W71eehh
-5BkNrvM/ikWNOgDBUAAi
-=Er7l
------END PGP SIGNATURE-----
-
---7iMSBzlTiPOCCT2k--
+Regards,
+ChenYu
