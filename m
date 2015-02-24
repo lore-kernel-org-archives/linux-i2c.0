@@ -1,37 +1,46 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v1 2/5] i2c-designware-baytrail: fix typo in error path
-Date: Tue, 24 Feb 2015 12:06:21 +0200
-Message-ID: <1424772381.14897.20.camel@linux.intel.com>
-References: <1423587970-19136-1-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <1423587970-19136-2-git-send-email-andriy.shevchenko@linux.intel.com>
-	 <20150211164611.GA2712@katana> <1424696051.14897.13.camel@linux.intel.com>
-	 <20150223184223.GA14109@katana>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: [PATCH 4/4] ARM: dts: sun8i: ippo-q8h-v5: Enable
+ Reduced Serial Bus controller
+Date: Tue, 24 Feb 2015 18:29:04 +0800
+Message-ID: <1424773744-15106-5-git-send-email-wens@csie.org>
+References: <1424773744-15106-1-git-send-email-wens@csie.org>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150223184223.GA14109@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBAFFWGTQKGQEFHIC47Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1424773744-15106-1-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <http://groups.google.com/group/linux-sunxi/subscribe>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 2015-02-23 at 19:42 +0100, Wolfram Sang wrote:
-> > > Shouldn't the latter be a dev_dbg?
-> > 
-> > Wolfram, do we agree on this as states in the patch? Maybe you have more
-> > comments, questions?
-> 
-> Yes, it is fine this way.
-> 
-> > Otherwise, should I rebase this on top of 4.0-rc1 or you will be okay
-> > with current version?
-> 
-> Well, if it needs rebasing, please do. If not, please say so, too :)
+The Reduced Serial Bus controller is used to talk to the onboard PMIC.
 
-It applies clearly on top of current linux-next without any changes from
-my side. So, no rebase is needed.
+Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+---
+ arch/arm/boot/dts/sun8i-a23-ippo-q8h-v5.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
+diff --git a/arch/arm/boot/dts/sun8i-a23-ippo-q8h-v5.dts b/arch/arm/boot/dts/sun8i-a23-ippo-q8h-v5.dts
+index 4cb25f8267c8..31882e6e7a38 100644
+--- a/arch/arm/boot/dts/sun8i-a23-ippo-q8h-v5.dts
++++ b/arch/arm/boot/dts/sun8i-a23-ippo-q8h-v5.dts
+@@ -125,6 +125,10 @@
+ 	};
+ };
+ 
++&r_rsb {
++	status = "okay";
++};
++
+ &r_uart {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&r_uart_pins_a>;
 -- 
-Andy Shevchenko <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Intel Finland Oy
+2.1.4
