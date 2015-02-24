@@ -1,69 +1,64 @@
-From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: Re: [PATCH 2/4] i2c: sunxi: Add Reduced Serial Bus (RSB) DT bindings documentation
-Date: Tue, 24 Feb 2015 22:01:26 +0800
-Message-ID: <CAGb2v66ru6Yurt1CFn-zocAuqen8GWSm8y9dHRf=-OOcc-DR7g@mail.gmail.com>
-References: <1424773744-15106-1-git-send-email-wens@csie.org>
- <1424773744-15106-3-git-send-email-wens@csie.org> <9851276.8ZCd3XfZle@wuerfel>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC 02/11] i2c: add quirk checks to core
+Date: Tue, 24 Feb 2015 15:16:44 +0100
+Message-ID: <20150224141644.GA18301@katana>
+References: <1420824103-24169-1-git-send-email-wsa@the-dreams.de>
+ <1420824103-24169-3-git-send-email-wsa@the-dreams.de>
+ <CABuKBe++yut6ZfhPrsWXGA4fZRvum6WOuRxHucM0gBJCGuou5A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <9851276.8ZCd3XfZle@wuerfel>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CABuKBe++yut6ZfhPrsWXGA4fZRvum6WOuRxHucM0gBJCGuou5A@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, linuxppc-dev@lists.ozlabs.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 24, 2015 at 6:37 PM, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
-> On Tuesday 24 February 2015 18:29:02 Chen-Yu Tsai wrote:
->>
->> +       rsb@01f03400 {
->> +               compatible = "allwinner,sun8i-a23-rsb";
->> +               reg = <0x01f03400 0x400>;
->> +               interrupts = <0 39 4>;
->> +               clocks = <&apb0_gates 3>;
->> +               clock-frequency = <3000000>;
->> +               resets = <&apb0_rst 3>;
->> +
->> +               axp223: pmic@2d {
->> +                       compatible = "x-powers,axp223", "x-powers,axp221";
->> +                       reg = <0x2d>;
->> +                       allwinner,rsb-hw-addr = <0x3e3>;
->> +
->> +                       /* ... */
->> +               };
->> +       };
->
-> The child node cannot have a 'reg' property if the parent does not
-> have #address-cells/#size-cells. You should add these as mandatory
-> properties in the list.
 
-Oops. I'll add them. A few of the other i2c bindings seem to be missing
-it as well. Probably why I missed it.
-
-> I don't really understand the need for having two addresses (runtime
-> and hardware). Could the runtime address be configured at runtime?
-
-You can, though the driver doesn't support this. I don't think the
-I2C subsystem allows arbitrary device insertion during normal
-operation, but maybe i2c-dev? I've tried using different addresses
-for devices so they do get changed during the probe phase, just
-to be sure that the code works, and it's not just sitting at
-the address the bootloader used.
-
-In any case, the distinction is more like burnt-in or hardwired
-addresses vs software configurable addresses.
-
-> Alternatively, could you use #address-cells=<2> and put both into
-> 'reg'?
-
-I sort of looked into it, and it seems the I2C subsystem won't mind
-the extra address cell. Maxime also asked whether we could use 2
-addresses, possibly with a reg-names property. Using 2 cells is simpler
-though.
-
-I'm open to other options, but I'd like to get some input, especially
-from the device tree maintainers, before I change it.
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Regards,
-ChenYu
+> > +               if (msgs[i].flags & I2C_M_RD) {
+> > +                       if (i2c_quirk_exceeded(len, max_read))
+> > +                               return i2c_quirk_error(adap, &msgs[i], =
+"msg too long");
+> > +               } else {
+> > +                       if (i2c_quirk_exceeded(len, max_write))
+> > +                               return i2c_quirk_error(adap, &msgs[i], =
+"msg too long");
+> > +               }
+>=20
+> What about being more verbose in the error message, specifying if it
+> was a read or a write message that failed?
+
+Yes, done now. Thanks!
+
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU7IfLAAoJEBQN5MwUoCm2eM4P+wQZaq6QCo0vjXPKuf28kwn7
+pE8alO7Mref/hDPDtJr/f7wFWnZkhQm0frwFxkMjkk7AXU/423Hr+WaynTn2muPU
+JsQCTXbHJ7FRk9I/k0ZlRyxDhOYM5pAX4y/M+L5rA9HvNFWDcchOaiq4ep3BpyDB
+xRRdXwMJHDylJJnbq/HEuXbNBXOex4qvCrAhXemdR9XYLCVenhMnBjztvkB48XDQ
+PXCBuf43NtjY3C0P7fbFnnGUP+t+Zhdzup9JYJKaroJKd8XgrViSCv9qog6xgUO2
+n5QzR5RwQCy4dQ8fhNteNJ5xJpTEQfV0qrTpGqqOBOtyZLtj+hjeEk8tBI4c+DJ2
+24Z4rVc3q0QfyL8o2T4IbIg7kRxlk+8M2RzEVy2tRpNmUlKtW8hLVrRADTJGyLR/
+XntU9Afl+qBnRwaP8IodZDE2xD5wTCwyo8L/4+/+q3Bo6mYxKkpOl43yDbDwJX6S
+c5c9K+ueyWxILGkmJ+dgHMNySI5G0uDq8BG5dLpbx5iDUZfZBZ/TZtrpnrl5PiR5
+kYkWJQ2L/P9CIer+v2Ia0e2XrYu8sVP/Cm38MsDRCiFHYj2qXREPMH6wY5Rf/wpH
+0hvntc8pvr1YkMMD4aOaeQAdsSXe63P/4Q4pjaWbqupdW5cWgzelSUJoLVc3Lhil
+2bx8Bd80/Y1UvyJBIbgi
+=ERJg
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--
