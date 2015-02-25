@@ -1,57 +1,81 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC V2 07/12] i2c: axxia: make use of the new infrastructure for quirks
-Date: Wed, 25 Feb 2015 17:01:58 +0100
-Message-ID: <1424880126-15047-8-git-send-email-wsa@the-dreams.de>
-References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 2/4] i2c: sunxi: Add Reduced Serial Bus (RSB) DT bindings documentation
+Date: Wed, 25 Feb 2015 17:10:49 +0100
+Message-ID: <2832810.NHVTmhf5rK@wuerfel>
+References: <1424773744-15106-1-git-send-email-wens@csie.org> <16025407.hQRFhlbHKD@wuerfel> <CAGb2v675oV60cont4JPX0Cy-5oaqXSz+74kC4JFeJYja6SSV+A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+In-Reply-To: <CAGb2v675oV60cont4JPX0Cy-5oaqXSz+74kC4JFeJYja6SSV+A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Maxime Ripard <maxime.ripard@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, linux-i2c@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, linux-sunxi <linux-sunxi@googlegroups.com>, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Tuesday 24 February 2015 22:32:57 Chen-Yu Tsai wrote:
+> On Tue, Feb 24, 2015 at 10:17 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Tuesday 24 February 2015 22:01:26 Chen-Yu Tsai wrote:
+> >> On Tue, Feb 24, 2015 at 6:37 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> >> > On Tuesday 24 February 2015 18:29:02 Chen-Yu Tsai wrote:
+> >> >>
+> >> >> +       rsb@01f03400 {
+> >> >> +               compatible = "allwinner,sun8i-a23-rsb";
+> >> >> +               reg = <0x01f03400 0x400>;
+> >> >> +               interrupts = <0 39 4>;
+> >> >> +               clocks = <&apb0_gates 3>;
+> >> >> +               clock-frequency = <3000000>;
+> >> >> +               resets = <&apb0_rst 3>;
+> >> >> +
+> >> >> +               axp223: pmic@2d {
+> >> >> +                       compatible = "x-powers,axp223", "x-powers,axp221";
+> >> >> +                       reg = <0x2d>;
+> >> >> +                       allwinner,rsb-hw-addr = <0x3e3>;
+> >> >> +
+> >> >> +                       /* ... */
+> >> >> +               };
+> >> >> +       };
+> >>
+> >> > I don't really understand the need for having two addresses (runtime
+> >> > and hardware). Could the runtime address be configured at runtime?
+> >>
+> >> You can, though the driver doesn't support this. I don't think the
+> >> I2C subsystem allows arbitrary device insertion during normal
+> >> operation, but maybe i2c-dev? I've tried using different addresses
+> >> for devices so they do get changed during the probe phase, just
+> >> to be sure that the code works, and it's not just sitting at
+> >> the address the bootloader used.
+> >>
+> >> In any case, the distinction is more like burnt-in or hardwired
+> >> addresses vs software configurable addresses.
+> >
+> > The simplest binding would the probably be to only put the
+> > hardware address into the 'reg' property and always assign the
+> > logical addresses dynamically.
+> >
+> > Would that add a lot of complexity or does it have any other
+> > downsides?
+> 
+> The hardware address is 12 bits wide. Any address higher than
+> 0x3ff will be rejected by the I2C core. The AC100 is at 0xe89.
+> 
+> Assigning addresses dynamically means the driver has to keep
+> a lookup table to map the hardware address to the logical
+> address to issue the command to.
+> 
+> There's also the issue of dynamically assigned address colliding
+> with unlisted devices, though I think this would only happen in
+> the development / bring up phase of the device.
+> 
+> I think the first issue pretty much rules out putting the
+> hardware address into 'reg'.
+> 
+> Putting the logical address in the 'reg' property allows the
+> user to poke unlisted devices using i2c-tools, though this
+> is not so useful to the average user.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-axxia.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+Ok, fair enough. Your approach seems reasonable then, but it
+might be helpful to add your explanation to the changelog of the
+patch that introduces the binding.
 
-diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-index 768a598d8d03ad..488c5d3bf9dba7 100644
---- a/drivers/i2c/busses/i2c-axxia.c
-+++ b/drivers/i2c/busses/i2c-axxia.c
-@@ -336,11 +336,6 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
- 	u32 addr_1, addr_2;
- 	int ret;
- 
--	if (msg->len > 255) {
--		dev_warn(idev->dev, "unsupported length %u\n", msg->len);
--		return -EINVAL;
--	}
--
- 	idev->msg = msg;
- 	idev->msg_xfrd = 0;
- 	idev->msg_err = 0;
-@@ -454,6 +449,11 @@ static const struct i2c_algorithm axxia_i2c_algo = {
- 	.functionality = axxia_i2c_func,
- };
- 
-+static struct i2c_adapter_quirks axxia_i2c_quirks = {
-+	.max_read_len = 255,
-+	.max_write_len = 255,
-+};
-+
- static int axxia_i2c_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
-@@ -511,6 +511,7 @@ static int axxia_i2c_probe(struct platform_device *pdev)
- 	strlcpy(idev->adapter.name, pdev->name, sizeof(idev->adapter.name));
- 	idev->adapter.owner = THIS_MODULE;
- 	idev->adapter.algo = &axxia_i2c_algo;
-+	idev->adapter.quirks = &axxia_i2c_quirks;
- 	idev->adapter.dev.parent = &pdev->dev;
- 	idev->adapter.dev.of_node = pdev->dev.of_node;
- 
--- 
-2.1.4
+	Arnd
