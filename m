@@ -1,104 +1,67 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [RFC V2 02/12] i2c: add quirk checks to core
-Date: Wed, 25 Feb 2015 17:01:53 +0100
-Message-ID: <1424880126-15047-3-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC V2 05/12] i2c: qup: make use of the new infrastructure for quirks
+Date: Wed, 25 Feb 2015 17:01:56 +0100
+Message-ID: <1424880126-15047-6-git-send-email-wsa@the-dreams.de>
 References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1424880126-15047-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Let the core do the checks if HW quirks prevent a transfer. Saves code
-from drivers and adds consistency.
-
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core.c | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 62 insertions(+)
+ drivers/i2c/busses/i2c-qup.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 210cf4874cb7ea..c5ca0e4006edb7 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1929,6 +1929,65 @@ module_exit(i2c_exit);
-  * ----------------------------------------------------
-  */
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index 4dad23bdffbe90..fdcbdab808e9fc 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -412,17 +412,6 @@ static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 	unsigned long left;
+ 	int ret;
  
-+/* Check if val is exceeding the quirk IFF quirk is non 0 */
-+#define i2c_quirk_exceeded(val, quirk) ((quirk) && ((val) > (quirk)))
-+
-+static int i2c_quirk_error(struct i2c_adapter *adap, struct i2c_msg *msg, char *err_msg)
-+{
-+	dev_err_ratelimited(&adap->dev, "quirk: %s (addr 0x%04x, size %u, %s)\n",
-+			    err_msg, msg->addr, msg->len,
-+			    msg->flags & I2C_M_RD ? "read" : "write");
-+	return -EOPNOTSUPP;
-+}
-+
-+static int i2c_check_for_quirks(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	const struct i2c_adapter_quirks *q = adap->quirks;
-+	int max_num = q->max_num_msgs, i;
-+	bool do_len_check = true;
-+
-+	if (q->flags & I2C_AQ_COMB) {
-+		max_num = 2;
-+
-+		/* special checks for combined messages */
-+		if (num == 2) {
-+			if (q->flags & I2C_AQ_COMB_WRITE_FIRST && msgs[0].flags & I2C_M_RD)
-+				return i2c_quirk_error(adap, &msgs[0], "1st comb msg not write");
-+
-+			if (q->flags & I2C_AQ_COMB_READ_SECOND && !(msgs[1].flags & I2C_M_RD))
-+				return i2c_quirk_error(adap, &msgs[1], "2nd comb msg not read");
-+
-+			if (q->flags & I2C_AQ_COMB_SAME_ADDR && msgs[0].addr != msgs[1].addr)
-+				return i2c_quirk_error(adap, &msgs[0], "addresses do not match");
-+
-+			if (i2c_quirk_exceeded(msgs[0].len, q->max_comb_1st_msg_len))
-+				return i2c_quirk_error(adap, &msgs[0], "msg too long");
-+
-+			if (i2c_quirk_exceeded(msgs[1].len, q->max_comb_2nd_msg_len))
-+				return i2c_quirk_error(adap, &msgs[1], "msg too long");
-+
-+			do_len_check = false;
-+		}
-+	}
-+
-+	if (i2c_quirk_exceeded(num, max_num))
-+		return i2c_quirk_error(adap, &msgs[0], "too many messages");
-+
-+	for (i = 0; i < num; i++) {
-+		u16 len = msgs[i].len;
-+
-+		if (msgs[i].flags & I2C_M_RD) {
-+			if (do_len_check && i2c_quirk_exceeded(len, q->max_read_len))
-+				return i2c_quirk_error(adap, &msgs[i], "msg too long");
-+		} else {
-+			if (do_len_check && i2c_quirk_exceeded(len, q->max_write_len))
-+				return i2c_quirk_error(adap, &msgs[i], "msg too long");
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  * __i2c_transfer - unlocked flavor of i2c_transfer
-  * @adap: Handle to I2C bus
-@@ -1946,6 +2005,9 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	unsigned long orig_jiffies;
- 	int ret, try;
+-	/*
+-	 * The QUP block will issue a NACK and STOP on the bus when reaching
+-	 * the end of the read, the length of the read is specified as one byte
+-	 * which limits the possible read to 256 (QUP_READ_LIMIT) bytes.
+-	 */
+-	if (msg->len > QUP_READ_LIMIT) {
+-		dev_err(qup->dev, "HW not capable of reads over %d bytes\n",
+-			QUP_READ_LIMIT);
+-		return -EINVAL;
+-	}
+-
+ 	qup->msg = msg;
+ 	qup->pos  = 0;
  
-+	if (adap->quirks && i2c_check_for_quirks(adap, msgs, num))
-+		return -EOPNOTSUPP;
+@@ -534,6 +523,15 @@ static const struct i2c_algorithm qup_i2c_algo = {
+ 	.functionality	= qup_i2c_func,
+ };
+ 
++/*
++ * The QUP block will issue a NACK and STOP on the bus when reaching
++ * the end of the read, the length of the read is specified as one byte
++ * which limits the possible read to 256 (QUP_READ_LIMIT) bytes.
++ */
++static struct i2c_adapter_quirks qup_i2c_quirks = {
++	.max_read_len = QUP_READ_LIMIT,
++};
 +
- 	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
- 	 * enabled.  This is an efficient way of keeping the for-loop from
- 	 * being executed when not needed.
+ static void qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
+ {
+ 	clk_prepare_enable(qup->clk);
+@@ -670,6 +668,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 
+ 	i2c_set_adapdata(&qup->adap, qup);
+ 	qup->adap.algo = &qup_i2c_algo;
++	qup->adap.quirks = &qup_i2c_quirks;
+ 	qup->adap.dev.parent = qup->dev;
+ 	qup->adap.dev.of_node = pdev->dev.of_node;
+ 	strlcpy(qup->adap.name, "QUP I2C adapter", sizeof(qup->adap.name));
 -- 
 2.1.4
