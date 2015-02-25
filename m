@@ -1,68 +1,61 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC V2 06/12] i2c: cpm: make use of the new infrastructure for quirks
-Date: Wed, 25 Feb 2015 17:01:57 +0100
-Message-ID: <1424880126-15047-7-git-send-email-wsa@the-dreams.de>
+Subject: [RFC V2 12/12] i2c: bcm-iproc: make use of the new infrastructure for quirks
+Date: Wed, 25 Feb 2015 17:02:03 +0100
+Message-ID: <1424880126-15047-13-git-send-email-wsa@the-dreams.de>
 References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Jochen Friedrich <jochen@scram.de>, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-cpm.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-bcm-iproc.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-index 2d466538b2e2c9..714bdc837769fd 100644
---- a/drivers/i2c/busses/i2c-cpm.c
-+++ b/drivers/i2c/busses/i2c-cpm.c
-@@ -308,22 +308,12 @@ static int cpm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	struct i2c_reg __iomem *i2c_reg = cpm->i2c_reg;
- 	struct i2c_ram __iomem *i2c_ram = cpm->i2c_ram;
- 	struct i2c_msg *pmsg;
--	int ret, i;
-+	int ret;
- 	int tptr;
- 	int rptr;
- 	cbd_t __iomem *tbdf;
- 	cbd_t __iomem *rbdf;
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index d3c89157b33774..f9f2c2082151e2 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -160,14 +160,6 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 	u32 val;
+ 	unsigned long time_left = msecs_to_jiffies(I2C_TIMEOUT_MESC);
  
--	if (num > CPM_MAXBD)
--		return -EINVAL;
--
--	/* Check if we have any oversized READ requests */
--	for (i = 0; i < num; i++) {
--		pmsg = &msgs[i];
--		if (pmsg->len >= CPM_MAX_READ)
--			return -EINVAL;
+-	/* need to reserve one byte in the FIFO for the slave address */
+-	if (msg->len > M_TX_RX_FIFO_SIZE - 1) {
+-		dev_err(iproc_i2c->device,
+-			"only support data length up to %u bytes\n",
+-			M_TX_RX_FIFO_SIZE - 1);
+-		return -EOPNOTSUPP;
 -	}
 -
- 	/* Reset to use first buffer */
- 	out_be16(&i2c_ram->rbptr, in_be16(&i2c_ram->rbase));
- 	out_be16(&i2c_ram->tbptr, in_be16(&i2c_ram->tbase));
-@@ -424,10 +414,18 @@ static const struct i2c_algorithm cpm_i2c_algo = {
- 	.functionality = cpm_i2c_func,
+ 	/* check if bus is busy */
+ 	if (!!(readl(iproc_i2c->base + M_CMD_OFFSET) &
+ 	       BIT(M_CMD_START_BUSY_SHIFT))) {
+@@ -287,6 +279,12 @@ static const struct i2c_algorithm bcm_iproc_algo = {
+ 	.functionality = bcm_iproc_i2c_functionality,
  };
  
-+/* CPM_MAX_READ is also limiting writes according to the code! */
-+static struct i2c_adapter_quirks cpm_i2c_quirks = {
-+	.max_num_msgs = CPM_MAXBD,
-+	.max_read_len = CPM_MAX_READ,
-+	.max_write_len = CPM_MAX_READ,
++static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
++	/* need to reserve one byte in the FIFO for the slave address */
++	.max_read_len = M_TX_RX_FIFO_SIZE - 1,
++	.max_write_len = M_TX_RX_FIFO_SIZE - 1,
 +};
 +
- static const struct i2c_adapter cpm_ops = {
- 	.owner		= THIS_MODULE,
- 	.name		= "i2c-cpm",
- 	.algo		= &cpm_i2c_algo,
-+	.quirks		= &cpm_i2c_quirks,
- };
+ static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i2c)
+ {
+ 	unsigned int bus_speed;
+@@ -413,6 +411,7 @@ static int bcm_iproc_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, iproc_i2c);
+ 	strlcpy(adap->name, "Broadcom iProc I2C adapter", sizeof(adap->name));
+ 	adap->algo = &bcm_iproc_algo;
++	adap->quirks = &bcm_iproc_i2c_quirks;
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
  
- static int cpm_i2c_setup(struct cpm_i2c *cpm)
 -- 
 2.1.4
