@@ -1,96 +1,100 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC V2 11/12] i2c: pmcmsp: make use of the new infrastructure for quirks
-Date: Wed, 25 Feb 2015 17:02:02 +0100
-Message-ID: <1424880126-15047-12-git-send-email-wsa@the-dreams.de>
+Subject: [RFC V2 01/12] i2c: add quirk structure to describe adapter flaws
+Date: Wed, 25 Feb 2015 17:01:52 +0100
+Message-ID: <1424880126-15047-2-git-send-email-wsa@the-dreams.de>
 References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-mips-bounce@linux-mips.org>
 In-Reply-To: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 To: linux-i2c@vger.kernel.org
 Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+The number of I2C adapters which are not fully I2C compatible is rising,
+sadly. Drivers usually do handle the flaws, still the user receives only
+some errno for a transfer which normally can be expected to work. This
+patch introduces a formal description of flaws. One advantage is that
+the core can check before the actual transfer if the messages could be
+transferred at all. This is done in the next patch. Another advantage is
+that we can pass this information to the user so the restrictions are
+exactly known and further actions can be based on that. This will be
+done later after some stabilization period for this description.
+
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-pmcmsp.c | 42 ++++++++++++++++-------------------------
- 1 file changed, 16 insertions(+), 26 deletions(-)
+ include/linux/i2c.h | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
-index d37d9db6681e7b..2c40edbf6224eb 100644
---- a/drivers/i2c/busses/i2c-pmcmsp.c
-+++ b/drivers/i2c/busses/i2c-pmcmsp.c
-@@ -456,14 +456,6 @@ static enum pmcmsptwi_xfer_result pmcmsptwi_xfer_cmd(
- 		return -EINVAL;
- 	}
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index f17da50402a4da..243d1a1d78b248 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -449,6 +449,48 @@ int i2c_recover_bus(struct i2c_adapter *adap);
+ int i2c_generic_gpio_recovery(struct i2c_adapter *adap);
+ int i2c_generic_scl_recovery(struct i2c_adapter *adap);
  
--	if (cmd->read_len > MSP_MAX_BYTES_PER_RW ||
--	    cmd->write_len > MSP_MAX_BYTES_PER_RW) {
--		dev_err(&pmcmsptwi_adapter.dev,
--			"%s: Cannot transfer more than %d bytes\n",
--			__func__, MSP_MAX_BYTES_PER_RW);
--		return -EINVAL;
--	}
--
- 	mutex_lock(&data->lock);
- 	dev_dbg(&pmcmsptwi_adapter.dev,
- 		"Setting address to 0x%04x\n", cmd->addr);
-@@ -520,25 +512,14 @@ static int pmcmsptwi_master_xfer(struct i2c_adapter *adap,
- 	struct pmcmsptwi_cfg oldcfg, newcfg;
- 	int ret;
- 
--	if (num > 2) {
--		dev_dbg(&adap->dev, "%d messages unsupported\n", num);
--		return -EINVAL;
--	} else if (num == 2) {
--		/* Check for a dual write-then-read command */
-+	if (num == 2) {
- 		struct i2c_msg *nextmsg = msg + 1;
--		if (!(msg->flags & I2C_M_RD) &&
--		    (nextmsg->flags & I2C_M_RD) &&
--		    msg->addr == nextmsg->addr) {
--			cmd.type = MSP_TWI_CMD_WRITE_READ;
--			cmd.write_len = msg->len;
--			cmd.write_data = msg->buf;
--			cmd.read_len = nextmsg->len;
--			cmd.read_data = nextmsg->buf;
--		} else {
--			dev_dbg(&adap->dev,
--				"Non write-read dual messages unsupported\n");
--			return -EINVAL;
--		}
++/**
++ * struct i2c_adapter_quirks - describe flaws of an i2c adapter
++ * @flags: see I2C_AQ_* for possible flags and read below
++ * @max_num_msgs: maximum number of messages per transfer
++ * @max_write_len: maximum length of a write message
++ * @max_read_len: maximum length of a read message
++ * @max_comb_1st_msg_len: maximum length of the first msg in a combined message
++ * @max_comb_2nd_msg_len: maximum length of the second msg in a combined message
++ *
++ * Note about combined messages: Some I2C controllers can only send one message
++ * per transfer, plus something called combined message or write-then-read.
++ * This is (usually) a small write message followed by a read message and
++ * barely enough to access register based devices like EEPROMs. There is a flag
++ * to support this mode. It implies max_num_msg = 2 and does the length checks
++ * with max_comb_*_len because combined message mode usually has its own
++ * limitations. Because of HW implementations, some controllers can actually do
++ * write-then-anything or other variants. To support that, write-then-read has
++ * been broken out into smaller bits like write-first and read-second which can
++ * be combined as needed.
++ */
 +
-+		cmd.type = MSP_TWI_CMD_WRITE_READ;
-+		cmd.write_len = msg->len;
-+		cmd.write_data = msg->buf;
-+		cmd.read_len = nextmsg->len;
-+		cmd.read_data = nextmsg->buf;
- 	} else if (msg->flags & I2C_M_RD) {
- 		cmd.type = MSP_TWI_CMD_READ;
- 		cmd.read_len = msg->len;
-@@ -598,6 +579,14 @@ static u32 pmcmsptwi_i2c_func(struct i2c_adapter *adapter)
- 		I2C_FUNC_SMBUS_WORD_DATA | I2C_FUNC_SMBUS_PROC_CALL;
- }
- 
-+static struct i2c_adapter_quirks pmcmsptwi_i2c_quirks = {
-+	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
-+	.max_write_len = MSP_MAX_BYTES_PER_RW,
-+	.max_read_len = MSP_MAX_BYTES_PER_RW,
-+	.max_comb_1st_msg_len = MSP_MAX_BYTES_PER_RW,
-+	.max_comb_2nd_msg_len = MSP_MAX_BYTES_PER_RW,
++struct i2c_adapter_quirks {
++	u64 flags;
++	int max_num_msgs;
++	u16 max_write_len;
++	u16 max_read_len;
++	u16 max_comb_1st_msg_len;
++	u16 max_comb_2nd_msg_len;
 +};
 +
- /* -- Initialization -- */
++/* enforce max_num_msgs = 2 and use max_comb_*_len for length checks */
++#define I2C_AQ_COMB			BIT(0)
++/* first combined message must be write */
++#define I2C_AQ_COMB_WRITE_FIRST		BIT(1)
++/* second combined message must be read */
++#define I2C_AQ_COMB_READ_SECOND		BIT(2)
++/* both combined messages must have the same target address */
++#define I2C_AQ_COMB_SAME_ADDR		BIT(3)
++/* convenience macro for typical write-then read case */
++#define I2C_AQ_COMB_WRITE_THEN_READ	(I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST | \
++					 I2C_AQ_COMB_READ_SECOND | I2C_AQ_COMB_SAME_ADDR)
++
+ /*
+  * i2c_adapter is the structure used to identify a physical i2c bus along
+  * with the access algorithms necessary to access it.
+@@ -474,6 +516,7 @@ struct i2c_adapter {
+ 	struct list_head userspace_clients;
  
- static struct i2c_algorithm pmcmsptwi_algo = {
-@@ -609,6 +598,7 @@ static struct i2c_adapter pmcmsptwi_adapter = {
- 	.owner		= THIS_MODULE,
- 	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
- 	.algo		= &pmcmsptwi_algo,
-+	.quirks		= &pmcmsptwi_i2c_quirks,
- 	.name		= DRV_NAME,
+ 	struct i2c_bus_recovery_info *bus_recovery_info;
++	const struct i2c_adapter_quirks *quirks;
  };
+ #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
  
 -- 
 2.1.4
