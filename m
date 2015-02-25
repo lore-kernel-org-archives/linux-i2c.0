@@ -1,58 +1,81 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] i2c: i2c-bcm2835: match return type of
- wait_for_completion_timeout
-Date: Wed, 25 Feb 2015 14:48:24 +0000
-Message-ID: <20150225144824.GA5132@x1>
-References: <1423393458-30334-1-git-send-email-hofrat@osadl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1423393458-30334-1-git-send-email-hofrat@osadl.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Mc Guire <hofrat@osadl.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Felipe Balbi <balbi@ti.com>, Uwe Kleine-Koenig <u.kleine-koenig@pengutronix.de>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [RFC V2 03/12] i2c: at91: make use of the new infrastructure for quirks
+Date: Wed, 25 Feb 2015 17:01:54 +0100
+Message-ID: <1424880126-15047-4-git-send-email-wsa@the-dreams.de>
+References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1424880126-15047-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 08 Feb 2015, Nicholas Mc Guire wrote:
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-> return type of wait_for_completion_timeout is unsigned long not int. =
-as
-> time_left is used for wait_for_completion_timeout exclusively here it=
-s=20
-> type is simply changed to unsigned long.
->=20
-> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-> ---
->=20
-> Patch was only compile tested with=20
->=20
-> Patch is against 3.19.0-rc7 (localversion-next is -next-20150204)
->=20
->  drivers/i2c/busses/i2c-bcm2835.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-at91.c | 32 +++++++++++---------------------
+ 1 file changed, 11 insertions(+), 21 deletions(-)
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
-
-> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2=
-c-bcm2835.c
-> index 5d6feb9..c9336a3 100644
-> --- a/drivers/i2c/busses/i2c-bcm2835.c
-> +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> @@ -147,7 +147,7 @@ static int bcm2835_i2c_xfer_msg(struct bcm2835_i2=
-c_dev *i2c_dev,
->  				struct i2c_msg *msg)
->  {
->  	u32 c;
-> -	int time_left;
-> +	unsigned long time_left;
-> =20
->  	i2c_dev->msg_buf =3D msg->buf;
->  	i2c_dev->msg_buf_remaining =3D msg->len;
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 636fd2efad8850..b3a70e8fc653c5 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -487,30 +487,10 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	if (ret < 0)
+ 		goto out;
+ 
+-	/*
+-	 * The hardware can handle at most two messages concatenated by a
+-	 * repeated start via it's internal address feature.
+-	 */
+-	if (num > 2) {
+-		dev_err(dev->dev,
+-			"cannot handle more than two concatenated messages.\n");
+-		ret = 0;
+-		goto out;
+-	} else if (num == 2) {
++	if (num == 2) {
+ 		int internal_address = 0;
+ 		int i;
+ 
+-		if (msg->flags & I2C_M_RD) {
+-			dev_err(dev->dev, "first transfer must be write.\n");
+-			ret = -EINVAL;
+-			goto out;
+-		}
+-		if (msg->len > 3) {
+-			dev_err(dev->dev, "first message size must be <= 3.\n");
+-			ret = -EINVAL;
+-			goto out;
+-		}
+-
+ 		/* 1st msg is put into the internal address, start with 2nd */
+ 		m_start = &msg[1];
+ 		for (i = 0; i < msg->len; ++i) {
+@@ -540,6 +520,15 @@ out:
+ 	return ret;
+ }
+ 
++/*
++ * The hardware can handle at most two messages concatenated by a
++ * repeated start via it's internal address feature.
++ */
++static struct i2c_adapter_quirks at91_twi_quirks = {
++	.flags = I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST | I2C_AQ_COMB_SAME_ADDR,
++	.max_comb_1st_msg_len = 3,
++};
++
+ static u32 at91_twi_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+@@ -777,6 +766,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	dev->adapter.owner = THIS_MODULE;
+ 	dev->adapter.class = I2C_CLASS_DEPRECATED;
+ 	dev->adapter.algo = &at91_twi_algorithm;
++	dev->adapter.quirks = &at91_twi_quirks;
+ 	dev->adapter.dev.parent = dev->dev;
+ 	dev->adapter.nr = pdev->id;
+ 	dev->adapter.timeout = AT91_I2C_TIMEOUT;
+-- 
+2.1.4
