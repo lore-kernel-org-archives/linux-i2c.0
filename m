@@ -1,81 +1,54 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/4] i2c: sunxi: Add Reduced Serial Bus (RSB) DT bindings documentation
-Date: Wed, 25 Feb 2015 17:10:49 +0100
-Message-ID: <2832810.NHVTmhf5rK@wuerfel>
-References: <1424773744-15106-1-git-send-email-wens@csie.org> <16025407.hQRFhlbHKD@wuerfel> <CAGb2v675oV60cont4JPX0Cy-5oaqXSz+74kC4JFeJYja6SSV+A@mail.gmail.com>
+From: Mike Turquette <mturquette@linaro.org>
+Subject: Re: [RFC 1/3] i2c: Enhancement of i2c API to address circular lock
+ dependency problem
+Date: Wed, 25 Feb 2015 11:47:15 -0800
+Message-ID: <20150225194715.421.87263@quantum>
+References: <1421419194-1849-1-git-send-email-p.osmialowsk@samsung.com>
+ <CA+Ln22GrsCj0291dVccFPzPW8pmxyc8JHtPo5ijsAdDXw6RC1Q@mail.gmail.com>
+ <54BB9100.7000506@samsung.com> <20150118134124.GC2809@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAGb2v675oV60cont4JPX0Cy-5oaqXSz+74kC4JFeJYja6SSV+A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Maxime Ripard <maxime.ripard@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, linux-i2c@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, linux-sunxi <linux-sunxi@googlegroups.com>, Hans de Goede <hdegoede@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20150118134124.GC2809@sirena.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>, Krzysztof Kozlowski <k.kozlowski@samsung.com>
+Cc: Tomasz Figa <tomasz.figa@gmail.com>, Paul Osmialowski <p.osmialowsk@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kukjin Kim <kgene@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Peter De Schrijver <pdeschrijver@nvidia.com>, Russell King <rmk+kernel@arm.linux.org.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 24 February 2015 22:32:57 Chen-Yu Tsai wrote:
-> On Tue, Feb 24, 2015 at 10:17 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Tuesday 24 February 2015 22:01:26 Chen-Yu Tsai wrote:
-> >> On Tue, Feb 24, 2015 at 6:37 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> >> > On Tuesday 24 February 2015 18:29:02 Chen-Yu Tsai wrote:
-> >> >>
-> >> >> +       rsb@01f03400 {
-> >> >> +               compatible = "allwinner,sun8i-a23-rsb";
-> >> >> +               reg = <0x01f03400 0x400>;
-> >> >> +               interrupts = <0 39 4>;
-> >> >> +               clocks = <&apb0_gates 3>;
-> >> >> +               clock-frequency = <3000000>;
-> >> >> +               resets = <&apb0_rst 3>;
-> >> >> +
-> >> >> +               axp223: pmic@2d {
-> >> >> +                       compatible = "x-powers,axp223", "x-powers,axp221";
-> >> >> +                       reg = <0x2d>;
-> >> >> +                       allwinner,rsb-hw-addr = <0x3e3>;
-> >> >> +
-> >> >> +                       /* ... */
-> >> >> +               };
-> >> >> +       };
-> >>
-> >> > I don't really understand the need for having two addresses (runtime
-> >> > and hardware). Could the runtime address be configured at runtime?
-> >>
-> >> You can, though the driver doesn't support this. I don't think the
-> >> I2C subsystem allows arbitrary device insertion during normal
-> >> operation, but maybe i2c-dev? I've tried using different addresses
-> >> for devices so they do get changed during the probe phase, just
-> >> to be sure that the code works, and it's not just sitting at
-> >> the address the bootloader used.
-> >>
-> >> In any case, the distinction is more like burnt-in or hardwired
-> >> addresses vs software configurable addresses.
-> >
-> > The simplest binding would the probably be to only put the
-> > hardware address into the 'reg' property and always assign the
-> > logical addresses dynamically.
-> >
-> > Would that add a lot of complexity or does it have any other
-> > downsides?
+Quoting Mark Brown (2015-01-18 05:41:24)
+> On Sun, Jan 18, 2015 at 11:54:56AM +0100, Krzysztof Kozlowski wrote:
+> > W dniu 18.01.2015 o 07:30, Tomasz Figa pisze:
 > 
-> The hardware address is 12 bits wide. Any address higher than
-> 0x3ff will be rejected by the I2C core. The AC100 is at 0xe89.
+> > >So, the question is, do we actually have hardware that _really_
+> > >requires _actual_ preparation or all the clk_prepare_enable()s in I2C
+> > >drivers (at least in i2c-s3c2410) are just to simplify the code?
 > 
-> Assigning addresses dynamically means the driver has to keep
-> a lookup table to map the hardware address to the logical
-> address to issue the command to.
+> > I completely forgot that you already thought about this deadlock in 2014. I
+> > think we can try the no-prepare way for i2c-s3c2410. However this would be
+> > only workaround for specific chip. Other buses (like SPI) would require
+> > similar changes.
 > 
-> There's also the issue of dynamically assigned address colliding
-> with unlisted devices, though I think this would only happen in
-> the development / bring up phase of the device.
-> 
-> I think the first issue pretty much rules out putting the
-> hardware address into 'reg'.
-> 
-> Putting the logical address in the 'reg' property allows the
-> user to poke unlisted devices using i2c-tools, though this
-> is not so useful to the average user.
+> Right, and it's every single driver which would need an update too which
+> is a bit icky and sad.  On the other hand a more detailed fix is going
+> to involve trying to make the clock API locking more fine grained which
+> isn't fun.
 
-Ok, fair enough. Your approach seems reasonable then, but it
-might be helpful to add your explanation to the changelog of the
-patch that introduces the binding.
+Not fun is right. Please see Stephen's attempt here:
 
-	Arnd
+http://lkml.kernel.org/r/<1409792466-5092-1-git-send-email-sboyd@codeaurora.org>
+
+I'm hoping this approach will be revisited soon.
+
+Regards,
+Mike
+
+> 
+> > I wondered why this was not observed (at least not observed by me with
+> > lockdep) on Gear 2 (Rinato) board. This is quite similar case: the S2MPS14
+> > PMIC provides regulators and 32kHz clocks. I think it is exactly the same
+> > pattern as for max77686... but somehow lockdep never reported that deadlock
+> > there.
+> 
+> Mostly the clocks on PMICs never get changed at runtime which helps a
+> lot here.
