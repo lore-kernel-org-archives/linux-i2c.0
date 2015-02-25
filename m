@@ -1,76 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC V2 00/12] i2c: describe adapter quirks in a generic way
-Date: Wed, 25 Feb 2015 17:01:51 +0100
-Message-ID: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-mips-bounce@linux-mips.org>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+Subject: [RFC V2 06/12] i2c: cpm: make use of the new infrastructure for quirks
+Date: Wed, 25 Feb 2015 17:01:57 +0100
+Message-ID: <1424880126-15047-7-git-send-email-wsa@the-dreams.de>
+References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Jochen Friedrich <jochen@scram.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Here is the second version of the patch series to describe i2c adapter quirks
-in a generic way. For the motivation, please read description of patch 1. This
-is still RFC because I would like to do some more tests on my own, but I need
-to write a tool for that. However, I'd really like to have the driver authors
-to have a look already. Actual testing is very much appreciated. Thanks to the
-Mediatek guys for rebasing their new driver to this framework. That helps, too!
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-cpm.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-The branch is also here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/quirks
-
-Thanks,
-
-   Wolfram
-
-Major changes since V1:
-
-* more fine-grained options to describe modes with combined messages.
-  This should also cover the Mediatek HW now as well as all other
-  permutations I can think of.
-
-* the core code and at91 driver had to be refactored to reflect the
-  above change
-
-* added the bcm-iproc driver which came to mainline recently
-
-Wolfram Sang (12):
-  i2c: add quirk structure to describe adapter flaws
-  i2c: add quirk checks to core
-  i2c: at91: make use of the new infrastructure for quirks
-  i2c: opal: make use of the new infrastructure for quirks
-  i2c: qup: make use of the new infrastructure for quirks
-  i2c: cpm: make use of the new infrastructure for quirks
-  i2c: axxia: make use of the new infrastructure for quirks
-  i2c: dln2: make use of the new infrastructure for quirks
-  i2c: powermac: make use of the new infrastructure for quirks
-  i2c: viperboard: make use of the new infrastructure for quirks
-  i2c: pmcmsp: make use of the new infrastructure for quirks
-  i2c: bcm-iproc: make use of the new infrastructure for quirks
-
- drivers/i2c/busses/i2c-at91.c       | 32 +++++++------------
- drivers/i2c/busses/i2c-axxia.c      | 11 ++++---
- drivers/i2c/busses/i2c-bcm-iproc.c  | 15 +++++----
- drivers/i2c/busses/i2c-cpm.c        | 20 ++++++------
- drivers/i2c/busses/i2c-dln2.c       | 12 +++----
- drivers/i2c/busses/i2c-opal.c       | 22 ++++++-------
- drivers/i2c/busses/i2c-pmcmsp.c     | 42 ++++++++++---------------
- drivers/i2c/busses/i2c-powermac.c   | 10 +++---
- drivers/i2c/busses/i2c-qup.c        | 21 ++++++-------
- drivers/i2c/busses/i2c-viperboard.c | 10 +++---
- drivers/i2c/i2c-core.c              | 62 +++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h                 | 43 +++++++++++++++++++++++++
- 12 files changed, 191 insertions(+), 109 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+index 2d466538b2e2c9..714bdc837769fd 100644
+--- a/drivers/i2c/busses/i2c-cpm.c
++++ b/drivers/i2c/busses/i2c-cpm.c
+@@ -308,22 +308,12 @@ static int cpm_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	struct i2c_reg __iomem *i2c_reg = cpm->i2c_reg;
+ 	struct i2c_ram __iomem *i2c_ram = cpm->i2c_ram;
+ 	struct i2c_msg *pmsg;
+-	int ret, i;
++	int ret;
+ 	int tptr;
+ 	int rptr;
+ 	cbd_t __iomem *tbdf;
+ 	cbd_t __iomem *rbdf;
+ 
+-	if (num > CPM_MAXBD)
+-		return -EINVAL;
+-
+-	/* Check if we have any oversized READ requests */
+-	for (i = 0; i < num; i++) {
+-		pmsg = &msgs[i];
+-		if (pmsg->len >= CPM_MAX_READ)
+-			return -EINVAL;
+-	}
+-
+ 	/* Reset to use first buffer */
+ 	out_be16(&i2c_ram->rbptr, in_be16(&i2c_ram->rbase));
+ 	out_be16(&i2c_ram->tbptr, in_be16(&i2c_ram->tbase));
+@@ -424,10 +414,18 @@ static const struct i2c_algorithm cpm_i2c_algo = {
+ 	.functionality = cpm_i2c_func,
+ };
+ 
++/* CPM_MAX_READ is also limiting writes according to the code! */
++static struct i2c_adapter_quirks cpm_i2c_quirks = {
++	.max_num_msgs = CPM_MAXBD,
++	.max_read_len = CPM_MAX_READ,
++	.max_write_len = CPM_MAX_READ,
++};
++
+ static const struct i2c_adapter cpm_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.name		= "i2c-cpm",
+ 	.algo		= &cpm_i2c_algo,
++	.quirks		= &cpm_i2c_quirks,
+ };
+ 
+ static int cpm_i2c_setup(struct cpm_i2c *cpm)
 -- 
 2.1.4
