@@ -1,39 +1,103 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
-Date: Thu, 26 Feb 2015 16:27:49 +0200
-Message-ID: <2747724.u7aGnnSiv7@avalon>
-References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <CAMuHMdUwHde0EvbCD574L2tW6qqxLCtZwAb+0M-4QCjB9V6fmQ@mail.gmail.com> <20150126120947.GC1052@katana>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 0/8] Add proper support for Compulab CM-A510/SBC-A510
+Date: Thu, 26 Feb 2015 18:55:35 +0100
+Message-ID: <54EF5E17.1070005@free-electrons.com>
+References: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20150126120947.GC1052@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1424199129-22099-1-git-send-email-sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi Sebastian,
 
-On Monday 26 January 2015 13:09:47 Wolfram Sang wrote:
-> > >> If you drop adi,adxl346, checkpatch will start complaining if it
-> > >> encounters
-> > >> it in a .dts.
-> > > 
-> > > Boah, this is annoying. That means we need an 346 entry even if it is
-> > > not different from 345 (which is fine by me).
-> > 
-> > To be clear: you need the entry in the documentation. It can be omitted
-> > from the driver if it's not (yet) used for matching.
+On 17/02/2015 19:52, Sebastian Hesselbarth wrote:
+> This patch set improves current mainline support for the Compulab
+> CM-A510 System-on-Module (SoM) and its default Compulab SBC-A510
+> base board. Thanks to Gabriel Dobato who agreed to remote debug and
+> test the provided DT changes.
 > 
-> Well, I don't really like that behaviour, but I don't like
-> i2c/trivial-devices.txt as well, so I'll just apply the patch and live
-> with it :)
+> On the way to proper support, we
+> - Rework i2c-mux-pinctrl to honor disabled sub-bus nodes
+> - Add missing "compulab" vendor prefix
+> - Fix broken uart[23] reg properties
+> - Beautify Dove's dtsi files by adding gpio/irq includes, node
+>   labels for pcie, and some additional pinctrl settings
+> - Add a node for the internal i2c mux mechanism on Dove SoCs
+> 
+> And finally add a DT include for the Compulab CM-A510 SoM and a DT
+> board file for the SBC-A510 base board.
+> 
+> Patches are based on stable v3.19 and are indended for the next
+> merge window (either v3.21 or v4.1). Compulab related changes have
+> been tested by Gabriel Dobato, I tested on SolidRun CuBox that it
+> does not break existing Dove boards.
+> 
+> For the i2c-mux-pinctrl, a Tested-by from any user of Tegra20
+> Seaboard, Tamonten, or Ventana would be nice to see if it is fully
+> compatible.
+> 
+> I have added MVEBU maintainers to all patches, Wolfram for i2c and
+> Stephen as the i2c-mux-pinctrl author i2c-mux-pinctrl related patches,
+> and corresponding lists. As there is no important DT work in here,
+> I decided to not explicitly add each of the DT maintainers except for
+> the vendor prefix patch.
+> 
+> Sebastian Hesselbarth (8):
+>   i2c: mux-pinctrl: Rework to honor disabled child nodes
+>   devicetree: vendor-prefixes: Add CompuLab to known vendors
+>   ARM: dts: dove: Fix uart[23] reg property
+>   ARM: dts: dove: Always include gpio and interrupt-controller headers
+>   ARM: dts: dove: Add node labels for PCIe ports 0 and 1
+>   ARM: dts: dove: Add some more common pinctrl settings
+>   ARM: dts: dove: Add internal i2c multiplexer node
+>   ARM: dts: dove: Add proper support for Compulab CM-A510/SBC-A510
 
-What happened to this patch ?
+Patches 3 to 6 applied on mvebu/dt
+
+If I understood well patches 7 and 8 depend on patch 1 which had not been
+taken yet.
+
+
+Thanks,
+
+Gregory
+
+
+> 
+>  .../devicetree/bindings/i2c/i2c-mux-pinctrl.txt    |  28 +--
+>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+>  arch/arm/boot/dts/Makefile                         |   5 +-
+>  arch/arm/boot/dts/dove-cm-a510.dts                 |  38 ----
+>  arch/arm/boot/dts/dove-cm-a510.dtsi                | 195 +++++++++++++++++++++
+>  arch/arm/boot/dts/dove-sbc-a510.dts                | 182 +++++++++++++++++++
+>  arch/arm/boot/dts/dove.dtsi                        | 103 ++++++++++-
+>  drivers/i2c/muxes/i2c-mux-pinctrl.c                |  70 +++++---
+>  8 files changed, 537 insertions(+), 85 deletions(-)
+>  delete mode 100644 arch/arm/boot/dts/dove-cm-a510.dts
+>  create mode 100644 arch/arm/boot/dts/dove-cm-a510.dtsi
+>  create mode 100644 arch/arm/boot/dts/dove-sbc-a510.dts
+> 
+> ---
+> Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+> Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+> Cc: Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Cc: Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> 
+
 
 -- 
-Regards,
-
-Laurent Pinchart
-
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
