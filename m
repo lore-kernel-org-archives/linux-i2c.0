@@ -1,36 +1,82 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 1/8] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Thu, 26 Feb 2015 14:46:29 -0700
-Message-ID: <54EF9435.1060806@wwwdotorg.org>
-References: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com> <1424199129-22099-2-git-send-email-sebastian.hesselbarth@gmail.com>
+From: Ray Jui <rjui@broadcom.com>
+Subject: Re: [RFC V2 12/12] i2c: bcm-iproc: make use of the new infrastructure
+ for quirks
+Date: Thu, 26 Feb 2015 15:32:58 -0800
+Message-ID: <54EFAD2A.9060501@broadcom.com>
+References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de> <1424880126-15047-13-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1424199129-22099-2-git-send-email-sebastian.hesselbarth@gmail.com>
+In-Reply-To: <1424880126-15047-13-git-send-email-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/17/2015 11:52 AM, Sebastian Hesselbarth wrote:
-> I2C mux pinctrl driver currently determines the number of sub-busses by
-> counting available pinctrl-names. Unfortunately, this requires each
-> incarnation of the devicetree node with different available sub-busses
-> to be rewritten.
->
-> This patch reworks i2c-mux-pinctrl driver to count the number of
-> available sub-nodes instead. The rework should be compatible to the old
-> way of probing for sub-busses and additionally allows to disable unused
-> sub-busses with standard DT property status = "disabled".
->
-> This also amends the corresponding devicetree binding documentation to
-> reflect the new functionality to disable unused sub-nodes. While at it,
-> also fix two references to binding documentation files that miss an "i2c-"
-> prefix.
 
-Tested-by: Stephen Warren <swarren@nvidia.com>
 
-(Both the HDMI and LCD panel DDC busses on NVIDIA Tegra 
-Springbank/Seaboard, running next-20150224)
+On 2/25/2015 8:02 AM, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/i2c/busses/i2c-bcm-iproc.c | 15 +++++++--------
+>  1 file changed, 7 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+> index d3c89157b33774..f9f2c2082151e2 100644
+> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
+> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+> @@ -160,14 +160,6 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>  	u32 val;
+>  	unsigned long time_left = msecs_to_jiffies(I2C_TIMEOUT_MESC);
+>  
+> -	/* need to reserve one byte in the FIFO for the slave address */
+> -	if (msg->len > M_TX_RX_FIFO_SIZE - 1) {
+> -		dev_err(iproc_i2c->device,
+> -			"only support data length up to %u bytes\n",
+> -			M_TX_RX_FIFO_SIZE - 1);
+> -		return -EOPNOTSUPP;
+> -	}
+> -
+>  	/* check if bus is busy */
+>  	if (!!(readl(iproc_i2c->base + M_CMD_OFFSET) &
+>  	       BIT(M_CMD_START_BUSY_SHIFT))) {
+> @@ -287,6 +279,12 @@ static const struct i2c_algorithm bcm_iproc_algo = {
+>  	.functionality = bcm_iproc_i2c_functionality,
+>  };
+>  
+> +static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
+> +	/* need to reserve one byte in the FIFO for the slave address */
+> +	.max_read_len = M_TX_RX_FIFO_SIZE - 1,
+> +	.max_write_len = M_TX_RX_FIFO_SIZE - 1,
+> +};
+> +
+>  static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i2c)
+>  {
+>  	unsigned int bus_speed;
+> @@ -413,6 +411,7 @@ static int bcm_iproc_i2c_probe(struct platform_device *pdev)
+>  	i2c_set_adapdata(adap, iproc_i2c);
+>  	strlcpy(adap->name, "Broadcom iProc I2C adapter", sizeof(adap->name));
+>  	adap->algo = &bcm_iproc_algo;
+> +	adap->quirks = &bcm_iproc_i2c_quirks;
+>  	adap->dev.parent = &pdev->dev;
+>  	adap->dev.of_node = pdev->dev.of_node;
+>  
+> 
+
+Change on the iproc i2c driver looks good to me. Sanity tested the
+change from Wolfram's i2c/quirks branch on Cygnus 958300K combo board.
+Sanity tested with an attempt to transfer large amount of I2C data to
+ensure the transfer is denied by the i2c-core:
+
+/ # cat /dev/i2c-0
+[  657.310261] i2c i2c-0: quirk: msg too long (addr 0x0000, size 4096, read)
+
+Reviewed-by: Ray Jui <rjui@broadcom.com>
+Tested-by: Ray Jui <rjui@broadcom.com>
+
+Thanks,
+
+Ray
