@@ -1,205 +1,107 @@
-From: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2 1/4] i2c: mux-pinctrl: Rework to honor disabled child nodes
-Date: Fri, 27 Feb 2015 13:24:42 +0100
-Message-ID: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
+From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: [PATCH v2 3/4] ARM: dts: dove: Add internal i2c multiplexer node
+Date: Fri, 27 Feb 2015 13:24:44 +0100
+Message-ID: <1425039885-5137-4-git-send-email-sebastian.hesselbarth@gmail.com>
 References: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com>
  <1425039885-5137-1-git-send-email-sebastian.hesselbarth@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425039885-5137-1-git-send-email-sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1425039885-5137-1-git-send-email-sebastian.hesselbarth@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I2C mux pinctrl driver currently determines the number of sub-busses by
-counting available pinctrl-names. Unfortunately, this requires each
-incarnation of the devicetree node with different available sub-busses
-to be rewritten.
+This adds a i2c-mux-pinctrl node to dove.dtsi for the internal i2c
+mux found on Dove SoCs. Up to now, we had no board using any of the
+two additional i2c busses, so make sure the change does not break
+any existing boards.
 
-This patch reworks i2c-mux-pinctrl driver to count the number of
-available sub-nodes instead. The rework should be compatible to the old
-way of probing for sub-busses and additionally allows to disable unused
-sub-busses with standard DT property status = "disabled".
+Therefore, we rename the i2c-controller node label to "i2c" and
+enable it by default. Also, the dedicated sub-bus (now "i2c0") is
+enabled by default. The two optional sub-busses require additional
+external pin-muxing, so disable them by default.
 
-This also amends the corresponding devicetree binding documentation to
-reflect the new functionality to disable unused sub-nodes. While at it,
-also fix two references to binding documentation files that miss an "i2c-"
-prefix.
-
-Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Tested-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Acked-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jason Cooper <jason@lakedaemon.net>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Gregory Clement <gregory.clement@free-electrons.com>
+Cc: Gabriel Dobato <dobatog@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Stephen Warren <swarren@wwwdotorg.org>
+Cc: linux-i2c@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
 ---
- .../devicetree/bindings/i2c/i2c-mux-pinctrl.txt    | 25 ++++----
- drivers/i2c/muxes/i2c-mux-pinctrl.c                | 70 ++++++++++++++--------
- 2 files changed, 59 insertions(+), 36 deletions(-)
+ arch/arm/boot/dts/dove.dtsi | 40 ++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 38 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
-index ae8af1694e95..40cf6d86f935 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
-@@ -28,21 +28,21 @@ Also required are:
- * Standard pinctrl properties that specify the pin mux state for each child
-   bus. See ../pinctrl/pinctrl-bindings.txt.
- 
--* Standard I2C mux properties. See mux.txt in this directory.
-+* Standard I2C mux properties. See i2c-mux.txt in this directory.
- 
--* I2C child bus nodes. See mux.txt in this directory.
-+* I2C child bus nodes. See i2c-mux.txt in this directory.
- 
--For each named state defined in the pinctrl-names property, an I2C child bus
--will be created. I2C child bus numbers are assigned based on the index into
--the pinctrl-names property.
-+For each enabled child node an I2C child bus will be created. I2C child bus
-+numbers are assigned based on the order of child nodes.
- 
--The only exception is that no bus will be created for a state named "idle". If
--such a state is defined, it must be the last entry in pinctrl-names. For
--example:
-+There must be a corresponding pinctrl-names entry for each enabled child
-+node at the position of the child node's "reg" property. Also, there can be
-+an idle pinctrl state defined at the end of possible pinctrl states. If such
-+a state is defined, it must be the last entry in pinctrl-names. For example:
- 
--	pinctrl-names = "ddc", "pta", "idle"  ->  ddc = bus 0, pta = bus 1
--	pinctrl-names = "ddc", "idle", "pta"  ->  Invalid ("idle" not last)
--	pinctrl-names = "idle", "ddc", "pta"  ->  Invalid ("idle" not last)
-+       pinctrl-names = "ddc", "pta", "idle"  ->  ddc = bus 0, pta = bus 1
-+       pinctrl-names = "ddc", "idle", "pta"  ->  Invalid ("idle" not last)
-+       pinctrl-names = "idle", "ddc", "pta"  ->  Invalid ("idle" not last)
- 
- Whenever an access is made to a device on a child bus, the relevant pinctrl
- state will be programmed into hardware.
-@@ -68,6 +68,7 @@ Example:
- 		pinctrl-1 = <&state_i2cmux_pta>;
- 		pinctrl-2 = <&state_i2cmux_idle>;
- 
-+		/* Enabled child bus 0 */
- 		i2c@0 {
- 			reg = <0>;
- 			#address-cells = <1>;
-@@ -79,10 +80,12 @@ Example:
- 			};
+diff --git a/arch/arm/boot/dts/dove.dtsi b/arch/arm/boot/dts/dove.dtsi
+index 9ad829523a13..b3340e862b0e 100644
+--- a/arch/arm/boot/dts/dove.dtsi
++++ b/arch/arm/boot/dts/dove.dtsi
+@@ -28,6 +28,42 @@
  		};
+ 	};
  
-+		/* Disabled child bus 1 */
- 		i2c@1 {
- 			reg = <1>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
++	i2c-mux {
++		compatible = "i2c-mux-pinctrl";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c-parent = <&i2c>;
++
++		pinctrl-names = "i2c0", "i2c1", "i2c2";
++		pinctrl-0 = <&pmx_i2cmux_0>;
++		pinctrl-1 = <&pmx_i2cmux_1>;
++		pinctrl-2 = <&pmx_i2cmux_2>;
++
++		i2c0: i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "okay";
++		};
++
++		i2c1: i2c@1 {
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			/* Requires pmx_i2c1 on i2c controller node */
 +			status = "disabled";
- 
- 			eeprom {
- 				compatible = "eeprom";
-diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-index b48378c4b40d..033dacfabfdf 100644
---- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-@@ -56,9 +56,12 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
- 				struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
--	int num_names, i, ret;
-+	struct device_node *child;
-+	struct property *prop;
-+	int num_names, num_children, ret;
- 	struct device_node *adapter_np;
- 	struct i2c_adapter *adapter;
-+	const char *state;
- 
- 	if (!np)
- 		return 0;
-@@ -77,32 +80,16 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
- 		return num_names;
- 	}
- 
--	mux->pdata->pinctrl_states = devm_kzalloc(&pdev->dev,
--		sizeof(*mux->pdata->pinctrl_states) * num_names,
--		GFP_KERNEL);
--	if (!mux->pdata->pinctrl_states) {
--		dev_err(mux->dev, "Cannot allocate pinctrl_states\n");
--		return -ENOMEM;
-+	num_children = of_get_available_child_count(np);
-+	if (num_children < 0) {
-+		dev_err(mux->dev, "Unable to count available children: %d\n",
-+			num_children);
-+		return num_children;
- 	}
- 
--	for (i = 0; i < num_names; i++) {
--		ret = of_property_read_string_index(np, "pinctrl-names", i,
--			&mux->pdata->pinctrl_states[mux->pdata->bus_count]);
--		if (ret < 0) {
--			dev_err(mux->dev, "Cannot parse pinctrl-names: %d\n",
--				ret);
--			return ret;
--		}
--		if (!strcmp(mux->pdata->pinctrl_states[mux->pdata->bus_count],
--			    "idle")) {
--			if (i != num_names - 1) {
--				dev_err(mux->dev, "idle state must be last\n");
--				return -EINVAL;
--			}
--			mux->pdata->pinctrl_state_idle = "idle";
--		} else {
--			mux->pdata->bus_count++;
--		}
-+	if (num_names < num_children) {
-+		dev_err(mux->dev, "Found less pinctrl states than children\n");
-+		return -EINVAL;
- 	}
- 
- 	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
-@@ -118,6 +105,39 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pinctrl *mux,
- 	mux->pdata->parent_bus_num = i2c_adapter_id(adapter);
- 	put_device(&adapter->dev);
- 
-+	mux->pdata->pinctrl_states = devm_kzalloc(&pdev->dev,
-+		sizeof(*mux->pdata->pinctrl_states) * num_children,
-+		GFP_KERNEL);
-+	if (!mux->pdata->pinctrl_states) {
-+		dev_err(mux->dev, "Cannot allocate pinctrl_states\n");
-+		return -ENOMEM;
-+	}
++		};
 +
-+	of_property_for_each_string(np, "pinctrl-names", prop, state)
-+		if (!strcmp(state, "idle"))
-+			mux->pdata->pinctrl_state_idle = "idle";
++		i2c2: i2c@2 {
++			reg = <2>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			/* Requires pmx_i2c2 on i2c controller node */
++			status = "disabled";
++		};
++	};
 +
-+	for_each_available_child_of_node(np, child) {
-+		u32 reg;
-+
-+		ret = of_property_read_u32(child, "reg", &reg);
-+		if (ret < 0) {
-+			dev_err(mux->dev, "Missing reg property for child node: %d\n",
-+				ret);
-+			return ret;
-+		}
-+
-+		ret = of_property_read_string_index(np,
-+				    "pinctrl-names", reg, &state);
-+		if (ret < 0) {
-+			dev_err(mux->dev, "Cannot parse pinctrl-names for mux %d: %d\n",
-+				reg, ret);
-+			return ret;
-+		}
-+
-+		mux->pdata->pinctrl_states[mux->pdata->bus_count++] = state;
-+	}
-+
- 	return 0;
- }
- #else
+ 	l2: l2-cache {
+ 		compatible = "marvell,tauros2-cache";
+ 		marvell,tauros2-cache-features = <0>;
+@@ -123,7 +159,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			i2c0: i2c-ctrl@11000 {
++			i2c: i2c-ctrl@11000 {
+ 				compatible = "marvell,mv64xxx-i2c";
+ 				reg = <0x11000 0x20>;
+ 				#address-cells = <1>;
+@@ -132,7 +168,7 @@
+ 				clock-frequency = <400000>;
+ 				timeout-ms = <1000>;
+ 				clocks = <&core_clk 0>;
+-				status = "disabled";
++				status = "okay";
+ 			};
+ 
+ 			uart0: serial@12000 {
 -- 
 2.1.0
