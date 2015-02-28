@@ -1,61 +1,43 @@
-From: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c-tools: add Android.mk
-Date: Fri, 27 Feb 2015 22:05:12 +0100
-Message-ID: <CA+TH9VkQzJaSa0okxK+s1ukpaqgiWegh3uumEb63LzZwBjV4nA@mail.gmail.com>
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: Re: Bug in i2c-core?
+Date: Sat, 28 Feb 2015 11:00:29 +0100
+Message-ID: <20150228110029.0fab0874@free-electrons.com>
+References: <54F0507F.6030804@armadeus.com>
+	<20150227153725.7404dea1@free-electrons.com>
+	<6C8798CF-7222-465B-9354-93500B584B4D@gmail.com>
+	<20150227170545.GS7789@pengutronix.de>
+	<20150227174611.GC6679@dtor-ws>
+	<20150227183949.GT7789@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001a11c12894d3221c0510183b00
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jdelvare-l3A5Bk7waGM@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20150227183949.GT7789@pengutronix.de>
+Sender: linux-input-owner@vger.kernel.org
+To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?U8OpYmFzdGll?= =?UTF-8?B?bg==?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>, laurent.pinchart+renesas@ideasonboard.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---001a11c12894d3221c0510183b00
-Content-Type: text/plain; charset=ISO-8859-1
+Dmitry, Uwe,
 
-Hi Jean,
+On Fri, 27 Feb 2015 19:39:49 +0100, Uwe Kleine-K=C3=B6nig wrote:
 
-This patch adds an Android.mk to compile i2c-tools under Android.
+> > Input is allocated with devm_* and input_register_device knows how =
+to
+> > deal with that:
+> ah, something new each day. Thanks for teaching me.
 
-Hope this helps!
+Thanks as well, I also discovered that thanks to this discussion.
 
--- 
-Profile: http://it.linkedin.com/in/compagnucciangelo
+Best regards,
 
---001a11c12894d3221c0510183b00
-Content-Type: text/x-patch; charset=US-ASCII; name="i2c-tools-add-android-mk.patch"
-Content-Disposition: attachment; filename="i2c-tools-add-android-mk.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i6o2jlld0
-
-SW5kZXg6IEFuZHJvaWQubWsKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gQW5kcm9pZC5tawkocmV2aXNpb24gMCkK
-KysrIEFuZHJvaWQubWsJKHdvcmtpbmcgY29weSkKQEAgLTAsMCArMSw1MyBAQAorTE9DQUxfUEFU
-SDo9ICQoY2FsbCBteS1kaXIpCisKK2luY2x1ZGUgJChDTEVBUl9WQVJTKQorCitMT0NBTF9NT0RV
-TEVfVEFHUyA6PSBvcHRpb25hbAorTE9DQUxfQ19JTkNMVURFUyArPSAkKExPQ0FMX1BBVEgpICQo
-TE9DQUxfUEFUSCkvJChLRVJORUxfRElSKS9pbmNsdWRlCitMT0NBTF9TUkNfRklMRVMgOj0gdG9v
-bHMvaTJjYnVzc2VzLmMgdG9vbHMvdXRpbC5jCitMT0NBTF9NT0RVTEUgOj0gaTJjLXRvb2xzCitp
-bmNsdWRlICQoQlVJTERfU1RBVElDX0xJQlJBUlkpCisKK2luY2x1ZGUgJChDTEVBUl9WQVJTKQor
-CitMT0NBTF9NT0RVTEVfVEFHUyA6PSBvcHRpb25hbAorTE9DQUxfU1JDX0ZJTEVTOj10b29scy9p
-MmNkZXRlY3QuYworTE9DQUxfTU9EVUxFOj1pMmNkZXRlY3QKK0xPQ0FMX0NQUEZMQUdTICs9IC1E
-QU5EUk9JRAorTE9DQUxfU0hBUkVEX0xJQlJBUklFUzo9bGliYworTE9DQUxfU1RBVElDX0xJQlJB
-UklFUyA6PSBpMmMtdG9vbHMKK0xPQ0FMX0NfSU5DTFVERVMgKz0gJChMT0NBTF9QQVRIKSAkKExP
-Q0FMX1BBVEgpLyQoS0VSTkVMX0RJUikvaW5jbHVkZQoraW5jbHVkZSAkKEJVSUxEX0VYRUNVVEFC
-TEUpCisKK2luY2x1ZGUgJChDTEVBUl9WQVJTKQorCitMT0NBTF9NT0RVTEVfVEFHUyA6PSBvcHRp
-b25hbAorTE9DQUxfU1JDX0ZJTEVTOj10b29scy9pMmNnZXQuYworTE9DQUxfTU9EVUxFOj1pMmNn
-ZXQKK0xPQ0FMX0NQUEZMQUdTICs9IC1EQU5EUk9JRAorTE9DQUxfU0hBUkVEX0xJQlJBUklFUzo9
-bGliYworTE9DQUxfU1RBVElDX0xJQlJBUklFUyA6PSBpMmMtdG9vbHMKK0xPQ0FMX0NfSU5DTFVE
-RVMgKz0gJChMT0NBTF9QQVRIKSAkKExPQ0FMX1BBVEgpLyQoS0VSTkVMX0RJUikvaW5jbHVkZQor
-aW5jbHVkZSAkKEJVSUxEX0VYRUNVVEFCTEUpCisKK2luY2x1ZGUgJChDTEVBUl9WQVJTKQorCitM
-T0NBTF9NT0RVTEVfVEFHUyA6PSBvcHRpb25hbAorTE9DQUxfU1JDX0ZJTEVTOj10b29scy9pMmNz
-ZXQuYworTE9DQUxfTU9EVUxFOj1pMmNzZXQKK0xPQ0FMX0NQUEZMQUdTICs9IC1EQU5EUk9JRAor
-TE9DQUxfU0hBUkVEX0xJQlJBUklFUzo9bGliYworTE9DQUxfU1RBVElDX0xJQlJBUklFUyA6PSBp
-MmMtdG9vbHMKK0xPQ0FMX0NfSU5DTFVERVMgKz0gJChMT0NBTF9QQVRIKSAkKExPQ0FMX1BBVEgp
-LyQoS0VSTkVMX0RJUikvaW5jbHVkZQoraW5jbHVkZSAkKEJVSUxEX0VYRUNVVEFCTEUpCisKK2lu
-Y2x1ZGUgJChDTEVBUl9WQVJTKQorCitMT0NBTF9NT0RVTEVfVEFHUyA6PSBvcHRpb25hbAorTE9D
-QUxfU1JDX0ZJTEVTOj10b29scy9pMmNkdW1wLmMKK0xPQ0FMX01PRFVMRTo9aTJjZHVtcAorTE9D
-QUxfQ1BQRkxBR1MgKz0gLURBTkRST0lECitMT0NBTF9TSEFSRURfTElCUkFSSUVTOj1saWJjCitM
-T0NBTF9TVEFUSUNfTElCUkFSSUVTIDo9IGkyYy10b29scworTE9DQUxfQ19JTkNMVURFUyArPSAk
-KExPQ0FMX1BBVEgpICQoTE9DQUxfUEFUSCkvJChLRVJORUxfRElSKS9pbmNsdWRlCitpbmNsdWRl
-ICQoQlVJTERfRVhFQ1VUQUJMRSkK
---001a11c12894d3221c0510183b00--
+Thomas
+--=20
+Thomas Petazzoni, CTO, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
