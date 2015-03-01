@@ -1,43 +1,55 @@
-From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Subject: Re: Bug in i2c-core?
-Date: Sat, 28 Feb 2015 11:00:29 +0100
-Message-ID: <20150228110029.0fab0874@free-electrons.com>
-References: <54F0507F.6030804@armadeus.com>
-	<20150227153725.7404dea1@free-electrons.com>
-	<6C8798CF-7222-465B-9354-93500B584B4D@gmail.com>
-	<20150227170545.GS7789@pengutronix.de>
-	<20150227174611.GC6679@dtor-ws>
-	<20150227183949.GT7789@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20150227183949.GT7789@pengutronix.de>
-Sender: linux-input-owner@vger.kernel.org
-To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?U8OpYmFzdGll?= =?UTF-8?B?bg==?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>, laurent.pinchart+renesas@ideasonboard.com, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH] i2c: wmt: use msecs_to_jiffies for time conversions
+Date: Sun,  1 Mar 2015 08:20:32 -0500
+Message-ID: <1425216032-8163-1-git-send-email-hofrat@osadl.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dmitry, Uwe,
+This is only an API consolidation and should make things more readable
+it replaces var * HZ / 1000 by msecs_to_jiffies(var).
 
-On Fri, 27 Feb 2015 19:39:49 +0100, Uwe Kleine-K=C3=B6nig wrote:
+Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+---
 
-> > Input is allocated with devm_* and input_register_device knows how =
-to
-> > deal with that:
-> ah, something new each day. Thanks for teaching me.
+Converting milliseconds to jiffies by "val * HZ / 1000" is technically
+not wrong but msecs_to_jiffies(val) is the cleaner solution and handles
+all corner cases correctly. This is a minor API cleanup only.
 
-Thanks as well, I also discovered that thanks to this discussion.
+Note that the alignment is not exactly with the opening braces but rather
+with the last tab-stop that will not result in going over 80 char.
 
-Best regards,
+Patch was compile-tested only for vt8500_v6_v7_defconfig 
+(implies CONFIG_I2C_WMT=y)
 
-Thomas
---=20
-Thomas Petazzoni, CTO, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Patch is against 4.0-rc1 (localversion-next is -next-20150227)
+
+ drivers/i2c/busses/i2c-wmt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
+index 82ea349..26e49e6 100644
+--- a/drivers/i2c/busses/i2c-wmt.c
++++ b/drivers/i2c/busses/i2c-wmt.c
+@@ -177,7 +177,7 @@ static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+ 
+ 	while (xfer_len < pmsg->len) {
+ 		wait_result = wait_for_completion_timeout(&i2c_dev->complete,
+-							  500 * HZ / 1000);
++							msecs_to_jiffies(500));
+ 
+ 		if (wait_result == 0)
+ 			return -ETIMEDOUT;
+@@ -266,7 +266,7 @@ static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+ 
+ 	while (xfer_len < pmsg->len) {
+ 		wait_result = wait_for_completion_timeout(&i2c_dev->complete,
+-							  500 * HZ / 1000);
++							msecs_to_jiffies(500));
+ 
+ 		if (!wait_result)
+ 			return -ETIMEDOUT;
+-- 
+1.7.10.4
