@@ -1,88 +1,45 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH v2 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Mon, 02 Mar 2015 13:01:09 -0700
-Message-ID: <54F4C185.9080808@wwwdotorg.org>
-References: <1424199129-22099-1-git-send-email-sebastian.hesselbarth@gmail.com> <1425039885-5137-1-git-send-email-sebastian.hesselbarth@gmail.com> <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
+From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Tue, 03 Mar 2015 00:52:39 +0200
+Message-ID: <1968183.sojkhep644@avalon>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com> <2747724.u7aGnnSiv7@avalon> <20150302064049.GA1401@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425039885-5137-2-git-send-email-sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20150302064049.GA1401@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Laurent Pinchart <laurent.pinchart+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/27/2015 05:24 AM, Sebastian Hesselbarth wrote:
-> I2C mux pinctrl driver currently determines the number of sub-busses by
-> counting available pinctrl-names. Unfortunately, this requires each
-> incarnation of the devicetree node with different available sub-busses
-> to be rewritten.
->
-> This patch reworks i2c-mux-pinctrl driver to count the number of
-> available sub-nodes instead. The rework should be compatible to the old
-> way of probing for sub-busses and additionally allows to disable unused
-> sub-busses with standard DT property status = "disabled".
->
-> This also amends the corresponding devicetree binding documentation to
-> reflect the new functionality to disable unused sub-nodes. While at it,
-> also fix two references to binding documentation files that miss an "i2c-"
-> prefix.
+(CC'ing Dmitry)
 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+On Monday 02 March 2015 07:40:49 Wolfram Sang wrote:
+> On Thu, Feb 26, 2015 at 04:27:49PM +0200, Laurent Pinchart wrote:
+> > On Monday 26 January 2015 13:09:47 Wolfram Sang wrote:
+> >>>>> If you drop adi,adxl346, checkpatch will start complaining if it
+> >>>>> encounters it in a .dts.
+> >>>> 
+> >>>> Boah, this is annoying. That means we need an 346 entry even if it
+> >>>> is not different from 345 (which is fine by me).
+> >>>
+> >>> To be clear: you need the entry in the documentation. It can be
+> >>> omitted from the driver if it's not (yet) used for matching.
+> >> 
+> >> Well, I don't really like that behaviour, but I don't like
+> >> i2c/trivial-devices.txt as well, so I'll just apply the patch and live
+> >> with it :)
+> > 
+> > What happened to this patch ?
+> 
+> My idea was that Dmitry takes them both because they are related:
+> 
+> http://article.gmane.org/gmane.linux.drivers.i2c/21763
 
-> -For each named state defined in the pinctrl-names property, an I2C child bus
-> -will be created. I2C child bus numbers are assigned based on the index into
-> -the pinctrl-names property.
-> +For each enabled child node an I2C child bus will be created. I2C child bus
-> +numbers are assigned based on the order of child nodes.
+I'm fine with that. Dmitry ?
 
-I think that I2C bus numbers are an internal concept for the OS. As 
-such, we should probably remove any mention re: the bus numbers from the 
-binding.
+-- 
+Regards,
 
-> -The only exception is that no bus will be created for a state named "idle". If
-> -such a state is defined, it must be the last entry in pinctrl-names. For
-> -example:
-> +There must be a corresponding pinctrl-names entry for each enabled child
-> +node at the position of the child node's "reg" property. Also, there can be
-> +an idle pinctrl state defined at the end of possible pinctrl states. If such
-> +a state is defined, it must be the last entry in pinctrl-names. For example:
-
-What about gaps in the numbering sequence? IIRC, in a situation with 5 
-nodes with reg 0, 1, 2, 3, 4 but where only the nodes with reg of 1, 3 
-enabled, we only want 2 entries in pinctrl-names? If so, "at the 
-position of the child node's "reg" property" isn't correct, since "at 
-the position" implies there must be gaps in pinctrl-names. "In the same 
-order as the reg property values for enabled subnodes" might be a better 
-description.
-
-Perhaps I'm misremembering and you explicitly didn't want to remove 
-entries from pinctrl-names if child nodes were disabled? If so, then 
-surely then in the text above, "for each enabled child" should be 
-replaced with "for each child"?
-
-> @@ -68,6 +68,7 @@ Example:
->   		pinctrl-1 = <&state_i2cmux_pta>;
->   		pinctrl-2 = <&state_i2cmux_idle>;
->
-> +		/* Enabled child bus 0 */
->   		i2c@0 {
->   			reg = <0>;
->   			#address-cells = <1>;
-> @@ -79,10 +80,12 @@ Example:
->   			};
->   		};
->
-> +		/* Disabled child bus 1 */
->   		i2c@1 {
->   			reg = <1>;
->   			#address-cells = <1>;
->   			#size-cells = <0>;
-> +			status = "disabled";
-
-To make the example cover more cases, perhaps make child node i2c@0 
-disabled and i2c@1 enabled. Then, the example would show what happens to 
-pinctrl-names when there are gaps in the reg property numbering space of 
-enabled children?
+Laurent Pinchart
