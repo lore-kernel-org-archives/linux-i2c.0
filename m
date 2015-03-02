@@ -1,65 +1,75 @@
-From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-Subject: [PATCH] i2c: tegra: match return type of wait_for_completion_timeout
-Date: Sun,  1 Mar 2015 09:17:41 -0500
-Message-ID: <1425219461-3261-1-git-send-email-hofrat@osadl.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 1/2] DT: i2c: Deprecate adi,adxl34x compatible string
+Date: Mon, 2 Mar 2015 07:40:49 +0100
+Message-ID: <20150302064049.GA1401@katana>
+References: <1421333655-31029-1-git-send-email-laurent.pinchart+renesas@ideasonboard.com>
+ <CAMuHMdUwHde0EvbCD574L2tW6qqxLCtZwAb+0M-4QCjB9V6fmQ@mail.gmail.com>
+ <20150126120947.GC1052@katana>
+ <2747724.u7aGnnSiv7@avalon>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <2747724.u7aGnnSiv7@avalon>
+Sender: linux-input-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-return type of wait_for_completion_timeout is unsigned long not int. As ret
-was only used for wait_for_completion_timeout here it is renamed to time_left
-the type changed to unsigned long and references fixed up.
 
-Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
----
+--+HP7ph2BbKc20aGI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch was only compile tested with tegra_defconfig
-(implies CONFIG_I2C_TEGRA=y)
+On Thu, Feb 26, 2015 at 04:27:49PM +0200, Laurent Pinchart wrote:
+> Hi Wolfram,
+>=20
+> On Monday 26 January 2015 13:09:47 Wolfram Sang wrote:
+> > > >> If you drop adi,adxl346, checkpatch will start complaining if it
+> > > >> encounters
+> > > >> it in a .dts.
+> > > >=20
+> > > > Boah, this is annoying. That means we need an 346 entry even if it =
+is
+> > > > not different from 345 (which is fine by me).
+> > >=20
+> > > To be clear: you need the entry in the documentation. It can be omitt=
+ed
+> > > from the driver if it's not (yet) used for matching.
+> >=20
+> > Well, I don't really like that behaviour, but I don't like
+> > i2c/trivial-devices.txt as well, so I'll just apply the patch and live
+> > with it :)
+>=20
+> What happened to this patch ?
 
-Patch is against 4.0-rc1 (localversion-next is -next-20150227)
+My idea was that Dmitry takes them both because they are related:
 
- drivers/i2c/busses/i2c-tegra.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+http://article.gmane.org/gmane.linux.drivers.i2c/21763
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 29f1433..1bcd75e 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -532,7 +532,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- {
- 	u32 packet_header;
- 	u32 int_mask;
--	int ret;
-+	unsigned long time_left;
- 
- 	tegra_i2c_flush_fifos(i2c_dev);
- 
-@@ -585,18 +585,20 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	dev_dbg(i2c_dev->dev, "unmasked irq: %02x\n",
- 		i2c_readl(i2c_dev, I2C_INT_MASK));
- 
--	ret = wait_for_completion_timeout(&i2c_dev->msg_complete, TEGRA_I2C_TIMEOUT);
-+	time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
-+						TEGRA_I2C_TIMEOUT);
- 	tegra_i2c_mask_irq(i2c_dev, int_mask);
- 
--	if (ret == 0) {
-+	if (time_left == 0) {
- 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
- 
- 		tegra_i2c_init(i2c_dev);
- 		return -ETIMEDOUT;
- 	}
- 
--	dev_dbg(i2c_dev->dev, "transfer complete: %d %d %d\n",
--		ret, completion_done(&i2c_dev->msg_complete), i2c_dev->msg_err);
-+	dev_dbg(i2c_dev->dev, "transfer complete: %lu %d %d\n",
-+		time_left, completion_done(&i2c_dev->msg_complete),
-+		i2c_dev->msg_err);
- 
- 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
- 		return 0;
--- 
-1.7.10.4
+
+--+HP7ph2BbKc20aGI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU9AXxAAoJEBQN5MwUoCm2hvMP+wUMKZQV5Twtomz75LmOPOKx
+VMecTuwZXb4P5acZWfFz3J03KvEkWSgJfQrcNCl/MYbTsDEmYf1CGDeEoFuqXwWL
+qfP4hjweQFXwf5JwRGFYW5SMWhUfr4LZIwJrcEughZEY1mwbmyXvGT2AWEVkNosk
+s619JpBE4g85iNyTPELjK0rjhCdYhVmlwRIAaYVyb04tI51UTkJw8s3gDXrFf1oq
++QP07FLc5CWFFxUI8XUg8coI2FuxzsWSONGM554ls4NHXEdm0AKFE2Y2w2fAPktu
+sTmlXB2LAyYJsuChCfGqGJ+EBoiFJouGGxKktaxtg4gLWFwal735+cK/Wtcm06wf
+Rhe5TB0/inm5hQIjsqXoPL2/1ZSajDYrb4gRjDxVU2sFJwjjXaZoZV6X2p5cK7d6
+lk1EyVUMaegqGPwxGKMZvXWKYZPCB5t3MlTCq9eZD8BtPhvjk3RSGdP4VCxMHCww
+J7XKkePBLnYW6gr6KBaAvLXiSd7wK7jUKM7OIAlml6zZNkOgUpD7huv3X9g1G8Cp
+XTvmk13SS5SlAeCbWoeDSsS0e6BtzlblBEuaLM3Hphwz9+DQfSvLIbck0+iWHnmO
+wAfMGR2VszUYNkWZhsTzTD7F8kIXb2Ye+gJGmBx8IZBGceIZMsxNtTRHfZeMiknS
+rDtI8LTBg78TItP7lIdM
+=qP1+
+-----END PGP SIGNATURE-----
+
+--+HP7ph2BbKc20aGI--
