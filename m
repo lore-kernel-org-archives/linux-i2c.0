@@ -1,24 +1,49 @@
-From: Alexandre Courbot <gnurou@gmail.com>
-Subject: Re: [PATCH] i2c: tegra: match return type of wait_for_completion_timeout
-Date: Tue, 3 Mar 2015 16:36:19 +0900
-Message-ID: <CAAVeFuLH1senTZiEhepOTVHdveW9yrda6e66CQ8JqGq4rq5FVg@mail.gmail.com>
-References: <1425219461-3261-1-git-send-email-hofrat@osadl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+Subject: [PATCH] i2c: designware: Suppress error message if platform_get_irq() returns -EPROBE_DEFER
+Date: Tue,  3 Mar 2015 18:27:36 +0300
+Message-ID: <1425396456-10633-1-git-send-email-abrodkin@synopsys.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1425219461-3261-1-git-send-email-hofrat@osadl.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Mc Guire <hofrat@osadl.org>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Alexey Brodkin <Alexey.Brodkin@synopsys.com>, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Mar 1, 2015 at 11:17 PM, Nicholas Mc Guire <hofrat@osadl.org> wrote:
-> return type of wait_for_completion_timeout is unsigned long not int. As ret
-> was only used for wait_for_completion_timeout here it is renamed to time_left
-> the type changed to unsigned long and references fixed up.
->
-> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+There's no point in printing error message if platform_get_irq()
+returns -EPROBE_DEFER because probe deferring subsystem already outputs
+message in bootlog like this:
+ --->8---
+ platform e001d000.i2c: Driver i2c_designware requests probe deferral
+ --->8---
 
-Looks good!
+Moreover in case of probe deferral following message may mislead user:
+ --->8---
+ i2c_designware e001d000.i2c: no irq resource?
+ --->8---
+even though it's expected that platform_get_irq() may return
+-EPROBE_DEFER.
 
-Reviewed-by: Alexandre Courbot <acourbot@nvidia.com>
+Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Christian Ruppert <christian.ruppert@abilis.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index c270f5f..01c1b17 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -144,7 +144,8 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+-		dev_err(&pdev->dev, "no irq resource?\n");
++		if (irq != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "no irq resource?\n");
+ 		return irq; /* -ENXIO */
+ 	}
+ 
+-- 
+2.1.0
