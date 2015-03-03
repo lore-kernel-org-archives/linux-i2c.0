@@ -1,61 +1,83 @@
-From: Christian Ruppert <christian.ruppert@alitech.com>
-Subject: Re: [PATCH] i2c: designware: Suppress error message if platform_get_irq()
- returns -EPROBE_DEFER
-Date: Tue, 03 Mar 2015 17:28:16 +0100
-Message-ID: <54F5E120.3090705@alitech.com>
-References: <1425396456-10633-1-git-send-email-abrodkin@synopsys.com>
+From: christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org
+Subject: Re: [PATCH] i2c: designware: Suppress error message if platform_get_irq() returns
+ -EPROBE_DEFER
+Date: Tue, 3 Mar 2015 17:50:55 +0100
+Message-ID: <OF441D1D4D.39476C28-ONC1257DFD.005BE73C-C1257DFD.005C7908@alitech.com>
+References: <1425396456-10633-1-git-send-email-abrodkin@synopsys.com>	 <54F5E120.3090705@alitech.com> <1425400650.17965.53.camel@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1425396456-10633-1-git-send-email-abrodkin@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexey Brodkin <Alexey.Brodkin@synopsys.com>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1425400650.17965.53.camel-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexey Brodkin <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Cc: "andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org" <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org" <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2015-03-03 16:27, Alexey Brodkin wrote:
-> There's no point in printing error message if platform_get_irq()
-> returns -EPROBE_DEFER because probe deferring subsystem already outputs
-> message in bootlog like this:
->  --->8---
->  platform e001d000.i2c: Driver i2c_designware requests probe deferral
->  --->8---
-> 
-> Moreover in case of probe deferral following message may mislead user:
->  --->8---
->  i2c_designware e001d000.i2c: no irq resource?
->  --->8---
-> even though it's expected that platform_get_irq() may return
-> -EPROBE_DEFER.
-> 
-> Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-> Cc: Vineet Gupta <vgupta@synopsys.com>
-> Cc: Christian Ruppert <christian.ruppert@abilis.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index c270f5f..01c1b17 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -144,7 +144,8 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  
->  	irq = platform_get_irq(pdev, 0);
->  	if (irq < 0) {
-> -		dev_err(&pdev->dev, "no irq resource?\n");
-> +		if (irq != -EPROBE_DEFER)
-> +			dev_err(&pdev->dev, "no irq resource?\n");
+Hello Alexey,
 
-Presented like this I wonder if this merits being a dev_err at all.
-Wouldn't dev_dbg be more adequate? This might remove the need for the
-condition and also avoid bothering everyone if something in the platform
-device structures or device tree is not right.
+Alexey Brodkin <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote on 03/03/2015 05:37:31 
+PM:
 
->  		return irq; /* -ENXIO */
->  	}
->  
+> From:
 > 
+> Alexey Brodkin <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+> 
+> To:
+> 
+> "christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org" <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>, 
+> 
+> Cc:
+> 
+> "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>,
+> "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, 
+> "Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org" <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, "wsa@the-
+> dreams.de" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" 
+> <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" 
+> <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org" 
+> <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+> 
+> Date:
+> 
+> 03/03/2015 05:38 PM
+> 
+> Subject:
+> 
+> Re: [PATCH] i2c: designware: Suppress error message if 
+> platform_get_irq() returns -EPROBE_DEFER
+> 
+> Hi Christian,
+> [...]
+> > > 
+> > >     irq = platform_get_irq(pdev, 0);
+> > >     if (irq < 0) {
+> > > -      dev_err(&pdev->dev, "no irq resource?\n");
+> > > +      if (irq != -EPROBE_DEFER)
+> > > +         dev_err(&pdev->dev, "no irq resource?\n");
+> > 
+> > Presented like this I wonder if this merits being a dev_err at all.
+> > Wouldn't dev_dbg be more adequate? This might remove the need for the
+> > condition and also avoid bothering everyone if something in the 
+platform
+> > device structures or device tree is not right.
+> > 
+> > >        return irq; /* -ENXIO */
+> > >     }
+> 
+> We've just had similar discussion related to DW APB UART with Andy here
+> https://lkml.org/lkml/2015/3/3/412
+> 
+> So yes probably we may safely remove error message from here completely.
+
+I agree. Although you do have a point (in the other thread) when saying 
+this
+kind of messages can be useful in some situations. The process of 
+debugging
+device tree and platform device setup is definitely more painful for 
+drivers
+which omit this type of messages completely. Andy's proposal of 
+centralising
+this looks like a very good solution here (and on top of that removes many
+useless strings from the kernel binary).
+
+Greetings,
+  Christian
