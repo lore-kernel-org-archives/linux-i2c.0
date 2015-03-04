@@ -1,60 +1,51 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: Bug in i2c-core?
-Date: Wed, 04 Mar 2015 00:03:40 +0200
-Message-ID: <3574616.qzNqihiGp7@avalon>
-References: <54F0507F.6030804@armadeus.com> <20150227165944.GA6679@dtor-ws>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH/RFC] i2c: rcar: Support ACK by HW auto restart after NACK
+Date: Wed, 4 Mar 2015 13:06:39 +0900
+Message-ID: <20150304040635.GA12776@verge.net.au>
+References: <1424011480-3551-1-git-send-email-ykaneko0929@gmail.com>
+ <2775fbb6b2e2b333ef2457133f419d4d@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150227165944.GA6679@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <2775fbb6b2e2b333ef2457133f419d4d-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: =?ISO-8859-1?Q?S=E9bastien?= SZYMANSKI <sebastien.szymanski-d2DlULPkwbNWk0Htik3J/w@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Dmitry,
+Hi Wolfram,
 
-On Friday 27 February 2015 08:59:44 Dmitry Torokhov wrote:
-> On Fri, Feb 27, 2015 at 12:09:51PM +0100, S=E9bastien SZYMANSKI wrote=
-:
-> > Hi,
-> >=20
-> > I am writing an I2C touchscreen driver for an i.MX6 based board. I
-> > compiled it as a module and when I unload it, I get the following w=
-arning:
-> >=20
-> > # modprobe sx8654
-> > [   46.261494] input: SX8654 I2C Touchscreen as
-> > /devices/soc0/soc/2100000.aips-bus/21a0000.i2c/i2c-0/0-0048/input/i=
-nput1
-> > # rmmod sx8654
-> > [   76.435223] ------------[ cut here ]------------
-> > [   76.439909] WARNING: CPU: 0 PID: 134 at fs/proc/generic.c:552
-> > remove_proc_entry+0x148/0x164()
-> > [   76.448582] remove_proc_entry: removing non-empty directory
-> > 'irq/208', leaking at least 'sx8654'
->=20
-> ...
->=20
-> > When I revert commit e4df3a0 (i2c: core: Dispose OF IRQ mapping at
-> > client removal time) I don't get the warning.
-> >=20
-> > Is this a bug in the i2c-core or am I doing something wrong in my d=
-river?
->=20
-> Yes, this commit breaks all drivers using devm* for IRQ management on
-> OF-based systemsi because devm* cleanup happens in device code, after
-> bus's remove() method returns. I'd recommend reverting and finding a
-> better way (making cleanup a custom devm action as well?).
+On Mon, Feb 23, 2015 at 02:08:42PM +0100, Wolfram Sang wrote:
+> Hi,
+> 
+> On 2015-02-15 15:44, Yoshihiro Kaneko wrote:
+> >From: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> >
+> >Even if R-Car I2C received NACK, after that it might receive ACK
+> >by HW auto restart. In case of that, driver would continue process.
+> >If R-Car I2C didn't receive ACK, the driver would detect timeout
+> >and would report NACK as -ENXIO.
+> >
+> >Signed-off-by: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> >Signed-off-by: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> 
+> Excuse me, but what exactly is HW auto restart in this case? Is it a feature
+> of the I2C slave?
 
-Ouch, my bad.
+I asked Kataoka-san about this and his response was as follows:
 
-Wolfram, any opinion ? The original patch fixes a real bug, so we shoul=
-dn't=20
-just revert it.
+    It is a feature of the i2c-rcar(H/W) master.
 
---=20
-Regards,
+    If system(CPU) is busy, NACK procedure may have interrupt latency.
+    Since the clear of ICMCR.ESG bit is delayed, i2c-rcar(H/W) may auto-restart
+    after NACK. Please refer to ESG bit of H/W UM section 55.3.5.
 
-Laurent Pinchart
+    For example, this is I2C write transmitting.
+    1.Start / 2.SlaveAddr,ACK / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
+
+    If No.2 has NACK and interruption has delay, this transmitting is as follows.
+    1.Start / 2.SlaveAddr,NACK/ 1x.auto-restart / 2x.SlaveAddr,ACK
+                                    / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
+
+    NACK of No.2 is invalidated by ACK of No.2x. It means recover.
