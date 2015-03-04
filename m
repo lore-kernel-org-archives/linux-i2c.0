@@ -1,27 +1,25 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH v2 1/4] i2c: sunxi: Add Reduced Serial Bus (RSB) support
-Date: Wed, 4 Mar 2015 17:53:52 +0100
-Message-ID: <20150304165352.GP4911@lukather>
+Date: Wed, 4 Mar 2015 18:27:11 +0100
+Message-ID: <20150304172710.GA884@katana>
 References: <1425284686-5116-1-git-send-email-wens@csie.org>
  <1425284686-5116-2-git-send-email-wens@csie.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="o41d8xLWOaLD8vYh"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
 In-Reply-To: <1425284686-5116-2-git-send-email-wens-jdAy2FN1RRM@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---o41d8xLWOaLD8vYh
+--DocE+STaALJfprDB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-
-Hi,
 
 On Mon, Mar 02, 2015 at 04:24:43PM +0800, Chen-Yu Tsai wrote:
 > The RSB controller looks like an SMBus controller which only supports byte
@@ -47,6 +45,16 @@ he
 > 2 Wire Interface) controller support").
 >=20
 > Signed-off-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+
+I don't have the bandwidth for a full review right now. However, I
+already wanted to tell you guys that my gut feeling is that this
+protocol is quite far away from I2C. P2WI was already at the edge.
+Maybe there is a better place for such custom stuff? I dunno yet.
+
+Thanks,
+
+   Wolfram
+
 > ---
 >  drivers/i2c/busses/Kconfig         |  12 +
 >  drivers/i2c/busses/Makefile        |   1 +
@@ -293,29 +301,6 @@ s.
 > +			writel(data->word, rsb->regs + RSB_DATA);
 > +		}
 > +	}
-
-Maybe something like the following would be better:
-
-if (read_write =3D=3D ...) {
-    if (size =3D=3D ..)
-        cmd =3D RSB_CMD_RD8;
-    else
-        cmd =3D RSB_CMD_RD16;
-
-    writel(cmd, ....);
-} else {
-    if (size =3D=3D ...) {
-        cmd =3D RSB_CMD_WR8;
-	val =3D data->byte;
-    } else {
-        cmd =3D RSB_CMD_WR16;
-	val =3D data->word;
-    }
-
-    writel(cmd, ...);
-    writel(val, ...);
-}
-
 > +
 > +	ret =3D rsb_run_xfer(rsb);
 > +	if (ret)
@@ -353,9 +338,6 @@ if (read_write =3D=3D ...) {
 > +	do {
 > +		reg =3D readl(rsb->regs + RSB_DMCR);
 > +	} while (time_before(jiffies, expire) && (reg & RSB_DMCR_DEVICE_START));
-
-You can use readl_poll_timeout for this (introduced in 4.0).
-
 > +
 > +	if (reg & RSB_DMCR_DEVICE_START)
 > +		dev_warn(&rsb->adapter.dev, "send init sequence timeout\n");
@@ -414,9 +396,7 @@ You can use readl_poll_timeout for this (introduced in 4.0).
 > +				 of_node_full_name(child));
 > +			continue;
 > +		}
-
-Isn't that stored in the struct i2c_client address field already?
-
+> +
 > +		/* check runtime address */
 > +		ret =3D rsb_check_rt_addr(rt_addr);
 > +		if (ret) {
@@ -477,9 +457,6 @@ Isn't that stored in the struct i2c_client address field already?
 > +		return PTR_ERR(rsb->regs);
 > +
 > +	strlcpy(rsb->adapter.name, pdev->name, sizeof(rsb->adapter.name));
-
-Isn't that what strcpy is doing already?
-
 > +	irq =3D platform_get_irq(pdev, 0);
 > +	if (irq < 0) {
 > +		dev_err(dev, "failed to retrieve irq: %d\n", irq);
@@ -519,9 +496,6 @@ Isn't that what strcpy is doing already?
 > +	rsb->adapter.dev.parent =3D dev;
 > +	rsb->adapter.algo =3D &rsb_algo;
 > +	rsb->adapter.owner =3D THIS_MODULE;
-
-Is the owner field still needed?
-
 > +	rsb->adapter.dev.of_node =3D pdev->dev.of_node;
 > +	platform_set_drvdata(pdev, rsb);
 > +	i2c_set_adapdata(&rsb->adapter, rsb);
@@ -540,9 +514,7 @@ Is the owner field still needed?
 > +			 parent_clk_freq / RSB_CCR_MAX_CLK_DIV);
 > +		clk_div =3D RSB_CCR_MAX_CLK_DIV;
 > +	}
-
-Why not just error out?
-
+> +
 > +	writel(RSB_CCR_SDA_OUT_DELAY(1) | RSB_CCR_CLK_DIV(clk_div),
 > +	       rsb->regs + RSB_CCR);
 > +
@@ -601,34 +573,30 @@ Why not just error out?
 > 2.1.4
 >=20
 
-Thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
-
---o41d8xLWOaLD8vYh
+--DocE+STaALJfprDB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU9zigAAoJEBx+YmzsjxAgKlQP/07X2cS65/4ds4/52+Z52eNX
-yYa4CGbaHWl9LHv8kFcoTzuRWTId50BN3NKGP/UgrwCABqnKWm7hXkkAUNRMFZJc
-VY5kHkXCNJg/MT1dHyyIt34Y0qOzQvZ9g/aFyrR5Fx0wTmo3YoohRDoxchQQBHCV
-a2OdAjjFTpn3oX2BsMUJtkOBTiZhLJpc3OsFneVH4BgDYkneYLFf7ZjPYw6rNSkO
-O3vOkPSpJjvxnsvwMCZCqLPyUhjU4VzrKWgrGksTzvhsDdOeWZMsSxiHG19Ydb2a
-NjD92LyFgTWhY21UCDkxvqLZmGWhKpzYqtXb8lA3DRlEZiGXXrhhqEHcqy6bjHbA
-AYaGwhH/Uj15R1SOKbTUv41Ma6LgFpvjYUMAXkqg5DNSKtZ/jBNyW5/pUSWL3ht6
-ZH262G+LwVhPEoEKh6MrGOTCMsxxXYzvekvNS8buNK6qJ3Oxnr3MUtCci+Wey+i9
-zHz74mBh3E2Td8RaQ/w2FRffOOWz3bo+hS/KoJXFBMfgsWpKleJJNVe280lK8cx0
-+hqhjxAxfugWMZr9bH5OI9c4Hd/jwWGQxQrOTUcdLp+PXot0HtNJbSNpTTHL6Wc7
-IEF27U8jSLJeDracU7VJhJZJpZinCMoLJ7iRXEjl6yOGAQRsqZ59o+YgiFUac5cl
-GxHsso0A4f4Gc+G+ZFYn
-=1iTQ
+iQIcBAEBAgAGBQJU90BtAAoJEBQN5MwUoCm29uUP/1fD3X1Zs//abDzXigtKe1GZ
+Bvgigx3lEvr4kARnCExrlpws30uhSWv8bzrwMfe2k3Htj8pgI2U9NA+Muu5wCmcx
+vd2X1A6QOBwJ5EUaxKuchMtSwALKSSa30YuJoc+zpUkAK3XfYemf6nGSgLdrE0ZB
+lPJjqAwL+Bmb7Qwn5KYciUl/t5jCqTAhM4UgWK/7rIS6IwBnQeTk/TofjaZnWTHx
+3prCI6gKP8ldIQaJHRWn1XJ4sXQRHacWx14dk/z2N4Og2U429+Fz29sSosmdQIeR
+qYfgRHyzB6X0sLDqgdSVNFkwmkB0VUpenipD3md45m2MZBjkAtK6eV1ISRXmCzN0
+HdaBLH9Z2wmz3J5wSV8UTXMm6ucbqSu2HCBCdgtnGsDKpEcLB791BBF6lvJrOrwQ
+cySmD1eiBRA+lArqC3HrxPpcGgBmUbz7yxyX+5hHTDFIrAhGfkBML8+6Qx63841+
+UcQo0XkJuPKrfCku30JIfaPnqrLo4J7sgVCLDkVExxVjA90D5g4pei3lD7HXx4Id
+OTOPcM9mVRX3FDrw4J2ey+6N6wANM+FXwh3CNix6uLfz/VLZqYF133xyhx6qYWBW
+H3wxBcMUUWWRZm2SMY+LFlli2zc2iTw0r5ZxQx+77IsOQUGfDIJRTAuBsIUuvE3T
+O6fZ6XydtQR5UB9CSqm1
+=718a
 -----END PGP SIGNATURE-----
 
---o41d8xLWOaLD8vYh--
+--DocE+STaALJfprDB--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
