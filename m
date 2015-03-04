@@ -1,51 +1,62 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH/RFC] i2c: rcar: Support ACK by HW auto restart after NACK
-Date: Wed, 4 Mar 2015 13:06:39 +0900
-Message-ID: <20150304040635.GA12776@verge.net.au>
-References: <1424011480-3551-1-git-send-email-ykaneko0929@gmail.com>
- <2775fbb6b2e2b333ef2457133f419d4d@the-dreams.de>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
+Date: Wed, 4 Mar 2015 13:08:19 +0900
+Message-ID: <20150304040819.GB12776@verge.net.au>
+References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
+ <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <2775fbb6b2e2b333ef2457133f419d4d-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Yoshihiro Kaneko <ykaneko0929@gmail.com>, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Wolfram,
 
-On Mon, Feb 23, 2015 at 02:08:42PM +0100, Wolfram Sang wrote:
+On Mon, Feb 23, 2015 at 02:07:18PM +0100, Wolfram Sang wrote:
 > Hi,
 > 
-> On 2015-02-15 15:44, Yoshihiro Kaneko wrote:
-> >From: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> On 2015-02-15 15:43, Yoshihiro Kaneko wrote:
+> >From: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
 > >
-> >Even if R-Car I2C received NACK, after that it might receive ACK
-> >by HW auto restart. In case of that, driver would continue process.
-> >If R-Car I2C didn't receive ACK, the driver would detect timeout
-> >and would report NACK as -ENXIO.
+> >In case of repeated START condition, the restart has to be kicked
+> >before clear status (MSR register). If it is kicked after clear status,
+> >R-Car I2C may transfer data (TXD register) or receive data (RXD register)
+> >instead of transferring slave address (MAR register).
 > >
-> >Signed-off-by: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-> >Signed-off-by: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >Signed-off-by: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
+> >Signed-off-by: Yoshihiro Kaneko <ykaneko0929@gmail.com>
 > 
-> Excuse me, but what exactly is HW auto restart in this case? Is it a feature
-> of the I2C slave?
+> Thanks for the patch!
+> 
+> I wondered if we couldn't always kick the start/restart before clearing
+> the status register?
 
 I asked Kataoka-san about this and his response was as follows:
 
-    It is a feature of the i2c-rcar(H/W) master.
+If system(CPU) is busy, the driver can't clear the status register soon
+after kicking start.
 
-    If system(CPU) is busy, NACK procedure may have interrupt latency.
-    Since the clear of ICMCR.ESG bit is delayed, i2c-rcar(H/W) may auto-restart
-    after NACK. Please refer to ESG bit of H/W UM section 55.3.5.
+If sequence of first start is as follows, there is a problem.
+Because H/W starts by 1.
+But sequence of re-start is as follows, there is no problem.
+Because H/W starts by 2.
 
-    For example, this is I2C write transmitting.
-    1.Start / 2.SlaveAddr,ACK / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
+  1. Issue START condition by ESG bit of ICMCR register.
+                  <--- If there is too much time, H/W finish transmitting
+                       and set status in status register.
+  2. Clear interrupt status (ICMSR).
+  3. Open interrupt mask.
+  4. Wait interrupt.
+                  <--- If status is cleared, interrupt does not occur.
 
-    If No.2 has NACK and interruption has delay, this transmitting is as follows.
-    1.Start / 2.SlaveAddr,NACK/ 1x.auto-restart / 2x.SlaveAddr,ACK
-                                    / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
-
-    NACK of No.2 is invalidated by ACK of No.2x. It means recover.
+> I am not sure if this simulates the flaw accurately, but I inserted a
+> udelay(500) in the original code after clearing the status register.
+> Then, I couldn't access the audio codec on my Lager board anymore. By
+> always first "kicking" and then clearing, access was possible again. But
+> as said, I am not sure if my scenario matches yours. Have you considered
+> to treat start and repeated start the same and always kick the condition
+> before clearing the status?
