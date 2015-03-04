@@ -1,63 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Bug in i2c-core?
-Date: Wed, 4 Mar 2015 07:47:21 +0100
-Message-ID: <20150304064721.GA883@katana>
-References: <54F0507F.6030804@armadeus.com>
- <20150227165944.GA6679@dtor-ws>
- <3574616.qzNqihiGp7@avalon>
+From: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v2 0/2] i2c: Support for Netlogic XLP9XX/5XX I2C controller.
+Date: Wed, 4 Mar 2015 12:25:31 +0530
+Message-ID: <1425452133-7489-1-git-send-email-jchandra@broadcom.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <3574616.qzNqihiGp7@avalon>
-Sender: linux-input-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?utf-8?Q?S=C3=A9bastien?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Subhendu Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Here is an updated version of the i2c controller driver on Broadcom
+XLP9xx MIPS SoC.
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We have taken care of the review comments for v1, and have made some
+additional fixes while going thru the process. The Changelog is below.
 
+Please let me know if there are any comments or suggestions.
 
-> > Yes, this commit breaks all drivers using devm* for IRQ management on
-> > OF-based systemsi because devm* cleanup happens in device code, after
-> > bus's remove() method returns. I'd recommend reverting and finding a
-> > better way (making cleanup a custom devm action as well?).
->=20
-> Ouch, my bad.
->=20
-> Wolfram, any opinion ? The original patch fixes a real bug, so we shouldn=
-'t=20
-> just revert it.
+Thanks,
+JC.
 
-I guess the usual rules apply. Let's try to fix it for v4.0, otherwise I
-have to revert it.
+Changes v1->v2:
+* Implement changes from Ray Jui's review
+  - Support for 0 length transfers
+  - remove .owner assignment in platform_driver and .data assignment in
+    of_device_id table
+  - add synchronize_irq and disable interrupt in .remove
+  - Move most prints to dev_dbg
+  - add COMPILE_TEST
+  - align wrapped line in function definitions
+  - IRQ_NONE return if interrupt is not ours.
+  - error check frequency setting in DTB
+  - fix check of return of devm_ioremap_resource() and remove
+    unnecessary prints
+  - fix incorrect irq check
+  - include file ordering fixed
+  - few unneeded variables taken out
+  - use u32 consistently for unsigned 32 bit int
+  - add comment for prescale value calculation
 
+* Change clock-frequency parameter to take the bus frequency
+  as expected in i2c subsystem
 
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+* Rearrage register definitions to group them better
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+* Add I2C_FUNC_10BIT_ADDR to xlp9xx_i2c_functionality()
 
-iQIcBAEBAgAGBQJU9qp4AAoJEBQN5MwUoCm2l8QQALYNiRYduK6CbAjJdQmHxjlC
-cqDvPYnYNItCkU/ZDUy4p8PwLDfYPtmSJhAphmTP4luMwe2GoTC0MUGD1AvxijtF
-8XWmqdOfOZlvrH3Wt9J5FHZ2t2lSaxuK91NyqFKfxdZLOK1Ul2E7yibZgRJgdNkL
-qvcIaaFr/a4aPALmdlLZjeR3YrvhgVnozX2i+k5HO8cLBKZGngdHPboqt/ONOp81
-MFv0zVP1CAoRd3k92giZ2JAQZAKXHtE2KGoU0pequNVNZKo0n05PF/10uL0GJBMj
-4VU1xgoTHRUTIB2rn/FgXaRK+sxvMejmX/W5EXYZwAsRSBSv3ySu6c2ui39bChTk
-y3a7dyFuJkcZlDEt2xLSh0a34MLYDWja+4SgxNocBgp1pu3NRxClpBicphxs2fkJ
-vtzJY9L6dRYByUJFCqaHL8N+RhzH+hyqlYq/3l4MRD3UXyBIrAG1bT/rTD0sHrPU
-/VJOWuQmBx5cbfo8e5hbmwCnVbXdd562qD3AZAojxR9Vp2LzG0V09239Rq3s58BX
-d41m4TKWW5KWd+wLHQx8OnloKETBM3vs2b+zmlIcXSZMZKrEDbbCOG/e6xwOudXk
-Zg8yFxYMOU1FXzgebDNhoHzvZSK6ZVpvGYW3IsE89/qIHYL/oTD5iY4y7fZhlkHr
-T1vywtIA2vzYP063HW7w
-=Kdn5
------END PGP SIGNATURE-----
+* use reinit_completion before each transfer
 
---Dxnq1zWXvFF0Q93v--
+* use i2c_add_adapter instead of doing i2c_add_numbered_adapter
+
+Subhendu Sekhar Behera (2):
+  of: Add vendor prefix 'netlogic'
+  i2c: Support for Netlogic XLP9XX/5XX I2C controller.
+
+ .../devicetree/bindings/i2c/i2c-xlp9xx.txt         |  19 +
+ .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-xlp9xx.c                    | 446 +++++++++++++++++++++
+ 5 files changed, 477 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-xlp9xx.txt
+ create mode 100644 drivers/i2c/busses/i2c-xlp9xx.c
+
+-- 
+1.9.1
