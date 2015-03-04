@@ -1,62 +1,63 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
-Date: Wed, 4 Mar 2015 13:08:19 +0900
-Message-ID: <20150304040819.GB12776@verge.net.au>
-References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
- <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: Bug in i2c-core?
+Date: Wed, 4 Mar 2015 07:47:21 +0100
+Message-ID: <20150304064721.GA883@katana>
+References: <54F0507F.6030804@armadeus.com>
+ <20150227165944.GA6679@dtor-ws>
+ <3574616.qzNqihiGp7@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Yoshihiro Kaneko <ykaneko0929@gmail.com>, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
+In-Reply-To: <3574616.qzNqihiGp7@avalon>
+Sender: linux-input-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?utf-8?Q?S=C3=A9bastien?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Mon, Feb 23, 2015 at 02:07:18PM +0100, Wolfram Sang wrote:
-> Hi,
-> 
-> On 2015-02-15 15:43, Yoshihiro Kaneko wrote:
-> >From: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
-> >
-> >In case of repeated START condition, the restart has to be kicked
-> >before clear status (MSR register). If it is kicked after clear status,
-> >R-Car I2C may transfer data (TXD register) or receive data (RXD register)
-> >instead of transferring slave address (MAR register).
-> >
-> >Signed-off-by: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
-> >Signed-off-by: Yoshihiro Kaneko <ykaneko0929@gmail.com>
-> 
-> Thanks for the patch!
-> 
-> I wondered if we couldn't always kick the start/restart before clearing
-> the status register?
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I asked Kataoka-san about this and his response was as follows:
 
-If system(CPU) is busy, the driver can't clear the status register soon
-after kicking start.
+> > Yes, this commit breaks all drivers using devm* for IRQ management on
+> > OF-based systemsi because devm* cleanup happens in device code, after
+> > bus's remove() method returns. I'd recommend reverting and finding a
+> > better way (making cleanup a custom devm action as well?).
+>=20
+> Ouch, my bad.
+>=20
+> Wolfram, any opinion ? The original patch fixes a real bug, so we shouldn=
+'t=20
+> just revert it.
 
-If sequence of first start is as follows, there is a problem.
-Because H/W starts by 1.
-But sequence of re-start is as follows, there is no problem.
-Because H/W starts by 2.
+I guess the usual rules apply. Let's try to fix it for v4.0, otherwise I
+have to revert it.
 
-  1. Issue START condition by ESG bit of ICMCR register.
-                  <--- If there is too much time, H/W finish transmitting
-                       and set status in status register.
-  2. Clear interrupt status (ICMSR).
-  3. Open interrupt mask.
-  4. Wait interrupt.
-                  <--- If status is cleared, interrupt does not occur.
 
-> I am not sure if this simulates the flaw accurately, but I inserted a
-> udelay(500) in the original code after clearing the status register.
-> Then, I couldn't access the audio codec on my Lager board anymore. By
-> always first "kicking" and then clearing, access was possible again. But
-> as said, I am not sure if my scenario matches yours. Have you considered
-> to treat start and repeated start the same and always kick the condition
-> before clearing the status?
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU9qp4AAoJEBQN5MwUoCm2l8QQALYNiRYduK6CbAjJdQmHxjlC
+cqDvPYnYNItCkU/ZDUy4p8PwLDfYPtmSJhAphmTP4luMwe2GoTC0MUGD1AvxijtF
+8XWmqdOfOZlvrH3Wt9J5FHZ2t2lSaxuK91NyqFKfxdZLOK1Ul2E7yibZgRJgdNkL
+qvcIaaFr/a4aPALmdlLZjeR3YrvhgVnozX2i+k5HO8cLBKZGngdHPboqt/ONOp81
+MFv0zVP1CAoRd3k92giZ2JAQZAKXHtE2KGoU0pequNVNZKo0n05PF/10uL0GJBMj
+4VU1xgoTHRUTIB2rn/FgXaRK+sxvMejmX/W5EXYZwAsRSBSv3ySu6c2ui39bChTk
+y3a7dyFuJkcZlDEt2xLSh0a34MLYDWja+4SgxNocBgp1pu3NRxClpBicphxs2fkJ
+vtzJY9L6dRYByUJFCqaHL8N+RhzH+hyqlYq/3l4MRD3UXyBIrAG1bT/rTD0sHrPU
+/VJOWuQmBx5cbfo8e5hbmwCnVbXdd562qD3AZAojxR9Vp2LzG0V09239Rq3s58BX
+d41m4TKWW5KWd+wLHQx8OnloKETBM3vs2b+zmlIcXSZMZKrEDbbCOG/e6xwOudXk
+Zg8yFxYMOU1FXzgebDNhoHzvZSK6ZVpvGYW3IsE89/qIHYL/oTD5iY4y7fZhlkHr
+T1vywtIA2vzYP063HW7w
+=Kdn5
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
