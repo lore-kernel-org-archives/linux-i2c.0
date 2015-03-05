@@ -1,38 +1,49 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [PATCH] i2c: pca954x: Defer probing due to reset GPIO
-Date: Thu, 05 Mar 2015 12:23:25 +0200
-Message-ID: <2152277.WaU4Vccoeu@avalon>
-References: <1425480268-7322-1-git-send-email-laurent.pinchart@ideasonboard.com> <20150305085353.GS7865@pengutronix.de>
+From: =?UTF-8?Q?Michael_G=C3=B6hler?= <visit-rE2GDwZd62U@public.gmane.org>
+Subject: [PATCH] i2c-tools: py-smbus linker issue in arch
+Date: Thu, 05 Mar 2015 13:36:51 +0100
+Message-ID: <d2aeb8ce046071b00780df2656945101@myjm.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/mixed;
+ boundary="=_75e788b908dea277f554a2ad93c19dff"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150305085353.GS7865-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Uwe,
+--=_75e788b908dea277f554a2ad93c19dff
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 
-On Thursday 05 March 2015 09:53:53 Uwe Kleine-K=F6nig wrote:
-> On Wed, Mar 04, 2015 at 04:44:28PM +0200, Laurent Pinchart wrote:
-> > If a reset GPIO is specified but not available we must defer probin=
-g, as
-> > the device could be held in reset. Use devm_gpiod_request_optional(=
-) to
-> > handle this automatically.
-> >=20
-> > Signed-off-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
->=20
-> I sent the same patch with a slightly different motivation two weeks
-> ago: http://article.gmane.org/gmane.linux.drivers.i2c/21972
+Hi,
 
-And I've even acked it... Well, I guess it means I really like the patc=
-h ;-)=20
-Let's get your version merged.
+this fixes a linker issue in py-smbus for Arch-Linux 
+(https://aur.archlinux.org/packages/python-smbus/) and makes it possible 
+to run setup.py independently again.
 
---=20
-Regards,
+Thanks!
+--=_75e788b908dea277f554a2ad93c19dff
+Content-Transfer-Encoding: base64
+Content-Type: text/x-diff;
+ name=i2c-tools-arch-linker-issue.patch
+Content-Disposition: attachment;
+ filename=i2c-tools-arch-linker-issue.patch;
+ size=901
 
-Laurent Pinchart
+SW5kZXg6IHB5LXNtYnVzL01vZHVsZS5tawo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBweS1zbWJ1cy9Nb2R1bGUu
+bWsJKHJldmlzaW9uIDYyNzcpCisrKyBweS1zbWJ1cy9Nb2R1bGUubWsJKHdvcmtpbmcgY29weSkK
+QEAgLTEyLDcgKzEyLDcgQEAKIFBZVEhPTiA/PSBweXRob24KIERJU1RVVElMUyA6PSBcCiAJY2Qg
+JChQWV9TTUJVU19ESVIpICYmIFwKLQlDUFBGTEFHUz0iJChDUFBGTEFHUykgLUkuLi9pbmNsdWRl
+IiBMREZMQUdTPSIkKExERkxBR1MpIC1MbGliIC1saTJjIiAkKFBZVEhPTikgc2V0dXAucHkKKwkk
+KFBZVEhPTikgc2V0dXAucHkKIAogYWxsLXB5dGhvbjogJChJTkNMVURFX0RJUikvaTJjL3NtYnVz
+LmgKIAkkKERJU1RVVElMUykgYnVpbGQKSW5kZXg6IHB5LXNtYnVzL3NldHVwLnB5Cj09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT0KLS0tIHB5LXNtYnVzL3NldHVwLnB5CShyZXZpc2lvbiA2Mjc3KQorKysgcHktc21idXMvc2V0
+dXAucHkJKHdvcmtpbmcgY29weSkKQEAgLTExLDQgKzExLDEwIEBACiAJbWFpbnRhaW5lcl9lbWFp
+bD0ibGludXgtaTJjQHZnZXIua2VybmVsLm9yZyIsCiAJbGljZW5zZT0iR1BMdjIiLAogCXVybD0i
+aHR0cDovL2xtLXNlbnNvcnMub3JnLyIsCi0JZXh0X21vZHVsZXM9W0V4dGVuc2lvbigic21idXMi
+LCBbInNtYnVzbW9kdWxlLmMiXSldKQorCWV4dF9tb2R1bGVzPVtFeHRlbnNpb24oCisJCSJzbWJ1
+cyIsCisJCVsic21idXNtb2R1bGUuYyJdLAorCQlleHRyYV9jb21waWxlX2FyZ3M9WyctSS4uL2lu
+Y2x1ZGUnXSwKKwkJZXh0cmFfbGlua19hcmdzPVsnLWxpMmMnXQorCSldCispCg==
+--=_75e788b908dea277f554a2ad93c19dff--
