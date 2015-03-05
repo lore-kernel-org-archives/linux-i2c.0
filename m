@@ -1,48 +1,90 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v3 3/5] i2c: recovery: change input parameter to i2c_adapter
- for prepare/unprepare_recovery
-Date: Thu, 5 Mar 2015 20:41:31 +0200
-Message-ID: <54F8A35B.5040706@ti.com>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com> <1417448047-15236-4-git-send-email-grygorii.strashko@ti.com> <20141204182910.GH7944@katana>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v2 1/4] i2c: sunxi: Add Reduced Serial Bus (RSB) support
+Date: Thu, 5 Mar 2015 23:08:01 +0100
+Message-ID: <20150305220801.GE4522@lukather>
+References: <1425284686-5116-1-git-send-email-wens@csie.org>
+ <1425284686-5116-2-git-send-email-wens@csie.org>
+ <20150304172710.GA884@katana>
+ <20150305182817.GB4911@lukather>
+ <20150305184044.GA881@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20141204182910.GH7944@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vv4Sf/kQfcwinyKX"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150305184044.GA881@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-sunxi@googlegroups.com, Hans de Goede <hdegoede@redhat.com>, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On 12/04/2014 08:29 PM, Wolfram Sang wrote:
-> On Mon, Dec 01, 2014 at 05:34:05PM +0200, Grygorii Strashko wrote:
->> This patch changes type of input parameter for .prepare/unprepare_re=
-covery()
->> callbacks from struct i2c_bus_recovery_info * to struct i2c_adapter =
-*.
->> This allows to simplify implementation of these callbacks and avoid
->> type conversations from i2c_bus_recovery_info to i2c_adapter.
->> The i2c_bus_recovery_info can be simply retrieved from struct i2c_ad=
-apter
->> which contains pointer on it.
->>
->> CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
->> CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
->> CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->> CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
->> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->> Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
->
-> Ah, bus recovery, I need to have a closer look on this one. Scheduled
-> for 3.20.
->
+--vv4Sf/kQfcwinyKX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Unfortunately, it looks like you've missed these patches :(
+On Thu, Mar 05, 2015 at 07:40:44PM +0100, Wolfram Sang wrote:
+>=20
+> > > I don't have the bandwidth for a full review right now. However, I
+> > > already wanted to tell you guys that my gut feeling is that this
+> > > protocol is quite far away from I2C. P2WI was already at the edge.
+> > > Maybe there is a better place for such custom stuff? I dunno yet.
+> >=20
+> > That's unfortunate, especially since it looks closer to SPI than what
+> > P2WI even was.
+>=20
+> SPI? I assume you mean I2C. Can you elaborate your reasoning?
 
-I'm going to resend them if you agree.
+Yeah, I obviously meant I2C, sorry.
 
-regards,
--grygorii
+P2WI had no address. It was a single-device bus. However, the way it
+communicated with the device was very close to I2C, apart from a
+parity bit instead of the ACK.
+
+=46rom that regard, RSB is a multiple device bus, using addresses, just
+like I2C. The way it communicates is basically the one used by P2WI.
+
+So really, it just is more I2C-alike than P2WI has ever been.
+
+> > What would be your suggestion?
+>=20
+> Let me quote:
+>=20
+> "I don't have the bandwidth for a full review right now... I dunno
+> yet."
+
+Good thing that we are not talking about a full review then, but more
+a philosophical discussion.
+
+Thanks!
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--vv4Sf/kQfcwinyKX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJU+NPBAAoJEBx+YmzsjxAgwQsP/0qHvSFthd6lON8KruXB0x7w
+0P7aRcsx0wWCnOEpsNdOBWDNZuaJ42oxYjrwxcgzYCfGx+bJqNjvajtYLlu0vWnZ
+t0QofweIhpO/eRSN2puMRETvJJDNVfwy0lQkObdlsITqxWE4tYSfy6yhTp7onSnP
+hhLfpl2p4qaE3IGaFt2pRANlI+cktxcBSIaKWlKRDig9xZehNn/hBiNPVqcM5Ybg
+FWDJTkjuJqxwEevZmxzL5Wn17+MewGzUPPDiA2epQDmXnPGXHP3ZRwEGltN4wr6S
+H1jLQozWAzfeIqGKO+HY6gyxlJO7da3ECzOXmp2CMPzkrRWKW9B8HXvEfxazSkc0
+X9WD7HxSR73Iln1UFFZpyj5lFCXh45hP8zAWC0meHz/BA4aPj9gimyEjaMv1BI3g
+WEBAWLTzKSBk57bwQFC0Wv/82jEuPad/rOMyAWG/Uf1QWoVgX6MxXG0Tsu5MwRg9
+ypEfXzpLIbpb7PU6U1MmuHhyUve20YYjecrDPNhpSVnDSAszpSn10tUZz7krJBuZ
+drYNY4JaHbsYHgQF+XHdhUNfL/QiWv4Vb6NSkQdDBqBmwdRZAkh/PC4brsdqVmW6
+18vJ6/4NV/c/Z+e/7ajbNvzIRcUszWrMFm+LQuNtGlGwWwMvLGzbzoL7jrduDeKd
+Gm9Sa9Syya7cwt7+yc2p
+=b22k
+-----END PGP SIGNATURE-----
+
+--vv4Sf/kQfcwinyKX--
