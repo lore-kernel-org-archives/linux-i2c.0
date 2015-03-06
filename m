@@ -1,71 +1,92 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
-Date: Fri, 6 Mar 2015 23:05:31 +0100
-Message-ID: <20150306220531.GA6572@katana>
-References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
- <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
- <20150304040819.GB12776@verge.net.au>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH/RFC] i2c: rcar: Support ACK by HW auto restart after NACK
+Date: Fri, 6 Mar 2015 23:18:09 +0100
+Message-ID: <20150306221809.GB6572@katana>
+References: <1424011480-3551-1-git-send-email-ykaneko0929@gmail.com>
+ <2775fbb6b2e2b333ef2457133f419d4d@the-dreams.de>
+ <20150304040635.GA12776@verge.net.au>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
-Return-path: <linux-sh-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150304040819.GB12776@verge.net.au>
-Sender: linux-sh-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Yoshihiro Kaneko <ykaneko0929@gmail.com>, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
+In-Reply-To: <20150304040635.GA12776-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Cc: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---y0ulUmNC+osPPQO6
+--H1spWtNR+x+ondvy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
+> > >Even if R-Car I2C received NACK, after that it might receive ACK
+> > >by HW auto restart. In case of that, driver would continue process.
+> > >If R-Car I2C didn't receive ACK, the driver would detect timeout
+> > >and would report NACK as -ENXIO.
+> > >
+> > >Signed-off-by: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> > >Signed-off-by: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >=20
+> > Excuse me, but what exactly is HW auto restart in this case? Is it a fe=
+ature
+> > of the I2C slave?
+>=20
 > I asked Kataoka-san about this and his response was as follows:
-
-Thanks, Simon!
-
-> If system(CPU) is busy, the driver can't clear the status register soon
-> after kicking start.
 >=20
-> If sequence of first start is as follows, there is a problem.
-> Because H/W starts by 1.
-> But sequence of re-start is as follows, there is no problem.
-> Because H/W starts by 2.
+>     It is a feature of the i2c-rcar(H/W) master.
 >=20
->   1. Issue START condition by ESG bit of ICMCR register.
->                   <--- If there is too much time, H/W finish transmitting
->                        and set status in status register.
->   2. Clear interrupt status (ICMSR).
->   3. Open interrupt mask.
->   4. Wait interrupt.
->                   <--- If status is cleared, interrupt does not occur.
+>     If system(CPU) is busy, NACK procedure may have interrupt latency.
+>     Since the clear of ICMCR.ESG bit is delayed, i2c-rcar(H/W) may auto-r=
+estart
+>     after NACK. Please refer to ESG bit of H/W UM section 55.3.5.
+>=20
+>     For example, this is I2C write transmitting.
+>     1.Start / 2.SlaveAddr,ACK / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
+>=20
+>     If No.2 has NACK and interruption has delay, this transmitting is as =
+follows.
+>     1.Start / 2.SlaveAddr,NACK/ 1x.auto-restart / 2x.SlaveAddr,ACK
+>                                     / 3.RegAddr,ACK / 4.RegData,ACK / 5.S=
+top
+>=20
+>     NACK of No.2 is invalidated by ACK of No.2x. It means recover.
 
-I understand. I'll add this explanation to the patch and apply it soon.
+Does this make some I2C device work which did not work before?
+
+Most I2C devices always ack their address, so NACK very often means
+"nothing is there". I think it makes sense that the rcar driver returns
+ENXIO in this case which is documented to be used for NACK after address
+phase. Then, the i2c client driver should know if this means "not there"
+or "currently busy". And it should know when is a good time for another
+try. As I read the patch, the driver would use the auto-restart feature
+until the timeout is reached. That would make bus scanning pretty slow,
+too.
 
 
---y0ulUmNC+osPPQO6
+--H1spWtNR+x+ondvy
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU+iSrAAoJEBQN5MwUoCm2NYIP/jD/F4+ibWcVxTlhgrnDROBN
-Bah6XoAvdFgU1sWUeaHSiI9s0uhMoXHTn7c1dGlDiPrTgyBD45EdFsVaahKPulwQ
-gfSTa/RvUCy5/+IrLRVKPWs4kqsCJwCr7SVQASWAHa3F3iRuxp9/YlaJBQkLpJjA
-8dJjmCfqNMihny+DhuAgQczFTCY3oTdo1VRgaxnEnQKUtks22WRmuvDUhSWNF0zz
-y1rkKWbUZxaVeg/BCkBU2jHIw28Hsp+RWLGSDqCcfukgItUtgQ0J9TWEXw0Jx3Sq
-9euSzQ85D3eWvqcme1J+DykvSM5JBUjkpfEzmLr2LhzDiiPr1niEac3UEb2E9YER
-W490G7caz/uhi4p8vJ1e7yguAz5/MNJ3yz0ZQs6A3Nbfysl49Dhse9/pkU8B4Vdo
-rvVaSVCr/NR+r43bxtBvVUOFvZGl93ZxxBFpt6vGgvkTxd9yNr68Lj/OjMg+mlIQ
-yLKshjFfF4tBsd1f1bQrPTEEB0RboyWtFl/MjtAwO2H5VBKY2vnT34/5wiXrufNE
-Cxj8wnp1f4VI1jPWscZEvO6+bl4iWcK6+QZsfnk2tMGhZvaCzy1D7YJwTtGdJPU8
-iKkS2L48LTV4D+9pR8T99lV+QjjqSb8PjSzFiuF4scFk3HtU8zj5erLbZhpqmmbj
-fyQYtlZ4VOvVvYNaLOIK
-=E2vm
+iQIcBAEBAgAGBQJU+iehAAoJEBQN5MwUoCm25j8P/1qENhruWt5vWc5wSjpE7jY8
+l70UkRVSUrAH+SZvYNjrX11bSCvdJMY31GlKfKM8jfS50sEvFtou6lt4UGDXEM5h
+MkHtuO1CpokRA63CnACXWKnweGdQXw6JfcRstYduhocXwNMMSz35bAtyVr54RwUT
+euI/HrtIdvam36HYiZME/Jb9iTxwc9kqdFLVsegOhYuiX7O9ans/eAeQ/N336rl/
+lm4AMfMx5mrRJNtj8A6PRE6AGHUSu1avEjUEzyGJKQmxbDoUOTw5BqhjV6zT7UUe
+Vm5gKq9gz5RQablDWm+13dQFAZHkOq3LFdRVkFvOOdWOj3KJHUsDptjnncYsFUF7
+3IQxf+id/SnTnCkSvW3++b+DK6AZNGSuGye0tJWXfyaYnxmXED1FHOTZl88bbVaG
+cZ8L835GSteSlGtW5tvTydIZmcqzyN8y5JEJ9gpuRtXFJjeQlnJfyZ0KvLh2Fuc4
+CwaBrm/Ic35ps4IL2oEhGJQyrdLso/yS3nt/VV7zv6AreXCe3pLebHXalBVagHoE
+frhVWpcE+ScgfkoOKkFnMW2uleQXbknObinHKOQKDOBiFEwEfQB7eKzIj/GsQsb1
+fdZmeP1/zay8q6XFsZh2VFiL3vRjULJJ4jOHhCrus7tWnwuL1L26QPGSyWC9flGN
+42B9xsTzclbilw92AFaz
+=av9Y
 -----END PGP SIGNATURE-----
 
---y0ulUmNC+osPPQO6--
+--H1spWtNR+x+ondvy--
