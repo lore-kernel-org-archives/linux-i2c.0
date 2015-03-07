@@ -1,63 +1,80 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH 0/2] i2c_imc: New driver, at long last
-Date: Fri,  6 Mar 2015 18:50:52 -0800
-Message-ID: <cover.1425695891.git.luto@amacapital.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org
-Cc: Mauro Carvalho Chehab <m.chehab@samsung.com>, Rui Wang <ruiv.wang@gmail.com>, Tony Luck <tony.luck@intel.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Alun Evans <alun@badgerous.net>, Robert Elliott <Elliott@hp.com>, Boaz Harrosh <boaz@plexistor.com>, Andy Lutomirski <luto@amacapital.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
+Date: Sat, 7 Mar 2015 11:33:49 +0100
+Message-ID: <20150307103349.GA1194@katana>
+References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
+ <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
+ <20150304040819.GB12776@verge.net.au>
+ <20150306220531.GA6572@katana>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150306220531.GA6572@katana>
+Sender: linux-sh-owner@vger.kernel.org
+To: Simon Horman <horms@verge.net.au>
+Cc: Yoshihiro Kaneko <ykaneko0929@gmail.com>, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This adds i2c_imc, a driver for the SMBUS lines on DIMM slots on modern
-Intel server chips.  Conceptually, I like it a lot -- it's a driver for
-a bus for which we know the exact topology a priori.  That means that we
-can actually enumerate the things on the bus reasonably cleanly.
 
-This driver is weird, but I don't think that merging it will cause
-problems, and I believe that there are Real Users (tm) of this driver.
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It has two caveats.
+On Fri, Mar 06, 2015 at 11:05:31PM +0100, Wolfram Sang wrote:
+>=20
+> > I asked Kataoka-san about this and his response was as follows:
+>=20
+> Thanks, Simon!
+>=20
+> > If system(CPU) is busy, the driver can't clear the status register soon
+> > after kicking start.
+> >=20
+> > If sequence of first start is as follows, there is a problem.
+> > Because H/W starts by 1.
+> > But sequence of re-start is as follows, there is no problem.
+> > Because H/W starts by 2.
+> >=20
+> >   1. Issue START condition by ESG bit of ICMCR register.
+> >                   <--- If there is too much time, H/W finish transmitti=
+ng
+> >                        and set status in status register.
+> >   2. Clear interrupt status (ICMSR).
+> >   3. Open interrupt mask.
+> >   4. Wait interrupt.
+> >                   <--- If status is cleared, interrupt does not occur.
+>=20
+> I understand. I'll add this explanation to the patch and apply it soon.
 
-Big caveat: Lots of things like to touch this bus, such as a BMC, the
-memory controller power management stuff, and maybe even SMM code.
-Intel forgot to define a way to arbitrate between them, nor are the
-SMBUS master regs designed to be poked by multiple things at once.  The
-upshot is that loading this driver is generally unsafe.  The driver
-takes some measures to detect contention for the registers and shut
-itself down, but no one should rely on that.
+Sorry, another question came up while applying:
 
-My understanding is that there's work in ACPI land to define an
-arbitration mechanism.  Once this happens, we can support it in this
-driver.  In the mean time, this driver has actual users, and there are
-motherboards specifically designed to be used with a driver like this.
-(I have such a board, and you can even buy them on regular online
-shopping sutes.)
+How can this interruption happen? The function is called in a
+spin_lock_irqsave protected area. Is this an RT_PREEMPT related issue?
+Am I missing something?
 
-Therefore, I added a module parameter called allow_unsafe_access.  If
-unset, the driver will refuse to load with an informative message.  If
-set, the driver will pr_warn and load.
 
-Little caveat: This submission only supposts Sandy Bridge.  I'd rather
-get it merged without Ivy Bridge and Haswell support and add them later
-(should be easy) rather than trying to make the driver support all
-possible hardware before merging it.
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Changes: This is an updated resubmission after about a year of thumb
-twiddling.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Andy Lutomirski (2):
-  i2c_imc: New driver for Intel's iMC, found on LGA2011 chips
-  i2c, i2c_imc: Add DIMM bus code
+iQIcBAEBAgAGBQJU+tQNAAoJEBQN5MwUoCm2I+UP/2n8b6yQcitFz97Xk39vJZA8
+eMBeREhHp7GJjmDa9nJ2yfFSpV4Ke0mHktBXaZoEzgI5sUpbkVaeQZqPDCCrKl1t
+hzTGPoLVo/wpanwCLNGkMxmky5T5U/Km9ArLYP1FTcmaDAAOebnZDmNHEqA+2go4
++yyScvzJ3H+rTImQm5PPoTCNmIAG9vS+Ak6C9oktZEgRQzycIi0WayLiN1Cqyh66
+hRaNlzHhp/4xN0ze70qozSc0JFaciX0n9Gfn89Nq/GE2wQu93gQyUj07ro4zXhAb
+aHWHeICOlq7odD5b419Ih/VeSfc4hOj2W2I05TD7Uqa1nWdcwt/1mQmYrmh7fh7i
+B6fhekaW2ttsOO8buNdQR6cUCB03bsGK/R72IBe2vxzrdOgkV9nm9xBjQMmdgPV6
+VxbvlTK7NcEFZTJIlFvViDWhev4BIFu+QExwiUzILF+HcPaoTBL+VfPeBjbdicDy
+Knb/HIXulZntOO5PAz6UaHVQf0eI8q35GXoOBIO2NUAifZM32MQZlzuwXZwdA55n
+261BEvfOv7W7gOm8LdM8Q0WBHdQOhRlQcahLI+ayInnLrzSBXShGguUEbliNgQz7
+5ImunN1ZL2g1mMOZ2nhWXeRQ1RTkYje8BHf93K2kcEbLYQShNaakZjkNc2WKR5lk
+e7GyAWDbPEPS96B2/qiz
+=F4JD
+-----END PGP SIGNATURE-----
 
- drivers/i2c/busses/Kconfig    |  22 ++
- drivers/i2c/busses/Makefile   |   5 +
- drivers/i2c/busses/dimm-bus.c |  97 +++++++
- drivers/i2c/busses/i2c-imc.c  | 586 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c/dimm-bus.h  |  24 ++
- 5 files changed, 734 insertions(+)
- create mode 100644 drivers/i2c/busses/dimm-bus.c
- create mode 100644 drivers/i2c/busses/i2c-imc.c
- create mode 100644 include/linux/i2c/dimm-bus.h
-
--- 
-2.1.0
+--FCuugMFkClbJLl1L--
