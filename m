@@ -1,80 +1,86 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
-Date: Sat, 7 Mar 2015 11:33:49 +0100
-Message-ID: <20150307103349.GA1194@katana>
-References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
- <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
- <20150304040819.GB12776@verge.net.au>
- <20150306220531.GA6572@katana>
+From: Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c_imc: New driver for Intel's iMC, found on
+ LGA2011 chips
+Date: Sat, 07 Mar 2015 13:48:27 +0100
+Message-ID: <1425732507.2281.12.camel@tiscali.nl>
+References: <cover.1425695891.git.luto@amacapital.net>
+	 <13443f0542fb447a4c0e558a5f6077c6a76a6e95.1425695891.git.luto@amacapital.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150306220531.GA6572@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Yoshihiro Kaneko <ykaneko0929@gmail.com>, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <13443f0542fb447a4c0e558a5f6077c6a76a6e95.1425695891.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Rui Wang <ruiv.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Luck <tony.luck-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, One Thousand Gnomes <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, Alun Evans <alun-eX+YDEU5biwsV2N9l4h3zg@public.gmane.org>, Robert Elliott <Elliott-VXdhtT5mjnY@public.gmane.org>, Boaz Harrosh <boaz-/8YdC2HfS5554TAoqtyWWQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Just two nits.
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Andy Lutomirski schreef op vr 06-03-2015 om 18:50 [-0800]:
 
-On Fri, Mar 06, 2015 at 11:05:31PM +0100, Wolfram Sang wrote:
->=20
-> > I asked Kataoka-san about this and his response was as follows:
->=20
-> Thanks, Simon!
->=20
-> > If system(CPU) is busy, the driver can't clear the status register soon
-> > after kicking start.
-> >=20
-> > If sequence of first start is as follows, there is a problem.
-> > Because H/W starts by 1.
-> > But sequence of re-start is as follows, there is no problem.
-> > Because H/W starts by 2.
-> >=20
-> >   1. Issue START condition by ESG bit of ICMCR register.
-> >                   <--- If there is too much time, H/W finish transmitti=
-ng
-> >                        and set status in status register.
-> >   2. Clear interrupt status (ICMSR).
-> >   3. Open interrupt mask.
-> >   4. Wait interrupt.
-> >                   <--- If status is cleared, interrupt does not occur.
->=20
-> I understand. I'll add this explanation to the patch and apply it soon.
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -149,6 +149,24 @@ config I2C_ISMT
+>  	  This driver can also be built as a module.  If so, the module will be
+>  	  called i2c-ismt.
+>  
+> +config I2C_IMC
+> +	tristate "Intel iMC (LGA 2011) SMBus Controller"
+> +	depends on PCI && X86
+> +	select I2C_DIMM_BUS
 
-Sorry, another question came up while applying:
+The pedant in me can't help but notice that I2C_DIMM_BUS itself is added
+in patch 2/2. And so is the call of i2c_scan_dimm_bus() in i2c-imc.c
+that apparently requires this select. So that select isn't really needed
+in this patch but in 2/2.
 
-How can this interruption happen? The function is called in a
-spin_lock_irqsave protected area. Is this an RT_PREEMPT related issue?
-Am I missing something?
+> +	help
+> +	  If you say yes to this option, support will be included for the Intel
+> +	  Integrated Memory Controller SMBus host controller interface.  This
+> +	  controller is found on LGA 2011 Xeons and Core i7 Extremes.
+> +
+> +	  There are currently no systems on which the kernel knows that it can
+> +	  safely enable this driver.  For now, you need to pass this driver a
+> +	  scary module parameter, and you should only pass that parameter if you
+> +	  have a special motherboard and know exactly what you are doing.
+> +	  Special motherboards include the Supermicro X9DRH-iF-NV.
+> +
+> +	  This driver can also be built as a module.  If so, the module will be
+> +	  called i2c-imc.
+> +
+>  config I2C_PIIX4
+>  	tristate "Intel PIIX4 and compatible (ATI/AMD/Serverworks/Broadcom/SMSC)"
+>  	depends on PCI
+
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-imc.c
+> @@ -0,0 +1,583 @@
+> +/*
+> + * Copyright (c) 2013 Andrew Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2
+> + * as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+> + */
+
+This states the license is GPL v2.
+
+> +MODULE_LICENSE("GPL");
+
+So you probably want to use
+    MODULE_LICENSE("GPL v2");
+
+here.
 
 
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJU+tQNAAoJEBQN5MwUoCm2I+UP/2n8b6yQcitFz97Xk39vJZA8
-eMBeREhHp7GJjmDa9nJ2yfFSpV4Ke0mHktBXaZoEzgI5sUpbkVaeQZqPDCCrKl1t
-hzTGPoLVo/wpanwCLNGkMxmky5T5U/Km9ArLYP1FTcmaDAAOebnZDmNHEqA+2go4
-+yyScvzJ3H+rTImQm5PPoTCNmIAG9vS+Ak6C9oktZEgRQzycIi0WayLiN1Cqyh66
-hRaNlzHhp/4xN0ze70qozSc0JFaciX0n9Gfn89Nq/GE2wQu93gQyUj07ro4zXhAb
-aHWHeICOlq7odD5b419Ih/VeSfc4hOj2W2I05TD7Uqa1nWdcwt/1mQmYrmh7fh7i
-B6fhekaW2ttsOO8buNdQR6cUCB03bsGK/R72IBe2vxzrdOgkV9nm9xBjQMmdgPV6
-VxbvlTK7NcEFZTJIlFvViDWhev4BIFu+QExwiUzILF+HcPaoTBL+VfPeBjbdicDy
-Knb/HIXulZntOO5PAz6UaHVQf0eI8q35GXoOBIO2NUAifZM32MQZlzuwXZwdA55n
-261BEvfOv7W7gOm8LdM8Q0WBHdQOhRlQcahLI+ayInnLrzSBXShGguUEbliNgQz7
-5ImunN1ZL2g1mMOZ2nhWXeRQ1RTkYje8BHf93K2kcEbLYQShNaakZjkNc2WKR5lk
-e7GyAWDbPEPS96B2/qiz
-=F4JD
------END PGP SIGNATURE-----
-
---FCuugMFkClbJLl1L--
+Paul Bolle
