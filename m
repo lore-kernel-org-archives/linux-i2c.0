@@ -1,81 +1,108 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 4.0
-Date: Sat, 7 Mar 2015 19:14:54 +0100
-Message-ID: <20150307181449.GA3371@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: Bug in i2c-core?
+Date: Sun, 8 Mar 2015 09:26:17 +0100
+Message-ID: <20150308082617.GA1904@katana>
+References: <54F0507F.6030804@armadeus.com>
+ <20150227165944.GA6679@dtor-ws>
+ <3574616.qzNqihiGp7@avalon>
+ <20150304082237.GA2955@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20150304082237.GA2955@katana>
+Sender: linux-input-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?utf-8?Q?S=C3=A9bastien?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, Rob Herring <robh@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---x+6KMIRAuhnl3hBn
+--6c2NcOVqGQ03X4Wi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Wed, Mar 04, 2015 at 09:22:37AM +0100, Wolfram Sang wrote:
+>=20
+> > > > I am writing an I2C touchscreen driver for an i.MX6 based board. I
+> > > > compiled it as a module and when I unload it, I get the following w=
+arning:
+> > > >=20
+> > > > # modprobe sx8654
+> > > > [   46.261494] input: SX8654 I2C Touchscreen as
+> > > > /devices/soc0/soc/2100000.aips-bus/21a0000.i2c/i2c-0/0-0048/input/i=
+nput1
+> > > > # rmmod sx8654
+> > > > [   76.435223] ------------[ cut here ]------------
+> > > > [   76.439909] WARNING: CPU: 0 PID: 134 at fs/proc/generic.c:552
+> > > > remove_proc_entry+0x148/0x164()
+> > > > [   76.448582] remove_proc_entry: removing non-empty directory
+> > > > 'irq/208', leaking at least 'sx8654'
+> > >=20
+> > > ...
+> > >=20
+> > > > When I revert commit e4df3a0 (i2c: core: Dispose OF IRQ mapping at
+> > > > client removal time) I don't get the warning.
+> > > >=20
+> > > > Is this a bug in the i2c-core or am I doing something wrong in my d=
+river?
+> > >=20
+> > > Yes, this commit breaks all drivers using devm* for IRQ management on
+> > > OF-based systemsi because devm* cleanup happens in device code, after
+> > > bus's remove() method returns. I'd recommend reverting and finding a
+> > > better way (making cleanup a custom devm action as well?).
+> >=20
+> > Ouch, my bad.
+> >=20
+> > Wolfram, any opinion ? The original patch fixes a real bug, so we shoul=
+dn't=20
+> > just revert it.
+>=20
+> Looking at it some more: What bug does it fix? Anything you experienced?
+>=20
+> I wonder if we really need e4df3a0 because I can't see where
+> platform_get_irq, the major user of of_irq_get, disposes the mapping.
+> irq_create_of_mapping() will return an already assigned mapping if
+> called twice. I don't know yet, though, if mappings are static or if a
+> mapping can be routed to another irq controller over some time because
+> theoretically they can be dynamically added/removed.
+>=20
+> Adding Rob to CC as he wrote of_irq_get and put it into
+> platform_get_irq. Rob, we use of_irq_get() in the I2C core and the
+> question is now if we need to dispose the mapping and if so what would
+> be a good place for it so managed devices will not have their mappings
+> removed before the managed irq is removed.
 
-here is a set of updates and bugfixes for the new designware-baytrail
-driver. And a documentation bugfix.
-
-Please pull.
+Ping. Just so you know: Without further information, I will revert the
+patch in question around rc4/rc5. I'd still like to know if the
+non-disposing of the mapping in platform_get_irq() is intentional.
 
 Thanks,
 
    Wolfram
 
 
-The following changes since commit 13a7a6ac0a11197edcd0f756a035f472b42cdf8b:
-
-  Linux 4.0-rc2 (2015-03-03 09:04:59 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 5d232112f94b0f3920dc4fec09688ef6cb5c09df:
-
-  i2c: imx: add required clocks property to binding (2015-03-07 01:13:00 +0100)
-
-----------------------------------------------------------------
-Andy Shevchenko (5):
-      i2c: designware-baytrail: describe magic numbers
-      i2c: designware-baytrail: fix typo in error path
-      i2c: designware-baytrail: fix sparse warnings
-      i2c: designware-baytrail: cross-check lock functions
-      i2c: designware-baytrail: baytrail_i2c_acquire() might sleep
-
-Matt Porter (1):
-      i2c: imx: add required clocks property to binding
-
- Documentation/devicetree/bindings/i2c/i2c-imx.txt |  1 +
- drivers/i2c/busses/i2c-designware-baytrail.c      | 40 ++++++++++++-----------
- 2 files changed, 22 insertions(+), 19 deletions(-)
-
---x+6KMIRAuhnl3hBn
+--6c2NcOVqGQ03X4Wi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU+0AZAAoJEBQN5MwUoCm27wcP/RX2ohAibQXVNtuUdjrneYsU
-pZCOYc2bVtYOVGKHThllB4ncrz8gabQ9re/3h0h7BKh66zPtJq5XMryWIMvOytSZ
-T9Mp/MVNgjyUriPXYTjV508qKu7bxyvVYAyqvLIEpES9hJH8d7A7bs9hULNT8ISL
-lm2qbs7QBrNehvGBZbDApUS6a1NIJQ+FjbCS+y7yNyskwmNfA/QZ0r6N+N6/5lAW
-wgghlPAO+BpGPsYdZdbbbEV2qGFz0T7AQqcXotXl3ZxN4tJMTZW/Y5mXepdp2QUY
-WgL55iH/YqP9Ayb8m34LiL9yECc1nXOTD1h+O/qlsx5UPJ1GPgS2v2x8NH1g1BzM
-snzi4QX0dR19soA7iv6UFt7aHWn9TNdcAn0ML1HnWH9KYcK4TJGyCCPH6QnnYiL1
-pSYxvkT3Mv+AJ4W0SN00keaQMQmjES4qAQ8URGYhweTAyKmarMTjG6dyMt4tTOd5
-34ElAOTuHC5af9pN80le6wayOp2/qjdjMr9nH5vZ74YX9KQPH8MgdnDdbu20JjK1
-V0+UdrrOl7hiuFMg38y9lVu8Pw/8Gp2gHbed6R/jqZPiZSrpwfPvAHc9O+CSh6yM
-eVGyIWiwyUOlaZS7xGgZek9zK1IOvCdex+GOVpb6RzcXA7B8tzb1AXCcoK5AJFtq
-DhWRdF68t5vpnw59TE7y
-=lPif
+iQIcBAEBAgAGBQJU/AepAAoJEBQN5MwUoCm28IcP/jr+R9502SS6bGp3NV2B3XuT
+1C3x2MmmlUYzA9MBm1X8nfZ+RxlTCdBDzdltO01MfJ6KoU0E/KrNe2Wshl2Wd1rV
+pW1wMiHa3Z+e6jYq5jMR5j1QtAXWTZvpZ+VaS2O/FcWnnclfShP+vm8l6axHQPwX
+1gbplUlF3yWx8/nssex0S6GwQWEmWBijeUQB7pBa4IWFXZjw+FOX3A6SyKYqYlF8
+IUc5EBPRcjxTYo5kKtwmym54tYrydhDVwKF6T4vFVv7ni3e3Lu+TkUEGCToxRYFe
+mGaIoJj++lVzhWI9aizLwltiCjBJq43E3ZFueYc4ve2kuA6CuOY0IF5nCjEK34/o
+rZmqGOMAYVUpzyTM6Tw8sffOY9vKcP37FzRrtgm/z4DCG4XbSG3auTbFOJdhijha
+JUaWJRYVpX20p7bteu7N88jQXhsIHyt/G7do8kO6T+hH59+QDiU4pLxqax5qZDMk
+KyI9oomXw7RmU8Mi67S4mWMkR1p7WxoSn4+NxMc/XbuKS+HWOBXJnm/VZn1c2jmM
+yDdniXu03gK6fZeCbhyWZ6WKiKy/aFLzZ1ZXUfkAVjb4pSNKQRy6E+fhmSzjw289
+6jwSFQGnBRtkGn4A+Dtr9P3ASjdLcGbJFzRiooed+w7awzIgci/3BU5yjm47udoy
+B3/MgPA+a4jJl2+OddH0
+=7I3C
 -----END PGP SIGNATURE-----
 
---x+6KMIRAuhnl3hBn--
+--6c2NcOVqGQ03X4Wi--
