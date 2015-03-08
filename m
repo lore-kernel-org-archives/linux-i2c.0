@@ -1,108 +1,133 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: Bug in i2c-core?
-Date: Sun, 8 Mar 2015 09:26:17 +0100
-Message-ID: <20150308082617.GA1904@katana>
-References: <54F0507F.6030804@armadeus.com>
- <20150227165944.GA6679@dtor-ws>
- <3574616.qzNqihiGp7@avalon>
- <20150304082237.GA2955@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [RFC V2 03/12] i2c: at91: make use of the new infrastructure for
+ quirks
+Date: Sun, 8 Mar 2015 09:28:45 +0100
+Message-ID: <20150308082845.GB1904@katana>
+References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+ <1424880126-15047-4-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
-Return-path: <linux-input-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150304082237.GA2955@katana>
-Sender: linux-input-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?utf-8?Q?S=C3=A9bastien?= SZYMANSKI <sebastien.szymanski@armadeus.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, Rob Herring <robh@kernel.org>
+In-Reply-To: <1424880126-15047-4-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---6c2NcOVqGQ03X4Wi
+--Pd0ReVV5GZGQvF3a
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 04, 2015 at 09:22:37AM +0100, Wolfram Sang wrote:
+On Wed, Feb 25, 2015 at 05:01:54PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 >=20
-> > > > I am writing an I2C touchscreen driver for an i.MX6 based board. I
-> > > > compiled it as a module and when I unload it, I get the following w=
-arning:
-> > > >=20
-> > > > # modprobe sx8654
-> > > > [   46.261494] input: SX8654 I2C Touchscreen as
-> > > > /devices/soc0/soc/2100000.aips-bus/21a0000.i2c/i2c-0/0-0048/input/i=
-nput1
-> > > > # rmmod sx8654
-> > > > [   76.435223] ------------[ cut here ]------------
-> > > > [   76.439909] WARNING: CPU: 0 PID: 134 at fs/proc/generic.c:552
-> > > > remove_proc_entry+0x148/0x164()
-> > > > [   76.448582] remove_proc_entry: removing non-empty directory
-> > > > 'irq/208', leaking at least 'sx8654'
-> > >=20
-> > > ...
-> > >=20
-> > > > When I revert commit e4df3a0 (i2c: core: Dispose OF IRQ mapping at
-> > > > client removal time) I don't get the warning.
-> > > >=20
-> > > > Is this a bug in the i2c-core or am I doing something wrong in my d=
-river?
-> > >=20
-> > > Yes, this commit breaks all drivers using devm* for IRQ management on
-> > > OF-based systemsi because devm* cleanup happens in device code, after
-> > > bus's remove() method returns. I'd recommend reverting and finding a
-> > > better way (making cleanup a custom devm action as well?).
-> >=20
-> > Ouch, my bad.
-> >=20
-> > Wolfram, any opinion ? The original patch fixes a real bug, so we shoul=
-dn't=20
-> > just revert it.
->=20
-> Looking at it some more: What bug does it fix? Anything you experienced?
->=20
-> I wonder if we really need e4df3a0 because I can't see where
-> platform_get_irq, the major user of of_irq_get, disposes the mapping.
-> irq_create_of_mapping() will return an already assigned mapping if
-> called twice. I don't know yet, though, if mappings are static or if a
-> mapping can be routed to another irq controller over some time because
-> theoretically they can be dynamically added/removed.
->=20
-> Adding Rob to CC as he wrote of_irq_get and put it into
-> platform_get_irq. Rob, we use of_irq_get() in the I2C core and the
-> question is now if we need to dispose the mapping and if so what would
-> be a good place for it so managed devices will not have their mappings
-> removed before the managed irq is removed.
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Ping. Just so you know: Without further information, I will revert the
-patch in question around rc4/rc5. I'd still like to know if the
-non-disposing of the mapping in platform_get_irq() is intentional.
+Hi Ludovic,
+
+if you have a few minutes, could you please test this series? I'd like to
+include it in 4.1. and because at91 is using the quirk infrastructure in
+a more complex way, it is a really good test candidate.
 
 Thanks,
 
    Wolfram
 
+> ---
+>  drivers/i2c/busses/i2c-at91.c | 32 +++++++++++---------------------
+>  1 file changed, 11 insertions(+), 21 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 636fd2efad8850..b3a70e8fc653c5 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -487,30 +487,10 @@ static int at91_twi_xfer(struct i2c_adapter *adap, =
+struct i2c_msg *msg, int num)
+>  	if (ret < 0)
+>  		goto out;
+> =20
+> -	/*
+> -	 * The hardware can handle at most two messages concatenated by a
+> -	 * repeated start via it's internal address feature.
+> -	 */
+> -	if (num > 2) {
+> -		dev_err(dev->dev,
+> -			"cannot handle more than two concatenated messages.\n");
+> -		ret =3D 0;
+> -		goto out;
+> -	} else if (num =3D=3D 2) {
+> +	if (num =3D=3D 2) {
+>  		int internal_address =3D 0;
+>  		int i;
+> =20
+> -		if (msg->flags & I2C_M_RD) {
+> -			dev_err(dev->dev, "first transfer must be write.\n");
+> -			ret =3D -EINVAL;
+> -			goto out;
+> -		}
+> -		if (msg->len > 3) {
+> -			dev_err(dev->dev, "first message size must be <=3D 3.\n");
+> -			ret =3D -EINVAL;
+> -			goto out;
+> -		}
+> -
+>  		/* 1st msg is put into the internal address, start with 2nd */
+>  		m_start =3D &msg[1];
+>  		for (i =3D 0; i < msg->len; ++i) {
+> @@ -540,6 +520,15 @@ out:
+>  	return ret;
+>  }
+> =20
+> +/*
+> + * The hardware can handle at most two messages concatenated by a
+> + * repeated start via it's internal address feature.
+> + */
+> +static struct i2c_adapter_quirks at91_twi_quirks =3D {
+> +	.flags =3D I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST | I2C_AQ_COMB_SAME_ADD=
+R,
+> +	.max_comb_1st_msg_len =3D 3,
+> +};
+> +
+>  static u32 at91_twi_func(struct i2c_adapter *adapter)
+>  {
+>  	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+> @@ -777,6 +766,7 @@ static int at91_twi_probe(struct platform_device *pde=
+v)
+>  	dev->adapter.owner =3D THIS_MODULE;
+>  	dev->adapter.class =3D I2C_CLASS_DEPRECATED;
+>  	dev->adapter.algo =3D &at91_twi_algorithm;
+> +	dev->adapter.quirks =3D &at91_twi_quirks;
+>  	dev->adapter.dev.parent =3D dev->dev;
+>  	dev->adapter.nr =3D pdev->id;
+>  	dev->adapter.timeout =3D AT91_I2C_TIMEOUT;
+> --=20
+> 2.1.4
+>=20
 
---6c2NcOVqGQ03X4Wi
+--Pd0ReVV5GZGQvF3a
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJU/AepAAoJEBQN5MwUoCm28IcP/jr+R9502SS6bGp3NV2B3XuT
-1C3x2MmmlUYzA9MBm1X8nfZ+RxlTCdBDzdltO01MfJ6KoU0E/KrNe2Wshl2Wd1rV
-pW1wMiHa3Z+e6jYq5jMR5j1QtAXWTZvpZ+VaS2O/FcWnnclfShP+vm8l6axHQPwX
-1gbplUlF3yWx8/nssex0S6GwQWEmWBijeUQB7pBa4IWFXZjw+FOX3A6SyKYqYlF8
-IUc5EBPRcjxTYo5kKtwmym54tYrydhDVwKF6T4vFVv7ni3e3Lu+TkUEGCToxRYFe
-mGaIoJj++lVzhWI9aizLwltiCjBJq43E3ZFueYc4ve2kuA6CuOY0IF5nCjEK34/o
-rZmqGOMAYVUpzyTM6Tw8sffOY9vKcP37FzRrtgm/z4DCG4XbSG3auTbFOJdhijha
-JUaWJRYVpX20p7bteu7N88jQXhsIHyt/G7do8kO6T+hH59+QDiU4pLxqax5qZDMk
-KyI9oomXw7RmU8Mi67S4mWMkR1p7WxoSn4+NxMc/XbuKS+HWOBXJnm/VZn1c2jmM
-yDdniXu03gK6fZeCbhyWZ6WKiKy/aFLzZ1ZXUfkAVjb4pSNKQRy6E+fhmSzjw289
-6jwSFQGnBRtkGn4A+Dtr9P3ASjdLcGbJFzRiooed+w7awzIgci/3BU5yjm47udoy
-B3/MgPA+a4jJl2+OddH0
-=7I3C
+iQIcBAEBAgAGBQJU/Ag9AAoJEBQN5MwUoCm2ZUQP/24pSAVpY6i8vCuMifwSFj/3
+t5pljp+iU/Ryg0/qCUYYgftmfCWqFvOremeAF1Y1PF2GTquXpxNJdwI+slBNvtsL
+QGlkESyk/bN/qAun0k1QH+YDLZORiSSgrQRJhCNJaKcgbiRVoVlBWXrZujF1ixLY
+Wg8QOfEKla3iXLsasMnqUpzAzP1kvJMReOCaZfddbPFJjAL+P9SUkormjv2WWzkc
+HqfyH27K9ZdtWroEAjZO9LOHGkg+KmPaI/9y/s9+B1X+o5hzuJaqaoNiToL9vtJd
+IGDuFP3hk03IoU3QruXHLrQ9EBZTo5dUQFVSED0UkXfAd0iixl4TQFeorNzXC7xE
+78ukLztk//dsRMmTNwH6FvJjwWlByGwmBEI/Xaj3iav7pX3hIvzeapsg8XImwkGw
+Bgj4GivLxr4XLN5NUIFtIl3Fvfs0G51v/7Ngo6OyPaL3z0+YWTeaQVi2jXhchWcF
+JJyLFToLRdE3O0aAUpzAXGwYa+n8METUtGPE64SAU1PY0QPjSlNV/Ef5NeNKUsXM
+I9ZEi3VqzKIjTDbj8+RyIP5NkQEp1XbOzjq0CcopJrMXKfBm900xp4pCXr3Y5JMA
+0WTjIIllVw4klSTKxuP5mbUobbxCoHsZmLgmc8BcxrALLzQNTxe79E3jtQFk4jXQ
+Hb5TGoNb81lcd+Sfg6fB
+=bwPY
 -----END PGP SIGNATURE-----
 
---6c2NcOVqGQ03X4Wi--
+--Pd0ReVV5GZGQvF3a--
