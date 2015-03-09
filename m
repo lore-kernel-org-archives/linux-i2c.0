@@ -1,53 +1,42 @@
-From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c_imc: New driver for Intel's iMC, found on LGA2011 chips
-Date: Sun, 8 Mar 2015 12:55:58 -0700
-Message-ID: <CALCETrVv1_b2TH-jXkOYUVeJ812mOFz5HvfH-b1WuaHPP_tadw@mail.gmail.com>
-References: <cover.1425695891.git.luto@amacapital.net> <13443f0542fb447a4c0e558a5f6077c6a76a6e95.1425695891.git.luto@amacapital.net>
- <54FB0D7D.8060402@roeck-us.net> <CALCETrUwwhFS5H+dwpOyxqnr24pSmZt460i-CwUb0bt=VCOfMw@mail.gmail.com>
- <54FC6D2B.3060307@roeck-us.net> <CALCETrUYwvF6cbmGy4zU-HNYe7xamw61+7nuryN0KaRdS7i24A@mail.gmail.com>
- <54FCA807.7080505@roeck-us.net>
+From: Alexey Brodkin <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware: Suppress error message if
+ platform_get_irq() returns -EPROBE_DEFER
+Date: Mon, 9 Mar 2015 08:29:24 +0000
+Message-ID: <1425889764.5234.13.camel@synopsys.com>
+References: <1425396456-10633-1-git-send-email-abrodkin@synopsys.com>
+	 <54F5E120.3090705@alitech.com> <1425400650.17965.53.camel@synopsys.com>
+	 <20150307002447.GE993@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-7"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54FCA807.7080505-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <20150307002447.GE993@katana>
+Content-Language: en-US
+Content-ID: <447ECB29E691F14498D8DEDD7439B3BF-z7JfP6tgrtVBCHUSTMH8dZqQE7yCjDx5@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Boaz Harrosh <boaz-/8YdC2HfS5554TAoqtyWWQ@public.gmane.org>, One Thousand Gnomes <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, Rui Wang <ruiv.wang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alun Evans <alun-eX+YDEU5biwsV2N9l4h3zg@public.gmane.org>, Robert Elliott <Elliott-VXdhtT5mjnY@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Tony Luck <tony.luck-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org" <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, "andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org" <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org" <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Mar 8, 2015 at 12:50 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
-> On 03/08/2015 12:30 PM, Andy Lutomirski wrote:
-> [ ... ]
->
->>>
->>>> One other question: from my reading of the spec, it should be possible
->>>> to
->>>> augment this driver to expose a temporate sensor subdevice that shows
->>>> recent cached temperatures from HW DIMM measurements.  They would be
->>>> redundant with the jc42 outputs, but it would be safe to use them even
->>>> on
->>>> systems without safe SMBUS arbitration.  Should I do that as a followup
->>>> later on?
->>>>
->>>
->>> Without thinking too much about it, this should be a separate driver,
->>> and I think it might actually be more valuable (since less risky)
->>> than this entire patch set.
->>
->>
->> The main problem there is that they'll fight over the PCI ids.
->>
-> That is why we have mfd drivers. While that most likely won't be a
-> solution here (and I don't suggest it), you can use the same idea.
-> If can not be instantiated as pci driver, the alternative would be
-> to instantiate it as platform driver and let it get its pci
-> information from the parent device.
->
+Hi Wolfram,
 
-Hmm.  It could make sense to have an Intel chipset driver that
-instantiates sub-devices for thermal monitoring, smbus, and EDAC.  It
-might be a bit of a cleanup for sb-edac, too.
+On Sat, 2015-03-07 at 01:24 +-0100, Wolfram Sang wrote:
++AD4- +AD4- +AD4- Presented like this I wonder if this merits being a dev+AF8-err at all.
++AD4- +AD4- +AD4- Wouldn't dev+AF8-dbg be more adequate? This might remove the need for the
++AD4- +AD4- +AD4- condition and also avoid bothering everyone if something in the platform
++AD4- +AD4- +AD4- device structures or device tree is not right.
++AD4- +AD4- +AD4- 
++AD4- +AD4- +AD4- +AD4-  		return irq+ADs- /+ACo- -ENXIO +ACo-/
++AD4- +AD4- +AD4- +AD4-  	+AH0-
++AD4- +AD4- 
++AD4- +AD4- We've just had similar discussion related to DW APB UART with Andy here
++AD4- +AD4- https://lkml.org/lkml/2015/3/3/412
++AD4- +AD4- 
++AD4- +AD4- So yes probably we may safely remove error message from here completely.
++AD4- 
++AD4- So, do you want to send a V2?
 
-Anyway, this isn't currently necessary.  Let's deal with it when we get there.
+Sorry for this delay - I was away for last few days.
+I'm about to send v2 with removal of error message completely.
 
---Andy
+-Alexey
