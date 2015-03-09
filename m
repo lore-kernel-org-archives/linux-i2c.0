@@ -1,46 +1,70 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [RFC V2 03/12] i2c: at91: make use of the new infrastructure for
- quirks
-Date: Mon, 9 Mar 2015 17:11:57 +0100
-Message-ID: <20150309161157.GW9132@odux.rfo.atmel.com>
-References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
- <1424880126-15047-4-git-send-email-wsa@the-dreams.de>
- <20150308082845.GB1904@katana>
+From: christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org
+Subject: Re: [PATCH v2] i2c: designware: Suppress error message if platform_get_irq() < 0
+Date: Mon, 9 Mar 2015 17:34:51 +0100
+Message-ID: <OFBD47D4C1.937484E0-ONC1257E03.005AABCB-C1257E03.005B051D@alitech.com>
+References: <1425891792-9248-1-git-send-email-abrodkin@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="US-ASCII"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150308082845.GB1904@katana>
+In-Reply-To: <1425891792-9248-1-git-send-email-abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Alexey Brodkin <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Alexey Brodkin <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> wrote on 03/09/2015 10:03:12 
+AM:
 
-On Sun, Mar 08, 2015 at 09:28:45AM +0100, Wolfram Sang wrote:
-> On Wed, Feb 25, 2015 at 05:01:54PM +0100, Wolfram Sang wrote:
-> > From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> > 
-> > Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> From: Alexey Brodkin <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+> To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 
+> Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexey Brodkin 
+> <Alexey.Brodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Vineet Gupta 
+> <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Christian Ruppert 
+> <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Mika Westerberg 
+> <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>,
+> Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Date: 03/09/2015 10:03 AM
 > 
-> Hi Ludovic,
+> As discussed here https://lkml.org/lkml/2015/3/3/568 and here
+> https://lkml.org/lkml/2015/3/3/453 we're looking forward for
+> implementing warnings and errors outputs right in platform_get_irq()
+> instead of having all kind of different outputs in each and every driver
+> that uses platform_get_irq().
 > 
-> if you have a few minutes, could you please test this series? I'd like to
-> include it in 4.1. and because at91 is using the quirk infrastructure in
-> a more complex way, it is a really good test candidate.
+> Signed-off-by: Alexey Brodkin <abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+> Cc: Vineet Gupta <vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
+> Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Acked-by: Christian Ruppert <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>
 
-It was in the pipe. I have reviewed it, this second version seems to be
-good. I am just waiting a bit more to give you my ack since I have some
-issues to read an i2c eeprom (it works with a temperature sensor).
-I am investigating if it doesn't come from a previous regression.
+Please note that my email address has changed and use the alitech one in 
+future. The abilis address might be switched off soon.
 
+> Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 > 
-> Thanks,
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/
+> i2c/busses/i2c-designware-platdrv.c
+> index c270f5f..fa4e2b5 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -143,10 +143,8 @@ static int dw_i2c_probe(struct platform_device 
+*pdev)
+>     u32 clk_freq, ht = 0;
 > 
->    Wolfram
+>     irq = platform_get_irq(pdev, 0);
+> -   if (irq < 0) {
+> -      dev_err(&pdev->dev, "no irq resource?\n");
+> -      return irq; /* -ENXIO */
+> -   }
+> +   if (irq < 0)
+> +      return irq;
 > 
-
-Regards
-
-Ludovic
+>     dev = devm_kzalloc(&pdev->dev, sizeof(struct dw_i2c_dev), 
+GFP_KERNEL);
+>     if (!dev)
+> -- 
+> 2.1.0
+> 
