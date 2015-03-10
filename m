@@ -1,34 +1,132 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Tue, 10 Mar 2015 10:28:26 -0600
-Message-ID: <54FF1BAA.3060409@wwwdotorg.org>
-References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com> <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
+From: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [RFC V2 04/12] i2c: opal: make use of the new infrastructure
+ for quirks
+Date: Tue, 10 Mar 2015 22:43:21 +0530
+Message-ID: <54FF2631.9050006@linux.vnet.ibm.com>
+References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de> <1424880126-15047-5-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1425903665-19343-1-git-send-email-sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1424880126-15047-5-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/09/2015 06:21 AM, Sebastian Hesselbarth wrote:
-> I2C mux pinctrl driver currently determines the number of sub-busses by
-> counting available pinctrl-names. Unfortunately, this requires each
-> incarnation of the devicetree node with different available sub-busses
-> to be rewritten.
->
-> This patch reworks i2c-mux-pinctrl driver to count the number of
-> available sub-nodes instead. The rework should be compatible to the old
-> way of probing for sub-busses and additionally allows to disable unused
-> sub-busses with standard DT property status = "disabled".
->
-> This also amends the corresponding devicetree binding documentation to
-> reflect the new functionality to disable unused sub-nodes. While at it,
-> also fix two references to binding documentation files that miss an "i2c-"
-> prefix.
+I tested the i2c opal driver after updating the patch as below.
+Basically I think we can also support write-then-{read/write}
+for the number of messages = 2.
+Ben, any issues if we support both write plus read/write in the
+opal driver ?
 
-The DT binding changes at least,
-Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Regards,
+Neelesh
+
+
+  drivers/i2c/busses/i2c-opal.c |   20 ++++++++------------
+  1 file changed, 8 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-opal.c b/drivers/i2c/busses/i2c-opal.c
+index 16f90b1..85412ba 100644
+--- a/drivers/i2c/busses/i2c-opal.c
++++ b/drivers/i2c/busses/i2c-opal.c
+@@ -104,18 +104,8 @@ static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+  		req.buffer_ra = cpu_to_be64(__pa(msgs[0].buf));
+  		break;
+  	case 2:
+-		/* For two messages, we basically support only simple
+-		 * smbus transactions of a write plus a read. We might
+-		 * want to allow also two writes but we'd have to bounce
+-		 * the data into a single buffer.
+-		 */
+-		if ((msgs[0].flags & I2C_M_RD) || !(msgs[1].flags & I2C_M_RD))
+-			return -EOPNOTSUPP;
+-		if (msgs[0].len > 4)
+-			return -EOPNOTSUPP;
+-		if (msgs[0].addr != msgs[1].addr)
+-			return -EOPNOTSUPP;
+-		req.type = OPAL_I2C_SM_READ;
++		req.type = (msgs[1].flags & I2C_M_RD) ?
++			OPAL_I2C_SM_READ : OPAL_I2C_SM_WRITE;
+  		req.addr = cpu_to_be16(msgs[0].addr);
+  		req.subaddr_sz = msgs[0].len;
+  		for (i = 0; i < msgs[0].len; i++)
+@@ -210,6 +200,11 @@ static const struct i2c_algorithm i2c_opal_algo = {
+  	.functionality	= i2c_opal_func,
+  };
+
++static struct i2c_adapter_quirks i2c_opal_quirks = {
++	.flags = I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST | I2C_AQ_COMB_SAME_ADDR,
++	.max_comb_1st_msg_len = 4,
++};
++
+  static int i2c_opal_probe(struct platform_device *pdev)
+  {
+  	struct i2c_adapter	*adapter;
+@@ -232,6 +227,7 @@ static int i2c_opal_probe(struct platform_device *pdev)
+
+  	adapter->algo = &i2c_opal_algo;
+  	adapter->algo_data = (void *)(unsigned long)opal_id;
++	adapter->quirks = &i2c_opal_quirks;
+  	adapter->dev.parent = &pdev->dev;
+  	adapter->dev.of_node = of_node_get(pdev->dev.of_node);
+  	pname = of_get_property(pdev->dev.of_node, "ibm,port-name", NULL);
+
+
+
+On 02/25/2015 09:31 PM, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+> ---
+>   drivers/i2c/busses/i2c-opal.c | 22 +++++++++++-----------
+>   1 file changed, 11 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-opal.c b/drivers/i2c/busses/i2c-opal.c
+> index 16f90b1a750894..b2788ecad5b3cb 100644
+> --- a/drivers/i2c/busses/i2c-opal.c
+> +++ b/drivers/i2c/busses/i2c-opal.c
+> @@ -104,17 +104,6 @@ static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>   		req.buffer_ra = cpu_to_be64(__pa(msgs[0].buf));
+>   		break;
+>   	case 2:
+> -		/* For two messages, we basically support only simple
+> -		 * smbus transactions of a write plus a read. We might
+> -		 * want to allow also two writes but we'd have to bounce
+> -		 * the data into a single buffer.
+> -		 */
+> -		if ((msgs[0].flags & I2C_M_RD) || !(msgs[1].flags & I2C_M_RD))
+> -			return -EOPNOTSUPP;
+> -		if (msgs[0].len > 4)
+> -			return -EOPNOTSUPP;
+> -		if (msgs[0].addr != msgs[1].addr)
+> -			return -EOPNOTSUPP;
+>   		req.type = OPAL_I2C_SM_READ;
+>   		req.addr = cpu_to_be16(msgs[0].addr);
+>   		req.subaddr_sz = msgs[0].len;
+> @@ -210,6 +199,16 @@ static const struct i2c_algorithm i2c_opal_algo = {
+>   	.functionality	= i2c_opal_func,
+>   };
+>   
+> +/* For two messages, we basically support only simple
+> + * smbus transactions of a write plus a read. We might
+> + * want to allow also two writes but we'd have to bounce
+> + * the data into a single buffer.
+> + */
+> +static struct i2c_adapter_quirks i2c_opal_quirks = {
+> +	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
+> +	.max_comb_1st_msg_len = 4,
+> +};
+> +
+>   static int i2c_opal_probe(struct platform_device *pdev)
+>   {
+>   	struct i2c_adapter	*adapter;
+> @@ -232,6 +231,7 @@ static int i2c_opal_probe(struct platform_device *pdev)
+>   
+>   	adapter->algo = &i2c_opal_algo;
+>   	adapter->algo_data = (void *)(unsigned long)opal_id;
+> +	adapter->quirks = &i2c_opal_quirks;
+>   	adapter->dev.parent = &pdev->dev;
+>   	adapter->dev.of_node = of_node_get(pdev->dev.of_node);
+>   	pname = of_get_property(pdev->dev.of_node, "ibm,port-name", NULL);
