@@ -1,114 +1,34 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: Re: [RFC V2 03/12] i2c: at91: make use of the new infrastructure for
- quirks
-Date: Tue, 10 Mar 2015 14:55:20 +0100
-Message-ID: <20150310135520.GY9132@odux.rfo.atmel.com>
-References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
- <1424880126-15047-4-git-send-email-wsa@the-dreams.de>
- <20150308082845.GB1904@katana>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Tue, 10 Mar 2015 10:28:26 -0600
+Message-ID: <54FF1BAA.3060409@wwwdotorg.org>
+References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com> <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150308082845.GB1904@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1425903665-19343-1-git-send-email-sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On 03/09/2015 06:21 AM, Sebastian Hesselbarth wrote:
+> I2C mux pinctrl driver currently determines the number of sub-busses by
+> counting available pinctrl-names. Unfortunately, this requires each
+> incarnation of the devicetree node with different available sub-busses
+> to be rewritten.
+>
+> This patch reworks i2c-mux-pinctrl driver to count the number of
+> available sub-nodes instead. The rework should be compatible to the old
+> way of probing for sub-busses and additionally allows to disable unused
+> sub-busses with standard DT property status = "disabled".
+>
+> This also amends the corresponding devicetree binding documentation to
+> reflect the new functionality to disable unused sub-nodes. While at it,
+> also fix two references to binding documentation files that miss an "i2c-"
+> prefix.
 
-You can add my 
-
-Acked-by and Tested-By: Ludovic Desroches <ludovic.desroches@atmel.com>
-
-Tested on sama5d3, some problems with at24 eeprom on sama5d4 but it
-doesn't come from the i2c quirks patch series.
-
-Regards
-
-Ludovic
-
-On Sun, Mar 08, 2015 at 09:28:45AM +0100, Wolfram Sang wrote:
-> On Wed, Feb 25, 2015 at 05:01:54PM +0100, Wolfram Sang wrote:
-> > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > 
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> 
-> Hi Ludovic,
-> 
-> if you have a few minutes, could you please test this series? I'd like to
-> include it in 4.1. and because at91 is using the quirk infrastructure in
-> a more complex way, it is a really good test candidate.
-> 
-> Thanks,
-> 
->    Wolfram
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-at91.c | 32 +++++++++++---------------------
-> >  1 file changed, 11 insertions(+), 21 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> > index 636fd2efad8850..b3a70e8fc653c5 100644
-> > --- a/drivers/i2c/busses/i2c-at91.c
-> > +++ b/drivers/i2c/busses/i2c-at91.c
-> > @@ -487,30 +487,10 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
-> >  	if (ret < 0)
-> >  		goto out;
-> >  
-> > -	/*
-> > -	 * The hardware can handle at most two messages concatenated by a
-> > -	 * repeated start via it's internal address feature.
-> > -	 */
-> > -	if (num > 2) {
-> > -		dev_err(dev->dev,
-> > -			"cannot handle more than two concatenated messages.\n");
-> > -		ret = 0;
-> > -		goto out;
-> > -	} else if (num == 2) {
-> > +	if (num == 2) {
-> >  		int internal_address = 0;
-> >  		int i;
-> >  
-> > -		if (msg->flags & I2C_M_RD) {
-> > -			dev_err(dev->dev, "first transfer must be write.\n");
-> > -			ret = -EINVAL;
-> > -			goto out;
-> > -		}
-> > -		if (msg->len > 3) {
-> > -			dev_err(dev->dev, "first message size must be <= 3.\n");
-> > -			ret = -EINVAL;
-> > -			goto out;
-> > -		}
-> > -
-> >  		/* 1st msg is put into the internal address, start with 2nd */
-> >  		m_start = &msg[1];
-> >  		for (i = 0; i < msg->len; ++i) {
-> > @@ -540,6 +520,15 @@ out:
-> >  	return ret;
-> >  }
-> >  
-> > +/*
-> > + * The hardware can handle at most two messages concatenated by a
-> > + * repeated start via it's internal address feature.
-> > + */
-> > +static struct i2c_adapter_quirks at91_twi_quirks = {
-> > +	.flags = I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST | I2C_AQ_COMB_SAME_ADDR,
-> > +	.max_comb_1st_msg_len = 3,
-> > +};
-> > +
-> >  static u32 at91_twi_func(struct i2c_adapter *adapter)
-> >  {
-> >  	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-> > @@ -777,6 +766,7 @@ static int at91_twi_probe(struct platform_device *pdev)
-> >  	dev->adapter.owner = THIS_MODULE;
-> >  	dev->adapter.class = I2C_CLASS_DEPRECATED;
-> >  	dev->adapter.algo = &at91_twi_algorithm;
-> > +	dev->adapter.quirks = &at91_twi_quirks;
-> >  	dev->adapter.dev.parent = dev->dev;
-> >  	dev->adapter.nr = pdev->id;
-> >  	dev->adapter.timeout = AT91_I2C_TIMEOUT;
-> > -- 
-> > 2.1.4
-> > 
+The DT binding changes at least,
+Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
