@@ -1,153 +1,65 @@
-From: Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [RFC V2 04/12] i2c: opal: make use of the new infrastructure
- for quirks
-Date: Wed, 11 Mar 2015 09:56:20 +0530
-Message-ID: <54FFC3EC.7020708@linux.vnet.ibm.com>
-References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de> <1424880126-15047-5-git-send-email-wsa@the-dreams.de> <54FF2631.9050006@linux.vnet.ibm.com> <1426029133.17565.9.camel@kernel.crashing.org>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: match return type of
+ wait_for_completion_timeout
+Date: Wed, 11 Mar 2015 10:23:33 +0100
+Message-ID: <20150311092331.GG19577@ulmo.nvidia.com>
+References: <1425219461-3261-1-git-send-email-hofrat@osadl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="XRI2XbIfl/05pQwm"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1426029133.17565.9.camel-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1425219461-3261-1-git-send-email-hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
-On 03/11/2015 04:42 AM, Benjamin Herrenschmidt wrote:
-> On Tue, 2015-03-10 at 22:43 +0530, Neelesh Gupta wrote:
->> I tested the i2c opal driver after updating the patch as below.
->> Basically I think we can also support write-then-{read/write}
->> for the number of messages = 2.
->> Ben, any issues if we support both write plus read/write in the
->> opal driver ?
-> Nope, in fact it's a good idea, I found myself having to expoes such
-> an interface to some userspace tool of ours.
->
-> However...
->
->> diff --git a/drivers/i2c/busses/i2c-opal.c b/drivers/i2c/busses/i2c-opal.c
->> index 16f90b1..85412ba 100644
->> --- a/drivers/i2c/busses/i2c-opal.c
->> +++ b/drivers/i2c/busses/i2c-opal.c
->> @@ -104,18 +104,8 @@ static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->>    		req.buffer_ra = cpu_to_be64(__pa(msgs[0].buf));
->>    		break;
->>    	case 2:
->> -		/* For two messages, we basically support only simple
->> -		 * smbus transactions of a write plus a read. We might
->> -		 * want to allow also two writes but we'd have to bounce
->> -		 * the data into a single buffer.
->> -		 */
->> -		if ((msgs[0].flags & I2C_M_RD) || !(msgs[1].flags & I2C_M_RD))
->> -			return -EOPNOTSUPP;
-> Don't we still want to enforce that the first message is a write ?
-> Somebody may not be looking at the quirks...
->
->> -		if (msgs[0].len > 4)
->> -			return -EOPNOTSUPP;
-> And that the len is supported...
->
->> -		if (msgs[0].addr != msgs[1].addr)
->> -			return -EOPNOTSUPP;
-> Same...
->
-> Ie, the quirk indicates to the callers what we support, but we should
-> still check that we aren't called with something that doesn't match.
+--XRI2XbIfl/05pQwm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Quirk *also* return error to the user if any of the conditions mismatch with
-what we have indicated through the quriks structure...
+On Sun, Mar 01, 2015 at 09:17:41AM -0500, Nicholas Mc Guire wrote:
+> return type of wait_for_completion_timeout is unsigned long not int. As r=
+et
+> was only used for wait_for_completion_timeout here it is renamed to time_=
+left
+> the type changed to unsigned long and references fixed up.
+>=20
+> Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+> ---
+>=20
+> This patch was only compile tested with tegra_defconfig
+> (implies CONFIG_I2C_TEGRA=3Dy)
+>=20
+> Patch is against 4.0-rc1 (localversion-next is -next-20150227)
+>=20
+>  drivers/i2c/busses/i2c-tegra.c |   12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
 
-I think we can't land up here by-passing the check for quirks so above 
-checks
-are duplicated here..
+Acked-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Neelesh.
+--XRI2XbIfl/05pQwm
+Content-Type: application/pgp-signature
 
->
->> -		req.type = OPAL_I2C_SM_READ;
->> +		req.type = (msgs[1].flags & I2C_M_RD) ?
->> +			OPAL_I2C_SM_READ : OPAL_I2C_SM_WRITE;
->>    		req.addr = cpu_to_be16(msgs[0].addr);
->>    		req.subaddr_sz = msgs[0].len;
->>    		for (i = 0; i < msgs[0].len; i++)
->> @@ -210,6 +200,11 @@ static const struct i2c_algorithm i2c_opal_algo = {
->>    	.functionality	= i2c_opal_func,
->>    };
->>
->> +static struct i2c_adapter_quirks i2c_opal_quirks = {
->> +	.flags = I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST | I2C_AQ_COMB_SAME_ADDR,
->> +	.max_comb_1st_msg_len = 4,
->> +};
->> +
->>    static int i2c_opal_probe(struct platform_device *pdev)
->>    {
->>    	struct i2c_adapter	*adapter;
->> @@ -232,6 +227,7 @@ static int i2c_opal_probe(struct platform_device *pdev)
->>
->>    	adapter->algo = &i2c_opal_algo;
->>    	adapter->algo_data = (void *)(unsigned long)opal_id;
->> +	adapter->quirks = &i2c_opal_quirks;
->>    	adapter->dev.parent = &pdev->dev;
->>    	adapter->dev.of_node = of_node_get(pdev->dev.of_node);
->>    	pname = of_get_property(pdev->dev.of_node, "ibm,port-name", NULL);
->>
->>
->>
->> On 02/25/2015 09:31 PM, Wolfram Sang wrote:
->>> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
->>>
->>> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
->>> ---
->>>    drivers/i2c/busses/i2c-opal.c | 22 +++++++++++-----------
->>>    1 file changed, 11 insertions(+), 11 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-opal.c b/drivers/i2c/busses/i2c-opal.c
->>> index 16f90b1a750894..b2788ecad5b3cb 100644
->>> --- a/drivers/i2c/busses/i2c-opal.c
->>> +++ b/drivers/i2c/busses/i2c-opal.c
->>> @@ -104,17 +104,6 @@ static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->>>    		req.buffer_ra = cpu_to_be64(__pa(msgs[0].buf));
->>>    		break;
->>>    	case 2:
->>> -		/* For two messages, we basically support only simple
->>> -		 * smbus transactions of a write plus a read. We might
->>> -		 * want to allow also two writes but we'd have to bounce
->>> -		 * the data into a single buffer.
->>> -		 */
->>> -		if ((msgs[0].flags & I2C_M_RD) || !(msgs[1].flags & I2C_M_RD))
->>> -			return -EOPNOTSUPP;
->>> -		if (msgs[0].len > 4)
->>> -			return -EOPNOTSUPP;
->>> -		if (msgs[0].addr != msgs[1].addr)
->>> -			return -EOPNOTSUPP;
->>>    		req.type = OPAL_I2C_SM_READ;
->>>    		req.addr = cpu_to_be16(msgs[0].addr);
->>>    		req.subaddr_sz = msgs[0].len;
->>> @@ -210,6 +199,16 @@ static const struct i2c_algorithm i2c_opal_algo = {
->>>    	.functionality	= i2c_opal_func,
->>>    };
->>>    
->>> +/* For two messages, we basically support only simple
->>> + * smbus transactions of a write plus a read. We might
->>> + * want to allow also two writes but we'd have to bounce
->>> + * the data into a single buffer.
->>> + */
->>> +static struct i2c_adapter_quirks i2c_opal_quirks = {
->>> +	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
->>> +	.max_comb_1st_msg_len = 4,
->>> +};
->>> +
->>>    static int i2c_opal_probe(struct platform_device *pdev)
->>>    {
->>>    	struct i2c_adapter	*adapter;
->>> @@ -232,6 +231,7 @@ static int i2c_opal_probe(struct platform_device *pdev)
->>>    
->>>    	adapter->algo = &i2c_opal_algo;
->>>    	adapter->algo_data = (void *)(unsigned long)opal_id;
->>> +	adapter->quirks = &i2c_opal_quirks;
->>>    	adapter->dev.parent = &pdev->dev;
->>>    	adapter->dev.of_node = of_node_get(pdev->dev.of_node);
->>>    	pname = of_get_property(pdev->dev.of_node, "ibm,port-name", NULL);
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAABCAAGBQJVAAmQAAoJEN0jrNd/PrOh68YP/0LaILAIkuoXVuYYZBF8aPBk
+IxdyHZjszm+jdYbqRoPGNjXjvtkUNJYhME2ygKGIi6FJKxr8uSZKKA1MTwFFXN1E
+9UkB+LNYvvxfbnmkz7CrYc30XAtOHNM3UbtjO121BdgmTxPaVwHxUAJXDkTvGlsC
+CX1mZKBWbfynk7xf3z8G716JcdF1Dvm1aI47Y9cRTCzCVUoO4LNS6dmGbou0o5yd
+25IM0dghHl030KDwAvxvC6fCPBlAv1C5rRiIjYQ2YxXoSujmzOSXXVmSESaayz9b
+0c1bHWMEVlpTXklSvAod5ICy1PSY6B8HUB/JKwmGzHd635lMu64CBkAvjD8LrlPn
+2kW8DD4lY90JY+tHRUVvNu2DJFOBNhhnPJhGCHUX+nRjSofQ1JD/F8bBK/2WrZfZ
+UWafT3U2Oinhj9C6MrzXubZ+ZxKrMq9jOHR8TW5iVG3/lGfHLudC1rqVebTORqvj
+lCu5KSL9eSCUbUq3ZA8ctKdsyyHsam/AX8g53t0QYQpd7C687v7QfRxbgUAOMbmQ
+tA/LwN3dLYDW6/0gw4Nst/U0D+t8MznXChiSYl+UhM5xX2TB/MLi8QDH7czlDlZw
+xfFiVSX5dWec+hrjWLCDXI8u9vkWzBVqtYrj8jfOuA8U2Y8GQFBgzQzUINzkNzb5
+jarn+dhNMnWptV0MVcw2
+=6krr
+-----END PGP SIGNATURE-----
+
+--XRI2XbIfl/05pQwm--
