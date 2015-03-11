@@ -1,52 +1,71 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH] i2c: omap: implement bus recovery
-Date: Wed, 11 Mar 2015 15:47:53 +0200
-Message-ID: <55004789.7080706@ti.com>
-References: <1424369209-26735-1-git-send-email-balbi@ti.com> <20150309163917.GI3739@saruman.tx.rr.com> <20150311015004.GB21726@saruman.tx.rr.com>
+From: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+Subject: [PATCH_V2 1/2] dt-bindings: i2c: Add dt binding documentation for ingenic jz4780 SoC
+Date: Wed, 11 Mar 2015 14:26:43 +0000
+Message-ID: <1426084004-10364-2-git-send-email-Zubair.Kakakhel@imgtec.com>
+References: <1426084004-10364-1-git-send-email-Zubair.Kakakhel@imgtec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20150311015004.GB21726@saruman.tx.rr.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: balbi@ti.com
-Cc: wsa@the-dreams.de, Tony Lindgren <tony@atomide.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1426084004-10364-1-git-send-email-Zubair.Kakakhel@imgtec.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Zubair.Kakakhel@imgtec.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Felipe,
+Adds DT documentation for the the i2c controller for the JZ4780 SoC
 
-On 03/11/2015 03:50 AM, Felipe Balbi wrote:
-> On Mon, Mar 09, 2015 at 11:39:17AM -0500, Felipe Balbi wrote:
->> On Thu, Feb 19, 2015 at 12:06:49PM -0600, Felipe Balbi wrote:
->>> If either SCL or SDA are stuck low, we need to
->>> recover the bus using the procedure described
->>> on section 3.1.16 of the I2C specification.
->>>
->>> Note that we're trying to implement the procedure
->>> exactly as described by that section. First we
->>> check which line is stuck low, then implement
->>> one or the other procedure. If SDA recovery procedure
->>> fails, we reset our IP in an attempt to make it work.
->>>
->>> Signed-off-by: Felipe Balbi <balbi@ti.com>
->>> ---
->>>
->>> Tested with AM437x IDK, AM437x SK, BeagleBoneBlack and Beagle X15 with
->>> 1000 iterations of i2cdetect on all available buses.
->>>
->>> That said, I couldn't get any device to hold the bus busy so I could
->>> see this working. If anybody has any good way of forcing a condition
->>> so that we need bus recovery, I'd be glad to look at.
->>
->> ping
->
-> any comments here ?? Anybody at all ????
->
+Signed-off-by: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
 
-I think the I2C bus recovery infrastructure should be used here ;)
-As I did there https://lkml.org/lkml/2014/12/1/397, but
-there are no comments too :(
+---
+V1 -> V2
+Reworded example node. Was separated between board/soc.
+No need for that as such.
+Rebase to v4.0-rc3
+---
+ .../devicetree/bindings/i2c/i2c-jz4780.txt         | 35 ++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-jz4780.txt
 
-regards,
--grygorii
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-jz4780.txt b/Documentation/devicetree/bindings/i2c/i2c-jz4780.txt
+new file mode 100644
+index 0000000..231e4cc
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-jz4780.txt
+@@ -0,0 +1,35 @@
++* Ingenic JZ4780 I2C Bus controller
++
++Required properties:
++- compatible: should be "ingenic,jz4780-i2c"
++- reg: Should contain the address & size of the I2C controller registers.
++- interrupts: Should specify the interrupt provided by parent.
++- clocks: Should contain a single clock specifier for the JZ4780 I2C clock.
++- clock-frequency: desired I2C bus clock frequency in Hz.
++
++Recommended properties:
++- pinctrl-names: should be "default";
++- pinctrl-0: phandle to pinctrl function
++
++Optional properties:
++- interrupt-parent: Should be the phandle of the interrupt controller that
++  delivers interrupts to the I2C block.
++
++Example
++
++/ {
++	i2c4: i2c4@0x10054000 {
++		compatible = "ingenic,jz4780-i2c";
++		reg = <0x10054000 0x1000>;
++
++		interrupt-parent = <&intc>;
++		interrupts = <56>;
++
++		clocks = <&cgu JZ4780_CLK_SMB4>;
++		clock-frequency = <100000>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pins_i2c4_data>;
++
++	};
++};
++
+-- 
+1.9.1
