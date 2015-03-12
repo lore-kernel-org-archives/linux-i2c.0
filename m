@@ -1,88 +1,176 @@
-From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 3/5] i2c: recovery: change input parameter to i2c_adapter
- for prepare/unprepare_recovery
-Date: Thu, 12 Mar 2015 12:32:19 +0100
-Message-ID: <55017943.6040603@nokia.com>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com> <1417448047-15236-4-git-send-email-grygorii.strashko@ti.com>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Subject: Re: [PATCH v3 4/5] i2c: davinci: use bus recovery infrastructure
+Date: Thu, 12 Mar 2015 12:45:52 +0100
+Message-ID: <55017C70.1090201@nokia.com>
+References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com> <1417448047-15236-5-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1417448047-15236-4-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1417448047-15236-5-git-send-email-grygorii.strashko@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Sekhar Nori <nsekhar@ti.com>, =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+Hello Grygorii,
 
 On 01/12/14 16:34, Grygorii Strashko wrote:
-> This patch changes type of input parameter for .prepare/unprepare_rec=
-overy()
-> callbacks from struct i2c_bus_recovery_info * to struct i2c_adapter *=
-=2E
-> This allows to simplify implementation of these callbacks and avoid
-> type conversations from i2c_bus_recovery_info to i2c_adapter.
-> The i2c_bus_recovery_info can be simply retrieved from struct i2c_ada=
-pter
-> which contains pointer on it.
+> This patch converts Davinci I2C driver to use I2C bus recovery
+> infrastructure, introduced by commit 5f9296ba21b3 ("i2c: Add
+> bus recovery infrastructure").
 >=20
-> CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-> CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
-> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+> The i2c_bus_recovery_info is configured for Davinci I2C adapter
+> only in case scl_pin is provided in platform data.
+>=20
+> As the controller must be held in reset while doing so, the
+> recovery routine must re-init the controller. Since this was already
+> being done after each call to i2c_recover_bus, move those calls into
+> the recovery_prepare/unprepare routines and as well.
+>=20
+> CC: Sekhar Nori <nsekhar@ti.com>
+> CC: Kevin Hilman <khilman@deeprootsystems.com>
+> CC: Santosh Shilimkar <ssantosh@kernel.org>
+> CC: Murali Karicheri <m-karicheri2@ti.com>
+> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 > ---
->  drivers/i2c/i2c-core.c | 4 ++--
->  include/linux/i2c.h    | 4 ++--
->  2 files changed, 4 insertions(+), 4 deletions(-)
+>  drivers/i2c/busses/i2c-davinci.c | 77 +++++++++++++++++++-----------=
+----------
+>  1 file changed, 36 insertions(+), 41 deletions(-)
 >=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 2f90ac6..72b6e34 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -563,7 +563,7 @@ static int i2c_generic_recovery(struct i2c_adapte=
-r *adap)
->  	int i =3D 0, val =3D 1, ret =3D 0;
-> =20
->  	if (bri->prepare_recovery)
-> -		bri->prepare_recovery(bri);
-> +		bri->prepare_recovery(adap);
-> =20
->  	/*
->  	 * By this time SCL is high, as we need to give 9 falling-rising ed=
-ges
-> @@ -588,7 +588,7 @@ static int i2c_generic_recovery(struct i2c_adapte=
-r *adap)
->  	}
-> =20
->  	if (bri->unprepare_recovery)
-> -		bri->unprepare_recovery(bri);
-> +		bri->unprepare_recovery(adap);
-> =20
->  	return ret;
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2=
+c-davinci.c
+> index 17e1203..00aed63 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -133,43 +133,6 @@ static inline u16 davinci_i2c_read_reg(struct da=
+vinci_i2c_dev *i2c_dev, int reg)
+>  	return readw_relaxed(i2c_dev->base + reg);
 >  }
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index b556e0a..cf9380f 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -404,8 +404,8 @@ struct i2c_bus_recovery_info {
->  	void (*set_scl)(struct i2c_adapter *, int val);
->  	int (*get_sda)(struct i2c_adapter *);
 > =20
-> -	void (*prepare_recovery)(struct i2c_bus_recovery_info *bri);
-> -	void (*unprepare_recovery)(struct i2c_bus_recovery_info *bri);
-> +	void (*prepare_recovery)(struct i2c_adapter *);
-> +	void (*unprepare_recovery)(struct i2c_adapter *);
+> -/* Generate a pulse on the i2c clock pin. */
+> -static void davinci_i2c_clock_pulse(unsigned int scl_pin)
+> -{
+> -	u16 i;
+> -
+> -	if (scl_pin) {
+> -		/* Send high and low on the SCL line */
+> -		for (i =3D 0; i < 9; i++) {
+> -			gpio_set_value(scl_pin, 0);
+> -			udelay(20);
+> -			gpio_set_value(scl_pin, 1);
+> -			udelay(20);
+> -		}
+> -	}
+> -}
+> -
+> -/* This routine does i2c bus recovery as specified in the
+> - * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
+> - */
+> -static void davinci_i2c_recover_bus(struct davinci_i2c_dev *dev)
+> -{
+> -	u32 flag =3D 0;
+> -	struct davinci_i2c_platform_data *pdata =3D dev->pdata;
+> -
+> -	dev_err(dev->dev, "initiating i2c bus recovery\n");
+> -	/* Send NACK to the slave */
+> -	flag =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> -	flag |=3D  DAVINCI_I2C_MDR_NACK;
+> -	/* write the data into mode register */
+> -	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> -	davinci_i2c_clock_pulse(pdata->scl_pin);
+> -	/* Send STOP */
+> -	flag =3D davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+> -	flag |=3D DAVINCI_I2C_MDR_STP;
+> -	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> -}
+> -
+>  static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2=
+c_dev,
+>  								int val)
+>  {
+> @@ -267,6 +230,34 @@ static int i2c_davinci_init(struct davinci_i2c_d=
+ev *dev)
+>  }
 > =20
->  	/* gpio recovery */
->  	int scl_gpio;
->=20
+>  /*
+> + * This routine does i2c bus recovery by using i2c_generic_gpio_reco=
+very
+> + * which is provided by I2C Bus recovery infrastructure.
+> + */
+> +static void davinci_i2c_prepare_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct davinci_i2c_dev *dev =3D i2c_get_adapdata(adap);
+> +
+> +	/* Disable interrupts */
+> +	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, 0);
 
-Acked-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+I suppose, you don't need to disable IRQs if you reset the controller a=
+s the very next action.
+
+> +
+> +	/* put I2C into reset */
+> +	davinci_i2c_reset_ctrl(dev, 0);
+> +}
+> +
+> +static void davinci_i2c_unprepare_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct davinci_i2c_dev *dev =3D i2c_get_adapdata(adap);
+> +
+> +	i2c_davinci_init(dev);
+> +}
+> +
+> +static struct i2c_bus_recovery_info davinci_i2c_gpio_recovery_info =3D=
+ {
+> +	.recover_bus =3D i2c_generic_gpio_recovery,
+> +	.prepare_recovery =3D davinci_i2c_prepare_recovery,
+> +	.unprepare_recovery =3D davinci_i2c_unprepare_recovery,
+> +};
+> +
+> +/*
+>   * Waiting for bus not busy
+>   */
+>  static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev=
+,
+> @@ -286,8 +277,7 @@ static int i2c_davinci_wait_bus_not_busy(struct d=
+avinci_i2c_dev *dev,
+>  				return -ETIMEDOUT;
+>  			} else {
+>  				to_cnt =3D 0;
+> -				davinci_i2c_recover_bus(dev);
+> -				i2c_davinci_init(dev);
+> +				i2c_recover_bus(&dev->adapter);
+>  			}
+>  		}
+>  		if (allow_sleep)
+> @@ -376,8 +366,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, st=
+ruct i2c_msg *msg, int stop)
+>  						      dev->adapter.timeout);
+>  	if (r =3D=3D 0) {
+>  		dev_err(dev->dev, "controller timed out\n");
+> -		davinci_i2c_recover_bus(dev);
+> -		i2c_davinci_init(dev);
+> +		i2c_recover_bus(adap);
+>  		dev->buf_len =3D 0;
+>  		return -ETIMEDOUT;
+>  	}
+> @@ -721,6 +710,12 @@ static int davinci_i2c_probe(struct platform_dev=
+ice *pdev)
+>  	adap->timeout =3D DAVINCI_I2C_TIMEOUT;
+>  	adap->dev.of_node =3D pdev->dev.of_node;
+> =20
+> +	if (dev->pdata->scl_pin) {
+> +		adap->bus_recovery_info =3D &davinci_i2c_gpio_recovery_info;
+> +		adap->bus_recovery_info->scl_gpio =3D dev->pdata->scl_pin;
+> +		adap->bus_recovery_info->sda_gpio =3D dev->pdata->sda_pin;
+> +	}
+> +
+>  	adap->nr =3D pdev->id;
+>  	r =3D i2c_add_numbered_adapter(adap);
+>  	if (r) {
+>=20
 
 --=20
 Best regards,
 Alexander Sverdlin.
-Sent from my pdp-11
