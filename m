@@ -1,70 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.0
-Date: Thu, 12 Mar 2015 17:26:42 +0100
-Message-ID: <20150312162637.GA26978@katana>
+From: Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
+Subject: Re: Another problem with I2C multiplexer bus naming - solved
+Date: Thu, 12 Mar 2015 11:49:48 -0700
+Message-ID: <5501DFCC.6010408@rafresearch.com>
+References: <1426133507.16219.YahooMailNeo@web181502.mail.ne1.yahoo.com> <1426136151.37151.YahooMailNeo@web181506.mail.ne1.yahoo.com> <20150312094423.GB4225@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150312094423.GB4225@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 3/12/2015 2:44 AM, Wolfram Sang wrote:
+> On Wed, Mar 11, 2015 at 09:55:51PM -0700, Bob Feretich wrote:
+>
+>> I tried some random things and setting aliases in the dtsi file solved
+>> the problem.
+>
+> Good.
+>
+>> The use of an alias to set the name of an i2c bus should
+>> be documented somewhere!
+>
+> Well, send a patch adding some documentation where you would have liked
+> to see it.
+>
+> Thanks,
+>
+>     Wolfram
+>
+The first two places I looked for information were:
+* 
+https://www.kernel.org/doc/Documentation/devicetree/bindings/i2c/i2c-mux.txt 
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+   This is where I found the info on specifying the multiplexer without
+   aliases. It would seem logical to add the description of "how to
+   explicitly name child buses" here.
+* https://www.kernel.org/doc/Documentation/i2c/muxes/i2c-mux-gpio
+   Even though this file is for gpio controlled multiplexers, it seemed
+   like a good spot to look for information on how to specify i2c
+   multiplexers in general. It only describes the board.c method of
+   registering adapters. (I don't know which  gpio_i2cmux_platform_data
+   fields would be the equivalent of specifying the device tree aliases.)
+   Perhaps a cross-reference to the above documentation is appropriate,
+   since use of customized board.c files is being discouraged.
 
-Linus,
-
-here is an important bugfix for the I2C subsystem core. Please pull.
+Note that once device trees become dynamic and support hot plugging, the
+alias bus naming solution becomes ineffective, unless there is a way to 
+specify a hierarchical alias that references the bus/adapter id of the 
+multiplexer.
 
 Thanks,
-
-   Wolfram
-
-
-The following changes since commit 9eccca0843205f87c00404b663188b88eb248051:
-
-  Linux 4.0-rc3 (2015-03-08 16:09:09 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to a49445727014216703a3c28ccee4cef36d41571e:
-
-  Revert "i2c: core: Dispose OF IRQ mapping at client removal time" (2015-03-12 10:23:05 +0100)
-
-----------------------------------------------------------------
-Jakub Kicinski (1):
-      Revert "i2c: core: Dispose OF IRQ mapping at client removal time"
-
- drivers/i2c/i2c-core.c | 3 ---
- 1 file changed, 3 deletions(-)
-
---NzB8fVQJ5HfG6fxh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVAb49AAoJEBQN5MwUoCm2FiYQAKnnVgWf5GLVuTw6gFLZG6oF
-JKQrjY5XcRlOpv5abbNnrANMNA4ZzXaOpZKgB+cOIOzreSh8gEfwcKv2GZv8ccTr
-1nljBBCFmo8+jnawehIbAlBwci7oLwSHCnwjUD/bon/BnWaA/V+9IQPKI+gGJJua
-BzFA2rTbxlgwmwtMlhu0dO7spvrG85q1oQ6XrhfGMhXElp82uAFqEq9W1zIIK+N6
-z+KKyz8MGv7VLXnNwEQbZRxDRK/6vjHRSNCnV7UkfVktc1h8p1Vr2P9c1pINlSh6
-gcwwSEB0ONwbIJ0dXMp92rvbmrTmQIOE/DOmfUcRpJtrRlkI5YRVa8TDJOYlIHDY
-S/wS4wEwOPwxU1MUW43uiULisazmItHggL7CuWgduloO6hHGIKR+yTvZy5JTnz20
-3WfHmdkP8tG14nHC2m4mNVzu6W6sI26K8MxnwjvhWdoFRDzt4Z6FJqPduv/BbUI9
-SdiSLSicM0UJuubsdw1mJ+GrSzInOskkMiQVdpgOuNHVHMxKpYjrmXU10BK434Hd
-c7mAe4RedV886w0chTvB2C47rpmvROqMNESyb01enmS+LTDw7txs0bv72Tf/PSTE
-G6qv3xlkaFNbV0DJrRzKqEFfeUSCDMXoIM6KKGTsMmmmFlwrm7VYWFXvIGVqMv4b
-oQV1Rk+w76zx9DVWMfZe
-=S9iQ
------END PGP SIGNATURE-----
-
---NzB8fVQJ5HfG6fxh--
+Bob
