@@ -1,45 +1,42 @@
-From: Grygorii Strashko <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()
-Date: Thu, 12 Mar 2015 14:37:25 +0200
-Message-ID: <CAO5CWPJWhpGCb4NvXnJJ00-9kOvvqtxQsSQbTMxODNC4tjtWzQ@mail.gmail.com>
-References: <55003E6B.40008@nokia.com>
-	<55008AD7.4070905@linaro.org>
-	<55015351.7040508@nokia.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 0/3] i2c: slave: API updates
+Date: Thu, 12 Mar 2015 13:42:00 +0100
+Message-ID: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55015351.7040508-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Debora Grosse <debora-HRUOeNTICTI@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 12 March 2015 at 10:50, Alexander Sverdlin
-<alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org> wrote:
-> On 11/03/15 19:35, ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org wrote:
->>> +    if (i2c_davinci_wait_status_change(dev, DAVINCI_I2C_STR_BB, 0)) {
->>> +        dev_warn(dev->dev, "timeout waiting for bus ready\n");
->>> +        davinci_i2c_recover_bus(dev);
->>> +        i2c_davinci_init(dev);
->>> +        /*
->>> +         * the bus should not be busy after init, otherwise something
->>> +         * is badly broken
->>> +         */
->>
->> I think you should recheck BB and return error if it's still detected.
->
-> But after re-reading the datasheet, I must conclude, this is almost not possible.
-> It will be a dead code. Reset will clear BB anyway and the only possibility to see
-> BB set to 1 here is when another master transmits right after our reset. We cannot
-> guarantee that we will always catch this here, so this must be any way handled over
-> AL interrupt.
+So, after some more thoughts and people using the slave framewoek, I finally
+decided some API seem in place. Please read the patch description for details.
+Thanks to all people joining the discussion! Also, finally, the documentation
+is here.
 
-The question here what is worse:
-- silently continue execution with undefined behavior
-- or recheck and return error (That's how it was before).
+Please let me know what you think!
 
-I like option 2 :) - don't believe HW.
+Thanks,
+
+   Wolfram
+
+
+Wolfram Sang (3):
+  i2c: slave: rework the slave API
+  Documentation: i2c: describe the new slave mode
+  i2c: slave: add documentation for i2c-slave-eeprom
+
+ Documentation/i2c/slave-eeprom-backend |  14 +++
+ Documentation/i2c/slave-interface      | 178 +++++++++++++++++++++++++++++++++
+ Documentation/i2c/summary              |   4 -
+ drivers/i2c/busses/i2c-rcar.c          |  10 +-
+ drivers/i2c/i2c-slave-eeprom.c         |  12 +--
+ include/linux/i2c.h                    |   8 +-
+ 6 files changed, 206 insertions(+), 20 deletions(-)
+ create mode 100644 Documentation/i2c/slave-eeprom-backend
+ create mode 100644 Documentation/i2c/slave-interface
 
 -- 
-Best regards,
--grygorii
+2.1.4
