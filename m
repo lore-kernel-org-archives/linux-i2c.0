@@ -1,14 +1,13 @@
 From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/3] i2c: davinci: Fix problems discovered on Keystone
- CPU
-Date: Thu, 12 Mar 2015 08:52:39 +0100
-Message-ID: <550145C7.20503@nokia.com>
-References: <55003E60.3070306@nokia.com> <55008AF1.80405@linaro.org>
+Subject: Re: [PATCH 2/3] i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()
+Date: Thu, 12 Mar 2015 09:50:25 +0100
+Message-ID: <55015351.7040508@nokia.com>
+References: <55003E6B.40008@nokia.com> <55008AD7.4070905@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55008AF1.80405-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <55008AD7.4070905-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: "ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
@@ -16,30 +15,22 @@ List-Id: linux-i2c@vger.kernel.org
 Hi!
 
 On 11/03/15 19:35, ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org wrote:
->> The series address the follwing problems:
->> > "i2c: davinci: Rework racy ISR" -- stop the parallel activities in the driver
->> > including concurrect registers access. Also simplifies the design and removes
->> > some bad aids.
->> > "i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()" -- the routine is
->> > over-designed and instead of "waiting" will trigger the bus recovering
->> > immediately.
->> > "i2c: davinci: Avoid sending to own address" -- works around one davinci
->> > controller issue when it unexpectedly switches to some sort of slave mode
->> > trying to send to its own address. The controller remains in this locked state
->> > until reset, so it's better to avoid this situation than to deal with transfer
->> > timeouts.
->> > 
+>> +    if (i2c_davinci_wait_status_change(dev, DAVINCI_I2C_STR_BB, 0)) {
+>> +        dev_warn(dev->dev, "timeout waiting for bus ready\n");
+>> +        davinci_i2c_recover_bus(dev);
+>> +        i2c_davinci_init(dev);
+>> +        /*
+>> +         * the bus should not be busy after init, otherwise something
+>> +         * is badly broken
+>> +         */
 > 
-> Have you used git format-patch --cover-letter?
-> Overall stats and list of patches are missing.
+> I think you should recheck BB and return error if it's still detected.
 
-Will do in v2...
-
-> Also I think It'll be better to send patches 2/3 first, as
-> they have more chances to be merged. 
-
-First patch is an important fix for blocking problem and therefore a candidate for
--stable backports. So, it should be less dependent of the less-important 2 and 3.
+But after re-reading the datasheet, I must conclude, this is almost not possible.
+It will be a dead code. Reset will clear BB anyway and the only possibility to see
+BB set to 1 here is when another master transmits right after our reset. We cannot
+guarantee that we will always catch this here, so this must be any way handled over
+AL interrupt.
 
 -- 
 Best regards,
