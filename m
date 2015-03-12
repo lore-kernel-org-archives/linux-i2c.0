@@ -1,57 +1,31 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 2/3] Documentation: i2c: describe the new slave mode
-Date: Thu, 12 Mar 2015 14:27:10 +0100
-Message-ID: <CAMuHMdWHCcS64Cq8n=N+dJ72TaNQRF3aeDn+FMMtW_UUiA9R4Q@mail.gmail.com>
+Subject: Re: [PATCH 0/3] i2c: slave: API updates
+Date: Thu, 12 Mar 2015 14:28:08 +0100
+Message-ID: <CAMuHMdWU33Q06tEdoVnyZicRojcVb40tvEtv4aMPuE0fXVEWNA@mail.gmail.com>
 References: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
-	<1426164123-8853-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1426164123-8853-3-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Andrey Danin <danindrey@mail.ru>, Marc Dietrich <marvin24@gmx.de>, Debora Grosse <debora@mds.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
+
 On Thu, Mar 12, 2015 at 1:42 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> --- /dev/null
-> +++ b/Documentation/i2c/slave-interface
-> @@ -0,0 +1,178 @@
-> +Linux I2C slave interface description
-> +=====================================
-> +
-> +by Wolfram Sang <wsa@sang-engineering.com> in 2014-15
-> +
-> +Finally, Linux can also be an I2C slave in case I2C controllers have slave
-> +support. Besides this HW requirement, one also needs a software backend
-> +providing the actual functionality. An example for this is the slave-eeprom
-> +driver, which acts as a dual memory driver. While another I2C master on the bus
-> +can access it like a regular eeprom, the Linux I2C slave can access the content
+> So, after some more thoughts and people using the slave framewoek, I finally
+> decided some API seem in place. Please read the patch description for details.
+> Thanks to all people joining the discussion! Also, finally, the documentation
+> is here.
+>
+> Please let me know what you think!
 
-EEPROM (to match [PATCH 3/3])
-contents
+Nice work, thanks!
 
-> +via sysfs and retrieve/provide information as needed. The software backend
-
-> +About ACK/NACK
-> +--------------
-> +
-> +It is good behaviour to always ACK the address phase, so the master knows if a
-> +device is basically present or if it mysteriously disappeared. Using NACK to
-> +state being busy is troublesome. SMBus demands to always ACK the address phase,
-> +while I2C specification is more loose on that. Most I2C controllers also
-
-the I2C specification
-
-> +automatically ACK when detecting its slave address, so there is no option to
-
-their slave addresses
-
-> +NACK it. For those reasons, this API does not support NACK in the address
-
-NACK them.
-
-> +phase.
+Besides the minor spelling/grammar comments, you can add my
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
 Gr{oetje,eeting}s,
 
