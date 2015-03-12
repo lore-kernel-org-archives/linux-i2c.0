@@ -1,55 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC V2 00/12] i2c: describe adapter quirks in a generic way
-Date: Thu, 12 Mar 2015 15:56:33 +0100
-Message-ID: <20150312145633.GD9572@katana>
-References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
- <1425562025.5705.24.camel@mm-sol.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZJcv+A0YCCLh2VIg"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1425562025.5705.24.camel@mm-sol.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Ludovic Desroches <ludovic.desroches@atmel.com>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 0/2] i2c: prevent id collisions in the DT case
+Date: Thu, 12 Mar 2015 17:17:57 +0100
+Message-ID: <1426177093-26820-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+This series tries to fix the issue reported here[1]. In short: A DT entry wants
+a fixed id but its probe was deferred. When it was probed again, its id was
+taken by a dynamically assigned muxed bus. So, the probe failed.
 
---ZJcv+A0YCCLh2VIg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Let's start all dynamically assigned ids after the highest fixed one. We do
+this for legacy platform devices already.
+
+Please let me know what you think. If you can accept the new of-helper
+function, I'd like an ack so I can take the patches via my i2c tree.
+
+Thanks,
+
+   Wolfram
 
 
-> For QUP driver.=20
->=20
-> Reviewed-by: Ivan T. Ivanov <iivanov@mm-sol.com>
-> Tested-by: Ivan T. Ivanov <iivanov@mm-sol.com>
+[1] http://thread.gmane.org/gmane.linux.drivers.i2c/22166
 
-Great, thanks for testing!
+Wolfram Sang (2):
+  of: base: add function to get highest id of an alias stem
+  i2c: busses with dynamic ids should start after fixed ids for DT
 
+ drivers/i2c/i2c-core.c |  8 ++++++++
+ drivers/of/base.c      | 26 ++++++++++++++++++++++++++
+ include/linux/of.h     |  6 ++++++
+ 3 files changed, 40 insertions(+)
 
---ZJcv+A0YCCLh2VIg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVAakhAAoJEBQN5MwUoCm2twwP/A2zoANciZOEjLldTBsHZdK7
-+RM4ElSlRH3OXmsCp3kxLxVkAUexy3GltZOrVdTDlfUm7JiATCRV64Jy2YSabwu1
-9quPEDF7TRO3qJEohSMelqa2F7R8C0LrTRMANDS0b8QuxUsqF7hsESbRxKEw4Bdd
-/RoTKz4En5F0mg+Tu5hL8rwwxK+D+84e+bm0Qvgd0Jg6POOuVl3gqFScpbFlQYi6
-6HWlaeUFQUHrZGKZhn6oxgUdwEybv/NWtM20nSSMaFz9Bana9+foT6oEVx7g3rU7
-ornBH9QUAdsXc9zZcoWizaCVmLXklD9cZGZYQReN1iMfdelpV8j4I+e/2O8C0T7b
-F6ygM/AJVBe2+6GKM+e+vX/P82XTPoIPj7zXlHReUR58tGwrAQl/cXkHfx35zuVy
-llDaXAbB2lCWPDPemtqRevzEFBCjrC3g4ZD7uTobEtgdoNdZ2+KNswWachaDHPhA
-/z909WpzkEHu4i7l7AUrVjRCv7OyZgvxkgg1EHGlJO9jdPWLTkhfnUSxBkILr6sK
-ar8yulEi8o1FvW6MXIzAinbNs/MKok73qn0Qr/6C3JP6mfoYFo15EEU/y5Vu/25O
-i2+kzLhrd09BUl1XxRYxG674+Xa4Ej0kdYAZWgkHh/NWky3HpWgmKk3TSlcvXK1l
-IuPw9mhSbJEzc6bQOOqz
-=Ko6C
------END PGP SIGNATURE-----
-
---ZJcv+A0YCCLh2VIg--
+-- 
+2.1.4
