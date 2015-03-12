@@ -1,73 +1,47 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: rt-mutex usage in i2c
-Date: Sat, 14 Mar 2015 12:32:37 +0100
-Message-ID: <20150314113237.GE970@katana>
-References: <54FDA380.8030405@linutronix.de>
- <20150314112703.GD970@katana>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 6/7] iio: mlx90614: Add power management
+Date: Thu, 12 Mar 2015 10:30:27 +0000
+Message-ID: <55016AC3.2060704@kernel.org>
+References: <1424879712-28304-1-git-send-email-vianney.leclement@essensium.com> <1424879712-28304-7-git-send-email-vianney.leclement@essensium.com> <54FDBEB7.8030403@kernel.org> <20150309164308.GA2320@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="10jrOL3x2xqLmOsH"
-Return-path: <linux-media-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150314112703.GD970@katana>
-Sender: linux-media-owner@vger.kernel.org
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, Mike Galbraith <umgwanakikbuti@gmail.com>, Mike Rapoport <mike.rapoport@gmail.com>, Jean Delvare <khali@linux-fr.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150309164308.GA2320@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: =?UTF-8?B?Vmlhbm5leSBsZSBDbMOpbWVudCBkZSBTYWludC1NYXJjcQ==?= <vianney.leclement-buIOx9BAs4sybS5Ee8rs3A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Arnout Vandecappelle (Essensium/Mind)" <arnout-agwphqFHkxc@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---10jrOL3x2xqLmOsH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Mar 14, 2015 at 12:27:03PM +0100, Wolfram Sang wrote:
-> Hi Sebastian,
+On 09/03/15 16:43, Wolfram Sang wrote:
+> On Mon, Mar 09, 2015 at 03:39:35PM +0000, Jonathan Cameron wrote:
+>> On 25/02/15 15:55, Vianney le Cl=C3=A9ment de Saint-Marcq wrote:
+>>> Add support for system sleep and runtime power management.
+>>>
+>>> To wake up the device, the SDA line should be held low for at least=
+ 33ms
+>>> while SCL is high.  As this is not possible using the i2c API (and =
+not
+>>> supported by all i2c adapters), a GPIO connected to the SDA line is
+>>> needed.  The GPIO is named "wakeup" and can be specified in a devic=
+e
+>>> tree with the "wakeup-gpios" binding.
+>> Needs some i2c specialist input on this!  As you mentioned it is lia=
+ble
+>> to be controversial.  Wolfram, is this a one off special or do
+>> any other devices do this sort of magic?
 >=20
-> > - i2c_transfer() has this piece:
-> >   2091                 if (in_atomic() || irqs_disabled()) {
-> >   2092                         ret =3D i2c_trylock_adapter(adap);
-> >=20
-> >   is this irqs_disabled() is what bothers me and should not be there.
-> >   pxa does a spin_lock_irq() which would enable interrupts on return /
-> >   too early.
-> >   mxs has a wait_for_completion() which needs irqs enabled _and_ makes
-> >   in_atomic() problematic, too. I have't checked other drivers but the
-> >   commit, that introduced it, does not explain why it is required.
+> s/magic/insanity/ :)
 >=20
-> I haven't really looked into it, but a quick search gave me this thread
-> explaining the intention of the code in question:
+> I have never heard of something like this. Unsuprisingly, I can
+> not recommend doing it this way. But we all know hardware...
 >=20
-> http://lists.lm-sensors.org/pipermail/i2c/2007-November/002268.html
+> And while we could think about reusing the bus_recovery_infrastructur=
+e,
+> I don't think it is worth the hazzle. So, doing this GPIO fallback ma=
+y
+> well be the best we can do now.
 >=20
-> Regards,
->=20
->    Wolfram
->=20
-
-And adding a recent mail address from Mike to cc.
-
-
---10jrOL3x2xqLmOsH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVBBxVAAoJEBQN5MwUoCm2ugsP/0cPQMJUQUxQJo5d/v0xQxeG
-LjadDMopuK6ntqyFjQASpOBdzzB1mxlFyfaPhkWwKU/vQT7LpT8VTEbvFoVAUf4L
-RsIJ2gekhk/NQ6WMzk/qjSps3DAXjLEPP/9gY6glKx+zNY3fjwJab8lqp472N6CE
-EFDAZFmbiYjhpok8JstAXeTSdxVd9z7oaPjS8A8JvIJJj+FHaE/N+UTqzcjEg2mV
-UNnQ/CErbgHwuho59t0A9xzimg/KQwkA6p0YoPcF+gUhhjRmmKU61XjYisTNuWaE
-Gh6f2Rejgfw50/D6NlTOEQYCNsaII9c0yZlgvC8kPPnSqLNKfBvdc4ZWRdzetqBJ
-tcMTzZNLQIZgandHgdNy4sMaWMRu4QGc/qSwDUySFrKWGhGsWkoc+mcOY/zIY/y5
-qy5aKMopFZWlgG0J8dH1GHWF0s5Qap81/UVk7n9XYQHu5f9bXd0/yvy/Db+3S6J/
-/oxJzVdSIYrXmTqWgr/OPuMcefV8KeJIN8tON5uRMbG6dgxIrPl9lO0bO4SEEobz
-G26sVwV2HNVdPaRBw9OLqjVnc1CTgvN3FIiImlrXApOplFrzKl6m60Wqth8bJBfD
-UKX7SDpImUwbOF0eHJ05rpsIkwcvx1tz77e5QgagDSvdbUzBRnHIfFGsay4GAbNc
-mHTwEi905vQ7Sb+tBbdF
-=TWyG
------END PGP SIGNATURE-----
-
---10jrOL3x2xqLmOsH--
+=46air enough.  Lets go with this approach then and hope this is the on=
+ly bit
+of hardware ever to do this (yeah right ;)
