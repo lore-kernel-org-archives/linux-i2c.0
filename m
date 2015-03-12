@@ -1,39 +1,60 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 0/3] i2c: slave: API updates
-Date: Thu, 12 Mar 2015 14:28:08 +0100
-Message-ID: <CAMuHMdWU33Q06tEdoVnyZicRojcVb40tvEtv4aMPuE0fXVEWNA@mail.gmail.com>
-References: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC V2 03/12] i2c: at91: make use of the new infrastructure for
+ quirks
+Date: Thu, 12 Mar 2015 15:50:49 +0100
+Message-ID: <20150312145049.GA9572@katana>
+References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+ <1424880126-15047-4-git-send-email-wsa@the-dreams.de>
+ <20150308082845.GB1904@katana>
+ <20150310135520.GY9132@odux.rfo.atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Andrey Danin <danindrey@mail.ru>, Marc Dietrich <marvin24@gmx.de>, Debora Grosse <debora@mds.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150310135520.GY9132@odux.rfo.atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-mips@linux-mips.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Yingjoe Chen <yingjoe.chen@mediatek.com>, Eddie Huang <eddie.huang@mediatek.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Thu, Mar 12, 2015 at 1:42 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> So, after some more thoughts and people using the slave framewoek, I finally
-> decided some API seem in place. Please read the patch description for details.
-> Thanks to all people joining the discussion! Also, finally, the documentation
-> is here.
->
-> Please let me know what you think!
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Nice work, thanks!
 
-Besides the minor spelling/grammar comments, you can add my
-Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> You can add my=20
+>=20
+> Acked-by and Tested-By: Ludovic Desroches <ludovic.desroches@atmel.com>
+>=20
+> Tested on sama5d3, some problems with at24 eeprom on sama5d4 but it
+> doesn't come from the i2c quirks patch series.
 
-Gr{oetje,eeting}s,
+Thanks for testing! Are the eeprom problems something which needs fixing
+upstream?
 
-                        Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVAafIAAoJEBQN5MwUoCm2lyQP/jILqA5ITnGfCNuV6tGp7lPY
+DdMbdr2QT/0kbeo0cX8laa5KfA83MO+AlmMFSWlR1pCQOpFvtBfCWUGxuGhwT7Pr
+x4FKE2StJFKbgu86b4NCFslKLmLpii1olh4OOleKcupFsMCiNA70XiTjW9rU+jrA
+U8G4K8j7d2xjHXirFdG3gkPRuMDFZDZH11dcvZOk+dbPfeb3DzwTemKz1FDctpu1
+VtAQCoFQJK9WA7qtjwt1Cq/ds4CAhR1iv8jbZ5My2gB5q3XGRUspezVCSCq5MV4B
+HEGHaon9kXzZusR27zZzYSiStEJ7RNvtf82hmAK/TtEDoowNRoE5/rmQ1D8nmWCy
+PPmWPB/X9XRYZXqXBpQXRDj+AI8DWji99210vAxeoCtckfWJUs/UuR8A/Y02wgwD
+/UKxLJzU/yRHkjS6ClWuW7cbICDIa/kWTfly0TMIZFxG2+i4z93X2ZNXF1rQ7VgY
+h6vP27LYHorJ9bRYjUFQAk2IUNZvTSW7Ir8lyvVs4Os+ZDtcnp2AeRa5h+LSDC0t
+m6jUWpndpZihWvga/S5B1IVyGKKc+3CfQUG8WIaox89Z9j7OOaTL5kePBhwON+6z
+UiDNGc9tnnl6eoNfRKL4hUu6sEtO2fJ1UAbml0Zyo79llOnzn4XjbfXKhThBP8t/
+aVXGxC1SpKU9jIsNMGkO
+=qkc8
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--
