@@ -1,63 +1,99 @@
-From: Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
-Subject: Re: Another problem with I2C multiplexer bus naming
-Date: Thu, 12 Mar 2015 12:12:45 -0700
-Message-ID: <5501E52D.9060400@rafresearch.com>
-References: <1426133507.16219.YahooMailNeo@web181502.mail.ne1.yahoo.com> <20150312094227.GA4225@katana> <20150312112917.GA4888@katana>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH 1/2] of: base: add function to get highest id of an alias stem
+Date: Thu, 12 Mar 2015 16:35:11 -0500
+Message-ID: <CAL_JsqKcOy_vR-NOsGwDHQfzAXrNPZ1Kqq99c8=SF_c136LwKQ@mail.gmail.com>
+References: <1426177093-26820-1-git-send-email-wsa@the-dreams.de> <1426177093-26820-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150312112917.GA4888@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1426177093-26820-2-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Bob Feretich <bob.feretich@rafresearch.com>, Jean Delvare <jdelvare@suse.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 3/12/2015 4:29 AM, Wolfram Sang wrote:
-> On Thu, Mar 12, 2015 at 10:42:27AM +0100, Wolfram Sang wrote:
->>
->>> [    2.951717] omap_i2c 44e0b000.i2c: failure adding adapter
->>> ...snipped...
->>> [    2.964249] omap_i2c: probe of 44e0b000.i2c failed with error -16
->>> ... snipped ...
->>
->> Thanks! After a first glimpse, this seems to be a bug. The omap driver
->> uses i2c_add_numbered_adapter here in DT context, and thus
->> __i2c_first_dynamic_bus_num is not properly increased because there is
->> no static board_info. Will have a look.
+On Thu, Mar 12, 2015 at 11:17 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> I2C supports adding adapters using either a dynamic or fixed id. The
+> latter is provided by aliases in the DT case. To prevent id collisions
+> of those two types, install this function which gives us the highest
+> fixed id, so we can then let the dynamically created ones come after
+> this highest number.
 >
-> Using non-DT becomes so rare that my knowledge about it gets rusty :(
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+Acked-by: Rob Herring <robh@kernel.org>
+
+> ---
 >
-> Yes, one can't mix i2c_add_numbered_adapter and i2c_add_adapter well,
-> and this is even documented. However, since you are DT only, this
-> doesn't apply.
+> Because this function is so similar to of_alias_get_id(), I thought of merging
+> them into __of_alias_get_id(np, stem, bool get_highest) and have two call
+> wrappers but then decided the decreased readability is not worth the hazzle.
 >
-I have not seen any documentation to regarding this topic.
-I remember adding an i2c multiplexer to an early beagleboard system years
-ago. I think we were lucky that the fixed i2c bus addresses were probed
-first, so they were not stolen by the multiplexer's dynamic allocations.
-(Dynamic allocation does not steal bus addresses from previously
-allocated adapters.)
-
-> I don't know all of your dts files, but I assume there is already an
-> alias for busses 0/2 somewhere?
+>  drivers/of/base.c  | 26 ++++++++++++++++++++++++++
+>  include/linux/of.h |  6 ++++++
+>  2 files changed, 32 insertions(+)
 >
-Yes, aliases for known buses and adapters are in
-/arch/arm/boot/dts/am33xx.dtsi
-All of the cpu boards that use this chip include this file.
-
-Although there is no documentation stating the effect that these aliases 
-have, it gave me the idea to try to use them to name the multiplexer's 
-child buses.
-
-Other device documentation...
-http://devicetree.org/Device_Tree_Usage#aliases_Node
-describe an alias as a way to avoid "cumbersome" full path node names.
-It also states, "The operating system is welcome to use the aliases when 
-assigning an identifier to a device."
-
-It would be useful also state that the i2c bus naming mechanism uses 
-aliases to name i2c buses.
-
-Thanks,
-Bob
+> diff --git a/drivers/of/base.c b/drivers/of/base.c
+> index 0a8aeb8523fe7d..63cba04aacf686 100644
+> --- a/drivers/of/base.c
+> +++ b/drivers/of/base.c
+> @@ -1958,6 +1958,32 @@ int of_alias_get_id(struct device_node *np, const char *stem)
+>  }
+>  EXPORT_SYMBOL_GPL(of_alias_get_id);
+>
+> +/**
+> + * of_alias_get_highest_id - Get highest alias id for the given stem
+> + * @stem:      Alias stem to be examined
+> + *
+> + * The function travels the lookup table to get the highest alias id for the
+> + * given alias stem.  It returns the alias id if found.
+> + */
+> +int of_alias_get_highest_id(const char *stem)
+> +{
+> +       struct alias_prop *app;
+> +       int id = -ENODEV;
+> +
+> +       mutex_lock(&of_mutex);
+> +       list_for_each_entry(app, &aliases_lookup, link) {
+> +               if (strcmp(app->stem, stem) != 0)
+> +                       continue;
+> +
+> +               if (app->id > id)
+> +                       id = app->id;
+> +       }
+> +       mutex_unlock(&of_mutex);
+> +
+> +       return id;
+> +}
+> +EXPORT_SYMBOL_GPL(of_alias_get_highest_id);
+> +
+>  const __be32 *of_prop_next_u32(struct property *prop, const __be32 *cur,
+>                                u32 *pu)
+>  {
+> diff --git a/include/linux/of.h b/include/linux/of.h
+> index dfde07e77a632b..9bfcc18ceab3bf 100644
+> --- a/include/linux/of.h
+> +++ b/include/linux/of.h
+> @@ -332,6 +332,7 @@ extern int of_count_phandle_with_args(const struct device_node *np,
+>
+>  extern void of_alias_scan(void * (*dt_alloc)(u64 size, u64 align));
+>  extern int of_alias_get_id(struct device_node *np, const char *stem);
+> +extern int of_alias_get_highest_id(const char *stem);
+>
+>  extern int of_machine_is_compatible(const char *compat);
+>
+> @@ -594,6 +595,11 @@ static inline int of_alias_get_id(struct device_node *np, const char *stem)
+>         return -ENOSYS;
+>  }
+>
+> +static inline int of_alias_get_highest_id(const char *stem)
+> +{
+> +       return -ENOSYS;
+> +}
+> +
+>  static inline int of_machine_is_compatible(const char *compat)
+>  {
+>         return 0;
+> --
+> 2.1.4
+>
