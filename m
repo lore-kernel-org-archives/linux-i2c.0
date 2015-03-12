@@ -1,15 +1,121 @@
 From: Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
-Subject: Another problem with I2C multiplexer bus naming
-Date: Wed, 11 Mar 2015 21:11:47 -0700
-Message-ID: <1426133507.16219.YahooMailNeo@web181502.mail.ne1.yahoo.com>
+Subject: Re: Another problem with I2C multiplexer bus naming - solved
+Date: Wed, 11 Mar 2015 21:55:51 -0700
+Message-ID: <1426136151.37151.YahooMailNeo@web181506.mail.ne1.yahoo.com>
+References: <1426133507.16219.YahooMailNeo@web181502.mail.ne1.yahoo.com>
 Reply-To: Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1426133507.16219.YahooMailNeo-XYahOdtEMNm2Y7dhQGSVAJOW+3bF1jUfVpNB7YpNyf8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
+
+I tried some random things and setting aliases in the dtsi file solved the problem. The use of an alias to set the name of an i2c bus should be documented somewhere!
+
+<dtsi file fragment>
+
+/ {
+    aliases {
+        i2c10 = &im0;
+        i2c11 = &im1;
+        i2c12 = &im2;
+        i2c13 = &im3;
+        i2c14 = &im4;
+        i2c15 = &im5;
+        i2c16 = &im6;
+        i2c17 = &im7;
+    };
+};
+
+&i2c0 {
+    status = "okay";
+};
+
+&i2c2 {
+    status = "okay";
+    i2cmux@77 {
+         compatible = "nxp,pca9548";
+         #address-cells = <1>;
+         #size-cells = <0>;
+         reg = <0x77>;
+
+ im0:    i2c-bus-0 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <0>;
+        };
+ im1:    i2c-bus-1 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <1>;
+        };
+ im2:    i2cm@2 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <2>;
+        };
+ im3:    i2cm@3 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <3>;
+        };
+ im4:    i2cm@4 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <4>;
+        };
+ im5:    i2cm@5 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <5>;
+        };
+ im6:    i2cm@6 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <6>;
+        };
+ im7:    i2cm@7 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            reg = <7>;
+        };
+     };
+};
+
+
+*** Interactive commands   *****
+ubuntu@arm:~$ ls /dev/i2c*
+/dev/i2c-0   /dev/i2c-11  /dev/i2c-13  /dev/i2c-15  /dev/i2c-17
+/dev/i2c-10  /dev/i2c-12  /dev/i2c-14  /dev/i2c-16  /dev/i2c-2
+ubuntu@arm:~$ i2cdetect -l
+i2c-0    i2c           OMAP I2C adapter                    I2C adapter
+i2c-2    i2c           OMAP I2C adapter                    I2C adapter
+i2c-10    i2c           i2c-2-mux (chan_id 0)               I2C adapter
+i2c-11    i2c           i2c-2-mux (chan_id 1)               I2C adapter
+i2c-12    i2c           i2c-2-mux (chan_id 2)               I2C adapter
+i2c-13    i2c           i2c-2-mux (chan_id 3)               I2C adapter
+i2c-14    i2c           i2c-2-mux (chan_id 4)               I2C adapter
+i2c-15    i2c           i2c-2-mux (chan_id 5)               I2C adapter
+i2c-16    i2c           i2c-2-mux (chan_id 6)               I2C adapter
+i2c-17    i2c           i2c-2-mux (chan_id 7)               I2C adapter
+ubuntu@arm:~$ ls /sys/bus/i2c/devices
+0-0024  0-0050  2-0054  2-0056  2-0077  i2c-10  i2c-12  i2c-14  i2c-16  i2c-2
+0-0034  0-0070  2-0055  2-0057  i2c-0   i2c-11  i2c-13  i2c-15  i2c-17
+
+Regards,
+Bob Feretich
+
+
+
+----- Original Message -----
+From: Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>; Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>; Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
+Sent: Wednesday, March 11, 2015 9:11 PM
+Subject: Another problem with I2C multiplexer bus naming
 
 I am working on a BeagleBone Black (BBB) Cape that contains a PCA9548 multiplexer (mux). The BBB uses two I2C buses, i2c-0 for power management and i2c-2 for Cape discovery and other general use. I have created a dtsi file to describe the mux on my Cape per the Linux Documentation instructions. 
 
@@ -102,3 +208,7 @@ Any other ideas for a work around?
 Regards, 
 
 Bob Feretich
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
