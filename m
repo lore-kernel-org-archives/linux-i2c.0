@@ -1,67 +1,41 @@
-From: Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 04/10] pm: domains: sync runtime PM status with PM domains after probe
-Date: Fri, 13 Mar 2015 10:33:41 -0700
-Message-ID: <7hzj7gpzt6.fsf@deeprootsystems.com>
-References: <20150312183020.GU8656@n2100.arm.linux.org.uk>
-	<E1YWSN5-0006G5-Ld@rmk-PC.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: [PATCH 0/6] i2c: qup: Add support for v2 tags and bam dma
+Date: Fri, 13 Mar 2015 23:19:46 +0530
+Message-ID: <1426268992-19298-1-git-send-email-sricharan@codeaurora.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <E1YWSN5-0006G5-Ld-eh5Bv4kxaXIANfyc6IWni62ZND6+EDdj@public.gmane.org> (Russell King's
-	message of "Fri, 13 Mar 2015 16:23:35 +0000")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Len Brown <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org> writes:
+QUP from version 2.1.1 onwards, supports a new format of
+i2c command tags. Tag codes instructs the controller to
+perform a operation like read/write. This new tagging version
+supports and is required for adding bam dma capabilities.
+v2 tags supports transfer of more than 256 bytes in a single
+i2c transaction. Also adding bam dma support facilitates
+transferring each i2c_msg in i2c_msgs without a 'stop' bit
+in between which is required for some of the clients.
 
-> Synchronise the PM domain status with runtime PM's status after a
-> platform device has been probed.  This augments the solution in commit
-> 2ed127697eb1 ("PM / Domains: Power on the PM domain right after attach
-> completes").
->
-> The above commit added a call to power up the PM domain when a device
-> attaches to the domain in order to match the behaviour required by
-> drivers that make no use of runtime PM.  The assumption is that the
-> device driver will cause a runtime PM transition, which will synchronise
-> the PM domain state with the runtime PM state.
->
-> However, by default, runtime PM will assume that the device is initially
-> suspended, and some drivers may make use of this should they not need to
-> touch the hardware during probe.
->
-> In order to allow such drivers, trigger the PM domain code to check
-> whether the PM domain can be suspended after the probe function, undoing
-> the effect of the power-on prior to the probe.
->
-> Signed-off-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+This series depends on the below bam dma bug fix
+ https://lkml.org/lkml/2015/2/20/47
 
-[ Since I hadn't seen this version yet, repeating comment from the
-  previous version so it doesn't get lost. ]
+Tested this series on apq8074 dragon board eeprom client
+on i2c bus1
 
-I think this is a good fix to the existing problem.  One minor nit on a
-comment below, otherwise:
+Andy Gross (1):
+  i2c: qup: Add V2 tags support
 
-Acked-by: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sricharan R (5):
+  i2c: qup: Change qup_wait_writeready function to use for all timeouts
+  i2c: qup: Add bam dma capabilities
+  i2c: qup: Transfer every i2c_msg in i2c_msgs without stop
+  dts: msm8974: Add blsp2_bam dma node
+  dts: msm8974: Add dma channels for blsp2_i2c1 node
 
-> +/**
-> + * dev_pm_domain_sync - synchronise the PM domain state with its devices
-> + * @dev: device corresponding with domain
-> + *
-> + * Synchronise the PM domain state with the recently probed device, which
-> + * may be in a variety of PM states.  This ensures that a device which
-> + * enables runtime PM in suspended state, and never transitions to active
-> + * in its probe handler is properly suspended after the probe.
-> + */
+ arch/arm/boot/dts/qcom-msm8974.dtsi |  12 +
+ drivers/i2c/busses/i2c-qup.c        | 783 +++++++++++++++++++++++++++++++++---
+ 2 files changed, 741 insertions(+), 54 deletions(-)
 
-It's not the *device* tha needs to be properly suspended after the probe
-(since it's already/still runtime suspended), but the pm_domain that
-would be potentially powered down.  Hence, I'd reword the last sentence
-slightly:
-
-   This ensures that a device which enables runtime PM in suspended
-   state, and never transitions to active in its probe handler gives an
-   opportunity for the PM domain to be powered down after the probe.
-
-Kevin
+-- 
+1.8.2.1
