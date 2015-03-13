@@ -1,98 +1,130 @@
-From: "Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 3/5] i2c: recovery: change input parameter to i2c_adapter
- for prepare/unprepare_recovery
-Date: Fri, 13 Mar 2015 12:15:54 +0200
-Message-ID: <5502B8DA.70504@linaro.org>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com> <1417448047-15236-4-git-send-email-grygorii.strashko@ti.com> <55017943.6040603@nokia.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c: Support for Netlogic XLP9XX/5XX I2C
+ controller.
+Date: Fri, 13 Mar 2015 11:24:06 +0100
+Message-ID: <20150313102406.GP952@pengutronix.de>
+References: <1426228198-3314-1-git-send-email-jchandra@broadcom.com>
+ <1426228198-3314-3-git-send-email-jchandra@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55017943.6040603-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1426228198-3314-3-git-send-email-jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+To: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+hello,
 
-On 03/12/2015 01:32 PM, Alexander Sverdlin wrote:
-> On 01/12/14 16:34, Grygorii Strashko wrote:
->> This patch changes type of input parameter for .prepare/unprepare_re=
-covery()
->> callbacks from struct i2c_bus_recovery_info * to struct i2c_adapter =
-*.
->> This allows to simplify implementation of these callbacks and avoid
->> type conversations from i2c_bus_recovery_info to i2c_adapter.
->> The i2c_bus_recovery_info can be simply retrieved from struct i2c_ad=
-apter
->> which contains pointer on it.
->>
->> CC: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
->> CC: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
->> CC: Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->> CC: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
->> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->> Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
->> ---
->>   drivers/i2c/i2c-core.c | 4 ++--
->>   include/linux/i2c.h    | 4 ++--
->>   2 files changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> index 2f90ac6..72b6e34 100644
->> --- a/drivers/i2c/i2c-core.c
->> +++ b/drivers/i2c/i2c-core.c
->> @@ -563,7 +563,7 @@ static int i2c_generic_recovery(struct i2c_adapt=
-er *adap)
->>   	int i =3D 0, val =3D 1, ret =3D 0;
->>  =20
->>   	if (bri->prepare_recovery)
->> -		bri->prepare_recovery(bri);
->> +		bri->prepare_recovery(adap);
->>  =20
->>   	/*
->>   	 * By this time SCL is high, as we need to give 9 falling-rising =
-edges
->> @@ -588,7 +588,7 @@ static int i2c_generic_recovery(struct i2c_adapt=
-er *adap)
->>   	}
->>  =20
->>   	if (bri->unprepare_recovery)
->> -		bri->unprepare_recovery(bri);
->> +		bri->unprepare_recovery(adap);
->>  =20
->>   	return ret;
->>   }
->> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
->> index b556e0a..cf9380f 100644
->> --- a/include/linux/i2c.h
->> +++ b/include/linux/i2c.h
->> @@ -404,8 +404,8 @@ struct i2c_bus_recovery_info {
->>   	void (*set_scl)(struct i2c_adapter *, int val);
->>   	int (*get_sda)(struct i2c_adapter *);
->>  =20
->> -	void (*prepare_recovery)(struct i2c_bus_recovery_info *bri);
->> -	void (*unprepare_recovery)(struct i2c_bus_recovery_info *bri);
->> +	void (*prepare_recovery)(struct i2c_adapter *);
->> +	void (*unprepare_recovery)(struct i2c_adapter *);
->>  =20
->>   	/* gpio recovery */
->>   	int scl_gpio;
->>
->=20
-> Acked-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
->=20
+On Fri, Mar 13, 2015 at 11:59:58AM +0530, Jayachandran C wrote:
+> diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c=
+-xlp9xx.c
+> new file mode 100644
+> index 00000000..2f303ad
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-xlp9xx.c
+> @@ -0,0 +1,446 @@
+> +/*
+> + * Copyright (c) 2003-2015 Broadcom Corporation
+> + *
+> + * This file is licensed under the terms of the GNU General Public
+> + * License version 2. This program is licensed "as is" without any
+> + * warranty of any kind, whether express or implied.
+> + */
+> +
+> +/*
+> + * see Documentation/devicetree/bindings/i2c/i2c-xlp9xx.txt for devi=
+ce
+> + * tree bindings documentation
+> + */
+When I asked for documentation here, I didn't meant the device tree
+binding, but the hardware reference manual.
 
-Could I ask you to consider this patch for 4.1?
-Now my I2C Davinci series is based on it and probably I2C OMAP changes
-will need to be based on it too - if Felipe would agree with this of co=
-urse.
+> [...]
+> +static void xlp9xx_i2c_mask_irq(struct xlp9xx_i2c_dev *priv, u32 mas=
+k)
+> +{
+> +	mask =3D xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_INTEN) & ~mask;
+> +	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, mask);
+You didn't comment on my suggestion to add a variable here for improved
+readability:
 
-regards,
--grygorii
+	u32 inten =3D xlp9xx_read_i2c_reg(...);
+	inten &=3D ~mask;
+	xlp9xx_write_i2c_reg(...);
 
+> +}
+> +
+> +static void xlp9xx_i2c_unmask_irq(struct xlp9xx_i2c_dev *priv, u32 m=
+ask)
+> +{
+> +	mask =3D xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_INTEN) | mask;
+> +	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, mask);
+> +}
+> +
+> +static void xlp9xx_i2c_set_rx_fifo_thres(struct xlp9xx_i2c_dev *priv=
+,
+> +					 u32 th)
+> +{
+> +	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_MFIFOCTRL,
+> +			     (th << XLP9XX_I2C_MFIFOCTRL_HITH_SHIFT));
+parenthesis are not needed here.
+
+I suggested to move the min calculation that you have to do before each
+call to this function into it. You replied:
+
+	The xlp9xx_i2c_... functions were written to do the
+	hardware/register operations, so it is better to have this logic
+	here.
+
+=2E..
+
+> +}
+> +
+> +static void xlp9xx_i2c_fill_tx_fifo(struct xlp9xx_i2c_dev *priv)
+> +{
+> +	u32 len, i;
+> +	u8 *buf =3D priv->msg_buf;
+> +
+> +	len =3D min(priv->msg_buf_remaining, XLP9XX_I2C_FIFO_SIZE);
+=2E.. this didn't stop you here though :-) So I'm still convinced that
+having the min function in xlp9xx_i2c_set_rx_fifo_thres is a good idea.
+
+> +	for (i =3D 0; i < len; i++)
+> +		xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_MTXFIFO, buf[i]);
+> +	priv->msg_buf_remaining -=3D len;
+> +	priv->msg_buf +=3D len;
+> +}
+> [...]
+> +static int xlp9xx_i2c_init(struct xlp9xx_i2c_dev *priv)
+> +{
+> +	u32 prescale;
+> +
+> +	/*
+> +	 * The controller uses 5 * SCL clock internally.
+> +	 * So prescale value should be divided by 5.
+> +	 */
+> +	prescale =3D (((XLP9XX_I2C_IP_CLK_FREQ / priv->clk_hz) - 8) / 5) - =
+1;
+I still wonder if you should round differently here.
+
+> +	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, XLP9XX_I2C_CTRL_RST);
+> +	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, XLP9XX_I2C_CTRL_EN |
+> +			     XLP9XX_I2C_CTRL_MASTER);
+> +	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_DIV, prescale);
+> +	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, 0);
+> +
+> +	return 0;
+> +}
+
+Best regards
+Uwe
 
 --=20
-regards,
--grygorii
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
