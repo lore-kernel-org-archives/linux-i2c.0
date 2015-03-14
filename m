@@ -1,64 +1,68 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC V2 00/12] i2c: describe adapter quirks in a generic way
-Date: Sat, 14 Mar 2015 12:14:51 +0100
-Message-ID: <20150314111450.GC970@katana>
-References: <1424880126-15047-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: rt-mutex usage in i2c
+Date: Sat, 14 Mar 2015 12:27:03 +0100
+Message-ID: <20150314112703.GD970@katana>
+References: <54FDA380.8030405@linutronix.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nmemrqcdn5VTmUEE"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
+Return-path: <linux-media-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1424880126-15047-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <54FDA380.8030405@linutronix.de>
+Sender: linux-media-owner@vger.kernel.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, Mike Galbraith <umgwanakikbuti@gmail.com>, Mike Rapoport <mike@compulab.co.il>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---nmemrqcdn5VTmUEE
+--mJm6k4Vb/yFcL9ZU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 25, 2015 at 05:01:51PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Hi Sebastian,
+
+> - i2c_transfer() has this piece:
+>   2091                 if (in_atomic() || irqs_disabled()) {
+>   2092                         ret =3D i2c_trylock_adapter(adap);
 >=20
-> Here is the second version of the patch series to describe i2c adapter qu=
-irks
-> in a generic way. For the motivation, please read description of patch 1.=
- This
-> is still RFC because I would like to do some more tests on my own, but I =
-need
-> to write a tool for that. However, I'd really like to have the driver aut=
-hors
-> to have a look already. Actual testing is very much appreciated. Thanks t=
-o the
-> Mediatek guys for rebasing their new driver to this framework. That helps=
-, too!
+>   is this irqs_disabled() is what bothers me and should not be there.
+>   pxa does a spin_lock_irq() which would enable interrupts on return /
+>   too early.
+>   mxs has a wait_for_completion() which needs irqs enabled _and_ makes
+>   in_atomic() problematic, too. I have't checked other drivers but the
+>   commit, that introduced it, does not explain why it is required.
 
-Thanks for all the testing. Merged this branch now into for-next!
+I haven't really looked into it, but a quick search gave me this thread
+explaining the intention of the code in question:
+
+http://lists.lm-sensors.org/pipermail/i2c/2007-November/002268.html
+
+Regards,
+
+   Wolfram
 
 
---nmemrqcdn5VTmUEE
+--mJm6k4Vb/yFcL9ZU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVBBgqAAoJEBQN5MwUoCm2fQAQAI1w0/RXIcR5OoBFBLw5DkCr
-vA2Ou1OG9x9M2FP29hco4AzXRaRRHqe9hFRl31Adm0YoQF41/nf+7z4g1VveN4hD
-P+ocEWMvzHnafbwGO0+QIYY4nhBVN+/a8eg+j4+AbKdQBLL2+b0I9uwpL1uwdiCY
-ceRhoMrrg1oHcFUNKErXyuzA/t0dNq5ekx3z8iqpjjXjp3JRVmfpeueCzD6Gv0zg
-HkXAC+U9Ur2gLvBpSRhadn9/Cy6cvOeuIF8Jq2wMOKDUM54Z1HwttT7dTiW8IGXo
-xgXFaimc4StYeR1JQEyGLYUATfhXlOKPFOXrUktTwWLlGbgjKUqB3KKGDzR9XXB+
-NvtWekSj9+h/c0hHYOiezMV21AIzr7n3c3cmAoK9XYMRz/NeTseC1jG4EgSVCQr1
-Vl+QgAgOiOcSNJ3BPfLStNM0kAyPov0UB41EP25fWq3eOJMWUzUEvlLkJMadmPbL
-ucvuLhMUvI1jp8EdTEiBltQuukM4tlHgp/tQrK245vO1s0NHnbOdgy68Lab7RfFp
-KxbBwIQ1DOhMin80xOC9AUkkYbBppbqhCUc79Fpufx5FYSd+tS3dTLAdwOErmmSh
-7YbWXMOdscAUD3+vuDYTWn4gPJGDtzM4MaYn2AAbGVchPa6UR/W1UZDKlpTDLcV/
-wvo+3WNDb7KyV+YGySP4
-=KnPk
+iQIcBAEBAgAGBQJVBBsHAAoJEBQN5MwUoCm2GpYP/1kjIom7QEkxMdW3Pc56Xy3+
+YfHxRNJ9CH8PhtlVIhAJvoYa8TZCEzTxhVGDUy9tYNV5kJVTGS7A/7KZbOsKFyK3
+crFXFIs8JMMENtSWIFrL7dDzENvp/tGG1iwIsM8wb1CLVwCLZ72nB0OOgFTVHgVk
+9JTzCgtLu8XlGMvXV5rkdpba71hsPfDBg9WCr60Wvy/Dt2d3O4oB6tMkqs0H44Bt
+Xz2GXNcd/gbl/TWszL8Ti44DuDtawXkX7bbYjxtF05rarj89NeFJY6Tmy4UqRozI
+guA64KvqQiwpy7xWS0WxUBQpKb74bMLHXMdRpwvRHF8G4sNm9o51zNjG/xxLwpe6
+61yGVdpk3xPe1jU3MhYL39xCe88BUWmQ6PnfHzMDcUI7GjNtYdMi1DfDwa6ijyWL
+G4L1gVOqetS28lNOneszNDsRC9XBtjmXwnE+0FzQLAFez/bTXoA5aDlDTPo0o7GE
+6B8hlEDbQxBdI0iGuNobBikPafAL/VPlcMZe36gCu2+TthkADmJBI3O++bhAX3XU
+w2V1jrXkXuNdysvzI/qbkw1UZy7ZEtaJqpAqck53ff4hVmL/iBmBQqwxaIjUmBqn
+XFd5vWlutkv+FP5N446/Mbcnq7dn7uCGwCPVNgy5XWL6dKExmhxUAvMgy/D2GFzW
+7DgbVRyOW7VSARsq165l
+=WoeY
 -----END PGP SIGNATURE-----
 
---nmemrqcdn5VTmUEE--
+--mJm6k4Vb/yFcL9ZU--
