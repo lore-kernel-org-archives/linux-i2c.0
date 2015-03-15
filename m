@@ -1,56 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: nomadik: match return type of
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: ismt: fix type of return var of
  wait_for_completion_timeout
-Date: Sun, 15 Mar 2015 11:02:26 +0100
-Message-ID: <20150315100226.GE6770@katana>
-References: <1423398873-24653-1-git-send-email-hofrat@osadl.org>
+Date: Sun, 15 Mar 2015 11:02:58 +0100
+Message-ID: <20150315100258.GG6770@katana>
+References: <1423382611-24463-1-git-send-email-hofrat@osadl.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r7U+bLA8boMOj+mD"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="uc35eWnScqDcQrv5"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1423398873-24653-1-git-send-email-hofrat@osadl.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Mc Guire <hofrat@osadl.org>
-Cc: Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1423382611-24463-1-git-send-email-hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>, Fan Du <fan.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---r7U+bLA8boMOj+mD
+--uc35eWnScqDcQrv5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Feb 08, 2015 at 07:34:33AM -0500, Nicholas Mc Guire wrote:
-> return type of wait_for_completion_timeout is unsigned long not int. as
-> timeout is used for wait_for_completion_timeout exclusively here its
-> type is simply changed to unsigned long.
+On Sun, Feb 08, 2015 at 03:03:30AM -0500, Nicholas Mc Guire wrote:
+> return type of wait_for_completion_timeout is unsigned long not int. As=
+=20
+> ret is in used for other calls a new appropriately typed variable timeout
+> is added to handle wait_for_completion_timeout=20
 >=20
-> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 
-Applied to for-next, thanks!
+Fixed variable name to 'time_left' and applied to for-next, thanks!
 
 
---r7U+bLA8boMOj+mD
+--uc35eWnScqDcQrv5
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVBVixAAoJEBQN5MwUoCm2e+IP/RR0PQsvvDFomMKFraFlVVGJ
-S/UynJ7Bx9+SrKHSSq4ceUzBWPDVwqjxEYq71MMg2qqLlJLy0HYuhOJcGPuYfFY5
-Xf10V7n/dRhXo0BrWJcekYGI18pmAp3M4f/n3GUkA+36ppkWcn8WLbIu8gcoPG9Q
-HUE9kiXs0p1tE/aJ4ailAdRQrXcsyCZvK/FLLpznRDwdkddn5cajz2MN0GxjXe1N
-MA9Yn58rf/CLS7IMHdxoxypls5BEzwo/mhWZF/JmgkC9TunCFmJowmrnOxcY+hW+
-k39Q+I4cuGDKst/5yD8bNeYnjCn/j56XMix4FKY8CexQAn2/pL8DlHCeCN5V17x6
-o+hc3CaC/cUJAoul33IJJkTcjQL0J0BJ1o0xfiE2bwtINhgsxNAS8W5ecYTg4LAr
-5xxbUKRYPwQxW+s39wdqQZmQUfjrZv8zo8PdJH8ZHoKswuLQSlm1GwMHBnUmUsJ7
-GMq9fus5I2KUN4WlMDGGCf147PMScN9Sce1WMbScvZwRfOHt9MCDYC+LRCO+wLF5
-UHL8BaiNrd9V62oaILmtHrkyPSaup1uGix0ZiWTrOA74Y6529TCk2mOyko8pUcsM
-1ErSUqIxedXY52Cbg8gpU6ou9ciSqQcGjvkC8I5LvrTgyUVnhYmgDy2QvTFNYQmL
-LL+q2a/3Tabl9+XN2yPW
-=KaUC
+iQIcBAEBAgAGBQJVBVjSAAoJEBQN5MwUoCm2WucP/1xk1Z5hekrqtGSA4nu7GX6r
+f55q49D1s8idviXMOhLe1cz/AbVxEJz8u4DEeciX3WNwxcrRumCUDW2y5VploYmb
+b3qCoBDeUURTvF+IGUnaQszCDFASxhowvUHbDZWkWXuQXCQ0WEwtFQenD6ZD3ZX3
+vj6+E2nEbMb+NdMeBaLwrrI0rrYlWFLZM16peRqGmtAiaEgOIlD8KZA8sM+xe6cC
+TvGzbNbC2/SAFR7DRS7GIM/i9mK9SvEQwl551vsTIpgpgm/K+RpQQYWUK6aD7xNh
+G33mQDtkbdpchXQ+eO/G7eE5FZYRHXPEq3GI3caIj1SBTSmvWU/CHbf8BKswS4xW
+73tPtZN9DezhhJ+mDrW1uUvje9vKzXrONuGVkqv8bEO7GMx/khnzzgBrbyR7zkhp
+N+4F3okuASmF1uKS+pyQaH5lYyMBKbHt9TV/ZmEzrMrNW6sLEy4aLYdtkEZ3Ml/B
+t86fL6Fn7eWgznuvD4EwDe0Z9mx3Vq5bynq92J2AHbBzH9BdPJ5yYxrjxLCohZuw
+0rSYI28q1NUCzwiNFY+omIOj6n4+6cds+cYOj3LyB5RodKh6o7cXtqL/CiNMgcDv
+EEyW8s8vkQAEufVj+QqLUfzpfJMCvWSn/B11lT3SwMlk1BQHzqrknGLVh2qO6S56
+HwNSZKTYppM2Uayoq+hW
+=uhQf
 -----END PGP SIGNATURE-----
 
---r7U+bLA8boMOj+mD--
+--uc35eWnScqDcQrv5--
