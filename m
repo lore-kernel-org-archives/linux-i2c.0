@@ -1,54 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: nomadik: match status to return type of read_i2c
-Date: Sun, 15 Mar 2015 11:02:19 +0100
-Message-ID: <20150315100218.GD6770@katana>
-References: <1423398883-24687-1-git-send-email-hofrat@osadl.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: nomadik: match return type of
+ wait_for_completion_timeout
+Date: Sun, 15 Mar 2015 11:02:26 +0100
+Message-ID: <20150315100226.GE6770@katana>
+References: <1423398873-24653-1-git-send-email-hofrat@osadl.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8w3uRX/HFJGApMzv"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="r7U+bLA8boMOj+mD"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1423398883-24687-1-git-send-email-hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-Cc: Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1423398873-24653-1-git-send-email-hofrat@osadl.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nicholas Mc Guire <hofrat@osadl.org>
+Cc: Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---8w3uRX/HFJGApMzv
+--r7U+bLA8boMOj+mD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Feb 08, 2015 at 07:34:43AM -0500, Nicholas Mc Guire wrote:
-> return type of read_i2c() is int not u32. As the assignments to status
-> are consistent with int here its type is changed to int.
+On Sun, Feb 08, 2015 at 07:34:33AM -0500, Nicholas Mc Guire wrote:
+> return type of wait_for_completion_timeout is unsigned long not int. as
+> timeout is used for wait_for_completion_timeout exclusively here its
+> type is simply changed to unsigned long.
 >=20
-> Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
 
 Applied to for-next, thanks!
 
 
---8w3uRX/HFJGApMzv
+--r7U+bLA8boMOj+mD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVBViqAAoJEBQN5MwUoCm2iLYP/1DLKstYsd+NKKAsUsXBNqy/
-IZKtYglcOnYRu0UYGxC0agrW1oyUMUxJac7crbXSXEe/6UCrid24igj/I1xwLpz2
-RTSBe9/ox2VDidffx/Gb+dYoX8WepeJUgD5WHylg2w0DBkG5mhs5n0qqcWvJyy3N
-bQfKEjZzchr8OYc96RYcqJds4FCuxrTIF4FWvWMCFYd/yBtiwdfh7pewk1fe7hpB
-y1IBYCCuF685RQpBad6Phl/uvAjsgXcNZRWJZlexx2zOmXIOMqRc0ggXjBx8vXML
-JnAfzqbhkQK1tz0NYXi+O78yf7bpVYAtdjDqjRjaWxHjcp0M6BYkIOoafYoh6i+b
-YwAcRxhtvsAlWsO5PTdFPCV52Bab3RXNf4zt59UgGwHXyq4eZf2kshQnGmF07dRL
-dgDB+H8Nwiz7BqzLlGIXx9ilxxyFzTCfrp/lvhmJdVjkWUeDFauapN81/dAJnrBL
-oXSHl3f4sJ3UOf+emHFWhTC+bSr8puxd2KcW72OOCVz8tCyVdDVZX1658+LV56K3
-i3PaTX+yBh7zV0ap1t0CeCMGVkxIOljTRh3+93b2esiyzF80HkwOj/8+ttcKFcCS
-bUo/INKjGZWKdyd+YWWtH0+2UcITxQMJhjMAOGHTMQWzUJ+kkUNinE5LXq58xJb2
-qxFidQPvJBtBTm+5H++d
-=mKoa
+iQIcBAEBAgAGBQJVBVixAAoJEBQN5MwUoCm2e+IP/RR0PQsvvDFomMKFraFlVVGJ
+S/UynJ7Bx9+SrKHSSq4ceUzBWPDVwqjxEYq71MMg2qqLlJLy0HYuhOJcGPuYfFY5
+Xf10V7n/dRhXo0BrWJcekYGI18pmAp3M4f/n3GUkA+36ppkWcn8WLbIu8gcoPG9Q
+HUE9kiXs0p1tE/aJ4ailAdRQrXcsyCZvK/FLLpznRDwdkddn5cajz2MN0GxjXe1N
+MA9Yn58rf/CLS7IMHdxoxypls5BEzwo/mhWZF/JmgkC9TunCFmJowmrnOxcY+hW+
+k39Q+I4cuGDKst/5yD8bNeYnjCn/j56XMix4FKY8CexQAn2/pL8DlHCeCN5V17x6
+o+hc3CaC/cUJAoul33IJJkTcjQL0J0BJ1o0xfiE2bwtINhgsxNAS8W5ecYTg4LAr
+5xxbUKRYPwQxW+s39wdqQZmQUfjrZv8zo8PdJH8ZHoKswuLQSlm1GwMHBnUmUsJ7
+GMq9fus5I2KUN4WlMDGGCf147PMScN9Sce1WMbScvZwRfOHt9MCDYC+LRCO+wLF5
+UHL8BaiNrd9V62oaILmtHrkyPSaup1uGix0ZiWTrOA74Y6529TCk2mOyko8pUcsM
+1ErSUqIxedXY52Cbg8gpU6ou9ciSqQcGjvkC8I5LvrTgyUVnhYmgDy2QvTFNYQmL
+LL+q2a/3Tabl9+XN2yPW
+=KaUC
 -----END PGP SIGNATURE-----
 
---8w3uRX/HFJGApMzv--
+--r7U+bLA8boMOj+mD--
