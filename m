@@ -1,64 +1,182 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: designware: Suppress error message if
- platform_get_irq() < 0
-Date: Sun, 15 Mar 2015 11:26:34 +0100
-Message-ID: <20150315102634.GA13692@katana>
-References: <1425891792-9248-1-git-send-email-abrodkin@synopsys.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1425891792-9248-1-git-send-email-abrodkin@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Antonio Borneo <borneo.antonio@gmail.com>
+Subject: [PATCH] hid: cp2112: support i2c_transfer() when num > 1
+Date: Sun, 15 Mar 2015 19:43:18 +0800
+Message-ID: <1426419798-25360-1-git-send-email-borneo.antonio@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+Cc: Antonio Borneo <borneo.antonio@gmail.com>, Jonathan Cameron <jic23@kernel.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+The device cp2112 does not support i2c combined transactions,
+since unable to suppress the stop bit between adjacent i2c
+transactions.
+For this reason, in commit b9029345ed6483fcadadc4834b44a5656dd56d70
+("HID: cp2112: add I2C mode") I have omitted the support for
+num > 1 in i2c_transfer().
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+But:
 
-On Mon, Mar 09, 2015 at 12:03:12PM +0300, Alexey Brodkin wrote:
-> As discussed here https://lkml.org/lkml/2015/3/3/568 and here
-> https://lkml.org/lkml/2015/3/3/453 we're looking forward for
-> implementing warnings and errors outputs right in platform_get_irq()
-> instead of having all kind of different outputs in each and every driver
-> that uses platform_get_irq().
->=20
-> Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-> Cc: Vineet Gupta <vgupta@synopsys.com>
-> Cc: Christian Ruppert <christian.ruppert@abilis.com>
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+1) in few kernel drivers i2c_transfer() has been used to
+simplify the code by replacing a sequence of i2c_master_send()
+and i2c_master_recv(), e.g. in i2c-hid.c and iio subsystem.
+Those drivers will fail if used with current cp2112 driver.
 
-Reworded the commit message to state the initial reason for this patch
-and applied to for-next, thanks!
+2) in drivers/i2c/busses/ there are already drivers that
+implement i2c_transfer() as a sequence of elementary (not
+combined) i2c transactions, e.g. i2c-bcm2835.c, i2c-puv3.c,
+i2c-qup.c, i2c-robotfuzz-osif.c, i2c-viperboard.c, i2c-xlr.c.
+
+To fix 1) and considering 2), rewrite i2c_transfer() in case
+of num > 1 as a loop of non-combined i2c transactions.
+
+Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+---
+
+Hi Benjamin,
+
+In [1] we had a talk about implementing i2c_transfer() as a
+sequence of elementary (not combined) i2c transactions.
+After Jonathan's reply in [2], I went to check better the
+existing I2C drivers and I changed opinion.
+
+Added linux-i2c list in copy to get feedback, if any, from
+the I2C experts.
+
+Regards,
+Antonio Borneo
+
+[1] https://lkml.org/lkml/2014/6/29/6
+[2] https://lkml.org/lkml/2014/7/15/104
 
 
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+ drivers/hid/hid-cp2112.c | 76 ++++++++++++++++++++++++------------------------
+ 1 file changed, 38 insertions(+), 38 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 3318de6..76cad81 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -444,8 +444,7 @@ static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
+ 	return data_length + 3;
+ }
+ 
+-static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+-			   int num)
++static int cp2112_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg)
+ {
+ 	struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
+ 	struct hid_device *hdev = dev->hdev;
+@@ -454,33 +453,18 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	unsigned int retries;
+ 	int ret;
+ 
+-	hid_dbg(hdev, "I2C %d messages\n", num);
+-
+-	if (num != 1) {
+-		hid_err(hdev,
+-			"Multi-message I2C transactions not supported\n");
+-		return -EOPNOTSUPP;
+-	}
+-
+-	if (msgs->flags & I2C_M_RD)
+-		count = cp2112_read_req(buf, msgs->addr, msgs->len);
++	if (msg->flags & I2C_M_RD)
++		count = cp2112_read_req(buf, msg->addr, msg->len);
+ 	else
+-		count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
+-					     msgs->len);
+-
++		count = cp2112_i2c_write_req(buf, msg->addr, msg->buf,
++					     msg->len);
+ 	if (count < 0)
+ 		return count;
+ 
+-	ret = hid_hw_power(hdev, PM_HINT_FULLON);
+-	if (ret < 0) {
+-		hid_err(hdev, "power management error: %d\n", ret);
+-		return ret;
+-	}
+-
+ 	ret = cp2112_hid_output(hdev, buf, count, HID_OUTPUT_REPORT);
+ 	if (ret < 0) {
+ 		hid_warn(hdev, "Error starting transaction: %d\n", ret);
+-		goto power_normal;
++		return ret;
+ 	}
+ 
+ 	for (retries = 0; retries < XFER_STATUS_RETRIES; ++retries) {
+@@ -488,7 +472,7 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		if (-EBUSY == ret)
+ 			continue;
+ 		if (ret < 0)
+-			goto power_normal;
++			return ret;
+ 		break;
+ 	}
+ 
+@@ -502,30 +486,46 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			hid_warn(hdev, "Error cancelling transaction: %d\n",
+ 				 ret);
+ 
+-		ret = -ETIMEDOUT;
+-		goto power_normal;
++		return -ETIMEDOUT;
+ 	}
+ 
+-	if (!(msgs->flags & I2C_M_RD))
+-		goto finish;
++	if (!(msg->flags & I2C_M_RD))
++		return 0;
+ 
+-	ret = cp2112_read(dev, msgs->buf, msgs->len);
++	ret = cp2112_read(dev, msg->buf, msg->len);
+ 	if (ret < 0)
+-		goto power_normal;
+-	if (ret != msgs->len) {
+-		hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+-		ret = -EIO;
+-		goto power_normal;
++		return ret;
++	if (ret != msg->len) {
++		hid_warn(hdev, "short read: %d < %d\n", ret, msg->len);
++		return -EIO;
+ 	}
++	return 0;
++}
+ 
+-finish:
+-	/* return the number of transferred messages */
+-	ret = 1;
++static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			   int num)
++{
++	struct cp2112_device *dev = (struct cp2112_device *)adap->algo_data;
++	struct hid_device *hdev = dev->hdev;
++	int i, ret;
++
++	hid_dbg(hdev, "I2C %d messages\n", num);
++
++	ret = hid_hw_power(hdev, PM_HINT_FULLON);
++	if (ret < 0) {
++		hid_err(hdev, "power management error: %d\n", ret);
++		return ret;
++	}
++
++	for (i = 0; i < num; i++) {
++		ret = cp2112_i2c_xfer_msg(adap, &msgs[i]);
++		if (ret < 0)
++			break;
++	}
+ 
+-power_normal:
+ 	hid_hw_power(hdev, PM_HINT_NORMAL);
+ 	hid_dbg(hdev, "I2C transfer finished: %d\n", ret);
+-	return ret;
++	return (ret < 0) ? ret : num;
+ }
+ 
+ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+-- 
+2.3.1
 
-iQIcBAEBAgAGBQJVBV5aAAoJEBQN5MwUoCm2TFAP/0mEr5BBdXz3eTwyCq7bbd2X
-Of3535OCA5c+3ABNdQ5fldvtqg/rh8n+n5T6ETfv/lCC8aU39evwSQuMx63igAlI
-EoHzYu2ZFgIcpjY5Zi6r7BZDbgE5sj1GHhgKu4WJavh+TQp221EPpOtbvdDzM1XD
-/ZhOviaYLaXBG2g/hNzViASwLiAmR4050duLnzBpLSlCU9rk9rMP2WVWAx0IjCCU
-NgXVqq2OJJksAd8KxxH4BfG8jJemWsS9fkFUaaRO0X9hFiMmCQBcObILv8UBenS0
-o9+N4uTrlt6ZiJchyIoLesfcjRthKHwRTBEIgz+vrr7nLnCU3ELlz2EApTer1cZa
-obyMcx2rx2DY+XMA6/vxDTdmOs+FnqEsTJf7Q7BkuaPF6os+h3qhlKvhnXoWKSh/
-wI2tx9p39mHV3Q2MfzECNbSkmSuBvpJa+7OUk/LG+FupwdOxtgja7qje0+dyNlhB
-XUGXAJ4efKAc3bRh/lVb0948bj1YLKUVrYm3sRC6uXccg/pxEthwktb3rpbu9+Dk
-F/QrExYtw5mwO9ZVlkz36mIVm1FvdgLlHt6Ap7tAXxGFExXD429/W2/2HAyk3ZQ5
-LR3cCoOT6Z0WhFvkxGVyiceDk9+fwIalOoGS6rpyVspzAXWyRFdjcmIg305gejdo
-5O7oP1lBOBgJaV9xvvfn
-=zAc7
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
