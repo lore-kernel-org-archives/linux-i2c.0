@@ -1,44 +1,48 @@
-From: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Mon, 16 Mar 2015 21:15:29 +0100
-Message-ID: <550739E1.4010607@gmail.com>
-References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com> <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com> <54FF1BAA.3060409@wwwdotorg.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: rt-mutex usage in i2c
+Date: Mon, 16 Mar 2015 21:50:56 +0100
+Message-ID: <55074230.20307@linutronix.de>
+References: <54FDA380.8030405@linutronix.de>	<20150314112703.GD970@katana>	<20150314113237.GE970@katana> <CABpLfoiQg1smiebL0=nWX4Sp1H+XD9VViUqGk13gRcfdAwkFoA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <54FF1BAA.3060409-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+In-Reply-To: <CABpLfoiQg1smiebL0=nWX4Sp1H+XD9VViUqGk13gRcfdAwkFoA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Rapoport <mike.rapoport-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, "linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mike Galbraith <umgwanakikbuti-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10.03.2015 17:28, Stephen Warren wrote:
-> On 03/09/2015 06:21 AM, Sebastian Hesselbarth wrote:
->> I2C mux pinctrl driver currently determines the number of sub-busses by
->> counting available pinctrl-names. Unfortunately, this requires each
->> incarnation of the devicetree node with different available sub-busses
->> to be rewritten.
->>
->> This patch reworks i2c-mux-pinctrl driver to count the number of
->> available sub-nodes instead. The rework should be compatible to the old
->> way of probing for sub-busses and additionally allows to disable unused
->> sub-busses with standard DT property status = "disabled".
->>
->> This also amends the corresponding devicetree binding documentation to
->> reflect the new functionality to disable unused sub-nodes. While at it,
->> also fix two references to binding documentation files that miss an
->> "i2c-"
->> prefix.
->
-> The DT binding changes at least,
-> Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+On 03/15/2015 08:07 AM, Mike Rapoport wrote:
+> On Sat, Mar 14, 2015 at 1:32 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wro=
+te:
+>> On Sat, Mar 14, 2015 at 12:27:03PM +0100, Wolfram Sang wrote:
+>>> Hi Sebastian,
+>>>
+>>>> - i2c_transfer() has this piece:
+>>>>   2091                 if (in_atomic() || irqs_disabled()) {
+>>>>   2092                         ret =3D i2c_trylock_adapter(adap);
+>>>>
+>>>>   is this irqs_disabled() is what bothers me and should not be the=
+re.
+>>>>   pxa does a spin_lock_irq() which would enable interrupts on retu=
+rn /
+>>>>   too early.
+>>>>   mxs has a wait_for_completion() which needs irqs enabled _and_ m=
+akes
+>>>>   in_atomic() problematic, too. I have't checked other drivers but=
+ the
+>>>>   commit, that introduced it, does not explain why it is required.
+>=20
+> That was some time ago, but as far as I remember, PIO in i2c_pxa was
+> required to enable communication with PMIC in interrupt context.
 
-Wolfram,
+Let me add one thing I forgot: the locking is using raw locks which are
+not irq safe. It usually works. But. If the wait_lock is hold during
+the unlock's slow path (that means there is no owner but the owner
+field is not yet NULL) and the interrupt handler gets here with a
+try_lock attempt then and it will spin forever on the wait_lock.
 
-are you going to pick this patch through your tree now that Stephen
-ack'ed the binding documentation change, too?
-
-I can also split the patch up into driver/doc changes if you prefer.
+I will try to lookup the threads later=E2=80=A6
 
 Sebastian
