@@ -1,48 +1,30 @@
-From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: rt-mutex usage in i2c
-Date: Mon, 16 Mar 2015 21:50:56 +0100
-Message-ID: <55074230.20307@linutronix.de>
-References: <54FDA380.8030405@linutronix.de>	<20150314112703.GD970@katana>	<20150314113237.GE970@katana> <CABpLfoiQg1smiebL0=nWX4Sp1H+XD9VViUqGk13gRcfdAwkFoA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jakub Kicinski <moorray3-5tc4TXWwyLM@public.gmane.org>
+Subject: [PATCH 0/4] serial: sc16is7xx: bunch of small fixes
+Date: Tue, 17 Mar 2015 00:28:45 +0100
+Message-ID: <1426548529-21738-1-git-send-email-moorray3@wp.pl>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CABpLfoiQg1smiebL0=nWX4Sp1H+XD9VViUqGk13gRcfdAwkFoA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Rapoport <mike.rapoport-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mauro Carvalho Chehab <mchehab-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, "linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mike Galbraith <umgwanakikbuti-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: Jon Ringle <jringle-gkqdKIIuv0Hby3iVrkZq2A@public.gmane.org>, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?q?Karol=20D=C4=99bog=C3=B3rski?= <k.debogorski-XA5MxPtj9CQ@public.gmane.org>, Jakub Kicinski <kubakici-5tc4TXWwyLM@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/15/2015 08:07 AM, Mike Rapoport wrote:
-> On Sat, Mar 14, 2015 at 1:32 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wro=
-te:
->> On Sat, Mar 14, 2015 at 12:27:03PM +0100, Wolfram Sang wrote:
->>> Hi Sebastian,
->>>
->>>> - i2c_transfer() has this piece:
->>>>   2091                 if (in_atomic() || irqs_disabled()) {
->>>>   2092                         ret =3D i2c_trylock_adapter(adap);
->>>>
->>>>   is this irqs_disabled() is what bothers me and should not be the=
-re.
->>>>   pxa does a spin_lock_irq() which would enable interrupts on retu=
-rn /
->>>>   too early.
->>>>   mxs has a wait_for_completion() which needs irqs enabled _and_ m=
-akes
->>>>   in_atomic() problematic, too. I have't checked other drivers but=
- the
->>>>   commit, that introduced it, does not explain why it is required.
->=20
-> That was some time ago, but as far as I remember, PIO in i2c_pxa was
-> required to enable communication with PMIC in interrupt context.
+From: Jakub Kicinski <kubakici-5tc4TXWwyLM@public.gmane.org>
 
-Let me add one thing I forgot: the locking is using raw locks which are
-not irq safe. It usually works. But. If the wait_lock is hold during
-the unlock's slow path (that means there is no owner but the owner
-field is not yet NULL) and the interrupt handler gets here with a
-try_lock attempt then and it will spin forever on the wait_lock.
+This series fixes three small problems with the sc16is7xx driver
+and adds an ability to configure from user space the RTS inversion
+for RS-485 mode.
 
-I will try to lookup the threads later=E2=80=A6
+None of the fixed issues is pressing so this seems like a -next
+material (based on tty.git/tty-next).
 
-Sebastian
+Jakub Kicinski (4):
+  sc16is7xx: remove ports on probe error path
+  sc16is7xx: don't wipe out port configuration on shutdown
+  sc16is7xx: expose RTS inversion in RS-485 mode
+  sc16is7xx: enable the clock
+
+ drivers/tty/serial/sc16is7xx.c | 44 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 32 insertions(+), 12 deletions(-)
+
+-- 
+2.1.0
