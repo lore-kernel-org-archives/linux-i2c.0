@@ -1,72 +1,51 @@
-From: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-tools: add Android.mk
-Date: Mon, 16 Mar 2015 10:30:38 +0100
-Message-ID: <CA+TH9Vn_iD5+LPUBLY1awJiNVTvsxq4TkXHUJuE_9tLuJsmvAw@mail.gmail.com>
-References: <CA+TH9VkQzJaSa0okxK+s1ukpaqgiWegh3uumEb63LzZwBjV4nA@mail.gmail.com>
- <20150316101626.2c7a02be@endymion.delvare>
+From: sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
+Subject: Re: [PATCH 6/6] dts: msm8974: Add dma channels for blsp2_i2c1 node
+Date: Mon, 16 Mar 2015 09:55:26 -0000
+Message-ID: <0ac0be987e1d6b8bdfd524f14c83fcb4.squirrel@www.codeaurora.org>
+References: <1426268992-19298-1-git-send-email-sricharan@codeaurora.org>
+    <1426268992-19298-7-git-send-email-sricharan@codeaurora.org>
+    <20150313195425.GA16977@qualcomm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150316101626.2c7a02be-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150313195425.GA16977-zC7DfRvBq/JWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Jean Delvare,
+Hi,
 
-The Android build system requires an Android.mk into the root dir of a
-package. Android simply doesn't use recursive makefile.
-
-So if you want to drop i2c-tools into the android source tree to
-having it compiled by the Android build system, you should add an
-Android.mk manually.
-
-Probably, the other projects you mention are compiled externelly from
-the Android build system with an external toolchain, so calling make
-with the right options is not a problem.
-
-I think that all projects potentially interesting in the Android world
-should adopt an Android.mk to be easily buildable into the Android
-build system.
-
-Sincerely, Angelo.
-
-2015-03-16 10:16 GMT+01:00 Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>:
-> Hi Angelo,
+> On Fri, Mar 13, 2015 at 11:19:52PM +0530, Sricharan R wrote:
+>> Signed-off-by: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+>> ---
 >
-> On Fri, 27 Feb 2015 22:05:12 +0100, Angelo Compagnucci wrote:
->> This patch adds an Android.mk to compile i2c-tools under Android.
+> Reviewed-by: Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+>
+>>  arch/arm/boot/dts/qcom-msm8974.dtsi | 2 ++
+>>  1 file changed, 2 insertions(+)
 >>
->> Hope this helps!
+>> diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi
+>> b/arch/arm/boot/dts/qcom-msm8974.dtsi
+>> index 3f648ae..1ec7ec5 100644
+>> --- a/arch/arm/boot/dts/qcom-msm8974.dtsi
+>> +++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+>> @@ -246,6 +246,8 @@
+>>  			clock-names = "core", "iface";
+>>  			#address-cells = <1>;
+>>  			#size-cells = <0>;
+>> +			dmas = <&blsp2_dma 20>, <&blsp2_dma 21>;
+>> +			dma-names = "bam-tx", "bam-rx";
 >
-> I have to say I don't know what to do with this.
->
-> For one thing, I don't really understand why Android needs a separate
-> build mechanism when all other Linux and BSD incarnations seem to be
-> fine with the standard Makefile. GNU make certainly runs on Android,
-> right? And you would typically cross-compile for Android anyway. Also I
-> have not seen an Android.mk file in any other project I'm working on,
-> and I can't see why i2c-tools would be special in this respect.
->
-> For another, the current build mechanism is a modular one where the
-> main Makefile includes Module.mk files present in the different
-> subdirectories. I like this design and having a single Android.mk file
-> at the root of the project is inconsistent and breaks that design.
->
-> As a summary I don't see why anything special is needed for Android,
-> but if something like that is really needed then it should respect the
-> existing modular design.
->
-> Now if anyone has a more educated view on this than I do, please speak
-> up. Android is really not my thing (as a developer, I mean.)
->
-> Thanks,
-> --
-> Jean Delvare
-> SUSE L3 Support
+> more of a nit, but the bam- is unnecessary.  it's just rx/tx.
 
+  Ok, will change it.
 
+Regards,
+ Sricharan
 
--- 
-Profile: http://it.linkedin.com/in/compagnucciangelo
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
