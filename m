@@ -1,33 +1,158 @@
-From: Jakub =?UTF-8?B?S2ljacWEc2tp?= <moorray3-5tc4TXWwyLM@public.gmane.org>
-Subject: Re: [PATCH 3/4] sc16is7xx: expose RTS inversion in RS-485 mode
-Date: Tue, 17 Mar 2015 15:57:00 +0100
-Message-ID: <20150317155700.71a4ad1b@north>
-References: <1426548529-21738-1-git-send-email-moorray3@wp.pl>
-	<1426548529-21738-4-git-send-email-moorray3@wp.pl>
-	<alpine.DEB.2.10.1503171043400.3566@jring-w510-7m3g.gridpoint.com>
+From: Nava kishore Manne <nava.manne@xilinx.com>
+Subject: [PATCH] i2c: cadence: Handling Slave monitor mode
+Date: Tue, 17 Mar 2015 21:48:15 +0530
+Message-ID: <BL2FFO11FD05378650E02EA6549B4DF50E8030@BL2FFO11FD053.protection.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.DEB.2.10.1503171043400.3566-cn3jTo8IYkmeSY0hgfj7bYJKnSiCLr9B28t4la5Gatg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Ringle <jon-7zJyie9iPacdnm+yROfE0A@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, "Ringle, Jonathan" <Jonathan.Ringle-gkqdKIIuv0Hby3iVrkZq2A@public.gmane.org>, "linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Karol =?UTF-8?B?RMSZYm9nw7Nyc2tp?= <k.debogorski-XA5MxPtj9CQ@public.gmane.org>, Jakub Kicinski <kubakici-5tc4TXWwyLM@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: michal.simek@xilinx.com, soren.brinkmann@xilinx.com, wsa@the-dreams.de
+Cc: Nava kishore Manne <navam@xilinx.com>, svemula@xilinx.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, anirudh@xilinx.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 17 Mar 2015 10:45:26 -0400 (EDT), Jon Ringle wrote:
-> This makes sense. I did have to fix up my user space app to set 
-> SER_RS485_RTS_ON_SEND after applying this patch.
+In slave monitor mode, the I2C interface is set up as a master and
+continues to attempt a transfer to a particular slave until the
+slave device responds with an ACK.
 
-Yes, perhaps I should have mentioned that this makes the ioctl return
--EINVAL when neither of SER_RS485_RTS_*_SEND flags is set.  This
-definitely has potential to break people's apps.  Let's see if anyone
-else has an opinion on this.
+Added this feature for zero length transfers enable the controller
+for slave monitor interrupt and get the status. Disable the slave
+monitor mode feature upon successful handling.
 
-I am also very tempted to remove rs485.delay_rts_*_send mdelays from
-this driver and return -EINVAL in a similar fashion when there are set.
-Normally when the driver is responsible for wiggling the GPIO/RTS line
-mdelays can indeed impact when the lines change state but in sc16is7xx
-case transitions are controlled by HW and there is nothing the driver
-can do about the the relation between TX/RX mode switch and state of 
-RTS lines...  Do you agree?
+Signed-off-by: Nava kishore Manne <navam@xilinx.com>
+Acked-by: Harini Katakam <harinik@xilinx.com>
+---
+ drivers/i2c/busses/i2c-cadence.c | 69 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 62 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 7d7a14c..6bac2cb 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -25,11 +25,13 @@
+ #define CDNS_I2C_DATA_OFFSET		0x0C /* I2C Data Register, RW */
+ #define CDNS_I2C_ISR_OFFSET		0x10 /* IRQ Status Register, RW */
+ #define CDNS_I2C_XFER_SIZE_OFFSET	0x14 /* Transfer Size Register, RW */
++#define CDNS_I2C_SLV_PAUSE_OFFSET	0x18 /* Transfer Size Register, RW */
+ #define CDNS_I2C_TIME_OUT_OFFSET	0x1C /* Time Out Register, RW */
+ #define CDNS_I2C_IER_OFFSET		0x24 /* IRQ Enable Register, WO */
+ #define CDNS_I2C_IDR_OFFSET		0x28 /* IRQ Disable Register, WO */
+ 
+ /* Control Register Bit mask definitions */
++#define CDNS_I2C_CR_SLVMON		BIT(5) /* Slave monitor mode bit */
+ #define CDNS_I2C_CR_HOLD		BIT(4) /* Hold Bus bit */
+ #define CDNS_I2C_CR_ACK_EN		BIT(3)
+ #define CDNS_I2C_CR_NEA			BIT(2)
+@@ -310,6 +312,23 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+ 		status = IRQ_HANDLED;
+ 	}
+ 
++	/* Handling Slave monitor mode interrupt */
++	if (isr_status & CDNS_I2C_IXR_SLV_RDY) {
++		unsigned int ctrl_reg;
++		/* Read control register */
++		ctrl_reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
++
++		/* Disable slave monitor mode */
++		ctrl_reg &= ~CDNS_I2C_CR_SLVMON;
++		cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
++
++		/* Clear interrupt flag for slvmon mode */
++		cdns_i2c_writereg(CDNS_I2C_IXR_SLV_RDY, CDNS_I2C_IDR_OFFSET);
++
++		done_flag = 1;
++		status = IRQ_HANDLED;
++	}
++
+ 	/* Update the status for errors */
+ 	id->err_status = isr_status & CDNS_I2C_IXR_ERR_INTR_MASK;
+ 	if (id->err_status)
+@@ -444,6 +463,40 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
+ }
+ 
+ /**
++ * cdns_i2c_slvmon - Handling Slav monitor mode feature
++ * @id:		pointer to the i2c device
++ */
++static void cdns_i2c_slvmon(struct cdns_i2c *id)
++{
++	unsigned int ctrl_reg;
++	unsigned int isr_status;
++
++	id->p_recv_buf = NULL;
++	id->p_send_buf = id->p_msg->buf;
++	id->send_count = id->p_msg->len;
++
++	/* Clear the interrupts in interrupt status register. */
++	isr_status = cdns_i2c_readreg(CDNS_I2C_ISR_OFFSET);
++	cdns_i2c_writereg(isr_status, CDNS_I2C_ISR_OFFSET);
++
++	/* Enable slvmon control reg */
++	ctrl_reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
++	ctrl_reg |=  CDNS_I2C_CR_MS | CDNS_I2C_CR_NEA | CDNS_I2C_CR_SLVMON
++			| CDNS_I2C_CR_CLR_FIFO;
++	ctrl_reg &= ~(CDNS_I2C_CR_RW);
++	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
++
++	/* Initialize slvmon reg */
++	cdns_i2c_writereg(0xF, CDNS_I2C_SLV_PAUSE_OFFSET);
++
++	/* Set the slave address to start the slave address transmission */
++	cdns_i2c_writereg(id->p_msg->addr, CDNS_I2C_ADDR_OFFSET);
++
++	/* Setup slvmon interrupt flag */
++	cdns_i2c_writereg(CDNS_I2C_IXR_SLV_RDY, CDNS_I2C_IER_OFFSET);
++}
++
++/**
+  * cdns_i2c_master_reset - Reset the interface
+  * @adap:	pointer to the i2c adapter driver instance
+  *
+@@ -459,7 +512,7 @@ static void cdns_i2c_master_reset(struct i2c_adapter *adap)
+ 	cdns_i2c_writereg(CDNS_I2C_IXR_ALL_INTR_MASK, CDNS_I2C_IDR_OFFSET);
+ 	/* Clear the hold bit and fifos */
+ 	regval = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
+-	regval &= ~CDNS_I2C_CR_HOLD;
++	regval &= ~(CDNS_I2C_CR_HOLD | CDNS_I2C_CR_SLVMON);
+ 	regval |= CDNS_I2C_CR_CLR_FIFO;
+ 	cdns_i2c_writereg(regval, CDNS_I2C_CR_OFFSET);
+ 	/* Update the transfercount register to zero */
+@@ -493,9 +546,11 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 			cdns_i2c_writereg(reg | CDNS_I2C_CR_NEA,
+ 					CDNS_I2C_CR_OFFSET);
+ 	}
+-
+-	/* Check for the R/W flag on each msg */
+-	if (msg->flags & I2C_M_RD)
++	/* Check for zero lenght - Slave monitor mode */
++	if (msg->len == 0)
++		cdns_i2c_slvmon(id);
++	 /* Check for the R/W flag on each msg */
++	else if (msg->flags & I2C_M_RD)
+ 		cdns_i2c_mrecv(id);
+ 	else
+ 		cdns_i2c_msend(id);
+@@ -535,10 +590,10 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	int ret, count;
+ 	u32 reg;
+ 	struct cdns_i2c *id = adap->algo_data;
+-
+ 	/* Check if the bus is free */
+-	if (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) & CDNS_I2C_SR_BA)
+-		return -EAGAIN;
++	if (msgs->len)
++		if (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) & CDNS_I2C_SR_BA)
++			return -EAGAIN;
+ 
+ 	/*
+ 	 * Set the flag to one when multiple messages are to be
+-- 
+2.1.2
