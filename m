@@ -1,91 +1,73 @@
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Subject: Re: [PATCH] i2c: davinci: fixup wait_for_completion_timeout handling
-Date: Tue, 17 Mar 2015 10:29:42 +0100
-Message-ID: <5507F406.1000202@nokia.com>
-References: <1426578673-10692-1-git-send-email-hofrat@osadl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1426578673-10692-1-git-send-email-hofrat@osadl.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: ext Nicholas Mc Guire <hofrat@osadl.org>, Sekhar Nori <nsekhar@ti.com>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Subject: [PATCH] i2c: i2c-gpio: fix some of gpio sleep issues
+Date: Tue, 17 Mar 2015 12:04:29 +0000
+Message-ID: <1426593869-8724-1-git-send-email-ben.dooks@codethink.co.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+The i2c-gpio driver can be used in systems where the GPIO itself is
+provided by a GPIO driver that may be sleeping (for example, SPI or
+USB). In this case, it is preferable to use the _cansleep() variants
+of the GPIO code.
 
-On 17/03/15 08:51, ext Nicholas Mc Guire wrote:
-> wait_for_completion_timeout return 0 (timeout) or >=1 (completion) so the check
-> for >= 0 is always true and can be dropped implying that r==-EREMOTEIO and thus
-> the return of -EREMOTEIO can be done in the   if (dev->buf_len)  branch.
-> As wait_for_completion_timeout returns unsigned long not int, and   int r   is
-> exclusively used for wait_for_completion_timeout it is renamed and the type
-> changed to unsigned long.
-> 
-> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+We can only fix this up for the case where the i2c-gpio implementation
+provides open-drain outputs as there are no gpio_direction_xxx_cansleep()
+provided.
 
-Even if it has no effect on functionality, the learning effect is positive, so that
-nobody will copy the wrong code out. So the change is correct,
+This removes the issues on the customer system with the console constantly
+showing the following warning:
 
-Acked-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+WARNING: CPU: 0 PID: 1 at drivers/gpio/gpiolib.c:2389 gpiod_set_raw_value
 
-> ---
-> 
-> Patch was compile tested with davinci_all_defconfig (implies CONFIG_I2C_DAVINCI=y)
-> 
-> Patch is against 4.0-rc4 (localversion-next is -next-20150317)
-> 
->  drivers/i2c/busses/i2c-davinci.c |   17 +++++++----------
->  1 file changed, 7 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 6dc7ff5..120a4ef 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -304,7 +304,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  	struct davinci_i2c_platform_data *pdata = dev->pdata;
->  	u32 flag;
->  	u16 w;
-> -	int r;
-> +	unsigned long time_left;
->  
->  	/* Introduce a delay, required for some boards (e.g Davinci EVM) */
->  	if (pdata->bus_delay)
-> @@ -368,8 +368,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  		flag |= DAVINCI_I2C_MDR_STP;
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
->  
-> -	r = wait_for_completion_timeout(&dev->cmd_complete, dev->adapter.timeout);
-> -	if (r == 0) {
-> +	time_left = wait_for_completion_timeout(&dev->cmd_complete,
-> +						dev->adapter.timeout);
-> +	if (!time_left) {
->  		dev_err(dev->dev, "controller timed out\n");
->  		davinci_i2c_recover_bus(dev);
->  		i2c_davinci_init(dev);
-> @@ -380,17 +381,13 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  		/* This should be 0 if all bytes were transferred
->  		 * or dev->cmd_err denotes an error.
->  		 */
-> -		if (r >= 0) {
-> -			dev_err(dev->dev, "abnormal termination buf_len=%i\n",
-> -				dev->buf_len);
-> -			r = -EREMOTEIO;
-> -		}
-> +		dev_err(dev->dev, "abnormal termination buf_len=%i\n",
-> +			dev->buf_len);
->  		dev->terminate = 1;
->  		wmb();
->  		dev->buf_len = 0;
-> +		return -EREMOTEIO;
->  	}
-> -	if (r < 0)
-> -		return r;
->  
->  	/* no error */
->  	if (likely(!dev->cmd_err))
+Signed-off-by: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+--
+CC: Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+---
+ drivers/i2c/busses/i2c-gpio.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index d1050bd..9d4d59c 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -44,7 +44,7 @@ static void i2c_gpio_setsda_val(void *data, int state)
+ {
+ 	struct i2c_gpio_platform_data *pdata = data;
+ 
+-	gpio_set_value(pdata->sda_pin, state);
++	gpio_set_value_cansleep(pdata->sda_pin, state);
+ }
+ 
+ /* Toggle SCL by changing the direction of the pin. */
+@@ -68,21 +68,21 @@ static void i2c_gpio_setscl_val(void *data, int state)
+ {
+ 	struct i2c_gpio_platform_data *pdata = data;
+ 
+-	gpio_set_value(pdata->scl_pin, state);
++	gpio_set_value_cansleep(pdata->scl_pin, state);
+ }
+ 
+ static int i2c_gpio_getsda(void *data)
+ {
+ 	struct i2c_gpio_platform_data *pdata = data;
+ 
+-	return gpio_get_value(pdata->sda_pin);
++	return gpio_get_value_cansleep(pdata->sda_pin);
+ }
+ 
+ static int i2c_gpio_getscl(void *data)
+ {
+ 	struct i2c_gpio_platform_data *pdata = data;
+ 
+-	return gpio_get_value(pdata->scl_pin);
++	return gpio_get_value_cansleep(pdata->scl_pin);
+ }
+ 
+ static int of_i2c_gpio_get_pins(struct device_node *np,
 -- 
-Best regards,
-Alexander Sverdlin.
+2.1.4
