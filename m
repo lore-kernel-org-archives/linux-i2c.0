@@ -1,39 +1,46 @@
-From: Jakub Kicinski <moorray3-5tc4TXWwyLM@public.gmane.org>
-Subject: [PATCH 1/4] sc16is7xx: remove ports on probe error path
-Date: Tue, 17 Mar 2015 00:28:46 +0100
-Message-ID: <1426548529-21738-2-git-send-email-moorray3@wp.pl>
-References: <1426548529-21738-1-git-send-email-moorray3@wp.pl>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
+ SMBus adapters
+Date: Mon, 16 Mar 2015 21:20:49 -0700
+Message-ID: <20150317042049.GA6765@roeck-us.net>
+References: <1423067017-27607-1-git-send-email-linux@roeck-us.net>
+ <20150204174723.GB30930@katana>
+ <20150204190819.GA15467@roeck-us.net>
+ <20150204233516.GA1677@katana>
+ <20150205002630.GA396@roeck-us.net>
+ <20150205144028.GA4865@katana>
+ <20150205175326.GA26691@roeck-us.net>
+ <20150212040126.GA1691@roeck-us.net>
+ <20150216120951.GA2840@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1426548529-21738-1-git-send-email-moorray3-5tc4TXWwyLM@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150216120951.GA2840@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: Jon Ringle <jringle-gkqdKIIuv0Hby3iVrkZq2A@public.gmane.org>, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?q?Karol=20D=C4=99bog=C3=B3rski?= <k.debogorski-XA5MxPtj9CQ@public.gmane.org>, Jakub Kicinski <kubakici-5tc4TXWwyLM@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jakub Kicinski <kubakici-5tc4TXWwyLM@public.gmane.org>
+On Mon, Feb 16, 2015 at 01:09:51PM +0100, Wolfram Sang wrote:
+> Hi Guenter,
+> 
+> > I wonder where we are with thisp patch; I don't recall a reply to my previous
+> > e-mail.
+> 
+> Sorry for the late reply. I needed to recover from a HDD headcrash :(
+> 
+> > Do you need some more time to think about it ? Otherwise I'll publish an
+> > out-of-tree version of the at24 driver with the patch applied on github,
+> > for those who might need the functionality provided by this patch.
+> 
+> Your last mail made me aware of why we were missing each other before. I
+> see your point now, but yes, still need to think about it. My plan is to
+> have a decision until the 3.21 merge window.
+> 
+Hi Wolfram,
 
-If ports are not explicitly removed on the error path
-the device will not get properly unregistered leaving
-/dev/ttySC* nodes in the filesystem.
+any news ?
 
-Signed-off-by: Jakub Kicinski <kubakici-5tc4TXWwyLM@public.gmane.org>
----
- drivers/tty/serial/sc16is7xx.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
-index df9a384dfbda..11bb44039a57 100644
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -1120,6 +1120,9 @@ static int sc16is7xx_probe(struct device *dev,
- 	if (!ret)
- 		return 0;
- 
-+	for (i = 0; i < s->uart.nr; i++)
-+		uart_remove_one_port(&s->uart, &s->p[i].port);
-+
- 	mutex_destroy(&s->mutex);
- 
- #ifdef CONFIG_GPIOLIB
--- 
-2.1.0
+Thanks,
+Guenter
