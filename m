@@ -1,521 +1,274 @@
-From: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v4 2/3] i2c: xlp9xx: Driver for Netlogic XLP9XX/5XX I2C controller
-Date: Wed, 18 Mar 2015 17:20:29 +0530
-Message-ID: <1426679430-26134-3-git-send-email-jchandra@broadcom.com>
-References: <1426679430-26134-1-git-send-email-jchandra@broadcom.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Wed, 18 Mar 2015 13:30:12 +0100
+Message-ID: <20150318123012.GA3580@katana>
+References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
+ <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1426679430-26134-1-git-send-email-jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 
-Add an I2C bus driver i2c-xlp9xx.c to support the I2C block in the
-XLP9xx/XLP5xx MIPS SoC. Update Kconfig and Makefile to add the
-CONFIG_I2C_XLP9XX option.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Signed-off-by: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Reviewed-by: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
----
- drivers/i2c/busses/Kconfig      |  10 +
- drivers/i2c/busses/Makefile     |   1 +
- drivers/i2c/busses/i2c-xlp9xx.c | 445 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 456 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-xlp9xx.c
+On Mon, Mar 09, 2015 at 01:21:05PM +0100, Sebastian Hesselbarth wrote:
+> I2C mux pinctrl driver currently determines the number of sub-busses by
+> counting available pinctrl-names. Unfortunately, this requires each
+> incarnation of the devicetree node with different available sub-busses
+> to be rewritten.
+>=20
+> This patch reworks i2c-mux-pinctrl driver to count the number of
+> available sub-nodes instead. The rework should be compatible to the old
+> way of probing for sub-busses and additionally allows to disable unused
+> sub-busses with standard DT property status =3D "disabled".
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 22da9c2..dde4648 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -898,6 +898,16 @@ config I2C_XLR
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-xlr.
- 
-+config I2C_XLP9XX
-+	tristate "XLP9XX I2C support"
-+	depends on CPU_XLP || COMPILE_TEST
-+	help
-+	  This driver enables support for the on-chip I2C interface of
-+	  the Broadcom XLP9xx/XLP5xx MIPS processors.
-+
-+	  This driver can also be built as a module.  If so, the module will
-+	  be called i2c-xlp9xx.
-+
- config I2C_RCAR
- 	tristate "Renesas R-Car I2C Controller"
- 	depends on ARCH_SHMOBILE || COMPILE_TEST
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 3638feb..f8e0f0e 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -87,6 +87,7 @@ obj-$(CONFIG_I2C_WMT)		+= i2c-wmt.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
- obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
-+obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
- obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
- 
- # External I2C/SMBus adapter drivers
-diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-new file mode 100644
-index 00000000..4fd3849
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -0,0 +1,445 @@
-+/*
-+ * Copyright (c) 2003-2015 Broadcom Corporation
-+ *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2. This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
-+ */
-+
-+#include <linux/completion.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+
-+#define XLP9XX_I2C_DIV			0x0
-+#define XLP9XX_I2C_CTRL			0x1
-+#define XLP9XX_I2C_CMD			0x2
-+#define XLP9XX_I2C_STATUS		0x3
-+#define XLP9XX_I2C_MTXFIFO		0x4
-+#define XLP9XX_I2C_MRXFIFO		0x5
-+#define XLP9XX_I2C_MFIFOCTRL		0x6
-+#define XLP9XX_I2C_STXFIFO		0x7
-+#define XLP9XX_I2C_SRXFIFO		0x8
-+#define XLP9XX_I2C_SFIFOCTRL		0x9
-+#define XLP9XX_I2C_SLAVEADDR		0xA
-+#define XLP9XX_I2C_OWNADDR		0xB
-+#define XLP9XX_I2C_FIFOWCNT		0xC
-+#define XLP9XX_I2C_INTEN		0xD
-+#define XLP9XX_I2C_INTST		0xE
-+#define XLP9XX_I2C_WAITCNT		0xF
-+#define XLP9XX_I2C_TIMEOUT		0X10
-+#define XLP9XX_I2C_GENCALLADDR		0x11
-+
-+#define XLP9XX_I2C_CMD_START		BIT(7)
-+#define XLP9XX_I2C_CMD_STOP		BIT(6)
-+#define XLP9XX_I2C_CMD_READ		BIT(5)
-+#define XLP9XX_I2C_CMD_WRITE		BIT(4)
-+#define XLP9XX_I2C_CMD_ACK		BIT(3)
-+
-+#define XLP9XX_I2C_CTRL_MCTLEN_SHIFT	16
-+#define XLP9XX_I2C_CTRL_MCTLEN_MASK	0xffff0000
-+#define XLP9XX_I2C_CTRL_RST		BIT(8)
-+#define XLP9XX_I2C_CTRL_EN		BIT(6)
-+#define XLP9XX_I2C_CTRL_MASTER		BIT(4)
-+#define XLP9XX_I2C_CTRL_FIFORD		BIT(1)
-+#define XLP9XX_I2C_CTRL_ADDMODE		BIT(0)
-+
-+#define XLP9XX_I2C_INTEN_NACKADDR	BIT(25)
-+#define XLP9XX_I2C_INTEN_SADDR		BIT(13)
-+#define XLP9XX_I2C_INTEN_DATADONE	BIT(12)
-+#define XLP9XX_I2C_INTEN_ARLOST		BIT(11)
-+#define XLP9XX_I2C_INTEN_MFIFOFULL	BIT(4)
-+#define XLP9XX_I2C_INTEN_MFIFOEMTY	BIT(3)
-+#define XLP9XX_I2C_INTEN_MFIFOHI	BIT(2)
-+#define XLP9XX_I2C_INTEN_BUSERR		BIT(0)
-+
-+#define XLP9XX_I2C_MFIFOCTRL_HITH_SHIFT		8
-+#define XLP9XX_I2C_MFIFOCTRL_LOTH_SHIFT		0
-+#define XLP9XX_I2C_MFIFOCTRL_RST		BIT(16)
-+
-+#define XLP9XX_I2C_SLAVEADDR_RW			BIT(0)
-+#define XLP9XX_I2C_SLAVEADDR_ADDR_SHIFT		1
-+
-+#define XLP9XX_I2C_IP_CLK_FREQ		133000000UL
-+#define XLP9XX_I2C_DEFAULT_FREQ		100000
-+#define XLP9XX_I2C_HIGH_FREQ		400000
-+#define XLP9XX_I2C_FIFO_SIZE		0x80U
-+#define XLP9XX_I2C_TIMEOUT_MS		1000
-+
-+#define XLP9XX_I2C_FIFO_WCNT_MASK	0xff
-+#define XLP9XX_I2C_STATUS_ERRMASK	(XLP9XX_I2C_INTEN_ARLOST | \
-+			XLP9XX_I2C_INTEN_NACKADDR | XLP9XX_I2C_INTEN_BUSERR)
-+
-+struct xlp9xx_i2c_dev {
-+	struct device *dev;
-+	struct i2c_adapter adapter;
-+	struct completion msg_complete;
-+	int irq;
-+	bool msg_read;
-+	u32 __iomem *base;
-+	u32 msg_buf_remaining;
-+	u32 msg_len;
-+	u32 clk_hz;
-+	u32 msg_err;
-+	u8 *msg_buf;
-+};
-+
-+static inline void xlp9xx_write_i2c_reg(struct xlp9xx_i2c_dev *priv,
-+					unsigned long reg, u32 val)
-+{
-+	writel(val, priv->base + reg);
-+}
-+
-+static inline u32 xlp9xx_read_i2c_reg(struct xlp9xx_i2c_dev *priv,
-+				      unsigned long reg)
-+{
-+	return readl(priv->base + reg);
-+}
-+
-+static void xlp9xx_i2c_mask_irq(struct xlp9xx_i2c_dev *priv, u32 mask)
-+{
-+	u32 inten;
-+
-+	inten = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_INTEN) & ~mask;
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, inten);
-+}
-+
-+static void xlp9xx_i2c_unmask_irq(struct xlp9xx_i2c_dev *priv, u32 mask)
-+{
-+	u32 inten;
-+
-+	inten = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_INTEN) | mask;
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, inten);
-+}
-+
-+static void xlp9xx_i2c_update_rx_fifo_thres(struct xlp9xx_i2c_dev *priv)
-+{
-+	u32 thres;
-+
-+	thres = min(priv->msg_buf_remaining, XLP9XX_I2C_FIFO_SIZE);
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_MFIFOCTRL,
-+			     thres << XLP9XX_I2C_MFIFOCTRL_HITH_SHIFT);
-+}
-+
-+static void xlp9xx_i2c_fill_tx_fifo(struct xlp9xx_i2c_dev *priv)
-+{
-+	u32 len, i;
-+	u8 *buf = priv->msg_buf;
-+
-+	len = min(priv->msg_buf_remaining, XLP9XX_I2C_FIFO_SIZE);
-+	for (i = 0; i < len; i++)
-+		xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_MTXFIFO, buf[i]);
-+	priv->msg_buf_remaining -= len;
-+	priv->msg_buf += len;
-+}
-+
-+static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
-+{
-+	u32 len, i;
-+	u8 *buf = priv->msg_buf;
-+
-+	len = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_FIFOWCNT) &
-+				  XLP9XX_I2C_FIFO_WCNT_MASK;
-+	len = min(priv->msg_buf_remaining, len);
-+	for (i = 0; i < len; i++, buf++)
-+		*buf = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
-+
-+	priv->msg_buf_remaining -= len;
-+	priv->msg_buf = buf;
-+
-+	if (priv->msg_buf_remaining)
-+		xlp9xx_i2c_update_rx_fifo_thres(priv);
-+}
-+
-+static irqreturn_t xlp9xx_i2c_isr(int irq, void *dev_id)
-+{
-+	struct xlp9xx_i2c_dev *priv = dev_id;
-+	u32 status;
-+
-+	status = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_INTST);
-+	if (status == 0)
-+		return IRQ_NONE;
-+
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTST, status);
-+	if (status & XLP9XX_I2C_STATUS_ERRMASK) {
-+		priv->msg_err = status;
-+		goto xfer_done;
-+	}
-+
-+	/* SADDR ACK for SMBUS_QUICK */
-+	if ((status & XLP9XX_I2C_INTEN_SADDR) && (priv->msg_len == 0))
-+		goto xfer_done;
-+
-+	if (!priv->msg_read) {
-+		if (status & XLP9XX_I2C_INTEN_MFIFOEMTY) {
-+			/* TX FIFO got empty, fill it up again */
-+			if (priv->msg_buf_remaining)
-+				xlp9xx_i2c_fill_tx_fifo(priv);
-+			else
-+				xlp9xx_i2c_mask_irq(priv,
-+						    XLP9XX_I2C_INTEN_MFIFOEMTY);
-+		}
-+	} else {
-+		if (status & (XLP9XX_I2C_INTEN_DATADONE |
-+			      XLP9XX_I2C_INTEN_MFIFOHI)) {
-+			/* data is in FIFO, read it */
-+			if (priv->msg_buf_remaining)
-+				xlp9xx_i2c_drain_rx_fifo(priv);
-+		}
-+	}
-+
-+	/* Transfer complete */
-+	if (status & XLP9XX_I2C_INTEN_DATADONE)
-+		goto xfer_done;
-+
-+	return IRQ_HANDLED;
-+
-+xfer_done:
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, 0);
-+	complete(&priv->msg_complete);
-+	return IRQ_HANDLED;
-+}
-+
-+static int xlp9xx_i2c_init(struct xlp9xx_i2c_dev *priv)
-+{
-+	u32 prescale;
-+
-+	/*
-+	 * The controller uses 5 * SCL clock internally.
-+	 * So prescale value should be divided by 5.
-+	 */
-+	prescale = DIV_ROUND_UP(XLP9XX_I2C_IP_CLK_FREQ, priv->clk_hz);
-+	prescale = ((prescale - 8) / 5) - 1;
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, XLP9XX_I2C_CTRL_RST);
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, XLP9XX_I2C_CTRL_EN |
-+			     XLP9XX_I2C_CTRL_MASTER);
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_DIV, prescale);
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, 0);
-+
-+	return 0;
-+}
-+
-+static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
-+			       int last_msg)
-+{
-+	unsigned long timeleft;
-+	u32 intr_mask, cmd, val;
-+
-+	priv->msg_buf = msg->buf;
-+	priv->msg_buf_remaining = priv->msg_len = msg->len;
-+	priv->msg_err = 0;
-+	priv->msg_read = (msg->flags & I2C_M_RD);
-+	reinit_completion(&priv->msg_complete);
-+
-+	/* Reset FIFO */
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_MFIFOCTRL,
-+			     XLP9XX_I2C_MFIFOCTRL_RST);
-+
-+	/* set FIFO threshold if reading */
-+	if (priv->msg_read)
-+		xlp9xx_i2c_update_rx_fifo_thres(priv);
-+
-+	/* set slave addr */
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_SLAVEADDR,
-+			     (msg->addr << XLP9XX_I2C_SLAVEADDR_ADDR_SHIFT) |
-+			     (priv->msg_read ? XLP9XX_I2C_SLAVEADDR_RW : 0));
-+
-+	/* Build control word for transfer */
-+	val = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_CTRL);
-+	if (!priv->msg_read)
-+		val &= ~XLP9XX_I2C_CTRL_FIFORD;
-+	else
-+		val |= XLP9XX_I2C_CTRL_FIFORD;	/* read */
-+
-+	if (msg->flags & I2C_M_TEN)
-+		val |= XLP9XX_I2C_CTRL_ADDMODE;	/* 10-bit address mode*/
-+	else
-+		val &= ~XLP9XX_I2C_CTRL_ADDMODE;
-+
-+	/* set data length to be transferred */
-+	val = (val & ~XLP9XX_I2C_CTRL_MCTLEN_MASK) |
-+	      (msg->len << XLP9XX_I2C_CTRL_MCTLEN_SHIFT);
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, val);
-+
-+	/* fill fifo during tx */
-+	if (!priv->msg_read)
-+		xlp9xx_i2c_fill_tx_fifo(priv);
-+
-+	/* set interrupt mask */
-+	intr_mask = (XLP9XX_I2C_INTEN_ARLOST | XLP9XX_I2C_INTEN_BUSERR |
-+		     XLP9XX_I2C_INTEN_NACKADDR | XLP9XX_I2C_INTEN_DATADONE);
-+
-+	if (priv->msg_read) {
-+		intr_mask |= XLP9XX_I2C_INTEN_MFIFOHI;
-+		if (msg->len == 0)
-+			intr_mask |= XLP9XX_I2C_INTEN_SADDR;
-+	} else {
-+		if (msg->len == 0)
-+			intr_mask |= XLP9XX_I2C_INTEN_SADDR;
-+		else
-+			intr_mask |= XLP9XX_I2C_INTEN_MFIFOEMTY;
-+	}
-+	xlp9xx_i2c_unmask_irq(priv, intr_mask);
-+
-+	/* set cmd reg */
-+	cmd = XLP9XX_I2C_CMD_START;
-+	cmd |= (priv->msg_read ? XLP9XX_I2C_CMD_READ : XLP9XX_I2C_CMD_WRITE);
-+	if (last_msg)
-+		cmd |= XLP9XX_I2C_CMD_STOP;
-+
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CMD, cmd);
-+
-+	timeleft = msecs_to_jiffies(XLP9XX_I2C_TIMEOUT_MS);
-+	timeleft = wait_for_completion_timeout(&priv->msg_complete, timeleft);
-+
-+	if (priv->msg_err) {
-+		dev_dbg(priv->dev, "transfer error %x!\n", priv->msg_err);
-+		if (priv->msg_err & XLP9XX_I2C_INTEN_BUSERR)
-+			xlp9xx_i2c_init(priv);
-+		return -EAGAIN;
-+	}
-+
-+	if (timeleft == 0) {
-+		dev_dbg(priv->dev, "i2c transfer timed out!\n");
-+		xlp9xx_i2c_init(priv);
-+		return -ETIMEDOUT;
-+	}
-+
-+	return 0;
-+}
-+
-+static int xlp9xx_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+			   int num)
-+{
-+	int i, ret;
-+	struct xlp9xx_i2c_dev *priv = i2c_get_adapdata(adap);
-+
-+	for (i = 0; i < num; i++) {
-+		ret = xlp9xx_i2c_xfer_msg(priv, &msgs[i], i == num - 1);
-+		if (ret != 0)
-+			return ret;
-+	}
-+
-+	return num;
-+}
-+
-+static u32 xlp9xx_i2c_functionality(struct i2c_adapter *adapter)
-+{
-+	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_I2C |
-+		I2C_FUNC_10BIT_ADDR;
-+}
-+
-+static struct i2c_algorithm xlp9xx_i2c_algo = {
-+	.master_xfer = xlp9xx_i2c_xfer,
-+	.functionality = xlp9xx_i2c_functionality,
-+};
-+
-+static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
-+				    struct xlp9xx_i2c_dev *priv)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	u32 freq;
-+	int err;
-+
-+	err = of_property_read_u32(np, "clock-frequency", &freq);
-+	if (err) {
-+		freq = XLP9XX_I2C_DEFAULT_FREQ;
-+		dev_dbg(&pdev->dev, "using default frequency %u\n", freq);
-+	} else if (freq == 0 || freq > XLP9XX_I2C_HIGH_FREQ) {
-+		dev_warn(&pdev->dev, "invalid frequency %u, using default\n",
-+			 freq);
-+		freq = XLP9XX_I2C_DEFAULT_FREQ;
-+	}
-+	priv->clk_hz = freq;
-+
-+	return 0;
-+}
-+
-+static int xlp9xx_i2c_probe(struct platform_device *pdev)
-+{
-+	struct xlp9xx_i2c_dev *priv;
-+	struct resource *res;
-+	int err = 0;
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	priv->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(priv->base))
-+		return PTR_ERR(priv->base);
-+
-+	priv->irq = platform_get_irq(pdev, 0);
-+	if (priv->irq <= 0) {
-+		dev_err(&pdev->dev, "invalid irq!\n");
-+		return priv->irq;
-+	}
-+
-+	xlp9xx_i2c_get_frequency(pdev, priv);
-+	xlp9xx_i2c_init(priv);
-+
-+	err = devm_request_irq(&pdev->dev, priv->irq, xlp9xx_i2c_isr, 0,
-+			       pdev->name, priv);
-+	if (err) {
-+		dev_err(&pdev->dev, "IRQ request failed!\n");
-+		return err;
-+	}
-+
-+	init_completion(&priv->msg_complete);
-+	priv->adapter.dev.parent = &pdev->dev;
-+	priv->adapter.algo = &xlp9xx_i2c_algo;
-+	priv->adapter.dev.of_node = pdev->dev.of_node;
-+	priv->dev = &pdev->dev;
-+
-+	snprintf(priv->adapter.name, sizeof(priv->adapter.name), "xlp9xx-i2c");
-+	i2c_set_adapdata(&priv->adapter, priv);
-+
-+	err = i2c_add_adapter(&priv->adapter);
-+	if (err) {
-+		dev_err(&pdev->dev, "failed to add I2C adapter!\n");
-+		return err;
-+	}
-+
-+	platform_set_drvdata(pdev, priv);
-+	dev_dbg(&pdev->dev, "I2C bus:%d added\n", priv->adapter.nr);
-+
-+	return 0;
-+}
-+
-+static int xlp9xx_i2c_remove(struct platform_device *pdev)
-+{
-+	struct xlp9xx_i2c_dev *priv;
-+
-+	priv = platform_get_drvdata(pdev);
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_INTEN, 0);
-+	synchronize_irq(priv->irq);
-+	i2c_del_adapter(&priv->adapter);
-+	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, 0);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id xlp9xx_i2c_of_match[] = {
-+	{ .compatible = "netlogic,xlp980-i2c", },
-+	{ /* sentinel */ },
-+};
-+
-+static struct platform_driver xlp9xx_i2c_driver = {
-+	.probe = xlp9xx_i2c_probe,
-+	.remove = xlp9xx_i2c_remove,
-+	.driver = {
-+		.name = "xlp9xx-i2c",
-+		.of_match_table = xlp9xx_i2c_of_match,
-+	},
-+};
-+
-+module_platform_driver(xlp9xx_i2c_driver);
-+
-+MODULE_AUTHOR("Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>");
-+MODULE_DESCRIPTION("XLP9XX/5XX I2C Bus Controller Driver");
-+MODULE_LICENSE("GPL v2");
--- 
-1.9.1
+Not sure about this change. With DYNAMIC_OF these days, you can't rely
+that 'disabled' stays disabled all the time. My gut feeling tells me
+that people will want to use this someday.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>=20
+> This also amends the corresponding devicetree binding documentation to
+> reflect the new functionality to disable unused sub-nodes. While at it,
+> also fix two references to binding documentation files that miss an "i2c-"
+> prefix.
+>=20
+> Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+> Tested-by: Stephen Warren <swarren@nvidia.com>
+> ---
+> Changelog:
+>=20
+> v2->v3:
+> - remove mention of "I2C bus numbers" (Suggested by Stephen Warren)
+> - require pinctrl-names property for "each child" instead of
+>   "each enabled child" (Suggested by Stephen Warren)
+> - swap enabled/disabled child nodes (Suggested by Stephen Warren)
+>=20
+> v1->v2:
+> - added a Tested-by for i2c-mux-pinctrl changes from Stepen Warren.
+> - reworded i2c-mux-pinctrl devicetree doc changes
+>   (Suggested by Stephen Warren).
+>=20
+> Patches 2/4 - 4/4 remain unchanged.
+>=20
+> Cc: Jason Cooper <jason@lakedaemon.net>
+> Cc: Andrew Lunn <andrew@lunn.ch>
+> Cc: Gregory Clement <gregory.clement@free-electrons.com>
+> Cc: Gabriel Dobato <dobatog@gmail.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Stephen Warren <swarren@wwwdotorg.org>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: devicetree@vger.kernel.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-kernel@vger.kernel.org
+> ---
+>  .../devicetree/bindings/i2c/i2c-mux-pinctrl.txt    | 21 ++++---
+>  drivers/i2c/muxes/i2c-mux-pinctrl.c                | 70 ++++++++++++++--=
+------
+>  2 files changed, 58 insertions(+), 33 deletions(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt b/=
+Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+> index ae8af1694e95..cd94a0f64d76 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.txt
+> @@ -28,17 +28,18 @@ Also required are:
+>  * Standard pinctrl properties that specify the pin mux state for each ch=
+ild
+>    bus. See ../pinctrl/pinctrl-bindings.txt.
+> =20
+> -* Standard I2C mux properties. See mux.txt in this directory.
+> +* Standard I2C mux properties. See i2c-mux.txt in this directory.
+> =20
+> -* I2C child bus nodes. See mux.txt in this directory.
+> +* I2C child bus nodes. See i2c-mux.txt in this directory.
+> =20
+> -For each named state defined in the pinctrl-names property, an I2C child=
+ bus
+> -will be created. I2C child bus numbers are assigned based on the index i=
+nto
+> -the pinctrl-names property.
+> +For each enabled child node an I2C child bus will be created.
+> =20
+> -The only exception is that no bus will be created for a state named "idl=
+e". If
+> -such a state is defined, it must be the last entry in pinctrl-names. For
+> -example:
+> +There must be a corresponding pinctrl-names entry for each child node at=
+ the
+> +position of the child node's "reg" property.
+> +
+> +Also, there can be an idle pinctrl state defined at the end of possible =
+pinctrl
+> +states. If such a state is defined, it must be the last entry in pinctrl=
+-names.
+> +For example:
+> =20
+>  	pinctrl-names =3D "ddc", "pta", "idle"  ->  ddc =3D bus 0, pta =3D bus 1
+>  	pinctrl-names =3D "ddc", "idle", "pta"  ->  Invalid ("idle" not last)
+> @@ -68,10 +69,12 @@ Example:
+>  		pinctrl-1 =3D <&state_i2cmux_pta>;
+>  		pinctrl-2 =3D <&state_i2cmux_idle>;
+> =20
+> +		/* Disabled child bus 0 */
+>  		i2c@0 {
+>  			reg =3D <0>;
+>  			#address-cells =3D <1>;
+>  			#size-cells =3D <0>;
+> +			status =3D "disabled";
+> =20
+>  			eeprom {
+>  				compatible =3D "eeprom";
+> @@ -79,10 +82,12 @@ Example:
+>  			};
+>  		};
+> =20
+> +		/* Enabled child bus 1 */
+>  		i2c@1 {
+>  			reg =3D <1>;
+>  			#address-cells =3D <1>;
+>  			#size-cells =3D <0>;
+> +			status =3D "okay";
+> =20
+>  			eeprom {
+>  				compatible =3D "eeprom";
+> diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-=
+mux-pinctrl.c
+> index b48378c4b40d..033dacfabfdf 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+> @@ -56,9 +56,12 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pin=
+ctrl *mux,
+>  				struct platform_device *pdev)
+>  {
+>  	struct device_node *np =3D pdev->dev.of_node;
+> -	int num_names, i, ret;
+> +	struct device_node *child;
+> +	struct property *prop;
+> +	int num_names, num_children, ret;
+>  	struct device_node *adapter_np;
+>  	struct i2c_adapter *adapter;
+> +	const char *state;
+> =20
+>  	if (!np)
+>  		return 0;
+> @@ -77,32 +80,16 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_pi=
+nctrl *mux,
+>  		return num_names;
+>  	}
+> =20
+> -	mux->pdata->pinctrl_states =3D devm_kzalloc(&pdev->dev,
+> -		sizeof(*mux->pdata->pinctrl_states) * num_names,
+> -		GFP_KERNEL);
+> -	if (!mux->pdata->pinctrl_states) {
+> -		dev_err(mux->dev, "Cannot allocate pinctrl_states\n");
+> -		return -ENOMEM;
+> +	num_children =3D of_get_available_child_count(np);
+> +	if (num_children < 0) {
+> +		dev_err(mux->dev, "Unable to count available children: %d\n",
+> +			num_children);
+> +		return num_children;
+>  	}
+> =20
+> -	for (i =3D 0; i < num_names; i++) {
+> -		ret =3D of_property_read_string_index(np, "pinctrl-names", i,
+> -			&mux->pdata->pinctrl_states[mux->pdata->bus_count]);
+> -		if (ret < 0) {
+> -			dev_err(mux->dev, "Cannot parse pinctrl-names: %d\n",
+> -				ret);
+> -			return ret;
+> -		}
+> -		if (!strcmp(mux->pdata->pinctrl_states[mux->pdata->bus_count],
+> -			    "idle")) {
+> -			if (i !=3D num_names - 1) {
+> -				dev_err(mux->dev, "idle state must be last\n");
+> -				return -EINVAL;
+> -			}
+> -			mux->pdata->pinctrl_state_idle =3D "idle";
+> -		} else {
+> -			mux->pdata->bus_count++;
+> -		}
+> +	if (num_names < num_children) {
+> +		dev_err(mux->dev, "Found less pinctrl states than children\n");
+> +		return -EINVAL;
+>  	}
+> =20
+>  	adapter_np =3D of_parse_phandle(np, "i2c-parent", 0);
+> @@ -118,6 +105,39 @@ static int i2c_mux_pinctrl_parse_dt(struct i2c_mux_p=
+inctrl *mux,
+>  	mux->pdata->parent_bus_num =3D i2c_adapter_id(adapter);
+>  	put_device(&adapter->dev);
+> =20
+> +	mux->pdata->pinctrl_states =3D devm_kzalloc(&pdev->dev,
+> +		sizeof(*mux->pdata->pinctrl_states) * num_children,
+> +		GFP_KERNEL);
+> +	if (!mux->pdata->pinctrl_states) {
+> +		dev_err(mux->dev, "Cannot allocate pinctrl_states\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	of_property_for_each_string(np, "pinctrl-names", prop, state)
+> +		if (!strcmp(state, "idle"))
+> +			mux->pdata->pinctrl_state_idle =3D "idle";
+> +
+> +	for_each_available_child_of_node(np, child) {
+> +		u32 reg;
+> +
+> +		ret =3D of_property_read_u32(child, "reg", &reg);
+> +		if (ret < 0) {
+> +			dev_err(mux->dev, "Missing reg property for child node: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +
+> +		ret =3D of_property_read_string_index(np,
+> +				    "pinctrl-names", reg, &state);
+> +		if (ret < 0) {
+> +			dev_err(mux->dev, "Cannot parse pinctrl-names for mux %d: %d\n",
+> +				reg, ret);
+> +			return ret;
+> +		}
+> +
+> +		mux->pdata->pinctrl_states[mux->pdata->bus_count++] =3D state;
+> +	}
+> +
+>  	return 0;
+>  }
+>  #else
+> --=20
+> 2.1.0
+>=20
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVCW/UAAoJEBQN5MwUoCm2XqYP/iO3sKphyOGowpsB4g3hSTQW
+JG6wQvacJqH+Mow/O6v0f6JK8Y8V6080Q80xVfvJgJOWvP+u2TrxqqhyCOeb3BCl
+CEUWV+AE037Xt42VC8t+9fAkvVHmmFwMJ7+keJ8Fj/N2ZdZTqs/KcgCCo0iXMJYx
+cUwx7ATgg6F4wCnwkKjb/y+NxrwxdcHFhNxYlyUUyFpjOzcepIMYNnpsd1nwJAD7
+HVYNGXZDA+RhPI/WIj6XXWVWrZEq+HKgmqOeVUTmHVlRfpHjceyXq9laJaSPGCVp
+aFPnSEuygIGz+vhdsO36lT4Y3MdfIuE3CBg4IK7Q6ah7SPiBGdj/Hlg6lF/oJdAi
+zQ0s+/ft+arNKpdabVz1uD/ARwTnj3LSVCch9MDesJKs3ElYWRgGpJ5D/FHDtQxA
+cRvH5p6tU4elfINy5SGaDpEDd9mLlEFE48BtGl40iJcLsPRnPbniziaIB+YQgNZt
+WRUb99qOTJWubMas6rxCJ47X6fOD0a3311JDfkLtoovqiREj2rBhCSOOlq6aPGFr
+OdcCwuFliTG+yCnUB2Bhyu6ENUOiTGpxQ2zs+Tb0Y06agZVUDiNngGbxl0NT4yZ8
+hvuNcqKCwzJlq/M/BPL1FT3bGtNo6w68L6Inap85yCgMAsKrmT3/KjFjxue1t+4j
+NOQANb6Pt75uLORI1jXg
+=yXBB
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--
