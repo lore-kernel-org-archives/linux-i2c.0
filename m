@@ -1,93 +1,72 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Wed, 18 Mar 2015 15:00:37 +0100
-Message-ID: <20150318140037.GE3580@katana>
-References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
- <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
- <20150318123012.GA3580@katana>
- <55097C46.9010605@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3 4/5] i2c: davinci: use bus recovery infrastructure
+Date: Wed, 18 Mar 2015 21:31:51 +0100
+Message-ID: <20150318203151.GA12072@katana>
+References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
+ <1417448047-15236-5-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HnQK338I3UIa/qiP"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <55097C46.9010605@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1417448047-15236-5-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---HnQK338I3UIa/qiP
+--Q68bSM7Ycu6FN28Q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 18, 2015 at 02:23:18PM +0100, Sebastian Hesselbarth wrote:
-> On 18.03.2015 13:30, Wolfram Sang wrote:
-> >On Mon, Mar 09, 2015 at 01:21:05PM +0100, Sebastian Hesselbarth wrote:
-> >>I2C mux pinctrl driver currently determines the number of sub-busses by
-> >>counting available pinctrl-names. Unfortunately, this requires each
-> >>incarnation of the devicetree node with different available sub-busses
-> >>to be rewritten.
-> >>
-> >>This patch reworks i2c-mux-pinctrl driver to count the number of
-> >>available sub-nodes instead. The rework should be compatible to the old
-> >>way of probing for sub-busses and additionally allows to disable unused
-> >>sub-busses with standard DT property status =3D "disabled".
-> >
-> >Not sure about this change. With DYNAMIC_OF these days, you can't rely
-> >that 'disabled' stays disabled all the time. My gut feeling tells me
-> >that people will want to use this someday.
->=20
-> Possible. But this change just makes i2c-mux-pinctrl honor status
-> property at all. There is no functional change except it now allows
-> you to disable any of the sub-busses.
+Hi,
 
-Actually, this is the feature I like. However, I wonder if we shouldn't
-have that in the core, say in of_i2c_register_devices()?
+so, the bus recovery patches look fine to me in general.
 
-> I agree that this driver still does not cope well with DYNAMIC_OF but
-> neither did the former implementation. How about we settle this driver
-> to this implementation now and wait for any maniac that wants to use it
-> the way you are suggesting above?
+It is only this one question left which I always had with bus recovery.
+Maybe you guys can join me thinking about it.
 
-Sure. I don't want you to make this driver OF_DYNAMIC compatible. I just
-thought it makes it harder, though, e.g. you allocate memory for the
-number of active busses not the number of possibilities, so that would
-have to be reverted by the "maniac". I am still at the glimpse level,
-but what if we let the mux-pinctrl parse all the data (even for disabled
-busses), but only the enabled ones will get a muxed adapter because this
-is handled in of_i2c_register_devices()?
+> @@ -376,8 +366,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>  						      dev->adapter.timeout);
+>  	if (r == 0) {
+>  		dev_err(dev->dev, "controller timed out\n");
+> -		davinci_i2c_recover_bus(dev);
+> -		i2c_davinci_init(dev);
+> +		i2c_recover_bus(adap);
+>  		dev->buf_len = 0;
+>  		return -ETIMEDOUT;
 
-> BTW, I have received a patchwork update notification - it may be
-> unrelated but I prefer the Dove dts/dtsi changes to go through mvebu
-> tree.
+The I2C specs say in 3.1.16 that the recovery procedure should be used
+when SDA is stuck low. So, I do wonder if we should apply the recovery
+after a timeout. Stuck SDA might be one reason for timeout, but there
+may be others...
 
-Yes, I only take dts patches in rare cases.
+Thanks,
+
+   Wolfram
 
 
---HnQK338I3UIa/qiP
+--Q68bSM7Ycu6FN28Q
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVCYUFAAoJEBQN5MwUoCm294UQAKtiCrW6w3cXTTzqtE31Mf7K
-Xesd6Zxo6QkwCWL9GH+ocUcT58i9vjEb/99QW9YV01dwVkX+PU0eZqJD3em9tHGT
-uTiU7fWNjsHGjEoeZDXRRfyb4CWOUkpde7sa1JUNDXNA8c3wxSciAQ9BaxSgRmMd
-HLR2V3ggHWdw4TTEJUSztZMGqGYfUKEZvYK21OAwcGgn6qDCpQRFIR3UZmfwmSiE
-m3+gfWHLPyErF4EOPp0/sv8vEqsr04OQIFm2/Hi17Xea6neFo8DAWzwTmmtT1xq7
-QinxN2d41N6npfbidI5RXebLbVguPOE9joha+J0RswSrFEhCt+skdieZWVI17l2t
-EVGUoYr+RkGwJQi4gEV2owr1UP4+9rWd4Tqpg4DDQNOBKAW3DFLofX1TUKrychCr
-NaTdtglfwuenvuzR77VusuCFXhvy+vJprDqbRIJuvtaqJ1hedZHb5QI1K8SyH3JS
-fsnelQwYUc2FeX3ObEkeu+mpPMv6v1KkKhPa52kMad3RTMSny58fgKKM3/UJ6PoG
-Jw2PWgt5IpDdwIy8Y1JkMlDQ5r90YD53gwXqwrvzaRWH8GwlqmjVZ9bIHgNi5eNH
-tQ2n6394LwtHLSdZgIp2q4pij8aP5yJXGmTfVeGVhBFoVc0uEhbmOxRDDlobc0vS
-5qM8gIUv8E5oiATRt80+
-=iY7V
+iQIcBAEBAgAGBQJVCeC2AAoJEBQN5MwUoCm2RAUQAJoY3djE5kdIc4SzhTystpwy
+DN9XAGo56Bo5t3fGeB4cyuT8xZsxhq5fq49l62OmIfpL0gZBMpju8gWXWPRpF5Jp
+K6crm4Z9qFyo7QMzBanqir3iklYYsTHAh3msQS72nL1QzYkPxc05Viz4WGGKkBob
+Fw2YLrjg3IF/rN+2btA/KIiW9Z8Qx38Pp3EbLwcWwmIIEVTi/zDOkX2+yTO1w6r7
+KXVdXwyYMNcUvdP0hF6zLRoX0rcjrkJwq7MU/q1XJwPm0fNWr7hPahMuaKrVHqXH
+esyOjnqCRrq8UAyChLgkbzcdnZWat/4LppzMG9fI1XZUIUTbjIElvcvbuj8BfUuF
+uS4ihPw1jlqfNX37E6TEO4Ufzbm22dMgXuCrV/eFqPpynezziWjkf7k7skGRJpDm
+uK5gS9490XOCdPGIZdHVW/Pn523RwVh19dhfW7FHF2wBaDL+7Dd31vhKDT1/TNoQ
+KNOil6l6qlwYwDIqguDry0Se8bpCbtI2qK7+QiCIR6RZ/bO++xhgFlBub2bbZmD6
+2q1VQpLfgnfGSXp5isSKJr/u3d7P0tGUM2DvtG8kf8QWVUXXx8RxVXf2com2rQ9e
+KnymLvGUTdeoSJdtFQo0RTJJv7wkjhEIZnD5iwAcEIKSE38ULMgs3TDQcpzw/XTP
+X+m53oZ1P9mGLl3Q6xWe
+=ydUi
 -----END PGP SIGNATURE-----
 
---HnQK338I3UIa/qiP--
+--Q68bSM7Ycu6FN28Q--
