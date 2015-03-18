@@ -1,55 +1,60 @@
-From: Peter =?iso-8859-1?q?H=FCwe?= <PeterHuewe-Mmb7MZpHnFY@public.gmane.org>
-Subject: I2C Slave support - how to use it?
-Date: Wed, 18 Mar 2015 00:14:08 +0100
-Message-ID: <201503180014.08870.PeterHuewe@gmx.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: I2C Slave support - how to use it?
+Date: Wed, 18 Mar 2015 07:31:24 +0100
+Message-ID: <20150318063124.GA916@katana>
+References: <201503180014.08870.PeterHuewe@gmx.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201503180014.08870.PeterHuewe-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+To: Peter =?utf-8?B?SMO8d2U=?= <PeterHuewe-Mmb7MZpHnFY@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-I think the I2C slave support is an excellent feature you added to Linu=
-x =20
-(thanks for that) but I somehow have some problems to get it working on=
- -rc4.
-
-What are the magical commands to get a linux slave on e.g. bus 1?
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-What I tried:
-modprobe i2c-dev
-modprobe i2c-slave-eeprom
+> I think the I2C slave support is an excellent feature you added to Linux =
+=20
 
-# echo i2c_slave_eeprom 0x20 > /sys/bus/i2c/devices/i2c-1/new_device=20
-[ 16.119] i2c i2c-1: new_device: Instantiated device i2c_slave_eeprom a=
-t 0x20
+Thanks!
 
+>=20
+> --> the slave-eeprom file mentioned here is not present.
+> https://marc.info/?l=3Dlinux-i2c&m=3D142616417313963&w=3D4
 
-# find /sys -name '*eeprom*'
-/sys/bus/i2c/drivers/i2c-slave-eeprom
-/sys/module/i2c_slave_eeprom
-/sys/module/i2c_slave_eeprom/drivers/i2c:i2c-slave-eeprom
-
-# ls  -lah /sys/bus/i2c/devices/1-0020/
-insgesamt 0
-drwxr-xr-x 3 root root    0 18. M=E4r 00:11 .
-drwxr-xr-x 5 root root    0 18. M=E4r 00:11 ..
--r--r--r-- 1 root root 4,0K 18. M=E4r 00:11 modalias
--r--r--r-- 1 root root 4,0K 18. M=E4r 00:11 name
-drwxr-xr-x 2 root root    0 18. M=E4r 00:11 power
-lrwxrwxrwx 1 root root    0 18. M=E4r 00:11 subsystem -> ../../../../..=
-/bus/i2c
--rw-r--r-- 1 root root 4,0K 18. M=E4r 00:11 uevent
+Does your I2C bus driver have slave support? In upstream, this is only
+the Renesas R-Car driver so far. Check the 'Developer manual' to find
+out what is needed.
 
 
---> the slave-eeprom file mentioned here is not present.
-https://marc.info/?l=3Dlinux-i2c&m=3D142616417313963&w=3D4
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Thanks,
-Peter
+iQIcBAEBAgAGBQJVCRu8AAoJEBQN5MwUoCm2TRoQAIUo8zQ5+KljkL8ZVE81jPLW
+ZcOgYwzHWP9JWhH7+zvv8HYm7ylto5qYNmCeJLyqIqRySc9WfPL2HZiJB/UXUzET
+60lMaoEFQLtQ3PFVoN7JMkypLYnuHcG4KEsIJoRe6elJojN202r6vuMBqL1LrC/t
+zttfKy1nX25ecSF8WxigYx2dpY9SkNHyaeX0hgSngvotamSJ6Kick3Y1zzcvbrs2
+zyFWjjAuy1wopGAZ/ys6Yig0j15cvzpmL38gwSRbIv9FZV2oKHGCwuoYF+L+Qty2
+GgvyQ6gYCJLE72fb75co6Ss2+otXEsq8gRZ0GdIU07Q4DW0INVrf/0ktY4gWkVf4
+t2C6FCsuosCrCmkumgPcCuz4CKfkwdmt3aBUXZwoKWef7lNevGH5AcGGk8/uA5S4
+KOrqqaElTK/Ajb1w5cajVc1YKzrY1IdJbc8I72UMruNPswTq2xxkY4HmBZnqCiKK
+cCFcJKd6ACL/j+tJ9i/eouG5/liz+GqcszMcJV7GZ1rLm2zfS9JGswcfh4H2QK7z
+wf5Lzzss5hax6abxb/VVbO/cs1NCzR9FGhtauC2mIYo8FDq4ehKPLYvk8Nd5Cv4K
+3HVAN6S21/2fD7ONEPvk3XB9SF41VljAfbKPFF3oG7AWaQl7KYbaS1k1Q1DP/1gs
+W8DnPzFga/qONk1Vedp3
+=qtX3
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--
