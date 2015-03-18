@@ -1,68 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: busses with dynamic ids should start after
- fixed ids for DT
-Date: Wed, 18 Mar 2015 13:46:53 +0100
-Message-ID: <20150318124653.GC3580@katana>
-References: <1426177093-26820-1-git-send-email-wsa@the-dreams.de>
- <1426177093-26820-3-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1426177093-26820-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Wed, 18 Mar 2015 14:23:18 +0100
+Message-ID: <55097C46.9010605@gmail.com>
+References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com> <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com> <20150318123012.GA3580@katana>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150318123012.GA3580@katana>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 18.03.2015 13:30, Wolfram Sang wrote:
+> On Mon, Mar 09, 2015 at 01:21:05PM +0100, Sebastian Hesselbarth wrote:
+>> I2C mux pinctrl driver currently determines the number of sub-busses by
+>> counting available pinctrl-names. Unfortunately, this requires each
+>> incarnation of the devicetree node with different available sub-busses
+>> to be rewritten.
+>>
+>> This patch reworks i2c-mux-pinctrl driver to count the number of
+>> available sub-nodes instead. The rework should be compatible to the old
+>> way of probing for sub-busses and additionally allows to disable unused
+>> sub-busses with standard DT property status = "disabled".
+>
+> Not sure about this change. With DYNAMIC_OF these days, you can't rely
+> that 'disabled' stays disabled all the time. My gut feeling tells me
+> that people will want to use this someday.
 
---4ZLFUWh1odzi/v6L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Possible. But this change just makes i2c-mux-pinctrl honor status
+property at all. There is no functional change except it now allows
+you to disable any of the sub-busses.
 
-On Thu, Mar 12, 2015 at 05:17:59PM +0100, Wolfram Sang wrote:
-> Make sure dynamic ids do not interfere with fixed ones and let them
-> start after the highest fixed id. This patch might cause different
-> bus-numbers for dynamic ids, however it fixes a bug. Assume:
->=20
-> - fixed id0 defers probe
-> - fixed id1 succeeds and registers a muxed bus with dynamic id
-> - muxed bus gets id0
-> - fixed id0 wants to probe again, but its fixed id is gone now
-> - fixed id0 probe fails
->=20
-> With this patch, the fixed ids are always reserved in the DT case.
-> For legacy board init, we already have a mechanism like this in
-> i2c_register_board_info().
->=20
-> Reported-by: Bob Feretich <bob.feretich-8wbKi1faPaosQv5ZqcSHkQ@public.gmane.org>
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+I agree that this driver still does not cope well with DYNAMIC_OF but
+neither did the former implementation. How about we settle this driver
+to this implementation now and wait for any maniac that wants to use it
+the way you are suggesting above?
 
-Fixed the checkpatch warning and applied to for-next, thanks!
+The other option would be to leave the driver as is - but at least on
+Dove where the muxing-options are not used often, it will always create
+4 i2c-busses (controller plus the three muxing options) on any board
+even though the pins are not accessible at all. I think that will just
+create massive confusion from the user point-of-view?
 
+BTW, I have received a patchwork update notification - it may be
+unrelated but I prefer the Dove dts/dtsi changes to go through mvebu
+tree.
 
---4ZLFUWh1odzi/v6L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Sebastian
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVCXO9AAoJEBQN5MwUoCm2GggQALJA7MjUzCPZmLvfGVm9Ofh3
-8JnqClOjEdy3Y1b3G+6iVuXyrpfaw9RzO2w2nEWwH4b+oATd0QDydVqp1V04NEF7
-qE482GQvj7AauDQUllmggQUCnOUpVnJ04F6pNt2SUC09FiaU9vthE7t7w9J6cXZu
-6+7B6ymIliaR1o1KXRIDrkMTDrF6HphYowwCb5bJbtmfjWY4Z5Y7nO+U2L7CAsp5
-QJAHTUTsx1awlrZgwYKL7uwY9mxWsHa7TwI+CLqzB5Qgj2ZxUeWr1hAIVAOpxP+Y
-iJgbSKdheS9xLvosHmgQToqvlqp3AQYalftr+aFQGrHDcRfCba/EyPApa84EFE7G
-yVfKuq7hTFzH5gl3RfXr5OCWagJuxsa6qzcj73uP4nyp8ZCWpVtn81dkPFTJfz00
-d8VOzcLVu9IhPQF+1/Jp0b5gHMVGsZeTnNFpWFeRGZDUYh22d1h/GTMqGiCtg/j/
-s898qXTEeuHbLZDwu4Vuiuh5YPPujgBlEN3paV1eReA/3/lQu0dCWpSu2Fzv+0JP
-i+exfaGm3afH1R3pdRo7PKx/nUwi8DWinMn+n4FG0MEvBPiTAQTsasKg1mcBAqVQ
-2UnNJJThNQhDL9w8igFXMlWJLnfcGXZa0F83/GCZ95IP6mXn9YtchYwcVyMRESS+
-1n/oHNuEex/AulvdLKyK
-=DFSZ
------END PGP SIGNATURE-----
-
---4ZLFUWh1odzi/v6L--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
