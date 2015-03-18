@@ -1,72 +1,83 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 4/5] i2c: davinci: use bus recovery infrastructure
-Date: Wed, 18 Mar 2015 21:31:51 +0100
-Message-ID: <20150318203151.GA12072@katana>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
- <1417448047-15236-5-git-send-email-grygorii.strashko@ti.com>
+Subject: Re: [PATCH 2/2] i2c: driver for the Conexant Digicolor I2C controller
+Date: Wed, 18 Mar 2015 22:07:30 +0100
+Message-ID: <20150318210730.GA12960@katana>
+References: <7da767503ac6085c10fbd1953ffd36621b8bf0c5.1424092804.git.baruch@tkos.co.il>
+ <a106023efa9fd648f46021cd063437df798528de.1424092804.git.baruch@tkos.co.il>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1417448047-15236-5-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <a106023efa9fd648f46021cd063437df798528de.1424092804.git.baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Q68bSM7Ycu6FN28Q
+--pWyiEgJYm5f9v55/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-so, the bus recovery patches look fine to me in general.
+On Mon, Feb 16, 2015 at 03:20:04PM +0200, Baruch Siach wrote:
+> This commit adds a driver for the I2C master controller on the CX92755 So=
+C. The
+> CX92755 is one SoC in the Conexant Digicolor series. This driver should s=
+upport
+> other SoCs from that series.
+>=20
+> Only 7bit slave addresses are currently supported.
+>=20
+> Tested on the Equinox CX92755 EVK, using i2c-tools utilities to read and =
+write
+> the on-chip (sic) audio codec.
+>=20
+> Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
 
-It is only this one question left which I always had with bus recovery.
-Maybe you guys can join me thinking about it.
+Looks mostly good.
 
-> @@ -376,8 +366,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  						      dev->adapter.timeout);
->  	if (r == 0) {
->  		dev_err(dev->dev, "controller timed out\n");
-> -		davinci_i2c_recover_bus(dev);
-> -		i2c_davinci_init(dev);
-> +		i2c_recover_bus(adap);
->  		dev->buf_len = 0;
->  		return -ETIMEDOUT;
+> +static u32 dc_i2c_func(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
 
-The I2C specs say in 3.1.16 that the recovery procedure should be used
-when SDA is stuck low. So, I do wonder if we should apply the recovery
-after a timeout. Stuck SDA might be one reason for timeout, but there
-may be others...
+You probably want to advertise I2C_FUNC_NOSTART here, too?
+
+And if you could rebase to something after 4.0-rc1, that would be much
+appreciated.
 
 Thanks,
 
    Wolfram
 
-
---Q68bSM7Ycu6FN28Q
+--pWyiEgJYm5f9v55/
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVCeC2AAoJEBQN5MwUoCm2RAUQAJoY3djE5kdIc4SzhTystpwy
-DN9XAGo56Bo5t3fGeB4cyuT8xZsxhq5fq49l62OmIfpL0gZBMpju8gWXWPRpF5Jp
-K6crm4Z9qFyo7QMzBanqir3iklYYsTHAh3msQS72nL1QzYkPxc05Viz4WGGKkBob
-Fw2YLrjg3IF/rN+2btA/KIiW9Z8Qx38Pp3EbLwcWwmIIEVTi/zDOkX2+yTO1w6r7
-KXVdXwyYMNcUvdP0hF6zLRoX0rcjrkJwq7MU/q1XJwPm0fNWr7hPahMuaKrVHqXH
-esyOjnqCRrq8UAyChLgkbzcdnZWat/4LppzMG9fI1XZUIUTbjIElvcvbuj8BfUuF
-uS4ihPw1jlqfNX37E6TEO4Ufzbm22dMgXuCrV/eFqPpynezziWjkf7k7skGRJpDm
-uK5gS9490XOCdPGIZdHVW/Pn523RwVh19dhfW7FHF2wBaDL+7Dd31vhKDT1/TNoQ
-KNOil6l6qlwYwDIqguDry0Se8bpCbtI2qK7+QiCIR6RZ/bO++xhgFlBub2bbZmD6
-2q1VQpLfgnfGSXp5isSKJr/u3d7P0tGUM2DvtG8kf8QWVUXXx8RxVXf2com2rQ9e
-KnymLvGUTdeoSJdtFQo0RTJJv7wkjhEIZnD5iwAcEIKSE38ULMgs3TDQcpzw/XTP
-X+m53oZ1P9mGLl3Q6xWe
-=ydUi
+iQIcBAEBAgAGBQJVCekSAAoJEBQN5MwUoCm2rdgP/02PDA9QYm0EqMs27Eaeul3r
+Xcsn/LwyZqs5Vr0naZFprzUyjvnPux0MLNg6oVcSz2ciqR1/5JwBOgWDtjZtNEsW
+GsqQVZiD94sysPPhlhdWAA7Mp8QxnkUjNhZyF9ppoLI2ATaSVcpFR/P2xWhT+EBu
+DTH2J0uaQy5/hMgXa28uU4uiSQGkInL9xCrfyDe+CbSVMfALL6cKWTt4+os0cIyv
+L3k5P0yG8UNIW5gSpiDB1gl05aU5jz4+uwm4MhE9jFv4/kNhp7vCjQWvBe6HCKfQ
+z5N7D76GyGsvXGI12TrAwi82ugrDiS2ZvJQrmRr5MrSxgYa6F8Cf+aDxQwpm9e03
+3/IHktBPh++a1R9c0nBqXSDhp2e9WBpWyc6AJVrgXDBpGk1Rp1gERll9YEMAHwTL
+M4Hesh7Lcu+S3+5Vd+4w52kYx7if/ZyBzac7x7FF5HhTDaQmzKnWhjiei9T3vGM7
+5nKttiuzMxuRcOccPh07qsTxhg3FKj768GpCuGg62ABbgGGHDhjHWURSQ0tKzASv
+dhyvuRwkPdwqKzDFJI19B/Vpy9tP57MIV7xVlmTeQyOtYwGbtB/hbaBKEu9V1+Yj
+sa//sj/aKOieOzQTzVGZiqJRE28sRvdmyRW7PcxO6eGzLLcJec32hsa991zEcHK0
+iOain3H1nA6lJ7jGhmK/
+=bb2q
 -----END PGP SIGNATURE-----
 
---Q68bSM7Ycu6FN28Q--
+--pWyiEgJYm5f9v55/--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
