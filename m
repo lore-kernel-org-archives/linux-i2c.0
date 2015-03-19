@@ -1,44 +1,43 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: slave: rework the slave API
-Date: Thu, 19 Mar 2015 21:17:51 +0100
-Message-ID: <20150319201751.GZ10068@pengutronix.de>
-References: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
- <1426164123-8853-2-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1426164123-8853-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Debora Grosse <debora-HRUOeNTICTI@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Thu, 19 Mar 2015 21:52:53 +0100
+Message-ID: <550B3725.10209@gmail.com>
+References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com> <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com> <20150318123012.GA3580@katana> <55097C46.9010605@gmail.com> <20150318140037.GE3580@katana> <550A05E5.3050100@gmail.com> <20150319100944.GA914@katana> <550AEF9D.6090307@wwwdotorg.org> <20150319160208.GF7657@katana>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150319160208.GF7657@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+On 19.03.2015 17:02, Wolfram Sang wrote:
+>> Perhaps better would be to have a mux-specific function to iterate over a
+>> mux's child nodes and instantiate buses for those. That function would check
+>> whether each bus node was disabled or not. That'd isolate the special case
+>> into the place where it was relevant.
+>
+> ... so I wonder what you think about putting the
+> of_device_is_available() check into i2c_add_mux_adapter() once the
+> reg-property and chan_id have been matched?
+>
 
-On Thu, Mar 12, 2015 at 01:42:01PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
->=20
-> After more discussion, brave users, and additional datasheet evaluati=
-on,
-> some API updates for the new I2C slave framework became imminent. The
-> slave events now get some easier to understand naming. Also, the even=
-t
-> handling has been simplified to only send one event per interrupt.
-what is an interrupt here? An event where the bus driver needs feedback
-from the backend?
+Ok, I see what you mean. I had a look at the place in question and
+wonder what to return from i2c_add_mux_adapter() in the disabled
+case so that i2c-mux-pinctrl is still happy with the returned value.
 
-Other than that the patch looks fine. Thanks for working on my feedback=
-!
-Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+I guess what you want to have is that i2c_add_adapter() is not called
+for the disabled case, right?
 
-Best regards
-Uwe
+Is the i2c_adapter struct prepared in i2c_mux_add_adapter() still valid
+if i2c_add_adapter() is not called?
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Sorry, I am not too deep into i2c subsystem, I just reworked i2c-mux-
+pinctrl to make it work on Dove. If you are fine with giving me some
+guidance how you prefer to have it done, I can try to free some spare
+time. Unfortunately there is already little of it, so please don't
+expect a quick tested patch.
+
+Sebastian
