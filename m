@@ -1,68 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
- SMBus adapters
-Date: Thu, 19 Mar 2015 09:16:21 +0100
-Message-ID: <20150319081612.GA900@katana>
-References: <20150204190819.GA15467@roeck-us.net>
- <20150204233516.GA1677@katana>
- <20150205002630.GA396@roeck-us.net>
- <20150205144028.GA4865@katana>
- <20150205175326.GA26691@roeck-us.net>
- <20150212040126.GA1691@roeck-us.net>
- <20150216120951.GA2840@katana>
- <20150317042049.GA6765@roeck-us.net>
- <20150318132707.GD3580@katana>
- <550A4162.8000009@roeck-us.net>
+From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: driver for the Conexant Digicolor I2C controller
+Date: Thu, 19 Mar 2015 11:30:43 +0200
+Message-ID: <20150319093042.GB2415@tarshish>
+References: <7da767503ac6085c10fbd1953ffd36621b8bf0c5.1424092804.git.baruch@tkos.co.il>
+ <a106023efa9fd648f46021cd063437df798528de.1424092804.git.baruch@tkos.co.il>
+ <20150318210730.GA12960@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <550A4162.8000009-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <20150318210730.GA12960@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---oLBj+sq0vYjzfsbl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Wed, Mar 18, 2015 at 10:07:30PM +0100, Wolfram Sang wrote:
+> On Mon, Feb 16, 2015 at 03:20:04PM +0200, Baruch Siach wrote:
+> > This commit adds a driver for the I2C master controller on the CX92755 SoC. The
+> > CX92755 is one SoC in the Conexant Digicolor series. This driver should support
+> > other SoCs from that series.
+> > 
+> > Only 7bit slave addresses are currently supported.
+> > 
+> > Tested on the Equinox CX92755 EVK, using i2c-tools utilities to read and write
+> > the on-chip (sic) audio codec.
+> > 
+> > Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+> 
+> Looks mostly good.
+> 
+> > +static u32 dc_i2c_func(struct i2c_adapter *adap)
+> > +{
+> > +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> > +}
+> 
+> You probably want to advertise I2C_FUNC_NOSTART here, too?
 
+OK.
 
-> I don't call that multi-master, though, so I guess we may have a bit of a
-> terminology problem.
+> And if you could rebase to something after 4.0-rc1, that would be much
+> appreciated.
 
-This is definately not a multi-master issue, I agree. It is just
-another issue I saw when thinking about your patch thoroughly again.
+Did that some time ago along with the rest of my queue for that platform. Just 
+waited for some review before reposting.
 
-> I'll see what I can come up with, but I am not sure if I'll find the time
-> before the 4.1 commit window opens. Company has a working solution (kind of),
-> so now I'll have to do this on my own time ;-).
+Thanks for reviewing,
+baruch
 
-But their solution is buggy and needs a fix! :)
-
-
---oLBj+sq0vYjzfsbl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVCoXVAAoJEBQN5MwUoCm2zEoQALRNlBsi1/Nf0azFBg9sYGOk
-6K01fMVc5x8+vVqOrq6n+WkfYPyVhJ9uI/ac80SPh54DLMNuvCcR0WRKlqR9XOvx
-sEw5D8+ERAZlfT4+MH8uVRrsgHNJhQ7J+e5t+5x+ULWAzxYlsFlszLGfUdRl8YIN
-J3Sqs95zCOEREBRN4gMOlITqZU1oJ/8lEVy/JDugpvz2eRD1RE8lTqGDUq+v3t2t
-dUvXZP7heySxejnNf9/qlW0sPXGyIUYfuZVoVivqLW/VVFIliqQC0SOf1Ze37pyp
-XNAtF7BKxjh1Yws6yei7fKGv1Es3SMityAxbtNhrQ7JCcRs6/5uRXg1My5DPsY72
-vON2djpiB9+i5LIbZDt3/fa7cKetlJdBJ6RBOerlFynnOFTXVHYv8MMlG4uFLvRj
-zD85Qfndsw979JOPSt+y9cgHog55NEwOWF8asIRTdMcsVVt3aE6UTxtbcbhPgL2O
-Ac8O1S5VoRhDYIM1Tuk5o0uLOqPfwDjrRmZqLj7fK8ieRQkAcrG3QGk8V4243Le9
-vPO30oLdwss68W5ISh38VmBacm4jvAtc/Hcr9v09IKjejHmyfBIbCgY9VTajsglQ
-rKnj1HpNJigRXd7SxS9jJMQfe85cXiTWlckdNVZcupLiPNHP+myKc0re5zGA9dd0
-zOIolkSqyglwH9kpHNIQ
-=/IMA
------END PGP SIGNATURE-----
-
---oLBj+sq0vYjzfsbl--
+-- 
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
