@@ -1,62 +1,132 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Thu, 19 Mar 2015 11:48:09 +0100
-Message-ID: <20150319104809.GC914@katana>
-References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
- <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
- <20150318123012.GA3580@katana>
- <55097C46.9010605@gmail.com>
- <20150318140037.GE3580@katana>
- <550A05E5.3050100@gmail.com>
- <20150319100944.GA914@katana>
+Subject: Re: [PATCH v2 2/2] i2c: driver for the Conexant Digicolor I2C
+ controller
+Date: Thu, 19 Mar 2015 12:00:02 +0100
+Message-ID: <20150319110002.GD914@katana>
+References: <844001df525b3073e50cbd95f357c0eb9912a394.1426758858.git.baruch@tkos.co.il>
+ <866aada336ddbeec18749a1c301ab9b365baadde.1426758858.git.baruch@tkos.co.il>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
+	protocol="application/pgp-signature"; boundary="wULyF7TL5taEdwHz"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150319100944.GA914@katana>
+In-Reply-To: <866aada336ddbeec18749a1c301ab9b365baadde.1426758858.git.baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---QRj9sO5tAVLaXnSD
+--wULyF7TL5taEdwHz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-> > I am still not too eager working on it but if you insist, I can see
-> > what I can do as long as Stephen sticks with testing it on Tegra. ;)
->=20
-> Please decide if you want to work on it. Remember, I am not short of
-> patches to deal with.
+On Thu, Mar 19, 2015 at 11:54:18AM +0200, Baruch Siach wrote:
+> Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+> ---
+> v2:
+>    * Address the comment of Wolfram Sang:
+>     - Advertise the I2C_FUNC_NOSTART capability
+>     - Rebase on v4.0-rc1
 
-Maybe sounds more harsh than it was meant. I just want to know if I need
-to schedule time for this issue.
+Please fix:
+
+Applying: i2c: driver for the Conexant Digicolor I2C controller
+    CHECKPATCH
+...
+
+ERROR: code indent should use tabs where possible
+#119: FILE: drivers/i2c/busses/i2c-digicolor.c:68:
++        STATE_IDLE,$
+
+WARNING: please, no spaces at the start of a line
+#119: FILE: drivers/i2c/busses/i2c-digicolor.c:68:
++        STATE_IDLE,$
+
+ERROR: code indent should use tabs where possible
+#120: FILE: drivers/i2c/busses/i2c-digicolor.c:69:
++        STATE_START,$
+
+WARNING: please, no spaces at the start of a line
+#120: FILE: drivers/i2c/busses/i2c-digicolor.c:69:
++        STATE_START,$
+
+ERROR: code indent should use tabs where possible
+#121: FILE: drivers/i2c/busses/i2c-digicolor.c:70:
++        STATE_ADDR,$
+
+WARNING: please, no spaces at the start of a line
+#121: FILE: drivers/i2c/busses/i2c-digicolor.c:70:
++        STATE_ADDR,$
+
+ERROR: code indent should use tabs where possible
+#122: FILE: drivers/i2c/busses/i2c-digicolor.c:71:
++        STATE_WRITE,$
+
+WARNING: please, no spaces at the start of a line
+#122: FILE: drivers/i2c/busses/i2c-digicolor.c:71:
++        STATE_WRITE,$
+
+ERROR: code indent should use tabs where possible
+#123: FILE: drivers/i2c/busses/i2c-digicolor.c:72:
++        STATE_READ,$
+
+WARNING: please, no spaces at the start of a line
+#123: FILE: drivers/i2c/busses/i2c-digicolor.c:72:
++        STATE_READ,$
+
+ERROR: code indent should use tabs where possible
+#124: FILE: drivers/i2c/busses/i2c-digicolor.c:73:
++        STATE_STOP,$
+
+WARNING: please, no spaces at the start of a line
+#124: FILE: drivers/i2c/busses/i2c-digicolor.c:73:
++        STATE_STOP,$
+
+CHECK: spaces preferred around that '+' (ctx:VxV)
+#160: FILE: drivers/i2c/busses/i2c-digicolor.c:109:
++	bool last = (i2c->msgbuf_ptr+1 == i2c->msg->len);
+ 	                            ^
+
+WARNING: Missing a blank line after declarations
+#161: FILE: drivers/i2c/busses/i2c-digicolor.c:110:
++	bool last = (i2c->msgbuf_ptr+1 == i2c->msg->len);
++	dc_i2c_cmd(i2c, last ? II_CMD_GET_NOACK : II_CMD_GET_ACK);
+
+CHECK: Logical continuations should be on the previous line
+#226: FILE: drivers/i2c/busses/i2c-digicolor.c:175:
++	if (cmd_status == II_CMD_STATUS_ACK_BAD
++	    || cmd_status == II_CMD_STATUS_ABORT) {
+
+CHECK: spaces preferred around that '-' (ctx:VxV)
+#329: FILE: drivers/i2c/busses/i2c-digicolor.c:278:
++	writeb_relaxed(clocktime-1, i2c->regs + II_CLOCKTIME);
+ 	                        ^
+
+There are more checkpatch warnings I don't care about much.
+You can decide about them.
 
 
---QRj9sO5tAVLaXnSD
+--wULyF7TL5taEdwHz
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVCqloAAoJEBQN5MwUoCm2V6MQAKnNXhfEyuvWMqwoKYs8VOcC
-LoOLH2e/JLsjOsCHZ76FgTZOFJJ5rmXWuryX2Ld0ZlRI9rPRE5prdIOOhBZ3WcqK
-aD/naSgWyGTU8f73G360/YjMIvT8BUaimBedBbdzYm5w7WrsZQhYaJlvYCEx3G37
-X/8kNeDwUYaD0vpySJwTaBvrIKivx79IYBfb1zhcC+/STyxEG4EP3m4gQnDRKYSX
-CJu9lubLnbEO8QthBeTm+m+3SzBmy9636rf++2cX783V1QZY5w3+nTov706guutV
-rdELkRwRY5YEzrPAWAqlV4M0ZMy+Ge0tzLaJLNzNP2Axc4JxzJq+O7yZAbn8TFnU
-mB/XOUV+3PHNto1j+8yL5WhQVGZ2aVmu5+ZZOqYOKnhMHuLWej+19BMjIH1p4b1m
-gHX1YsfjUj8im+mPAn5PjcW7RA+0u1VpocInKBPIysbxOBJ7FIctPsV8IRXWiqCo
-nxJvCkZdoReGvb0o+gIwzIfWeX7hDM3xymH42RuFszbxJ4cpApDfKdiP5Fz7Dung
-L4TaS5UahFCK1YNatrUU0F7nAv1esXy8RlRKMoYQzRSuJAud+T3WCUYIoydwpUzQ
-kYLCfsmgX1udZCPgm6H3xv5iV34tRk/M7Cz7bDPUNM86cuC1ksTJ3KObRUnNipUE
-ihzMRdXScJf5490J5l7H
-=v/Uo
+iQIcBAEBAgAGBQJVCqwyAAoJEBQN5MwUoCm2gKQP/35P0OsokMIRwSP3qmIe16Ci
+yEg2Lc5OHSMewXDb8zyJeXUstlQUc7zJT4eIwcvtkFeJdD+FOq7feIocZ9FxCwxe
+TOI7+TCGIxA7D0MlQdiZQQsUJPiP2RQuk55g544AukFxb5ScT6MTsM6NKS8N8Frp
+LJrr8NTasUt5tMlZnM0PknQFabVizXE95pyCv1yi8Gr71F5MvdvHtILLRsRs1DhI
+ogUKNX/IUFBKgRSp/Oy+GMvqz4ce+ozcaZ/CIN2mmW41AtDS5SgHzGF3moa8Hlqg
+B8O5lTtXsrh3v7vWFJz6I8M0RcJGYbHY5C2Rmt+mXMHgXVpcnmHBfXm0QtxhDpW2
+XOp4+4XWpU7t6An3dGbmcSVKl5bNLHyWG7mFBTVzGpiSLp6wHnhLfk1Ikvr+Z1bu
+KUPuSTHGd6onqRn5r3r4QIvHs1by+Oq7IvnQoK9hJKlpT4wUPY/i4YN5Hr/4Ycs+
+2LcBazkQKrepwYJusnod8yA4d4nLIuUInQgRaXFQ2Sh5fh332ZOPYogOB5CsVkYF
+HOyM850WYrifYqeZUU6Y+7+L8bstVPOQ/feRY6c7aL6r+6Zh0TXduxQBvrJv8o5I
+zWvFze/AyAkZYkdPyf9rgg5PgwijCnwJXGGnrLYNCJWh5DyZYgPwHaUsJmnivKJ2
+4EAYHkRDvcm1OnMox4ql
+=R6K0
 -----END PGP SIGNATURE-----
 
---QRj9sO5tAVLaXnSD--
+--wULyF7TL5taEdwHz--
