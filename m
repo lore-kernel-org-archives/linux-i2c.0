@@ -1,43 +1,65 @@
-From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Thu, 19 Mar 2015 21:52:53 +0100
-Message-ID: <550B3725.10209@gmail.com>
-References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com> <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com> <20150318123012.GA3580@katana> <55097C46.9010605@gmail.com> <20150318140037.GE3580@katana> <550A05E5.3050100@gmail.com> <20150319100944.GA914@katana> <550AEF9D.6090307@wwwdotorg.org> <20150319160208.GF7657@katana>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
+ SMBus adapters
+Date: Thu, 19 Mar 2015 22:39:37 +0100
+Message-ID: <20150319213937.GA899@katana>
+References: <20150205002630.GA396@roeck-us.net>
+ <20150205144028.GA4865@katana>
+ <20150205175326.GA26691@roeck-us.net>
+ <20150212040126.GA1691@roeck-us.net>
+ <20150216120951.GA2840@katana>
+ <20150317042049.GA6765@roeck-us.net>
+ <20150318132707.GD3580@katana>
+ <550A4162.8000009@roeck-us.net>
+ <20150319081612.GA900@katana>
+ <20150319174314.GA17329@roeck-us.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150319160208.GF7657@katana>
+Content-Disposition: inline
+In-Reply-To: <20150319174314.GA17329@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 19.03.2015 17:02, Wolfram Sang wrote:
->> Perhaps better would be to have a mux-specific function to iterate over a
->> mux's child nodes and instantiate buses for those. That function would check
->> whether each bus node was disabled or not. That'd isolate the special case
->> into the place where it was relevant.
->
-> ... so I wonder what you think about putting the
-> of_device_is_available() check into i2c_add_mux_adapter() once the
-> reg-property and chan_id have been matched?
->
 
-Ok, I see what you mean. I had a look at the place in question and
-wonder what to return from i2c_add_mux_adapter() in the disabled
-case so that i2c-mux-pinctrl is still happy with the returned value.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I guess what you want to have is that i2c_add_adapter() is not called
-for the disabled case, right?
 
-Is the i2c_adapter struct prepared in i2c_mux_add_adapter() still valid
-if i2c_add_adapter() is not called?
+> Turns out this is really easy to reproduce. One process reads
+> the eeprom over and over again, another runs i2cdump in a loop,
+> and voila ... lots of corruptions. Scary, especially considering
+> how wide-spread this kind of i2c access is in the kernel.
 
-Sorry, I am not too deep into i2c subsystem, I just reworked i2c-mux-
-pinctrl to make it work on Dove. If you are fine with giving me some
-guidance how you prefer to have it done, I can try to free some spare
-time. Unfortunately there is already little of it, so please don't
-expect a quick tested patch.
+A coccinelle script should at least be able to find vulnerable code
+paths, maybe even fix it. But not today for me... Thanks for testing and
+sharing the results!
 
-Sebastian
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVC0IZAAoJEBQN5MwUoCm2SzEP/jdZmk/LWBJQv1NgX37v7hss
+bjDqDnuVzdY5rFM0wmGr3VnedgD5QUzvbDzc1Ik24CITqayOyrsryuy85zAqZ5Qm
+nGcuRsjBFGM1Io4VnQ6NXznsTjIRowNw65t5XIH3Ek9MLvjBaEtgIP16paeRrnPk
+Z+4BgILmobeSEnmbKm2d+fK2abJn57MNgzL1oCO66WLaJZPGItNbw6K5U5crss4q
+QKHOJQnGZHfXJEtZcYyb1rzj3aD2P8LAcOMTysO/j/UpDH0RDOFY2gmNmwtqoH2J
+l29BIjPatAGRkalWW7TUKKaaHEIXXjYedb6hSwZ8KpRyMLw7BmNGb9P/1PdvZ96V
+mK6GGoNKBPM0Dm1wGgDmOqGiLWtLVZgmIgMB26i1sQd6mY93hbxBnQg8DLm0Ycqs
+GvzNl5SqXZLYV9ACkevNvJuNPovucSWGrC2id2Q3JOulhoyPQejzNzV28NKWih38
+JdNVesvhTyXs0LFt0atrMgpyDrj7wnGAluLBTQvrZ1MwGvzc8HonIBjcI0WWePnT
+uzN/tTu8zCj2ImqkT9i6S951H9NfbWjUhqHu07Na6zGzCt/uF1rjGzcY0W2w3N5D
+R0TNrYeQlMax/86mFcwhvWd8IMnGteT0nATOdmtfalJ/iyBlhSe8/5WMgDhVpD1e
+90ZC9QYrKQdXcxV8gW/x
+=4Hzl
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--
