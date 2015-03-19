@@ -1,69 +1,68 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected
- to SMBus adapters
-Date: Wed, 18 Mar 2015 20:24:18 -0700
-Message-ID: <550A4162.8000009@roeck-us.net>
-References: <1423067017-27607-1-git-send-email-linux@roeck-us.net> <20150204174723.GB30930@katana> <20150204190819.GA15467@roeck-us.net> <20150204233516.GA1677@katana> <20150205002630.GA396@roeck-us.net> <20150205144028.GA4865@katana> <20150205175326.GA26691@roeck-us.net> <20150212040126.GA1691@roeck-us.net> <20150216120951.GA2840@katana> <20150317042049.GA6765@roeck-us.net> <20150318132707.GD3580@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
+ SMBus adapters
+Date: Thu, 19 Mar 2015 09:16:21 +0100
+Message-ID: <20150319081612.GA900@katana>
+References: <20150204190819.GA15467@roeck-us.net>
+ <20150204233516.GA1677@katana>
+ <20150205002630.GA396@roeck-us.net>
+ <20150205144028.GA4865@katana>
+ <20150205175326.GA26691@roeck-us.net>
+ <20150212040126.GA1691@roeck-us.net>
+ <20150216120951.GA2840@katana>
+ <20150317042049.GA6765@roeck-us.net>
+ <20150318132707.GD3580@katana>
+ <550A4162.8000009@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150318132707.GD3580@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <550A4162.8000009-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/18/2015 06:27 AM, Wolfram Sang wrote:
-> On Mon, Mar 16, 2015 at 09:20:49PM -0700, Guenter Roeck wrote:
->> On Mon, Feb 16, 2015 at 01:09:51PM +0100, Wolfram Sang wrote:
->>> Hi Guenter,
->>>
->>>> I wonder where we are with thisp patch; I don't recall a reply to my previous
->>>> e-mail.
->>>
->>> Sorry for the late reply. I needed to recover from a HDD headcrash :(
->>>
->>>> Do you need some more time to think about it ? Otherwise I'll publish an
->>>> out-of-tree version of the at24 driver with the patch applied on github,
->>>> for those who might need the functionality provided by this patch.
->>>
->>> Your last mail made me aware of why we were missing each other before. I
->>> see your point now, but yes, still need to think about it. My plan is to
->>> have a decision until the 3.21 merge window.
->>>
->> Hi Wolfram,
->>
->> any news ?
->
-> Yes :)
->
-> The main misunderstanding we had before was: You were talking about
-> multi-master safety between transfers, while I was thinking about
-> multi-master safety between messages. While we need to guarantee this
-> for the latter, you are right about the former, sadly. True multi-master
-> safety between transfers is probably like a can of worms currently.
->
-> Still, I think we have a race with your patch when having two read
-> processes. If b) kicks in after a) has just set the eeprom pointer, a)
-> will not read the data it wants. For that to prevent, we should take the
-> adapter_lock during those two transfers needed for the read you
-> implemented. My preferred solution would be to have __smbus_transfer
-> like we have __i2c_transfer and then using that. Some mux code could
-> also make use out of that. But if you are going to use
-> adapter->algo->smbus_xfer() directly, well, then be it.
->
 
-You are right, that is a problem. Not for eeprom access itself - that already
-has a mutex - but for parallel access to the chip through the eeprom file
-and, say, by i2cdump.
+--oLBj+sq0vYjzfsbl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I don't call that multi-master, though, so I guess we may have a bit of a
-terminology problem.
 
-I'll see what I can come up with, but I am not sure if I'll find the time
-before the 4.1 commit window opens. Company has a working solution (kind of),
-so now I'll have to do this on my own time ;-).
+> I don't call that multi-master, though, so I guess we may have a bit of a
+> terminology problem.
 
-Thanks,
-Guenter
+This is definately not a multi-master issue, I agree. It is just
+another issue I saw when thinking about your patch thoroughly again.
+
+> I'll see what I can come up with, but I am not sure if I'll find the time
+> before the 4.1 commit window opens. Company has a working solution (kind of),
+> so now I'll have to do this on my own time ;-).
+
+But their solution is buggy and needs a fix! :)
+
+
+--oLBj+sq0vYjzfsbl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVCoXVAAoJEBQN5MwUoCm2zEoQALRNlBsi1/Nf0azFBg9sYGOk
+6K01fMVc5x8+vVqOrq6n+WkfYPyVhJ9uI/ac80SPh54DLMNuvCcR0WRKlqR9XOvx
+sEw5D8+ERAZlfT4+MH8uVRrsgHNJhQ7J+e5t+5x+ULWAzxYlsFlszLGfUdRl8YIN
+J3Sqs95zCOEREBRN4gMOlITqZU1oJ/8lEVy/JDugpvz2eRD1RE8lTqGDUq+v3t2t
+dUvXZP7heySxejnNf9/qlW0sPXGyIUYfuZVoVivqLW/VVFIliqQC0SOf1Ze37pyp
+XNAtF7BKxjh1Yws6yei7fKGv1Es3SMityAxbtNhrQ7JCcRs6/5uRXg1My5DPsY72
+vON2djpiB9+i5LIbZDt3/fa7cKetlJdBJ6RBOerlFynnOFTXVHYv8MMlG4uFLvRj
+zD85Qfndsw979JOPSt+y9cgHog55NEwOWF8asIRTdMcsVVt3aE6UTxtbcbhPgL2O
+Ac8O1S5VoRhDYIM1Tuk5o0uLOqPfwDjrRmZqLj7fK8ieRQkAcrG3QGk8V4243Le9
+vPO30oLdwss68W5ISh38VmBacm4jvAtc/Hcr9v09IKjejHmyfBIbCgY9VTajsglQ
+rKnj1HpNJigRXd7SxS9jJMQfe85cXiTWlckdNVZcupLiPNHP+myKc0re5zGA9dd0
+zOIolkSqyglwH9kpHNIQ
+=/IMA
+-----END PGP SIGNATURE-----
+
+--oLBj+sq0vYjzfsbl--
