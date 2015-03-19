@@ -1,181 +1,38 @@
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 2/3] Documentation: i2c: describe the new slave mode
-Date: Thu, 19 Mar 2015 21:11:37 +0100
-Message-ID: <20150319201137.GY10068@pengutronix.de>
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: slave: rework the slave API
+Date: Thu, 19 Mar 2015 21:17:51 +0100
+Message-ID: <20150319201751.GZ10068@pengutronix.de>
 References: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
- <1426164123-8853-3-git-send-email-wsa@the-dreams.de>
+ <1426164123-8853-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1426164123-8853-3-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, Marc Dietrich <marvin24@gmx.de>, Debora Grosse <debora@mds.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1426164123-8853-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Debora Grosse <debora-HRUOeNTICTI@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hello Wolfram,
 
-On Thu, Mar 12, 2015 at 01:42:02PM +0100, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Thu, Mar 12, 2015 at 01:42:01PM +0100, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  Documentation/i2c/slave-interface | 178 ++++++++++++++++++++++++++++=
-++++++++++
->  Documentation/i2c/summary         |   4 -
->  2 files changed, 178 insertions(+), 4 deletions(-)
->  create mode 100644 Documentation/i2c/slave-interface
->=20
-> diff --git a/Documentation/i2c/slave-interface b/Documentation/i2c/sl=
-ave-interface
-> new file mode 100644
-> index 00000000000000..3df6c37191c86c
-> --- /dev/null
-> +++ b/Documentation/i2c/slave-interface
-> @@ -0,0 +1,178 @@
-> +Linux I2C slave interface description
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +by Wolfram Sang <wsa@sang-engineering.com> in 2014-15
-> +
-> +Finally, Linux can also be an I2C slave in case I2C controllers have=
- slave
-> +support. Besides this HW requirement, one also needs a software back=
-end
-I wouldn't have written "Finally, ...". While it's great that we have
-slave support now, being enthusiastic here looks strange if someone
-reads it while slave support has become "normal".
-
-> +providing the actual functionality. An example for this is the slave=
--eeprom
-> +driver, which acts as a dual memory driver. While another I2C master=
- on the bus
-> +can access it like a regular eeprom, the Linux I2C slave can access =
-the content
-> +via sysfs and retrieve/provide information as needed. The software b=
-ackend
-> +driver and the I2C bus driver communicate via events. Here is a smal=
-l graph
-> +visualizing the data flow and the means by which data is transported=
-=2E The
-> +dotted line marks only one example. The backend could also use e.g. =
-a character
-> +device, or use in-kernel mechanisms only, or something completely di=
-fferent:
-Or something self contained, so the userspace part is actually optional
-(but probably present most of the time).
-
-Another slave backend I have in mind is a bus-driver tester. That
-wouldn't necessarily need a userspace part.
-
-> +              e.g. sysfs        I2C slave events        I/O register=
-s
-> +  +-----------+   v    +---------+     v     +--------+  v  +-------=
------+
-> +  | Userspace +........+ Backend +-----------+ Driver +-----+ Contro=
-ller |
-> +  +-----------+        +---------+           +--------+     +-------=
------+
-> +                                                                | |
-> +  ----------------------------------------------------------------+-=
--  I2C
-> +  --------------------------------------------------------------+---=
--  Bus
-> +
-> +Note: Technically, there is also the I2C core between the backend an=
-d the
-> +driver. However, at this time of writing, the layer is transparent.
-s/this/the/ ?
-> +
-> +
-> +User manual
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +I2C slave backends behave like standard I2C clients. So, you can ins=
-tantiate
-> +them like described in the document 'instantiating-devices'. A quick=
- example
-> +for instantiating the slave-eeprom driver from userspace:
-> +
-> +  # echo 0-0064 > /sys/bus/i2c/drivers/i2c-slave-eeprom/bind
-> +
-> +Each backend should come with separate documentation to describe its=
- specific
-> +behaviour and setup.
-> +
-> +
-> +Developer manual
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +I2C slave events
-> +----------------
-> +
-> +The bus driver sends an event to the backend using the following fun=
-ction:
-> +
-> +	ret =3D i2c_slave_event(client, event, &val)
-> +
-> +'client' describes the i2c slave device. 'event' is one of the speci=
-al event
-> +types described hereafter. 'val' holds an u8 value for the data byte=
- to be
-> +read/written and is thus bidirectional. The pointer to val must alwa=
-ys be
-> +provided even if val is not used for an event. 'ret' is the return v=
-alue from
-Does that mean that I have to pass a valid address, or can I use NULL,
-too?
-
-> +the backend. Mandatory events must be provided by the bus drivers an=
-d must be
-> +checked for by backend drivers.
-Currently all commands are mandatory. Does it make sense to mark the
-events accordingly already now? Do you expect the set of events to
-grow?
-
-> +* I2C_SLAVE_READ_PROCESSED (mandatory)
-> +
-> +'val': backend returns next byte to be sent
-> +'ret': always 0
-> +
-> +The bus driver requests the next byte to be sent to another I2C mast=
-er in
-> +'val'. Important: This does not mean that the previous byte has been=
- acked or
-> +even has been put on the wires! Most hardware requests the next byte=
- when the
-> +previous one is still to be shifted out to ensure seamless transmiss=
-ion. If the
-> +master stops reading after the previous byte, the next byte is never=
- used. It
-> +probably needs to be sent again on the next I2C_SLAVE_READ_REQUEST, =
-depending a
-> +bit on your backend.
-I didn't look into the actual implementation yet, but if I understand
-correctly a slave driver only sees I2C_SLAVE_READ_REQUESTED once and
-then only one I2C_SLAVE_READ_PROCESSED per byte, right? Does the slave
-driver gets noticed somehow if a previously requested byte doesn't make
-it on the wire? Otherwise you cannot correctly maintain e.g. the curren=
+> After more discussion, brave users, and additional datasheet evaluati=
+on,
+> some API updates for the new I2C slave framework became imminent. The
+> slave events now get some easier to understand naming. Also, the even=
 t
-read position of the eeprom driver, do you? (That's a bit like one of
-the problems with buffer support you pointed out further down.)
+> handling has been simplified to only send one event per interrupt.
+what is an interrupt here? An event where the bus driver needs feedback
+from the backend?
 
-> +
-> +* I2C_SLAVE_STOP (mandatory)
-> +
-> +'val': unused
-> +'ret': always 0
-> +
-> +A stop condition was received. This can happen anytime and the backe=
-nd should
-> +reset its state to be able to receive new requests.
-While being obvious when you understood i2c, "reset its state" could be
-misleading. Only the transfer specific stuff should be reset. I expect
-the eeprom example to not reset the current position on STOP.
+Other than that the patch looks fine. Thanks for working on my feedback=
+!
+Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
 Best regards
 Uwe
