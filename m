@@ -1,43 +1,45 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Thu, 19 Mar 2015 10:49:02 -0600
-Message-ID: <550AFDFE.8040005@wwwdotorg.org>
-References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com> <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com> <20150318123012.GA3580@katana> <55097C46.9010605@gmail.com> <20150318140037.GE3580@katana> <550A05E5.3050100@gmail.com> <20150319100944.GA914@katana> <550AEF9D.6090307@wwwdotorg.org> <20150319160208.GF7657@katana>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
+ SMBus adapters
+Date: Thu, 19 Mar 2015 10:43:14 -0700
+Message-ID: <20150319174314.GA17329@roeck-us.net>
+References: <20150204233516.GA1677@katana>
+ <20150205002630.GA396@roeck-us.net>
+ <20150205144028.GA4865@katana>
+ <20150205175326.GA26691@roeck-us.net>
+ <20150212040126.GA1691@roeck-us.net>
+ <20150216120951.GA2840@katana>
+ <20150317042049.GA6765@roeck-us.net>
+ <20150318132707.GD3580@katana>
+ <550A4162.8000009@roeck-us.net>
+ <20150319081612.GA900@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150319160208.GF7657@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150319081612.GA900@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/19/2015 10:02 AM, Wolfram Sang wrote:
->>> -	/* Only register child devices if the adapter has a node pointer set */
->>> -	if (!adap->dev.of_node)
->>> +	/* Only register childs if adapter has a node pointer with enabled status */
->>> +	if (!adap->dev.of_node || !of_device_is_available(adap->dev.of_node))
->>>   		return;
->>
->> That feels a bit odd to me. For a regular non-mux I2C controller, that extra
->> case would never trigger if the controller node was disabled, since the
->> device core would never probe the controller device itself. So, we'd end up
->> with inconsistent paths through the I2C core for regular controllers and
->> muxes.
->
-> I first thought the no-op for the non-mux case wouldn't hurt, but I
-> agree about the consistent code path. I mentioned in my previous mail
-> that i2c-mux might be a better place for this...
->
->> Perhaps better would be to have a mux-specific function to iterate over a
->> mux's child nodes and instantiate buses for those. That function would check
->> whether each bus node was disabled or not. That'd isolate the special case
->> into the place where it was relevant.
->
-> ... so I wonder what you think about putting the
-> of_device_is_available() check into i2c_add_mux_adapter() once the
-> reg-property and chan_id have been matched?
+On Thu, Mar 19, 2015 at 09:16:21AM +0100, Wolfram Sang wrote:
+> 
+> > I don't call that multi-master, though, so I guess we may have a bit of a
+> > terminology problem.
+> 
+> This is definately not a multi-master issue, I agree. It is just
+> another issue I saw when thinking about your patch thoroughly again.
+> 
+> > I'll see what I can come up with, but I am not sure if I'll find the time
+> > before the 4.1 commit window opens. Company has a working solution (kind of),
+> > so now I'll have to do this on my own time ;-).
+> 
+> But their solution is buggy and needs a fix! :)
+> 
+Turns out this is really easy to reproduce. One process reads
+the eeprom over and over again, another runs i2cdump in a loop,
+and voila ... lots of corruptions. Scary, especially considering
+how wide-spread this kind of i2c access is in the kernel.
 
-I think that looks like a good place, yes.
+Guenter
