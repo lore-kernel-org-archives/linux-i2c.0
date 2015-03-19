@@ -1,449 +1,143 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: [PATCH v2 2/2] i2c: driver for the Conexant Digicolor I2C controller
-Date: Thu, 19 Mar 2015 11:54:18 +0200
-Message-ID: <866aada336ddbeec18749a1c301ab9b365baadde.1426758858.git.baruch@tkos.co.il>
-References: <844001df525b3073e50cbd95f357c0eb9912a394.1426758858.git.baruch@tkos.co.il>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Thu, 19 Mar 2015 11:09:44 +0100
+Message-ID: <20150319100944.GA914@katana>
+References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
+ <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
+ <20150318123012.GA3580@katana>
+ <55097C46.9010605@gmail.com>
+ <20150318140037.GE3580@katana>
+ <550A05E5.3050100@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <844001df525b3073e50cbd95f357c0eb9912a394.1426758858.git.baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <550A05E5.3050100-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
----
-v2:
-   * Address the comment of Wolfram Sang:
-    - Advertise the I2C_FUNC_NOSTART capability
-    - Rebase on v4.0-rc1
----
- drivers/i2c/busses/Kconfig         |   9 +
- drivers/i2c/busses/Makefile        |   1 +
- drivers/i2c/busses/i2c-digicolor.c | 384 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 394 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-digicolor.c
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 22da9c2ffa22..db09881614b7 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -485,6 +485,15 @@ config I2C_DESIGNWARE_BAYTRAIL
- 	  the platform firmware controlling it. You should say Y if running on
- 	  a BayTrail system using the AXP288.
- 
-+config I2C_DIGICOLOR
-+	tristate "Conexant Digicolor I2C driver"
-+	depends on ARCH_DIGICOLOR
-+	help
-+	  Support for Conexant Digicolor SoCs (CX92755) I2C controller driver.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-digicolor.
-+
- config I2C_EFM32
- 	tristate "EFM32 I2C controller"
- 	depends on ARCH_EFM32 || COMPILE_TEST
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 3638feb6677e..4413f09996cb 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -45,6 +45,7 @@ i2c-designware-platform-objs := i2c-designware-platdrv.o
- i2c-designware-platform-$(CONFIG_I2C_DESIGNWARE_BAYTRAIL) += i2c-designware-baytrail.o
- obj-$(CONFIG_I2C_DESIGNWARE_PCI)	+= i2c-designware-pci.o
- i2c-designware-pci-objs := i2c-designware-pcidrv.o
-+obj-$(CONFIG_I2C_DIGICOLOR)	+= i2c-digicolor.o
- obj-$(CONFIG_I2C_EFM32)		+= i2c-efm32.o
- obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
- obj-$(CONFIG_I2C_EXYNOS5)	+= i2c-exynos5.o
-diff --git a/drivers/i2c/busses/i2c-digicolor.c b/drivers/i2c/busses/i2c-digicolor.c
-new file mode 100644
-index 000000000000..4001325b2e24
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-digicolor.c
-@@ -0,0 +1,384 @@
-+/*
-+ * I2C bus driver for Conexant Digicolor SoCs
-+ *
-+ * Author: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-+ *
-+ * Copyright (C) 2015 Paradox Innovation Ltd.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/completion.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+
-+#define DEFAULT_FREQ		100000
-+#define TIMEOUT_MS		100
-+
-+#define II_CONTROL		0x0
-+#define II_CONTROL_LOCAL_RESET	BIT(0)
-+
-+#define II_CLOCKTIME		0x1
-+
-+#define II_COMMAND		0x2
-+#define II_CMD_START		1
-+#define II_CMD_RESTART		2
-+#define II_CMD_SEND_ACK		3
-+#define II_CMD_GET_ACK		6
-+#define II_CMD_GET_NOACK	7
-+#define II_CMD_STOP		10
-+#define II_COMMAND_GO		BIT(7)
-+#define II_COMMAND_COMPLETION_STATUS(r)	(((r) >> 5) & 3)
-+#define II_CMD_STATUS_NORMAL	0
-+#define II_CMD_STATUS_ACK_GOOD	1
-+#define II_CMD_STATUS_ACK_BAD	2
-+#define II_CMD_STATUS_ABORT	3
-+
-+#define II_DATA			0x3
-+#define II_INTFLAG_CLEAR	0x8
-+#define II_INTENABLE		0xa
-+
-+struct dc_i2c {
-+	struct i2c_adapter	adap;
-+	struct device		*dev;
-+	void __iomem		*regs;
-+	struct clk		*clk;
-+	unsigned int		frequency;
-+
-+	struct i2c_msg		*msg;
-+	unsigned int		msgbuf_ptr;
-+	int			last;
-+	spinlock_t		lock;
-+	struct completion	done;
-+	int			state;
-+	int			error;
-+};
-+
-+enum {
-+        STATE_IDLE,
-+        STATE_START,
-+        STATE_ADDR,
-+        STATE_WRITE,
-+        STATE_READ,
-+        STATE_STOP,
-+};
-+
-+static void dc_i2c_cmd(struct dc_i2c *i2c, u8 cmd)
-+{
-+	writeb_relaxed(cmd | II_COMMAND_GO, i2c->regs + II_COMMAND);
-+}
-+
-+static u8 dc_i2c_addr_cmd(struct i2c_msg *msg)
-+{
-+	u8 addr = (msg->addr & 0x7f) << 1;
-+
-+	if (msg->flags & I2C_M_RD)
-+		addr |= 1;
-+
-+	return addr;
-+}
-+
-+static void dc_i2c_data(struct dc_i2c *i2c, u8 data)
-+{
-+	writeb_relaxed(data, i2c->regs + II_DATA);
-+}
-+
-+static void dc_i2c_write_byte(struct dc_i2c *i2c, u8 byte)
-+{
-+	dc_i2c_data(i2c, byte);
-+	dc_i2c_cmd(i2c, II_CMD_SEND_ACK);
-+}
-+
-+static void dc_i2c_write_buf(struct dc_i2c *i2c)
-+{
-+	dc_i2c_write_byte(i2c, i2c->msg->buf[i2c->msgbuf_ptr++]);
-+}
-+
-+static void dc_i2c_next_read(struct dc_i2c *i2c)
-+{
-+	bool last = (i2c->msgbuf_ptr+1 == i2c->msg->len);
-+	dc_i2c_cmd(i2c, last ? II_CMD_GET_NOACK : II_CMD_GET_ACK);
-+}
-+
-+static void dc_i2c_stop(struct dc_i2c *i2c)
-+{
-+	i2c->state = STATE_STOP;
-+	if (i2c->last)
-+		dc_i2c_cmd(i2c, II_CMD_STOP);
-+	else
-+		complete(&i2c->done);
-+}
-+
-+static u8 dc_i2c_read_byte(struct dc_i2c *i2c)
-+{
-+	return readb_relaxed(i2c->regs + II_DATA);
-+}
-+
-+static void dc_i2c_read_buf(struct dc_i2c *i2c)
-+{
-+	i2c->msg->buf[i2c->msgbuf_ptr++] = dc_i2c_read_byte(i2c);
-+	dc_i2c_next_read(i2c);
-+}
-+
-+static void dc_i2c_set_irq(struct dc_i2c *i2c, int enable)
-+{
-+	if (enable)
-+		writeb_relaxed(1, i2c->regs + II_INTFLAG_CLEAR);
-+	writeb_relaxed(!!enable, i2c->regs + II_INTENABLE);
-+}
-+
-+static int dc_i2c_cmd_status(struct dc_i2c *i2c)
-+{
-+	u8 cmd = readb_relaxed(i2c->regs + II_COMMAND);
-+
-+	return II_COMMAND_COMPLETION_STATUS(cmd);
-+}
-+
-+static void dc_i2c_start_msg(struct dc_i2c *i2c, int first)
-+{
-+	struct i2c_msg *msg = i2c->msg;
-+
-+	if (!(msg->flags & I2C_M_NOSTART)) {
-+		i2c->state = STATE_START;
-+		dc_i2c_cmd(i2c, first ? II_CMD_START : II_CMD_RESTART);
-+	} else if (msg->flags & I2C_M_RD) {
-+		i2c->state = STATE_READ;
-+		dc_i2c_next_read(i2c);
-+	} else {
-+		i2c->state = STATE_WRITE;
-+		dc_i2c_write_buf(i2c);
-+	}
-+}
-+
-+static irqreturn_t dc_i2c_irq(int irq, void *dev_id)
-+{
-+	struct dc_i2c *i2c = dev_id;
-+	int cmd_status = dc_i2c_cmd_status(i2c);
-+	unsigned long flags;
-+	u8 addr_cmd;
-+
-+	writeb_relaxed(1, i2c->regs + II_INTFLAG_CLEAR);
-+
-+	spin_lock_irqsave(&i2c->lock, flags);
-+
-+	if (cmd_status == II_CMD_STATUS_ACK_BAD
-+	    || cmd_status == II_CMD_STATUS_ABORT) {
-+		i2c->error = -EIO;
-+		complete(&i2c->done);
-+		goto out;
-+	}
-+
-+	switch (i2c->state) {
-+	case STATE_START:
-+		addr_cmd = dc_i2c_addr_cmd(i2c->msg);
-+		dc_i2c_write_byte(i2c, addr_cmd);
-+		i2c->state = STATE_ADDR;
-+		break;
-+	case STATE_ADDR:
-+		if (i2c->msg->flags & I2C_M_RD) {
-+			dc_i2c_next_read(i2c);
-+			i2c->state = STATE_READ;
-+			break;
-+		}
-+		i2c->state = STATE_WRITE;
-+		/* fall through */
-+	case STATE_WRITE:
-+		if (i2c->msgbuf_ptr < i2c->msg->len)
-+			dc_i2c_write_buf(i2c);
-+		else
-+			dc_i2c_stop(i2c);
-+		break;
-+	case STATE_READ:
-+		if (i2c->msgbuf_ptr < i2c->msg->len)
-+			dc_i2c_read_buf(i2c);
-+		else
-+			dc_i2c_stop(i2c);
-+		break;
-+	case STATE_STOP:
-+		i2c->state = STATE_IDLE;
-+		complete(&i2c->done);
-+		break;
-+	}
-+
-+out:
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+	return IRQ_HANDLED;
-+}
-+
-+static int dc_i2c_xfer_msg(struct dc_i2c *i2c, struct i2c_msg *msg, int first,
-+			   int last)
-+{
-+	unsigned long timeout = msecs_to_jiffies(TIMEOUT_MS);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&i2c->lock, flags);
-+	i2c->msg = msg;
-+	i2c->msgbuf_ptr = 0;
-+	i2c->last = last;
-+	i2c->error = 0;
-+
-+	reinit_completion(&i2c->done);
-+	dc_i2c_set_irq(i2c, 1);
-+	dc_i2c_start_msg(i2c, first);
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+	timeout = wait_for_completion_timeout(&i2c->done, timeout);
-+	dc_i2c_set_irq(i2c, 0);
-+	if (timeout == 0) {
-+		i2c->state = STATE_IDLE;
-+		return -ETIMEDOUT;
-+	}
-+
-+	if (i2c->error)
-+		return i2c->error;
-+
-+	return 0;
-+}
-+
-+static int dc_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	struct dc_i2c *i2c = adap->algo_data;
-+	int i, ret;
-+
-+	for (i = 0; i < num; i++) {
-+		ret = dc_i2c_xfer_msg(i2c, &msgs[i], i == 0, i == num - 1);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return num;
-+}
-+
-+static int dc_i2c_init_hw(struct dc_i2c *i2c)
-+{
-+	unsigned long clk_rate = clk_get_rate(i2c->clk);
-+	unsigned int clocktime;
-+
-+	writeb_relaxed(II_CONTROL_LOCAL_RESET, i2c->regs + II_CONTROL);
-+	udelay(100);
-+	writeb_relaxed(0, i2c->regs + II_CONTROL);
-+	udelay(100);
-+
-+	clocktime = DIV_ROUND_UP(clk_rate, 64 * i2c->frequency);
-+	if (clocktime < 1 || clocktime > 0xff) {
-+		dev_err(i2c->dev, "can't set bus speed of %u Hz\n",
-+			i2c->frequency);
-+		return -EINVAL;
-+	}
-+	writeb_relaxed(clocktime-1, i2c->regs + II_CLOCKTIME);
-+
-+	return 0;
-+}
-+
-+static u32 dc_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART;
-+}
-+
-+static const struct i2c_algorithm dc_i2c_algorithm = {
-+	.master_xfer	= dc_i2c_xfer,
-+	.functionality	= dc_i2c_func,
-+};
-+
-+static int dc_i2c_probe(struct platform_device *pdev)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	struct dc_i2c *i2c;
-+	struct resource *r;
-+	int ret = 0, irq;
-+
-+	i2c = devm_kzalloc(&pdev->dev, sizeof(struct dc_i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	if (of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-+				 &i2c->frequency))
-+		i2c->frequency = DEFAULT_FREQ;
-+
-+	i2c->dev = &pdev->dev;
-+	platform_set_drvdata(pdev, i2c);
-+
-+	spin_lock_init(&i2c->lock);
-+	init_completion(&i2c->done);
-+
-+	i2c->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(i2c->clk))
-+		return PTR_ERR(i2c->clk);
-+
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	i2c->regs = devm_ioremap_resource(&pdev->dev, r);
-+	if (IS_ERR(i2c->regs))
-+		return PTR_ERR(i2c->regs);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	ret = devm_request_irq(&pdev->dev, irq, dc_i2c_irq, 0,
-+			       dev_name(&pdev->dev), i2c);
-+	if (ret < 0)
-+		return ret;
-+
-+	strlcpy(i2c->adap.name, "Conexant Digicolor I2C adapter",
-+		sizeof(i2c->adap.name));
-+	i2c->adap.owner = THIS_MODULE;
-+	i2c->adap.algo = &dc_i2c_algorithm;
-+	i2c->adap.dev.parent = &pdev->dev;
-+	i2c->adap.dev.of_node = np;
-+	i2c->adap.algo_data = i2c;
-+
-+	ret = dc_i2c_init_hw(i2c);
-+	if (ret)
-+		return ret;
-+
-+	ret = clk_prepare_enable(i2c->clk);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = i2c_add_adapter(&i2c->adap);
-+	if (ret < 0) {
-+		clk_unprepare(i2c->clk);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int dc_i2c_remove(struct platform_device *pdev)
-+{
-+	struct dc_i2c *i2c = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&i2c->adap);
-+	clk_disable_unprepare(i2c->clk);
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id dc_i2c_match[] = {
-+	{ .compatible = "cnxt,cx92755-i2c" },
-+	{ },
-+};
-+
-+static struct platform_driver dc_i2c_driver = {
-+	.probe   = dc_i2c_probe,
-+	.remove  = dc_i2c_remove,
-+	.driver  = {
-+		.name  = "digicolor-i2c",
-+		.of_match_table = dc_i2c_match,
-+	},
-+};
-+module_platform_driver(dc_i2c_driver);
-+
-+MODULE_AUTHOR("Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>");
-+MODULE_DESCRIPTION("Conexant Digicolor I2C master driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.1.4
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> >>Possible. But this change just makes i2c-mux-pinctrl honor status
+> >>property at all. There is no functional change except it now allows
+> >>you to disable any of the sub-busses.
+> >
+> >Actually, this is the feature I like. However, I wonder if we shouldn't
+> >have that in the core, say in of_i2c_register_devices()?
+>=20
+> Hmm, looking at of_i2c_register_devices():
+>=20
+> 	for_each_available_child_of_node(adap->dev.of_node, node)
+> 		of_i2c_register_device(adap, node);
+>=20
+> already honors status properties by using for_each_available_foo.
+> Therefore, i2c-core will also skip i2c device nodes disabled by
+> status property.
+
+Yes, but only child nodes, not the complete bus. Here is an RFC of what
+I mean:
+
+=46rom: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [RFC] i2c: of: always check if busses are enabled
+
+Allow all busses to have a "status" property which allows busses to not
+be probed when set to "disabled". Needed for DTS overlays with i2c mux
+scenarios.
+
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index fe80f85896e267..d9a3ad2149332e 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1305,8 +1305,8 @@ static void of_i2c_register_devices(struct i2c_adapte=
+r *adap)
+ {
+ 	struct device_node *node;
+=20
+-	/* Only register child devices if the adapter has a node pointer set */
+-	if (!adap->dev.of_node)
++	/* Only register childs if adapter has a node pointer with enabled status=
+ */
++	if (!adap->dev.of_node || !of_device_is_available(adap->dev.of_node))
+ 		return;
+=20
+ 	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
+
+> I am not too deep into i2c-core, but AFAIKS i2c-mux-pinctrl is not an
+> i2c device but an i2c mux that is dealt with differently? It is not
+> probed with of_i2c_register_devices() but as a separate platform_device
+> with a reference to the parent i2c bus.
+
+Yes, but the busses have seperate nodes. Those nodes with the 'reg =3D
+<0>' properties. And those are matched with of_i2c_register_devices when
+the reg-property and the chan_id match.
+
+> About the memory allocation for the maximum potential number of muxes:
+> We would need some way to distinguish disabled from enabled muxes in
+> i2c-mux-pinctrl's platform_data.
+
+Do we? Can't we claim that every described bus needs a pinctrl entry.
+Still, the disabled busses won't be probed? So, we could also think
+about putting the above code snippet into i2c-mux when registering
+busses, so not only the childs will be skipped but also the whole
+bus will not be created.
+
+> i2c_mux_pinctrl_probe() is basically DT-agnostic and it should
+> definitely stay that way. Currently, each mux within pd->bus_count
+
+I agree.
+
+> requires a non-NULL pd->pinctrl_states[i] otherwise _probe() will bail
+> out for all sub-busses.
+
+And I think that makes sense.
+
+> (b) allow (and skip) muxes with pinctrl_states[i] =3D=3D NULL for now and
+> let the "maniac" deal with storing/re-probing the corresponding
+> pinctrl_state name once it gets dynamically enabled.
+
+Why do you need the NULL?
+
+> I am still not too eager working on it but if you insist, I can see
+> what I can do as long as Stephen sticks with testing it on Tegra. ;)
+
+Please decide if you want to work on it. Remember, I am not short of
+patches to deal with.
+
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVCqBoAAoJEBQN5MwUoCm2q24P/RpwL9xg+8jf6tqvIoLieO3C
+rNSGMVa75pRpq4rkGMpxLjaejjfXN3C1lJc6KmdWy7KrI6h7v91xYkSTIQDzYtxt
+BVNru1omxnSgUUGZ5ph6jJcBxUYS6SWWPVJke82m6m6IJhq/5aPnExfISlXPLnIl
+hIe89UQw2bpAai3F51D27TIvzSv4DEvM7IfU3wGLxnOZeHxkcpH9UgjVMrELQLK0
+tv5gQLdpK1XmKqi4UvEvW9wxXi56tArkWuV0MGOLhtltpf63jdXf62rASF+xAucX
+lJV4C0fpH6wbCAWfc9/BxWeh7puIOrGaFf19o0/jfN91plg/NV2XcqxF+wzUT303
+I9bTy5w0ptnhV5Gmy33AqWcg00S7XtOT992MvjX7b5XWFpWjsjkETeoA5aw8zmiO
+J3eRx6pYyjkmPAjNobz3xF+xlJbda7dLfUonp8F2qoqQStnV1KaJQlgARd1QvS83
+2O94f7o78ozjDxq2TbQcJ3Sd9//hISuI04Vn5ugolB455Ufd4NXF/LuhyB+YQI9e
+v75yqESra+LWfP7ffDjXNMkIqhnw8bZEoZtcCXA3oPskjn0wNOy+WydtYQR1jttg
+7GrrNf38nrk+gSAx62gMzinAOYyMhjD3GqxakPfhA/7HsIvPC6ZVD+oSjmkiQzZB
+44X+saR6BBodpYugy4qE
+=f0Jq
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
