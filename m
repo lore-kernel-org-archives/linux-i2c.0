@@ -1,56 +1,60 @@
 From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: driver for the Conexant Digicolor I2C controller
-Date: Thu, 19 Mar 2015 11:30:43 +0200
-Message-ID: <20150319093042.GB2415@tarshish>
-References: <7da767503ac6085c10fbd1953ffd36621b8bf0c5.1424092804.git.baruch@tkos.co.il>
- <a106023efa9fd648f46021cd063437df798528de.1424092804.git.baruch@tkos.co.il>
- <20150318210730.GA12960@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150318210730.GA12960@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Subject: [PATCH v2 1/2] i2c: dt binding documentation for the Digicolor I2C controller
+Date: Thu, 19 Mar 2015 11:54:17 +0200
+Message-ID: <844001df525b3073e50cbd95f357c0eb9912a394.1426758858.git.baruch@tkos.co.il>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+The CX92755 is an SoC in the Conexant Digicolor series. This devicetree binding
+document describes the I2C controller on the CX92755 SoC, that is also shared
+by some other SoCs in the Digicolor series.
 
-On Wed, Mar 18, 2015 at 10:07:30PM +0100, Wolfram Sang wrote:
-> On Mon, Feb 16, 2015 at 03:20:04PM +0200, Baruch Siach wrote:
-> > This commit adds a driver for the I2C master controller on the CX92755 SoC. The
-> > CX92755 is one SoC in the Conexant Digicolor series. This driver should support
-> > other SoCs from that series.
-> > 
-> > Only 7bit slave addresses are currently supported.
-> > 
-> > Tested on the Equinox CX92755 EVK, using i2c-tools utilities to read and write
-> > the on-chip (sic) audio codec.
-> > 
-> > Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-> 
-> Looks mostly good.
-> 
-> > +static u32 dc_i2c_func(struct i2c_adapter *adap)
-> > +{
-> > +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> > +}
-> 
-> You probably want to advertise I2C_FUNC_NOSTART here, too?
+Signed-off-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+---
+v2: no change
+---
+ .../devicetree/bindings/i2c/i2c-digicolor.txt      | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
 
-OK.
-
-> And if you could rebase to something after 4.0-rc1, that would be much
-> appreciated.
-
-Did that some time ago along with the rest of my queue for that platform. Just 
-waited for some review before reposting.
-
-Thanks for reviewing,
-baruch
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt b/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
+new file mode 100644
+index 000000000000..457a098d4f7e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
+@@ -0,0 +1,25 @@
++Conexant Digicolor I2C controller
++
++Required properties:
++ - compatible: must be "cnxt,cx92755-i2c"
++ - reg: physical address and length of the device registers
++ - interrupts: a single interrupt specifier
++ - clocks: clock for the device
++ - #address-cells: should be <1>
++ - #size-cells: should be <0>
++
++Optional properties:
++- clock-frequency: the desired I2C bus clock frequency in Hz; in
++  absence of this property the default value is used (100 kHz).
++
++Example:
++
++	i2c: i2c@f0000120 {
++		compatible = "cnxt,cx92755-i2c";
++		reg = <0xf0000120 0x10>;
++		interrupts = <28>;
++		clocks = <&main_clk>;
++		clock-frequency = <100000>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
 -- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
+2.1.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
