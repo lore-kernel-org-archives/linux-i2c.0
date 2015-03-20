@@ -1,65 +1,73 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
- SMBus adapters
-Date: Thu, 19 Mar 2015 22:39:37 +0100
-Message-ID: <20150319213937.GA899@katana>
-References: <20150205002630.GA396@roeck-us.net>
- <20150205144028.GA4865@katana>
- <20150205175326.GA26691@roeck-us.net>
- <20150212040126.GA1691@roeck-us.net>
- <20150216120951.GA2840@katana>
- <20150317042049.GA6765@roeck-us.net>
- <20150318132707.GD3580@katana>
- <550A4162.8000009@roeck-us.net>
- <20150319081612.GA900@katana>
- <20150319174314.GA17329@roeck-us.net>
+Subject: Re: [PATCH 1/3] i2c: slave: rework the slave API
+Date: Fri, 20 Mar 2015 08:15:04 +0100
+Message-ID: <20150320071504.GA906@katana>
+References: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
+ <1426164123-8853-2-git-send-email-wsa@the-dreams.de>
+ <20150319201751.GZ10068@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20150319174314.GA17329@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20150319201751.GZ10068@pengutronix.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, Marc Dietrich <marvin24@gmx.de>, Debora Grosse <debora@mds.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Mar 19, 2015 at 09:17:51PM +0100, Uwe Kleine-K=C3=B6nig wrote:
+> Hello Wolfram,
+>=20
+> On Thu, Mar 12, 2015 at 01:42:01PM +0100, Wolfram Sang wrote:
+> > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> >=20
+> > After more discussion, brave users, and additional datasheet evaluation,
+> > some API updates for the new I2C slave framework became imminent. The
+> > slave events now get some easier to understand naming. Also, the event
+> > handling has been simplified to only send one event per interrupt.
+> what is an interrupt here? An event where the bus driver needs feedback
+> from the backend?
+
+More the other way around: when the bus driver needs to notify the
+backend. I wasn't 100% sure about the word 'interrupt', but then decided
+a HW slave support without interrupts would be so rare and adventurous
+that it is okay to use the term :)
+
+> Other than that the patch looks fine. Thanks for working on my feedback!
+> Acked-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+
+Thanks,
+
+   Wolfram
 
 
-> Turns out this is really easy to reproduce. One process reads
-> the eeprom over and over again, another runs i2cdump in a loop,
-> and voila ... lots of corruptions. Scary, especially considering
-> how wide-spread this kind of i2c access is in the kernel.
-
-A coccinelle script should at least be able to find vulnerable code
-paths, maybe even fix it. But not today for me... Thanks for testing and
-sharing the results!
-
-
---RnlQjJ0d97Da+TV1
+--envbJBWh7q8WU6mo
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVC0IZAAoJEBQN5MwUoCm2SzEP/jdZmk/LWBJQv1NgX37v7hss
-bjDqDnuVzdY5rFM0wmGr3VnedgD5QUzvbDzc1Ik24CITqayOyrsryuy85zAqZ5Qm
-nGcuRsjBFGM1Io4VnQ6NXznsTjIRowNw65t5XIH3Ek9MLvjBaEtgIP16paeRrnPk
-Z+4BgILmobeSEnmbKm2d+fK2abJn57MNgzL1oCO66WLaJZPGItNbw6K5U5crss4q
-QKHOJQnGZHfXJEtZcYyb1rzj3aD2P8LAcOMTysO/j/UpDH0RDOFY2gmNmwtqoH2J
-l29BIjPatAGRkalWW7TUKKaaHEIXXjYedb6hSwZ8KpRyMLw7BmNGb9P/1PdvZ96V
-mK6GGoNKBPM0Dm1wGgDmOqGiLWtLVZgmIgMB26i1sQd6mY93hbxBnQg8DLm0Ycqs
-GvzNl5SqXZLYV9ACkevNvJuNPovucSWGrC2id2Q3JOulhoyPQejzNzV28NKWih38
-JdNVesvhTyXs0LFt0atrMgpyDrj7wnGAluLBTQvrZ1MwGvzc8HonIBjcI0WWePnT
-uzN/tTu8zCj2ImqkT9i6S951H9NfbWjUhqHu07Na6zGzCt/uF1rjGzcY0W2w3N5D
-R0TNrYeQlMax/86mFcwhvWd8IMnGteT0nATOdmtfalJ/iyBlhSe8/5WMgDhVpD1e
-90ZC9QYrKQdXcxV8gW/x
-=4Hzl
+iQIcBAEBAgAGBQJVC8j4AAoJEBQN5MwUoCm29rIQAKWYF/7gKcz9tb5ZB+6qhHP5
+vrLs0pf9iAQF6V1BMKYln5HIe7bOgamSNYNzEXA5XxU5MvmM18y/gf7pHu9LIwGm
+HWduCHPUDhqZF2ZYuwtz5BoIp5+sKVateGBYgsYZ5OTZh2rI1Sq67L8RMiM/FBWO
+5f+VPM3biq4mCFAhKWKyKQZZE2qFeuqDysjlXtxO+JNN2B5FUiu3LsXO9MWBKub6
+imPWYnCqTJBCUGb72FGfJRtg5r6NEtArfFVCqJpSrbDvPfS7NqPB4604MYUUhOsp
+5HrHBf3FUPP2z2AJKlkOCoBEWW+IYDbDyN3WcYhDLuGrCW6F1oH8ZhptHaR7ACPH
+nW14CPokG3qEcIxyLME3DDIbjUn87UQmom90i70WnKl3h7iGmbmjpf23hNOpYlgK
+m4BR+C1CQKiUhhL/aFYfoK8HwQfS7V/mfrWP8+lQO+SVCrR6eoFEL+a4d0R+S8Ag
+e9DHYdMRtViPXYvhTnGGIYXvcpdxj3vvQrcMOMOc1vwmQtEJIBWL2YuORkk7o+nl
+G4IsgyS5nej5IWSSUdF9n3hYQ6GbC/1otIPQgcB++/scH481a0CVJ6MS5z+ns9bl
+gcKpikwYewKoiuNyxhOJH3f7MV33bCb1xP+jmTAFI/DqgpVNPxpbUuEDv1ZoIWD5
+7xX/p9gwdRHH54SWOKXd
+=qHh1
 -----END PGP SIGNATURE-----
 
---RnlQjJ0d97Da+TV1--
+--envbJBWh7q8WU6mo--
