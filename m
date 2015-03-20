@@ -1,127 +1,89 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/3] Documentation: i2c: describe the new slave mode
-Date: Fri, 20 Mar 2015 09:22:39 +0100
-Message-ID: <20150320082238.GB2071@katana>
-References: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
- <1426164123-8853-3-git-send-email-wsa@the-dreams.de>
- <20150319201137.GY10068@pengutronix.de>
- <20150320073012.GB906@katana>
- <20150320074214.GD10068@pengutronix.de>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Fri, 20 Mar 2015 11:19:25 +0100
+Message-ID: <20150320101925.GC2071@katana>
+References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
+ <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
+ <20150318123012.GA3580@katana>
+ <55097C46.9010605@gmail.com>
+ <20150318140037.GE3580@katana>
+ <550A05E5.3050100@gmail.com>
+ <20150319100944.GA914@katana>
+ <550AEF9D.6090307@wwwdotorg.org>
+ <20150319160208.GF7657@katana>
+ <550B3725.10209@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
+	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20150320074214.GD10068@pengutronix.de>
+In-Reply-To: <550B3725.10209@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, Marc Dietrich <marvin24@gmx.de>, Debora Grosse <debora@mds.com>, linux-kernel@vger.kernel.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---R3G7APHDIzY6R/pk
-Content-Type: text/plain; charset=utf-8
+--JWEK1jqKZ6MHAcjA
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 20, 2015 at 08:42:14AM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> Hello Wolfram,
->=20
-> On Fri, Mar 20, 2015 at 08:30:13AM +0100, Wolfram Sang wrote:
-> >=20
-> > > > +Finally, Linux can also be an I2C slave in case I2C controllers ha=
-ve slave
-> > > > +support. Besides this HW requirement, one also needs a software ba=
-ckend
-> > > I wouldn't have written "Finally, ...". While it's great that we have
-> > > slave support now, being enthusiastic here looks strange if someone
-> > > reads it while slave support has become "normal".
-> >=20
-> > OK.
-> >=20
-> > > > +providing the actual functionality. An example for this is the sla=
-ve-eeprom
-> > > > +driver, which acts as a dual memory driver. While another I2C mast=
-er on the bus
-> > > > +can access it like a regular eeprom, the Linux I2C slave can acces=
-s the content
-> > > > +via sysfs and retrieve/provide information as needed. The software=
- backend
-> > > > +driver and the I2C bus driver communicate via events. Here is a sm=
-all graph
-> > > > +visualizing the data flow and the means by which data is transport=
-ed. The
-> > > > +dotted line marks only one example. The backend could also use e.g=
-=2E a character
-> > > > +device, or use in-kernel mechanisms only, or something completely =
-different:
-> > > Or something self contained, so the userspace part is actually option=
-al
-> > > (but probably present most of the time).
-> >=20
-> > With "in-kernel mechanisms" I meant self-contained. Maybe "be in-kernel
-> > only"?
-> I'm sure "in-kernel mechanisms" wasn't in the mail I replied to. (Hmm,
-> or I must have missed that while reading.)
 
-:) Still, I like "be in-kernel only" better, so I'll rephrase.
+> Ok, I see what you mean. I had a look at the place in question and
+> wonder what to return from i2c_add_mux_adapter() in the disabled
+> case so that i2c-mux-pinctrl is still happy with the returned value.
 
-> > > Does that mean that I have to pass a valid address, or can I use NULL,
-> > > too?
-> >=20
-> > Is NULL a valid pointer to val?
-> NULL is a pointer and you didn't wrote about "valid" above. I just
+Ouch, you are right. The crux of interfaces returning NULL instead of an
+ERR_PTR :( I'll have a look, I maybe started to fix this somewhen.
 
-But NULL is not a pointer to val.
+> I guess what you want to have is that i2c_add_adapter() is not called
+> for the disabled case, right?
 
-> wondered if the necessity just comes from the fact that the function
-> takes 3 parameters and so you have to give it 3 (this wouldn't needed to
-> be pointed out IMHO) or if the value must be valid (then the wording
-> isn't optimal).
+I think that makes sense.
 
-I'll try to rephrase.
+> Is the i2c_adapter struct prepared in i2c_mux_add_adapter() still valid
+> if i2c_add_adapter() is not called?
 
-> Is there a technical reason to require val to be valid?
+I will have a closer look to the issue this weekend.
 
-Better be safe than sorry in case for future needs of 'val' I can't see
-now.
+> Sorry, I am not too deep into i2c subsystem, I just reworked i2c-mux-
+> pinctrl to make it work on Dove. If you are fine with giving me some
+> guidance how you prefer to have it done, I can try to free some spare
+> time.
 
-> > You need to assume that if the next byte is requested, the previous byte
-> > made it to the bus. So, you should do pre-increment in
-> > I2C_SLAVE_READ_PROCESSED, not post-increment. I didn't want to write
-> This might be a correctness problem, right? If we cannot fix it (with
-> the current slave abstraction) should this be pointed out somewhere; at
-> least in the eeprom driver as this will probably be the reference for
-> the next backend?
+Cool, thanks. Learning by doing is a good way to get such knowledge :)
 
-Adding some more info to the eeprom driver sounds good. Updating this
-paragraph with some infos from this discussion, too.
+> Unfortunately there is already little of it, so please don't
+> expect a quick tested patch.
+
+I understand.
 
 Thanks,
 
    Wolfram
 
 
---R3G7APHDIzY6R/pk
+--JWEK1jqKZ6MHAcjA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVC9jOAAoJEBQN5MwUoCm28b0QAKzCs2yMijgPB6CMWLJn/0Tg
-ol0ECikYMw4pa7+mPvo6maqmOS7q9jpVQ9ilvUPwtBjAPM/Z4w5LIyzw4Nr6xBFi
-snZWrfKtCQhafY0JcVn/gV9KYOxz0D+b3rekr9BFY2QMXTgFcG9q4X73e1xKhy3M
-e4rpvo/biKpwiTbSnTN49ttMthmb6n3H/By9Zluf6284UsVykpntrLuOo1hE6p/u
-FuMfDdE8+ZCNv8zo39JTkey5wz2iYik3Gk00kWlnbsMmVQ2/m62DKEAGdUmQakyg
-WlWaE8pXUeIG0fuYCKhCuwBd4iLkMfjii7s9avRYZxZX48xvvO6vPtnXMCnIAkKi
-tHA82DojmVgAoyMrCXviaiTj3Kxv1qOFKT6fETjAejknEcgaQWIVvlJ2Y1x6/Ijz
-JG/4NyQWuisYyM2HcByaeB+yKQUR6POn7dOaDG5MEdtvxAVTv/LlTGuSm+N+oabO
-nQUPXS2SQwj5yQG4XJ2D55MobD1g9xJar3CB11mA59FAaJTX5PgWeWnLsQEJAvs2
-bGSRBgkivwunYgHahxvz7TQSxI9JWrwhs7CMCgPVRjkRYGMWQdfOi9x2juy14j+7
-0CqsTkdd66kdbX2s9XRfpV7E8jnaaRzPO+ESFBBFR4iHMv+KBTU/LwWVfqkqzQFn
-AjhrN8g+5fsX8ljDxU/P
-=UQCh
+iQIcBAEBAgAGBQJVC/QtAAoJEBQN5MwUoCm2EMgP/jVuRMu+PrDW4W0EbaLS3skl
+nMjRYJ3VdWxmRkdWhzRfpIxdJTDOsIbEnTe82qI/uD3jqNnEoE8c47gQrVtqi7dt
+ShzL4Ly15jIjjsM6VnkjJIKqGyM2Lxh6MTqsSIPzyxKQSREaQj0ND5kBljFPehKa
+NnAi3+EMmgmeUkmSlCPjC1JDrjxj1bkrHujYMPpQglenCJboITc9yPmCd5EDYtG4
+Jk7lXt0aEQjgpLm6tjbcvtk9F8H/awyxN59ZBJG3DHbk5o8mTB/dnAZNSbW0tySg
+UiO0POTt/nAIX4qmyomRoq9W6xCYZyoa6JNPwOu49oXlEXWvzRZgf6crr1uo0gMR
+f/CkVOTtolgHmawLBmIUym71sp1sSGG0uEoJJeXCkBEmviUFzumEBMHt3YHiDfSM
+5fXy/q61pfCULPZ4AA4DhbbOKXJ9A48y9iy6HzUKlfll+s05r3vDTRzVCS7EQkOC
+q+dvcaTS/+oQexp5MJFRMCXDn0eUnWPNpeDoF5X91vVryLxruBsetCz/ZPEMOJF3
+juymoK94k/94iM1CHzfLgNMZb+vjP7wprZSEW/jYzhi1HLjFPj4wJA1oeU0/QeB5
+pIFM4uoC0Ew4vDrWJB6OPSHFLHH/mo/6Sr2IEPXdVlShLuI4UF90IdGTrGF31Be/
+jzCCobSPUBR/iBLWtajH
+=ZrDm
 -----END PGP SIGNATURE-----
 
---R3G7APHDIzY6R/pk--
+--JWEK1jqKZ6MHAcjA--
