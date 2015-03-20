@@ -1,74 +1,163 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/3] i2c: slave: rework the slave API
-Date: Fri, 20 Mar 2015 08:31:35 +0100
-Message-ID: <20150320073135.GC906@katana>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 2/3] Documentation: i2c: describe the new slave mode
+Date: Fri, 20 Mar 2015 08:42:14 +0100
+Message-ID: <20150320074214.GD10068@pengutronix.de>
 References: <1426164123-8853-1-git-send-email-wsa@the-dreams.de>
- <1426164123-8853-2-git-send-email-wsa@the-dreams.de>
- <20150319201751.GZ10068@pengutronix.de>
- <20150320071504.GA906@katana>
- <20150320072441.GA10068@pengutronix.de>
+ <1426164123-8853-3-git-send-email-wsa@the-dreams.de>
+ <20150319201137.GY10068@pengutronix.de>
+ <20150320073012.GB906@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sHrvAb52M6C8blB9"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20150320072441.GA10068@pengutronix.de>
+In-Reply-To: <20150320073012.GB906@katana>
 Sender: linux-sh-owner@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Andrey Danin <danindrey@mail.ru>, Marc Dietrich <marvin24@gmx.de>, Debora Grosse <debora@mds.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
---sHrvAb52M6C8blB9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Mar 20, 2015 at 08:30:13AM +0100, Wolfram Sang wrote:
+>=20
+> > > +Finally, Linux can also be an I2C slave in case I2C controllers =
+have slave
+> > > +support. Besides this HW requirement, one also needs a software =
+backend
+> > I wouldn't have written "Finally, ...". While it's great that we ha=
+ve
+> > slave support now, being enthusiastic here looks strange if someone
+> > reads it while slave support has become "normal".
+>=20
+> OK.
+>=20
+> > > +providing the actual functionality. An example for this is the s=
+lave-eeprom
+> > > +driver, which acts as a dual memory driver. While another I2C ma=
+ster on the bus
+> > > +can access it like a regular eeprom, the Linux I2C slave can acc=
+ess the content
+> > > +via sysfs and retrieve/provide information as needed. The softwa=
+re backend
+> > > +driver and the I2C bus driver communicate via events. Here is a =
+small graph
+> > > +visualizing the data flow and the means by which data is transpo=
+rted. The
+> > > +dotted line marks only one example. The backend could also use e=
+=2Eg. a character
+> > > +device, or use in-kernel mechanisms only, or something completel=
+y different:
+> > Or something self contained, so the userspace part is actually opti=
+onal
+> > (but probably present most of the time).
+>=20
+> With "in-kernel mechanisms" I meant self-contained. Maybe "be in-kern=
+el
+> only"?
+I'm sure "in-kernel mechanisms" wasn't in the mail I replied to. (Hmm,
+or I must have missed that while reading.)
 
-
-> > > > After more discussion, brave users, and additional datasheet evalua=
-tion,
-> > > > some API updates for the new I2C slave framework became imminent. T=
-he
-> > > > slave events now get some easier to understand naming. Also, the ev=
-ent
-> > > > handling has been simplified to only send one event per interrupt.
-> > > what is an interrupt here? An event where the bus driver needs feedba=
-ck
-> > > from the backend?
+> > Another slave backend I have in mind is a bus-driver tester. That
+> > wouldn't necessarily need a userspace part.
+>=20
+> Yes, I envisioned that, too.
+>=20
 > >=20
-> > More the other way around: when the bus driver needs to notify the
-> > backend. I wasn't 100% sure about the word 'interrupt', but then decided
-> > a HW slave support without interrupts would be so rare and adventurous
-> > that it is okay to use the term :)
-> Yeah, I agree on HW slave support without interrupts is hardly possible.
-> But I imagine that controllers differ in which situations they can issue
-> an interrupt so talking about them for generic code feels strange to me
-> because $flexiblecontrolerwithvariousirqs doesn't need to send more
-> events than $bareminimumcontroler.
+> > > +              e.g. sysfs        I2C slave events        I/O regi=
+sters
+> > > +  +-----------+   v    +---------+     v     +--------+  v  +---=
+---------+
+> > > +  | Userspace +........+ Backend +-----------+ Driver +-----+ Co=
+ntroller |
+> > > +  +-----------+        +---------+           +--------+     +---=
+---------+
+> > > +                                                                =
+| |
+> > > +  --------------------------------------------------------------=
+--+--  I2C
+> > > +  --------------------------------------------------------------=
++----  Bus
+> > > +
+> > > +Note: Technically, there is also the I2C core between the backen=
+d and the
+> > > +driver. However, at this time of writing, the layer is transpare=
+nt.
+> > s/this/the/ ?
+>=20
+> Maybe.
+>=20
+> > > +The bus driver sends an event to the backend using the following=
+ function:
+> > > +
+> > > +	ret =3D i2c_slave_event(client, event, &val)
+> > > +
+> > > +'client' describes the i2c slave device. 'event' is one of the s=
+pecial event
+> > > +types described hereafter. 'val' holds an u8 value for the data =
+byte to be
+> > > +read/written and is thus bidirectional. The pointer to val must =
+always be
+> > > +provided even if val is not used for an event. 'ret' is the retu=
+rn value from
+> > Does that mean that I have to pass a valid address, or can I use NU=
+LL,
+> > too?
+>=20
+> Is NULL a valid pointer to val?
+NULL is a pointer and you didn't wrote about "valid" above. I just
+wondered if the necessity just comes from the fact that the function
+takes 3 parameters and so you have to give it 3 (this wouldn't needed t=
+o
+be pointed out IMHO) or if the value must be valid (then the wording
+isn't optimal).
+Is there a technical reason to require val to be valid?
 
-Do you have a better word at hand? "...to send one event per event"? :)
+> > I didn't look into the actual implementation yet, but if I understa=
+nd
+> > correctly a slave driver only sees I2C_SLAVE_READ_REQUESTED once an=
+d
+> > then only one I2C_SLAVE_READ_PROCESSED per byte, right? Does the sl=
+ave
+>=20
+> Right.
+>=20
+> > driver gets noticed somehow if a previously requested byte doesn't =
+make
+> > it on the wire? Otherwise you cannot correctly maintain e.g. the cu=
+rrent
+>=20
+> Some HW can do this, but not all. That would maybe be another candida=
+te
+> for an optional event. Although, people should try hard to not need i=
+t.
+>=20
+> > read position of the eeprom driver, do you? (That's a bit like one =
+of
+> > the problems with buffer support you pointed out further down.)
+>=20
+> You need to assume that if the next byte is requested, the previous b=
+yte
+> made it to the bus. So, you should do pre-increment in
+> I2C_SLAVE_READ_PROCESSED, not post-increment. I didn't want to write
+This might be a correctness problem, right? If we cannot fix it (with
+the current slave abstraction) should this be pointed out somewhere; at
+least in the eeprom driver as this will probably be the reference for
+the next backend?
 
+> this example so explicit because not all slave-backends will have a
+> position pointer. And besides, it might make sense to extract the cod=
+e for
+> managing a position pointer from the slave-eeprom driver. Then, we'd
+> have only one trusted implementation of EEPROM-alike behaviour and
+> people can concentrate on reacting to reads/writes.
 
---sHrvAb52M6C8blB9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Best regards
+Uwe
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVC8zXAAoJEBQN5MwUoCm2N+AP/iq8IzLRILxCedxkHxOjWHhh
-cx9sQcdp8sW+EScrrlIM2xbiLulmP2JRP5XSD34gm2WRthF9CdraotrOpLTsQvOj
-NF7a57bpmVXTZU0ievlPWVzdH+yNLonEFWILuELSibGWKQRPtz3l4Yc4BSO8GByF
-pXTVFMn2TzhSPkzJkmUoeD3QURAzYZidvFcRg4ftv1R+gfaYNyLwoBVxrP3OP/ag
-4p4PIIsYHFZT9l3F0lnYDZzNj+zh3TNuEnuyclFxwoJnu71MUHvDng3q7Qkz8N0b
-PyEQc+pAY+rNUBi5FFLgf6mYu2KG2gdajxVcmOZGp2A8s9bBsEPnMrVm83XB0uax
-8RqDzHuPavNUhoqJnyVizfFA3EXjaMQPZxDtn1Ocxj7lxOuXHqK2fgIkKqUN7ZTL
-EDNux49Xy/y6Mqy/TWsJ2Hzt1rSLNpW83qb9SMREgWZzMDWw38CzRcxuLrNE2Vsk
-HMsD64kP1RdjcVjZ3ryHM1cxq9QQG4CFragnZpTDBK2ePzooJ2UAwoHp112uLt++
-2GJX4i8ccbmRghvqomihVuvO/C+psMrdNiawe8R/RNarAMvz7jG/ApB7QSGUV9bd
-fQJQ6kuN3HIdKNkuKSephscJQqRw7vOI3m6mdSzd5GUEZIoh6Ei2KMS/9rDuntea
-mdreF8wrTkrEzS8q691R
-=hab5
------END PGP SIGNATURE-----
-
---sHrvAb52M6C8blB9--
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
