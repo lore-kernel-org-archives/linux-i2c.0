@@ -1,89 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Fri, 20 Mar 2015 11:19:25 +0100
-Message-ID: <20150320101925.GC2071@katana>
-References: <1425039885-5137-2-git-send-email-sebastian.hesselbarth@gmail.com>
- <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com>
- <20150318123012.GA3580@katana>
- <55097C46.9010605@gmail.com>
- <20150318140037.GE3580@katana>
- <550A05E5.3050100@gmail.com>
- <20150319100944.GA914@katana>
- <550AEF9D.6090307@wwwdotorg.org>
- <20150319160208.GF7657@katana>
- <550B3725.10209@gmail.com>
+From: "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>
+Subject: Re: [PATCH v3 4/5] i2c: davinci: use bus recovery infrastructure
+Date: Fri, 20 Mar 2015 20:32:54 +0200
+Message-ID: <550C67D6.3080909@linaro.org>
+References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com> <1417448047-15236-5-git-send-email-grygorii.strashko@ti.com> <20150318203151.GA12072@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <550B3725.10209@gmail.com>
+In-Reply-To: <20150318203151.GA12072@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sekhar Nori <nsekhar@ti.com>, =?windows-1252?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, Murali Karicheri <m-karicheri2@ti.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
+On 03/18/2015 10:31 PM, Wolfram Sang wrote:
+> Hi,
+> 
+> so, the bus recovery patches look fine to me in general.
+> 
+> It is only this one question left which I always had with bus recovery.
+> Maybe you guys can join me thinking about it.
 
---JWEK1jqKZ6MHAcjA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ok. Thanks and sorry for delayed reply - missed your e-mail :(
+I'll resend them next week.
 
+> 
+>> @@ -376,8 +366,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>>   						      dev->adapter.timeout);
+>>   	if (r == 0) {
+>>   		dev_err(dev->dev, "controller timed out\n");
+>> -		davinci_i2c_recover_bus(dev);
+>> -		i2c_davinci_init(dev);
+>> +		i2c_recover_bus(adap);
+>>   		dev->buf_len = 0;
+>>   		return -ETIMEDOUT;
+> 
+> The I2C specs say in 3.1.16 that the recovery procedure should be used
+> when SDA is stuck low. So, I do wonder if we should apply the recovery
+> after a timeout. Stuck SDA might be one reason for timeout, but there
+> may be others...
 
-> Ok, I see what you mean. I had a look at the place in question and
-> wonder what to return from i2c_add_mux_adapter() in the disabled
-> case so that i2c-mux-pinctrl is still happy with the returned value.
+This is ancient code. And regarding your question -
+Might be it would be reasonable to add call of
+i2c_davinci_wait_bus_not_busy() at the end of i2c_davinci_xfer()?
+This way we will wait for Bus Free before performing recovery.
 
-Ouch, you are right. The crux of interfaces returning NULL instead of an
-ERR_PTR :( I'll have a look, I maybe started to fix this somewhen.
+Of course,  i2c_davinci_wait_bus_not_busy() has to be fixed first
+as proposed by Alexander Sverdlin here:
+ https://patchwork.ozlabs.org/patch/448994/. 
 
-> I guess what you want to have is that i2c_add_adapter() is not called
-> for the disabled case, right?
-
-I think that makes sense.
-
-> Is the i2c_adapter struct prepared in i2c_mux_add_adapter() still valid
-> if i2c_add_adapter() is not called?
-
-I will have a closer look to the issue this weekend.
-
-> Sorry, I am not too deep into i2c subsystem, I just reworked i2c-mux-
-> pinctrl to make it work on Dove. If you are fine with giving me some
-> guidance how you prefer to have it done, I can try to free some spare
-> time.
-
-Cool, thanks. Learning by doing is a good way to get such knowledge :)
-
-> Unfortunately there is already little of it, so please don't
-> expect a quick tested patch.
-
-I understand.
-
-Thanks,
-
-   Wolfram
-
-
---JWEK1jqKZ6MHAcjA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVC/QtAAoJEBQN5MwUoCm2EMgP/jVuRMu+PrDW4W0EbaLS3skl
-nMjRYJ3VdWxmRkdWhzRfpIxdJTDOsIbEnTe82qI/uD3jqNnEoE8c47gQrVtqi7dt
-ShzL4Ly15jIjjsM6VnkjJIKqGyM2Lxh6MTqsSIPzyxKQSREaQj0ND5kBljFPehKa
-NnAi3+EMmgmeUkmSlCPjC1JDrjxj1bkrHujYMPpQglenCJboITc9yPmCd5EDYtG4
-Jk7lXt0aEQjgpLm6tjbcvtk9F8H/awyxN59ZBJG3DHbk5o8mTB/dnAZNSbW0tySg
-UiO0POTt/nAIX4qmyomRoq9W6xCYZyoa6JNPwOu49oXlEXWvzRZgf6crr1uo0gMR
-f/CkVOTtolgHmawLBmIUym71sp1sSGG0uEoJJeXCkBEmviUFzumEBMHt3YHiDfSM
-5fXy/q61pfCULPZ4AA4DhbbOKXJ9A48y9iy6HzUKlfll+s05r3vDTRzVCS7EQkOC
-q+dvcaTS/+oQexp5MJFRMCXDn0eUnWPNpeDoF5X91vVryLxruBsetCz/ZPEMOJF3
-juymoK94k/94iM1CHzfLgNMZb+vjP7wprZSEW/jYzhi1HLjFPj4wJA1oeU0/QeB5
-pIFM4uoC0Ew4vDrWJB6OPSHFLHH/mo/6Sr2IEPXdVlShLuI4UF90IdGTrGF31Be/
-jzCCobSPUBR/iBLWtajH
-=ZrDm
------END PGP SIGNATURE-----
-
---JWEK1jqKZ6MHAcjA--
+-- 
+regards,
+-grygorii
