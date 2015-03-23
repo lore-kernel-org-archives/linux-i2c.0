@@ -1,37 +1,77 @@
-From: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Sun, 22 Mar 2015 14:03:56 +0100
-Message-ID: <550EBDBC.9000903@gmail.com>
-References: <1425903665-19343-1-git-send-email-sebastian.hesselbarth@gmail.com> <20150318123012.GA3580@katana> <55097C46.9010605@gmail.com> <20150318140037.GE3580@katana> <550A05E5.3050100@gmail.com> <20150319100944.GA914@katana> <550AEF9D.6090307@wwwdotorg.org> <20150319160208.GF7657@katana> <550B3725.10209@gmail.com> <20150320101925.GC2071@katana> <20150321210028.GA1078@katana>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150321210028.GA1078@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH v5 3/3] I2C: mediatek: Add driver for MediaTek MT8173 I2C
+ controller
+Date: Mon, 23 Mar 2015 08:39:05 +0100
+Message-ID: <20150323073905.GF9742@pengutronix.de>
+References: <1426917922-61356-1-git-send-email-eddie.huang@mediatek.com>
+ <1426917922-61356-4-git-send-email-eddie.huang@mediatek.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1426917922-61356-4-git-send-email-eddie.huang@mediatek.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eddie Huang <eddie.huang@mediatek.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>, Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Mark Rutland <mark.rutland@arm.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Box <david.e.box@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jean Delvare <jdelvare@suse.de>, Xudong Chen <xudong.chen@mediatek.com>, Boris BREZILLON <boris.brezillon@free-electrons.com>, Arnd Bergmann <arnd@arndb.de>, Liguo Zhang <liguo.zhang@mediatek.com>, Wei Yan <sledge.yanwei@huawei.com>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Beniamino Galvani <b.galvani@gmail.com>, Rob Herring <robh+dt@kernel.org>, linux-mediatek@lists.infradead.org, linux-arm-
 List-Id: linux-i2c@vger.kernel.org
 
-On 21.03.2015 22:00, Wolfram Sang wrote:
->>> I guess what you want to have is that i2c_add_adapter() is not called
->>> for the disabled case, right?
->>
->> I think that makes sense.
->
-> But maybe we should just start simple and keep calling i2c_add_adapter()
-> for the disabled case. We will just skip probing devices on the bus.
-> Would that help the issue you were originally trying to solve?
+On Sat, Mar 21, 2015 at 02:05:22PM +0800, Eddie Huang wrote:
+> Add mediatek MT8173 I2C controller driver. Compare to I2C controller
+> of earlier mediatek SoC, MT8173 fix write-then-read limitation, and
+> also increase message size to 64kb.
+> 
 
-It is not about probing devices on the mux sub-busses, I'd expect no
-devices on the optional sub-busses in DT on boards where those pins
-are not used as i2c.
+[...]
 
-The idea was to hide those busses completely in particular from
-userspace on boards where they'll never be available.
+> +static const struct i2c_adapter_quirks mt8173_i2c_quirks = {
+> +	.max_num_msgs = MAX_MSG_NUM_MT8173,
+> +	.max_write_len = MAX_DMA_TRANS_SIZE_MT8173,
+> +	.max_read_len = MAX_DMA_TRANS_SIZE_MT8173,
+> +	.max_comb_1st_msg_len = MAX_DMA_TRANS_SIZE_MT8173,
+> +	.max_comb_2nd_msg_len = MAX_WRRD_TRANS_SIZE_MT8173,
+> +};
+> +
+>  static int mtk_i2c_probe(struct platform_device *pdev)
+>  {
+>  	int ret = 0;
+> @@ -587,7 +626,8 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  
+>  	i2c->platform_compat = mtk_get_device_prop(pdev);
+> -	if (i2c->have_pmic && (i2c->platform_compat & COMPAT_MT6577))
+> +	if (i2c->have_pmic && (i2c->platform_compat &
+> +			(COMPAT_MT6577 | COMPAT_MT8173)))
+>  		return -EINVAL;
+>  
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> @@ -613,7 +653,10 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+>  	i2c->adap.dev.parent = &pdev->dev;
+>  	i2c->adap.owner = THIS_MODULE;
+>  	i2c->adap.algo = &mtk_i2c_algorithm;
+> -	i2c->adap.quirks = &mt6577_i2c_quirks;
+> +	if (i2c->platform_compat & COMPAT_MT8173)
+> +		i2c->adap.quirks = &mt8173_i2c_quirks;
+> +	else
+> +		i2c->adap.quirks = &mt6577_i2c_quirks;
 
-If modifying i2c-mux-pinctrl to respect the sub-bus status property is
-such a big issue, I'd rather leave the driver as is and expose all
-sub-busses to userspace.
+Instead of putting an integer into struct of_device_id you should
+introduce a
 
-Sebastian
+struct mtk_i2c_data {
+	struct i2c_adapter_quirks quirks;
+	int compat;
+	/* Additional SoC specific data */
+};
+
+and put a pointer to this directly into the of_device_id. This way you
+need less casting and can put newly discovered differences diretly into
+some data struct and don't have to introduce if(socxy) ... else ...
+everytime.
+
+Sascha
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
