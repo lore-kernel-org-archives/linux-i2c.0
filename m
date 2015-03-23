@@ -1,106 +1,44 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V2 1/3] i2c: busses: add SLIMpro I2C device driver on APM
- X-Gene platform
-Date: Mon, 23 Mar 2015 19:31:53 +0100
-Message-ID: <20150323183153.GA1128@katana>
-References: <1424288043-2995-1-git-send-email-fkan@apm.com>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Mon, 23 Mar 2015 19:32:11 +0100
+Message-ID: <20150323183211.GB1128@katana>
+References: <55097C46.9010605@gmail.com>
+ <20150318140037.GE3580@katana>
+ <550A05E5.3050100@gmail.com>
+ <20150319100944.GA914@katana>
+ <550AEF9D.6090307@wwwdotorg.org>
+ <20150319160208.GF7657@katana>
+ <550B3725.10209@gmail.com>
+ <20150320101925.GC2071@katana>
+ <20150321210028.GA1078@katana>
+ <550EBDBC.9000903@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1424288043-2995-1-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
+In-Reply-To: <550EBDBC.9000903-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Cc: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 18, 2015 at 11:34:01AM -0800, Feng Kan wrote:
-> Add SLIMpro I2C device driver on APM X-Gene platform. This I2C
-> device driver use the SLIMpro Mailbox driver to tunnel message to
-> the SLIMpro coprocessor to do the work of accessing I2C components.
-> 
-> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 
-Sigh, I lost my first review, so here we go again...
-It looks mostly good. Using checkpatch with '--strict' will show some
-whitespace issues. Please fix these.
+> If modifying i2c-mux-pinctrl to respect the sub-bus status property is
+> such a big issue, I'd rather leave the driver as is and expose all
+> sub-busses to userspace.
 
-> +config I2C_XGENE_SLIMPRO
-> +	tristate "APM X-Gene SoC I2C SLIMpro devices support"
-> +	depends on ARCH_XGENE && MAILBOX
+Well, dunno what 'big issue' is in your book :) What definately needs to
+be done is:
 
-COMPILE_TEST?
+* handle "status" at mux-core level, not mux-driver
+* that probably needs us to convert i2c_add_mux_adapter() to return
+  ERR_PTRs instead of NULL, so we can distinguish the "disabled" case
+* that would mean to fix all existing users
 
-> +static int start_i2c_msg_xfer(struct slimpro_i2c_dev *ctx)
-> +{
-> +	if (ctx->mbox_client.tx_block) {
-> +		if (!wait_for_completion_timeout(&ctx->rd_complete,
-> +						 msecs_to_jiffies
-> +						 (MAILBOX_OP_TIMEOUT)))
+That's all not groundbreaking stuff, but needs caution and thoroughness.
+There might be some gory details left, though...
 
-Don't be too strict with the 80 char limit IMHO. I think it is more
-readable to combine the last two lines into one.
-
-> +	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
-> +					SLIMPRO_IIC_READ, protocol, addrlen,
-> +					readlen);
-
-ditto
-
-> +	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
-> +					SLIMPRO_IIC_WRITE, protocol, addrlen,
-> +					writelen);
-
-ditto
-
-> +	paddr = dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
-> +			       DMA_FROM_DEVICE);
-
-The device should be the device of the dma channel.
-
-> +	paddr = dma_map_single(ctx->dev, ctx->dma_buffer, writelen,
-> +			       DMA_TO_DEVICE);
-
-ditto
-
-> +	rc = dma_mapping_error(ctx->dev, paddr);
-> +	if (dma_mapping_error(ctx->dev, paddr)) {
-
-if (rc)
-
-> +static struct i2c_algorithm xgene_slimpro_i2c_algorithm = {
-> +	.smbus_xfer = xgene_slimpro_i2c_xfer,
-
-Might be a tad less confusing to name this function
-xgene_slimpro_smbus_xfer. You decide.
-
-> +	rc = i2c_add_adapter(adapter);
-> +	if (rc) {
-> +		dev_err(&pdev->dev, "Adapter registeration failed\n");
-> +		return rc;
-> +	}
-> +
-> +	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
-> +	if (rc)
-> +		dev_warn(&pdev->dev, "Unable to set dma mask\n");
-
-Shouldn't that be before i2c_add_adapter?
-
-> +static struct platform_driver xgene_slimpro_i2c_driver = {
-> +	.probe	= xgene_slimpro_i2c_probe,
-> +	.remove	= xgene_slimpro_i2c_remove,
-> +	.driver	= {
-> +		.name	= "xgene-slimpro-i2c",
-> +		.of_match_table = of_match_ptr(xgene_slimpro_i2c_id)
-
-You are DT only, do we need of_match_ptr?
-
-> +MODULE_DESCRIPTION("APM X-Gene SLIMpro I2C driver");
-> +MODULE_LICENSE("GPL");
-
-MODULE_AUTHOR left out intentionally?
-
-Thanks,
+Regards,
 
    Wolfram
