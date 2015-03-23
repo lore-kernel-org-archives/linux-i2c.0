@@ -1,80 +1,73 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v5 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Mon, 23 Mar 2015 09:45:05 +0100
-Message-ID: <20150323084505.GH9742@pengutronix.de>
-References: <1426917922-61356-1-git-send-email-eddie.huang@mediatek.com>
- <1426917922-61356-2-git-send-email-eddie.huang@mediatek.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2 2/4] Documentation: i2c: describe the new slave mode
+Date: Mon, 23 Mar 2015 09:45:10 +0100
+Message-ID: <20150323084510.GL5664@pengutronix.de>
+References: <1427099199-3628-1-git-send-email-wsa@the-dreams.de>
+ <1427099199-3628-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1426917922-61356-2-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1427099199-3628-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Mar 21, 2015 at 02:05:20PM +0800, Eddie Huang wrote:
-> From: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> 
-> Add devicetree bindings for Mediatek Soc I2C driver.
-> 
-> Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> Signed-off-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-mt6577.txt         | 41 ++++++++++++++++++++++
->  1 file changed, 41 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> new file mode 100644
-> index 0000000..eff52c1
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> @@ -0,0 +1,41 @@
-> +* Mediatek's I2C controller
-> +
-> +The Mediatek's I2C controller is used to interface with I2C devices.
-> +
-> +Required properties:
-> +  - compatible: value should be either of the following.
-> +      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-> +      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-> +      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> +      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> +      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-> +  - reg: physical base address of the controller and dma base, length of memory
-> +    mapped region.
-> +  - interrupts: interrupt number to the cpu.
-> +  - clock-div: the fixed value for frequency divider of clock source in i2c
-> +    module. Each IC may be different.
-> +  - clocks: clock name from clock manager
-> +  - clock-names: Must include "main" and "dma", if enable have-pmic need include
-> +    "pmic" extra.
-> +
-> +Optional properties:
-> +  - clock-frequency: Frequency in Hz of the bus when transfer, the default value
-> +    is 100000.
-> +  - mediatek,have-pmic: platform can control i2c form special pmic side.
-> +    Only mt6589 and mt8135 support this feature.
-> +  - mediatek,use-push-pull: IO config use push-pull mode.
-> +
-> +Example:
-> +
-> +	i2c0: i2c@1100d000 {
-> +			compatible = "mediatek,mt6577-i2c";
-> +			reg = <0x1100d000 0x70>,
-> +			      <0x11000300 0x80>;
-> +			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-> +			clock-frequency = <100000>;
+Hello Wolfram,
 
-Since 100000 is the default you should probably pick another speed for
-this example or drop the property.
+On Mon, Mar 23, 2015 at 09:26:37AM +0100, Wolfram Sang wrote:
+> +Developer manual
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +I2C slave events
+> +----------------
+> +
+> +The bus driver sends an event to the backend using the following fun=
+ction:
+> +
+> +	ret =3D i2c_slave_event(client, event, &val)
+> +
+> +'client' describes the i2c slave device. 'event' is one of the speci=
+al event
+> +types described hereafter. 'val' holds an u8 value for the data byte=
+ to be
+> +read/written and is thus bidirectional. The pointer to val must alwa=
+ys be
+> +provided even if val is not used for an event, i.e. don't use NULL h=
+ere. 'ret'
+> +is the return value from the backend. Mandatory events must be provi=
+ded by the
+I don't understand why you want to force a valid pointer here. Accordin=
+g
+to my sense of defensive programming I'd say: If the bus driver doesn't
+expect the slave to consume/provide a value, let's pass NULL to notice
+the assumption being wrong. The wording is fine, now.
 
-Sascha
+> diff --git a/Documentation/i2c/summary b/Documentation/i2c/summary
+> index 13ab076dcd9248..809541ab352f03 100644
+> --- a/Documentation/i2c/summary
+> +++ b/Documentation/i2c/summary
+> @@ -41,7 +41,3 @@ integrated than Algorithm and Adapter.
+> =20
+>  For a given configuration, you will need a driver for your I2C bus, =
+and
+>  drivers for your I2C devices (usually one driver for each device).
+> -
+> -At this time, Linux only operates I2C (or SMBus) in master mode; you=
+ can't
+> -use these APIs to make a Linux system behave as a slave/device, eith=
+er to
+> -speak a custom protocol or to emulate some other device.
+\o/
 
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
