@@ -1,58 +1,106 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 2/4] Documentation: i2c: describe the new slave mode
-Date: Mon, 23 Mar 2015 10:04:46 +0100
-Message-ID: <20150323090446.GA3743@katana>
-References: <1427099199-3628-1-git-send-email-wsa@the-dreams.de>
- <1427099199-3628-3-git-send-email-wsa@the-dreams.de>
- <20150323084510.GL5664@pengutronix.de>
+Subject: Re: [PATCH V2 1/3] i2c: busses: add SLIMpro I2C device driver on APM
+ X-Gene platform
+Date: Mon, 23 Mar 2015 19:31:53 +0100
+Message-ID: <20150323183153.GA1128@katana>
+References: <1424288043-2995-1-git-send-email-fkan@apm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150323084510.GL5664-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1424288043-2995-1-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+Cc: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Feb 18, 2015 at 11:34:01AM -0800, Feng Kan wrote:
+> Add SLIMpro I2C device driver on APM X-Gene platform. This I2C
+> device driver use the SLIMpro Mailbox driver to tunnel message to
+> the SLIMpro coprocessor to do the work of accessing I2C components.
+> 
+> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sigh, I lost my first review, so here we go again...
+It looks mostly good. Using checkpatch with '--strict' will show some
+whitespace issues. Please fix these.
 
+> +config I2C_XGENE_SLIMPRO
+> +	tristate "APM X-Gene SoC I2C SLIMpro devices support"
+> +	depends on ARCH_XGENE && MAILBOX
 
-> I don't understand why you want to force a valid pointer here. According
-> to my sense of defensive programming I'd say: If the bus driver doesn't
-> expect the slave to consume/provide a value, let's pass NULL to notice
-> the assumption being wrong. The wording is fine, now.
+COMPILE_TEST?
 
-For me, an OOPS is quite much of a "notice". I assume there will be
-non-upstream backends. I am not keen to see devices in the field to OOPS
-because the implementation missed a case how to handle the pointer
-correctly. Now, the rule of thumb is easy: Always pass the pointer.
+> +static int start_i2c_msg_xfer(struct slimpro_i2c_dev *ctx)
+> +{
+> +	if (ctx->mbox_client.tx_block) {
+> +		if (!wait_for_completion_timeout(&ctx->rd_complete,
+> +						 msecs_to_jiffies
+> +						 (MAILBOX_OP_TIMEOUT)))
 
+Don't be too strict with the 80 char limit IMHO. I think it is more
+readable to combine the last two lines into one.
 
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> +	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
+> +					SLIMPRO_IIC_READ, protocol, addrlen,
+> +					readlen);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+ditto
 
-iQIcBAEBAgAGBQJVD9cuAAoJEBQN5MwUoCm22VcQALFPsVf1Hr2uPfhsxBaX9drb
-mGwik1ESbsytGeS19KvZw0gcckjznLJFBdjVYVseraCJoubbDmMIuhpEVMvUjfnz
-8z0Sk852YMk2nTRXY6quyVNVohTY4ZbWGNa+bVzDwtIfihc93wB+ZhHH2JBRNDYj
-Wc8IYpvZoZiIsiB5zrjb2hTZGQoq3oufEZ4cVsSO8w6sPBfxSMQ0fAZSYPq155In
-k9S35FXDMEJ0/W00metIXPWpl3pJ4Bt1nYiHI4JCr9Tjz6a7NGKetdh6UC3T1Emg
-nRKE+inND53kbvyC75z9qbqUt7GMces8rzveU2uORDbCzWDGOqDesKwugTdt9Lmb
-1Hm2om6YbBty1/+sE1lIfHN2Yseb4H3wQFy0Nl7g1dKcmc457EYXgfdY/ec6vKS/
-HDwI2Rggbz0zGMHqsgz7FbhDV9sFnQU088XGihmC6nMmJcesztKBNkpnY+7LEfvU
-VR2Ycd4xcaGbvrm7sLpUtXX+1hINRxWIvmt12InSfmxjIcLiqhXE2v3pwyYxiW32
-C6lCz82La+M1BOMOKYJa9dQ6vI4/O4B8Pzm7oyF/KgSML4dM2+S9YqGqJd9HhTzT
-3+pqyaEehOXWtWMLDM3f6oPyFNIB+JJxBWeLwu3klNLVX32RB1pIBat7gRaJ6zFr
-usvy/mNHVfDr3OO6aAOv
-=SPLx
------END PGP SIGNATURE-----
+> +	msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
+> +					SLIMPRO_IIC_WRITE, protocol, addrlen,
+> +					writelen);
 
---jI8keyz6grp/JLjh--
+ditto
+
+> +	paddr = dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
+> +			       DMA_FROM_DEVICE);
+
+The device should be the device of the dma channel.
+
+> +	paddr = dma_map_single(ctx->dev, ctx->dma_buffer, writelen,
+> +			       DMA_TO_DEVICE);
+
+ditto
+
+> +	rc = dma_mapping_error(ctx->dev, paddr);
+> +	if (dma_mapping_error(ctx->dev, paddr)) {
+
+if (rc)
+
+> +static struct i2c_algorithm xgene_slimpro_i2c_algorithm = {
+> +	.smbus_xfer = xgene_slimpro_i2c_xfer,
+
+Might be a tad less confusing to name this function
+xgene_slimpro_smbus_xfer. You decide.
+
+> +	rc = i2c_add_adapter(adapter);
+> +	if (rc) {
+> +		dev_err(&pdev->dev, "Adapter registeration failed\n");
+> +		return rc;
+> +	}
+> +
+> +	rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+> +	if (rc)
+> +		dev_warn(&pdev->dev, "Unable to set dma mask\n");
+
+Shouldn't that be before i2c_add_adapter?
+
+> +static struct platform_driver xgene_slimpro_i2c_driver = {
+> +	.probe	= xgene_slimpro_i2c_probe,
+> +	.remove	= xgene_slimpro_i2c_remove,
+> +	.driver	= {
+> +		.name	= "xgene-slimpro-i2c",
+> +		.of_match_table = of_match_ptr(xgene_slimpro_i2c_id)
+
+You are DT only, do we need of_match_ptr?
+
+> +MODULE_DESCRIPTION("APM X-Gene SLIMpro I2C driver");
+> +MODULE_LICENSE("GPL");
+
+MODULE_AUTHOR left out intentionally?
+
+Thanks,
+
+   Wolfram
