@@ -1,77 +1,43 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [PATCH v5 3/3] I2C: mediatek: Add driver for MediaTek MT8173 I2C
- controller
-Date: Mon, 23 Mar 2015 08:39:05 +0100
-Message-ID: <20150323073905.GF9742@pengutronix.de>
-References: <1426917922-61356-1-git-send-email-eddie.huang@mediatek.com>
- <1426917922-61356-4-git-send-email-eddie.huang@mediatek.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH v2 0/4] i2c: slave: API updates
+Date: Mon, 23 Mar 2015 09:26:35 +0100
+Message-ID: <1427099199-3628-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1426917922-61356-4-git-send-email-eddie.huang@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie Huang <eddie.huang@mediatek.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Matthias Brugger <matthias.bgg@gmail.com>, Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Mark Rutland <mark.rutland@arm.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, David Box <david.e.box@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jean Delvare <jdelvare@suse.de>, Xudong Chen <xudong.chen@mediatek.com>, Boris BREZILLON <boris.brezillon@free-electrons.com>, Arnd Bergmann <arnd@arndb.de>, Liguo Zhang <liguo.zhang@mediatek.com>, Wei Yan <sledge.yanwei@huawei.com>, Bjorn Andersson <bjorn.andersson@sonymobile.com>, Neelesh Gupta <neelegup@linux.vnet.ibm.com>, devicetree@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Beniamino Galvani <b.galvani@gmail.com>, Rob Herring <robh+dt@kernel.org>, linux-mediatek@lists.infradead.org, linux-arm-
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Mar 21, 2015 at 02:05:22PM +0800, Eddie Huang wrote:
-> Add mediatek MT8173 I2C controller driver. Compare to I2C controller
-> of earlier mediatek SoC, MT8173 fix write-then-read limitation, and
-> also increase message size to 64kb.
-> 
+So, after some more thoughts and people using the slave framework, some API
+updates seemed in place. Also, the documentation is now here. Please read the
+patch description for details. Thanks to all people joining the discussion,
+especially Uwe and Geert!
 
-[...]
+Changes since V1:
 
-> +static const struct i2c_adapter_quirks mt8173_i2c_quirks = {
-> +	.max_num_msgs = MAX_MSG_NUM_MT8173,
-> +	.max_write_len = MAX_DMA_TRANS_SIZE_MT8173,
-> +	.max_read_len = MAX_DMA_TRANS_SIZE_MT8173,
-> +	.max_comb_1st_msg_len = MAX_DMA_TRANS_SIZE_MT8173,
-> +	.max_comb_2nd_msg_len = MAX_WRRD_TRANS_SIZE_MT8173,
-> +};
-> +
->  static int mtk_i2c_probe(struct platform_device *pdev)
->  {
->  	int ret = 0;
-> @@ -587,7 +626,8 @@ static int mtk_i2c_probe(struct platform_device *pdev)
->  		return -EINVAL;
->  
->  	i2c->platform_compat = mtk_get_device_prop(pdev);
-> -	if (i2c->have_pmic && (i2c->platform_compat & COMPAT_MT6577))
-> +	if (i2c->have_pmic && (i2c->platform_compat &
-> +			(COMPAT_MT6577 | COMPAT_MT8173)))
->  		return -EINVAL;
->  
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> @@ -613,7 +653,10 @@ static int mtk_i2c_probe(struct platform_device *pdev)
->  	i2c->adap.dev.parent = &pdev->dev;
->  	i2c->adap.owner = THIS_MODULE;
->  	i2c->adap.algo = &mtk_i2c_algorithm;
-> -	i2c->adap.quirks = &mt6577_i2c_quirks;
-> +	if (i2c->platform_compat & COMPAT_MT8173)
-> +		i2c->adap.quirks = &mt8173_i2c_quirks;
-> +	else
-> +		i2c->adap.quirks = &mt6577_i2c_quirks;
+* added acks, except for patch 2 which has too many changes to keep them IMO
+* reworded/updated the issues found in patch 2
+* added patch 4
 
-Instead of putting an integer into struct of_device_id you should
-introduce a
+Wolfram Sang (4):
+  i2c: slave: rework the slave API
+  Documentation: i2c: describe the new slave mode
+  i2c: slave: add documentation for i2c-slave-eeprom
+  i2c: slave-eeprom: add more info when to increase the pointer
 
-struct mtk_i2c_data {
-	struct i2c_adapter_quirks quirks;
-	int compat;
-	/* Additional SoC specific data */
-};
-
-and put a pointer to this directly into the of_device_id. This way you
-need less casting and can put newly discovered differences diretly into
-some data struct and don't have to introduce if(socxy) ... else ...
-everytime.
-
-Sascha
+ Documentation/i2c/slave-eeprom-backend |  14 +++
+ Documentation/i2c/slave-interface      | 179 +++++++++++++++++++++++++++++++++
+ Documentation/i2c/summary              |   4 -
+ drivers/i2c/busses/i2c-rcar.c          |  10 +-
+ drivers/i2c/i2c-slave-eeprom.c         |  18 ++--
+ include/linux/i2c.h                    |   8 +-
+ 6 files changed, 213 insertions(+), 20 deletions(-)
+ create mode 100644 Documentation/i2c/slave-eeprom-backend
+ create mode 100644 Documentation/i2c/slave-interface
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.1.4
+
