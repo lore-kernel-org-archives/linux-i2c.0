@@ -1,134 +1,53 @@
-From: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH 1/1] i2c: core: Add support for best effort block read emulation
-Date: Wed, 25 Mar 2015 16:33:20 +0200
-Message-ID: <1427294000-32406-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Zubair Lutfullah Kakakhel <Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH_V2 0/2] i2s: jz4780: Add Ingenic JZ4780 i2c driver
+Date: Wed, 25 Mar 2015 15:54:58 +0000
+Message-ID: <5512DA52.1070202@imgtec.com>
+References: <1426084004-10364-1-git-send-email-Zubair.Kakakhel@imgtec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1426084004-10364-1-git-send-email-Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-
-There are devices that need to handle block transactions
-regardless of the capabilities exported by the adapter.
-For performance reasons, they need to use i2c read blocks
-if available, otherwise emulate the block transaction with word
-or byte transactions.
-
-Add support for a helper function that would read a data block
-using the best transfer available: I2C_FUNC_SMBUS_READ_I2C_BLOCK,
-I2C_FUNC_SMBUS_READ_WORD_DATA or I2C_FUNC_SMBUS_READ_BYTE_DATA.
-
-Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
 
 Hi,
 
-This is a new API proposal to handle i2c block emulation in the
-core instead of the driver code.
+Just wondering if this has gotten lost in the archives?
 
-This is needed for a set of iio sensor changes ([1], [2], [3])
-that would otherwise duplicate this code. There are also some
-usages of this functionality in the kernel (e.g. eeprom driver at24).
+Regards,
+ZubairLK
 
-Please let me know what you think.
-
-Thanks,
-Irina
-
-[1] https://lkml.org/lkml/2015/2/16/408
-[2] https://lkml.org/lkml/2015/2/16/413
-[3] https://lkml.org/lkml/2015/2/16/402
-
- drivers/i2c/i2c-core.c | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h    |  3 +++
- 2 files changed, 65 insertions(+)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index fe80f85..2579f7d 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2907,6 +2907,68 @@ trace:
- }
- EXPORT_SYMBOL(i2c_smbus_xfer);
- 
-+/**
-+ * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
-+ * @client: Handle to slave device
-+ * @command: Byte interpreted by slave
-+ * @length: Size of data block; SMBus allows at most 32 bytes
-+ * @values: Byte array into which data will be read; big enough to hold
-+ *	the data returned by the slave.  SMBus allows at most 32 bytes.
-+ *
-+ * This executes the SMBus "block read" protocol if supported by the adapter.
-+ * If block read is not supported, it emulates it using either word or byte
-+ * read protocols depending on availability.
-+ */
-+s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
-+					      u8 command, u8 length, u8 *values)
-+{
-+	u8 i;
-+	int status;
-+
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
-+
-+	if (i2c_check_functionality(client->adapter,
-+				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
-+		return i2c_smbus_read_i2c_block_data(client, command,
-+						     length, values);
-+	} else if (i2c_check_functionality(client->adapter,
-+					   I2C_FUNC_SMBUS_READ_WORD_DATA |
-+					   I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
-+		for (i = 0; (i + 2) <= length; i += 2) {
-+			status = i2c_smbus_read_word_data(client, command + i);
-+			if (status < 0)
-+				return status;
-+			values[i] = status & 0xff;
-+			values[i+1] = status >> 8;
-+		}
-+		if (i < length) {
-+			status = i2c_smbus_read_byte_data(client, command + i);
-+			if (status < 0)
-+				return status;
-+			values[i] = status;
-+			i++;
-+		}
-+		return i;
-+	} else if (i2c_check_functionality(client->adapter,
-+					   I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
-+		for (i = 0; i < length; i++) {
-+			status = i2c_smbus_read_byte_data(client, command + i);
-+			if (status < 0)
-+				return status;
-+			values[i] = status;
-+		}
-+		return i;
-+	}
-+
-+	dev_err(&client->adapter->dev, "Unsupported transactions: %d,%d,%d\n",
-+		I2C_SMBUS_I2C_BLOCK_DATA, I2C_SMBUS_WORD_DATA,
-+		I2C_SMBUS_BYTE_DATA);
-+
-+	return -EOPNOTSUPP;
-+}
-+EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data_or_emulated);
-+
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
- {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 243d1a1..f3ede76 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -121,6 +121,9 @@ extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
- extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
- 					  u8 command, u8 length,
- 					  const u8 *values);
-+extern s32
-+i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
-+					  u8 command, u8 length, u8 *values);
- #endif /* I2C */
- 
- /**
--- 
-1.9.1
+On 11/03/15 14:26, Zubair Lutfullah Kakakhel wrote:
+> Hi,
+> 
+> Here we have two patches that add support for the i2c 
+> controller present in the Ingenic JZ4780.
+> 
+> V1 - > V2
+> Rebased to v4.0-rc3
+> Minor tweaks/fixes. Details in individual patch commits.
+> 
+> Feedback welcome.
+> 
+> Thank-you
+> ZubairLK
+> 
+> Zubair Lutfullah Kakakhel (2):
+>   dt-bindings: i2c: Add dt binding documentation for ingenic jz4780 SoC
+>   i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780
+> 
+>  .../devicetree/bindings/i2c/i2c-jz4780.txt         |  35 +
+>  drivers/i2c/busses/Kconfig                         |   9 +
+>  drivers/i2c/busses/Makefile                        |   1 +
+>  drivers/i2c/busses/i2c-jz4780.c                    | 839 +++++++++++++++++++++
+>  4 files changed, 884 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-jz4780.txt
+>  create mode 100644 drivers/i2c/busses/i2c-jz4780.c
+> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
