@@ -1,56 +1,53 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
- SMBus adapters
-Date: Wed, 25 Mar 2015 09:37:03 -0700
-Message-ID: <20150325163703.GA8389@roeck-us.net>
-References: <20150212040126.GA1691@roeck-us.net>
- <20150216120951.GA2840@katana>
- <20150317042049.GA6765@roeck-us.net>
- <20150318132707.GD3580@katana>
- <550A4162.8000009@roeck-us.net>
- <20150319081612.GA900@katana>
- <20150319174314.GA17329@roeck-us.net>
- <20150319213937.GA899@katana>
- <5512C213.7030705@roeck-us.net>
- <20150325161504.GA29838@katana>
+From: Ioan Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
+Subject: [PATCH] i2c: i2c-mux-gpio: Change log level to debug for probe
+ deferrals
+Date: Wed, 25 Mar 2015 18:43:51 +0100
+Message-ID: <20150325174351.GB5209@ulegcpding.emea.nsn-net.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150325161504.GA29838@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mathias Rulf <mathias.rulf-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 25, 2015 at 05:15:04PM +0100, Wolfram Sang wrote:
-> Guenter,
-> 
-> thanks for the update
-> 
-> > Ultimately, the real problem is how i2c-dev accesses a client, not how
-> > i2c client drivers (who assume they have exclusive access to a chip)
-> > handle multi-command sequences. Forcing extensive locking on all drivers
-> > because of i2c-dev just doesn't seem to be the right thing to do.
-> 
-> I agree. i2c-dev is too much of a special case.
-> 
-> And since at24 has its own lock (I missed that), your patch might as
-> well be good enough to be applied, I'd think.
-> 
+Probe deferral is not an error case. It happens only when
+the necessary dependencies are not there yet.
 
-Ah, sorry, I blindly assumed that you are aware of that. Yes, at24
-itself is not the problem, it is parallel access to the chip by i2c-dev.
+The driver core is already printing a message when a driver
+requests probe deferral, so this can be traced in the logs
+without these error prints.
 
-The same is actually true for all the other drivers I looked at;
-usually they have their own lock(s), but such locks do not protect
-against interference by i2c-dev.
+This patch changes the error messages from these deferral cases
+to debug messages.
 
-The bad part is that i2c-dev is heavily used by user space at my
-workplace, and that code happily messes with chips which are also
-handled by kernel drivers. But as I said, I have no real good idea
-how to fix that - neither the user-space code nor how i2c-dev
-interfers with (or completely messes up) device access by drivers.
+Signed-off-by: Ionut Nicu <ioan.nicu.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/muxes/i2c-mux-gpio.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-Guenter
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index f5798eb..9f1cfca 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -77,7 +77,7 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+        }
+        adapter = of_find_i2c_adapter_by_node(adapter_np);
+        if (!adapter) {
+-               dev_err(&pdev->dev, "Cannot find parent bus\n");
++               dev_dbg(&pdev->dev, "Cannot find parent bus\n");
+                return -EPROBE_DEFER;
+        }
+        mux->data.parent = i2c_adapter_id(adapter);
+@@ -178,7 +178,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 
+        parent = i2c_get_adapter(mux->data.parent);
+        if (!parent) {
+-               dev_err(&pdev->dev, "Parent adapter (%d) not found\n",
++               dev_dbg(&pdev->dev, "Parent adapter (%d) not found\n",
+                        mux->data.parent);
+                return -EPROBE_DEFER;
+        }
+-- 
+1.7.1
