@@ -1,236 +1,53 @@
-From: Sricharan R <sricharan@codeaurora.org>
-Subject: Re: [PATCH 3/6] i2c: qup: Add bam dma capabilities
-Date: Thu, 26 Mar 2015 11:38:07 +0530
-Message-ID: <5513A247.5030503@codeaurora.org>
-References: <1426268992-19298-1-git-send-email-sricharan@codeaurora.org> <1426268992-19298-4-git-send-email-sricharan@codeaurora.org> <1427289056.25053.21.camel@mm-sol.com>
+From: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 2/6] i2c: qup: Add V2 tags support
+Date: Thu, 26 Mar 2015 09:31:50 +0200
+Message-ID: <1427355110.7093.1.camel@mm-sol.com>
+References: <1426268992-19298-1-git-send-email-sricharan@codeaurora.org>
+	 <1426268992-19298-3-git-send-email-sricharan@codeaurora.org>
+	 <1427286263.25053.18.camel@mm-sol.com> <55139CD4.5040100@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1427289056.25053.21.camel@mm-sol.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <55139CD4.5040100-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ivan,
+Hi Sricharan,
 
-On 03/25/2015 06:40 PM, Ivan T. Ivanov wrote:
->
-> Hi Sricharan,
->
-> On Fri, 2015-03-13 at 23:19 +0530, Sricharan R wrote:
->
->
->>   #define QUP_I2C_MASTER_GEN     0x408
->> +#define QUP_I2C_MASTER_CONFIG  0x408
->>
->
-> Unused.
->
-Ok, will remove it
->>   #define QUP_READ_LIMIT                 256
->> +#define MX_TX_RX_LEN                   SZ_64K
->> +#define MX_BLOCKS                      (MX_TX_RX_LEN / QUP_READ_LIMIT)
->> +
->> +#define TOUT_MAX                       300 /* Max timeout for 32k tx/tx */
->>
->
-> seconds, muliseconds?
->
-  Ok. Will add milliseconds.
->>   struct qup_i2c_config {
->>          int tag_ver;
->>          int max_freq;
->>   };
->>
->> +struct tag {
->
-> Please use consistent naming convention.
->
-ok.
->> +       u8 *start;
->> +       dma_addr_t addr;
->> +};
->> +
->>   struct qup_i2c_dev {
->>          struct device*dev;
->>          void __iomem*base;
->> @@ -157,9 +181,35 @@ struct qup_i2c_dev {
->>          /* QUP core errors */
->>          u32     qup_err;
->>
->> +       /* dma parameters */
->> +       bool    is_dma;
->> +       struct  dma_pool *dpool;
->> +       struct  tag start_tag;
->> +       struct  tag scratch_tag;
->> +       struct  tag footer_tag;
->> +       struct  dma_chan *dma_tx;
->> +       struct  dma_chan *dma_rx;
->> +       struct  scatterlist *sg_tx;
->> +       struct  scatterlist *sg_rx;
->> +       dma_addr_tsg_tx_phys;
->> +       dma_addr_tsg_rx_phys;
->
-> Maybe these could be organized in structure per direction.
->
-ok, will group it.
->> +
->>          struct completionxfer;
->>   };
->>
->> +struct i2c_bam_xfer {
->
-> Unused.
->
-  Right. Will remove the whole thing. Thanks.
->> +       struct qup_i2c_dev *qup;
->> +       u32 start_len;
->> +
->> +       u32 rx_nents;
->> +       u32 tx_nents;
->> +
->> +       struct dma_async_tx_descriptor *tx_desc;
->> +       dma_cookie_t tx_cookie;
->> +       struct dma_async_tx_descriptor *rx_desc;
->> +       dma_cookie_t rx_cookie;
->
-> structure per direction.
->
->> +};
->> +
->>
-  Infact should be removed.
->
->> +static void bam_i2c_callback(void *data)
->> +{
->
-> Please use consistent naming, here and bellow.
->
-ok, will change.
->> +       struct qup_i2c_dev *qup = data;
->> +
->> +       complete(&qup->xfer);
->> +}
->> +
->> +static int get_start_tag(u8 *tag, struct i2c_msg *msg, int first, int last,
->> +                       int blen)
->> +{
->> +       u8 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) == I2C_M_RD);
->> +       u8 op;
->> +       int len = 0;
->> +
->> +       /* always issue stop for each read block */
->> +       if (last) {
->> +               if (msg->flags & I2C_M_RD)
->> +                       op = QUP_TAG_V2_DATARD_STOP;
->> +               else
->> +                       op = QUP_TAG_V2_DATAWR_STOP;
->> +       } else {
->> +               if (msg->flags & I2C_M_RD)
->> +                       op = QUP_TAG_V2_DATARD;
->> +               else
->> +                       op = QUP_TAG_V2_DATAWR;
->> +       }
->> +
->> +       if (msg->flags & I2C_M_TEN) {
->> +               len += 5;
->> +               tag[0] = QUP_TAG_V2_START;
->> +               tag[1] = addr;
->> +               tag[2] = op;
->> +               tag[3] = blen;
->> +
->> +               if (msg->flags & I2C_M_RD && last) {
->> +                       len += 2;
->> +                       tag[4] = QUP_BAM_INPUT_EOT;
->> +                       tag[5] = QUP_BAM_FLUSH_STOP;
->> +               }
->> +       } else {
->> +               if (first) {
->> +                       tag[len++] = QUP_TAG_V2_START;
->> +                       tag[len++] = addr;
->> +               }
->> +
->> +               tag[len++] = op;
->> +               tag[len++] = blen;
->> +
->> +               if (msg->flags & I2C_M_RD & last) {
->> +                       tag[len++] = QUP_BAM_INPUT_EOT;
->> +                       tag[len++] = QUP_BAM_FLUSH_STOP;
->> +               }
->> +       }
->> +
->> +       return len;
->> +}
->
-> Maybe could be split to 2 functions?
->
-hmm, ok will split couple of small ones.
->> -static const struct i2c_algorithm qup_i2c_algo = {
->> +static struct i2c_algorithm qup_i2c_algo = {
->
-> Why?
->
-  oops. Should not have been changed. Will fix.
->>          .master_xfer= qup_i2c_xfer,
->>          .functionality= qup_i2c_func,
->>   };
->> @@ -839,6 +1136,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
->>          u32 clk_freq = 100000;
->>          const struct qup_i2c_config *config;
->>          const struct of_device_id *of_id;
->> +       int blocks;
->>
->>          qup = devm_kzalloc(&pdev->dev, sizeof(*qup), GFP_KERNEL);
->>          if (!qup)
->> @@ -875,6 +1173,53 @@ static int qup_i2c_probe(struct platform_device *pdev)
->>                  return qup->irq;
->>          }
->>
->> +       if (of_device_is_compatible(pdev->dev.of_node, "qcom,i2c-qup-v2.1.1") ||
->> +               of_device_is_compatible(pdev->dev.of_node,
->> +                       "qcom,i2c-qup-v2.2.1")) {
->
-> Logic will be simpler if you check just for version 1 of the controller.
-  yes. Will fix it.
->
->> +               qup->dma_rx = dma_request_slave_channel(&pdev->dev, "bam-rx");
->> +
->
-> Please use dma_request_slave_channel_reason.
->
-> As Andy noted, please use just "rx", "tx"
->
-ok. will change it.
->> +               if (!qup->dma_rx)
->> +                       return -EPROBE_DEFER;
->
-> Don't mask other errors, here and bellow. DMA support should be optional.
->
-  Ok, will fix here.
->>                  dev_err(qup->dev, "Could not get core clock\n");
->> @@ -989,6 +1334,14 @@ static int qup_i2c_remove(struct platform_device *pdev)
->>   {
->>          struct qup_i2c_dev *qup = platform_get_drvdata(pdev);
->>
->> +       dma_pool_free(qup->dpool, qup->start_tag.start,
->> +                                                               qup->start_tag.addr);
->> +       dma_pool_free(qup->dpool, qup->scratch_tag.start,
->> +                                                               qup->scratch_tag.addr);
->> +       dma_pool_free(qup->dpool, qup->footer_tag.start,
->> +                                                               qup->footer_tag.addr);
->> +       dma_pool_destroy(qup->dpool);
->
-> Only if is_dma, right?
->
-Right. Will add the check.
-> DMA mapping code omitted from review. I don't understand it well enough, sorry.
->
-   Ok, thanks for reviewing the rest.
+On Thu, 2015-03-26 at 11:14 +0530, Sricharan R wrote:
+> 
+> > > +       if (msg->flags & I2C_M_RD)
+> > > +               qup->rx_tag_len = (qup->blocks << 1);
+> > 
+> > here again.
+> > 
+> hmm, why not shift ?
+
+Because it makes reading code harder and because compiler
+ is smart enough to choose appropriate instruction for
+underling CPU architecture.
+
+> > > +       else
+> > > +               qup->rx_tag_len = 0;
+> > > +}
+> > > +
+> > > +static u32 qup_i2c_xfer_data(struct qup_i2c_dev *qup, int len,
+> > > +                                                               u8 *buf, int last)
+> > > +{
+> > 
+> > I think that xfer is too vague in this case, prefer write or send.
+> > 
+> ok. Will change it to send.
+> > > +       static u32 val, idx;
+> > 
+> > static? please fix.
+>   That was intentional. Using to pack tag and data in to one word across
+>   two calls. So preserving val, idx across calls.
+
+Sorry this is no go! Reorganize the code, please.
 
 Regards,
-  Sricharan
-
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a 
-member of Code Aurora Forum, hosted by The Linux Foundation
+Ivan
