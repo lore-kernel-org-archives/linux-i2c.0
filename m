@@ -1,61 +1,61 @@
-From: Sricharan R <sricharan@codeaurora.org>
-Subject: Re: [PATCH 2/6] i2c: qup: Add V2 tags support
-Date: Thu, 26 Mar 2015 14:06:01 +0530
-Message-ID: <5513C4F1.4080602@codeaurora.org>
-References: <1426268992-19298-1-git-send-email-sricharan@codeaurora.org>	 <1426268992-19298-3-git-send-email-sricharan@codeaurora.org>	 <1427286263.25053.18.camel@mm-sol.com> <55139CD4.5040100@codeaurora.org> <1427355110.7093.1.camel@mm-sol.com>
+From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-mux-gpio: Change log level to debug for probe
+ deferrals
+Date: Thu, 26 Mar 2015 10:09:51 +0100
+Message-ID: <5513CCDF.4090301@nokia.com>
+References: <20150325174351.GB5209@ulegcpding.emea.nsn-net.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1427355110.7093.1.camel@mm-sol.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, agross@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, galak@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150325174351.GB5209-w/hiR2Wfoz+b6vRP15A4uhaOaYmgohGe0e7PPNI6Mm0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ioan Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Mathias Rulf <mathias.rulf-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 25/03/15 18:43, Ioan Nicu wrote:
+> Probe deferral is not an error case. It happens only when
+> the necessary dependencies are not there yet.
+> 
+> The driver core is already printing a message when a driver
+> requests probe deferral, so this can be traced in the logs
+> without these error prints.
+> 
+> This patch changes the error messages from these deferral cases
+> to debug messages.
+> 
+> Signed-off-by: Ionut Nicu <ioan.nicu.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 
-Hi Ivan,
+Acked-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 
-On 03/26/2015 01:01 PM, Ivan T. Ivanov wrote:
-> Hi Sricharan,
->
-> On Thu, 2015-03-26 at 11:14 +0530, Sricharan R wrote:
->>
->>>> +       if (msg->flags & I2C_M_RD)
->>>> +               qup->rx_tag_len = (qup->blocks << 1);
->>>
->>> here again.
->>>
->> hmm, why not shift ?
->
-> Because it makes reading code harder and because compiler
->   is smart enough to choose appropriate instruction for
-> underling CPU architecture.
->
-ok.
->>>> +       else
->>>> +               qup->rx_tag_len = 0;
->>>> +}
->>>> +
->>>> +static u32 qup_i2c_xfer_data(struct qup_i2c_dev *qup, int len,
->>>> +                                                               u8 *buf, int last)
->>>> +{
->>>
->>> I think that xfer is too vague in this case, prefer write or send.
->>>
->> ok. Will change it to send.
->>>> +       static u32 val, idx;
->>>
->>> static? please fix.
->>    That was intentional. Using to pack tag and data in to one word across
->>    two calls. So preserving val, idx across calls.
->
-> Sorry this is no go! Reorganize the code, please.
->
-Ok, will change this function.
+> ---
+>  drivers/i2c/muxes/i2c-mux-gpio.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+> index f5798eb..9f1cfca 100644
+> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> @@ -77,7 +77,7 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+>         }
+>         adapter = of_find_i2c_adapter_by_node(adapter_np);
+>         if (!adapter) {
+> -               dev_err(&pdev->dev, "Cannot find parent bus\n");
+> +               dev_dbg(&pdev->dev, "Cannot find parent bus\n");
+>                 return -EPROBE_DEFER;
+>         }
+>         mux->data.parent = i2c_adapter_id(adapter);
+> @@ -178,7 +178,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+>  
+>         parent = i2c_get_adapter(mux->data.parent);
+>         if (!parent) {
+> -               dev_err(&pdev->dev, "Parent adapter (%d) not found\n",
+> +               dev_dbg(&pdev->dev, "Parent adapter (%d) not found\n",
+>                         mux->data.parent);
+>                 return -EPROBE_DEFER;
+>         }
 
-Regards,
-  Sricharan
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a 
-member of Code Aurora Forum, hosted by The Linux Foundation
+Best regards,
+Alexander Sverdlin.
