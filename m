@@ -1,199 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH_V2 2/2] i2c: jz4780: Add i2c bus controller driver for
- Ingenic JZ4780
-Date: Fri, 27 Mar 2015 21:16:53 +0100
-Message-ID: <20150327201652.GA975@katana>
-References: <1426084004-10364-1-git-send-email-Zubair.Kakakhel@imgtec.com>
- <1426084004-10364-3-git-send-email-Zubair.Kakakhel@imgtec.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
+From: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
+ nodes
+Date: Fri, 27 Mar 2015 22:08:06 +0100
+Message-ID: <5515C6B6.7080903@gmail.com>
+References: <55097C46.9010605@gmail.com> <20150318140037.GE3580@katana> <550A05E5.3050100@gmail.com> <20150319100944.GA914@katana> <550AEF9D.6090307@wwwdotorg.org> <20150319160208.GF7657@katana> <550B3725.10209@gmail.com> <20150320101925.GC2071@katana> <20150321210028.GA1078@katana> <550EBDBC.9000903@gmail.com> <20150323183211.GB1128@katana>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1426084004-10364-3-git-send-email-Zubair.Kakakhel@imgtec.com>
+In-Reply-To: <20150323183211.GB1128@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@free-electrons.com>, Gabriel Dobato <dobatog@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 23.03.2015 19:32, Wolfram Sang wrote:
+>> If modifying i2c-mux-pinctrl to respect the sub-bus status property is
+>> such a big issue, I'd rather leave the driver as is and expose all
+>> sub-busses to userspace.
+>
+> Well, dunno what 'big issue' is in your book :) What definately needs to
+> be done is:
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Wolfram,
 
-Hi,
+I had a look at the code in question again and prepared some patches
+to return ERR_PTRs from i2c_add_mux_adapter(), rework users to check
+for IS_ERR() and finally skip i2c_add_adapter for the OF disabled case.
 
-mostly looking good. checkpatch.pl --strict has some whitespaces and
-continuation issues, please fix them.
+I have them compile-tested but I don't have any hardware available
+right now.
 
-And sparse rightfully says:
+Anyway, I still have some questions.
 
-drivers/i2c/busses/i2c-jz4780.c:510:51: warning: cast truncates bits from c=
-onstant value (100 becomes 0)
+> * handle "status" at mux-core level, not mux-driver
 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 22da9c2..50b0c91 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -909,6 +909,15 @@ config I2C_RCAR
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-rcar.
-> =20
-> +config I2C_JZ4780
-> +	tristate "JZ4780 I2C controller interface support"
-> +	depends on MACH_JZ4780
+I get that.. but:
 
-|| COMPILE_TEST ?
+> * that probably needs us to convert i2c_add_mux_adapter() to return
+>    ERR_PTRs instead of NULL, so we can distinguish the "disabled" case
 
-> +	help
-> +	 If you say yes to this option, support will be included for the
-> +	 Ingenic JZ4780 I2C controller.
-> +
-> +	 If you don't know what to do here, say N.
-> +
+What do you want to return from i2c_add_mux_adapter() if you find an OF
+disabled child node?
 
-Sorting looks broken.
+AFAIKS, there is no explicit errno for a disabled device (node) so all
+I can imagine here is to return either the &priv->adap before actually
+calling i2c_add_adapter on it or NULL now that we explicitly check for
+errors.
 
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/i2c.h>
-> +#include <linux/init.h>
-> +#include <linux/time.h>
-> +#include <linux/sched.h>
-> +#include <linux/errno.h>
-> +#include <linux/clk.h>
-> +#include <linux/delay.h>
-> +#include <linux/slab.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/bitops.h>
-> +#include <linux/completion.h>
+> * that would mean to fix all existing users
 
-Please sort the includes, that prevents duplicates.
+If we choose to return NULL, those users who can deal with a
+missing/disabled sub-bus on the mux can check with IS_ERR()
+the others should check with IS_ERR_OR_NULL().
 
-> +static inline unsigned short jz4780_i2c_readw(struct jz4780_i2c *i2c,
-> +					unsigned long offset)
-> +{
-> +	return readw(i2c->iomem + offset);
-> +}
-> +
-> +static inline void jz4780_i2c_writew(struct jz4780_i2c *i2c,
-> +				     unsigned long offset, unsigned short val)
-> +{
-> +	writew(val, i2c->iomem + offset);
-> +}
+We could also choose to return some other errno (-ENODEV maybe)
+but still we'd have to double-check that return value on i2c-mux-pinctrl
+and the others too if we don't care that i2c_add_adapter() wasn't
+called for a mux.
 
-I don't think these functions add much compared to readw/writew, but you
-can keep them if you really want.
+> That's all not groundbreaking stuff, but needs caution and thoroughness.
+> There might be some gory details left, though...
 
-> +			do {
-> +				i2c_sta =3D jz4780_i2c_readw(i2c, JZ4780_I2C_STA);
-> +				if ((i2c_sta & JZ4780_I2C_STA_TFNF)
-> +					      && (i2c->wt_len > 0)) {
-> +					data =3D *i2c->wbuf;
-> +					data &=3D (~JZ4780_I2C_DC_READ);
-> +					jz4780_i2c_writew(i2c, JZ4780_I2C_DC,
-> +							  data);
-> +					i2c->wbuf++;
-> +					i2c->wt_len--;
-> +				} else {
-> +					break;
-> +				}
-> +			} while (1);
+As I said before, the intention was not disable a possible i2c bus that
+can be dynamically added/removed on that specific Dove SBC/CM-A510
+board but to have a single i2c-mux-pinctrl in the SoC dtsi just because
+the SoC has the optional i2c bus muxing.
 
-do/while(1) with else break;
+While thinking about it (and I still think of it as a 'big issue'
+compared to the intention of the initial patch) I came to the
+conclusion that I should maybe just go for a board-specific
+i2c-mux-pinctrl node instead of adding it to the SoC dtsi. That will
+also avoid doubled i2c busses on boards with just the default i2c
+option.
 
-That can be simplified with a while loop?
-
-> +static void jz4780_i2c_txabrt(struct jz4780_i2c *i2c, int src)
-> +{
-> +	int i;
-> +
-> +	dev_err(&i2c->adap.dev, "txabrt: 0x%08x\n", src);
-> +	dev_err(&i2c->adap.dev, "device addr=3D%x\n",
-> +				  jz4780_i2c_readw(i2c, JZ4780_I2C_TAR));
-> +	dev_err(&i2c->adap.dev, "send cmd count:%d  %d\n",
-> +				  i2c->cmd, i2c->cmd_buf[i2c->cmd]);
-> +	dev_err(&i2c->adap.dev, "receive data count:%d  %d\n",
-> +				  i2c->cmd, i2c->data_buf[i2c->cmd]);
-> +
-> +	for (i =3D 0; i < 16; i++) {
-> +		if (src & BIT(i))
-> +			dev_info(&i2c->adap.dev, "I2C TXABRT[%d]=3D%s\n",
-> +						 i, jz4780_i2c_abrt_src[i]);
-> +	}
-
-Isn't that more dev_dbg?
-
-> +	if (!timeout) {
-> +		dev_err(&i2c->adap.dev, "irq read timeout\n");
-> +		dev_err(&i2c->adap.dev, "send cmd count:%d  %d\n",
-> +					  i2c->cmd, i2c->cmd_buf[i2c->cmd]);
-> +		dev_err(&i2c->adap.dev, "receive data count:%d  %d\n",
-> +					  i2c->cmd, i2c->data_buf[i2c->cmd]);
-
-Same here with the last two messages?
-
-> +	if (msg->addr !=3D jz4780_i2c_readw(i2c, JZ4780_I2C_TAR)) {
-> +		ret =3D jz4780_i2c_set_target(i2c, msg->addr);
-> +		if (ret) {
-> +			dev_err(&i2c->adap.dev, "I2C set target failed\n");
-> +			goto out;
-> +		}
-
-set_target already has an error message. And set_target should return
-some errno, not -1.
-
-> +	}
-> +	for (i =3D 0; i < count; i++, msg++) {
-> +		if (msg->flags & I2C_M_RD)
-> +			ret =3D jz4780_i2c_xfer_read(i2c, msg->buf, msg->len,
-> +						   count, i);
-> +		else
-> +			ret =3D jz4780_i2c_xfer_write(i2c, msg->buf, msg->len,
-> +						    count, i);
-> +
-> +		if (ret) {
-> +			dev_err(&i2c->adap.dev, "I2C xfer failed\n");
-> +			ret =3D -EAGAIN;
-
-No use error codes like described in Documentation/i2c/fault-codes.
--EAGAIN has only one well defined meaning.
-
-> +	i2c->adap.owner		=3D THIS_MODULE;
-> +	i2c->adap.algo		=3D &jz4780_i2c_algorithm;
-> +	i2c->adap.algo_data	=3D i2c;
-> +	i2c->adap.timeout	=3D 5;
-
-5 jiffies? That's probably not what you meant. Why not leave the
-default?
-
-Thanks,
-
-   Wolfram
-
-
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVFbq0AAoJEBQN5MwUoCm2qUYP/3lJ4dhODClVXm2oHXbDhtkb
-7HjCilC+Pcz3t9hzsIWnMa8NfMQZ5beK+TfvruBvUJgpptDv2kDCHjkhIFBjmfCM
-i390B91oV++S6Qm0IsptU3fA2Xs8fr7PfdJeBd0GQnyfup25EZQ+DC4RLIEBlEri
-SdBrnGRGlRO+rop2f394df0l/0hHpM31jpOfYhAPlcsHuUZArlFl4zB86Is/HsHw
-pKyhFjtLmfkAoWDm4iVtad4gFcdo3djqrNRi99/A9vNEZH7Yun73aLI2jnSXV+/K
-f8m2kqpg6Zn0RdDPHY0rYA+bbFj9bUhjCyAL90Ja5RI1gR7X1RvQtgq5iZyo9Zwh
-QtZaqfmugJijMHddq61NPFk3bXInYC87rtf5TV37k1y0bXhjT0uxqZtpGqB0P3iC
-h8kRJJiHYXE7gNYqvAhDdPVfonbX4/HjzVXns3wOeqmiuLnqx+aCMwamhX7qj8K8
-6POhqhZdm4yqnA0xM5W4T4c5IiLg1fs+Ca1p3+APjOzzdyPs40oVmERsA4eOdTsF
-lldCVH8pV1AFPAsp3rjxFeDeQjzjIRNlf+XpzOfIHGBVxy3CLJSiMo6TVvmJ69+J
-c3hSVeI9YLnEqhncF16qIBtnw52Mp0rQW4bAKPVh86/UMEglhXvM0chRvPhdpqmX
-EszWACxo2nBcVsTK6AbA
-=Xf8s
------END PGP SIGNATURE-----
-
---82I3+IH0IqGh5yIs--
+Sebastian
