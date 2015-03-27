@@ -1,92 +1,116 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH/RFC] i2c: rcar: Support ACK by HW auto restart after NACK
-Date: Sat, 28 Mar 2015 07:04:55 +0900
-Message-ID: <20150327220451.GA25459@verge.net.au>
-References: <1424011480-3551-1-git-send-email-ykaneko0929@gmail.com>
- <2775fbb6b2e2b333ef2457133f419d4d@the-dreams.de>
- <20150304040635.GA12776@verge.net.au>
- <20150306221809.GB6572@katana>
- <20150327131104.GC19151@katana>
+From: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+Subject: Re: [PATCH V2 1/3] i2c: busses: add SLIMpro I2C device driver on APM
+ X-Gene platform
+Date: Fri, 27 Mar 2015 16:30:54 -0700
+Message-ID: <CAL85gmD9qsjBdY2Qyv05AjutU_uad7aaRjxORk8om8WeRQM1Eg@mail.gmail.com>
+References: <1424288043-2995-1-git-send-email-fkan@apm.com>
+	<20150323183153.GA1128@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150327131104.GC19151@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150323183153.GA1128@katana>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: patches <patches-qTEPVZfXA3Y@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On Mon, Mar 23, 2015 at 11:31 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> On Wed, Feb 18, 2015 at 11:34:01AM -0800, Feng Kan wrote:
+>> Add SLIMpro I2C device driver on APM X-Gene platform. This I2C
+>> device driver use the SLIMpro Mailbox driver to tunnel message to
+>> the SLIMpro coprocessor to do the work of accessing I2C components.
+>>
+>> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+>> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+>
+> Sigh, I lost my first review, so here we go again...
+> It looks mostly good. Using checkpatch with '--strict' will show some
+> whitespace issues. Please fix these.
+>
+>> +config I2C_XGENE_SLIMPRO
+>> +     tristate "APM X-Gene SoC I2C SLIMpro devices support"
+>> +     depends on ARCH_XGENE && MAILBOX
+>
+> COMPILE_TEST?
+>
+>> +static int start_i2c_msg_xfer(struct slimpro_i2c_dev *ctx)
+>> +{
+>> +     if (ctx->mbox_client.tx_block) {
+>> +             if (!wait_for_completion_timeout(&ctx->rd_complete,
+>> +                                              msecs_to_jiffies
+>> +                                              (MAILBOX_OP_TIMEOUT)))
+>
+> Don't be too strict with the 80 char limit IMHO. I think it is more
+> readable to combine the last two lines into one.
+>
+>> +     msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
+>> +                                     SLIMPRO_IIC_READ, protocol, addrlen,
+>> +                                     readlen);
+>
+> ditto
+>
+>> +     msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
+>> +                                     SLIMPRO_IIC_WRITE, protocol, addrlen,
+>> +                                     writelen);
+>
+> ditto
+>
+>> +     paddr = dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
+>> +                            DMA_FROM_DEVICE);
+>
+> The device should be the device of the dma channel.
 
-On Fri, Mar 27, 2015 at 02:11:04PM +0100, Wolfram Sang wrote:
-> On Fri, Mar 06, 2015 at 11:18:09PM +0100, Wolfram Sang wrote:
-> > 
-> > > > >Even if R-Car I2C received NACK, after that it might receive ACK
-> > > > >by HW auto restart. In case of that, driver would continue process.
-> > > > >If R-Car I2C didn't receive ACK, the driver would detect timeout
-> > > > >and would report NACK as -ENXIO.
-> > > > >
-> > > > >Signed-off-by: Ryo Kataoka <ryo.kataoka.wt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-> > > > >Signed-off-by: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > > 
-> > > > Excuse me, but what exactly is HW auto restart in this case? Is it a feature
-> > > > of the I2C slave?
-> > > 
-> > > I asked Kataoka-san about this and his response was as follows:
-> > > 
-> > >     It is a feature of the i2c-rcar(H/W) master.
-> > > 
-> > >     If system(CPU) is busy, NACK procedure may have interrupt latency.
-> > >     Since the clear of ICMCR.ESG bit is delayed, i2c-rcar(H/W) may auto-restart
-> > >     after NACK. Please refer to ESG bit of H/W UM section 55.3.5.
-> > > 
-> > >     For example, this is I2C write transmitting.
-> > >     1.Start / 2.SlaveAddr,ACK / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
-> > > 
-> > >     If No.2 has NACK and interruption has delay, this transmitting is as follows.
-> > >     1.Start / 2.SlaveAddr,NACK/ 1x.auto-restart / 2x.SlaveAddr,ACK
-> > >                                     / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
-> > > 
-> > >     NACK of No.2 is invalidated by ACK of No.2x. It means recover.
-> > 
-> > Does this make some I2C device work which did not work before?
-> > 
-> > Most I2C devices always ack their address, so NACK very often means
-> > "nothing is there". I think it makes sense that the rcar driver returns
-> > ENXIO in this case which is documented to be used for NACK after address
-> > phase. Then, the i2c client driver should know if this means "not there"
-> > or "currently busy". And it should know when is a good time for another
-> > try. As I read the patch, the driver would use the auto-restart feature
-> > until the timeout is reached. That would make bus scanning pretty slow,
-> > too.
-> 
-> Hi,
-> 
-> any news on this one?
+The device is not visible on linux, DMA is done by the helper processor.
+Perhaps you cah give me some idea how to do this. Thanks
 
-Sorry for not responding earlier. I have the following information from
-Kataoka-san.
-
-* There are now several patches in the BSP that address this issue;
-  this patch and two follow up fix patches. Its probably best if these
-  patches were all squashed into a single patch for your consideration.
-
-  For reference I am referring to the following patches in the BSP:
-
-  i2c: rcar: Support ACK by HW auto restart after NACK
-  i2c: rcar: Fix status clear after NACK
-  i2c: rcar: Fix flag clear for recovering by HW auto restart
-
-* In answer to your questions above:
-
-  "When NACK interruption occurs, the i2c rcar driver sets ICMCR register
-   from (MDBS|MIE|ESG) to (MDBS|MIE|FSB) in rcar_i2c_bus_phase().  It means
-   clearing of ESG bit. If this procedure is late, H/W auto-restarts.  After
-   that, if NACK occurs again, H/W doesn't auto-restart because ESG bit was
-   already cleared.
-
-   S/W doesn't know whether H/W did auto-restart or did not auto-restart.
-   So, S/W needs to wait. The return of ENXIO is pretty slow.
-
-   It takes long time but I think it's ok because NACK is unjust case."
+>
+>> +     paddr = dma_map_single(ctx->dev, ctx->dma_buffer, writelen,
+>> +                            DMA_TO_DEVICE);
+>
+> ditto
+>
+>> +     rc = dma_mapping_error(ctx->dev, paddr);
+>> +     if (dma_mapping_error(ctx->dev, paddr)) {
+>
+> if (rc)
+>
+>> +static struct i2c_algorithm xgene_slimpro_i2c_algorithm = {
+>> +     .smbus_xfer = xgene_slimpro_i2c_xfer,
+>
+> Might be a tad less confusing to name this function
+> xgene_slimpro_smbus_xfer. You decide.
+>
+>> +     rc = i2c_add_adapter(adapter);
+>> +     if (rc) {
+>> +             dev_err(&pdev->dev, "Adapter registeration failed\n");
+>> +             return rc;
+>> +     }
+>> +
+>> +     rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+>> +     if (rc)
+>> +             dev_warn(&pdev->dev, "Unable to set dma mask\n");
+>
+> Shouldn't that be before i2c_add_adapter?
+>
+>> +static struct platform_driver xgene_slimpro_i2c_driver = {
+>> +     .probe  = xgene_slimpro_i2c_probe,
+>> +     .remove = xgene_slimpro_i2c_remove,
+>> +     .driver = {
+>> +             .name   = "xgene-slimpro-i2c",
+>> +             .of_match_table = of_match_ptr(xgene_slimpro_i2c_id)
+>
+> You are DT only, do we need of_match_ptr?
+>
+>> +MODULE_DESCRIPTION("APM X-Gene SLIMpro I2C driver");
+>> +MODULE_LICENSE("GPL");
+>
+> MODULE_AUTHOR left out intentionally?
+>
+> Thanks,
+>
+>    Wolfram
+>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
