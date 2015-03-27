@@ -1,39 +1,33 @@
-From: Amit Tomar <Amit.Tomar-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH] i2c/mpc: Fix ISR return value
-Date: Fri, 27 Mar 2015 12:47:10 +0000
-Message-ID: <BL2PR03MB44973331DBA9AE4940F125A83090@BL2PR03MB449.namprd03.prod.outlook.com>
-References: <BL2PR03MB449C87445D2FD1F15E9D33483310@BL2PR03MB449.namprd03.prod.outlook.com>
- <20150205193612.GG15307@katana>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected
+ to SMBus adapters
+Date: Fri, 27 Mar 2015 05:51:11 -0700
+Message-ID: <5515523F.9010609@roeck-us.net>
+References: <20150205175326.GA26691@roeck-us.net> <20150212040126.GA1691@roeck-us.net> <20150216120951.GA2840@katana> <20150317042049.GA6765@roeck-us.net> <20150318132707.GD3580@katana> <550A4162.8000009@roeck-us.net> <20150319081612.GA900@katana> <20150319174314.GA17329@roeck-us.net> <20150319213937.GA899@katana> <5512C213.7030705@roeck-us.net> <20150327080947.GA900@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150205193612.GG15307@katana>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150327080947.GA900@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-ID4+SSBjYW4ndCBhcHBseSB0aGUgcGF0Y2guIFRoZXJlIHNlZW0gdG8gYmUgd2hpdGVzcGFjZSBw
-cm9ibGVtcy4gUGxlYXNlIGZpeCB0aGUgcGF0Y2ggb3IgeW91ciBtYWlsIHNlbmRpbmcuDQoNClNv
-cnJ5IGZvciB0aGUgRGVsYXllZCByZXNwb25zZSBhbmQgSXQncyBteSBCYWQgYXMgSSBkaWRuJ3Qg
-cGFzcyBpdCB0aHJvdWdoIGNoZWNrcGF0Y2guDQoNCkkgd291bGQgc2VuZCBhIGZyZXNoIHBhdGNo
-Lg0KDQpUaGFua3MNCkFtaXQuDQogDQoNCj4gLS0tDQo+IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
-bXBjLmMgfMKgwqDCoCAzICsrLQ0KPiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAx
-IGRlbGV0aW9uKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1t
-cGMuYyANCj4gYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW1wYy5jIGluZGV4IDBlZGY2MzAuLjdh
-MzEzNmYgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXBjLmMNCj4gKysr
-IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tcGMuYw0KPiBAQCAtOTUsOCArOTUsOSBAQCBzdGF0
-aWMgaXJxcmV0dXJuX3QgbXBjX2kyY19pc3IoaW50IGlycSwgdm9pZCANCj4gKmRldl9pZCkNCj4g
-wqDCoMKgwqDCoMKgwqAgaTJjLT5pbnRlcnJ1cHQgPSByZWFkYihpMmMtPmJhc2UgKyBNUENfSTJD
-X1NSKTsNCj4gwqDCoMKgwqDCoMKgwqAgd3JpdGViKDAsIGkyYy0+YmFzZSArIE1QQ19JMkNfU1Ip
-Ow0KPiDCoMKgwqDCoMKgwqDCoCB3YWtlX3VwKCZpMmMtPnF1ZXVlKTsNCj4gK8KgwqAgwqDCoCAg
-cmV0dXJuIElSUV9IQU5ETEVEOw0KPiDCoMKgwqAgfQ0KPiAtwqAgcmV0dXJuIElSUV9IQU5ETEVE
-Ow0KPiArIMKgcmV0dXJuIElSUV9OT05FOw0KPiB9DQo+IA0KPiAvKiBTb21ldGltZXMgOXRoIGNs
-b2NrIHB1bHNlIGlzbid0IGdlbmVyYXRlZCwgYW5kIHNsYXZlIGRvZXNuJ3QgDQo+IHJlbGVhc2UN
-Cj4gLS0NCj4gMS43LjkuNQ0KPiAgDQo+IC0tDQo+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBs
-aXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBsaW51eC1pMmMiIA0KPiBpbiB0aGUgYm9k
-eSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9t
-byANCj4gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1s
-DQo=
+On 03/27/2015 01:09 AM, Wolfram Sang wrote:
+>
+>> just to give you an update: I do have some code, but it is a bit messy,
+>> and it doesn't work well for ds2482 (the chip behind it still hangs up
+>> if I access it in parallel through i2c-dev). On top of that, it causes
+>> pretty significant slow-downs when accessing other devices on the same
+>> bus at the same time. Not surprising, I guess, since it expands the scope
+>> of the bus lock significantly.
+>
+> Just to get a better idea: Did you try taking the adapter_lock before
+> the two SMBus command which needed to be concatenated (and use
+> smbus_xfer directly)?
+>
+I did. I didn't use smbus_xfer directly, though, but introduced lockless
+versions of the various smbus commands, and kept using those.
+
+Guenter
