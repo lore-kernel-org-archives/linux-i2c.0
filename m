@@ -1,73 +1,64 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected
- to SMBus adapters
-Date: Fri, 27 Mar 2015 08:42:02 -0700
-Message-ID: <55157A4A.1090305@roeck-us.net>
-References: <20150318132707.GD3580@katana> <550A4162.8000009@roeck-us.net> <20150319081612.GA900@katana> <20150319174314.GA17329@roeck-us.net> <20150319213937.GA899@katana> <5512C213.7030705@roeck-us.net> <20150327080947.GA900@katana> <5515523F.9010609@roeck-us.net> <20150327130108.GA19151@katana> <551557B4.5000504@roeck-us.net> <20150327152727.GA27238@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-gpio: fix some of gpio sleep issues
+Date: Fri, 27 Mar 2015 16:46:09 +0100
+Message-ID: <20150327154609.GD27238@katana>
+References: <1426593869-8724-1-git-send-email-ben.dooks@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fOHHtNG4YXGJ0yqR"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150327152727.GA27238@katana>
+Content-Disposition: inline
+In-Reply-To: <1426593869-8724-1-git-send-email-ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/27/2015 08:27 AM, Wolfram Sang wrote:
-> On Fri, Mar 27, 2015 at 06:14:28AM -0700, Guenter Roeck wrote:
->> On 03/27/2015 06:01 AM, Wolfram Sang wrote:
->>> On Fri, Mar 27, 2015 at 05:51:11AM -0700, Guenter Roeck wrote:
->>>> On 03/27/2015 01:09 AM, Wolfram Sang wrote:
->>>>>
->>>>>> just to give you an update: I do have some code, but it is a bit messy,
->>>>>> and it doesn't work well for ds2482 (the chip behind it still hangs up
->>>>>> if I access it in parallel through i2c-dev). On top of that, it causes
->>>>>> pretty significant slow-downs when accessing other devices on the same
->>>>>> bus at the same time. Not surprising, I guess, since it expands the scope
->>>>>> of the bus lock significantly.
->>>>>
->>>>> Just to get a better idea: Did you try taking the adapter_lock before
->>>>> the two SMBus command which needed to be concatenated (and use
->>>>> smbus_xfer directly)?
->>>>>
->>>> I did. I didn't use smbus_xfer directly, though, but introduced lockless
->>>> versions of the various smbus commands, and kept using those.
->>>
->>> And then the chip still hangs? Or was that the performance penalty here?
->>>
->> Parallel access to a second eeprom chip on the same bus was much slower
->> than before.
->
-> Interesting. I wonder what is the reason, I would have expected just a
-> small delay. Would you mind sending the patches for the non-locked smbus
-> routines? Would be nice to have that around in case I or someone else
-> find some time to try as well.
->
-I pushed it into my linux repository at github (https://github.com/groeck/linux,
-branch at24).
 
->> Also, the new code did not solve the problem for ds2482 (completely unrelated
->> to the at24 driver of course). Even with proper locking, the chip ended up
->> hanging after some parallel accesses through i2c-dev. Granted, ds2482 is
->> a difficult beast, but it is still annoying how access through i2c-dev
->> can mess it up.
->
-> I assume you basically replaced the access_lock with the adapter_lock
-> with this one?
->
-yes.
+--fOHHtNG4YXGJ0yqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->>
->> The latter is what bothered me more: What is the point of all this if we
->> still can not ensure correct operation ?
->
-> Yeah, this is not good at all.
->
-> How do you use i2c-dev BTW? i2c_rdwr_msgs? What about iterating over all
-> msgs in that and check for busy addresses?
->
-In this case, I just used i2cdump from one session while accessing
-the chip from another session using the driver.
+On Tue, Mar 17, 2015 at 12:04:29PM +0000, Ben Dooks wrote:
+> The i2c-gpio driver can be used in systems where the GPIO itself is
+> provided by a GPIO driver that may be sleeping (for example, SPI or
+> USB). In this case, it is preferable to use the _cansleep() variants
+> of the GPIO code.
+>=20
+> We can only fix this up for the case where the i2c-gpio implementation
+> provides open-drain outputs as there are no gpio_direction_xxx_cansleep()
+> provided.
+>=20
+> This removes the issues on the customer system with the console constantly
+> showing the following warning:
+>=20
+> WARNING: CPU: 0 PID: 1 at drivers/gpio/gpiolib.c:2389 gpiod_set_raw_value
 
-Guenter
+??? It will silence a warning but will totally break the timing in case
+sleeping is needed? I'd think the warning is very suitable.
+
+
+--fOHHtNG4YXGJ0yqR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVFXtBAAoJEBQN5MwUoCm2BPMP/iiJGJAiN4TbM6+BtbYeV5wl
+wjdAJbWhLAxA+0ycPFMB22pL9iH08rpFYJiKrq7TN2BP3L+WwyJ2i8xo0HRheIAz
+Dgrkn7lscP0AWQ2uJnjZ0M4hZuLYmndiO3DaCKKFlZGImzh7K2lqi60ep2dZC3sr
+pcC08BsJ2pl3RrckrBm7jkC+y2PYqiXZSQo5E7wVsqA5uKbhz6fCHhqUbrA6tmNg
+a/NQRzoByCrVzlQ14gTn9cgxEvUKChVKiyGGDChpVuk5pvB+YqltpDXO81k+kdBO
+ZdQ4TsKvyf3wqxC9uC9T/vx/KrEx7QuKZVgQ72XSRCxN8bMuWqZzRENh2IpRk7v5
+B+TOFmn1tL6tqs+S6np3BeD+8Mdgj/qT23PzqFWSVsQ3RL17+3kOGGZfD/IwJ1bB
+0b9crzmVpexdodTyh4RPQAbNav5alJxhgYcclbWUiQgC1GhFyMtNyFt/iR3Xi/DC
+F+gQd7I9pgYaWak4qelizLtM10OjozyZCRVhJx5IG8knyYIKZPzQRmtgFfeEKv0Y
+V8FA1MURnVPRKauJnztEfFKSyqGwaLCUW3VazyqkjrYpi78cA3st60VlpEakBqwd
+q5lYHi6lDT5Kql8Ei6KWwxJTrB1zV44Ez/7Ss0NE/JDCpzaEcEbRqjFDMj+Px4Vz
+PCO5/r/o/Dcgd7UheORW
+=mJ/Q
+-----END PGP SIGNATURE-----
+
+--fOHHtNG4YXGJ0yqR--
