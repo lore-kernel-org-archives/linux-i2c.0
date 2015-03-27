@@ -1,62 +1,67 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-mux-gpio: Change log level to debug for probe
- deferrals
-Date: Fri, 27 Mar 2015 16:29:33 +0100
-Message-ID: <20150327152932.GB27238@katana>
-References: <20150325174351.GB5209@ulegcpding.emea.nsn-net.net>
+Subject: Re: [PATCH] i2c: cadence: Handling Slave monitor mode
+Date: Fri, 27 Mar 2015 16:37:13 +0100
+Message-ID: <20150327153713.GC27238@katana>
+References: <BL2FFO11FD05378650E02EA6549B4DF50E8030@BL2FFO11FD053.protection.gbl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+	protocol="application/pgp-signature"; boundary="gr/z0/N6AeWAPJVB"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150325174351.GB5209-w/hiR2Wfoz+b6vRP15A4uhaOaYmgohGe0e7PPNI6Mm0@public.gmane.org>
+In-Reply-To: <BL2FFO11FD05378650E02EA6549B4DF50E8030-xjCwUguQ55+9TOEzIYUSF2YJ4DzVTqeXkX/xN29GLwg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ioan Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
-Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mathias Rulf <mathias.rulf-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Nava kishore Manne <nava.manne-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, Nava kishore Manne <navam-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---IrhDeMKUP4DT/M7F
+--gr/z0/N6AeWAPJVB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 25, 2015 at 06:43:51PM +0100, Ioan Nicu wrote:
-> Probe deferral is not an error case. It happens only when
-> the necessary dependencies are not there yet.
+On Tue, Mar 17, 2015 at 09:48:15PM +0530, Nava kishore Manne wrote:
+> In slave monitor mode, the I2C interface is set up as a master and
+> continues to attempt a transfer to a particular slave until the
+> slave device responds with an ACK.
 >=20
-> The driver core is already printing a message when a driver
-> requests probe deferral, so this can be traced in the logs
-> without these error prints.
+> Added this feature for zero length transfers enable the controller
+> for slave monitor interrupt and get the status. Disable the slave
+> monitor mode feature upon successful handling.
 >=20
-> This patch changes the error messages from these deferral cases
-> to debug messages.
->=20
-> Signed-off-by: Ionut Nicu <ioan.nicu.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Nava kishore Manne <navam-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Acked-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
-Why not simply removing it?
+I am not sure this is going to work.
+
+How often is this access tried when there is no device? It should be
+tried only once.
+
+Those 0byte messages can be read or write, so transferring one bit, one
+could say. I assume this one can only read? (which is not a show-stopper
+but the cases should be handled)
 
 
---IrhDeMKUP4DT/M7F
+--gr/z0/N6AeWAPJVB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVFXdcAAoJEBQN5MwUoCm2MpIP+weyCnMal0H0+PseAPYDbcx/
-ECuc0w7Su+O84rvCoMBGbYIdp9GfJEhPYc5DE1ChS22IRjiCTZMw01/b6KhPKZ8Z
-TBU4j8Sxitse/83yq7ODpVtPxobSY0XaDbl2qC+8qFLB4lcMn5L5YaYviHe7jCor
-FOI+mF9cWTnUoCfCxOb9gboiveZHXMFzSBa+f7OyXOHAEgi0JYyc3p0qJydFydBo
-NhtAaGmyXtUmPkc4D1iAVsVI8xhVe6ke/sV9r5V9EadTnRKtHoPpn8qNUgpblWxs
-gmTAfIQ06HneYP0M6rNu9nx3fSpiKPJA1wuKGSqbP24ket1byCHyJlwCrDb+POr5
-joNwnGuisg3WGRJc1NIuPlsgXAob37qP406rDwEeKDhp0d+YxjB2chKoG8ptZ4SF
-Wv57lPfMBJtMkPXkmy6vUHSrvbOBOB/bPeblWq5603qDXCe/FMdF4M4SBIfG9OvS
-eK27WUc502cW11jEXTVNBqzylIM066b0tlskO9RVRfpHvLs5yMbiyEzXi9beCtQJ
-H8iUV0gdwTtG/XSuecEtaRIghVMLNB4QZV8/fjTKL6L10uaGX3w9W9kKjOBXvtwd
-Y6OLFnUOpG2yACF3cmiGKwop0yFjtNgFOR335L9cfSkvOqgYv/RNUFEvdWyyIDeh
-otDrZpql5lWp8b77kRuZ
-=Vwr9
+iQIcBAEBAgAGBQJVFXkpAAoJEBQN5MwUoCm2JqcQAJdzFIVvLi3lmfZDwTZcagLq
+pFgwJX/MvzBwsqdnZnXClfKi2Vq5Ptaloe+23P3bu5od4Yj1i+XndWvrPOYLKAjR
+uC/T6eUpJUHYkf0i+qRqBBV6kLH923ZavRoFfbugv4Q2wuFuwd4rMTj1uojCnWha
+eDmvp3axryPyJOQVnUPO2Le2NydZX8IkdsmvqEyKyDXYk8MhxjtVG7JJBfbyfJLg
+UTwo3a9+So42DgDro4UNSUC82RTyjajjyU8S32lKDSmZf+kklO5luMpwTt6eWfGG
+udEUX852oM9KjwvHLaSx5+hAAP7EGEvbQrdL3pBp74+/jxrUfA3t+8UNpwtzeHoy
+iNMBkf0M8eptnqe38ncs87UjLNCV1V9ZHZsq7+1Fu8rGuGWRtCUvQVAnTy6yuDNv
+vRgQltfkPuo5C2/IqsvNgJM0qJWekMq1K8ru89bO1ZhvOD4b6/ywuUGSWHWwJT66
+tno9d/SiOehOgHrMTCt3kvyeaorieXQeAmWFMYYk53oWbuTBWiRidSiMtSmznjDI
+KPCHUSrg21CR6E9fEtvf4HzoVHtGq06TjVeaMoPE26m4ZFkAmN2/dbNYz6hDaG47
+tu2qkijZIsn7VvKuy8XJYbdyQFICUyXiV8U4fJ8pWSf6JifyGgISs2Nbx7adrHMv
+nUNQN808pRjdOGGpmtpr
+=s65b
 -----END PGP SIGNATURE-----
 
---IrhDeMKUP4DT/M7F--
+--gr/z0/N6AeWAPJVB--
