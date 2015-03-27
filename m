@@ -1,67 +1,33 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: cadence: Handling Slave monitor mode
-Date: Fri, 27 Mar 2015 16:37:13 +0100
-Message-ID: <20150327153713.GC27238@katana>
-References: <BL2FFO11FD05378650E02EA6549B4DF50E8030@BL2FFO11FD053.protection.gbl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gr/z0/N6AeWAPJVB"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <BL2FFO11FD05378650E02EA6549B4DF50E8030-xjCwUguQ55+9TOEzIYUSF2YJ4DzVTqeXkX/xN29GLwg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nava kishore Manne <nava.manne-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, soren.brinkmann-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org, Nava kishore Manne <navam-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+From: Octavian Purdila <octavian.purdila@intel.com>
+Subject: [PATCH] i2c: dln2: set the device tree node of the adapter
+Date: Fri, 27 Mar 2015 17:37:10 +0200
+Message-ID: <1427470630-13378-1-git-send-email-octavian.purdila@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: lee.jones@linaro.org, laurentiu.palcu@intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Octavian Purdila <octavian.purdila@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch makes sure the platform device tree node is inherited by
+the adapter device. This allows the DLN2 bus to work with i2c devices
+defined in the device tree.
 
---gr/z0/N6AeWAPJVB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
+---
+ drivers/i2c/busses/i2c-dln2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-On Tue, Mar 17, 2015 at 09:48:15PM +0530, Nava kishore Manne wrote:
-> In slave monitor mode, the I2C interface is set up as a master and
-> continues to attempt a transfer to a particular slave until the
-> slave device responds with an ACK.
->=20
-> Added this feature for zero length transfers enable the controller
-> for slave monitor interrupt and get the status. Disable the slave
-> monitor mode feature upon successful handling.
->=20
-> Signed-off-by: Nava kishore Manne <navam-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-> Acked-by: Harini Katakam <harinik-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-
-I am not sure this is going to work.
-
-How often is this access tried when there is no device? It should be
-tried only once.
-
-Those 0byte messages can be read or write, so transferring one bit, one
-could say. I assume this one can only read? (which is not a show-stopper
-but the cases should be handled)
-
-
---gr/z0/N6AeWAPJVB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVFXkpAAoJEBQN5MwUoCm2JqcQAJdzFIVvLi3lmfZDwTZcagLq
-pFgwJX/MvzBwsqdnZnXClfKi2Vq5Ptaloe+23P3bu5od4Yj1i+XndWvrPOYLKAjR
-uC/T6eUpJUHYkf0i+qRqBBV6kLH923ZavRoFfbugv4Q2wuFuwd4rMTj1uojCnWha
-eDmvp3axryPyJOQVnUPO2Le2NydZX8IkdsmvqEyKyDXYk8MhxjtVG7JJBfbyfJLg
-UTwo3a9+So42DgDro4UNSUC82RTyjajjyU8S32lKDSmZf+kklO5luMpwTt6eWfGG
-udEUX852oM9KjwvHLaSx5+hAAP7EGEvbQrdL3pBp74+/jxrUfA3t+8UNpwtzeHoy
-iNMBkf0M8eptnqe38ncs87UjLNCV1V9ZHZsq7+1Fu8rGuGWRtCUvQVAnTy6yuDNv
-vRgQltfkPuo5C2/IqsvNgJM0qJWekMq1K8ru89bO1ZhvOD4b6/ywuUGSWHWwJT66
-tno9d/SiOehOgHrMTCt3kvyeaorieXQeAmWFMYYk53oWbuTBWiRidSiMtSmznjDI
-KPCHUSrg21CR6E9fEtvf4HzoVHtGq06TjVeaMoPE26m4ZFkAmN2/dbNYz6hDaG47
-tu2qkijZIsn7VvKuy8XJYbdyQFICUyXiV8U4fJ8pWSf6JifyGgISs2Nbx7adrHMv
-nUNQN808pRjdOGGpmtpr
-=s65b
------END PGP SIGNATURE-----
-
---gr/z0/N6AeWAPJVB--
+diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-dln2.c
+index b3fb86a..db1e20a 100644
+--- a/drivers/i2c/busses/i2c-dln2.c
++++ b/drivers/i2c/busses/i2c-dln2.c
+@@ -210,6 +210,7 @@ static int dln2_i2c_probe(struct platform_device *pdev)
+ 	dln2->adapter.class = I2C_CLASS_HWMON;
+ 	dln2->adapter.algo = &dln2_i2c_usb_algorithm;
+ 	dln2->adapter.dev.parent = dev;
++	dln2->adapter.dev.of_node = dev->of_node;
+ 	i2c_set_adapdata(&dln2->adapter, dln2);
+ 	snprintf(dln2->adapter.name, sizeof(dln2->adapter.name), "%s-%s-%d",
+ 		 "dln2-i2c", dev_name(pdev->dev.parent), dln2->port);
+-- 
+1.9.1
