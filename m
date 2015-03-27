@@ -1,37 +1,91 @@
-From: Amit Singh Tomar <amit.tomar-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH 1/1] i2c/mpc: Fix ISR return value
-Date: Fri, 27 Mar 2015 18:19:00 +0530
-Message-ID: <1427460540-7754-1-git-send-email-amit.tomar@freescale.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
+Date: Fri, 27 Mar 2015 14:10:45 +0100
+Message-ID: <20150327131044.GB19151@katana>
+References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
+ <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
+ <20150304040819.GB12776@verge.net.au>
+ <20150306220531.GA6572@katana>
+ <20150307103349.GA1194@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20150307103349.GA1194@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Amit Singh Tomar <amit.tomar-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Cc: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-ISR should not return IRQ_HANDLED for not handling anything.
-This patch fixes the return value of ISR for the same case.
 
-Signed-off-by: Amit Singh Tomar <amit.tomar-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/busses/i2c-mpc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+--eAbsdosE1cNLO4uF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index c74cc2b..2f20db1 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -95,8 +95,9 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
- 		i2c->interrupt = readb(i2c->base + MPC_I2C_SR);
- 		writeb(0, i2c->base + MPC_I2C_SR);
- 		wake_up(&i2c->queue);
-+		return IRQ_HANDLED;
- 	}
--	return IRQ_HANDLED;
-+	return IRQ_NONE;
- }
- 
- /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
--- 
-1.7.9.5
+On Sat, Mar 07, 2015 at 11:33:49AM +0100, Wolfram Sang wrote:
+> On Fri, Mar 06, 2015 at 11:05:31PM +0100, Wolfram Sang wrote:
+> >=20
+> > > I asked Kataoka-san about this and his response was as follows:
+> >=20
+> > Thanks, Simon!
+> >=20
+> > > If system(CPU) is busy, the driver can't clear the status register so=
+on
+> > > after kicking start.
+> > >=20
+> > > If sequence of first start is as follows, there is a problem.
+> > > Because H/W starts by 1.
+> > > But sequence of re-start is as follows, there is no problem.
+> > > Because H/W starts by 2.
+> > >=20
+> > >   1. Issue START condition by ESG bit of ICMCR register.
+> > >                   <--- If there is too much time, H/W finish transmit=
+ting
+> > >                        and set status in status register.
+> > >   2. Clear interrupt status (ICMSR).
+> > >   3. Open interrupt mask.
+> > >   4. Wait interrupt.
+> > >                   <--- If status is cleared, interrupt does not occur.
+> >=20
+> > I understand. I'll add this explanation to the patch and apply it soon.
+>=20
+> Sorry, another question came up while applying:
+>=20
+> How can this interruption happen? The function is called in a
+> spin_lock_irqsave protected area. Is this an RT_PREEMPT related issue?
+> Am I missing something?
+
+Hi,
+
+any news on this one?
+
+Kind regards,
+
+   Wolfram
+
+
+--eAbsdosE1cNLO4uF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVFVbUAAoJEBQN5MwUoCm2fZYP/i19/y0M21mrDtpivY3RedRV
+G+DDFu6fWmbPWqPszjt66V9sE97IV5+kJJ0e3/j7BNbf4Hc6EsulYRv1x9fpK7nw
+sTZQUse9AACL+A791vCths362u+yM0eGbMImMo/TTGAykZ0K9WCLZgKnO+6dGV3W
+D4uk0ehrlhv1jZiVNtx4Us0IuwLQ0owV1XRmqzE92D9MDn81C/xwDPcU8OQYjyre
+DCIc/pKts4+BHez/JQuiIQZGKN4IlzOq6CiEYaODBzZANkmhGyPB1hvD2i2V2nRZ
+BAvpfBplgHYznqQxoYJiYNx7yNq/0TYTiYcBFfHFbvO+RnuVldzfB1oacfVNtv5r
+ud5biSEbQugXaRIVNoJdIiPBdyPHOOHGODVLAlxyJv45h8fvnbknYUzc+s7/NYgt
+ldbeO0bn1smp8uV4ilrSE2mgPuv/+VuF69Qo9P4Cu0lt3bxr0Z5q3h80pXQlZKhJ
+YenVHrNxwwq0KOEjZXz8YBa0FC9FF9WmGrfA0FRFisr7HM5ox8sIME1latQKsLcd
+ENifLiVNz/oc0No3kKpj/UX64BToc2v1hePpSPjpQZndgaQp1ZxRZCBVv+Mnrmky
+GvZlS+11PY1VMi+KiLY0Nz5bIeI6X8MzE9aT2UmrhKBLatn7NijcO+XJc3XgIJ2B
+VeIJwGHgY23YRw5Lpt8Z
+=GXkF
+-----END PGP SIGNATURE-----
+
+--eAbsdosE1cNLO4uF--
