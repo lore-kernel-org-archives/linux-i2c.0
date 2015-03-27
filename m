@@ -1,64 +1,56 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-gpio: fix some of gpio sleep issues
-Date: Fri, 27 Mar 2015 16:46:09 +0100
-Message-ID: <20150327154609.GD27238@katana>
-References: <1426593869-8724-1-git-send-email-ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH] i2c-gpio: add board_info to pdata
+Date: Fri, 27 Mar 2015 16:48:31 +0100
+Message-ID: <20150327154831.GE27238@katana>
+References: <1426594495-31844-1-git-send-email-ben.dooks@codethink.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fOHHtNG4YXGJ0yqR"
+	protocol="application/pgp-signature"; boundary="u5E4XgoOPWr4PD9E"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1426593869-8724-1-git-send-email-ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+In-Reply-To: <1426594495-31844-1-git-send-email-ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org, Haavard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---fOHHtNG4YXGJ0yqR
+--u5E4XgoOPWr4PD9E
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 17, 2015 at 12:04:29PM +0000, Ben Dooks wrote:
-> The i2c-gpio driver can be used in systems where the GPIO itself is
-> provided by a GPIO driver that may be sleeping (for example, SPI or
-> USB). In this case, it is preferable to use the _cansleep() variants
-> of the GPIO code.
+On Tue, Mar 17, 2015 at 12:14:55PM +0000, Ben Dooks wrote:
+> Add board_info so that the i2c-gpio driver can probe devices on probe
+> so that i2c_register_board_info() does not need to be used. This is
+> preferable for devices that get hotplugged as otherwise we need to do
+> i2c_unregister_board_info() which would be more code.
 >=20
-> We can only fix this up for the case where the i2c-gpio implementation
-> provides open-drain outputs as there are no gpio_direction_xxx_cansleep()
-> provided.
->=20
-> This removes the issues on the customer system with the console constantly
-> showing the following warning:
->=20
-> WARNING: CPU: 0 PID: 1 at drivers/gpio/gpiolib.c:2389 gpiod_set_raw_value
+> Signed-off-by: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 
-??? It will silence a warning but will totally break the timing in case
-sleeping is needed? I'd think the warning is very suitable.
+Why can't you use static bus numbers? Or instantiating from userspace?
 
 
---fOHHtNG4YXGJ0yqR
+--u5E4XgoOPWr4PD9E
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVFXtBAAoJEBQN5MwUoCm2BPMP/iiJGJAiN4TbM6+BtbYeV5wl
-wjdAJbWhLAxA+0ycPFMB22pL9iH08rpFYJiKrq7TN2BP3L+WwyJ2i8xo0HRheIAz
-Dgrkn7lscP0AWQ2uJnjZ0M4hZuLYmndiO3DaCKKFlZGImzh7K2lqi60ep2dZC3sr
-pcC08BsJ2pl3RrckrBm7jkC+y2PYqiXZSQo5E7wVsqA5uKbhz6fCHhqUbrA6tmNg
-a/NQRzoByCrVzlQ14gTn9cgxEvUKChVKiyGGDChpVuk5pvB+YqltpDXO81k+kdBO
-ZdQ4TsKvyf3wqxC9uC9T/vx/KrEx7QuKZVgQ72XSRCxN8bMuWqZzRENh2IpRk7v5
-B+TOFmn1tL6tqs+S6np3BeD+8Mdgj/qT23PzqFWSVsQ3RL17+3kOGGZfD/IwJ1bB
-0b9crzmVpexdodTyh4RPQAbNav5alJxhgYcclbWUiQgC1GhFyMtNyFt/iR3Xi/DC
-F+gQd7I9pgYaWak4qelizLtM10OjozyZCRVhJx5IG8knyYIKZPzQRmtgFfeEKv0Y
-V8FA1MURnVPRKauJnztEfFKSyqGwaLCUW3VazyqkjrYpi78cA3st60VlpEakBqwd
-q5lYHi6lDT5Kql8Ei6KWwxJTrB1zV44Ez/7Ss0NE/JDCpzaEcEbRqjFDMj+Px4Vz
-PCO5/r/o/Dcgd7UheORW
-=mJ/Q
+iQIcBAEBAgAGBQJVFXvPAAoJEBQN5MwUoCm2E74P/iYk4/VKqCMzrctYYR3K36m6
+VE4DC5+u1v4gb2BuL9E2DrIgi6qr/1J4cj5dysqI2f4PhgWDiDXqmFtye9s/9KJ3
+f5loQhIdo+6I1pCs4bLO+7eta4PbVPfeyjfXSPD+kcdXzhB/rqdsaZUVS7vZVKCi
+8gXtaVZiNnkU2gkvPfv7wVdLEjZdARApW7rBM82Vto9LwKzn3pVLfgHzZ5oVNbXx
+cVppsGglETDYhjEisGDDNCF5elv8kHLdgC+SMaIhso586qlaeGhPGWMjqP3p25GZ
+QNyZ+Uex4iC75HOsKVEkMQ8c3I/XMhFVrQQZWr9t+mZpn6TawqK4JO1Ygt0ZP4jE
+7874j6tYUoo5gOi7vnLuMDg7u0zNbyQ1gNtF/UcHbBtFDHwlHFlNfT3CVOrQF9sS
+na78A9AqgP54jL7XtRWjposm2X0CDjdiBSi1y6Fn0harhX/EGGQKhyQZNGTr8svL
++SfO5zJcQdX/6sDcJjGS3FtmSum1B7dNarwtJnfQbKoivclpe9z3BycT8zHp3D33
+EsbfQEptQ6/gvRDBir2WIiaE8kev+7tlH2Q5p+DRiR1QGh+9Ae5FGHrW3n0DGB4/
+S6juFPGZAr4boz2J56M7orvXuDlfx0MBOcbRwnf2T+y1Zr5CDDOzhR5cPZKX5XNu
+S8uDkHQIs9tv8go471Gn
+=+hQ+
 -----END PGP SIGNATURE-----
 
---fOHHtNG4YXGJ0yqR--
+--u5E4XgoOPWr4PD9E--
