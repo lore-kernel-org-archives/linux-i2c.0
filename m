@@ -1,105 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected to
- SMBus adapters
-Date: Fri, 27 Mar 2015 16:27:28 +0100
-Message-ID: <20150327152727.GA27238@katana>
-References: <20150318132707.GD3580@katana>
- <550A4162.8000009@roeck-us.net>
- <20150319081612.GA900@katana>
- <20150319174314.GA17329@roeck-us.net>
- <20150319213937.GA899@katana>
- <5512C213.7030705@roeck-us.net>
- <20150327080947.GA900@katana>
- <5515523F.9010609@roeck-us.net>
- <20150327130108.GA19151@katana>
- <551557B4.5000504@roeck-us.net>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-mux-gpio: Change log level to debug for probe
+ deferrals
+Date: Fri, 27 Mar 2015 16:29:33 +0100
+Message-ID: <20150327152932.GB27238@katana>
+References: <20150325174351.GB5209@ulegcpding.emea.nsn-net.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <551557B4.5000504@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20150325174351.GB5209-w/hiR2Wfoz+b6vRP15A4uhaOaYmgohGe0e7PPNI6Mm0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ioan Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
+Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mathias Rulf <mathias.rulf-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---SLDf9lqlvOQaIe6s
+--IrhDeMKUP4DT/M7F
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 27, 2015 at 06:14:28AM -0700, Guenter Roeck wrote:
-> On 03/27/2015 06:01 AM, Wolfram Sang wrote:
-> >On Fri, Mar 27, 2015 at 05:51:11AM -0700, Guenter Roeck wrote:
-> >>On 03/27/2015 01:09 AM, Wolfram Sang wrote:
-> >>>
-> >>>>just to give you an update: I do have some code, but it is a bit mess=
-y,
-> >>>>and it doesn't work well for ds2482 (the chip behind it still hangs up
-> >>>>if I access it in parallel through i2c-dev). On top of that, it causes
-> >>>>pretty significant slow-downs when accessing other devices on the same
-> >>>>bus at the same time. Not surprising, I guess, since it expands the s=
-cope
-> >>>>of the bus lock significantly.
-> >>>
-> >>>Just to get a better idea: Did you try taking the adapter_lock before
-> >>>the two SMBus command which needed to be concatenated (and use
-> >>>smbus_xfer directly)?
-> >>>
-> >>I did. I didn't use smbus_xfer directly, though, but introduced lockless
-> >>versions of the various smbus commands, and kept using those.
-> >
-> >And then the chip still hangs? Or was that the performance penalty here?
-> >
-> Parallel access to a second eeprom chip on the same bus was much slower
-> than before.
-
-Interesting. I wonder what is the reason, I would have expected just a
-small delay. Would you mind sending the patches for the non-locked smbus
-routines? Would be nice to have that around in case I or someone else
-find some time to try as well.
-
-> Also, the new code did not solve the problem for ds2482 (completely unrel=
-ated
-> to the at24 driver of course). Even with proper locking, the chip ended up
-> hanging after some parallel accesses through i2c-dev. Granted, ds2482 is
-> a difficult beast, but it is still annoying how access through i2c-dev
-> can mess it up.
-
-I assume you basically replaced the access_lock with the adapter_lock
-with this one?
-
+On Wed, Mar 25, 2015 at 06:43:51PM +0100, Ioan Nicu wrote:
+> Probe deferral is not an error case. It happens only when
+> the necessary dependencies are not there yet.
 >=20
-> The latter is what bothered me more: What is the point of all this if we
-> still can not ensure correct operation ?
+> The driver core is already printing a message when a driver
+> requests probe deferral, so this can be traced in the logs
+> without these error prints.
+>=20
+> This patch changes the error messages from these deferral cases
+> to debug messages.
+>=20
+> Signed-off-by: Ionut Nicu <ioan.nicu.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 
-Yeah, this is not good at all.
+Why not simply removing it?
 
-How do you use i2c-dev BTW? i2c_rdwr_msgs? What about iterating over all
-msgs in that and check for busy addresses?
 
---SLDf9lqlvOQaIe6s
+--IrhDeMKUP4DT/M7F
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVFXbfAAoJEBQN5MwUoCm2yHsP/RbnlGOfSoWzdk6tUN8uUN2H
-1abKglp0+2hcXamcVyNfcFgslAHY97dn+ZmrppRyWBiCoXoWn6lLjXMLGjbADZqH
-GLN1uLTguUZ2h1tR85c4buECIWcdGozC/TDF9t5jPdMEVCPyzjzTXAqUL1OqAeq5
-APwpipxKT8NSuSpvMwBCNUYtjGw8UnjfQdJGOhxcKnSBi9yDz4EKgqCtsFokIaW7
-K4iL+PfDDiNT7GyZER2gaeX2O+yI0v3QMG6kiFfC3WS7KC+IxUnj87RLEQTtO0eL
-odTSyX9iFVKwHRUKL/Pa3PEYrUEqSIUYKjEX3Ip6pI1ZEwptzZaetwzhanKmjzH6
-nEtGrswNO/1Fume65Qz/o4hE2H3DmBY60/eWoIw7TDraikqSnYbkEkGMRHbQFAUL
-UC5DUOS38cy9iyAPIaX4CMgX6GJBcsd+Y+f+cQF8z+nA3dGE/dFe5M5HN33pL2uR
-lJ6Md3XQxJcHPp+RZdaFXF64Q1Ad5v3B335k9xPkN0uvYT4dkrtx8p7n6grgaCdx
-7BoaeTStPCgzorSttDJqGI1PrWLcdhsUcVLVpHSjZp7eKNGSZamAqBHxmfrobX5P
-LSe3fs4ZROaqgQL2TNR4k1bXgu9y65tJFXi6L8yOwzrCfqZEoHsUk0x6UqE2nOrD
-UJUw6gTwiaTxeZpzwuEx
-=4GV0
+iQIcBAEBAgAGBQJVFXdcAAoJEBQN5MwUoCm2MpIP+weyCnMal0H0+PseAPYDbcx/
+ECuc0w7Su+O84rvCoMBGbYIdp9GfJEhPYc5DE1ChS22IRjiCTZMw01/b6KhPKZ8Z
+TBU4j8Sxitse/83yq7ODpVtPxobSY0XaDbl2qC+8qFLB4lcMn5L5YaYviHe7jCor
+FOI+mF9cWTnUoCfCxOb9gboiveZHXMFzSBa+f7OyXOHAEgi0JYyc3p0qJydFydBo
+NhtAaGmyXtUmPkc4D1iAVsVI8xhVe6ke/sV9r5V9EadTnRKtHoPpn8qNUgpblWxs
+gmTAfIQ06HneYP0M6rNu9nx3fSpiKPJA1wuKGSqbP24ket1byCHyJlwCrDb+POr5
+joNwnGuisg3WGRJc1NIuPlsgXAob37qP406rDwEeKDhp0d+YxjB2chKoG8ptZ4SF
+Wv57lPfMBJtMkPXkmy6vUHSrvbOBOB/bPeblWq5603qDXCe/FMdF4M4SBIfG9OvS
+eK27WUc502cW11jEXTVNBqzylIM066b0tlskO9RVRfpHvLs5yMbiyEzXi9beCtQJ
+H8iUV0gdwTtG/XSuecEtaRIghVMLNB4QZV8/fjTKL6L10uaGX3w9W9kKjOBXvtwd
+Y6OLFnUOpG2yACF3cmiGKwop0yFjtNgFOR335L9cfSkvOqgYv/RNUFEvdWyyIDeh
+otDrZpql5lWp8b77kRuZ
+=Vwr9
 -----END PGP SIGNATURE-----
 
---SLDf9lqlvOQaIe6s--
+--IrhDeMKUP4DT/M7F--
