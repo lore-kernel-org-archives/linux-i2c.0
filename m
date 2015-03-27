@@ -1,102 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH/RFC] i2c: rcar: Support ACK by HW auto restart after NACK
-Date: Fri, 27 Mar 2015 14:11:04 +0100
-Message-ID: <20150327131104.GC19151@katana>
-References: <1424011480-3551-1-git-send-email-ykaneko0929@gmail.com>
- <2775fbb6b2e2b333ef2457133f419d4d@the-dreams.de>
- <20150304040635.GA12776@verge.net.au>
- <20150306221809.GB6572@katana>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] eeprom: at24: Add support for large EEPROMs connected
+ to SMBus adapters
+Date: Fri, 27 Mar 2015 06:14:28 -0700
+Message-ID: <551557B4.5000504@roeck-us.net>
+References: <20150216120951.GA2840@katana> <20150317042049.GA6765@roeck-us.net> <20150318132707.GD3580@katana> <550A4162.8000009@roeck-us.net> <20150319081612.GA900@katana> <20150319174314.GA17329@roeck-us.net> <20150319213937.GA899@katana> <5512C213.7030705@roeck-us.net> <20150327080947.GA900@katana> <5515523F.9010609@roeck-us.net> <20150327130108.GA19151@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WfZ7S8PLGjBY9Voh"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150306221809.GB6572@katana>
-Sender: linux-sh-owner@vger.kernel.org
-To: Simon Horman <horms@verge.net.au>
-Cc: Yoshihiro Kaneko <ykaneko0929@gmail.com>, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150327130108.GA19151@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 03/27/2015 06:01 AM, Wolfram Sang wrote:
+> On Fri, Mar 27, 2015 at 05:51:11AM -0700, Guenter Roeck wrote:
+>> On 03/27/2015 01:09 AM, Wolfram Sang wrote:
+>>>
+>>>> just to give you an update: I do have some code, but it is a bit messy,
+>>>> and it doesn't work well for ds2482 (the chip behind it still hangs up
+>>>> if I access it in parallel through i2c-dev). On top of that, it causes
+>>>> pretty significant slow-downs when accessing other devices on the same
+>>>> bus at the same time. Not surprising, I guess, since it expands the scope
+>>>> of the bus lock significantly.
+>>>
+>>> Just to get a better idea: Did you try taking the adapter_lock before
+>>> the two SMBus command which needed to be concatenated (and use
+>>> smbus_xfer directly)?
+>>>
+>> I did. I didn't use smbus_xfer directly, though, but introduced lockless
+>> versions of the various smbus commands, and kept using those.
+>
+> And then the chip still hangs? Or was that the performance penalty here?
+>
+Parallel access to a second eeprom chip on the same bus was much slower
+than before.
 
---WfZ7S8PLGjBY9Voh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Also, the new code did not solve the problem for ds2482 (completely unrelated
+to the at24 driver of course). Even with proper locking, the chip ended up
+hanging after some parallel accesses through i2c-dev. Granted, ds2482 is
+a difficult beast, but it is still annoying how access through i2c-dev
+can mess it up.
 
-On Fri, Mar 06, 2015 at 11:18:09PM +0100, Wolfram Sang wrote:
->=20
-> > > >Even if R-Car I2C received NACK, after that it might receive ACK
-> > > >by HW auto restart. In case of that, driver would continue process.
-> > > >If R-Car I2C didn't receive ACK, the driver would detect timeout
-> > > >and would report NACK as -ENXIO.
-> > > >
-> > > >Signed-off-by: Ryo Kataoka <ryo.kataoka.wt@renesas.com>
-> > > >Signed-off-by: Yoshihiro Kaneko <ykaneko0929@gmail.com>
-> > >=20
-> > > Excuse me, but what exactly is HW auto restart in this case? Is it a =
-feature
-> > > of the I2C slave?
-> >=20
-> > I asked Kataoka-san about this and his response was as follows:
-> >=20
-> >     It is a feature of the i2c-rcar(H/W) master.
-> >=20
-> >     If system(CPU) is busy, NACK procedure may have interrupt latency.
-> >     Since the clear of ICMCR.ESG bit is delayed, i2c-rcar(H/W) may auto=
--restart
-> >     after NACK. Please refer to ESG bit of H/W UM section 55.3.5.
-> >=20
-> >     For example, this is I2C write transmitting.
-> >     1.Start / 2.SlaveAddr,ACK / 3.RegAddr,ACK / 4.RegData,ACK / 5.Stop
-> >=20
-> >     If No.2 has NACK and interruption has delay, this transmitting is a=
-s follows.
-> >     1.Start / 2.SlaveAddr,NACK/ 1x.auto-restart / 2x.SlaveAddr,ACK
-> >                                     / 3.RegAddr,ACK / 4.RegData,ACK / 5=
-=2EStop
-> >=20
-> >     NACK of No.2 is invalidated by ACK of No.2x. It means recover.
->=20
-> Does this make some I2C device work which did not work before?
->=20
-> Most I2C devices always ack their address, so NACK very often means
-> "nothing is there". I think it makes sense that the rcar driver returns
-> ENXIO in this case which is documented to be used for NACK after address
-> phase. Then, the i2c client driver should know if this means "not there"
-> or "currently busy". And it should know when is a good time for another
-> try. As I read the patch, the driver would use the auto-restart feature
-> until the timeout is reached. That would make bus scanning pretty slow,
-> too.
+The latter is what bothered me more: What is the point of all this if we
+still can not ensure correct operation ?
 
-Hi,
-
-any news on this one?
-
-Kind regards,
-
-   Wolfram
-
-
---WfZ7S8PLGjBY9Voh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVFVboAAoJEBQN5MwUoCm2CdYP/RnIHbgdXtM+4HZz8ANuE/pM
-sUU83iZ52v9Us3yXjiCfwQ48S17KCp3uU5f8ayQxakuf+Iey2PFi0dh1hkdIwgC/
-HsVokSw1uhzKMKwW6TX7cr66LTVV1l+F/HMJyAlBKiVYtthaL91x0g8HxUQlrSWS
-VYVfcPQgea0eLTL5ai5r0zLs2IJdS6N9S+fp+hUtsqLYZvZdV3uwYkcyqLWCbBMo
-G/BqvENQAAO7g3KalCLujrr4sEEMESP7e5HWIdzfby0Xe0My6/TxhnvX8MMEuaI4
-UozP44LQTy6fEXfdESKKLb/Ncb91s8r+2dOBBHkfripUNh39ywTmZC8nRptZiAm3
-QPs87+EdwuhMrLliDDYXcoDPNvM0IgQfj3mof4zC8tCd9d6rkGGkubkqwHTHNA5e
-DlNa+KSpLOcH2sdMDl+CXtk/G5chGx89VY0OgnyllPyjXpIzZUtGuaZK23rTswIJ
-VKt+6vPWG4v8/MiHCLIIicwTYXes6z3zZUCez3CgkN5n3D0bqQpA4mKucoyNIWly
-1VLBRqGUuPLhGPkFpxwIVwDEaPJj0fYmfkTkoC0aKyy74z4IxIAqeetKGv9NemxA
-j+/+epC52PhIX03ixFM0uAwOKmN12fwPgJFwbnicrtTS40pc7mppg9cN0Pw5eSQ/
-WHYUaEckVsfTr3qKAMxJ
-=+1iX
------END PGP SIGNATURE-----
-
---WfZ7S8PLGjBY9Voh--
+Guenter
