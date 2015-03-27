@@ -1,70 +1,39 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 0/4] i2c: slave: API updates
-Date: Fri, 27 Mar 2015 09:55:00 +0100
-Message-ID: <20150327085500.GA18521@katana>
-References: <1427099199-3628-1-git-send-email-wsa@the-dreams.de>
+From: Amit Tomar <Amit.Tomar-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH] i2c/mpc: Fix ISR return value
+Date: Fri, 27 Mar 2015 12:47:10 +0000
+Message-ID: <BL2PR03MB44973331DBA9AE4940F125A83090@BL2PR03MB449.namprd03.prod.outlook.com>
+References: <BL2PR03MB449C87445D2FD1F15E9D33483310@BL2PR03MB449.namprd03.prod.outlook.com>
+ <20150205193612.GG15307@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1427099199-3628-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <20150205193612.GG15307@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Mar 23, 2015 at 09:26:35AM +0100, Wolfram Sang wrote:
-> So, after some more thoughts and people using the slave framework, some A=
-PI
-> updates seemed in place. Also, the documentation is now here. Please read=
- the
-> patch description for details. Thanks to all people joining the discussio=
-n,
-> especially Uwe and Geert!
->=20
-> Changes since V1:
->=20
-> * added acks, except for patch 2 which has too many changes to keep them =
-IMO
-> * reworded/updated the issues found in patch 2
-> * added patch 4
->=20
-> Wolfram Sang (4):
->   i2c: slave: rework the slave API
->   Documentation: i2c: describe the new slave mode
->   i2c: slave: add documentation for i2c-slave-eeprom
->   i2c: slave-eeprom: add more info when to increase the pointer
-
-Applied to for-next, thanks!
-
-
---45Z9DzgjV8m4Oswq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVFRrkAAoJEBQN5MwUoCm2GssQAKe/v5HUUFCBjpTpMnahv1lV
-BALWrBT27eahMHAUx2QLcuCpcsUSG9jC47gZcDG/eS+sU10QWxl4c0uj40Gh+QIh
-/ZBoOKuwGDuvd8b28T32/lJ3DGP93gF4ghD+Jp6QNNq4fpxcY4rri8pVwE4v3tJr
-71/828Gw8n9sc4c3NgbIpQUicOgLnO+ljfRE+Rsdv1u+AdNUvQ2rSh+RBieIZfRX
-PAZNRi7sx76MiejzFJUgL29kplpayX4dXkYuFvH+jY3QtY6vo/MEWcdr+NJWOxhl
-2rniDfqXJOmdryVpWKwyLUhjUIHypHTR2ueJ+VjRJh85fp5+klmcUr6W9Tf01etU
-a0WPowTBgxHEcl2FceJLfePKlkn3WdPEU0eFolW/f+sjtX6YLD+fselxj7BKZ2oe
-cnZjC5LU6TJPwfSW2A44l4r8bCeDH07aVTYfcCdooaFUzmvuobF5QThIQTdCdaJX
-YcyWJb67gCgNkkq8Am9H5p0Mzg7vPNA8+ys62QGIeOMo4gVX/46V5atWpeFMYlRH
-1qiwQe8cD8mFj20mNomMNBADDOjJCACtgM0ttwb/6CuDRWn/VybVXnS1pne0Z8I+
-HjBxeiD4gxCyvHUkVZ2WIIqi5bCM1DK4fLraz5uLjqPKgTPzQM9+feK6x7lwsQxX
-KW0jnfaFeZeDdv2dfhku
-=GSaV
------END PGP SIGNATURE-----
-
---45Z9DzgjV8m4Oswq--
+ID4+SSBjYW4ndCBhcHBseSB0aGUgcGF0Y2guIFRoZXJlIHNlZW0gdG8gYmUgd2hpdGVzcGFjZSBw
+cm9ibGVtcy4gUGxlYXNlIGZpeCB0aGUgcGF0Y2ggb3IgeW91ciBtYWlsIHNlbmRpbmcuDQoNClNv
+cnJ5IGZvciB0aGUgRGVsYXllZCByZXNwb25zZSBhbmQgSXQncyBteSBCYWQgYXMgSSBkaWRuJ3Qg
+cGFzcyBpdCB0aHJvdWdoIGNoZWNrcGF0Y2guDQoNCkkgd291bGQgc2VuZCBhIGZyZXNoIHBhdGNo
+Lg0KDQpUaGFua3MNCkFtaXQuDQogDQoNCj4gLS0tDQo+IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
+bXBjLmMgfMKgwqDCoCAzICsrLQ0KPiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAx
+IGRlbGV0aW9uKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1t
+cGMuYyANCj4gYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW1wYy5jIGluZGV4IDBlZGY2MzAuLjdh
+MzEzNmYgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXBjLmMNCj4gKysr
+IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tcGMuYw0KPiBAQCAtOTUsOCArOTUsOSBAQCBzdGF0
+aWMgaXJxcmV0dXJuX3QgbXBjX2kyY19pc3IoaW50IGlycSwgdm9pZCANCj4gKmRldl9pZCkNCj4g
+wqDCoMKgwqDCoMKgwqAgaTJjLT5pbnRlcnJ1cHQgPSByZWFkYihpMmMtPmJhc2UgKyBNUENfSTJD
+X1NSKTsNCj4gwqDCoMKgwqDCoMKgwqAgd3JpdGViKDAsIGkyYy0+YmFzZSArIE1QQ19JMkNfU1Ip
+Ow0KPiDCoMKgwqDCoMKgwqDCoCB3YWtlX3VwKCZpMmMtPnF1ZXVlKTsNCj4gK8KgwqAgwqDCoCAg
+cmV0dXJuIElSUV9IQU5ETEVEOw0KPiDCoMKgwqAgfQ0KPiAtwqAgcmV0dXJuIElSUV9IQU5ETEVE
+Ow0KPiArIMKgcmV0dXJuIElSUV9OT05FOw0KPiB9DQo+IA0KPiAvKiBTb21ldGltZXMgOXRoIGNs
+b2NrIHB1bHNlIGlzbid0IGdlbmVyYXRlZCwgYW5kIHNsYXZlIGRvZXNuJ3QgDQo+IHJlbGVhc2UN
+Cj4gLS0NCj4gMS43LjkuNQ0KPiAgDQo+IC0tDQo+IFRvIHVuc3Vic2NyaWJlIGZyb20gdGhpcyBs
+aXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBsaW51eC1pMmMiIA0KPiBpbiB0aGUgYm9k
+eSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVsLm9yZyBNb3JlIG1ham9yZG9t
+byANCj4gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpvcmRvbW8taW5mby5odG1s
+DQo=
