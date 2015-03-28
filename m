@@ -1,116 +1,33 @@
-From: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Subject: Re: [PATCH V2 1/3] i2c: busses: add SLIMpro I2C device driver on APM
- X-Gene platform
-Date: Fri, 27 Mar 2015 16:30:54 -0700
-Message-ID: <CAL85gmD9qsjBdY2Qyv05AjutU_uad7aaRjxORk8om8WeRQM1Eg@mail.gmail.com>
-References: <1424288043-2995-1-git-send-email-fkan@apm.com>
-	<20150323183153.GA1128@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150323183153.GA1128@katana>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: patches <patches-qTEPVZfXA3Y@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+From: Grant Likely <grant.likely@linaro.org>
+Subject: Re: [PATCH 1/2] of: base: add function to get highest id of an
+ =?iso-8859-1?Q?alias=0D?= stem
+Date: Sat, 28 Mar 2015 13:20:49 +0000
+Message-ID: <20150328132049.EDF7CC40869@trevor.secretlab.ca>
+References: <1426177093-26820-1-git-send-email-wsa@the-dreams.de>
+	<1426177093-26820-2-git-send-email-wsa@the-dreams.de>
+	<20150318124631.GB3580@katana>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150318124631.GB3580@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Bob Feretich <bob.feretich@rafresearch.com>, Jean Delvare <jdelvare@suse.de>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 23, 2015 at 11:31 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Wed, Feb 18, 2015 at 11:34:01AM -0800, Feng Kan wrote:
->> Add SLIMpro I2C device driver on APM X-Gene platform. This I2C
->> device driver use the SLIMpro Mailbox driver to tunnel message to
->> the SLIMpro coprocessor to do the work of accessing I2C components.
->>
->> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
->> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
->
-> Sigh, I lost my first review, so here we go again...
-> It looks mostly good. Using checkpatch with '--strict' will show some
-> whitespace issues. Please fix these.
->
->> +config I2C_XGENE_SLIMPRO
->> +     tristate "APM X-Gene SoC I2C SLIMpro devices support"
->> +     depends on ARCH_XGENE && MAILBOX
->
-> COMPILE_TEST?
->
->> +static int start_i2c_msg_xfer(struct slimpro_i2c_dev *ctx)
->> +{
->> +     if (ctx->mbox_client.tx_block) {
->> +             if (!wait_for_completion_timeout(&ctx->rd_complete,
->> +                                              msecs_to_jiffies
->> +                                              (MAILBOX_OP_TIMEOUT)))
->
-> Don't be too strict with the 80 char limit IMHO. I think it is more
-> readable to combine the last two lines into one.
->
->> +     msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
->> +                                     SLIMPRO_IIC_READ, protocol, addrlen,
->> +                                     readlen);
->
-> ditto
->
->> +     msg[0] = SLIMPRO_IIC_ENCODE_MSG(SLIMPRO_IIC_BUS, chip,
->> +                                     SLIMPRO_IIC_WRITE, protocol, addrlen,
->> +                                     writelen);
->
-> ditto
->
->> +     paddr = dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
->> +                            DMA_FROM_DEVICE);
->
-> The device should be the device of the dma channel.
+On Wed, 18 Mar 2015 13:46:31 +0100
+, Wolfram Sang <wsa@the-dreams.de>
+ wrote:
+> On Thu, Mar 12, 2015 at 05:17:58PM +0100, Wolfram Sang wrote:
+> > I2C supports adding adapters using either a dynamic or fixed id. The
+> > latter is provided by aliases in the DT case. To prevent id collisions
+> > of those two types, install this function which gives us the highest
+> > fixed id, so we can then let the dynamically created ones come after
+> > this highest number.
+> > 
+> > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> 
+> Applied to for-next, thanks!
 
-The device is not visible on linux, DMA is done by the helper processor.
-Perhaps you cah give me some idea how to do this. Thanks
+Looks good to me to. Thanks for doing this. It should also be useful for
+other devices.
 
->
->> +     paddr = dma_map_single(ctx->dev, ctx->dma_buffer, writelen,
->> +                            DMA_TO_DEVICE);
->
-> ditto
->
->> +     rc = dma_mapping_error(ctx->dev, paddr);
->> +     if (dma_mapping_error(ctx->dev, paddr)) {
->
-> if (rc)
->
->> +static struct i2c_algorithm xgene_slimpro_i2c_algorithm = {
->> +     .smbus_xfer = xgene_slimpro_i2c_xfer,
->
-> Might be a tad less confusing to name this function
-> xgene_slimpro_smbus_xfer. You decide.
->
->> +     rc = i2c_add_adapter(adapter);
->> +     if (rc) {
->> +             dev_err(&pdev->dev, "Adapter registeration failed\n");
->> +             return rc;
->> +     }
->> +
->> +     rc = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
->> +     if (rc)
->> +             dev_warn(&pdev->dev, "Unable to set dma mask\n");
->
-> Shouldn't that be before i2c_add_adapter?
->
->> +static struct platform_driver xgene_slimpro_i2c_driver = {
->> +     .probe  = xgene_slimpro_i2c_probe,
->> +     .remove = xgene_slimpro_i2c_remove,
->> +     .driver = {
->> +             .name   = "xgene-slimpro-i2c",
->> +             .of_match_table = of_match_ptr(xgene_slimpro_i2c_id)
->
-> You are DT only, do we need of_match_ptr?
->
->> +MODULE_DESCRIPTION("APM X-Gene SLIMpro I2C driver");
->> +MODULE_LICENSE("GPL");
->
-> MODULE_AUTHOR left out intentionally?
->
-> Thanks,
->
->    Wolfram
->
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+g.
