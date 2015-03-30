@@ -1,39 +1,58 @@
-From: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 39/86] i2c/i801: use uapi/linux/pci_ids.h directly
-Date: Sun, 29 Mar 2015 15:40:42 +0200
-Message-ID: <1427635734-24786-40-git-send-email-mst@redhat.com>
-References: <1427635734-24786-1-git-send-email-mst@redhat.com>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
+Date: Mon, 30 Mar 2015 09:15:30 +0900
+Message-ID: <20150330001530.GA1549@verge.net.au>
+References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
+ <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
+ <20150304040819.GB12776@verge.net.au>
+ <20150306220531.GA6572@katana>
+ <20150307103349.GA1194@katana>
+ <20150327131044.GB19151@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1427635734-24786-1-git-send-email-mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20150327131044.GB19151@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Header moved from linux/pci_ids.h to uapi/linux/pci_ids.h,
-use the new header directly so we can drop
-the wrapper in include/linux/pci_ids.h.
+On Fri, Mar 27, 2015 at 02:10:45PM +0100, Wolfram Sang wrote:
+> On Sat, Mar 07, 2015 at 11:33:49AM +0100, Wolfram Sang wrote:
+> > On Fri, Mar 06, 2015 at 11:05:31PM +0100, Wolfram Sang wrote:
+> > > 
+> > > > I asked Kataoka-san about this and his response was as follows:
+> > > 
+> > > Thanks, Simon!
+> > > 
+> > > > If system(CPU) is busy, the driver can't clear the status register soon
+> > > > after kicking start.
+> > > > 
+> > > > If sequence of first start is as follows, there is a problem.
+> > > > Because H/W starts by 1.
+> > > > But sequence of re-start is as follows, there is no problem.
+> > > > Because H/W starts by 2.
+> > > > 
+> > > >   1. Issue START condition by ESG bit of ICMCR register.
+> > > >                   <--- If there is too much time, H/W finish transmitting
+> > > >                        and set status in status register.
+> > > >   2. Clear interrupt status (ICMSR).
+> > > >   3. Open interrupt mask.
+> > > >   4. Wait interrupt.
+> > > >                   <--- If status is cleared, interrupt does not occur.
+> > > 
+> > > I understand. I'll add this explanation to the patch and apply it soon.
+> > 
+> > Sorry, another question came up while applying:
+> > 
+> > How can this interruption happen? The function is called in a
+> > spin_lock_irqsave protected area. Is this an RT_PREEMPT related issue?
+> > Am I missing something?
+> 
+> Hi,
+> 
+> any news on this one?
 
-Signed-off-by: Michael S. Tsirkin <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-i801.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 8fafb25..948a1a2 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -164,7 +164,7 @@
- #define STATUS_FLAGS		(SMBHSTSTS_BYTE_DONE | SMBHSTSTS_INTR | \
- 				 STATUS_ERROR_FLAGS)
- 
--/* Older devices have their ID defined in <linux/pci_ids.h> */
-+/* Older devices have their ID defined in <uapi/linux/pci_ids.h> */
- #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
- #define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
- #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
--- 
-MST
+Sorry, I seem to have dropped the ball here. I've (finally) forwarded
+your question on to the BSP team.
