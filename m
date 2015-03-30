@@ -1,48 +1,38 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH 39/86] i2c/i801: use uapi/linux/pci_ids.h directly
-Date: Mon, 30 Mar 2015 09:32:22 +0200
-Message-ID: <20150330093222.3006d3c8@endymion.delvare>
-References: <1427635734-24786-1-git-send-email-mst@redhat.com>
-	<1427635734-24786-40-git-send-email-mst@redhat.com>
+From: Ioan Nicu <ioan.nicu.ext@nokia.com>
+Subject: Re: [PATCH] i2c: i2c-mux-gpio: Change log level to debug for probe
+ deferrals
+Date: Mon, 30 Mar 2015 09:57:05 +0200
+Message-ID: <20150330075652.GA31778@ulegcpding.emea.nsn-net.net>
+References: <20150325174351.GB5209@ulegcpding.emea.nsn-net.net>
+ <20150327152932.GB27238@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1427635734-24786-40-git-send-email-mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150327152932.GB27238@katana>
+Sender: linux-kernel-owner@vger.kernel.org
+To: ext Wolfram Sang <wsa@the-dreams.de>
+Cc: Ioan Nicu <ioan.nicu.ext@nsn.com>, Peter Korsgaard <peter.korsgaard@barco.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Alexander Sverdlin <alexander.sverdlin@nokia.com>, Mathias Rulf <mathias.rulf@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 29 Mar 2015 15:40:42 +0200, Michael S. Tsirkin wrote:
-> Header moved from linux/pci_ids.h to uapi/linux/pci_ids.h,
-> use the new header directly so we can drop
-> the wrapper in include/linux/pci_ids.h.
+On Fri, Mar 27, 2015 at 04:29:33PM +0100, ext Wolfram Sang wrote:
+> On Wed, Mar 25, 2015 at 06:43:51PM +0100, Ioan Nicu wrote:
+> > Probe deferral is not an error case. It happens only when
+> > the necessary dependencies are not there yet.
+> > 
+> > The driver core is already printing a message when a driver
+> > requests probe deferral, so this can be traced in the logs
+> > without these error prints.
+> > 
+> > This patch changes the error messages from these deferral cases
+> > to debug messages.
+> > 
+> > Signed-off-by: Ionut Nicu <ioan.nicu.ext@nokia.com>
 > 
-> Signed-off-by: Michael S. Tsirkin <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-i801.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Why not simply removing it?
 > 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 8fafb25..948a1a2 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -164,7 +164,7 @@
->  #define STATUS_FLAGS		(SMBHSTSTS_BYTE_DONE | SMBHSTSTS_INTR | \
->  				 STATUS_ERROR_FLAGS)
->  
-> -/* Older devices have their ID defined in <linux/pci_ids.h> */
-> +/* Older devices have their ID defined in <uapi/linux/pci_ids.h> */
->  #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
->  #define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
->  #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS		0x1c22
 
-No objection from me.
+Right, those messages are not relevant anyway, so removing them is better.
+I'll send out an updated patch.
 
-Reviewed-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-
-
--- 
-Jean Delvare
-SUSE L3 Support
+Thanks!
