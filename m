@@ -1,58 +1,91 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
-Date: Mon, 30 Mar 2015 09:15:30 +0900
-Message-ID: <20150330001530.GA1549@verge.net.au>
-References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
- <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
- <20150304040819.GB12776@verge.net.au>
- <20150306220531.GA6572@katana>
- <20150307103349.GA1194@katana>
- <20150327131044.GB19151@katana>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re:  [PATCH] support i2c 10-bit addressing
+Date: Mon, 30 Mar 2015 08:59:08 +0200
+Message-ID: <20150330085908.3d5d126e@endymion.delvare>
+References: <CAF2xp_GC43xxrcXCx8sU_KJQW_Y6C+CTVtH5YqJcSHtad1u_-g@mail.gmail.com>
+	<CAF2xp_H62JgAmBPhsvKgYHae6OMwgOtXmQndf5sj=Hjy1YREnA@mail.gmail.com>
+	<5516EC7A.2060103@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150327131044.GB19151@katana>
+In-Reply-To: <5516EC7A.2060103-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Yoshihiro Kaneko <ykaneko0929-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Peter Chang <dpf-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 27, 2015 at 02:10:45PM +0100, Wolfram Sang wrote:
-> On Sat, Mar 07, 2015 at 11:33:49AM +0100, Wolfram Sang wrote:
-> > On Fri, Mar 06, 2015 at 11:05:31PM +0100, Wolfram Sang wrote:
-> > > 
-> > > > I asked Kataoka-san about this and his response was as follows:
-> > > 
-> > > Thanks, Simon!
-> > > 
-> > > > If system(CPU) is busy, the driver can't clear the status register soon
-> > > > after kicking start.
-> > > > 
-> > > > If sequence of first start is as follows, there is a problem.
-> > > > Because H/W starts by 1.
-> > > > But sequence of re-start is as follows, there is no problem.
-> > > > Because H/W starts by 2.
-> > > > 
-> > > >   1. Issue START condition by ESG bit of ICMCR register.
-> > > >                   <--- If there is too much time, H/W finish transmitting
-> > > >                        and set status in status register.
-> > > >   2. Clear interrupt status (ICMSR).
-> > > >   3. Open interrupt mask.
-> > > >   4. Wait interrupt.
-> > > >                   <--- If status is cleared, interrupt does not occur.
-> > > 
-> > > I understand. I'll add this explanation to the patch and apply it soon.
-> > 
-> > Sorry, another question came up while applying:
-> > 
-> > How can this interruption happen? The function is called in a
-> > spin_lock_irqsave protected area. Is this an RT_PREEMPT related issue?
-> > Am I missing something?
-> 
-> Hi,
-> 
-> any news on this one?
+Hi Peter, Guenter,
 
-Sorry, I seem to have dropped the ball here. I've (finally) forwarded
-your question on to the BSP team.
+First of all: the right list to discuss this is linux-i2c (Cc'd) with
+me in Cc.
+
+On Sat, 28 Mar 2015 11:01:30 -0700, Guenter Roeck wrote:
+> On 03/28/2015 06:17 AM, Peter Chang wrote:
+> > <sigh> gmail appears to have futzed w/ the attachment type.
+> >
+> > 2015-03-28 6:12 GMT-07:00 Peter Chang <dpf-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>:
+> >> the address parsing doesn't have the adapter's support bits yet, so it
+> >> looks a little out of place.
+> 
+> There is a reason for discouraging attachments: If one replies (like me here),
+> the source code is not part of the reply, making a review really difficult.
+> 
+> Not sure what the above comment is supposed to mean. I can not parse it,
+> sorry.
+
+Neither can I.
+
+> Unless I misunderstand the code, it now accepts addresses up to 0x3ff
+> unconditionally. If the adapter doesn't support 10 bit addresses, the
+> code then doesn't even try to set 10-bit address mode. 10-bit addresses
+> should not be accepted if the adapter does not support it.
+
+It's even worse than that. The code also considers all addresses below
+0x77 to always be 7-bit addresses, which is not correct. I2C specifies
+two address ranges: a 7-bit one (valid addresses from 0x03 to 0x77) and
+a 10-bit one (valid addresses 0x00 to 0x3ff.) These two ranges do NOT
+overlap, even though the numbers are the same. In other words, 10-bit
+address 0x10 exists and is NOT the same as 7-bit address 0x10.
+
+This means that you can't guess whether the user means a 7-bit address
+or a 10-bit address. The intent must be expressed explicitly with a
+command-line parameter, and then the address validity must be checked
+according to this parameter.
+
+> I would suggest to rearrange the code a bit to include the 10bit check
+> in check_funcs. Something like
+> 	if (...
+> 	    || check_funcs(file, size, pec, address > 0x77)
+> 	    || ...
+> might do. This would make the code easier to read and address
+> the problem where a 10-bit address is provided but not supported by
+> the adapter.
+
+The condition must be more explicit than "address > 0x77", I'd rather
+expect something like:
+
+	check_funcs(file, size, pec, tenbit)
+
+where tenbit is set by passing -t on the command line, for example.
+
+> Then
+> 	if (address > 0x77 && ioctl(file, I2C_TENBIT, 1) < 0) {
+> 		fprintf(stderr, ...);
+> 		return -errno;
+> 	}
+> 
+> should work in set_slave_addr without the need to pass funcs to it.
+
+Unfortunately not, as addresses <= 0x77 are equally valid 10-bit
+addresses. You must explicitly tell set_slave_addr whether the address
+is a 7-bit or 10-bit one. But please do that by passing a flag (e.g.
+tenbit as above) to it, not funcs.
+
+> You'll also need to update the Usage: strings for the various tools.
+
+Correct, and the manual pages too.
+
+-- 
+Jean Delvare
+SUSE L3 Support
