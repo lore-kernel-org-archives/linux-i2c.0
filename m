@@ -1,91 +1,50 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re:  [PATCH] support i2c 10-bit addressing
-Date: Mon, 30 Mar 2015 08:59:08 +0200
-Message-ID: <20150330085908.3d5d126e@endymion.delvare>
-References: <CAF2xp_GC43xxrcXCx8sU_KJQW_Y6C+CTVtH5YqJcSHtad1u_-g@mail.gmail.com>
-	<CAF2xp_H62JgAmBPhsvKgYHae6OMwgOtXmQndf5sj=Hjy1YREnA@mail.gmail.com>
-	<5516EC7A.2060103@roeck-us.net>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] i2c: dln2: set the device tree node of the adapter
+Date: Mon, 30 Mar 2015 08:09:10 +0100
+Message-ID: <20150330070910.GD457@x1>
+References: <1427470630-13378-1-git-send-email-octavian.purdila@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5516EC7A.2060103-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1427470630-13378-1-git-send-email-octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Peter Chang <dpf-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, laurentiu.palcu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter, Guenter,
+On Fri, 27 Mar 2015, Octavian Purdila wrote:
 
-First of all: the right list to discuss this is linux-i2c (Cc'd) with
-me in Cc.
+> This patch makes sure the platform device tree node is inherited by
+> the adapter device. This allows the DLN2 bus to work with i2c devices
+> defined in the device tree.
+>=20
+> Signed-off-by: Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-dln2.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-On Sat, 28 Mar 2015 11:01:30 -0700, Guenter Roeck wrote:
-> On 03/28/2015 06:17 AM, Peter Chang wrote:
-> > <sigh> gmail appears to have futzed w/ the attachment type.
-> >
-> > 2015-03-28 6:12 GMT-07:00 Peter Chang <dpf-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>:
-> >> the address parsing doesn't have the adapter's support bits yet, so it
-> >> looks a little out of place.
-> 
-> There is a reason for discouraging attachments: If one replies (like me here),
-> the source code is not part of the reply, making a review really difficult.
-> 
-> Not sure what the above comment is supposed to mean. I can not parse it,
-> sorry.
+Acked-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Neither can I.
+> diff --git a/drivers/i2c/busses/i2c-dln2.c b/drivers/i2c/busses/i2c-d=
+ln2.c
+> index b3fb86a..db1e20a 100644
+> --- a/drivers/i2c/busses/i2c-dln2.c
+> +++ b/drivers/i2c/busses/i2c-dln2.c
+> @@ -210,6 +210,7 @@ static int dln2_i2c_probe(struct platform_device =
+*pdev)
+>  	dln2->adapter.class =3D I2C_CLASS_HWMON;
+>  	dln2->adapter.algo =3D &dln2_i2c_usb_algorithm;
+>  	dln2->adapter.dev.parent =3D dev;
+> +	dln2->adapter.dev.of_node =3D dev->of_node;
+>  	i2c_set_adapdata(&dln2->adapter, dln2);
+>  	snprintf(dln2->adapter.name, sizeof(dln2->adapter.name), "%s-%s-%d"=
+,
+>  		 "dln2-i2c", dev_name(pdev->dev.parent), dln2->port);
 
-> Unless I misunderstand the code, it now accepts addresses up to 0x3ff
-> unconditionally. If the adapter doesn't support 10 bit addresses, the
-> code then doesn't even try to set 10-bit address mode. 10-bit addresses
-> should not be accepted if the adapter does not support it.
-
-It's even worse than that. The code also considers all addresses below
-0x77 to always be 7-bit addresses, which is not correct. I2C specifies
-two address ranges: a 7-bit one (valid addresses from 0x03 to 0x77) and
-a 10-bit one (valid addresses 0x00 to 0x3ff.) These two ranges do NOT
-overlap, even though the numbers are the same. In other words, 10-bit
-address 0x10 exists and is NOT the same as 7-bit address 0x10.
-
-This means that you can't guess whether the user means a 7-bit address
-or a 10-bit address. The intent must be expressed explicitly with a
-command-line parameter, and then the address validity must be checked
-according to this parameter.
-
-> I would suggest to rearrange the code a bit to include the 10bit check
-> in check_funcs. Something like
-> 	if (...
-> 	    || check_funcs(file, size, pec, address > 0x77)
-> 	    || ...
-> might do. This would make the code easier to read and address
-> the problem where a 10-bit address is provided but not supported by
-> the adapter.
-
-The condition must be more explicit than "address > 0x77", I'd rather
-expect something like:
-
-	check_funcs(file, size, pec, tenbit)
-
-where tenbit is set by passing -t on the command line, for example.
-
-> Then
-> 	if (address > 0x77 && ioctl(file, I2C_TENBIT, 1) < 0) {
-> 		fprintf(stderr, ...);
-> 		return -errno;
-> 	}
-> 
-> should work in set_slave_addr without the need to pass funcs to it.
-
-Unfortunately not, as addresses <= 0x77 are equally valid 10-bit
-addresses. You must explicitly tell set_slave_addr whether the address
-is a 7-bit or 10-bit one. But please do that by passing a flag (e.g.
-tenbit as above) to it, not funcs.
-
-> You'll also need to update the Usage: strings for the various tools.
-
-Correct, and the manual pages too.
-
--- 
-Jean Delvare
-SUSE L3 Support
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
