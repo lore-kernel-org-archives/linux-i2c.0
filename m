@@ -1,38 +1,46 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] i2c: dln2: set the device tree node of the adapter
-Date: Mon, 30 Mar 2015 08:09:56 +0100
-Message-ID: <20150330070956.GE457@x1>
-References: <1427470630-13378-1-git-send-email-octavian.purdila@intel.com>
- <20150327155700.GG27238@katana>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 02/86] i2c/i801: linux/pci_ids.h -> uapi/linux/pci_ids.h
+Date: Mon, 30 Mar 2015 09:31:46 +0200
+Message-ID: <20150330093146.589817f5@endymion.delvare>
+References: <1427635734-24786-1-git-send-email-mst@redhat.com>
+	<1427635734-24786-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150327155700.GG27238@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Octavian Purdila <octavian.purdila@intel.com>, laurentiu.palcu@intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1427635734-24786-3-git-send-email-mst@redhat.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 27 Mar 2015, Wolfram Sang wrote:
+On Sun, 29 Mar 2015 15:37:30 +0200, Michael S. Tsirkin wrote:
+> Header moved from linux/pci_ids.h to uapi/linux/pci_ids.h,
+> update i2c documentation accordingly.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  Documentation/i2c/busses/i2c-i801 | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+> index 82f48f7..8036644 100644
+> --- a/Documentation/i2c/busses/i2c-i801
+> +++ b/Documentation/i2c/busses/i2c-i801
+> @@ -141,7 +141,7 @@ host bridge PCI device. Get yours with "lspci -n -v -s 00:00.0":
+>  
+>  Here the host bridge ID is 2570 (82865G/PE/P), the subvendor ID is 1043
+>  (Asus) and the subdevice ID is 80f2 (P4P800-X). You can find the symbolic
+> -names for the bridge ID and the subvendor ID in include/linux/pci_ids.h,
+> +names for the bridge ID and the subvendor ID in include/uapi/linux/pci_ids.h,
+>  and then add a case for your subdevice ID at the right place in
+>  drivers/pci/quirks.c. Then please give it very good testing, to make sure
+>  that the unhidden SMBus doesn't conflict with e.g. ACPI.
 
-> On Fri, Mar 27, 2015 at 05:37:10PM +0200, Octavian Purdila wrote:
-> > This patch makes sure the platform device tree node is inherited by
-> > the adapter device. This allows the DLN2 bus to work with i2c devic=
-es
-> > defined in the device tree.
-> >=20
-> > Signed-off-by: Octavian Purdila <octavian.purdila@intel.com>
->=20
-> Applied to for-next, thanks!
+No objection from me.
 
-Ah sorry.  I read this _after_ sending my Ack.
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-=46eel free to apply it, or not.
-
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+-- 
+Jean Delvare
+SUSE L3 Support
