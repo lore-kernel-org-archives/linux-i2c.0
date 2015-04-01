@@ -1,74 +1,96 @@
-From: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v6 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Wed, 1 Apr 2015 13:29:47 +0800
-Message-ID: <1427866189-19262-2-git-send-email-eddie.huang@mediatek.com>
-References: <1427866189-19262-1-git-send-email-eddie.huang@mediatek.com>
+From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Subject: Re: [PATCH v2 2/4] Documentation: i2c: describe the new slave mode
+Date: Wed, 1 Apr 2015 14:17:47 +0200
+Message-ID: <CAMuHMdVVLVXmbtan1rKtDrSrJ_nKO_K5Xx4jAjcb5ow_ChDVhg@mail.gmail.com>
+References: <1427099199-3628-1-git-send-email-wsa@the-dreams.de>
+	<1427099199-3628-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1427866189-19262-1-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1427099199-3628-3-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-sh list <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Hi Wolfram,
 
-Add devicetree bindings for Mediatek Soc I2C driver.
+On Mon, Mar 23, 2015 at 9:26 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> --- /dev/null
+> +++ b/Documentation/i2c/slave-interface
 
-Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Signed-off-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-mt6577.txt         | 41 ++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> +I2C slave events
+> +----------------
+> +
+> +The bus driver sends an event to the backend using the following function:
+> +
+> +       ret = i2c_slave_event(client, event, &val)
+> +
+> +'client' describes the i2c slave device. 'event' is one of the special event
+> +types described hereafter. 'val' holds an u8 value for the data byte to be
+> +read/written and is thus bidirectional. The pointer to val must always be
+> +provided even if val is not used for an event, i.e. don't use NULL here. 'ret'
+> +is the return value from the backend. Mandatory events must be provided by the
+> +bus drivers and must be checked for by backend drivers.
+> +
+> +Event types:
+> +
+> +* I2C_SLAVE_WRITE_REQUESTED (mandatory)
+> +
+> +'val': unused
+> +'ret': always 0
+> +
+> +Another I2C master wants to write data to us. This event should be sent once
+> +our own address and the write bit was detected. The data did not arrive yet, so
+> +there is nothing to process or return. Wakeup or initialization probably needs
+> +to be done, though.
+> +
+> +* I2C_SLAVE_READ_REQUESTED (mandatory)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-new file mode 100644
-index 0000000..0ce6fa3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-@@ -0,0 +1,41 @@
-+* Mediatek's I2C controller
-+
-+The Mediatek's I2C controller is used to interface with I2C devices.
-+
-+Required properties:
-+  - compatible: value should be either of the following.
-+      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-+      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-+      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-+      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-+      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-+  - reg: physical base address of the controller and dma base, length of memory
-+    mapped region.
-+  - interrupts: interrupt number to the cpu.
-+  - clock-div: the fixed value for frequency divider of clock source in i2c
-+    module. Each IC may be different.
-+  - clocks: clock name from clock manager
-+  - clock-names: Must include "main" and "dma", if enable have-pmic need include
-+    "pmic" extra.
-+
-+Optional properties:
-+  - clock-frequency: Frequency in Hz of the bus when transfer, the default value
-+    is 100000.
-+  - mediatek,have-pmic: platform can control i2c form special pmic side.
-+    Only mt6589 and mt8135 support this feature.
-+  - mediatek,use-push-pull: IO config use push-pull mode.
-+
-+Example:
-+
-+	i2c0: i2c@1100d000 {
-+			compatible = "mediatek,mt6577-i2c";
-+			reg = <0x1100d000 0x70>,
-+			      <0x11000300 0x80>;
-+			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-+			clock-frequency = <400000>;
-+			mediatek,have-pmic;
-+			clock-div = <16>;
-+			clocks = <&i2c0_ck>, <&ap_dma_ck>;
-+			clock-names = "main", "dma";
-+	};
-+
--- 
-1.8.1.1.dirty
+I'm wondering whether these should be called I2C_SLAVE_READ_FIRST...
+
+> +'val': backend returns first byte to be sent
+> +'ret': always 0
+> +
+> +Another I2C master wants to read data from us. This event should be sent once
+> +our own address and the read bit was detected. After returning, the bus driver
+> +should transmit the first byte.
+> +
+> +* I2C_SLAVE_WRITE_RECEIVED (mandatory)
+> +
+> +'val': bus driver delivers received byte
+> +'ret': 0 if the byte should be acked, some errno if the byte should be nacked
+> +
+> +Another I2C master has sent a byte to us which needs to be set in 'val'. If 'ret'
+> +is zero, the bus driver should ack this byte. If 'ret' is an errno, then the byte
+> +should be nacked.
+> +
+> +* I2C_SLAVE_READ_PROCESSED (mandatory)
+
+... and I2C_SLAVE_READ_NEXT?
+
+I don't have good alternative names for the write operation, as it's not
+symmetric.
+
+> +'val': backend returns next byte to be sent
+> +'ret': always 0
+> +
+> +The bus driver requests the next byte to be sent to another I2C master in
+> +'val'. Important: This does not mean that the previous byte has been acked, it
+> +only means that the previous byte is shifted out to the bus! To ensure seamless
+> +transmission, most hardware requests the next byte when the previous one is
+> +still shifted out. If the master sends NACK and stops reading after the byte
+> +currently shifted out, this byte requested here is never used. It very likely
+> +needs to be sent again on the next I2C_SLAVE_READ_REQUEST, depending a bit on
+> +your backend, though.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
