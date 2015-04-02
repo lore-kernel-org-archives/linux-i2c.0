@@ -1,98 +1,188 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/4] Documentation: i2c: describe the new slave mode
-Date: Thu, 2 Apr 2015 05:38:19 +0200
-Message-ID: <20150402033815.GA1429@katana>
-References: <1427099199-3628-1-git-send-email-wsa@the-dreams.de>
- <1427099199-3628-3-git-send-email-wsa@the-dreams.de>
- <CAMuHMdVVLVXmbtan1rKtDrSrJ_nKO_K5Xx4jAjcb5ow_ChDVhg@mail.gmail.com>
+From: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH 3/3] dt: paz00: define nvec as child of i2c bus
+Date: Thu, 02 Apr 2015 11:37:07 +0200
+Message-ID: <21658630.CslVI5jns9@fb07-iapwap2>
+References: <1422516022-27161-1-git-send-email-danindrey@mail.ru> <551AC153.7060103@mail.ru> <551C2AC0.9030304@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdVVLVXmbtan1rKtDrSrJ_nKO_K5Xx4jAjcb5ow_ChDVhg@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Content-Type: multipart/signed; boundary="nextPart2189630.rPL0QJYJ3I"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <551C2AC0.9030304-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Apr 01, 2015 at 02:17:47PM +0200, Geert Uytterhoeven wrote:
-> Hi Wolfram,
->=20
-> On Mon, Mar 23, 2015 at 9:26 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> > --- /dev/null
-> > +++ b/Documentation/i2c/slave-interface
->=20
-> > +I2C slave events
-> > +----------------
-> > +
-> > +The bus driver sends an event to the backend using the following funct=
-ion:
-> > +
-> > +       ret =3D i2c_slave_event(client, event, &val)
-> > +
-> > +'client' describes the i2c slave device. 'event' is one of the special=
- event
-> > +types described hereafter. 'val' holds an u8 value for the data byte t=
-o be
-> > +read/written and is thus bidirectional. The pointer to val must always=
- be
-> > +provided even if val is not used for an event, i.e. don't use NULL her=
-e. 'ret'
-> > +is the return value from the backend. Mandatory events must be provide=
-d by the
-> > +bus drivers and must be checked for by backend drivers.
-> > +
-> > +Event types:
-> > +
-> > +* I2C_SLAVE_WRITE_REQUESTED (mandatory)
-> > +
-> > +'val': unused
-> > +'ret': always 0
-> > +
-> > +Another I2C master wants to write data to us. This event should be sen=
-t once
-> > +our own address and the write bit was detected. The data did not arriv=
-e yet, so
-> > +there is nothing to process or return. Wakeup or initialization probab=
-ly needs
-> > +to be done, though.
-> > +
-> > +* I2C_SLAVE_READ_REQUESTED (mandatory)
->=20
-> I'm wondering whether these should be called I2C_SLAVE_READ_FIRST...
-
-I considered that but decided against it. The difference to WRITE was
-one reason. I think there was another I found when implementing the
-update, but that one I can't recall right now :(
+--nextPart2189630.rPL0QJYJ3I
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="windows-1252"
 
 
---+HP7ph2BbKc20aGI
+Am Mittwoch, 1. April 2015, 11:28:32 schrieb Stephen Warren:
+> On 03/31/2015 09:46 AM, Andrey Danin wrote:
+> > On 31.03.2015 17:09, Stephen Warren wrote:
+> >> On 03/31/2015 12:40 AM, Andrey Danin wrote:
+> >>> Hi,
+> >>> 
+> >>> Thanks for the review.
+> >>> 
+> >>> On 03.02.2015 0:20, Stephen Warren wrote:
+
+[ snipped old patch parts ]
+
+> >>>>> diff --git a/arch/arm/boot/dts/tegra20-paz00.dts
+> >>>>> b/arch/arm/boot/dts/tegra20-paz00.dts
+> >>>>> 
+> >>>>> -    nvec@7000c500 {
+> >>>>> -        compatible = "nvidia,nvec";
+> >>>>> -        reg = <0x7000c500 0x100>;
+> >>>>> -        interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
+> >>>>> -        #address-cells = <1>;
+> >>>>> -        #size-cells = <0>;
+> >>>>> +    i2c@7000c500 {
+> >>>>> +        status = "okay";
+> >>>>> 
+> >>>>>           clock-frequency = <80000>;
+> >>>>> 
+> >>>>> -        request-gpios = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
+> >>>>> -        slave-addr = <138>;
+> >>>>> -        clocks = <&tegra_car TEGRA20_CLK_I2C3>,
+> >>>>> -                 <&tegra_car TEGRA20_CLK_PLL_P_OUT3>;
+> >>>>> -        clock-names = "div-clk", "fast-clk";
+> >>>>> -        resets = <&tegra_car 67>;
+> >>>>> -        reset-names = "i2c";
+> >>>>> +
+> >>>>> +        nvec: nvec@45 {
+> >>>> 
+> >>>> This doesn't feel correct. There's nothing here to indicate that this
+> >>>> child device is a slave that is implemented by the host SoC rather than
+> >>>> something external attached to the I2C bus.
+> >>>> 
+> >>>> Perhaps you can get away with this, since the driver for nvidia,nvec
+> >>>> only calls I2C APIs suitable for internal slaves rather than external
+> >>>> slaves? Even so though, I think the distinction needs to be clearly
+> >>>> marked in the DT so that any generic code outside the NVEC driver that
+> >>>> parses the DT can determine the difference.
+> >>>> 
+> >>>> I would recommend the I2C controller having #address-cells=<2> with
+> >>>> cell
+> >>>> 0 being 0==master,1==slave, cell 1 being the I2C address. The I2C
+> >>>> driver
+> >>>> would need to support #address-cells=<1> for backwards-compatibility.
+
+Stephen, we haven't used your suggestion because Wolfram disliked the idea in 
+e.g. http://lkml.iu.edu/hypermail/linux/kernel/1409.1/03446.html
+
+> >>> Driver (nvec in this case) can decide what mode should it use according
+> >>> to compatible value. Is it not enough ?
+> >> 
+> >> No, I don't think so.
+> >> 
+> >> The I2C binding model is that each child of an I2C controller represents
+> >> a device attached to the bus. which SW will communicate with using the
+> >> I2C controller as master and the device as a slave. If there's no
+> >> explicit representation of child-vs-slave in the DT, how does the I2C
+> >> core know whether a particular node is intended to be accessed as a
+> >> master or slave?
+> > 
+> > Device driver registers itself via slave API. Bus driver calls
+> > appropriate callback function when needed.
+> > If device driver decides to access hardware via master API, then it can
+> > do it.
+> > 
+> > Am I missing something ?
+> > 
+> >> In other words, without an explicit "communicate with this device" or
+> >> "implement this device as a slave" flag, how could DT contain:
+> >> 
+> >> i2c-controller {
+> >> 
+> >>      ...
+> >>      master@1a {
+> >>      
+> >>          compatible = "foo,device";
+> >>          reg = <0x1a 1>;
+> >>      
+> >>      };
+> >>      slave@1a {
+> >>      
+> >>          compatible = "foo,device-slave";
+> >>          reg = <0x1a 1>;
+> >>      
+> >>      };
+> >> 
+> >> };
+> >> 
+> >> where:
+> >> 
+> >> - "foo,device" means: instantiate a driver to communicate with a device
+> >> of this type.
+> >> 
+> >> - "foo,device-slave" means: instantiate a driver to act as this I2C
+> >> device.
+> >> 
+> >> Sure it's possible for the drivers for those two nodes to simply use the
+> >> I2C subsystem's master or slave APIs, but I suspect DT content would
+> >> confuse the I2C core into thinking that two I2C devices with the same
+> >> address had been represented in DT, and the I2C core would refuse to
+> >> instantiate one of them. The solution here is for the reg value to
+> >> encode a "master" vs. "slave" flag, so the I2C core can allow both a
+> >> master and a slave for each address.
+> > 
+> > If there is one device, then it must be one node. If there is two
+> > devices then it looks incorrect to me to have two devices with the same
+> > address. Does I2C allow two devices with same address ?
+> 
+> One of the nodes is to indicate that the kernel should implement the
+> slave mode device and one is to indicate that the kernel should
+> implement the master mode device. Those two devices/nodes have
+> completely different semantics, so while they share the I2C bus address
+> they don't represent the same thing.
+> 
+> Admittedly it would be uncommon to do this, since it'd be using the I2C
+> bus in loopback mode. However, I don't see why we should set out to
+> prevent that.
+
+We are sitting between the chairs currently. I hope Wolfram can further 
+comment on this.
+
+Having a generic loopback slave driver which just echos all messages it 
+received back to the master (on the same controller or a different one) would 
+be nice IMHO. 
+
+> > I can imagine this:
+> > - we have hardware with I2C device. This device can act as master or as
+> > slave
+> > - we have device driver, that can work in one, other or both modes.
+> > 
+> > If we want to force master or slave mode, we can use flags (for combined
+> > mode we can use two nodes, but it looks weird).
+> > If we want to let driver decide (preferred mode, arbitration, something
+> > else), we can use current rules.
+> > 
+> >> I'm pretty sure this is the nth time I've explained this.
+> > 
+> > Sorry. I don't understand why you still suggest to use flags. We can use
+> > existing infrastructure in this case. There is already similar case in
+> > arch/arm/boot/dts/r8a7790-lager.dts (see i2c1 and eeprom).
+> > 
+> > Do we *really* need this extra rules at this moment ?
+
+--nextPart2189630.rPL0QJYJ3I
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Version: GnuPG v2
 
-iQIcBAEBAgAGBQJVHLmmAAoJEBQN5MwUoCm29rcQAJZpIs2jqzx0BB8la7qBsQtw
-M/9/Y/qWWDFl4HxfhP9KOFmjhs2nCIFYFzozKoXyMlG9pNnrT2SDzTTYq3bPZk+M
-uXRW4QwT4LQvm+oYRMLuVX74Hn19YxsuuUGgJ7yUynCNUV57Bc9GyOYivRnSyOxU
-eqn77q48argNNJOc55kZp51jQQcOGXlMypUNeK6HhopYXi6S6on3XGAAo5oK53Pb
-ogyYKf5eRl7ChjSMYiYtJeRGFhkLmKXrIGJw47n87XPmICx3naYmpK6C0IUy8zZx
-7wMQfj1OA4B5tPD/OxQwEeA9zb4JpZ7bWB+Gjss1zG4BGE7Ys80d71tUnI1E0zUy
-fEuI6QqNsuxi1ysFtvOOXdWS+hw/Z4BrKaVi8kNEPjNfU/nfgpV5FLCKJ2Tqs45/
-R9wd03WBHQUcTLXNxkQ8xMmnoqHNfMCl0ZMfGxKSrxuWah6q258ScrL97M6OBrYI
-GodAIfL8WUoVdgtYe5BsLSCS7Qb1GSSwZ8asvVkGApIktDExYczKzufSsiH/Cxoq
-poxoHazZa6UCIYBNLg6aIUbI1QwZxXjfuvtz5IkeLLt5Cxh1D5rNBZ+qom05lLKY
-E3uRcQa3OydWlfRZ0u3+PPF1gfiiBicyoZ6i1DJKoWlXFqUOjjyV1ql08AQCYZ7O
-vmOyskN2dKFP+YUQGBR5
-=cgxY
+iQEcBAABCAAGBQJVHQ3DAAoJEKyeR39HFBtoqRoH/RVkrzBhBKIqI0LiIHBn6IPP
+gLLvKFubYUw1VDYxutq7+evXpSDRCWC+o19UqC//ml8D0lITP0Mwig5Dg8LJoZhC
+0LFwDaEh+c9M2wjnoJfmK0UgkxGZLbYCL6KATAvucetLt8EeMuGdVt3QVz/igCQb
+jLkueHe34LNl/moF0AD3NFsRdn+zUafSCZ0X5PqdwLwBZ0qrv2CddDlWlZdew90k
+LbLIo70tLz9FAUTBf5hptwBudM4U5jY/t/zfXGhNlpFkgJ/e6Cc7xnRxD6oc6ihD
+1ujYO2QLA4N1jCTJJ5yDIghY9YbmVroop1lXE39WpkiPlAFO5VChnbUouwgn2dY=
+=NlsH
 -----END PGP SIGNATURE-----
 
---+HP7ph2BbKc20aGI--
+--nextPart2189630.rPL0QJYJ3I--
