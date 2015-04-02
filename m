@@ -1,82 +1,59 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH 3/3] dt: paz00: define nvec as child of i2c bus
-Date: Thu, 02 Apr 2015 08:50:50 -0600
-Message-ID: <551D574A.7060101@wwwdotorg.org>
-References: <1422516022-27161-1-git-send-email-danindrey@mail.ru> <551AC153.7060103@mail.ru> <551C2AC0.9030304@wwwdotorg.org> <21658630.CslVI5jns9@fb07-iapwap2>
+From: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [V2 2/2] dt-bindings: i2c: Add i2c-brcmstb dt bindings
+Date: Thu, 2 Apr 2015 16:01:06 -0400
+Message-ID: <1428004866-13543-2-git-send-email-kdasu.kdev@gmail.com>
+References: <1428004866-13543-1-git-send-email-kdasu.kdev@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <21658630.CslVI5jns9@fb07-iapwap2>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Cc: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1428004866-13543-1-git-send-email-kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/02/2015 03:37 AM, Marc Dietrich wrote:
->
-> Am Mittwoch, 1. April 2015, 11:28:32 schrieb Stephen Warren:
->> On 03/31/2015 09:46 AM, Andrey Danin wrote:
->>> On 31.03.2015 17:09, Stephen Warren wrote:
->>>> On 03/31/2015 12:40 AM, Andrey Danin wrote:
->>>>> Hi,
->>>>>
->>>>> Thanks for the review.
->>>>>
->>>>> On 03.02.2015 0:20, Stephen Warren wrote:
->
-> [ snipped old patch parts ]
->
->>>>>>> diff --git a/arch/arm/boot/dts/tegra20-paz00.dts
->>>>>>> b/arch/arm/boot/dts/tegra20-paz00.dts
->>>>>>>
->>>>>>> -    nvec@7000c500 {
->>>>>>> -        compatible = "nvidia,nvec";
->>>>>>> -        reg = <0x7000c500 0x100>;
->>>>>>> -        interrupts = <GIC_SPI 92 IRQ_TYPE_LEVEL_HIGH>;
->>>>>>> -        #address-cells = <1>;
->>>>>>> -        #size-cells = <0>;
->>>>>>> +    i2c@7000c500 {
->>>>>>> +        status = "okay";
->>>>>>>
->>>>>>>            clock-frequency = <80000>;
->>>>>>>
->>>>>>> -        request-gpios = <&gpio TEGRA_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
->>>>>>> -        slave-addr = <138>;
->>>>>>> -        clocks = <&tegra_car TEGRA20_CLK_I2C3>,
->>>>>>> -                 <&tegra_car TEGRA20_CLK_PLL_P_OUT3>;
->>>>>>> -        clock-names = "div-clk", "fast-clk";
->>>>>>> -        resets = <&tegra_car 67>;
->>>>>>> -        reset-names = "i2c";
->>>>>>> +
->>>>>>> +        nvec: nvec@45 {
->>>>>>
->>>>>> This doesn't feel correct. There's nothing here to indicate that this
->>>>>> child device is a slave that is implemented by the host SoC rather than
->>>>>> something external attached to the I2C bus.
->>>>>>
->>>>>> Perhaps you can get away with this, since the driver for nvidia,nvec
->>>>>> only calls I2C APIs suitable for internal slaves rather than external
->>>>>> slaves? Even so though, I think the distinction needs to be clearly
->>>>>> marked in the DT so that any generic code outside the NVEC driver that
->>>>>> parses the DT can determine the difference.
->>>>>>
->>>>>> I would recommend the I2C controller having #address-cells=<2> with
->>>>>> cell
->>>>>> 0 being 0==master,1==slave, cell 1 being the I2C address. The I2C
->>>>>> driver
->>>>>> would need to support #address-cells=<1> for backwards-compatibility.
->
-> Stephen, we haven't used your suggestion because Wolfram disliked the idea in
-> e.g. http://lkml.iu.edu/hypermail/linux/kernel/1409.1/03446.html
+i2c Device tree binding documentation for brcmstb
+SoCs.
 
-As you said in the response you linked to, the objection is invalid 
-since it won't break any DTs. The driver for a node is responsible for 
-defining the meaning of its own reg properties. It should be pretty 
-trivial to allow the Tegra I2C controller driver (or indeed any driver 
-at all) to handle either #address-cells=<1> (the current setting) or 
-#address-cells=<2> (a new value which enables adding a new flag cell) or 
-even #address-cells=<1> with some of the upper bits of the reg value 
-used as flags (which would default to 0 in all current DTs, so e.g. 
-using the MSB==1 as a slave flag), all at run-time with complete 
-backwards-compatibility.
+Signed-off-by: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-brcmstb.txt        | 28 ++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt b/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
+new file mode 100644
+index 0000000..d6f724e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
+@@ -0,0 +1,28 @@
++Broadcom stb bsc iic master controller
++
++Required properties:
++
++- compatible: should be "brcm,brcmstb-i2c"
++- clock-frequency: 32-bit decimal value of iic master clock freqency in Hz
++		   valid values are 375000, 390000, 187500, 200000
++		   93750, 97500, 46875 and 50000
++- reg: specifies the base physical address and size of the registers
++
++Optional properties :
++
++- interrupt-parent: specifies the phandle to the parent interrupt controller
++  this one is cascaded from
++- interrupts: specifies the interrupt number, the irq line to be used
++- interrupt-names: Interrupt name string
++
++Example:
++
++bsca: i2c@f0406200 {
++      clock-frequency = <390000>;
++      compatible = "brcm,brcmstb-i2c";
++      interrupt-parent = <&irq0_intc>;
++      reg = <0xf0406200 0x58>;
++      interrupts = <0x18>;
++      interrupt-names = "upg_bsca";
++};
++
+-- 
+2.3.2
