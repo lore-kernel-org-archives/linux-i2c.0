@@ -1,91 +1,120 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/3] i2c: davinci: Fix problems discovered on Keystone CPU
-Date: Fri, 3 Apr 2015 22:14:39 +0200
-Message-ID: <20150403201439.GF2016@katana>
-References: <55003E60.3070306@nokia.com>
- <55008AF1.80405@linaro.org>
- <550145C7.20503@nokia.com>
+Subject: Re: [PATCH 1/3] i2c: davinci: Rework racy ISR
+Date: Fri, 3 Apr 2015 22:15:30 +0200
+Message-ID: <20150403201530.GG2016@katana>
+References: <55003E64.2030701@nokia.com>
+ <550191AB.8000103@linaro.org>
+ <550299D5.5080000@nokia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l+goss899txtYvYf"
+	protocol="application/pgp-signature"; boundary="lHGcFxmlz1yfXmOs"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <550145C7.20503-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <550299D5.5080000-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: "ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---l+goss899txtYvYf
+--lHGcFxmlz1yfXmOs
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 12, 2015 at 08:52:39AM +0100, Alexander Sverdlin wrote:
-> Hi!
+On Fri, Mar 13, 2015 at 09:03:33AM +0100, Alexander Sverdlin wrote:
+> Hello!
 >=20
-> On 11/03/15 19:35, ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org wrote:
-> >> The series address the follwing problems:
-> >> > "i2c: davinci: Rework racy ISR" -- stop the parallel activities in t=
-he driver
-> >> > including concurrect registers access. Also simplifies the design an=
-d removes
-> >> > some bad aids.
-> >> > "i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()" -- the rout=
-ine is
-> >> > over-designed and instead of "waiting" will trigger the bus recoveri=
-ng
-> >> > immediately.
-> >> > "i2c: davinci: Avoid sending to own address" -- works around one dav=
-inci
-> >> > controller issue when it unexpectedly switches to some sort of slave=
- mode
-> >> > trying to send to its own address. The controller remains in this lo=
-cked state
-> >> > until reset, so it's better to avoid this situation than to deal wit=
-h transfer
-> >> > timeouts.
+> On 12/03/15 14:16, ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org wrote:
+> >> There is one big problem in the current design: ISR accesses the contr=
+oller
+> >> > registers in parallel with i2c_davinci_xfer_msg() in process context=
+=2E The whole
+> >> > logic is not obvious, many operations are performed in process conte=
+xt while
+> >> > ISR is always enabled and does something asynchronous even while it'=
+s not
+> >> > expected. We have faced these races on 4-cores Keystone chip. Some e=
+xamples:
 > >> >=20
-> >=20
-> > Have you used git format-patch --cover-letter?
-> > Overall stats and list of patches are missing.
+> >> > - when non-existing device is accessed first comes NAK IRQ, then ARD=
+Y IRQ. After
+> >> >    NAK we already jump out of wait_for_completion_timeout() and depe=
+nding on how
+> >> >    lucky we are ARDY IRQ will access MDR register in the middle of s=
+ome other
+> >> >    operation in process context;
+> >> >=20
+> >> > - STOP condition is triggered in many places in the driver, in ISR, =
+in
+> >> >    i2c_davinci_xfer_msg(), but there is no code which guarantees tha=
+t STOP will
+> >> >    be really completed. We have seen many STOP conditions simply mis=
+sing in
+> >> >    back-to-back transfers, when next i2c_davinci_xfer_msg() call sim=
+ply overwrites
+> >> >    MDR register while STOP is still not generated.
+> >> >=20
+> >> > So, make the design more robust and obvious:
+> >> > - leave hot path (buffers management) in ISR, remove other registers=
+ access from
+> >> >    ISR;
+> >> > - introduce second synchronization point, to make sure that STOP con=
+dition is
+> >> >    really generated and it's safe to begin next transfer;
+> >> > - simplify the state machine;
+> >> > - enable IRQs only when they are expected, disable them in ISR when =
+transfer is
+> >> >    completed/failed;
+> >> > - STOP is normally set simultaneously with START condition (in case =
+of last
+> >> >    message); only special case when STOP is additionally generated i=
+s received NAK
+> >> >    -- this case is handled separately.
+> > I'm not sure about this change (- It's too significant and definitely w=
+ill need more review & Tested-by.
 >=20
-> Will do in v2...
+> Maybe you can offer this patch the customers who suddenly cannot access t=
+he devices on the bus until reboot...
+> Because it's not a "bus lockup".=20
+>=20
+> > We need to be careful with it, especially taking into account DAVINCI_I=
+2C_MDR_RM mode and future
+> > changes like https://lkml.org/lkml/2014/5/1/348.
+> >=20
+> > May be you can split it?
+>=20
+> I can may be split it into two patches, but I'm not sure about the result=
+=2E Each of them will only solve
+> 50% of the problem and then nobody will see a clear benefit applying only=
+ one. But what I can offer you is
+> to spend the same effort on rebasing the "DAVINCI_I2C_MDR_RM mode" patch =
+you are referring to. I can rebase
+> it and take it into my series if you wish.
 
-And please make sure the patches are chained to the cover-letter. That
-makes reviewing much easier.
-
-> First patch is an important fix for blocking problem and therefore a cand=
-idate for
-> -stable backports. So, it should be less dependent of the less-important =
-2 and 3.
-
-IMO this patch is too intrusive for stable, so I won't add the tag. You
-may request that individually to stable maintainers, though, if you
-disagree.
+So, shall I take this into i2c/for-next?
 
 
---l+goss899txtYvYf
+--lHGcFxmlz1yfXmOs
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHvSvAAoJEBQN5MwUoCm2BtUQAIzF36vPZB+V6FlRSh4MCth/
-AGWi1P4e1oG2PGtTmbugRhgN3y5S2MG+P2y1uDiW3/i91U7yxVGB4n1Wy6nL0vmX
-sbOXSAKDg4GOUB8rcjxuOLhIJgcwMxjO0dxggY73EFLAHtpxOniwgjs8f0soWGLY
-6/Pa7mxWSXd5JZ5TiJGXIkyeXJG/qAf5iOdr6Bnb7xiZBizyihYSnW2MpiIRHXEz
-O9VfaPJr38W/gJmRR8YGdfZr3kdapcIBxQ7iLT6E8ryLh2uQeRV5zOVEENhNtIO0
-9I2IR+UK4vpj7OhmXKI9lRLWdGaL5NL3tyZa1qi5u1N88nqSGTXmSqazn4GRTgT4
-GdnEIkE2HqOMwmK8k0Cwdr3aIdBwEaAqGzqE1B119grDS3oOBhtz7Xbd1t/2VzEu
-TTwTsQD2MftqJOdFBwfwIBlDmMl65YD356zlP7iwAVOhG9On8XDqMHZFjgdY+wQj
-WuSfE8iqOjXKRlk4hlE8IEDWSEPpednmc7fuNfk4eLhUM9FqflMdhIqtwFnZ4TME
-oCEa+uQuArE6DDZXX5rplXZ3lW6l5eqDoY/rWZguds9/tO0mUiJ7dNEloI0kajSa
-3cs6/oJm7h18K64vRwU0wlwI5hkgy82O1gpwyXVfVDvKB+tEaTXxTH0T77J+WtRR
-jB8itdvyy2hH2XmC1GzG
-=J5B1
+iQIcBAEBAgAGBQJVHvTiAAoJEBQN5MwUoCm2HZwP/3fOe0x6wy8uteB0tQ7XX8wH
+3dRJ6yFP8bm9fjEnyWbAo+rLTRNb8qNYTk/E+OnJgxD9R4OFGMKxp68WDbYour4u
+YiD4yrvDzNMIWXQz/na7tFNgCFBqLuLSUDoJFCxXKY4P41bd/cqnPzcZthVA+bYl
+ygIN9LZN9dQipIG00ceEAC7LoHsnt70Uv+QBGtEPi/v5tPJzec1cmoMD5FfFrJoI
+6QOMzXYAU7CVxBqdtltXpfbThPmj6mXUsnW8wJnVbEBGy3R14wgaAGQzH7wFQ30L
+D9STqHWYKQc9v31Wf42NEQFr24oka6ZPVPuABpEhHD6sG3HfWEamLX/B5BAbtPhI
+cJhfDkE1jqUZCeLRVFHKk/3pnW+LKZOlMClvggCkQ4TJpmGKBQxqDdYM/RZyq1Dd
+ZVEQGusZc3/2cikAtb8oP4uKIXp1dk1K+Mde6YpaEYnU0eGl3nTgV6BVoTsj4vqH
+FM1vquH//4f4MAzIFBtbIgEqRpCnT5iW/qUQBCVZRBnd8hWmpmjmE6/kr+eD6az+
+6aPigIXzh4KXQZp/iF4YZ3Xl+Swuc7cKOzLlxAb1ZzO0DKLw/oGmTHtubT++eegF
+HNJeM/Hw0HJza3FzKotMLgJoQft3XoNzO+TlG/PZv9T4LPzUd64Rj2fZPOaKk8io
+IsWZGOLAZCSKb/4uWlSg
+=wtzd
 -----END PGP SIGNATURE-----
 
---l+goss899txtYvYf--
+--lHGcFxmlz1yfXmOs--
