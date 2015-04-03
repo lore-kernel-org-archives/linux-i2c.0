@@ -1,55 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] drivers/i2c/i2c-core.c: Fix sparse warning
-Date: Fri, 3 Apr 2015 20:28:23 +0200
-Message-ID: <20150403182822.GC1298@katana>
-References: <20150403025338.GA18595@Caladan>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 02/86] i2c/i801: linux/pci_ids.h -> uapi/linux/pci_ids.h
+Date: Fri, 3 Apr 2015 21:09:17 +0200
+Message-ID: <20150403190916.GD1298@katana>
+References: <1427635734-24786-1-git-send-email-mst@redhat.com>
+ <1427635734-24786-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="C+ts3FVlLX8+P6JN"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150403025338.GA18595@Caladan>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nickolaus Woodruff <nickolauswoodruff@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1427635734-24786-3-git-send-email-mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---i7F3eY7HS/tUJxUd
+--C+ts3FVlLX8+P6JN
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, Mar 29, 2015 at 03:37:30PM +0200, Michael S. Tsirkin wrote:
+> Header moved from linux/pci_ids.h to uapi/linux/pci_ids.h,
+> update i2c documentation accordingly.
+>=20
+> Signed-off-by: Michael S. Tsirkin <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
-> -	u8 addr = (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
-> +	u8 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) != 0);
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-I prefer !! as an idiom for "bit to bool".
+I don't know if I should take it. If so, let me know.
 
-Thanks,
-
-   Wolfram
-
-
---i7F3eY7HS/tUJxUd
+--C+ts3FVlLX8+P6JN
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHtvGAAoJEBQN5MwUoCm21FcQALWpvJaHemccxM8O0RuuOpK1
-lV61Pj3E42v8Q6Kt5l6np9xi6YU67gAqD+ky+mwyh4j0uoVufFeblbe1buda+ZP1
-bY1VcvUZzYW4V63JEVCzyHvnp1gVpt/ChzJkolPyry/uwJNWYGy2q3OLu/4gtQ1n
-GONrzS1Wk0J9SczeYiqtKuziBjbk9SRGLEwySfx2GrKX7WsH4+rnh8QflGycOME5
-Cn3UIylu4dsErLvrfDLnw1BKgvDN40hkbxbEVpWXvxBDXNBzblljetAof5RFlmEd
-EezkYE9VtF4btwy8UAqcI1s+UHUvJoj87tBP6N2k6zhfsbVqx+xagHe6+7dPA3YI
-cc1mKdJ8kfIT7ifkaVhA672QJZF/X/V72Iz2SXSHAL6+681SZnB6OvnPUnzj7zUZ
-nRpUuab3Aq0/KwZ+U0lT5INsGizRkEnfR2LJKSRdhTAgL2H/n9i2uoirHg//36mE
-pHqyfptz0M2EMeMiV6Xhxq2I7TQ9ERu0NiZBO/Pe/6AoJU7YAgM3THJ6kKZElQYt
-9o37ctDdoMixito1ZH2+jF61UYQhCbOB4dyozur5dr/xfkyrTR8LQg2wnEcciWjQ
-/war04r+zk5YY6pKzHJb87qlq5E806WrGKMYGS4ynvZ1m4cXs/WRU8sRdu3Ig749
-xbIWeA8nCKhN0vbnffI/
-=g8cg
+iQIcBAEBAgAGBQJVHuVcAAoJEBQN5MwUoCm29KAP/j12fkua8X1cq72jDZ5Lab8j
+9AAVWeUY2bN80zDGHSx43QIOb4Gs4r7cOsbqAISvEMM3iXL1lSUV/Uxk4yk/L/5i
+zziXbZCbbbbyL/u6+43rvl4d8zOVa5QLTHCUcOXjrKWt0hb9WTZuBDQOkOwWHoM6
+ocretJPeqGk/ZP3P3EyA8P+u65qzSNusad6NcUaar+U4TVB93qp1RLntPYmJj/jQ
+i7K8nz+if22adLlzjQqWzTT/zHp6fC9lpsOR1pqbVcWydIIWwP5mxbLY23+bPQ/6
+eOfP8DNqh/2bdij1HnhLRhWvj+L+pqCXn2dujoKCSXfANXpaDwvGZ2JEMaKERcmw
+LdjLQyLbtE+qATHAe1kXn/fzWW/Fh4bx5TPtZzqpufpuW9GUREL0eHSE6geZdlvr
+SE3kkK6ExQCGF8kljEV1Mx8L5J1R59D/rWp4eBlB82AbImouuH3GuDoMmQn5sO33
++TJVXnt2AOgIMHI+K3wZiQZVMutdRZEHmSGMWcvBkwRvpREavF02Cx5JNNz8xZpC
+TC4tpkAq2t6GXFfelhO02SzNoFlmz/euhsWBXIfGqpuJcwc3AdZkiFMMeOGvXIhJ
+aIeXd83kgeNxY0khVsrOFMOU7HoWpXertQUkL9TQ6r2P7xbSwpQlvuoSa3MajQ7B
+TKS3xbxtKdB2EBV37/5u
+=d8su
 -----END PGP SIGNATURE-----
 
---i7F3eY7HS/tUJxUd--
+--C+ts3FVlLX8+P6JN--
