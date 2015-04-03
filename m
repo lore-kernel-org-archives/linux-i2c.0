@@ -1,57 +1,68 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 39/86] i2c/i801: use uapi/linux/pci_ids.h directly
-Date: Fri, 3 Apr 2015 21:09:58 +0200
-Message-ID: <20150403190958.GE1298@katana>
-References: <1427635734-24786-1-git-send-email-mst@redhat.com>
- <1427635734-24786-40-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH_V3 0/2] i2c: jz4780: Add Ingenic JZ4780 i2c driver
+Date: Fri, 3 Apr 2015 21:23:31 +0200
+Message-ID: <20150403192330.GA2016@katana>
+References: <1427807036-45366-1-git-send-email-Zubair.Kakakhel@imgtec.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xJK8B5Wah2CMJs8h"
+	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1427635734-24786-40-git-send-email-mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1427807036-45366-1-git-send-email-Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zubair Lutfullah Kakakhel <Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---xJK8B5Wah2CMJs8h
+--G4iJoqBmSsgzjUCe
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Mar 29, 2015 at 03:40:42PM +0200, Michael S. Tsirkin wrote:
-> Header moved from linux/pci_ids.h to uapi/linux/pci_ids.h,
-> use the new header directly so we can drop
-> the wrapper in include/linux/pci_ids.h.
+On Tue, Mar 31, 2015 at 02:03:54PM +0100, Zubair Lutfullah Kakakhel wrote:
+> Hi,
 >=20
-> Signed-off-by: Michael S. Tsirkin <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Here we have two patches that add support for the i2c
+> controller present in the Ingenic JZ4780.
+>=20
+> Driver tested on the MIPS Creator CI20.
+>=20
+> V2 - > V3
+> Fixes based on feedback from Wolfram Sang. Thank-you.
+> Details in individual patch commit message
+> Rebased to v4.0-rc6
+>=20
+> V1 - > V2
+> Rebased to v4.0-rc3
+> Minor tweaks/fixes. Details in individual patch commits.
+>=20
+> Feedback welcome.
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Applied to for-next, thanks!
 
-I don't know if I should take it. If so, let me know.
 
---xJK8B5Wah2CMJs8h
+
+--G4iJoqBmSsgzjUCe
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHuWGAAoJEBQN5MwUoCm2j/IP/0ScLpXaQNdK4L7rdxvLq5Zq
-ZZfwjjjWzXH6ipUsP7LcjkZU0ypATlZ7dDkNPFtViKOenj7g36WYvClcP2jWqn2w
-Bd6jLExf2C3e5CkQhMmc8YCIZHLLiLd50e0Mi2e6nQJh3+0j74kF/+LkF1SWCwez
-9bKsEDmejzHYH2dnHuZkk6+kmQmgHGqQNVL/PuR/fzytOCz9/jcJeltj9byqzWUC
-YDlm+lkXlcZNTZ83Hg+nI/dWMDCygUUOjScHQPtCpTR8FWrm5ZOX04drCYxz0ynf
-cPW99nem5WE2oV0SqB4Y5oD6SA+YyUAVzuOi15bTjgvB3N0JwNT6Xn8b20Mgtn2h
-E+zgytkQvEujG32jEfzc43IyDYxN7uQ2FcPQUy1UCaOLKJTxnggj7KGM9hIZMEGB
-xkR2831iOBAoSTT5w6NUhf/lC7xBbfQR2zxYpBeQyAITInG6Sg9ClsjlKq1efNHs
-PCSiBl51wRZ8co2yfDZF6Z2hJ3BcRKrW7qR4RCOgEh2aGL0pfB5dm9oYVobFqBai
-Rln8yupU9reZQVwGrFp3jU+dZ/t9brIGPW0EgBtIL8FYvKTp3ucbR9FEB4d62tWe
-eU/nfh9bEYxCEb6n2yI0TYc4wyQMGUk4aYZsja4WoBaZyiF5kUByrrUHvSAuEGIG
-AwYeFGgjTeo0xKoq/WnW
-=vQgc
+iQIcBAEBAgAGBQJVHuiyAAoJEBQN5MwUoCm2RBsQALHA2MEJHHA+OSZGAhl28ssk
+/3ifA1Le6exGnb7brUc3x1j4OIrLfw63nfwiYmHtW4uWr3igpLiLLnwDUDVMGMPa
+EyBT+P2jt7YGRVphtI8P2nS/dyaq6nddS/FJw2g8L9Vgt94l7CoXOUoilL7jSXgA
+ps5GYMg6VHg1ao8qD0KZpDQtfe1+cJdmZ3LdB5pHXcb0eiDm6HUm+hhdWeMPbLCW
+Hy2RAirSusDquuL8kK6ZsZK+vxxlFb0h71KiPGOc+rxG9oF0CzqCVoBvrpA2AFVg
+y14AqscI36+TD2I8i4rr+uYxhScI78uwn4VednxMzp9xuAj5EDHQVetziRJ/bc8/
+tZfReehC3u8aw2FmN/QYeAzYo//bAtILH03cp16AaS2iigKQLRjaR5MLAHf84ZJu
+CuNYXEMlr2e0pnMVpWKEi3I+4cheytlimwIkcJuCda9m5nezxWGASJpQeKNfYjgf
+Va3s4jCaYAYeg7mmxcAhDULfs6UjID4p6TfSlx3tuhbeVzOEeSFMopCPBcu1Qxyy
+1Gaor8M81DQdyVbWVIgRfduReKd/5eHroZOyBJsO80u9h4Bqt2MqWy8u1vN374ax
+soZWLSrPKZJy1i207D00TROgPo079b//T8V/6mWPcoQ8xTMZEn2CXadX0YE1Vi9+
+IC+wAh320RDWIcLcpr5F
+=HbJF
 -----END PGP SIGNATURE-----
 
---xJK8B5Wah2CMJs8h--
+--G4iJoqBmSsgzjUCe--
