@@ -1,60 +1,55 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V2 1/3] i2c: busses: add SLIMpro I2C device driver on APM
- X-Gene platform
-Date: Fri, 3 Apr 2015 20:21:38 +0200
-Message-ID: <20150403182138.GB1298@katana>
-References: <1424288043-2995-1-git-send-email-fkan@apm.com>
- <20150323183153.GA1128@katana>
- <CAL85gmD9qsjBdY2Qyv05AjutU_uad7aaRjxORk8om8WeRQM1Eg@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] drivers/i2c/i2c-core.c: Fix sparse warning
+Date: Fri, 3 Apr 2015 20:28:23 +0200
+Message-ID: <20150403182822.GC1298@katana>
+References: <20150403025338.GA18595@Caladan>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAL85gmD9qsjBdY2Qyv05AjutU_uad7aaRjxORk8om8WeRQM1Eg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Cc: patches <patches-qTEPVZfXA3Y@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+In-Reply-To: <20150403025338.GA18595@Caladan>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nickolaus Woodruff <nickolauswoodruff@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---qcHopEYAB45HaUaB
+--i7F3eY7HS/tUJxUd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> >> +     paddr =3D dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
-> >> +                            DMA_FROM_DEVICE);
-> >
-> > The device should be the device of the dma channel.
->=20
-> The device is not visible on linux, DMA is done by the helper processor.
-> Perhaps you cah give me some idea how to do this. Thanks
-
-Well, that is a question for the DMA maintainers. But we can fix this
-later, I guess.
 
 
---qcHopEYAB45HaUaB
+> -	u8 addr = (msg->addr << 1) | !!(msg->flags & I2C_M_RD);
+> +	u8 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) != 0);
+
+I prefer !! as an idiom for "bit to bool".
+
+Thanks,
+
+   Wolfram
+
+
+--i7F3eY7HS/tUJxUd
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHtoyAAoJEBQN5MwUoCm2x+sP/2dDkCCGyS39Cce1fzc0K190
-O12OEmy4eS48N4vR2b/srhz9LsYPVvuNEZLeBY2wE1Ki26K3+rDKiLKaeUPO97sS
-s62sEzqt5v6850Yh/SdDsfNMMg8SmRPAwvwbfgNZs74m4Q0lZwkGrnbowQCC0eu4
-i4jA+wryp8Bx+fQjjhDCqfyjT8HjjHcoV5d78jTmZ1tXzoIn/3NVMeqTEJsfhSPE
-/SD9lY2cti+7dZUl4dgs1W1hXpaceHRbkZygnzsCSQkLgnA+Z+gDZGifrQGYGxxe
-Efvlu8k/VqtX5pjyTQ3daIXduhIh+sH11myX6l8zUgkDuR45QF0biy54+8KfWB9w
-jEvKhfhlW2WLG/AL/KMXd1tsR7b34hgr0yMcSMMEbDCzUuR83UhLHl4j68CE1yfP
-YS05QvNk8Pc5MSaCkJ63lUsnA2kJYwpnGa3gU15IpO/RcimLZ/VZ8jR/FJ1sBwQT
-KVkrSfGTC+FYo3uOVSYs9pQgv/iQnuWvmP6mKkf+iyg1PlYgfrcd26UIW9c+aclQ
-+3VJPrTIAd+SIcjWrOg9UGmtDnsZeFPU3esPoY+4htP/kkUYscegqjdl6tpZ/m+c
-FU9iVlA7f25vheBAgs4ROtPPwWZ2RcWo4vwGg7qQaRoRqoxFqgCkamsh0Y+aYkKv
-IALHEPIq2OjCpxClYVoO
-=8KAN
+iQIcBAEBAgAGBQJVHtvGAAoJEBQN5MwUoCm21FcQALWpvJaHemccxM8O0RuuOpK1
+lV61Pj3E42v8Q6Kt5l6np9xi6YU67gAqD+ky+mwyh4j0uoVufFeblbe1buda+ZP1
+bY1VcvUZzYW4V63JEVCzyHvnp1gVpt/ChzJkolPyry/uwJNWYGy2q3OLu/4gtQ1n
+GONrzS1Wk0J9SczeYiqtKuziBjbk9SRGLEwySfx2GrKX7WsH4+rnh8QflGycOME5
+Cn3UIylu4dsErLvrfDLnw1BKgvDN40hkbxbEVpWXvxBDXNBzblljetAof5RFlmEd
+EezkYE9VtF4btwy8UAqcI1s+UHUvJoj87tBP6N2k6zhfsbVqx+xagHe6+7dPA3YI
+cc1mKdJ8kfIT7ifkaVhA672QJZF/X/V72Iz2SXSHAL6+681SZnB6OvnPUnzj7zUZ
+nRpUuab3Aq0/KwZ+U0lT5INsGizRkEnfR2LJKSRdhTAgL2H/n9i2uoirHg//36mE
+pHqyfptz0M2EMeMiV6Xhxq2I7TQ9ERu0NiZBO/Pe/6AoJU7YAgM3THJ6kKZElQYt
+9o37ctDdoMixito1ZH2+jF61UYQhCbOB4dyozur5dr/xfkyrTR8LQg2wnEcciWjQ
+/war04r+zk5YY6pKzHJb87qlq5E806WrGKMYGS4ynvZ1m4cXs/WRU8sRdu3Ig749
+xbIWeA8nCKhN0vbnffI/
+=g8cg
 -----END PGP SIGNATURE-----
 
---qcHopEYAB45HaUaB--
+--i7F3eY7HS/tUJxUd--
