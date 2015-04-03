@@ -1,120 +1,72 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: davinci: Rework racy ISR
-Date: Fri, 3 Apr 2015 22:15:30 +0200
-Message-ID: <20150403201530.GG2016@katana>
-References: <55003E64.2030701@nokia.com>
- <550191AB.8000103@linaro.org>
- <550299D5.5080000@nokia.com>
+Subject: Re: [PATCH v3 4/5] i2c: davinci: use bus recovery infrastructure
+Date: Fri, 3 Apr 2015 22:18:46 +0200
+Message-ID: <20150403201846.GH2016@katana>
+References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
+ <1417448047-15236-5-git-send-email-grygorii.strashko@ti.com>
+ <20150318203151.GA12072@katana>
+ <550C67D6.3080909@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lHGcFxmlz1yfXmOs"
+	protocol="application/pgp-signature"; boundary="nFBW6CQlri5Qm8JQ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <550299D5.5080000-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <550C67D6.3080909-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: "ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: "Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---lHGcFxmlz1yfXmOs
+--nFBW6CQlri5Qm8JQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 13, 2015 at 09:03:33AM +0100, Alexander Sverdlin wrote:
-> Hello!
->=20
-> On 12/03/15 14:16, ext Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org wrote:
-> >> There is one big problem in the current design: ISR accesses the contr=
-oller
-> >> > registers in parallel with i2c_davinci_xfer_msg() in process context=
-=2E The whole
-> >> > logic is not obvious, many operations are performed in process conte=
-xt while
-> >> > ISR is always enabled and does something asynchronous even while it'=
-s not
-> >> > expected. We have faced these races on 4-cores Keystone chip. Some e=
-xamples:
-> >> >=20
-> >> > - when non-existing device is accessed first comes NAK IRQ, then ARD=
-Y IRQ. After
-> >> >    NAK we already jump out of wait_for_completion_timeout() and depe=
-nding on how
-> >> >    lucky we are ARDY IRQ will access MDR register in the middle of s=
-ome other
-> >> >    operation in process context;
-> >> >=20
-> >> > - STOP condition is triggered in many places in the driver, in ISR, =
-in
-> >> >    i2c_davinci_xfer_msg(), but there is no code which guarantees tha=
-t STOP will
-> >> >    be really completed. We have seen many STOP conditions simply mis=
-sing in
-> >> >    back-to-back transfers, when next i2c_davinci_xfer_msg() call sim=
-ply overwrites
-> >> >    MDR register while STOP is still not generated.
-> >> >=20
-> >> > So, make the design more robust and obvious:
-> >> > - leave hot path (buffers management) in ISR, remove other registers=
- access from
-> >> >    ISR;
-> >> > - introduce second synchronization point, to make sure that STOP con=
-dition is
-> >> >    really generated and it's safe to begin next transfer;
-> >> > - simplify the state machine;
-> >> > - enable IRQs only when they are expected, disable them in ISR when =
-transfer is
-> >> >    completed/failed;
-> >> > - STOP is normally set simultaneously with START condition (in case =
-of last
-> >> >    message); only special case when STOP is additionally generated i=
-s received NAK
-> >> >    -- this case is handled separately.
-> > I'm not sure about this change (- It's too significant and definitely w=
-ill need more review & Tested-by.
->=20
-> Maybe you can offer this patch the customers who suddenly cannot access t=
-he devices on the bus until reboot...
-> Because it's not a "bus lockup".=20
->=20
-> > We need to be careful with it, especially taking into account DAVINCI_I=
-2C_MDR_RM mode and future
-> > changes like https://lkml.org/lkml/2014/5/1/348.
-> >=20
-> > May be you can split it?
->=20
-> I can may be split it into two patches, but I'm not sure about the result=
-=2E Each of them will only solve
-> 50% of the problem and then nobody will see a clear benefit applying only=
- one. But what I can offer you is
-> to spend the same effort on rebasing the "DAVINCI_I2C_MDR_RM mode" patch =
-you are referring to. I can rebase
-> it and take it into my series if you wish.
 
-So, shall I take this into i2c/for-next?
+> > The I2C specs say in 3.1.16 that the recovery procedure should be used
+> > when SDA is stuck low. So, I do wonder if we should apply the recovery
+> > after a timeout. Stuck SDA might be one reason for timeout, but there
+> > may be others...
+>=20
+> This is ancient code. And regarding your question -
+> Might be it would be reasonable to add call of
+> i2c_davinci_wait_bus_not_busy() at the end of i2c_davinci_xfer()?
+> This way we will wait for Bus Free before performing recovery.
+
+That might be an improvement, but the generic question still remains:
+Is a timeout a reason for recovery? SDA stuck low is one reason for a
+timeout. I have problems making up my mind here between being pragmatic
+and being in accordance with the specs.
+
+> Of course,  i2c_davinci_wait_bus_not_busy() has to be fixed first
+> as proposed by Alexander Sverdlin here:
+>  https://patchwork.ozlabs.org/patch/448994/.=20
+
+Okay, good that you said it. So I'll give his patch series priority over
+this one.
 
 
---lHGcFxmlz1yfXmOs
+--nFBW6CQlri5Qm8JQ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHvTiAAoJEBQN5MwUoCm2HZwP/3fOe0x6wy8uteB0tQ7XX8wH
-3dRJ6yFP8bm9fjEnyWbAo+rLTRNb8qNYTk/E+OnJgxD9R4OFGMKxp68WDbYour4u
-YiD4yrvDzNMIWXQz/na7tFNgCFBqLuLSUDoJFCxXKY4P41bd/cqnPzcZthVA+bYl
-ygIN9LZN9dQipIG00ceEAC7LoHsnt70Uv+QBGtEPi/v5tPJzec1cmoMD5FfFrJoI
-6QOMzXYAU7CVxBqdtltXpfbThPmj6mXUsnW8wJnVbEBGy3R14wgaAGQzH7wFQ30L
-D9STqHWYKQc9v31Wf42NEQFr24oka6ZPVPuABpEhHD6sG3HfWEamLX/B5BAbtPhI
-cJhfDkE1jqUZCeLRVFHKk/3pnW+LKZOlMClvggCkQ4TJpmGKBQxqDdYM/RZyq1Dd
-ZVEQGusZc3/2cikAtb8oP4uKIXp1dk1K+Mde6YpaEYnU0eGl3nTgV6BVoTsj4vqH
-FM1vquH//4f4MAzIFBtbIgEqRpCnT5iW/qUQBCVZRBnd8hWmpmjmE6/kr+eD6az+
-6aPigIXzh4KXQZp/iF4YZ3Xl+Swuc7cKOzLlxAb1ZzO0DKLw/oGmTHtubT++eegF
-HNJeM/Hw0HJza3FzKotMLgJoQft3XoNzO+TlG/PZv9T4LPzUd64Rj2fZPOaKk8io
-IsWZGOLAZCSKb/4uWlSg
-=wtzd
+iQIcBAEBAgAGBQJVHvWmAAoJEBQN5MwUoCm2E9AQAJxNNrXZF8jlfD8QCiNZgzi1
+YKuTRXhkWcUaAokU+Am9+DqUL7BTRnRZjNaqMFVVPo6xx6aSN9pvi9XTD3TGQIXW
+wHT+AGLSSMWUUVeOsPyHYEVHxienQ5Aen869HSs0jg79YbFJ7+g+MiF4Gn3XG+Qo
+Ay6clqsuCU4T8jUMEzWOJJMkGlX1foo0/Iw+7iZJwj1LEF/vWkGriAWR7F2pKMFY
+yZY2AS++wXKP5dxEOHRDg3QOzhB/hK7cMwk0fJICa+35sLSVZig7WoZ7KhW8lueJ
+KLXEUIegGySyBrzh60u8u2EVFx7gl89Go4jDb4kq5vYtxujw7qNrz2zOYHKBR9sg
+q9afej8EYC8Ls1ejMIqoIiqrGgtoK1SkK5VPwcVXG8SpnQYkswrxwJrISKWtGJoZ
+mUTcw9bSTDhVyDgMN9BRJH9wass+OG2RzcY+g2xDrT0kdHdjIOTZFRcqMW9TS6tb
+lHEYzif8U/VYaDpATLU3jLIVLks1tWSpUAfjtLVh6ONNIgfktxmCTE3FAw1q1pCr
+KCzY3iBikCCIw+SnmYffbrujSmAqUOl4LhV2KRmYZNcWe+jl85vHlBYtZ4krORf9
+22+AhZI7DfZRQXp85s8tOU995oqAWQqM7e/2g+W5ZkZDSnCB/31GFll0vhDrNhZB
+EyfHlrAPaZEZBT2ZZESY
+=x/Bq
 -----END PGP SIGNATURE-----
 
---lHGcFxmlz1yfXmOs--
+--nFBW6CQlri5Qm8JQ--
