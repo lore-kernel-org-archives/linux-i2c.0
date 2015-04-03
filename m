@@ -1,66 +1,60 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: mux-pinctrl: Rework to honor disabled child
- nodes
-Date: Fri, 3 Apr 2015 20:17:46 +0200
-Message-ID: <20150403181746.GA1298@katana>
-References: <550A05E5.3050100@gmail.com>
- <20150319100944.GA914@katana>
- <550AEF9D.6090307@wwwdotorg.org>
- <20150319160208.GF7657@katana>
- <550B3725.10209@gmail.com>
- <20150320101925.GC2071@katana>
- <20150321210028.GA1078@katana>
- <550EBDBC.9000903@gmail.com>
- <20150323183211.GB1128@katana>
- <5515C6B6.7080903@gmail.com>
+Subject: Re: [PATCH V2 1/3] i2c: busses: add SLIMpro I2C device driver on APM
+ X-Gene platform
+Date: Fri, 3 Apr 2015 20:21:38 +0200
+Message-ID: <20150403182138.GB1298@katana>
+References: <1424288043-2995-1-git-send-email-fkan@apm.com>
+ <20150323183153.GA1128@katana>
+ <CAL85gmD9qsjBdY2Qyv05AjutU_uad7aaRjxORk8om8WeRQM1Eg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5515C6B6.7080903-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <CAL85gmD9qsjBdY2Qyv05AjutU_uad7aaRjxORk8om8WeRQM1Eg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory Clement <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Gabriel Dobato <dobatog-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+Cc: patches <patches-qTEPVZfXA3Y@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---VbJkn9YxBvnuCH5J
+--qcHopEYAB45HaUaB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+> >> +     paddr =3D dma_map_single(ctx->dev, ctx->dma_buffer, readlen,
+> >> +                            DMA_FROM_DEVICE);
+> >
+> > The device should be the device of the dma channel.
+>=20
+> The device is not visible on linux, DMA is done by the helper processor.
+> Perhaps you cah give me some idea how to do this. Thanks
+
+Well, that is a question for the DMA maintainers. But we can fix this
+later, I guess.
 
 
-> While thinking about it (and I still think of it as a 'big issue'
-> compared to the intention of the initial patch) I came to the
-> conclusion that I should maybe just go for a board-specific
-> i2c-mux-pinctrl node instead of adding it to the SoC dtsi. That will
-> also avoid doubled i2c busses on boards with just the default i2c
-> option.
-
-Ehrm, then please let me know what you decided on. If you chose the
-above road, then I don't need to think about the other questions :)
-
-
---VbJkn9YxBvnuCH5J
+--qcHopEYAB45HaUaB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHtlKAAoJEBQN5MwUoCm2wm4QAIiTxWw6Zkn/iHvPbPMHwGKF
-08BtWeP2dHAdBGtilPsYi9Ef90T1Svj4/y+jkVvz4oaP8UGlAiNjCjDt0prcejMg
-Wo2q7x3fGVPfperUh6W+mvlPf1uE6uL23/+SrcBqQmJAVXo2N8tX2BPn08fet60B
-o/JVhrgue/S38yEtTax6osRdb9jKnHIensjrwczwQvtf/ybYONLnD23WaBDaeswM
-Ck1RDc4w9Vbx66i3ZLX4AI6Bl+p5SGXZ2S++Gju515d1TWWFEUCrCaYAPksh0K0a
-toDvWqfbsbrCJ26SHAsa8PohEAgp19w8SwURv6XjGJK/xVGrEFGbbHAusjD50Kg+
-X5a7PvDEV9Py5QMF5k6rL3OL2/1cdU8DFUJUFU2P94EFgu5U8twvG5Hu+xSFs3z/
-03cOBlCF/JlBsgDSpmZz9VRzr5BfUe/sVXZi0v4aM03KR+DZAyF14EN8gtKBhICE
-FtPkGhrjerVCFWdLh0Lnh2C79/6tTMnpXQEaWklCLtvSpcBpXlh/XG79QUg1FaPQ
-z0YxUbK3q5LbHWfIbq1xQad/fQrqE4h8lmSWI0UfhDN13vVEzuPIGhiw5C3WkKwy
-LTOsw0WWLBvp/AbkB/zahsDn6pW7klVwGs7IJvBJQ1YncXrxi/Gbsw8WzR3rn2QT
-rGvhUUTHwDFWI3LzztBq
-=JacI
+iQIcBAEBAgAGBQJVHtoyAAoJEBQN5MwUoCm2x+sP/2dDkCCGyS39Cce1fzc0K190
+O12OEmy4eS48N4vR2b/srhz9LsYPVvuNEZLeBY2wE1Ki26K3+rDKiLKaeUPO97sS
+s62sEzqt5v6850Yh/SdDsfNMMg8SmRPAwvwbfgNZs74m4Q0lZwkGrnbowQCC0eu4
+i4jA+wryp8Bx+fQjjhDCqfyjT8HjjHcoV5d78jTmZ1tXzoIn/3NVMeqTEJsfhSPE
+/SD9lY2cti+7dZUl4dgs1W1hXpaceHRbkZygnzsCSQkLgnA+Z+gDZGifrQGYGxxe
+Efvlu8k/VqtX5pjyTQ3daIXduhIh+sH11myX6l8zUgkDuR45QF0biy54+8KfWB9w
+jEvKhfhlW2WLG/AL/KMXd1tsR7b34hgr0yMcSMMEbDCzUuR83UhLHl4j68CE1yfP
+YS05QvNk8Pc5MSaCkJ63lUsnA2kJYwpnGa3gU15IpO/RcimLZ/VZ8jR/FJ1sBwQT
+KVkrSfGTC+FYo3uOVSYs9pQgv/iQnuWvmP6mKkf+iyg1PlYgfrcd26UIW9c+aclQ
++3VJPrTIAd+SIcjWrOg9UGmtDnsZeFPU3esPoY+4htP/kkUYscegqjdl6tpZ/m+c
+FU9iVlA7f25vheBAgs4ROtPPwWZ2RcWo4vwGg7qQaRoRqoxFqgCkamsh0Y+aYkKv
+IALHEPIq2OjCpxClYVoO
+=8KAN
 -----END PGP SIGNATURE-----
 
---VbJkn9YxBvnuCH5J--
+--qcHopEYAB45HaUaB--
