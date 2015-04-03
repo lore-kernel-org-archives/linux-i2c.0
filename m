@@ -1,68 +1,80 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH_V3 0/2] i2c: jz4780: Add Ingenic JZ4780 i2c driver
-Date: Fri, 3 Apr 2015 21:23:31 +0200
-Message-ID: <20150403192330.GA2016@katana>
-References: <1427807036-45366-1-git-send-email-Zubair.Kakakhel@imgtec.com>
+Subject: Re: [PATCH v2 1/4] i2c: tegra: implement slave mode
+Date: Fri, 3 Apr 2015 21:46:26 +0200
+Message-ID: <20150403194626.GB2016@katana>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
+ <1427745615-5428-2-git-send-email-danindrey@mail.ru>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+	protocol="application/pgp-signature"; boundary="b5gNqxB1S1yM7hjW"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1427807036-45366-1-git-send-email-Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1427745615-5428-2-git-send-email-danindrey-JGs/UdohzUI@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zubair Lutfullah Kakakhel <Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---G4iJoqBmSsgzjUCe
+--b5gNqxB1S1yM7hjW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 31, 2015 at 02:03:54PM +0100, Zubair Lutfullah Kakakhel wrote:
-> Hi,
->=20
-> Here we have two patches that add support for the i2c
-> controller present in the Ingenic JZ4780.
->=20
-> Driver tested on the MIPS Creator CI20.
->=20
-> V2 - > V3
-> Fixes based on feedback from Wolfram Sang. Thank-you.
-> Details in individual patch commit message
-> Rebased to v4.0-rc6
->=20
-> V1 - > V2
-> Rebased to v4.0-rc3
-> Minor tweaks/fixes. Details in individual patch commits.
->=20
-> Feedback welcome.
+> +static void tegra_i2c_slave_write(struct tegra_i2c_dev *i2c_dev, u32 val)
+> +{
+> +	i2c_writel(i2c_dev, val, I2C_SL_RCVD);
+> +
+> +	/*
+> +	 * TODO: A correct fix needs to be found for this.
+> +	 *
+> +	 * We experience less incomplete messages with this delay than without
+> +	 * it, but we don't know why. Help is appreciated.
+> +	 */
 
-Applied to for-next, thanks!
+Uh oh. So I assume this is another reason for staging?
+
+> +	if (!i2c_dev->slave || !i2c_dev->slave->slave_cb)
+> +		return -EINVAL;
+
+The core checks for slave_cb being valid.
+
+> +		i2c_slave_event(i2c_dev->slave, I2C_SLAVE_STOP, &dummy);
+
+You could use value here, too, or?
+
+> +	if (!tegra_i2c_slave_isr(irq, i2c_dev))
+> +		return IRQ_HANDLED;
+
+Minor nit: I'd prefer == 0 here, since it reads "if not slave_isr return
+handled".
+
+> +	if (slave->addr > 0x7F)
+> +		addr2 = (slave->addr >> 7) | I2C_SL_ADDR2_TEN_BIT_MODE;
+
+Nope. There are 10 bit encodings of addresses 0x000-0x07f, too. So, you
+need to check for the flag (slave->flags & I2C_CLIENT_TEN).
 
 
-
---G4iJoqBmSsgzjUCe
+--b5gNqxB1S1yM7hjW
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHuiyAAoJEBQN5MwUoCm2RBsQALHA2MEJHHA+OSZGAhl28ssk
-/3ifA1Le6exGnb7brUc3x1j4OIrLfw63nfwiYmHtW4uWr3igpLiLLnwDUDVMGMPa
-EyBT+P2jt7YGRVphtI8P2nS/dyaq6nddS/FJw2g8L9Vgt94l7CoXOUoilL7jSXgA
-ps5GYMg6VHg1ao8qD0KZpDQtfe1+cJdmZ3LdB5pHXcb0eiDm6HUm+hhdWeMPbLCW
-Hy2RAirSusDquuL8kK6ZsZK+vxxlFb0h71KiPGOc+rxG9oF0CzqCVoBvrpA2AFVg
-y14AqscI36+TD2I8i4rr+uYxhScI78uwn4VednxMzp9xuAj5EDHQVetziRJ/bc8/
-tZfReehC3u8aw2FmN/QYeAzYo//bAtILH03cp16AaS2iigKQLRjaR5MLAHf84ZJu
-CuNYXEMlr2e0pnMVpWKEi3I+4cheytlimwIkcJuCda9m5nezxWGASJpQeKNfYjgf
-Va3s4jCaYAYeg7mmxcAhDULfs6UjID4p6TfSlx3tuhbeVzOEeSFMopCPBcu1Qxyy
-1Gaor8M81DQdyVbWVIgRfduReKd/5eHroZOyBJsO80u9h4Bqt2MqWy8u1vN374ax
-soZWLSrPKZJy1i207D00TROgPo079b//T8V/6mWPcoQ8xTMZEn2CXadX0YE1Vi9+
-IC+wAh320RDWIcLcpr5F
-=HbJF
+iQIcBAEBAgAGBQJVHu4SAAoJEBQN5MwUoCm2PUEQAIxJZ/wIXpg8wHVeqEBNcFxx
+I6JTL0zOs5vNHqXef4vxjyXXzpnrPYp1wB2fqCDYsAN94d0msEven4knlxPZLT1b
+hV3hRmVwnsT0tIyhMoVPvva2MWFB5dwm6tDwy9h6MkEbqKfsjcJ5EygTEHfnX2MD
+pEeppoMYZjo/ABkKkSdPPGrDggxEXekShxMEsjXKtn6qMglEJHBB4U5oS/J48gFP
+9+XqVJRqIQw2D9azEUJzSEYZ1Z8ouVjelBlvqL6WOwqr7E3IbE+RweYkZah8o5GD
+vnKNpoNMzIY8AQ67WHJ/z+dge7oJtm5muTIdD72AEnOqo1aO7yTbljGzFqkrc5UK
+Os7YzlCQGAxiU83+xjYKpa3RleBDan0JqWiaB2StOcZuFeSe9XJqJ2i7cES8guuU
+YqXjWvcTzBc3f0zyF6qjcOpzFUWapMycmzZ8vamsmVN1UnN7ypjcKrpsPP60vy/X
+g7EW2CL2pbA+bwDgvIPj7Cb3dMs+s2E4l/bMtPVbfDGq/vRnhWsO3Sim4kk3eGbt
++JTS8y2HYIfxOShpR5HHvDBqkcYgp2P4iHTXofKn3VG+YJjxTfKQBjUlP80XScsz
+glaojH0/PzmFEiHgmuQD2/HKu3Xu/46LKxcEEcS32cURJNW5gU6yNRHLAv4s1J7z
+q0JmaYqBo5B/F7u8Q8bk
+=tgej
 -----END PGP SIGNATURE-----
 
---G4iJoqBmSsgzjUCe--
+--b5gNqxB1S1yM7hjW--
