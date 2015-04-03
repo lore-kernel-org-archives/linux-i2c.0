@@ -1,113 +1,61 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 2/4] staging/nvec: reimplement on top of tegra i2c
- driver
-Date: Fri, 3 Apr 2015 21:57:51 +0200
-Message-ID: <20150403195751.GD2016@katana>
-References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
- <1427745615-5428-3-git-send-email-danindrey@mail.ru>
+Subject: Re: [PATCH v2] i2c: i2c-mux-gpio: remove error messages for probe
+ deferrals
+Date: Fri, 3 Apr 2015 22:00:55 +0200
+Message-ID: <20150403200055.GE2016@katana>
+References: <20150330130338.GB5933@ulegcpding.emea.nsn-net.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zbGR4y+acU1DwHSi"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="imjhCm/Pyz7Rq5F2"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1427745615-5428-3-git-send-email-danindrey-JGs/UdohzUI@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ac100-oU9gvf+ajcQ97yFScArB1dHuzzzSOjJt@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Julian Andres Klode <jak-4HMq4SXA452hPH1hqNUYSQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <20150330130338.GB5933-w/hiR2Wfoz+b6vRP15A4uhaOaYmgohGe0e7PPNI6Mm0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ioan Nicu <ioan.nicu.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mathias Rulf <mathias.rulf-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---zbGR4y+acU1DwHSi
+--imjhCm/Pyz7Rq5F2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +/**
-> + * nvec_slave_cb - I2C slave callback
-> + *
-> + * This callback fills our RX buffers and empties our TX
-> + * buffers. This uses a finite state machine.
-> + */
-> +static int nvec_slave_cb(struct i2c_client *client,
-> +		enum i2c_slave_event event, u8 *val)
-> +{
-> +	struct nvec_chip *nvec = i2c_get_clientdata(client);
-> +
-> +	switch (event) {
-> +	case I2C_SLAVE_WRITE_REQUESTED:
-> +		/* Alloc new msg only if prev transaction finished */
-> +		if (nvec->state == ST_NONE)
-> +			nvec->rx = nvec_msg_alloc(nvec, NVEC_MSG_RX);
-> +
-> +		/* Should not happen in a normal world */
-> +		if (unlikely(nvec->rx == NULL)) {
-> +			nvec->state = ST_NONE;
-> +			return -1;
-> +		}
-> +		nvec->rx->pos = 0;
-> +
-> +		if (client->addr != ((*val) >> 1)) {
+On Mon, Mar 30, 2015 at 03:03:38PM +0200, Ioan Nicu wrote:
+> Probe deferral is not an error case. It happens only when
+> the necessary dependencies are not there yet.
+>=20
+> The driver core is already printing a message when a driver
+> requests probe deferral, so this can be traced in the logs
+> without these error prints.
+>=20
+> This patch removes the error messages for these deferral cases.
+>=20
+> Signed-off-by: Ionut Nicu <ioan.nicu.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 
-Uh, I2C_SLAVE_WRITE_REQUESTED should not use val.
+Applied to for-next, thanks!
 
-> +			dev_err(&client->dev,
-> +				"received address 0x%02x, expected 0x%02x\n",
-> +				((*val) >> 1), client->addr);
-> +			return -1;
-> +		}
-> +		nvec->state = ST_TRANS_START;
-> +		break;
-> +
-...
 
-> +	case I2C_SLAVE_READ_PROCESSED:
-> +		if (nvec->state != ST_RX &&
-> +		    nvec->state != ST_TX) {
-> +			dev_err(&client->dev,
-> +				"unexpected read: state %d\n",
-> +				nvec->state);
-> +			return -1;
-> +		}
-> +
-> +		if (!nvec->tx || nvec->tx->pos >= nvec->tx->size) {
-> +			dev_err(nvec->dev,
-> +				"tx buffer underflow on %p (%u > %u)\n",
-> +				nvec->tx,
-> +				(uint) (nvec->tx ? nvec->tx->pos : 0),
-> +				(uint) (nvec->tx ? nvec->tx->size : 0));
-> +			nvec->state = ST_NONE;
-> +			break;
-> +		}
-> +
-> +		nvec->state = ST_TX;
-> +		*val = nvec->tx->data[nvec->tx->pos++];
-
-Are you sure you want to increase the pointer here? Remember that this
-byte is requested but might not be sent out if the remote master stops
-the transfer after the previous byte using NACK instead of ACK.
-
-> +		break;
-> +
-
---zbGR4y+acU1DwHSi
+--imjhCm/Pyz7Rq5F2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVHvC/AAoJEBQN5MwUoCm2NkQP/jPGcPGkHllFaw/z3D3AEGJM
-bCbPmVtWq/5+2rW6J7KnPNknpMyOSI+6Ac2L8F4A6eHxwXXmO7NG1Yi/NVzPtIUw
-NTfNhomzKa+9CnmuoMsouythSlANysEk9ZrfKi+/bOCLMU/LRhWxU8Y0EEXRQaJ6
-ctas5xVjOVfBbLVpQrOkaBQQ+4QuOaQPgnZBUufMiFYglE/Xjn+V2oCEL4MFBx+f
-xVUf+6VjmazoF06j27XXuwa23S00arh/Q7MDxyMCfJcB1cMS+yGGr0mUJuNIpcoa
-fnpYryYum/3Sleek86bSMFCpi59sEU9oOmECepZZWg9r2AZ6DJSBN1qVmQi9TpX/
-nF2leQS5NWuvb15IP2JpxsloDyRrVG5XbfatJfSHleHmpn0Ykchx3VFtRCW7OdGP
-JIh1n6rXIZahzI9CE2fhCfT593HXYx7intpiPm0tRGkbqYBguTb8tUp4vc18al6W
-eDo4NFVS/ZH3tmMUaTd88QZ3EIAO9iIqKuGwuYTkS5gs2EiKmqzqDB11kGIsbvc0
-MKIE4oxIFaNaSzB6bGH8zPJp5a1wS0Rd811fLozwG2x07V7pAy7boh6TzOEgAzQX
-qyu9pe59JZx/VmzizmASND/aryxOvRkcIBWnCQDXqJq7xhOG7h0xQsiAKdhQpODV
-2oAO/iGGJ05jPZgycpJ+
-=u+wo
+iQIcBAEBAgAGBQJVHvF3AAoJEBQN5MwUoCm2+SIP/R9sruR463wPqO8icBDv3pHs
+QStXEnXGXtkswDInTmiZXTlLUpn5BCCdWBgLYXBA1ktHRm7gNJhB5AnqAMYwp92u
+xT6EXLQc6BkMlhCOkdDMpF5YZFdBSGFHwC1At6v5Tr0T3/Z87dzJggnweXWQluLo
+L6RO5f3D1dJq0dXOKaRrv6Tuk0+NYjHHNSS/NDqeqR61ZLBJCyWSsE/kIeFemfgG
+E+Ghv3yrVOXLI5BuKWbAHTqMOGDOW+ZWDU0t56fmYKRAWg9yftaBbpJAQraNg3wa
++Wf1en2kSMGZWgfJCyT1NrVae3EzUUJkk2NncTJVKzMXoeSPyPgvyZjS1gh6a6YX
+kD2abbgxiXX3o87mfwDmlmtjJdtLFd7GsCr/DZ8VsN3yFIs3iMdHstB2fEg/J/xc
+mpTviYX5Yc3DhNyDwUkEoVjpRohzRJhWPM70t2TlFkZJOUEYzrj+ns5Kj6ZeiuJH
+MV6k9/7q8fxTFxtdveVL1NfKMPicJYyyjEwobRKamcvV72T+iurWF2GWrck1RvyJ
+1IzAlQheJ+/6B6kQZZSEe1X1npMg8xVY6MuZYtgsRL2VYZ63pXA5o2efl1SbDexI
+vobEj6jqBsky1bgTHr8E6ud4D7GQYEUVPBY6CmsHTtrMTiKwrjyn1U4EJdGArYW3
+ApAZLhLNkK79fxAsWB+f
+=En6Z
 -----END PGP SIGNATURE-----
 
---zbGR4y+acU1DwHSi--
+--imjhCm/Pyz7Rq5F2--
