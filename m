@@ -1,72 +1,86 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 4/5] i2c: davinci: use bus recovery infrastructure
-Date: Fri, 3 Apr 2015 22:18:46 +0200
-Message-ID: <20150403201846.GH2016@katana>
-References: <1417448047-15236-1-git-send-email-grygorii.strashko@ti.com>
- <1417448047-15236-5-git-send-email-grygorii.strashko@ti.com>
- <20150318203151.GA12072@katana>
- <550C67D6.3080909@linaro.org>
+From: Nava kishore Manne <nava.manne@xilinx.com>
+Subject: RE: [PATCH] i2c: cadence: Handling Slave monitor mode
+Date: Sat, 4 Apr 2015 13:14:31 +0000
+Message-ID: <9ef3c612-b803-4937-bb21-0fac03969f39@BN1AFFO11FD037.protection.gbl>
+References: <BL2FFO11FD05378650E02EA6549B4DF50E8030@BL2FFO11FD053.protection.gbl>
+ <20150327153713.GC27238@katana>
+ <CAFcVECKaLBvOVvTca87-oTue5nF_pek_0msFZDD8y4yuCHW2EA@mail.gmail.com>
+ <20150402202909.GA3501@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFBW6CQlri5Qm8JQ"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <550C67D6.3080909-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20150402202909.GA3501@katana>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Harini Katakam <harinikatakamlinux@gmail.com>
+Cc: Srikanth Vemula <svemula@xilinx.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michal Simek <michals@xilinx.com>, Soren Brinkmann <sorenb@xilinx.com>, Anirudha Sarangi <anirudh@xilinx.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---nFBW6CQlri5Qm8JQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Wolfram,
 
 
-> > The I2C specs say in 3.1.16 that the recovery procedure should be used
-> > when SDA is stuck low. So, I do wonder if we should apply the recovery
-> > after a timeout. Stuck SDA might be one reason for timeout, but there
-> > may be others...
->=20
-> This is ancient code. And regarding your question -
-> Might be it would be reasonable to add call of
-> i2c_davinci_wait_bus_not_busy() at the end of i2c_davinci_xfer()?
-> This way we will wait for Bus Free before performing recovery.
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa@the-dreams.de]
+> Sent: Friday, April 03, 2015 1:59 AM
+> To: Harini Katakam
+> Cc: Nava kishore Manne; Michal Simek; Soren Brinkmann; linux-arm-
+> kernel@lists.infradead.org; linux-i2c@vger.kernel.org; linux-
+> kernel@vger.kernel.org; Anirudha Sarangi; Srikanth Vemula; Nava kishore
+> Manne
+> Subject: Re: [PATCH] i2c: cadence: Handling Slave monitor mode
+>
+>
+> > >> In slave monitor mode, the I2C interface is set up as a master and
+> > >> continues to attempt a transfer to a particular slave until the
+> > >> slave device responds with an ACK.
+> > >>
+> > >> Added this feature for zero length transfers enable the controller
+> > >> for slave monitor interrupt and get the status. Disable the slave
+> > >> monitor mode feature upon successful handling.
+> > >>
+> > >> Signed-off-by: Nava kishore Manne <navam@xilinx.com>
+> > >> Acked-by: Harini Katakam <harinik@xilinx.com>
+> > >
+> > > I am not sure this is going to work.
+> > >
+> > > How often is this access tried when there is no device? It should be
+> > > tried only once.
+> >
+> > Once slave monitor is enabled in the host controller, it retries till
+> > there's an ACK or slave monitor is disabled. The SW wont be involved
+> > and need not
+>
+> So, it is kind of flooding the bus until the timeout? That is not a single zero
+> byte message.
+>
+It will not flooding the bus until the timeout. Once it fails to access the bus it will be ideal for 15 clock cycles. Master again retrying to access the
+Slave immediately after the 15 clock cycles (There is a register in the controller to set the retry value min: 0 cycles, max: 16 cycles).This process will repeat until
+The software timeout will happen (1000msec).
 
-That might be an improvement, but the generic question still remains:
-Is a timeout a reason for recovery? SDA stuck low is one reason for a
-timeout. I have problems making up my mind here between being pragmatic
-and being in accordance with the specs.
+Regards,
+Navakishore.
+> > be interrupted in this gap. The way this feature works in the
+> > controller though, I'm afraid there's no way to distinguish between no
+> slave/ busy slave.
+> > The out is the software timeout in that case.
+> > Please suggest how to use this feature better.
+>
+> I suggest to not use the feature and accept that this device cannot do zero
+> byte length messages.
+>
+> Thanks,
+>
+>    Wolfram
 
-> Of course,  i2c_davinci_wait_bus_not_busy() has to be fixed first
-> as proposed by Alexander Sverdlin here:
->  https://patchwork.ozlabs.org/patch/448994/.=20
-
-Okay, good that you said it. So I'll give his patch series priority over
-this one.
 
 
---nFBW6CQlri5Qm8JQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVHvWmAAoJEBQN5MwUoCm2E9AQAJxNNrXZF8jlfD8QCiNZgzi1
-YKuTRXhkWcUaAokU+Am9+DqUL7BTRnRZjNaqMFVVPo6xx6aSN9pvi9XTD3TGQIXW
-wHT+AGLSSMWUUVeOsPyHYEVHxienQ5Aen869HSs0jg79YbFJ7+g+MiF4Gn3XG+Qo
-Ay6clqsuCU4T8jUMEzWOJJMkGlX1foo0/Iw+7iZJwj1LEF/vWkGriAWR7F2pKMFY
-yZY2AS++wXKP5dxEOHRDg3QOzhB/hK7cMwk0fJICa+35sLSVZig7WoZ7KhW8lueJ
-KLXEUIegGySyBrzh60u8u2EVFx7gl89Go4jDb4kq5vYtxujw7qNrz2zOYHKBR9sg
-q9afej8EYC8Ls1ejMIqoIiqrGgtoK1SkK5VPwcVXG8SpnQYkswrxwJrISKWtGJoZ
-mUTcw9bSTDhVyDgMN9BRJH9wass+OG2RzcY+g2xDrT0kdHdjIOTZFRcqMW9TS6tb
-lHEYzif8U/VYaDpATLU3jLIVLks1tWSpUAfjtLVh6ONNIgfktxmCTE3FAw1q1pCr
-KCzY3iBikCCIw+SnmYffbrujSmAqUOl4LhV2KRmYZNcWe+jl85vHlBYtZ4krORf9
-22+AhZI7DfZRQXp85s8tOU995oqAWQqM7e/2g+W5ZkZDSnCB/31GFll0vhDrNhZB
-EyfHlrAPaZEZBT2ZZESY
-=x/Bq
------END PGP SIGNATURE-----
-
---nFBW6CQlri5Qm8JQ--
+This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
