@@ -1,58 +1,36 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: cadence: Handling Slave monitor mode
-Date: Sat, 4 Apr 2015 17:34:47 +0200
-Message-ID: <20150404153447.GA3808@katana>
-References: <BL2FFO11FD05378650E02EA6549B4DF50E8030@BL2FFO11FD053.protection.gbl>
- <20150327153713.GC27238@katana>
- <CAFcVECKaLBvOVvTca87-oTue5nF_pek_0msFZDD8y4yuCHW2EA@mail.gmail.com>
- <20150402202909.GA3501@katana>
- <9ef3c612-b803-4937-bb21-0fac03969f39@BN1AFFO11FD037.protection.gbl>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 02/86] i2c/i801: linux/pci_ids.h -> uapi/linux/pci_ids.h
+Date: Mon, 6 Apr 2015 08:38:15 +0200
+Message-ID: <20150406083815.29bf6475@endymion.delvare>
+References: <1427635734-24786-1-git-send-email-mst@redhat.com>
+	<1427635734-24786-3-git-send-email-mst@redhat.com>
+	<20150403190916.GD1298@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <9ef3c612-b803-4937-bb21-0fac03969f39-reflc3kr++PT8KeBtZ6NpOhlVc3/7hDbVaz/vdPVXQ4@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nava kishore Manne <nava.manne-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: Harini Katakam <harinikatakamlinux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Michal Simek <michals-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Soren Brinkmann <sorenb-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Anirudha Sarangi <anirudh-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Srikanth Vemula <svemula-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20150403190916.GD1298@katana>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, 3 Apr 2015 21:09:17 +0200, Wolfram Sang wrote:
+> On Sun, Mar 29, 2015 at 03:37:30PM +0200, Michael S. Tsirkin wrote:
+> > Header moved from linux/pci_ids.h to uapi/linux/pci_ids.h,
+> > update i2c documentation accordingly.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> 
+> I don't know if I should take it. If so, let me know.
 
-> > So, it is kind of flooding the bus until the timeout? That is not a single zero
-> > byte message.
-> >
-> It will not flooding the bus until the timeout. Once it fails to access the bus it will be ideal for 15 clock cycles. Master again retrying to access the
-> Slave immediately after the 15 clock cycles (There is a register in the controller to set the retry value min: 0 cycles, max: 16 cycles).This process will repeat until
-> The software timeout will happen (1000msec).
+Don't, the series was nacked meanwhile.
 
-Compared to do one access only this is "kind of flooding", no?
-
-
---J2SCkAp4GZ/dPZZf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVIASXAAoJEBQN5MwUoCm2IMMQALG+wDkD/n7H3rmFaNVBbCNy
-eZJCrkiZBK3XY8hA4zoY2jEa8YC0fbCO/hcfgeTSwNdmzBpyuRD9Lcc3rmJUEEP0
-rnYLzCtE3cbphTB71w/n5ZZANKcgZTCW0J4i1kbA1e7ZhFaURBqZYY3OfLHVED84
-j4mDIKFxAqY3VUv0njfuB0z8hyZpONHPFjMnIqMmOo4zEF2rVQGTiFwV8Z3CdUmi
-G0pMl4PFzcSlzyB1NkYrRIr8day5uy+KHNubjPeDT1LqAGDG7FERAgJfCe9AgV+N
-f0jUIlrjAn0R27/7Lk0v/E2+6dFXAsb5WjzTS9vhwFE7cWAwxqBffSYfAU3vATEy
-S1XPkgXhg+WLZoB/rjK5nDuzaJCVsLA9PCypD2R6bE9ky78bS2V0Bkt9qbFo8sYx
-UW6o5jUlKsNApWIIfikYTBmOeSJLQmm2t9u817AkpDuTcOdDhPgxBeVNVrgqPi6H
-MEcvT9CI+5VtxdwkN+zQRzWXAEFNa3xsPelqaWGO+KpVGrfVxFTSADpO/KlcxqIO
-/EyX0kRgLrdJQZMt9Cfoe1rWwXUwZ5Ay/px29HbKqSQ1zpVTTwZo3MAV3Od1IQsZ
-U5UP10vSwXN+FPqJKwQUVNuE2kQjZcKw2ZLiEimCJRHm65BB0uorga3G3XrLmjax
-yrMENvCmXssfM/FDXano
-=hJJa
------END PGP SIGNATURE-----
-
---J2SCkAp4GZ/dPZZf--
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
