@@ -1,40 +1,73 @@
-From: Andy Gross <agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH V2 2/6] i2c: qup: Add V2 tags support
-Date: Tue, 7 Apr 2015 00:06:40 -0500
-Message-ID: <20150407050640.GB9225@qualcomm.com>
-References: <1428345067-21878-1-git-send-email-sricharan@codeaurora.org>
- <1428345067-21878-3-git-send-email-sricharan@codeaurora.org>
+From: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH v2 0/4]  arm: tegra: implement NVEC driver using tegrai2c.
+Date: Tue, 07 Apr 2015 13:37:01 +0200
+Message-ID: <1549160.njMIY2NVTi@fb07-iapwap2>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru> <20150403194635.GC2016@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1428345067-21878-3-git-send-email-sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, srichara-Rm6X0d1/PG5y9aJCnZT0Uw@public.gmane.org
+Content-Type: multipart/signed; boundary="nextPart2444986.Ab3eODAqzR"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150403194635.GC2016@katana>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 07, 2015 at 12:01:03AM +0530, Sricharan R wrote:
 
-<snip>
+--nextPart2444986.Ab3eODAqzR
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="ISO-8859-1"
 
-> +static u32 qup_i2c_send_data(struct qup_i2c_dev *qup, int tlen, u8 *tbuf,
-> +			     int dlen, u8 *dbuf)
-> +{
-> +	u32 val = 0, idx = 0, pos = 0, i = 0, t;
-> +	int  len = tlen + dlen;
-> +	u8 *buf = tbuf;
-> +
-> +	while (len > 0) {
-> +		if (qup_i2c_wait_ready(qup, QUP_OUT_FULL, 0, 4)) {
+Hi Wolfram,
 
-Instead of 0 and 4 can we use some #defines?  This applies for all of the
-i2c_wait_ready calls
+Am Freitag, 3. April 2015, 21:46:35 schrieb Wolfram Sang:
+> On Mon, Mar 30, 2015 at 11:00:11PM +0300, Andrey Danin wrote:
+> > NVEC driver contains code to manage tegra i2c controller in slave mode.
+> > I2C slave support was implemented in linux kernel. The goal of this
+> > patch serie is to implement I2C slave mode in tegra drived and rework
+> > NVEC driver to use it.
+> 
+> Thanks. Looks pretty good already. If being I2C slave was the reason for
+> this driver being in staging, we soon need to think of a proper place
+> outside staging.
 
-<snip>
+yes, moving the low level i2c functions out to the bus driver was our major 
+concern. But there are still some minor things left before before we can move 
+out of staging.
 
+One thing where we need your help as a I2C maintainer is how to represent an 
+i2c slave device using device-tree. You may remember our discussion in the 
+past from here [1] where you suggested to just make a slave client by its 
+compatible name. Stephen Warren from NVIDIA raised some concerns about this 
+solution because it may not be appropriate in all possible future cases (which 
+is what a proper device-tree representation should take care off). He instead 
+suggested to mark a slave client by adding some flag to the reg property, to 
+be able to handle a situation where both master client and slave client have 
+the same i2c bus address forming a loopback (e.g. for testing purpose) on the 
+same bus. More details here [2].
 
--- 
-Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+I hope with this post I can join the different discussions somehow so we are 
+able to find a common sense which is acceptable for all.
+
+Marc
+
+[1] http://lkml.iu.edu/hypermail/linux/kernel/1409.1/03446.html
+[2] https://lists.launchpad.net/ac100/msg01361.html
+
+--nextPart2444986.Ab3eODAqzR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAABCAAGBQJVI8FdAAoJEKyeR39HFBtoIq0H/RBfaY93LLhU8lwAOZdrSJRo
+zwmuDZ7V1FeHM0oqm2YZeeoxsppkZ1KslSsS4kwCaZtbepPDBFPlXX6s7sat/h3h
+tWBPxigmlf+tKgZqA1MUoBuU0VWLCrqfI/sntEXzYhnkcKigZcfix4g7DEIUkT/M
+iIKmHCU6Ey8b/XreZ3VLcYu2a15pfndUTK+3N+uIbSTs7Dd8hSx2nVuyD6i7o/yO
+VRnzK4t7kyvJGn7e4DS5B0XkvSxXEfTpIaV5FY4YsuwSJSVk++VQfl92OwMIkgMX
+xN1iKZUTeKfWtZyGr6JWDIfyaHL3jVLCS7I+Gm2lVxwSxVqOaMFado41j9WFL7w=
+=Cuha
+-----END PGP SIGNATURE-----
+
+--nextPart2444986.Ab3eODAqzR--
