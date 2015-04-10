@@ -1,58 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 0/3] i2c: davinci improvements and fixes
-Date: Fri, 10 Apr 2015 17:59:40 +0200
-Message-ID: <20150410155940.GA2408@katana>
-References: <1428323921-25832-1-git-send-email-grygorii.strashko@linaro.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v4 3/3] i2c: xlp9xx: device tree bindings
+Date: Fri, 10 Apr 2015 19:02:52 +0200
+Message-ID: <20150410170252.GB2408@katana>
+References: <1426679430-26134-1-git-send-email-jchandra@broadcom.com>
+ <1426679430-26134-4-git-send-email-jchandra@broadcom.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1428323921-25832-1-git-send-email-grygorii.strashko@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: grygorii.strashko@linaro.org
-Cc: Sekhar Nori <nsekhar@ti.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, grygorii.strashko@ti.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Kevin Hilman <khilman@deeprootsystems.com>, Santosh Shilimkar <ssantosh@kernel.org>, Murali Karicheri <m-karicheri2@ti.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>
+In-Reply-To: <1426679430-26134-4-git-send-email-jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---BOKacYhQ+x31HxR3
+--3uo+9/B/ebqu+fSQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 06, 2015 at 03:38:38PM +0300, grygorii.strashko@linaro.org wrot=
-e:
-> From: Grygorii Strashko <grygorii.strashko@linaro.org>
+On Wed, Mar 18, 2015 at 05:20:30PM +0530, Jayachandran C wrote:
+> From: Subhendu Sekhar Behera <sbehera-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 >=20
-> This series converts driver to use I2C bus recovery infrastructure and
-> adds Davinci I2C bus recovery mechanizm based on using ICPFUNC registers.
-> These patches are combination of two patches from Ben Gardiner [1] and
-> Mike Looijmans [2] which i've reworked to use I2C bus recovery infrastruc=
-ture
+> Add document Documentation/devicetree/bindings/i2c/i2c-xlp9xx.txt
+> for Netlogic XLP9XX/5XX i2c controller. The compatible string is
+> "netlogic,xlp980-i2c".
 
-Applied to for-next, thanks for keeping at it and providing useful info!
+This one is missing the SoB line. Please use checkpatch before sending
+patches. Can you send your SoB as a reply to this mail? No need to
+resend the series.
 
 
---BOKacYhQ+x31HxR3
+--3uo+9/B/ebqu+fSQ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVJ/NsAAoJEBQN5MwUoCm2BSUP/jI6fuI/0kVaJwOwK4MCvtlR
-z9lgOsCjzgi3P+j8x+9I0tvMDVwxYlbtI1IcTuWLBYnTN+OFbCy+jvGzGdtidkXP
-fptUklY6muS4EksCxL8X7TBBWLeqBILvyZ6hVLaJK3tcPpYhZk3ydKInMvU9cE5P
-y4lUkcxixoUci4ZMCNDpX/DW7G7dTylKX/wDb7UmNUtRm8KtJO8kHPutBj33348D
-OyVlJ2tMI4qsJFfD6yQHBu/+ZO7iy30QYVYlfGPIkXFwsG8bGF5R6g1uCWT77rSD
-MOXdjrzHHSnV21gAzBfVyUihHJzSb+snfodLnNMcxUoZ4gsBoJQ+UFFxjgGmiG5e
-PJJ2ZQq8b9l9T2gCvPMuTgV4HntY5dJpQ8uEbPu8hBlaC1iDjoNx2h0c+5aN6BUA
-Sdm1bNTBEFI+XnXzS0A1cgGbVzXLHh3ZcsumKPwSTF2CYUxO48B23vVNdXguSPnx
-qcn96kx8/S8OL4XqEzhN1ENE0qboGGL4hlntfGwKV4oioyeaRgn4R6U7hzp+BN6S
-92qFxo6cT4hzRHHquuqSNCX9Amhw2ka2WOPk1UahcONNieXiwbtStE2AIIeT95ZR
-Ns2kvKgPW/GKyQszCVbw9lIfUWDVE/ZhKR7N5Mn++TEq0KvXmv+KyWqE3MhfygYy
-eU40wC8IQuUCTlbAkoun
-=b9oo
+iQIcBAEBAgAGBQJVKAI8AAoJEBQN5MwUoCm2owoQAI8aaVklWR6eu2Ty6Wk3sGxs
+A67zcRboc58OS3zJNonAOyrUr1GwiESJJbqcn95Z8WZmhEIKxWBCs6fUiYSir51z
+hm6I3z0y587SF8LS8rPIPV5Md5eaFOfR/i/4H+E3vOKjNpiRX8zgCt/VJqCXUV/K
+x9fcAX6k5Orf92s4Guox9uuUZdJS9BLM271h+4bqtZukm1HoXLdckF/5pT3HOQUE
+jc2nS1Z0/qAZag3Tp3g5SpOJwyRzxWGpNauhB66LKB/OAX0/G3kheTfrhwU7EN06
+4eCvT4vQWNJ7jkuFwXellMCkhRwnohSkeaSSyIoBOsT5QNud/mx37GDkRcp2EsA1
+EcwbEEd/jpdSMsJ+wCI/XjCdLzz3LbAQnUPfKpvbZcdkddJP2EkkU5hIjkG0vkhz
+j7yxzLbiwxtQQX43rZYRrf/6iQkjm7cxwvtSuOTpOUFgfIsCxQmF9SEByK8SYYUh
+uM6m2tRL+CoBDA9paITB6IpELDLf9OTSNBBwNTjQ2BdAbTs1EXFNX9Q63C8lfkXx
+sIEtwhc4OPAgb1Uf3kH65ISvT+asdVPhHGA7VbiTqOFDWotLBK8+Mx0wcccyjB90
+wECxsG2BPZcEC5qibCc12b7H4dMNP4XlIag02PA/i1/MFEZakPquepQVjSP9E9vO
+T+J+sPtep1XzvsEFocXA
+=MQrR
 -----END PGP SIGNATURE-----
 
---BOKacYhQ+x31HxR3--
+--3uo+9/B/ebqu+fSQ--
