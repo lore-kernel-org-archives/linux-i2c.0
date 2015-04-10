@@ -1,75 +1,70 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 0/4]  arm: tegra: implement NVEC driver using tegrai2c.
-Date: Fri, 10 Apr 2015 23:35:23 +0200
-Message-ID: <20150410213523.GA15596@katana>
-References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
- <20150403194635.GC2016@katana>
- <1549160.njMIY2NVTi@fb07-iapwap2>
+Subject: Re: [PATCH] i2c: omap: implement bus recovery
+Date: Fri, 10 Apr 2015 23:41:22 +0200
+Message-ID: <20150410214122.GB15596@katana>
+References: <1424369209-26735-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="IiVenqGWf+H9Y6IX"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1549160.njMIY2NVTi@fb07-iapwap2>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Cc: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+In-Reply-To: <1424369209-26735-1-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---zhXaljGHf11kAtnf
+--IiVenqGWf+H9Y6IX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> One thing where we need your help as a I2C maintainer is how to represent=
- an=20
-> i2c slave device using device-tree. You may remember our discussion in th=
-e=20
-> past from here [1] where you suggested to just make a slave client by its=
-=20
-> compatible name. Stephen Warren from NVIDIA raised some concerns about th=
-is=20
-> solution because it may not be appropriate in all possible future cases (=
-which=20
-> is what a proper device-tree representation should take care off). He ins=
-tead=20
-> suggested to mark a slave client by adding some flag to the reg property,=
- to=20
-> be able to handle a situation where both master client and slave client h=
-ave=20
-> the same i2c bus address forming a loopback (e.g. for testing purpose) on=
- the=20
-> same bus. More details here [2].
+On Thu, Feb 19, 2015 at 12:06:49PM -0600, Felipe Balbi wrote:
+> If either SCL or SDA are stuck low, we need to
+> recover the bus using the procedure described
+> on section 3.1.16 of the I2C specification.
 >=20
-> I hope with this post I can join the different discussions somehow so we =
-are=20
-> able to find a common sense which is acceptable for all.
+> Note that we're trying to implement the procedure
+> exactly as described by that section. First we
+> check which line is stuck low, then implement
+> one or the other procedure. If SDA recovery procedure
+> fails, we reset our IP in an attempt to make it work.
+>=20
+> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 
-I'll have a look again for 4.2.
+As Grygorii already mentioned: can you convert it to the standard i2c
+bus recovery mechanism?
+
+And is the timeout you replace with the recovery caused by SDA stuck
+high (check the thread starting with
+http://thread.gmane.org/gmane.linux.kernel/1841371/focus=3D22435)
+
+Thanks,
+
+   Wolfram
 
 
---zhXaljGHf11kAtnf
+--IiVenqGWf+H9Y6IX
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVKEIbAAoJEBQN5MwUoCm2npcQAKhYep55sSHykI3YzN7HdWkA
-nwQNlpDHo11YFK+TXbKoU5TWqhvmbE++kqyTK+9muGFq3+9LzpGp/5mbGmkSCiWr
-UBhQBLIIhckJBjrSm6kW6fHNsrUCYxlm3dTmdjpiMklr+5lRxx7a39wem5zn4NpH
-biRh8Orh92KIV46TTfd2xQqiVHZAFJQ/CJf8oSsfyJ4oV/sLsrDG1uLG9NJA7B5+
-EBoVtZF0WZaxe5Hgkt7chAjY6j6D4GR4nde/569i8H3lJdhwZkINGN23qXeT+zXB
-81rM9UFqwwxo+/VFH4rfFLTeIuoUT0H8yTfP0LLSYJFrSqI+Nhlbh+8gwC4oL38o
-1wmJECygPBhVFNFaISn0DbfSvuRdludnivoF8iruhD4puNPfhEYSKZcOs8Bwym2K
-T6XuUJ3D87a9xnK2iYAanh/1NU1JNh/jSV6wek2gp+Jft6i/ff5I+uAv/nqhC4kJ
-wbOLDEYRpaV5UIkZtquwsi7WAHnw1BE9r70BlFwERf82Q0P/i4JII6ZmMi7kcxM5
-cuucwVVsebwYC2yhoiKVe5VJtJ1eRp08cEKifrnzKHS2MdW4wyGrLwjeEzDAGdyD
-uQLwbSZCHXlf0olo1+6zJqYn3JhvWP4ulJ1pbZJW5L0sWr25yhXzYAaMeOuFrhYK
-1JeheuoM71PxthoUCN/S
-=+6bJ
+iQIcBAEBAgAGBQJVKEOCAAoJEBQN5MwUoCm275EP/0f8zJvQlhz0JslfykVQpcbJ
+1M/Y+9keP9Bfrhd/4HyWe37shydvMh96/ds/lmStzb9GCtsBZy6pse/Q+XD2mHu8
+r+9SFrgn01/teFeTCHvCGlnTb1Vz21PMKDHaAo4Rc1yclhsLnOCW8pc6jLp7fBg8
+bWgzHUDTqyKKMLDFl10SSZa4m88cs+eeVJG2hSe7enqKJ2XrVTLNFqzw9fG/Ai3O
+hLINBJb2OriTNxq1/Gs69CLKmRRM4zAy0Rv6R3PyRDznUeaA5OVKTTEOm/uI6XSM
+FJeCi16KxebuO4/MjRk7k4VsIKdP7S0gWBwwbSYMC9AbCrToTgySwrG4Lw9z9e8K
+6CFArA9edy5Gr+RmN+xdqJH9xCEO+f8nQgaY80L9RvCV1DL4gFP8FD1hqGpPFXoI
+0ywfehW8heIKMVgyp2oIvgCfLbi7IqXdk3EAAZGxHfpoVifRroH1o/YBcIPSj/CZ
+ivcvstjK//ekdEfD0GM4ts13VhBB/LTHM2LfLzcTBfPLmFTkWrs0and0tyb6WPsG
+b+TmHcNSoZW9m6FtebL++AECcSUb5qx1SXaObya10hsIk8wpdEI8ZfbCZwkuRWA4
+t0/cVydiBYXx+x2NzwbGRu780a4n/3vsJhHOoKNBRMxCSO+2Id77unWg7gDXwmdn
+SiccxxcceSP34imtZ5RH
+=dCvj
 -----END PGP SIGNATURE-----
 
---zhXaljGHf11kAtnf--
+--IiVenqGWf+H9Y6IX--
