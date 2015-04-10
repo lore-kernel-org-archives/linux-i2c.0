@@ -1,42 +1,50 @@
-From: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-tools: add compatibility for python2/3 to py-smbus
-Date: Thu, 9 Apr 2015 22:32:26 +0200
-Message-ID: <CA+TH9Vnks5UH=nUTgDzsDnn6o6jQNZtNDkiL-tsEFxU9HwBkJw@mail.gmail.com>
-References: <CA+TH9VkT1K2aqAuNOLsGiU407OA4NYcMVaUakEQgSWLpMBBg2A@mail.gmail.com>
- <20150119230327.0224d0ba@endymion.delvare> <1421917018.21840.0@smtp.inria.fr>
- <20150122114958.3178f5f6@endymion.delvare> <1421933290.21840.1@smtp.inria.fr> <20150126124615.7fd1f64f@endymion.delvare>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH 12/14] i2c-parport: return proper error values from attach
+Date: Fri, 10 Apr 2015 10:35:43 +0530
+Message-ID: <20150410050543.GA3561@sudip-PC>
+References: <1428492040-5581-1-git-send-email-sudipm.mukherjee@gmail.com>
+ <1428492040-5581-13-git-send-email-sudipm.mukherjee@gmail.com>
+ <20150409071307.GA1166@katana>
+ <20150409113342.5621af83@endymion.delvare>
+ <20150409102528.GC1166@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150126124615.7fd1f64f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: Michael Mercier <michael.mercier-MZpvjPyXg2s@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Renz, Bernhard" <bernhard.renz-//tT4aWmXyZBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <20150409102528.GC1166@katana>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: devel@driverdev.osuosl.org, Rodolfo Giometti <giometti@enneenne.com>, linux-scsi@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Takashi Iwai <tiwai@suse.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, "James E.J. Bottomley" <JBottomley@parallels.com>, Jaroslav Kysela <perex@perex.cz>, alsa-devel@alsa-project.org, Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, Willy Tarreau <willy@meta-x.org>, linux-spi@vger.kernel.org, netdev@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+On Thu, Apr 09, 2015 at 12:25:28PM +0200, Wolfram Sang wrote:
+> 
+> > It doesn't really matter that the error codes are different, it matters
+> > that they are meaningful. As much as possible you should pass error
+> > codes from the lower layers. parport_claim_or_block() and
+> > i2c_bit_add_bus() return proper error codes so you should record and
+> > transmit them.
+> 
+> Oh, surely yes. I assumed they don't and this series is a first step to
+> fix this. Should have looked myself. Thanks for jumping in here.
+> 
+I planned this series to be the first step to fix the attach function
+which does not return it succeeded or failed. And if attach has failed
+then there is no reason that module_init will report success.
 
-2015-01-26 12:46 GMT+01:00 Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>:
-> On Thu, 22 Jan 2015 14:28:10 +0100, Michael Mercier wrote:
->> I have only tested read_i2c_block_data write_i2c_block_data for python
->> 3.2 and python 2.7.
->>
->> I think you can push these patchs upstream.
->
-> I committed both patches. I also added python 3 support to the stable
-> branch.
+But as Greg pointed out that the first step should be to bring the
+parallel port in the driver model. I am working on that now, I will
+post a v2 of this series once that modification is done, and that will
+need extensive testing.
 
-Any news on when the new i2c-tools stable release with python3 support
-will be released?
-
-Sincerely, Angelo
-
->
-> --
-> Jean Delvare
-> SUSE L3 Support
-
-
-
--- 
-Profile: http://it.linkedin.com/in/compagnucciangelo
+regards
+sudip
