@@ -1,60 +1,75 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 0/3] i2c: Support for Netlogic XLP9XX/5XX I2C
- controller
-Date: Fri, 10 Apr 2015 19:17:08 +0200
-Message-ID: <20150410171707.GD2408@katana>
-References: <1426679430-26134-1-git-send-email-jchandra@broadcom.com>
+Subject: Re: [PATCH v2 0/4]  arm: tegra: implement NVEC driver using tegrai2c.
+Date: Fri, 10 Apr 2015 23:35:23 +0200
+Message-ID: <20150410213523.GA15596@katana>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
+ <20150403194635.GC2016@katana>
+ <1549160.njMIY2NVTi@fb07-iapwap2>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OROCMA9jn6tkzFBc"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1426679430-26134-1-git-send-email-jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1549160.njMIY2NVTi@fb07-iapwap2>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Cc: Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---OROCMA9jn6tkzFBc
-Content-Type: text/plain; charset=utf-8
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 
-> Changes v3->v4:
-> * Second round of changes from Uwe Kleine-K=C3=B6nig's review:
-> * Changes for comments from Arnd Bergmann
-> =20
-> Changes v2->v3:
-> * Implement changes from Uwe Kleine-K=C3=B6nig's review:
+> One thing where we need your help as a I2C maintainer is how to represent=
+ an=20
+> i2c slave device using device-tree. You may remember our discussion in th=
+e=20
+> past from here [1] where you suggested to just make a slave client by its=
+=20
+> compatible name. Stephen Warren from NVIDIA raised some concerns about th=
+is=20
+> solution because it may not be appropriate in all possible future cases (=
+which=20
+> is what a proper device-tree representation should take care off). He ins=
+tead=20
+> suggested to mark a slave client by adding some flag to the reg property,=
+ to=20
+> be able to handle a situation where both master client and slave client h=
+ave=20
+> the same i2c bus address forming a loopback (e.g. for testing purpose) on=
+ the=20
+> same bus. More details here [2].
 >=20
-> Changes v1->v2:
-> * Implement changes from Ray Jui's review
+> I hope with this post I can join the different discussions somehow so we =
+are=20
+> able to find a common sense which is acceptable for all.
 
-Thanks to Ray, Uwe, and Arnd for the reviews. Much appreciated!
+I'll have a look again for 4.2.
 
 
---OROCMA9jn6tkzFBc
+--zhXaljGHf11kAtnf
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVKAWTAAoJEBQN5MwUoCm28pAP/2RIihp13Sz0r5qrlCs9Uc26
-teTqEjexE5172uTVso8XeVv5C2qnsPkJJrt1sglqUBTM865OJHOQXdRYYurPUFq9
-emnkjYzrwsHsfkRHNpmB2ppm/WrQtdpRKkQzBHfqWOzuxNRVPa/KdZORXRnx/J29
-h+7TmO301WvVK95wlL5R5i7OwJh9h7nEFXWfTfLNSUp7a4OKOCH05VftJG/4T5vy
-/QiHqEnL5xw2n0bMjTspLIEJGg1zBFcgYUkXYcM4kpwQUqOh9fPqFEVN/ejOOmbb
-NC1tq+/VE4GSv7DvGGOh4PRDQqElV6OLOS8PgFD0uVW2RpYseBR2B/I1GUjiXtbg
-RLcVrNQLmjYGhUWIOMTDNrFefzpoSxTQFWKkhj1JbmLQpCwWEmbv7MUCEVIm6aCg
-jIlVYcWe2KURbZqJIaRnrV42pw31tR2WQOvrSJxwYQjEnWxNoGtu/7hgXcr3eSMl
-gGWbvuJtatKyn5rBvIoqTaPC70eTCV5oZV+vCMGAcC2ErAkeux5TcIMTjbxjWeg8
-iO4q1FOOPUMvYDyfAYoEZ3eKbOMOrNYblKMDd1GNF/dNxbPLnPnnjnxq5RDGeT0p
-5mHMpr0cvZDcoYfJw/b0gg5FvxiknieSW0ot/oPKzb55xpapeXH9eMs/I808fWKk
-g/Ym7FOGTlUzGgvCQRLB
-=ooR3
+iQIcBAEBAgAGBQJVKEIbAAoJEBQN5MwUoCm2npcQAKhYep55sSHykI3YzN7HdWkA
+nwQNlpDHo11YFK+TXbKoU5TWqhvmbE++kqyTK+9muGFq3+9LzpGp/5mbGmkSCiWr
+UBhQBLIIhckJBjrSm6kW6fHNsrUCYxlm3dTmdjpiMklr+5lRxx7a39wem5zn4NpH
+biRh8Orh92KIV46TTfd2xQqiVHZAFJQ/CJf8oSsfyJ4oV/sLsrDG1uLG9NJA7B5+
+EBoVtZF0WZaxe5Hgkt7chAjY6j6D4GR4nde/569i8H3lJdhwZkINGN23qXeT+zXB
+81rM9UFqwwxo+/VFH4rfFLTeIuoUT0H8yTfP0LLSYJFrSqI+Nhlbh+8gwC4oL38o
+1wmJECygPBhVFNFaISn0DbfSvuRdludnivoF8iruhD4puNPfhEYSKZcOs8Bwym2K
+T6XuUJ3D87a9xnK2iYAanh/1NU1JNh/jSV6wek2gp+Jft6i/ff5I+uAv/nqhC4kJ
+wbOLDEYRpaV5UIkZtquwsi7WAHnw1BE9r70BlFwERf82Q0P/i4JII6ZmMi7kcxM5
+cuucwVVsebwYC2yhoiKVe5VJtJ1eRp08cEKifrnzKHS2MdW4wyGrLwjeEzDAGdyD
+uQLwbSZCHXlf0olo1+6zJqYn3JhvWP4ulJ1pbZJW5L0sWr25yhXzYAaMeOuFrhYK
+1JeheuoM71PxthoUCN/S
+=+6bJ
 -----END PGP SIGNATURE-----
 
---OROCMA9jn6tkzFBc--
+--zhXaljGHf11kAtnf--
