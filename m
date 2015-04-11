@@ -1,70 +1,44 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: implement bus recovery
-Date: Fri, 10 Apr 2015 23:41:22 +0200
-Message-ID: <20150410214122.GB15596@katana>
-References: <1424369209-26735-1-git-send-email-balbi@ti.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IiVenqGWf+H9Y6IX"
+From: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: [PATCH V3 0/6]  i2c: qup: Add support for v2 tags and bam dma
+Date: Sat, 11 Apr 2015 12:38:59 +0530
+Message-ID: <1428736145-18361-1-git-send-email-sricharan@codeaurora.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1424369209-26735-1-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+QUP from version 2.1.1 onwards, supports a new format of i2c command tags.
+Tag codes instructs the controller to perform a operation like read/write.
+This new tagging version supports and is required for adding bam dma
+capabilities. v2 tags supports transfer of more than 256 bytes in a single
+i2c transaction. Also adding bam dma support facilitates transferring each
+i2c_msg in i2c_msgs without a 'stop' bit in between which is required for
+some of the clients.
 
---IiVenqGWf+H9Y6IX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This series depends on the below bam dma bug fix
+ https://lkml.org/lkml/2015/2/20/47
 
-On Thu, Feb 19, 2015 at 12:06:49PM -0600, Felipe Balbi wrote:
-> If either SCL or SDA are stuck low, we need to
-> recover the bus using the procedure described
-> on section 3.1.16 of the I2C specification.
->=20
-> Note that we're trying to implement the procedure
-> exactly as described by that section. First we
-> check which line is stuck low, then implement
-> one or the other procedure. If SDA recovery procedure
-> fails, we reset our IP in an attempt to make it work.
->=20
-> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Tested this series on apq8074 dragon board eeprom client on i2c bus1
 
-As Grygorii already mentioned: can you convert it to the standard i2c
-bus recovery mechanism?
+[V3] Added support to coalesce each i2c_msg in i2c_msgs for fifo and
+     block mode in Patch 2. Also addressed further code comments.
 
-And is the timeout you replace with the recovery caused by SDA stuck
-high (check the thread starting with
-http://thread.gmane.org/gmane.linux.kernel/1841371/focus=3D22435)
+[V2] Addressed comments from Ivan T. Ivanov, Andy Gross [v1] Initial Version
 
-Thanks,
+Andy Gross (1):
+  i2c: qup: Add V2 tags support
 
-   Wolfram
+Sricharan R (5):
+  i2c: qup: Change qup_wait_writeready function to use for all timeouts
+  i2c: qup: Add bam dma capabilities
+  i2c: qup: Transfer every i2c_msg in i2c_msgs without stop
+  dts: msm8974: Add blsp2_bam dma node
+  dts: msm8974: Add dma channels for blsp2_i2c1 node
 
+ arch/arm/boot/dts/qcom-msm8974.dtsi |  14 +-
+ drivers/i2c/busses/i2c-qup.c        | 877 +++++++++++++++++++++++++++++++++---
+ 2 files changed, 822 insertions(+), 69 deletions(-)
 
---IiVenqGWf+H9Y6IX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVKEOCAAoJEBQN5MwUoCm275EP/0f8zJvQlhz0JslfykVQpcbJ
-1M/Y+9keP9Bfrhd/4HyWe37shydvMh96/ds/lmStzb9GCtsBZy6pse/Q+XD2mHu8
-r+9SFrgn01/teFeTCHvCGlnTb1Vz21PMKDHaAo4Rc1yclhsLnOCW8pc6jLp7fBg8
-bWgzHUDTqyKKMLDFl10SSZa4m88cs+eeVJG2hSe7enqKJ2XrVTLNFqzw9fG/Ai3O
-hLINBJb2OriTNxq1/Gs69CLKmRRM4zAy0Rv6R3PyRDznUeaA5OVKTTEOm/uI6XSM
-FJeCi16KxebuO4/MjRk7k4VsIKdP7S0gWBwwbSYMC9AbCrToTgySwrG4Lw9z9e8K
-6CFArA9edy5Gr+RmN+xdqJH9xCEO+f8nQgaY80L9RvCV1DL4gFP8FD1hqGpPFXoI
-0ywfehW8heIKMVgyp2oIvgCfLbi7IqXdk3EAAZGxHfpoVifRroH1o/YBcIPSj/CZ
-ivcvstjK//ekdEfD0GM4ts13VhBB/LTHM2LfLzcTBfPLmFTkWrs0and0tyb6WPsG
-b+TmHcNSoZW9m6FtebL++AECcSUb5qx1SXaObya10hsIk8wpdEI8ZfbCZwkuRWA4
-t0/cVydiBYXx+x2NzwbGRu780a4n/3vsJhHOoKNBRMxCSO+2Id77unWg7gDXwmdn
-SiccxxcceSP34imtZ5RH
-=dCvj
------END PGP SIGNATURE-----
-
---IiVenqGWf+H9Y6IX--
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
