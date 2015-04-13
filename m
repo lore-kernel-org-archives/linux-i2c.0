@@ -1,98 +1,46 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: I2C device tree driver compatible strings
-Date: Sun, 12 Apr 2015 09:55:05 +0200
-Message-ID: <CAMuHMdXM4H3FDDd8Z07ugAAPMQLfDhPC+V2FKs1bKbOtSw1AOg@mail.gmail.com>
-References: <20150411213614.63632aff@north>
+From: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [PATCH V3 5/6] dts: msm8974: Add blsp2_bam dma node
+Date: Mon, 13 Apr 2015 09:44:36 +0530
+Message-ID: <552B42AC.7010407@codeaurora.org>
+References: <1428736145-18361-1-git-send-email-sricharan@codeaurora.org> <1428736145-18361-6-git-send-email-sricharan@codeaurora.org> <55299C4A.3020905@cogentembedded.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150411213614.63632aff@north>
+In-Reply-To: <55299C4A.3020905-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?Q?Jakub_Kici=C5=84ski?= <moorray3-5tc4TXWwyLM@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-CC linux-i2c
+Hi,
 
-On Sat, Apr 11, 2015 at 9:36 PM, Jakub Kici=C5=84ski <moorray3-5tc4TXWwyLM@public.gmane.org> w=
-rote:
-> Hello,
+On 04/12/2015 03:42 AM, Sergei Shtylyov wrote:
+> Hello.
 >
-> sc16is7xx declares two device id tables, one with OF ids:
+> On 04/11/2015 10:09 AM, Sricharan R wrote:
 >
-> static const struct of_device_id __maybe_unused sc16is7xx_dt_ids[] =3D=
- {
->         { .compatible =3D "nxp,sc16is740",        .data =3D &sc16is74=
-x_devtype, },
->         { .compatible =3D "nxp,sc16is741",        .data =3D &sc16is74=
-x_devtype, },
->         { .compatible =3D "nxp,sc16is750",        .data =3D &sc16is75=
-0_devtype, },
->         { .compatible =3D "nxp,sc16is752",        .data =3D &sc16is75=
-2_devtype, },
->         { .compatible =3D "nxp,sc16is760",        .data =3D &sc16is76=
-0_devtype, },
->         { .compatible =3D "nxp,sc16is762",        .data =3D &sc16is76=
-2_devtype, },
->         { }
-> };
-> MODULE_DEVICE_TABLE(of, sc16is7xx_dt_ids);
+>> Signed-off-by: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+>> ---
+>>   arch/arm/boot/dts/qcom-msm8974.dtsi | 12 +++++++++++-
+>>   1 file changed, 11 insertions(+), 1 deletion(-)
 >
-> and one with i2c ids:
+>> diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi
+>> b/arch/arm/boot/dts/qcom-msm8974.dtsi
+>> index e265ec1..2c26151 100644
+>> --- a/arch/arm/boot/dts/qcom-msm8974.dtsi
+>> +++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+> [...]
+>> @@ -247,5 +247,15 @@
+>>               #address-cells = <1>;
+>>               #size-cells = <0>;
+>>           };
+>> +
+>> +        blsp2_dma: dma@f9944000 {
 >
-> static const struct i2c_device_id sc16is7xx_i2c_id_table[] =3D {
->         { "sc16is74x",  (kernel_ulong_t)&sc16is74x_devtype, },
->         { "sc16is750",  (kernel_ulong_t)&sc16is750_devtype, },
->         { "sc16is752",  (kernel_ulong_t)&sc16is752_devtype, },
->         { "sc16is760",  (kernel_ulong_t)&sc16is760_devtype, },
->         { "sc16is762",  (kernel_ulong_t)&sc16is762_devtype, },
->         { }
-> };
-> MODULE_DEVICE_TABLE(i2c, sc16is7xx_i2c_id_table);
+>     The ePAPR standard says that the node name should be
+> "dma-controller", not just "dma".
 >
-> I declare my device in DT under I2C controller as
->>       compatible =3D "nxp,sc16is740";
-> However, the driver does not get loaded automatically because its
-> i2c id table contains "sc16is74x" instead of "sc16is740".
->
-> I have three questions:
->
-> (1) What is the relation between i2c_device_id and of_device_id strin=
-gs
->     and why does the driver define both?
->
-> (2) What are the rules for loading i2c drivers based on DT and why is=
- the
->     driver not loaded even though its compatible with one of the OF i=
-ds?
->
-> (3) Is it OK for the driver to define incompatible strings or should =
-I
->     correct them like this (keeping the old entry for backwards
->     compatibility):
->
-> diff --git a/drivers/tty/serial/sc16is7xx.c
-> b/drivers/tty/serial/sc16is7xx.c index eaf0008a39cb..efe286d00174 100=
-644
-> --- a/drivers/tty/serial/sc16is7xx.c
-> +++ b/drivers/tty/serial/sc16is7xx.c
-> @@ -1219,6 +1219,8 @@ static int sc16is7xx_i2c_remove(struct i2c_clie=
-nt
-> *client)
->  static const struct i2c_device_id sc16is7xx_i2c_id_table[] =3D {
->         { "sc16is74x",  (kernel_ulong_t)&sc16is74x_devtype, },
-> +       { "sc16is740",  (kernel_ulong_t)&sc16is74x_devtype, },
-> +       { "sc16is741",  (kernel_ulong_t)&sc16is74x_devtype, },
->         { "sc16is750",  (kernel_ulong_t)&sc16is750_devtype, },
->         { "sc16is752",  (kernel_ulong_t)&sc16is752_devtype, },
->         { "sc16is760",  (kernel_ulong_t)&sc16is760_devtype, },
->
->
-> Thanks,
-> Kuba
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree"=
- in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  Ok, will correct this.
+
+Regards,
+  Sricharan
