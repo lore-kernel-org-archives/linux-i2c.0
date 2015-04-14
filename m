@@ -1,46 +1,70 @@
-From: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH V3 5/6] dts: msm8974: Add blsp2_bam dma node
-Date: Mon, 13 Apr 2015 09:44:36 +0530
-Message-ID: <552B42AC.7010407@codeaurora.org>
-References: <1428736145-18361-1-git-send-email-sricharan@codeaurora.org> <1428736145-18361-6-git-send-email-sricharan@codeaurora.org> <55299C4A.3020905@cogentembedded.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH v1 i2c/for-next] i1c: i801: recover from hardware PEC errors
+Date: Mon, 13 Apr 2015 17:11:59 -0700
+Message-ID: <1428970319-32544-1-git-send-email-ellen@cumulusnetworks.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55299C4A.3020905-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: jdelvare-l3A5Bk7waGM@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On a CRC error while using hardware-supported PEC, an additional
+error bit is set in the auxiliary status register.  If this bit
+isn't cleared, all subsequent operations will fail, essentially
+hanging the controller.
 
-On 04/12/2015 03:42 AM, Sergei Shtylyov wrote:
-> Hello.
->
-> On 04/11/2015 10:09 AM, Sricharan R wrote:
->
->> Signed-off-by: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
->> ---
->>   arch/arm/boot/dts/qcom-msm8974.dtsi | 12 +++++++++++-
->>   1 file changed, 11 insertions(+), 1 deletion(-)
->
->> diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi
->> b/arch/arm/boot/dts/qcom-msm8974.dtsi
->> index e265ec1..2c26151 100644
->> --- a/arch/arm/boot/dts/qcom-msm8974.dtsi
->> +++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
-> [...]
->> @@ -247,5 +247,15 @@
->>               #address-cells = <1>;
->>               #size-cells = <0>;
->>           };
->> +
->> +        blsp2_dma: dma@f9944000 {
->
->     The ePAPR standard says that the node name should be
-> "dma-controller", not just "dma".
->
-  Ok, will correct this.
+The fix is simple: clear the bit at the same time we clear
+the error bits in the main status register.
 
-Regards,
-  Sricharan
+Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-i801.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 5ecbb3f..7f3331e 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -129,6 +129,10 @@
+ #define SMBAUXCTL_CRC		1
+ #define SMBAUXCTL_E32B		2
+ 
++/* Auxiliary status register bits, ICH4+ only */
++#define SMBAUXSTS_CRCE		1
++#define SMBAUXSTS_STCO		2
++
+ /* Other settings */
+ #define MAX_RETRIES		400
+ 
+@@ -164,6 +168,8 @@
+ #define STATUS_FLAGS		(SMBHSTSTS_BYTE_DONE | SMBHSTSTS_INTR | \
+ 				 STATUS_ERROR_FLAGS)
+ 
++#define AUXSTS_ERROR_FLAGS	SMBAUXSTS_CRCE
++
+ /* Older devices have their ID defined in <linux/pci_ids.h> */
+ #define PCI_DEVICE_ID_INTEL_BAYTRAIL_SMBUS		0x0f12
+ #define PCI_DEVICE_ID_INTEL_BRASWELL_SMBUS		0x2292
+@@ -509,6 +515,21 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+ 		i801_isr_byte_done(priv);
+ 
+ 	/*
++	 * Clear error condition in aux status that may have come from
++	 * a PEC error.  The main status register also should be showing
++	 * an error.  That should be sufficient for reporting purposes.
++	 */
++	if (priv->features & FEATURE_SMBUS_PEC) {
++		u8 auxsts = inb_p(SMBAUXSTS(priv));
++
++		if (auxsts & AUXSTS_ERROR_FLAGS) {
++			dev_dbg(&priv->pci_dev->dev, "irq: auxsts = %02x\n",
++				auxsts);
++			outb_p(auxsts & AUXSTS_ERROR_FLAGS, SMBAUXSTS(priv));
++		}
++	}
++
++	/*
+ 	 * Clear irq sources and report transaction result.
+ 	 * ->status must be cleared before the next transaction is started.
+ 	 */
+-- 
+1.7.10.4
