@@ -1,55 +1,53 @@
-From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [V2 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
  driver
-Date: Wed, 15 Apr 2015 00:51:32 -0700
-Message-ID: <552E1884.7050007@broadcom.com>
-References: <1428004866-13543-1-git-send-email-kdasu.kdev@gmail.com> <20150414134740.GB1375@katana> <552D7AF5.7040005@broadcom.com> <20150415075056.GA1826@katana>
+Date: Wed, 15 Apr 2015 09:53:11 +0200
+Message-ID: <20150415075311.GB1826@katana>
+References: <1428004866-13543-1-git-send-email-kdasu.kdev@gmail.com>
+ <CAA7nrtjWUZOBQiTr0YrZFmLOoAttyJ5gMxb+hR7jnz1HC51Buw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2B/JsCI69OhZNC5r"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150415075056.GA1826@katana>
+Content-Disposition: inline
+In-Reply-To: <CAA7nrtjWUZOBQiTr0YrZFmLOoAttyJ5gMxb+hR7jnz1HC51Buw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>; bcm-kernel-feedback-list" <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+To: rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
+--2B/JsCI69OhZNC5r
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 4/15/2015 12:50 AM, Wolfram Sang wrote:
-> Hi Ray,
-> 
-> thanks for the review! I agree to all points except one minor thing:
-> 
->>>> +#include <linux/device.h>
->>>> +#include <linux/kernel.h>
->>>> +#include <linux/module.h>
->>>> +#include <linux/sched.h>
->>>> +#include <linux/i2c.h>
->>>> +#include <linux/interrupt.h>
->>>> +#include <linux/platform_device.h>
->>>> +#include <linux/clk.h>
->>>> +#include <linux/io.h>
->>>> +#include <linux/clk.h>
->>>> +#include <linux/slab.h>
->>>> +#include <linux/version.h>
->>>> +#include <linux/delay.h>
->>
->> Wolfram would prefer the includes to be sorted in alphabetic order
-> 
-> Sidenote: And one can see why here: clk.h is included twice.
-> 
->>>> +	adap->owner = THIS_MODULE;
->>
->> Not needed...
-> 
-> This is needed. It is not needed to set it with the platform_driver
-> struct, but for the adapter created, this is needed.
+Hi Rajeev,
 
-Okay that's really good to know. Thanks, Wolfram!
+thanks for the review. Much appreciated!
 
-> 
-> Thanks again,
-> 
->    Wolfram
-> 
+   Wolfram
+
+
+--2B/JsCI69OhZNC5r
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVLhjmAAoJEBQN5MwUoCm2a1oP/jnQYOYiKiubJiWJUnj+//mD
+LWH7y6GcFnselbppGogO5fEiS9O1W8hwFtf7UDCo5Y1QprTGZn8UylMuQMwA1mW7
+JBmc8w1K/eWDruFpgVN/atvTlP+o2lnonINKxKb+InCGxJSfVCnxDqfZbYxdjsYg
+jsHGqddbDNkuaylPNnuHhZMu/hH2h9/SnwTN8ObA8CAa9szDZ0KbdbpKtQ6/Tp7O
+/W5wzkD51o59LfJvmDo2s2XNALcEC5RW/szZZqtSV4XGtuKTjHtHfPutD0x+PjuO
+CPuElTONPWCq17FGI4Z+WMk8WNMJ38s+4gd0+przEtPUpw8hZsFnpB772bT6XFJT
+xByDGW0LOm4Woi7iHkSjEYxQxP5gj+p8LM/rVgkkT2AEE9KwInuZagmE/IbwDklj
+LY8fSMgB1CW1RGk/cMCwQfiRoWVvo3BppzuoqD+kxrZqfTYt2848oa18+c5sbWhB
+dxBdkOL2pDEigivaFh4I5A1rL6Oa0bjrxHo8KFyWbDrr92CsQmy9lJc9X+S4QOlT
+f7UNVj2wzYETPjWDVHV0tsy8sDrQ2ZEmrWYKuw+K7MntcteSAnZ1jqmb8ixWT2Xh
+FCTzUcBTrUdnItb5Xey+8JEgprKTKXT4JOgfrsMUxfFitGxxlcBWTIrmkTJh7JMv
+4ygnvmOei6LZLsOPhy0J
+=jAfc
+-----END PGP SIGNATURE-----
+
+--2B/JsCI69OhZNC5r--
