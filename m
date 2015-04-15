@@ -1,46 +1,48 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH 1/4] parport: modify parport subsystem to use devicemodel
-Date: Wed, 15 Apr 2015 15:58:04 +0530
-Message-ID: <20150415102804.GA3803@sudip-PC>
-References: <1429084124-2271-1-git-send-email-sudipm.mukherjee@gmail.com>
- <1429084124-2271-2-git-send-email-sudipm.mukherjee@gmail.com>
- <20150415082746.GI10964@mwanda>
- <20150415092055.GA3198@sudip-PC>
- <20150415094500.GZ16501@mwanda>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v1 i2c/for-next] i1c: i801: recover from hardware PEC
+ errors
+Date: Wed, 15 Apr 2015 14:08:34 +0200
+Message-ID: <20150415140834.44b1add8@endymion.delvare>
+References: <1428970319-32544-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150415094500.GZ16501@mwanda>
-Sender: linux-doc-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Willy Tarreau <willy@meta-x.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, linux-i2c@vger.kernel.org, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1428970319-32544-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 15, 2015 at 12:45:00PM +0300, Dan Carpenter wrote:
-> On Wed, Apr 15, 2015 at 02:50:55PM +0530, Sudip Mukherjee wrote:
-> > <snip>
-> > > > +	tmp->name = name;
-> > > 
-> > > I wonder who frees this name variable.  My concern is that it gets
-> > > freed before we are done using it or something.  (I have not looked at
-> > > the details).
-> > it will be done in free_port() the release callback of parport device.
-> 
-> That doesn't work.  Some of the callers pass a string literal.
-oops, when i replied to your first mail about this I looked at
-parport_register_port(), but the one that you have mentioned is the one
-I gave in parport_register_dev() and it seems that the name is not freed
-anywhere except the driver that has called parport_register_device() or
-parport_register_dev(). I think I should better copy it and then give it
-to tmp->name and free it also in the unregister function. And this should
-be fixed in the original parport_register_device() also.
-I will wait for some more reviews send the v2 series tomorrow.
+Hi Ellen,
 
-regards
-sudip
+On Mon, 13 Apr 2015 17:11:59 -0700, Ellen Wang wrote:
+> On a CRC error while using hardware-supported PEC, an additional
+> error bit is set in the auxiliary status register.  If this bit
+> isn't cleared, all subsequent operations will fail, essentially
+> hanging the controller.
+> 
+> The fix is simple: clear the bit at the same time we clear
+> the error bits in the main status register.
+> 
+> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c |   21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
 
-> 
-> regards,
-> dan carpenter
-> 
+Thanks for the patch. I noticed the issue over a year ago and wrote a
+patch on my own, but then couldn't find the time to test it and finally
+forgot about it :( so I never posted it. You can read it here for
+reference:
+http://jdelvare.nerim.net/devel/misc/i2c-i801-07-check-pec-status.patch
+
+I am currently working on other matters but I'll look into this ASAP. A
+quick comparison between our patches suggests that yours only clears
+the PEC status bit while mine also reports the error properly to the
+caller, so mine might be a better working base. Maybe you could review
+and/or test my patch as a replacement of yours?
+
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
