@@ -1,115 +1,99 @@
 From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 2/4] parport: update TODO and documentation
-Date: Wed, 15 Apr 2015 13:18:42 +0530
-Message-ID: <1429084124-2271-3-git-send-email-sudipm.mukherjee@gmail.com>
+Subject: [PATCH 3/4] i2c-parport: use device-model parport
+Date: Wed, 15 Apr 2015 13:18:43 +0530
+Message-ID: <1429084124-2271-4-git-send-email-sudipm.mukherjee@gmail.com>
 References: <1429084124-2271-1-git-send-email-sudipm.mukherjee@gmail.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1429084124-2271-1-git-send-email-sudipm.mukherjee@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 To: Jonathan Corbet <corbet@lwn.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Willy Tarreau <willy@meta-x.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, dan.carpenter@oracle.com
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@driverdev.osuosl.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: linux-i2c@vger.kernel.org, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-doc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-as parport starts using the device-model, update the documentation
-to show the newly added functions and update TODO with some other
-planned modifications.
+modified the functions to use the new device-model of parport.
 
 Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 ---
- Documentation/parport-lowlevel.txt | 49 ++++++++++++++++++++++++++++++++++++++
- drivers/parport/TODO-parport       |  4 ++++
- 2 files changed, 53 insertions(+)
+ drivers/i2c/busses/i2c-parport.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/parport-lowlevel.txt b/Documentation/parport-lowlevel.txt
-index 120eb20..4c180af 100644
---- a/Documentation/parport-lowlevel.txt
-+++ b/Documentation/parport-lowlevel.txt
-@@ -7,9 +7,11 @@ Described here are the following functions:
+diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
+index a1fac5a..9464e74 100644
+--- a/drivers/i2c/busses/i2c-parport.c
++++ b/drivers/i2c/busses/i2c-parport.c
+@@ -160,20 +160,24 @@ static void i2c_parport_irq(void *data)
+ 			"SMBus alert received but no ARA client!\n");
+ }
  
- Global functions:
-   parport_register_driver
-+  parport_register_drv
-   parport_unregister_driver
-   parport_enumerate
-   parport_register_device
-+  parport_register_dev
-   parport_unregister_device
-   parport_claim
-   parport_claim_or_block
-@@ -222,6 +224,26 @@ SEE ALSO
+-static void i2c_parport_attach(struct parport *port)
++static int i2c_parport_attach(struct parport *port,
++			      struct parport_driver *drv)
+ {
+ 	struct i2c_par *adapter;
  
- parport_unregister_driver, parport_register_device, parport_enumerate
- 
-+
-+parport_register_drv - register a device driver with parport
-+--------------------
-+
-+Everything is same as parport_register_driver, but it will use the device-model
-+and will register the driver under /sys/bus/parport/driver. Just like
-+parport_register_driver it will also call the attach callback function but the
-+differences being attach wil now return its success or error code and the
-+reference of the driver is also passed to the attach so that it can be used
-+when calling parport_register_dev.
-+
-+static int lp_attach (struct parport *port, struct parport_driver *drv)
-+{
-+	...
-+	private = kmalloc (...);
-+	dev[count++] = parport_register_dev (...);
-+	...
-+}
-+
-+
- parport_unregister_driver - tell parport to forget about this driver
- -------------------------
+ 	adapter = kzalloc(sizeof(struct i2c_par), GFP_KERNEL);
+ 	if (adapter == NULL) {
+ 		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
+-		return;
++		return -ENOMEM;
+ 	}
  
-@@ -442,6 +464,33 @@ SEE ALSO
+ 	pr_debug("i2c-parport: attaching to %s\n", port->name);
+ 	parport_disable_irq(port);
+-	adapter->pdev = parport_register_device(port, "i2c-parport",
+-		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
++	adapter->pdev = parport_register_dev(port, "i2c-parport",
++					     NULL, NULL,
++					     i2c_parport_irq,
++					     PARPORT_FLAG_EXCL,
++					     adapter, drv);
+ 	if (!adapter->pdev) {
+ 		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
+ 		goto err_free;
+@@ -230,13 +234,14 @@ static void i2c_parport_attach(struct parport *port)
+ 	mutex_lock(&adapter_list_lock);
+ 	list_add_tail(&adapter->node, &adapter_list);
+ 	mutex_unlock(&adapter_list_lock);
+-	return;
++	return 0;
  
- parport_unregister_device, parport_claim
- 
-+
-+parport_register_dev - register to use a port
-+-----------------------
-+
-+SYNOPSIS
-+
-+#include <linux/parport.h>
-+
-+typedef int (*preempt_func) (void *handle);
-+typedef void (*wakeup_func) (void *handle);
-+typedef int (*irq_func) (int irq, void *handle, struct pt_regs *);
-+
-+struct pardevice *parport_register_dev(struct parport *port,
-+                                          const char *name,
-+                                          preempt_func preempt,
-+                                          wakeup_func wakeup,
-+                                          irq_func irq,
-+                                          int flags,
-+                                          void *handle,
-+					  struct parport_driver *drv);
-+
-+DESCRIPTION
-+
-+It is same as parport_register_device, and it should be only used if your
-+driver is using the device-model, that is you have registered your driver
-+using parport_register_drv.
-+
- parport_unregister_device - finish using a port
- -------------------------
+  err_unregister:
+ 	parport_release(adapter->pdev);
+ 	parport_unregister_device(adapter->pdev);
+  err_free:
+ 	kfree(adapter);
++	return -ENODEV;
+ }
  
-diff --git a/drivers/parport/TODO-parport b/drivers/parport/TODO-parport
-index 089b14e..bdfbf50 100644
---- a/drivers/parport/TODO-parport
-+++ b/drivers/parport/TODO-parport
-@@ -17,4 +17,8 @@ Things to be done.
+ static void i2c_parport_detach(struct parport *port)
+@@ -268,7 +273,7 @@ static void i2c_parport_detach(struct parport *port)
  
- 4. A better PLIP (make use of bidirectional/ECP/EPP ports).
+ static struct parport_driver i2c_parport_driver = {
+ 	.name	= "i2c-parport",
+-	.attach	= i2c_parport_attach,
++	.attach_ret	= i2c_parport_attach,
+ 	.detach	= i2c_parport_detach,
+ };
  
-+5. Show base, irq information in the sys tree.
-+
-+6. Module autoloading based on the connected device.
-+
- See <URL:http://people.redhat.com/twaugh/parport/>.
+@@ -286,7 +291,7 @@ static int __init i2c_parport_init(void)
+ 		return -ENODEV;
+ 	}
+ 
+-	return parport_register_driver(&i2c_parport_driver);
++	return parport_register_drv(&i2c_parport_driver);
+ }
+ 
+ static void __exit i2c_parport_exit(void)
 -- 
 1.8.1.2
-
