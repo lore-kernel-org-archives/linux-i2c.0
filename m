@@ -1,32 +1,39 @@
-From: Josh Boyer <jwboyer-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org>
-Subject: i2c-davinci build failure with Linux v4.0-3843-gbb0fd7ab0986
-Date: Wed, 15 Apr 2015 12:33:57 -0400
-Message-ID: <CA+5PVA7Fzw4m1qqj2nHCzP4JJFZnis-6=kQehAbt0a-RJiF73A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c: jz4780: Explicitly include linux/io.h
+Date: Wed, 15 Apr 2015 19:08:11 +0100
+Message-ID: <1429121291-28643-1-git-send-email-broonie@kernel.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Zubair Lutfullah Kakakhel <Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi All,
+This driver uses readw() and writew() which are declared in asm/io.h but
+does not explicitly include that header, causing build failures on
+architectures where there is not an implicit inclusion such as arm and
+arm64:
 
-The i2c-davinci driver failed to build as a module with Linus' latest
-tree as of this morning.  The error was:
+../drivers/i2c/busses/i2c-jz4780.c:181:2: error: implicit declaration of function 'readw' [-Werror=implicit-function-declaration]
+../drivers/i2c/busses/i2c-jz4780.c:187:2: error: implicit declaration of function 'writew' [-Werror=implicit-function-declaration]
 
-ERROR: "i2c_generic_gpio_recovery" [drivers/i2c/busses/i2c-davinci.ko]
-undefined!
-ERROR: "i2c_generic_scl_recovery" [drivers/i2c/busses/i2c-davinci.ko] undefined!
-ERROR: "i2c_recover_bus" [drivers/i2c/busses/i2c-davinci.ko] undefined!
-scripts/Makefile.modpost:90: recipe for target '__modpost' failed
+Add an explicit inclusion to fix this.
 
-It looks like commit 2e65676f710e (i2c: davinci: use bus recovery
-infrastructure) likely introduced this error.  None of the i2c bus
-recovery functions are exported from i2c-core.c that I can tell.
+Signed-off-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-jz4780.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Was this commit tested as a modular build?
-
-josh
-
-[1] https://kojipkgs.fedoraproject.org//work/tasks/8758/9488758/build.log
+diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
+index ce1d69324169..19b2d689a5ef 100644
+--- a/drivers/i2c/busses/i2c-jz4780.c
++++ b/drivers/i2c/busses/i2c-jz4780.c
+@@ -23,6 +23,7 @@
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
++#include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+-- 
+2.1.4
