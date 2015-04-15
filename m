@@ -1,69 +1,79 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: i2c-davinci build failure with Linux v4.0-3843-gbb0fd7ab0986
-Date: Wed, 15 Apr 2015 21:07:57 +0200
-Message-ID: <20150415190757.GD1125@katana>
-References: <CA+5PVA7Fzw4m1qqj2nHCzP4JJFZnis-6=kQehAbt0a-RJiF73A@mail.gmail.com>
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v1 i2c/for-next] i1c: i801: recover from hardware PEC
+ errors
+Date: Wed, 15 Apr 2015 13:46:17 -0700
+Message-ID: <552ECE19.4090705@cumulusnetworks.com>
+References: <1428970319-32544-1-git-send-email-ellen@cumulusnetworks.com> <20150415140834.44b1add8@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZARJHfwaSJQLOEUz"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CA+5PVA7Fzw4m1qqj2nHCzP4JJFZnis-6=kQehAbt0a-RJiF73A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20150415140834.44b1add8-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Josh Boyer <jwboyer-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org>
-Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Thanks for the quick reply.  My answers are below:
 
---ZARJHfwaSJQLOEUz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 4/15/2015 5:08 AM, Jean Delvare wrote:
+> Hi Ellen,
+>
+> On Mon, 13 Apr 2015 17:11:59 -0700, Ellen Wang wrote:
+>> On a CRC error while using hardware-supported PEC, an additional
+>> error bit is set in the auxiliary status register.  If this bit
+>> isn't cleared, all subsequent operations will fail, essentially
+>> hanging the controller.
+>>
+>> The fix is simple: clear the bit at the same time we clear
+>> the error bits in the main status register.
+>>
+>> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+>> ---
+>>   drivers/i2c/busses/i2c-i801.c |   21 +++++++++++++++++++++
+>>   1 file changed, 21 insertions(+)
+>
+> Thanks for the patch. I noticed the issue over a year ago and wrote a
+> patch on my own, but then couldn't find the time to test it and finally
+> forgot about it :( so I never posted it. You can read it here for
+> reference:
+> http://jdelvare.nerim.net/devel/misc/i2c-i801-07-check-pec-status.patch
+>
+> I am currently working on other matters but I'll look into this ASAP. A
+> quick comparison between our patches suggests that yours only clears
+> the PEC status bit while mine also reports the error properly to the
+> caller, so mine might be a better working base. Maybe you could review
+> and/or test my patch as a replacement of yours?
 
-On Wed, Apr 15, 2015 at 12:33:57PM -0400, Josh Boyer wrote:
-> Hi All,
->=20
-> The i2c-davinci driver failed to build as a module with Linus' latest
-> tree as of this morning.  The error was:
->=20
-> ERROR: "i2c_generic_gpio_recovery" [drivers/i2c/busses/i2c-davinci.ko]
-> undefined!
-> ERROR: "i2c_generic_scl_recovery" [drivers/i2c/busses/i2c-davinci.ko] und=
-efined!
-> ERROR: "i2c_recover_bus" [drivers/i2c/busses/i2c-davinci.ko] undefined!
-> scripts/Makefile.modpost:90: recipe for target '__modpost' failed
->=20
-> It looks like commit 2e65676f710e (i2c: davinci: use bus recovery
-> infrastructure) likely introduced this error.  None of the i2c bus
-> recovery functions are exported from i2c-core.c that I can tell.
->=20
-> Was this commit tested as a modular build?
+My version does actually report the error, because the main status 
+register error bit is also set in this case, and that gets detected and 
+reported.  It just doesn't doesn't return a specific errno for PEC error.
 
-How embarassing. I meanwhile rely on the build-bots to do module
-testing, but this failed here :( A patch was sent to -next a second ago
-and I will send a pull-request to Linus ASAP. Thanks for the report!
+The main difference between our versions is that you check and clear the 
+CRC error bit in i801_check_pre() and i801_checkpost(), while I do it in 
+i801_isr().  i801_isr() is also where it checks and clears the main 
+status register for errors, so it seems natural to do it also for the 
+auxiliary status.
 
+Probably what we should do is combine the two versions, especially if we 
+want to return a PEC-specific errno.  I think to do that properly in the 
+current structure of the code, we should save the auxiliary status in 
+priv->auxsts in i801_isr(), the same way it saves priv->status.  This 
+ways, isr() can clear the error in the hardware and check_post() can 
+still see it and process accordingly.  What do you think?  (I actually 
+thought of this, but opted for a minimal fix.)  This is more 
+complicated, and functions like i801_wait_intr() return the status and 
+it can't return two values easily.
 
---ZARJHfwaSJQLOEUz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+If we decide to go with your version, I can certainly test it.  We have 
+a machine with the right hardware combination, and it generates PEC 
+errors deterministically.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+By the way, I noticed a small bug in i801_transaction(). At line 391, it 
+has "status = -ETIMEOUT", but "status" at that point should be the 
+register value not -errno.  It probably should be "return -ETIMEOUT", 
+but I'm not sure whether hardware cleanup is necessary at that point.
 
-iQIcBAEBAgAGBQJVLrcMAAoJEBQN5MwUoCm2hAgP/0yDQxda5qZ9XC+6HyEeOpFE
-PeU70ICYtOxxevur5HPa2KcllArz/K5nAADa4q+v5p2UNPE0JQqKy9zP+goiBtPJ
-1gxbsNHuzwwPHx5+gN5EEEbPJlcQCH6wJArwroIdLZJpzsu6XzEtkwIAm3odYypr
-bWjm5pnexIGpxI0/bvDDtf4kjF1hVkTckJMbBCVKCX3DhKjTTn/9SMtRWq5LkHj6
-yjc4EZ+XBfQTdBCT5yxY1k9C3BkYQ0GjT3sJ27KJniJexabdxZ055GFYrYgfiloV
-ReFZ1g/oHZLzuDe/Hbl35hMi1nYAFwRA7xMA4cFEgQXJFja7N1Z7KFEfVJuK3jNj
-yNarTCjMovwxohH0rBxDLFJ3RpBYBtcXhDYxPNk3H8I8PEz08gXX1aZiJz+aT96H
-SWIa5BQ9QzoHx9e8dEBuRHv0S2cvAKId993ztIPDYB46BZLNye5t22dmvlNY+msf
-btX+En4lHfnYsNgmBj3hw0nUNwKtzCVCYaC3m1UAKHFOoMgXCmJykTIfZONpY0fg
-nD36oMGgiTe79rygr2njZpZ3zp87Gr4xmJ3FwJjNws9+Wum7MHcDMvjL46GQVugT
-/5Ovsg0vr7TNtZC4LkYaC/C+4VnHD0EBsSx17EMq2lHo4Yrv0+7cqY3bqP4qhh1u
-00sGRHoVBVySc+P8KZTw
-=ExNM
------END PGP SIGNATURE-----
+> Thanks,
 
---ZARJHfwaSJQLOEUz--
+Thank you!
