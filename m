@@ -1,393 +1,109 @@
-From: Sricharan R <sricharan@codeaurora.org>
-Subject: Re: [PATCH V3 2/6] i2c: qup: Add V2 tags support
-Date: Wed, 15 Apr 2015 20:14:50 +0530
-Message-ID: <552E7962.40606@codeaurora.org>
-References: <1428736145-18361-1-git-send-email-sricharan@codeaurora.org>	 <1428736145-18361-3-git-send-email-sricharan@codeaurora.org>	 <1429024595.16939.5.camel@mm-sol.com> <552E07B5.5080605@codeaurora.org> <1429087776.30601.1.camel@mm-sol.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: jz4780: Fix build for m68k and sparc64
+Date: Wed, 15 Apr 2015 17:41:50 +0200
+Message-ID: <20150415154122.GA914@katana>
+References: <1429068073-7595-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1429087776.30601.1.camel@mm-sol.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1429068073-7595-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zubair Lutfullah Kakakhel <Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ivan,
 
-   Sorry resending again, because wrapping seemed to be
-   somehow wrong in my previous response.
+--CUfgB8w4ZwR/yMy5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 04/15/2015 02:19 PM, Ivan T. Ivanov wrote:
->
-> Hi Sricharan,
->
-> On Wed, 2015-04-15 at 12:09 +0530, Sricharan R wrote:
->
->>>> +/* frequency definitions for high speed and max speed */
->>>> +#define I2C_QUP_CLK_FAST_FREQ          1000000
->>>
->>> This is fast mode, if I am not mistaken.
->>>
->>    ya, up to 1MHZ is fast and up to 3.4MHZ is HS.
->>    We use this macro to check if the desired freq is in HS range.
->>    The above comment can be changed though to make it clear.
->
-> My point was that this is neither high nor max speed.
->
-I see that QUP specs defines up to 1MHZ as fast+ speed.
->>>> +
->>>>    /* Status, Error flags */
->>>>    #define I2C_STATUS_WR_BUFFER_FULL      BIT(0)
->>>>    #define I2C_STATUS_BUS_ACTIVE          BIT(8)
->>>> @@ -102,6 +119,15 @@
->>>>    #define RESET_BIT                      0x0
->>>>    #define ONE_BYTE                       0x1
->>>>
->>>> +#define QUP_I2C_MX_CONFIG_DURING_RUN   BIT(31)
->>>
->>> Could you explain what is this for?
->>>
->>     This is a new feature in the V2 version of the controller,
->>     to support multiple i2c sub transfers without having
->>     a 'stop' bit in-between. Without this the i2c controller
->>     inserts a 'stop' on the bus when the WR/RD count registers
->>     reaches zero and are configured for the next transfer. So setting
->>     this bit when the controller is in 'RUN' state, avoids sending the
->>     'stop' during RUN state.
->>     I can add this comment in the patch.
->
-> And how v2 of this patch was worked if you introduce this bit now?
-> Bit is also not used by downstream driver, AFICS?
->
-The one of the reason for this and the bam support patches in
-this series was to support multiple transfers of i2c_msgs without
-  a 'stop' inbetween them. So without that the driver sends a 'stop'
-between each sub-transfer. The v2 of this series supported that only in
-bam mode and not in non-bam mode. That was a bug. I saw the difference
-in behavior between bam and non-bam mode while testing with a hdmi adv
-bridge recently. So added the support in this series. This was neede to
-bringup the HDMI adv bridge device. I could have added it as a
-  new patch to make it more explicit.
+Guenter,
 
->>
->>>> +
->>>> +struct qup_i2c_block {
->>>> +       int     blocks;
->
-> count
->
->>>> +       u8      *block_tag_len;
->
-> just tag_len,
->
->>>> +       int     *block_data_len;
->
-> just data_len,
->
->>>> +       int     block_pos;
->
-> just pos?
->
->>>> +};
->>>> +
->>>>    struct qup_i2c_dev {
->>>>           struct device*dev;
->>>>           void __iomem*base;
->>>> @@ -115,9 +141,17 @@ struct qup_i2c_dev {
->>>>           int     in_fifo_sz;
->>>>           int     out_blk_sz;
->>>>           int     in_blk_sz;
->>>> -
->>>> +       struct  qup_i2c_blockblk;
->>>>           unsigned longone_byte_t;
->>>>
->>>> +       int     is_hs;
->>>> +       bool    use_v2_tags;
->>>> +
->>>> +       int     tx_tag_len;
->>>> +       int     rx_tag_len;
->>>> +       u8      *tags;
->>>> +       int     tags_pos;
->>>> +
->>>>           struct i2c_msg*msg;
->>>>           /* Current posion in user message buffer */
->>>>           int     pos;
->>>> @@ -263,10 +297,19 @@ static int qup_i2c_wait_ready(struct qup_i2c_dev *qup, int op, bool val,
->>>>           }
->>>>    }
->>>
->>> Is this better tag related fields grouping?
->>>
->>
->>> struct qup_i2c_tag_block {
->>>
->>>           u8      tag[2];
->>>           // int  tag_len; this is alway 2, or?
->>>           int     data_len; // this could be zero, right?
->>> };
->>>
->> There is a struct for qup_i2c_block which has tag and data len. Not sure
->> what change you suggest above ? Also with V2 transfers tag len need
->>    not be 2. It can be more than that based on the data len.
->
-> The point is that: I will like to see better grouping of
-> related variables. Now they are spread all over. Would it
-> be possible to also take care for tx_tag_len, rx_tag_len,
-> tags, tags_pos.
->
-For this and the above, i will change the groupings and split this patch
-  in to couple of smaller ones.
->>
->>>> -static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->>>> +static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->>>> +                                                       int run)
->>>
->>> And 'run' stands for?
->>    'run' just says whether the controller is in 'RUN' or 'RESET' state.
->>     I can change it to is_run_st to make it clear.
->>>>    {
->>>> -       /* Number of entries to shift out, including the start */
->>>> -       int total = msg->len + 1;
->>>> +       /* Total Number of entries to shift out, including the tags */
->>>> +       int total;
->>>> +
->>>> +       if (qup->use_v2_tags) {
->>>> +               total = msg->len + qup->tx_tag_len;
->>>> +               if (run)
->>>> +                       total |= QUP_I2C_MX_CONFIG_DURING_RUN;
->>>
->>> What?
->>>
->>        This means, if the controller is in 'RUN' state, for
->>        reconfiguring the RD/WR counts this bit has to be set to avoid
->>        'stop' bits.
->
-> I don't buy it, sorry. Problem with v1 of the tags is that controller
-> can not read more than 256 bytes without automatically generate STOP
-> at the end, because transfer length specified with QUP_TAG_REC tag
-> is 8 bits wide. There is no limitation for writes with v1 tags,
-> because controller is explicitly instructed when to send out STOP.
->
-correct till this.
+Thanks for catching this!
 
-> For v2 of the tags, writes behaves more or less the same, and the
-> good news are that there is new read tag QUP_TAG_V2_DATARD, which
-> did't generate STOP when specified amount of data is read, still
-> up to 256 bytes in chunk. Read transfers with size more than 256
-> could be formed in following way:
->
-> V2_START | Slave Address | V2_DATARD | countx | ... | V2_DATARD_STOP | county.
->
-  The above is true for a single subtransfer for reading/writing
-more than > 256 bytes. But for doing WRITE, READ kind of sub
-  transfers once the first sub transfer (write) is over, and
-  while re-configuring the _COUNT registers for the next transfers,
-'a stop' between is inserted.
-To avoid this,the MX_CONFIG_DURING_RUN  bit should be set while in
-  'RUN' state, before re-configuring for the next sub transfer.
-  The qupspec calls this as bus 'lock-unlock' feature.
+> Fix:
+>=20
+> drivers/i2c/busses/i2c-jz4780.c: In function 'jz4780_i2c_readw':
+> drivers/i2c/busses/i2c-jz4780.c:181:2: error:
+> 		implicit declaration of function 'readw'
+> drivers/i2c/busses/i2c-jz4780.c: In function 'jz4780_i2c_writew':
+> drivers/i2c/busses/i2c-jz4780.c:187:2: error:
+> 		implicit declaration of function 'writew'
+>=20
+> seen with sparc64:allmodconfig and m68k:allmodconfig.
+>=20
+> The driver depends on HAS_IOMEM, and must include linux/io.h.
+>=20
+> Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver
+> 	for Ingenic JZ4780")
+> Cc: Zubair Lutfullah Kakakhel <Zubair.Kakakhel-1AXoQHu6uovQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/Kconfig      | 1 +
+>  drivers/i2c/busses/i2c-jz4780.c | 1 +
+>  2 files changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 2255af23b9c7..c78b6cbd1106 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -586,6 +586,7 @@ config I2C_IOP3XX
+>  config I2C_JZ4780
+>  	tristate "JZ4780 I2C controller interface support"
+>  	depends on MACH_JZ4780 || COMPILE_TEST
+> +	depends on HAS_IOMEM
 
-I tested this and it fixed the wrong data reads in the case of the hdmi
-adv bridge reads. It was doing 2 i2c_msgs transfers for each i2c_xfer
-call.  The data read was wrong without this patch in v1 mode (default)
-and even in v2 mode without the lock-unlock even though we do not send
-a 'STOP' tag command between sub-transfers.
+You sure? We have
 
->>
->>>>
->>>> -static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->>>> +static void qup_i2c_create_tag_v2(struct qup_i2c_dev *qup,
->>>> +                                               struct i2c_msg *msg, int last)
->>>> +{
->>>> +       u16 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) == I2C_M_RD);
->>>> +       int len = 0, prev_len = 0;
->>>> +       int blocks = 0;
->>>> +       int rem;
->>>> +       int block_len = 0;
->>>> +       int data_len;
->>>> +
->>>> +       qup->blk.block_pos = 0;
->>>> +       qup->pos = 0;
->>>> +       qup->blk.blocks = (msg->len + QUP_READ_LIMIT - 1) / QUP_READ_LIMIT;
->>>> +       rem = msg->len % QUP_READ_LIMIT;
->>>> +
->>>> +       /* 2 tag bytes for each block + 2 extra bytes for first block */
->>>> +       qup->tags = kzalloc((qup->blk.blocks * 2) + 2, GFP_KERNEL);
->>>> +       qup->blk.block_tag_len = kzalloc(qup->blk.blocks, GFP_KERNEL);
->>>> +       qup->blk.block_data_len = kzalloc(sizeof(*qup->blk.block_data_len) *
->>>> +                                               qup->blk.blocks, GFP_KERNEL);
->>>
->>> Whouldn't be easy to kcalloc struct qup_i2c_tag_block?
->>>
->>>
->>> Allocations could fail and memory is leaking here.
->>>
->>    ya correct, will change this. Freeing is done at the end of xfer
->>    function, but will have to check for allocation failure.
->
-> Do you see how memory leak here?
->
-if the first allocation pass and second one fails, and i will have
-to move the kfree calls at the end of i2c_xfer inside the loop.
->>
->>>> +
->>>> +       while (blocks < qup->blk.blocks) {
->>>>
->>>> +               blocks++;
->>>
->>> Looks like 'for' cycle to me.
->>>
->>    sorry, not getting it ?
->
-> This 'while' loop is old plain 'for'.
->
-ok
->>>> +       }
->>>> +
->>>> +       qup->tx_tag_len = len;
->>>> +
->>>> +       if (msg->flags & I2C_M_RD)
->>>> +               qup->rx_tag_len = (qup->blk.blocks * 2);
->
-> This will need some explanation.
->
-ok, will add it.
+menu "I2C Hardware Bus support"
+        depends on HAS_IOMEM
 
->
->>>> +
->>>> +static void qup_i2c_issue_xfer_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->>>> +{
->>>> +       u32 data_len = 0, tag_len;
->>>> +
->>>> +       tag_len = qup->blk.block_tag_len[qup->blk.block_pos];
->>>> +
->>>> +       if (!(msg->flags & I2C_M_RD))
->>>> +               data_len = qup->blk.block_data_len[qup->blk.block_pos];
->>>> +
->>>> +       qup_i2c_send_data(qup, tag_len, qup->tags, data_len, msg->buf);
->>>
->>> This assumes that writes are up to 256 bytes, and tags and data blocks
->>> are completely written to FIFO buffer, right?
->>>
->>    Yes, since we send/read data in blocks (256 bytes).
->
-> How deep is the FIFO? Is it guaranteed that "the whole" write
-> or read data, including tags will fit in.
->
-  Write/read fifo functions (also for V1) currently wait for the
-   fifo full and empty flags conditions. This will ensure that the
-  fifo full and empty conditions are taken care before writing
-  and reading. But this can be improved by waiting for
-  block_write/read flags to improve the throughput.
+in drivers/i2c/busses/Kconfig. For me, menuconfig shows that the driver
+is already depending on HAS_IOMEM.
 
->>>>
->>>> +
->>>> +static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->>>> +                                                               int run, int last)
->>>>    {
->>>>           unsigned long left;
->>>>           int ret;
->>>> @@ -329,13 +501,20 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->>>>           qup->msg = msg;
->>>>           qup->pos = 0;
->>>>
->>>> +       if (qup->use_v2_tags)
->>>> +               qup_i2c_create_tag_v2(qup, msg, last);
->>>> +       else
->>>> +               qup->blk.blocks = 0;
->>>> +
->>>>           enable_irq(qup->irq);
->>>>
->>>> -       qup_i2c_set_write_mode(qup, msg);
->>>> +       qup_i2c_set_write_mode(qup, msg, run);
->>>>
->>>> -       ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
->>>> -       if (ret)
->>>> -               goto err;
->>>> +       if (!run) {
->>>> +               ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
->>>
->>> To run away, or not?
->>>
->>     Means, if the controller is not in RUN state, put it in to 'RUN'
->>     state.
->
-> And what is the problem if controller is put in PAUSED state, FIFO
-> filled with data and then RUN again, like in v2 of this patch?
->
-  This function is not entered with controller in PAUSED state
-  Only in Reset state (for the first transfer) and Run state for
-  the subsequent sub-transfers. The reason for having this 'run'
-  variable was that while using the lock-unlock feature, the
-  controller should not be put in to run-reset-run state
-  in-between transfers.
+>  	help
+>  	 If you say yes to this option, support will be included for the
+>  	 Ingenic JZ4780 I2C controller.
+> diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4=
+780.c
+> index ce1d69324169..f2761ab2ef32 100644
+> --- a/drivers/i2c/busses/i2c-jz4780.c
+> +++ b/drivers/i2c/busses/i2c-jz4780.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/errno.h>
+>  #include <linux/i2c.h>
+> +#include <linux/io.h>
+>  #include <linux/init.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/kernel.h>
 
-> <snip>
->
->>>>
->>>> -static void qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->>>> +static void qup_i2c_read_fifo_v1(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->>>>    {
->>>> -       u32 opflags;
->>>>           u32 val = 0;
->>>>           int idx;
->>>> +       int len = msg->len + qup->rx_tag_len;
->>>
->>> Is this intentional?
->>>
->>      Yes, since i changed the loop around qup_i2c_read_one to count for
->>      blocks.
->
-> No, this doesn't make any sense. v1 tags didn't use rx_tag_len, and
-> I don't see how this is related to counting blocks, in this function.
->
-  sorry. Did confuse my response last time. This +rx_tag_len is
-  not needed here and infact it is '0' in case of v1.
-  So no effect.
-> <snip>
->
->>>>
->>>> -       qup_i2c_issue_read(qup, msg);
->>>> +               qup_i2c_issue_read(qup, msg);
->>>>
->>>> -       ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
->>>> -       if (ret)
->>>> -               goto err;
->>>> +               ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
->>>> +               if (ret)
->>>> +                       goto err;
->>>>
->>>> -       do {
->>>>                   left = wait_for_completion_timeout(&qup->xfer, HZ);
->>>>                   if (!left) {
->>>>                           writel(1, qup->base + QUP_SW_RESET);
->>>> @@ -481,7 +726,8 @@ static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->>>>                   }
->>>>
->>>>                   qup_i2c_read_fifo(qup, msg);
->>>> -       } while (qup->pos < msg->len);
->>>> +               qup->blk.block_pos++;
->>>
->>> This should not be incremented, unless we really have read this block.
->>>
->>     We are reading it and only then incrementing it.
->
-> But read FIFO function could exit because of timeout, which is
-> not checked. The same is true for write operations.
->
-> Somehow this patch looks overly complex, I don't believe
-> that it should be.
->
-> Ivan.
->
->
-ok, the read and write fifo timing out error checks should be
-  corrected once i check the error code for qup_i2c_wait_ready
-  function.
+The sorting needs to be fixed.
 
-I will split this patch in to couple of smaller patches and make
-  sure it does not look complex.
 
-Regards,
-  Sricharan
+--CUfgB8w4ZwR/yMy5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVLoa+AAoJEBQN5MwUoCm2FfAQAJhvchEJ7X6LC1crpiyAfTYa
+ZCwd9bL0MsJyB1RtTFMtxO7LEUgOjtTxtk/JjGkfSIiBWKvmnrsgy9fnUHeKUvzl
+cRloPHWPNorXYkRWigZnjcLmsamrBufRygdMSHdaEsOn1496tS1nIz/+ER9AdPaR
+CNUVAuwsnfDEOPcxt2GcHRumJNAPP7nBxPYs4aljZz/m4KuQFpQbMq235TdjkmoP
+Q/o0l74KWfBtfLqHBoq4Z7ul7UFamNFa6KgJSFhJ/sb6TZA08SpUWY9AtUTs2IJW
+SJfCslnGPySuGID+qddBghYkw3X6ttwMHQoXjJ0GQ/VPW18WhASCs8iKsVuem49S
+rIfM/MT7z6NPhsN6XEHcwCIwmq15IZRgSLj/Xw+1gdRDRtmCn33RuhL3FnMZp76Q
++7GkWa4ooFew64cMvvsp1zxuDO40apZueuG6krCTRuk2yxQEwfaGPS1YoO0xXOUE
+5L4tAxAofUGVYDNQ0EojolZm0Z1xL8o76HGfsbCBk2w8inu+WLWAlasgG4X7omZ9
+jAXWp/CLJ5hgvVO47xH9vTY9CYRW4X/Hl5JwqB8twkFSJZ4HcuLUF0Qa12CKeIsd
+rGTFscJJ4AFJpfVDl5/atKbKWuWSrAbxhsoYYQnDwRTpNC55C22Jr2aC6vKe5lUE
+KYtGeXpF6F8Sxur32xvS
+=JtMm
+-----END PGP SIGNATURE-----
+
+--CUfgB8w4ZwR/yMy5--
