@@ -1,427 +1,393 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 1/4] parport: modify parport subsystem to use devicemodel
-Date: Wed, 15 Apr 2015 15:31:15 +0200
-Message-ID: <20150415133115.GG21491@kroah.com>
-References: <1429084124-2271-1-git-send-email-sudipm.mukherjee@gmail.com>
- <1429084124-2271-2-git-send-email-sudipm.mukherjee@gmail.com>
+From: Sricharan R <sricharan@codeaurora.org>
+Subject: Re: [PATCH V3 2/6] i2c: qup: Add V2 tags support
+Date: Wed, 15 Apr 2015 20:14:50 +0530
+Message-ID: <552E7962.40606@codeaurora.org>
+References: <1428736145-18361-1-git-send-email-sricharan@codeaurora.org>	 <1428736145-18361-3-git-send-email-sricharan@codeaurora.org>	 <1429024595.16939.5.camel@mm-sol.com> <552E07B5.5080605@codeaurora.org> <1429087776.30601.1.camel@mm-sol.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1429084124-2271-2-git-send-email-sudipm.mukherjee@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Willy Tarreau <willy@meta-x.org>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, dan.carpenter@oracle.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@driverdev.osuosl.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1429087776.30601.1.camel@mm-sol.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
+Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, galak@codeaurora.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, agross@codeaurora.org, dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 15, 2015 at 01:18:41PM +0530, Sudip Mukherjee wrote:
-> @@ -29,6 +31,7 @@
->  #include <linux/slab.h>
->  #include <linux/sched.h>
->  #include <linux/kmod.h>
-> +#include <linux/device.h>
->  
->  #include <linux/spinlock.h>
->  #include <linux/mutex.h>
-> @@ -100,6 +103,11 @@ static struct parport_operations dead_ops = {
->  	.owner		= NULL,
->  };
->  
-> +struct bus_type parport_bus_type = {
-> +	.name           = "parport",
-> +};
-> +EXPORT_SYMBOL(parport_bus_type);
+Hi Ivan,
 
-They bus type shouldn't need to be exported, unless something is really
-wrong.  Why did you do this?
+   Sorry resending again, because wrapping seemed to be
+   somehow wrong in my previous response.
 
-> +
->  /* Call attach(port) for each registered driver. */
->  static void attach_driver_chain(struct parport *port)
->  {
-> @@ -157,6 +165,7 @@ int parport_register_driver (struct parport_driver *drv)
->  
->  	if (list_empty(&portlist))
->  		get_lowlevel_driver ();
-> +	drv->devmodel = false;
->  
->  	mutex_lock(&registration_lock);
->  	list_for_each_entry(port, &portlist, list)
-> @@ -167,6 +176,57 @@ int parport_register_driver (struct parport_driver *drv)
->  	return 0;
->  }
->  
-> +/*
-> + * __parport_register_drv - register a new parport driver
-> + * @drv: the driver structure to register
-> + * @owner: owner module of drv
-> + * @mod_name: module name string
-> + *
-> + * Adds the driver structure to the list of registered drivers.
-> + * Returns a negative value on error, otherwise 0.
-> + * If no error occurred, the driver remains registered even if
-> + * no device was claimed during registration.
-> + */
-> +int __parport_register_drv(struct parport_driver *drv,
-> +			   struct module *owner, const char *mod_name)
-> +{
-> +	struct parport *port;
-> +	int ret, err = 0;
-> +	bool attached = false;
+On 04/15/2015 02:19 PM, Ivan T. Ivanov wrote:
+>
+> Hi Sricharan,
+>
+> On Wed, 2015-04-15 at 12:09 +0530, Sricharan R wrote:
+>
+>>>> +/* frequency definitions for high speed and max speed */
+>>>> +#define I2C_QUP_CLK_FAST_FREQ          1000000
+>>>
+>>> This is fast mode, if I am not mistaken.
+>>>
+>>    ya, up to 1MHZ is fast and up to 3.4MHZ is HS.
+>>    We use this macro to check if the desired freq is in HS range.
+>>    The above comment can be changed though to make it clear.
+>
+> My point was that this is neither high nor max speed.
+>
+I see that QUP specs defines up to 1MHZ as fast+ speed.
+>>>> +
+>>>>    /* Status, Error flags */
+>>>>    #define I2C_STATUS_WR_BUFFER_FULL      BIT(0)
+>>>>    #define I2C_STATUS_BUS_ACTIVE          BIT(8)
+>>>> @@ -102,6 +119,15 @@
+>>>>    #define RESET_BIT                      0x0
+>>>>    #define ONE_BYTE                       0x1
+>>>>
+>>>> +#define QUP_I2C_MX_CONFIG_DURING_RUN   BIT(31)
+>>>
+>>> Could you explain what is this for?
+>>>
+>>     This is a new feature in the V2 version of the controller,
+>>     to support multiple i2c sub transfers without having
+>>     a 'stop' bit in-between. Without this the i2c controller
+>>     inserts a 'stop' on the bus when the WR/RD count registers
+>>     reaches zero and are configured for the next transfer. So setting
+>>     this bit when the controller is in 'RUN' state, avoids sending the
+>>     'stop' during RUN state.
+>>     I can add this comment in the patch.
+>
+> And how v2 of this patch was worked if you introduce this bit now?
+> Bit is also not used by downstream driver, AFICS?
+>
+The one of the reason for this and the bam support patches in
+this series was to support multiple transfers of i2c_msgs without
+  a 'stop' inbetween them. So without that the driver sends a 'stop'
+between each sub-transfer. The v2 of this series supported that only in
+bam mode and not in non-bam mode. That was a bug. I saw the difference
+in behavior between bam and non-bam mode while testing with a hdmi adv
+bridge recently. So added the support in this series. This was neede to
+bringup the HDMI adv bridge device. I could have added it as a
+  new patch to make it more explicit.
 
-You shouldn't need to track attached/not attached with the driver model,
-that's what it is there for to handle for you.
+>>
+>>>> +
+>>>> +struct qup_i2c_block {
+>>>> +       int     blocks;
+>
+> count
+>
+>>>> +       u8      *block_tag_len;
+>
+> just tag_len,
+>
+>>>> +       int     *block_data_len;
+>
+> just data_len,
+>
+>>>> +       int     block_pos;
+>
+> just pos?
+>
+>>>> +};
+>>>> +
+>>>>    struct qup_i2c_dev {
+>>>>           struct device*dev;
+>>>>           void __iomem*base;
+>>>> @@ -115,9 +141,17 @@ struct qup_i2c_dev {
+>>>>           int     in_fifo_sz;
+>>>>           int     out_blk_sz;
+>>>>           int     in_blk_sz;
+>>>> -
+>>>> +       struct  qup_i2c_blockblk;
+>>>>           unsigned longone_byte_t;
+>>>>
+>>>> +       int     is_hs;
+>>>> +       bool    use_v2_tags;
+>>>> +
+>>>> +       int     tx_tag_len;
+>>>> +       int     rx_tag_len;
+>>>> +       u8      *tags;
+>>>> +       int     tags_pos;
+>>>> +
+>>>>           struct i2c_msg*msg;
+>>>>           /* Current posion in user message buffer */
+>>>>           int     pos;
+>>>> @@ -263,10 +297,19 @@ static int qup_i2c_wait_ready(struct qup_i2c_dev *qup, int op, bool val,
+>>>>           }
+>>>>    }
+>>>
+>>> Is this better tag related fields grouping?
+>>>
+>>
+>>> struct qup_i2c_tag_block {
+>>>
+>>>           u8      tag[2];
+>>>           // int  tag_len; this is alway 2, or?
+>>>           int     data_len; // this could be zero, right?
+>>> };
+>>>
+>> There is a struct for qup_i2c_block which has tag and data len. Not sure
+>> what change you suggest above ? Also with V2 transfers tag len need
+>>    not be 2. It can be more than that based on the data len.
+>
+> The point is that: I will like to see better grouping of
+> related variables. Now they are spread all over. Would it
+> be possible to also take care for tx_tag_len, rx_tag_len,
+> tags, tags_pos.
+>
+For this and the above, i will change the groupings and split this patch
+  in to couple of smaller ones.
+>>
+>>>> -static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>> +static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>>>> +                                                       int run)
+>>>
+>>> And 'run' stands for?
+>>    'run' just says whether the controller is in 'RUN' or 'RESET' state.
+>>     I can change it to is_run_st to make it clear.
+>>>>    {
+>>>> -       /* Number of entries to shift out, including the start */
+>>>> -       int total = msg->len + 1;
+>>>> +       /* Total Number of entries to shift out, including the tags */
+>>>> +       int total;
+>>>> +
+>>>> +       if (qup->use_v2_tags) {
+>>>> +               total = msg->len + qup->tx_tag_len;
+>>>> +               if (run)
+>>>> +                       total |= QUP_I2C_MX_CONFIG_DURING_RUN;
+>>>
+>>> What?
+>>>
+>>        This means, if the controller is in 'RUN' state, for
+>>        reconfiguring the RD/WR counts this bit has to be set to avoid
+>>        'stop' bits.
+>
+> I don't buy it, sorry. Problem with v1 of the tags is that controller
+> can not read more than 256 bytes without automatically generate STOP
+> at the end, because transfer length specified with QUP_TAG_REC tag
+> is 8 bits wide. There is no limitation for writes with v1 tags,
+> because controller is explicitly instructed when to send out STOP.
+>
+correct till this.
 
-> +
-> +	if (list_empty(&portlist))
-> +		get_lowlevel_driver();
+> For v2 of the tags, writes behaves more or less the same, and the
+> good news are that there is new read tag QUP_TAG_V2_DATARD, which
+> did't generate STOP when specified amount of data is read, still
+> up to 256 bytes in chunk. Read transfers with size more than 256
+> could be formed in following way:
+>
+> V2_START | Slave Address | V2_DATARD | countx | ... | V2_DATARD_STOP | county.
+>
+  The above is true for a single subtransfer for reading/writing
+more than > 256 bytes. But for doing WRITE, READ kind of sub
+  transfers once the first sub transfer (write) is over, and
+  while re-configuring the _COUNT registers for the next transfers,
+'a stop' between is inserted.
+To avoid this,the MX_CONFIG_DURING_RUN  bit should be set while in
+  'RUN' state, before re-configuring for the next sub transfer.
+  The qupspec calls this as bus 'lock-unlock' feature.
 
-what does this call do?
+I tested this and it fixed the wrong data reads in the case of the hdmi
+adv bridge reads. It was doing 2 i2c_msgs transfers for each i2c_xfer
+call.  The data read was wrong without this patch in v1 mode (default)
+and even in v2 mode without the lock-unlock even though we do not send
+a 'STOP' tag command between sub-transfers.
 
-> +
-> +	/* initialize common driver fields */
-> +	drv->driver.name = drv->name;
-> +	drv->driver.bus = &parport_bus_type;
-> +	drv->driver.owner = owner;
-> +	drv->driver.mod_name = mod_name;
-> +	drv->devmodel = true;
-> +	ret = driver_register(&drv->driver);
-> +	if (ret)
-> +		return ret;
-> +
-> +	mutex_lock(&registration_lock);
-> +	list_for_each_entry(port, &portlist, list) {
-> +		ret = drv->attach_ret(port, drv);
-> +		if (ret == 0)
-> +			attached = true;
-> +		else
-> +			err = ret;
-> +	}
-> +	if (attached)
-> +		list_add(&drv->list, &drivers);
+>>
+>>>>
+>>>> -static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>> +static void qup_i2c_create_tag_v2(struct qup_i2c_dev *qup,
+>>>> +                                               struct i2c_msg *msg, int last)
+>>>> +{
+>>>> +       u16 addr = (msg->addr << 1) | ((msg->flags & I2C_M_RD) == I2C_M_RD);
+>>>> +       int len = 0, prev_len = 0;
+>>>> +       int blocks = 0;
+>>>> +       int rem;
+>>>> +       int block_len = 0;
+>>>> +       int data_len;
+>>>> +
+>>>> +       qup->blk.block_pos = 0;
+>>>> +       qup->pos = 0;
+>>>> +       qup->blk.blocks = (msg->len + QUP_READ_LIMIT - 1) / QUP_READ_LIMIT;
+>>>> +       rem = msg->len % QUP_READ_LIMIT;
+>>>> +
+>>>> +       /* 2 tag bytes for each block + 2 extra bytes for first block */
+>>>> +       qup->tags = kzalloc((qup->blk.blocks * 2) + 2, GFP_KERNEL);
+>>>> +       qup->blk.block_tag_len = kzalloc(qup->blk.blocks, GFP_KERNEL);
+>>>> +       qup->blk.block_data_len = kzalloc(sizeof(*qup->blk.block_data_len) *
+>>>> +                                               qup->blk.blocks, GFP_KERNEL);
+>>>
+>>> Whouldn't be easy to kcalloc struct qup_i2c_tag_block?
+>>>
+>>>
+>>> Allocations could fail and memory is leaking here.
+>>>
+>>    ya correct, will change this. Freeing is done at the end of xfer
+>>    function, but will have to check for allocation failure.
+>
+> Do you see how memory leak here?
+>
+if the first allocation pass and second one fails, and i will have
+to move the kfree calls at the end of i2c_xfer inside the loop.
+>>
+>>>> +
+>>>> +       while (blocks < qup->blk.blocks) {
+>>>>
+>>>> +               blocks++;
+>>>
+>>> Looks like 'for' cycle to me.
+>>>
+>>    sorry, not getting it ?
+>
+> This 'while' loop is old plain 'for'.
+>
+ok
+>>>> +       }
+>>>> +
+>>>> +       qup->tx_tag_len = len;
+>>>> +
+>>>> +       if (msg->flags & I2C_M_RD)
+>>>> +               qup->rx_tag_len = (qup->blk.blocks * 2);
+>
+> This will need some explanation.
+>
+ok, will add it.
 
-Why all of this?  You shouldn't need your own matching anymore, the
-driver core does it for you when you register the driver, against the
-devices you have already registered, if any.
+>
+>>>> +
+>>>> +static void qup_i2c_issue_xfer_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>> +{
+>>>> +       u32 data_len = 0, tag_len;
+>>>> +
+>>>> +       tag_len = qup->blk.block_tag_len[qup->blk.block_pos];
+>>>> +
+>>>> +       if (!(msg->flags & I2C_M_RD))
+>>>> +               data_len = qup->blk.block_data_len[qup->blk.block_pos];
+>>>> +
+>>>> +       qup_i2c_send_data(qup, tag_len, qup->tags, data_len, msg->buf);
+>>>
+>>> This assumes that writes are up to 256 bytes, and tags and data blocks
+>>> are completely written to FIFO buffer, right?
+>>>
+>>    Yes, since we send/read data in blocks (256 bytes).
+>
+> How deep is the FIFO? Is it guaranteed that "the whole" write
+> or read data, including tags will fit in.
+>
+  Write/read fifo functions (also for V1) currently wait for the
+   fifo full and empty flags conditions. This will ensure that the
+  fifo full and empty conditions are taken care before writing
+  and reading. But this can be improved by waiting for
+  block_write/read flags to improve the throughput.
 
+>>>>
+>>>> +
+>>>> +static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>>>> +                                                               int run, int last)
+>>>>    {
+>>>>           unsigned long left;
+>>>>           int ret;
+>>>> @@ -329,13 +501,20 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>>           qup->msg = msg;
+>>>>           qup->pos = 0;
+>>>>
+>>>> +       if (qup->use_v2_tags)
+>>>> +               qup_i2c_create_tag_v2(qup, msg, last);
+>>>> +       else
+>>>> +               qup->blk.blocks = 0;
+>>>> +
+>>>>           enable_irq(qup->irq);
+>>>>
+>>>> -       qup_i2c_set_write_mode(qup, msg);
+>>>> +       qup_i2c_set_write_mode(qup, msg, run);
+>>>>
+>>>> -       ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+>>>> -       if (ret)
+>>>> -               goto err;
+>>>> +       if (!run) {
+>>>> +               ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+>>>
+>>> To run away, or not?
+>>>
+>>     Means, if the controller is not in RUN state, put it in to 'RUN'
+>>     state.
+>
+> And what is the problem if controller is put in PAUSED state, FIFO
+> filled with data and then RUN again, like in v2 of this patch?
+>
+  This function is not entered with controller in PAUSED state
+  Only in Reset state (for the first transfer) and Run state for
+  the subsequent sub-transfers. The reason for having this 'run'
+  variable was that while using the lock-unlock feature, the
+  controller should not be put in to run-reset-run state
+  in-between transfers.
 
-> +	mutex_unlock(&registration_lock);
-> +	if (!attached) {
-> +		driver_unregister(&drv->driver);
-> +		return err;
-> +	}
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(__parport_register_drv);
-> +
->  /**
->   *	parport_unregister_driver - deregister a parallel port device driver
->   *	@drv: structure describing the driver that was given to
-> @@ -193,11 +253,15 @@ void parport_unregister_driver (struct parport_driver *drv)
->  	list_for_each_entry(port, &portlist, list)
->  		drv->detach(port);
->  	mutex_unlock(&registration_lock);
-> +	if (drv->devmodel)
-> +		driver_unregister(&drv->driver);
->  }
->  
-> -static void free_port (struct parport *port)
-> +static void free_port(struct device *dev)
->  {
->  	int d;
-> +	struct parport *port = to_parport_dev(dev);
-> +
->  	spin_lock(&full_list_lock);
->  	list_del(&port->full_list);
->  	spin_unlock(&full_list_lock);
-> @@ -223,8 +287,9 @@ static void free_port (struct parport *port)
->  
->  struct parport *parport_get_port (struct parport *port)
->  {
-> -	atomic_inc (&port->ref_count);
-> -	return port;
-> +	struct device *dev = get_device(&port->ddev);
-> +
-> +	return to_parport_dev(dev);
->  }
->  
->  /**
-> @@ -237,11 +302,7 @@ struct parport *parport_get_port (struct parport *port)
->  
->  void parport_put_port (struct parport *port)
->  {
-> -	if (atomic_dec_and_test (&port->ref_count))
-> -		/* Can destroy it now. */
-> -		free_port (port);
-> -
-> -	return;
-> +	put_device(&port->ddev);
->  }
->  
->  /**
-> @@ -281,6 +342,7 @@ struct parport *parport_register_port(unsigned long base, int irq, int dma,
->  	int num;
->  	int device;
->  	char *name;
-> +	int ret;
->  
->  	tmp = kzalloc(sizeof(struct parport), GFP_KERNEL);
->  	if (!tmp) {
-> @@ -333,6 +395,9 @@ struct parport *parport_register_port(unsigned long base, int irq, int dma,
->  	 */
->  	sprintf(name, "parport%d", tmp->portnum = tmp->number);
->  	tmp->name = name;
-> +	tmp->ddev.bus = &parport_bus_type;
-> +	tmp->ddev.release = free_port;
-> +	dev_set_name(&tmp->ddev, name);
->  
->  	for (device = 0; device < 5; device++)
->  		/* assume the worst */
-> @@ -340,6 +405,13 @@ struct parport *parport_register_port(unsigned long base, int irq, int dma,
->  
->  	tmp->waithead = tmp->waittail = NULL;
->  
-> +	ret = device_register(&tmp->ddev);
-> +	if (ret) {
-> +		list_del(&tmp->full_list);
-> +		kfree(tmp);
-> +		return NULL;
+> <snip>
+>
+>>>>
+>>>> -static void qup_i2c_read_fifo(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>> +static void qup_i2c_read_fifo_v1(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>>    {
+>>>> -       u32 opflags;
+>>>>           u32 val = 0;
+>>>>           int idx;
+>>>> +       int len = msg->len + qup->rx_tag_len;
+>>>
+>>> Is this intentional?
+>>>
+>>      Yes, since i changed the loop around qup_i2c_read_one to count for
+>>      blocks.
+>
+> No, this doesn't make any sense. v1 tags didn't use rx_tag_len, and
+> I don't see how this is related to counting blocks, in this function.
+>
+  sorry. Did confuse my response last time. This +rx_tag_len is
+  not needed here and infact it is '0' in case of v1.
+  So no effect.
+> <snip>
+>
+>>>>
+>>>> -       qup_i2c_issue_read(qup, msg);
+>>>> +               qup_i2c_issue_read(qup, msg);
+>>>>
+>>>> -       ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+>>>> -       if (ret)
+>>>> -               goto err;
+>>>> +               ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+>>>> +               if (ret)
+>>>> +                       goto err;
+>>>>
+>>>> -       do {
+>>>>                   left = wait_for_completion_timeout(&qup->xfer, HZ);
+>>>>                   if (!left) {
+>>>>                           writel(1, qup->base + QUP_SW_RESET);
+>>>> @@ -481,7 +726,8 @@ static int qup_i2c_read_one(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>>>>                   }
+>>>>
+>>>>                   qup_i2c_read_fifo(qup, msg);
+>>>> -       } while (qup->pos < msg->len);
+>>>> +               qup->blk.block_pos++;
+>>>
+>>> This should not be incremented, unless we really have read this block.
+>>>
+>>     We are reading it and only then incrementing it.
+>
+> But read FIFO function could exit because of timeout, which is
+> not checked. The same is true for write operations.
+>
+> Somehow this patch looks overly complex, I don't believe
+> that it should be.
+>
+> Ivan.
+>
+>
+ok, the read and write fifo timing out error checks should be
+  corrected once i check the error code for qup_i2c_wait_ready
+  function.
 
-Please read the kerneldoc comments for device_register(), you can't
-clean things up this way if device_register() fails :(
+I will split this patch in to couple of smaller patches and make
+  sure it does not look complex.
 
-> +	}
-> +
->  	return tmp;
->  }
->  
-> @@ -575,6 +647,7 @@ parport_register_device(struct parport *port, const char *name,
->  	tmp->irq_func = irq_func;
->  	tmp->waiting = 0;
->  	tmp->timeout = 5 * HZ;
-> +	tmp->devmodel = false;
->  
->  	/* Chain this onto the list */
->  	tmp->prev = NULL;
-> @@ -630,6 +703,133 @@ parport_register_device(struct parport *port, const char *name,
->  	return NULL;
->  }
->  
-> +void free_pardevice(struct device *dev)
-> +{
-> +}
-
-empty free functions are a huge red flag.  So much so the kobject
-documentation in the kernel says I get to make fun of anyone who tries
-to do this.  So please don't do this :)
-
-
-> +struct pardevice *
-> +parport_register_dev(struct parport *port, const char *name,
-> +		     int (*pf)(void *), void (*kf)(void *),
-> +		     void (*irq_func)(void *), int flags,
-> +		     void *handle, struct parport_driver *drv)
-
-I think you need a structure, what's with all of the function pointers?
-
-
-
-
-> +{
-> +	struct pardevice *tmp;
-> +	int ret;
-> +	char *devname;
-> +
-> +	if (port->physport->flags & PARPORT_FLAG_EXCL) {
-> +		/* An exclusive device is registered. */
-> +		pr_debug("%s: no more devices allowed\n",
-> +			 port->name);
-> +		return NULL;
-> +	}
-> +
-> +	if (flags & PARPORT_DEV_LURK) {
-> +		if (!pf || !kf) {
-> +			pr_info("%s: refused to register lurking device (%s) without callbacks\n",
-> +				port->name, name);
-> +			return NULL;
-> +		}
-> +	}
-> +
-> +	if (!try_module_get(port->ops->owner))
-> +		return NULL;
-> +
-> +	parport_get_port(port);
-> +
-> +	tmp = kzalloc(sizeof(*tmp), GFP_KERNEL);
-> +	if (!tmp) {
-> +		pr_warn("%s: memory squeeze, couldn't register %s.\n",
-> +			port->name, name);
-> +		goto out;
-> +	}
-> +
-> +	tmp->state = kmalloc(sizeof(*tmp->state), GFP_KERNEL);
-> +	if (!tmp->state) {
-> +		pr_warn("%s: memory squeeze, couldn't register %s.\n",
-> +			port->name, name);
-> +		goto out_free_pardevice;
-> +	}
-> +
-> +	tmp->name = name;
-> +	tmp->port = port;
-> +	tmp->daisy = -1;
-> +	tmp->preempt = pf;
-> +	tmp->wakeup = kf;
-> +	tmp->private = handle;
-> +	tmp->flags = flags;
-> +	tmp->irq_func = irq_func;
-> +	tmp->waiting = 0;
-> +	tmp->timeout = 5 * HZ;
-> +
-> +	tmp->dev.parent = &port->ddev;
-> +	devname = kstrdup(name, GFP_KERNEL);
-> +	dev_set_name(&tmp->dev, "%s", name);
-
-Why create devname and name here in different ways?
-
-> +	tmp->dev.driver = &drv->driver;
-> +	tmp->dev.release = free_pardevice;
-> +	tmp->devmodel = true;
-> +	ret = device_register(&tmp->dev);
-> +	if (ret)
-> +		goto out_free_all;
-
-Again, wrong error handling.
-
-
-> +	/* Chain this onto the list */
-> +	tmp->prev = NULL;
-> +	/*
-> +	 * This function must not run from an irq handler so we don' t need
-> +	 * to clear irq on the local CPU. -arca
-> +	 */
-> +	spin_lock(&port->physport->pardevice_lock);
-> +
-> +	if (flags & PARPORT_DEV_EXCL) {
-> +		if (port->physport->devices) {
-> +			spin_unlock(&port->physport->pardevice_lock);
-> +			pr_debug("%s: cannot grant exclusive access for device %s\n",
-> +				 port->name, name);
-> +			goto out_free_dev;
-> +		}
-> +		port->flags |= PARPORT_FLAG_EXCL;
-> +	}
-> +
-> +	tmp->next = port->physport->devices;
-> +	wmb();	/*
-> +		 * Make sure that tmp->next is written before it's
-> +		 * added to the list; see comments marked 'no locking
-> +		 * required'
-> +		 */
-> +	if (port->physport->devices)
-> +		port->physport->devices->prev = tmp;
-> +	port->physport->devices = tmp;
-> +	spin_unlock(&port->physport->pardevice_lock);
-
-This whole list of device management seems odd, is it really still
-needed with the conversion to the new model?
-
-
-> +
-> +	init_waitqueue_head(&tmp->wait_q);
-> +	tmp->timeslice = parport_default_timeslice;
-> +	tmp->waitnext = NULL;
-> +	tmp->waitprev = NULL;
-> +
-> +	/*
-> +	 * This has to be run as last thing since init_state may need other
-> +	 * pardevice fields. -arca
-> +	 */
-> +	port->ops->init_state(tmp, tmp->state);
-> +	if (!test_and_set_bit(PARPORT_DEVPROC_REGISTERED, &port->devflags)) {
-> +		port->proc_device = tmp;
-> +		parport_device_proc_register(tmp);
-> +	}
-> +
-> +	return tmp;
-> +out_free_dev:
-> +	put_device(&tmp->dev);
-> +out_free_all:
-> +	kfree(tmp->state);
-> +out_free_pardevice:
-> +	kfree(tmp);
-> +out:
-> +	parport_put_port(port);
-> +	module_put(port->ops->owner);
-> +
-> +	return NULL;
-> +}
-> +
->  /**
->   *	parport_unregister_device - deregister a device on a parallel port
->   *	@dev: pointer to structure representing device
-> @@ -691,7 +891,10 @@ void parport_unregister_device(struct pardevice *dev)
->  	spin_unlock_irq(&port->waitlist_lock);
->  
->  	kfree(dev->state);
-> -	kfree(dev);
-> +	if (dev->devmodel)
-> +		device_unregister(&dev->dev);
-> +	else
-> +		kfree(dev);
->  
->  	module_put(port->ops->owner);
->  	parport_put_port (port);
-> @@ -774,6 +977,7 @@ int parport_claim(struct pardevice *dev)
->  	struct pardevice *oldcad;
->  	struct parport *port = dev->port->physport;
->  	unsigned long flags;
-> +	int ret;
->  
->  	if (port->cad == dev) {
->  		printk(KERN_INFO "%s: %s already owner\n",
-> @@ -802,6 +1006,13 @@ int parport_claim(struct pardevice *dev)
->  		}
->  	}
->  
-> +	if (dev->devmodel) {
-> +		ret = device_attach(&dev->dev);
-> +		if (ret != 1) {
-> +			return -ENODEV;
-> +		}
-> +	}
-> +
->  	/* Can't fail from now on, so mark ourselves as no longer waiting.  */
->  	if (dev->waiting & 1) {
->  		dev->waiting = 0;
-> @@ -926,8 +1137,8 @@ int parport_claim_or_block(struct pardevice *dev)
->  			       dev->port->physport->cad ?
->  			       dev->port->physport->cad->name:"nobody");
->  #endif
-> -	}
-> -	dev->waiting = 0;
-> +	} else if (r == 0)
-> +		dev->waiting = 0;
->  	return r;
->  }
->  
-> @@ -954,6 +1165,8 @@ void parport_release(struct pardevice *dev)
->  		       "when not owner\n", port->name, dev->name);
->  		return;
->  	}
-> +	if (dev->devmodel)
-> +		device_release_driver(&dev->dev);
->  
->  #ifdef CONFIG_PARPORT_1284
->  	/* If this is on a mux port, deselect it. */
-> @@ -1022,6 +1235,7 @@ EXPORT_SYMBOL(parport_remove_port);
->  EXPORT_SYMBOL(parport_register_driver);
->  EXPORT_SYMBOL(parport_unregister_driver);
->  EXPORT_SYMBOL(parport_register_device);
-> +EXPORT_SYMBOL(parport_register_dev);
-
-checkpatch doesn't like you putting this here :)
-
-thanks,
-
-greg k-h
+Regards,
+  Sricharan
