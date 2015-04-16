@@ -1,56 +1,78 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/2] i2c: rework last users of 2.4 style attach_adapter
-Date: Thu, 16 Apr 2015 15:23:01 +0200
-Message-ID: <1429190583-17517-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linuxppc-dev@lists.ozlabs.org
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PATCH 2/2] sound: ppc: keywest: drop using attach adapter
+Date: Thu, 16 Apr 2015 15:23:03 +0200
+Message-ID: <1429190583-17517-3-git-send-email-wsa@the-dreams.de>
+References: <1429190583-17517-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1429190583-17517-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The attach_adapter mechanism of the I2C framework is deprecated for years.
-There are two users left; drivers for old Macintosh computers. I got the idea
-of replacing this mechanism with a custom one with the help of deferred
-probing. Because I don't have the hardware, I modified the windtunnel driver to
-be runnable on my Renesas Lager board (ARM). This patch is not in this series
-but in the branch mentioned below.
+As we now have deferred probing, we can use a custom mechanism and
+finally get rid of the legacy interface from the i2c core.
 
-I first verified that the attach_adapter method was in deed used for bus
-scanning. When scanning, the driver rightfully failed on detecting the actual
-i2c clients because there is no such hardware on my board. However, the actual
-scanning happened.
+Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ sound/ppc/keywest.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-Using my custom mechanism, the same happens: all busses get scanned, then the
-clients cannot be detected. Since I didn't change the actual detection code, I
-assume that it should be working on those Macintosh devices as well. The
-keywest driver is only compile-tested. That being said, I'd be more than happy,
-if we could find someone willing to test these patches. Top-of-tree kernel
-would be nice, but these patches can easily be backported to probably the
-beginning of deferred probing. I will also notify some ppc lists of
-distributions of this thread for further help.
-
-If this works out, we can _finally_ get rid of this stone-age mechanism and
-clean up the i2c core.
-
-Changes since RFC: return -ENODEV instead of 0 when exiting the while loop
-                   (= nothing found on all busses)
-
-The branch I used for ARM compilation is here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/attach_adapter_removal_with_arm_compile-experimental
-
-Thanks,
-
-   Wolfram
-
-
-Wolfram Sang (2):
-  macintosh: therm_windtunnel: drop using attach adapter
-  sound: ppc: keywest: drop using attach adapter
-
- drivers/macintosh/therm_windtunnel.c | 25 +++++++++++++++++++++++--
- sound/ppc/keywest.c                  | 23 +++++++++++++++++++----
- 2 files changed, 42 insertions(+), 6 deletions(-)
-
+diff --git a/sound/ppc/keywest.c b/sound/ppc/keywest.c
+index 0d1c27e911b8dd..d7627bae08362e 100644
+--- a/sound/ppc/keywest.c
++++ b/sound/ppc/keywest.c
+@@ -52,7 +52,7 @@ static int keywest_attach_adapter(struct i2c_adapter *adapter)
+ 		return -EINVAL;
+ 
+ 	if (strncmp(adapter->name, "mac-io", 6))
+-		return 0; /* ignored */
++		return -EINVAL; /* ignored */
+ 
+ 	memset(&info, 0, sizeof(struct i2c_board_info));
+ 	strlcpy(info.type, "keywest", I2C_NAME_SIZE);
+@@ -100,7 +100,6 @@ static struct i2c_driver keywest_driver = {
+ 	.driver = {
+ 		.name = "PMac Keywest Audio",
+ 	},
+-	.attach_adapter = keywest_attach_adapter,
+ 	.probe = keywest_probe,
+ 	.remove = keywest_remove,
+ 	.id_table = keywest_i2c_id,
+@@ -132,16 +131,32 @@ int snd_pmac_tumbler_post_init(void)
+ /* exported */
+ int snd_pmac_keywest_init(struct pmac_keywest *i2c)
+ {
+-	int err;
++	struct i2c_adapter *adap;
++	int err, i = 0;
+ 
+ 	if (keywest_ctx)
+ 		return -EBUSY;
+ 
++	adap = i2c_get_adapter(0);
++	if (!adap)
++		return -EPROBE_DEFER;
++
+ 	keywest_ctx = i2c;
+ 
+ 	if ((err = i2c_add_driver(&keywest_driver))) {
+ 		snd_printk(KERN_ERR "cannot register keywest i2c driver\n");
++		i2c_put_adapter(adap);
+ 		return err;
+ 	}
+-	return 0;
++
++	/* We assume Macs have consecutive I2C bus numbers starting at 0 */
++	while (adap) {
++		err = keywest_attach_adapter(adap);
++		if (!err)
++			return 0;
++		i2c_put_adapter(adap);
++		adap = i2c_get_adapter(++i);
++	}
++
++	return -ENODEV;
+ }
 -- 
 2.1.4
