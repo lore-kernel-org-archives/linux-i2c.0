@@ -1,113 +1,167 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v1] HID: bug fixes in hid-cp2112 driver
-Date: Thu, 16 Apr 2015 01:32:40 -0700
-Message-ID: <552F73A8.5060605@cumulusnetworks.com>
-References: <1429143746-16967-1-git-send-email-ellen@cumulusnetworks.com> <20150416074158.GA913@katana>
+From: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH V3 2/6] i2c: qup: Add V2 tags support
+Date: Thu, 16 Apr 2015 11:36:35 +0300
+Message-ID: <1429173395.26621.5.camel@mm-sol.com>
+References: <1428736145-18361-1-git-send-email-sricharan@codeaurora.org>
+		 <1428736145-18361-3-git-send-email-sricharan@codeaurora.org>
+		 <1429024595.16939.5.camel@mm-sol.com> <552E07B5.5080605@codeaurora.org>
+	 <1429087776.30601.1.camel@mm-sol.com> <552E7962.40606@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150416074158.GA913@katana>
+In-Reply-To: <552E7962.40606-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sricharan R <sricharan-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, agross-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-[Sorry.  Thunderbird did some weird stuff to my message.  Here it is again.]
 
-Thanks for the quick reply.
+Hi Sricharan,
 
-On 04/16/2015 12:41 AM, Wolfram Sang wrote:
-> On Wed, Apr 15, 2015 at 05:22:26PM -0700, Ellen Wang wrote:
->> 1. cp2112_xfer() byte swaps smbus words incorrectly:
->>
->> While i2c is by and large big endian, smbus transactions are
->> little endian.  This only affects word operands.  Essentially,
->> all occurences of be16 in cp2112_xfer() are now le16.
->>
->> 2. I2C_SMBUS_BYTE write in cp2112_xfer() should pass "command"
->> as the single data byte, not "data->byte":
->>
->> When tickled the right way, this actually segfaults the kernel
->> because "data" is NULL.
->>
->> 3. cp2112_i2c_xfer() only supports a single i2c_msg and only
->> reads up to 61 bytes:
->>
->> This is a serious limitation.  For example, the at24 eeprom driver
->> generates paired write and read messages (for eeprom address and data).
->> And the reads can be quite large.  The fix consists of a loop
->
-> Well, at24 detects how many bytes it got and continues from there.
+On Wed, 2015-04-15 at 20:14 +0530, Sricharan R wrote:
+> 
+> > > > > 
+> > > > > +#define QUP_I2C_MX_CONFIG_DURING_RUN   BIT(31)
+> > > > 
+> > > > Could you explain what is this for?
+> > > > 
+> > >     This is a new feature in the V2 version of the controller,
+> > >     to support multiple i2c sub transfers without having
+> > >     a 'stop' bit in-between. Without this the i2c controller
+> > >     inserts a 'stop' on the bus when the WR/RD count registers
+> > >     reaches zero and are configured for the next transfer. So setting
+> > >     this bit when the controller is in 'RUN' state, avoids sending the
+> > >     'stop' during RUN state.
+> > >     I can add this comment in the patch.
+> > 
+> > And how v2 of this patch was worked if you introduce this bit now?
+> > Bit is also not used by downstream driver, AFICS?
+> > 
+> The one of the reason for this and the bam support patches in
+> this series was to support multiple transfers of i2c_msgs without
+>   a 'stop' inbetween them. So without that the driver sends a 'stop'
+> between each sub-transfer. 
 
-That's true, but instead of returning short, the old
-cp2112_i2c_xfer() fails out (with EIO) when the first USB operation
-doesn't return all the bytes.  Look for "short read: %d < %d" in
-the original version.  That's just broken.
-
-Also, even if we fix that by returning the correct byte count,
-the semantics are still wrong.  The request that initiated
-the operation has the desired byte count.  So the controller
-may have already read all the bytes from the device.  We
-should return all of them.  Every operation at the driver level
-should correspond to exactly the same operation on the i2c bus.
+Are you saying that there is bug in the hardware? Please, could you
+point me to codeaurora driver, which is using this bit? 
 
 
->...
->> This is a funny driver that is a bridge from usb hid to i2c.
->> So while it officially belongs to hid, most of the functionality
->> is about i2c.  So I'm sending this patch to both linux-input
->> and linux-i2c.  David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org> is
->> the original author/owner in the .c file.
->
-> Probably, this would be best an MFD driver with the i2c and gpio
-> functionality sourced out to the relevant subsystems. Dunno how well
-> this works with hid drivers, though.
 
-I agree.  This is probably something that should be taken up with
-the maintainer.
+-static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+> > > > > +static void qup_i2c_set_write_mode(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+> > > > > +                                                       int run)
+> > > > 
+> > > > And 'run' stands for?
+> > >    'run' just says whether the controller is in 'RUN' or 'RESET' state.
+> > >     I can change it to is_run_st to make it clear.
+> > > > >    {
+> > > > > -       /* Number of entries to shift out, including the start */
+> > > > > -       int total = msg->len + 1;
+> > > > > +       /* Total Number of entries to shift out, including the tags */
+> > > > > +       int total;
+> > > > > +
+> > > > > +       if (qup->use_v2_tags) {
+> > > > > +               total = msg->len + qup->tx_tag_len;
+> > > > > +               if (run)
+> > > > > +                       total |= QUP_I2C_MX_CONFIG_DURING_RUN;
+> > > > 
+> > > > What?
+> > > > 
+> > >        This means, if the controller is in 'RUN' state, for
+> > >        reconfiguring the RD/WR counts this bit has to be set to avoid
+> > >        'stop' bits.
+> > 
+> > I don't buy it, sorry. Problem with v1 of the tags is that controller
+> > can not read more than 256 bytes without automatically generate STOP
+> > at the end, because transfer length specified with QUP_TAG_REC tag
+> > is 8 bits wide. There is no limitation for writes with v1 tags,
+> > because controller is explicitly instructed when to send out STOP.
+> > 
+> correct till this.
+> 
+> > For v2 of the tags, writes behaves more or less the same, and the
+> > good news are that there is new read tag QUP_TAG_V2_DATARD, which
+> > did't generate STOP when specified amount of data is read, still
+> > up to 256 bytes in chunk. Read transfers with size more than 256
+> > could be formed in following way:
+> > 
+> > V2_START | Slave Address | V2_DATARD | countx | ... | V2_DATARD_STOP | county.
+> > 
+>   The above is true for a single subtransfer for reading/writing
+> more than > 256 bytes. But for doing WRITE, READ kind of sub
+>   transfers once the first sub transfer (write) is over, and
+>   while re-configuring the _COUNT registers for the next transfers,
+> 'a stop' between is inserted.
 
+>From controller itself or driver?
 
->> While this patch contains three bug fixes, the first two are
->> quite trivial.  I'm hoping it's OK to glom them into one.
->
-> Then, it should be easy to factor them out? Really, the "one patch per
-> issue" rule is extremly helpful when fixing regressions.
+> > > > > +static void qup_i2c_issue_xfer_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+> > > > > +{
+> > > > > +       u32 data_len = 0, tag_len;
+> > > > > +
+> > > > > +       tag_len = qup->blk.block_tag_len[qup->blk.block_pos];
+> > > > > +
+> > > > > +       if (!(msg->flags & I2C_M_RD))
+> > > > > +               data_len = qup->blk.block_data_len[qup->blk.block_pos];
+> > > > > +
+> > > > > +       qup_i2c_send_data(qup, tag_len, qup->tags, data_len, msg->buf);
+> > > > 
+> > > > This assumes that writes are up to 256 bytes, and tags and data blocks
+> > > > are completely written to FIFO buffer, right?
+> > > > 
+> > >    Yes, since we send/read data in blocks (256 bytes).
+> > 
+> > How deep is the FIFO? Is it guaranteed that "the whole" write
+> > or read data, including tags will fit in.
+> > 
+>   Write/read fifo functions (also for V1) currently wait for the
+>    fifo full and empty flags conditions.
 
-I'll do that.
+I will say that this is true for v1, but not for v2, 
+because the way of how FIFO is filled in v2.
 
+> > > > > +static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+> > > > > +                                                               int run, int last)
+> > > > >    {
+> > > > >           unsigned long left;
+> > > > >           int ret;
+> > > > > @@ -329,13 +501,20 @@ static int qup_i2c_write_one(struct qup_i2c_dev *qup, struct 
+> > > > > i2c_msg *msg)
+> > > > >           qup->msg = msg;
+> > > > >           qup->pos = 0;
+> > > > > 
+> > > > > +       if (qup->use_v2_tags)
+> > > > > +               qup_i2c_create_tag_v2(qup, msg, last);
+> > > > > +       else
+> > > > > +               qup->blk.blocks = 0;
+> > > > > +
+> > > > >           enable_irq(qup->irq);
+> > > > > 
+> > > > > -       qup_i2c_set_write_mode(qup, msg);
+> > > > > +       qup_i2c_set_write_mode(qup, msg, run);
+> > > > > 
+> > > > > -       ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+> > > > > -       if (ret)
+> > > > > -               goto err;
+> > > > > +       if (!run) {
+> > > > > +               ret = qup_i2c_change_state(qup, QUP_RUN_STATE);
+> > > > 
+> > > > To run away, or not?
+> > > > 
+> > >     Means, if the controller is not in RUN state, put it in to 'RUN'
+> > >     state.
+> > 
+> > And what is the problem if controller is put in PAUSED state, FIFO
+> > filled with data and then RUN again, like in v2 of this patch?
+> > 
+>   This function is not entered with controller in PAUSED state
+>   Only in Reset state (for the first transfer) and Run state for
+>   the subsequent sub-transfers. The reason for having this 'run'
+>   variable was that while using the lock-unlock feature, the
+>   controller should not be put in to run-reset-run state
+>   in-between transfers.
 
->>...
->> +static int cp2112_i2c_write_read_req(void *buf, u8 slave_address,
->> +                     u8 *addr, int addr_length,
->> +                     int read_length)
->> +{
->> +    struct cp2112_write_read_req_report *report = buf;
->> +
->> +    if (read_length < 1 || read_length > 512 ||
->> +        addr_length > sizeof(report->target_address))
->> +        return -EINVAL;
->
-> This shows the drawback of having I2C master drivers not in the
-> i2c-directory: It easily misses updates to the i2c-core.
-> We now have the i2c-quirk infrastructure (2187f03a9576c4) which this
-> driver should make use of. It can describe this...
->
->> +    for (m = msgs; m < msgs + num; m++) {
->> +        /*
->> +         * If the top two messages are a write followed by a read,
->> +         * then we do them together as CP2112_DATA_WRITE_READ_REQUEST.
->> +         * Otherwise, process one message.
->> +         */
->> +
->
-> and this and the core will check the messages for you. It should
-> simplify your code, too.
+Lets see how it will look, when new qup_i2c_write_one_v2 is introduced :-)
 
-I didn't know about that.  Cumulus Linux is based on 3.2.something
-(debian wheezy) and i2c-quirk came in after that.
-
-I can update the driver to use the quirk mechanism, but I would
-prefer to do that as a separate checkin, so Cumulus can use
-a version of hid-cp2112.c that exists somewhere in mainline
-even if it's not the latest.
+Ivan
