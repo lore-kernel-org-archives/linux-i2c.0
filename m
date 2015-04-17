@@ -1,119 +1,76 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH v1 i2c/for-next] i2c-i801: recover from hardware PEC
- errors
-Date: Fri, 17 Apr 2015 09:17:51 +0200
-Message-ID: <20150417091751.1ae986f2@endymion.delvare>
-References: <1428970319-32544-1-git-send-email-ellen@cumulusnetworks.com>
-	<20150415140834.44b1add8@endymion.delvare>
-	<552ECE19.4090705@cumulusnetworks.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 4.1
+Date: Fri, 17 Apr 2015 10:33:54 +0200
+Message-ID: <20150417083349.GA1323@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <552ECE19.4090705-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ellen,
 
-On Wed, 15 Apr 2015 13:46:17 -0700, Ellen Wang wrote:
-> On 4/15/2015 5:08 AM, Jean Delvare wrote:
-> > On Mon, 13 Apr 2015 17:11:59 -0700, Ellen Wang wrote:
-> >> On a CRC error while using hardware-supported PEC, an additional
-> >> error bit is set in the auxiliary status register.  If this bit
-> >> isn't cleared, all subsequent operations will fail, essentially
-> >> hanging the controller.
-> >>
-> >> The fix is simple: clear the bit at the same time we clear
-> >> the error bits in the main status register.
-> >>
-> >> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-> >> ---
-> >>   drivers/i2c/busses/i2c-i801.c |   21 +++++++++++++++++++++
-> >>   1 file changed, 21 insertions(+)
-> >
-> > Thanks for the patch. I noticed the issue over a year ago and wrote a
-> > patch on my own, but then couldn't find the time to test it and finally
-> > forgot about it :( so I never posted it. You can read it here for
-> > reference:
-> > http://jdelvare.nerim.net/devel/misc/i2c-i801-07-check-pec-status.patch
-> >
-> > I am currently working on other matters but I'll look into this ASAP. A
-> > quick comparison between our patches suggests that yours only clears
-> > the PEC status bit while mine also reports the error properly to the
-> > caller, so mine might be a better working base. Maybe you could review
-> > and/or test my patch as a replacement of yours?
-> 
-> My version does actually report the error, because the main status 
-> register error bit is also set in this case, and that gets detected and 
-> reported.  It just doesn't doesn't return a specific errno for PEC error.
+--IJpNTDwzlM2Ie8A6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Correct, I did not remember this, sorry.
+Linus,
 
-> The main difference between our versions is that you check and clear the 
-> CRC error bit in i801_check_pre() and i801_checkpost(), while I do it in 
-> i801_isr().  i801_isr() is also where it checks and clears the main 
-> status register for errors, so it seems natural to do it also for the 
-> auxiliary status.
+here are two buildfixes for I2C based on your tree from the day before
+yesterday. Sadly, these build errors never reached me while the patches
+were sitting in -next. Need to fix that. Please pull.
 
-The check in i801_check_pre() is in case the CRC error bit is set at
-the time the driver is loaded. If it is, and we don't clear it, the
-driver won't work (for PEC transactions or even for all transactions,
-I'm not sure.) So I think it is needed either way.
+Thanks,
 
-At the end of the transaction, the main status register is cleared in
-both i801_isr() and i801_check_post(). The latter is needed in case the
-driver operates in polling (non-interrupt) mode. That was the only mode
-available originally and my patch is so old that it is entirely
-possible that I wrote it before interrupt support was added to the
-driver. In fact that might even be the reason why I never submitted it,
-it may not support interrupt mode properly.
+   Wolfram
 
-So it is possible that the aux status register must be cleared in both
-i801_isr() and i801_check_post() to be on the safe side.
 
-> Probably what we should do is combine the two versions, especially if we 
-> want to return a PEC-specific errno.  I think to do that properly in the 
-> current structure of the code, we should save the auxiliary status in 
-> priv->auxsts in i801_isr(), the same way it saves priv->status.  This 
-> ways, isr() can clear the error in the hardware and check_post() can 
-> still see it and process accordingly.  What do you think?  (I actually 
-> thought of this, but opted for a minimal fix.)  This is more 
+The following changes since commit bb0fd7ab0986105765d11baa82e619c618a235aa:
 
-Sounds like a good idea, but I still believe that i801_check_post()
-will also have to clear the CRC error bit, for the non-interrupt case.
+  Merge branch 'for-linus' of git://ftp.arm.linux.org.uk/~rmk/linux-arm (2015-04-14 21:03:26 -0700)
 
-> complicated, and functions like i801_wait_intr() return the status and 
-> it can't return two values easily.
+are available in the git repository at:
 
-I don't think we actually need to deal with the aux status register
-value in i801_wait_intr(). According to my notes, whenever the CRC
-error bit is set, SMBHSTSTS_DEV_ERR is also set in the main status
-register. So it's enough to check for that bit in i801_wait_intr(). If
-you need to pass the aux register status to i801_check_post(), in the
-non-interrupt case you could simply do:
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
 
-	return i801_check_post(priv, status, inb_p(SMBAUXSTS(priv)));
+for you to fetch changes up to c1c21f4e60ed4523292f1a89ff45a208bddd3849:
 
-> If we decide to go with your version, I can certainly test it.  We have 
-> a machine with the right hardware combination, and it generates PEC 
-> errors deterministically.
+  i2c: core: Export bus recovery functions (2015-04-15 21:02:07 +0200)
 
-Well as I wrote above, it is possible that my patch doesn't work at all
-in the interrupt case, or that it works but is racy. So most probably
-we have to do as you said and combine both patches into one.
+----------------------------------------------------------------
+Guenter Roeck (1):
+      i2c: jz4780: Fix build for m68k and sparc64
 
-> By the way, I noticed a small bug in i801_transaction(). At line 391, it 
-> has "status = -ETIMEOUT", but "status" at that point should be the 
-> register value not -errno.  It probably should be "return -ETIMEOUT", 
-> but I'm not sure whether hardware cleanup is necessary at that point.
+Mark Brown (1):
+      i2c: core: Export bus recovery functions
 
-I can't see any bug there. status can be either the (positive) register
-value or a negative error code. It is passed to i801_check_post() which
-can deal with both.
+ drivers/i2c/busses/i2c-jz4780.c | 1 +
+ drivers/i2c/i2c-core.c          | 3 +++
+ 2 files changed, 4 insertions(+)
 
--- 
-Jean Delvare
-SUSE L3 Support
+--IJpNTDwzlM2Ie8A6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVMMVtAAoJEBQN5MwUoCm2rlgP/1fv4v1B9M3ckX1FKZcbNvIB
+HCevsxJXgzJLKqU99/ujyAmx4ZZkWgb3LtqAPh+evuplNAYpjEHe6HQGp/pMHb3l
+5DJcJqZk6AhIdq6dBn+bgW9Tp/MwLzqdyPNFdSp5phaJkQ8juGUb7Gxe3K5gn967
+mZVXLj14QIw0YiwwS5/JCQsewqsJF3RAj4drvCyl7slQmNUyz8gvGIoBKGEFNWu7
+pRqYJRpAaSQLn7udh50dt1NrFIRllt2Ag1aZDlMpAYIB84BSUITgiv/D5D4xwByd
+ywuwMYj+xEDKKb1BvukwhAZeeUlYIrQ/IKKp3CjZutiuRDgeyIH6eJyX4JGTfigV
+rgvoXIeqFexra0sFswRqwCvZAnZZmKb+k5l5X0wvFNR1sn+OIdaFp37AsUZsgMVa
+gdYR8duMy/GvfnCu8FyX3twdxGYVM+X813y1Jmkm607N/uunWu1bHeAq6FuOc2s2
+SMTgO2ieNm+ahJtaRzGm+DLUN+DCz/cVZyP+DaywanMcy8lZT8+NOhrRIIdatIYQ
+8qiGRZiGJCr1ax3vv04XmqEcknBvu1znRDVeo+AtX7SaUZaL0V3rPRJndRz0vXD/
++rGxCiisF+t8UvUodP2nishHLTQUW0pWdw23ks52LAxmCX/+XsCyIPGqvNG6XwIo
+XXzmuWgkZuIh39l0PiyF
+=euvD
+-----END PGP SIGNATURE-----
+
+--IJpNTDwzlM2Ie8A6--
