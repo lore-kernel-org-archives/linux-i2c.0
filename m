@@ -1,76 +1,158 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 4.1
-Date: Fri, 17 Apr 2015 10:33:54 +0200
-Message-ID: <20150417083349.GA1323@katana>
+From: "Tirdea, Irina" <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [RFC PATCH 1/1] i2c: core: Add support for best effort block
+ read emulation
+Date: Fri, 17 Apr 2015 13:32:49 +0000
+Message-ID: <1F3AC3675D538145B1661F571FE1805F19A51054@irsmsx105.ger.corp.intel.com>
+References: <1427294000-32406-1-git-send-email-irina.tirdea@intel.com>
+ <20150415155510.GB914@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20150415155510.GB914@katana>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Linus,
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
+> Sent: 15 April, 2015 18:55
+> To: Tirdea, Irina
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Subject: Re: [RFC PATCH 1/1] i2c: core: Add support for best effort block read emulation
+> 
+> On Wed, Mar 25, 2015 at 04:33:20PM +0200, Irina Tirdea wrote:
+> > There are devices that need to handle block transactions
+> > regardless of the capabilities exported by the adapter.
+> > For performance reasons, they need to use i2c read blocks
+> > if available, otherwise emulate the block transaction with word
+> > or byte transactions.
+> >
+> > Add support for a helper function that would read a data block
+> > using the best transfer available: I2C_FUNC_SMBUS_READ_I2C_BLOCK,
+> > I2C_FUNC_SMBUS_READ_WORD_DATA or I2C_FUNC_SMBUS_READ_BYTE_DATA.
+> >
+> > Signed-off-by: Irina Tirdea <irina.tirdea-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > ---
+> >
+> > Hi,
+> >
+> > This is a new API proposal to handle i2c block emulation in the
+> > core instead of the driver code.
+> >
+> > This is needed for a set of iio sensor changes ([1], [2], [3])
+> > that would otherwise duplicate this code. There are also some
+> > usages of this functionality in the kernel (e.g. eeprom driver at24).
+> >
+> > Please let me know what you think.
+> 
+> I am open to add something like this. One change I'd like to request is
+> to introduce a user, e.g. convert at24.
+> 
+Thanks for the review!
 
-here are two buildfixes for I2C based on your tree from the day before
-yesterday. Sadly, these build errors never reached me while the patches
-were sitting in -next. Need to fix that. Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit bb0fd7ab0986105765d11baa82e619c618a235aa:
-
-  Merge branch 'for-linus' of git://ftp.arm.linux.org.uk/~rmk/linux-arm (2015-04-14 21:03:26 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-
-for you to fetch changes up to c1c21f4e60ed4523292f1a89ff45a208bddd3849:
-
-  i2c: core: Export bus recovery functions (2015-04-15 21:02:07 +0200)
-
-----------------------------------------------------------------
-Guenter Roeck (1):
-      i2c: jz4780: Fix build for m68k and sparc64
-
-Mark Brown (1):
-      i2c: core: Export bus recovery functions
-
- drivers/i2c/busses/i2c-jz4780.c | 1 +
- drivers/i2c/i2c-core.c          | 3 +++
- 2 files changed, 4 insertions(+)
-
---IJpNTDwzlM2Ie8A6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVMMVtAAoJEBQN5MwUoCm2rlgP/1fv4v1B9M3ckX1FKZcbNvIB
-HCevsxJXgzJLKqU99/ujyAmx4ZZkWgb3LtqAPh+evuplNAYpjEHe6HQGp/pMHb3l
-5DJcJqZk6AhIdq6dBn+bgW9Tp/MwLzqdyPNFdSp5phaJkQ8juGUb7Gxe3K5gn967
-mZVXLj14QIw0YiwwS5/JCQsewqsJF3RAj4drvCyl7slQmNUyz8gvGIoBKGEFNWu7
-pRqYJRpAaSQLn7udh50dt1NrFIRllt2Ag1aZDlMpAYIB84BSUITgiv/D5D4xwByd
-ywuwMYj+xEDKKb1BvukwhAZeeUlYIrQ/IKKp3CjZutiuRDgeyIH6eJyX4JGTfigV
-rgvoXIeqFexra0sFswRqwCvZAnZZmKb+k5l5X0wvFNR1sn+OIdaFp37AsUZsgMVa
-gdYR8duMy/GvfnCu8FyX3twdxGYVM+X813y1Jmkm607N/uunWu1bHeAq6FuOc2s2
-SMTgO2ieNm+ahJtaRzGm+DLUN+DCz/cVZyP+DaywanMcy8lZT8+NOhrRIIdatIYQ
-8qiGRZiGJCr1ax3vv04XmqEcknBvu1znRDVeo+AtX7SaUZaL0V3rPRJndRz0vXD/
-+rGxCiisF+t8UvUodP2nishHLTQUW0pWdw23ks52LAxmCX/+XsCyIPGqvNG6XwIo
-XXzmuWgkZuIh39l0PiyF
-=euvD
------END PGP SIGNATURE-----
-
---IJpNTDwzlM2Ie8A6--
+Sure, I'll send a new version with the fixes you suggested and include a user as well.
+> >
+> > Thanks,
+> > Irina
+> >
+> > [1] https://lkml.org/lkml/2015/2/16/408
+> > [2] https://lkml.org/lkml/2015/2/16/413
+> > [3] https://lkml.org/lkml/2015/2/16/402
+> >
+> >  drivers/i2c/i2c-core.c | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/i2c.h    |  3 +++
+> >  2 files changed, 65 insertions(+)
+> >
+> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > index fe80f85..2579f7d 100644
+> > --- a/drivers/i2c/i2c-core.c
+> > +++ b/drivers/i2c/i2c-core.c
+> > @@ -2907,6 +2907,68 @@ trace:
+> >  }
+> >  EXPORT_SYMBOL(i2c_smbus_xfer);
+> >
+> > +/**
+> > + * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
+> > + * @client: Handle to slave device
+> > + * @command: Byte interpreted by slave
+> > + * @length: Size of data block; SMBus allows at most 32 bytes
+> > + * @values: Byte array into which data will be read; big enough to hold
+> > + *	the data returned by the slave.  SMBus allows at most 32 bytes.
+> 
+> Sidenote: SMBus3 allows 255 byte, but we don't support that (yet), so
+> this is okay for now.
+> 
+> > + *
+> > + * This executes the SMBus "block read" protocol if supported by the adapter.
+> > + * If block read is not supported, it emulates it using either word or byte
+> > + * read protocols depending on availability.
+> 
+> Here I'd like to see a warning that people should double-check if their
+> I2C slave does support that. Sometimes one can't exchange a block
+> transfer with a byte transfer.
+> 
+Ok.
+> > + */
+> > +s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+> > +					      u8 command, u8 length, u8 *values)
+> > +{
+> > +	u8 i;
+> > +	int status;
+> > +
+> > +	if (length > I2C_SMBUS_BLOCK_MAX)
+> > +		length = I2C_SMBUS_BLOCK_MAX;
+> > +
+> > +	if (i2c_check_functionality(client->adapter,
+> > +				    I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+> > +		return i2c_smbus_read_i2c_block_data(client, command,
+> > +						     length, values);
+> > +	} else if (i2c_check_functionality(client->adapter,
+> > +					   I2C_FUNC_SMBUS_READ_WORD_DATA |
+> > +					   I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+> 
+> What about skipping the need for READ_BYTE_DATA and dump the byte which
+> was maybe read too much?
+> 
+Yes, that will simply the code.
+> > +		for (i = 0; (i + 2) <= length; i += 2) {
+> > +			status = i2c_smbus_read_word_data(client, command + i);
+> > +			if (status < 0)
+> > +				return status;
+> > +			values[i] = status & 0xff;
+> > +			values[i+1] = status >> 8;
+> > +		}
+> > +		if (i < length) {
+> > +			status = i2c_smbus_read_byte_data(client, command + i);
+> > +			if (status < 0)
+> > +				return status;
+> > +			values[i] = status;
+> > +			i++;
+> > +		}
+> > +		return i;
+> > +	} else if (i2c_check_functionality(client->adapter,
+> > +					   I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+> > +		for (i = 0; i < length; i++) {
+> > +			status = i2c_smbus_read_byte_data(client, command + i);
+> > +			if (status < 0)
+> > +				return status;
+> > +			values[i] = status;
+> > +		}
+> > +		return i;
+> > +	}
+> > +
+> > +	dev_err(&client->adapter->dev, "Unsupported transactions: %d,%d,%d\n",
+> > +		I2C_SMBUS_I2C_BLOCK_DATA, I2C_SMBUS_WORD_DATA,
+> > +		I2C_SMBUS_BYTE_DATA);
+> > +
+> > +	return -EOPNOTSUPP;
+> > +}
+> > +EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data_or_emulated);
+> 
+> Thanks,
+> 
+>    Wolfram
