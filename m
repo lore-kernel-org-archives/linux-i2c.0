@@ -1,42 +1,71 @@
-From: pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH] omap: i2c: Add calls for pinctrl state select
-Date: Thu, 16 Apr 2015 19:04:56 +0200
-Message-ID: <1429203896-27381-1-git-send-email-pascal.huerst@gmail.com>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Need some guidance on i2c-ocores driver
+Date: Thu, 16 Apr 2015 17:02:22 -0700
+Message-ID: <55304D8E.8070204@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Julia.Lawall-L2FTfq7BK8M@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Julia and other experts,
 
-This adds calls to pinctrl subsystem in order to switch pin states
-on suspend/resume if you provide a "sleep" state in DT.
----
- drivers/i2c/busses/i2c-omap.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I am seeking for help on my device driver.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 0e89419..6b5d4bd 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1423,6 +1423,8 @@ static int omap_i2c_runtime_suspend(struct device *dev)
- 		omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
- 	}
+I am working on a module driver for a FPGA design with open core I2C controller
+memory-mapped to BAR2. I have searched up and down and found only one driver
+(drivers/mfd/timberdale.c) with similar implementation. Following timberdale
+driver, I am able to load the driver, but blocked by devm_ioremap_resource(). It
+is always in conflict with my BAR2. I wonder if I did something wrong. Here is
+the flow I tracked so far. (By the way, I am using an older kernel 3.12. The new
+4.0 kernel crashes when booting on my platform. I plan to move to newer kernel
+later).
 
-+	pinctrl_pm_select_sleep_state(dev);
-+
- 	return 0;
- }
+mfd_add_devices()
+|
+|--mfd_add_device()
+    |
+    |--platform_device_add()
+        |
+        |--insert_resource()  /* this passed */
+        |   |
+        |   |--insert_resource_conflict()
+        |
+        |--device_add()
+            |
+            |--bus_probe_device()
+                |
+                |--devm_ioremap_resource()
+                    |
+                    |--devm_request_mem_region()
+                        |
+                        |--__request_region() /* this always conflicts */
+                            |
+                            |--__request_resource()
 
-@@ -1431,6 +1433,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
+My driver is called RedStone DMA. Here is my debug output
 
-+	pinctrl_pm_select_default_state(dev);
-+
- 	if (!_dev->regs)
- 		return 0;
+> root@p1022ds:~# insmod redstone_mfd.ko 
+> RedStone DMA 0002:05:00.0: pci_enable_device() successful
+> RedStone DMA 0002:05:00.0: MSI-X init successful
+> York kernel: Calling devm_ioremap_resource()
+> York kernel kernel/resource.c __request_region 977: conflict=[??? 0xc00080000-0xc00087fff flags 0x80000000]
+> ocores-i2c ocores-i2c: can't request region for resource [mem 0xc00086000-0xc0008601f]
+> ocores-i2c: probe of ocores-i2c failed with error -16
+> RedStone DMA 0002:05:00.0: BAR[0] 0x0000000c00000000-0x0000000c0007ffff flags 0x0014220c, length 524288
+> RedStone DMA 0002:05:00.0: BAR[1] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
+> RedStone DMA 0002:05:00.0: BAR[2] 0x0000000c00080000-0x0000000c00087fff flags 0x00040200, length 32768
+> RedStone DMA 0002:05:00.0: BAR[3] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
+> RedStone DMA 0002:05:00.0: BAR[4] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
+> RedStone DMA 0002:05:00.0: BAR[5] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
+> RedStone DMA 0002:05:00.0: Version 1.4, built on 4-16-15, id 0
+> root@p1022ds:~# 
 
---
-1.9.3
+Can you shed some light on this?
+
+Thanks.
+
+York
