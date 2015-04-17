@@ -1,87 +1,47 @@
-From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: Need some guidance on i2c-ocores driver
-Date: Fri, 17 Apr 2015 08:47:03 -0700
-Message-ID: <55312AF7.7070504@freescale.com>
-References: <55304D8E.8070204@freescale.com>
+From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [V2 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
+ driver
+Date: Fri, 17 Apr 2015 10:12:10 -0700
+Message-ID: <55313EEA.8040103@gmail.com>
+References: <1428004866-13543-1-git-send-email-kdasu.kdev@gmail.com>	<CAA7nrtjWUZOBQiTr0YrZFmLOoAttyJ5gMxb+hR7jnz1HC51Buw@mail.gmail.com>	<CAC=U0a3OXKBSUeRnbsXZ2J7snhRzhGAFctvzjwg=o90w59oNHg@mail.gmail.com> <CAA7nrtjyVXkMYTL8AWMMp1peZ0TGMwYtYhRxrTrBH3kyZzi1tw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55304D8E.8070204-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <CAA7nrtjyVXkMYTL8AWMMp1peZ0TGMwYtYhRxrTrBH3kyZzi1tw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
-Cc: Julia.Lawall-L2FTfq7BK8M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Gregory Fong <gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Resend to LKML
+On 16/04/15 22:52, rajeev kumar wrote:
 
-Lee,
+>>>> +#define bsc_readl(_dev, reg)                                           \
+>>>> +       __bsc_readl(_dev, offsetof(struct bsc_regs, reg))
+>>>> +
+> 
+> use readl/writel
 
-This question is actually more about MFD. Can you point me to the possible
-causes for my failure below?
+This peripheral is used on chips that can run in either little or
+big-endian, and in both cases, this is a board-level strap that dictates
+the entire endianess of the system, such that on-chip peripherals should
+always be accessed in the host (native) endianess.
 
-Thanks.
+readl/writel introduce an implicit endian conversion for kernels
+compiled in big-endian, that we do not want here. Depending on the
+architecture, there is also an additional barrier that is not needed,
+since the underlying bus serving this peripheral (GISB) does not
+re-order transactions, and writes are not posted.
 
-York
+A better abstraction however could be something like this:
 
+#ifdef CONFIG_CPU_BIG_ENDIAN
+#define __bsc_readl(_dev, reg)	ioread32be(...)
+#else
+#define __bsc_readl(_dev, reg)	ioread32(...)
+#endif
 
-On 04/16/2015 05:02 PM, York Sun wrote:
-> Julia and other experts,
-> 
-> I am seeking for help on my device driver.
-> 
-> I am working on a module driver for a FPGA design with open core I2C controller
-> memory-mapped to BAR2. I have searched up and down and found only one driver
-> (drivers/mfd/timberdale.c) with similar implementation. Following timberdale
-> driver, I am able to load the driver, but blocked by devm_ioremap_resource(). It
-> is always in conflict with my BAR2. I wonder if I did something wrong. Here is
-> the flow I tracked so far. (By the way, I am using an older kernel 3.12. The new
-> 4.0 kernel crashes when booting on my platform. I plan to move to newer kernel
-> later).
-> 
-> mfd_add_devices()
-> |
-> |--mfd_add_device()
->     |
->     |--platform_device_add()
->         |
->         |--insert_resource()  /* this passed */
->         |   |
->         |   |--insert_resource_conflict()
->         |
->         |--device_add()
->             |
->             |--bus_probe_device()
->                 |
->                 |--devm_ioremap_resource()
->                     |
->                     |--devm_request_mem_region()
->                         |
->                         |--__request_region() /* this always conflicts */
->                             |
->                             |--__request_resource()
-> 
-> My driver is called RedStone DMA. Here is my debug output
-> 
->> root@p1022ds:~# insmod redstone_mfd.ko 
->> RedStone DMA 0002:05:00.0: pci_enable_device() successful
->> RedStone DMA 0002:05:00.0: MSI-X init successful
->> York kernel: Calling devm_ioremap_resource()
->> York kernel kernel/resource.c __request_region 977: conflict=[??? 0xc00080000-0xc00087fff flags 0x80000000]
->> ocores-i2c ocores-i2c: can't request region for resource [mem 0xc00086000-0xc0008601f]
->> ocores-i2c: probe of ocores-i2c failed with error -16
->> RedStone DMA 0002:05:00.0: BAR[0] 0x0000000c00000000-0x0000000c0007ffff flags 0x0014220c, length 524288
->> RedStone DMA 0002:05:00.0: BAR[1] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
->> RedStone DMA 0002:05:00.0: BAR[2] 0x0000000c00080000-0x0000000c00087fff flags 0x00040200, length 32768
->> RedStone DMA 0002:05:00.0: BAR[3] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
->> RedStone DMA 0002:05:00.0: BAR[4] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
->> RedStone DMA 0002:05:00.0: BAR[5] 0x0000000000000000-0x0000000000000000 flags 0x00000000, length 0
->> RedStone DMA 0002:05:00.0: Version 1.4, built on 4-16-15, id 0
->> root@p1022ds:~# 
-> 
-> Can you shed some light on this?
-> 
-> Thanks.
-> 
-> York
-> 
+Such that we preserve the host endianess access, but we clearly identify
+the differences in running in a big or little endian configuration?
+-- 
+Florian
