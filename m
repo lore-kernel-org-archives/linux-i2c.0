@@ -1,87 +1,120 @@
-From: Irina Tirdea <irina.tirdea@intel.com>
-Subject: [PATCH v2 2/2] eeprom: at24: use i2c_smbus_read_i2c_block_data_or_emulated
-Date: Fri, 17 Apr 2015 22:17:53 +0300
-Message-ID: <1429298273-5108-3-git-send-email-irina.tirdea@intel.com>
-References: <1429298273-5108-1-git-send-email-irina.tirdea@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1429298273-5108-1-git-send-email-irina.tirdea@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Irina Tirdea <irina.tirdea@intel.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: Need some guidance on i2c-ocores driver
+Date: Mon, 20 Apr 2015 07:42:31 +0100
+Message-ID: <20150420064231.GE3447@x1>
+References: <55304D8E.8070204@freescale.com>
+ <55312AF7.7070504@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <55312AF7.7070504-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Julia.Lawall-L2FTfq7BK8M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-For i2c busses that support only SMBUS extensions, the eeprom at24
-driver reads data from the device using the SMBus block, word or byte
-read protocols depending on availability.
+On Fri, 17 Apr 2015, York Sun wrote:
 
-Replace the block read emulation from the driver with the
-i2c_smbus_read_i2c_block_data_or_emulated call from i2c core.
+> Resend to LKML
+>=20
+> Lee,
+>=20
+> This question is actually more about MFD. Can you point me to the pos=
+sible
+> causes for my failure below?
 
-Signed-off-by: Irina Tirdea <irina.tirdea@intel.com>
----
- drivers/misc/eeprom/at24.c | 40 +++++++++-------------------------------
- 1 file changed, 9 insertions(+), 31 deletions(-)
+It's hard to tell exactly without code, but it looks like you're
+trying to allocate overlapping memory regions.  Double check all of
+your addresses.  For DT you need to take a look at your 'reg'
+properties, for traditional platform data it's best to grep for
+IORESOURCE_MEM.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2d3db81..d13795a 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -186,19 +186,11 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	if (count > io_limit)
- 		count = io_limit;
- 
--	switch (at24->use_smbus) {
--	case I2C_SMBUS_I2C_BLOCK_DATA:
-+	if (at24->use_smbus) {
- 		/* Smaller eeproms can work given some SMBus extension calls */
- 		if (count > I2C_SMBUS_BLOCK_MAX)
- 			count = I2C_SMBUS_BLOCK_MAX;
--		break;
--	case I2C_SMBUS_WORD_DATA:
--		count = 2;
--		break;
--	case I2C_SMBUS_BYTE_DATA:
--		count = 1;
--		break;
--	default:
-+	} else {
- 		/*
- 		 * When we have a better choice than SMBus calls, use a
- 		 * combined I2C message. Write address; then read up to
-@@ -229,27 +221,13 @@ static ssize_t at24_eeprom_read(struct at24_data *at24, char *buf,
- 	timeout = jiffies + msecs_to_jiffies(write_timeout);
- 	do {
- 		read_time = jiffies;
--		switch (at24->use_smbus) {
--		case I2C_SMBUS_I2C_BLOCK_DATA:
--			status = i2c_smbus_read_i2c_block_data(client, offset,
--					count, buf);
--			break;
--		case I2C_SMBUS_WORD_DATA:
--			status = i2c_smbus_read_word_data(client, offset);
--			if (status >= 0) {
--				buf[0] = status & 0xff;
--				buf[1] = status >> 8;
--				status = count;
--			}
--			break;
--		case I2C_SMBUS_BYTE_DATA:
--			status = i2c_smbus_read_byte_data(client, offset);
--			if (status >= 0) {
--				buf[0] = status;
--				status = count;
--			}
--			break;
--		default:
-+		if (at24->use_smbus) {
-+			status =
-+			    i2c_smbus_read_i2c_block_data_or_emulated(client,
-+								      offset,
-+								      count,
-+								      buf);
-+		} else {
- 			status = i2c_transfer(client->adapter, msg, 2);
- 			if (status == 2)
- 				status = count;
--- 
-1.9.1
+> Thanks.
+>=20
+> York
+>=20
+>=20
+> On 04/16/2015 05:02 PM, York Sun wrote:
+> > Julia and other experts,
+> >=20
+> > I am seeking for help on my device driver.
+> >=20
+> > I am working on a module driver for a FPGA design with open core I2=
+C controller
+> > memory-mapped to BAR2. I have searched up and down and found only o=
+ne driver
+> > (drivers/mfd/timberdale.c) with similar implementation. Following t=
+imberdale
+> > driver, I am able to load the driver, but blocked by devm_ioremap_r=
+esource(). It
+> > is always in conflict with my BAR2. I wonder if I did something wro=
+ng. Here is
+> > the flow I tracked so far. (By the way, I am using an older kernel =
+3.12. The new
+> > 4.0 kernel crashes when booting on my platform. I plan to move to n=
+ewer kernel
+> > later).
+> >=20
+> > mfd_add_devices()
+> > |
+> > |--mfd_add_device()
+> >     |
+> >     |--platform_device_add()
+> >         |
+> >         |--insert_resource()  /* this passed */
+> >         |   |
+> >         |   |--insert_resource_conflict()
+> >         |
+> >         |--device_add()
+> >             |
+> >             |--bus_probe_device()
+> >                 |
+> >                 |--devm_ioremap_resource()
+> >                     |
+> >                     |--devm_request_mem_region()
+> >                         |
+> >                         |--__request_region() /* this always confli=
+cts */
+> >                             |
+> >                             |--__request_resource()
+> >=20
+> > My driver is called RedStone DMA. Here is my debug output
+> >=20
+> >> root@p1022ds:~# insmod redstone_mfd.ko=20
+> >> RedStone DMA 0002:05:00.0: pci_enable_device() successful
+> >> RedStone DMA 0002:05:00.0: MSI-X init successful
+> >> York kernel: Calling devm_ioremap_resource()
+> >> York kernel kernel/resource.c __request_region 977: conflict=3D[??=
+? 0xc00080000-0xc00087fff flags 0x80000000]
+> >> ocores-i2c ocores-i2c: can't request region for resource [mem 0xc0=
+0086000-0xc0008601f]
+> >> ocores-i2c: probe of ocores-i2c failed with error -16
+> >> RedStone DMA 0002:05:00.0: BAR[0] 0x0000000c00000000-0x0000000c000=
+7ffff flags 0x0014220c, length 524288
+> >> RedStone DMA 0002:05:00.0: BAR[1] 0x0000000000000000-0x00000000000=
+00000 flags 0x00000000, length 0
+> >> RedStone DMA 0002:05:00.0: BAR[2] 0x0000000c00080000-0x0000000c000=
+87fff flags 0x00040200, length 32768
+> >> RedStone DMA 0002:05:00.0: BAR[3] 0x0000000000000000-0x00000000000=
+00000 flags 0x00000000, length 0
+> >> RedStone DMA 0002:05:00.0: BAR[4] 0x0000000000000000-0x00000000000=
+00000 flags 0x00000000, length 0
+> >> RedStone DMA 0002:05:00.0: BAR[5] 0x0000000000000000-0x00000000000=
+00000 flags 0x00000000, length 0
+> >> RedStone DMA 0002:05:00.0: Version 1.4, built on 4-16-15, id 0
+> >> root@p1022ds:~#=20
+> >=20
+> > Can you shed some light on this?
+> >=20
+> > Thanks.
+> >=20
+> > York
+> >=20
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
