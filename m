@@ -1,85 +1,60 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC] i2c-tools: i2ctransfer: add new tool
-Date: Tue, 21 Apr 2015 09:06:53 +0200
-Message-ID: <20150421070653.GA900@katana>
-References: <1425053816-19804-1-git-send-email-wsa@the-dreams.de>
- <20150420173638.GA1452@katana>
- <20150421072551.326bb4b7@endymion.delvare>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: Need some guidance on i2c-ocores driver
+Date: Tue, 21 Apr 2015 08:35:34 +0100
+Message-ID: <20150421073534.GK3447@x1>
+References: <55304D8E.8070204@freescale.com>
+ <55312AF7.7070504@freescale.com>
+ <20150420064231.GE3447@x1>
+ <55352839.70905@freescale.com>
+ <20150420181651.GF3447@x1>
+ <5535460B.2060309@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150421072551.326bb4b7-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <5535460B.2060309-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Julia.Lawall-L2FTfq7BK8M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Apr 21, 2015 at 07:25:51AM +0200, Jean Delvare wrote:
-> Hi Wolfram,
->=20
-> On Mon, 20 Apr 2015 19:36:38 +0200, Wolfram Sang wrote:
-> > On Fri, Feb 27, 2015 at 05:16:56PM +0100, Wolfram Sang wrote:
-> > > This tool allows to construct and concat multiple I2C messages into o=
-ne
-> > > single transfer. Its aim is to test I2C master controllers, and so th=
-ere
-> > > is no SMBus fallback.
-> > >=20
-> > > Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> > > ---
-> > >=20
-> > > I've been missing such a tool a number of times now, so I finally got=
- around to
-> > > writing it myself. As with all I2C tools, it can be dangerous, but it=
- can also
-> > > be very useful when developing. I am not sure if distros should suppl=
-y it, I'll
-> > > leave that to Jean's experience. For embedded build systems, I think =
-this
-> > > should be selectable. It is RFC for now because it needs broader test=
-ing and some
-> > > more beautification. However, I've been using it already to test the =
-i2c_quirk
-> > > infrastructure and Renesas I2C controllers.
+> >> mfd_add_devices() is called, it uses &dev->resource as the base. S=
+o the BAR will
+> >> be the parent. Check the code in mfd-core.c, mfd_add_device(),
+> >>
+> >> if ((cell->resources[r].flags & IORESOURCE_MEM) && mem_base) {
+> >> 	res[r].parent =3D mem_base;
+> >> 	res[r].start =3D mem_base->start + cell->resources[r].start;
+> >> 	res[r].end =3D mem_base->start + cell->resources[r].end;
+> >> }
+> >>
+> >> So the MFD resource is within its parent. When later the device dr=
+iver request a
+> >> region, will it get conflict with the parent?
 > >=20
-> > Jean, my tests went well and so I want to brush it up for inclusion into
-> > i2c-tools upstream. Any show-stoppers you see from a high-level point of
-> > view?
+> > I doubt you'll want to map the same memory area in both the parent =
+and
+> > the child device drivers.  Only map the registers you plan to use i=
+n
+> > the driver you plan to use them.  If you need multiple devices to
+> > access the same registers then you need to create an API, complete
+> > with locking, in the MFD parent device.
 >=20
-> I think it is a good idea, just I couldn't find the time to review it,
-> sorry :(
+> Thanks for pointing out. I thought at first the conflict was due to m=
+y
+> pci_ioremap_bar(). I went ahead to remove the mapping but still not w=
+orking.
+> Your email inspired me to take a deeper look at my code and I found m=
+y error. I
+> have called pci_request_regions() which reserves all BARs. I think th=
+at's my
+> root cause. Thanks for helping me.
 
-No problem, no hurry. Glad to know that you like it in general.
+You are welcome.
 
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVNfcNAAoJEBQN5MwUoCm25CAP/2e4wFJ2ef6Kb4M6XLGDk3Nf
-9YGC9DOjvXdLD2xfmXXBz1yjQ895kUS904auLt8fUf9+9m/O3RuXT0LX2+0F7MOw
-q7Wrk/W2rptAcghX69JIjcvGhBJjFLsLuS9pvYEQzzaDaUnIi44wPAJLKT9mJjie
-OKiCu+6hesUVuac74UiuU7y2lwwN0JHbDV2kfp3eQOJ2zxe1rqcHsDgU9fsxWGVI
-2QZkVJAUJKRxHgKy/auvDyUpHH2mziMpR/5dlccev442oA1C7cZE/YT4EfUJrUnF
-+QPlTTdParOd0lbSWu088j9kiCSSQLacctLT0LGTdEKFHTPxJRgjl4XMSDlrMXpv
-g3PTm0tsnistPbTIIZDBap/wt5w2HiK1dDWdvpVmInPYyn+oc3Th75eaex5rLyaf
-dlJGbs4j6KY/HnXxjOH35STIZfCjq2hAHwkUlWTaE70G0Q/bWCvh26zoaNY9O9VR
-y1pXtvIHqkPfhQ1phUaIU/+Ue4ws1kiwTqsUduWP7sx0dbWAVX6hyvzGcNvKw+Uv
-dqqFr75XpV7tvcbCDzJDeZr6cpfY9v5CBDwYlstAN6yHITXKAcIlSfb0UHTpBjm/
-wCgH1JKPCJJJ1vAF7CairBbhT5M4H9Hqd6lNeSPImoM5egkXv1Rgap7bC+JJnJET
-yO5+IW2nM5RVFJSL0S5e
-=dc89
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
