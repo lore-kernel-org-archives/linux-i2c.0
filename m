@@ -1,57 +1,60 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] omap: i2c: Add calls for pinctrl state select
-Date: Wed, 22 Apr 2015 10:12:40 +0200
-Message-ID: <20150422081240.GH1511@katana>
-References: <1429283277-28161-1-git-send-email-pascal.huerst@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH -next] i2c: remove duplicated include from i2c-digicolor.c
+Date: Wed, 22 Apr 2015 10:19:00 +0200
+Message-ID: <20150422081900.GI1511@katana>
+References: <1429189812-24079-1-git-send-email-weiyj_lk@163.com>
+ <20150416132114.GA913@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dx9iWuMxHO1cCoFc"
-Return-path: <linux-omap-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="uJWb33pM2TcUAXIl"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1429283277-28161-1-git-send-email-pascal.huerst@gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: pascal.huerst@gmail.com
-Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <20150416132114.GA913@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: weiyj_lk-9Onoh4P/yGk@public.gmane.org
+Cc: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Dx9iWuMxHO1cCoFc
+--uJWb33pM2TcUAXIl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 17, 2015 at 05:07:57PM +0200, pascal.huerst@gmail.com wrote:
-> From: Pascal Huerst <pascal.huerst@gmail.com>
+On Thu, Apr 16, 2015 at 03:21:14PM +0200, Wolfram Sang wrote:
+> On Thu, Apr 16, 2015 at 09:10:12PM +0800, weiyj_lk-9Onoh4P/yGk@public.gmane.org wrote:
+> > From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+> >=20
+> > Remove duplicated include.
+> >=20
+> > Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
 >=20
-> This adds calls to pinctrl subsystem in order to switch pin states
-> on suspend/resume if you provide a "sleep" state in DT.
->=20
-> Signed-off-by: Pascal Huerst <pascal.huerst@gmail.com>
+> Yes, but please sort the includes to prevent this from happening again
+> in the future.
 
-? Don't you get a build error? I do. Rightfully, I'd think, there is no
-pinctrl-include.
+Did this now. Thanks for reporting!
 
 
---Dx9iWuMxHO1cCoFc
+--uJWb33pM2TcUAXIl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVN1f3AAoJEBQN5MwUoCm2MLgP/3s3iOT+Uor6cw4IAGP3vVD7
-rjmt/dADrGx0KMtmjhotAcu7+YFPQ1byLyksvWsCVaX9hpeVlaVwPP3uqMMt5vax
-I6BqjBPo6A7jyYECcV9FE0lSX6pqMaOpjj1L5cxWcpgLq9QEGmz0CLtZDM8Rfgud
-XNq/yj6PTZxmh+vNBoLTC1bw/QTTQ3im2ebV43shaEpG5ZRL4jXb+r4PBVExPUGt
-DpCoID5RhNqGMwg8E4qa6BeEdTLOOEY8oY97TSJD7oYPcSEMMX6m1RjvYaW/HKw5
-PSifCjfsli4d/YjPLJX2AEOWQ9cSkR5I+nV2zvSwzIsKKozV2aQHLjzpzowSZdWN
-mvqizNzU472JxexPSf1H4qEZJCuqJN2ubxfaESUC53937Kt2q07H+AUvoPmjVaii
-c/YVJuZ6aWrvUBYBpmWASkTZMUJLwvKVpNF//04z0Y7oLsBM2rrMDNxBF60lJ8x3
-D/8wMS5a3vwALxqh+olNckQfQm1+cY2gk2srQQrjwDcAWLHhQpPap0Rtavt+B4jW
-VdKfAwuQcfmUA8OQbTrRT2QwBCFeK8CcLr/9GpprlTIEA1J9erSn7s57Z7/2FxS1
-Xnl89aCnkabIF48s51ap9Hgbkn8HOOE1SAyfEM4dcIQ7vtxpr5tz6zi1cUDRoPTb
-PJCzYq5JUsWK5LDBbj+M
-=srmk
+iQIcBAEBAgAGBQJVN1l0AAoJEBQN5MwUoCm26dgP/AnR2O9SIjdPqjS85KlrT7NC
+ff5TtR2p+wYVTU6XavedQnIZouOkOFJwSXHHi8y1P5C+AlOm9a5C0D6Ao95fE8cu
+HOonHV1dmegXeVSXAnJE+J3j09G5Bkw/qCqQmBGeOJyNUCTqlyYFEmNxZ+XWXdCB
+STylwy1W8sLWm367DbrYucEy7JxyjtaWaSMoBdpiptRHH1Ww/ZdzLmJ1Cm39xHYB
+sLtpSiNnj7XMBFndqqZ9+JImh7OzrYVKroDq1eXrzFV84BQjYPogN+VHDal8UII/
+58rbPpu8++Jvc9gOwPFcJ7/pbFvTSQ9PyJR3pOjOQ2aDUyAY7J7xGVQpLw+T5MhY
+7YaloRKeQ7bHNKKje6uuDO6QY51ObvkIj1UCkWYEWNarbQ3igSH+tet8LpnZLvqP
+aXtB22iDVg4AzxCfRbKri50OWRCvK+HAqKT0ZAKrCsWbkiy3COhI9OxxQh4zs2sB
+PHIN+ggBIfV+ZsnNU64Wuv4Y2/5NVZsU9ML+BNQ6HFoRmsz/hWRor2A/xFsH1bau
+M+XciF3I6B29lJTDphHJzfRTnCF83rCwLOHbm62tpaPaj22BbkhL0kooT5Ky7URk
+oY90/4Q4l3RoPqVUTYrKI8Nz/5tb9+mvy1WLUWPeqz5pfcgcNr4J6SSvJoKW8qJE
+K50PjF3AfmxYMZ+ZR8TP
+=UgmA
 -----END PGP SIGNATURE-----
 
---Dx9iWuMxHO1cCoFc--
+--uJWb33pM2TcUAXIl--
