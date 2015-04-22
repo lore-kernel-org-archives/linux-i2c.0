@@ -1,52 +1,56 @@
-From: pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH v2] omap: i2c: Add calls for pinctrl state select
-Date: Wed, 22 Apr 2015 11:07:47 +0200
-Message-ID: <1429693667-28942-1-git-send-email-pascal.huerst@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] omap: i2c: Add calls for pinctrl state select
+Date: Wed, 22 Apr 2015 12:28:30 +0200
+Message-ID: <20150422102830.GA1523@katana>
+References: <1429283277-28161-1-git-send-email-pascal.huerst@gmail.com>
+ <20150422081240.GH1511@katana>
+ <553760D4.4020506@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <553760D4.4020506@gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Pascal Huerst <pascal.huerst@gmail.com>
+Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-This adds calls to pinctrl subsystem in order to switch pin states
-on suspend/resume if you provide a "sleep" state in DT.
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c | 5 +++++
- 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 0e89419..8261941 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -38,6 +38,7 @@
- #include <linux/slab.h>
- #include <linux/i2c-omap.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pinctrl/consumer.h>
+> You are right, the include is missing. I just reapplied the patch,
+> compiled and interestingly enough, I don't get any compile errors. (?)
 
- /* I2C controller revisions */
- #define OMAP_I2C_OMAP1_REV_2		0x20
-@@ -1423,6 +1424,8 @@ static int omap_i2c_runtime_suspend(struct device *dev)
- 		omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
- 	}
+I assume you have a different kernel config where something is enabled
+which includes the pinctrl-stuff in another include which is included
+by these drivers. Although, my .config was arm-allyesconfig. Can you
+send yours?
 
-+	pinctrl_pm_select_sleep_state(dev);
-+
- 	return 0;
- }
 
-@@ -1431,6 +1434,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-+	pinctrl_pm_select_default_state(dev);
-+
- 	if (!_dev->regs)
- 		return 0;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
---
-2.1.0
+iQIcBAEBAgAGBQJVN3fOAAoJEBQN5MwUoCm26CgP/3C88YyXkji3yPht00spcril
+o9w1DyW14K5xOVszHwSbn4o8H8TRrcfd6U3pooPil1bNm8q5/GBpFuDdIy1eFuxr
+vvhTjrSmPWI7mexQFeOA4/8mYMUr3X6lH9np4y2l3kk70+qvri8fioniuJLtpvJ5
+pRuMhRaCL6fw2/BnJfuHFaiug33Ml+bhB/tni9GxYe0SLobpxcXS/5AtvRbMxJkw
+xU7E1Wo7WKQuJnXbYwAV/+XCxx52yfv7tA7MGlqSCxUaxYSQ4/nFFhQLpGzsnWvG
+RUkUDMQXBkcj92ckH4+rLgp9ka7ddZVDrsOn713XrqfhW375ShF/EXWIw8wdJV0j
+cyFMEQ58btSpxEG9e2y2S/8lnK6Ls+mlFRukMWcwFAKk1ujbS0aIT7QirpHOjqY/
+4OkBc0f+bvq1pP4+hahm687I36SnwhaWrHYc+wBdcVG5ve9zxiTC/Ll6i7tnVfPR
+syIFfqWwbhOo2+TQPMxp5oxQF0EkrEp5nTeX/hahGQDk9+cpme2JaBw9JRANgO4t
+POF605M74ss5mmYR1VWmBbNXoXFDROCF1vIZZxX+qEhKQT7LAnqUtoL5LOUggm+4
+wTb5HPG3QYT8W0S/+SOy8LH5QLsluCZoMumv7Xb9t5UC9aOs6IBpYU6zxUiUkTwN
+KGXuN1+H6y/tmLrRaSzr
+=Axmy
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--
