@@ -1,58 +1,58 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/7] i2c: mxs: fix broken email address
-Date: Wed, 22 Apr 2015 09:45:32 +0200
-Message-ID: <20150422074532.GC1511@katana>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 3/7] i2c: pca-platform: fix broken email address
+Date: Wed, 22 Apr 2015 09:46:42 +0200
+Message-ID: <20150422074641.GD1511@katana>
 References: <1429537917-7433-1-git-send-email-wsa@the-dreams.de>
- <1429537917-7433-2-git-send-email-wsa@the-dreams.de>
+ <1429537917-7433-3-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vEao7xgI/oilGqZ+"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="PHCdUe6m4AxPMzOu"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1429537917-7433-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1429537917-7433-3-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---vEao7xgI/oilGqZ+
+--PHCdUe6m4AxPMzOu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 20, 2015 at 03:51:39PM +0200, Wolfram Sang wrote:
+On Mon, Apr 20, 2015 at 03:51:40PM +0200, Wolfram Sang wrote:
 > My Pengutronix address is not valid anymore, redirect people to the Pengu=
 tronix
 > kernel team.
 >=20
-> Reported-by: Harald Geyer <harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org>
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Acked-by: Robert Schwebel <r.schwebel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Reported-by: Harald Geyer <harald@ccbib.org>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Acked-by: Robert Schwebel <r.schwebel@pengutronix.de>
 
 Applied to for-current, thanks!
 
 
---vEao7xgI/oilGqZ+
+--PHCdUe6m4AxPMzOu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVN1GcAAoJEBQN5MwUoCm2xRkP+wS9Qx/O99RGPK9zmb5y4Mdc
-LbBP0LSr19/eHr5b4Z0xXkFCx4Hr0nZcSWLMJKQSiwyCQfYwm6rufwSCmD2Ixg5S
-nOD0YZ3CJbWOi1BdNp/UfBr5DW4fnnvmheBRih91wK56MWlye5IP2VlNhZRXKq70
-oOzZ2fKOz48BQPOCL+g4V+AJAnQYF+o11QHbWFEjvvwPXxgCq4ZoSNRlp2zbdHH+
-A785QRbYyHTZghYk/xz7j02D8d4CPSDvSzTYvp/ECdthC8LFFsxkMufVYl64SVrp
-yfqbq10w2PXH5PVF3sV3o8sGKcgdm57coE9P3dcpVhWYVxMZ7lNpYYXWRZeHm5pS
-8A5YbXg4iQ+FWVzx5OvJYK5VbE1Anw/kgZBgfNZA7NtKy5gmWTE1nuLRgqACi9yL
-ALpIFmq0Uy2ouceIrNTWvyXGQsdI0fhN+FCPxzEcPijvZBWAqxJCkIPgyEJSXV/d
-iJG2G58fXtNK+NDy9777ZliN4a9MELiLjgoipr1ceYXPOf+P3IHMT87iUOp8gqNS
-XT6O/BCcUw0VGlhzJ4Wf6Yvl3uZLWdiHukGjHy5EN2/lgwo5VGq7XqfFSb75MH+X
-qOP0A6pDg0p13M3xRcibj6f71/WbEcnkQuzZyswICRJVUYSy6lKgYrmw26kwYBt8
-CAtl2jws/PCMChyh9B0P
-=dLbU
+iQIcBAEBAgAGBQJVN1HhAAoJEBQN5MwUoCm2g4EQAJdhdbm0V7x+jyMiJ8FOWJ+e
++pSVrNLKubNxB2ucQfZEBkxhtx8XHKG1unmqBHeOjfDotrpoD3HDYI8Dgz6Mfylo
+0+JfAqCGy4TNmA0syTsASOwlFfHO3iy8I3fQxoK4gvHDwNYVbZtfiftChp3lmCXZ
+3+xJAgVAGOlrXkIAJlWHJg4sPusZB2tuSuQTdBc1XwkXrTVWNsa6pXdXfMn5CC2o
+fDumPPpkzoA4QdEe1qLXpVoOYMtODOTT3XkesIb64eoDBVP2/8Ar+mxmXJlluhp1
+N901gjMIt75y5y0+XBb0Ralq9H6bYvvZoctGsgpc9r1zkGX9IWWK0uCTQ1HAReOl
+D10rUyWlHEcA7LVmZCCK4JB67R0e5NEtHuDzPT08IpjiEO1EQbLydEe4tiZhaoOJ
+2zqvOBN9yjCPK305Nn+AGZXlMMK5jvLZpI5MAQg4ner7k65lG9dWWmyzEL7bysHG
+ABbiKcPH1JywQhEqeJXgdLTysoH74PZfkHoLBeADFBVKcFHxGSEWJNIn+rPfx5if
+5ZNJCOzH8aK/r7RYUa6E+6f463zbosikvoUUKMxdny7FUTJBkJQMUPnKgSGS20uu
+eUJTj+NGnd+bTd0iNrUoNrKfXot4IvHXE86aJLOB0GCkPFG08ZU/so4nVIyVM4kQ
+ZVCEhjYA3FGVEXHCXX0f
+=FTWF
 -----END PGP SIGNATURE-----
 
---vEao7xgI/oilGqZ+--
+--PHCdUe6m4AxPMzOu--
