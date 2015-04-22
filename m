@@ -1,58 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/7] i2c: pca-platform: fix broken email address
-Date: Wed, 22 Apr 2015 09:46:42 +0200
-Message-ID: <20150422074641.GD1511@katana>
-References: <1429537917-7433-1-git-send-email-wsa@the-dreams.de>
- <1429537917-7433-3-git-send-email-wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: Mark adapter devices with pm_runtime_no_callbacks
+Date: Wed, 22 Apr 2015 09:54:06 +0200
+Message-ID: <20150422075406.GE1511@katana>
+References: <1429185919-26098-1-git-send-email-ckeepax@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PHCdUe6m4AxPMzOu"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="+SfteS7bOf3dGlBC"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1429537917-7433-3-git-send-email-wsa@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
+In-Reply-To: <1429185919-26098-1-git-send-email-ckeepax@opensource.wolfsonmicro.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Cc: kgene@kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, lars@metafoo.de
 List-Id: linux-i2c@vger.kernel.org
 
 
---PHCdUe6m4AxPMzOu
+--+SfteS7bOf3dGlBC
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 20, 2015 at 03:51:40PM +0200, Wolfram Sang wrote:
-> My Pengutronix address is not valid anymore, redirect people to the Pengu=
-tronix
-> kernel team.
+On Thu, Apr 16, 2015 at 01:05:19PM +0100, Charles Keepax wrote:
+> Commit 523c5b89640e ("i2c: Remove support for legacy PM") removed the PM
+> ops from the bus type, which causes the pm operations on the s3c2410
+> adapter device to fail (-ENOSUPP in rpm_callback). The adapter device
+> doesn't get bound to a driver and as such can't have its own pm_runtime
+> callbacks. Previously this was fine as the bus callbacks would have been
+> used, but now this can cause devices which use PM runtime and are
+> attached over I2C to fail to resume.
 >=20
-> Reported-by: Harald Geyer <harald@ccbib.org>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Robert Schwebel <r.schwebel@pengutronix.de>
+> This commit fixes this issue by marking all adapter devices with
+> pm_runtime_no_callbacks, since they can't have any.
+>=20
+> Signed-off-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 
 Applied to for-current, thanks!
 
+Will push out somewhat later today. Lars-Peter, if you'd like to donate
+some ack/review tag until then, this would be much appreciated.
 
---PHCdUe6m4AxPMzOu
+
+--+SfteS7bOf3dGlBC
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVN1HhAAoJEBQN5MwUoCm2g4EQAJdhdbm0V7x+jyMiJ8FOWJ+e
-+pSVrNLKubNxB2ucQfZEBkxhtx8XHKG1unmqBHeOjfDotrpoD3HDYI8Dgz6Mfylo
-0+JfAqCGy4TNmA0syTsASOwlFfHO3iy8I3fQxoK4gvHDwNYVbZtfiftChp3lmCXZ
-3+xJAgVAGOlrXkIAJlWHJg4sPusZB2tuSuQTdBc1XwkXrTVWNsa6pXdXfMn5CC2o
-fDumPPpkzoA4QdEe1qLXpVoOYMtODOTT3XkesIb64eoDBVP2/8Ar+mxmXJlluhp1
-N901gjMIt75y5y0+XBb0Ralq9H6bYvvZoctGsgpc9r1zkGX9IWWK0uCTQ1HAReOl
-D10rUyWlHEcA7LVmZCCK4JB67R0e5NEtHuDzPT08IpjiEO1EQbLydEe4tiZhaoOJ
-2zqvOBN9yjCPK305Nn+AGZXlMMK5jvLZpI5MAQg4ner7k65lG9dWWmyzEL7bysHG
-ABbiKcPH1JywQhEqeJXgdLTysoH74PZfkHoLBeADFBVKcFHxGSEWJNIn+rPfx5if
-5ZNJCOzH8aK/r7RYUa6E+6f463zbosikvoUUKMxdny7FUTJBkJQMUPnKgSGS20uu
-eUJTj+NGnd+bTd0iNrUoNrKfXot4IvHXE86aJLOB0GCkPFG08ZU/so4nVIyVM4kQ
-ZVCEhjYA3FGVEXHCXX0f
-=FTWF
+iQIcBAEBAgAGBQJVN1OeAAoJEBQN5MwUoCm2pj0P/jTp93AHDWFbJHqUUTrnOvi3
+hhkRcY7Ao/oJJRx1HiHQb+btlhex6ftsAxNFihWxYKgLR7XLGOB+H8/1jp07F7W8
+yRc8b6ElrXP9YQhalJ/KWGt0o9oCHryB23BTss5ZUdF6EPjZh667sbrvPx/9QIW/
+Tv1fgkkoO0aF/KXbcY6SeHd3eOkluqzXNHo+T4b7NUElvmG1TUQyJtKMubVKaJR6
+GpjkSfE/PHtpnRMmc8KwF3jDoD8XH3OZPSYbywumcKVPtp9W4+XXWljj4ML7FlKF
+PSNvQrU8ZJD/i5r1PEIXZ+O5n5vrQycexiHbKe4GZ4ZXNYAfjR5GodoWZLFWJ3BH
+rIK0ugSWrC00BGJ+JI/GOk9FwecTh/WMHtfZkAntqp5DmW7nJFguij3JDh8su9gj
+jzM+WLOyS0//sKh9g/dgeVbF3anpUTQOq0H0Gww7wcFy7XN6sEHMlj6SnnrArXb0
+Z1Sc2IXVkRXRtrLdPfbbXL2drFf9s3TMpYGWvuz3uYD2s0KoNcC5SfGAU5i/lNNl
+WiyF2IUctJsGb2U+DUyVvTwb759plHkG2XfsYbbRRz3RjH0cKaEdmaciEcvpdx5+
+rW6mmND2yqM67C9egrSxi5UxPAoAzFLpu66wchzzcoHcQiYX7T74uBNQ3ZG5oxyj
+zR3R7T81sxpXD/vpvQ0Y
+=Q6rN
 -----END PGP SIGNATURE-----
 
---PHCdUe6m4AxPMzOu--
+--+SfteS7bOf3dGlBC--
