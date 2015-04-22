@@ -1,86 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1] HID: bug fixes in hid-cp2112 driver
-Date: Wed, 22 Apr 2015 10:03:27 +0200
-Message-ID: <20150422080327.GG1511@katana>
-References: <1429143746-16967-1-git-send-email-ellen@cumulusnetworks.com>
- <20150416074158.GA913@katana>
- <552F73A8.5060605@cumulusnetworks.com>
+Subject: Re: [PATCH] omap: i2c: Add calls for pinctrl state select
+Date: Wed, 22 Apr 2015 10:12:40 +0200
+Message-ID: <20150422081240.GH1511@katana>
+References: <1429283277-28161-1-git-send-email-pascal.huerst@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BzCohdixPhurzSK4"
-Return-path: <linux-input-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="Dx9iWuMxHO1cCoFc"
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <552F73A8.5060605@cumulusnetworks.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Ellen Wang <ellen@cumulusnetworks.com>
-Cc: dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1429283277-28161-1-git-send-email-pascal.huerst@gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: pascal.huerst@gmail.com
+Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---BzCohdixPhurzSK4
+--Dx9iWuMxHO1cCoFc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> >Well, at24 detects how many bytes it got and continues from there.
+On Fri, Apr 17, 2015 at 05:07:57PM +0200, pascal.huerst@gmail.com wrote:
+> From: Pascal Huerst <pascal.huerst@gmail.com>
 >=20
-> That's true, but instead of returning short, the old
-> cp2112_i2c_xfer() fails out (with EIO) when the first USB operation
-> doesn't return all the bytes.  Look for "short read: %d < %d" in
-> the original version.  That's just broken.
-
-Yes.
-
-> >This shows the drawback of having I2C master drivers not in the
-> >i2c-directory: It easily misses updates to the i2c-core.
-> >We now have the i2c-quirk infrastructure (2187f03a9576c4) which this
-> >driver should make use of. It can describe this...
-> >
-> >>+    for (m =3D msgs; m < msgs + num; m++) {
-> >>+        /*
-> >>+         * If the top two messages are a write followed by a read,
-> >>+         * then we do them together as CP2112_DATA_WRITE_READ_REQUEST.
-> >>+         * Otherwise, process one message.
-> >>+         */
-> >>+
-> >
-> >and this and the core will check the messages for you. It should
-> >simplify your code, too.
+> This adds calls to pinctrl subsystem in order to switch pin states
+> on suspend/resume if you provide a "sleep" state in DT.
 >=20
-> I didn't know about that.  Cumulus Linux is based on 3.2.something
-> (debian wheezy) and i2c-quirk came in after that.
+> Signed-off-by: Pascal Huerst <pascal.huerst@gmail.com>
 
-Well, actually, it came with this merge window :)
-
-> I can update the driver to use the quirk mechanism, but I would
-> prefer to do that as a separate checkin, so Cumulus can use
-> a version of hid-cp2112.c that exists somewhere in mainline
-> even if it's not the latest.
-
-Fine with me if you do the i2c-quirk update as a seperate patch.
+? Don't you get a build error? I do. Rightfully, I'd think, there is no
+pinctrl-include.
 
 
---BzCohdixPhurzSK4
+--Dx9iWuMxHO1cCoFc
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVN1XPAAoJEBQN5MwUoCm20/wP/3C7CFMCEVUO6wudoFGft8pb
-NRMeDq8YRSWmF1I/RNRYaQvy6WrvrgtucJyn0dn36TCsn9eQsfYs2KQaUIjzMeGY
-DKFDE4tsjuxkMQPd1FcHYwzOelXAoP3Wu4iolB7WKcgwbxpypmGym9s/p5Gt9Umf
-temhtQULtN7TtOJx7BaFvyUxnCUxKDm7/x8hKQqcWSkVIRJf2IwJuVJthHaH2AnI
-5xn66fq+AVgip9XcbKfVpu17pUK2SbhTo6/Cw29W/+JE5ucHuqvgWmggaZmdqssU
-6KhIpjLFlaYjyyvWzHdBh/AtfRrpEAEQVzEUg0OyMxnRqeKN4423qI6jp1qVnAQq
-QpizgJviyUxPa6Tv8vNJSBiU93V+rlukHVfPGEeOOhJSwRx6UV82HzxavvY/TNJ7
-KZrNUPuVXDAiKtrEqmhgL+lYbRuTZfSw/c/rUqxyKbeEYS92rZw1p4KdDX/0OHDO
-zEDzm4cuTPObQuNUbKdKep31uSjmN92LlseRHrZDvAnGB/IXfQT8lejiHT08M4wN
-cTn//a7sPyicXRdohwY3w62PxyLVv5PTEBCh9TduDHtd1UgbkJ96lECrg3XpUdR2
-Gy9XXx3UEbdQGxlhrp0GZZm3coDLO8pXn9yRHUzPOz4P1spbE10vd8VOgLSqlU95
-b5gLAmDfAO0RKLUowPSQ
-=JycJ
+iQIcBAEBAgAGBQJVN1f3AAoJEBQN5MwUoCm2MLgP/3s3iOT+Uor6cw4IAGP3vVD7
+rjmt/dADrGx0KMtmjhotAcu7+YFPQ1byLyksvWsCVaX9hpeVlaVwPP3uqMMt5vax
+I6BqjBPo6A7jyYECcV9FE0lSX6pqMaOpjj1L5cxWcpgLq9QEGmz0CLtZDM8Rfgud
+XNq/yj6PTZxmh+vNBoLTC1bw/QTTQ3im2ebV43shaEpG5ZRL4jXb+r4PBVExPUGt
+DpCoID5RhNqGMwg8E4qa6BeEdTLOOEY8oY97TSJD7oYPcSEMMX6m1RjvYaW/HKw5
+PSifCjfsli4d/YjPLJX2AEOWQ9cSkR5I+nV2zvSwzIsKKozV2aQHLjzpzowSZdWN
+mvqizNzU472JxexPSf1H4qEZJCuqJN2ubxfaESUC53937Kt2q07H+AUvoPmjVaii
+c/YVJuZ6aWrvUBYBpmWASkTZMUJLwvKVpNF//04z0Y7oLsBM2rrMDNxBF60lJ8x3
+D/8wMS5a3vwALxqh+olNckQfQm1+cY2gk2srQQrjwDcAWLHhQpPap0Rtavt+B4jW
+VdKfAwuQcfmUA8OQbTrRT2QwBCFeK8CcLr/9GpprlTIEA1J9erSn7s57Z7/2FxS1
+Xnl89aCnkabIF48s51ap9Hgbkn8HOOE1SAyfEM4dcIQ7vtxpr5tz6zi1cUDRoPTb
+PJCzYq5JUsWK5LDBbj+M
+=srmk
 -----END PGP SIGNATURE-----
 
---BzCohdixPhurzSK4--
+--Dx9iWuMxHO1cCoFc--
