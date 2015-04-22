@@ -1,58 +1,56 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
-Date: Wed, 22 Apr 2015 09:40:19 +0200
-Message-ID: <20150422074019.GA1511@katana>
-References: <1422083789-18905-1-git-send-email-pantelis.antoniou@konsulko.com>
+Subject: Re: [PATCH] i2c: rk3x: report number of messages transmitted
+Date: Wed, 22 Apr 2015 09:42:54 +0200
+Message-ID: <20150422074254.GB1511@katana>
+References: <20150420221447.GA2005@dtor-ws>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1422083789-18905-1-git-send-email-pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <20150420221447.GA2005@dtor-ws>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Alexandru M Stan <amstan-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jan 24, 2015 at 09:16:29AM +0200, Pantelis Antoniou wrote:
-> Mark (and unmark) device nodes with the POPULATE flag as appropriate.
-> This is required to avoid multi probing when using I2C and device
-> overlays containing a mux.
-> This patch is also more careful with the release of the adapter device
-> which caused a deadlock with muxes, and does not break the build
-> on !OF since the node flag accessors are not defined then.
+On Mon, Apr 20, 2015 at 03:14:47PM -0700, Dmitry Torokhov wrote:
+> master_xfer() method should return number of i2c messages transferred,
+> but on Rockchip we were usually returning just 1, which caused trouble
+> with users that actually check number of transferred messages vs.
+> checking for negative error codes.
 >=20
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Now, that the dependency is upstream: applied to for-current, thanks!
+Applied to for-current, thanks!
 
 
---ikeVEW9yuYc//A+q
+--3lcZGd9BuhuYXNfi
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVN1BjAAoJEBQN5MwUoCm2BpcQAJFIyyKQohNqnCruePHQHKJQ
-Ogdei8do3/ZTmGmLbI807YwflQOIxkMlJqhaA5h4+joGXCRKIQ2ebmkg3y/iPAkh
-rtaM4wvpCxxbk3Q49k5d9zCtTGpNxnpY8jm4co5fw1Dvfq0bQra0jJWjy10hiPH+
-5NxdN+6qCmFBdLz6Qy9vH/iEG+nY7usKUlAJpkBgCtTaXPFsGykFP92DoFBr5FyI
-Ky0RN63VPwIEcYIZ2aR5Ys8x2eCJMW8qBr4YAQU5nXwyZil9JFohUprHHu/Oumpd
-auDQ67gREEXE962G5V2rwI2/NK9VkLMTeVDWDJmTNlxKiKC0NzTKFVbbSP3XNmiV
-BTQIowSNWHxSo6mztHqlBxP8u8/hiph6emfp0XfUN4PnekVa3UK226xs6XskK9Rp
-I3lziBdwcSv7uxeKrp9OJuw9B0j/J0Trpa2kmOB1dtJlIp4FdcvfiXU5NC6wPUoC
-6jBHVnRJxOlPOfXbGu+VbH08v6NRy9UzaJAEVIoSN/HuLzd55AFGqHF6dnam/gS7
-+oZ3r2Roa/gkPvsTheEB5f9I+DmHppv4RxqZBbdWR5bimnN7XUpQl9JLYCLjMxmX
-BDKAxHj/wXhfK7sNEE6G1Sj3kSrXzvZWLZ3CaHQ7+9AoPwCCmJ4oMfWEPoWYchho
-KRm+L6d0qsxbxCz+y0/m
-=pEzW
+iQIcBAEBAgAGBQJVN1D+AAoJEBQN5MwUoCm2KuMQAKW7fP5I53IaXNjvnEjvR8HL
+V2wv89jsrDB8WzuLvsoSlOe5CvIyC5+jx4TkwB8E5ajYlYDTuNz1OmDyLrG6C7xB
+ZQc5I0D0kdPqojnTG8cgTf4hmlmT35Opk+WCk0dzGGdb7scMifYeqHnLz4snfk/6
+m9JmHIX4Rp/i2EB/HPUyIwVTcpmnY4Jeep6SWbwjkyktTksdwIuAFJjr6D5kqmqL
+OxgZzbHcBui12+HrhI/2dmgCe16E/90aJyy+a5QNd2qmDPBiQvY1XcUKxTbXp6oC
+hPnnuZSOs3eiqxNdQwD4EqVBroIonPhhTaKfK55KOp2y287yWYTrDabrn+1V7D81
+T3gOZWC9eHFt44yPtZrSTMIBVfOkTwhE+1f2f1vQLVKXVHyRfSdq/LhSMo0sQ9n9
+rX3k1cHsLhhoLpKCd4ZLDQbVruM0Jg3yYXM/w1CN/EWrOW5BAJr85afrCk8A2MpT
+bZQDqln79wUZGSydbSRGTKmlvtQCI0+Wf8RK2hZgr2itfPRAuiWZYQsWxvkxnpzI
+LUe9uDhC1qg/ibyoro8GLIFV9lji13DeiWeboXbpIz9lzMm9Lk5Na/79Pqr+43i+
+jKJSS1pcPUzN+A0O9pSNqFYoeQ0nUPRTI+016W7aBJxffyhgHCqJy6mzwpamWKCW
+UvKf0vF6YHhZs8Y6jfOe
+=Smsr
 -----END PGP SIGNATURE-----
 
---ikeVEW9yuYc//A+q--
+--3lcZGd9BuhuYXNfi--
