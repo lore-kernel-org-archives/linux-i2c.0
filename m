@@ -1,71 +1,86 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: Mark adapter devices with pm_runtime_no_callbacks
-Date: Wed, 22 Apr 2015 09:55:31 +0200
-Message-ID: <20150422075531.GF1511@katana>
-References: <1429185919-26098-1-git-send-email-ckeepax@opensource.wolfsonmicro.com>
- <552FAAD2.80407@gmail.com>
+Subject: Re: [PATCH v1] HID: bug fixes in hid-cp2112 driver
+Date: Wed, 22 Apr 2015 10:03:27 +0200
+Message-ID: <20150422080327.GG1511@katana>
+References: <1429143746-16967-1-git-send-email-ellen@cumulusnetworks.com>
+ <20150416074158.GA913@katana>
+ <552F73A8.5060605@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Bqc0IY4JZZt50bUr"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="BzCohdixPhurzSK4"
+Return-path: <linux-input-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <552FAAD2.80407@gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Beata Michalska <b.k.m.devel@gmail.com>
-Cc: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, kgene@kernel.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, lars@metafoo.de
+In-Reply-To: <552F73A8.5060605@cumulusnetworks.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Ellen Wang <ellen@cumulusnetworks.com>
+Cc: dbarksdale@uplogix.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Bqc0IY4JZZt50bUr
+--BzCohdixPhurzSK4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 16, 2015 at 02:28:02PM +0200, Beata Michalska wrote:
-> On 04/16/2015 02:05 PM, Charles Keepax wrote:
-> > Commit 523c5b89640e ("i2c: Remove support for legacy PM") removed the PM
-> > ops from the bus type, which causes the pm operations on the s3c2410
-> > adapter device to fail (-ENOSUPP in rpm_callback). The adapter device
-> > doesn't get bound to a driver and as such can't have its own pm_runtime
-> > callbacks. Previously this was fine as the bus callbacks would have been
-> > used, but now this can cause devices which use PM runtime and are
-> > attached over I2C to fail to resume.
-> >
-> > This commit fixes this issue by marking all adapter devices with
-> > pm_runtime_no_callbacks, since they can't have any.
-> >
-> > Signed-off-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+
+> >Well, at24 detects how many bytes it got and continues from there.
 >=20
-> Thereis at least one more casewhen an I2C device fails to resume due
-> to bus callbacks being dropped(like fimc-is-i2c driver for exynos4-is,
-> the same scenario),  so I'm glad to see  it's being handled in on place
-> -it saves the trouble.
+> That's true, but instead of returning short, the old
+> cp2112_i2c_xfer() fails out (with EIO) when the first USB operation
+> doesn't return all the bytes.  Look for "short read: %d < %d" in
+> the original version.  That's just broken.
 
-Thanks for the confirmation! If you could also add a formal 'Acked-by'
-next time, this would help me because patchwork collects them for me
-automatically.
+Yes.
+
+> >This shows the drawback of having I2C master drivers not in the
+> >i2c-directory: It easily misses updates to the i2c-core.
+> >We now have the i2c-quirk infrastructure (2187f03a9576c4) which this
+> >driver should make use of. It can describe this...
+> >
+> >>+    for (m =3D msgs; m < msgs + num; m++) {
+> >>+        /*
+> >>+         * If the top two messages are a write followed by a read,
+> >>+         * then we do them together as CP2112_DATA_WRITE_READ_REQUEST.
+> >>+         * Otherwise, process one message.
+> >>+         */
+> >>+
+> >
+> >and this and the core will check the messages for you. It should
+> >simplify your code, too.
+>=20
+> I didn't know about that.  Cumulus Linux is based on 3.2.something
+> (debian wheezy) and i2c-quirk came in after that.
+
+Well, actually, it came with this merge window :)
+
+> I can update the driver to use the quirk mechanism, but I would
+> prefer to do that as a separate checkin, so Cumulus can use
+> a version of hid-cp2112.c that exists somewhere in mainline
+> even if it's not the latest.
+
+Fine with me if you do the i2c-quirk update as a seperate patch.
 
 
---Bqc0IY4JZZt50bUr
+--BzCohdixPhurzSK4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVN1PzAAoJEBQN5MwUoCm2tQcP/j1spnD9ywE2Py4x9jHrglfg
-ts7dJ/62qGr6/bc68pYKJhGf6aTwkv7W/KC0D3Y6a1zYrL9dpX3SIiPD/6g8X4Ir
-7TvB2/5ITA1LtGP/5njokHOauR175yEIkL/CYsHWfmhQuJxcFjf8NRsdNkngJzLY
-hwZhvz896p4ScdFmNoIoWCKDaIYSeA56WI8mJwoVK6P7ue5UCDH7q5XB2AS/bIkU
-k9sFpFf8AdlIRItKRyplKyPWdDxaGYCvq743uJ82vZiS4/CMxf/4ywmdSQruLkyk
-JyXh2++9kveWzf+wWLr917EY9RJytwmg/K2GKDdogKCGhOaRr80nXk8TqMfTPlBl
-XZORXqsN9KxRnWAksYYoKDp6L4BP4N5b1PyNKDGAJybaSkl1A+sN0DAt7uQ/uTBo
-sB73ZL2q8hdzo0m3LZji0NVKssh0pzMO+bQWDAkVlAbaBZDzvknkglEs2aPF8XyT
-UtUranp1if49G3hBgAYXCyI0jQlpEDql2G3uMfuDKFr4znPiAkD58YuEUZUUfu4R
-XvgMc/YxrxSg3D874WM8hp0OBt+o/ywAufcmQCLD6CCtFZ9fFe83VaqkQsDjrJpW
-MYlrvyx+N9VNXOJPP7Wyg4W1/uB77oft9KOOiQGn6HWkAEyUCnKpUQDvpGDNqA1b
-GAzshVM+QvqjnbHvgsyj
-=iout
+iQIcBAEBAgAGBQJVN1XPAAoJEBQN5MwUoCm20/wP/3C7CFMCEVUO6wudoFGft8pb
+NRMeDq8YRSWmF1I/RNRYaQvy6WrvrgtucJyn0dn36TCsn9eQsfYs2KQaUIjzMeGY
+DKFDE4tsjuxkMQPd1FcHYwzOelXAoP3Wu4iolB7WKcgwbxpypmGym9s/p5Gt9Umf
+temhtQULtN7TtOJx7BaFvyUxnCUxKDm7/x8hKQqcWSkVIRJf2IwJuVJthHaH2AnI
+5xn66fq+AVgip9XcbKfVpu17pUK2SbhTo6/Cw29W/+JE5ucHuqvgWmggaZmdqssU
+6KhIpjLFlaYjyyvWzHdBh/AtfRrpEAEQVzEUg0OyMxnRqeKN4423qI6jp1qVnAQq
+QpizgJviyUxPa6Tv8vNJSBiU93V+rlukHVfPGEeOOhJSwRx6UV82HzxavvY/TNJ7
+KZrNUPuVXDAiKtrEqmhgL+lYbRuTZfSw/c/rUqxyKbeEYS92rZw1p4KdDX/0OHDO
+zEDzm4cuTPObQuNUbKdKep31uSjmN92LlseRHrZDvAnGB/IXfQT8lejiHT08M4wN
+cTn//a7sPyicXRdohwY3w62PxyLVv5PTEBCh9TduDHtd1UgbkJ96lECrg3XpUdR2
+Gy9XXx3UEbdQGxlhrp0GZZm3coDLO8pXn9yRHUzPOz4P1spbE10vd8VOgLSqlU95
+b5gLAmDfAO0RKLUowPSQ
+=JycJ
 -----END PGP SIGNATURE-----
 
---Bqc0IY4JZZt50bUr--
+--BzCohdixPhurzSK4--
