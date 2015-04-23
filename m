@@ -1,79 +1,59 @@
-From: =?windows-1252?Q?Svenning_S=F8rensen?= <sss-sijd2F9aCfdBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c: scx200_acb: avoid I2C bus overclocking.
-Date: Thu, 23 Apr 2015 22:27:50 +0200
-Message-ID: <553955C6.3030000@secomea.com>
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v1] HID: bug fixes in hid-cp2112 driver
+Date: Thu, 23 Apr 2015 14:46:03 -0700
+Message-ID: <5539681B.2030700@cumulusnetworks.com>
+References: <1429143746-16967-1-git-send-email-ellen@cumulusnetworks.com> <20150416074158.GA913@katana> <552F73A8.5060605@cumulusnetworks.com> <20150422080327.GG1511@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150422080327.GG1511@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-According to I2C spec, max SCL rate is 100 kHz, but SCx200/CS5536
-controller is currently driving it at 214 kHz according to my math.
+I've separated out the cp2112_i2c_xfer() bug fix from the patch.  Should 
+I submit it as v2 or a new patch altogether?
 
-SCL is derived from an input clock of 48 MHz, which must be divided
-by 480 (240 cycles for each SCL high/low state) to be within spec.
+Thanks.
 
-Signed-off-by: Svenning Soerensen <sss-sijd2F9aCfdBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/scx200_acb.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
-index 0a7e410..4def02d 100644
---- a/drivers/i2c/busses/scx200_acb.c
-+++ b/drivers/i2c/busses/scx200_acb.c
-@@ -46,6 +46,7 @@ module_param_array(base, int, NULL, 0);
- MODULE_PARM_DESC(base, "Base addresses for the ACCESS.bus controllers");
- 
- #define POLL_TIMEOUT	(HZ/5)
-+#define ACBCLK		240	/* 48 MHz / 100 kHz / 2 */
- 
- enum scx200_acb_state {
- 	state_idle,
-@@ -255,14 +256,14 @@ static void scx200_acb_poll(struct scx200_acb_iface *iface)
- static void scx200_acb_reset(struct scx200_acb_iface *iface)
- {
- 	/* Disable the ACCESS.bus device and Configure the SCL
--	   frequency: 16 clock cycles */
--	outb(0x70, ACBCTL2);
-+	   frequency: 240 clock cycles => 100 kHz */
-+	outb(ACBCLK, ACBCTL2);
- 	/* Polling mode */
- 	outb(0, ACBCTL1);
- 	/* Disable slave address */
- 	outb(0, ACBADDR);
- 	/* Enable the ACCESS.bus device */
--	outb(inb(ACBCTL2) | ACBCTL2_ENABLE, ACBCTL2);
-+	outb(ACBCLK | ACBCTL2_ENABLE, ACBCTL2);
- 	/* Free STALL after START */
- 	outb(inb(ACBCTL1) & ~(ACBCTL1_STASTRE | ACBCTL1_NMINTE), ACBCTL1);
- 	/* Send a STOP */
-@@ -390,10 +391,10 @@ static int scx200_acb_probe(struct scx200_acb_iface *iface)
- 	u8 val;
- 
- 	/* Disable the ACCESS.bus device and Configure the SCL
--	   frequency: 16 clock cycles */
--	outb(0x70, ACBCTL2);
-+	   frequency: 240 clock cycles => 100 kHz*/
-+	outb(ACBCLK, ACBCTL2);
- 
--	if (inb(ACBCTL2) != 0x70) {
-+	if (inb(ACBCTL2) != ACBCLK) {
- 		pr_debug("ACBCTL2 readback failed\n");
- 		return -ENXIO;
- 	}
-@@ -406,7 +407,7 @@ static int scx200_acb_probe(struct scx200_acb_iface *iface)
- 		return -ENXIO;
- 	}
- 
--	outb(inb(ACBCTL2) | ACBCTL2_ENABLE, ACBCTL2);
-+	outb(ACBCLK | ACBCTL2_ENABLE, ACBCTL2);
- 
- 	outb(inb(ACBCTL1) | ACBCTL1_NMINTE, ACBCTL1);
- 
--- 
-2.4.0.rc1
+On 4/22/2015 1:03 AM, Wolfram Sang wrote:
+>
+>>> Well, at24 detects how many bytes it got and continues from there.
+>>
+>> That's true, but instead of returning short, the old
+>> cp2112_i2c_xfer() fails out (with EIO) when the first USB operation
+>> doesn't return all the bytes.  Look for "short read: %d < %d" in
+>> the original version.  That's just broken.
+>
+> Yes.
+>
+>>> This shows the drawback of having I2C master drivers not in the
+>>> i2c-directory: It easily misses updates to the i2c-core.
+>>> We now have the i2c-quirk infrastructure (2187f03a9576c4) which this
+>>> driver should make use of. It can describe this...
+>>>
+>>>> +    for (m = msgs; m < msgs + num; m++) {
+>>>> +        /*
+>>>> +         * If the top two messages are a write followed by a read,
+>>>> +         * then we do them together as CP2112_DATA_WRITE_READ_REQUEST.
+>>>> +         * Otherwise, process one message.
+>>>> +         */
+>>>> +
+>>>
+>>> and this and the core will check the messages for you. It should
+>>> simplify your code, too.
+>>
+>> I didn't know about that.  Cumulus Linux is based on 3.2.something
+>> (debian wheezy) and i2c-quirk came in after that.
+>
+> Well, actually, it came with this merge window :)
+>
+>> I can update the driver to use the quirk mechanism, but I would
+>> prefer to do that as a separate checkin, so Cumulus can use
+>> a version of hid-cp2112.c that exists somewhere in mainline
+>> even if it's not the latest.
+>
+> Fine with me if you do the i2c-quirk update as a seperate patch.
+>
