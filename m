@@ -1,79 +1,63 @@
-From: Nishanth Menon <nm@ti.com>
-Subject: Re: [PATCH v2] omap: i2c: Add calls for pinctrl state select
-Date: Wed, 22 Apr 2015 19:32:26 -0500
-Message-ID: <55383D9A.4020302@ti.com>
-References: <1429693667-28942-1-git-send-email-pascal.huerst@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1429693667-28942-1-git-send-email-pascal.huerst@gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: pascal.huerst@gmail.com, wsa@the-dreams.de
-Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c: mux: use proper dev when removing "channel-X" symlinks
+Date: Thu, 23 Apr 2015 10:29:09 +0200
+Message-ID: <1429777749-15278-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-few nitpicks:
-i2c: omap:  in $subject instead of omap: i2c:
-I usually would do:
-git log --no-merges --oneline drivers/i2c/busses/i2c-omap.c
-and look for common usage.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On 04/22/2015 04:07 AM, pascal.huerst@gmail.com wrote:
-> From: Pascal Huerst <pascal.huerst@gmail.com>
-> 
-> This adds calls to pinctrl subsystem in order to switch pin states
-> on suspend/resume if you provide a "sleep" state in DT.
-> 
-> Signed-off-by: Pascal Huerst <pascal.huerst@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-omap.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 0e89419..8261941 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -38,6 +38,7 @@
->  #include <linux/slab.h>
->  #include <linux/i2c-omap.h>
->  #include <linux/pm_runtime.h>
-> +#include <linux/pinctrl/consumer.h>
-> 
->  /* I2C controller revisions */
->  #define OMAP_I2C_OMAP1_REV_2		0x20
-> @@ -1423,6 +1424,8 @@ static int omap_i2c_runtime_suspend(struct device *dev)
->  		omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
->  	}
-> 
-> +	pinctrl_pm_select_sleep_state(dev);
-> +
->  	return 0;
->  }
-> 
-> @@ -1431,6 +1434,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
-> 
-> +	pinctrl_pm_select_default_state(dev);
-> +
->  	if (!_dev->regs)
->  		return 0;
-> 
-> --
-> 2.1.0
-> 
-Build tested with omap2plus_defconfig on linus master (27cf3a16b253)
-and next-20150422
-While I do understand that the sleep state and default states are
-optional - might be nice to state it in commit message (as a result of
-which we dont do error checks).
+Those symlinks are created for the mux_dev, so we need to remove it from
+there. Currently, it breaks for muxes where the mux_dev is not the device
+of the parent adapter like this:
 
-Would you think adding relevant documentation in
-Documentation/devicetree/bindings/i2c/i2c-omap.txt might be good as
-well? I mean, folks should know looking at dt documentation that this
-bus driver does indeed support this option..
+[   78.234644] WARNING: CPU: 0 PID: 365 at fs/sysfs/dir.c:31 sysfs_warn_dup+0x5c/0x78()
+[   78.242438] sysfs: cannot create duplicate filename '/devices/platform/i2cbus@8/channel-0'
 
+Remove confusing comments while we are here.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Fixes: c9449affad2ae0
+---
+ drivers/i2c/i2c-mux.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 593f7ca9adc783..06cc1ff088f12b 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -32,8 +32,9 @@ struct i2c_mux_priv {
+ 	struct i2c_algorithm algo;
+ 
+ 	struct i2c_adapter *parent;
+-	void *mux_priv;	/* the mux chip/device */
+-	u32  chan_id;	/* the channel id */
++	struct device *mux_dev;
++	void *mux_priv;
++	u32 chan_id;
+ 
+ 	int (*select)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
+ 	int (*deselect)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
+@@ -119,6 +120,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 
+ 	/* Set up private adapter data */
+ 	priv->parent = parent;
++	priv->mux_dev = mux_dev;
+ 	priv->mux_priv = mux_priv;
+ 	priv->chan_id = chan_id;
+ 	priv->select = select;
+@@ -203,7 +205,7 @@ void i2c_del_mux_adapter(struct i2c_adapter *adap)
+ 	char symlink_name[20];
+ 
+ 	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", priv->chan_id);
+-	sysfs_remove_link(&adap->dev.parent->kobj, symlink_name);
++	sysfs_remove_link(&priv->mux_dev->kobj, symlink_name);
+ 
+ 	sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
+ 	i2c_del_adapter(adap);
 -- 
-Regards,
-Nishanth Menon
+2.1.4
+
