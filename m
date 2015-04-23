@@ -1,49 +1,38 @@
-From: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Subject: [PATCH V3 3/4] Documentation: i2c: Add APM X-Gene platform SLIMpro I2C driver documentation
-Date: Thu, 23 Apr 2015 11:07:09 -0700
-Message-ID: <1429812430-31631-4-git-send-email-fkan@apm.com>
+From: Feng Kan <fkan@apm.com>
+Subject: [PATCH V3 4/4] arm64: dts: add proxy I2C device driver on APM X-Gene platform
+Date: Thu, 23 Apr 2015 11:07:10 -0700
+Message-ID: <1429812430-31631-5-git-send-email-fkan@apm.com>
 References: <1429812430-31631-1-git-send-email-fkan@apm.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1429812430-31631-1-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1429812430-31631-1-git-send-email-fkan@apm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: patches@apm.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org
+Cc: Feng Kan <fkan@apm.com>, Hieu Le <hnle@apm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add APM X-Gene platform SLIMpro I2C driver documentation.
+Add proxy I2C device driver on APM X-Gene platform.
 
-Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+Signed-off-by: Feng Kan <fkan@apm.com>
+Signed-off-by: Hieu Le <hnle@apm.com>
 ---
- .../devicetree/bindings/i2c/i2c-xgene-slimpro.txt         | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
+ arch/arm64/boot/dts/apm/apm-storm.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
-new file mode 100644
-index 0000000..f6b2c20
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
-@@ -0,0 +1,15 @@
-+APM X-Gene SLIMpro Mailbox I2C Driver
+diff --git a/arch/arm64/boot/dts/apm/apm-storm.dtsi b/arch/arm64/boot/dts/apm/apm-storm.dtsi
+index a2b9657..d405dd0 100644
+--- a/arch/arm64/boot/dts/apm/apm-storm.dtsi
++++ b/arch/arm64/boot/dts/apm/apm-storm.dtsi
+@@ -522,6 +522,11 @@
+ 					<0x0 0x7 0x4>;
+ 		};
+ 
++		i2cslimpro {
++			compatible = "apm,xgene-slimpro-i2c";
++			mboxes = <&mailbox 0>;
++		};
 +
-+An I2C controller accessed over the "SLIMpro" mailbox.
-+
-+Required properties :
-+
-+ - compatible : should be "apm,xgene-slimpro-i2c"
-+ - mboxes : use the label reference for the mailbox as the first parameter.
-+	    The second parameter is the channel number.
-+
-+Example :
-+	i2cslimpro {
-+		compatible = "apm,xgene-slimpro-i2c";
-+		mboxes = <&mailbox 0>;
-+	};
+ 		serial0: serial@1c020000 {
+ 			status = "disabled";
+ 			device_type = "serial";
 -- 
 1.9.1
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
