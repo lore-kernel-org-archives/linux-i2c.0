@@ -1,32 +1,79 @@
-From: Matthew Karas <mkarascybi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Fwd: Initializing drivers for i2c devices that use reserved i2c
- addresses ( as1115 default i2c address of 0x00)
-Date: Wed, 22 Apr 2015 08:16:19 -0400
-Message-ID: <CADu_VSa35-yiNGYVukKyN9ks9OLJ=q8D9xPgvLaXhTiJT5WW7w@mail.gmail.com>
-References: <CADu_VSZf58F_dJJCnuca-S1ismJX56aHBJ5rkqAdZOgXH+ojhg@mail.gmail.com>
+From: Nishanth Menon <nm@ti.com>
+Subject: Re: [PATCH v2] omap: i2c: Add calls for pinctrl state select
+Date: Wed, 22 Apr 2015 19:32:26 -0500
+Message-ID: <55383D9A.4020302@ti.com>
+References: <1429693667-28942-1-git-send-email-pascal.huerst@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CADu_VSZf58F_dJJCnuca-S1ismJX56aHBJ5rkqAdZOgXH+ojhg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1429693667-28942-1-git-send-email-pascal.huerst@gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: pascal.huerst@gmail.com, wsa@the-dreams.de
+Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-I am writing a device driver for the as1115.  It is the only device on
-the bus I am using. The part powers up with a default address of 0x00.
-I've added the as1115 into the device tree.
+few nitpicks:
+i2c: omap:  in $subject instead of omap: i2c:
+I usually would do:
+git log --no-merges --oneline drivers/i2c/busses/i2c-omap.c
+and look for common usage.
 
-Due to i2c_check_addr_validity checking and seeing that the as1115's
-boot address is invalid when it's running the probe.  The
-i2c_check_addr_validity function states that parts that use reserved
-addresses shouldn't be probed.
+On 04/22/2015 04:07 AM, pascal.huerst@gmail.com wrote:
+> From: Pascal Huerst <pascal.huerst@gmail.com>
+> 
+> This adds calls to pinctrl subsystem in order to switch pin states
+> on suspend/resume if you provide a "sleep" state in DT.
+> 
+> Signed-off-by: Pascal Huerst <pascal.huerst@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-omap.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 0e89419..8261941 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -38,6 +38,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/i2c-omap.h>
+>  #include <linux/pm_runtime.h>
+> +#include <linux/pinctrl/consumer.h>
+> 
+>  /* I2C controller revisions */
+>  #define OMAP_I2C_OMAP1_REV_2		0x20
+> @@ -1423,6 +1424,8 @@ static int omap_i2c_runtime_suspend(struct device *dev)
+>  		omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
+>  	}
+> 
+> +	pinctrl_pm_select_sleep_state(dev);
+> +
+>  	return 0;
+>  }
+> 
+> @@ -1431,6 +1434,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
+> 
+> +	pinctrl_pm_select_default_state(dev);
+> +
+>  	if (!_dev->regs)
+>  		return 0;
+> 
+> --
+> 2.1.0
+> 
+Build tested with omap2plus_defconfig on linus master (27cf3a16b253)
+and next-20150422
+While I do understand that the sleep state and default states are
+optional - might be nice to state it in commit message (as a result of
+which we dont do error checks).
 
-I was wondering how I would be able to initialize the device without
-using the probe function which provides the i2c_client pointer that
-that I need and actually write to the device, and also I can use to
-setup the irq.
+Would you think adding relevant documentation in
+Documentation/devicetree/bindings/i2c/i2c-omap.txt might be good as
+well? I mean, folks should know looking at dt documentation that this
+bus driver does indeed support this option..
 
-Link to part info:
-http://ams.com/eng/Products/Lighting-Management/LED-Driver-ICs/AS1115
-
-Many thanks
+-- 
+Regards,
+Nishanth Menon
