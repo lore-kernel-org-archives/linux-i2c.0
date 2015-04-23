@@ -1,63 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH] i2c: mux: use proper dev when removing "channel-X" symlinks
-Date: Thu, 23 Apr 2015 10:29:09 +0200
-Message-ID: <1429777749-15278-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] omap: i2c: Add calls for pinctrl state select
+Date: Thu, 23 Apr 2015 13:31:13 +0200
+Message-ID: <20150423113113.GA19918@katana>
+References: <1429283277-28161-1-git-send-email-pascal.huerst@gmail.com>
+ <20150422081240.GH1511@katana>
+ <553760D4.4020506@gmail.com>
+ <20150422102830.GA1523@katana>
+ <55377C9E.5090904@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <55377C9E.5090904-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Those symlinks are created for the mux_dev, so we need to remove it from
-there. Currently, it breaks for muxes where the mux_dev is not the device
-of the parent adapter like this:
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[   78.234644] WARNING: CPU: 0 PID: 365 at fs/sysfs/dir.c:31 sysfs_warn_dup+0x5c/0x78()
-[   78.242438] sysfs: cannot create duplicate filename '/devices/platform/i2cbus@8/channel-0'
+On Wed, Apr 22, 2015 at 12:49:02PM +0200, Pascal Huerst wrote:
+>=20
+>=20
+> On 22.04.2015 12:28, Wolfram Sang wrote:
+> > I assume you have a different kernel config where something is enabled
+> > which includes the pinctrl-stuff in another include which is included
+> > by these drivers. Although, my .config was arm-allyesconfig. Can you
+> > send yours?
+>=20
+> Sure. See below.
 
-Remove confusing comments while we are here.
+Thanks. device.h includes pinctrl/devinfo.h which includes
+pinctrl/consumer.h iff CONFIG_PINCTRL is enabled. So, seems my
+build-system didn't pick allyesconfig but another config with PINCTRL
+disabled. Will fix the st driver now, thanks for reporting!
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Fixes: c9449affad2ae0
----
- drivers/i2c/i2c-mux.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 593f7ca9adc783..06cc1ff088f12b 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -32,8 +32,9 @@ struct i2c_mux_priv {
- 	struct i2c_algorithm algo;
- 
- 	struct i2c_adapter *parent;
--	void *mux_priv;	/* the mux chip/device */
--	u32  chan_id;	/* the channel id */
-+	struct device *mux_dev;
-+	void *mux_priv;
-+	u32 chan_id;
- 
- 	int (*select)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
- 	int (*deselect)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
-@@ -119,6 +120,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 
- 	/* Set up private adapter data */
- 	priv->parent = parent;
-+	priv->mux_dev = mux_dev;
- 	priv->mux_priv = mux_priv;
- 	priv->chan_id = chan_id;
- 	priv->select = select;
-@@ -203,7 +205,7 @@ void i2c_del_mux_adapter(struct i2c_adapter *adap)
- 	char symlink_name[20];
- 
- 	snprintf(symlink_name, sizeof(symlink_name), "channel-%u", priv->chan_id);
--	sysfs_remove_link(&adap->dev.parent->kobj, symlink_name);
-+	sysfs_remove_link(&priv->mux_dev->kobj, symlink_name);
- 
- 	sysfs_remove_link(&priv->adap.dev.kobj, "mux_device");
- 	i2c_del_adapter(adap);
--- 
-2.1.4
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVONgBAAoJEBQN5MwUoCm2ngoP/iCpsWrJiQ8Wvu0k39Y4X8b1
+rpG7ND3R7njlgQZUCSbCCflmPdNFsTsLfZjbw3DjWRyqlus2VsNkyoyKFTM11bOU
+nBQHdbxu5KyvOe+cVX+tJpPY0KuNSS4nfpCckpa62HYzwNRXvEuI3kBwPSdE3UnZ
+G3Wf5+JS/M7EV7a7cZGxRROiQpeEEl7EOCMrw+7okraY/vY6E5Y2Nz5py3IsipHd
+mC4lwOKCiQHbCRMtfUXFU5lzFatSxDS7yx0MiLxOg4t1oGYVeDRD2UcCoH2nRp3D
+dvHIQwuRZgSXgzZUUbXwf5lWY8fbWHzdHD62q8jt3gXI7SN3bCG8MbGXwKQY5o4c
+0pI2atS79s5+YtRvv5lJd862WXd0ht2RONLess2fEoYRsYID/JB4teeBA7VKsjXY
+UMlBZQr+pKRwYgFBVE2ckZmLOT5gY+9ZLGVTlaEX0Z+bJLTV4Sa+Ln2Nmq1EEMzc
+GFWcnsZsjAXEpk9DIa6FutzlVvZLWkcJq8lIbYiilzmV43hweRf4T2/XYzFTyRqN
+1stpHbxIVwvFO8HlIS9k9E85gbE4q9pQpqbuV4IHpcaEGXNcEMGmiiF4AU4LYJ+t
+e6ueDIg6cKoRb+GJ9yM/hjQHsFo65vSKZ/yt5rVPGkp/fVh3XN3qjFdGEoH7dxRh
+UZzpktX+Q/kkVbKJnYHW
+=siIk
+-----END PGP SIGNATURE-----
+
+--yrj/dFKFPuw6o+aM--
