@@ -1,25 +1,37 @@
-From: wilson danis <wilsondanischambers.tg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Hello dear
-Date: Fri, 24 Apr 2015 13:05:27 +0000
-Message-ID: <CAKpLSwSTqg41kJ1L0asb_WvjRJG+iLP_i89wJjPgEc3XXdRqYw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+Subject: [PATCH V4 0/4] i2c: busses: xgene: I2C proxy driver for X-Gene
+Date: Fri, 24 Apr 2015 10:11:29 -0700
+Message-ID: <1429895493-30176-1-git-send-email-fkan@apm.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Kindly understand.
+This is a proxy I2C driver for APM X-Gene SoC. It uses the mailbox driver
+to tunnel i2c transactions via the SLIMpro processor.
 
-My name is Mr Danis Wilson, a Togolese and a personal lawyer to my
-client who is a nationality of your country and has worked for Oil
-Company here in my country before his death, as a personal lawyer to
-him in my country here, his bank has given me notice to present the
-next of kin of his fund or the money will be confiscated if i fail. I
-want to present you to the bank to stand as his family members or
-close relatives to my late client Since you bear same surname to my
-late client, so that the bank will transfer this fund into your bank
-account. Please do reply back immediately for more details information
-about this prominent offer and for more understanding.
+V4 Change:
+	- Remove PRP0001 and use a real ACPI id
+V3 Change:
+	- Add ACPI support
+	- Fix previous comments.
 
-Yours faithfully
-Danis Wilson. (ESQ)
+Feng Kan (4):
+  i2c: busses: add SLIMpro I2C device driver on APM X-Gene platform
+  i2c: busses: xgene: add acpi support for i2c xgene SLIMpro driver
+  Documentation: i2c: Add APM X-Gene platform SLIMpro I2C driver
+    documentation
+  arm64: dts: add proxy I2C device driver on APM X-Gene platform
+
+ .../devicetree/bindings/i2c/i2c-xgene-slimpro.txt  |  15 +
+ arch/arm64/boot/dts/apm/apm-storm.dtsi             |   5 +
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-xgene-slimpro.c             | 469 +++++++++++++++++++++
+ 5 files changed, 499 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-xgene-slimpro.txt
+ create mode 100644 drivers/i2c/busses/i2c-xgene-slimpro.c
+
+-- 
+1.9.1
