@@ -1,31 +1,44 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH V3 2/4] i2c: busses: xgene: add acpi support for i2c xgene SLIMpro driver
-Date: Fri, 24 Apr 2015 09:28:40 +0200
-Message-ID: <17062291.7gO4LEY2iX@wuerfel>
-References: <1429812430-31631-1-git-send-email-fkan@apm.com> <1429812430-31631-3-git-send-email-fkan@apm.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v1 i2c/for-next] i2c-i801: recover from hardware PEC
+ errors
+Date: Fri, 24 Apr 2015 12:08:52 +0200
+Message-ID: <20150424120852.717966f9@endymion.delvare>
+References: <1428970319-32544-1-git-send-email-ellen@cumulusnetworks.com>
+	<20150415140834.44b1add8@endymion.delvare>
+	<552ECE19.4090705@cumulusnetworks.com>
+	<20150417091751.1ae986f2@endymion.delvare>
+	<5535833F.7090809@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1429812430-31631-3-git-send-email-fkan@apm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Feng Kan <fkan@apm.com>, patches@apm.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5535833F.7090809-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 23 April 2015 11:07:08 Feng Kan wrote:
-> 
-> +#ifdef CONFIG_ACPI
-> +static const struct acpi_device_id xgene_slimpro_i2c_acpi_ids[] = {
-> +       {"PRP0001", 0},
-> +       {}
-> +};
-> +MODULE_DEVICE_TABLE(acpi, slimpro_acpi_ids);
-> +#endif
-> 
+Hi Ellen,
 
-Sorry, but this is wrong: The PRP0001 name is meant for embedded
-devices that just use the generic properties API for loading, and
-does not require specifying an ACPI device ID.
+On Mon, 20 Apr 2015 15:52:47 -0700, Ellen Wang wrote:
+> This leads to a related question:  If the driver is serialized, then the 
+> (status = priv->status) inside wait_event_timeout() isn't strictly 
+> necessary, correct?  It can just be priv->status.  I'm just want to 
+> double check that there's no race and I can add a priv->auxsts and not 
+> have to stick something like this inside the wait_event_timeout():
+> 
+>     (auxsts = priv->auxsts, status = priv->status)
 
-	Arnd
+To be honest I'm not 100% certain. I think this was only a minor
+optimization, but I may be wrong. Adding Daniel to Cc, he added that
+code to the i2c-i801 driver. Daniel, any comment on this?
+
+Equally mysterious to me is:
+
+		priv->status |= status;
+
+in i801_isr() where it would seem that a simple "=" would suffice.
+
+-- 
+Jean Delvare
+SUSE L3 Support
