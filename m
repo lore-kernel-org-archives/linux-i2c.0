@@ -1,65 +1,38 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v1 i2c/for-next] i2c-i801: recover from hardware PEC errors
-Date: Sat, 25 Apr 2015 12:51:15 -0700
-Message-ID: <553BF033.8050809@cumulusnetworks.com>
-References: <1428970319-32544-1-git-send-email-ellen@cumulusnetworks.com> <20150415140834.44b1add8@endymion.delvare> <552ECE19.4090705@cumulusnetworks.com> <20150417091751.1ae986f2@endymion.delvare> <5535833F.7090809@cumulusnetworks.com> <20150424120852.717966f9@endymion.delvare> <CAGS+omCv0UL1hGRME_LiMGZhcd75G6x3eb7F9v5PvoxgwVAGVQ@mail.gmail.com>
+From: Sathyanarayanan Kuppuswamy
+	<sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v1 1/1] i2c: Add acpi support to enumerate i2c mux clients
+Date: Sun, 26 Apr 2015 01:22:10 -0700
+Message-ID: <553CA032.60002@linux.intel.com>
+References: <cover.1428546834.git.sathyanarayanan.kuppuswamy@linux.intel.com> <b57c66fc1b7e790bd8c3e525faf65ce46cd91f23.1428546834.git.sathyanarayanan.kuppuswamy@linux.intel.com> <20150410084208.GR1734@lahna.fi.intel.com>
+Reply-To: sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGS+omCv0UL1hGRME_LiMGZhcd75G6x3eb7F9v5PvoxgwVAGVQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20150410084208.GR1734-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Thanks!  Given that the driver is fully serialized, there really 
-shouldn't be any subtleties there.
+Thanks Mika.
 
-I'll update the patch after some more testing.
+On 04/10/2015 01:42 AM, Mika Westerberg wrote:
+> On Thu, Apr 09, 2015 at 12:15:42PM -0700, Kuppuswamy Sathyanarayanan wrote:
+>> Added support to enumerate i2c mux clients via ACPI.
+>>
+>> Currently we don't have any fixed way for enumerating
+>> mux clients via acpi. This patch adds support to scan
+>> for all client i2c devices under the mux device in DSDT
+>> table and enumerate them in order.
+>>
+>> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> >From ACPI standpoint I don't see problems with this code.
+>
+> Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>
 
-On 04/24/2015 04:00 AM, Daniel Kurtz wrote:
-> Hi guys,
->
-> On Fri, Apr 24, 2015 at 6:08 PM, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
->> Hi Ellen,
->>
->> On Mon, 20 Apr 2015 15:52:47 -0700, Ellen Wang wrote:
->>> This leads to a related question:  If the driver is serialized, then the
->>> (status = priv->status) inside wait_event_timeout() isn't strictly
->>> necessary, correct?  It can just be priv->status.  I'm just want to
->>> double check that there's no race and I can add a priv->auxsts and not
->>> have to stick something like this inside the wait_event_timeout():
->>>
->>>      (auxsts = priv->auxsts, status = priv->status)
->>
->> To be honest I'm not 100% certain. I think this was only a minor
->> optimization, but I may be wrong. Adding Daniel to Cc, he added that
->> code to the i2c-i801 driver. Daniel, any comment on this?
->>
->> Equally mysterious to me is:
->>
->>                  priv->status |= status;
->>
->> in i801_isr() where it would seem that a simple "=" would suffice.
->
-> Sorry, it has been a long time since i looked at i801 code,
-> I think you guys are correct.  You can probably just do:
->
->              wait_event(priv->waitq, priv->status);
->              status = priv->status;
->              priv->status = 0;
->              return i801_check_post(priv, status);
->
-> And, I agree with Jean in i801_isr(),
->     priv->status |= status;
->
-> Could probably just be:
->     priv->status = status;
->
-> -Dan
->
->>
->> --
->> Jean Delvare
->> SUSE L3 Support
+-- 
+--
+Sathyanarayanan KN
+Android Kernel Developer
