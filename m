@@ -1,87 +1,32 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 4.1
-Date: Sun, 26 Apr 2015 14:40:45 +0200
-Message-ID: <20150426124041.GA2803@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Dmitry Eremin-Solenikov <dbaryshkov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2 00/17] new locomo driver set
+Date: Tue, 28 Apr 2015 02:55:37 +0300
+Message-ID: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+Return-path: <linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-spi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Daniel Mack <daniel-cYrQPVfZoowdnm+yROfE0A@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bryan Wu <cooloney-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Purdie <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean-Christophe Plagniol-Villard <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrea Adami <andrea.adami-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Sharp Zaurus SL-5500 and SL-5600 use special companion Gate Array.
+With this patchset I tried to modernise and restructure the LoCoMo drivers.
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+* Use platform bus and mfd core code
+* Use GPIO API instead of custom locomo GPIO code
+* Use irqdomains to manage IRQs
+* Split mixed locomolcd driver to lcd and backlight parts
+* Implement IRQ handling in GPIO driver
+* Implement SPI driver used as a host for mmc_spi device to control SD cards
 
-Linus,
-
-I2C has a mixture of merge window cleanups and bugfixes for you.
-Based on your tree from 3 days ago. Please pull.
-
-Thanks,
-
-   Wolfram
+V1 was submitted about a half of a year ago. Major changes:
+* Use gpiod_* in most of places
+* Use regmap for accessing registers instead of manual RMW cycles
+* Split dac driver from core module to i2c bus and separate IIO driver
+* Replaced mdelay() calls with usleep_range or msleep where it was suitable
+* Rewrote SPI driver to use core transfer_one() interface
 
 
-The following changes since commit 27cf3a16b2535a490f8cf1d29a6634f1c70f7831:
-
-  Merge branch 'upstream' of git://git.infradead.org/users/pcmoore/audit (2015-04-22 14:49:23 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-
-for you to fetch changes up to fcdd5f09c03bfc95f196dfa781ff447c5cbcc319:
-
-  i2c: st: add include for pinctrl (2015-04-23 19:35:33 +0200)
-
-----------------------------------------------------------------
-Charles Keepax (1):
-      i2c: Mark adapter devices with pm_runtime_no_callbacks
-
-Dmitry Torokhov (1):
-      i2c: rk3x: report number of messages transmitted
-
-Wolfram Sang (5):
-      i2c: mxs: fix broken email address
-      i2c: pca-platform: fix broken email address
-      i2c: digicolor: remove duplicate include
-      i2c: mux: use proper dev when removing "channel-X" symlinks
-      i2c: st: add include for pinctrl
-
- drivers/i2c/busses/i2c-digicolor.c    |  3 +--
- drivers/i2c/busses/i2c-mxs.c          |  2 +-
- drivers/i2c/busses/i2c-pca-platform.c |  2 +-
- drivers/i2c/busses/i2c-rk3x.c         |  2 +-
- drivers/i2c/busses/i2c-st.c           | 13 +++++++------
- drivers/i2c/i2c-core.c                |  2 ++
- drivers/i2c/i2c-mux.c                 |  8 +++++---
- 7 files changed, 18 insertions(+), 14 deletions(-)
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVPNzJAAoJEBQN5MwUoCm2BuIP/0W8GW66Y3r7yPOsgAa2ywkt
-s7bGVP25+roQIon0Xo33y4gKIDee69spcup1BhmxE+cFFLw9ZFX4kozgu2aFQC8n
-VWTujERqB0uquM+sdur2tE/XuDaJY8RWRNbYJNxvsChQImwK7HzHX1Yv2XEEcs1t
-rORJhkgKVHfX+A7+yTWDra9PVBUUoaCp58Z6Wh7lX0tg3mTcn6UP60SEkI+Xdjpw
-i0EYwzFc5yfEhGnRFJRJjZIKIT5F/gmk6BE6VFJ8qH4zerv54OZGFDVieCfzRKLv
-typK2S9Kjeskp/UJFCxjN/ItIxI/Xo5d2GNSs1c5dXZcvPS3O+MOmNWnxuDonN7a
-QP4YeEsSO9j4VRo/FTtJTPfBd6skMGwnmC47tVicvF2m+BUT0tiPqAZU9BJF9vW5
-qnjhvyLz7qZ2oGB1/0mPszEvXlS8oP0mBWrxLiNoNyBqzIT7+LFVtbFSyPn8G8lF
-rF8PpzouHFJElpv6Sh3/tuFW3wp9Ya1BxwvoU1kcA54EHU2H2f2dK4vYjFyAbv/S
-B3jmS1DloeDvmOkTT+bV+GoQAAJhO/cTXnrZTuTbzlgAHH5UDIV1gljj+goQHBMF
-HHSEvXnCdKR74qqoOHnhWvEzW+e7N1ugneKiaV48mHRzpSc6XvuBocDpzoFc8ksH
-p9FXWUmbDjk5mzYJDMHF
-=o+Bi
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-spi" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
