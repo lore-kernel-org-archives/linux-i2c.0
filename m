@@ -1,7 +1,7 @@
 From: Nishanth Menon <nm@ti.com>
 Subject: Re: [PATCH v2] omap: i2c: Add calls for pinctrl state select
-Date: Tue, 28 Apr 2015 08:11:12 -0500
-Message-ID: <553F86F0.8000107@ti.com>
+Date: Tue, 28 Apr 2015 08:11:29 -0500
+Message-ID: <553F8701.4000501@ti.com>
 References: <1429693667-28942-1-git-send-email-pascal.huerst@gmail.com> <55383D9A.4020302@ti.com> <553F696A.8060408@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="windows-1252"
@@ -36,8 +36,8 @@ On 04/28/2015 06:05 AM, Pascal Huerst wrote:
 > right? Otherwise, I would say we should add documentation for all
 > devices, so it is consistent.
 
-that is probably good since drivers may or maynot support support the
-sleep configuration.
+that is probably good since drivers may or maynot support the sleep
+configuration.
 
 
 -- 
