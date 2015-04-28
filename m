@@ -1,260 +1,78 @@
 From: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v6 3/3] I2C: mediatek: Add driver for MediaTek MT8173 I2C controller
-Date: Tue, 28 Apr 2015 16:31:09 +0800
-Message-ID: <1430209869-6631-4-git-send-email-eddie.huang@mediatek.com>
-References: <1430209869-6631-1-git-send-email-eddie.huang@mediatek.com>
+Subject: [PATCH v6 0/3] ARM: mediatek: Add driver for Mediatek I2C
+Date: Tue, 28 Apr 2015 16:31:06 +0800
+Message-ID: <1430209869-6631-1-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1430209869-6631-1-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add mediatek MT8173 I2C controller driver. Compare to I2C controller
-of earlier mediatek SoC, MT8173 fix write-then-read limitation, and
-also increase message size to 64kb.
+This series is for Mediatek SoCs I2C controller common bus driver.
 
-Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Signed-off-by: Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Signed-off-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
----
- drivers/i2c/busses/i2c-mt65xx.c | 106 +++++++++++++++++++++++++++++-----------
- 1 file changed, 77 insertions(+), 29 deletions(-)
+Earlier MTK SoC ((for example, MT6589, MT8135)) I2C HW has some limitationes.
+New generation SoC like MT8173 fix following limitations:
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 2ecf0d1..c501421 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -33,10 +33,13 @@
- #include <linux/clk.h>
- #include <linux/completion.h>
- 
-+#define I2C_RS_TRANSFER			(1 << 4)
- #define I2C_HS_NACKERR			(1 << 2)
- #define I2C_ACKERR			(1 << 1)
- #define I2C_TRANSAC_COMP		(1 << 0)
- #define I2C_TRANSAC_START		(1 << 0)
-+#define I2C_RS_MUL_CNFG			(1 << 15)
-+#define I2C_RS_MUL_TRIG			(1 << 14)
- #define I2C_TIMING_STEP_DIV_MASK	(0x3f << 0)
- #define I2C_TIMING_SAMPLE_COUNT_MASK	(0x7 << 0)
- #define I2C_TIMING_SAMPLE_DIV_MASK	(0x7 << 8)
-@@ -67,6 +70,9 @@
- #define MAX_MSG_NUM_MT6577		1
- #define MAX_DMA_TRANS_SIZE_MT6577	255
- #define MAX_WRRD_TRANS_SIZE_MT6577	31
-+#define MAX_MSG_NUM_MT8173		65535
-+#define MAX_DMA_TRANS_SIZE_MT8173	65535
-+#define MAX_WRRD_TRANS_SIZE_MT8173	65535
- #define MAX_SAMPLE_CNT_DIV		8
- #define MAX_STEP_CNT_DIV		64
- #define MAX_HS_STEP_CNT_DIV		8
-@@ -139,6 +145,7 @@ struct mtk_i2c_compatible {
- 	const struct i2c_adapter_quirks *quirks;
- 	unsigned char pmic_i2c;
- 	unsigned char dcm;
-+	unsigned char auto_restart;
- };
- 
- struct mtk_i2c {
-@@ -172,24 +179,42 @@ static const struct i2c_adapter_quirks mt6577_i2c_quirks = {
- 	.max_comb_2nd_msg_len = MAX_WRRD_TRANS_SIZE_MT6577,
- };
- 
-+static const struct i2c_adapter_quirks mt8173_i2c_quirks = {
-+	.max_num_msgs = MAX_MSG_NUM_MT8173,
-+	.max_write_len = MAX_DMA_TRANS_SIZE_MT8173,
-+	.max_read_len = MAX_DMA_TRANS_SIZE_MT8173,
-+	.max_comb_1st_msg_len = MAX_DMA_TRANS_SIZE_MT8173,
-+	.max_comb_2nd_msg_len = MAX_WRRD_TRANS_SIZE_MT8173,
-+};
-+
- static const struct mtk_i2c_compatible mt6577_compat = {
- 	.quirks = &mt6577_i2c_quirks,
- 	.pmic_i2c = 0,
- 	.dcm = 1,
-+	.auto_restart = 0,
- };
- 
- static const struct mtk_i2c_compatible mt6589_compat = {
- 	.quirks = &mt6577_i2c_quirks,
- 	.pmic_i2c = 1,
- 	.dcm = 0,
-+	.auto_restart = 0,
-+};
-+
-+static const struct mtk_i2c_compatible mt8173_compat = {
-+	.quirks = &mt8173_i2c_quirks,
-+	.pmic_i2c = 0,
-+	.dcm = 1,
-+	.auto_restart = 1,
- };
- 
- static const struct of_device_id mtk_i2c_of_match[] = {
- 	{ .compatible = "mediatek,mt6577-i2c", .data = (void *)&mt6577_compat },
- 	{ .compatible = "mediatek,mt6589-i2c", .data = (void *)&mt6589_compat },
-+	{ .compatible = "mediatek,mt8173-i2c", .data = (void *)&mt8173_compat },
- 	{}
- };
--MODULE_DEVICE_TABLE(of, mtk_i2c_match);
-+MODULE_DEVICE_TABLE(of, mtk_i2c_of_match);
- 
- static inline void mtk_i2c_writew(u16 value, struct mtk_i2c *i2c, u8 offset)
- {
-@@ -343,9 +368,11 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int clk_src_in_hz)
- 	return 0;
- }
- 
--static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs)
-+static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
-+					int num, int left_num)
- {
- 	u16 addr_reg;
-+	u16 start_reg;
- 	u16 control_reg;
- 	dma_addr_t rpaddr = 0;
- 	dma_addr_t wpaddr = 0;
-@@ -361,6 +388,8 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs)
- 		control_reg |= I2C_CONTROL_RS;
- 	if (i2c->op == I2C_MASTER_WRRD)
- 		control_reg |= I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS;
-+	if (left_num >= 1)
-+		control_reg |= I2C_CONTROL_RS;
- 	mtk_i2c_writew(control_reg, i2c, OFFSET_CONTROL);
- 
- 	/* set start condition */
-@@ -375,13 +404,13 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs)
- 	mtk_i2c_writew(addr_reg, i2c, OFFSET_SLAVE_ADDR);
- 
- 	/* Clear interrupt status */
--	mtk_i2c_writew(I2C_HS_NACKERR | I2C_ACKERR | I2C_TRANSAC_COMP,
--		i2c, OFFSET_INTR_STAT);
-+	mtk_i2c_writew(I2C_RS_TRANSFER | I2C_HS_NACKERR | I2C_ACKERR
-+			| I2C_TRANSAC_COMP, i2c, OFFSET_INTR_STAT);
- 	mtk_i2c_writew(I2C_FIFO_ADDR_CLR, i2c, OFFSET_FIFO_ADDR_CLR);
- 
- 	/* Enable interrupt */
--	mtk_i2c_writew(I2C_HS_NACKERR | I2C_ACKERR | I2C_TRANSAC_COMP,
--		i2c, OFFSET_INTR_MASK);
-+	mtk_i2c_writew(I2C_RS_TRANSFER | I2C_HS_NACKERR | I2C_ACKERR
-+			| I2C_TRANSAC_COMP, i2c, OFFSET_INTR_MASK);
- 
- 	/* Set transfer and transaction len */
- 	if (i2c->op == I2C_MASTER_WRRD) {
-@@ -390,7 +419,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs)
- 		mtk_i2c_writew(I2C_WRRD_TRANAC_VALUE, i2c, OFFSET_TRANSAC_LEN);
- 	} else {
- 		mtk_i2c_writew(msgs->len, i2c, OFFSET_TRANSFER_LEN);
--		mtk_i2c_writew(I2C_RD_TRANAC_VALUE, i2c, OFFSET_TRANSAC_LEN);
-+		mtk_i2c_writew(num, i2c, OFFSET_TRANSAC_LEN);
- 	}
- 
- 	/* Prepare buffer data to start transfer */
-@@ -436,13 +465,23 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs)
- 	/* flush before sending start */
- 	mb();
- 	mtk_i2c_writel_dma(I2C_DMA_START_EN, i2c, OFFSET_EN);
--	mtk_i2c_writew(I2C_TRANSAC_START, i2c, OFFSET_START);
-+
-+	if (!i2c->dev_comp->auto_restart) {
-+		start_reg = I2C_TRANSAC_START;
-+	} else {
-+		if (left_num >= 1)
-+			start_reg = I2C_TRANSAC_START | I2C_RS_MUL_CNFG
-+					| I2C_RS_MUL_TRIG;
-+		else
-+			start_reg = I2C_TRANSAC_START | I2C_RS_MUL_TRIG;
-+	}
-+	mtk_i2c_writew(start_reg, i2c, OFFSET_START);
- 
- 	ret = wait_for_completion_timeout(&i2c->msg_complete,
- 				i2c->adap.timeout);
- 
- 	/* Clear interrupt mask */
--	mtk_i2c_writew(~(I2C_HS_NACKERR | I2C_ACKERR
-+	mtk_i2c_writew(~(I2C_RS_TRANSFER | I2C_HS_NACKERR | I2C_ACKERR
- 			| I2C_TRANSAC_COMP), i2c, OFFSET_INTR_MASK);
- 
- 	if (i2c->op == I2C_MASTER_WR) {
-@@ -472,6 +511,10 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs)
- 		return -EREMOTEIO;
- 	}
- 
-+	if (i2c->irq_stat & I2C_RS_TRANSFER)
-+		dev_dbg(i2c->dev, "addr: %x, restart transfer interrupt.\n",
-+				msgs->addr);
-+
- 	return 0;
- }
- 
-@@ -486,28 +529,33 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
- 	if (ret)
- 		return ret;
- 
--	if (msgs->buf == NULL) {
--		dev_dbg(i2c->dev, "data buffer is NULL.\n");
--		ret = -EINVAL;
--		goto err_exit;
--	}
--
--	if (msgs->flags & I2C_M_RD)
--		i2c->op = I2C_MASTER_RD;
--	else
--		i2c->op = I2C_MASTER_WR;
-+	while (left_num--) {
-+		if (msgs->buf == NULL) {
-+			dev_dbg(i2c->dev, "data buffer is NULL.\n");
-+			ret = -EINVAL;
-+			goto err_exit;
-+		}
- 
--	if (num > 1) {
--		/* combined two messages into one transaction */
--		i2c->op = I2C_MASTER_WRRD;
--		left_num--;
--	}
-+		if (msgs->flags & I2C_M_RD)
-+			i2c->op = I2C_MASTER_RD;
-+		else
-+			i2c->op = I2C_MASTER_WR;
-+
-+		if (!i2c->dev_comp->auto_restart) {
-+			if (num > 1) {
-+				/* combined two messages into one transaction */
-+				i2c->op = I2C_MASTER_WRRD;
-+				left_num--;
-+			}
-+		}
- 
--	/* always use DMA mode. */
--	ret = mtk_i2c_do_transfer(i2c, msgs);
--	if (ret < 0)
--		goto err_exit;
-+		/* always use DMA mode. */
-+		ret = mtk_i2c_do_transfer(i2c, msgs, num, left_num);
-+		if (ret < 0)
-+			goto err_exit;
- 
-+		msgs++;
-+	}
- 	/* the return value is number of executed messages */
- 	ret = num;
- 
-@@ -521,7 +569,7 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
- 	struct mtk_i2c *i2c = dev_id;
- 
- 	i2c->irq_stat = mtk_i2c_readw(i2c, OFFSET_INTR_STAT);
--	mtk_i2c_writew(I2C_HS_NACKERR | I2C_ACKERR
-+	mtk_i2c_writew(I2C_RS_TRANSFER | I2C_HS_NACKERR | I2C_ACKERR
- 			| I2C_TRANSAC_COMP, i2c, OFFSET_INTR_STAT);
- 
- 	complete(&i2c->msg_complete);
--- 
-1.8.1.1.dirty
+1. Only support one i2c_msg number. One exception is WRRD (write then read)
+mode. WRRD can have two i2c_msg numbers.
+
+2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
+mode the Repeat Start will be issued between 2 messages.
+In this driver if 2 messages is first write then read, the driver will
+combine 2 messages using Write-Read mode so the RS will be issued between
+the 2 messages.
+
+3. The max transfer data length is 255 in one message. In WRRD mode, the
+max data length of second msg is 31.
+
+MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+registers in MT8135 side. In this case, driver should set OFFSET_PATH_DIR
+bit first, the operation on other registers are still the same.
+For now MT6589/MT8135 support this, MT6577/MT6595/MT8127 do not support.
+For example, If want to use I2C4/5/6 pins on MT8135 just need to enable
+the pinmux, else if want to use I2C pins on PMIC(MT6397) need to add
+"mediatek,have-pmic" property in the .dts file of each platform.
+
+This driver is based on 4.1-rc1.
+
+Change in v6:
+1. Update binding document not use default clock-frequency as example.
+2. Add mtk_i2c_compatible struct and pass hardware capabilities
+   through of_device_id
+3. Remove some hardware setting in mtk_i2c_do_transfer to mtk_i2c_init_hw
+   so just init one time.
+4. Correct mtk_i2c_parse_dt don't set default clock bug.
+
+Change in v5:
+Apply new i2c_adapter_quirks patch [2]. Change to use dam_map_single to map
+dma buffer. Add spinlock to fix race condition. Check of_property_read_u32
+return value. Remove I2C_FUNC_10BIT_ADDR capability due to driver not implement.
+Add MT8173 I2C driver.
+
+Change in v4:
+Modify to support i2c_adapter_quirks base on Wolfram's patch [1].
+Remove check transfer size and WRRD combine code. Instead, fill quirk
+property and let i2c_check_for_quirks to do the filter.
+
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-January/314804.html
+[2] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-February/325744.html
+
+Eddie Huang (1):
+  I2C: mediatek: Add driver for MediaTek MT8173 I2C controller
+
+Xudong Chen (2):
+  dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+  I2C: mediatek: Add driver for MediaTek I2C controller
+
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         |  41 ++
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-mt65xx.c                    | 748 +++++++++++++++++++++
+ 4 files changed, 799 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+ create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
 
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.8.1.1.dirty
