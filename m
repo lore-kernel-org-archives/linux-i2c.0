@@ -1,29 +1,42 @@
-From: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH] i2c: st: add include for pinctrl
-Date: Wed, 29 Apr 2015 14:00:35 +0200
-Message-ID: <5540C7E3.2060606@st.com>
-References: <1429789322-27260-1-git-send-email-wsa@the-dreams.de> <20150423163301.GB4689@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 1/2] i2c: core: Remove needless structure member zero initialization
+Date: Wed, 29 Apr 2015 15:44:36 +0300
+Message-ID: <1430311477-21759-1-git-send-email-jarkko.nikula@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150423163301.GB4689@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+No need to clear one struct i2c_client member variable since memset has
+already cleared all of them. Remove also one space intendation from err
+label.
 
+Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-On 04/23/2015 06:33 PM, Wolfram Sang wrote:
-> On Thu, Apr 23, 2015 at 01:42:02PM +0200, Wolfram Sang wrote:
->> The driver uses pinctrl directly and thus should include the appropriate
->> header. Sort the headers while we are here to have a better view what is
->> included and what is not.
->>
->> Reported-by: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Improved the sorting some more and applied to for-current, thanks!
->
-
-Thanks Wolfram.
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 987c124432c5..051aa3a811a8 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -283,7 +283,6 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
+ 	memset(&client, 0, sizeof(client));
+ 	client.adapter = adapter;
+ 	client.addr = sb->slave_address;
+-	client.flags = 0;
+ 
+ 	if (sb->access_mode == ACPI_I2C_10BIT_MODE)
+ 		client.flags |= I2C_CLIENT_TEN;
+@@ -361,7 +360,7 @@ acpi_i2c_space_handler(u32 function, acpi_physical_address command,
+ 
+ 	gsb->status = status;
+ 
+- err:
++err:
+ 	ACPI_FREE(ares);
+ 	return ret;
+ }
+-- 
+2.1.4
