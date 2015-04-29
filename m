@@ -1,88 +1,90 @@
-From: rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v6 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-Date: Wed, 29 Apr 2015 10:48:25 +0530
-Message-ID: <CAA7nrtgcAU8RpUO=GPAWQH5hrsMg5jDzOJ-NqN_c19t_GPmTjw@mail.gmail.com>
-References: <1430209869-6631-1-git-send-email-eddie.huang@mediatek.com>
-	<1430209869-6631-2-git-send-email-eddie.huang@mediatek.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v2 09/17] spi: add locomo SPI driver
+Date: Wed, 29 Apr 2015 12:27:19 +0100
+Message-ID: <20150429112719.GK22845@sirena.org.uk>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+ <1430178954-11138-10-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1430209869-6631-2-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Bjorn Andersson <bjorn.andersson-/MT0OVThwyLZJqsBc5GL+g@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="ZocEfSc9YMy2wkfC"
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1430178954-11138-10-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 28, 2015 at 2:01 PM, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> wrote:
-> From: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
->
-> Add devicetree bindings for Mediatek Soc I2C driver.
->
-> Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> Signed-off-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-mt6577.txt         | 41 ++++++++++++++++++++++
->  1 file changed, 41 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> new file mode 100644
-> index 0000000..0ce6fa3
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
-> @@ -0,0 +1,41 @@
-> +* Mediatek's I2C controller
-> +
-> +The Mediatek's I2C controller is used to interface with I2C devices.
-> +
-> +Required properties:
-> +  - compatible: value should be either of the following.
-> +      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
-> +      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
-> +      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
-> +      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
-> +      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
-> +  - reg: physical base address of the controller and dma base, length of memory
-> +    mapped region.
-> +  - interrupts: interrupt number to the cpu.
-> +  - clock-div: the fixed value for frequency divider of clock source in i2c
-> +    module. Each IC may be different.
-> +  - clocks: clock name from clock manager
-> +  - clock-names: Must include "main" and "dma", if enable have-pmic need include
-> +    "pmic" extra.
-> +
-> +Optional properties:
-> +  - clock-frequency: Frequency in Hz of the bus when transfer, the default value
-> +    is 100000.
 
-100000 HZ ...
+--ZocEfSc9YMy2wkfC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> +  - mediatek,have-pmic: platform can control i2c form special pmic side.
-> +    Only mt6589 and mt8135 support this feature.
-> +  - mediatek,use-push-pull: IO config use push-pull mode.
+On Tue, Apr 28, 2015 at 02:55:46AM +0300, Dmitry Eremin-Solenikov wrote:
+
+> +static int locomospi_reg_open(struct locomospi_dev *spidev)
+> +{
+
+> +static int locomospi_reg_release(struct locomospi_dev *spidev)
+> +{
+
+These are a bit weird - as far as I can tell they're just doing some
+init done on probe and release?  I think I'd expect to see them either
+inlined there or done as part of the PM operations too (including
+runtime ones).
+
+> +	for (j = 0; j < wait; j++) {
+> +		regmap_read(spidev->regmap, LOCOMO_SPIST, &r);
+> +		if (r & LOCOMO_SPI_RFW)
+> +			break;
+> +	}
+> +	if (j == wait)
+> +		dev_err(&spi->dev, "rfw timeout\n");
+
+But we don't return an error if we time out?
+
+> +static int locomo_spi_setup_transfer(struct spi_device *spi,
+> +		struct spi_transfer *t)
+> +{
+> +	struct locomospi_dev *spidev;
+> +	u32 hz = 0;
 > +
-> +Example:
+> +	if (t)
+> +		hz = t->speed_hz;
+> +	if (!hz)
+> +		hz = spi->max_speed_hz;
+
+The core will set a speed on every transfer for you.
+
+> +	if (!tx && !rx && t->len)
+> +		return -EINVAL;
+
+Put this in the core if it's needed.
+
+> +static int locomo_spi_remove(struct platform_device *pdev)
+> +{
+> +	struct spi_master *master = platform_get_drvdata(pdev);
+> +	struct locomospi_dev *spidev = spi_master_get_devdata(master);
 > +
-> +       i2c0: i2c@1100d000 {
-> +                       compatible = "mediatek,mt6577-i2c";
-> +                       reg = <0x1100d000 0x70>,
-> +                             <0x11000300 0x80>;
-> +                       interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
-> +                       clock-frequency = <400000>;
-> +                       mediatek,have-pmic;
-> +                       clock-div = <16>;
-> +                       clocks = <&i2c0_ck>, <&ap_dma_ck>;
-> +                       clock-names = "main", "dma";
-> +       };
-> +
-> --
-> 1.8.1.1.dirty
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +	return locomospi_reg_release(spidev);
+
+We're doing this release before we free the master which is potentially
+racy - but do we even need to do it at all?
+
+--ZocEfSc9YMy2wkfC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJVQMAWAAoJECTWi3JdVIfQMFAH/3nUrvEBcxp8jyhAVn5jjqJu
+pplMhi3HD0iiwiHljAMoUDBtIyi/5kCOMOV9H5wR9A5sUbHf/7LXAPABZ3QwfZIq
+pK8OIRHvPpfTqsn2GESDUEXsxrs0QrAekLdCAEscyVbqrTihQVZebSBQGTSvFdxu
+r/CoSnAFP5lk8GAMI5l19FMqv7UKPRalLweTLdg64L5Q7zLHSe1n0PamnXyE110r
+dz8YwL3bD4PML52wBsZhwrYJRQArpP5fCr3HAqo2G+445NFstSptTT9CLsflcq9o
+V3vryHNdYxOY10ugsfdd/NOBhnucEuuEYiZ9IrtFQzhykmC6B/t+tcliLDT7I7U=
+=zqXc
+-----END PGP SIGNATURE-----
+
+--ZocEfSc9YMy2wkfC--
