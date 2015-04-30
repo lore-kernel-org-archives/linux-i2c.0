@@ -1,37 +1,45 @@
-From: sathyanarayanan kuppuswamy
-	<sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v1 1/1] i2c: Add acpi support to enumerate i2c mux clients
-Date: Wed, 29 Apr 2015 16:38:09 -0700
-Message-ID: <55416B61.4090900@linux.intel.com>
-References: <cover.1428546834.git.sathyanarayanan.kuppuswamy@linux.intel.com> <b57c66fc1b7e790bd8c3e525faf65ce46cd91f23.1428546834.git.sathyanarayanan.kuppuswamy@linux.intel.com> <20150410084208.GR1734@lahna.fi.intel.com>
-Reply-To: sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Subject: [PATCH] i2c: i2c-bcm2708: fixes cdiv uneven number
+Date: Thu, 30 Apr 2015 20:07:46 +0200
+Message-ID: <1430417266-14900-1-git-send-email-linux_wi@tinag.ch>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150410084208.GR1734-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-ping.
+Prevents that cdiv can be an uneven number as per datasheet cdiv is
+always rounded down to an even number.
 
-On 04/10/2015 01:42 AM, Mika Westerberg wrote:
-> On Thu, Apr 09, 2015 at 12:15:42PM -0700, Kuppuswamy Sathyanarayanan wrote:
->> Added support to enumerate i2c mux clients via ACPI.
->>
->> Currently we don't have any fixed way for enumerating
->> mux clients via acpi. This patch adds support to scan
->> for all client i2c devices under the mux device in DSDT
->> table and enumerate them in order.
->>
->> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> >From ACPI standpoint I don't see problems with this code.
->
-> Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
->
+Datasheet at page 34 on
+http://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
 
+Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-bcm2708.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bcm2708.c b/drivers/i2c/busses/i2c-bcm2708.c
+index 81e9374..454ab48 100644
+--- a/drivers/i2c/busses/i2c-bcm2708.c
++++ b/drivers/i2c/busses/i2c-bcm2708.c
+@@ -441,9 +441,15 @@ static int bcm2708_i2c_probe(struct platform_device *pdev)
+ 
+ 	bus_hz = clk_get_rate(bi->clk);
+ 	cdiv = bus_hz / baudrate;
+-	if (cdiv > 0xffff) {
+-		cdiv = 0xffff;
++	/* as per datasheet cdiv is always rounded down to an even number */
++	if (cdiv > 0xfffe) {
++		cdiv = 0xfffe;
+ 		baudrate = bus_hz / cdiv;
++	} else {
++		if ((cdiv & 0xfffe) != cdiv) {
++			cdiv &= 0xfffe;
++			baudrate = bus_hz / cdiv;
++		}
+ 	}
+ 	bi->cdiv = cdiv;
+ 
 -- 
-Sathyanarayanan Kuppuswamy
-Android kernel developer
+2.1.4
