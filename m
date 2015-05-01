@@ -1,59 +1,60 @@
-From: Caesar Wang <sasukewxt@163.com>
-Subject: Re: [PATCH] i2c: rk3x: Increase wait timeout to 1 second
-Date: Fri, 01 May 2015 11:42:53 +0800
-Message-ID: <5542F63D.3000402@163.com>
-References: <1430430247-9632-1-git-send-email-dianders@chromium.org>
+From: rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-bcm2708: fixes cdiv uneven number
+Date: Fri, 1 May 2015 10:54:48 +0530
+Message-ID: <CAA7nrtjAvO4n3zL51jfN5h=2koDTObk7e8R+MNzyfRDFC3+OLw@mail.gmail.com>
+References: <1430417266-14900-1-git-send-email-linux_wi@tinag.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1430430247-9632-1-git-send-email-dianders@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Addy Ke <addy.ke@rock-chips.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Max Schwarz <max.schwarz@online.de>, linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1430417266-14900-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-=E5=9C=A8 2015=E5=B9=B405=E6=9C=8801=E6=97=A5 05:44, Doug Anderson =E5=86=
-=99=E9=81=93:
-> While it's not sensible for an i2c command to _actually_ need more
-> than 200ms to complete, let's increase the timeout anyway.  Why?  It
-> turns out that if you've got a large number of printks going out to a
-> serial console, interrupts on a CPU can be disabled for hundreds of
-> milliseconds. That's not a great situation to be in to start with
-> (maybe we should put a cap in vprintk_emit()) but it's pretty annoyin=
-g
-> to start seeing unexplained i2c timeouts.
+On Thu, Apr 30, 2015 at 11:37 PM, Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org> wrote:
+> Prevents that cdiv can be an uneven number as per datasheet cdiv is
+> always rounded down to an even number.
 >
-> A normal system shouldn't see i2c timeouts anyway, so increasing the
-> timeout should help people debugging without hurting other people
-> excessively.
+> Datasheet at page 34 on
+> http://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
 >
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
 > ---
->   drivers/i2c/busses/i2c-rk3x.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/i2c/busses/i2c-bcm2708.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
 >
-> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-r=
-k3x.c
-> index 019d542..72e97e30 100644
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -72,7 +72,7 @@ enum {
->   #define REG_INT_ALL       0x7f
->  =20
->   /* Constants */
-> -#define WAIT_TIMEOUT      200 /* ms */
-> +#define WAIT_TIMEOUT      1000 /* ms */
-Yeah,verified on veyron device.
+> diff --git a/drivers/i2c/busses/i2c-bcm2708.c b/drivers/i2c/busses/i2c-bcm2708.c
+> index 81e9374..454ab48 100644
+> --- a/drivers/i2c/busses/i2c-bcm2708.c
+> +++ b/drivers/i2c/busses/i2c-bcm2708.c
+> @@ -441,9 +441,15 @@ static int bcm2708_i2c_probe(struct platform_device *pdev)
+>
+>         bus_hz = clk_get_rate(bi->clk);
+>         cdiv = bus_hz / baudrate;
+> -       if (cdiv > 0xffff) {
+> -               cdiv = 0xffff;
+> +       /* as per datasheet cdiv is always rounded down to an even number */
+> +       if (cdiv > 0xfffe) {
+> +               cdiv = 0xfffe;
 
-Tested-by: Caesar Wang <wxt@rock-chips.com>
+Use #define
 
-Thanks.
-Caesar
+~Rajeev
 
->   #define DEFAULT_SCL_RATE  (100 * 1000) /* Hz */
->  =20
->   enum rk3x_i2c_state {
+>                 baudrate = bus_hz / cdiv;
+> +       } else {
+> +               if ((cdiv & 0xfffe) != cdiv) {
+> +                       cdiv &= 0xfffe;
+> +                       baudrate = bus_hz / cdiv;
+> +               }
+>         }
+>         bi->cdiv = cdiv;
+>
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
