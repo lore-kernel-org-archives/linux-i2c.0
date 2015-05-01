@@ -1,9 +1,11 @@
 From: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
-Subject: [PATCH 1/4] i2c: imx: Constify platform_device_id
-Date: Sat,  2 May 2015 00:54:25 +0900
-Message-ID: <1430495668-31878-1-git-send-email-k.kozlowski.k@gmail.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
+Subject: [PATCH 4/4] i2c: s4c2410: Constify platform_device_id
+Date: Sat,  2 May 2015 00:54:28 +0900
+Message-ID: <1430495668-31878-4-git-send-email-k.kozlowski.k@gmail.com>
+References: <1430495668-31878-1-git-send-email-k.kozlowski.k@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1430495668-31878-1-git-send-email-k.kozlowski.k@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
 Cc: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
@@ -13,21 +15,21 @@ const.
 
 Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k@gmail.com>
 ---
- drivers/i2c/busses/i2c-imx.c | 2 +-
+ drivers/i2c/busses/i2c-s3c2410.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index a53a7dd66945..785aa674a4da 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -241,7 +241,7 @@ static struct imx_i2c_hwdata vf610_i2c_hwdata = {
- 
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 958c8db4ec30..c1f0e62d1bb1 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -132,7 +132,7 @@ struct s3c24xx_i2c {
+ 	unsigned int		sys_i2c_cfg;
  };
  
--static struct platform_device_id imx_i2c_devtype[] = {
-+static const struct platform_device_id imx_i2c_devtype[] = {
+-static struct platform_device_id s3c24xx_driver_ids[] = {
++static const struct platform_device_id s3c24xx_driver_ids[] = {
  	{
- 		.name = "imx1-i2c",
- 		.driver_data = (kernel_ulong_t)&imx1_i2c_hwdata,
+ 		.name		= "s3c2410-i2c",
+ 		.driver_data	= 0,
 -- 
 2.1.4
