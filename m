@@ -1,51 +1,59 @@
-From: Caesar Wang <sasukewxt-9Onoh4P/yGk@public.gmane.org>
+From: Caesar Wang <sasukewxt@163.com>
 Subject: Re: [PATCH] i2c: rk3x: Increase wait timeout to 1 second
-Date: Fri, 01 May 2015 11:40:37 +0800
-Message-ID: <5542F5B5.9000206@163.com>
+Date: Fri, 01 May 2015 11:42:53 +0800
+Message-ID: <5542F63D.3000402@163.com>
 References: <1430430247-9632-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1430430247-9632-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1430430247-9632-1-git-send-email-dianders@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Addy Ke <addy.ke@rock-chips.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Max Schwarz <max.schwarz@online.de>, linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-CgrlnKggMjAxNeW5tDA15pyIMDHml6UgMDU6NDQsIERvdWcgQW5kZXJzb24g5YaZ6YGTOgo+IFdo
-aWxlIGl0J3Mgbm90IHNlbnNpYmxlIGZvciBhbiBpMmMgY29tbWFuZCB0byBfYWN0dWFsbHlfIG5l
-ZWQgbW9yZQo+IHRoYW4gMjAwbXMgdG8gY29tcGxldGUsIGxldCdzIGluY3JlYXNlIHRoZSB0aW1l
-b3V0IGFueXdheS4gIFdoeT8gIEl0Cj4gdHVybnMgb3V0IHRoYXQgaWYgeW91J3ZlIGdvdCBhIGxh
-cmdlIG51bWJlciBvZiBwcmludGtzIGdvaW5nIG91dCB0byBhCj4gc2VyaWFsIGNvbnNvbGUsIGlu
-dGVycnVwdHMgb24gYSBDUFUgY2FuIGJlIGRpc2FibGVkIGZvciBodW5kcmVkcyBvZgo+IG1pbGxp
-c2Vjb25kcy4gVGhhdCdzIG5vdCBhIGdyZWF0IHNpdHVhdGlvbiB0byBiZSBpbiB0byBzdGFydCB3
-aXRoCj4gKG1heWJlIHdlIHNob3VsZCBwdXQgYSBjYXAgaW4gdnByaW50a19lbWl0KCkpIGJ1dCBp
-dCdzIHByZXR0eSBhbm5veWluZwo+IHRvIHN0YXJ0IHNlZWluZyB1bmV4cGxhaW5lZCBpMmMgdGlt
-ZW91dHMuCj4KPiBBIG5vcm1hbCBzeXN0ZW0gc2hvdWxkbid0IHNlZSBpMmMgdGltZW91dHMgYW55
-d2F5LCBzbyBpbmNyZWFzaW5nIHRoZQo+IHRpbWVvdXQgc2hvdWxkIGhlbHAgcGVvcGxlIGRlYnVn
-Z2luZyB3aXRob3V0IGh1cnRpbmcgb3RoZXIgcGVvcGxlCj4gZXhjZXNzaXZlbHkuCj4KPiBTaWdu
-ZWQtb2ZmLWJ5OiBEb3VnIEFuZGVyc29uIDxkaWFuZGVyc0BjaHJvbWl1bS5vcmc+Cj4gLS0tCj4g
-ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLXJrM3guYyB8IDIgKy0KPiAgIDEgZmlsZSBjaGFuZ2Vk
-LCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-aTJjL2J1c3Nlcy9pMmMtcmszeC5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yazN4LmMKPiBp
-bmRleCAwMTlkNTQyLi43MmU5N2UzMCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLXJrM3guYwo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcmszeC5jCj4gQEAgLTcy
-LDcgKzcyLDcgQEAgZW51bSB7Cj4gICAjZGVmaW5lIFJFR19JTlRfQUxMICAgICAgIDB4N2YKPiAg
-IAo+ICAgLyogQ29uc3RhbnRzICovCj4gLSNkZWZpbmUgV0FJVF9USU1FT1VUICAgICAgMjAwIC8q
-IG1zICovCj4gKyNkZWZpbmUgV0FJVF9USU1FT1VUICAgICAgMTAwMCAvKiBtcyAqLwpZZWFoLCB2
-ZXJpZmllZCBvbiB2ZXlyb24gZGV2aWNlLgoKVGVzdGVkLWJ5OiBDYWVzYXIgV2FuZyA8d3h0QHJv
-Y2stY2hpcHMuY29tPgoKCgpUaGFua3MuCgpDYWVzYXIKPiAgICNkZWZpbmUgREVGQVVMVF9TQ0xf
-UkFURSAgKDEwMCAqIDEwMDApIC8qIEh6ICovCj4gICAKPiAgIGVudW0gcmszeF9pMmNfc3RhdGUg
-ewoKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51
-eC1yb2NrY2hpcCBtYWlsaW5nIGxpc3QKTGludXgtcm9ja2NoaXBAbGlzdHMuaW5mcmFkZWFkLm9y
-ZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LXJvY2tj
-aGlwCg==
+
+
+=E5=9C=A8 2015=E5=B9=B405=E6=9C=8801=E6=97=A5 05:44, Doug Anderson =E5=86=
+=99=E9=81=93:
+> While it's not sensible for an i2c command to _actually_ need more
+> than 200ms to complete, let's increase the timeout anyway.  Why?  It
+> turns out that if you've got a large number of printks going out to a
+> serial console, interrupts on a CPU can be disabled for hundreds of
+> milliseconds. That's not a great situation to be in to start with
+> (maybe we should put a cap in vprintk_emit()) but it's pretty annoyin=
+g
+> to start seeing unexplained i2c timeouts.
+>
+> A normal system shouldn't see i2c timeouts anyway, so increasing the
+> timeout should help people debugging without hurting other people
+> excessively.
+>
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> ---
+>   drivers/i2c/busses/i2c-rk3x.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-r=
+k3x.c
+> index 019d542..72e97e30 100644
+> --- a/drivers/i2c/busses/i2c-rk3x.c
+> +++ b/drivers/i2c/busses/i2c-rk3x.c
+> @@ -72,7 +72,7 @@ enum {
+>   #define REG_INT_ALL       0x7f
+>  =20
+>   /* Constants */
+> -#define WAIT_TIMEOUT      200 /* ms */
+> +#define WAIT_TIMEOUT      1000 /* ms */
+Yeah,verified on veyron device.
+
+Tested-by: Caesar Wang <wxt@rock-chips.com>
+
+Thanks.
+Caesar
+
+>   #define DEFAULT_SCL_RATE  (100 * 1000) /* Hz */
+>  =20
+>   enum rk3x_i2c_state {
