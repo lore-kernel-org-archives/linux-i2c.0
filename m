@@ -1,55 +1,31 @@
-From: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
-Subject: [PATCH v2] i2c: i2c-bcm2708: fixes cdiv uneven number
-Date: Fri,  1 May 2015 23:43:49 +0200
-Message-ID: <1430516629-32692-1-git-send-email-linux_wi@tinag.ch>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Subject: [PATCH] i2c: s3c2410: fix oops in suspend callback for non-dt platforms
+Date: Sun,  3 May 2015 21:13:10 +0300
+Message-ID: <1430676790-30500-1-git-send-email-anarsoul@gmail.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Kukjin Kim <kgene@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Vasily Khoruzhick <anarsoul@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Prevents that cdiv can be an uneven number as per datasheet cdiv is
-always rounded down to an even number.
+Initialize sysreg by default, otherwise driver will crash in suspend callback.
 
-Datasheet at page 34 on
-http://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
-
-Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
 ---
- drivers/i2c/busses/i2c-bcm2708.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2708.c b/drivers/i2c/busses/i2c-bcm2708.c
-index 81e9374..dd7094a 100644
---- a/drivers/i2c/busses/i2c-bcm2708.c
-+++ b/drivers/i2c/busses/i2c-bcm2708.c
-@@ -67,6 +67,9 @@
- #define BSC_S_DONE		0x00000002
- #define BSC_S_TA		0x00000001
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 958c8db..297e9c9 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1143,6 +1143,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
-+#define BSC_CDIV_MAX		0xFFFE
-+#define BSC_CDIV_BITMASK	0xFFFE
-+
- #define I2C_TIMEOUT_MS	150
- #define I2C_WAIT_LOOP_COUNT 40
- 
-@@ -441,9 +444,15 @@ static int bcm2708_i2c_probe(struct platform_device *pdev)
- 
- 	bus_hz = clk_get_rate(bi->clk);
- 	cdiv = bus_hz / baudrate;
--	if (cdiv > 0xffff) {
--		cdiv = 0xffff;
-+	/* as per datasheet cdiv is always rounded down to an even number */
-+	if (cdiv > BSC_CDIV_MAX) {
-+		cdiv = BSC_CDIV_MAX;
- 		baudrate = bus_hz / cdiv;
-+	} else {
-+		if ((cdiv & BSC_CDIV_BITMASK) != cdiv) {
-+			cdiv &= BSC_CDIV_BITMASK;
-+			baudrate = bus_hz / cdiv;
-+		}
- 	}
- 	bi->cdiv = cdiv;
- 
+ 	i2c->quirks = s3c24xx_get_device_quirks(pdev);
++	i2c->sysreg = ERR_PTR(-ENOENT);
+ 	if (pdata)
+ 		memcpy(i2c->pdata, pdata, sizeof(*pdata));
+ 	else
 -- 
-2.1.4
+2.3.5
