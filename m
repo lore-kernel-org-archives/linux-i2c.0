@@ -1,28 +1,67 @@
-From: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-Subject: Re: [PATCH] i2c: s3c2410: fix oops in suspend callback for non-dt platforms
-Date: Mon, 4 May 2015 08:50:22 +0900
-Message-ID: <CAJKOXPd71vnup-RZYAh7UM2Tky2M64tA=u0Ydy=ti0yOC6h5aQ@mail.gmail.com>
-References: <1430676790-30500-1-git-send-email-anarsoul@gmail.com>
+From: rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: i2c-bcm2708: fixes cdiv uneven number
+Date: Mon, 4 May 2015 10:20:42 +0530
+Message-ID: <CAA7nrtgTOg0YBKavBhV+=9fvxxjtd143aODZpfR=TSN7STrrXg@mail.gmail.com>
+References: <1430516629-32692-1-git-send-email-linux_wi@tinag.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1430676790-30500-1-git-send-email-anarsoul@gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Vasily Khoruzhick <anarsoul@gmail.com>
-Cc: Kukjin Kim <kgene@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1430516629-32692-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2015-05-04 3:13 GMT+09:00 Vasily Khoruzhick <anarsoul@gmail.com>:
-> Initialize sysreg by default, otherwise driver will crash in suspend callback.
+On Sat, May 2, 2015 at 3:13 AM, Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org> wrote:
+> Prevents that cdiv can be an uneven number as per datasheet cdiv is
+> always rounded down to an even number.
 >
-> Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+> Datasheet at page 34 on
+> http://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+>
+> Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+> ---
+Reviewed-by: Rajeev Kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-I think the crash is possible if device node is missing in DT or pdata
-is supplied. If you agree, could you add this information to commit
-message, along with Cc-stable and Fixes tag?
-
-Anyway, the patch itself looks good:
-Reviewed-by: Krzysztof Kozlowski <k.kozlowski@samsung.com>
-
-Best regards,
-Krzysztof
+>  drivers/i2c/busses/i2c-bcm2708.c | 13 +++++++++++--
+>  1 file changed, 11 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-bcm2708.c b/drivers/i2c/busses/i2c-bcm2708.c
+> index 81e9374..dd7094a 100644
+> --- a/drivers/i2c/busses/i2c-bcm2708.c
+> +++ b/drivers/i2c/busses/i2c-bcm2708.c
+> @@ -67,6 +67,9 @@
+>  #define BSC_S_DONE             0x00000002
+>  #define BSC_S_TA               0x00000001
+>
+> +#define BSC_CDIV_MAX           0xFFFE
+> +#define BSC_CDIV_BITMASK       0xEFFF
+> +
+>  #define I2C_TIMEOUT_MS 150
+>  #define I2C_WAIT_LOOP_COUNT 40
+>
+> @@ -441,9 +444,15 @@ static int bcm2708_i2c_probe(struct platform_device *pdev)
+>
+>         bus_hz = clk_get_rate(bi->clk);
+>         cdiv = bus_hz / baudrate;
+> -       if (cdiv > 0xffff) {
+> -               cdiv = 0xffff;
+> +       /* as per datasheet cdiv is always rounded down to an even number */
+> +       if (cdiv > BSC_CDIV_MAX) {
+> +               cdiv = BSC_CDIV_MAX;
+>                 baudrate = bus_hz / cdiv;
+> +       } else {
+> +               if ((cdiv & BSC_CDIV_BITMASK) != cdiv) {
+> +                       cdiv &= BSC_CDIV_BITMASK;
+> +                       baudrate = bus_hz / cdiv;
+> +               }
+>         }
+>         bi->cdiv = cdiv;
+>
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
