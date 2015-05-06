@@ -1,59 +1,45 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: Re: [PATCH v2 i2c/for-next] i1c: i801: recover from hardware PEC errors
-Date: Wed, 06 May 2015 02:40:38 -0700
-Message-ID: <4D1E2608-8F1D-4CCC-9356-2552B5E54D2C@cumulusnetworks.com>
-References: <1430772076-1151-1-git-send-email-ellen@cumulusnetworks.com> <20150506113316.7dae4066@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150506113316.7dae4066-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH v2 2/3] i2c / ACPI: Use 0 to indicate that device does not have interrupt assigned
+Date: Wed,  6 May 2015 13:29:07 +0300
+Message-ID: <1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+References: <1430908148-201129-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1430908148-201129-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Octavian Purdila <octavian.purdila@intel.com>, Robert Dolca <robert.dolca@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+This is the convention used in most parts of the kernel including DT
+counterpart of I2C slave enumeration. To make things consistent do the same
+for ACPI I2C slave enumeration path as well.
 
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/i2c/i2c-core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
--- sent from mobile device
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 987c124432c5..c21b3de70234 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -107,7 +107,7 @@ static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
+ 			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
+ 				info->flags |= I2C_CLIENT_TEN;
+ 		}
+-	} else if (info->irq < 0) {
++	} else if (!info->irq) {
+ 		struct resource r;
+ 
+ 		if (acpi_dev_resource_interrupt(ares, 0, &r))
+@@ -134,7 +134,6 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
+ 
+ 	memset(&info, 0, sizeof(info));
+ 	info.fwnode = acpi_fwnode_handle(adev);
+-	info.irq = -1;
+ 
+ 	INIT_LIST_HEAD(&resource_list);
+ 	ret = acpi_dev_get_resources(adev, &resource_list,
+-- 
+2.1.4
 
-On May 6, 2015 2:33:16 AM PDT, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org> wrote:
->Hi Ellen,
->
->On Mon,  4 May 2015 13:41:16 -0700, Ellen Wang wrote:
->> On a CRC error while using hardware-supported PEC, an additional
->> error bit is set in the auxiliary status register.  If this bit
->> isn't cleared, all subsequent operations will fail, essentially
->> hanging the controller.
->> 
->> The fix is simple: check, report, and clear the bit in
->> i802_check_post().  Also, in case the driver starts with the
->> hardware in that state, clear it in i801_check_pre() as well.
->
->You seem to be angry against 1s and 2s ;-) The subsystem is i2c and the
->driver is i801, not the other way around.
-
-Heh.  I guess I typed i2c-i801 too many times.  Sorry.  Please fix.
-
->> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
->> ---
->> This is essentially the patch from Jean Delvare, which handles
->> the polling case while my original version didn't.  (Thank you!
->> Please add appropriate attribution if you wish.)
->
->Well, thanks for adding the comments, it's definitely helpful. This is
->collaborative work :-)
->
->> 
->> I tested all the additional code paths by selectively commenting
->> out code: with interrupts, without interrupts, relying on check_pre()
->> to clear CRCE, no clearing of CRCE at all (baseline).
->
->Thanks a lot for testing. I'll perform some tests on my ICH5 system as
->well and if everything passes I'll resend the patch with fixed subject,
->description and credits.
->
->-- 
->Jean Delvare
->SUSE L3 Support
