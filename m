@@ -1,48 +1,56 @@
-From: os user <gnusercn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Regarding to force bus id for channels of pca954x
-Date: Thu, 7 May 2015 00:35:22 +0800
-Message-ID: <CAG+qjJ9qWGYe0m9oFDYU-J=ZM2izS=bZeF5=MhDHmzaBPvb3ew@mail.gmail.com>
-References: <CAG+qjJ8qEjzNkjxmUh8yng-Fcxm=_PjteoGqw38QMbP6Xe6wbw@mail.gmail.com>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH v2 08/17] gpio: locomo: implement per-pin irq handling
+Date: Wed, 6 May 2015 19:42:33 +0300
+Message-ID: <CALT56yNJutWTW5zsos+=Uh+BDvO4o_tqBEj+H621TncVK6eD_Q@mail.gmail.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+	<1430178954-11138-9-git-send-email-dbaryshkov@gmail.com>
+	<CACRpkdZt+rjzVSqXE6MDaY5S9gezeTu+2QWu31xKsg08TpXibw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAG+qjJ8qEjzNkjxmUh8yng-Fcxm=_PjteoGqw38QMbP6Xe6wbw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, giometti-AVVDYK/kqiJWk0Htik3J/w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdZt+rjzVSqXE6MDaY5S9gezeTu+2QWu31xKsg08TpXibw@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, linux-leds@vger.kernel.or
 List-Id: linux-i2c@vger.kernel.org
 
-Hi there,
-
-For some reasons, we need to assign bus id for the channels of I2c mux pca9548.
-
->From the code, it seems we can use "adap_id" of
-
-struct pca954x_platform_mode {
-  int             adap_id;
-  unsigned int    deselect_on_exit:1;
-  unsigned int    class;
-};
-
-But my questions is, can we assign bus id through device tree and modprobe?
-
-Thanks.
-
-On Thu, May 7, 2015 at 12:33 AM, os user <gnusercn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> Hi there,
+2015-05-06 17:15 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
+> On Tue, Apr 28, 2015 at 1:55 AM, Dmitry Eremin-Solenikov
+> <dbaryshkov@gmail.com> wrote:
 >
-> For some reasons, we need to assign bus id for the channels of I2c mux
-> pca9548.
+>> LoCoMo has a possibility to generate per-GPIO edge irqs. Support for
+>> that was there in old locomo driver, got 'cleaned up' during old driver
+>> IRQ cascading cleanup and is now reimplemented. It is expected that
+>> SL-5500 (collie) will use locomo gpio irqs for mmc detection irq.
+>>
+>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 >
-> From the code, it seems we can use "adap_id" of
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Thanks for review of the patches.
+
+> Assume this will also go through MFD.
 >
-> struct pca954x_platform_mode {
->   int             adap_id;
->   unsigned int    deselect_on_exit:1;
->   unsigned int    class;
-> };
+>> +       irq_set_chained_handler(lg->irq, NULL);
+>> +       irq_set_handler_data(lg->irq, NULL);
 >
-> But my questions is, can we assign bus id through device tree and modprobe?
+> Why is this needed? If the GPIOLIB_IRQCHIP code in
+> gpiolib.c is not doing this then maybe it's the core code that
+> needs fixing rather than having this in the driver.
+
+I have skimmed through the rest of drivers using
+gpiochip_set_chained_irqchip(). Indeed none of the drivers NULL
+the chained handled and handler data. However I couldn't locate
+the code where they would be cleared.
+
+Should I still send the patch fixing the GPIOLIB_IRQCHIP?
+
 >
-> Thanks.
->
+> Yours,
+> Linus Walleij
+
+
+
+-- 
+With best wishes
+Dmitry
