@@ -1,56 +1,81 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH v2 08/17] gpio: locomo: implement per-pin irq handling
-Date: Wed, 6 May 2015 19:42:33 +0300
-Message-ID: <CALT56yNJutWTW5zsos+=Uh+BDvO4o_tqBEj+H621TncVK6eD_Q@mail.gmail.com>
-References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
-	<1430178954-11138-9-git-send-email-dbaryshkov@gmail.com>
-	<CACRpkdZt+rjzVSqXE6MDaY5S9gezeTu+2QWu31xKsg08TpXibw@mail.gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH] i2c: omap: implement bus recovery
+Date: Wed, 6 May 2015 11:44:28 -0500
+Message-ID: <20150506164428.GC12279@saruman.tx.rr.com>
+References: <1424369209-26735-1-git-send-email-balbi@ti.com>
+ <20150410214122.GB15596@katana>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZt+rjzVSqXE6MDaY5S9gezeTu+2QWu31xKsg08TpXibw@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, linux-leds@vger.kernel.or
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8NvZYKFJsRX2Djef"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150410214122.GB15596@katana>
+Sender: linux-omap-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Felipe Balbi <balbi@ti.com>, Tony Lindgren <tony@atomide.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2015-05-06 17:15 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
-> On Tue, Apr 28, 2015 at 1:55 AM, Dmitry Eremin-Solenikov
-> <dbaryshkov@gmail.com> wrote:
->
->> LoCoMo has a possibility to generate per-GPIO edge irqs. Support for
->> that was there in old locomo driver, got 'cleaned up' during old driver
->> IRQ cascading cleanup and is now reimplemented. It is expected that
->> SL-5500 (collie) will use locomo gpio irqs for mmc detection irq.
->>
->> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
->
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+--8NvZYKFJsRX2Djef
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for review of the patches.
+On Fri, Apr 10, 2015 at 11:41:22PM +0200, Wolfram Sang wrote:
+> On Thu, Feb 19, 2015 at 12:06:49PM -0600, Felipe Balbi wrote:
+> > If either SCL or SDA are stuck low, we need to
+> > recover the bus using the procedure described
+> > on section 3.1.16 of the I2C specification.
+> >=20
+> > Note that we're trying to implement the procedure
+> > exactly as described by that section. First we
+> > check which line is stuck low, then implement
+> > one or the other procedure. If SDA recovery procedure
+> > fails, we reset our IP in an attempt to make it work.
+> >=20
+> > Signed-off-by: Felipe Balbi <balbi@ti.com>
+>=20
+> As Grygorii already mentioned: can you convert it to the standard i2c
+> bus recovery mechanism?
+>=20
+> And is the timeout you replace with the recovery caused by SDA stuck
+> high (check the thread starting with
+> http://thread.gmane.org/gmane.linux.kernel/1841371/focus=3D22435)
 
-> Assume this will also go through MFD.
->
->> +       irq_set_chained_handler(lg->irq, NULL);
->> +       irq_set_handler_data(lg->irq, NULL);
->
-> Why is this needed? If the GPIOLIB_IRQCHIP code in
-> gpiolib.c is not doing this then maybe it's the core code that
-> needs fixing rather than having this in the driver.
+SDA stuck low is one reason, yes. There could be other reasons like the
+far end (i2c client) just crapping out. I know of one touchscreen
+controller which will just die if you continuously try to read from
+unexistent registers. It will NAK for a while and later just die,
+completely. The only way to recover from that today is resetting the
+board. I have a feeling that resetting the touch controller might be
+doable if we have a reset pin tied to a GPIO, haven't tried that yet. In
+any case this is off-topic.
 
-I have skimmed through the rest of drivers using
-gpiochip_set_chained_irqchip(). Indeed none of the drivers NULL
-the chained handled and handler data. However I couldn't locate
-the code where they would be cleared.
+I'll rebase the patch and fix what you asked, then retest, and resend.
 
-Should I still send the patch fixing the GPIOLIB_IRQCHIP?
+--=20
+balbi
 
->
-> Yours,
-> Linus Walleij
+--8NvZYKFJsRX2Djef
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iQIcBAEBAgAGBQJVSkTsAAoJEIaOsuA1yqRE5gEP/3hQCjY7LrsvrkzzFjji6i6b
+kWL78Bgb+sMFPvF0/wPKv/4eVXEVt+0hf/QWTdD+E8C0+EUuXjimc8sm481XeYM6
+5N1OYOcZKCjyg4s83M7BXSp0XljhhlmvtuBRmR+3hYg8rGIq5HKiecNgZpay/m1g
+Epgjixwmzqydgym5VqoVUfKqTwKNkBqLL853QF76cKeLQwKAfbv6JyJwL/HqWteF
+Ybxnm1a24f/qPfqNZY7U+0tt3CEEpFav2yQHSNKaWXDeShwXl8Fe5ubSl+GIZQkF
+ajIQc2ReeSGUqjZr/9qf4wmcG0oViFdVV837quRJVwGV1AtH0sMYUG5WjhiDb/Y1
+3M7wjy8o5LDCR3nfxZqCwoPa63GjFDoKwDOqxbLiNU9xGuZMK0Jvtu2EOUpXpliS
+bc+JzNiwFTPxt6fpjgti94zPzO+MW34y6RsyOj9sH39JmyY7aNLAFU+XTE3q54KA
+KsJQF1/0KlDnsaDlGIpthNOayaKGreURMK3TZ2Yn2x47+n9jtO3dDIYCc1x3N2Fl
+yDciBp1YJwk7LdC/whv4FDxaVTbG1jaw8AuZMGbRmMGkroQ7ef9KPlBFyZdfd21y
++ceuy5EjMKLF39wH6MFxcgozd3bSigEyBkeCs+ZcnWFDDDLB9ua1DPqzYM5HYMJb
+FH93Tnq47CWoxQ7CQDSe
+=qqAf
+-----END PGP SIGNATURE-----
 
--- 
-With best wishes
-Dmitry
+--8NvZYKFJsRX2Djef--
