@@ -1,72 +1,81 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: How to encode being an I2C slave in DT?
-Date: Wed, 6 May 2015 10:09:51 +0200
-Message-ID: <20150506080951.GS25193@pengutronix.de>
-References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
- <20150505105513.GA1841@katana>
- <20150506065928.GP25193@pengutronix.de>
- <3394114.re5da8pjTi@fb07-iapwap2>
+From: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v7 0/3] ARM: mediatek: Add driver for Mediatek I2C
+Date: Wed, 6 May 2015 16:37:04 +0800
+Message-ID: <1430901427-65146-1-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <3394114.re5da8pjTi@fb07-iapwap2>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>li
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Marc,
+This series is for Mediatek SoCs I2C controller common bus driver.
 
-On Wed, May 06, 2015 at 09:53:55AM +0200, Marc Dietrich wrote:
-> Am Mittwoch, 6. Mai 2015, 08:59:28 schrieb Uwe Kleine-K=F6nig:
-> > On Tue, May 05, 2015 at 12:55:13PM +0200, Wolfram Sang wrote:
-> > > So what about adding a new property "i2c-slave-reg"? This does no=
-t only
-> > > prevent the confusion above, but also makes it very clear that th=
-is node
-> > > is an I2C slave without the need to encode that somehow in the
-> > > compatible property (although it probably should be described the=
-re as
-> > > well, still).
-> >=20
-> > I admit I didn't follow the discussions referenced in the footnotes=
-, but
-> > I wonder if the slave part should be added to the device tree at al=
-l.
-> > AFAICT it could (and so should) be completely userspace-defined whi=
-ch
-> > slave driver is used on which address. I imagine that for most
-> > controllers the bus addresses to use can be chosen more or less fre=
-ely.
-> > So what am I missing?
->=20
-> if you had read the footnotes you would know :-) Our usecase is conne=
-ct an=20
-> embeedded controller via i2c to the host soc, similar to cros-ec, but=
- here the=20
-> ec is the i2c master. The ec connects keyboard, mouse, pwrmngt, and o=
-ther=20
-> stuff, for which the drivers are best implemented in kernel code AFAI=
-K.=20
-Right, the driver might sensibly be implemented in kernel space. But I'=
-d
-vote that you still need to do the binding of these drivers to your
-slave controller from userspace. Then there is no need to specify
-anything in your dtb.
+Earlier MTK SoC ((for example, MT6589, MT8135)) I2C HW has some limitationes.
+New generation SoC like MT8173 fix following limitations:
 
-Best regards
-Uwe
+1. Only support one i2c_msg number. One exception is WRRD (write then read)
+mode. WRRD can have two i2c_msg numbers.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
+mode the Repeat Start will be issued between 2 messages.
+In this driver if 2 messages is first write then read, the driver will
+combine 2 messages using Write-Read mode so the RS will be issued between
+the 2 messages.
+
+3. The max transfer data length is 255 in one message. In WRRD mode, the
+max data length of second msg is 31.
+
+MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+registers in MT8135 side. In this case, driver should set OFFSET_PATH_DIR
+bit first, the operation on other registers are still the same.
+For now MT6589/MT8135 support this, MT6577/MT6595/MT8127 do not support.
+For example, If want to use I2C4/5/6 pins on MT8135 just need to enable
+the pinmux, else if want to use I2C pins on PMIC(MT6397) need to add
+"mediatek,have-pmic" property in the .dts file of each platform.
+
+This driver is based on 4.1-rc1.
+
+Change in v7:
+Fix mtk_i2c_of_match in wrong patch bug.
+
+Change in v6:
+1. Update binding document not use default clock-frequency as example.
+2. Add mtk_i2c_compatible struct and pass hardware capabilities
+   through of_device_id
+3. Remove some hardware setting in mtk_i2c_do_transfer to mtk_i2c_init_hw
+   so just init one time.
+4. Correct mtk_i2c_parse_dt don't set default clock bug.
+
+Change in v5:
+Apply new i2c_adapter_quirks patch [2]. Change to use dam_map_single to map
+dma buffer. Add spinlock to fix race condition. Check of_property_read_u32
+return value. Remove I2C_FUNC_10BIT_ADDR capability due to driver not implement.
+Add MT8173 I2C driver.
+
+Change in v4:
+Modify to support i2c_adapter_quirks base on Wolfram's patch [1].
+Remove check transfer size and WRRD combine code. Instead, fill quirk
+property and let i2c_check_for_quirks to do the filter.
+
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-January/314804.html
+[2] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-February/325744.html
+
+Eddie Huang (1):
+  I2C: mediatek: Add driver for MediaTek MT8173 I2C controller
+
+Xudong Chen (2):
+  dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+  I2C: mediatek: Add driver for MediaTek I2C controller
+
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         |  41 ++
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-mt65xx.c                    | 748 +++++++++++++++++++++
+ 4 files changed, 799 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+ create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
+
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.8.1.1.dirty
