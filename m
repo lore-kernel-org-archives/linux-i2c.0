@@ -1,130 +1,46 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: [PATCH] i2c: omap: implement bus recovery
-Date: Wed, 6 May 2015 11:50:27 -0500
-Message-ID: <1430931027-19955-1-git-send-email-balbi@ti.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: How to encode being an I2C slave in DT?
+Date: Wed, 06 May 2015 11:01:25 -0600
+Message-ID: <554A48E5.5010106@wwwdotorg.org>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru> <20150403194635.GC2016@katana> <1549160.njMIY2NVTi@fb07-iapwap2> <20150505105513.GA1841@katana> <554922EF.3050906@wwwdotorg.org> <20150506161712.GA4003@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de
-Cc: grygorii.strashko@ti.com, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>, linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150506161712.GA4003@katana>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-implement bus recovery methods for i2c-omap
-so we can recover from situations where SCL/SDA
-are stuck low.
+On 05/06/2015 10:17 AM, Wolfram Sang wrote:
+>
+>> The container node has a #address-cells property for this very reason. It's
+>> perfectly well-defined how to split up a property containing a large number
+>> of cells into separate values, by using the value of #address-cells. Plus,
+>> the canonical formatting (albeit not enforced by the DT compiler) for a
+>> property that contains an array of entries, each 2 cells in size, would be:
+>>
+>> reg = <0 0x1a>, <0 0x40>, <0 0x48>;
+>>
+>> rather than:
+>>
+>> reg = <0 0x1a 0 0x40 0 0x48>;
+>>
+>> ... so it's quite simple to make it very human-readable too.
+>
+> I give in to the flag idea. I also noticed that we'd need another flag
+> anyhow to mark 10 bit addresses. I am still thinking between using two
+> address-cells in that case (clean seperation between address and flags)
+> or to encode the flags as MSB in the current address (all busses will
+> have same address-cells and child description, less code paths and no
+> overhead in dtbs).
+>
+> That being said, for the loopback testcase, the I2C slave framework will
+> need updates as well. I think I can cook up something. Will be
+> interesting to see if my hardware can do this. Has the loopback already
+> been tested on Tegra?
 
-Signed-off-by: Felipe Balbi <balbi@ti.com>
----
-
-rebased on 4.1-rc2, switched over to generic i2c recover mechanism,
-retested on am437x sk and beaglebone black.
-
- drivers/i2c/busses/i2c-omap.c | 69 ++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 65 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 0e894193accf..dcf559ac92c5 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -481,10 +481,8 @@ static int omap_i2c_wait_for_bb(struct omap_i2c_dev *dev)
- 
- 	timeout = jiffies + OMAP_I2C_TIMEOUT;
- 	while (omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG) & OMAP_I2C_STAT_BB) {
--		if (time_after(jiffies, timeout)) {
--			dev_warn(dev->dev, "timeout waiting for bus ready\n");
--			return -ETIMEDOUT;
--		}
-+		if (time_after(jiffies, timeout))
-+			return i2c_recover_bus(&dev->adapter);
- 		msleep(1);
- 	}
- 
-@@ -1209,6 +1207,68 @@ MODULE_DEVICE_TABLE(of, omap_i2c_of_match);
- #define OMAP_I2C_SCHEME_0		0
- #define OMAP_I2C_SCHEME_1		1
- 
-+static int omap_i2c_get_scl(struct i2c_adapter *adap)
-+{
-+	struct omap_i2c_dev *dev = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+
-+	return reg & OMAP_I2C_SYSTEST_SCL_I_FUNC;
-+}
-+
-+static int omap_i2c_get_sda(struct i2c_adapter *adap)
-+{
-+	struct omap_i2c_dev *dev = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+
-+	return reg & OMAP_I2C_SYSTEST_SDA_I_FUNC;
-+}
-+
-+static void omap_i2c_set_scl(struct i2c_adapter *adap, int val)
-+{
-+	struct omap_i2c_dev *dev = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+	if (val)
-+		reg |= OMAP_I2C_SYSTEST_SCL_O;
-+	else
-+		reg &= ~OMAP_I2C_SYSTEST_SCL_O;
-+	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
-+}
-+
-+static void omap_i2c_prepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct omap_i2c_dev *dev = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+	reg |= OMAP_I2C_SYSTEST_ST_EN;
-+	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
-+}
-+
-+static void omap_i2c_unprepare_recovery(struct i2c_adapter *adap)
-+{
-+	struct omap_i2c_dev *dev = i2c_get_adapdata(adap);
-+	u32 reg;
-+
-+	reg = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
-+	reg &= ~OMAP_I2C_SYSTEST_ST_EN;
-+	omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, reg);
-+}
-+
-+static struct i2c_bus_recovery_info omap_i2c_bus_recovery_info = {
-+	.get_scl		= omap_i2c_get_scl,
-+	.get_sda		= omap_i2c_get_sda,
-+	.set_scl		= omap_i2c_set_scl,
-+	.prepare_recovery	= omap_i2c_prepare_recovery,
-+	.unprepare_recovery	= omap_i2c_unprepare_recovery,
-+	.recover_bus		= i2c_generic_scl_recovery,
-+};
-+
- static int
- omap_i2c_probe(struct platform_device *pdev)
- {
-@@ -1358,6 +1418,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	adap->algo = &omap_i2c_algo;
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
-+	adap->bus_recovery_info = &omap_i2c_bus_recovery_info;
- 
- 	/* i2c device drivers may be active on return from add_adapter() */
- 	adap->nr = pdev->id;
--- 
-2.4.0.rc3
+I don't believe that loopback has been tested on Tegra, at least with 
+upstream SW. I have no idea whether our downstream SW or Silicon 
+validation team has tested it.
