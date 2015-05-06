@@ -1,76 +1,80 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: How to encode being an I2C slave in DT?
-Date: Wed, 06 May 2015 09:57:37 -0600
-Message-ID: <554A39F1.9060507@wwwdotorg.org>
-References: <1427745615-5428-1-git-send-email-danindrey@mail.ru> <20150505105513.GA1841@katana> <20150506065928.GP25193@pengutronix.de> <3394114.re5da8pjTi@fb07-iapwap2> <20150506080951.GS25193@pengutronix.de>
+Date: Wed, 6 May 2015 18:17:12 +0200
+Message-ID: <20150506161712.GA4003@katana>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
+ <20150403194635.GC2016@katana>
+ <1549160.njMIY2NVTi@fb07-iapwap2>
+ <20150505105513.GA1841@katana>
+ <554922EF.3050906@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150506080951.GS25193-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?windows-1252?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <554922EF.3050906-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/06/2015 02:09 AM, Uwe Kleine-K=F6nig wrote:
-> Hello Marc,
->
-> On Wed, May 06, 2015 at 09:53:55AM +0200, Marc Dietrich wrote:
->> Am Mittwoch, 6. Mai 2015, 08:59:28 schrieb Uwe Kleine-K=F6nig:
->>> On Tue, May 05, 2015 at 12:55:13PM +0200, Wolfram Sang wrote:
->>>> So what about adding a new property "i2c-slave-reg"? This does not=
- only
->>>> prevent the confusion above, but also makes it very clear that thi=
-s node
->>>> is an I2C slave without the need to encode that somehow in the
->>>> compatible property (although it probably should be described ther=
-e as
->>>> well, still).
->>>
->>> I admit I didn't follow the discussions referenced in the footnotes=
-, but
->>> I wonder if the slave part should be added to the device tree at al=
-l.
->>> AFAICT it could (and so should) be completely userspace-defined whi=
-ch
->>> slave driver is used on which address. I imagine that for most
->>> controllers the bus addresses to use can be chosen more or less fre=
-ely.
->>> So what am I missing?
->>
->> if you had read the footnotes you would know :-) Our usecase is conn=
-ect an
->> embeedded controller via i2c to the host soc, similar to cros-ec, bu=
-t here the
->> ec is the i2c master. The ec connects keyboard, mouse, pwrmngt, and =
-other
->> stuff, for which the drivers are best implemented in kernel code AFA=
-IK.
- >
-> Right, the driver might sensibly be implemented in kernel space. But =
-I'd
-> vote that you still need to do the binding of these drivers to your
-> slave controller from userspace. Then there is no need to specify
-> anything in your dtb.
 
-I think the set of I2C slave devices that are implemented by the Linux=20
-system can reasonably be considered part of the HW definition. Most DT=20
-content to date has been a definition of the HW that's available to SW,=
-=20
-but at least in this case, this I2C slave device is something that must=
-=20
-be implemented (admittedly in conjunction with SW) using the I2C slave=20
-HW on the main SoC, in order for the overall HW to work as intended.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-BTW, I believe devicetree-spec-u79uwXL29TY76Z2rM5mHXA@public.gmane.org was created to address=20
-subsystem-level DT schema questions like this. It's much lower volume,=20
-so perhaps the thread would get noticed by the DT maintainers if posted=
-=20
-there (or perhaps just CC them)?
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> The container node has a #address-cells property for this very reason. It=
+'s
+> perfectly well-defined how to split up a property containing a large numb=
+er
+> of cells into separate values, by using the value of #address-cells. Plus,
+> the canonical formatting (albeit not enforced by the DT compiler) for a
+> property that contains an array of entries, each 2 cells in size, would b=
+e:
+>=20
+> reg =3D <0 0x1a>, <0 0x40>, <0 0x48>;
+>=20
+> rather than:
+>=20
+> reg =3D <0 0x1a 0 0x40 0 0x48>;
+>=20
+> ... so it's quite simple to make it very human-readable too.
+
+I give in to the flag idea. I also noticed that we'd need another flag
+anyhow to mark 10 bit addresses. I am still thinking between using two
+address-cells in that case (clean seperation between address and flags)
+or to encode the flags as MSB in the current address (all busses will
+have same address-cells and child description, less code paths and no
+overhead in dtbs).
+
+That being said, for the loopback testcase, the I2C slave framework will
+need updates as well. I think I can cook up something. Will be
+interesting to see if my hardware can do this. Has the loopback already
+been tested on Tegra?
+
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVSj6IAAoJEBQN5MwUoCm25sgP/iBag10zDEke9nN10jYKCbkc
+pe7vzAiQ8XRC0zXgPb7TYfhwWyRXdbjHRZ/ZggF8EEPyE6umCDAvr41KLskpLyHB
+LSnh+/jUcdtUQmU3jUMICCaH9WBcpEyfAyCZSHrlfUl8ubcEqk3E3dYE5VsAEJrh
+ERAy/9Ldqx8Y7rfRO6RvoqKKh2dNaJugdl7Pquh9LznqCUlhyF4cBBp3kX0Zg8bF
+TcEEGl9592WltfYpmNIvTfKMjFqhtgbMwH/WPTOlEUT2MHllD2k1/07EXLL8m9Jl
+yKX0Mqf8n5uOeUgedg0sQ3PT8G0WPhY1pUHjwYDmUQyMOjVc0MY4LTrtPjTxsLa3
+pNHvIk98eeXUxVHItVjARCuKMz9fLmN/7CTUL44s5SSoYkq834fA/57gx9VzQMrp
+NCglIBqxKk0r8hkc6Cs1DybWWMAGMReVXtpO0GWONqLkHU4llaqP/wHHX7jOAjMc
+urs8g3DXl+GxtaDsnGCOZ/0/16qsTDSybkfIPAhnxEVKucpKfsxe6SbnYs/4aRsN
+JJcu+abCHXXb1DT3TYbzx7k85lzRrmLktGre3/A7wp+YY7kEH1blE/FpCVTkgZIZ
+jMtoCdOZdPsbAXMIy/8xz/ixFw/z7jTwsDv7OilXD/gjtCVcQ1bjYec8LA5j9gI7
+6chgr+wEQuZ6ykPJtxnw
+=lGIR
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--
