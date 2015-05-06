@@ -1,24 +1,23 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH v3] i2c: omap: Add calls for pinctrl state select
-Date: Wed, 6 May 2015 17:03:55 +0530
-Message-ID: <5549FC23.1010704@ti.com>
-References: <1430219973-24260-1-git-send-email-pascal.huerst@gmail.com> <5549F84A.50206@gmail.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: xiic: Fix kerneldoc warnings
+Date: Wed, 6 May 2015 18:00:59 +0530
+Message-ID: <CAM=Q2ctjWORF+LDR5bL71JTj7cqpJms_OFoS5tJSR-qO7XmNfQ@mail.gmail.com>
+References: <1430889383-18208-1-git-send-email-shubhrajyoti.datta@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <5549F84A.50206@gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Pascal Huerst <pascal.huerst@gmail.com>, wsa@the-dreams.de
-Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1430889383-18208-1-git-send-email-shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 06 May 2015 04:47 PM, Pascal Huerst wrote:
-> Sekhar Nori, any objections on that version?
+On Wed, May 6, 2015 at 10:46 AM, Shubhrajyoti Datta
+<shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org> wrote:
+> From: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+>
+> info(drivers/i2c/busses/i2c-xiic.c:55): Scanning doc for struct xiic_i2c
+> Warning(drivers/i2c/busses/i2c-xiic.c:79): No description found for parameter 'endianness'
+>
 
-None. FWIW, you can add:
-
-Reviewed-by: Sekhar Nori <nsekhar@ti.com>
-
-Thanks,
-Sekhar
+Something strange at my setup got sent twice. Please ignore this one.
