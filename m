@@ -1,57 +1,28 @@
-From: pascal.huerst@gmail.com
-Subject: [PATCH v4] i2c: omap: Add calls for pinctrl state select
-Date: Wed,  6 May 2015 15:07:04 +0200
-Message-ID: <1430917624-18164-1-git-send-email-pascal.huerst@gmail.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, nsekhar@ti.com, Pascal Huerst <pascal.huerst@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 07/17] gpio: port LoCoMo gpio support from old driver
+Date: Wed, 6 May 2015 16:12:33 +0200
+Message-ID: <CACRpkdahn4B_Nvx14VYkGd8tBqKVxB+5f74KgKcLwCeM_S+oRA@mail.gmail.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+	<1430178954-11138-8-git-send-email-dbaryshkov@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <1430178954-11138-8-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, linux-leds@vger.kernel.or
 List-Id: linux-i2c@vger.kernel.org
 
-From: Pascal Huerst <pascal.huerst@gmail.com>
+On Tue, Apr 28, 2015 at 1:55 AM, Dmitry Eremin-Solenikov
+<dbaryshkov@gmail.com> wrote:
 
-This adds calls to pinctrl subsystem in order to switch pin states
-on suspend/resume if you provide a "sleep" state in DT.
+> Add gpiolib driver for gpio pins placed on the LoCoMo GA.
+>
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 
-If no "sleep" state is provided in the DT, these calls turn
-to NOPs, so we don't need error checking here.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Signed-off-by: Pascal Huerst <pascal.huerst@gmail.com>
-Reviewed-by: Sekhar Nori <nsekhar@ti.com>
----
- drivers/i2c/busses/i2c-omap.c | 5 +++++
- 1 file changed, 5 insertions(+)
+I assume this will be funneled through the MFD tree?
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 0e89419..8261941 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -38,6 +38,7 @@
- #include <linux/slab.h>
- #include <linux/i2c-omap.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pinctrl/consumer.h>
-
- /* I2C controller revisions */
- #define OMAP_I2C_OMAP1_REV_2		0x20
-@@ -1423,6 +1424,8 @@ static int omap_i2c_runtime_suspend(struct device *dev)
- 		omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
- 	}
-
-+	pinctrl_pm_select_sleep_state(dev);
-+
- 	return 0;
- }
-
-@@ -1431,6 +1434,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
-
-+	pinctrl_pm_select_default_state(dev);
-+
- 	if (!_dev->regs)
- 		return 0;
-
---
-2.1.0
-
+Yours,
+Linus Walleij
