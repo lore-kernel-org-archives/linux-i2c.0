@@ -1,41 +1,109 @@
-From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: Why isn't IRQ shared for i2c-ocore
-Date: Thu, 7 May 2015 07:46:29 -0700
-Message-ID: <554B7AC5.5040401@freescale.com>
-References: <55304D8E.8070204@freescale.com> <55312AF7.7070504@freescale.com> <20150420064231.GE3447@x1> <55352839.70905@freescale.com> <20150420181651.GF3447@x1> <5535460B.2060309@freescale.com> <20150421073534.GK3447@x1> <554A8A8B.1020703@freescale.com> <20150507070149.GB3400@x1>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [RFC] i2c-tools: i2ctransfer: add new tool
+Date: Thu, 7 May 2015 22:08:12 +0200
+Message-ID: <20150507220812.3776bb83@endymion.delvare>
+References: <1425053816-19804-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150507070149.GB3400@x1>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Julia.Lawall-L2FTfq7BK8M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1425053816-19804-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
-
-On 05/07/2015 12:01 AM, Lee Jones wrote:
->> I have a follow up question regarding interrupt. I see many I2C bus drivers
->> request interrupt with flag = 0. Why not using IRQF_SHARED?
+On Fri, 27 Feb 2015 17:16:56 +0100, Wolfram Sang wrote:
+> This tool allows to construct and concat multiple I2C messages into one
+> single transfer. Its aim is to test I2C master controllers, and so there
+> is no SMBus fallback.
 > 
-> Probably because that particular IRQ is only used by the I2C
-> Controller.  I'm not exactly sure that you're getting at?  Why do you
-> think it should be shared?  You should only flag it as shared if it
-> is.
-
-I am working on a driver for multifunction card with open core I2C controller.
-The interrupt is shared between I2C and other controller.
-
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
 > 
->> I understand the performance concern. If there is any other reason, I want to
->> know about it before I go too far on my driver.
-> 
-> This sort of stuff is trivial to fix and shouldn't stand in the way
-> of you writing and submitting v1 of your driver.
-> 
+> I've been missing such a tool a number of times now, so I finally got around to
+> writing it myself. As with all I2C tools, it can be dangerous, but it can also
+> be very useful when developing. I am not sure if distros should supply it, I'll
+> leave that to Jean's experience. For embedded build systems, I think this
+> should be selectable. It is RFC for now because it needs broader testing and some
+> more beautification. However, I've been using it already to test the i2c_quirk
+> infrastructure and Renesas I2C controllers.
 
-It is trivial to fix. I just want to know if there is any reason the interrupt
-wasn't shared. Seems not.
+I took a very quick look today and I am fine with the general idea but
+one thing I don't like is the user interface. All parameters look the
+same even though they have very different meanings. It's very easy to
+get it wrong and guess what, at my very first attempt I managed to do
+exactly that. I was lucky enough that my incorrect syntax was not
+accepted by the tool, but with slightly different values it would have
+been accepted and and the tool would have performed something different
+from what I wanted to do. Possibly with tragic consequences.
 
-York
+So instead of:
+
+# i2ctransfer 0 0x50 w 0x11 0xc0 0xbd= 0x51 r 1
+
+I would have imagined something like:
+
+# i2ctransfer 0 w@0x50 0x11 0xc0 0xbd= r@0x51 1
+
+This at least avoids passing addresses as register values or
+vice-versa. What do you think? Or maybe it's just me being an idiot and
+other users would get it right even with your proposed syntax.
+
+My alternative proposal leaves the potential problem of mixing length
+and register values. I am not necessarily a fan of passing the write
+length on the command line, but it is similar to the read commands, and
+I see it allows writing the same value to a whole register range with
+little effort, so it does have some value. So I guess it's OK.
+
+BTW I'm curious if you actually needed the + and - suffixes in practice?
+I can easily imagine how the = suffix will be useful in the real
+world, but + and -...  Or maybe just for bus driver testing purpose?
+
+I don't have time for a full review today but just a couple things
+which caught my eye:
+
+> +static void help(void)
+> +{
+> +	fprintf(stderr,
+> +		"Usage: i2ctransfer [-f] [-y] [-v] [-V] I2CBUS ADDRESS FLAGS LENGTH [DATA]...\n"
+
+You should mention here that the ADDRESS FLAGS LENGTH [DATA] sequence
+can be repeated, it's not obvious that the trailing "..." mean that.
+
+> +		"  I2CBUS is an integer or an I2C bus name\n"
+> +		"  ADDRESS is an integer (0x03 - 0x77)\n"
+> +		"  FLAGS is one of:\n"
+> +		"    r (read)\n"
+> +		"    w (write)\n"
+
+These are really directions not flags.
+
+> +		"  LENGTH is an integer (0 - 65535)\n"
+> +		"  DATA are LENGTH bytes, for a write message. They can be shortened by a suffix:\n"
+> +		"    = (keep value constant until LENGTH)\n"
+> +		"    + (increase value by 1 until LENGTH)\n"
+> +		"    - (decrease value by 1 until LENGTH)\n"
+> +		"\nExample (on bus 0, write 0xbd to 0xc0-0xcf of device 0x50, read a byte from device 0x51):\n"
+> +		"  # i2ctransfer 0 0x50 w 0x11 0xc0 0xbd= 0x51 r 1\n"
+> +		);
+
+> (...)
+> +}
+> +	/* let Linux free malloced memory on termination */
+
+I don't like this. The memory allocated in i2cbusses.c is freed
+explicitly, so it is inconsistent to not free yours. Freeing the memory
+explicitly makes the code easier to read and debug as it documents the
+lifetime of allocated buffers (for both humans and tools like
+valgrind.) So please free your memory buffers explicitly.
+
+> +	exit(0);
+> +}
+
+
+-- 
+Jean Delvare
+SUSE L3 Support
