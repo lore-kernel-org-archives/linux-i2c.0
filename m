@@ -1,56 +1,58 @@
-From: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Subject: Re: [PATCH v7 3/3] I2C: mediatek: Add driver for MediaTek MT8173 I2C
- controller
-Date: Tue, 12 May 2015 15:00:57 +0200
-Message-ID: <20150512130057.GC4447@schokonusskuchen.bad>
-References: <1430901427-65146-1-git-send-email-eddie.huang@mediatek.com>
- <1430901427-65146-4-git-send-email-eddie.huang@mediatek.com>
+From: wsa@the-dreams.de
+Subject: Re: [PATCH v2 2/3] i2c / ACPI: Use 0 to indicate that device does
+ not have interrupt assigned
+Date: Tue, 12 May 2015 15:09:21 +0200
+Message-ID: <20150512130921.GD4447@schokonusskuchen.bad>
+References: <1430908148-201129-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="ghzN8eJ9Qlbqn3iT"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1430901427-65146-4-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo
+In-Reply-To: <1430908148-201129-3-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Octavian Purdila <octavian.purdila@intel.com>, Robert Dolca <robert.dolca@intel.com>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---oC1+HKm2/end4ao3
+--ghzN8eJ9Qlbqn3iT
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +	if (i2c->irq_stat & I2C_RS_TRANSFER)
-> +		dev_dbg(i2c->dev, "addr: %x, restart transfer interrupt.\n",
-> +				msgs->addr);
+On Wed, May 06, 2015 at 01:29:07PM +0300, Mika Westerberg wrote:
+> This is the convention used in most parts of the kernel including DT
+> counterpart of I2C slave enumeration. To make things consistent do the sa=
+me
+> for ACPI I2C slave enumeration path as well.
+>=20
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-I'd tend to leave out this debug message. But you may leave it if you
-like. Rest of the patch looks okay.
-
-Thanks!
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---oC1+HKm2/end4ao3
+--ghzN8eJ9Qlbqn3iT
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJVUfmJAAoJEBQN5MwUoCm2DdoP/3ZYoROZlW7IDuykTUQw4iUl
-5dalmTI1vfkGW9EUBKCda6VawpgAMCD2ZED98QLIVnAiIr9R+V5QAts55pZhCuRF
-DMZjUQBeyhgFg3I5WQ6tyv2BH2J1UaTgR1NASf/KNwkQPxdafmySePiSkdmKFVgv
-UEGPulLfpwEC2pvfwuzQKrQFawp30L5j+tYB4l169CBUIHhCE6juXIZXM5/+5fTc
-Iz6F+xKsoRXqZejO1r/uUs2tKruzOxwxLl91WJNJZGvccq2Ycuusw/+csxuTMzjO
-XEnq9DjCcy9s4rNrUdJjJlQS1T6+SJezLlj05+6N7/juto/LhrMkB4pdVTGsvsEL
-qLs3AjaC/MeMkIuzl/umFP4UdbwEsi0AgB0NF2o2dDEXCE5TTRMlaMXp79tCtK8s
-8N/hN7W1lZvP5fgeqs79Tw8ZUfZhEw9D1KZ+frHYD5JXvET0JeFPqEhucW2hZ7rp
-yDl5FyZke7dkUuIs7/nBZtG7KbFeFutKkRgDXYRIhk7oURuHfkHJkLMHtdHJFOUD
-9ZoaOSHGi7UGAvXoOosMGtido/tyGBmE5bOdrnbOdqhGXqDW7IqTekfuo0yyCLal
-YepaTyCWpYo2DiBZKYJLI7S/jtubRNJVYO3hP6BoW5n8CnsHd8B6UHU4MClwroL4
-L+ymMrCbeRoT26Ct7/4u
-=1Pos
+iQIcBAEBAgAGBQJVUfuBAAoJEBQN5MwUoCm2FyEP/1EEODbElxZn++Us9zQEethx
+QwQq9Jk4dAHkdOZtZlWG11b/67zL+KNur6D+2V2pt6eApl6Kgj2JHuAe9lgo6bnz
+YwAcIKmfaAUKtzOgxLHOOprxSeSC0oW6nAeozNLp0vLoEiHc7QU6iWmbsUfCgm3Q
+VAZDBYi3Rh9dgbucxBcjE0+rsXSVxDVXjH3f3OGpnvoPVotLh9gaxaUrX2e3mwAb
+kr4kGZrKJbdFpPIIa5u8WD9vvZvAvsIO9dfZunRXLx1e266RNXFxQ+Uz3J/2aQtW
+NePYc2gXfCMPQXOAh2rOtB0OnSPxi8TwFtqGB5hp5P9jxhiyS2sluBGJ3qo6qu0G
+cTgUb2nnWmG0uKJn3frsEkhj9oio5FoRYCiTha4Z2f3b971Ly/FTbCHOYdvMk7mY
+abz4lp4FIls6j/gT76E3Cq6Yp+OFYkoaSPPlFIfIdEVo87HvhtRUCEsbeywGZT25
+d3Xu5k8ZKb8KQbRpkp9vztPpheDJUjZhDhmn+5/EeaFVc1UR+XoD/ohIrlJgYhZ8
+aCD/LBBi8IufSp5ZHZQGKwHtgfV2tD10Mclqd7Pe8MxdeXUkwKAhN3sQ0HupSKP5
+VzyzVasAGCLXYrsEsqGgDubxOV1eWdBzP3ilLDgRvjHys2EjMmw+m/y6YLVNmzlZ
+gHpom71PMlm+orlMsDbi
+=f0Yv
 -----END PGP SIGNATURE-----
 
---oC1+HKm2/end4ao3--
+--ghzN8eJ9Qlbqn3iT--
