@@ -1,56 +1,100 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH RESEND V4 3/4] Documentation: i2c: Add APM X-Gene
- platform SLIMpro I2C driver documentation
-Date: Tue, 12 May 2015 22:12:02 +0200
-Message-ID: <20150512201202.GJ4449@schokonusskuchen.bad>
-References: <1429913873-13627-1-git-send-email-fkan@apm.com>
- <1429913873-13627-4-git-send-email-fkan@apm.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 04/17] input: locomokbd: provide an Alt-SysRQ
+ combination
+Date: Tue, 12 May 2015 13:12:15 -0700
+Message-ID: <20150512201215.GD20725@dtor-ws>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+ <1430178954-11138-5-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOmey7/79ja+7F5w"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-leds-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1429913873-13627-4-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Cc: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+In-Reply-To: <1430178954-11138-5-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Dmitry,
 
---BOmey7/79ja+7F5w
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Apr 28, 2015 at 02:55:41AM +0300, Dmitry Eremin-Solenikov wrote:
+> It is usefull sometimes to have an Alt-SysRQ combo on the keyboard to be
+> able to trigger sysrq functions directly. Add an option providing sysrq
+> mapping for Contact-Home keys.
 
-On Fri, Apr 24, 2015 at 03:17:52PM -0700, Feng Kan wrote:
-> Add APM X-Gene platform SLIMpro I2C driver documentation.
->=20
-> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+No, if you want to remap the keys please do it from usepspace; locomokbd
+supports it (EVIOCSKEYCODE ioctl).
 
-Applied to for-next, thanks!
+Thanks.
 
+> 
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+> ---
+>  drivers/input/keyboard/Kconfig     |  7 +++++++
+>  drivers/input/keyboard/locomokbd.c | 14 +++++++++++---
+>  2 files changed, 18 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 0a3d875..eb8b11b 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -343,6 +343,13 @@ config KEYBOARD_LOCOMO
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called locomokbd.
+>  
+> +config KEYBOARD_LOCOMO_SYSRQ
+> +	bool "Provide SysRQ key on LoCoMo keyboard"
+> +	depends on KEYBOARD_LOCOMO
+> +	help
+> +	  Say Y here to be able to use Contact-Home as Alt-Sysrq combo.
+> +	  Say N if you want to use them as usual keys.
+> +
+>  config KEYBOARD_LPC32XX
+>  	tristate "LPC32XX matrix key scanner support"
+>  	depends on ARCH_LPC32XX && OF
+> diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
+> index eed0a94..eb8dbe2 100644
+> --- a/drivers/input/keyboard/locomokbd.c
+> +++ b/drivers/input/keyboard/locomokbd.c
+> @@ -40,6 +40,14 @@
+>  #define KEY_CONTACT		KEY_F18
+>  #define KEY_CENTER		KEY_F15
+>  
+> +#ifdef CONFIG_KEYBOARD_LOCOMOKBD_SYSRQ
+> +#define LOCOMO_KEY_CONTACT	KEY_LEFTALT
+> +#define LOCOMO_KEY_HOME		KEY_SYSRQ
+> +#else
+> +#define LOCOMO_KEY_CONTACT	KEY_CONTACT
+> +#define LOCOMO_KEY_HOME		KEY_HOME
+> +#endif
+> +
+>  #define KB_ROWS			16
+>  #define KB_COLS			8
+>  #define LOCOMOKBD_NUMKEYS	(KB_ROWS * KB_COLS)
+> @@ -48,7 +56,7 @@
+>  static const unsigned char
+>  locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
+>  	0, KEY_ESC, KEY_ACTIVITY, 0, 0, 0, 0, 0, 0, 0,				/* 0 - 9 */
+> -	0, 0, 0, 0, 0, 0, 0, KEY_MENU, 0, KEY_CONTACT,				/* 10 - 19 */
+> +	0, 0, 0, 0, 0, 0, 0, KEY_MENU, 0, LOCOMO_KEY_CONTACT,			/* 10 - 19 */
+>  	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,						/* 20 - 29 */
+>  	0, 0, 0, KEY_CENTER, 0, KEY_MAIL, 0, 0, 0, 0,				/* 30 - 39 */
+>  	0, 0, 0, 0, 0, 0, 0, 0, 0, KEY_RIGHT,					/* 40 - 49 */
+> @@ -280,9 +288,9 @@ static int locomokbd_probe(struct platform_device *dev)
+>  			sizeof(locomokbd->keycode));
+>  
+>  	if (machine_is_collie())
+> -		locomokbd->keycode[18] = KEY_HOME;
+> +		locomokbd->keycode[18] = LOCOMO_KEY_HOME;
+>  	else
+> -		locomokbd->keycode[3] = KEY_HOME;
+> +		locomokbd->keycode[3] = LOCOMO_KEY_HOME;
+>  
+>  	for (i = 0; i < LOCOMOKBD_NUMKEYS; i++)
+>  		input_set_capability(input_dev, EV_KEY, locomokbd->keycode[i]);
+> -- 
+> 2.1.4
+> 
 
---BOmey7/79ja+7F5w
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJVUl6SAAoJEBQN5MwUoCm2Cm0P/i+bNtccM1MKjmz2/Ngv4sfY
-wgXkKAmBW/EGiEzoGzqE6ossTTtuf5hH2/LPbauYR1AocSOXjEllmVC5Oimrp6n4
-n7A1v4snPDYzH8fcLn/l/YXZ/xWt65vgWEZaGVHd/Fkua/93WpC/2m6HHiv6tnAe
-XQRYdFpWn5BDT/ATvJDBCjppp621b/TLAm6hFcM14GBlsRihkU5uutoo3o9zJnum
-VgOidda3TaTTQqGo8T76KCv/Fp9BSu/ivemRLtJfJe41y1nEK1HVhsapwb5SM2Dy
-9LszvGwRP6wgLqvikvic0I4XtY7cg15htUGZlLl3Kz6PFX/2rjsj7dhOR3LBxhuh
-igyxtm7ve3SelHgi0a2KAMTGD+idW8mkGYEDzKGdjqKhrA3Gc75xgJatuoAStP72
-MnzUKKTWuDbmZAdbE537ZaAcLZydicQDgTGXdu8rq9fpdlKzURnOc57rZJNuEpVd
-OA/Ca4DfaRTDvegdvDZIiadJmUV8J1U/YBOnYI/vsKB4WTzL1218UIX1pktK4Wcm
-6xy/kX1+xj2oak0QSvWfzJ2E3XQdlWI8BzHzD2fbZ13GRHPSWqds8b21ghgN6IE+
-aPBJjX9Hf8n8NXiQ1kepcADRcjkcDwJ3lvuCyCuqvYgElBM3nfhSjHinjGmV8rMo
-DtiCiWpeN+ZHvSeXHuuK
-=BiJZ
------END PGP SIGNATURE-----
-
---BOmey7/79ja+7F5w--
+-- 
+Dmitry
