@@ -1,55 +1,88 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2 08/17] gpio: locomo: implement per-pin irq handling
-Date: Tue, 12 May 2015 13:15:25 +0200
-Message-ID: <CACRpkdYQFYaA87N2f1uizRo=sDj2P4k4m1O_0_cQsi4BZbeGkg@mail.gmail.com>
-References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
-	<1430178954-11138-9-git-send-email-dbaryshkov@gmail.com>
-	<CACRpkdZt+rjzVSqXE6MDaY5S9gezeTu+2QWu31xKsg08TpXibw@mail.gmail.com>
-	<CALT56yNJutWTW5zsos+=Uh+BDvO4o_tqBEj+H621TncVK6eD_Q@mail.gmail.com>
+From: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Subject: Re: [PATCH v7 1/3] dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+Date: Tue, 12 May 2015 14:37:09 +0200
+Message-ID: <20150512123709.GA4447@schokonusskuchen.bad>
+References: <1430901427-65146-1-git-send-email-eddie.huang@mediatek.com>
+ <1430901427-65146-2-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <CALT56yNJutWTW5zsos+=Uh+BDvO4o_tqBEj+H621TncVK6eD_Q@mail.gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, linux-leds@vger.kernel.or
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1430901427-65146-2-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 6, 2015 at 6:42 PM, Dmitry Eremin-Solenikov
-<dbaryshkov@gmail.com> wrote:
-> 2015-05-06 17:15 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
->> On Tue, Apr 28, 2015 at 1:55 AM, Dmitry Eremin-Solenikov
->> <dbaryshkov@gmail.com> wrote:
->>
->>> LoCoMo has a possibility to generate per-GPIO edge irqs. Support for
->>> that was there in old locomo driver, got 'cleaned up' during old driver
->>> IRQ cascading cleanup and is now reimplemented. It is expected that
->>> SL-5500 (collie) will use locomo gpio irqs for mmc detection irq.
->>>
->>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
->>
->> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
->
-> Thanks for review of the patches.
->
->> Assume this will also go through MFD.
->>
->>> +       irq_set_chained_handler(lg->irq, NULL);
->>> +       irq_set_handler_data(lg->irq, NULL);
->>
->> Why is this needed? If the GPIOLIB_IRQCHIP code in
->> gpiolib.c is not doing this then maybe it's the core code that
->> needs fixing rather than having this in the driver.
->
-> I have skimmed through the rest of drivers using
-> gpiochip_set_chained_irqchip(). Indeed none of the drivers NULL
-> the chained handled and handler data. However I couldn't locate
-> the code where they would be cleared.
->
-> Should I still send the patch fixing the GPIOLIB_IRQCHIP?
+On Wed, May 06, 2015 at 04:37:05PM +0800, Eddie Huang wrote:
+> From: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> 
+> Add devicetree bindings for Mediatek Soc I2C driver.
+> 
+> Signed-off-by: Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 
-Yes I guess you need to save parent_irq in struct gpio_chip and
-remove it in gpiochip_irqchip_remove() if it's != 0.
+Sascha, Uwe: Can you ack these patches if you are fine with them?
+Would be nice since you did quite some review and were involved in the
+"have-pmic" binding discussion.
 
-Yours,
-Linus Walleij
+Thanks,
+
+   Wolfram
+
+> ---
+>  .../devicetree/bindings/i2c/i2c-mt6577.txt         | 41 ++++++++++++++++++++++
+>  1 file changed, 41 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> new file mode 100644
+> index 0000000..0ce6fa3
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+> @@ -0,0 +1,41 @@
+> +* Mediatek's I2C controller
+> +
+> +The Mediatek's I2C controller is used to interface with I2C devices.
+> +
+> +Required properties:
+> +  - compatible: value should be either of the following.
+> +      (a) "mediatek,mt6577-i2c", for i2c compatible with mt6577 i2c.
+> +      (b) "mediatek,mt6589-i2c", for i2c compatible with mt6589 i2c.
+> +      (c) "mediatek,mt8127-i2c", for i2c compatible with mt8127 i2c.
+> +      (d) "mediatek,mt8135-i2c", for i2c compatible with mt8135 i2c.
+> +      (e) "mediatek,mt8173-i2c", for i2c compatible with mt8173 i2c.
+> +  - reg: physical base address of the controller and dma base, length of memory
+> +    mapped region.
+> +  - interrupts: interrupt number to the cpu.
+> +  - clock-div: the fixed value for frequency divider of clock source in i2c
+> +    module. Each IC may be different.
+> +  - clocks: clock name from clock manager
+> +  - clock-names: Must include "main" and "dma", if enable have-pmic need include
+> +    "pmic" extra.
+> +
+> +Optional properties:
+> +  - clock-frequency: Frequency in Hz of the bus when transfer, the default value
+> +    is 100000.
+> +  - mediatek,have-pmic: platform can control i2c form special pmic side.
+> +    Only mt6589 and mt8135 support this feature.
+> +  - mediatek,use-push-pull: IO config use push-pull mode.
+> +
+> +Example:
+> +
+> +	i2c0: i2c@1100d000 {
+> +			compatible = "mediatek,mt6577-i2c";
+> +			reg = <0x1100d000 0x70>,
+> +			      <0x11000300 0x80>;
+> +			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_LOW>;
+> +			clock-frequency = <400000>;
+> +			mediatek,have-pmic;
+> +			clock-div = <16>;
+> +			clocks = <&i2c0_ck>, <&ap_dma_ck>;
+> +			clock-names = "main", "dma";
+> +	};
+> +
+> -- 
+> 1.8.1.1.dirty
+> 
