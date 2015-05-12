@@ -1,56 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH RESEND V4 2/4] i2c: busses: xgene: add acpi support for
- i2c xgene SLIMpro driver
-Date: Tue, 12 May 2015 22:11:55 +0200
-Message-ID: <20150512201155.GI4449@schokonusskuchen.bad>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH RESEND V4 3/4] Documentation: i2c: Add APM X-Gene
+ platform SLIMpro I2C driver documentation
+Date: Tue, 12 May 2015 22:12:02 +0200
+Message-ID: <20150512201202.GJ4449@schokonusskuchen.bad>
 References: <1429913873-13627-1-git-send-email-fkan@apm.com>
- <1429913873-13627-3-git-send-email-fkan@apm.com>
+ <1429913873-13627-4-git-send-email-fkan@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G3juXO9GfR42w+sw"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="BOmey7/79ja+7F5w"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1429913873-13627-3-git-send-email-fkan@apm.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Feng Kan <fkan@apm.com>
-Cc: patches@apm.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1429913873-13627-4-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+Cc: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---G3juXO9GfR42w+sw
+--BOmey7/79ja+7F5w
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 24, 2015 at 03:17:51PM -0700, Feng Kan wrote:
-> This adds support for ACPI for the APM X-Gene I2C SLIMpro proxy
-> driver.
+On Fri, Apr 24, 2015 at 03:17:52PM -0700, Feng Kan wrote:
+> Add APM X-Gene platform SLIMpro I2C driver documentation.
 >=20
-> Signed-off-by: Feng Kan <fkan@apm.com>
+> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
+> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
 
-I squashed this into the previous patch, thanks.
+Applied to for-next, thanks!
 
 
---G3juXO9GfR42w+sw
+--BOmey7/79ja+7F5w
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJVUl6LAAoJEBQN5MwUoCm2Rg8QAKhTD8VagcmjaVa+Udbv8ut3
-6GYQUopiQ8qD3fvCo0LMrw8RKA/OJO+QWzAsLDGiAMrXpSyTeHSxJLUpkEXQGxON
-7tLnJ203s2mMlnb2HlEOkrCR6obyuz4pTt4ENHiMK47jdY2Fkdz8BB8WNRTn8uo3
-Qy3lqhu4dPUNv5eOWzWS4kvmILpUdvs7f6gv6rZJi4bJE/6Z8Cd0Crl5/zVOnK/O
-KTxzP6enSEJjL/EsW/leZOpfyRaIBsRh6+zVhf6SRGwMHHdScbqZo8r42iajT0Nj
-2mbFBIcQiMHV2SlY8XixxkLFW2NnPmpB523raXZYRtg2RchScqUAHDbKvjdrMxH2
-WY0KOPTqzjijH0a9tNBMlkSPlyRD3kWxjtQFpvCy8nGwvWlsc9u/Dy6mdpfJ8L/p
-HK7j1haD/RDM7xwttqCg1/z35pfeUsziE53t0+/WRHk+3uLyJH8rtLfJztwH2Q62
-FsBpF2BSdQHGxVambLNA7yyHyS1DNqpslfceGLNXeOhQTITbl6T/Dog8zh3leXco
-qLYrix7a7ev13oB6OM2x2lLywTuDvaD+thKoYotWx+SvQFKX3q8S9MF40jotRSae
-JubPIQitink2XTj4uZpi63P60WUXgABynOZM1VnEAgzCCINRYiPLLVnP40M7VSct
-2iPzhNAbjAOwT9efqXY3
-=JNs8
+iQIcBAEBAgAGBQJVUl6SAAoJEBQN5MwUoCm2Cm0P/i+bNtccM1MKjmz2/Ngv4sfY
+wgXkKAmBW/EGiEzoGzqE6ossTTtuf5hH2/LPbauYR1AocSOXjEllmVC5Oimrp6n4
+n7A1v4snPDYzH8fcLn/l/YXZ/xWt65vgWEZaGVHd/Fkua/93WpC/2m6HHiv6tnAe
+XQRYdFpWn5BDT/ATvJDBCjppp621b/TLAm6hFcM14GBlsRihkU5uutoo3o9zJnum
+VgOidda3TaTTQqGo8T76KCv/Fp9BSu/ivemRLtJfJe41y1nEK1HVhsapwb5SM2Dy
+9LszvGwRP6wgLqvikvic0I4XtY7cg15htUGZlLl3Kz6PFX/2rjsj7dhOR3LBxhuh
+igyxtm7ve3SelHgi0a2KAMTGD+idW8mkGYEDzKGdjqKhrA3Gc75xgJatuoAStP72
+MnzUKKTWuDbmZAdbE537ZaAcLZydicQDgTGXdu8rq9fpdlKzURnOc57rZJNuEpVd
+OA/Ca4DfaRTDvegdvDZIiadJmUV8J1U/YBOnYI/vsKB4WTzL1218UIX1pktK4Wcm
+6xy/kX1+xj2oak0QSvWfzJ2E3XQdlWI8BzHzD2fbZ13GRHPSWqds8b21ghgN6IE+
+aPBJjX9Hf8n8NXiQ1kepcADRcjkcDwJ3lvuCyCuqvYgElBM3nfhSjHinjGmV8rMo
+DtiCiWpeN+ZHvSeXHuuK
+=BiJZ
 -----END PGP SIGNATURE-----
 
---G3juXO9GfR42w+sw--
+--BOmey7/79ja+7F5w--
