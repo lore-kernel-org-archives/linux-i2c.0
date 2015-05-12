@@ -1,118 +1,63 @@
-From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
-Date: Tue, 12 May 2015 18:35:41 +0300
-Message-ID: <CALT56yNJWapNw1XLrzfbUDUz1LF_BB9DfF94H6GhbnBUEP80_w@mail.gmail.com>
-References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
-	<1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
-	<554A2DB4.3020000@samsung.com>
+From: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Subject: Re: [PATCH v4] i2c: omap: Add calls for pinctrl state select
+Date: Tue, 12 May 2015 17:47:37 +0200
+Message-ID: <20150512154737.GA4448@schokonusskuchen.bad>
+References: <1430917624-18164-1-git-send-email-pascal.huerst@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <554A2DB4.3020000@samsung.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Jacek Anaszewski <j.anaszewski@samsung.com>
-Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, linux-leds <linux-leds@vger.kernel.or>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1430917624-18164-1-git-send-email-pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2015-05-06 18:05 GMT+03:00 Jacek Anaszewski <j.anaszewski@samsung.com>:
-> On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
->>
->> Adapt locomo leds driver to new locomo core setup.
->>
->> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
->> ---
->>   drivers/leds/Kconfig       |   1 -
->>   drivers/leds/leds-locomo.c | 119
->> +++++++++++++++++++++++----------------------
->>   2 files changed, 61 insertions(+), 59 deletions(-)
->>
->> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
->> index 966b960..4b4650b 100644
->> --- a/drivers/leds/Kconfig
->> +++ b/drivers/leds/Kconfig
->> @@ -79,7 +79,6 @@ config LEDS_LM3642
->>   config LEDS_LOCOMO
->>         tristate "LED Support for Locomo device"
->>         depends on LEDS_CLASS
->> -       depends on SHARP_LOCOMO
->
->
-> Why do you remove this dependency?
 
-Because SHARP_LOCOMO is a Kconfig symbol for the old driver. New driver
-uses MFD_LOCOMO Kconfig entry. Also the driver now uses generic platform
-device and regmap interfaces, so there is no direct dependency on main
-LoCoMo driver. And the policy (IIRC) was not to have such dependencies.
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
->>         help
->>           This option enables support for the LEDs on Sharp Locomo.
->>           Zaurus models SL-5500 and SL-5600.
->> diff --git a/drivers/leds/leds-locomo.c b/drivers/leds/leds-locomo.c
->> index 80ba048..7fde812 100644
->> --- a/drivers/leds/leds-locomo.c
->> +++ b/drivers/leds/leds-locomo.c
->> @@ -9,89 +9,92 @@
->>    */
->>
->>   #include <linux/kernel.h>
->> -#include <linux/init.h>
->> -#include <linux/module.h>
->> -#include <linux/device.h>
->>   #include <linux/leds.h>
->> -
->> -#include <mach/hardware.h>
->> -#include <asm/hardware/locomo.h>
->> +#include <linux/module.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/regmap.h>
->> +#include <linux/mfd/locomo.h>
->
->
-> Please keep alphabetical order.
+On Wed, May 06, 2015 at 03:07:04PM +0200, pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+> From: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>=20
+> This adds calls to pinctrl subsystem in order to switch pin states
+> on suspend/resume if you provide a "sleep" state in DT.
+>=20
+> If no "sleep" state is provided in the DT, these calls turn
+> to NOPs, so we don't need error checking here.
+>=20
+> Signed-off-by: Pascal Huerst <pascal.huerst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Reviewed-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
 
-Ack
+Applied to for-next, thanks!
 
->
->> +
->> +struct locomo_led {
->> +       struct led_classdev led;
->> +       struct regmap *regmap;
->> +       unsigned int reg;
->> +};
->>
->>   static void locomoled_brightness_set(struct led_classdev *led_cdev,
->> -                               enum led_brightness value, int offset)
->> +                               enum led_brightness value)
->>   {
->> -       struct locomo_dev *locomo_dev = LOCOMO_DEV(led_cdev->dev->parent);
->> -       unsigned long flags;
->> +       struct locomo_led *led = container_of(led_cdev, struct locomo_led,
->> led);
->>
->> -       local_irq_save(flags);
->> -       if (value)
->> -               locomo_writel(LOCOMO_LPT_TOFH, locomo_dev->mapbase +
->> offset);
->> -       else
->> -               locomo_writel(LOCOMO_LPT_TOFL, locomo_dev->mapbase +
->> offset);
->> -       local_irq_restore(flags);
->> +       regmap_write(led->regmap, led->reg,
->> +                       value ? LOCOMO_LPT_TOFH : LOCOMO_LPT_TOFL);
->>   }
->
->
-> Please use work queue for setting brightness. This is required for the
-> driver to be compatible with led triggers. You can refer to the
-> existing LED drivers on how to implement this.
-
-Hmm. Why? The regmap here uses MMIO access, so it is atomic operation
-and doesn't need to be wrapped into work queue, does it?
+The mail header does not contain your full name, you might want to fix
+that...
 
 
-[skipped]
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-With best wishes
-Dmitry
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJVUiCZAAoJEBQN5MwUoCm2x0IP/j+TkTsbGeRa0PArOZuQpnMD
+Re5qUdKXGGJpgFtbimu1KQz3hbhmjf1pIWcL04uv36dOVdvIy3CLM2tY/L45JoG7
+RzApHWf2xyCmTOKzOiaUFeLkEqmqtMeR/BjY3oSKXiDz9VsUZeNqa/Fy1nC+i733
+h8Py0JjEqPprQv+tmGy3bn/agPjllC7yLyO+O5kfmLlibLIO7EsfgXvjYf7Qy4pu
+kh09EoaHpXiQbHUXIjf4fGwE/o/B1FfuS/76bm4c06O7fbXUqmraEHogz12ZI7Oz
+UDTGHRC8KeK9lafeDDAemch3pgNOLn3e/1qNeBkgVR41NH42zinIwgKttg3B4qJ9
+omKXTGoA3Stthei3dm8RerH3lh8YK7PV2pECgobqo+iTWQo4YS4xL2Ek/dzQJmHY
+ZRvbEpKj+qLnHqL3rM9QQmbA20OjeVYWv7zy48t4rt3vBeQ0cu87de4Pv+7DzCS9
+lwoJYBi+qy8R1wngQTzqPj3n6DjO4S0yDDtiClaw/yFjuP8+xIEwVXT2ZonqlkGI
+76UQjCrHieVf06+enQc4lDL7wOygHuWccrn5k9EU/70HXHaMbGY6ijlUNb5cxUB7
+jYldi529PvvgD3nI4LmDpQar1M4tRua1GFpHPPj/aeQRiRCYmV87J6ikktquRFy0
+A54Bql4RLJ0VxeKOmhex
+=ccbg
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--
