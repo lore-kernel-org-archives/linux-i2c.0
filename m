@@ -1,63 +1,55 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: rk3x: Increase wait timeout to 1 second
-Date: Tue, 12 May 2015 09:15:06 +0200
-Message-ID: <20150512071506.GW12671@pengutronix.de>
-References: <1431373468-18302-1-git-send-email-dianders@chromium.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 08/17] gpio: locomo: implement per-pin irq handling
+Date: Tue, 12 May 2015 13:15:25 +0200
+Message-ID: <CACRpkdYQFYaA87N2f1uizRo=sDj2P4k4m1O_0_cQsi4BZbeGkg@mail.gmail.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+	<1430178954-11138-9-git-send-email-dbaryshkov@gmail.com>
+	<CACRpkdZt+rjzVSqXE6MDaY5S9gezeTu+2QWu31xKsg08TpXibw@mail.gmail.com>
+	<CALT56yNJutWTW5zsos+=Uh+BDvO4o_tqBEj+H621TncVK6eD_Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1431373468-18302-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Addy Ke <addy.ke-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <CALT56yNJutWTW5zsos+=Uh+BDvO4o_tqBEj+H621TncVK6eD_Q@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, linux-leds@vger.kernel.or
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 11, 2015 at 12:44:28PM -0700, Doug Anderson wrote:
-> Although unlikely, it is remotely possible for an i2c command to need
-> more than 200ms complete. Unlike smbus, i2c devices can clock stretch
-> for an unspecified amount of time. The longest time I've seen
-> specified for a device is 144ms (bq27541 battery gas), but one could
-> imagine a device taking a bit slower. 1 second "ought to be enough fo=
-r
-> anyone."
->=20
-> The above is not the only justifcation for going above 200ms for a
-> timeout, though.  It turns out that if you've got a large number of
-> printks going out to a serial console, interrupts on a CPU can be
-> disabled for hundreds of milliseconds. That's not a great situation t=
-o
-> be in to start with (maybe we should put a cap in vprintk_emit()) but
-> it's pretty annoying to start seeing unexplained i2c timeouts.
->=20
-> Note that to understand why we can timeout when printk has interrupts
-> disabled, you need to understand that on current Linux ARM kernels
-> interrupts are routed to a single CPU in a multicore system. Thus,
-> you can get:
->=20
-> 1. CPU1 is running rk3x_i2c_xfer()
-> 2. CPU0 calls vprintk_emit(), which disables all IRQs on CPU0.
-> 3. I2C interrupt is ready but is set to only run on CPU0, where IRQs
->    are disabled.
-> 4. CPU1 timeout expires. I2C interrupt is still ready, but CPU0 is
->    still sitting in the same vprintk_emit()
-> 5. CPU1 sees that no interrupt happened in 200ms, so timeout.
->=20
-> A normal system shouldn't see i2c timeouts anyway, so increasing the
-> timeout should help people debugging without hurting other people
-> excessively.
->=20
-> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Tested-by: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+On Wed, May 6, 2015 at 6:42 PM, Dmitry Eremin-Solenikov
+<dbaryshkov@gmail.com> wrote:
+> 2015-05-06 17:15 GMT+03:00 Linus Walleij <linus.walleij@linaro.org>:
+>> On Tue, Apr 28, 2015 at 1:55 AM, Dmitry Eremin-Solenikov
+>> <dbaryshkov@gmail.com> wrote:
+>>
+>>> LoCoMo has a possibility to generate per-GPIO edge irqs. Support for
+>>> that was there in old locomo driver, got 'cleaned up' during old driver
+>>> IRQ cascading cleanup and is now reimplemented. It is expected that
+>>> SL-5500 (collie) will use locomo gpio irqs for mmc detection irq.
+>>>
+>>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+>>
+>> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+>
+> Thanks for review of the patches.
+>
+>> Assume this will also go through MFD.
+>>
+>>> +       irq_set_chained_handler(lg->irq, NULL);
+>>> +       irq_set_handler_data(lg->irq, NULL);
+>>
+>> Why is this needed? If the GPIOLIB_IRQCHIP code in
+>> gpiolib.c is not doing this then maybe it's the core code that
+>> needs fixing rather than having this in the driver.
+>
+> I have skimmed through the rest of drivers using
+> gpiochip_set_chained_irqchip(). Indeed none of the drivers NULL
+> the chained handled and handler data. However I couldn't locate
+> the code where they would be cleared.
+>
+> Should I still send the patch fixing the GPIOLIB_IRQCHIP?
 
-Thanks
-Uwe
+Yes I guess you need to save parent_irq in struct gpio_chip and
+remove it in gpiochip_irqchip_remove() if it's != 0.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Yours,
+Linus Walleij
