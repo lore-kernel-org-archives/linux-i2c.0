@@ -1,54 +1,95 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/4] i2c: imx: Constify platform_device_id
-Date: Tue, 12 May 2015 18:29:17 +0200
-Message-ID: <20150512162917.GE6805@schokonusskuchen.bad>
-References: <1430495668-31878-1-git-send-email-k.kozlowski.k@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: core: Remove needless structure member zero
+ initialization
+Date: Tue, 12 May 2015 21:03:48 +0200
+Message-ID: <20150512190348.GA4449@schokonusskuchen.bad>
+References: <1430311477-21759-1-git-send-email-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2qXFWqzzG3v1+95a"
+	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1430495668-31878-1-git-send-email-k.kozlowski.k-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1430311477-21759-1-git-send-email-jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Krzysztof Kozlowski <k.kozlowski.k-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---2qXFWqzzG3v1+95a
+--6TrnltStXW4iwmi0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, May 02, 2015 at 12:54:25AM +0900, Krzysztof Kozlowski wrote:
-> The platform_device_id is not modified by the driver and core uses it as
-> const.
+On Wed, Apr 29, 2015 at 03:44:36PM +0300, Jarkko Nikula wrote:
+> No need to clear one struct i2c_client member variable since memset has
+> already cleared all of them. Remove also one space intendation from err
+> label.
+
+Ehrm, why change this now when you remove the code block in the next
+patch anyhow? :)
+
+Also, the indentation thing is very likely intentional. Sadly, I can't
+remember why at this moment, but I remember that when I tried to grep
+something I understood why some people put a space in front of labels
+
 >=20
-> Signed-off-by: Krzysztof Kozlowski <k.kozlowski.k-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 987c124432c5..051aa3a811a8 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -283,7 +283,6 @@ acpi_i2c_space_handler(u32 function, acpi_physical_ad=
+dress command,
+>  	memset(&client, 0, sizeof(client));
+>  	client.adapter =3D adapter;
+>  	client.addr =3D sb->slave_address;
+> -	client.flags =3D 0;
+> =20
+>  	if (sb->access_mode =3D=3D ACPI_I2C_10BIT_MODE)
+>  		client.flags |=3D I2C_CLIENT_TEN;
+> @@ -361,7 +360,7 @@ acpi_i2c_space_handler(u32 function, acpi_physical_ad=
+dress command,
+> =20
+>  	gsb->status =3D status;
+> =20
+> - err:
+> +err:
+>  	ACPI_FREE(ares);
+>  	return ret;
+>  }
+> --=20
+> 2.1.4
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Squashed the 4 patches and applied to for-next, thanks!
-
-
---2qXFWqzzG3v1+95a
+--6TrnltStXW4iwmi0
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJVUipcAAoJEBQN5MwUoCm2QXUQAK02DyQbfwff7yZV8jh6aQ+j
-IPHdsU14HxsZ4zayTMLyCxNYKSsCi+N9XDsdS2HQ+iOghUQ1o6/R0G968Qb51/jc
-9WuaMqV0HftNPkxvIDO40j6lLX8eOrRPnoI7fIDnLlTNvCoLi2mlhyzo3QF5ASJP
-faCoMGl+B07ENdP5+z1uv2EudMczz1FHEOa7klsEi++avApFasoSi9ST4FIR4cSi
-9gEsUR6je+iDe4x2mAxzbUbUbhze0jfxfJ8rtJsQXCnGOO9Gz97zWvpQr+m+jTps
-M+dx+XLTCzEODtY/n9QcUY1OgbDib03nd0BtNtFIF4sawAXF+UOSTh0hBSGbtgcR
-9/xANt+G/h8sbSRKCAhtF31t4g13T6pEmDeK+Autfo2JhQpWeLAs1mx6y6//UEoR
-j+Mk7eh9zkkH+cHyv5gQsdpbuybemvsYbHhT+Yfw3PCc4WLzDPTiJHsnNJMYl0ka
-kJJQWfMuAzDivHWrWftjVVeR8a0Xvpxt2ghldSX6TzYMiYOMxRNv6hGpfauIcHxS
-eUyzUX6yY6+JEoGw7sjx3uSA/wo369zy8O5FdYl+AH46G/fr/W3AunG5jhrFU0Nu
-zwwSVDWhyXBoZKoWqD2eMXiT0ZNV2qWOn/hij//3Sc1q4X/4tltd5bipGama3yjJ
-9OKHeXZxI9EySkZq/iLU
-=ti2d
+iQIcBAEBAgAGBQJVUk6UAAoJEBQN5MwUoCm2jTUP/25+yr3T6L14+bc+1tvpwo/5
+mB66gwqk7vBEzPezOcFhl0TSY5itlbKP4bIw5aplLCCw0+5Gg/rYVfYgXPSxigB7
+snxRsE4apbMNRIKjTFEqMCFr09JK9mcENU52ykQ5TlK7FJ7XRRkgKIC+2Qk+o3Qw
+psJfCRTSDe0V6BqUfVGgLY5/NT+yBCctbuvl80qmChsQou4uErRBzi4otN7uKG8T
+P13eCQrscQajO2RpptUjVgfFKjn09e08jzxSeI1ozEveimqPa/BwryaVdZgjFXDX
+GaWmLrSII0xYIEsSJGacBdc4ysCSXifInsyyTaNgCKsUV1AjlXJi7pJp3iFJA4GM
+3i7nXor+Bpx1l82OYuzZ8sjOTaASYL5+A4UpvlPGF6xS2kDSovVjSRbXE0sCcIIc
+e2k44U1izqDssdDY+nvb7H6Q6BQSUGguZUPGfCysFrU7Z/uMO3yhCiONtuhHADm6
+xcnJghLl46ZR9NUfgsxsbfMAQ4QsgJLbtd8xs4j58XC1mONsg9bDoo+3d/1IOT5J
+LFtFvrQZn2jeXt9abTYIFNoVlxCU1Q2SgdrJNl6Hj/x8iV/CGdhDSRmUHF69LRX7
+rzlxDRUCKEayHoFdVmGtJYS3tOF68yVyG6Re4CTQuO327DTGG2N1IIRxVWSqonjF
+pNVnTVEQsqyJD00heY0l
+=4n0U
 -----END PGP SIGNATURE-----
 
---2qXFWqzzG3v1+95a--
+--6TrnltStXW4iwmi0--
