@@ -1,153 +1,146 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH v2 1/3] gpio / ACPI: Add support for retrieving GpioInt
- resources from a device
-Date: Tue, 12 May 2015 14:49:01 +0200
-Message-ID: <20150512144901.49a1894b51edc0113ae35375@ao2.it>
-References: <1430908148-201129-1-git-send-email-mika.westerberg@linux.intel.com>
-	<1430908148-201129-2-git-send-email-mika.westerberg@linux.intel.com>
+From: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Subject: Re: [PATCH v7 2/3] I2C: mediatek: Add driver for MediaTek I2C
+ controller
+Date: Tue, 12 May 2015 14:58:32 +0200
+Message-ID: <20150512125832.GB4447@schokonusskuchen.bad>
+References: <1430901427-65146-1-git-send-email-eddie.huang@mediatek.com>
+ <1430901427-65146-3-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1430908148-201129-2-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: i2c@lm-sensors.org
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Octavian Purdila <octavian.purdila@intel.com>, Robert Dolca <robert.dolca@intel.com>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1430901427-65146-3-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, David Box <david.e.box-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Max Schwarz <max.schwarz-BGeptl67XyCzQB+pC5nmwQ@public.gmane.org>, Boris BREZILLON <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, Neelesh Gupta <neelegup-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wei Yan <sledge.yanwei-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Beniamino Galvani <b.galvani-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed,  6 May 2015 13:29:06 +0300
-Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
 
-> ACPI specification knows two types of GPIOs: GpioIo and GpioInt. The latter
-> is used to describe that a given device interrupt line is connected to a
-> specific GPIO pin. Typical ACPI _CRS entry for such device looks like
-> below:
-> 
->     Name (_CRS, ResourceTemplate ()
->     {
->         I2cSerialBus (0x004A, ControllerInitiated, 0x00061A80,
->                       AddressingMode7Bit, "\\_SB.PCI0.I2C6",
->                       0x00, ResourceConsumer)
->         GpioIo (Exclusive, PullDefault, 0x0000, 0x0000,
->                 IoRestrictionOutputOnly, "\\_SB.GPO0",
->                 0x00, ResourceConsumer)
->         {
->             0x004B
->         }
->         GpioInt (Level, ActiveLow, Shared, PullDefault, 0x0000,
->                  "\\_SB.GPO0", 0x00, ResourceConsumer)
->         {
->             0x004C
->         }
->     })
-> 
-> Currently drivers need to request a GPIO corresponding to the right GpioInt
-> and then translate that to Linux IRQ number. This adds unnecessary lines of
-> boiler-plate code.
-> 
-> We can ease this a bit by introducing acpi_dev_gpio_irq_get() analogous to
-> of_irq_get(). This function translates given GpioInt resource under the
-> device in question to the suitable Linux IRQ number.
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Tested-by: Antonio Ospite <ao2@ao2.it>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/sched.h>
+> +#include <linux/delay.h>
+> +#include <linux/errno.h>
+> +#include <linux/err.h>
+> +#include <linux/device.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/mm.h>
+> +#include <linux/dma-mapping.h>
+> +#include <linux/scatterlist.h>
+> +#include <linux/io.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/clk.h>
+> +#include <linux/completion.h>
 
-Thanks a lot Mika, this is very useful, my touchscreen now works without
-adding a struct acpi_gpio_mapping and the related boilerplate code to
-the goodix driver.
+Please sort the includes to avoid duplicates.
 
-Thanks again,
-   Antonio
+> +struct mtk_i2c_compatible {
+> +	const struct i2c_adapter_quirks *quirks;
+> +	unsigned char pmic_i2c;
+> +	unsigned char dcm;
+> +};
 
-> ---
->  drivers/gpio/gpiolib-acpi.c | 29 +++++++++++++++++++++++++++++
->  include/linux/acpi.h        |  7 +++++++
->  2 files changed, 36 insertions(+)
-> 
-> diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-> index d2303d50f561..bff29bb0a3fe 100644
-> --- a/drivers/gpio/gpiolib-acpi.c
-> +++ b/drivers/gpio/gpiolib-acpi.c
-> @@ -514,6 +514,35 @@ struct gpio_desc *acpi_get_gpiod_by_index(struct acpi_device *adev,
->  	return lookup.desc ? lookup.desc : ERR_PTR(-ENOENT);
->  }
->  
-> +/**
-> + * acpi_dev_gpio_irq_get() - Find GpioInt and translate it to Linux IRQ number
-> + * @adev: pointer to a ACPI device to get IRQ from
-> + * @index: index of GpioInt resource (starting from %0)
-> + *
-> + * If the device has one or more GpioInt resources, this function can be
-> + * used to translate from the GPIO offset in the resource to the Linux IRQ
-> + * number.
-> + *
-> + * Return: Linux IRQ number (>%0) on success, negative errno on failure.
+I wonder if the unsigned char options can be bits in a flags variable?
 
-The percent in the comment here is supposed to be and equal sign, isn't
-it?
+> +static const struct i2c_adapter_quirks mt6577_i2c_quirks = {
+> +	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
+> +	.max_num_msgs = MAX_MSG_NUM_MT6577,
+> +	.max_write_len = MAX_DMA_TRANS_SIZE_MT6577,
+> +	.max_read_len = MAX_DMA_TRANS_SIZE_MT6577,
+> +	.max_comb_1st_msg_len = MAX_DMA_TRANS_SIZE_MT6577,
+> +	.max_comb_2nd_msg_len = MAX_WRRD_TRANS_SIZE_MT6577,
+> +};
 
-> + */
-> +int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
+I would think plain numbers are much more readable than defines here.
+They are used only once, too.
+
+> +static const struct of_device_id mtk_i2c_of_match[] = {
+> +	{ .compatible = "mediatek,mt6577-i2c", .data = (void *)&mt6577_compat },
+> +	{ .compatible = "mediatek,mt6589-i2c", .data = (void *)&mt6589_compat },
+> +	{}
+> +};
+> +MODULE_DEVICE_TABLE(of, mtk_i2c_of_match);
+
+No need for casts.
+
+> +static inline void mtk_i2c_writew(u16 value, struct mtk_i2c *i2c, u8 offset)
 > +{
-> +	int idx, i;
-> +
-> +	for (i = 0, idx = 0; idx <= index; i++) {
-> +		struct acpi_gpio_info info;
-> +		struct gpio_desc *desc;
-> +
-> +		desc = acpi_get_gpiod_by_index(adev, NULL, i, &info);
-> +		if (IS_ERR(desc))
-> +			break;
-> +		if (info.gpioint && idx++ == index)
-> +			return gpiod_to_irq(desc);
-> +	}
-> +	return -ENOENT;
+> +	writew(value, i2c->base + offset);
 > +}
-> +EXPORT_SYMBOL_GPL(acpi_dev_gpio_irq_get);
 > +
->  static acpi_status
->  acpi_gpio_adr_space_handler(u32 function, acpi_physical_address address,
->  			    u32 bits, u64 *value, void *handler_context,
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index e4da5e35e29c..f57c440642cd 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -721,6 +721,8 @@ static inline void acpi_dev_remove_driver_gpios(struct acpi_device *adev)
->  	if (adev)
->  		adev->driver_gpios = NULL;
->  }
-> +
-> +int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index);
->  #else
->  static inline int acpi_dev_add_driver_gpios(struct acpi_device *adev,
->  			      const struct acpi_gpio_mapping *gpios)
-> @@ -728,6 +730,11 @@ static inline int acpi_dev_add_driver_gpios(struct acpi_device *adev,
->  	return -ENXIO;
->  }
->  static inline void acpi_dev_remove_driver_gpios(struct acpi_device *adev) {}
-> +
-> +static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
+> +static inline u16 mtk_i2c_readw(struct mtk_i2c *i2c, u8 offset)
 > +{
-> +	return -ENXIO;
+> +	return readw(i2c->base + offset);
 > +}
->  #endif
->  
->  /* Device properties */
-> -- 
-> 2.1.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+I am not a big fan of such extremly thin wrappers, but if you like them...
+
+> +		rpaddr = dma_map_single(i2c->adap.dev.parent, msgs->buf,
+> +						msgs->len, DMA_FROM_DEVICE);
+
+I think you shouldn't use the adapter device here and later, but the dma
+channel device.
+
+> +	/* flush before sending start */
+> +	mb();
+> +	mtk_i2c_writel_dma(I2C_DMA_START_EN, i2c, OFFSET_EN);
+
+Is mb() really needed when you use writel after that?
+
+> +	if (i2c->irq_stat & (I2C_HS_NACKERR | I2C_ACKERR)) {
+> +		dev_dbg(i2c->dev, "addr: %x, transfer ACK error\n", msgs->addr);
+> +		mtk_i2c_init_hw(i2c);
+> +		return -EREMOTEIO;
+
+-ENXIO. Please check Documentation/i2c/fault-codes for a reference and
+check all your error values.
+
+> +	ret = of_property_read_u32(np, "clock-div", clk_src_div);
+> +	if (ret < 0)
+> +		return ret;
+
+Do we need a property for that in the i2c-block? Can't the clock
+provider driver deliver a properly divided clock already?
 
 
--- 
-Antonio Ospite
-http://ao2.it
+And cppcheck says:
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+drivers/i2c/busses/i2c-mt65xx.c:133: style: struct or union member 'mtk_i2c_data::clk_frequency' is never used.
+drivers/i2c/busses/i2c-mt65xx.c:135: style: struct or union member 'mtk_i2c_data::clk_src_div' is never used.
+
+Rest looks good, thanks!
+
+
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJVUfj4AAoJEBQN5MwUoCm2jwAQAKRdCzMD9b22lxoyOCaSEsuN
+u16KVoeBLkARmRt55AVUjiBb8Qp+Q5Am/YpVktssltM/mxmeNeuBN8YDbpv4uWZ2
+t0+7yNb1TWZEFWEE5JuEB8YvZ7qn+xjFSdFi1eHNgiTmUxzmGje3PhqnWx+BQH6T
+B6eXyYu0jSafo1ADme81CiFA0KdRP84zZ3H9n62NhnpCNf7g9GHTBZ1T1wU+lco/
+gcTA0qCx0uc4MpnCXsgYMuBsTj47417RbMNbWN8PWphcqsxfnrPqtsdmDel/9mFj
+bQzA41z0lqwgQepVHMyEZStf8nG637dAcn79W+8AdhG4eIMGITEpd+mGcGPE7QY0
+ncZNGIkgNDndWl45QwYHAadLO4/SattHmsb7cWDDkThPZ0fPYtn/k2He1ofU3a0z
+r/cQ0yaw1ucNeYUDXbWESkkL4IA2P9a5CdvnZXHem4yW4SiWU8vJ+4+TWT6WaVjl
+jIBP7wkIbzl6SNsCoBQvjViYeTj6LyTlLwZt9Ug88D+HqAK6xEDAqgQm2GM1XQu6
+3svTkz1gFmM7/9ZSB6TtDPUJ10Yy6EneS5Wr+FSyiDzuVh1J/ImydDN8+95FFfYu
+Ws0jfT55JgbidsvYfyiIa0uWQ1rVBjg/z4bXh4SVhabmlAoEYVTeFus2x1UTvIzH
+Y32El/xo9UmF4aOrPOwK
+=RKXb
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--
