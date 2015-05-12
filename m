@@ -1,63 +1,118 @@
-From: wsa@the-dreams.de
-Subject: Re: [PATCH 06/27] i2c: Allow compile test of GPIO consumers if
- !GPIOLIB
-Date: Tue, 12 May 2015 15:23:16 +0200
-Message-ID: <20150512132316.GH4447@schokonusskuchen.bad>
-References: <1430836404-15513-1-git-send-email-geert@linux-m68k.org>
- <1430843563-18615-1-git-send-email-geert@linux-m68k.org>
- <1430843563-18615-6-git-send-email-geert@linux-m68k.org>
+From: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH v2 02/17] leds: port locomo leds driver to new locomo core
+Date: Tue, 12 May 2015 18:35:41 +0300
+Message-ID: <CALT56yNJWapNw1XLrzfbUDUz1LF_BB9DfF94H6GhbnBUEP80_w@mail.gmail.com>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+	<1430178954-11138-3-git-send-email-dbaryshkov@gmail.com>
+	<554A2DB4.3020000@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yQbNiKLmgenwUfTN"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1430843563-18615-6-git-send-email-geert@linux-m68k.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <554A2DB4.3020000@samsung.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Jacek Anaszewski <j.anaszewski@samsung.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, linux-leds <linux-leds@vger.kernel.or>
 List-Id: linux-i2c@vger.kernel.org
 
+2015-05-06 18:05 GMT+03:00 Jacek Anaszewski <j.anaszewski@samsung.com>:
+> On 04/28/2015 01:55 AM, Dmitry Eremin-Solenikov wrote:
+>>
+>> Adapt locomo leds driver to new locomo core setup.
+>>
+>> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+>> ---
+>>   drivers/leds/Kconfig       |   1 -
+>>   drivers/leds/leds-locomo.c | 119
+>> +++++++++++++++++++++++----------------------
+>>   2 files changed, 61 insertions(+), 59 deletions(-)
+>>
+>> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+>> index 966b960..4b4650b 100644
+>> --- a/drivers/leds/Kconfig
+>> +++ b/drivers/leds/Kconfig
+>> @@ -79,7 +79,6 @@ config LEDS_LM3642
+>>   config LEDS_LOCOMO
+>>         tristate "LED Support for Locomo device"
+>>         depends on LEDS_CLASS
+>> -       depends on SHARP_LOCOMO
+>
+>
+> Why do you remove this dependency?
 
---yQbNiKLmgenwUfTN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Because SHARP_LOCOMO is a Kconfig symbol for the old driver. New driver
+uses MFD_LOCOMO Kconfig entry. Also the driver now uses generic platform
+device and regmap interfaces, so there is no direct dependency on main
+LoCoMo driver. And the policy (IIRC) was not to have such dependencies.
 
-On Tue, May 05, 2015 at 06:32:22PM +0200, Geert Uytterhoeven wrote:
-> The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
-> not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
-> functionality only, can still be compiled if GPIOLIB is not enabled.
->=20
-> Relax the dependency on GPIOLIB if COMPILE_TEST is enabled, where
-> appropriate.
->=20
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
+>
+>>         help
+>>           This option enables support for the LEDs on Sharp Locomo.
+>>           Zaurus models SL-5500 and SL-5600.
+>> diff --git a/drivers/leds/leds-locomo.c b/drivers/leds/leds-locomo.c
+>> index 80ba048..7fde812 100644
+>> --- a/drivers/leds/leds-locomo.c
+>> +++ b/drivers/leds/leds-locomo.c
+>> @@ -9,89 +9,92 @@
+>>    */
+>>
+>>   #include <linux/kernel.h>
+>> -#include <linux/init.h>
+>> -#include <linux/module.h>
+>> -#include <linux/device.h>
+>>   #include <linux/leds.h>
+>> -
+>> -#include <mach/hardware.h>
+>> -#include <asm/hardware/locomo.h>
+>> +#include <linux/module.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/regmap.h>
+>> +#include <linux/mfd/locomo.h>
+>
+>
+> Please keep alphabetical order.
 
-Applied to for-next, thanks!
+Ack
+
+>
+>> +
+>> +struct locomo_led {
+>> +       struct led_classdev led;
+>> +       struct regmap *regmap;
+>> +       unsigned int reg;
+>> +};
+>>
+>>   static void locomoled_brightness_set(struct led_classdev *led_cdev,
+>> -                               enum led_brightness value, int offset)
+>> +                               enum led_brightness value)
+>>   {
+>> -       struct locomo_dev *locomo_dev = LOCOMO_DEV(led_cdev->dev->parent);
+>> -       unsigned long flags;
+>> +       struct locomo_led *led = container_of(led_cdev, struct locomo_led,
+>> led);
+>>
+>> -       local_irq_save(flags);
+>> -       if (value)
+>> -               locomo_writel(LOCOMO_LPT_TOFH, locomo_dev->mapbase +
+>> offset);
+>> -       else
+>> -               locomo_writel(LOCOMO_LPT_TOFL, locomo_dev->mapbase +
+>> offset);
+>> -       local_irq_restore(flags);
+>> +       regmap_write(led->regmap, led->reg,
+>> +                       value ? LOCOMO_LPT_TOFH : LOCOMO_LPT_TOFL);
+>>   }
+>
+>
+> Please use work queue for setting brightness. This is required for the
+> driver to be compatible with led triggers. You can refer to the
+> existing LED drivers on how to implement this.
+
+Hmm. Why? The regmap here uses MMIO access, so it is atomic operation
+and doesn't need to be wrapped into work queue, does it?
 
 
---yQbNiKLmgenwUfTN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+[skipped]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJVUf7DAAoJEBQN5MwUoCm2DCgQAJ/H2Oo0zW3tLM4UzGuhwfmZ
-vonIY1udHsiYrjXdjQYQ7nlP4KtYXzrDjLh0ZXbisQT/yXDmNle/ZwNO9SnrOIzp
-Q2j/gZIPI9kgSWb0uG+UfAHoUtmP9FxXH4/u842RkN+25I0rs3iAZCCivFZpPgOq
-v2ElNeD2NLUTIMRW39kHSII3Aum+2rYKhJwHY3DPbth8KiyOe++V2hh4g76gZRII
-DFvjZJsDA0oxk6K+PKtrT9Wp5L/x23ar3tlKkamKbkjy0XqW5Rh1beJSenz4QLjK
-5gXy/mtwQTWY5tjoW8eJn1UccgtKcGA708Pl5sLSgW6QospUBXsREjOJhSSytqg+
-mGo+JykSWbGmwJ1OUI0WLLjZC5/yNAFdRJPu90pCjootrVqCniJitMgzpMJsMiI6
-3xFTlmN0OeZYWl/qTXQWk5CYlsFUNcrT2nVewYeSvgbAUt8rfiHmVvi7vsFHk7Wz
-VK3V/u/8NSAG3gMeoYUPrU9p0qwsYu0kKFz08IDt1aN2+tCzbzm8VDQ6JG87Nn+b
-u9AP9tW3GeC0G27dyZ8pNE1w8kGERRXBbSxePHAYl6GLNnHnVTEKOhp0L4uQsWPY
-IM6sndin2h5ESF1wnEbNwlTsOpn3pSfjza8k8SkdbuAcW/20MuIl3+DpA+CgqH0T
-LfE9tUnHvmiU1ehe5DJZ
-=yZpT
------END PGP SIGNATURE-----
-
---yQbNiKLmgenwUfTN--
+-- 
+With best wishes
+Dmitry
