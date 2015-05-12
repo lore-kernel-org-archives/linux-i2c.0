@@ -1,58 +1,63 @@
-From: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Subject: Re: [PATCH] i2c: xiic: Fix kerneldoc warnings
-Date: Tue, 12 May 2015 15:19:12 +0200
-Message-ID: <20150512131911.GG4447@schokonusskuchen.bad>
-References: <1430829365-5095-1-git-send-email-shubhrajyoti.datta@xilinx.com>
+From: wsa@the-dreams.de
+Subject: Re: [PATCH 06/27] i2c: Allow compile test of GPIO consumers if
+ !GPIOLIB
+Date: Tue, 12 May 2015 15:23:16 +0200
+Message-ID: <20150512132316.GH4447@schokonusskuchen.bad>
+References: <1430836404-15513-1-git-send-email-geert@linux-m68k.org>
+ <1430843563-18615-1-git-send-email-geert@linux-m68k.org>
+ <1430843563-18615-6-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yH1ZJFh+qWm+VodA"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="yQbNiKLmgenwUfTN"
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1430829365-5095-1-git-send-email-shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1430843563-18615-6-git-send-email-geert@linux-m68k.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---yH1ZJFh+qWm+VodA
+--yQbNiKLmgenwUfTN
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 05, 2015 at 06:06:05PM +0530, shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org wro=
-te:
-> From: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+On Tue, May 05, 2015 at 06:32:22PM +0200, Geert Uytterhoeven wrote:
+> The GPIO subsystem provides dummy GPIO consumer functions if GPIOLIB is
+> not enabled. Hence drivers that depend on GPIOLIB, but use GPIO consumer
+> functionality only, can still be compiled if GPIOLIB is not enabled.
 >=20
-> info(drivers/i2c/busses/i2c-xiic.c:55): Scanning doc for struct xiic_i2c
-> Warning(drivers/i2c/busses/i2c-xiic.c:79): No description found for param=
-eter 'endianness'
+> Relax the dependency on GPIOLIB if COMPILE_TEST is enabled, where
+> appropriate.
 >=20
-> Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
 
 Applied to for-next, thanks!
 
 
---yH1ZJFh+qWm+VodA
+--yQbNiKLmgenwUfTN
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJVUf3PAAoJEBQN5MwUoCm2uuQP/0TzRoFWqyc7Ku2PMWELmGP6
-73X4Np2w7R5UV4RPUefRHbcuv/HoQyzfi9NWbbLl8zf0lYRcHI+zie8HsDXC/6aZ
-Ny41+qDemlD8B24Dxf7JgeYW5/dPLR1DbthiEiEHSOS6SaSpljg4vbzwg6VIW2aR
-e8wce+ck7GwXDlqIidC6Um+Ox9FH2tFw5pwe4/I+okpJsAmLMwbSV67RtkpwGBBu
-3OIZfB2FF6YpGvIZBMwHo4vtHT9m3JGNhDwS/BIIa/glHuvrvIdYGaqcgnjnHGyZ
-ptDWR3Z8kvBtLn4kaGTAuc7cmw42l9DuNICF8DlM3CMwVKaN7QjLNzK7I9J3Fp9u
-42LsagMO7WnHTPYEKcpDPJm8XAdT1c6HtAufSu88FDv89YWLEM5uBN7O8xUVj8kf
-rELI4sAqemmT1tQ5uKV9zByr0qvPL6vGAlAOwel/U+lnGvav2CDDeqFkTPvrGBQL
-ZDS6TZ9LF8nu63PQxa5MsuG2Gq4m829s9O9G5XilzVWLsWkQr7FwxxldWLO+brHS
-IocrrzOIxmoZ3SDFJSd7R14fyBk8QviGjuN2z4bHNiW0mb0uiEtTXrFErDtWOG7s
-RDk4VQp4H4jaJwaFMNYTg0wpVEKrQdz3fUqy8qpAct5cGlRV5FKzSu4ysVX45+TR
-WyTqQAPWlSbkphZNbTPH
-=/1eW
+iQIcBAEBAgAGBQJVUf7DAAoJEBQN5MwUoCm2DCgQAJ/H2Oo0zW3tLM4UzGuhwfmZ
+vonIY1udHsiYrjXdjQYQ7nlP4KtYXzrDjLh0ZXbisQT/yXDmNle/ZwNO9SnrOIzp
+Q2j/gZIPI9kgSWb0uG+UfAHoUtmP9FxXH4/u842RkN+25I0rs3iAZCCivFZpPgOq
+v2ElNeD2NLUTIMRW39kHSII3Aum+2rYKhJwHY3DPbth8KiyOe++V2hh4g76gZRII
+DFvjZJsDA0oxk6K+PKtrT9Wp5L/x23ar3tlKkamKbkjy0XqW5Rh1beJSenz4QLjK
+5gXy/mtwQTWY5tjoW8eJn1UccgtKcGA708Pl5sLSgW6QospUBXsREjOJhSSytqg+
+mGo+JykSWbGmwJ1OUI0WLLjZC5/yNAFdRJPu90pCjootrVqCniJitMgzpMJsMiI6
+3xFTlmN0OeZYWl/qTXQWk5CYlsFUNcrT2nVewYeSvgbAUt8rfiHmVvi7vsFHk7Wz
+VK3V/u/8NSAG3gMeoYUPrU9p0qwsYu0kKFz08IDt1aN2+tCzbzm8VDQ6JG87Nn+b
+u9AP9tW3GeC0G27dyZ8pNE1w8kGERRXBbSxePHAYl6GLNnHnVTEKOhp0L4uQsWPY
+IM6sndin2h5ESF1wnEbNwlTsOpn3pSfjza8k8SkdbuAcW/20MuIl3+DpA+CgqH0T
+LfE9tUnHvmiU1ehe5DJZ
+=yZpT
 -----END PGP SIGNATURE-----
 
---yH1ZJFh+qWm+VodA--
+--yQbNiKLmgenwUfTN--
