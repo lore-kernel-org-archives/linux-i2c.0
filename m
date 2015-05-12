@@ -1,55 +1,72 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: omap: implement bus recovery
-Date: Tue, 12 May 2015 21:19:34 +0200
-Message-ID: <20150512191934.GD4449@schokonusskuchen.bad>
-References: <1430931027-19955-1-git-send-email-balbi@ti.com>
+Subject: Re: [PATCH v2 10/17] i2c: add locomo i2c driver
+Date: Tue, 12 May 2015 21:24:13 +0200
+Message-ID: <20150512192413.GE4449@schokonusskuchen.bad>
+References: <1430178954-11138-1-git-send-email-dbaryshkov@gmail.com>
+ <1430178954-11138-11-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HWvPVVuAAfuRc6SZ"
-Return-path: <linux-omap-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="WBsA/oQW3eTA3LlM"
+Return-path: <linux-gpio-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1430931027-19955-1-git-send-email-balbi@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, grygorii.strashko@ti.com
+In-Reply-To: <1430178954-11138-11-git-send-email-dbaryshkov@gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
+Cc: Russell King <linux@arm.linux.org.uk>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Jingoo Han <jg1.han@samsung.com>, Jean-Christophe Plagniol-Villard <plagnioj@jcrosoft.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Liam Girdwood <lgirdwood@gmail.com>, Andrea Adami <andrea.adami@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-spi@vger.kernel.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---HWvPVVuAAfuRc6SZ
+--WBsA/oQW3eTA3LlM
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 06, 2015 at 11:50:27AM -0500, Felipe Balbi wrote:
-> implement bus recovery methods for i2c-omap
-> so we can recover from situations where SCL/SDA
-> are stuck low.
+On Tue, Apr 28, 2015 at 02:55:47AM +0300, Dmitry Eremin-Solenikov wrote:
+> LoCoMo chip contains a tiny i2c controller destined to control
+> M62332 DAC. Provide a separate I2C driver for this cell.
 >=20
-> Signed-off-by: Felipe Balbi <balbi@ti.com>
+> Signed-off-by: Dmitry Eremin-Solenikov <dbaryshkov@gmail.com>
 
-Applied to for-next, thanks!
+Thanks for the submission!
+
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +#include <linux/mfd/locomo.h>
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/i2c-algo-bit.h>
+
+To avoid duplicates, I prefer the includes to be sorted. No need to
+resend because of that, though.
+
+Kudos for brushing up old code! Do you want the drivers go via the
+subsystem trees? Or is there a dependency so it should go in via some
+other tree in one go?
 
 
---HWvPVVuAAfuRc6SZ
+--WBsA/oQW3eTA3LlM
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJVUlJFAAoJEBQN5MwUoCm2go4P/iHlUdQ8xF7iPUifcXptdUDm
-DsO6C8+6fHQzgaieZmZ+iiZ1BTvE5JjyezDWSnQ9QtxSUMpwPKbU95fADsRJcXwG
-TQmYirYEvqdatzo1cEA0ArTctvT2yrzHGDWu2JfFB5QuREmdWCNQ4+URJ5rfrSnn
-j4VVCLFfTEgltvX46hlD/jkWSim22cDI+0RWBOBpN9Td++OJXsZ2rt89Y1W+Fkx8
-uCweYVUSALduOTpRULMSR2IK6ju40v6IWXAqKAUDIl0OuQAlCOtDMi1uVLD+uv7r
-qHlTrrvMj2HGSCJl+3vwKPHZmNZYH52dfXuhzTi13dKYk1mf1rZr4cxZwEh/UOGx
-P5iYHsquv84nYtI0GSxCE3QkGIcIkLnbYODJM9JKvAuPPSTDP3+PK8Upqz/xpVzH
-cl2MyLNr8T8Vr7rjF4MiSp7i9q3Oj24DU2JlPyxJRmRC/Z5H76+e9+P7ij+oXnqj
-4EsKNy2fU9yLQd0vFj0BAIxN0P9BHyGn9V6zvYeX4WLH6zteLTn+/Kw08Jd6gDUd
-JxGrGcRejjnBrV8tUWRlRiZP/JfaXXokRmCYoECIGDCqXfqsCb3fI8sQLHIGqdAa
-D6Juxtz2TFZOS3XG0kzAilaUVaTT2zPrEnwNDYx4LFkPBOktEsRUP+LRzHobZM5v
-zdaXzSF1yRBSQcpikypw
-=Xfei
+iQIcBAEBAgAGBQJVUlNdAAoJEBQN5MwUoCm2RBAP/3YILVpXkyvZZVX0QJlKN1DI
+Vvfli1Bm956MZwfV7ORSoWzthYmRSgsCZ/Q0i+97Y8M2sIpNWWQI00fFm6viiaf0
+zlDq8JZFeAyDQG6BIfsOeWqnIY0RSVoZ5a11PFGnge+knkn1Zj/HADMYZKwWfPgx
+qH/HXrPeZ79ewHzXmGPEmkGUBbtJYZi2VVprlYy85HY6yYPZ36/fS9tPNpCMz1vH
+9uXzpyY1DqGjqoi0pTR7+PhlRpBWsXB75B35A8hvfujPDAMFaCkVkFzD/OzW25ac
+Cu/NCRum6bCkVb6l5oz13sClc/5+OWUePH887TKgrZO4CFNH9jschbgqTb3utDLG
+CnvXRzXBI+XCH35szRZpgWm2DZvbUZXCEvEyVHU39eiCpKL6qh9VKsqwMtHldirf
+tDKKYW5Yo4io2QNedMbsBRFl60bajLBYxtmZhiTZKj8BBmaFa+Hi8rb+hdL5j0yV
+Kl8VrW6zlJhAbYzNahRdQJ786JkJX6acr8J2Itx8vlMx7PDIdyhRFqJQa1Z636Hl
+93sXW55dZtkOcrj+iHiT6047Az4AhzLr+WP8B8fxC4v0rC/1FXVdqjADduhu5LKU
+i/TwixNqO32RV0pPjx1bQbZS1pmgk6nuIIsj9jue07wD64+F1xJcKfMZtrTZd3zL
+4jm4gFJaJQ2D9kc0D7gd
+=PJWG
 -----END PGP SIGNATURE-----
 
---HWvPVVuAAfuRc6SZ--
+--WBsA/oQW3eTA3LlM--
