@@ -1,66 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH RESEND V4 1/4] i2c: busses: add SLIMpro I2C device driver
- on APM X-Gene platform
-Date: Tue, 12 May 2015 22:11:31 +0200
-Message-ID: <20150512201131.GH4449@schokonusskuchen.bad>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH RESEND V4 2/4] i2c: busses: xgene: add acpi support for
+ i2c xgene SLIMpro driver
+Date: Tue, 12 May 2015 22:11:55 +0200
+Message-ID: <20150512201155.GI4449@schokonusskuchen.bad>
 References: <1429913873-13627-1-git-send-email-fkan@apm.com>
- <1429913873-13627-2-git-send-email-fkan@apm.com>
+ <1429913873-13627-3-git-send-email-fkan@apm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8/pVXlBMPtxfSuJG"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="G3juXO9GfR42w+sw"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1429913873-13627-2-git-send-email-fkan-qTEPVZfXA3Y@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-Cc: patches-qTEPVZfXA3Y@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+In-Reply-To: <1429913873-13627-3-git-send-email-fkan@apm.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Feng Kan <fkan@apm.com>
+Cc: patches@apm.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---8/pVXlBMPtxfSuJG
+--G3juXO9GfR42w+sw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 24, 2015 at 03:17:50PM -0700, Feng Kan wrote:
-> Add SLIMpro I2C device driver on APM X-Gene platform. This I2C
-> device driver use the SLIMpro Mailbox driver to tunnel message to
-> the SLIMpro coprocessor to do the work of accessing I2C components.
+On Fri, Apr 24, 2015 at 03:17:51PM -0700, Feng Kan wrote:
+> This adds support for ACPI for the APM X-Gene I2C SLIMpro proxy
+> driver.
 >=20
-> Signed-off-by: Feng Kan <fkan-qTEPVZfXA3Y@public.gmane.org>
-> Signed-off-by: Hieu Le <hnle-qTEPVZfXA3Y@public.gmane.org>
+> Signed-off-by: Feng Kan <fkan@apm.com>
 
-Applied to for-next, thanks!
-
-One comment though:
-
-> +	adapter->class =3D I2C_CLASS_HWMON;
-
-Since you have DT and ACPI, you most likely won't need that, or?
-It speeds up boot time if you don't use classes. Send me an incremental
-patch if you want to change this.
+I squashed this into the previous patch, thanks.
 
 
---8/pVXlBMPtxfSuJG
+--G3juXO9GfR42w+sw
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJVUl5zAAoJEBQN5MwUoCm2rxAQALRJ13LIgj+Vutdxq/tSL9qT
-+NfmJgcrErvO9u9q5b7CnpA+uaJdWhWbVIkeocoZX10UjqZqa+Y+hCiFHgAom1nQ
-+ek5bU+F3kfQLrxnlxuG9vikNgPnwEOGDj98dzeHhO9QpgcnwKPqLwiJcWPm26Fo
-P/jm2Wm4sjZ6WryblbADDinDpSEIkQP3NCvO0hki9zN4+d+CyyVkEzxhtFFs3ZQW
-lKFPnOqC5PaXt72fQ9bMljloW8OfaJfbUefanMeplFAnb4t6WF2GvTIvVzrvA1ls
-LKiByg+eCr4zOBUAKWD5N8iqVGRbRevtjvAE/9znwgYNmgOW9bz2c8o3+XB2UR0y
-AZw5ZzYMiR6pDhYE1Gthj6qXQA4a8YibR7DLceXjIxNkMRsIA7wlx1JbOTvimx9b
-Y/M0ani6IpjIssmvObvhTZeL7KxNfbwm88L/iFW3tTWKpJQPLo/Dx1QZafVQC5Xx
-E6tl+hxEd4aHb8rRkEBgWz9SFH7ya+AttvlqphxIUDW+dLotrPntStgjPRNh+oyl
-W9f2G1a4l/Ue79JVhWD1+6HuVBZyMgBGwqLZsBfgIrEGPxUTRVeDvM8IIFC+r/ZQ
-sN7byU5Jx5VSkEvgaQhz1s+ejBGxBbJ56fdIwf56Tz/jFXKr7io64KhWtPM3nD6N
-/0hKhuyPcti0XnLLDvXL
-=CE6d
+iQIcBAEBAgAGBQJVUl6LAAoJEBQN5MwUoCm2Rg8QAKhTD8VagcmjaVa+Udbv8ut3
+6GYQUopiQ8qD3fvCo0LMrw8RKA/OJO+QWzAsLDGiAMrXpSyTeHSxJLUpkEXQGxON
+7tLnJ203s2mMlnb2HlEOkrCR6obyuz4pTt4ENHiMK47jdY2Fkdz8BB8WNRTn8uo3
+Qy3lqhu4dPUNv5eOWzWS4kvmILpUdvs7f6gv6rZJi4bJE/6Z8Cd0Crl5/zVOnK/O
+KTxzP6enSEJjL/EsW/leZOpfyRaIBsRh6+zVhf6SRGwMHHdScbqZo8r42iajT0Nj
+2mbFBIcQiMHV2SlY8XixxkLFW2NnPmpB523raXZYRtg2RchScqUAHDbKvjdrMxH2
+WY0KOPTqzjijH0a9tNBMlkSPlyRD3kWxjtQFpvCy8nGwvWlsc9u/Dy6mdpfJ8L/p
+HK7j1haD/RDM7xwttqCg1/z35pfeUsziE53t0+/WRHk+3uLyJH8rtLfJztwH2Q62
+FsBpF2BSdQHGxVambLNA7yyHyS1DNqpslfceGLNXeOhQTITbl6T/Dog8zh3leXco
+qLYrix7a7ev13oB6OM2x2lLywTuDvaD+thKoYotWx+SvQFKX3q8S9MF40jotRSae
+JubPIQitink2XTj4uZpi63P60WUXgABynOZM1VnEAgzCCINRYiPLLVnP40M7VSct
+2iPzhNAbjAOwT9efqXY3
+=JNs8
 -----END PGP SIGNATURE-----
 
---8/pVXlBMPtxfSuJG--
+--G3juXO9GfR42w+sw--
