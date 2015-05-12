@@ -1,66 +1,55 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: axxia: Add bus recovery functionality
-Date: Tue, 12 May 2015 21:12:11 +0200
-Message-ID: <20150512191211.GC4449@schokonusskuchen.bad>
-References: <553F7B11.5000204@nokia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: omap: implement bus recovery
+Date: Tue, 12 May 2015 21:19:34 +0200
+Message-ID: <20150512191934.GD4449@schokonusskuchen.bad>
+References: <1430931027-19955-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Izn7cH1Com+I3R9J"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="HWvPVVuAAfuRc6SZ"
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <553F7B11.5000204-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wilshire Jay <jay.wilshire.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Lawnick Michael <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1430931027-19955-1-git-send-email-balbi@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, grygorii.strashko@ti.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---Izn7cH1Com+I3R9J
+--HWvPVVuAAfuRc6SZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 28, 2015 at 02:20:33PM +0200, Alexander Sverdlin wrote:
-> Use recovery framework and implement bus recovery using "Bus Monitor"
-> register. Tests show that shortening SCL to GND results in "completion"
-> timeout with "BUSY" bit still set. So initiate recovery in case of generic
-> timeout and "Arbitration Lost" condition.
+On Wed, May 06, 2015 at 11:50:27AM -0500, Felipe Balbi wrote:
+> implement bus recovery methods for i2c-omap
+> so we can recover from situations where SCL/SDA
+> are stuck low.
+>=20
+> Signed-off-by: Felipe Balbi <balbi@ti.com>
 
-So, how could you verify in this setup if the recovery actually worked?
-
-> +	switch (idev->msg_err) {
-> +	case -ETIMEDOUT:
-> +	case -EAGAIN:
-> +		i2c_recover_bus(&idev->adapter);
-> +	}
-> +
-
-Doesn't look right. -EAGAIN means arbitration lost which is not a
-condition to reset the bus in a multi-master setup.
-
-Other than that, it looks like a nice example of using this framework.
-Just a few little helper functions and the core will do the rest.
+Applied to for-next, thanks!
 
 
---Izn7cH1Com+I3R9J
+--HWvPVVuAAfuRc6SZ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJVUlCLAAoJEBQN5MwUoCm2f0IP/337AOt5zT3q+/3wVcqta9Ga
-qghw/eDYn0+ys3bcm5YHGR/7bXGS/59YjiXKIN/2zcv6ofasNgVec0RtKx6E1xsU
-T8tBscvfh37m+B+qCx62KjawH+o8JTwcmjie/HnwtEkyc1IxLnWpiJGfhzIyaaaX
-UyecE1L1iLu53iVs75P3BlgXAIsxIMkyX3QEeu6Cj0K0sbeHPSjARCTlrFwwBb27
-9/5G4V5TIzT64DPZOFKmzCUWTCLA1YdHdW1+HDFHN/+GGuFoUSCeRaw6ugkZ9oz/
-vsYs3Xwp2Ylmpl9qDhJoUM9u8wUdSibMIcJaty/LBB8V9R2it3id9cIcN/wAehsh
-XDcJNYJWIKYXQFBS3r4/9RNWURc7h2Xc8+wlqiAxUejrrqYvRzO+mJqNhduy5mkM
-NeRpjJh6fS1lNTnIAgf+VNZZYQgvZb9tNrgAEL+5TVNCgYcUpNODYDraU3cDjfMJ
-n6FurnNQMDXpzM3JkiEORax+vPC4UJH+ZUcxR4MXp0bKUyrYHgXkkdsSnpWUBPu2
-Q1i3kavK/++7RFYooNulVMjffEE80UjF62T7FTr+SUcXjcA8IaaQbxeKdBYDwqjQ
-OGnWueacRuguoRGJgN4MgdFwgHAyENPbaMPHaxOjRgGwhoSGst1icjQ9ow9w9epF
-OIIOqnpcJG+QBoO3kTvJ
-=Zqnb
+iQIcBAEBAgAGBQJVUlJFAAoJEBQN5MwUoCm2go4P/iHlUdQ8xF7iPUifcXptdUDm
+DsO6C8+6fHQzgaieZmZ+iiZ1BTvE5JjyezDWSnQ9QtxSUMpwPKbU95fADsRJcXwG
+TQmYirYEvqdatzo1cEA0ArTctvT2yrzHGDWu2JfFB5QuREmdWCNQ4+URJ5rfrSnn
+j4VVCLFfTEgltvX46hlD/jkWSim22cDI+0RWBOBpN9Td++OJXsZ2rt89Y1W+Fkx8
+uCweYVUSALduOTpRULMSR2IK6ju40v6IWXAqKAUDIl0OuQAlCOtDMi1uVLD+uv7r
+qHlTrrvMj2HGSCJl+3vwKPHZmNZYH52dfXuhzTi13dKYk1mf1rZr4cxZwEh/UOGx
+P5iYHsquv84nYtI0GSxCE3QkGIcIkLnbYODJM9JKvAuPPSTDP3+PK8Upqz/xpVzH
+cl2MyLNr8T8Vr7rjF4MiSp7i9q3Oj24DU2JlPyxJRmRC/Z5H76+e9+P7ij+oXnqj
+4EsKNy2fU9yLQd0vFj0BAIxN0P9BHyGn9V6zvYeX4WLH6zteLTn+/Kw08Jd6gDUd
+JxGrGcRejjnBrV8tUWRlRiZP/JfaXXokRmCYoECIGDCqXfqsCb3fI8sQLHIGqdAa
+D6Juxtz2TFZOS3XG0kzAilaUVaTT2zPrEnwNDYx4LFkPBOktEsRUP+LRzHobZM5v
+zdaXzSF1yRBSQcpikypw
+=Xfei
 -----END PGP SIGNATURE-----
 
---Izn7cH1Com+I3R9J--
+--HWvPVVuAAfuRc6SZ--
