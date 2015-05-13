@@ -1,7 +1,7 @@
 From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] i2c: davinci: Avoid sending to own address
-Date: Wed, 13 May 2015 15:02:50 +0200
-Message-ID: <55534B7A.8070105@nokia.com>
+Subject: [PATCH v2] i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()
+Date: Wed, 13 May 2015 15:03:28 +0200
+Message-ID: <55534BA0.3000506@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
@@ -11,52 +11,80 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4
 Cc: Lawnick Michael 61283229 <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Sending a message to own address locks the controller up in very bizarre state,
-it behaves as slave even if MDR register clearly states master. The controller
-remains in this state until reset. To avoid unnecessary timeouts simply avoid
-sending to own address. The controller cannot do this any way. Also, do not
-enable AAS IRQ, as the slave mode is not supported by the driver and the only
-possibility to trigger this IRQ is to send to own address.
+There are several problems in the function:
+- "to_cnt" variable does nothing
+- schedule_timeout() call without setting current state does nothing
+- "allow_sleep" parameter is not really used
+
+Refactor the function so that it really tries to wait. In case of timeout try
+to recover the bus.
 
 Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 ---
 Changes in v2:
 - rebased on 110bc76729d4 of Linus's tree;
 
- drivers/i2c/busses/i2c-davinci.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-davinci.c |   42 +++++++++++++++++--------------------
+ 1 files changed, 19 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 4788a32..df96ab6 100644
+index df96ab6..03afdee 100644
 --- a/drivers/i2c/busses/i2c-davinci.c
 +++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -41,8 +41,8 @@
- 
- #define DAVINCI_I2C_TIMEOUT	(1*HZ)
- #define DAVINCI_I2C_MAX_TRIES	2
--#define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
--				 DAVINCI_I2C_IMR_SCD | \
-+#define DAVINCI_I2C_OWN_ADDRESS	0x08
-+#define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_SCD | \
- 				 DAVINCI_I2C_IMR_ARDY | \
- 				 DAVINCI_I2C_IMR_NACK | \
- 				 DAVINCI_I2C_IMR_AL)
-@@ -233,7 +233,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
- 	/* Respond at reserved "SMBus Host" slave address" (and zero);
- 	 * we seem to have no option to not respond...
- 	 */
--	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, 0x08);
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, DAVINCI_I2C_OWN_ADDRESS);
- 
- 	dev_dbg(dev->dev, "PSC  = %d\n",
- 		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
-@@ -390,6 +390,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	u16 w;
- 	unsigned long time_left;
- 
-+	if (msg->addr == DAVINCI_I2C_OWN_ADDRESS)
-+		return -EIO;
+@@ -350,29 +350,25 @@ static struct i2c_bus_recovery_info davinci_i2c_scl_recovery_info = {
+ /*
+  * Waiting for bus not busy
+  */
+-static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
+-					 char allow_sleep)
++static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev)
+ {
+-	unsigned long timeout;
+-	static u16 to_cnt;
+-
+-	timeout = jiffies + dev->adapter.timeout;
+-	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
+-	       & DAVINCI_I2C_STR_BB) {
+-		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
+-			if (time_after(jiffies, timeout)) {
+-				dev_warn(dev->dev,
+-				"timeout waiting for bus ready\n");
+-				to_cnt++;
+-				return -ETIMEDOUT;
+-			} else {
+-				to_cnt = 0;
+-				i2c_recover_bus(&dev->adapter);
+-			}
+-		}
+-		if (allow_sleep)
+-			schedule_timeout(1);
+-	}
++	unsigned long timeout = jiffies + dev->adapter.timeout;
 +
- 	/* Introduce a delay, required for some boards (e.g Davinci EVM) */
- 	if (pdata->bus_delay)
- 		udelay(pdata->bus_delay);
++	do {
++		if (!(davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG) & DAVINCI_I2C_STR_BB))
++			return 0;
++		schedule_timeout_uninterruptible(1);
++	} while (time_before_eq(jiffies, timeout));
++
++	dev_warn(dev->dev, "timeout waiting for bus ready\n");
++	i2c_recover_bus(dev);
++
++	/*
++	 * if bus is still "busy" here, it's most probably a HW problem like
++	 * short-circuit
++	 */
++	if (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG) & DAVINCI_I2C_STR_BB)
++		return -EIO;
+ 
+ 	return 0;
+ }
+@@ -508,7 +504,7 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
+ 
+-	ret = i2c_davinci_wait_bus_not_busy(dev, 1);
++	ret = i2c_davinci_wait_bus_not_busy(dev);
+ 	if (ret < 0) {
+ 		dev_warn(dev->dev, "timeout waiting for bus ready\n");
+ 		return ret;
