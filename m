@@ -1,380 +1,74 @@
-From: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH] i2c: eeprom: at24: Provide an EEPROM framework interface
-Date: Wed, 13 May 2015 10:38:17 +0300
-Message-ID: <1431502697-31333-1-git-send-email-pantelis.antoniou@konsulko.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: axxia: Add bus recovery functionality
+Date: Wed, 13 May 2015 09:54:52 +0200
+Message-ID: <20150513075452.GJ28888@pengutronix.de>
+References: <553F7B11.5000204@nokia.com>
+ <20150512191211.GC4449@schokonusskuchen.bad>
+ <5552ED0F.7000200@gmx.de>
+ <20150513065549.GG28888@pengutronix.de>
+ <5552FB50.4000409@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5552FB50.4000409-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Matt Porter <mporter-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+To: Michael Lawnick <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wilshire Jay <jay.wilshire.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-For DT and in-kernel users there is no interface to the
-at24 EEPROMs so provide an EEPROM framework interface.
+Hello,
 
-This allows us to use AT24 based EEPROMs and reference them
-from within the DT tree.
+On Wed, May 13, 2015 at 09:20:48AM +0200, Michael Lawnick wrote:
+> Am 13.05.2015 um 08:55 schrieb ext Uwe Kleine-K=F6nig:
+> >On Wed, May 13, 2015 at 08:19:59AM +0200, Michael Lawnick wrote:
+> >>Am 12.05.2015 um 21:12 schrieb Wolfram Sang:
+> >>>Doesn't look right. -EAGAIN means arbitration lost which is not a
+> >>>condition to reset the bus in a multi-master setup.
+> >>
+> >>IMHO in multi-master scenario bus recovery is never save. There is
+> >>need of higher level synchronization to find out whether any master
+> >>is active.
+> >Right. But you might be lucky and it's ok when done on error conditi=
+ons
+> >like "sda is low since 300 ms". But on arbitration loss it's definit=
+ely
+> >wrong. Consider two masters where one resets the bus while the other
+> >does a transfer. That results in a arbitration loss for the latter. =
+So
+> >the latter resets the bus and in the meantime the first one does a t=
+ransfer
+> >now that the bus should be free. You see the loop?
+>=20
+> Of course.
+> The question is: do/can controllers properly distinguish between
+> arbitration loss and permanent SDL low? I always worked with single
+> master assumption in last 10 years and /feel/ /to/ /remember/ to
+> have observed situations were bus lock was signaled as arbitration
+> loss.
+yeah, that might be true for some (or even most) controllers. Still fro=
+m
+a high-level view "arbitration lost" means the controller started the
+transfer and in the middle observed a low SDA while it doesn't pull it
+low. If SDA is stuck low instead the controller cannot even put a start
+condition on the bus.
 
-Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
----
- drivers/misc/eeprom/at24.c | 222 +++++++++++++++++++++++++++++++++++----------
- 1 file changed, 174 insertions(+), 48 deletions(-)
+> I'm simply in doubt that multi master can be handled at driver level
+> at all. This might mean in consequence that unlocking the bus should
+> not be done automatically, but by an extra I2C method triggered by
+> application level.
+At least it should not automatically triggered on error conditions that
+might result from another master on the bus. IMHO doing it once at prob=
+e
+time and then only when SDA is stuck low for say 1s should be fine.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2d3db81..afa719a 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -3,6 +3,7 @@
-  *
-  * Copyright (C) 2005-2007 David Brownell
-  * Copyright (C) 2008 Wolfram Sang, Pengutronix
-+ * Copyright (C) 2015 Pantelis Antoniou, Konsulko Group
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -23,6 +24,9 @@
- #include <linux/of.h>
- #include <linux/i2c.h>
- #include <linux/platform_data/at24.h>
-+#include <linux/regmap.h>
-+#include <linux/eeprom-provider.h>
-+#include <linux/io.h>
- 
- /*
-  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
-@@ -63,12 +67,16 @@ struct at24_data {
- 	 * but not from changes by other I2C masters.
- 	 */
- 	struct mutex lock;
--	struct bin_attribute bin;
- 
- 	u8 *writebuf;
- 	unsigned write_max;
- 	unsigned num_addresses;
- 
-+	struct regmap_config *regmap_config;
-+	struct regmap *regmap;
-+	struct eeprom_config *eeprom_config;
-+	struct eeprom_device *eeprom_dev;
-+
- 	/*
- 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
- 	 * them for us, and we'll use them with SMBus calls.
-@@ -131,6 +139,8 @@ static const struct i2c_device_id at24_ids[] = {
- };
- MODULE_DEVICE_TABLE(i2c, at24_ids);
- 
-+static DEFINE_IDA(at24_ida);
-+
- /*-------------------------------------------------------------------------*/
- 
- /*
-@@ -301,17 +311,6 @@ static ssize_t at24_read(struct at24_data *at24,
- 	return retval;
- }
- 
--static ssize_t at24_bin_read(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
--{
--	struct at24_data *at24;
--
--	at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
--	return at24_read(at24, buf, off, count);
--}
--
--
- /*
-  * Note that if the hardware write-protect pin is pulled high, the whole
-  * chip is normally write protected. But there are plenty of product
-@@ -432,21 +431,10 @@ static ssize_t at24_write(struct at24_data *at24, const char *buf, loff_t off,
- 	return retval;
- }
- 
--static ssize_t at24_bin_write(struct file *filp, struct kobject *kobj,
--		struct bin_attribute *attr,
--		char *buf, loff_t off, size_t count)
--{
--	struct at24_data *at24;
--
--	if (unlikely(off >= attr->size))
--		return -EFBIG;
--
--	at24 = dev_get_drvdata(container_of(kobj, struct device, kobj));
--	return at24_write(at24, buf, off, count);
--}
--
- /*-------------------------------------------------------------------------*/
- 
-+/* panto: using the EEPROM framework macc is superfluous */
-+
- /*
-  * This lets other kernel code access the eeprom data. For example, it
-  * might hold a board's Ethernet address, or board-specific calibration
-@@ -492,6 +480,91 @@ static void at24_get_ofdata(struct i2c_client *client,
- { }
- #endif /* CONFIG_OF */
- 
-+static int regmap_at24_read(void *context,
-+			    const void *reg, size_t reg_size,
-+			    void *val, size_t val_size)
-+{
-+	struct i2c_client *client = context;
-+	struct at24_data *at24;
-+	unsigned int offset;
-+	int ret;
-+
-+	/* reg bits is hardcoded to 32 bits */
-+	BUG_ON(reg_size != 4);
-+	offset = __raw_readl(reg);
-+
-+	at24 = i2c_get_clientdata(client);
-+	if (at24 == NULL)
-+		return -ENODEV;
-+
-+	/* val bytes is always 1 */
-+	BUG_ON(at24->regmap_config->val_bits != 8);
-+
-+	ret = at24_read(at24, val, offset, val_size);
-+	if (ret < 0)
-+		return ret;
-+	if (ret != val_size)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int regmap_at24_gather_write(void *context,
-+				    const void *reg, size_t reg_size,
-+				    const void *val, size_t val_size)
-+{
-+	struct i2c_client *client = context;
-+	struct at24_data *at24;
-+	unsigned int offset;
-+	int ret;
-+
-+	at24 = i2c_get_clientdata(client);
-+	if (at24 == NULL)
-+		return -ENODEV;
-+
-+	BUG_ON(reg_size != 4);
-+	offset = __raw_readl(reg);
-+
-+	/* val bytes is always 1 */
-+	BUG_ON(at24->regmap_config->val_bits != 8);
-+
-+	ret = at24_write(at24, val, offset, val_size);
-+	if (ret < 0)
-+		return ret;
-+	if (ret != val_size)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int regmap_at24_write(void *context, const void *data, size_t count)
-+{
-+	struct i2c_client *client = context;
-+	struct at24_data *at24;
-+	unsigned int reg_bytes, offset;
-+
-+	at24 = i2c_get_clientdata(client);
-+	if (at24 == NULL)
-+		return -ENODEV;
-+
-+	reg_bytes = at24->regmap_config->reg_bits / 8;
-+	offset = reg_bytes;
-+
-+	BUG_ON(reg_bytes != 4);
-+	BUG_ON(count <= offset);
-+
-+	return regmap_at24_gather_write(context, data, reg_bytes,
-+			data + offset, count - offset);
-+}
-+
-+static struct regmap_bus regmap_at24_bus = {
-+	.read = regmap_at24_read,
-+	.write = regmap_at24_write,
-+	.gather_write = regmap_at24_gather_write,
-+	.reg_format_endian_default = REGMAP_ENDIAN_NATIVE,
-+	.val_format_endian_default = REGMAP_ENDIAN_NATIVE,
-+};
-+
- static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- {
- 	struct at24_platform_data chip;
-@@ -502,6 +575,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	int err;
- 	unsigned i, num_addresses;
- 	kernel_ulong_t magic;
-+	struct regmap_config *regmap_config;
-+	struct regmap *regmap;
-+	struct eeprom_config *eeprom_config;
-+	struct eeprom_device *eeprom_dev;
- 
- 	if (client->dev.platform_data) {
- 		chip = *(struct at24_platform_data *)client->dev.platform_data;
-@@ -569,16 +646,75 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		}
- 	}
- 
-+	regmap_config = devm_kzalloc(&client->dev, sizeof(*regmap_config),
-+			GFP_KERNEL);
-+	if (IS_ERR(regmap_config)) {
-+		err = PTR_ERR(regmap_config);
-+		dev_err(&client->dev, "%s: regmap_config allocation failed (%d)\n",
-+			__func__, err);
-+		return err;
-+	}
-+
-+	/* use 32 bits as registers, they don't appear on the wire anyway */
-+	regmap_config->reg_bits = 32;
-+	regmap_config->val_bits = 8;
-+	regmap_config->cache_type = REGCACHE_NONE;
-+	regmap_config->max_register = chip.byte_len;
-+
- 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
- 		num_addresses = 8;
- 	else
- 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
- 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
- 
-+	/* we can't use devm_regmap_init_i2c due to the many i2c clients */
-+	regmap = devm_regmap_init(&client->dev, &regmap_at24_bus,
-+			client, regmap_config);
-+	if (IS_ERR(regmap)) {
-+		err = PTR_ERR(regmap);
-+		dev_err(&client->dev, "%s: regmap allocation failed (%d)\n",
-+			__func__, err);
-+		return err;
-+	}
-+
-+	eeprom_config = devm_kzalloc(&client->dev, sizeof(*eeprom_config),
-+			GFP_KERNEL);
-+	if (IS_ERR(eeprom_config)) {
-+		err = PTR_ERR(eeprom_config);
-+		dev_err(&client->dev, "%s: eeprom_config allocation failed (%d)\n",
-+			__func__, err);
-+		return err;
-+	}
-+	eeprom_config->dev = &client->dev;
-+	eeprom_config->name = "at24-";
-+	eeprom_config->id = ida_simple_get(&at24_ida, 0, 0, GFP_KERNEL);
-+	eeprom_config->owner = THIS_MODULE;
-+	if (eeprom_config->id < 0) {
-+		err = eeprom_config->id;
-+		dev_err(&client->dev, "%s: eeprom id allocation failed (%d)\n",
-+			__func__, err);
-+		return err;
-+	}
-+
-+	eeprom_dev = eeprom_register(eeprom_config);
-+	if (IS_ERR(eeprom_dev)) {
-+		err = PTR_ERR(eeprom_dev);
-+		dev_err(&client->dev, "%s: eeprom_register failed (%d)\n",
-+			__func__, err);
-+		goto err_out;
-+	}
-+
- 	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
- 		num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);
--	if (!at24)
--		return -ENOMEM;
-+	if (!at24) {
-+		err = -ENOMEM;
-+		goto err_out;
-+	}
-+
-+	at24->regmap = regmap;
-+	at24->regmap_config = regmap_config;
-+	at24->eeprom_config = eeprom_config;
-+	at24->eeprom_dev = eeprom_dev;
- 
- 	mutex_init(&at24->lock);
- 	at24->use_smbus = use_smbus;
-@@ -586,16 +722,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
- 
--	/*
--	 * Export the EEPROM bytes through sysfs, since that's convenient.
--	 * By default, only root should see the data (maybe passwords etc)
--	 */
--	sysfs_bin_attr_init(&at24->bin);
--	at24->bin.attr.name = "eeprom";
--	at24->bin.attr.mode = chip.flags & AT24_FLAG_IRUGO ? S_IRUGO : S_IRUSR;
--	at24->bin.read = at24_bin_read;
--	at24->bin.size = chip.byte_len;
--
- 	at24->macc.read = at24_macc_read;
- 
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
-@@ -606,9 +732,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 			at24->macc.write = at24_macc_write;
- 
--			at24->bin.write = at24_bin_write;
--			at24->bin.attr.mode |= S_IWUSR;
--
- 			if (write_max > io_limit)
- 				write_max = io_limit;
- 			if (use_smbus && write_max > I2C_SMBUS_BLOCK_MAX)
-@@ -618,8 +741,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 			/* buffer (data + address at the beginning) */
- 			at24->writebuf = devm_kzalloc(&client->dev,
- 				write_max + 2, GFP_KERNEL);
--			if (!at24->writebuf)
--				return -ENOMEM;
-+			if (!at24->writebuf) {
-+				err = -ENOMEM;
-+				goto err_out;
-+			}
- 		} else {
- 			dev_warn(&client->dev,
- 				"cannot write due to controller restrictions.");
-@@ -640,14 +765,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		}
- 	}
- 
--	err = sysfs_create_bin_file(&client->dev.kobj, &at24->bin);
--	if (err)
--		goto err_clients;
--
- 	i2c_set_clientdata(client, at24);
- 
- 	dev_info(&client->dev, "%zu byte %s EEPROM, %s, %u bytes/write\n",
--		at24->bin.size, client->name,
-+		at24->chip.byte_len, client->name,
- 		writable ? "writable" : "read-only", at24->write_max);
- 	if (use_smbus == I2C_SMBUS_WORD_DATA ||
- 	    use_smbus == I2C_SMBUS_BYTE_DATA) {
-@@ -663,10 +784,14 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	return 0;
- 
- err_clients:
-+
- 	for (i = 1; i < num_addresses; i++)
- 		if (at24->client[i])
- 			i2c_unregister_device(at24->client[i]);
- 
-+err_out:
-+	ida_simple_remove(&at24_ida, eeprom_config->id);
-+
- 	return err;
- }
- 
-@@ -676,11 +801,12 @@ static int at24_remove(struct i2c_client *client)
- 	int i;
- 
- 	at24 = i2c_get_clientdata(client);
--	sysfs_remove_bin_file(&client->dev.kobj, &at24->bin);
- 
- 	for (i = 1; i < at24->num_addresses; i++)
- 		i2c_unregister_device(at24->client[i]);
- 
-+	eeprom_unregister(at24->eeprom_dev);
-+
- 	return 0;
- }
- 
--- 
-1.7.12
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
