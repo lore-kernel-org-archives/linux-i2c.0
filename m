@@ -1,33 +1,41 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] i2c / ACPI: Assign IRQ for devices that have
- GpioInt automatically
-Date: Wed, 13 May 2015 10:25:21 +0200
-Message-ID: <CACRpkdZLCFsRJeGUYJLMDQpuRYJCuUaiz=h0XZJYefJd+12wWA@mail.gmail.com>
-References: <1430908148-201129-1-git-send-email-mika.westerberg@linux.intel.com>
-	<1430908148-201129-4-git-send-email-mika.westerberg@linux.intel.com>
+From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: axxia: Add bus recovery functionality
+Date: Wed, 13 May 2015 10:26:45 +0200
+Message-ID: <55530AC5.1060806@nokia.com>
+References: <553F7B11.5000204@nokia.com> <20150512191211.GC4449@schokonusskuchen.bad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1430908148-201129-4-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <20150512191211.GC4449-oo5tB6JMkjKRinMKxDlMNPwbnWRJjS81@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Octavian Purdila <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Robert Dolca <robert.dolca-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, ACPI Devel Maling List <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, Anders Berg <anders.berg-1wcpHE2jlwO1Z/+hSey0Gg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wilshire Jay <jay.wilshire.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Lawnick Michael <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 6, 2015 at 12:29 PM, Mika Westerberg
-<mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+Hi!
 
-> Following what DT already does. If the device does not have ACPI Interrupt
-> resource but instead it has one or more GpioInt resources listed below it,
-> we take the first GpioInt resource, convert it to suitable Linux IRQ number
-> and pass it to the driver instead.
->
-> This makes drivers simpler because the don't need to care about GPIOs at
-> all if only thing they need is interrupt.
->
-> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+On 12/05/15 21:12, ext Wolfram Sang wrote:
+>> Use recovery framework and implement bus recovery using "Bus Monitor"
+>> > register. Tests show that shortening SCL to GND results in "completion"
+>> > timeout with "BUSY" bit still set. So initiate recovery in case of generic
+>> > timeout and "Arbitration Lost" condition.
+> So, how could you verify in this setup if the recovery actually worked?
 
-Patch applied to the GPIO tree with Wolfram's ACK.
+Yes, it's tested with jumpers and oscilloscope on a custom Axxia AXM5508-based board.
+9 CLK pulses are there and it's also jumping out of recovery if SDA is not low any more.
 
-Yours,
-Linus Walleij
+>> > +	switch (idev->msg_err) {
+>> > +	case -ETIMEDOUT:
+>> > +	case -EAGAIN:
+>> > +		i2c_recover_bus(&idev->adapter);
+>> > +	}
+>> > +
+> Doesn't look right. -EAGAIN means arbitration lost which is not a
+> condition to reset the bus in a multi-master setup.
+
+I'll resend with only -ETIMEDOUT triggering the recovery.
+
+-- 
+Best regards,
+Alexander Sverdlin.
