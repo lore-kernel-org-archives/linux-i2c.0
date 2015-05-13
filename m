@@ -1,775 +1,263 @@
-From: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [V3, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller driver
-Date: Wed, 13 May 2015 12:59:49 -0400
-Message-ID: <1431536390-9761-1-git-send-email-kdasu.kdev@gmail.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH] i2c: eeprom: at24: Provide an EEPROM framework interface
+Date: Wed, 13 May 2015 22:36:46 +0200
+Message-ID: <20150513203646.GI4004@lukather>
+References: <1431502697-31333-1-git-send-email-pantelis.antoniou@konsulko.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3U8TY7m7wOx7RL1F"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1431502697-31333-1-git-send-email-pantelis.antoniou@konsulko.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Matt Porter <mporter@konsulko.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, linux-kernel@vger.kernel.org, Pantelis Antoniou <panto@antoniou-consulting.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Adding support for i2c controller driver for Broadcom settop
-SoCs.
 
-Signed-off-by: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-V3 changes Implemented following review comments:
-- Arranged header files in alphabatical order
-- Added comments to the bsc_regs structure
-- Made changes to bsc reg accessor function to use ioread32/write32 
-  so that it clearly abstracts le and be cpu arch read and writes
-- Single irq enable disable function
-- removed udealys and used cpu_relax() in polling loop
-- moved the control low and hi register setting to i2c xfer function
-- passing the msg pointer to the xfer function now
-- renamed loop variables in xfer function to more meanigful names
-- using devm_kzalloc for the register map bsc_reg 
-- kfree the bsc_reg after deleting the adapter
-- other minor code cleanup as per review comments
----
- drivers/i2c/busses/Kconfig       |  10 +
- drivers/i2c/busses/Makefile      |   1 +
- drivers/i2c/busses/i2c-brcmstb.c | 697 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 708 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-brcmstb.c
+--3U8TY7m7wOx7RL1F
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 2255af2..9ec6584 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -392,6 +392,16 @@ config I2C_BCM_KONA
- 
- 	  If you do not need KONA I2C interface, say N.
- 
-+config I2C_BRCMSTB
-+	tristate "BRCM Settop I2C controller"
-+	depends on ARCH_BRCMSTB
-+	default y
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  I2C interface on the Broadcom Settop SoCs.
-+
-+	  If you do not need I2C interface, say N.
-+
- config I2C_BLACKFIN_TWI
- 	tristate "Blackfin TWI I2C support"
- 	depends on BLACKFIN
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index cdf941d..aedea68 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -105,6 +105,7 @@ obj-$(CONFIG_I2C_VIPERBOARD)	+= i2c-viperboard.o
- # Other I2C/SMBus bus drivers
- obj-$(CONFIG_I2C_ACORN)		+= i2c-acorn.o
- obj-$(CONFIG_I2C_BCM_KONA)	+= i2c-bcm-kona.o
-+obj-$(CONFIG_I2C_BRCMSTB)	+= i2c-brcmstb.o
- obj-$(CONFIG_I2C_CROS_EC_TUNNEL)	+= i2c-cros-ec-tunnel.o
- obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
- obj-$(CONFIG_I2C_OPAL)		+= i2c-opal.o
-diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-new file mode 100644
-index 0000000..0435178
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -0,0 +1,697 @@
-+/*
-+ * Copyright (C) 2014 Broadcom Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License as
-+ * published by the Free Software Foundation version 2.
-+ *
-+ * This program is distributed "as is" WITHOUT ANY WARRANTY of any
-+ * kind, whether express or implied; without even the implied warranty
-+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/device.h>
-+#include <linux/delay.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/version.h>
-+
-+#define N_DATA_REGS					8
-+#define N_DATA_BYTES					(N_DATA_REGS * 4)
-+
-+/* BSC count register field definitions */
-+#define BSC_CNT_REG1_MASK				0x0000003f
-+#define BSC_CNT_REG1_SHIFT				0
-+#define BSC_CNT_REG2_MASK				0x00000fc0
-+#define BSC_CNT_REG2_SHIFT				6
-+
-+/* BSC CTL register field definitions */
-+#define BSC_CTL_REG_DTF_MASK				0x00000003
-+#define BSC_CTL_REG_SCL_SEL_MASK			0x00000030
-+#define BSC_CTL_REG_SCL_SEL_SHIFT			4
-+#define BSC_CTL_REG_INT_EN_MASK				0x00000040
-+#define BSC_CTL_REG_INT_EN_SHIFT			6
-+#define BSC_CTL_REG_DIV_CLK_MASK			0x00000080
-+
-+/* BSC_IIC_ENABLE r/w enable and interrupt field defintions */
-+#define BSC_IIC_EN_RESTART_MASK				0x00000040
-+#define BSC_IIC_EN_NOSTART_MASK				0x00000020
-+#define BSC_IIC_EN_NOSTOP_MASK				0x00000010
-+#define BSC_IIC_EN_NOACK_MASK				0x00000004
-+#define BSC_IIC_EN_INTRP_MASK				0x00000002
-+#define BSC_IIC_EN_ENABLE_MASK				0x00000001
-+
-+/* BSC_CTLHI control register field definitions */
-+#define BSC_CTLHI_REG_INPUT_SWITCHING_LEVEL_MASK	0x00000080
-+#define BSC_CTLHI_REG_DATAREG_SIZE_MASK			0x00000040
-+#define BSC_CTLHI_REG_IGNORE_ACK_MASK			0x00000002
-+#define BSC_CTLHI_REG_WAIT_DIS_MASK			0x00000001
-+
-+#define I2C_TIMEOUT					100 /* msecs */
-+
-+/* Condition mask used for non combined transfer */
-+#define COND_RESTART		BSC_IIC_EN_RESTART_MASK
-+#define COND_NOSTART		BSC_IIC_EN_NOSTART_MASK
-+#define	COND_NOSTOP		BSC_IIC_EN_NOSTOP_MASK
-+#define COND_START_STOP		(COND_RESTART | COND_NOSTART | COND_NOSTOP)
-+
-+/* BSC data transfer direction */
-+#define DTF_WR_MASK		0x00000000
-+#define DTF_RD_MASK		0x00000001
-+/* BSC data transfer direction combined format */
-+#define DTF_RD_WR_MASK		0x00000002
-+#define DTF_WR_RD_MASK		0x00000003
-+
-+#define INT_ENABLE		true
-+#define INT_DISABLE		false
-+
-+/* BSC block register map structure to cache fields to be written */
-+struct bsc_regs {
-+	u32	chip_address;           /* slave address */
-+	u32	data_in[N_DATA_REGS];   /* tx data buffer*/
-+	u32	cnt_reg;		/* rx/tx data length */
-+	u32	ctl_reg;		/* control register */
-+	u32	iic_enable;		/* xfer enable and status */
-+	u32	data_out[N_DATA_REGS];  /* rx data buffer */
-+	u32	ctlhi_reg;		/* more control fields */
-+	u32	scl_param;		/* reserved */
-+};
-+
-+struct bsc_clk_param {
-+	u32 hz;
-+	u32 scl_mask;
-+	u32 div_mask;
-+};
-+
-+enum bsc_xfer_cmd {
-+	CMD_WR,
-+	CMD_RD,
-+	CMD_WR_NOACK,
-+	CMD_RD_NOACK,
-+};
-+
-+static char const *cmd_string[] = {
-+	[CMD_WR] = "WR",
-+	[CMD_RD] = "RD",
-+	[CMD_WR_NOACK] = "WR NOACK",
-+	[CMD_RD_NOACK] = "RD NOACK",
-+};
-+
-+enum bus_speeds {
-+	SPD_375K,
-+	SPD_390K,
-+	SPD_187K,
-+	SPD_200K,
-+	SPD_93K,
-+	SPD_97K,
-+	SPD_46K,
-+	SPD_50K
-+};
-+
-+static const struct bsc_clk_param bsc_clk[] = {
-+	[SPD_375K] = {
-+		.hz = 375000,
-+		.scl_mask = SPD_375K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = 0
-+	},
-+	[SPD_390K] = {
-+		.hz = 390000,
-+		.scl_mask = SPD_390K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = 0
-+	},
-+	[SPD_187K] = {
-+		.hz = 187500,
-+		.scl_mask = SPD_187K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = 0
-+	},
-+	[SPD_200K] = {
-+		.hz = 200000,
-+		.scl_mask = SPD_200K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = 0
-+	},
-+	[SPD_93K]  = {
-+		.hz = 93750,
-+		.scl_mask = SPD_375K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = BSC_CTL_REG_DIV_CLK_MASK
-+	},
-+	[SPD_97K]  = {
-+		.hz = 97500,
-+		.scl_mask = SPD_390K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = BSC_CTL_REG_DIV_CLK_MASK
-+	},
-+	[SPD_46K]  = {
-+		.hz = 46875,
-+		.scl_mask = SPD_187K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = BSC_CTL_REG_DIV_CLK_MASK
-+	},
-+	[SPD_50K]  = {
-+		.hz = 50000,
-+		.scl_mask = SPD_200K << BSC_CTL_REG_SCL_SEL_SHIFT,
-+		.div_mask = BSC_CTL_REG_DIV_CLK_MASK
-+	}
-+};
-+
-+struct brcmstb_i2c_dev {
-+	struct device *device;
-+	void __iomem *base;
-+	void __iomem *irq_base;
-+	int irq;
-+	struct bsc_regs *bsc_regmap;
-+	struct i2c_adapter adapter;
-+	struct completion done;
-+	bool is_suspended;
-+	u32 clk_freq_hz;
-+};
-+
-+/* register accessors for both be and le cpu arch */
-+#ifdef CONFIG_CPU_BIG_ENDIAN
-+#define __bsc_readl(_reg) ioread32be(_reg)
-+#define __bsc_writel(_val, _reg) iowrite32be(_val, _reg)
-+#else
-+#define __bsc_readl(_reg) ioread32(_reg)
-+#define __bsc_writel(_val, _reg) iowrite32(_val, _reg)
-+#endif
-+
-+#define bsc_readl(_dev, _reg)						\
-+	__bsc_readl(_dev->base + offsetof(struct bsc_regs, _reg))
-+
-+#define bsc_writel(_dev, _val, _reg)					\
-+	__bsc_writel(_val, _dev->base + offsetof(struct bsc_regs, _reg))
-+
-+static void brcmstb_i2c_enable_disable_irq(struct brcmstb_i2c_dev *dev,
-+					   bool int_en)
-+{
-+
-+	if (int_en)
-+		/* Enable BSC  CTL interrupt line */
-+		dev->bsc_regmap->ctl_reg |= BSC_CTL_REG_INT_EN_MASK;
-+	else
-+		/* Disable BSC CTL interrupt line */
-+		dev->bsc_regmap->ctl_reg &= ~BSC_CTL_REG_INT_EN_MASK;
-+
-+	barrier();
-+	bsc_writel(dev, dev->bsc_regmap->ctl_reg, ctl_reg);
-+}
-+
-+static irqreturn_t brcmstb_i2c_isr(int irq, void *devid)
-+{
-+	struct brcmstb_i2c_dev *dev = devid;
-+	u32 status_bsc_ctl = bsc_readl(dev, ctl_reg);
-+	u32 status_iic_intrp = bsc_readl(dev, iic_enable);
-+
-+	dev_dbg(dev->device, "isr CTL_REG %x IIC_EN %x\n",
-+		status_bsc_ctl, status_iic_intrp);
-+
-+	if (!(status_bsc_ctl & BSC_CTL_REG_INT_EN_MASK))
-+		return IRQ_NONE;
-+
-+	brcmstb_i2c_enable_disable_irq(dev, INT_DISABLE);
-+	complete_all(&dev->done);
-+
-+	dev_dbg(dev->device, "isr handled");
-+	return IRQ_HANDLED;
-+}
-+
-+/* Wait for device to be ready */
-+static int brcmstb_i2c_wait_if_busy(struct brcmstb_i2c_dev *dev)
-+{
-+	unsigned long timeout = jiffies + msecs_to_jiffies(I2C_TIMEOUT);
-+
-+	while ((bsc_readl(dev, iic_enable) & BSC_IIC_EN_INTRP_MASK)) {
-+		if (time_after(jiffies, timeout)) {
-+			dev_err(dev->device, "i2c device busy timeout\n");
-+			return -ETIMEDOUT;
-+		}
-+		cpu_relax();
-+	}
-+	return 0;
-+}
-+
-+/* i2c xfer completion function, handles both irq and polling mode */
-+static int brcmstb_i2c_wait_for_completion(struct brcmstb_i2c_dev *dev)
-+{
-+	int ret = 0;
-+	unsigned long timeout = msecs_to_jiffies(I2C_TIMEOUT);
-+
-+	if (dev->irq >= 0) {
-+		if (!wait_for_completion_timeout(&dev->done, timeout))
-+			ret = -ETIMEDOUT;
-+	} else {
-+		/* we are in polling mode */
-+		u32 bsc_intrp;
-+		unsigned long time_left = jiffies + timeout;
-+
-+		do {
-+			bsc_intrp = bsc_readl(dev, iic_enable) &
-+				BSC_IIC_EN_INTRP_MASK;
-+			if (time_after(jiffies, time_left)) {
-+				ret = -ETIMEDOUT;
-+				break;
-+			}
-+			cpu_relax();
-+		} while (!bsc_intrp);
-+		brcmstb_i2c_enable_disable_irq(dev, INT_DISABLE);
-+	}
-+
-+	return ret;
-+}
-+
-+/* Set xfer START/STOP conditions for subsequent transfer */
-+static void brcmstb_set_i2c_start_stop(struct brcmstb_i2c_dev *dev,
-+				       u32 cond_flag)
-+{
-+	u32 regval = dev->bsc_regmap->iic_enable;
-+
-+	dev->bsc_regmap->iic_enable = (regval & ~COND_START_STOP) | cond_flag;
-+}
-+
-+/* Send I2C request check completion */
-+static int brcmstb_send_i2c_cmd(struct brcmstb_i2c_dev *dev,
-+				enum bsc_xfer_cmd cmd)
-+{
-+	int rc = 0;
-+	struct bsc_regs *pi2creg = dev->bsc_regmap;
-+
-+	/* Make sure the hardware is ready */
-+	rc = brcmstb_i2c_wait_if_busy(dev);
-+	if (rc < 0)
-+		return rc;
-+
-+	/* only if we are in interrupt mode */
-+	if (dev->irq >= 0)
-+		reinit_completion(&dev->done);
-+
-+	/* enable BSC CTL interrupt line */
-+	brcmstb_i2c_enable_disable_irq(dev, INT_ENABLE);
-+
-+	/* initiate transfer by setting iic_enable */
-+	pi2creg->iic_enable |= BSC_IIC_EN_ENABLE_MASK;
-+	bsc_writel(dev, pi2creg->iic_enable, iic_enable);
-+
-+	/* Wait for transaction to finish or timeout */
-+	rc = brcmstb_i2c_wait_for_completion(dev);
-+	if (rc) {
-+		dev_err(dev->device, "intr timeout for cmd %s\n",
-+			cmd_string[cmd]);
-+		goto cmd_out;
-+	}
-+
-+	if ((CMD_RD || CMD_WR) &&
-+	    bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK) {
-+		rc = -EREMOTEIO;
-+		dev_dbg(dev->device, "controller received NOACK intr for %s\n",
-+			cmd_string[cmd]);
-+	}
-+
-+cmd_out:
-+	bsc_writel(dev, 0, cnt_reg);
-+	bsc_writel(dev, 0, iic_enable);
-+
-+	return rc;
-+}
-+
-+/* Actual data transfer through the BSC master */
-+static int brcmstb_i2c_xfer_bsc_data(struct brcmstb_i2c_dev *dev,
-+				     u8 *buf, unsigned int len,
-+				     struct i2c_msg *pmsg)
-+{
-+	int cnt, byte, rc;
-+	enum bsc_xfer_cmd cmd;
-+	u32 ctl_reg;
-+	struct bsc_regs *pi2creg = dev->bsc_regmap;
-+	int no_ack = pmsg->flags & I2C_M_IGNORE_NAK;
-+
-+	/* see if the transaction needs to check NACK conditions */
-+	if (no_ack || len <= N_DATA_BYTES) {
-+		cmd = (pmsg->flags & I2C_M_RD) ? CMD_RD_NOACK
-+			: CMD_WR_NOACK;
-+		pi2creg->ctlhi_reg |= BSC_CTLHI_REG_IGNORE_ACK_MASK;
-+	} else {
-+		cmd = (pmsg->flags & I2C_M_RD) ? CMD_RD : CMD_WR;
-+		pi2creg->ctlhi_reg &= ~BSC_CTLHI_REG_IGNORE_ACK_MASK;
-+	}
-+	bsc_writel(dev, pi2creg->ctlhi_reg, ctlhi_reg);
-+
-+	/* set data transfer direction */
-+	ctl_reg = pi2creg->ctl_reg & ~BSC_CTL_REG_DTF_MASK;
-+	if (cmd == CMD_WR || cmd == CMD_WR_NOACK)
-+		pi2creg->ctl_reg = ctl_reg | DTF_WR_MASK;
-+	else
-+		pi2creg->ctl_reg = ctl_reg | DTF_RD_MASK;
-+
-+	/* set the read/write length */
-+	bsc_writel(dev, BSC_CNT_REG1_MASK & (len << BSC_CNT_REG1_SHIFT),
-+		   cnt_reg);
-+
-+	/* Write data into data_in register */
-+	if (cmd == CMD_WR || cmd == CMD_WR_NOACK) {
-+		for (cnt = 0; cnt < len; cnt += 4) {
-+			u32 word = 0;
-+
-+			for (byte = 0; byte < 4; byte++) {
-+				word >>= 8;
-+				if ((cnt + byte) < len)
-+					word |= buf[cnt + byte] << 24;
-+			}
-+			bsc_writel(dev, word, data_in[cnt >> 2]);
-+		}
-+	}
-+
-+	/* Initiate xfer, the function will return on completion */
-+	rc = brcmstb_send_i2c_cmd(dev, cmd);
-+
-+	if (rc != 0) {
-+		dev_dbg(dev->device, "%s failure", cmd_string[cmd]);
-+		return rc;
-+	}
-+
-+	if (cmd == CMD_RD || cmd == CMD_RD_NOACK) {
-+		for (cnt = 0; cnt < len; cnt += 4) {
-+			u32 data = bsc_readl(dev, data_out[cnt >> 2]);
-+
-+			for (byte = 0; byte < 4 &&
-+				     (byte + cnt) < len; byte++) {
-+				buf[cnt + byte] = data & 0xff;
-+				data >>= 8;
-+			}
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+/* Write a single byte of data to the i2c bus */
-+static int brcmstb_i2c_write_data_byte(struct brcmstb_i2c_dev *dev,
-+				       u8 *buf, unsigned int nak_expected)
-+{
-+	enum bsc_xfer_cmd cmd = nak_expected ? CMD_WR : CMD_WR_NOACK;
-+
-+	bsc_writel(dev, 1, cnt_reg);
-+	bsc_writel(dev, *buf, data_in);
-+
-+	return brcmstb_send_i2c_cmd(dev, cmd);
-+}
-+
-+/* Send i2c address */
-+static int brcmstb_i2c_do_addr(struct brcmstb_i2c_dev *dev,
-+			       struct i2c_msg *msg)
-+{
-+	unsigned char addr;
-+
-+	if (msg->flags & I2C_M_TEN) {
-+
-+		/* First byte is 11110XX0 where XX is upper 2 bits */
-+		addr = 0xF0 | ((msg->addr & 0x300) >> 7);
-+		bsc_writel(dev, addr, chip_address);
-+
-+		/* Second byte is the remaining 8 bits */
-+		addr = msg->addr & 0xFF;
-+		if (brcmstb_i2c_write_data_byte(dev, &addr, 0) < 0)
-+			return -EREMOTEIO;
-+
-+		if (msg->flags & I2C_M_RD) {
-+			/* For read, send restart without stop condition */
-+			brcmstb_set_i2c_start_stop(dev, COND_RESTART
-+						   | COND_NOSTOP);
-+			/* Then re-send the first byte with the read bit set */
-+			addr = 0xF0 | ((msg->addr & 0x300) >> 7) | 0x01;
-+			if (brcmstb_i2c_write_data_byte(dev, &addr, 0) < 0)
-+				return -EREMOTEIO;
-+
-+		}
-+	} else {
-+		addr = msg->addr << 1;
-+		if (msg->flags & I2C_M_RD)
-+			addr |= 1;
-+
-+		bsc_writel(dev, addr, chip_address);
-+	}
-+
-+	return 0;
-+}
-+
-+/* Master transfer function */
-+static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
-+			    struct i2c_msg msgs[], int num)
-+{
-+	struct brcmstb_i2c_dev *dev = i2c_get_adapdata(adapter);
-+	struct i2c_msg *pmsg;
-+	int rc = 0;
-+	int i;
-+	int bytes_to_xfer;
-+	u8 *tmp_buf;
-+	int len = 0;
-+
-+	if (dev->is_suspended)
-+		return -EBUSY;
-+
-+	/* Loop through all messages */
-+	for (i = 0; i < num; i++) {
-+		pmsg = &msgs[i];
-+		len = pmsg->len;
-+		tmp_buf = pmsg->buf;
-+
-+		dev_dbg(dev->device,
-+			"msg# %d/%d flg %x buf %x len %d\n", i,
-+			num - 1, pmsg->flags,
-+			pmsg->buf ? pmsg->buf[0] : '0', pmsg->len);
-+
-+		if (i < (num - 1) && (msgs[i + 1].flags & I2C_M_NOSTART))
-+			brcmstb_set_i2c_start_stop(dev, ~(COND_START_STOP));
-+		else
-+			brcmstb_set_i2c_start_stop(dev,
-+						   COND_RESTART | COND_NOSTOP);
-+
-+		/* Send slave address */
-+		if (!(pmsg->flags & I2C_M_NOSTART)) {
-+			rc = brcmstb_i2c_do_addr(dev, pmsg);
-+			if (rc < 0) {
-+				dev_dbg(dev->device,
-+					"NACK for addr %2.2x msg#%d rc = %d\n",
-+					pmsg->addr, i, rc);
-+				goto out;
-+			}
-+		}
-+
-+		/* Perform data transfer */
-+		while (len) {
-+			bytes_to_xfer = min(len, N_DATA_BYTES);
-+
-+			if (len <= N_DATA_BYTES && i == (num - 1))
-+				brcmstb_set_i2c_start_stop(dev,
-+							   ~(COND_START_STOP));
-+
-+			rc = brcmstb_i2c_xfer_bsc_data(dev, tmp_buf,
-+						       bytes_to_xfer, pmsg);
-+			if (rc < 0)
-+				goto out;
-+
-+			len -=  bytes_to_xfer;
-+			tmp_buf += bytes_to_xfer;
-+		}
-+	}
-+
-+	rc = num;
-+out:
-+	return rc;
-+
-+}
-+
-+static u32 brcmstb_i2c_functionality(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR
-+		| I2C_FUNC_NOSTART | I2C_FUNC_PROTOCOL_MANGLING;
-+}
-+
-+static const struct i2c_algorithm brcmstb_i2c_algo = {
-+	.master_xfer = brcmstb_i2c_xfer,
-+	.functionality = brcmstb_i2c_functionality,
-+};
-+
-+static void brcmstb_i2c_set_bus_speed(struct brcmstb_i2c_dev *dev)
-+{
-+	int i = 0, num_speeds = ARRAY_SIZE(bsc_clk);
-+	u32 clk_freq_hz = dev->clk_freq_hz;
-+
-+	for (i = 0; i < num_speeds; i++) {
-+		if (bsc_clk[i].hz == clk_freq_hz) {
-+			dev->bsc_regmap->ctl_reg &= ~(BSC_CTL_REG_SCL_SEL_MASK
-+						| BSC_CTL_REG_DIV_CLK_MASK);
-+			dev->bsc_regmap->ctl_reg |= (bsc_clk[i].scl_mask |
-+						     bsc_clk[i].div_mask);
-+			bsc_writel(dev, dev->bsc_regmap->ctl_reg, ctl_reg);
-+			break;
-+		}
-+	}
-+
-+	/* in case we did not get find a valid speed */
-+	if (i == num_speeds) {
-+		i = (bsc_readl(dev, ctl_reg) & BSC_CTL_REG_SCL_SEL_MASK) >>
-+			BSC_CTL_REG_SCL_SEL_SHIFT;
-+		dev_warn(dev->device, "leaving current clock-frequency @ %dHz\n",
-+			bsc_clk[i].hz);
-+	}
-+}
-+
-+static void brcmstb_i2c_set_bsc_reg_defaults(struct brcmstb_i2c_dev *dev)
-+{
-+	/* 4 byte data register */
-+	dev->bsc_regmap->ctlhi_reg = BSC_CTLHI_REG_DATAREG_SIZE_MASK;
-+	bsc_writel(dev, dev->bsc_regmap->ctlhi_reg, ctlhi_reg);
-+	/* set bus speed */
-+	brcmstb_i2c_set_bus_speed(dev);
-+}
-+
-+static int brcmstb_i2c_probe(struct platform_device *pdev)
-+{
-+	int rc = 0;
-+	struct brcmstb_i2c_dev *dev;
-+	struct i2c_adapter *adap;
-+	struct resource *iomem;
-+	const char *int_name;
-+
-+	/* Allocate memory for private data structure */
-+	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
-+	if (!dev)
-+		return -ENOMEM;
-+
-+	dev->bsc_regmap = devm_kzalloc(&pdev->dev, sizeof(struct bsc_regs *),
-+				       GFP_KERNEL);
-+	if (!dev->bsc_regmap)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, dev);
-+	dev->device = &pdev->dev;
-+	init_completion(&dev->done);
-+
-+	/* Map hardware registers */
-+	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	dev->base = devm_ioremap_resource(dev->device, iomem);
-+	if (IS_ERR(dev->base)) {
-+		rc = -ENOMEM;
-+		goto probe_errorout;
-+	}
-+
-+	rc = of_property_read_string(dev->device->of_node, "interrupt-names",
-+				     &int_name);
-+	if (rc < 0)
-+		int_name = NULL;
-+
-+	/* Get the interrupt number */
-+	dev->irq = platform_get_irq(pdev, 0);
-+
-+	/* disable the bsc interrupt line */
-+	brcmstb_i2c_enable_disable_irq(dev, INT_DISABLE);
-+
-+	/* register the ISR handler */
-+	rc = devm_request_irq(&pdev->dev, dev->irq, brcmstb_i2c_isr,
-+			      IRQF_SHARED,
-+			      int_name ? int_name : pdev->name,
-+			      dev);
-+
-+	if (rc) {
-+		dev_dbg(dev->device, "falling back to polling mode");
-+		dev->irq = -1;
-+	}
-+
-+	/* Add the i2c adapter */
-+	adap = &dev->adapter;
-+	i2c_set_adapdata(adap, dev);
-+	adap->owner = THIS_MODULE;
-+	strlcpy(adap->name, "Broadcom STB : ", sizeof(adap->name));
-+	if (int_name)
-+		strlcat(adap->name, int_name, sizeof(adap->name));
-+	adap->algo = &brcmstb_i2c_algo;
-+	adap->dev.parent = &pdev->dev;
-+	adap->dev.of_node = pdev->dev.of_node;
-+	rc = i2c_add_adapter(adap);
-+	if (rc) {
-+		dev_err(dev->device, "failed to add adapter\n");
-+		goto probe_errorout;
-+	}
-+
-+	if (of_property_read_u32(dev->device->of_node,
-+				 "clock-frequency", &dev->clk_freq_hz)) {
-+		dev_warn(dev->device, "setting clock-frequency@%dHz\n",
-+			 bsc_clk[0].hz);
-+		dev->clk_freq_hz = bsc_clk[0].hz;
-+	}
-+
-+	brcmstb_i2c_set_bsc_reg_defaults(dev);
-+	dev_info(dev->device, "%s@%dhz registered in %s mode\n",
-+		 int_name ? int_name : " ", dev->clk_freq_hz,
-+		 (dev->irq >= 0) ? "interrupt" : "polling");
-+
-+	return 0;
-+
-+probe_errorout:
-+	kfree(dev->bsc_regmap);
-+	return rc;
-+}
-+
-+static int brcmstb_i2c_remove(struct platform_device *pdev)
-+{
-+	struct brcmstb_i2c_dev *dev = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&dev->adapter);
-+	kfree(dev->bsc_regmap);
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int brcmstb_i2c_suspend(struct device *dev)
-+{
-+	struct brcmstb_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-+
-+	i2c_lock_adapter(&i2c_dev->adapter);
-+	i2c_dev->is_suspended = true;
-+	i2c_unlock_adapter(&i2c_dev->adapter);
-+
-+	return 0;
-+}
-+
-+static int brcmstb_i2c_resume(struct device *dev)
-+{
-+	struct brcmstb_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-+
-+	i2c_lock_adapter(&i2c_dev->adapter);
-+	brcmstb_i2c_set_bsc_reg_defaults(i2c_dev);
-+	i2c_dev->is_suspended = false;
-+	i2c_unlock_adapter(&i2c_dev->adapter);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(brcmstb_i2c_pm, brcmstb_i2c_suspend,
-+			 brcmstb_i2c_resume);
-+
-+static const struct of_device_id brcmstb_i2c_of_match[] = {
-+	{.compatible = "brcm,brcmstb-i2c"},
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, brcmstb_i2c_of_match);
-+
-+static struct platform_driver brcmstb_i2c_driver = {
-+	.driver = {
-+		   .name = "brcmstb-i2c",
-+		   .owner = THIS_MODULE,
-+		   .of_match_table = brcmstb_i2c_of_match,
-+		   .pm = &brcmstb_i2c_pm,
-+		   },
-+	.probe = brcmstb_i2c_probe,
-+	.remove = brcmstb_i2c_remove,
-+};
-+module_platform_driver(brcmstb_i2c_driver);
-+
-+MODULE_AUTHOR("Kamal Dasu <kdasu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>");
-+MODULE_DESCRIPTION("Broadcom Settop I2C Driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.3.2
+Hi Pantelis,
+
+On Wed, May 13, 2015 at 10:38:17AM +0300, Pantelis Antoniou wrote:
+> For DT and in-kernel users there is no interface to the
+> at24 EEPROMs so provide an EEPROM framework interface.
+>=20
+> This allows us to use AT24 based EEPROMs and reference them
+> from within the DT tree.
+>=20
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+
+You should probably mention that the EEPROM framework hasn't been
+merged yet.
+
+> ---
+>  drivers/misc/eeprom/at24.c | 222 +++++++++++++++++++++++++++++++++++----=
+------
+>  1 file changed, 174 insertions(+), 48 deletions(-)
+>=20
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 2d3db81..afa719a 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -3,6 +3,7 @@
+>   *
+>   * Copyright (C) 2005-2007 David Brownell
+>   * Copyright (C) 2008 Wolfram Sang, Pengutronix
+> + * Copyright (C) 2015 Pantelis Antoniou, Konsulko Group
+>   *
+>   * This program is free software; you can redistribute it and/or modify
+>   * it under the terms of the GNU General Public License as published by
+> @@ -23,6 +24,9 @@
+>  #include <linux/of.h>
+>  #include <linux/i2c.h>
+>  #include <linux/platform_data/at24.h>
+> +#include <linux/regmap.h>
+> +#include <linux/eeprom-provider.h>
+> +#include <linux/io.h>
+> =20
+>  /*
+>   * I2C EEPROMs from most vendors are inexpensive and mostly interchangea=
+ble.
+> @@ -63,12 +67,16 @@ struct at24_data {
+>  	 * but not from changes by other I2C masters.
+>  	 */
+>  	struct mutex lock;
+> -	struct bin_attribute bin;
+> =20
+>  	u8 *writebuf;
+>  	unsigned write_max;
+>  	unsigned num_addresses;
+> =20
+> +	struct regmap_config *regmap_config;
+> +	struct regmap *regmap;
+> +	struct eeprom_config *eeprom_config;
+> +	struct eeprom_device *eeprom_dev;
+> +
+>  	/*
+>  	 * Some chips tie up multiple I2C addresses; dummy devices reserve
+>  	 * them for us, and we'll use them with SMBus calls.
+> @@ -131,6 +139,8 @@ static const struct i2c_device_id at24_ids[] =3D {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, at24_ids);
+> =20
+> +static DEFINE_IDA(at24_ida);
+> +
+>  /*----------------------------------------------------------------------=
+---*/
+> =20
+>  /*
+> @@ -301,17 +311,6 @@ static ssize_t at24_read(struct at24_data *at24,
+>  	return retval;
+>  }
+> =20
+> -static ssize_t at24_bin_read(struct file *filp, struct kobject *kobj,
+> -		struct bin_attribute *attr,
+> -		char *buf, loff_t off, size_t count)
+> -{
+> -	struct at24_data *at24;
+> -
+> -	at24 =3D dev_get_drvdata(container_of(kobj, struct device, kobj));
+> -	return at24_read(at24, buf, off, count);
+> -}
+> -
+> -
+>  /*
+>   * Note that if the hardware write-protect pin is pulled high, the whole
+>   * chip is normally write protected. But there are plenty of product
+> @@ -432,21 +431,10 @@ static ssize_t at24_write(struct at24_data *at24, c=
+onst char *buf, loff_t off,
+>  	return retval;
+>  }
+> =20
+> -static ssize_t at24_bin_write(struct file *filp, struct kobject *kobj,
+> -		struct bin_attribute *attr,
+> -		char *buf, loff_t off, size_t count)
+> -{
+> -	struct at24_data *at24;
+> -
+> -	if (unlikely(off >=3D attr->size))
+> -		return -EFBIG;
+> -
+> -	at24 =3D dev_get_drvdata(container_of(kobj, struct device, kobj));
+> -	return at24_write(at24, buf, off, count);
+> -}
+> -
+>  /*----------------------------------------------------------------------=
+---*/
+> =20
+> +/* panto: using the EEPROM framework macc is superfluous */
+> +
+
+Is it? it was kind of one of the point to be able to remove the memory
+accessors stuff (which is only used by that driver btw).
+
+>  /*
+>   * This lets other kernel code access the eeprom data. For example, it
+>   * might hold a board's Ethernet address, or board-specific calibration
+> @@ -492,6 +480,91 @@ static void at24_get_ofdata(struct i2c_client *clien=
+t,
+>  { }
+>  #endif /* CONFIG_OF */
+> =20
+> +static int regmap_at24_read(void *context,
+> +			    const void *reg, size_t reg_size,
+> +			    void *val, size_t val_size)
+> +{
+> +	struct i2c_client *client =3D context;
+> +	struct at24_data *at24;
+> +	unsigned int offset;
+> +	int ret;
+> +
+> +	/* reg bits is hardcoded to 32 bits */
+> +	BUG_ON(reg_size !=3D 4);
+> +	offset =3D __raw_readl(reg);
+> +
+> +	at24 =3D i2c_get_clientdata(client);
+> +	if (at24 =3D=3D NULL)
+> +		return -ENODEV;
+> +
+> +	/* val bytes is always 1 */
+> +	BUG_ON(at24->regmap_config->val_bits !=3D 8);
+> +
+> +	ret =3D at24_read(at24, val, offset, val_size);
+> +	if (ret < 0)
+> +		return ret;
+> +	if (ret !=3D val_size)
+> +		return -EINVAL;
+> +
+> +	return 0;
+> +}
+> +
+> +static int regmap_at24_gather_write(void *context,
+> +				    const void *reg, size_t reg_size,
+> +				    const void *val, size_t val_size)
+> +{
+> +	struct i2c_client *client =3D context;
+> +	struct at24_data *at24;
+> +	unsigned int offset;
+> +	int ret;
+> +
+> +	at24 =3D i2c_get_clientdata(client);
+> +	if (at24 =3D=3D NULL)
+> +		return -ENODEV;
+> +
+> +	BUG_ON(reg_size !=3D 4);
+> +	offset =3D __raw_readl(reg);
+> +
+> +	/* val bytes is always 1 */
+> +	BUG_ON(at24->regmap_config->val_bits !=3D 8);
+> +
+> +	ret =3D at24_write(at24, val, offset, val_size);
+> +	if (ret < 0)
+> +		return ret;
+> +	if (ret !=3D val_size)
+> +		return -EINVAL;
+> +
+> +	return 0;
+> +}
+> +
+> +static int regmap_at24_write(void *context, const void *data, size_t cou=
+nt)
+> +{
+> +	struct i2c_client *client =3D context;
+> +	struct at24_data *at24;
+> +	unsigned int reg_bytes, offset;
+> +
+> +	at24 =3D i2c_get_clientdata(client);
+> +	if (at24 =3D=3D NULL)
+> +		return -ENODEV;
+> +
+> +	reg_bytes =3D at24->regmap_config->reg_bits / 8;
+> +	offset =3D reg_bytes;
+> +
+> +	BUG_ON(reg_bytes !=3D 4);
+> +	BUG_ON(count <=3D offset);
+> +
+> +	return regmap_at24_gather_write(context, data, reg_bytes,
+> +			data + offset, count - offset);
+> +}
+> +
+> +static struct regmap_bus regmap_at24_bus =3D {
+> +	.read =3D regmap_at24_read,
+> +	.write =3D regmap_at24_write,
+> +	.gather_write =3D regmap_at24_gather_write,
+> +	.reg_format_endian_default =3D REGMAP_ENDIAN_NATIVE,
+> +	.val_format_endian_default =3D REGMAP_ENDIAN_NATIVE,
+
+I wouldn't expect the content of the EEPROM to change of endianness
+when we change the kernel's.
+
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
+
+--3U8TY7m7wOx7RL1F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVU7XeAAoJEBx+YmzsjxAgmjwQAJTi+M7MRT7IatNNUFB8F+Eb
+RVhYKqZLKcM0N7SlHb+RZ8+AZR7iefkIzxvJKAGnJ7gZQCElpbggVE55RCApYEru
+bToDFE+pRzGGo1I+Nt9MT4PgWORSl6lBJ+hEbKDtG7GpqW+WFrDazY5bbkwGLCue
+zvrynincpAwJNxq+V4WjA+mesARJZ5VthhXH7zDDz9j9N2DVT2ZYwMawEEf0prds
+O10LRi8PJ+9a2kFsyD7E6DfTnllu1LYEVUTwT9j5OIcV8l1JLEPsd2go5pNnq/r3
+QPQ5VEtWbRRE4Kp462dRFSwte3e12lG4mTcTL9MgINOa0aFs41SS4+xkAa9J96VC
+LY6t9j2rXAFC1ed74GEuV431TIQronTinaVa3pk70NHrQH6BD5HFUUhevGZywyzz
+18DJrf7tVZacDTorYGAtiFjZwI6rROq712M/SlmN5syhDyP3DrNUMjOiaq927dUB
+cNQkmlnPY3KCuqmMKnnUKhi61Myc3Gy3zLUFr6Yg4wU9yQ9HNmcn27h5Ytn4hql7
+3NdVI74DNUx+M1q7tz18eNgl5jd4NZ9qqUIl17p4QQBwoN/S0LTMeSoitCz3Y984
+7Zjjuxn6iEOQ64zH42XjSdpX6wkeJTkdsfGhc42i6ag12Hn0gi5iKJqTf2P86RRu
+BYUDO6N2UlZO5uFnM3hY
+=KxRo
+-----END PGP SIGNATURE-----
+
+--3U8TY7m7wOx7RL1F--
