@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 4/4] i2c: slave: add error messages to slave core
-Date: Thu, 14 May 2015 14:40:05 +0200
-Message-ID: <1431607205-2316-5-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 3/4] i2c: slave: docs: be more precise about the prerequsites
+Date: Thu, 14 May 2015 14:40:04 +0200
+Message-ID: <1431607205-2316-4-git-send-email-wsa@the-dreams.de>
 References: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1431607205-2316-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
@@ -12,79 +12,58 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 
-Inform users what went wrong from the core, so drivers don't have to do
-it.
+There was some confusion what was needed to utilize the slave support,
+so let's be more precise about this. Add an introductory paragraph to
+the development section while we are here.
 
 Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 Cc: Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ Documentation/i2c/slave-interface | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 987c124432c501..e4dfdde832aa5f 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2914,18 +2914,24 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
- {
- 	int ret;
+diff --git a/Documentation/i2c/slave-interface b/Documentation/i2c/slave-interface
+index 389bb5d618549e..02b086510b6c10 100644
+--- a/Documentation/i2c/slave-interface
++++ b/Documentation/i2c/slave-interface
+@@ -3,16 +3,16 @@ Linux I2C slave interface description
  
--	if (!client || !slave_cb)
-+	if (!client || !slave_cb) {
-+		dev_err(&client->dev, "%s: insufficent data\n", __func__);
- 		return -EINVAL;
-+	}
+ by Wolfram Sang <wsa-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org> in 2014-15
  
- 	if (!(client->flags & I2C_CLIENT_TEN)) {
- 		/* Enforce stricter address checking */
- 		ret = i2c_check_addr_validity(client->addr);
--		if (ret)
-+		if (ret) {
-+			dev_err(&client->dev, "%s: invalid address\n", __func__);
- 			return ret;
-+		}
- 	}
+-Linux can also be an I2C slave in case I2C controllers have slave support.
+-Besides this HW requirement, one also needs a software backend providing the
+-actual functionality. An example for this is the slave-eeprom driver, which
+-acts as a dual memory driver. While another I2C master on the bus can access it
+-like a regular EEPROM, the Linux I2C slave can access the content via sysfs and
+-retrieve/provide information as needed. The software backend driver and the I2C
+-bus driver communicate via events. Here is a small graph visualizing the data
+-flow and the means by which data is transported. The dotted line marks only one
+-example. The backend could also use e.g. a character device, be in-kernel
+-only, or something completely different:
++Linux can also be an I2C slave if the I2C controller in use has slave
++functionality. For that to work, one needs slave support in the bus driver plus
++a hardware independent software backend providing the actual functionality. An
++example for the latter is the slave-eeprom driver, which acts as a dual memory
++driver. While another I2C master on the bus can access it like a regular
++EEPROM, the Linux I2C slave can access the content via sysfs and handle data as
++needed. The backend driver and the I2C bus driver communicate via events. Here
++is a small graph visualizing the data flow and the means by which data is
++transported. The dotted line marks only one example. The backend could also
++use a character device, be in-kernel only, or something completely different:
  
--	if (!client->adapter->algo->reg_slave)
-+	if (!client->adapter->algo->reg_slave) {
-+		dev_err(&client->dev, "%s: not supported by adapter\n", __func__);
- 		return -EOPNOTSUPP;
-+	}
  
- 	client->slave_cb = slave_cb;
+               e.g. sysfs        I2C slave events        I/O registers
+@@ -43,6 +43,11 @@ behaviour and setup.
+ Developer manual
+ ================
  
-@@ -2933,8 +2939,10 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
- 	ret = client->adapter->algo->reg_slave(client);
- 	i2c_unlock_adapter(client->adapter);
++First, the events which are used by the bus driver and the backend will be
++described in detail. After that, some implementation hints for extending bus
++drivers and writing backends will be given.
++
++
+ I2C slave events
+ ----------------
  
--	if (ret)
-+	if (ret) {
- 		client->slave_cb = NULL;
-+		dev_err(&client->dev, "%s: adapter returned error %d\n", __func__, ret);
-+	}
- 
- 	return ret;
- }
-@@ -2944,8 +2952,10 @@ int i2c_slave_unregister(struct i2c_client *client)
- {
- 	int ret;
- 
--	if (!client->adapter->algo->unreg_slave)
-+	if (!client->adapter->algo->unreg_slave) {
-+		dev_err(&client->dev, "%s: not supported by adapter\n", __func__);
- 		return -EOPNOTSUPP;
-+	}
- 
- 	i2c_lock_adapter(client->adapter);
- 	ret = client->adapter->algo->unreg_slave(client);
-@@ -2953,6 +2963,8 @@ int i2c_slave_unregister(struct i2c_client *client)
- 
- 	if (ret == 0)
- 		client->slave_cb = NULL;
-+	else
-+		dev_err(&client->dev, "%s: adapter returned error %d\n", __func__, ret);
- 
- 	return ret;
- }
 -- 
 2.1.4
