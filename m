@@ -1,26 +1,26 @@
 From: "Grygorii.Strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: davinci: Avoid sending to own address
-Date: Thu, 14 May 2015 14:03:13 +0300
-Message-ID: <555480F1.9030902@linaro.org>
-References: <55534B7A.8070105@nokia.com>
+Subject: Re: [PATCH v2] i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()
+Date: Thu, 14 May 2015 14:19:00 +0300
+Message-ID: <555484A4.9090109@linaro.org>
+References: <55534BA0.3000506@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55534B7A.8070105-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <55534BA0.3000506-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <ssantosh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 Cc: Lawnick Michael 61283229 <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/13/2015 04:02 PM, Alexander Sverdlin wrote:
-> Sending a message to own address locks the controller up in very bizarre state,
-> it behaves as slave even if MDR register clearly states master. The controller
-> remains in this state until reset. To avoid unnecessary timeouts simply avoid
-> sending to own address. The controller cannot do this any way. Also, do not
-> enable AAS IRQ, as the slave mode is not supported by the driver and the only
-> possibility to trigger this IRQ is to send to own address.
+On 05/13/2015 04:03 PM, Alexander Sverdlin wrote:
+> There are several problems in the function:
+> - "to_cnt" variable does nothing
+> - schedule_timeout() call without setting current state does nothing
+> - "allow_sleep" parameter is not really used
 >
+> Refactor the function so that it really tries to wait. In case of timeout try
+> to recover the bus.
 
 Reviewed-by: Grygorii Strashko <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
@@ -29,44 +29,8 @@ Reviewed-by: Grygorii Strashko <grygorii.strashko-QSEj5FYQhm4dnm+yROfE0A@public.
 > Changes in v2:
 > - rebased on 110bc76729d4 of Linus's tree;
 >
->   drivers/i2c/busses/i2c-davinci.c |    9 ++++++---
->   1 files changed, 6 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 4788a32..df96ab6 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -41,8 +41,8 @@
->
->   #define DAVINCI_I2C_TIMEOUT	(1*HZ)
->   #define DAVINCI_I2C_MAX_TRIES	2
-> -#define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_AAS | \
-> -				 DAVINCI_I2C_IMR_SCD | \
-> +#define DAVINCI_I2C_OWN_ADDRESS	0x08
-> +#define I2C_DAVINCI_INTR_ALL    (DAVINCI_I2C_IMR_SCD | \
->   				 DAVINCI_I2C_IMR_ARDY | \
->   				 DAVINCI_I2C_IMR_NACK | \
->   				 DAVINCI_I2C_IMR_AL)
-> @@ -233,7 +233,7 @@ static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->   	/* Respond at reserved "SMBus Host" slave address" (and zero);
->   	 * we seem to have no option to not respond...
->   	 */
-> -	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, 0x08);
-> +	davinci_i2c_write_reg(dev, DAVINCI_I2C_OAR_REG, DAVINCI_I2C_OWN_ADDRESS);
->
->   	dev_dbg(dev->dev, "PSC  = %d\n",
->   		davinci_i2c_read_reg(dev, DAVINCI_I2C_PSC_REG));
-> @@ -390,6 +390,9 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->   	u16 w;
->   	unsigned long time_left;
->
-> +	if (msg->addr == DAVINCI_I2C_OWN_ADDRESS)
-> +		return -EIO;
-> +
->   	/* Introduce a delay, required for some boards (e.g Davinci EVM) */
->   	if (pdata->bus_delay)
->   		udelay(pdata->bus_delay);
->
+>   drivers/i2c/busses/i2c-davinci.c |   42 +++++++++++++++++--------------------
+>   1 files changed, 19 insertions(+), 23 deletions(-)
 
 
 -- 
