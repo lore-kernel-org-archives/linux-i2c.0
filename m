@@ -1,10 +1,12 @@
 From: Ray Jui <rjui@broadcom.com>
-Subject: [PATCH] i2c: iproc: Add suspend/resume support
-Date: Thu, 14 May 2015 15:27:48 -0700
-Message-ID: <1431642468-6588-1-git-send-email-rjui@broadcom.com>
+Subject: [PATCH v2] i2c: iproc: Add suspend/resume support
+Date: Thu, 14 May 2015 15:36:04 -0700
+Message-ID: <1431642964-6948-2-git-send-email-rjui@broadcom.com>
+References: <1431642964-6948-1-git-send-email-rjui@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1431642964-6948-1-git-send-email-rjui@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Ray Jui <rjui@broadcom.com>
@@ -15,14 +17,30 @@ Add suspend/resume support to the Broadcom iProc I2C driver
 Signed-off-by: Ray Jui <rjui@broadcom.com>
 Reviewed-by: Scott Branden <sbranden@broadcom.com>
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c |   55 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 55 insertions(+)
+ drivers/i2c/busses/i2c-bcm-iproc.c |   57 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index f9f2c20..562930f 100644
+index f9f2c20..0419f52 100644
 --- a/drivers/i2c/busses/i2c-bcm-iproc.c
 +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -439,6 +439,60 @@ static int bcm_iproc_i2c_remove(struct platform_device *pdev)
+@@ -91,6 +91,7 @@ struct bcm_iproc_i2c_dev {
+ 	void __iomem *base;
+ 
+ 	struct i2c_adapter adapter;
++	unsigned int bus_speed;
+ 
+ 	struct completion done;
+ 	int xfer_is_done;
+@@ -309,6 +310,7 @@ static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i2c)
+ 		bus_speed = 400000;
+ 	}
+ 
++	iproc_i2c->bus_speed = bus_speed;
+ 	val = readl(iproc_i2c->base + TIM_CFG_OFFSET);
+ 	val &= ~(1 << TIM_CFG_MODE_400_SHIFT);
+ 	val |= (bus_speed == 400000) << TIM_CFG_MODE_400_SHIFT;
+@@ -439,6 +441,60 @@ static int bcm_iproc_i2c_remove(struct platform_device *pdev)
  	return 0;
  }
  
@@ -83,7 +101,7 @@ index f9f2c20..562930f 100644
  static const struct of_device_id bcm_iproc_i2c_of_match[] = {
  	{ .compatible = "brcm,iproc-i2c" },
  	{ /* sentinel */ }
-@@ -449,6 +503,7 @@ static struct platform_driver bcm_iproc_i2c_driver = {
+@@ -449,6 +505,7 @@ static struct platform_driver bcm_iproc_i2c_driver = {
  	.driver = {
  		.name = "bcm-iproc-i2c",
  		.of_match_table = bcm_iproc_i2c_of_match,
