@@ -1,25 +1,40 @@
-From: Ray Jui <rjui@broadcom.com>
-Subject: [PATCH v2] Add suspend/resume support to the iProc I2C driver
-Date: Thu, 14 May 2015 15:36:03 -0700
-Message-ID: <1431642964-6948-1-git-send-email-rjui@broadcom.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 0/4] i2c: small updates to the slave framework
+Date: Fri, 15 May 2015 10:22:53 +0200
+Message-ID: <CAMuHMdXGi5Gc=4_Fu2xmfGKN862w-v5EtQ_pCOd3Sx2tZyoCSg@mail.gmail.com>
+References: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-sh-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Ray Jui <rjui@broadcom.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Sorry I made a mistake in the previous patch (v1).
+Hi Wolfram,
 
-Changes from v1:
- - Fixed a compiling issue in the driver when suspend/resume support is added
+On Thu, May 14, 2015 at 2:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> Before nailing down the DT representation problem, here are some smaller
+> updates for the slave framework I have lying around.
+>
+> Wolfram Sang (4):
+>   i2c: add FUNC flag for slave capabilities
+>   i2c: rcar: report slave capabilities to users
+>   i2c: slave: docs: be more precise about the prerequsites
+>   i2c: slave: add error messages to slave core
 
-Ray Jui (1):
-  i2c: iproc: Add suspend/resume support
+This series looks fine to me
 
- drivers/i2c/busses/i2c-bcm-iproc.c |   57 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
--- 
-1.7.9.5
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
