@@ -1,40 +1,35 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 0/4] i2c: small updates to the slave framework
-Date: Fri, 15 May 2015 10:22:53 +0200
-Message-ID: <CAMuHMdXGi5Gc=4_Fu2xmfGKN862w-v5EtQ_pCOd3Sx2tZyoCSg@mail.gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c: add FUNC flag for slave capabilities
+Date: Fri, 15 May 2015 13:37:44 +0200
+Message-ID: <20150515113744.GS28888@pengutronix.de>
 References: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
+ <1431607205-2316-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1431607205-2316-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hello Wolfram,
 
-On Thu, May 14, 2015 at 2:40 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Before nailing down the DT representation problem, here are some smaller
-> updates for the slave framework I have lying around.
->
-> Wolfram Sang (4):
->   i2c: add FUNC flag for slave capabilities
->   i2c: rcar: report slave capabilities to users
->   i2c: slave: docs: be more precise about the prerequsites
->   i2c: slave: add error messages to slave core
+On Thu, May 14, 2015 at 02:40:02PM +0200, Wolfram Sang wrote:
+> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+>=20
+> So users can check in advance if there is slave support.
+I wonder if the core should check if .{,un}reg_slave is !=3D NULL and
+automatically set this bit accordingly.
 
-This series looks fine to me
+Best regards
+Uwe
 
-Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
