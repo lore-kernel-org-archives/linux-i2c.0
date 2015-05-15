@@ -1,35 +1,114 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/4] i2c: add FUNC flag for slave capabilities
-Date: Fri, 15 May 2015 13:37:44 +0200
-Message-ID: <20150515113744.GS28888@pengutronix.de>
-References: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
- <1431607205-2316-2-git-send-email-wsa@the-dreams.de>
+From: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c: designware: separate ops for system_sleep_pm and runtime_pm
+Date: Fri, 15 May 2015 20:31:39 +0800
+Message-ID: <1431693099-2292-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1431607205-2316-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+Commit 1fc2fe204cb9 ("i2c: designware: Add runtime PM hooks") adds
+runtime pm support using the same ops for system sleep and runtime pm.
+When suspend to ram, the i2c host may have been runtime suspended, thus
+i2c_dw_disable() hangs.
 
-On Thu, May 14, 2015 at 02:40:02PM +0200, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
->=20
-> So users can check in advance if there is slave support.
-I wonder if the core should check if .{,un}reg_slave is !=3D NULL and
-automatically set this bit accordingly.
+This patch fixes this issue by separating ops for system sleep pm and
+runtime pm, and in the system suspend/resume path, runtime pm apis are
+used to ensure the device is at correct state.
 
-Best regards
-Uwe
+Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 48 ++++++++++++++++++++++++++---
+ 1 file changed, 43 insertions(+), 5 deletions(-)
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0a80e4a..d306397 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -298,14 +298,16 @@ static const struct of_device_id dw_i2c_of_match[] = {
+ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ #endif
+ 
+-#ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
+ static int dw_i2c_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
++	pm_runtime_get_sync(dev);
+ 	i2c_dw_disable(i_dev);
+-	clk_disable_unprepare(i_dev->clk);
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
+ 
+ 	return 0;
+ }
+@@ -315,6 +317,32 @@ static int dw_i2c_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
++	pm_runtime_get_sync(dev);
++	i2c_dw_init(i_dev);
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
++
++	return 0;
++}
++#endif
++
++#ifdef CONFIG_PM
++static int dw_i2c_runtime_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
++
++	i2c_dw_disable(i_dev);
++	clk_disable_unprepare(i_dev->clk);
++
++	return 0;
++}
++
++static int dw_i2c_runtime_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
++
+ 	clk_prepare_enable(i_dev->clk);
+ 
+ 	if (!i_dev->pm_runtime_disabled)
+@@ -324,8 +352,18 @@ static int dw_i2c_resume(struct device *dev)
+ }
+ #endif
+ 
+-static UNIVERSAL_DEV_PM_OPS(dw_i2c_dev_pm_ops, dw_i2c_suspend,
+-			    dw_i2c_resume, NULL);
++#ifdef CONFIG_PM
++static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_suspend, dw_i2c_resume)
++	SET_RUNTIME_PM_OPS(dw_i2c_runtime_suspend,
++		dw_i2c_runtime_resume, NULL)
++};
++
++#define DW_I2C_DEV_PM_OPS (&dw_i2c_dev_pm_ops)
++
++#else
++#define DW_I2C_DEV_PM_OPS NULL
++#endif
+ 
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:i2c_designware");
+@@ -337,7 +375,7 @@ static struct platform_driver dw_i2c_driver = {
+ 		.name	= "i2c_designware",
+ 		.of_match_table = of_match_ptr(dw_i2c_of_match),
+ 		.acpi_match_table = ACPI_PTR(dw_i2c_acpi_match),
+-		.pm	= &dw_i2c_dev_pm_ops,
++		.pm	= DW_I2C_DEV_PM_OPS,
+ 	},
+ };
+ 
+-- 
+2.1.4
