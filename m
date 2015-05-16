@@ -1,54 +1,65 @@
-From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [V3, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
- driver
-Date: Fri, 15 May 2015 10:59:35 -0700
-Message-ID: <55563407.9070409@gmail.com>
-References: <1431536390-9761-1-git-send-email-kdasu.kdev@gmail.com> <555630DE.2090100@broadcom.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/4] i2c: add FUNC flag for slave capabilities
+Date: Sat, 16 May 2015 10:22:16 +0200
+Message-ID: <20150516082216.GA4014@schokonusskuchen.bad>
+References: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
+ <1431607205-2316-2-git-send-email-wsa@the-dreams.de>
+ <20150515113744.GS28888@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <555630DE.2090100-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20150515113744.GS28888@pengutronix.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 15/05/15 10:46, Ray Jui wrote:
-[snip]
 
->> +            ret = -ETIMEDOUT;
->> +    } else {
->> +        /* we are in polling mode */
->> +        u32 bsc_intrp;
->> +        unsigned long time_left = jiffies + timeout;
->> +
->> +        do {
->> +            bsc_intrp = bsc_readl(dev, iic_enable) &
->> +                BSC_IIC_EN_INTRP_MASK;
->> +            if (time_after(jiffies, time_left)) {
->> +                ret = -ETIMEDOUT;
->> +                break;
->> +            }
->> +            cpu_relax();
->> +        } while (!bsc_intrp);
->> +        brcmstb_i2c_enable_disable_irq(dev, INT_DISABLE);
-> 
-> I had a question on this during the previous review. You said you will
-> investigate but never really answer my question or add a comment in the
-> code to explain it. My question was, why do you need to disable
-> interrupt in the end of the polling loop? Do you use interrupt at all in
-> polling mode? If so, why?
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I suspect this may have to do with the special Level 2 interrupt
-controller (drivers/irqchip/irq-bcm7120-l2.c) used between the Level 1
-interrupt signaled to the CPU (<irq-bcm7038-l1.c or ARM GIC) and the
-interrupt generation on the BSC controller side.
+On Fri, May 15, 2015 at 01:37:44PM +0200, Uwe Kleine-K=C3=B6nig wrote:
+> Hello Wolfram,
+>=20
+> On Thu, May 14, 2015 at 02:40:02PM +0200, Wolfram Sang wrote:
+> > From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> >=20
+> > So users can check in advance if there is slave support.
+> I wonder if the core should check if .{,un}reg_slave is !=3D NULL and
+> automatically set this bit accordingly.
 
-The L2 interrupt controller only signals interrupts, but the actual
-acknowledgement of the interrupt needs to happen at the BSC controller
-level, if we do not do that, I suspect the controller keep ssignaling a
-pending interrupt, so we would need to clear it to move forward with
-next events.
--- 
-Florian
+I thought about this, too, but decided against it. Maybe some driver
+doesn't want to make its slave interface public because it is
+specialized for one use-case only (thinking ECs here)? Also, doing it
+would be a little inconsistent, since we could do the same for
+I2C_FUNC_I2C when master_xfer is populated. So, let's start simple I'd
+say.
+
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJVVv43AAoJEBQN5MwUoCm2lf8P/1YI/+jkv5at5EShGaBxOomC
+St8FNTCoLOFrsb2RNYERxdY9K9agF5AKSkU3CMImBbsmpjE4ukOIhmWLH/d42cSb
+ccHvS43X1gLO9p54Zwltj+NJLJHOFBLS0dMdQ7FKCQvoSz/DQEeJq3wX4E/AnXHo
+qqA5lfc9qDSpEB8k7jlucjIep5gCB6dPkLtBWWfMD5WZbDtfiONy2Nl/8YG8IPQ/
+PrH0w090NrJOD4HP8Mrs7HhwY436M7l2MzZlEA5WgR6a6SOfe0t1mH2fnxW1cH4m
+XwjN+t3D1YL06pes4f3XLFzggX5qn+EhscTB7Tacy2JDBbX/mkF3wqQOmAbeNywv
+9SpGwWSre3nbdbgL+52U2AppKmI20wt+hcFjAphBHZe0ZKtmN2UP/67YSvBW3Ieu
+jDOpBQfSkMSuZm2dZHbcsU1ND/2d9K0dyw6ZEgOsuEJSPnoeDL1oc64cgtQsud5C
+cvlcWrjchKeZzcNuBR1EbhUsykMkO+vlSNCM23kQO2xNSn/pveHBrzDd/v1vSM6R
+um11PEC1Z30Dpto2/LbKfn99ii20FaBymlCHk4HzvGLl8XxtBQxZbpabqakcEkt8
+9wsTB3i7bL70cZ+G88Db9x2m9RAIZ5m+du1EsAnTABiBVG0Nc0oUWUa3n8R9dotz
+CD5AbmfmDQibV0Au+UVO
+=8yz/
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--
