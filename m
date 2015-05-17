@@ -1,61 +1,65 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/4] i2c: add FUNC flag for slave capabilities
-Date: Sat, 16 May 2015 12:09:09 +0200
-Message-ID: <20150516100909.GA1617@katana>
-References: <1431607205-2316-1-git-send-email-wsa@the-dreams.de>
- <1431607205-2316-2-git-send-email-wsa@the-dreams.de>
- <20150515113744.GS28888@pengutronix.de>
- <20150516082216.GA4014@schokonusskuchen.bad>
- <20150516092731.GU28888@pengutronix.de>
+From: Dan DeVoto <dand1972@yahoo.com>
+Subject: Re: [PATCH] i2c: powermac: don't workaround for keywest
+Date: Sun, 17 May 2015 01:40:07 -0700
+Message-ID: <1431852007.81598.YahooMailBasic@web141505.mail.bf1.yahoo.com>
+References: <1431386803.13039.30.camel@kernel.crashing.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150516092731.GU28888@pengutronix.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <1431386803.13039.30.camel@kernel.crashing.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+To: wsa@the-dreams.de, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Mark Elliott <txlitebeer@gmail.com>, linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Does the framework check for the slave support flag before binding a
-> slave to the controler? I assume that not, but wonder if it should.
-
-I think this nails it: Currently, the core doesn't use any I2C_FUNC_*
-flags for checking anything. It is solely for exposing information to
-users. I'd like to have FUNC_SLAVE in line with that for now.
-
-If we are going to change that, it should be a seperate thread and not
-limited to FUNC_SLAVE. I might note that for me this is not a priority
-issue, so don't expect patches from me ;)
-
-
---vtzGhvizbBRQ85DL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVVxdFAAoJEBQN5MwUoCm2tOEP/ierYwTrIMMoJVACDgMGdBxk
-v/Hpdf8iVQKo56QFXY15r1Wdht8fEy0ZisodyYnnwDBooVoqNeUz63SA27bco7X3
-ZFWUIzorNgYe1+LA5xai2jvJR9wbBV12iCUYPyxstQBhw04zb4xt4yzx2q0QulXr
-m6auw+kd0yJMHpiBwYdX1akKXSTUz/R4mnPvrs8EpSnxPXHDqebuYPzbdLnfbMQZ
-53vfcptW13AFZcbIhT79fx11gCJ+KwroW+QlXloZYz5ksfN6OqgI6rQfE/3Mji9K
-vaNxtV1v4WFtbvIMKpRhC8PrOCJTcYSHyiM8Ji/l3I7K9iwQegEx8sLx83yTCohK
-mmD0/FT//9Yu1XlmVha+FJJ47S/LKOr6+CaJKy47zmoWYOMCmM0SrXJyudg77t3O
-wCJC0RCcjK8iYiqf+cos9bZshn2ISxVRVak83Ev5+3nnoeb3Y92ZWEGLOwjj4vH2
-fh9fZD+T2UEYAWcwaGCVdHZrKE81C1yLkaRwas/s32QgC+w0crgYfjSYEQ8dWRmH
-rjt/jlXwWRKI972TJwa51P5OR1cMPTlJpOgtuC/7QC8NgEDb+lpIYlI83/OWfRlJ
-zKX6iZQa0qo6paGu04n2J4cR/hZEZMFhyCn+cPXZwSG0juOG/4OKhLdZKl/XPVmN
-CEMYvMZNfIIimlFDqmNu
-=Onfd
------END PGP SIGNATURE-----
-
---vtzGhvizbBRQ85DL--
+SGksCgpTb3JyeSBmb3IgdGhlIGRlbGF5LCBJIGZvdW5kIHRoaXMgbWVzc2FnZSBpbiBteSBzcGFt
+IGZvbGRlci4gIEFueXdheSwKZm9yIG15IG1hY2hpbmUgbW9kZWwsIGNhdCAvcHJvYy9kZXZpY2Ut
+dHJlZS9jb21wYXRpYmxlIHJldHVybnM6CgpQb3dlckJvb2s0LDNNYWNSSVNDMk1hY1JJU0NQb3dl
+ciBNYWNpbnRvc2gKCkl0J3MgYSAxNCBpbi4gaUJvb2sgRzMgNzAwIE1Iei4KClJlZ2FyZHMsCgpE
+YW4KCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCk9uIE1vbiwg
+NS8xMS8xNSwgQmVuamFtaW4gSGVycmVuc2NobWlkdCA8YmVuaEBrZXJuZWwuY3Jhc2hpbmcub3Jn
+PiB3cm90ZToKClN1YmplY3Q6IFJlOiBbUEFUQ0hdIGkyYzogcG93ZXJtYWM6IGRvbid0IHdvcmth
+cm91bmQgZm9yIGtleXdlc3QKVG86IHdzYUB0aGUtZHJlYW1zLmRlCkNjOiBsaW51eC1pMmNAdmdl
+ci5rZXJuZWwub3JnLCBsaW51eHBwYy1kZXZAbGlzdHMub3psYWJzLm9yZywgIkRhbiBEZVZvdG8i
+IDxkYW5kMTk3MkB5YWhvby5jb20+LCAiTWFyayBFbGxpb3R0IiA8dHhsaXRlYmVlckBnbWFpbC5j
+b20+CkRhdGU6IE1vbmRheSwgTWF5IDExLCAyMDE1LCA0OjI2IFBNCgpPbiBNb24sIDIwMTUtMDUt
+MTEgYXQgMDk6MzQgKzAyMDAsIHdzYUB0aGUtZHJlYW1zLmRlIHdyb3RlOgo+IE9uIE1vbiwgTWF5
+IDExLCAyMDE1IGF0IDA4OjE0OjQ3QU0gKzEwMDAsIEJlbmphbWluIEhlcnJlbnNjaG1pZHQgd3Jv
+dGU6Cj4gPiBPbiBTdW4sIDIwMTUtMDUtMTAgYXQgMjA6MzQgKzAyMDAsIFdvbGZyYW0gU2FuZyB3
+cm90ZToKPiA+ID4gT2theSwgc28gdGhpcyBwYXRjaCBpcyBib2d1cy4gSSB1bmRlcnN0YW5kIG5v
+dyB0aGF0IG9ueXggdXNlcyBhbm90aGVyCj4gPiA+IGNvZGVjIHRoYW4gVEFTLCBzbyB0aGlzIGNo
+YW5nZSB3aWxsIHJlZ3Jlc3Mgb24gb3RoZXIgbWFjaGluZXMuCj4gPiA+IEhvd2V2ZXIsCj4gPiA+
+IGl0IHNob3dzIHRoYXQgdGhpcyB1bmNvbmRpdGlvbmFsIGluc3RhbnRpYXRpb24gb2YgdGhlIFRB
+UyBicmVha3Mgc291bmQKPiA+ID4gb24gTWFjaW50b3NocyB3aGljaCBzdGlsbCBuZWVkIG5vbi1h
+b2Egc291bmQgc3VwcG9ydC4gSSBhc3N1bWUgdGhlcmUKPiA+ID4gd2lsbCBiZSBub29uZSBpbiB0
+aGUgbmVhciBmdXR1cmUgdG8gY29udmVydCBLZXl3ZXN0IHRvIEFPQSwgc28gd2UnbGwKPiA+ID4g
+bmVlZCB0byBmaW5kIGEgaGFja2lzaCB3YXkgYXJvdW5kIHRoaXMgaW5zdGFudGlhdGlvbiBwcm9i
+bGVtLgo+ID4KCj4gPiBDb252ZXJ0aW5nIHRoZSBvbGQgbWFjcyB0aGF0IHVzZSBUQVMgc2hvdWxk
+bid0IGJlICp0aGF0KiBoYXJkLCBtYWluCj4gPiBwcm9ibGVtIGlzIEkgZG9uJ3QgaGF2ZSB0aGUg
+aGFyZHdhcmUgdG8gdGVzdC4uLgo+ID4gRGFuIGFuZCBNYXJrIChvbiBDQykgaGF2ZSBiZWVuIHZl
+cnkgaGVscGZ1bCB3aXRoIHRlc3RpbmcuIE1heWJlIHRoZXkgYXJlCj4gPiBhbHNvIGluIHRvIHRl
+c3QgInRoZSBwcm9wZXIgc29sdXRpb24iPwoKPiBQb3NzaWJseSwgZGVwZW5kcyBob3cgbWFueSBt
+YWNoaW5lcyB3ZSBjYW4gY292ZXIuIEkgYWxzbyBoYXZlIGV4dHJlbWVseQo+IGxpdHRsZSB0aW1l
+LCBzbyBJJ20gbm90IHRoYXQga2VlbiBvbiB2b2x1bnRlZXJpbmcgOi0pIEknbGwgKnRyeSogdG8g
+aGF2ZQo+IGEgbG9vayBzb21lIHRpbWUgdGhpcyBvciBuZXh0IHdlZWsuCj4KPiBUaGUgbWFpbiBw
+cm9ibGVtIGlzIHRoZSBkaWZmZXJlbmNlIGluIHRoZSB3YXkgdGhlIGxheW91dCBvZiB0aGUgY29k
+ZWMKPiBldGMuLi4gaXMgcmVwb3J0ZWQgZnJvbSB0aGUgRFQgYnkgdGhlIGZpcm13YXJlLiBPdGhl
+cndpc2UgdGhlIEhXIGlzIHRoZQo+IHNhbWUgYmV0d2VlbiBwcmUtQU9BIGFuZCBwb3N0LUFPQSBy
+ZWFsbHkgLi4uCj4KPiBJIGRvIGhhdmUgYSBidW5jaCBvZiBEVCBzbmFwc2hvdHMgbHlpbmcgYXJv
+dW5kLCBzbyBJIGNhbiB0cnkKPiB0byBmaWd1cmUgb3V0IHNvbWV0aGluZy4KPgo+IERhbiwgTWFy
+aywgd2hhdCBtYWNoaW5lIG1vZGVscyBzcGVjaWZpY2FsbHkgZG8geW91IGhhdmUgPyAoY29tcGF0
+aWJsZQo+IHByb3BlcnR5IGluIHRoZSBEVCBwbHMsIGllLCAvcHJvYy9kZXZpY2UtdHJlZS9jb21w
+YXRpYmxlKS4KPgo+IENoZWVycywKPiBCZW4uCiAKIAogCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fCkxpbnV4cHBjLWRldiBtYWlsaW5nIGxpc3QKTGludXhw
+cGMtZGV2QGxpc3RzLm96bGFicy5vcmcKaHR0cHM6Ly9saXN0cy5vemxhYnMub3JnL2xpc3RpbmZv
+L2xpbnV4cHBjLWRldg==
