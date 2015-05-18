@@ -1,75 +1,68 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH/RFC] i2c: rcar: Fix order of restart and clear status
-Date: Mon, 18 May 2015 15:04:48 +0900
-Message-ID: <20150518060448.GA17523@verge.net.au>
-References: <1424011396-3492-1-git-send-email-ykaneko0929@gmail.com>
- <b0a6dd2b593f2f891946ef910c876b48@the-dreams.de>
- <20150304040819.GB12776@verge.net.au>
- <20150306220531.GA6572@katana>
- <20150307103349.GA1194@katana>
- <20150327131044.GB19151@katana>
- <20150330001530.GA1549@verge.net.au>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v7 2/3] I2C: mediatek: Add driver for MediaTek I2C
+ controller
+Date: Mon, 18 May 2015 08:37:42 +0200
+Message-ID: <20150518063742.GA1545@katana>
+References: <1430901427-65146-1-git-send-email-eddie.huang@mediatek.com>
+ <1430901427-65146-3-git-send-email-eddie.huang@mediatek.com>
+ <20150512125832.GB4447@schokonusskuchen.bad>
+ <1431928701.22349.22.camel@mtksdaap41>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150330001530.GA1549@verge.net.au>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Yoshihiro Kaneko <ykaneko0929@gmail.com>, linux-i2c@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org
+In-Reply-To: <1431928701.22349.22.camel@mtksdaap41>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Mon, Mar 30, 2015 at 09:15:30AM +0900, Simon Horman wrote:
-> On Fri, Mar 27, 2015 at 02:10:45PM +0100, Wolfram Sang wrote:
-> > On Sat, Mar 07, 2015 at 11:33:49AM +0100, Wolfram Sang wrote:
-> > > On Fri, Mar 06, 2015 at 11:05:31PM +0100, Wolfram Sang wrote:
-> > > > 
-> > > > > I asked Kataoka-san about this and his response was as follows:
-> > > > 
-> > > > Thanks, Simon!
-> > > > 
-> > > > > If system(CPU) is busy, the driver can't clear the status register soon
-> > > > > after kicking start.
-> > > > > 
-> > > > > If sequence of first start is as follows, there is a problem.
-> > > > > Because H/W starts by 1.
-> > > > > But sequence of re-start is as follows, there is no problem.
-> > > > > Because H/W starts by 2.
-> > > > > 
-> > > > >   1. Issue START condition by ESG bit of ICMCR register.
-> > > > >                   <--- If there is too much time, H/W finish transmitting
-> > > > >                        and set status in status register.
-> > > > >   2. Clear interrupt status (ICMSR).
-> > > > >   3. Open interrupt mask.
-> > > > >   4. Wait interrupt.
-> > > > >                   <--- If status is cleared, interrupt does not occur.
-> > > > 
-> > > > I understand. I'll add this explanation to the patch and apply it soon.
-> > > 
-> > > Sorry, another question came up while applying:
-> > > 
-> > > How can this interruption happen? The function is called in a
-> > > spin_lock_irqsave protected area. Is this an RT_PREEMPT related issue?
-> > > Am I missing something?
-> > 
-> > Hi,
-> > 
-> > any news on this one?
-> 
-> Sorry, I seem to have dropped the ball here. I've (finally) forwarded
-> your question on to the BSP team.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for your patience, I have a response from the BSP team:
+> > > +		rpaddr =3D dma_map_single(i2c->adap.dev.parent, msgs->buf,
+> > > +						msgs->len, DMA_FROM_DEVICE);
+> >=20
+> > I think you shouldn't use the adapter device here and later, but the dma
+> > channel device.
+> >=20
+> In MTK SoC, each I2C controller has its own DMA, and this DMA can't be
+> used by other hardware.
+> So I tend to use DMA directly, not through DMA channel.
+> Even so, "i2c->adap.dev.parent" is not suitable here. I will change to
+> use i2c->dev here. (Reference i2c-at91.c).
 
-rcar_i2c_start(), rcar_i2c_recv() and rcar_i2c_send() are called in a
-spin_lock_irqsave protected area. Therefore, interruption and preemption
-doesn't happen in these functions.
+The better reference would be i2c-sh_mobile.c, especially commit
+8cfcae9f0595bf0d145a67cfaa1051804a301d7c ("i2c: sh_mobile: use proper
+device for mapping DMA memory") ;) The request to use the DMA channel
+device came from the DMA folks, so if there is no real reason for an
+exception, please use the channel device.
 
-But I think the driver should work fine even if the CPU is very slow.
-If above sequence 1 and 2 are slow, and if H/W is fast, there is a problem.
 
-Since H/W is kicked by sequence 1 then the driver waits the change of status,
-sequence 2 should be executed before sequence 1 even if the CPU is fast enough.
-I think it is a custom of software.
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVWYizAAoJEBQN5MwUoCm2GXwP/jA2vVLY2OzOf9Z2ouv87H9z
+1wm1EKmQDAPMUeA/gugE4zt1QAuE10WO7T1pssxYyIhoVagjdbF+1dOEFIn+WKE4
+wU7sgHH2ZxX5tCNQS6sfHrSxTsxoAf8AvqD/wd7cFKlJVT7Sq650iMpD915TiUYY
+WfTlGe0bXWapEMtdneikFwxExl4TaRymCY1QlJYXQB+bzxSMJgRazbOEabqkgSPe
+WWLUkjrvQAUukxtXelYR1oTuTsHN8HiAP7KEARNuLXwLc/nUzKbgmcJxAI5FnyxA
+WqKrsp8bqj0b2JM/ko/EsjmsnIHKlnoFs0gox2NRudNEQasAcid9wv3e1qmvCQd3
+bWjM8LO2pcoNmQVlb/CU5QtcMsR9i+Ng7c2jRnltF9JiofEtm+vTNgYvf/y9Npl9
+VuI2bztZk+ckyvnYxFmuI4bPy86Q+4RPBIdpkFsOBV90LHkK8RsaqtbWlaEm31au
+dLnCiTrtrxq5p+v7/jXsJNgpNMiT54J4v+fY5tT2VcN8aVZLASHLet01sRDZHAKr
+qc9fHub4PqI21ZacH/PJyUi4PJ8ugDmey8E5wARhxaoUbQjW6dZKNjciFC4wAPYn
+2k9I9WVU2r65BaA7UwM5xofts8nFRGPvcq+w7dVf8QL5MMGW4lVxPW8aAFydO1YA
+VPdv+31VTXeOg7350ziF
+=gqz6
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
