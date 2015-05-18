@@ -1,59 +1,86 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v7 2/3] I2C: mediatek: Add driver for MediaTek I2C
- controller
-Date: Mon, 18 May 2015 11:05:23 +0200
-Message-ID: <20150518090523.GA5825@schokonusskuchen.bad>
-References: <1430901427-65146-1-git-send-email-eddie.huang@mediatek.com>
- <1430901427-65146-3-git-send-email-eddie.huang@mediatek.com>
- <20150512125832.GB4447@schokonusskuchen.bad>
- <1431928701.22349.22.camel@mtksdaap41>
- <20150518063742.GA1545@katana>
- <1431934936.14340.17.camel@mtksdaap41>
+From: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v8 0/3] ARM: mediatek: Add driver for Mediatek I2C
+Date: Tue, 19 May 2015 00:40:06 +0800
+Message-ID: <1431967209-5261-1-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1431934936.14340.17.camel@mtksdaap41>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This series is for Mediatek SoCs I2C controller common bus driver.
 
---0F1p//8PRICkK4MW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Earlier MTK SoC (for example, MT6589, MT8135) I2C HW has some limitations.
+New generation SoC like MT8173 fix following limitations:
 
-> sh_mobile already implement dmaengine, so its I2C driver can use dma
-> channel.
+1. Only support one i2c_msg number. One exception is WRRD (write then read)
+mode. WRRD can have two i2c_msg numbers.
 
-OK.
+2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
+mode the Repeat Start will be issued between 2 messages.
+In this driver if 2 messages is first write then read, the driver will
+combine 2 messages using Write-Read mode so the RS will be issued between
+the 2 messages.
 
---0F1p//8PRICkK4MW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+3. The max transfer data length is 255 in one message. In WRRD mode, the
+max data length of second msg is 31.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+registers in MT8135 side. In this case, driver should set OFFSET_PATH_DIR
+bit first, the operation on other registers are still the same.
+For now MT6589/MT8135 support this, MT6577/MT6595/MT8127 do not support.
+For example, If want to use I2C4/5/6 pins on MT8135 just need to enable
+the pinmux, else if want to use I2C pins on PMIC(MT6397) need to add
+"mediatek,have-pmic" property in the .dts file of each platform.
 
-iQIcBAEBAgAGBQJVWatSAAoJEBQN5MwUoCm2suIP/RRuj68gpAtHT9+i3K+tn99e
-9o303/lMY/cgumH/+R9En62tjBnVESp60yOob2kmRTrPhyGVIjSDpAgPAUK4AWDm
-fTY8PDOp6zXn5DwYNzrznDsNjs7kosCF9ELOPjv2zK49fW05YEoH70dtGoeDzxK9
-JrSKaXx9LB4xctWYHitkXxMN38qnMa6dCwuArCJ7tOfxCTZecPC0TaCZ+Iqlpq3U
-ZVm5CqIPckK6Ug5v7i59tFgTmjU30aDFGNCUK03D57PpN0JdTANnJK0m//9Gq6WJ
-7IXfD82AroEawnqa76eX68N8Zw6UXx9NnJKvN+7O/K8ljwfbdWdPULBSlTTelr7k
-K8G6ma6ee15ajwHpWYeBfeY0ROOXygd7DdHw3JJZXQ5pmHHf1tLtBM6o2z7KApR6
-cVKd2F7/p5CDGcxJnZ24Y6lUwoj/cPRQShDNCZCR4T0x5/ktvxcvKphgJ9v0MB0q
-TCnLKsnmgGakrgzNgX0q/ZACmsPayT4uQX+45qDt518CCJKUV47yBfTnVMiDjmYa
-i61jYWgY6gHB58gRMzXQmR6kg1JI2syO/KwJmLObvu9XywfktKimVrrm57AtqwK5
-b8O2MJQ7NvAJDOS/2KCjO1X2AExSQlHc2kYc0CM+agBQ0P+lGqBJ5TGGC56s3+ox
-N9Va6K5GTepdXuJc+YjS
-=TSrq
------END PGP SIGNATURE-----
+This driver is based on 4.1-rc1.
 
---0F1p//8PRICkK4MW--
+Change in v8:
+Fix Wolfram's review comments like sort include file order, remove thin
+wrapper functions, remove define number that only use once, and revise
+error return value.
+
+Change in v7:
+Fix mtk_i2c_of_match in wrong patch bug.
+
+Change in v6:
+1. Update binding document not use default clock-frequency as example.
+2. Add mtk_i2c_compatible struct and pass hardware capabilities
+   through of_device_id
+3. Remove some hardware setting in mtk_i2c_do_transfer to mtk_i2c_init_hw
+   so just init one time.
+4. Correct mtk_i2c_parse_dt don't set default clock bug.
+
+Change in v5:
+Apply new i2c_adapter_quirks patch [2]. Change to use dam_map_single to map
+dma buffer. Add spinlock to fix race condition. Check of_property_read_u32
+return value. Remove I2C_FUNC_10BIT_ADDR capability due to driver not implement.
+Add MT8173 I2C driver.
+
+Change in v4:
+Modify to support i2c_adapter_quirks base on Wolfram's patch [1].
+Remove check transfer size and WRRD combine code. Instead, fill quirk
+property and let i2c_check_for_quirks to do the filter.
+
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-January/314804.html
+[2] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-February/325744.html
+
+Eddie Huang (1):
+  I2C: mediatek: Add driver for MediaTek MT8173 I2C controller
+
+Xudong Chen (2):
+  dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+  I2C: mediatek: Add driver for MediaTek I2C controller
+
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         |  41 ++
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-mt65xx.c                    | 715 +++++++++++++++++++++
+ 4 files changed, 766 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+ create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
+
 --
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1.8.1.1.dirty
