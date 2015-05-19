@@ -1,52 +1,61 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: separate ops for system_sleep_pm and
- runtime_pm
-Date: Tue, 19 May 2015 16:15:16 +0300
-Message-ID: <20150519131516.GO1490@lahna.fi.intel.com>
-References: <1431693099-2292-1-git-send-email-jszhang@marvell.com>
- <20150518082823.GH1490@lahna.fi.intel.com>
- <20150519203242.74617ad6@xhacker>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20150519203242.74617ad6@xhacker>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jisheng Zhang <jszhang@marvell.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de
+From: Robert Dolca <robert.dolca-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH RFC] i2c: Use ID table to detect ACPI I2C devices
+Date: Tue, 19 May 2015 17:03:29 +0300
+Message-ID: <1432044209-27858-1-git-send-email-robert.dolca@intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Robert Dolca <robert.dolca-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 19, 2015 at 08:32:42PM +0800, Jisheng Zhang wrote:
-> > I can see that this fixes the issue with the platform driver (as the
-> > platform bus core doesn't power on the device automatically as opposed
-> > to other buses, like PCI). However, I'm thinking that can we do better
-> > here.
-> > 
-> > Instead of powering the device on again, can't we leave it in low power
-> > state? Recently added 'dev->power.direct_complete' may be used to
-> > achieve that, I think.
-> 
-> how to handle runtime suspended via just being clock gated?
+For i2c devices enumerated with ACPI you need to declare both
+acpi_match_table and id_table. When using ACPI, the i2c_device_id structure
+supplied to the probe function is null and you have to handle this case
+in the driver.
 
-As far as I can tell driver's suspend hook does the clock gating so why
-would you need to handle it differently? Once the device is runtime
-suspended, it is both clock and power gated depending on the platform.
+The current name for the i2c client when using ACPI is "HID:UID" where the
+UID has 7 or 8 characters and the UID has 2 characters. The UID is not
+relevant for identifying the chip so it does not have any practical
+purpose.
 
-> Currently the only solution is using the runtime pm apis to ensure the
-> device is in a working state during s2ram. What's your opinion?
+Modifying i2c_match_id we make the comparison by ignoring the UID from the
+client name when the device was discovered using ACPI. The comparison is
+case insensitive because the ACPI names are uppercase and the DT and ID
+table names are lowercase. It would not make sense to have two different
+chips with the same name and the only diference being the capitalized
+letters.
 
-Well, it sounds a bit silly to resume the device just because you want
-to call i2c_dw_disable() for it before suspending again ;-)
+With these changes the probe function gets a valid i2c_device_id and the
+driver doesn't have to declare acpi_match_table.
 
-At least, it would be nice to check if we can keep it runtime suspended
-with the help of 'dev->power.direct_complete'. If not possible, then I
-suppose your patch is sufficient.
+Signed-off-by: Robert Dolca <robert.dolca-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index fec0e0d..c9b30b7 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -447,8 +447,18 @@ static inline int acpi_i2c_install_space_handler(struct i2c_adapter *adapter)
+ static const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
+ 						const struct i2c_client *client)
+ {
++	char name[I2C_NAME_SIZE], *c;
++
++	strlcpy(name, client->name, sizeof(name));
++
++	if (ACPI_HANDLE(&client->dev)) {
++		c = strchr(name, ':');
++		if (c)
++			*c = 0;
++	}
++
+ 	while (id->name[0]) {
+-		if (strcmp(client->name, id->name) == 0)
++		if (strncasecmp(name, id->name, sizeof(id->name)) == 0)
+ 			return id;
+ 		id++;
+ 	}
+-- 
+1.9.1
