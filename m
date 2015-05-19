@@ -1,141 +1,47 @@
-From: sathyanarayanan kuppuswamy
-	<sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v1 1/1] i2c: designware: Fix hold and setup time issue
-Date: Mon, 18 May 2015 13:52:30 -0700
-Message-ID: <555A510E.2050506@linux.intel.com>
-References: <cover.1428374207.git.sathyanarayanan.kuppuswamy@linux.intel.com> <b3d42396c046e4ab4a14edec84f3484b0f27d192.1428374207.git.sathyanarayanan.kuppuswamy@linux.intel.com>
-Reply-To: sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: How to encode being an I2C slave in DT?
+Date: Mon, 18 May 2015 19:37:59 -0500
+Message-ID: <CAL_Jsq+iyeK-bV3ggcJv8Cw3EU71fkBo1wqYZnhCoh2-b_tO-Q@mail.gmail.com>
+References: <1427745615-5428-1-git-send-email-danindrey@mail.ru>
+ <20150403194635.GC2016@katana> <1549160.njMIY2NVTi@fb07-iapwap2>
+ <20150505105513.GA1841@katana> <554922EF.3050906@wwwdotorg.org> <20150506161712.GA4003@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <b3d42396c046e4ab4a14edec84f3484b0f27d192.1428374207.git.sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150506161712.GA4003@katana>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-ping.
-
-On 04/06/2015 07:40 PM, Kuppuswamy Sathyanarayanan wrote:
-> If the device configuration is updated by firmware and
-> the information is not passed to driver via firmware
-> interfaces like ACPI or DT parameters, then that information
-> will be lost once the device either resets or suspends. This
-> patch checks the boot value of hold and setup time during
-> device probe and updates the driver hold and setup time params.
-> This fix will ensure that the updates to hold and setup time
-> values are not lost after device suspend or resets.
+On Wed, May 6, 2015 at 11:17 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
 >
-> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-designware-core.c    | 37 +++++++++++++++++++++++++++++
->   drivers/i2c/busses/i2c-designware-core.h    |  2 ++
->   drivers/i2c/busses/i2c-designware-platdrv.c |  4 ++++
->   3 files changed, 43 insertions(+)
+>> The container node has a #address-cells property for this very reason. It's
+>> perfectly well-defined how to split up a property containing a large number
+>> of cells into separate values, by using the value of #address-cells. Plus,
+>> the canonical formatting (albeit not enforced by the DT compiler) for a
+>> property that contains an array of entries, each 2 cells in size, would be:
+>>
+>> reg = <0 0x1a>, <0 0x40>, <0 0x48>;
+>>
+>> rather than:
+>>
+>> reg = <0 0x1a 0 0x40 0 0x48>;
+>>
+>> ... so it's quite simple to make it very human-readable too.
 >
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 6e25c01..2598207 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -64,6 +64,7 @@
->   #define DW_IC_RXFLR		0x78
->   #define DW_IC_SDA_HOLD		0x7c
->   #define DW_IC_TX_ABRT_SOURCE	0x80
-> +#define DW_IC_SDA_SETUP		0x94
->   #define DW_IC_ENABLE_STATUS	0x9c
->   #define DW_IC_COMP_PARAM_1	0xf4
->   #define DW_IC_COMP_VERSION	0xf8
-> @@ -89,6 +90,9 @@
->   					 DW_IC_INTR_TX_ABRT | \
->   					 DW_IC_INTR_STOP_DET)
->   
-> +#define DW_IC_DEFAULT_SDA_SETUP	0x64
-> +#define DW_IC_DEFAULT_SDA_HOLD	0x1
-> +
->   #define DW_IC_STATUS_ACTIVITY	0x1
->   
->   #define DW_IC_ERR_TX_ABRT	0x1
-> @@ -271,6 +275,35 @@ static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
->   		 enable ? "en" : "dis");
->   }
->   
-> +/*
-> + * Update device default param values if its changed by
-> + * firmware
-> + */
-> +void dw_i2c_update_defaults(struct dw_i2c_dev *dev)
-> +{
-> +	int ret;
-> +
-> +	/*
-> +	 * make sure default is not updated by firmware
-> +	 * interfaces like OF or ACPI
-> +	 */
-> +
-> +	/* SDA hold time update */
-> +	if (!dev->sda_hold_time) {
-> +		ret = dw_readl(dev, DW_IC_SDA_HOLD);
-> +		if ((ret > 0) && (ret != DW_IC_DEFAULT_SDA_HOLD))
-> +			dev->sda_hold_time = ret;
-> +	}
-> +
-> +	/* SDA setup time update */
-> +	if (!dev->sda_setup_time) {
-> +		ret = dw_readl(dev, DW_IC_SDA_SETUP);
-> +		if ((ret > 0) && (ret != DW_IC_DEFAULT_SDA_SETUP))
-> +			dev->sda_setup_time = ret;
-> +	}
-> +}
-> +EXPORT_SYMBOL_GPL(dw_i2c_update_defaults);
-> +
->   /**
->    * i2c_dw_init() - initialize the designware i2c master hardware
->    * @dev: device private data
-> @@ -368,6 +401,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
->   				"Hardware too old to adjust SDA hold time.");
->   	}
->   
-> +	/* Configure SDA setup time if required */
-> +	if (dev->sda_setup_time)
-> +		dw_writel(dev, dev->sda_setup_time, DW_IC_SDA_SETUP);
-> +
->   	/* Configure Tx/Rx FIFO threshold levels */
->   	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
->   	dw_writel(dev, 0, DW_IC_RX_TL);
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> index 9630222..23ae2e8 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -98,6 +98,7 @@ struct dw_i2c_dev {
->   	unsigned int		rx_fifo_depth;
->   	int			rx_outstanding;
->   	u32			sda_hold_time;
-> +	u32			sda_setup_time;
->   	u32			sda_falling_time;
->   	u32			scl_falling_time;
->   	u16			ss_hcnt;
-> @@ -131,3 +132,4 @@ extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
->   #else
->   static inline int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev) { return 0; }
->   #endif
-> +extern void dw_i2c_update_defaults(struct dw_i2c_dev *dev);
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index c270f5f..d8995d8 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -233,6 +233,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
->   		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
->   		dev->adapter.nr = pdev->id;
->   	}
-> +
-> +	/* call after firmware param update */
-> +	dw_i2c_update_defaults(dev);
-> +
->   	r = i2c_dw_init(dev);
->   	if (r)
->   		return r;
+> I give in to the flag idea. I also noticed that we'd need another flag
+> anyhow to mark 10 bit addresses. I am still thinking between using two
+> address-cells in that case (clean seperation between address and flags)
+> or to encode the flags as MSB in the current address (all busses will
+> have same address-cells and child description, less code paths and no
+> overhead in dtbs).
 
--- 
-Sathyanarayanan Kuppuswamy
-Android kernel developer
+Reading thru the thread, this seems good to me. I would go with adding
+flags in the MSB of the reg cell rather than adding a cell.
+
+Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
