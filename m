@@ -1,53 +1,46 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v8 2/3] I2C: mediatek: Add driver for MediaTek I2C
- controller
-Date: Tue, 19 May 2015 21:49:17 +0200
-Message-ID: <20150519194917.GI24769@pengutronix.de>
-References: <1431967209-5261-1-git-send-email-eddie.huang@mediatek.com>
- <1431967209-5261-3-git-send-email-eddie.huang@mediatek.com>
- <20150518184300.GB28888@pengutronix.de>
- <CABuKBeJcpufi-eEWmDRK6F2kgpz3DmCz8rp4hVPCJVgkmGr-KA@mail.gmail.com>
+From: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: Re: [V4, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
+ driver
+Date: Tue, 19 May 2015 13:50:51 -0700
+Message-ID: <555BA22B.9020408@broadcom.com>
+References: <1432052625-6210-1-git-send-email-kdasu.kdev@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CABuKBeJcpufi-eEWmDRK6F2kgpz3DmCz8rp4hVPCJVgkmGr-KA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Xudong Chen <xudong.chen@mediatek.com>, srv_heupstream <srv_heupstream@mediatek.com>, Pawel Moll <pawel.moll@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Liguo Zhang <liguo.zhang@mediatek.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, Kumar Gala <galak@codeaurora.org>, Eddie Huang <eddie.huang@mediatek.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1432052625-6210-1-git-send-email-kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Matthias,
+Hi Kamal,
 
-On Tue, May 19, 2015 at 04:48:23PM +0200, Matthias Brugger wrote:
-> 2015-05-18 20:43 GMT+02:00 Uwe Kleine-K=F6nig <u.kleine-koenig@pengut=
-ronix.de>:
-> > On Tue, May 19, 2015 at 12:40:08AM +0800, Eddie Huang wrote:
-> >> [...]
-> >>  drivers/i2c/busses/i2c-mt65xx.c | 675 +++++++++++++++++++++++++++=
-+++++++++++++
-> >> [...]
-> >> +#define I2C_DRV_NAME         "mt-i2c"
-> > i2c-mt65xx ?
->=20
-> As this works for all SoCs so far, I would propose: i2c-mtk
-Hmm, currently we have:
+There's one change still missing (that I mentioned when reviewing v2 of 
+the patchset):
 
-  - #define I2C_DRV_NAME mt-i2c
-  - dt-compatibles: "mediatek,mt6577-i2c" + "mediatek,mt6589-i2c"
-  - function prefix: mtk_i2c_
-  - filename: i2c-mt65xx.c
-  - Kconfig symbol: I2C_MT65XX
+ >>>
+What is the max len that can be supported? BSC_CNT_REG1_MASK = 63? Then
+you should check against that.
 
-Getting some harmonization here would definitly be nice.
+Note Wolfram has introduced a way to validate the supported data length
+at the i2c-core, which you should adapt:
 
-Best regards
-Uwe
+commit b7f625840267b18ef1011cba0085bb7e237d76f7
+Author: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Date:   Mon Jan 5 23:45:59 2015 +0100
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+     i2c: add quirk checks to core
+
+     Let the core do the checks if HW quirks prevent a transfer. Saves code
+     from drivers and adds consistency.
+<<<
+
+So you should add struct i2c_adapter_quirks and set the max_read_len and 
+max_write_len.
+
+I have no more comment for the rest of the code.
+
+Thanks,
+
+Ray
