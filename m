@@ -1,122 +1,110 @@
-From: Yingjoe Chen <yingjoe.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v8 2/3] I2C: mediatek: Add driver for MediaTek I2C
- controller
-Date: Wed, 20 May 2015 21:03:40 +0800
-Message-ID: <1432127020.20394.15.camel@mtksdaap41>
-References: <1431967209-5261-1-git-send-email-eddie.huang@mediatek.com>
-	 <1431967209-5261-3-git-send-email-eddie.huang@mediatek.com>
-	 <20150520085715.GA17078@pengutronix.de>
+From: Robert Dolca <robert.dolca-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH RFC] i2c: Use ID table to detect ACPI I2C devices
+Date: Wed, 20 May 2015 16:07:00 +0300
+Message-ID: <CAFPB+Ydw4Ywo4dt5NB-Aed6gtt89h2kMucXtgJa42vwommZerw@mail.gmail.com>
+References: <1432044209-27858-1-git-send-email-robert.dolca@intel.com>
+ <20150520074708.GQ1490@lahna.fi.intel.com> <CAFPB+YfvJiL7yNidDQJqq=XbF1hA4QwdBhbVYrwB=wpLkJUOwA@mail.gmail.com>
+ <20150520094829.GS1490@lahna.fi.intel.com> <CAFPB+YcggLY9vwtYREX_YVVJFrTYHTQYnBtvMcicvLgo5MX-+A@mail.gmail.com>
+ <20150520105753.GT1490@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150520085715.GA17078-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20150520105753.GT1490-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Robert Dolca <robert.dolca-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, May 20, 2015 at 1:57 PM, Mika Westerberg
+<mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> On Wed, May 20, 2015 at 01:49:02PM +0300, Robert Dolca wrote:
+>> On Wed, May 20, 2015 at 12:48 PM, Mika Westerberg wrote:
+>> > On Wed, May 20, 2015 at 12:39:22PM +0300, Robert Dolca wrote:
+>> >> Currently, if the name used for DT (in dts) matches one of the names
+>> >> specified in the id table you will have a match. Isn't that an
+>> >> intended behavior?
+>> >
+>> > I thought one needs to put IDs to the driver .of_match_table. This is
+>> > also what i2c_device_match() is expecting, if I read it right.
+>>
+>> If you put the DT id in of_match_table it will match here:
+>>
+>> i2c_device_match
+>>         /* Attempt an OF style match */
+>>         if (of_driver_match_device(dev, drv))
+>>                 return 1;
+>>
+>> If you don't specify of_match_table and you put the same ID in
+>> i2c_device_id table it wil match here:
+>>
+>> i2c_device_match
+>>         driver = to_i2c_driver(drv);
+>>         /* match on an id table if there is one */
+>>         if (driver->id_table)
+>>                 return i2c_match_id(driver->id_table, client) != NULL;
+>>
+>> This is happening because the name from dts is used for client->name.
+>> i2c_match_id does the matching based on the client name.
+>
+> OK.
+>
+>> > BTW, how modules are supposed to be matched if we allow putting ACPI
+>> > identifiers to i2c_device_id table?
+>>
+>> My aproach was like this: if the driver specifies .acpi_match table it
+>> will work like before.
+>>
+>> i2c_device_match
+>>         /* Then ACPI style match */
+>>         if (acpi_driver_match_device(dev, drv))
+>>                 return 1;
+>>
+>> If the driver does not specify .acpi_match table the i2c core will
+>> atempt to match against the  i2c_match_id table (the same way it does
+>> for DT). In the ACPI case the client->name has that :nn suffix and
+>> what the patch does is to ignore that when i2c_match_id is called.
+>>
+>> i2c_device_match
+>>         driver = to_i2c_driver(drv);
+>>         /* match on an id table if there is one */
+>>         if (driver->id_table)
+>>                 return i2c_match_id(driver->id_table, client) != NULL;
+>
+> Yeah but when you have device with modalias of "acpi:FOO:" how
+> udev/modprobe is supposed find the correct module?
 
-Hi Uwe,
+The modalias file content exposed by the i2c device in sysfs will be the same.
+Currently the alias exposed by the driver is based on the i2c_match_id
+table and it does not have any aliases based on
+acpi_device_id table. I am new to this are so please correct me if I am wrong.
 
-On Wed, 2015-05-20 at 10:57 +0200, Uwe Kleine-K=C3=B6nig wrote:
-> Hello,
->=20
-> now that I understood the formula some more comments to the calculati=
-on.
->=20
-> On Tue, May 19, 2015 at 12:40:08AM +0800, Eddie Huang wrote:
-> > +#define I2C_DEFAUT_SPEED		100000	/* hz */
-> DEFAULT?
->=20
-> > +#define MAX_FS_MODE_SPEED		400000
-> > +#define MAX_HS_MODE_SPEED		3400000
-> > +#define MAX_SAMPLE_CNT_DIV		8
-> > +#define MAX_STEP_CNT_DIV		64
-> > +#define MAX_HS_STEP_CNT_DIV		8
-> > [...]
-> > +/* calculate i2c port speed */
-> > +static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int clk=
-_src_in_hz)
-> > +{
-> add a comment here, that clk_src_in_hz is the parent clock already
-> divided by clock-div.
->=20
-> > +	unsigned int khz;
-> > +	unsigned int step_cnt;
-> > +	unsigned int sample_cnt;
-> > +	unsigned int sclk;
-> > +	unsigned int hclk;
-> > +	unsigned int max_step_cnt;
-> > +	unsigned int sample_div =3D MAX_SAMPLE_CNT_DIV;
-> > +	unsigned int step_div;
-> > +	unsigned int min_div;
-> > +	unsigned int best_mul;
-> > +	unsigned int cnt_mul;
-> > +
-> > +	if (i2c->speed_hz > MAX_HS_MODE_SPEED)
-> > +		return -EINVAL;
-> According to the plan to tune for the highest possible rate <=3D
-> i2c->speed_hz, you should handle the case (i2c->speed_hz >
-> MAX_HS_MODE_SPEED) like i2c->speed_hz =3D=3D MAX_HS_MODE_SPEED.
-> Well, you might want to prevent an overflow in the calculation below
-> however.
+>> The final goal is to simplify the driver and remove redundant code.
+>
+> IMHO mixing ACPI identifiers with I2C device identifiers does not
+> simplify anything. And since you need to stick the ACPI ID somewhere
+> anyway I don't get the point of removing redundant code either.
 
-The check here means we don't support speed > MAX_HS_MODE_SPEED. This i=
-s
-different then slightly slower bus speed due to rounding error.
+It will make the i2c_device_id be not NULL when the device is probed.
+Here is an example:
 
-> > +	else if (i2c->speed_hz > MAX_FS_MODE_SPEED)
-> > +		max_step_cnt =3D MAX_HS_STEP_CNT_DIV;
-> > +	else
-> > +		max_step_cnt =3D MAX_STEP_CNT_DIV;
-> So I assume this is the hardware limit on the step_cnt value. For
-> FS_MODE and below you have 6 bits and writing X corresponds to
-> step_cnt =3D X + 1. For HS_MODE there are only 3 bits. right?
+static int probe(struct i2c_client *client, const struct i2c_device_id *id)
+       /* Get device name from device table or ACPI */
+        if (ACPI_HANDLE(dev)) {
+                acpi_id = acpi_match_device(silead_ts_acpi_match, dev);
+                if (!acpi_id)
+                        return -ENODEV;
 
-Yes, correct.
+                sprintf(data->fw_name, "%s.fw", acpi_id->id);
 
-> > +	step_div =3D max_step_cnt;
-> > +	/* Find the best combination */
-> > +	khz =3D i2c->speed_hz / 1000;
-> > +	hclk =3D clk_src_in_hz / 1000;
-> Why are you dividing here? There shouldn't be an overflow problem and
-> you're loosing precision.
+                for (i = 0; i < strlen(data->fw_name); i++)
+                        data->fw_name[i] = tolower(data->fw_name[i]);
+        } else {
+                sprintf(data->fw_name, "%s.fw", id->name);
+        }
 
-Agreed, they should be removed.
+This will become:
+        sprintf(data->fw_name, "%s.fw", id->name);
 
-> > +	min_div =3D ((hclk >> 1) + khz - 1) / khz;
-> The shift accounts for the fixed divider 2 in
->=20
-> 	i2c_bus_freq =3D parent_clk / (clock-div * 2 * sample_cnt * step_cnt
->=20
-> ? Maybe better call this opt_div instead of min_div? So now we're
-> searching for the best pair (sample_cnt, step_cnt) with:
->=20
-> 	* 0 < sample_cnt < MAX_SAMPLE_CNT_DIV
-> 	* 0 < step_cnt < max_step_cnt
-> 	* sample_cnt * step_cnt >=3D min_div
-> 	* optimizing for sample_cnt * step_cnt being minimal
->=20
-> Right?
+There are allot more cases like this already in the kernel.
 
-Yes.
-
-> > +	best_mul =3D MAX_SAMPLE_CNT_DIV * max_step_cnt;
-> > +
-> > +	for (sample_cnt =3D 1; sample_cnt <=3D MAX_SAMPLE_CNT_DIV; sample=
-_cnt++) {
-> > +		step_cnt =3D (min_div + sample_cnt - 1) / sample_cnt;
-> DIV_ROUND_UP
->=20
-> > +		cnt_mul =3D step_cnt * sample_cnt;
-> > +		if (step_cnt > max_step_cnt)
-> > +			continue;
-> I think it can happen that you have step_cnt > max_step_cnt here, but
-> that (sample_cnt, max_step_cnt) still is a good pair to consider. So:
-
-
-If step_cnt > max_step_cnt, then sample_cnt * max_step_cnt < min_div.
-This means (sample_cnt, max_step_cnt) is not a valid.
-
-Joe.C
+Robert
