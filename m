@@ -1,42 +1,58 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH 4/6] i2c-parport: use new parport device model
-Date: Wed, 20 May 2015 19:59:18 +0200
-Message-ID: <20150520195918.1c150979@endymion.delvare>
-References: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
-	<1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
-	<20150520154907.GB2001@katana>
-	<20150520171452.GA9069@sudip-PC>
+From: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [V4, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller driver
+Date: Wed, 20 May 2015 16:35:08 -0400
+Message-ID: <CAC=U0a3dxJi1c1FrQaqGojc8JXzs=om2Z1r=nB0dinyrFzz-+g@mail.gmail.com>
+References: <1432052625-6210-1-git-send-email-kdasu.kdev@gmail.com>
+	<555BA22B.9020408@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150520171452.GA9069@sudip-PC>
+In-Reply-To: <555BA22B.9020408-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Waugh <tim-xbtOLCSHb9Lk1uMJSBkQmQ@public.gmane.org>, Willy Tarreau <willy-859RlTSWH48dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Alan Cox <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org
+To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Fong <gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 20 May 2015 22:44:52 +0530, Sudip Mukherjee wrote:
-> On Wed, May 20, 2015 at 05:49:07PM +0200, Wolfram Sang wrote:
-> > On Wed, May 20, 2015 at 08:57:00PM +0530, Sudip Mukherjee wrote:
-> > >  static struct parport_driver i2c_parport_driver = {
-> > > -	.name	= "i2c-parport",
-> > > -	.attach	= i2c_parport_attach,
-> > > -	.detach	= i2c_parport_detach,
-> > > +	.name		= "i2c-parport",
-> > > +	.match_port	= i2c_parport_attach,
-> > > +	.detach		= i2c_parport_detach,
-> > > +	.devmodel	= true,
-> > 
-> > Minor nit: I prefer to not use tabs but a single space after the struct
-> > member names. Less hazzle in the future and still readable IMO.
+Ray,
+
+I am using  non combined operation so it not necessary have limit. I
+am not sending a stop condition till the last byte is written or read.
+So if the xfer has more than the i2c buffer len we break up the
+transfers after the initial salve address write into max read/write
+data buffer size.
+
+Thanks
+Kamal
+
+On Tue, May 19, 2015 at 4:50 PM, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org> wrote:
+> Hi Kamal,
 >
-> It was having space originally. I changed that into tab as it was
-> looking good with them as aligned.
-
-As the driver maintainer, I am fine with both unaligned or tab-aligned.
-Space-aligned as I did originally was not a good idea, I admit.
-
--- 
-Jean Delvare
-SUSE L3 Support
+> There's one change still missing (that I mentioned when reviewing v2 of the
+> patchset):
+>
+>>>>
+> What is the max len that can be supported? BSC_CNT_REG1_MASK = 63? Then
+> you should check against that.
+>
+> Note Wolfram has introduced a way to validate the supported data length
+> at the i2c-core, which you should adapt:
+>
+> commit b7f625840267b18ef1011cba0085bb7e237d76f7
+> Author: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Date:   Mon Jan 5 23:45:59 2015 +0100
+>
+>     i2c: add quirk checks to core
+>
+>     Let the core do the checks if HW quirks prevent a transfer. Saves code
+>     from drivers and adds consistency.
+> <<<
+>
+> So you should add struct i2c_adapter_quirks and set the max_read_len and
+> max_write_len.
+>
+> I have no more comment for the rest of the code.
+>
+> Thanks,
+>
+> Ray
+>
