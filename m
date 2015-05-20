@@ -1,163 +1,57 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v8 2/3] I2C: mediatek: Add driver for MediaTek I2C
- controller
-Date: Wed, 20 May 2015 10:57:16 +0200
-Message-ID: <20150520085715.GA17078@pengutronix.de>
-References: <1431967209-5261-1-git-send-email-eddie.huang@mediatek.com>
- <1431967209-5261-3-git-send-email-eddie.huang@mediatek.com>
+From: Robert Dolca <robert.dolca@gmail.com>
+Subject: Re: [PATCH RFC] i2c: Use ID table to detect ACPI I2C devices
+Date: Wed, 20 May 2015 12:39:22 +0300
+Message-ID: <CAFPB+YfvJiL7yNidDQJqq=XbF1hA4QwdBhbVYrwB=wpLkJUOwA@mail.gmail.com>
+References: <1432044209-27858-1-git-send-email-robert.dolca@intel.com> <20150520074708.GQ1490@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1431967209-5261-3-git-send-email-eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150520074708.GQ1490@lahna.fi.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Robert Dolca <robert.dolca@intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Daniel Baluta <daniel.baluta@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Wed, May 20, 2015 at 10:47 AM, Mika Westerberg wrote:
+> On Tue, May 19, 2015 at 05:03:29PM +0300, Robert Dolca wrote:
+>> For i2c devices enumerated with ACPI you need to declare both
+>> acpi_match_table and id_table. When using ACPI, the i2c_device_id structure
+>> supplied to the probe function is null and you have to handle this case
+>> in the driver.
+>>
+>> The current name for the i2c client when using ACPI is "HID:UID" where the
+>> UID has 7 or 8 characters and the UID has 2 characters. The UID is not
+>> relevant for identifying the chip so it does not have any practical
+>> purpose.
+>
+> First of all, it is not "HID:UID" since the number after ":" is actually
+> increasing number assigned by the ACPI core. Nothing to do with _UID.
 
-now that I understood the formula some more comments to the calculation=
-=2E
+You are right. My mistake.
 
-On Tue, May 19, 2015 at 12:40:08AM +0800, Eddie Huang wrote:
-> +#define I2C_DEFAUT_SPEED		100000	/* hz */
-DEFAULT?
+> Secondly we do not list "_HID:nn" in drivers acpi_match_tables but
+> instead it is either "HID" or "CID", no ":nn" there.
 
-> +#define MAX_FS_MODE_SPEED		400000
-> +#define MAX_HS_MODE_SPEED		3400000
-> +#define MAX_SAMPLE_CNT_DIV		8
-> +#define MAX_STEP_CNT_DIV		64
-> +#define MAX_HS_STEP_CNT_DIV		8
-> [...]
-> +/* calculate i2c port speed */
-> +static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int clk_s=
-rc_in_hz)
-> +{
-add a comment here, that clk_src_in_hz is the parent clock already
-divided by clock-div.
+I didn't say that you do that :)
 
-> +	unsigned int khz;
-> +	unsigned int step_cnt;
-> +	unsigned int sample_cnt;
-> +	unsigned int sclk;
-> +	unsigned int hclk;
-> +	unsigned int max_step_cnt;
-> +	unsigned int sample_div =3D MAX_SAMPLE_CNT_DIV;
-> +	unsigned int step_div;
-> +	unsigned int min_div;
-> +	unsigned int best_mul;
-> +	unsigned int cnt_mul;
-> +
-> +	if (i2c->speed_hz > MAX_HS_MODE_SPEED)
-> +		return -EINVAL;
-According to the plan to tune for the highest possible rate <=3D
-i2c->speed_hz, you should handle the case (i2c->speed_hz >
-MAX_HS_MODE_SPEED) like i2c->speed_hz =3D=3D MAX_HS_MODE_SPEED.
-Well, you might want to prevent an overflow in the calculation below
-however.
+>
+>> Modifying i2c_match_id we make the comparison by ignoring the UID from the
+>> client name when the device was discovered using ACPI. The comparison is
+>> case insensitive because the ACPI names are uppercase and the DT and ID
+>> table names are lowercase. It would not make sense to have two different
+>> chips with the same name and the only diference being the capitalized
+>> letters.
+>>
+>> With these changes the probe function gets a valid i2c_device_id and the
+>> driver doesn't have to declare acpi_match_table.
+>
+> No. We don't do that for DT and we definitely don't want to mix ACPI
+> identifiers with arbitrary I2C device names.
+>
+> You are not supposed to put ACPI identifiers into i2c_device_id table.
 
-> +	else if (i2c->speed_hz > MAX_FS_MODE_SPEED)
-> +		max_step_cnt =3D MAX_HS_STEP_CNT_DIV;
-> +	else
-> +		max_step_cnt =3D MAX_STEP_CNT_DIV;
-So I assume this is the hardware limit on the step_cnt value. For
-=46S_MODE and below you have 6 bits and writing X corresponds to
-step_cnt =3D X + 1. For HS_MODE there are only 3 bits. right?
+Currently, if the name used for DT (in dts) matches one of the names
+specified in the id table you will have a match. Isn't that an
+intended behavior?
 
-> +	step_div =3D max_step_cnt;
-> +	/* Find the best combination */
-> +	khz =3D i2c->speed_hz / 1000;
-> +	hclk =3D clk_src_in_hz / 1000;
-Why are you dividing here? There shouldn't be an overflow problem and
-you're loosing precision.
-
-> +	min_div =3D ((hclk >> 1) + khz - 1) / khz;
-The shift accounts for the fixed divider 2 in
-
-	i2c_bus_freq =3D parent_clk / (clock-div * 2 * sample_cnt * step_cnt
-
-? Maybe better call this opt_div instead of min_div? So now we're
-searching for the best pair (sample_cnt, step_cnt) with:
-
-	* 0 < sample_cnt < MAX_SAMPLE_CNT_DIV
-	* 0 < step_cnt < max_step_cnt
-	* sample_cnt * step_cnt >=3D min_div
-	* optimizing for sample_cnt * step_cnt being minimal
-
-Right?
-
-> +	best_mul =3D MAX_SAMPLE_CNT_DIV * max_step_cnt;
-> +
-> +	for (sample_cnt =3D 1; sample_cnt <=3D MAX_SAMPLE_CNT_DIV; sample_c=
-nt++) {
-> +		step_cnt =3D (min_div + sample_cnt - 1) / sample_cnt;
-DIV_ROUND_UP
-
-> +		cnt_mul =3D step_cnt * sample_cnt;
-> +		if (step_cnt > max_step_cnt)
-> +			continue;
-I think it can happen that you have step_cnt > max_step_cnt here, but
-that (sample_cnt, max_step_cnt) still is a good pair to consider. So:
-
-	step_cnt =3D DIV_ROUND_UP(min_div, sample_cnt);
-	if (step_cnt > max_step_cnt)
-		step_cnt =3D max_step_cnt;
-
-	cnt_mul =3D step_cnt * sample_cnt;
-
-> +
-> +		if (cnt_mul < best_mul) {
-> +			best_mul =3D cnt_mul;
-> +			sample_div =3D sample_cnt;
-> +			step_div =3D step_cnt;
-I'd call these best_sample_cnt and best_step_cnt instead of sample_div
-and step_div.
-
-> +			if (best_mul =3D=3D min_div)
-> +				break;
-> +		}
-> +	}
-> +
-> +	sample_cnt =3D sample_div;
-> +	step_cnt =3D step_div;
-> +	sclk =3D hclk / (2 * sample_cnt * step_cnt);
-> +	if (sclk > khz) {
-Can this happen? A better name for "sclk" would be "bus_freq"?
-
-> +		dev_dbg(i2c->dev, "%s mode: unsupported speed (%ldkhz)\n",
-> +			(i2c->speed_hz > MAX_HS_MODE_SPEED) ? "HS" : "ST/FT",
-What is ST/FR? I would have expected FS here.
-
-> +			(long int)khz);
-> +		return -EINVAL;
-> +	}
-> +
-> +	step_cnt--;
-> +	sample_cnt--;
-> +
-> +	if (i2c->speed_hz > MAX_FS_MODE_SPEED) {
-> +		/* Set the hign speed mode register */
-> +		i2c->timing_reg =3D I2C_FS_TIME_INIT_VALUE;
-> +		i2c->high_speed_reg =3D I2C_TIME_DEFAULT_VALUE |
-> +			(sample_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 12 |
-> +			(step_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 8;
-> +	} else {
-> +		i2c->timing_reg =3D
-> +			(sample_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 8 |
-> +			(step_cnt & I2C_TIMING_STEP_DIV_MASK) << 0;
-> +		/* Disable the high speed transaction */
-> +		i2c->high_speed_reg =3D I2C_TIME_CLR_VALUE;
-> +	}
-Would it be sensible to write these values directly into hardware here?
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Robert
