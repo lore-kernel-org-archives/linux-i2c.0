@@ -1,54 +1,66 @@
 From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 0/6] use devicemodel with parport
-Date: Wed, 20 May 2015 20:56:56 +0530
-Message-ID: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+Subject: [PATCH 2/6] staging: panel: use new parport device model
+Date: Wed, 20 May 2015 20:56:58 +0530
+Message-ID: <1432135622-8288-3-git-send-email-sudipm.mukherjee@gmail.com>
+References: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Tim Waugh <tim@cyberelk.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Willy Tarreau <willy@meta-x.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Cc: devel@driverdev.osuosl.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@driverdev.osuosl.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-After 5 versions of WIP, finally a patch submission.
-parport subsystem is now in the transition stage and supports the old
-model and the new device model. 3 of the drivers have been converted
-into new model and tested.
-After other drivers are converted we can remove the old code from
-parport.
+Converted to use the new device-model parallel port.
 
-Sudip Mukherjee (6):
-  parport: add device-model to parport subsystem
-  staging: panel: use new parport device model
-  i2c-parport: define ports to connect
-  i2c-parport: use new parport device model
-  paride: use new parport device model
-  MAINTAINERS: maintain parport
+Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+---
 
- MAINTAINERS                      |   7 +-
- drivers/block/paride/paride.c    |  57 ++++++-
- drivers/block/paride/paride.h    |   2 +
- drivers/block/paride/pcd.c       |   9 +
- drivers/block/paride/pd.c        |  12 +-
- drivers/block/paride/pf.c        |   7 +
- drivers/block/paride/pg.c        |   8 +
- drivers/block/paride/pt.c        |   8 +
- drivers/i2c/busses/i2c-parport.c |  38 ++++-
- drivers/parport/parport_pc.c     |   4 +-
- drivers/parport/procfs.c         |  15 +-
- drivers/parport/share.c          | 345 ++++++++++++++++++++++++++++++++++++---
- drivers/staging/panel/panel.c    |  14 +-
- include/linux/parport.h          |  43 ++++-
- 14 files changed, 522 insertions(+), 47 deletions(-)
+The comment about panel_cb.flags can be removed, it is kept just
+for the comment to remind us that it might be better to use
+PARPORT_DEV_EXCL.
 
+ drivers/staging/panel/panel.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/staging/panel/panel.c b/drivers/staging/panel/panel.c
+index 1d8ed8b..70f0ac6 100644
+--- a/drivers/staging/panel/panel.c
++++ b/drivers/staging/panel/panel.c
+@@ -2190,6 +2190,8 @@ static struct notifier_block panel_notifier = {
+ 
+ static void panel_attach(struct parport *port)
+ {
++	struct pardev_cb panel_cb;
++
+ 	if (port->number != parport)
+ 		return;
+ 
+@@ -2199,10 +2201,11 @@ static void panel_attach(struct parport *port)
+ 		return;
+ 	}
+ 
+-	pprt = parport_register_device(port, "panel", NULL, NULL,  /* pf, kf */
+-				       NULL,
+-				       /*PARPORT_DEV_EXCL */
+-				       0, (void *)&pprt);
++	memset(&panel_cb, 0, sizeof(panel_cb));
++	panel_cb.private = &pprt;
++	/* panel_cb.flags = 0 should be PARPORT_DEV_EXCL? */
++
++	pprt = parport_register_dev_model(port, "panel", &panel_cb, 0);
+ 	if (pprt == NULL) {
+ 		pr_err("%s: port->number=%d parport=%d, parport_register_device() failed\n",
+ 		       __func__, port->number, parport);
+@@ -2256,8 +2259,9 @@ static void panel_detach(struct parport *port)
+ 
+ static struct parport_driver panel_driver = {
+ 	.name = "panel",
+-	.attach = panel_attach,
++	.match_port = panel_attach,
+ 	.detach = panel_detach,
++	.devmodel = true,
+ };
+ 
+ /* init function */
 -- 
 1.8.1.2
