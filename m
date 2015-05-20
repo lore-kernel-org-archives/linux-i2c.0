@@ -1,7 +1,7 @@
 From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 2/6] staging: panel: use new parport device model
-Date: Wed, 20 May 2015 20:56:58 +0530
-Message-ID: <1432135622-8288-3-git-send-email-sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4/6] i2c-parport: use new parport device model
+Date: Wed, 20 May 2015 20:57:00 +0530
+Message-ID: <1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
 References: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
@@ -10,57 +10,53 @@ To: Tim Waugh <tim@cyberelk.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang 
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@driverdev.osuosl.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Converted to use the new device-model parallel port.
+Modify i2c-parport driver to use the new parallel port device model.
 
+Tested-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
 ---
 
-The comment about panel_cb.flags can be removed, it is kept just
-for the comment to remind us that it might be better to use
-PARPORT_DEV_EXCL.
+i2c_parport_cb is made local, devmodel added to driver structure,
+and probe removed.	       
 
- drivers/staging/panel/panel.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-parport.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/panel/panel.c b/drivers/staging/panel/panel.c
-index 1d8ed8b..70f0ac6 100644
---- a/drivers/staging/panel/panel.c
-+++ b/drivers/staging/panel/panel.c
-@@ -2190,6 +2190,8 @@ static struct notifier_block panel_notifier = {
- 
- static void panel_attach(struct parport *port)
- {
-+	struct pardev_cb panel_cb;
-+
- 	if (port->number != parport)
- 		return;
- 
-@@ -2199,10 +2201,11 @@ static void panel_attach(struct parport *port)
+diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
+index 155da95..138347e 100644
+--- a/drivers/i2c/busses/i2c-parport.c
++++ b/drivers/i2c/busses/i2c-parport.c
+@@ -185,11 +185,15 @@ static void i2c_parport_attach(struct parport *port)
+ 		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
  		return;
  	}
++	memset(&i2c_parport_cb, 0, sizeof(i2c_parport_cb));
++	i2c_parport_cb.flags = PARPORT_FLAG_EXCL;
++	i2c_parport_cb.irq_func = i2c_parport_irq;
++	i2c_parport_cb.private = adapter;
  
--	pprt = parport_register_device(port, "panel", NULL, NULL,  /* pf, kf */
--				       NULL,
--				       /*PARPORT_DEV_EXCL */
--				       0, (void *)&pprt);
-+	memset(&panel_cb, 0, sizeof(panel_cb));
-+	panel_cb.private = &pprt;
-+	/* panel_cb.flags = 0 should be PARPORT_DEV_EXCL? */
-+
-+	pprt = parport_register_dev_model(port, "panel", &panel_cb, 0);
- 	if (pprt == NULL) {
- 		pr_err("%s: port->number=%d parport=%d, parport_register_device() failed\n",
- 		       __func__, port->number, parport);
-@@ -2256,8 +2259,9 @@ static void panel_detach(struct parport *port)
+ 	pr_debug("i2c-parport: attaching to %s\n", port->name);
+ 	parport_disable_irq(port);
+-	adapter->pdev = parport_register_device(port, "i2c-parport",
+-		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
++	adapter->pdev = parport_register_dev_model(port, "i2c-parport",
++						   &i2c_parport_cb, i);
+ 	if (!adapter->pdev) {
+ 		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
+ 		goto err_free;
+@@ -283,9 +287,10 @@ static void i2c_parport_detach(struct parport *port)
+ }
  
- static struct parport_driver panel_driver = {
- 	.name = "panel",
--	.attach = panel_attach,
-+	.match_port = panel_attach,
- 	.detach = panel_detach,
-+	.devmodel = true,
+ static struct parport_driver i2c_parport_driver = {
+-	.name	= "i2c-parport",
+-	.attach	= i2c_parport_attach,
+-	.detach	= i2c_parport_detach,
++	.name		= "i2c-parport",
++	.match_port	= i2c_parport_attach,
++	.detach		= i2c_parport_detach,
++	.devmodel	= true,
  };
  
- /* init function */
+ /* ----- Module loading, unloading and information ------------------------ */
 -- 
 1.8.1.2
