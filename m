@@ -1,70 +1,50 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 4/6] i2c-parport: use new parport device model
-Date: Wed, 20 May 2015 17:49:07 +0200
-Message-ID: <20150520154907.GB2001@katana>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 6/6] MAINTAINERS: maintain parport
+Date: Wed, 20 May 2015 09:28:16 -0700
+Message-ID: <1432139296.2870.305.camel@perches.com>
 References: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
- <1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
+ <1432135622-8288-7-git-send-email-sudipm.mukherjee@gmail.com>
+ <CAFLxGvyw+UhHrdbiXCkKefirjiOum2+cNY26zDe2AzAi0hx0ng@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Tim Waugh <tim@cyberelk.net>, Jean Delvare <jdelvare@suse.de>, Willy Tarreau <willy@meta-x.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devel@driverdev.osuosl.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <CAFLxGvyw+UhHrdbiXCkKefirjiOum2+cNY26zDe2AzAi0hx0ng@mail.gmail.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Richard Weinberger <richard.weinberger@gmail.com>
+Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, Tim Waugh <tim@cyberelk.net>, Willy Tarreau <willy@meta-x.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, 2015-05-20 at 17:46 +0200, Richard Weinberger wrote:
+> On Wed, May 20, 2015 at 5:27 PM, Sudip Mukherjee
+> <sudipm.mukherjee@gmail.com> wrote:
+> > Lets give the parport subsystem a proper name and start
+> > maintaining the files.
+> 
+> Excuse me, but usually someone takes over the maintainer role after
+> proving that he
+> cares for a sub system for a certain period of time.
+> Or did I miss something?
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+MAINTAINERS:85:    Orphan:      No current maintainer [but maybe you could take the
+MAINTAINERS-86-                 role as you write your new code].
 
-On Wed, May 20, 2015 at 08:57:00PM +0530, Sudip Mukherjee wrote:
-> Modify i2c-parport driver to use the new parallel port device model.
->=20
-> Tested-by: Jean Delvare <jdelvare@suse.de>
-> Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
-> ---
+Parport is an orphan, hasn't had a maintainer since at
+least 2.6.12, and has almost no activity minus drive-by
+cleanups and new device ID support every once in awhile.
 
-In general:
+Sudip is writing new code.
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+If Sudip wants to be a maintainer of parport, assuming
+he has the time and resources to give it a go, I think
+he should be welcomed to it.
 
->  static struct parport_driver i2c_parport_driver =3D {
-> -	.name	=3D "i2c-parport",
-> -	.attach	=3D i2c_parport_attach,
-> -	.detach	=3D i2c_parport_detach,
-> +	.name		=3D "i2c-parport",
-> +	.match_port	=3D i2c_parport_attach,
-> +	.detach		=3D i2c_parport_detach,
-> +	.devmodel	=3D true,
-
-Minor nit: I prefer to not use tabs but a single space after the struct
-member names. Less hazzle in the future and still readable IMO.
-
-
---4bRzO86E/ozDv8r1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVXKzzAAoJEBQN5MwUoCm232QP/1my9sLqhb5+WlQvBzR00uX2
-Z61CC/qCRCeIk1qi9Mf8XhuNaYPXDIXDFmpzEde7X0k4932ROCYlIteWKgpZ73Nl
-KjBHWKNHYG58I/fWgv6r7t2MYnCWjIst0nZTyzybF9jYwMl6LVFtRhZOtmxl81A9
-BagLQduchdaSA38Oem5UxIIRKOzsa5uZa1joYUucpkr5mUmfemXHxup/CvYI3nZC
-g8GelWHfHZqEK9j4xobqXL3Zi2ducRfe/RuJS+Y1w3mar9xELJ4U2TNYOJYlxnIm
-C5YzqeY1KpW4/TQ1NLminjz6L+AZ2udDpFskFjeo/YtnaTK3LI7O/hb/S73VY506
-e0diEwO3WNQG+nXJWsFm9ccj0pzthobqE5sJbd7U2BUACqLdsz/SvlvsA7SvyKBT
-E+g8Br+JqJA3RxbgjcxBtxB9Z5eY71mLAd2F8+J6ELJsW9+vOJ1hQKXjdQgpX+H3
-HDBRcl5F95T1HPlT1yeYjNroY6sVND0J/leRIj9XiNVM3D0e1+2U1S1blXUW3dQo
-+JEe1/q2oC+8/zMoqOjIqdNqCLZ/I+J0pgv9woAPTgSRf0KOr0I/z7ci67EQMi5D
-Kbwtcoj0XBVNpiX4mNxEKmG+iaMVeBtG/zB7ec9qrixNg4/I8XUqGYZGmQVonvjv
-UXb23JDuvIy/m5NpLx+Y
-=s2De
------END PGP SIGNATURE-----
-
---4bRzO86E/ozDv8r1--
+Thanks Sudip.  Best of luck...
