@@ -1,58 +1,41 @@
-From: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [V4, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller driver
-Date: Wed, 20 May 2015 16:35:08 -0400
-Message-ID: <CAC=U0a3dxJi1c1FrQaqGojc8JXzs=om2Z1r=nB0dinyrFzz-+g@mail.gmail.com>
-References: <1432052625-6210-1-git-send-email-kdasu.kdev@gmail.com>
-	<555BA22B.9020408@broadcom.com>
+From: Richard Weinberger <richard@nod.at>
+Subject: Re: [PATCH 6/6] MAINTAINERS: maintain parport
+Date: Wed, 20 May 2015 22:36:04 +0200
+Message-ID: <555CF034.5090704@nod.at>
+References: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>	<1432135622-8288-7-git-send-email-sudipm.mukherjee@gmail.com>	<CAFLxGvyw+UhHrdbiXCkKefirjiOum2+cNY26zDe2AzAi0hx0ng@mail.gmail.com> <20150520173324.3090a6d7@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <555BA22B.9020408-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Fong <gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150520173324.3090a6d7@lxorguk.ukuu.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Tim Waugh <tim@cyberelk.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Willy Tarreau <willy@meta-x.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ray,
+Am 20.05.2015 um 18:33 schrieb One Thousand Gnomes:
+> On Wed, 20 May 2015 17:46:44 +0200
+> Richard Weinberger <richard.weinberger@gmail.com> wrote:
+> 
+>> On Wed, May 20, 2015 at 5:27 PM, Sudip Mukherjee
+>> <sudipm.mukherjee@gmail.com> wrote:
+>>> Lets give the parport subsystem a proper name and start
+>>> maintaining the files.
+>>
+>> Excuse me, but usually someone takes over the maintainer role after
+>> proving that he
+>> cares for a sub system for a certain period of time.
+>> Or did I miss something?
+> 
+> It currently (and for some time) has had no maintainer so having a
+> maintainer is IMHO definitely an improvement in things.
 
-I am using  non combined operation so it not necessary have limit. I
-am not sending a stop condition till the last byte is written or read.
-So if the xfer has more than the i2c buffer len we break up the
-transfers after the initial salve address write into max read/write
-data buffer size.
+Having a maintainer is good.
+All I wanted to point out was that it is IMHO uncommon to claim maintainership
+before being the main contributor or the de facto maintainer of a
+subsystem.
 
-Thanks
-Kamal
+This "rule" prevents us from "Mommy!!! Look, I'm a maintainer!!!1" patches. ;-)
 
-On Tue, May 19, 2015 at 4:50 PM, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org> wrote:
-> Hi Kamal,
->
-> There's one change still missing (that I mentioned when reviewing v2 of the
-> patchset):
->
->>>>
-> What is the max len that can be supported? BSC_CNT_REG1_MASK = 63? Then
-> you should check against that.
->
-> Note Wolfram has introduced a way to validate the supported data length
-> at the i2c-core, which you should adapt:
->
-> commit b7f625840267b18ef1011cba0085bb7e237d76f7
-> Author: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Date:   Mon Jan 5 23:45:59 2015 +0100
->
->     i2c: add quirk checks to core
->
->     Let the core do the checks if HW quirks prevent a transfer. Saves code
->     from drivers and adds consistency.
-> <<<
->
-> So you should add struct i2c_adapter_quirks and set the max_read_len and
-> max_write_len.
->
-> I have no more comment for the rest of the code.
->
-> Thanks,
->
-> Ray
->
+Thanks,
+//richard
