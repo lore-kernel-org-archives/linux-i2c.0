@@ -1,161 +1,97 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH RFC] i2c: Use ID table to detect ACPI I2C devices
-Date: Wed, 20 May 2015 16:57:16 +0300
-Message-ID: <20150520135716.GW1490@lahna.fi.intel.com>
-References: <1432044209-27858-1-git-send-email-robert.dolca@intel.com>
- <20150520074708.GQ1490@lahna.fi.intel.com>
- <CAFPB+YfvJiL7yNidDQJqq=XbF1hA4QwdBhbVYrwB=wpLkJUOwA@mail.gmail.com>
- <20150520094829.GS1490@lahna.fi.intel.com>
- <CAFPB+YcggLY9vwtYREX_YVVJFrTYHTQYnBtvMcicvLgo5MX-+A@mail.gmail.com>
- <20150520105753.GT1490@lahna.fi.intel.com>
- <CAFPB+Ydw4Ywo4dt5NB-Aed6gtt89h2kMucXtgJa42vwommZerw@mail.gmail.com>
+From: Jisheng Zhang <jszhang@marvell.com>
+Subject: [PATCH v2] i2c: designware: Avoid unnecessary resuming during system suspend
+Date: Wed, 20 May 2015 22:33:13 +0800
+Message-ID: <1432132393-693-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAFPB+Ydw4Ywo4dt5NB-Aed6gtt89h2kMucXtgJa42vwommZerw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert Dolca <robert.dolca-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Robert Dolca <robert.dolca-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jisheng Zhang <jszhang@marvell.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 20, 2015 at 04:07:00PM +0300, Robert Dolca wrote:
-> On Wed, May 20, 2015 at 1:57 PM, Mika Westerberg
-> <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> > On Wed, May 20, 2015 at 01:49:02PM +0300, Robert Dolca wrote:
-> >> On Wed, May 20, 2015 at 12:48 PM, Mika Westerberg wrote:
-> >> > On Wed, May 20, 2015 at 12:39:22PM +0300, Robert Dolca wrote:
-> >> >> Currently, if the name used for DT (in dts) matches one of the names
-> >> >> specified in the id table you will have a match. Isn't that an
-> >> >> intended behavior?
-> >> >
-> >> > I thought one needs to put IDs to the driver .of_match_table. This is
-> >> > also what i2c_device_match() is expecting, if I read it right.
-> >>
-> >> If you put the DT id in of_match_table it will match here:
-> >>
-> >> i2c_device_match
-> >>         /* Attempt an OF style match */
-> >>         if (of_driver_match_device(dev, drv))
-> >>                 return 1;
-> >>
-> >> If you don't specify of_match_table and you put the same ID in
-> >> i2c_device_id table it wil match here:
-> >>
-> >> i2c_device_match
-> >>         driver = to_i2c_driver(drv);
-> >>         /* match on an id table if there is one */
-> >>         if (driver->id_table)
-> >>                 return i2c_match_id(driver->id_table, client) != NULL;
-> >>
-> >> This is happening because the name from dts is used for client->name.
-> >> i2c_match_id does the matching based on the client name.
-> >
-> > OK.
-> >
-> >> > BTW, how modules are supposed to be matched if we allow putting ACPI
-> >> > identifiers to i2c_device_id table?
-> >>
-> >> My aproach was like this: if the driver specifies .acpi_match table it
-> >> will work like before.
-> >>
-> >> i2c_device_match
-> >>         /* Then ACPI style match */
-> >>         if (acpi_driver_match_device(dev, drv))
-> >>                 return 1;
-> >>
-> >> If the driver does not specify .acpi_match table the i2c core will
-> >> atempt to match against the  i2c_match_id table (the same way it does
-> >> for DT). In the ACPI case the client->name has that :nn suffix and
-> >> what the patch does is to ignore that when i2c_match_id is called.
-> >>
-> >> i2c_device_match
-> >>         driver = to_i2c_driver(drv);
-> >>         /* match on an id table if there is one */
-> >>         if (driver->id_table)
-> >>                 return i2c_match_id(driver->id_table, client) != NULL;
-> >
-> > Yeah but when you have device with modalias of "acpi:FOO:" how
-> > udev/modprobe is supposed find the correct module?
-> 
-> The modalias file content exposed by the i2c device in sysfs will be the same.
+Commit 1fc2fe204cb9 ("i2c: designware: Add runtime PM hooks") adds
+runtime pm support using the same ops for system pm and runtime pm.
+When suspend to ram, the i2c host may have been runtime suspended, thus
+i2c_dw_disable() hangs.
 
-It won't be the same. If it has an ACPI companion it will be different.
+Previously, I fixed this issue by separating ops for system pm and
+runtime pm, then in the system suspend/resume path, runtime pm apis are
+used to ensure the device is at correct state.
 
-Here's one example from a machine with I2C touchscreen connected:
+But as Mika Westerberg pointed out: it sounds a bit silly to resume the
+device just because you want to call i2c_dw_disable() for it before
+suspending again. He then suggested an elegant solution which keeps the
+device runtime suspended during system suspend with the help of
+'dev->power.direct_complete'. This patch adopted this solution, and in
+fact Mika provided the main code.
 
-# cat /sys/bus/i2c/devices/i2c-ATML3432\:00/modalias 
-acpi:ATML3432:PNP0C50:
+Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+---
+ v2 change:
+	- adopt Mika's suggestion to make use of direct_complete flag
 
-> Currently the alias exposed by the driver is based on the i2c_match_id
-> table and it does not have any aliases based on
-> acpi_device_id table. I am new to this are so please correct me if I am wrong.
-> 
-> >> The final goal is to simplify the driver and remove redundant code.
-> >
-> > IMHO mixing ACPI identifiers with I2C device identifiers does not
-> > simplify anything. And since you need to stick the ACPI ID somewhere
-> > anyway I don't get the point of removing redundant code either.
-> 
-> It will make the i2c_device_id be not NULL when the device is probed.
-> Here is an example:
-> 
-> static int probe(struct i2c_client *client, const struct i2c_device_id *id)
->        /* Get device name from device table or ACPI */
->         if (ACPI_HANDLE(dev)) {
->                 acpi_id = acpi_match_device(silead_ts_acpi_match, dev);
->                 if (!acpi_id)
->                         return -ENODEV;
-> 
->                 sprintf(data->fw_name, "%s.fw", acpi_id->id);
-> 
->                 for (i = 0; i < strlen(data->fw_name); i++)
->                         data->fw_name[i] = tolower(data->fw_name[i]);
->         } else {
->                 sprintf(data->fw_name, "%s.fw", id->name);
->         }
-> 
-> This will become:
->         sprintf(data->fw_name, "%s.fw", id->name);
+ drivers/i2c/busses/i2c-designware-platdrv.c | 33 +++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
-OK, in that case it shortens the code I give you that. But the normal
-case where you only need to match against the ACPI identifier (and
-handling modules properly) this does not simplify anything.
-
-> There are allot more cases like this already in the kernel.
-
-I didn't find too many. Most of them are under drivers/iio and they all
-do something like:
-
-static const char *kmx61_match_acpi_device(struct device *dev)
-{
-        const struct acpi_device_id *id;
-
-        id = acpi_match_device(dev->driver->acpi_match_table, dev);
-        if (!id)
-                return NULL;
-        return dev_name(dev);
-}
-
-static int kmx61_probe(struct i2c_client *client, const struct i2c_device_id *id)
-{
-	...
-	if (id)
-                name = id->name;
-        else if (ACPI_HANDLE(&client->dev))
-                name = kmx61_match_acpi_device(&client->dev);
-        else
-                return -ENODEV;
-
-which I think is not needed at all. If you end up having an ACPI handle
-for your I2C device and the I2C core has already done the matching, you
-don't need to do the match again in the driver. Instead this can be written like:
-
-	if (id)
-		name = id->name;
-	else if (has_acpi_companion(&client->dev))
-		name = dev_name(&client->dev);
-	else
-		return -ENODEV;
-
-And you probably don't need that 'name' either.
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0a80e4a..f89650f 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -298,6 +298,22 @@ static const struct of_device_id dw_i2c_of_match[] = {
+ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ #endif
+ 
++#ifdef CONFIG_PM_SLEEP
++static int dw_i2c_prepare(struct device *dev)
++{
++	return pm_runtime_suspended(dev);
++}
++
++static void dw_i2c_complete(struct device *dev)
++{
++	if (dev->power.direct_complete)
++		pm_request_resume(dev);
++}
++#else
++#define dw_i2c_prepare	NULL
++#define dw_i2c_complete	NULL
++#endif
++
+ #ifdef CONFIG_PM
+ static int dw_i2c_suspend(struct device *dev)
+ {
+@@ -322,10 +338,19 @@ static int dw_i2c_resume(struct device *dev)
+ 
+ 	return 0;
+ }
+-#endif
+ 
+-static UNIVERSAL_DEV_PM_OPS(dw_i2c_dev_pm_ops, dw_i2c_suspend,
+-			    dw_i2c_resume, NULL);
++static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
++	.prepare = dw_i2c_prepare,
++	.complete = dw_i2c_complete,
++	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_suspend, dw_i2c_resume)
++	SET_RUNTIME_PM_OPS(dw_i2c_suspend,
++		dw_i2c_resume, NULL)
++};
++
++#define DW_I2C_DEV_PMOPS (&dw_i2c_dev_pm_ops)
++#else
++#define DW_I2C_DEV_PMOPS NULL
++#endif
+ 
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:i2c_designware");
+@@ -337,7 +362,7 @@ static struct platform_driver dw_i2c_driver = {
+ 		.name	= "i2c_designware",
+ 		.of_match_table = of_match_ptr(dw_i2c_of_match),
+ 		.acpi_match_table = ACPI_PTR(dw_i2c_acpi_match),
+-		.pm	= &dw_i2c_dev_pm_ops,
++		.pm	= DW_I2C_DEV_PMOPS,
+ 	},
+ };
+ 
+-- 
+2.1.4
