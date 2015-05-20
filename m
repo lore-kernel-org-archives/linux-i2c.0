@@ -1,32 +1,30 @@
-From: Jisheng Zhang <jszhang@marvell.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Subject: Re: [PATCH] i2c: designware: separate ops for system_sleep_pm and
  runtime_pm
-Date: Wed, 20 May 2015 20:38:10 +0800
-Message-ID: <20150520203810.2fa5b489@xhacker>
+Date: Wed, 20 May 2015 15:55:53 +0300
+Message-ID: <20150520125553.GV1490@lahna.fi.intel.com>
 References: <1431693099-2292-1-git-send-email-jszhang@marvell.com>
-	<20150518082823.GH1490@lahna.fi.intel.com>
-	<20150519203242.74617ad6@xhacker>
-	<20150519131516.GO1490@lahna.fi.intel.com>
-	<20150520193422.73de7d90@xhacker>
-	<20150520121506.GU1490@lahna.fi.intel.com>
-	<20150520203430.24edd2a8@xhacker>
+ <20150518082823.GH1490@lahna.fi.intel.com>
+ <20150519203242.74617ad6@xhacker>
+ <20150519131516.GO1490@lahna.fi.intel.com>
+ <20150520193422.73de7d90@xhacker>
+ <20150520121506.GU1490@lahna.fi.intel.com>
+ <20150520203430.24edd2a8@xhacker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
 In-Reply-To: <20150520203430.24edd2a8@xhacker>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 20 May 2015 20:34:30 +0800
-Jisheng Zhang <jszhang@marvell.com> wrote:
-
+On Wed, May 20, 2015 at 08:34:30PM +0800, Jisheng Zhang wrote:
 > Dear Mika,
 > 
 > On Wed, 20 May 2015 15:15:06 +0300
-> Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
+> Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
 > 
 > > On Wed, May 20, 2015 at 07:34:22PM +0800, Jisheng Zhang wrote:
 > > > Sorry for confusion. Considering one platform which doesn't support power off
@@ -57,15 +55,15 @@ Jisheng Zhang <jszhang@marvell.com> wrote:
 > > prevents ->suspend() etc. from being called.
 > 
 > What amazing! I wrote the same code as yours after sending out the last email.
-> 
+
+Cool :)
+
 > > 
 > > If that does not work (I didn't try as this problem does not exist on
 > 
 > It works! How to submit the patch? Do you mind if I cook the patch and add
 > you signed-off?
-> 
 
-PS: If you cook the patch instead,  feel free to add my acked-by and tested-by
-
-Thanks a lot for the direct_complete idea,
-Jisheng
+That's fine and you don't need to add my SoB there. I'll test the patch
+here on some our platforms to ensure it does not break anything and if
+it turns out working you can have my Tested-by then.
