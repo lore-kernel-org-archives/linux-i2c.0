@@ -1,110 +1,169 @@
-From: Robert Dolca <robert.dolca-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RFC] i2c: Use ID table to detect ACPI I2C devices
-Date: Wed, 20 May 2015 16:07:00 +0300
-Message-ID: <CAFPB+Ydw4Ywo4dt5NB-Aed6gtt89h2kMucXtgJa42vwommZerw@mail.gmail.com>
-References: <1432044209-27858-1-git-send-email-robert.dolca@intel.com>
- <20150520074708.GQ1490@lahna.fi.intel.com> <CAFPB+YfvJiL7yNidDQJqq=XbF1hA4QwdBhbVYrwB=wpLkJUOwA@mail.gmail.com>
- <20150520094829.GS1490@lahna.fi.intel.com> <CAFPB+YcggLY9vwtYREX_YVVJFrTYHTQYnBtvMcicvLgo5MX-+A@mail.gmail.com>
- <20150520105753.GT1490@lahna.fi.intel.com>
+From: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH v2] i2c: core: Reduce stack size of acpi_i2c_space_handler()
+Date: Wed, 20 May 2015 16:36:52 +0300
+Message-ID: <1432129012-26648-1-git-send-email-jarkko.nikula@linux.intel.com>
+References: <20150513065812.GB1490@lahna.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150520105753.GT1490-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <20150513065812.GB1490-3PARRvDOhMZrdx17CPfAsdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Robert Dolca <robert.dolca-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Daniel Baluta <daniel.baluta-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 20, 2015 at 1:57 PM, Mika Westerberg
-<mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> On Wed, May 20, 2015 at 01:49:02PM +0300, Robert Dolca wrote:
->> On Wed, May 20, 2015 at 12:48 PM, Mika Westerberg wrote:
->> > On Wed, May 20, 2015 at 12:39:22PM +0300, Robert Dolca wrote:
->> >> Currently, if the name used for DT (in dts) matches one of the names
->> >> specified in the id table you will have a match. Isn't that an
->> >> intended behavior?
->> >
->> > I thought one needs to put IDs to the driver .of_match_table. This is
->> > also what i2c_device_match() is expecting, if I read it right.
->>
->> If you put the DT id in of_match_table it will match here:
->>
->> i2c_device_match
->>         /* Attempt an OF style match */
->>         if (of_driver_match_device(dev, drv))
->>                 return 1;
->>
->> If you don't specify of_match_table and you put the same ID in
->> i2c_device_id table it wil match here:
->>
->> i2c_device_match
->>         driver = to_i2c_driver(drv);
->>         /* match on an id table if there is one */
->>         if (driver->id_table)
->>                 return i2c_match_id(driver->id_table, client) != NULL;
->>
->> This is happening because the name from dts is used for client->name.
->> i2c_match_id does the matching based on the client name.
->
-> OK.
->
->> > BTW, how modules are supposed to be matched if we allow putting ACPI
->> > identifiers to i2c_device_id table?
->>
->> My aproach was like this: if the driver specifies .acpi_match table it
->> will work like before.
->>
->> i2c_device_match
->>         /* Then ACPI style match */
->>         if (acpi_driver_match_device(dev, drv))
->>                 return 1;
->>
->> If the driver does not specify .acpi_match table the i2c core will
->> atempt to match against the  i2c_match_id table (the same way it does
->> for DT). In the ACPI case the client->name has that :nn suffix and
->> what the patch does is to ignore that when i2c_match_id is called.
->>
->> i2c_device_match
->>         driver = to_i2c_driver(drv);
->>         /* match on an id table if there is one */
->>         if (driver->id_table)
->>                 return i2c_match_id(driver->id_table, client) != NULL;
->
-> Yeah but when you have device with modalias of "acpi:FOO:" how
-> udev/modprobe is supposed find the correct module?
+sizeof(struct i2c_client) is 1088 bytes on a CONFIG_X86_64=3Dy build an=
+d
+produces following warning when CONFIG_FRAME_WARN is set to 1024:
 
-The modalias file content exposed by the i2c device in sysfs will be the same.
-Currently the alias exposed by the driver is based on the i2c_match_id
-table and it does not have any aliases based on
-acpi_device_id table. I am new to this are so please correct me if I am wrong.
+drivers/i2c/i2c-core.c: In function =E2=80=98acpi_i2c_space_handler=E2=80=
+=99:
+drivers/i2c/i2c-core.c:367:1: warning: the frame size of 1152 bytes is
+larger than 1024 bytes [-Wframe-larger-than=3D]
 
->> The final goal is to simplify the driver and remove redundant code.
->
-> IMHO mixing ACPI identifiers with I2C device identifiers does not
-> simplify anything. And since you need to stick the ACPI ID somewhere
-> anyway I don't get the point of removing redundant code either.
+This is not critical given that kernel stack is 16 kB on x86_64 but let=
+s
+reduce the stack usage by allocating the struct i2c_client from the hea=
+p.
 
-It will make the i2c_device_id be not NULL when the device is probed.
-Here is an example:
+Signed-off-by: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+v2:
+Ack from Mika added.
+"-	client.flags =3D 0;" removal squashed here and err label not touched=
+=2E
+---
+ drivers/i2c/i2c-core.c | 37 +++++++++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 16 deletions(-)
 
-static int probe(struct i2c_client *client, const struct i2c_device_id *id)
-       /* Get device name from device table or ACPI */
-        if (ACPI_HANDLE(dev)) {
-                acpi_id = acpi_match_device(silead_ts_acpi_match, dev);
-                if (!acpi_id)
-                        return -ENODEV;
-
-                sprintf(data->fw_name, "%s.fw", acpi_id->id);
-
-                for (i = 0; i < strlen(data->fw_name); i++)
-                        data->fw_name[i] = tolower(data->fw_name[i]);
-        } else {
-                sprintf(data->fw_name, "%s.fw", id->name);
-        }
-
-This will become:
-        sprintf(data->fw_name, "%s.fw", id->name);
-
-There are allot more cases like this already in the kernel.
-
-Robert
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 987c124432c5..ea60c1c89eb4 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -258,7 +258,7 @@ acpi_i2c_space_handler(u32 function, acpi_physical_=
+address command,
+ 	struct acpi_connection_info *info =3D &data->info;
+ 	struct acpi_resource_i2c_serialbus *sb;
+ 	struct i2c_adapter *adapter =3D data->adapter;
+-	struct i2c_client client;
++	struct i2c_client *client;
+ 	struct acpi_resource *ares;
+ 	u32 accessor_type =3D function >> 16;
+ 	u8 action =3D function & ACPI_IO_MASK;
+@@ -269,6 +269,12 @@ acpi_i2c_space_handler(u32 function, acpi_physical=
+_address command,
+ 	if (ACPI_FAILURE(ret))
+ 		return ret;
+=20
++	client =3D kzalloc(sizeof(*client), GFP_KERNEL);
++	if (!client) {
++		ret =3D AE_NO_MEMORY;
++		goto err;
++	}
++
+ 	if (!value64 || ares->type !=3D ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+ 		ret =3D AE_BAD_PARAMETER;
+ 		goto err;
+@@ -280,75 +286,73 @@ acpi_i2c_space_handler(u32 function, acpi_physica=
+l_address command,
+ 		goto err;
+ 	}
+=20
+-	memset(&client, 0, sizeof(client));
+-	client.adapter =3D adapter;
+-	client.addr =3D sb->slave_address;
+-	client.flags =3D 0;
++	client->adapter =3D adapter;
++	client->addr =3D sb->slave_address;
+=20
+ 	if (sb->access_mode =3D=3D ACPI_I2C_10BIT_MODE)
+-		client.flags |=3D I2C_CLIENT_TEN;
++		client->flags |=3D I2C_CLIENT_TEN;
+=20
+ 	switch (accessor_type) {
+ 	case ACPI_GSB_ACCESS_ATTRIB_SEND_RCV:
+ 		if (action =3D=3D ACPI_READ) {
+-			status =3D i2c_smbus_read_byte(&client);
++			status =3D i2c_smbus_read_byte(client);
+ 			if (status >=3D 0) {
+ 				gsb->bdata =3D status;
+ 				status =3D 0;
+ 			}
+ 		} else {
+-			status =3D i2c_smbus_write_byte(&client, gsb->bdata);
++			status =3D i2c_smbus_write_byte(client, gsb->bdata);
+ 		}
+ 		break;
+=20
+ 	case ACPI_GSB_ACCESS_ATTRIB_BYTE:
+ 		if (action =3D=3D ACPI_READ) {
+-			status =3D i2c_smbus_read_byte_data(&client, command);
++			status =3D i2c_smbus_read_byte_data(client, command);
+ 			if (status >=3D 0) {
+ 				gsb->bdata =3D status;
+ 				status =3D 0;
+ 			}
+ 		} else {
+-			status =3D i2c_smbus_write_byte_data(&client, command,
++			status =3D i2c_smbus_write_byte_data(client, command,
+ 					gsb->bdata);
+ 		}
+ 		break;
+=20
+ 	case ACPI_GSB_ACCESS_ATTRIB_WORD:
+ 		if (action =3D=3D ACPI_READ) {
+-			status =3D i2c_smbus_read_word_data(&client, command);
++			status =3D i2c_smbus_read_word_data(client, command);
+ 			if (status >=3D 0) {
+ 				gsb->wdata =3D status;
+ 				status =3D 0;
+ 			}
+ 		} else {
+-			status =3D i2c_smbus_write_word_data(&client, command,
++			status =3D i2c_smbus_write_word_data(client, command,
+ 					gsb->wdata);
+ 		}
+ 		break;
+=20
+ 	case ACPI_GSB_ACCESS_ATTRIB_BLOCK:
+ 		if (action =3D=3D ACPI_READ) {
+-			status =3D i2c_smbus_read_block_data(&client, command,
++			status =3D i2c_smbus_read_block_data(client, command,
+ 					gsb->data);
+ 			if (status >=3D 0) {
+ 				gsb->len =3D status;
+ 				status =3D 0;
+ 			}
+ 		} else {
+-			status =3D i2c_smbus_write_block_data(&client, command,
++			status =3D i2c_smbus_write_block_data(client, command,
+ 					gsb->len, gsb->data);
+ 		}
+ 		break;
+=20
+ 	case ACPI_GSB_ACCESS_ATTRIB_MULTIBYTE:
+ 		if (action =3D=3D ACPI_READ) {
+-			status =3D acpi_gsb_i2c_read_bytes(&client, command,
++			status =3D acpi_gsb_i2c_read_bytes(client, command,
+ 					gsb->data, info->access_length);
+ 			if (status > 0)
+ 				status =3D 0;
+ 		} else {
+-			status =3D acpi_gsb_i2c_write_bytes(&client, command,
++			status =3D acpi_gsb_i2c_write_bytes(client, command,
+ 					gsb->data, info->access_length);
+ 		}
+ 		break;
+@@ -362,6 +366,7 @@ acpi_i2c_space_handler(u32 function, acpi_physical_=
+address command,
+ 	gsb->status =3D status;
+=20
+  err:
++	kfree(client);
+ 	ACPI_FREE(ares);
+ 	return ret;
+ }
+--=20
+2.1.4
