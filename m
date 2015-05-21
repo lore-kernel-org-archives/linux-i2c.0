@@ -1,113 +1,64 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] i2c: designware: Avoid unnecessary resuming during
- system suspend
-Date: Thu, 21 May 2015 14:40:49 +0300
-Message-ID: <20150521114049.GY1490@lahna.fi.intel.com>
-References: <1432132393-693-1-git-send-email-jszhang@marvell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1432132393-693-1-git-send-email-jszhang@marvell.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jisheng Zhang <jszhang@marvell.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jarkko.nikula@linux.intel.com
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2 0/2] Fix OF match for adxl34x driver
+Date: Thu, 21 May 2015 13:42:24 +0200
+Message-ID: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-[Adding Jarkko, just in case he has concerns about this]
+	Hi Dmitry,
 
-On Wed, May 20, 2015 at 10:33:13PM +0800, Jisheng Zhang wrote:
-> Commit 1fc2fe204cb9 ("i2c: designware: Add runtime PM hooks") adds
-> runtime pm support using the same ops for system pm and runtime pm.
-> When suspend to ram, the i2c host may have been runtime suspended, thus
-> i2c_dw_disable() hangs.
-> 
-> Previously, I fixed this issue by separating ops for system pm and
-> runtime pm, then in the system suspend/resume path, runtime pm apis are
-> used to ensure the device is at correct state.
-> 
-> But as Mika Westerberg pointed out: it sounds a bit silly to resume the
-> device just because you want to call i2c_dw_disable() for it before
-> suspending again. He then suggested an elegant solution which keeps the
-> device runtime suspended during system suspend with the help of
-> 'dev->power.direct_complete'. This patch adopted this solution, and in
-> fact Mika provided the main code.
-> 
-> Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> ---
->  v2 change:
-> 	- adopt Mika's suggestion to make use of direct_complete flag
-> 
->  drivers/i2c/busses/i2c-designware-platdrv.c | 33 +++++++++++++++++++++++++----
->  1 file changed, 29 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 0a80e4a..f89650f 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -298,6 +298,22 @@ static const struct of_device_id dw_i2c_of_match[] = {
->  MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
->  #endif
->  
-> +#ifdef CONFIG_PM_SLEEP
-> +static int dw_i2c_prepare(struct device *dev)
-> +{
-> +	return pm_runtime_suspended(dev);
-> +}
-> +
-> +static void dw_i2c_complete(struct device *dev)
-> +{
-> +	if (dev->power.direct_complete)
-> +		pm_request_resume(dev);
-> +}
-> +#else
-> +#define dw_i2c_prepare	NULL
-> +#define dw_i2c_complete	NULL
-> +#endif
-> +
->  #ifdef CONFIG_PM
->  static int dw_i2c_suspend(struct device *dev)
->  {
-> @@ -322,10 +338,19 @@ static int dw_i2c_resume(struct device *dev)
->  
->  	return 0;
->  }
-> -#endif
->  
-> -static UNIVERSAL_DEV_PM_OPS(dw_i2c_dev_pm_ops, dw_i2c_suspend,
-> -			    dw_i2c_resume, NULL);
-> +static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
-> +	.prepare = dw_i2c_prepare,
-> +	.complete = dw_i2c_complete,
-> +	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_suspend, dw_i2c_resume)
-> +	SET_RUNTIME_PM_OPS(dw_i2c_suspend,
-> +		dw_i2c_resume, NULL)
+This is a resent of a series by Laurent Pinchart to fix OF matching for
+the adxl34x driver.
 
-No need to wrap here. It will fit into 80 chars limit.
+According to the discussion in response to that series, we were under
+the impression this was going in through the input tree
+(http://www.spinics.net/lists/linux-i2c/msg18293.html).
 
-Otherwise looks good to me. I also tested this on Braswell and Skylake
-machines where it didn't cause any problems,
+In input patchwork, the series is still marked "Awaiting Upstream"
+(https://patchwork.ozlabs.org/project/linux-i2c/list/?state=*&q=adxl),
+but actually we are waiting for you, as we can't update the affected DTS
+before the driver fix has gone in ;-)
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>From Laurent's submission:
 
-> +};
-> +
-> +#define DW_I2C_DEV_PMOPS (&dw_i2c_dev_pm_ops)
-> +#else
-> +#define DW_I2C_DEV_PMOPS NULL
-> +#endif
->  
->  /* work with hotplug and coldplug */
->  MODULE_ALIAS("platform:i2c_designware");
-> @@ -337,7 +362,7 @@ static struct platform_driver dw_i2c_driver = {
->  		.name	= "i2c_designware",
->  		.of_match_table = of_match_ptr(dw_i2c_of_match),
->  		.acpi_match_table = ACPI_PTR(dw_i2c_acpi_match),
-> -		.pm	= &dw_i2c_dev_pm_ops,
-> +		.pm	= DW_I2C_DEV_PMOPS,
->  	},
->  };
->  
-> -- 
-> 2.1.4
+    This patch set fixes OF matching for the adxl34x driver when the DT
+    node lists a device-specific "adi,adxl345" or "adi,adxl346"
+    compatible value first.
+
+    The first version (see
+    http://www.spinics.net/lists/linux-i2c/msg18107.html) added an OF
+    match entry for the "adi,adxl34x" compatible string. The discussion
+    that followed concluded that that compatible string should be
+    deprecated and that the driver should match the device-specific
+    strings instead.
+
+    The first patch thus deprecates the "adi,adxl34x" compatible string
+    by removing it the DT trivial devices list, and the second patch
+    then adds an OF match table to the adxl34x driver.
+
+Thanks for applying!
+
+Laurent Pinchart (2):
+  DT: i2c: Deprecate adi,adxl34x compatible string
+  input: adxl34x: Add OF match support
+
+ .../devicetree/bindings/i2c/trivial-devices.txt     |  3 +--
+ drivers/input/misc/adxl34x-i2c.c                    | 21 +++++++++++++++++++++
+ 2 files changed, 22 insertions(+), 2 deletions(-)
+
+-- 
+1.9.1
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
