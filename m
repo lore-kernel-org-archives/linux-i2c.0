@@ -1,17 +1,13 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 6/6] MAINTAINERS: maintain parport
-Date: Wed, 20 May 2015 23:09:41 -0700
-Message-ID: <20150521060941.GA30864@kroah.com>
-References: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
- <1432135622-8288-7-git-send-email-sudipm.mukherjee@gmail.com>
- <CAFLxGvyw+UhHrdbiXCkKefirjiOum2+cNY26zDe2AzAi0hx0ng@mail.gmail.com>
- <20150521055118.GC8344@1wt.eu>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH v2 4/6] i2c-parport: use new parport device model
+Date: Thu, 21 May 2015 11:46:31 +0530
+Message-ID: <1432188991-5751-1-git-send-email-sudipm.mukherjee@gmail.com>
+References: <1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <20150521055118.GC8344@1wt.eu>
+In-Reply-To: <1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
  <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
@@ -21,35 +17,60 @@ List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driver
  <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
 Errors-To: driverdev-devel-bounces@linuxdriverproject.org
 Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Willy Tarreau <w@1wt.eu>
-Cc: "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Richard Weinberger <richard.weinberger@gmail.com>, LKML <linux-kernel@vger.kernel.org>, Jean Delvare <jdelvare@suse.de>, Willy Tarreau <willy@meta-x.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Tim Waugh <tim@cyberelk.net>, linux-i2c@vger.kernel.org
+To: Tim Waugh <tim@cyberelk.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Willy Tarreau <willy@meta-x.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Cc: devel@driverdev.osuosl.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 21, 2015 at 07:51:18AM +0200, Willy Tarreau wrote:
-> On Wed, May 20, 2015 at 05:46:44PM +0200, Richard Weinberger wrote:
-> > On Wed, May 20, 2015 at 5:27 PM, Sudip Mukherjee
-> > <sudipm.mukherjee@gmail.com> wrote:
-> > > Lets give the parport subsystem a proper name and start
-> > > maintaining the files.
-> > 
-> > Excuse me, but usually someone takes over the maintainer role after
-> > proving that he
-> > cares for a sub system for a certain period of time.
-> > Or did I miss something?
-> 
-> Sudip has been volunteering for fixing this code which is marked
-> as "orphan". So whatever his experience and care in this area,
-> it will be better for the driver to have a maintainer than none.
-> 
-> Good luck Sudip, as drivers which have become orphans are probably
-> the ones that deserve the least love :-)
+Modify i2c-parport driver to use the new parallel port device model.
 
-I agree.  I've been "baby-sitting" this subsystem for a long time now.
-If Sudip wants to take it on, and based on his recent patches it looks
-like he does, I'm all for him to be the maintainer of it.  So this patch
-in the series is fine with me, I'll apply it when the rest of this
-series gets merged.
+Tested-by: Jean Delvare <jdelvare@suse.de>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+---
 
-thanks,
+v2: Changed to one space instead of tab in i2c_parport_driver.
 
-greg k-h
+i2c_parport_cb is made local, devmodel added to driver structure,
+and probe removed.	       
+
+ drivers/i2c/busses/i2c-parport.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
+index 155da95..138347e 100644
+--- a/drivers/i2c/busses/i2c-parport.c
++++ b/drivers/i2c/busses/i2c-parport.c
+@@ -185,11 +185,15 @@ static void i2c_parport_attach(struct parport *port)
+ 		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
+ 		return;
+ 	}
++	memset(&i2c_parport_cb, 0, sizeof(i2c_parport_cb));
++	i2c_parport_cb.flags = PARPORT_FLAG_EXCL;
++	i2c_parport_cb.irq_func = i2c_parport_irq;
++	i2c_parport_cb.private = adapter;
+ 
+ 	pr_debug("i2c-parport: attaching to %s\n", port->name);
+ 	parport_disable_irq(port);
+-	adapter->pdev = parport_register_device(port, "i2c-parport",
+-		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
++	adapter->pdev = parport_register_dev_model(port, "i2c-parport",
++						   &i2c_parport_cb, i);
+ 	if (!adapter->pdev) {
+ 		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
+ 		goto err_free;
+@@ -283,9 +287,10 @@ static void i2c_parport_detach(struct parport *port)
+ }
+ 
+ static struct parport_driver i2c_parport_driver = {
+-	.name	= "i2c-parport",
+-	.attach	= i2c_parport_attach,
+-	.detach	= i2c_parport_detach,
++	.name = "i2c-parport",
++	.match_port = i2c_parport_attach,
++	.detach = i2c_parport_detach,
++	.devmodel = true,
+ };
+ 
+ /* ----- Module loading, unloading and information ------------------------ */
+-- 
+1.8.1.2
