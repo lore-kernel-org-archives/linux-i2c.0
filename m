@@ -1,76 +1,135 @@
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH v2 4/6] i2c-parport: use new parport device model
-Date: Thu, 21 May 2015 11:46:31 +0530
-Message-ID: <1432188991-5751-1-git-send-email-sudipm.mukherjee@gmail.com>
-References: <1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
+From: Eddie Huang <eddie.huang@mediatek.com>
+Subject: Re: [PATCH v8 2/3] I2C: mediatek: Add driver for MediaTek I2C
+ controller
+Date: Thu, 21 May 2015 15:01:29 +0800
+Message-ID: <1432191689.28646.11.camel@mtksdaap41>
+References: <1431967209-5261-1-git-send-email-eddie.huang@mediatek.com>
+	 <1431967209-5261-3-git-send-email-eddie.huang@mediatek.com>
+	 <20150520085715.GA17078@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1432135622-8288-5-git-send-email-sudipm.mukherjee@gmail.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Tim Waugh <tim@cyberelk.net>, Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>, Willy Tarreau <willy@meta-x.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Cc: devel@driverdev.osuosl.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20150520085715.GA17078@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Xudong Chen <xudong.chen@mediatek.com>, srv_heupstream@mediatek.com, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Liguo Zhang <liguo.zhang@mediatek.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, Kumar Gala <galak@codeaurora.org>, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Modify i2c-parport driver to use the new parallel port device model.
+Hi,
 
-Tested-by: Jean Delvare <jdelvare@suse.de>
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
----
+Please see my reply below (I skip comments that already reply in anothe=
+r
+mail).
 
-v2: Changed to one space instead of tab in i2c_parport_driver.
+On Wed, 2015-05-20 at 10:57 +0200, Uwe Kleine-K=C3=B6nig wrote:
+> Hello,
+>=20
+> now that I understood the formula some more comments to the calculati=
+on.
+>=20
+> On Tue, May 19, 2015 at 12:40:08AM +0800, Eddie Huang wrote:
+> > +#define I2C_DEFAUT_SPEED		100000	/* hz */
+> DEFAULT?
+>=20
+Yes, will fix.
 
-i2c_parport_cb is made local, devmodel added to driver structure,
-and probe removed.	       
+> > +#define MAX_FS_MODE_SPEED		400000
+> > +#define MAX_HS_MODE_SPEED		3400000
+> > +#define MAX_SAMPLE_CNT_DIV		8
+> > +#define MAX_STEP_CNT_DIV		64
+> > +#define MAX_HS_STEP_CNT_DIV		8
+> > [...]
+> > +/* calculate i2c port speed */
+> > +static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int clk=
+_src_in_hz)
+> > +{
+> add a comment here, that clk_src_in_hz is the parent clock already
+> divided by clock-div.
+>=20
+We move parent_clk div clock-div in mtk_i2c_set_speed function, I think
+this is more clear.
 
- drivers/i2c/busses/i2c-parport.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+> > +	step_div =3D max_step_cnt;
+> > +	/* Find the best combination */
+> > +	khz =3D i2c->speed_hz / 1000;
+> > +	hclk =3D clk_src_in_hz / 1000;
+> Why are you dividing here? There shouldn't be an overflow problem and
+> you're loosing precision.
+OK, will remove div 1000.
 
-diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
-index 155da95..138347e 100644
---- a/drivers/i2c/busses/i2c-parport.c
-+++ b/drivers/i2c/busses/i2c-parport.c
-@@ -185,11 +185,15 @@ static void i2c_parport_attach(struct parport *port)
- 		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
- 		return;
- 	}
-+	memset(&i2c_parport_cb, 0, sizeof(i2c_parport_cb));
-+	i2c_parport_cb.flags = PARPORT_FLAG_EXCL;
-+	i2c_parport_cb.irq_func = i2c_parport_irq;
-+	i2c_parport_cb.private = adapter;
- 
- 	pr_debug("i2c-parport: attaching to %s\n", port->name);
- 	parport_disable_irq(port);
--	adapter->pdev = parport_register_device(port, "i2c-parport",
--		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
-+	adapter->pdev = parport_register_dev_model(port, "i2c-parport",
-+						   &i2c_parport_cb, i);
- 	if (!adapter->pdev) {
- 		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
- 		goto err_free;
-@@ -283,9 +287,10 @@ static void i2c_parport_detach(struct parport *port)
- }
- 
- static struct parport_driver i2c_parport_driver = {
--	.name	= "i2c-parport",
--	.attach	= i2c_parport_attach,
--	.detach	= i2c_parport_detach,
-+	.name = "i2c-parport",
-+	.match_port = i2c_parport_attach,
-+	.detach = i2c_parport_detach,
-+	.devmodel = true,
- };
- 
- /* ----- Module loading, unloading and information ------------------------ */
--- 
-1.8.1.2
+>=20
+> > +	min_div =3D ((hclk >> 1) + khz - 1) / khz;
+> The shift accounts for the fixed divider 2 in
+>=20
+> 	i2c_bus_freq =3D parent_clk / (clock-div * 2 * sample_cnt * step_cnt
+>=20
+> ? Maybe better call this opt_div instead of min_div?=20
+OK
+
+>=20
+> > +	best_mul =3D MAX_SAMPLE_CNT_DIV * max_step_cnt;
+> > +
+> > +	for (sample_cnt =3D 1; sample_cnt <=3D MAX_SAMPLE_CNT_DIV; sample=
+_cnt++) {
+> > +		step_cnt =3D (min_div + sample_cnt - 1) / sample_cnt;
+> DIV_ROUND_UP
+OK
+
+> > +
+> > +		if (cnt_mul < best_mul) {
+> > +			best_mul =3D cnt_mul;
+> > +			sample_div =3D sample_cnt;
+> > +			step_div =3D step_cnt;
+> I'd call these best_sample_cnt and best_step_cnt instead of sample_di=
+v
+> and step_div.
+OK
+
+>=20
+> > +			if (best_mul =3D=3D min_div)
+> > +				break;
+> > +		}
+> > +	}
+> > +
+> > +	sample_cnt =3D sample_div;
+> > +	step_cnt =3D step_div;
+> > +	sclk =3D hclk / (2 * sample_cnt * step_cnt);
+> > +	if (sclk > khz) {
+> Can this happen? A better name for "sclk" would be "bus_freq"?
+Yes, if i2c->speed_hz is too small, not able to get target_speed using
+hardware div.=20
+
+>=20
+> > +		dev_dbg(i2c->dev, "%s mode: unsupported speed (%ldkhz)\n",
+> > +			(i2c->speed_hz > MAX_HS_MODE_SPEED) ? "HS" : "ST/FT",
+> What is ST/FR? I would have expected FS here.
+Please skip it.The debug message is too lousy.
+
+>=20
+> > +			(long int)khz);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	step_cnt--;
+> > +	sample_cnt--;
+> > +
+> > +	if (i2c->speed_hz > MAX_FS_MODE_SPEED) {
+> > +		/* Set the hign speed mode register */
+> > +		i2c->timing_reg =3D I2C_FS_TIME_INIT_VALUE;
+> > +		i2c->high_speed_reg =3D I2C_TIME_DEFAULT_VALUE |
+> > +			(sample_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 12 |
+> > +			(step_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 8;
+> > +	} else {
+> > +		i2c->timing_reg =3D
+> > +			(sample_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 8 |
+> > +			(step_cnt & I2C_TIMING_STEP_DIV_MASK) << 0;
+> > +		/* Disable the high speed transaction */
+> > +		i2c->high_speed_reg =3D I2C_TIME_CLR_VALUE;
+> > +	}
+> Would it be sensible to write these values directly into hardware her=
+e?
+No.In some error cases, we want to reinitialize hardware, keep these
+values to avoid calculate again.
+
+Eddie
