@@ -1,135 +1,95 @@
-From: Eddie Huang <eddie.huang@mediatek.com>
-Subject: Re: [PATCH v8 2/3] I2C: mediatek: Add driver for MediaTek I2C
- controller
-Date: Thu, 21 May 2015 15:01:29 +0800
-Message-ID: <1432191689.28646.11.camel@mtksdaap41>
-References: <1431967209-5261-1-git-send-email-eddie.huang@mediatek.com>
-	 <1431967209-5261-3-git-send-email-eddie.huang@mediatek.com>
-	 <20150520085715.GA17078@pengutronix.de>
+From: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v9 0/3] ARM: mediatek: Add driver for Mediatek I2C
+Date: Thu, 21 May 2015 16:53:27 +0800
+Message-ID: <1432198410-6576-1-git-send-email-eddie.huang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150520085715.GA17078@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Xudong Chen <xudong.chen@mediatek.com>, srv_heupstream@mediatek.com, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Liguo Zhang <liguo.zhang@mediatek.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Sascha Hauer <kernel@pengutronix.de>, Kumar Gala <galak@codeaurora.org>, Matthias Brugger <matthias.bgg@gmail.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+This series is for Mediatek SoCs I2C controller common bus driver.
 
-Please see my reply below (I skip comments that already reply in anothe=
-r
-mail).
+Earlier MTK SoC (for example, MT6589, MT8135) I2C HW has some limitations.
+New generation SoC like MT8173 fix following limitations:
 
-On Wed, 2015-05-20 at 10:57 +0200, Uwe Kleine-K=C3=B6nig wrote:
-> Hello,
->=20
-> now that I understood the formula some more comments to the calculati=
-on.
->=20
-> On Tue, May 19, 2015 at 12:40:08AM +0800, Eddie Huang wrote:
-> > +#define I2C_DEFAUT_SPEED		100000	/* hz */
-> DEFAULT?
->=20
-Yes, will fix.
+1. Only support one i2c_msg number. One exception is WRRD (write then read)
+mode. WRRD can have two i2c_msg numbers.
 
-> > +#define MAX_FS_MODE_SPEED		400000
-> > +#define MAX_HS_MODE_SPEED		3400000
-> > +#define MAX_SAMPLE_CNT_DIV		8
-> > +#define MAX_STEP_CNT_DIV		64
-> > +#define MAX_HS_STEP_CNT_DIV		8
-> > [...]
-> > +/* calculate i2c port speed */
-> > +static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int clk=
-_src_in_hz)
-> > +{
-> add a comment here, that clk_src_in_hz is the parent clock already
-> divided by clock-div.
->=20
-We move parent_clk div clock-div in mtk_i2c_set_speed function, I think
-this is more clear.
+2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
+mode the Repeat Start will be issued between 2 messages.
+In this driver if 2 messages is first write then read, the driver will
+combine 2 messages using Write-Read mode so the RS will be issued between
+the 2 messages.
 
-> > +	step_div =3D max_step_cnt;
-> > +	/* Find the best combination */
-> > +	khz =3D i2c->speed_hz / 1000;
-> > +	hclk =3D clk_src_in_hz / 1000;
-> Why are you dividing here? There shouldn't be an overflow problem and
-> you're loosing precision.
-OK, will remove div 1000.
+3. The max transfer data length is 255 in one message. In WRRD mode, the
+max data length of second msg is 31.
 
->=20
-> > +	min_div =3D ((hclk >> 1) + khz - 1) / khz;
-> The shift accounts for the fixed divider 2 in
->=20
-> 	i2c_bus_freq =3D parent_clk / (clock-div * 2 * sample_cnt * step_cnt
->=20
-> ? Maybe better call this opt_div instead of min_div?=20
-OK
+MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
+registers in MT8135 side. In this case, driver should set OFFSET_PATH_DIR
+bit first, the operation on other registers are still the same.
+For now MT6589/MT8135 support this, MT6577/MT6595/MT8127 do not support.
+For example, If want to use I2C4/5/6 pins on MT8135 just need to enable
+the pinmux, else if want to use I2C pins on PMIC(MT6397) need to add
+"mediatek,have-pmic" property in the .dts file of each platform.
 
->=20
-> > +	best_mul =3D MAX_SAMPLE_CNT_DIV * max_step_cnt;
-> > +
-> > +	for (sample_cnt =3D 1; sample_cnt <=3D MAX_SAMPLE_CNT_DIV; sample=
-_cnt++) {
-> > +		step_cnt =3D (min_div + sample_cnt - 1) / sample_cnt;
-> DIV_ROUND_UP
-OK
+This driver is based on 4.1-rc1.
 
-> > +
-> > +		if (cnt_mul < best_mul) {
-> > +			best_mul =3D cnt_mul;
-> > +			sample_div =3D sample_cnt;
-> > +			step_div =3D step_cnt;
-> I'd call these best_sample_cnt and best_step_cnt instead of sample_di=
-v
-> and step_div.
-OK
+Change in v9:
+Fix Uwe and Matthias review comment: optimize calculate speed function, avoid
+write I2C_RS_TRANSFER to unsupport SoC, and do some code clean up.
 
->=20
-> > +			if (best_mul =3D=3D min_div)
-> > +				break;
-> > +		}
-> > +	}
-> > +
-> > +	sample_cnt =3D sample_div;
-> > +	step_cnt =3D step_div;
-> > +	sclk =3D hclk / (2 * sample_cnt * step_cnt);
-> > +	if (sclk > khz) {
-> Can this happen? A better name for "sclk" would be "bus_freq"?
-Yes, if i2c->speed_hz is too small, not able to get target_speed using
-hardware div.=20
+Change in v8:
+Fix Wolfram's review comments like sort include file order, remove thin
+wrapper functions, remove define number that only use once, and revise
+error return value.
 
->=20
-> > +		dev_dbg(i2c->dev, "%s mode: unsupported speed (%ldkhz)\n",
-> > +			(i2c->speed_hz > MAX_HS_MODE_SPEED) ? "HS" : "ST/FT",
-> What is ST/FR? I would have expected FS here.
-Please skip it.The debug message is too lousy.
+Change in v7:
+Fix mtk_i2c_of_match in wrong patch bug.
 
->=20
-> > +			(long int)khz);
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	step_cnt--;
-> > +	sample_cnt--;
-> > +
-> > +	if (i2c->speed_hz > MAX_FS_MODE_SPEED) {
-> > +		/* Set the hign speed mode register */
-> > +		i2c->timing_reg =3D I2C_FS_TIME_INIT_VALUE;
-> > +		i2c->high_speed_reg =3D I2C_TIME_DEFAULT_VALUE |
-> > +			(sample_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 12 |
-> > +			(step_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 8;
-> > +	} else {
-> > +		i2c->timing_reg =3D
-> > +			(sample_cnt & I2C_TIMING_SAMPLE_COUNT_MASK) << 8 |
-> > +			(step_cnt & I2C_TIMING_STEP_DIV_MASK) << 0;
-> > +		/* Disable the high speed transaction */
-> > +		i2c->high_speed_reg =3D I2C_TIME_CLR_VALUE;
-> > +	}
-> Would it be sensible to write these values directly into hardware her=
-e?
-No.In some error cases, we want to reinitialize hardware, keep these
-values to avoid calculate again.
+Change in v6:
+1. Update binding document not use default clock-frequency as example.
+2. Add mtk_i2c_compatible struct and pass hardware capabilities
+   through of_device_id
+3. Remove some hardware setting in mtk_i2c_do_transfer to mtk_i2c_init_hw
+   so just init one time.
+4. Correct mtk_i2c_parse_dt don't set default clock bug.
 
-Eddie
+Change in v5:
+Apply new i2c_adapter_quirks patch [2]. Change to use dam_map_single to map
+dma buffer. Add spinlock to fix race condition. Check of_property_read_u32
+return value. Remove I2C_FUNC_10BIT_ADDR capability due to driver not implement.
+Add MT8173 I2C driver.
+
+Change in v4:
+Modify to support i2c_adapter_quirks base on Wolfram's patch [1].
+Remove check transfer size and WRRD combine code. Instead, fill quirk
+property and let i2c_check_for_quirks to do the filter.
+
+[1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-January/314804.html
+[2] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-February/325744.html
+
+Eddie Huang (1):
+  I2C: mediatek: Add driver for MediaTek MT8173 I2C controller
+
+Xudong Chen (2):
+  dt-bindings: Add I2C bindings for mt65xx/mt81xx.
+  I2C: mediatek: Add driver for MediaTek I2C controller
+
+ .../devicetree/bindings/i2c/i2c-mt6577.txt         |  41 ++
+ drivers/i2c/busses/Kconfig                         |   9 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-mt65xx.c                    | 731 +++++++++++++++++++++
+ 4 files changed, 782 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mt6577.txt
+ create mode 100644 drivers/i2c/busses/i2c-mt65xx.c
+
+--
+1.8.1.1.dirty
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
