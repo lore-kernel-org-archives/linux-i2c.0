@@ -1,114 +1,53 @@
-From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
-Subject: [PATCH v3 i2c/for-next] i2c: i801: recover from hardware PEC errors
-Date: Fri, 22 May 2015 15:14:28 -0700
-Message-ID: <1432332868-12705-1-git-send-email-ellen@cumulusnetworks.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jdelvare-l3A5Bk7waGM@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 0/2] Fix OF match for adxl34x driver
+Date: Fri, 22 May 2015 16:32:45 -0700
+Message-ID: <20150522233245.GB20687@dtor-ws>
+References: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1432208546-18615-1-git-send-email-geert+renesas@glider.be>
+Sender: linux-input-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On a CRC error while using hardware-supported PEC, an additional
-error bit is set in the auxiliary status register.  If this bit
-isn't cleared, all subsequent operations will fail, essentially
-hanging the controller.
+On Thu, May 21, 2015 at 01:42:24PM +0200, Geert Uytterhoeven wrote:
+> 	Hi Dmitry,
+> 
+> This is a resent of a series by Laurent Pinchart to fix OF matching for
+> the adxl34x driver.
+> 
+> According to the discussion in response to that series, we were under
+> the impression this was going in through the input tree
+> (http://www.spinics.net/lists/linux-i2c/msg18293.html).
+> 
+> In input patchwork, the series is still marked "Awaiting Upstream"
+> (https://patchwork.ozlabs.org/project/linux-i2c/list/?state=*&q=adxl),
+> but actually we are waiting for you, as we can't update the affected DTS
+> before the driver fix has gone in ;-)
+> 
+> From Laurent's submission:
+> 
+>     This patch set fixes OF matching for the adxl34x driver when the DT
+>     node lists a device-specific "adi,adxl345" or "adi,adxl346"
+>     compatible value first.
+> 
+>     The first version (see
+>     http://www.spinics.net/lists/linux-i2c/msg18107.html) added an OF
+>     match entry for the "adi,adxl34x" compatible string. The discussion
+>     that followed concluded that that compatible string should be
+>     deprecated and that the driver should match the device-specific
+>     strings instead.
+> 
+>     The first patch thus deprecates the "adi,adxl34x" compatible string
+>     by removing it the DT trivial devices list, and the second patch
+>     then adds an OF match table to the adxl34x driver.
+> 
+> Thanks for applying!
 
-The fix is simple: check, report, and clear the bit in
-i801_check_post().  Also, in case the driver starts with the
-hardware in that state, clear it in i801_check_pre() as well.
+Applied and sorry for the delay.
 
-Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
----
-Update: fix typos in commit message, otherwise the same as v2
-
-This is essentially the patch from Jean Delvare, which handles
-the polling case while my original version didn't.  (Thank you!
-Please add appropriate attribution if you wish.)
-
-I tested all the additional code paths by selectively commenting
-out code: with interrupts, without interrupts, relying on check_pre()
-to clear CRCE, no clearing of CRCE at all (baseline).
----
- drivers/i2c/busses/i2c-i801.c |   53 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 51 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 5ecbb3f..fa50df0 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -125,6 +125,10 @@
- #define SMBHSTCFG_SMB_SMI_EN	2
- #define SMBHSTCFG_I2C_EN	4
- 
-+/* Auxiliary status register bits, ICH4+ only */
-+#define SMBAUXSTS_CRCE		1
-+#define SMBAUXSTS_STCO		2
-+
- /* Auxiliary control register bits, ICH4+ only */
- #define SMBAUXCTL_CRC		1
- #define SMBAUXCTL_E32B		2
-@@ -273,6 +277,29 @@ static int i801_check_pre(struct i801_priv *priv)
- 		}
- 	}
- 
-+	/*
-+	 * Clear CRC status if needed.
-+	 * During normal operation, i801_check_post() takes care
-+	 * of it after every operation.  We do it here only in case
-+	 * the hardware was already in this state when the driver
-+	 * started.
-+	 */
-+	if (priv->features & FEATURE_SMBUS_PEC) {
-+		status = inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE;
-+		if (status) {
-+			dev_dbg(&priv->pci_dev->dev,
-+				"Clearing aux status flags (%02x)\n", status);
-+			outb_p(status, SMBAUXSTS(priv));
-+			status = inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE;
-+			if (status) {
-+				dev_err(&priv->pci_dev->dev,
-+					"Failed clearing aux status flags (%02x)\n",
-+					status);
-+				return -EBUSY;
-+			}
-+		}
-+	}
-+
- 	return 0;
- }
- 
-@@ -316,8 +343,30 @@ static int i801_check_post(struct i801_priv *priv, int status)
- 		dev_err(&priv->pci_dev->dev, "Transaction failed\n");
- 	}
- 	if (status & SMBHSTSTS_DEV_ERR) {
--		result = -ENXIO;
--		dev_dbg(&priv->pci_dev->dev, "No response\n");
-+		/*
-+		 * This may be a PEC error, check and clear it.
-+		 *
-+		 * AUXSTS is handled differently from HSTSTS.
-+		 * For HSTSTS, i801_isr() or i801_wait_intr()
-+		 * has already cleared the error bits in hardware,
-+		 * and we are passed a copy of the original value
-+		 * in "status".
-+		 * For AUXSTS, the hardware register is left
-+		 * for us to handle here.
-+		 * This is asymmetric, slightly iffy, but safe,
-+		 * since all this code is serialized and the CRCE
-+		 * bit is harmless as long as it's cleared before
-+		 * the next operation.
-+		 */
-+		if ((priv->features & FEATURE_SMBUS_PEC) &&
-+		    (inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE)) {
-+			outb_p(SMBAUXSTS_CRCE, SMBAUXSTS(priv));
-+			result = -EBADMSG;
-+			dev_dbg(&priv->pci_dev->dev, "PEC error\n");
-+		} else {
-+			result = -ENXIO;
-+			dev_dbg(&priv->pci_dev->dev, "No response\n");
-+		}
- 	}
- 	if (status & SMBHSTSTS_BUS_ERR) {
- 		result = -EAGAIN;
 -- 
-1.7.10.4
+Dmitry
