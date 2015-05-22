@@ -1,78 +1,114 @@
-From: "s. wicki" <linux_wi-ADq4ffItWIY@public.gmane.org>
-Subject: [PATCH] i2c: busses: i2c-bcm2835: limits cdiv to allowed values
-Date: Fri, 22 May 2015 10:36:51 +0200
-Message-ID: <1432283811-22226-1-git-send-email-linux_wi@tinag.ch>
+From: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH v3 i2c/for-next] i2c: i801: recover from hardware PEC errors
+Date: Fri, 22 May 2015 15:14:28 -0700
+Message-ID: <1432332868-12705-1-git-send-email-ellen@cumulusnetworks.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "s. wicki" <linux_wi-ADq4ffItWIY@public.gmane.org>
+To: jdelvare-l3A5Bk7waGM@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-fixes:	round down divider instead of incrementing
-adds:	make sure bits 16-31 of cdiv register are always 0
-adds:	assume minimal divider of 2 if divider resulted in 0
-	(bcm2835 sets divider to 32768 if cdiv is set to 0)
+On a CRC error while using hardware-supported PEC, an additional
+error bit is set in the auxiliary status register.  If this bit
+isn't cleared, all subsequent operations will fail, essentially
+hanging the controller.
 
-Signed-off-by: s. wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+The fix is simple: check, report, and clear the bit in
+i801_check_post().  Also, in case the driver starts with the
+hardware in that state, clear it in i801_check_pre() as well.
+
+Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 38 +++++++++++++++++++++++++++++++-------
- 1 file changed, 31 insertions(+), 7 deletions(-)
+Update: fix typos in commit message, otherwise the same as v2
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index c9336a3..745181c 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -51,6 +51,9 @@
- #define BCM2835_I2C_S_LEN	BIT(10) /* Fake bit for SW error reporting */
+This is essentially the patch from Jean Delvare, which handles
+the polling case while my original version didn't.  (Thank you!
+Please add appropriate attribution if you wish.)
+
+I tested all the additional code paths by selectively commenting
+out code: with interrupts, without interrupts, relying on check_pre()
+to clear CRCE, no clearing of CRCE at all (baseline).
+---
+ drivers/i2c/busses/i2c-i801.c |   53 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 51 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 5ecbb3f..fa50df0 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -125,6 +125,10 @@
+ #define SMBHSTCFG_SMB_SMI_EN	2
+ #define SMBHSTCFG_I2C_EN	4
  
- #define BCM2835_I2C_TIMEOUT (msecs_to_jiffies(1000))
-+#define BCM2835_I2C_CDIV_MIN	0x0002
-+#define BCM2835_I2C_CDIV_MAX	0xFFFE
-+#define BCM2835_I2C_CDIV_BITMSK	0xFFFE
- 
- struct bcm2835_i2c_dev {
- 	struct device *dev;
-@@ -251,13 +254,34 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
++/* Auxiliary status register bits, ICH4+ only */
++#define SMBAUXSTS_CRCE		1
++#define SMBAUXSTS_STCO		2
++
+ /* Auxiliary control register bits, ICH4+ only */
+ #define SMBAUXCTL_CRC		1
+ #define SMBAUXCTL_E32B		2
+@@ -273,6 +277,29 @@ static int i801_check_pre(struct i801_priv *priv)
+ 		}
  	}
  
- 	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk), bus_clk_rate);
--	/*
--	 * Per the datasheet, the register is always interpreted as an even
--	 * number, by rounding down. In other words, the LSB is ignored. So,
--	 * if the LSB is set, increment the divider to avoid any issue.
--	 */
--	if (divider & 1)
--		divider++;
-+	if (divider == 0) {
-+		/*
-+		 * divider results in 0 by extremely high bus_clk_rate values
-+		 * such as bus_clk_rate >= 4044967297 and core_clock = 250MHz.
-+		 * In such a case assume the minimal possible divider since
-+		 * bcm2835 chip sets divisor internally to 32768 if cdiv is 0.
-+		 */
-+		divider = BCM2835_I2C_CDIV_MIN;
-+	} else {
-+		/* check if divider meets certain bcm2835 specific criterias */
-+		if ((divider & BCM2835_I2C_CDIV_BITMSK) != divider) {
-+			if (divider > BCM2835_I2C_CDIV_MAX)
-+				/*
-+				 * Per the datasheet it must be made sure
-+				 * that bits 16-31 are set to 0. If that is
-+				 * not the case, then set to the maximum
-+				 * allowed value.
-+				 */
-+				divider = BCM2835_I2C_CDIV_MAX;
-+			else
-+				/*
-+				 * Per datasheet the cdiv is always rounded
-+				 * down to an even number. Bitmask takes care
-+				 * of this and clears the LSB
-+				 */
-+				divider &= BCM2835_I2C_CDIV_BITMSK;
++	/*
++	 * Clear CRC status if needed.
++	 * During normal operation, i801_check_post() takes care
++	 * of it after every operation.  We do it here only in case
++	 * the hardware was already in this state when the driver
++	 * started.
++	 */
++	if (priv->features & FEATURE_SMBUS_PEC) {
++		status = inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE;
++		if (status) {
++			dev_dbg(&priv->pci_dev->dev,
++				"Clearing aux status flags (%02x)\n", status);
++			outb_p(status, SMBAUXSTS(priv));
++			status = inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE;
++			if (status) {
++				dev_err(&priv->pci_dev->dev,
++					"Failed clearing aux status flags (%02x)\n",
++					status);
++				return -EBUSY;
++			}
 +		}
 +	}
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
++
+ 	return 0;
+ }
  
- 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+@@ -316,8 +343,30 @@ static int i801_check_post(struct i801_priv *priv, int status)
+ 		dev_err(&priv->pci_dev->dev, "Transaction failed\n");
+ 	}
+ 	if (status & SMBHSTSTS_DEV_ERR) {
+-		result = -ENXIO;
+-		dev_dbg(&priv->pci_dev->dev, "No response\n");
++		/*
++		 * This may be a PEC error, check and clear it.
++		 *
++		 * AUXSTS is handled differently from HSTSTS.
++		 * For HSTSTS, i801_isr() or i801_wait_intr()
++		 * has already cleared the error bits in hardware,
++		 * and we are passed a copy of the original value
++		 * in "status".
++		 * For AUXSTS, the hardware register is left
++		 * for us to handle here.
++		 * This is asymmetric, slightly iffy, but safe,
++		 * since all this code is serialized and the CRCE
++		 * bit is harmless as long as it's cleared before
++		 * the next operation.
++		 */
++		if ((priv->features & FEATURE_SMBUS_PEC) &&
++		    (inb_p(SMBAUXSTS(priv)) & SMBAUXSTS_CRCE)) {
++			outb_p(SMBAUXSTS_CRCE, SMBAUXSTS(priv));
++			result = -EBADMSG;
++			dev_dbg(&priv->pci_dev->dev, "PEC error\n");
++		} else {
++			result = -ENXIO;
++			dev_dbg(&priv->pci_dev->dev, "No response\n");
++		}
+ 	}
+ 	if (status & SMBHSTSTS_BUS_ERR) {
+ 		result = -EAGAIN;
 -- 
-2.1.4
+1.7.10.4
