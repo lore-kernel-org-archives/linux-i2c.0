@@ -1,75 +1,59 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [RFC] sound: ppc: keywest: check if DEQ was already instantiated
-Date: Sat, 23 May 2015 18:15:11 +0200
-Message-ID: <1432397711-3186-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Dan DeVoto <dand1972-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, Mark Elliott <txlitebeer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: I2C class bitmask
+Date: Sat, 23 May 2015 09:27:37 -0700
+Message-ID: <20150523162737.GA4981@roeck-us.net>
+References: <555E4913.9070805@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <555E4913.9070805@freescale.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: York Sun <yorksun@freescale.com>
+Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Due to changes in i2c-powermac, for some Macs the DEQ is instantiated
-now in i2c-powermac while some need the instantiation here in the
-keywest sound driver. The proper fix is to convert this driver to AOA.
-Until then support both ways of instantiation. Before this patch, some
-Macs lost sound because the sound driver failed when instantiating the
-DEQ for the second time.
+On Thu, May 21, 2015 at 02:07:31PM -0700, York Sun wrote:
+> Lee,
+> 
+> Is there any convention regarding I2C class bitmask? I see only three are
+> defined for 3.12.19 and four for 4.0
+> 
+> I2C_CLASS_HWMON, I2C_CLASS_DDC, I2C_CLASS_SPD, I2C_CLASS_DEPRECATED
+> 
+> I am working on a clock chip driver (SI5338) and trying to detect them (multiple
+> chips in i2c mux). It would be a lot easier to have its own class, like
+> I2C_CLASS_CLOCK. It is trivial to add a line to i2c.h file. Just checking if
+> this is a bad idea.
+> 
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
+A class is supposed to indicate if a specific chip class is likely to be seen
+on an i2c adapter, and that it may be necessary to auto-detect it (an example
+are I2C_CLASS_HWMON type devices on PCs). The tendency, though, is to drop
+existing markers for I2C_CLASS_xxx from adapter drivers as much as possible
+because it slows down the boot process (see upstream commit 0c176170089c3).
 
-Dan, Mark: I hope I found a generic but not too intrusive solution to the
-doubled instantiation problem. Can you please test this patch on top of this
-one "sound: ppc: keywest: drop using attach adapter" from last time? Check if
-you have sound and send the dmesg output, please. I hope it compiles even,
-couldn't test that this time.
+Auto-detection (with the _detect function) is not a preferred means to
+instantiate a device. It takes time, and it is more or less unreliable.
+For some chips, a read on its i2c register space can result in a chip reset,
+or it can cause it to lose its programming. Worst case it can turn a system
+into a brick.
 
- sound/ppc/keywest.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+Preferred instantiations are listed in Documentation/i2c/instantiating-devices.
+Instantiation with devicetree, ACPI, or through i2c_register_board_info()
+would probably be the best available methods to instantiate a clock chip.
 
-diff --git a/sound/ppc/keywest.c b/sound/ppc/keywest.c
-index d7627bae08362e..6120a067494a44 100644
---- a/sound/ppc/keywest.c
-+++ b/sound/ppc/keywest.c
-@@ -31,10 +31,15 @@
-  */
- static struct pmac_keywest *keywest_ctx;
- 
-+static bool keywest_probed;
- 
- static int keywest_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
-+	keywest_probed = true;
-+	/* If instantiated via i2c-powermac, we still need to set the client */
-+	if (!keywest_ctx->client)
-+		keywest_ctx->client = client;
- 	i2c_set_clientdata(client, keywest_ctx);
- 	return 0;
- }
-@@ -92,7 +97,8 @@ static int keywest_remove(struct i2c_client *client)
- 
- 
- static const struct i2c_device_id keywest_i2c_id[] = {
--	{ "keywest", 0 },
-+	{ "MAC,tas3004", 0 },		/* instantiated by i2c-powermac */
-+	{ "keywest", 0 },		/* instantiated by us if needed */
- 	{ }
- };
- 
-@@ -149,8 +155,13 @@ int snd_pmac_keywest_init(struct pmac_keywest *i2c)
- 		return err;
- 	}
- 
-+	/* There was already a device from i2c-powermac. Great, let's return */
-+	if (keywest_probed)
-+		return 0;
-+
- 	/* We assume Macs have consecutive I2C bus numbers starting at 0 */
- 	while (adap) {
-+		/* Scan for devices to be bound to */
- 		err = keywest_attach_adapter(adap);
- 		if (!err)
- 			return 0;
--- 
-2.1.4
+Given that, first question is why you would want to have the chip auto-detected
+in the first place. Is there any reason to believe that explicit instantiation
+would not work in your system ?  What are those reasons ?
+
+On top of that, the SI5338 does not have a clean way to detect the chip.
+It does not have a chip ID register, and it is multi-banked. Given the
+similarities of the various Silicon Labs clock chips, it may not even be
+possible to reliably distinguish it from other SI chips. So even if you
+had a good reason to auto-detect the chip, it would be _very_ unreliable.
+This seems to be quite undesirable and risky for a clock chip.
+Are you really sure that you want and need that ?
+
+Thanks,
+Guenter
