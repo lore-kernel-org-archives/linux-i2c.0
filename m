@@ -1,103 +1,59 @@
-From: Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v9 0/3] ARM: mediatek: Add driver for Mediatek I2C
-Date: Mon, 25 May 2015 00:09:12 +0800
-Message-ID: <1432483752.8089.10.camel@mtksdaap41>
+Date: Sun, 24 May 2015 19:38:43 +0200
+Message-ID: <20150524173843.GA4162@schokonusskuchen.bad>
 References: <1432198410-6576-1-git-send-email-eddie.huang@mediatek.com>
-	 <CAGS+omB7UMrEdZiJXVK78ENEqH6fL_25-Q5Fj1Z0Buzjwp60JA@mail.gmail.com>
+ <CAGS+omB7UMrEdZiJXVK78ENEqH6fL_25-Q5Fj1Z0Buzjwp60JA@mail.gmail.com>
+ <1432483752.8089.10.camel@mtksdaap41>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGS+omB7UMrEdZiJXVK78ENEqH6fL_25-Q5Fj1Z0Buzjwp60JA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Xudong Chen <xudong.chen-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Liguo Zhang <liguo.zhang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "open list:OPEN FIRMWARE AND..." <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1432483752.8089.10.camel@mtksdaap41>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eddie Huang <eddie.huang@mediatek.com>
+Cc: Daniel Kurtz <djkurtz@chromium.org>, srv_heupstream@mediatek.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Xudong Chen <xudong.chen@mediatek.com>, Liguo Zhang <liguo.zhang@mediatek.com>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:OPEN FIRMWARE AND..." <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mediatek@lists.infradead.org, Sascha Hauer <kernel@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Dan,
 
-On Thu, 2015-05-21 at 22:39 +0800, Daniel Kurtz wrote:
-> On Thu, May 21, 2015 at 4:53 PM, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> wrote:
-> > This series is for Mediatek SoCs I2C controller common bus driver.
-> >
-> > Earlier MTK SoC (for example, MT6589, MT8135) I2C HW has some limitations.
-> > New generation SoC like MT8173 fix following limitations:
-> >
-> > 1. Only support one i2c_msg number. One exception is WRRD (write then read)
-> > mode. WRRD can have two i2c_msg numbers.
-> >
-> > 2. Mediatek I2C controller support WRRD(write then read) mode, in WRRD
-> > mode the Repeat Start will be issued between 2 messages.
-> > In this driver if 2 messages is first write then read, the driver will
-> > combine 2 messages using Write-Read mode so the RS will be issued between
-> > the 2 messages.
-> >
-> > 3. The max transfer data length is 255 in one message. In WRRD mode, the
-> > max data length of second msg is 31.
-> >
-> > MT8135 and MT6589 can control I2C pins on PMIC(MT6397) by setting the i2c
-> > registers in MT8135 side. In this case, driver should set OFFSET_PATH_DIR
-> > bit first, the operation on other registers are still the same.
-> > For now MT6589/MT8135 support this, MT6577/MT6595/MT8127 do not support.
-> > For example, If want to use I2C4/5/6 pins on MT8135 just need to enable
-> > the pinmux, else if want to use I2C pins on PMIC(MT6397) need to add
-> > "mediatek,have-pmic" property in the .dts file of each platform.
-> >
-> > This driver is based on 4.1-rc1.
-> >
-> > Change in v9:
-> > Fix Uwe and Matthias review comment: optimize calculate speed function, avoid
-> > write I2C_RS_TRANSFER to unsupport SoC, and do some code clean up.
-> >
-> > Change in v8:
-> > Fix Wolfram's review comments like sort include file order, remove thin
-> > wrapper functions, remove define number that only use once, and revise
-> > error return value.
-> >
-> > Change in v7:
-> > Fix mtk_i2c_of_match in wrong patch bug.
-> >
-> > Change in v6:
-> > 1. Update binding document not use default clock-frequency as example.
-> > 2. Add mtk_i2c_compatible struct and pass hardware capabilities
-> >    through of_device_id
-> > 3. Remove some hardware setting in mtk_i2c_do_transfer to mtk_i2c_init_hw
-> >    so just init one time.
-> > 4. Correct mtk_i2c_parse_dt don't set default clock bug.
-> >
-> > Change in v5:
-> > Apply new i2c_adapter_quirks patch [2]. Change to use dam_map_single to map
-> > dma buffer. Add spinlock to fix race condition. Check of_property_read_u32
-> > return value. Remove I2C_FUNC_10BIT_ADDR capability due to driver not implement.
-> > Add MT8173 I2C driver.
-> >
-> > Change in v4:
-> > Modify to support i2c_adapter_quirks base on Wolfram's patch [1].
-> > Remove check transfer size and WRRD combine code. Instead, fill quirk
-> > property and let i2c_check_for_quirks to do the filter.
-> >
-> > [1] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-January/314804.html
-> > [2] http://lists.infradead.org/pipermail/linux-arm-kernel/2015-February/325744.html
-> >
-> > Eddie Huang (1):
-> >   I2C: mediatek: Add driver for MediaTek MT8173 I2C controller
-> >
-> > Xudong Chen (2):
-> >   dt-bindings: Add I2C bindings for mt65xx/mt81xx.
-> >   I2C: mediatek: Add driver for MediaTek I2C controller
-> 
-> Hi Eddie,
-> Is there a reason why this series does not include a patch to add i2c
-> nodes and i2c pinctrl nodes for mt8173.dtsi?
-> 
-> Thanks,
-> -Dan
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This series already reviewed in public more than six months. In the
-early version, 8173 CCF and Pinctrl not be accepted yet, so we don't put
-device node with this series. Now both CCF and pinctrl have been
-accepted, maybe it's time to add device node.I am glad that if this I2C
-version can be accepted, If not, I will send new series with device node
-in next round.
 
-Eddie
+> This series already reviewed in public more than six months. In the
+> early version, 8173 CCF and Pinctrl not be accepted yet, so we don't put
+> device node with this series. Now both CCF and pinctrl have been
+> accepted, maybe it's time to add device node.I am glad that if this I2C
+> version can be accepted, If not, I will send new series with device node
+> in next round.
+
+I think this is good to go. Further changes should probably done as
+incremental patches. I am just waiting a little so people can add tags
+to the patches.
+
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJVYgyjAAoJEBQN5MwUoCm2isoQAIrRCy8zxHQKvCHAFX+89TP+
+kjXxD0LEj8/fOxeV43d8iDLgGfARRVEujuTV5k7PzHEaWC9++W42QSFRGyJmdGWb
+CjSyPyEEoMQn3k7aHTMi/g0X+koY5/CFZlcVu5RkThBRo25kSG0mY8qxbEDq9QjB
+Am6PomlUceWWo3AeAuGg9cfsJ5cPAWYRhyfiGjqfqBrmCEspb5cjckVJdRk7iiQ+
+h3ioCMUM1J5A1+QOP7bKQ5R5sqgYi9ae5vBVq0jLKHqJSruYDZdrnXJm0cHtPoQX
+I278RpGPAS4GPb4MJPhXBZQlXpZzVaZfaRKZrOdpNTE7rzH0sevARAMcwVYF0e38
+Ca9YQrkBa5eELb4UAIUOcWfpAx7woalKGpUtx7Giu1LgekYqO5YgdI1eQiSzStP+
+0EnP03pk2VNTZJ7TsbVWJgbElAF2xIWmAhlHfv9EZw4ZJ63C1d0CqOOt2JGAUtmF
+8J8hWwioTJPLF5X8ZpYkcSMtVTX+RhyZ7pcVHVQlIF3dDwztSShwHF/a7GxY5aTL
+iHVD3BX8FclBhSp0rngYaoZCY6Z0wlhY6POUFFArjPbN80slTa+KiEiJDfJAtPkA
+8Q4K3wTaaz9DhQLN1jjuYUhh22ibbWiRAJvUXUzCrpC7QHXTxEIGK3oErD3xV+36
+UQQZUbxsCD64jL4EhHUn
+=+Yol
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--
