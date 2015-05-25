@@ -1,59 +1,104 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v9 0/3] ARM: mediatek: Add driver for Mediatek I2C
-Date: Sun, 24 May 2015 19:38:43 +0200
-Message-ID: <20150524173843.GA4162@schokonusskuchen.bad>
-References: <1432198410-6576-1-git-send-email-eddie.huang@mediatek.com>
- <CAGS+omB7UMrEdZiJXVK78ENEqH6fL_25-Q5Fj1Z0Buzjwp60JA@mail.gmail.com>
- <1432483752.8089.10.camel@mtksdaap41>
+From: Jisheng Zhang <jszhang@marvell.com>
+Subject: Re: [PATCH v2] i2c: designware: Avoid unnecessary resuming during
+ system suspend
+Date: Mon, 25 May 2015 10:42:06 +0800
+Message-ID: <20150525104206.1c9bf3bf@xhacker>
+References: <1432132393-693-1-git-send-email-jszhang@marvell.com>
+	<20150521114049.GY1490@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1432483752.8089.10.camel@mtksdaap41>
+In-Reply-To: <20150521114049.GY1490@lahna.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie Huang <eddie.huang@mediatek.com>
-Cc: Daniel Kurtz <djkurtz@chromium.org>, srv_heupstream@mediatek.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Xudong Chen <xudong.chen@mediatek.com>, Liguo Zhang <liguo.zhang@mediatek.com>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:OPEN FIRMWARE AND..." <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mediatek@lists.infradead.org, Sascha Hauer <kernel@pengutronix.de>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jarkko.nikula@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
+Dear Wolfram, Mika,
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, 21 May 2015 14:40:49 +0300
+Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
 
+> [Adding Jarkko, just in case he has concerns about this]
+> 
+> On Wed, May 20, 2015 at 10:33:13PM +0800, Jisheng Zhang wrote:
+> > Commit 1fc2fe204cb9 ("i2c: designware: Add runtime PM hooks") adds
+> > runtime pm support using the same ops for system pm and runtime pm.
+> > When suspend to ram, the i2c host may have been runtime suspended, thus
+> > i2c_dw_disable() hangs.
+> > 
+> > Previously, I fixed this issue by separating ops for system pm and
+> > runtime pm, then in the system suspend/resume path, runtime pm apis are
+> > used to ensure the device is at correct state.
+> > 
+> > But as Mika Westerberg pointed out: it sounds a bit silly to resume the
+> > device just because you want to call i2c_dw_disable() for it before
+> > suspending again. He then suggested an elegant solution which keeps the
+> > device runtime suspended during system suspend with the help of
+> > 'dev->power.direct_complete'. This patch adopted this solution, and in
+> > fact Mika provided the main code.
+> > 
+> > Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
+> > ---
+> >  v2 change:
+> > 	- adopt Mika's suggestion to make use of direct_complete flag
+> > 
+> >  drivers/i2c/busses/i2c-designware-platdrv.c | 33 +++++++++++++++++++++++++----
+> >  1 file changed, 29 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > index 0a80e4a..f89650f 100644
+> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> > @@ -298,6 +298,22 @@ static const struct of_device_id dw_i2c_of_match[] = {
+> >  MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+> >  #endif
+> >  
+> > +#ifdef CONFIG_PM_SLEEP
+> > +static int dw_i2c_prepare(struct device *dev)
+> > +{
+> > +	return pm_runtime_suspended(dev);
+> > +}
+> > +
+> > +static void dw_i2c_complete(struct device *dev)
+> > +{
+> > +	if (dev->power.direct_complete)
+> > +		pm_request_resume(dev);
+> > +}
+> > +#else
+> > +#define dw_i2c_prepare	NULL
+> > +#define dw_i2c_complete	NULL
+> > +#endif
+> > +
+> >  #ifdef CONFIG_PM
+> >  static int dw_i2c_suspend(struct device *dev)
+> >  {
+> > @@ -322,10 +338,19 @@ static int dw_i2c_resume(struct device *dev)
+> >  
+> >  	return 0;
+> >  }
+> > -#endif
+> >  
+> > -static UNIVERSAL_DEV_PM_OPS(dw_i2c_dev_pm_ops, dw_i2c_suspend,
+> > -			    dw_i2c_resume, NULL);
+> > +static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+> > +	.prepare = dw_i2c_prepare,
+> > +	.complete = dw_i2c_complete,
+> > +	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_suspend, dw_i2c_resume)
+> > +	SET_RUNTIME_PM_OPS(dw_i2c_suspend,
+> > +		dw_i2c_resume, NULL)
+> 
+> No need to wrap here. It will fit into 80 chars limit.
 
-> This series already reviewed in public more than six months. In the
-> early version, 8173 CCF and Pinctrl not be accepted yet, so we don't put
-> device node with this series. Now both CCF and pinctrl have been
-> accepted, maybe it's time to add device node.I am glad that if this I2C
-> version can be accepted, If not, I will send new series with device node
-> in next round.
+OOPs, yes. Do I need to send a new version?
 
-I think this is good to go. Further changes should probably done as
-incremental patches. I am just waiting a little so people can add tags
-to the patches.
+> 
+> Otherwise looks good to me. I also tested this on Braswell and Skylake
+> machines where it didn't cause any problems,
+> 
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> 
 
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJVYgyjAAoJEBQN5MwUoCm2isoQAIrRCy8zxHQKvCHAFX+89TP+
-kjXxD0LEj8/fOxeV43d8iDLgGfARRVEujuTV5k7PzHEaWC9++W42QSFRGyJmdGWb
-CjSyPyEEoMQn3k7aHTMi/g0X+koY5/CFZlcVu5RkThBRo25kSG0mY8qxbEDq9QjB
-Am6PomlUceWWo3AeAuGg9cfsJ5cPAWYRhyfiGjqfqBrmCEspb5cjckVJdRk7iiQ+
-h3ioCMUM1J5A1+QOP7bKQ5R5sqgYi9ae5vBVq0jLKHqJSruYDZdrnXJm0cHtPoQX
-I278RpGPAS4GPb4MJPhXBZQlXpZzVaZfaRKZrOdpNTE7rzH0sevARAMcwVYF0e38
-Ca9YQrkBa5eELb4UAIUOcWfpAx7woalKGpUtx7Giu1LgekYqO5YgdI1eQiSzStP+
-0EnP03pk2VNTZJ7TsbVWJgbElAF2xIWmAhlHfv9EZw4ZJ63C1d0CqOOt2JGAUtmF
-8J8hWwioTJPLF5X8ZpYkcSMtVTX+RhyZ7pcVHVQlIF3dDwztSShwHF/a7GxY5aTL
-iHVD3BX8FclBhSp0rngYaoZCY6Z0wlhY6POUFFArjPbN80slTa+KiEiJDfJAtPkA
-8Q4K3wTaaz9DhQLN1jjuYUhh22ibbWiRAJvUXUzCrpC7QHXTxEIGK3oErD3xV+36
-UQQZUbxsCD64jL4EhHUn
-=+Yol
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+Thanks for these.
