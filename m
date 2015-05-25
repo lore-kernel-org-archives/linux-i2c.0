@@ -1,109 +1,121 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
-Date: Mon, 25 May 2015 15:17:09 +0530
-Message-ID: <5562EF9D.1090403@linaro.org>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Subject: [PATCH 00/21] On-demand device registration
+Date: Mon, 25 May 2015 16:53:04 +0200
+Message-ID: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Sender: linux-gpio-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: =?UTF-8?q?St=C3=A9phane=20Marchesin?= <stephane.marchesin@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Holler <holler@ahsoftware.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Dan Williams <dan.j.williams@intel.com>, devicetree@vger.kernel.org, dmaengine@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-clk@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello,
 
-Hi,
+I have a problem with the panel on my Tegra Chromebook taking longer th=
+an
+expected to be ready during boot (St=C3=A9phane Marchesin reported what=
+ is
+basically the same issue in [0]), and have looked into ordered probing =
+as a
+better way of solving this than moving nodes around in the DT or playin=
+g with
+initcall levels.
 
-This is rather an old issue, for which I have also done custom & hacky
-solution in the past.
+While reading the thread [1] that Alexander Holler started with his ser=
+ies to
+make probing order deterministic, it occurred to me that it should be p=
+ossible
+to achieve the same by registering devices as they are referenced by ot=
+her
+devices.
 
-Please let me know if there is already an some other method or accepted
-workaround to this issue. Also, let me know if you have any suggestions
-on this patch, I would be happy to work on it.
+This basically reuses the information that is already implicit in the p=
+robe()
+implementations, saving us from refactoring existing drivers or adding
+information to DTBs.
 
+Something I'm not completely happy with is that I have had to move the =
+call to
+of_platform_populate after all platform drivers have been registered.
+Otherwise I don't see how I could register drivers on demand as we don'=
+t have
+yet each driver's compatible strings.
 
-Problem Statement:
-------------------
-In certain embedded platforms, the board power on/off is managed by
-PMIC IC, which in most of the cases is over I2C bus.
-So during shutdown/reboot you may have to do I2C transactions to access
-PMIC, which may sleep if I2C bus driver is not functioning in PIO by
-default.
+=46or machs that don't move of_platform_populate() to a later point, th=
+ese
+patches shouldn't cause any problems but it's not guaranteed that we'll=
+ avoid
+all the deferred probes as some drivers may not be registered yet.
 
-This is unexpected, to sleep after you disable the interrupts.
+I have tested this on boards with Tegra, iMX.6 and Exynos SoCs, and the=
+se
+patches were enough to eliminate all the deferred probes.
 
-For example,
+With this series I get the kernel to output to the panel in 0.5s, inste=
+ad of 2.8s.
 
-During reboot/shutdown, the execution call reaches to,
+Regards,
 
-void machine_power_off(void)
-{
-         local_irq_disable();
-         smp_send_stop();
-         if (pm_power_off)
-                 pm_power_off();
-}
+Tomeu
 
-pm_power_off will try to do I2C transaction to access PMIC, which may
-sleep/schedule.
+[0] http://lists.freedesktop.org/archives/dri-devel/2014-August/066527.=
+html
 
+[1] https://lkml.org/lkml/2014/5/12/452
 
-Current implementation:
---------------------
+Tomeu Vizoso (21):
+  regulator: core: Reduce critical area in _regulator_get
+  ARM: tegra: Add gpio-ranges property
+  ARM: tegra: Register drivers before devices
+  ARM: EXYNOS: Register drivers before devices
+  ARM i.MX6q: Register drivers before devices
+  of/platform: Add of_platform_device_ensure()
+  of/platform: Ensure device registration on lookup
+  gpio: Probe GPIO drivers on demand
+  gpio: Probe pinctrl devices on demand
+  regulator: core: Probe regulators on demand
+  drm: Probe panels on demand
+  drm/tegra: Probe dpaux devices on demand
+  i2c: core: Probe i2c master devices on demand
+  pwm: Probe PWM chip devices on demand
+  backlight: Probe backlight devices on demand
+  usb: phy: Probe phy devices on demand
+  clk: Probe clk providers on demand
+  pinctrl: Probe pinctrl devices on demand
+  phy: core: Probe phy providers on demand
+  dma: of: Probe DMA controllers on demand
+  power-supply: Probe power supplies on demand
 
-Everyone probably does have their own custom implementation for this.
-Or some other mechanism to achieve this (may be hardware support).
+ arch/arm/boot/dts/tegra124.dtsi     |  1 +
+ arch/arm/mach-exynos/exynos.c       |  4 +--
+ arch/arm/mach-imx/mach-imx6q.c      | 12 ++++-----
+ arch/arm/mach-tegra/tegra.c         | 21 ++++++---------
+ drivers/clk/clk.c                   |  3 +++
+ drivers/dma/of-dma.c                |  3 +++
+ drivers/gpio/gpiolib-of.c           |  5 ++++
+ drivers/gpu/drm/drm_panel.c         |  3 +++
+ drivers/gpu/drm/tegra/dpaux.c       |  3 +++
+ drivers/i2c/i2c-core.c              |  3 +++
+ drivers/of/platform.c               | 53 +++++++++++++++++++++++++++++=
+++++++++
+ drivers/phy/phy-core.c              |  3 +++
+ drivers/pinctrl/devicetree.c        |  2 ++
+ drivers/power/power_supply_core.c   |  3 +++
+ drivers/pwm/core.c                  |  3 +++
+ drivers/regulator/core.c            | 45 +++++++++++++++--------------=
+--
+ drivers/usb/phy/phy.c               |  3 +++
+ drivers/video/backlight/backlight.c |  3 +++
+ include/linux/of_platform.h         |  2 ++
+ 19 files changed, 130 insertions(+), 45 deletions(-)
 
+--=20
+2.4.1
 
-Proposal:
----------
-
-If I am not missing any other way of handling this situation,
-below proposal should be clean and acceptable (I hope so :) )
-
-
-Add flags to choose PIO mode, for I2C transactions, and the default
-would be to non-PIO mode.
-
-
-struct i2c_msg flags :
-
-#define I2C_M_PIO    0x0800
-
-
-And also add respective functionality flags
-
-#define I2C_FUNC_PIO    0x10000000 /* Driver should support PIO mode*/
-
-
-In the bus driver,
-
-Inside master_xfer() callback we will check whether the intended i2c
-transaction is meant to be processed in PIO mode, if yes, then we will
-call PIO api, else as usual non-pio api should serve.
-
-
-static int xxx_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int 
-num)
-{
-	...
-
-
-/* We can also check i2c_check_functionality(adap,I2C_FUNC_PIO) */
-	if (msg->flags & I2C_M_PIO) {
-		/* PIO mode operation */
-	} else {
-		/* non-pio mode of operation */
-	}
-
-
-	...
-
-
-         return ret;
-}
-
-
-Feedback/comments are always welcome.
-
-Thanks,
-Vaibhav
+--
+To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
