@@ -1,121 +1,43 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH 00/21] On-demand device registration
-Date: Mon, 25 May 2015 16:53:04 +0200
-Message-ID: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Sender: linux-gpio-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: =?UTF-8?q?St=C3=A9phane=20Marchesin?= <stephane.marchesin@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Holler <holler@ahsoftware.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Dan Williams <dan.j.williams@intel.com>, devicetree@vger.kernel.org, dmaengine@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-clk@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, linux-pwm@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, linux-usb@vger.kernel.org
+From: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+Subject: [PATCH 13/21] i2c: core: Probe i2c master devices on demand
+Date: Mon, 25 May 2015 16:53:17 +0200
+Message-ID: <1432565608-26036-14-git-send-email-tomeu.vizoso@collabora.com>
+References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1432565608-26036-1-git-send-email-tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: =?UTF-8?q?St=C3=A9phane=20Marchesin?= <stephane.marchesin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+When looking up an i2c master through its DT node, ensure that the
+corresponding device has been registered.
 
-I have a problem with the panel on my Tegra Chromebook taking longer th=
-an
-expected to be ready during boot (St=C3=A9phane Marchesin reported what=
- is
-basically the same issue in [0]), and have looked into ordered probing =
-as a
-better way of solving this than moving nodes around in the DT or playin=
-g with
-initcall levels.
+Signed-off-by: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-While reading the thread [1] that Alexander Holler started with his ser=
-ies to
-make probing order deterministic, it occurred to me that it should be p=
-ossible
-to achieve the same by registering devices as they are referenced by ot=
-her
-devices.
-
-This basically reuses the information that is already implicit in the p=
-robe()
-implementations, saving us from refactoring existing drivers or adding
-information to DTBs.
-
-Something I'm not completely happy with is that I have had to move the =
-call to
-of_platform_populate after all platform drivers have been registered.
-Otherwise I don't see how I could register drivers on demand as we don'=
-t have
-yet each driver's compatible strings.
-
-=46or machs that don't move of_platform_populate() to a later point, th=
-ese
-patches shouldn't cause any problems but it's not guaranteed that we'll=
- avoid
-all the deferred probes as some drivers may not be registered yet.
-
-I have tested this on boards with Tegra, iMX.6 and Exynos SoCs, and the=
-se
-patches were enough to eliminate all the deferred probes.
-
-With this series I get the kernel to output to the panel in 0.5s, inste=
-ad of 2.8s.
-
-Regards,
-
-Tomeu
-
-[0] http://lists.freedesktop.org/archives/dri-devel/2014-August/066527.=
-html
-
-[1] https://lkml.org/lkml/2014/5/12/452
-
-Tomeu Vizoso (21):
-  regulator: core: Reduce critical area in _regulator_get
-  ARM: tegra: Add gpio-ranges property
-  ARM: tegra: Register drivers before devices
-  ARM: EXYNOS: Register drivers before devices
-  ARM i.MX6q: Register drivers before devices
-  of/platform: Add of_platform_device_ensure()
-  of/platform: Ensure device registration on lookup
-  gpio: Probe GPIO drivers on demand
-  gpio: Probe pinctrl devices on demand
-  regulator: core: Probe regulators on demand
-  drm: Probe panels on demand
-  drm/tegra: Probe dpaux devices on demand
-  i2c: core: Probe i2c master devices on demand
-  pwm: Probe PWM chip devices on demand
-  backlight: Probe backlight devices on demand
-  usb: phy: Probe phy devices on demand
-  clk: Probe clk providers on demand
-  pinctrl: Probe pinctrl devices on demand
-  phy: core: Probe phy providers on demand
-  dma: of: Probe DMA controllers on demand
-  power-supply: Probe power supplies on demand
-
- arch/arm/boot/dts/tegra124.dtsi     |  1 +
- arch/arm/mach-exynos/exynos.c       |  4 +--
- arch/arm/mach-imx/mach-imx6q.c      | 12 ++++-----
- arch/arm/mach-tegra/tegra.c         | 21 ++++++---------
- drivers/clk/clk.c                   |  3 +++
- drivers/dma/of-dma.c                |  3 +++
- drivers/gpio/gpiolib-of.c           |  5 ++++
- drivers/gpu/drm/drm_panel.c         |  3 +++
- drivers/gpu/drm/tegra/dpaux.c       |  3 +++
- drivers/i2c/i2c-core.c              |  3 +++
- drivers/of/platform.c               | 53 +++++++++++++++++++++++++++++=
-++++++++
- drivers/phy/phy-core.c              |  3 +++
- drivers/pinctrl/devicetree.c        |  2 ++
- drivers/power/power_supply_core.c   |  3 +++
- drivers/pwm/core.c                  |  3 +++
- drivers/regulator/core.c            | 45 +++++++++++++++--------------=
---
- drivers/usb/phy/phy.c               |  3 +++
- drivers/video/backlight/backlight.c |  3 +++
- include/linux/of_platform.h         |  2 ++
- 19 files changed, 130 insertions(+), 45 deletions(-)
-
---=20
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 987c124..8c9352e 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -40,6 +40,7 @@
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/of_irq.h>
++#include <linux/of_platform.h>
+ #include <linux/clk/clk-conf.h>
+ #include <linux/completion.h>
+ #include <linux/hardirq.h>
+@@ -1339,6 +1340,8 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ {
+ 	struct device *dev;
+ 
++	of_platform_device_ensure(node);
++
+ 	dev = bus_find_device(&i2c_bus_type, NULL, node,
+ 					 of_dev_node_match);
+ 	if (!dev)
+-- 
 2.4.1
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-gpio" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
