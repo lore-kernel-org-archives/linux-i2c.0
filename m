@@ -1,104 +1,109 @@
-From: Jisheng Zhang <jszhang@marvell.com>
-Subject: Re: [PATCH v2] i2c: designware: Avoid unnecessary resuming during
- system suspend
-Date: Mon, 25 May 2015 10:42:06 +0800
-Message-ID: <20150525104206.1c9bf3bf@xhacker>
-References: <1432132393-693-1-git-send-email-jszhang@marvell.com>
-	<20150521114049.GY1490@lahna.fi.intel.com>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
+Date: Mon, 25 May 2015 15:17:09 +0530
+Message-ID: <5562EF9D.1090403@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20150521114049.GY1490@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jarkko.nikula@linux.intel.com
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Wolfram, Mika,
 
-On Thu, 21 May 2015 14:40:49 +0300
-Mika Westerberg <mika.westerberg@linux.intel.com> wrote:
+Hi,
 
-> [Adding Jarkko, just in case he has concerns about this]
-> 
-> On Wed, May 20, 2015 at 10:33:13PM +0800, Jisheng Zhang wrote:
-> > Commit 1fc2fe204cb9 ("i2c: designware: Add runtime PM hooks") adds
-> > runtime pm support using the same ops for system pm and runtime pm.
-> > When suspend to ram, the i2c host may have been runtime suspended, thus
-> > i2c_dw_disable() hangs.
-> > 
-> > Previously, I fixed this issue by separating ops for system pm and
-> > runtime pm, then in the system suspend/resume path, runtime pm apis are
-> > used to ensure the device is at correct state.
-> > 
-> > But as Mika Westerberg pointed out: it sounds a bit silly to resume the
-> > device just because you want to call i2c_dw_disable() for it before
-> > suspending again. He then suggested an elegant solution which keeps the
-> > device runtime suspended during system suspend with the help of
-> > 'dev->power.direct_complete'. This patch adopted this solution, and in
-> > fact Mika provided the main code.
-> > 
-> > Signed-off-by: Jisheng Zhang <jszhang@marvell.com>
-> > ---
-> >  v2 change:
-> > 	- adopt Mika's suggestion to make use of direct_complete flag
-> > 
-> >  drivers/i2c/busses/i2c-designware-platdrv.c | 33 +++++++++++++++++++++++++----
-> >  1 file changed, 29 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > index 0a80e4a..f89650f 100644
-> > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > @@ -298,6 +298,22 @@ static const struct of_device_id dw_i2c_of_match[] = {
-> >  MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
-> >  #endif
-> >  
-> > +#ifdef CONFIG_PM_SLEEP
-> > +static int dw_i2c_prepare(struct device *dev)
-> > +{
-> > +	return pm_runtime_suspended(dev);
-> > +}
-> > +
-> > +static void dw_i2c_complete(struct device *dev)
-> > +{
-> > +	if (dev->power.direct_complete)
-> > +		pm_request_resume(dev);
-> > +}
-> > +#else
-> > +#define dw_i2c_prepare	NULL
-> > +#define dw_i2c_complete	NULL
-> > +#endif
-> > +
-> >  #ifdef CONFIG_PM
-> >  static int dw_i2c_suspend(struct device *dev)
-> >  {
-> > @@ -322,10 +338,19 @@ static int dw_i2c_resume(struct device *dev)
-> >  
-> >  	return 0;
-> >  }
-> > -#endif
-> >  
-> > -static UNIVERSAL_DEV_PM_OPS(dw_i2c_dev_pm_ops, dw_i2c_suspend,
-> > -			    dw_i2c_resume, NULL);
-> > +static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
-> > +	.prepare = dw_i2c_prepare,
-> > +	.complete = dw_i2c_complete,
-> > +	SET_SYSTEM_SLEEP_PM_OPS(dw_i2c_suspend, dw_i2c_resume)
-> > +	SET_RUNTIME_PM_OPS(dw_i2c_suspend,
-> > +		dw_i2c_resume, NULL)
-> 
-> No need to wrap here. It will fit into 80 chars limit.
+This is rather an old issue, for which I have also done custom & hacky
+solution in the past.
 
-OOPs, yes. Do I need to send a new version?
+Please let me know if there is already an some other method or accepted
+workaround to this issue. Also, let me know if you have any suggestions
+on this patch, I would be happy to work on it.
 
-> 
-> Otherwise looks good to me. I also tested this on Braswell and Skylake
-> machines where it didn't cause any problems,
-> 
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> 
 
-Thanks for these.
+Problem Statement:
+------------------
+In certain embedded platforms, the board power on/off is managed by
+PMIC IC, which in most of the cases is over I2C bus.
+So during shutdown/reboot you may have to do I2C transactions to access
+PMIC, which may sleep if I2C bus driver is not functioning in PIO by
+default.
+
+This is unexpected, to sleep after you disable the interrupts.
+
+For example,
+
+During reboot/shutdown, the execution call reaches to,
+
+void machine_power_off(void)
+{
+         local_irq_disable();
+         smp_send_stop();
+         if (pm_power_off)
+                 pm_power_off();
+}
+
+pm_power_off will try to do I2C transaction to access PMIC, which may
+sleep/schedule.
+
+
+Current implementation:
+--------------------
+
+Everyone probably does have their own custom implementation for this.
+Or some other mechanism to achieve this (may be hardware support).
+
+
+Proposal:
+---------
+
+If I am not missing any other way of handling this situation,
+below proposal should be clean and acceptable (I hope so :) )
+
+
+Add flags to choose PIO mode, for I2C transactions, and the default
+would be to non-PIO mode.
+
+
+struct i2c_msg flags :
+
+#define I2C_M_PIO    0x0800
+
+
+And also add respective functionality flags
+
+#define I2C_FUNC_PIO    0x10000000 /* Driver should support PIO mode*/
+
+
+In the bus driver,
+
+Inside master_xfer() callback we will check whether the intended i2c
+transaction is meant to be processed in PIO mode, if yes, then we will
+call PIO api, else as usual non-pio api should serve.
+
+
+static int xxx_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int 
+num)
+{
+	...
+
+
+/* We can also check i2c_check_functionality(adap,I2C_FUNC_PIO) */
+	if (msg->flags & I2C_M_PIO) {
+		/* PIO mode operation */
+	} else {
+		/* non-pio mode of operation */
+	}
+
+
+	...
+
+
+         return ret;
+}
+
+
+Feedback/comments are always welcome.
+
+Thanks,
+Vaibhav
