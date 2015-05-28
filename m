@@ -1,53 +1,54 @@
 From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 08/12] i2c: pxa: enable/disable irq across message xfer
-Date: Thu, 28 May 2015 18:59:21 +0530
-Message-ID: <55671831.7010903@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-9-git-send-email-vaibhav.hiremath@linaro.org> <20150528131707.GB2067@n2100.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 0/3] i2c: core/pxa: Add support for hardware lock
+Date: Thu, 28 May 2015 19:02:45 +0530
+Message-ID: <1432819968-17515-1-git-send-email-vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150528131707.GB2067-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+To justify the need for hardware lock, lets take a real usecase scenario -
+    
+In case of Marvell SoC, PXA910 silicon, both AP and CP are present and
+these two ARM cores are sharing one pair of I2C pins.
+    
+In order to keep I2C transaction operated with atomic, hardware lock
+(RIPC) is required.
+    
+This patch extends support for atomic operation by adding hardware lock support
+to the i2c-core.
 
+PATCH[1/3] : Core changes for hardware lock
+PATCH[2/3 & 3/3] : hardware lock support to i2c-pxa bus driver.
 
-On Thursday 28 May 2015 06:47 PM, Russell King - ARM Linux wrote:
-> On Thu, May 28, 2015 at 06:33:40PM +0530, Vaibhav Hiremath wrote:
->> In order to avoid "spurious irq" caused by CP polling mode,
->> enable irq at the entry of i2c_pxa_xfer() fn and disable it
->> again before exit.
->
-> NAK.
->
-> It's really not nice for drivers to disable a potentially shared interrupt.
-> If the interrupt is shared, you disable the interrupt for other users of
-> that interrupt as well.  See:
->
-> commit c66dc529194be374556d166ee7ddb84a7d1d302b
-> Author: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-> Date:   Wed Feb 23 12:38:18 2011 +0100
->
->      i2c-pxa2xx: add support for shared IRQ handler
->
->      Sodaville has three of them on a single IRQ. IRQF_DISABLED is removed
->      because it is a NOP allready and scheduled for removal.
->
->      Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
->      Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->      Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
->
-> So you're breaking Sodaville.
->
+Link to previous post:
+http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02352.html
+http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02353.html
+http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02354.html
 
-Got it.
+TODO:
+  - DT node addition
+    I am using PXA1928 based platform which is still not available
+    in Mainline, once the base dts file gets merged, will submit patch
+    for I2C support. Hopefully by that time I should have PMIC client driver
+    support available.
+    Link to Rob's patches:
+     https://lkml.org/lkml/2015/5/1/14
+     https://lkml.org/lkml/2015/5/19/1206
+     
+ 
 
-I will drop this patch from the series.
+Vaibhav Hiremath (3):
+  i2c: core: append hardware lock with bus lock
+  i2c: pxa: Add support for hardware lock
+  i2c: pxa: Add pin ctrl support for CP core access
 
-Before submitting next version, will wait for review on other patches.
+ drivers/i2c/busses/i2c-pxa.c | 92 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-core.c       | 22 +++++++++--
+ include/linux/i2c.h          |  5 +++
+ include/linux/i2c/pxa-i2c.h  |  4 ++
+ 4 files changed, 119 insertions(+), 4 deletions(-)
 
-Thanks,
-Vaibhav
+-- 
+1.9.1
