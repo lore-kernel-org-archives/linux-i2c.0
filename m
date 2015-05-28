@@ -1,113 +1,45 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 12/12] i2c: pxa: enable/disable i2c module across msg xfer
-Date: Thu, 28 May 2015 18:33:44 +0530
-Message-ID: <1432818224-17070-13-git-send-email-vaibhav.hiremath@linaro.org>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCH 08/12] i2c: pxa: enable/disable irq across message xfer
+Date: Thu, 28 May 2015 14:17:08 +0100
+Message-ID: <20150528131707.GB2067@n2100.arm.linux.org.uk>
 References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432818224-17070-9-git-send-email-vaibhav.hiremath@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1432818224-17070-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1432818224-17070-9-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+On Thu, May 28, 2015 at 06:33:40PM +0530, Vaibhav Hiremath wrote:
+> In order to avoid "spurious irq" caused by CP polling mode,
+> enable irq at the entry of i2c_pxa_xfer() fn and disable it
+> again before exit.
 
-Enable i2c module/unit before transmission and disable when it finishes.
+NAK.
 
-why?
-It's because the i2c bus may be distrubed if the slave device,
-typically a touch, powers on.
+It's really not nice for drivers to disable a potentially shared interrupt.
+If the interrupt is shared, you disable the interrupt for other users of
+that interrupt as well.  See:
 
-Signed-off-by: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-[vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: ported to latest kernel & also improved changelog]
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+commit c66dc529194be374556d166ee7ddb84a7d1d302b
+Author: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Date:   Wed Feb 23 12:38:18 2011 +0100
 
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-pxa.c | 29 +++++++++++++++++++++++++++--
- 1 file changed, 27 insertions(+), 2 deletions(-)
+    i2c-pxa2xx: add support for shared IRQ handler
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 844e1fc..f51d512 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -368,6 +368,16 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
- static void i2c_pxa_master_complete(struct pxa_i2c *i2c, int ret);
- static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id);
- 
-+/* enable/disable i2c unit */
-+static inline void i2c_pxa_enable(struct pxa_i2c *i2c, bool enable)
-+{
-+	if (enable)
-+		writel(readl(_ICR(i2c)) | ICR_IUE, _ICR(i2c));
-+	else
-+		writel(readl(_ICR(i2c)) & ~ICR_IUE, _ICR(i2c));
-+	udelay(100);
-+}
-+
- static inline int i2c_pxa_is_slavemode(struct pxa_i2c *i2c)
- {
- 	return !(readl(_ICR(i2c)) & ICR_SCLE);
-@@ -575,8 +585,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 	i2c_pxa_set_slave(i2c, 0);
- 
- 	/* enable unit */
--	writel(readl(_ICR(i2c)) | ICR_IUE, _ICR(i2c));
--	udelay(100);
-+	i2c_pxa_enable(i2c, true);
- }
- 
- 
-@@ -933,6 +942,9 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
- 	struct pxa_i2c *i2c = adap->algo_data;
- 	int ret, i;
- 
-+	/* Enable i2c unit */
-+	i2c_pxa_enable(i2c, true);
-+
- 	/* If the I2C controller is disabled we need to reset it
- 	  (probably due to a suspend/resume destroying state). We do
- 	  this here as we can then avoid worrying about resuming the
-@@ -953,6 +965,10 @@ static int i2c_pxa_pio_xfer(struct i2c_adapter *adap,
- 	ret = -EREMOTEIO;
-  out:
- 	i2c_pxa_set_slave(i2c, ret);
-+
-+	/* disable i2c unit */
-+	i2c_pxa_enable(i2c, false);
-+
- 	return ret;
- }
- 
-@@ -1168,6 +1184,9 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
- 	struct pxa_i2c *i2c = adap->algo_data;
- 	int ret, i;
- 
-+	/* Enable i2c unit */
-+	i2c_pxa_enable(i2c, true);
-+
- 	enable_irq(i2c->irq);
- 	for (i = adap->retries; i >= 0; i--) {
- 		ret = i2c_pxa_do_xfer(i2c, msgs, num);
-@@ -1183,6 +1202,9 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num
-  out:
- 	i2c_pxa_set_slave(i2c, ret);
- 	disable_irq(i2c->irq);
-+	/* disable i2c unit */
-+	i2c_pxa_enable(i2c, false);
-+
- 	return ret;
- }
- 
-@@ -1407,6 +1429,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 			ret = 0;
- 		}
- 	}
-+
-+	i2c_pxa_enable(i2c, false);
-+
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	pr_info("I2C: %s: PXA I2C adapter, slave address %d\n",
- 	       dev_name(&i2c->adap.dev), i2c->slave_addr);
+    Sodaville has three of them on a single IRQ. IRQF_DISABLED is removed
+    because it is a NOP allready and scheduled for removal.
+
+    Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+    Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+    Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+
+So you're breaking Sodaville.
+
 -- 
-1.9.1
+FTTC broadband for 0.8mile line: currently at 10.5Mbps down 400kbps up
+according to speedtest.net.
