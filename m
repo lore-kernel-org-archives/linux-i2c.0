@@ -1,208 +1,161 @@
 From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 04/12] i2c: pxa: Add support for pxa910/988 & new configuration features
-Date: Thu, 28 May 2015 18:33:36 +0530
-Message-ID: <1432818224-17070-5-git-send-email-vaibhav.hiremath@linaro.org>
+Subject: [PATCH 05/12] i2c: pxa: Add bus reset functionality
+Date: Thu, 28 May 2015 18:33:37 +0530
+Message-ID: <1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org>
 References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1432818224-17070-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-TWSI_ILCR & TWSI_IWCR registers are used to adjust clock rate
-of standard & fast mode in pxa910/988; so this patch adds these two new
-entries to "struct pxa_reg_layout" and "struct pxa_i2c" and also adds two
-new DT properties to take configuration value for the same.
+Since there is some problematic i2c slave devices on some
+platforms such as dkb (sometimes), it will drop down sda
+and make i2c bus hang, at that time, it need to config
+scl/sda into gpio to simulate "stop" sequence to recover
+i2c bus, so add this interface.
 
-Note that, DT binding document is also updated.
-
-Signed-off-by: Jett.Zhou <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-[vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated kernel doc for new DT properties
-and updated Changelog]
+Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+[vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated Changelog]
 Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
 Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  7 ++++
- drivers/i2c/busses/i2c-pxa.c                      | 44 +++++++++++++++++++++--
- include/linux/i2c/pxa-i2c.h                       |  2 ++
- 3 files changed, 51 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c | 90 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 90 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-index 12b78ac..5750bff 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-@@ -18,6 +18,13 @@ Recommended properties :
-    status register of i2c controller instead.
-  - mrvl,i2c-fast-mode : Enable fast mode of i2c controller.
- 
-+Optional Properties (Applicable to PXA910 family):
-+
-+ - mrvl,i2c-ilcr : Load Count Register: Allows minor adjustment to SCL clk to
-+		   achieve std, normal and fast mode of operation.
-+ - mrvl,i2c-iwcr : Wait Count Register - controls the setup and hold time
-+		   together with mrvl,i2c-ilcr
-+
- Examples:
- 	twsi1: i2c@d4011000 {
- 		compatible = "mrvl,mmp-twsi";
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index a76c901..8ca5552 100644
+index 8ca5552..eb09071 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -46,12 +46,15 @@ struct pxa_reg_layout {
- 	u32 icr;
- 	u32 isr;
- 	u32 isar;
-+	u32 ilcr;
-+	u32 iwcr;
- };
+@@ -37,6 +37,8 @@
+ #include <linux/slab.h>
+ #include <linux/io.h>
+ #include <linux/i2c/pxa-i2c.h>
++#include <linux/of_gpio.h>
++#include <linux/pinctrl/consumer.h>
  
- enum pxa_i2c_types {
- 	REGS_PXA2XX,
- 	REGS_PXA3XX,
- 	REGS_CE4100,
-+	REGS_PXA910,
- };
+ #include <asm/irq.h>
  
- /*
-@@ -79,12 +82,22 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
- 		.isr =	0x04,
- 		/* no isar register */
- 	},
-+	[REGS_PXA910] = {
-+		.ibmr = 0x00,
-+		.idbr = 0x08,
-+		.icr =	0x10,
-+		.isr =	0x18,
-+		.isar = 0x20,
-+		.ilcr = 0x28,
-+		.iwcr = 0x30,
-+	},
- };
- 
- static const struct platform_device_id i2c_pxa_id_table[] = {
- 	{ "pxa2xx-i2c",		REGS_PXA2XX },
- 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
- 	{ "ce4100-i2c",		REGS_CE4100 },
-+	{ "pxa910-i2c",		REGS_PXA910 },
- 	{ },
- };
- MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
-@@ -149,6 +162,8 @@ struct pxa_i2c {
- 	void __iomem		*reg_icr;
- 	void __iomem		*reg_isr;
- 	void __iomem		*reg_isar;
-+	void __iomem		*reg_ilcr;
-+	void __iomem		*reg_iwcr;
- 
- 	unsigned long		iobase;
- 	unsigned long		iosize;
-@@ -160,6 +175,8 @@ struct pxa_i2c {
- 	unsigned char		master_code;
- 	unsigned long		rate;
+@@ -177,6 +179,9 @@ struct pxa_i2c {
  	bool			highmode_enter;
-+	unsigned int		ilcr;
-+	unsigned int		iwcr;
+ 	unsigned int		ilcr;
+ 	unsigned int		iwcr;
++	struct pinctrl		*pinctrl;
++	struct pinctrl_state	*pin_i2c;
++	struct pinctrl_state	*pin_gpio;
  };
  
  #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -167,6 +184,8 @@ struct pxa_i2c {
- #define _ICR(i2c)	((i2c)->reg_icr)
- #define _ISR(i2c)	((i2c)->reg_isr)
- #define _ISAR(i2c)	((i2c)->reg_isar)
-+#define _ILCR(i2c)	((i2c)->reg_ilcr)
-+#define _IWCR(i2c)	((i2c)->reg_iwcr)
+@@ -269,6 +274,62 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2c, int lno, const char *fname)
  
- /*
-  * I2C Slave mode address
-@@ -467,11 +486,16 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 	if (i2c->reg_isar)
- 		writel(i2c->slave_addr, _ISAR(i2c));
- #endif
--
- 	/* set control register values */
- 	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
- 	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
+ #define show_state(i2c) i2c_pxa_show_state(i2c, __LINE__, __func__)
  
-+	if (i2c->ilcr)
-+		writel(i2c->ilcr, _ILCR(i2c));
-+	if (i2c->iwcr)
-+		writel(i2c->iwcr, _IWCR(i2c));
-+	udelay(2);
++static void i2c_bus_reset(struct pxa_i2c *i2c)
++{
++	int ret, ccnt, pins_scl, pins_sda;
++	struct device *dev = i2c->adap.dev.parent;
++	struct device_node *np = dev->of_node;
 +
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
- 	writel(readl(_ICR(i2c)) | ICR_SADIE | ICR_ALDIE | ICR_SSDIE, _ICR(i2c));
-@@ -1098,7 +1122,7 @@ static const struct i2c_algorithm i2c_pxa_pio_algorithm = {
- static const struct of_device_id i2c_pxa_dt_ids[] = {
- 	{ .compatible = "mrvl,pxa-i2c", .data = (void *)REGS_PXA2XX },
- 	{ .compatible = "mrvl,pwri2c", .data = (void *)REGS_PXA3XX },
--	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA2XX },
-+	{ .compatible = "mrvl,mmp-twsi", .data = (void *)REGS_PXA910 },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
-@@ -1106,6 +1130,7 @@ MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
- static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
- 			    enum pxa_i2c_types *i2c_types)
- {
-+	int ret;
- 	struct device_node *np = pdev->dev.of_node;
- 	const struct of_device_id *of_id =
- 			of_match_device(i2c_pxa_dt_ids, &pdev->dev);
-@@ -1121,6 +1146,16 @@ static int i2c_pxa_probe_dt(struct platform_device *pdev, struct pxa_i2c *i2c,
- 	if (of_get_property(np, "mrvl,i2c-fast-mode", NULL))
- 		i2c->fast_mode = 1;
- 	*i2c_types = (u32)(of_id->data);
-+
-+	if (of_device_is_compatible(np, "mrvl,mmp-twsi")) {
-+		ret = of_property_read_u32(np, "mrvl,i2c-ilcr", &i2c->ilcr);
-+		if (ret)
-+			return ret;
-+		ret = of_property_read_u32(np, "mrvl,i2c-iwcr", &i2c->iwcr);
-+		if (ret)
-+			return ret;
++	if (!i2c->pinctrl) {
++		dev_warn(dev, "could not do i2c bus reset\n");
++		return;
 +	}
 +
- 	return 0;
++	ret = pinctrl_select_state(i2c->pinctrl, i2c->pin_gpio);
++	if (ret) {
++		dev_err(dev, "could not set gpio pins\n");
++		return;
++	}
++
++	pins_scl = of_get_named_gpio(np, "i2c-gpio", 0);
++	if (!gpio_is_valid(pins_scl)) {
++		dev_err(dev, "i2c scl gpio not set\n");
++		goto err_out;
++	}
++	pins_sda = of_get_named_gpio(np, "i2c-gpio", 1);
++	if (!gpio_is_valid(pins_sda)) {
++		dev_err(dev, "i2c sda gpio not set\n");
++		goto err_out;
++	}
++
++	gpio_request(pins_scl, NULL);
++	gpio_request(pins_sda, NULL);
++
++	gpio_direction_input(pins_sda);
++	for (ccnt = 20; ccnt; ccnt--) {
++		gpio_direction_output(pins_scl, ccnt & 0x01);
++		udelay(5);
++	}
++	gpio_direction_output(pins_scl, 0);
++	udelay(5);
++	gpio_direction_output(pins_sda, 0);
++	udelay(5);
++	/* stop signal */
++	gpio_direction_output(pins_scl, 1);
++	udelay(5);
++	gpio_direction_output(pins_sda, 1);
++	udelay(5);
++
++	gpio_free(pins_scl);
++	gpio_free(pins_sda);
++
++err_out:
++	ret = pinctrl_select_state(i2c->pinctrl, i2c->pin_i2c);
++	if (ret)
++		dev_err(dev, "could not set default(i2c) pins\n");
++	return;
++}
++
+ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ {
+ 	unsigned int i;
+@@ -281,6 +342,11 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ 	for (i = 0; i < i2c->irqlogidx; i++)
+ 		printk("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
+ 	printk("\n");
++	if (strcmp(why, "exhausted retries") != 0) {
++		i2c_bus_reset(i2c);
++		/* reset i2c contorler when it's fail */
++		i2c_pxa_reset(i2c);
++	}
  }
  
-@@ -1206,6 +1241,9 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 	if (i2c_type != REGS_CE4100)
- 		i2c->reg_isar = i2c->reg_base + pxa_reg_layout[i2c_type].isar;
+ #else /* ifdef DEBUG */
+@@ -1301,6 +1367,30 @@ static int i2c_pxa_probe(struct platform_device *dev)
  
-+	i2c->reg_ilcr = i2c->reg_base + pxa_reg_layout[i2c_type].ilcr;
-+	i2c->reg_iwcr = i2c->reg_base + pxa_reg_layout[i2c_type].iwcr;
+ 	platform_set_drvdata(dev, i2c);
+ 
++	i2c->pinctrl = devm_pinctrl_get(&dev->dev);
++	if (IS_ERR(i2c->pinctrl)) {
++		i2c->pinctrl = NULL;
++		dev_warn(&dev->dev, "could not get pinctrl\n");
++	} else {
++		i2c->pin_i2c = pinctrl_lookup_state(i2c->pinctrl, "default");
++		if (IS_ERR(i2c->pin_i2c)) {
++			dev_err(&dev->dev, "could not get default(i2c) pinstate\n");
++			ret = IS_ERR(i2c->pin_i2c);
++		}
 +
- 	i2c->iobase = res->start;
- 	i2c->iosize = resource_size(res);
- 
-@@ -1219,6 +1257,8 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 		i2c->slave_addr = plat->slave_addr;
- 		i2c->slave = plat->slave;
- #endif
-+		i2c->ilcr = plat->ilcr;
-+		i2c->iwcr = plat->iwcr;
- 		i2c->adap.class = plat->class;
- 	}
- 
-diff --git a/include/linux/i2c/pxa-i2c.h b/include/linux/i2c/pxa-i2c.h
-index 53aab24..d1a44e8 100644
---- a/include/linux/i2c/pxa-i2c.h
-+++ b/include/linux/i2c/pxa-i2c.h
-@@ -70,6 +70,8 @@ struct i2c_pxa_platform_data {
- 	unsigned int		high_mode:1;
- 	unsigned char		master_code;
- 	unsigned long		rate;
-+	unsigned int		ilcr;
-+	unsigned int		iwcr;
- };
- 
- extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
++		i2c->pin_gpio = pinctrl_lookup_state(i2c->pinctrl, "gpio");
++		if (IS_ERR(i2c->pin_gpio)) {
++			dev_err(&dev->dev, "could not get gpio pinstate\n");
++			ret = IS_ERR(i2c->pin_gpio);
++		}
++
++		if (ret) {
++			i2c->pin_i2c = NULL;
++			i2c->pin_gpio = NULL;
++			i2c->pinctrl = NULL;
++			ret = 0;
++		}
++	}
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	printk(KERN_INFO "I2C: %s: PXA I2C adapter, slave address %d\n",
+ 	       dev_name(&i2c->adap.dev), i2c->slave_addr);
 -- 
 1.9.1
