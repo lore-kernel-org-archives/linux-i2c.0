@@ -1,139 +1,199 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Wed, 27 May 2015 23:33:34 -0500
-Message-ID: <CAL_Jsq+EWLEJhRudTGAwYsOg4tX2-pGhygeQGHae9RL8rBpMiA@mail.gmail.com>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
+From: Michael Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: clock driver
+Date: Wed, 27 May 2015 23:11:21 -0700
+Message-ID: <20150528061121.22384.20782@quantum>
+References: <5564C58B.9050400@freescale.com> <20150527181521.GA19448@roeck-us.net>
+ <55660BF2.6000002@freescale.com> <20150527185442.GA6607@roeck-us.net>
+ <556613CE.8020906@freescale.com>
+ <14d96cd6d64.f62a1a09739217.9114963256886461171@elphel.com>
+ <55664E5C.3000903@roeck-us.net>
+ <14d97d05f05.c0c23a8c778110.9087956443203424916@elphel.com>
+ <55665CDE.7060601@roeck-us.net>
+ <14d97ec12ae.121e65c4b780118.1307005790953163680@elphel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, =?UTF-8?Q?St=C3=A9phane_Marchesin?= <stephane.marchesin@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexander Holler <holler@ahsoftware.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dan Williams <dan.j.williams@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, dmaengine@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, linux-clk@vger.kernel.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.or>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <14d97ec12ae.121e65c4b780118.1307005790953163680-MoRZu3FOBbXQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: andrey <andrey-MoRZu3FOBbXQT0dZR+AlfA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rabeeh-UBr1pzP51AyaMJb+Lgu22Q@public.gmane.org, York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 25, 2015 at 9:53 AM, Tomeu Vizoso
-<tomeu.vizoso@collabora.com> wrote:
-> Hello,
->
-> I have a problem with the panel on my Tegra Chromebook taking longer =
-than
-> expected to be ready during boot (St=C3=A9phane Marchesin reported wh=
-at is
-> basically the same issue in [0]), and have looked into ordered probin=
-g as a
-> better way of solving this than moving nodes around in the DT or play=
-ing with
-> initcall levels.
->
-> While reading the thread [1] that Alexander Holler started with his s=
-eries to
-> make probing order deterministic, it occurred to me that it should be=
- possible
-> to achieve the same by registering devices as they are referenced by =
-other
-> devices.
+Quoting andrey (2015-05-27 17:29:00)
+> 
+> 
+> ---- On Wed, 27 May 2015 17:10:06 -0700 Guenter Roeck<linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote ---- 
+>  > On 05/27/2015 04:58 PM, andrey wrote: 
+>  > > 
+>  > > 
+>  > > ---- On Wed, 27 May 2015 16:08:12 -0700 Guenter Roeck<linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote ---- 
+>  > > 
+>  > >   > On 05/27/2015 12:44 PM, andrey wrote: 
+>  > >   > > Hello all, 
+>  > >   > > Let me add a comment on using sysfs to simplify user space access to the clock 
+>  > >   > > features as opposed to controlling them from a driver that uses the clock chip driver. 
+>  > >   > > 
+>  > >   > > It is common to use such advanced clock chips with the FPGA devices (as me and 
+>  > >   > > York do), and a lot of development (HDL code) is done before a fancy higher-level 
+>  > >   > > driver is even started. And it is not just a temporary stage needed by a small minority 
+>  > >   > > of developers - as HDL coding gets more to the the core of many new devices running 
+>  > >   > > Linux kernel, it makes sense to create the chip drivers more developer-friendly, not 
+>  > >   > > just for the final use in a higher level device driver - modification of the HDL code 
+>  > >   > > (most modern FPGA are programmed at runtime) makes it a new device that may 
+>  > >   > > need a new driver. 
+>  > >   > > I'm sure that it is not just for me, when it starts with the chip driver that supports 
+>  > >   > > low-level functionality exposing it to the user space, and then working on the HDL 
+>  > >   > > code using Python scripts at that stage. And only later in the development designing 
+>  > >   > > the higher level device drivers that may not need all of the chip functionality. And such 
+>  > >   > > higher level driver will work for our systems, but other developers who work on their 
+>  > >   > > embedded systems will again need access to low level chip functionality, and will have 
+>  > >   > > to redo the same work all over again. This I believe is a rationale of exposing such 
+>  > >   > > chip-specific hardware features (not all of them are probably easy to fit into a specific 
+>  > >   > > standard model) to the user space scripts. 
+>  > >   > > 
+>  > >   > > I wrote the initial driver code for our system 
+>  > >   > > ( https://github.com/Elphel/linux-elphel/blob/master/src/drivers/misc/si5338.c ) and 
+>  > >   > > being very far from being a kernel developer myself (I'm more of a hardware guy) 
+>  > >   > > I didn't even try to satisfy the required coding style and submit it, so I'm very thankful 
+>  > >   > > to York who re-wrote the code and is trying to make it usable to others. 
+>  > >   > > 
+>  > >   > 
+>  > >   > Line wraps at ~75 columns would make this a bet easier to read. 
+>  > > 
+>  > > Guenter, I'm sorry for using "rich text" email settings. 
+>  > > 
+>  > >   > 
+>  > >   > A more generic solution to your problem might be to implement a driver 
+>  > >   > similar to i2c-dev, which exports raw i2c device information to user space. 
+>  > >   > In your case, you would export information about the clocks in the system, 
+>  > >   > possibly through sysfs (i2c-dev uses ioctl which is a bit old-fashioned). 
+>  > > 
+>  > > I was trying to make it safer to use low-level functionality of the particular 
+>  > > (and rather popular) clock chip and to avoid using SiLabs proprietary tools to 
+>  > > generate required settings offline. Using just raw i2c would require to have 
+>  > > large user space program to calculate valid settings for the device. 
+>  > > 
+>  > > I would consider this chip as both a generic clock device that can fit into 
+>  > > a standard framework and simultaneously a unique device that offers specific 
+>  > > functionality outside of the framework. I thought that sysfs (instead of 
+>  > > "old-fashioned" ioctl I used in such cases before) can offer 
+>  > > hardware developer-friendly solution as a supplement to in-framework 
+>  > > basic functionality. 
+>  > > 
+>  > > Device driver for this chip makes it possible to avoid proprietary configuration 
+>  > > software and calculate register settings at runtime, minimizing requirements to 
+>  > > the user space software and so the time developers of the new embedded 
+>  > > systems will need to (re-)implement these important chip-specific  features. 
+>  > > 
+>  >  
+>  > I think we are in violent agreement ;-). Only question was how to implement 
+>  > sysfs (or user space access) support, where my preference would be a more 
+>  > generic solution. 
+> 
+> Guenter,
+> 
+> I just considered this chip as a "frontier" device, not yet a member of an established
+> class of similar ones. It may be possible to generalize later, extracting common
+> functionality to a more abstract interface. But we just need this device support now,
+> and when this one will become a member of some generic class - "frontier" will again
+> move a step farther, new devices will emerge that stick out of the nice frameworks.
 
-I like the concept and novel approach.
+Hi Andrey,
 
-> This basically reuses the information that is already implicit in the=
- probe()
-> implementations, saving us from refactoring existing drivers or addin=
-g
-> information to DTBs.
->
-> Something I'm not completely happy with is that I have had to move th=
-e call to
-> of_platform_populate after all platform drivers have been registered.
-> Otherwise I don't see how I could register drivers on demand as we do=
-n't have
-> yet each driver's compatible strings.
+I think this is a cool problem to solve. As far as frontier devices go I
+really can't say. Other companies create similar clock generators that
+are programmed at run-time over i2c. And we already have support merged
+for Silicon Labs 5351 and 570 devices:
 
-Yeah, this is the opposite of what we'd really like. Ideally, we would
-have a solution that works for modules too. However, we're no worse
-off. We pretty much build-in dependencies to avoid module ordering
-problems.
+	drivers/clk/clk-si5351.c
+	drivers/clk/clk-si5351.h
+	drivers/clk/clk-si570.c
 
-Perhaps we need to make the probing on-demand rather than simply on
-device<->driver match occurring.
+I'm not sure that we need to group such devices into a new "class". The
+Linux common clock framework (ccf) has two classes: clock providers and
+clock consumers. We haven't needed any more classification than that
+thus far.
 
-> For machs that don't move of_platform_populate() to a later point, th=
-ese
-> patches shouldn't cause any problems but it's not guaranteed that we'=
-ll avoid
-> all the deferred probes as some drivers may not be registered yet.
+I took a look at your github code and it looks like you expose registers
+individually as sysfs files. That is a start, but a better abstraction
+is to consider the clock input signals that your pcie/fpga device will
+take as input. With a proper clock driver for the silabs part your
+pcie/fpga driver could hopefully just call clk_prepare_enable and
+clk_set_rate and clk_set_parent as needed on those clocks to configure
+them for consumption by the downstream fpga.
 
-Ideally, of_platform_populate is not explicitly called by each
-platform. So I think we need to make this work for the default case.
+According to the data sheet[0] it looks like there are not many clock
+outputs (CLK0{A,B}, CLK1{A,B}, CLK2{A,B}, and CLK3{A,B}).
 
-> I have tested this on boards with Tegra, iMX.6 and Exynos SoCs, and t=
-hese
-> patches were enough to eliminate all the deferred probes.
->
-> With this series I get the kernel to output to the panel in 0.5s, ins=
-tead of 2.8s.
+At what point do you know how the clocks should be configured? I am
+guessing that your fpga driver (e.g. the clock consumer) figures that
+out as bytestream blobs are loaded? So that seems like the right call
+site to start enabling clocks and configuring rates, instead of stuffing
+that into the silabs driver (e.g. the clock provider).
 
-That's certainly compelling.
+York,
 
-Rob
+There is already a way to clock drivers to extend the debugfs interfaces
+for per-driver stuff. The Nvidia Tegra guys do this already in their
+out-of-tree test modules. Do you think such an interface might be
+helpful to you? See:
 
->
-> Regards,
->
-> Tomeu
->
-> [0] http://lists.freedesktop.org/archives/dri-devel/2014-August/06652=
-7.html
->
-> [1] https://lkml.org/lkml/2014/5/12/452
->
-> Tomeu Vizoso (21):
->   regulator: core: Reduce critical area in _regulator_get
->   ARM: tegra: Add gpio-ranges property
->   ARM: tegra: Register drivers before devices
->   ARM: EXYNOS: Register drivers before devices
->   ARM i.MX6q: Register drivers before devices
->   of/platform: Add of_platform_device_ensure()
->   of/platform: Ensure device registration on lookup
->   gpio: Probe GPIO drivers on demand
->   gpio: Probe pinctrl devices on demand
->   regulator: core: Probe regulators on demand
->   drm: Probe panels on demand
->   drm/tegra: Probe dpaux devices on demand
->   i2c: core: Probe i2c master devices on demand
->   pwm: Probe PWM chip devices on demand
->   backlight: Probe backlight devices on demand
->   usb: phy: Probe phy devices on demand
->   clk: Probe clk providers on demand
->   pinctrl: Probe pinctrl devices on demand
->   phy: core: Probe phy providers on demand
->   dma: of: Probe DMA controllers on demand
->   power-supply: Probe power supplies on demand
->
->  arch/arm/boot/dts/tegra124.dtsi     |  1 +
->  arch/arm/mach-exynos/exynos.c       |  4 +--
->  arch/arm/mach-imx/mach-imx6q.c      | 12 ++++-----
->  arch/arm/mach-tegra/tegra.c         | 21 ++++++---------
->  drivers/clk/clk.c                   |  3 +++
->  drivers/dma/of-dma.c                |  3 +++
->  drivers/gpio/gpiolib-of.c           |  5 ++++
->  drivers/gpu/drm/drm_panel.c         |  3 +++
->  drivers/gpu/drm/tegra/dpaux.c       |  3 +++
->  drivers/i2c/i2c-core.c              |  3 +++
->  drivers/of/platform.c               | 53 +++++++++++++++++++++++++++=
-++++++++++
->  drivers/phy/phy-core.c              |  3 +++
->  drivers/pinctrl/devicetree.c        |  2 ++
->  drivers/power/power_supply_core.c   |  3 +++
->  drivers/pwm/core.c                  |  3 +++
->  drivers/regulator/core.c            | 45 +++++++++++++++------------=
-----
->  drivers/usb/phy/phy.c               |  3 +++
->  drivers/video/backlight/backlight.c |  3 +++
->  include/linux/of_platform.h         |  2 ++
->  19 files changed, 130 insertions(+), 45 deletions(-)
->
-> --
-> 2.4.1
->
+clk_debugfs_add_file in drivers/clk/clk.c
+and,
+http://lkml.kernel.org/r/<1403794853-16928-1-git-send-email-pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+
+So your silabs clock generator driver could export some custom knobs
+which help out in the early phases of development.
+
+Ideally this interface would not be a register-level interface, but an
+output signal type interface. Here is an example of the files you will
+have by default:
+
+$ ls /sys/kernel/debug/clk/clk0a/
+clk_accuracy      clk_flags           clk_phase          clk_rate
+clk_enable_count  clk_notifier_count  clk_prepare_count
+
+With the custom debugfs interface you might add a "clk_set_rate" file
+where user space can write to it and change the frequency of that clock
+signal. You can do the same to change mux settings and clock gates as
+well.
+
+A userspace tool might even be able to take the clockbuilder data to do
+this, if someone is willing to write it.
+
+[0] https://www.silabs.com/Support%20Documents/TechnicalDocs/Si5338.pdf
+
+Regards,
+Mike
+
+> 
+> Andrey
+> 
+>  >  
+>  > Thanks, 
+>  > Guenter 
+>  >  
+>  > > Andrey 
+>  > > 
+>  > >   > 
+>  > >   > This would be a driver independent solution, and work for all clock drivers. 
+>  > >   > It might still not be accepted by Mike and Stephen, due to the risk, but it 
+>  > >   > might be worth a try. After all, using i2c-dev to access i2c devices directly 
+>  > >   > is just as risky. 
+>  > >   > 
+>  > >   > In my opinion, it is always better to have a driver in the upstream kernel, 
+>  > >   > if possible one that uses a standard framework. That makes it much easier 
+>  > >   > to support going forward. 
+>  > >   > 
+>  > >   > Guenter 
+>  > >   > 
+>  > >   > 
+>  > > 
+>  > > 
+>  > > 
+>  > > 
+>  >  
+>  > 
+> 
+> 
