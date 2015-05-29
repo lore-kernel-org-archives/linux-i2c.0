@@ -1,61 +1,67 @@
-From: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
-Subject: [PATCH v2] i2c: busses: i2c-bcm2835: limits cdiv to allowed values
-Date: Fri, 29 May 2015 12:26:44 +0200
-Message-ID: <1432895204-19924-1-git-send-email-linux_wi@tinag.ch>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [alsa-devel] [RFC] sound: ppc: keywest: check if DEQ was already
+ instantiated
+Date: Fri, 29 May 2015 19:50:22 +0900
+Message-ID: <20150529105020.GB3168@katana>
+References: <1432397711-3186-1-git-send-email-wsa@the-dreams.de>
+ <1432631974.85649.YahooMailBasic@web141501.mail.bf1.yahoo.com>
+ <s5htwuxb1h4.wl-tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <s5htwuxb1h4.wl-tiwai-l3A5Bk7waGM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+To: Takashi Iwai <tiwai-l3A5Bk7waGM@public.gmane.org>
+Cc: Dan DeVoto <dand1972-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Elliott <txlitebeer-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Adds: make sure bits 16-31 of DIV register are always 0
-Adds: assume minimal divider of 2 if divider resulted in 0
-      (bcm2835 sets divider to 32768 if cdiv is set to 0)
 
-See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
-https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+--BwCQnh7xodEAoBMC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
----
- drivers/i2c/busses/i2c-bcm2835.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+On Thu, May 28, 2015 at 09:33:27AM +0200, Takashi Iwai wrote:
+> At Tue, 26 May 2015 02:19:34 -0700,
+> Dan DeVoto wrote:
+> >=20
+> > Hi,
+> >=20
+> > I applied this patch ("check if DEQ was already instantiated") on top o=
+f=20
+> > "sound: ppc: keywest: drop using attach adapter" and sound works great.
+> > Everything works as expected.  Below is my dmesg output.
+>=20
+> Very well, shall I merge the patch as is?
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index c9336a3..8195b04 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -50,6 +50,9 @@
- #define BCM2835_I2C_S_CLKT	BIT(9)
- #define BCM2835_I2C_S_LEN	BIT(10) /* Fake bit for SW error reporting */
- 
-+#define BCM2835_I2C_CDIV_MIN	0x0002
-+#define BCM2835_I2C_CDIV_MAX	0xFFFE
-+
- #define BCM2835_I2C_TIMEOUT (msecs_to_jiffies(1000))
- 
- struct bcm2835_i2c_dev {
-@@ -252,12 +255,22 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 
- 	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk), bus_clk_rate);
- 	/*
-+	 * Divider results in 0 by extremely high bus_clk_rate values
-+	 * such as bus_clk_rate >= 4044967297 and core_clock = 250MHz.
-+	 * In such a case assume the minimal possible divider since
-+	 * bcm2835 chip sets divisor internally to 32768 if cdiv is 0.
-+	 */
-+	if (divider < BCM2835_I2C_CDIV_MIN)
-+		divider = BCM2835_I2C_CDIV_MIN;
-+	/*
- 	 * Per the datasheet, the register is always interpreted as an even
- 	 * number, by rounding down. In other words, the LSB is ignored. So,
- 	 * if the LSB is set, increment the divider to avoid any issue.
- 	 */
- 	if (divider & 1)
- 		divider++;
-+	if (divider > BCM2835_I2C_CDIV_MAX)
-+		divider = BCM2835_I2C_CDIV_MAX;
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
- 
- 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--- 
-2.1.4
+Yes, with Dan's tested-by. This patch should get its testing cycle via
+linux-next. If no regressions, then it could be considered to send this
+patch (and the one it depends on) to stable. They will fix missing sound
+issues which regressed ~3 years ago. I'll leave this to you, of course.
+
+
+--BwCQnh7xodEAoBMC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVaERsAAoJEBQN5MwUoCm26mAP/1HVbHYiv7rV6x+HErFzrBFM
+8vFzzfOSJXZLAUGdYuCDvyFhWz7nugORkaFvLUuF4rtaNspTs1e4KPj++W2Tgszw
+rzrIIvtYTlqx/IKhbXDPcHBHWSU/GeK3PwETz1QyuHAu49BJcTTmKAlnur74+yDJ
+0OzfzlHM1dUlksOw9mleSRNtJd7apEx+blUoIPAu2/n6rh9oEOGlq52nKf2PV5Xq
+deMCu8QeNdvVN3GsZFr9Zd7Ybq2GpIQP+N9jdUCpGVrB2qqNQ8U9NJrqAn90UHvf
+yPKvZPlbxUSp7RwMZ+3Euy8mjVlWvlDg549bednzsj4xQmTAhWHhkTsCtZVnpf7m
+HiNI0hkZuvZsqyy2DVU+szE6/65tZt2TpV9EMIaXbfKTRBhK7JVds4SJ7XGuDL1j
+7cpdACCB8jIds8oe3kP3sdeVIK412QlbT9vNZoy+gxXvt22BNJ13jd/AsM4FV72+
+17hbaFtzG2I+SbrBBnATTrdZRsvUWN67Taa1MhFpYTwM2JrcSuhJhxvjW6X6XFir
+o1sExLmXwPn99SKCuX+18Evqpc3S0q+0OmJGv87ZoqVLBZrFc6zHiCAa9zkMAhMB
+nJ3JMU4EZhwUU5jspIcKzTmTL3eItrT/gYdfmKHXC8Zfybj5lfSEp/wXZkF9mUHm
+SlaJ55pNAK+976ZXsb03
+=PlaW
+-----END PGP SIGNATURE-----
+
+--BwCQnh7xodEAoBMC--
