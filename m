@@ -1,90 +1,49 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 03/12] i2c: pxa: Add reset operation when i2c bus busy
-Date: Sat, 30 May 2015 01:50:12 +0530
-Message-ID: <5568C9FC.7040906@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>	<1432818224-17070-4-git-send-email-vaibhav.hiremath@linaro.org> <878uc7yxzx.fsf@belgarion.home>
+From: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+Subject: Re: [PATCH 04/12] i2c: pxa: Add support for pxa910/988 & new configuration features
+Date: Fri, 29 May 2015 22:22:27 +0200
+Message-ID: <874mmvyvzw.fsf@belgarion.home>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
+	<1432818224-17070-5-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <878uc7yxzx.fsf-4ty26DBLk+jEm7gnYqmdkQ@public.gmane.org>
+In-Reply-To: <1432818224-17070-5-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+	(Vaibhav Hiremath's message of "Thu, 28 May 2015 18:33:36 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
 
+> @@ -167,6 +184,8 @@ struct pxa_i2c {
+>  #define _ICR(i2c)	((i2c)->reg_icr)
+>  #define _ISR(i2c)	((i2c)->reg_isr)
+>  #define _ISAR(i2c)	((i2c)->reg_isar)
+> +#define _ILCR(i2c)	((i2c)->reg_ilcr)
+> +#define _IWCR(i2c)	((i2c)->reg_iwcr)
+>  
+>  /*
+>   * I2C Slave mode address
+> @@ -467,11 +486,16 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+>  	if (i2c->reg_isar)
+>  		writel(i2c->slave_addr, _ISAR(i2c));
+>  #endif
+> -
+Not in this patch.
 
-On Saturday 30 May 2015 01:09 AM, Robert Jarzmik wrote:
-> Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
->
->> From: "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->>
->> According to some test in emei_dkb, we found some i2c slave device
->> (eg. camera sensor ov2659 power up) introduce noise on sda, so detect
->> i2c controller busy, and assert reset to i2c controller to recover as
->> early as possible to avoid more latency on the entire i2c transaction.
->>
->> Signed-off-by: Jett.Zhou <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->> [vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Removed reduction in timeout value, as I
->> do not have goot explanation for it. Logically it is not required.
->> And also Updated changelog]
->> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->>
->> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->> ---
->>   drivers/i2c/busses/i2c-pxa.c | 4 ++++
->>   1 file changed, 4 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
->> index d4c798a..a76c901 100644
->> --- a/drivers/i2c/busses/i2c-pxa.c
->> +++ b/drivers/i2c/busses/i2c-pxa.c
->> @@ -314,6 +314,10 @@ static int i2c_pxa_wait_bus_not_busy(struct pxa_i2c *i2c)
->>   {
->>   	int timeout = DEF_TIMEOUT;
->>
->> +	if (readl(_ISR(i2c)) & (ISR_IBB | ISR_UB))
->> +		i2c_pxa_reset(i2c);
->
-> The pxa27x manual states in the Developer Manual, chapter 9.4.13 "Reset
-> Conditions" :
->              Software must ensure that (1) the I 2 C unit is not busy before it
->              asserts a reset
->
-> Given that, I don't agree with this patch.
+>  	/* set control register values */
+>  	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+>  	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
+>  
+> +	if (i2c->ilcr)
+> +		writel(i2c->ilcr, _ILCR(i2c));
+> +	if (i2c->iwcr)
+> +		writel(i2c->iwcr, _IWCR(i2c));
+> +	udelay(2);
+This is a magical 2us. Where does it come from ?
 
+Cheers.
 
-Hmmm,
-
-Just saw pxa27x manual, and you are right.
-In that case I am not sure how to address the issue mentioned in the
-changelog.
-
-On the other side,
-
-Check for ISR_IBB, should be ok, as, as per spec it says,
-
-"Set when the TWSI bus is busy but the SoC TWSI is not
-involved in the transaction."
-
-Also,
-I believe we should be ok, as the first thing we do in i2c_pxa_reset()
-is abort the current transaction and then assert reset. Isn't it?
-
-> Moreover, reseting unconditionaly the
-> i2c bus on each busy state on a write transaction for one single corner case is
-> not something that has my agreement. A quirk might overcome my reluctance.
->
-
-Any condition check you can possibly think of for asserting reset???
-
-Having said that,
-Somewhere I do agree with you that we need to further debug on noise
-issue in HW rather hacking software. :)
-
-I am ok to drop this patch, do further testing and revisit again if
-issue persist.
-
-Thanks,
-Vaibhav
+-- 
+Robert
