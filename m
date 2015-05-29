@@ -1,58 +1,53 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 04/12] i2c: pxa: Add support for pxa910/988 & new configuration
- features
-Date: Sat, 30 May 2015 02:03:29 +0530
-Message-ID: <5568CD19.6070202@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>	<1432818224-17070-5-git-send-email-vaibhav.hiremath@linaro.org> <874mmvyvzw.fsf@belgarion.home>
+From: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
+Subject: Re: [PATCH 06/12] i2c: pxa: Return I2C_RETRY when timeout in pio mode
+Date: Fri, 29 May 2015 22:46:43 +0200
+Message-ID: <87vbfbxgb0.fsf@belgarion.home>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
+	<1432818224-17070-7-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <874mmvyvzw.fsf-4ty26DBLk+jEm7gnYqmdkQ@public.gmane.org>
+In-Reply-To: <1432818224-17070-7-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+	(Vaibhav Hiremath's message of "Thu, 28 May 2015 18:33:38 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
 
-
-On Saturday 30 May 2015 01:52 AM, Robert Jarzmik wrote:
-> Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
+> From: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 >
->> @@ -167,6 +184,8 @@ struct pxa_i2c {
->>   #define _ICR(i2c)	((i2c)->reg_icr)
->>   #define _ISR(i2c)	((i2c)->reg_isr)
->>   #define _ISAR(i2c)	((i2c)->reg_isar)
->> +#define _ILCR(i2c)	((i2c)->reg_ilcr)
->> +#define _IWCR(i2c)	((i2c)->reg_iwcr)
->>
->>   /*
->>    * I2C Slave mode address
->> @@ -467,11 +486,16 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
->>   	if (i2c->reg_isar)
->>   		writel(i2c->slave_addr, _ISAR(i2c));
->>   #endif
->> -
-> Not in this patch.
-
-my bad, missed it.
-Will fix it in next version.
-
+> In case of timeout in pio mode of operation return I2C_RETRY.
+> This behavior will be same as interrupt mode of operation.
 >
->>   	/* set control register values */
->>   	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
->>   	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
->>
->> +	if (i2c->ilcr)
->> +		writel(i2c->ilcr, _ILCR(i2c));
->> +	if (i2c->iwcr)
->> +		writel(i2c->iwcr, _IWCR(i2c));
->> +	udelay(2);
-> This is a magical 2us. Where does it come from ?
+> Signed-off-by: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> [vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated changelog]
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 >
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-pxa.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> index eb09071..2777d5c 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -841,8 +841,10 @@ static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
+>  	ret = i2c->msg_idx;
+>  
+>  out:
+> -	if (timeout == 0)
+> +	if (timeout == 0) {
+>  		i2c_pxa_scream_blue_murder(i2c, "timeout");
+> +		ret = I2C_RETRY;
+> +	}
+Ok, looks good to me.
+As it changes the dynamic behavior of i2c_pxa_pio_xfer(), I'd like to know how
+it was tested (on which platform, and what was on the I2C bus).
 
-I am afraid it is random number picked, required since we are
-configuring mode/speed related bit-fields.
+Cheers.
 
-Thanks,
-Vaibhav
+-- 
+Robert
