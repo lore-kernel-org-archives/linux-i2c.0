@@ -1,70 +1,39 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
-Date: Fri, 29 May 2015 08:59:02 -0500
-Message-ID: <CAL_Jsq+-u7pf7JOXD7frB-ye9bk0NLAKhAJFvLYz1a1jzOCb9Q@mail.gmail.com>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH v1] HID: support multiple and large i2c transfers in
+ hid-cp2112
+Date: Fri, 29 May 2015 16:54:50 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.1505291654210.26271@pobox.suse.cz>
+References: <1429825766-19594-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1432818224-17070-6-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1429825766-19594-1-git-send-email-ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Cc: dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 28, 2015 at 8:03 AM, Vaibhav Hiremath
-<vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+On Thu, 23 Apr 2015, Ellen Wang wrote:
 
-This probably should still be Leilei, but...
+> cp2112_i2c_xfer() only supports a single i2c_msg and only
+> reads up to 61 bytes.  More than one message at a time
+> and longers reads just return errors.
+> 
+> This is a serious limitation.  For example, the at24 eeprom driver
+> generates paired write and read messages (for eeprom address and data).
+> And the reads can be quite large.  The fix consists of a loop
+> to go through all the messages, and a loop around cp2112_read()
+> to pick up all the returned data.  For extra credit, it now also
+> supports write-read pairs and implements them as
+> CP2112_DATA_WRITE_READ_REQUEST.
+> 
+> Signed-off-by: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 
-> Since there is some problematic i2c slave devices on some
-> platforms such as dkb (sometimes), it will drop down sda
-> and make i2c bus hang, at that time, it need to config
-> scl/sda into gpio to simulate "stop" sequence to recover
-> i2c bus, so add this interface.
->
-> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> [vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated Changelog]
-> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->
-> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-pxa.c | 90 ++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 90 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index 8ca5552..eb09071 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -37,6 +37,8 @@
->  #include <linux/slab.h>
->  #include <linux/io.h>
->  #include <linux/i2c/pxa-i2c.h>
-> +#include <linux/of_gpio.h>
-> +#include <linux/pinctrl/consumer.h>
->
->  #include <asm/irq.h>
->
-> @@ -177,6 +179,9 @@ struct pxa_i2c {
->         bool                    highmode_enter;
->         unsigned int            ilcr;
->         unsigned int            iwcr;
-> +       struct pinctrl          *pinctrl;
-> +       struct pinctrl_state    *pin_i2c;
-> +       struct pinctrl_state    *pin_gpio;
->  };
->
->  #define _IBMR(i2c)     ((i2c)->reg_ibmr)
-> @@ -269,6 +274,62 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2c, int lno, const char *fname)
->
->  #define show_state(i2c) i2c_pxa_show_state(i2c, __LINE__, __func__)
->
-> +static void i2c_bus_reset(struct pxa_i2c *i2c)
+David, could you please provide your Reviewed-by: / Acked-by: for this 
+patch?
 
-There's a generic mechanism in i2c_generic_gpio_recovery we should use
-here. It appears to be similar, but not exactly the same. The pinctrl
-part should probably be done by gpio driver.
+Thanks,
 
-Rob
+-- 
+Jiri Kosina
+SUSE Labs
