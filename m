@@ -1,108 +1,40 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 11/12] i2c:pxa: Use devm_ variants in probe function
-Date: Sun, 31 May 2015 13:06:46 +0530
-Message-ID: <556ABA0E.7050205@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>	<1432818224-17070-12-git-send-email-vaibhav.hiremath@linaro.org> <878uc6xdsd.fsf@belgarion.home>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 0/6] use devicemodel with parport
+Date: Mon, 1 Jun 2015 07:05:30 +0900
+Message-ID: <20150531220530.GF13872@kroah.com>
+References: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <878uc6xdsd.fsf-4ty26DBLk+jEm7gnYqmdkQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <1432135622-8288-1-git-send-email-sudipm.mukherjee@gmail.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: devel@driverdev.osuosl.org, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Tim Waugh <tim@cyberelk.net>, Willy Tarreau <willy@meta-x.org>, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, May 20, 2015 at 08:56:56PM +0530, Sudip Mukherjee wrote:
+> After 5 versions of WIP, finally a patch submission.
+> parport subsystem is now in the transition stage and supports the old
+> model and the new device model. 3 of the drivers have been converted
+> into new model and tested.
+> After other drivers are converted we can remove the old code from
+> parport.
 
+This looks good, very nice job.
 
-On Saturday 30 May 2015 09:23 PM, Robert Jarzmik wrote:
-> Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
->
->> @@ -1270,10 +1270,17 @@ static int i2c_pxa_probe(struct platform_device *dev)
->>   	struct resource *res = NULL;
->>   	int ret, irq;
->>
->> -	i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
->> +	i2c = devm_kzalloc(&dev->dev, sizeof(struct pxa_i2c), GFP_KERNEL);
->>   	if (!i2c) {
->> -		ret = -ENOMEM;
->> -		goto emalloc;
->> +		dev_err(&dev->dev, "memory allocation failed\n");
->> +		return -ENOMEM;
->> +	}
->> +
->> +	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
->> +	irq = platform_get_irq(dev, 0);
->> +	if (res == NULL || irq < 0) {
->> +		dev_err(&dev->dev, "no mem/irq resource\n");
->> +		return -ENODEV;
-> I'd like to have the error code here, as in other part of the driver.
-> Ie. I'd want :
->      dev_err(&dev->dev, "no mem/irq resource: %d\n", irq);
->
-> Moreover, return -ENODEV if res == NULL, but return irq if irq < 0 (think of
-> -EPROBE_DEFER).
->
+Are you going to continue to fix up the other drivers?  I don't want us
+to have a half-converted subsystem in the kernel.
 
-Good point.
+thanks,
 
-I will change it in next version.
-
-
->> +	i2c->reg_base = devm_ioremap_resource(&dev->dev, res);
->>   	if (!i2c->reg_base) {
-> if (IS_ERR(i2c->reg_base)) instead.
->
->> -		ret = -EIO;
->> -		goto eremap;
->> +		dev_err(&dev->dev, "failed to map resource\n");
->> +		return -EIO;
-> Ditto, ie. include PTR_ERR(i2c->reg_base) in the dev_err(), and return
-> PTR_ERR(i2c->reg_base);
->
-
-Ok.
-
->> @@ -1361,11 +1356,13 @@ static int i2c_pxa_probe(struct platform_device *dev)
->>   		i2c->adap.algo = &i2c_pxa_pio_algorithm;
->>   	} else {
->>   		i2c->adap.algo = &i2c_pxa_algorithm;
->> -		ret = request_irq(irq, i2c_pxa_handler,
->> +		ret = devm_request_irq(&dev->dev, irq, i2c_pxa_handler,
->>   				IRQF_SHARED | IRQF_NO_SUSPEND,
->>   				dev_name(&dev->dev), i2c);
->> -		if (ret)
->> +		if (ret) {
->> +			dev_err(&dev->dev, "failed to request irq\n");
-> Ditto for the dev_err() and error code reporting.
->
->> @@ -1380,8 +1377,8 @@ static int i2c_pxa_probe(struct platform_device *dev)
->>
->>   	ret = i2c_add_numbered_adapter(&i2c->adap);
->>   	if (ret < 0) {
->> -		printk(KERN_INFO "I2C: Failed to add bus\n");
->> -		goto eadapt;
->> +		dev_err(&dev->dev, "failed to add bus\n");
-> Ditto.
->
->> @@ -1411,26 +1408,15 @@ static int i2c_pxa_probe(struct platform_device *dev)
->>   		}
->>   	}
->>   #ifdef CONFIG_I2C_PXA_SLAVE
->> -	printk(KERN_INFO "I2C: %s: PXA I2C adapter, slave address %d\n",
->> +	pr_info("I2C: %s: PXA I2C adapter, slave address %d\n",
->>   	       dev_name(&i2c->adap.dev), i2c->slave_addr);
-> dev_info() maybe ?
->
->>   #else
->> -	printk(KERN_INFO "I2C: %s: PXA I2C adapter\n",
->> -	       dev_name(&i2c->adap.dev));
->> +	pr_info("I2C: %s: PXA I2C adapter\n", dev_name(&i2c->adap.dev));
-> Ditto.
->
-
-Agreed to all your comments.
-I will change the code in next version.
-
-Thanks,
-Vaibhav
+greg k-h
