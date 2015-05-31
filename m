@@ -1,52 +1,52 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 11/11] i2c-core: Fix typo in comment
-Date: Mon, 1 Jun 2015 08:43:23 +0900
-Message-ID: <20150531234322.GA23302@katana>
-References: <1431968041-3226-1-git-send-email-shailendra.capricorn@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 12/12] i2c-algo-pca: Fix typo in comment.
+Date: Mon, 1 Jun 2015 08:43:44 +0900
+Message-ID: <20150531234342.GB23302@katana>
+References: <1431968874-3418-1-git-send-email-shailendra.capricorn@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1431968041-3226-1-git-send-email-shailendra.capricorn@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Shailendra Verma <shailendra.capricorn@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1431968874-3418-1-git-send-email-shailendra.capricorn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shailendra Verma <shailendra.capricorn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---k1lZvvs/B4yU6o8G
+--aVD9QWMuhilNxW9f
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 18, 2015 at 10:24:01PM +0530, Shailendra Verma wrote:
+On Mon, May 18, 2015 at 10:37:54PM +0530, Shailendra Verma wrote:
 >=20
-> Signed-off-by: Shailendra Verma <shailendra.capricorn@gmail.com>
+> Signed-off-by: Shailendra Verma <shailendra.capricorn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---k1lZvvs/B4yU6o8G
+--aVD9QWMuhilNxW9f
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVa5yZAAoJEBQN5MwUoCm2L68QAJ1APBV8j9WosM0lLCPqUfHE
-XNz+FMsc27qullrcgXCrwLx/UwIjvS/E5eryP4gCneFqvzFrXMJb1wDLwk7Peemg
-oZHN8CvNy2dxhA5r7I+JfP+jHVX+4KVsl/yQWGIRSoHlcRh/iEkYXz60tplk82oj
-9rrc0EgDDyR+ZJsHLVOm10RnZWY/sryWsAQNDd6PAW8L+1pq69h/KyWPbiTao47o
-RK/j22GSv+nKkU9L86MBn3yOE2XC6+Ya6FzF+66jotApFQC8B2WNn9KMyHOpvxyw
-MHPUEcNzBlTLcY7MjI4nyeanYwOlYl8VkfSmjOeW7JNfPV5/2CHhw7vuO8QWn+Bc
-ilEDO6Z96y3rGy3X7m70WivthRymfbhokDxTge69bnb+SPoGdnrSW2sAlhkdrWQ9
-f9swpU0JXfeGwlQC9ywkZdy7ahjlpSNctIuPnbX550UZtWJeY3GPv1uspJorEP+C
-3qB5Rr9MJfAHtZ1O1YD+sWXzXTJt2l8A5f0+nAulTS0qSikjKKfgxC73R+k5RkdO
-bmC9DZi+WYzQtv3tzm9pGOffMkBvZv4q4IW7yJePcjo1P7D/8HRoqv+B46KkjvuR
-oEEEuDlhBYJEwP1/d4tHXGlTRyLCZbmE3z42rxa/Bd4wqcJTihvXxuO7hWmm+ZDL
-sA65SC/VrPRd3p1boIb1
-=ZK2N
+iQIcBAEBAgAGBQJVa5yuAAoJEBQN5MwUoCm24XcQAJvw5//x8Lbdb6X+Pnwkv6pn
+CZcaGV6N/68oh/EnHC3zISCpaPH0FAVLpovlgVd0Z53WlGojbB4DefEYtNBhlyug
+PVNKqF4BBCkJKwjjH8Ub6eejDFeG4kIOf5QE3lVKaZ+9ULEPdThw/GfRlmqq+v28
+nORrJEUzJq0125ZFbtLTsP2oUwbb2YA4oeNTQ5X8+T0Ytbmf8Bvra/Un5BO0FmL0
+kIskg+C7DgJMAfa5Lzb3KuCprrVvH0ps9zCv+rgb+veekwGonXo47zJyNgs8XIiD
+oOX1NLido/tqtQs7AlmrBgLNSNbCpKb5x72XyUcNUS6pmK27WApZAx/3le4nGXFU
+SDdq69NdE0I8WNYCWTA7wxSrhXvVP4Fmc9nJBg1CNVGA3WnaSa+qqkliI3DP920L
+eR8eykho3cJc5eqisDDhPBCjLIc7u+phBFU8uzhsWPQ7pxMT/FOOW7difHG8H89z
+1DoVd/kdzxFXWlnJUi8Vlr4MwvhyOhgvD+F+ANw/qdLHwmwAtO5iuUa1WTFibLDw
+c4Z9e3gRjbW7XGsP/t3rHaDp3Je2kKHTEmpGKYKMdT1JwxnWUBBwY/0wIdnHBhkT
+trJJQO4KTpDrwgB0CZFWCFPelQRjqrJwvbNvq25/kOGoofuzNoDPz1yFxc3NIW4r
+tdHPt6e03UIDR9lI1F8R
+=UYdV
 -----END PGP SIGNATURE-----
 
---k1lZvvs/B4yU6o8G--
+--aVD9QWMuhilNxW9f--
