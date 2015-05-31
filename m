@@ -1,52 +1,52 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 12/12] i2c-algo-pca: Fix typo in comment.
-Date: Mon, 1 Jun 2015 08:43:44 +0900
-Message-ID: <20150531234342.GB23302@katana>
-References: <1431968874-3418-1-git-send-email-shailendra.capricorn@gmail.com>
+Subject: Re: [PATCH] I2c:smbus - Fix typo in comment.
+Date: Mon, 1 Jun 2015 08:43:59 +0900
+Message-ID: <20150531234358.GC23302@katana>
+References: <1432046381-3320-1-git-send-email-shailendra.capricorn@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+	protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1431968874-3418-1-git-send-email-shailendra.capricorn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1432046381-3320-1-git-send-email-shailendra.capricorn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Shailendra Verma <shailendra.capricorn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 18, 2015 at 10:37:54PM +0530, Shailendra Verma wrote:
+On Tue, May 19, 2015 at 08:09:41PM +0530, Shailendra Verma wrote:
 >=20
 > Signed-off-by: Shailendra Verma <shailendra.capricorn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVa5yuAAoJEBQN5MwUoCm24XcQAJvw5//x8Lbdb6X+Pnwkv6pn
-CZcaGV6N/68oh/EnHC3zISCpaPH0FAVLpovlgVd0Z53WlGojbB4DefEYtNBhlyug
-PVNKqF4BBCkJKwjjH8Ub6eejDFeG4kIOf5QE3lVKaZ+9ULEPdThw/GfRlmqq+v28
-nORrJEUzJq0125ZFbtLTsP2oUwbb2YA4oeNTQ5X8+T0Ytbmf8Bvra/Un5BO0FmL0
-kIskg+C7DgJMAfa5Lzb3KuCprrVvH0ps9zCv+rgb+veekwGonXo47zJyNgs8XIiD
-oOX1NLido/tqtQs7AlmrBgLNSNbCpKb5x72XyUcNUS6pmK27WApZAx/3le4nGXFU
-SDdq69NdE0I8WNYCWTA7wxSrhXvVP4Fmc9nJBg1CNVGA3WnaSa+qqkliI3DP920L
-eR8eykho3cJc5eqisDDhPBCjLIc7u+phBFU8uzhsWPQ7pxMT/FOOW7difHG8H89z
-1DoVd/kdzxFXWlnJUi8Vlr4MwvhyOhgvD+F+ANw/qdLHwmwAtO5iuUa1WTFibLDw
-c4Z9e3gRjbW7XGsP/t3rHaDp3Je2kKHTEmpGKYKMdT1JwxnWUBBwY/0wIdnHBhkT
-trJJQO4KTpDrwgB0CZFWCFPelQRjqrJwvbNvq25/kOGoofuzNoDPz1yFxc3NIW4r
-tdHPt6e03UIDR9lI1F8R
-=UYdV
+iQIcBAEBAgAGBQJVa5y+AAoJEBQN5MwUoCm28TYQAI6kreTltjIu7aVNndiquiMF
+jbWvR8PViaE5jubkFHTPFdFUwyBjjXrRqqCORDG9xJbGL1+qzH+UW7D8Z+RDwDrX
+BPFJB6q/osTgOEjTylzcpP5WFA3ymmgb4b2C8484brn1KWkfrap6j0HsvAQrw4Pk
+Q3Cf63vJfF6nvD5oA/S/gCTB7WVgWCzdpqr2SLNIqaKBKBAA5dZa8TNaUs+dqmAH
+aqKoBjbybj4dylzD4alxMjL+nhkZhHhMQaiX9Q3xJ77qf8xINiz5dc6EKDBxiqO7
+P21g4Zneks+cxvVQHOE0J4J9I+L2+SWLwEiECLzBXEWmcY5d6fNWYBPZUtdGllSx
+pmO2ELy9BpW5Vq/WBMhNflLbELeaf2ohyK1oUol0lBA484wjQIO04Sn6UDTYy4EN
+x9em+Of6EkWy6llIvwAgiPl0gtM+Odk8zxLDQZdelFffKUOXyUEDmMockhKlnaI0
+Lnp9nuaUIjSdgM0a3bxp28CaVg3jHM/spftivtmpuPB3dvxbzoEVP0u1appXQQvO
+gC80umP4m4W8J/ggLO839P6BKnl+IpdlN1IZYnZV8vYemiv6VI9o9nDzdt29mZn6
+bq5BHmWXoDdac5Ng6iyzPsTvRDXQdVrLOKJh076RAbu60z99vQr/uGIeNKbJ8dlF
+V7CH2f7bNWs+mimLcBqx
+=obvz
 -----END PGP SIGNATURE-----
 
---aVD9QWMuhilNxW9f--
+--yVhtmJPUSI46BTXb--
