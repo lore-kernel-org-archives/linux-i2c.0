@@ -1,56 +1,43 @@
 From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH i2c-tools] decode-dimms: correctly check for
- out-of-bounds vendor id
-Date: Mon, 1 Jun 2015 08:19:49 +0200
-Message-ID: <20150601081949.436f0d3b@endymion.delvare>
-References: <1432983812-7975-1-git-send-email-lkundrak@v3.sk>
+Subject: [PATCH i2c-tools] decode-dimms: Complete check for out-of-bounds
+ vendor ID
+Date: Mon, 1 Jun 2015 08:38:33 +0200
+Message-ID: <20150601083833.0ea3e5e1@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1432983812-7975-1-git-send-email-lkundrak-NGH9Lh4a5iE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lubomir Rintel <lkundrak-NGH9Lh4a5iE@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Lubomir Rintel <lkundrak-NGH9Lh4a5iE@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Lubomir,
+We also need to discard vendor ID 0 and to report "Unknown" if the
+vendor is in a page we don't support yet.
+---
+Lubomir, this goes on top of your (modified) patch. Does it look good
+to you? Thanks.
 
-On Sat, 30 May 2015 13:03:32 +0200, Lubomir Rintel wrote:
-> ---
->  eeprom/decode-dimms | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/eeprom/decode-dimms b/eeprom/decode-dimms
-> index 3a50c07..4a861bd 100755
-> --- a/eeprom/decode-dimms
-> +++ b/eeprom/decode-dimms
-> @@ -345,7 +345,7 @@ sub manufacturer_ddr3($$)
->  	my $manufacturer;
->  
->  	return "Invalid" if parity($code) != 1;
-> -	return "Unknown" if ($code & 0x7F) - 1 > $vendors[$count & 0x7F];
-> +	return "Unknown" if ($code & 0x7F) > @{$vendors[$count & 0x7F]};
->  	$manufacturer = $vendors[$count & 0x7F][($code & 0x7F) - 1];
->  	$manufacturer =~ s/ \(former .*\)$// if $opt_side_by_side;
->  	$manufacturer .= "? (Invalid parity)" if parity($count) != 1;
+ eeprom/decode-dimms |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Good catch, not sure how we managed to not notice this bug for years
-despite the surrounding code being modified several times. Did you find
-it by code inspection or did you actually hit the bug on one of your
-memory modules?
+--- i2c-tools.orig/eeprom/decode-dimms	2015-06-01 08:19:59.292190666 +0200
++++ i2c-tools/eeprom/decode-dimms	2015-06-01 08:35:31.806092421 +0200
+@@ -344,8 +344,10 @@ sub manufacturer_ddr3($$)
+ 	my ($count, $code) = @_;
+ 	my $manufacturer;
+ 
+-	return "Invalid" if parity($code) != 1;
+-	return "Unknown" if ($code & 0x7F) - 1 >= @{$vendors[$count & 0x7F]};
++	return "Invalid" if parity($code) != 1
++			 or ($code & 0x7F) == 0;
++	return "Unknown" if ($count & 0x7F) >= @vendors
++			 or ($code & 0x7F) - 1 >= @{$vendors[$count & 0x7F]};
+ 	$manufacturer = $vendors[$count & 0x7F][($code & 0x7F) - 1];
+ 	$manufacturer =~ s/ \(former .*\)$// if $opt_side_by_side;
+ 	$manufacturer .= "? (Invalid parity)" if parity($count) != 1;
 
-Note that I would prefer
-	... if ($code & 0x7F) - 1 >= @{$vendors[$count & 0x7F]};
-It is equivalent but more obviously correct as it matches the array
-access on the following line.
 
-Also, even after your fix, I think the code is not completely safe, as
-we still don't check for ($code & 0x7F) being 0, nor do we verify that
-$count & 0x7F does not exceed the number of elements in @vendors. I'll
-fix that.
-
-Thanks,
 -- 
 Jean Delvare
 SUSE L3 Support
