@@ -1,50 +1,45 @@
-From: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2 4/5] i2c: at91: print hardware version
-Date: Mon, 1 Jun 2015 17:49:14 +0200
-Message-ID: <46a3699a9449adb793a97f212d38224f33488c87.1433173031.git.cyrille.pitchen@atmel.com>
+From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v2 3/5] i2c: at91: add support for new alternative
+ command mode
+Date: Mon, 1 Jun 2015 19:51:54 +0200
+Message-ID: <20150601175154.GN4710@piout.net>
 References: <cover.1433173031.git.cyrille.pitchen@atmel.com>
+ <82c39f262f553a43ea9208b4f9804bbf26a62d90.1433173031.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1433173031.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <82c39f262f553a43ea9208b4f9804bbf26a62d90.1433173031.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The probe() function now prints the hardware version of the I2C controller
+Hi,
 
-Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c | 4 ++++
- 1 file changed, 4 insertions(+)
+On 01/06/2015 at 17:49:13 +0200, Cyrille Pitchen wrote :
+> @@ -504,8 +589,22 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+>  		at91_twi_write(dev, AT91_TWI_IADR, internal_address);
+>  	}
+>  
+> -	at91_twi_write(dev, AT91_TWI_MMR, (m_start->addr << 16) | int_addr_flag
+> -		       | ((m_start->flags & I2C_M_RD) ? AT91_TWI_MREAD : 0));
+> +	is_read = (m_start->flags & I2C_M_RD);
+> +	if (dev->pdata->has_alt_cmd) {
+> +		if (m_start->len > 0) {
+> +			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_ACMEN);
+> +			at91_twi_write(dev, AT91_TWI_ACR,
+> +				       AT91_TWI_ACR_DATAL(m_start->len) |
+> +				       ((is_read) ? AT91_TWI_ACR_DIR : 0));
+> +			use_alt_cmd = true;
+> +		} else
+> +			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_ACMDIS);
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index e926806..ecf601a 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -85,6 +85,8 @@
- #define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
- #define	AT91_TWI_ACR_DIR	BIT(8)
- 
-+#define	AT91_TWI_VER		0x00fc	/* Version Register */
-+
- struct at91_twi_pdata {
- 	unsigned clk_max_div;
- 	unsigned clk_offset;
-@@ -870,6 +872,8 @@ static int at91_twi_probe(struct platform_device *pdev)
- 			return rc;
- 	}
- 
-+	dev_info(dev->dev, "version: 0x%x\n", at91_twi_read(dev, AT91_TWI_VER));
-+
- 	rc = of_property_read_u32(dev->dev->of_node, "clock-frequency",
- 			&bus_clk_rate);
- 	if (rc)
+braces {} should be used on all arms of this statement
+
+
+
 -- 
-1.8.2.2
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
