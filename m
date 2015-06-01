@@ -1,8 +1,8 @@
 From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH i2c-tools] decode-dimms: Complete check for out-of-bounds
- vendor ID
-Date: Mon, 1 Jun 2015 08:38:33 +0200
-Message-ID: <20150601083833.0ea3e5e1@endymion.delvare>
+Subject: [PATCH v2 1/2 i2c-tools] decode-dimms: Complete check for
+ out-of-bounds vendor ID
+Date: Mon, 1 Jun 2015 09:26:14 +0200
+Message-ID: <20150601092614.539ebc75@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -14,21 +14,26 @@ List-Id: linux-i2c@vger.kernel.org
 
 We also need to discard vendor ID 0 and to report "Unknown" if the
 vendor is in a page we don't support yet.
----
-Lubomir, this goes on top of your (modified) patch. Does it look good
-to you? Thanks.
 
- eeprom/decode-dimms |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Additionally, check that data is present at all for DDR3 modules as we
+already do for pre-DDR3 modules.
+---
+Changes since v1:
+ * Added check for data presence.
+
+ eeprom/decode-dimms |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 --- i2c-tools.orig/eeprom/decode-dimms	2015-06-01 08:19:59.292190666 +0200
-+++ i2c-tools/eeprom/decode-dimms	2015-06-01 08:35:31.806092421 +0200
-@@ -344,8 +344,10 @@ sub manufacturer_ddr3($$)
++++ i2c-tools/eeprom/decode-dimms	2015-06-01 09:14:30.899898763 +0200
+@@ -344,8 +344,12 @@ sub manufacturer_ddr3($$)
  	my ($count, $code) = @_;
  	my $manufacturer;
  
 -	return "Invalid" if parity($code) != 1;
 -	return "Unknown" if ($code & 0x7F) - 1 >= @{$vendors[$count & 0x7F]};
++	return "Undefined" unless spd_written($count, $code);
++
 +	return "Invalid" if parity($code) != 1
 +			 or ($code & 0x7F) == 0;
 +	return "Unknown" if ($count & 0x7F) >= @vendors
