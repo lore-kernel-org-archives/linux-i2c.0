@@ -1,24 +1,31 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 00/12] i2c: pxa: Fixes, cleanup and support for pxa910  family
-Date: Mon, 01 Jun 2015 09:07:00 +0900
-Message-ID: <fb192019ec75e9aa10b04b79e87a6e79@the-dreams.de>
+Subject: Re: [PATCH 04/12] i2c: pxa: Add support for pxa910/988 & new  configuration features
+Date: Mon, 01 Jun 2015 09:13:03 +0900
+Message-ID: <4edfb7fe9edf4800e73c86a258fe4fd1@the-dreams.de>
 References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432818224-17070-5-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8;
  format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1432818224-17070-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1432818224-17070-5-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> TODO:
->   - Due to lack of client driver support as of now, could not
->     able to do functionality testing from client. I am working
->     on PMIC driver support which is over I2C, so will have good
->     meaningful testing then.
+On 2015-05-28 22:03, Vaibhav Hiremath wrote:
+> From: "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>
+> TWSI_ILCR & TWSI_IWCR registers are used to adjust clock rate
+> of standard & fast mode in pxa910/988; so this patch adds these two 
+> new
+> entries to "struct pxa_reg_layout" and "struct pxa_i2c" and also adds 
+> two
+> new DT properties to take configuration value for the same.
 
-Okay, thanks for the info. So, unless this is done I'll consider these
-patches as RFC.
+Mapping registers 1:1 to DT is nearly always wrong. We have some 
+generic bindings for SCL/SDA tweaking. Check 
+Documentation/devicetree/bindings/i2c/i2c-designware.txt for them and if 
+they match your needs. (Yes, they should be in a more generic place).
