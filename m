@@ -1,88 +1,27 @@
 From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH-RESEND 3/3] i2c: pxa: Add pin ctrl support for CP core access
-Date: Wed,  3 Jun 2015 00:15:31 +0530
-Message-ID: <1433270731-23790-4-git-send-email-vaibhav.hiremath@linaro.org>
-References: <vaibhav.hiremath@linaro.org>
- <1433270731-23790-1-git-send-email-vaibhav.hiremath@linaro.org>
+Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
+Date: Wed, 03 Jun 2015 00:16:26 +0530
+Message-ID: <556DFA02.5070804@linaro.org>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org> <20150602173341.GA1494@katana> <556DEA90.3010001@linaro.org> <20150602174818.GC1494@katana> <556DEE6C.1060300@linaro.org> <20150602180217.GE1494@katana> <556DF0A0.30807@linaro.org> <20150602182443.GH1494@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1433270731-23790-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20150602182443.GH1494@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-PMIC TWSI pins configuration for AP and CP is different on
-eden, it need to be set to function 0 when AP get RIPC lock.
-When AP release RIPC lock, it also need configure twsi pins
-to other state, otherwise pinctrl will assume pins configration
-is not changed even if it is changed by CP, so it will not
-change twsi pins configuration to AP state when AP get RIPC
-next time.
 
-Signed-off-by: Shouming Wang <wangshm-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-pxa.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index eb26eb1..1340de1 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -184,6 +184,7 @@ struct pxa_i2c {
- 	struct pinctrl		*pinctrl;
- 	struct pinctrl_state	*pin_i2c;
- 	struct pinctrl_state	*pin_gpio;
-+	struct pinctrl_state	*pin_i2c_cp;
- };
- 
- #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -405,6 +406,10 @@ void mmp_hwlock_lock(struct i2c_adapter *adap)
- 	ripc_status = true;
- 
- 	spin_unlock_irqrestore(&lock_for_ripc, flags);
-+
-+	if (pinctrl_select_state(i2c->pinctrl, i2c->pin_i2c) < 0)
-+		dev_err(&i2c->adap.dev, "could not set i2c AP pins\n");
-+
- }
- 
- void mmp_hwlock_unlock(struct i2c_adapter *adap)
-@@ -413,6 +418,9 @@ void mmp_hwlock_unlock(struct i2c_adapter *adap)
- 
- 	struct pxa_i2c *i2c = adap->algo_data;
- 
-+	if (pinctrl_select_state(i2c->pinctrl, i2c->pin_i2c_cp) < 0)
-+		dev_err(&i2c->adap.dev, "could not set i2c CP pins\n");
-+
- 	spin_lock_irqsave(&lock_for_ripc, flags);
- 	__raw_writel(1, i2c->hwlock_addr);
- 	ripc_status = false;
-@@ -430,6 +438,9 @@ int mmp_hwlock_trylock(struct i2c_adapter *adap)
- 	ripc_status = !__raw_readl(i2c->hwlock_addr);
- 	spin_unlock_irqrestore(&lock_for_ripc, flags);
- 
-+	if (ripc_status && (pinctrl_select_state(i2c->pinctrl, i2c->pin_i2c) < 0))
-+		dev_err(&i2c->adap.dev, "could not set i2c AP pins\n");
-+
- 	return ripc_status;
- }
- 
-@@ -1497,8 +1508,14 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 			ret = IS_ERR(i2c->pin_gpio);
- 		}
- 
-+		/* pin ctrl for CP - optional */
-+		i2c->pin_i2c_cp = pinctrl_lookup_state(i2c->pinctrl, "i2c_cp");
-+		if (IS_ERR(i2c->pin_i2c_cp))
-+			dev_err(&dev->dev, "could not get i2c_cp pinstate\n");
-+
- 		if (ret) {
- 			i2c->pin_i2c = NULL;
-+			i2c->pin_i2c_cp = NULL;
- 			i2c->pin_gpio = NULL;
- 			i2c->pinctrl = NULL;
- 			ret = 0;
--- 
-1.9.1
+On Tuesday 02 June 2015 11:54 PM, Wolfram Sang wrote:
+> Can you resend the hwlock patches? I use patchwork for tracking and
+> those were sent when the server had a little downtime. Thanks!
+>
+
+
+Just resent it. please check.
+
+Thanks,
+Vaibhav
