@@ -1,78 +1,62 @@
-From: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: busses: i2c-bcm2835: limits cdiv to allowed
- values
-Date: Tue, 2 Jun 2015 17:45:06 +0200
-Message-ID: <20150602154506.GA2341@jessie.tinag.lan>
-References: <1432895204-19924-1-git-send-email-linux_wi@tinag.ch>
- <87pp5f5mlw.fsf@eliezer.anholt.net>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: davinci: Avoid sending to own address
+Date: Wed, 3 Jun 2015 00:48:36 +0900
+Message-ID: <20150602154835.GD2661@katana>
+References: <55534B7A.8070105@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d01dLTUuW90fS44H"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <87pp5f5mlw.fsf-omZaPlIz5HhaEpDpdNBo/KxOck334EZe@public.gmane.org>
+In-Reply-To: <55534B7A.8070105-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Lawnick Michael 61283229 <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 01, 2015 at 11:07:07AM -0700, Eric Anholt wrote:
-> Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org> writes:
-> 
-> > Adds: make sure bits 16-31 of DIV register are always 0
-> > Adds: assume minimal divider of 2 if divider resulted in 0
-> >       (bcm2835 sets divider to 32768 if cdiv is set to 0)
-> >
-> > See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
-> > https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
-> >
-> > Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-bcm2835.c | 13 +++++++++++++
-> >  1 file changed, 13 insertions(+)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-> > index c9336a3..8195b04 100644
-> > --- a/drivers/i2c/busses/i2c-bcm2835.c
-> > +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> > @@ -50,6 +50,9 @@
-> >  #define BCM2835_I2C_S_CLKT	BIT(9)
-> >  #define BCM2835_I2C_S_LEN	BIT(10) /* Fake bit for SW error reporting */
-> >  
-> > +#define BCM2835_I2C_CDIV_MIN	0x0002
-> > +#define BCM2835_I2C_CDIV_MAX	0xFFFE
-> > +
-> >  #define BCM2835_I2C_TIMEOUT (msecs_to_jiffies(1000))
-> >  
-> >  struct bcm2835_i2c_dev {
-> > @@ -252,12 +255,22 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
-> >  
-> >  	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk), bus_clk_rate);
-> >  	/*
-> > +	 * Divider results in 0 by extremely high bus_clk_rate values
-> > +	 * such as bus_clk_rate >= 4044967297 and core_clock = 250MHz.
-> > +	 * In such a case assume the minimal possible divider since
-> > +	 * bcm2835 chip sets divisor internally to 32768 if cdiv is 0.
-> > +	 */
-> > +	if (divider < BCM2835_I2C_CDIV_MIN)
-> > +		divider = BCM2835_I2C_CDIV_MIN;
-> > +	/*
-> >  	 * Per the datasheet, the register is always interpreted as an even
-> >  	 * number, by rounding down. In other words, the LSB is ignored. So,
-> >  	 * if the LSB is set, increment the divider to avoid any issue.
-> >  	 */
-> >  	if (divider & 1)
-> >  		divider++;
-> > +	if (divider > BCM2835_I2C_CDIV_MAX)
-> > +		divider = BCM2835_I2C_CDIV_MAX;
-> >  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
-> 
-> I'm not clear on the motivation of this patch. If the bus_clk_rate is
-> something totally unreasonable (125MHz?  3.8KHz?) it seems like
-> something is misconfigured and we should at best just fail the probe.
-> Does this fix some particular problem you've run into?
 
-The motivation is to not allow wrong values to be written in CDIV.
-No, i was not able to fix my problem. I had to choose another clock rate.
-Failing the probe would be an alternative. The problem with failing
-is, when do we fail? I did not find values in the datasheet about what
-speeds are supported or not.
+--d01dLTUuW90fS44H
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, May 13, 2015 at 03:02:50PM +0200, Alexander Sverdlin wrote:
+> Sending a message to own address locks the controller up in very bizarre =
+state,
+> it behaves as slave even if MDR register clearly states master. The contr=
+oller
+
+Eeks...
+
+> =20
+> +	if (msg->addr =3D=3D DAVINCI_I2C_OWN_ADDRESS)
+> +		return -EIO;
+
+I think we should return at least -EADDRNOTAVAIL here. Otherwise the
+user might wonder if the slave is broken giving always IO errors. Maybe
+we should also add a warning message, I leave that decision to you.
+
+
+--d01dLTUuW90fS44H
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVbdBTAAoJEBQN5MwUoCm2aCAP/0o7O6sDMbVBM2jzfSeHD/7E
+f4UbfKOnfQPEk6Ej1WaU4PfQBFJzQM8gSZ+4JC0093CXrWbEC5ACqHXFrpcPmBxU
+NJQ+axynKp32TtF/BWgBuCl8ZLq/2cqHpyxDYMgFXSaZkd7kyx+Mh52keH1sH+QU
+nSBDNTiL9O5StB9pbIoSK6ytxT2hEv6oXcgitug3ifqaOldwYVBciWJNICTsba+l
+ijvjTxdiGLRdcsabYr9Xa5ZpNrNp8MuFK6P8AFtIgWcrybUZqOPbX30yEP0/npr9
+dnIcmf8nyaDrkhoauuF0hbTsTyfUELq2lUOGgQPeUeUlHRhVuj+kbZjiP55tIpVs
+3B7U7Sw+RhF5Y88d3iBMNUPvdN2Z19dfHRhPzxp7Pe9EghJ4Fahj7ginmdZWzYlY
+z11VbnqS9KtWIxLCU4ILwADHCeYA3eTXOI6CnO+eKAlHUTETG0v4sy8f9kxtiSgU
+UjLu7RhB/rmLSmZCICoZlncTQkF19Q/QEXb928gWPoc1KJm/bydq0efZ7jIXptLR
+J+t4xszMh+gh6uFh94bbrBQ3jDoeGPq57rM/xiy3So9vPjhelnOO3Lb0yXNi6y9/
+uDmvi80o0glSQllAviXuEWSKyu32YFzXssljeezKJ9DhHbGvNthZAlsIU99CDzdj
+S6wCZ2KFOhrtni+GG55b
+=k2VH
+-----END PGP SIGNATURE-----
+
+--d01dLTUuW90fS44H--
