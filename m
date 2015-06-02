@@ -1,143 +1,64 @@
 From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
-Date: Tue, 02 Jun 2015 22:10:19 +0530
-Message-ID: <556DDC73.9010702@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>	<1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org> <CACRpkdaxWsi8t6aUFJK-KCmQF1gEOLiOE8=fgDRxQDSi4G6FgQ@mail.gmail.com>
+Subject: Re: [PATCH 12/12] i2c: pxa: enable/disable i2c module across msg
+ xfer
+Date: Tue, 02 Jun 2015 22:22:19 +0530
+Message-ID: <556DDF43.4050804@linaro.org>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-13-git-send-email-vaibhav.hiremath@linaro.org> <20150528132312.GC2067@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdaxWsi8t6aUFJK-KCmQF1gEOLiOE8=fgDRxQDSi4G6FgQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20150528132312.GC2067-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
 
-On Tuesday 02 June 2015 06:42 PM, Linus Walleij wrote:
-> On Thu, May 28, 2015 at 3:03 PM, Vaibhav Hiremath
-> <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->
->> From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+On Thursday 28 May 2015 06:53 PM, Russell King - ARM Linux wrote:
+> On Thu, May 28, 2015 at 06:33:44PM +0530, Vaibhav Hiremath wrote:
+>> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 >>
->> Since there is some problematic i2c slave devices on some
->> platforms such as dkb (sometimes), it will drop down sda
->> and make i2c bus hang, at that time, it need to config
->> scl/sda into gpio to simulate "stop" sequence to recover
->> i2c bus, so add this interface.
+>> Enable i2c module/unit before transmission and disable when it finishes.
 >>
->> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->> Signed-off-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->> [vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated Changelog]
->> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->>
->> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> why?
+>> It's because the i2c bus may be distrubed if the slave device,
+>> typically a touch, powers on.
 >
-> Double signed-off?
+> "disturbed"
 >
-> (...)
-> +#include <linux/of_gpio.h>
->
-> You should use <linux/gpio/consumer.h> and then use
-> GPIO descriptors instead.
->
->> @@ -177,6 +179,9 @@ struct pxa_i2c {
->>          bool                    highmode_enter;
->>          unsigned int            ilcr;
->>          unsigned int            iwcr;
->> +       struct pinctrl          *pinctrl;
->> +       struct pinctrl_state    *pin_i2c;
->> +       struct pinctrl_state    *pin_gpio;
->
-> Yup that's the right way. I see this is the "default"
-> state for pin_i2c.
->
->> +static void i2c_bus_reset(struct pxa_i2c *i2c)
->> +{
->> +       int ret, ccnt, pins_scl, pins_sda;
->
-> Use GPIO descriptors.
->
-> struct gpio_desc *scl, *sda;
->
->> +       struct device *dev = i2c->adap.dev.parent;
->> +       struct device_node *np = dev->of_node;
->> +
->> +       if (!i2c->pinctrl) {
->> +               dev_warn(dev, "could not do i2c bus reset\n");
->> +               return;
->> +       }
->> +
->> +       ret = pinctrl_select_state(i2c->pinctrl, i2c->pin_gpio);
->> +       if (ret) {
->> +               dev_err(dev, "could not set gpio pins\n");
->> +               return;
->> +       }
->
-> Exactly like that yes.
->
->> +       pins_scl = of_get_named_gpio(np, "i2c-gpio", 0);
->> +       if (!gpio_is_valid(pins_scl)) {
->> +               dev_err(dev, "i2c scl gpio not set\n");
->> +               goto err_out;
->> +       }
->> +       pins_sda = of_get_named_gpio(np, "i2c-gpio", 1);
->> +       if (!gpio_is_valid(pins_sda)) {
->> +               dev_err(dev, "i2c sda gpio not set\n");
->> +               goto err_out;
->> +       }
->
-> I would suggest just using two GPIOs in the node relying
-> on index order. With GPIO descriptors:
->
-> scl = gpiod_get_index(dev, "i2c-gpio", 0, GPIOD_ASIS);
-> sda = gpiod_get_index(dev, "i2c-gpio", 1, GPIOD_ASIS);
->
-> Then use gpiod* accessors below and...
->
->> +
->> +       gpio_request(pins_scl, NULL);
->> +       gpio_request(pins_sda, NULL);
->> +
->> +       gpio_direction_input(pins_sda);
->> +       for (ccnt = 20; ccnt; ccnt--) {
->> +               gpio_direction_output(pins_scl, ccnt & 0x01);
->> +               udelay(5);
->> +       }
->> +       gpio_direction_output(pins_scl, 0);
->> +       udelay(5);
->> +       gpio_direction_output(pins_sda, 0);
->> +       udelay(5);
->> +       /* stop signal */
->> +       gpio_direction_output(pins_scl, 1);
->> +       udelay(5);
->> +       gpio_direction_output(pins_sda, 1);
->> +       udelay(5);
->> +
->> +       gpio_free(pins_scl);
->> +       gpio_free(pins_sda);
->
-> gpiod_put(scl);
-> gpiod_put(sda);
->
->> +err_out:
->> +       ret = pinctrl_select_state(i2c->pinctrl, i2c->pin_i2c);
->> +       if (ret)
->> +               dev_err(dev, "could not set default(i2c) pins\n");
->> +       return;
->
-> Nice.
->
-> Overall it looks like a real nice structured workaround using
-> the API exactly as intended, just need to catch up with
-> using GPIO descriptors.
+> I'd recommend that this is a DT property - not every platform is going to
+> want this, and as there is rudimentary I2C slave support in this driver,
+> this change breaks that.
 >
 
+I would take it as two different comments here, and I believe you also
+meant same,
 
-Thanks Linus,
+1. Not breaking I2C slave support
 
-I will work on this and submit V2 shortly.
+Not sure whether enabling/disabling module in ISR would suffice here.
+To be specific, in the functions i2c_pxa_slave_start() &
+i2c_pxa_slave_stop()
+
+
+Another important point is, I am not sure on validation part here, as
+the platform I have doesn't have multi masters on the bus.
+
+2. DT property
+
+I forsee conflict between, DT property and SLAVE mode of operation.
+where we may want to support master-&-slave together.
+
+Also, we may not need this if we fix I2C Slave support issue, but
+testing is challenge for me (atleast).
+
+
+
+Do you see any issues with first approach?
+if you are ok with first approach, I can change the code.
+
 
 Thanks,
 Vaibhav
