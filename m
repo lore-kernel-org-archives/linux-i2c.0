@@ -1,41 +1,77 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 04/12] i2c: pxa: Add support for pxa910/988 & new configuration
- features
-Date: Tue, 02 Jun 2015 10:31:38 +0530
-Message-ID: <556D38B2.2030704@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-5-git-send-email-vaibhav.hiremath@linaro.org> <4edfb7fe9edf4800e73c86a258fe4fd1@the-dreams.de>
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH v2 0/5] i2c: at91: add support to FIFOs and alternative
+ command
+Date: Tue, 2 Jun 2015 10:18:17 +0200
+Message-ID: <20150602081817.GM25118@odux.rfo.atmel.com>
+References: <cover.1433173031.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4edfb7fe9edf4800e73c86a258fe4fd1-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1433173031.git.cyrille.pitchen@atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Cc: ludovic.desroches@atmel.com, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, robh+dt@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Cyrille,
 
+Could you split the patch about the new alternative command mode?
 
-On Monday 01 June 2015 05:43 AM, Wolfram Sang wrote:
-> On 2015-05-28 22:03, Vaibhav Hiremath wrote:
->> From: "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->>
->> TWSI_ILCR & TWSI_IWCR registers are used to adjust clock rate
->> of standard & fast mode in pxa910/988; so this patch adds these two new
->> entries to "struct pxa_reg_layout" and "struct pxa_i2c" and also adds two
->> new DT properties to take configuration value for the same.
->
-> Mapping registers 1:1 to DT is nearly always wrong. We have some generic
-> bindings for SCL/SDA tweaking. Check
-> Documentation/devicetree/bindings/i2c/i2c-designware.txt for them and if
-> they match your needs. (Yes, they should be in a more generic place).
->
->
+Reading some comments in your code, you also fixes bad management of the
+interrupt flags. It would be great if we can send this as fixes for previous
+kernels.
 
+Thanks
 
-Thanks for your suggestion.
+Ludovic
 
-Let me check above documentation.
-
-Thanks,
-Vaibhav
+On Mon, Jun 01, 2015 at 05:49:10PM +0200, Cyrille Pitchen wrote:
+> ChangeLog
+> 
+> v2:
+> - fix typo in comment for AT91_TWI_SVEN.
+> - document new device tree bindings like "atmel,fifo-size".
+> - explicitly set the has_alt_cmd boolean to false to already existing chip
+> configs.
+> - use the BIT() macro to define the register bits and do a little cleanup in a
+> dedicated patch.
+> - reword some comments to better explain why the TXCOMP interrupt is no longer
+> enabled in at91_do_twi_transfer() but later in
+> at91_twi_write_data_dma_callback() to avoid a race condition when DMA is used.
+> - remove useless TXCOMP interrupt enable line in at91_twi_write_next_byte()
+> since this interrupt is also enabled by at91_do_twi_transfer() for PIO
+> transfers.
+> 
+> v1:
+> This series of patches adds support of two new features which will be
+> introduced with Atmel sama5d2x SoC.
+> 
+> First, the alternative command mode eases the sending of STOP conditions.
+> Before starting an I2C transaction, the size data to be transfered is
+> written into the new Alternative Command Register. For each byte transferred,
+> the I2C controller decreases this counter and automatically sends a STOP
+> condition when the counter value reaches 0, that is to say when the last byte
+> of the transaction has been sent/received. So there is no longer need to set
+> the STOP bit into the Control Register.
+> 
+> Then the use of FIFOs allows to reduce number I/O accesses: for instance,
+> the TX FIFO allows to write up to 4 data in a single access to the Transmit
+> Holding Register. Also the RX FIFO allows to read up to 4 data in a single
+> access to the Receive Holding Register. Currently only DMA transfers take
+> advantage of FIFOs.
+> 
+> Cyrille Pitchen (5):
+>   i2c: at91: use BIT() macro to define register bits
+>   i2c: at91: update documentation for DT bindings
+>   i2c: at91: add support for new alternative command mode
+>   i2c: at91: print hardware version
+>   i2c: at91: add support to FIFOs
+> 
+>  Documentation/devicetree/bindings/i2c/i2c-at91.txt |  29 +-
+>  drivers/i2c/busses/i2c-at91.c                      | 350 +++++++++++++++++----
+>  2 files changed, 318 insertions(+), 61 deletions(-)
+> 
+> -- 
+> 1.8.2.2
+> 
