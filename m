@@ -1,62 +1,37 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: davinci: Avoid sending to own address
-Date: Wed, 3 Jun 2015 00:48:36 +0900
-Message-ID: <20150602154835.GD2661@katana>
-References: <55534B7A.8070105@nokia.com>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 0/6] i2c: at91: add support to FIFOs and alternative
+ command
+Date: Tue, 2 Jun 2015 17:52:22 +0200
+Message-ID: <20150602155222.GB2806@odux.rfo.atmel.com>
+References: <cover.1433250713.git.cyrille.pitchen@atmel.com>
+ <20150602152647.GA2806@odux.rfo.atmel.com>
+ <20150602153622.GB2661@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d01dLTUuW90fS44H"
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <55534B7A.8070105-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20150602153622.GB2661@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Lawnick Michael 61283229 <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Jun 03, 2015 at 12:36:28AM +0900, Wolfram Sang wrote:
+> 
+> > If you send a new version, could you add stable in Cc to patch 3/6:
+> 
+> No need to send a new version just because of an additional ack. I can
+> apply that. However...
+> 
+> > Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org #3.10 and later
+> > If not, Wolfram could you do it please?
+> 
+> The problem with 3/6 is that it seems to depend on 1/6 which is a
+> cleanup patch. If cleaning up is not essential for the bugfix, the
+> latter should be done first. To avoid exactly this problem.
+> 
+> 
 
---d01dLTUuW90fS44H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, May 13, 2015 at 03:02:50PM +0200, Alexander Sverdlin wrote:
-> Sending a message to own address locks the controller up in very bizarre =
-state,
-> it behaves as slave even if MDR register clearly states master. The contr=
-oller
-
-Eeks...
-
-> =20
-> +	if (msg->addr =3D=3D DAVINCI_I2C_OWN_ADDRESS)
-> +		return -EIO;
-
-I think we should return at least -EADDRNOTAVAIL here. Otherwise the
-user might wonder if the slave is broken giving always IO errors. Maybe
-we should also add a warning message, I leave that decision to you.
-
-
---d01dLTUuW90fS44H
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVbdBTAAoJEBQN5MwUoCm2aCAP/0o7O6sDMbVBM2jzfSeHD/7E
-f4UbfKOnfQPEk6Ej1WaU4PfQBFJzQM8gSZ+4JC0093CXrWbEC5ACqHXFrpcPmBxU
-NJQ+axynKp32TtF/BWgBuCl8ZLq/2cqHpyxDYMgFXSaZkd7kyx+Mh52keH1sH+QU
-nSBDNTiL9O5StB9pbIoSK6ytxT2hEv6oXcgitug3ifqaOldwYVBciWJNICTsba+l
-ijvjTxdiGLRdcsabYr9Xa5ZpNrNp8MuFK6P8AFtIgWcrybUZqOPbX30yEP0/npr9
-dnIcmf8nyaDrkhoauuF0hbTsTyfUELq2lUOGgQPeUeUlHRhVuj+kbZjiP55tIpVs
-3B7U7Sw+RhF5Y88d3iBMNUPvdN2Z19dfHRhPzxp7Pe9EghJ4Fahj7ginmdZWzYlY
-z11VbnqS9KtWIxLCU4ILwADHCeYA3eTXOI6CnO+eKAlHUTETG0v4sy8f9kxtiSgU
-UjLu7RhB/rmLSmZCICoZlncTQkF19Q/QEXb928gWPoc1KJm/bydq0efZ7jIXptLR
-J+t4xszMh+gh6uFh94bbrBQ3jDoeGPq57rM/xiy3So9vPjhelnOO3Lb0yXNi6y9/
-uDmvi80o0glSQllAviXuEWSKyu32YFzXssljeezKJ9DhHbGvNthZAlsIU99CDzdj
-S6wCZ2KFOhrtni+GG55b
-=k2VH
------END PGP SIGNATURE-----
-
---d01dLTUuW90fS44H--
+I was thinking the same so I have tried to cherry-pick the patch on a 3.10.79
+and it didn't cause any conflicts so I thought it could be sent to stable as
+is.
