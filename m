@@ -1,54 +1,54 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
-Date: Wed, 3 Jun 2015 03:24:44 +0900
-Message-ID: <20150602182443.GH1494@katana>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org>
- <20150602173341.GA1494@katana>
- <556DEA90.3010001@linaro.org>
- <20150602174818.GC1494@katana>
- <556DEE6C.1060300@linaro.org>
- <20150602180217.GE1494@katana>
- <556DF0A0.30807@linaro.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OWHXb1mYLuhj1Ox"
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH-RESEND 0/3] i2c: core/pxa: Add support for hardware lock
+Date: Wed,  3 Jun 2015 00:15:28 +0530
+Message-ID: <1433270731-23790-1-git-send-email-vaibhav.hiremath@linaro.org>
+References: <vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <556DF0A0.30807-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+To justify the need for hardware lock, lets take a real usecase scenario -
+    
+In case of Marvell SoC, PXA910 silicon, both AP and CP are present and
+these two ARM cores are sharing one pair of I2C pins.
+    
+In order to keep I2C transaction operated with atomic, hardware lock
+(RIPC) is required.
+    
+This patch extends support for atomic operation by adding hardware lock support
+to the i2c-core.
 
---0OWHXb1mYLuhj1Ox
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+PATCH[1/3] : Core changes for hardware lock
+PATCH[2/3 & 3/3] : hardware lock support to i2c-pxa bus driver.
 
-Can you resend the hwlock patches? I use patchwork for tracking and
-those were sent when the server had a little downtime. Thanks!
+Link to previous post:
+http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02352.html
+http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02353.html
+http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02354.html
 
---0OWHXb1mYLuhj1Ox
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+TODO:
+  - DT node addition
+    I am using PXA1928 based platform which is still not available
+    in Mainline, so it is based on, below patch-series
+    Link to Rob's patches:
+     https://lkml.org/lkml/2015/5/1/14
+     https://lkml.org/lkml/2015/5/19/1206
+    PMIC 88pm860 support
+     http://www.spinics.net/lists/arm-kernel/msg422554.html
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Vaibhav Hiremath (3):
+  i2c: core: append hardware lock with bus lock
+  i2c: pxa: Add support for hardware lock
+  i2c: pxa: Add pin ctrl support for CP core access
 
-iQIcBAEBAgAGBQJVbfTrAAoJEBQN5MwUoCm236MQAKMx1MrHtFbRzRTXg+y64Wt4
-WNrd4FMXDcSWPbZILeK8z1z+JwCEifF06PBZ1X66zTw0KSZYRbmea4gvXWiBNdUs
-zSUWxGhwXEFKSWfULTk7sUHWguKiwD36MHFbAaGEzffzI0BZt5wSwhlfdda81DqX
-64HkttCYZipqKUz0mc+sSeV0qZdBWvmCFydufEKV+1vymsshio66evmD6yTCdY3n
-yqaocDaruGYlYxWA9UwVtsT7fmJG4XIWUJum34qGvwp1SxSRfzLMvkkKnvwYyjeU
-X3jZksKaS6lAry5fNDSnI4AZ3Tsd2W1VCUIrb0m06XRqWFZnSKjEwdxKPXsrbIsl
-pr2HUg5QxBwDPn1ZStJh2wcJR4eRYwidZYlKkY3Osfz7xwu9o8td/kNMQS3k4uh5
-e8/1IkbygINzVDhQtZ/NopCiH4CvT59PdswLlxG5qUp+LxNNzdCenyZvk1EmBwxi
-4+vTv+1ii81VQZnwIp19WFELu6ImZHf1ChSgA7G06ZKUNozzmRp/GBGclA4APObj
-/OaZx1mg5hNrOrm00DWLyud/e6GS5jF+iMKNsPFEwHUodgVgYVKayvMArlCmRPlp
-z4Jl9Ut27qY01C5AlTjehgOS2BjZv9VNXS3Ar5F17quI8/nN/xxa39vUbmbhJQpC
-UP2KlO8ou1HzurSD3okQ
-=uzll
------END PGP SIGNATURE-----
+ drivers/i2c/busses/i2c-pxa.c | 92 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-core.c       | 22 +++++++++--
+ include/linux/i2c.h          |  5 +++
+ include/linux/i2c/pxa-i2c.h  |  4 ++
+ 4 files changed, 119 insertions(+), 4 deletions(-)
 
---0OWHXb1mYLuhj1Ox--
+-- 
+1.9.1
