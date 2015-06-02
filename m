@@ -1,55 +1,68 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
-Date: Wed, 3 Jun 2015 02:48:19 +0900
-Message-ID: <20150602174818.GC1494@katana>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org>
- <20150602173341.GA1494@katana>
- <556DEA90.3010001@linaro.org>
+Subject: Re: [PATCH v2] i2c: designware: Avoid unnecessary resuming during
+ system suspend
+Date: Wed, 3 Jun 2015 02:55:33 +0900
+Message-ID: <20150602175532.GD1494@katana>
+References: <1432132393-693-1-git-send-email-jszhang@marvell.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ghzN8eJ9Qlbqn3iT"
+	protocol="application/pgp-signature"; boundary="AkbCVLjbJ9qUtAXD"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <556DEA90.3010001-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1432132393-693-1-git-send-email-jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ghzN8eJ9Qlbqn3iT
+--AkbCVLjbJ9qUtAXD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> I assume you are referring to "i2c_generic_gpio_recovery", right?
+On Wed, May 20, 2015 at 10:33:13PM +0800, Jisheng Zhang wrote:
+> Commit 1fc2fe204cb9 ("i2c: designware: Add runtime PM hooks") adds
+> runtime pm support using the same ops for system pm and runtime pm.
+> When suspend to ram, the i2c host may have been runtime suspended, thus
+> i2c_dw_disable() hangs.
 >=20
-> Rob had suggested this, and will be using it in my next version.
+> Previously, I fixed this issue by separating ops for system pm and
+> runtime pm, then in the system suspend/resume path, runtime pm apis are
+> used to ensure the device is at correct state.
+>=20
+> But as Mika Westerberg pointed out: it sounds a bit silly to resume the
+> device just because you want to call i2c_dw_disable() for it before
+> suspending again. He then suggested an elegant solution which keeps the
+> device runtime suspended during system suspend with the help of
+> 'dev->power.direct_complete'. This patch adopted this solution, and in
+> fact Mika provided the main code.
+>=20
+> Signed-off-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
-Great, thanks!
+Fixed the 80 char thingie and applied to for-next, thanks!
 
 
---ghzN8eJ9Qlbqn3iT
+--AkbCVLjbJ9qUtAXD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVbexiAAoJEBQN5MwUoCm2ILEP/0fEwbg2F7DTezGZERr80cvu
-A6rrb9gjWpkwNiIi/svwWQ5RKKB1RMpCTSKEcT7zAULp0fPRGjLASnWhK0R4uXJ8
-YaDhvx7QzOF41UP3fSbskigP3EDIbz2KADH5oW+v5ii74kNwtbwbnbtYSNHIhdM3
-Iqthkmm00Uzhx7aLFfgG/52Puxjxh0W1nKuMAycDMYJrWTCKwnfWtzxfwS7uFGAr
-48Xon5qvvJthEJK5Xj1W40naQNtuavGl/rfr2JgXLimptNFLem/6ONnl2sJc8Z6K
-A3r9XAcixbnJqG1OTGsIZLp0v4+/6qj3C2MTTxxs7jAVyhC3G7TqwTo8J2peXhdJ
-RpybMx5uY99SmtW1tuI6Kp8e7ga1BwEeMrPGQdMhPXgn3aIXrPOFsJxMirWdylu7
-PKOzcdYZO1+StpT8eWDncS8Wl/dzZbluUJa/+DiPaER2QP+V17CdrYM8sNcSVyJy
-VysrnJc3ZqMU33/z0DGH6Mt7LbPg++/Nl/9kM35gu6ZLHWcvZhFdqwesk6/ZKaDe
-7uCn7EGCZy6Fp9TO9rEu6xTUxXGrBketMR/9eQbTN65Z6cn5zVEo765zr7ZmPUAe
-BrC+3n8P6B1OpDULlYENgtu8Q1zKH18RbIR+78Wb6mVrq3yRqZ1TklE6jMbEkDMd
-IHhfrqTwXNZxZf0xhekq
-=tyVh
+iQIcBAEBAgAGBQJVbe4UAAoJEBQN5MwUoCm2b90P/ihr1lVQQav0/JRx6K9n/X8F
+zhbT+klu60a+YPwazGaurSLwaKWnd+GyVytPK617aKiOEGlgK4nFITFRBfFAR5AU
+D4d3vtcVKAt8emxyltJHOiP1XOrHfV+pj8vDW9+IouPDN5kJwuNnZKhElpSrJPe/
+ct+WsggxbpmaJPXOHwrmMt1ON/69qET6tOsM1JqyFvmbH8QkJmtIom0Z9nOR4dHu
+pZ0T3VKs8bHd6UIt6SOPmbWTLVWjo0Igs2oCU+qXi2m6vhHG0SVSnTqnyRnKoIom
+cGD9pXEd59B5OdiwWkmQgfvk3aid4Uoi9+B3bR2cHcaAqajyvToNTFPngmnln1jc
+zEavn0QJTjof1TOXj2QVnTweQTJjn/0kSVmy1TcCZ8t94bi/AI0eNgtJdey8Q6hO
+kkTP/Rs6po7mdl/JPQuR90ITDGYxv4FgUrPl7HAEKf0kfneyxB8oyw7b9dtrr1RX
+rI6836e9454vcMDnvwhXMNbxwdiozJOVIJfds9rgwH4drX02hT2Qlkt9r6g5oDPS
+2QFYrHNKUGWlQqiuRBrk2aANkY1kfFOquAbXeB3KqUZ2beZOFQnYE6pmm5wg20rq
++uRXJwMpzbbddQio9e0GsU8e6qjO1/3YbiA5RlzBlkacTXTC+hpEpLKnfeOI0s5M
+j9WtM2vVKcQ3YeQPjeR7
+=UbUg
 -----END PGP SIGNATURE-----
 
---ghzN8eJ9Qlbqn3iT--
+--AkbCVLjbJ9qUtAXD--
