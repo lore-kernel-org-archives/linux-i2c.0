@@ -1,77 +1,58 @@
-From: Ludovic Desroches <ludovic.desroches@atmel.com>
-Subject: Re: [PATCH v2 0/5] i2c: at91: add support to FIFOs and alternative
- command
-Date: Tue, 2 Jun 2015 10:18:17 +0200
-Message-ID: <20150602081817.GM25118@odux.rfo.atmel.com>
-References: <cover.1433173031.git.cyrille.pitchen@atmel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/21] On-demand device registration
+Date: Tue, 2 Jun 2015 10:48:50 +0200
+Message-ID: <CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>
+References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1433173031.git.cyrille.pitchen@atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cyrille Pitchen <cyrille.pitchen@atmel.com>
-Cc: ludovic.desroches@atmel.com, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, wsa@the-dreams.de, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, robh+dt@kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Grant Likely <grant.likely@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, Alexander Holler <holler@ahsoftware.de>, Dan Williams <dan.j.williams@intel.com>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.or
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Cyrille,
-
-Could you split the patch about the new alternative command mode?
-
-Reading some comments in your code, you also fixes bad management of the
-interrupt flags. It would be great if we can send this as fixes for previous
-kernels.
-
-Thanks
-
-Ludovic
-
-On Mon, Jun 01, 2015 at 05:49:10PM +0200, Cyrille Pitchen wrote:
-> ChangeLog
-> 
-> v2:
-> - fix typo in comment for AT91_TWI_SVEN.
-> - document new device tree bindings like "atmel,fifo-size".
-> - explicitly set the has_alt_cmd boolean to false to already existing chip
-> configs.
-> - use the BIT() macro to define the register bits and do a little cleanup in a
-> dedicated patch.
-> - reword some comments to better explain why the TXCOMP interrupt is no longer
-> enabled in at91_do_twi_transfer() but later in
-> at91_twi_write_data_dma_callback() to avoid a race condition when DMA is used.
-> - remove useless TXCOMP interrupt enable line in at91_twi_write_next_byte()
-> since this interrupt is also enabled by at91_do_twi_transfer() for PIO
-> transfers.
-> 
-> v1:
-> This series of patches adds support of two new features which will be
-> introduced with Atmel sama5d2x SoC.
-> 
-> First, the alternative command mode eases the sending of STOP conditions.
-> Before starting an I2C transaction, the size data to be transfered is
-> written into the new Alternative Command Register. For each byte transferred,
-> the I2C controller decreases this counter and automatically sends a STOP
-> condition when the counter value reaches 0, that is to say when the last byte
-> of the transaction has been sent/received. So there is no longer need to set
-> the STOP bit into the Control Register.
-> 
-> Then the use of FIFOs allows to reduce number I/O accesses: for instance,
-> the TX FIFO allows to write up to 4 data in a single access to the Transmit
-> Holding Register. Also the RX FIFO allows to read up to 4 data in a single
-> access to the Receive Holding Register. Currently only DMA transfers take
-> advantage of FIFOs.
-> 
-> Cyrille Pitchen (5):
->   i2c: at91: use BIT() macro to define register bits
->   i2c: at91: update documentation for DT bindings
->   i2c: at91: add support for new alternative command mode
->   i2c: at91: print hardware version
->   i2c: at91: add support to FIFOs
-> 
->  Documentation/devicetree/bindings/i2c/i2c-at91.txt |  29 +-
->  drivers/i2c/busses/i2c-at91.c                      | 350 +++++++++++++++++----
->  2 files changed, 318 insertions(+), 61 deletions(-)
-> 
-> -- 
-> 1.8.2.2
-> 
+T24gTW9uLCBNYXkgMjUsIDIwMTUgYXQgNDo1MyBQTSwgVG9tZXUgVml6b3NvCjx0b21ldS52aXpv
+c29AY29sbGFib3JhLmNvbT4gd3JvdGU6Cgo+IGhhdmUgbG9va2VkIGludG8gb3JkZXJlZCBwcm9i
+aW5nIGFzIGEKPiBiZXR0ZXIgd2F5IG9mIHNvbHZpbmcgdGhpcyB0aGFuIG1vdmluZyBub2RlcyBh
+cm91bmQgaW4gdGhlIERUIG9yIHBsYXlpbmcgd2l0aAo+IGluaXRjYWxsIGxldmVscy4KPgo+IFdo
+aWxlIHJlYWRpbmcgdGhlIHRocmVhZCBbMV0gdGhhdCBBbGV4YW5kZXIgSG9sbGVyIHN0YXJ0ZWQg
+d2l0aCBoaXMgc2VyaWVzIHRvCj4gbWFrZSBwcm9iaW5nIG9yZGVyIGRldGVybWluaXN0aWMsIGl0
+IG9jY3VycmVkIHRvIG1lIHRoYXQgaXQgc2hvdWxkIGJlIHBvc3NpYmxlCj4gdG8gYWNoaWV2ZSB0
+aGUgc2FtZSBieSByZWdpc3RlcmluZyBkZXZpY2VzIGFzIHRoZXkgYXJlIHJlZmVyZW5jZWQgYnkg
+b3RoZXIKPiBkZXZpY2VzLgoKVGhpcyBpcyBwcmV0dHkgY29vbCwgYnV0IGEgdG9vIGxvY2FsIHNv
+bHV0aW9uIHRvIGEgZ2xvYmFsIHByb2JsZW0uCgpEZWZlcnJlZCBwcm9iZSBhbmQgaW5pdGNhbGwg
+cmVvcmRlcmluZywgc2lsbHkgYXMgdGhleSBtYXkgc2VlbSwKZG9lcyBub3QgcmVxdWlyZSB5b3Ug
+dG8gdXNlIGRldmljZSB0cmVlLgoKVGhlIHJlYWwgc29sdXRpb24sIHdoaWNoIEkgdGhpbmsgSSBw
+b2ludGVkIG91dCBhbHJlYWR5IHdoZW4gd2UKYWRkZWQgZGVmZXJyZWQgcHJvYmUsIGlzIHRvIHB1
+dCBkZXBlbmRlbmN5IGdyYXBocyBpbiB0aGUgZHJpdmVycwphbmQgaGF2ZSB0aGUga2VybmVsIGRl
+dmljZSBkcml2ZXIgY29yZSBwZXJjb2xhdGUgZGVwZW5kZWNpZXMgYnkKd2Fsa2luZyB0aGUgZ3Jh
+cGggb24gcHJvYmluZyBkcml2ZXIsIHJlbW92aW5nIGRyaXZlciAodXN1YWxseSB0aGUKaW52ZXJz
+ZSB1c2UgY2FzZSksIFtydW50aW1lXSBzdXNwZW5kIGFuZCBbcnVudGltZV0gcmVzdW1laW5nCmEg
+ZHJpdmVyLiBQb3NzaWJseSB0aGUgZGVwZW5kZW5jaWVzIHdpbGwgZXZlbiBiZSBkaWZmZXJlbnQK
+ZGVwZW5kaW5nIG9uIHVzZSBjYXNlLgoKVGhpcyBpcyB3aGF0IHN5c3RlbWQgaXMgZG9pbmcgaW4g
+dXNlcnNwYWNlIGZvciBzdGFydGluZyBzZXJ2aWNlczoKYXNrIGZvciB5b3VyIGRlcGVuZGVuY2ll
+cyBhbmQgd2FpdCBmb3IgdGhlbSBpZiB0aGV5IGFyZSBub3QKdGhlcmUuIFNvIGRyaXZlcnMgYXNr
+IGZvciByZXNvdXJjZXMgYW5kIHdhaXQgZm9yIHRoZW0uIEl0IGFsc28KbmVlZHMgdG8gYmUgYWJz
+dHJhY3QsIHNvIGZvciBleGFtcGxlIHdlIG5lZWQgdG8gYmUgYWJsZSB0bwpoYW5nIG9uIHJlZ3Vs
+YXRvcl9nZXQoKSB1bnRpbCB0aGUgZHJpdmVyIGlzIHVwIGFuZCBwcm92aWRpbmcgdGhhdApyZWd1
+bGF0b3IsIGFuZCBhcyBsb25nIGFzIGV2ZXJ5dGhpbmcgaXMgaW4gc2xvd3BhdGggaXQgc2hvdWxk
+CmJlIE9LLiAoQW5kIHZpY2UgdmVyc2EgbXV0YXRpcyBtdXRhbmRpcyBmb3IgY2xrLCBncGlvLCBw
+aW4KY29udHJvbCwgaW50ZXJydXB0cyAoISkgYW5kIERNQSBjaGFubmVscyBmb3IgZXhhbXBsZS4p
+CgoKU28gaWYgdGhpcyBzaG91bGQgYmUgc29sdmVkIGl0IHNob3VsZCBiZSBzb2x2ZWQgaW4gYW4g
+YWJzdHJhY3Qgd2F5CmluIHRoZSBkZXZpY2UgZHJpdmVyIGNvcmUgYXZhaWxhYmxlIGZvciBhbGws
+IHRoZW4gaGF2ZSBjYWxscyBjYWxsaW5nCm91dCB0byBEVCwgQUNQSSwgcG9zc2libHkgZXZlbiBQ
+Q0kgb3IgVVNCIChhcyB0aGVzZQplbnVtZXJhdGUgZGV2aWNlcyB0aGVtc2VsdmVzKSB0byBvYnRh
+aW4gYSBjZXJ0YWluCmRlcGVuZGVuY3kuCgpZb3VycywKTGludXMgV2FsbGVpagpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBs
+aXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cDovL2xpc3RzLmZyZWVkZXNr
+dG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
