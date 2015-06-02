@@ -1,37 +1,79 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 0/6] i2c: at91: add support to FIFOs and alternative
- command
-Date: Tue, 2 Jun 2015 17:52:22 +0200
-Message-ID: <20150602155222.GB2806@odux.rfo.atmel.com>
-References: <cover.1433250713.git.cyrille.pitchen@atmel.com>
- <20150602152647.GA2806@odux.rfo.atmel.com>
- <20150602153622.GB2661@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()
+Date: Wed, 3 Jun 2015 00:53:45 +0900
+Message-ID: <20150602155344.GE2661@katana>
+References: <55534BA0.3000506@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sfyO1m2EN8ZOtJL6"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150602153622.GB2661@katana>
+In-Reply-To: <55534BA0.3000506-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Lawnick Michael 61283229 <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 03, 2015 at 12:36:28AM +0900, Wolfram Sang wrote:
-> 
-> > If you send a new version, could you add stable in Cc to patch 3/6:
-> 
-> No need to send a new version just because of an additional ack. I can
-> apply that. However...
-> 
-> > Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org #3.10 and later
-> > If not, Wolfram could you do it please?
-> 
-> The problem with 3/6 is that it seems to depend on 1/6 which is a
-> cleanup patch. If cleaning up is not essential for the bugfix, the
-> latter should be done first. To avoid exactly this problem.
-> 
-> 
 
-I was thinking the same so I have tried to cherry-pick the patch on a 3.10.79
-and it didn't cause any conflicts so I thought it could be sent to stable as
-is.
+--sfyO1m2EN8ZOtJL6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, May 13, 2015 at 03:03:28PM +0200, Alexander Sverdlin wrote:
+> There are several problems in the function:
+> - "to_cnt" variable does nothing
+> - schedule_timeout() call without setting current state does nothing
+> - "allow_sleep" parameter is not really used
+>=20
+> Refactor the function so that it really tries to wait. In case of timeout=
+ try
+> to recover the bus.
+>=20
+> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+
+Don't you get a build warning?
+
+drivers/i2c/busses/i2c-davinci.c: In function 'i2c_davinci_wait_bus_not_bus=
+y':
+drivers/i2c/busses/i2c-davinci.c:364:18: warning: passing argument 1 of 'i2=
+c_recover_bus' from incompatible pointer type
+  i2c_recover_bus(dev);
+                  ^
+In file included from drivers/i2c/busses/i2c-davinci.c:26:0:
+include/linux/i2c.h:446:5: note: expected 'struct i2c_adapter *' but argume=
+nt is of type 'struct davinci_i2c_dev *'
+ int i2c_recover_bus(struct i2c_adapter *adap);
+
+Or sparse complains, too:
+
+drivers/i2c/busses/i2c-davinci.c:364:25: warning: incorrect type in argumen=
+t 1 (different base types)
+drivers/i2c/busses/i2c-davinci.c:364:25:    expected struct i2c_adapter *ad=
+ap
+drivers/i2c/busses/i2c-davinci.c:364:25:    got struct davinci_i2c_dev *dev
+
+
+--sfyO1m2EN8ZOtJL6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVbdGIAAoJEBQN5MwUoCm2N8kP/R8lCaJLWFDxSDKO1QTPcUQt
+oe35mng6heivpvPoGaA1ysb+iFTz2T5LAx/Q/qtpgATS63JxfQ50tpordoSpX3x7
+oriMeqRUpXeAn4Vz5SjSp5pEo8e06aU+mk+vNqwqAlaEMl4cUW+tOG00C46ut6Gp
+gs6fw9tgSOuldk/OcFaJ2ev8mztuua/CBjOqFxUENAoRk/3vlmGsSjx9M4VqgDp9
+uPnc45COOj9C39kgsBpRXehU4K/vvd5tCczceDaiBfXfZhMga7eqYn6o8AMPHGaY
+12D/oFmhGLiHSESbQmGnCR3DQ/n30EB7Q5HhCslLoHjvcGg140yoyxCJRpypN+R+
+ycCQhq4JYYglu+ZfHDyKcpV1vD2CWaWEU0Jc5qXkgJjxiL14yK2yXtbooUMyiIJY
+5m6YiXJp1awZtx9QLTzxTwQ2+D/vOctBKIWT7I5j1W3ILA1vwwfIncSFcMe7Mwer
+nMcwLekBqIpaWxas/V5/F6SciwUZ9I7JPaHK0KAdC9lxVRXIBgM5tC5zwqFveYTX
+LhK3qbkNuGjKyGauD0kYBGw0An5zR7/d6QO+0P2XuVZwnfOau59eN2KkKTwpw7+t
+Ts/jZ7m7TFaHzB8a8F5YZh1ugdBAaDwPvWdqft8xik5lr7+S/8k9imm4qyRqZUZx
+fneL+700EvB0eXL3LeHV
+=tRwb
+-----END PGP SIGNATURE-----
+
+--sfyO1m2EN8ZOtJL6--
