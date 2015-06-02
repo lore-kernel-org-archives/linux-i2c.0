@@ -1,189 +1,41 @@
-From: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 3/6] i2c: at91: fix a race condition when using the DMA controller
-Date: Tue, 2 Jun 2015 15:18:33 +0200
-Message-ID: <8303836b27312fc450c300701bb005c1bd52c272.1433250713.git.cyrille.pitchen@atmel.com>
-References: <cover.1433250713.git.cyrille.pitchen@atmel.com>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v3 5/6] i2c: at91: print hardware version
+Date: Tue, 02 Jun 2015 17:37:34 +0300
+Message-ID: <556DBFAE.3030502@cogentembedded.com>
+References: <cover.1433250713.git.cyrille.pitchen@atmel.com> <0634557b81f0c255411b2f64d78d570267d53b63.1433250713.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1433250713.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <0634557b81f0c255411b2f64d78d570267d53b63.1433250713.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-For TX transactions, the TXCOMP bit in the Status Register is cleared
-when the first data is written into the Transmit Holding Register.
+Hello.
 
-In the lines from at91_do_twi_transfer():
-at91_twi_write_data_dma(dev);
-at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_TXCOMP);
+On 6/2/2015 4:18 PM, Cyrille Pitchen wrote:
 
-the TXCOMP interrupt may be enabled before the DMA controller has
-actually started to write into the THR. In such a case, the TXCOMP bit
-is still set into the Status Register so the interrupt is triggered
-immediately. The driver understands that a transaction completion has
-occurred but this transaction hasn't started yet. Hence the TXCOMP
-interrupt is no longer enabled by at91_do_twi_transfer() but instead
-by at91_twi_write_data_dma_callback().
+> The probe() function now prints the hardware version of the I2C
+> controller.
 
-Also, the TXCOMP bit in the Status Register in not a clear on read flag
-but a snapshot of the transmission state at the time the Status
-Register is read.
-When a NACK error is dectected by the I2C controller, the TXCOMP, NACK
-and TXRDY bits are set together to 1 in the SR. If enabled, the TXCOMP
-interrupt is triggered at the same time. Also setting the TXRDY to 1
-triggers the DMA controller to write the next data into the THR. Such
-a write resets the TXCOMP bit to 0 in the SR. So depending on when the
-interrupt handler reads the SR, it may fail to detect the NACK error
-if it relies on the TXCOMP bit. The NACK bit and its interrupt should
-be used instead.
+> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> ---
+>   drivers/i2c/busses/i2c-at91.c | 4 ++++
+>   1 file changed, 4 insertions(+)
 
-For RX transactions, the TXCOMP bit in the Status Register is cleared
-when the START bit is set into the Control Register. However to unify
-the management of the TXCOMP bit when the DMA controller is used, the
-TXCOMP interrupt is now enabled by the DMA callbacks for both TX and
-RX transfers.
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 67b4f15..340ce2e 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+[...]
+> @@ -872,6 +874,8 @@ static int at91_twi_probe(struct platform_device *pdev)
+>   			return rc;
+>   	}
+>
+> +	dev_info(dev->dev, "version: 0x%x\n", at91_twi_read(dev, AT91_TWI_VER));
 
-Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c | 70 ++++++++++++++++++++++++++++++++-----------
- 1 file changed, 53 insertions(+), 17 deletions(-)
+    Use "%#x" instead please -- it's shorter.
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 6344942..0e88b68 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -66,6 +66,9 @@
- #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
- #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
- 
-+#define	AT91_TWI_INT_MASK \
-+	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK)
-+
- #define	AT91_TWI_IER		0x0024	/* Interrupt Enable Register */
- #define	AT91_TWI_IDR		0x0028	/* Interrupt Disable Register */
- #define	AT91_TWI_IMR		0x002c	/* Interrupt Mask Register */
-@@ -120,13 +123,12 @@ static void at91_twi_write(struct at91_twi_dev *dev, unsigned reg, unsigned val)
- 
- static void at91_disable_twi_interrupts(struct at91_twi_dev *dev)
- {
--	at91_twi_write(dev, AT91_TWI_IDR,
--		       AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY);
-+	at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_INT_MASK);
- }
- 
- static void at91_twi_irq_save(struct at91_twi_dev *dev)
- {
--	dev->imr = at91_twi_read(dev, AT91_TWI_IMR) & 0x7;
-+	dev->imr = at91_twi_read(dev, AT91_TWI_IMR) & AT91_TWI_INT_MASK;
- 	at91_disable_twi_interrupts(dev);
- }
- 
-@@ -216,6 +218,14 @@ static void at91_twi_write_data_dma_callback(void *data)
- 	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg),
- 			 dev->buf_len, DMA_TO_DEVICE);
- 
-+	/*
-+	 * When this callback is called, THR/TX FIFO is likely not to be empty
-+	 * yet. So we have to wait for TXCOMP or NACK bits to be set into the
-+	 * Status Register to be sure that the STOP bit has been sent and the
-+	 * transfer is completed. The NACK interrupt has already been enabled,
-+	 * we just have to enable TXCOMP one.
-+	 */
-+	at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_TXCOMP);
- 	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
- }
- 
-@@ -310,7 +320,7 @@ static void at91_twi_read_data_dma_callback(void *data)
- 	/* The last two bytes have to be read without using dma */
- 	dev->buf += dev->buf_len - 2;
- 	dev->buf_len = 2;
--	at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_RXRDY);
-+	at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_RXRDY | AT91_TWI_TXCOMP);
- }
- 
- static void at91_twi_read_data_dma(struct at91_twi_dev *dev)
-@@ -371,7 +381,7 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
- 	/* catch error flags */
- 	dev->transfer_status |= status;
- 
--	if (irqstatus & AT91_TWI_TXCOMP) {
-+	if (irqstatus & (AT91_TWI_TXCOMP | AT91_TWI_NACK)) {
- 		at91_disable_twi_interrupts(dev);
- 		complete(&dev->cmd_complete);
- 	}
-@@ -385,6 +395,34 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 	unsigned long time_left;
- 	bool has_unre_flag = dev->pdata->has_unre_flag;
- 
-+	/*
-+	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
-+	 * read flag but shows the state of the transmission at the time the
-+	 * Status Register is read. According to the programmer datasheet,
-+	 * TXCOMP is set when both holding register and internal shifter are
-+	 * empty and STOP condition has been sent.
-+	 * Consequently, we should enable NACK interrupt rather than TXCOMP to
-+	 * detect transmission failure.
-+	 *
-+	 * Besides, the TXCOMP bit is already set before the i2c transaction
-+	 * has been started. For read transactions, this bit is cleared when
-+	 * writing the START bit into the Control Register. So the
-+	 * corresponding interrupt can safely be enabled just after.
-+	 * However for write transactions managed by the CPU, we first write
-+	 * into THR, so TXCOMP is cleared. Then we can safely enable TXCOMP
-+	 * interrupt. If TXCOMP interrupt were enabled before writing into THR,
-+	 * the interrupt handler would be called immediately and the i2c command
-+	 * would be reported as completed.
-+	 * Also when a write transaction is managed by the DMA controller,
-+	 * enabling the TXCOMP interrupt in this function may lead to a race
-+	 * condition since we don't know whether the TXCOMP interrupt is enabled
-+	 * before or after the DMA has started to write into THR. So the TXCOMP
-+	 * interrupt is enabled later by at91_twi_write_data_dma_callback().
-+	 * Immediately after in that DMA callback, we still need to send the
-+	 * STOP condition manually writing the corresponding bit into the
-+	 * Control Register.
-+	 */
-+
- 	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
- 		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
- 
-@@ -415,26 +453,24 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		 * seems to be the best solution.
- 		 */
- 		if (dev->use_dma && (dev->buf_len > AT91_I2C_DMA_THRESHOLD)) {
-+			at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_NACK);
- 			at91_twi_read_data_dma(dev);
--			/*
--			 * It is important to enable TXCOMP irq here because
--			 * doing it only when transferring the last two bytes
--			 * will mask NACK errors since TXCOMP is set when a
--			 * NACK occurs.
--			 */
--			at91_twi_write(dev, AT91_TWI_IER,
--			       AT91_TWI_TXCOMP);
--		} else
-+		} else {
- 			at91_twi_write(dev, AT91_TWI_IER,
--			       AT91_TWI_TXCOMP | AT91_TWI_RXRDY);
-+				       AT91_TWI_TXCOMP |
-+				       AT91_TWI_NACK |
-+				       AT91_TWI_RXRDY);
-+		}
- 	} else {
- 		if (dev->use_dma && (dev->buf_len > AT91_I2C_DMA_THRESHOLD)) {
-+			at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_NACK);
- 			at91_twi_write_data_dma(dev);
--			at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_TXCOMP);
- 		} else {
- 			at91_twi_write_next_byte(dev);
- 			at91_twi_write(dev, AT91_TWI_IER,
--				AT91_TWI_TXCOMP | AT91_TWI_TXRDY);
-+				       AT91_TWI_TXCOMP |
-+				       AT91_TWI_NACK |
-+				       AT91_TWI_TXRDY);
- 		}
- 	}
- 
--- 
-1.8.2.2
+WBR, Sergei
