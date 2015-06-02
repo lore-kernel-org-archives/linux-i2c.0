@@ -1,57 +1,56 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 12/12] i2c: pxa: enable/disable i2c module across msg
- xfer
-Date: Tue, 02 Jun 2015 22:29:23 +0530
-Message-ID: <556DE0EB.1010609@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-13-git-send-email-vaibhav.hiremath@linaro.org> <20150528132312.GC2067@n2100.arm.linux.org.uk> <556DDF43.4050804@linaro.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
+Date: Wed, 3 Jun 2015 02:33:41 +0900
+Message-ID: <20150602173341.GA1494@katana>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <556DDF43.4050804-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1432818224-17070-6-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tuesday 02 June 2015 10:22 PM, Vaibhav Hiremath wrote:
->
->
-> On Thursday 28 May 2015 06:53 PM, Russell King - ARM Linux wrote:
->> On Thu, May 28, 2015 at 06:33:44PM +0530, Vaibhav Hiremath wrote:
->>> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->>>
->>> Enable i2c module/unit before transmission and disable when it finishes.
->>>
->>> why?
->>> It's because the i2c bus may be distrubed if the slave device,
->>> typically a touch, powers on.
->>
->> "disturbed"
->>
->> I'd recommend that this is a DT property - not every platform is going to
->> want this, and as there is rudimentary I2C slave support in this driver,
->> this change breaks that.
->>
->
-> I would take it as two different comments here, and I believe you also
-> meant same,
->
-> 1. Not breaking I2C slave support
->
-> Not sure whether enabling/disabling module in ISR would suffice here.
-> To be specific, in the functions i2c_pxa_slave_start() &
-> i2c_pxa_slave_stop()
->
->
 
-Please ignore this option, as enable is important to generate interrupt
-on slave start.
+> Since there is some problematic i2c slave devices on some
+> platforms such as dkb (sometimes), it will drop down sda
+> and make i2c bus hang, at that time, it need to config
+> scl/sda into gpio to simulate "stop" sequence to recover
+> i2c bus, so add this interface.
 
-I will add DT property with clear note on SLAVE support issue, so that
-it can be disabled and SLAVE support should work as is.
+Please note that the i2c core has a bus recovery infrastructure.
+Search i2c.h for struct i2c_bus_recovery_info.
 
-Thanks,
-Vaibhav
+
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVbej1AAoJEBQN5MwUoCm2LgsP/AsF0VvWSOIaCPzM7lVdxrDx
+G8kZ1ji1b1sqq+qcAfvKj5V7supJaVMWzxWfeSSPVVDxtpo+IKqWEjJaYW5E3sHN
+ieDHC5ZoPjsU80Weh0nmVH8iVEGdj0rY9kLV/8Gak/hOaHw3wGbFsr7ocoacvTiz
+Lrm0HLoLRxnBQnIwstf4BatDWt819Oruh/hP6xTjWsTeYpil0p87+iSaPYtnEATV
+E2fRFke8Gpi1sUIPDixVcOdHi0iTXzsQMMHXzLPxHkLdISKdDvkAaXVjAEAw/Yah
+PJvVlQ9wgIbQU6bk2+eyxxU5KacOAtRxQwf4GlSfoMg1AtUNqWw+tXh0QUHggLxm
+1LJDOQT9f65prSjOlIT5DiXvkJEl8ni9zRPkK90r/M4I3+5/1+iFfC65sCYI4CTE
+JtHgxEOvzyTjtH+EQLAWEnJ1cUHmoVt8OH1oKtDT2GEiLl/VPj3xG6BKA0pCMlPQ
+lM+zvYekkSHtoDOR79sY2tyJ9If45m0QEdJgTUMMINwvslkSMbYO/zoitWfTDrP9
+8Z1BC0BiafEyktsGwO71bkZROWqos/u8xrL7FoUk4ul4+SNEKlHOJIMjMai+8QES
+h+yMiWv+duSkwOuohHsOyzIITIWP0jIImxsyU8rh3zfREPJEv5AbmtCcpalRg0gk
+MnD5XQDLrklgYjCluzyk
+=5Nbz
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--
