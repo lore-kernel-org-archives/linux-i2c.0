@@ -1,56 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
-Date: Wed, 3 Jun 2015 03:02:18 +0900
-Message-ID: <20150602180217.GE1494@katana>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org>
- <20150602173341.GA1494@katana>
- <556DEA90.3010001@linaro.org>
- <20150602174818.GC1494@katana>
- <556DEE6C.1060300@linaro.org>
+Subject: Re: [PATCH v2] i2c: iproc: Add suspend/resume support
+Date: Wed, 3 Jun 2015 03:05:38 +0900
+Message-ID: <20150602180537.GF1494@katana>
+References: <1431642964-6948-1-git-send-email-rjui@broadcom.com>
+ <1431642964-6948-2-git-send-email-rjui@broadcom.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vv4Sf/kQfcwinyKX"
+	protocol="application/pgp-signature"; boundary="yH1ZJFh+qWm+VodA"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <556DEE6C.1060300-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1431642964-6948-2-git-send-email-rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---vv4Sf/kQfcwinyKX
+--yH1ZJFh+qWm+VodA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, May 14, 2015 at 03:36:04PM -0700, Ray Jui wrote:
+> Add suspend/resume support to the Broadcom iProc I2C driver
+>=20
+> Signed-off-by: Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+
+Applied to for-next, thanks!
 
 
-> can you please also review the RFC which I submitted few days back?
-
-They are added to the queue and will be reviewed when the time comes. I
-won't make any promises.
-
-
---vv4Sf/kQfcwinyKX
+--yH1ZJFh+qWm+VodA
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVbe+pAAoJEBQN5MwUoCm2wM8P/jr5sKxKBiX5TZhm5QPjqpEC
-qw540EOoxlh1BzQ6zCCa29qQthsbnBFV2l1dkWp+SduO0Ih/55YmHJ6rOEwW8SPO
-ZqYJuzDyejOiG/6BvHBKAUnmtIJKdCf4duPfLwWidB0vU+f6GN7P2hke1eYy+F75
-iupOpPYNST2wNq0ZgBm+jwnkkJ0uzxTQv2riDf/KOAmVlvjMKQRSYl/EWpcu+egg
-4MW0XTrh5mcT1VFiZ700gUqQX4fcUFMG49KIABGbADjlS1/KbxWStJJ9lnBaiMTQ
-WY70x35BwlvgORG3zzR9ekTiBdORofxjugTEVHW6Jy7gwoE+OTjmEqh/QvVyErS2
-4E7CuaCm5CzxPmuidARGhyxCiQqT6ihNYKZeKnV0wZMttJGp84VnCIBVrHGFo4wo
-qo/aUh2oosUvEGxzJ55djz3IhjK3RZNXQHtzvYhb+vczlvJmjKiUfG3AhnsTPxQJ
-rN/dFaG6oohg+cdbsYhfW23b5umcLkWMSMlKZ+QlDRsl0nx9MNFW0h7LNxmeRoIq
-tE6wbyAi0ISKAqGeZ54VMXiGWLKVhepCBGlZ+bD8Naaq5sUEWhLP42ehSDB69JEC
-Y9USBx1iyZcqWznEPzXOfBkZN6TmCMr2D+V2CdQjWYaouHeDs1aZQ8jNF0wHrGhd
-3U2OzyEna1855JMMXSrV
-=rLBH
+iQIcBAEBAgAGBQJVbfBxAAoJEBQN5MwUoCm28u0QALNQFK/0vddBRvldzd65BxTd
+z4qFKosZIjwMplQ0ej9CEiztuy+xPU9wXpPtw181GGRxu8Tz3Q0gAT+715Pi22ZY
+TzYquv30MSsR2SaKNcdKFmVgh9F3qdKhFXd7r1DCjWTsJPNAVXt5fmqbbU0NdIZI
+4LTJnQXBv4puPsv1D1d3B0ND3SSIMRA/ZAhpkCVZ8ETYekyA23DhQRFigMv8rbEd
+39jY1a9ZUgAtd8rTn51/P3bILamWEH8/J/4OdyutoiF/OZPXhevDEKmutCl1f+UE
+uPdDxNledtPW4s3BHbowLct+CbZ+o6CmPS0+MUuznJLmoRRExaGwGTIZzchT/Coa
+vklrHYaaRxAWxyC1tu1y6XF2PRrBy4G1M31QHNldodR54cecbKIbIh9oSCDbYbGD
+2q4AOiwkHwCi31/eexGQLMLCUEx58j5xTQN0amtmnbpT3TcW9jLSmsuuBNolcdmK
+Mk3i+zOaH0sT39OUYvjZDFtvOQoj0IntrwQoCyyZAMMnyTiWyheH52S67H8pyidN
+ySf1E5J1Fti4WouD5ouf+uiBuvytOdc1CpzRCj3A24cqmzNPfxsd5zVSdljq5eLi
+U9OtlYKGHI9je4Bwt+cb0GWQCk8g3QMEXnlaRHC9hot+b2KDdvxRwhIiMC8XR/pD
+fsSHQcQkaHlPbenuS74x
+=+r/W
 -----END PGP SIGNATURE-----
 
---vv4Sf/kQfcwinyKX--
+--yH1ZJFh+qWm+VodA--
