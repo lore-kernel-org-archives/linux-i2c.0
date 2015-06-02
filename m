@@ -1,56 +1,78 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: axxia: Add bus recovery functionality
-Date: Wed, 3 Jun 2015 00:40:48 +0900
-Message-ID: <20150602154047.GC2661@katana>
-References: <5553136E.2000408@nokia.com>
+From: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: busses: i2c-bcm2835: limits cdiv to allowed
+ values
+Date: Tue, 2 Jun 2015 17:45:06 +0200
+Message-ID: <20150602154506.GA2341@jessie.tinag.lan>
+References: <1432895204-19924-1-git-send-email-linux_wi@tinag.ch>
+ <87pp5f5mlw.fsf@eliezer.anholt.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eRtJSFbw+EEWtPj3"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5553136E.2000408-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <87pp5f5mlw.fsf-omZaPlIz5HhaEpDpdNBo/KxOck334EZe@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, "ext Berg, Anders O" <anders.berg-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wilshire Jay <jay.wilshire.ext-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Lawnick Michael <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jun 01, 2015 at 11:07:07AM -0700, Eric Anholt wrote:
+> Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org> writes:
+> 
+> > Adds: make sure bits 16-31 of DIV register are always 0
+> > Adds: assume minimal divider of 2 if divider resulted in 0
+> >       (bcm2835 sets divider to 32768 if cdiv is set to 0)
+> >
+> > See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
+> > https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+> >
+> > Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-bcm2835.c | 13 +++++++++++++
+> >  1 file changed, 13 insertions(+)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+> > index c9336a3..8195b04 100644
+> > --- a/drivers/i2c/busses/i2c-bcm2835.c
+> > +++ b/drivers/i2c/busses/i2c-bcm2835.c
+> > @@ -50,6 +50,9 @@
+> >  #define BCM2835_I2C_S_CLKT	BIT(9)
+> >  #define BCM2835_I2C_S_LEN	BIT(10) /* Fake bit for SW error reporting */
+> >  
+> > +#define BCM2835_I2C_CDIV_MIN	0x0002
+> > +#define BCM2835_I2C_CDIV_MAX	0xFFFE
+> > +
+> >  #define BCM2835_I2C_TIMEOUT (msecs_to_jiffies(1000))
+> >  
+> >  struct bcm2835_i2c_dev {
+> > @@ -252,12 +255,22 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+> >  
+> >  	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk), bus_clk_rate);
+> >  	/*
+> > +	 * Divider results in 0 by extremely high bus_clk_rate values
+> > +	 * such as bus_clk_rate >= 4044967297 and core_clock = 250MHz.
+> > +	 * In such a case assume the minimal possible divider since
+> > +	 * bcm2835 chip sets divisor internally to 32768 if cdiv is 0.
+> > +	 */
+> > +	if (divider < BCM2835_I2C_CDIV_MIN)
+> > +		divider = BCM2835_I2C_CDIV_MIN;
+> > +	/*
+> >  	 * Per the datasheet, the register is always interpreted as an even
+> >  	 * number, by rounding down. In other words, the LSB is ignored. So,
+> >  	 * if the LSB is set, increment the divider to avoid any issue.
+> >  	 */
+> >  	if (divider & 1)
+> >  		divider++;
+> > +	if (divider > BCM2835_I2C_CDIV_MAX)
+> > +		divider = BCM2835_I2C_CDIV_MAX;
+> >  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
+> 
+> I'm not clear on the motivation of this patch. If the bus_clk_rate is
+> something totally unreasonable (125MHz?  3.8KHz?) it seems like
+> something is misconfigured and we should at best just fail the probe.
+> Does this fix some particular problem you've run into?
 
---eRtJSFbw+EEWtPj3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, May 13, 2015 at 11:03:42AM +0200, Alexander Sverdlin wrote:
-> Use recovery framework and implement bus recovery using "Bus Monitor" reg=
-ister.
-> Tests show that shortening SDA to GND results in "completion" timeout with
-> "BUSY" bit still set, so initiate recovery in this case.
->=20
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-
-Applied to for-next, thanks!
-
-
---eRtJSFbw+EEWtPj3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVbc5/AAoJEBQN5MwUoCm253UP/R0pcs/4dCdUnkSfPXZ5d09z
-9JOv08UpboTgF4j5XjwtUaNrqj29arnfvoO5z/7hkr0Uy6o7qxxyRjb4vuTbhoww
-SG+CZ1rtwnWoBLMEYkAwSRh7keUbOFgRno7DK/+mB1vQuYyC0o65Y9fBDzTDFL7U
-1cjVHKcsT9+pesBQL9/Og8bTZyt7vL1fgZEijaCOIjHepdgNH7yxJ0eXEgrURBgJ
-ljrpSSEkrkrF5HHff+maoWOM4yPzp+wStAhSjEJlmDBmphDVismqJ94kZ54KX0wt
-CE2NSKLeCz1nsFcQJ2lT+xki3l1VF0bIstge6M1tXiZK4dPziAWQkCTWr6IIzBoY
-oXSR9/YuM6zcf4+F/1JuAPSl0Z+X8FLpk/5e72geQb9QGDN2BIHDtbBww8lb96VR
-aOPZEVLhMNbMfmcACtebxTb9VNSTuTwQWvcNGjR/LJ2ooA/Rv6nACjodP13yirpN
-lvZcQ3xeXql6cCUiPLgtnbY6N6NclmUqitoja66Ketr72mjgrQeuML+qFBFgoxXL
-mGOudG6qzqLVoWEfJajYlNWRg+NH8NIfIFLmOD61QkusqPFD/z1+sY4nGYjrWT2K
-OOpvK2OKja0xujee35T9h2meq0lBLfYZoI1LQmGWqtNBlD6q9cXGSHdyQjCoe1mu
-jZPDeCf91WxhcMCPAHZz
-=PVM2
------END PGP SIGNATURE-----
-
---eRtJSFbw+EEWtPj3--
+The motivation is to not allow wrong values to be written in CDIV.
+No, i was not able to fix my problem. I had to choose another clock rate.
+Failing the probe would be an alternative. The problem with failing
+is, when do we fail? I did not find values in the datasheet about what
+speeds are supported or not.
