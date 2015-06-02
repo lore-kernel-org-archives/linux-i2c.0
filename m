@@ -1,79 +1,134 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Tue, 2 Jun 2015 12:14:06 +0200
-Message-ID: <CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com> <CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 05/12] i2c: pxa: Add bus reset functionality
+Date: Tue, 2 Jun 2015 15:12:11 +0200
+Message-ID: <CACRpkdaxWsi8t6aUFJK-KCmQF1gEOLiOE8=fgDRxQDSi4G6FgQ@mail.gmail.com>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
+	<1432818224-17070-6-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Grant Likely <grant.likely@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, Alexander Holler <holler@ahsoftware.de>, Dan Williams <dan.j.williams@intel.com>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, linux-clk@vger.kernel.o
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1432818224-17070-6-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2 June 2015 at 10:48, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Mon, May 25, 2015 at 4:53 PM, Tomeu Vizoso
-> <tomeu.vizoso@collabora.com> wrote:
+On Thu, May 28, 2015 at 3:03 PM, Vaibhav Hiremath
+<vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+
+> From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 >
->> have looked into ordered probing as a
->> better way of solving this than moving nodes around in the DT or playing with
->> initcall levels.
->>
->> While reading the thread [1] that Alexander Holler started with his series to
->> make probing order deterministic, it occurred to me that it should be possible
->> to achieve the same by registering devices as they are referenced by other
->> devices.
+> Since there is some problematic i2c slave devices on some
+> platforms such as dkb (sometimes), it will drop down sda
+> and make i2c bus hang, at that time, it need to config
+> scl/sda into gpio to simulate "stop" sequence to recover
+> i2c bus, so add this interface.
 >
-> This is pretty cool, but a too local solution to a global problem.
+> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> [vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org: Updated Changelog]
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 >
-> Deferred probe and initcall reordering, silly as they may seem,
-> does not require you to use device tree.
->
-> The real solution, which I think I pointed out already when we
-> added deferred probe, is to put dependency graphs in the drivers
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-By this you mean something like what Thierry suggested here?
+Double signed-off?
 
-http://article.gmane.org/gmane.linux.kernel/1774623
+(...)
++#include <linux/of_gpio.h>
 
-> and have the kernel device driver core percolate dependecies by
-> walking the graph on probing driver, removing driver (usually the
-> inverse use case), [runtime] suspend and [runtime] resumeing
-> a driver. Possibly the dependencies will even be different
-> depending on use case.
->
-> This is what systemd is doing in userspace for starting services:
-> ask for your dependencies and wait for them if they are not
-> there. So drivers ask for resources and wait for them. It also
-> needs to be abstract, so for example we need to be able to
-> hang on regulator_get() until the driver is up and providing that
-> regulator, and as long as everything is in slowpath it should
-> be OK. (And vice versa mutatis mutandis for clk, gpio, pin
-> control, interrupts (!) and DMA channels for example.)
+You should use <linux/gpio/consumer.h> and then use
+GPIO descriptors instead.
 
-I understood above that you propose probing devices in order, but now
-you mention that resource getters would block until the dependency is
-fulfilled which confuses me because if we are probing in order then
-all dependencies would be fulfilled before the device in question gets
-probed.
+> @@ -177,6 +179,9 @@ struct pxa_i2c {
+>         bool                    highmode_enter;
+>         unsigned int            ilcr;
+>         unsigned int            iwcr;
+> +       struct pinctrl          *pinctrl;
+> +       struct pinctrl_state    *pin_i2c;
+> +       struct pinctrl_state    *pin_gpio;
 
-> So if this should be solved it should be solved in an abstract way
-> in the device driver core available for all, then have calls calling
-> out to DT, ACPI, possibly even PCI or USB (as these
-> enumerate devices themselves) to obtain a certain
-> dependency.
+Yup that's the right way. I see this is the "default"
+state for pin_i2c.
 
-Yeah, I was planning looking into this now that I got it working with
-async probing.
+> +static void i2c_bus_reset(struct pxa_i2c *i2c)
+> +{
+> +       int ret, ccnt, pins_scl, pins_sda;
 
-Thanks,
+Use GPIO descriptors.
 
-Tomeu
+struct gpio_desc *scl, *sda;
 
-> Yours,
-> Linus Walleij
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> http://lists.freedesktop.org/mailman/listinfo/dri-devel
+> +       struct device *dev = i2c->adap.dev.parent;
+> +       struct device_node *np = dev->of_node;
+> +
+> +       if (!i2c->pinctrl) {
+> +               dev_warn(dev, "could not do i2c bus reset\n");
+> +               return;
+> +       }
+> +
+> +       ret = pinctrl_select_state(i2c->pinctrl, i2c->pin_gpio);
+> +       if (ret) {
+> +               dev_err(dev, "could not set gpio pins\n");
+> +               return;
+> +       }
+
+Exactly like that yes.
+
+> +       pins_scl = of_get_named_gpio(np, "i2c-gpio", 0);
+> +       if (!gpio_is_valid(pins_scl)) {
+> +               dev_err(dev, "i2c scl gpio not set\n");
+> +               goto err_out;
+> +       }
+> +       pins_sda = of_get_named_gpio(np, "i2c-gpio", 1);
+> +       if (!gpio_is_valid(pins_sda)) {
+> +               dev_err(dev, "i2c sda gpio not set\n");
+> +               goto err_out;
+> +       }
+
+I would suggest just using two GPIOs in the node relying
+on index order. With GPIO descriptors:
+
+scl = gpiod_get_index(dev, "i2c-gpio", 0, GPIOD_ASIS);
+sda = gpiod_get_index(dev, "i2c-gpio", 1, GPIOD_ASIS);
+
+Then use gpiod* accessors below and...
+
+> +
+> +       gpio_request(pins_scl, NULL);
+> +       gpio_request(pins_sda, NULL);
+> +
+> +       gpio_direction_input(pins_sda);
+> +       for (ccnt = 20; ccnt; ccnt--) {
+> +               gpio_direction_output(pins_scl, ccnt & 0x01);
+> +               udelay(5);
+> +       }
+> +       gpio_direction_output(pins_scl, 0);
+> +       udelay(5);
+> +       gpio_direction_output(pins_sda, 0);
+> +       udelay(5);
+> +       /* stop signal */
+> +       gpio_direction_output(pins_scl, 1);
+> +       udelay(5);
+> +       gpio_direction_output(pins_sda, 1);
+> +       udelay(5);
+> +
+> +       gpio_free(pins_scl);
+> +       gpio_free(pins_sda);
+
+gpiod_put(scl);
+gpiod_put(sda);
+
+> +err_out:
+> +       ret = pinctrl_select_state(i2c->pinctrl, i2c->pin_i2c);
+> +       if (ret)
+> +               dev_err(dev, "could not set default(i2c) pins\n");
+> +       return;
+
+Nice.
+
+Overall it looks like a real nice structured workaround using
+the API exactly as intended, just need to catch up with
+using GPIO descriptors.
+
+Yours,
+Linus Walleij
