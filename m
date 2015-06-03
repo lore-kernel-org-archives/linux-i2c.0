@@ -1,89 +1,100 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 5/6] i2c: at91: print hardware version
-Date: Thu, 4 Jun 2015 00:19:22 +0900
-Message-ID: <20150603151921.GA2873@katana>
-References: <cover.1433321260.git.cyrille.pitchen@atmel.com>
- <03bf4d8906d12a87fee7238764074bc5687972be.1433321260.git.cyrille.pitchen@atmel.com>
+Subject: Re: [V4, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
+ driver
+Date: Thu, 4 Jun 2015 00:54:24 +0900
+Message-ID: <20150603155423.GB2873@katana>
+References: <1432052625-6210-1-git-send-email-kdasu.kdev@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <03bf4d8906d12a87fee7238764074bc5687972be.1433321260.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1432052625-6210-1-git-send-email-kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---y0ulUmNC+osPPQO6
+--H1spWtNR+x+ondvy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 03, 2015 at 11:04:26AM +0200, Cyrille Pitchen wrote:
-> The probe() function now prints the hardware version of the I2C
-> controller.
+On Tue, May 19, 2015 at 12:23:44PM -0400, Kamal Dasu wrote:
+> Adding support for i2c controller driver for Broadcom settop
+> SoCs.
 >=20
-> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Kernel has already very much printout, so I don't see the gain in adding
-another one. At least, combine it with the other printout we have
-already, but I wonder what new information will be in here? We should
-know from the compatible binding which version we serve? Is it really
-needed? Helpful for the user?
+We are very close.
 
-> ---
->  drivers/i2c/busses/i2c-at91.c | 4 ++++
->  1 file changed, 4 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 67b4f15..cbe6684 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -85,6 +85,8 @@
->  #define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
->  #define	AT91_TWI_ACR_DIR	BIT(8)
-> =20
-> +#define	AT91_TWI_VER		0x00fc	/* Version Register */
+> +/* Wait for device to be ready */
+> +static int brcmstb_i2c_wait_if_busy(struct brcmstb_i2c_dev *dev)
+> +{
+> +	unsigned long timeout =3D jiffies + msecs_to_jiffies(I2C_TIMEOUT);
 > +
->  struct at91_twi_pdata {
->  	unsigned clk_max_div;
->  	unsigned clk_offset;
-> @@ -872,6 +874,8 @@ static int at91_twi_probe(struct platform_device *pde=
-v)
->  			return rc;
->  	}
-> =20
-> +	dev_info(dev->dev, "version: %#x\n", at91_twi_read(dev, AT91_TWI_VER));
-> +
->  	rc =3D of_property_read_u32(dev->dev->of_node, "clock-frequency",
->  			&bus_clk_rate);
->  	if (rc)
-> --=20
-> 1.8.2.2
->=20
+> +	while ((bsc_readl(dev, iic_enable) & BSC_IIC_EN_INTRP_MASK)) {
+> +		if (time_after(jiffies, timeout)) {
+> +			dev_err(dev->device, "i2c device busy timeout\n");
 
---y0ulUmNC+osPPQO6
+Don't print out, it will spoil the logs. Timeouts can happen on I2C
+busses, no need to inform the user.
+
+=2E..
+
+> +	/* Wait for transaction to finish or timeout */
+> +	rc =3D brcmstb_i2c_wait_for_completion(dev);
+> +	if (rc) {
+> +		dev_err(dev->device, "intr timeout for cmd %s\n",
+> +			cmd_string[cmd]);
+> +		goto cmd_out;
+> +	}
+
+ditto
+
+> +
+> +	if ((CMD_RD || CMD_WR) &&
+> +	    bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK) {
+> +		rc =3D -EREMOTEIO;
+> +		dev_dbg(dev->device, "controller received NOACK intr for %s\n",
+> +			cmd_string[cmd]);
+
+I'd leave this out, too. But you decide.
+
+=2E..
+
+> +	rc =3D of_property_read_string(dev->device->of_node, "interrupt-names",
+> +				     &int_name);
+
+I haven't checked but is that really needed? of_irq_to_resource() seems
+to parse the "interrupt-names" property.
+
+Thanks,
+
+   Wolfram
+
+
+--H1spWtNR+x+ondvy
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVbxr5AAoJEBQN5MwUoCm22jcP/0fgCYhcPxYtBTeCp6WNyNCx
-vIkcAYktIdkpHPNWQI6BPMaeI0S0VVV+03NTQMcvILyLx5mnBSi3tqHolrovkoCd
-CH9Ws6LzZdKpC78y8ghkoTB95l0pboqP2U+k3jetmD5YmGPx3CSIY5Wv7LfSYpQ2
-6092mKb0zMXpLUR4ZQSCIcie+mZm2jBMf9nXFYu2mHdVGQRkiN8tOZ6S5MWhmckU
-/9IjtZs24wnVIVB8KZ2x5DemI+18AzQnmRfgVnO0n1a/pRndYZrLcipkjMlntus6
-0i/MIMOnrzv1ukFgCYoab7RYJ8dO1gqyKw3HROtp4d+J3FByokz6nXH/whV3h0zf
-3GgzrEvhAOytvDFa/Kh1+r7yAOLIZTZObHhvVpWg5py7R6JYV4T31tGoe+jKLGTH
-YD6aKxfcHhLXRrWpQBn5aEcGiZL38zYcrPBooAsDGy6ubSwS8zstAp0oGVPfhL0l
-gV3CqOV6olc0zkCiBr1vpRKxp5Zo1zixCy14PNDm/QfO9Cho0Vlh+EmiuLkD6PRN
-EJs5pjdKELn0ZKM99gbP0wD4iY06JBUZA2l3viLEWh29+VprvGD/LjfOLmJQoSOj
-ZvhScyQOLLADljM/Y8146dZixIEaLNd+OiipmmB7257qkgsFBMj9k/xqfq5XmLkF
-2tJcdgM/yvGV0m6H/alM
-=Xtte
+iQIcBAEBAgAGBQJVbyMvAAoJEBQN5MwUoCm2MqkP/Rxhtuhxs0o5WMj98jNnhU5h
+z222NRhq04lhLGE9ot186pi+lzJfNnWbIq14VqtIK5hpa3klxSlDecnRe3U1/fyY
+hIMJ3G+1XFHIOzoiZkeu0d93WaZrhxY14ezExWLtEsAxgpxrkzwHHSFZNRKwtDbV
+7+CkeYIvDl2A9QvFyZmTBzccstr7P+sD9XcLz9SlnShmukWfxPzNKsnoBqMPaNhG
+9ph3nroqql0fXmumQgxoi8tL3s9zv5rtzIbU/EH8xpb9g29HLIbO/JaRwf/i72yg
+LOyGLp6V/zt7MBVv2BcPTNPk6cz5e7WlfE0eZJNftEuQ8PhjnwBkHxKXlsssDiaS
+uC4gMNHHzDpAmR+Pl/AjYxqJ07hSRJ0j+S3zs0BnpdpLJp+DY0UXNzu7DNtx1ewr
+r2sdEJXAfhukUmBUIrIcIU6f+WPULesllTlFBqC4XGDhTT87XLwTtitZIqIGf5kj
+ZUu/0dp/73EqOdaoo+Pz8HBmi3JSmHeHDLzCpNUPvGo+UbEerQXJygcDK+wXhtC0
+AYd/u8abd49IUTkRQX1va0HG7KFqKg/wfkgdyuG3QplyKEp7CC6LsskoPjXrl7uG
+aG9N8g2poSWpeE2ITuCA5FOMZRtyPFG/GA8NyhUSJVEYAoULpNzx/3ZQoA57YxQ2
+NqqzgzZXjwkCU35KFID1
+=1nSY
 -----END PGP SIGNATURE-----
 
---y0ulUmNC+osPPQO6--
+--H1spWtNR+x+ondvy--
