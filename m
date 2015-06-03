@@ -1,143 +1,97 @@
-From: sathyanarayanan kuppuswamy
-	<sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v1 1/1] i2c: designware: Fix hold and setup time issue
-Date: Tue, 02 Jun 2015 17:40:34 -0700
-Message-ID: <556E4D02.90908@linux.intel.com>
-References: <cover.1428374207.git.sathyanarayanan.kuppuswamy@linux.intel.com> <b3d42396c046e4ab4a14edec84f3484b0f27d192.1428374207.git.sathyanarayanan.kuppuswamy@linux.intel.com> <20150602174600.GB1494@katana>
-Reply-To: sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v1 1/1] i2c: Add acpi support to enumerate i2c mux clients
+Date: Wed, 3 Jun 2015 10:19:39 +0900
+Message-ID: <20150603011938.GA1548@katana>
+References: <cover.1428546834.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <b57c66fc1b7e790bd8c3e525faf65ce46cd91f23.1428546834.git.sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20150602161953.GA12451@katana>
+ <556E4C7C.8050009@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150602174600.GB1494@katana>
+Content-Disposition: inline
+In-Reply-To: <556E4C7C.8050009-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: sathyanarayanan kuppuswamy <sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 06/02/2015 10:46 AM, Wolfram Sang wrote:
-> On Mon, Apr 06, 2015 at 07:40:28PM -0700, Kuppuswamy Sathyanarayanan wrote:
->> If the device configuration is updated by firmware and
->> the information is not passed to driver via firmware
->> interfaces like ACPI or DT parameters, then that information
->> will be lost once the device either resets or suspends. This
->> patch checks the boot value of hold and setup time during
->> device probe and updates the driver hold and setup time params.
->> This fix will ensure that the updates to hold and setup time
->> values are not lost after device suspend or resets.
->>
->> Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Adding Mika to CC.
->
->> ---
->>   drivers/i2c/busses/i2c-designware-core.c    | 37 +++++++++++++++++++++++++++++
->>   drivers/i2c/busses/i2c-designware-core.h    |  2 ++
->>   drivers/i2c/busses/i2c-designware-platdrv.c |  4 ++++
->>   3 files changed, 43 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
->> index 6e25c01..2598207 100644
->> --- a/drivers/i2c/busses/i2c-designware-core.c
->> +++ b/drivers/i2c/busses/i2c-designware-core.c
->> @@ -64,6 +64,7 @@
->>   #define DW_IC_RXFLR		0x78
->>   #define DW_IC_SDA_HOLD		0x7c
->>   #define DW_IC_TX_ABRT_SOURCE	0x80
->> +#define DW_IC_SDA_SETUP		0x94
->>   #define DW_IC_ENABLE_STATUS	0x9c
->>   #define DW_IC_COMP_PARAM_1	0xf4
->>   #define DW_IC_COMP_VERSION	0xf8
->> @@ -89,6 +90,9 @@
->>   					 DW_IC_INTR_TX_ABRT | \
->>   					 DW_IC_INTR_STOP_DET)
->>   
->> +#define DW_IC_DEFAULT_SDA_SETUP	0x64
->> +#define DW_IC_DEFAULT_SDA_HOLD	0x1
->> +
->>   #define DW_IC_STATUS_ACTIVITY	0x1
->>   
->>   #define DW_IC_ERR_TX_ABRT	0x1
->> @@ -271,6 +275,35 @@ static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
->>   		 enable ? "en" : "dis");
->>   }
->>   
->> +/*
->> + * Update device default param values if its changed by
->> + * firmware
->> + */
->> +void dw_i2c_update_defaults(struct dw_i2c_dev *dev)
->> +{
->> +	int ret;
->> +
->> +	/*
->> +	 * make sure default is not updated by firmware
->> +	 * interfaces like OF or ACPI
->> +	 */
->> +
->> +	/* SDA hold time update */
->> +	if (!dev->sda_hold_time) {
->> +		ret = dw_readl(dev, DW_IC_SDA_HOLD);
->> +		if ((ret > 0) && (ret != DW_IC_DEFAULT_SDA_HOLD))
->> +			dev->sda_hold_time = ret;
->> +	}
->> +
->> +	/* SDA setup time update */
->> +	if (!dev->sda_setup_time) {
->> +		ret = dw_readl(dev, DW_IC_SDA_SETUP);
->> +		if ((ret > 0) && (ret != DW_IC_DEFAULT_SDA_SETUP))
->> +			dev->sda_setup_time = ret;
->> +	}
->> +}
->> +EXPORT_SYMBOL_GPL(dw_i2c_update_defaults);
->> +
->>   /**
->>    * i2c_dw_init() - initialize the designware i2c master hardware
->>    * @dev: device private data
->> @@ -368,6 +401,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
->>   				"Hardware too old to adjust SDA hold time.");
->>   	}
->>   
->> +	/* Configure SDA setup time if required */
->> +	if (dev->sda_setup_time)
->> +		dw_writel(dev, dev->sda_setup_time, DW_IC_SDA_SETUP);
->> +
->>   	/* Configure Tx/Rx FIFO threshold levels */
->>   	dw_writel(dev, dev->tx_fifo_depth / 2, DW_IC_TX_TL);
->>   	dw_writel(dev, 0, DW_IC_RX_TL);
->> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
->> index 9630222..23ae2e8 100644
->> --- a/drivers/i2c/busses/i2c-designware-core.h
->> +++ b/drivers/i2c/busses/i2c-designware-core.h
->> @@ -98,6 +98,7 @@ struct dw_i2c_dev {
->>   	unsigned int		rx_fifo_depth;
->>   	int			rx_outstanding;
->>   	u32			sda_hold_time;
->> +	u32			sda_setup_time;
->>   	u32			sda_falling_time;
->>   	u32			scl_falling_time;
->>   	u16			ss_hcnt;
->> @@ -131,3 +132,4 @@ extern int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev);
->>   #else
->>   static inline int i2c_dw_eval_lock_support(struct dw_i2c_dev *dev) { return 0; }
->>   #endif
->> +extern void dw_i2c_update_defaults(struct dw_i2c_dev *dev);
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->> index c270f5f..d8995d8 100644
->> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
->> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
->> @@ -233,6 +233,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
->>   		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
->>   		dev->adapter.nr = pdev->id;
->>   	}
->> +
->> +	/* call after firmware param update */
->> +	dw_i2c_update_defaults(dev);
-> What about calling this from the pci driver?
-Agreed. I will fix it in next version.
->
+On Tue, Jun 02, 2015 at 05:38:20PM -0700, sathyanarayanan kuppuswamy wrote:
+> Hi Sang
+>=20
+> Thanks for your comments. Please find my reply inline.
+>=20
+> On 06/02/2015 09:19 AM, Wolfram Sang wrote:
+> >>+#ifdef CONFIG_ACPI
+> >>+static void acpi_i2c_mux_register_devices(struct i2c_adapter *adap,
+> >>+					  struct device *mux_dev)
+> >>+{
+> >>+	acpi_handle handle;
+> >>+	acpi_status status;
+> >>+
+> >>+	handle =3D ACPI_HANDLE(mux_dev);
+> >>+	if (!handle)
+> >>+		return;
+> >>+
+> >>+	status =3D acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
+> >>+				     acpi_i2c_add_device, NULL,
+> >>+				     adap, NULL);
+> >>+
+> >>+	if (ACPI_FAILURE(status))
+> >>+		dev_warn(mux_dev, "mux adapter slave enumeration fails\n");
+> >>+}
+> >>+#else /* !CONFIG_ACPI */
+> >>+static inline void acpi_i2c_mux_register_devices(struct i2c_adapter *a=
+dap,
+> >>+						 struct device *mux_dev) { }
+> >>+#endif /* CONFIG_ACPI */
+> >IMO, this shares too much code with acpi_i2c_register_devices(). And it
+> >pulls in ACPI into mux.c which is not really needed.
+> Even though mux is a just a virtual adapter without any ACPI ID, Its slav=
+es
+> are a still actual devices and needs to be enumerated by ACPI. So think i=
+ts
+> accptable to include ACPI in mux code. Don't you agree ?
 
--- 
-Sathyanarayanan Kuppuswamy
-Android kernel developer
+The resulting function should be called from mux code. But the function
+itself should be in the core.
+
+> Also ACPI handle code in this function is slightly different from
+> acpi_i2c_register_devices() code.
+
+The only difference I see is that one takes a device as parameter, the
+other an adapter. So, you can read out the device from the adapter in
+acpi_i2c_register_devices() and then call
+acpi_i2c_register_devices_from_dev().
+
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVblYqAAoJEBQN5MwUoCm2EcEQAIjX0D7c0GmDBd8u51ia93NH
+ucIddwI5tPTuX0f23svL5YcYcXqWG/kHoKn4Ek2Xrp2L4nmuLamtNBQ8AvFYOpdY
+5Q30c01SonkkZsA94gXRs6bNR+49aX3sdmNBrRIWOoM8Ciuq0yJNP1e16X/ju/xn
+nrF/A2eXsg9lfXtEtykLrLzMIT/1UOdYpJnSmpuzzh6kPT3tPyD+GI8PA22EHllS
+pno58tvADdFoKX9KaGudO5d5UjZK5i1FccWC8kKjP/lSDwdQR5e95zzj7Xp5curL
+v77PIiiIOLWcCWR4I6YJlOhf2k/ogl9ojf52jEc9MugkrWYo4JBO8cbQnRuYa87I
+O4UQQtxYxjyVikGRBmejELd1m1Cf0EDrvbGfz68lO0b5zmhQ9bB1/L7L1LPyGehr
+hHCn16k2uk+1NxG9w2VUaHHrU8F3QgY/SaJcRvwF5/GrVk4xThyrGQ0/bcSMrgG/
+zhWkm8aY3sZetFEc6wB3DaSPZa0cjRvNWUy9M0XdKRHqeG1W5CaB6o0hJxMZG967
+4CWLGrEqKOalCpvFWx9M/OYwtzZOlsXcZ+JnqvtXLP5qNtA0Psdy5DsAZ5xP4G5+
+gjJ7KNpyZpvaV5SJna4tBSZrUsqTGSykpz/8dUUMxR9amx0GVuSq6Myh7aK3tW+Y
+ht6zXFjshqkTSDU6Hu1t
+=J5s2
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--
