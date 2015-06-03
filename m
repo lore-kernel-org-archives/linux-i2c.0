@@ -1,100 +1,75 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [V4, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
- driver
-Date: Thu, 4 Jun 2015 00:54:24 +0900
-Message-ID: <20150603155423.GB2873@katana>
-References: <1432052625-6210-1-git-send-email-kdasu.kdev@gmail.com>
+From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Subject: [PATCH v5 0/6] i2c: at91: add support to FIFOs and alternative command
+Date: Wed, 3 Jun 2015 18:25:16 +0200
+Message-ID: <cover.1433348016.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1432052625-6210-1-git-send-email-kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: ludovic.desroches@atmel.com, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, wsa@the-dreams.de
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, robh+dt@kernel.org, Cyrille Pitchen <cyrille.pitchen@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+ChangeLog
 
---H1spWtNR+x+ondvy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+v5:
+- print I2C controller version in an already existing dev_info() instead of
+  adding a new one.
 
-On Tue, May 19, 2015 at 12:23:44PM -0400, Kamal Dasu wrote:
-> Adding support for i2c controller driver for Broadcom settop
-> SoCs.
->=20
-> Signed-off-by: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+v4:
+- replace 0x%x by %#x when printing I2C controller version
+- change the order of patches: the race condition bug fix becomes the first
+  patch so it be can more easily applied to older kernels.
 
-We are very close.
+v3:
+- fix braces {} coding style issue
+- split the alternative command patch into 2 patches: the first one fixes
+  a race condition whereas the second one is the actual alternative command
+  patch
 
-> +/* Wait for device to be ready */
-> +static int brcmstb_i2c_wait_if_busy(struct brcmstb_i2c_dev *dev)
-> +{
-> +	unsigned long timeout =3D jiffies + msecs_to_jiffies(I2C_TIMEOUT);
-> +
-> +	while ((bsc_readl(dev, iic_enable) & BSC_IIC_EN_INTRP_MASK)) {
-> +		if (time_after(jiffies, timeout)) {
-> +			dev_err(dev->device, "i2c device busy timeout\n");
+v2:
+- fix typo in comment for AT91_TWI_SVEN.
+- document new device tree bindings like "atmel,fifo-size".
+- explicitly set the has_alt_cmd boolean to false to already existing chip
+  configs.
+- use the BIT() macro to define the register bits and do a little cleanup in a
+  dedicated patch.
+- reword some comments to better explain why the TXCOMP interrupt is no longer
+  enabled in at91_do_twi_transfer() but later in
+  at91_twi_write_data_dma_callback() to avoid a race condition when DMA is used.
+- remove useless TXCOMP interrupt enable line in at91_twi_write_next_byte()
+  since this interrupt is also enabled by at91_do_twi_transfer() for PIO
+  transfers.
 
-Don't print out, it will spoil the logs. Timeouts can happen on I2C
-busses, no need to inform the user.
+v1:
+This series of patches adds support of two new features which will be
+introduced with Atmel sama5d2x SoC.
 
-=2E..
+First, the alternative command mode eases the sending of STOP conditions.
+Before starting an I2C transaction, the size data to be transfered is
+written into the new Alternative Command Register. For each byte transferred,
+the I2C controller decreases this counter and automatically sends a STOP
+condition when the counter value reaches 0, that is to say when the last byte
+of the transaction has been sent/received. So there is no longer need to set
+the STOP bit into the Control Register.
 
-> +	/* Wait for transaction to finish or timeout */
-> +	rc =3D brcmstb_i2c_wait_for_completion(dev);
-> +	if (rc) {
-> +		dev_err(dev->device, "intr timeout for cmd %s\n",
-> +			cmd_string[cmd]);
-> +		goto cmd_out;
-> +	}
+Then the use of FIFOs allows to reduce number I/O accesses: for instance,
+the TX FIFO allows to write up to 4 data in a single access to the Transmit
+Holding Register. Also the RX FIFO allows to read up to 4 data in a single
+access to the Receive Holding Register. Currently only DMA transfers take
+advantage of FIFOs.
 
-ditto
+Cyrille Pitchen (6):
+  i2c: at91: fix a race condition when using the DMA controller
+  i2c: at91: use BIT() macro to define register bits
+  i2c: at91: update documentation for DT bindings
+  i2c: at91: add support for new alternative command mode
+  i2c: at91: print hardware version
+  i2c: at91: add support to FIFOs
 
-> +
-> +	if ((CMD_RD || CMD_WR) &&
-> +	    bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK) {
-> +		rc =3D -EREMOTEIO;
-> +		dev_dbg(dev->device, "controller received NOACK intr for %s\n",
-> +			cmd_string[cmd]);
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt |  29 +-
+ drivers/i2c/busses/i2c-at91.c                      | 356 +++++++++++++++++----
+ 2 files changed, 322 insertions(+), 63 deletions(-)
 
-I'd leave this out, too. But you decide.
-
-=2E..
-
-> +	rc =3D of_property_read_string(dev->device->of_node, "interrupt-names",
-> +				     &int_name);
-
-I haven't checked but is that really needed? of_irq_to_resource() seems
-to parse the "interrupt-names" property.
-
-Thanks,
-
-   Wolfram
-
-
---H1spWtNR+x+ondvy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVbyMvAAoJEBQN5MwUoCm2MqkP/Rxhtuhxs0o5WMj98jNnhU5h
-z222NRhq04lhLGE9ot186pi+lzJfNnWbIq14VqtIK5hpa3klxSlDecnRe3U1/fyY
-hIMJ3G+1XFHIOzoiZkeu0d93WaZrhxY14ezExWLtEsAxgpxrkzwHHSFZNRKwtDbV
-7+CkeYIvDl2A9QvFyZmTBzccstr7P+sD9XcLz9SlnShmukWfxPzNKsnoBqMPaNhG
-9ph3nroqql0fXmumQgxoi8tL3s9zv5rtzIbU/EH8xpb9g29HLIbO/JaRwf/i72yg
-LOyGLp6V/zt7MBVv2BcPTNPk6cz5e7WlfE0eZJNftEuQ8PhjnwBkHxKXlsssDiaS
-uC4gMNHHzDpAmR+Pl/AjYxqJ07hSRJ0j+S3zs0BnpdpLJp+DY0UXNzu7DNtx1ewr
-r2sdEJXAfhukUmBUIrIcIU6f+WPULesllTlFBqC4XGDhTT87XLwTtitZIqIGf5kj
-ZUu/0dp/73EqOdaoo+Pz8HBmi3JSmHeHDLzCpNUPvGo+UbEerQXJygcDK+wXhtC0
-AYd/u8abd49IUTkRQX1va0HG7KFqKg/wfkgdyuG3QplyKEp7CC6LsskoPjXrl7uG
-aG9N8g2poSWpeE2ITuCA5FOMZRtyPFG/GA8NyhUSJVEYAoULpNzx/3ZQoA57YxQ2
-NqqzgzZXjwkCU35KFID1
-=1nSY
------END PGP SIGNATURE-----
-
---H1spWtNR+x+ondvy--
+-- 
+1.8.2.2
