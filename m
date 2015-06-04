@@ -1,90 +1,127 @@
-From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 12/12] i2c: pxa: enable/disable i2c module across msg xfer
-Date: Thu, 4 Jun 2015 14:29:24 +0800
-Message-ID: <20150604062924.GA10576@yizhang>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
- <1432818224-17070-13-git-send-email-vaibhav.hiremath@linaro.org>
- <20150528132312.GC2067@n2100.arm.linux.org.uk>
- <556DDF43.4050804@linaro.org>
- <556DE0EB.1010609@linaro.org>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 12/12] i2c: pxa: enable/disable i2c module across msg
+ xfer
+Date: Thu, 04 Jun 2015 12:49:48 +0530
+Message-ID: <556FFC14.3050901@linaro.org>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-13-git-send-email-vaibhav.hiremath@linaro.org> <20150528132312.GC2067@n2100.arm.linux.org.uk> <556DDF43.4050804@linaro.org> <556DE0EB.1010609@linaro.org> <20150604062924.GA10576@yizhang>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <556DE0EB.1010609-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20150604062924.GA10576@yizhang>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, zhenzh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org
+To: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, zhenzh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 03, 2015 at 12:59:23AM +0800, Vaibhav Hiremath wrote:
-> 
-> 
-> On Tuesday 02 June 2015 10:22 PM, Vaibhav Hiremath wrote:
-> >
-> >
-> > On Thursday 28 May 2015 06:53 PM, Russell King - ARM Linux wrote:
-> >> On Thu, May 28, 2015 at 06:33:44PM +0530, Vaibhav Hiremath wrote:
-> >>> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> >>>
-> >>> Enable i2c module/unit before transmission and disable when it finishes.
-> >>>
-> >>> why?
-> >>> It's because the i2c bus may be distrubed if the slave device,
-> >>> typically a touch, powers on.
-> >>
-> >> "disturbed"
-> >>
-> >> I'd recommend that this is a DT property - not every platform is going to
-> >> want this, and as there is rudimentary I2C slave support in this driver,
-> >> this change breaks that.
-> >>
-> >
-> > I would take it as two different comments here, and I believe you also
-> > meant same,
-> >
-> > 1. Not breaking I2C slave support
-> >
-> > Not sure whether enabling/disabling module in ISR would suffice here.
-> > To be specific, in the functions i2c_pxa_slave_start() &
-> > i2c_pxa_slave_stop()
-> >
-> >
-> 
-> Please ignore this option, as enable is important to generate interrupt
-> on slave start.
 
-  Hi, Vaibhav:
 
-  sorry there is something wrong with my mailbox, so I list the LCR/WCR
-  information here, hoping not to confuse you;
+On Thursday 04 June 2015 11:59 AM, Yi Zhang wrote:
+> On Wed, Jun 03, 2015 at 12:59:23AM +0800, Vaibhav Hiremath wrote:
+>>
+>>
+>> On Tuesday 02 June 2015 10:22 PM, Vaibhav Hiremath wrote:
+>>>
+>>>
+>>> On Thursday 28 May 2015 06:53 PM, Russell King - ARM Linux wrote:
+>>>> On Thu, May 28, 2015 at 06:33:44PM +0530, Vaibhav Hiremath wrote:
+>>>>> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>>>>>
+>>>>> Enable i2c module/unit before transmission and disable when it finishes.
+>>>>>
+>>>>> why?
+>>>>> It's because the i2c bus may be distrubed if the slave device,
+>>>>> typically a touch, powers on.
+>>>>
+>>>> "disturbed"
+>>>>
+>>>> I'd recommend that this is a DT property - not every platform is going to
+>>>> want this, and as there is rudimentary I2C slave support in this driver,
+>>>> this change breaks that.
+>>>>
+>>>
+>>> I would take it as two different comments here, and I believe you also
+>>> meant same,
+>>>
+>>> 1. Not breaking I2C slave support
+>>>
+>>> Not sure whether enabling/disabling module in ISR would suffice here.
+>>> To be specific, in the functions i2c_pxa_slave_start() &
+>>> i2c_pxa_slave_stop()
+>>>
+>>>
+>>
+>> Please ignore this option, as enable is important to generate interrupt
+>> on slave start.
+>
+>    Hi, Vaibhav:
+>
+>    sorry there is something wrong with my mailbox, so I list the LCR/WCR
+>    information here, hoping not to confuse you;genr
+>
 
-  LCR: it's used to minor adjustments to the SCL, increasing it
-  decreases the SCL frequency, vice versa;
-  yes, it has relation with the I2C input clock:
-  if input_clk = 32MHz, LCR = 0x0804_1c96
-     LCR[SLV] = 0x096, bit 8~0
-     LCR[FLV] = 0xe,   bit 17~9
-     LCR[HLVH] = 0x1,  bit 26~18
-     LCR[HLVL] = 0x1,  bit 31~27
-  if input_clk = 52MHz,   LCR = 0x081c_60f9
-  if input_clk = 62.4MHz, LCR = 0x082c_8330
+Thanks for the info.
 
-  WCR: it's used to control setup and hold timing during slave mode
-  WCR[31: 15], reserved, always write 0;
-  WCR[14: 10], default 0x5, and should not be changed
-  WCR[9: 5], default 0x1, and should not be changed
-  WCR[4:0], default 0x1a, if input_clk = 33MHz, it's 0x0a;
-                          if input_clk = 66MHz, it's 0x14;
 
-  hope it's helpful;
+>    LCR: it's used to minor adjustments to the SCL, increasing it
+>    decreases the SCL frequency, vice versa;
+>    yes, it has relation with the I2C input clock:
+>    if input_clk = 32MHz, LCR = 0x0804_1c96
+>       LCR[SLV] = 0x096, bit 8~0
+>       LCR[FLV] = 0xe,   bit 17~9
+>       LCR[HLVH] = 0x1,  bit 26~18
+>       LCR[HLVL] = 0x1,  bit 31~27
+>    if input_clk = 52MHz,   LCR = 0x081c_60f9
+>    if input_clk = 62.4MHz, LCR = 0x082c_8330
+>
 
-  ---
-  Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Whether they are simply counters which count downs to generate required
+timing profile on the bus.
 
-> 
-> I will add DT property with clear note on SLAVE support issue, so that
-> it can be disabled and SLAVE support should work as is.
-> 
-> Thanks,
-> Vaibhav
+So would be possible for you to provide timing values generated by this?
+Or please confirm below understanding,
+
+
+@32MHz, SLV = 0x96,
+thigh/tlow = 31nsec * 150 = 4.650 usec
+thigh/tlow = 32nsec * 150 = 4.8 usec	[using ceil()]
+
+
+and as per I2C spec,
+
+thigh,min = 4 usec
+tlow,min = 4.7usec
+
+I believe my understanding is correct, please confirm.
+
+
+>    WCR: it's used to control setup and hold timing during slave mode
+
+This is is useful info. So in master mode we can ignore this.
+
+Just to clarify, this bit is don't care in master-transmit and 
+master-receive, right?
+
+>    WCR[31: 15], reserved, always write 0;
+>    WCR[14: 10], default 0x5, and should not be changed
+>    WCR[9: 5], default 0x1, and should not be changed
+>    WCR[4:0], default 0x1a, if input_clk = 33MHz, it's 0x0a;
+>                            if input_clk = 66MHz, it's 0x14;
+>
+>    hope it's helpful;
+
+
+Yes certainly. Thanks.
+
+Thanks,
+Vaibhav
+>
+>    ---
+>    Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>
+>>
+>> I will add DT property with clear note on SLAVE support issue, so that
+>> it can be disabled and SLAVE support should work as is.
+>>
+>> Thanks,
+>> Vaibhav
