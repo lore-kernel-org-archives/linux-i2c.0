@@ -1,57 +1,86 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 04/12] i2c: pxa: Add support for pxa910/988 & new configuration
- features
-Date: Thu, 04 Jun 2015 11:16:09 +0530
-Message-ID: <556FE621.8060502@linaro.org>
-References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org> <1432818224-17070-5-git-send-email-vaibhav.hiremath@linaro.org> <874mmvyvzw.fsf@belgarion.home> <20150604023146.GF6696@yizhang>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 0/6] i2c: at91: add support to FIFOs and alternative
+ command
+Date: Thu, 4 Jun 2015 08:02:49 +0200
+Message-ID: <20150604060249.GB11060@odux.rfo.atmel.com>
+References: <cover.1433348016.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150604023146.GF6696@yizhang>
+Content-Disposition: inline
+In-Reply-To: <cover.1433348016.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yi Zhang <yizhang-QbrlkLqkJHLlOVyq/YB6yLgYzuMpulrC0E9HWUfgJXw@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jett.Zhou" <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+For the whole set of patches:
+Acked-by: Ludovic Desroches
 
+Thanks Cyrille
 
-On Thursday 04 June 2015 08:01 AM, Yi Zhang wrote:
-> On Fri, May 29, 2015 at 10:22:27PM +0200, Robert Jarzmik wrote:
->> Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> writes:
->>
->>> @@ -167,6 +184,8 @@ struct pxa_i2c {
->>>   #define _ICR(i2c)	((i2c)->reg_icr)
->>>   #define _ISR(i2c)	((i2c)->reg_isr)
->>>   #define _ISAR(i2c)	((i2c)->reg_isar)
->>> +#define _ILCR(i2c)	((i2c)->reg_ilcr)
->>> +#define _IWCR(i2c)	((i2c)->reg_iwcr)
->>>
->>>   /*
->>>    * I2C Slave mode address
->>> @@ -467,11 +486,16 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
->>>   	if (i2c->reg_isar)
->>>   		writel(i2c->slave_addr, _ISAR(i2c));
->>>   #endif
->>> -
->> Not in this patch.
->>
->>>   	/* set control register values */
->>>   	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
->>>   	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
->>>
->>> +	if (i2c->ilcr)
->>> +		writel(i2c->ilcr, _ILCR(i2c));
->>> +	if (i2c->iwcr)
->>> +		writel(i2c->iwcr, _IWCR(i2c));
->>> +	udelay(2);
->> This is a magical 2us. Where does it come from ?
->
->    This delay can be removed, if writing LCR and WCR before enabling this
->    i2c controller, it's safe enough; and they should not be changed when
->    there is bus activity.
-
-I have already removed it in my next version.
-
-Thanks,
-Vaibhav
+On Wed, Jun 03, 2015 at 06:25:16PM +0200, Cyrille Pitchen wrote:
+> ChangeLog
+> 
+> v5:
+> - print I2C controller version in an already existing dev_info() instead of
+>   adding a new one.
+> 
+> v4:
+> - replace 0x%x by %#x when printing I2C controller version
+> - change the order of patches: the race condition bug fix becomes the first
+>   patch so it be can more easily applied to older kernels.
+> 
+> v3:
+> - fix braces {} coding style issue
+> - split the alternative command patch into 2 patches: the first one fixes
+>   a race condition whereas the second one is the actual alternative command
+>   patch
+> 
+> v2:
+> - fix typo in comment for AT91_TWI_SVEN.
+> - document new device tree bindings like "atmel,fifo-size".
+> - explicitly set the has_alt_cmd boolean to false to already existing chip
+>   configs.
+> - use the BIT() macro to define the register bits and do a little cleanup in a
+>   dedicated patch.
+> - reword some comments to better explain why the TXCOMP interrupt is no longer
+>   enabled in at91_do_twi_transfer() but later in
+>   at91_twi_write_data_dma_callback() to avoid a race condition when DMA is used.
+> - remove useless TXCOMP interrupt enable line in at91_twi_write_next_byte()
+>   since this interrupt is also enabled by at91_do_twi_transfer() for PIO
+>   transfers.
+> 
+> v1:
+> This series of patches adds support of two new features which will be
+> introduced with Atmel sama5d2x SoC.
+> 
+> First, the alternative command mode eases the sending of STOP conditions.
+> Before starting an I2C transaction, the size data to be transfered is
+> written into the new Alternative Command Register. For each byte transferred,
+> the I2C controller decreases this counter and automatically sends a STOP
+> condition when the counter value reaches 0, that is to say when the last byte
+> of the transaction has been sent/received. So there is no longer need to set
+> the STOP bit into the Control Register.
+> 
+> Then the use of FIFOs allows to reduce number I/O accesses: for instance,
+> the TX FIFO allows to write up to 4 data in a single access to the Transmit
+> Holding Register. Also the RX FIFO allows to read up to 4 data in a single
+> access to the Receive Holding Register. Currently only DMA transfers take
+> advantage of FIFOs.
+> 
+> Cyrille Pitchen (6):
+>   i2c: at91: fix a race condition when using the DMA controller
+>   i2c: at91: use BIT() macro to define register bits
+>   i2c: at91: update documentation for DT bindings
+>   i2c: at91: add support for new alternative command mode
+>   i2c: at91: print hardware version
+>   i2c: at91: add support to FIFOs
+> 
+>  Documentation/devicetree/bindings/i2c/i2c-at91.txt |  29 +-
+>  drivers/i2c/busses/i2c-at91.c                      | 356 +++++++++++++++++----
+>  2 files changed, 322 insertions(+), 63 deletions(-)
+> 
+> -- 
+> 1.8.2.2
+> 
