@@ -1,86 +1,90 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 0/6] i2c: at91: add support to FIFOs and alternative
- command
-Date: Thu, 4 Jun 2015 08:02:49 +0200
-Message-ID: <20150604060249.GB11060@odux.rfo.atmel.com>
-References: <cover.1433348016.git.cyrille.pitchen@atmel.com>
+From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 12/12] i2c: pxa: enable/disable i2c module across msg xfer
+Date: Thu, 4 Jun 2015 14:29:24 +0800
+Message-ID: <20150604062924.GA10576@yizhang>
+References: <1432818224-17070-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1432818224-17070-13-git-send-email-vaibhav.hiremath@linaro.org>
+ <20150528132312.GC2067@n2100.arm.linux.org.uk>
+ <556DDF43.4050804@linaro.org>
+ <556DE0EB.1010609@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1433348016.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <556DE0EB.1010609-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, zhenzh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-For the whole set of patches:
-Acked-by: Ludovic Desroches
+On Wed, Jun 03, 2015 at 12:59:23AM +0800, Vaibhav Hiremath wrote:
+> 
+> 
+> On Tuesday 02 June 2015 10:22 PM, Vaibhav Hiremath wrote:
+> >
+> >
+> > On Thursday 28 May 2015 06:53 PM, Russell King - ARM Linux wrote:
+> >> On Thu, May 28, 2015 at 06:33:44PM +0530, Vaibhav Hiremath wrote:
+> >>> From: Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> >>>
+> >>> Enable i2c module/unit before transmission and disable when it finishes.
+> >>>
+> >>> why?
+> >>> It's because the i2c bus may be distrubed if the slave device,
+> >>> typically a touch, powers on.
+> >>
+> >> "disturbed"
+> >>
+> >> I'd recommend that this is a DT property - not every platform is going to
+> >> want this, and as there is rudimentary I2C slave support in this driver,
+> >> this change breaks that.
+> >>
+> >
+> > I would take it as two different comments here, and I believe you also
+> > meant same,
+> >
+> > 1. Not breaking I2C slave support
+> >
+> > Not sure whether enabling/disabling module in ISR would suffice here.
+> > To be specific, in the functions i2c_pxa_slave_start() &
+> > i2c_pxa_slave_stop()
+> >
+> >
+> 
+> Please ignore this option, as enable is important to generate interrupt
+> on slave start.
 
-Thanks Cyrille
+  Hi, Vaibhav:
 
-On Wed, Jun 03, 2015 at 06:25:16PM +0200, Cyrille Pitchen wrote:
-> ChangeLog
+  sorry there is something wrong with my mailbox, so I list the LCR/WCR
+  information here, hoping not to confuse you;
+
+  LCR: it's used to minor adjustments to the SCL, increasing it
+  decreases the SCL frequency, vice versa;
+  yes, it has relation with the I2C input clock:
+  if input_clk = 32MHz, LCR = 0x0804_1c96
+     LCR[SLV] = 0x096, bit 8~0
+     LCR[FLV] = 0xe,   bit 17~9
+     LCR[HLVH] = 0x1,  bit 26~18
+     LCR[HLVL] = 0x1,  bit 31~27
+  if input_clk = 52MHz,   LCR = 0x081c_60f9
+  if input_clk = 62.4MHz, LCR = 0x082c_8330
+
+  WCR: it's used to control setup and hold timing during slave mode
+  WCR[31: 15], reserved, always write 0;
+  WCR[14: 10], default 0x5, and should not be changed
+  WCR[9: 5], default 0x1, and should not be changed
+  WCR[4:0], default 0x1a, if input_clk = 33MHz, it's 0x0a;
+                          if input_clk = 66MHz, it's 0x14;
+
+  hope it's helpful;
+
+  ---
+  Yi Zhang <yizhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+
 > 
-> v5:
-> - print I2C controller version in an already existing dev_info() instead of
->   adding a new one.
+> I will add DT property with clear note on SLAVE support issue, so that
+> it can be disabled and SLAVE support should work as is.
 > 
-> v4:
-> - replace 0x%x by %#x when printing I2C controller version
-> - change the order of patches: the race condition bug fix becomes the first
->   patch so it be can more easily applied to older kernels.
-> 
-> v3:
-> - fix braces {} coding style issue
-> - split the alternative command patch into 2 patches: the first one fixes
->   a race condition whereas the second one is the actual alternative command
->   patch
-> 
-> v2:
-> - fix typo in comment for AT91_TWI_SVEN.
-> - document new device tree bindings like "atmel,fifo-size".
-> - explicitly set the has_alt_cmd boolean to false to already existing chip
->   configs.
-> - use the BIT() macro to define the register bits and do a little cleanup in a
->   dedicated patch.
-> - reword some comments to better explain why the TXCOMP interrupt is no longer
->   enabled in at91_do_twi_transfer() but later in
->   at91_twi_write_data_dma_callback() to avoid a race condition when DMA is used.
-> - remove useless TXCOMP interrupt enable line in at91_twi_write_next_byte()
->   since this interrupt is also enabled by at91_do_twi_transfer() for PIO
->   transfers.
-> 
-> v1:
-> This series of patches adds support of two new features which will be
-> introduced with Atmel sama5d2x SoC.
-> 
-> First, the alternative command mode eases the sending of STOP conditions.
-> Before starting an I2C transaction, the size data to be transfered is
-> written into the new Alternative Command Register. For each byte transferred,
-> the I2C controller decreases this counter and automatically sends a STOP
-> condition when the counter value reaches 0, that is to say when the last byte
-> of the transaction has been sent/received. So there is no longer need to set
-> the STOP bit into the Control Register.
-> 
-> Then the use of FIFOs allows to reduce number I/O accesses: for instance,
-> the TX FIFO allows to write up to 4 data in a single access to the Transmit
-> Holding Register. Also the RX FIFO allows to read up to 4 data in a single
-> access to the Receive Holding Register. Currently only DMA transfers take
-> advantage of FIFOs.
-> 
-> Cyrille Pitchen (6):
->   i2c: at91: fix a race condition when using the DMA controller
->   i2c: at91: use BIT() macro to define register bits
->   i2c: at91: update documentation for DT bindings
->   i2c: at91: add support for new alternative command mode
->   i2c: at91: print hardware version
->   i2c: at91: add support to FIFOs
-> 
->  Documentation/devicetree/bindings/i2c/i2c-at91.txt |  29 +-
->  drivers/i2c/busses/i2c-at91.c                      | 356 +++++++++++++++++----
->  2 files changed, 322 insertions(+), 63 deletions(-)
-> 
-> -- 
-> 1.8.2.2
-> 
+> Thanks,
+> Vaibhav
