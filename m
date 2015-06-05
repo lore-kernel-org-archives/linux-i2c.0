@@ -1,74 +1,71 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 4.1
-Date: Fri, 5 Jun 2015 10:28:47 +0900
-Message-ID: <20150605012841.GA1756@katana>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: busses: i2c-bcm2835: limits cdiv to allowed values
+Date: Thu, 04 Jun 2015 21:10:21 -0600
+Message-ID: <5571131D.7060100@wwwdotorg.org>
+References: <1432895204-19924-1-git-send-email-linux_wi@tinag.ch>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <1432895204-19924-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 05/29/2015 04:26 AM, Silvan Wicki wrote:
+> Adds: make sure bits 16-31 of DIV register are always 0
+> Adds: assume minimal divider of 2 if divider resulted in 0
+>       (bcm2835 sets divider to 32768 if cdiv is set to 0)
+> 
+> See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
+> https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
 
-Linus,
+> @@ -252,12 +255,22 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+>  
+>  	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk), bus_clk_rate);
+>  	/*
+> +	 * Divider results in 0 by extremely high bus_clk_rate values
+> +	 * such as bus_clk_rate >= 4044967297 and core_clock = 250MHz.
+> +	 * In such a case assume the minimal possible divider since
+> +	 * bcm2835 chip sets divisor internally to 32768 if cdiv is 0.
+> +	 */
 
-two small bugfixes for I2C. Please pull.
+I would rephrase that as:
 
-Thanks,
+	/*
+	 * A divider of0 results in extremely high bus_clk_rate values
+	 * such as bus_clk_rate >= 4044967297 with core_clock = 250MHz.
+	 * In such a case assume the minimal possible divider, since
+	 * bcm2835 chip sets divisor internally to 32768 if cdiv is 0.
+	 */
 
-   Wolfram
+> +	if (divider < BCM2835_I2C_CDIV_MIN)
+> +		divider = BCM2835_I2C_CDIV_MIN;
 
+This seems reasonable; if the calculated divider is too small, then it
+means we can't run the clock that fas. Running it more slowly loses some
+performance, but should work fine. I might suggest a dev_info() or
+dev_dbg() here.
 
-The following changes since commit 5ebe6afaf0057ac3eaeb98defd5456894b446d22:
+> +	/*
+>  	 * Per the datasheet, the register is always interpreted as an even
+>  	 * number, by rounding down. In other words, the LSB is ignored. So,
+>  	 * if the LSB is set, increment the divider to avoid any issue.
+>  	 */
+>  	if (divider & 1)
+>  		divider++;
+> +	if (divider > BCM2835_I2C_CDIV_MAX)
+> +		divider = BCM2835_I2C_CDIV_MAX;
 
-  Linux 4.1-rc2 (2015-05-03 19:22:23 -0700)
+I think this should be an error. If the calculated divider is too large,
+it means we want to run the clock slower than we can. If we run the
+clock faster than requested, the clock rate might exceed the attached
+I2C devices' capabilities (otherwise, why would we want such a slow
+clock?). As such, I'd suggest a dev_err() here, and to fail the probe()
+by returning an error.
 
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 8d487a43c36b54a029d74ad3b0a6a9d1253e728a:
-
-  i2c: s3c2410: fix oops in suspend callback for non-dt platforms (2015-05-12 18:13:46 +0200)
-
-----------------------------------------------------------------
-Axel Lin (1):
-      i2c: hix5hd2: Fix modalias to make module auto-loading work
-
-Vasily Khoruzhick (1):
-      i2c: s3c2410: fix oops in suspend callback for non-dt platforms
-
- drivers/i2c/busses/i2c-hix5hd2.c | 2 +-
- drivers/i2c/busses/i2c-s3c2410.c | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
---tKW2IUtsqtDRztdT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVcPtJAAoJEBQN5MwUoCm2I+IP/jFhGO9nChAHdZfOA5WOfRZA
-3mgzRzddlP10WGVEkg2pdggckf77KJDdVhSa2v4w7lplj8HLiSjj8b5/Q/LRkRkU
-VrDpXXTp+xqf9l51WS/tyTm+arj+rAbrrhDT2RkEIkeOgrHiEAaF5lAJ/WgosSc0
-NgLevBTmp3CZSPcBsq6VOdocriMTw9FKoLzvaiHAeQ+5czcPdd/SlM3JdW6CypAY
-NYOQG7QTIToVaop0ky32iGieUOgduuivC5IOcN2c/pBxLpExquvqxGWaHU0ApD9Z
-GoSkoWAtPhBcxWtleLY1kKG/J2OT9e78JuCF/FIbMhrrI/jyL8pWqi/OvKEw+Ftr
-JbzTP/Qee7u/SpsJ4UxwBI2bvtCltLxVoU5FDIMDMiBgEsOGf/RzU3SwM4tRx1Ox
-kysB/ABKrEsKaJZ/RYP2fl6+n6S8iQWHn952qdWqSsyl+NWOOYDJ9THCYWOlcZUG
-qLvOkfa3sP0/Ta7d2MAu/nTLFguRSz2t2FSEMEAb1bJ2cawb8cgaNrkLk3UN4ZTj
-eJOGuCj09CQTIUtIgIIa176IP5F5IMGHIJcFGZ+wBcJ5mVyKf8O6bb6G4aK6KFaj
-O9d7r4lsxxtJwwcSWDQYGaHg5RX0cld9V3qw8zxlU5HBUAD3T1RvMeSBkfsmnnoz
-sXNp37jlwnhshHIB9xuw
-=X7Nt
------END PGP SIGNATURE-----
-
---tKW2IUtsqtDRztdT--
+I'd echo Eric's question: I'm curious whether this patch solves a
+real-world problem, or if you found it by code inspection?
