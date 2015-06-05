@@ -1,86 +1,74 @@
-From: Alexander Holler <holler@ahsoftware.de>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Thu, 04 Jun 2015 23:03:46 +0200
-Message-ID: <5570BD32.9020705@ahsoftware.de>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com> <CAF6AEGuOP-3sxDQcNOjVmfP4ue6LmY7KFrj9W75aHKuvZpTFMw@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 4.1
+Date: Fri, 5 Jun 2015 10:28:47 +0900
+Message-ID: <20150605012841.GA1756@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-pwm-owner@vger.kernel.org>
-In-Reply-To: <CAF6AEGuOP-3sxDQcNOjVmfP4ue6LmY7KFrj9W75aHKuvZpTFMw@mail.gmail.com>
-Sender: linux-pwm-owner@vger.kernel.org
-To: Rob Clark <robdclark@gmail.com>, Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Mark Rutland <mark.rutland@arm.com>, Linux Fbdev development list <linux-fbdev@vger.kernel.org>, linux-usb@vger.kernel.org, linux-pwm@vger.kernel.org, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org, "moderated list:ARM/S5P EXYNOS AR..." <linux-samsung-soc@vger.kernel.org>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-pm@vger.kernel.org, linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Dan Williams <dan.j.williams@intel.com>, =?UTF-8?B?U3TDqXBoYW5lIE1hcmNoZXNpbg==?= <stephane.marchesin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am 03.06.2015 um 23:12 schrieb Rob Clark:
-> On Mon, May 25, 2015 at 10:53 AM, Tomeu Vizoso
-> <tomeu.vizoso@collabora.com> wrote:
->> Hello,
->>
->> I have a problem with the panel on my Tegra Chromebook taking longer=
- than
->> expected to be ready during boot (St=C3=A9phane Marchesin reported w=
-hat is
->> basically the same issue in [0]), and have looked into ordered probi=
-ng as a
->> better way of solving this than moving nodes around in the DT or pla=
-ying with
->> initcall levels.
->>
->> While reading the thread [1] that Alexander Holler started with his =
-series to
->> make probing order deterministic, it occurred to me that it should b=
-e possible
->> to achieve the same by registering devices as they are referenced by=
- other
->> devices.
->>
->> This basically reuses the information that is already implicit in th=
-e probe()
->> implementations, saving us from refactoring existing drivers or addi=
-ng
->> information to DTBs.
->>
->> Something I'm not completely happy with is that I have had to move t=
-he call to
->> of_platform_populate after all platform drivers have been registered=
-=2E
->> Otherwise I don't see how I could register drivers on demand as we d=
-on't have
->> yet each driver's compatible strings.
->>
->> For machs that don't move of_platform_populate() to a later point, t=
-hese
->> patches shouldn't cause any problems but it's not guaranteed that we=
-'ll avoid
->> all the deferred probes as some drivers may not be registered yet.
->>
->> I have tested this on boards with Tegra, iMX.6 and Exynos SoCs, and =
-these
->> patches were enough to eliminate all the deferred probes.
->>
->> With this series I get the kernel to output to the panel in 0.5s, in=
-stead of 2.8s.
->=20
-> So, complete drive-by comment (and I won't claim to be a DT expert,
-> etc, etc, so take this with a few grains of salt), but why not push
-> the problem to the DT compiler (or a pre-process step that could be
-> run on existing DT blobs), which generates an optional DT node that i=
-s
-> the recommended probe order?  That seems like it avoids adding
-> complexity into the early boot code (which seems like a good thing)..
 
-I've played with that approach too (as my patches for dtc do contain th=
-e
-same code I've put into the kernel, but decided that it doesn't make
-much sense. The sort algorithm is really small (some dozen lines), very
-fast (around 3-5ms on a omap) and might be later used to sort necessary
-module loading too. So there would be no advantage to put a sorted list
-into the DT. And having the sort algorithm in the kernel, would make it
-possible to use it for acpi or something else too, if they manage it to
-provide the necessary dependencies.
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Regards,
+Linus,
 
-Alexander Holler
+two small bugfixes for I2C. Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 5ebe6afaf0057ac3eaeb98defd5456894b446d22:
+
+  Linux 4.1-rc2 (2015-05-03 19:22:23 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 8d487a43c36b54a029d74ad3b0a6a9d1253e728a:
+
+  i2c: s3c2410: fix oops in suspend callback for non-dt platforms (2015-05-12 18:13:46 +0200)
+
+----------------------------------------------------------------
+Axel Lin (1):
+      i2c: hix5hd2: Fix modalias to make module auto-loading work
+
+Vasily Khoruzhick (1):
+      i2c: s3c2410: fix oops in suspend callback for non-dt platforms
+
+ drivers/i2c/busses/i2c-hix5hd2.c | 2 +-
+ drivers/i2c/busses/i2c-s3c2410.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+--tKW2IUtsqtDRztdT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVcPtJAAoJEBQN5MwUoCm2I+IP/jFhGO9nChAHdZfOA5WOfRZA
+3mgzRzddlP10WGVEkg2pdggckf77KJDdVhSa2v4w7lplj8HLiSjj8b5/Q/LRkRkU
+VrDpXXTp+xqf9l51WS/tyTm+arj+rAbrrhDT2RkEIkeOgrHiEAaF5lAJ/WgosSc0
+NgLevBTmp3CZSPcBsq6VOdocriMTw9FKoLzvaiHAeQ+5czcPdd/SlM3JdW6CypAY
+NYOQG7QTIToVaop0ky32iGieUOgduuivC5IOcN2c/pBxLpExquvqxGWaHU0ApD9Z
+GoSkoWAtPhBcxWtleLY1kKG/J2OT9e78JuCF/FIbMhrrI/jyL8pWqi/OvKEw+Ftr
+JbzTP/Qee7u/SpsJ4UxwBI2bvtCltLxVoU5FDIMDMiBgEsOGf/RzU3SwM4tRx1Ox
+kysB/ABKrEsKaJZ/RYP2fl6+n6S8iQWHn952qdWqSsyl+NWOOYDJ9THCYWOlcZUG
+qLvOkfa3sP0/Ta7d2MAu/nTLFguRSz2t2FSEMEAb1bJ2cawb8cgaNrkLk3UN4ZTj
+eJOGuCj09CQTIUtIgIIa176IP5F5IMGHIJcFGZ+wBcJ5mVyKf8O6bb6G4aK6KFaj
+O9d7r4lsxxtJwwcSWDQYGaHg5RX0cld9V3qw8zxlU5HBUAD3T1RvMeSBkfsmnnoz
+sXNp37jlwnhshHIB9xuw
+=X7Nt
+-----END PGP SIGNATURE-----
+
+--tKW2IUtsqtDRztdT--
