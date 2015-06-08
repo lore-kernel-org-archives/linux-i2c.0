@@ -1,54 +1,117 @@
-From: "Enrico Weigelt, metux IT consult" <weigelt@melag.de>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Mon, 8 Jun 2015 14:26:01 +0200
-Message-ID: <557589D9.1050008@melag.de>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com> <CAL_Jsq+EWLEJhRudTGAwYsOg4tX2-pGhygeQGHae9RL8rBpMiA@mail.gmail.com> <556F5C24.1030101@linaro.org> <5570B783.1050808@ahsoftware.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <5570B783.1050808@ahsoftware.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Alexander Holler <holler@ahsoftware.de>, "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: Rob Herring <robherring2@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, =?UTF-8?B?U3TDqXBoYW5lIE1hcmNoZXNpbg==?= <stephane.marchesin@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dan Williams <dan.j.williams@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, dmaengine@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, linux-clk@vger.kernel.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.ke>
+From: lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: [PATCH] i2c: designware: use enable on resume instead initialization
+Date: Mon,  8 Jun 2015 14:50:28 -0300
+Message-ID: <1433785828-4100-1-git-send-email-lucas.de.marchi@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 04.06.2015 um 22:39 schrieb Alexander Holler:
+From: Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
- > As it seems to have been forgotten or overread, I've mentioned in my
-> series of patches last year that, with a few changes, it's possible t=
-o
-> let the algorithm I've used (dfs) to spit out all drivers which can b=
-e
-> initialized in parallel.
+According to documentation and tests, initialization is not
+necessary on module resume, since the controller keeps its state
+between disable/enable. Change the target address is also allowed.
 
-Unfortunately, I've missed that ... could you please resend you patches=
-?
-Boot time reduction is one of the topics on my 2do in several weeks.
+So, this patch replaces the initialization on module resume with a
+simple enable, and removes the (non required anymore) enables and
+disables.
 
+Signed-off-by: Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
 
-cu
---
-Enrico Weigelt, metux IT consult
-+49-151-27565287
-MELAG Medizintechnik oHG Sitz Berlin Registergericht AG Charlottenburg =
-HRA 21333 B
+These pictures explain a little more the consequence of letting the
+enable+disable in the code:
 
-Wichtiger Hinweis: Diese Nachricht kann vertrauliche oder nur f=C3=BCr =
-einen begrenzten Personenkreis bestimmte Informationen enthalten. Sie i=
-st ausschlie=C3=9Flich f=C3=BCr denjenigen bestimmt, an den sie gericht=
-et worden ist. Wenn Sie nicht der Adressat dieser E-Mail sind, d=C3=BCr=
-fen Sie diese nicht kopieren, weiterleiten, weitergeben oder sie ganz o=
-der teilweise in irgendeiner Weise nutzen. Sollten Sie diese E-Mail irr=
-t=C3=BCmlich erhalten haben, so benachrichtigen Sie bitte den Absender,=
- indem Sie auf diese Nachricht antworten. Bitte l=C3=B6schen Sie in die=
-sem Fall diese Nachricht und alle Anh=C3=A4nge, ohne eine Kopie zu beha=
-lten.
-Important Notice: This message may contain confidential or privileged i=
-nformation. It is intended only for the person it was addressed to. If =
-you are not the intended recipient of this email you may not copy, forw=
-ard, disclose or otherwise use it or any part of it in any form whatsoe=
-ver. If you received this email in error please notify the sender by re=
-plying and delete this message and any attachments without retaining a =
-copy.
+	http://pub.politreco.com/paste/TEK0011-before.jpg
+	http://pub.politreco.com/paste/TEK0007-after.jpg
+
+The yellow line is a GPIO toggle in userspace to mark when we start and finish
+the i2c transactions.  The blue line is the SCL in that i2c bus. Take a look on
+the huge pauses we have between any 2 transactions.  These pauses are removed
+with this patch and we are able to read our sensor's values in 950usec rather
+than 5.24msec we had before.  We are testing this using a Minnowboard Max that
+has a designware i2c controller.
+
+There's this comment in the code suggesting the designware controller might
+have problems if we don't disable it after each transfer.  We left a stress
+code running for 3 days to check if anything bad would happen.  This is the
+test code using a PCA9685 (just because it was the easiest device we had
+available to check read+write commands):
+
+	http://pub.politreco.com/paste/test-i2c.c
+
+ drivers/i2c/busses/i2c-designware-core.c    | 19 ++++---------------
+ drivers/i2c/busses/i2c-designware-platdrv.c |  2 +-
+ 2 files changed, 5 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 6e25c01..b386c10 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -375,8 +375,12 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	/* configure the i2c master */
+ 	dw_writel(dev, dev->master_cfg , DW_IC_CON);
+ 
++	/* Enable the adapter */
++	__i2c_dw_enable(dev, true);
++
+ 	if (dev->release_lock)
+ 		dev->release_lock(dev);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(i2c_dw_init);
+@@ -405,9 +409,6 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	struct i2c_msg *msgs = dev->msgs;
+ 	u32 ic_con, ic_tar = 0;
+ 
+-	/* Disable the adapter */
+-	__i2c_dw_enable(dev, false);
+-
+ 	/* if the slave address is ten bit address, enable 10BITADDR */
+ 	ic_con = dw_readl(dev, DW_IC_CON);
+ 	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN) {
+@@ -434,9 +435,6 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	/* enforce disabled interrupts (due to HW issues) */
+ 	i2c_dw_disable_int(dev);
+ 
+-	/* Enable the adapter */
+-	__i2c_dw_enable(dev, true);
+-
+ 	/* Clear and enable interrupts */
+ 	i2c_dw_clear_int(dev);
+ 	dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
+@@ -665,15 +663,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 		goto done;
+ 	}
+ 
+-	/*
+-	 * We must disable the adapter before unlocking the &dev->lock mutex
+-	 * below. Otherwise the hardware might continue generating interrupts
+-	 * which in turn causes a race condition with the following transfer.
+-	 * Needs some more investigation if the additional interrupts are
+-	 * a hardware bug or this driver doesn't handle them correctly yet.
+-	 */
+-	__i2c_dw_enable(dev, false);
+-
+ 	if (dev->msg_err) {
+ 		ret = dev->msg_err;
+ 		goto done;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index c270f5f..0598695 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -320,7 +320,7 @@ static int dw_i2c_resume(struct device *dev)
+ 	clk_prepare_enable(i_dev->clk);
+ 
+ 	if (!i_dev->pm_runtime_disabled)
+-		i2c_dw_init(i_dev);
++		i2c_dw_enable(i_dev);
+ 
+ 	return 0;
+ }
+-- 
+2.4.2
