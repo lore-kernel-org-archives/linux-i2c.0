@@ -1,51 +1,68 @@
-From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v6 5/6] i2c: at91: print hardware version
-Date: Tue, 09 Jun 2015 22:46:20 +0300
-Message-ID: <5577428C.3090206@cogentembedded.com>
-References: <cover.1433866582.git.cyrille.pitchen@atmel.com> <d1fbf4bce3b470409ef3198f551cfc3f8f22ac78.1433866582.git.cyrille.pitchen@atmel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [V4, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
+ driver
+Date: Wed, 10 Jun 2015 07:16:28 +0900
+Message-ID: <20150609221627.GA1717@katana>
+References: <CAC=U0a2R=G0toDqUQzVueREDXFxs0Dm4eiBAdyhzH7Fp57-nRQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <d1fbf4bce3b470409ef3198f551cfc3f8f22ac78.1433866582.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAC=U0a2R=G0toDqUQzVueREDXFxs0Dm4eiBAdyhzH7Fp57-nRQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Fong <gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
 
-On 06/09/2015 07:22 PM, Cyrille Pitchen wrote:
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> The probe() function now prints the hardware version of the I2C
-> controller.
 
-> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-at91.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
+> If ii is alright with you I will change the  dev_err(...)messages to
+> dev_dbg(...) so that they do not spoil the logs.
 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 817ae69..6e88b30 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-[...]
-> @@ -908,7 +910,8 @@ static int at91_twi_probe(struct platform_device *pdev)
->   		return rc;
->   	}
->
-> -	dev_info(dev->dev, "AT91 i2c bus driver.\n");
-> +	dev_info(dev->dev, "AT91 i2c bus driver (version: %#x).\n",
+OK.
 
-    It looks as if you rather print the driver's version. :-)
+> >> +     rc =3D of_property_read_string(dev->device->of_node, "interrupt-=
+names",
+> >> +                                  &int_name);
+> >
+> > I haven't checked but is that really needed? of_irq_to_resource() seems
+> > to parse the "interrupt-names" property
+>=20
+> Since the driver also fall's back to polling it will not work in case
+> there is no irq domain assigned. The above approach works for both
+> cases. So we do need it.
 
-> +		 at91_twi_read(dev, AT91_TWI_VER));
->   	return 0;
->   }
+I still wonder if there isn't a better way since the name of the
+resource is set already, but if so we can fix this incrementally, so OK
+for now.
 
-WBR, Sergei
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVd2W7AAoJEBQN5MwUoCm2eusQAJ4wM1LhqCx0gi2KUCjEQCMu
+yQWuIueXzb/6/gsUHqYpM8ATki4TNEBG2ntqf4xKqnA7a1/NygrPyh5vbMWdO0El
+RxIxRvdbfgHEOsB5rkft9sPf9Q9Aza0JLVQI9knJnPhMtnfBN1iqYawoV8txVJ9n
+70hJlpEyuFpSzCibCgL1U/L2XU6bA3vY0ZHFpncFDrFNgweJDPGkQN07QxcwUkj3
+T24QwQcmpJVROYQq5JReUEvQcFlKPuDBNYv3g/SvmTJNzto5FnKEZE2NzZNM6y5X
+oRjdkt3wtFXCUul00fFrM9aLajPSElpjORTEy0sfjhKZ5Lvg37mGZKgYRtmM9GVQ
+N2IKjiprcvV+GADjXzMHSNiDjdY92o2Ox65EW3WnIZjFVcIq6U5uQKPkS906C5ro
+jKAJzI63osrif8GceQ/gSm72XXOL3vcrPN9kbV+iUnpaOOSvxkOYDBmbLh/e2MC3
+noI2BwRtTTPmBpRxwOF+R9OX67dvIIC5hLSXJJhIyfAVWXpYQinpv4AznP9UyyvH
+eraHZ8cuXqtdpOhHIH+9SKb670TkpfNzPZ+4Xn+TJYlVQ/+lBb6Qd+1CvUBgYOyP
+AH/riUUNeFggw3ufej15NGnzN6elzo0pCZ9DPI1pNbPhAgg2YIeoG16JZBzQgxjz
+0buCMLef9eKOd0exvMe+
+=omZ3
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--
