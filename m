@@ -1,59 +1,51 @@
-From: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [V5, 2/2] dt-bindings: i2c: Add i2c-brcmstb dt bindings
-Date: Tue, 9 Jun 2015 15:36:21 -0400
-Message-ID: <1433878581-22666-2-git-send-email-kdasu.kdev@gmail.com>
-References: <1433878581-22666-1-git-send-email-kdasu.kdev@gmail.com>
+From: Sergei Shtylyov <sergei.shtylyov-M4DtvfQ/ZS1MRgGoP+s0PdBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v6 5/6] i2c: at91: print hardware version
+Date: Tue, 09 Jun 2015 22:46:20 +0300
+Message-ID: <5577428C.3090206@cogentembedded.com>
+References: <cover.1433866582.git.cyrille.pitchen@atmel.com> <d1fbf4bce3b470409ef3198f551cfc3f8f22ac78.1433866582.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1433878581-22666-1-git-send-email-kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <d1fbf4bce3b470409ef3198f551cfc3f8f22ac78.1433866582.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-i2c Device tree binding documentation for brcmstb
-SoCs.
+Hello.
 
-Signed-off-by: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-brcmstb.txt        | 28 ++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
+On 06/09/2015 07:22 PM, Cyrille Pitchen wrote:
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt b/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
-new file mode 100644
-index 0000000..d6f724e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-brcmstb.txt
-@@ -0,0 +1,28 @@
-+Broadcom stb bsc iic master controller
-+
-+Required properties:
-+
-+- compatible: should be "brcm,brcmstb-i2c"
-+- clock-frequency: 32-bit decimal value of iic master clock freqency in Hz
-+		   valid values are 375000, 390000, 187500, 200000
-+		   93750, 97500, 46875 and 50000
-+- reg: specifies the base physical address and size of the registers
-+
-+Optional properties :
-+
-+- interrupt-parent: specifies the phandle to the parent interrupt controller
-+  this one is cascaded from
-+- interrupts: specifies the interrupt number, the irq line to be used
-+- interrupt-names: Interrupt name string
-+
-+Example:
-+
-+bsca: i2c@f0406200 {
-+      clock-frequency = <390000>;
-+      compatible = "brcm,brcmstb-i2c";
-+      interrupt-parent = <&irq0_intc>;
-+      reg = <0xf0406200 0x58>;
-+      interrupts = <0x18>;
-+      interrupt-names = "upg_bsca";
-+};
-+
--- 
-2.3.2
+> The probe() function now prints the hardware version of the I2C
+> controller.
+
+> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> ---
+>   drivers/i2c/busses/i2c-at91.c | 5 ++++-
+>   1 file changed, 4 insertions(+), 1 deletion(-)
+
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 817ae69..6e88b30 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+[...]
+> @@ -908,7 +910,8 @@ static int at91_twi_probe(struct platform_device *pdev)
+>   		return rc;
+>   	}
+>
+> -	dev_info(dev->dev, "AT91 i2c bus driver.\n");
+> +	dev_info(dev->dev, "AT91 i2c bus driver (version: %#x).\n",
+
+    It looks as if you rather print the driver's version. :-)
+
+> +		 at91_twi_read(dev, AT91_TWI_VER));
+>   	return 0;
+>   }
+
+WBR, Sergei
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
