@@ -1,35 +1,41 @@
-From: Alexander Holler <holler@ahsoftware.de>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Mon, 08 Jun 2015 20:18:40 +0200
-Message-ID: <5575DC80.4040608@ahsoftware.de>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com> <CAL_Jsq+EWLEJhRudTGAwYsOg4tX2-pGhygeQGHae9RL8rBpMiA@mail.gmail.com> <556F5C24.1030101@linaro.org> <5570B783.1050808@ahsoftware.de> <557589D9.1050008@melag.de> <5575DB8D.50000@ahsoftware.de>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: busses: i2c-bcm2835: limits cdiv to allowed values
+Date: Mon, 08 Jun 2015 19:48:25 -0600
+Message-ID: <557645E9.4040700@wwwdotorg.org>
+References: <1433614726-1737-1-git-send-email-linux_wi@tinag.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <5575DB8D.50000@ahsoftware.de>
-Sender: linux-gpio-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <weigelt@melag.de>, "Grygorii.Strashko@linaro.org" <grygorii.strashko@linaro.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: Rob Herring <robherring2@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, =?UTF-8?B?U3TDqXBoYW5lIE1hcmNoZXNpbg==?= <stephane.marchesin@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dan Williams <dan.j.williams@intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, dmaengine@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, linux-clk@vger.kernel.org, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1433614726-1737-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am 08.06.2015 um 20:14 schrieb Alexander Holler:
-> Am 08.06.2015 um 14:26 schrieb Enrico Weigelt, metux IT consult:
->> Am 04.06.2015 um 22:39 schrieb Alexander Holler:
->>
->>  > As it seems to have been forgotten or overread, I've mentioned in my
->>> series of patches last year that, with a few changes, it's possible to
->>> let the algorithm I've used (dfs) to spit out all drivers which can be
->>> initialized in parallel.
->>
->> Unfortunately, I've missed that ... could you please resend you patches?
->> Boot time reduction is one of the topics on my 2do in several weeks.
->
-> https://lkml.org/lkml/2014/5/12/452
->
+On 06/06/2015 12:18 PM, Silvan Wicki wrote:
+> Adds: make sure bits 16-31 of DIV register are always 0
+> Adds: assume minimal divider of 2 if divider resulted in 0
+>       (bcm2835 sets divider to 32768 if cdiv is set to 0)
+> 
+> See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
+> https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
 
-And don't forget patch 10/9 which fixed a bug in my previous patch 
-series and which alos was the reason for the large difference in boot 
-times with and without deps:
+> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
 
-https://lkml.org/lkml/2014/5/13/567
+> @@ -252,12 +255,28 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+
+> +	if (divider > BCM2835_I2C_CDIV_MAX) {
+> +		dev_warn(&pdev->dev,
+> +			 "Clock too slow, falling back to min clock speed\n");
+> +		divider = BCM2835_I2C_CDIV_MAX;
+> +	}
+>  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
+
+Shouldn't this be an error? i.e. dev_err() not dev_warn(), and return an
+error code.
+
+If the divider that's required to reach the requested clock is higher
+than the HW can implement, that means the actual clock will be faster
+than the requested clock. Presumably there's a reason the specific slow
+rate was requested, and if we exceed it, there will be problems.
