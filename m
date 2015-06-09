@@ -1,68 +1,65 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [V4, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
- driver
-Date: Wed, 10 Jun 2015 07:16:28 +0900
-Message-ID: <20150609221627.GA1717@katana>
-References: <CAC=U0a2R=G0toDqUQzVueREDXFxs0Dm4eiBAdyhzH7Fp57-nRQ@mail.gmail.com>
+Subject: Re: [PATCH v5 4/6] i2c: at91: add support for new alternative
+ command mode
+Date: Wed, 10 Jun 2015 07:19:37 +0900
+Message-ID: <20150609221936.GB1717@katana>
+References: <cover.1433348016.git.cyrille.pitchen@atmel.com>
+ <ad5348072752e523b4c677a1a986c142af716b19.1433348016.git.cyrille.pitchen@atmel.com>
+ <55770F43.7050707@atmel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAC=U0a2R=G0toDqUQzVueREDXFxs0Dm4eiBAdyhzH7Fp57-nRQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <55770F43.7050707-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Gregory Fong <gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, rajeev kumar <rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, bcm-kernel-feedback-list" <bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---SLDf9lqlvOQaIe6s
+--IrhDeMKUP4DT/M7F
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+Nicolas,
 
-> If ii is alright with you I will change the  dev_err(...)messages to
-> dev_dbg(...) so that they do not spoil the logs.
-
-OK.
-
-> >> +     rc =3D of_property_read_string(dev->device->of_node, "interrupt-=
-names",
-> >> +                                  &int_name);
-> >
-> > I haven't checked but is that really needed? of_irq_to_resource() seems
-> > to parse the "interrupt-names" property
+> > +static struct at91_twi_pdata at91sama5d2_config =3D {
 >=20
-> Since the driver also fall's back to polling it will not work in case
-> there is no irq domain assigned. The above approach works for both
-> cases. So we do need it.
+> No, please name it:
+>=20
+> "sama5d2_config"
 
-I still wonder if there isn't a better way since the name of the
-resource is set already, but if so we can fix this incrementally, so OK
-for now.
+Thanks for your input, but please don't quote the whole mail for those
+tiny comments. Only the relevant parts, please. Otherwise it is too easy
+to miss things.
+
+Thanks,
+
+   Wolfram
 
 
---SLDf9lqlvOQaIe6s
+--IrhDeMKUP4DT/M7F
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVd2W7AAoJEBQN5MwUoCm2eusQAJ4wM1LhqCx0gi2KUCjEQCMu
-yQWuIueXzb/6/gsUHqYpM8ATki4TNEBG2ntqf4xKqnA7a1/NygrPyh5vbMWdO0El
-RxIxRvdbfgHEOsB5rkft9sPf9Q9Aza0JLVQI9knJnPhMtnfBN1iqYawoV8txVJ9n
-70hJlpEyuFpSzCibCgL1U/L2XU6bA3vY0ZHFpncFDrFNgweJDPGkQN07QxcwUkj3
-T24QwQcmpJVROYQq5JReUEvQcFlKPuDBNYv3g/SvmTJNzto5FnKEZE2NzZNM6y5X
-oRjdkt3wtFXCUul00fFrM9aLajPSElpjORTEy0sfjhKZ5Lvg37mGZKgYRtmM9GVQ
-N2IKjiprcvV+GADjXzMHSNiDjdY92o2Ox65EW3WnIZjFVcIq6U5uQKPkS906C5ro
-jKAJzI63osrif8GceQ/gSm72XXOL3vcrPN9kbV+iUnpaOOSvxkOYDBmbLh/e2MC3
-noI2BwRtTTPmBpRxwOF+R9OX67dvIIC5hLSXJJhIyfAVWXpYQinpv4AznP9UyyvH
-eraHZ8cuXqtdpOhHIH+9SKb670TkpfNzPZ+4Xn+TJYlVQ/+lBb6Qd+1CvUBgYOyP
-AH/riUUNeFggw3ufej15NGnzN6elzo0pCZ9DPI1pNbPhAgg2YIeoG16JZBzQgxjz
-0buCMLef9eKOd0exvMe+
-=omZ3
+iQIcBAEBAgAGBQJVd2Z4AAoJEBQN5MwUoCm2zLwP/3IUFrUV5eVlXXFN0C8IDyhB
+153m/8dwwofNJ4eCehpGT/fP59YpdxfYpLgOM6oBkr+Ckqbw73hyxzZLmovp7Vm6
+LSg/rIUBZh6U3GzA5m5CyqqxVsY7qAPWBi1rdMHMSVkpTJiVO22DmqZNejEFl5AU
+ale9oD653LHnhqtvkHc1lr6sJ4t8d193I18vCJN2P4k63DJRRqtKspkqz/oHwNxF
+ZzBNfR41BdQzbeGvUoY7hN3lXwBqSDLabqlAeVCh/FPKcJRGGiYS+RS9WOvtUfw3
+wg+BMTKNOADvqnKXEY7nvgW85d/jBjcDRwJCiz6ndXU7O2ibyMJIVkTnfmR0k3t8
+D08UDb76CsUJwSYDSzbCvQNZLhEtlsnL72mujEUhNHsVAKOjcvLQcgX6nkslKcLL
+ChI57gEfPaviPaWQuVWvSL9+ooCu2RuPc4cSGN2HDh7wOolxZYj+5UMCFhkPUsS6
+2UWfNz+yw6fRMUS7ieDJj0U/uI0vc+bK5wxz1n6jea/qQUSPUzQbwb86ChlpHz/c
+1AvsF1V67DM3dK7imS4lpSmBvb7o41Rxs9vJS7BbA//xex7dX8Z99yXBLX4xPxk0
+t3RTBbUSOhAPxZgu35pKfo7d5Hl3boyJ+eEhrlJlEfYmSiNc57ThtrosAdFpl/5p
+7SUreW2FQaER3Fw4qFIv
+=22K8
 -----END PGP SIGNATURE-----
 
---SLDf9lqlvOQaIe6s--
+--IrhDeMKUP4DT/M7F--
