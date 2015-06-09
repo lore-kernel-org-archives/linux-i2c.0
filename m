@@ -1,41 +1,94 @@
 From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()
-Date: Tue, 09 Jun 2015 12:54:25 +0200
-Message-ID: <5576C5E1.1010302@nokia.com>
-References: <55534BA0.3000506@nokia.com> <20150602155344.GE2661@katana>
+Subject: Re: [PATCH v3] i2c: davinci: Refactor i2c_davinci_wait_bus_not_busy()
+Date: Tue, 09 Jun 2015 12:58:29 +0200
+Message-ID: <5576C6D5.9070800@nokia.com>
+References: <55534BA0.3000506@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150602155344.GE2661@katana>
+In-Reply-To: <55534BA0.3000506-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Cc: Lawnick Michael 61283229 <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+There are several problems in the function:
+- "to_cnt" variable does nothing
+- schedule_timeout() call without setting current state does nothing
+- "allow_sleep" parameter is not really used
 
-On 02/06/15 17:53, ext Wolfram Sang wrote:
->> There are several problems in the function:
->> > - "to_cnt" variable does nothing
->> > - schedule_timeout() call without setting current state does nothing
->> > - "allow_sleep" parameter is not really used
->> > 
->> > Refactor the function so that it really tries to wait. In case of timeout try
->> > to recover the bus.
->> > 
->> > Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> Don't you get a build warning?
-> 
-> drivers/i2c/busses/i2c-davinci.c: In function 'i2c_davinci_wait_bus_not_busy':
-> drivers/i2c/busses/i2c-davinci.c:364:18: warning: passing argument 1 of 'i2c_recover_bus' from incompatible pointer type
->   i2c_recover_bus(dev);
->                   ^
-> In file included from drivers/i2c/busses/i2c-davinci.c:26:0:
-> include/linux/i2c.h:446:5: note: expected 'struct i2c_adapter *' but argument is of type 'struct davinci_i2c_dev *'
->  int i2c_recover_bus(struct i2c_adapter *adap);
+Refactor the function so that it really tries to wait. In case of timeout try
+to recover the bus.
 
-oh, this is awful copy-paster error... I'll re-send!
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+Changes in v3:
+- corrected argument of i2c_recover_bus()
+Changes in v2:
+- rebased on 110bc76729d4 of Linus's tree;
 
--- 
-Best regards,
-Alexander Sverdlin.
+ drivers/i2c/busses/i2c-davinci.c |   42 +++++++++++++++++--------------------
+ 1 files changed, 19 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index df96ab6..03afdee 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -350,29 +350,25 @@ static struct i2c_bus_recovery_info davinci_i2c_scl_recovery_info = {
+ /*
+  * Waiting for bus not busy
+  */
+-static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
+-					 char allow_sleep)
++static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev)
+ {
+-	unsigned long timeout;
+-	static u16 to_cnt;
+-
+-	timeout = jiffies + dev->adapter.timeout;
+-	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
+-	       & DAVINCI_I2C_STR_BB) {
+-		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
+-			if (time_after(jiffies, timeout)) {
+-				dev_warn(dev->dev,
+-				"timeout waiting for bus ready\n");
+-				to_cnt++;
+-				return -ETIMEDOUT;
+-			} else {
+-				to_cnt = 0;
+-				i2c_recover_bus(&dev->adapter);
+-			}
+-		}
+-		if (allow_sleep)
+-			schedule_timeout(1);
+-	}
++	unsigned long timeout = jiffies + dev->adapter.timeout;
++
++	do {
++		if (!(davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG) & DAVINCI_I2C_STR_BB))
++			return 0;
++		schedule_timeout_uninterruptible(1);
++	} while (time_before_eq(jiffies, timeout));
++
++	dev_warn(dev->dev, "timeout waiting for bus ready\n");
++	i2c_recover_bus(&dev->adapter);
++
++	/*
++	 * if bus is still "busy" here, it's most probably a HW problem like
++	 * short-circuit
++	 */
++	if (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG) & DAVINCI_I2C_STR_BB)
++		return -EIO;
+ 
+ 	return 0;
+ }
+@@ -508,7 +504,7 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
+ 
+-	ret = i2c_davinci_wait_bus_not_busy(dev, 1);
++	ret = i2c_davinci_wait_bus_not_busy(dev);
+ 	if (ret < 0) {
+ 		dev_warn(dev->dev, "timeout waiting for bus ready\n");
+ 		return ret;
