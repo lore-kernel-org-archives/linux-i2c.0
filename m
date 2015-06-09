@@ -1,78 +1,78 @@
-From: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v6 2/6] i2c: at91: use BIT() macro to define register bits
-Date: Tue, 9 Jun 2015 18:22:15 +0200
-Message-ID: <45e14b45987fd18986aebfa08c67044433149457.1433866582.git.cyrille.pitchen@atmel.com>
+From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
+Subject: [PATCH v6 3/6] i2c: at91: update documentation for DT bindings
+Date: Tue, 9 Jun 2015 18:22:16 +0200
+Message-ID: <9f47a33d22873d75c67574736515bea46747d302.1433866582.git.cyrille.pitchen@atmel.com>
 References: <cover.1433866582.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1433866582.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1433866582.git.cyrille.pitchen@atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: ludovic.desroches@atmel.com, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, wsa@the-dreams.de
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, robh+dt@kernel.org, Cyrille Pitchen <cyrille.pitchen@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch just fixes typo before applying later patches which will use
-register bits with index above 16.
+add a new value "atmel,sama5d2-i2c" for the "compatible" property.
+add a new optional property "atmel,fifo-size" to enable FIFO support when
+available.
+add missing optional properties "dmas" and "dma-names".
 
-Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
 ---
- drivers/i2c/busses/i2c-at91.c | 29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt | 30 ++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 9bd10a9..0e88b68 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -41,29 +41,30 @@
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+index 388f0a2..6e81dc1 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+@@ -2,8 +2,8 @@ I2C for Atmel platforms
  
- /* AT91 TWI register definitions */
- #define	AT91_TWI_CR		0x0000	/* Control Register */
--#define	AT91_TWI_START		0x0001	/* Send a Start Condition */
--#define	AT91_TWI_STOP		0x0002	/* Send a Stop Condition */
--#define	AT91_TWI_MSEN		0x0004	/* Master Transfer Enable */
--#define	AT91_TWI_SVDIS		0x0020	/* Slave Transfer Disable */
--#define	AT91_TWI_QUICK		0x0040	/* SMBus quick command */
--#define	AT91_TWI_SWRST		0x0080	/* Software Reset */
-+#define	AT91_TWI_START		BIT(0)	/* Send a Start Condition */
-+#define	AT91_TWI_STOP		BIT(1)	/* Send a Stop Condition */
-+#define	AT91_TWI_MSEN		BIT(2)	/* Master Transfer Enable */
-+#define	AT91_TWI_MSDIS		BIT(3)	/* Master Transfer Disable */
-+#define	AT91_TWI_SVEN		BIT(4)	/* Slave Transfer Enable */
-+#define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
-+#define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
-+#define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
+ Required properties :
+ - compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2c",
+-     "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sam9g10-i2c"
+-     or "atmel,at91sam9x5-i2c"
++     "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sam9g10-i2c",
++     "atmel,at91sam9x5-i2c" or "atmel,sama5d2-i2c"
+ - reg: physical base address of the controller and length of memory mapped
+      region.
+ - interrupts: interrupt number to the cpu.
+@@ -13,6 +13,10 @@ Required properties :
  
- #define	AT91_TWI_MMR		0x0004	/* Master Mode Register */
- #define	AT91_TWI_IADRSZ_1	0x0100	/* Internal Device Address Size */
--#define	AT91_TWI_MREAD		0x1000	/* Master Read Direction */
-+#define	AT91_TWI_MREAD		BIT(12)	/* Master Read Direction */
+ Optional properties:
+ - clock-frequency: Desired I2C bus frequency in Hz, otherwise defaults to 100000
++- dmas: A list of two dma specifiers, one for each entry in dma-names.
++- dma-names: should contain "tx" and "rx".
++- atmel,fifo-size: maximum number of data the RX and TX FIFOs can store for FIFO
++  capable I2C controllers.
+ - Child nodes conforming to i2c bus binding
  
- #define	AT91_TWI_IADR		0x000c	/* Internal Address Register */
- 
- #define	AT91_TWI_CWGR		0x0010	/* Clock Waveform Generator Reg */
- 
- #define	AT91_TWI_SR		0x0020	/* Status Register */
--#define	AT91_TWI_TXCOMP		0x0001	/* Transmission Complete */
--#define	AT91_TWI_RXRDY		0x0002	/* Receive Holding Register Ready */
--#define	AT91_TWI_TXRDY		0x0004	/* Transmit Holding Register Ready */
--
--#define	AT91_TWI_OVRE		0x0040	/* Overrun Error */
--#define	AT91_TWI_UNRE		0x0080	/* Underrun Error */
--#define	AT91_TWI_NACK		0x0100	/* Not Acknowledged */
-+#define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
-+#define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
-+#define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
-+#define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
-+#define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
-+#define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
- 
- #define	AT91_TWI_INT_MASK \
- 	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK)
+ Examples :
+@@ -32,3 +36,25 @@ i2c0: i2c@fff84000 {
+ 		pagesize = <128>;
+ 	}
+ }
++
++i2c0: i2c@f8034600 {
++	compatible = "atmel,sama5d2-i2c";
++	reg = <0xf8034600 0x100>;
++	interrupts = <19 IRQ_TYPE_LEVEL_HIGH 7>;
++	dmas = <&dma0
++		(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1))
++		AT91_XDMAC_DT_PERID(11)>,
++	       <&dma0
++		(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1))
++		AT91_XDMAC_DT_PERID(12)>;
++	dma-names = "tx", "rx";
++	#address-cells = <1>;
++	#size-cells = <0>;
++	clocks = <&flx0>;
++	atmel,fifo-size = <16>;
++
++	wm8731: wm8731@1a {
++		compatible = "wm8731";
++		reg = <0x1a>;
++	};
++};
 -- 
 1.8.2.2
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
