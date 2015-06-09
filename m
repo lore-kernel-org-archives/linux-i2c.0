@@ -1,113 +1,112 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 1/2] i2c: sh_mobile: add errata workaround
-Date: Tue,  9 Jun 2015 16:14:39 +0900
-Message-ID: <1433834080-5630-2-git-send-email-wsa@the-dreams.de>
-References: <1433834080-5630-1-git-send-email-wsa@the-dreams.de>
+From: Axel Lin <axel.lin-8E1dMatC8ynQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH RFT] i2c: au1550: Convert to devm_kzalloc and
+ devm_ioremap_resource
+Date: Tue, 09 Jun 2015 15:52:49 +0800
+Message-ID: <1433836369.27915.1.camel@ingics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1433834080-5630-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Domen Puncer <domen.puncer-eMt1OdnfsGc@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Use devm_* APIs to simplify the code.
 
-This used to be in platform init code. We want it to do in the driver
-now. This is basically a code move and a new compatible added.
-
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Axel Lin <axel.lin-8E1dMatC8ynQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c | 40 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+I don't have the h/w for testing, only compile test.
+ drivers/i2c/busses/i2c-au1550.c | 52 +++++++++++------------------------------
+ 1 file changed, 13 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 007818b3e1745b..7193bcfdd94013 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -150,6 +150,7 @@ struct sh_mobile_i2c_data {
- 
- struct sh_mobile_dt_config {
- 	int clks_per_count;
-+	void (*setup)(struct sh_mobile_i2c_data *pd);
+diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
+index a6aae84..029b382 100644
+--- a/drivers/i2c/busses/i2c-au1550.c
++++ b/drivers/i2c/busses/i2c-au1550.c
+@@ -48,7 +48,6 @@ struct i2c_au1550_data {
+ 	void __iomem *psc_base;
+ 	int	xfer_timeout;
+ 	struct i2c_adapter adap;
+-	struct resource *ioarea;
  };
  
- #define IIC_FLAG_HAS_ICIC67	(1 << 0)
-@@ -164,6 +165,7 @@ struct sh_mobile_dt_config {
- #define ICIC			0x0c
- #define ICCL			0x10
- #define ICCH			0x14
-+#define ICSTART			0x70
+ static inline void WR(struct i2c_au1550_data *a, int r, unsigned long v)
+@@ -315,30 +314,16 @@ i2c_au1550_probe(struct platform_device *pdev)
+ 	struct resource *r;
+ 	int ret;
  
- /* Register bits */
- #define ICCR_ICE		0x80
-@@ -190,6 +192,8 @@ struct sh_mobile_dt_config {
- #define ICIC_WAITE		0x02
- #define ICIC_DTEE		0x01
+-	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!r) {
+-		ret = -ENODEV;
+-		goto out;
+-	}
++	priv = devm_kzalloc(&pdev->dev, sizeof(struct i2c_au1550_data),
++			    GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
  
-+#define ICSTART_ICSTART		0x10
-+
- static void iic_wr(struct sh_mobile_i2c_data *pd, int offs, unsigned char data)
- {
- 	if (offs == ICIC)
-@@ -782,6 +786,33 @@ static struct i2c_algorithm sh_mobile_i2c_algorithm = {
- 	.master_xfer	= sh_mobile_i2c_xfer,
- };
+-	priv = kzalloc(sizeof(struct i2c_au1550_data), GFP_KERNEL);
+-	if (!priv) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+-
+-	priv->ioarea = request_mem_region(r->start, resource_size(r),
+-					  pdev->name);
+-	if (!priv->ioarea) {
+-		ret = -EBUSY;
+-		goto out_mem;
+-	}
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	priv->psc_base = devm_ioremap_resource(&pdev->dev, r);
++	if (IS_ERR(priv->psc_base))
++		return PTR_ERR(priv->psc_base);
  
-+/*
-+ * r8a7740 chip has lasting errata on I2C I/O pad reset.
-+ * this is work-around for it.
-+ */
-+static void sh_mobile_i2c_r8a7740_workaround(struct sh_mobile_i2c_data *pd)
-+{
-+	iic_set_clr(pd, ICCR, ICCR_ICE, 0);
-+	iic_rd(pd, ICCR); /* dummy read */
-+
-+	iic_set_clr(pd, ICSTART, ICSTART_ICSTART, 0);
-+	iic_rd(pd, ICSTART); /* dummy read */
-+
-+	udelay(10);
-+
-+	iic_wr(pd, ICCR, ICCR_SCP);
-+	iic_wr(pd, ICSTART, 0);
-+
-+	udelay(10);
-+
-+	iic_wr(pd, ICCR, ICCR_TRS);
-+	udelay(10);
-+	iic_wr(pd, ICCR, 0);
-+	udelay(10);
-+	iic_wr(pd, ICCR, ICCR_TRS);
-+	udelay(10);
-+}
-+
- static const struct sh_mobile_dt_config default_dt_config = {
- 	.clks_per_count = 1,
- };
-@@ -790,9 +821,15 @@ static const struct sh_mobile_dt_config fast_clock_dt_config = {
- 	.clks_per_count = 2,
- };
+-	priv->psc_base = ioremap(r->start, resource_size(r));
+-	if (!priv->psc_base) {
+-		ret = -EIO;
+-		goto out_map;
+-	}
+ 	priv->xfer_timeout = 200;
  
-+static const struct sh_mobile_dt_config r8a7740_dt_config = {
-+	.clks_per_count = 1,
-+	.setup = sh_mobile_i2c_r8a7740_workaround,
-+};
-+
- static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
- 	{ .compatible = "renesas,rmobile-iic", .data = &default_dt_config },
- 	{ .compatible = "renesas,iic-r8a73a4", .data = &fast_clock_dt_config },
-+	{ .compatible = "renesas,iic-r8a7740", .data = &r8a7740_dt_config },
- 	{ .compatible = "renesas,iic-r8a7790", .data = &fast_clock_dt_config },
- 	{ .compatible = "renesas,iic-r8a7791", .data = &fast_clock_dt_config },
- 	{ .compatible = "renesas,iic-r8a7792", .data = &fast_clock_dt_config },
-@@ -885,6 +922,9 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ 	priv->adap.nr = pdev->id;
+@@ -351,20 +336,13 @@ i2c_au1550_probe(struct platform_device *pdev)
+ 	i2c_au1550_setup(priv);
  
- 			config = match->data;
- 			pd->clks_per_count = config->clks_per_count;
-+
-+			if (config->setup)
-+				config->setup(pd);
- 		}
- 	} else {
- 		if (pdata && pdata->bus_speed)
+ 	ret = i2c_add_numbered_adapter(&priv->adap);
+-	if (ret == 0) {
+-		platform_set_drvdata(pdev, priv);
+-		return 0;
++	if (ret) {
++		i2c_au1550_disable(priv);
++		return ret;
+ 	}
+ 
+-	i2c_au1550_disable(priv);
+-	iounmap(priv->psc_base);
+-out_map:
+-	release_resource(priv->ioarea);
+-	kfree(priv->ioarea);
+-out_mem:
+-	kfree(priv);
+-out:
+-	return ret;
++	platform_set_drvdata(pdev, priv);
++	return 0;
+ }
+ 
+ static int i2c_au1550_remove(struct platform_device *pdev)
+@@ -373,10 +351,6 @@ static int i2c_au1550_remove(struct platform_device *pdev)
+ 
+ 	i2c_del_adapter(&priv->adap);
+ 	i2c_au1550_disable(priv);
+-	iounmap(priv->psc_base);
+-	release_resource(priv->ioarea);
+-	kfree(priv->ioarea);
+-	kfree(priv);
+ 	return 0;
+ }
+ 
 -- 
-2.1.4
+2.1.0
