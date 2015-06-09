@@ -1,41 +1,28 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: busses: i2c-bcm2835: limits cdiv to allowed values
-Date: Mon, 08 Jun 2015 19:48:25 -0600
-Message-ID: <557645E9.4040700@wwwdotorg.org>
-References: <1433614726-1737-1-git-send-email-linux_wi@tinag.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1433614726-1737-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 0/2] ARM: shmobile: r8a7740: move I2C errata handling into the driver
+Date: Tue,  9 Jun 2015 16:14:38 +0900
+Message-ID: <1433834080-5630-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Wolfram Sang <wsa@the-dreams.de>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/06/2015 12:18 PM, Silvan Wicki wrote:
-> Adds: make sure bits 16-31 of DIV register are always 0
-> Adds: assume minimal divider of 2 if divider resulted in 0
->       (bcm2835 sets divider to 32768 if cdiv is set to 0)
-> 
-> See page 33/34 of BCM2835-ARM-Peripherals.pdf for the DIV register.
-> https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+This series moves the errata handling from the setup function into the driver.
+It has been tested that this changeset does not cause a regression on the
+armadillo board we had access to. Unfortunately, this board did not need the
+workaround at all, only some revisions of the r8a7740 are affected.
 
-> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+After a short discussion with Simon, we agreed this should go via I2C.
 
-> @@ -252,12 +255,28 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+Wolfram Sang (2):
+  i2c: sh_mobile: add errata workaround
+  ARM: shmobile: r8a7740: remove I2C errata handling
 
-> +	if (divider > BCM2835_I2C_CDIV_MAX) {
-> +		dev_warn(&pdev->dev,
-> +			 "Clock too slow, falling back to min clock speed\n");
-> +		divider = BCM2835_I2C_CDIV_MAX;
-> +	}
->  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
+ arch/arm/mach-shmobile/setup-r8a7740.c | 55 ----------------------------------
+ drivers/i2c/busses/i2c-sh_mobile.c     | 40 +++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+), 55 deletions(-)
 
-Shouldn't this be an error? i.e. dev_err() not dev_warn(), and return an
-error code.
+-- 
+2.1.4
 
-If the divider that's required to reach the requested clock is higher
-than the HW can implement, that means the actual clock will be faster
-than the requested clock. Presumably there's a reason the specific slow
-rate was requested, and if we exceed it, there will be problems.
