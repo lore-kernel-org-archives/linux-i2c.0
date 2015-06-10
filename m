@@ -1,60 +1,70 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
-Date: Wed, 10 Jun 2015 09:31:00 -0500
-Message-ID: <CAL_JsqJSGnNfxNcchbFE+LEbymgCiZd=HwY3r5h1bnqo9sG3LQ@mail.gmail.com>
-References: <1422083789-18905-1-git-send-email-pantelis.antoniou@konsulko.com>
- <20150422074019.GA1511@katana> <CAMAWPa-HMhJK9UzwfaMPe-MO=4mzjvC=nRwPX-pbab_fb3YZ9A@mail.gmail.com>
- <20150506183733.GA1513@katana> <A4E060DB-2799-4BF5-9CA6-DE53B7DF9A30@konsulko.com>
- <20150610054034.GB1573@katana> <CAL_Jsq+xTZy3QsdaXieR8LSVEJfSeehtcytZLOyt7ghTZ=Bcxw@mail.gmail.com>
- <20150610124949.GC1592@katana> <B9EA0BC3-56D8-4676-BEFC-734EC1FE6649@konsulko.com>
- <20150610140815.GA21540@katana> <041469A7-65F2-4C33-AD67-0B0CE4DEDD75@konsulko.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: I2C slave support on Xilinx Zybo
+Date: Wed, 10 Jun 2015 23:38:02 +0900
+Message-ID: <20150610143801.GB21540@katana>
+References: <CAMQCnXF47Kr3x3yeqba-me+N8rQ-vDJ6ziho5107qcckDbT0mQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <041469A7-65F2-4C33-AD67-0B0CE4DEDD75-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAMQCnXF47Kr3x3yeqba-me+N8rQ-vDJ6ziho5107qcckDbT0mQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Tim Bakker <bakkert-Lqq7FYbpbC48+Wv5JVE8qw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 10, 2015 at 9:10 AM, Pantelis Antoniou
-<pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org> wrote:
-> Hi Wolfram,
->
->> On Jun 10, 2015, at 17:08 , Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->>
->>>> IIRC it is the one which adds OF_POPULATED. If so, why is this not
->>>> scheduled for 4.1 as this bugfix depends on it?
->>>
->>> No idea. This is an obvious bugfix.
->>
->> Dunno if you did but mentioning after the commit message where you t=
-hink
->> it should be applied is very helpful for maintainers.
->>
->>> I would like to, yes. It=E2=80=99s just the nature of the process w=
-hen dealing with
->>> multiple kernel trees. I would be happy for someone to pick up and =
-queue it
->>> for 4.1.
->>
->> That might be too late now... You could also have sent the patch to =
-me
->> so that I could apply it via i2c with rob's ack. Next time...
->>
->
-> No worries. I=E2=80=99ve waited a couple of years until these things =
-got in, I can wait
-> one more release cycle.
 
-You should know this already, but in the future for cross subsystem
-dependencies:
-- send the whole series together
-- Be clear if they are targeted for current rc and/or stable
-- suggest who you think should merge them:
-  - for fixes, whomever took the offending commit if it is the same
-kernel cycle.
-  - for dependencies, get ack's on the dependencies.
+--O5XBE6gyVG5Rl6Rj
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rob
+Hi,
+
+> I am currently working on getting slave support for the Xilinx Zybo platf=
+orm
+> with kernel version 3.19.0.
+
+Cool! Any code you can show for the xilinx driver?
+
+> These are the steps I have taken so far in userspace:
+>=20
+> # echo eeprom 0x28 > /sys/bus/i2c/devices/i2c-1/new_device
+> # i2c i2c-1: new_device: Instantiated device eeprom at 0x29
+
+Ehrm, no, you need to use the slave eeprom driver here. Gosh, did I
+paste the wrong shell command into the docs? How emberrasing...
+
+> I am new to asking question within the kernel emailing list, so I hope I =
+do not
+> offend anybody and I am certainly not trying.=C2=A0
+
+No worries, you came to the right place.
+
+   Wolfram
+
+
+--O5XBE6gyVG5Rl6Rj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVeEvJAAoJEBQN5MwUoCm2Rr0P/RbVv2WFy5l/Vdfwgd6kWgOw
+BkWdlPY7Kj88eTx9jGdjzyrgzuQFbJtM5O9To3vCqus+JJErOli0iSorGZOWF4oD
+zEBRQXl8ax5+jAviHQpx0GqI8EyHm4A/k8IgTQoO/Hf+rPT37tyiOzCh9S+/tm5i
+OyH7R8uyu7QUhtlYMQjhXzsI6f51wQOD3R4O6/M+L+y1jtpepTIyGkKpA4mU43F6
+YR+g2lROttWAnhCU/7kQMS3kB2KtWPpMuM6B6NHaFObaGAAcrWnuKz3QT0P0duhO
+WActRfOz7UgBftcb6XUI+ryMK7D+NMrcoFXHqWXUzgppxo6VbMRUejrbe7LygQqr
+UGaC98zlzYk3tSur6tCZ61MKBPcE8YpRXMmDcQcluCWVQLfBTX8qM7fONzRNdeLD
+NxQilhvfiPyuKKcISmcpNnAPYUtB6FvqOZP9fG7Mo59/fml4E7ZeCB53ShtQSI/+
+89TnAcxTItLTn6IMWSc5k6cLpe5bRARcamu0UQOpSxUzc5cjkfR1nXE/Ju76KC9y
+ofm0v/sxLyeTYjfoCnk/WX8KkK+AZkcB0lxsJVU+M3JRkvm6SwYVhZ99wvfWRQuM
+RRbgiECAu7cNYcz1lpe8njaQx8HyopIAjfB23dAoSVOvy7vOQNkc81UBJzyfZpPB
+zZkvICRbe1BRX3QB+J57
+=wf0n
+-----END PGP SIGNATURE-----
+
+--O5XBE6gyVG5Rl6Rj--
