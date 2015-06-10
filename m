@@ -1,64 +1,66 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v6 0/6] i2c: at91: add support to FIFOs and alternative
- command
-Date: Wed, 10 Jun 2015 22:09:48 +0900
-Message-ID: <20150610130947.GG1592@katana>
-References: <cover.1433866582.git.cyrille.pitchen@atmel.com>
- <20150610125708.GE1592@katana>
+Subject: Re: [PATCH v3] i2c: davinci: Avoid sending to own address
+Date: Wed, 10 Jun 2015 22:13:50 +0900
+Message-ID: <20150610131349.GH1592@katana>
+References: <55534B7A.8070105@nokia.com>
+ <5576C992.3060604@nokia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="doKZ0ri6bHmN2Q5y"
+	protocol="application/pgp-signature"; boundary="/Gk0KcsbyUMelFU1"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150610125708.GE1592@katana>
+In-Reply-To: <5576C992.3060604-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>, Lawnick Michael 61283229 <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Mike Looijmans <mike.looijmans-Oq418RWZeHk@public.gmane.org>, Mastalski Bartosz <bartosz.mastalski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---doKZ0ri6bHmN2Q5y
+--/Gk0KcsbyUMelFU1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> After fixing the version string in patch 5 as mentioned there, and added
-> the acks from Ludovic for the previous version.
+On Tue, Jun 09, 2015 at 01:10:10PM +0200, Alexander Sverdlin wrote:
+> Sending a message to own address locks the controller up in very bizarre =
+state,
+> it behaves as slave even if MDR register clearly states master. The contr=
+oller
+> remains in this state until reset. To avoid unnecessary timeouts simply a=
+void
+> sending to own address. The controller cannot do this any way. Also, do n=
+ot
+> enable AAS IRQ, as the slave mode is not supported by the driver and the =
+only
+> possibility to trigger this IRQ is to send to own address.
 >=20
-> Applied to for-next, thanks!
+> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 
-And unrelated to your series, just in case you feel like it, my code checke=
-rs
-say:
+Applied to for-next, thanks!
 
-drivers/i2c/busses/i2c-at91.c:213: style: Checking if unsigned variable 'bu=
-f_len' is less than zero.
-drivers/i2c/busses/i2c-at91.c:254: style: Checking if unsigned variable 'bu=
-f_len' is less than zero.
-drivers/i2c/busses/i2c-at91.c:293: style: Checking if unsigned variable 'bu=
-f_len' is less than zero.
+Please don't send new patch versions as replies to old versions!
 
 
---doKZ0ri6bHmN2Q5y
+--/Gk0KcsbyUMelFU1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVeDcbAAoJEBQN5MwUoCm2AJYQAJQ9b4F/nfBCg7SXJQnt0bas
-ONgk0EkR4xXuuUhD2FkDFOPrU9xVCu4Kl5srqkJe6vUCFa4xNPOSyV+l9n3DuPq9
-CPEW0lU0NY2UoSUtoz91QxozIqAo/eGMen1w4BykXxpImF9DP9KBDh0Oy3H3K4Yi
-+FHad3fpBc1zyeWVc45BVE4BdcjiiARTV8sTTmeHT4FSH2aISOXaTDHYXuH3QTh5
-Xg5mcA4LkqKhQUyG6faoHf11xuYzsWLZOu99pE46YowWienCQk4Hiw6OB7dlgYWT
-64zWiE9AtuU2SgvUjtr8Jv0tHtKJRvKdB1SsiUA5NQOajr7kG2a9THUgPMcmX5Rv
-U7DJEwesXHdnOZoNrCWiqXRQTZqQM61NenMLJawb0nCGHE70UxMEjUemnzlQQYzn
-T2jUACR2FQ9ESKcFufjqoWdpRY8g2cbQL+IP6ZkmWlgjw6CSu63U5XnStoNScmBq
-bQWcwZ+XzUO4J41ubI/I1uti9Qg2Oa/VZkWpaQWKXSSHhPFVCOiVhZDooQx0PSzb
-gpoLfFCVO4SjCTFn1TrPUYIumAIV1VQEl8asPmHHan6aYt1x9gC41HU+Q8Cd3dAa
-voqgw+OnbF2MS66utcK/ZX9E2kJ/uwXRQMi75sMyzE01ipblqa2MTWBrkJumEL5L
-G5sl3bCslXVOweR+pf4G
-=TyGE
+iQIcBAEBAgAGBQJVeDgNAAoJEBQN5MwUoCm25Y8QAIuQhQMkSNNaZj8xEjA8uuJS
+opRCcqyOprvMnf6HBYhx5UwJDgPBjslgQGDnPmYfdYGAgmd9o4jdJDDk9kRVnDSM
+N3+IPz7TTysCc0p43gyUCHYgLZDb0tslxoy1T4xtTOD4tXcnR29USREZ0ZqT2qQP
+62ox622oSS2Tnsm/GYoxA8f5hQv+BbAWmmJiPZsgcM0gErL+TvZouogHEQotANjZ
+pSe2iAPCG3+JGgnb4nFT8AhWo1nhz67RgJ2c4ngPccv44z7DBGMFiBKd3+fWEbV8
+HVsB/X3fn6K46HHFcSyrI+RR7d7//cZurwQpfKK1E3bAVg70J4hgHuHG23yEmBEy
+mirV+qEQ8LbwG7A/T5g8U4s9WWSJCCNHKRZglgGBd8xjoZSSN4r2Ql6NqiYNod54
+ZoRkPu155u9ykLRjJI8m8S7+61ENewmgPr1DTGLMKFH7Zp08hZwYRuSqFSqjW49Y
+KWO2TUQsjmWohymCinw+GmE5jxjPvD/GX5cgWQvlR8Uz1rWtbObp2UMJJjhqWgCW
+e7YdmQWdM6JbCsSsKOG094Lzpy2FLC6njpSamoq4tCwAFIssyWGy5HFO+G6KAIxF
++BfXUA7InYFSDL6uYVeaI3tLjt2Bc0qnk+JXWNS7bsgKHiQ9yQYmQ3vSNLM7TuuD
+oZysdYmC/sT+CzuTOIPQ
+=b4yU
 -----END PGP SIGNATURE-----
 
---doKZ0ri6bHmN2Q5y--
+--/Gk0KcsbyUMelFU1--
