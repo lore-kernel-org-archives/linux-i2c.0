@@ -1,65 +1,35 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v5 4/6] i2c: at91: add support for new alternative
- command mode
-Date: Wed, 10 Jun 2015 07:19:37 +0900
-Message-ID: <20150609221936.GB1717@katana>
-References: <cover.1433348016.git.cyrille.pitchen@atmel.com>
- <ad5348072752e523b4c677a1a986c142af716b19.1433348016.git.cyrille.pitchen@atmel.com>
- <55770F43.7050707@atmel.com>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: clock driver
+Date: Tue, 9 Jun 2015 17:40:43 -0700
+Message-ID: <5577878B.1080402@freescale.com>
+References: <5564C58B.9050400@freescale.com> <20150526223829.GA26454@roeck-us.net> <55650DBA.5000304@freescale.com> <5565108D.2020502@freescale.com> <20150527173055.22384.74368@quantum>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <55770F43.7050707-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20150527173055.22384.74368@quantum>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+To: Michael Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, andrey-MoRZu3FOBbXQT0dZR+AlfA@public.gmane.org, sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rabeeh-UBr1pzP51AyaMJb+Lgu22Q@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Michael,
 
---IrhDeMKUP4DT/M7F
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have rewritten the driver to use CCF. It will be sent for review when ready.
 
-Nicolas,
+I have some questions, hoping you can shed some light on them.
 
-> > +static struct at91_twi_pdata at91sama5d2_config =3D {
->=20
-> No, please name it:
->=20
-> "sama5d2_config"
+Q1: What does of_clk_add_provider do?
+I read the code and comment. It registers a clock provider for a node. How is it
+used after registration?
 
-Thanks for your input, but please don't quote the whole mail for those
-tiny comments. Only the relevant parts, please. Otherwise it is too easy
-to miss things.
+Q2: What do you suggest to name multiple clocks on PCIe (FPGA) cards?
+I will have multiple cards with multiple clock chips on each. The clock driver
+can handle clocks on each chip. Is it recommended to create unique names by the
+driver? Is there any example to follow?
 
-Thanks,
+Q3: Is there a guideline or an API to create sub folder under debugfs "clk"?
 
-   Wolfram
+Thanks a lot.
 
-
---IrhDeMKUP4DT/M7F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVd2Z4AAoJEBQN5MwUoCm2zLwP/3IUFrUV5eVlXXFN0C8IDyhB
-153m/8dwwofNJ4eCehpGT/fP59YpdxfYpLgOM6oBkr+Ckqbw73hyxzZLmovp7Vm6
-LSg/rIUBZh6U3GzA5m5CyqqxVsY7qAPWBi1rdMHMSVkpTJiVO22DmqZNejEFl5AU
-ale9oD653LHnhqtvkHc1lr6sJ4t8d193I18vCJN2P4k63DJRRqtKspkqz/oHwNxF
-ZzBNfR41BdQzbeGvUoY7hN3lXwBqSDLabqlAeVCh/FPKcJRGGiYS+RS9WOvtUfw3
-wg+BMTKNOADvqnKXEY7nvgW85d/jBjcDRwJCiz6ndXU7O2ibyMJIVkTnfmR0k3t8
-D08UDb76CsUJwSYDSzbCvQNZLhEtlsnL72mujEUhNHsVAKOjcvLQcgX6nkslKcLL
-ChI57gEfPaviPaWQuVWvSL9+ooCu2RuPc4cSGN2HDh7wOolxZYj+5UMCFhkPUsS6
-2UWfNz+yw6fRMUS7ieDJj0U/uI0vc+bK5wxz1n6jea/qQUSPUzQbwb86ChlpHz/c
-1AvsF1V67DM3dK7imS4lpSmBvb7o41Rxs9vJS7BbA//xex7dX8Z99yXBLX4xPxk0
-t3RTBbUSOhAPxZgu35pKfo7d5Hl3boyJ+eEhrlJlEfYmSiNc57ThtrosAdFpl/5p
-7SUreW2FQaER3Fw4qFIv
-=22K8
------END PGP SIGNATURE-----
-
---IrhDeMKUP4DT/M7F--
+York
