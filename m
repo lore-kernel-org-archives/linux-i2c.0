@@ -1,56 +1,64 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [V5, 1/2] i2c: brcmstb: Add Broadcom settop SoC i2c controller
- driver
-Date: Wed, 10 Jun 2015 22:05:32 +0900
-Message-ID: <20150610130531.GF1592@katana>
-References: <1433878581-22666-1-git-send-email-kdasu.kdev@gmail.com>
+Subject: Re: [PATCH v6 0/6] i2c: at91: add support to FIFOs and alternative
+ command
+Date: Wed, 10 Jun 2015 22:09:48 +0900
+Message-ID: <20150610130947.GG1592@katana>
+References: <cover.1433866582.git.cyrille.pitchen@atmel.com>
+ <20150610125708.GE1592@katana>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9ADF8FXzFeE7X4jE"
+	protocol="application/pgp-signature"; boundary="doKZ0ri6bHmN2Q5y"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1433878581-22666-1-git-send-email-kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20150610125708.GE1592@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, gregory.0xf0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, rajeevkumar.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org
+To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---9ADF8FXzFeE7X4jE
+--doKZ0ri6bHmN2Q5y
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 09, 2015 at 03:36:20PM -0400, Kamal Dasu wrote:
-> Adding support for i2c controller driver for Broadcom settop
-> SoCs.
+> After fixing the version string in patch 5 as mentioned there, and added
+> the acks from Ludovic for the previous version.
 >=20
-> Signed-off-by: Kamal Dasu <kdasu.kdev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Applied to for-next, thanks!
 
-Removed superfluous .owner in platform_driver and applied both patches
-to for-next, thanks!
+And unrelated to your series, just in case you feel like it, my code checke=
+rs
+say:
+
+drivers/i2c/busses/i2c-at91.c:213: style: Checking if unsigned variable 'bu=
+f_len' is less than zero.
+drivers/i2c/busses/i2c-at91.c:254: style: Checking if unsigned variable 'bu=
+f_len' is less than zero.
+drivers/i2c/busses/i2c-at91.c:293: style: Checking if unsigned variable 'bu=
+f_len' is less than zero.
 
 
---9ADF8FXzFeE7X4jE
+--doKZ0ri6bHmN2Q5y
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVeDYbAAoJEBQN5MwUoCm2vd0P/jvrcGRJft0Ga8utQ0c6FAMp
-X1Xr3cVA+Poxxkq72q2fu8a5hGLq5ggLYW1btWrvM72GKYszmVPV99i40e7U7qzY
-kDXKQ9RWIMItS0sjzBXzEPAl3qfUJoEJOz0/vD/jvZhl32lbT7jBHDPQ3j/jNKtF
-5hNHI8s/5G4jfEmmzVwtXluh+2vycjJkCW9MXU+4UpxxCKJipJcxRO+LiwY29Fdv
-739FXJu9wrGqgh75rd+I/gUOIqGxOZiUcXilHWtn/GXhNK4ZCepvKL7r7Gv8Ic94
-F86Q6uLIIe0pq1BeZ5eeZ4LqME1b3HYG5/5ojnrSxeo2S3Qz8vASVck1PVtrL3IU
-lsuQ4C/1y+9wvVp2l+1n3VSs2/QtX+OByTnQYXPHoqCq3PWlIsoUeeVK2bc4vKZt
-ceJrkXR81Am0dP0Fqq44ywQMddngxHUBu3eFSc/NiyZ5maxws5BYfAU+uOp7nCdE
-2HriU4mTIupiZppRWwIOj8xqoXXbZeVgHC5+igmvvIykDzRmzxEzsdGtAFoAlPxg
-I9r8dJfjVCdpBLZqCLSVeLglhFuyOu8ZVG/lbJyFJiWQUTAn5O7W14t+klHLW60s
-w6GrEjR2lhauzPPXn+/HvQ3AVV9WrU/xmGDd7f2fBl5CGNaOzZZyf1SUAtaIyU5e
-k0JIXU+5oUBpXLJWpc4w
-=geoL
+iQIcBAEBAgAGBQJVeDcbAAoJEBQN5MwUoCm2AJYQAJQ9b4F/nfBCg7SXJQnt0bas
+ONgk0EkR4xXuuUhD2FkDFOPrU9xVCu4Kl5srqkJe6vUCFa4xNPOSyV+l9n3DuPq9
+CPEW0lU0NY2UoSUtoz91QxozIqAo/eGMen1w4BykXxpImF9DP9KBDh0Oy3H3K4Yi
++FHad3fpBc1zyeWVc45BVE4BdcjiiARTV8sTTmeHT4FSH2aISOXaTDHYXuH3QTh5
+Xg5mcA4LkqKhQUyG6faoHf11xuYzsWLZOu99pE46YowWienCQk4Hiw6OB7dlgYWT
+64zWiE9AtuU2SgvUjtr8Jv0tHtKJRvKdB1SsiUA5NQOajr7kG2a9THUgPMcmX5Rv
+U7DJEwesXHdnOZoNrCWiqXRQTZqQM61NenMLJawb0nCGHE70UxMEjUemnzlQQYzn
+T2jUACR2FQ9ESKcFufjqoWdpRY8g2cbQL+IP6ZkmWlgjw6CSu63U5XnStoNScmBq
+bQWcwZ+XzUO4J41ubI/I1uti9Qg2Oa/VZkWpaQWKXSSHhPFVCOiVhZDooQx0PSzb
+gpoLfFCVO4SjCTFn1TrPUYIumAIV1VQEl8asPmHHan6aYt1x9gC41HU+Q8Cd3dAa
+voqgw+OnbF2MS66utcK/ZX9E2kJ/uwXRQMi75sMyzE01ipblqa2MTWBrkJumEL5L
+G5sl3bCslXVOweR+pf4G
+=TyGE
 -----END PGP SIGNATURE-----
 
---9ADF8FXzFeE7X4jE--
+--doKZ0ri6bHmN2Q5y--
