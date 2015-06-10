@@ -1,63 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 5/6] i2c: at91: print hardware version
-Date: Wed, 10 Jun 2015 21:15:20 +0900
-Message-ID: <20150610121519.GB1592@katana>
-References: <cover.1433866582.git.cyrille.pitchen@atmel.com>
- <d1fbf4bce3b470409ef3198f551cfc3f8f22ac78.1433866582.git.cyrille.pitchen@atmel.com>
- <5577428C.3090206@cogentembedded.com>
- <20150610080553.GO25800@odux.rfo.atmel.com>
- <55782935.30608@cogentembedded.com>
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: Mark instantiated device nodes with OF_POPULATE
+Date: Wed, 10 Jun 2015 07:42:59 -0500
+Message-ID: <CAL_Jsq+xTZy3QsdaXieR8LSVEJfSeehtcytZLOyt7ghTZ=Bcxw@mail.gmail.com>
+References: <1422083789-18905-1-git-send-email-pantelis.antoniou@konsulko.com>
+ <20150422074019.GA1511@katana> <CAMAWPa-HMhJK9UzwfaMPe-MO=4mzjvC=nRwPX-pbab_fb3YZ9A@mail.gmail.com>
+ <20150506183733.GA1513@katana> <A4E060DB-2799-4BF5-9CA6-DE53B7DF9A30@konsulko.com>
+ <20150610054034.GB1573@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <55782935.30608@cogentembedded.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Cyrille Pitchen <cyrille.pitchen@atmel.com>, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, linux-kernel@vger.kernel.org, robh+dt@kernel.org, galak@codeaurora.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150610054034.GB1573@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Kevin Hilman <khilman-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Matt Porter <matt.porter-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Jun 10, 2015 at 12:40 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrot=
+e:
+>
+>> >>>> Mark (and unmark) device nodes with the POPULATE flag as approp=
+riate.
+>> >>>> This is required to avoid multi probing when using I2C and devi=
+ce
+>> >>>> overlays containing a mux.
+>> >>>> This patch is also more careful with the release of the adapter=
+ device
+>> >>>> which caused a deadlock with muxes, and does not break the buil=
+d
+>> >>>> on !OF since the node flag accessors are not defined then.
+>> >>>>
+>> >>>> Signed-off-by: Pantelis Antoniou <pantelis.antoniou-OWPKS81ov/HQFizaE/u3fw@public.gmane.org=
+m>
+>> >>>
+>> >>> Now, that the dependency is upstream: applied to for-current, th=
+anks!
+>> >>
+>> >> I'm not seeing this in linux-next, or in your for-current branch.
+>> >>
+>> >> Was this dropped or superseded by something else?
+>> >
+>> > I dropped it because it caused a build bug. So, we need another
+>> > dependency in... I am not sure if this is already in.
+>> >
+>>
+>> FWIW, I=E2=80=99ve posted the dependency patch already; it=E2=80=99s=
+ trivial as you recall.
+>>
+>> Lets hope it gets picked so that this one can go in.
+>
+> Is that in now?
 
---z6Eq5LdranGa6ru8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You mean "of: Move OF flags to be visible even when !CONFIG_OF"? If
+so, it is queued up for 4.2 in my tree.
 
-> >>>-	dev_info(dev->dev, "AT91 i2c bus driver.\n");
-> >>>+	dev_info(dev->dev, "AT91 i2c bus driver (version: %#x).\n",
->=20
-> >>    It looks as if you rather print the driver's version. :-)
->=20
-> > From my point of view, having a version number for a Linux driver would
-> >be strange
->=20
->    Not everybody shares your opinion.
-
-I tend to agree with Sergei but let's keep things simple: I'll make it
-"hw version" before applying.
-
-
---z6Eq5LdranGa6ru8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVeCpXAAoJEBQN5MwUoCm2akUP/2pFV/nPqlCYBhEkJpbm0pu/
-kppaAg8UXYFoW3zAmw5JnDZYU6H3W0gmhOziEZ7KJEOtXvAGInEdosZsGAyfjNhv
-hROqnIHTJfnA8I/jAFq8ji5/687XhbNYLneMDd+yaUNnYR4Jn3/4matbSH/RXfkE
-7X7g/VnMSAgem9cQmGxuz2PMFGzzfwF5bEWNb4kMi4Ov3PzT9sZX7oiYz8mgAySv
-U/hJUDx05MPJL+zOT6sWXOOlA/mUWHYWGjLFvbYuzNRI4Qr9eQU06D19ruwXkrEK
-rb4WyvLqAHCa/5fUzsmmG0Rr08bGh3rWsesgFvCONLZQH6RjT54gSGXymtMKrI3y
-9Y58w10Z2B2/OS8P8hgGdLgHylA1amDaxLBP3K+VoiuL9Spug8WMkxioeaGPhwH6
-kiR7L04oEymR+1//tCd13AWcmA/uLpXpR9oErt1I2CrhEYK4IJN0Yg86pjFOf0s7
-+dxh1+2r/O3TzEC9CzLcxou3EfmB8RiSaO75k8YnRkTayy8pGLsjISEbWxbgJZVm
-7DAw0toV2cEXCoHMCLzSvMXs5sseHplUK+26NC9g1sBUPzpF11GuGjIbA2l0Oe+t
-eBeICBfKRWlGExQw82/yaQGtvQ2IF147NZmGYAjRpHJaIGq2xieox8rFo6I/tUYP
-cKv8Ongu0dtHj3Lflrxk
-=waUi
------END PGP SIGNATURE-----
-
---z6Eq5LdranGa6ru8--
+Rob
