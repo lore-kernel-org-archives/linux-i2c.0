@@ -1,50 +1,58 @@
-From: Nicholas Mc Guire <der.herr-kA1LtwSENNE@public.gmane.org>
-Subject: Re: [PATCH RFC] i2c: octeon: allow receiving of signals.
-Date: Thu, 11 Jun 2015 15:55:19 +0200
-Message-ID: <20150611135519.GA28420@opentech.at>
-References: <1434029032-8811-1-git-send-email-hofrat@osadl.org> <20150611134435.GA6143@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20150611134435.GA6143@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Nicholas Mc Guire <hofrat@osadl.org>
+Subject: [PATCH] i2c: octeon: remove unused signal handling
+Date: Thu, 11 Jun 2015 16:12:03 +0200
+Message-ID: <1434031923-20914-1-git-send-email-hofrat@osadl.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 11 Jun 2015, Wolfram Sang wrote:
+'commit 2637e5fd232d ("i2c: octeon: Fix i2c fail problem when a process is
+terminated by a signal")' removed the wait_event_interruptible_timeout to 
+prevent half/mixed i2c messages from being sent/recievd but forgot to 
+drop the signal handling case in the return handling. This just removes 
+this dead code. While at it the return variable is adjusted to the type 
+expected.
 
-> On Thu, Jun 11, 2015 at 03:23:52PM +0200, Nicholas Mc Guire wrote:
-> > Change wait_event_timeout() to wait_event_interruptible_timeout() allowing
-> > signals to be received while waiting on event (task state set to 
-> > TASK_INTERRUPTIBLE) as the dev_dbg() string indicates that signals
-> > are expected to be possible. While at it fix the type to long (as returned
-> > by schedule_timeout(). 
-> > 
-> > Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
-> > ---
-> > 
-> > From the dev_dbg string "wait interrupted" it seems that interrupts are
-> > expected to be on - so most likely this should be
-> > wait_event_interruptible_timeout() and not wait_event_timeout() as the
-> > later return >= 0 always and sets the task state to TASK_UNINTERRUPTIBLE.
-> > Someone that knows the details of this driver needs to confirm this though.
-> 
-> Use 'git log drivers/i2c/busses/i2c-octeon.c' and you will find commit
-> 2637e5fd232d421b680757944f613d4b1a36ae26 which disabled the signals.
-> For further digging, you could do
-> 'git log --grep="interruptible" drivers/i2c/busses' to find that signals
-> cause a lot of problems with i2c transactions.
-> 
-> Summary: The code still handling signal code simply needs to go.
->
-thanks - the output of 'git log --grep="interruptible" drivers/i2c/busses' 
-really make it very clear - sorry for the noise - I had only been looking at
-the code of this driver to figure out how to resolve the obvious API
-inconsistency but did not check the broader scope.
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+---
 
-will fix it up and resend.
+V2: Thanks to Wolfram Sang <wsa@the-dreams.de> for clarifying the intent
+    (and how I should have found this by properly checking the git log).
 
-thx!
-hofrat
+Patch was compile tested with cavium_octeon_defconfig
+(implies CONFIG_I2C_OCTEON=y)
+
+Patch is against 4.1-rc7 (localversion-next is -next-20150611)
+
+ drivers/i2c/busses/i2c-octeon.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index 6e75e01..32914ab 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -200,7 +200,7 @@ static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
+  */
+ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ {
+-	int result;
++	long result;
+ 
+ 	octeon_i2c_int_enable(i2c);
+ 
+@@ -210,10 +210,7 @@ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ 
+ 	octeon_i2c_int_disable(i2c);
+ 
+-	if (result < 0) {
+-		dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
+-		return result;
+-	} else if (result == 0) {
++	if (result == 0) {
+ 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
+ 		return -ETIMEDOUT;
+ 	}
+-- 
+1.7.10.4
