@@ -1,64 +1,132 @@
-From: Alexander Holler <holler@ahsoftware.de>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Thu, 11 Jun 2015 18:40:08 +0200
-Message-ID: <5579B9E8.9040609@ahsoftware.de>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>	<5577F533.1060007@ahsoftware.de>	<CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>	<5579602F.1070801@ahsoftware.de> <CACRpkdaZgBR5rHwrEYqcm5K4w3y8MXG8a0k=Y+oQY+jukHfuyw@mail.gmail.com>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
+Date: Fri, 12 Jun 2015 01:20:33 +0530
+Message-ID: <5579E689.5000503@linaro.org>
+References: <5562EF9D.1090403@linaro.org> <55671E44.5000704@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdaZgBR5rHwrEYqcm5K4w3y8MXG8a0k=Y+oQY+jukHfuyw@mail.gmail.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Grant Likely <grant.likely@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, "list@wandq.ahsoftware:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>, "linux-usb@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <55671E44.5000704-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 11.06.2015 um 14:30 schrieb Linus Walleij:
-> On Thu, Jun 11, 2015 at 12:17 PM, Alexander Holler <holler@ahsoftware.de> wrote:
->> Am 11.06.2015 um 10:12 schrieb Linus Walleij:
->>> On Wed, Jun 10, 2015 at 10:28 AM, Alexander Holler <holler@ahsoftware.de>
->>> wrote:
+
+
+On Thursday 28 May 2015 07:25 PM, Vaibhav Hiremath wrote:
 >
->>>> You would end up with the same problem of deadlocks as currently, and you
->>>> would still need something ugly like the defered probe brutforce to avoid
->>>> them.
->>>
->>>
->>> Sorry I don't get that. Care to elaborate on why?
+>
+> On Monday 25 May 2015 03:17 PM, Vaibhav Hiremath wrote:
+>>
+>> Hi,
+>>
+>> This is rather an old issue, for which I have also done custom & hacky
+>> solution in the past.
+>>
+>> Please let me know if there is already an some other method or accepted
+>> workaround to this issue. Also, let me know if you have any suggestions
+>> on this patch, I would be happy to work on it.
 >>
 >>
->> Because loading/initializing on demand doesn't give you any solved order of
->> drivers to initialize. And it can't because it has no idea about the
->> requirements of other drivers. The reason why it might work better in the
->> case of the tegra is that it might give you another initialization order
->> than the one which is currently choosen, which, by luck, might be a better
->> one.
+>> Problem Statement:
+>> ------------------
+>> In certain embedded platforms, the board power on/off is managed by
+>> PMIC IC, which in most of the cases is over I2C bus.
+>> So during shutdown/reboot you may have to do I2C transactions to access
+>> PMIC, which may sleep if I2C bus driver is not functioning in PIO by
+>> default.
 >>
->> But maybe I missed something, I haven't looked at the patches at all. But
->> just loading on demand, can't magically give you a working order of drivers
->> to initialize. E.g. how do you choose the first driver to initialize?
+>> This is unexpected, to sleep after you disable the interrupts.
+>>
+>> For example,
+>>
+>> During reboot/shutdown, the execution call reaches to,
+>>
+>> void machine_power_off(void)
+>> {
+>>          local_irq_disable();
+>>          smp_send_stop();
+>>          if (pm_power_off)
+>>                  pm_power_off();
+>> }
+>>
+>> pm_power_off will try to do I2C transaction to access PMIC, which may
+>> sleep/schedule.
+>>
+>>
+>> Current implementation:
+>> --------------------
+>>
+>> Everyone probably does have their own custom implementation for this.
+>> Or some other mechanism to achieve this (may be hardware support).
+>>
+>>
+>> Proposal:
+>> ---------
+>>
+>> If I am not missing any other way of handling this situation,
+>> below proposal should be clean and acceptable (I hope so :) )
+>>
+>>
+>> Add flags to choose PIO mode, for I2C transactions, and the default
+>> would be to non-PIO mode.
+>>
+>>
+>> struct i2c_msg flags :
+>>
+>> #define I2C_M_PIO    0x0800
+>>
+>>
+>> And also add respective functionality flags
+>>
+>> #define I2C_FUNC_PIO    0x10000000 /* Driver should support PIO mode*/
+>>
+>>
+>> In the bus driver,
+>>
+>> Inside master_xfer() callback we will check whether the intended i2c
+>> transaction is meant to be processed in PIO mode, if yes, then we will
+>> call PIO api, else as usual non-pio api should serve.
+>>
+>>
+>> static int xxx_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int
+>> num)
+>> {
+>>      ...
+>>
+>>
+>> /* We can also check i2c_check_functionality(adap,I2C_FUNC_PIO) */
+>>      if (msg->flags & I2C_M_PIO) {
+>>          /* PIO mode operation */
+>>      } else {
+>>          /* non-pio mode of operation */
+>>      }
+>>
+>>
+>>      ...
+>>
+>>
+>>          return ret;
+>> }
+>>
+>>
+>> Feedback/comments are always welcome.
+>>
+>> Thanks,
+>> Vaibhav
 >
-> So the current patch set introduces dependencies (just for device tree)
-> and Tomeu is working on a more generic dependency approach for
-> any HW description.
 >
-> The first driver to initialize will be as usual the first one in the list for
-> that initlevel, then walking up the initilevels.
+> Any comments on the RFC?
 >
-> However if any driver runs into a resource roadblock it will postpone
-> and wait for dependencies to probe first.
+> Also,
+> + linux-arm & Wolfram Sang
 >
-> Certainly it is possible to create deadlocks in this scenario, but the
-> scope is not to create an ubreakable system.
 
-IAnd what happens if you run into a deadlock? Do you print "you've lost, 
-try changing your kernel config" in some output hidden by a 
-splash-screen? ;)
+Wolfram,
 
-That sounds like the fun with duck typed languages where you have to 
-test any and every possible screnario (something which is almost 
-impossible) in order to not run into something unexpected.
+Any comment on this RFC?
 
-Anyway, have fun, good luck.
-
-Alexander Holler
+Thanks,
+Vaibhav
