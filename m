@@ -1,66 +1,71 @@
-From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 4/4] backlight: Add Congatec CGEB backlight driver
-Date: Thu, 11 Jun 2015 22:48:54 +0200
-Message-ID: <1434055734-3602-5-git-send-email-christian.gmeiner@gmail.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 2/4] i2c: Add Congatec CGEB I2C driver
+Date: Thu, 11 Jun 2015 22:48:52 +0200
+Message-ID: <1434055734-3602-3-git-send-email-christian.gmeiner@gmail.com>
 References: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434055734-3602-1-git-send-email-christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: sameo@linux.intel.com, lee.jones@linaro.org, wsa@the-dreams.de, jdelvare@suse.de, linux-i2c@vger.kernel.org, wim@iguana.be, linux-watchdog@vger.kernel.org, jingoohan1@gmail.com, Sascha Hauer <s.hauer@pengutronix.de>, Christian Gmeiner <christian.gmeiner@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This driver provides support for the CGEB backlight found on some
-Congatec x86 modules.
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+This driver provides a I2C bus driver for the CGEB interface
+found on some Congatec x86 modules. No devices are registered
+on the bus, the user has to do this via the i2c device /sys
+interface.
+
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 ---
- drivers/video/backlight/Kconfig            |   7 ++
- drivers/video/backlight/Makefile           |   1 +
- drivers/video/backlight/congatec-cgeb_bl.c | 125 +++++++++++++++++++++++++++++
- 3 files changed, 133 insertions(+)
- create mode 100644 drivers/video/backlight/congatec-cgeb_bl.c
+ drivers/i2c/busses/Kconfig             |   7 ++
+ drivers/i2c/busses/Makefile            |   1 +
+ drivers/i2c/busses/i2c-congatec-cgeb.c | 205 +++++++++++++++++++++++++++++++++
+ 3 files changed, 213 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-congatec-cgeb.c
 
-diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
-index 2d9923a..35e4913 100644
---- a/drivers/video/backlight/Kconfig
-+++ b/drivers/video/backlight/Kconfig
-@@ -451,6 +451,13 @@ config BACKLIGHT_BD6107
- 	help
- 	  If you have a Rohm BD6107 say Y to enable the backlight driver.
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 2255af2..9c49d37 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -937,6 +937,13 @@ config I2C_RCAR
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-rcar.
  
-+config BACKLIGHT_CONGATEC_CGEB
-+	tristate "Congatec CGEB Backlight driver"
++config I2C_CONGATEC_CGEB
++	tristate "Congatec CGEB I2C driver"
 +	depends on MFD_CONGATEC_CGEB
 +	help
-+	  This driver provides support for the backlight accssable via
++	  This driver provides support for the I2C busses accssable via
 +	  the Congatec CGEB interface found on Congatec boards.
 +
- endif # BACKLIGHT_CLASS_DEVICE
+ comment "External I2C/SMBus adapter drivers"
  
- endif # BACKLIGHT_LCD_SUPPORT
-diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
-index d67073f..5654d6a 100644
---- a/drivers/video/backlight/Makefile
-+++ b/drivers/video/backlight/Makefile
-@@ -28,6 +28,7 @@ obj-$(CONFIG_BACKLIGHT_AS3711)		+= as3711_bl.o
- obj-$(CONFIG_BACKLIGHT_BD6107)		+= bd6107.o
- obj-$(CONFIG_BACKLIGHT_CARILLO_RANCH)	+= cr_bllcd.o
- obj-$(CONFIG_BACKLIGHT_CLASS_DEVICE)	+= backlight.o
-+obj-$(CONFIG_BACKLIGHT_CONGATEC_CGEB)	+= congatec-cgeb_bl.o
- obj-$(CONFIG_BACKLIGHT_DA903X)		+= da903x_bl.o
- obj-$(CONFIG_BACKLIGHT_DA9052)		+= da9052_bl.o
- obj-$(CONFIG_BACKLIGHT_EP93XX)		+= ep93xx_bl.o
-diff --git a/drivers/video/backlight/congatec-cgeb_bl.c b/drivers/video/backlight/congatec-cgeb_bl.c
+ config I2C_DIOLAN_U2C
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index cdf941d..29e7ea7 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -91,6 +91,7 @@ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+ obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
+ obj-$(CONFIG_I2C_XLP9XX)	+= i2c-xlp9xx.o
+ obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
++obj-$(CONFIG_I2C_CONGATEC_CGEB)	+= i2c-congatec-cgeb.o
+ 
+ # External I2C/SMBus adapter drivers
+ obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
+diff --git a/drivers/i2c/busses/i2c-congatec-cgeb.c b/drivers/i2c/busses/i2c-congatec-cgeb.c
 new file mode 100644
-index 0000000..4e5f97e
+index 0000000..7802790
 --- /dev/null
-+++ b/drivers/video/backlight/congatec-cgeb_bl.c
-@@ -0,0 +1,125 @@
++++ b/drivers/i2c/busses/i2c-congatec-cgeb.c
+@@ -0,0 +1,205 @@
 +/*
-+ * CGEB backlight driver
++ * CGEB i2c driver
 + *
-+ * (c) 2012 Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
++ * (c) 2011 Sascha Hauer, Pengutronix
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -74,113 +79,193 @@ index 0000000..4e5f97e
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
 +#include <linux/slab.h>
-+#include <linux/backlight.h>
++#include <linux/i2c.h>
 +#include <linux/mfd/congatec-cgeb.h>
 +
-+struct cgeb_backlight_data {
++#define CG_I2C_FLAG_START   0x00080    /* send START condition */
++#define CG_I2C_FLAG_STOP    0x00040    /* send STOP condition */
++#define CG_I2C_FLAG_ALL_ACK 0x08000    /* send ACK on all read bytes */
++#define CG_I2C_FLAG_ALL_NAK 0x04000    /* send NAK on all read bytes */
++
++struct cgeb_i2c_priv {
 +	struct cgeb_board_data          *board;
++	struct i2c_adapter      adapter;
 +	int unit;
 +};
 +
-+static int cgeb_backlight_update_status(struct backlight_device *bl)
++static u32 cgeb_i2c_func(struct i2c_adapter *adapter)
 +{
-+	struct cgeb_backlight_data *data = bl_get_data(bl);
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static int cgeb_i2c_set_speed(struct cgeb_i2c_priv *priv, int speed)
++{
 +	struct cgeb_function_parameters fps;
-+	int brightness = bl->props.brightness;
-+	int err;
 +
 +	memset(&fps, 0, sizeof(fps));
-+	
-+	fps.unit = data->unit;
-+	fps.pars[0] = brightness;
-+	
-+	err = cgeb_call(data->board, &fps, CgebVgaSetBacklight);
-+	return err;
++
++	fps.unit = priv->unit;
++	fps.pars[0] = speed;
++
++	return cgeb_call(priv->board, &fps, CgebI2CSetFrequency);
 +}
 +
-+static int cgeb_backlight_get_brightness(struct backlight_device *bl)
++static int cgeb_i2c_xfer(struct i2c_adapter *adapter,
++		struct i2c_msg *msgs, int num)
 +{
-+	struct cgeb_backlight_data *data = bl_get_data(bl);
-+	unsigned long brightness;
++	struct cgeb_function_parameters fps;
++	int i, ret;
++	unsigned long flags = CG_I2C_FLAG_START;
++	struct cgeb_i2c_priv *priv = i2c_get_adapdata(adapter);
++	unsigned long rdlen, wrlen;
++	unsigned char *rdbuf, *wrbuf, *raw_wrbuf;
++	unsigned short lmax = 0;
 +
-+	cgeb_call_simple(data->board, CgebVgaGetBacklight, 0, NULL, &brightness);
++	/*
++	 * With cgeb the I2C address is part of the write data
++	 * buffer, so allocate a buffer with the length of the
++	 * longest write buffer + 1
++	 */
++	for (i = 0; i < num; i++)
++		if (!(msgs[i].flags & I2C_M_RD))
++			lmax = max(lmax, msgs[i].len);
 +
-+	return brightness;
++	raw_wrbuf = kmalloc(lmax + 1, GFP_KERNEL);
++	if (!raw_wrbuf)
++		return -ENOMEM;
++
++	for (i = 0; i < num; i++) {
++		if (msgs[i].flags & I2C_M_RD) {
++			rdbuf = msgs[i].buf;
++			rdlen = msgs[i].len;
++			wrbuf = NULL;
++			wrlen = 0;
++		} else {
++			rdbuf = NULL;
++			rdlen = 0;
++			wrbuf = msgs[i].buf;
++			wrlen = msgs[i].len;
++		}
++
++		raw_wrbuf[0] = msgs[i].addr << 1;
++		if (wrlen)
++			memcpy(&raw_wrbuf[1], wrbuf, wrlen);
++
++		if (msgs[i].flags & I2C_M_RD)
++			raw_wrbuf[0] |= 1;
++
++		if (i == num - 1)
++			flags |= CG_I2C_FLAG_STOP;
++
++		dev_dbg(&adapter->dev,
++				"%s: rd: %p/%ld wr: %p/%ld flags: 0x%08lx %s\n",
++				__func__, rdbuf, rdlen, raw_wrbuf, wrlen + 1,
++				flags,
++				msgs[i].flags & I2C_M_RD ? "READ" : "WRITE");
++
++		memset(&fps, 0, sizeof(fps));
++
++		fps.unit = priv->unit;
++		fps.pars[0] = wrlen + 1;
++		fps.pars[1] = rdlen;
++		fps.pars[2] = flags;
++		fps.iptr = raw_wrbuf;
++		fps.optr = rdbuf;
++
++		ret = cgeb_call(priv->board, &fps, CgebI2CTransfer);
++		if (ret) {
++			ret = -EREMOTEIO;
++			goto out;
++		}
++	}
++
++	ret = num;
++
++out:
++	kfree(raw_wrbuf);
++
++	return ret;
 +}
 +
-+static const struct backlight_ops cgeb_backlight_ops = {
-+	.update_status	= cgeb_backlight_update_status,
-+	.get_brightness	= cgeb_backlight_get_brightness,
++static struct i2c_algorithm cgeb_i2c_algo = {
++	.master_xfer    = cgeb_i2c_xfer,
++	.functionality  = cgeb_i2c_func,
 +};
 +
-+static int cgeb_backlight_probe(struct platform_device *pdev)
-+{  
-+	struct backlight_device *bl;
-+	struct backlight_properties props;
-+	struct cgeb_backlight_data *data;
++static int cgeb_i2c_probe(struct platform_device *pdev)
++{
++	struct cgeb_i2c_priv *priv;
 +	struct cgeb_pdata *pdata = pdev->dev.platform_data;
 +	int ret;
 +
-+	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
 +		return -ENOMEM;
 +
-+	data->unit = pdata->unit;
-+	data->board = pdata->board;
++	strcpy(priv->adapter.name, pdev->name);
++	priv->adapter.owner             = THIS_MODULE;
++	priv->adapter.algo              = &cgeb_i2c_algo;
++	priv->adapter.dev.parent        = &pdev->dev;
++	priv->unit = pdata->unit;
++	priv->board = pdata->board;
++	i2c_set_adapdata(&priv->adapter, priv);
 +
-+	props.max_brightness = 100;
-+	props.brightness = 100;
-+	props.type = BACKLIGHT_RAW;
-+	
-+	bl = backlight_device_register(dev_name(&pdev->dev), &pdev->dev, data,
-+					&cgeb_backlight_ops, &props);
-+	if (IS_ERR(bl)) {
-+		dev_err(&pdev->dev, "failed to register backlight\n");
-+		ret = PTR_ERR(bl);
-+		goto error_backlight_device_register;
++	platform_set_drvdata(pdev, priv);
++
++	ret = cgeb_i2c_set_speed(priv, 400000);
++	if (ret)
++		/*
++		 * not a critical error, we can continue with the default speed.
++		 */
++		dev_warn(&pdev->dev, "Could not set speed to 400KHz\n");
++
++	ret = i2c_add_adapter(&priv->adapter);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "registration failed\n");
++		return ret;
 +	}
 +
-+	platform_set_drvdata(pdev, bl);
-+	
 +	dev_info(&pdev->dev, "registered\n");
++
 +	return 0;
-+	
-+error_backlight_device_register:
-+	kfree(data);
-+	return ret;
 +};
 +
-+static int cgeb_backlight_remove(struct platform_device *pdev)
++static int cgeb_i2c_remove(struct platform_device *pdev)
 +{
-+	struct backlight_device *bl = platform_get_drvdata(pdev);
-+	struct cgeb_backlight_data *data = bl_get_data(bl);
-+	struct cgeb_function_parameters fps;
++	struct cgeb_i2c_priv *priv = platform_get_drvdata(pdev);
 +
-+	backlight_device_unregister(bl);
++	i2c_del_adapter(&priv->adapter);
 +
-+	/* on module unload set brightness to 100% */
-+	memset(&fps, 0, sizeof(fps));
-+	fps.unit = data->unit;
-+	fps.pars[0] = 100;
-+	cgeb_call(data->board, &fps, CgebVgaSetBacklight);
++	platform_set_drvdata(pdev, NULL);
 +
-+	kfree(data);
 +	return 0;
 +}
 +
-+static struct platform_driver cgeb_backlight_driver = {
-+	.probe          = cgeb_backlight_probe,
-+	.remove         = __exit_p(cgeb_backlight_remove),
++static struct platform_driver cgeb_i2c_driver = {
++	.probe          = cgeb_i2c_probe,
++	.remove         = __exit_p(cgeb_i2c_remove),
 +	.driver = {
-+	        .name   = "cgeb-backlight",
-+	        .owner  = THIS_MODULE,
++		.name   = "cgeb-i2c",
++		.owner  = THIS_MODULE,
 +	},
 +};
 +
-+module_platform_driver(cgeb_backlight_driver);
++static int __init cgeb_i2c_driver_init(void)
++{
++	return platform_driver_register(&cgeb_i2c_driver);
++}
 +
-+MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>");
-+MODULE_DESCRIPTION("cgeb backlight driver");
++static void __exit cgeb_i2c_driver_exit(void)
++{
++	platform_driver_unregister(&cgeb_i2c_driver);
++}
++
++module_init(cgeb_i2c_driver_init);
++module_exit(cgeb_i2c_driver_exit);
++
++MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
++MODULE_DESCRIPTION("cgeb i2c driver");
 +MODULE_LICENSE("GPL");
++
 -- 
 2.4.2
