@@ -1,49 +1,41 @@
-From: Alexander Holler <holler@ahsoftware.de>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Thu, 11 Jun 2015 12:17:19 +0200
-Message-ID: <5579602F.1070801@ahsoftware.de>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>	<5577F533.1060007@ahsoftware.de> <CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>
+From: Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [Patch v1] i2c: imx: add runtime pm support to improve the
+ performance
+Date: Thu, 11 Jun 2015 10:20:20 +0000
+Message-ID: <BLUPR03MB37378710ABA9C47266E55E2F5BC0@BLUPR03MB373.namprd03.prod.outlook.com>
+References: <1433987404-28957-1-git-send-email-b54642@freescale.com>
+	<CAM=Q2cuEChJySEex99e_xqfgXORZxDHqpGve7hbh-+nQVYPxAg@mail.gmail.com>
+	<BLUPR03MB373DE1F76EE2A0B96A66FC9F5BC0@BLUPR03MB373.namprd03.prod.outlook.com>
+ <CAM=Q2cuyhhH+_HY8Fdwt35W2y_oNb+t2P12eMeZKGJsxLxq=Hw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Grant Likely <grant.likely@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, open@wandq.ahsoftware, "list@wandq.ahsoftware:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>, "linux-usb@vger.kernel.org" <linux-i2c@vg>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAM=Q2cuyhhH+_HY8Fdwt35W2y_oNb+t2P12eMeZKGJsxLxq=Hw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 11.06.2015 um 10:12 schrieb Linus Walleij:
-> On Wed, Jun 10, 2015 at 10:28 AM, Alexander Holler <holler@ahsoftware.de> wrote:
->> Am 10.06.2015 um 09:30 schrieb Linus Walleij:
->
->>> i2c host comes out, probes the regulator driver, regulator driver
->>> probes and then the regulator_get() call returns.
->>>
->>> This requires instrumentation on anything providing a resource
->>> to another driver like those I mentioned and a lot of overhead
->>> infrastructure, but I think it's the right approach. However I don't
->>> know if I would ever be able to pull that off myself, I know talk
->>> is cheap and I should show the code instead.
->>
->> You would end up with the same problem of deadlocks as currently, and you
->> would still need something ugly like the defered probe brutforce to avoid
->> them.
->
-> Sorry I don't get that. Care to elaborate on why?
-
-Because loading/initializing on demand doesn't give you any solved order 
-of drivers to initialize. And it can't because it has no idea about the 
-requirements of other drivers. The reason why it might work better in 
-the case of the tegra is that it might give you another initialization 
-order than the one which is currently choosen, which, by luck, might be 
-a better one.
-
-But maybe I missed something, I haven't looked at the patches at all. 
-But just loading on demand, can't magically give you a working order of 
-drivers to initialize. E.g. how do you choose the first driver to 
-initialize?
-
-Regards,
-
-Alexander Holler
+RnJvbTogU2h1YmhyYWp5b3RpIERhdHRhIDxvbWFwbGludXhrZXJuZWxAZ21haWwuY29tPiBTZW50
+OiBUaHVyc2RheSwgSnVuZSAxMSwgMjAxNSA2OjExIFBNDQo+IFRvOiBEdWFuIEZ1Z2FuZy1CMzg2
+MTENCj4gQ2M6IEdhbyBQYW4tQjU0NjQyOyBXb2xmcmFtIFNhbmc7IExpbnV4LUkyQzsgTGkgRnJh
+bmstQjIwNTk2DQo+IFN1YmplY3Q6IFJlOiBbUGF0Y2ggdjFdIGkyYzogaW14OiBhZGQgcnVudGlt
+ZSBwbSBzdXBwb3J0IHRvIGltcHJvdmUgdGhlDQo+IHBlcmZvcm1hbmNlDQo+IA0KPiA8c25pcD4N
+Cj4gPj4gPiAgc3RhdGljIGlycXJldHVybl90IGkyY19pbXhfaXNyKGludCBpcnEsIHZvaWQgKmRl
+dl9pZCkgQEAgLTU4Myw2DQo+ID4+ID4gKzU4Miw5IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBpMmNf
+aW14X2lzcihpbnQgaXJxLCB2b2lkICpkZXZfaWQpDQo+ID4+ID4gICAgICAgICBzdHJ1Y3QgaW14
+X2kyY19zdHJ1Y3QgKmkyY19pbXggPSBkZXZfaWQ7DQo+ID4+ID4gICAgICAgICB1bnNpZ25lZCBp
+bnQgdGVtcDsNCj4gPj4gPg0KPiA+PiA+ICsgICAgICAgaWYgKHBtX3J1bnRpbWVfc3VzcGVuZGVk
+KGkyY19pbXgtPmFkYXB0ZXIuZGV2LnBhcmVudCkpDQo+ID4+ID4gKyAgICAgICAgICAgICAgIHJl
+dHVybiBJUlFfTk9ORTsNCj4gPj4gPiArDQo+ID4+DQo+ID4+IERpZG4ndCBxdWl0ZSBnZXQgdGhp
+cyBvbmUuDQo+ID4NCj4gPiBZZXMsIHRoZXJlIGRvbid0IG5lZWQgdG8gYWRkIHBtX3J1bnRpbWVf
+c3VzcGVuZGVkKCkgY2hlY2sgaW4gaXNyDQo+ID4gaGFuZGxlci4gQnV0IGluIHNvbWUgd29yc2Ug
+d29yc2UgY2FzZSwgIGxpa2Ugc3lzdGVtIGlzIHZlcnkgYnVzeSBhbmQNCj4gPiBpcnEgaXMgYmxv
+Y2tlZCBieSBvdGhlcnMNCj4gDQo+IHlvdSBtZWFuIG90aGVyIGlycXM/DQoNCk1heWJlLiAgDQpP
+ciBzcGluX2xvY2tfaXJxX3NhdmUoKSBpcyBjYWxsZWQgZm9yIHNvbWUgYmFkIHJvdXRpbmUgZm9y
+IGxvbmcgdGltZSAuLi4uDQoNCj4gDQo+ID4gdGhhdCBpcnEgcmVzcG9uc2UgY29taW5nIGlzIHZl
+cnkgbGF0ZSB3aGlsZSBpMmMgY2xvY2sgaXMgZ2F0ZWQgb2ZmLCB0aGUNCj4gY2hlY2sgY2FuIGF2
+b2lkIHN5c3RlbSBoYW5nLg0KPiA+DQo+ID4gU28gSSB0aGluayBpdCBjYW4gYmUgcmVhc29uYWJs
+ZS4gSG93IGRvIHlvdSB0aGluayA/DQo+ID4NCj4gPiBSZWdhcmRzLA0KPiA+IEFuZHkNCg==
