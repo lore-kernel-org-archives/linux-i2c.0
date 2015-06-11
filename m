@@ -1,88 +1,71 @@
-From: Lucas De Marchi <lucas.demarchi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: designware: use enable on resume instead
- initialization
-Date: Thu, 11 Jun 2015 11:48:51 -0300
-Message-ID: <20150611144851.GA2407@vader.bz.intel.com>
-References: <1433785828-4100-1-git-send-email-lucas.de.marchi@gmail.com>
- <20150609085146.GD1478@lahna.fi.intel.com>
- <CAKi4VAJwD45VbWuCHegfkB-tbgvgza52-cgVNF4AxF8NCuYyRQ@mail.gmail.com>
- <20150610070722.GM1478@lahna.fi.intel.com>
- <OF847FFF39.1FF5F96A-ONC1257E60.00506AFD-C1257E60.0052A8CE@alitech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <OF847FFF39.1FF5F96A-ONC1257E60.00506AFD-C1257E60.0052A8CE-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Fabio Mello <fabio.mello-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lucas De Marchi <lucas.de.marchi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Nicholas Mc Guire <hofrat@osadl.org>
+Subject: [PATCH] i2c: mv64xxx: remove unreachable signal case handling
+Date: Thu, 11 Jun 2015 17:27:33 +0200
+Message-ID: <1434036453-23336-1-git-send-email-hofrat@osadl.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Chen-Yu Tsai <wens@csie.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+'commit d295a86eab20 ("i2c: mv64xxx: work around signals causing I2C
+transactions to be aborted")' removed the wait_event_interruptible_timeout 
+to prevent half/mixed i2c messages from being sent/received but forgot to
+drop the signal received cases in the return handling. This just removes
+this dead code and simplifies the error message as "time_left" only can be 
+0 here and thus it conveys no additional information.
 
-On 06/10, christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org wrote:
-> Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote on 10.06.2015 
-> 09:07:22:
-> > My concern is that this patch might break some non-Intel platform. It
-> > would be nice if someone (Christian?) could try this out.
-> 
-> Ouch, this one brings back painful memories. Take a look at patch 
-> 38d7fadef4973bb94e36897fcb6bb6a12fdd10c9 (
-> https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=38d7fadef4973bb94e36897fcb6bb6a12fdd10c9
-> ) for the context.
-> 
-> In brief:
-> - Before patch 38d7fade, the driver disabled the hardware after successful 
-> transfers. I do not know the reason for this and I cannot judge whether 
-> this is necessary or not. I thus decided not to modify this behaviour in 
-> patch 38d7fade.
-> 
-> - After patch 38d7fade, the driver disabled the dw controller after all 
-> transfers, in particular in the case of unsuccessful transfers. This 
-> modification was necessary because of a race condition triggered by an i2c 
-> slave device which interrupted transfers in the middle. In this case, the 
-> dw controller (at least our version) seems to send spurious interrupts 
-> later if it is not disabled. The interrupt handler is not designed to be 
-> called on already aborted transfers, however, which leads to undesirable 
-> behaviour if the interrupt occurs at the wrong moment (system hangs in irq 
-> loop).
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+---
 
-Yeah. So before we had:
+Patch was compile tested with multi_v7_defconfig 
+(implies CONFIG_I2C_MV64XXX=y)
 
- - sucessful transfer
-   -> disable the adapter after complete
- - timeout transfer
-   -> disable the adapter after complete
+Patch is against 4.1-rc7 (localversion-next is -next-20150611)
 
-And your patch added the disable in case there wasn't a timeout but
-dev->msg_err was set.
+ drivers/i2c/busses/i2c-mv64xxx.c |   15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-
-> I will try to dig out the test setup we used to validate the patch at the 
-> time but given the fact that this was two years ago this might take a 
-> little while. In the meantime, do you have any means to stress test the 
-> case of unexpected events on the bus (client aborts transfer, timeout 
-> etc.)? An alternative might be to only disable the controller in the case 
-> of errors and leave it active after successful transfers. We should 
-> understand why the controller was disabled after successful transfers in 
-
-It seems pretty rad to disable the controller after each transfer.  It
-may be due to previous revisions of the hw but may well be because of
-"it was the simplest way to do it" at the time.  Disabling the
-controller after each transfer even if successful. For unsuccessful
-transfers we may want to disable it if there's a hw bug, but it would be
-good to check this indeed.
-
-
-> the first place, however. Maybe some quirk with older versions of the 
-> hardware? Mika, do you have any memories about this?
-
-I'm not sure if it's a hw bug or if it's just an oversight from previous
-versions of this driver.  So adding a quirk with correct versions will
-be difficult IMO.  We've been only testing this with well behaved
-slaves.  Do you have any idea how to test the bad guys?  Maybe
-connecting a slave with a long wire to introduce errors?
-
-
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 30059c1..a4f8ece 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -534,7 +534,6 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
+ {
+ 	long		time_left;
+ 	unsigned long	flags;
+-	char		abort = 0;
+ 
+ 	time_left = wait_event_timeout(drv_data->waitq,
+ 		!drv_data->block, drv_data->adapter.timeout);
+@@ -542,25 +541,17 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
+ 	spin_lock_irqsave(&drv_data->lock, flags);
+ 	if (!time_left) { /* Timed out */
+ 		drv_data->rc = -ETIMEDOUT;
+-		abort = 1;
+-	} else if (time_left < 0) { /* Interrupted/Error */
+-		drv_data->rc = time_left; /* errno value */
+-		abort = 1;
+-	}
+-
+-	if (abort && drv_data->block) {
+ 		drv_data->aborting = 1;
+ 		spin_unlock_irqrestore(&drv_data->lock, flags);
+ 
+ 		time_left = wait_event_timeout(drv_data->waitq,
+ 			!drv_data->block, drv_data->adapter.timeout);
+ 
+-		if ((time_left <= 0) && drv_data->block) {
++		if (time_left == 0) {
+ 			drv_data->state = MV64XXX_I2C_STATE_IDLE;
+ 			dev_err(&drv_data->adapter.dev,
+-				"mv64xxx: I2C bus locked, block: %d, "
+-				"time_left: %d\n", drv_data->block,
+-				(int)time_left);
++				"mv64xxx: I2C bus locked, block: %d\n",
++				drv_data->block);
+ 			mv64xxx_i2c_hw_init(drv_data);
+ 		}
+ 	} else
 -- 
-Lucas De Marchi
+1.7.10.4
