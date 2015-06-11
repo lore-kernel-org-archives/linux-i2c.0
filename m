@@ -1,63 +1,34 @@
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: at91: fix code checker warnings
-Date: Thu, 11 Jun 2015 14:16:08 +0200
-Message-ID: <20150611121608.GW25800@odux.rfo.atmel.com>
-References: <cover.1434013494.git.cyrille.pitchen@atmel.com>
- <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen@atmel.com>
+From: Wan ZongShun <Vincent.Wan-5C7GfCeVMHo@public.gmane.org>
+Subject: [PATCH V2 1/3] pci_ids: Add AMD KERNCZ device ID support
+Date: Thu, 11 Jun 2015 20:11:45 +0800
+Message-ID: <1434024707-6245-1-git-send-email-Vincent.Wan@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bp-Gina5bIWoIWzQB+pC5nmwQ@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org
+Cc: linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Wan ZongShun <Vincent.Wan-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 11, 2015 at 11:16:32AM +0200, Cyrille Pitchen wrote:
-> buf_len is a size_t, so unsigned but was tested with '<= 0'.
-> 
-> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+The KERNCZ is new AMD SB/FCH generation name, like HUDSON2.
+We will adopt 0x790b as device ID since from this gereration.
 
-Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Wan ZongShun <Vincent.Wan-5C7GfCeVMHo@public.gmane.org>
+---
+ include/linux/pci_ids.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks
-
-> ---
->  drivers/i2c/busses/i2c-at91.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 0d2dc7d..967c0cb 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -232,7 +232,7 @@ static void at91_twi_dma_cleanup(struct at91_twi_dev *dev)
->  
->  static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
->  {
-> -	if (dev->buf_len <= 0)
-> +	if (!dev->buf_len)
->  		return;
->  
->  	/* 8bit write works with and without FIFO */
-> @@ -275,7 +275,7 @@ static void at91_twi_write_data_dma(struct at91_twi_dev *dev)
->  	struct dma_chan *chan_tx = dma->chan_tx;
->  	unsigned int sg_len = 1;
->  
-> -	if (dev->buf_len <= 0)
-> +	if (!dev->buf_len)
->  		return;
->  
->  	dma->direction = DMA_TO_DEVICE;
-> @@ -347,7 +347,7 @@ error:
->  
->  static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
->  {
-> -	if (dev->buf_len <= 0)
-> +	if (!dev->buf_len)
->  		return;
->  
->  	/* 8bit read works with and without FIFO */
-> -- 
-> 1.8.2.2
-> 
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index 2f7b9a4..cb63a7b 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -579,6 +579,7 @@
+ #define PCI_DEVICE_ID_AMD_HUDSON2_SATA_IDE	0x7800
+ #define PCI_DEVICE_ID_AMD_HUDSON2_SMBUS		0x780b
+ #define PCI_DEVICE_ID_AMD_HUDSON2_IDE		0x780c
++#define PCI_DEVICE_ID_AMD_KERNCZ_SMBUS  0x790b
+ 
+ #define PCI_VENDOR_ID_TRIDENT		0x1023
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
+-- 
+1.9.1
