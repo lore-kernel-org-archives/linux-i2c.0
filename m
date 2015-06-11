@@ -1,39 +1,49 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Patch v1] i2c: imx: add runtime pm support to improve the performance
-Date: Thu, 11 Jun 2015 15:40:55 +0530
-Message-ID: <CAM=Q2cuyhhH+_HY8Fdwt35W2y_oNb+t2P12eMeZKGJsxLxq=Hw@mail.gmail.com>
-References: <1433987404-28957-1-git-send-email-b54642@freescale.com>
-	<CAM=Q2cuEChJySEex99e_xqfgXORZxDHqpGve7hbh-+nQVYPxAg@mail.gmail.com>
-	<BLUPR03MB373DE1F76EE2A0B96A66FC9F5BC0@BLUPR03MB373.namprd03.prod.outlook.com>
+From: Alexander Holler <holler@ahsoftware.de>
+Subject: Re: [PATCH 00/21] On-demand device registration
+Date: Thu, 11 Jun 2015 12:17:19 +0200
+Message-ID: <5579602F.1070801@ahsoftware.de>
+References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>	<5577F533.1060007@ahsoftware.de> <CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BLUPR03MB373DE1F76EE2A0B96A66FC9F5BC0-GeMU99GfrrsHjcGqcGfFzOO6mTEJWrR4XA4E9RH9d+qIuWR1G4zioA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Duan Andy <fugang.duan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Gao Pandy <gaopan-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Li Frank <Frank.Li-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Grant Likely <grant.likely@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, open@wandq.ahsoftware, "list@wandq.ahsoftware:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>, "linux-usb@vger.kernel.org" <linux-i2c@vg>
 List-Id: linux-i2c@vger.kernel.org
 
-<snip>
->> >  static irqreturn_t i2c_imx_isr(int irq, void *dev_id) @@ -583,6
->> > +582,9 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
->> >         struct imx_i2c_struct *i2c_imx = dev_id;
->> >         unsigned int temp;
->> >
->> > +       if (pm_runtime_suspended(i2c_imx->adapter.dev.parent))
->> > +               return IRQ_NONE;
->> > +
+Am 11.06.2015 um 10:12 schrieb Linus Walleij:
+> On Wed, Jun 10, 2015 at 10:28 AM, Alexander Holler <holler@ahsoftware.de> wrote:
+>> Am 10.06.2015 um 09:30 schrieb Linus Walleij:
+>
+>>> i2c host comes out, probes the regulator driver, regulator driver
+>>> probes and then the regulator_get() call returns.
+>>>
+>>> This requires instrumentation on anything providing a resource
+>>> to another driver like those I mentioned and a lot of overhead
+>>> infrastructure, but I think it's the right approach. However I don't
+>>> know if I would ever be able to pull that off myself, I know talk
+>>> is cheap and I should show the code instead.
 >>
->> Didn't quite get this one.
+>> You would end up with the same problem of deadlocks as currently, and you
+>> would still need something ugly like the defered probe brutforce to avoid
+>> them.
 >
-> Yes, there don't need to add pm_runtime_suspended() check in isr handler. But in some worse worse case,  like system is very
-> busy and irq is blocked by others
+> Sorry I don't get that. Care to elaborate on why?
 
-you mean other irqs?
+Because loading/initializing on demand doesn't give you any solved order 
+of drivers to initialize. And it can't because it has no idea about the 
+requirements of other drivers. The reason why it might work better in 
+the case of the tegra is that it might give you another initialization 
+order than the one which is currently choosen, which, by luck, might be 
+a better one.
 
-> that irq response coming is very late while i2c clock is gated off, the check can avoid system hang.
->
-> So I think it can be reasonable. How do you think ?
->
-> Regards,
-> Andy
+But maybe I missed something, I haven't looked at the patches at all. 
+But just loading on demand, can't magically give you a working order of 
+drivers to initialize. E.g. how do you choose the first driver to 
+initialize?
+
+Regards,
+
+Alexander Holler
