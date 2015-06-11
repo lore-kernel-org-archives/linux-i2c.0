@@ -1,54 +1,64 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: at91: fix code checker warnings
-Date: Thu, 11 Jun 2015 22:18:38 +0900
-Message-ID: <20150611131837.GB1510@katana>
-References: <cover.1434013494.git.cyrille.pitchen@atmel.com>
- <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen@atmel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
+From: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Subject: [PATCH RFC] i2c: octeon: allow receiving of signals.
+Date: Thu, 11 Jun 2015 15:23:52 +0200
+Message-ID: <1434029032-8811-1-git-send-email-hofrat@osadl.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Change wait_event_timeout() to wait_event_interruptible_timeout() allowing
+signals to be received while waiting on event (task state set to 
+TASK_INTERRUPTIBLE) as the dev_dbg() string indicates that signals
+are expected to be possible. While at it fix the type to long (as returned
+by schedule_timeout(). 
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+---
 
-On Thu, Jun 11, 2015 at 11:16:32AM +0200, Cyrille Pitchen wrote:
-> buf_len is a size_t, so unsigned but was tested with '<=3D 0'.
->=20
-> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+>From the dev_dbg string "wait interrupted" it seems that interrupts are
+expected to be on - so most likely this should be
+wait_event_interruptible_timeout() and not wait_event_timeout() as the
+later return >= 0 always and sets the task state to TASK_UNINTERRUPTIBLE.
+Someone that knows the details of this driver needs to confirm this though.
 
-Applied to for-next, thanks!
+Patch was compile tested with cavium_octeon_defconfig
+(implies CONFIG_I2C_OCTEON=y)
 
+Patch is against 4.1-rc7 (localversion-next is -next-20150611)
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+ drivers/i2c/busses/i2c-octeon.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVeYqtAAoJEBQN5MwUoCm2mhUP/2Q+xeu5mCnblIPe41QwEwcV
-ScWamYx3Hid9AltKRuLpJNm4SesZgbCb71Xpc8JKOBZpKg6Ce+UGl+lcOXNM5eRF
-tggmxNBbFAdKixSUI57u/dhsAgSIrWCIMBzJ3LB+lwVvymyf6ureNnTqAo2LQiin
-9PH2gvT1I07fDDUfkLWOygr0XXZI+izbhQlBBCoCjjl4uGWiBcSgUxKNgmrQ92WJ
-oX9NSQ2QgrCjyzaQmmuYiA7XSuHKAsh1pCzSXU9RRoS1UvmuDhhN0wq4KdL9Ugst
-Z81TNoKber12+02Bpz6CZuREKRpJJ2DPbWuXXmgyYlEXgt1Ko0pYx61gPWFvMjwO
-rXqvqPa3CfJ2n1OsoKF38qjhOcr4z1djvf16lsRVJuK+HKN+MyeSMLwaXDhVLmjD
-sn490wMggnJhtKoYAictyghoBVl94AGEsI6j5xhNpbNGy9jSJUrYmZJ/YvM5VVXw
-iGB+weTzNnJ4j5ZIb/6kYZpG5ASC4aHKgZr5Zp8R9EIeA74qUSxyEA1OLSoNUfAq
-Cpg6Au5CRo2YX6uJDZlYs9gL0tv0pF8VqSwtu5h0qsohFTUC0YiY2yZM04SncePA
-nnpN/P+04YQ9gI4SD8IYF5wSJMXGC4XAfPhe4Mpz31f5pN8QKKxkH8YzzIV9S/nB
-Gwmx3pc41pFoJ3lZ+jeI
-=v8Kk
------END PGP SIGNATURE-----
-
---O5XBE6gyVG5Rl6Rj--
+diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+index 6e75e01..e25e2b8 100644
+--- a/drivers/i2c/busses/i2c-octeon.c
++++ b/drivers/i2c/busses/i2c-octeon.c
+@@ -200,19 +200,19 @@ static int octeon_i2c_test_iflg(struct octeon_i2c *i2c)
+  */
+ static int octeon_i2c_wait(struct octeon_i2c *i2c)
+ {
+-	int result;
++	long result;
+ 
+ 	octeon_i2c_int_enable(i2c);
+ 
+-	result = wait_event_timeout(i2c->queue,
+-					octeon_i2c_test_iflg(i2c),
+-					i2c->adap.timeout);
++	result = wait_event_interruptible_timeout(i2c->queue,
++						  octeon_i2c_test_iflg(i2c),
++						  i2c->adap.timeout);
+ 
+ 	octeon_i2c_int_disable(i2c);
+ 
+ 	if (result < 0) {
+ 		dev_dbg(i2c->dev, "%s: wait interrupted\n", __func__);
+-		return result;
++		return -ERESTARTSYS;
+ 	} else if (result == 0) {
+ 		dev_dbg(i2c->dev, "%s: timeout\n", __func__);
+ 		return -ETIMEDOUT;
+-- 
+1.7.10.4
