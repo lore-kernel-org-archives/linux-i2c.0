@@ -1,61 +1,54 @@
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Thu, 11 Jun 2015 15:09:45 +0200
-Message-ID: <55798899.10504@collabora.com>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>	<5577F533.1060007@ahsoftware.de>
- <CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>
- <5579602F.1070801@ahsoftware.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: at91: fix code checker warnings
+Date: Thu, 11 Jun 2015 22:18:38 +0900
+Message-ID: <20150611131837.GB1510@katana>
+References: <cover.1434013494.git.cyrille.pitchen@atmel.com>
+ <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <5579602F.1070801@ahsoftware.de>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Alexander Holler <holler@ahsoftware.de>, Linus Walleij <linus.walleij@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, open@wandq.ahsoftware, dmaengine@vger.kernel.org, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "list@wandq.ahsoftware:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, Grant Likely <grant.likely@linaro.org>, Dan Williams <dan.j.williams@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-usb@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDYvMTEvMjAxNSAxMjoxNyBQTSwgQWxleGFuZGVyIEhvbGxlciB3cm90ZToKPiBBbSAxMS4w
-Ni4yMDE1IHVtIDEwOjEyIHNjaHJpZWIgTGludXMgV2FsbGVpajoKPj4gT24gV2VkLCBKdW4gMTAs
-IDIwMTUgYXQgMTA6MjggQU0sIEFsZXhhbmRlciBIb2xsZXIgPGhvbGxlckBhaHNvZnR3YXJlLmRl
-PiB3cm90ZToKPj4+IEFtIDEwLjA2LjIwMTUgdW0gMDk6MzAgc2NocmllYiBMaW51cyBXYWxsZWlq
-Ogo+Pgo+Pj4+IGkyYyBob3N0IGNvbWVzIG91dCwgcHJvYmVzIHRoZSByZWd1bGF0b3IgZHJpdmVy
-LCByZWd1bGF0b3IgZHJpdmVyCj4+Pj4gcHJvYmVzIGFuZCB0aGVuIHRoZSByZWd1bGF0b3JfZ2V0
-KCkgY2FsbCByZXR1cm5zLgo+Pj4+Cj4+Pj4gVGhpcyByZXF1aXJlcyBpbnN0cnVtZW50YXRpb24g
-b24gYW55dGhpbmcgcHJvdmlkaW5nIGEgcmVzb3VyY2UKPj4+PiB0byBhbm90aGVyIGRyaXZlciBs
-aWtlIHRob3NlIEkgbWVudGlvbmVkIGFuZCBhIGxvdCBvZiBvdmVyaGVhZAo+Pj4+IGluZnJhc3Ry
-dWN0dXJlLCBidXQgSSB0aGluayBpdCdzIHRoZSByaWdodCBhcHByb2FjaC4gSG93ZXZlciBJIGRv
-bid0Cj4+Pj4ga25vdyBpZiBJIHdvdWxkIGV2ZXIgYmUgYWJsZSB0byBwdWxsIHRoYXQgb2ZmIG15
-c2VsZiwgSSBrbm93IHRhbGsKPj4+PiBpcyBjaGVhcCBhbmQgSSBzaG91bGQgc2hvdyB0aGUgY29k
-ZSBpbnN0ZWFkLgo+Pj4KPj4+IFlvdSB3b3VsZCBlbmQgdXAgd2l0aCB0aGUgc2FtZSBwcm9ibGVt
-IG9mIGRlYWRsb2NrcyBhcyBjdXJyZW50bHksIGFuZCB5b3UKPj4+IHdvdWxkIHN0aWxsIG5lZWQg
-c29tZXRoaW5nIHVnbHkgbGlrZSB0aGUgZGVmZXJlZCBwcm9iZSBicnV0Zm9yY2UgdG8gYXZvaWQK
-Pj4+IHRoZW0uCj4+Cj4+IFNvcnJ5IEkgZG9uJ3QgZ2V0IHRoYXQuIENhcmUgdG8gZWxhYm9yYXRl
-IG9uIHdoeT8KPiAKPiBCZWNhdXNlIGxvYWRpbmcvaW5pdGlhbGl6aW5nIG9uIGRlbWFuZCBkb2Vz
-bid0IGdpdmUgeW91IGFueSBzb2x2ZWQgb3JkZXIgCj4gb2YgZHJpdmVycyB0byBpbml0aWFsaXpl
-LiBBbmQgaXQgY2FuJ3QgYmVjYXVzZSBpdCBoYXMgbm8gaWRlYSBhYm91dCB0aGUgCj4gcmVxdWly
-ZW1lbnRzIG9mIG90aGVyIGRyaXZlcnMuCgpTbywgdGhpcyBpcyBvbmx5IGFib3V0IG9yZGVyaW5n
-IGRldmljZSBwcm9iaW5nLiBBbGwgYnVpbHQtaW4gZHJpdmVycwpoYXZlIGFscmVhZHkgcmVnaXN0
-ZXJlZCB0aGVtc2VsdmVzIGJ5IHdoZW4gd2Ugc3RhcnQgcHJvYmluZy4KCj4gVGhlIHJlYXNvbiB3
-aHkgaXQgbWlnaHQgd29yayBiZXR0ZXIgaW4gCj4gdGhlIGNhc2Ugb2YgdGhlIHRlZ3JhIGlzIHRo
-YXQgaXQgbWlnaHQgZ2l2ZSB5b3UgYW5vdGhlciBpbml0aWFsaXphdGlvbiAKPiBvcmRlciB0aGFu
-IHRoZSBvbmUgd2hpY2ggaXMgY3VycmVudGx5IGNob29zZW4sIHdoaWNoLCBieSBsdWNrLCBtaWdo
-dCBiZSAKPiBhIGJldHRlciBvbmUuCgpOb3RlIHRoYXQgdGhpcyBzZXJpZXMgd2FzIGFsc28gdGVz
-dGVkIG9uIGlNWC42LCBFeHlub3MgYW5kIE9NQVA0LgoKPiBCdXQgbWF5YmUgSSBtaXNzZWQgc29t
-ZXRoaW5nLCBJIGhhdmVuJ3QgbG9va2VkIGF0IHRoZSBwYXRjaGVzIGF0IGFsbC4gCgpJdCdzIGEg
-cmVhbGx5IHNtYWxsIHBhdGNoc2V0IDopCgogIDE5IGZpbGVzIGNoYW5nZWQsIDEzMCBpbnNlcnRp
-b25zKCspLCA0NSBkZWxldGlvbnMoLSkKClRoYW5rcywKClRvbWV1Cgo+IEJ1dCBqdXN0IGxvYWRp
-bmcgb24gZGVtYW5kLCBjYW4ndCBtYWdpY2FsbHkgZ2l2ZSB5b3UgYSB3b3JraW5nIG9yZGVyIG9m
-IAo+IGRyaXZlcnMgdG8gaW5pdGlhbGl6ZS4gRS5nLiBob3cgZG8geW91IGNob29zZSB0aGUgZmly
-c3QgZHJpdmVyIHRvIAo+IGluaXRpYWxpemU/Cj4gCj4gUmVnYXJkcywKPiAKPiBBbGV4YW5kZXIg
-SG9sbGVyCj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcK
-aHR0cDovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+
+--O5XBE6gyVG5Rl6Rj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jun 11, 2015 at 11:16:32AM +0200, Cyrille Pitchen wrote:
+> buf_len is a size_t, so unsigned but was tested with '<=3D 0'.
+>=20
+> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+
+Applied to for-next, thanks!
+
+
+--O5XBE6gyVG5Rl6Rj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVeYqtAAoJEBQN5MwUoCm2mhUP/2Q+xeu5mCnblIPe41QwEwcV
+ScWamYx3Hid9AltKRuLpJNm4SesZgbCb71Xpc8JKOBZpKg6Ce+UGl+lcOXNM5eRF
+tggmxNBbFAdKixSUI57u/dhsAgSIrWCIMBzJ3LB+lwVvymyf6ureNnTqAo2LQiin
+9PH2gvT1I07fDDUfkLWOygr0XXZI+izbhQlBBCoCjjl4uGWiBcSgUxKNgmrQ92WJ
+oX9NSQ2QgrCjyzaQmmuYiA7XSuHKAsh1pCzSXU9RRoS1UvmuDhhN0wq4KdL9Ugst
+Z81TNoKber12+02Bpz6CZuREKRpJJ2DPbWuXXmgyYlEXgt1Ko0pYx61gPWFvMjwO
+rXqvqPa3CfJ2n1OsoKF38qjhOcr4z1djvf16lsRVJuK+HKN+MyeSMLwaXDhVLmjD
+sn490wMggnJhtKoYAictyghoBVl94AGEsI6j5xhNpbNGy9jSJUrYmZJ/YvM5VVXw
+iGB+weTzNnJ4j5ZIb/6kYZpG5ASC4aHKgZr5Zp8R9EIeA74qUSxyEA1OLSoNUfAq
+Cpg6Au5CRo2YX6uJDZlYs9gL0tv0pF8VqSwtu5h0qsohFTUC0YiY2yZM04SncePA
+nnpN/P+04YQ9gI4SD8IYF5wSJMXGC4XAfPhe4Mpz31f5pN8QKKxkH8YzzIV9S/nB
+Gwmx3pc41pFoJ3lZ+jeI
+=v8Kk
+-----END PGP SIGNATURE-----
+
+--O5XBE6gyVG5Rl6Rj--
