@@ -1,132 +1,27 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
-Date: Fri, 12 Jun 2015 01:20:33 +0530
-Message-ID: <5579E689.5000503@linaro.org>
-References: <5562EF9D.1090403@linaro.org> <55671E44.5000704@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <55671E44.5000704-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 0/4] Add support for Congatec CGEB BIOS interface
+Date: Thu, 11 Jun 2015 22:48:50 +0200
+Message-ID: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: sameo@linux.intel.com, lee.jones@linaro.org, wsa@the-dreams.de, jdelvare@suse.de, linux-i2c@vger.kernel.org, wim@iguana.be, linux-watchdog@vger.kernel.org, jingoohan1@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
+The following series adds support for the Congatec CGEB interface
+found on some Congatec x86 boards. The CGEB interface is a BIOS
+interface which provides access to onboard peripherals like I2C
+busses and watchdogs. It works by mapping BIOS code and searching
+for magic values which specify the entry points to the CGEB call.
+The CGEB call is an API provided by the BIOS which provides access
+to the functions in an ioctl like fashion.
 
+This series is based on patches from Sascha Hauer, which can be found
+here:
 
-On Thursday 28 May 2015 07:25 PM, Vaibhav Hiremath wrote:
->
->
-> On Monday 25 May 2015 03:17 PM, Vaibhav Hiremath wrote:
->>
->> Hi,
->>
->> This is rather an old issue, for which I have also done custom & hacky
->> solution in the past.
->>
->> Please let me know if there is already an some other method or accepted
->> workaround to this issue. Also, let me know if you have any suggestions
->> on this patch, I would be happy to work on it.
->>
->>
->> Problem Statement:
->> ------------------
->> In certain embedded platforms, the board power on/off is managed by
->> PMIC IC, which in most of the cases is over I2C bus.
->> So during shutdown/reboot you may have to do I2C transactions to access
->> PMIC, which may sleep if I2C bus driver is not functioning in PIO by
->> default.
->>
->> This is unexpected, to sleep after you disable the interrupts.
->>
->> For example,
->>
->> During reboot/shutdown, the execution call reaches to,
->>
->> void machine_power_off(void)
->> {
->>          local_irq_disable();
->>          smp_send_stop();
->>          if (pm_power_off)
->>                  pm_power_off();
->> }
->>
->> pm_power_off will try to do I2C transaction to access PMIC, which may
->> sleep/schedule.
->>
->>
->> Current implementation:
->> --------------------
->>
->> Everyone probably does have their own custom implementation for this.
->> Or some other mechanism to achieve this (may be hardware support).
->>
->>
->> Proposal:
->> ---------
->>
->> If I am not missing any other way of handling this situation,
->> below proposal should be clean and acceptable (I hope so :) )
->>
->>
->> Add flags to choose PIO mode, for I2C transactions, and the default
->> would be to non-PIO mode.
->>
->>
->> struct i2c_msg flags :
->>
->> #define I2C_M_PIO    0x0800
->>
->>
->> And also add respective functionality flags
->>
->> #define I2C_FUNC_PIO    0x10000000 /* Driver should support PIO mode*/
->>
->>
->> In the bus driver,
->>
->> Inside master_xfer() callback we will check whether the intended i2c
->> transaction is meant to be processed in PIO mode, if yes, then we will
->> call PIO api, else as usual non-pio api should serve.
->>
->>
->> static int xxx_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int
->> num)
->> {
->>      ...
->>
->>
->> /* We can also check i2c_check_functionality(adap,I2C_FUNC_PIO) */
->>      if (msg->flags & I2C_M_PIO) {
->>          /* PIO mode operation */
->>      } else {
->>          /* non-pio mode of operation */
->>      }
->>
->>
->>      ...
->>
->>
->>          return ret;
->> }
->>
->>
->> Feedback/comments are always welcome.
->>
->> Thanks,
->> Vaibhav
->
->
-> Any comments on the RFC?
->
-> Also,
-> + linux-arm & Wolfram Sang
->
+http://patchwork.ozlabs.org/patch/219756/
+http://patchwork.ozlabs.org/patch/219755/
+http://patchwork.ozlabs.org/patch/219757/
 
-Wolfram,
-
-Any comment on this RFC?
-
-Thanks,
-Vaibhav
+I really want to get this patches into mainline, as I am carry them
+for too long.
