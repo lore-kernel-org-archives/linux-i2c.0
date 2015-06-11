@@ -1,47 +1,63 @@
-From: Wan ZongShun <Vincent.Wan@amd.com>
-Subject: [PATCH V2 2/3] i2c-piix4: Use Macro for AMD CZ SMBus device ID
-Date: Thu, 11 Jun 2015 20:11:46 +0800
-Message-ID: <1434024707-6245-2-git-send-email-Vincent.Wan@amd.com>
-References: <1434024707-6245-1-git-send-email-Vincent.Wan@amd.com>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: at91: fix code checker warnings
+Date: Thu, 11 Jun 2015 14:16:08 +0200
+Message-ID: <20150611121608.GW25800@odux.rfo.atmel.com>
+References: <cover.1434013494.git.cyrille.pitchen@atmel.com>
+ <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <1434024707-6245-1-git-send-email-Vincent.Wan@amd.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: ulf.hansson@linaro.org, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, bp@alien8.de, jdelvare@suse.de
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, mcuos.com@gmail.com, Wan ZongShun <Vincent.Wan@amd.com>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <7419376c5a4e60f1b23d36e66a102c7c40db1089.1434013494.git.cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Change AMD CZ SMBUS device ID from 0x790b to
-use Macro definition
+On Thu, Jun 11, 2015 at 11:16:32AM +0200, Cyrille Pitchen wrote:
+> buf_len is a size_t, so unsigned but was tested with '<= 0'.
+> 
+> Signed-off-by: Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Wan ZongShun <Vincent.Wan@amd.com>
----
- drivers/i2c/busses/i2c-piix4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Acked-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 67cbec6..630bce6 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -245,7 +245,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
- 	     PIIX4_dev->revision >= 0x41) ||
- 	    (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
--	     PIIX4_dev->device == 0x790b &&
-+	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
- 	     PIIX4_dev->revision >= 0x49))
- 		smb_en = 0x00;
- 	else
-@@ -545,7 +545,7 @@ static const struct pci_device_id piix4_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) },
--	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, 0x790b) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
- 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
--- 
-1.9.1
+Thanks
 
+> ---
+>  drivers/i2c/busses/i2c-at91.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 0d2dc7d..967c0cb 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -232,7 +232,7 @@ static void at91_twi_dma_cleanup(struct at91_twi_dev *dev)
+>  
+>  static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
+>  {
+> -	if (dev->buf_len <= 0)
+> +	if (!dev->buf_len)
+>  		return;
+>  
+>  	/* 8bit write works with and without FIFO */
+> @@ -275,7 +275,7 @@ static void at91_twi_write_data_dma(struct at91_twi_dev *dev)
+>  	struct dma_chan *chan_tx = dma->chan_tx;
+>  	unsigned int sg_len = 1;
+>  
+> -	if (dev->buf_len <= 0)
+> +	if (!dev->buf_len)
+>  		return;
+>  
+>  	dma->direction = DMA_TO_DEVICE;
+> @@ -347,7 +347,7 @@ error:
+>  
+>  static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
+>  {
+> -	if (dev->buf_len <= 0)
+> +	if (!dev->buf_len)
+>  		return;
+>  
+>  	/* 8bit read works with and without FIFO */
+> -- 
+> 1.8.2.2
+> 
