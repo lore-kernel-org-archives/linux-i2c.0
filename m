@@ -1,90 +1,72 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Patch v1] i2c: imx: add runtime pm support to improve the performance
-Date: Thu, 11 Jun 2015 14:59:24 +0530
-Message-ID: <CAM=Q2cuEChJySEex99e_xqfgXORZxDHqpGve7hbh-+nQVYPxAg@mail.gmail.com>
-References: <1433987404-28957-1-git-send-email-b54642@freescale.com>
+From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: davinci: Optimize SCL generation
+Date: Thu, 11 Jun 2015 11:35:26 +0200
+Message-ID: <5579565E.1020908@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1433987404-28957-1-git-send-email-b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, B20596-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Lawnick, Michael (Nokia - DE/Ulm)" <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 11, 2015 at 7:20 AM, Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
-> In our former i2c driver, i2c clk is enabled and disabled in
-> xfer function, which contributes to power saving. However,
-> the clk enable process brings a busy wait delay until the core
-> is stable. As a result, the performance is sacrificed.
->
-> To weigh the power consuption and i2c bus performance, runtime
-> pm is the good solution for it. The clk is enabled when a i2c
-> transfer starts, and disabled afer a specifically defined delay.
->
-> Without the patch the test case (many eeprom reads) executes with approx:
-> real 1m7.735s
-> user 0m0.488s
-> sys 0m20.040s
->
-> With the patch the same test case (many eeprom reads) executes with approx:
-> real 0m54.241s
-> user 0m0.440s
-> sys 0m5.920s
->
-> From the test result, the patch get better performance.
->
-> Signed-off-by: Fugang Duan <B38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Signed-off-by: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 78 +++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 66 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 785aa67..cc4b5d6 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -53,6 +53,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/sched.h>
->  #include <linux/slab.h>
-> +#include <linux/pm_runtime.h>
->
->  /** Defines ********************************************************************
->  *******************************************************************************/
-> @@ -118,6 +119,8 @@
->  #define I2CR_IEN_OPCODE_0      0x0
->  #define I2CR_IEN_OPCODE_1      I2CR_IEN
->
-> +#define I2C_PM_TIMEOUT         10 /* ms */
-> +
->  /** Variables ******************************************************************
->  *******************************************************************************/
->
-> @@ -520,9 +523,6 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
->
->         i2c_imx_set_clk(i2c_imx);
->
-> -       result = clk_prepare_enable(i2c_imx->clk);
-> -       if (result)
-> -               return result;
->         imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
->         /* Enable I2C controller */
->         imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
-> @@ -575,7 +575,6 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
->         /* Disable I2C controller */
->         temp = i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
->         imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> -       clk_disable_unprepare(i2c_imx->clk);
->  }
->
->  static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
-> @@ -583,6 +582,9 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
->         struct imx_i2c_struct *i2c_imx = dev_id;
->         unsigned int temp;
->
-> +       if (pm_runtime_suspended(i2c_imx->adapter.dev.parent))
-> +               return IRQ_NONE;
-> +
+There are several cases where current clock configuration algorithm produces
+not optimal results:
+- truncation in "clk" calculation leads to the fact that actual BUS frequency
+  will be always higher than spec except two exact module frequences 8MHz and
+  12MHz in the whole 7-12MHz range of permitted frequences
+- driver configures SCL HIGH to LOW ratio always 1 to 1 and this doesn't work
+  well in 400kHz case, namely minimum time of LOW state (according to I2C Spec
+  2.1) 1.3us will not be fulfilled. HIGH to LOW ratio 1 to 2 would be more
+  approriate here.
 
-Didn't quite get this one.
+Signed-off-by: Michael Lawnick <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+---
+
+Tested on custom Keystone II SoC-based board with complicated I2C network
+working on the edge of its HW specs (signal quality). In this case 1 to 2
+HIGH to LOW relation really improves the reliability with 400kHz bus rate.
+
+ drivers/i2c/busses/i2c-davinci.c |   27 ++++++++++++++++++++++++---
+ 1 files changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index e35c9df..4a110af 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -211,9 +211,30 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
+ 		psc++;	/* better to run under spec than over */
+ 	d = (psc >= 2) ? 5 : 7 - psc;
+
+-	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000)) - (d << 1);
+-	clkh = clk >> 1;
+-	clkl = clk - clkh;
++	clk = ((input_clock / (psc + 1)) / (pdata->bus_freq * 1000));
++	/* Avoid driving the bus too fast because of rounding errors above */
++	if (input_clock / (psc + 1) / clk > pdata->bus_freq * 1000)
++		clk++;
++	/*
++	 * According to I2C-BUS Spec 2.1, in FAST-MODE LOW period should be at
++	 * least 1.3uS, which is not the case with 50% duty cycle. Driving HIGH
++	 * to LOW ratio as 1 to 2 is more safe.
++	 */
++	if (pdata->bus_freq > 100)
++		clkl = (clk << 1) / 3;
++	else
++		clkl = (clk >> 1);
++	/*
++	 * It's not always possible to have 1 to 2 ratio when d=7, so fall back
++	 * to minimal possible clkh in this case.
++	 */
++	if (clk >= clkl + d) {
++		clkh = clk - clkl - d;
++		clkl -= d;
++	} else {
++		clkh = 0;
++		clkl = clk - (d << 1);
++	}
+
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_PSC_REG, psc);
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_CLKH_REG, clkh);
