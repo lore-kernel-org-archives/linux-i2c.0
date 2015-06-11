@@ -1,71 +1,64 @@
-From: Nicholas Mc Guire <hofrat@osadl.org>
-Subject: [PATCH] i2c: mv64xxx: remove unreachable signal case handling
-Date: Thu, 11 Jun 2015 17:27:33 +0200
-Message-ID: <1434036453-23336-1-git-send-email-hofrat@osadl.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Chen-Yu Tsai <wens@csie.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
+From: Alexander Holler <holler@ahsoftware.de>
+Subject: Re: [PATCH 00/21] On-demand device registration
+Date: Thu, 11 Jun 2015 18:40:08 +0200
+Message-ID: <5579B9E8.9040609@ahsoftware.de>
+References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>	<5577F533.1060007@ahsoftware.de>	<CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>	<5579602F.1070801@ahsoftware.de> <CACRpkdaZgBR5rHwrEYqcm5K4w3y8MXG8a0k=Y+oQY+jukHfuyw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdaZgBR5rHwrEYqcm5K4w3y8MXG8a0k=Y+oQY+jukHfuyw@mail.gmail.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Grant Likely <grant.likely@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, "list@wandq.ahsoftware:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>, "linux-usb@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-'commit d295a86eab20 ("i2c: mv64xxx: work around signals causing I2C
-transactions to be aborted")' removed the wait_event_interruptible_timeout 
-to prevent half/mixed i2c messages from being sent/received but forgot to
-drop the signal received cases in the return handling. This just removes
-this dead code and simplifies the error message as "time_left" only can be 
-0 here and thus it conveys no additional information.
+Am 11.06.2015 um 14:30 schrieb Linus Walleij:
+> On Thu, Jun 11, 2015 at 12:17 PM, Alexander Holler <holler@ahsoftware.de> wrote:
+>> Am 11.06.2015 um 10:12 schrieb Linus Walleij:
+>>> On Wed, Jun 10, 2015 at 10:28 AM, Alexander Holler <holler@ahsoftware.de>
+>>> wrote:
+>
+>>>> You would end up with the same problem of deadlocks as currently, and you
+>>>> would still need something ugly like the defered probe brutforce to avoid
+>>>> them.
+>>>
+>>>
+>>> Sorry I don't get that. Care to elaborate on why?
+>>
+>>
+>> Because loading/initializing on demand doesn't give you any solved order of
+>> drivers to initialize. And it can't because it has no idea about the
+>> requirements of other drivers. The reason why it might work better in the
+>> case of the tegra is that it might give you another initialization order
+>> than the one which is currently choosen, which, by luck, might be a better
+>> one.
+>>
+>> But maybe I missed something, I haven't looked at the patches at all. But
+>> just loading on demand, can't magically give you a working order of drivers
+>> to initialize. E.g. how do you choose the first driver to initialize?
+>
+> So the current patch set introduces dependencies (just for device tree)
+> and Tomeu is working on a more generic dependency approach for
+> any HW description.
+>
+> The first driver to initialize will be as usual the first one in the list for
+> that initlevel, then walking up the initilevels.
+>
+> However if any driver runs into a resource roadblock it will postpone
+> and wait for dependencies to probe first.
+>
+> Certainly it is possible to create deadlocks in this scenario, but the
+> scope is not to create an ubreakable system.
 
-Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
----
+IAnd what happens if you run into a deadlock? Do you print "you've lost, 
+try changing your kernel config" in some output hidden by a 
+splash-screen? ;)
 
-Patch was compile tested with multi_v7_defconfig 
-(implies CONFIG_I2C_MV64XXX=y)
+That sounds like the fun with duck typed languages where you have to 
+test any and every possible screnario (something which is almost 
+impossible) in order to not run into something unexpected.
 
-Patch is against 4.1-rc7 (localversion-next is -next-20150611)
+Anyway, have fun, good luck.
 
- drivers/i2c/busses/i2c-mv64xxx.c |   15 +++------------
- 1 file changed, 3 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 30059c1..a4f8ece 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -534,7 +534,6 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
- {
- 	long		time_left;
- 	unsigned long	flags;
--	char		abort = 0;
- 
- 	time_left = wait_event_timeout(drv_data->waitq,
- 		!drv_data->block, drv_data->adapter.timeout);
-@@ -542,25 +541,17 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
- 	spin_lock_irqsave(&drv_data->lock, flags);
- 	if (!time_left) { /* Timed out */
- 		drv_data->rc = -ETIMEDOUT;
--		abort = 1;
--	} else if (time_left < 0) { /* Interrupted/Error */
--		drv_data->rc = time_left; /* errno value */
--		abort = 1;
--	}
--
--	if (abort && drv_data->block) {
- 		drv_data->aborting = 1;
- 		spin_unlock_irqrestore(&drv_data->lock, flags);
- 
- 		time_left = wait_event_timeout(drv_data->waitq,
- 			!drv_data->block, drv_data->adapter.timeout);
- 
--		if ((time_left <= 0) && drv_data->block) {
-+		if (time_left == 0) {
- 			drv_data->state = MV64XXX_I2C_STATE_IDLE;
- 			dev_err(&drv_data->adapter.dev,
--				"mv64xxx: I2C bus locked, block: %d, "
--				"time_left: %d\n", drv_data->block,
--				(int)time_left);
-+				"mv64xxx: I2C bus locked, block: %d\n",
-+				drv_data->block);
- 			mv64xxx_i2c_hw_init(drv_data);
- 		}
- 	} else
--- 
-1.7.10.4
+Alexander Holler
