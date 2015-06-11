@@ -1,43 +1,40 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 0/2] ARM: shmobile: r8a7740: move I2C errata handling
- into the driver
-Date: Thu, 11 Jun 2015 11:38:39 +0900
-Message-ID: <20150611023839.GA6904@verge.net.au>
-References: <1433834080-5630-1-git-send-email-wsa@the-dreams.de>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 00/21] On-demand device registration
+Date: Thu, 11 Jun 2015 10:12:03 +0200
+Message-ID: <CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>
+References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
+	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>
+	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>
+	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>
+	<5577F533.1060007@ahsoftware.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1433834080-5630-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <5577F533.1060007@ahsoftware.de>
+Sender: linux-pm-owner@vger.kernel.org
+To: Alexander Holler <holler@ahsoftware.de>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, Grant Likely <grant.likely@linaro.org>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, "linux-pwm@vger.kernel.org" <linux-pwm@vger.kernel.org>, open@wandq.ahsoftware, "list@wandq.ahsoftware:DRM PANEL DRIVERS
+	<dri-devel@lists.freedesktop.org>, dmaengine@vger.kernel.org, Dan
+	Williams <dan.j.williams@intel.com>, linux-usb@vger.kernel.org" <linux-i2c@vger>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 09, 2015 at 04:14:38PM +0900, Wolfram Sang wrote:
-> This series moves the errata handling from the setup function into the driver.
-> It has been tested that this changeset does not cause a regression on the
-> armadillo board we had access to. Unfortunately, this board did not need the
-> workaround at all, only some revisions of the r8a7740 are affected.
-> 
-> After a short discussion with Simon, we agreed this should go via I2C.
+On Wed, Jun 10, 2015 at 10:28 AM, Alexander Holler <holler@ahsoftware.de> wrote:
+> Am 10.06.2015 um 09:30 schrieb Linus Walleij:
 
-Acked-by: Simon Horman <horms+renesas@verge.net.au>
+>> i2c host comes out, probes the regulator driver, regulator driver
+>> probes and then the regulator_get() call returns.
+>>
+>> This requires instrumentation on anything providing a resource
+>> to another driver like those I mentioned and a lot of overhead
+>> infrastructure, but I think it's the right approach. However I don't
+>> know if I would ever be able to pull that off myself, I know talk
+>> is cheap and I should show the code instead.
+>
+> You would end up with the same problem of deadlocks as currently, and you
+> would still need something ugly like the defered probe brutforce to avoid
+> them.
 
-> 
-> Wolfram Sang (2):
->   i2c: sh_mobile: add errata workaround
->   ARM: shmobile: r8a7740: remove I2C errata handling
-> 
->  arch/arm/mach-shmobile/setup-r8a7740.c | 55 ----------------------------------
->  drivers/i2c/busses/i2c-sh_mobile.c     | 40 +++++++++++++++++++++++++
->  2 files changed, 40 insertions(+), 55 deletions(-)
-> 
-> -- 
-> 2.1.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Sorry I don't get that. Care to elaborate on why?
+
+Yours,
+Linus Walleij
