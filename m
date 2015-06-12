@@ -1,71 +1,107 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
-Date: Fri, 12 Jun 2015 08:41:19 +0900
-Message-ID: <20150611234118.GA1534@katana>
-References: <5562EF9D.1090403@linaro.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5562EF9D.1090403-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH] i2c-parport: start using pr_fmt
+Date: Fri, 12 Jun 2015 12:47:14 +0530
+Message-ID: <1434093434-30834-1-git-send-email-sudipm.mukherjee@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Start using pr_fmt and convert all remaining printk to use
+pr_* family of macros.
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Sudip Mukherjee <sudip@vectorindia.org>
+---
+ drivers/i2c/busses/i2c-parport.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-> Current implementation:
-> --------------------
->=20
-> Everyone probably does have their own custom implementation for this.
-> Or some other mechanism to achieve this (may be hardware support).
-
-Do you have examples? It is easier to look at code.
-
-> /* We can also check i2c_check_functionality(adap,I2C_FUNC_PIO) */
-> 	if (msg->flags & I2C_M_PIO) {
-> 		/* PIO mode operation */
-> 	} else {
-> 		/* non-pio mode of operation */
-> 	}
-
-I'd rather let the core decide. Like introduce a master_xfer_nosleep
-callback and let the core use the standard or the nosleep one. We'd need
-the same for smbus as well.
-
-This leads to the question if we need a M_FLAG or expose the *_nosleep
-functions directly?
-
-And I wonder about the demand for it. There are a number of SoCs with
-designated I2C cores for the PMIC which do automated transfers.
-
-
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVehyeAAoJEBQN5MwUoCm2v1sP/RM2PHpmVrQB0Aj570KtpOtB
-JNbBnNgWs3ZRMZSAfMve1yx4utuBLSukjrq+9EZvaP82bEoBmC1WXm+vVGZAmEdq
-nO6CQmjHI2ZMnscKGJlQ8bfUZvt6ZFMIfQXdO+orcYV1Yy2fvtxjr1VDh8S92N/k
-VyHVdrkXYBORtDpHlSvRLLtttHMosDLVCXx9m9NIRrANhAK6b8DQ6gOZb3IU/Ooi
-/0E11xqKQ/3yYWW1HT98MtXPNbffuq0AuDAlINQ7EmsBfIGwbz14CIfDExkEVAhQ
-Xdqk2UZNShc2BxEMJylFaq1VYVhQY/CGuPZ64FJAE2T3w5kTWlk9vivqEsN4r4fn
-B3itiR+yxAfbMzDFT2Ds7IDYsN4Z8GuFMy6P7nMAunkTJK8DE2URweduuntnZJ4W
-vPNMMkuWzVVGOFKUjVATbD2euB/bf/y7SyaU8Wni8ctTtwypOzrBNV0CC+lhrBxL
-sXCAyp5hySfaw7HmBjQhUkM3oVN7IRf9IIuhX6z2P7oJ+VFYXk/3HRsLrSo6jlj3
-e6RvvMFxcRs/vchfQyFND55PawChsrq8U/acObts4uUAGuSw1vydSFsD6vqgTBQ8
-z6g5L5ymYjxkY1qMwbNMNWhcEkWTWaonJXwuZUVWXSTgd8vVELFdRYhkNKDCcgbU
-fwoq95Kutq3HonMYIBJQ
-=CRME
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--
+diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
+index 9b94c3d..d53bf0b 100644
+--- a/drivers/i2c/busses/i2c-parport.c
++++ b/drivers/i2c/busses/i2c-parport.c
+@@ -20,6 +20,8 @@
+    GNU General Public License for more details.
+  * ------------------------------------------------------------------------ */
+ 
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+@@ -176,13 +178,13 @@ static void i2c_parport_attach(struct parport *port)
+ 			break;
+ 	}
+ 	if (i == MAX_DEVICE) {
+-		pr_debug("i2c-parport: Not using parport%d.\n", port->number);
++		pr_debug("Not using parport%d.\n", port->number);
+ 		return;
+ 	}
+ 
+ 	adapter = kzalloc(sizeof(struct i2c_par), GFP_KERNEL);
+ 	if (adapter == NULL) {
+-		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
++		pr_err("Failed to kzalloc\n");
+ 		return;
+ 	}
+ 	memset(&i2c_parport_cb, 0, sizeof(i2c_parport_cb));
+@@ -190,12 +192,12 @@ static void i2c_parport_attach(struct parport *port)
+ 	i2c_parport_cb.irq_func = i2c_parport_irq;
+ 	i2c_parport_cb.private = adapter;
+ 
+-	pr_debug("i2c-parport: attaching to %s\n", port->name);
++	pr_debug("attaching to %s\n", port->name);
+ 	parport_disable_irq(port);
+ 	adapter->pdev = parport_register_dev_model(port, "i2c-parport",
+ 						   &i2c_parport_cb, i);
+ 	if (!adapter->pdev) {
+-		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
++		pr_err("Unable to register with parport\n");
+ 		goto err_free;
+ 	}
+ 
+@@ -215,7 +217,7 @@ static void i2c_parport_attach(struct parport *port)
+ 	adapter->adapter.dev.parent = port->physport->dev;
+ 
+ 	if (parport_claim_or_block(adapter->pdev) < 0) {
+-		printk(KERN_ERR "i2c-parport: Could not claim parallel port\n");
++		pr_err("Could not claim parallel port\n");
+ 		goto err_unregister;
+ 	}
+ 
+@@ -230,7 +232,7 @@ static void i2c_parport_attach(struct parport *port)
+ 	}
+ 
+ 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
+-		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
++		pr_err("Unable to register with I2C\n");
+ 		goto err_unregister;
+ 	}
+ 
+@@ -242,8 +244,7 @@ static void i2c_parport_attach(struct parport *port)
+ 		if (adapter->ara)
+ 			parport_enable_irq(port);
+ 		else
+-			printk(KERN_WARNING "i2c-parport: Failed to register "
+-			       "ARA client\n");
++			pr_warn("Failed to register ARA client\n");
+ 	}
+ 
+ 	/* Add the new adapter to the list */
+@@ -298,12 +299,12 @@ static struct parport_driver i2c_parport_driver = {
+ static int __init i2c_parport_init(void)
+ {
+ 	if (type < 0) {
+-		printk(KERN_WARNING "i2c-parport: adapter type unspecified\n");
++		pr_warn("adapter type unspecified\n");
+ 		return -ENODEV;
+ 	}
+ 
+ 	if (type >= ARRAY_SIZE(adapter_parm)) {
+-		printk(KERN_WARNING "i2c-parport: invalid type (%d)\n", type);
++		pr_warn("invalid type (%d)\n", type);
+ 		return -ENODEV;
+ 	}
+ 
+-- 
+1.8.1.2
