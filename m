@@ -1,119 +1,51 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/4] i2c: Add Congatec CGEB I2C driver
-Date: Fri, 12 Jun 2015 20:05:38 +0900
-Message-ID: <20150612110537.GA4009@katana>
-References: <1434055734-3602-1-git-send-email-christian.gmeiner@gmail.com>
- <1434055734-3602-3-git-send-email-christian.gmeiner@gmail.com>
+From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Subject: Re: [PATCH 00/21] On-demand device registration
+Date: Fri, 12 Jun 2015 13:19:28 +0200
+Message-ID: <557AC040.40803@ahsoftware.de>
+References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>	<5577F533.1060007@ahsoftware.de>	<CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>	<5579602F.1070801@ahsoftware.de>	<CACRpkdaZgBR5rHwrEYqcm5K4w3y8MXG8a0k=Y+oQY+jukHfuyw@mail.gmail.com>	<5579B9E8.9040609@ahsoftware.de> <CACRpkdbDSS0yw=q_cR17Bvg+kgTfU3Vcd2gSjx1p4V-CzOZ_SA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1434055734-3602-3-git-send-email-christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jdelvare-l3A5Bk7waGM@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CACRpkdbDSS0yw=q_cR17Bvg+kgTfU3Vcd2gSjx1p4V-CzOZ_SA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DRM PANEL DRIVERS <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Am 12.06.2015 um 09:25 schrieb Linus Walleij:
+> On Thu, Jun 11, 2015 at 6:40 PM, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org> wrote:
+>> Am 11.06.2015 um 14:30 schrieb Linus Walleij:
+>
+>>> Certainly it is possible to create deadlocks in this scenario, but the
+>>> scope is not to create an ubreakable system.
+>>
+>> IAnd what happens if you run into a deadlock? Do you print "you've lost, try
+>> changing your kernel config" in some output hidden by a splash-screen? ;)
+>
+> Sorry it sounds like a blanket argument, the fact that there are
+> mutexes in the kernel makes it possible to deadlock, it doesn't
+> mean we don't use mutexes. Some programming problems are
+> just like such.
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I'm not talking about specific deadlocks through mutexes. I'm talking 
+about what happens when driver A needs driver B which needs driver A. 
+How do you recognise and handle that with your instrumented on-demand 
+device initialization? Such a circular dependency might happen by just 
+adding a new fucntion call or by changing the kernel configuration. And 
+with the on-demand stuff, the possibility that the developer introducing 
+this new (maybe optional) call will never hit such a circular dependency 
+is high. So you will end up with a never ending stream of problem 
+reports whenever someone introduced such a circular dependecy without 
+having noticed it.
 
+And to come back to specific deadlocks, if you are extending function 
+calls from something former simple to something which might initialize a 
+whole bunch of drivers, needing maybe seconds, I wouldn't say this is a 
+blanket argument, but a real thread.
 
-Oh, this one again. Like last time, close to be ready.
-
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/slab.h>
-> +#include <linux/i2c.h>
-> +#include <linux/mfd/congatec-cgeb.h>
-
-Please sort the includes.
-
-> +struct cgeb_i2c_priv {
-> +	struct cgeb_board_data          *board;
-> +	struct i2c_adapter      adapter;
-> +	int unit;
-> +};
-
-Only a single space for indentation
-
-> +	ret = cgeb_i2c_set_speed(priv, 400000);
-
-Not all slaves handle 400kHz. So, this might be a bit demanding. Then
-again, it is probably fix which slaves are connected and they work
-currently?
-
-> +		/*
-> +		 * not a critical error, we can continue with the default speed.
-> +		 */
-
-Single line comment, even if it is a little over 80 chars
-
-> +	platform_set_drvdata(pdev, NULL);
-
-Not needed.
-
-> +
-> +static struct platform_driver cgeb_i2c_driver = {
-> +	.probe          = cgeb_i2c_probe,
-> +	.remove         = __exit_p(cgeb_i2c_remove),
-
-Leftover annotation?
-
-> +	.driver = {
-> +		.name   = "cgeb-i2c",
-> +		.owner  = THIS_MODULE,
-
-Owner not needed
-
-> +	},
-> +};
-> +
-> +static int __init cgeb_i2c_driver_init(void)
-> +{
-> +	return platform_driver_register(&cgeb_i2c_driver);
-> +}
-> +
-> +static void __exit cgeb_i2c_driver_exit(void)
-> +{
-> +	platform_driver_unregister(&cgeb_i2c_driver);
-> +}
-> +
-> +module_init(cgeb_i2c_driver_init);
-> +module_exit(cgeb_i2c_driver_exit);
-
-module_platform_driver?
-
-> +
-> +MODULE_AUTHOR("Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
-> +MODULE_DESCRIPTION("cgeb i2c driver");
-> +MODULE_LICENSE("GPL");
-
-GPL v2
-
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVer0BAAoJEBQN5MwUoCm2RxYP/39qRFjPQUgm+pmFyAGsDaUm
-Kz4S+DEhT4LqccDmuwEiudZwS8zTfpao6J0qLfjH5njdKrxc30wAn1BcY2XupDSI
-Lu6nJrZLVsq8VH1ifOu7uFnEoBESyMxX2/bubBEZkXfWMZFAYykrMCuncI5czajO
-y8n4hKUy/ybRogimmmchkiyvEAz1Zo4FyQWenrolVQOtOhO3kNUcfco7Oc2j77DR
-bOo66q83PKrHB4NA2wYCAZQnggojbO79cDOM/+t64SfqYXtF38jXgrslXtp1EW0N
-5MLxTTS6x/taP5mVEDMjEIO2x/THr4HcIm3Qtee07xdtcwKy+P1TuAnXdguHRrij
-RqcX4H67UO7+vM1DDdRBBZypxcv2u2FsweTGbD3CluFXyrrpgQaAxwvvWTF4pq9Y
-yggbFyFefClrmQXRhzzV58iE1l+xYnAHp09YnxKJWHrAr8ybYa7CW3+zd2/8aiRX
-aiBEGmkC5lUqyackxqP61PDk2MNjHNksUpIjUK7N/i/abA4gHC/06dEof7saQXrc
-GNNvN7ia3cJCX7NtBU0h32JW32PdvHwATDD7ddoFpQu83yeNM9oQPpBaMGe5uPHm
-WrLQiWld/AJWmYZFZ3o9hIsUyZfLL0Q3w39xtjRTA1lBi5XKlqPrXc5znHgIXW4o
-tF38GbnbNGrprnVKADRr
-=pORg
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
+Alexander Holler
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
