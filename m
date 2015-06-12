@@ -1,78 +1,49 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [RFC PATCH 2/2] i2c: mux: pca954x: Use __i2c_transfer because of quirks
-Date: Fri, 12 Jun 2015 22:28:50 +0300
-Message-ID: <5785070.TUTkzzfkHR@avalon>
-References: <557AD35C.2070406@nokia.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH V2 1/3] pci_ids: Add AMD KERNCZ device ID support
+Date: Fri, 12 Jun 2015 15:34:18 -0500
+Message-ID: <20150612203418.GJ23119@google.com>
+References: <1434024707-6245-1-git-send-email-Vincent.Wan@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <557AD35C.2070406-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?utf-8?B?xYF1a2Fzeg==?= Gemborowski <lukasz.gemborowski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "Lawnick, Michael (Nokia - DE/Ulm)" <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-mmc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1434024707-6245-1-git-send-email-Vincent.Wan@amd.com>
+Sender: linux-mmc-owner@vger.kernel.org
+To: Wan ZongShun <Vincent.Wan@amd.com>
+Cc: ulf.hansson@linaro.org, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, bp@alien8.de, jdelvare@suse.de, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, mcuos.com@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alexander,
+On Thu, Jun 11, 2015 at 08:11:45PM +0800, Wan ZongShun wrote:
+> The KERNCZ is new AMD SB/FCH generation name, like HUDSON2.
+> We will adopt 0x790b as device ID since from this gereration.
 
-Thank you for the patch.
+s/We will adopt 0x790b as device ID since from/0x790b is the device ID for/
+s/gereration/generation/
 
-On Friday 12 June 2015 14:41:00 Alexander Sverdlin wrote:
-> pca9541 and pca954x are calling master_xfer() of the parent adapter d=
-irectly
-> thus bypassing the quirks checks of the adapter. Use __i2c_transfer()
-> instead.
->=20
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> Tested-by: =C5=81ukasz Gemborowski <lukasz.gemborowski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Wan ZongShun <Vincent.Wan@amd.com>
 
-Acked-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 
 > ---
->  drivers/i2c/muxes/i2c-mux-pca9541.c |    4 ++--
->  drivers/i2c/muxes/i2c-mux-pca954x.c |    2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c
-> b/drivers/i2c/muxes/i2c-mux-pca9541.c index cb77277..0c8d4d2 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
-> @@ -104,7 +104,7 @@ static int pca9541_reg_write(struct i2c_client *c=
-lient,
-> u8 command, u8 val) buf[0] =3D command;
->  		buf[1] =3D val;
->  		msg.buf =3D buf;
-> -		ret =3D adap->algo->master_xfer(adap, &msg, 1);
-> +		ret =3D __i2c_transfer(adap, &msg, 1);
->  	} else {
->  		union i2c_smbus_data data;
->=20
-> @@ -144,7 +144,7 @@ static int pca9541_reg_read(struct i2c_client *cl=
-ient,
-> u8 command) .buf =3D &val
->  			}
->  		};
-> -		ret =3D adap->algo->master_xfer(adap, msg, 2);
-> +		ret =3D __i2c_transfer(adap, msg, 2);
->  		if (ret =3D=3D 2)
->  			ret =3D val;
->  		else if (ret >=3D 0)
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> b/drivers/i2c/muxes/i2c-mux-pca954x.c index bea0d2d..ea4aa9d 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -134,7 +134,7 @@ static int pca954x_reg_write(struct i2c_adapter *=
-adap,
->  		msg.len =3D 1;
->  		buf[0] =3D val;
->  		msg.buf =3D buf;
-> -		ret =3D adap->algo->master_xfer(adap, &msg, 1);
-> +		ret =3D __i2c_transfer(adap, &msg, 1);
->  	} else {
->  		union i2c_smbus_data data;
->  		ret =3D adap->algo->smbus_xfer(adap, client->addr,
-
---=20
-Regards,
-
-Laurent Pinchart
+>  include/linux/pci_ids.h | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+> index 2f7b9a4..cb63a7b 100644
+> --- a/include/linux/pci_ids.h
+> +++ b/include/linux/pci_ids.h
+> @@ -579,6 +579,7 @@
+>  #define PCI_DEVICE_ID_AMD_HUDSON2_SATA_IDE	0x7800
+>  #define PCI_DEVICE_ID_AMD_HUDSON2_SMBUS		0x780b
+>  #define PCI_DEVICE_ID_AMD_HUDSON2_IDE		0x780c
+> +#define PCI_DEVICE_ID_AMD_KERNCZ_SMBUS  0x790b
+>  
+>  #define PCI_VENDOR_ID_TRIDENT		0x1023
+>  #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
+> -- 
+> 1.9.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-pci" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
