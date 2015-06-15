@@ -1,55 +1,44 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH V2 2/3] i2c-piix4: Use Macro for AMD CZ SMBus device ID
-Date: Mon, 15 Jun 2015 14:27:57 +0200
-Message-ID: <20150615142757.0142351c@endymion.delvare>
-References: <1434024707-6245-1-git-send-email-Vincent.Wan@amd.com>
-	<1434024707-6245-2-git-send-email-Vincent.Wan@amd.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 5/9] i2c: xiic: Remove the disabling of interrupts
+Date: Mon, 15 Jun 2015 20:47:56 +0530
+Message-ID: <1434381480-3042-5-git-send-email-shubhraj@xilinx.com>
+References: <1434381480-3042-1-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <1434024707-6245-2-git-send-email-Vincent.Wan@amd.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Wan ZongShun <Vincent.Wan@amd.com>
-Cc: ulf.hansson@linaro.org, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, bp@alien8.de, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, mcuos.com@gmail.com
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1434381480-3042-1-git-send-email-shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 11 Jun 2015 20:11:46 +0800, Wan ZongShun wrote:
-> Change AMD CZ SMBUS device ID from 0x790b to
-> use Macro definition
-> 
-> Signed-off-by: Wan ZongShun <Vincent.Wan@amd.com>
-> ---
->  drivers/i2c/busses/i2c-piix4.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 67cbec6..630bce6 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -245,7 +245,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
->  	     PIIX4_dev->revision >= 0x41) ||
->  	    (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
-> -	     PIIX4_dev->device == 0x790b &&
-> +	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
->  	     PIIX4_dev->revision >= 0x49))
->  		smb_en = 0x00;
->  	else
-> @@ -545,7 +545,7 @@ static const struct pci_device_id piix4_ids[] = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) },
-> -	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, 0x790b) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
->  		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+Currently before every transfer the interrupts are disabled.
+Remove the same.
 
-Probably too late but anyway:
+Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-xiic.c |    7 -------
+ 1 files changed, 0 insertions(+), 7 deletions(-)
 
-Acked-by: Jean Delvare <jdelvare@suse.de>
-
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 66040d3..7b81aac 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -666,15 +666,8 @@ static void __xiic_start_xfer(struct xiic_i2c *i2c)
+ 
+ static void xiic_start_xfer(struct xiic_i2c *i2c)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&i2c->lock, flags);
+-	/* disable interrupts globally */
+-	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, 0);
+-	spin_unlock_irqrestore(&i2c->lock, flags);
+ 
+ 	__xiic_start_xfer(i2c);
+-	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
+ }
+ 
+ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 -- 
-Jean Delvare
-SUSE L3 Support
+1.7.1
