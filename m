@@ -1,7 +1,7 @@
 From: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 4/9] i2c: xiic: Do not reset controller before every transfer
-Date: Mon, 15 Jun 2015 20:47:55 +0530
-Message-ID: <1434381480-3042-4-git-send-email-shubhraj@xilinx.com>
+Subject: [PATCH 7/9] i2c: xiic: Add a msg in case of timeout
+Date: Mon, 15 Jun 2015 20:47:58 +0530
+Message-ID: <1434381480-3042-7-git-send-email-shubhraj@xilinx.com>
 References: <1434381480-3042-1-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,25 +12,26 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently before every transfer the controller is reinitialised.
-Remove the same.
+Timing out is one of the serious errors.
+Currently we return silently upon a timeout.
+Adding an error message.
 
 Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-xiic.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index e7df7c2..66040d3 100644
+index 8142c2e..62f7138 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -669,7 +669,6 @@ static void xiic_start_xfer(struct xiic_i2c *i2c)
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&i2c->lock, flags);
--	xiic_reinit(i2c);
- 	/* disable interrupts globally */
- 	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, 0);
- 	spin_unlock_irqrestore(&i2c->lock, flags);
+@@ -694,6 +694,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 		i2c->tx_msg = NULL;
+ 		i2c->rx_msg = NULL;
+ 		i2c->nmsgs = 0;
++		dev_err(adap->dev.parent, "Controller timed out\n");
+ 		return -ETIMEDOUT;
+ 	}
+ }
 -- 
 1.7.1
