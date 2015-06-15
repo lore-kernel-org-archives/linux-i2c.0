@@ -1,7 +1,7 @@
 From: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 3/9] i2c: xiic: move the xiic_process to thread context
-Date: Mon, 15 Jun 2015 20:47:54 +0530
-Message-ID: <1434381480-3042-3-git-send-email-shubhraj@xilinx.com>
+Subject: [PATCH 8/9] i2c: xiic: Remove the Addressed as slave interrupt
+Date: Mon, 15 Jun 2015 20:47:59 +0530
+Message-ID: <1434381480-3042-8-git-send-email-shubhraj@xilinx.com>
 References: <1434381480-3042-1-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,97 +12,25 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The xiic_process is a 154 line code that runs in isr context currently
-move it to thread context.
+Currently there is no slave mode. Do not enable the AAS interrupt.
 
 Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-xiic.c |   33 ++++++++++++++++++++-------------
- 1 files changed, 20 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index ce6b856..e7df7c2 100644
+index 62f7138..69d937e 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -358,8 +358,9 @@ static void xiic_wakeup(struct xiic_i2c *i2c, int code)
- 	wake_up(&i2c->wait);
+@@ -283,7 +283,7 @@ static void xiic_reinit(struct xiic_i2c *i2c)
+ 	/* Enable interrupts */
+ 	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
+ 
+-	xiic_irq_clr_en(i2c, XIIC_INTR_AAS_MASK | XIIC_INTR_ARB_LOST_MASK);
++	xiic_irq_clr_en(i2c, XIIC_INTR_ARB_LOST_MASK);
  }
  
--static void xiic_process(struct xiic_i2c *i2c)
-+static irqreturn_t xiic_process(int irq, void *dev_id)
- {
-+	struct xiic_i2c *i2c = dev_id;
- 	u32 pend, isr, ier;
- 	u32 clr = 0;
- 
-@@ -368,6 +369,7 @@ static void xiic_process(struct xiic_i2c *i2c)
- 	 * To find which interrupts are pending; AND interrupts pending with
- 	 * interrupts masked.
- 	 */
-+	spin_lock(&i2c->lock);
- 	isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
- 	ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
- 	pend = isr & ier;
-@@ -378,11 +380,6 @@ static void xiic_process(struct xiic_i2c *i2c)
- 		__func__, xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
- 		i2c->tx_msg, i2c->nmsgs);
- 
--	/* Do not processes a devices interrupts if the device has no
--	 * interrupts pending
--	 */
--	if (!pend)
--		return;
- 
- 	/* Service requesting interrupt */
- 	if ((pend & XIIC_INTR_ARB_LOST_MASK) ||
-@@ -504,6 +501,8 @@ out:
- 	dev_dbg(i2c->adap.dev.parent, "%s clr: 0x%x\n", __func__, clr);
- 
- 	xiic_setreg32(i2c, XIIC_IISR_OFFSET, clr);
-+	spin_unlock(&i2c->lock);
-+	return IRQ_HANDLED;
- }
- 
- static int xiic_bus_busy(struct xiic_i2c *i2c)
-@@ -604,16 +603,21 @@ static void xiic_start_send(struct xiic_i2c *i2c)
- static irqreturn_t xiic_isr(int irq, void *dev_id)
- {
- 	struct xiic_i2c *i2c = dev_id;
--
--	spin_lock(&i2c->lock);
-+	u32 pend, isr, ier;
-+	irqreturn_t ret = IRQ_HANDLED;
-+	/* Do not processes a devices interrupts if the device has no
-+	 * interrupts pending
-+	 */
- 
- 	dev_dbg(i2c->adap.dev.parent, "%s entry\n", __func__);
- 
--	xiic_process(i2c);
--
--	spin_unlock(&i2c->lock);
-+	isr = xiic_getreg32(i2c, XIIC_IISR_OFFSET);
-+	ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
-+	pend = isr & ier;
-+	if (pend)
-+		ret = IRQ_WAKE_THREAD;
- 
--	return IRQ_HANDLED;
-+	return ret;
- }
- 
- static void __xiic_start_xfer(struct xiic_i2c *i2c)
-@@ -754,7 +758,10 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	spin_lock_init(&i2c->lock);
- 	init_waitqueue_head(&i2c->wait);
- 
--	ret = devm_request_irq(&pdev->dev, irq, xiic_isr, 0, pdev->name, i2c);
-+	ret = devm_request_threaded_irq(&pdev->dev, irq, xiic_isr,
-+					xiic_process, IRQF_ONESHOT,
-+					pdev->name, i2c);
-+
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Cannot claim IRQ\n");
- 		return ret;
+ static void xiic_deinit(struct xiic_i2c *i2c)
 -- 
 1.7.1
