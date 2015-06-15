@@ -1,70 +1,90 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
-Date: Sun, 14 Jun 2015 17:42:31 +0530
-Message-ID: <557D6FAF.1050408@linaro.org>
-References: <5562EF9D.1090403@linaro.org> <20150611234118.GA1534@katana>
+From: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [RFC PATCH 2/2] i2c: mux: pca954x: Use __i2c_transfer because
+ of quirks
+Date: Mon, 15 Jun 2015 10:23:29 +0800
+Message-ID: <20150615102329.296972b2@xhacker>
+References: <557AD35C.2070406@nokia.com>
+	<5785070.TUTkzzfkHR@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150611234118.GA1534@katana>
+In-Reply-To: <5785070.TUTkzzfkHR@avalon>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?B?xYF1a2Fzeg==?= Gemborowski <lukasz.gemborowski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, "Lawnick, Michael (Nokia - DE/Ulm)" <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Dear Alexander,
 
+On Fri, 12 Jun 2015 22:28:50 +0300
+Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org> wrote:
 
-On Friday 12 June 2015 05:11 AM, Wolfram Sang wrote:
->> Current implementation:
->> --------------------
->>
->> Everyone probably does have their own custom implementation for this.
->> Or some other mechanism to achieve this (may be hardware support).
->
-> Do you have examples? It is easier to look at code.
->
+> Hi Alexander,
+>=20
+> Thank you for the patch.
+>=20
+> On Friday 12 June 2015 14:41:00 Alexander Sverdlin wrote:
+> > pca9541 and pca954x are calling master_xfer() of the parent adapter=
+ directly
+> > thus bypassing the quirks checks of the adapter. Use __i2c_transfer=
+()
+> > instead.
+> >=20
+> > Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> > Tested-by: =C5=81ukasz Gemborowski <lukasz.gemborowski-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+>=20
+> Acked-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 
-As I mentioned in the "Problem Statement",
+Just quickly tested the patch, seems fine. So feel free to add my
 
-I2C interface for PMIC may need to be used at the end of poweroff
-sequence where you cannot afford to sleep/schedule, as interrupt has
-been disabled.
+Acked-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Tested-by: Jisheng Zhang <jszhang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
-Earlier I was working on OMAP platform, where I remember we had
-implemented something for such requirement, but as I am not in TI
-anymore, I can not access the internal code.
+Thanks
 
-Let me check whether I can share the current marvell codebase
-outside.
-
-
->> /* We can also check i2c_check_functionality(adap,I2C_FUNC_PIO) */
->> 	if (msg->flags & I2C_M_PIO) {
->> 		/* PIO mode operation */
->> 	} else {
->> 		/* non-pio mode of operation */
->> 	}
->
-> I'd rather let the core decide. Like introduce a master_xfer_nosleep
-> callback and let the core use the standard or the nosleep one. We'd need
-> the same for smbus as well.
->
-> This leads to the question if we need a M_FLAG or expose the *_nosleep
-> functions directly?
->
-
-I thought of it, but did not convince myself after looking at the usage
-of this. This function would be used only when interrupt is disabled.
-
-
-> And I wonder about the demand for it. There are a number of SoCs with
-> designated I2C cores for the PMIC which do automated transfers.
->
-
-This is exactly the same reason I did not propose it as a core change.
-as I feel that the use of this is very minimal and with M_FLAG driver
-can very well handle it.
-
-Thanks,
-Vaibhav
+>=20
+> > ---
+> >  drivers/i2c/muxes/i2c-mux-pca9541.c |    4 ++--
+> >  drivers/i2c/muxes/i2c-mux-pca954x.c |    2 +-
+> >  2 files changed, 3 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> > b/drivers/i2c/muxes/i2c-mux-pca9541.c index cb77277..0c8d4d2 100644
+> > --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> > +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> > @@ -104,7 +104,7 @@ static int pca9541_reg_write(struct i2c_client =
+*client,
+> > u8 command, u8 val) buf[0] =3D command;
+> >  		buf[1] =3D val;
+> >  		msg.buf =3D buf;
+> > -		ret =3D adap->algo->master_xfer(adap, &msg, 1);
+> > +		ret =3D __i2c_transfer(adap, &msg, 1);
+> >  	} else {
+> >  		union i2c_smbus_data data;
+> >=20
+> > @@ -144,7 +144,7 @@ static int pca9541_reg_read(struct i2c_client *=
+client,
+> > u8 command) .buf =3D &val
+> >  			}
+> >  		};
+> > -		ret =3D adap->algo->master_xfer(adap, msg, 2);
+> > +		ret =3D __i2c_transfer(adap, msg, 2);
+> >  		if (ret =3D=3D 2)
+> >  			ret =3D val;
+> >  		else if (ret >=3D 0)
+> > diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> > b/drivers/i2c/muxes/i2c-mux-pca954x.c index bea0d2d..ea4aa9d 100644
+> > --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> > +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> > @@ -134,7 +134,7 @@ static int pca954x_reg_write(struct i2c_adapter=
+ *adap,
+> >  		msg.len =3D 1;
+> >  		buf[0] =3D val;
+> >  		msg.buf =3D buf;
+> > -		ret =3D adap->algo->master_xfer(adap, &msg, 1);
+> > +		ret =3D __i2c_transfer(adap, &msg, 1);
+> >  	} else {
+> >  		union i2c_smbus_data data;
+> >  		ret =3D adap->algo->smbus_xfer(adap, client->addr,
+>=20
