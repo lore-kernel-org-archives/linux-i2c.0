@@ -1,78 +1,56 @@
-From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Mon, 15 Jun 2015 11:42:50 +0200
-Message-ID: <557E9E1A.7060000@ahsoftware.de>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>	<5577F533.1060007@ahsoftware.de>	<CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>	<5579602F.1070801@ahsoftware.de>	<CACRpkdaZgBR5rHwrEYqcm5K4w3y8MXG8a0k=Y+oQY+jukHfuyw@mail.gmail.com>	<5579B9E8.9040609@ahsoftware.de>	<CACRpkdbDSS0yw=q_cR17Bvg+kgTfU3Vcd2gSjx1p4V-CzOZ_SA@mail.gmail.com>	<557AC040.40803@ahsoftware.de>	<557AC437.9000607@ahsoftware.de>	<557C7609.30400@ahsoftware.de> <CACRpkdaVZmq_w_qgEgTP5oqfH3K1+80O7z7o7CJx-dhivUGhDQ@mail.gmail.com>
+From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V2 1/3] pci_ids: Add AMD KERNCZ device ID support
+Date: Mon, 15 Jun 2015 11:54:51 +0200
+Message-ID: <CAPDyKFqKbqeWT+mLOur=FypjSOzr6c-4EPL9CC2jo7brkucbww@mail.gmail.com>
+References: <1434024707-6245-1-git-send-email-Vincent.Wan@amd.com>
+	<20150612203418.GJ23119@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdaVZmq_w_qgEgTP5oqfH3K1+80O7z7o7CJx-dhivUGhDQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DRM PANEL DRIVERS <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>"linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linu>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20150612203418.GJ23119-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wan ZongShun <Vincent.Wan-5C7GfCeVMHo@public.gmane.org>
+Cc: linux-mmc <linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, bp-Gina5bIWoIWzQB+pC5nmwQ@public.gmane.org, Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Linux PCI <linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, ZongShun Wan <mcuos.com-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 15.06.2015 um 10:58 schrieb Linus Walleij:
-> On Sat, Jun 13, 2015 at 8:27 PM, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org> wrote:
+On 12 June 2015 at 22:34, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org> wrote:
+> On Thu, Jun 11, 2015 at 08:11:45PM +0800, Wan ZongShun wrote:
+>> The KERNCZ is new AMD SB/FCH generation name, like HUDSON2.
+>> We will adopt 0x790b as device ID since from this gereration.
 >
->> And because you've said that "problem space is a bit convoluted" and I
->> disagree, here's a summary from my point of view:
+> s/We will adopt 0x790b as device ID since from/0x790b is the device ID for/
+> s/gereration/generation/
+>
+>> Signed-off-by: Wan ZongShun <Vincent.Wan-5C7GfCeVMHo@public.gmane.org>
+>
+> Acked-by: Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+
+Thanks, applied with Bjorn's ack and his suggested changes.
+
+Kind regards
+Uffe
+
+>
+>> ---
+>>  include/linux/pci_ids.h | 1 +
+>>  1 file changed, 1 insertion(+)
 >>
->> 1. All the necessary information (dependencies between drivers) already
->> exists at compile time. The set of dependencies between drivers might become
->> smaller by configuration, but will not become larger. So there should be NO
->> need to collect them at runtime, e.g. by instrumenting function calls.
->
-> I think you arrived at the core of the crux here.
-
-I've hoped so, that's why I've written it.
-
-> I guess your suggested approach then need to introduce a special
-> build tool to order the initcalls accordingly.
->
-> Again this will fall short if you don't know at compile time exactly
-> *which* board file will be executed.
-
-I've just tried to describe the facts in order to make the problem space 
-more clear, because, as said, I don't think it's convoluted.
-
-Besides that, I didn't want to suggest anything else other than what 
-I've already posted working patches for. What I've mentioned as possible 
-other solutions above is stuff which might be possible too in order to 
-give some starting points for people which are searching another 
-solution. But I wouldn't have written my patches as they are, if I would 
-think there is another more easier solution.
-
-And of course, there is still a bit to resolve at runtime, even in the 
-DT case (look at the "compatible" attribute). But there is already a 
-runtime solution to find the right driver (in case of DT) and I haven't 
-mentioned it in order to no confuse people again. Mentioning every 
-little detail doesn't make sense if you want to describe something 
-understandable (which is what I've tried).
-
-> So the only practical way to solve this at compile time is to predict
-> an initcall ordering sequence for all possible boot paths, compile in
-> all of them, and choose the right one at boot. But the number of boot
-> paths is equal to the number of device trees / ACPI tables or
-> board files supported, and that space is uncontrolled and ordered
-> infinite.
-
-You just need one working ordered sequence which includes all options. 
-This one will work for all others too.
-
-> Basically I think the root problem with your approach is that you
-> assume we know what hardware we will boot on at compile time. We
-
-Totally wrong. If you assume that I assume this, than either I was 
-totally unable to describe something clearly, or you were unable or 
-unwilling to understand what I've written. And as the result is the 
-same, we don't need to find out which was reason.
-
-Anyway, have fun. I'm quitting the discussion here as I don't have any 
-business with the kernel and already decided some time again to not post 
-patches anymore as it seems to be a waste of my (and maybe others) time.
-
-Regards,
-
-Alexander Holler
+>> diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+>> index 2f7b9a4..cb63a7b 100644
+>> --- a/include/linux/pci_ids.h
+>> +++ b/include/linux/pci_ids.h
+>> @@ -579,6 +579,7 @@
+>>  #define PCI_DEVICE_ID_AMD_HUDSON2_SATA_IDE   0x7800
+>>  #define PCI_DEVICE_ID_AMD_HUDSON2_SMBUS              0x780b
+>>  #define PCI_DEVICE_ID_AMD_HUDSON2_IDE                0x780c
+>> +#define PCI_DEVICE_ID_AMD_KERNCZ_SMBUS  0x790b
+>>
+>>  #define PCI_VENDOR_ID_TRIDENT                0x1023
+>>  #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX      0x2000
+>> --
+>> 1.9.1
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-pci" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
