@@ -1,111 +1,192 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 00/21] On-demand device registration
-Date: Mon, 15 Jun 2015 10:58:05 +0200
-Message-ID: <CACRpkdaVZmq_w_qgEgTP5oqfH3K1+80O7z7o7CJx-dhivUGhDQ@mail.gmail.com>
-References: <1432565608-26036-1-git-send-email-tomeu.vizoso@collabora.com>
-	<CACRpkdasLwMfEHGMRd1X3K_DU7NMPreE8TMwqqDTg8k9wj=wJQ@mail.gmail.com>
-	<CAAObsKCP-C+TY8Wkk6bQzxZeGYL9X01trtjxfaYp--ZnH07C+w@mail.gmail.com>
-	<CACRpkdZuSj+S2x1yz6n5PgcRK=3ZCcq_To124b2Y+Oj54aydpg@mail.gmail.com>
-	<5577F533.1060007@ahsoftware.de>
-	<CACRpkdYF5K7ckGbgvZc6qRzGFJTQ4WqXdu_7Tcqczn2LkFbn3A@mail.gmail.com>
-	<5579602F.1070801@ahsoftware.de>
-	<CACRpkdaZgBR5rHwrEYqcm5K4w3y8MXG8a0k=Y+oQY+jukHfuyw@mail.gmail.com>
-	<5579B9E8.9040609@ahsoftware.de>
-	<CACRpkdbDSS0yw=q_cR17Bvg+kgTfU3Vcd2gSjx1p4V-CzOZ_SA@mail.gmail.com>
-	<557AC040.40803@ahsoftware.de>
-	<557AC437.9000607@ahsoftware.de>
-	<557C7609.30400@ahsoftware.de>
+From: Antonio Borneo <borneo.antonio@gmail.com>
+Subject: Re: [PATCH v2] HID: support i2c write-read and large transfers in hid-cp2112
+Date: Mon, 15 Jun 2015 17:10:58 +0800
+Message-ID: <CAAj6DX0w2p0h_wS2_T2+kU-zLEDo+adCmosPaUHWPVJeEpsaTw@mail.gmail.com>
+References: <1434183990-2324-1-git-send-email-ellen@cumulusnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <557C7609.30400-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-Cc: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-samsung-soc <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DRM PANEL DRIVERS <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, dmaengine-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>"linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linu>
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <1434183990-2324-1-git-send-email-ellen@cumulusnetworks.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Ellen Wang <ellen@cumulusnetworks.com>
+Cc: David Barksdale <dbarksdale@uplogix.com>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jun 13, 2015 at 8:27 PM, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org> wrote:
-
-> And because you've said that "problem space is a bit convoluted" and I
-> disagree, here's a summary from my point of view:
+On Sat, Jun 13, 2015 at 4:26 PM, Ellen Wang <ellen@cumulusnetworks.com> wrote:
+> cp2112_i2c_xfer() only supports a single i2c_msg and only
+> reads up to 61 bytes.  More than one message at a time
+> and longers reads just return errors.  This breaks certain
+> important cases.  For example, the at24 eeprom driver generates
+> paired write and read messages (for eeprom address and data).
+> And the reads can be larger than 61 bytes.
 >
-> 1. All the necessary information (dependencies between drivers) already
-> exists at compile time. The set of dependencies between drivers might become
-> smaller by configuration, but will not become larger. So there should be NO
-> need to collect them at runtime, e.g. by instrumenting function calls.
+> Since the device doesn't support i2c repeated starts in general,
+> but does support a single write-repeated-start-read pair
+> (as CP2112_DATA_WRITE_READ_REQUEST), we recognize the latter
+> case and implement only that.
+>
+> To support large reads, we wrap a loop around cp2112_read()
+> to pick up all the returned data.
 
-I think you arrived at the core of the crux here.
+Hi Ellen,
 
-When we look up a resource provided from another driver, e.g. from
-regulator_get(), clk_get(), pinctrl_get(), gpiod_get() etc - the dependency
-is resolved by looking in a cross-reference table for either a struct device*
-pointer or a string, an index, or both or all three. Examples:
+to keep git log consistent, the subject should change to something like
+HID: cp2112: ...
 
-struct regulator *regulator_get(struct device *dev, const char *id);
-struct clk *clk_get(struct device *dev, const char *id);
-struct gpio_desc *__must_check __gpiod_get(struct device *dev,
-                                         const char *con_id,
-                                         enum gpiod_flags flags);
-(...)
+Actually you are adding two features.
+I think should be better to split them in two independent patches.
 
-(*_index() variants exist on some of the resource retrieveal
-functions.)
+> Signed-off-by: Ellen Wang <ellen@cumulusnetworks.com>
+> ---
+> As Antonio Borneo and I discussed previously, this is the updated
+> patch that preserves the repeated start semantics (by not incorrectly
+> implementing cases that don't work).
+>
+> Thank you for your time!
+> ---
+>  drivers/hid/hid-cp2112.c |   79 +++++++++++++++++++++++++++++++++-------------
+>  1 file changed, 57 insertions(+), 22 deletions(-)
+>
+> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+> index 3318de6..2c10a45 100644
+> --- a/drivers/hid/hid-cp2112.c
+> +++ b/drivers/hid/hid-cp2112.c
+> @@ -444,6 +444,24 @@ static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
+>         return data_length + 3;
+>  }
+>
+> +static int cp2112_i2c_write_read_req(void *buf, u8 slave_address,
+> +                                    u8 *addr, int addr_length,
+> +                                    int read_length)
+> +{
+> +       struct cp2112_write_read_req_report *report = buf;
+> +
+> +       if (read_length < 1 || read_length > 512 ||
+> +           addr_length > sizeof(report->target_address))
+> +               return -EINVAL;
+> +
+> +       report->report = CP2112_DATA_WRITE_READ_REQUEST;
+> +       report->slave_address = slave_address << 1;
+> +       report->length = cpu_to_be16(read_length);
+> +       report->target_address_length = addr_length;
+> +       memcpy(report->target_address, addr, addr_length);
+> +       return addr_length + 5;
+> +}
+> +
+>  static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>                            int num)
+>  {
+> @@ -451,26 +469,45 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>         struct hid_device *hdev = dev->hdev;
+>         u8 buf[64];
+>         ssize_t count;
+> +       ssize_t read_length = 0;
+> +       u8 *read_buf = NULL;
+>         unsigned int retries;
+>         int ret;
+>
+>         hid_dbg(hdev, "I2C %d messages\n", num);
+>
+> -       if (num != 1) {
+> +       if (num == 1) {
+> +               if (msgs->flags & I2C_M_RD) {
+> +                       hid_dbg(hdev, "I2C read %#04x len %d\n",
+> +                               msgs->addr, msgs->len);
+> +                       read_length = msgs->len;
+> +                       read_buf = msgs->buf;
+> +                       count = cp2112_read_req(buf, msgs->addr, msgs->len);
+> +               } else {
+> +                       hid_dbg(hdev, "I2C write %#04x len %d\n",
+> +                               msgs->addr, msgs->len);
+> +                       count = cp2112_i2c_write_req(buf, msgs->addr,
+> +                                                    msgs->buf, msgs->len);
+> +               }
+> +               if (count < 0)
+> +                       return count;
+> +       } else if (num == 2 &&
+> +                  msgs[0].addr == msgs[1].addr &&
+> +                  !(msgs[0].flags & I2C_M_RD) && (msgs[1].flags & I2C_M_RD)) {
+> +               hid_dbg(hdev, "I2C write-read %#04x wlen %d rlen %d\n",
+> +                       msgs[0].addr, msgs[0].len, msgs[1].len);
+> +               read_length = msgs[1].len;
+> +               read_buf = msgs[1].buf;
+> +               count = cp2112_i2c_write_read_req(buf, msgs[0].addr,
+> +                               msgs[0].buf, msgs[0].len, msgs[1].len);
+> +               if (count < 0)
+> +                       return count;
+> +       } else {
+>                 hid_err(hdev,
+>                         "Multi-message I2C transactions not supported\n");
+>                 return -EOPNOTSUPP;
+>         }
+>
+> -       if (msgs->flags & I2C_M_RD)
+> -               count = cp2112_read_req(buf, msgs->addr, msgs->len);
+> -       else
+> -               count = cp2112_i2c_write_req(buf, msgs->addr, msgs->buf,
+> -                                            msgs->len);
+> -
+> -       if (count < 0)
+> -               return count;
+> -
+>         ret = hid_hw_power(hdev, PM_HINT_FULLON);
+>         if (ret < 0) {
+>                 hid_err(hdev, "power management error: %d\n", ret);
 
-struct device * is the device requesting the resource, con_id
-is the string name of the resource on the provider side. This is all
-solved by looking in cross reference tables. ONE way of resolving
-that cross reference is to look into the device tree or the ACPI table.
-But for the board file case, this is resolved at runtime by the cross
-reference table, registered with calls such as gpiod_add_lookup_table().
+The part above goes in a patch for write-read, the part below in
+another patch for large transfers.
 
-It is true that in the theoretical sense, all of this exist at compile time
-especially if you can parse something like a device tree and
-figure out what struct device * nodes will correspond to the struct
-device_node:s in it. For ACPI I guess a similar procedure is viable.
+I have tested you patch and works fine; I can read an I2C eeprom.
 
-Problem: this requires the kernel compile to know exactly *which* device tree
-or ACPI table it is going to boot on. The expressed goal of device tree
-and ACPI is to have *ONE* kernel booting several device trees.
-Here your approach stops short: you are suggesting instrumenting
-the kernel at compile time to one single device tree or ACPI table.
-But we never know really what device tree or ACPI table will be used.
-This just cannot be done at compile time for that reason alone.
+But I also check with an oscilloscope the I2C signals and I got
+disappointed. There is no repeated START.
+I can clearly see cp2112 generating a STOP immediately followed by a START.
+Datasheet of cp2112 in figure 8 reports the expected time diagram with
+repeated START, but it's not what I get on my HW.
+Your code seam ok. Maybe my device is outdated or broken.
+The errata document from Silabs does not report anythink relevant.
 
-Example: in boot case (A) the regulator may be provided by regulator
-"foo" driver on an i2c bus. But in boot case (B) the very same regulator
-may be provided by regulator "bar" on an SPI bus. These are very
-real usecases, for example for drivers/net/ethernet/smsc/smsc911x.c,
-will get regulators from the most diverse places depending on what
-device tree is used.
+Can you verify with a scope on your HW too?
 
-For board files, it is neither possible in theory: you need to compile the
-code to figure out the struct device * provider, and/or the string name
-of the providing device (.name field in struct device for the provider)
-to resolve dependencies at compile time.
+Thanks,
+Antonio
 
-For the board file case, resolving dependencies at compile time will
-require a quite complex two-stage rocket: compile the code to
-get resources out, then recompile with known resources.
-
-I guess your suggested approach then need to introduce a special
-build tool to order the initcalls accordingly.
-
-Again this will fall short if you don't know at compile time exactly
-*which* board file will be executed.
-
-So the only practical way to solve this at compile time is to predict
-an initcall ordering sequence for all possible boot paths, compile in
-all of them, and choose the right one at boot. But the number of boot
-paths is equal to the number of device trees / ACPI tables or
-board files supported, and that space is uncontrolled and ordered
-infinite.
-
-Basically I think the root problem with your approach is that you
-assume we know what hardware we will boot on at compile time. We
-discarded that development path years ago. We have no clue, this
-is resolved at runtime. Alas, people still create super-optimized
-systems using exactly this knowledge, but it is not our main target
-here, it is a special optimization case.
-
-Yours,
-Linus Walleij
+> @@ -506,21 +543,19 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>                 goto power_normal;
+>         }
+>
+> -       if (!(msgs->flags & I2C_M_RD))
+> -               goto finish;
+> -
+> -       ret = cp2112_read(dev, msgs->buf, msgs->len);
+> -       if (ret < 0)
+> -               goto power_normal;
+> -       if (ret != msgs->len) {
+> -               hid_warn(hdev, "short read: %d < %d\n", ret, msgs->len);
+> -               ret = -EIO;
+> -               goto power_normal;
+> +       for (count = 0; count < read_length;) {
+> +               ret = cp2112_read(dev, read_buf + count, read_length - count);
+> +               if (ret < 0)
+> +                       goto power_normal;
+> +               count += ret;
+> +               if (count > read_length) {
+> +                       hid_warn(hdev, "long read: %d > %zd\n",
+> +                                ret, read_length - count + ret);
+> +               }
+>         }
+>
+> -finish:
+>         /* return the number of transferred messages */
+> -       ret = 1;
+> +       ret = num;
+>
+>  power_normal:
+>         hid_hw_power(hdev, PM_HINT_NORMAL);
+> --
+> 1.7.10.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
