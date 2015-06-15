@@ -1,36 +1,74 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 8/9] i2c: xiic: Remove the Addressed as slave interrupt
-Date: Mon, 15 Jun 2015 20:47:59 +0530
-Message-ID: <1434381480-3042-8-git-send-email-shubhraj@xilinx.com>
-References: <1434381480-3042-1-git-send-email-shubhraj@xilinx.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH-V2 00/12] i2c: pxa: Fixes, cleanup and support for pxa910 family
+Date: Mon, 15 Jun 2015 21:19:47 +0530
+Message-ID: <1434383399-2370-1-git-send-email-vaibhav.hiremath@linaro.org>
+References: <vaibhav.hiremath@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434381480-3042-1-git-send-email-shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, robert.jarzmik-GANU6spQydw@public.gmane.org, Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently there is no slave mode. Do not enable the AAS interrupt.
+This patch series fixes bugs/warnings, cleans up the code and adds
+support for PXA910 family of devices to PXA I2C bus driver.
 
-Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-xiic.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+There has been one attempt made sometime back in 2012 to upstream
+some of the patches from below list, but did not get follow up later.
+I have consolidated all the patches, cleaned them up, splited into
+logical changes, added new patches and submitting it now.
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 62f7138..69d937e 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -283,7 +283,7 @@ static void xiic_reinit(struct xiic_i2c *i2c)
- 	/* Enable interrupts */
- 	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
- 
--	xiic_irq_clr_en(i2c, XIIC_INTR_AAS_MASK | XIIC_INTR_ARB_LOST_MASK);
-+	xiic_irq_clr_en(i2c, XIIC_INTR_ARB_LOST_MASK);
- }
- 
- static void xiic_deinit(struct xiic_i2c *i2c)
+I tried to maintain authorship & Signoff except where I did some
+significant changes to the code/logic.
+
+Link to previous post:
+http://permalink.gmane.org/gmane.linux.drivers.i2c/13557
+
+Testing:
+  - Basic testing on PMIC device on I2C-0 interface
+  - Boot tested on platform based on PXA1928
+  - Probe is successfully passing
+  - Read few registers of PMIC (RTC, ID, etc...) during boot
+
+
+V1 => V2:
+========
+Link to V1 - http://lists.infradead.org/pipermail/linux-arm-kernel/2015-May/347012.html
+
+  - Fixed all comments from "Robert Jarzmik" and "Wolfram Sang"
+  - Dropped Patch
+	05/12: using core bus reset implementation - under work.
+               Will submit shortly.
+	08/12: NAKed and dropped
+  - Seperated DT binding patch from driver changes, for easy merge
+
+
+Leilei Shang (1):
+  i2c: pxa: keep i2c irq ON in suspend
+
+Shouming Wang (1):
+  i2c: pxa: Return I2C_RETRY when timeout in pio mode
+
+Vaibhav Hiremath (8):
+  i2c: pxa: No need to set slave addr for i2c master mode reset
+  i2c: pxa: Reset i2c controller on timeout in interrupt and pio mode
+  i2c: pxa: Update debug function to dump more info on error
+  i2c:pxa: Use devm_ variants in probe function
+  Documentation: binding: add new property 'disable_after_xfer' to
+    i2c-pxa
+  i2c: pxa: Add support for pxa910/988 & new configuration features
+  i2c: pxa: Add ILCR (tLow & tHigh) configuration support
+  Documentation: binding: add sclk adjustment properties to i2c-pxa
+
+Yi Zhang (1):
+  i2c: pxa: enable/disable i2c module across msg xfer
+
+Yipeng Yao (1):
+  i2c: pxa: Remove compile warnning in 64bit mode
+
+ Documentation/devicetree/bindings/i2c/i2c-pxa.txt |  18 ++
+ drivers/i2c/busses/i2c-pxa.c                      | 267 ++++++++++++++++------
+ 2 files changed, 220 insertions(+), 65 deletions(-)
+
 -- 
-1.7.1
+1.9.1
