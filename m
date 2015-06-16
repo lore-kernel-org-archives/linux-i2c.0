@@ -1,121 +1,59 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: Re: [Patch v2] driver/clk/clk-si5338: Add common clock framework
- driver for si5338
-Date: Tue, 16 Jun 2015 10:21:37 +0200
-Message-ID: <1434442897.2069.66.camel@x220>
-References: <1434388051-23814-1-git-send-email-yorksun@freescale.com>
+From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH-RESEND 0/3] i2c: core/pxa: Add support for hardware lock
+Date: Tue, 16 Jun 2015 13:58:59 +0530
+Message-ID: <557FDE4B.3060304@linaro.org>
+References: <vaibhav.hiremath@linaro.org> <1433270731-23790-1-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1434388051-23814-1-git-send-email-yorksun@freescale.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: York Sun <yorksun@freescale.com>
-Cc: mturquette@baylibre.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Andrey Filippov <andrey@elphel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1433270731-23790-1-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-One question and a few nits follow.
 
-On Mon, 2015-06-15 at 10:07 -0700, York Sun wrote:
-> SI5338 is a programmable clock generator. It has 4 sets of inputs,
-> PLL, multisynth and dividers to make 4 outputs. This driver splits
-> them into multiple clocks to comply with common clock framework.
-> 
-> See Documentation/devicetree/bindings/clock/silabs,si5338.txt for
-> details.
-> 
-> Signed-off-by: York Sun <yorksun@freescale.com>
-> CC: Mike Turquette <mturquette@linaro.org>
 
-Apparently that's now mturquette@baylibre.com .
+On Wednesday 03 June 2015 12:15 AM, Vaibhav Hiremath wrote:
+> To justify the need for hardware lock, lets take a real usecase scenario -
+>
+> In case of Marvell SoC, PXA910 silicon, both AP and CP are present and
+> these two ARM cores are sharing one pair of I2C pins.
+>
+> In order to keep I2C transaction operated with atomic, hardware lock
+> (RIPC) is required.
+>
+> This patch extends support for atomic operation by adding hardware lock support
+> to the i2c-core.
+>
+> PATCH[1/3] : Core changes for hardware lock
+> PATCH[2/3 & 3/3] : hardware lock support to i2c-pxa bus driver.
+>
+> Link to previous post:
+> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02352.html
+> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02353.html
+> http://lkml.iu.edu/hypermail/linux/kernel/1104.3/02354.html
+>
+> TODO:
+>    - DT node addition
+>      I am using PXA1928 based platform which is still not available
+>      in Mainline, so it is based on, below patch-series
+>      Link to Rob's patches:
+>       https://lkml.org/lkml/2015/5/1/14
+>       https://lkml.org/lkml/2015/5/19/1206
+>      PMIC 88pm860 support
+>       http://www.spinics.net/lists/arm-kernel/msg422554.html
+>
+> Vaibhav Hiremath (3):
+>    i2c: core: append hardware lock with bus lock
+>    i2c: pxa: Add support for hardware lock
+>    i2c: pxa: Add pin ctrl support for CP core access
+>
 
-> CC: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-> CC: Guenter Roeck <linux@roeck-us.net>
-> CC: Andrey Filippov <andrey@elphel.com>
+Wolfram,
 
-> --- a/drivers/clk/Kconfig
-> +++ b/drivers/clk/Kconfig
-
->  config COMMON_CLK
-> -	bool
-> +	tristate "Common Clock"
->  	select HAVE_CLK_PREPARE
->  	select CLKDEV_LOOKUP
->  	select SRCU
-
-Why? The commit explanation doesn't mention this. Did you use an unclean
-tree? If not, you just created over a dozen of new modules:
-    $ git grep -nw CONFIG_COMMON_CLK -- "*Makefile*"
-    arch/arm/mach-mmp/Makefile:13:ifeq ($(CONFIG_COMMON_CLK), )
-    arch/arm/mach-shmobile/Makefile:21:ifndef CONFIG_COMMON_CLK
-    arch/powerpc/platforms/512x/Makefile:4:obj-$(CONFIG_COMMON_CLK) += clock-commonclk.o
-    drivers/clk/Makefile:4:obj-$(CONFIG_COMMON_CLK) += clk.o
-    drivers/clk/Makefile:5:obj-$(CONFIG_COMMON_CLK) += clk-divider.o
-    drivers/clk/Makefile:6:obj-$(CONFIG_COMMON_CLK) += clk-fixed-factor.o
-    drivers/clk/Makefile:7:obj-$(CONFIG_COMMON_CLK) += clk-fixed-rate.o
-    drivers/clk/Makefile:8:obj-$(CONFIG_COMMON_CLK) += clk-gate.o
-    drivers/clk/Makefile:9:obj-$(CONFIG_COMMON_CLK) += clk-mux.o
-    drivers/clk/Makefile:10:obj-$(CONFIG_COMMON_CLK)        += clk-composite.o
-    drivers/clk/Makefile:11:obj-$(CONFIG_COMMON_CLK)        += clk-fractional-divider.o
-    drivers/clk/Makefile:12:obj-$(CONFIG_COMMON_CLK)        += clk-gpio-gate.o
-    drivers/clk/Makefile:14:obj-$(CONFIG_COMMON_CLK)        += clk-conf.o
-    drivers/clk/Makefile:59:ifeq ($(CONFIG_COMMON_CLK), y)
-    drivers/clk/samsung/Makefile:5:obj-$(CONFIG_COMMON_CLK) += clk.o clk-pll.o
-    drivers/gpu/drm/msm/Makefile:53:msm-$(CONFIG_COMMON_CLK) += mdp/mdp4/mdp4_lvds_pll.o
-    drivers/sh/Makefile:5:ifneq ($(CONFIG_COMMON_CLK),y)
-
-> +config COMMON_CLK_SI5338
-> +	tristate "Clock driver for SiLabs 5338"
-> +	depends on I2C
-> +	select REGMAP_I2C
-> +	select RATIONAL
-> +	---help---
-> +	  This driver supports Silicon Labs 5338 programmable clock generators,
-> +	  using common clock framework. It needs parent clock as input(s).
-> +	  Internal clocks are registered with unique names in case multiple
-> +	  devices exist. See devicetree/bindings/clock/silabs,si5338.txt
-> +	  under Documentation for details.
-
-> --- /dev/null
-> +++ b/drivers/clk/clk-si5338.c
-
-> +unsigned long si5338_divrefclk_recalc_rate(struct clk_hw *hw,
-> +					   unsigned long parent_rate)
-> +{
-> +	[...]
-> +}
-
-Can't this be made static? It compiles cleanly with static too. Is there
-some subtle issue I'm missing?
-
-> +static const struct clk_ops si5338_divrefclk_ops = {
-> +	.recalc_rate = si5338_divrefclk_recalc_rate,
-> +};
-
-> +unsigned long si5338_divfbclk_recalc_rate(struct clk_hw *hw,
-> +					   unsigned long parent_rate)
-> +{
-> +	[...]
-> +}
-
-Ditto.
-
-> +static const struct clk_ops si5338_divfbclk_ops = {
-> +	.recalc_rate = si5338_divfbclk_recalc_rate,
-> +};
-
-> --- /dev/null
-> +++ b/include/dt-bindings/clock/clk-si5338.h
-
-> +#ifndef _DT_BINDINGS_CLK_DSI5338_H
-> +#define _DT_BINDINGS_CLK_DSI5338_H
-
-(I spotted a D that looks odd here.)
-
-And git am whines:
-    new blank line at EOF.
+Any update on this patch-series?
 
 Thanks,
-
-
-Paul Bolle
+Vaibhav
