@@ -1,150 +1,55 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
-Date: Tue, 16 Jun 2015 17:41:30 +0530
-Message-ID: <55801272.1040006@linaro.org>
-References: <5562EF9D.1090403@linaro.org> <20150611234118.GA1534@katana> <557D6FAF.1050408@linaro.org> <557FE4A9.5030004@linaro.org> <20150616091815.GA1595@katana>
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH-V2 12/12] Documentation: binding: add sclk adjustment
+ properties to i2c-pxa
+Date: Tue, 16 Jun 2015 08:22:07 -0500
+Message-ID: <CAL_JsqKu0BFLU8JdxDwrkn2SZTQPX6GYu2AFOYP49zknfu28Tw@mail.gmail.com>
+References: <vaibhav.hiremath@linaro.org> <1434383399-2370-1-git-send-email-vaibhav.hiremath@linaro.org>
+ <1434383399-2370-13-git-send-email-vaibhav.hiremath@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20150616091815.GA1595@katana>
+In-Reply-To: <1434383399-2370-13-git-send-email-vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On Tuesday 16 June 2015 02:48 PM, Wolfram Sang wrote:
+On Mon, Jun 15, 2015 at 10:49 AM, Vaibhav Hiremath
+<vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> With addition of PXA910 family of devices, the TWSI module supports
+> new feature which allows us to adjust SCLK.
+> With DT properties i2c-pxa driver takes input configuration
+> in nsec and converts it to respective bit-fields,
 >
->> Any update on this?
+>  - i2c-sclk-low-time-ns : SCLK low time (tlow)
+>    This property is used along with mode selection.
+>  - i2c-sclk-high-time-ns : SCLK high time (thigh)
 >
-> Not yet.
+> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-pxa.txt | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
 >
-> a) there was no code to look at
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
+> index 9657db5..0fafd91 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
+> @@ -23,12 +23,25 @@ Optional properties :
+>   - i2c-disable-after-xfer : If set, driver will disable I2C module
+>     after msg xfer and enable it again before xfer.
 >
+> +   (Applicable to PXA910 family):
+> +
+> + - i2c-sclk-low-time-ns : SCLK low time (tlow), for standard/fast/high
+> +   speed mode.
+> +   This property is used along with mode selection. Driver uses this property
+> +   to set low/high time for standard and fast speed mode, as counter bit-field
+> +   is same for both.
 
-Actually its simple question, whether we can call i2c_transfer in
-pm_power_off fn, where interupts are disabled and i2c_transfer fn may
-sleep.
+This belongs below both properties, and it should be clear that both
+properties are required if present.
 
-Just to illustrate my point,
-I just quickly created something for you. Correct me if I am wrong here.
+> + - i2c-sclk-high-time-ns : SCLK high time (thigh), Used in case of high speed
+> +   mode.
 
-
-pm_power_off Usecase:
-=====
-
-File: arch/arm64/kernel/process.c
-
-void machine_power_off(void)
-{
-         local_irq_disable();
-         smp_send_stop();
-         if (pm_power_off)
-                 pm_power_off();
-}
-
-
-Dummy pm_power_off Implementation:
-=====
-
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 03b70f8..e364a2a 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1170,7 +1170,10 @@ static int i2c_pxa_xfer(struct i2c_adapter *adap, 
-struct i2c_msg msgs[], int num
-         i2c_pxa_enable(i2c, true);
-
-         for (i = adap->retries; i >= 0; i--) {
--               ret = i2c_pxa_do_xfer(i2c, msgs, num);
-+               if (msgs[0].flags & I2C_M_PIO)
-+                       ret = i2c_pxa_do_pio_xfer(i2c, msgs, num);
-+               else
-+                       ret = i2c_pxa_do_xfer(i2c, msgs, num);
-                 if (ret != I2C_RETRY)
-                         goto out;
-
-diff --git a/drivers/mfd/88pm800.c b/drivers/mfd/88pm800.c
-index 0464e2d..2d7b11b 100644
---- a/drivers/mfd/88pm800.c
-+++ b/drivers/mfd/88pm800.c
-@@ -488,6 +488,52 @@ static void pm800_pages_exit(struct pm80x_chip *chip)
-                 i2c_unregister_device(subchip->gpadc_page);
-  }
-
-+static struct pm80x_chip *pm80x_chip_g;
-+
-+#define PM800_SW_PDOWN                 (1 << 5)
-+
-+static void pm800_power_off(void)
-+{
-+       u8 data, buf[2];
-+       struct i2c_msg msgs[2];
-+       struct i2c_client *client = pm80x_chip_g->client;
-+
-+       pr_info("turning off power....\n");
-+
-+       /*
-+        * pm_power_off fn get called at the end of machine_power_off(),
-+        * so at this stage the irqs are disabled, so we have to use
-+        * PIO mode of I2C transaction for both read and write.
-+        */
-+       /* Read register first */
-+       msgs[0].addr = client->addr;
-+       msgs[0].flags = I2C_M_PIO;
-+       msgs[0].len = 1;
-+       msgs[0].buf = buf;
-+
-+       msgs[1].addr = client->addr;
-+       msgs[1].flags = I2C_M_RD | I2C_M_PIO;
-+       msgs[1].len = 1;
-+       msgs[1].buf = &data;
-+
-+       buf[0] = PM800_WAKEUP1;
-+       if ( __i2c_transfer(client->adapter, msgs, 2) < 0) {
-+               pr_err("%s read register fails...\n", __func__);
-+               WARN_ON(1);
-+       }
-+
-+       /* issue SW power down */
-+       msgs[0].addr = client->addr;
-+       msgs[0].flags = I2C_M_PIO;
-+       msgs[0].len = 2;
-+       msgs[0].buf[0] = PM800_WAKEUP1;
-+       msgs[0].buf[1] = data | PM800_SW_PDOWN;
-+       if (__i2c_transfer(client->adapter, msgs, 1) < 0) {
-+               pr_err("%s write data fails...\n", __func__);
-+               WARN_ON(1);
-+       }
-+}
-+
-  static int device_800_init(struct pm80x_chip *chip,
-                                      struct pm80x_platform_data *pdata)
-  {
-@@ -612,6 +658,10 @@ static int pm800_probe(struct i2c_client *client,
-         if (pdata && pdata->plat_config)
-                 pdata->plat_config(chip, pdata);
-
-+       /* keep global copy, required in power_off fn */
-+       pm80x_chip_g = chip;
-+       pm_power_off = pm800_power_off;
-+
-         return 0;
-
-  err_device_init:
-diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
-index 0e949cb..22fda83 100644
---- a/include/uapi/linux/i2c.h
-+++ b/include/uapi/linux/i2c.h
-@@ -76,6 +76,7 @@ struct i2c_msg {
-  #define I2C_M_IGNORE_NAK       0x1000  /* if I2C_FUNC_PROTOCOL_MANGLING */
-  #define I2C_M_NO_RD_ACK                0x0800  /* if 
-I2C_FUNC_PROTOCOL_MANGLING */
-  #define I2C_M_RECV_LEN         0x0400  /* length will be first 
-received byte */
-+#define I2C_M_PIO              0x0200  /* pio mode of transaction */
-         __u16 len;              /* msg length                           */
-         __u8 *buf;              /* pointer to msg data                  */
-  };
+Rob
