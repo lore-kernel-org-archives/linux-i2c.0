@@ -1,42 +1,55 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] i2c: slave: fix the example how to instantiate from userspace
-Date: Mon, 15 Jun 2015 19:51:46 +0200
-Message-ID: <1434390706-19364-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tim Bakker <bakkert-Lqq7FYbpbC48+Wv5JVE8qw@public.gmane.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH] i2c-tools: enable static use of libi2c
+Date: Tue, 16 Jun 2015 04:01:19 +0200
+Message-ID: <1434420079-3029-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+Cc: linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-I copied the wrong shell code into the documentation. Sorry to all who
-tried to get sense out of this current example :/ Slight rewording while
-we are here.
+When debugging embedded systems, it is often nice to simply TFTP the
+desired i2ctool to the target without the hazzle of dealing with shared
+libs. Using -static is overkill, too, so let's add a switch which will
+only link functions from libi2c statically.
 
-Reported-by: Tim Bakker <bakkert-Lqq7FYbpbC48+Wv5JVE8qw@public.gmane.org>
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/i2c/slave-interface | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Makefile        | 2 ++
+ tools/Module.mk | 4 ++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/Documentation/i2c/slave-interface b/Documentation/i2c/slave-interface
-index 02b086510b6c10..2dee4e2d62df19 100644
---- a/Documentation/i2c/slave-interface
-+++ b/Documentation/i2c/slave-interface
-@@ -31,10 +31,10 @@ User manual
- ===========
+diff --git a/Makefile b/Makefile
+index 252a126..6d36f2f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -33,6 +33,8 @@ CFLAGS		+= -Wall
+ SOCFLAGS	:= -fpic -D_REENTRANT $(CFLAGS)
  
- I2C slave backends behave like standard I2C clients. So, you can instantiate
--them like described in the document 'instantiating-devices'. A quick example
--for instantiating the slave-eeprom driver from userspace:
-+them as described in the document 'instantiating-devices'. A quick example for
-+instantiating the slave-eeprom driver from userspace at address 0x64 on bus 1:
+ BUILD_STATIC_LIB ?= 1
++# Uncomment to use static libi2c
++#USE_STATIC_LIB := 1
  
--  # echo 0-0064 > /sys/bus/i2c/drivers/i2c-slave-eeprom/bind
-+  # echo slave-24c02 0x64 > /sys/bus/i2c/devices/i2c-1/new_device
+ KERNELVERSION	:= $(shell uname -r)
  
- Each backend should come with separate documentation to describe its specific
- behaviour and setup.
+diff --git a/tools/Module.mk b/tools/Module.mk
+index d14bb0c..8efddbb 100644
+--- a/tools/Module.mk
++++ b/tools/Module.mk
+@@ -12,7 +12,11 @@ TOOLS_DIR	:= tools
+ TOOLS_CFLAGS	:= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
+ 		   -Wcast-align -Wwrite-strings -Wnested-externs -Winline \
+ 		   -W -Wundef -Wmissing-prototypes -Iinclude
++ifeq ($(USE_STATIC_LIB),1)
++TOOLS_LDFLAGS	:= $(LIB_DIR)/$(LIB_STLIBNAME)
++else
+ TOOLS_LDFLAGS	:= -Llib -li2c
++endif
+ 
+ TOOLS_TARGETS	:= i2cdetect i2cdump i2cset i2cget
+ 
 -- 
 2.1.4
+
