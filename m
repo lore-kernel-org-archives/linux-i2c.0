@@ -1,81 +1,61 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [RFC]: Supporting PIO mode of operation in i2c_msg->flags
-Date: Tue, 16 Jun 2015 14:26:09 +0530
-Message-ID: <557FE4A9.5030004@linaro.org>
-References: <5562EF9D.1090403@linaro.org> <20150611234118.GA1534@katana> <557D6FAF.1050408@linaro.org>
+Date: Tue, 16 Jun 2015 11:18:15 +0200
+Message-ID: <20150616091815.GA1595@katana>
+References: <5562EF9D.1090403@linaro.org>
+ <20150611234118.GA1534@katana>
+ <557D6FAF.1050408@linaro.org>
+ <557FE4A9.5030004@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <557D6FAF.1050408-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <557FE4A9.5030004-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Sunday 14 June 2015 05:42 PM, Vaibhav Hiremath wrote:
->
->
-> On Friday 12 June 2015 05:11 AM, Wolfram Sang wrote:
->>> Current implementation:
->>> --------------------
->>>
->>> Everyone probably does have their own custom implementation for this.
->>> Or some other mechanism to achieve this (may be hardware support).
->>
->> Do you have examples? It is easier to look at code.
->>
->
-> As I mentioned in the "Problem Statement",
->
-> I2C interface for PMIC may need to be used at the end of poweroff
-> sequence where you cannot afford to sleep/schedule, as interrupt has
-> been disabled.
->
-> Earlier I was working on OMAP platform, where I remember we had
-> implemented something for such requirement, but as I am not in TI
-> anymore, I can not access the internal code.
->
-> Let me check whether I can share the current marvell codebase
-> outside.
->
->
->>> /* We can also check i2c_check_functionality(adap,I2C_FUNC_PIO) */
->>>     if (msg->flags & I2C_M_PIO) {
->>>         /* PIO mode operation */
->>>     } else {
->>>         /* non-pio mode of operation */
->>>     }
->>
->> I'd rather let the core decide. Like introduce a master_xfer_nosleep
->> callback and let the core use the standard or the nosleep one. We'd need
->> the same for smbus as well.
->>
->> This leads to the question if we need a M_FLAG or expose the *_nosleep
->> functions directly?
->>
->
-> I thought of it, but did not convince myself after looking at the usage
-> of this. This function would be used only when interrupt is disabled.
->
->
->> And I wonder about the demand for it. There are a number of SoCs with
->> designated I2C cores for the PMIC which do automated transfers.
->>
->
-> This is exactly the same reason I did not propose it as a core change.
-> as I feel that the use of this is very minimal and with M_FLAG driver
-> can very well handle it.
->
 
-Wolfram,
+> Any update on this?
 
-Any update on this?
+Not yet.
 
-If we could close on this, I can quickly change the code and submit the
-patch for review.
+a) there was no code to look at
 
-Thanks,
-Vaibhav
+b) have a look here for current pending patches:
+
+http://patchwork.ozlabs.org/project/linux-i2c/list/
+
+I will answer when time is due.
+
+
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVf+nXAAoJEBQN5MwUoCm2Lr0QAKo6WcEn2zkdOowvpDFcsJrB
+oaY3jUKjl5gTJr3QQ3mGltjfuT/IvCnD1XRUTBav4JPQQDlHssG0ctuv1JeDD0UF
+g3qWNzBJRXa2cm7CxHKrJuDpz++XhEOaEpPwoRxabs1Ckmy9qoSniW/zSvPFyEHZ
+5guBeccaSTMVkUb/jm6jO6hA5jpA48eJTQR71WrtrumELtgb2HKz5jyyJmx2kREI
+zsF2B/tROpPvGq7YNZ3vVhWUnxGfiZrwOSgvndVtOabOBsVaqzZIWxPD2iaZOXaI
+c+Cno94paryHvbrI3ml7fAwKcLoed02YUhoRSsWHcuNkuRQHGG+atVNGpbOg0XWM
+4sUPwHPBm729gVtMI2jg72U2WXGLlpyNKm8cT/7JTsrYEiZFau08odyVwa52SXPg
+KKrhQupoYPg8cqb2ATE88LYGoC2uCwAl9MMgbe8w0n5KGJap4f1Ymp271arISyr0
+0akrjjjLtuaKeZKhMRpcdICvRRGI7XXFFhvcAgooxILK0Gx/nYq851wS/lQNzIxA
+D44GZXCFbVx6oee1YxOCp+6amZvupvwo10j33mPZtxZ4xADZxH3qBRDYUpa+AgyN
+0wGpuN2k45FX9NFEH5sghLNBZMOjqKpP0aPK+u578GmR0ongYFLHOvYihV139Nl7
+y6Zl9zebR+5R6tRlI/lc
+=2TjI
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--
