@@ -1,61 +1,140 @@
-From: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH-V2 12/12] Documentation: binding: add sclk adjustment
- properties to i2c-pxa
-Date: Tue, 16 Jun 2015 19:55:58 +0530
-Message-ID: <558031F6.5050107@linaro.org>
-References: <vaibhav.hiremath@linaro.org> <1434383399-2370-1-git-send-email-vaibhav.hiremath@linaro.org> <1434383399-2370-13-git-send-email-vaibhav.hiremath@linaro.org> <CAL_JsqKu0BFLU8JdxDwrkn2SZTQPX6GYu2AFOYP49zknfu28Tw@mail.gmail.com>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [Patch v2] driver/clk/clk-si5338: Add common clock framework
+ driver for si5338
+Date: Tue, 16 Jun 2015 08:18:01 -0700
+Message-ID: <55803E29.2040800@freescale.com>
+References: <1434388051-23814-1-git-send-email-yorksun@freescale.com> <1434442897.2069.66.camel@x220>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAL_JsqKu0BFLU8JdxDwrkn2SZTQPX6GYu2AFOYP49zknfu28Tw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1434442897.2069.66.camel@x220>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Robert Jarzmik <robert.jarzmik-GANU6spQydw@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
+Cc: mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Andrey Filippov <andrey-MoRZu3FOBbXQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Paul,
 
+Thanks for reviewing.
 
-On Tuesday 16 June 2015 06:52 PM, Rob Herring wrote:
-> On Mon, Jun 15, 2015 at 10:49 AM, Vaibhav Hiremath
-> <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> With addition of PXA910 family of devices, the TWSI module supports
->> new feature which allows us to adjust SCLK.
->> With DT properties i2c-pxa driver takes input configuration
->> in nsec and converts it to respective bit-fields,
+On 06/16/2015 01:21 AM, Paul Bolle wrote:
+> One question and a few nits follow.
+> 
+> On Mon, 2015-06-15 at 10:07 -0700, York Sun wrote:
+>> SI5338 is a programmable clock generator. It has 4 sets of inputs,
+>> PLL, multisynth and dividers to make 4 outputs. This driver splits
+>> them into multiple clocks to comply with common clock framework.
 >>
->>   - i2c-sclk-low-time-ns : SCLK low time (tlow)
->>     This property is used along with mode selection.
->>   - i2c-sclk-high-time-ns : SCLK high time (thigh)
+>> See Documentation/devicetree/bindings/clock/silabs,si5338.txt for
+>> details.
 >>
->> Signed-off-by: Vaibhav Hiremath <vaibhav.hiremath-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->> ---
->>   Documentation/devicetree/bindings/i2c/i2c-pxa.txt | 13 +++++++++++++
->>   1 file changed, 13 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
->> index 9657db5..0fafd91 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
->> @@ -23,12 +23,25 @@ Optional properties :
->>    - i2c-disable-after-xfer : If set, driver will disable I2C module
->>      after msg xfer and enable it again before xfer.
->>
->> +   (Applicable to PXA910 family):
->> +
->> + - i2c-sclk-low-time-ns : SCLK low time (tlow), for standard/fast/high
->> +   speed mode.
->> +   This property is used along with mode selection. Driver uses this property
->> +   to set low/high time for standard and fast speed mode, as counter bit-field
->> +   is same for both.
->
-> This belongs below both properties, and it should be clear that both
-> properties are required if present.
->
+>> Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+>> CC: Mike Turquette <mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> 
+> Apparently that's now mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org .
 
-Technically, both properties are required only in case of high_mode.
+Thanks. Will change.
 
-As mentioned above, in case of standard and fast mode we use tLow value.
+> 
+>> CC: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>> CC: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+>> CC: Andrey Filippov <andrey-MoRZu3FOBbXQT0dZR+AlfA@public.gmane.org>
+> 
+>> --- a/drivers/clk/Kconfig
+>> +++ b/drivers/clk/Kconfig
+> 
+>>  config COMMON_CLK
+>> -	bool
+>> +	tristate "Common Clock"
+>>  	select HAVE_CLK_PREPARE
+>>  	select CLKDEV_LOOKUP
+>>  	select SRCU
+> 
+> Why? The commit explanation doesn't mention this. Did you use an unclean
+> tree? If not, you just created over a dozen of new modules:
 
-Thanks,
-Vaibhav
+Thanks for catching this. I was testing building the driver within and outside
+of kernel tree for another kernel version. If this driver is built-in, I don't
+need to make it tristate. Will revert in next version.
+
+>     $ git grep -nw CONFIG_COMMON_CLK -- "*Makefile*"
+>     arch/arm/mach-mmp/Makefile:13:ifeq ($(CONFIG_COMMON_CLK), )
+>     arch/arm/mach-shmobile/Makefile:21:ifndef CONFIG_COMMON_CLK
+>     arch/powerpc/platforms/512x/Makefile:4:obj-$(CONFIG_COMMON_CLK) += clock-commonclk.o
+>     drivers/clk/Makefile:4:obj-$(CONFIG_COMMON_CLK) += clk.o
+>     drivers/clk/Makefile:5:obj-$(CONFIG_COMMON_CLK) += clk-divider.o
+>     drivers/clk/Makefile:6:obj-$(CONFIG_COMMON_CLK) += clk-fixed-factor.o
+>     drivers/clk/Makefile:7:obj-$(CONFIG_COMMON_CLK) += clk-fixed-rate.o
+>     drivers/clk/Makefile:8:obj-$(CONFIG_COMMON_CLK) += clk-gate.o
+>     drivers/clk/Makefile:9:obj-$(CONFIG_COMMON_CLK) += clk-mux.o
+>     drivers/clk/Makefile:10:obj-$(CONFIG_COMMON_CLK)        += clk-composite.o
+>     drivers/clk/Makefile:11:obj-$(CONFIG_COMMON_CLK)        += clk-fractional-divider.o
+>     drivers/clk/Makefile:12:obj-$(CONFIG_COMMON_CLK)        += clk-gpio-gate.o
+>     drivers/clk/Makefile:14:obj-$(CONFIG_COMMON_CLK)        += clk-conf.o
+>     drivers/clk/Makefile:59:ifeq ($(CONFIG_COMMON_CLK), y)
+>     drivers/clk/samsung/Makefile:5:obj-$(CONFIG_COMMON_CLK) += clk.o clk-pll.o
+>     drivers/gpu/drm/msm/Makefile:53:msm-$(CONFIG_COMMON_CLK) += mdp/mdp4/mdp4_lvds_pll.o
+>     drivers/sh/Makefile:5:ifneq ($(CONFIG_COMMON_CLK),y)
+> 
+>> +config COMMON_CLK_SI5338
+>> +	tristate "Clock driver for SiLabs 5338"
+>> +	depends on I2C
+>> +	select REGMAP_I2C
+>> +	select RATIONAL
+>> +	---help---
+>> +	  This driver supports Silicon Labs 5338 programmable clock generators,
+>> +	  using common clock framework. It needs parent clock as input(s).
+>> +	  Internal clocks are registered with unique names in case multiple
+>> +	  devices exist. See devicetree/bindings/clock/silabs,si5338.txt
+>> +	  under Documentation for details.
+> 
+>> --- /dev/null
+>> +++ b/drivers/clk/clk-si5338.c
+> 
+>> +unsigned long si5338_divrefclk_recalc_rate(struct clk_hw *hw,
+>> +					   unsigned long parent_rate)
+>> +{
+>> +	[...]
+>> +}
+> 
+> Can't this be made static? It compiles cleanly with static too. Is there
+> some subtle issue I'm missing?
+> 
+
+Absolutely. I must have missed them for some functions.
+
+
+>> +static const struct clk_ops si5338_divrefclk_ops = {
+>> +	.recalc_rate = si5338_divrefclk_recalc_rate,
+>> +};
+> 
+>> +unsigned long si5338_divfbclk_recalc_rate(struct clk_hw *hw,
+>> +					   unsigned long parent_rate)
+>> +{
+>> +	[...]
+>> +}
+> 
+> Ditto.
+> 
+>> +static const struct clk_ops si5338_divfbclk_ops = {
+>> +	.recalc_rate = si5338_divfbclk_recalc_rate,
+>> +};
+> 
+>> --- /dev/null
+>> +++ b/include/dt-bindings/clock/clk-si5338.h
+> 
+>> +#ifndef _DT_BINDINGS_CLK_DSI5338_H
+>> +#define _DT_BINDINGS_CLK_DSI5338_H
+> 
+> (I spotted a D that looks odd here.)
+
+Me, too. It takes fresh eyes to spot this non-sense error.
+
+> 
+> And git am whines:
+>     new blank line at EOF.
+
+Thanks.
+
+York
