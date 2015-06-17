@@ -1,80 +1,26 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-tools: enable static use of libi2c
-Date: Wed, 17 Jun 2015 12:53:09 +0200
-Message-ID: <20150617105309.GF1517@katana>
-References: <1434420079-3029-1-git-send-email-wsa@the-dreams.de>
- <20150617110615.7c7cb411@endymion.delvare>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: Py-smbus and python3 support: it's time for a new release?
+Date: Wed, 17 Jun 2015 12:54:55 +0200
+Message-ID: <20150617125455.7692e46d@endymion.delvare>
+References: <CA+TH9V=OwuaezZ7UKT-9Vg4cs8h4+mmhSZiGBDNq_Pp7V+G7Og@mail.gmail.com>
+	<20150617111855.787ddc6e@endymion.delvare>
+	<CA+TH9VnFW=3Q5w9=PhC_djftbAHgJ0krYF5u1ggxXB7QYx+U-A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WlEyl6ow+jlIgNUh"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20150617110615.7c7cb411@endymion.delvare>
-Sender: linux-sh-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CA+TH9VnFW=3Q5w9=PhC_djftbAHgJ0krYF5u1ggxXB7QYx+U-A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, 17 Jun 2015 11:23:38 +0200, Angelo Compagnucci wrote:
+> Please, please, find that time! I really would like to package
+> i2c-tools 3.1 with python3 support in buildroot!
 
---WlEyl6ow+jlIgNUh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+OK, releasing i2c-tools 3.1.2 was easy after all, it's done now.
 
-Hi Jean,
-
-> > When debugging embedded systems, it is often nice to simply TFTP the
-> > desired i2ctool to the target without the hazzle of dealing with shared
-> > libs. Using -static is overkill, too, so let's add a switch which will
-> > only link functions from libi2c statically.
->=20
-> Fine with me.
-
-Hooray!
-
-> >  BUILD_STATIC_LIB ?=3D 1
-> > +# Uncomment to use static libi2c
-> > +#USE_STATIC_LIB :=3D 1
->=20
-> Any reason for not using ?=3D as above, with the default being unset?
-
-Agreed.
-
-> Unrelated to your patch, but shouldn't this -Llib rather been written
-> -L$(LIB_DIR)?
-
-Yes, makes sense.
-
-> Also it might make sense to check if USE_STATIC_LIB is set when
-> BUILD_STATIC_LIB isn't and complain about it?
-
-For easier usage, I'd rather enforce BUILD_STATIC_LIB in that case.
-
-Thanks,
-
-   Wolfram
-
-
---WlEyl6ow+jlIgNUh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVgVGVAAoJEBQN5MwUoCm25qkQAJVwD7xBKuFRU2HmKYubFxRU
-7xfEbOZL6NeWdw3dK339FctPze34hnt7NUz0iZFiv940tQFuBIqz4wn9Bg88LY/g
-flhzsxQcy76oBWy249smpMwsOtngHCP5JOrENVPUo4HlGxa/t4TE7VO89rrbCDNP
-a/zOowdIcHkaN87lXOW1trj0G47z4We2gyZkN/LXkv6aR0VD+fgnLZw0PdSDoSKb
-r5K30CFo6sdRlLptLjIGM9hHhNFdtKD3AM5KKqmWFXy8I+qXksruGnvf96ScqeHu
-ZjHDDePod6nRXNJSu9TPHg7GTUYWpRVZLdW6htBN4fa7K7+JJnMGUW0cxQw++B7e
-IkRvlhAg9XKXJ0gBVyYbFFcTXS+VgNkwlXmcXdjmuvY7Hw0l84Mde1faE6kiBh24
-SRbnW1L1xio92RIbOkAQntBDEfKujNVGOaS3q98ZsJc5Rr6sNJvCxGJr5bOzIwbc
-svs1Rgx4zjehbrnLoKKWly8eS/i6ebHRnhBXYq5huu4rVsc9zT5KJk0YuqZ9yQGE
-lIeIUxqJSIgXrdrHCWoUp/JzWYpYjsEN7C/QVUUw9NzJKQV0fYQmFH0tuqg9it6k
-8FhNmxc6YwdxqO2RsU3cqLP7ec9l5RE1EO+zmC48TaNQ65Z51VM+NAIaJICgk4zZ
-DwIYGpiQZvcWOcBkW4SW
-=iEKz
------END PGP SIGNATURE-----
-
---WlEyl6ow+jlIgNUh--
+-- 
+Jean Delvare
+SUSE L3 Support
