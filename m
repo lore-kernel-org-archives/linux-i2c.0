@@ -1,55 +1,62 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-parport: start using pr_fmt
-Date: Wed, 17 Jun 2015 13:46:17 +0200
-Message-ID: <20150617114617.GB4604@schokonusskuchen.bad>
-References: <1434093434-30834-1-git-send-email-sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH] i2c: busses: i2c-bcm2835: S-Register clear reserved bits
+Date: Wed, 17 Jun 2015 14:10:15 +0200
+Message-ID: <20150617121015.GA13393@katana>
+References: <1434469259-6474-1-git-send-email-linux_wi@tinag.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NMuMz9nt05w80d4+"
+	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1434093434-30834-1-git-send-email-sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1434469259-6474-1-git-send-email-linux_wi-ADq4ffItWIY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
+Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---NMuMz9nt05w80d4+
+--IS0zKkzwUGydFO0o
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 12, 2015 at 12:47:14PM +0530, Sudip Mukherjee wrote:
-> Start using pr_fmt and convert all remaining printk to use
-> pr_* family of macros.
+On Tue, Jun 16, 2015 at 05:40:59PM +0200, Silvan Wicki wrote:
+> The Datasheet mentions on page 31 that the bits 10-31 must be read as
+> don't care and written as 0.
+> https://www.raspberrypi.org/wp-content/uploads/2012/02/BCM2835-ARM-Periph=
+erals.pdf
+>=20
+> We cannot guarantee that we reed bits 10-31 as always 0 (becuase the
+> datasheet says read as don't care). We clear the bits with a bitmask to
+> prevent writing back unknown data at the reserved bits.
+>=20
+> Signed-off-by: Silvan Wicki <linux_wi-ADq4ffItWIY@public.gmane.org>
 
-I heard you introduced the driver model to parport. So, isn't there a
-struct device we could use for dev_err() and friends?
+Applied to for-next, thanks!
 
-Thanks,
+If possible, use a spell checker on your commit message.
 
-   Wolfram
 
---NMuMz9nt05w80d4+
+--IS0zKkzwUGydFO0o
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVgV4JAAoJEBQN5MwUoCm25SoP/RN/WfjwZ12kplDPSD6vNAmN
-S7uCs0rIQrMEiFo6yoAP9sl2n391tYC6WlOb4GGtYIOsN2a70AR14xu9fYKKx/wy
-ZXtff1t7Gd2H2GAw6pVABvUT/589QdVL8ISl2A3tnwIItT0vcathxdoRU8IrCWqW
-wK68xDBaJQ6NwH3goBEFpiP/t3ZHg/gZAZl/ZqT+cB01kcoYVw4Nebwa4LQJEvPa
-J+cWL21CxAb8474r9WEqBB0YqaycTM/uDAHfQ9p2bEJ0XJMIG2s7aKAN2uhQynMR
-BHKKbr7r/gd4cPa2USxW0iznR0b15TFnguWzN/DqhVbkCGBrrBqNCRUEzyzEuqVP
-ElhmFS1VJvMiMPgKL3K2GkFngGWpRg/brpeKr+bkwWljAnVpV4QubsbGFQ3040Jc
-yez5PVzcJahU7pnXIRm63NoY2ussz0B/uUoXn9S4ptOtmrX/Li1UxB7r7DYWHidg
-bejxay/Ihnk7UbpRySGYKaTl8mtibRWlxSBGtG6vBqj/GQiw3rAjXYB3pg0T7pLt
-XqWktTcLcsSaVsMRlf72DIxcJVjVelXiX5R5MwIdU9Lpz01++KAyWoNm7QGML3+T
-G34BuktlVpt+zwsTilmZTl4MVyovc592W32iHXpJ9ftZjZd8B7ldlnX1oKVBCCtH
-GwkUt16Nu3ca36GmnpEg
-=0Ull
+iQIcBAEBAgAGBQJVgWOnAAoJEBQN5MwUoCm2HYkP/2qsOdPOpMQQ6fOsHDSFSk5b
+Or0AlAfHsdC/p44O/BnWAD+vw3olE6O/tC6v/Uhjhx6RrA0hhYjjH12PPM8WFiP/
+50rlH727+lXFvTWexwWneRzPXzOtiAxfQZFYaOsDnym4daUF80pCl0//1EL+CsZB
+E7Fzd2Kqjz4MNJ88Da/Uw00AHQr5glspz6ZwQMqvTe7hA5qLTK/IMQmH6PUweKX3
+tGtfrIigGxwxrwtUb3nY3MfnFwmWANfc+BuvNk5QFdqfA6Aw2aMP9/FnUJBLzWpy
+NhYLxEyf8IojWseXbqKg1ij5T/Xw5IQlqmKYXdq7bCHE2KnozSKBHAbkCaNC4RE7
+c6NYwIvbp8Rhf59q+6/vf9KCjtTnhZ8HT/b8SGjZwAjYThsWxwF2ap83LKikCk1U
+PPIoW5Mx5sH1Ucn53MIdWT/0JTgz7gvEk2f18piZgHHIKcHgQnhhdTXxwd/ztLUz
+/+/PPBXt9TiTQqBNtuqjMbT8p8HkU0irrBT1UvBDTpfpIs1B9WWtZ7jUGW8TR02p
+mpKuMXUdW9HSrWrDuCOg8wZS80Lr0YDFFiyK3+5a3YjcTX67Hutd017rKwLUWqyR
+lTq3LdasWb98W4vHdT8VGcFfrCTd5q6nFeYwOoriuazgLx8MKMeEIatj7/8TT91s
+AMLlVwVzrkLKa1zpAmPq
+=03qJ
 -----END PGP SIGNATURE-----
 
---NMuMz9nt05w80d4+--
+--IS0zKkzwUGydFO0o--
