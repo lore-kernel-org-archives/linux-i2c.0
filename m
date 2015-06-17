@@ -1,7 +1,7 @@
 From: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCHv2 6/9] i2c: xiic: Add a debug msg in case of timeout
-Date: Wed, 17 Jun 2015 20:48:16 +0530
-Message-ID: <1434554299-23443-7-git-send-email-shubhraj@xilinx.com>
+Subject: [PATCHv2 7/9] i2c: xiic: Remove the Addressed as slave interrupt
+Date: Wed, 17 Jun 2015 20:48:17 +0530
+Message-ID: <1434554299-23443-8-git-send-email-shubhraj@xilinx.com>
 References: <1434554299-23443-1-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,26 +12,27 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently we return silently upon a timeout.
-Adding an error message to aid debugability. Not
- a functional change.
+Currently there is no slave mode support in the driver
+also in the isr we just ack it and do nothing.
+So disable the AAS interrupt.
 
 Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-xiic.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index a83f300..66c571e 100644
+index 66c571e..dd23a78 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -692,6 +692,7 @@ static int xiic_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 		i2c->tx_msg = NULL;
- 		i2c->rx_msg = NULL;
- 		i2c->nmsgs = 0;
-+		dev_err(adap->dev.parent, "Controller timed out\n");
- 		return -ETIMEDOUT;
- 	}
+@@ -283,7 +283,7 @@ static void xiic_reinit(struct xiic_i2c *i2c)
+ 	/* Enable interrupts */
+ 	xiic_setreg32(i2c, XIIC_DGIER_OFFSET, XIIC_GINTR_ENABLE_MASK);
+ 
+-	xiic_irq_clr_en(i2c, XIIC_INTR_AAS_MASK | XIIC_INTR_ARB_LOST_MASK);
++	xiic_irq_clr_en(i2c, XIIC_INTR_ARB_LOST_MASK);
  }
+ 
+ static void xiic_deinit(struct xiic_i2c *i2c)
 -- 
 1.7.1
