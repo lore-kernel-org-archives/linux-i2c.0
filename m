@@ -1,42 +1,61 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c: designware: Make sure the device is suspended before disabling runtime PM
-Date: Wed, 17 Jun 2015 12:08:38 +0300
-Message-ID: <1434532118-119906-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: Py-smbus and python3 support: it's time for a new release?
+Date: Wed, 17 Jun 2015 11:18:55 +0200
+Message-ID: <20150617111855.787ddc6e@endymion.delvare>
+References: <CA+TH9V=OwuaezZ7UKT-9Vg4cs8h4+mmhSZiGBDNq_Pp7V+G7Og@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CA+TH9V=OwuaezZ7UKT-9Vg4cs8h4+mmhSZiGBDNq_Pp7V+G7Og-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Christian Ruppert <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver calls pm_runtime_put() right before pm_runtime_disable() in its
-->remove() hook to make sure clock is gated etc. However, it turns out that
-pm_runtime_put() only calls ->idle() hook without actually suspending
-anything. The following pm_runtime_disable() will prevent the driver from
-suspending thus leaving it "active".
+Hi Angelo,
 
-It is better to suspend the device synchronously to make sure it is
-actually suspended before disabling runtime PM from it.
+On Tue, 26 May 2015 09:56:47 +0200, Angelo Compagnucci wrote:
+> Dear Jean Delvare,
+> 
+> Now that python3 support was added to python-smbus, could you release
+> a new stable version with it?
+> 
+> This way, py-smbus with python3 support could be included in
+> distributions that usually don't pick unstable packages.
 
-While there, undo call to pm_runtime_use_autosuspend().
+I understand that distributions don't want to ship unstable packages,
+however they can (and do) cherry-pick individual commits to fix bugs or
+add features they want. If you have a specific need, you can always ask
+your distribution to consider backporting a few commits. In this
+specific case, there's a dedicated stable branch for i2c-tools 3.1 so
+it's even easier.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> Is there any planned roadmap or showstopper that makes this thing difficult?
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 4794911a6165..3dd2de31a2f8 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -281,7 +281,8 @@ static int dw_i2c_remove(struct platform_device *pdev)
- 
- 	i2c_dw_disable(dev);
- 
--	pm_runtime_put(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
-+	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
- 	if (has_acpi_companion(&pdev->dev))
+The main blocker is that I'm always so busy and can never find the time
+for the release.
+
+Another problem is that it's the first release which will include
+libi2c, and with that the first API will be set. After that, it's
+harder to change it I got it wrong for any reason. I had plans to
+extend the API a bit too (basically merging i2cbusses into the
+library.) I guess that's the reason why I'm always delaying the
+release. But to be honest, I suppose that no problem will be reported
+until the library is widely used, and that just can't happen until it's
+part of a stable release. So it's a kind of chicken-and-egg problem.
+
+For the legacy branch (3.1), there's no libi2c excuse, and I did
+consider a release after adding support for python3, but canceled the
+idea after seeing only 2 lines in the CHANGES file. That being said,
+there's so little happening on that branch that maybe it's expected
+that only a couple fixes will make it into every release.
+
+I'm adding "release i2c-tools" to my formal to-do list [1], but I can't
+promise anything regarding the schedule.
+
+[1] A sheet of paper on my desk, nothing fancy, really.
+
 -- 
-2.1.4
+Jean Delvare
+SUSE L3 Support
