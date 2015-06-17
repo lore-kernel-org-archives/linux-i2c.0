@@ -1,26 +1,55 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: Py-smbus and python3 support: it's time for a new release?
-Date: Wed, 17 Jun 2015 12:54:55 +0200
-Message-ID: <20150617125455.7692e46d@endymion.delvare>
-References: <CA+TH9V=OwuaezZ7UKT-9Vg4cs8h4+mmhSZiGBDNq_Pp7V+G7Og@mail.gmail.com>
-	<20150617111855.787ddc6e@endymion.delvare>
-	<CA+TH9VnFW=3Q5w9=PhC_djftbAHgJ0krYF5u1ggxXB7QYx+U-A@mail.gmail.com>
+From: Michael Lawnick <ml.lawnick@gmx.de>
+Subject: Re: [PATCH] i2c: omap: improve duty cycle on SCL
+Date: Wed, 17 Jun 2015 13:09:53 +0200
+Message-ID: <55815581.80807@gmx.de>
+References: <1434482276-1210-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CA+TH9VnFW=3Q5w9=PhC_djftbAHgJ0krYF5u1ggxXB7QYx+U-A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1434482276-1210-1-git-send-email-balbi@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>, wsa@the-dreams.de
+Cc: Tony Lindgren <tony@atomide.com>, Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>, linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 17 Jun 2015 11:23:38 +0200, Angelo Compagnucci wrote:
-> Please, please, find that time! I really would like to package
-> i2c-tools 3.1 with python3 support in buildroot!
+Am 16.06.2015 um 21:17 schrieb Felipe Balbi:
+> With this patch we try to be as close to 50%
+> duty cycle as possible. The reason for this
+> is that some devices present an erratic behavior
+> with certain duty cycles.
+>
+> One such example is TPS65218 PMIC which fails
+> to change voltages when running @ 400kHz and
+> duty cycle is lower than 34%.
+>
+> The idea of the patch is simple:
+>
+> calculate desired scl_period from requested scl
+> and use 50% for tLow and 50% for tHigh.
+=2E..
+Hmm, and what's about  Philips I2C specification 2.1, Jan 2000, Table 5=
+?
 
-OK, releasing i2c-tools 3.1.2 was easy after all, it's done now.
+> PARAMETER                       SYMBOL  STANDARD-MODE   FAST-MODE    =
+ UNIT
+>                                           MIN. MAX.     MIN. MAX.
+> LOW period of the SCL clock     tLOW      4.7   =E2=80=93       1.3  =
+ =E2=80=93       =C2=B5s
+> HIGH period of the SCL clock    tHIGH     4.0   =E2=80=93       0.6  =
+ =E2=80=93       =C2=B5s
 
--- 
-Jean Delvare
-SUSE L3 Support
+Your signal is in spec (0.85 =C2=B5s high, 1,65 low).
+Maybe your TPS65218 is just buggy or signals are bad?
+
+--=20
+
+KR
+Michael
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
