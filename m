@@ -1,75 +1,67 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/9] i2c: xiic: Do not continue in case of errors in Rx
-Date: Wed, 17 Jun 2015 14:44:24 +0200
-Message-ID: <20150617124423.GE13393@katana>
-References: <1434381480-3042-1-git-send-email-shubhraj@xilinx.com>
- <20150617114159.GA4604@schokonusskuchen.bad>
- <4EED9C67BE3EF440A606099F8E34C52862BB72@XAP-PVEXMBX01.xlnx.xilinx.com>
+Subject: Re: [PATCH] i2c: davinci: Optimize SCL generation
+Date: Wed, 17 Jun 2015 14:45:48 +0200
+Message-ID: <20150617124547.GF13393@katana>
+References: <5579565E.1020908@nokia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kA1LkgxZ0NN7Mz3A"
+	protocol="application/pgp-signature"; boundary="nYySOmuH/HDX6pKp"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4EED9C67BE3EF440A606099F8E34C52862BB72-4lKfpRxZ5enZMOc0yg5rMog+Gb3gawCHQz34XiSyOiE@public.gmane.org>
+In-Reply-To: <5579565E.1020908-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Lawnick, Michael (Nokia - DE/Ulm)" <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---kA1LkgxZ0NN7Mz3A
+--nYySOmuH/HDX6pKp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > Your patch descriptions need improvement. They describe what you do, but
-> > this can be seen in the patch as well. What you need to describe is WHY=
- you
-> > need this change.
+On Thu, Jun 11, 2015 at 11:35:26AM +0200, Alexander Sverdlin wrote:
+> There are several cases where current clock configuration algorithm produ=
+ces
+> not optimal results:
+> - truncation in "clk" calculation leads to the fact that actual BUS frequ=
+ency
+>   will be always higher than spec except two exact module frequences 8MHz=
+ and
+>   12MHz in the whole 7-12MHz range of permitted frequences
+> - driver configures SCL HIGH to LOW ratio always 1 to 1 and this doesn't =
+work
+>   well in 400kHz case, namely minimum time of LOW state (according to I2C=
+ Spec
+>   2.1) 1.3us will not be fulfilled. HIGH to LOW ratio 1 to 2 would be more
+>   approriate here.
 >=20
-> In case  the slave nacks the transaction in the middle of the transfer Th=
-e driver continues.
->=20
-> > What was wrong before,
->=20
-> The usual expectation is that in case of error / nack the transaction is =
-halted.
+> Signed-off-by: Michael Lawnick <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 
-Yeah, this is going into the right direction. Please note, that I meant
-that all 9 patch descriptions need rework. I know this is extra work,
-but really needed to keep drivers maintainable. Please resend the series
-when you are done.
-
-> > Because this driver is long in use, we must be very careful about regre=
-ssions
-> > and every change needs a good reason.
->=20
-> I agree.
-
-Great! :)
+Applied to for-next, thanks!
 
 
---kA1LkgxZ0NN7Mz3A
+--nYySOmuH/HDX6pKp
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVgWunAAoJEBQN5MwUoCm2utEP/34Tu35p+Vq5nqN22YOW49BU
-LBpE2gfNwFNip47eawxh7Z6NTrEvk/bhe3fJLXny7/aYtpp4e38SDVtFGAthD1eQ
-j0fUVtSN3VU1wGwum0xjJiRQTqtsYN9i3TKYE2DsMKxJoTnJnm/FATdxqrineTjH
-GO9F4VsrRdwSpOiBf3G+zKdr3Rgu1QSZFRBGJi1IDjlMm7wqMBDUn72FDLDLAiW1
-oynM8JXRg+GaErMpW+ojCLuDq6TE4GugLV7pG9XX/6z7dxMJ5P2hbaL/mEI5tk7a
-AEPHw0j5yXcfawcvLeIt8X+6hXlhDRr3SozwvpumKRgghP/RAiJY87hNqiW2kczb
-Ut2qrvyhFzPuPXCh7oR0aKGkKqnGC8kiJOZRej8r1VKEJyMnIdv3PBZyWGDukZ8J
-SADMpvyYQ7flnrLLkiR7KAM19qaCUpiY3qpozpTaDc88jhG2pzA2BH5qt/rjnr8s
-4mv8aXlJOXAMmHEbVT0vdE8CUI2ZTHbFXNsR/Ax0Cj56JJM16ZVE3kaWaHIKdYSu
-Np/wVSwsxAvlIKt6wcaxICQBgwYWlfU2uYhrSNW7D4XsDjBCK1tDyAKdjaTEoMLR
-LdBUgtVoAwcaoZTUf7qwZA59ywyO2wWSNBwRFFgdfIlfZoSRuy54Hg2IDEw5rn85
-Bm9c9N23jSaWfcv3FH/s
-=YY/3
+iQIcBAEBAgAGBQJVgWv7AAoJEBQN5MwUoCm29IgQAKhQIB+fKPYA94Mc7Tp3lNlF
+v3EZCXXlW8+lQQCGETIima7xviLgNfuXAE04+lLD6iHBH4GM5gVgk8NDBN13nuAr
+XQBV3z6VlMwWTShbu0zW/4NJ/EWgaO9TUbtYoL4DGT2E25hQzg/d3IY6iAHyU3AA
+tyJGc5T3QusbSUI1fJGJE5PQO+LOhuHLzpQVkK7KKvoIEGQeeI+KTASYEa12rRPk
+HMI6NSMZAsqqCYsrtebo0giP9rZdUIAicxRQQ8Nc1uFwfS7YeAdhilvjW9K9oQe6
+R8CoHZmo9F/hRNKS9UzbWxnTBaUEkPvH6VCUnMpLj1hdO0dEMQvOLHHRNUbrcVc+
+5DF52bXIRGr7556cZ0PO7qtIik8Lfv1760LS7nH752b7E4wY9+3KiZGUGED5gMxj
+0/w0OeY8PGsUOw3m4p5ahbZuoCZfTXHqyVUpDH4e2AQU0f0XMUCTrBIvW9fmcQ0k
+NzC9ADBpgxNmERzvjZBeAXnh6f/M/xl0XEQfwINNKJ9UucXv2rFk7sh9BERSSbxf
+jyQGuKNoSTS7kJ33IXql/1qBj2Hl0ryvpugN/4szWyQHpzz9WhO6nsTnmo2xVZUv
+wBYzaKxoHiPWW0rsuawtJWk2eyI241rRI90yjQOz8KUcfeQKyE6LTgfV6RUs0Rt5
+GwnsKkRmu6pMi0ZwSF8/
+=ZN3e
 -----END PGP SIGNATURE-----
 
---kA1LkgxZ0NN7Mz3A--
+--nYySOmuH/HDX6pKp--
