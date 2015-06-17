@@ -1,64 +1,59 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/2] ARM: shmobile: r8a7740: move I2C errata handling
- into the driver
-Date: Wed, 17 Jun 2015 12:43:27 +0200
-Message-ID: <20150617104327.GC1517@katana>
-References: <1433834080-5630-1-git-send-email-wsa@the-dreams.de>
+Subject: Re: i2c-tools: add Android.mk
+Date: Wed, 17 Jun 2015 12:46:55 +0200
+Message-ID: <20150617104654.GD1517@katana>
+References: <CA+TH9VkQzJaSa0okxK+s1ukpaqgiWegh3uumEb63LzZwBjV4nA@mail.gmail.com>
+ <20150316101626.2c7a02be@endymion.delvare>
+ <20150617102917.GB1517@katana>
+ <CA+TH9Vm7oKH43S7j5G2_iQi7cF=y3G04V_nrswQ+6E1J6JNbOg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kfjH4zxOES6UT95V"
+	protocol="application/pgp-signature"; boundary="jCrbxBqMcLqd4mOl"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1433834080-5630-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <CA+TH9Vm7oKH43S7j5G2_iQi7cF=y3G04V_nrswQ+6E1J6JNbOg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Angelo Compagnucci <angelo.compagnucci-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---kfjH4zxOES6UT95V
+--jCrbxBqMcLqd4mOl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jun 09, 2015 at 04:14:38PM +0900, Wolfram Sang wrote:
-> This series moves the errata handling from the setup function into the dr=
-iver.
-> It has been tested that this changeset does not cause a regression on the
-> armadillo board we had access to. Unfortunately, this board did not need =
-the
-> workaround at all, only some revisions of the r8a7740 are affected.
->=20
-> After a short discussion with Simon, we agreed this should go via I2C.
->=20
-> Wolfram Sang (2):
->   i2c: sh_mobile: add errata workaround
->   ARM: shmobile: r8a7740: remove I2C errata handling
->=20
-
-Applied to for-next, thanks!
 
 
---kfjH4zxOES6UT95V
+> I think it's more a matter of a makefile approach. They use a non
+> recursive one (recommended by several papers[1]) and it's up to
+> external projects if embrace it or no. Honestly I think that a
+> minuscule file with really low maintenance should be added.
+
+Isn't there a central place where these android makefiles are collected?
+It reminds me a bit to buildroot which has recipes for packages like
+i2c-tools to include it into a rootfs for embedded systems. There,
+buildroot is the central place.
+
+
+--jCrbxBqMcLqd4mOl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVgU9PAAoJEBQN5MwUoCm2t9AP/RylrCgPlc/HW8KjkbaoOTYg
-gxAvFOatDNN37c14dvXxjEokm1RL0QS66tiI12vlEi9S/CoPgf7dwtK/D+ZQGX/E
-0dd2LoVld1+hDgIxEQg6xzWJXLZutzDizTBpvC5bjacbvlVOCAwYnXHZHG9uagNb
-F2PmvpiKAcBi7yR8dJgpJFgajks9NjcLa2EV40jDqF+mGRJcSa1JatyMjhRPp7l8
-HG1IFM/rkvBySszYZYUbpKuY2aFpfh6TjgjuU8e93zeYEfM1RBUSkFwj833B4upA
-kR7Galo0o/maRojNauEM7YJRDK4H9hI/WxhIsbDKuBAjhap+ak8g8JcZiRxspRdt
-z+g8XOMp8M/SW3PW4A+aZNUSR6F/r59TVeOFk/3rvZjBL8pRm+zJZ9p4pDm1MsWb
-GDBv2IiKUgSR12FnfIVkozWStuE1CfBAgg1bBYv9DHUfKkFw1lH8RAYOKyeB0WDR
-tcxtkFz+F2TQOzGGmytW/esESmSIxpOdVucDLoopSfbfhNBnqEmhZiRHyad8aoB/
-7bbzKYt7wbF/77FLtTIYqiP9onofqryiGY6OGPMo6LJvFL0dcy3ktYxTMYzJJxSf
-msg4rs0XoI5/GhR/ktoDrGwRyv4OCVkuDMKy7FzqQ9YvNed3dblraX7rX/zezBjh
-1xGjzwMkR5LpRVfMdSdI
-=KCSy
+iQIcBAEBAgAGBQJVgVAeAAoJEBQN5MwUoCm2gOEP/0Nb2o/DVevdHSeRebtF4N48
+ZmZqBqsXmaKo0P3qdsdXohfBbzv7wiZvv1fc2z3Vju8F5HcQRBPAyiZSuTc+Llfe
+/pqpnioYKlNHTqijJcWw3iu7oH7AJk9e0ZcKW9L33BU2UjnadNXLNAO+TMa7vY91
+ZuSrmfacvMFPszk4BYyNEU5ZOpplD/k1dhPT5MgjMq7dK3XFkWRGvjFYRE1ApnVd
+1tRnl2ZJZHW52WqlabUhmGQClWbZLcyVpL3MdFMeUcqGsKMNpTdL3NBkaPXh3uYY
+J8Bm0dcDWxV2JrLbNn+tRFtifLLTm1vmPzpJGe2meR+dtxgqAuN6eHUpENlnOAXm
+cRSppYtQ220OjTyBQqppkqa2EhEnbsk4jjHpHDRLQzk8wOXRvrXWLNnYNK5N5TLq
+kpPk+Fccyp6Zk3VmnyRxu3vat9yEfQW8A86NSp1oOWYh3TUW9OpGc14qDSCRQ4n6
+lzRcYqxHX9s/8eTp0aKNRqk7iNrPBaA92GFzAVeXuQaXV22bjpG7modW2QfK2BxL
+DJajcYnufsek7Q9gEYReVNanf3NfBMfTzUrVlyVpMIlleBiMMpDX3xm3Kg0pQSoB
+nJ6SolQQGRGpQ4HOMbqOV05+ATtkoz/rn3jh9RS4DNuvBgd3fSrfvBhzU5YPxDih
+nRq3f/P0VqOw7NpydppX
+=4aX3
 -----END PGP SIGNATURE-----
 
---kfjH4zxOES6UT95V--
+--jCrbxBqMcLqd4mOl--
