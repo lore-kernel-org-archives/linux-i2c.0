@@ -1,80 +1,42 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] i2c-tools: enable static use of libi2c
-Date: Wed, 17 Jun 2015 11:06:15 +0200
-Message-ID: <20150617110615.7c7cb411@endymion.delvare>
-References: <1434420079-3029-1-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c: designware: Make sure the device is suspended before disabling runtime PM
+Date: Wed, 17 Jun 2015 12:08:38 +0300
+Message-ID: <1434532118-119906-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434420079-3029-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Christian Ruppert <christian.ruppert-Yycd8EPnGM5BDgjK7y7TUQ@public.gmane.org>, jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hallo Wolfram,
+The driver calls pm_runtime_put() right before pm_runtime_disable() in its
+->remove() hook to make sure clock is gated etc. However, it turns out that
+pm_runtime_put() only calls ->idle() hook without actually suspending
+anything. The following pm_runtime_disable() will prevent the driver from
+suspending thus leaving it "active".
 
-On Tue, 16 Jun 2015 04:01:19 +0200, Wolfram Sang wrote:
-> From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> 
-> When debugging embedded systems, it is often nice to simply TFTP the
-> desired i2ctool to the target without the hazzle of dealing with shared
-> libs. Using -static is overkill, too, so let's add a switch which will
-> only link functions from libi2c statically.
+It is better to suspend the device synchronously to make sure it is
+actually suspended before disabling runtime PM from it.
 
-Fine with me.
+While there, undo call to pm_runtime_use_autosuspend().
 
-> Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-> ---
->  Makefile        | 2 ++
->  tools/Module.mk | 4 ++++
->  2 files changed, 6 insertions(+)
-> 
-> diff --git a/Makefile b/Makefile
-> index 252a126..6d36f2f 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -33,6 +33,8 @@ CFLAGS		+= -Wall
->  SOCFLAGS	:= -fpic -D_REENTRANT $(CFLAGS)
->  
->  BUILD_STATIC_LIB ?= 1
-> +# Uncomment to use static libi2c
-> +#USE_STATIC_LIB := 1
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Any reason for not using ?= as above, with the default being unset?
-That way BUILD_STATIC_LIB and USE_STATIC_LIB can both be controlled
-using the same mechanism, and can be changed from their default value
-on the command line (without patching the Makefile.)
-
->  
->  KERNELVERSION	:= $(shell uname -r)
->  
-> diff --git a/tools/Module.mk b/tools/Module.mk
-> index d14bb0c..8efddbb 100644
-> --- a/tools/Module.mk
-> +++ b/tools/Module.mk
-> @@ -12,7 +12,11 @@ TOOLS_DIR	:= tools
->  TOOLS_CFLAGS	:= -Wstrict-prototypes -Wshadow -Wpointer-arith -Wcast-qual \
->  		   -Wcast-align -Wwrite-strings -Wnested-externs -Winline \
->  		   -W -Wundef -Wmissing-prototypes -Iinclude
-> +ifeq ($(USE_STATIC_LIB),1)
-> +TOOLS_LDFLAGS	:= $(LIB_DIR)/$(LIB_STLIBNAME)
-> +else
->  TOOLS_LDFLAGS	:= -Llib -li2c
-> +endif
-
-Unrelated to your patch, but shouldn't this -Llib rather been written
--L$(LIB_DIR)?
-
-Also it might make sense to check if USE_STATIC_LIB is set when
-BUILD_STATIC_LIB isn't and complain about it?
-
->  
->  TOOLS_TARGETS	:= i2cdetect i2cdump i2cset i2cget
->  
-
-
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 4794911a6165..3dd2de31a2f8 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -281,7 +281,8 @@ static int dw_i2c_remove(struct platform_device *pdev)
+ 
+ 	i2c_dw_disable(dev);
+ 
+-	pm_runtime_put(&pdev->dev);
++	pm_runtime_dont_use_autosuspend(&pdev->dev);
++	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
+ 	if (has_acpi_companion(&pdev->dev))
 -- 
-Jean Delvare
-SUSE L3 Support
+2.1.4
