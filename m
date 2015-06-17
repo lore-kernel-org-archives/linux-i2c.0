@@ -1,67 +1,131 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: Optimize SCL generation
-Date: Wed, 17 Jun 2015 14:45:48 +0200
-Message-ID: <20150617124547.GF13393@katana>
-References: <5579565E.1020908@nokia.com>
+Subject: Re: [PATCH] i2c: mv64xxx: remove unreachable signal case handling
+Date: Wed, 17 Jun 2015 15:00:30 +0200
+Message-ID: <20150617130030.GG13393@katana>
+References: <1434036453-23336-1-git-send-email-hofrat@osadl.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nYySOmuH/HDX6pKp"
+	protocol="application/pgp-signature"; boundary="nhYGnrYv1PEJ5gA2"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5579565E.1020908-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1434036453-23336-1-git-send-email-hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Lawnick, Michael (Nokia - DE/Ulm)" <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---nYySOmuH/HDX6pKp
+--nhYGnrYv1PEJ5gA2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 11, 2015 at 11:35:26AM +0200, Alexander Sverdlin wrote:
-> There are several cases where current clock configuration algorithm produ=
-ces
-> not optimal results:
-> - truncation in "clk" calculation leads to the fact that actual BUS frequ=
-ency
->   will be always higher than spec except two exact module frequences 8MHz=
- and
->   12MHz in the whole 7-12MHz range of permitted frequences
-> - driver configures SCL HIGH to LOW ratio always 1 to 1 and this doesn't =
-work
->   well in 400kHz case, namely minimum time of LOW state (according to I2C=
- Spec
->   2.1) 1.3us will not be fulfilled. HIGH to LOW ratio 1 to 2 would be more
->   approriate here.
+On Thu, Jun 11, 2015 at 05:27:33PM +0200, Nicholas Mc Guire wrote:
+> 'commit d295a86eab20 ("i2c: mv64xxx: work around signals causing I2C
+> transactions to be aborted")' removed the wait_event_interruptible_timeou=
+t=20
+> to prevent half/mixed i2c messages from being sent/received but forgot to
+> drop the signal received cases in the return handling. This just removes
+> this dead code and simplifies the error message as "time_left" only can b=
+e=20
+> 0 here and thus it conveys no additional information.
 >=20
-> Signed-off-by: Michael Lawnick <michael.lawnick-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+> ---
+>=20
+> Patch was compile tested with multi_v7_defconfig=20
+> (implies CONFIG_I2C_MV64XXX=3Dy)
+>=20
+> Patch is against 4.1-rc7 (localversion-next is -next-20150611)
 
-Applied to for-next, thanks!
+Hmm, IMO this patch is too intrusive to be applied without actual
+testing.
+
+>=20
+>  drivers/i2c/busses/i2c-mv64xxx.c |   15 +++------------
+>  1 file changed, 3 insertions(+), 12 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv=
+64xxx.c
+> index 30059c1..a4f8ece 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -534,7 +534,6 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_da=
+ta *drv_data)
+>  {
+>  	long		time_left;
+>  	unsigned long	flags;
+> -	char		abort =3D 0;
+> =20
+>  	time_left =3D wait_event_timeout(drv_data->waitq,
+>  		!drv_data->block, drv_data->adapter.timeout);
+> @@ -542,25 +541,17 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_=
+data *drv_data)
+>  	spin_lock_irqsave(&drv_data->lock, flags);
+>  	if (!time_left) { /* Timed out */
+>  		drv_data->rc =3D -ETIMEDOUT;
+> -		abort =3D 1;
+> -	} else if (time_left < 0) { /* Interrupted/Error */
+> -		drv_data->rc =3D time_left; /* errno value */
+> -		abort =3D 1;
+> -	}
+> -
+> -	if (abort && drv_data->block) {
+>  		drv_data->aborting =3D 1;
+>  		spin_unlock_irqrestore(&drv_data->lock, flags);
+> =20
+>  		time_left =3D wait_event_timeout(drv_data->waitq,
+>  			!drv_data->block, drv_data->adapter.timeout);
+> =20
+> -		if ((time_left <=3D 0) && drv_data->block) {
+
+I am especially unsure about the drv_data->block removal. Did you double
+check if we can do this?
+
+> +		if (time_left =3D=3D 0) {
+>  			drv_data->state =3D MV64XXX_I2C_STATE_IDLE;
+>  			dev_err(&drv_data->adapter.dev,
+> -				"mv64xxx: I2C bus locked, block: %d, "
+> -				"time_left: %d\n", drv_data->block,
+> -				(int)time_left);
+> +				"mv64xxx: I2C bus locked, block: %d\n",
+> +				drv_data->block);
+
+And if so, shouldn't that also be always 1 in the output here?
+
+>  			mv64xxx_i2c_hw_init(drv_data);
+>  		}
+>  	} else
+
+Maybe (not sure) it also helps to split the patch into everything
+dealing with time_left as patch 1) and simplifying by drv_data->block
+removal as patch2?
+
+Thanks,
+
+   Wolfram
 
 
---nYySOmuH/HDX6pKp
+--nhYGnrYv1PEJ5gA2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVgWv7AAoJEBQN5MwUoCm29IgQAKhQIB+fKPYA94Mc7Tp3lNlF
-v3EZCXXlW8+lQQCGETIima7xviLgNfuXAE04+lLD6iHBH4GM5gVgk8NDBN13nuAr
-XQBV3z6VlMwWTShbu0zW/4NJ/EWgaO9TUbtYoL4DGT2E25hQzg/d3IY6iAHyU3AA
-tyJGc5T3QusbSUI1fJGJE5PQO+LOhuHLzpQVkK7KKvoIEGQeeI+KTASYEa12rRPk
-HMI6NSMZAsqqCYsrtebo0giP9rZdUIAicxRQQ8Nc1uFwfS7YeAdhilvjW9K9oQe6
-R8CoHZmo9F/hRNKS9UzbWxnTBaUEkPvH6VCUnMpLj1hdO0dEMQvOLHHRNUbrcVc+
-5DF52bXIRGr7556cZ0PO7qtIik8Lfv1760LS7nH752b7E4wY9+3KiZGUGED5gMxj
-0/w0OeY8PGsUOw3m4p5ahbZuoCZfTXHqyVUpDH4e2AQU0f0XMUCTrBIvW9fmcQ0k
-NzC9ADBpgxNmERzvjZBeAXnh6f/M/xl0XEQfwINNKJ9UucXv2rFk7sh9BERSSbxf
-jyQGuKNoSTS7kJ33IXql/1qBj2Hl0ryvpugN/4szWyQHpzz9WhO6nsTnmo2xVZUv
-wBYzaKxoHiPWW0rsuawtJWk2eyI241rRI90yjQOz8KUcfeQKyE6LTgfV6RUs0Rt5
-GwnsKkRmu6pMi0ZwSF8/
-=ZN3e
+iQIcBAEBAgAGBQJVgW9uAAoJEBQN5MwUoCm2a00P/jwGcyWY4wy+1KqBojeG8K8H
+iObBgBVFPwSFTJWGj/sUyNUwmRsa46pd5DZORQ4VHO/lCkfN8C+/cOSzvheoPH2V
+b/IWtHkKtfHsJaTQ8WmkHvGBh8U+iRLqx5yvmm0wQlVnDyGxHgSPfH7pL+WlYnmN
+EGzKYo+u3W0W7mL1pokObS2bwZyiHa3uEzmZHIyLcFeaoRBsyYOMCV+PIYtkHuUj
+QCBA+QboUETY2rPSOf53LJo2EyEY9A0x76KHwDg9m4//AmoSNwKvnIxYPK7pcAH3
+JqBV8zJmG32yApA4QDBvhbJbi7gHSz+PLLgHFCBKKNfBMeaLvI/asd8kFTvPWqDU
+6aY5ku4Fer/RDv3oAg2+mcW/I5uYU0fvQFmzlUzHtWMmFs/tOjz590Ny4nhgJV0S
+EhXP3NE+SSUpqsl+gAg/PyvU67aEfaj5VqrStkzG5gc3naS258HizyMq1dl/xhCR
+ay8o76gUZr6JPMf34RT7daaO/0XyI5f5l2+KKwr/5WJZo5B8BivwkUAt8B+1Qn2x
+u7c/bcIgWE/ycn//2pzxhn1ZRS1dRknsQQAGCr9F+mH2kPukmodLiVU7O2Rz+RL7
+Cj2fKUlyl3HDo+LbAHWiPlfI+Yk1NkTmRh3XSz4fZl8Jq9R07w4QqRCSZIKbak9X
+8zlJVTnCytHFVoSP9eCX
+=ClWW
 -----END PGP SIGNATURE-----
 
---nYySOmuH/HDX6pKp--
+--nhYGnrYv1PEJ5gA2--
