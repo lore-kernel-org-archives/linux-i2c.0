@@ -1,76 +1,60 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c_imc: New driver for Intel's iMC, found on
- LGA2011 chips
-Date: Wed, 17 Jun 2015 15:18:42 +0200
-Message-ID: <20150617131841.GI13393@katana>
-References: <cover.1425934386.git.luto@amacapital.net>
- <86c8b4d72f76cfdb7f76ad48825fb10e51634429.1425934386.git.luto@amacapital.net>
- <5503B59B.2020502@roeck-us.net>
- <CALCETrXvBxcZCyupHM6trb2Gv99MH9-HVG7ZuNGE2OPMZ7d7hA@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-tools: enable static use of libi2c
+Date: Wed, 17 Jun 2015 15:20:33 +0200
+Message-ID: <20150617132033.GJ13393@katana>
+References: <1434420079-3029-1-git-send-email-wsa@the-dreams.de>
+ <20150617110615.7c7cb411@endymion.delvare>
+ <20150617105309.GF1517@katana>
+ <20150617151025.1353abe3@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="U3s59FfKcByyGl+j"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="utPK4TBebyzZxMrE"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrXvBxcZCyupHM6trb2Gv99MH9-HVG7ZuNGE2OPMZ7d7hA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Guenter Roeck <linux@roeck-us.net>, Boaz Harrosh <boaz@plexistor.com>, One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>, Rui Wang <ruiv.wang@gmail.com>, Jean Delvare <jdelvare@suse.de>, Alun Evans <alun@badgerous.net>, Robert Elliott <Elliott@hp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Paul Bolle <pebolle@tiscali.nl>, Tony Luck <tony.luck@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20150617151025.1353abe3-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---U3s59FfKcByyGl+j
+--utPK4TBebyzZxMrE
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 
-> > Having said that, I am still not convinced that the driver should be in=
- the kernel
-> > to start with. Browsing through Intel's datasheets, the registers are s=
-upported
-> > in E5-2600 v1, v2, and v3. However, in v3 Intel added a note saying tha=
-t the registers
-> > should not be accessed by the OS directly, but only through the bios. G=
-iven that,
-> > and if that is possible, it might make more sense to rely on ACPI. It w=
-ould then
-> > be up to the board and/or BIOS vendor to decide if the information shou=
-ld be available
-> > to the OS or not.
->=20
-> I think the plan is to add something to ACPI to tell us when we can
-> use these registers.  Unfortunately I'm not privy to whatever the ACPI
-> committee is doing.
+> You mean that USE_STATIC_LIB = 1 would silently imply
+> BUILD_STATIC_LIB = 1? Yes, that's much better than my proposal.
 
-Coming from the embedded world and not knowing much about this, I tend
-to wait until the above issue is clear, meaning when and how this driver
-is safe to be used. I hope you don't mind. Keeping your code up to date
-and sharing it is much appreciated, though! As well as Guenter's comments.
+Yes, I meant that.
 
-Thanks!
+> I'm wondering if we should make it even more flexible, but I'm not sure
+> if it's worth the effort... Are you calling "make install" after that?
+> I guess not.
+
+No, I am not. I just copy the file to the TFTP dir.
 
 
---U3s59FfKcByyGl+j
+--utPK4TBebyzZxMrE
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBAgAGBQJVgXOxAAoJEBQN5MwUoCm2hSUP/1328ERR7MU+AtUVTE0T/gzu
-kAyqo9WO7E7aGAvwlGmCkQAEkIZ93zoWf7c6CmpxuprPrjcG8bZsjeXzSzTCx0QW
-dtZujYU8dEncWXjhXWqebyPdfIdu9O2ADEFaOa3djS6XU00lsxyadapPRDC6v0/s
-YDoeACgjE8S3j5Lye77r53aoSvUmzbcq9l+tT0uVUVOPB5gLuQspTV96vTXQzXak
-hc7ePcatiDGLf2L2FhYQIinx0DAhro23le9QVi7skD87acF6Be3R2lKIvwqvXf6c
-exAhLAgRV5lJvLd/4bLSpUs6v2fa+CSxa+l5IYHiB+3yw7UL2GPRNAbd2EfgEGhG
-3tp+Br94oJx2u0ytjALxZNyflTph9/upcbvMNuWeYEEs+zOD4jMLa/yPeWZ/keiE
-Zlfo5goM0NI8c/Aq8vk2Em9gdbH/xmJiBm/cAEVH2dX3pN+vY4I8/NnfQthyCaO/
-5XsmsbY/nuCiMV0iS2yeswUbzuPyeu+F/oUN/W4dngEqEIk5Q75L0GM9vr6E8+nL
-pMqzTB3ZPhLKWnhDhnq4BVlRhfPTNA+naRyZAqZIaq1ot4tXvI/1KyNoYr4lod/2
-O3TkCgOAscNkabTdh8yWf+84ufPpcdcKfI/6OimvicbyfXaAw/MWJDQ5ylvZ0V2v
-OVf1GCjW3BH/UA6AlhQ2
-=qQt4
+iQIcBAEBAgAGBQJVgXQhAAoJEBQN5MwUoCm2ZTYQAKauMwW2gYAnmhaBP/rHnLt7
+n84/VpwU+KQfkWbt/3f1dKVf8o/qlOrIfxQZTNClOlF53ilBwU3YOIcjRwPEQ/IE
+AWeUr+2lJucQX2RfJ6ZhzMKLJHcuThLYbNgWPKTJB8JUN8OoefYOSQXufl93ZXj/
+DuPdpn/eCfxkHGByHL/zcsVximB9fhJ/uBb5ASlcHjsF2gxoL14tGwnflC5QEscY
++2G4efJEPFoY+Ly+93+JZ0b2gNeCAIjb3tRpI1pJbae309SxQzdL+g+5Xm3LloZ8
+ePrMKWRP8fhaDjPBw+qdwp+xtEDfZcHvf40pL+g2XAIoZ0uhTbUe2Qe/imz7NCf8
+L9V/D2fxWTCGgaCpkBU/xlq2NcjP34Ovbv4tZ0Mkh7O+wDEp1yWVexYTfU0CiBYP
+CO1LFprO6cJxv+Hd/DoHiAG1DGkXROG/JgxynKEuiJrvyjxDZrXHU9lObLbZlSLB
+FlNlS+DYtclrOnhqloqgLz+ysB3k9oIl+44ALBWmkjndDNGtnSC3XE9K4HxPYWd1
+TfHDIV5LtDvl6NQxgT6h5FMPBAlZ0uWbCxbSc1aANG7U+GaK0ms3UtyJXWj1MjRy
+b0nyAP9Yxf5mJCUWlY8QHyD6m0eP8EYqVIJxtD/UAtlguh2hyxtNXm/Oa0EBTxOF
+S3ownsYctnnO3S0zXPWO
+=Y1YO
 -----END PGP SIGNATURE-----
 
---U3s59FfKcByyGl+j--
+--utPK4TBebyzZxMrE--
