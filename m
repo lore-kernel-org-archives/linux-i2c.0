@@ -1,55 +1,61 @@
-From: Michael Lawnick <ml.lawnick@gmx.de>
-Subject: Re: [PATCH] i2c: omap: improve duty cycle on SCL
-Date: Wed, 17 Jun 2015 13:09:53 +0200
-Message-ID: <55815581.80807@gmx.de>
-References: <1434482276-1210-1-git-send-email-balbi@ti.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/9] i2c: xiic: Do not continue in case of errors in Rx
+Date: Wed, 17 Jun 2015 13:42:00 +0200
+Message-ID: <20150617114159.GA4604@schokonusskuchen.bad>
+References: <1434381480-3042-1-git-send-email-shubhraj@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1434482276-1210-1-git-send-email-balbi@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>, wsa@the-dreams.de
-Cc: Tony Lindgren <tony@atomide.com>, Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>, linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1434381480-3042-1-git-send-email-shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 16.06.2015 um 21:17 schrieb Felipe Balbi:
-> With this patch we try to be as close to 50%
-> duty cycle as possible. The reason for this
-> is that some devices present an erratic behavior
-> with certain duty cycles.
->
-> One such example is TPS65218 PMIC which fails
-> to change voltages when running @ 400kHz and
-> duty cycle is lower than 34%.
->
-> The idea of the patch is simple:
->
-> calculate desired scl_period from requested scl
-> and use 50% for tLow and 50% for tHigh.
-=2E..
-Hmm, and what's about  Philips I2C specification 2.1, Jan 2000, Table 5=
-?
 
-> PARAMETER                       SYMBOL  STANDARD-MODE   FAST-MODE    =
- UNIT
->                                           MIN. MAX.     MIN. MAX.
-> LOW period of the SCL clock     tLOW      4.7   =E2=80=93       1.3  =
- =E2=80=93       =C2=B5s
-> HIGH period of the SCL clock    tHIGH     4.0   =E2=80=93       0.6  =
- =E2=80=93       =C2=B5s
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Your signal is in spec (0.85 =C2=B5s high, 1,65 low).
-Maybe your TPS65218 is just buggy or signals are bad?
+Hi,
 
---=20
+On Mon, Jun 15, 2015 at 08:47:52PM +0530, Shubhrajyoti Datta wrote:
+> Handle error cases in the Rx path
+>=20
+> Signed-off-by: Shubhrajyoti Datta <shubhraj-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
-KR
-Michael
+Your patch descriptions need improvement. They describe what you do,
+but this can be seen in the patch as well. What you need to describe is
+WHY you need this change. What was wrong before, what is better now.
+Because this driver is long in use, we must be very careful about
+regressions and every change needs a good reason.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So, please rework your patch descriptions.
+
+
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJVgV0HAAoJEBQN5MwUoCm2woAP/3Nhb52FibECBZ3xyMEWrL0k
+DXPBBvxQwp0K4a+pkRKDx3I75GfhNcdT4jXVMKQoFZVZVEX/RWKSny7SG7uFiJhj
+zpvJEQwLGg4lAYtdywAnjWuqbVD/H0FuLx7oGjvzssKUxyfSkabYEhHNKYImjVeC
+fYpXftg1/6FxEFOcfkqWpzuELVgw/aVE2ZEEGhrycBpGa65kbaS39esyUwAbaNPe
+Pwk4KyRzqiyrCpuWWHOEVfbEHMIQnpdr2WHotU8kYJQrJWV6hAv+5ITNnrnlOeWB
+R5KgfgTI/K7+Tfh97P41fLe+XTyPinQGqto04cyJiYaOXJIV88P0o/VDOFU/czh1
+aJHq1OHpj2+mjdQE+jDBZbKgSnYOpS9f6f9AqH8NOjr6TRuY2ikcJl2HLJg6IXLx
+5WSwbh/CU36OVFSU8DYw3s5maSpiUPdp8Bc+tCyfCl0ISrlw58d6ai6tkzBjnoNk
+ZP20GPqGyaze73ivaowzG++0qaQZGAvcUGFxjKYuL/rF7p2KTWxMcYRcFlbSv10f
+wcuE10HYkblJDIvV9PHEdEbUIb/CiGKibFhs5TdBfnTa4vnzn3SUUd0I9uArU2le
+aZQImA7XWDjWwfCG6g7c3ch3FeoJ19JlauOsjU/dWYvPZsHSkwD+hDl+7l62aa8s
+cmTIGjU/dUVUSX7dwQYG
+=hkCr
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--
