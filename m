@@ -1,60 +1,118 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-tools: enable static use of libi2c
-Date: Wed, 17 Jun 2015 15:20:33 +0200
-Message-ID: <20150617132033.GJ13393@katana>
-References: <1434420079-3029-1-git-send-email-wsa@the-dreams.de>
- <20150617110615.7c7cb411@endymion.delvare>
- <20150617105309.GF1517@katana>
- <20150617151025.1353abe3@endymion.delvare>
+From: Nicholas Mc Guire <der.herr-kA1LtwSENNE@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: remove unreachable signal case handling
+Date: Wed, 17 Jun 2015 15:49:39 +0200
+Message-ID: <20150617134939.GA23842@opentech.at>
+References: <1434036453-23336-1-git-send-email-hofrat@osadl.org> <20150617130030.GG13393@katana> <5581731B.10506@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="utPK4TBebyzZxMrE"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20150617151025.1353abe3-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <5581731B.10506-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, 17 Jun 2015, Gregory CLEMENT wrote:
 
---utPK4TBebyzZxMrE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi Wolfram, Nicholas,
+> 
+> On 17/06/2015 15:00, Wolfram Sang wrote:
+> > On Thu, Jun 11, 2015 at 05:27:33PM +0200, Nicholas Mc Guire wrote:
+> >> 'commit d295a86eab20 ("i2c: mv64xxx: work around signals causing I2C
+> >> transactions to be aborted")' removed the wait_event_interruptible_timeout 
+> >> to prevent half/mixed i2c messages from being sent/received but forgot to
+> >> drop the signal received cases in the return handling. This just removes
+> >> this dead code and simplifies the error message as "time_left" only can be 
+> >> 0 here and thus it conveys no additional information.
+> >>
+> >> Signed-off-by: Nicholas Mc Guire <hofrat-Q945KHDl0DbYtjvyW6yDsg@public.gmane.org>
+> >> ---
+> >>
+> >> Patch was compile tested with multi_v7_defconfig 
+> >> (implies CONFIG_I2C_MV64XXX=y)
+> >>
+> >> Patch is against 4.1-rc7 (localversion-next is -next-20150611)
+> > 
+> > Hmm, IMO this patch is too intrusive to be applied without actual
+> > testing.
+> > 
+> >>
+> >>  drivers/i2c/busses/i2c-mv64xxx.c |   15 +++------------
+> >>  1 file changed, 3 insertions(+), 12 deletions(-)
+> >>
+> >> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> >> index 30059c1..a4f8ece 100644
+> >> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> >> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> >> @@ -534,7 +534,6 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
+> >>  {
+> >>  	long		time_left;
+> >>  	unsigned long	flags;
+> >> -	char		abort = 0;
+> >>  
+> >>  	time_left = wait_event_timeout(drv_data->waitq,
+> >>  		!drv_data->block, drv_data->adapter.timeout);
+> >> @@ -542,25 +541,17 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
+> >>  	spin_lock_irqsave(&drv_data->lock, flags);
+> >>  	if (!time_left) { /* Timed out */
+> >>  		drv_data->rc = -ETIMEDOUT;
+> >> -		abort = 1;
+> >> -	} else if (time_left < 0) { /* Interrupted/Error */
+> >> -		drv_data->rc = time_left; /* errno value */
+> >> -		abort = 1;
+> >> -	}
+> >> -
+> >> -	if (abort && drv_data->block) {
+> >>  		drv_data->aborting = 1;
+> >>  		spin_unlock_irqrestore(&drv_data->lock, flags);
+> >>  
+> >>  		time_left = wait_event_timeout(drv_data->waitq,
+> >>  			!drv_data->block, drv_data->adapter.timeout);
+> >>  
+> >> -		if ((time_left <= 0) && drv_data->block) {
+> > 
+> > I am especially unsure about the drv_data->block removal. Did you double
+> > check if we can do this?
+> > 
 
+The consideration was 
+  * wait_event_timeout was checkign !drv_data->block - so it it returned
+    the condition held OR timeout
+  * since it was a timeout here the condition was NOT met so either both
+    are true or both are wrong 
+I think the current logic only makes sense if one assumes that a signal case
+is also possible.
 
-> You mean that USE_STATIC_LIB = 1 would silently imply
-> BUILD_STATIC_LIB = 1? Yes, that's much better than my proposal.
+> >> +		if (time_left == 0) {
+> >>  			drv_data->state = MV64XXX_I2C_STATE_IDLE;
+> >>  			dev_err(&drv_data->adapter.dev,
+> >> -				"mv64xxx: I2C bus locked, block: %d, "
+> >> -				"time_left: %d\n", drv_data->block,
+> >> -				(int)time_left);
+> >> +				"mv64xxx: I2C bus locked, block: %d\n",
+> >> +				drv_data->block);
+> > 
+> > And if so, shouldn't that also be always 1 in the output here?
+> > 
 
-Yes, I meant that.
+yes drv_data->block is 0 | 1 only - so that probably could be dropped 
+as well
 
-> I'm wondering if we should make it even more flexible, but I'm not sure
-> if it's worth the effort... Are you calling "make install" after that?
-> I guess not.
+> >>  			mv64xxx_i2c_hw_init(drv_data);
+> >>  		}
+> >>  	} else
+> > 
+> > Maybe (not sure) it also helps to split the patch into everything
+> > dealing with time_left as patch 1) and simplifying by drv_data->block
+> > removal as patch2?
+> 
+> I agree. I would like to see 2 patches. The first one should be not controversial
+> and could be applied whereas the second one will need a deeper review.
+>
+thanks - will refactor and split it into two parts
+and see if I can get this tested somehow - no urgency
+as its really only cleanup.
 
-No, I am not. I just copy the file to the TFTP dir.
-
-
---utPK4TBebyzZxMrE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJVgXQhAAoJEBQN5MwUoCm2ZTYQAKauMwW2gYAnmhaBP/rHnLt7
-n84/VpwU+KQfkWbt/3f1dKVf8o/qlOrIfxQZTNClOlF53ilBwU3YOIcjRwPEQ/IE
-AWeUr+2lJucQX2RfJ6ZhzMKLJHcuThLYbNgWPKTJB8JUN8OoefYOSQXufl93ZXj/
-DuPdpn/eCfxkHGByHL/zcsVximB9fhJ/uBb5ASlcHjsF2gxoL14tGwnflC5QEscY
-+2G4efJEPFoY+Ly+93+JZ0b2gNeCAIjb3tRpI1pJbae309SxQzdL+g+5Xm3LloZ8
-ePrMKWRP8fhaDjPBw+qdwp+xtEDfZcHvf40pL+g2XAIoZ0uhTbUe2Qe/imz7NCf8
-L9V/D2fxWTCGgaCpkBU/xlq2NcjP34Ovbv4tZ0Mkh7O+wDEp1yWVexYTfU0CiBYP
-CO1LFprO6cJxv+Hd/DoHiAG1DGkXROG/JgxynKEuiJrvyjxDZrXHU9lObLbZlSLB
-FlNlS+DYtclrOnhqloqgLz+ysB3k9oIl+44ALBWmkjndDNGtnSC3XE9K4HxPYWd1
-TfHDIV5LtDvl6NQxgT6h5FMPBAlZ0uWbCxbSc1aANG7U+GaK0ms3UtyJXWj1MjRy
-b0nyAP9Yxf5mJCUWlY8QHyD6m0eP8EYqVIJxtD/UAtlguh2hyxtNXm/Oa0EBTxOF
-S3ownsYctnnO3S0zXPWO
-=Y1YO
------END PGP SIGNATURE-----
-
---utPK4TBebyzZxMrE--
+thx!
+hofrat
