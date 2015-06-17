@@ -1,475 +1,178 @@
-From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [Patch v2] driver/i2c/mux: Add register based mux i2c-mux-reg
-Date: Wed, 17 Jun 2015 14:13:53 -0700
-Message-ID: <1434575634-27977-1-git-send-email-yorksun@freescale.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [Patch v1] i2c: imx: add runtime pm support to improve the
+ performance
+Date: Wed, 17 Jun 2015 23:48:39 +0200
+Message-ID: <20150617214839.GG20984@pengutronix.de>
+References: <1433987404-28957-1-git-send-email-b54642@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1433987404-28957-1-git-send-email-b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+To: Gao Pan <b54642-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B20596-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Based on i2c-mux-gpio driver, similarly the register based mux
-switch from one bus to another by setting a single register.
-The register can be on PCIe bus, local bus, or any memory-mapped
-address.
+Hello,
 
-Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-CC: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-CC: Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
-CC: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-CC: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+On Thu, Jun 11, 2015 at 09:50:04AM +0800, Gao Pan wrote:
+> In our former i2c driver, i2c clk is enabled and disabled in
+> xfer function, which contributes to power saving. However,
+> the clk enable process brings a busy wait delay until the core
+> is stable. As a result, the performance is sacrificed.
+Which platform are you referring here? Looking at i.MX21 I cannot find =
+a
+delay for the i2c clock.
 
----
-Change log:
-  v2: Update to GPLv2+ licence header
-      Use iowrite instead of direct dereference the pointer to write register
-      Add support of difference register size of 1/2/4 bytes
-      Remove i2c_put_adapter(parent) in probe fucntion
-      Replace multiple dev_info() with dev_dbg()
-      Add idle_in_use variable to gate using idle value
-      Add __iomem for register pointer
-      Move platform data header file to include/linux/platform_data/
+> To weigh the power consuption and i2c bus performance, runtime
+consumption
 
- .../devicetree/bindings/i2c/i2c-mux-reg.txt        |   71 ++++++
- drivers/i2c/muxes/Kconfig                          |   11 +
- drivers/i2c/muxes/Makefile                         |    1 +
- drivers/i2c/muxes/i2c-mux-reg.c                    |  266 ++++++++++++++++++++
- include/linux/platform_data/i2c-mux-reg.h          |   40 +++
- 5 files changed, 389 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt
- create mode 100644 drivers/i2c/muxes/i2c-mux-reg.c
- create mode 100644 include/linux/platform_data/i2c-mux-reg.h
+> pm is the good solution for it. The clk is enabled when a i2c
+> transfer starts, and disabled afer a specifically defined delay.
+after
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt
-new file mode 100644
-index 0000000..b685d6c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-reg.txt
-@@ -0,0 +1,71 @@
-+Register-based I2C Bus Mux
-+
-+This binding describes an I2C bus multiplexer that uses a single register
-+to route the I2C signals.
-+
-+Required properties:
-+- compatible: i2c-mux-reg
-+- i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
-+  port is connected to.
-+* Standard I2C mux properties. See mux.txt in this directory.
-+* I2C child bus nodes. See mux.txt in this directory.
-+
-+Optional properties:
-+- reg: this pair of <offset size> specifies the register to control the mux.
-+  The <offset size> depends on its parent node. It can be any memory-mapped
-+  address. The size must be either 1, 2, or 4 bytes. If reg is omitted, the
-+  resource of this device will be used.
-+- idle-state: value to set the muxer to when idle. When no value is
-+  given, it defaults to the last value used.
-+
-+For each i2c child node, an I2C child bus will be created. They will
-+be numbered based on their order in the device tree.
-+
-+Whenever an access is made to a device on a child bus, the value set
-+in the revelant node's reg property will be output to the register.
-+
-+If an idle state is defined, using the idle-state (optional) property,
-+whenever an access is not being made to a device on a child bus, the
-+register will be set according to the idle value.
-+
-+If an idle state is not defined, the most recently used value will be
-+left programmed into the register.
-+
-+Example of a mux on PCIe card, the host is a powerpc SoC (big endian):
-+
-+	i2c-mux {
-+		/* the <offset size> depends on the address translation
-+		 * of the parent device. If omitted, device resource
-+		 * will be used instead. The size is to determine
-+		 * whether iowrite32, iowrite16, or iowrite8 will be used.
-+		 */
-+		reg = <0x6028 0x4>;
-+		compatible = "i2c-mux-reg";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		i2c-parent = <&i2c1>;
-+		i2c@0 {
-+			reg = <0>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			si5338: clock-generator@70 {
-+				compatible = "silabs,si5338";
-+				reg = <0x70>;
-+				/* other stuff */
-+			};
-+		};
-+
-+		i2c@1 {
-+			/* data is written using iowrite32 */
-+			reg = <1>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			si5338: clock-generator@70 {
-+				compatible = "silabs,si5338";
-+				reg = <0x70>;
-+				/* other stuff */
-+			};
-+		};
-+	};
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index f6d313e..77c1257 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -29,6 +29,17 @@ config I2C_MUX_GPIO
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-gpio.
- 
-+config I2C_MUX_REG
-+	tristate "Register-based I2C multiplexer"
-+	help
-+	  If you say yes to this option, support will be included for a
-+	  register based I2C multiplexer. This driver provides access to
-+	  I2C busses connected through a MUX, which is controlled
-+	  by a sinple register.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-mux-reg.
-+
- config I2C_MUX_PCA9541
- 	tristate "NXP PCA9541 I2C Master Selector"
- 	help
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index 465778b..bc517bb 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -4,6 +4,7 @@
- obj-$(CONFIG_I2C_ARB_GPIO_CHALLENGE)	+= i2c-arb-gpio-challenge.o
- 
- obj-$(CONFIG_I2C_MUX_GPIO)	+= i2c-mux-gpio.o
-+obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
- obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
- obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
- obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
-diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
-new file mode 100644
-index 0000000..e5b5838
---- /dev/null
-+++ b/drivers/i2c/muxes/i2c-mux-reg.c
-@@ -0,0 +1,266 @@
-+/*
-+ * I2C multiplexer using a single register
-+ *
-+ * Copyright 2015 Freescale Semiconductor
-+ * York Sun  <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2 of the License, or (at your
-+ * option) any later version.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of_address.h>
-+#include <linux/platform_data/i2c-mux-reg.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+
-+struct regmux {
-+	struct i2c_adapter *parent;
-+	struct i2c_adapter **adap; /* child busses */
-+	struct i2c_mux_reg_platform_data data;
-+};
-+
-+static int i2c_mux_reg_set(const struct regmux *mux, unsigned int chan)
-+{
-+	if (!mux->data.reg || chan < 0 || chan > mux->data.n_values)
-+		return -EINVAL;
-+
-+	switch (mux->data.reg_size) {
-+	case 4:
-+		iowrite32(mux->data.values[chan], mux->data.reg);
-+		break;
-+	case 2:
-+		iowrite16(mux->data.values[chan], mux->data.reg);
-+		break;
-+	case 1:
-+		iowrite8(mux->data.values[chan], mux->data.reg);
-+		break;
-+	default:
-+		pr_err("Invalid register size\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int i2c_mux_reg_select(struct i2c_adapter *adap, void *data,
-+			      unsigned int chan)
-+{
-+	struct regmux *mux = data;
-+
-+	return i2c_mux_reg_set(mux, chan);
-+}
-+
-+static int i2c_mux_reg_deselect(struct i2c_adapter *adap, void *data,
-+				unsigned int chan)
-+{
-+	struct regmux *mux = data;
-+
-+	if (mux->data.idle_in_use)
-+		return i2c_mux_reg_set(mux, mux->data.idle);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_OF
-+static int i2c_mux_reg_probe_dt(struct regmux *mux,
-+					struct platform_device *pdev)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	struct device_node *adapter_np, *child;
-+	struct i2c_adapter *adapter;
-+	struct resource res;
-+	unsigned *values;
-+	int i = 0;
-+
-+	if (!np)
-+		return -ENODEV;
-+
-+	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
-+	if (!adapter_np) {
-+		dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
-+		return -ENODEV;
-+	}
-+	adapter = of_find_i2c_adapter_by_node(adapter_np);
-+	if (!adapter) {
-+		dev_err(&pdev->dev, "Cannot find parent bus\n");
-+		return -EPROBE_DEFER;
-+	}
-+	mux->parent = adapter;
-+	mux->data.parent = i2c_adapter_id(adapter);
-+	put_device(&adapter->dev);
-+
-+	mux->data.n_values = of_get_child_count(np);
-+
-+	values = devm_kzalloc(&pdev->dev,
-+			      sizeof(*mux->data.values) * mux->data.n_values,
-+			      GFP_KERNEL);
-+	if (!values) {
-+		dev_err(&pdev->dev, "Cannot allocate values array");
-+		return -ENOMEM;
-+	}
-+
-+	for_each_child_of_node(np, child) {
-+		of_property_read_u32(child, "reg", values + i);
-+		i++;
-+	}
-+	mux->data.values = values;
-+
-+	if (!of_property_read_u32(np, "idle-state", &mux->data.idle))
-+		mux->data.idle_in_use = true;
-+
-+	/* map address from "reg" if exists */
-+	if (of_address_to_resource(np, 0, &res)) {
-+		mux->data.reg_size = resource_size(&res);
-+		if (mux->data.reg_size > 4) {
-+			dev_err(&pdev->dev, "Invalid address size\n");
-+			return -EINVAL;
-+		}
-+		mux->data.reg = devm_ioremap_resource(&pdev->dev, &res);
-+		if (IS_ERR(mux->data.reg))
-+			return PTR_ERR(mux->data.reg);
-+	}
-+
-+	return 0;
-+}
-+#else
-+static int i2c_mux_reg_probe_dt(struct gpiomux *mux,
-+					struct platform_device *pdev)
-+{
-+	return 0;
-+}
-+#endif
-+
-+static int i2c_mux_reg_probe(struct platform_device *pdev)
-+{
-+	struct regmux *mux;
-+	struct i2c_adapter *parent;
-+	struct resource *res;
-+	int (*deselect)(struct i2c_adapter *, void *, u32);
-+	unsigned int initial_state, class;
-+	int i, ret, nr;
-+
-+	mux = devm_kzalloc(&pdev->dev, sizeof(*mux), GFP_KERNEL);
-+	if (!mux)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, mux);
-+
-+	if (dev_get_platdata(&pdev->dev)) {
-+		memcpy(&mux->data, dev_get_platdata(&pdev->dev),
-+			sizeof(mux->data));
-+
-+		parent = i2c_get_adapter(mux->data.parent);
-+		if (!parent) {
-+			dev_err(&pdev->dev, "Parent adapter (%d) not found\n",
-+				mux->data.parent);
-+			return -EPROBE_DEFER;
-+		}
-+		mux->parent = parent;
-+	} else {
-+		ret = i2c_mux_reg_probe_dt(mux, pdev);
-+		if (ret < 0) {
-+			dev_err(&pdev->dev, "Error parsing device tree");
-+			return ret;
-+		}
-+	}
-+
-+	if (!mux->data.reg) {
-+		dev_info(&pdev->dev,
-+			"Register not set, using platform resource\n");
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		mux->data.reg_size = resource_size(res);
-+		if (mux->data.reg_size > 4) {
-+			dev_err(&pdev->dev, "Invalid resource size\n");
-+			return -EINVAL;
-+		}
-+		mux->data.reg = devm_ioremap_resource(&pdev->dev, res);
-+		if (IS_ERR(mux->data.reg))
-+			return PTR_ERR(mux->data.reg);
-+	}
-+
-+	mux->adap = devm_kzalloc(&pdev->dev,
-+				 sizeof(*mux->adap) * mux->data.n_values,
-+				 GFP_KERNEL);
-+	if (!mux->adap) {
-+		dev_err(&pdev->dev, "Cannot allocate i2c_adapter structure");
-+		return -ENOMEM;
-+	}
-+
-+	if (mux->data.idle_in_use) {
-+		initial_state = mux->data.idle;
-+		deselect = i2c_mux_reg_deselect;
-+	} else {
-+		initial_state = mux->data.values[0];
-+		deselect = NULL;
-+	}
-+
-+	for (i = 0; i < mux->data.n_values; i++) {
-+		nr = mux->data.base_nr ? (mux->data.base_nr + i) : 0;
-+		class = mux->data.classes ? mux->data.classes[i] : 0;
-+
-+		mux->adap[i] = i2c_add_mux_adapter(mux->parent, &pdev->dev, mux,
-+						   nr, mux->data.values[i],
-+						   class, i2c_mux_reg_select,
-+						   deselect);
-+		if (!mux->adap[i]) {
-+			ret = -ENODEV;
-+			dev_err(&pdev->dev, "Failed to add adapter %d\n", i);
-+			goto add_adapter_failed;
-+		}
-+	}
-+
-+	dev_dbg(&pdev->dev, "%d port mux on %s adapter\n",
-+		 mux->data.n_values, mux->parent->name);
-+
-+	return 0;
-+
-+add_adapter_failed:
-+	for (; i > 0; i--)
-+		i2c_del_mux_adapter(mux->adap[i - 1]);
-+
-+	return ret;
-+}
-+
-+static int i2c_mux_reg_remove(struct platform_device *pdev)
-+{
-+	struct regmux *mux = platform_get_drvdata(pdev);
-+	int i;
-+
-+	for (i = 0; i < mux->data.n_values; i++)
-+		i2c_del_mux_adapter(mux->adap[i]);
-+
-+	i2c_put_adapter(mux->parent);
-+
-+	dev_dbg(&pdev->dev, "Removed\n");
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id i2c_mux_reg_of_match[] = {
-+	{ .compatible = "i2c-mux-reg", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, i2c_mux_reg_of_match);
-+
-+static struct platform_driver i2c_mux_reg_driver = {
-+	.probe	= i2c_mux_reg_probe,
-+	.remove	= i2c_mux_reg_remove,
-+	.driver	= {
-+		.owner	= THIS_MODULE,
-+		.name	= "i2c-mux-reg",
-+	},
-+};
-+
-+module_platform_driver(i2c_mux_reg_driver);
-+
-+MODULE_DESCRIPTION("Register-based I2C multiplexer driver");
-+MODULE_AUTHOR("York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:i2c-mux-reg");
-diff --git a/include/linux/platform_data/i2c-mux-reg.h b/include/linux/platform_data/i2c-mux-reg.h
-new file mode 100644
-index 0000000..c9c2423
---- /dev/null
-+++ b/include/linux/platform_data/i2c-mux-reg.h
-@@ -0,0 +1,40 @@
-+/*
-+ * I2C multiplexer using a single register
-+ *
-+ * Copyright 2015 Freescale Semiconductor
-+ * York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2 of the License, or (at your
-+ * option) any later version.
-+ */
-+
-+#ifndef __LINUX_PLATFORM_DATA_I2C_MUX_REG_H
-+#define __LINUX_PLATFORM_DATA_I2C_MUX_REG_H
-+
-+/**
-+ * struct i2c_mux_reg_platform_data - Platform-dependent data for i2c-mux-reg
-+ * @parent: Parent I2C bus adapter number
-+ * @base_nr: Base I2C bus number to number adapters from or zero for dynamic
-+ * @values: Array of value for each channel
-+ * @n_values: Number of multiplexer channels
-+ * @classes: Optional I2C auto-detection classes
-+ * @idle: Value to write to mux when idle
-+ * @idle_in_use: indicate if idle value is in use
-+ * @reg: Virtual address of the register to switch channel
-+ * @reg_size: register size in bytes
-+ */
-+struct i2c_mux_reg_platform_data {
-+	int parent;
-+	int base_nr;
-+	const unsigned int *values;
-+	int n_values;
-+	const unsigned int *classes;
-+	u32 idle;
-+	bool idle_in_use;
-+	void __iomem *reg;
-+	resource_size_t reg_size;
-+};
-+
-+#endif	/* __LINUX_PLATFORM_DATA_I2C_MUX_REG_H */
--- 
-1.7.9.5
+> [...]
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
+x.c
+> index 785aa67..cc4b5d6 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> [...]
+> @@ -520,9 +523,6 @@ static int i2c_imx_start(struct imx_i2c_struct *i=
+2c_imx)
+> =20
+>  	i2c_imx_set_clk(i2c_imx);
+> =20
+> -	result =3D clk_prepare_enable(i2c_imx->clk);
+> -	if (result)
+> -		return result;
+you remove clk_prepare_enable enable and instead rely on
+clk_prepare_enable in i2c_imx_runtime_resume, right?
+
+If I understand correctly this results in never enabling the clock if
+CONFIG_PM is disabled?!
+
+> [...]
+> @@ -583,6 +582,9 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev=
+_id)
+>  	struct imx_i2c_struct *i2c_imx =3D dev_id;
+>  	unsigned int temp;
+> =20
+> +	if (pm_runtime_suspended(i2c_imx->adapter.dev.parent))
+> +		return IRQ_NONE;
+> +
+I don't claim to understand the runtime pm stuff, but I agree to the
+previous reviewer that this smells fishy. If this is required it needs =
+a
+comment why.
+
+>  	temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+>  	if (temp & I2SR_IIF) {
+>  		/* save status register */
+> @@ -894,6 +896,10 @@ static int i2c_imx_xfer(struct i2c_adapter *adap=
+ter,
+> =20
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+> =20
+> +	result =3D pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+> +	if (IS_ERR_VALUE(result))
+Is this better than
++	if (result < 0)
+?
+
+> +		goto out;
+> [...]
+> @@ -1018,11 +1028,6 @@ static int i2c_imx_probe(struct platform_devic=
+e *pdev)
+>  		return PTR_ERR(i2c_imx->clk);
+>  	}
+> =20
+> -	ret =3D clk_prepare_enable(i2c_imx->clk);
+> -	if (ret) {
+> -		dev_err(&pdev->dev, "can't enable I2C clock\n");
+> -		return ret;
+> -	}
+Is there a reason the clock was enabled *here* before. With the way you
+rearranged the code the irq handler might be entered before the clock i=
+s
+on. But if I'm not mistaken (which might very well be the case) there i=
+s
+a problem also without the patch if the bootloader jumps to linux with =
+a
+pending i2c transfer that fires when the clk_disable is done below. IMH=
+O
+"Set up chip registers to defaults" should be done before "Request
+IRQ"?!
+
+> [...]
+> @@ -1093,14 +1110,51 @@ static int i2c_imx_remove(struct platform_dev=
+ice *pdev)
+> [...]
+> +#ifdef CONFIG_PM
+> +static int i2c_imx_runtime_suspend(struct device *dev)
+> +{
+> +	struct imx_i2c_struct *i2c_imx  =3D dev_get_drvdata(dev);
+s/  / /
+> [...]
+> +static int i2c_imx_runtime_resume(struct device *dev)
+> +{
+> +	struct imx_i2c_struct *i2c_imx  =3D dev_get_drvdata(dev);
+s/  / /
+> +	int ret;
+> +
+> +	ret =3D clk_prepare_enable(i2c_imx->clk);
+> +	if (ret) {
+> +		dev_err(dev, "can't enable I2C clock\n");
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+this is equivalent to:
+
+	if (ret)
+		dev_err(dev, "can't enable I2C clock\n");
+
+	return ret;
+
+Probably a matter of taste. Also I'd suggest to add the value of ret to
+the message to make the report more useful.
+
+> +}
+> +
+> +static const struct dev_pm_ops i2c_imx_pm_ops =3D {
+> +	SET_RUNTIME_PM_OPS(i2c_imx_runtime_suspend,
+> +			   i2c_imx_runtime_resume, NULL)
+> +};
+> +#define I2C_IMX_PM_OPS (&i2c_imx_pm_ops)
+> +#else
+> +#define I2C_IMX_PM_OPS NULL
+> +#endif /* CONFIG_PM */
+> +
+>  static struct platform_driver i2c_imx_driver =3D {
+>  	.probe =3D i2c_imx_probe,
+>  	.remove =3D i2c_imx_remove,
+>  	.driver	=3D {
+>  		.name	=3D DRIVER_NAME,
+> +		.pm     =3D I2C_IMX_PM_OPS,
+>  		.of_match_table =3D i2c_imx_dt_ids,
+This increases the number of styles to place the =3D to three. .name us=
+es
+a tab, .of_match_table a space and you add .pm with >1 spaces.
+
+>  	},
+>  	.id_table	=3D imx_i2c_devtype,
+unrelated to this patch: The =3D in the line above is not aligned
+consistently compared to the other members at the same level like
+=2Eprobe.
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
