@@ -1,81 +1,50 @@
-From: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] i2c-parport: start using pr_fmt
-Date: Thu, 18 Jun 2015 18:33:47 +0530
-Message-ID: <1434632627-18955-2-git-send-email-sudipm.mukherjee@gmail.com>
-References: <1434632627-18955-1-git-send-email-sudipm.mukherjee@gmail.com>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [Patch v2] driver/i2c/mux: Add register based mux i2c-mux-reg
+Date: Thu, 18 Jun 2015 08:08:51 -0700
+Message-ID: <5582DF03.7010109@freescale.com>
+References: <1434575634-27977-1-git-send-email-yorksun@freescale.com> <5582BB1F.5050606@nokia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434632627-18955-1-git-send-email-sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <5582BB1F.5050606-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Start using pr_fmt and convert all remaining printk to use
-pr_* family of macros.
 
-Signed-off-by: Sudip Mukherjee <sudip-ofJRbWXBVFamYgehrs7/Lw@public.gmane.org>
----
- drivers/i2c/busses/i2c-parport.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
-index 3794f7d..881fe32 100644
---- a/drivers/i2c/busses/i2c-parport.c
-+++ b/drivers/i2c/busses/i2c-parport.c
-@@ -20,6 +20,8 @@
-    GNU General Public License for more details.
-  * ------------------------------------------------------------------------ */
- 
-+#define pr_fmt(fmt) "i2c-parport: " fmt
-+
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -176,13 +178,13 @@ static void i2c_parport_attach(struct parport *port)
- 			break;
- 	}
- 	if (i == MAX_DEVICE) {
--		pr_debug("i2c-parport: Not using parport%d.\n", port->number);
-+		pr_debug("Not using parport%d.\n", port->number);
- 		return;
- 	}
- 
- 	adapter = kzalloc(sizeof(struct i2c_par), GFP_KERNEL);
- 	if (adapter == NULL) {
--		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
-+		pr_err("Failed to kzalloc\n");
- 		return;
- 	}
- 	memset(&i2c_parport_cb, 0, sizeof(i2c_parport_cb));
-@@ -190,12 +192,12 @@ static void i2c_parport_attach(struct parport *port)
- 	i2c_parport_cb.irq_func = i2c_parport_irq;
- 	i2c_parport_cb.private = adapter;
- 
--	pr_debug("i2c-parport: attaching to %s\n", port->name);
-+	pr_debug("attaching to %s\n", port->name);
- 	parport_disable_irq(port);
- 	adapter->pdev = parport_register_dev_model(port, "i2c-parport",
- 						   &i2c_parport_cb, i);
- 	if (!adapter->pdev) {
--		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
-+		pr_err("Unable to register with parport\n");
- 		goto err_free;
- 	}
- 
-@@ -299,12 +301,12 @@ static struct parport_driver i2c_parport_driver = {
- static int __init i2c_parport_init(void)
- {
- 	if (type < 0) {
--		printk(KERN_WARNING "i2c-parport: adapter type unspecified\n");
-+		pr_warn("adapter type unspecified\n");
- 		return -ENODEV;
- 	}
- 
- 	if (type >= ARRAY_SIZE(adapter_parm)) {
--		printk(KERN_WARNING "i2c-parport: invalid type (%d)\n", type);
-+		pr_warn("invalid type (%d)\n", type);
- 		return -ENODEV;
- 	}
- 
--- 
-1.8.1.2
+On 06/18/2015 05:35 AM, Alexander Sverdlin wrote:
+> Hello!
+> 
+> On 17/06/15 23:13, ext York Sun wrote:
+>> +	switch (mux->data.reg_size) {
+>> +	case 4:
+>> +		iowrite32(mux->data.values[chan], mux->data.reg);
+>> +		break;
+>> +	case 2:
+>> +		iowrite16(mux->data.values[chan], mux->data.reg);
+>> +		break;
+>> +	case 1:
+>> +		iowrite8(mux->data.values[chan], mux->data.reg);
+>> +		break;
+> 
+> I'd like to see at least [optional] read-back operation after each write.
+
+Maybe I should add ioread after each write without using an option. I want to
+avoid additional option if possible.
+
+> And if you stick with iowrite*(), maybe it desires a comment (in the Documentation/ file?),
+> that write will be little-Endian, therefore BE users must take care...
+
+I am consulting with my colleagues. If I cannot come up with a native endianess
+solution, I will keep using iowrite and add a comment.
+
+> 
+> Other than that it looks good to me...
+> 
+
+Thanks.
+
+York
