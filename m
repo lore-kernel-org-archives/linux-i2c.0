@@ -1,33 +1,58 @@
-From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] driver/i2c/mux: Add register based mux i2c-mux-reg
-Date: Thu, 18 Jun 2015 09:40:33 +0200
-Message-ID: <558275F1.5020100@nokia.com>
-References: <1434475692-4611-1-git-send-email-yorksun@freescale.com>
- <1434531244.2069.111.camel@x220> <55818BAB.5090605@nokia.com>
- <1434556990.2400.16.camel@x220>
+From: Antonio Borneo <borneo.antonio-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] HID: support i2c write-read and large transfers in hid-cp2112
+Date: Thu, 18 Jun 2015 15:44:31 +0800
+Message-ID: <CAAj6DX3aFvTdaE8GTh3YvFsnadbtszkyeArnFCuuhbtQnGu9kw@mail.gmail.com>
+References: <1434183990-2324-1-git-send-email-ellen@cumulusnetworks.com>
+	<CAAj6DX0w2p0h_wS2_T2+kU-zLEDo+adCmosPaUHWPVJeEpsaTw@mail.gmail.com>
+	<55821717.2000609@cumulusnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434556990.2400.16.camel@x220>
+In-Reply-To: <55821717.2000609-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>
-Cc: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+To: Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org>
+Cc: David Barksdale <dbarksdale-2SNLKkHU5xRBDgjK7y7TUQ@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+On Thu, Jun 18, 2015 at 8:55 AM, Ellen Wang <ellen-qUQiAmfTcIp+XZJcv9eMoEEOCMrvLtNR@public.gmane.org> wrote:
+> ...
+>
+> Since the the long-read fix is less controversial, I've split it out and
+> sent it as a separate patch.
 
-On 17/06/15 18:03, ext Paul Bolle wrote:
->> You do not see the platform_device, because there are no users yet, put
->> > this MODULE_ALIAS() is perfectly fine, it will allow automatic module loading
->> > in non-DT case.
-> Do you mean that it will allow automatic module loading once the patch
-> that adds a struct platform_device with a "i2c-mux-reg" name lands?
+Hi Ellen,
 
-Any platform code which will register the platform_device will trigger uevent and
-udevd will be able to find the module with this macro. This is a legacy alternative
-to device-tree approach.
+got it, will check soon
 
--- 
-Best regards,
-Alexander Sverdlin.
+> As for repeated start, it's not that easy for me to check it.  The chip is
+> in a rack-mounted network switch.  However, if you really want me to verify
+> it, I can pull the box out and hook it up on a bench.
+>
+> The Silabs datasheet clearly states that the device is supposed to issue a
+> repeated start (rev 1.2,
+> http://www.silabs.com/Support%20Documents/TechnicalDocs/CP2112.pdf, figure 8
+> on page 15).
+>
+> Is your chip an older rev?  Mine is rev 2 (but as you said, there would have
+> been an erratum if they fixed a hardware bug).
+>
+> usb 1-1.2.3: New USB device found, idVendor=10c4, idProduct=ea90
+> usb 1-1.2.3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+> usb 1-1.2.3: Product: CP2112 HID USB-to-SMBus Bridge
+> usb 1-1.2.3: Manufacturer: Silicon Laboratories
+> usb 1-1.2.3: SerialNumber: 00343E9A
+> cp2112 0003:10C4:EA90.0001: hidraw0: USB HID v1.01 Device [Silicon
+> Laboratories
+>  CP2112 HID USB-to-SMBus Bridge] on usb-0000:00:16.0-1.2.3/input0
+> cp2112 0003:10C4:EA90.0001: Part Number: 0x0C Device Version: 0x02
+
+Mine is rev 1 !!!
+Found also that in the datasheet chapter 12 reports the differences
+between the two revisions.
+In 12.1 it states that revision 1 does not implement repeated start. Perfect!
+I will try to replace my device with a newer one.
+In mean time, feel free to send the patch for write-read. I will check
+and test it ignoring the lack of repeated start on my obsolete HW.
+
+Thanks,
+Antonio
