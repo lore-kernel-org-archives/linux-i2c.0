@@ -1,38 +1,53 @@
-From: Alexander Sverdlin <alexander.sverdlin-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [Patch v2] driver/i2c/mux: Add register based mux i2c-mux-reg
-Date: Thu, 18 Jun 2015 14:35:43 +0200
-Message-ID: <5582BB1F.5050606@nokia.com>
-References: <1434575634-27977-1-git-send-email-yorksun@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/2] i2c-parport: use dev_*
+Date: Thu, 18 Jun 2015 18:33:46 +0530
+Message-ID: <1434632627-18955-1-git-send-email-sudipm.mukherjee@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1434575634-27977-1-git-send-email-yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Paul Bolle <pebolle-IWqWACnzNjzz+pZb47iToQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sudip Mukherjee <sudipm.mukherjee-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello!
+Now parport is using device model so use dev_* macros instead of printk.
 
-On 17/06/15 23:13, ext York Sun wrote:
-> +	switch (mux->data.reg_size) {
-> +	case 4:
-> +		iowrite32(mux->data.values[chan], mux->data.reg);
-> +		break;
-> +	case 2:
-> +		iowrite16(mux->data.values[chan], mux->data.reg);
-> +		break;
-> +	case 1:
-> +		iowrite8(mux->data.values[chan], mux->data.reg);
-> +		break;
+Signed-off-by: Sudip Mukherjee <sudip-ofJRbWXBVFamYgehrs7/Lw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-parport.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-I'd like to see at least [optional] read-back operation after each write.
-And if you stick with iowrite*(), maybe it desires a comment (in the Documentation/ file?),
-that write will be little-Endian, therefore BE users must take care...
-
-Other than that it looks good to me...
-
+diff --git a/drivers/i2c/busses/i2c-parport.c b/drivers/i2c/busses/i2c-parport.c
+index 9b94c3d..3794f7d 100644
+--- a/drivers/i2c/busses/i2c-parport.c
++++ b/drivers/i2c/busses/i2c-parport.c
+@@ -215,7 +215,8 @@ static void i2c_parport_attach(struct parport *port)
+ 	adapter->adapter.dev.parent = port->physport->dev;
+ 
+ 	if (parport_claim_or_block(adapter->pdev) < 0) {
+-		printk(KERN_ERR "i2c-parport: Could not claim parallel port\n");
++		dev_err(&adapter->pdev->dev,
++			"Could not claim parallel port\n");
+ 		goto err_unregister;
+ 	}
+ 
+@@ -230,7 +231,7 @@ static void i2c_parport_attach(struct parport *port)
+ 	}
+ 
+ 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
+-		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
++		dev_err(&adapter->pdev->dev, "Unable to register with I2C\n");
+ 		goto err_unregister;
+ 	}
+ 
+@@ -242,8 +243,8 @@ static void i2c_parport_attach(struct parport *port)
+ 		if (adapter->ara)
+ 			parport_enable_irq(port);
+ 		else
+-			printk(KERN_WARNING "i2c-parport: Failed to register "
+-			       "ARA client\n");
++			dev_warn(&adapter->pdev->dev,
++				 "Failed to register ARA client\n");
+ 	}
+ 
+ 	/* Add the new adapter to the list */
 -- 
-Best regards,
-Alexander Sverdlin.
+1.8.1.2
