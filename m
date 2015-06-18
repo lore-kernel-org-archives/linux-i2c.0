@@ -1,54 +1,58 @@
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Subject: Re: [PATCH v3] i2c: omap: improve duty cycle on SCL
-Date: Thu, 18 Jun 2015 10:09:59 +0200
-Message-ID: <55827CD7.7030207@nokia.com>
-References: <1434569475-17378-1-git-send-email-balbi@ti.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] HID: support i2c write-read and large transfers in
+ hid-cp2112
+Date: Thu, 18 Jun 2015 10:26:24 +0200
+Message-ID: <20150618082624.GB1519@katana>
+References: <1434183990-2324-1-git-send-email-ellen@cumulusnetworks.com>
+ <CAAj6DX0w2p0h_wS2_T2+kU-zLEDo+adCmosPaUHWPVJeEpsaTw@mail.gmail.com>
+ <55821717.2000609@cumulusnetworks.com>
+ <CAAj6DX3aFvTdaE8GTh3YvFsnadbtszkyeArnFCuuhbtQnGu9kw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1434569475-17378-1-git-send-email-balbi@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: ext Felipe Balbi <balbi@ti.com>, wsa@the-dreams.de
-Cc: Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>, Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BwCQnh7xodEAoBMC"
+Return-path: <linux-input-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAAj6DX3aFvTdaE8GTh3YvFsnadbtszkyeArnFCuuhbtQnGu9kw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Antonio Borneo <borneo.antonio@gmail.com>
+Cc: Ellen Wang <ellen@cumulusnetworks.com>, David Barksdale <dbarksdale@uplogix.com>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Felipe,
 
-On 17/06/15 21:31, ext Felipe Balbi wrote:
-> With this patch we try to be as close to 50%
-> duty cycle as possible. The reason for this
-> is that some devices present an erratic behavior
-> with certain duty cycles.
-> 
-> One such example is TPS65218 PMIC which fails
-> to change voltages when running @ 400kHz and
-> duty cycle is lower than 34%.
-> 
-> The idea of the patch is simple:
-> 
-> calculate desired scl_period from requested scl
-> and use 50% for tLow and 50% for tHigh.
-> 
-> tLow is calculated with a DIV_ROUND_UP() to make
-> sure it's slightly higher than tHigh and to make
-> sure that we end up within I2C specifications.
+--BwCQnh7xodEAoBMC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-if you refuse to change the calculations to achieve maximum possible
-bus rate (as I've shown you with SCLL=9 and SCLH=9), maybe you want to
-change the description? Because you are doing something else than is
-written here. You are only in spec because you are not doing 50% duty
-cycle. And you didn't mention here that you lower the bus speed below
-400kHz to achieve this.
 
--- 
-Best regards,
-Alexander Sverdlin.
+> Mine is rev 1 !!!
+> Found also that in the datasheet chapter 12 reports the differences
+> between the two revisions.
+> In 12.1 it states that revision 1 does not implement repeated start. Perfect!
+> I will try to replace my device with a newer one.
+
+Can this be checked in the code?
+
+
+--BwCQnh7xodEAoBMC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIcBAEBAgAGBQJVgoCwAAoJEBQN5MwUoCm2VJkQAKLS/ziCCxf8JPKFjslyUrB2
+qQ6pu4HOCxqPw994uhTFPCB7rnnwYu8MzOWhwZFWiGbOIOOoaJaEJGN3mWAgDriw
+kwByAJ8Rbt/ZJNF16PObpsfuBiOPM18HVgOm8YaBLbFQcQx7MZlMijTnJgY0Zhas
+A02WH5fqfUq1fMMz+3zWBv1WzNvrqi43QOwRtHVwz+0PUt5JsZHzUMKxOAlvfmpu
+4WVEXbenEL4VBElW/+8FZny7K+HlVrbNXsHirub/rOqzVGugYw1V1sYWME+1bEWU
+44+fBQI5XHrSVqOSNARTju6rbaHJg88KckH+2N24UHzVlJTSNHK4rVKvi17Rp3UU
+NS2ErLsyNW9ePJCexKL8L2Cjg+UBJgXxiLxXVqOYwOnzJ/0fIbxR2lUmZ6xWwUyf
+ZaLfZqTx9nQEeaML77kzZYC3e2DW/N26V4H7GP6DxxVNo6ettUVDL/yQBlPYRI5+
+GXFR+SWWhFJItF63ZbE0KgzO4bdKi5xEEljWXqQgp1yaZ+T0G7REe8DRsEdfEJfa
+MTTesKyP7kJcIRyXyHAYWvP/Ve2hFRr05RP8ghR2/FOaGZ3TZIa5ZnErotFM0t80
+3RFJGweLDzFlA/sYNq0TQVANltod77er35twTG87rekdGFZ4jDFs9S2iymtyoaZs
+7OInAWNC88P2CeZgcI5G
+=lRT8
+-----END PGP SIGNATURE-----
+
+--BwCQnh7xodEAoBMC--
